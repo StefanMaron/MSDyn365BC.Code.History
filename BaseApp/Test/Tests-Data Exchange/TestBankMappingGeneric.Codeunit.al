@@ -615,7 +615,7 @@ codeunit 132541 "Test Bank Mapping Generic"
     begin
         // Setup file definition
         DataExchDef.InsertRec(
-          LibraryUtility.GenerateGUID, 'Just a Test Mapping',
+          LibraryUtility.GenerateGUID(), 'Just a Test Mapping',
           DataExchDef.Type::"Bank Statement Import", 0, 0, '', '');
 
         DataExchLineDef.InsertRec(DataExchDef.Code, '', '', 0);
@@ -627,7 +627,7 @@ codeunit 132541 "Test Bank Mapping Generic"
         DataExchColumnDef.Modify();
 
         // Verify.
-        Assert.IsTrue(DataExchColumnDef.IsOfDataLine, 'Column should be on the data line.');
+        Assert.IsTrue(DataExchColumnDef.IsOfDataLine(), 'Column should be on the data line.');
     end;
 
     [Test]
@@ -652,7 +652,7 @@ codeunit 132541 "Test Bank Mapping Generic"
         DataExchColumnDef.Modify();
 
         // Verify.
-        Assert.IsFalse(DataExchColumnDef.IsOfDataLine, 'Column should not be on the data line.');
+        Assert.IsFalse(DataExchColumnDef.IsOfDataLine(), 'Column should not be on the data line.');
     end;
 
     [Test]
@@ -675,7 +675,7 @@ codeunit 132541 "Test Bank Mapping Generic"
         DataExchColumnDef.Modify();
 
         // Verify.
-        Assert.IsTrue(DataExchColumnDef.IsOfDataLine, 'Column should be on the data line.');
+        Assert.IsTrue(DataExchColumnDef.IsOfDataLine(), 'Column should be on the data line.');
     end;
 
     [Test]
@@ -696,7 +696,7 @@ codeunit 132541 "Test Bank Mapping Generic"
         DataExchColumnDef.Modify();
 
         // Verify.
-        Assert.IsTrue(DataExchColumnDef.IsOfDataLine, 'Column should be on the data line.');
+        Assert.IsTrue(DataExchColumnDef.IsOfDataLine(), 'Column should be on the data line.');
     end;
 
     [Test]
@@ -724,11 +724,11 @@ codeunit 132541 "Test Bank Mapping Generic"
         AllObj.SetRange("Object Type", AllObj."Object Type"::XMLport);
         AllObj.FindFirst();
         DataExchDef.InsertRec(
-          LibraryUtility.GenerateRandomCode(1, DATABASE::"Data Exch. Def"), LibraryUTUtility.GetNewCode10,
+          LibraryUtility.GenerateRandomCode(1, DATABASE::"Data Exch. Def"), LibraryUTUtility.GetNewCode10(),
           DataExchDef.Type::"Generic Import", AllObj."Object ID", 0, '', '');
         DataExchLineDef.InsertRec(DataExchDef.Code, '', '', 0);
         DataExchColumnDef.InsertRec(
-          DataExchDef.Code, DataExchLineDef.Code, 1, LibraryUTUtility.GetNewCode10, true, DataExchColumnDef."Data Type"::Text, '', '', '');
+          DataExchDef.Code, DataExchLineDef.Code, 1, LibraryUTUtility.GetNewCode10(), true, DataExchColumnDef."Data Type"::Text, '', '', '');
 
         RecRef.GetTable(CurrencyExchangeRate);
 
@@ -737,7 +737,7 @@ codeunit 132541 "Test Bank Mapping Generic"
         DummyDataExchFieldMapping."Field ID" := CurrencyExchangeRate.FieldNo("Fix Exchange Rate Amount");
 
         TempBlob.CreateInStream(InStream);
-        DataExch.InsertRec(LibraryUTUtility.GetNewCode10, InStream, DataExchDef.Code);
+        DataExch.InsertRec(LibraryUTUtility.GetNewCode10(), InStream, DataExchDef.Code);
         DataExchField.InsertRec(
           DataExch."Entry No.", 1, 1, Format(CurrencyExchangeRate."Fix Exchange Rate Amount"::Both), DataExchLineDef.Code);
 

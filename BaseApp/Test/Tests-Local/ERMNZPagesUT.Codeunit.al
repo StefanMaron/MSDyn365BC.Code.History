@@ -20,10 +20,10 @@ codeunit 144000 "ERM NZ - Pages UT"
         // [SCENARIO 218213] The field "Enable GST (Australia)" is enabled should be disabled on page "General Ledger Setup"
 
         // [WHEN] Open page "General Ledger Setup"
-        GeneralLedgerSetup.OpenEdit;
+        GeneralLedgerSetup.OpenEdit();
 
         // [THEN] The field "Enable GST (Australia)" is disabled
-        Assert.IsFalse(GeneralLedgerSetup."Enable GST (Australia)".Enabled, 'The field "Enable GST (Australia)" is enabled');
+        Assert.IsFalse(GeneralLedgerSetup."Enable GST (Australia)".Enabled(), 'The field "Enable GST (Australia)" is enabled');
     end;
 }
 

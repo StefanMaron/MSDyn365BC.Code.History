@@ -9,6 +9,7 @@ table 5214 "Misc. Article Information"
     DataCaptionFields = "Employee No.";
     DrillDownPageID = "Misc. Article Information";
     LookupPageID = "Misc. Article Information";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -52,7 +53,7 @@ table 5214 "Misc. Article Information"
         }
         field(8; Comment; Boolean)
         {
-            CalcFormula = Exist("Human Resource Comment Line" where("Table Name" = const("Misc. Article Information"),
+            CalcFormula = exist("Human Resource Comment Line" where("Table Name" = const("Misc. Article Information"),
                                                                      "No." = field("Employee No."),
                                                                      "Alternative Address Code" = field("Misc. Article Code"),
                                                                      "Table Line No." = field("Line No.")));

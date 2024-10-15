@@ -309,14 +309,13 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
         GenJournalTemplate: Record "Gen. Journal Template";
         GeneralLedgerSetup: Record "General Ledger Setup";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
         PostingDate: Date;
         PostingNoSeries: Code[20];
     begin
         PostingDate := WorkDate();
         PurchasesPayablesSetup.Get();
 
-        if NoSeriesManagement.TryGetNextNo(PurchasesPayablesSetup."Invoice Nos.", PostingDate) = '' then
+        if not TryPeekNextNo(PurchasesPayablesSetup."Invoice Nos.", PostingDate) then
             ErrorHelperHeader(ErrorType::SerieNumInv, PurchCrMemoHdr);
 
         GeneralLedgerSetup.Get();
@@ -325,8 +324,17 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
             PostingNoSeries := GenJournalTemplate."Posting No. Series"
         end else
             PostingNoSeries := PurchasesPayablesSetup."Posted Invoice Nos.";
-        if NoSeriesManagement.TryGetNextNo(PostingNoSeries, PostingDate) = '' then
+        if not TryPeekNextNo(PostingNoSeries, PostingDate) then
             ErrorHelperHeader(ErrorType::SerieNumPostInv, PurchCrMemoHdr);
+    end;
+
+    [TryFunction]
+    local procedure TryPeekNextNo(NoSeriesCode: Code[20]; UsageDate: Date)
+    var
+        NoSeries: Codeunit "No. Series";
+    begin
+        if NoSeries.PeekNextNo(NoSeriesCode, UsageDate) = '' then
+            Error('');
     end;
 
     local procedure TestExternalDocument(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
@@ -362,23 +370,21 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
         if PurchCrMemoLine."VAT Calculation Type" = PurchCrMemoLine."VAT Calculation Type"::"Sales Tax" then
             exit;
 
-        with GenPostingSetup do begin
-            Get(PurchCrMemoLine."Gen. Bus. Posting Group", PurchCrMemoLine."Gen. Prod. Posting Group");
-            if PurchCrMemoLine.Type <> PurchCrMemoLine.Type::"G/L Account" then begin
-                TestField("Purch. Account");
-                CheckGLAccount("Purch. Account", PurchCrMemoLine);
-                TestField("Purch. Credit Memo Account");
-                CheckGLAccount("Purch. Credit Memo Account", PurchCrMemoLine);
-            end;
-            if PurchCrMemoLine."Line Discount Amount" <> 0 then begin
-                TestField("Purch. Line Disc. Account");
-                CheckGLAccount("Purch. Line Disc. Account", PurchCrMemoLine);
-            end;
-            if PurchCrMemoLine.Type = PurchCrMemoLine.Type::Item then begin
-                Item.Get(PurchCrMemoLine."No.");
-                if Item.IsInventoriableType() then
-                    CheckGLAccount(GetCOGSAccount(), PurchCrMemoLine);
-            end;
+        GenPostingSetup.Get(PurchCrMemoLine."Gen. Bus. Posting Group", PurchCrMemoLine."Gen. Prod. Posting Group");
+        if PurchCrMemoLine.Type <> PurchCrMemoLine.Type::"G/L Account" then begin
+            GenPostingSetup.TestField("Purch. Account");
+            CheckGLAccount(GenPostingSetup."Purch. Account", PurchCrMemoLine);
+            GenPostingSetup.TestField("Purch. Credit Memo Account");
+            CheckGLAccount(GenPostingSetup."Purch. Credit Memo Account", PurchCrMemoLine);
+        end;
+        if PurchCrMemoLine."Line Discount Amount" <> 0 then begin
+            GenPostingSetup.TestField("Purch. Line Disc. Account");
+            CheckGLAccount(GenPostingSetup."Purch. Line Disc. Account", PurchCrMemoLine);
+        end;
+        if PurchCrMemoLine.Type = PurchCrMemoLine.Type::Item then begin
+            Item.Get(PurchCrMemoLine."No.");
+            if Item.IsInventoriableType() then
+                CheckGLAccount(GenPostingSetup.GetCOGSAccount(), PurchCrMemoLine);
         end;
     end;
 
@@ -386,23 +392,19 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
     var
         VendorPostingGroup: Record "Vendor Posting Group";
     begin
-        with VendorPostingGroup do begin
-            Get(VendorPostingGr);
-            TestField("Payables Account");
-            CheckGLAccount("Payables Account", PurchCrMemoLine);
-        end;
+        VendorPostingGroup.Get(VendorPostingGr);
+        VendorPostingGroup.TestField("Payables Account");
+        CheckGLAccount(VendorPostingGroup."Payables Account", PurchCrMemoLine);
     end;
 
     local procedure TestVATPostingSetup(PurchCrMemoLine: Record "Purch. Cr. Memo Line")
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        with VATPostingSetup do begin
-            Get(PurchCrMemoLine."VAT Bus. Posting Group", PurchCrMemoLine."VAT Prod. Posting Group");
-            if "VAT Calculation Type" <> "VAT Calculation Type"::"Sales Tax" then begin
-                TestField("Purchase VAT Account");
-                CheckGLAccount("Purchase VAT Account", PurchCrMemoLine);
-            end;
+        VATPostingSetup.Get(PurchCrMemoLine."VAT Bus. Posting Group", PurchCrMemoLine."VAT Prod. Posting Group");
+        if VATPostingSetup."VAT Calculation Type" <> VATPostingSetup."VAT Calculation Type"::"Sales Tax" then begin
+            VATPostingSetup.TestField("Purchase VAT Account");
+            CheckGLAccount(VATPostingSetup."Purchase VAT Account", PurchCrMemoLine);
         end;
     end;
 
@@ -416,11 +418,9 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
         if IsHandled then
             exit;
 
-        with InventoryPostingSetup do begin
-            Get(PurchCrMemoLine."Location Code", PurchCrMemoLine."Posting Group");
-            TestField("Inventory Account");
-            CheckGLAccount("Inventory Account", PurchCrMemoLine);
-        end;
+        InventoryPostingSetup.Get(PurchCrMemoLine."Location Code", PurchCrMemoLine."Posting Group");
+        InventoryPostingSetup.TestField("Inventory Account");
+        CheckGLAccount(InventoryPostingSetup."Inventory Account", PurchCrMemoLine);
     end;
 
     local procedure UnapplyEntries(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")

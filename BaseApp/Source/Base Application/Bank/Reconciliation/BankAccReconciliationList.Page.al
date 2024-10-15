@@ -116,6 +116,9 @@ page 388 "Bank Acc. Reconciliation List"
                 end;
             }
         }
+        area(Prompting)
+        {
+        }
         area(Promoted)
         {
             group(Category_Process)

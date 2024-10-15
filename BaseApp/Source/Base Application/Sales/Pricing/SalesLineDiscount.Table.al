@@ -8,15 +8,16 @@ using Microsoft.Sales.Customer;
 table 7004 "Sales Line Discount"
 {
     Caption = 'Sales Line Discount';
-#if not CLEAN21
+#if not CLEAN23
     LookupPageID = "Sales Line Discounts";
     ObsoleteState = Pending;
     ObsoleteTag = '16.0';
 #else
     ObsoleteState = Removed;
-    ObsoleteTag = '24.0';
+    ObsoleteTag = '26.0';
 #endif    
     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation: table Price List Line';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -139,7 +140,7 @@ table 7004 "Sales Line Discount"
             Caption = 'Unit of Measure Code';
             TableRelation = if (Type = const(Item)) "Item Unit of Measure".Code where("Item No." = field(Code));
 
-#if not CLEAN21
+#if not CLEAN23
             trigger OnValidate()
             var
                 IsHandled: Boolean;
@@ -206,7 +207,7 @@ table 7004 "Sales Line Discount"
         Text001: Label '%1 must be blank.';
         Text003: Label 'You can only change the %1 and %2 from the Campaign Card when %3 = %4.';
 
-#if not CLEAN21
+#if not CLEAN23
     [Obsolete('This table is replaced by the new implementation (V16) of price calculation: table Price List Line', '22.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateUnitofMeasureCode(var SalesLineDiscount: Record "Sales Line Discount"; xSalesLineDiscount: Record "Sales Line Discount"; var IsHandled: Boolean)

@@ -47,17 +47,15 @@ codeunit 133 "Send Incoming Document to OCR"
     var
         ReleaseIncomingDocument: Codeunit "Release Incoming Document";
     begin
-        with IncomingDocument do begin
-            if "OCR Status" <> "OCR Status"::Ready then begin
-                ShowMessage(CannotRemoveFromJobQueueTxt);
-                exit;
-            end;
-
-            "OCR Status" := "OCR Status"::" ";
-            ReleaseIncomingDocument.Reopen(IncomingDocument);
-            Modify();
-            ShowMessage(RemovedFromJobQueueTxt);
+        if IncomingDocument."OCR Status" <> IncomingDocument."OCR Status"::Ready then begin
+            ShowMessage(CannotRemoveFromJobQueueTxt);
+            exit;
         end;
+
+        IncomingDocument."OCR Status" := IncomingDocument."OCR Status"::" ";
+        ReleaseIncomingDocument.Reopen(IncomingDocument);
+        IncomingDocument.Modify();
+        ShowMessage(RemovedFromJobQueueTxt);
     end;
 
     [Scope('OnPrem')]
@@ -121,71 +119,63 @@ codeunit 133 "Send Incoming Document to OCR"
         OCRServiceMgt: Codeunit "OCR Service Mgt.";
         OCRStatus: Integer;
     begin
-        with IncomingDocument do begin
-            if not ("OCR Status" in ["OCR Status"::Sent, "OCR Status"::"Awaiting Verification"]) then
-                TestField("OCR Status", "OCR Status"::Sent);
+        if not (IncomingDocument."OCR Status" in [IncomingDocument."OCR Status"::Sent, IncomingDocument."OCR Status"::"Awaiting Verification"]) then
+            IncomingDocument.TestField("OCR Status", IncomingDocument."OCR Status"::Sent);
 
-            CheckNotCreated();
-            LockTable();
-            Find();
-            IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Entry No.");
-            IncomingDocumentAttachment.SetRange("Use for OCR", true);
-            if IncomingDocumentAttachment.FindFirst() then begin
-                OCRStatus := OCRServiceMgt.GetDocumentForAttachment(IncomingDocumentAttachment);
-                if not (OCRStatus in ["OCR Status"::Success, "OCR Status"::Error, "OCR Status"::"Awaiting Verification"]) then
-                    Error('');
-            end;
+        IncomingDocument.CheckNotCreated();
+        IncomingDocument.LockTable();
+        IncomingDocument.Find();
+        IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
+        IncomingDocumentAttachment.SetRange("Use for OCR", true);
+        if IncomingDocumentAttachment.FindFirst() then begin
+            OCRStatus := OCRServiceMgt.GetDocumentForAttachment(IncomingDocumentAttachment);
+            if not (OCRStatus in [IncomingDocument."OCR Status"::Success, IncomingDocument."OCR Status"::Error, IncomingDocument."OCR Status"::"Awaiting Verification"]) then
+                Error('');
+        end;
 
-            Find();
+        IncomingDocument.Find();
 
-            case OCRStatus of
-                "OCR Status"::Success:
-                    SetStatusToReceived(IncomingDocument);
-                "OCR Status"::"Awaiting Verification":
-                    SetStatusToVerify(IncomingDocument);
-                "OCR Status"::Error:
-                    SetStatusToFailed(IncomingDocument);
-            end;
+        case OCRStatus of
+            IncomingDocument."OCR Status"::Success:
+                SetStatusToReceived(IncomingDocument);
+            IncomingDocument."OCR Status"::"Awaiting Verification":
+                SetStatusToVerify(IncomingDocument);
+            IncomingDocument."OCR Status"::Error:
+                SetStatusToFailed(IncomingDocument);
         end;
     end;
 
     procedure SetStatusToReceived(var IncomingDocument: Record "Incoming Document")
     begin
-        with IncomingDocument do begin
-            Find();
-            if ("OCR Status" = "OCR Status"::Success) and "OCR Process Finished" then
-                exit;
+        IncomingDocument.Find();
+        if (IncomingDocument."OCR Status" = IncomingDocument."OCR Status"::Success) and IncomingDocument."OCR Process Finished" then
+            exit;
 
-            "OCR Status" := "OCR Status"::Success;
-            "OCR Process Finished" := true;
-            Modify();
-            Commit();
+        IncomingDocument."OCR Status" := IncomingDocument."OCR Status"::Success;
+        IncomingDocument."OCR Process Finished" := true;
+        IncomingDocument.Modify();
+        Commit();
 
-            OnAfterIncomingDocReceivedFromOCR(IncomingDocument);
-        end;
+        OnAfterIncomingDocReceivedFromOCR(IncomingDocument);
     end;
 
     procedure SetStatusToFailed(var IncomingDocument: Record "Incoming Document")
     begin
-        with IncomingDocument do begin
-            Find();
-            "OCR Status" := "OCR Status"::Error;
-            "OCR Process Finished" := true;
-            Modify();
-            Commit();
+        IncomingDocument.Find();
+        IncomingDocument."OCR Status" := IncomingDocument."OCR Status"::Error;
+        IncomingDocument."OCR Process Finished" := true;
+        IncomingDocument.Modify();
+        Commit();
 
-            OnAfterIncomingDocReceivedFromOCR(IncomingDocument);
-        end;
+        OnAfterIncomingDocReceivedFromOCR(IncomingDocument);
     end;
 
     procedure SetStatusToVerify(var IncomingDocument: Record "Incoming Document")
     begin
-        with IncomingDocument do begin
-            Find();
-            "OCR Status" := "OCR Status"::"Awaiting Verification";
-            Modify();
-            Commit();
-        end;
+        IncomingDocument.Find();
+        IncomingDocument."OCR Status" := IncomingDocument."OCR Status"::"Awaiting Verification";
+        IncomingDocument.Modify();
+        Commit();
     end;
 
     procedure TrySendToOCR(var IncomingDocument: Record "Incoming Document"): Boolean
@@ -202,27 +192,25 @@ codeunit 133 "Send Incoming Document to OCR"
     var
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
-        with IncomingDocument do begin
-            TestField(Posted, false);
-            CheckNotCreated();
+        IncomingDocument.TestField(Posted, false);
+        IncomingDocument.CheckNotCreated();
 
-            if not (Status in [Status::New, Status::Released, Status::"Pending Approval"]) then begin
-                ShowMessage(StrSubstNo(ErrorMessage, Format(Status)));
-                exit(false);
-            end;
-
-            if "OCR Status" in ["OCR Status"::Sent, "OCR Status"::Success, "OCR Status"::"Awaiting Verification"] then begin
-                ShowMessage(StrSubstNo(ErrorMessage, Format("OCR Status")));
-                exit(false);
-            end;
-
-            OnCheckIncomingDocSetForOCRRestrictions();
-
-            if ApprovalsMgmt.IsIncomingDocApprovalsWorkflowEnabled(IncomingDocument) and (Status = Status::New) then
-                Error(OCRWhenApprovalIsCompleteErr);
-
-            UpdateIncomingDocumentAttachmentForOCR(IncomingDocument);
+        if not (IncomingDocument.Status in [IncomingDocument.Status::New, IncomingDocument.Status::Released, IncomingDocument.Status::"Pending Approval"]) then begin
+            ShowMessage(StrSubstNo(ErrorMessage, Format(IncomingDocument.Status)));
+            exit(false);
         end;
+
+        if IncomingDocument."OCR Status" in [IncomingDocument."OCR Status"::Sent, IncomingDocument."OCR Status"::Success, IncomingDocument."OCR Status"::"Awaiting Verification"] then begin
+            ShowMessage(StrSubstNo(ErrorMessage, Format(IncomingDocument."OCR Status")));
+            exit(false);
+        end;
+
+        IncomingDocument.OnCheckIncomingDocSetForOCRRestrictions();
+
+        if ApprovalsMgmt.IsIncomingDocApprovalsWorkflowEnabled(IncomingDocument) and (IncomingDocument.Status = IncomingDocument.Status::New) then
+            Error(OCRWhenApprovalIsCompleteErr);
+
+        UpdateIncomingDocumentAttachmentForOCR(IncomingDocument);
 
         exit(true);
     end;
@@ -231,20 +219,18 @@ codeunit 133 "Send Incoming Document to OCR"
     var
         IncomingDocumentAttachment: Record "Incoming Document Attachment";
     begin
-        with IncomingDocument do begin
-            IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", "Entry No.");
-            IncomingDocumentAttachment.SetFilter(Type, '%1|%2', IncomingDocumentAttachment.Type::PDF, IncomingDocumentAttachment.Type::Image);
-            if IncomingDocumentAttachment.IsEmpty() then
-                Error(NoOcrAttachmentErr);
-            TestField("OCR Service Doc. Template Code");
-            IncomingDocumentAttachment.SetRange("Use for OCR", true);
-            if IncomingDocumentAttachment.IsEmpty() then begin
-                IncomingDocumentAttachment.SetRange("Use for OCR");
-                IncomingDocumentAttachment.SetRange("Main Attachment", true);
-                IncomingDocumentAttachment.FindFirst();
-                IncomingDocumentAttachment."Use for OCR" := true;
-                IncomingDocumentAttachment.Modify();
-            end;
+        IncomingDocumentAttachment.SetRange("Incoming Document Entry No.", IncomingDocument."Entry No.");
+        IncomingDocumentAttachment.SetFilter(Type, '%1|%2', IncomingDocumentAttachment.Type::PDF, IncomingDocumentAttachment.Type::Image);
+        if IncomingDocumentAttachment.IsEmpty() then
+            Error(NoOcrAttachmentErr);
+        IncomingDocument.TestField(IncomingDocument."OCR Service Doc. Template Code");
+        IncomingDocumentAttachment.SetRange("Use for OCR", true);
+        if IncomingDocumentAttachment.IsEmpty() then begin
+            IncomingDocumentAttachment.SetRange("Use for OCR");
+            IncomingDocumentAttachment.SetRange("Main Attachment", true);
+            IncomingDocumentAttachment.FindFirst();
+            IncomingDocumentAttachment."Use for OCR" := true;
+            IncomingDocumentAttachment.Modify();
         end;
     end;
 

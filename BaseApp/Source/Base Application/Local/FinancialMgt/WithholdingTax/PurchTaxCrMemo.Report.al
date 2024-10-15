@@ -656,8 +656,8 @@ report 28073 "Purch. - Tax Cr. Memo"
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
 
                 if RespCenter.Get("Responsibility Center") then begin
                     FormatAddr.RespCenter(CompanyAddr, RespCenter);
@@ -823,7 +823,7 @@ report 28073 "Purch. - Tax Cr. Memo"
         DimSetEntry1: Record "Dimension Set Entry";
         DimSetEntry2: Record "Dimension Set Entry";
         RespCenter: Record "Responsibility Center";
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         PurchTaxCrMemoCountPrinted: Codeunit "Purch. Tax Cr.Memo-Printed";
         FormatAddr: Codeunit "Format Address";
         SegManagement: Codeunit SegManagement;

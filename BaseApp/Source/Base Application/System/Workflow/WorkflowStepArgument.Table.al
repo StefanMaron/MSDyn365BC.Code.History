@@ -15,6 +15,7 @@ table 1523 "Workflow Step Argument"
     LookupPageID = "Workflow Response Options";
     Permissions = TableData "Workflow Step Argument" = rim;
     ReplicateData = true;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -47,7 +48,7 @@ table 1523 "Workflow Step Argument"
         }
         field(6; "Notification User License Type"; Option)
         {
-            CalcFormula = Lookup(User."License Type" where("User Name" = field("Notification User ID")));
+            CalcFormula = lookup(User."License Type" where("User Name" = field("Notification User ID")));
             Caption = 'Notification User License Type';
             FieldClass = FlowField;
             OptionCaption = 'Full User,Limited User,Device Only User,Windows Group,External User';
@@ -137,7 +138,7 @@ table 1523 "Workflow Step Argument"
         }
         field(21; "Field Caption"; Text[80])
         {
-            CalcFormula = Lookup(Field."Field Caption" where(TableNo = field("Table No."),
+            CalcFormula = lookup(Field."Field Caption" where(TableNo = field("Table No."),
                                                               "No." = field("Field No.")));
             Caption = 'Field Caption';
             Editable = false;
@@ -183,7 +184,7 @@ table 1523 "Workflow Step Argument"
         }
         field(100; "Response Option Group"; Code[20])
         {
-            CalcFormula = Lookup("Workflow Response"."Response Option Group" where("Function Name" = field("Response Function Name")));
+            CalcFormula = lookup("Workflow Response"."Response Option Group" where("Function Name" = field("Response Function Name")));
             Caption = 'Response Option Group';
             Editable = false;
             FieldClass = FlowField;

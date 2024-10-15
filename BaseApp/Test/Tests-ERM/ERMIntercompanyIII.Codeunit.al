@@ -55,7 +55,7 @@ codeunit 134154 "ERM Intercompany III"
         ICSetup.Modify(true);
 
         // [WHEN] Intercompany Partners page is not opened
-        asserterror ICPartnerList.OpenEdit;
+        asserterror ICPartnerList.OpenEdit();
 
         // [THEN] Verification is that the ConfirmHandler is hit and the ICSetup page is not
     end;
@@ -79,7 +79,7 @@ codeunit 134154 "ERM Intercompany III"
         ICSetup.Modify(true);
 
         // [WHEN] Intercompany Partners page is opened
-        ICPartnerList.OpenEdit;
+        ICPartnerList.OpenEdit();
 
         // [THEN] Verification is that the ConfirmHandler is not hit
     end;
@@ -194,7 +194,7 @@ codeunit 134154 "ERM Intercompany III"
         CreateDimValuesBeginEndTotalZeroIndentation(DimensionValue, ExpectedIndentation);
 
         // [WHEN] Create IC Dimension Values from Dimension Values.
-        RunCopyICDimensionsFromDimensions;
+        RunCopyICDimensionsFromDimensions();
 
         // [THEN] Indentation of nested IC Dimension Values is greater than zero. Indentation of children is 1 greater than the parent's indentation.
         VerifyIndentationICDimensionValuesAfterCopy(DimensionValue, ExpectedIndentation);
@@ -219,7 +219,7 @@ codeunit 134154 "ERM Intercompany III"
         Initialize();
 
         // [GIVEN] An IC journal batch, IC Partner Code, IC G/L Account, DocumentNo and an amount
-        ICPartnerCode := CreateICPartnerWithInbox;
+        ICPartnerCode := CreateICPartnerWithInbox();
         LibraryERM.CreateICGLAccount(ICGLAccount);
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::Intercompany);
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
@@ -235,7 +235,7 @@ codeunit 134154 "ERM Intercompany III"
 
         // [GIVEN] 2 IC General journal lines for 1 Document No
         CreateICGeneralJournalLine(
-          GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
+          GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
           GenJournalLine."Bal. Account Type"::"G/L Account", '', ICGLAccount."No.", Amount, DocumentNo);
         CreateICGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"IC Partner", ICPartnerCode,
@@ -263,7 +263,7 @@ codeunit 134154 "ERM Intercompany III"
         // [FEATURE] [Journal] [Post]
         // [SCENARIO 290373] When posting non-InterCompany Gen. Journal Line - Codeunit "IC Outbox Export" is not called
         Initialize();
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
 
         // [GIVEN] A non-InterCompany General Journal Batch
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
@@ -272,13 +272,13 @@ codeunit 134154 "ERM Intercompany III"
         // [GIVEN] A Gen. Journal Line in this Journal Batch
         LibraryERM.CreateGeneralJnlLineWithBalAcc(GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name,
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::"G/L Account",
-          LibraryERM.CreateGLAccountNoWithDirectPosting, GenJournalLine."Account Type"::"G/L Account",
-          LibraryERM.CreateGLAccountNoWithDirectPosting, LibraryRandom.RandDec(1000, 2));
+          LibraryERM.CreateGLAccountNoWithDirectPosting(), GenJournalLine."Account Type"::"G/L Account",
+          LibraryERM.CreateGLAccountNoWithDirectPosting(), LibraryRandom.RandDec(1000, 2));
 
         // [WHEN] Post this Gen. Journal Line
-        CodeCoverageMgt.StartApplicationCoverage;
+        CodeCoverageMgt.StartApplicationCoverage();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
 
         // [THEN] Codeunit "IC Outbox Export" is not called
         Assert.AreEqual(
@@ -302,7 +302,7 @@ codeunit 134154 "ERM Intercompany III"
 
         // [GIVEN] Customer "X" with IC Partner Code "Y".
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("IC Partner Code", LibraryERM.CreateICPartnerNo);
+        Customer.Validate("IC Partner Code", LibraryERM.CreateICPartnerNo());
         Customer.Modify(true);
 
         // [GIVEN] Sales Invoice with non-default Bill-to Customer "Y".
@@ -335,7 +335,7 @@ codeunit 134154 "ERM Intercompany III"
 
         // [GIVEN] Vendor "X" with IC Partner Code "Y".
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("IC Partner Code", LibraryERM.CreateICPartnerNo);
+        Vendor.Validate("IC Partner Code", LibraryERM.CreateICPartnerNo());
         Vendor.Modify(true);
 
         // [GIVEN] Sales Invoice with non-default Bill-to Customer "Y".
@@ -1846,14 +1846,12 @@ codeunit 134154 "ERM Intercompany III"
     [Scope('OnPrem')]
     procedure SalesPostAutoSendTransactionSkipSendOnError()
     var
-        HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
         ICOutboxTransaction: Record "IC Outbox Transaction";
         ICSetup: Record "IC Setup";
         SalesHeader: Record "Sales Header";
         ICPartner: Record "IC Partner";
         Customer: Record Customer;
         InventorySetup: Record "Inventory Setup";
-        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
         ERMIntercompanyIII: Codeunit "ERM Intercompany III";
         ICPartnerCode: Code[20];
     begin
@@ -2455,7 +2453,7 @@ codeunit 134154 "ERM Intercompany III"
         GenJournalBatch.Get(ICSetup."Default IC Gen. Jnl. Template", ICSetup."Default IC Gen. Jnl. Batch");
         CreateICGeneralJournalLine(
             GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
-            GenJournalLine."Bal. Account Type"::"IC Partner", ICPartner.Code, ICGLAccount."No.", 100, LibraryUtility.GenerateGUID);
+            GenJournalLine."Bal. Account Type"::"IC Partner", ICPartner.Code, ICGLAccount."No.", 100, LibraryUtility.GenerateGUID());
         GenJournalLine.SetRange("Journal Template Name", ICSetup."Default IC Gen. Jnl. Template");
         GenJournalLine.SetRange("Journal Batch Name", ICSetup."Default IC Gen. Jnl. Batch");
         GenJournalLine.FindFirst();
@@ -2824,7 +2822,6 @@ codeunit 134154 "ERM Intercompany III"
     procedure ICNavigateFromOutgoingSalesOrderLine()
     var
         Customer: Record Customer;
-        ICOutboxTransaction: Record "IC Outbox Transaction";
         SalesHeader: Record "Sales Header";
         ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
         ICOutboxTransactions: TestPage "IC Outbox Transactions";
@@ -2938,7 +2935,6 @@ codeunit 134154 "ERM Intercompany III"
     procedure ICNavigateFromOutgoingPurchaseOrderLine()
     var
         Vendor: Record Vendor;
-        ICOutboxTransaction: Record "IC Outbox Transaction";
         PurchaseHeader: Record "Purchase Header";
         ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
         ICOutboxTransactions: TestPage "IC Outbox Transactions";
@@ -2976,7 +2972,6 @@ codeunit 134154 "ERM Intercompany III"
         DimensionValue: array[5] of Record "Dimension Value";
         ICInboxTransactions: TestPage "IC Inbox Transactions";
         SalesOrderPage: TestPage "Sales Order";
-        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
         DocumentNo: Code[20];
         CustomerNo: Code[20];
     begin
@@ -3085,7 +3080,6 @@ codeunit 134154 "ERM Intercompany III"
         DimensionValue: array[5] of Record "Dimension Value";
         ICInboxTransactions: TestPage "IC Inbox Transactions";
         SalesInvoicePage: TestPage "Sales Invoice";
-        ICInboxOutboxMgt: Codeunit ICInboxOutboxMgt;
         DocumentNo: Code[20];
         CustomerNo: Code[20];
     begin
@@ -3189,7 +3183,6 @@ codeunit 134154 "ERM Intercompany III"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         Location: Record Location;
-        WarehouseShipmentLine: Record "Warehouse Shipment Line";
         SalesShipmentHeader: Record "Sales Shipment Header";
     begin
         // [SCENARIO 450015] Verify no Error message "The length of the string is X, but it must be less than or equal to 20 characters." when posting Warehouse Shipment from an IC Sales Order
@@ -3275,9 +3268,9 @@ codeunit 134154 "ERM Intercompany III"
         ICInboxOutboxMgt.SendPurchDoc(PurchaseHeader, false);
 
         // [GIVEN] Open Intercompany Outbox Transactions page, and send PO to IC partner
-        ICOutboxTransactions.OpenEdit;
+        ICOutboxTransactions.OpenEdit();
         ICOutboxTransactions.Filter.SetFilter("IC Partner Code", ICPartnerCode);
-        ICOutboxTransactions.SendToICPartner.Invoke;
+        ICOutboxTransactions.SendToICPartner.Invoke();
 
         // [GIVEN] IC Outbox Transaction "B" for Sales Order is created.
         ICInboxTransactions.OpenEdit();
@@ -3517,32 +3510,32 @@ codeunit 134154 "ERM Intercompany III"
     begin
         LibraryDimension.CreateDimension(Dimension);
         CreateDimensionValue(
-          DimensionValue[1], Dimension.Code, LibraryUtility.GenerateGUID,
+          DimensionValue[1], Dimension.Code, LibraryUtility.GenerateGUID(),
           DimensionValue[1]."Dimension Value Type"::"Begin-Total", '', false, 0);
         ExpectedIndentation[1] := 0;
 
         CreateDimensionValue(
-          DimensionValue[2], Dimension.Code, LibraryUtility.GenerateGUID,
+          DimensionValue[2], Dimension.Code, LibraryUtility.GenerateGUID(),
           DimensionValue[2]."Dimension Value Type"::"Begin-Total", '', false, 0);
         ExpectedIndentation[2] := 1;  // incremented by 1 due to "Begin-Total" type above
 
         CreateDimensionValue(
-          DimensionValue[3], Dimension.Code, LibraryUtility.GenerateGUID,
+          DimensionValue[3], Dimension.Code, LibraryUtility.GenerateGUID(),
           DimensionValue[3]."Dimension Value Type"::Standard, '', false, 0);
         ExpectedIndentation[3] := 2;  // incremented by 1 due to "Begin-Total" type above
 
         CreateDimensionValue(
-          DimensionValue[4], Dimension.Code, LibraryUtility.GenerateGUID,
+          DimensionValue[4], Dimension.Code, LibraryUtility.GenerateGUID(),
           DimensionValue[4]."Dimension Value Type"::Standard, '', false, 0);
         ExpectedIndentation[4] := 2;  // not updated because the type is not "End-Total" and "Begin-Total" is not above
 
         CreateDimensionValue(
-          DimensionValue[5], Dimension.Code, LibraryUtility.GenerateGUID,
+          DimensionValue[5], Dimension.Code, LibraryUtility.GenerateGUID(),
           DimensionValue[5]."Dimension Value Type"::"End-Total", '', false, 0);
         ExpectedIndentation[5] := 1;  // decremented by 1 due to "End-Total" type
 
         CreateDimensionValue(
-          DimensionValue[6], Dimension.Code, LibraryUtility.GenerateGUID,
+          DimensionValue[6], Dimension.Code, LibraryUtility.GenerateGUID(),
           DimensionValue[6]."Dimension Value Type"::"End-Total", '', false, 0);
         ExpectedIndentation[6] := 0;  // decremented by 1 due to "End-Total" type
     end;
@@ -4125,9 +4118,9 @@ codeunit 134154 "ERM Intercompany III"
         ICDimensionsSelector: TestPage "IC Dimensions Selector";
         ERMIntercompanyIII: Codeunit "ERM Intercompany III";
     begin
-        ICDimensionsSelector.OpenView;
+        ICDimensionsSelector.OpenView();
         BindSubscription(ERMIntercompanyIII);
-        ICDimensionsSelector.CopyFromDimensions.Invoke;
+        ICDimensionsSelector.CopyFromDimensions.Invoke();
     end;
 
     local procedure SetFilterDimensionSetEntry(var DimensionSetEntry: Record "Dimension Set Entry"; DimensionValue: Record "Dimension Value")
@@ -4245,7 +4238,7 @@ codeunit 134154 "ERM Intercompany III"
         SalesLine.Modify(true);
     end;
 
-    local procedure UpdateICDirectionOnSalesHeader(var SalesHeader: Record "Sales Header"; ICDirection: Option)
+    local procedure UpdateICDirectionOnSalesHeader(var SalesHeader: Record "Sales Header"; ICDirection: Enum "IC Direction Type")
     begin
         SalesHeader.Validate("IC Direction", ICDirection);
         SalesHeader.Modify(true);
@@ -4534,7 +4527,7 @@ codeunit 134154 "ERM Intercompany III"
     begin
         WarehouseShipmentHeader.SetRange("Location Code", LocationCode);
         WarehouseShipmentHeader.FindFirst();
-        WarehouseShipmentHeader."Shipping No. Series" := LibraryUtility.GetGlobalNoSeriesCode;
+        WarehouseShipmentHeader."Shipping No. Series" := LibraryUtility.GetGlobalNoSeriesCode();
         WarehouseShipmentHeader.Modify(true);
 
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
@@ -4544,7 +4537,7 @@ codeunit 134154 "ERM Intercompany III"
         WarehouseActivityLine.FindFirst();
 
         WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
-        WarehouseActivityHeader."Registering No. Series" := LibraryUtility.GetGlobalNoSeriesCode;
+        WarehouseActivityHeader."Registering No. Series" := LibraryUtility.GetGlobalNoSeriesCode();
         WarehouseActivityHeader.Modify(true);
 
         CODEUNIT.Run(CODEUNIT::"Whse.-Activity-Register", WarehouseActivityLine);
@@ -4565,8 +4558,8 @@ codeunit 134154 "ERM Intercompany III"
         WarehouseSetup: Record "Warehouse Setup";
     begin
         WarehouseSetup.Get();
-        WarehouseSetup."Whse. Ship Nos." := LibraryUtility.GetGlobalNoSeriesCode;
-        WarehouseSetup."Whse. Pick Nos." := LibraryUtility.GetGlobalNoSeriesCode;
+        WarehouseSetup."Whse. Ship Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        WarehouseSetup."Whse. Pick Nos." := LibraryUtility.GetGlobalNoSeriesCode();
         WarehouseSetup.Modify(true);
     end;
 
@@ -4610,7 +4603,7 @@ codeunit 134154 "ERM Intercompany III"
     [Scope('OnPrem')]
     procedure ICSetupPageHandler(var ICSetup: TestPage "Intercompany Setup")
     begin
-        ICSetup.Cancel.Invoke;
+        ICSetup.Cancel().Invoke();
     end;
 
     [PageHandler]

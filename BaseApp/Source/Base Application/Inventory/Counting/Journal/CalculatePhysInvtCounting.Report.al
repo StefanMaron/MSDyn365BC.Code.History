@@ -130,7 +130,6 @@ report 7380 "Calculate Phys. Invt. Counting"
     var
         ItemJnlBatch: Record "Item Journal Batch";
         WhseJnlBatch: Record "Warehouse Journal Batch";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         PostingDate: Date;
         SourceJnl: Option ItemJnl,WhseJnl;
         SortingMethod: Option " ",Item,Bin;
@@ -158,21 +157,19 @@ report 7380 "Calculate Phys. Invt. Counting"
     end;
 
     local procedure ValidatePostingDate()
+    var
+        NoSeries: Codeunit "No. Series";
     begin
         if SourceJnl = SourceJnl::ItemJnl then begin
             if ItemJnlBatch."No. Series" = '' then
                 NextDocNo := ''
-            else begin
-                NextDocNo := NoSeriesMgt.GetNextNo(ItemJnlBatch."No. Series", PostingDate, false);
-                Clear(NoSeriesMgt);
-            end;
+            else
+                NextDocNo := NoSeries.PeekNextNo(ItemJnlBatch."No. Series", PostingDate);
         end else
             if WhseJnlBatch."No. Series" = '' then
                 NextDocNo := ''
-            else begin
-                NextDocNo := NoSeriesMgt.GetNextNo(WhseJnlBatch."No. Series", PostingDate, false);
-                Clear(NoSeriesMgt);
-            end;
+            else
+                NextDocNo := NoSeries.PeekNextNo(WhseJnlBatch."No. Series", PostingDate);
     end;
 
     procedure SetItemJnlLine(NewItemJnlBatch: Record "Item Journal Batch")

@@ -30,69 +30,67 @@ report 98 "Date Compress General Ledger"
             trigger OnAfterGetRecord()
             begin
                 GLEntry2 := "G/L Entry";
-                with GLEntry2 do begin
-                    SetCurrentKey("G/L Account No.", "Posting Date");
-                    CopyFilters("G/L Entry");
-                    SetFilter("Posting Date", DateComprMgt.GetDateFilter("Posting Date", EntrdDateComprReg, true));
-                    repeat
-                        SetRange("G/L Account No.", "G/L Account No.");
-                        SetRange("Gen. Posting Type", "Gen. Posting Type");
-                        SetRange("Gen. Bus. Posting Group", "Gen. Bus. Posting Group");
-                        SetRange("Gen. Prod. Posting Group", "Gen. Prod. Posting Group");
+                GLEntry2.SetCurrentKey("G/L Account No.", "Posting Date");
+                GLEntry2.CopyFilters("G/L Entry");
+                GLEntry2.SetFilter("Posting Date", DateComprMgt.GetDateFilter(GLEntry2."Posting Date", EntrdDateComprReg, true));
+                repeat
+                    GLEntry2.SetRange("G/L Account No.", GLEntry2."G/L Account No.");
+                    GLEntry2.SetRange("Gen. Posting Type", GLEntry2."Gen. Posting Type");
+                    GLEntry2.SetRange("Gen. Bus. Posting Group", GLEntry2."Gen. Bus. Posting Group");
+                    GLEntry2.SetRange("Gen. Prod. Posting Group", GLEntry2."Gen. Prod. Posting Group");
 
-                        if DateComprRetainFields."Retain Document Type" then
-                            SetRange("Document Type", "Document Type");
-                        if DateComprRetainFields."Retain Document No." then
-                            SetRange("Document No.", "Document No.");
-                        if DateComprRetainFields."Retain Job No." then
-                            SetRange("Job No.", "Job No.");
-                        if DateComprRetainFields."Retain Business Unit Code" then
-                            SetRange("Business Unit Code", "Business Unit Code");
-                        if DateComprRetainFields."Retain Global Dimension 1" then
-                            SetRange("Global Dimension 1 Code", "Global Dimension 1 Code");
-                        if DateComprRetainFields."Retain Global Dimension 2" then
-                            SetRange("Global Dimension 2 Code", "Global Dimension 2 Code");
-                        if DateComprRetainFields."Retain Journal Template Name" then
-                            SetRange("Journal Templ. Name", "Journal Templ. Name");
+                    if DateComprRetainFields."Retain Document Type" then
+                        GLEntry2.SetRange("Document Type", GLEntry2."Document Type");
+                    if DateComprRetainFields."Retain Document No." then
+                        GLEntry2.SetRange("Document No.", GLEntry2."Document No.");
+                    if DateComprRetainFields."Retain Job No." then
+                        GLEntry2.SetRange("Job No.", GLEntry2."Job No.");
+                    if DateComprRetainFields."Retain Business Unit Code" then
+                        GLEntry2.SetRange("Business Unit Code", GLEntry2."Business Unit Code");
+                    if DateComprRetainFields."Retain Global Dimension 1" then
+                        GLEntry2.SetRange("Global Dimension 1 Code", GLEntry2."Global Dimension 1 Code");
+                    if DateComprRetainFields."Retain Global Dimension 2" then
+                        GLEntry2.SetRange("Global Dimension 2 Code", GLEntry2."Global Dimension 2 Code");
+                    if DateComprRetainFields."Retain Journal Template Name" then
+                        GLEntry2.SetRange("Journal Templ. Name", GLEntry2."Journal Templ. Name");
 
-                        if Amount <> 0 then begin
-                            if Amount > 0 then
-                                SetFilter(Amount, '>0')
-                            else
-                                SetFilter(Amount, '<0');
-                        end else begin
-                            SetRange(Amount, 0);
-                            if "Additional-Currency Amount" >= 0 then
-                                SetFilter("Additional-Currency Amount", '>=0')
-                            else
-                                SetFilter("Additional-Currency Amount", '<0');
-                        end;
+                    if GLEntry2.Amount <> 0 then begin
+                        if GLEntry2.Amount > 0 then
+                            GLEntry2.SetFilter(Amount, '>0')
+                        else
+                            GLEntry2.SetFilter(Amount, '<0');
+                    end else begin
+                        GLEntry2.SetRange(Amount, 0);
+                        if GLEntry2."Additional-Currency Amount" >= 0 then
+                            GLEntry2.SetFilter("Additional-Currency Amount", '>=0')
+                        else
+                            GLEntry2.SetFilter("Additional-Currency Amount", '<0');
+                    end;
 
-                        OnGLEntryOnAfterGetRecordOnBeforeInitNewEntry(GLEntry2, "G/L Entry");
+                    OnGLEntryOnAfterGetRecordOnBeforeInitNewEntry(GLEntry2, "G/L Entry");
 
-                        InitNewEntry(NewGLEntry);
+                    InitNewEntry(NewGLEntry);
 
+                    DimBufMgt.CollectDimEntryNo(
+                      TempSelectedDim, GLEntry2."Dimension Set ID", GLEntry2."Entry No.",
+                      0, false, DimEntryNo);
+                    ComprDimEntryNo := DimEntryNo;
+                    SummarizeEntry(NewGLEntry, GLEntry2);
+                    while GLEntry2.Next() <> 0 do begin
                         DimBufMgt.CollectDimEntryNo(
-                          TempSelectedDim, "Dimension Set ID", "Entry No.",
-                          0, false, DimEntryNo);
-                        ComprDimEntryNo := DimEntryNo;
-                        SummarizeEntry(NewGLEntry, GLEntry2);
-                        while Next() <> 0 do begin
-                            DimBufMgt.CollectDimEntryNo(
-                              TempSelectedDim, "Dimension Set ID", "Entry No.",
-                              ComprDimEntryNo, true, DimEntryNo);
-                            if DimEntryNo = ComprDimEntryNo then
-                                SummarizeEntry(NewGLEntry, GLEntry2);
-                        end;
+                          TempSelectedDim, GLEntry2."Dimension Set ID", GLEntry2."Entry No.",
+                          ComprDimEntryNo, true, DimEntryNo);
+                        if DimEntryNo = ComprDimEntryNo then
+                            SummarizeEntry(NewGLEntry, GLEntry2);
+                    end;
 
-                        InsertNewEntry(NewGLEntry, ComprDimEntryNo);
+                    InsertNewEntry(NewGLEntry, ComprDimEntryNo);
 
-                        ComprCollectedEntries();
+                    ComprCollectedEntries();
 
-                        CopyFilters("G/L Entry");
-                        SetFilter("Posting Date", DateComprMgt.GetDateFilter("Posting Date", EntrdDateComprReg, true));
-                    until not Find('-');
-                end;
+                    GLEntry2.CopyFilters("G/L Entry");
+                    GLEntry2.SetFilter("Posting Date", DateComprMgt.GetDateFilter(GLEntry2."Posting Date", EntrdDateComprReg, true));
+                until not GLEntry2.Find('-');
 
                 if DateComprReg."No. Records Deleted" >= NoOfDeleted + 10 then begin
                     NoOfDeleted := DateComprReg."No. Records Deleted";
@@ -173,7 +171,9 @@ report 98 "Date Compress General Ledger"
                 group(Options)
                 {
                     Caption = 'Options';
+#pragma warning disable AA0100
                     field("EntrdDateComprReg.""Starting Date"""; EntrdDateComprReg."Starting Date")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Suite;
                         Caption = 'Starting Date';
@@ -194,7 +194,9 @@ report 98 "Date Compress General Ledger"
                             DateCompression.VerifyDateCompressionDates(EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
                         end;
                     }
+#pragma warning disable AA0100
                     field("EntrdDateComprReg.""Period Length"""; EntrdDateComprReg."Period Length")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Suite;
                         Caption = 'Period Length';
@@ -225,8 +227,8 @@ report 98 "Date Compress General Ledger"
                         field("Retain[3]"; DateComprRetainFields."Retain Job No.")
                         {
                             ApplicationArea = Suite;
-                            Caption = 'Job No.';
-                            ToolTip = 'Specifies the job number.';
+                            Caption = 'Project No.';
+                            ToolTip = 'Specifies the project number.';
                         }
                         field("Retain[4]"; DateComprRetainFields."Retain Business Unit Code")
                         {
@@ -441,36 +443,35 @@ report 98 "Date Compress General Ledger"
         GLEntryVatEntrylink: Record "G/L Entry - VAT Entry Link";
         GLEntryVatEntrylink2: Record "G/L Entry - VAT Entry Link";
     begin
-        with GLEntry do begin
-            NewGLEntry.Amount := NewGLEntry.Amount + Amount;
-            NewGLEntry."VAT Amount" := NewGLEntry."VAT Amount" + "VAT Amount";
-            NewGLEntry."Debit Amount" := NewGLEntry."Debit Amount" + "Debit Amount";
-            NewGLEntry."Credit Amount" := NewGLEntry."Credit Amount" + "Credit Amount";
-            NewGLEntry."Additional-Currency Amount" :=
-              NewGLEntry."Additional-Currency Amount" + "Additional-Currency Amount";
-            NewGLEntry."Add.-Currency Debit Amount" :=
-              NewGLEntry."Add.-Currency Debit Amount" + "Add.-Currency Debit Amount";
-            NewGLEntry."Add.-Currency Credit Amount" :=
-              NewGLEntry."Add.-Currency Credit Amount" + "Add.-Currency Credit Amount";
-            if DateComprRetainFields."Retain Quantity" then
-                NewGLEntry.Quantity := NewGLEntry.Quantity + Quantity;
-            OnSummarizeEntryOnBeforeGLEntryDelete(NewGLEntry, GLEntry);
-            Delete();
+        NewGLEntry.Amount := NewGLEntry.Amount + GLEntry.Amount;
+        NewGLEntry."Source Currency Amount" := NewGLEntry."Source Currency Amount" + GLEntry."Source Currency Amount";
+        NewGLEntry."VAT Amount" := NewGLEntry."VAT Amount" + GLEntry."VAT Amount";
+        NewGLEntry."Debit Amount" := NewGLEntry."Debit Amount" + GLEntry."Debit Amount";
+        NewGLEntry."Credit Amount" := NewGLEntry."Credit Amount" + GLEntry."Credit Amount";
+        NewGLEntry."Additional-Currency Amount" :=
+          NewGLEntry."Additional-Currency Amount" + GLEntry."Additional-Currency Amount";
+        NewGLEntry."Add.-Currency Debit Amount" :=
+          NewGLEntry."Add.-Currency Debit Amount" + GLEntry."Add.-Currency Debit Amount";
+        NewGLEntry."Add.-Currency Credit Amount" :=
+          NewGLEntry."Add.-Currency Credit Amount" + GLEntry."Add.-Currency Credit Amount";
+        if DateComprRetainFields."Retain Quantity" then
+            NewGLEntry.Quantity := NewGLEntry.Quantity + GLEntry.Quantity;
+        OnSummarizeEntryOnBeforeGLEntryDelete(NewGLEntry, GLEntry);
+        GLEntry.Delete();
 
-            GLItemLedgRelation.SetRange("G/L Entry No.", "Entry No.");
-            GLItemLedgRelation.DeleteAll();
+        GLItemLedgRelation.SetRange("G/L Entry No.", GLEntry."Entry No.");
+        GLItemLedgRelation.DeleteAll();
 
-            GLEntryVatEntrylink.SetRange("G/L Entry No.", "Entry No.");
-            if GLEntryVatEntrylink.FindSet() then
-                repeat
-                    GLEntryVatEntrylink2 := GLEntryVatEntrylink;
-                    GLEntryVatEntrylink2.Delete();
-                    GLEntryVatEntrylink2."G/L Entry No." := NewGLEntry."Entry No.";
-                    if GLEntryVatEntrylink2.Insert() then;
-                until GLEntryVatEntrylink.Next() = 0;
-            DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
-            Window.Update(4, DateComprReg."No. Records Deleted");
-        end;
+        GLEntryVatEntrylink.SetRange("G/L Entry No.", GLEntry."Entry No.");
+        if GLEntryVatEntrylink.FindSet() then
+            repeat
+                GLEntryVatEntrylink2 := GLEntryVatEntrylink;
+                GLEntryVatEntrylink2.Delete();
+                GLEntryVatEntrylink2."G/L Entry No." := NewGLEntry."Entry No.";
+                if GLEntryVatEntrylink2.Insert() then;
+            until GLEntryVatEntrylink.Next() = 0;
+        DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
+        Window.Update(4, DateComprReg."No. Records Deleted");
         if UseDataArchive then
             DataArchive.SaveRecord(GLEntry);
 
@@ -506,41 +507,39 @@ report 98 "Date Compress General Ledger"
     begin
         LastEntryNo := LastEntryNo + 1;
 
-        with GLEntry2 do begin
-            NewGLEntry.Init();
-            NewGLEntry."Entry No." := LastEntryNo;
-            NewGLEntry."G/L Account No." := "G/L Account No.";
-            NewGLEntry."Posting Date" := GetRangeMin("Posting Date");
-            NewGLEntry.Description := EntrdGLEntry.Description;
-            NewGLEntry."Gen. Posting Type" := "Gen. Posting Type";
-            NewGLEntry."Gen. Bus. Posting Group" := "Gen. Bus. Posting Group";
-            NewGLEntry."Gen. Prod. Posting Group" := "Gen. Prod. Posting Group";
-            NewGLEntry."System-Created Entry" := true;
-            NewGLEntry."Prior-Year Entry" := true;
-            NewGLEntry."Source Code" := SourceCodeSetup."Compress G/L";
-            NewGLEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
-            NewGLEntry."Transaction No." := NextTransactionNo;
+        NewGLEntry.Init();
+        NewGLEntry."Entry No." := LastEntryNo;
+        NewGLEntry."G/L Account No." := GLEntry2."G/L Account No.";
+        NewGLEntry."Posting Date" := GLEntry2.GetRangeMin("Posting Date");
+        NewGLEntry.Description := EntrdGLEntry.Description;
+        NewGLEntry."Gen. Posting Type" := GLEntry2."Gen. Posting Type";
+        NewGLEntry."Gen. Bus. Posting Group" := GLEntry2."Gen. Bus. Posting Group";
+        NewGLEntry."Gen. Prod. Posting Group" := GLEntry2."Gen. Prod. Posting Group";
+        NewGLEntry."System-Created Entry" := true;
+        NewGLEntry."Prior-Year Entry" := true;
+        NewGLEntry."Source Code" := SourceCodeSetup."Compress G/L";
+        NewGLEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(GLEntry2."User ID"));
+        NewGLEntry."Transaction No." := NextTransactionNo;
 
-            if DateComprRetainFields."Retain Document Type" then
-                NewGLEntry."Document Type" := "Document Type";
-            if DateComprRetainFields."Retain Document No." then
-                NewGLEntry."Document No." := "Document No.";
-            if DateComprRetainFields."Retain Job No." then
-                NewGLEntry."Job No." := "Job No.";
-            if DateComprRetainFields."Retain Business Unit Code" then
-                NewGLEntry."Business Unit Code" := "Business Unit Code";
-            if DateComprRetainFields."Retain Global Dimension 1" then
-                NewGLEntry."Global Dimension 1 Code" := "Global Dimension 1 Code";
-            if DateComprRetainFields."Retain Global Dimension 2" then
-                NewGLEntry."Global Dimension 2 Code" := "Global Dimension 2 Code";
-            if DateComprRetainFields."Retain Journal Template Name" then
-                NewGLEntry."Journal Templ. Name" := "Journal Templ. Name";
+        if DateComprRetainFields."Retain Document Type" then
+            NewGLEntry."Document Type" := GLEntry2."Document Type";
+        if DateComprRetainFields."Retain Document No." then
+            NewGLEntry."Document No." := GLEntry2."Document No.";
+        if DateComprRetainFields."Retain Job No." then
+            NewGLEntry."Job No." := GLEntry2."Job No.";
+        if DateComprRetainFields."Retain Business Unit Code" then
+            NewGLEntry."Business Unit Code" := GLEntry2."Business Unit Code";
+        if DateComprRetainFields."Retain Global Dimension 1" then
+            NewGLEntry."Global Dimension 1 Code" := GLEntry2."Global Dimension 1 Code";
+        if DateComprRetainFields."Retain Global Dimension 2" then
+            NewGLEntry."Global Dimension 2 Code" := GLEntry2."Global Dimension 2 Code";
+        if DateComprRetainFields."Retain Journal Template Name" then
+            NewGLEntry."Journal Templ. Name" := GLEntry2."Journal Templ. Name";
 
-            Window.Update(1, NewGLEntry."G/L Account No.");
-            Window.Update(2, NewGLEntry."Posting Date");
-            DateComprReg."No. of New Records" := DateComprReg."No. of New Records" + 1;
-            Window.Update(3, DateComprReg."No. of New Records");
-        end;
+        Window.Update(1, NewGLEntry."G/L Account No.");
+        Window.Update(2, NewGLEntry."Posting Date");
+        DateComprReg."No. of New Records" := DateComprReg."No. of New Records" + 1;
+        Window.Update(3, DateComprReg."No. of New Records");
     end;
 
     local procedure InsertNewEntry(var NewGLEntry: Record "G/L Entry"; DimEntryNo: Integer)

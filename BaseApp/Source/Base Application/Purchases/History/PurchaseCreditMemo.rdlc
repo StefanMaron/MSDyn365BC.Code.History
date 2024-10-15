@@ -9064,6 +9064,12 @@ End Function</Code>
         <Field Name="CompanyAddr6">
           <DataField>CompanyAddr6</DataField>
         </Field>
+        <Field Name="CompanyAddr7">
+          <DataField>CompanyAddr7</DataField>
+        </Field>
+        <Field Name="CompanyAddr8">
+          <DataField>CompanyAddr8</DataField>
+        </Field>
         <Field Name="CompanyInfoABNDivPartNo">
           <DataField>CompanyInfoABNDivPartNo</DataField>
         </Field>
@@ -9108,12 +9114,6 @@ End Function</Code>
         </Field>
         <Field Name="No1_PurchCrMemoHeader">
           <DataField>No1_PurchCrMemoHeader</DataField>
-        </Field>
-        <Field Name="CompanyAddr7">
-          <DataField>CompanyAddr7</DataField>
-        </Field>
-        <Field Name="CompanyAddr8">
-          <DataField>CompanyAddr8</DataField>
         </Field>
         <Field Name="PostDate_PurchCrMemoHeader">
           <DataField>PostDate_PurchCrMemoHeader</DataField>

@@ -87,25 +87,23 @@ codeunit 763 "Aged Acc. Receivable"
         PeriodLength: Text[1];
         NoOfPeriods: Integer;
     begin
-        with BusChartBuf do begin
-            Initialize();
-            SetXAxis(OverDueText(), "Data Type"::String);
-            AddDecimalMeasure(AmountText(), 1, "Chart Type"::Column);
-            if AlreadyInitialized then
-                InitParameters(BusChartBuf, PeriodLength, NoOfPeriods)
-            else begin
-                InitParameters(BusChartBuf, PeriodLength, NoOfPeriods, TempEntryNoAmountBuf);
-                CalculateAgedAccReceivable(
-                    CustomerNo, '', "Period Filter Start Date", PeriodLength, NoOfPeriods,
-                    TempEntryNoAmountBuf);
-            end;
-            if TempEntryNoAmountBuf.FindSet() then
-                repeat
-                    PeriodIndex := TempEntryNoAmountBuf."Entry No.";
-                    AddColumn(FormatColumnName(PeriodIndex, PeriodLength, NoOfPeriods, "Period Length"));
-                    SetValueByIndex(0, PeriodIndex, RoundAmount(TempEntryNoAmountBuf.Amount));
-                until TempEntryNoAmountBuf.Next() = 0
+        BusChartBuf.Initialize();
+        BusChartBuf.SetXAxis(OverDueText(), BusChartBuf."Data Type"::String);
+        BusChartBuf.AddDecimalMeasure(AmountText(), 1, BusChartBuf."Chart Type"::Column);
+        if AlreadyInitialized then
+            InitParameters(BusChartBuf, PeriodLength, NoOfPeriods)
+        else begin
+            InitParameters(BusChartBuf, PeriodLength, NoOfPeriods, TempEntryNoAmountBuf);
+            CalculateAgedAccReceivable(
+                CustomerNo, '', BusChartBuf."Period Filter Start Date", PeriodLength, NoOfPeriods,
+                TempEntryNoAmountBuf);
         end;
+        if TempEntryNoAmountBuf.FindSet() then
+            repeat
+                PeriodIndex := TempEntryNoAmountBuf."Entry No.";
+                BusChartBuf.AddColumn(FormatColumnName(PeriodIndex, PeriodLength, NoOfPeriods, BusChartBuf."Period Length"));
+                BusChartBuf.SetValueByIndex(0, PeriodIndex, RoundAmount(TempEntryNoAmountBuf.Amount));
+            until TempEntryNoAmountBuf.Next() = 0
     end;
 
     procedure UpdateDataPerGroup(var BusChartBuf: Record "Business Chart Buffer"; var TempEntryNoAmountBuf: Record "Entry No. Amount Buffer" temporary)
@@ -116,32 +114,30 @@ codeunit 763 "Aged Acc. Receivable"
         PeriodLength: Text[1];
         NoOfPeriods: Integer;
     begin
-        with BusChartBuf do begin
-            Initialize();
-            SetXAxis(OverdueTxt, "Data Type"::String);
+        BusChartBuf.Initialize();
+        BusChartBuf.SetXAxis(OverdueTxt, BusChartBuf."Data Type"::String);
 
-            InitParameters(BusChartBuf, PeriodLength, NoOfPeriods, TempEntryNoAmountBuf);
-            CalculateAgedAccReceivablePerGroup(
-              "Period Filter Start Date", PeriodLength, NoOfPeriods,
-              TempEntryNoAmountBuf);
+        InitParameters(BusChartBuf, PeriodLength, NoOfPeriods, TempEntryNoAmountBuf);
+        CalculateAgedAccReceivablePerGroup(
+          BusChartBuf."Period Filter Start Date", PeriodLength, NoOfPeriods,
+          TempEntryNoAmountBuf);
 
-            if CustPostingGroup.FindSet() then
-                repeat
-                    AddDecimalMeasure(CustPostingGroup.Code, GroupIndex, "Chart Type"::StackedColumn);
+        if CustPostingGroup.FindSet() then
+            repeat
+                BusChartBuf.AddDecimalMeasure(CustPostingGroup.Code, GroupIndex, BusChartBuf."Chart Type"::StackedColumn);
 
-                    TempEntryNoAmountBuf.Reset();
-                    TempEntryNoAmountBuf.SetRange("Business Unit Code", CustPostingGroup.Code);
-                    if TempEntryNoAmountBuf.FindSet() then
-                        repeat
-                            PeriodIndex := TempEntryNoAmountBuf."Entry No.";
-                            if GroupIndex = 0 then
-                                AddColumn(FormatColumnName(PeriodIndex, PeriodLength, NoOfPeriods, "Period Length"));
-                            SetValueByIndex(GroupIndex, PeriodIndex, RoundAmount(TempEntryNoAmountBuf.Amount));
-                        until TempEntryNoAmountBuf.Next() = 0;
-                    GroupIndex += 1;
-                until CustPostingGroup.Next() = 0;
-            TempEntryNoAmountBuf.Reset();
-        end;
+                TempEntryNoAmountBuf.Reset();
+                TempEntryNoAmountBuf.SetRange("Business Unit Code", CustPostingGroup.Code);
+                if TempEntryNoAmountBuf.FindSet() then
+                    repeat
+                        PeriodIndex := TempEntryNoAmountBuf."Entry No.";
+                        if GroupIndex = 0 then
+                            BusChartBuf.AddColumn(FormatColumnName(PeriodIndex, PeriodLength, NoOfPeriods, BusChartBuf."Period Length"));
+                        BusChartBuf.SetValueByIndex(GroupIndex, PeriodIndex, RoundAmount(TempEntryNoAmountBuf.Amount));
+                    until TempEntryNoAmountBuf.Next() = 0;
+                GroupIndex += 1;
+            until CustPostingGroup.Next() = 0;
+        TempEntryNoAmountBuf.Reset();
     end;
 
     local procedure CalculateAgedAccReceivable(CustomerNo: Code[20]; CustomerGroupCode: Code[20]; StartDate: Date; PeriodLength: Text[1]; NoOfPeriods: Integer; var TempEntryNoAmountBuffer: Record "Entry No. Amount Buffer" temporary)
@@ -226,15 +222,13 @@ codeunit 763 "Aged Acc. Receivable"
 
     procedure InsertAmountBuffer(Index: Integer; BussUnitCode: Code[20]; AmountLCY: Decimal; StartDate: Date; EndDate: Date; var TempEntryNoAmountBuffer: Record "Entry No. Amount Buffer" temporary)
     begin
-        with TempEntryNoAmountBuffer do begin
-            Init();
-            "Entry No." := Index;
-            "Business Unit Code" := BussUnitCode;
-            Amount := AmountLCY;
-            "Start Date" := StartDate;
-            "End Date" := EndDate;
-            Insert();
-        end;
+        TempEntryNoAmountBuffer.Init();
+        TempEntryNoAmountBuffer."Entry No." := Index;
+        TempEntryNoAmountBuffer."Business Unit Code" := BussUnitCode;
+        TempEntryNoAmountBuffer.Amount := AmountLCY;
+        TempEntryNoAmountBuffer."Start Date" := StartDate;
+        TempEntryNoAmountBuffer."End Date" := EndDate;
+        TempEntryNoAmountBuffer.Insert();
     end;
 
     procedure InitParameters(BusChartBuf: Record "Business Chart Buffer"; var PeriodLength: Text[1]; var NoOfPeriods: Integer)
@@ -301,16 +295,14 @@ codeunit 763 "Aged Acc. Receivable"
         MeasureName: Text;
         CustomerGroupCode: Code[20];
     begin
-        with TempEntryNoAmountBuf do begin
-            if CustomerNo <> '' then
-                CustomerGroupCode := ''
-            else begin
-                MeasureName := BusChartBuf.GetMeasureName(BusChartBuf."Drill-Down Measure Index");
-                CustomerGroupCode := CopyStr(MeasureName, 1, MaxStrLen(CustomerGroupCode));
-            end;
-            if Get(CustomerGroupCode, BusChartBuf."Drill-Down X Index") then
-                DrillDownCustLedgEntries(CustomerNo, CustomerGroupCode, "Start Date", "End Date");
+        if CustomerNo <> '' then
+            CustomerGroupCode := ''
+        else begin
+            MeasureName := BusChartBuf.GetMeasureName(BusChartBuf."Drill-Down Measure Index");
+            CustomerGroupCode := CopyStr(MeasureName, 1, MaxStrLen(CustomerGroupCode));
         end;
+        if TempEntryNoAmountBuf.Get(CustomerGroupCode, BusChartBuf."Drill-Down X Index") then
+            DrillDownCustLedgEntries(CustomerNo, CustomerGroupCode, TempEntryNoAmountBuf."Start Date", TempEntryNoAmountBuf."End Date");
     end;
 
     procedure DrillDownByGroup(var BusChartBuf: Record "Business Chart Buffer"; var TempEntryNoAmountBuf: Record "Entry No. Amount Buffer" temporary)

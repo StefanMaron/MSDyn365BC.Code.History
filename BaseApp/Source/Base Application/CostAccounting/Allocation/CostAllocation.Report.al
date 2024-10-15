@@ -62,7 +62,7 @@ report 1131 "Cost Allocation"
             DataItemTableView = sorting(Level, "Valid From", "Valid To", "Cost Type Range");
             dataitem("Cost Entry"; "Cost Entry")
             {
-                DataItemTableView = sorting("Entry No.") order(Ascending);
+                DataItemTableView = sorting("Entry No.") order(ascending);
 
                 trigger OnAfterGetRecord()
                 begin
@@ -102,7 +102,7 @@ report 1131 "Cost Allocation"
             }
             dataitem("Cost Budget Entry"; "Cost Budget Entry")
             {
-                DataItemTableView = sorting("Entry No.") order(Ascending);
+                DataItemTableView = sorting("Entry No.") order(ascending);
 
                 trigger OnAfterGetRecord()
                 begin
@@ -456,29 +456,27 @@ report 1131 "Cost Allocation"
         if ((CostCenterCode = '') and (CostObjectCode = '')) or ((CostCenterCode <> '') and (CostObjectCode <> '')) then
             Error(Text016, "Cost Allocation Source".ID, CostCenterCode, CostObjectCode);
 
-        with TempCostJnlLine do begin
-            LastCostJourLineNo := LastCostJourLineNo + 10000;
-            "Line No." := LastCostJourLineNo;
-            "Posting Date" := AllocDate;
-            "Cost Type No." := CostTypeCode;
-            "Cost Center Code" := CostCenterCode;
-            "Cost Object Code" := CostObjectCode;
-            "Document No." := IncStr(CostAccSetup."Last Allocation Doc. No.");
-            Description := CopyStr(Text, 1, MaxStrLen(Description));
-            Amount := PostAmount;
-            "System-Created Entry" := true;
-            Allocated := Allocated2;
-            "Allocation Description" := CopyStr(AllocKey, 1, MaxStrLen("Allocation Description"));
-            "Allocation ID" := AllocID;
-            "Source Code" := SourceCodeSetup."Cost Allocation";
-            "Budget Name" := CostBudgetName.Name;
-            Insert();
+        LastCostJourLineNo := LastCostJourLineNo + 10000;
+        TempCostJnlLine."Line No." := LastCostJourLineNo;
+        TempCostJnlLine."Posting Date" := AllocDate;
+        TempCostJnlLine."Cost Type No." := CostTypeCode;
+        TempCostJnlLine."Cost Center Code" := CostCenterCode;
+        TempCostJnlLine."Cost Object Code" := CostObjectCode;
+        TempCostJnlLine."Document No." := IncStr(CostAccSetup."Last Allocation Doc. No.");
+        TempCostJnlLine.Description := CopyStr(Text, 1, MaxStrLen(TempCostJnlLine.Description));
+        TempCostJnlLine.Amount := PostAmount;
+        TempCostJnlLine."System-Created Entry" := true;
+        TempCostJnlLine.Allocated := Allocated2;
+        TempCostJnlLine."Allocation Description" := CopyStr(AllocKey, 1, MaxStrLen(TempCostJnlLine."Allocation Description"));
+        TempCostJnlLine."Allocation ID" := AllocID;
+        TempCostJnlLine."Source Code" := SourceCodeSetup."Cost Allocation";
+        TempCostJnlLine."Budget Name" := CostBudgetName.Name;
+        TempCostJnlLine.Insert();
 
-            if Amount > 0 then
-                TotalDebit := TotalDebit + Amount
-            else
-                TotalCredit := TotalCredit + Amount;
-        end;
+        if TempCostJnlLine.Amount > 0 then
+            TotalDebit := TotalDebit + TempCostJnlLine.Amount
+        else
+            TotalCredit := TotalCredit + TempCostJnlLine.Amount;
 
         EntriesPerLevel := EntriesPerLevel + 1;
         TotalEntries := TotalEntries + 1;

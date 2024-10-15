@@ -7,6 +7,7 @@ namespace Microsoft.Finance.WithholdingTax;
 table 28045 "WHT Certificate Buffer"
 {
     Caption = 'WHT Certificate Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

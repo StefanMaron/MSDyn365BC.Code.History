@@ -19,6 +19,7 @@ table 28044 "WHT Entry"
     Caption = 'WHT Entry';
     DrillDownPageID = "WHT Entry";
     LookupPageID = "WHT Entry";
+    DataClassification = CustomerContent;
 
     fields
     {

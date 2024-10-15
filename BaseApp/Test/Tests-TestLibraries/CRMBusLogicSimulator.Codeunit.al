@@ -7,14 +7,11 @@ codeunit 139192 "CRM Bus. Logic Simulator"
     end;
 
     var
-        Assert: Codeunit Assert;
-        LibraryCRMIntegration: Codeunit "Library - CRM Integration";
         SalesOrderIsNotEditableErr: Label 'CRM Sales order is not editable.';
         ReadOnlyEntityCannotBeUpdatedErr: Label 'The entity cannot be updated because it is read-only.';
         InactiveInvoiceCannotBePaidErr: Label 'The invoice cannot be paid because it is not in active state.';
         PriceListLineAlreadyExistsErr: Label 'This product and unit combination has a price for this price list.';
         ProductIdMissingErr: Label 'The product id is missing.';
-        ModifiedOnErr: Label 'ModifiedOn %1 should be bigger than CreatedOn %2';
         CRMTimeDiffSeconds: Integer;
 
     [Scope('OnPrem')]
@@ -157,16 +154,14 @@ codeunit 139192 "CRM Bus. Logic Simulator"
         CRMSalesorderdetail.SetRange(SalesOrderId, CRMSalesorder.SalesOrderId);
         CRMSalesorderdetail.CalcSums(ManualDiscountAmount, BaseAmount, Tax);
 
-        with CRMSalesorder do begin
-            TotalLineItemDiscountAmount := CRMSalesorderdetail.ManualDiscountAmount;
-            TotalLineItemAmount := CRMSalesorderdetail.BaseAmount - TotalLineItemDiscountAmount;
-            TotalTax := CRMSalesorderdetail.Tax;
-            TotalHeaderDiscountAmount :=
-              DiscountAmount + Round(TotalLineItemAmount * DiscountPercentage / 100);
-            TotalDiscountAmount := TotalHeaderDiscountAmount + TotalLineItemDiscountAmount;
-            TotalAmountLessFreight := TotalLineItemAmount - TotalHeaderDiscountAmount;
-            TotalAmount := TotalAmountLessFreight + FreightAmount + TotalTax;
-        end;
+        CRMSalesorder.TotalLineItemDiscountAmount := CRMSalesorderdetail.ManualDiscountAmount;
+        CRMSalesorder.TotalLineItemAmount := CRMSalesorderdetail.BaseAmount - CRMSalesorder.TotalLineItemDiscountAmount;
+        CRMSalesorder.TotalTax := CRMSalesorderdetail.Tax;
+        TotalHeaderDiscountAmount :=
+          CRMSalesorder.DiscountAmount + Round(CRMSalesorder.TotalLineItemAmount * CRMSalesorder.DiscountPercentage / 100);
+        CRMSalesorder.TotalDiscountAmount := TotalHeaderDiscountAmount + CRMSalesorder.TotalLineItemDiscountAmount;
+        CRMSalesorder.TotalAmountLessFreight := CRMSalesorder.TotalLineItemAmount - TotalHeaderDiscountAmount;
+        CRMSalesorder.TotalAmount := CRMSalesorder.TotalAmountLessFreight + CRMSalesorder.FreightAmount + CRMSalesorder.TotalTax;
     end;
 }
 

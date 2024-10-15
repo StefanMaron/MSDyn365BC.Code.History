@@ -68,7 +68,7 @@ codeunit 134210 "Charts - Test AL Charts"
         FromDate: Date;
         ToDate: Date;
     begin
-        FromDate := WorkDate + LibraryRandom.RandInt(500);
+        FromDate := WorkDate() + LibraryRandom.RandInt(500);
         for PeriodLength := 0 to 4 do begin
             BusChartBuf."Period Length" := PeriodLength;
             ToDate := BusChartBuf.CalcToDate(FromDate);
@@ -85,7 +85,7 @@ codeunit 134210 "Charts - Test AL Charts"
         FromDate: Date;
         ToDate: Date;
     begin
-        ToDate := WorkDate + LibraryRandom.RandInt(500);
+        ToDate := WorkDate() + LibraryRandom.RandInt(500);
         for PeriodLength := 0 to 4 do begin
             BusChartBuf."Period Length" := PeriodLength;
             FromDate := BusChartBuf.CalcFromDate(ToDate);
@@ -351,7 +351,7 @@ codeunit 134210 "Charts - Test AL Charts"
         CreateChart(BusChartBuf, 4, 0);
         BusChartBuf."Drill-Down Measure Index" := 2;
         Assert.AreEqual(
-          Format(BusChartBuf."Drill-Down Measure Index" + 1), BusChartBuf.GetCurrMeasureValueString,
+          Format(BusChartBuf."Drill-Down Measure Index" + 1), BusChartBuf.GetCurrMeasureValueString(),
           StrSubstNo(
             'Expected value <%1> for index <%2>', BusChartBuf."Drill-Down Measure Index" + 1, BusChartBuf."Drill-Down Measure Index"));
     end;
@@ -453,10 +453,10 @@ codeunit 134210 "Charts - Test AL Charts"
 
         if BusChartBuf."Data Type" = BusChartBuf."Data Type"::DateTime then begin
             ErrMsg := StrSubstNo('Expected type <DateTime> for X axis for passed type <%1>', BusChartBuf."Data Type");
-            Assert.IsTrue(BusChartBuf.IsXAxisDateTime, ErrMsg)
+            Assert.IsTrue(BusChartBuf.IsXAxisDateTime(), ErrMsg)
         end else begin
             ErrMsg := StrSubstNo('Not expected type <DateTime> for X axis for passed type <%1>', BusChartBuf."Data Type");
-            Assert.IsFalse(BusChartBuf.IsXAxisDateTime, ErrMsg)
+            Assert.IsFalse(BusChartBuf.IsXAxisDateTime(), ErrMsg)
         end;
     end;
 

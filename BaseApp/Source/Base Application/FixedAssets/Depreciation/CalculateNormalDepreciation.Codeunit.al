@@ -102,14 +102,13 @@ codeunit 5611 "Calculate Normal Depreciation"
         DaysInPeriod := DaysInPeriod2;
 
         FALedgEntry.LockTable();
-        with DeprBook do
-            if DaysInPeriod > 0 then
-                if "Periodic Depr. Date Calc." <> "Periodic Depr. Date Calc."::"Last Entry" then begin
-                    "Periodic Depr. Date Calc." := "Periodic Depr. Date Calc."::"Last Entry";
-                    Error(
-                      Text000,
-                      TableCaption, FieldCaption("Periodic Depr. Date Calc."), "Periodic Depr. Date Calc.");
-                end;
+        if DaysInPeriod > 0 then
+            if DeprBook."Periodic Depr. Date Calc." <> DeprBook."Periodic Depr. Date Calc."::"Last Entry" then begin
+                DeprBook."Periodic Depr. Date Calc." := DeprBook."Periodic Depr. Date Calc."::"Last Entry";
+                Error(
+                  Text000,
+                  DeprBook.TableCaption, DeprBook.FieldCaption("Periodic Depr. Date Calc."), DeprBook."Periodic Depr. Date Calc.");
+            end;
         OnBeforeCalcTransferValueSetVariables(FirstDeprDate, Year365Days, UseDeprStartingDate, NumberOfDays2, UseHalfYearConvention);
 
         AssignVariablesToStorage(StorageDecimal, StorageInteger, StorageDate, StorageCode, DeprBookCode2, DateFromProjection2, UntilDate2, DaysInPeriod2, NumberOfDays4, DeprAmount);
@@ -217,108 +216,107 @@ codeunit 5611 "Calculate Normal Depreciation"
         Amount: Decimal;
         IsHandled: Boolean;
     begin
-        with FA do begin
-            if DateFromProjection > 0D then
-                FirstDeprDate := DateFromProjection
-            else begin
-                FirstDeprDate := DepreciationCalc.GetFirstDeprDate("No.", DeprBookCode, Year365Days);
-                if FirstDeprDate > UntilDate then
-                    exit(0);
-                UseDeprStartingDate := DepreciationCalc.UseDeprStartingDate("No.", DeprBookCode);
-                if UseDeprStartingDate then
-                    FirstDeprDate := DeprStartingDate;
-            end;
-            if FirstDeprDate < DeprStartingDate then
-                FirstDeprDate := DeprStartingDate;
-
-            IsHandled := false;
-            OnBeforeNumberofDayCalculateNumberofDays(FA, DeprBook, NumberofDays, FirstDeprDate, UntilDate, Year365Days, IsHandled, FADeprBook);
-            if not IsHandled then
-                NumberOfDays := DepreciationCalc.DeprDays(FirstDeprDate, UntilDate, Year365Days);
-
-            Factor := 1;
-            if NumberOfDays <= 0 then
+        if DateFromProjection > 0D then
+            FirstDeprDate := DateFromProjection
+        else begin
+            FirstDeprDate := DepreciationCalc.GetFirstDeprDate(FA."No.", DeprBookCode, Year365Days);
+            if FirstDeprDate > UntilDate then
                 exit(0);
-            ProcessDaysInPeriod();
-            UseHalfYearConvention := SetHalfYearConventionMethod();
+            UseDeprStartingDate := DepreciationCalc.UseDeprStartingDate(FA."No.", DeprBookCode);
+            if UseDeprStartingDate then
+                FirstDeprDate := DeprStartingDate;
+        end;
+        if FirstDeprDate < DeprStartingDate then
+            FirstDeprDate := DeprStartingDate;
 
-            UpdateDaysInFiscalYear(FA, DeprBook, NumberOfDays, DaysInFiscalYear, IsHandled);
+        IsHandled := false;
+        OnBeforeNumberofDayCalculateNumberofDays(FA, DeprBook, NumberofDays, FirstDeprDate, UntilDate, Year365Days, IsHandled, FADeprBook);
+        if not IsHandled then
+            NumberOfDays := DepreciationCalc.DeprDays(FirstDeprDate, UntilDate, Year365Days);
 
-            // Method Last Entry
-            if UseDeprStartingDate or
-               (DateFromProjection > 0D) or
-               (DeprMethod = DeprMethod::"Below Zero") or
-               (DeprBook."Periodic Depr. Date Calc." = DeprBook."Periodic Depr. Date Calc."::"Last Entry")
-            then begin
-                NumberOfDays2 := NumberOfDays;
-                if UseHalfYearConvention then
-                    Amount := CalcHalfYearConventionDepr()
-                else
-                    case DeprMethod of
-                        DeprMethod::"Straight-Line":
-                            Amount := CalcSLAmount();
-                        DeprMethod::"Declining-Balance 1":
-                            Amount := CalcDB1Amount();
-                        DeprMethod::"Declining-Balance 2":
-                            Amount := CalcDB2Amount();
-                        DeprMethod::"DB1/SL",
-                        DeprMethod::"DB2/SL":
-                            Amount := CalcDBSLAmount();
-                        DeprMethod::Manual:
-                            Amount := 0;
-                        DeprMethod::"User-Defined":
-                            Amount := CalcUserDefinedAmount(UntilDate);
-                        DeprMethod::"Below Zero":
-                            Amount := DepreciationCalc.CalcRounding(DeprBookCode, CalcBelowZeroAmount());
-                        DeprMethod::"Country Specific":
-                            ; // Reserved for implementation of country specific methods
-                        else
-                            OnCalculateDeprAmountOnDeprMethodCaseLastEntry(
-                                FADeprBook, BookValue, DeprBasis, DeprYears, DaysInFiscalYear, NumberOfDays, Amount, DateFromProjection, UntilDate);
-                    end;
-                OnCalculateDeprAmountOnAfterAssignAmountLastEntry(FADeprBook, UntilDate, DateFromProjection, BookValue, UseHalfYearConvention, DaysInFiscalYear, NumberOfDays);
-            end
-            // Method Last Depreciation Entry
-            else begin
-                if UseHalfYearConvention then
-                    DeprBook.TestField(
-                      "Periodic Depr. Date Calc.", DeprBook."Periodic Depr. Date Calc."::"Last Entry");
-                Amount := 0;
-                StartingDate := 0D;
-                EndingDate := 0D;
-                DepreciationCalc.GetDeprPeriod(
-                  "No.", DeprBookCode, UntilDate, StartingDate, EndingDate, NumberOfDays, Year365Days);
-                FirstDeprDate := StartingDate;
-                NumberOfDays2 := DepreciationCalc.DeprDays(FirstDeprDate, UntilDate, Year365Days);
-                while NumberOfDays > 0 do begin
-                    DepreciationCalc.CalculateDeprInPeriod(
-                      "No.", DeprBookCode, EndingDate, Amount, Sign,
-                      BookValue, DeprBasis, SalvageValue, MinusBookValue);
-                    if DepreciationCalc.GetSign(
-                         BookValue, DeprBasis, SalvageValue, MinusBookValue) <> 1
-                    then
-                        exit(0);
-                    case DeprMethod of
-                        DeprMethod::"Straight-Line":
-                            Amount := Amount + CalcSLAmount();
-                        DeprMethod::"Declining-Balance 1":
-                            Amount := Amount + CalcDB1Amount();
-                        DeprMethod::"Declining-Balance 2":
-                            Amount := Amount + CalcDB2Amount();
-                        DeprMethod::Manual:
-                            Amount := 0;
-                        DeprMethod::"User-Defined":
-                            Amount := Amount + CalcUserDefinedAmount(EndingDate);
-                        DeprMethod::"Country Specific":
-                            ; // Reserved for implementation of country specific
-                        else
-                            OnCalculateDeprAmountOnDeprMethodCaseLastDeprEntry(
-                                FADeprBook, BookValue, DeprBasis, DeprYears, DaysInFiscalYear, NumberOfDays, Amount, DateFromProjection, UntilDate);
-                    end;
-                    DepreciationCalc.GetDeprPeriod(
-                      "No.", DeprBookCode, UntilDate, StartingDate, EndingDate, NumberOfDays, Year365Days);
-                    FirstDeprDate := StartingDate;
+        Factor := 1;
+        if NumberOfDays <= 0 then
+            exit(0);
+        ProcessDaysInPeriod();
+        UseHalfYearConvention := SetHalfYearConventionMethod();
+
+        UpdateDaysInFiscalYear(FA, DeprBook, NumberOfDays, DaysInFiscalYear, IsHandled);
+        // Method Last Entry
+        if UseDeprStartingDate or
+           (DateFromProjection > 0D) or
+           (DeprMethod = DeprMethod::"Below Zero") or
+           (DeprBook."Periodic Depr. Date Calc." = DeprBook."Periodic Depr. Date Calc."::"Last Entry")
+        then begin
+            NumberOfDays2 := NumberOfDays;
+            if UseHalfYearConvention then
+                Amount := CalcHalfYearConventionDepr()
+            else
+                case DeprMethod of
+                    DeprMethod::"Straight-Line":
+                        Amount := CalcSLAmount();
+                    DeprMethod::"Declining-Balance 1":
+                        Amount := CalcDB1Amount();
+                    DeprMethod::"Declining-Balance 2":
+                        Amount := CalcDB2Amount();
+                    DeprMethod::"DB1/SL",
+                    DeprMethod::"DB2/SL":
+                        Amount := CalcDBSLAmount();
+                    DeprMethod::Manual:
+                        Amount := 0;
+                    DeprMethod::"User-Defined":
+                        Amount := CalcUserDefinedAmount(UntilDate);
+                    DeprMethod::"Below Zero":
+                        Amount := DepreciationCalc.CalcRounding(DeprBookCode, CalcBelowZeroAmount());
+                    DeprMethod::"Country Specific":
+                        ;
+                    // Reserved for implementation of country specific methods
+                    else
+                        OnCalculateDeprAmountOnDeprMethodCaseLastEntry(
+                            FADeprBook, BookValue, DeprBasis, DeprYears, DaysInFiscalYear, NumberOfDays, Amount, DateFromProjection, UntilDate);
                 end;
+            OnCalculateDeprAmountOnAfterAssignAmountLastEntry(FADeprBook, UntilDate, DateFromProjection, BookValue, UseHalfYearConvention, DaysInFiscalYear, NumberOfDays);
+        end
+        // Method Last Depreciation Entry
+        else begin
+            if UseHalfYearConvention then
+                DeprBook.TestField(
+                  "Periodic Depr. Date Calc.", DeprBook."Periodic Depr. Date Calc."::"Last Entry");
+            Amount := 0;
+            StartingDate := 0D;
+            EndingDate := 0D;
+            DepreciationCalc.GetDeprPeriod(
+              FA."No.", DeprBookCode, UntilDate, StartingDate, EndingDate, NumberOfDays, Year365Days);
+            FirstDeprDate := StartingDate;
+            NumberOfDays2 := DepreciationCalc.DeprDays(FirstDeprDate, UntilDate, Year365Days);
+            while NumberOfDays > 0 do begin
+                DepreciationCalc.CalculateDeprInPeriod(
+                  FA."No.", DeprBookCode, EndingDate, Amount, Sign,
+                  BookValue, DeprBasis, SalvageValue, MinusBookValue);
+                if DepreciationCalc.GetSign(
+                     BookValue, DeprBasis, SalvageValue, MinusBookValue) <> 1
+                then
+                    exit(0);
+                case DeprMethod of
+                    DeprMethod::"Straight-Line":
+                        Amount := Amount + CalcSLAmount();
+                    DeprMethod::"Declining-Balance 1":
+                        Amount := Amount + CalcDB1Amount();
+                    DeprMethod::"Declining-Balance 2":
+                        Amount := Amount + CalcDB2Amount();
+                    DeprMethod::Manual:
+                        Amount := 0;
+                    DeprMethod::"User-Defined":
+                        Amount := Amount + CalcUserDefinedAmount(EndingDate);
+                    DeprMethod::"Country Specific":
+                        ;
+                    // Reserved for implementation of country specific
+                    else
+                        OnCalculateDeprAmountOnDeprMethodCaseLastDeprEntry(
+                            FADeprBook, BookValue, DeprBasis, DeprYears, DaysInFiscalYear, NumberOfDays, Amount, DateFromProjection, UntilDate);
+                end;
+                DepreciationCalc.GetDeprPeriod(
+                  FA."No.", DeprBookCode, UntilDate, StartingDate, EndingDate, NumberOfDays, Year365Days);
+                FirstDeprDate := StartingDate;
             end;
         end;
 
@@ -514,103 +512,101 @@ codeunit 5611 "Calculate Normal Depreciation"
     var
         IsHandled: Boolean;
     begin
-        with FADeprBook do begin
-            TestField("Depreciation Starting Date");
-            if "Depreciation Method" = "Depreciation Method"::"User-Defined" then begin
-                TestField("Depreciation Table Code");
-                TestField("First User-Defined Depr. Date");
-            end;
-            case "Depreciation Method" of
-                "Depreciation Method"::"Declining-Balance 1",
-              "Depreciation Method"::"Declining-Balance 2",
-              "Depreciation Method"::"DB1/SL",
-              "Depreciation Method"::"DB2/SL":
-                    if "Declining-Balance %" >= 100 then
-                        Error(Text001, GetFAName(), FieldCaption("Declining-Balance %"));
-            end;
-            if (DeprBook."Periodic Depr. Date Calc." = DeprBook."Periodic Depr. Date Calc."::"Last Depr. Entry") and
-               ("Depreciation Method" <> "Depreciation Method"::"Straight-Line")
-            then begin
-                "Depreciation Method" := "Depreciation Method"::"Straight-Line";
-                Error(
-                  Text002,
-                  GetFAName(),
-                  FieldCaption("Depreciation Method"),
-                  "Depreciation Method",
-                  DeprBook.TableCaption(),
-                  DeprBook.FieldCaption("Periodic Depr. Date Calc."),
-                  DeprBook."Periodic Depr. Date Calc.");
-            end;
+        FADeprBook.TestField("Depreciation Starting Date");
+        if FADeprBook."Depreciation Method" = FADeprBook."Depreciation Method"::"User-Defined" then begin
+            FADeprBook.TestField("Depreciation Table Code");
+            FADeprBook.TestField("First User-Defined Depr. Date");
+        end;
+        case FADeprBook."Depreciation Method" of
+            FADeprBook."Depreciation Method"::"Declining-Balance 1",
+          FADeprBook."Depreciation Method"::"Declining-Balance 2",
+          FADeprBook."Depreciation Method"::"DB1/SL",
+          FADeprBook."Depreciation Method"::"DB2/SL":
+                if FADeprBook."Declining-Balance %" >= 100 then
+                    Error(Text001, GetFAName(), FADeprBook.FieldCaption("Declining-Balance %"));
+        end;
+        if (DeprBook."Periodic Depr. Date Calc." = DeprBook."Periodic Depr. Date Calc."::"Last Depr. Entry") and
+           (FADeprBook."Depreciation Method" <> FADeprBook."Depreciation Method"::"Straight-Line")
+        then begin
+            FADeprBook."Depreciation Method" := FADeprBook."Depreciation Method"::"Straight-Line";
+            Error(
+              Text002,
+              GetFAName(),
+              FADeprBook.FieldCaption("Depreciation Method"),
+              FADeprBook."Depreciation Method",
+              DeprBook.TableCaption(),
+              DeprBook.FieldCaption("Periodic Depr. Date Calc."),
+              DeprBook."Periodic Depr. Date Calc.");
+        end;
 
-            SetDeprMethod(FADeprBook);
-            OnTransferValuesOnAfterSetDeprMethod(FADeprBook, UntilDate);
+        SetDeprMethod(FADeprBook);
+        OnTransferValuesOnAfterSetDeprMethod(FADeprBook, UntilDate);
 
-            if DateFromProjection = 0D then begin
-                CalcFields("Book Value");
-                BookValue := "Book Value";
-            end else
-                BookValue := EntryAmounts[1];
-            MinusBookValue := DepreciationCalc.GetMinusBookValue(FA."No.", DeprBookCode, 0D, 0D);
-            CalcFields("Depreciable Basis", "Salvage Value");
-            DeprBasis := "Depreciable Basis";
-            SalvageValue := "Salvage Value";
+        if DateFromProjection = 0D then begin
+            FADeprBook.CalcFields("Book Value");
+            BookValue := FADeprBook."Book Value";
+        end else
+            BookValue := EntryAmounts[1];
+        MinusBookValue := DepreciationCalc.GetMinusBookValue(FA."No.", DeprBookCode, 0D, 0D);
+        FADeprBook.CalcFields("Depreciable Basis", "Salvage Value");
+        DeprBasis := FADeprBook."Depreciable Basis";
+        SalvageValue := FADeprBook."Salvage Value";
 
-            OnAfterBookValueRecalculateBookValue(FA, DeprBook, FALedgEntry, DeprBasis, BookValue, EndingDate, FADeprBook."Disposal Date", FADeprBook, DateFromProjection);
+        OnAfterBookValueRecalculateBookValue(FA, DeprBook, FALedgEntry, DeprBasis, BookValue, EndingDate, FADeprBook."Disposal Date", FADeprBook, DateFromProjection);
 
-            BookValue2 := BookValue;
-            SalvageValue2 := SalvageValue;
-            DeprStartingDate := "Depreciation Starting Date";
-            DeprTableCode := "Depreciation Table Code";
-            FirstUserDefinedDeprDate := "First User-Defined Depr. Date";
-            if ("Depreciation Method" = "Depreciation Method"::"User-Defined") and
-               (FirstUserDefinedDeprDate > DeprStartingDate)
-            then
+        BookValue2 := BookValue;
+        SalvageValue2 := SalvageValue;
+        DeprStartingDate := FADeprBook."Depreciation Starting Date";
+        DeprTableCode := FADeprBook."Depreciation Table Code";
+        FirstUserDefinedDeprDate := FADeprBook."First User-Defined Depr. Date";
+        if (FADeprBook."Depreciation Method" = FADeprBook."Depreciation Method"::"User-Defined") and
+           (FirstUserDefinedDeprDate > DeprStartingDate)
+        then
+            Error(
+              Text003,
+              GetFAName(), FADeprBook.FieldCaption("First User-Defined Depr. Date"), FADeprBook.FieldCaption("Depreciation Starting Date"));
+
+        SLPercent := FADeprBook."Straight-Line %";
+        DBPercent := FADeprBook."Declining-Balance %";
+
+        OnAfterBookValueCheckAddedDeprApplicable(FADeprBook, DeprBook, FALedgEntry, UntilDate, DBPercent, SLPercent);
+
+        DeprYears := FADeprBook."No. of Depreciation Years";
+        if FADeprBook."Depreciation Ending Date" > 0D then begin
+            if FADeprBook."Depreciation Starting Date" > FADeprBook."Depreciation Ending Date" then
                 Error(
                   Text003,
-                  GetFAName(), FieldCaption("First User-Defined Depr. Date"), FieldCaption("Depreciation Starting Date"));
+                  GetFAName(), FADeprBook.FieldCaption("Depreciation Starting Date"), FADeprBook.FieldCaption("Depreciation Ending Date"));
+            DeprYears :=
+              DepreciationCalc.DeprDays(
+                FADeprBook."Depreciation Starting Date", FADeprBook."Depreciation Ending Date", false) / 360;
+        end;
+        FixedAmount := FADeprBook."Fixed Depr. Amount";
+        FinalRoundingAmount := FADeprBook."Final Rounding Amount";
+        if FinalRoundingAmount = 0 then
+            FinalRoundingAmount := DeprBook."Default Final Rounding Amount";
+        EndingBookValue := FADeprBook."Ending Book Value";
+        if not FADeprBook."Ignore Def. Ending Book Value" and (EndingBookValue = 0) then
+            EndingBookValue := DeprBook."Default Ending Book Value";
+        AcquisitionDate := FADeprBook."Acquisition Date";
+        DisposalDate := FADeprBook."Disposal Date";
+        PercentBelowZero := FADeprBook."Depr. below Zero %";
+        AmountBelowZero := FADeprBook."Fixed Depr. Amount below Zero";
+        DaysInFiscalYear := DeprBook."No. of Days in Fiscal Year";
+        if DaysInFiscalYear = 0 then
+            DaysInFiscalYear := 360;
+        Year365Days := DeprBook."Fiscal Year 365 Days";
 
-            SLPercent := "Straight-Line %";
-            DBPercent := "Declining-Balance %";
+        IsHandled := false;
+        OnAfterDaysinFYRecalculateDaysInFiscalYear(FADeprBook, DeprBook, UntilDate, DaysInFiscalYear, Year365Days, IsHandled);
 
-            OnAfterBookValueCheckAddedDeprApplicable(FADeprBook, DeprBook, FALedgEntry, UntilDate, DBPercent, SLPercent);
+        if Year365Days then begin
+            if not IsHandled then
+                DaysInFiscalYear := 365;
 
-            DeprYears := "No. of Depreciation Years";
-            if "Depreciation Ending Date" > 0D then begin
-                if "Depreciation Starting Date" > "Depreciation Ending Date" then
-                    Error(
-                      Text003,
-                      GetFAName(), FieldCaption("Depreciation Starting Date"), FieldCaption("Depreciation Ending Date"));
-                DeprYears :=
-                  DepreciationCalc.DeprDays(
-                    "Depreciation Starting Date", "Depreciation Ending Date", false) / 360;
-            end;
-            FixedAmount := "Fixed Depr. Amount";
-            FinalRoundingAmount := "Final Rounding Amount";
-            if FinalRoundingAmount = 0 then
-                FinalRoundingAmount := DeprBook."Default Final Rounding Amount";
-            EndingBookValue := "Ending Book Value";
-            if not "Ignore Def. Ending Book Value" and (EndingBookValue = 0) then
-                EndingBookValue := DeprBook."Default Ending Book Value";
-            AcquisitionDate := "Acquisition Date";
-            DisposalDate := "Disposal Date";
-            PercentBelowZero := "Depr. below Zero %";
-            AmountBelowZero := "Fixed Depr. Amount below Zero";
-            DaysInFiscalYear := DeprBook."No. of Days in Fiscal Year";
-            if DaysInFiscalYear = 0 then
-                DaysInFiscalYear := 360;
-            Year365Days := DeprBook."Fiscal Year 365 Days";
-
-            IsHandled := false;
-            OnAfterDaysinFYRecalculateDaysInFiscalYear(FADeprBook, DeprBook, UntilDate, DaysInFiscalYear, Year365Days, IsHandled);
-
-            if Year365Days then begin
-                if not IsHandled then
-                    DaysInFiscalYear := 365;
-
-                DeprYears :=
-                  DepreciationCalc.DeprDays(
-                    "Depreciation Starting Date", "Depreciation Ending Date", true) / DaysInFiscalYear;
-            end;
+            DeprYears :=
+              DepreciationCalc.DeprDays(
+                FADeprBook."Depreciation Starting Date", FADeprBook."Depreciation Ending Date", true) / DaysInFiscalYear;
         end;
 
         OnAfterTransferValues2(FA, FADeprBook, Year365Days, DeprYears, DeprMethod, DeprBasis, BookValue);

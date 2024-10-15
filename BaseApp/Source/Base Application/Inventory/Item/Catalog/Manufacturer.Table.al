@@ -4,6 +4,7 @@ table 5720 Manufacturer
 {
     Caption = 'Manufacturer';
     LookupPageID = Manufacturers;
+    DataClassification = CustomerContent;
 
     fields
     {

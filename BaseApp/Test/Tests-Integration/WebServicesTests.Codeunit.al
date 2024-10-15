@@ -46,7 +46,7 @@ codeunit 139002 "Web Services Tests"
         // Service type (OData vs SOAP).
 
         Initialize();
-        WebServicesPage.OpenView;
+        WebServicesPage.OpenView();
 
         WebServicesPage.GotoKey(WebService."Object Type"::Page, PageServiceTxt);
         VerifyUrlHasServiceName(WebServicesPage.SOAPUrl.Value, PageServiceTxt);
@@ -77,13 +77,13 @@ codeunit 139002 "Web Services Tests"
         // Tenant:
 
         Initialize();
-        WebServicesPage.OpenView;
+        WebServicesPage.OpenView();
 
         // Verify Web Service
         WebServicesPage.GotoKey(WebService."Object Type"::Page, PageATxt);
         VerifyUrlHasServiceName(WebServicesPage.SOAPUrl.Value, PageATxt);
-        Assert.IsTrue(WebServicesPage.Published.AsBoolean, PageATxt + ' web service record "Published" field should be checked.');
-        Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean, PageATxt + ' all tenants should be checked.');
+        Assert.IsTrue(WebServicesPage.Published.AsBoolean(), PageATxt + ' web service record "Published" field should be checked.');
+        Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean(), PageATxt + ' all tenants should be checked.');
 
         WebServicesPage.Close();
     end;
@@ -102,13 +102,13 @@ codeunit 139002 "Web Services Tests"
         // Tenant:     Page    PageB   n   true
 
         Initialize();
-        WebServicesPage.OpenView;
+        WebServicesPage.OpenView();
 
         // Verify Web Service
         WebServicesPage.GotoKey(WebService."Object Type"::Page, PageBTxt);
         VerifyUrlHasServiceName(WebServicesPage.SOAPUrl.Value, PageBTxt);
-        Assert.IsTrue(WebServicesPage.Published.AsBoolean, PageBTxt + ' web service record "Published" field should be checked.');
-        Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean, PageBTxt + ' all tenants should be checked.');
+        Assert.IsTrue(WebServicesPage.Published.AsBoolean(), PageBTxt + ' web service record "Published" field should be checked.');
+        Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean(), PageBTxt + ' all tenants should be checked.');
 
         WebServicesPage.Close();
     end;
@@ -127,13 +127,13 @@ codeunit 139002 "Web Services Tests"
         // Tenant:     Page    PageC   n   true
 
         Initialize();
-        WebServicesPage.OpenView;
+        WebServicesPage.OpenView();
 
         // Verify Web Service
         WebServicesPage.GotoKey(WebService."Object Type"::Page, PageCTxt);
         Assert.AreEqual('', WebServicesPage.SOAPUrl.Value, PageCTxt + ' web service record "SOAP Url" should be empty.');
-        Assert.IsFalse(WebServicesPage.Published.AsBoolean, PageCTxt + ' web service record "Published" field should not be checked.');
-        Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean, PageCTxt + ' all tenants should be checked.');
+        Assert.IsFalse(WebServicesPage.Published.AsBoolean(), PageCTxt + ' web service record "Published" field should not be checked.');
+        Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean(), PageCTxt + ' all tenants should be checked.');
 
         WebServicesPage.Close();
     end;
@@ -152,13 +152,13 @@ codeunit 139002 "Web Services Tests"
         // Tenant:     Page    PageD   n   false
 
         Initialize();
-        WebServicesPage.OpenView;
+        WebServicesPage.OpenView();
 
         // Verify Web Service
         WebServicesPage.GotoKey(WebService."Object Type"::Page, PageDTxt);
         VerifyUrlHasServiceName(WebServicesPage.SOAPUrl.Value, PageDTxt);
-        Assert.IsTrue(WebServicesPage.Published.AsBoolean, PageDTxt + ' web service record "Published" field should be checked.');
-        Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean, PageDTxt + ' all tenants should be checked.');
+        Assert.IsTrue(WebServicesPage.Published.AsBoolean(), PageDTxt + ' web service record "Published" field should be checked.');
+        Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean(), PageDTxt + ' all tenants should be checked.');
 
         WebServicesPage.Close();
     end;
@@ -177,13 +177,13 @@ codeunit 139002 "Web Services Tests"
         // Tenant:     Page    PageE   n1   false
 
         Initialize();
-        WebServicesPage.OpenView;
+        WebServicesPage.OpenView();
 
         // Verify Web Service
         WebServicesPage.GotoKey(WebService."Object Type"::Page, PageETxt);
         VerifyUrlHasServiceName(WebServicesPage.SOAPUrl.Value, PageETxt);
-        Assert.IsTrue(WebServicesPage.Published.AsBoolean, PageETxt + ' web service record "Published" field should be checked.');
-        Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean, PageETxt + ' all tenants should be checked.');
+        Assert.IsTrue(WebServicesPage.Published.AsBoolean(), PageETxt + ' web service record "Published" field should be checked.');
+        Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean(), PageETxt + ' all tenants should be checked.');
 
         WebServicesPage.Close();
     end;
@@ -202,13 +202,13 @@ codeunit 139002 "Web Services Tests"
         // Tenant:     Page    PageF   n1   true
 
         Initialize();
-        WebServicesPage.OpenView;
+        WebServicesPage.OpenView();
 
         // Verify Web Service
         WebServicesPage.GotoKey(WebService."Object Type"::Page, PageFTxt);
         VerifyUrlHasServiceName(WebServicesPage.SOAPUrl.Value, PageFTxt);
-        Assert.IsTrue(WebServicesPage.Published.AsBoolean, PageFTxt + ' web service record "Published" field should be checked.');
-        Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean, PageFTxt + ' all tenants should be checked.');
+        Assert.IsTrue(WebServicesPage.Published.AsBoolean(), PageFTxt + ' web service record "Published" field should be checked.');
+        Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean(), PageFTxt + ' all tenants should be checked.');
 
         WebServicesPage.Close();
     end;
@@ -229,18 +229,18 @@ codeunit 139002 "Web Services Tests"
         // Tenant:     Page    PageJ   n    true
 
         Initialize();
-        WebServicesPage.OpenView;
+        WebServicesPage.OpenView();
 
         // Verify Web Service
         WebServicesPage.GotoKey(WebService."Object Type"::Page, PageHTxt);
         Assert.AreEqual('', WebServicesPage.SOAPUrl.Value, 'SOAP Url should be empty when not published: ' + PageHTxt);
-        Assert.IsFalse(WebServicesPage.Published.AsBoolean, PageHTxt + ' web service record "Published" field should not be checked.');
-        Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean, PageHTxt + ' all tenants should be checked.');
+        Assert.IsFalse(WebServicesPage.Published.AsBoolean(), PageHTxt + ' web service record "Published" field should not be checked.');
+        Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean(), PageHTxt + ' all tenants should be checked.');
 
         WebServicesPage.GotoKey(WebService."Object Type"::Page, PageITxt);
         Assert.AreEqual('', WebServicesPage.SOAPUrl.Value, 'SOAP Url should be empty when not published: ' + PageITxt);
-        Assert.IsTrue(WebServicesPage.Published.AsBoolean, PageITxt + ' web service record "Published" field should be checked.');
-        Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean, PageITxt + ' all tenants should be checked.');
+        Assert.IsTrue(WebServicesPage.Published.AsBoolean(), PageITxt + ' web service record "Published" field should be checked.');
+        Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean(), PageITxt + ' all tenants should be checked.');
 
         Assert.IsFalse(WebServicesPage.GotoKey(WebService."Object Type"::Page, PageJTxt), PageJTxt + ' should not be displayed.');
 
@@ -262,18 +262,18 @@ codeunit 139002 "Web Services Tests"
         // Tenant:     Page    PageM   n1   false
 
         Initialize();
-        WebServicesPage.OpenView;
+        WebServicesPage.OpenView();
 
         // Verify Web Service
         WebServicesPage.GotoKey(WebService."Object Type"::Page, PageLTxt);
         VerifyUrlHasServiceName(WebServicesPage.SOAPUrl.Value, PageLTxt);
         Assert.IsTrue(
-          WebServicesPage.Published.AsBoolean, PageLTxt + ' web service record "Published" field should be checked.');
+          WebServicesPage.Published.AsBoolean(), PageLTxt + ' web service record "Published" field should be checked.');
 
         WebServicesPage.GotoKey(TenantWebService."Object Type"::Page, PageMTxt);
         Assert.AreEqual('', WebServicesPage.SOAPUrl.Value, PageMTxt + ' web service record "SOAP Url" should be empty.');
         Assert.IsFalse(
-          WebServicesPage.Published.AsBoolean, PageMTxt + ' web service record "Published" field should not be checked.');
+          WebServicesPage.Published.AsBoolean(), PageMTxt + ' web service record "Published" field should not be checked.');
 
         WebServicesPage.Close();
     end;
@@ -293,18 +293,18 @@ codeunit 139002 "Web Services Tests"
         // Tenant:     Page    PageO   n    true
 
         Initialize();
-        WebServicesPage.OpenView;
+        WebServicesPage.OpenView();
 
         // Verify Web Service
         WebServicesPage.GotoKey(WebService."Object Type"::Page, PageNTxt);
         VerifyUrlHasServiceName(WebServicesPage.SOAPUrl.Value, PageNTxt);
         Assert.IsTrue(
-          WebServicesPage.Published.AsBoolean, PageNTxt + ' web service record "Published" field should be checked.');
+          WebServicesPage.Published.AsBoolean(), PageNTxt + ' web service record "Published" field should be checked.');
 
         WebServicesPage.GotoKey(TenantWebService."Object Type"::Page, PageOTxt);
         VerifyUrlHasServiceName(WebServicesPage.SOAPUrl.Value, PageOTxt);
         Assert.IsTrue(
-          WebServicesPage.Published.AsBoolean, PageOTxt + ' web service record "Published" field should be checked.');
+          WebServicesPage.Published.AsBoolean(), PageOTxt + ' web service record "Published" field should be checked.');
 
         WebServicesPage.Close();
     end;
@@ -324,18 +324,18 @@ codeunit 139002 "Web Services Tests"
         // Tenant:     Page    PageQ   n    false
 
         Initialize();
-        WebServicesPage.OpenView;
+        WebServicesPage.OpenView();
 
         // Verify Web Service
         WebServicesPage.GotoKey(WebService."Object Type"::Page, PagePTxt);
         VerifyUrlHasServiceName(WebServicesPage.SOAPUrl.Value, PagePTxt);
         Assert.IsTrue(
-          WebServicesPage.Published.AsBoolean, PagePTxt + ' web service record "Published" field should be checked.');
+          WebServicesPage.Published.AsBoolean(), PagePTxt + ' web service record "Published" field should be checked.');
 
         WebServicesPage.GotoKey(TenantWebService."Object Type"::Page, PageQTxt);
         Assert.AreEqual('', WebServicesPage.SOAPUrl.Value, PageQTxt + ' web service record "SOAP Url" should be empty.');
         Assert.IsFalse(
-          WebServicesPage.Published.AsBoolean, PageQTxt + ' web service record "Published" field should not be checked.');
+          WebServicesPage.Published.AsBoolean(), PageQTxt + ' web service record "Published" field should not be checked.');
 
         WebServicesPage.Close();
     end;
@@ -593,12 +593,12 @@ codeunit 139002 "Web Services Tests"
     begin
         // Test that the all tenants checkbox defaults to selected (and is enabled) if the tenant has write permissions
         // to the application database.
-        WebServicesPage.OpenView;
-        WebServicesPage.New;
+        WebServicesPage.OpenView();
+        WebServicesPage.New();
 
         // Verify Web Service
-        Assert.IsTrue(WebServicesPage."All Tenants".Enabled, 'All tenants should be enabled when user can write to app db');
-        Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean, 'All tenants should default checked when user can write to app db');
+        Assert.IsTrue(WebServicesPage."All Tenants".Enabled(), 'All tenants should be enabled when user can write to app db');
+        Assert.IsTrue(WebServicesPage."All Tenants".AsBoolean(), 'All tenants should default checked when user can write to app db');
 
         WebServicesPage.Close();
     end;
@@ -627,11 +627,11 @@ codeunit 139002 "Web Services Tests"
           TenantWebService.Get(TenantWebService."Object Type"::Page, AutoServiceName),
           AutoServiceName + ' should not exist in the Tenant Web Service table');
 
-        WebServicesPage.OpenEdit;
+        WebServicesPage.OpenEdit();
         WebServicesPage.GotoKey(WebService."Object Type"::Page, AutoServiceName);
-        Assert.IsTrue(WebServicesPage.Published.AsBoolean, AutoServiceName + ' web service record "Published" field should be checked.');
+        Assert.IsTrue(WebServicesPage.Published.AsBoolean(), AutoServiceName + ' web service record "Published" field should be checked.');
         Assert.IsTrue(
-          WebServicesPage."All Tenants".AsBoolean, AutoServiceName + ' web service record "All Tenants" field should be checked.');
+          WebServicesPage."All Tenants".AsBoolean(), AutoServiceName + ' web service record "All Tenants" field should be checked.');
         WebServicesPage."All Tenants".Value := Format(false);
         WebServicesPage.Next();
 
@@ -676,11 +676,11 @@ codeunit 139002 "Web Services Tests"
           TenantWebService.Get(TenantWebService."Object Type"::Page, AutoServiceName),
           AutoServiceName + ' should not exist in the Tenant Web Service table');
 
-        WebServicesPage.OpenEdit;
+        WebServicesPage.OpenEdit();
         WebServicesPage.GotoKey(WebService."Object Type"::Page, AutoServiceName);
-        Assert.IsTrue(WebServicesPage.Published.AsBoolean, AutoServiceName + ' web service record "Published" field should be checked.');
+        Assert.IsTrue(WebServicesPage.Published.AsBoolean(), AutoServiceName + ' web service record "Published" field should be checked.');
         Assert.IsTrue(
-          WebServicesPage."All Tenants".AsBoolean, AutoServiceName + ' web service record "All Tenants" field should be checked.');
+          WebServicesPage."All Tenants".AsBoolean(), AutoServiceName + ' web service record "All Tenants" field should be checked.');
         WebServicesPage."All Tenants".Value := Format(false);
         WebServicesPage.Next();
 
@@ -718,11 +718,11 @@ codeunit 139002 "Web Services Tests"
         Assert.IsFalse(
           WebService.Get(WebService."Object Type"::Page, AutoServiceName), AutoServiceName + ' should not exist in the Web Service table');
 
-        WebServicesPage.OpenEdit;
+        WebServicesPage.OpenEdit();
         WebServicesPage.GotoKey(WebService."Object Type"::Page, AutoServiceName);
-        Assert.IsTrue(WebServicesPage.Published.AsBoolean, AutoServiceName + ' web service record "Published" field should be checked.');
+        Assert.IsTrue(WebServicesPage.Published.AsBoolean(), AutoServiceName + ' web service record "Published" field should be checked.');
         Assert.IsFalse(
-          WebServicesPage."All Tenants".AsBoolean, AutoServiceName + ' web service record "All Tenants" field should not be checked.');
+          WebServicesPage."All Tenants".AsBoolean(), AutoServiceName + ' web service record "All Tenants" field should not be checked.');
         WebServicesPage."All Tenants".Value := Format(true);
         WebServicesPage.Next();
 

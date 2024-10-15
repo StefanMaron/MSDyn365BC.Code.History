@@ -12,6 +12,7 @@ using Microsoft.Projects.Project.Journal;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Projects.Resources.Journal;
 using Microsoft.Projects.Resources.Resource;
+using Microsoft.HumanResources.Absence;
 using Microsoft.Projects.Resources.Setup;
 using Microsoft.Service.Document;
 using Microsoft.Service.History;
@@ -36,8 +37,8 @@ codeunit 950 "Time Sheet Management"
         Text005: Label 'Time Sheet Header Archive %1 is not found.', Comment = 'Time Sheet Header Archive 10 is not found.';
         NoLinesToCopyErr: Label 'There are no time sheet lines to copy.';
         CopyLinesQst: Label 'Do you want to copy lines from the previous time sheet (%1)?', Comment = '%1 - number';
-        JobPlanningLinesNotFoundErr: Label 'Could not find job planning lines.';
-        CreateLinesQst: Label 'Do you want to create lines from job planning (%1)?', Comment = '%1 - number';
+        JobPlanningLinesNotFoundErr: Label 'Could not find project planning lines.';
+        CreateLinesQst: Label 'Do you want to create lines from project planning (%1)?', Comment = '%1 - number';
         PageDataCaptionTxt: Label '%1 (%2)', Comment = '%1 - start date, %2 - Description,';
 
 #if not CLEAN22
@@ -58,6 +59,16 @@ codeunit 950 "Time Sheet Management"
     end;
 #endif
 
+    procedure IsUserTimeSheetAdmin(UserId: Text): Boolean
+    var
+        UserSetup: Record "User Setup";
+    begin
+        if UserSetup.Get(UserId) then
+            if UserSetup."Time Sheet Admin." then
+                exit(true);
+        exit(false);
+    end;
+
     procedure FilterTimeSheets(var TimeSheetHeader: Record "Time Sheet Header"; FieldNo: Integer)
     var
         UserSetup: Record "User Setup";
@@ -65,7 +76,7 @@ codeunit 950 "Time Sheet Management"
     begin
         IsHandled := false;
         OnBeforeFilterTimeSheets(TimeSheetHeader, FieldNo, IsHandled);
-        If IsHandled then
+        if IsHandled then
             exit;
 
         if UserSetup.Get(UserId) then;
@@ -363,46 +374,178 @@ codeunit 950 "Time Sheet Management"
         TimeSheetDetailArchive: Record "Time Sheet Detail Archive";
         TimeSheetCmtLineArchive: Record "Time Sheet Cmt. Line Archive";
     begin
-        with TimeSheetHeader do begin
-            Check();
+        TimeSheetHeader.Check();
 
-            TimeSheetHeaderArchive.TransferFields(TimeSheetHeader);
-            OnBeforeTimeSheetHeaderArchiveInsert(TimeSheetHeaderArchive, TimeSheetHeader);
-            TimeSheetHeaderArchive.Insert();
+        TimeSheetHeaderArchive.TransferFields(TimeSheetHeader);
+        OnBeforeTimeSheetHeaderArchiveInsert(TimeSheetHeaderArchive, TimeSheetHeader);
+        TimeSheetHeaderArchive.Insert();
 
-            TimeSheetLine.SetRange("Time Sheet No.", "No.");
-            if TimeSheetLine.FindSet() then begin
-                repeat
-                    TimeSheetLineArchive.TransferFields(TimeSheetLine);
-                    OnBeforeTimeSheetLineArchiveInsert(TimeSheetLineArchive, TimeSheetLine);
-                    TimeSheetLineArchive.Insert();
-                until TimeSheetLine.Next() = 0;
-                TimeSheetLine.DeleteAll();
+        TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
+        if TimeSheetLine.FindSet() then begin
+            repeat
+                TimeSheetLineArchive.TransferFields(TimeSheetLine);
+                OnBeforeTimeSheetLineArchiveInsert(TimeSheetLineArchive, TimeSheetLine);
+                TimeSheetLineArchive.Insert();
+            until TimeSheetLine.Next() = 0;
+            TimeSheetLine.DeleteAll();
+        end;
+
+        TimeSheetDetail.SetRange("Time Sheet No.", TimeSheetHeader."No.");
+        if TimeSheetDetail.FindSet() then begin
+            repeat
+                TimeSheetDetailArchive.TransferFields(TimeSheetDetail);
+                OnBeforeTimeSheetDetailArchiveInsert(TimeSheetDetailArchive, TimeSheetDetail);
+                TimeSheetDetailArchive.Insert();
+            until TimeSheetDetail.Next() = 0;
+            TimeSheetDetail.DeleteAll();
+        end;
+
+        TimeSheetCommentLine.SetRange("No.", TimeSheetHeader."No.");
+        if TimeSheetCommentLine.FindSet() then begin
+            repeat
+                TimeSheetCmtLineArchive.TransferFields(TimeSheetCommentLine);
+                OnBeforeTimeSheetCmtLineArchiveInsert(TimeSheetCmtLineArchive, TimeSheetCommentLine);
+                TimeSheetCmtLineArchive.Insert();
+            until TimeSheetCommentLine.Next() = 0;
+            TimeSheetCommentLine.DeleteAll();
+        end;
+
+        TimeSheetHeader.Delete();
+    end;
+
+    procedure CheckTimeSheetLineFieldsVisible(var WorkTypeCodeVisible: Boolean; var JobFieldsVisible: Boolean; var ChargeableVisible: Boolean; var ServiceOrderNoVisible: Boolean; var AbsenceCauseVisible: Boolean; var AssemblyOrderNoVisible: Boolean)
+    var
+        Resource: Record Resource;
+        ServiceHeader: Record "Service Header";
+        CauseOfAbsence: Record "Cause of Absence";
+        Job: Record Job;
+    begin
+        AssemblyOrderNoVisible := false;  //not in use for now.
+        ServiceOrderNoVisible := not ServiceHeader.IsEmpty; //set with ApplicationArea
+        JobFieldsVisible := not Job.IsEmpty;
+        AbsenceCauseVisible := not CauseOfAbsence.IsEmpty;
+        ChargeableVisible := JobFieldsVisible or ServiceOrderNoVisible;
+        WorkTypeCodeVisible := not Resource.IsEmpty or JobFieldsVisible or not ServiceHeader.IsEmpty;
+
+        OnAfterCheckTimeSheetLineFieldsVisible(WorkTypeCodeVisible, JobFieldsVisible, ChargeableVisible, ServiceOrderNoVisible, AbsenceCauseVisible, AssemblyOrderNoVisible);
+    end;
+
+    procedure SelectAndCopyTimeSheetLines(ToTimeSheetHeader: Record "Time Sheet Header"; CopyComments: Boolean)
+    var
+        TempTimeSheetLine: Record "Time Sheet Line" temporary;
+        TimeSheetLineArchive: Record "Time Sheet Line Archive";
+        TimeSheetLines: Page "Time Sheet Lines";
+        NextLineNo: Integer;
+    begin
+        TimeSheetLines.LookupMode := true;
+        TimeSheetLines.Editable(false);
+        TimeSheetLines.SetForTimeSheetHeader(ToTimeSheetHeader);
+        TimeSheetLines.GetData(TempTimeSheetLine, ToTimeSheetHeader."Resource No.", 0D, true, true);
+        TimeSheetLines.SetRec(TempTimeSheetLine);
+
+        if TimeSheetLines.RunModal() <> ACTION::LookupOK then
+            exit;
+        TimeSheetLines.SetSelectionFilter(TempTimeSheetLine);
+        if (TempTimeSheetLine.Count() = 0) then begin
+            Message(NoLinesToCopyErr);
+            exit;
+        end;
+
+        NextLineNo := ToTimeSheetHeader.GetLastLineNo();
+
+        if TempTimeSheetLine.Count() = 1 then begin
+            TempTimeSheetLine.FindFirst();
+            if TempTimeSheetLine.Posted then begin
+                if not CheckUserWantAllLinesFromOneTimeSheetHeaderArchive(TempTimeSheetLine) then
+                    exit;
+            end else
+                if not CheckUserWantAllLinesFromOneTimeSheetHeader(TempTimeSheetLine) then
+                    exit;
+        end;
+
+        if TempTimeSheetLine.FindSet() then
+            repeat
+                if not TempTimeSheetLine.Posted then
+                    CopyTimeSheetLine(ToTimeSheetHeader, TempTimeSheetLine, CopyComments, NextLineNo)
+                else begin
+                    TimeSheetLineArchive.Get(TempTimeSheetLine."Time Sheet No.", TempTimeSheetLine."Line No.");
+                    CopyTimeSheetLineArchive(ToTimeSheetHeader, TimeSheetLineArchive, CopyComments, NextLineNo);
+                end;
+            until TempTimeSheetLine.Next() = 0;
+    end;
+
+    local procedure CheckUserWantAllLinesFromOneTimeSheetHeader(var TempTimeSheetLine: Record "Time Sheet Line" temporary) ContinueProcessing: Boolean
+    var
+        TimeSheetLine: Record "Time Sheet Line";
+        LinesToCopy: Integer;
+        TimeSheetLineCount: Integer;
+    begin
+        ContinueProcessing := true;
+        TimeSheetLine.SetRange("Time Sheet No.", TempTimeSheetLine."Time Sheet No.");
+        TimeSheetLine.SetFilter(Type, '<>%1&<>%2', TimeSheetLine.Type::Service, TimeSheetLine.Type::"Assembly Order");
+        TimeSheetLineCount := TimeSheetLine.Count;
+        if TimeSheetLineCount > 1 then begin
+            TimeSheetLine.FindLast();
+            if TimeSheetLine."Line No." = TempTimeSheetLine."Line No." then begin
+                LinesToCopy := ConfirmCopyTimeSheetLines(TimeSheetLineCount, TempTimeSheetLine."Time Sheet No.");
+                if LinesToCopy < 1 then
+                    exit(false);
+
+                if LinesToCopy = 1 then begin //all lines
+                    TempTimeSheetLine.Reset();
+                    TempTimeSheetLine.DeleteAll();
+                    if TimeSheetLine.FindSet() then
+                        repeat
+                            TempTimeSheetLine.Init();
+                            TempTimeSheetLine := TimeSheetLine;
+                            if TempTimeSheetLine.Insert() then;
+                        until TimeSheetLine.Next() = 0;
+                end;
             end;
-
-            TimeSheetDetail.SetRange("Time Sheet No.", "No.");
-            if TimeSheetDetail.FindSet() then begin
-                repeat
-                    TimeSheetDetailArchive.TransferFields(TimeSheetDetail);
-                    OnBeforeTimeSheetDetailArchiveInsert(TimeSheetDetailArchive, TimeSheetDetail);
-                    TimeSheetDetailArchive.Insert();
-                until TimeSheetDetail.Next() = 0;
-                TimeSheetDetail.DeleteAll();
-            end;
-
-            TimeSheetCommentLine.SetRange("No.", "No.");
-            if TimeSheetCommentLine.FindSet() then begin
-                repeat
-                    TimeSheetCmtLineArchive.TransferFields(TimeSheetCommentLine);
-                    OnBeforeTimeSheetCmtLineArchiveInsert(TimeSheetCmtLineArchive, TimeSheetCommentLine);
-                    TimeSheetCmtLineArchive.Insert();
-                until TimeSheetCommentLine.Next() = 0;
-                TimeSheetCommentLine.DeleteAll();
-            end;
-
-            Delete();
         end;
     end;
+
+    local procedure CheckUserWantAllLinesFromOneTimeSheetHeaderArchive(var TempTimeSheetLine: Record "Time Sheet Line" temporary) ContinueProcessing: Boolean
+    var
+        TimeSheetLineArchive: Record "Time Sheet Line Archive";
+
+        LinesToCopy: Integer;
+        TimeSheetLineCount: Integer;
+    begin
+        ContinueProcessing := true;
+        TimeSheetLineArchive.SetRange("Time Sheet No.", TempTimeSheetLine."Time Sheet No.");
+        TimeSheetLineArchive.SetFilter(Type, '<>%1&<>%2', TimeSheetLineArchive.Type::Service, TimeSheetLineArchive.Type::"Assembly Order");
+        TimeSheetLineCount := TimeSheetLineArchive.Count;
+        if TimeSheetLineCount > 1 then begin
+            TimeSheetLineArchive.FindLast();
+            if TimeSheetLineArchive."Line No." = TempTimeSheetLine."Line No." then begin
+                LinesToCopy := ConfirmCopyTimeSheetLines(TimeSheetLineCount, TempTimeSheetLine."Time Sheet No.");
+                if LinesToCopy < 1 then
+                    exit(false);
+
+                if LinesToCopy = 1 then begin //all lines
+                    TempTimeSheetLine.Reset();
+                    TempTimeSheetLine.DeleteAll();
+                    if TimeSheetLineArchive.FindSet() then
+                        repeat
+                            TempTimeSheetLine.Init();
+                            TempTimeSheetLine.TransferFields(TimeSheetLineArchive);
+                            if TempTimeSheetLine.Insert() then;
+                        until TimeSheetLineArchive.Next() = 0;
+                end;
+            end;
+        end;
+    end;
+
+    local procedure ConfirmCopyTimeSheetLines(TimeSheetLineCount: Integer; TimeSheetNo: Code[20]): Integer
+    var
+        SelectLineConfirmTxt: Label 'All lines,Selected line';
+        StrMenuInstructionTxt: Label 'You selected just 1 of %1 lines from Time Sheet %2. Do you want to copy:', Comment = '%1 - Lines count, %2 - Time Sheet No.';
+    begin
+        exit(Dialog.StrMenu(SelectLineConfirmTxt, 2, StrSubstNo(StrMenuInstructionTxt, TimeSheetLineCount, TimeSheetNo)));
+    end;
+
+
 
     procedure CheckCopyPrevTimeSheetLines(TimeSheetHeader: Record "Time Sheet Header")
     var
@@ -420,7 +563,6 @@ codeunit 950 "Time Sheet Management"
     var
         FromTimeSheetHeader: Record "Time Sheet Header";
         FromTimeSheetLine: Record "Time Sheet Line";
-        ToTimeSheetLine: Record "Time Sheet Line";
         LineNo: Integer;
         IsHandled: Boolean;
     begin
@@ -436,37 +578,52 @@ codeunit 950 "Time Sheet Management"
                 repeat
                     IsHandled := false;
                     OnCopyPrevTimeSheetLinesOnBeforeCopyLine(FromTimeSheetLine, IsHandled);
-                    if not IsHandled then begin
-                        LineNo := LineNo + 10000;
-                        ToTimeSheetLine.Init();
-                        ToTimeSheetLine."Time Sheet No." := ToTimeSheetHeader."No.";
-                        ToTimeSheetLine."Line No." := LineNo;
-                        ToTimeSheetLine."Time Sheet Starting Date" := ToTimeSheetHeader."Starting Date";
-                        ToTimeSheetLine.Type := FromTimeSheetLine.Type;
-                        case ToTimeSheetLine.Type of
-                            ToTimeSheetLine.Type::Job:
-                                begin
-                                    ToTimeSheetLine.Validate("Job No.", FromTimeSheetLine."Job No.");
-                                    ToTimeSheetLine.Validate("Job Task No.", FromTimeSheetLine."Job Task No.");
-                                end;
-                            ToTimeSheetLine.Type::Absence:
-                                ToTimeSheetLine.Validate("Cause of Absence Code", FromTimeSheetLine."Cause of Absence Code");
-                        end;
-                        ToTimeSheetLine.Description := FromTimeSheetLine.Description;
-                        ToTimeSheetLine.Chargeable := FromTimeSheetLine.Chargeable;
-                        ToTimeSheetLine."Work Type Code" := FromTimeSheetLine."Work Type Code";
-                        OnBeforeToTimeSheetLineInsert(ToTimeSheetLine, FromTimeSheetLine);
-                        ToTimeSheetLine.Insert();
-
-#if not CLEAN22
-                        if TimeSheetV2Enabled() then
-#endif
-                        CopyTimeSheetLineDetails(ToTimeSheetLine, FromTimeSheetLine);
-                    end;
+                    if not IsHandled then
+                        CopyTimeSheetLine(ToTimeSheetHeader, FromTimeSheetLine, false, LineNo);
                 until FromTimeSheetLine.Next() = 0;
         end;
 
         OnAfterCopyPrevTimeSheetLines();
+    end;
+
+    local procedure CopyTimeSheetLine(ToTimeSheetHeader: Record "Time Sheet Header"; FromTimeSheetLine: Record "Time Sheet Line"; CopyComments: Boolean; var NextLineNo: Integer)
+    var
+        ToTimeSheetLine: Record "Time Sheet Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCopyTimeSheetLine(ToTimeSheetHeader, FromTimeSheetLine, CopyComments, NextLineNo, IsHandled);
+        if not IsHandled then begin
+            NextLineNo := NextLineNo + 10000;
+
+            ToTimeSheetLine.Init();
+            ToTimeSheetLine."Time Sheet No." := ToTimeSheetHeader."No.";
+            ToTimeSheetLine."Line No." := NextLineNo;
+            ToTimeSheetLine."Time Sheet Starting Date" := ToTimeSheetHeader."Starting Date";
+            ToTimeSheetLine.Type := FromTimeSheetLine.Type;
+            case ToTimeSheetLine.Type of
+                ToTimeSheetLine.Type::Job:
+                    begin
+                        ToTimeSheetLine.Validate("Job No.", FromTimeSheetLine."Job No.");
+                        ToTimeSheetLine.Validate("Job Task No.", FromTimeSheetLine."Job Task No.");
+                    end;
+                ToTimeSheetLine.Type::Absence:
+                    ToTimeSheetLine.Validate("Cause of Absence Code", FromTimeSheetLine."Cause of Absence Code");
+            end;
+            ToTimeSheetLine.Description := FromTimeSheetLine.Description;
+            ToTimeSheetLine.Chargeable := FromTimeSheetLine.Chargeable;
+            ToTimeSheetLine."Work Type Code" := FromTimeSheetLine."Work Type Code";
+            OnBeforeToTimeSheetLineInsert(ToTimeSheetLine, FromTimeSheetLine);
+            ToTimeSheetLine.Insert();
+
+#if not CLEAN22
+            if TimeSheetV2Enabled() then
+#endif
+            CopyTimeSheetLineDetails(ToTimeSheetLine, FromTimeSheetLine);
+
+            if CopyComments then
+                CopyTimeSheetLineComments(ToTimeSheetLine, FromTimeSheetLine);
+        end;
     end;
 
     local procedure CopyTimeSheetLineDetails(ToTimeSheetLine: Record "Time Sheet Line"; FromTimeSheetLine: Record "Time Sheet Line")
@@ -488,6 +645,97 @@ codeunit 950 "Time Sheet Management"
                 ToTimeSheetDetail."Posted Quantity" := 0;
                 ToTimeSheetDetail.Insert();
             until FromTimeSheetDetail.Next() = 0;
+    end;
+
+    local procedure CopyTimeSheetLineComments(ToTimeSheetLine: Record "Time Sheet Line"; FromTimeSheetLine: Record "Time Sheet Line")
+    var
+        ToTimeSheetCommentLine: Record "Time Sheet Comment Line";
+        FromTimeSheetCommentLine: Record "Time Sheet Comment Line";
+    begin
+        FromTimeSheetCommentLine.SetRange("No.", FromTimeSheetLine."Time Sheet No.");
+        FromTimeSheetCommentLine.SetRange("Time Sheet Line No.", FromTimeSheetLine."Line No.");
+        if FromTimeSheetCommentLine.FindSet() then
+            repeat
+                ToTimeSheetCommentLine.Init();
+                ToTimeSheetCommentLine.TransferFields(FromTimeSheetCommentLine);
+                ToTimeSheetCommentLine."No." := ToTimeSheetLine."Time Sheet No.";
+                ToTimeSheetCommentLine."Time Sheet Line No." := ToTimeSheetLine."Line No.";
+                ToTimeSheetCommentLine.Insert();
+            until FromTimeSheetCommentLine.Next() = 0;
+    end;
+
+    local procedure CopyTimeSheetLineArchive(ToTimeSheetHeader: Record "Time Sheet Header"; FromTimeSheetLineArchive: Record "Time Sheet Line Archive"; CopyComments: Boolean; var NextLineNo: Integer)
+    var
+        ToTimeSheetLine: Record "Time Sheet Line";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCopyTimeSheetLineArchive(ToTimeSheetHeader, FromTimeSheetLineArchive, CopyComments, NextLineNo, IsHandled);
+        if not IsHandled then begin
+            NextLineNo := NextLineNo + 10000;
+
+            ToTimeSheetLine.Init();
+            ToTimeSheetLine."Time Sheet No." := ToTimeSheetHeader."No.";
+            ToTimeSheetLine."Line No." := NextLineNo;
+            ToTimeSheetLine."Time Sheet Starting Date" := ToTimeSheetHeader."Starting Date";
+            ToTimeSheetLine.Type := FromTimeSheetLineArchive.Type;
+            case ToTimeSheetLine.Type of
+                ToTimeSheetLine.Type::Job:
+                    begin
+                        ToTimeSheetLine.Validate("Job No.", FromTimeSheetLineArchive."Job No.");
+                        ToTimeSheetLine.Validate("Job Task No.", FromTimeSheetLineArchive."Job Task No.");
+                    end;
+                ToTimeSheetLine.Type::Absence:
+                    ToTimeSheetLine.Validate("Cause of Absence Code", FromTimeSheetLineArchive."Cause of Absence Code");
+            end;
+            ToTimeSheetLine.Description := FromTimeSheetLineArchive.Description;
+            ToTimeSheetLine.Chargeable := FromTimeSheetLineArchive.Chargeable;
+            ToTimeSheetLine."Work Type Code" := FromTimeSheetLineArchive."Work Type Code";
+            ToTimeSheetLine.Insert();
+
+            CopyTimeSheetLineArchiveDetails(ToTimeSheetLine, FromTimeSheetLineArchive);
+
+            if CopyComments then
+                CopyTimeSheetLineArchiveComments(ToTimeSheetLine, FromTimeSheetLineArchive);
+        end;
+    end;
+
+    local procedure CopyTimeSheetLineArchiveDetails(ToTimeSheetLine: Record "Time Sheet Line"; FromTimeSheetLineArchive: Record "Time Sheet Line Archive")
+    var
+        ToTimeSheetDetail: Record "Time Sheet Detail";
+        FromTimeSheetDetailArchive: Record "Time Sheet Detail Archive";
+    begin
+        FromTimeSheetDetailArchive.SetRange("Time Sheet No.", FromTimeSheetLineArchive."Time Sheet No.");
+        FromTimeSheetDetailArchive.SetRange("Time Sheet Line No.", FromTimeSheetLineArchive."Line No.");
+        if FromTimeSheetDetailArchive.FindSet() then
+            repeat
+                ToTimeSheetDetail.Init();
+                ToTimeSheetDetail.TransferFields(FromTimeSheetDetailArchive);
+                ToTimeSheetDetail."Time Sheet No." := ToTimeSheetLine."Time Sheet No.";
+                ToTimeSheetDetail."Time Sheet Line No." := ToTimeSheetLine."Line No.";
+                ToTimeSheetDetail.Date := ToTimeSheetLine."Time Sheet Starting Date" + (FromTimeSheetDetailArchive."Date" - FromTimeSheetLineArchive."Time Sheet Starting Date");
+                ToTimeSheetDetail.Status := "Time Sheet Status"::Open;
+                ToTimeSheetDetail.Posted := false;
+                ToTimeSheetDetail."Posted Quantity" := 0;
+                ToTimeSheetDetail.Insert();
+            until FromTimeSheetDetailArchive.Next() = 0;
+    end;
+
+    local procedure CopyTimeSheetLineArchiveComments(ToTimeSheetLine: Record "Time Sheet Line"; FromTimeSheetLineArchive: Record "Time Sheet Line Archive")
+    var
+        ToTimeSheetCommentLine: Record "Time Sheet Comment Line";
+        TimeSheetCmtLineArchive: Record "Time Sheet Cmt. Line Archive";
+    begin
+        TimeSheetCmtLineArchive.SetRange("No.", FromTimeSheetLineArchive."Time Sheet No.");
+        TimeSheetCmtLineArchive.SetRange("Time Sheet Line No.", FromTimeSheetLineArchive."Line No.");
+        if TimeSheetCmtLineArchive.FindSet() then
+            repeat
+                ToTimeSheetCommentLine.Init();
+                ToTimeSheetCommentLine.TransferFields(TimeSheetCmtLineArchive);
+                ToTimeSheetCommentLine."No." := ToTimeSheetLine."Time Sheet No.";
+                ToTimeSheetCommentLine."Time Sheet Line No." := ToTimeSheetLine."Line No.";
+                ToTimeSheetCommentLine.Insert();
+            until TimeSheetCmtLineArchive.Next() = 0;
     end;
 
     procedure CalcPrevTimeSheetLines(ToTimeSheetHeader: Record "Time Sheet Header") LinesQty: Integer
@@ -688,11 +936,10 @@ codeunit 950 "Time Sheet Management"
         if IsHandled then
             exit;
 
-        with ServiceLine do
-            if "Time Sheet No." = '' then
-                CreateTSLineFromDocLine(
-                  DATABASE::"Service Line", "No.", "Posting Date", DocumentNo, "Document No.", "Line No.",
-                  "Work Type Code", Chargeable, Description, -"Qty. to Ship");
+        if ServiceLine."Time Sheet No." = '' then
+            CreateTSLineFromDocLine(
+              DATABASE::"Service Line", ServiceLine."No.", ServiceLine."Posting Date", DocumentNo, ServiceLine."Document No.", ServiceLine."Line No.",
+              ServiceLine."Work Type Code", Chargeable, ServiceLine.Description, -ServiceLine."Qty. to Ship");
     end;
 
     procedure CreateTSLineFromServiceShptLine(ServiceShipmentLine: Record "Service Shipment Line")
@@ -704,11 +951,10 @@ codeunit 950 "Time Sheet Management"
         if IsHandled then
             exit;
 
-        with ServiceShipmentLine do
-            if "Time Sheet No." = '' then
-                CreateTSLineFromDocLine(
-                  DATABASE::"Service Shipment Line", "No.", "Posting Date", "Document No.", "Order No.", "Order Line No.",
-                  "Work Type Code", true, Description, -"Qty. Shipped Not Invoiced");
+        if ServiceShipmentLine."Time Sheet No." = '' then
+            CreateTSLineFromDocLine(
+              DATABASE::"Service Shipment Line", ServiceShipmentLine."No.", ServiceShipmentLine."Posting Date", ServiceShipmentLine."Document No.", ServiceShipmentLine."Order No.", ServiceShipmentLine."Order Line No.",
+              ServiceShipmentLine."Work Type Code", true, ServiceShipmentLine.Description, -ServiceShipmentLine."Qty. Shipped Not Invoiced");
     end;
 
     local procedure CreateTSLineFromDocLine(TableID: Integer; ResourceNo: Code[20]; PostingDate: Date; DocumentNo: Code[20]; OrderNo: Code[20]; OrderLineNo: Integer; WorkTypeCode: Code[10]; Chargbl: Boolean; Desc: Text[100]; Quantity: Decimal)
@@ -728,85 +974,80 @@ codeunit 950 "Time Sheet Management"
         TimeSheetHeader.SetFilter("Ending Date", '%1..', PostingDate);
         TimeSheetHeader.FindFirst();
 
-        with TimeSheetLine do begin
-            SetRange("Time Sheet No.", TimeSheetHeader."No.");
-            if FindLast() then;
-            LineNo := "Line No." + 10000;
+        TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
+        if TimeSheetLine.FindLast() then;
+        LineNo := TimeSheetLine."Line No." + 10000;
 
-            Init();
-            "Time Sheet No." := TimeSheetHeader."No.";
-            "Line No." := LineNo;
-            "Time Sheet Starting Date" := TimeSheetHeader."Starting Date";
-            case TableID of
-                DATABASE::"Service Line",
-                DATABASE::"Service Shipment Line":
-                    begin
-                        Type := Type::Service;
-                        "Service Order No." := OrderNo;
-                        "Service Order Line No." := OrderLineNo;
-                    end;
-                DATABASE::"Assembly Line":
-                    begin
-                        Type := Type::"Assembly Order";
-                        "Assembly Order No." := OrderNo;
-                        "Assembly Order Line No." := OrderLineNo;
-                    end;
-            end;
-            Description := Desc;
-            "Work Type Code" := WorkTypeCode;
-            Chargeable := Chargbl;
-            "Approver ID" := TimeSheetHeader."Approver User ID";
-            "Approved By" := UserId;
-            "Approval Date" := Today;
-            Status := Status::Approved;
-            Posted := true;
-            Insert();
-
-            TimeSheetDetail.Init();
-            TimeSheetDetail.CopyFromTimeSheetLine(TimeSheetLine);
-            TimeSheetDetail.Date := PostingDate;
-            TimeSheetDetail.Quantity := Quantity;
-            TimeSheetDetail."Posted Quantity" := Quantity;
-            TimeSheetDetail.Posted := true;
-            TimeSheetDetail.Insert();
-
-            CreateTSPostingEntry(TimeSheetDetail, Quantity, PostingDate, DocumentNo, Description);
+        TimeSheetLine.Init();
+        TimeSheetLine."Time Sheet No." := TimeSheetHeader."No.";
+        TimeSheetLine."Line No." := LineNo;
+        TimeSheetLine."Time Sheet Starting Date" := TimeSheetHeader."Starting Date";
+        case TableID of
+            DATABASE::"Service Line",
+            DATABASE::"Service Shipment Line":
+                begin
+                    TimeSheetLine.Type := TimeSheetLine.Type::Service;
+                    TimeSheetLine."Service Order No." := OrderNo;
+                    TimeSheetLine."Service Order Line No." := OrderLineNo;
+                end;
+            DATABASE::"Assembly Line":
+                begin
+                    TimeSheetLine.Type := TimeSheetLine.Type::"Assembly Order";
+                    TimeSheetLine."Assembly Order No." := OrderNo;
+                    TimeSheetLine."Assembly Order Line No." := OrderLineNo;
+                end;
         end;
+        TimeSheetLine.Description := Desc;
+        TimeSheetLine."Work Type Code" := WorkTypeCode;
+        TimeSheetLine.Chargeable := Chargbl;
+        TimeSheetLine."Approver ID" := TimeSheetHeader."Approver User ID";
+        TimeSheetLine."Approved By" := CopyStr(UserId(), 1, MaxStrLen(TimeSheetLine."Approved By"));
+        TimeSheetLine."Approval Date" := Today();
+        TimeSheetLine.Status := TimeSheetLine.Status::Approved;
+        TimeSheetLine.Posted := true;
+        TimeSheetLine.Insert();
+
+        TimeSheetDetail.Init();
+        TimeSheetDetail.CopyFromTimeSheetLine(TimeSheetLine);
+        TimeSheetDetail.Date := PostingDate;
+        TimeSheetDetail.Quantity := Quantity;
+        TimeSheetDetail."Posted Quantity" := Quantity;
+        TimeSheetDetail.Posted := true;
+        TimeSheetDetail.Insert();
+
+        CreateTSPostingEntry(TimeSheetDetail, Quantity, PostingDate, DocumentNo, TimeSheetLine.Description);
     end;
 
     procedure CreateTSLineFromAssemblyLine(AssemblyHeader: Record "Assembly Header"; AssemblyLine: Record "Assembly Line"; Qty: Decimal)
     begin
         AssemblyLine.TestField(Type, AssemblyLine.Type::Resource);
 
-        with AssemblyLine do
-            CreateTSLineFromDocLine(
-              DATABASE::"Assembly Line",
-              "No.",
-              AssemblyHeader."Posting Date",
-              AssemblyHeader."Posting No.",
-              "Document No.",
-              "Line No.",
-              '',
-              true,
-              Description,
-              Qty);
+        CreateTSLineFromDocLine(
+            DATABASE::"Assembly Line",
+            AssemblyLine."No.",
+            AssemblyHeader."Posting Date",
+            AssemblyHeader."Posting No.",
+            AssemblyLine."Document No.",
+            AssemblyLine."Line No.",
+            '',
+            true,
+            AssemblyLine.Description,
+            Qty);
     end;
 
     procedure CreateTSPostingEntry(TimeSheetDetail: Record "Time Sheet Detail"; Qty: Decimal; PostingDate: Date; DocumentNo: Code[20]; Desc: Text[100])
     var
         TimeSheetPostingEntry: Record "Time Sheet Posting Entry";
     begin
-        with TimeSheetPostingEntry do begin
-            Init();
-            "Time Sheet No." := TimeSheetDetail."Time Sheet No.";
-            "Time Sheet Line No." := TimeSheetDetail."Time Sheet Line No.";
-            "Time Sheet Date" := TimeSheetDetail.Date;
-            Quantity := Qty;
-            "Document No." := DocumentNo;
-            "Posting Date" := PostingDate;
-            Description := Desc;
-            Insert();
-        end;
+        TimeSheetPostingEntry.Init();
+        TimeSheetPostingEntry."Time Sheet No." := TimeSheetDetail."Time Sheet No.";
+        TimeSheetPostingEntry."Time Sheet Line No." := TimeSheetDetail."Time Sheet Line No.";
+        TimeSheetPostingEntry."Time Sheet Date" := TimeSheetDetail.Date;
+        TimeSheetPostingEntry.Quantity := Qty;
+        TimeSheetPostingEntry."Document No." := DocumentNo;
+        TimeSheetPostingEntry."Posting Date" := PostingDate;
+        TimeSheetPostingEntry.Description := Desc;
+        TimeSheetPostingEntry.Insert();
 
         OnAfterCreateTSPostingEntry(TimeSheetDetail, TimeSheetPostingEntry);
     end;
@@ -835,18 +1076,16 @@ codeunit 950 "Time Sheet Management"
         if IsHandled then
             exit;
 
-        with ResJnlLine do begin
-            TestField("Qty. per Unit of Measure");
-            if not CheckTSLineDetailPosting(
-                 "Time Sheet No.",
-                 "Time Sheet Line No.",
-                 "Time Sheet Date",
-                 Quantity,
-                 "Qty. per Unit of Measure",
-                 MaxAvailableQty)
-            then
-                FieldError(Quantity, StrSubstNo(Text004, MaxAvailableQty, "Unit of Measure Code"));
-        end;
+        ResJnlLine.TestField("Qty. per Unit of Measure");
+        if not CheckTSLineDetailPosting(
+             ResJnlLine."Time Sheet No.",
+             ResJnlLine."Time Sheet Line No.",
+             ResJnlLine."Time Sheet Date",
+             ResJnlLine.Quantity,
+             ResJnlLine."Qty. per Unit of Measure",
+             MaxAvailableQty)
+        then
+            ResJnlLine.FieldError(Quantity, StrSubstNo(Text004, MaxAvailableQty, ResJnlLine."Unit of Measure Code"));
     end;
 
     procedure CheckJobJnlLine(JobJnlLine: Record "Job Journal Line")
@@ -859,36 +1098,32 @@ codeunit 950 "Time Sheet Management"
         if IsHandled then
             exit;
 
-        with JobJnlLine do begin
-            TestField("Qty. per Unit of Measure");
-            if not CheckTSLineDetailPosting(
-                 "Time Sheet No.",
-                 "Time Sheet Line No.",
-                 "Time Sheet Date",
-                 Quantity,
-                 "Qty. per Unit of Measure",
-                 MaxAvailableQty)
-            then
-                FieldError(Quantity, StrSubstNo(Text004, MaxAvailableQty, "Unit of Measure Code"));
-        end;
+        JobJnlLine.TestField("Qty. per Unit of Measure");
+        if not CheckTSLineDetailPosting(
+             JobJnlLine."Time Sheet No.",
+             JobJnlLine."Time Sheet Line No.",
+             JobJnlLine."Time Sheet Date",
+             JobJnlLine.Quantity,
+             JobJnlLine."Qty. per Unit of Measure",
+             MaxAvailableQty)
+        then
+            JobJnlLine.FieldError(Quantity, StrSubstNo(Text004, MaxAvailableQty, JobJnlLine."Unit of Measure Code"));
     end;
 
     procedure CheckServiceLine(ServiceLine: Record "Service Line")
     var
         MaxAvailableQty: Decimal;
     begin
-        with ServiceLine do begin
-            TestField("Qty. per Unit of Measure");
-            if not CheckTSLineDetailPosting(
-                 "Time Sheet No.",
-                 "Time Sheet Line No.",
-                 "Time Sheet Date",
-                 "Qty. to Ship",
-                 "Qty. per Unit of Measure",
-                 MaxAvailableQty)
-            then
-                FieldError(Quantity, StrSubstNo(Text004, MaxAvailableQty, "Unit of Measure Code"));
-        end;
+        ServiceLine.TestField("Qty. per Unit of Measure");
+        if not CheckTSLineDetailPosting(
+             ServiceLine."Time Sheet No.",
+             ServiceLine."Time Sheet Line No.",
+             ServiceLine."Time Sheet Date",
+             ServiceLine."Qty. to Ship",
+             ServiceLine."Qty. per Unit of Measure",
+             MaxAvailableQty)
+        then
+            ServiceLine.FieldError(Quantity, StrSubstNo(Text004, MaxAvailableQty, ServiceLine."Unit of Measure Code"));
     end;
 
     procedure CopyFilteredTimeSheetLinesToBuffer(var TimeSheetLineFrom: Record "Time Sheet Line"; var TimeSheetLineTo: Record "Time Sheet Line")
@@ -907,28 +1142,26 @@ codeunit 950 "Time Sheet Management"
         TimeSheetDate: Date;
         i: Integer;
     begin
-        with TimeSheetLine do begin
-            TimeSheetHeader.Get("Time Sheet No.");
-            for i := 1 to 7 do begin
-                TimeSheetDate := TimeSheetHeader."Starting Date" + i - 1;
-                if AllocatedQty[i] <> 0 then begin
-                    if TimeSheetDetail.Get("Time Sheet No.", "Line No.", TimeSheetDate) then begin
-                        TimeSheetDetail.Quantity := AllocatedQty[i];
-                        TimeSheetDetail."Posted Quantity" := TimeSheetDetail.Quantity;
-                        TimeSheetDetail.Modify();
-                    end else begin
-                        TimeSheetDetail.Init();
-                        TimeSheetDetail.CopyFromTimeSheetLine(TimeSheetLine);
-                        TimeSheetDetail.Posted := true;
-                        TimeSheetDetail.Date := TimeSheetDate;
-                        TimeSheetDetail.Quantity := AllocatedQty[i];
-                        TimeSheetDetail."Posted Quantity" := TimeSheetDetail.Quantity;
-                        TimeSheetDetail.Insert();
-                    end;
-                end else
-                    if TimeSheetDetail.Get("Time Sheet No.", "Line No.", TimeSheetDate) then
-                        TimeSheetDetail.Delete();
-            end;
+        TimeSheetHeader.Get(TimeSheetLine."Time Sheet No.");
+        for i := 1 to 7 do begin
+            TimeSheetDate := TimeSheetHeader."Starting Date" + i - 1;
+            if AllocatedQty[i] <> 0 then begin
+                if TimeSheetDetail.Get(TimeSheetLine."Time Sheet No.", TimeSheetLine."Line No.", TimeSheetDate) then begin
+                    TimeSheetDetail.Quantity := AllocatedQty[i];
+                    TimeSheetDetail."Posted Quantity" := TimeSheetDetail.Quantity;
+                    TimeSheetDetail.Modify();
+                end else begin
+                    TimeSheetDetail.Init();
+                    TimeSheetDetail.CopyFromTimeSheetLine(TimeSheetLine);
+                    TimeSheetDetail.Posted := true;
+                    TimeSheetDetail.Date := TimeSheetDate;
+                    TimeSheetDetail.Quantity := AllocatedQty[i];
+                    TimeSheetDetail."Posted Quantity" := TimeSheetDetail.Quantity;
+                    TimeSheetDetail.Insert();
+                end;
+            end else
+                if TimeSheetDetail.Get(TimeSheetLine."Time Sheet No.", TimeSheetLine."Line No.", TimeSheetDate) then
+                    TimeSheetDetail.Delete();
         end;
     end;
 
@@ -938,33 +1171,32 @@ codeunit 950 "Time Sheet Management"
         ActivitySubID := '';
         ActivityCaption := '';
         ActivityID := '';
-        with TimeSheetLine do
-            case Type of
-                Type::Job:
-                    begin
-                        ActivityCaption := FieldCaption("Job No.");
-                        ActivityID := "Job No.";
-                        ActivitySubCaption := FieldCaption("Job Task No.");
-                        ActivitySubID := "Job Task No.";
-                    end;
-                Type::Absence:
-                    begin
-                        ActivityCaption := FieldCaption("Cause of Absence Code");
-                        ActivityID := "Cause of Absence Code";
-                    end;
-                Type::"Assembly Order":
-                    begin
-                        ActivityCaption := FieldCaption("Assembly Order No.");
-                        ActivityID := "Assembly Order No.";
-                    end;
-                Type::Service:
-                    begin
-                        ActivityCaption := FieldCaption("Service Order No.");
-                        ActivityID := "Service Order No.";
-                    end;
-                else
-                    OnGetActivityInfoCaseTypeElse(TimeSheetLine, ActivitySubCaption, ActivitySubID, ActivityCaption, ActivityID);
-            end;
+        case TimeSheetLine.Type of
+            TimeSheetLine.Type::Job:
+                begin
+                    ActivityCaption := CopyStr(TimeSheetLine.FieldCaption("Job No."), 1, 30);
+                    ActivityID := TimeSheetLine."Job No.";
+                    ActivitySubCaption := CopyStr(TimeSheetLine.FieldCaption("Job Task No."), 1, 30);
+                    ActivitySubID := TimeSheetLine."Job Task No.";
+                end;
+            TimeSheetLine.Type::Absence:
+                begin
+                    ActivityCaption := CopyStr(TimeSheetLine.FieldCaption("Cause of Absence Code"), 1, 30);
+                    ActivityID := TimeSheetLine."Cause of Absence Code";
+                end;
+            TimeSheetLine.Type::"Assembly Order":
+                begin
+                    ActivityCaption := CopyStr(TimeSheetLine.FieldCaption("Assembly Order No."), 1, 30);
+                    ActivityID := TimeSheetLine."Assembly Order No.";
+                end;
+            TimeSheetLine.Type::Service:
+                begin
+                    ActivityCaption := CopyStr(TimeSheetLine.FieldCaption("Service Order No."), 1, 30);
+                    ActivityID := TimeSheetLine."Service Order No.";
+                end;
+            else
+                OnGetActivityInfoCaseTypeElse(TimeSheetLine, ActivitySubCaption, ActivitySubID, ActivityCaption, ActivityID);
+        end;
 
         OnAfterGetActivityInfo(TimeSheetLine, ActivitySubCaption, ActivitySubID, ActivityCaption, ActivityID);
     end;
@@ -1219,6 +1451,21 @@ codeunit 950 "Time Sheet Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTimeSheetCmtLineArchiveInsert(var TimeSheetCmtLineArchive: Record "Time Sheet Cmt. Line Archive"; TimeSheetCommentLine: Record "Time Sheet Comment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyTimeSheetLine(var ToTimeSheetHeader: Record "Time Sheet Header"; var FromTimeSheetLine: Record "Time Sheet Line"; CopyComments: Boolean; var NextLineNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyTimeSheetLineArchive(var ToTimeSheetHeader: Record "Time Sheet Header"; var FromTimeSheetLineArchive: Record "Time Sheet Line Archive"; CopyComments: Boolean; var NextLineNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckTimeSheetLineFieldsVisible(var WorkTypeCodeVisible: Boolean; var JobFieldsVisible: Boolean; var ChargeableVisible: Boolean; var ServiceOrderNoVisible: Boolean; var AbsenceCauseVisible: Boolean; var AssemblyOrderNoVisible: Boolean)
     begin
     end;
 }

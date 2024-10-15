@@ -10,7 +10,7 @@ using Microsoft.Foundation.Enums;
 using Microsoft.Foundation.Period;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Projects.Resources.Resource;
@@ -238,8 +238,6 @@ page 9243 "Res. Group Capacity Matrix"
                     ApplicationArea = Jobs;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Res. Gr. Statistics";
                     RunPageLink = "No." = field("No."),
                                   "Date Filter" = field("Date Filter"),
@@ -274,7 +272,7 @@ page 9243 "Res. Group Capacity Matrix"
             {
                 Caption = '&Prices';
                 Image = Price;
-#if not CLEAN21
+#if not CLEAN23
                 action(Costs)
                 {
                     ApplicationArea = Jobs;
@@ -325,8 +323,6 @@ page 9243 "Res. Group Capacity Matrix"
                     ApplicationArea = Jobs;
                     Caption = 'Sales Prices';
                     Image = Price;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or edit prices for the resource group.';
 
@@ -352,7 +348,7 @@ page 9243 "Res. Group Capacity Matrix"
                     RunPageLink = "No." = field("No."),
                                   "Unit of Measure Filter" = field("Unit of Measure Filter"),
                                   "Chargeable Filter" = field("Chargeable Filter");
-                    ToolTip = 'View a summary of resource group capacities, the quantity of resource hours allocated to jobs on order, the quantity allocated to service orders, the capacity assigned to jobs on quote, and the resource group availability.';
+                    ToolTip = 'View a summary of resource group capacities, the quantity of resource hours allocated to projects on order, the quantity allocated to service orders, the capacity assigned to projects on quote, and the resource group availability.';
                 }
             }
         }

@@ -8,6 +8,7 @@ table 130406 "CAL Test Coverage Map"
     DrillDownPageID = "CAL Test Coverage Map";
     LookupPageID = "CAL Test Coverage Map";
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -27,7 +28,7 @@ table 130406 "CAL Test Coverage Map"
         }
         field(4; "Object Name"; Text[250])
         {
-            CalcFormula = Lookup(Object.Name where(Type = field("Object Type"),
+            CalcFormula = lookup(Object.Name where(Type = field("Object Type"),
                                                     ID = field("Object ID")));
             Caption = 'Object Name';
             Editable = false;
@@ -35,14 +36,14 @@ table 130406 "CAL Test Coverage Map"
         }
         field(5; "Hit by Test Codeunits"; Integer)
         {
-            CalcFormula = Count("CAL Test Coverage Map" where("Object Type" = field("Object Type"),
+            CalcFormula = count("CAL Test Coverage Map" where("Object Type" = field("Object Type"),
                                                                "Object ID" = field("Object ID")));
             Caption = 'Hit by Test Codeunits';
             FieldClass = FlowField;
         }
         field(6; "Test Codeunit Name"; Text[250])
         {
-            CalcFormula = Lookup(Object.Name where(Type = const(Codeunit),
+            CalcFormula = lookup(Object.Name where(Type = const(Codeunit),
                                                     ID = field("Test Codeunit ID")));
             Caption = 'Test Codeunit Name';
             Editable = false;

@@ -29,7 +29,7 @@ codeunit 139170 "CRM Synch. Status Cue Test"
         CRMSynchJobStatusCue."Reset Date" := TestDate;
         CRMSynchJobStatusCue.Modify();
         CRMSynchJobManagement.SetInitialState(CRMSynchJobStatusCue);
-        DefaultObjectToRun := CRMSynchJobManagement.GetDefaultJobRunner;
+        DefaultObjectToRun := CRMSynchJobManagement.GetDefaultJobRunner();
         EvaluateFilters(CRMSynchJobStatusCue, TestDate, DefaultObjectToRun);
     end;
 

@@ -204,7 +204,7 @@ codeunit 141038 "ERM VAT - Details"
     local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Quantity: Decimal)
     begin
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, Quantity);
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), Quantity);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchaseLine.Modify(true);
     end;
@@ -213,14 +213,14 @@ codeunit 141038 "ERM VAT - Details"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo());
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, LibraryRandom.RandDecInRange(100, 200, 2)); // Random for Quantity.
     end;
 
     local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Quantity: Decimal)
     begin
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, Quantity);
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), Quantity);
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
     end;
@@ -229,13 +229,13 @@ codeunit 141038 "ERM VAT - Details"
     var
         SalesHeader: Record "Sales Header";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo());
         CreateSalesLine(SalesLine, SalesHeader, LibraryRandom.RandDecInRange(100, 200, 2)); // Random for Quantity.
     end;
 
     local procedure CreateCurrencyWithExchRateAmount(var CurrencyCode: Code[10])
     begin
-        CurrencyCode := LibraryERM.CreateCurrencyWithGLAccountSetup;
+        CurrencyCode := LibraryERM.CreateCurrencyWithGLAccountSetup();
         LibraryERM.CreateRandomExchangeRate(CurrencyCode);
     end;
 
@@ -253,7 +253,7 @@ codeunit 141038 "ERM VAT - Details"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, LibraryRandom.RandInt(100));
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, LibraryRandom.RandInt(100));
         VendorNo := PurchaseHeader."Buy-from Vendor No.";
@@ -265,7 +265,7 @@ codeunit 141038 "ERM VAT - Details"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         CreateSalesLine(SalesLine, SalesHeader, LibraryRandom.RandInt(100));
         CreateSalesLine(SalesLine, SalesHeader, LibraryRandom.RandInt(100));
         CustomerNo := SalesHeader."Sell-to Customer No.";
@@ -284,8 +284,8 @@ codeunit 141038 "ERM VAT - Details"
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.FindFirst();
         GLEntry.CalcSums("Credit Amount", "Debit Amount");
-        Assert.AreNearlyEqual(AmountIncludingVATCredit, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqual);
-        Assert.AreNearlyEqual(AmountIncludingVATDebit, -GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqual);
+        Assert.AreNearlyEqual(AmountIncludingVATCredit, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision(), AmountMustBeEqual);
+        Assert.AreNearlyEqual(AmountIncludingVATDebit, -GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision(), AmountMustBeEqual);
     end;
 
     local procedure VerifyVATEntry(DocumentNo: Code[20]; AmountFilter: Text; Amount: Decimal)
@@ -295,7 +295,7 @@ codeunit 141038 "ERM VAT - Details"
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.SetFilter(Amount, AmountFilter, 0);
         VATEntry.FindFirst();
-        Assert.AreNearlyEqual(Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqual);
+        Assert.AreNearlyEqual(Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), AmountMustBeEqual);
     end;
 
     local procedure VerifyVATEntryACY(DocumentNo: Code[20]; LineBase: Decimal; VATAmountACY: Decimal; VATBaseACY: Decimal; VendCustNo: Code[20])
@@ -329,7 +329,7 @@ codeunit 141038 "ERM VAT - Details"
                   DocumentNo, -Amount,
                   -Round(GetRoundedPercent(Amount, "VAT %", CurrAmountRoundingPrecision) * CurrencyFactor, CurrAmountRoundingPrecision),
                   -Round(Amount * CurrencyFactor, CurrAmountRoundingPrecision), CustomerNo);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -350,7 +350,7 @@ codeunit 141038 "ERM VAT - Details"
                   DocumentNo, Amount,
                   Round(GetRoundedPercent(Amount, "VAT %", CurrAmountRoundingPrecision) * CurrencyFactor, CurrAmountRoundingPrecision),
                   Round(Amount * CurrencyFactor, CurrAmountRoundingPrecision), VendorNo);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 }

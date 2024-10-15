@@ -262,45 +262,43 @@ codeunit 87 "Blanket Sales Order to Order"
         if IsHandled then
             exit(CreditLimitExceeded);
 
-        with SalesHeader do begin
-            if SalesSetup."Copy Comments Blanket to Order" then
-                CalcFields("Work Description");
-            SalesOrderHeader := SalesHeader;
-            SalesOrderHeader."Document Type" := SalesOrderHeader."Document Type"::Order;
-            if not HideValidationDialog then
-                CreditLimitExceeded := CustCheckCreditLimit.SalesHeaderCheck(SalesOrderHeader);
+        if SalesSetup."Copy Comments Blanket to Order" then
+            SalesHeader.CalcFields("Work Description");
+        SalesOrderHeader := SalesHeader;
+        SalesOrderHeader."Document Type" := SalesOrderHeader."Document Type"::Order;
+        if not HideValidationDialog then
+            CreditLimitExceeded := CustCheckCreditLimit.SalesHeaderCheck(SalesOrderHeader);
 
-            SalesOrderHeader."No. Printed" := 0;
-            SalesOrderHeader.Status := SalesOrderHeader.Status::Open;
-            SalesOrderHeader."No." := '';
+        SalesOrderHeader."No. Printed" := 0;
+        SalesOrderHeader.Status := SalesOrderHeader.Status::Open;
+        SalesOrderHeader."No." := '';
 
-            SalesOrderLine.LockTable();
-            OnBeforeInsertSalesOrderHeader(SalesOrderHeader, SalesHeader);
-            StandardCodesMgt.SetSkipRecurringLines(true);
-            SalesOrderHeader.SetStandardCodesMgt(StandardCodesMgt);
-            SalesOrderHeader.Insert(true);
-            OnCreateSalesHeaderOnAfterSalesOrderHeaderInsert(SalesHeader, SalesOrderHeader);
+        SalesOrderLine.LockTable();
+        OnBeforeInsertSalesOrderHeader(SalesOrderHeader, SalesHeader);
+        StandardCodesMgt.SetSkipRecurringLines(true);
+        SalesOrderHeader.SetStandardCodesMgt(StandardCodesMgt);
+        SalesOrderHeader.Insert(true);
+        OnCreateSalesHeaderOnAfterSalesOrderHeaderInsert(SalesHeader, SalesOrderHeader);
 
-            if "Order Date" = 0D then
-                SalesOrderHeader."Order Date" := WorkDate()
-            else
-                SalesOrderHeader."Order Date" := "Order Date";
-            if "Posting Date" <> 0D then
-                SalesOrderHeader."Posting Date" := "Posting Date";
-            if SalesOrderHeader."Posting Date" = 0D then
-                SalesOrderHeader."Posting Date" := WorkDate();
+        if SalesHeader."Order Date" = 0D then
+            SalesOrderHeader."Order Date" := WorkDate()
+        else
+            SalesOrderHeader."Order Date" := SalesHeader."Order Date";
+        if SalesHeader."Posting Date" <> 0D then
+            SalesOrderHeader."Posting Date" := SalesHeader."Posting Date";
+        if SalesOrderHeader."Posting Date" = 0D then
+            SalesOrderHeader."Posting Date" := WorkDate();
 
-            SalesOrderHeader.InitFromSalesHeader(SalesHeader);
-            OnCreateSalesHeaderOnAfterSalesOrderHeaderInitFromSalesHeader(SalesHeader, HideValidationDialog, SalesOrderHeader);
-            SalesOrderHeader.Validate("Posting Date");
-            SalesOrderHeader."Outbound Whse. Handling Time" := "Outbound Whse. Handling Time";
-            SalesOrderHeader.Reserve := Reserve;
+        SalesOrderHeader.InitFromSalesHeader(SalesHeader);
+        OnCreateSalesHeaderOnAfterSalesOrderHeaderInitFromSalesHeader(SalesHeader, HideValidationDialog, SalesOrderHeader);
+        SalesOrderHeader.Validate("Posting Date");
+        SalesOrderHeader."Outbound Whse. Handling Time" := SalesHeader."Outbound Whse. Handling Time";
+        SalesOrderHeader.Reserve := SalesHeader.Reserve;
 
-            SalesOrderHeader."Prepayment %" := PrepmtPercent;
+        SalesOrderHeader."Prepayment %" := PrepmtPercent;
 
-            OnBeforeSalesOrderHeaderModify(SalesOrderHeader, SalesHeader);
-            SalesOrderHeader.Modify();
-        end;
+        OnBeforeSalesOrderHeaderModify(SalesOrderHeader, SalesHeader);
+        SalesOrderHeader.Modify();
     end;
 
     local procedure ResetQuantityFields(var TempSalesLine: Record "Sales Line")
@@ -340,20 +338,19 @@ codeunit 87 "Blanket Sales Order to Order"
         if IsHandled then
             exit;
 
-        with SalesLine do
-            if (Type = Type::Item) and
-               (Reserve = Reserve::Always) and
-               ("No." <> '')
-            then begin
-                TestField("Shipment Date");
-                ReservMgt.SetReservSource(SalesLine);
-                ReservMgt.AutoReserve(FullAutoReservation, '', "Shipment Date", "Qty. to Ship", "Qty. to Ship (Base)");
-                Find();
-                if not FullAutoReservation then begin
-                    TempSalesLine.TransferFields(SalesLine);
-                    TempSalesLine.Insert();
-                end;
+        if (SalesLine.Type = SalesLine.Type::Item) and
+            (SalesLine.Reserve = SalesLine.Reserve::Always) and
+            (SalesLine."No." <> '')
+        then begin
+            SalesLine.TestField("Shipment Date");
+            ReservMgt.SetReservSource(SalesLine);
+            ReservMgt.AutoReserve(FullAutoReservation, '', SalesLine."Shipment Date", SalesLine."Qty. to Ship", SalesLine."Qty. to Ship (Base)");
+            SalesLine.Find();
+            if not FullAutoReservation then begin
+                TempSalesLine.TransferFields(SalesLine);
+                TempSalesLine.Insert();
             end;
+        end;
     end;
 
     local procedure CheckAvailability(BlanketOrderSalesHeader: Record "Sales Header")
@@ -367,36 +364,34 @@ codeunit 87 "Blanket Sales Order to Order"
         if IsHandled then
             exit;
 
-        with BlanketOrderSalesLine do begin
-            SetRange("Document Type", BlanketOrderSalesHeader."Document Type");
-            SetRange("Document No.", BlanketOrderSalesHeader."No.");
-            SetRange(Type, Type::Item);
-            SetFilter("No.", '<>%1', '');
-            if FindSet() then
-                repeat
-                    if "Qty. to Ship" > 0 then begin
-                        SalesLine := BlanketOrderSalesLine;
-                        ResetQuantityFields(SalesLine);
-                        SalesLine.Quantity := "Qty. to Ship";
-                        SalesLine."Quantity (Base)" := Round(SalesLine.Quantity * SalesLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
-                        SalesLine."Qty. to Ship" := SalesLine.Quantity;
-                        SalesLine."Qty. to Ship (Base)" := SalesLine."Quantity (Base)";
-                        OnCheckAvailabilityOnBeforeSalesLineInitOutstanding(SalesLine, BlanketOrderSalesLine);
-                        SalesLine.InitOutstanding();
-                        if ATOLink.AsmExistsForSalesLine(BlanketOrderSalesLine) then begin
-                            SalesLine."Qty. to Assemble to Order" := SalesLine.Quantity;
-                            SalesLine."Qty. to Asm. to Order (Base)" := SalesLine."Quantity (Base)";
-                            SalesLine."Outstanding Quantity" -= SalesLine."Qty. to Assemble to Order";
-                            SalesLine."Outstanding Qty. (Base)" -= SalesLine."Qty. to Asm. to Order (Base)";
-                        end;
-
-                        ShouldCheckSalesLineItemAvailability := not HideValidationDialog;
-                        OnCheckAvailabilityOnAfterCalcShouldCheckSalesLineItemAvailability(BlanketOrderSalesHeader, SalesLine, ShouldCheckSalesLineItemAvailability);
-                        if ShouldCheckSalesLineItemAvailability then
-                            CheckSalesLineItemAvailability(BlanketOrderSalesHeader);
+        BlanketOrderSalesLine.SetRange("Document Type", BlanketOrderSalesHeader."Document Type");
+        BlanketOrderSalesLine.SetRange("Document No.", BlanketOrderSalesHeader."No.");
+        BlanketOrderSalesLine.SetRange(Type, BlanketOrderSalesLine.Type::Item);
+        BlanketOrderSalesLine.SetFilter("No.", '<>%1', '');
+        if BlanketOrderSalesLine.FindSet() then
+            repeat
+                if BlanketOrderSalesLine."Qty. to Ship" > 0 then begin
+                    SalesLine := BlanketOrderSalesLine;
+                    ResetQuantityFields(SalesLine);
+                    SalesLine.Quantity := BlanketOrderSalesLine."Qty. to Ship";
+                    SalesLine."Quantity (Base)" := Round(SalesLine.Quantity * SalesLine."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
+                    SalesLine."Qty. to Ship" := SalesLine.Quantity;
+                    SalesLine."Qty. to Ship (Base)" := SalesLine."Quantity (Base)";
+                    OnCheckAvailabilityOnBeforeSalesLineInitOutstanding(SalesLine, BlanketOrderSalesLine);
+                    SalesLine.InitOutstanding();
+                    if ATOLink.AsmExistsForSalesLine(BlanketOrderSalesLine) then begin
+                        SalesLine."Qty. to Assemble to Order" := SalesLine.Quantity;
+                        SalesLine."Qty. to Asm. to Order (Base)" := SalesLine."Quantity (Base)";
+                        SalesLine."Outstanding Quantity" -= SalesLine."Qty. to Assemble to Order";
+                        SalesLine."Outstanding Qty. (Base)" -= SalesLine."Qty. to Asm. to Order (Base)";
                     end;
-                until Next() = 0;
-        end;
+
+                    ShouldCheckSalesLineItemAvailability := not HideValidationDialog;
+                    OnCheckAvailabilityOnAfterCalcShouldCheckSalesLineItemAvailability(BlanketOrderSalesHeader, SalesLine, ShouldCheckSalesLineItemAvailability);
+                    if ShouldCheckSalesLineItemAvailability then
+                        CheckSalesLineItemAvailability(BlanketOrderSalesHeader);
+                end;
+            until BlanketOrderSalesLine.Next() = 0;
     end;
 
     local procedure CheckSalesLineItemAvailability(BlanketOrderSalesHeader: Record "Sales Header")

@@ -61,7 +61,7 @@ codeunit 131900 "Library - Marketing"
     begin
         MarketingSetup.Get();
         if MarketingSetup."Campaign Nos." = '' then begin
-            MarketingSetup.Validate("Campaign Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            MarketingSetup.Validate("Campaign Nos.", LibraryUtility.GetGlobalNoSeriesCode());
             MarketingSetup.Modify(true);
         end;
 
@@ -111,7 +111,7 @@ codeunit 131900 "Library - Marketing"
         Task.Init();
         Task.Validate(Description, Salesperson.Code);
         Task.Validate(Type, TaskType);
-        Task.Validate("Contact No.", CreateCompanyContactNo);
+        Task.Validate("Contact No.", CreateCompanyContactNo());
         Task.Validate("Salesperson Code", Salesperson.Code);
         Task.Validate(Date, WorkDate());
         Task.Validate("Start Time", Time);
@@ -136,7 +136,7 @@ codeunit 131900 "Library - Marketing"
     procedure CreatePersonContactWithCompanyNo(var Contact: Record Contact)
     begin
         CreatePersonContact(Contact);
-        Contact.Validate("Company No.", CreateCompanyContactNo);
+        Contact.Validate("Company No.", CreateCompanyContactNo());
         Contact.Modify(true);
     end;
 
@@ -147,7 +147,7 @@ codeunit 131900 "Library - Marketing"
     begin
         MarketingSetup.Get();
         if MarketingSetup."Contact Nos." = '' then begin
-            MarketingSetup.Validate("Contact Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            MarketingSetup.Validate("Contact Nos.", LibraryUtility.GetGlobalNoSeriesCode());
             MarketingSetup.Modify(true);
         end;
 
@@ -333,21 +333,20 @@ codeunit 131900 "Library - Marketing"
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         SalesCycle: Record "Sales Cycle";
     begin
-        with Opportunity do begin
-            Init();
-            "No." := LibraryUtility.GenerateGUID();
-            Validate("Contact No.", ContactNo);
-            Contact.Get(ContactNo);
-            if Contact."Salesperson Code" <> '' then
-                SalespersonPurchaser.Code := Contact."Salesperson Code"
-            else
-                SalespersonPurchaser.FindFirst();
-            Validate("Salesperson Code", SalespersonPurchaser.Code);
-            Validate(Description, "No." + "Contact No.");  // Validating No. as Description because value is not important.
-            SalesCycle.FindFirst();
-            Validate("Sales Cycle Code", SalesCycle.Code);
-            Insert(true);
-        end;
+        Opportunity.Init();
+        Opportunity."No." := LibraryUtility.GenerateGUID();
+        Opportunity.Validate("Contact No.", ContactNo);
+        Contact.Get(ContactNo);
+        if Contact."Salesperson Code" <> '' then
+            SalespersonPurchaser.Code := Contact."Salesperson Code"
+        else
+            SalespersonPurchaser.FindFirst();
+        Opportunity.Validate("Salesperson Code", SalespersonPurchaser.Code);
+        Opportunity.Validate(Description, Opportunity."No." + Opportunity."Contact No.");
+        // Validating No. as Description because value is not important.
+        SalesCycle.FindFirst();
+        Opportunity.Validate("Sales Cycle Code", SalesCycle.Code);
+        Opportunity.Insert(true);
     end;
 
     procedure CreateQuestionnaireHeader(var ProfileQuestionnaireHeader: Record "Profile Questionnaire Header")
@@ -377,14 +376,12 @@ codeunit 131900 "Library - Marketing"
     var
         ContactProfileAnswer: Record "Contact Profile Answer";
     begin
-        with ContactProfileAnswer do begin
-            Init();
-            Validate("Contact No.", ContactNo);
-            Validate("Profile Questionnaire Code", ProfileQuestionnaireCode);
-            Validate("Line No.", LineNo);
-            Validate("Profile Questionnaire Value", CopyStr(NewProfileQuestionnaireValue, 1, MaxStrLen("Profile Questionnaire Value")));
-            Insert(true);
-        end;
+        ContactProfileAnswer.Init();
+        ContactProfileAnswer.Validate("Contact No.", ContactNo);
+        ContactProfileAnswer.Validate("Profile Questionnaire Code", ProfileQuestionnaireCode);
+        ContactProfileAnswer.Validate("Line No.", LineNo);
+        ContactProfileAnswer.Validate("Profile Questionnaire Value", CopyStr(NewProfileQuestionnaireValue, 1, MaxStrLen(ContactProfileAnswer."Profile Questionnaire Value")));
+        ContactProfileAnswer.Insert(true);
     end;
 
     procedure CreateRlshpMgtCommentLine(var RlshpMgtCommentLine: Record "Rlshp. Mgt. Comment Line"; TableName: Enum "Rlshp. Mgt. Comment Line Table Name"; No: Code[20]; SubNo: Integer)
@@ -471,7 +468,7 @@ codeunit 131900 "Library - Marketing"
         SalesHeader.Modify(true);
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     procedure CreateSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount"; CampaignNo: Code[20]; ItemNo: Code[20])
     begin
         SalesLineDiscount.Init();
@@ -498,7 +495,7 @@ codeunit 131900 "Library - Marketing"
     begin
         MarketingSetup.Get();
         if MarketingSetup."Segment Nos." = '' then begin
-            MarketingSetup.Validate("Segment Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            MarketingSetup.Validate("Segment Nos.", LibraryUtility.GetGlobalNoSeriesCode());
             MarketingSetup.Modify(true);
         end;
 
@@ -554,14 +551,12 @@ codeunit 131900 "Library - Marketing"
     var
         CustomReportLayout: Record "Custom Report Layout";
     begin
-        with CustomReportLayout do begin
-            Init();
-            "Report ID" := REPORT::"Email Merge";
-            Type := Type::Word;
-            Description := StrSubstNo('%1-%2', Format(REPORT::"Email Merge"), Code);
-            Insert(true);
-            exit(Code);
-        end;
+        CustomReportLayout.Init();
+        CustomReportLayout."Report ID" := REPORT::"Email Merge";
+        CustomReportLayout.Type := CustomReportLayout.Type::Word;
+        CustomReportLayout.Description := StrSubstNo('%1-%2', Format(REPORT::"Email Merge"), CustomReportLayout.Code);
+        CustomReportLayout.Insert(true);
+        exit(CustomReportLayout.Code);
     end;
 
     procedure CreateEmailMergeAttachment(var Attachment: Record Attachment) ContentBodyText: Text
@@ -587,7 +582,7 @@ codeunit 131900 "Library - Marketing"
         Contact.Validate(City, LibraryUtility.GenerateGUID());
         Contact.Validate("Phone No.", LibraryUtility.GenerateRandomPhoneNo());
         Contact.Validate("Fax No.", LibraryUtility.GenerateGUID());
-        Contact.Validate("E-Mail", LibraryUtility.GenerateGUID + '@' + LibraryUtility.GenerateGUID());
+        Contact.Validate("E-Mail", LibraryUtility.GenerateGUID() + '@' + LibraryUtility.GenerateGUID());
         Contact.Modify(true);
         exit(Contact."No.");
     end;
@@ -596,17 +591,15 @@ codeunit 131900 "Library - Marketing"
     begin
         Contact.FindSet();
     end;
-    
+
     procedure FindEmailMergeCustomLayoutNo(): Code[20]
     var
         CustomReportLayout: Record "Custom Report Layout";
     begin
-        with CustomReportLayout do begin
-            SetRange("Report ID", REPORT::"Email Merge");
-            SetFilter(Code, 'MS-*');
-            FindFirst();
-            exit(Code);
-        end;
+        CustomReportLayout.SetRange("Report ID", REPORT::"Email Merge");
+        CustomReportLayout.SetFilter(Code, 'MS-*');
+        CustomReportLayout.FindFirst();
+        exit(CustomReportLayout.Code);
     end;
 
     procedure FindEmailMergeCustomLayoutName(): Text[250]
@@ -628,7 +621,7 @@ codeunit 131900 "Library - Marketing"
         AddContacts: Report "Add Contacts";
         RecVar: Variant;
     begin
-        while LibraryVariableStorage.Length > 0 do begin
+        while LibraryVariableStorage.Length() > 0 do begin
             LibraryVariableStorage.Dequeue(RecVar);
             AddContacts.SetTableView(RecVar);
         end;

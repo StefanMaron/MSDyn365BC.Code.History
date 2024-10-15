@@ -42,7 +42,7 @@ codeunit 136137 "Service Item Availability"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Service Item Availability");
         LibraryVariableStorage.Clear();
         // Clear the needed globals
-        ClearGlobals;
+        ClearGlobals();
 
         // Lazy Setup.
         if IsInitialized then
@@ -80,8 +80,8 @@ codeunit 136137 "Service Item Availability"
         SupplyQuantity := RANDOMRANGE(2, 10);
         DemandQuantity := SupplyQuantity - 1;
         CreateItem(Item);
-        FirstLocationName := CreateLocation;
-        SecondLocationName := CreateLocation;
+        FirstLocationName := CreateLocation();
+        SecondLocationName := CreateLocation();
 
         // SETUP: Create supply and demand
         CreatePurchaseSupplyAtLocation(Item."No.", SupplyQuantity, FirstLocationName);
@@ -89,10 +89,10 @@ codeunit 136137 "Service Item Availability"
         EditServiceLinesLocation(ServiceOrderNo, SecondLocationName);
 
         // EXECUTE: Open Item Availability by Location
-        ItemCard.OpenView;
+        ItemCard.OpenView();
         MoveItemCardtoItemNo(ItemCard, Item);
-        ItemAvailabilityByLocation.Trap;
-        ItemCard.Location.Invoke;
+        ItemAvailabilityByLocation.Trap();
+        ItemCard.Location.Invoke();
 
         // VERIFY: The locations have the right supply and demand numbers
         FoundFirstLocation := false;
@@ -128,18 +128,18 @@ codeunit 136137 "Service Item Availability"
         SupplyQuantity := LibraryRandom.RandInt(10);
         DemandQuantity := SupplyQuantity;
         CreateItem(Item);
-        FirstLocationName := CreateLocation;
+        FirstLocationName := CreateLocation();
 
         // SETUP: Create supply and demand to the location
         CreatePurchaseSupplyAtLocation(Item."No.", SupplyQuantity, FirstLocationName);
         CreateJobDemand(Item."No.", SupplyQuantity, FirstLocationName);
 
         // EXECUTE: Open the item availability by location
-        ItemCard.OpenView;
+        ItemCard.OpenView();
         MoveItemCardtoItemNo(ItemCard, Item);
 
-        ItemAvailabilityByLocation.Trap;
-        ItemCard.Location.Invoke;
+        ItemAvailabilityByLocation.Trap();
+        ItemCard.Location.Invoke();
 
         // VERIFY: The demand is reflected in the Item availability by location overview:
         // VERIFY: There should be exactly one line with the correct values of:
@@ -174,7 +174,7 @@ codeunit 136137 "Service Item Availability"
         Initialize();
 
         CreateItem(Item);
-        FirstLocationName := CreateLocation;
+        FirstLocationName := CreateLocation();
         FirstJobQuantity := -LibraryRandom.RandInt(10);
         SecondJobQuantity := LibraryRandom.RandInt(30);
         FirstServiceQuantity := LibraryRandom.RandInt(40);
@@ -193,18 +193,18 @@ codeunit 136137 "Service Item Availability"
         CreateStockkeepingUnit(ItemNo, FirstLocationName);
 
         // EXECUTE: Verify the demand is available on the sku page
-        StockKeepingCard.OpenEdit;
+        StockKeepingCard.OpenEdit();
         StockKeepingCard.FILTER.SetFilter("Item No.", ItemNo);
-        StockKeepingCard.First;
+        StockKeepingCard.First();
 
         // VERIFY: Quantity from Job and Service Demand on Stockkeeping Unit Card Q1+Q2 and Q3+Q4
         Assert.AreEqual(
           ItemNo, StockKeepingCard."Item No.".Value, 'Itemno was found');
         Assert.AreEqual(
-          FirstJobQuantity + SecondJobQuantity, StockKeepingCard."Qty. on Job Order".AsInteger,
+          FirstJobQuantity + SecondJobQuantity, StockKeepingCard."Qty. on Job Order".AsInteger(),
           'Quantity on Demands from Jobs is not correct');
         Assert.AreEqual(
-          FirstServiceQuantity + SecondServiceQuantity, StockKeepingCard."Qty. on Service Order".AsInteger,
+          FirstServiceQuantity + SecondServiceQuantity, StockKeepingCard."Qty. on Service Order".AsInteger(),
           'Quantity on Demands from Service is not correct');
 
         // CLEANUP: Close the sku page
@@ -230,10 +230,10 @@ codeunit 136137 "Service Item Availability"
         CreateServiceDemand(Item."No.", DemandQuantity);
 
         // EXECUTE: Open the Item Availability By Period page.
-        ItemCard.OpenView;
+        ItemCard.OpenView();
         MoveItemCardtoItemNo(ItemCard, Item);
-        ItemAvailabilityByPeriod.Trap;
-        ItemCard.Period.Invoke;
+        ItemAvailabilityByPeriod.Trap();
+        ItemCard.Period.Invoke();
         SetDemandByPeriodFilters(ItemAvailabilityByPeriod, Item."No.", WorkDate());
 
         // VERIFY: The quantities in demand by period grid columns for the demand date
@@ -267,10 +267,10 @@ codeunit 136137 "Service Item Availability"
         NeededByDate := CalcDate('<+1D>', WorkDate());
         EditServiceLinesNeededDate(ServiceOrderNo, NeededByDate);
 
-        ItemCard.OpenView;
+        ItemCard.OpenView();
         MoveItemCardtoItemNo(ItemCard, Item);
-        ItemAvailabilityByPeriod.Trap;
-        ItemCard.Period.Invoke;
+        ItemAvailabilityByPeriod.Trap();
+        ItemCard.Period.Invoke();
 
         // VERIFY: The quantities in demand by period grid columns for demand date and work date
         // VERIFY: Gross Requirement, Scheduled Receipt and Projected Available Balance are correct.
@@ -303,10 +303,10 @@ codeunit 136137 "Service Item Availability"
         CreateJobDemandVariant(Item."No.", DemandQuantity, DemandVariantCode);
 
         // EXECUTE: Open the Item Availability By Variant page.
-        ItemCard.OpenView;
+        ItemCard.OpenView();
         MoveItemCardtoItemNo(ItemCard, Item);
-        ItemAvailabilityByVariant.Trap;
-        ItemCard.Variant.Invoke;
+        ItemAvailabilityByVariant.Trap();
+        ItemCard.Variant.Invoke();
 
         // VERIFY: The quantities in demand by Variant grid columns
         // VERIFY: Columns: Gross Requirement, Scheduled Receipt and Projected Available Balance are correct.
@@ -347,10 +347,10 @@ codeunit 136137 "Service Item Availability"
         CreateServiceDemandVariant(Item."No.", DemandQuantity, SecondVariantCode);
 
         // EXECUTE: Open the Item Availability By Variant page.
-        ItemCard.OpenView;
+        ItemCard.OpenView();
         MoveItemCardtoItemNo(ItemCard, Item);
-        ItemAvailabilityByVariant.Trap;
-        ItemCard.Variant.Invoke;
+        ItemAvailabilityByVariant.Trap();
+        ItemCard.Variant.Invoke();
 
         // VERIFY: The quantities in demand by Variant grid columns
         // VERIFY: Columns: Gross Requirement, Scheduled Receipt and Projected Available Balance are correct.
@@ -835,17 +835,17 @@ codeunit 136137 "Service Item Availability"
         ServiceLineToSelect: Record "Service Line";
     begin
         ServiceHeader.Get(ServiceHeader."Document Type"::Order, ServiceOrderNo);
-        ServiceLinesToReturn.OpenEdit;
+        ServiceLinesToReturn.OpenEdit();
 
         ServiceLineToSelect.SetRange("Document Type", ServiceLineToSelect."Document Type"::Order);
         ServiceLineToSelect.SetRange("Document No.", ServiceOrderNo);
         ServiceLineToSelect.FindFirst();
 
-        ServiceLinesToReturn.First;
+        ServiceLinesToReturn.First();
         ServiceLinesToReturn.FILTER.SetFilter("Document Type", 'Order');
         ServiceLinesToReturn.FILTER.SetFilter("Document No.", ServiceOrderNo);
         ServiceLinesToReturn.FILTER.SetFilter("Line No.", Format(ServiceLineToSelect."Line No."));
-        ServiceLinesToReturn.First;
+        ServiceLinesToReturn.First();
     end;
 
     local procedure OpenItemAvailByEvent(Item: Record Item)
@@ -853,9 +853,9 @@ codeunit 136137 "Service Item Availability"
         ItemCard: TestPage "Item Card";
     begin
         Commit();
-        ItemCard.OpenView;
+        ItemCard.OpenView();
         MoveItemCardtoItemNo(ItemCard, Item);
-        ItemCard."<Action110>".Invoke; // <Action110> refers to Item Availability By Event.
+        ItemCard."<Action110>".Invoke(); // <Action110> refers to Item Availability By Event.
     end;
 
     [Normal]
@@ -878,7 +878,7 @@ codeunit 136137 "Service Item Availability"
         ItemAvailabilityByPeriod.FILTER.SetFilter("No.", ItemNo);
         ItemAvailabilityByPeriod.ItemAvailLines.FILTER.SetFilter("Period Start", Format(FilterDate));
         ItemAvailabilityByPeriod.PeriodType.Value := 'Day';
-        ItemAvailabilityByPeriod.ItemAvailLines.First;
+        ItemAvailabilityByPeriod.ItemAvailLines.First();
         Evaluate(StartDate, ItemAvailabilityByPeriod.ItemAvailLines."Period Start".Value);
         Assert.AreEqual(FilterDate, StartDate, 'SetFilter returned record with correct date');
     end;
@@ -887,11 +887,11 @@ codeunit 136137 "Service Item Availability"
     local procedure AssertDemandByPeriodQuantities(Demand: Integer; Supply: Integer; Forecasted: Integer; var ItemAvailabilityByPeriod: TestPage "Item Availability by Periods")
     begin
         Assert.AreEqual(
-          Demand, ItemAvailabilityByPeriod.ItemAvailLines.GrossRequirement.AsInteger, 'Column Gross Requirement Verified');
+          Demand, ItemAvailabilityByPeriod.ItemAvailLines.GrossRequirement.AsInteger(), 'Column Gross Requirement Verified');
         Assert.AreEqual(
-          Supply, ItemAvailabilityByPeriod.ItemAvailLines.ScheduledRcpt.AsInteger, 'Column Scheduled Verified');
+          Supply, ItemAvailabilityByPeriod.ItemAvailLines.ScheduledRcpt.AsInteger(), 'Column Scheduled Verified');
         Assert.AreEqual(
-          Forecasted, ItemAvailabilityByPeriod.ItemAvailLines.ProjAvailableBalance.AsInteger, 'Column Projected Available Balance');
+          Forecasted, ItemAvailabilityByPeriod.ItemAvailLines.ProjAvailableBalance.AsInteger(), 'Column Projected Available Balance');
     end;
 
     [Normal]
@@ -899,11 +899,11 @@ codeunit 136137 "Service Item Availability"
     begin
         // Quantity assertions for the Item availability by location window
         Assert.AreEqual(
-          Demand, ItemAvailabilityByLocation.ItemAvailLocLines.GrossRequirement.AsInteger, 'Column Gross Requirement Verified');
+          Demand, ItemAvailabilityByLocation.ItemAvailLocLines.GrossRequirement.AsInteger(), 'Column Gross Requirement Verified');
         Assert.AreEqual(
-          Supply, ItemAvailabilityByLocation.ItemAvailLocLines.ScheduledRcpt.AsInteger, 'Column Scheduled Verified');
+          Supply, ItemAvailabilityByLocation.ItemAvailLocLines.ScheduledRcpt.AsInteger(), 'Column Scheduled Verified');
         Assert.AreEqual(
-          Forecasted, ItemAvailabilityByLocation.ItemAvailLocLines.ProjAvailableBalance.AsInteger, 'Column Projected Available Balance');
+          Forecasted, ItemAvailabilityByLocation.ItemAvailLocLines.ProjAvailableBalance.AsInteger(), 'Column Projected Available Balance');
     end;
 
     [Normal]
@@ -911,11 +911,11 @@ codeunit 136137 "Service Item Availability"
     begin
         // Quantity assertions for Item availability by variant window
         Assert.AreEqual(
-          Demand, ItemAvailabilityByVariant.ItemAvailLocLines.GrossRequirement.AsInteger, 'Column Gross Requirement Verified');
+          Demand, ItemAvailabilityByVariant.ItemAvailLocLines.GrossRequirement.AsInteger(), 'Column Gross Requirement Verified');
         Assert.AreEqual(
-          Supply, ItemAvailabilityByVariant.ItemAvailLocLines.ScheduledRcpt.AsInteger, 'Column Scheduled Verified');
+          Supply, ItemAvailabilityByVariant.ItemAvailLocLines.ScheduledRcpt.AsInteger(), 'Column Scheduled Verified');
         Assert.AreEqual(
-          Forecasted, ItemAvailabilityByVariant.ItemAvailLocLines.ProjAvailableBalance.AsInteger, 'Column Projected Available Balance');
+          Forecasted, ItemAvailabilityByVariant.ItemAvailLocLines.ProjAvailableBalance.AsInteger(), 'Column Projected Available Balance');
     end;
 
     [ModalPageHandler]
@@ -929,10 +929,10 @@ codeunit 136137 "Service Item Availability"
             LibraryVariableStorage.Dequeue(ExpectedPeriodStartDate[i]);
 
             // Verify the Data is sorting correctly by date.
-            Assert.AreEqual(ExpectedPeriodStartDate[i], ItemAvailabilityByEvent."Period Start".AsDate, PeriodStartErrorMsg);
+            Assert.AreEqual(ExpectedPeriodStartDate[i], ItemAvailabilityByEvent."Period Start".AsDate(), PeriodStartErrorMsg);
             ItemAvailabilityByEvent.Next();
         end;
-        ItemAvailabilityByEvent.OK.Invoke;
+        ItemAvailabilityByEvent.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -983,7 +983,7 @@ codeunit 136137 "Service Item Availability"
         VerifyInvtPagePeriodData(
           ItemAvailabilityByEvent, PeriodStart[2], BlanketOrderDocNo, SalesOrderDocNo,
           QtyToShipBoth, QtyToShipTotal, TotalQty, QtyToShip, QtyToShipBoth + QtyToShip[1]);
-        ItemAvailabilityByEvent.OK.Invoke;
+        ItemAvailabilityByEvent.OK().Invoke();
     end;
 
     local procedure VerifyInvtPagePeriodData(var ItemAvailabilityByEvent: TestPage "Item Availability by Event"; PeriodStart: Variant; BlanketOrderDocNo: array[2] of Variant; SalesOrderDocNo: array[2] of Variant; GrossTotal: Decimal; ProjectTotal: Decimal; TotalQty: array[2] of Decimal; QtyToShip: array[2] of Decimal; Projected1: Decimal)

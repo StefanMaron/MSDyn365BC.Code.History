@@ -115,28 +115,26 @@ codeunit 7709 "Miniform Put Activity List"
     var
         WhseActivityHeader: Record "Warehouse Activity Header";
     begin
-        with WhseActivityHeader do begin
-            Reset();
-            SetRange(Type, Type::"Put-away");
-            if WhseEmpId <> '' then begin
-                SetRange("Assigned User ID", WhseEmpId);
-                SetFilter("Location Code", LocationFilter);
+        WhseActivityHeader.Reset();
+        WhseActivityHeader.SetRange(Type, WhseActivityHeader.Type::"Put-away");
+        if WhseEmpId <> '' then begin
+            WhseActivityHeader.SetRange("Assigned User ID", WhseEmpId);
+            WhseActivityHeader.SetFilter("Location Code", LocationFilter);
+        end;
+        if not WhseActivityHeader.FindFirst() then begin
+            if ADCSCommunication.GetNodeAttribute(ReturnedNode, 'RunReturn') = '0' then begin
+                ADCSMgt.SendError(Text009);
+                exit;
             end;
-            if not FindFirst() then begin
-                if ADCSCommunication.GetNodeAttribute(ReturnedNode, 'RunReturn') = '0' then begin
-                    ADCSMgt.SendError(Text009);
-                    exit;
-                end;
-                ADCSCommunication.DecreaseStack(DOMxmlin, PreviousCode);
-                MiniformHeader2.Get(PreviousCode);
-                MiniformHeader2.SaveXMLin(DOMxmlin);
-                CODEUNIT.Run(MiniformHeader2."Handling Codeunit", MiniformHeader2);
-            end else begin
-                RecRef.GetTable(WhseActivityHeader);
-                ADCSCommunication.SetRecRef(RecRef);
-                ActiveInputField := 1;
-                SendForm(ActiveInputField);
-            end;
+            ADCSCommunication.DecreaseStack(DOMxmlin, PreviousCode);
+            MiniformHeader2.Get(PreviousCode);
+            MiniformHeader2.SaveXMLin(DOMxmlin);
+            CODEUNIT.Run(MiniformHeader2."Handling Codeunit", MiniformHeader2);
+        end else begin
+            RecRef.GetTable(WhseActivityHeader);
+            ADCSCommunication.SetRecRef(RecRef);
+            ActiveInputField := 1;
+            SendForm(ActiveInputField);
         end;
     end;
 

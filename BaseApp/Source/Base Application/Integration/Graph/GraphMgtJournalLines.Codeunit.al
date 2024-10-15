@@ -129,21 +129,19 @@ codeunit 5478 "Graph Mgt - Journal Lines"
         APIDataUpgrade: Codeunit "API Data Upgrade";
         RecordCount: Integer;
     begin
-        with GenJournalLine do begin
-            SetRange("Account Type", "Account Type"::"G/L Account");
+        GenJournalLine.SetRange("Account Type", GenJournalLine."Account Type"::"G/L Account");
 
-            if FindSet() then begin
-                repeat
-                    UpdateAccountID();
-                    UpdateJournalBatchID();
-                    Modify(false);
-                    if WithCommit then
-                        APIDataUpgrade.CountRecordsAndCommit(RecordCount);
-                until Next() = 0;
-
+        if GenJournalLine.FindSet() then begin
+            repeat
+                GenJournalLine.UpdateAccountID();
+                GenJournalLine.UpdateJournalBatchID();
+                GenJournalLine.Modify(false);
                 if WithCommit then
-                    Commit();
-            end;
+                    APIDataUpgrade.CountRecordsAndCommit(RecordCount);
+            until GenJournalLine.Next() = 0;
+
+            if WithCommit then
+                Commit();
         end;
     end;
 }

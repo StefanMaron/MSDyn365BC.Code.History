@@ -18,12 +18,9 @@ codeunit 141083 "ERM IC Purchase Details"
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
-        AmtLcy: Label 'VendLedgEntryEndDtAmtLCY';
         SameCodeMissingDimErr: Label 'The %1 %2 with %3 %4 is required for %5 %6.', Comment = '%1 = "Dimension code" caption, %2= "Dimension Code" value, %3 = "Dimension value code" caption, %4 = "Dimension value code" value, %5 = Table caption (Vendor), %6 = Table value (XYZ)';
-        RemainingAmtLcy: Label 'AgedVendLedgEnt2RemAmtLCY';
         UnexpectedErr: Label 'Expected value is different from Actual value.';
         VendorRegisterMsg: Label 'Vendor %1 is not registered. Do you wish to continue?';
-        VendorNoCap: Label 'No_Vendor';
 
     [Test]
     [HandlerFunctions('ConfirmHandler')]
@@ -62,7 +59,7 @@ codeunit 141083 "ERM IC Purchase Details"
     begin
         // [SCENARIO] program does not create any posted purchase invoice after posting a purchase invoice if purchase invoice dimensions & Bank account posting groups A\C dimensions are different and value posting=Same Code.
         // Setup.
-        GLAccountNo := CreateGLAccountWithDimension;
+        GLAccountNo := CreateGLAccountWithDimension();
         CreatePurchaseInvoice(
           PurchaseLine, CreateVendorWithDimension(GLAccountNo, true), LibraryInventory.CreateItem(Item), PurchaseLine.Type::Item);  // Using True For Registerd.
         PurchaseHeader.Get(PurchaseLine."Document Type"::Invoice, PurchaseLine."Document No.");
@@ -89,7 +86,7 @@ codeunit 141083 "ERM IC Purchase Details"
     begin
         // [SCENARIO] program create any posted purchase invoice after posting a purchase invoice if purchase invoice dimensions & Bank account posting groups A\C dimensions are same and value posting=Same Code.
         // Setup.
-        GLAccountNo := CreateGLAccountWithDimension;
+        GLAccountNo := CreateGLAccountWithDimension();
         CreatePurchaseInvoice(
           PurchaseLine, CreateVendorWithDimension(GLAccountNo, true), LibraryInventory.CreateItem(Item), PurchaseLine.Type::Item);  // Using True For Registerd.
         PurchaseHeader.Get(PurchaseLine."Document Type"::Invoice, PurchaseLine."Document No.");
@@ -123,7 +120,7 @@ codeunit 141083 "ERM IC Purchase Details"
         ICSetup."Auto. Send Transactions" := false;
         ICSetup.Modify();
         LibraryPurchase.CreateVendor(Vendor);
-        CreatePurchaseInvoice(PurchaseLine, Vendor."No.", CreateGLAccountWithDimension, PurchaseLine.Type::"G/L Account");
+        CreatePurchaseInvoice(PurchaseLine, Vendor."No.", CreateGLAccountWithDimension(), PurchaseLine.Type::"G/L Account");
         UpdateICDetailsOnPurchaseLine(PurchaseLine);
         PurchaseHeader.Get(PurchaseLine."Document Type"::Invoice, PurchaseLine."Document No.");
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);  // Post as Receive and Invoice.
@@ -154,7 +151,7 @@ codeunit 141083 "ERM IC Purchase Details"
         ICSetup."Auto. Send Transactions" := false;
         ICSetup.Modify();
         LibrarySales.CreateCustomer(Customer);
-        DocumentNo := CreateAndPostSalesInvoice(SalesLine, Customer."No.", CreateGLAccountWithDimension);
+        DocumentNo := CreateAndPostSalesInvoice(SalesLine, Customer."No.", CreateGLAccountWithDimension());
 
         // Exercise.
         PostedCreditMemoNo := CreateAndPostSalesCreditMemoFromCopyDoc(DocumentNo, Customer."No.");
@@ -186,7 +183,7 @@ codeunit 141083 "ERM IC Purchase Details"
     //     REPORT.Run(REPORT::"Aged Accounts Payable");
 
     //     // [THEN] Verify values on Aged Accounts Payable.
-    //     LibraryReportDataset.LoadDataSetFile;
+    //     LibraryReportDataset.LoadDataSetFile();
     //     LibraryReportDataset.AssertElementWithValueExists(VendorNoCap,PurchaseLine."Buy-from Vendor No.");
     //     LibraryReportDataset.AssertElementWithValueExists(AmtLcy,-PurchaseLine."Amount Including VAT");
     //     LibraryReportDataset.AssertElementWithValueExists(RemainingAmtLcy,-PurchaseLine."Amount Including VAT" / 2);
@@ -214,7 +211,7 @@ codeunit 141083 "ERM IC Purchase Details"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo);
         LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, "Purchase Document Type From"::"Posted Invoice", DocumentNo, false, false);  // Using False for IncludeHeader and RecalcLines.
         PurchaseHeader.Validate("Vendor Cr. Memo No.", DocumentNo);
-        PurchaseHeader.Validate("Reason Code", CreateReason);
+        PurchaseHeader.Validate("Reason Code", CreateReason());
         PurchaseHeader.Modify(true);
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));  // Post as Receive and Invoice.
     end;
@@ -225,7 +222,7 @@ codeunit 141083 "ERM IC Purchase Details"
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustomerNo);
         LibrarySales.CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Invoice", DocumentNo, false, false);  // Using False for IncludeHeader and RecalcLines.
-        SalesHeader.Validate("Reason Code", CreateReason);
+        SalesHeader.Validate("Reason Code", CreateReason());
         SalesHeader.Modify(true);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));  // Post as Ship and Invoice.
     end;
@@ -237,8 +234,8 @@ codeunit 141083 "ERM IC Purchase Details"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", No, LibraryRandom.RandDec(10, 2));  // Using Random Value for Quantity.
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
-        SalesLine.Validate("IC Partner Code", FindICPartner);
-        SalesLine.Validate("IC Partner Reference", FindICGLAccount);
+        SalesLine.Validate("IC Partner Code", FindICPartner());
+        SalesLine.Validate("IC Partner Reference", FindICGLAccount());
         SalesLine.Modify(true);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));  // Post as Ship and Invoice.
     end;
@@ -392,8 +389,8 @@ codeunit 141083 "ERM IC Purchase Details"
 
     local procedure UpdateICDetailsOnPurchaseLine(var PurchaseLine: Record "Purchase Line")
     begin
-        PurchaseLine.Validate("IC Partner Code", FindICPartner);
-        PurchaseLine.Validate("IC Partner Reference", FindICGLAccount);
+        PurchaseLine.Validate("IC Partner Code", FindICPartner());
+        PurchaseLine.Validate("IC Partner Reference", FindICGLAccount());
         PurchaseLine.Modify(true);
     end;
 
@@ -417,7 +414,7 @@ codeunit 141083 "ERM IC Purchase Details"
         repeat
             CreditAmount += GLEntry."Credit Amount";
         until GLEntry.Next() = 0;
-        Assert.AreNearlyEqual(CreditAmount, Amount, LibraryERM.GetAmountRoundingPrecision, UnexpectedErr);
+        Assert.AreNearlyEqual(CreditAmount, Amount, LibraryERM.GetAmountRoundingPrecision(), UnexpectedErr);
     end;
 
     [RequestPageHandler]
@@ -430,7 +427,7 @@ codeunit 141083 "ERM IC Purchase Details"
         AgedAccountsPayable.AgedAsOf.SetValue(WorkDate());
         AgedAccountsPayable.PeriodLength.SetValue('<1M>');  // 1M for monthly bucket.
         AgedAccountsPayable.Vendor.SetFilter("No.", VendorNo);
-        AgedAccountsPayable.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AgedAccountsPayable.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]

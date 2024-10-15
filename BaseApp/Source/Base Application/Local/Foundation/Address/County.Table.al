@@ -8,6 +8,7 @@ table 28004 County
 {
     Caption = 'County';
     LookupPageID = Counties;
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -8,6 +8,7 @@ table 28042 "WHT Revenue Types"
 {
     Caption = 'WHT Revenue Types';
     LookupPageID = "WHT Revenue Types";
+    DataClassification = CustomerContent;
 
     fields
     {

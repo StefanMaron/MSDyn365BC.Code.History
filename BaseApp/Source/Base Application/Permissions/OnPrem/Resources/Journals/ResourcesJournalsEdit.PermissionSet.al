@@ -10,7 +10,7 @@ using Microsoft.Pricing.Source;
 using Microsoft.Pricing.Worksheet;
 using Microsoft.Projects.Resources.Journal;
 using Microsoft.Projects.Resources.Resource;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Foundation.Period;
@@ -48,11 +48,11 @@ permissionset 386 "Resources Journals - Edit"
                   tabledata "Res. Journal Line" = RIMD,
                   tabledata "Res. Journal Template" = RI,
                   tabledata Resource = R,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Resource Cost" = R,
 #endif
                   tabledata "Resource Group" = R,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Resource Price" = R,
 #endif
                   tabledata "Resource Unit of Measure" = R,

@@ -221,39 +221,37 @@ page 5603 "Main Asset Statistics"
         ClearAll();
         if Rec."Main Asset/Component" <> Rec."Main Asset/Component"::"Main Asset" then
             exit;
-        with FADeprBook do begin
-            SetCurrentKey("Depreciation Book Code", "Component of Main Asset");
-            SetRange("Depreciation Book Code", Rec."Depreciation Book Code");
-            SetRange("Component of Main Asset", Rec."Component of Main Asset");
-            if Find('-') then
-                repeat
-                    if "Disposal Date" > 0D then begin
-                        NoOfSoldComponents := NoOfSoldComponents + 1;
-                        CalcFields("Proceeds on Disposal", "Gain/Loss");
-                        DisposalPrice := DisposalPrice + "Proceeds on Disposal";
-                        GainLoss := GainLoss + "Gain/Loss";
-                        DisposalDate := GetMinDate(DisposalDate, "Disposal Date");
+        FADeprBook.SetCurrentKey("Depreciation Book Code", "Component of Main Asset");
+        FADeprBook.SetRange("Depreciation Book Code", Rec."Depreciation Book Code");
+        FADeprBook.SetRange("Component of Main Asset", Rec."Component of Main Asset");
+        if FADeprBook.Find('-') then
+            repeat
+                if FADeprBook."Disposal Date" > 0D then begin
+                    NoOfSoldComponents := NoOfSoldComponents + 1;
+                    FADeprBook.CalcFields("Proceeds on Disposal", "Gain/Loss");
+                    DisposalPrice := DisposalPrice + FADeprBook."Proceeds on Disposal";
+                    GainLoss := GainLoss + FADeprBook."Gain/Loss";
+                    DisposalDate := GetMinDate(DisposalDate, FADeprBook."Disposal Date");
+                end;
+                if FADeprBook."Disposal Date" = 0D then begin
+                    if FADeprBook."Last Acquisition Cost Date" > 0D then begin
+                        NoOfComponents := NoOfComponents + 1;
+                        FADeprBook.CalcFields("Book Value", "Depreciable Basis");
+                        BookValue := BookValue + FADeprBook."Book Value";
+                        DeprBasis := DeprBasis + FADeprBook."Depreciable Basis";
+                        GLAcqDate := GetMinDate(GLAcqDate, FADeprBook."G/L Acquisition Date");
+                        FAAcqDate := GetMinDate(FAAcqDate, FADeprBook."Acquisition Date");
                     end;
-                    if "Disposal Date" = 0D then begin
-                        if "Last Acquisition Cost Date" > 0D then begin
-                            NoOfComponents := NoOfComponents + 1;
-                            CalcFields("Book Value", "Depreciable Basis");
-                            BookValue := BookValue + "Book Value";
-                            DeprBasis := DeprBasis + "Depreciable Basis";
-                            GLAcqDate := GetMinDate(GLAcqDate, "G/L Acquisition Date");
-                            FAAcqDate := GetMinDate(FAAcqDate, "Acquisition Date");
-                        end;
-                        CalcAmount(LastAcqCost, AcquisitionCost, "Last Acquisition Cost Date", Enum::"FA Journal Line FA Posting Type"::"Acquisition Cost");
-                        CalcAmount(LastDepreciation, Depreciation2, "Last Depreciation Date", Enum::"FA Journal Line FA Posting Type"::Depreciation);
-                        CalcAmount(LastWriteDown, WriteDown, "Last Write-Down Date", Enum::"FA Journal Line FA Posting Type"::"Write-Down");
-                        CalcAmount(LastAppreciation, Appreciation2, "Last Appreciation Date", Enum::"FA Journal Line FA Posting Type"::Appreciation);
-                        CalcAmount(LastCustom1, Custom1, "Last Custom 1 Date", Enum::"FA Journal Line FA Posting Type"::"Custom 1");
-                        CalcAmount(LastCustom2, Custom2, "Last Custom 2 Date", Enum::"FA Journal Line FA Posting Type"::"Custom 2");
-                        CalcAmount(LastMaintenance, Maintenance2, "Last Maintenance Date", Enum::"FA Journal Line FA Posting Type"::Maintenance);
-                        CalcAmount(LastSalvageValue, SalvageValue, "Last Salvage Value Date", Enum::"FA Journal Line FA Posting Type"::"Salvage Value");
-                    end;
-                until Next() = 0;
-        end;
+                    CalcAmount(LastAcqCost, AcquisitionCost, FADeprBook."Last Acquisition Cost Date", Enum::"FA Journal Line FA Posting Type"::"Acquisition Cost");
+                    CalcAmount(LastDepreciation, Depreciation2, FADeprBook."Last Depreciation Date", Enum::"FA Journal Line FA Posting Type"::Depreciation);
+                    CalcAmount(LastWriteDown, WriteDown, FADeprBook."Last Write-Down Date", Enum::"FA Journal Line FA Posting Type"::"Write-Down");
+                    CalcAmount(LastAppreciation, Appreciation2, FADeprBook."Last Appreciation Date", Enum::"FA Journal Line FA Posting Type"::Appreciation);
+                    CalcAmount(LastCustom1, Custom1, FADeprBook."Last Custom 1 Date", Enum::"FA Journal Line FA Posting Type"::"Custom 1");
+                    CalcAmount(LastCustom2, Custom2, FADeprBook."Last Custom 2 Date", Enum::"FA Journal Line FA Posting Type"::"Custom 2");
+                    CalcAmount(LastMaintenance, Maintenance2, FADeprBook."Last Maintenance Date", Enum::"FA Journal Line FA Posting Type"::Maintenance);
+                    CalcAmount(LastSalvageValue, SalvageValue, FADeprBook."Last Salvage Value Date", Enum::"FA Journal Line FA Posting Type"::"Salvage Value");
+                end;
+            until FADeprBook.Next() = 0;
         DispPriceVisible := DisposalDate > 0D;
         GLPriceVisible := DisposalDate > 0D;
         DispDateVisible := DisposalDate > 0D;
@@ -306,49 +304,48 @@ page 5603 "Main Asset Statistics"
         OldAmount := Amount;
         if FADate2 = 0D then
             exit;
-        with FADeprBook do
-            case FAPostingType of
-                FAPostingType::"Acquisition Cost":
-                    begin
-                        CalcFields("Acquisition Cost");
-                        Amount := Amount + "Acquisition Cost";
-                    end;
-                FAPostingType::Depreciation:
-                    begin
-                        CalcFields(Depreciation);
-                        Amount := Amount + Depreciation;
-                    end;
-                FAPostingType::"Write-Down":
-                    begin
-                        CalcFields("Write-Down");
-                        Amount := Amount + "Write-Down";
-                    end;
-                FAPostingType::Appreciation:
-                    begin
-                        CalcFields(Appreciation);
-                        Amount := Amount + Appreciation;
-                    end;
-                FAPostingType::"Custom 1":
-                    begin
-                        CalcFields("Custom 1");
-                        Amount := Amount + "Custom 1";
-                    end;
-                FAPostingType::"Custom 2":
-                    begin
-                        CalcFields("Custom 2");
-                        Amount := Amount + "Custom 2";
-                    end;
-                FAPostingType::Maintenance:
-                    begin
-                        CalcFields(Maintenance);
-                        Amount := Amount + Maintenance;
-                    end;
-                FAPostingType::"Salvage Value":
-                    begin
-                        CalcFields("Salvage Value");
-                        Amount := Amount + "Salvage Value";
-                    end;
-            end;
+        case FAPostingType of
+            FAPostingType::"Acquisition Cost":
+                begin
+                    FADeprBook.CalcFields("Acquisition Cost");
+                    Amount := Amount + FADeprBook."Acquisition Cost";
+                end;
+            FAPostingType::Depreciation:
+                begin
+                    FADeprBook.CalcFields(Depreciation);
+                    Amount := Amount + FADeprBook.Depreciation;
+                end;
+            FAPostingType::"Write-Down":
+                begin
+                    FADeprBook.CalcFields("Write-Down");
+                    Amount := Amount + FADeprBook."Write-Down";
+                end;
+            FAPostingType::Appreciation:
+                begin
+                    FADeprBook.CalcFields(Appreciation);
+                    Amount := Amount + FADeprBook.Appreciation;
+                end;
+            FAPostingType::"Custom 1":
+                begin
+                    FADeprBook.CalcFields("Custom 1");
+                    Amount := Amount + FADeprBook."Custom 1";
+                end;
+            FAPostingType::"Custom 2":
+                begin
+                    FADeprBook.CalcFields("Custom 2");
+                    Amount := Amount + FADeprBook."Custom 2";
+                end;
+            FAPostingType::Maintenance:
+                begin
+                    FADeprBook.CalcFields(Maintenance);
+                    Amount := Amount + FADeprBook.Maintenance;
+                end;
+            FAPostingType::"Salvage Value":
+                begin
+                    FADeprBook.CalcFields("Salvage Value");
+                    Amount := Amount + FADeprBook."Salvage Value";
+                end;
+        end;
         if FADate < FADate2 then
             FADate := FADate2;
 

@@ -31,5 +31,6 @@ permissionset 3008 "Cost Accounting - Admin"
                   tabledata "Cost Register" = RIMD,
                   tabledata "Cost Type" = RIMD,
                   tabledata "G/L Account" = Rm,
+                  tabledata "G/L Account Source Currency" = Rm,
                   tabledata "G/L Entry" = Rm;
 }

@@ -52,7 +52,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
         // Exercise and Verify: Run Items Received and Not Invoiced report and verify Xml values for first Purchase Order and verify No row exist for second Purchase Order.
         RunItemsRcdAndNotInvdRptAndVerifyXmlValues(PurchaseLine);
         LibraryReportDataset.SetRange(PayToVendorNoCap, PurchaseLine2."Buy-from Vendor No.");
-        Assert.IsFalse(LibraryReportDataset.GetNextRow, NextRowExistMsg);
+        Assert.IsFalse(LibraryReportDataset.GetNextRow(), NextRowExistMsg);
     end;
 
     [Test]
@@ -187,7 +187,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
         REPORT.RunModal(REPORT::"Bank Account Reconciliation", true, false, BankAccount);
 
         // [THEN] Payment "X" exists in export XML.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementTagWithValueExists('Bank_Account_Ledger_Entry1__Document_No__', ExpectedDocumentNo[1]);
 
         // [THEN] Payment "Y" doesn't exist in export XML.
@@ -263,7 +263,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
 
         // [THEN] The report is run with correct rounding factor.
         // [THEN] The Precision for decimal places is equal to 2.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('RoundFactorText', ReportManagementAPAC.RoundDescription(RoundingFactor));
         LibraryReportDataset.AssertElementWithValueExists('Precision', 2);
         LibraryVariableStorage.AssertEmpty();
@@ -299,7 +299,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
 
         // [THEN] The report is run with correct rounding factor.
         // [THEN] The Precision for decimal places is equal to 1.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('RoundFactorText', ReportManagementAPAC.RoundDescription(RoundingFactor));
         LibraryReportDataset.AssertElementWithValueExists('Precision', 1);
         LibraryVariableStorage.AssertEmpty();
@@ -335,7 +335,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
 
         // [THEN] The report is run with correct rounding factor.
         // [THEN] The Precision for decimal places is equal to 1.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('RoundFactorText', ReportManagementAPAC.RoundDescription(RoundingFactor));
         LibraryReportDataset.AssertElementWithValueExists('Precision', 1);
         LibraryVariableStorage.AssertEmpty();
@@ -371,7 +371,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
 
         // [THEN] The report is run with correct rounding factor.
         // [THEN] The Precision for decimal places is equal to 0.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('RoundFactorText', ReportManagementAPAC.RoundDescription(RoundingFactor));
         LibraryReportDataset.AssertElementWithValueExists('Precision', 0);
         LibraryVariableStorage.AssertEmpty();
@@ -407,7 +407,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
 
         // [THEN] The report is run with correct rounding factor.
         // [THEN] The Precision for decimal places is equal to 1. 
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('RoundFactorText', ReportManagementAPAC.RoundDescription(RoundingFactor));
         LibraryReportDataset.AssertElementWithValueExists('Precision', 1);
         LibraryVariableStorage.AssertEmpty();
@@ -443,7 +443,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
 
         // [THEN] The report is run with correct rounding factor.
         // [THEN] The Precision for decimal places is equal to 1.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('RoundFactorText', ReportManagementAPAC.RoundDescription(RoundingFactor));
         LibraryReportDataset.AssertElementWithValueExists('Precision', 1);
         LibraryVariableStorage.AssertEmpty();
@@ -490,7 +490,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
         // [GIVEN] Created Purchase Order with currency rounding and post Recieve without Invoice
         LibraryPurchase.CreateFCYPurchaseDocumentWithItem(
             PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo(),
-            LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10), '', WORKDATE, LibraryERM.CreateCurrencyWithRounding());
+            LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10), '', WorkDate(), LibraryERM.CreateCurrencyWithRounding());
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(50, 100, 3));
         PurchaseLine.Modify(true);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -595,7 +595,7 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
 
         // Verify: Values on Items Received and not Invoiced Report.
         PurchaseLine.Get(PurchaseLine."Document Type", PurchaseLine."Document No.", PurchaseLine."Line No.");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyValuesOnItemsReceivedAndNotInvoicedReport(
           PurchaseLine."Quantity Invoiced", PurchaseLine."Quantity Received", PurchaseLine."Qty. Rcd. Not Invoiced",
           Round(PurchaseLine.Amount * PurchaseLine."Qty. Rcd. Not Invoiced" / PurchaseLine.Quantity, LibraryERM.GetAmountRoundingPrecision()));
@@ -635,9 +635,9 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
 
     local procedure VerifyReceivedQuantityCostAndAmountOnStockCardReport(PurchaseLine: Record "Purchase Line")
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
-          ReceivedQuantityCap, Round(PurchaseLine."Qty. to Invoice", LibraryERM.GetAmountRoundingPrecision));
+          ReceivedQuantityCap, Round(PurchaseLine."Qty. to Invoice", LibraryERM.GetAmountRoundingPrecision()));
         LibraryReportDataset.AssertElementWithValueExists(ReceivedCostCap, PurchaseLine."Direct Unit Cost");
         LibraryReportDataset.AssertElementWithValueExists(
           TotalBalanceAmountCap, PurchaseLine."Qty. to Invoice" * PurchaseLine."Direct Unit Cost");
@@ -653,13 +653,13 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
 
     local procedure VerifyPurchaseDocumentVATAmount(VATAmount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('VATAmountLineVATAmount', VATAmount);
     end;
 
     local procedure VerifySalesDocumentVATAmount(VATAmount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('VATAmt_VATAmtLine', VATAmount);
     end;
 
@@ -693,14 +693,14 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
         LibraryVariableStorage.Dequeue(BuyFromVendorNo2);
         ItemsReceivedAndNotInvoiced."Purchase Header".SetFilter(
           "Buy-from Vendor No.", StrSubstNo(BuyFromVendorNoFilterTxt, BuyFromVendorNo, BuyFromVendorNo2));
-        ItemsReceivedAndNotInvoiced.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ItemsReceivedAndNotInvoiced.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ItemsReceivedAndNotInvoicedRequestPageHandlerSimple(var ItemsReceivedAndNotInvoiced: TestRequestPage "Items Received & Not Invoiced")
     begin
-        ItemsReceivedAndNotInvoiced.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ItemsReceivedAndNotInvoiced.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -714,43 +714,43 @@ codeunit 141076 "ERM APAC Miscellaneous Reports"
         StockCard.GroupTotals.SetValue(GroupTotals::Location);
         StockCard."Item Ledger Entry".SetFilter("Item No.", ItemNo);
         StockCard."Item Ledger Entry".SetFilter("Posting Date", Format(WorkDate()));
-        StockCard.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StockCard.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseInvoiceReportHandler(var PurchaseInvoice: TestRequestPage "Purchase - Invoice")
     begin
-        PurchaseInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseCrMemoReportHandler(var PurchaseCrMemo: TestRequestPage "Purchase - Credit Memo")
     begin
-        PurchaseCrMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseCrMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure BankAccountReconciliationRequestPageHandler(var BankAccountReconciliation: TestRequestPage "Bank Account Reconciliation")
     begin
-        BankAccountReconciliation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BankAccountReconciliation.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure IncomeStatementRequestPageHandler(var IncomeStatement: TestRequestPage "Income Statement")
     begin
-        IncomeStatement.AmountsInWhole.SetValue(LibraryVariableStorage.DequeueInteger);
-        IncomeStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        IncomeStatement.AmountsInWhole.SetValue(LibraryVariableStorage.DequeueInteger());
+        IncomeStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ItemsReceivedNotInvoicedRequestPageHandler(var ItemsReceivedNotInvoiced: TestRequestPage "Items Received & Not Invoiced")
     begin
-        ItemsReceivedNotInvoiced.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ItemsReceivedNotInvoiced.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

@@ -226,9 +226,9 @@ report 82 "Export Budget to Excel"
                 if GetRangeMin("Budget Name") <> GetRangeMax("Budget Name") then
                     Error(Text001);
 
-                if (StartDate = 0D) or
-                   (NoOfPeriods = 0) or
-                   (Format(PeriodLength) = '')
+                if (StartDateReq = 0D) or
+                   (NoOfPeriodsReq = 0) or
+                   (Format(PeriodLengthReq) = '')
                 then
                     Error(Text002);
 
@@ -258,7 +258,7 @@ report 82 "Export Budget to Excel"
 
                 InsertTempPeriods();
 
-                SetRange(Date, StartDate, TempPeriod."Period End");
+                SetRange(Date, StartDateReq, TempPeriod."Period End");
                 TempBudgetBuf2.DeleteAll();
                 TempExcelBuf.DeleteAll();
             end;
@@ -276,19 +276,19 @@ report 82 "Export Budget to Excel"
                 group(Options)
                 {
                     Caption = 'Options';
-                    field(StartDate; StartDate)
+                    field(StartDate; StartDateReq)
                     {
                         ApplicationArea = Suite;
                         Caption = 'Start Date';
                         ToolTip = 'Specifies the date from which the report or batch job processes information.';
                     }
-                    field(NoOfPeriods; NoOfPeriods)
+                    field(NoOfPeriods; NoOfPeriodsReq)
                     {
                         ApplicationArea = Suite;
                         Caption = 'No. of Periods';
                         ToolTip = 'Specifies how many accounting periods to include.';
                     }
-                    field(PeriodLength; PeriodLength)
+                    field(PeriodLength; PeriodLengthReq)
                     {
                         ApplicationArea = Suite;
                         Caption = 'Period Length';
@@ -323,10 +323,10 @@ report 82 "Export Budget to Excel"
         trigger OnOpenPage()
         begin
             ColumnDim := DimSelectionBuf.GetDimSelectionText(3, REPORT::"Export Budget to Excel", '');
-            if StartDate = 0D then
-                StartDate := CalcDate('<-CY>', WorkDate());
-            if (Format(PeriodLength) = '') or (Format(PeriodLength) = '0D') then
-                Evaluate(PeriodLength, '<1M>');
+            if StartDateReq = 0D then
+                StartDateReq := CalcDate('<-CY>', WorkDate());
+            if (Format(PeriodLengthReq) = '') or (Format(PeriodLengthReq) = '0D') then
+                Evaluate(PeriodLengthReq, '<1M>');
         end;
     }
 
@@ -341,7 +341,6 @@ report 82 "Export Budget to Excel"
     end;
 
     var
-        TempPeriod: Record Date temporary;
         SelectedDim: Record "Selected Dimension";
         TempBudgetBuf1: Record "Budget Buffer" temporary;
         TempBudgetBuf2: Record "Budget Buffer" temporary;
@@ -351,12 +350,7 @@ report 82 "Export Budget to Excel"
         GLBudgetName: Record "G/L Budget Name";
         TempExcelBuf: Record "Excel Buffer" temporary;
         GLAcc: Record "G/L Account";
-        DimSelectionBuf: Record "Dimension Selection Buffer";
         MatrixMgt: Codeunit "Matrix Management";
-        PeriodLength: DateFormula;
-        StartDate: Date;
-        NoOfPeriods: Integer;
-        NoOfDimensions: Integer;
         i: Integer;
         RowNo: Integer;
         ColNo: Integer;
@@ -379,6 +373,14 @@ report 82 "Export Budget to Excel"
         Text006: Label 'Export Filters';
         Text007: Label 'Some filters cannot be converted into Excel formulas. You will have to check %1 errors in the Excel worksheet. Do you want to create the Excel worksheet?';
 
+    protected var
+        DimSelectionBuf: Record "Dimension Selection Buffer";
+        TempPeriod: Record Date temporary;
+        PeriodLengthReq: DateFormula;
+        StartDateReq: Date;
+        NoOfPeriodsReq: Integer;
+        NoOfDimensions: Integer;
+
     local procedure CalcPeriodStart(EntryDate: Date): Date
     begin
         TempPeriod."Period Start" := EntryDate;
@@ -391,16 +393,16 @@ report 82 "Export Budget to Excel"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeInsertTempPeriods(TempPeriod, StartDate, NoOfPeriods, PeriodLength, IsHandled);
+        OnBeforeInsertTempPeriods(TempPeriod, StartDateReq, NoOfPeriodsReq, PeriodLengthReq, IsHandled);
         if IsHandled then
             exit;
 
-        for i := 1 to NoOfPeriods do begin
+        for i := 1 to NoOfPeriodsReq do begin
             if i = 1 then
-                TempPeriod."Period Start" := StartDate
+                TempPeriod."Period Start" := StartDateReq
             else
-                TempPeriod."Period Start" := CalcDate(PeriodLength, TempPeriod."Period Start");
-            TempPeriod."Period End" := CalcDate(PeriodLength, TempPeriod."Period Start");
+                TempPeriod."Period Start" := CalcDate(PeriodLengthReq, TempPeriod."Period Start");
+            TempPeriod."Period End" := CalcDate(PeriodLengthReq, TempPeriod."Period Start");
             TempPeriod."Period End" := CalcDate('<-1D>', TempPeriod."Period End");
             TempPeriod."Period No." := i;
             TempPeriod.Insert();
@@ -504,9 +506,9 @@ report 82 "Export Budget to Excel"
 
     procedure SetParameters(NewStartDate: Date; NewNoOfPeriods: Integer; NewPeriodLength: DateFormula; NewRoundingFactor: Option "None","1","1000","1000000")
     begin
-        StartDate := NewStartDate;
-        NoOfPeriods := NewNoOfPeriods;
-        PeriodLength := NewPeriodLength;
+        StartDateReq := NewStartDate;
+        NoOfPeriodsReq := NewNoOfPeriods;
+        PeriodLengthReq := NewPeriodLength;
         RoundingFactor := Enum::"Analysis Rounding Factor".FromInteger(NewRoundingFactor);
     end;
 

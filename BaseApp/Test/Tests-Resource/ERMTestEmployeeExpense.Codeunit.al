@@ -26,7 +26,7 @@
         Employee.DeleteAll();
         EmployeePostingGroup.DeleteAll();
 
-        EmployeePostingGroupCode := CreateEmployeePostingGroup(LibraryERM.CreateGLAccountNoWithDirectPosting);
+        EmployeePostingGroupCode := CreateEmployeePostingGroup(LibraryERM.CreateGLAccountNoWithDirectPosting());
         CreateEmployeeWithExpensePostingGroup(EmployeePostingGroupCode);
     end;
 
@@ -183,7 +183,7 @@
         Initialize();
 
         // [GIVEN] An employee and expense balance sheet G/L account
-        ExpenseAccNo := CreateBalanceSheetAccount;
+        ExpenseAccNo := CreateBalanceSheetAccount();
         Employee.FindFirst();
         Amount := LibraryRandom.RandDecInRange(1, 100, 2);
 
@@ -234,7 +234,7 @@
         Initialize();
 
         // [GIVEN] An employee and expense balance sheet G/L account
-        ExpenseAccNo := CreateBalanceSheetAccount;
+        ExpenseAccNo := CreateBalanceSheetAccount();
         Employee.FindFirst();
         FirstAmount := LibraryRandom.RandDecInRange(1, 100, 2);
         SecondAmount := LibraryRandom.RandDecInRange(1, 100, 2);
@@ -263,7 +263,7 @@
 
         EmployeePostingGroup.Get(Employee."Employee Posting Group");
 
-        EmployeeGLEntry.SetRange("G/L Account No.", EmployeePostingGroup.GetPayablesAccount);
+        EmployeeGLEntry.SetRange("G/L Account No.", EmployeePostingGroup.GetPayablesAccount());
         EmployeeGLEntry.FindFirst();
         Assert.AreEqual(1, EmployeeGLEntry.Count, 'Error Multiple Employee G/L entries were created when posting Gen. Journal Line');
         Assert.AreEqual(BalancingAmount, EmployeeGLEntry.Amount, 'Error amount incorrect on Employee GL Entry');

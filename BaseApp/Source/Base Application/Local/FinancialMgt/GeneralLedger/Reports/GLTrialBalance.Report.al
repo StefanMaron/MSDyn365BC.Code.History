@@ -145,14 +145,12 @@ report 28162 "G/L Trial Balance"
             trigger OnAfterGetRecord()
             begin
                 GLAccount2.Copy("G/L Account");
-                with GLAccount2 do begin
-                    if "Income/Balance" = 0 then begin
-                        SetRange("Date Filter", PreviousStartDate, PreviousEndDate);
-                        CalcFields("Debit Amount", "Credit Amount");
-                    end else begin
-                        SetRange("Date Filter", 0D, PreviousEndDate);
-                        CalcFields("Debit Amount", "Credit Amount");
-                    end;
+                if GLAccount2."Income/Balance" = 0 then begin
+                    GLAccount2.SetRange("Date Filter", PreviousStartDate, PreviousEndDate);
+                    GLAccount2.CalcFields("Debit Amount", "Credit Amount");
+                end else begin
+                    GLAccount2.SetRange("Date Filter", 0D, PreviousEndDate);
+                    GLAccount2.CalcFields("Debit Amount", "Credit Amount");
                 end;
                 if not ImprNonMvt and
                    (GLAccount2."Debit Amount" = 0) and
@@ -162,7 +160,7 @@ report 28162 "G/L Trial Balance"
                 then
                     CurrReport.Skip();
 
-                TLAccountType := "G/L Account"."Account Type";
+                TLAccountType := "G/L Account"."Account Type".AsInteger();
             end;
 
             trigger OnPreDataItem()

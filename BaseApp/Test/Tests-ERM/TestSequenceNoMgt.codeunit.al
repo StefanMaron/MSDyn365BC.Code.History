@@ -30,10 +30,8 @@ codeunit 134899 "Test Sequence No. Mgt."
     var
         InteractionLogEntry: Record "Interaction Log Entry";
         SequenceNoMgt: Codeunit "Sequence No. Mgt.";
-        SequenceName: Text;
         NextNo: Integer;
         LastNo: Integer;
-        i: Integer;
     begin
         // For resiliency, some tables will have a special InsertRec function that handles out-of-sync sequences
         if InteractionLogEntry.FindLast() then;

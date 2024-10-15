@@ -208,7 +208,7 @@ report 5970 "Service Contract"
                     {
                         DataItemLink = "Contract Type" = field("Contract Type"), "Contract No." = field("Contract No.");
                         DataItemLinkReference = "Service Contract Header";
-                        DataItemTableView = sorting("Contract Type", "Contract No.", "Line No.") order(Ascending);
+                        DataItemTableView = sorting("Contract Type", "Contract No.", "Line No.") order(ascending);
                         column(ServItemNo_ServContractLine; "Service Item No.")
                         {
                             IncludeCaption = true;
@@ -253,7 +253,7 @@ report 5970 "Service Contract"
                         dataitem("Service Comment Line"; "Service Comment Line")
                         {
                             DataItemLink = "Table Subtype" = field("Contract Type"), "Table Line No." = field("Line No."), "No." = field("Contract No.");
-                            DataItemTableView = sorting("Table Name", "Table Subtype", "No.", Type, "Table Line No.", "Line No.") ORDER(Ascending) where("Table Name" = filter("Service Contract"));
+                            DataItemTableView = sorting("Table Name", "Table Subtype", "No.", Type, "Table Line No.", "Line No.") order(ascending) where("Table Name" = filter("Service Contract"));
                             column(ShowComments; ShowComments)
                             {
                             }
@@ -323,7 +323,7 @@ report 5970 "Service Contract"
                 {
                     DataItemLink = "No." = field("Contract No."), "Table Subtype" = field("Contract Type");
                     DataItemLinkReference = "Service Contract Header";
-                    DataItemTableView = sorting("Table Name", "Table Subtype", "No.", Type, "Table Line No.", "Line No.") ORDER(Ascending) where("Table Name" = filter("Service Contract"), "Table Line No." = filter(0));
+                    DataItemTableView = sorting("Table Name", "Table Subtype", "No.", Type, "Table Line No.", "Line No.") order(ascending) where("Table Name" = filter("Service Contract"), "Table Line No." = filter(0));
                     column(ShowComments1; ShowComments)
                     {
                     }
@@ -378,8 +378,8 @@ report 5970 "Service Contract"
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
                 FormatAddr.SetLanguageCode("Language Code");
 
                 FormatAddressFields("Service Contract Header");
@@ -467,7 +467,7 @@ report 5970 "Service Contract"
         SalesPurchPerson: Record "Salesperson/Purchaser";
         ServiceSetup: Record "Service Mgt. Setup";
         RespCenter: Record "Responsibility Center";
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
         SegManagement: Codeunit SegManagement;
@@ -529,8 +529,7 @@ report 5970 "Service Contract"
 
     local procedure FormatDocumentFields(ServiceContractHeader: Record "Service Contract Header")
     begin
-        with ServiceContractHeader do
-            FormatDocument.SetSalesPerson(SalesPurchPerson, "Salesperson Code", SalesPersonText);
+        FormatDocument.SetSalesPerson(SalesPurchPerson, ServiceContractHeader."Salesperson Code", SalesPersonText);
     end;
 }
 

@@ -53,7 +53,7 @@ codeunit 12200 "Tax Invoice Renaming Subscr."
     [EventSubscriber(ObjectType::Report, Report::"Standard Sales - Invoice", 'OnBeforeGetDocumentCaption', '', false, false)]
     local procedure OnBeforeGetStdSalesInvoiceCaption(SalesInvoiceHeader: Record "Sales Invoice Header"; var DocCaption: Text)
     begin
-        if GetTaxInvoiceThreshold then
+        if GetTaxInvoiceThreshold() then
             if IsSalesInvoiceAmountAboveThreshold(SalesInvoiceHeader) then
                 if SalesInvoiceHeader."Prepayment Invoice" then
                     DocCaption := PrepmtTaxInvoiceTxt
@@ -64,7 +64,7 @@ codeunit 12200 "Tax Invoice Renaming Subscr."
     [EventSubscriber(ObjectType::Report, Report::"Service - Invoice", 'OnBeforeGetDocumentCaption', '', false, false)]
     local procedure OnBeforeGetServiceInvoiceCaption(ServiceInvoiceHeader: Record "Service Invoice Header"; var DocCaption: Text)
     begin
-        if GetTaxInvoiceThreshold then
+        if GetTaxInvoiceThreshold() then
             if IsServiceInvoiceAmountAboveThreshold(ServiceInvoiceHeader) then
                 DocCaption := ServiceTaxInvoiceTxt;
     end;

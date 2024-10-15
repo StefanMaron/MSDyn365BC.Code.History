@@ -44,52 +44,50 @@ codeunit 413 AnalysisViewEntryToGLEntries
         StartDate := AnalysisViewEntry."Posting Date";
         EndDate := StartDate;
 
-        with AnalysisView do
-            if StartDate < "Starting Date" then
-                StartDate := 0D
-            else
-                if (AnalysisViewEntry."Posting Date" = NormalDate(AnalysisViewEntry."Posting Date")) and
-                   not ("Date Compression" in ["Date Compression"::None, "Date Compression"::Day])
-                then
-                    EndDate := CalculateEndDate("Date Compression", AnalysisViewEntry);
+        if StartDate < AnalysisView."Starting Date" then
+            StartDate := 0D
+        else
+            if (AnalysisViewEntry."Posting Date" = NormalDate(AnalysisViewEntry."Posting Date")) and
+               not (AnalysisView."Date Compression" in [AnalysisView."Date Compression"::None, AnalysisView."Date Compression"::Day])
+            then
+                EndDate := CalculateEndDate(AnalysisView."Date Compression", AnalysisViewEntry);
 
         IsHandled := false;
         OnGetGLEntriesOnBeforeCopyGLEntries(AnalysisViewEntry, IsHandled);
-        if not IsHandled then
-            with GLEntry do begin
-                SetCurrentKey("G/L Account No.", "Posting Date");
-                SetRange("G/L Account No.", AnalysisViewEntry."Account No.");
-                SetRange("Posting Date", StartDate, EndDate);
-                SetRange("Entry No.", 0, AnalysisView."Last Entry No.");
+        if not IsHandled then begin
+            GLEntry.SetCurrentKey("G/L Account No.", GLEntry."Posting Date");
+            GLEntry.SetRange("G/L Account No.", AnalysisViewEntry."Account No.");
+            GLEntry.SetRange("Posting Date", StartDate, EndDate);
+            GLEntry.SetRange("Entry No.", 0, AnalysisView."Last Entry No.");
 
-                if GetGlobalDimValue(GLSetup."Global Dimension 1 Code", AnalysisViewEntry, GlobalDimValue) then
-                    SetRange("Global Dimension 1 Code", GlobalDimValue)
-                else
-                    if AnalysisViewFilter.Get(AnalysisViewEntry."Analysis View Code", GLSetup."Global Dimension 1 Code")
-                    then
-                        SetFilter("Global Dimension 1 Code", AnalysisViewFilter."Dimension Value Filter");
+            if GetGlobalDimValue(GLSetup."Global Dimension 1 Code", AnalysisViewEntry, GlobalDimValue) then
+                GLEntry.SetRange("Global Dimension 1 Code", GlobalDimValue)
+            else
+                if AnalysisViewFilter.Get(AnalysisViewEntry."Analysis View Code", GLSetup."Global Dimension 1 Code")
+                then
+                    GLEntry.SetFilter("Global Dimension 1 Code", AnalysisViewFilter."Dimension Value Filter");
 
-                if GetGlobalDimValue(GLSetup."Global Dimension 2 Code", AnalysisViewEntry, GlobalDimValue) then
-                    SetRange("Global Dimension 2 Code", GlobalDimValue)
-                else
-                    if AnalysisViewFilter.Get(AnalysisViewEntry."Analysis View Code", GLSetup."Global Dimension 2 Code")
-                    then
-                        SetFilter("Global Dimension 2 Code", AnalysisViewFilter."Dimension Value Filter");
+            if GetGlobalDimValue(GLSetup."Global Dimension 2 Code", AnalysisViewEntry, GlobalDimValue) then
+                GLEntry.SetRange("Global Dimension 2 Code", GlobalDimValue)
+            else
+                if AnalysisViewFilter.Get(AnalysisViewEntry."Analysis View Code", GLSetup."Global Dimension 2 Code")
+                then
+                    GLEntry.SetFilter("Global Dimension 2 Code", AnalysisViewFilter."Dimension Value Filter");
 
-                OnGetGLEntriesOnAfterGLEntrySetFilters(GLEntry, AnalysisView, AnalysisViewEntry);
-                if Find('-') then
-                    repeat
-                        if DimEntryOK("Dimension Set ID", AnalysisView."Dimension 1 Code", AnalysisViewEntry."Dimension 1 Value Code") and
-                        DimEntryOK("Dimension Set ID", AnalysisView."Dimension 2 Code", AnalysisViewEntry."Dimension 2 Value Code") and
-                        DimEntryOK("Dimension Set ID", AnalysisView."Dimension 3 Code", AnalysisViewEntry."Dimension 3 Value Code") and
-                        DimEntryOK("Dimension Set ID", AnalysisView."Dimension 4 Code", AnalysisViewEntry."Dimension 4 Value Code") and
-                        UpdateAnalysisView.DimSetIDInFilter("Dimension Set ID", AnalysisView)
-                        then begin
-                            TempGLEntry := GLEntry;
-                            if TempGLEntry.Insert() then;
-                        end;
-                    until Next() = 0;
-            end;
+            OnGetGLEntriesOnAfterGLEntrySetFilters(GLEntry, AnalysisView, AnalysisViewEntry);
+            if GLEntry.Find('-') then
+                repeat
+                    if DimEntryOK(GLEntry."Dimension Set ID", AnalysisView."Dimension 1 Code", AnalysisViewEntry."Dimension 1 Value Code") and
+                    DimEntryOK(GLEntry."Dimension Set ID", AnalysisView."Dimension 2 Code", AnalysisViewEntry."Dimension 2 Value Code") and
+                    DimEntryOK(GLEntry."Dimension Set ID", AnalysisView."Dimension 3 Code", AnalysisViewEntry."Dimension 3 Value Code") and
+                    DimEntryOK(GLEntry."Dimension Set ID", AnalysisView."Dimension 4 Code", AnalysisViewEntry."Dimension 4 Value Code") and
+                    UpdateAnalysisView.DimSetIDInFilter(GLEntry."Dimension Set ID", AnalysisView)
+                    then begin
+                        TempGLEntry := GLEntry;
+                        if TempGLEntry.Insert() then;
+                    end;
+                until GLEntry.Next() = 0;
+        end;
 
         OnAfterGetGLEntries(AnalysisViewEntry, TempGLEntry);
     end;
@@ -118,48 +116,45 @@ codeunit 413 AnalysisViewEntryToGLEntries
         StartDate := AnalysisViewEntry."Posting Date";
         EndDate := StartDate;
 
-        with AnalysisView do
-            if StartDate < "Starting Date" then
-                StartDate := 0D
-            else
-                if (AnalysisViewEntry."Posting Date" = NormalDate(AnalysisViewEntry."Posting Date")) and
-                   not ("Date Compression" in ["Date Compression"::None, "Date Compression"::Day])
-                then
-                    EndDate := CalculateEndDate("Date Compression", AnalysisViewEntry);
+        if StartDate < AnalysisView."Starting Date" then
+            StartDate := 0D
+        else
+            if (AnalysisViewEntry."Posting Date" = NormalDate(AnalysisViewEntry."Posting Date")) and
+               not (AnalysisView."Date Compression" in [AnalysisView."Date Compression"::None, AnalysisView."Date Compression"::Day])
+            then
+                EndDate := CalculateEndDate(AnalysisView."Date Compression", AnalysisViewEntry);
 
-        with CFForecastEntry2 do begin
-            SetCurrentKey("Cash Flow Forecast No.", "Cash Flow Account No.", "Source Type", "Cash Flow Date");
-            SetRange("Cash Flow Forecast No.", AnalysisViewEntry."Cash Flow Forecast No.");
-            SetRange("Cash Flow Account No.", AnalysisViewEntry."Account No.");
-            SetRange("Cash Flow Date", StartDate, EndDate);
+        CFForecastEntry2.SetCurrentKey("Cash Flow Forecast No.", CFForecastEntry2."Cash Flow Account No.", CFForecastEntry2."Source Type", CFForecastEntry2."Cash Flow Date");
+        CFForecastEntry2.SetRange("Cash Flow Forecast No.", AnalysisViewEntry."Cash Flow Forecast No.");
+        CFForecastEntry2.SetRange("Cash Flow Account No.", AnalysisViewEntry."Account No.");
+        CFForecastEntry2.SetRange("Cash Flow Date", StartDate, EndDate);
 
-            if GetGlobalDimValue(GLSetup."Global Dimension 1 Code", AnalysisViewEntry, GlobalDimValue) then
-                SetRange("Global Dimension 1 Code", GlobalDimValue)
-            else
-                if AnalysisViewFilter.Get(AnalysisViewEntry."Analysis View Code", GLSetup."Global Dimension 1 Code")
-                then
-                    SetFilter("Global Dimension 1 Code", AnalysisViewFilter."Dimension Value Filter");
+        if GetGlobalDimValue(GLSetup."Global Dimension 1 Code", AnalysisViewEntry, GlobalDimValue) then
+            CFForecastEntry2.SetRange("Global Dimension 1 Code", GlobalDimValue)
+        else
+            if AnalysisViewFilter.Get(AnalysisViewEntry."Analysis View Code", GLSetup."Global Dimension 1 Code")
+            then
+                CFForecastEntry2.SetFilter("Global Dimension 1 Code", AnalysisViewFilter."Dimension Value Filter");
 
-            if GetGlobalDimValue(GLSetup."Global Dimension 2 Code", AnalysisViewEntry, GlobalDimValue) then
-                SetRange("Global Dimension 2 Code", GlobalDimValue)
-            else
-                if AnalysisViewFilter.Get(AnalysisViewEntry."Analysis View Code", GLSetup."Global Dimension 2 Code")
-                then
-                    SetFilter("Global Dimension 2 Code", AnalysisViewFilter."Dimension Value Filter");
+        if GetGlobalDimValue(GLSetup."Global Dimension 2 Code", AnalysisViewEntry, GlobalDimValue) then
+            CFForecastEntry2.SetRange("Global Dimension 2 Code", GlobalDimValue)
+        else
+            if AnalysisViewFilter.Get(AnalysisViewEntry."Analysis View Code", GLSetup."Global Dimension 2 Code")
+            then
+                CFForecastEntry2.SetFilter("Global Dimension 2 Code", AnalysisViewFilter."Dimension Value Filter");
 
-            if Find('-') then
-                repeat
-                    if DimEntryOK("Dimension Set ID", AnalysisView."Dimension 1 Code", AnalysisViewEntry."Dimension 1 Value Code") and
-                       DimEntryOK("Dimension Set ID", AnalysisView."Dimension 2 Code", AnalysisViewEntry."Dimension 2 Value Code") and
-                       DimEntryOK("Dimension Set ID", AnalysisView."Dimension 3 Code", AnalysisViewEntry."Dimension 3 Value Code") and
-                       DimEntryOK("Dimension Set ID", AnalysisView."Dimension 4 Code", AnalysisViewEntry."Dimension 4 Value Code") and
-                       UpdateAnalysisView.DimSetIDInFilter("Dimension Set ID", AnalysisView)
-                    then begin
-                        CFForecastEntry := CFForecastEntry2;
-                        CFForecastEntry.Insert();
-                    end;
-                until Next() = 0;
-        end;
+        if CFForecastEntry2.Find('-') then
+            repeat
+                if DimEntryOK(CFForecastEntry2."Dimension Set ID", AnalysisView."Dimension 1 Code", AnalysisViewEntry."Dimension 1 Value Code") and
+                   DimEntryOK(CFForecastEntry2."Dimension Set ID", AnalysisView."Dimension 2 Code", AnalysisViewEntry."Dimension 2 Value Code") and
+                   DimEntryOK(CFForecastEntry2."Dimension Set ID", AnalysisView."Dimension 3 Code", AnalysisViewEntry."Dimension 3 Value Code") and
+                   DimEntryOK(CFForecastEntry2."Dimension Set ID", AnalysisView."Dimension 4 Code", AnalysisViewEntry."Dimension 4 Value Code") and
+                   UpdateAnalysisView.DimSetIDInFilter(CFForecastEntry2."Dimension Set ID", AnalysisView)
+                then begin
+                    CFForecastEntry := CFForecastEntry2;
+                    CFForecastEntry.Insert();
+                end;
+            until CFForecastEntry2.Next() = 0;
     end;
 
     procedure DimEntryOK(DimSetID: Integer; Dim: Code[20]; DimValue: Code[20]): Boolean

@@ -255,7 +255,7 @@ codeunit 141012 "ERM WHT"
         UpdateGeneralLedgerSetup(false, true, false);  // False - Enable GST, Round Amount for WHT Calc and True as Enable WHT.
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         FindWHTPostingSetup(WHTPostingSetup);
-        CurrencyCode := CreateCurrencyWithExchangeRate;
+        CurrencyCode := CreateCurrencyWithExchangeRate();
         PostedInvoiceNo :=
           CreateAndPostPurchaseDocumentWithWHT(
             PurchaseLine, WHTPostingSetup, PurchaseHeader."Document Type"::Invoice,
@@ -353,7 +353,7 @@ codeunit 141012 "ERM WHT"
     begin
         // [SCENARIO] after Unapplied Vendor Ledger Entry on Posted Payment Journal with WHT and Currency, G/L Entry - Amount correctly calculated.
         Initialize();
-        UnapplyVendorLedgerEntryAmount(CreateCurrencyWithExchangeRate);
+        UnapplyVendorLedgerEntryAmount(CreateCurrencyWithExchangeRate());
     end;
 
     [Test]
@@ -420,7 +420,7 @@ codeunit 141012 "ERM WHT"
         Initialize();
         // [GIVEN] Create multiple Payment Journal with different Account Type.
         UpdateGeneralLedgerSetup(false, true, false);  // False - Enable GST, Round Amount for WHT Calc and True as Enable WHT.
-        CurrencyCode := CreateCurrencyWithExchangeRate;
+        CurrencyCode := CreateCurrencyWithExchangeRate();
         UpdateAdditionalCurrency(CurrencyCode);
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         GLAccountNo := CreateGLAccount(VATPostingSetup."VAT Prod. Posting Group");
@@ -459,7 +459,7 @@ codeunit 141012 "ERM WHT"
         UpdateGeneralLedgerSetup(false, true, false);
         FindWHTPostingSetup(WHTPostingSetup);
         // [GIVEN] Bank Account with Currency
-        CurrencyCode := CreateCurrencyWithExchangeRate;
+        CurrencyCode := CreateCurrencyWithExchangeRate();
         LibraryERM.CreateBankAccount(BankAccount);
         BankAccount.Validate("Currency Code", CurrencyCode);
         // [GIVEN] Gen. Jnl Line from FCY Bank Account to LCY Bank Account
@@ -2087,7 +2087,7 @@ codeunit 141012 "ERM WHT"
     begin
         LibraryERM.CreateCurrency(Currency);
         LibraryERM.SetCurrencyGainLossAccounts(Currency);
-        Currency.Validate("Invoice Rounding Precision", LibraryERM.GetInvoiceRoundingPrecisionLCY);
+        Currency.Validate("Invoice Rounding Precision", LibraryERM.GetInvoiceRoundingPrecisionLCY());
         Currency.Validate("Residual Gains Account", Currency."Realized Gains Acc.");
         Currency.Validate("Residual Losses Account", Currency."Realized Losses Acc.");
         Currency.Modify(true);
@@ -2120,7 +2120,7 @@ codeunit 141012 "ERM WHT"
           GenJournalLine, GenJournalBatch, WHTPostingSetup, DocumentType, AccountType, AccountNo, '', '', Amount);
         GenJournalLine.Validate("Applies-to ID", AppliesToID);
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
-        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateBankAccountNo);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateBankAccountNo());
         GenJournalLine.Validate("Bank Payment Type", GenJournalLine."Bank Payment Type"::"Computer Check");
         GenJournalLine.Modify(true);
     end;
@@ -2530,9 +2530,9 @@ codeunit 141012 "ERM WHT"
         WHTEntry.SetRange("Original Document No.", DocumentNo);
         WHTEntry.FindFirst();
         Assert.AreNearlyEqual(
-          Amount, WHTEntry.Amount, LibraryERM.GetAmountRoundingPrecision, StrSubstNo(AmountErr, WHTEntry.FieldCaption(Amount), Amount));
+          Amount, WHTEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), StrSubstNo(AmountErr, WHTEntry.FieldCaption(Amount), Amount));
         Assert.AreNearlyEqual(
-          Base, WHTEntry.Base, LibraryERM.GetAmountRoundingPrecision, StrSubstNo(AmountErr, WHTEntry.FieldCaption(Base), Base));
+          Base, WHTEntry.Base, LibraryERM.GetAmountRoundingPrecision(), StrSubstNo(AmountErr, WHTEntry.FieldCaption(Base), Base));
     end;
 
     local procedure VerifyAmountOnBankLedgerEntry(DocumentNo: Code[20]; Amount: Decimal; BankAccountNo: Code[20])
@@ -2543,7 +2543,7 @@ codeunit 141012 "ERM WHT"
         BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
         BankAccountLedgerEntry.FindFirst();
         Assert.AreNearlyEqual(
-          Amount, BankAccountLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          Amount, BankAccountLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, Amount, BankAccountLedgerEntry.FieldCaption(Amount)));
     end;
 
@@ -2555,7 +2555,7 @@ codeunit 141012 "ERM WHT"
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
-          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount));
+          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount));
     end;
 
     local procedure VerifyAmountOnMultipleGLEntries(DocumentNo: Code[20]; GLAccountNo: Code[20]; Amounts: List of [Decimal])
@@ -2569,7 +2569,7 @@ codeunit 141012 "ERM WHT"
         repeat
             i += 1;
             Assert.AreNearlyEqual(
-              Amounts.Get(i), GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amounts.Get(i)));
+              Amounts.Get(i), GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amounts.Get(i)));
         until GLEntry.Next() = 0;
     end;
 
@@ -2617,7 +2617,7 @@ codeunit 141012 "ERM WHT"
         GLEntry.SetFilter(Amount, AmountFilter, 0);
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
-          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount));
+          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount));
     end;
 
     local procedure VerifyUnrealizedAmountAndBaseOnWHTEntry(DocumentNo: Code[20]; UnrealizedAmount: Decimal; UnrealizedBase: Decimal; RemainingUnrAmount: Decimal; RemainingUnrBase: Decimal; IsClosed: Boolean)
@@ -2630,25 +2630,25 @@ codeunit 141012 "ERM WHT"
             FindFirst();
 
             Assert.AreNearlyEqual(
-              UnrealizedAmount, "Unrealized Amount", LibraryERM.GetAmountRoundingPrecision,
+              UnrealizedAmount, "Unrealized Amount", LibraryERM.GetAmountRoundingPrecision(),
               StrSubstNo(AmountErr, FieldCaption("Unrealized Amount"), UnrealizedAmount));
             Assert.AreNearlyEqual(
-              UnrealizedBase, "Unrealized Base", LibraryERM.GetAmountRoundingPrecision,
+              UnrealizedBase, "Unrealized Base", LibraryERM.GetAmountRoundingPrecision(),
               StrSubstNo(AmountErr, FieldCaption("Unrealized Base"), UnrealizedBase));
 
             Assert.AreNearlyEqual(
-              RemainingUnrAmount, "Remaining Unrealized Amount", LibraryERM.GetAmountRoundingPrecision,
+              RemainingUnrAmount, "Remaining Unrealized Amount", LibraryERM.GetAmountRoundingPrecision(),
               StrSubstNo(AmountErr, FieldCaption("Remaining Unrealized Amount"), RemainingUnrAmount));
             Assert.AreNearlyEqual(
-              RemainingUnrBase, "Remaining Unrealized Base", LibraryERM.GetAmountRoundingPrecision,
+              RemainingUnrBase, "Remaining Unrealized Base", LibraryERM.GetAmountRoundingPrecision(),
               StrSubstNo(AmountErr, FieldCaption("Remaining Unrealized Base"), RemainingUnrBase));
 
             Assert.AreNearlyEqual(
               RemainingUnrAmount, "Rem Unrealized Amount (LCY)",
-              LibraryERM.GetAmountRoundingPrecision, FieldCaption("Rem Unrealized Amount (LCY)"));
+              LibraryERM.GetAmountRoundingPrecision(), FieldCaption("Rem Unrealized Amount (LCY)"));
             Assert.AreNearlyEqual(
               RemainingUnrBase, "Rem Unrealized Base (LCY)",
-              LibraryERM.GetAmountRoundingPrecision, FieldCaption("Rem Unrealized Base (LCY)"));
+              LibraryERM.GetAmountRoundingPrecision(), FieldCaption("Rem Unrealized Base (LCY)"));
 
             Assert.AreEqual(IsClosed, Closed,
               StrSubstNo(IncorrectFieldValueErr, FieldCaption(Closed)));
@@ -2664,25 +2664,25 @@ codeunit 141012 "ERM WHT"
             FindFirst();
 
             Assert.AreNearlyEqual(
-              UnrealizedAmount, "Unrealized Amount", LibraryERM.GetAmountRoundingPrecision,
+              UnrealizedAmount, "Unrealized Amount", LibraryERM.GetAmountRoundingPrecision(),
               StrSubstNo(AmountErr, FieldCaption("Unrealized Amount"), UnrealizedAmount));
             Assert.AreNearlyEqual(
-              UnrealizedBase, "Unrealized Base", LibraryERM.GetAmountRoundingPrecision,
+              UnrealizedBase, "Unrealized Base", LibraryERM.GetAmountRoundingPrecision(),
               StrSubstNo(AmountErr, FieldCaption("Unrealized Base"), UnrealizedBase));
 
             Assert.AreNearlyEqual(
-              RemainingUnrAmount, "Remaining Unrealized Amount", LibraryERM.GetAmountRoundingPrecision,
+              RemainingUnrAmount, "Remaining Unrealized Amount", LibraryERM.GetAmountRoundingPrecision(),
               StrSubstNo(AmountErr, FieldCaption("Remaining Unrealized Amount"), RemainingUnrAmount));
             Assert.AreNearlyEqual(
-              RemainingUnrBase, "Remaining Unrealized Base", LibraryERM.GetAmountRoundingPrecision,
+              RemainingUnrBase, "Remaining Unrealized Base", LibraryERM.GetAmountRoundingPrecision(),
               StrSubstNo(AmountErr, FieldCaption("Remaining Unrealized Base"), RemainingUnrBase));
 
             Assert.AreNearlyEqual(
               RemainingUnrAmount, "Rem Unrealized Amount (LCY)",
-              LibraryERM.GetAmountRoundingPrecision, FieldCaption("Rem Unrealized Amount (LCY)"));
+              LibraryERM.GetAmountRoundingPrecision(), FieldCaption("Rem Unrealized Amount (LCY)"));
             Assert.AreNearlyEqual(
               RemainingUnrBase, "Rem Unrealized Base (LCY)",
-              LibraryERM.GetAmountRoundingPrecision, FieldCaption("Rem Unrealized Base (LCY)"));
+              LibraryERM.GetAmountRoundingPrecision(), FieldCaption("Rem Unrealized Base (LCY)"));
         end;
     end;
 
@@ -2743,7 +2743,7 @@ codeunit 141012 "ERM WHT"
     [Scope('OnPrem')]
     procedure UnapplyVendorEntriesPageHandler(var UnapplyVendorEntries: TestPage "Unapply Vendor Entries")
     begin
-        UnapplyVendorEntries.Unapply.Invoke;
+        UnapplyVendorEntries.Unapply.Invoke();
     end;
 
     [ConfirmHandler]

@@ -59,15 +59,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit BAS Managament - NamedType CannotEditFieldErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1624885305 - NamedType 395429574" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The BAS calculation sheet cannot be exported.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit BAS Managament - NamedType ExportedBASCalcSheetErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1576777842 - NamedType 1104129091" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Amount must be equal.]]></Val>
@@ -464,24 +455,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM GST Reports - NamedType GSTEntriesPageValuesErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2622383499 - NamedType 2126545242" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[VendLedgEntryEndDtAmtLCY]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM IC Purchase Details - NamedType AmtLcy)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2622383499 - NamedType 342894238" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[AgedVendLedgEnt2RemAmtLCY]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM IC Purchase Details - NamedType RemainingAmtLcy)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2622383499 - NamedType 67431746" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The %1 %2 with %3 %4 is required for %5 %6.]]></Val>
@@ -498,15 +471,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM IC Purchase Details - NamedType UnexpectedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2622383499 - NamedType 2799266233" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No_Vendor]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM IC Purchase Details - NamedType VendorNoCap)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2622383499 - NamedType 2926542344" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -941,33 +905,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Tax Document Report Caption - NamedType PrepmtTaxInvoiceTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4143164526 - NamedType 3971944715" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Sales - Invoice %1]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Tax Document Report Caption - NamedType SalesInvoiceTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4143164526 - NamedType 2260358214" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Sales - Prepayment Tax Invoice %1]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Tax Document Report Caption - NamedType SalesPrepmtTaxInvoiceTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 4143164526 - NamedType 141438552" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Sales - Tax Invoice %1]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Tax Document Report Caption - NamedType SalesTaxInvoiceTxt)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 4143164526 - NamedType 592908512" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Service - Invoice %1]]></Val>
@@ -993,33 +930,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Tax Document Report Caption - NamedType TaxInvoiceTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3382378424 - NamedType 762284302" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There are one or more errors. For details, see the journal error FactBox.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Intrastat - NamedType AdvChecklistErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3382378424 - NamedType 3228010162" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Intrastat file was not created]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Intrastat - NamedType FileNotCreatedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3382378424 - NamedType 3744254637" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Reported must be equal to 'No'  in Intrastat Jnl. Batch]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Intrastat - NamedType ReportedMustBeNoErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3916370184 - NamedType 43158123" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

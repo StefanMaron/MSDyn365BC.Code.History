@@ -16,6 +16,7 @@ table 28046 "Temp WHT Entry"
 {
     Caption = 'Temp WHT Entry';
     LookupPageID = "WHT Entry";
+    DataClassification = CustomerContent;
 
     fields
     {

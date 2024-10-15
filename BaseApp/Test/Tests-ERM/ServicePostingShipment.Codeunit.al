@@ -121,7 +121,7 @@ codeunit 136107 "Service Posting - Shipment"
 
         // [GIVEN] Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Resource and Cost.
         Initialize();
-        ExecuteUIHandlers;
+        ExecuteUIHandlers();
         CreateServiceOrderResAndCost(ServiceHeader, ServiceLine);
         UpdatePartialQtyToShip(ServiceLine);
         SaveServiceLineInTempTable(TempServiceLine, ServiceLine);
@@ -202,7 +202,7 @@ codeunit 136107 "Service Posting - Shipment"
 
         // [GIVEN] Create Service Order - Service Header, Service Item, Service Item Line, Service Line, Update Quantity on Service Line.
         Initialize();
-        ExecuteUIHandlers;
+        ExecuteUIHandlers();
         CreateServiceOrderResAndCost(ServiceHeader, ServiceLine);
         UpdateQuantity(ServiceLine);
         SaveServiceLineInTempTable(TempServiceLine, ServiceLine);
@@ -282,7 +282,7 @@ codeunit 136107 "Service Posting - Shipment"
         // [GIVEN] Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Resource and
         // [GIVEN] "Auto cost Posting" and "Expected Cost Posting" are set to False).
         Initialize();
-        ExecuteUIHandlers;
+        ExecuteUIHandlers();
         CreateServiceOrderResAndCost(ServiceHeader, ServiceLine);
         UpdateQuantity(ServiceLine);
         SaveServiceLineInTempTable(TempServiceLine, ServiceLine);
@@ -363,7 +363,7 @@ codeunit 136107 "Service Posting - Shipment"
 
         // [GIVEN] Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Resource and Cost.
         Initialize();
-        ExecuteUIHandlers;
+        ExecuteUIHandlers();
         CreateServiceOrderResAndCost(ServiceHeader, ServiceLine);
         UpdatePartialQtyToShip(ServiceLine);
 
@@ -447,7 +447,7 @@ codeunit 136107 "Service Posting - Shipment"
 
         // [GIVEN] Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Resource and Cost.
         Initialize();
-        ExecuteUIHandlers;
+        ExecuteUIHandlers();
         SetupCostPostingInventory(true, false);
         CreateServiceOrderResAndCost(ServiceHeader, ServiceLine);
         UpdatePartialQtyToShip(ServiceLine);
@@ -538,7 +538,7 @@ codeunit 136107 "Service Posting - Shipment"
         // [GIVEN] Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Resource and Cost.
         // Post the Service Order partially as Ship . Post the Service Order partially as Invoice.
         Initialize();
-        ExecuteUIHandlers;
+        ExecuteUIHandlers();
         CreateServiceOrderResAndCost(ServiceHeader, ServiceLine);
         UpdatePartialQtyToShip(ServiceLine);
         LibraryService.PostServiceOrder(ServiceHeader, true, false, false);
@@ -631,7 +631,7 @@ codeunit 136107 "Service Posting - Shipment"
         // [GIVEN] Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Resource and Cost.
         // Post the Service Order partially as Ship and Invoice.
         Initialize();
-        ExecuteUIHandlers;
+        ExecuteUIHandlers();
         CreateServiceOrderResAndCost(ServiceHeader, ServiceLine);
         UpdatePartQtyToShipAndInvoice(ServiceLine);
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
@@ -771,7 +771,7 @@ codeunit 136107 "Service Posting - Shipment"
         // partially as Ship. Undo Shipment.
         Initialize();
         SetupCostPostingInventory(AutomaticCostPosting, ExpectedCostPostingToGL);
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer());
         CreateServiceItemLine(ServiceHeader);
         CreateServiceLineForItem(ServiceLine, ServiceHeader);
         UpdatePartialQtyToShip(ServiceLine);
@@ -918,7 +918,7 @@ codeunit 136107 "Service Posting - Shipment"
         // [GIVEN] Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Resource, Cost and G/L Account.
         // [GIVEN] Post the Service Order partially as Ship. Undo Shipment.
         Initialize();
-        ExecuteUIHandlers;
+        ExecuteUIHandlers();
         CreateServiceOrderResAndCost(ServiceHeader, ServiceLine);
         CreateServiceLineForGLAccount(ServiceLine, ServiceHeader);
         UpdatePartialQtyToShip(ServiceLine);
@@ -1018,7 +1018,7 @@ codeunit 136107 "Service Posting - Shipment"
         // [GIVEN] Create Service Order - Service Header, Service Item, Service Item Line, Service Line with Type as Resource, Cost and G/L Account.
         // [GIVEN] Post the Service Order fully as Ship. Undo Shipment.
         Initialize();
-        ExecuteUIHandlers;
+        ExecuteUIHandlers();
         CreateServiceOrderResAndCost(ServiceHeader, ServiceLine);
         CreateServiceLineForGLAccount(ServiceLine, ServiceHeader);
         UpdateQuantity(ServiceLine);
@@ -1657,7 +1657,7 @@ codeunit 136107 "Service Posting - Shipment"
     local procedure CreateServiceOrder(var ServiceHeader: Record "Service Header")
     begin
         // Create a new Service Order - Service Header, Service Item, Service Item Line.
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer());
         CreateServiceItemLine(ServiceHeader);
     end;
 
@@ -1673,7 +1673,7 @@ codeunit 136107 "Service Posting - Shipment"
     var
         ServiceLine: Record "Service Line";
     begin
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", LibrarySales.CreateCustomerNo());
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
         ServiceLine.Validate(Quantity, LibraryRandom.RandDecInRange(10, 20, 2));
         ServiceLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
@@ -1699,7 +1699,7 @@ codeunit 136107 "Service Posting - Shipment"
         ServiceItemLine: Record "Service Item Line";
         ServiceItem: Record "Service Item";
     begin
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer());
         UpdateLocationOnServiceHeader(ServiceHeader, LocationCode);
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
@@ -1732,7 +1732,7 @@ codeunit 136107 "Service Posting - Shipment"
         ServiceItemLine.FindSet();
         repeat
             LibraryService.CreateServiceLine(
-              ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup);
+              ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup());
             ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
             ServiceLine.Modify(true);
         until ServiceItemLine.Next() = 0;
@@ -1746,7 +1746,7 @@ codeunit 136107 "Service Posting - Shipment"
         ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceItemLine.FindSet();
         repeat
-            LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo);
+            LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
             ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
             ServiceLine.Modify(true);
         until ServiceItemLine.Next() = 0;
@@ -1760,7 +1760,7 @@ codeunit 136107 "Service Posting - Shipment"
         ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
         ServiceItemLine.FindSet();
         repeat
-            LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, LibraryResource.CreateResourceNo);
+            LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Resource, LibraryResource.CreateResourceNo());
             ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
             ServiceLine.Modify(true);
         until ServiceItemLine.Next() = 0;
@@ -1798,7 +1798,7 @@ codeunit 136107 "Service Posting - Shipment"
         ServiceItemLine: Record "Service Item Line";
         ServiceLine: Record "Service Line";
     begin
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer());
         UpdateLocationOnServiceHeader(ServiceHeader, Bin."Location Code");
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
@@ -1817,14 +1817,14 @@ codeunit 136107 "Service Posting - Shipment"
         LibraryWarehouse.CreateLocationWMS(Location, false, false, false, true, true);
         LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
 
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CreateCustomer());
         UpdateLocationOnServiceHeader(ServiceHeader, Location.Code);
 
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
 
         CreateServiceLine(
-          ServiceHeader, ServiceLine, LibraryInventory.CreateItemNo, ServiceItem."No.",
+          ServiceHeader, ServiceLine, LibraryInventory.CreateItemNo(), ServiceItem."No.",
           QtyToConsume + LibraryRandom.RandInt(10), QtyToConsume);
     end;
 
@@ -1857,7 +1857,7 @@ codeunit 136107 "Service Posting - Shipment"
 
     local procedure CreateServiceItemWithWarrantyStartingDate(var ServiceItem: Record "Service Item")
     begin
-        LibraryService.CreateServiceItem(ServiceItem, CreateCustomer);
+        LibraryService.CreateServiceItem(ServiceItem, CreateCustomer());
         ServiceItem.Validate("Warranty Starting Date (Parts)", WorkDate());
         ServiceItem.Modify(true);
     end;
@@ -1921,7 +1921,7 @@ codeunit 136107 "Service Posting - Shipment"
         // Sometimes this function triggers a message and a confirm dialog
         // This is to make sure the corresponding handlers are always executed
         // (otherwise tests would fail)
-        ExecuteUIHandlers;
+        ExecuteUIHandlers();
 
         InventorySetup.Get();
         InventorySetup.Validate("Automatic Cost Posting", AutomaticCostPosting);
@@ -1951,7 +1951,7 @@ codeunit 136107 "Service Posting - Shipment"
         ServiceLine.SetRange("Document No.", ServiceLine."Document No.");
         ServiceLine.FindSet();
         repeat
-            ServiceLine.Validate("Qty. to Invoice", ServiceLine."Quantity Shipped" * LibraryUtility.GenerateRandomFraction);
+            ServiceLine.Validate("Qty. to Invoice", ServiceLine."Quantity Shipped" * LibraryUtility.GenerateRandomFraction());
             ServiceLine.Modify(true);
         until ServiceLine.Next() = 0;
     end;
@@ -1963,7 +1963,7 @@ codeunit 136107 "Service Posting - Shipment"
         ServiceLine.FindSet();
         repeat
             ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Required field - value is not important to test case.
-            ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
+            ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction());
             ServiceLine.Validate("Qty. to Consume", ServiceLine."Qty. to Ship");
             ServiceLine.Modify(true);
         until ServiceLine.Next() = 0;
@@ -1976,7 +1976,7 @@ codeunit 136107 "Service Posting - Shipment"
         ServiceLine.FindSet();
         repeat
             ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Required field - value is not important to test case.
-            ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
+            ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction());
             ServiceLine.Validate("Qty. to Invoice", ServiceLine."Qty. to Ship");
             ServiceLine.Modify(true);
         until ServiceLine.Next() = 0;
@@ -2023,7 +2023,7 @@ codeunit 136107 "Service Posting - Shipment"
         ServiceLine.FindSet();
         repeat
             ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Required field - value is not important to test case.
-            ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
+            ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction());
             ServiceLine.Modify(true);
         until ServiceLine.Next() = 0;
     end;
@@ -2035,7 +2035,7 @@ codeunit 136107 "Service Posting - Shipment"
         ServiceLine.FindSet();
         repeat
             ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));  // Required field - value is not important to test case.
-            ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
+            ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction());
             ServiceLine.Modify(true);
         until ServiceLine.Next() = 0;
     end;
@@ -2051,7 +2051,7 @@ codeunit 136107 "Service Posting - Shipment"
         ServiceLine.Validate("Service Item Line No.", ServiceItemLineNo);
         ServiceLine.Validate("Bin Code", Bin.Code);
         ServiceLine.Validate(Quantity, Quantity);
-        ServiceLine.Validate("Qty. to Ship", Quantity * LibraryUtility.GenerateRandomFraction);
+        ServiceLine.Validate("Qty. to Ship", Quantity * LibraryUtility.GenerateRandomFraction());
         ServiceLine.Validate("Qty. to Consume", ServiceLine."Qty. to Ship");
         ServiceLine.Modify(true);
     end;
@@ -2065,7 +2065,7 @@ codeunit 136107 "Service Posting - Shipment"
             repeat
                 Validate("Posting Date", NewPostingDate);
                 Modify(true);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -2388,7 +2388,7 @@ codeunit 136107 "Service Posting - Shipment"
     [Scope('OnPrem')]
     procedure CreateWhseShpt_MessageHandler(Message: Text[1024])
     begin
-        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Message);
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText(), Message);
     end;
 
     local procedure ExecuteUIHandlers()

@@ -6,7 +6,7 @@ using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Projects.Project.Analysis;
 using Microsoft.Projects.Resources.Analysis;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Service.Analysis;
@@ -123,7 +123,7 @@ page 72 "Resource Groups"
             {
                 Caption = '&Prices';
                 Image = Price;
-#if not CLEAN21
+#if not CLEAN23
                 action(Costs)
                 {
                     ApplicationArea = Jobs;
@@ -202,11 +202,11 @@ page 72 "Resource Groups"
                 action("Res. Group All&ocated per Job")
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Res. Group All&ocated per Job';
+                    Caption = 'Res. Group All&ocated per Project';
                     Image = ViewJob;
                     RunObject = Page "Res. Gr. Allocated per Job";
                     RunPageLink = "Resource Gr. Filter" = field("No.");
-                    ToolTip = 'View the job allocations of the resource group.';
+                    ToolTip = 'View the project allocations of the resource group.';
                 }
                 action("Res. Group Allocated per Service &Order")
                 {
@@ -226,7 +226,7 @@ page 72 "Resource Groups"
                     RunPageLink = "No." = field("No."),
                                   "Unit of Measure Filter" = field("Unit of Measure Filter"),
                                   "Chargeable Filter" = field("Chargeable Filter");
-                    ToolTip = 'View a summary of resource group capacities, the quantity of resource hours allocated to jobs on order, the quantity allocated to service orders, the capacity assigned to jobs on quote, and the resource group availability.';
+                    ToolTip = 'View a summary of resource group capacities, the quantity of resource hours allocated to projects on order, the quantity allocated to service orders, the capacity assigned to projects on quote, and the resource group availability.';
                 }
             }
         }
@@ -295,7 +295,7 @@ page 72 "Resource Groups"
                 actionref(SalesPriceLists_Promoted; SalesPriceLists)
                 {
                 }
-#if not CLEAN21
+#if not CLEAN23
                 actionref(Costs_Promoted; Costs)
                 {
                     ObsoleteState = Pending;
@@ -303,7 +303,7 @@ page 72 "Resource Groups"
                     ObsoleteTag = '17.0';
                 }
 #endif
-#if not CLEAN21
+#if not CLEAN23
                 actionref(Prices_Promoted; Prices)
                 {
                     ObsoleteState = Pending;

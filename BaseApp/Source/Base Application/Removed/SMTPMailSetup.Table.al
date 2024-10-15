@@ -7,6 +7,7 @@ table 409 "SMTP Mail Setup"
     ObsoleteReason = 'Moved to "Email - SMTP" app. Use SMTP connector to create SMTP accounts. Email accounts can be configured from "Email Accouts" page from "System Application".';
     ObsoleteTag = '20.0';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

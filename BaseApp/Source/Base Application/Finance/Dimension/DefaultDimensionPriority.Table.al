@@ -7,6 +7,7 @@ using System.Reflection;
 table 354 "Default Dimension Priority"
 {
     Caption = 'Default Dimension Priority';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -44,7 +45,7 @@ table 354 "Default Dimension Priority"
         }
         field(3; "Table Caption"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Table),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Table),
                                                                            "Object ID" = field("Table ID")));
             Caption = 'Table Caption';
             Editable = false;

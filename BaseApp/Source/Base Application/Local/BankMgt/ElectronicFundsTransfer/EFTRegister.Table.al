@@ -11,6 +11,7 @@ table 11609 "EFT Register"
     Caption = 'EFT Register';
     DrillDownPageID = "EFT Register";
     LookupPageID = "EFT Register";
+    DataClassification = CustomerContent;
 
     fields
     {

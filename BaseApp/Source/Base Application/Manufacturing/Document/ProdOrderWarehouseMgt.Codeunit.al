@@ -94,59 +94,57 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
 
     procedure CreateWhseJnlLineFromConsumptionJournal(ItemJournalLine: Record "Item Journal Line"; var WarehouseJournalLine: Record "Warehouse Journal Line"): Boolean
     begin
-        with ItemJournalLine do begin
-            if Adjustment or
-               ("Value Entry Type" in ["Value Entry Type"::Rounding, "Value Entry Type"::Revaluation])
-            then
-                exit(false);
+        if ItemJournalLine.Adjustment or
+           (ItemJournalLine."Value Entry Type" in [ItemJournalLine."Value Entry Type"::Rounding, ItemJournalLine."Value Entry Type"::Revaluation])
+        then
+            exit(false);
 
-            TestField("Order Type", "Order Type"::Production);
-            GetLocation("Location Code");
-            TestField("Unit of Measure Code");
-            WMSManagement.InitWhseJnlLine(ItemJournalLine, WarehouseJournalLine, "Quantity (Base)");
-            SetZoneAndBinsForConsumption(ItemJournalLine, WarehouseJournalLine);
-            WarehouseJournalLine.SetSource(DATABASE::"Item Journal Line", 4, "Order No.", "Order Line No.", "Prod. Order Comp. Line No."); // Consumption Journal
-            WarehouseJournalLine."Source Document" := WhseManagement.GetWhseJnlSourceDocument(WarehouseJournalLine."Source Type", WarehouseJournalLine."Source Subtype");
-            WarehouseJournalLine.SetWhseDocument(WarehouseJournalLine."Whse. Document Type"::Production, "Order No.", "Order Line No.");
-            WarehouseJournalLine."Reference Document" := WarehouseJournalLine."Reference Document"::"Prod.";
-            WarehouseJournalLine."Reference No." := "Order No.";
-            WMSManagement.TransferWhseItemTracking(WarehouseJournalLine, ItemJournalLine);
+        ItemJournalLine.TestField("Order Type", ItemJournalLine."Order Type"::Production);
+        GetLocation(ItemJournalLine."Location Code");
+        ItemJournalLine.TestField("Unit of Measure Code");
+        WMSManagement.InitWhseJnlLine(ItemJournalLine, WarehouseJournalLine, ItemJournalLine."Quantity (Base)");
+        SetZoneAndBinsForConsumption(ItemJournalLine, WarehouseJournalLine);
+        WarehouseJournalLine.SetSource(DATABASE::"Item Journal Line", 4, ItemJournalLine."Order No.", ItemJournalLine."Order Line No.", ItemJournalLine."Prod. Order Comp. Line No.");
+        // Consumption Journal
+        WarehouseJournalLine."Source Document" := WhseManagement.GetWhseJnlSourceDocument(WarehouseJournalLine."Source Type", WarehouseJournalLine."Source Subtype");
+        WarehouseJournalLine.SetWhseDocument(WarehouseJournalLine."Whse. Document Type"::Production, ItemJournalLine."Order No.", ItemJournalLine."Order Line No.");
+        WarehouseJournalLine."Reference Document" := WarehouseJournalLine."Reference Document"::"Prod.";
+        WarehouseJournalLine."Reference No." := ItemJournalLine."Order No.";
+        WMSManagement.TransferWhseItemTracking(WarehouseJournalLine, ItemJournalLine);
 #if not CLEAN23
-            WMSManagement.RunOnAfterCreateWhseJnlLineFromConsumJnl(WarehouseJournalLine, ItemJournalLine);
+        WMSManagement.RunOnAfterCreateWhseJnlLineFromConsumJnl(WarehouseJournalLine, ItemJournalLine);
 #endif
-            OnAfterCreateWhseJnlLineFromConsumptionJournal(WarehouseJournalLine, ItemJournalLine);
-        end;
+        OnAfterCreateWhseJnlLineFromConsumptionJournal(WarehouseJournalLine, ItemJournalLine);
     end;
 
     procedure CreateWhseJnlLineFromOutputJournal(ItemJournalLine: Record "Item Journal Line"; var WarehouseJournalLine: Record "Warehouse Journal Line"): Boolean
     begin
         OnBeforeCreateWhseJnlLineFromOutputJournal(ItemJournalLine);
-        with ItemJournalLine do begin
-            if Adjustment or
-               ("Value Entry Type" in ["Value Entry Type"::Rounding, "Value Entry Type"::Revaluation])
-            then
-                exit(false);
+        if ItemJournalLine.Adjustment or
+           (ItemJournalLine."Value Entry Type" in [ItemJournalLine."Value Entry Type"::Rounding, ItemJournalLine."Value Entry Type"::Revaluation])
+        then
+            exit(false);
 
-            TestField("Order Type", "Order Type"::Production);
-            GetLocation("Location Code");
-            TestField("Unit of Measure Code");
-            WMSManagement.InitWhseJnlLine(ItemJournalLine, WarehouseJournalLine, "Output Quantity (Base)");
-            OnCreateWhseJnlLineFromOutputJournalOnAfterInitWhseJnlLine(WarehouseJournalLine, ItemJournalLine);
+        ItemJournalLine.TestField("Order Type", ItemJournalLine."Order Type"::Production);
+        GetLocation(ItemJournalLine."Location Code");
+        ItemJournalLine.TestField("Unit of Measure Code");
+        WMSManagement.InitWhseJnlLine(ItemJournalLine, WarehouseJournalLine, ItemJournalLine."Output Quantity (Base)");
+        OnCreateWhseJnlLineFromOutputJournalOnAfterInitWhseJnlLine(WarehouseJournalLine, ItemJournalLine);
 #if not CLEAN23
-            WMSManagement.RunOnCreateWhseJnlLineFromOutputJnlOnAfterInitWhseJnlLine(WarehouseJournalLine, ItemJournalLine);
+        WMSManagement.RunOnCreateWhseJnlLineFromOutputJnlOnAfterInitWhseJnlLine(WarehouseJournalLine, ItemJournalLine);
 #endif
-            SetZoneAndBinsForOutput(ItemJournalLine, WarehouseJournalLine);
-            WarehouseJournalLine.SetSource(DATABASE::"Item Journal Line", 5, "Order No.", "Order Line No.", 0); // Output Journal
-            WarehouseJournalLine."Source Document" := WhseManagement.GetWhseJnlSourceDocument(WarehouseJournalLine."Source Type", WarehouseJournalLine."Source Subtype");
-            WarehouseJournalLine.SetWhseDocument(WarehouseJournalLine."Whse. Document Type"::Production, "Order No.", "Order Line No.");
-            WarehouseJournalLine."Reference Document" := WarehouseJournalLine."Reference Document"::"Prod.";
-            WarehouseJournalLine."Reference No." := "Order No.";
-            WMSManagement.TransferWhseItemTracking(WarehouseJournalLine, ItemJournalLine);
+        SetZoneAndBinsForOutput(ItemJournalLine, WarehouseJournalLine);
+        WarehouseJournalLine.SetSource(DATABASE::"Item Journal Line", 5, ItemJournalLine."Order No.", ItemJournalLine."Order Line No.", 0);
+        // Output Journal
+        WarehouseJournalLine."Source Document" := WhseManagement.GetWhseJnlSourceDocument(WarehouseJournalLine."Source Type", WarehouseJournalLine."Source Subtype");
+        WarehouseJournalLine.SetWhseDocument(WarehouseJournalLine."Whse. Document Type"::Production, ItemJournalLine."Order No.", ItemJournalLine."Order Line No.");
+        WarehouseJournalLine."Reference Document" := WarehouseJournalLine."Reference Document"::"Prod.";
+        WarehouseJournalLine."Reference No." := ItemJournalLine."Order No.";
+        WMSManagement.TransferWhseItemTracking(WarehouseJournalLine, ItemJournalLine);
 #if not CLEAN23
-            WMSManagement.RunOnAfterCreateWhseJnlLineFromOutputJnl(WarehouseJournalLine, ItemJournalLine);
+        WMSManagement.RunOnAfterCreateWhseJnlLineFromOutputJnl(WarehouseJournalLine, ItemJournalLine);
 #endif
-            OnAfterCreateWhseJnlLineFromOutputJournal(WarehouseJournalLine, ItemJournalLine);
-        end;
+        OnAfterCreateWhseJnlLineFromOutputJournal(WarehouseJournalLine, ItemJournalLine);
     end;
 
     local procedure SetZoneAndBinsForConsumption(ItemJournalLine: Record "Item Journal Line"; var WarehouseJournalLine: Record "Warehouse Journal Line")
@@ -162,93 +160,88 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
         if IsHandled then
             exit;
 
-        with ItemJournalLine do
-            if GetProdOrderCompLine(
-                 ProdOrderComponent, ProdOrderComponent.Status::Released, "Order No.", "Order Line No.", "Prod. Order Comp. Line No.")
+        if GetProdOrderCompLine(
+                 ProdOrderComponent, ProdOrderComponent.Status::Released, ItemJournalLine."Order No.", ItemJournalLine."Order Line No.", ItemJournalLine."Prod. Order Comp. Line No.")
             then
-                if Quantity > 0 then begin
-                    WarehouseJournalLine."Entry Type" := WarehouseJournalLine."Entry Type"::"Negative Adjmt.";
-                    WarehouseJournalLine."From Bin Code" := "Bin Code";
-                    if Location."Bin Mandatory" and (Location."Prod. Consump. Whse. Handling" = Enum::"Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)") then begin
-                        OnSetZoneAndBinsForConsumptionOnBeforeCheckQtyPicked(ItemJournalLine, ProdOrderComponent);
+            if ItemJournalLine.Quantity > 0 then begin
+                WarehouseJournalLine."Entry Type" := WarehouseJournalLine."Entry Type"::"Negative Adjmt.";
+                WarehouseJournalLine."From Bin Code" := ItemJournalLine."Bin Code";
+                if Location."Bin Mandatory" and (Location."Prod. Consump. Whse. Handling" = Enum::"Prod. Consump. Whse. Handling"::"Warehouse Pick (mandatory)") then begin
+                    OnSetZoneAndBinsForConsumptionOnBeforeCheckQtyPicked(ItemJournalLine, ProdOrderComponent);
 #if not CLEAN23
-                        WMSManagement.RunOnSetZoneAndBinsForConsumptionOnBeforeCheckQtyPicked(ItemJournalLine, ProdOrderComponent);
+                    WMSManagement.RunOnSetZoneAndBinsForConsumptionOnBeforeCheckQtyPicked(ItemJournalLine, ProdOrderComponent);
 #endif
-                        if (ProdOrderComponent."Planning Level Code" = 0) and
-                           ((ProdOrderComponent."Flushing Method" = ProdOrderComponent."Flushing Method"::Manual) or
-                            (ProdOrderComponent."Flushing Method" = ProdOrderComponent."Flushing Method"::"Pick + Backward") or
-                            ((ProdOrderComponent."Flushing Method" = ProdOrderComponent."Flushing Method"::"Pick + Forward") and
-                             (ProdOrderComponent."Routing Link Code" <> '')))
-                        then
-                            CheckProdOrderCompLineQtyPickedBase(ProdOrderComponent, ItemJournalLine);
-                        GetBin("Location Code", WarehouseJournalLine."From Bin Code");
-                        WarehouseJournalLine."From Zone Code" := Bin."Zone Code";
-                        WarehouseJournalLine."From Bin Type Code" := Bin."Bin Type Code";
-                    end;
-                    if WarehouseJournalLine."From Zone Code" = '' then
-                        WarehouseJournalLine."From Zone Code" := GetZoneCode("Location Code", WarehouseJournalLine."From Bin Code");
-                    if WarehouseJournalLine."From Bin Type Code" = '' then
-                        WarehouseJournalLine."From Bin Type Code" := GetBinTypeCode("Location Code", WarehouseJournalLine."From Bin Code");
-                end else begin
-                    WarehouseJournalLine."Entry Type" := WarehouseJournalLine."Entry Type"::"Positive Adjmt.";
-                    WarehouseJournalLine."To Bin Code" := "Bin Code";
-                    if Location."Directed Put-away and Pick" then begin
-                        GetBin("Location Code", WarehouseJournalLine."To Bin Code");
-                        WarehouseJournalLine."To Zone Code" := Bin."Zone Code";
-                    end;
-                end
-            else
-                if Quantity > 0 then begin
-                    WarehouseJournalLine."Entry Type" := WarehouseJournalLine."Entry Type"::"Negative Adjmt.";
-                    WarehouseJournalLine."From Bin Code" := "Bin Code";
-                    if Location."Directed Put-away and Pick" then begin
-                        GetBin("Location Code", WarehouseJournalLine."From Bin Code");
-                        WarehouseJournalLine."From Zone Code" := Bin."Zone Code";
-                        WarehouseJournalLine."From Bin Type Code" := Bin."Bin Type Code";
-                    end;
-                end else begin
-                    WarehouseJournalLine."Entry Type" := WarehouseJournalLine."Entry Type"::"Positive Adjmt.";
-                    WarehouseJournalLine."To Bin Code" := "Bin Code";
-                    if Location."Directed Put-away and Pick" then begin
-                        GetBin("Location Code", WarehouseJournalLine."To Bin Code");
-                        WarehouseJournalLine."To Zone Code" := Bin."Zone Code";
-                    end;
+                    if (ProdOrderComponent."Planning Level Code" = 0) and
+                       ((ProdOrderComponent."Flushing Method" = ProdOrderComponent."Flushing Method"::Manual) or
+                        (ProdOrderComponent."Flushing Method" = ProdOrderComponent."Flushing Method"::"Pick + Backward") or
+                        (ProdOrderComponent."Flushing Method" = ProdOrderComponent."Flushing Method"::"Pick + Forward"))
+                    then
+                        CheckProdOrderCompLineQtyPickedBase(ProdOrderComponent, ItemJournalLine);
+                    GetBin(ItemJournalLine."Location Code", WarehouseJournalLine."From Bin Code");
+                    WarehouseJournalLine."From Zone Code" := Bin."Zone Code";
+                    WarehouseJournalLine."From Bin Type Code" := Bin."Bin Type Code";
                 end;
+                if WarehouseJournalLine."From Zone Code" = '' then
+                    WarehouseJournalLine."From Zone Code" := GetZoneCode(ItemJournalLine."Location Code", WarehouseJournalLine."From Bin Code");
+                if WarehouseJournalLine."From Bin Type Code" = '' then
+                    WarehouseJournalLine."From Bin Type Code" := GetBinTypeCode(ItemJournalLine."Location Code", WarehouseJournalLine."From Bin Code");
+            end else begin
+                WarehouseJournalLine."Entry Type" := WarehouseJournalLine."Entry Type"::"Positive Adjmt.";
+                WarehouseJournalLine."To Bin Code" := ItemJournalLine."Bin Code";
+                if Location."Directed Put-away and Pick" then begin
+                    GetBin(ItemJournalLine."Location Code", WarehouseJournalLine."To Bin Code");
+                    WarehouseJournalLine."To Zone Code" := Bin."Zone Code";
+                end;
+            end
+        else
+            if ItemJournalLine.Quantity > 0 then begin
+                WarehouseJournalLine."Entry Type" := WarehouseJournalLine."Entry Type"::"Negative Adjmt.";
+                WarehouseJournalLine."From Bin Code" := ItemJournalLine."Bin Code";
+                if Location."Directed Put-away and Pick" then begin
+                    GetBin(ItemJournalLine."Location Code", WarehouseJournalLine."From Bin Code");
+                    WarehouseJournalLine."From Zone Code" := Bin."Zone Code";
+                    WarehouseJournalLine."From Bin Type Code" := Bin."Bin Type Code";
+                end;
+            end else begin
+                WarehouseJournalLine."Entry Type" := WarehouseJournalLine."Entry Type"::"Positive Adjmt.";
+                WarehouseJournalLine."To Bin Code" := ItemJournalLine."Bin Code";
+                if Location."Directed Put-away and Pick" then begin
+                    GetBin(ItemJournalLine."Location Code", WarehouseJournalLine."To Bin Code");
+                    WarehouseJournalLine."To Zone Code" := Bin."Zone Code";
+                end;
+            end;
     end;
 
     local procedure SetZoneAndBinsForOutput(ItemJournalLine: Record "Item Journal Line"; var WarehouseJournalLine: Record "Warehouse Journal Line")
     begin
-        with ItemJournalLine do
-            if "Output Quantity" >= 0 then begin
-                WarehouseJournalLine."Entry Type" := WarehouseJournalLine."Entry Type"::"Positive Adjmt.";
-                WarehouseJournalLine."To Bin Code" := "Bin Code";
-                if Location."Directed Put-away and Pick" then begin
-                    GetBin("Location Code", WarehouseJournalLine."To Bin Code");
-                    WarehouseJournalLine."To Zone Code" := Bin."Zone Code";
-                end;
-                if WarehouseJournalLine."To Zone Code" = '' then
-                    WarehouseJournalLine."To Zone Code" := GetZoneCode("Location Code", WarehouseJournalLine."To Bin Code");
-            end else begin
-                WarehouseJournalLine."Entry Type" := WarehouseJournalLine."Entry Type"::"Negative Adjmt.";
-                WarehouseJournalLine."From Bin Code" := "Bin Code";
-                if Location."Directed Put-away and Pick" then begin
-                    GetBin("Location Code", WarehouseJournalLine."From Bin Code");
-                    WarehouseJournalLine."From Zone Code" := Bin."Zone Code";
-                end;
+        if ItemJournalLine."Output Quantity" >= 0 then begin
+            WarehouseJournalLine."Entry Type" := WarehouseJournalLine."Entry Type"::"Positive Adjmt.";
+            WarehouseJournalLine."To Bin Code" := ItemJournalLine."Bin Code";
+            if Location."Directed Put-away and Pick" then begin
+                GetBin(ItemJournalLine."Location Code", WarehouseJournalLine."To Bin Code");
+                WarehouseJournalLine."To Zone Code" := Bin."Zone Code";
             end;
+            if WarehouseJournalLine."To Zone Code" = '' then
+                WarehouseJournalLine."To Zone Code" := GetZoneCode(ItemJournalLine."Location Code", WarehouseJournalLine."To Bin Code");
+        end else begin
+            WarehouseJournalLine."Entry Type" := WarehouseJournalLine."Entry Type"::"Negative Adjmt.";
+            WarehouseJournalLine."From Bin Code" := ItemJournalLine."Bin Code";
+            if Location."Directed Put-away and Pick" then begin
+                GetBin(ItemJournalLine."Location Code", WarehouseJournalLine."From Bin Code");
+                WarehouseJournalLine."From Zone Code" := Bin."Zone Code";
+            end;
+        end;
     end;
 
     procedure GetPlanningRtngLastOperationFromBinCode(WkshTemplateName: Code[10]; WkshBatchName: Code[10]; WkshLineNo: Integer; LocationCode: Code[10]): Code[20]
     var
         PlanningRoutingLine: Record "Planning Routing Line";
     begin
-        with PlanningRoutingLine do begin
-            SetRange("Worksheet Template Name", WkshTemplateName);
-            SetRange("Worksheet Batch Name", WkshBatchName);
-            SetRange("Worksheet Line No.", WkshLineNo);
-            if FindLast() then
-                exit(GetProdCenterBinCode(Type, "No.", LocationCode, false, Enum::"Flushing Method Routing"::Manual));
-        end;
+        PlanningRoutingLine.SetRange(PlanningRoutingLine."Worksheet Template Name", WkshTemplateName);
+        PlanningRoutingLine.SetRange(PlanningRoutingLine."Worksheet Batch Name", WkshBatchName);
+        PlanningRoutingLine.SetRange(PlanningRoutingLine."Worksheet Line No.", WkshLineNo);
+        if PlanningRoutingLine.FindLast() then
+            exit(GetProdCenterBinCode(PlanningRoutingLine.Type, PlanningRoutingLine."No.", LocationCode, false, Enum::"Flushing Method Routing"::Manual));
     end;
 
     procedure GetProdCenterLocationCode(Type: Enum "Capacity Type"; No: Code[20]): Code[10]
@@ -469,14 +462,14 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
             exit;
 
         if not WhseValidateSourceLine.WhseLinesExist(
-             Database::"Prod. Order Component", OldProdOrderComponent.Status, OldProdOrderComponent."Prod. Order No.",
+             Database::"Prod. Order Component", OldProdOrderComponent.Status.AsInteger(), OldProdOrderComponent."Prod. Order No.",
              OldProdOrderComponent."Prod. Order Line No.", OldProdOrderComponent."Line No.", OldProdOrderComponent.Quantity)
         then begin
             NewRecordRef.GetTable(NewProdOrderComponent);
             OldRecordRef.GetTable(OldProdOrderComponent);
             if WhseValidateSourceLine.FieldValueIsChanged(NewRecordRef, OldRecordRef, NewProdOrderComponent.FieldNo(Status)) then begin
                 if not WhseValidateSourceLine.WhseWorkSheetLinesExist(
-                    Database::"Prod. Order Component", OldProdOrderComponent.Status, OldProdOrderComponent."Prod. Order No.",
+                    Database::"Prod. Order Component", OldProdOrderComponent.Status.AsInteger(), OldProdOrderComponent."Prod. Order No.",
                     OldProdOrderComponent."Prod. Order Line No.", OldProdOrderComponent."Line No.", OldProdOrderComponent.Quantity)
                 then
                     exit;
@@ -486,20 +479,18 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
 
         NewRecordRef.GetTable(NewProdOrderComponent);
         OldRecordRef.GetTable(OldProdOrderComponent);
-        with NewProdOrderComponent do begin
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo(Status));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Prod. Order No."));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Prod. Order Line No."));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Line No."));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Item No."));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Variant Code"));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Location Code"));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Unit of Measure Code"));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Due Date"));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo(Quantity));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Quantity per"));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Expected Quantity"));
-        end;
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewProdOrderComponent.FieldNo(NewProdOrderComponent.Status));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewProdOrderComponent.FieldNo(NewProdOrderComponent."Prod. Order No."));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewProdOrderComponent.FieldNo(NewProdOrderComponent."Prod. Order Line No."));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewProdOrderComponent.FieldNo(NewProdOrderComponent."Line No."));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewProdOrderComponent.FieldNo(NewProdOrderComponent."Item No."));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewProdOrderComponent.FieldNo(NewProdOrderComponent."Variant Code"));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewProdOrderComponent.FieldNo(NewProdOrderComponent."Location Code"));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewProdOrderComponent.FieldNo(NewProdOrderComponent."Unit of Measure Code"));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewProdOrderComponent.FieldNo(NewProdOrderComponent."Due Date"));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewProdOrderComponent.FieldNo(NewProdOrderComponent.Quantity));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewProdOrderComponent.FieldNo(NewProdOrderComponent."Quantity per"));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewProdOrderComponent.FieldNo(NewProdOrderComponent."Expected Quantity"));
 
         OnAfterProdComponentVerifyChange(NewRecordRef, OldRecordRef);
 #if not CLEAN23
@@ -511,14 +502,14 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
     begin
         if WhseValidateSourceLine.WhseLinesExist(
              Database::"Prod. Order Component",
-             ProdOrderComponent.Status, ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Prod. Order Line No.",
+             ProdOrderComponent.Status.AsInteger(), ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Prod. Order Line No.",
              ProdOrderComponent."Line No.", ProdOrderComponent.Quantity)
         then
             WhseValidateSourceLine.RaiseCannotbeDeletedErr(ProdOrderComponent.TableCaption());
 
         if WhseValidateSourceLine.WhseWorkSheetLinesExist(
             Database::"Prod. Order Component",
-            ProdOrderComponent.Status, ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Prod. Order Line No.",
+            ProdOrderComponent.Status.AsInteger(), ProdOrderComponent."Prod. Order No.", ProdOrderComponent."Prod. Order Line No.",
             ProdOrderComponent."Line No.", ProdOrderComponent.Quantity)
         then
             WhseValidateSourceLine.RaiseCannotbeDeletedErr(ProdOrderComponent.TableCaption());
@@ -535,35 +526,32 @@ codeunit 5996 "Prod. Order Warehouse Mgt."
         OldRecordRef: RecordRef;
     begin
         if not WhseValidateSourceLine.WhseLinesExist(
-             Database::"Prod. Order Line", OldProdOrderLine.Status, OldProdOrderLine."Prod. Order No.",
+             Database::"Prod. Order Line", OldProdOrderLine.Status.AsInteger(), OldProdOrderLine."Prod. Order No.",
              OldProdOrderLine."Line No.", 0, OldProdOrderLine.Quantity)
         then
             exit;
 
         NewRecordRef.GetTable(NewProdOrderLine);
         OldRecordRef.GetTable(OldProdOrderLine);
-        with NewProdOrderLine do begin
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo(Status));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Prod. Order No."));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Line No."));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Item No."));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Variant Code"));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Location Code"));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Unit of Measure Code"));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Due Date"));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo(Quantity));
-        end;
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewProdOrderLine.FieldNo(NewProdOrderLine.Status));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewProdOrderLine.FieldNo(NewProdOrderLine."Prod. Order No."));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewProdOrderLine.FieldNo(NewProdOrderLine."Line No."));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewProdOrderLine.FieldNo(NewProdOrderLine."Item No."));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewProdOrderLine.FieldNo(NewProdOrderLine."Variant Code"));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewProdOrderLine.FieldNo(NewProdOrderLine."Location Code"));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewProdOrderLine.FieldNo(NewProdOrderLine."Unit of Measure Code"));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewProdOrderLine.FieldNo(NewProdOrderLine."Due Date"));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewProdOrderLine.FieldNo(NewProdOrderLine.Quantity));
 
         OnAfterProdOrderLineVerifyChange(NewProdOrderLine, OldProdOrderLine, NewRecordRef, OldRecordRef);
     end;
 
     procedure ProdOrderLineDelete(var ProdOrderLine: Record "Prod. Order Line")
     begin
-        with ProdOrderLine do
-            if WhseValidateSourceLine.WhseLinesExist(
-                 Database::"Prod. Order Line", Status, "Prod. Order No.", "Line No.", 0, Quantity)
+        if WhseValidateSourceLine.WhseLinesExist(
+                 Database::"Prod. Order Line", ProdOrderLine.Status.AsInteger(), ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.", 0, ProdOrderLine.Quantity)
             then
-                WhseValidateSourceLine.RaiseCannotbeDeletedErr(ProdOrderLine.TableCaption());
+            WhseValidateSourceLine.RaiseCannotbeDeletedErr(ProdOrderLine.TableCaption());
 
         OnAfterProdOrderLineDelete(ProdOrderLine);
     end;

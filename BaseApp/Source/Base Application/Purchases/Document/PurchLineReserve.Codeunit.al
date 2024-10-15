@@ -841,21 +841,20 @@ codeunit 99000834 "Purch. Line-Reserve"
         if TotalQuantity = 0 then
             exit;
 
-        with TempEntrySummary do
-            if (Positive = (TotalQuantity > 0)) and (DocumentType <> PurchaseLine."Document Type"::"Return Order") or
+        if (Positive = (TotalQuantity > 0)) and (DocumentType <> PurchaseLine."Document Type"::"Return Order") or
                 (Positive = (TotalQuantity < 0)) and (DocumentType = PurchaseLine."Document Type"::"Return Order")
-            then begin
-                "Table ID" := Database::"Purchase Line";
-                "Summary Type" :=
-                    CopyStr(StrSubstNo(SummaryTypeTxt, PurchaseLine.TableCaption(), PurchaseLine."Document Type"), 1, MaxStrLen("Summary Type"));
-                if DocumentType = PurchaseLine."Document Type"::"Return Order" then
-                    "Total Quantity" := -TotalQuantity
-                else
-                    "Total Quantity" := TotalQuantity;
-                "Total Available Quantity" := "Total Quantity" - "Total Reserved Quantity";
-                if not Insert() then
-                    Modify();
-            end;
+        then begin
+            TempEntrySummary."Table ID" := Database::"Purchase Line";
+            TempEntrySummary."Summary Type" :=
+                CopyStr(StrSubstNo(SummaryTypeTxt, PurchaseLine.TableCaption(), PurchaseLine."Document Type"), 1, MaxStrLen(TempEntrySummary."Summary Type"));
+            if DocumentType = PurchaseLine."Document Type"::"Return Order" then
+                TempEntrySummary."Total Quantity" := -TotalQuantity
+            else
+                TempEntrySummary."Total Quantity" := TotalQuantity;
+            TempEntrySummary."Total Available Quantity" := TempEntrySummary."Total Quantity" - TempEntrySummary."Total Reserved Quantity";
+            if not TempEntrySummary.Insert() then
+                TempEntrySummary.Modify();
+        end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnUpdateStatistics', '', false, false)]

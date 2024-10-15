@@ -37,6 +37,7 @@ table 28071 "Sales Tax Invoice Header"
     DataCaptionFields = "No.", "Sell-to Customer Name";
     DrillDownPageID = "Posted Sales Tax Invoices";
     LookupPageID = "Posted Sales Tax Invoices";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -620,22 +621,49 @@ table 28071 "Sales Tax Invoice Header"
     end;
 
     trigger OnInsert()
+    var
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
     begin
         SalesSetup.Get();
         if "No." = '' then begin
             if TaxInvoiceManagement.CheckTaxableNoSeries("Sell-to Customer No.", 1) then begin
                 SalesSetup.TestField("Posted Non Tax Invoice Nos.");
-                NoSeriesMgt.InitSeries(SalesSetup."Posted Non Tax Invoice Nos.", xRec."No. Series", "Posting Date", "No.", "No. Series");
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(SalesSetup."Posted Non Tax Invoice Nos.", xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
+                if not IsHandled then begin
+#endif
+                    "No. Series" := SalesSetup."Posted Non Tax Invoice Nos.";
+                    if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                        "No. Series" := xRec."No. Series";
+                    "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
+#if not CLEAN24
+                    NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", SalesSetup."Posted Non Tax Invoice Nos.", "Posting Date", "No.");
+                end;
+#endif
             end else begin
                 TestNoSeries();
-                NoSeriesMgt.InitSeries(SalesSetup."Posted Tax Invoice Nos.", xRec."No. Series", "Posting Date", "No.", "No. Series");
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(SalesSetup."Posted Tax Invoice Nos.", xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
+                if not IsHandled then begin
+#endif
+                    "No. Series" := SalesSetup."Posted Tax Invoice Nos.";
+                    if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                        "No. Series" := xRec."No. Series";
+                    "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
+#if not CLEAN24
+                    NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", SalesSetup."Posted Tax Invoice Nos.", "Posting Date", "No.");
+                end;
+#endif
             end;
         end;
     end;
 
     var
         SalesSetup: Record "Sales & Receivables Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         SalesTaxInvHeader: Record "Sales Tax Invoice Header";
         SalesTaxInvLine: Record "Sales Tax Invoice Line";
         TaxInvoiceManagement: Codeunit TaxInvoiceManagement;
@@ -645,15 +673,13 @@ table 28071 "Sales Tax Invoice Header"
     var
         ReportSelection: Record "Report Selections";
     begin
-        with SalesTaxInvHeader do begin
-            Copy(Rec);
-            ReportSelection.SetRange(Usage, ReportSelection.Usage::"S.TaxInvoice");
-            ReportSelection.SetFilter("Report ID", '<>0');
-            ReportSelection.Find('-');
-            repeat
-                REPORT.RunModal(ReportSelection."Report ID", ShowRequestForm, false, SalesTaxInvHeader);
-            until ReportSelection.Next() = 0;
-        end;
+        SalesTaxInvHeader.Copy(Rec);
+        ReportSelection.SetRange(Usage, ReportSelection.Usage::"S.TaxInvoice");
+        ReportSelection.SetFilter("Report ID", '<>0');
+        ReportSelection.Find('-');
+        repeat
+            REPORT.RunModal(ReportSelection."Report ID", ShowRequestForm, false, SalesTaxInvHeader);
+        until ReportSelection.Next() = 0;
     end;
 
     [Scope('OnPrem')]

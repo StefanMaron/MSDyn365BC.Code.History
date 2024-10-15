@@ -30,10 +30,10 @@ codeunit 141054 "ERM Distribution Recurring Amt"
 
         // Setup: Create Recurring Journal Line and calculate distribution on Recurring General Journal.
         Initialize();
-        AccountNo := CreateGLAccount;
+        AccountNo := CreateGLAccount();
         CreateAndPostRecurringJournalLine(
           GenJournalLine."Recurring Method"::"B  Balance", WhatToCalculate::"Net Change",
-          CreateAndPostGeneralJournalLine, AccountNo, AccountNo);
+          CreateAndPostGeneralJournalLine(), AccountNo, AccountNo);
     end;
 
     [Test]
@@ -49,9 +49,9 @@ codeunit 141054 "ERM Distribution Recurring Amt"
 
         // Setup: Create Recurring Journal Line and calculate distribution on Recurring General Journal.
         Initialize();
-        AccountNo := CreateAndPostGeneralJournalLine;
+        AccountNo := CreateAndPostGeneralJournalLine();
         CreateAndPostRecurringJournalLine(
-          GenJournalLine."Recurring Method"::"RB Reversing Balance", WhatToCalculate::Balance, AccountNo, CreateGLAccount, AccountNo);
+          GenJournalLine."Recurring Method"::"RB Reversing Balance", WhatToCalculate::Balance, AccountNo, CreateGLAccount(), AccountNo);
     end;
 
     local procedure CreateAndPostRecurringJournalLine(RecurringMethod: Enum "Gen. Journal Recurring Method"; WhatToCalculate: Option; GLAccountNo: Code[20]; AllocationAccountNo: Code[20]; AccountNo: Code[20])
@@ -85,8 +85,8 @@ codeunit 141054 "ERM Distribution Recurring Amt"
 
         // Setup: Create Recurring Journal Line and create Gen. Jnl Allocation.
         Initialize();
-        CreateRecurringJournalLine(GenJournalLine, GenJournalLine."Recurring Method"::"F  Fixed", CreateAndPostGeneralJournalLine);
-        CreateGenJnlAllocation(GenJournalLine, CreateGLAccount);
+        CreateRecurringJournalLine(GenJournalLine, GenJournalLine."Recurring Method"::"F  Fixed", CreateAndPostGeneralJournalLine());
+        CreateGenJnlAllocation(GenJournalLine, CreateGLAccount());
 
         // Exercise.
         asserterror CalculateDistributionOnRecurringGeneralJournal(GenJournalLine."Journal Batch Name");
@@ -104,9 +104,9 @@ codeunit 141054 "ERM Distribution Recurring Amt"
     var
         RecurringGeneralJournal: TestPage "Recurring General Journal";
     begin
-        RecurringGeneralJournal.OpenEdit;
+        RecurringGeneralJournal.OpenEdit();
         RecurringGeneralJournal.CurrentJnlBatchName.SetValue(CurrentJnlBatchName);
-        RecurringGeneralJournal.CalculateDistribution.Invoke;  // Invoke AmountDistributionPageHandler;
+        RecurringGeneralJournal.CalculateDistribution.Invoke();  // Invoke AmountDistributionPageHandler;
         RecurringGeneralJournal.Close();
     end;
 
@@ -118,7 +118,7 @@ codeunit 141054 "ERM Distribution Recurring Amt"
         CreateGeneralJournalBatch(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type",
-          GenJournalLine."Account Type"::"G/L Account", CreateGLAccount, LibraryRandom.RandDec(100, 2));  // Using random value for Amount.
+          GenJournalLine."Account Type"::"G/L Account", CreateGLAccount(), LibraryRandom.RandDec(100, 2));  // Using random value for Amount.
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         exit(GenJournalLine."Account No.");
     end;
@@ -140,7 +140,7 @@ codeunit 141054 "ERM Distribution Recurring Amt"
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"G/L Account");
-        GenJournalBatch.Validate("Bal. Account No.", CreateGLAccount);
+        GenJournalBatch.Validate("Bal. Account No.", CreateGLAccount());
         GenJournalBatch.Modify(true);
     end;
 
@@ -151,7 +151,7 @@ codeunit 141054 "ERM Distribution Recurring Amt"
         LibraryERM.CreateGenJnlAllocation(
           GenJnlAllocation, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
         GenJnlAllocation.Validate("Account No.", AccountNo);
-        GenJnlAllocation.Validate("Shortcut Dimension 1 Code", CreateDimensionValue);
+        GenJnlAllocation.Validate("Shortcut Dimension 1 Code", CreateDimensionValue());
         GenJnlAllocation.Modify(true);
         exit(GenJnlAllocation."Shortcut Dimension 1 Code");
     end;

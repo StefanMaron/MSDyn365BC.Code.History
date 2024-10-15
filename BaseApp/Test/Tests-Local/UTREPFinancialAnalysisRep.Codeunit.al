@@ -46,7 +46,7 @@ codeunit 141068 "UT REP Financial Analysis Rep"
         // [SCENARIO] verify Report Type Net Change/Budget with Dimension on Report - 28026 Financial Analysis Report.
         Initialize();
         ReportTypeWithAndWithoutDimension(
-          LibraryUTUtility.GetNewCode, false, GLAccount."Income/Balance"::"Income Statement", ReportType::"Net Change/Budget",
+          LibraryUTUtility.GetNewCode(), false, GLAccount."Income/Balance"::"Income Statement", ReportType::"Net Change/Budget",
           0, LibraryRandom.RandDecInRange(100, 200, 2));  // False for ShowAmountsInAddReportingCurrency, 0 for AdditionalCurrencyAmount and  Random Number for Amount.
     end;
 
@@ -78,7 +78,7 @@ codeunit 141068 "UT REP Financial Analysis Rep"
         // [SCENARIO] verify Report Type Net Change (This Year/Last Year) with Dimension on Report - 28026 Financial Analysis Report.
         Initialize();
         ReportTypeWithAndWithoutDimension(
-          LibraryUTUtility.GetNewCode, false, GLAccount."Income/Balance"::"Income Statement",
+          LibraryUTUtility.GetNewCode(), false, GLAccount."Income/Balance"::"Income Statement",
           ReportType::"Net Change (This Year/Last Year)", 0, LibraryRandom.RandDecInRange(100, 200, 2));  // False for ShowAmountsInAddReportingCurrency,0 for AdditionalCurrencyAmount and Random Number for AdditionalCurrencyAmount..
     end;
 
@@ -110,7 +110,7 @@ codeunit 141068 "UT REP Financial Analysis Rep"
         // [SCENARIO] verify Report Type Balance (This Year/Last Year) with Dimension on Report - 28026 Financial Analysis Report.
         Initialize();
         ReportTypeWithAndWithoutDimension(
-          LibraryUTUtility.GetNewCode, false, GLAccount."Income/Balance"::"Balance Sheet", ReportType::"Balance (This Year/Last Year)",
+          LibraryUTUtility.GetNewCode(), false, GLAccount."Income/Balance"::"Balance Sheet", ReportType::"Balance (This Year/Last Year)",
           0, LibraryRandom.RandDecInRange(100, 200, 2));    // False for ShowAmountsInAddReportingCurrency, 0 for AdditionalCurrencyAmount and Random Number for AdditionalCurrencyAmount.
     end;
 
@@ -142,9 +142,9 @@ codeunit 141068 "UT REP Financial Analysis Rep"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount."No." := LibraryUTUtility.GetNewCode;
+        GLAccount."No." := LibraryUTUtility.GetNewCode();
         GLAccount."Income/Balance" := IncomeBalance;
-        GLAccount."Budget Filter" := LibraryUTUtility.GetNewCode10;
+        GLAccount."Budget Filter" := LibraryUTUtility.GetNewCode10();
         GLAccount.Insert();
         CreateGLBudgetEntry(GLAccount."No.", GLAccount."Budget Filter");
         CreateGLEntry(GLAccount."No.", GlobalDimension1Code, AdditionalCurrencyAmount, Amount);
@@ -183,7 +183,7 @@ codeunit 141068 "UT REP Financial Analysis Rep"
 
     local procedure VerifyValuesOnFinancialAnalysisReport(GLAccountNo: Code[20]; Amount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GLAccountNoCap, GLAccountNo);
         LibraryReportDataset.AssertElementWithValueExists(TodayDateCap, Format(Today, 0, 4));
         LibraryReportDataset.AssertElementWithValueExists(ColumnAmountText1Cap, Format(Amount, 0, PrecisionCap));  // Using 0 for length.
@@ -205,7 +205,7 @@ codeunit 141068 "UT REP Financial Analysis Rep"
         FinancialAnalysisReport.ReportType.SetValue(FinancialAnalysisReport.ReportType.GetOption(ReportType));
         FinancialAnalysisReport.IndentAccountName.SetValue(true);
         FinancialAnalysisReport.AddCurr.SetValue(ShowAmountsInAddReportingCurrency);
-        FinancialAnalysisReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FinancialAnalysisReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

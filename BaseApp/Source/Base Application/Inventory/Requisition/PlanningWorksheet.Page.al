@@ -665,24 +665,6 @@ page 99000852 "Planning Worksheet"
                             ItemAvailFormsMgt.ShowItemAvailFromReqLine(Rec, ItemAvailFormsMgt.ByBOM())
                         end;
                     }
-#if not CLEAN21
-                    action(Timeline)
-                    {
-                        ApplicationArea = Planning;
-                        Caption = 'Timeline';
-                        Image = Timeline;
-                        ToolTip = 'Get a graphical view of an item''s projected inventory based on future supply and demand events, with or without planning suggestions. The result is a graphical representation of the inventory profile.';
-                        Visible = false;
-                        ObsoleteState = Pending;
-                        ObsoleteReason = 'TimelineVisualizer control has been deprecated.';
-                        ObsoleteTag = '21.0';
-
-                        trigger OnAction()
-                        begin
-                            Rec.ShowTimeline(Rec);
-                        end;
-                    }
-#endif
                 }
             }
         }
@@ -964,14 +946,6 @@ page 99000852 "Planning Worksheet"
                 actionref(Lot_Promoted; Lot)
                 {
                 }
-#if not CLEAN21
-                actionref(Timeline_Promoted; Timeline)
-                {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'TimelineVisualizer control has been deprecated.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Report)
             {

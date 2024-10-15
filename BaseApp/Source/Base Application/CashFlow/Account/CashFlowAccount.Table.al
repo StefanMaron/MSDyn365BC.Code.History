@@ -14,6 +14,7 @@ table 841 "Cash Flow Account"
     DataCaptionFields = "No.", Name;
     DrillDownPageID = "Cash Flow Account List";
     LookupPageID = "Cash Flow Account List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -91,7 +92,7 @@ table 841 "Cash Flow Account"
         field(13; Amount; Decimal)
         {
             CalcFormula = sum("Cash Flow Forecast Entry"."Amount (LCY)" where("Cash Flow Account No." = field("No."),
-                                                                               "Cash Flow Account No." = field(FILTER(Totaling)),
+                                                                               "Cash Flow Account No." = field(filter(Totaling)),
                                                                                "Cash Flow Forecast No." = field("Cash Flow Forecast Filter"),
                                                                                "Cash Flow Date" = field("Date Filter"),
                                                                                "Global Dimension 1 Code" = field("Global Dimension 1 Filter"),

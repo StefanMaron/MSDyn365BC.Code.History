@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -466,7 +466,6 @@ report 28161 Journals
         Text004: Label 'You must fill in the %1 field.';
         Text005: Label 'You must specify a Starting Date.';
         Text006: Label 'Printed by %1';
-        Text007: Label 'Page %1';
         Text008: Label 'Total %1 %2';
         Text009: Label 'The selected starting date %1 is not the start of a %2.';
         Text010: Label 'The selected ending date %1 is not the end of a %2.';
@@ -488,7 +487,7 @@ report 28161 Journals
     begin
         "Posting DateVisible" := (Display = Display::Journals) or (Display = Display::"Journals and Centralization");
         "Document No.Visible" := (Display = Display::Journals) or (Display = Display::"Journals and Centralization");
-        // REQUESTOPTIONSPAGE.ACTIVATE;
+        // REQUESTOPTIONSPAGE.Activate();
     end;
 }
 

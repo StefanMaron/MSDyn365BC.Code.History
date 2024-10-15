@@ -5,6 +5,7 @@ table 1213 "Data Exchange Type"
     Caption = 'Data Exchange Type';
     DrillDownPageID = "Data Exchange Types";
     LookupPageID = "Data Exchange Types";
+    DataClassification = CustomerContent;
 
     fields
     {

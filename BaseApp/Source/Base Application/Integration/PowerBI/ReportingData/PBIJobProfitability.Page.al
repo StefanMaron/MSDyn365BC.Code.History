@@ -8,7 +8,7 @@ using Microsoft.Projects.Project.Analysis;
 
 page 6311 "PBI Job Profitability"
 {
-    Caption = 'PBI Job Profitability';
+    Caption = 'PBI Project Profitability';
     Editable = false;
     PageType = List;
     SourceTable = "Power BI Chart Buffer";
@@ -23,8 +23,8 @@ page 6311 "PBI Job Profitability"
                 field("Measure No."; Rec."Measure No.")
                 {
                     ApplicationArea = All;
-                    Caption = 'Job No.';
-                    ToolTip = 'Specifies the job.';
+                    Caption = 'Project No.';
+                    ToolTip = 'Specifies the project.';
                 }
                 field("Measure Name"; Rec."Measure Name")
                 {

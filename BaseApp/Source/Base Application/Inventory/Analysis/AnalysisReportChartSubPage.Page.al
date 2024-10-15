@@ -141,14 +141,12 @@ page 778 "Analysis Report Chart SubPage"
 
     local procedure SetFilters(var AnalysisReportChartLine: Record "Analysis Report Chart Line")
     begin
-        with AnalysisReportChartLine do begin
-            Reset();
-            if IsMeasure then
-                AnalysisReportChartSetup.SetLinkToMeasureLines(AnalysisReportChartLine)
-            else
-                AnalysisReportChartSetup.SetLinkToDimensionLines(AnalysisReportChartLine);
-            SetFilter("Chart Type", '<>%1', "Chart Type"::" ");
-        end;
+        AnalysisReportChartLine.Reset();
+        if IsMeasure then
+            AnalysisReportChartSetup.SetLinkToMeasureLines(AnalysisReportChartLine)
+        else
+            AnalysisReportChartSetup.SetLinkToDimensionLines(AnalysisReportChartLine);
+        AnalysisReportChartLine.SetFilter("Chart Type", '<>%1', AnalysisReportChartLine."Chart Type"::" ");
     end;
 
     procedure SetSetupRec(var NewAnalysisReportChartSetup: Record "Analysis Report Chart Setup")

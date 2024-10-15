@@ -9,6 +9,9 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
     end;
 
     var
+#if not CLEAN24
+        LibraryInventory: Codeunit "Library - Inventory";
+#endif
         LibraryUTUtility: Codeunit "Library UT Utility";
         Assert: Codeunit Assert;
         PhyInvtCommentLineExistMsg: Label 'Physical Inventory Comment Line exists.';
@@ -26,7 +29,7 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
     begin
         // [SCENARIO] validate Trigger OnDelete for Table Pstd. Phys. Invt. Rec. Header.
         // [GIVEN] Create Posted Physical Inventory Recording Header with Recording Line and Physical Inventory Comment Line.
-        PstdPhysInvtRecordHdr."Order No." := LibraryUTUtility.GetNewCode;
+        PstdPhysInvtRecordHdr."Order No." := LibraryUTUtility.GetNewCode();
         PstdPhysInvtRecordHdr."Recording No." := 1;
         PstdPhysInvtRecordHdr.Insert();
 
@@ -102,8 +105,8 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
         CreatePostedPhysInvtOrderHeader(PstdPhysInvtOrderHdr);
 
         // Exercise.
-        Navigate.Trap;
-        PstdPhysInvtOrderHdr.Navigate;
+        Navigate.Trap();
+        PstdPhysInvtOrderHdr.Navigate();
 
         // [THEN] Verify Table Name on Navigate Page.
         Navigate."Table Name".AssertEquals(CopyStr(PstdPhysInvtOrderHdr.TableCaption(), 1, MaxStrLen(DocumentEntry."Table Name")));
@@ -127,6 +130,7 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
         // [THEN] Verify Dimension Set Entries Page Open. Added Page Handler DimensionSetEntriesModalPageHandler.
     end;
 
+#if not CLEAN24
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
@@ -137,7 +141,7 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
     begin
         // [SCENARIO] validate Trigger OnDelete for Table Pstd. Phys. Invt. Order Line.
         // [GIVEN] Create Posted Physical Inventory Order Line and Posted Expect Physical Inventory Tracking Line.
-        CreatePostedPhysInvtOrderLine(PstdPhysInvtOrderLine, LibraryUTUtility.GetNewCode);
+        CreatePostedPhysInvtOrderLine(PstdPhysInvtOrderLine, LibraryUTUtility.GetNewCode());
 
         PstdExpPhysInvtTrack."Order No" := PstdPhysInvtOrderLine."Document No.";
         PstdExpPhysInvtTrack."Order Line No." := PstdPhysInvtOrderLine."Line No.";
@@ -156,6 +160,43 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
             PstdExpPhysInvtTrack."Serial No.", PstdExpPhysInvtTrack."Lot No."),
           'Posted Expect Physical Inventory Tracking Line exists.');
     end;
+#endif
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure TestDeletePostedPhysInvtOrderLine()
+    var
+        PstdPhysInvtOrderLine: Record "Pstd. Phys. Invt. Order Line";
+        PstdExpInvtOrderTracking: Record "Pstd.Exp.Invt.Order.Tracking";
+    begin
+        // [SCENARIO] validate Trigger OnDelete for Table Pstd. Phys. Invt. Order Line.
+        // [GIVEN] Create Posted Physical Inventory Order Line and Posted Expect Physical Inventory Tracking Line.
+#if not CLEAN24
+        LibraryInventory.SetInvtOrdersPackageTracking(true);
+#endif
+        CreatePostedPhysInvtOrderLine(PstdPhysInvtOrderLine, LibraryUTUtility.GetNewCode());
+
+        PstdExpInvtOrderTracking."Order No" := PstdPhysInvtOrderLine."Document No.";
+        PstdExpInvtOrderTracking."Order Line No." := PstdPhysInvtOrderLine."Line No.";
+        PstdExpInvtOrderTracking.Insert();
+
+        // Exercise.
+        PstdPhysInvtOrderLine.Delete(true);
+
+        // [THEN] Verify Posted Physical Inventory Order Line and Posted Expect Physical Inventory Tracking Line deleted.
+        Assert.IsFalse(
+          PstdPhysInvtOrderLine.Get(PstdPhysInvtOrderLine."Document No.", PstdPhysInvtOrderLine."Line No."),
+          PostedPhysInvtOrderLineExistMsg);
+        Assert.IsFalse(
+            PstdExpInvtOrderTracking.Get(
+                PstdExpInvtOrderTracking."Order No", PstdExpInvtOrderTracking."Order Line No.",
+                PstdExpInvtOrderTracking."Serial No.", PstdExpInvtOrderTracking."Lot No.", PstdExpInvtOrderTracking."Package No."),
+               'Posted Expect Physical Inventory Tracking Line exists.');
+#if not CLEAN24
+        LibraryInventory.SetInvtOrdersPackageTracking(false);
+#endif
+    end;
 
     [Test]
     [HandlerFunctions('DimensionSetEntriesModalPageHandler')]
@@ -167,7 +208,7 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
     begin
         // [SCENARIO] validate Function ShowDimensions for Table Pstd. Phys. Invt. Order Line.
         // [GIVEN] Create Posted Physical Inventory Order Line.
-        CreatePostedPhysInvtOrderLine(PstdPhysInvtOrderLine, LibraryUTUtility.GetNewCode);
+        CreatePostedPhysInvtOrderLine(PstdPhysInvtOrderLine, LibraryUTUtility.GetNewCode());
 
         // Exercise.
         PstdPhysInvtOrderLine.ShowDimensions();
@@ -184,7 +225,7 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
     begin
         // [SCENARIO] validate Function EmptyLine for Table Pstd. Phys. Invt. Order Line.
         // Exercise and Verify: Verify EmptyLine Function return True value.
-        Assert.IsTrue(PstdPhysInvtOrderLine.EmptyLine, 'Posted Physical Inventory Order Line must be empty.');
+        Assert.IsTrue(PstdPhysInvtOrderLine.EmptyLine(), 'Posted Physical Inventory Order Line must be empty.');
     end;
 
     [Test]
@@ -196,10 +237,10 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
     begin
         // [SCENARIO] validate Function EmptyLine for Table Pstd. Phys. Invt. Order Line.
         // Setup.
-        CreatePostedPhysInvtOrderLine(PstdPhysInvtOrderLine, LibraryUTUtility.GetNewCode);
+        CreatePostedPhysInvtOrderLine(PstdPhysInvtOrderLine, LibraryUTUtility.GetNewCode());
 
         // Exercise and Verify: Verify EmptyLine Function return False Value.
-        Assert.IsFalse(PstdPhysInvtOrderLine.EmptyLine, 'Posted Physical Inventory Order Line must not be empty.');
+        Assert.IsFalse(PstdPhysInvtOrderLine.EmptyLine(), 'Posted Physical Inventory Order Line must not be empty.');
     end;
 
     [Test]
@@ -212,10 +253,10 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
     begin
         // [SCENARIO] validate Function ShowPostPhysInvtRecordingLines for Table Pstd. Phys. Invt. Order Line.
         // Setup.
-        CreatePostedPhysInvtOrderLine(PstdPhysInvtOrderLine, LibraryUTUtility.GetNewCode);
+        CreatePostedPhysInvtOrderLine(PstdPhysInvtOrderLine, LibraryUTUtility.GetNewCode());
 
         // Exercise.
-        PstdPhysInvtOrderLine.ShowPostPhysInvtRecordingLines;
+        PstdPhysInvtOrderLine.ShowPostPhysInvtRecordingLines();
 
         // [THEN] Verify Posted Physical Inventory Recording Lines Page Open. Added Page Handler PstdPhysInvtRecordLinesModalPageHandler
     end;
@@ -229,7 +270,7 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
     begin
         // [SCENARIO] validate Function SetUpNewLine for Table Phys. Inventory Comment Line.
         // Exercise.
-        PhysInvtCommentLine.SetUpNewLine;
+        PhysInvtCommentLine.SetUpNewLine();
 
         // [THEN] Verify Date on Physical Inventory Comment Line.
         PhysInvtCommentLine.TestField(Date, WorkDate());
@@ -302,7 +343,7 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
         CreatePhysInventoryOrderHeader(PhysInvtOrderHeader);
 
         // Exercise.
-        asserterror PhysInvtOrderHeader.Rename(LibraryUTUtility.GetNewCode);
+        asserterror PhysInvtOrderHeader.Rename(LibraryUTUtility.GetNewCode());
 
         // [THEN] Verify Error Code, Error Msg - You cannot rename a Phys. Inventory Order Header.
         Assert.ExpectedErrorCode('Dialog');
@@ -322,7 +363,7 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
         CreatePhysInventoryOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.");
 
         // Exercise and Verify: Verify Function PhysInvOrderLinesExist return True value.
-        Assert.IsTrue(PhysInvtOrderHeader.PhysInvtOrderLinesExist, 'Physical Inventory Order Line must exist');
+        Assert.IsTrue(PhysInvtOrderHeader.PhysInvtOrderLinesExist(), 'Physical Inventory Order Line must exist');
     end;
 
     [Test]
@@ -342,7 +383,7 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
         NoSeries.Modify();
 
         // Exercise.
-        PhysInvtOrderHeader.Validate("No.", LibraryUTUtility.GetNewCode);
+        PhysInvtOrderHeader.Validate("No.", LibraryUTUtility.GetNewCode());
         PhysInvtOrderHeader.Insert();
 
         // [THEN] Verify No. Series on Physical Inventory Order Header.
@@ -381,7 +422,7 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
         CreatePhysInventoryOrderHeader(PhysInvtOrderHeader);
         CreatePhysInventoryOrderLine(PhysInvtOrderLine, PhysInvtOrderHeader."No.");
 
-        PhysInvtOrderLine."Item No." := LibraryUTUtility.GetNewCode;
+        PhysInvtOrderLine."Item No." := LibraryUTUtility.GetNewCode();
         PhysInvtOrderLine."Qty. Exp. Calculated" := true;
         PhysInvtOrderLine.Modify();
 
@@ -502,10 +543,10 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
     begin
         // [SCENARIO] validate function OnRename of Table Physical Inventory Recording Header.
         // Setup.
-        CreatePhysInvtRecordingHeader(PhysInvtRecordHeader, LibraryUTUtility.GetNewCode);
+        CreatePhysInvtRecordingHeader(PhysInvtRecordHeader, LibraryUTUtility.GetNewCode());
 
         // [WHEN] Rename Physical Inventory Recording Header.
-        asserterror PhysInvtRecordHeader.Rename(LibraryUTUtility.GetNewCode, PhysInvtRecordHeader."Recording No.");
+        asserterror PhysInvtRecordHeader.Rename(LibraryUTUtility.GetNewCode(), PhysInvtRecordHeader."Recording No.");
 
         // [THEN] Verify error code, Error Msg - Physical Inventory Recording Header cannot be renamed.
         Assert.ExpectedErrorCode('Dialog');
@@ -522,7 +563,7 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
     begin
         // [SCENARIO] validate function OnDelete of Table Physical Inventory Recording Header.
         // Setup.
-        CreatePhysInvtRecordingHeader(PhysInvtRecordHeader, LibraryUTUtility.GetNewCode);
+        CreatePhysInvtRecordingHeader(PhysInvtRecordHeader, LibraryUTUtility.GetNewCode());
         CreatePhysInvtRecordingLine(PhysInvtRecordLine, PhysInvtRecordHeader."Order No.", 1, 1);  // Recording No and Line No respectively.
         CreatePhysInvtCommentLine(
           PhysInvtCommentLine, PhysInvtCommentLine."Document Type"::Recording, PhysInvtRecordHeader."Order No.", 1);  // Recording No as 1.
@@ -556,7 +597,7 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
 
         // [GIVEN] Create Location, Bin and Physical Inventory Recording Header.
         CreateLocationAndBin(Bin);
-        CreatePhysInvtRecordingHeader(PhysInvtRecordHeader, LibraryUTUtility.GetNewCode);
+        CreatePhysInvtRecordingHeader(PhysInvtRecordHeader, LibraryUTUtility.GetNewCode());
         PhysInvtRecordHeader."Location Code" := Bin."Location Code";
 
         // Exercise.
@@ -575,10 +616,10 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
     begin
         // [SCENARIO] validate function OnRename trigger of Table Physical Inventory Recording Line.
         // Setup.
-        CreatePhysInvtRecordingLine(PhysInvtRecordLine, LibraryUTUtility.GetNewCode, 1, 1);  // Recording No and Line No respectively.
+        CreatePhysInvtRecordingLine(PhysInvtRecordLine, LibraryUTUtility.GetNewCode(), 1, 1);  // Recording No and Line No respectively.
 
         // [WHEN] Rename Physical Inventory Recording Line.
-        asserterror PhysInvtRecordLine.Rename(LibraryUTUtility.GetNewCode, 1, 1);  // Recording No and Line No respectively.
+        asserterror PhysInvtRecordLine.Rename(LibraryUTUtility.GetNewCode(), 1, 1);  // Recording No and Line No respectively.
 
         // [THEN] Verify error code, Error Msg - Physical Inventory Recording Line cannot be renamed.
         Assert.ExpectedErrorCode('Dialog');
@@ -595,14 +636,14 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
         // [SCENARIO] validate function CheckSerialNo of Table Physical Inventory Recording Line.
 
         // [GIVEN] Create two Physical Inventory Recording Lines with same Serial No.
-        CreatePhysInvtRecordingLine(PhysInvtRecordLine, LibraryUTUtility.GetNewCode, 1, 1);  // Recording No and Line No respectively.
-        UpdateTrackingPhysInvtRecordingLine(PhysInvtRecordLine, LibraryUTUtility.GetNewCode, LibraryUTUtility.GetNewCode);
+        CreatePhysInvtRecordingLine(PhysInvtRecordLine, LibraryUTUtility.GetNewCode(), 1, 1);  // Recording No and Line No respectively.
+        UpdateTrackingPhysInvtRecordingLine(PhysInvtRecordLine, LibraryUTUtility.GetNewCode(), LibraryUTUtility.GetNewCode());
 
         CreatePhysInvtRecordingLine(PhysInvtRecordLine2, PhysInvtRecordLine."Order No.", 1, 2);  // Recording No and Line No respectively.
         UpdateTrackingPhysInvtRecordingLine(PhysInvtRecordLine2, PhysInvtRecordLine."Item No.", PhysInvtRecordLine."Serial No.");
 
         // Exercise.
-        asserterror PhysInvtRecordLine2.CheckSerialNo;
+        asserterror PhysInvtRecordLine2.CheckSerialNo();
 
         // [THEN] Verify error code, Error Msg - Serial No. for item already exists.
         Assert.ExpectedErrorCode('Dialog');
@@ -619,7 +660,7 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
 
     local procedure CreatePostedPhysInvtOrderHeader(var PstdPhysInvtOrderHdr: Record "Pstd. Phys. Invt. Order Hdr")
     begin
-        PstdPhysInvtOrderHdr."No." := LibraryUTUtility.GetNewCode;
+        PstdPhysInvtOrderHdr."No." := LibraryUTUtility.GetNewCode();
         PstdPhysInvtOrderHdr.Insert();
     end;
 
@@ -627,13 +668,13 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
     begin
         PstdPhysInvtOrderLine."Document No." := DocumentNo;
         PstdPhysInvtOrderLine."Line No." := 1;
-        PstdPhysInvtOrderLine."Item No." := LibraryUTUtility.GetNewCode;
+        PstdPhysInvtOrderLine."Item No." := LibraryUTUtility.GetNewCode();
         PstdPhysInvtOrderLine.Insert();
     end;
 
     local procedure CreatePhysInventoryOrderHeader(var PhysInvtOrderHeader: Record "Phys. Invt. Order Header")
     begin
-        PhysInvtOrderHeader."No." := LibraryUTUtility.GetNewCode;
+        PhysInvtOrderHeader."No." := LibraryUTUtility.GetNewCode();
         PhysInvtOrderHeader.Insert();
     end;
 
@@ -649,14 +690,14 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
         Location: Record Location;
     begin
         // Create Location.
-        Location.Code := LibraryUTUtility.GetNewCode10;
+        Location.Code := LibraryUTUtility.GetNewCode10();
         Location."Bin Mandatory" := true;
         Location."Directed Put-away and Pick" := true;
         Location.Insert();
 
         // Create Bin.
         Bin."Location Code" := Location.Code;
-        Bin.Code := LibraryUTUtility.GetNewCode;
+        Bin.Code := LibraryUTUtility.GetNewCode();
         Bin.Insert();
     end;
 
@@ -709,7 +750,7 @@ codeunit 137450 "Phys. Invt. Order TAB UT"
     [Scope('OnPrem')]
     procedure NoSeriesListModalPageHandler(var NoSeriesList: TestPage "No. Series")
     begin
-        NoSeriesList.OK.Invoke;
+        NoSeriesList.OK().Invoke();
     end;
 
     [ConfirmHandler]

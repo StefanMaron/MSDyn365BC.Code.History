@@ -8,6 +8,7 @@ table 595 "Exch. Rate Adjmt. Buffer"
 {
     Caption = 'Exch. Rate Adjmt. Buffer';
     TableType = Temporary;
+    DataClassification = CustomerContent;
 
     fields
     {

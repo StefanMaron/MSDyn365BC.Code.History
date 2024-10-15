@@ -7,6 +7,7 @@ namespace Microsoft.Integration.Dataverse;
 using Microsoft.Integration.D365Sales;
 using Microsoft.Integration.SyncEngine;
 using System.Reflection;
+using Microsoft.Integration.FieldService;
 
 codeunit 5332 "Lookup CRM Tables"
 {
@@ -49,6 +50,10 @@ codeunit 5332 "Lookup CRM Tables"
                 exit(LookupCRMUom(SavedCRMId, CRMId, IntTableFilter));
             DATABASE::"CRM Salesorder":
                 exit(LookupCRMSalesorder(SavedCRMId, CRMId, IntTableFilter));
+            DATABASE::"FS Bookable Resource":
+                exit(LookupFSBookableResource(SavedCRMId, CRMId, IntTableFilter));
+            DATABASE::"FS Customer Asset":
+                exit(LookupFSCustomerAsset(SavedCRMId, CRMId, IntTableFilter));
         end;
         exit(false);
     end;
@@ -345,6 +350,56 @@ codeunit 5332 "Lookup CRM Tables"
         if CRMSalesOrderList.RunModal() = ACTION::LookupOK then begin
             CRMSalesOrderList.GetRecord(CRMSalesorder);
             CRMId := CRMSalesorder.SalesOrderId;
+            exit(true);
+        end;
+        exit(false);
+    end;
+
+    local procedure LookupFSCustomerAsset(SavedCRMId: Guid; var CRMId: Guid; IntTableFilter: Text): Boolean
+    var
+        FSCustomerAsset: Record "FS Customer Asset";
+        OriginalFSCustomerAsset: Record "FS Customer Asset";
+        FSCustomerAssetList: Page "FS Customer Asset List";
+    begin
+        if not IsNullGuid(CRMId) then begin
+            if FSCustomerAsset.Get(CRMId) then
+                FSCustomerAssetList.SetRecord(FSCustomerAsset);
+            if not IsNullGuid(SavedCRMId) then
+                if OriginalFSCustomerAsset.Get(SavedCRMId) then
+                    FSCustomerAssetList.SetCurrentlyCoupledFSCustomerAsset(OriginalFSCustomerAsset);
+        end;
+        FSCustomerAsset.SetView(IntTableFilter);
+        FSCustomerAssetList.SetTableView(FSCustomerAsset);
+        FSCustomerAssetList.LookupMode(true);
+        Commit();
+        if FSCustomerAssetList.RunModal() = ACTION::LookupOK then begin
+            FSCustomerAssetList.GetRecord(FSCustomerAsset);
+            CRMId := FSCustomerAsset.CustomerAssetId;
+            exit(true);
+        end;
+        exit(false);
+    end;
+
+    local procedure LookupFSBookableResource(SavedCRMId: Guid; var CRMId: Guid; IntTableFilter: Text): Boolean
+    var
+        FSBookableResource: Record "FS Bookable Resource";
+        OriginalFSBookableResource: Record "FS Bookable Resource";
+        FSBookableResourceList: Page "FS Bookable Resource List";
+    begin
+        if not IsNullGuid(CRMId) then begin
+            if FSBookableResource.Get(CRMId) then
+                FSBookableResourceList.SetRecord(FSBookableResource);
+            if not IsNullGuid(SavedCRMId) then
+                if OriginalFSBookableResource.Get(SavedCRMId) then
+                    FSBookableResourceList.SetCurrentlyCoupledFSBookableResource(OriginalFSBookableResource);
+        end;
+        FSBookableResource.SetView(IntTableFilter);
+        FSBookableResourceList.SetTableView(FSBookableResource);
+        FSBookableResourceList.LookupMode(true);
+        Commit();
+        if FSBookableResourceList.RunModal() = ACTION::LookupOK then begin
+            FSBookableResourceList.GetRecord(FSBookableResource);
+            CRMId := FSBookableResource.BookableResourceId;
             exit(true);
         end;
         exit(false);

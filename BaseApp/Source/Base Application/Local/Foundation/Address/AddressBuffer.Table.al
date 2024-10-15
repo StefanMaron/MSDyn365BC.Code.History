@@ -7,6 +7,7 @@ namespace Microsoft.Foundation.Address;
 table 28002 "Address Buffer"
 {
     Caption = 'Address Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

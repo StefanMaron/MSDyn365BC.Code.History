@@ -5,6 +5,7 @@ using Microsoft.CRM.Contact;
 table 5078 "Segment History"
 {
     Caption = 'Segment History';
+    DataClassification = CustomerContent;
 
     fields
     {

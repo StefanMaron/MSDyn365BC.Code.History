@@ -14,6 +14,7 @@ table 28161 "GST Sales Entry"
 {
     Caption = 'GST Sales Entry';
     LookupPageID = "GST Sales Entries";
+    DataClassification = CustomerContent;
 
     fields
     {

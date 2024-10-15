@@ -2,9 +2,9 @@ namespace Microsoft.Projects.Project.WIP;
 
 page 1010 "Job WIP Methods"
 {
-    AdditionalSearchTerms = 'work in process  to general ledger methods,work in progress to general ledger methods';
+    AdditionalSearchTerms = 'work in process  to general ledger methods,work in progress to general ledger methods, Job WIP Methods';
     ApplicationArea = Jobs;
-    Caption = 'Job WIP Methods';
+    Caption = 'Project WIP Methods';
     PageType = List;
     SourceTable = "Job WIP Method";
     UsageCategory = Administration;
@@ -19,12 +19,12 @@ page 1010 "Job WIP Methods"
                 field("Code"; Rec.Code)
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the code for the Job WIP Method. There are system-defined codes. In addition, you can create a Job WIP Method, and the code for it is in the list of Job WIP Methods.';
+                    ToolTip = 'Specifies the code for the Project WIP Method. There are system-defined codes. In addition, you can create a Project WIP Method, and the code for it is in the list of Project WIP Methods.';
                 }
                 field(Description; Rec.Description)
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the description of the job WIP method. If the WIP method is system-defined, you cannot edit the description.';
+                    ToolTip = 'Specifies the description of the project WIP method. If the WIP method is system-defined, you cannot edit the description.';
                 }
                 field("Recognized Costs"; Rec."Recognized Costs")
                 {
@@ -49,12 +49,12 @@ page 1010 "Job WIP Methods"
                 field(Valid; Rec.Valid)
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies whether a WIP method can be associated with a job when you are creating or modifying a job. If you select this check box in the Job WIP Methods window, you can then set the method as a default WIP method in the Jobs Setup window.';
+                    ToolTip = 'Specifies whether a WIP method can be associated with a project when you are creating or modifying a project. If you select this check box in the Project WIP Methods window, you can then set the method as a default WIP method in the Projects Setup window.';
                 }
                 field("System Defined"; Rec."System Defined")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies whether a Job WIP Method is system-defined.';
+                    ToolTip = 'Specifies whether a Project WIP Method is system-defined.';
                 }
             }
         }

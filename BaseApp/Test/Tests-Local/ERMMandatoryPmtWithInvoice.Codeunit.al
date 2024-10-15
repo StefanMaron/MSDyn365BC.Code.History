@@ -57,7 +57,7 @@ codeunit 141078 "ERM Mandatory Pmt With Invoice"
         // [GIVEN] Create and post Purchase Invoice and create Payment.
         GeneralLedgerSetup.Get();
         UpdateForcePaymentWithInvoiceOnGeneralLedgerSetup(true);  // Using TRUE for Force Payment With Invoice.
-        DocumentNo := CreateAndPostPurchaseInvoice;
+        DocumentNo := CreateAndPostPurchaseInvoice();
         CreateGenJournalLine(GenJournalLine, DocumentNo, AppliesToDocType);
 
         // Exercise.
@@ -84,7 +84,7 @@ codeunit 141078 "ERM Mandatory Pmt With Invoice"
         // [GIVEN] Create and post Purchase Invoice and apply Payment to it.
         GeneralLedgerSetup.Get();
         UpdateForcePaymentWithInvoiceOnGeneralLedgerSetup(true);  // Using TRUE for Force Payment With Invoice.
-        DocumentNo := CreateAndPostPurchaseInvoice;
+        DocumentNo := CreateAndPostPurchaseInvoice();
         CreateGenJournalLine(GenJournalLine, DocumentNo, GenJournalLine."Applies-to Doc. Type"::Invoice);
         OpenPaymentJournalPageAndApplyPaymentToInvoice(GenJournalLine."Journal Batch Name");
 
@@ -146,10 +146,10 @@ codeunit 141078 "ERM Mandatory Pmt With Invoice"
     var
         PaymentJournal: TestPage "Payment Journal";
     begin
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         PaymentJournal.CurrentJnlBatchName.SetValue(CurrentJnlBatchName);
-        PaymentJournal.ApplyEntries.Invoke;  // Opens ApplyVendorEntriesPageHandler.
-        PaymentJournal.OK.Invoke;
+        PaymentJournal.ApplyEntries.Invoke();  // Opens ApplyVendorEntriesPageHandler.
+        PaymentJournal.OK().Invoke();
     end;
 
     local procedure UpdateForcePaymentWithInvoiceOnGeneralLedgerSetup(ForcePaymentWithInvoice: Boolean)
@@ -174,8 +174,8 @@ codeunit 141078 "ERM Mandatory Pmt With Invoice"
     [Scope('OnPrem')]
     procedure ApplyVendorEntriesPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        ApplyVendorEntries.OK.Invoke;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        ApplyVendorEntries.OK().Invoke();
     end;
 }
 

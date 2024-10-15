@@ -5,6 +5,7 @@ using System.Visualization;
 table 763 "Acc. Sched. Chart Setup Line"
 {
     Caption = 'Acc. Sched. Chart Setup Line';
+    DataClassification = CustomerContent;
 
     fields
     {

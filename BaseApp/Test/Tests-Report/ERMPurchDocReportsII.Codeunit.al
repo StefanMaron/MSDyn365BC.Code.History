@@ -90,7 +90,7 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
         VendorLabels.Run();
 
         // Verify: Verify All Vendor with Different Label Format.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyLabels(Vendor, 1, NumberOfColumns);
         VerifyLabels(Vendor2, 2, NumberOfColumns);
         VerifyLabels(Vendor3, 3, NumberOfColumns);
@@ -138,7 +138,7 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
         SavePurchaseInvoiceNosReport(DocumentNo, DocumentNo2);
 
         // Verify: Check Warnings on Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number__Control15', Format(WarningText));
     end;
 
@@ -184,7 +184,7 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
         SavePurchCreditMemoNosReport(DocumentNo, DocumentNo2);
 
         // Verify: Verify Warning Message on Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number__Control15', Format(WarningText));
     end;
 
@@ -230,7 +230,7 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
         SaveVendorDocumentsNosReport(DocumentNo, DocumentNo2);
 
         // Verify: Verify Warning Message on Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('ErrorText_Number__Control15', Format(WarningText));
     end;
 
@@ -266,7 +266,7 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
     local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type") DocumentNo: Code[20]
     begin
         // Create a Purchase Document Without Currency.
-        CreatePurchaseDocument(PurchaseHeader, DocumentType, CreateItem, '');
+        CreatePurchaseDocument(PurchaseHeader, DocumentType, CreateItem(), '');
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
@@ -274,7 +274,7 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor());
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
         PurchaseHeader.Validate("Currency Code", CurrencyCode);
@@ -302,7 +302,7 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
     begin
         LibraryERM.CreatePostCode(PostCode);  // Creation of Post Code is required to avoid special characters in existing ones.
         CountryRegion.FindFirst();
-        Vendor.Get(CreateVendor);
+        Vendor.Get(CreateVendor());
         Vendor.Validate(
           Address, CopyStr(LibraryUtility.GenerateRandomCode(Vendor.FieldNo(Address), DATABASE::Vendor), 1,
             LibraryUtility.GetFieldLength(DATABASE::Vendor, Vendor.FieldNo(Address))));
@@ -352,7 +352,7 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Take Posting Date Earlier than Workdate.
-        CreatePurchaseDocument(PurchaseHeader, DocumentType, CreateItem, '');
+        CreatePurchaseDocument(PurchaseHeader, DocumentType, CreateItem(), '');
         PurchaseHeader.Validate(
           "Posting Date", CalcDate('<-' + Format(LibraryRandom.RandInt(10)) + 'M>', PurchaseHeader."Posting Date"));
         PurchaseHeader.Modify(true);
@@ -383,9 +383,9 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
     var
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.GetNextRow;
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.GetNextRow();
 
         PurchInvHeader.Get(No);
         LibraryReportDataset.AssertCurrentRowValueEquals('PurchInvHeader__Pay_to_Vendor_No__', PurchInvHeader."Pay-to Vendor No.");
@@ -397,9 +397,9 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
     var
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
     begin
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.GetNextRow;
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.GetNextRow();
 
         PurchCrMemoHdr.Get(No);
         LibraryReportDataset.AssertCurrentRowValueEquals('PurchCrMemoHeader__Pay_to_Vendor_No__', PurchCrMemoHdr."Pay-to Vendor No.");
@@ -411,9 +411,9 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.GetNextRow;
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.GetNextRow();
 
         VendorLedgerEntry.SetRange("Document Type", VendorLedgerEntry."Document Type"::Invoice);
         VendorLedgerEntry.SetRange("Document No.", DocumentNo);
@@ -434,28 +434,28 @@ codeunit 134336 "ERM Purch. Doc. Reports - II"
     [Scope('OnPrem')]
     procedure VendorLabelReportRequestPageHandler(var VendorLabels: TestRequestPage "Vendor - Labels")
     begin
-        VendorLabels.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorLabels.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseInvoiceNosReportRequestPageHandler(var PurchaseInvoiceNos: TestRequestPage "Purchase Invoice Nos.")
     begin
-        PurchaseInvoiceNos.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseInvoiceNos.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseCrMemoNosReportRequestPageHandler(var PurchaseCrMemoNos: TestRequestPage "Purchase Credit Memo Nos.")
     begin
-        PurchaseCrMemoNos.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseCrMemoNos.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure VendorDocumentNosReportRequestPageHandler(var VendorDocumentNos: TestRequestPage "Vendor Document Nos.")
     begin
-        VendorDocumentNos.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorDocumentNos.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

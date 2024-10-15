@@ -51,7 +51,7 @@ codeunit 132501 "Sales Document Posting Errors"
         SalesHeader.TestField("Posting Date", WorkDate());
 
         // [WHEN] Post Invoice '1001'
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         SalesHeader.SendToPosting(CODEUNIT::"Sales-Post");
 
         // [THEN] "Error Message" page is open, where is one error:
@@ -72,14 +72,14 @@ codeunit 132501 "Sales Document Posting Errors"
         TempErrorMessage.TestField("Table Number", DATABASE::"General Ledger Setup");
         TempErrorMessage.TestField("Field Number", GeneralLedgerSetup.FieldNo("Allow Posting From"));
         // [WHEN] DrillDown on "Source"
-        GeneralLedgerSetupPage.Trap;
-        LibraryErrorMessage.DrillDownOnSource;
+        GeneralLedgerSetupPage.Trap();
+        LibraryErrorMessage.DrillDownOnSource();
         // [THEN] opens "General Ledger Setup" page.
         GeneralLedgerSetupPage."Allow Posting To".AssertEquals(WorkDate() - 1);
         GeneralLedgerSetupPage.Close();
 
         // [WHEN] DrillDown on "Description"
-        SalesInvoicePage.Trap;
+        SalesInvoicePage.Trap();
         LibraryErrorMessage.DrillDownOnContext();
         // [THEN] opens "Sales Invoice" page.
         SalesInvoicePage."Posting Date".AssertEquals(WorkDate());
@@ -106,7 +106,7 @@ codeunit 132501 "Sales Document Posting Errors"
         SalesHeader.TestField("Posting Date", WorkDate());
 
         // [WHEN] Post Invoice '1001'
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         SalesHeader.SendToPosting(CODEUNIT::"Sales-Post");
 
         // [THEN] "Error Message" page is open, where is one error:
@@ -124,14 +124,14 @@ codeunit 132501 "Sales Document Posting Errors"
         TempErrorMessage.TestField("Record ID", UserSetup.RecordId);
         TempErrorMessage.TestField("Field Number", UserSetup.FieldNo("Allow Posting From"));
         // [WHEN] DrillDown on "Source"
-        UserSetupPage.Trap;
-        LibraryErrorMessage.DrillDownOnSource;
+        UserSetupPage.Trap();
+        LibraryErrorMessage.DrillDownOnSource();
         // [THEN] opens "User Setup" page.
         UserSetupPage."Allow Posting To".AssertEquals(WorkDate() - 1);
         UserSetupPage.Close();
 
         // [WHEN] DrillDown on "Description"
-        SalesInvoicePage.Trap;
+        SalesInvoicePage.Trap();
         LibraryErrorMessage.DrillDownOnContext();
         // [THEN] opens "Sales Invoice" page.
         SalesInvoicePage."Posting Date".AssertEquals(WorkDate());
@@ -164,7 +164,7 @@ codeunit 132501 "Sales Document Posting Errors"
         GeneralPostingSetup.Modify();
 
         // [WHEN] Post Invoice '1001'
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         SalesHeader.SendToPosting(CODEUNIT::"Sales-Post");
 
         // [THEN] "Error Message" page is open, where is one error:
@@ -214,7 +214,7 @@ codeunit 132501 "Sales Document Posting Errors"
         VATPostingSetup.Modify();
 
         // [WHEN] Post Invoice '1001'
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         SalesHeader.SendToPosting(CODEUNIT::"Sales-Post");
 
         // [THEN] "Error Message" page is open, where is one error:
@@ -292,7 +292,7 @@ codeunit 132501 "Sales Document Posting Errors"
             SalesLine[2], SalesHeader, "Sales Line Type"::"G/L Account", GLAccount[2]."No.", 1);
 
         // [WHEN] Post Order '1001'
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         SalesHeaderToPost(SalesHeader);
         SalesHeader.SendToPosting(CODEUNIT::"Sales-Post");
 
@@ -341,7 +341,7 @@ codeunit 132501 "Sales Document Posting Errors"
         LibraryERM.SetAllowPostingFromTo(0D, WorkDate() - 1);
         // [GIVEN] Order '1002', where "Posting Date" is 01.01.2019
         LibrarySales.CreateSalesHeader(
-          SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+          SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
 
         // [WHEN] Preview posting of Order '1002'
         asserterror PreviewSalesDocument(SalesHeader);
@@ -383,7 +383,7 @@ codeunit 132501 "Sales Document Posting Errors"
         LibrarySales.CreateSalesInvoiceForCustomerNo(SalesHeader[2], CustomerNo);
 
         // [WHEN] Post both documents as a batch
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         SalesHeader[3].SetRange("Sell-to Customer No.", CustomerNo);
         SalesBatchPostMgt.RunWithUI(SalesHeader[3], 2, '');
 
@@ -422,7 +422,6 @@ codeunit 132501 "Sales Document Posting Errors"
         LibraryJobQueue: Codeunit "Library - Job Queue";
         LibraryDimension: Codeunit "Library - Dimension";
         CustomerNo: Code[20];
-        RegisterID: Guid;
     begin
         // [FEATURE] [Batch Posting] [Job Queue]
         // [SCENARIO] Batch posting of two documents (in background) verifies "Error Messages" that contains two lines per first document and one line for second document
@@ -480,7 +479,6 @@ codeunit 132501 "Sales Document Posting Errors"
     procedure BatchPostingWithErrorsShowJobQueueErrorsBackground()
     var
         SalesHeader: array[2] of Record "Sales Header";
-        ErrorMessage: Record "Error Message";
         JobQueueEntry: Record "Job Queue Entry";
         DimensionValue: Record "Dimension Value";
         DefaultDimension: Record "Default Dimension";
@@ -490,7 +488,6 @@ codeunit 132501 "Sales Document Posting Errors"
         JobQueueEntries: TestPage "Job Queue Entries";
         ErrorMessages: TestPage "Error Messages";
         CustomerNo: Code[20];
-        RegisterID: Guid;
     begin
         // [FEATURE] [Batch Posting] [Job Queue]
         // [SCENARIO] Batch posting of document (in background) verifies "Error Messages" page that contains two lines for Job Queue Entry
@@ -842,7 +839,7 @@ codeunit 132501 "Sales Document Posting Errors"
         SalesPostYesNo: Codeunit "Sales-Post (Yes/No)";
     begin
         SalesHeaderToPost(SalesHeader);
-        LibraryErrorMessage.TrapErrorMessages;
+        LibraryErrorMessage.TrapErrorMessages();
         SalesPostYesNo.Preview(SalesHeader);
     end;
 
@@ -867,12 +864,12 @@ codeunit 132501 "Sales Document Posting Errors"
     var
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.Filter.SetFilter("No.", No);
         PurchaseOrder.PurchLines.First();
-        PurchaseOrder.PurchLines.Reserve.Invoke;
+        PurchaseOrder.PurchLines.Reserve.Invoke();
         PurchaseOrder.PurchLines.Next();
-        PurchaseOrder.PurchLines.Reserve.Invoke;
+        PurchaseOrder.PurchLines.Reserve.Invoke();
     end;
 
     local procedure UpdateVendorOnRequisitionLine(var RequisitionLine: Record "Requisition Line"; RequisitionWkshName: Record "Requisition Wksh. Name"; VendorNo: Code[20])
@@ -963,7 +960,7 @@ codeunit 132501 "Sales Document Posting Errors"
     procedure ReservationPageHandler(var Reservation: TestPage Reservation)
     begin
         Reservation."Reserve from Current Line".Invoke();
-        Reservation.OK.Invoke;
+        Reservation.OK().Invoke();
     end;
 }
 

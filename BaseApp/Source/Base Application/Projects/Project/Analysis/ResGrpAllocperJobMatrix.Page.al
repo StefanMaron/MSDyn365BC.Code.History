@@ -7,7 +7,7 @@ using System.Utilities;
 
 page 9213 "ResGrp. Alloc. per Job Matrix"
 {
-    Caption = 'Res. Gr. Allocated per Job Matrix';
+    Caption = 'Res. Gr. Allocated per Project Matrix';
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;

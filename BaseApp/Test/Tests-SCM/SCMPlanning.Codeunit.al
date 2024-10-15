@@ -40,7 +40,7 @@ codeunit 137020 "SCM Planning"
         LocationSetup(LocationSilver, true);
         LocationSetup(LocationBlue, false);
 
-        DisableWarnings;
+        DisableWarnings();
     end;
 
     local procedure NoSeriesSetup()
@@ -49,13 +49,13 @@ codeunit 137020 "SCM Planning"
         SalesSetup: Record "Sales & Receivables Setup";
     begin
         SalesSetup.Get();
-        SalesSetup.Validate("Customer Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesSetup.Validate("Customer Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         SalesSetup.Modify(true);
 
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("Vendor Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+        PurchasesPayablesSetup.Validate("Vendor Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchasesPayablesSetup.Modify(true);
     end;
 
@@ -326,7 +326,7 @@ codeunit 137020 "SCM Planning"
 
     local procedure TestSetup()
     begin
-        ManufacturingSetup;
+        ManufacturingSetup();
     end;
 
     local procedure AssertPlanningLine(Item: Record Item; ActionMsg: Enum "Action Message Type"; OrigDueDate: Date; DueDate: Date; OrigQty: Decimal; Quantity: Decimal; RefOrderType: Option; NoOfLines: Integer)
@@ -390,17 +390,17 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
         Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
         Item.Modify(true);
 
         // Create demands
         CreateSalesOrder(SalesHeader, SalesLine, Item, 100, WorkDate());
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 100, WorkDate + 1);
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 100, WorkDate() + 1);
 
         // Run planning
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate() - 1, WorkDate + 1);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate() - 1, WorkDate() + 1);
 
         // Carry out two lines
         RequisitionLine.SetFilter("No.", Item."No.");
@@ -439,7 +439,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '<5D>', '', '', 0, 0, 0);
 
         // Exercise
@@ -464,7 +464,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '<5D>', '', '', 0, 0, 0);
 
         // Exercise
@@ -490,7 +490,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '<5D>', '', '', 0, 0, 0);
 
         // Exercise
@@ -516,7 +516,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '<5D>', '', '', 0, 0, 0);
 
         // Exercise
@@ -544,7 +544,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '<5D>', '', '', 0, 0, 0);
 
         // Exercise
@@ -570,7 +570,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
 
         // Exercise
@@ -598,7 +598,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '<0D>', '', '', 0, 0, 0);
 
         // Exercise
@@ -625,7 +625,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '<100D>', '<14D>', '<5D>', 0, 0, 0);
 
         // Exercise
@@ -646,7 +646,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '<3D>', '<14D>', '<5D>', 0, 0, 0);
 
         // Exercise
@@ -674,7 +674,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '<7D>', '<14D>', '<5D>', 0, 0, 0);
 
         // Exercise
@@ -700,7 +700,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '<100D>', '<14D>', '<5D>', 0, 0, 0);
 
         // Exercise
@@ -726,7 +726,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '<3D>', '<14D>', '<5D>', 0, 0, 0);
 
         // Exercise
@@ -754,7 +754,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '<7D>', '<14D>', '<5D>', 0, 0, 0);
 
         // Exercise
@@ -779,7 +779,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<5D>');
         LFLItemSetup(Item, true, '<100D>', '<14D>', '', 0, 0, 0);
 
@@ -801,7 +801,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<5D>');
         LFLItemSetup(Item, true, '<3D>', '<14D>', '', 0, 0, 0);
 
@@ -830,7 +830,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<5D>');
         LFLItemSetup(Item, true, '<7D>', '<14D>', '', 0, 0, 0);
 
@@ -857,7 +857,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<5D>');
         LFLItemSetup(Item, true, '<100D>', '<14D>', '', 0, 0, 0);
 
@@ -884,7 +884,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<5D>');
         LFLItemSetup(Item, true, '<3D>', '<14D>', '', 0, 0, 0);
 
@@ -913,7 +913,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<5D>');
         LFLItemSetup(Item, true, '<7D>', '<14D>', '', 0, 0, 0);
 
@@ -939,7 +939,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         LFLItemSetup(Item, true, '<100D>', '<14D>', '<5D>', 0, 0, 0);
 
         // Exercise
@@ -960,7 +960,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('');
         LFLItemSetup(Item, true, '', '<14D>', '', 0, 0, 0);
 
@@ -989,7 +989,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<0D>');
         LFLItemSetup(Item, true, '', '<14D>', '<0D>', 0, 0, 0);
 
@@ -1017,7 +1017,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         OrderItemSetup(Item, '<5D>');
 
         // Exercise
@@ -1038,7 +1038,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         OrderItemSetup(Item, '<5D>');
 
         // Exercise
@@ -1063,7 +1063,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<5D>');
         OrderItemSetup(Item, '');
 
@@ -1085,7 +1085,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<5D>');
         OrderItemSetup(Item, '<0D>');
 
@@ -1112,7 +1112,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<5D>');
         OrderItemSetup(Item, '');
 
@@ -1139,7 +1139,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('');
         OrderItemSetup(Item, '');
 
@@ -1166,7 +1166,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<0D>');
         OrderItemSetup(Item, '');
 
@@ -1193,7 +1193,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         OrderItemSetup(Item, '<100D>');
 
         // Exercise
@@ -1221,7 +1221,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<0D>');
         LFLItemSetup(Item, true, '', '<5D>', '', 0, 0, 0);
 
@@ -1253,7 +1253,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<0D>');
         LFLItemSetup(Item, true, '', '<5D>', '', 0, 0, 0);
 
@@ -1286,7 +1286,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<0D>');
         LFLItemSetup(Item, true, '', '<5D>', '', 0, 0, 0);
 
@@ -1317,7 +1317,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<0D>');
         LFLItemSetup(Item, true, '', '<5D>', '', 0, 0, 0);
 
@@ -1353,7 +1353,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<0D>');
         LFLItemSetup(Item, true, '', '<5D>', '', 0, 0, 0);
 
@@ -1398,7 +1398,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<0D>');
         LFLItemSetup(Item, true, '', '', '', 0, 0, 0);
 
@@ -1436,7 +1436,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<0D>');
         LFLItemSetup(Item, true, '', '<0D>', '', 0, 0, 0);
 
@@ -1474,7 +1474,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<0D>');
         LFLItemSetup(Item, true, '<3D>', '<5D>', '', 0, 0, 0);
 
@@ -1522,7 +1522,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<0D>');
         LFLItemSetup(Item, true, '<2D>', '<5D>', '', 0, 0, 0);
 
@@ -1572,7 +1572,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<0D>');
         LFLItemSetup(Item, true, '<100D>', '<5D>', '<3D>', 0, 0, 0);
 
@@ -1613,7 +1613,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<0D>');
         LFLItemSetup(Item, true, '<7D>', '<5D>', '<3D>', 0, 0, 0);
 
@@ -1659,7 +1659,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<0D>');
         LFLItemSetup(Item, true, '<3D>', '<5D>', '<3D>', 0, 0, 0);
 
@@ -1707,7 +1707,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<0D>');
         LFLItemSetup(Item, true, '<7D>', '<5D>', '<3D>', 0, 0, 0);
 
@@ -1754,7 +1754,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<0D>');
         LFLItemSetup(Item, true, '<100D>', '<5D>', '<30D>', 0, 0, 0);
 
@@ -1794,7 +1794,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<0D>');
         LFLItemSetup(Item, true, '<10D>', '<5D>', '<30D>', 0, 0, 0);
 
@@ -1839,7 +1839,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<0D>');
         LFLItemSetup(Item, true, '<5D>', '<5D>', '<30D>', 0, 0, 0);
 
@@ -1886,7 +1886,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<30D>');
         LFLItemSetup(Item, true, '<100D>', '<5D>', '', 0, 0, 0);
 
@@ -1926,7 +1926,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<30D>');
         LFLItemSetup(Item, true, '<10D>', '<5D>', '', 0, 0, 0);
 
@@ -1971,7 +1971,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<30D>');
         LFLItemSetup(Item, true, '<5D>', '<5D>', '', 0, 0, 0);
 
@@ -2018,7 +2018,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<0D>');
         LFLItemSetup(Item, true, '<5D>', '<5D>', '<30D>', 0, 0, 0);
 
@@ -2058,7 +2058,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<0D>');
         LFLItemSetup(Item, true, '<5D>', '<5D>', '<30D>', 0, 0, 0);
 
@@ -2105,7 +2105,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<0D>');
         LFLItemSetup(Item, true, '<5D>', '<5D>', '<30D>', 0, 0, 0);
 
@@ -2149,7 +2149,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<0D>');
         MaxQtyItemSetup(Item, 20, 100, 100, '<5D>', 0, 5, '<2D>', 40);
 
@@ -2183,7 +2183,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<0D>');
         MaxQtyItemSetup(Item, 20, 100, 100, '<5D>', 0, 5, '<2D>', 40);
 
@@ -2217,7 +2217,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<0D>');
         MaxQtyItemSetup(Item, 20, 100, 100, '<5D>', 0, 5, '<2D>', 40);
 
@@ -2264,7 +2264,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<0D>');
         MaxQtyItemSetup(Item, 20, 100, 100, '<5D>', 0, 5, '<2D>', 40);
 
@@ -2301,7 +2301,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<0D>');
         MaxQtyItemSetup(Item, 20, 100, 100, '<5D>', 0, 5, '<2D>', 40);
 
@@ -2347,7 +2347,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<0D>');
         FixedReorderQtyItemSetup(Item, 20, 100, 120, '<5D>', 0, 5, '<2D>', 0);
 
@@ -2381,7 +2381,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<0D>');
         FixedReorderQtyItemSetup(Item, 20, 100, 120, '<5D>', 0, 5, '<2D>', 0);
 
@@ -2415,7 +2415,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<0D>');
         FixedReorderQtyItemSetup(Item, 20, 100, 120, '<5D>', 0, 5, '<2D>', 0);
 
@@ -2462,7 +2462,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<0D>');
         FixedReorderQtyItemSetup(Item, 20, 100, 120, '<5D>', 0, 5, '<2D>', 0);
 
@@ -2500,7 +2500,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerTime('<0D>');
         FixedReorderQtyItemSetup(Item, 20, 100, 120, '<5D>', 0, 5, '<2D>', 0);
 
@@ -2548,7 +2548,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(10);
         SetDampenerTime('<0D>');
         MaxQtyItemSetup(Item, 20, 100, 0, '<5D>', 4, 5, '<1D>', 40);
@@ -2593,7 +2593,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(10);
         SetDampenerTime('<0D>');
         MaxQtyItemSetup(Item, 20, 100, 0, '<5D>', 4, 5, '<1D>', 40);
@@ -2643,7 +2643,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(10);
         SetDampenerTime('<0D>');
         MaxQtyItemSetup(Item, 20, 100, 0, '<5D>', 0, 5, '<1D>', 40);
@@ -2688,7 +2688,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(10);
         SetDampenerTime('<0D>');
         MaxQtyItemSetup(Item, 20, 100, 0, '<5D>', 0, 5, '<1D>', 40);
@@ -2738,7 +2738,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(0);
         SetDampenerTime('<0D>');
         MaxQtyItemSetup(Item, 20, 100, 0, '<5D>', 0, 5, '<1D>', 40);
@@ -2788,7 +2788,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(10);
         SetDampenerTime('<0D>');
         FixedReorderQtyItemSetup(Item, 20, 100, 0, '<5D>', 4, 5, '<1D>', 40);
@@ -2833,7 +2833,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(10);
         SetDampenerTime('<0D>');
         FixedReorderQtyItemSetup(Item, 20, 100, 0, '<5D>', 4, 5, '<1D>', 40);
@@ -2883,7 +2883,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(10);
         SetDampenerTime('<0D>');
         FixedReorderQtyItemSetup(Item, 20, 100, 0, '<5D>', 0, 5, '<1D>', 40);
@@ -2928,7 +2928,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(10);
         SetDampenerTime('<0D>');
         FixedReorderQtyItemSetup(Item, 20, 100, 0, '<5D>', 0, 5, '<1D>', 40);
@@ -2978,7 +2978,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(0);
         SetDampenerTime('<0D>');
         FixedReorderQtyItemSetup(Item, 20, 100, 0, '<5D>', 0, 5, '<1D>', 40);
@@ -3028,7 +3028,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(10);
         LFLItemSetup(Item, true, '', '<10D>', '', 4, 0, 40);
 
@@ -3069,7 +3069,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(10);
         LFLItemSetup(Item, true, '', '<10D>', '', 4, 0, 40);
 
@@ -3115,7 +3115,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(10);
         LFLItemSetup(Item, true, '', '<10D>', '', 0, 0, 40);
 
@@ -3156,7 +3156,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(10);
         LFLItemSetup(Item, true, '', '<10D>', '', 0, 0, 40);
 
@@ -3202,7 +3202,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(10);
         LFLItemSetup(Item, true, '', '<10D>', '', 0, 0, 0);
 
@@ -3249,7 +3249,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(0);
         SetDampenerTime('<0D>');
         MaxQtyItemSetup(Item, 20, 100, 101, '<5D>', 0, 5, '<1D>', 0);
@@ -3300,7 +3300,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(0);
         SetDampenerTime('<0D>');
         MaxQtyItemSetup(Item, 20, 100, 101, '<5D>', 0, 5, '<1D>', 0);
@@ -3347,7 +3347,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(0);
         SetDampenerTime('<0D>');
         SetBlankOverflowLevel(ManufacturingSetup."Blank Overflow Level"::"Use Item/SKU Values Only");
@@ -3395,7 +3395,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(0);
         SetDampenerTime('<0D>');
         SetBlankOverflowLevel(ManufacturingSetup."Blank Overflow Level"::"Allow Default Calculation");
@@ -3448,7 +3448,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(0);
         SetDampenerTime('<0D>');
         SetBlankOverflowLevel(ManufacturingSetup."Blank Overflow Level"::"Allow Default Calculation");
@@ -3496,7 +3496,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(0);
         SetDampenerTime('<0D>');
         SetBlankOverflowLevel(ManufacturingSetup."Blank Overflow Level"::"Allow Default Calculation");
@@ -3544,7 +3544,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(0);
         SetDampenerTime('<0D>');
         SetBlankOverflowLevel(ManufacturingSetup."Blank Overflow Level"::"Allow Default Calculation");
@@ -3596,7 +3596,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(0);
         SetDampenerTime('<0D>');
         FixedReorderQtyItemSetup(Item, 20, 80, 101, '<5D>', 0, 5, '<1D>', 0);
@@ -3647,7 +3647,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(0);
         SetDampenerTime('<0D>');
         FixedReorderQtyItemSetup(Item, 20, 80, 101, '<5D>', 0, 5, '<1D>', 0);
@@ -3694,7 +3694,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(0);
         SetDampenerTime('<0D>');
         SetBlankOverflowLevel(ManufacturingSetupRec."Blank Overflow Level"::"Use Item/SKU Values Only");
@@ -3742,7 +3742,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(0);
         SetDampenerTime('<0D>');
         SetBlankOverflowLevel(ManufacturingSetupRec."Blank Overflow Level"::"Allow Default Calculation");
@@ -3795,7 +3795,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(0);
         SetDampenerTime('<0D>');
         SetBlankOverflowLevel(ManufacturingSetupRec."Blank Overflow Level"::"Allow Default Calculation");
@@ -3843,7 +3843,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(0);
         SetDampenerTime('<0D>');
         SetBlankOverflowLevel(ManufacturingSetupRec."Blank Overflow Level"::"Allow Default Calculation");
@@ -3891,7 +3891,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(0);
         SetDampenerTime('<0D>');
         SetBlankOverflowLevel(ManufacturingSetupRec."Blank Overflow Level"::"Allow Default Calculation");
@@ -3944,7 +3944,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(0);
         SetDampenerTime('<0D>');
         SetBlankOverflowLevel(ManufacturingSetupRec."Blank Overflow Level"::"Allow Default Calculation");
@@ -3997,7 +3997,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(0);
         SetDampenerTime('<0D>');
         SetBlankOverflowLevel(ManufacturingSetupRec."Blank Overflow Level"::"Use Item/SKU Values Only");
@@ -4050,7 +4050,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(0);
         SetDampenerTime('<0D>');
         SetBlankOverflowLevel(ManufacturingSetupRec."Blank Overflow Level"::"Allow Default Calculation");
@@ -4103,7 +4103,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(0);
         SetDampenerTime('<0D>');
         SetBlankOverflowLevel(ManufacturingSetupRec."Blank Overflow Level"::"Allow Default Calculation");
@@ -4151,7 +4151,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(0);
         SetDampenerTime('<0D>');
         SetBlankOverflowLevel(ManufacturingSetupRec."Blank Overflow Level"::"Use Item/SKU Values Only");
@@ -4204,7 +4204,7 @@ codeunit 137020 "SCM Planning"
         Initialize();
 
         // Test setup
-        TestSetup;
+        TestSetup();
         SetDampenerLotSize(0);
         SetDampenerTime('<0D>');
         SetBlankOverflowLevel(ManufacturingSetupRec."Blank Overflow Level"::"Use Item/SKU Values Only");
@@ -4265,27 +4265,27 @@ codeunit 137020 "SCM Planning"
         MakeItemInventory(Item."No.", 11);
 
         // [GIVEN] Three sales lines for 1 pc each on 05-Jan., 10-Jan., 15-Jan. respectively.
-        CreateSalesOrder(SalesHeader, SalesLine, Item, 1, WorkDate + 5);
-        AddSalesOrderLine(SalesHeader, SalesLine, Item, 1, WorkDate + 10);
-        AddSalesOrderLine(SalesHeader, SalesLine, Item, 1, WorkDate + 15);
+        CreateSalesOrder(SalesHeader, SalesLine, Item, 1, WorkDate() + 5);
+        AddSalesOrderLine(SalesHeader, SalesLine, Item, 1, WorkDate() + 10);
+        AddSalesOrderLine(SalesHeader, SalesLine, Item, 1, WorkDate() + 15);
 
         // [GIVEN] Purchase order for 20 pcs on 05-Jan. This purchase meets the reorder point requirement.
         // [GIVEN] The inventory on 05-Jan. = 30 pcs (11 - 1 + 20)
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 20, WorkDate + 5);
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 20, WorkDate() + 5);
 
         // [GIVEN] Another purchase order for 22 pcs on 20-Jan.
         // [GIVEN] The inventory before the purchase is 28 pcs, but the purchase makes it 50 pcs, which is above the overflow level of 30 pcs.
-        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 22, WorkDate + 20);
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 22, WorkDate() + 20);
 
         // [WHEN] Calculate regenerative plan.
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate + 30);
+        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), WorkDate() + 30);
 
         // [THEN] The second purchase is suggested to be canceled.
         // [THEN] Without the minimum order requirement the planning engine would have suggested decreasing the purchase from 22 to 1 pc.
         // [THEN] Now the maximum allowed decrease is only 2 pcs (from 22 pcs to 20 pcs), that will not be enough to stay below the overflow level.
         AssertNumberOfLinesForItem(Item, 1);
         AssertPlanningLine(
-          Item, RequisitionLine."Action Message"::Cancel, 0D, WorkDate + 20, 22, 0, RequisitionLine."Ref. Order Type"::Purchase, 1);
+          Item, RequisitionLine."Action Message"::Cancel, 0D, WorkDate() + 20, 22, 0, RequisitionLine."Ref. Order Type"::Purchase, 1);
     end;
 
     [Test]
@@ -4298,7 +4298,7 @@ codeunit 137020 "SCM Planning"
         // Setup
         Initialize();
 
-        TestSetup;
+        TestSetup();
         MaxQtyItemSetup(Item, 0, 10, 0, '<0D>', 0, 4, '<0D>', 0);
 
         // Exercise
@@ -4319,7 +4319,7 @@ codeunit 137020 "SCM Planning"
         // Setup
         Initialize();
 
-        TestSetup;
+        TestSetup();
         MaxQtyItemSetup(Item, 2000, 5000, 0, '<0D>', 0, 1000, '<0D>', 0);
 
         // Exercise
@@ -4346,7 +4346,7 @@ codeunit 137020 "SCM Planning"
         // Setup
         Initialize();
 
-        TestSetup;
+        TestSetup();
         FixedReorderQtyItemSetup(Item, 40000, 40000, 0, '<0D>', 0, 0, '<0D>', 0);
         Item.Validate("Maximum Order Quantity", 10000);
         Item.Modify(true);
@@ -4375,7 +4375,7 @@ codeunit 137020 "SCM Planning"
         // Setup
         Initialize();
 
-        TestSetup;
+        TestSetup();
         MaxQtyItemSetup(Item, 0, 250, 0, '<1M>', 0, 0, '<0D>', 0);
 
         // Exercise
@@ -4414,7 +4414,7 @@ codeunit 137020 "SCM Planning"
         // Setup
         Initialize();
 
-        TestSetup;
+        TestSetup();
         MaxQtyItemSetup(Item, 10, 100, 0, '<1M>', 0, 0, '<0D>', 0);
 
         // Exercise
@@ -4446,7 +4446,7 @@ codeunit 137020 "SCM Planning"
         // Setup
         Initialize();
 
-        TestSetup;
+        TestSetup();
         MaxQtyItemSetup(Item, 17, 25, 0, '<0D>', 0, 4, '<5D>', 0);
 
         // Exercise
@@ -4473,7 +4473,7 @@ codeunit 137020 "SCM Planning"
         // Setup
         Initialize();
 
-        TestSetup;
+        TestSetup();
         MaxQtyItemSetup(Item, 50, 100, 0, '<0D>', 0, 20, '<0D>', 0);
         LibraryVariableStorage.Enqueue(RunRegPlanMsg);  // Handled in Message Handler.
         Item.Validate("Order Tracking Policy", Item."Order Tracking Policy"::"Tracking Only");
@@ -4502,16 +4502,15 @@ codeunit 137020 "SCM Planning"
         RequisitionLine: Record "Requisition Line";
         Item: Record Item;
         ItemJournalLine: Record "Item Journal Line";
-        SKUMethod: Option Location,Variant,"Location & Variant";
     begin
         // Setup
         Initialize();
 
-        TestSetup;
+        TestSetup();
         MaxQtyItemSetup(Item, 0, 50, 0, '<5D>', 0, 0, '<3D>', 0);
 
         Item.SetFilter("Location Filter", '%1', LocationBlue.Code);
-        LibraryInventory.CreateStockKeepingUnit(Item, SKUMethod::Location, false, false);
+        LibraryInventory.CreateStockKeepingUnit(Item, "SKU Creation Method"::Location, false, false);
 
         LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", LocationBlue.Code, '', 10);
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
@@ -4557,7 +4556,7 @@ codeunit 137020 "SCM Planning"
         // Setup
         Initialize();
 
-        TestSetup;
+        TestSetup();
         MaxQtyItemSetup(Item, 2, 3, 0, '<0D>', 0, 0, '<0D>', 0);
 
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, Item, 100, CalcDate(PlanningStartDate, WorkDate()));
@@ -4587,7 +4586,7 @@ codeunit 137020 "SCM Planning"
         // Setup
         Initialize();
 
-        TestSetup;
+        TestSetup();
         MaxQtyItemSetup(Item, 9, 10, 0, '<0D>', 0, 8, '<0D>', 0);
 
         // Exercise
@@ -4634,7 +4633,7 @@ codeunit 137020 "SCM Planning"
         // [THEN] Caption of the page contains both worksheet name and desription
         ExpectedPlanningRoutingLineCaption :=
           PlanningCaption(PlanningRoutingLine."Worksheet Batch Name", RequisitionWkshName, RequisitionLine);
-        ActualPlanningRoutingLineCaption := PlanningRoutingLine.Caption;
+        ActualPlanningRoutingLineCaption := PlanningRoutingLine.Caption();
         Assert.AreEqual(
           CopyStr(ExpectedPlanningRoutingLineCaption, 1, MaxStrLen(ExpectedPlanningRoutingLineCaption)),
           CopyStr(ActualPlanningRoutingLineCaption, 1, MaxStrLen(ActualPlanningRoutingLineCaption)), StringsMustBeIdenticalErr);
@@ -4671,7 +4670,7 @@ codeunit 137020 "SCM Planning"
         // [THEN] Caption of the page contains both worksheet name and desription
         ExpectedPlanningRoutingLineCaption :=
           PlanningCaption(PlanningComponent."Worksheet Batch Name", RequisitionWkshName, RequisitionLine);
-        ActualPlanningRoutingLineCaption := PlanningComponent.Caption;
+        ActualPlanningRoutingLineCaption := PlanningComponent.Caption();
         Assert.AreEqual(
           CopyStr(ExpectedPlanningRoutingLineCaption, 1, MaxStrLen(ExpectedPlanningRoutingLineCaption)),
           CopyStr(ActualPlanningRoutingLineCaption, 1, MaxStrLen(ActualPlanningRoutingLineCaption)), StringsMustBeIdenticalErr);
@@ -4714,7 +4713,7 @@ codeunit 137020 "SCM Planning"
 
         // [WHEN] Call "SetPreviousAndNext" on the middle Planning Routing Line
         PlanningRoutingLine.Next(-1);
-        PlanningRoutingLine.SetPreviousAndNext;
+        PlanningRoutingLine.SetPreviousAndNext();
 
         // [THEN] "Next Operation No." = 30 on the first Prod. Order Routing Line
         PlanningRoutingLine.FindFirst();
@@ -4763,7 +4762,7 @@ codeunit 137020 "SCM Planning"
         LibraryWarehouse.CreateLocation(Location);
         LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, Location.Code, Item."No.", '');
         StockkeepingUnit.Validate("Replenishment System", StockkeepingUnit."Replenishment System"::Purchase);
-        StockkeepingUnit.Validate("Vendor No.", LibraryPurchase.CreateVendorNo);
+        StockkeepingUnit.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
         StockkeepingUnit.Validate("Reordering Policy", StockkeepingUnit."Reordering Policy"::"Maximum Qty.");
         StockkeepingUnit.Validate("Lead Time Calculation", LeadTimeCalculation);
         StockkeepingUnit.Validate("Maximum Inventory", MaxInventory);
@@ -4772,7 +4771,7 @@ codeunit 137020 "SCM Planning"
 
         // [GIVEN] Sales Order with 2 Lines: 15 PCS and Shipment Date = 11/07/2021 and 10 PCS and Shipment Date 26/07/2021
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo, Item."No.", Qty1, Location.Code,
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo(), Item."No.", Qty1, Location.Code,
           ShipDate1);
         LibrarySales.CreateSalesLineWithShipmentDate(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", ShipDate2, Qty2);
 
@@ -4861,8 +4860,8 @@ codeunit 137020 "SCM Planning"
         // [GIVEN] Two sales lines each for 5 qty.
         // [GIVEN] The reorder point will thus be crossed three times - for the inventory and each sales line.
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
-        LibrarySales.CreateSalesLineWithShipmentDate(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", WorkDate + 5, SalesQty);
-        LibrarySales.CreateSalesLineWithShipmentDate(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", WorkDate + 10, SalesQty);
+        LibrarySales.CreateSalesLineWithShipmentDate(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", WorkDate() + 5, SalesQty);
+        LibrarySales.CreateSalesLineWithShipmentDate(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", WorkDate() + 10, SalesQty);
 
         // [WHEN] Calculate regenerative plan starting from WORKDATE.
         LibraryPlanning.CalcRegenPlanForPlanWksh(Item, WorkDate(), CalcDate('<CY>', WorkDate()));
@@ -4883,7 +4882,7 @@ codeunit 137020 "SCM Planning"
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Planning");
         LibraryVariableStorage.Clear();
 
-        LibraryApplicationArea.EnableEssentialSetup;
+        LibraryApplicationArea.EnableEssentialSetup();
 
         // Initialize setup.
         if IsInitialized then
@@ -4893,7 +4892,7 @@ codeunit 137020 "SCM Planning"
         // Setup Demonstration data.
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        GlobalSetup;
+        GlobalSetup();
 
         Evaluate(DaysInMonthFormula, Format('<+%1D>', CalcDate('<1M>') - Today));
         Evaluate(PlanningStartDate, '<+2D>');
@@ -5003,7 +5002,7 @@ codeunit 137020 "SCM Planning"
     procedure CalculatePlanPlanWkshRequestPageHandlerWithStopAndShowFirstError(var CalculatePlanPlanWksh: TestRequestPage "Calculate Plan - Plan. Wksh.")
     begin
         CalculatePlanPlanWksh.NoPlanningResiliency.SetValue(true);
-        CalculatePlanPlanWksh.OK.Invoke;
+        CalculatePlanPlanWksh.OK().Invoke();
     end;
 }
 

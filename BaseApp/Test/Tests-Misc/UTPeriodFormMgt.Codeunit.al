@@ -20,7 +20,7 @@ codeunit 134996 "UT Period Form Mgt"
     [Scope('OnPrem')]
     procedure GetFullPeriodDateFilter_EmptyDateFilter()
     begin
-        Assert.AreEqual('', PeriodPageManagement.GetFullPeriodDateFilter(PeriodType::Day, ''), IncorrectDateFilterErr);
+        Assert.AreEqual('', PeriodPageManagement.GetFullPeriodDateFilter("Analysis Period Type"::Day, ''), IncorrectDateFilterErr);
     end;
 
     [Test]
@@ -29,8 +29,8 @@ codeunit 134996 "UT Period Form Mgt"
     var
         DateFilter: Text;
     begin
-        DateFilter := GetRandomDateFilter;
-        VerifyDateFilter(DateFilter, PeriodPageManagement.GetFullPeriodDateFilter(PeriodType::Day, DateFilter));
+        DateFilter := GetRandomDateFilter();
+        VerifyDateFilter(DateFilter, PeriodPageManagement.GetFullPeriodDateFilter("Analysis Period Type"::Day, DateFilter));
     end;
 
     [Test]
@@ -41,7 +41,7 @@ codeunit 134996 "UT Period Form Mgt"
         ExpectedDateFilter: Text;
     begin
         MakeRandomDateFilterByPeriod(ActualDateFilter, ExpectedDateFilter, PeriodType::Week);
-        VerifyDateFilter(ExpectedDateFilter, PeriodPageManagement.GetFullPeriodDateFilter(PeriodType::Week, ActualDateFilter));
+        VerifyDateFilter(ExpectedDateFilter, PeriodPageManagement.GetFullPeriodDateFilter("Analysis Period Type"::Week, ActualDateFilter));
     end;
 
     [Test]
@@ -52,7 +52,7 @@ codeunit 134996 "UT Period Form Mgt"
         ExpectedDateFilter: Text;
     begin
         MakeRandomDateFilterByPeriod(ActualDateFilter, ExpectedDateFilter, PeriodType::Month);
-        VerifyDateFilter(ExpectedDateFilter, PeriodPageManagement.GetFullPeriodDateFilter(PeriodType::Month, ActualDateFilter));
+        VerifyDateFilter(ExpectedDateFilter, PeriodPageManagement.GetFullPeriodDateFilter("Analysis Period Type"::Month, ActualDateFilter));
     end;
 
     [Test]
@@ -65,7 +65,7 @@ codeunit 134996 "UT Period Form Mgt"
         // Verify that full period gives the same full period result filter
         // Test for month only due to other period types use the same algoritm
         MakeRandomDateFilterByPeriod(ActualDateFilter, ExpectedDateFilter, PeriodType::Month);
-        VerifyDateFilter(ExpectedDateFilter, PeriodPageManagement.GetFullPeriodDateFilter(PeriodType::Month, ExpectedDateFilter));
+        VerifyDateFilter(ExpectedDateFilter, PeriodPageManagement.GetFullPeriodDateFilter("Analysis Period Type"::Month, ExpectedDateFilter));
     end;
 
     [Test]
@@ -76,7 +76,7 @@ codeunit 134996 "UT Period Form Mgt"
         ExpectedDateFilter: Text;
     begin
         MakeRandomDateFilterFewMonth(ActualDateFilter, ExpectedDateFilter);
-        VerifyDateFilter(ExpectedDateFilter, PeriodPageManagement.GetFullPeriodDateFilter(PeriodType::Month, ActualDateFilter));
+        VerifyDateFilter(ExpectedDateFilter, PeriodPageManagement.GetFullPeriodDateFilter("Analysis Period Type"::Month, ActualDateFilter));
     end;
 
     [Test]
@@ -87,7 +87,7 @@ codeunit 134996 "UT Period Form Mgt"
         ExpectedDateFilter: Text;
     begin
         MakeOneDayDateFilter(ActualDateFilter, ExpectedDateFilter);
-        VerifyDateFilter(ExpectedDateFilter, PeriodPageManagement.GetFullPeriodDateFilter(PeriodType::Month, ActualDateFilter));
+        VerifyDateFilter(ExpectedDateFilter, PeriodPageManagement.GetFullPeriodDateFilter("Analysis Period Type"::Month, ActualDateFilter));
     end;
 
     [Test]
@@ -98,7 +98,7 @@ codeunit 134996 "UT Period Form Mgt"
         ExpectedDateFilter: Text;
     begin
         MakeRandomDateFilterByPeriod(ActualDateFilter, ExpectedDateFilter, PeriodType::Quarter);
-        VerifyDateFilter(ExpectedDateFilter, PeriodPageManagement.GetFullPeriodDateFilter(PeriodType::Quarter, ActualDateFilter));
+        VerifyDateFilter(ExpectedDateFilter, PeriodPageManagement.GetFullPeriodDateFilter("Analysis Period Type"::Quarter, ActualDateFilter));
     end;
 
     [Test]
@@ -109,7 +109,7 @@ codeunit 134996 "UT Period Form Mgt"
         ExpectedDateFilter: Text;
     begin
         MakeRandomDateFilterByPeriod(ActualDateFilter, ExpectedDateFilter, PeriodType::Year);
-        VerifyDateFilter(ExpectedDateFilter, PeriodPageManagement.GetFullPeriodDateFilter(PeriodType::Year, ActualDateFilter));
+        VerifyDateFilter(ExpectedDateFilter, PeriodPageManagement.GetFullPeriodDateFilter("Analysis Period Type"::Year, ActualDateFilter));
     end;
 
     [Test]
@@ -121,7 +121,7 @@ codeunit 134996 "UT Period Form Mgt"
     begin
         MakeAccountingPeriodRandomFilter(ActualDateFilter, ExpectedDateFilter, 1);
         VerifyDateFilter(ExpectedDateFilter,
-          PeriodPageManagement.GetFullPeriodDateFilter(PeriodType::"Accounting Period", ActualDateFilter));
+          PeriodPageManagement.GetFullPeriodDateFilter("Analysis Period Type"::"Accounting Period", ActualDateFilter));
     end;
 
     [Test]
@@ -133,7 +133,7 @@ codeunit 134996 "UT Period Form Mgt"
     begin
         MakeAccountingPeriodRandomFilter(ActualDateFilter, ExpectedDateFilter, LibraryRandom.RandIntInRange(5, 10));
         VerifyDateFilter(ExpectedDateFilter,
-          PeriodPageManagement.GetFullPeriodDateFilter(PeriodType::"Accounting Period", ActualDateFilter));
+          PeriodPageManagement.GetFullPeriodDateFilter("Analysis Period Type"::"Accounting Period", ActualDateFilter));
     end;
 
     [Test]
@@ -216,7 +216,7 @@ codeunit 134996 "UT Period Form Mgt"
         Calendar."Period Start" := AccountingPeriod."Starting Date";
 
         // [WHEN] Run FindDate function on this Calendar record with SearchString ">=" and Period Type "Accounting Period".
-        PeriodPageManagement.FindDate('>=', Calendar, PeriodType::"Accounting Period");
+        PeriodPageManagement.FindDate('>=', Calendar, "Analysis Period Type"::"Accounting Period");
 
         // [THEN] Calendar."Period End" is equal to 31.12.9999.
         Calendar.TestField("Period End", DMY2Date(31, 12, 9999));
@@ -224,7 +224,7 @@ codeunit 134996 "UT Period Form Mgt"
 
     local procedure GetRandomDateFilter(): Text
     begin
-        exit(GetDateFilter(WorkDate(), WorkDate + LibraryRandom.RandIntInRange(5, 10)));
+        exit(GetDateFilter(WorkDate(), WorkDate() + LibraryRandom.RandIntInRange(5, 10)));
     end;
 
     local procedure GetDateFilter(StartDate: Date; EndDate: Date): Text

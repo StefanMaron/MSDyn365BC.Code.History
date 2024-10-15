@@ -7,6 +7,7 @@ namespace Microsoft.Foundation.Address;
 table 28003 "Address ID"
 {
     Caption = 'Address ID';
+    DataClassification = CustomerContent;
 
     fields
     {

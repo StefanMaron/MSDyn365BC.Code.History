@@ -40,7 +40,17 @@ page 5893 "Phys. Invt. Item Track. List"
                 field("Lot No."; Rec."Lot No.")
                 {
                     ApplicationArea = ItemTracking;
-                    ToolTip = 'Specifies the location of the traced item.';
+                    ToolTip = 'Specifies the lot number of the item that is being handled on the document line.';
+                }
+                field("Package No."; Rec."Package No.")
+                {
+                    ApplicationArea = ItemTracking;
+                    ToolTip = 'Specifies the package number of the item that is being handled on the document line.';
+                }
+                field("Expiration Date"; Rec."Expiration Date")
+                {
+                    ApplicationArea = ItemTracking;
+                    ToolTip = 'Specifies the expiration date of the item that is being handled on the document line.';
                 }
                 field(Positive; Rec.Positive)
                 {

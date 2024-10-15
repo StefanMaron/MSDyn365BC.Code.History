@@ -6,7 +6,6 @@ codeunit 132475 "Assisted Setup Mock Events"
     var
         FirstTestPageNameTxt: Label 'FIRST TEST Page';
         SecondTestPageNameTxt: Label 'SECOND TEST Page';
-        BaseAppID: Codeunit "BaseApp ID";
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Guided Experience", 'OnRegisterAssistedSetup', '', false, false)]
     [Normal]
@@ -37,7 +36,6 @@ codeunit 132475 "Assisted Setup Mock Events"
     procedure OnAfterRunAssistedSetup(ExtensionId: Guid; ObjectType: ObjectType; ObjectID: Integer)
     var
         GuidedExperience: Codeunit "Guided Experience";
-        BaseAppID: Codeunit "BaseApp ID";
     begin
         if (ObjectID <> PAGE::"Item List") or (ObjectType <> ObjectType::Page) then
             exit;

@@ -37,7 +37,7 @@ codeunit 141082 "ERM Payment - Prepayment"
     begin
         // [SCENARIO] Program does not create any Realized FX Gains/Loss account on G\L Entry after posting the Sales order with Prepayment & foreign currency.
         Initialize();
-        PostSalesPrepaymentOrder(CreateCurrencyWithExchangeRate);
+        PostSalesPrepaymentOrder(CreateCurrencyWithExchangeRate());
     end;
 
     [Test]
@@ -73,7 +73,7 @@ codeunit 141082 "ERM Payment - Prepayment"
     begin
         // [SCENARIO] Program does not create any Realized FX Gains/Loss account on G\L Entry after Posting the Purchase Order with Prepayment & Foreign currency.
         Initialize();
-        PostPurchPrepaymentOrder(CreateCurrencyWithExchangeRate);
+        PostPurchPrepaymentOrder(CreateCurrencyWithExchangeRate());
     end;
 
     [Test]
@@ -135,7 +135,7 @@ codeunit 141082 "ERM Payment - Prepayment"
         // [GIVEN] Enabled Full GST on Prepayment
         // [GIVEN] Sales Header with 100% prepayment settings and 3 Sales Lines
         LibrarySales.CreateSalesHeader(
-          SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+          SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("Prepayment %", 100);
         SalesHeader.Modify(true);
         for Index := 1 to ArrayLen(QtyToShip) do
@@ -173,7 +173,7 @@ codeunit 141082 "ERM Payment - Prepayment"
         // [GIVEN] Enabled Full GST on Prepayment
         // [GIVEN] Purchase Header with 100% prepayment settings and 3 Purchase Lines
         LibraryPurchase.CreatePurchHeader(
-          PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+          PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("Prepayment %", 100);
         PurchaseHeader.Modify(true);
         for Index := 1 to ArrayLen(QtyToReceive) do
@@ -213,7 +213,7 @@ codeunit 141082 "ERM Payment - Prepayment"
     var
         PurchaseHeader: Record "Purchase Header";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("Prepayment %", PrepaymentPct);
         PurchaseHeader.Validate("Currency Code", CurrencyCode);
         PurchaseHeader.Validate("Compress Prepayment", CompressPrepayment);
@@ -311,7 +311,7 @@ codeunit 141082 "ERM Payment - Prepayment"
         Amount: Decimal;
     begin
         // Setup.
-        CreateAndPostSalesPrepayment(SalesLine, CurrencyCode, CreateCustomer, false, LibraryRandom.RandDec(10, 2));  // Using Random Value and FALSE for Price Including VAT.
+        CreateAndPostSalesPrepayment(SalesLine, CurrencyCode, CreateCustomer(), false, LibraryRandom.RandDec(10, 2));  // Using Random Value and FALSE for Price Including VAT.
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         LibrarySales.ReopenSalesDocument(SalesHeader);
         SalesHeader.Validate("Prepayment %", 100);  // 100 is required prepayment in test case.
@@ -332,7 +332,7 @@ codeunit 141082 "ERM Payment - Prepayment"
         SalesLine: Record "Sales Line";
     begin
         // Setup.
-        CreateAndPostSalesPrepayment(SalesLine, '', CreateCustomer, PricesIncludingVAT, 100);  // 100 is required prepayment in test case and blank Currency Code.
+        CreateAndPostSalesPrepayment(SalesLine, '', CreateCustomer(), PricesIncludingVAT, 100);  // 100 is required prepayment in test case and blank Currency Code.
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
 
         // Exercise, Verify & Teardown.
@@ -413,8 +413,8 @@ codeunit 141082 "ERM Payment - Prepayment"
         GeneralPostingSetup: Record "General Posting Setup";
     begin
         GeneralPostingSetup.Get(GenBusPostingGroup, GenProdPostingGroup);
-        GeneralPostingSetup.Validate("Sales Prepayments Account", CreateGLAccount);
-        GeneralPostingSetup.Validate("Purch. Prepayments Account", CreateGLAccount);
+        GeneralPostingSetup.Validate("Sales Prepayments Account", CreateGLAccount());
+        GeneralPostingSetup.Validate("Purch. Prepayments Account", CreateGLAccount());
         GeneralPostingSetup.Modify(true);
     end;
 
@@ -458,7 +458,7 @@ codeunit 141082 "ERM Payment - Prepayment"
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.CalcSums("Credit Amount");
         Assert.AreNearlyEqual(
-          ExpectedAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision, UnexpectedErr);
+          ExpectedAmount, GLEntry."Credit Amount", LibraryERM.GetAmountRoundingPrecision(), UnexpectedErr);
     end;
 
     local procedure VerifyCustomerLedgerEntry(DocumentNo: Code[20]; CustomerNo: Code[20]; ExpectedAmount: Decimal)

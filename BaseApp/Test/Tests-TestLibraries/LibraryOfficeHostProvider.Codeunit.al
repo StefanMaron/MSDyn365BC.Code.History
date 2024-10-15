@@ -9,7 +9,7 @@ codeunit 131010 "Library - Office Host Provider"
     var
         TempExchangeObjectInternal: Record "Exchange Object" temporary;
         GlobalEmailBody: Text;
-        InvokeExtensionMsg: Label '%1|%2|%3|%4|%5';
+        InvokeExtensionMsg: Label '%1|%2|%3|%4|%5', Locked = true;
 
     local procedure Abbreviate(String: Text) Result: Text
     var
@@ -43,32 +43,30 @@ codeunit 131010 "Library - Office Host Provider"
         TempExchangeObject: Record "Exchange Object" temporary;
         TempBlob: Codeunit "Temp Blob";
         LibraryUtility: Codeunit "Library - Utility";
+        FileContent: BigText;
         BlobInStream: InStream;
         OutStream: OutStream;
-        FileContent: BigText;
     begin
-        with TempExchangeObject do begin
-            repeat
-                Init();
-                Validate(Type, Type::Attachment);
-                Validate("Item ID", CreateGuid);
-                Validate(Name, CreateGuid);
-                Validate("Parent ID", CreateGuid);
-                Validate("Content Type", ContentType);
-                Validate(InitiatedAction, OCRAction);
-                Validate(RecId, RecRef.RecordId());
-                // add an attachment
-                FileContent.AddText(LibraryUtility.GenerateRandomAlphabeticText(10, 0));
-                TempBlob.CreateOutStream(OutStream);
-                FileContent.Write(OutStream);
-                TempBlob.CreateInStream(BlobInStream);
-                SetContent(BlobInStream);
-                if not Insert(true) then
-                    Modify(true);
-                AttachmentCount := AttachmentCount - 1;
-            until AttachmentCount = 0;
-            Commit
-        end;
+        repeat
+            TempExchangeObject.Init();
+            TempExchangeObject.Validate(Type, TempExchangeObject.Type::Attachment);
+            TempExchangeObject.Validate("Item ID", CreateGuid());
+            TempExchangeObject.Validate(Name, CreateGuid());
+            TempExchangeObject.Validate("Parent ID", CreateGuid());
+            TempExchangeObject.Validate("Content Type", ContentType);
+            TempExchangeObject.Validate(InitiatedAction, OCRAction);
+            TempExchangeObject.Validate(RecId, RecRef.RecordId());
+            // add an attachment
+            FileContent.AddText(LibraryUtility.GenerateRandomAlphabeticText(10, 0));
+            TempBlob.CreateOutStream(OutStream);
+            FileContent.Write(OutStream);
+            TempBlob.CreateInStream(BlobInStream);
+            TempExchangeObject.SetContent(BlobInStream);
+            if not TempExchangeObject.Insert(true) then
+                TempExchangeObject.Modify(true);
+            AttachmentCount := AttachmentCount - 1;
+        until AttachmentCount = 0;
+        Commit();
         TempExchangeObjectInternal.Copy(TempExchangeObject, true);
     end;
 
@@ -87,7 +85,7 @@ codeunit 131010 "Library - Office Host Provider"
             exit;
 
         NameValueBuffer.Init();
-        NameValueBuffer.ID := SessionId;
+        NameValueBuffer.ID := SessionId();
         NameValueBuffer.Name := CopyStr(NewHostType, 1, MaxStrLen(NameValueBuffer.Name));
         NameValueBuffer.Insert(true);
         Commit();
@@ -115,7 +113,7 @@ codeunit 131010 "Library - Office Host Provider"
         if not CanHandle() then
             exit;
 
-        NameValueBuffer.Get(SessionId);
+        NameValueBuffer.Get(SessionId());
         HostType := NameValueBuffer.Name;
     end;
 
@@ -147,7 +145,7 @@ codeunit 131010 "Library - Office Host Provider"
         if not CanHandle() then
             exit;
 
-        Result := NameValueBuffer.Get(SessionId);
+        Result := NameValueBuffer.Get(SessionId());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Office Host Management", 'OnIsAvailable', '', false, false)]
@@ -158,7 +156,7 @@ codeunit 131010 "Library - Office Host Provider"
         if not CanHandle() then
             exit;
 
-        Result := NameValueBuffer.Get(SessionId);
+        Result := NameValueBuffer.Get(SessionId());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Office Host Management", 'OnGetTempOfficeAddinContext', '', false, false)]

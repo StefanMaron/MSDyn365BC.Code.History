@@ -733,7 +733,7 @@ codeunit 141046 "UT REP Currency Rounding"
         REPORT.Run(REPORT::"Trial Balance");
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GLAccBalanceAtDateCap, GLEntry.Amount);
     end;
 
@@ -1000,7 +1000,7 @@ codeunit 141046 "UT REP Currency Rounding"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Insert();
         exit(Customer."No.");
     end;
@@ -1012,9 +1012,9 @@ codeunit 141046 "UT REP Currency Rounding"
         CustLedgerEntry2.FindLast();
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Posting Date" := WorkDate();
-        CustLedgerEntry."Customer No." := CreateCustomer;
+        CustLedgerEntry."Customer No." := CreateCustomer();
         CustLedgerEntry."Sales (LCY)" := LibraryRandom.RandDecInRange(100000, 10000000, 2);  // Using large value for Sales(LCY) to display the value on report according to Amount In Whole.
-        CustLedgerEntry."Salesperson Code" := CreateSalesPersonPurchaser;
+        CustLedgerEntry."Salesperson Code" := CreateSalesPersonPurchaser();
         CustLedgerEntry.Insert();
     end;
 
@@ -1022,7 +1022,7 @@ codeunit 141046 "UT REP Currency Rounding"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount."No." := LibraryUTUtility.GetNewCode;
+        GLAccount."No." := LibraryUTUtility.GetNewCode();
         GLAccount."Income/Balance" := IncomeBalance;
         GLAccount.Insert();
         exit(GLAccount."No.");
@@ -1058,7 +1058,7 @@ codeunit 141046 "UT REP Currency Rounding"
     begin
         ItemLedgerEntry2.FindLast();
         ItemLedgerEntry."Entry No." := ItemLedgerEntry2."Entry No." + 1;
-        ItemLedgerEntry."Item No." := LibraryUTUtility.GetNewCode;
+        ItemLedgerEntry."Item No." := LibraryUTUtility.GetNewCode();
         ItemLedgerEntry."Source Type" := ItemLedgerEntry."Source Type"::Customer;
         ItemLedgerEntry."Source No." := SourceNo;
         ItemLedgerEntry.Insert();
@@ -1069,7 +1069,7 @@ codeunit 141046 "UT REP Currency Rounding"
     var
         SalespersonPurchaser: Record "Salesperson/Purchaser";
     begin
-        SalespersonPurchaser.Code := LibraryUTUtility.GetNewCode10;
+        SalespersonPurchaser.Code := LibraryUTUtility.GetNewCode10();
         SalespersonPurchaser.Insert();
         exit(SalespersonPurchaser.Code);
     end;
@@ -1079,7 +1079,7 @@ codeunit 141046 "UT REP Currency Rounding"
         ValueEntry2: Record "Value Entry";
         CustomerNo: Code[20];
     begin
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         ValueEntry2.FindLast();
         ValueEntry."Entry No." := ValueEntry2."Entry No." + 1;
         ValueEntry."Item No." := CreateItemLedgerEntry(CustomerNo);
@@ -1106,7 +1106,7 @@ codeunit 141046 "UT REP Currency Rounding"
 
     local procedure VerifyXMLValuesOnReport(Caption: Text; Caption2: Text; AmountInWhole: Option; CaptionValue: Variant)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(Caption, ReportManagement.RoundDescription(AmountInWhole));
         LibraryReportDataset.AssertElementWithValueExists(Caption2, CaptionValue);
     end;
@@ -1123,7 +1123,7 @@ codeunit 141046 "UT REP Currency Rounding"
         BalanceSheet."G/L Account".SetFilter("No.", No);
         BalanceSheet."G/L Account".SetFilter("Date Filter", Format(WorkDate()));
         BalanceSheet.AmountsInWhole.SetValue(AmountsInWhole);
-        BalanceSheet.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BalanceSheet.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1138,7 +1138,7 @@ codeunit 141046 "UT REP Currency Rounding"
         Budget."G/L Account".SetFilter("No.", No);
         Budget."G/L Account".SetFilter("Date Filter", StrSubstNo(DateFilterTxt, WorkDate(), CalcDate('<CY>', WorkDate())));
         Budget.AmountsInWhole.SetValue(AmountsInWhole);
-        Budget.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Budget.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1154,7 +1154,7 @@ codeunit 141046 "UT REP Currency Rounding"
         ClosingTrialBalance."G/L Account".SetFilter("Date Filter", StrSubstNo(DateFilterTxt, WorkDate(), CalcDate('<CY>', WorkDate())));
         ClosingTrialBalance.StartingDate.SetValue(CalcDate('<-CY>', WorkDate()));
         ClosingTrialBalance.AmountsInWhole.SetValue(AmountsInWhole);
-        ClosingTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ClosingTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1168,7 +1168,7 @@ codeunit 141046 "UT REP Currency Rounding"
         LibraryVariableStorage.Dequeue(AmountsInWhole);
         CustomerItemSales.Customer.SetFilter("No.", No);
         CustomerItemSales.AmountsInWhole.SetValue(AmountsInWhole);
-        CustomerItemSales.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CustomerItemSales.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1184,7 +1184,7 @@ codeunit 141046 "UT REP Currency Rounding"
         FinancialAnalysisReport."G/L Account".SetFilter("Date Filter", Format(WorkDate()));
         FinancialAnalysisReport.ReportType.SetValue(FinancialAnalysisReport.ReportType.GetOption(2));  // Set Report Type as Net Change/Budget.
         FinancialAnalysisReport.AmountsInWhole.SetValue(AmountsInWhole);
-        FinancialAnalysisReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        FinancialAnalysisReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1199,7 +1199,7 @@ codeunit 141046 "UT REP Currency Rounding"
         IncomeStatement."G/L Account".SetFilter("No.", No);
         IncomeStatement."G/L Account".SetFilter("Date Filter", Format(WorkDate()));
         IncomeStatement.AmountsInWhole.SetValue(AmountsInWhole);
-        IncomeStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        IncomeStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1214,7 +1214,7 @@ codeunit 141046 "UT REP Currency Rounding"
         TrialBalanceBudget."G/L Account".SetFilter("No.", No);
         TrialBalanceBudget."G/L Account".SetFilter("Date Filter", StrSubstNo(DateFilterTxt, WorkDate(), CalcDate('<CY>', WorkDate())));
         TrialBalanceBudget.AmountsInWhole.SetValue(AmountsInWhole);
-        TrialBalanceBudget.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        TrialBalanceBudget.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1229,7 +1229,7 @@ codeunit 141046 "UT REP Currency Rounding"
         TrialBalancePreviousYear."G/L Account".SetFilter("No.", No);
         TrialBalancePreviousYear."G/L Account".SetFilter("Date Filter", StrSubstNo(DateFilterTxt, WorkDate(), CalcDate('<CY>', WorkDate())));
         TrialBalancePreviousYear.AmountsInWhole.SetValue(AmountsInWhole);
-        TrialBalancePreviousYear.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        TrialBalancePreviousYear.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1244,7 +1244,7 @@ codeunit 141046 "UT REP Currency Rounding"
         TrialBalance."G/L Account".SetFilter("No.", No);
         TrialBalance."G/L Account".SetFilter("Date Filter", StrSubstNo(DateFilterTxt, WorkDate(), CalcDate('<CY>', WorkDate())));
         TrialBalance.AmountsInWhole.SetValue(AmountsInWhole);
-        TrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        TrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1258,7 +1258,7 @@ codeunit 141046 "UT REP Currency Rounding"
         LibraryVariableStorage.Dequeue(AmountsInWhole);
         SalespersonSalesStatistics."Cust. Ledger Entry".SetFilter("Customer No.", CustomerNo);
         SalespersonSalesStatistics.AmountsInWhole.SetValue(AmountsInWhole);
-        SalespersonSalesStatistics.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalespersonSalesStatistics.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1273,7 +1273,7 @@ codeunit 141046 "UT REP Currency Rounding"
         SalesStatistics.Customer.SetFilter("No.", No);
         SalesStatistics.StartingDate.SetValue(WorkDate());
         SalesStatistics.AmountsInWhole.SetValue(AmountsInWhole);
-        SalesStatistics.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesStatistics.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

@@ -116,17 +116,16 @@ codeunit 81 "Sales-Post (Yes/No)"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        with SalesHeader do
-            if Invoice or ("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"]) then begin
-                GLSetup.Get();
-                if GLSetup."Enable Tax Invoices" then begin
-                    if "Tax Document Marked" then
-                        SalesSetup.TestField("Posted Tax Invoice Nos.");
-                    if "Document Type" in ["Document Type"::"Credit Memo", "Document Type"::"Return Order"] then
-                        if "Tax Document Marked" then
-                            SalesSetup.TestField("Posted Tax Credit Memo Nos");
-                end;
+        if SalesHeader.Invoice or (SalesHeader."Document Type" in [SalesHeader."Document Type"::Invoice, SalesHeader."Document Type"::"Credit Memo"]) then begin
+            GLSetup.Get();
+            if GLSetup."Enable Tax Invoices" then begin
+                if SalesHeader."Tax Document Marked" then
+                    SalesSetup.TestField("Posted Tax Invoice Nos.");
+                if SalesHeader."Document Type" in [SalesHeader."Document Type"::"Credit Memo", SalesHeader."Document Type"::"Return Order"] then
+                    if SalesHeader."Tax Document Marked" then
+                        SalesSetup.TestField("Posted Tax Credit Memo Nos");
             end;
+        end;
     end;
 
     procedure Preview(var SalesHeader: Record "Sales Header")
@@ -136,6 +135,17 @@ codeunit 81 "Sales-Post (Yes/No)"
     begin
         BindSubscription(SalesPostYesNo);
         GenJnlPostPreview.Preview(SalesPostYesNo, SalesHeader);
+    end;
+
+    procedure MessageIfPostingPreviewMultipleDocuments(var SalesHeaderToPreview: Record "Sales Header"; DocumentNo: Code[20])
+    var
+        GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
+        RecordRefToPreview: RecordRef;
+    begin
+        RecordRefToPreview.Open(Database::"Sales Header");
+        RecordRefToPreview.Copy(SalesHeaderToPreview);
+
+        GenJnlPostPreview.MessageIfPostingPreviewMultipleDocuments(RecordRefToPreview, DocumentNo);
     end;
 
     [IntegrationEvent(false, false)]
@@ -154,12 +164,10 @@ codeunit 81 "Sales-Post (Yes/No)"
         SalesHeader: Record "Sales Header";
         SalesPost: Codeunit "Sales-Post";
     begin
-        with SalesHeader do begin
-            Copy(RecVar);
-            Receive := "Document Type" = "Document Type"::"Return Order";
-            Ship := "Document Type" in ["Document Type"::Order, "Document Type"::Invoice, "Document Type"::"Credit Memo"];
-            Invoice := true;
-        end;
+        SalesHeader.Copy(RecVar);
+        SalesHeader.Receive := SalesHeader."Document Type" = SalesHeader."Document Type"::"Return Order";
+        SalesHeader.Ship := SalesHeader."Document Type" in [SalesHeader."Document Type"::Order, SalesHeader."Document Type"::Invoice, SalesHeader."Document Type"::"Credit Memo"];
+        SalesHeader.Invoice := true;
 
         OnRunPreviewOnAfterSetPostingFlags(SalesHeader);
 

@@ -9,6 +9,7 @@ table 240 "Resource Register"
     Caption = 'Resource Register';
     DrillDownPageID = "Resource Registers";
     LookupPageID = "Resource Registers";
+    DataClassification = CustomerContent;
 
     fields
     {

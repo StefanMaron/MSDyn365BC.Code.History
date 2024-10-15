@@ -562,39 +562,35 @@ codeunit 227 "VendEntry-Apply Posted Entries"
     var
         ApplyToVendLedgEntry: Record "Vendor Ledger Entry";
     begin
-        with VendLedgEntry do begin
-            if "Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"] then
-                exit;
-            CalcFields("WHT Amount");
-            if "WHT Amount" = 0 then
-                exit;
+        if VendLedgEntry."Document Type" in [VendLedgEntry."Document Type"::Invoice, VendLedgEntry."Document Type"::"Credit Memo"] then
+            exit;
+        VendLedgEntry.CalcFields("WHT Amount");
+        if VendLedgEntry."WHT Amount" = 0 then
+            exit;
 
-            ApplyToVendLedgEntry.SetCurrentKey("Vendor No.", "Applies-to ID");
-            ApplyToVendLedgEntry.SetRange("Vendor No.", "Vendor No.");
-            ApplyToVendLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
-            ApplyToVendLedgEntry.FindSet();
-            repeat
-                if ApplyToVendLedgEntry."Document Type" <> ApplyToVendLedgEntry."Document Type"::"Credit Memo" then begin
-                    ApplyToVendLedgEntry.CalcFields("WHT Amount");
-                    if ApplyToVendLedgEntry."WHT Amount" <> 0 then
-                        Error(Text1500002);
-                end;
-            until ApplyToVendLedgEntry.Next() = 0;
-        end;
+        ApplyToVendLedgEntry.SetCurrentKey("Vendor No.", "Applies-to ID");
+        ApplyToVendLedgEntry.SetRange("Vendor No.", VendLedgEntry."Vendor No.");
+        ApplyToVendLedgEntry.SetRange("Applies-to ID", VendLedgEntry."Applies-to ID");
+        ApplyToVendLedgEntry.FindSet();
+        repeat
+            if ApplyToVendLedgEntry."Document Type" <> ApplyToVendLedgEntry."Document Type"::"Credit Memo" then begin
+                ApplyToVendLedgEntry.CalcFields("WHT Amount");
+                if ApplyToVendLedgEntry."WHT Amount" <> 0 then
+                    Error(Text1500002);
+            end;
+        until ApplyToVendLedgEntry.Next() = 0;
     end;
 
     local procedure GetInvoiceNo(VendLedgEntry: Record "Vendor Ledger Entry"): Code[20]
     var
         ApplyToVendLedgEntry: Record "Vendor Ledger Entry";
     begin
-        with VendLedgEntry do begin
-            ApplyToVendLedgEntry.SetCurrentKey("Vendor No.", "Applies-to ID");
-            ApplyToVendLedgEntry.SetRange("Vendor No.", "Vendor No.");
-            ApplyToVendLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
-            ApplyToVendLedgEntry.SetRange("Document Type", ApplyToVendLedgEntry."Document Type"::Invoice);
-            if ApplyToVendLedgEntry.FindFirst() then
-                exit(ApplyToVendLedgEntry."Document No.");
-        end;
+        ApplyToVendLedgEntry.SetCurrentKey("Vendor No.", "Applies-to ID");
+        ApplyToVendLedgEntry.SetRange("Vendor No.", VendLedgEntry."Vendor No.");
+        ApplyToVendLedgEntry.SetRange("Applies-to ID", VendLedgEntry."Applies-to ID");
+        ApplyToVendLedgEntry.SetRange("Document Type", ApplyToVendLedgEntry."Document Type"::Invoice);
+        if ApplyToVendLedgEntry.FindFirst() then
+            exit(ApplyToVendLedgEntry."Document No.");
     end;
 
     procedure PreviewApply(VendorLedgerEntry: Record "Vendor Ledger Entry"; ApplyUnapplyParameters: Record "Apply Unapply Parameters")

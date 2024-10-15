@@ -471,7 +471,7 @@ codeunit 141056 "APAC ERM Prepayments"
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.FindLast();
         Assert.AreNearlyEqual(
-          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
     end;
 

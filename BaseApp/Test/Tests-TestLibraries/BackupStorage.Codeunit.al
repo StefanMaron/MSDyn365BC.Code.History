@@ -21,7 +21,7 @@ codeunit 130012 "Backup Storage"
     var
         i: Integer;
     begin
-        for i := 1 to MaxBackups do
+        for i := 1 to MaxBackups() do
             DeleteBackupNo(i);
     end;
 
@@ -89,7 +89,7 @@ codeunit 130012 "Backup Storage"
                 RestoreTableFromBackupNo(BackupNo, CompanyName, TempTaintedTable2."Table No.");
             until TempTaintedTable2.Next() = 0;
 
-        SetWorkDate;
+        SetWorkDate();
 
         if Clear then begin
             TempTaintedTable.SetRange("Snapshot No.", BackupNo);
@@ -140,7 +140,7 @@ codeunit 130012 "Backup Storage"
 
         repeat
             CopyFields(RecordRef, BackupRecordRef);
-            BackupRecordRef.Insert
+            BackupRecordRef.Insert();
         until RecordRef.Next() = 0;
         InsertTableBackup(BackupNo, BackupRecordRef)
     end;
@@ -193,13 +193,13 @@ codeunit 130012 "Backup Storage"
             if RecordRef.Get(BackupRecordRef.RecordId) then begin
                 if not AreEqualRecords(RecordRef, BackupRecordRef) then begin
                     CopyFields(BackupRecordRef, RecordRef);
-                    RecordRef.Modify
+                    RecordRef.Modify();
                 end
             end else begin
                 RecordsRemoved := true;
                 // restore removed records
                 CopyFields(BackupRecordRef, RecordRef);
-                RecordRef.Insert
+                RecordRef.Insert();
             end;
             BackupRecordCount += 1
         until BackupRecordRef.Next() = 0;
@@ -299,7 +299,7 @@ codeunit 130012 "Backup Storage"
     [Scope('OnPrem')]
     procedure BackupNoExists(BackupNo: Integer): Boolean
     begin
-        exit(BackupNo in [1 .. MaxBackups])
+        exit(BackupNo in [1 .. MaxBackups()])
     end;
 
     [Scope('OnPrem')]

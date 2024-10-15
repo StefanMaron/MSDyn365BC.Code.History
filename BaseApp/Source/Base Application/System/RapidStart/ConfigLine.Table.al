@@ -10,6 +10,7 @@ table 8622 "Config. Line"
     Caption = 'Config. Line';
     DataCaptionFields = Name;
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -167,7 +168,7 @@ table 8622 "Config. Line"
         }
         field(15; "Page Caption"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Name" where("Object Type" = const(Page),
+            CalcFormula = lookup(AllObjWithCaption."Object Name" where("Object Type" = const(Page),
                                                                         "Object ID" = field("Page ID")));
             Caption = 'Page Caption';
             Editable = false;
@@ -248,7 +249,7 @@ table 8622 "Config. Line"
         }
         field(37; "Package Caption"; Text[50])
         {
-            CalcFormula = Lookup("Config. Package"."Package Name" where(Code = field("Package Code")));
+            CalcFormula = lookup("Config. Package"."Package Name" where(Code = field("Package Code")));
             Caption = 'Package Caption';
             Editable = false;
             FieldClass = FlowField;
@@ -369,29 +370,25 @@ table 8622 "Config. Line"
     var
         ConfigLine: Record "Config. Line";
     begin
-        with ConfigLine do begin
-            Reset();
-            SetCurrentKey("Line Type");
-            SetRange("Line Type", "Line Type"::Table);
-            SetRange("Parent Line No.", Rec."Line No.");
-            exit(Count);
-        end;
+        ConfigLine.Reset();
+        ConfigLine.SetCurrentKey("Line Type");
+        ConfigLine.SetRange("Line Type", ConfigLine."Line Type"::Table);
+        ConfigLine.SetRange("Parent Line No.", Rec."Line No.");
+        exit(ConfigLine.Count);
     end;
 
     procedure GetDirectChildrenTablesStatusWeight() StatusWeight: Decimal
     var
         ConfigLine: Record "Config. Line";
     begin
-        with ConfigLine do begin
-            Reset();
-            SetCurrentKey("Line Type");
-            SetRange("Line Type", "Line Type"::Table);
-            SetRange("Parent Line No.", Rec."Line No.");
-            if FindSet() then
-                repeat
-                    StatusWeight += GetLineStatusWeight();
-                until Next() = 0;
-        end;
+        ConfigLine.Reset();
+        ConfigLine.SetCurrentKey("Line Type");
+        ConfigLine.SetRange("Line Type", ConfigLine."Line Type"::Table);
+        ConfigLine.SetRange("Parent Line No.", Rec."Line No.");
+        if ConfigLine.FindSet() then
+            repeat
+                StatusWeight += ConfigLine.GetLineStatusWeight();
+            until ConfigLine.Next() = 0;
     end;
 
     procedure GetNoTables() Total: Integer

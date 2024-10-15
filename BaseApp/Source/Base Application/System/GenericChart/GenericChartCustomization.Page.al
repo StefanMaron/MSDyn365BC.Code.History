@@ -108,7 +108,7 @@ page 9188 "Generic Chart Customization"
                         {
                             ApplicationArea = Basic, Suite;
                             Editable = OptionalMeasuresEnabled;
-                            Enabled = OptionalMeasuresEnabled AND DataColumn2Enabled;
+                            Enabled = OptionalMeasuresEnabled and DataColumn2Enabled;
                             ShowCaption = false;
 
                             trigger OnLookup(var Text: Text): Boolean
@@ -155,7 +155,7 @@ page 9188 "Generic Chart Customization"
                             ApplicationArea = Basic, Suite;
                             AssistEdit = false;
                             Editable = OptionalMeasuresEnabled;
-                            Enabled = OptionalMeasuresEnabled AND DataColumn2Enabled;
+                            Enabled = OptionalMeasuresEnabled and DataColumn2Enabled;
                             ShowCaption = false;
 
                             trigger OnAssistEdit()
@@ -178,7 +178,7 @@ page 9188 "Generic Chart Customization"
                         {
                             ApplicationArea = Basic, Suite;
                             Editable = OptionalMeasuresEnabled;
-                            Enabled = OptionalMeasuresEnabled AND DataColumn3Enabled;
+                            Enabled = OptionalMeasuresEnabled and DataColumn3Enabled;
                             ShowCaption = false;
 
                             trigger OnLookup(var Text: Text): Boolean
@@ -225,7 +225,7 @@ page 9188 "Generic Chart Customization"
                             ApplicationArea = Basic, Suite;
                             AssistEdit = false;
                             Editable = OptionalMeasuresEnabled;
-                            Enabled = OptionalMeasuresEnabled AND DataColumn3Enabled;
+                            Enabled = OptionalMeasuresEnabled and DataColumn3Enabled;
                             ShowCaption = false;
 
                             trigger OnAssistEdit()
@@ -248,7 +248,7 @@ page 9188 "Generic Chart Customization"
                         {
                             ApplicationArea = Basic, Suite;
                             Editable = OptionalMeasuresEnabled;
-                            Enabled = OptionalMeasuresEnabled AND DataColumn4Enabled;
+                            Enabled = OptionalMeasuresEnabled and DataColumn4Enabled;
                             ShowCaption = false;
 
                             trigger OnLookup(var Text: Text): Boolean
@@ -294,7 +294,7 @@ page 9188 "Generic Chart Customization"
                             ApplicationArea = Basic, Suite;
                             AssistEdit = false;
                             Editable = OptionalMeasuresEnabled;
-                            Enabled = OptionalMeasuresEnabled AND DataColumn4Enabled;
+                            Enabled = OptionalMeasuresEnabled and DataColumn4Enabled;
                             ShowCaption = false;
 
                             trigger OnAssistEdit()
@@ -317,7 +317,7 @@ page 9188 "Generic Chart Customization"
                         {
                             ApplicationArea = Basic, Suite;
                             Editable = OptionalMeasuresEnabled;
-                            Enabled = OptionalMeasuresEnabled AND DataColumn5Enabled;
+                            Enabled = OptionalMeasuresEnabled and DataColumn5Enabled;
                             ShowCaption = false;
 
                             trigger OnLookup(var Text: Text): Boolean
@@ -364,7 +364,7 @@ page 9188 "Generic Chart Customization"
                             ApplicationArea = Basic, Suite;
                             AssistEdit = false;
                             Editable = OptionalMeasuresEnabled;
-                            Enabled = OptionalMeasuresEnabled AND DataColumn5Enabled;
+                            Enabled = OptionalMeasuresEnabled and DataColumn5Enabled;
                             ShowCaption = false;
 
                             trigger OnAssistEdit()
@@ -387,7 +387,7 @@ page 9188 "Generic Chart Customization"
                         {
                             ApplicationArea = Basic, Suite;
                             Editable = OptionalMeasuresEnabled;
-                            Enabled = OptionalMeasuresEnabled AND DataColumn6Enabled;
+                            Enabled = OptionalMeasuresEnabled and DataColumn6Enabled;
                             ShowCaption = false;
 
                             trigger OnLookup(var Text: Text): Boolean
@@ -434,7 +434,7 @@ page 9188 "Generic Chart Customization"
                             ApplicationArea = Basic, Suite;
                             AssistEdit = false;
                             Editable = OptionalMeasuresEnabled;
-                            Enabled = OptionalMeasuresEnabled AND DataColumn6Enabled;
+                            Enabled = OptionalMeasuresEnabled and DataColumn6Enabled;
                             ShowCaption = false;
 
                             trigger OnAssistEdit()
@@ -500,8 +500,7 @@ page 9188 "Generic Chart Customization"
                     var
                         GenericChartMgt: Codeunit "Generic Chart Mgt";
                     begin
-                        with TempGenericChartSetup do
-                            GenericChartMgt.RetrieveFieldColumn(TempGenericChartSetup, "X-Axis Field ID", "X-Axis Field Name", "X-Axis Title", 0, false);
+                        GenericChartMgt.RetrieveFieldColumn(TempGenericChartSetup, TempGenericChartSetup."X-Axis Field ID", TempGenericChartSetup."X-Axis Field Name", TempGenericChartSetup."X-Axis Title", 0, false);
                         TempGenericChartCaptionsBuf.SetCaption(GenericChartMgt.XAxisTitleCode(), GenericChartMgt.GetUserLanguage(),
                           TempGenericChartSetup."X-Axis Title");
                         ValidateDimension(1);
@@ -580,8 +579,7 @@ page 9188 "Generic Chart Customization"
                     var
                         GenericChartMgt: Codeunit "Generic Chart Mgt";
                     begin
-                        with TempGenericChartSetup do
-                            GenericChartMgt.RetrieveFieldColumn(TempGenericChartSetup, "Z-Axis Field ID", "Z-Axis Field Name", "Z-Axis Title", 0, false);
+                        GenericChartMgt.RetrieveFieldColumn(TempGenericChartSetup, TempGenericChartSetup."Z-Axis Field ID", TempGenericChartSetup."Z-Axis Field Name", TempGenericChartSetup."Z-Axis Title", 0, false);
                         ValidateDimension(2);
                     end;
 
@@ -781,19 +779,17 @@ page 9188 "Generic Chart Customization"
         DummyAggregation: Option "None","Count","Sum","Min","Max",Avg;
     begin
         GenericChartMgt.CheckSourceTypeID(TempGenericChartSetup, true);
-        with TempGenericChartSetup do
-            if ("X-Axis Field Name" <> '') and ("Z-Axis Field Name" <> '') and ("X-Axis Field Name" = "Z-Axis Field Name") then
-                Error(Text002, DataColumn[Index]);
+        if (TempGenericChartSetup."X-Axis Field Name" <> '') and (TempGenericChartSetup."Z-Axis Field Name" <> '') and (TempGenericChartSetup."X-Axis Field Name" = TempGenericChartSetup."Z-Axis Field Name") then
+            Error(Text002, DataColumn[Index]);
 
-        with TempGenericChartSetup do
-            case Index of
-                1:
-                    GenericChartMgt.ValidateFieldColumn(
-                      TempGenericChartSetup, "X-Axis Field ID", "X-Axis Field Name", "X-Axis Title", 0, false, DummyAggregation);
-                2:
-                    GenericChartMgt.ValidateFieldColumn(
-                      TempGenericChartSetup, "Z-Axis Field ID", "Z-Axis Field Name", "Z-Axis Title", 0, false, DummyAggregation);
-            end;
+        case Index of
+            1:
+                GenericChartMgt.ValidateFieldColumn(
+                  TempGenericChartSetup, TempGenericChartSetup."X-Axis Field ID", TempGenericChartSetup."X-Axis Field Name", TempGenericChartSetup."X-Axis Title", 0, false, DummyAggregation);
+            2:
+                GenericChartMgt.ValidateFieldColumn(
+                  TempGenericChartSetup, TempGenericChartSetup."Z-Axis Field ID", TempGenericChartSetup."Z-Axis Field Name", TempGenericChartSetup."Z-Axis Title", 0, false, DummyAggregation);
+        end;
         UpdateChartDefinition();
         EnableControls();
     end;

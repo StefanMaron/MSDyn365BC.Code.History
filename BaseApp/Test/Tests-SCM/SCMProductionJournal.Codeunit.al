@@ -52,7 +52,7 @@ codeunit 137034 "SCM Production Journal"
 
         // Create required Production Journal Setups and Open Production Journal to perform required actions.
         Initialize();
-        ProdJnlForRelProdOrder;
+        ProdJnlForRelProdOrder();
 
         // Verify: Verification of 'Reserved Item Not On Inventory' when posting.
         Assert.AreEqual(StrSubstNo(ErrMsgReservedItem, ReserveItemNo), GetLastErrorText, UnknownError);
@@ -67,7 +67,7 @@ codeunit 137034 "SCM Production Journal"
 
         // Create required Production Journal Setups and Open Production Journal to perform required actions.
         Initialize();
-        ProdJnlForRelProdOrder;
+        ProdJnlForRelProdOrder();
 
         // Verify: Verification of 'Applies To Entry' error message when posting.
         Assert.AreEqual(StrSubstNo(ErrMsgAppliesToEntry), PadStr(GetLastErrorText, 84), UnknownError);
@@ -84,7 +84,7 @@ codeunit 137034 "SCM Production Journal"
 
         // Create required Production Journal Setups and Open Production Journal to perform required actions.
         Initialize();
-        ProdOrderNo := ProdJnlForRelProdOrder;
+        ProdOrderNo := ProdJnlForRelProdOrder();
 
         // Verify: Verification of Production Journal Lines - Consumption and Output without posting of Production Journal.
         VerifyConsumptionEntries(ProdOrderNo);
@@ -145,8 +145,8 @@ codeunit 137034 "SCM Production Journal"
         ProductionJournalPostLines(ProductionOrder, ProductionOrderNo);
 
         // Verify: Verification of Production Journal Lines after modification and posting.
-        VerifyConsumpEntriesAfterPost;
-        VerifyOutputEntriesAfterPost;
+        VerifyConsumpEntriesAfterPost();
+        VerifyOutputEntriesAfterPost();
     end;
 
     [Test]
@@ -215,8 +215,8 @@ codeunit 137034 "SCM Production Journal"
         ProductionJournalPostLines(ProductionOrder, ProductionOrderNo);
 
         // Verify: Verification of Production Journal Lines after posting.
-        VerifyConsumpEntriesAfterPost;
-        VerifyOutputEntriesAfterPost;
+        VerifyConsumpEntriesAfterPost();
+        VerifyOutputEntriesAfterPost();
     end;
 
     [Test]
@@ -269,8 +269,8 @@ codeunit 137034 "SCM Production Journal"
         ProductionJournalPostLines(ProductionOrder, ProductionOrderNo);
 
         // Verify: Verification of Production Journal Lines after posting.
-        VerifyConsumpEntriesAfterPost;
-        VerifyOutputEntriesAfterPost;
+        VerifyConsumpEntriesAfterPost();
+        VerifyOutputEntriesAfterPost();
     end;
 
     [Test]
@@ -319,8 +319,8 @@ codeunit 137034 "SCM Production Journal"
         ProductionJournalPostLines(ProductionOrder, ProductionOrderNo);
 
         // Verify: Verification of Production Journal Lines without posting.
-        VerifyConsumpEntriesAfterPost;
-        VerifyOutputEntriesAfterPost;
+        VerifyConsumpEntriesAfterPost();
+        VerifyOutputEntriesAfterPost();
     end;
 
     [Test]
@@ -395,14 +395,14 @@ codeunit 137034 "SCM Production Journal"
 
         // [GIVEN] New consumption journal line.
         // [GIVEN] Order No. and Order Line No. on the journal line are selected from "X".
-        ConsumptionJournal.OpenEdit;
-        ConsumptionJournal.New;
+        ConsumptionJournal.OpenEdit();
+        ConsumptionJournal.New();
         ConsumptionJournal."Order No.".SetValue(ProdOrderLine."Prod. Order No.");
         ConsumptionJournal."Order Line No.".SetValue(ProdOrderLine."Line No.");
 
         // [WHEN] Look up Prod. Order Comp. Line No. field.
         LibraryVariableStorage.Enqueue(Format(ProdOrderLine."Line No."));
-        ConsumptionJournal."Prod. Order Comp. Line No.".Lookup;
+        ConsumptionJournal."Prod. Order Comp. Line No.".Lookup();
 
         // [THEN] Prod. Order Comp. Line List page is opened and filtered by Prod. Order Line No.
         // The verification is done in ProdOrderCompLineListPageHandler.
@@ -425,14 +425,14 @@ codeunit 137034 "SCM Production Journal"
 
         // [GIVEN] New consumption journal line.
         // [GIVEN] Order No. on the journal line is selected from "X", Order Line No. is blank.
-        ConsumptionJournal.OpenEdit;
-        ConsumptionJournal.New;
+        ConsumptionJournal.OpenEdit();
+        ConsumptionJournal.New();
         ConsumptionJournal."Order No.".SetValue(ProdOrderLine."Prod. Order No.");
         ConsumptionJournal."Order Line No.".SetValue('');
 
         // [WHEN] Look up Prod. Order Comp. Line No. field.
         LibraryVariableStorage.Enqueue('');
-        ConsumptionJournal."Prod. Order Comp. Line No.".Lookup;
+        ConsumptionJournal."Prod. Order Comp. Line No.".Lookup();
 
         // [THEN] Prod. Order Comp. Line List page is opened and not filtered by Prod. Order Line No.
         // The verification is done in ProdOrderCompLineListPageHandler.
@@ -732,11 +732,11 @@ codeunit 137034 "SCM Production Journal"
         // [GIVEN] Delete the second operation and post the output journal
         ItemJournalLine.FindLast();
         ItemJournalLine.Delete(true);
-        LibraryManufacturing.PostOutputJournal;
+        LibraryManufacturing.PostOutputJournal();
 
         // [WHEN] Open output journal
         SelectProdOrderLine(ProdOrderLine, ProductionOrder."No.");
-        ProductionJournalMgt.InitSetupValues;
+        ProductionJournalMgt.InitSetupValues();
         ProductionJournalMgt.CreateJnlLines(ProductionOrder, ProdOrderLine."Line No.");
 
         // [THEN] Two journal lines are created. First line has "Output Quantity" = 0, "Output Quantity" in the second line is 1
@@ -923,7 +923,6 @@ codeunit 137034 "SCM Production Journal"
     procedure CheckAllocatedCapacityTimeCalculation()
     var
         WorkCenter: Record "Work Center";
-        CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
         RoutingHeader: Record "Routing Header";
         RoutingLine: Record "Routing Line";
         ProductionOrder: Record "Production Order";
@@ -1104,7 +1103,7 @@ codeunit 137034 "SCM Production Journal"
         // [THEN] Output quantity is validated
         ItemJournalLine.TestField(Quantity, ItemJournalLine."Output Quantity");
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1143,7 +1142,7 @@ codeunit 137034 "SCM Production Journal"
         ItemJournalLine.TestField(Quantity, 0);
         ItemJournalLine.TestField("Output Quantity", 0);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1184,7 +1183,7 @@ codeunit 137034 "SCM Production Journal"
         // [THEN] Operation no. is validated
         ItemJournalLine.TestField("Operation No.", OperationNo);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1222,7 +1221,7 @@ codeunit 137034 "SCM Production Journal"
         Assert.ExpectedError(UpdateInterruptedErr);
         ItemJournalLine.TestField("Operation No.", '');
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1748,7 +1747,7 @@ codeunit 137034 "SCM Production Journal"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.CreateVATData();
         UpdateSalesReceivablesSetup();
-        ItemJournalSetup;
+        ItemJournalSetup();
 
         isInitialized := true;
         Commit();
@@ -1759,13 +1758,13 @@ codeunit 137034 "SCM Production Journal"
     begin
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
-        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch.Modify(true);
     end;
 
     local procedure UpdateSalesReceivablesSetup()
     begin
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         LibrarySales.SetStockoutWarning(false);
     end;
 
@@ -2244,7 +2243,7 @@ codeunit 137034 "SCM Production Journal"
         end;
     end;
 
-    local procedure UpdateProdOrderRoutingLineStatus(ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20]; OperationNo: Code[10]; NewRoutingStatus: Option)
+    local procedure UpdateProdOrderRoutingLineStatus(ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20]; OperationNo: Code[10]; NewRoutingStatus: Enum "Prod. Order Routing Status")
     var
         ProdOrderRoutingLine: Record "Prod. Order Routing Line";
     begin
@@ -2612,7 +2611,7 @@ codeunit 137034 "SCM Production Journal"
     procedure ProdOrderCompLineListPageHandler(var ProdOrderCompLineList: TestPage "Prod. Order Comp. Line List")
     begin
         Assert.AreEqual(
-          LibraryVariableStorage.DequeueText, ProdOrderCompLineList.FILTER.GetFilter("Prod. Order Line No."),
+          LibraryVariableStorage.DequeueText(), ProdOrderCompLineList.FILTER.GetFilter("Prod. Order Line No."),
           WrongFilterOnProdOrderCompListErr);
     end;
 
@@ -2633,7 +2632,7 @@ codeunit 137034 "SCM Production Journal"
     [Scope('OnPrem')]
     procedure ConfirmHandlerOptional(Question: Text[1024]; var Reply: Boolean)
     begin
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 }
 

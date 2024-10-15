@@ -11,6 +11,7 @@ table 1182 "Journal User Preferences"
 {
     Caption = 'Journal User Preferences';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -40,7 +41,7 @@ table 1182 "Journal User Preferences"
         }
         field(5; User; Code[50])
         {
-            CalcFormula = Lookup(User."User Name" where("User Security ID" = field("User ID"),
+            CalcFormula = lookup(User."User Name" where("User Security ID" = field("User ID"),
                                                          "License Type" = const("Full User")));
             Caption = 'User';
             FieldClass = FlowField;

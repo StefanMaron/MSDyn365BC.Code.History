@@ -12,6 +12,7 @@ table 11600 "BAS Setup"
 {
     Caption = 'BAS Setup';
     DataCaptionFields = "Row No.", "Field No.", "Field Label No.";
+    DataClassification = CustomerContent;
 
     fields
     {

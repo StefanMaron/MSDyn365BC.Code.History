@@ -47,7 +47,7 @@ codeunit 141007 "ERM GST APAC"
         // [GIVEN] Create Sales Credit Memo with multiple line and differnt VAT Prod. Posting Group.
         // [GIVEN] Unrealized VAT - False, GST Report - True.
         UpdateGeneralLedgerSetup(false, true);
-        CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Order, SalesLine.Type::Item, LibraryInventory.CreateItemNo);
+        CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Order, SalesLine.Type::Item, LibraryInventory.CreateItemNo());
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         CreateSalesLineWithDiffVATProdPostingGrp(SalesLine2, SalesHeader, SalesHeader."VAT Bus. Posting Group");
         // [WHEN] Post document
@@ -82,7 +82,7 @@ codeunit 141007 "ERM GST APAC"
         // [GIVEN] Create Sales Credit Memo with multiple line and differnt VAT Prod. Posting Group.
         // [GIVEN] Unrealized VAT - False, GST Report - True.
         UpdateGeneralLedgerSetup(false, true);
-        CreateSalesDocument(SalesLine, SalesHeader."Document Type"::"Credit Memo", SalesLine.Type::Item, LibraryInventory.CreateItemNo);
+        CreateSalesDocument(SalesLine, SalesHeader."Document Type"::"Credit Memo", SalesLine.Type::Item, LibraryInventory.CreateItemNo());
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         CreateSalesLineWithDiffVATProdPostingGrp(SalesLine2, SalesHeader, SalesHeader."VAT Bus. Posting Group");
         // [WHEN] Post document
@@ -308,7 +308,7 @@ codeunit 141007 "ERM GST APAC"
 
         // [GIVEN] Sales Invoice with two lines, different dimension sets
         UpdateGeneralLedgerSetup(false, true);  // Unrealized VAT - False, GST Report - True.
-        CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Invoice, SalesLine.Type::Item, LibraryInventory.CreateItemNo);
+        CreateSalesDocument(SalesLine, SalesHeader."Document Type"::Invoice, SalesLine.Type::Item, LibraryInventory.CreateItemNo());
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         CreateSalesLineWithDiffDims(SalesLine2, SalesHeader);
 
@@ -334,7 +334,7 @@ codeunit 141007 "ERM GST APAC"
         // [GIVEN] Purchase Invoice with two lines, different dimension sets
         UpdateGeneralLedgerSetup(false, true);  // Unrealized VAT - False, GST Report - True.
         CreatePurchaseDocument(
-          PurchaseLine, PurchaseHeader."Document Type"::Invoice, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo);
+          PurchaseLine, PurchaseHeader."Document Type"::Invoice, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo());
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
         CreatePurchLineWithDiffDims(PurchaseLine2, PurchaseHeader);
 
@@ -457,7 +457,7 @@ codeunit 141007 "ERM GST APAC"
         CustomerNo := LibrarySales.CreateCustomerNo();
 
         // [GIVEN] Posted Sales Invoice "SI" with GLAccount "GL"
-        PostedInvoiceNo := CreatePostGLSalesInvoice(CustomerNo, LibraryERM.CreateGLAccountWithSalesSetup);
+        PostedInvoiceNo := CreatePostGLSalesInvoice(CustomerNo, LibraryERM.CreateGLAccountWithSalesSetup());
         // [GIVEN] Sales Credit Memo. Get posted Invoice lines to reverse.
         CreateSalesCreditMemoForPostedInvoice(SalesHeader, CustomerNo, PostedInvoiceNo);
         FindGLSalesLine(SalesLine, SalesHeader);
@@ -501,7 +501,7 @@ codeunit 141007 "ERM GST APAC"
         VendorNo := LibraryPurchase.CreateVendorNo();
 
         // [GIVEN] Posted Purchase Invoice "PI" with GLAccount "GL"
-        PostedInvoiceNo := CreatePostGLPurchaseInvoice(VendorNo, LibraryERM.CreateGLAccountWithPurchSetup);
+        PostedInvoiceNo := CreatePostGLPurchaseInvoice(VendorNo, LibraryERM.CreateGLAccountWithPurchSetup());
         // [GIVEN] Purchase Credit Memo. Get posted Invoice lines to reverse.
         CreatePurchaseCreditMemoForPostedInvoice(PurchaseHeader, VendorNo, PostedInvoiceNo);
         FindGLPurchaseLine(PurchaseLine, PurchaseHeader);
@@ -783,10 +783,10 @@ codeunit 141007 "ERM GST APAC"
 
         // [WHEN] Open Sales Credit Memo page and change the value in 'Adjustment Applies-to' field
         LibraryVariableStorage.Enqueue(CustLedgerEntry."Entry No.");
-        SalesCreditMemo.OpenEdit;
+        SalesCreditMemo.OpenEdit();
         SalesCreditMemo.FILTER.SetFilter("No.", SalesHeaderCreditMemo."No.");
-        SalesCreditMemo."Adjustment Applies-to".Lookup;
-        SalesCreditMemo.OK.Invoke;
+        SalesCreditMemo."Adjustment Applies-to".Lookup();
+        SalesCreditMemo.OK().Invoke();
 
         // [THEN] The value is applied successfully
         SalesHeaderCreditMemo.TestField("Adjustment Applies-to", CustLedgerEntry."Document No.");
@@ -842,9 +842,9 @@ codeunit 141007 "ERM GST APAC"
         with GLEntry do begin
             Init();
             "Entry No." := LibraryUtility.GetNewRecNo(GLEntry, FieldNo("Entry No."));
-            "G/L Account No." := LibraryUTUtility.GetNewCode;
-            "Document No." := LibraryUTUtility.GetNewCode;
-            "Transaction No." := LibraryUtility.GetLastTransactionNo + 1;
+            "G/L Account No." := LibraryUTUtility.GetNewCode();
+            "Document No." := LibraryUTUtility.GetNewCode();
+            "Transaction No." := LibraryUtility.GetLastTransactionNo() + 1;
             Insert();
         end;
     end;
@@ -863,9 +863,9 @@ codeunit 141007 "ERM GST APAC"
     var
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"Fixed Asset", CreateFixedAssetNo, LibraryRandom.RandDecInRange(10, 20, 2));
+          SalesLine, SalesHeader, SalesLine.Type::"Fixed Asset", CreateFixedAssetNo(), LibraryRandom.RandDecInRange(10, 20, 2));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
         SalesLine.Modify(true);
     end;
@@ -874,9 +874,9 @@ codeunit 141007 "ERM GST APAC"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Fixed Asset", CreateFixedAssetNo, LibraryRandom.RandDecInRange(10, 20, 2));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Fixed Asset", CreateFixedAssetNo(), LibraryRandom.RandDecInRange(10, 20, 2));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1000, 2000, 2));
         PurchaseLine.Modify(true);
     end;
@@ -887,7 +887,7 @@ codeunit 141007 "ERM GST APAC"
         FADepreciationBook: Record "FA Depreciation Book";
     begin
         LibraryFixedAsset.CreateFAWithPostingGroup(FixedAsset);
-        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", LibraryFixedAsset.GetDefaultDeprBook);
+        LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", LibraryFixedAsset.GetDefaultDeprBook());
         FADepreciationBook.Validate("FA Posting Group", FixedAsset."FA Posting Group");
         FADepreciationBook.Validate("Acquisition Date", WorkDate());
         FADepreciationBook.Modify(true);
@@ -898,8 +898,8 @@ codeunit 141007 "ERM GST APAC"
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, Amount);
-        GenJournalLine.Validate("Currency Code", CreateCurrency);
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), Amount);
+        GenJournalLine.Validate("Currency Code", CreateCurrency());
         GenJournalLine.Validate("Gen. Posting Type", GenPostingType);
         GenJournalLine.Modify(true);
     end;
@@ -941,7 +941,7 @@ codeunit 141007 "ERM GST APAC"
     var
         SalesHeader: Record "Sales Header";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo());
         CreateSalesLine(SalesLine, SalesHeader, Type, No);
     end;
 
@@ -1047,7 +1047,7 @@ codeunit 141007 "ERM GST APAC"
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroup, VATProductPostingGroup.Code);
         VATPostingSetup.Validate("VAT %", 0);  // As per test case requirement, using 0.
         VATPostingSetup.Modify(true);
-        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo);
+        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo());
         SalesLine.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
         SalesLine.Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
         SalesLine.Modify(true);
@@ -1055,20 +1055,16 @@ codeunit 141007 "ERM GST APAC"
 
     local procedure CreateSalesLineWithDiffDims(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
-        with SalesLine do begin
-            CreateSalesLine(SalesLine, SalesHeader, Type::Item, LibraryInventory.CreateItemNo);
-            Validate("Shortcut Dimension 1 Code", CreateGlobalDim1Value);
-            Modify(true);
-        end;
+        CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo());
+        SalesLine.Validate("Shortcut Dimension 1 Code", CreateGlobalDim1Value());
+        SalesLine.Modify(true);
     end;
 
     local procedure CreatePurchLineWithDiffDims(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
     begin
-        with PurchaseLine do begin
-            CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type::Item, LibraryInventory.CreateItemNo);
-            Validate("Shortcut Dimension 1 Code", CreateGlobalDim1Value);
-            Modify(true);
-        end;
+        CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo());
+        PurchaseLine.Validate("Shortcut Dimension 1 Code", CreateGlobalDim1Value());
+        PurchaseLine.Modify(true);
     end;
 
     local procedure CreateGlobalDim1Value(): Code[20]
@@ -1107,8 +1103,8 @@ codeunit 141007 "ERM GST APAC"
         with GenJournalLine do begin
             LibraryERM.CreateGeneralJnlLineWithBalAcc(
               GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, "Document Type"::" ",
-              "Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup,
-              "Bal. Account Type"::Customer, LibrarySales.CreateCustomerNo, LibraryRandom.RandInt(100));
+              "Account Type"::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(),
+              "Bal. Account Type"::Customer, LibrarySales.CreateCustomerNo(), LibraryRandom.RandInt(100));
             Validate("Gen. Posting Type", "Gen. Posting Type"::Sale);
             Validate("BAS Adjustment", BASAdjustment);
             Modify(true);
@@ -1148,8 +1144,8 @@ codeunit 141007 "ERM GST APAC"
             LibraryERM.CreateVATPostingSetupWithAccounts(
               VATPostingSetup, "VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(10, 30));
             Validate("Unrealized VAT Type", "Unrealized VAT Type"::Percentage);
-            Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo);
-            Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo);
+            Validate("Sales VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
+            Validate("Purch. VAT Unreal. Account", LibraryERM.CreateGLAccountNo());
             Modify(true);
         end;
     end;
@@ -1334,8 +1330,8 @@ codeunit 141007 "ERM GST APAC"
 
     local procedure VerifyGSTEntry(GSTBase: Decimal; ActualGSTBase: Decimal; GSTAmount: Decimal; ActualGSTAmount: Decimal)
     begin
-        Assert.AreNearlyEqual(GSTBase, ActualGSTBase, LibraryERM.GetAmountRoundingPrecision, UnexpectedErr);
-        Assert.AreNearlyEqual(GSTAmount, ActualGSTAmount, LibraryERM.GetAmountRoundingPrecision, UnexpectedErr);
+        Assert.AreNearlyEqual(GSTBase, ActualGSTBase, LibraryERM.GetAmountRoundingPrecision(), UnexpectedErr);
+        Assert.AreNearlyEqual(GSTAmount, ActualGSTAmount, LibraryERM.GetAmountRoundingPrecision(), UnexpectedErr);
     end;
 
     local procedure VerifyGSTSalesEntries(DocumentNo: Code[20]; ExpectedCount: Integer; ExpectedAmount: Decimal)
@@ -1424,10 +1420,10 @@ codeunit 141007 "ERM GST APAC"
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
-        CustLedgerEntry.SetRange("Entry No.", LibraryVariableStorage.DequeueInteger);
+        CustLedgerEntry.SetRange("Entry No.", LibraryVariableStorage.DequeueInteger());
         CustLedgerEntry.FindFirst();
         ApplyCustomerEntries.FILTER.SetFilter("Entry No.", Format(CustLedgerEntry."Entry No."));
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [ConfirmHandler]

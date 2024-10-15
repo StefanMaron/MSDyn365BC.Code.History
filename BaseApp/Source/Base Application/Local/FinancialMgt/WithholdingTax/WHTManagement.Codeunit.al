@@ -50,7 +50,6 @@ codeunit 28040 WHTManagement
         SourceCodeSetup: Record "Source Code Setup";
         Vendor: Record Vendor;
         GLSetup: Record "General Ledger Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         PurchasePostPrepayments: Codeunit "Purchase-Post Prepayments";
         WHTBusPostGrp: Code[20];
         WHTProdPostGrp: Code[20];
@@ -517,29 +516,27 @@ codeunit 28040 WHTManagement
         TempPurchLine: Record "Purchase Line";
         PrepaymentAmtDeducted: Decimal;
     begin
-        with PurchInvHeader do begin
-            PurchInvLine.Reset();
-            PurchInvLine.SetCurrentKey("Document No.", "WHT Business Posting Group", "WHT Product Posting Group");
-            PurchInvLine.SetRange("Document No.", "No.");
-            PurchInvLine.SetFilter(Quantity, '<>0');
-            if PurchInvLine.FindSet() then begin
-                WHTBusPostGrp := PurchInvLine."WHT Business Posting Group";
-                WHTProdPostGrp := PurchInvLine."WHT Product Posting Group";
-                if WHTPostingSetup.Get(PurchInvLine."WHT Business Posting Group", PurchInvLine."WHT Product Posting Group") then
-                    WHTMinInvoiceAmt := WHTPostingSetup."WHT Minimum Invoice Amount";
-                repeat
-                    if WHTPostingSetup.Get(PurchInvLine."WHT Business Posting Group", PurchInvLine."WHT Product Posting Group") then begin
-                        if (WHTBusPostGrp <> PurchInvLine."WHT Business Posting Group") or
-                           (WHTProdPostGrp <> PurchInvLine."WHT Product Posting Group")
-                        then begin
-                            if WHTMinInvoiceAmt <> WHTPostingSetup."WHT Minimum Invoice Amount" then
-                                Error(Text1500004);
-                        end;
-                        WHTBusPostGrp := PurchInvLine."WHT Business Posting Group";
-                        WHTProdPostGrp := PurchInvLine."WHT Product Posting Group";
+        PurchInvLine.Reset();
+        PurchInvLine.SetCurrentKey("Document No.", "WHT Business Posting Group", "WHT Product Posting Group");
+        PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
+        PurchInvLine.SetFilter(Quantity, '<>0');
+        if PurchInvLine.FindSet() then begin
+            WHTBusPostGrp := PurchInvLine."WHT Business Posting Group";
+            WHTProdPostGrp := PurchInvLine."WHT Product Posting Group";
+            if WHTPostingSetup.Get(PurchInvLine."WHT Business Posting Group", PurchInvLine."WHT Product Posting Group") then
+                WHTMinInvoiceAmt := WHTPostingSetup."WHT Minimum Invoice Amount";
+            repeat
+                if WHTPostingSetup.Get(PurchInvLine."WHT Business Posting Group", PurchInvLine."WHT Product Posting Group") then begin
+                    if (WHTBusPostGrp <> PurchInvLine."WHT Business Posting Group") or
+                       (WHTProdPostGrp <> PurchInvLine."WHT Product Posting Group")
+                    then begin
+                        if WHTMinInvoiceAmt <> WHTPostingSetup."WHT Minimum Invoice Amount" then
+                            Error(Text1500004);
                     end;
-                until PurchInvLine.Next() = 0;
-            end;
+                    WHTBusPostGrp := PurchInvLine."WHT Business Posting Group";
+                    WHTProdPostGrp := PurchInvLine."WHT Product Posting Group";
+                end;
+            until PurchInvLine.Next() = 0;
         end;
 
         GLSetup.Get();
@@ -580,95 +577,93 @@ codeunit 28040 WHTManagement
                 exit;
         end;
 
-        with PurchInvHeader do begin
-            PurchInvLine.Reset();
-            PurchInvLine.SetCurrentKey("Document No.", "WHT Business Posting Group", "WHT Product Posting Group");
-            PurchInvLine.SetRange("Document No.", "No.");
-            PurchInvLine.SetFilter(Quantity, '<>0');
-            PurchInvLine.SetRange("Prepayment Line", false);
-            if PurchInvLine.FindSet() then
-                repeat
-                    if WHTPostingSetup.Get(PurchInvLine."WHT Business Posting Group", PurchInvLine."WHT Product Posting Group") then
-                        if WHTPostingSetup."WHT %" > 0 then begin
-                            DocNo := PurchInvLine."Document No.";
-                            DocType := DocType::Invoice;
-                            PayToAccType := PayToAccType::Vendor;
-                            PayToVendCustNo := "Pay-to Vendor No.";
-                            BuyFromAccType := BuyFromAccType::Vendor;
-                            GenBusPostGrp := PurchInvLine."Gen. Bus. Posting Group";
-                            GenProdPostGrp := PurchInvLine."Gen. Prod. Posting Group";
-                            TransType := TransType::Purchase;
-                            BuyFromVendCustNo := "Actual Vendor No.";
-                            PostingDate := "Posting Date";
-                            DocDate := "Document Date";
-                            CurrencyCode := "Currency Code";
-                            CurrFactor := "Currency Factor";
-                            ApplyDocType := "Applies-to Doc. Type";
-                            ApplyDocNo := "Applies-to Doc. No.";
-                            SourceCode := "Source Code";
-                            ReasonCode := "Reason Code";
+        PurchInvLine.Reset();
+        PurchInvLine.SetCurrentKey("Document No.", "WHT Business Posting Group", "WHT Product Posting Group");
+        PurchInvLine.SetRange("Document No.", PurchInvHeader."No.");
+        PurchInvLine.SetFilter(Quantity, '<>0');
+        PurchInvLine.SetRange("Prepayment Line", false);
+        if PurchInvLine.FindSet() then
+            repeat
+                if WHTPostingSetup.Get(PurchInvLine."WHT Business Posting Group", PurchInvLine."WHT Product Posting Group") then
+                    if WHTPostingSetup."WHT %" > 0 then begin
+                        DocNo := PurchInvLine."Document No.";
+                        DocType := DocType::Invoice;
+                        PayToAccType := PayToAccType::Vendor;
+                        PayToVendCustNo := PurchInvHeader."Pay-to Vendor No.";
+                        BuyFromAccType := BuyFromAccType::Vendor;
+                        GenBusPostGrp := PurchInvLine."Gen. Bus. Posting Group";
+                        GenProdPostGrp := PurchInvLine."Gen. Prod. Posting Group";
+                        TransType := TransType::Purchase;
+                        BuyFromVendCustNo := PurchInvHeader."Actual Vendor No.";
+                        PostingDate := PurchInvHeader."Posting Date";
+                        DocDate := PurchInvHeader."Document Date";
+                        CurrencyCode := PurchInvHeader."Currency Code";
+                        CurrFactor := PurchInvHeader."Currency Factor";
+                        ApplyDocType := PurchInvHeader."Applies-to Doc. Type";
+                        ApplyDocNo := PurchInvHeader."Applies-to Doc. No.";
+                        SourceCode := PurchInvHeader."Source Code";
+                        ReasonCode := PurchInvHeader."Reason Code";
 
-                            if (WHTBusPostGrp <> PurchInvLine."WHT Business Posting Group") or
-                               (WHTProdPostGrp <> PurchInvLine."WHT Product Posting Group")
-                            then begin
-                                if AmountVAT <> 0 then begin
-                                    if WHTPostingSetup."Realized WHT Type" in
-                                       [WHTPostingSetup."Realized WHT Type"::Earliest,
-                                        WHTPostingSetup."Realized WHT Type"::Invoice]
-                                    then begin
-                                        TempPurchLine.Reset();
-                                        TempPurchLine.SetCurrentKey("Document Type", "Document No.",
-                                          "WHT Business Posting Group", "WHT Product Posting Group");
-                                        TempPurchLine.SetRange("Document Type", TempPurchLine."Document Type"::Order);
-                                        TempPurchLine.SetRange("Document No.", "Order No.");
-                                        TempPurchLine.SetRange("WHT Business Posting Group", WHTBusPostGrp);
-                                        TempPurchLine.SetRange("WHT Product Posting Group", WHTProdPostGrp);
-                                        TempPurchLine.CalcSums(TempPurchLine."Prepmt. Amt. Inv.", TempPurchLine."Prepmt Amt to Deduct");
-                                        PrepaymentAmtDeducted := TempPurchLine."Prepmt Amt to Deduct";
-                                        AmountVAT := AmountVAT - PrepaymentAmtDeducted;
-                                    end;
-                                    InsertWHT(TType::Purchase);
+                        if (WHTBusPostGrp <> PurchInvLine."WHT Business Posting Group") or
+                           (WHTProdPostGrp <> PurchInvLine."WHT Product Posting Group")
+                        then begin
+                            if AmountVAT <> 0 then begin
+                                if WHTPostingSetup."Realized WHT Type" in
+                                   [WHTPostingSetup."Realized WHT Type"::Earliest,
+                                    WHTPostingSetup."Realized WHT Type"::Invoice]
+                                then begin
+                                    TempPurchLine.Reset();
+                                    TempPurchLine.SetCurrentKey("Document Type", "Document No.",
+                                      "WHT Business Posting Group", "WHT Product Posting Group");
+                                    TempPurchLine.SetRange("Document Type", TempPurchLine."Document Type"::Order);
+                                    TempPurchLine.SetRange("Document No.", PurchInvHeader."Order No.");
+                                    TempPurchLine.SetRange("WHT Business Posting Group", WHTBusPostGrp);
+                                    TempPurchLine.SetRange("WHT Product Posting Group", WHTProdPostGrp);
+                                    TempPurchLine.CalcSums(TempPurchLine."Prepmt. Amt. Inv.", TempPurchLine."Prepmt Amt to Deduct");
+                                    PrepaymentAmtDeducted := TempPurchLine."Prepmt Amt to Deduct";
+                                    AmountVAT := AmountVAT - PrepaymentAmtDeducted;
                                 end;
-                                WHTBusPostGrp := PurchInvLine."WHT Business Posting Group";
-                                WHTProdPostGrp := PurchInvLine."WHT Product Posting Group";
-                                Amount := 0;
-                                AbsorbBase := 0;
-                                AmountVAT := 0;
-                                Amount := Amount + PurchInvLine.Amount;
-                                AbsorbBase := AbsorbBase + PurchInvLine."WHT Absorb Base";
-                                if AbsorbBase <> 0 then
-                                    AmountVAT := AbsorbBase
-                                else
-                                    AmountVAT := Amount;
-                            end else begin
-                                WHTBusPostGrp := PurchInvLine."WHT Business Posting Group";
-                                WHTProdPostGrp := PurchInvLine."WHT Product Posting Group";
-                                Amount := Amount + PurchInvLine.Amount;
-                                AbsorbBase := AbsorbBase + PurchInvLine."WHT Absorb Base";
-                                if AbsorbBase <> 0 then
-                                    AmountVAT := AbsorbBase
-                                else
-                                    AmountVAT := Amount;
+                                InsertWHT(TType::Purchase);
                             end;
                             WHTBusPostGrp := PurchInvLine."WHT Business Posting Group";
                             WHTProdPostGrp := PurchInvLine."WHT Product Posting Group";
+                            PurchInvHeader.Amount := 0;
+                            AbsorbBase := 0;
+                            AmountVAT := 0;
+                            PurchInvHeader.Amount := PurchInvHeader.Amount + PurchInvLine.Amount;
+                            AbsorbBase := AbsorbBase + PurchInvLine."WHT Absorb Base";
+                            if AbsorbBase <> 0 then
+                                AmountVAT := AbsorbBase
+                            else
+                                AmountVAT := PurchInvHeader.Amount;
+                        end else begin
+                            WHTBusPostGrp := PurchInvLine."WHT Business Posting Group";
+                            WHTProdPostGrp := PurchInvLine."WHT Product Posting Group";
+                            PurchInvHeader.Amount := PurchInvHeader.Amount + PurchInvLine.Amount;
+                            AbsorbBase := AbsorbBase + PurchInvLine."WHT Absorb Base";
+                            if AbsorbBase <> 0 then
+                                AmountVAT := AbsorbBase
+                            else
+                                AmountVAT := PurchInvHeader.Amount;
                         end;
-                until PurchInvLine.Next() = 0;
+                        WHTBusPostGrp := PurchInvLine."WHT Business Posting Group";
+                        WHTProdPostGrp := PurchInvLine."WHT Product Posting Group";
+                    end;
+            until PurchInvLine.Next() = 0;
 
-            if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then begin
-                TempPurchLine.Reset();
-                TempPurchLine.SetCurrentKey("Document Type", "Document No.", "WHT Business Posting Group", "WHT Product Posting Group");
-                TempPurchLine.SetRange("Document Type", TempPurchLine."Document Type"::Order);
-                TempPurchLine.SetRange("Document No.", "Order No.");
-                TempPurchLine.SetRange("WHT Business Posting Group", WHTBusPostGrp);
-                TempPurchLine.SetRange("WHT Product Posting Group", WHTProdPostGrp);
-                TempPurchLine.CalcSums(TempPurchLine."Prepmt. Amt. Inv.", TempPurchLine."Prepmt Amt to Deduct");
-                PrepaymentAmtDeducted := TempPurchLine."Prepmt Amt to Deduct";
-                if AmountVAT <> 0 then
-                    AmountVAT := AmountVAT - PrepaymentAmtDeducted;
-            end;
-            InsertWHT(TType::Purchase);
+        if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then begin
+            TempPurchLine.Reset();
+            TempPurchLine.SetCurrentKey("Document Type", "Document No.", "WHT Business Posting Group", "WHT Product Posting Group");
+            TempPurchLine.SetRange("Document Type", TempPurchLine."Document Type"::Order);
+            TempPurchLine.SetRange("Document No.", PurchInvHeader."Order No.");
+            TempPurchLine.SetRange("WHT Business Posting Group", WHTBusPostGrp);
+            TempPurchLine.SetRange("WHT Product Posting Group", WHTProdPostGrp);
+            TempPurchLine.CalcSums(TempPurchLine."Prepmt. Amt. Inv.", TempPurchLine."Prepmt Amt to Deduct");
+            PrepaymentAmtDeducted := TempPurchLine."Prepmt Amt to Deduct";
+            if AmountVAT <> 0 then
+                AmountVAT := AmountVAT - PrepaymentAmtDeducted;
         end;
+        InsertWHT(TType::Purchase);
     end;
 
     [Scope('OnPrem')]
@@ -676,29 +671,27 @@ codeunit 28040 WHTManagement
     var
         WHTEntry: Record "WHT Entry";
     begin
-        with PurchCreditHeader do begin
-            PurchCreditLine.Reset();
-            PurchCreditLine.SetCurrentKey("Document No.", "WHT Business Posting Group", "WHT Product Posting Group");
-            PurchCreditLine.SetRange("Document No.", "No.");
-            PurchCreditLine.SetFilter(Quantity, '<>0');
-            if PurchCreditLine.FindSet() then begin
-                WHTBusPostGrp := PurchCreditLine."WHT Business Posting Group";
-                WHTProdPostGrp := PurchCreditLine."WHT Product Posting Group";
-                if WHTPostingSetup.Get(PurchCreditLine."WHT Business Posting Group", PurchCreditLine."WHT Product Posting Group") then
-                    WHTMinInvoiceAmt := WHTPostingSetup."WHT Minimum Invoice Amount";
-                repeat
-                    if WHTPostingSetup.Get(PurchCreditLine."WHT Business Posting Group", PurchCreditLine."WHT Product Posting Group") then begin
-                        if (WHTBusPostGrp <> PurchCreditLine."WHT Business Posting Group") or
-                           (WHTProdPostGrp <> PurchCreditLine."WHT Product Posting Group")
-                        then begin
-                            if WHTMinInvoiceAmt <> WHTPostingSetup."WHT Minimum Invoice Amount" then
-                                Error(Text1500004);
-                        end;
-                        WHTBusPostGrp := PurchCreditLine."WHT Business Posting Group";
-                        WHTProdPostGrp := PurchCreditLine."WHT Product Posting Group";
+        PurchCreditLine.Reset();
+        PurchCreditLine.SetCurrentKey("Document No.", "WHT Business Posting Group", "WHT Product Posting Group");
+        PurchCreditLine.SetRange("Document No.", PurchCreditHeader."No.");
+        PurchCreditLine.SetFilter(Quantity, '<>0');
+        if PurchCreditLine.FindSet() then begin
+            WHTBusPostGrp := PurchCreditLine."WHT Business Posting Group";
+            WHTProdPostGrp := PurchCreditLine."WHT Product Posting Group";
+            if WHTPostingSetup.Get(PurchCreditLine."WHT Business Posting Group", PurchCreditLine."WHT Product Posting Group") then
+                WHTMinInvoiceAmt := WHTPostingSetup."WHT Minimum Invoice Amount";
+            repeat
+                if WHTPostingSetup.Get(PurchCreditLine."WHT Business Posting Group", PurchCreditLine."WHT Product Posting Group") then begin
+                    if (WHTBusPostGrp <> PurchCreditLine."WHT Business Posting Group") or
+                       (WHTProdPostGrp <> PurchCreditLine."WHT Product Posting Group")
+                    then begin
+                        if WHTMinInvoiceAmt <> WHTPostingSetup."WHT Minimum Invoice Amount" then
+                            Error(Text1500004);
                     end;
-                until PurchCreditLine.Next() = 0;
-            end;
+                    WHTBusPostGrp := PurchCreditLine."WHT Business Posting Group";
+                    WHTProdPostGrp := PurchCreditLine."WHT Product Posting Group";
+                end;
+            until PurchCreditLine.Next() = 0;
         end;
 
         GLSetup.Get();
@@ -757,243 +750,233 @@ codeunit 28040 WHTManagement
                     exit;
         end;
 
-        with PurchCreditHeader do begin
-            PurchCreditLine.Reset();
-            PurchCreditLine.SetCurrentKey("Document No.", "WHT Business Posting Group", "WHT Product Posting Group");
-            PurchCreditLine.SetRange("Document No.", "No.");
-            PurchCreditLine.SetFilter(Quantity, '<>0');
-            if PurchCreditLine.FindSet() then
-                repeat
-                    if WHTPostingSetup.Get(PurchCreditLine."WHT Business Posting Group", PurchCreditLine."WHT Product Posting Group") then
-                        if WHTPostingSetup."WHT %" > 0 then begin
-                            DocNo := PurchCreditLine."Document No.";
-                            DocType := DocType::"Credit Memo";
-                            PayToAccType := PayToAccType::Vendor;
-                            PayToVendCustNo := "Pay-to Vendor No.";
-                            BuyFromAccType := BuyFromAccType::Vendor;
-                            GenBusPostGrp := PurchCreditLine."Gen. Bus. Posting Group";
-                            GenProdPostGrp := PurchCreditLine."Gen. Prod. Posting Group";
-                            TransType := TransType::Purchase;
-                            BuyFromVendCustNo := "Actual Vendor No.";
-                            PostingDate := "Posting Date";
-                            DocDate := "Document Date";
-                            CurrencyCode := "Currency Code";
-                            CurrFactor := "Currency Factor";
-                            ApplyDocType := "Applies-to Doc. Type";
-                            ApplyDocNo := "Applies-to Doc. No.";
-                            "Applies-toID" := AppliesID;
-                            SourceCode := "Source Code";
-                            ReasonCode := "Reason Code";
-                            if (WHTBusPostGrp <> PurchCreditLine."WHT Business Posting Group") or
-                               (WHTProdPostGrp <> PurchCreditLine."WHT Product Posting Group")
-                            then begin
-                                if AmountVAT <> 0 then
-                                    InsertWHT(TType::Purchase);
-                                WHTBusPostGrp := PurchCreditLine."WHT Business Posting Group";
-                                WHTProdPostGrp := PurchCreditLine."WHT Product Posting Group";
-                                Amount := 0;
-                                AbsorbBase := 0;
-                                AmountVAT := 0;
-                                Amount := Amount + PurchCreditLine.Amount;
-                                AbsorbBase := AbsorbBase + PurchCreditLine."WHT Absorb Base";
-                                if AbsorbBase <> 0 then
-                                    AmountVAT := -AbsorbBase
-                                else
-                                    AmountVAT := -Amount;
-                            end else begin
-                                WHTBusPostGrp := PurchCreditLine."WHT Business Posting Group";
-                                WHTProdPostGrp := PurchCreditLine."WHT Product Posting Group";
-                                Amount := Amount + PurchCreditLine.Amount;
-                                AbsorbBase := AbsorbBase + PurchCreditLine."WHT Absorb Base";
-                                if AbsorbBase <> 0 then
-                                    AmountVAT := -AbsorbBase
-                                else
-                                    AmountVAT := -Amount;
-                            end;
+        PurchCreditLine.Reset();
+        PurchCreditLine.SetCurrentKey("Document No.", "WHT Business Posting Group", "WHT Product Posting Group");
+        PurchCreditLine.SetRange("Document No.", PurchCreditHeader."No.");
+        PurchCreditLine.SetFilter(Quantity, '<>0');
+        if PurchCreditLine.FindSet() then
+            repeat
+                if WHTPostingSetup.Get(PurchCreditLine."WHT Business Posting Group", PurchCreditLine."WHT Product Posting Group") then
+                    if WHTPostingSetup."WHT %" > 0 then begin
+                        DocNo := PurchCreditLine."Document No.";
+                        DocType := DocType::"Credit Memo";
+                        PayToAccType := PayToAccType::Vendor;
+                        PayToVendCustNo := PurchCreditHeader."Pay-to Vendor No.";
+                        BuyFromAccType := BuyFromAccType::Vendor;
+                        GenBusPostGrp := PurchCreditLine."Gen. Bus. Posting Group";
+                        GenProdPostGrp := PurchCreditLine."Gen. Prod. Posting Group";
+                        TransType := TransType::Purchase;
+                        BuyFromVendCustNo := PurchCreditHeader."Actual Vendor No.";
+                        PostingDate := PurchCreditHeader."Posting Date";
+                        DocDate := PurchCreditHeader."Document Date";
+                        CurrencyCode := PurchCreditHeader."Currency Code";
+                        CurrFactor := PurchCreditHeader."Currency Factor";
+                        ApplyDocType := PurchCreditHeader."Applies-to Doc. Type";
+                        ApplyDocNo := PurchCreditHeader."Applies-to Doc. No.";
+                        "Applies-toID" := AppliesID;
+                        SourceCode := PurchCreditHeader."Source Code";
+                        ReasonCode := PurchCreditHeader."Reason Code";
+                        if (WHTBusPostGrp <> PurchCreditLine."WHT Business Posting Group") or
+                           (WHTProdPostGrp <> PurchCreditLine."WHT Product Posting Group")
+                        then begin
+                            if AmountVAT <> 0 then
+                                InsertWHT(TType::Purchase);
                             WHTBusPostGrp := PurchCreditLine."WHT Business Posting Group";
                             WHTProdPostGrp := PurchCreditLine."WHT Product Posting Group";
+                            PurchCreditHeader.Amount := 0;
+                            AbsorbBase := 0;
+                            AmountVAT := 0;
+                            PurchCreditHeader.Amount := PurchCreditHeader.Amount + PurchCreditLine.Amount;
+                            AbsorbBase := AbsorbBase + PurchCreditLine."WHT Absorb Base";
+                            if AbsorbBase <> 0 then
+                                AmountVAT := -AbsorbBase
+                            else
+                                AmountVAT := -PurchCreditHeader.Amount;
+                        end else begin
+                            WHTBusPostGrp := PurchCreditLine."WHT Business Posting Group";
+                            WHTProdPostGrp := PurchCreditLine."WHT Product Posting Group";
+                            PurchCreditHeader.Amount := PurchCreditHeader.Amount + PurchCreditLine.Amount;
+                            AbsorbBase := AbsorbBase + PurchCreditLine."WHT Absorb Base";
+                            if AbsorbBase <> 0 then
+                                AmountVAT := -AbsorbBase
+                            else
+                                AmountVAT := -PurchCreditHeader.Amount;
                         end;
-                until PurchCreditLine.Next() = 0;
-            InsertWHT(TType::Purchase);
-        end;
+                        WHTBusPostGrp := PurchCreditLine."WHT Business Posting Group";
+                        WHTProdPostGrp := PurchCreditLine."WHT Product Posting Group";
+                    end;
+            until PurchCreditLine.Next() = 0;
+        InsertWHT(TType::Purchase);
     end;
 
     [Scope('OnPrem')]
     procedure InsertCustInvoiceWHT(var SalesInvHeader: Record "Sales Invoice Header")
     begin
-        with SalesInvHeader do begin
-            SalesInvLine.Reset();
-            SalesInvLine.SetCurrentKey("Document No.", "WHT Business Posting Group", "WHT Product Posting Group");
-            SalesInvLine.SetRange("Document No.", "No.");
-            SalesInvLine.SetFilter(Quantity, '<>0');
-            if SalesInvLine.FindSet() then begin
-                WHTBusPostGrp := SalesInvLine."WHT Business Posting Group";
-                WHTProdPostGrp := SalesInvLine."WHT Product Posting Group";
+        SalesInvLine.Reset();
+        SalesInvLine.SetCurrentKey("Document No.", "WHT Business Posting Group", "WHT Product Posting Group");
+        SalesInvLine.SetRange("Document No.", SalesInvHeader."No.");
+        SalesInvLine.SetFilter(Quantity, '<>0');
+        if SalesInvLine.FindSet() then begin
+            WHTBusPostGrp := SalesInvLine."WHT Business Posting Group";
+            WHTProdPostGrp := SalesInvLine."WHT Product Posting Group";
+            if WHTPostingSetup.Get(SalesInvLine."WHT Business Posting Group", SalesInvLine."WHT Product Posting Group") then
+                WHTMinInvoiceAmt := WHTPostingSetup."WHT Minimum Invoice Amount";
+            repeat
+                if WHTPostingSetup.Get(SalesInvLine."WHT Business Posting Group", SalesInvLine."WHT Product Posting Group") then begin
+                    if (WHTBusPostGrp <> SalesInvLine."WHT Business Posting Group") or
+                       (WHTProdPostGrp <> SalesInvLine."WHT Product Posting Group")
+                    then begin
+                        if WHTMinInvoiceAmt <> WHTPostingSetup."WHT Minimum Invoice Amount" then
+                            Error(Text1500004);
+                    end;
+                    WHTBusPostGrp := SalesInvLine."WHT Business Posting Group";
+                    WHTProdPostGrp := SalesInvLine."WHT Product Posting Group";
+                end;
+            until SalesInvLine.Next() = 0;
+        end;
+
+        SalesInvLine.Reset();
+        SalesInvLine.SetCurrentKey("Document No.", "WHT Business Posting Group", "WHT Product Posting Group");
+        SalesInvLine.SetRange("Document No.", SalesInvHeader."No.");
+        SalesInvLine.SetFilter(Quantity, '<>0');
+        SalesInvLine.SetRange("Prepayment Line", false);
+        if SalesInvLine.FindSet() then
+            repeat
                 if WHTPostingSetup.Get(SalesInvLine."WHT Business Posting Group", SalesInvLine."WHT Product Posting Group") then
-                    WHTMinInvoiceAmt := WHTPostingSetup."WHT Minimum Invoice Amount";
-                repeat
-                    if WHTPostingSetup.Get(SalesInvLine."WHT Business Posting Group", SalesInvLine."WHT Product Posting Group") then begin
+                    if WHTPostingSetup."WHT %" > 0 then begin
+                        DocNo := SalesInvLine."Document No.";
+                        DocType := DocType::Invoice;
+                        PayToAccType := PayToAccType::Customer;
+                        PayToVendCustNo := SalesInvHeader."Bill-to Customer No.";
+                        BuyFromAccType := BuyFromAccType::Customer;
+                        BuyFromVendCustNo := SalesInvHeader."Sell-to Customer No.";
+                        SourceCode := SalesInvHeader."Source Code";
+                        ReasonCode := SalesInvHeader."Reason Code";
+                        GenBusPostGrp := SalesInvLine."Gen. Bus. Posting Group";
+                        GenProdPostGrp := SalesInvLine."Gen. Prod. Posting Group";
+                        TransType := TransType::Sale;
+                        PostingDate := SalesInvHeader."Posting Date";
+                        DocDate := SalesInvHeader."Document Date";
+                        CurrencyCode := SalesInvHeader."Currency Code";
+                        CurrFactor := SalesInvHeader."Currency Factor";
+                        ApplyDocType := SalesInvHeader."Applies-to Doc. Type";
+                        ApplyDocNo := SalesInvHeader."Applies-to Doc. No.";
                         if (WHTBusPostGrp <> SalesInvLine."WHT Business Posting Group") or
                            (WHTProdPostGrp <> SalesInvLine."WHT Product Posting Group")
                         then begin
-                            if WHTMinInvoiceAmt <> WHTPostingSetup."WHT Minimum Invoice Amount" then
-                                Error(Text1500004);
+                            if AmountVAT <> 0 then
+                                InsertWHT(TType::Sale);
+                            WHTBusPostGrp := SalesInvLine."WHT Business Posting Group";
+                            WHTProdPostGrp := SalesInvLine."WHT Product Posting Group";
+                            SalesInvHeader.Amount := 0;
+                            AbsorbBase := 0;
+                            AmountVAT := 0;
+                            SalesInvHeader.Amount := SalesInvHeader.Amount - SalesInvLine.Amount;
+                            AbsorbBase := AbsorbBase - SalesInvLine."WHT Absorb Base";
+                            if AbsorbBase <> 0 then
+                                AmountVAT := AbsorbBase
+                            else
+                                AmountVAT := SalesInvHeader.Amount;
+                        end else begin
+                            WHTBusPostGrp := SalesInvLine."WHT Business Posting Group";
+                            WHTProdPostGrp := SalesInvLine."WHT Product Posting Group";
+                            SalesInvHeader.Amount := SalesInvHeader.Amount - SalesInvLine.Amount;
+                            AbsorbBase := AbsorbBase - SalesInvLine."WHT Absorb Base";
+                            if AbsorbBase <> 0 then
+                                AmountVAT := AbsorbBase
+                            else
+                                AmountVAT := SalesInvHeader.Amount;
                         end;
                         WHTBusPostGrp := SalesInvLine."WHT Business Posting Group";
                         WHTProdPostGrp := SalesInvLine."WHT Product Posting Group";
                     end;
-                until SalesInvLine.Next() = 0;
-            end;
-        end;
-
-        with SalesInvHeader do begin
-            SalesInvLine.Reset();
-            SalesInvLine.SetCurrentKey("Document No.", "WHT Business Posting Group", "WHT Product Posting Group");
-            SalesInvLine.SetRange("Document No.", "No.");
-            SalesInvLine.SetFilter(Quantity, '<>0');
-            SalesInvLine.SetRange("Prepayment Line", false);
-            if SalesInvLine.FindSet() then
-                repeat
-                    if WHTPostingSetup.Get(SalesInvLine."WHT Business Posting Group", SalesInvLine."WHT Product Posting Group") then
-                        if WHTPostingSetup."WHT %" > 0 then begin
-                            DocNo := SalesInvLine."Document No.";
-                            DocType := DocType::Invoice;
-                            PayToAccType := PayToAccType::Customer;
-                            PayToVendCustNo := "Bill-to Customer No.";
-                            BuyFromAccType := BuyFromAccType::Customer;
-                            BuyFromVendCustNo := "Sell-to Customer No.";
-                            SourceCode := "Source Code";
-                            ReasonCode := "Reason Code";
-                            GenBusPostGrp := SalesInvLine."Gen. Bus. Posting Group";
-                            GenProdPostGrp := SalesInvLine."Gen. Prod. Posting Group";
-                            TransType := TransType::Sale;
-                            PostingDate := "Posting Date";
-                            DocDate := "Document Date";
-                            CurrencyCode := "Currency Code";
-                            CurrFactor := "Currency Factor";
-                            ApplyDocType := "Applies-to Doc. Type";
-                            ApplyDocNo := "Applies-to Doc. No.";
-                            if (WHTBusPostGrp <> SalesInvLine."WHT Business Posting Group") or
-                               (WHTProdPostGrp <> SalesInvLine."WHT Product Posting Group")
-                            then begin
-                                if AmountVAT <> 0 then
-                                    InsertWHT(TType::Sale);
-                                WHTBusPostGrp := SalesInvLine."WHT Business Posting Group";
-                                WHTProdPostGrp := SalesInvLine."WHT Product Posting Group";
-                                Amount := 0;
-                                AbsorbBase := 0;
-                                AmountVAT := 0;
-                                Amount := Amount - SalesInvLine.Amount;
-                                AbsorbBase := AbsorbBase - SalesInvLine."WHT Absorb Base";
-                                if AbsorbBase <> 0 then
-                                    AmountVAT := AbsorbBase
-                                else
-                                    AmountVAT := Amount;
-                            end else begin
-                                WHTBusPostGrp := SalesInvLine."WHT Business Posting Group";
-                                WHTProdPostGrp := SalesInvLine."WHT Product Posting Group";
-                                Amount := Amount - SalesInvLine.Amount;
-                                AbsorbBase := AbsorbBase - SalesInvLine."WHT Absorb Base";
-                                if AbsorbBase <> 0 then
-                                    AmountVAT := AbsorbBase
-                                else
-                                    AmountVAT := Amount;
-                            end;
-                            WHTBusPostGrp := SalesInvLine."WHT Business Posting Group";
-                            WHTProdPostGrp := SalesInvLine."WHT Product Posting Group";
-                        end;
-                until SalesInvLine.Next() = 0;
-            InsertWHT(TType::Sale);
-        end;
+            until SalesInvLine.Next() = 0;
+        InsertWHT(TType::Sale);
     end;
 
     [Scope('OnPrem')]
     procedure InsertCustCreditWHT(var SalesCreditHeader: Record "Sales Cr.Memo Header"; AppliesID: Code[20])
     begin
-        with SalesCreditHeader do begin
-            SalesCreditLine.Reset();
-            SalesCreditLine.SetCurrentKey("Document No.", "WHT Business Posting Group", "WHT Product Posting Group");
-            SalesCreditLine.SetRange("Document No.", "No.");
-            SalesCreditLine.SetFilter(Quantity, '<>0');
-            if SalesCreditLine.FindSet() then begin
-                WHTBusPostGrp := SalesCreditLine."WHT Business Posting Group";
-                WHTProdPostGrp := SalesCreditLine."WHT Product Posting Group";
+        SalesCreditLine.Reset();
+        SalesCreditLine.SetCurrentKey("Document No.", "WHT Business Posting Group", "WHT Product Posting Group");
+        SalesCreditLine.SetRange("Document No.", SalesCreditHeader."No.");
+        SalesCreditLine.SetFilter(Quantity, '<>0');
+        if SalesCreditLine.FindSet() then begin
+            WHTBusPostGrp := SalesCreditLine."WHT Business Posting Group";
+            WHTProdPostGrp := SalesCreditLine."WHT Product Posting Group";
+            if WHTPostingSetup.Get(SalesCreditLine."WHT Business Posting Group", SalesCreditLine."WHT Product Posting Group") then
+                WHTMinInvoiceAmt := WHTPostingSetup."WHT Minimum Invoice Amount";
+            repeat
+                if WHTPostingSetup.Get(SalesCreditLine."WHT Business Posting Group", SalesCreditLine."WHT Product Posting Group") then begin
+                    if (WHTBusPostGrp <> SalesCreditLine."WHT Business Posting Group") or
+                       (WHTProdPostGrp <> SalesCreditLine."WHT Product Posting Group")
+                    then begin
+                        if WHTMinInvoiceAmt <> WHTPostingSetup."WHT Minimum Invoice Amount" then
+                            Error(Text1500004);
+                    end;
+                    WHTBusPostGrp := SalesCreditLine."WHT Business Posting Group";
+                    WHTProdPostGrp := SalesCreditLine."WHT Product Posting Group";
+                end;
+            until SalesCreditLine.Next() = 0;
+        end;
+
+        SalesCreditLine.Reset();
+        SalesCreditLine.SetCurrentKey("Document No.", "WHT Business Posting Group", "WHT Product Posting Group");
+        SalesCreditLine.SetRange("Document No.", SalesCreditHeader."No.");
+        SalesCreditLine.SetFilter(Quantity, '<>0');
+        if SalesCreditLine.FindSet() then
+            repeat
                 if WHTPostingSetup.Get(SalesCreditLine."WHT Business Posting Group", SalesCreditLine."WHT Product Posting Group") then
-                    WHTMinInvoiceAmt := WHTPostingSetup."WHT Minimum Invoice Amount";
-                repeat
-                    if WHTPostingSetup.Get(SalesCreditLine."WHT Business Posting Group", SalesCreditLine."WHT Product Posting Group") then begin
+                    if WHTPostingSetup."WHT %" > 0 then begin
+                        DocNo := SalesCreditLine."Document No.";
+                        DocType := DocType::"Credit Memo";
+                        PayToAccType := PayToAccType::Customer;
+                        PayToVendCustNo := SalesCreditHeader."Bill-to Customer No.";
+                        BuyFromAccType := BuyFromAccType::Customer;
+                        BuyFromVendCustNo := SalesCreditHeader."Sell-to Customer No.";
+                        SourceCode := SalesCreditHeader."Source Code";
+                        ReasonCode := SalesCreditHeader."Reason Code";
+                        GenBusPostGrp := SalesCreditLine."Gen. Bus. Posting Group";
+                        GenProdPostGrp := SalesCreditLine."Gen. Prod. Posting Group";
+                        TransType := TransType::Sale;
+                        PostingDate := SalesCreditHeader."Posting Date";
+                        DocDate := SalesCreditHeader."Document Date";
+                        CurrencyCode := SalesCreditHeader."Currency Code";
+                        CurrFactor := SalesCreditHeader."Currency Factor";
+                        ApplyDocType := SalesCreditHeader."Applies-to Doc. Type";
+                        ApplyDocNo := SalesCreditHeader."Applies-to Doc. No.";
+                        "Applies-toID" := AppliesID;
                         if (WHTBusPostGrp <> SalesCreditLine."WHT Business Posting Group") or
                            (WHTProdPostGrp <> SalesCreditLine."WHT Product Posting Group")
                         then begin
-                            if WHTMinInvoiceAmt <> WHTPostingSetup."WHT Minimum Invoice Amount" then
-                                Error(Text1500004);
+                            if AmountVAT <> 0 then
+                                InsertWHT(TType::Sale);
+                            WHTBusPostGrp := SalesCreditLine."WHT Business Posting Group";
+                            WHTProdPostGrp := SalesCreditLine."WHT Product Posting Group";
+                            SalesCreditHeader.Amount := 0;
+                            AbsorbBase := 0;
+                            AmountVAT := 0;
+                            SalesCreditHeader.Amount := SalesCreditHeader.Amount - SalesCreditLine.Amount;
+                            AbsorbBase := AbsorbBase - SalesCreditLine."WHT Absorb Base";
+                            if AbsorbBase <> 0 then
+                                AmountVAT := -AbsorbBase
+                            else
+                                AmountVAT := -SalesCreditHeader.Amount;
+                        end else begin
+                            WHTBusPostGrp := SalesCreditLine."WHT Business Posting Group";
+                            WHTProdPostGrp := SalesCreditLine."WHT Product Posting Group";
+                            SalesCreditHeader.Amount := SalesCreditHeader.Amount - SalesCreditLine.Amount;
+                            AbsorbBase := AbsorbBase - SalesCreditLine."WHT Absorb Base";
+                            if AbsorbBase <> 0 then
+                                AmountVAT := -AbsorbBase
+                            else
+                                AmountVAT := -SalesCreditHeader.Amount;
                         end;
                         WHTBusPostGrp := SalesCreditLine."WHT Business Posting Group";
                         WHTProdPostGrp := SalesCreditLine."WHT Product Posting Group";
                     end;
-                until SalesCreditLine.Next() = 0;
-            end;
-        end;
-
-        with SalesCreditHeader do begin
-            SalesCreditLine.Reset();
-            SalesCreditLine.SetCurrentKey("Document No.", "WHT Business Posting Group", "WHT Product Posting Group");
-            SalesCreditLine.SetRange("Document No.", "No.");
-            SalesCreditLine.SetFilter(Quantity, '<>0');
-            if SalesCreditLine.FindSet() then
-                repeat
-                    if WHTPostingSetup.Get(SalesCreditLine."WHT Business Posting Group", SalesCreditLine."WHT Product Posting Group") then
-                        if WHTPostingSetup."WHT %" > 0 then begin
-                            DocNo := SalesCreditLine."Document No.";
-                            DocType := DocType::"Credit Memo";
-                            PayToAccType := PayToAccType::Customer;
-                            PayToVendCustNo := "Bill-to Customer No.";
-                            BuyFromAccType := BuyFromAccType::Customer;
-                            BuyFromVendCustNo := "Sell-to Customer No.";
-                            SourceCode := "Source Code";
-                            ReasonCode := "Reason Code";
-                            GenBusPostGrp := SalesCreditLine."Gen. Bus. Posting Group";
-                            GenProdPostGrp := SalesCreditLine."Gen. Prod. Posting Group";
-                            TransType := TransType::Sale;
-                            PostingDate := "Posting Date";
-                            DocDate := "Document Date";
-                            CurrencyCode := "Currency Code";
-                            CurrFactor := "Currency Factor";
-                            ApplyDocType := "Applies-to Doc. Type";
-                            ApplyDocNo := "Applies-to Doc. No.";
-                            "Applies-toID" := AppliesID;
-                            if (WHTBusPostGrp <> SalesCreditLine."WHT Business Posting Group") or
-                               (WHTProdPostGrp <> SalesCreditLine."WHT Product Posting Group")
-                            then begin
-                                if AmountVAT <> 0 then
-                                    InsertWHT(TType::Sale);
-                                WHTBusPostGrp := SalesCreditLine."WHT Business Posting Group";
-                                WHTProdPostGrp := SalesCreditLine."WHT Product Posting Group";
-                                Amount := 0;
-                                AbsorbBase := 0;
-                                AmountVAT := 0;
-                                Amount := Amount - SalesCreditLine.Amount;
-                                AbsorbBase := AbsorbBase - SalesCreditLine."WHT Absorb Base";
-                                if AbsorbBase <> 0 then
-                                    AmountVAT := -AbsorbBase
-                                else
-                                    AmountVAT := -Amount;
-                            end else begin
-                                WHTBusPostGrp := SalesCreditLine."WHT Business Posting Group";
-                                WHTProdPostGrp := SalesCreditLine."WHT Product Posting Group";
-                                Amount := Amount - SalesCreditLine.Amount;
-                                AbsorbBase := AbsorbBase - SalesCreditLine."WHT Absorb Base";
-                                if AbsorbBase <> 0 then
-                                    AmountVAT := -AbsorbBase
-                                else
-                                    AmountVAT := -Amount;
-                            end;
-                            WHTBusPostGrp := SalesCreditLine."WHT Business Posting Group";
-                            WHTProdPostGrp := SalesCreditLine."WHT Product Posting Group";
-                        end;
-                until SalesCreditLine.Next() = 0;
-            InsertWHT(TType::Sale);
-        end;
+            until SalesCreditLine.Next() = 0;
+        InsertWHT(TType::Sale);
     end;
 
     [Scope('OnPrem')]
@@ -1003,20 +986,21 @@ codeunit 28040 WHTManagement
         WHTEntry2: Record "WHT Entry";
         WHTEntry3: Record "WHT Entry";
         GLSetup: Record "General Ledger Setup";
-        PaymentAmount: Decimal;
-        AppldAmount: Decimal;
         WHTEntryTemp: Record "WHT Entry";
         PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
         VendLedgEntry1: Record "Vendor Ledger Entry";
         VendLedgEntry: Record "Vendor Ledger Entry";
-        ExpectedAmount: Decimal;
-        PaymentAmount1: Decimal;
         TempWHT: Record "Temp WHT Entry";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         CustLedgEntry1: Record "Cust. Ledger Entry";
         CustLedgEntry: Record "Cust. Ledger Entry";
         TempGenJnlTemp: Record "Gen. Journal Template";
         WHTEntry4: Record "WHT Entry";
+        NoSeries: Codeunit "No. Series";
+        PaymentAmount: Decimal;
+        AppldAmount: Decimal;
+        ExpectedAmount: Decimal;
+        PaymentAmount1: Decimal;
     begin
         GLSetup.Get();
         if GLSetup."Enable GST (Australia)" then
@@ -1291,7 +1275,7 @@ codeunit 28040 WHTManagement
                         exit;
                     WHTEntry2.Init();
                     WHTEntry2."Posting Date" := GenJnlLine."Document Date";
-                    WHTEntry2."Entry No." := NextEntryNo;
+                    WHTEntry2."Entry No." := NextEntryNo();
                     WHTEntry2."Document Date" := WHTEntry."Document Date";
                     WHTEntry2."Document Type" := GenJnlLine."Document Type";
                     WHTEntry2."Document No." := WHTEntry."Document No.";
@@ -1335,9 +1319,7 @@ codeunit 28040 WHTManagement
                                            (WHTEntry2.Amount <> 0) and
                                            (WHTPostingSetup."WHT Report Line No. Series" <> '')
                                         then
-                                            WHTReportLineNo :=
-                                              NoSeriesMgt.GetNextNo(
-                                                WHTPostingSetup."WHT Report Line No. Series", WHTEntry2."Posting Date", true);
+                                            WHTReportLineNo := NoSeries.GetNextNo(WHTPostingSetup."WHT Report Line No. Series", WHTEntry2."Posting Date");
                                     WHTEntry2."WHT Report Line No" := WHTReportLineNo;
                                 end;
                                 TType := TType::Purchase;
@@ -1548,7 +1530,7 @@ codeunit 28040 WHTManagement
                     Error(Text1500000);
                 WHTEntry2.Init();
                 WHTEntry2."Posting Date" := GenJnlLine."Document Date";
-                WHTEntry2."Entry No." := NextEntryNo;
+                WHTEntry2."Entry No." := NextEntryNo();
                 WHTEntry2."Document Date" := WHTEntry."Document Date";
                 WHTEntry2."Document Type" := GenJnlLine."Document Type";
                 WHTEntry2."Document No." := WHTEntry."Document No.";
@@ -1738,6 +1720,7 @@ codeunit 28040 WHTManagement
         SalesSetup: Record "Sales & Receivables Setup";
         GeneralLedgerSetup: Record "General Ledger Setup";
         BatchPostingPrintMgt: Codeunit "Batch Posting Print Mgt.";
+        NoSeries: Codeunit "No. Series";
         GLRegFilter: Text[250];
         StartTrans: Integer;
         EndTrans: Integer;
@@ -1815,9 +1798,7 @@ codeunit 28040 WHTManagement
                (DocumentArray[PrintSlips] <> WHTSlipDocument2)
             then begin
                 PurchSetup.TestField("WHT Certificate No. Series");
-                WHTSlipNo :=
-                  NoSeriesMgt.GetNextNo(
-                    PurchSetup."WHT Certificate No. Series", WHTEntry."Posting Date", true);
+                WHTSlipNo := NoSeries.GetNextNo(PurchSetup."WHT Certificate No. Series", WHTEntry."Posting Date");
                 WHTEntry.Reset();
                 WHTEntry.SetCurrentKey("Bill-to/Pay-to No.", "Original Document No.", "WHT Revenue Type");
                 if ActualVendorNo then
@@ -1853,7 +1834,7 @@ codeunit 28040 WHTManagement
                 if ReportSelection.FindSet() then
                     repeat
                         if ScheduleInJobQueue then
-                            BatchPostingPrintMgt.SchedulePrintJobQueueEntry(WHTEntry, ReportSelection."Report ID", GeneralLedgerSetup."Report Output Type")
+                            BatchPostingPrintMgt.SchedulePrintJobQueueEntry(WHTEntry, ReportSelection."Report ID", GeneralLedgerSetup."Report Output Type".AsInteger())
                         else
                             REPORT.Run(ReportSelection."Report ID", PurchSetup."Print Dialog", false, WHTEntry);
                     until ReportSelection.Next() = 0;
@@ -2001,6 +1982,7 @@ codeunit 28040 WHTManagement
         VendLedgerEntry1: Record "Vendor Ledger Entry";
         CustLedgerEntry: Record "Cust. Ledger Entry";
         CustLedgerEntry1: Record "Cust. Ledger Entry";
+        NoSeries: Codeunit "No. Series";
         TotalWHT: Decimal;
         TotalWHTBase: Decimal;
         PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
@@ -2019,7 +2001,7 @@ codeunit 28040 WHTManagement
             if WHTPostingSetup."Realized WHT Type" <> WHTPostingSetup."Realized WHT Type"::" " then begin
                 UnrealizedWHT := (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment);
                 WHTEntry.Init();
-                WHTEntry."Entry No." := NextEntryNo;
+                WHTEntry."Entry No." := NextEntryNo();
                 WHTEntry."Gen. Bus. Posting Group" := GenBusPostGrp;
                 WHTEntry."Gen. Prod. Posting Group" := GenProdPostGrp;
                 WHTEntry."WHT Bus. Posting Group" := WHTBusPostGrp;
@@ -2184,9 +2166,7 @@ codeunit 28040 WHTManagement
                     if ((WHTReportLineNo = '') and
                         (WHTPostingSetup."WHT Report Line No. Series" <> ''))
                     then
-                        WHTEntry."WHT Report Line No" :=
-                          NoSeriesMgt.GetNextNo(
-                            WHTPostingSetup."WHT Report Line No. Series", WHTEntry."Posting Date", true);
+                        WHTEntry."WHT Report Line No" := NoSeries.GetNextNo(WHTPostingSetup."WHT Report Line No. Series", WHTEntry."Posting Date");
 
                     if TransType = TransType::Purchase then begin
                         if ((WHTEntry."Document Type" = WHTEntry."Document Type"::Invoice) or
@@ -2855,7 +2835,7 @@ codeunit 28040 WHTManagement
                                                     WHTEntry.Amount := Round(TotAmt * WHTPostingSetup."WHT %" / 100);
                                                     WHTEntry."Rem Realized Amount" := WHTEntry.Amount;
                                                     WHTEntry."Rem Realized Base" := WHTEntry.Base;
-                                                    WHTEntry."Entry No." := NextEntryNo;
+                                                    WHTEntry."Entry No." := NextEntryNo();
                                                 end else
                                                     WHTEntry."Applies-to Entry No." := TempWHTEntry."Entry No.";
                                             end;
@@ -4795,21 +4775,22 @@ codeunit 28040 WHTManagement
     var
         WHTEntry: Record "WHT Entry";
         WHTEntry3: Record "Temp WHT Entry";
-        PaymentAmount: Decimal;
-        PaymentAmountLCY: Decimal;
-        AppldAmount: Decimal;
         WHTEntryTemp: Record "WHT Entry";
         PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
         VendLedgEntry1: Record "Vendor Ledger Entry";
         VendLedgEntry: Record "Vendor Ledger Entry";
-        ExpectedAmount: Decimal;
-        PaymentAmount1: Decimal;
         TempWHTEntry: Record "Temp WHT Entry";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         CustLedgEntry1: Record "Cust. Ledger Entry";
         CustLedgEntry: Record "Cust. Ledger Entry";
-        WHTSlipNo: Code[10];
         PurchSetup: Record "Purchases & Payables Setup";
+        NoSeries: Codeunit "No. Series";
+        WHTSlipNo: Code[10];
+        ExpectedAmount: Decimal;
+        PaymentAmount: Decimal;
+        PaymentAmount1: Decimal;
+        PaymentAmountLCY: Decimal;
+        AppldAmount: Decimal;
     begin
         PaymentAmount := GenJnlLine.Amount;
         PaymentAmount1 := GenJnlLine.Amount;
@@ -4980,7 +4961,7 @@ codeunit 28040 WHTManagement
 
                 TempWHTEntry.Init();
                 TempWHTEntry."Posting Date" := GenJnlLine."Document Date";
-                TempWHTEntry."Entry No." := NextTempEntryNo;
+                TempWHTEntry."Entry No." := NextTempEntryNo();
                 TempWHTEntry."Document Date" := WHTEntry."Document Date";
                 TempWHTEntry."Document Type" := GenJnlLine."Document Type";
                 TempWHTEntry."Document No." := WHTEntry."Document No.";
@@ -5034,9 +5015,7 @@ codeunit 28040 WHTManagement
 
                 if WHTSlipNo = '' then begin
                     PurchSetup.Get();
-                    WHTSlipNo :=
-                      NoSeriesMgt.GetNextNo(
-                        PurchSetup."WHT Certificate No. Series", TempWHTEntry."Posting Date", true);
+                    WHTSlipNo := NoSeries.GetNextNo(PurchSetup."WHT Certificate No. Series", TempWHTEntry."Posting Date");
                 end;
 
                 TempWHTEntry."WHT Certificate No." := WHTSlipNo;
@@ -5667,20 +5646,21 @@ codeunit 28040 WHTManagement
         WHTEntry: Record "WHT Entry";
         WHTEntry2: Record "WHT Entry";
         WHTEntry3: Record "WHT Entry";
-        PaymentAmount: Decimal;
-        PaymentAmountLCY: Decimal;
-        AppldAmount: Decimal;
         WHTEntryTemp: Record "WHT Entry";
         PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
         VendLedgEntry1: Record "Vendor Ledger Entry";
         VendLedgEntry: Record "Vendor Ledger Entry";
-        ExpectedAmount: Decimal;
-        PaymentAmount1: Decimal;
         TempWHT: Record "Temp WHT Entry";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         CustLedgEntry1: Record "Cust. Ledger Entry";
         CustLedgEntry: Record "Cust. Ledger Entry";
+        NoSeries: Codeunit "No. Series";
         PmtDiscToBeDeducted: Decimal;
+        PaymentAmount: Decimal;
+        PaymentAmountLCY: Decimal;
+        AppldAmount: Decimal;
+        ExpectedAmount: Decimal;
+        PaymentAmount1: Decimal;
     begin
         GLSetup.Get();
         if GLSetup."Enable GST (Australia)" then
@@ -5910,7 +5890,7 @@ codeunit 28040 WHTManagement
 
                     WHTEntry2.Init();
                     WHTEntry2."Posting Date" := GenJnlLine."Document Date";
-                    WHTEntry2."Entry No." := NextEntryNo;
+                    WHTEntry2."Entry No." := NextEntryNo();
                     WHTEntry2."Document Date" := WHTEntry."Document Date";
                     WHTEntry2."Document Type" := GenJnlLine."Document Type";
                     WHTEntry2."Document No." := WHTEntry."Document No.";
@@ -5952,9 +5932,7 @@ codeunit 28040 WHTManagement
                                         if (WHTReportLineNo = '') and (WHTEntry2.Amount <> 0) and
                                            (WHTPostingSetup."WHT Report Line No. Series" <> '')
                                         then
-                                            WHTReportLineNo :=
-                                              NoSeriesMgt.GetNextNo(
-                                                WHTPostingSetup."WHT Report Line No. Series", WHTEntry2."Posting Date", true);
+                                            WHTReportLineNo := NoSeries.GetNextNo(WHTPostingSetup."WHT Report Line No. Series", WHTEntry2."Posting Date");
 
                                     WHTEntry2."WHT Report Line No" := WHTReportLineNo;
                                 end;
@@ -6049,9 +6027,10 @@ codeunit 28040 WHTManagement
         WHTEntry: Record "WHT Entry";
         TempWHTEntry: Record "Temp WHT Entry";
         VendLedgEntry: Record "Vendor Ledger Entry";
+        PurchSetup: Record "Purchases & Payables Setup";
+        NoSeries: Codeunit "No. Series";
         WHTExists: Boolean;
         NoSeriesCode: Code[20];
-        PurchSetup: Record "Purchases & Payables Setup";
     begin
         if GenJournalLine."Certificate Printed" then
             Error(Text1500001);
@@ -6071,9 +6050,7 @@ codeunit 28040 WHTManagement
             if WHTEntry.FindFirst() then begin
                 WHTPostingSetup.Get(WHTEntry."WHT Bus. Posting Group", WHTEntry."WHT Prod. Posting Group");
                 WHTPostingSetup.TestField("WHT Report Line No. Series");
-                GenJournalLine."WHT Report Line No." :=
-                  NoSeriesMgt.GetNextNo(
-                    WHTPostingSetup."WHT Report Line No. Series", GenJournalLine."Posting Date", true);
+                GenJournalLine."WHT Report Line No." := NoSeries.GetNextNo(WHTPostingSetup."WHT Report Line No. Series", GenJournalLine."Posting Date");
             end;
         end else begin
             VendLedgEntry.Reset();
@@ -6096,8 +6073,7 @@ codeunit 28040 WHTManagement
                         end;
                 until VendLedgEntry.Next() = 0;
             if NoSeriesCode <> '' then
-                GenJournalLine."WHT Report Line No." :=
-                  NoSeriesMgt.GetNextNo(NoSeriesCode, GenJournalLine."Posting Date", true);
+                GenJournalLine."WHT Report Line No." := NoSeries.GetNextNo(NoSeriesCode, GenJournalLine."Posting Date");
         end;
 
         ApplyTempVendInvoiceWHT(GenJournalLine);
@@ -7050,66 +7026,64 @@ codeunit 28040 WHTManagement
                 exit;
         end;
 
-        with PurchInvHeader do begin
-            PurchLine.Reset();
-            PurchLine.SetCurrentKey("Document Type", "Document No.", "WHT Business Posting Group", "WHT Product Posting Group");
-            PurchLine.SetRange("Document Type", PurchHeader."Document Type");
-            PurchLine.SetRange("Document No.", PurchHeader."No.");
-            PurchLine.SetFilter(Type, '<>%1', PurchLine.Type::" ");
+        PurchLine.Reset();
+        PurchLine.SetCurrentKey("Document Type", "Document No.", "WHT Business Posting Group", "WHT Product Posting Group");
+        PurchLine.SetRange("Document Type", PurchHeader."Document Type");
+        PurchLine.SetRange("Document No.", PurchHeader."No.");
+        PurchLine.SetFilter(Type, '<>%1', PurchLine.Type::" ");
 
-            if PurchLine.FindSet() then
-                repeat
-                    if PurchasePostPrepayments.PrepmtAmount(PurchLine, 0) <> 0 then
-                        if WHTPostingSetup.Get(PurchLine."WHT Business Posting Group", PurchLine."WHT Product Posting Group") then
-                            if WHTPostingSetup."WHT %" > 0 then begin
-                                DocNo := "No.";
-                                DocType := DocType::Invoice;
-                                PayToAccType := PayToAccType::Vendor;
-                                PayToVendCustNo := "Pay-to Vendor No.";
-                                BuyFromAccType := BuyFromAccType::Vendor;
-                                GenBusPostGrp := PurchLine."Gen. Bus. Posting Group";
-                                GenProdPostGrp := PurchLine."Gen. Prod. Posting Group";
-                                TransType := TransType::Purchase;
-                                BuyFromVendCustNo := "Actual Vendor No.";
-                                PostingDate := "Posting Date";
-                                DocDate := "Document Date";
-                                CurrencyCode := "Currency Code";
-                                CurrFactor := "Currency Factor";
-                                ApplyDocType := "Applies-to Doc. Type";
-                                ApplyDocNo := "Applies-to Doc. No.";
-                                SourceCode := "Source Code";
-                                ReasonCode := "Reason Code";
+        if PurchLine.FindSet() then
+            repeat
+                if PurchasePostPrepayments.PrepmtAmount(PurchLine, 0) <> 0 then
+                    if WHTPostingSetup.Get(PurchLine."WHT Business Posting Group", PurchLine."WHT Product Posting Group") then
+                        if WHTPostingSetup."WHT %" > 0 then begin
+                            DocNo := PurchInvHeader."No.";
+                            DocType := DocType::Invoice;
+                            PayToAccType := PayToAccType::Vendor;
+                            PayToVendCustNo := PurchInvHeader."Pay-to Vendor No.";
+                            BuyFromAccType := BuyFromAccType::Vendor;
+                            GenBusPostGrp := PurchLine."Gen. Bus. Posting Group";
+                            GenProdPostGrp := PurchLine."Gen. Prod. Posting Group";
+                            TransType := TransType::Purchase;
+                            BuyFromVendCustNo := PurchInvHeader."Actual Vendor No.";
+                            PostingDate := PurchInvHeader."Posting Date";
+                            DocDate := PurchInvHeader."Document Date";
+                            CurrencyCode := PurchInvHeader."Currency Code";
+                            CurrFactor := PurchInvHeader."Currency Factor";
+                            ApplyDocType := PurchInvHeader."Applies-to Doc. Type";
+                            ApplyDocNo := PurchInvHeader."Applies-to Doc. No.";
+                            SourceCode := PurchInvHeader."Source Code";
+                            ReasonCode := PurchInvHeader."Reason Code";
 
-                                if (WHTBusPostGrp <> PurchLine."WHT Business Posting Group") or
-                                   (WHTProdPostGrp <> PurchLine."WHT Product Posting Group")
-                                then begin
-                                    if AmountVAT <> 0 then
-                                        InsertPrepaymentUnrealizedWHT(TType::Purchase);
-                                    WHTBusPostGrp := PurchLine."WHT Business Posting Group";
-                                    WHTProdPostGrp := PurchLine."WHT Product Posting Group";
-                                    AmountVAT := 0;
-                                    Amount := PurchasePostPrepayments.PrepmtAmount(PurchLine, 0);
-                                    AbsorbBase := PurchLine."WHT Absorb Base";
-                                    if AbsorbBase <> 0 then
-                                        AmountVAT := AbsorbBase
-                                    else
-                                        AmountVAT := Amount;
-                                end else begin
-                                    WHTBusPostGrp := PurchLine."WHT Business Posting Group";
-                                    WHTProdPostGrp := PurchLine."WHT Product Posting Group";
-                                    Amount += PurchasePostPrepayments.PrepmtAmount(PurchLine, 0);
-                                    AbsorbBase += PurchLine."WHT Absorb Base";
-                                    if AbsorbBase <> 0 then
-                                        AmountVAT := AbsorbBase
-                                    else
-                                        AmountVAT := Amount;
-                                end;
+                            if (WHTBusPostGrp <> PurchLine."WHT Business Posting Group") or
+                               (WHTProdPostGrp <> PurchLine."WHT Product Posting Group")
+                            then begin
+                                if AmountVAT <> 0 then
+                                    InsertPrepaymentUnrealizedWHT(TType::Purchase);
                                 WHTBusPostGrp := PurchLine."WHT Business Posting Group";
                                 WHTProdPostGrp := PurchLine."WHT Product Posting Group";
+                                AmountVAT := 0;
+                                PurchInvHeader.Amount := PurchasePostPrepayments.PrepmtAmount(PurchLine, 0);
+                                AbsorbBase := PurchLine."WHT Absorb Base";
+                                if AbsorbBase <> 0 then
+                                    AmountVAT := AbsorbBase
+                                else
+                                    AmountVAT := PurchInvHeader.Amount;
+                            end else begin
+                                WHTBusPostGrp := PurchLine."WHT Business Posting Group";
+                                WHTProdPostGrp := PurchLine."WHT Product Posting Group";
+                                PurchInvHeader.Amount += PurchasePostPrepayments.PrepmtAmount(PurchLine, 0);
+                                AbsorbBase += PurchLine."WHT Absorb Base";
+                                if AbsorbBase <> 0 then
+                                    AmountVAT := AbsorbBase
+                                else
+                                    AmountVAT := PurchInvHeader.Amount;
                             end;
-                until PurchLine.Next() = 0;
-            InsertPrepaymentUnrealizedWHT(TType::Purchase);
-        end;
+                            WHTBusPostGrp := PurchLine."WHT Business Posting Group";
+                            WHTProdPostGrp := PurchLine."WHT Product Posting Group";
+                        end;
+            until PurchLine.Next() = 0;
+        InsertPrepaymentUnrealizedWHT(TType::Purchase);
     end;
 
     [Scope('OnPrem')]
@@ -7122,7 +7096,7 @@ codeunit 28040 WHTManagement
                 UnrealizedWHT := (WHTPostingSetup."Realized WHT Type" in [WHTPostingSetup."Realized WHT Type"::Earliest,
                                                                           WHTPostingSetup."Realized WHT Type"::Invoice]);
                 WHTEntry.Init();
-                WHTEntry."Entry No." := NextEntryNo;
+                WHTEntry."Entry No." := NextEntryNo();
                 WHTEntry."Gen. Bus. Posting Group" := GenBusPostGrp;
                 WHTEntry."Gen. Prod. Posting Group" := GenProdPostGrp;
                 WHTEntry."WHT Bus. Posting Group" := WHTBusPostGrp;
@@ -7209,121 +7183,118 @@ codeunit 28040 WHTManagement
         TempWHT: Record "WHT Entry";
         VendLedgEntry: Record "Vendor Ledger Entry";
         WHTEntry4: Record "WHT Entry";
+        NoSeries: Codeunit "No. Series";
     begin
-        with TempWHTEntry do begin
-            WHTEntry2.Init();
-            WHTEntry2."Posting Date" := TempGenJnlLine."Document Date";
-            WHTEntry2."Entry No." := NextEntryNo;
-            WHTEntry2."Document Date" := "Document Date";
-            WHTEntry2."Document Type" := TempGenJnlLine."Document Type";
-            WHTEntry2."Document No." := DocNo;
-            WHTEntry2."Gen. Bus. Posting Group" := "Gen. Bus. Posting Group";
-            WHTEntry2."Gen. Prod. Posting Group" := "Gen. Prod. Posting Group";
-            WHTEntry2."Bill-to/Pay-to No." := "Bill-to/Pay-to No.";
-            WHTEntry2."WHT Bus. Posting Group" := "WHT Bus. Posting Group";
-            WHTEntry2."WHT Prod. Posting Group" := "WHT Prod. Posting Group";
-            WHTEntry2."WHT Revenue Type" := "WHT Revenue Type";
-            WHTEntry2."Currency Code" := TempGenJnlLine."Currency Code";
-            WHTEntry2."Applies-to Entry No." := "Entry No.";
-            WHTEntry2."User ID" := UserId;
-            WHTEntry2."External Document No." := TempGenJnlLine."External Document No.";
-            WHTEntry2."Actual Vendor No." := TempGenJnlLine."Actual Vendor No.";
-            WHTEntry2."Original Document No." := TempGenJnlLine."Document No.";
-            WHTEntry2."Source Code" := TempGenJnlLine."Source Code";
-            WHTEntry2."Unrealized WHT Entry No." := "Entry No.";
-            WHTEntry2."WHT %" := "WHT %";
-            VendLedgEntry.Reset();
-            VendLedgEntry.SetRange("Document Type", TempGenJnlLine."Document Type");
-            VendLedgEntry.SetRange("Document No.", TempGenJnlLine."Document No.");
-            if VendLedgEntry.FindLast() then
-                WHTEntry2."Transaction No." := VendLedgEntry."Transaction No.";
-            WHTEntry2.Base := Round(AppldAmount);
-            WHTEntry2.Amount := Round(WHTEntry2.Base * WHTEntry2."WHT %" / 100);
-            WHTEntry2."Payment Amount" := PaymentAmount1;
-            WHTEntry2."Transaction Type" := WHTEntry2."Transaction Type"::Purchase;
-            WHTPostingSetup.Get("WHT Bus. Posting Group", "WHT Prod. Posting Group");
-            WHTEntry2."WHT Report" := WHTPostingSetup."WHT Report";
+        WHTEntry2.Init();
+        WHTEntry2."Posting Date" := TempGenJnlLine."Document Date";
+        WHTEntry2."Entry No." := NextEntryNo();
+        WHTEntry2."Document Date" := TempWHTEntry."Document Date";
+        WHTEntry2."Document Type" := TempGenJnlLine."Document Type";
+        WHTEntry2."Document No." := DocNo;
+        WHTEntry2."Gen. Bus. Posting Group" := TempWHTEntry."Gen. Bus. Posting Group";
+        WHTEntry2."Gen. Prod. Posting Group" := TempWHTEntry."Gen. Prod. Posting Group";
+        WHTEntry2."Bill-to/Pay-to No." := TempWHTEntry."Bill-to/Pay-to No.";
+        WHTEntry2."WHT Bus. Posting Group" := TempWHTEntry."WHT Bus. Posting Group";
+        WHTEntry2."WHT Prod. Posting Group" := TempWHTEntry."WHT Prod. Posting Group";
+        WHTEntry2."WHT Revenue Type" := TempWHTEntry."WHT Revenue Type";
+        WHTEntry2."Currency Code" := TempGenJnlLine."Currency Code";
+        WHTEntry2."Applies-to Entry No." := TempWHTEntry."Entry No.";
+        WHTEntry2."User ID" := UserId;
+        WHTEntry2."External Document No." := TempGenJnlLine."External Document No.";
+        WHTEntry2."Actual Vendor No." := TempGenJnlLine."Actual Vendor No.";
+        WHTEntry2."Original Document No." := TempGenJnlLine."Document No.";
+        WHTEntry2."Source Code" := TempGenJnlLine."Source Code";
+        WHTEntry2."Unrealized WHT Entry No." := TempWHTEntry."Entry No.";
+        WHTEntry2."WHT %" := TempWHTEntry."WHT %";
+        VendLedgEntry.Reset();
+        VendLedgEntry.SetRange("Document Type", TempGenJnlLine."Document Type");
+        VendLedgEntry.SetRange("Document No.", TempGenJnlLine."Document No.");
+        if VendLedgEntry.FindLast() then
+            WHTEntry2."Transaction No." := VendLedgEntry."Transaction No.";
+        WHTEntry2.Base := Round(AppldAmount);
+        WHTEntry2.Amount := Round(WHTEntry2.Base * WHTEntry2."WHT %" / 100);
+        WHTEntry2."Payment Amount" := PaymentAmount1;
+        WHTEntry2."Transaction Type" := WHTEntry2."Transaction Type"::Purchase;
+        WHTPostingSetup.Get(TempWHTEntry."WHT Bus. Posting Group", TempWHTEntry."WHT Prod. Posting Group");
+        WHTEntry2."WHT Report" := WHTPostingSetup."WHT Report";
 
-            if TempGenJnlLine."Certificate Printed" then begin
-                WHTEntry2."WHT Report Line No" := TempGenJnlLine."WHT Report Line No.";
-                TempWHT.SetRange("Document No.", "Document No.");
-                if TempWHT.FindFirst() then
-                    WHTEntry2."WHT Certificate No." := TempWHT."WHT Certificate No.";
-            end else begin
-                if ((TransType = TransType::Purchase) and
-                    ("Document Type" = "Document Type"::Invoice))
-                then
-                    if (WHTReportLineNo = '') and
-                       (WHTEntry2.Amount <> 0) and
-                       (WHTPostingSetup."WHT Report Line No. Series" <> '')
-                    then
-                        WHTReportLineNo :=
-                          NoSeriesMgt.GetNextNo(
-                            WHTPostingSetup."WHT Report Line No. Series", WHTEntry2."Posting Date", true);
-                WHTEntry2."WHT Report Line No" := WHTReportLineNo;
-            end;
-
-            if WHTEntry2."Currency Code" <> '' then begin
-                CurrFactor :=
-                  CurrExchRate.ExchangeRate(
-                    WHTEntry2."Posting Date",
-                    WHTEntry2."Currency Code");
-                WHTEntry2."Base (LCY)" :=
-                  Round(
-                    CurrExchRate.ExchangeAmtFCYToLCY(
-                      TempGenJnlLine."Document Date",
-                      WHTEntry2."Currency Code",
-                      WHTEntry2.Base, CurrFactor));
-                WHTEntry2."Amount (LCY)" :=
-                  Round(
-                    CurrExchRate.ExchangeAmtFCYToLCY(
-                      TempGenJnlLine."Document Date",
-                      WHTEntry2."Currency Code",
-                      WHTEntry2.Amount, CurrFactor));
-            end else begin
-                WHTEntry2."Amount (LCY)" := WHTEntry2.Amount;
-                WHTEntry2."Base (LCY)" := WHTEntry2.Base;
-            end;
-
-            if CurrencyCode = '' then begin
-                WHTEntry3."Rem Unrealized Amount (LCY)" -= WHTEntry2.Amount;
-                WHTEntry3."Rem Unrealized Base (LCY)" -= WHTEntry2.Base;
-            end else begin
-                WHTEntry3."Rem Unrealized Amount (LCY)" -=
-                  Round(CurrExchRate.ExchangeAmtFCYToLCY(DocDate, CurrencyCode, WHTEntry2.Amount, CurrFactor));
-                WHTEntry3."Rem Unrealized Base (LCY)" -=
-                  Round(CurrExchRate.ExchangeAmtFCYToLCY(DocDate, CurrencyCode, WHTEntry2.Base, CurrFactor));
-            end;
-            WHTEntry3.Closed :=
-              (WHTEntry3."Remaining Unrealized Base" = 0) and (WHTEntry3."Remaining Unrealized Amount" = 0);
-
-            if ((WHTEntry2."Rem Realized Amount" = 0) and
-                (WHTEntry2."Rem Realized Base" = 0))
+        if TempGenJnlLine."Certificate Printed" then begin
+            WHTEntry2."WHT Report Line No" := TempGenJnlLine."WHT Report Line No.";
+            TempWHT.SetRange("Document No.", TempWHTEntry."Document No.");
+            if TempWHT.FindFirst() then
+                WHTEntry2."WHT Certificate No." := TempWHT."WHT Certificate No.";
+        end else begin
+            if ((TransType = TransType::Purchase) and
+                (TempWHTEntry."Document Type" = TempWHTEntry."Document Type"::Invoice))
             then
-                WHTEntry2.Closed := true;
+                if (WHTReportLineNo = '') and
+                   (WHTEntry2.Amount <> 0) and
+                   (WHTPostingSetup."WHT Report Line No. Series" <> '')
+                then
+                    WHTReportLineNo := NoSeries.GetNextNo(WHTPostingSetup."WHT Report Line No. Series", WHTEntry2."Posting Date");
+            WHTEntry2."WHT Report Line No" := WHTReportLineNo;
+        end;
 
-            WHTEntry2.Insert();
-            NextWHTEntryNo := WHTEntry2."Entry No." + 1;
-            WHTEntry3.Modify();
+        if WHTEntry2."Currency Code" <> '' then begin
+            CurrFactor :=
+              CurrExchRate.ExchangeRate(
+                WHTEntry2."Posting Date",
+                WHTEntry2."Currency Code");
+            WHTEntry2."Base (LCY)" :=
+              Round(
+                CurrExchRate.ExchangeAmtFCYToLCY(
+                  TempGenJnlLine."Document Date",
+                  WHTEntry2."Currency Code",
+                  WHTEntry2.Base, CurrFactor));
+            WHTEntry2."Amount (LCY)" :=
+              Round(
+                CurrExchRate.ExchangeAmtFCYToLCY(
+                  TempGenJnlLine."Document Date",
+                  WHTEntry2."Currency Code",
+                  WHTEntry2.Amount, CurrFactor));
+        end else begin
+            WHTEntry2."Amount (LCY)" := WHTEntry2.Amount;
+            WHTEntry2."Base (LCY)" := WHTEntry2.Base;
+        end;
 
-            WHTEntry4.Reset();
-            WHTEntry4.SetCurrentKey("Applies-to Entry No.");
-            WHTEntry4.SetRange("Applies-to Entry No.", "Entry No.");
-            WHTEntry4.CalcSums(Amount, "Amount (LCY)");
-            if (Abs(Abs(WHTEntry4.Amount) - Abs("Unrealized Amount")) < 0.1) and
-               (Abs(Abs(WHTEntry4.Amount) - Abs("Unrealized Amount")) > 0)
-            then begin
-                WHTEntry2."WHT Difference" := "Unrealized Amount" - WHTEntry4.Amount;
-                WHTEntry2.Amount := WHTEntry2.Amount + WHTEntry2."WHT Difference";
-                WHTEntry2.Modify();
-            end;
-            if (Abs(Abs(WHTEntry4."Amount (LCY)") - Abs("Unrealized Amount (LCY)")) < 0.1) and
-               (Abs(Abs(WHTEntry4."Amount (LCY)") - Abs("Unrealized Amount (LCY)")) > 0)
-            then begin
-                WHTEntry2."Amount (LCY)" := WHTEntry2."Amount (LCY)" +
-                  "Unrealized Amount (LCY)" - WHTEntry4."Amount (LCY)";
-                WHTEntry2.Modify();
-            end;
+        if CurrencyCode = '' then begin
+            WHTEntry3."Rem Unrealized Amount (LCY)" -= WHTEntry2.Amount;
+            WHTEntry3."Rem Unrealized Base (LCY)" -= WHTEntry2.Base;
+        end else begin
+            WHTEntry3."Rem Unrealized Amount (LCY)" -=
+              Round(CurrExchRate.ExchangeAmtFCYToLCY(DocDate, CurrencyCode, WHTEntry2.Amount, CurrFactor));
+            WHTEntry3."Rem Unrealized Base (LCY)" -=
+              Round(CurrExchRate.ExchangeAmtFCYToLCY(DocDate, CurrencyCode, WHTEntry2.Base, CurrFactor));
+        end;
+        WHTEntry3.Closed :=
+          (WHTEntry3."Remaining Unrealized Base" = 0) and (WHTEntry3."Remaining Unrealized Amount" = 0);
+
+        if ((WHTEntry2."Rem Realized Amount" = 0) and
+            (WHTEntry2."Rem Realized Base" = 0))
+        then
+            WHTEntry2.Closed := true;
+
+        WHTEntry2.Insert();
+        NextWHTEntryNo := WHTEntry2."Entry No." + 1;
+        WHTEntry3.Modify();
+
+        WHTEntry4.Reset();
+        WHTEntry4.SetCurrentKey("Applies-to Entry No.");
+        WHTEntry4.SetRange("Applies-to Entry No.", TempWHTEntry."Entry No.");
+        WHTEntry4.CalcSums(Amount, "Amount (LCY)");
+        if (Abs(Abs(WHTEntry4.Amount) - Abs(TempWHTEntry."Unrealized Amount")) < 0.1) and
+           (Abs(Abs(WHTEntry4.Amount) - Abs(TempWHTEntry."Unrealized Amount")) > 0)
+        then begin
+            WHTEntry2."WHT Difference" := TempWHTEntry."Unrealized Amount" - WHTEntry4.Amount;
+            WHTEntry2.Amount := WHTEntry2.Amount + WHTEntry2."WHT Difference";
+            WHTEntry2.Modify();
+        end;
+        if (Abs(Abs(WHTEntry4."Amount (LCY)") - Abs(TempWHTEntry."Unrealized Amount (LCY)")) < 0.1) and
+           (Abs(Abs(WHTEntry4."Amount (LCY)") - Abs(TempWHTEntry."Unrealized Amount (LCY)")) > 0)
+        then begin
+            WHTEntry2."Amount (LCY)" := WHTEntry2."Amount (LCY)" +
+              TempWHTEntry."Unrealized Amount (LCY)" - WHTEntry4."Amount (LCY)";
+            WHTEntry2.Modify();
         end;
     end;
 
@@ -7362,68 +7333,66 @@ codeunit 28040 WHTManagement
                 exit;
         end;
 
-        with PurchHeader do begin
-            PurchLine.Reset();
-            PurchLine.SetCurrentKey("Document Type", "Document No.", "WHT Business Posting Group", "WHT Product Posting Group");
-            PurchLine.SetRange("Document Type", "Document Type");
-            PurchLine.SetRange("Document No.", "No.");
-            PurchLine.SetFilter(Type, '<>%1', PurchLine.Type::" ");
+        PurchLine.Reset();
+        PurchLine.SetCurrentKey("Document Type", "Document No.", "WHT Business Posting Group", "WHT Product Posting Group");
+        PurchLine.SetRange("Document Type", PurchHeader."Document Type");
+        PurchLine.SetRange("Document No.", PurchHeader."No.");
+        PurchLine.SetFilter(Type, '<>%1', PurchLine.Type::" ");
 
-            if PurchLine.FindSet() then
-                repeat
-                    if PurchLine."Prepmt. Line Amount" <> 0 then
-                        if WHTPostingSetup.Get(PurchLine."WHT Business Posting Group", PurchLine."WHT Product Posting Group") then
-                            if WHTPostingSetup."WHT %" > 0 then begin
-                                DocNo := PurchCrMemoHeader."No.";
-                                DocType := DocType::"Credit Memo";
-                                PayToAccType := PayToAccType::Vendor;
-                                PayToVendCustNo := "Pay-to Vendor No.";
-                                BuyFromAccType := BuyFromAccType::Vendor;
-                                GenBusPostGrp := PurchLine."Gen. Bus. Posting Group";
-                                GenProdPostGrp := PurchLine."Gen. Prod. Posting Group";
-                                TransType := TransType::Purchase;
-                                BuyFromVendCustNo := "Actual Vendor No.";
-                                PostingDate := "Posting Date";
-                                DocDate := "Document Date";
-                                CurrencyCode := "Currency Code";
-                                CurrFactor := "Currency Factor";
-                                ApplyDocType := "Applies-to Doc. Type";
-                                ApplyDocNo := "Applies-to Doc. No.";
-                                SourceCode := PurchCrMemoHeader."Source Code";
-                                ReasonCode := "Reason Code";
+        if PurchLine.FindSet() then
+            repeat
+                if PurchLine."Prepmt. Line Amount" <> 0 then
+                    if WHTPostingSetup.Get(PurchLine."WHT Business Posting Group", PurchLine."WHT Product Posting Group") then
+                        if WHTPostingSetup."WHT %" > 0 then begin
+                            DocNo := PurchCrMemoHeader."No.";
+                            DocType := DocType::"Credit Memo";
+                            PayToAccType := PayToAccType::Vendor;
+                            PayToVendCustNo := PurchHeader."Pay-to Vendor No.";
+                            BuyFromAccType := BuyFromAccType::Vendor;
+                            GenBusPostGrp := PurchLine."Gen. Bus. Posting Group";
+                            GenProdPostGrp := PurchLine."Gen. Prod. Posting Group";
+                            TransType := TransType::Purchase;
+                            BuyFromVendCustNo := PurchHeader."Actual Vendor No.";
+                            PostingDate := PurchHeader."Posting Date";
+                            DocDate := PurchHeader."Document Date";
+                            CurrencyCode := PurchHeader."Currency Code";
+                            CurrFactor := PurchHeader."Currency Factor";
+                            ApplyDocType := PurchHeader."Applies-to Doc. Type";
+                            ApplyDocNo := PurchHeader."Applies-to Doc. No.";
+                            SourceCode := PurchCrMemoHeader."Source Code";
+                            ReasonCode := PurchHeader."Reason Code";
 
-                                if (WHTBusPostGrp <> PurchLine."WHT Business Posting Group") or
-                                   (WHTProdPostGrp <> PurchLine."WHT Product Posting Group")
-                                then begin
-                                    if AmountVAT <> 0 then
-                                        InsertPrepaymentUnrealizedWHT(TType::Purchase);
-                                    WHTBusPostGrp := PurchLine."WHT Business Posting Group";
-                                    WHTProdPostGrp := PurchLine."WHT Product Posting Group";
-                                    Amount := 0;
-                                    AbsorbBase := 0;
-                                    AmountVAT := 0;
-                                    Amount -= PurchLine."Prepmt. Line Amount";
-                                    AbsorbBase -= PurchLine."WHT Absorb Base";
-                                    if AbsorbBase <> 0 then
-                                        AmountVAT := AbsorbBase
-                                    else
-                                        AmountVAT := Amount;
-                                end else begin
-                                    WHTBusPostGrp := PurchLine."WHT Business Posting Group";
-                                    WHTProdPostGrp := PurchLine."WHT Product Posting Group";
-                                    Amount -= PurchLine."Prepmt. Line Amount";
-                                    AbsorbBase -= PurchLine."WHT Absorb Base";
-                                    if AbsorbBase <> 0 then
-                                        AmountVAT := AbsorbBase
-                                    else
-                                        AmountVAT := Amount;
-                                end;
+                            if (WHTBusPostGrp <> PurchLine."WHT Business Posting Group") or
+                               (WHTProdPostGrp <> PurchLine."WHT Product Posting Group")
+                            then begin
+                                if AmountVAT <> 0 then
+                                    InsertPrepaymentUnrealizedWHT(TType::Purchase);
                                 WHTBusPostGrp := PurchLine."WHT Business Posting Group";
                                 WHTProdPostGrp := PurchLine."WHT Product Posting Group";
+                                PurchHeader.Amount := 0;
+                                AbsorbBase := 0;
+                                AmountVAT := 0;
+                                PurchHeader.Amount -= PurchLine."Prepmt. Line Amount";
+                                AbsorbBase -= PurchLine."WHT Absorb Base";
+                                if AbsorbBase <> 0 then
+                                    AmountVAT := AbsorbBase
+                                else
+                                    AmountVAT := PurchHeader.Amount;
+                            end else begin
+                                WHTBusPostGrp := PurchLine."WHT Business Posting Group";
+                                WHTProdPostGrp := PurchLine."WHT Product Posting Group";
+                                PurchHeader.Amount -= PurchLine."Prepmt. Line Amount";
+                                AbsorbBase -= PurchLine."WHT Absorb Base";
+                                if AbsorbBase <> 0 then
+                                    AmountVAT := AbsorbBase
+                                else
+                                    AmountVAT := PurchHeader.Amount;
                             end;
-                until PurchLine.Next() = 0;
-            InsertPrepaymentUnrealizedWHT(TType::Purchase);
-        end;
+                            WHTBusPostGrp := PurchLine."WHT Business Posting Group";
+                            WHTProdPostGrp := PurchLine."WHT Product Posting Group";
+                        end;
+            until PurchLine.Next() = 0;
+        InsertPrepaymentUnrealizedWHT(TType::Purchase);
     end;
 
     [Scope('OnPrem')]
@@ -7492,23 +7461,21 @@ codeunit 28040 WHTManagement
 
     local procedure SetWHTEntryAmounts(var WHTEntry: Record "WHT Entry"; AbsorbBase: Decimal; AmountVAT: Decimal; CurrFactor: Decimal)
     begin
-        with WHTEntry do begin
-            Amount := 0;
-            Base := 0;
-            if AbsorbBase <> 0 then
-                "Unrealized Base" := AbsorbBase
-            else
-                "Unrealized Base" := AmountVAT;
-            "Unrealized Amount" := Round("Unrealized Base" * "WHT %" / 100);
-            "Unrealized Base (LCY)" :=
-              Round(CurrExchRate.ExchangeAmtFCYToLCY("Document Date", "Currency Code", "Unrealized Base", CurrFactor));
-            "Unrealized Amount (LCY)" :=
-              Round(CurrExchRate.ExchangeAmtFCYToLCY("Document Date", "Currency Code", "Unrealized Amount", CurrFactor));
-            "Remaining Unrealized Amount" := "Unrealized Amount";
-            "Remaining Unrealized Base" := "Unrealized Base";
-            "Rem Unrealized Amount (LCY)" := "Unrealized Amount (LCY)";
-            "Rem Unrealized Base (LCY)" := "Unrealized Base (LCY)";
-        end;
+        WHTEntry.Amount := 0;
+        WHTEntry.Base := 0;
+        if AbsorbBase <> 0 then
+            WHTEntry."Unrealized Base" := AbsorbBase
+        else
+            WHTEntry."Unrealized Base" := AmountVAT;
+        WHTEntry."Unrealized Amount" := Round(WHTEntry."Unrealized Base" * WHTEntry."WHT %" / 100);
+        WHTEntry."Unrealized Base (LCY)" :=
+          Round(CurrExchRate.ExchangeAmtFCYToLCY(WHTEntry."Document Date", WHTEntry."Currency Code", WHTEntry."Unrealized Base", CurrFactor));
+        WHTEntry."Unrealized Amount (LCY)" :=
+          Round(CurrExchRate.ExchangeAmtFCYToLCY(WHTEntry."Document Date", WHTEntry."Currency Code", WHTEntry."Unrealized Amount", CurrFactor));
+        WHTEntry."Remaining Unrealized Amount" := WHTEntry."Unrealized Amount";
+        WHTEntry."Remaining Unrealized Base" := WHTEntry."Unrealized Base";
+        WHTEntry."Rem Unrealized Amount (LCY)" := WHTEntry."Unrealized Amount (LCY)";
+        WHTEntry."Rem Unrealized Base (LCY)" := WHTEntry."Unrealized Base (LCY)";
     end;
 
     local procedure IsForeignVendor(GenJnlLine: Record "Gen. Journal Line"): Boolean

@@ -449,6 +449,12 @@ codeunit 815 "Sales Post Invoice" implements "Invoice Posting"
         JobSalesLine.SetRange("VAT Prod. Posting Group", InvoicePostingBuffer."VAT Prod. Posting Group");
         JobSalesLine.SetRange("Dimension Set ID", InvoicePostingBuffer."Dimension Set ID");
 
+        if InvoicePostingBuffer."Fixed Asset Line No." <> 0 then begin
+            SalesSetup.Get();
+            if SalesSetup."Copy Line Descr. to G/L Entry" then
+                JobSalesLine.SetRange("Line No.", InvoicePostingBuffer."Fixed Asset Line No.");
+        end;
+
         SalesPostInvoiceEvents.RunOnAfterSetJobLineFilters(JobSalesLine, InvoicePostingBuffer);
     end;
 
@@ -491,54 +497,52 @@ codeunit 815 "Sales Post Invoice" implements "Invoice Posting"
         TempInvoicePostingBufferGST.SetRange("Deferral Code", InvoicePostingBuffer."Deferral Code");
         if TempInvoicePostingBufferGST.FindSet() then
             repeat
-                with TempInvoicePostingBufferGST do begin
-                    GSTSalesEntry.Init();
-                    GSTSalesEntry."Entry No." := EntryNo;
-                    GSTSalesEntry."GST Entry No." := VATEntryNo;
-                    GSTSalesEntry."Posting Date" := SalesHeader."Posting Date";
-                    case SalesHeader."Document Type" of
-                        SalesHeader."Document Type"::Order,
-                        SalesHeader."Document Type"::Invoice:
-                            begin
-                                GSTSalesEntry."Document Type" := GSTSalesEntry."Document Type"::Invoice;
-                                GSTSalesEntry."Document No." := InvoicePostingParameters."Document No.";
-                                if SalesLine3.Get(SalesHeader."Document Type", SalesHeader."No.", "Fixed Asset Line No.") then begin
-                                    GSTSalesEntry."Document Line Code" := SalesLine3."No.";
-                                    GSTSalesEntry."Document Line Description" := SalesLine3.Description;
-                                end else
-                                    if SalesInvLine3.Get(InvoicePostingParameters."Document No.", "Fixed Asset Line No.") then begin
-                                        GSTSalesEntry."Document Line Code" := SalesInvLine3."No.";
-                                        GSTSalesEntry."Document Line Description" := SalesInvLine3.Description;
-                                    end;
-                            end;
-                        SalesHeader."Document Type"::"Return Order",
-                        SalesHeader."Document Type"::"Credit Memo":
-                            begin
-                                GSTSalesEntry."Document Type" := GSTSalesEntry."Document Type"::"Credit Memo";
-                                GSTSalesEntry."Document No." := InvoicePostingParameters."Document No.";
-                                if SalesLine3.Get(SalesHeader."Document Type", SalesHeader."No.", "Fixed Asset Line No.") then begin
-                                    GSTSalesEntry."Document Line Code" := SalesLine3."No.";
-                                    GSTSalesEntry."Document Line Description" := SalesLine3.Description;
-                                end else
-                                    if SalesCrMemoLine3.Get(InvoicePostingParameters."Document No.", "Fixed Asset Line No.") then begin
-                                        GSTSalesEntry."Document Line Code" := SalesCrMemoLine3."No.";
-                                        GSTSalesEntry."Document Line Description" := SalesCrMemoLine3.Description;
-                                    end;
-                            end;
-                    end;
-                    GSTSalesEntry."Document Line No." := "Fixed Asset Line No.";
-                    GSTSalesEntry."Document Line Type" := Type;
-                    GSTSalesEntry."Customer No." := SalesHeader."Sell-to Customer No.";
-                    GSTSalesEntry."Customer Name" := SalesHeader."Sell-to Customer Name";
-                    GSTSalesEntry."GST Entry Type" := GSTSalesEntry."GST Entry Type"::Sale;
-                    GSTSalesEntry."GST Base" := "VAT Base Amount";
-                    GSTSalesEntry.Amount := "VAT Amount";
-                    GSTSalesEntry."VAT Calculation Type" := "VAT Calculation Type";
-                    GSTSalesEntry."VAT Bus. Posting Group" := "VAT Bus. Posting Group";
-                    GSTSalesEntry."VAT Prod. Posting Group" := "VAT Prod. Posting Group";
-                    GSTSalesEntry.Insert();
-                    EntryNo += 1;
+                GSTSalesEntry.Init();
+                GSTSalesEntry."Entry No." := EntryNo;
+                GSTSalesEntry."GST Entry No." := VATEntryNo;
+                GSTSalesEntry."Posting Date" := SalesHeader."Posting Date";
+                case SalesHeader."Document Type" of
+                    SalesHeader."Document Type"::Order,
+                    SalesHeader."Document Type"::Invoice:
+                        begin
+                            GSTSalesEntry."Document Type" := GSTSalesEntry."Document Type"::Invoice;
+                            GSTSalesEntry."Document No." := InvoicePostingParameters."Document No.";
+                            if SalesLine3.Get(SalesHeader."Document Type", SalesHeader."No.", TempInvoicePostingBufferGST."Fixed Asset Line No.") then begin
+                                GSTSalesEntry."Document Line Code" := SalesLine3."No.";
+                                GSTSalesEntry."Document Line Description" := SalesLine3.Description;
+                            end else
+                                if SalesInvLine3.Get(InvoicePostingParameters."Document No.", TempInvoicePostingBufferGST."Fixed Asset Line No.") then begin
+                                    GSTSalesEntry."Document Line Code" := SalesInvLine3."No.";
+                                    GSTSalesEntry."Document Line Description" := SalesInvLine3.Description;
+                                end;
+                        end;
+                    SalesHeader."Document Type"::"Return Order",
+                    SalesHeader."Document Type"::"Credit Memo":
+                        begin
+                            GSTSalesEntry."Document Type" := GSTSalesEntry."Document Type"::"Credit Memo";
+                            GSTSalesEntry."Document No." := InvoicePostingParameters."Document No.";
+                            if SalesLine3.Get(SalesHeader."Document Type", SalesHeader."No.", TempInvoicePostingBufferGST."Fixed Asset Line No.") then begin
+                                GSTSalesEntry."Document Line Code" := SalesLine3."No.";
+                                GSTSalesEntry."Document Line Description" := SalesLine3.Description;
+                            end else
+                                if SalesCrMemoLine3.Get(InvoicePostingParameters."Document No.", TempInvoicePostingBufferGST."Fixed Asset Line No.") then begin
+                                    GSTSalesEntry."Document Line Code" := SalesCrMemoLine3."No.";
+                                    GSTSalesEntry."Document Line Description" := SalesCrMemoLine3.Description;
+                                end;
+                        end;
                 end;
+                GSTSalesEntry."Document Line No." := TempInvoicePostingBufferGST."Fixed Asset Line No.";
+                GSTSalesEntry."Document Line Type" := TempInvoicePostingBufferGST.Type;
+                GSTSalesEntry."Customer No." := SalesHeader."Sell-to Customer No.";
+                GSTSalesEntry."Customer Name" := SalesHeader."Sell-to Customer Name";
+                GSTSalesEntry."GST Entry Type" := GSTSalesEntry."GST Entry Type"::Sale;
+                GSTSalesEntry."GST Base" := TempInvoicePostingBufferGST."VAT Base Amount";
+                GSTSalesEntry.Amount := TempInvoicePostingBufferGST."VAT Amount";
+                GSTSalesEntry."VAT Calculation Type" := TempInvoicePostingBufferGST."VAT Calculation Type";
+                GSTSalesEntry."VAT Bus. Posting Group" := TempInvoicePostingBufferGST."VAT Bus. Posting Group";
+                GSTSalesEntry."VAT Prod. Posting Group" := TempInvoicePostingBufferGST."VAT Prod. Posting Group";
+                GSTSalesEntry.Insert();
+                EntryNo += 1;
             until TempInvoicePostingBufferGST.Next() = 0;
     end;
 
@@ -550,124 +554,122 @@ codeunit 815 "Sales Post Invoice" implements "Invoice Posting"
         if not GLSetup."GST Report" then
             exit;
 
-        with SalesLine do begin
-            GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
-            Clear(InvoicePostingBuffer);
-            if "Qty. to Invoice" <> 0 then begin
-                InvoicePostingBuffer.Type := Type;
-                InvoicePostingBuffer."Fixed Asset Line No." := "Line No.";
-                if (Type = Type::"G/L Account") or (Type = Type::"Fixed Asset") then begin
-                    InvoicePostingBuffer."Entry Description" := Description;
-                    InvoicePostingBuffer."G/L Account" := "No.";
+        GenPostingSetup.Get(SalesLine."Gen. Bus. Posting Group", SalesLine."Gen. Prod. Posting Group");
+        Clear(InvoicePostingBuffer);
+        if SalesLine."Qty. to Invoice" <> 0 then begin
+            InvoicePostingBuffer.Type := SalesLine.Type;
+            InvoicePostingBuffer."Fixed Asset Line No." := SalesLine."Line No.";
+            if (SalesLine.Type = SalesLine.Type::"G/L Account") or (SalesLine.Type = SalesLine.Type::"Fixed Asset") then begin
+                InvoicePostingBuffer."Entry Description" := SalesLine.Description;
+                InvoicePostingBuffer."G/L Account" := SalesLine."No.";
+            end else begin
+                if SalesLine."Document Type" in [SalesLine."Document Type"::"Return Order", SalesLine."Document Type"::"Credit Memo"] then begin
+                    GenPostingSetup.TestField("Sales Credit Memo Account");
+                    InvoicePostingBuffer."G/L Account" := GenPostingSetup."Sales Credit Memo Account";
                 end else begin
-                    if "Document Type" in ["Document Type"::"Return Order", "Document Type"::"Credit Memo"] then begin
-                        GenPostingSetup.TestField("Sales Credit Memo Account");
-                        InvoicePostingBuffer."G/L Account" := GenPostingSetup."Sales Credit Memo Account";
-                    end else begin
-                        GenPostingSetup.TestField("Sales Account");
-                        InvoicePostingBuffer."G/L Account" := GenPostingSetup."Sales Account";
-                    end;
-                    InvoicePostingBuffer."Entry Description" := SalesHeader."Posting Description";
+                    GenPostingSetup.TestField("Sales Account");
+                    InvoicePostingBuffer."G/L Account" := GenPostingSetup."Sales Account";
                 end;
-                InvoicePostingBuffer."System-Created Entry" := true;
-                InvoicePostingBuffer."Gen. Bus. Posting Group" := "Gen. Bus. Posting Group";
-                InvoicePostingBuffer."Gen. Prod. Posting Group" := "Gen. Prod. Posting Group";
-                InvoicePostingBuffer."VAT Bus. Posting Group" := "VAT Bus. Posting Group";
-                InvoicePostingBuffer."VAT Prod. Posting Group" := "VAT Prod. Posting Group";
-                InvoicePostingBuffer."VAT Calculation Type" := "VAT Calculation Type";
-                InvoicePostingBuffer."Global Dimension 1 Code" := "Shortcut Dimension 1 Code";
-                InvoicePostingBuffer."Global Dimension 2 Code" := "Shortcut Dimension 2 Code";
-                InvoicePostingBuffer."Job No." := "Job No.";
-                InvoicePostingBuffer.Amount := Amount;
-                InvoicePostingBuffer."VAT Base Amount" := Amount;
-                if "Prepayment Line" and ("Prepayment %" <> 100) then begin
-                    InvoicePostingBuffer.Amount := Round("Line Amount", Currency."Amount Rounding Precision");
-                    InvoicePostingBuffer."VAT Base Amount" := Round("VAT Base Amount", Currency."Amount Rounding Precision");
-                end;
-                InvoicePostingBuffer."Amount (ACY)" := SalesLineACY.Amount;
-                InvoicePostingBuffer."VAT Base Amount (ACY)" := SalesLineACY.Amount;
-                InvoicePostingBuffer."VAT Amount (ACY)" := SalesLineACY."Amount Including VAT" - SalesLineACY.Amount;
-                InvoicePostingBuffer."VAT Difference" := "VAT Difference";
-                InvoicePostingBuffer."VAT %" := "VAT %";
-                InvoicePostingBuffer.Adjustment := SalesHeader.Adjustment;
-                InvoicePostingBuffer."Deferral Code" := "Deferral Code";
-                InvoicePostingBuffer."BAS Adjustment" := SalesHeader."BAS Adjustment";
-                InvoicePostingBuffer."Adjustment Applies-to" := SalesHeader."Adjustment Applies-to";
-                if Type = Type::"Fixed Asset" then begin
-                    InvoicePostingBuffer."FA Posting Date" := "FA Posting Date";
-                    InvoicePostingBuffer."Depreciation Book Code" := "Depreciation Book Code";
-                    InvoicePostingBuffer."Depr. until FA Posting Date" := "Depr. until FA Posting Date";
-                    InvoicePostingBuffer."Duplicate in Depreciation Book" := "Duplicate in Depreciation Book";
-                    InvoicePostingBuffer."Use Duplication List" := "Use Duplication List";
-                end;
-
-                if "VAT Calculation Type" = "VAT Calculation Type"::"Sales Tax" then begin
-                    InvoicePostingBuffer."Tax Area Code" := "Tax Area Code";
-                    InvoicePostingBuffer."Tax Group Code" := "Tax Group Code";
-                    InvoicePostingBuffer."Tax Liable" := "Tax Liable";
-                    InvoicePostingBuffer."Use Tax" := false;
-                    InvoicePostingBuffer.Quantity := "Qty. to Invoice (Base)";
-                end;
-
-                case "VAT Calculation Type" of
-                    "VAT Calculation Type"::"Normal VAT", "VAT Calculation Type"::"Full VAT":
-                        if GLSetup.CheckFullGSTonPrepayment("VAT Bus. Posting Group", "VAT Prod. Posting Group") and
-                           SalesHeader."Prices Including VAT" and ("Prepayment %" <> 0) and not "Prepayment Line"
-                        then begin
-                            if "Amount Including VAT" < Amount then begin
-                                InvoicePostingBuffer."VAT Amount" :=
-                                  Round("Amount Including VAT" - InvoicePostingBuffer."VAT Base Amount", Currency."Amount Rounding Precision");
-                                InvoicePostingBuffer."VAT Amount" := InvoicePostingBuffer."VAT Amount" -
-                                  (InvoicePostingBuffer."VAT Amount" * (SalesHeader."VAT Base Discount %" / 100));
-                                InvoicePostingBuffer."VAT Amount (ACY)" :=
-                                  -Round(InvoicePostingBuffer."VAT Base Amount" * "VAT %" / 100, Currency."Amount Rounding Precision");
-                                InvoicePostingBuffer."VAT Amount(ACY)" :=
-                                  -Round(InvoicePostingBuffer."VAT Base Amount" * "VAT %" / 100, Currency."Amount Rounding Precision");
-                            end;
-                            if "Amount Including VAT" > Amount then begin
-                                InvoicePostingBuffer."VAT Amount" :=
-                                  Round("Amount Including VAT" - InvoicePostingBuffer."VAT Base Amount", Currency."Amount Rounding Precision");
-                                InvoicePostingBuffer."VAT Amount" := InvoicePostingBuffer."VAT Amount" -
-                                  (InvoicePostingBuffer."VAT Amount" * (SalesHeader."VAT Base Discount %" / 100));
-                                InvoicePostingBuffer."VAT Amount (ACY)" :=
-                                  Round(InvoicePostingBuffer."VAT Base Amount" * "VAT %" / 100, Currency."Amount Rounding Precision");
-                                InvoicePostingBuffer."VAT Amount(ACY)" :=
-                                  Round(InvoicePostingBuffer."VAT Base Amount" * "VAT %" / 100, Currency."Amount Rounding Precision");
-                            end;
-                        end else begin
-                            InvoicePostingBuffer."VAT Amount" :=
-                              Round("Amount Including VAT" - Amount, Currency."Amount Rounding Precision");
-                            InvoicePostingBuffer."VAT Amount (ACY)" := SalesLineACY."Amount Including VAT" - SalesLineACY.Amount;
-                        end;
-                end;
-
-                case SalesSetup."Discount Posting" of
-                    SalesSetup."Discount Posting"::"Invoice Discounts":
-                        begin
-                            InvoicePostingBuffer.Amount += "Inv. Discount Amount";
-                            InvoicePostingBuffer."Amount (ACY)" += SalesLineACY."Inv. Discount Amount";
-                            if ("Inv. Discount Amount" <> 0) or (SalesLineACY."Inv. Discount Amount" <> 0) then
-                                GenPostingSetup.TestField("Sales Inv. Disc. Account");
-                        end;
-                    SalesSetup."Discount Posting"::"Line Discounts":
-                        begin
-                            InvoicePostingBuffer.Amount += "Line Discount Amount";
-                            InvoicePostingBuffer."Amount (ACY)" += SalesLineACY."Line Discount Amount";
-                            if ("Line Discount Amount" <> 0) or (SalesLineACY."Line Discount Amount" <> 0) then
-                                GenPostingSetup.TestField("Sales Line Disc. Account");
-                        end;
-                    SalesSetup."Discount Posting"::"All Discounts":
-                        begin
-                            InvoicePostingBuffer.Amount += "Line Discount Amount" + "Inv. Discount Amount";
-                            InvoicePostingBuffer."Amount (ACY)" += SalesLineACY."Line Discount Amount" + SalesLineACY."Inv. Discount Amount";
-                            if ("Line Discount Amount" <> 0) or (SalesLineACY."Line Discount Amount" <> 0) then
-                                GenPostingSetup.TestField("Sales Line Disc. Account");
-                            if ("Inv. Discount Amount" <> 0) or (SalesLineACY."Inv. Discount Amount" <> 0) then
-                                GenPostingSetup.TestField("Sales Inv. Disc. Account");
-                        end;
-                end;
-                UpdateInvoicePostingBufferGST(SalesLine, InvoicePostingBuffer);
+                InvoicePostingBuffer."Entry Description" := SalesHeader."Posting Description";
             end;
+            InvoicePostingBuffer."System-Created Entry" := true;
+            InvoicePostingBuffer."Gen. Bus. Posting Group" := SalesLine."Gen. Bus. Posting Group";
+            InvoicePostingBuffer."Gen. Prod. Posting Group" := SalesLine."Gen. Prod. Posting Group";
+            InvoicePostingBuffer."VAT Bus. Posting Group" := SalesLine."VAT Bus. Posting Group";
+            InvoicePostingBuffer."VAT Prod. Posting Group" := SalesLine."VAT Prod. Posting Group";
+            InvoicePostingBuffer."VAT Calculation Type" := SalesLine."VAT Calculation Type";
+            InvoicePostingBuffer."Global Dimension 1 Code" := SalesLine."Shortcut Dimension 1 Code";
+            InvoicePostingBuffer."Global Dimension 2 Code" := SalesLine."Shortcut Dimension 2 Code";
+            InvoicePostingBuffer."Job No." := SalesLine."Job No.";
+            InvoicePostingBuffer.Amount := SalesLine.Amount;
+            InvoicePostingBuffer."VAT Base Amount" := SalesLine.Amount;
+            if SalesLine."Prepayment Line" and (SalesLine."Prepayment %" <> 100) then begin
+                InvoicePostingBuffer.Amount := Round(SalesLine."Line Amount", Currency."Amount Rounding Precision");
+                InvoicePostingBuffer."VAT Base Amount" := Round(SalesLine."VAT Base Amount", Currency."Amount Rounding Precision");
+            end;
+            InvoicePostingBuffer."Amount (ACY)" := SalesLineACY.Amount;
+            InvoicePostingBuffer."VAT Base Amount (ACY)" := SalesLineACY.Amount;
+            InvoicePostingBuffer."VAT Amount (ACY)" := SalesLineACY."Amount Including VAT" - SalesLineACY.Amount;
+            InvoicePostingBuffer."VAT Difference" := SalesLine."VAT Difference";
+            InvoicePostingBuffer."VAT %" := SalesLine."VAT %";
+            InvoicePostingBuffer.Adjustment := SalesHeader.Adjustment;
+            InvoicePostingBuffer."Deferral Code" := SalesLine."Deferral Code";
+            InvoicePostingBuffer."BAS Adjustment" := SalesHeader."BAS Adjustment";
+            InvoicePostingBuffer."Adjustment Applies-to" := SalesHeader."Adjustment Applies-to";
+            if SalesLine.Type = SalesLine.Type::"Fixed Asset" then begin
+                InvoicePostingBuffer."FA Posting Date" := SalesLine."FA Posting Date";
+                InvoicePostingBuffer."Depreciation Book Code" := SalesLine."Depreciation Book Code";
+                InvoicePostingBuffer."Depr. until FA Posting Date" := SalesLine."Depr. until FA Posting Date";
+                InvoicePostingBuffer."Duplicate in Depreciation Book" := SalesLine."Duplicate in Depreciation Book";
+                InvoicePostingBuffer."Use Duplication List" := SalesLine."Use Duplication List";
+            end;
+
+            if SalesLine."VAT Calculation Type" = SalesLine."VAT Calculation Type"::"Sales Tax" then begin
+                InvoicePostingBuffer."Tax Area Code" := SalesLine."Tax Area Code";
+                InvoicePostingBuffer."Tax Group Code" := SalesLine."Tax Group Code";
+                InvoicePostingBuffer."Tax Liable" := SalesLine."Tax Liable";
+                InvoicePostingBuffer."Use Tax" := false;
+                InvoicePostingBuffer.Quantity := SalesLine."Qty. to Invoice (Base)";
+            end;
+
+            case SalesLine."VAT Calculation Type" of
+                SalesLine."VAT Calculation Type"::"Normal VAT", SalesLine."VAT Calculation Type"::"Full VAT":
+                    if GLSetup.CheckFullGSTonPrepayment(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group") and
+                       SalesHeader."Prices Including VAT" and (SalesLine."Prepayment %" <> 0) and not SalesLine."Prepayment Line"
+                    then begin
+                        if SalesLine."Amount Including VAT" < SalesLine.Amount then begin
+                            InvoicePostingBuffer."VAT Amount" :=
+                              Round(SalesLine."Amount Including VAT" - InvoicePostingBuffer."VAT Base Amount", Currency."Amount Rounding Precision");
+                            InvoicePostingBuffer."VAT Amount" := InvoicePostingBuffer."VAT Amount" -
+                              (InvoicePostingBuffer."VAT Amount" * (SalesHeader."VAT Base Discount %" / 100));
+                            InvoicePostingBuffer."VAT Amount (ACY)" :=
+                              -Round(InvoicePostingBuffer."VAT Base Amount" * SalesLine."VAT %" / 100, Currency."Amount Rounding Precision");
+                            InvoicePostingBuffer."VAT Amount(ACY)" :=
+                              -Round(InvoicePostingBuffer."VAT Base Amount" * SalesLine."VAT %" / 100, Currency."Amount Rounding Precision");
+                        end;
+                        if SalesLine."Amount Including VAT" > SalesLine.Amount then begin
+                            InvoicePostingBuffer."VAT Amount" :=
+                              Round(SalesLine."Amount Including VAT" - InvoicePostingBuffer."VAT Base Amount", Currency."Amount Rounding Precision");
+                            InvoicePostingBuffer."VAT Amount" := InvoicePostingBuffer."VAT Amount" -
+                              (InvoicePostingBuffer."VAT Amount" * (SalesHeader."VAT Base Discount %" / 100));
+                            InvoicePostingBuffer."VAT Amount (ACY)" :=
+                              Round(InvoicePostingBuffer."VAT Base Amount" * SalesLine."VAT %" / 100, Currency."Amount Rounding Precision");
+                            InvoicePostingBuffer."VAT Amount(ACY)" :=
+                              Round(InvoicePostingBuffer."VAT Base Amount" * SalesLine."VAT %" / 100, Currency."Amount Rounding Precision");
+                        end;
+                    end else begin
+                        InvoicePostingBuffer."VAT Amount" :=
+                          Round(SalesLine."Amount Including VAT" - SalesLine.Amount, Currency."Amount Rounding Precision");
+                        InvoicePostingBuffer."VAT Amount (ACY)" := SalesLineACY."Amount Including VAT" - SalesLineACY.Amount;
+                    end;
+            end;
+
+            case SalesSetup."Discount Posting" of
+                SalesSetup."Discount Posting"::"Invoice Discounts":
+                    begin
+                        InvoicePostingBuffer.Amount += SalesLine."Inv. Discount Amount";
+                        InvoicePostingBuffer."Amount (ACY)" += SalesLineACY."Inv. Discount Amount";
+                        if (SalesLine."Inv. Discount Amount" <> 0) or (SalesLineACY."Inv. Discount Amount" <> 0) then
+                            GenPostingSetup.TestField("Sales Inv. Disc. Account");
+                    end;
+                SalesSetup."Discount Posting"::"Line Discounts":
+                    begin
+                        InvoicePostingBuffer.Amount += SalesLine."Line Discount Amount";
+                        InvoicePostingBuffer."Amount (ACY)" += SalesLineACY."Line Discount Amount";
+                        if (SalesLine."Line Discount Amount" <> 0) or (SalesLineACY."Line Discount Amount" <> 0) then
+                            GenPostingSetup.TestField("Sales Line Disc. Account");
+                    end;
+                SalesSetup."Discount Posting"::"All Discounts":
+                    begin
+                        InvoicePostingBuffer.Amount += SalesLine."Line Discount Amount" + SalesLine."Inv. Discount Amount";
+                        InvoicePostingBuffer."Amount (ACY)" += SalesLineACY."Line Discount Amount" + SalesLineACY."Inv. Discount Amount";
+                        if (SalesLine."Line Discount Amount" <> 0) or (SalesLineACY."Line Discount Amount" <> 0) then
+                            GenPostingSetup.TestField("Sales Line Disc. Account");
+                        if (SalesLine."Inv. Discount Amount" <> 0) or (SalesLineACY."Inv. Discount Amount" <> 0) then
+                            GenPostingSetup.TestField("Sales Inv. Disc. Account");
+                    end;
+            end;
+            UpdateInvoicePostingBufferGST(SalesLine, InvoicePostingBuffer);
         end;
     end;
 

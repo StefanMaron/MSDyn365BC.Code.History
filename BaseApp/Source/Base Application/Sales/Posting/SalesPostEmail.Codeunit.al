@@ -35,15 +35,14 @@ codeunit 89 "Sales-Post + Email"
             exit;
 
         if not HideDialog then
-            with SalesHeader do
-                case "Document Type" of
-                    "Document Type"::Invoice,
-                  "Document Type"::"Credit Memo":
-                        if not ConfirmPostAndDistribute(SalesHeader) then
-                            exit;
-                    else
-                        ErrorPostAndDistribute(SalesHeader);
-                end;
+            case SalesHeader."Document Type" of
+                SalesHeader."Document Type"::Invoice,
+                  SalesHeader."Document Type"::"Credit Memo":
+                    if not ConfirmPostAndDistribute(SalesHeader) then
+                        exit;
+                else
+                    ErrorPostAndDistribute(SalesHeader);
+            end;
 
         OnAfterConfirmPost(SalesHeader);
 
@@ -57,32 +56,30 @@ codeunit 89 "Sales-Post + Email"
     end;
 
     local procedure SendDocumentReport(var SalesHeader: Record "Sales Header")
-    var
     begin
-        with SalesHeader do
-            case "Document Type" of
-                "Document Type"::Invoice:
-                    begin
-                        OnSendDocumentReportOnBeforeSendInvoice(SalesInvHeader);
-                        if "Last Posting No." = '' then
-                            SalesInvHeader."No." := "No."
-                        else
-                            SalesInvHeader."No." := "Last Posting No.";
-                        SalesInvHeader.Find();
-                        SalesInvHeader.SetRecFilter();
-                        SalesInvHeader.EmailRecords(not HideMailDialog);
-                    end;
-                "Document Type"::"Credit Memo":
-                    begin
-                        if "Last Posting No." = '' then
-                            SalesCrMemoHeader."No." := "No."
-                        else
-                            SalesCrMemoHeader."No." := "Last Posting No.";
-                        SalesCrMemoHeader.Find();
-                        SalesCrMemoHeader.SetRecFilter();
-                        SalesCrMemoHeader.EmailRecords(not HideMailDialog);
-                    end
-            end
+        case SalesHeader."Document Type" of
+            SalesHeader."Document Type"::Invoice:
+                begin
+                    OnSendDocumentReportOnBeforeSendInvoice(SalesInvHeader);
+                    if SalesHeader."Last Posting No." = '' then
+                        SalesInvHeader."No." := SalesHeader."No."
+                    else
+                        SalesInvHeader."No." := SalesHeader."Last Posting No.";
+                    SalesInvHeader.Find();
+                    SalesInvHeader.SetRecFilter();
+                    SalesInvHeader.EmailRecords(not HideMailDialog);
+                end;
+            SalesHeader."Document Type"::"Credit Memo":
+                begin
+                    if SalesHeader."Last Posting No." = '' then
+                        SalesCrMemoHeader."No." := SalesHeader."No."
+                    else
+                        SalesCrMemoHeader."No." := SalesHeader."Last Posting No.";
+                    SalesCrMemoHeader.Find();
+                    SalesCrMemoHeader.SetRecFilter();
+                    SalesCrMemoHeader.EmailRecords(not HideMailDialog);
+                end
+        end
     end;
 
     procedure InitializeFrom(NewHideMailDialog: Boolean)

@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -277,7 +277,6 @@ report 28043 "WHT Certificate - Other Copy"
         WHTDate: Date;
         VendAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
-        Text1500001: Label 'Page %1';
         Text1500003: Label 'Please enter Bill-to/Pay-to Vendor No. and Original Document No. ';
         GLSetup: Record "General Ledger Setup";
         Text1500000Lbl: Label 'Withholding Certificate';

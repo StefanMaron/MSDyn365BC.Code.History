@@ -26,7 +26,7 @@ codeunit 135099 "OCR Master Data Sync Events"
         if not IsValidationEnabled then
             exit;
 
-        Part := LibraryVariableStorage.DequeueText;
+        Part := LibraryVariableStorage.DequeueText();
         if Part <> '' then
             Assert.IsSubstring(Body, Part);
     end;
@@ -65,7 +65,7 @@ codeunit 135099 "OCR Master Data Sync Events"
     [Scope('OnPrem')]
     procedure AssertEmptyQueue()
     begin
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Scope('OnPrem')]

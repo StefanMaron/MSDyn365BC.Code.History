@@ -136,7 +136,6 @@ page 7212 "CRM Shipping Method List"
     end;
 
     trigger OnOpenPage()
-    var
     begin
         LoadRecords();
     end;

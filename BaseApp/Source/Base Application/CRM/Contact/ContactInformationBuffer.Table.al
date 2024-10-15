@@ -8,7 +8,7 @@ table 5049 "Contact Information Buffer"
 {
     Caption = 'Contact Information Buffer';
     TableType = Temporary;
-    DataClassification = SystemMetadata;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -16,35 +16,29 @@ table 5049 "Contact Information Buffer"
         {
             Caption = 'Contact Id';
             NotBlank = true;
-            DataClassification = SystemMetadata;
         }
         field(2; "Related Id"; Guid)
         {
             Caption = 'Related Id';
             NotBlank = true;
-            DataClassification = SystemMetadata;
         }
         field(3; "Related Type"; Enum "Contact Business Relation Link To Table")
         {
             Caption = 'Related Type';
             NotBlank = true;
-            DataClassification = SystemMetadata;
         }
         field(4; "Contact No."; Code[20])
         {
             Caption = 'Contact No.';
             NotBlank = true;
-            DataClassification = SystemMetadata;
         }
         field(5; "Contact Name"; Text[100])
         {
             Caption = 'Contact Name';
-            DataClassification = SystemMetadata;
         }
         field(6; "Contact Type"; Enum "Contact Type")
         {
             Caption = 'Contact Type';
-            DataClassification = SystemMetadata;
         }
     }
 

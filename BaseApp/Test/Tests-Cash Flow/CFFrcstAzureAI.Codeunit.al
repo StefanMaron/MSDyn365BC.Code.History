@@ -81,6 +81,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         CashFlowSetup: Record "Cash Flow Setup";
         CashFlowForecast: Record "Cash Flow Forecast";
         ErrorMessage: Record "Error Message";
+        ApiKey: Text;
     begin
         // [SCENARIO] Azure AI ML API Key not defined, error is reported
         // [GIVEN] Cash Flow Setup With API Key set to empty string
@@ -88,7 +89,8 @@ codeunit 135203 "CF Frcst. Azure AI"
         Initialize();
 
         CashFlowSetup.Get();
-        CashFlowSetup.SaveUserDefinedAPIKey('');
+        ApiKey := '';
+        CashFlowSetup.SaveUserDefinedAPIKey(ApiKey);
         CashFlowSetup.Modify(true);
 
         // [WHEN] Suggest Cash Flow Forecast Page is run
@@ -177,11 +179,11 @@ codeunit 135203 "CF Frcst. Azure AI"
         TempTimeSeriesForecast.Modify(true);
 
         // [WHEN] Forecast is called
-        LibraryLowerPermissions.AddO365CashFlow;
+        LibraryLowerPermissions.AddO365CashFlow();
         CashFlowForecastHandler.CashFlowAzureAIBufferFill(TempTimeSeriesBuffer, TempTimeSeriesForecast);
 
         // [THEN] Record is not inserted
-        Assert.IsFalse(CashFlowAzureAIBuffer.FindFirst, '');
+        Assert.IsFalse(CashFlowAzureAIBuffer.FindFirst(), '');
     end;
 
     [Test]
@@ -196,7 +198,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         LibraryLowerPermissions.SetOutsideO365Scope();
         Initialize();
         CashFlowSetup.Get();
-        LibraryLowerPermissions.AddO365CashFlow;
+        LibraryLowerPermissions.AddO365CashFlow();
         VerifyNotInserted(XPAYABLESTxt, 'Payables record with positive amount is inserted.', true);
     end;
 
@@ -208,7 +210,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         // [SCENARIO] When Azure AI result for Receivables is positive, result is not inserted
         LibraryLowerPermissions.SetOutsideO365Scope();
         Initialize();
-        LibraryLowerPermissions.AddO365CashFlow;
+        LibraryLowerPermissions.AddO365CashFlow();
         // [GIVEN] Azure AI Receivables forecast with negative amount
         VerifyNotInserted(XRECEIVABLESTxt, 'Receivable Record with negative amount is inserted', false);
     end;
@@ -224,7 +226,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         LibraryLowerPermissions.SetOutsideO365Scope();
         Initialize();
         CashFlowSetup.Get();
-        LibraryLowerPermissions.AddO365CashFlow;
+        LibraryLowerPermissions.AddO365CashFlow();
         VerifyNotInserted(XTAXRECEIVABLESTxt, 'Tax Receivables record with positive amount is inserted.', true);
     end;
 
@@ -236,7 +238,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         // [SCENARIO] When Azure AI result for Tax Payable is negative, result is not inserted
         LibraryLowerPermissions.SetOutsideO365Scope();
         Initialize();
-        LibraryLowerPermissions.AddO365CashFlow;
+        LibraryLowerPermissions.AddO365CashFlow();
         // [GIVEN] Azure AI Tax Payable forecast with negative amount
         VerifyNotInserted(XTAXPAYABLESTxt, 'Tax Payables record with negative amount is inserted.', false);
     end;
@@ -260,7 +262,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         InsertTimeSeriesForecast(TempTimeSeriesForecast, XPAYABLESTxt, Amount);
 
         // [WHEN] Forecast is called
-        LibraryLowerPermissions.AddO365CashFlow;
+        LibraryLowerPermissions.AddO365CashFlow();
         CashFlowForecastHandler.CashFlowAzureAIBufferFill(TempTimeSeriesBuffer, TempTimeSeriesForecast);
 
         // [THEN] Record is inserted
@@ -286,7 +288,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         InsertTimeSeriesForecast(TempTimeSeriesForecast, XRECEIVABLESTxt, Amount);
 
         // [WHEN] Forecast is called
-        LibraryLowerPermissions.AddO365CashFlow;
+        LibraryLowerPermissions.AddO365CashFlow();
         CashFlowForecastHandler.CashFlowAzureAIBufferFill(TempTimeSeriesBuffer, TempTimeSeriesForecast);
 
         // [THEN] Record is inserted
@@ -302,7 +304,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         // [GIVEN] Azure AI with variance % smaller than Variance % in Cash Flow Setup
         LibraryLowerPermissions.SetOutsideO365Scope();
         Initialize();
-        LibraryLowerPermissions.AddO365CashFlow;
+        LibraryLowerPermissions.AddO365CashFlow();
         VerifyInserted(XTAXPAYABLESTxt, true);
     end;
 
@@ -315,7 +317,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         // [GIVEN] Azure AI with variance % smaller than Variance % in Cash Flow Setup
         LibraryLowerPermissions.SetOutsideO365Scope();
         Initialize();
-        LibraryLowerPermissions.AddO365CashFlow;
+        LibraryLowerPermissions.AddO365CashFlow();
         VerifyInserted(XTAXRECEIVABLESTxt, false);
     end;
 
@@ -343,7 +345,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         InsertVendorLedgerEntry(TempTimeSeriesForecast."Period Start Date", VendorLedgerAmount);
 
         // [WHEN] Forecast is called
-        LibraryLowerPermissions.AddO365CashFlow;
+        LibraryLowerPermissions.AddO365CashFlow();
         CashFlowForecastHandler.CashFlowAzureAIBufferFill(TempTimeSeriesBuffer, TempTimeSeriesForecast);
 
         // [THEN] Azure AI Payables Record is  inserted
@@ -376,7 +378,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         InsertCustLedgerEntry(TempTimeSeriesForecast."Period Start Date", CustLedgerAmount);
 
         // [WHEN] Forecast is called
-        LibraryLowerPermissions.AddO365CashFlow;
+        LibraryLowerPermissions.AddO365CashFlow();
         CashFlowForecastHandler.CashFlowAzureAIBufferFill(TempTimeSeriesBuffer, TempTimeSeriesForecast);
 
         // [THEN] Azure AI Receivables Record is  inserted
@@ -396,7 +398,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         // [GIVEN] Azure AI Payables tax forecast and VAT Ledger Entries Aggregated
         LibraryLowerPermissions.SetOutsideO365Scope();
         Initialize();
-        LibraryLowerPermissions.AddO365CashFlow;
+        LibraryLowerPermissions.AddO365CashFlow();
         VerifyCorrectionInserted(XTAXPAYABLESTxt);
     end;
 
@@ -424,7 +426,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         InsertTimeSeriesForecast(TempTimeSeriesForecast, XTAXPAYABLESTxt, Amount);
 
         VATLedgerAmount := Amount - 10;
-        ClearTax;
+        ClearTax();
         InsertVATLedgerEntry(CalcDate('<CM>', TempTimeSeriesForecast."Period Start Date"), VATLedgerAmount, false);
         DocumentDate := CalcDate('<CM>', TempTimeSeriesForecast."Period Start Date");
 
@@ -437,7 +439,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         InsertVATLedgerEntry(CalcDate('<CM-2D>', TempTimeSeriesForecast."Period Start Date"), VATLedgerAmount, false);
 
         // [WHEN] Forecast is called
-        LibraryLowerPermissions.AddO365CashFlow;
+        LibraryLowerPermissions.AddO365CashFlow();
         CashFlowForecastHandler.CashFlowAzureAIBufferFill(TempTimeSeriesBuffer, TempTimeSeriesForecast);
 
         // [THEN] Azure AI Payables Record is  inserted
@@ -458,7 +460,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         // [GIVEN] Azure AI Receivables forecast and VAT Ledger Entry
         LibraryLowerPermissions.SetOutsideO365Scope();
         Initialize();
-        LibraryLowerPermissions.AddO365CashFlow;
+        LibraryLowerPermissions.AddO365CashFlow();
         VerifyCorrectionInserted(XTAXRECEIVABLESTxt);
     end;
 
@@ -484,7 +486,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         Amount := LibraryRandom.RandDec(100, 2) + 20;
         InsertTimeSeriesForecast(TempTimeSeriesForecast, XTAXRECEIVABLESTxt, -Amount);
 
-        ClearTax;
+        ClearTax();
         VATLedgerAmount := Amount - 10;
         InsertVATLedgerEntry(CalcDate('<CM>', TempTimeSeriesForecast."Period Start Date"), -VATLedgerAmount, true);
         DocumentDate := CalcDate('<CM>', TempTimeSeriesForecast."Period Start Date");
@@ -498,7 +500,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         InsertVATLedgerEntry(CalcDate('<CM-2D>', TempTimeSeriesForecast."Period Start Date"), -VATLedgerAmount, true);
 
         // [WHEN] Forecast is called
-        LibraryLowerPermissions.AddO365CashFlow;
+        LibraryLowerPermissions.AddO365CashFlow();
         CashFlowForecastHandler.CashFlowAzureAIBufferFill(TempTimeSeriesBuffer, TempTimeSeriesForecast);
 
         // [THEN] Azure AI Tax Payables Record is  inserted
@@ -532,7 +534,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         CashFlowForecastHandler.Initialize();
 
         Amount := LibraryRandom.RandDec(100, 2) + 20;
-        ClearTax;
+        ClearTax();
         InsertTimeSeriesForecast(TempTimeSeriesForecast, XTAXPAYABLESTxt, Amount);
         DocumentDate := TempTimeSeriesForecast."Period Start Date";
 
@@ -564,7 +566,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         InsertVATLedgerEntry(CalcDate('<CM-3D>', TempTimeSeriesForecast."Period Start Date"), VATLedgerAmount, false);
 
         // [WHEN] Forecast is called
-        LibraryLowerPermissions.AddO365CashFlow;
+        LibraryLowerPermissions.AddO365CashFlow();
         CashFlowForecastHandler.CashFlowAzureAIBufferFill(TempTimeSeriesBuffer, TempTimeSeriesForecast);
 
         // [THEN] Azure AI Tax Payables Records are  inserted
@@ -601,7 +603,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         CashFlowForecastHandler.Initialize();
 
         Amount := LibraryRandom.RandDec(100, 2) + 20;
-        ClearTax;
+        ClearTax();
         InsertTimeSeriesForecast(TempTimeSeriesForecast, XTAXRECEIVABLESTxt, -Amount);
 
         VATLedgerAmount := Amount - 10;
@@ -633,7 +635,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         InsertVATLedgerEntry(CalcDate('<CM-3D>', TempTimeSeriesForecast."Period Start Date"), -VATLedgerAmount, true);
 
         // [WHEN] Forecast is called
-        LibraryLowerPermissions.AddO365CashFlow;
+        LibraryLowerPermissions.AddO365CashFlow();
         CashFlowForecastHandler.CashFlowAzureAIBufferFill(TempTimeSeriesBuffer, TempTimeSeriesForecast);
 
         // [THEN] Azure AI Payables Record is  inserted
@@ -673,13 +675,13 @@ codeunit 135203 "CF Frcst. Azure AI"
         InsertTimeSeriesForecast(TempTimeSeriesForecast, XTAXPAYABLESTxt, -Amount);
 
         VendorLedgerAmount := Amount - 1;
-        ClearTax;
+        ClearTax();
         InsertVendorLedgerEntry(TempTimeSeriesForecast."Period Start Date", VendorLedgerAmount);
         InsertVATLedgerEntry(TempTimeSeriesForecast."Period Start Date", VendorLedgerAmount, false);
         DocumentDate := TempTimeSeriesForecast."Period Start Date";
 
         // [WHEN] Forecast is called
-        LibraryLowerPermissions.AddO365CashFlow;
+        LibraryLowerPermissions.AddO365CashFlow();
         CashFlowForecastHandler.CashFlowAzureAIBufferFill(TempTimeSeriesBuffer, TempTimeSeriesForecast);
 
         // [THEN] Payables Forecast Record is  inserted
@@ -715,12 +717,12 @@ codeunit 135203 "CF Frcst. Azure AI"
         InsertTimeSeriesForecast(TempTimeSeriesForecast, XTAXRECEIVABLESTxt, -Amount);
 
         CustLedgerAmount := Amount + 1;
-        ClearTax;
+        ClearTax();
         InsertCustLedgerEntry(TempTimeSeriesForecast."Period Start Date", CustLedgerAmount);
         InsertVATLedgerEntry(TempTimeSeriesForecast."Period Start Date", CustLedgerAmount, true);
         DocumentDate := TempTimeSeriesForecast."Period Start Date";
         // [WHEN] Forecast is called
-        LibraryLowerPermissions.AddO365CashFlow;
+        LibraryLowerPermissions.AddO365CashFlow();
         CashFlowForecastHandler.CashFlowAzureAIBufferFill(TempTimeSeriesBuffer, TempTimeSeriesForecast);
 
         // [THEN] Receivables Forecast Record is not inserted
@@ -758,12 +760,12 @@ codeunit 135203 "CF Frcst. Azure AI"
         InsertTimeSeriesForecast(TempTimeSeriesForecast, XTAXPAYABLESTxt, Abs(2 * Amount));
 
         VendorLedgerAmount := Round(Amount / 3, 0.01);
-        ClearTax;
+        ClearTax();
         InsertVendorLedgerEntry(TempTimeSeriesForecast."Period Start Date", -VendorLedgerAmount);
         CreatePurchOrder(PurchaseHeader, TempTimeSeriesForecast."Period Start Date", VendorLedgerAmount, 10);
         DocumentDate := TempTimeSeriesForecast."Period Start Date";
         // [WHEN] Forecast is called
-        LibraryLowerPermissions.AddO365CashFlow;
+        LibraryLowerPermissions.AddO365CashFlow();
         CashFlowForecastHandler.CashFlowAzureAIBufferFill(TempTimeSeriesBuffer, TempTimeSeriesForecast);
 
         // [THEN] Azure AI Payables Record is  inserted
@@ -809,13 +811,13 @@ codeunit 135203 "CF Frcst. Azure AI"
         InsertTimeSeriesForecast(TempTimeSeriesForecast, XTAXRECEIVABLESTxt, -Amount);
 
         CustomerLedgerAmount := Round(Amount / 3, 0.01);
-        ClearTax;
+        ClearTax();
         InsertCustLedgerEntry(TempTimeSeriesForecast."Period Start Date", CustomerLedgerAmount);
 
         CreateSalesOrder(SalesHeader, TempTimeSeriesForecast."Period Start Date", CustomerLedgerAmount, 10);
         DocumentDate := TempTimeSeriesForecast."Period Start Date";
         // [WHEN] Forecast is called
-        LibraryLowerPermissions.AddO365CashFlow;
+        LibraryLowerPermissions.AddO365CashFlow();
         CashFlowForecastHandler.CashFlowAzureAIBufferFill(TempTimeSeriesBuffer, TempTimeSeriesForecast);
 
         // [THEN] Azure AI Receivables Record is  inserted
@@ -859,7 +861,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         InsertTimeSeriesForecast(
           TempTimeSeriesForecast, XTAXPAYABLESTxt, Abs(Amount));
 
-        ClearTax;
+        ClearTax();
         InsertVendorLedgerEntry(TempTimeSeriesForecast."Period Start Date", VendorLedgerAmount);
         CreatePurchOrder(PurchaseHeader, TempTimeSeriesForecast."Period Start Date", -Amount, 100);
         TempTimeSeriesForecast.Value := Abs(CashFlowManagement.GetTaxAmountFromPurchaseOrder(PurchaseHeader));
@@ -868,7 +870,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         DocumentDate := TempTimeSeriesForecast."Period Start Date";
 
         // [WHEN] Forecast is called
-        LibraryLowerPermissions.AddO365CashFlow;
+        LibraryLowerPermissions.AddO365CashFlow();
         CashFlowForecastHandler.CashFlowAzureAIBufferFill(TempTimeSeriesBuffer, TempTimeSeriesForecast);
 
         // [THEN] Azure AI Payables Record is  inserted
@@ -908,7 +910,7 @@ codeunit 135203 "CF Frcst. Azure AI"
 
         Amount := LibraryRandom.RandDec(100, 2);
         CustomerLedgerAmount := Round(Amount / 3, 0.01);
-        ClearTax;
+        ClearTax();
 
         InsertTimeSeriesForecast(TempTimeSeriesForecast, XRECEIVABLESTxt, Amount);
         InsertTimeSeriesForecast(
@@ -921,7 +923,7 @@ codeunit 135203 "CF Frcst. Azure AI"
 
         DocumentDate := TempTimeSeriesForecast."Period Start Date";
         // [WHEN] Forecast is called
-        LibraryLowerPermissions.AddO365CashFlow;
+        LibraryLowerPermissions.AddO365CashFlow();
         CashFlowForecastHandler.CashFlowAzureAIBufferFill(TempTimeSeriesBuffer, TempTimeSeriesForecast);
 
         // [THEN] Azure AI Receivables Record is  inserted
@@ -959,7 +961,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         // [WHEN] Suggest Cash Flow Forecast Page is run
         CashFlowForecastHandler.Initialize();
         Initialize();
-        CashFlowForecastHandler.CalculateForecast;
+        CashFlowForecastHandler.CalculateForecast();
 
         // [THEN] Error message is shown
         ErrorMessage.FindFirst();
@@ -1046,6 +1048,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         CashFlowSetup: Record "Cash Flow Setup";
         ErrorMessage: Record "Error Message";
         CashFlowForecastHandler: Codeunit "Cash Flow Forecast Handler";
+        ApiKey: Text;
     begin
         // [SCENARIO] When Azure AI ML API URI user defined in SaaS, Limit Exceeds error is not thrown
         // [GIVEN] Cash Flow Setup With user defined API URI
@@ -1053,8 +1056,9 @@ codeunit 135203 "CF Frcst. Azure AI"
         Initialize();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         CashFlowSetup.Get();
+        ApiKey := MockServiceKeyTxt;
         CashFlowSetup.Validate("API URL", MockServiceURITxt);
-        CashFlowSetup.SaveUserDefinedAPIKey(MockServiceKeyTxt);
+        CashFlowSetup.SaveUserDefinedAPIKey(ApiKey);
         CashFlowSetup.Modify(true);
 
         // [WHEN] Initialize of Cash Flow Forecast Handler is invoked
@@ -1062,7 +1066,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         Initialize();
 
         // [THEN] There is no Error message
-        Assert.IsFalse(ErrorMessage.FindFirst, 'Cannot initialize Cash Flow Handler in SaaS when API is user defined ');
+        Assert.IsFalse(ErrorMessage.FindFirst(), 'Cannot initialize Cash Flow Handler in SaaS when API is user defined ');
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
 
@@ -1073,7 +1077,7 @@ codeunit 135203 "CF Frcst. Azure AI"
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"CF Frcst. Azure AI");
 
-        CreateCashFlowSetup;
+        CreateCashFlowSetup();
         ErrorMessage.DeleteAll();
         CashFlowAzureAIBuffer.DeleteAll();
         if IsInitialized then
@@ -1102,6 +1106,7 @@ codeunit 135203 "CF Frcst. Azure AI"
     var
         CashFlowSetup: Record "Cash Flow Setup";
         DateFormula: DateFormula;
+        ApiKey: Text;
     begin
         with CashFlowSetup do begin
             DeleteAll();
@@ -1109,7 +1114,8 @@ codeunit 135203 "CF Frcst. Azure AI"
             Insert(true);
             Validate("Azure AI Enabled", true);
             Validate("API URL", '');
-            SaveUserDefinedAPIKey('');
+            ApiKey := '';
+            SaveUserDefinedAPIKey(ApiKey);
             Validate("Period Type", "Period Type"::Month);
             Validate("Taxable Period", "Taxable Period"::Monthly);
             Evaluate(DateFormula, '<10D>');
@@ -1129,7 +1135,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         TaxAreaLine: Record "Tax Area Line";
         LibraryERM: Codeunit "Library - ERM";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("Posting Date", DueDate);
         SalesHeader.Validate("Document Date", DueDate);
         SalesHeader.Validate("Due Date", DueDate);
@@ -1155,7 +1161,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         PurchaseLine: Record "Purchase Line";
         Item: Record Item;
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("Posting Date", DueDate);
         PurchaseHeader.Validate("Document Date", DueDate);
         PurchaseHeader.Validate("Due Date", DueDate);
@@ -1203,7 +1209,7 @@ codeunit 135203 "CF Frcst. Azure AI"
             Init();
             "Group ID" := GroupID;
             "Period No." := "Period No." + 1;
-            "Period Start Date" := GetDateWithoutLedgerEntries;
+            "Period Start Date" := GetDateWithoutLedgerEntries();
             Value := Amount;
             Delta := LibraryRandom.RandDec(100, 2);
             "Delta %" := CashFlowSetup."Variance %" - 1;// by default Delta % is smaller
@@ -1225,7 +1231,7 @@ codeunit 135203 "CF Frcst. Azure AI"
             "Posting Date" := WorkDate();
             "Due Date" := DueDate;
             "Vendor No." := LibraryPurchase.CreateVendorNo();
-            "Document No." := CopyStr(CreateGuid, 1, 20);
+            "Document No." := CopyStr(CreateGuid(), 1, 20);
             "Amount (LCY)" := AmountValue;
             Insert();
         end;
@@ -1245,7 +1251,7 @@ codeunit 135203 "CF Frcst. Azure AI"
             "Posting Date" := WorkDate();
             "Due Date" := DueDate;
             "Customer No." := LibrarySales.CreateCustomerNo();
-            "Document No." := CopyStr(CreateGuid, 1, 20);
+            "Document No." := CopyStr(CreateGuid(), 1, 20);
             "Amount (LCY)" := AmountValue;
             Insert();
         end;
@@ -1266,7 +1272,7 @@ codeunit 135203 "CF Frcst. Azure AI"
                 Type := Type::Sale
             else
                 Type := Type::Purchase;
-            "Document No." := CopyStr(CreateGuid, 1, 20);
+            "Document No." := CopyStr(CreateGuid(), 1, 20);
             Amount := AmountValue;
             Insert();
         end;
@@ -1405,7 +1411,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         CashFlowForecastHandler.CashFlowAzureAIBufferFill(TempTimeSeriesBuffer, TempTimeSeriesForecast);
 
         // [THEN] Record is not inserted
-        Assert.IsFalse(CashFlowAzureAIBuffer.FindFirst, AssertMsg);
+        Assert.IsFalse(CashFlowAzureAIBuffer.FindFirst(), AssertMsg);
     end;
 
     [Scope('OnPrem')]
@@ -1428,7 +1434,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         CashFlowForecastHandler.CashFlowAzureAIBufferFill(TempTimeSeriesBuffer, TempTimeSeriesForecast);
 
         // [THEN] Record is inserted
-        VerifyAzureAITaxRecord(Type, Amount, CashFlowSetup.GetTaxPaymentDueDate(GetDateWithoutLedgerEntries));
+        VerifyAzureAITaxRecord(Type, Amount, CashFlowSetup.GetTaxPaymentDueDate(GetDateWithoutLedgerEntries()));
     end;
 
     [Scope('OnPrem')]
@@ -1449,7 +1455,7 @@ codeunit 135203 "CF Frcst. Azure AI"
             InsertTimeSeriesForecast(TempTimeSeriesForecast, XTAXRECEIVABLESTxt, -Amount);
 
         VATLedgerAmount := Amount - 1;
-        ClearTax;
+        ClearTax();
         if Type = XTAXPAYABLESTxt then
             InsertVATLedgerEntry(TempTimeSeriesForecast."Period Start Date", VATLedgerAmount, false)
         else
@@ -1481,7 +1487,7 @@ codeunit 135203 "CF Frcst. Azure AI"
         LibraryVariableStorage.Dequeue(CashFlowNo);
         SuggestWorksheetLines.CashFlowNo.SetValue(CashFlowNo);
         SuggestWorksheetLines."ConsiderSource[SourceType::""Azure AI""]".SetValue(true); // Azure AI
-        SuggestWorksheetLines.OK.Invoke;
+        SuggestWorksheetLines.OK().Invoke();
     end;
 
     [SendNotificationHandler]

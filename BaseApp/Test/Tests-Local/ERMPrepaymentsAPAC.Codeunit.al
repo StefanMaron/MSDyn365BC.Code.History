@@ -133,7 +133,7 @@ codeunit 141015 "ERM Prepayments APAC"
         REPORT.Run(REPORT::Budget);  // Call BudgetRequestPageHandler.
 
         // [THEN] Verify GL Account No. on Budget Report
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(GLAccNoCap, GLAccountNo);
     end;
 
@@ -318,7 +318,7 @@ codeunit 141015 "ERM Prepayments APAC"
             CreditAmount += GLEntry."Credit Amount";
         until GLEntry.Next() = 0;
         Assert.AreNearlyEqual(
-          CreditAmount, Amount, LibraryERM.GetAmountRoundingPrecision,
+          CreditAmount, Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, GLEntry.FieldCaption("Credit Amount"), Amount, GLEntry.TableCaption()));
     end;
 
@@ -330,7 +330,7 @@ codeunit 141015 "ERM Prepayments APAC"
     begin
         LibraryVariableStorage.Dequeue(No);
         Budget."G/L Account".SetFilter("No.", No);
-        Budget.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Budget.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

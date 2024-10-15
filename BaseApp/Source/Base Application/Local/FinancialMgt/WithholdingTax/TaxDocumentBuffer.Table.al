@@ -7,6 +7,7 @@ namespace Microsoft.Finance.WithholdingTax;
 table 28080 "Tax Document Buffer"
 {
     Caption = 'Tax Document Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -22,26 +22,22 @@ codeunit 5617 "FA Date Calculation"
         AccountingPeriod: Record "Accounting Period";
         FAJnlLine: Record "FA Journal Line";
     begin
-        with DeprBook do begin
-            Get(DeprBookCode);
-            if "New Fiscal Year Starting Date" > 0D then begin
-                if "New Fiscal Year Starting Date" > EndingDate then
-                    FieldError(
-                      "New Fiscal Year Starting Date",
-                      StrSubstNo(Text000, FAJnlLine.FieldCaption("FA Posting Date")));
-                exit("New Fiscal Year Starting Date");
-            end;
+        DeprBook.Get(DeprBookCode);
+        if DeprBook."New Fiscal Year Starting Date" > 0D then begin
+            if DeprBook."New Fiscal Year Starting Date" > EndingDate then
+                DeprBook.FieldError(
+                  "New Fiscal Year Starting Date",
+                  StrSubstNo(Text000, FAJnlLine.FieldCaption("FA Posting Date")));
+            exit(DeprBook."New Fiscal Year Starting Date");
         end;
-        with AccountingPeriod do begin
-            if IsEmpty() then
-                exit(CalcDate('<-CY>', EndingDate));
-            SetRange("New Fiscal Year", true);
-            SetRange("Starting Date", 0D, EndingDate);
-            if FindLast() then
-                exit("Starting Date");
+        if AccountingPeriod.IsEmpty() then
+            exit(CalcDate('<-CY>', EndingDate));
+        AccountingPeriod.SetRange("New Fiscal Year", true);
+        AccountingPeriod.SetRange("Starting Date", 0D, EndingDate);
+        if AccountingPeriod.FindLast() then
+            exit(AccountingPeriod."Starting Date");
 
-            Error(Text001, FieldCaption("Starting Date"), TableCaption);
-        end;
+        Error(Text001, AccountingPeriod.FieldCaption("Starting Date"), AccountingPeriod.TableCaption);
     end;
 
     procedure CalculateDate(StartingDate: Date; NumberOfDays: Integer; Year365Days: Boolean): Date
@@ -94,24 +90,22 @@ codeunit 5617 "FA Date Calculation"
         EndingDate: Date;
         FirstDate: Boolean;
     begin
-        with Calendar do begin
-            SetRange("Period Type", "Period Type"::Date);
-            SetRange("Period Start", StartingDate, DMY2Date(31, 12, 9999));
-            NoOfDays := 1;
-            FirstDate := true;
-            if Find('-') then
-                repeat
-                    if (not ((Date2DMY("Period Start", 1) = 29) and (Date2DMY("Period Start", 2) = 2))) or
-                       FirstDate
-                    then
-                        NoOfDays := NoOfDays + 1;
-                    FirstDate := false;
-                until (Next() = 0) or (NumberOfDays < NoOfDays);
-            EndingDate := "Period Start";
-            if (Date2DMY(EndingDate, 1) = 29) and (Date2DMY(EndingDate, 2) = 2) then
-                EndingDate := EndingDate + 1;
-            exit(EndingDate);
-        end;
+        Calendar.SetRange("Period Type", Calendar."Period Type"::Date);
+        Calendar.SetRange("Period Start", StartingDate, DMY2Date(31, 12, 9999));
+        NoOfDays := 1;
+        FirstDate := true;
+        if Calendar.Find('-') then
+            repeat
+                if (not ((Date2DMY(Calendar."Period Start", 1) = 29) and (Date2DMY(Calendar."Period Start", 2) = 2))) or
+                   FirstDate
+                then
+                    NoOfDays := NoOfDays + 1;
+                FirstDate := false;
+            until (Calendar.Next() = 0) or (NumberOfDays < NoOfDays);
+        EndingDate := Calendar."Period Start";
+        if (Date2DMY(EndingDate, 1) = 29) and (Date2DMY(EndingDate, 2) = 2) then
+            EndingDate := EndingDate + 1;
+        exit(EndingDate);
     end;
 }
 

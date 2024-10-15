@@ -139,7 +139,7 @@ codeunit 137297 "SCM Inventory Misc. V"
 
         // Setup: Create Work Center, create and refresh Production Order.
         Initialize(false);
-        WorkCenter.Get(CreateWorkCenter);
+        WorkCenter.Get(CreateWorkCenter());
         UpdateRoutingOnItem(Item, WorkCenter."No.");
         CreateAndRefreshProdOrder(ProductionOrder, Item."No.", '', LibraryRandom.RandDec(10, 2));  // Take random Quantity.
 
@@ -170,7 +170,7 @@ codeunit 137297 "SCM Inventory Misc. V"
 
         // Setup: Create Work Center, create and refresh Production Order and Carry Out Action Message on SubContract Worksheet.
         Initialize(false);
-        WorkCenter.Get(CreateWorkCenter);
+        WorkCenter.Get(CreateWorkCenter());
         UpdateRoutingOnItem(Item, WorkCenter."No.");
         CreateAndRefreshProdOrder(ProductionOrder, Item."No.", '', LibraryRandom.RandDec(10, 2));  // Take random Quantity.
         CarryOutAMSubcontractWksh(WorkCenter."No.", Item."No.");
@@ -198,7 +198,6 @@ codeunit 137297 "SCM Inventory Misc. V"
         ProductionBOMHeader: Record "Production BOM Header";
         ProductionOrder: Record "Production Order";
         RoutingHeader: Record "Routing Header";
-        ProdOrderLine: Record "Prod. Order Line";
         PurchaseLine: Record "Purchase Line";
         RountingLink: Record "Routing Link";
         WorkCenter: Record "Work Center";
@@ -257,7 +256,7 @@ codeunit 137297 "SCM Inventory Misc. V"
 
         // Setup: Create Item, create Item Variant.
         Initialize(false);
-        Item.Get(CreateItem);
+        Item.Get(CreateItem());
         CreateAndModifyItemVariant(ItemVariant, Item."No.");
         CreateItemJournalLine(ItemJournalLine, ItemVariant."Item No.", ItemVariant.Code, '', '');
 
@@ -293,7 +292,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         CreateAndCertifyProductionBOM(ProductionBOMHeader, Item."Base Unit of Measure", Item2."No.", '');
 
         // Create Routing with Work Center and Machine Center.
-        WorkCenter.Get(CreateWorkCenter);
+        WorkCenter.Get(CreateWorkCenter());
         RoutingHeader.Get(CreateRoutingSetup(WorkCenter."No.", ''));
         CreateMachineCenter(RoutingHeader, WorkCenter."No.");
 
@@ -374,7 +373,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         GlobalDimensionCode := LibraryERM.GetGlobalDimensionCode(2);
 
         // [GIVEN] Purchase invoice "P" with 3 lines "L1" , "L2", "L3". "L1" and "L2" have Type Item and items "I1" and "I2" with Default Dimensions "D1" and "D2" of "Global Dimension 2"
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         for i := 1 to 2 do begin
             CreateItemWithDefaultDimensionValue(Item[i], DimensionValue[i], GlobalDimensionCode);
             LibraryPurchase.CreatePurchaseLine(
@@ -1339,7 +1338,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         Currency: Record Currency;
         WorkCenter: Record "Work Center";
     begin
-        Currency.Get(CreateCurrency);
+        Currency.Get(CreateCurrency());
         LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
         WorkCenter.Validate("Subcontractor No.", CreateAndModifyVendor(Currency.Code));
         WorkCenter.Modify(true);
@@ -1349,7 +1348,7 @@ codeunit 137297 "SCM Inventory Misc. V"
     local procedure CreateWorkCenterWithSubcontractor(var WorkCenter: Record "Work Center")
     begin
         LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
-        WorkCenter.Validate("Subcontractor No.", LibraryPurchase.CreateVendorNo);
+        WorkCenter.Validate("Subcontractor No.", LibraryPurchase.CreateVendorNo());
         WorkCenter.Modify(true);
     end;
 
@@ -1525,7 +1524,7 @@ codeunit 137297 "SCM Inventory Misc. V"
     local procedure CreateAndPostPurchaseOrder(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; Invoice: Boolean): Code[20]
     begin
         CreatePurchaseDocument(
-          PurchaseLine, PurchaseLine."Document Type"::Order, ItemNo, '', CreateVendor, LibraryRandom.RandInt(10), WorkDate());
+          PurchaseLine, PurchaseLine."Document Type"::Order, ItemNo, '', CreateVendor(), LibraryRandom.RandInt(10), WorkDate());
         exit(PostPurchaseDocument(PurchaseLine, Invoice));
     end;
 
@@ -1537,7 +1536,7 @@ codeunit 137297 "SCM Inventory Misc. V"
         UpdateRoutingHeaderStatus(RoutingHeader, RoutingHeader.Status::New);
         LibraryManufacturing.CreateMachineCenterWithCalendar(MachineCenter, WorkCenterNo, LibraryRandom.RandInt(5));
         LibraryManufacturing.CreateRoutingLine(
-          RoutingHeader, RoutingLine, '', LibraryUtility.GenerateGUID, RoutingLine.Type::"Machine Center", MachineCenter."No.");
+          RoutingHeader, RoutingLine, '', LibraryUtility.GenerateGUID(), RoutingLine.Type::"Machine Center", MachineCenter."No.");
         RoutingLine.Validate("Setup Time", LibraryRandom.RandInt(5));
         RoutingLine.Validate("Run Time", LibraryRandom.RandInt(5));
         RoutingLine.Validate("Concurrent Capacities", 1);
@@ -1596,7 +1595,7 @@ codeunit 137297 "SCM Inventory Misc. V"
     var
         Item: Record Item;
     begin
-        Item.Get(CreateItem);
+        Item.Get(CreateItem());
         Item.Validate("Reordering Policy", Item."Reordering Policy"::"Lot-for-Lot");
         Item.Validate("Vendor No.", VendorNo);
         Item.Validate("Replenishment System", ReplenishmentSystem);
@@ -1609,7 +1608,7 @@ codeunit 137297 "SCM Inventory Misc. V"
     var
         Vendor: Record Vendor;
     begin
-        Vendor.Get(CreateVendor);
+        Vendor.Get(CreateVendor());
         Vendor.Validate("Currency Code", CurrencyCode);
         Vendor.Modify(true);
         exit(Vendor."No.");
@@ -1976,8 +1975,8 @@ codeunit 137297 "SCM Inventory Misc. V"
     var
         QtyBase: Decimal;
     begin
-        ItemTrackingLines."Assign Lot No.".Invoke;
-        QtyBase := LibraryVariableStorage.DequeueDecimal;
+        ItemTrackingLines."Assign Lot No.".Invoke();
+        QtyBase := LibraryVariableStorage.DequeueDecimal();
         ItemTrackingLines."Quantity (Base)".SetValue(QtyBase);
     end;
 

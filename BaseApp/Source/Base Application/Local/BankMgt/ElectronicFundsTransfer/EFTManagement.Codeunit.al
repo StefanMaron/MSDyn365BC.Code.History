@@ -188,78 +188,72 @@ codeunit 11603 "EFT Management"
         LodgementReference: Text[50];
     begin
         PreparePaymentBuffer(EFTRegister, TempGenJournalLine);
-        with TempGenJournalLine do begin
-            if not Find('-') then
-                exit;
-            WriteFile(
-              120, '0' + BLK(17) + '01' + TFR(FormatBankAccount(BankAccount."EFT Bank Code"), 10) +
-              TFR(BankAccount."EFT Security Name", 26) + NFL(BankAccount."EFT Security No.", 6) +
-              TFR(FileDescription, 12) + Date2Text(Today, 6) + BLK(40));
-            repeat
-                Vend.Get("Account No.");
-                VendBankAcc.Get(Vend."No.", "EFT Bank Account No.");
-                if Amount > 0 then
-                    TypeOfLine := '50'
-                else
-                    TypeOfLine := '53';
-                if GLSetup."Round Amount for WHT Calc" then
-                    "WHT Absorb Base" := WHTManagement.RoundWHTAmount("WHT Absorb Base");
-                TotalAmountLCY += Amount - "WHT Absorb Base";
-                NoOfLines += 1;
-                VendBankAcc.Get(Vend."No.", "EFT Bank Account No.");
-                LodgementReference := GetPmtRefOrDocNoFromGenJnlLine(TempGenJournalLine);
-                WriteFile(
-                  120, '1' + TFR(FormatBranchNumber(VendBankAcc."EFT BSB No."), 7) + TFL(VendBankAcc."Bank Account No.", 9) +
-                  BLK(1) + TypeOfLine + NFL(Value100(Amount - "WHT Absorb Base", 10), 10) + TFR(Vend.Name, 32) +
-                  TFR(LodgementReference, 18) + TFR(FormatBranchNumber(BankAccount."EFT BSB No."), 7) + TFL(
-                    BankAccount."Bank Account No.", 9) +
-                  TFR(BankAccount."EFT Security Name", 16) + NFL(Value100("WHT Absorb Base", 8), 8));
-            until Next() = 0;
-            if BankAccount."EFT Balancing Record Required" then begin
-                WriteFile(
-                  120, '1' + TFR(FormatBranchNumber(BankAccount."EFT BSB No."), 7) + TFL(BankAccount."Bank Account No.", 9) + BLK(1) +
-                  '13' + NFL(Value100(TotalAmountLCY, 10), 10) +
-                  TFR(BankAccount."EFT Security Name", 32) + TFR(LodgementReference, 18) +
-                  TFR(FormatBranchNumber(BankAccount."EFT BSB No."), 7) + TFL(BankAccount."Bank Account No.", 9) +
-                  TFR(BankAccount."EFT Security Name", 16) + NFL(Value100(0, 8), 8));
-                NoOfLines += 1;
-            end;
-            if BankAccount."EFT Balancing Record Required" then
-                WriteFile(
-                  120, '7' + TFR('999-999', 7) + BLK(12) + NFL(Value100(0, 10), 10) +
-                  NFL(Value100(TotalAmountLCY, 10), 10) +
-                  NFL(Value100(TotalAmountLCY, 10), 10) +
-                  BLK(24) + NFL(Value1(NoOfLines, 6), 6) + BLK(40))
+        if not TempGenJournalLine.Find('-') then
+            exit;
+        WriteFile(
+          120, '0' + BLK(17) + '01' + TFR(FormatBankAccount(BankAccount."EFT Bank Code"), 10) +
+          TFR(BankAccount."EFT Security Name", 26) + NFL(BankAccount."EFT Security No.", 6) +
+          TFR(FileDescription, 12) + Date2Text(Today, 6) + BLK(40));
+        repeat
+            Vend.Get(TempGenJournalLine."Account No.");
+            VendBankAcc.Get(Vend."No.", TempGenJournalLine."EFT Bank Account No.");
+            if TempGenJournalLine.Amount > 0 then
+                TypeOfLine := '50'
             else
-                WriteFile(
-                  120, '7' + TFR('999-999', 7) + BLK(12) + NFL(Value100(TotalAmountLCY, 10), 10) +
-                  NFL(Value100(TotalAmountLCY, 10), 10) +
-                  NFL(Value100(0, 10), 10) +
-                  BLK(24) + NFL(Value1(NoOfLines, 6), 6) + BLK(40))
+                TypeOfLine := '53';
+            if GLSetup."Round Amount for WHT Calc" then
+                TempGenJournalLine."WHT Absorb Base" := WHTManagement.RoundWHTAmount(TempGenJournalLine."WHT Absorb Base");
+            TotalAmountLCY += TempGenJournalLine.Amount - TempGenJournalLine."WHT Absorb Base";
+            NoOfLines += 1;
+            VendBankAcc.Get(Vend."No.", TempGenJournalLine."EFT Bank Account No.");
+            LodgementReference := GetPmtRefOrDocNoFromGenJnlLine(TempGenJournalLine);
+            WriteFile(
+              120, '1' + TFR(FormatBranchNumber(VendBankAcc."EFT BSB No."), 7) + TFL(VendBankAcc."Bank Account No.", 9) +
+              BLK(1) + TypeOfLine + NFL(Value100(TempGenJournalLine.Amount - TempGenJournalLine."WHT Absorb Base", 10), 10) + TFR(Vend.Name, 32) +
+              TFR(LodgementReference, 18) + TFR(FormatBranchNumber(BankAccount."EFT BSB No."), 7) + TFL(
+                BankAccount."Bank Account No.", 9) +
+              TFR(BankAccount."EFT Security Name", 16) + NFL(Value100(TempGenJournalLine."WHT Absorb Base", 8), 8));
+        until TempGenJournalLine.Next() = 0;
+        if BankAccount."EFT Balancing Record Required" then begin
+            WriteFile(
+              120, '1' + TFR(FormatBranchNumber(BankAccount."EFT BSB No."), 7) + TFL(BankAccount."Bank Account No.", 9) + BLK(1) +
+              '13' + NFL(Value100(TotalAmountLCY, 10), 10) +
+              TFR(BankAccount."EFT Security Name", 32) + TFR(LodgementReference, 18) +
+              TFR(FormatBranchNumber(BankAccount."EFT BSB No."), 7) + TFL(BankAccount."Bank Account No.", 9) +
+              TFR(BankAccount."EFT Security Name", 16) + NFL(Value100(0, 8), 8));
+            NoOfLines += 1;
         end;
+        if BankAccount."EFT Balancing Record Required" then
+            WriteFile(
+              120, '7' + TFR('999-999', 7) + BLK(12) + NFL(Value100(0, 10), 10) +
+              NFL(Value100(TotalAmountLCY, 10), 10) +
+              NFL(Value100(TotalAmountLCY, 10), 10) +
+              BLK(24) + NFL(Value1(NoOfLines, 6), 6) + BLK(40))
+        else
+            WriteFile(
+              120, '7' + TFR('999-999', 7) + BLK(12) + NFL(Value100(TotalAmountLCY, 10), 10) +
+              NFL(Value100(TotalAmountLCY, 10), 10) +
+              NFL(Value100(0, 10), 10) +
+              BLK(24) + NFL(Value1(NoOfLines, 6), 6) + BLK(40))
     end;
 
     [Scope('OnPrem')]
     procedure CalcAmountToPay(VendLedgEntry: Record "Vendor Ledger Entry"): Decimal
     begin
-        with VendLedgEntry do begin
-            CalcFields("Remaining Amount");
-            if ("Document Type" = "Document Type"::Invoice) and
-               ("Due Date" <= "Pmt. Discount Date")
-            then
-                exit("Remaining Amount" - "Remaining Pmt. Disc. Possible");
-            exit("Remaining Amount");
-        end;
+        VendLedgEntry.CalcFields("Remaining Amount");
+        if (VendLedgEntry."Document Type" = VendLedgEntry."Document Type"::Invoice) and
+           (VendLedgEntry."Due Date" <= VendLedgEntry."Pmt. Discount Date")
+        then
+            exit(VendLedgEntry."Remaining Amount" - VendLedgEntry."Remaining Pmt. Disc. Possible");
+        exit(VendLedgEntry."Remaining Amount");
     end;
 
     [Scope('OnPrem')]
     procedure CalcAmountToPayLCY(VendLedgEntry: Record "Vendor Ledger Entry"): Decimal
     begin
-        with VendLedgEntry do begin
-            if "Adjusted Currency Factor" <> 1 then
-                exit(Round("EFT Amount Transferred" / "Adjusted Currency Factor", GLSetup."Inv. Rounding Precision (LCY)"));
-            exit(Round("EFT Amount Transferred", GLSetup."Inv. Rounding Precision (LCY)"))
-        end;
+        if VendLedgEntry."Adjusted Currency Factor" <> 1 then
+            exit(Round(VendLedgEntry."EFT Amount Transferred" / VendLedgEntry."Adjusted Currency Factor", GLSetup."Inv. Rounding Precision (LCY)"));
+        exit(Round(VendLedgEntry."EFT Amount Transferred", GLSetup."Inv. Rounding Precision (LCY)"))
     end;
 
     [Scope('OnPrem')]
@@ -290,19 +284,17 @@ codeunit 11603 "EFT Management"
     begin
         TempGenJnlLine.DeleteAll();
         GLSetup.Get();
-        with VendLedgEntry do begin
-            TempGenJnlLine.Init();
-            TempGenJnlLine."Line No." += 10000;
-            TempGenJnlLine.Validate("Posting Date", "Posting Date");
-            TempGenJnlLine.Validate("Account Type", TempGenJnlLine."Account Type"::Vendor);
-            TempGenJnlLine.Validate("Account No.", "Vendor No.");
-            TempGenJnlLine.Validate("Document Type", "Document Type"::Payment);
-            TempGenJnlLine.Validate("Currency Code", "Currency Code");
-            TempGenJnlLine.Validate(Amount, "EFT Amount Transferred");
-            TempGenJnlLine.Validate("Applies-to Doc. Type", "Document Type");
-            TempGenJnlLine.Validate("Applies-to Doc. No.", "Document No.");
-            TempGenJnlLine.Insert();
-        end;
+        TempGenJnlLine.Init();
+        TempGenJnlLine."Line No." += 10000;
+        TempGenJnlLine.Validate("Posting Date", VendLedgEntry."Posting Date");
+        TempGenJnlLine.Validate("Account Type", TempGenJnlLine."Account Type"::Vendor);
+        TempGenJnlLine.Validate("Account No.", VendLedgEntry."Vendor No.");
+        TempGenJnlLine.Validate("Document Type", VendLedgEntry."Document Type"::Payment);
+        TempGenJnlLine.Validate("Currency Code", VendLedgEntry."Currency Code");
+        TempGenJnlLine.Validate(Amount, VendLedgEntry."EFT Amount Transferred");
+        TempGenJnlLine.Validate("Applies-to Doc. Type", VendLedgEntry."Document Type");
+        TempGenJnlLine.Validate("Applies-to Doc. No.", VendLedgEntry."Document No.");
+        TempGenJnlLine.Insert();
         if TempGenJnlLine."Account Type" = TempGenJnlLine."Account Type"::Vendor then
             if WHTSetup.Get(TempGenJnlLine."WHT Business Posting Group", TempGenJnlLine."WHT Product Posting Group") then
                 if WHTSetup."Realized WHT Type" <> WHTSetup."Realized WHT Type"::Earliest then
@@ -451,14 +443,13 @@ codeunit 11603 "EFT Management"
     var
         WHTPostingSetup: Record "WHT Posting Setup";
     begin
-        with GenJournalLine do
-            if WHTPostingSetup.Get("WHT Business Posting Group", "WHT Product Posting Group") then
-                if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment then
-                    Error(
-                      InvalidWHTRealizedTypeErr,
-                      "Journal Template Name",
-                      "Journal Batch Name",
-                      "Line No.");
+        if WHTPostingSetup.Get(GenJournalLine."WHT Business Posting Group", GenJournalLine."WHT Product Posting Group") then
+            if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment then
+                Error(
+                  InvalidWHTRealizedTypeErr,
+                  GenJournalLine."Journal Template Name",
+                  GenJournalLine."Journal Batch Name",
+                  GenJournalLine."Line No.");
     end;
 
     local procedure FindAppliedEntries(PaymentVendorLedgerEntry: Record "Vendor Ledger Entry"; var AppliedVendorLedgerEntry: Record "Vendor Ledger Entry")

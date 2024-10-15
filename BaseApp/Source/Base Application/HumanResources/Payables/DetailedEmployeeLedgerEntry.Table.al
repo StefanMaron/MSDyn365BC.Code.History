@@ -13,7 +13,10 @@ using System.Security.User;
 table 5223 "Detailed Employee Ledger Entry"
 {
     Caption = 'Detailed Employee Ledger Entry';
+    LookupPageId = "Detailed Empl. Ledger Entries";
+    DrillDownPageId = "Detailed Empl. Ledger Entries";
     Permissions = TableData "Detailed Employee Ledger Entry" = m;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -158,6 +161,12 @@ table 5223 "Detailed Employee Ledger Entry"
             Caption = 'Ledger Entry Amount';
             Editable = false;
         }
+        field(45; "Exch. Rate Adjmt. Reg. No."; Integer)
+        {
+            Caption = 'Exch. Rate Adjmt. Reg. No.';
+            Editable = false;
+            TableRelation = "Exch. Rate Adjmt. Reg.";
+        }
     }
 
     keys
@@ -230,6 +239,15 @@ table 5223 "Detailed Employee Ledger Entry"
     local procedure SetLedgerEntryAmount()
     begin
         "Ledger Entry Amount" := not ("Entry Type" = "Entry Type"::Application);
+    end;
+
+    procedure GetUnrealizedGainLossAmount(EntryNo: Integer): Decimal
+    begin
+        SetCurrentKey("Employee Ledger Entry No.", "Entry Type");
+        SetRange("Employee Ledger Entry No.", EntryNo);
+        SetRange("Entry Type", "Entry Type"::"Unrealized Loss", "Entry Type"::"Unrealized Gain");
+        CalcSums("Amount (LCY)");
+        exit("Amount (LCY)");
     end;
 
     [IntegrationEvent(false, false)]

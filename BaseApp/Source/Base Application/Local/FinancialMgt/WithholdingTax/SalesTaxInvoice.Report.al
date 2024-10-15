@@ -706,8 +706,8 @@ report 28072 "Sales - Tax Invoice"
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
 
                 if RespCenter.Get("Responsibility Center") then begin
                     FormatAddr.RespCenter(CompanyAddr, RespCenter);
@@ -922,7 +922,7 @@ report 28072 "Sales - Tax Invoice"
         DimSetEntry2: Record "Dimension Set Entry";
         RespCenter: Record "Responsibility Center";
         CurrExchRate: Record "Currency Exchange Rate";
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         SalesTaxInvCountPrinted: Codeunit "Sales Tax Inv.-Printed";
         FormatAddr: Codeunit "Format Address";
         SegManagement: Codeunit SegManagement;

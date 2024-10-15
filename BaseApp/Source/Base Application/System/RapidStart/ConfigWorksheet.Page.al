@@ -606,15 +606,6 @@ page 8632 "Config. Worksheet"
                 actionref(Errors_Promoted; Errors)
                 {
                 }
-#if not CLEAN21
-                actionref(Questions_Promoted; Questions)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category4)
             {
@@ -743,23 +734,22 @@ page 8632 "Config. Worksheet"
         PackageCode: Code[20];
     begin
         PackageCode := '';
-        with SelectedConfigLine do
-            if FindSet() then
-                repeat
-                    CheckBlocked();
-                    if ("Package Code" <> '') and
-                       ("Line Type" = "Line Type"::Table) and
-                       (Status <= Status::"In Progress")
-                    then begin
-                        if PackageCode = '' then
-                            PackageCode := "Package Code"
-                        else
-                            if PackageCode <> "Package Code" then
-                                Error(Text002);
-                    end else
-                        if "Package Code" = '' then
-                            Error(Text001);
-                until Next() = 0;
+        if SelectedConfigLine.FindSet() then
+            repeat
+                SelectedConfigLine.CheckBlocked();
+                if (SelectedConfigLine."Package Code" <> '') and
+                   (SelectedConfigLine."Line Type" = SelectedConfigLine."Line Type"::Table) and
+                   (SelectedConfigLine.Status <= SelectedConfigLine.Status::"In Progress")
+                then begin
+                    if PackageCode = '' then
+                        PackageCode := SelectedConfigLine."Package Code"
+                    else
+                        if PackageCode <> SelectedConfigLine."Package Code" then
+                            Error(Text002);
+                end else
+                    if SelectedConfigLine."Package Code" = '' then
+                        Error(Text001);
+            until SelectedConfigLine.Next() = 0;
     end;
 
     local procedure GetConfigPackageTable(var ConfigPackageTable: Record "Config. Package Table")

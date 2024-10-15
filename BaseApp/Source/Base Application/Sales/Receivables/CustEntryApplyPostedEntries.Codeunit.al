@@ -296,7 +296,7 @@ codeunit 226 "CustEntry-Apply Posted Entries"
     begin
         IsHandled := false;
         OnBeforeUnApplyCustomer(DtldCustLedgEntry, IsHandled);
-        If IsHandled then
+        if IsHandled then
             exit;
 
         DtldCustLedgEntry.TestField("Entry Type", DtldCustLedgEntry."Entry Type"::Application);
@@ -563,39 +563,35 @@ codeunit 226 "CustEntry-Apply Posted Entries"
     var
         ApplyToCustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgEntry do begin
-            if "Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"] then
-                exit;
-            CalcFields("WHT Amount");
-            if "WHT Amount" = 0 then
-                exit;
+        if CustLedgEntry."Document Type" in [CustLedgEntry."Document Type"::Invoice, CustLedgEntry."Document Type"::"Credit Memo"] then
+            exit;
+        CustLedgEntry.CalcFields("WHT Amount");
+        if CustLedgEntry."WHT Amount" = 0 then
+            exit;
 
-            ApplyToCustLedgEntry.SetCurrentKey("Customer No.", "Applies-to ID");
-            ApplyToCustLedgEntry.SetRange("Customer No.", "Customer No.");
-            ApplyToCustLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
-            ApplyToCustLedgEntry.FindSet();
-            repeat
-                if ApplyToCustLedgEntry."Document Type" <> ApplyToCustLedgEntry."Document Type"::"Credit Memo" then begin
-                    ApplyToCustLedgEntry.CalcFields("WHT Amount");
-                    if ApplyToCustLedgEntry."WHT Amount" <> 0 then
-                        Error(Text1500002);
-                end;
-            until ApplyToCustLedgEntry.Next() = 0;
-        end;
+        ApplyToCustLedgEntry.SetCurrentKey("Customer No.", "Applies-to ID");
+        ApplyToCustLedgEntry.SetRange("Customer No.", CustLedgEntry."Customer No.");
+        ApplyToCustLedgEntry.SetRange("Applies-to ID", CustLedgEntry."Applies-to ID");
+        ApplyToCustLedgEntry.FindSet();
+        repeat
+            if ApplyToCustLedgEntry."Document Type" <> ApplyToCustLedgEntry."Document Type"::"Credit Memo" then begin
+                ApplyToCustLedgEntry.CalcFields("WHT Amount");
+                if ApplyToCustLedgEntry."WHT Amount" <> 0 then
+                    Error(Text1500002);
+            end;
+        until ApplyToCustLedgEntry.Next() = 0;
     end;
 
     local procedure GetInvoiceNo(CustLedgEntry: Record "Cust. Ledger Entry"): Code[20]
     var
         ApplyToCustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgEntry do begin
-            ApplyToCustLedgEntry.SetCurrentKey("Customer No.", "Applies-to ID");
-            ApplyToCustLedgEntry.SetRange("Customer No.", "Customer No.");
-            ApplyToCustLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
-            ApplyToCustLedgEntry.SetRange("Document Type", ApplyToCustLedgEntry."Document Type"::Invoice);
-            if ApplyToCustLedgEntry.FindFirst() then
-                exit(ApplyToCustLedgEntry."Document No.");
-        end;
+        ApplyToCustLedgEntry.SetCurrentKey("Customer No.", "Applies-to ID");
+        ApplyToCustLedgEntry.SetRange("Customer No.", CustLedgEntry."Customer No.");
+        ApplyToCustLedgEntry.SetRange("Applies-to ID", CustLedgEntry."Applies-to ID");
+        ApplyToCustLedgEntry.SetRange("Document Type", ApplyToCustLedgEntry."Document Type"::Invoice);
+        if ApplyToCustLedgEntry.FindFirst() then
+            exit(ApplyToCustLedgEntry."Document No.");
     end;
 
     procedure PreviewApply(CustLedgEntry: Record "Cust. Ledger Entry"; ApplyUnapplyParameters: Record "Apply Unapply Parameters")

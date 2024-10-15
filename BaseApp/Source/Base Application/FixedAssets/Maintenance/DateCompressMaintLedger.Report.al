@@ -27,51 +27,49 @@ report 5698 "Date Compress Maint. Ledger"
             trigger OnAfterGetRecord()
             begin
                 MaintenanceLedgEntry2 := "Maintenance Ledger Entry";
-                with MaintenanceLedgEntry2 do begin
-                    SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date");
-                    CopyFilters("Maintenance Ledger Entry");
+                MaintenanceLedgEntry2.SetCurrentKey("FA No.", "Depreciation Book Code", "FA Posting Date");
+                MaintenanceLedgEntry2.CopyFilters("Maintenance Ledger Entry");
 
-                    SetRange("FA No.", "FA No.");
-                    SetRange("Depreciation Book Code", "Depreciation Book Code");
-                    SetRange("FA Posting Group", "FA Posting Group");
-                    SetRange("Document Type", "Document Type");
+                MaintenanceLedgEntry2.SetRange("FA No.", MaintenanceLedgEntry2."FA No.");
+                MaintenanceLedgEntry2.SetRange("Depreciation Book Code", MaintenanceLedgEntry2."Depreciation Book Code");
+                MaintenanceLedgEntry2.SetRange("FA Posting Group", MaintenanceLedgEntry2."FA Posting Group");
+                MaintenanceLedgEntry2.SetRange("Document Type", MaintenanceLedgEntry2."Document Type");
 
-                    SetFilter("FA Posting Date", DateComprMgt.GetDateFilter("FA Posting Date", EntrdDateComprReg, true));
+                MaintenanceLedgEntry2.SetFilter("FA Posting Date", DateComprMgt.GetDateFilter(MaintenanceLedgEntry2."FA Posting Date", EntrdDateComprReg, true));
 
-                    if RetainNo(FieldNo("Document No.")) then
-                        SetRange("Document No.", "Document No.");
-                    if RetainNo(FieldNo("Maintenance Code")) then
-                        SetRange("Maintenance Code", "Maintenance Code");
-                    if RetainNo(FieldNo("Index Entry")) then
-                        SetRange("Index Entry", "Index Entry");
-                    if RetainNo(FieldNo("Global Dimension 1 Code")) then
-                        SetRange("Global Dimension 1 Code", "Global Dimension 1 Code");
-                    if RetainNo(FieldNo("Global Dimension 2 Code")) then
-                        SetRange("Global Dimension 2 Code", "Global Dimension 2 Code");
-                    if Quantity >= 0 then
-                        SetFilter(Quantity, '>=0')
-                    else
-                        SetFilter(Quantity, '<0');
+                if RetainNo(MaintenanceLedgEntry2.FieldNo("Document No.")) then
+                    MaintenanceLedgEntry2.SetRange("Document No.", MaintenanceLedgEntry2."Document No.");
+                if RetainNo(MaintenanceLedgEntry2.FieldNo("Maintenance Code")) then
+                    MaintenanceLedgEntry2.SetRange("Maintenance Code", MaintenanceLedgEntry2."Maintenance Code");
+                if RetainNo(MaintenanceLedgEntry2.FieldNo("Index Entry")) then
+                    MaintenanceLedgEntry2.SetRange("Index Entry", MaintenanceLedgEntry2."Index Entry");
+                if RetainNo(MaintenanceLedgEntry2.FieldNo("Global Dimension 1 Code")) then
+                    MaintenanceLedgEntry2.SetRange("Global Dimension 1 Code", MaintenanceLedgEntry2."Global Dimension 1 Code");
+                if RetainNo(MaintenanceLedgEntry2.FieldNo("Global Dimension 2 Code")) then
+                    MaintenanceLedgEntry2.SetRange("Global Dimension 2 Code", MaintenanceLedgEntry2."Global Dimension 2 Code");
+                if MaintenanceLedgEntry2.Quantity >= 0 then
+                    MaintenanceLedgEntry2.SetFilter(Quantity, '>=0')
+                else
+                    MaintenanceLedgEntry2.SetFilter(Quantity, '<0');
 
-                    InitNewEntry(NewMaintenanceLedgEntry);
+                InitNewEntry(NewMaintenanceLedgEntry);
 
+                DimBufMgt.CollectDimEntryNo(
+                  TempSelectedDim, MaintenanceLedgEntry2."Dimension Set ID", MaintenanceLedgEntry2."Entry No.",
+                  0, false, DimEntryNo);
+                ComprDimEntryNo := DimEntryNo;
+                SummarizeEntry(NewMaintenanceLedgEntry, MaintenanceLedgEntry2);
+                while MaintenanceLedgEntry2.Next() <> 0 do begin
                     DimBufMgt.CollectDimEntryNo(
-                      TempSelectedDim, "Dimension Set ID", "Entry No.",
-                      0, false, DimEntryNo);
-                    ComprDimEntryNo := DimEntryNo;
-                    SummarizeEntry(NewMaintenanceLedgEntry, MaintenanceLedgEntry2);
-                    while Next() <> 0 do begin
-                        DimBufMgt.CollectDimEntryNo(
-                          TempSelectedDim, "Dimension Set ID", "Entry No.",
-                          ComprDimEntryNo, true, DimEntryNo);
-                        if DimEntryNo = ComprDimEntryNo then
-                            SummarizeEntry(NewMaintenanceLedgEntry, MaintenanceLedgEntry2);
-                    end;
-
-                    InsertNewEntry(NewMaintenanceLedgEntry, ComprDimEntryNo);
-
-                    ComprCollectedEntries();
+                      TempSelectedDim, MaintenanceLedgEntry2."Dimension Set ID", MaintenanceLedgEntry2."Entry No.",
+                      ComprDimEntryNo, true, DimEntryNo);
+                    if DimEntryNo = ComprDimEntryNo then
+                        SummarizeEntry(NewMaintenanceLedgEntry, MaintenanceLedgEntry2);
                 end;
+
+                InsertNewEntry(NewMaintenanceLedgEntry, ComprDimEntryNo);
+
+                ComprCollectedEntries();
 
                 if DateComprReg."No. Records Deleted" >= NoOfDeleted + 10 then begin
                     NoOfDeleted := DateComprReg."No. Records Deleted";
@@ -141,13 +139,17 @@ report 5698 "Date Compress Maint. Ledger"
                 group(Options)
                 {
                     Caption = 'Options';
+#pragma warning disable AA0100
                     field("EntrdDateComprReg.""Starting Date"""; EntrdDateComprReg."Starting Date")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Suite;
                         Caption = 'Starting Date';
                         ToolTip = 'Specifies the date from which the report or batch job processes information.';
                     }
+#pragma warning disable AA0100
                     field("EntrdDateComprReg.""Ending Date"""; EntrdDateComprReg."Ending Date")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Suite;
                         Caption = 'Ending Date';
@@ -160,7 +162,9 @@ report 5698 "Date Compress Maint. Ledger"
                             DateCompression.VerifyDateCompressionDates(EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
                         end;
                     }
+#pragma warning disable AA0100
                     field("EntrdDateComprReg.""Period Length"""; EntrdDateComprReg."Period Length")
+#pragma warning restore AA0100
                     {
                         ApplicationArea = Suite;
                         Caption = 'Period Length';
@@ -241,13 +245,11 @@ report 5698 "Date Compress Maint. Ledger"
             if EntrdMaintenanceLedgEntry.Description = '' then
                 EntrdMaintenanceLedgEntry.Description := Text009;
 
-            with "Maintenance Ledger Entry" do begin
-                InsertField(FieldNo("Document No."), FieldCaption("Document No."));
-                InsertField(FieldNo("Maintenance Code"), FieldCaption("Maintenance Code"));
-                InsertField(FieldNo("Index Entry"), FieldCaption("Index Entry"));
-                InsertField(FieldNo("Global Dimension 1 Code"), FieldCaption("Global Dimension 1 Code"));
-                InsertField(FieldNo("Global Dimension 2 Code"), FieldCaption("Global Dimension 2 Code"));
-            end;
+            InsertField("Maintenance Ledger Entry".FieldNo("Document No."), "Maintenance Ledger Entry".FieldCaption("Document No."));
+            InsertField("Maintenance Ledger Entry".FieldNo("Maintenance Code"), "Maintenance Ledger Entry".FieldCaption("Maintenance Code"));
+            InsertField("Maintenance Ledger Entry".FieldNo("Index Entry"), "Maintenance Ledger Entry".FieldCaption("Index Entry"));
+            InsertField("Maintenance Ledger Entry".FieldNo("Global Dimension 1 Code"), "Maintenance Ledger Entry".FieldCaption("Global Dimension 1 Code"));
+            InsertField("Maintenance Ledger Entry".FieldNo("Global Dimension 2 Code"), "Maintenance Ledger Entry".FieldCaption("Global Dimension 2 Code"));
 
             RetainDimText := DimSelectionBuf.GetDimSelectionText(3, REPORT::"Date Compress Maint. Ledger", '');
 
@@ -331,8 +333,10 @@ report 5698 "Date Compress Maint. Ledger"
     begin
         FAReg.Init();
         FAReg."No." := FAReg.GetLastEntryNo() + 1;
+#if not CLEAN24
         FAReg."Creation Date" := Today;
         FAReg."Creation Time" := Time;
+#endif
         FAReg."Journal Type" := FAReg."Journal Type"::"Fixed Asset";
         FAReg."Source Code" := SourceCodeSetup."Compress Maintenance Ledger";
         FAReg."User ID" := CopyStr(UserId(), 1, MaxStrLen(FAReg."User ID"));
@@ -412,13 +416,11 @@ report 5698 "Date Compress Maint. Ledger"
 
     local procedure SummarizeEntry(var NewMaintenanceLedgEntry: Record "Maintenance Ledger Entry"; MaintenanceLedgEntry: Record "Maintenance Ledger Entry")
     begin
-        with MaintenanceLedgEntry do begin
-            NewMaintenanceLedgEntry.Quantity := NewMaintenanceLedgEntry.Quantity + Quantity;
-            NewMaintenanceLedgEntry.Amount := NewMaintenanceLedgEntry.Amount + Amount;
-            Delete();
-            DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
-            Window.Update(4, DateComprReg."No. Records Deleted");
-        end;
+        NewMaintenanceLedgEntry.Quantity := NewMaintenanceLedgEntry.Quantity + MaintenanceLedgEntry.Quantity;
+        NewMaintenanceLedgEntry.Amount := NewMaintenanceLedgEntry.Amount + MaintenanceLedgEntry.Amount;
+        MaintenanceLedgEntry.Delete();
+        DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
+        Window.Update(4, DateComprReg."No. Records Deleted");
         if UseDataArchive then
             DataArchive.SaveRecord(MaintenanceLedgEntry);
     end;
@@ -453,37 +455,35 @@ report 5698 "Date Compress Maint. Ledger"
     begin
         LastEntryNo := LastEntryNo + 1;
 
-        with MaintenanceLedgEntry2 do begin
-            NewMaintenanceLedgEntry.Init();
-            NewMaintenanceLedgEntry."Entry No." := LastEntryNo;
+        NewMaintenanceLedgEntry.Init();
+        NewMaintenanceLedgEntry."Entry No." := LastEntryNo;
 
-            NewMaintenanceLedgEntry."FA No." := "FA No.";
-            NewMaintenanceLedgEntry."Depreciation Book Code" := "Depreciation Book Code";
-            NewMaintenanceLedgEntry."FA Posting Group" := "FA Posting Group";
-            NewMaintenanceLedgEntry."Document Type" := "Document Type";
+        NewMaintenanceLedgEntry."FA No." := MaintenanceLedgEntry2."FA No.";
+        NewMaintenanceLedgEntry."Depreciation Book Code" := MaintenanceLedgEntry2."Depreciation Book Code";
+        NewMaintenanceLedgEntry."FA Posting Group" := MaintenanceLedgEntry2."FA Posting Group";
+        NewMaintenanceLedgEntry."Document Type" := MaintenanceLedgEntry2."Document Type";
 
-            NewMaintenanceLedgEntry."FA Posting Date" := GetRangeMin("FA Posting Date");
-            NewMaintenanceLedgEntry."Posting Date" := GetRangeMin("FA Posting Date");
-            NewMaintenanceLedgEntry.Description := EntrdMaintenanceLedgEntry.Description;
-            NewMaintenanceLedgEntry."Source Code" := SourceCodeSetup."Compress Maintenance Ledger";
-            NewMaintenanceLedgEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
+        NewMaintenanceLedgEntry."FA Posting Date" := MaintenanceLedgEntry2.GetRangeMin("FA Posting Date");
+        NewMaintenanceLedgEntry."Posting Date" := MaintenanceLedgEntry2.GetRangeMin("FA Posting Date");
+        NewMaintenanceLedgEntry.Description := EntrdMaintenanceLedgEntry.Description;
+        NewMaintenanceLedgEntry."Source Code" := SourceCodeSetup."Compress Maintenance Ledger";
+        NewMaintenanceLedgEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(MaintenanceLedgEntry2."User ID"));
 
-            if RetainNo(FieldNo("Document No.")) then
-                NewMaintenanceLedgEntry."Document No." := "Document No.";
-            if RetainNo(FieldNo("Maintenance Code")) then
-                NewMaintenanceLedgEntry."Maintenance Code" := "Maintenance Code";
-            if RetainNo(FieldNo("Index Entry")) then
-                NewMaintenanceLedgEntry."Index Entry" := "Index Entry";
-            if RetainNo(FieldNo("Global Dimension 1 Code")) then
-                NewMaintenanceLedgEntry."Global Dimension 1 Code" := "Global Dimension 1 Code";
-            if RetainNo(FieldNo("Global Dimension 2 Code")) then
-                NewMaintenanceLedgEntry."Global Dimension 2 Code" := "Global Dimension 2 Code";
+        if RetainNo(MaintenanceLedgEntry2.FieldNo("Document No.")) then
+            NewMaintenanceLedgEntry."Document No." := MaintenanceLedgEntry2."Document No.";
+        if RetainNo(MaintenanceLedgEntry2.FieldNo("Maintenance Code")) then
+            NewMaintenanceLedgEntry."Maintenance Code" := MaintenanceLedgEntry2."Maintenance Code";
+        if RetainNo(MaintenanceLedgEntry2.FieldNo("Index Entry")) then
+            NewMaintenanceLedgEntry."Index Entry" := MaintenanceLedgEntry2."Index Entry";
+        if RetainNo(MaintenanceLedgEntry2.FieldNo("Global Dimension 1 Code")) then
+            NewMaintenanceLedgEntry."Global Dimension 1 Code" := MaintenanceLedgEntry2."Global Dimension 1 Code";
+        if RetainNo(MaintenanceLedgEntry2.FieldNo("Global Dimension 2 Code")) then
+            NewMaintenanceLedgEntry."Global Dimension 2 Code" := MaintenanceLedgEntry2."Global Dimension 2 Code";
 
-            Window.Update(1, NewMaintenanceLedgEntry."FA No.");
-            Window.Update(2, NewMaintenanceLedgEntry."FA Posting Date");
-            DateComprReg."No. of New Records" := DateComprReg."No. of New Records" + 1;
-            Window.Update(3, DateComprReg."No. of New Records");
-        end;
+        Window.Update(1, NewMaintenanceLedgEntry."FA No.");
+        Window.Update(2, NewMaintenanceLedgEntry."FA Posting Date");
+        DateComprReg."No. of New Records" := DateComprReg."No. of New Records" + 1;
+        Window.Update(3, DateComprReg."No. of New Records");
     end;
 
     local procedure InsertNewEntry(var NewMaintenanceLedgEntry: Record "Maintenance Ledger Entry"; DimEntryNo: Integer)

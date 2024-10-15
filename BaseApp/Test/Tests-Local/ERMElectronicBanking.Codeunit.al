@@ -49,7 +49,7 @@ codeunit 141021 "ERM Electronic - Banking"
         CreateVendor(Vendor, '', '');  // WHT Business Posting Group, VAT Bus. Posting Group - Blank.
 
         // Exercise.
-        VendorCard.OpenEdit;
+        VendorCard.OpenEdit();
         VendorCard.FILTER.SetFilter("No.", Vendor."No.");
 
         // [THEN] Verify EFT Payment and EFT Bank Account No on Vendor Card.
@@ -359,7 +359,7 @@ codeunit 141021 "ERM Electronic - Banking"
         CompanyInformation.Modify();
         Assert.AreEqual(
           StrSubstNo('%1 %2', CompanyInformation.ABN, CompanyInformation."ABN Division Part No."),
-          CompanyInformation.GetRegistrationNumber,
+          CompanyInformation.GetRegistrationNumber(),
           WrongRegNoErr);
         Assert.AreEqual(CompanyInformation.FieldCaption(ABN), CompanyInformation.GetRegistrationNumberLbl(), WrongRegNoLblErr);
     end;
@@ -376,7 +376,7 @@ codeunit 141021 "ERM Electronic - Banking"
         CompanyInformation.Validate(ABN, '53001003000');
         CompanyInformation.Validate("ABN Division Part No.", '');
         CompanyInformation.Modify();
-        Assert.AreEqual(CompanyInformation.ABN, CompanyInformation.GetRegistrationNumber, WrongRegNoErr);
+        Assert.AreEqual(CompanyInformation.ABN, CompanyInformation.GetRegistrationNumber(), WrongRegNoErr);
         Assert.AreEqual(CompanyInformation.FieldCaption(ABN), CompanyInformation.GetRegistrationNumberLbl(), WrongRegNoLblErr);
     end;
 
@@ -503,7 +503,7 @@ codeunit 141021 "ERM Electronic - Banking"
         FindWHTPostingSetup(WHTPostingSetup);
         CreateVendor(Vendor, WHTPostingSetup."WHT Business Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         for i := 1 to 3 do
-            CreateAndPostPurchaseOrder(Vendor."No.", PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, true);
+            CreateAndPostPurchaseOrder(Vendor."No.", PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), true);
 
         // [GIVEN] Run suggest payment with EFT Payment = Yes, Summarize per Vendor = Yes
         CreateGenJournalBatchWithBankAccount(GenJournalBatch);
@@ -607,7 +607,7 @@ codeunit 141021 "ERM Electronic - Banking"
         FindWHTPostingSetup(WHTPostingSetup);
         for i := 1 to 3 do begin
             CreateVendor(Vendor[i], WHTPostingSetup."WHT Business Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            CreateAndPostPurchaseOrder(Vendor[i]."No.", PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, true);
+            CreateAndPostPurchaseOrder(Vendor[i]."No.", PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), true);
         end;
 
         // [GIVEN] Run suggest payment with EFT Payment = Yes
@@ -652,7 +652,7 @@ codeunit 141021 "ERM Electronic - Banking"
         for i := 1 to 3 do begin
             CreateVendor(Vendor[i], WHTPostingSetup."WHT Business Posting Group", VATPostingSetup."VAT Bus. Posting Group");
             InvoiceNo[i] :=
-              CreateAndPostPurchaseOrder(Vendor[i]."No.", PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, true);
+              CreateAndPostPurchaseOrder(Vendor[i]."No.", PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), true);
         end;
 
         // [GIVEN] Create payment lines applied to invoices without balance account
@@ -740,9 +740,9 @@ codeunit 141021 "ERM Electronic - Banking"
 
         // [WHEN] Action Cancel Export is being run for exported journal line
         FindFirstGenJournalLineFromBatch(GenJournalBatch, GenJournalLine);
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        PaymentJournal.CancelExport.Invoke;
+        PaymentJournal.CancelExport.Invoke();
 
         // [THEN] Exported journal line "EFT Register No." = 0
         GenJournalLine.Find();
@@ -782,9 +782,9 @@ codeunit 141021 "ERM Electronic - Banking"
 
         // [WHEN] Try to export from canceled register
         FindEFTRegister(EFTRegister, GenJournalBatch."Bal. Account No.");
-        EFTRegisterPage.OpenView;
+        EFTRegisterPage.OpenView();
         EFTRegisterPage.GotoRecord(EFTRegister);
-        asserterror EFTRegisterPage.CreateFile.Invoke;
+        asserterror EFTRegisterPage.CreateFile.Invoke();
 
         // [THEN] Expected error "Canceled must not be Yes..."
         Assert.ExpectedError('Canceled must be equal to ''No''');
@@ -851,7 +851,7 @@ codeunit 141021 "ERM Electronic - Banking"
         FindWHTPostingSetup(WHTPostingSetup);
         CreateVendor(Vendor, WHTPostingSetup."WHT Business Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         for i := 1 to 3 do
-            CreateAndPostPurchaseOrder(Vendor."No.", PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, true);
+            CreateAndPostPurchaseOrder(Vendor."No.", PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), true);
 
         // [GIVEN] Run suggest payment with EFT Payment = Yes, Summarize per Vendor = Yes
         CreateGenJournalBatchWithBankAccount(GenJournalBatch);
@@ -896,7 +896,7 @@ codeunit 141021 "ERM Electronic - Banking"
         FindWHTPostingSetup(WHTPostingSetup);
         CreateVendor(Vendor, WHTPostingSetup."WHT Business Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         for i := 1 to 3 do
-            CreateAndPostPurchaseOrder(Vendor."No.", PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, true);
+            CreateAndPostPurchaseOrder(Vendor."No.", PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), true);
 
         // [GIVEN] Run suggest payment with EFT Payment = Yes, Summarize per Vendor = Yes
         CreateGenJournalBatchWithBankAccount(GenJournalBatch);
@@ -1167,7 +1167,7 @@ codeunit 141021 "ERM Electronic - Banking"
         FindWHTPostingSetup(WHTPostingSetup);
         CreateVendor(Vendor, WHTPostingSetup."WHT Business Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         InvoiceNo :=
-          CreateAndPostPurchaseOrder(Vendor."No.", PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, true);
+          CreateAndPostPurchaseOrder(Vendor."No.", PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), true);
 
         // [GIVEN] Create payment line applied to invoice without balance account
         CreateGenJournalBatchWithBankAccount(GenJournalBatch);
@@ -1226,7 +1226,7 @@ codeunit 141021 "ERM Electronic - Banking"
         FindWHTPostingSetup(WHTPostingSetup);
         CreateVendor(Vendor, WHTPostingSetup."WHT Business Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         InvoiceNo :=
-          CreateAndPostPurchaseOrder(Vendor."No.", PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, true);
+          CreateAndPostPurchaseOrder(Vendor."No.", PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), true);
 
         // [GIVEN] Create payment line applied to invoice without balance account
         CreateGenJournalBatchWithBankAccount(GenJournalBatch);
@@ -1346,13 +1346,11 @@ codeunit 141021 "ERM Electronic - Banking"
         GenJournalBatch: Record "Gen. Journal Batch";
         VATPostingSetup: Record "VAT Posting Setup";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
-        DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
         GLEntry: Record "G/L Entry";
         InvoiceNo: array[2] of Code[20];
         InvoiceAmount: array[2] of Decimal;
         WHTAmount: array[2] of Decimal;
         FilePath: Text;
-        TextLine: Text;
         Index: Integer;
     begin
         // [FEATURE] [Payment Tolerance] [EFT] [Suggest Vendor Payments]
@@ -1429,7 +1427,6 @@ codeunit 141021 "ERM Electronic - Banking"
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
-        VATPostingSetup: Record "VAT Posting Setup";
         VendorNo: Code[20];
         InvoiceAmount: Decimal;
         WHTAmount: Decimal;
@@ -1883,7 +1880,6 @@ codeunit 141021 "ERM Electronic - Banking"
         Vendor: array[3] of Record Vendor;
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
-        VendorLedgerEntry: Record "Vendor Ledger Entry";
         EFTRegister: Record "EFT Register";
         i: Integer;
         TotalAmount: Decimal;
@@ -2104,7 +2100,7 @@ codeunit 141021 "ERM Electronic - Banking"
         UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
         FindWHTPostingSetup(WHTPostingSetup);
         CreateVendor(Vendor, WHTPostingSetup."WHT Business Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-        exit(CreateAndPostPurchaseOrder(Vendor."No.", PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, true));
+        exit(CreateAndPostPurchaseOrder(Vendor."No.", PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), true));
     end;
 
     local procedure CreateBalancingJournalLine(GenJournalBatch: Record "Gen. Journal Batch"; DocumentNo: Code[20]; Amount: Decimal)
@@ -2159,7 +2155,7 @@ codeunit 141021 "ERM Electronic - Banking"
 
     local procedure CreateGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; BalAccountNo: Code[20])
     begin
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryPaymentExport.SelectPaymentJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryPaymentExport.SelectPaymentJournalTemplate());
         with GenJournalBatch do begin
             "Bal. Account Type" := "Bal. Account Type"::"Bank Account";
             "Bal. Account No." := BalAccountNo;
@@ -2321,7 +2317,7 @@ codeunit 141021 "ERM Electronic - Banking"
         Commit();
         RepCreateEFTFile.SetGenJnlLine(GenJournalLine);
         RepCreateEFTFile.RunModal();
-        exit(RepCreateEFTFile.GetServerFileName);
+        exit(RepCreateEFTFile.GetServerFileName());
     end;
 
     local procedure EFTPaymentCreateFileFromEFTRegister(EFTRegister: Record "EFT Register"): Text
@@ -2332,7 +2328,7 @@ codeunit 141021 "ERM Electronic - Banking"
         Commit();
         BankAccount.Get(EFTRegister."Bank Account Code");
         EFTManagement.CreateFileFromEFTRegister(EFTRegister, EFTRegister."File Description", BankAccount);
-        exit(EFTManagement.GetServerFileName);
+        exit(EFTManagement.GetServerFileName());
     end;
 
     local procedure FindPurchInvHeader(var PurchInvHeader: Record "Purch. Inv. Header"; DocumentNo: Code[20])
@@ -2550,7 +2546,7 @@ codeunit 141021 "ERM Electronic - Banking"
           CalculateWHTAmount(PurchInvHeader."WHT Business Posting Group", WHTProductPostingGroupCode, PurchInvHeader.Amount);
         PurchInvHeader.TestField("Paid WHT Prepaid Amount (LCY)", 0);  // Before posting of Payment journal it should be zero.
         Assert.AreNearlyEqual(
-          PurchInvHeader."Rem. WHT Prepaid Amount (LCY)", RemWHTPrepaidAmountLCY, LibraryERM.GetAmountRoundingPrecision,
+          PurchInvHeader."Rem. WHT Prepaid Amount (LCY)", RemWHTPrepaidAmountLCY, LibraryERM.GetAmountRoundingPrecision(),
           ValueMustBeSameMsg);
     end;
 
@@ -2571,7 +2567,7 @@ codeunit 141021 "ERM Electronic - Banking"
             TestField("Account No.", PurchInvHeader."Buy-from Vendor No.");
             Assert.AreEqual(
               PurchInvHeader."Vendor Invoice No.", "External Document No.", FieldCaption("External Document No."));
-            Assert.AreNearlyEqual(PurchInvHeader.Amount, Amount, LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
+            Assert.AreNearlyEqual(PurchInvHeader.Amount, Amount, LibraryERM.GetAmountRoundingPrecision(), ValueMustBeSameMsg);
         end;
     end;
 
@@ -2653,7 +2649,7 @@ codeunit 141021 "ERM Electronic - Banking"
     procedure CreateEFTFileRequestPageHandler(var CreateEFTFile: TestRequestPage "Create EFT File")
     begin
         CreateEFTFile.EFTFileDescription.SetValue(LibraryRandom.RandInt(5));  // Setting a Random No for File Description.
-        CreateEFTFile.OK.Invoke;
+        CreateEFTFile.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -2670,7 +2666,7 @@ codeunit 141021 "ERM Electronic - Banking"
         LibraryVariableStorage.Dequeue(BankAccountNo);
         LibraryVariableStorage.Dequeue(EFTPayment);
         LibraryVariableStorage.Dequeue(LastPaymentDate);
-        VendorNoFilter := LibraryVariableStorage.DequeueText;
+        VendorNoFilter := LibraryVariableStorage.DequeueText();
         if VendorNoFilter <> '' then
             SuggestVendorPayments.Vendor.SetFilter("No.", VendorNoFilter);
         SuggestVendorPayments.LastPaymentDate.SetValue(LastPaymentDate);
@@ -2678,9 +2674,9 @@ codeunit 141021 "ERM Electronic - Banking"
         SuggestVendorPayments.BalAccountType.SetValue(BalAccountType::"Bank Account");
         SuggestVendorPayments.BalAccountNo.SetValue(BankAccountNo);
         SuggestVendorPayments.EFTPayment.SetValue(EFTPayment);
-        SummarizePerVendor := LibraryVariableStorage.DequeueBoolean;
+        SummarizePerVendor := LibraryVariableStorage.DequeueBoolean();
         SuggestVendorPayments.SummarizePerVendor.SetValue(SummarizePerVendor);
-        SuggestVendorPayments.OK.Invoke;
+        SuggestVendorPayments.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2688,7 +2684,7 @@ codeunit 141021 "ERM Electronic - Banking"
     procedure PaymentToleranceWarningModalPageHandler(var PaymentToleranceWarning: TestPage "Payment Tolerance Warning")
     begin
         PaymentToleranceWarning.Posting.SetValue(true);
-        PaymentToleranceWarning.Yes.Invoke;
+        PaymentToleranceWarning.Yes().Invoke();
     end;
 
     [MessageHandler]

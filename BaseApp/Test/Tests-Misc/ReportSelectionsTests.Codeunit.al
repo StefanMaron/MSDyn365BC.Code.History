@@ -23,7 +23,6 @@ codeunit 134421 "Report Selections Tests"
         LibraryMarketing: Codeunit "Library - Marketing";
         ActiveDirectoryMockEvents: Codeunit "Active Directory Mock Events";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
-        LibraryWorkflow: Codeunit "Library - Workflow";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         CustomMessageTypeTxt: Text;
         FromEmailBodyTemplateTxt: Text;
@@ -32,13 +31,11 @@ codeunit 134421 "Report Selections Tests"
         CustomerEmailTxt: Label 'Customer@contoso.com';
         CustomLayoutEmailTxt: Label 'CustomLayout@contoso.com';
         WrongEmailAddressErr: Label 'Email Address is wrong on Send Email Dialog';
-        NoSalesInvHdrTok: Label 'No_SalesInvHeader';
         DocumentNoTok: Label 'DocumentNo';
         ReportIDMustHaveValueErr: Label 'Report ID must have a value';
         EmailAddressErr: Label 'Destination email address does not match expected address.';
         StatementTitlePdfTxt: Label 'Statement';
         ReportTitleTemplatePdfTxt: Label '%1 for %2 as of %3.pdf';
-        InvalidCustomReportSelectionErr: Label 'Invalid Custom Report Selection';
         LayoutCodeShouldNotChangedErr: Label 'Layout code should not change.';
 
     [Test]
@@ -343,6 +340,7 @@ codeunit 134421 "Report Selections Tests"
         UseForBody: Boolean;
     begin
         Initialize();
+
         // Setup
         OpenNewPostedSalesInvoice(PostedSalesInvoice);
 
@@ -588,7 +586,7 @@ codeunit 134421 "Report Selections Tests"
         // [FEATURE] [Sales] [Quote] [Archive] [UI]
         // [SCENARIO 218547] One entry per Send by Email press in Sales Quote Archives and in Interaction Log Entries
         Initialize();
-        LibrarySales.SetArchiveQuoteAlways;
+        LibrarySales.SetArchiveQuoteAlways();
 
         // [GIVEN] New Sales Quote and Archiving is on
         CustomerNo := LibrarySales.CreateCustomerNo();
@@ -631,12 +629,12 @@ codeunit 134421 "Report Selections Tests"
 
         // [GIVEN] Vendor "V" with "E-mail" = "v@a.com"
         LibraryPurchase.CreateVendor(Vendor);
-        Vendor.Validate("E-Mail", LibraryUtility.GenerateRandomEmail);
+        Vendor.Validate("E-Mail", LibraryUtility.GenerateRandomEmail());
         Vendor.Modify(true);
 
         // [GIVEN] Order address "OA" for "V" with "E-mail" = "oa@a.com"
         LibraryPurchase.CreateOrderAddress(OrderAddress, Vendor."No.");
-        OrderAddress.Validate("E-Mail", LibraryUtility.GenerateRandomEmail);
+        OrderAddress.Validate("E-Mail", LibraryUtility.GenerateRandomEmail());
         OrderAddress.Modify(true);
 
         // [GIVEN] Purchase order "PO" for "V" with "Order Address Code" = "OA"
@@ -663,7 +661,7 @@ codeunit 134421 "Report Selections Tests"
     begin
         // [FEATURE] [UT]
         BindSubscription(MailManagement);
-        Assert.IsTrue(MailManagement.IsHandlingGetEmailBodyCustomer, '');
+        Assert.IsTrue(MailManagement.IsHandlingGetEmailBodyCustomer(), '');
     end;
 
     [Test]
@@ -674,7 +672,7 @@ codeunit 134421 "Report Selections Tests"
     begin
         // [FEATURE] [UT]
         BindSubscription(MailManagement);
-        Assert.IsTrue(MailManagement.IsHandlingGetEmailBodyVendor, '');
+        Assert.IsTrue(MailManagement.IsHandlingGetEmailBodyVendor(), '');
     end;
 
     [Test]
@@ -684,7 +682,7 @@ codeunit 134421 "Report Selections Tests"
         MailManagement: Codeunit "Mail Management";
     begin
         // [FEATURE] [UT]
-        Assert.IsFalse(MailManagement.IsHandlingGetEmailBodyCustomer, '');
+        Assert.IsFalse(MailManagement.IsHandlingGetEmailBodyCustomer(), '');
     end;
 
     [Test]
@@ -694,7 +692,7 @@ codeunit 134421 "Report Selections Tests"
         MailManagement: Codeunit "Mail Management";
     begin
         // [FEATURE] [UT]
-        Assert.IsFalse(MailManagement.IsHandlingGetEmailBodyVendor, '');
+        Assert.IsFalse(MailManagement.IsHandlingGetEmailBodyVendor(), '');
     end;
 
     [Test]
@@ -705,7 +703,7 @@ codeunit 134421 "Report Selections Tests"
     begin
         // [FEATURE] [UT]
         BindSubscription(MailManagement);
-        Assert.IsTrue(MailManagement.IsHandlingGetEmailBody, '');
+        Assert.IsTrue(MailManagement.IsHandlingGetEmailBody(), '');
     end;
 
     [Test]
@@ -715,7 +713,7 @@ codeunit 134421 "Report Selections Tests"
         MailManagement: Codeunit "Mail Management";
     begin
         // [FEATURE] [UT]
-        Assert.IsFalse(MailManagement.IsHandlingGetEmailBody, '');
+        Assert.IsFalse(MailManagement.IsHandlingGetEmailBody(), '');
     end;
 
     [Test]
@@ -774,7 +772,7 @@ codeunit 134421 "Report Selections Tests"
         SetupReportSelectionsVendor(true, true);
 
         // [GIVEN] Vendor with special symbol in "No."
-        CreateVendorWithCustomNo(Vendor, GenerateGUIDWithSpecialSymbol);
+        CreateVendorWithCustomNo(Vendor, GenerateGUIDWithSpecialSymbol());
 
         // [GIVEN] Purchase Order for this Vendor
         CreatePurchaseOrderForVendor(PurchaseHeader, Vendor."No.");
@@ -807,7 +805,7 @@ codeunit 134421 "Report Selections Tests"
 
         // [GIVEN] Custom Report Selection with Vendor "V", Usage "Posted Return Shipment".
         InsertCustomReportSelectionVendor(
-          CustomReportSelection, ReturnShipmentHeader."Buy-from Vendor No.", GetPurchaseReturnShipmentReportID,
+          CustomReportSelection, ReturnShipmentHeader."Buy-from Vendor No.", GetPurchaseReturnShipmentReportID(),
           false, false, '', CustomReportSelection.Usage::"P.Ret.Shpt.");
         Commit();
 
@@ -817,7 +815,7 @@ codeunit 134421 "Report Selections Tests"
 
         // [THEN] Chosen report is used for printing.
         LibraryXMLRead.Initialize(LibraryVariableStorage.DequeueText());
-        LibraryXMLRead.VerifyAttributeValue('ReportDataSet', 'id', Format(GetPurchaseReturnShipmentReportID));
+        LibraryXMLRead.VerifyAttributeValue('ReportDataSet', 'id', Format(GetPurchaseReturnShipmentReportID()));
 
         LibraryVariableStorage.AssertEmpty();
     end;
@@ -838,7 +836,7 @@ codeunit 134421 "Report Selections Tests"
         // [WHEN] Open page "Vendor Report Selections" for selected Vendor, set Usage to "Posted Return Shipment", close page.
         LibraryVariableStorage.Enqueue(Usage::"Posted Return Shipment");
         VendorCard.OpenEdit();
-        VendorCard.FILTER.SetFilter("No.", LibraryPurchase.CreateVendorNo);
+        VendorCard.FILTER.SetFilter("No.", LibraryPurchase.CreateVendorNo());
         VendorCard.VendorReportSelections.Invoke();
 
         // [THEN] Usage is "P.Ret.Shpt." for Custom Report Selection for this Vendor.
@@ -1274,10 +1272,10 @@ codeunit 134421 "Report Selections Tests"
         // [GIVEN] Customer's email address = "x@x.com; y@y.com; z@z.com".
         CreateSalesInvoice(SalesHeader);
         Customer.Get(SalesHeader."Bill-to Customer No.");
-        Customer.Validate("E-Mail", LibraryUtility.GenerateRandomEmails);
+        Customer.Validate("E-Mail", LibraryUtility.GenerateRandomEmails());
         Customer.Modify(true);
 
-        SalesHeader.Validate("Sell-to E-Mail", LibraryUtility.GenerateRandomEmails);
+        SalesHeader.Validate("Sell-to E-Mail", LibraryUtility.GenerateRandomEmails());
         SalesHeader.Modify(true);
         PostSalesInvoice(SalesHeader, SalesInvoiceHeader);
 
@@ -1646,70 +1644,6 @@ codeunit 134421 "Report Selections Tests"
     end;
 
     [Test]
-    [HandlerFunctions('CustomerReportSelectionsHandler,CustomReportLayoutsHandler')]
-    [Scope('OnPrem')]
-    procedure CustomerDocumentLayoutsSelectCustomReportLayout()
-    var
-        Customer: Record Customer;
-        CustomReportSelection: Record "Custom Report Selection";
-        CustomReportLayout: Record "Custom Report Layout";
-        CustomerCard: TestPage "Customer Card";
-    begin
-        // [FEATURE] [UI] [Custom Report Layout]
-        // [SCENARIO 380458] User is able to select custom report layout in the customer document layouts
-        Initialize();
-
-        // [GIVEN] Customer with custom report selection "CRS" and new custom report layout "CRL"
-        LibrarySales.CreateCustomer(Customer);
-        CreateSalesQuoteCustomReportSelection(CustomReportSelection, Customer."No.");
-        CreateSalesQuoteCustomLayout(CustomReportLayout);
-        LibraryVariableStorage.Enqueue(CustomReportLayout.Code);
-        LibraryVariableStorage.Enqueue(CustomReportLayout.Description);
-
-        // [WHEN] Select custom report layout from document layouts (CustomerReportSelectionsHandler, CustomReportLayoutsHandler)
-        CustomerCard.OpenView();
-        CustomerCard.GoToRecord(Customer);
-        CustomerCard.CustomerReportSelections.Invoke();
-
-        // [THEN] CRS."Customer Layout Description" = CRL."Description" (verified in CustomerReportSelectionsHandler)
-        // [THEN] CRS."Custom Report Layout Code" = CRL."Code"
-        CustomReportSelection.Get(CustomReportSelection."Source Type", CustomReportSelection."Source No.", CustomReportSelection.Usage, CustomReportSelection.Sequence);
-        Assert.AreEqual(CustomReportLayout.Code, CustomReportSelection."Custom Report Layout Code", 'Wrong custom report layout code');
-    end;
-
-    [Test]
-    [HandlerFunctions('VendorReportSelectionsHandler,CustomReportLayoutsHandler')]
-    [Scope('OnPrem')]
-    procedure VendorDocumentLayoutsSelectCustomReportLayout()
-    var
-        Vendor: Record Vendor;
-        CustomReportSelection: Record "Custom Report Selection";
-        CustomReportLayout: Record "Custom Report Layout";
-        VendorCard: TestPage "Vendor Card";
-    begin
-        // [FEATURE] [UI] [Custom Report Layout]
-        // [SCENARIO 380458] User is able to select custom report layout in the vendor document layouts
-        Initialize();
-
-        // [GIVEN] Vendor with custom report selection "CRS" and new custom report layout "CRL"
-        LibraryPurchase.CreateVendor(Vendor);
-        CreatePurchaseQuoteCustomReportSelection(CustomReportSelection, Vendor."No.");
-        CreatePurchaseQuoteCustomLayout(CustomReportLayout);
-        LibraryVariableStorage.Enqueue(CustomReportLayout.Code);
-        LibraryVariableStorage.Enqueue(CustomReportLayout.Description);
-
-        // [WHEN] Select custom report layout from document layouts (VendorReportSelectionsHandler, CustomReportLayoutsHandler)
-        VendorCard.OpenView();
-        VendorCard.GoToRecord(Vendor);
-        VendorCard.VendorReportSelections.Invoke();
-
-        // [THEN] CRS."Vendor Layout Description" = CRL."Description" (verified in VendorReportSelectionsHandler)
-        // [THEN] CRS."Custom Report Layout Code" = CRL."Code"
-        CustomReportSelection.Get(CustomReportSelection."Source Type", CustomReportSelection."Source No.", CustomReportSelection.Usage, CustomReportSelection.Sequence);
-        Assert.AreEqual(CustomReportLayout.Code, CustomReportSelection."Custom Report Layout Code", 'Wrong custom report layout code');
-    end;
-
-    [Test]
     [HandlerFunctions('CustReportSelectionsCopyFromModalPageHandler')]
     procedure CopyFromReportSelectionOnDocumentLayoutPageForCustomer()
     var
@@ -1779,7 +1713,6 @@ codeunit 134421 "Report Selections Tests"
     [HandlerFunctions('VendorReportSelectionsCopyFromModalPageHandler')]
     procedure CopyFromReportSelectionOnDocumentLayoutPageForVendor()
     var
-        CustomReportSelection: Record "Custom Report Selection";
         ReportSelections: Record "Report Selections";
         Vendor: Record Vendor;
         VendorCard: TestPage "Vendor Card";
@@ -1810,7 +1743,6 @@ codeunit 134421 "Report Selections Tests"
     [HandlerFunctions('VendorReportSelectionsCopyFromModalPageHandler')]
     procedure CopyFromReportSelectionOnDocumentLayoutPageForVendorWithSpecialChars()
     var
-        CustomReportSelection: Record "Custom Report Selection";
         ReportSelections: Record "Report Selections";
         Vendor: Record Vendor;
         VendorCard: TestPage "Vendor Card";
@@ -1904,7 +1836,7 @@ codeunit 134421 "Report Selections Tests"
         ReportLayoutSelection.Insert(true);
 
         // [WHEN] Invoke Select Layout from Report Layout Selection Page
-        ReportLayoutSelectionPage.OpenEdit;
+        ReportLayoutSelectionPage.OpenEdit();
         ReportLayoutSelectionPage.Filter.SetFilter("Report ID", Format(StandardSalesInvoiceReportID()));
         ReportLayoutSelectionPage.SelectLayout.Invoke();
         ReportLayoutSelectionPage.Close();
@@ -1970,7 +1902,7 @@ codeunit 134421 "Report Selections Tests"
           SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer(VATPostingSetup."VAT Bus. Posting Group"));
 
         LibraryInventory.CreateShippingAgent(ShippingAgent);
-        SalesHeader.Validate("Package Tracking No.", GenerateRandomPackageTrackingNo);
+        SalesHeader.Validate("Package Tracking No.", GenerateRandomPackageTrackingNo());
         SalesHeader.Validate("Shipping Agent Code", ShippingAgent.Code);
         SalesHeader.Modify(true);
 
@@ -1982,7 +1914,7 @@ codeunit 134421 "Report Selections Tests"
     [Scope('OnPrem')]
     procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header")
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, CreateVendor());
     end;
 
     local procedure CreateAndPostSalesInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header")
@@ -2058,7 +1990,7 @@ codeunit 134421 "Report Selections Tests"
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendorNo);
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1, 100, 2));
         PurchaseLine.Modify(true);
     end;
@@ -2128,7 +2060,7 @@ codeunit 134421 "Report Selections Tests"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         CreateAndPostSalesInvoice(SalesInvoiceHeader);
-        PostedSalesInvoice.OpenEdit;
+        PostedSalesInvoice.OpenEdit();
         PostedSalesInvoice.GotoRecord(SalesInvoiceHeader);
     end;
 
@@ -2168,7 +2100,7 @@ codeunit 134421 "Report Selections Tests"
         OldReportSelections.FindFirst();
 
         UpdateReportSelections(
-          OldReportSelections.Usage::"P.Order", GetReportIDForPurchaseOrder, UseForEmailAttachment, UseForEmailBody,
+          OldReportSelections.Usage::"P.Order", GetReportIDForPurchaseOrder(), UseForEmailAttachment, UseForEmailBody,
           DummyCustomReportLayout.Code);
     end;
 
@@ -2250,7 +2182,7 @@ codeunit 134421 "Report Selections Tests"
 
     local procedure GenerateGUIDWithSpecialSymbol(): Code[20]
     begin
-        exit(LibraryUtility.GenerateGUID + '&');
+        exit(LibraryUtility.GenerateGUID() + '&');
     end;
 
     local procedure GetStandardSalesInvoiceReportID(): Integer
@@ -2430,8 +2362,6 @@ codeunit 134421 "Report Selections Tests"
     local procedure CreatePersonContactWithEmail(CompanyContactNo: Code[20]; UseMaxFieldLength: Boolean): Text
     var
         Contact: Record Contact;
-        i: Integer;
-        EMail: Text;
     begin
         LibraryMarketing.CreatePersonContact(Contact);
         Contact.Validate("Company No.", CompanyContactNo);
@@ -2468,7 +2398,7 @@ codeunit 134421 "Report Selections Tests"
         i: Integer;
         Email: Text;
     begin
-        Email := LibraryUtility.GenerateGUID + '@';
+        Email := LibraryUtility.GenerateGUID() + '@';
         for i := 1 to MaxLength DIV 10 - 1 do
             Email += LibraryUtility.GenerateGUID();
 
@@ -2478,7 +2408,6 @@ codeunit 134421 "Report Selections Tests"
     local procedure FillCustomReportSelectionContactsFilter(var CustomReportSelection: Record "Custom Report Selection"; CompanyContactNo: Code[20])
     var
         Contact: Record Contact;
-        OStream: OutStream;
         ContactFilter: Text;
     begin
         Contact.SetRange(Type, Contact.Type::Person);
@@ -2543,16 +2472,16 @@ codeunit 134421 "Report Selections Tests"
     var
         FileName: Text;
     begin
-        FileName := LibraryReportDataset.GetFileName;
+        FileName := LibraryReportDataset.GetFileName();
         LibraryVariableStorage.Enqueue(FileName);
-        StandardSalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, FileName);
+        StandardSalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), FileName);
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PurchaseOrderRequestPageHandler(var StandardPurchaseOrder: TestRequestPage "Standard Purchase - Order")
     begin
-        StandardPurchaseOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StandardPurchaseOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -2561,9 +2490,9 @@ codeunit 134421 "Report Selections Tests"
     begin
         Statement."Start Date".SetValue(WorkDate());
         Statement."End Date".SetValue(WorkDate());
-        Statement.ReportOutput.SetValue(LibraryVariableStorage.DequeueInteger);
+        Statement.ReportOutput.SetValue(LibraryVariableStorage.DequeueInteger());
         Statement.Customer.SetFilter("No.", LibraryVariableStorage.DequeueText());
-        Statement.OK.Invoke;
+        Statement.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2574,7 +2503,7 @@ codeunit 134421 "Report Selections Tests"
     begin
         SelectSendingOption."E-Mail".SetValue(DocumentSendingProfile."E-Mail"::"Yes (Prompt for Settings)");
         SelectSendingOption.Disk.SetValue(DocumentSendingProfile.Disk::PDF);
-        SelectSendingOption.OK.Invoke;
+        SelectSendingOption.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2586,7 +2515,7 @@ codeunit 134421 "Report Selections Tests"
         SelectSendingOption.Printer.SetValue(DocumentSendingProfile.Printer::"Yes (Prompt for Settings)");
         SelectSendingOption."E-Mail".SetValue(DocumentSendingProfile."E-Mail"::No);
         SelectSendingOption.Disk.SetValue(DocumentSendingProfile.Disk::PDF);
-        SelectSendingOption.OK.Invoke;
+        SelectSendingOption.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -2635,9 +2564,9 @@ codeunit 134421 "Report Selections Tests"
     [Scope('OnPrem')]
     procedure VendorReportSelectionsPRetShptModalPageHandler(var VendorReportSelections: TestPage "Vendor Report Selections")
     begin
-        VendorReportSelections.Usage2.SetValue(LibraryVariableStorage.DequeueInteger);
-        VendorReportSelections.ReportID.SetValue(GetPurchaseReturnShipmentReportID);
-        VendorReportSelections.OK.Invoke;
+        VendorReportSelections.Usage2.SetValue(LibraryVariableStorage.DequeueInteger());
+        VendorReportSelections.ReportID.SetValue(GetPurchaseReturnShipmentReportID());
+        VendorReportSelections.OK().Invoke();
     end;
 
     [ReportHandler]
@@ -2646,7 +2575,7 @@ codeunit 134421 "Report Selections Tests"
     var
         FileName: Text;
     begin
-        FileName := LibraryReportDataset.GetFileName;
+        FileName := LibraryReportDataset.GetFileName();
         LibraryVariableStorage.Enqueue(FileName);
         PurchaseReturnShipment.SaveAsXml(FileName);
     end;
@@ -2703,14 +2632,6 @@ codeunit 134421 "Report Selections Tests"
     end;
 
     [ModalPageHandler]
-    procedure CustomerReportSelectionsHandler(var CustomerReportSelections: TestPage "Customer Report Selections")
-    begin
-        CustomerReportSelections.First();
-        CustomerReportSelections."Custom Report Description".Drilldown();
-        CustomerReportSelections."Custom Report Description".AssertEquals(LibraryVariableStorage.DequeueText());
-    end;
-
-    [ModalPageHandler]
     procedure CustReportSelectionsCopyFromModalPageHandler(var CustomerReportSelections: TestPage "Customer Report Selections");
     begin
         CustomerReportSelections.CopyFromReportSelectionsAction.Invoke();
@@ -2720,16 +2641,6 @@ codeunit 134421 "Report Selections Tests"
     procedure VendorReportSelectionsCopyFromModalPageHandler(var VendorReportSelections: TestPage "Vendor Report Selections");
     begin
         VendorReportSelections.CopyFromReportSelectionsAction.Invoke();
-    end;
-
-    [ModalPageHandler]
-    procedure CustomReportLayoutsHandler(var CustomReportLayouts: TestPage "Custom Report Layouts")
-    var
-        CustomReportLayout: Record "Custom Report Layout";
-    begin
-        CustomReportLayout.Get(LibraryVariableStorage.DequeueText());
-        CustomReportLayouts.GoToRecord(CustomReportLayout);
-        CustomReportLayouts.OK().Invoke();
     end;
 
     [ModalPageHandler]

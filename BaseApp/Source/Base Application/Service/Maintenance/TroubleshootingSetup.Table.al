@@ -9,6 +9,7 @@ table 5945 "Troubleshooting Setup"
     DataCaptionFields = "No.";
     DrillDownPageID = "Troubleshooting Setup";
     LookupPageID = "Troubleshooting Setup";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -44,7 +45,7 @@ table 5945 "Troubleshooting Setup"
         }
         field(4; "Troubleshooting Description"; Text[100])
         {
-            CalcFormula = Lookup("Troubleshooting Header".Description where("No." = field("Troubleshooting No.")));
+            CalcFormula = lookup("Troubleshooting Header".Description where("No." = field("Troubleshooting No.")));
             Caption = 'Troubleshooting Description';
             Editable = false;
             FieldClass = FlowField;

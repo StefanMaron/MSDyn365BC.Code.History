@@ -30,7 +30,7 @@ codeunit 139152 DocSendingProfileCRUDTests
             exit;
 
         ElectronicDocumentFormat.DeleteAll();
-        InsertElectronicFormat;
+        InsertElectronicFormat();
 
         IsInitialized := true;
     end;
@@ -87,7 +87,7 @@ codeunit 139152 DocSendingProfileCRUDTests
         DocumentSendingProfile.Code := LibraryUtility.GenerateGUID();
         DocumentSendingProfile.Default := true;
         DocumentSendingProfile.Insert(true);
-        DocumentSendingProfileCard.OpenEdit;
+        DocumentSendingProfileCard.OpenEdit();
         DocumentSendingProfileCard.GotoRecord(DocumentSendingProfile);
         asserterror DocumentSendingProfileCard.Default.SetValue(false);
         Assert.ExpectedError(UncheckingDefaultErr);
@@ -114,15 +114,15 @@ codeunit 139152 DocSendingProfileCRUDTests
         DocumentSendingProfile2.Code := LibraryUtility.GenerateGUID();
         DocumentSendingProfile2.Default := false;
         DocumentSendingProfile2.Insert(true);
-        DocumentSendingProfileCard.OpenEdit;
+        DocumentSendingProfileCard.OpenEdit();
         DocumentSendingProfileCard.GotoRecord(DocumentSendingProfile2);
         DocumentSendingProfileCard.Default.SetValue(true);
         Assert.IsTrue(
-          DocumentSendingProfileCard.Default.AsBoolean,
+          DocumentSendingProfileCard.Default.AsBoolean(),
           'The user is unable to explicitly check the Default flag on a document sending profile.');
         DocumentSendingProfileCard.GotoRecord(DocumentSendingProfile1);
         Assert.IsFalse(
-          DocumentSendingProfileCard.Default.AsBoolean,
+          DocumentSendingProfileCard.Default.AsBoolean(),
           StrSubstNo(TwoDefaultProfilesErr, DocumentSendingProfile2.Code, DocumentSendingProfile1.Code));
     end;
 
@@ -215,20 +215,20 @@ codeunit 139152 DocSendingProfileCRUDTests
         LibraryVariableStorage.Enqueue(ElectronicDocumentFormat);
 
         // open Electronic Document Format and filter on Code and Usage
-        ElectronicDocumentFormatPage.OpenEdit;
-        ElectronicDocumentFormatPage.CodeFilter.Lookup;
+        ElectronicDocumentFormatPage.OpenEdit();
+        ElectronicDocumentFormatPage.CodeFilter.Lookup();
         ElectronicDocumentFormatPage.UsageFilter.SetValue(ElectronicDocumentFormat.Usage);
 
         // verify that you see only one electronic document format
-        ElectronicDocumentFormatPage.First;
+        ElectronicDocumentFormatPage.First();
         Assert.AreEqual(ElectronicDocumentFormat.Code, ElectronicDocumentFormatPage.Code.Value,
           StrSubstNo(UnableToFindFormatErr, ElectronicDocumentFormat.Code, ElectronicDocumentFormat.Description));
-        Assert.AreEqual(ElectronicDocumentFormat.Usage, ElectronicDocumentFormatPage.Usage.AsInteger,
+        Assert.AreEqual(ElectronicDocumentFormat.Usage, ElectronicDocumentFormatPage.Usage.AsInteger(),
           StrSubstNo(UnableToFindFormatErr, ElectronicDocumentFormat.Code, ElectronicDocumentFormat.Description));
         Assert.AreEqual(ElectronicDocumentFormat.Description, ElectronicDocumentFormatPage.Description.Value,
           StrSubstNo(UnableToFindFormatErr, ElectronicDocumentFormat.Code, ElectronicDocumentFormat.Description));
         ElectronicDocumentFormatPage.Next();
-        Assert.AreEqual(0, ElectronicDocumentFormatPage.Usage.AsInteger, TooManyResultsErr);
+        Assert.AreEqual(0, ElectronicDocumentFormatPage.Usage.AsInteger(), TooManyResultsErr);
         Assert.AreEqual('', ElectronicDocumentFormatPage.Description.Value, TooManyResultsErr);
 
         // remove Code filter from Electronic Document Format page
@@ -236,7 +236,7 @@ codeunit 139152 DocSendingProfileCRUDTests
         ElectronicDocumentFormatPage.UsageFilter.SetValue(ElectronicDocumentFormat.Usage::"Sales Invoice");
 
         // verify that you see two electronic document formats
-        ElectronicDocumentFormatPage.First;
+        ElectronicDocumentFormatPage.First();
         Assert.AreEqual(ElectronicDocumentFormat.Code, ElectronicDocumentFormatPage.Code.Value,
           StrSubstNo(UnableToFindFormatErr, ElectronicDocumentFormat.Code, ElectronicDocumentFormat.Description));
         ElectronicDocumentFormatPage.Next();
@@ -319,7 +319,7 @@ codeunit 139152 DocSendingProfileCRUDTests
         while not (ElectronicDocumentFormats.Description.Value = ElectronicDocumentFormat.Description) do
             Assert.IsTrue(ElectronicDocumentFormats.FindNextField(Code, ElectronicDocumentFormat.Code),
               StrSubstNo(UnableToFindFormatErr, ElectronicDocumentFormat.Code, ElectronicDocumentFormat.Description));
-        ElectronicDocumentFormats.OK.Invoke;
+        ElectronicDocumentFormats.OK().Invoke();
     end;
 }
 

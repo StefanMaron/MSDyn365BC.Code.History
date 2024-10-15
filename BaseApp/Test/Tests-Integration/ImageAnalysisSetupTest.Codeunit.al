@@ -12,9 +12,6 @@ codeunit 135207 "Image Analysis Setup Test"
         Assert: Codeunit Assert;
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         InvalidApiUriErr: Label 'The Api Uri must be a valid Uri for Cognitive Services.';
-        MockSecretTxt: Label '[{"key":"%1","endpoint":"%2","limittype":"%3","limitvalue":"%4"}]', Locked = true;
-        AzureKeyVault: Codeunit "Azure Key Vault";
-        AzureKeyVaultTestLibrary: Codeunit "Azure Key Vault Test Library";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
 
@@ -27,7 +24,7 @@ codeunit 135207 "Image Analysis Setup Test"
         // [SCENARIO] Only URIs for Cognitive Services are allowed
 
         // [GIVEN] An empty Image Analysis Setup
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         ImageAnalysisSetup.DeleteAll();
         ImageAnalysisSetup.Init();
         ImageAnalysisSetup.Insert();
@@ -60,11 +57,12 @@ codeunit 135207 "Image Analysis Setup Test"
     procedure TestApiKey()
     var
         ImageAnalysisSetup: Record "Image Analysis Setup";
+        ApiKey: Text;
     begin
         // [SCENARIO]
 
         // [GIVEN] An empty Image Analysis Setup
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
         ImageAnalysisSetup.DeleteAll();
         ImageAnalysisSetup.Init();
         ImageAnalysisSetup.Insert();
@@ -72,25 +70,27 @@ codeunit 135207 "Image Analysis Setup Test"
         // [WHEN]
 
         // [THEN] The API key is empty
-        Assert.AreEqual('', ImageAnalysisSetup.GetApiKey, 'Api Key should be empty.');
+        Assert.AreEqual('', UnwrapSecretText(ImageAnalysisSetup.GetApiKeyAsSecret()), 'Api Key should be empty.');
 
         // [WHEN] An API key is set
-        ImageAnalysisSetup.SetApiKey('123');
+        ApiKey := '123';
+        ImageAnalysisSetup.SetApiKey(ApiKey);
 
         // [THEN] The correct API key is retrieved
-        Assert.AreEqual('123', ImageAnalysisSetup.GetApiKey, 'Api Key was not retrieved correctly.');
+        Assert.AreEqual(ApiKey, UnwrapSecretText(ImageAnalysisSetup.GetApiKeyAsSecret()), 'Api Key was not retrieved correctly.');
 
         // [WHEN] The Isolated Storage entry is deleted
         IsolatedStorageManagement.Delete(ImageAnalysisSetup."Api Key Key", DATASCOPE::Company);
 
         // [THEN] The API key is empty
-        Assert.AreEqual('', ImageAnalysisSetup.GetApiKey, 'Api Key should be empty when value is deleted from Isolated Storage.');
+        Assert.AreEqual('', UnwrapSecretText(ImageAnalysisSetup.GetApiKeyAsSecret()), 'Api Key should be empty when value is deleted from Isolated Storage.');
 
         // [WHEN] An API key is set after that
-        ImageAnalysisSetup.SetApiKey('1234');
+        ApiKey := '1234';
+        ImageAnalysisSetup.SetApiKey(ApiKey);
 
         // [THEN] The correct API key is retrieved again
-        Assert.AreEqual('1234', ImageAnalysisSetup.GetApiKey,
+        Assert.AreEqual(ApiKey, UnwrapSecretText(ImageAnalysisSetup.GetApiKeyAsSecret()),
           'Api Key was not retrieved correctly after the value was deleted from isolated storage.');
     end;
 
@@ -104,8 +104,8 @@ codeunit 135207 "Image Analysis Setup Test"
         // [Scenario] Setup feature
 
         // [Given] The setup page opens and the user sets the correct URI
-        LibraryLowerPermissions.SetO365Basic;
-        ImageAnalysisSetup.OpenEdit;
+        LibraryLowerPermissions.SetO365Basic();
+        ImageAnalysisSetup.OpenEdit();
         ImageAnalysisSetup."Api Uri".SetValue('https://cronus.api.cognitive.microsoft.com/vision/v1.0/analyze');
 
         // [When]
@@ -142,8 +142,8 @@ codeunit 135207 "Image Analysis Setup Test"
         // [Feature] [Image Analysis]
         // [Scenario] Setup feature
         // [Given] The setup page opens and the user sets the correct URI but forgets to add /analyze in the end
-        LibraryLowerPermissions.SetO365Basic;
-        ImageAnalysisSetup.OpenEdit;
+        LibraryLowerPermissions.SetO365Basic();
+        ImageAnalysisSetup.OpenEdit();
 
         // [When] User clicks yes in the correction confirm handler
         LibraryVariableStorage.Enqueue(true);
@@ -200,8 +200,8 @@ codeunit 135207 "Image Analysis Setup Test"
         // [Scenario] Setup feature
 
         // [Given] The setup page opens and the user sets custom vision URI
-        LibraryLowerPermissions.SetO365Basic;
-        ImageAnalysisSetup.OpenEdit;
+        LibraryLowerPermissions.SetO365Basic();
+        ImageAnalysisSetup.OpenEdit();
         CustomVisionURI := 'https://southcentralus.api.cognitive.microsoft.com/customvision/v1.0/Prediction';
         ImageAnalysisSetup."Api Uri".SetValue(CustomVisionURI);
 
@@ -213,11 +213,18 @@ codeunit 135207 "Image Analysis Setup Test"
           'URI was modified');
     end;
 
+    [NonDebuggable]
+    [Scope('OnPrem')]
+    local procedure UnwrapSecretText(SecretTextToUnwrap: SecretText): Text
+    begin
+        exit(SecretTextToUnwrap.Unwrap());
+    end;
+
     [ConfirmHandler]
     [Scope('OnPrem')]
     procedure ConfirmHandler(Question: Text[1024]; var Reply: Boolean)
     begin
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 }
 

@@ -11,7 +11,6 @@ codeunit 141052 "Price List Line Cost Plus"
 
     var
         Assert: Codeunit Assert;
-        LibraryCosting: Codeunit "Library - Costing";
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryMarketing: Codeunit "Library - Marketing";
@@ -34,7 +33,7 @@ codeunit 141052 "Price List Line Cost Plus"
         // [SCENARIO] Calculate Sales Price based on Cost-plus for single customer when Starting Date and Ending Date field is not filled on the Sales Price.
         Initialize();
         // Setup: Create Customer.
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CustomerSalesPriceCostPlusStartingdate(PriceListLine."Source Type"::Customer, CustomerNo, CustomerNo, 0D);  // Starting Date - 0D.
     end;
 
@@ -48,7 +47,7 @@ codeunit 141052 "Price List Line Cost Plus"
         Initialize();
 
         // Setup.
-        CustomerSalesPriceCostPlusStartingdate(PriceListLine."Source Type"::"All Customers", '', CreateCustomer, WorkDate());  // Sales Code - blank and Starting Date - Workdate.
+        CustomerSalesPriceCostPlusStartingdate(PriceListLine."Source Type"::"All Customers", '', CreateCustomer(), WorkDate());  // Sales Code - blank and Starting Date - Workdate.
     end;
 
     local procedure CustomerSalesPriceCostPlusStartingdate(SourceType: Enum "Price Source Type"; SourceNo: Code[20]; CustomerNo: Code[20]; StartingDate: Date)
@@ -66,7 +65,7 @@ codeunit 141052 "Price List Line Cost Plus"
 
         // Verify: Verify Unit Price on Sales line with Unit Price of Sales Price.
         Assert.AreNearlyEqual(
-          PriceListLine."Unit Price", SalesLine."Unit Price", LibraryERM.GetAmountRoundingPrecision, UnitPriceMustBeSameMsg);
+          PriceListLine."Unit Price", SalesLine."Unit Price", LibraryERM.GetAmountRoundingPrecision(), UnitPriceMustBeSameMsg);
     end;
 
     [Test]
@@ -79,7 +78,7 @@ codeunit 141052 "Price List Line Cost Plus"
         // [SCENARIO] Calculate Sales Price based on Cost-plus for single customer when Quantity on Sales Line less than Minimum Quantity.
         Initialize();
         // Setup: Create Customer.
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CustomerSalesPriceCostPlusDateRange(PriceListLine."Source Type"::Customer, CustomerNo, CustomerNo, 0D, LibraryRandom.RandInt(5));  // Starting Date - 0D and Random Quantity.
     end;
 
@@ -93,7 +92,7 @@ codeunit 141052 "Price List Line Cost Plus"
         Initialize();
 
         // Setup.
-        CustomerSalesPriceCostPlusDateRange(PriceListLine."Source Type"::Customer, CreateCustomer, CreateCustomer, 0D, 0);  // Starting Date - 0D and Quantity - 0.
+        CustomerSalesPriceCostPlusDateRange(PriceListLine."Source Type"::Customer, CreateCustomer(), CreateCustomer(), 0D, 0);  // Starting Date - 0D and Quantity - 0.
     end;
 
     [Test]
@@ -107,7 +106,7 @@ codeunit 141052 "Price List Line Cost Plus"
 
         // Setup.
         CustomerSalesPriceCostPlusDateRange(
-          PriceListLine."Source Type"::"All Customers", '', CreateCustomer,
+          PriceListLine."Source Type"::"All Customers", '', CreateCustomer(),
           CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()), 0);   // Sales Code - blank, Starting Date - less than Workdate and Quantity - 0.
     end;
 
@@ -145,7 +144,7 @@ codeunit 141052 "Price List Line Cost Plus"
 
         // Setup: Create multiple Sales Price for single customer.
         CreateSalesPriceWithCostPlus(
-          PriceListLine, PriceListLine."Source Type"::Customer, CreateCustomer, 0D, LibraryRandom.RandDecInDecimalRange(10, 50, 2));  // Starting Date - 0D and Random Minimum Quantity.
+          PriceListLine, PriceListLine."Source Type"::Customer, CreateCustomer(), 0D, LibraryRandom.RandDecInDecimalRange(10, 50, 2));  // Starting Date - 0D and Random Minimum Quantity.
         CreateSalesPriceWithCostPlus(
           PriceListLine2, PriceListLine2."Source Type"::Customer, PriceListLine."Source No.", 0D, LibraryRandom.RandDecInDecimalRange(100, 200, 2));  // Starting Date - 0D and Random Minimum Quantity.
 
@@ -161,9 +160,9 @@ codeunit 141052 "Price List Line Cost Plus"
         // Verify: Verify Unit Price on multiple Sales line with Unit Price of Sales Price and Item.
         VerifyUnitPriceOnSalesLine(PriceListLine."Asset No.", SalesLine."Unit Price", 0);  // Discount Amount - 0.
         Assert.AreNearlyEqual(
-          PriceListLine."Unit Price", SalesLine2."Unit Price", LibraryERM.GetAmountRoundingPrecision, UnitPriceMustBeSameMsg);
+          PriceListLine."Unit Price", SalesLine2."Unit Price", LibraryERM.GetAmountRoundingPrecision(), UnitPriceMustBeSameMsg);
         Assert.AreNearlyEqual(
-          PriceListLine2."Unit Price", SalesLine3."Unit Price", LibraryERM.GetAmountRoundingPrecision, UnitPriceMustBeSameMsg);
+          PriceListLine2."Unit Price", SalesLine3."Unit Price", LibraryERM.GetAmountRoundingPrecision(), UnitPriceMustBeSameMsg);
     end;
 
     [Test]
@@ -176,7 +175,7 @@ codeunit 141052 "Price List Line Cost Plus"
         Initialize();
 
         // Setup: Create Sales Price with Discount Amount.
-        CreateSalesPriceWithDiscountAmount(PriceListLine, PriceListLine."Source Type"::Customer, CreateCustomer, 0D);  // Starting Date - 0D.
+        CreateSalesPriceWithDiscountAmount(PriceListLine, PriceListLine."Source Type"::Customer, CreateCustomer(), 0D);  // Starting Date - 0D.
 
 
         // Exercise.
@@ -198,7 +197,7 @@ codeunit 141052 "Price List Line Cost Plus"
         Initialize();
 
         // Setup: Create Customer.
-        CustomerNo := CreateCustomer;
+        CustomerNo := CreateCustomer();
         CustomerSalesPriceDiscountAmtWithStartingDate(PriceListLine."Source Type"::Customer, CustomerNo, CustomerNo, 0D);  // Starting Date - 0D.
     end;
 
@@ -212,7 +211,7 @@ codeunit 141052 "Price List Line Cost Plus"
         Initialize();
 
         // Setup.
-        CustomerSalesPriceDiscountAmtWithStartingDate(PriceListLine."Source Type"::"All Customers", '', CreateCustomer, WorkDate());  // Sales Code - blank and Starting Date - Workdate.
+        CustomerSalesPriceDiscountAmtWithStartingDate(PriceListLine."Source Type"::"All Customers", '', CreateCustomer(), WorkDate());  // Sales Code - blank and Starting Date - Workdate.
     end;
 
     local procedure CustomerSalesPriceDiscountAmtWithStartingDate(SourceType: Enum "Price Source Type"; SourceNo: Code[20]; CustomerNo: Code[20]; StartingDate: Date)
@@ -252,7 +251,7 @@ codeunit 141052 "Price List Line Cost Plus"
 
         // Exercise: Create Sales Invoice.
         CreateSalesDocument(
-          SalesLine, SalesHeader."Document Type"::Invoice, CreateCustomer, '', PriceListLine."Asset No.", PriceListLine."Minimum Quantity");
+          SalesLine, SalesHeader."Document Type"::Invoice, CreateCustomer(), '', PriceListLine."Asset No.", PriceListLine."Minimum Quantity");
 
         // Verify: Verify Unit Price on Sales line with Unit Price of Item.
         VerifyUnitPriceOnSalesLine(PriceListLine."Asset No.", SalesLine."Unit Price", 0);  // Discount Amount - 0.
@@ -267,7 +266,7 @@ codeunit 141052 "Price List Line Cost Plus"
         SalesInvoiceLine: Record "Sales Invoice Line";
         SalesLine: Record "Sales Line";
         PriceListLine: Record "Price List Line";
-        OldAutomaticCostAdjustment: Option;
+        OldAutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type";
         DocumentNo: Code[20];
     begin
         // [SCENARIO] Calculate Sales Price based on Cost-plus, Verify Unit price on Posted Sales Invoice.
@@ -280,7 +279,7 @@ codeunit 141052 "Price List Line Cost Plus"
 
 
         CreateSalesDocument(
-          SalesLine, SalesHeader."Document Type"::Order, CreateCustomer, '', PriceListLine."Asset No.", PriceListLine."Minimum Quantity");  // Campaign Number - blank.
+          SalesLine, SalesHeader."Document Type"::Order, CreateCustomer(), '', PriceListLine."Asset No.", PriceListLine."Minimum Quantity");  // Campaign Number - blank.
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
 
         // Exercise: Post Sales Order.
@@ -291,7 +290,7 @@ codeunit 141052 "Price List Line Cost Plus"
         SalesInvoiceLine.SetRange("No.", PriceListLine."Asset No.");
         SalesInvoiceLine.FindFirst();
         Assert.AreNearlyEqual(
-          PriceListLine."Unit Price", SalesInvoiceLine."Unit Price", LibraryERM.GetAmountRoundingPrecision, UnitPriceMustBeSameMsg);
+          PriceListLine."Unit Price", SalesInvoiceLine."Unit Price", LibraryERM.GetAmountRoundingPrecision(), UnitPriceMustBeSameMsg);
 
         // Teardown.
         UpdateAutomaticCostAdjustmentOnInventorySetup(OldAutomaticCostAdjustment, OldAutomaticCostAdjustment);
@@ -302,7 +301,6 @@ codeunit 141052 "Price List Line Cost Plus"
     var
         Item: Record Item;
         SalesPriceList: TestPage "Sales Price List";
-        PricesOverview: TestPage "Prices Overview";
     begin
         // [FEATURE] [UI]
         Initialize();
@@ -420,7 +418,6 @@ codeunit 141052 "Price List Line Cost Plus"
         Item: Record Item;
         PriceListLine: Record "Price List Line";
         PriceListLine2: Record "Price List Line";
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         PriceListLineCostPlus: Codeunit "Price List Line Cost Plus";
@@ -471,7 +468,6 @@ codeunit 141052 "Price List Line Cost Plus"
         Item: Record Item;
         PriceListLine: Record "Price List Line";
         PriceListLine2: Record "Price List Line";
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         PriceListLineCostPlus: Codeunit "Price List Line Cost Plus";
@@ -521,7 +517,6 @@ codeunit 141052 "Price List Line Cost Plus"
     var
         Item: Record Item;
         PriceListLine: array[4] of Record "Price List Line";
-        SalesReceivablesSetup: Record "Sales & Receivables Setup";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         PriceListLineCostPlus: Codeunit "Price List Line Cost Plus";
@@ -695,7 +690,7 @@ codeunit 141052 "Price List Line Cost Plus"
         CustomerNo := ContactBusinessRelation."No.";
     end;
 
-    local procedure UpdateAutomaticCostAdjustmentOnInventorySetup(var OldAutomaticCostAdjustment: Option; AutomaticCostAdjustment: Option)
+    local procedure UpdateAutomaticCostAdjustmentOnInventorySetup(var OldAutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type"; AutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type")
     var
         InventorySetup: Record "Inventory Setup";
     begin
@@ -716,7 +711,7 @@ codeunit 141052 "Price List Line Cost Plus"
         Item: Record Item;
     begin
         Item.Get(ItemNo);
-        Assert.AreNearlyEqual(UnitPrice, Item."Unit Price" - DiscountAmount, LibraryERM.GetAmountRoundingPrecision, UnitPriceMustBeSameMsg);
+        Assert.AreNearlyEqual(UnitPrice, Item."Unit Price" - DiscountAmount, LibraryERM.GetAmountRoundingPrecision(), UnitPriceMustBeSameMsg);
     end;
 
     local procedure CreateCostPlusSalesPriceLine(var PriceListLine: Record "Price List Line"; ItemNo: Code[20]): Decimal;

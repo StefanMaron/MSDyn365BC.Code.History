@@ -39,28 +39,28 @@ codeunit 134201 "Document Approval - Comments"
         ApprovalComments: TestPage "Approval Comments";
         ApprovalRequestEntries: TestPage "Approval Request Entries";
     begin
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        RequeststoApprove.OpenView;
-        RequeststoApprove.Comments.Invoke;
+        RequeststoApprove.OpenView();
+        RequeststoApprove.Comments.Invoke();
         RequeststoApprove.Close();
 
         asserterror ApprovalComments.Close(); // The Comments page was not opened
         Assert.ExpectedError('The TestPage is not open.');
 
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        ApprovalEntries.OpenView;
-        ApprovalEntries.Comments.Invoke;
+        ApprovalEntries.OpenView();
+        ApprovalEntries.Comments.Invoke();
         ApprovalEntries.Close();
 
         asserterror ApprovalComments.Close(); // The Comments page was not opened
         Assert.ExpectedError('The TestPage is not open.');
 
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
 
-        ApprovalRequestEntries.OpenView;
-        ApprovalRequestEntries.Comments.Invoke;
+        ApprovalRequestEntries.OpenView();
+        ApprovalRequestEntries.Comments.Invoke();
         ApprovalRequestEntries.Close();
 
         asserterror ApprovalComments.Close(); // The Comments page was not opened
@@ -80,13 +80,13 @@ codeunit 134201 "Document Approval - Comments"
         Initialize();
 
         // Setup
-        DeleteApprovalEntryAndComments;
+        DeleteApprovalEntryAndComments();
         CreateApprovalEntryWithPurchInvoice(ApprovalEntry, EmptyGUID);
 
         // Execute
-        ApprovalEntriesPage.OpenView;
+        ApprovalEntriesPage.OpenView();
         ApprovalEntriesPage.GotoRecord(ApprovalEntry);
-        ApprovalEntriesPage.Comments.Invoke;
+        ApprovalEntriesPage.Comments.Invoke();
 
         // Validate
         VerifyApprovalCommentLineExist(ApprovalEntry);
@@ -106,16 +106,16 @@ codeunit 134201 "Document Approval - Comments"
         Initialize();
 
         // Setup
-        DeleteApprovalEntryAndComments;
+        DeleteApprovalEntryAndComments();
         CreateApprovalEntryWithPurchInvoice(ApprovalEntry, EmptyGUID);
         CreateApprovalEntryWithPurchInvoice(ApprovalEntry2, EmptyGUID);
 
         // Execute
-        ApprovalEntriesPage.OpenView;
+        ApprovalEntriesPage.OpenView();
         ApprovalEntriesPage.GotoRecord(ApprovalEntry);
-        ApprovalEntriesPage.Comments.Invoke;
+        ApprovalEntriesPage.Comments.Invoke();
         ApprovalEntriesPage.GotoRecord(ApprovalEntry2);
-        ApprovalEntriesPage.Comments.Invoke;
+        ApprovalEntriesPage.Comments.Invoke();
 
         // Validate
         VerifyApprovalCommentLineExist(ApprovalEntry);
@@ -134,15 +134,15 @@ codeunit 134201 "Document Approval - Comments"
         Initialize();
 
         // Setup
-        DeleteApprovalEntryAndComments;
-        WorkflowInstanceID := EnableRejectionComments;
+        DeleteApprovalEntryAndComments();
+        WorkflowInstanceID := EnableRejectionComments();
         CreateApprovalEntryWithPurchInvoice(ApprovalEntry, WorkflowInstanceID);
 
         // Execute
         Commit();
-        ApprovalEntriesPage.OpenView;
+        ApprovalEntriesPage.OpenView();
         ApprovalEntriesPage.GotoRecord(ApprovalEntry);
-        ApprovalEntriesPage.Reject.Invoke;
+        ApprovalEntriesPage.Reject.Invoke();
 
         // Validate
         VerifyApprovalCommentLineExist(ApprovalEntry);
@@ -150,7 +150,7 @@ codeunit 134201 "Document Approval - Comments"
         ApprovalEntry.TestField(Status, ApprovalEntry.Status::Rejected);
 
         // Tear Down
-        DeleteApprovalEntryAndComments;
+        DeleteApprovalEntryAndComments();
     end;
 
     [Test]
@@ -443,7 +443,7 @@ codeunit 134201 "Document Approval - Comments"
         Initialize();
 
         // [GIVEN] Posted approval entry with comment entries
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         PostedRecordID := SalesHeader.RecordId;
         MockPostedApprovalCommentLine(PostedRecordID);
         MockPostedApprovalCommentLine(PostedRecordID);
@@ -470,17 +470,17 @@ codeunit 134201 "Document Approval - Comments"
         // [SCENARIO 380753] Approver can read Sender's approval comment from Purchase Order card
         Initialize();
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type", LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type", LibraryPurchase.CreateVendorNo());
 
         // [GIVEN] Sender creates an approval request with a comment for Purchase Order
         Comment := MockApprovalEntryWithComment(PurchaseHeader.RecordId);
         // [GIVEN] Approver opens approving record's card (Purchase Order) from Request To Approve page
-        PurchaseOrder.OpenView;
+        PurchaseOrder.OpenView();
         PurchaseOrder.GotoRecord(PurchaseHeader);
 
         // [WHEN] Approver invokes "Comments" from "Approve" action group on Purchase Order
-        ApprovalComments.Trap;
-        PurchaseOrder.Comment.Invoke;
+        ApprovalComments.Trap();
+        PurchaseOrder.Comment.Invoke();
 
         // [THEN] Approver reads Sender's comment
         ApprovalComments.Comment.AssertEquals(Comment);
@@ -499,17 +499,17 @@ codeunit 134201 "Document Approval - Comments"
         // [SCENARIO 380753] Approver can read Sender's approval comment from Sales Order card
         Initialize();
         SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type", LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type", LibrarySales.CreateCustomerNo());
 
         // [GIVEN] Sender creates an approval request with a comment for Sales Order
         Comment := MockApprovalEntryWithComment(SalesHeader.RecordId);
         // [GIVEN] Approver opens approving record's card (Sales Order) from Request To Approve page
-        SalesOrder.OpenView;
+        SalesOrder.OpenView();
         SalesOrder.GotoRecord(SalesHeader);
 
         // [WHEN] Approver invokes "Comments" from "Approve" action group on Sales Order
-        ApprovalComments.Trap;
-        SalesOrder.Comment.Invoke;
+        ApprovalComments.Trap();
+        SalesOrder.Comment.Invoke();
 
         // [THEN] Approver reads Sender's comment
         ApprovalComments.Comment.AssertEquals(Comment);
@@ -527,19 +527,19 @@ codeunit 134201 "Document Approval - Comments"
         // [FEATURE] [UT] [UI]
         // [SCENARIO 381208] Approval Comments from Incoming Documents page are filtered on Record ID
         Initialize();
-        LibraryIncomingDocuments.InitIncomingDocuments;
+        LibraryIncomingDocuments.InitIncomingDocuments();
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
 
         // [GIVEN] Sender creates an approval request with a comment for Incoming Document
         Comment := MockApprovalEntryWithComment(IncomingDocument.RecordId);
 
         // [GIVEN] Approver opens approving record's card (Incoming Document) from Request To Approve page
-        IncomingDocumentPage.OpenView;
+        IncomingDocumentPage.OpenView();
         IncomingDocumentPage.GotoRecord(IncomingDocument);
 
         // [WHEN] Approver invokes "Comments" from "Approve" action group on Incoming Documents page
-        ApprovalComments.Trap;
-        IncomingDocumentPage.Comment.Invoke;
+        ApprovalComments.Trap();
+        IncomingDocumentPage.Comment.Invoke();
 
         // [THEN] Approver reads comments filtered on current record
         ApprovalComments.Comment.AssertEquals(Comment);
@@ -565,15 +565,15 @@ codeunit 134201 "Document Approval - Comments"
         Comment := MockApprovalEntryWithComment(GenJournalLine.RecordId);
 
         // [GIVEN] Approver opens approving record's card (General Journal) from Request To Approve page
-        GeneralJournal.OpenView;
+        GeneralJournal.OpenView();
         GeneralJournal.GotoRecord(GenJournalLine);
 
         // [WHEN] Approver invokes "Comments" from "Approve" action group on Gen. Journal page
-        ApprovalComments.Trap;
-        GeneralJournal.Comments.Invoke;
+        ApprovalComments.Trap();
+        GeneralJournal.Comments.Invoke();
 
         // [THEN] Approver reads comments filtered on current record
-        ApprovalComments.First;
+        ApprovalComments.First();
         ApprovalComments.Comment.AssertEquals(Comment);
     end;
 
@@ -598,12 +598,12 @@ codeunit 134201 "Document Approval - Comments"
         Comment := MockApprovalEntryWithComment(GenJournalLine.RecordId);
 
         // [GIVEN] Approver opens approving record's card (Cash Receipt) from Request To Approve page
-        CashReceiptJournal.OpenEdit;
+        CashReceiptJournal.OpenEdit();
         CashReceiptJournal.GotoRecord(GenJournalLine);
 
         // [WHEN] Approver invokes "Comments" from "Approve" action group on Cash Receipt page
-        ApprovalComments.Trap;
-        CashReceiptJournal.Comment.Invoke;
+        ApprovalComments.Trap();
+        CashReceiptJournal.Comment.Invoke();
 
         // [THEN] Approver reads comments filtered on current record
         ApprovalComments.Comment.AssertEquals(Comment);
@@ -630,12 +630,12 @@ codeunit 134201 "Document Approval - Comments"
         Comment := MockApprovalEntryWithComment(GenJournalLine.RecordId);
 
         // [GIVEN] Approver opens approving record's card (Payment Journal) from Request To Approve page
-        PaymentJournal.OpenView;
+        PaymentJournal.OpenView();
         PaymentJournal.GotoRecord(GenJournalLine);
 
         // [WHEN] Approver invokes "Comments" from "Approve" action group on Payment Journal
-        ApprovalComments.Trap;
-        PaymentJournal.Comment.Invoke;
+        ApprovalComments.Trap();
+        PaymentJournal.Comment.Invoke();
 
         // [THEN] Approver reads comments filtered on current record
         ApprovalComments.Comment.AssertEquals(Comment);
@@ -654,18 +654,18 @@ codeunit 134201 "Document Approval - Comments"
         // [SCENARIO 381208] Approval Comments from Sales Return Order card are filtered on Record ID
         Initialize();
         SalesHeader."Document Type" := SalesHeader."Document Type"::"Return Order";
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type", LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type", LibrarySales.CreateCustomerNo());
 
         // [GIVEN] Sender creates an approval request with a comment for Incoming Document
         Comment := MockApprovalEntryWithComment(SalesHeader.RecordId);
 
         // [GIVEN] Approver opens approving record's card (Sales Return order) from Request To Approve page
-        SalesReturnOrder.OpenView;
+        SalesReturnOrder.OpenView();
         SalesReturnOrder.GotoRecord(SalesHeader);
 
         // [WHEN] Approver invokes "Comments" from "Approve" action group on Sales Order
-        ApprovalComments.Trap;
-        SalesReturnOrder.Comment.Invoke;
+        ApprovalComments.Trap();
+        SalesReturnOrder.Comment.Invoke();
 
         // [THEN] Approver reads comments filtered on current record
         ApprovalComments.Comment.AssertEquals(Comment);
@@ -684,18 +684,18 @@ codeunit 134201 "Document Approval - Comments"
         // [SCENARIO 381208] Approval Comments from Purchase Return Order card are filtered on Record ID
         Initialize();
         PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::"Return Order";
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type", LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type", LibraryPurchase.CreateVendorNo());
 
         // [GIVEN] Sender creates an approval request with a comment for Purchase Return Order card
         Comment := MockApprovalEntryWithComment(PurchaseHeader.RecordId);
 
         // [GIVEN] Approver opens approving record's card (Purchase Return Order) from Request To Approve page
-        PurchaseReturnOrder.OpenView;
+        PurchaseReturnOrder.OpenView();
         PurchaseReturnOrder.GotoRecord(PurchaseHeader);
 
         // [WHEN] Approver invokes "Comments" from "Approve" action group on Purchase Return Order
-        ApprovalComments.Trap;
-        PurchaseReturnOrder.Comment.Invoke;
+        ApprovalComments.Trap();
+        PurchaseReturnOrder.Comment.Invoke();
 
         // [THEN] Approver reads comments filtered on current record
         ApprovalComments.Comment.AssertEquals(Comment);
@@ -893,11 +893,11 @@ codeunit 134201 "Document Approval - Comments"
         // [FEATURE] [UT]
         // [SCENARIO 218295] Approval Comment is added for selected Approval Entry with specific WorkflowStepInstanceID, not for the first one.
         Initialize();
-        DeleteApprovalEntryAndComments;
+        DeleteApprovalEntryAndComments();
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
-        CreateApprovalEntry(ApprovalEntry[1], CreateGuid, PurchaseHeader.RecordId, ApprovalEntry[1].Status::Rejected);
-        CreateApprovalEntry(ApprovalEntry[2], CreateGuid, PurchaseHeader.RecordId, ApprovalEntry[2].Status::Open);
+        CreateApprovalEntry(ApprovalEntry[1], CreateGuid(), PurchaseHeader.RecordId, ApprovalEntry[1].Status::Rejected);
+        CreateApprovalEntry(ApprovalEntry[2], CreateGuid(), PurchaseHeader.RecordId, ApprovalEntry[2].Status::Open);
 
         ApprovalsMgmt.GetApprovalCommentForWorkflowStepInstanceID(ApprovalEntry[2], ApprovalEntry[2]."Workflow Step Instance ID");
 
@@ -918,19 +918,19 @@ codeunit 134201 "Document Approval - Comments"
         // [FEATURE] [UT]
         // [SCENARIO 218295] Approval Comment for the Purchase Document is opened for Open Approval Entry, not for the first one.
         Initialize();
-        DeleteApprovalEntryAndComments;
+        DeleteApprovalEntryAndComments();
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
 
-        CreateApprovalEntry(ApprovalEntry[1], CreateGuid, PurchaseHeader.RecordId, ApprovalEntry[1].Status::Rejected);
-        CreateApprovalEntry(ApprovalEntry[2], CreateGuid, PurchaseHeader.RecordId, ApprovalEntry[2].Status::Open);
+        CreateApprovalEntry(ApprovalEntry[1], CreateGuid(), PurchaseHeader.RecordId, ApprovalEntry[1].Status::Rejected);
+        CreateApprovalEntry(ApprovalEntry[2], CreateGuid(), PurchaseHeader.RecordId, ApprovalEntry[2].Status::Open);
 
         MockApprovalComment(PurchaseHeader.RecordId, ApprovalEntry[1]."Workflow Step Instance ID");
         Comment := MockApprovalComment(PurchaseHeader.RecordId, ApprovalEntry[2]."Workflow Step Instance ID");
 
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
         ApprovalsMgmt.GetApprovalComment(PurchaseHeader);
-        ApprovalComments.Last;
+        ApprovalComments.Last();
         ApprovalComments.Comment.AssertEquals(Comment);
     end;
 
@@ -946,23 +946,23 @@ codeunit 134201 "Document Approval - Comments"
         // [FEATURE] [UI]
         // [SCENARIO 218295] Approval Comments opened from Document shows all Approval Comments for the selected Document No.
         Initialize();
-        DeleteApprovalEntryAndComments;
+        DeleteApprovalEntryAndComments();
 
         // [GIVEN] Purchase Invoice "PI" with two Approval Entries "AE1" and "AE2" for "PI".
         // [GIVEN] "AE1" = Rejected, "AE2" = Open.
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
-        CreateApprovalEntry(ApprovalEntry[1], CreateGuid, PurchaseHeader.RecordId, ApprovalEntry[1].Status::Rejected);
-        CreateApprovalEntry(ApprovalEntry[2], CreateGuid, PurchaseHeader.RecordId, ApprovalEntry[2].Status::Open);
+        CreateApprovalEntry(ApprovalEntry[1], CreateGuid(), PurchaseHeader.RecordId, ApprovalEntry[1].Status::Rejected);
+        CreateApprovalEntry(ApprovalEntry[2], CreateGuid(), PurchaseHeader.RecordId, ApprovalEntry[2].Status::Open);
 
         // [GIVEN] Two Approval Comment Lines for "AE1" and "AE2".
         MockApprovalComment(PurchaseHeader.RecordId, ApprovalEntry[1]."Workflow Step Instance ID");
         MockApprovalComment(PurchaseHeader.RecordId, ApprovalEntry[2]."Workflow Step Instance ID");
 
         // [WHEN] "PI" is opened and Approval Comments page is invoked.
-        ApprovalComments.Trap;
-        PurchaseInvoice.OpenView;
+        ApprovalComments.Trap();
+        PurchaseInvoice.OpenView();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
-        PurchaseInvoice.Comment.Invoke;
+        PurchaseInvoice.Comment.Invoke();
 
         // [THEN] All Approval Commment Lines are visible for the "PI".
         // [THEN] Approval Comment Lines are not filtered by the Workflow Step Instance ID.
@@ -986,23 +986,23 @@ codeunit 134201 "Document Approval - Comments"
         // [FEATURE] [UI]
         // [SCENARIO 218295] Approval Comments opened from Approval Entries Page shows all Approval Comments for the selected Document No.
         Initialize();
-        DeleteApprovalEntryAndComments;
+        DeleteApprovalEntryAndComments();
 
         // [GIVEN] Purchase Invoice "PI" with two Approval Entries "AE1" and "AE2" for "PI".
         // [GIVEN] "AE1" = Rejected, "AE2" = Open.
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
-        CreateApprovalEntry(ApprovalEntry[1], CreateGuid, PurchaseHeader.RecordId, ApprovalEntry[1].Status::Rejected);
-        CreateApprovalEntry(ApprovalEntry[2], CreateGuid, PurchaseHeader.RecordId, ApprovalEntry[2].Status::Open);
+        CreateApprovalEntry(ApprovalEntry[1], CreateGuid(), PurchaseHeader.RecordId, ApprovalEntry[1].Status::Rejected);
+        CreateApprovalEntry(ApprovalEntry[2], CreateGuid(), PurchaseHeader.RecordId, ApprovalEntry[2].Status::Open);
 
         // [GIVEN] Two Approval Comment Lines for "AE1" and "AE2".
         MockApprovalComment(PurchaseHeader.RecordId, ApprovalEntry[1]."Workflow Step Instance ID");
         MockApprovalComment(PurchaseHeader.RecordId, ApprovalEntry[2]."Workflow Step Instance ID");
 
         // [WHEN] Approval Comments Page is opened from Approval Entries Page for "AE1".
-        ApprovalComments.Trap;
-        ApprovalEntries.OpenView;
-        ApprovalEntries.Last;
-        ApprovalEntries.Comments.Invoke;
+        ApprovalComments.Trap();
+        ApprovalEntries.OpenView();
+        ApprovalEntries.Last();
+        ApprovalEntries.Comments.Invoke();
 
         // [THEN] All Approval Commment Lines are visible for the "PI".
         // [THEN] Approval Comment Lines are not filtered by the Workflow Step Instance ID.
@@ -1029,26 +1029,26 @@ codeunit 134201 "Document Approval - Comments"
         // [FEATURE] [UI]
         // [SCENARIO 218295] Approval Comment is added to an Open Approval Entry when invoked from Document.
         Initialize();
-        DeleteApprovalEntryAndComments;
+        DeleteApprovalEntryAndComments();
 
         // [GIVEN] Purchase Invoice "PI" with two Approval Entries "AE1" and "AE2" for "PI".
         // [GIVEN] "AE1" = Rejected, "AE2" = Open.
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
-        CreateApprovalEntry(ApprovalEntry[1], CreateGuid, PurchaseHeader.RecordId, ApprovalEntry[1].Status::Rejected);
-        CreateApprovalEntry(ApprovalEntry[2], CreateGuid, PurchaseHeader.RecordId, ApprovalEntry[2].Status::Open);
+        CreateApprovalEntry(ApprovalEntry[1], CreateGuid(), PurchaseHeader.RecordId, ApprovalEntry[1].Status::Rejected);
+        CreateApprovalEntry(ApprovalEntry[2], CreateGuid(), PurchaseHeader.RecordId, ApprovalEntry[2].Status::Open);
 
         // [GIVEN] Approval Comment Line for "AE1".
         MockApprovalComment(PurchaseHeader.RecordId, ApprovalEntry[1]."Workflow Step Instance ID");
         Comment := LibraryUtility.GenerateGUID();
 
         // [GIVEN] "PI" is opened, Approval Comments page is invoked.
-        ApprovalComments.Trap;
-        PurchaseInvoice.OpenView;
+        ApprovalComments.Trap();
+        PurchaseInvoice.OpenView();
         PurchaseInvoice.GotoRecord(PurchaseHeader);
-        PurchaseInvoice.Comment.Invoke;
+        PurchaseInvoice.Comment.Invoke();
 
         // [WHEN] A new Approval Comment Line is added.
-        ApprovalComments.New;
+        ApprovalComments.New();
         ApprovalComments.Comment.SetValue := Comment;
         ApprovalComments.Close();
 
@@ -1072,27 +1072,27 @@ codeunit 134201 "Document Approval - Comments"
         // [FEATURE] [UI]
         // [SCENARIO 218295] Approval Comment is added for selected Approval Entry when invoked from Approval Entries Page.
         Initialize();
-        DeleteApprovalEntryAndComments;
+        DeleteApprovalEntryAndComments();
 
         // [GIVEN] Purchase Invoice "PI" with two Approval Entries "AE1" and "AE2" for "PI".
         // [GIVEN] "AE1" = Rejected, "AE2" = Cancelled.
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
-        CreateApprovalEntry(ApprovalEntry[1], CreateGuid, PurchaseHeader.RecordId, ApprovalEntry[1].Status::Rejected);
-        CreateApprovalEntry(ApprovalEntry[2], CreateGuid, PurchaseHeader.RecordId, ApprovalEntry[2].Status::Canceled);
+        CreateApprovalEntry(ApprovalEntry[1], CreateGuid(), PurchaseHeader.RecordId, ApprovalEntry[1].Status::Rejected);
+        CreateApprovalEntry(ApprovalEntry[2], CreateGuid(), PurchaseHeader.RecordId, ApprovalEntry[2].Status::Canceled);
 
         // [GIVEN] Approval Comment Line for "AE1".
         MockApprovalComment(PurchaseHeader.RecordId, ApprovalEntry[1]."Workflow Step Instance ID");
         Comment := LibraryUtility.GenerateGUID();
 
         // [GIVEN] Approval Entries Page is opened for "AE2", Approval Comments is invoked.
-        ApprovalComments.Trap;
-        ApprovalEntries.OpenView;
+        ApprovalComments.Trap();
+        ApprovalEntries.OpenView();
         ApprovalEntries.FILTER.SetFilter(Status, Format(ApprovalEntry[2].Status::Canceled));
-        ApprovalEntries.First;
-        ApprovalEntries.Comments.Invoke;
+        ApprovalEntries.First();
+        ApprovalEntries.Comments.Invoke();
 
         // [WHEN] A new Approval Comment Line is added.
-        ApprovalComments.New;
+        ApprovalComments.New();
         ApprovalComments.Comment.SetValue := Comment;
         ApprovalComments.Close();
 
@@ -1191,9 +1191,9 @@ codeunit 134201 "Document Approval - Comments"
     var
         ApprovalEntries: TestPage "Approval Entries";
     begin
-        ApprovalEntries.OpenView;
+        ApprovalEntries.OpenView();
         ApprovalEntries.FILTER.SetFilter("Document No.", DocumentNo);
-        ApprovalEntries.Comments.Invoke;
+        ApprovalEntries.Comments.Invoke();
     end;
 
     local procedure CreateApprovalEntry(var ApprovalEntry: Record "Approval Entry"; WorkflowInstanceID: Guid; RecID: RecordID; EntryStatus: Enum "Approval Status")
@@ -1225,7 +1225,7 @@ codeunit 134201 "Document Approval - Comments"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, TemplateType,
-          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, LibraryRandom.RandDec(100, 2));
+          GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDec(100, 2));
         GenJournalTemplate.Validate("Page ID", PageID);
         GenJournalTemplate.Validate(Type, TemplateType);
         GenJournalTemplate.Modify(true);
@@ -1401,9 +1401,9 @@ codeunit 134201 "Document Approval - Comments"
     var
         ApprovalEntries: TestPage "Requests to Approve";
     begin
-        ApprovalEntries.OpenView;
+        ApprovalEntries.OpenView();
         ApprovalEntries.FILTER.SetFilter("Document No.", DocumentNo);
-        ApprovalEntries.Reject.Invoke;
+        ApprovalEntries.Reject.Invoke();
     end;
 
     local procedure RejectRequestForSalesDocumentWithComments(DocumentType: Enum "Sales Document Type")
@@ -1452,7 +1452,7 @@ codeunit 134201 "Document Approval - Comments"
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
         BlankDateFormula: DateFormula;
     begin
-        LibraryWorkflow.DeleteAllExistingWorkflows;
+        LibraryWorkflow.DeleteAllExistingWorkflows();
 
         case TableNo of
             DATABASE::"Purchase Header":
@@ -1463,8 +1463,8 @@ codeunit 134201 "Document Approval - Comments"
                         WorkflowStepArgument."Approver Limit Type"::"Approver Chain", '', BlankDateFormula);
                     Workflow.Validate(Template, false);
                     Workflow.Modify(true);
-                    Workflow.InsertAfterFunctionName(WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode,
-                      WorkflowResponseHandling.GetApprovalCommentCode, false, WorkflowStep.Type::Response);
+                    Workflow.InsertAfterFunctionName(WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode(),
+                      WorkflowResponseHandling.GetApprovalCommentCode(), false, WorkflowStep.Type::Response);
                 end;
             DATABASE::"Sales Header":
                 begin
@@ -1474,8 +1474,8 @@ codeunit 134201 "Document Approval - Comments"
                         WorkflowStepArgument."Approver Limit Type"::"Approver Chain", '', BlankDateFormula);
                     Workflow.Validate(Template, false);
                     Workflow.Modify(true);
-                    Workflow.InsertAfterFunctionName(WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode,
-                      WorkflowResponseHandling.GetApprovalCommentCode, false, WorkflowStep.Type::Response);
+                    Workflow.InsertAfterFunctionName(WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode(),
+                      WorkflowResponseHandling.GetApprovalCommentCode(), false, WorkflowStep.Type::Response);
                 end;
         end;
 
@@ -1526,11 +1526,11 @@ codeunit 134201 "Document Approval - Comments"
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
         EntryPointStepID: Integer;
     begin
-        LibraryWorkflow.DeleteAllExistingWorkflows;
+        LibraryWorkflow.DeleteAllExistingWorkflows();
         LibraryWorkflow.CreateWorkflow(Workflow);
         EntryPointStepID :=
-          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode);
-        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.GetApprovalCommentCode, EntryPointStepID);
+          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnRejectApprovalRequestCode());
+        LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.GetApprovalCommentCode(), EntryPointStepID);
         Workflow.Enabled := true;
         Workflow.Modify();
         Workflow.CreateInstance(WorkflowStepInstance);
@@ -1587,7 +1587,7 @@ codeunit 134201 "Document Approval - Comments"
         ValidateApprovalEntry(ApprovalEntry, 1, UserSetup."Approver ID", UserSetup."Salespers./Purch. Code", UserSetup."User ID");
         ApprovalEntry.Next();
         ValidateApprovalEntry(ApprovalEntry, 2, UserSetup."Approver ID", UserSetup."Salespers./Purch. Code", UserSetup."User ID");
-        Assert.AreEqual(0, ApprovalEntry.Next, WrongNumberOfApprovalEntriesMsg);
+        Assert.AreEqual(0, ApprovalEntry.Next(), WrongNumberOfApprovalEntriesMsg);
     end;
 
     local procedure VerifyApprovalEntry(TableNo: Integer; DocumentType: Enum "Approval Document Type"; DocumentNo: Code[20]; ApproverID: Code[50])
@@ -1604,7 +1604,7 @@ codeunit 134201 "Document Approval - Comments"
     procedure ApprovalCommentsHandler(var ApprovalComments: TestPage "Approval Comments")
     begin
         ApprovalComments.Comment.SetValue(LibraryUtility.GenerateGUID());
-        ApprovalComments.OK.Invoke;
+        ApprovalComments.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1612,15 +1612,15 @@ codeunit 134201 "Document Approval - Comments"
     procedure ApprovalCommentsModalHandler(var ApprovalComments: TestPage "Approval Comments")
     begin
         ApprovalComments.Comment.SetValue(LibraryUtility.GenerateGUID());
-        ApprovalComments.OK.Invoke;
+        ApprovalComments.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure TemplateSelectHandler(var GeneralJournalTemplateList: TestPage "General Journal Template List")
     begin
-        GeneralJournalTemplateList.FILTER.SetFilter(Name, LibraryVariableStorage.DequeueText);
-        GeneralJournalTemplateList.OK.Invoke;
+        GeneralJournalTemplateList.FILTER.SetFilter(Name, LibraryVariableStorage.DequeueText());
+        GeneralJournalTemplateList.OK().Invoke();
     end;
 
     [ConfirmHandler]

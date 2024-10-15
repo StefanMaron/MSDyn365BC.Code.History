@@ -4,6 +4,7 @@ table 99000854 "Inventory Profile Track Buffer"
 {
     Caption = 'Inventory Profile Track Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

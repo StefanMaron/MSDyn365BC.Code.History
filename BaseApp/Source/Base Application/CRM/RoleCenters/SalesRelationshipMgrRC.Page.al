@@ -12,7 +12,7 @@ using Microsoft.Foundation.Navigate;
 using Microsoft.Integration.D365Sales;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Attribute;
-#if CLEAN21
+#if CLEAN23
 using Microsoft.Pricing.Worksheet;
 #endif
 using Microsoft.Purchases.Vendor;
@@ -91,16 +91,6 @@ page 9026 "Sales & Relationship Mgr. RC"
             {
                 ApplicationArea = Basic, Suite;
             }
-#if not CLEAN21
-            part(Control2; "Power BI Report Spinner Part")
-            {
-                ApplicationArea = RelationshipMgmt;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by PowerBIEmbeddedReportPart';
-                Visible = false;
-                ObsoleteTag = '21.0';
-            }
-#endif
             systempart(MyNotes; MyNotes)
             {
                 ApplicationArea = Basic, Suite;
@@ -640,7 +630,7 @@ page 9026 "Sales & Relationship Mgr. RC"
             group("Sales Prices")
             {
                 Caption = 'Sales Prices';
-#if not CLEAN21
+#if not CLEAN23
                 action("Sales Price &Worksheet")
                 {
                     AccessByPermission = TableData "Sales Price Worksheet" = IMD;
@@ -699,27 +689,6 @@ page 9026 "Sales & Relationship Mgr. RC"
                 }
 #endif
             }
-#if not CLEAN21
-            group(Flow)
-            {
-                Caption = 'Power Automate';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'This group has been moved to the tab dedicated to Power Automate';
-                ObsoleteTag = '21.0';
-                action("Manage Flows")
-                {
-                    ApplicationArea = RelationshipMgmt;
-                    Caption = 'Manage flows';
-                    Image = Flow;
-                    RunObject = Page "Flow Selector";
-                    ToolTip = 'View or edit automated flows created with Power Automate.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
-                    ObsoleteTag = '21.0';
-                }
-            }
-#endif
             separator(History)
             {
                 Caption = 'History';

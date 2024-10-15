@@ -79,8 +79,12 @@ page 9018 "Administrator Role Center"
     {
         area(rolecenter)
         {
+#if not CLEAN24
             group(Control1900724808)
             {
+                ObsoleteReason = 'Group removed for better alignment of Role Centers parts';
+                ObsoleteState = Pending;
+                ObsoleteTag = '24.0';
                 ShowCaption = false;
                 part(Control1904484608; "IT Operations Activities")
                 {
@@ -107,6 +111,9 @@ page 9018 "Administrator Role Center"
             }
             group(Control1900724708)
             {
+                ObsoleteReason = 'Group removed for better alignment of Role Centers parts';
+                ObsoleteState = Pending;
+                ObsoleteTag = '24.0';
                 ShowCaption = false;
                 part(Control36; "Report Inbox Part")
                 {
@@ -122,6 +129,43 @@ page 9018 "Administrator Role Center"
                     ApplicationArea = Basic, Suite;
                 }
             }
+#else
+            part(Control1904484608; "IT Operations Activities")
+            {
+                ApplicationArea = Basic, Suite;
+            }
+            part("User Tasks Activities"; "User Tasks Activities")
+            {
+                ApplicationArea = Suite;
+            }
+            part("Emails"; "Email Activities")
+            {
+                ApplicationArea = Basic, Suite;
+            }
+            part(Control58; "CRM Synch. Job Status Part")
+            {
+                ApplicationArea = Basic, Suite;
+                Visible = false;
+            }
+            part(Control52; "Service Connections Part")
+            {
+                ApplicationArea = Basic, Suite;
+                Visible = false;
+            }
+            part(Control36; "Report Inbox Part")
+            {
+                ApplicationArea = Basic, Suite;
+            }
+            part(Control32; "My Job Queue")
+            {
+                ApplicationArea = Basic, Suite;
+                Visible = false;
+            }
+            systempart(Control1901377608; MyNotes)
+            {
+                ApplicationArea = Basic, Suite;
+            }
+#endif
         }
     }
 
@@ -252,6 +296,40 @@ page 9018 "Administrator Role Center"
         }
         area(sections)
         {
+            group("Job Queue")
+            {
+                Caption = 'Job Queue';
+                Image = ExecuteBatch;
+                ToolTip = 'Specify how reports, batch jobs, and codeunits are run.';
+                action(JobQueue_JobQueueEntries)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Job Queue Entries';
+                    RunObject = Page "Job Queue Entries";
+                    ToolTip = 'View or edit the tasks that are set up to run business processes automatically at user-defined intervals.';
+                }
+                action("Job Queue Category List")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Job Queue Category List';
+                    RunObject = Page "Job Queue Category List";
+                    ToolTip = 'View or edit the task categories that are set up to run business processes automatically at user-defined intervals.';
+                }
+                action("Job Queue Log Entries")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Job Queue Log Entries';
+                    RunObject = Page "Job Queue Log Entries";
+                    ToolTip = 'View information for job queue entries that have run or have not run due to errors including job queue entries that have the status On Hold.';
+                }
+                action("Scheduled Tasks")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Scheduled Tasks';
+                    RunObject = Page "Scheduled Tasks";
+                    ToolTip = 'View information about which tasks are ready to run in the job queue. The page also shows information about the company that each task is set up to run in.';
+                }
+            }
             group(Workflow)
             {
                 Caption = 'Workflow';

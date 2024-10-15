@@ -1,6 +1,8 @@
 namespace Microsoft.Warehouse.Setup;
 
+#pragma warning disable AL0659
 enum 7355 "Report Selection Warehouse Usage"
+#pragma warning restore AL0659
 {
     Extensible = true;
     AssignmentCompatibility = true;

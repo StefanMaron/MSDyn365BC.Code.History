@@ -98,7 +98,9 @@ page 353 "Item Availability Lines"
                         ItemAvailFormsMgt.ShowItemLedgerEntries(Item, false);
                     end;
                 }
+#pragma warning disable AA0100
                 field("Item.""Qty. on Purch. Order"""; Rec."Qty. on Purch. Order")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Qty. on Purch. Order';
@@ -112,7 +114,9 @@ page 353 "Item Availability Lines"
                         ItemAvailFormsMgt.ShowPurchLines(Item);
                     end;
                 }
+#pragma warning disable AA0100
                 field("Item.""Qty. on Sales Order"""; Rec."Qty. on Sales Order")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Qty. on Sales Order';
@@ -126,7 +130,9 @@ page 353 "Item Availability Lines"
                         ItemAvailFormsMgt.ShowSalesLines(Item);
                     end;
                 }
+#pragma warning disable AA0100
                 field("Item.""Qty. on Service Order"""; Rec."Qty. on Service Order")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Service;
                     Caption = 'Qty. on Service Order';
@@ -139,12 +145,14 @@ page 353 "Item Availability Lines"
                         ItemAvailFormsMgt.ShowServLines(Item);
                     end;
                 }
+#pragma warning disable AA0100
                 field("Item.""Qty. on Job Order"""; Rec."Qty. on Job Order")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Jobs;
-                    Caption = 'Qty. on Job Order';
+                    Caption = 'Qty. on Project Order';
                     DecimalPlaces = 0 : 5;
-                    ToolTip = 'Specifies how many units of the item are allocated to jobs, meaning listed on outstanding job planning lines. The field is automatically updated based on the Remaining Qty. field in the Job Planning Lines window.';
+                    ToolTip = 'Specifies how many units of the item are allocated to projects, meaning listed on outstanding project planning lines. The field is automatically updated based on the Remaining Qty. field in the Project Planning Lines window.';
                     Visible = false;
 
                     trigger OnDrillDown()
@@ -152,7 +160,9 @@ page 353 "Item Availability Lines"
                         ItemAvailFormsMgt.ShowJobPlanningLines(Item);
                     end;
                 }
+#pragma warning disable AA0100
                 field("Item.""Trans. Ord. Shipment (Qty.)"""; Rec."Trans. Ord. Shipment (Qty.)")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Trans. Ord. Shipment (Qty.)';
@@ -165,7 +175,9 @@ page 353 "Item Availability Lines"
                         ItemAvailFormsMgt.ShowTransLines(Item, Item.FieldNo("Trans. Ord. Shipment (Qty.)"));
                     end;
                 }
+#pragma warning disable AA0100
                 field("Item.""Qty. in Transit"""; Rec."Qty. in Transit")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Location;
                     Caption = 'Qty. in Transit';
@@ -178,7 +190,9 @@ page 353 "Item Availability Lines"
                         ItemAvailFormsMgt.ShowTransLines(Item, Item.FieldNo("Qty. in Transit"));
                     end;
                 }
+#pragma warning disable AA0100
                 field("Item.""Trans. Ord. Receipt (Qty.)"""; Rec."Trans. Ord. Receipt (Qty.)")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Trans. Ord. Receipt (Qty.)';
@@ -191,7 +205,9 @@ page 353 "Item Availability Lines"
                         ItemAvailFormsMgt.ShowTransLines(Item, Item.FieldNo("Trans. Ord. Receipt (Qty.)"));
                     end;
                 }
+#pragma warning disable AA0100
                 field("Item.""Qty. on Asm. Component"""; Rec."Qty. on Asm. Comp. Lines")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Assembly;
                     Caption = 'Qty. on Asm. Comp. Lines';
@@ -205,7 +221,9 @@ page 353 "Item Availability Lines"
                         ItemAvailFormsMgt.ShowAsmCompLines(Item);
                     end;
                 }
+#pragma warning disable AA0100
                 field("Item.""Qty. on Assembly Order"""; Rec."Qty. on Assembly Order")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Assembly;
                     Caption = 'Qty. on Assembly Order';
@@ -235,7 +253,9 @@ page 353 "Item Availability Lines"
                     ToolTip = 'Specifies the quantity of the item that is currently in inventory and not reserved for other demand.';
                     Visible = false;
                 }
+#pragma warning disable AA0100
                 field("Item.""Scheduled Receipt (Qty.)"""; Rec."Scheduled Receipt (Qty.)")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Scheduled Receipt (Qty.)';
@@ -249,7 +269,9 @@ page 353 "Item Availability Lines"
                         ItemAvailFormsMgt.ShowSchedReceipt(Item);
                     end;
                 }
+#pragma warning disable AA0100
                 field("Item.""Scheduled Need (Qty.)"""; Rec."Scheduled Issue (Qty.)")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Scheduled Issue (Qty.)';
@@ -276,7 +298,9 @@ page 353 "Item Availability Lines"
                         ShowItemAvailLineList(3);
                     end;
                 }
+#pragma warning disable AA0100
                 field("Item.""Net Change"""; Rec."Net Change")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Net Change';
@@ -395,7 +419,7 @@ page 353 "Item Availability Lines"
         OnAfterCalcAvailQuantities(Rec, Item);
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterCalcAvailQuantities(var ItemAvailabilityBuffer: Record "Item Availability Buffer"; var Item: Record Item)
     begin
     end;

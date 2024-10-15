@@ -33,7 +33,7 @@ page 230 "Res. Gr. Statistics"
                             ApplicationArea = Jobs;
                             Caption = 'Capacity';
                             DecimalPlaces = 0 : 5;
-                            ToolTip = 'Specifies the scheduled capacity of the resource group. The amount is the sum of values in the Quantity field on job planning lines for the resource group.';
+                            ToolTip = 'Specifies the scheduled capacity of the resource group. The amount is the sum of values in the Quantity field on project planning lines for the resource group.';
                         }
                         field("UnusedCapacity[1]"; UnusedCapacity[1])
                         {
@@ -46,7 +46,7 @@ page 230 "Res. Gr. Statistics"
                         {
                             ApplicationArea = Jobs;
                             Caption = 'Not Chargeable Usage';
-                            ToolTip = 'Specifies resource group usage that is not chargeable, displayed in units of measure or unit prices. Nonchargeable usage can be posted in the resource group journal and the job journal.';
+                            ToolTip = 'Specifies resource group usage that is not chargeable, displayed in units of measure or unit prices. Nonchargeable usage can be posted in the resource group journal and the project journal.';
                             Visible = false;
                         }
                         field("ResGrUsageUnits[1][1]"; ResGrUsageUnits[1] [1])
@@ -67,7 +67,7 @@ page 230 "Res. Gr. Statistics"
                         {
                             ApplicationArea = Jobs;
                             Caption = 'Chargeable Usage';
-                            ToolTip = 'Specifies the chargeable usage. Chargeable usage can be posted in the resource group journal and the job journal.';
+                            ToolTip = 'Specifies the chargeable usage. Chargeable usage can be posted in the resource group journal and the project journal.';
                             Visible = false;
                         }
                         field("ResGrUsageUnits[1][2]"; ResGrUsageUnits[1] [2])
@@ -105,7 +105,7 @@ page 230 "Res. Gr. Statistics"
                             ApplicationArea = Jobs;
                             Caption = 'Capacity';
                             DecimalPlaces = 0 : 5;
-                            ToolTip = 'Specifies the scheduled capacity of the resource group. The amount is the sum of values in the Quantity field on job planning lines for the resource group.';
+                            ToolTip = 'Specifies the scheduled capacity of the resource group. The amount is the sum of values in the Quantity field on project planning lines for the resource group.';
                         }
                         field("UnusedCapacity[2]"; UnusedCapacity[2])
                         {
@@ -173,7 +173,7 @@ page 230 "Res. Gr. Statistics"
                             ApplicationArea = Jobs;
                             Caption = 'Capacity';
                             DecimalPlaces = 0 : 5;
-                            ToolTip = 'Specifies the scheduled capacity of the resource group. The amount is the sum of values in the Quantity field on job planning lines for the resource group.';
+                            ToolTip = 'Specifies the scheduled capacity of the resource group. The amount is the sum of values in the Quantity field on project planning lines for the resource group.';
                         }
                         field("UnusedCapacity[3]"; UnusedCapacity[3])
                         {
@@ -241,7 +241,7 @@ page 230 "Res. Gr. Statistics"
                             ApplicationArea = Jobs;
                             Caption = 'Capacity';
                             DecimalPlaces = 0 : 5;
-                            ToolTip = 'Specifies the scheduled capacity of the resource group. The amount is the sum of values in the Quantity field on job planning lines for the resource group.';
+                            ToolTip = 'Specifies the scheduled capacity of the resource group. The amount is the sum of values in the Quantity field on project planning lines for the resource group.';
                         }
                         field("UnusedCapacity[4]"; UnusedCapacity[4])
                         {
@@ -331,7 +331,7 @@ page 230 "Res. Gr. Statistics"
                             ApplicationArea = Jobs;
                             AutoFormatType = 1;
                             Caption = 'Usage (Cost)';
-                            ToolTip = 'Specifies values for job usage based on cost. Specifies, based on cost, how many of the resources in the group have been used.';
+                            ToolTip = 'Specifies values for project usage based on cost. Specifies, based on cost, how many of the resources in the group have been used.';
                         }
                         field("Profit[1]"; Profit[1])
                         {
@@ -375,7 +375,7 @@ page 230 "Res. Gr. Statistics"
                             ApplicationArea = Jobs;
                             AutoFormatType = 1;
                             Caption = 'Usage (Cost)';
-                            ToolTip = 'Specifies values for job usage based on cost. Specifies, based on cost, how many of the resources in the group have been used.';
+                            ToolTip = 'Specifies values for project usage based on cost. Specifies, based on cost, how many of the resources in the group have been used.';
                         }
                         field("Profit[2]"; Profit[2])
                         {
@@ -419,7 +419,7 @@ page 230 "Res. Gr. Statistics"
                             ApplicationArea = Jobs;
                             AutoFormatType = 1;
                             Caption = 'Usage (Cost)';
-                            ToolTip = 'Specifies values for job usage based on cost. Specifies, based on cost, how many of the resources in the group have been used.';
+                            ToolTip = 'Specifies values for project usage based on cost. Specifies, based on cost, how many of the resources in the group have been used.';
                         }
                         field("Profit[3]"; Profit[3])
                         {
@@ -463,7 +463,7 @@ page 230 "Res. Gr. Statistics"
                             ApplicationArea = Jobs;
                             AutoFormatType = 1;
                             Caption = 'Usage (Cost)';
-                            ToolTip = 'Specifies values for job usage based on cost. Specifies, based on cost, how many of the resources in the group have been used.';
+                            ToolTip = 'Specifies values for project usage based on cost. Specifies, based on cost, how many of the resources in the group have been used.';
                         }
                         field("Profit[4]"; Profit[4])
                         {

@@ -6,6 +6,7 @@ table 8612 "Config. Question"
 {
     Caption = 'Config. Question';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -93,7 +94,7 @@ table 8612 "Config. Question"
         }
         field(11; "Field Name"; Text[30])
         {
-            CalcFormula = Lookup(Field.FieldName where(TableNo = field("Table ID"),
+            CalcFormula = lookup(Field.FieldName where(TableNo = field("Table ID"),
                                                         "No." = field("Field ID")));
             Caption = 'Field Name';
             Editable = false;
@@ -106,7 +107,7 @@ table 8612 "Config. Question"
         }
         field(12; "Field Caption"; Text[250])
         {
-            CalcFormula = Lookup(Field."Field Caption" where(TableNo = field("Table ID"),
+            CalcFormula = lookup(Field."Field Caption" where(TableNo = field("Table ID"),
                                                               "No." = field("Field ID")));
             Caption = 'Field Caption';
             Editable = false;

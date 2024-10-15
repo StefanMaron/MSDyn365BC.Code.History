@@ -5,7 +5,7 @@
 #if not CLEAN22
 namespace Microsoft.Inventory.Intrastat;
 
-Enum 263 "Intrastat Export Format"
+enum 263 "Intrastat Export Format"
 {
     ObsoleteState = Pending;
     ObsoleteTag = '22.0';

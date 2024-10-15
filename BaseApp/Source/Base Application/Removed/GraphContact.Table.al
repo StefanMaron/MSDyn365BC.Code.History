@@ -6,6 +6,7 @@ table 5450 "Graph Contact"
     ObsoleteTag = '20.0';
     Caption = 'Graph Contact';
     TableType = MicrosoftGraph;
+    DataClassification = CustomerContent;
 
     fields
     {

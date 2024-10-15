@@ -1,10 +1,21 @@
 {
+  "settings": {
+    "al.enableCodeAnalysis": false,
+    "al.enableCodeActions": false,
+    "allint.enabled": false,
+    "search.exclude": {
+      "**.xlf": true
+    }
+  },
   "folders": [
     {
       "path": "./reviewglentries/Test/_Exclude_Review_General_Ledger_Entries_Tests"
     },
     {
       "path": "./AuditFileExport/Test/Audit File Export Tests"
+    },
+    {
+      "path": "./sustainability/test/Sustainability Tests"
     },
     {
       "path": "./recommendedapps/test/Recommended Apps Tests"
@@ -14,6 +25,12 @@
     },
     {
       "path": "./AMCBanking365Fundamentals/Test/AMC Banking 365 Fundamentals Test Automations"
+    },
+    {
+      "path": "./BusinessFoundation/Test/Business Foundation Test Libraries"
+    },
+    {
+      "path": "./BusinessFoundation/Test/Business Foundation Tests"
     },
     {
       "path": "./ImageAnalysis/Test/Image Analyzer Tests"
@@ -28,10 +45,10 @@
       "path": "./BankAccRecWithAI/Test/Bank Account Reconciliation With AI Tests"
     },
     {
-      "path": "./system application/test/System Application Test"
+      "path": "./system application/test/System Application Test Library"
     },
     {
-      "path": "./system application/test/System Application Test Library"
+      "path": "./system application/test/System Application Test/DisabledTests"
     },
     {
       "path": "./system application/test/System Application Test/Extension Management/testArtifacts"
@@ -64,7 +81,16 @@
       "path": "./EssentialBusinessHeadlines/Test/Essential Business Headlines Test"
     },
     {
+      "path": "./saleslinessuggestions/test/Sales Lines Suggestions Tests"
+    },
+    {
       "path": "./ReportLayouts/test/Report Layouts Tests"
+    },
+    {
+      "path": "./ContosoCoffeeDemoDataset/Test/Contoso Coffee Demo Dataset Tests"
+    },
+    {
+      "path": "./ContosoCoffeeDemoDataset/Test/Contoso Coffee Demo Dataset Tests/src/TestImplementations"
     },
     {
       "path": "./Email - Outlook REST API/Test"
@@ -240,13 +266,5 @@
     {
       "path": "./Email - Current User Connector/Test/Email - Current User Connector Tests"
     }
-  ],
-  "settings": {
-    "search.exclude": {
-      "**.xlf": true
-    },
-    "al.enableCodeActions": false,
-    "allint.enabled": false,
-    "al.enableCodeAnalysis": false
-  }
+  ]
 }

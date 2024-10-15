@@ -12,6 +12,7 @@ table 5359 "CRM Team"
     Description = 'Collection of system users that routinely collaborate. Teams can be used to simplify record sharing and provide team members with common access to organization data when team members belong to different Business Units.';
     ExternalName = 'team';
     TableType = CRM;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -106,7 +107,7 @@ table 5359 "CRM Team"
         }
         field(12; CreatedByName; Text[200])
         {
-            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedBy)));
+            CalcFormula = lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedBy)));
             Caption = 'CreatedByName';
             ExternalAccess = Read;
             ExternalName = 'createdbyname';
@@ -115,7 +116,7 @@ table 5359 "CRM Team"
         }
         field(13; ModifiedByName; Text[200])
         {
-            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedBy)));
+            CalcFormula = lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedBy)));
             Caption = 'ModifiedByName';
             ExternalAccess = Read;
             ExternalName = 'modifiedbyname';
@@ -124,7 +125,7 @@ table 5359 "CRM Team"
         }
         field(14; BusinessUnitIdName; Text[160])
         {
-            CalcFormula = Lookup("CRM Businessunit".Name where(BusinessUnitId = field(BusinessUnitId)));
+            CalcFormula = lookup("CRM Businessunit".Name where(BusinessUnitId = field(BusinessUnitId)));
             Caption = 'BusinessUnitIdName';
             ExternalAccess = Read;
             ExternalName = 'businessunitidname';
@@ -165,7 +166,7 @@ table 5359 "CRM Team"
         }
         field(19; AdministratorIdName; Text[200])
         {
-            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(AdministratorId)));
+            CalcFormula = lookup("CRM Systemuser".FullName where(SystemUserId = field(AdministratorId)));
             Caption = 'AdministratorIdName';
             ExternalAccess = Read;
             ExternalName = 'administratoridname';
@@ -190,7 +191,7 @@ table 5359 "CRM Team"
         }
         field(22; CreatedOnBehalfByName; Text[200])
         {
-            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedOnBehalfBy)));
+            CalcFormula = lookup("CRM Systemuser".FullName where(SystemUserId = field(CreatedOnBehalfBy)));
             Caption = 'CreatedOnBehalfByName';
             ExternalAccess = Read;
             ExternalName = 'createdonbehalfbyname';
@@ -208,7 +209,7 @@ table 5359 "CRM Team"
         }
         field(24; ModifiedOnBehalfByName; Text[200])
         {
-            CalcFormula = Lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedOnBehalfBy)));
+            CalcFormula = lookup("CRM Systemuser".FullName where(SystemUserId = field(ModifiedOnBehalfBy)));
             Caption = 'ModifiedOnBehalfByName';
             ExternalAccess = Read;
             ExternalName = 'modifiedonbehalfbyname';
@@ -232,7 +233,7 @@ table 5359 "CRM Team"
         }
         field(27; TransactionCurrencyIdName; Text[100])
         {
-            CalcFormula = Lookup("CRM Transactioncurrency".CurrencyName where(TransactionCurrencyId = field(TransactionCurrencyId)));
+            CalcFormula = lookup("CRM Transactioncurrency".CurrencyName where(TransactionCurrencyId = field(TransactionCurrencyId)));
             Caption = 'TransactionCurrencyIdName';
             ExternalAccess = Read;
             ExternalName = 'transactioncurrencyidname';

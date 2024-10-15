@@ -9,6 +9,7 @@ using Microsoft.Manufacturing.Routing;
 table 99000772 "Production BOM Line"
 {
     Caption = 'Production BOM Line';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -31,7 +31,7 @@ codeunit 141057 "ERM Prepayment APAC"
 
         // [GIVEN] Create Sales Order, Reopen and Change Prepayment %.
         Initialize();
-        CreateSalesOrder(SalesLine, CreateCustomerWithInvoiceDiscount);
+        CreateSalesOrder(SalesLine, CreateCustomerWithInvoiceDiscount());
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         DocumentNo := GetPostedDocumentNo(SalesHeader."Posting No. Series");
         LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
@@ -117,7 +117,7 @@ codeunit 141057 "ERM Prepayment APAC"
         PurchInvHeader.SetRange("No.", DocumentNo);
         PurchInvHeader.FindFirst();
         PurchInvHeader.CalcFields(Amount);
-        Assert.AreNearlyEqual(Amount, PurchInvHeader.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqual);
+        Assert.AreNearlyEqual(Amount, PurchInvHeader.Amount, LibraryERM.GetAmountRoundingPrecision(), AmountMustBeEqual);
     end;
 
     [Test]
@@ -138,7 +138,7 @@ codeunit 141057 "ERM Prepayment APAC"
         // Setup.
         Initialize();
         LibraryPurchase.CreateVendor(Vendor);
-        GLAccountNo := CreateGLAccount;
+        GLAccountNo := CreateGLAccount();
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
         CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccountNo, LibraryRandom.RandDec(10, 2));  // Random for Quantity.
@@ -154,10 +154,10 @@ codeunit 141057 "ERM Prepayment APAC"
         repeat
             Amount += GLEntry."Credit Amount";
         until GLEntry.Next() = 0;
-        Assert.AreNearlyEqual(Amount, PurchaseLine."Amount Including VAT", LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqual);
+        Assert.AreNearlyEqual(Amount, PurchaseLine."Amount Including VAT", LibraryERM.GetAmountRoundingPrecision(), AmountMustBeEqual);
         Assert.AreNearlyEqual(
           -Amount, PurchaseLine2."Amount Including VAT" - (PurchaseLine."Amount Including VAT" + PurchaseLine2."Amount Including VAT"),
-          LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqual);
+          LibraryERM.GetAmountRoundingPrecision(), AmountMustBeEqual);
     end;
 
     [Test]
@@ -199,7 +199,7 @@ codeunit 141057 "ERM Prepayment APAC"
 
     local procedure Initialize()
     begin
-        UpdateGeneralLedgerSetup;
+        UpdateGeneralLedgerSetup();
     end;
 
     local procedure CreateAndPostGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; Amount: Decimal)
@@ -212,7 +212,7 @@ codeunit 141057 "ERM Prepayment APAC"
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
           GenJournalLine."Account Type"::Customer, AccountNo, Amount);
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
-        GenJournalLine.Validate("Bal. Account No.", CreateGLAccount);
+        GenJournalLine.Validate("Bal. Account No.", CreateGLAccount());
         GenJournalLine.Validate("Bal. Gen. Posting Type", GenJournalLine."Bal. Gen. Posting Type"::Sale);
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -270,9 +270,9 @@ codeunit 141057 "ERM Prepayment APAC"
 
     local procedure GetPostedDocumentNo(NoSeries: Code[20]): Code[20]
     var
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesCodeunit: Codeunit "No. Series";
     begin
-        exit(NoSeriesManagement.GetNextNo(NoSeries, WorkDate(), false));
+        exit(NoSeriesCodeunit.PeekNextNo(NoSeries));
     end;
 
     local procedure ModifyPrepaymentPctOnPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; PrepaymentPct: Decimal)
@@ -310,8 +310,8 @@ codeunit 141057 "ERM Prepayment APAC"
         GeneralPostingSetup: Record "General Posting Setup";
     begin
         GeneralPostingSetup.Get(GenBusPostingGroup, GenProdPostingGroup);
-        GeneralPostingSetup."Sales Prepayments Account" := CreateGLAccount;
-        GeneralPostingSetup."Purch. Prepayments Account" := CreateGLAccount;
+        GeneralPostingSetup."Sales Prepayments Account" := CreateGLAccount();
+        GeneralPostingSetup."Purch. Prepayments Account" := CreateGLAccount();
         GeneralPostingSetup.Modify(true);
     end;
 
@@ -327,7 +327,7 @@ codeunit 141057 "ERM Prepayment APAC"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.FindFirst();
-        Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqual);
+        Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), AmountMustBeEqual);
     end;
 
     local procedure VerifyGSTPurchaseEntry(DocumentNo: Code[20]; Amount: Decimal)
@@ -336,7 +336,7 @@ codeunit 141057 "ERM Prepayment APAC"
     begin
         GSTPurchaseEntry.SetRange("Document No.", DocumentNo);
         GSTPurchaseEntry.FindFirst();
-        Assert.AreNearlyEqual(Amount, GSTPurchaseEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqual);
+        Assert.AreNearlyEqual(Amount, GSTPurchaseEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), AmountMustBeEqual);
     end;
 
     local procedure VerifyGSTSalesEntry(DocumentNo: Code[20]; Amount: Decimal)
@@ -345,7 +345,7 @@ codeunit 141057 "ERM Prepayment APAC"
     begin
         GSTSalesEntry.SetRange("Document No.", DocumentNo);
         GSTSalesEntry.FindFirst();
-        Assert.AreNearlyEqual(Amount, GSTSalesEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqual);
+        Assert.AreNearlyEqual(Amount, GSTSalesEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), AmountMustBeEqual);
     end;
 
     local procedure VerifyPostedSalesInvoice(No: Code[20]; Amount: Decimal)
@@ -355,7 +355,7 @@ codeunit 141057 "ERM Prepayment APAC"
         SalesInvoiceHeader.SetRange("No.", No);
         SalesInvoiceHeader.FindFirst();
         SalesInvoiceHeader.CalcFields(Amount);
-        Assert.AreNearlyEqual(Amount, SalesInvoiceHeader.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqual);
+        Assert.AreNearlyEqual(Amount, SalesInvoiceHeader.Amount, LibraryERM.GetAmountRoundingPrecision(), AmountMustBeEqual);
     end;
 
     local procedure VerifyVATEntry(DocumentNo: Code[20]; Amount: Decimal)
@@ -364,7 +364,7 @@ codeunit 141057 "ERM Prepayment APAC"
     begin
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.FindFirst();
-        Assert.AreNearlyEqual(Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqual);
+        Assert.AreNearlyEqual(Amount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), AmountMustBeEqual);
     end;
 }
 

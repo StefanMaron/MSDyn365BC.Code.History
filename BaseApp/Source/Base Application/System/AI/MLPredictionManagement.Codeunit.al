@@ -29,8 +29,7 @@ codeunit 2003 "ML Prediction Management"
         FeatureRepeatedErr: Label 'You can add a field as a feature only one time.';
         TrainingPercent: Decimal;
         ApiUri: Text[250];
-        [NonDebuggable]
-        ApiKey: Text[200];
+        ApiKey: SecretText;
         ApiTimeout: Integer;
         TrainingPercentageErr: Label 'The training percentage must be a decimal number between 0 and 1.';
         SomethingWentWrongErr: Label 'Oops, something went wrong when connecting to the Azure Machine Learning endpoint. Please contact your system administrator. %1.', Comment = '%1 = detailed error';
@@ -49,8 +48,19 @@ codeunit 2003 "ML Prediction Management"
         TrainingPercent := 0.8;
     end;
 
+#if not CLEAN24
     [NonDebuggable]
+    [Obsolete('Use "Initialize(Uri: Text[250]; "Key": SecretText; TimeOutSeconds: Integer)" instead.', '24.0')]
     procedure Initialize(Uri: Text[250]; "Key": Text[200]; TimeOutSeconds: Integer)
+    begin
+        ApiUri := Uri;
+        ApiKey := Key;
+        ApiTimeout := TimeOutSeconds;
+        UsingKeyvaultCredentials := false;
+        DefaultInitialize();
+    end;
+#endif
+    procedure Initialize(Uri: Text[250]; "Key": SecretText; TimeOutSeconds: Integer)
     begin
         ApiUri := Uri;
         ApiKey := Key;
@@ -508,16 +518,30 @@ codeunit 2003 "ML Prediction Management"
         exit(ArrayLen(FeatureNumbers));
     end;
 
+#if not CLEAN24
     [NonDebuggable]
     [TryFunction]
     [Scope('OnPrem')]
-    procedure GetMachineLearningCredentials(var ApiUri: Text[250]; var ApiKey: Text[200]; var LimitType: Option; var Limit: Decimal)
+    [Obsolete('Use "GetMachineLearningCredentials(var MLApiUri: SecretText; var MLApiKey: SecretText; var LimitType: Option; var Limit: Decimal)" instead.', '24.0')]
+    procedure GetMachineLearningCredentials(var MLApiUri: Text[250]; var MLApiKey: Text[200]; var LimitType: Option; var Limit: Decimal)
     var
         MachineLearningKeyVaultMgmt: Codeunit "Machine Learning KeyVaultMgmt.";
     begin
-        MachineLearningKeyVaultMgmt.GetMachineLearningCredentials(MachineLearningSecretNameTxt, ApiUri, ApiKey, LimitType, Limit);
+        MachineLearningKeyVaultMgmt.GetMachineLearningCredentials(MachineLearningSecretNameTxt, MLApiUri, MLApiKey, LimitType, Limit);
 
         if ApiUri = '' then
+            Error(NoCredentialsInKeyVaultErr);
+    end;
+#endif
+    [TryFunction]
+    [Scope('OnPrem')]
+    procedure GetMachineLearningCredentials(var MLApiUri: Text[250]; var MLApiKey: SecretText; var LimitType: Option; var Limit: Decimal)
+    var
+        MachineLearningKeyVaultMgmt: Codeunit "Machine Learning KeyVaultMgmt.";
+    begin
+        MachineLearningKeyVaultMgmt.GetMachineLearningCredentials(MachineLearningSecretNameTxt, MLApiUri, MLApiKey, LimitType, Limit);
+
+        if MLApiUri = '' then
             Error(NoCredentialsInKeyVaultErr);
     end;
 

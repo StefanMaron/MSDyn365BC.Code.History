@@ -45,12 +45,12 @@ codeunit 136404 "Resource Matrix Management"
         LibraryVariableStorage.Enqueue(EmployeeAbsence."Quantity (Base)");  // Assign variable for page handler.
 
         // 2. Exercise: Run Employee Absences By Categories page from Employee card page and run Show Matrix from it.
-        EmployeeCard.OpenEdit;
+        EmployeeCard.OpenEdit();
         EmployeeCard.FILTER.SetFilter("No.", Employee."No.");
-        EmplAbsencesByCategories.Trap;
-        EmployeeCard."Absences by Ca&tegories".Invoke;
+        EmplAbsencesByCategories.Trap();
+        EmployeeCard."Absences by Ca&tegories".Invoke();
         Commit();
-        EmplAbsencesByCategories.ShowMatrix.Invoke;
+        EmplAbsencesByCategories.ShowMatrix.Invoke();
 
         // 3. Verify: Verify value on Employee Absences by Category Matrix performed on Employee Absences by Category Matrix page handler.
     end;
@@ -72,10 +72,10 @@ codeunit 136404 "Resource Matrix Management"
         CreateEmployeeAbsence(EmployeeAbsence, Employee."No.");
 
         // 2. Exercise: Run Employee Absences page from Employee card page.
-        EmployeeCard.OpenEdit;
+        EmployeeCard.OpenEdit();
         EmployeeCard.FILTER.SetFilter("No.", Employee."No.");
-        EmployeeAbsences.Trap;
-        EmployeeCard."A&bsences".Invoke;
+        EmployeeAbsences.Trap();
+        EmployeeCard."A&bsences".Invoke();
 
         // 3. Verify: Verify values on Employee Absences page.
         EmployeeAbsences."Employee No.".AssertEquals(EmployeeAbsence."Employee No.");
@@ -105,12 +105,12 @@ codeunit 136404 "Resource Matrix Management"
         LibraryVariableStorage.Enqueue(Employee."No.");  // Assign variable for page handler.
 
         // 2. Exercise: Run Miscellaneous Articles Overview page from Employee card page and run Show Matrix from it.
-        EmployeeCard.OpenEdit;
+        EmployeeCard.OpenEdit();
         EmployeeCard.FILTER.SetFilter("No.", Employee."No.");
-        MiscArticlesOverview.Trap;
-        EmployeeCard."Misc. Articles &Overview".Invoke;
+        MiscArticlesOverview.Trap();
+        EmployeeCard."Misc. Articles &Overview".Invoke();
         Commit();
-        MiscArticlesOverview.ShowMatrix.Invoke;
+        MiscArticlesOverview.ShowMatrix.Invoke();
 
         // 3. Verify: Verify value on Miscellaneous Articles Overview Matrix performed on Miscellaneous Articles Overview Matrix
         // page handler.
@@ -137,12 +137,12 @@ codeunit 136404 "Resource Matrix Management"
         LibraryVariableStorage.Enqueue(Employee."No.");  // Assign variable for page handler.
 
         // 2. Exercise: Run Confidential Information Overview page from Employee card page and run Show Matrix from it.
-        EmployeeCard.OpenEdit;
+        EmployeeCard.OpenEdit();
         EmployeeCard.FILTER.SetFilter("No.", Employee."No.");
-        ConfidentialInfoOverview.Trap;
-        EmployeeCard."Co&nfidential Info. Overview".Invoke;
+        ConfidentialInfoOverview.Trap();
+        EmployeeCard."Co&nfidential Info. Overview".Invoke();
         Commit();
-        ConfidentialInfoOverview.ShowMatrix.Invoke;
+        ConfidentialInfoOverview.ShowMatrix.Invoke();
 
         // 3. Verify: Verify value on Confidential Information Overview Matrix performed on Confidential Information Overview Matrix
         // page handler.
@@ -171,13 +171,13 @@ codeunit 136404 "Resource Matrix Management"
 
         // 2. Exercise: Run Absence Overview by Periods page from Absence Registration page and run Show Matrix from it with
         // Cause Of Absence filter.
-        AbsenceRegistration.OpenEdit;
+        AbsenceRegistration.OpenEdit();
         AbsenceRegistration.FILTER.SetFilter("Employee No.", Employee."No.");
-        AbsenceOverviewByPeriods.Trap;
-        AbsenceRegistration."Overview by &Periods".Invoke;
+        AbsenceOverviewByPeriods.Trap();
+        AbsenceRegistration."Overview by &Periods".Invoke();
         Commit();
         AbsenceOverviewByPeriods."Cause Of Absence Filter".SetValue(EmployeeAbsence."Cause of Absence Code");
-        AbsenceOverviewByPeriods.ShowMatrix.Invoke;
+        AbsenceOverviewByPeriods.ShowMatrix.Invoke();
 
         // 3. Verify: Verify value on Absence Overview by Period Matrix performed on Absence Overview by Period Matrix page handler.
     end;
@@ -201,12 +201,12 @@ codeunit 136404 "Resource Matrix Management"
         LibraryVariableStorage.Enqueue(Employee."No.");  // Assign variable for page handler.
 
         // 2. Exercise: Run Qualification Overview page from Employee Qualifications page and run Show Matrix from it.
-        EmployeeQualifications.OpenEdit;
+        EmployeeQualifications.OpenEdit();
         EmployeeQualifications.FILTER.SetFilter("Qualification Code", QualificationCode);
-        QualificationOverview.Trap;
-        EmployeeQualifications."Q&ualification Overview".Invoke;
+        QualificationOverview.Trap();
+        EmployeeQualifications."Q&ualification Overview".Invoke();
         Commit();
-        QualificationOverview.ShowMatrix.Invoke;
+        QualificationOverview.ShowMatrix.Invoke();
 
         // 3. Verify: Verify value on Qualification Overview Matrix performed on Qualification Overview Matrix page handler.
     end;
@@ -231,13 +231,13 @@ codeunit 136404 "Resource Matrix Management"
 
         // 2. Exercise: Run Absence Overview By Categories page from Absence Registration page and run Show Matrix from it with
         // Employee No. filter.
-        AbsenceRegistration.OpenEdit;
+        AbsenceRegistration.OpenEdit();
         AbsenceRegistration.FILTER.SetFilter("Employee No.", Employee."No.");
-        AbsenceOverviewByCategories.Trap;
-        AbsenceRegistration."Overview by &Categories".Invoke;
+        AbsenceOverviewByCategories.Trap();
+        AbsenceRegistration."Overview by &Categories".Invoke();
         Commit();
         AbsenceOverviewByCategories.EmployeeNoFilter.SetValue(Employee."No.");
-        AbsenceOverviewByCategories.ShowMatrix.Invoke;
+        AbsenceOverviewByCategories.ShowMatrix.Invoke();
 
         // 3. Verify: Verify value on Absence Overview by Category Matrix performed on Absence Overview by Category Matrix page handler.
     end;
@@ -259,12 +259,12 @@ codeunit 136404 "Resource Matrix Management"
         CreateJobPlanningLine(Resource."No.");
 
         // 2. Exercise: Run Resource Allocated per Job page from Resource Card.
-        ResourceCard.OpenEdit;
+        ResourceCard.OpenEdit();
         ResourceCard.FILTER.SetFilter("No.", Resource."No.");
-        ResourceAllocatedPerJob.Trap;
-        ResourceCard."Resource &Allocated per Job".Invoke;
+        ResourceAllocatedPerJob.Trap();
+        ResourceCard."Resource &Allocated per Job".Invoke();
         Commit();
-        ResourceAllocatedPerJob.ShowMatrix.Invoke;
+        ResourceAllocatedPerJob.ShowMatrix.Invoke();
 
         // 3. Verify: Verify the value on Resource Allocated Per Job Matrix in Resource Allocated Per Job Matrix Handler.
     end;
@@ -289,12 +289,12 @@ codeunit 136404 "Resource Matrix Management"
         CreateJobPlanningLine(Resource."No.");
 
         // 2. Exercise: Run Resource Group Allocated per Job page from Resource Group Card.
-        ResourceGroups.OpenEdit;
+        ResourceGroups.OpenEdit();
         ResourceGroups.FILTER.SetFilter("No.", ResourceGroup."No.");
-        ResGrAllocatedPerJob.Trap;
-        ResourceGroups."Res. Group All&ocated per Job".Invoke;
+        ResGrAllocatedPerJob.Trap();
+        ResourceGroups."Res. Group All&ocated per Job".Invoke();
         Commit();
-        ResGrAllocatedPerJob.ShowMatrix.Invoke;
+        ResGrAllocatedPerJob.ShowMatrix.Invoke();
 
         // 3. Verify: Verify the value on Resource Group Allocated Per Job Matrix in Resource Group Allocated Per Job Matrix Handler.
     end;
@@ -315,23 +315,23 @@ codeunit 136404 "Resource Matrix Management"
 
         // 1. Setup: Create Resource, create Service Order and allocate Resource.
         Initialize();
-        CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo, LibraryInventory.CreateItemNo);
+        CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo(), LibraryInventory.CreateItemNo());
         LibraryResource.CreateResourceNew(Resource);
         ServiceOrderNo := CreateServiceOrder(ServiceItem);
         LibraryVariableStorage.Enqueue(ServiceOrderNo);
 
         // Use the random value for AllocatedHours.
-        AllocatedHours := LibraryRandom.RandInt(100) + LibraryUtility.GenerateRandomFraction;
+        AllocatedHours := LibraryRandom.RandInt(100) + LibraryUtility.GenerateRandomFraction();
         LibraryVariableStorage.Enqueue(AllocatedHours);
         AllocateResource(Resource."No.", ServiceOrderNo, AllocatedHours);
 
         // 2. Exercise: Run Resource Allocated Per Service Order page from Resource Card.
-        ResourceCard.OpenEdit;
+        ResourceCard.OpenEdit();
         ResourceCard.FILTER.SetFilter("No.", Resource."No.");
-        ResAllocPerServiceOrder.Trap;
-        ResourceCard."Resource Allocated per Service &Order".Invoke;
+        ResAllocPerServiceOrder.Trap();
+        ResourceCard."Resource Allocated per Service &Order".Invoke();
         Commit();
-        ResAllocPerServiceOrder.ShowMatrix.Invoke;
+        ResAllocPerServiceOrder.ShowMatrix.Invoke();
 
         // 3. Verify: Verify the value on Resource Allocated Per Service Order Matrix in Resource Allocated Per Service Order Matrix Handler.
     end;
@@ -354,23 +354,23 @@ codeunit 136404 "Resource Matrix Management"
         // 1. Setup: Create Resource Group, create Resource with Resource Group, create Service Order and allocate Resource.
         Initialize();
         LibraryResource.CreateResourceGroup(ResourceGroup);
-        CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo, LibraryInventory.CreateItemNo);
+        CreateServiceItem(ServiceItem, LibrarySales.CreateCustomerNo(), LibraryInventory.CreateItemNo());
         CreateResourceWithResourceGroup(Resource, ResourceGroup."No.");
         ServiceOrderNo := CreateServiceOrder(ServiceItem);
         LibraryVariableStorage.Enqueue(ServiceOrderNo);
 
         // Use the random value for AllocatedHours.
-        AllocatedHours := LibraryRandom.RandInt(100) + LibraryUtility.GenerateRandomFraction;
+        AllocatedHours := LibraryRandom.RandInt(100) + LibraryUtility.GenerateRandomFraction();
         LibraryVariableStorage.Enqueue(AllocatedHours);
         AllocateResource(Resource."No.", ServiceOrderNo, AllocatedHours);
 
         // 2. Exercise: Run Resource Group Allocated per Service Order page from Resource Group Card.
-        ResourceGroups.OpenEdit;
+        ResourceGroups.OpenEdit();
         ResourceGroups.FILTER.SetFilter("No.", ResourceGroup."No.");
-        ResGrAllocPerServOrder.Trap;
-        ResourceGroups."Res. Group Allocated per Service &Order".Invoke;
+        ResGrAllocPerServOrder.Trap();
+        ResourceGroups."Res. Group Allocated per Service &Order".Invoke();
         Commit();
-        ResGrAllocPerServOrder.ShowMatrix.Invoke;
+        ResGrAllocPerServOrder.ShowMatrix.Invoke();
 
         // 3. Verify: Verify the value on Resource Group Allocated Per Service Order Matrix in Resource Group Allocated Per Service Order Matrix Handler.
     end;
@@ -390,10 +390,10 @@ codeunit 136404 "Resource Matrix Management"
         CreateResourceWithCapacity(Resource);
 
         // 2. Exercise: Run Resource Availability page from Resource Card.
-        ResourceCard.OpenEdit;
+        ResourceCard.OpenEdit();
         ResourceCard.FILTER.SetFilter("No.", Resource."No.");
-        ResourceAvailability.Trap;
-        ResourceCard."Resource A&vailability".Invoke;
+        ResourceAvailability.Trap();
+        ResourceCard."Resource A&vailability".Invoke();
 
         // 3. Verify: Verify the values on Resource Availability page.
         ResourceAvailability.PeriodType.SetValue(PeriodType::"Accounting Period");
@@ -419,10 +419,10 @@ codeunit 136404 "Resource Matrix Management"
         CreateResourceWithResourceGroup(Resource, ResourceGroup."No.");
 
         // 2. Exercise: Run Resource Group Availability page from Resource Group Card.
-        ResourceGroups.OpenEdit;
+        ResourceGroups.OpenEdit();
         ResourceGroups.FILTER.SetFilter("No.", ResourceGroup."No.");
-        ResGroupAvailability.Trap;
-        ResourceGroups."Res. Group Availa&bility".Invoke;
+        ResGroupAvailability.Trap();
+        ResourceGroups."Res. Group Availa&bility".Invoke();
 
         // 3. Verify: Verify the values on Resource Group Availability page.
         ResGroupAvailability.PeriodType.SetValue(PeriodType::"Accounting Period");
@@ -508,9 +508,9 @@ codeunit 136404 "Resource Matrix Management"
         LibraryResource.CreateResourceNew(Resource);
         // [GIVEN] Set Capacity for the Resource: 4 for Date1.
         CreateWorkHourTemplate(WorkHourTemplate);
-        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate, WorkHourTemplate.Code);
+        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate(), WorkHourTemplate.Code);
         // [GIVEN] Set Capacity for the Resource for Date1 using zero Work-Hour Template (total week hours = 0).
-        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate, CreateZeroWorkHourTemplate);
+        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate(), CreateZeroWorkHourTemplate());
 
         // [WHEN] Open Resource Capacity Matrix Page with "View by" = Week, "View as" = Net Change.
         // [THEN] Resource Capacity = 0 for Date1.
@@ -568,10 +568,10 @@ codeunit 136404 "Resource Matrix Management"
         MockAssemblyLine(Resource."No.", AssemblyQuantity);
 
         // [WHEN] Open Resource "R" Availability Page
-        ResourceCard.OpenEdit;
+        ResourceCard.OpenEdit();
         ResourceCard.FILTER.SetFilter("No.", Resource."No.");
-        ResourceAvailabilityPage.Trap;
-        ResourceCard."Resource A&vailability".Invoke;
+        ResourceAvailabilityPage.Trap();
+        ResourceCard."Resource A&vailability".Invoke();
 
         // [THEN] "Qty. on Assembly Order" = 3, "Net Availability" = 9
         ResourceAvailabilityPage.PeriodType.SetValue(PeriodType::"Accounting Period");
@@ -591,7 +591,7 @@ codeunit 136404 "Resource Matrix Management"
         // [FEATURE] [UT]
         // [SCENARIO 377427] Check Work-Hour Template capacity day ranges: [0..24]
         LibraryResource.CreateWorkHourTemplate(WorkHourTemplate);
-        WorkHourTemplates.OpenEdit;
+        WorkHourTemplates.OpenEdit();
         WorkHourTemplates.GotoRecord(WorkHourTemplate);
 
         asserterror WorkHourTemplates.Monday.SetValue(-0.00001);
@@ -658,10 +658,10 @@ codeunit 136404 "Resource Matrix Management"
         CreateWorkHourTemplate(WorkHourTemplate);
 
         // [GIVEN] Resource Capacity updated for Resource "X", capacity = 1
-        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate, WorkHourTemplate.Code);
+        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate(), WorkHourTemplate.Code);
 
         // [WHEN] Update Resource Capacity second time for Resource "X"
-        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate, WorkHourTemplate.Code);
+        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate(), WorkHourTemplate.Code);
 
         // [THEN] "Resource Capacity" is 1 for Resource "X"
         VerifyResourceCapacity(Resource."No.", PeriodType::Day, ValueType::"Net Change", WorkHourTemplate.Monday);
@@ -687,7 +687,7 @@ codeunit 136404 "Resource Matrix Management"
         CreateResourceWithWHTemplate(Resource, WorkHourTemplate, 0);
 
         // [WHEN] Update Resource Capacity for Resource "X", date "Y"
-        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate, WorkHourTemplate.Code);
+        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate(), WorkHourTemplate.Code);
 
         // [THEN] "Resource Capacity" is 2 for Resource "X"
         VerifyResourceCapacity(Resource."No.", PeriodType::Day, ValueType::"Net Change", WorkHourTemplate.Monday);
@@ -718,7 +718,7 @@ codeunit 136404 "Resource Matrix Management"
         CreateWorkHourTemplate(WorkHourTemplate);
 
         // [WHEN] Update Resource Capacity for Resource "X", date "Y"
-        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate, WorkHourTemplate.Code);
+        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate(), WorkHourTemplate.Code);
 
         // [THEN] "Resource Capacity" is 0 for Resource "X"
         VerifyResourceCapacity(Resource."No.", PeriodType::Day, ValueType::"Net Change", 0);
@@ -749,13 +749,13 @@ codeunit 136404 "Resource Matrix Management"
         CreateWorkHourTemplate(WorkHourTemplate);
 
         // [GIVEN] Resource Capacity updated for Resource "X"
-        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate, WorkHourTemplate.Code);
+        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate(), WorkHourTemplate.Code);
 
         // [GIVEN] Change "Working" day to "Nonworking" day in Base Calendar Change for date "Y"
         CreateNonWorkingBaseCalendarChange(BaseCalendar.Code, WorkDate(), BaseCalendarChange);
 
         // [WHEN] Update Resource Capacity for Resource "X", date "Y"
-        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate, WorkHourTemplate.Code);
+        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate(), WorkHourTemplate.Code);
 
         // [THEN] "Resource Capacity" is 0 for Resource "X"
         VerifyResourceCapacity(Resource."No.", PeriodType::Day, ValueType::"Net Change", 0);
@@ -786,7 +786,7 @@ codeunit 136404 "Resource Matrix Management"
         CreateWorkHourTemplate(WorkHourTemplate);
 
         // [GIVEN] Resource Capacity updated for Resource "X"
-        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate, WorkHourTemplate.Code);
+        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate(), WorkHourTemplate.Code);
 
         // [GIVEN] Change "Working" day to "Nonworking" day in Base Calendar Change for date "Y"
         CreateNonWorkingBaseCalendarChange(BaseCalendar.Code, WorkDate(), BaseCalendarChange);
@@ -795,7 +795,7 @@ codeunit 136404 "Resource Matrix Management"
         ModifyWorkHourTemplate(WorkHourTemplate, WorkHourTemplate.Monday + LibraryRandom.RandIntInRange(3, 10));
 
         // [WHEN] Update Resource Capacity for Resource "X", date "Y"
-        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate, WorkHourTemplate.Code);
+        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate(), WorkHourTemplate.Code);
 
         // [THEN] "Resource Capacity" is 0 for Resource "X"
         VerifyResourceCapacity(Resource."No.", PeriodType::Day, ValueType::"Net Change", 0);
@@ -823,7 +823,7 @@ codeunit 136404 "Resource Matrix Management"
         CreateResourceWithWHTemplate(Resource, WorkHourTemplate, 0.5);
 
         // [WHEN] Update Resource Capacity for Resource "X", date "Y"
-        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate, WorkHourTemplate.Code);
+        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate(), WorkHourTemplate.Code);
 
         // [THEN] "Resource Capacity" for Resource "X" is equal to 2.5
         VerifyResourceCapacity(Resource."No.", PeriodType::Day, ValueType::"Net Change", WorkHourTemplate.Monday);
@@ -853,7 +853,7 @@ codeunit 136404 "Resource Matrix Management"
     begin
         LibraryResource.CreateResourceNew(Resource);
         CreateWorkHourTemplate(WorkHourTemplate);
-        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate, WorkHourTemplate.Code);
+        SetResourceCapacitySettingByPage(Resource."No.", WorkDate(), WorkDate(), WorkHourTemplate.Code);
         ModifyWorkHourTemplate(WorkHourTemplate, WorkHourTemplate.Monday + LibraryRandom.RandIntInRange(3, 10) + Decimals);
     end;
 
@@ -886,10 +886,10 @@ codeunit 136404 "Resource Matrix Management"
         LibraryHumanResource.CreateEmployeeAbsence(EmployeeAbsence);
         EmployeeAbsence.Validate("Employee No.", EmployeeNo);
         EmployeeAbsence.Validate("From Date", WorkDate());
-        EmployeeAbsence.Validate("Cause of Absence Code", GetCauseOfAbsenceCode);
+        EmployeeAbsence.Validate("Cause of Absence Code", GetCauseOfAbsenceCode());
 
         // Use random for Quantity.
-        EmployeeAbsence.Validate(Quantity, LibraryRandom.RandInt(100) + LibraryUtility.GenerateRandomFraction);
+        EmployeeAbsence.Validate(Quantity, LibraryRandom.RandInt(100) + LibraryUtility.GenerateRandomFraction());
         EmployeeAbsence.Modify(true);
     end;
 
@@ -909,21 +909,21 @@ codeunit 136404 "Resource Matrix Management"
     var
         ResourceAllocations: TestPage "Resource Allocations";
     begin
-        ResourceAllocations.OpenEdit;
+        ResourceAllocations.OpenEdit();
         ResourceAllocations.FILTER.SetFilter("Document No.", DocumentNo);
         ResourceAllocations."Resource No.".SetValue(ResourceNo);
         ResourceAllocations."Allocated Hours".SetValue(AllocatedHours2);
         ResourceAllocations."Allocation Date".SetValue(WorkDate());
-        ResourceAllocations.OK.Invoke;
+        ResourceAllocations.OK().Invoke();
     end;
 
     local procedure AllocateResourceOnResGroupAvailability(DocumentNo: Code[20])
     var
         ResourceAllocations: TestPage "Resource Allocations";
     begin
-        ResourceAllocations.OpenEdit;
+        ResourceAllocations.OpenEdit();
         ResourceAllocations.FILTER.SetFilter("Document No.", DocumentNo);
-        ResourceAllocations.ResGroupAvailability.Invoke;
+        ResourceAllocations.ResGroupAvailability.Invoke();
     end;
 
     local procedure CreateJobPlanningLine(No2: Code[20])
@@ -938,9 +938,9 @@ codeunit 136404 "Resource Matrix Management"
         // Assigning values to global variables. Use random value for Quantity.
         LibraryVariableStorage.Enqueue(Job."No.");
         LibraryJob.CreateJobTask(Job, JobTask);
-        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule, LibraryJob.ResourceType, JobTask, JobPlanningLine);
+        LibraryJob.CreateJobPlanningLine(LibraryJob.PlanningLineTypeSchedule(), LibraryJob.ResourceType(), JobTask, JobPlanningLine);
         JobPlanningLine.Validate("No.", No2);
-        JobPlanningLine.Validate(Quantity, LibraryRandom.RandInt(100) + LibraryUtility.GenerateRandomFraction);
+        JobPlanningLine.Validate(Quantity, LibraryRandom.RandInt(100) + LibraryUtility.GenerateRandomFraction());
         JobPlanningLine.Modify(true);
         LibraryVariableStorage.Enqueue(JobPlanningLine.Quantity);
     end;
@@ -949,7 +949,7 @@ codeunit 136404 "Resource Matrix Management"
     begin
         LibraryResource.CreateResourceGroup(ResourceGroup);
         // Use random value for the Capacity.
-        ResourceGroup.Validate(Capacity, LibraryRandom.RandInt(100) + LibraryUtility.GenerateRandomFraction);
+        ResourceGroup.Validate(Capacity, LibraryRandom.RandInt(100) + LibraryUtility.GenerateRandomFraction());
         ResourceGroup.Modify(true);
     end;
 
@@ -958,7 +958,7 @@ codeunit 136404 "Resource Matrix Management"
         LibraryResource.CreateResourceNew(Resource);
 
         // Use random value for the Capacity.
-        Resource.Validate(Capacity, LibraryRandom.RandInt(100) + LibraryUtility.GenerateRandomFraction);
+        Resource.Validate(Capacity, LibraryRandom.RandInt(100) + LibraryUtility.GenerateRandomFraction());
         Resource.Modify(true);
     end;
 
@@ -983,7 +983,7 @@ codeunit 136404 "Resource Matrix Management"
         LibraryInventory.CreateItem(Item);
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, Item."No.");
         ServiceLine.Validate("Service Item No.", ServiceItem."No.");
-        ServiceLine.Validate(Quantity, LibraryRandom.RandInt(100) + LibraryUtility.GenerateRandomFraction);
+        ServiceLine.Validate(Quantity, LibraryRandom.RandInt(100) + LibraryUtility.GenerateRandomFraction());
         ServiceLine.Validate("Order Date", WorkDate());
         ServiceLine.Modify(true);
     end;
@@ -1113,10 +1113,10 @@ codeunit 136404 "Resource Matrix Management"
         ResGroupCapacity: TestPage "Res. Group Capacity";
     begin
         LibraryResource.CreateResourceGroup(ResourceGroup);
-        ResourceGroups.OpenEdit;
+        ResourceGroups.OpenEdit();
         ResourceGroups.FILTER.SetFilter("No.", ResourceGroup."No.");
-        ResGroupCapacity.Trap;
-        ResourceGroups.ResGroupCapacity.Invoke;
+        ResGroupCapacity.Trap();
+        ResourceGroups.ResGroupCapacity.Invoke();
         ResGroupCapacity.MatrixForm.FILTER.SetFilter("No.", ResourceGroup."No.");
         ResGroupCapacity.MatrixForm.Field1.SetValue(Capacity);
         exit(ResourceGroup."No.");
@@ -1131,7 +1131,7 @@ codeunit 136404 "Resource Matrix Management"
         ResourceCapacitySettings.StartDate.SetValue(StartDate);
         ResourceCapacitySettings.EndDate.SetValue(EndDate);
         ResourceCapacitySettings.WorkTemplateCode.SetValue(WorkHourTemplateCode);
-        ResourceCapacitySettings.UpdateCapacity.Invoke;
+        ResourceCapacitySettings.UpdateCapacity.Invoke();
     end;
 
     local procedure SelectResourceGroupOnServiceOrder(DocumentNo: Code[20]; ResourceGroupNo: Code[20])
@@ -1159,10 +1159,10 @@ codeunit 136404 "Resource Matrix Management"
         ResGroupCapacity: TestPage "Res. Group Capacity";
         ResGroupAvailability: TestPage "Res. Group Availability";
     begin
-        ResGroupCapacity.OpenEdit;
+        ResGroupCapacity.OpenEdit();
         ResGroupCapacity.MatrixForm.FILTER.SetFilter("No.", ResourceGroupNo);
-        ResGroupAvailability.Trap;
-        ResGroupCapacity.MatrixForm.ResGroupAvailability.Invoke;
+        ResGroupAvailability.Trap();
+        ResGroupCapacity.MatrixForm.ResGroupAvailability.Invoke();
         ResGroupAvailability.PeriodType.SetValue(PeriodType::Day);
         ResGroupAvailability.ResGrAvailLines.FILTER.SetFilter("Period Start", Format(WorkDate()));
         ResGroupAvailability.ResGrAvailLines.Capacity.AssertEquals(Capacity);
@@ -1173,8 +1173,8 @@ codeunit 136404 "Resource Matrix Management"
     [Scope('OnPrem')]
     procedure AbsenceOverviewByPeriodMatrix(var AbsOverviewByPeriodMatrix: TestPage "Abs. Overview by Period Matrix")
     begin
-        AbsOverviewByPeriodMatrix.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        AbsOverviewByPeriodMatrix.Field1.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        AbsOverviewByPeriodMatrix.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        AbsOverviewByPeriodMatrix.Field1.AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
 
     [ModalPageHandler]
@@ -1182,7 +1182,7 @@ codeunit 136404 "Resource Matrix Management"
     procedure AbsenceOverviewByMatrixHandler(var AbsOverByCatMatrix: TestPage "Abs. Over. by Cat. Matrix")
     begin
         AbsOverByCatMatrix.FILTER.SetFilter("Period Start", Format(WorkDate()));
-        AbsOverByCatMatrix.Field1.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        AbsOverByCatMatrix.Field1.AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
 
     [ModalPageHandler]
@@ -1190,14 +1190,14 @@ codeunit 136404 "Resource Matrix Management"
     procedure AbsencesByCategoriesMatrix(var EmplAbsencesByCatMatrix: TestPage "Empl. Absences by Cat. Matrix")
     begin
         EmplAbsencesByCatMatrix.FILTER.SetFilter("Period Start", Format(WorkDate()));
-        EmplAbsencesByCatMatrix.Field1.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        EmplAbsencesByCatMatrix.Field1.AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ArticlesOverviewMatrixHandler(var MiscArticlesOverviewMatrix: TestPage "Misc. Articles Overview Matrix")
     begin
-        MiscArticlesOverviewMatrix.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        MiscArticlesOverviewMatrix.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText());
         MiscArticlesOverviewMatrix.Field1.AssertEquals('Yes');
     end;
 
@@ -1205,7 +1205,7 @@ codeunit 136404 "Resource Matrix Management"
     [Scope('OnPrem')]
     procedure ConfidentialOverviewMatrix(var ConfInfoOverviewMatrix: TestPage "Conf. Info. Overview Matrix")
     begin
-        ConfInfoOverviewMatrix.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        ConfInfoOverviewMatrix.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText());
         ConfInfoOverviewMatrix.Field1.AssertEquals('Yes');
     end;
 
@@ -1213,7 +1213,7 @@ codeunit 136404 "Resource Matrix Management"
     [Scope('OnPrem')]
     procedure QualificationOverviewMatrix(var QualificationOverviewMatrix: TestPage "Qualification Overview Matrix")
     begin
-        QualificationOverviewMatrix.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText);
+        QualificationOverviewMatrix.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText());
         QualificationOverviewMatrix.Field1.AssertEquals('Yes');
     end;
 
@@ -1221,15 +1221,15 @@ codeunit 136404 "Resource Matrix Management"
     [Scope('OnPrem')]
     procedure ResourceAllocatedPerJobMatrixHandler(var ResourceAllocPerJobMatrix: TestPage "Resource Alloc. per Job Matrix")
     begin
-        ResourceAllocPerJobMatrix.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        ResourceAllocPerJobMatrix.Col1.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        ResourceAllocPerJobMatrix.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        ResourceAllocPerJobMatrix.Col1.AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ResourceAllocatedMatrixHandler(var ResGrAvailabilityService: TestPage "Res.Gr. Availability (Service)")
     begin
-        ResGrAvailabilityService.ShowMatrix.Invoke;
+        ResGrAvailabilityService.ShowMatrix.Invoke();
     end;
 
     [ModalPageHandler]
@@ -1243,38 +1243,38 @@ codeunit 136404 "Resource Matrix Management"
         LibraryVariableStorage.Dequeue(QtyToAllocate);
         ResGrAvailServMatrix.FILTER.SetFilter("No.", ResourceGroupNo);
         ResGrAvailServMatrix.Qtytoallocate.SetValue(QtyToAllocate);
-        ResGrAvailServMatrix.Allocate.Invoke;
+        ResGrAvailServMatrix.Allocate.Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ResourceGroupAllocatedPerJobMatrixHandler(var ResGrpAllocPerJobMatrix: TestPage "ResGrp. Alloc. per Job Matrix")
     begin
-        ResGrpAllocPerJobMatrix.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        ResGrpAllocPerJobMatrix.Col1.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        ResGrpAllocPerJobMatrix.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        ResGrpAllocPerJobMatrix.Col1.AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ResourceAllocatedPerServiceOrderMatrixHandler(var ResAllPerServiceMatrix: TestPage "Res. All. per Service  Matrix")
     begin
-        ResAllPerServiceMatrix.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        ResAllPerServiceMatrix.Col1.AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        ResAllPerServiceMatrix.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        ResAllPerServiceMatrix.Col1.AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ResourceGroupAllocatedPerServiceOrderMatrixHandler(var ResGrpAllPerServMatrix: TestPage "ResGrp. All. per Serv.  Matrix")
     begin
-        ResGrpAllPerServMatrix.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText);
-        ResGrpAllPerServMatrix.Col1.SetValue(LibraryVariableStorage.DequeueDecimal);
+        ResGrpAllPerServMatrix.FILTER.SetFilter("No.", LibraryVariableStorage.DequeueText());
+        ResGrpAllPerServMatrix.Col1.SetValue(LibraryVariableStorage.DequeueDecimal());
     end;
 
     local procedure VerifyResourceCapacity(ResourceNo: Code[20]; PeriodType: Option; ValueType: Option; Capacity: Decimal)
     var
         ResourceCapacity: TestPage "Resource Capacity";
     begin
-        ResourceCapacity.OpenEdit;
+        ResourceCapacity.OpenEdit();
         ResourceCapacity.PeriodType.SetValue(PeriodType);
         ResourceCapacity.QtyType.SetValue(ValueType);
         ResourceCapacity.MatrixForm.FILTER.SetFilter("No.", ResourceNo);

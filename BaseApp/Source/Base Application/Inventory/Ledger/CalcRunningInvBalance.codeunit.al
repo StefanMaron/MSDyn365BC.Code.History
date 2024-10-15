@@ -60,10 +60,17 @@ codeunit 124 "Calc. Running Inv. Balance"
             DateTotal := ItemLedgerEntry2.Quantity;
             DayTotals2.Add(ItemLedgerEntry."Posting Date", DateTotal);
         end;
+        RunningBalance := DateTotal;
         ItemLedgerEntry2.SetRange("Posting Date", ItemLedgerEntry."Posting Date");
-        ItemLedgerEntry2.SetFilter("Entry No.", '>%1', ItemLedgerEntry."Entry No.");
-        ItemLedgerEntry2.CalcSums(Quantity);
-        RunningBalance := DateTotal - ItemLedgerEntry2.Quantity;
-        EntryValues2.Add(ItemLedgerEntry."Entry No.", RunningBalance);
+        ItemLedgerEntry2.SetCurrentKey("Entry No.");
+        ItemLedgerEntry2.Ascending(false);
+        if ItemLedgerEntry2.FindSet() then
+            repeat
+                if ItemLedgerEntry2."Entry No." = ItemLedgerEntry."Entry No." then
+                    RunningBalance := DateTotal;
+                if not EntryValues2.ContainsKey(ItemLedgerEntry2."Entry No.") then
+                    EntryValues2.Add(ItemLedgerEntry2."Entry No.", DateTotal);
+                DateTotal -= ItemLedgerEntry2.Quantity;
+            until ItemLedgerEntry2.Next() = 0;
     end;
 }

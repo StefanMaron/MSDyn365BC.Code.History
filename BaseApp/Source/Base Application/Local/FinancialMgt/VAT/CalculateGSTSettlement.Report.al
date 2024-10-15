@@ -749,7 +749,7 @@ report 11603 "Calculate GST Settlement"
         LineNo: Integer;
         InterCompany: Boolean;
         JnlBatch: Code[20];
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
         VATEntry1: Record "VAT Entry";
         VATEntry2: Record "VAT Entry";
         VATApplyEntryNo: Integer;
@@ -787,43 +787,41 @@ report 11603 "Calculate GST Settlement"
     [Scope('OnPrem')]
     procedure InitGenJnlLine(var NewGenJnlLine: Record "Gen. Journal Line"; ICPartner: Boolean)
     begin
-        with NewGenJnlLine do begin
-            if InterCompany then begin
-                GenJnlTemplate.SetRange(Type, GenJnlTemplate.Type::Intercompany);
-                if GenJnlTemplate.FindFirst() then begin
-                    SetRange("Journal Template Name", GenJnlTemplate.Name);
-                    GenJnlBatch.SetRange("Journal Template Name", GenJnlTemplate.Name);
-                    if GenJnlBatch.FindFirst() then begin
-                        JnlBatch := GenJnlBatch.Name;
-                        if not ICPartner then
-                            if GenJnlBatch."No. Series" <> '' then
-                                DocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", PostDate, false);
-                        SetRange("Journal Batch Name", JnlBatch);
-                    end;
-                    "Journal Template Name" := GenJnlTemplate.Name;
-                    "Journal Batch Name" := JnlBatch;
-                    if LineNo = 0 then
-                        if Find('+') then
-                            LineNo := "Line No."
-                        else
-                            LineNo := 0;
-                    "Line No." := LineNo + 10000;
-                    LineNo := LineNo + 10000;
+        if InterCompany then begin
+            GenJnlTemplate.SetRange(Type, GenJnlTemplate.Type::Intercompany);
+            if GenJnlTemplate.FindFirst() then begin
+                NewGenJnlLine.SetRange("Journal Template Name", GenJnlTemplate.Name);
+                GenJnlBatch.SetRange("Journal Template Name", GenJnlTemplate.Name);
+                if GenJnlBatch.FindFirst() then begin
+                    JnlBatch := GenJnlBatch.Name;
+                    if not ICPartner then
+                        if GenJnlBatch."No. Series" <> '' then
+                            DocNo := NoSeriesBatch.GetNextNo(GenJnlBatch."No. Series", PostDate);
+                    NewGenJnlLine.SetRange("Journal Batch Name", JnlBatch);
                 end;
+                NewGenJnlLine."Journal Template Name" := GenJnlTemplate.Name;
+                NewGenJnlLine."Journal Batch Name" := JnlBatch;
+                if LineNo = 0 then
+                    if NewGenJnlLine.Find('+') then
+                        LineNo := NewGenJnlLine."Line No."
+                    else
+                        LineNo := 0;
+                NewGenJnlLine."Line No." := LineNo + 10000;
+                LineNo := LineNo + 10000;
             end;
-            Init();
-#if not CLEAN22
-            if ICPartner then
-                Validate("IC Partner G/L Acc. No.", '');
-#endif
-            if ICPartner then
-                Validate("IC Account No.", '');
-            Validate("Posting Date", PostDate);
-            Validate("Document Date", PostDate);
-            Validate("Document No.", DocNo);
-            "System-Created Entry" := true;
-            "VAT Posting" := "VAT Posting"::"Manual VAT Entry";
         end;
+        NewGenJnlLine.Init();
+#if not CLEAN22
+        if ICPartner then
+            NewGenJnlLine.Validate("IC Partner G/L Acc. No.", '');
+#endif
+        if ICPartner then
+            NewGenJnlLine.Validate("IC Account No.", '');
+        NewGenJnlLine.Validate("Posting Date", PostDate);
+        NewGenJnlLine.Validate("Document Date", PostDate);
+        NewGenJnlLine.Validate("Document No.", DocNo);
+        NewGenJnlLine."System-Created Entry" := true;
+        NewGenJnlLine."VAT Posting" := NewGenJnlLine."VAT Posting"::"Manual VAT Entry";
     end;
 
     [Scope('OnPrem')]

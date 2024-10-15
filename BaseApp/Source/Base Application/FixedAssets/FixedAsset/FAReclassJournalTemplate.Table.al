@@ -7,6 +7,7 @@ table 5622 "FA Reclass. Journal Template"
     Caption = 'FA Reclass. Journal Template';
     LookupPageID = "FA Reclass. Jnl. Template List";
     ReplicateData = true;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -32,7 +33,7 @@ table 5622 "FA Reclass. Journal Template"
         }
         field(16; "Page Caption"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Page),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Page),
                                                                            "Object ID" = field("Page ID")));
             Caption = 'Page Caption';
             Editable = false;

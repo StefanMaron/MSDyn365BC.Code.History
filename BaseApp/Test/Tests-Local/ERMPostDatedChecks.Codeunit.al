@@ -169,7 +169,6 @@ codeunit 141031 "ERM Post Dated Checks"
     procedure PostDatedCheckLineDeletedWithDimension()
     var
         Customer: Record Customer;
-        DimensionSetEntry: Record "Dimension Set Entry";
         PostDatedCheckLine: Record "Post Dated Check Line";
     begin
         // [SCENARIO] Dimension Set ID after deleting Post Dated Check Lines with Dimension.
@@ -208,7 +207,7 @@ codeunit 141031 "ERM Post Dated Checks"
 
         // [THEN] Verify reverted Post Dated Check Line after Cancel Post Dated Check Line from Cash Receipt Journal.
         PostDatedCheckLine.SetRange("Account No.", Customer."No.");
-        Assert.IsTrue(PostDatedCheckLine.FindFirst, PDCLineNotFourndErr);
+        Assert.IsTrue(PostDatedCheckLine.FindFirst(), PDCLineNotFourndErr);
     end;
 
     [Test]
@@ -368,7 +367,6 @@ codeunit 141031 "ERM Post Dated Checks"
     [Scope('OnPrem')]
     procedure PostDatedCheckLineDeletedWithDimensionForVendor()
     var
-        DimensionSetEntry: Record "Dimension Set Entry";
         PostDatedCheckLine: Record "Post Dated Check Line";
         PurchaseLine: Record "Purchase Line";
         Vendor: Record Vendor;
@@ -413,7 +411,7 @@ codeunit 141031 "ERM Post Dated Checks"
 
         // [THEN] Verify reverted Post Dated Check Line after Cancel Post Dated Check Line from Payment Journal.
         PostDatedCheckLine.SetRange("Account No.", Vendor."No.");
-        Assert.IsTrue(PostDatedCheckLine.FindFirst, PDCLineNotFourndErr);
+        Assert.IsTrue(PostDatedCheckLine.FindFirst(), PDCLineNotFourndErr);
     end;
 
     [Test]
@@ -485,7 +483,7 @@ codeunit 141031 "ERM Post Dated Checks"
         LibraryVariableStorage.Enqueue(Vendor."No.");  // Enqueue value for SuggestVendorPaymentsRequestPageHandler.
 
         // Exercise.
-        SuggestVendorPayment;
+        SuggestVendorPayment();
 
         // [THEN] Verify Post Dated Check Line existence with Vendor No. and Applies-to Doc. No. after execute Suggest Vendor Payment.
         FindPDCLine(PostDatedCheckLine, Vendor."No.");
@@ -575,7 +573,7 @@ codeunit 141031 "ERM Post Dated Checks"
         // [SCENARIO 123631] Void Check Ledger Entry with Interest Amount
         Initialize();
         // [GIVEN] Check Ledger Entry with Interest Amount
-        BankAccountNo := CreatePostPaymentJournalLineManualCheck;
+        BankAccountNo := CreatePostPaymentJournalLineManualCheck();
         // [WHEN] Void Check created Check Ledger Entry with "Void check only" option
         LibraryVariableStorage.Enqueue(VoidType::"Void check only");
         VoidCheck(BankAccountNo);
@@ -594,7 +592,7 @@ codeunit 141031 "ERM Post Dated Checks"
         // [SCENARIO 123631] Unapply and Void Check Ledger Entry with Interest Amount
         Initialize();
         // [GIVEN] Check Ledger Entry with Interest Amount
-        BankAccountNo := CreatePostPaymentJournalLineManualCheck;
+        BankAccountNo := CreatePostPaymentJournalLineManualCheck();
         // [WHEN] Void Check created Check Ledger Entry with "Unapply and void check" option
         LibraryVariableStorage.Enqueue(VoidType::"Unapply and void check");
         VoidCheck(BankAccountNo);
@@ -635,9 +633,9 @@ codeunit 141031 "ERM Post Dated Checks"
     var
         PostDatedChecksPurchases: TestPage "Post Dated Checks-Purchases";
     begin
-        PostDatedChecksPurchases.OpenEdit;
+        PostDatedChecksPurchases.OpenEdit();
         PostDatedChecksPurchases.FILTER.SetFilter("Account No.", AccountNo);
-        PostDatedChecksPurchases.ApplyEntries.Invoke;  // Call ApplyVendorEntriesModalPageHandler.
+        PostDatedChecksPurchases.ApplyEntries.Invoke();  // Call ApplyVendorEntriesModalPageHandler.
         PostDatedChecksPurchases.Close();
     end;
 
@@ -645,9 +643,9 @@ codeunit 141031 "ERM Post Dated Checks"
     var
         CashReceiptJournal: TestPage "Cash Receipt Journal";
     begin
-        CashReceiptJournal.OpenEdit;
+        CashReceiptJournal.OpenEdit();
         CashReceiptJournal.FILTER.SetFilter("Account No.", CustomerNo);
-        CashReceiptJournal.CancelPostDatedCheck.Invoke;
+        CashReceiptJournal.CancelPostDatedCheck.Invoke();
         CashReceiptJournal.Close();
     end;
 
@@ -655,9 +653,9 @@ codeunit 141031 "ERM Post Dated Checks"
     var
         PaymentJournal: TestPage "Payment Journal";
     begin
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         PaymentJournal.FILTER.SetFilter("Account No.", VendorNo);
-        PaymentJournal.CancelPostDatedCheck.Invoke;
+        PaymentJournal.CancelPostDatedCheck.Invoke();
         PaymentJournal.Close();
     end;
 
@@ -767,9 +765,9 @@ codeunit 141031 "ERM Post Dated Checks"
     var
         PostDatedChecks: TestPage "Post Dated Checks";
     begin
-        PostDatedChecks.OpenEdit;
+        PostDatedChecks.OpenEdit();
         PostDatedChecks.FILTER.SetFilter("Account No.", AccountNo);
-        PostDatedChecks.CreateCashJournal.Invoke;
+        PostDatedChecks.CreateCashJournal.Invoke();
         PostDatedChecks.Close();
     end;
 
@@ -777,9 +775,9 @@ codeunit 141031 "ERM Post Dated Checks"
     var
         PostDatedChecksPurchases: TestPage "Post Dated Checks-Purchases";
     begin
-        PostDatedChecksPurchases.OpenEdit;
+        PostDatedChecksPurchases.OpenEdit();
         PostDatedChecksPurchases.FILTER.SetFilter("Account No.", AccountNo);
-        PostDatedChecksPurchases.CreatePaymentJournal.Invoke;
+        PostDatedChecksPurchases.CreatePaymentJournal.Invoke();
         PostDatedChecksPurchases.Close();
     end;
 
@@ -795,10 +793,10 @@ codeunit 141031 "ERM Post Dated Checks"
         PostDatedChecksPurchases: TestPage "Post Dated Checks-Purchases";
     begin
         Commit();  // Commit required for run batch report.
-        PostDatedChecksPurchases.OpenEdit;
+        PostDatedChecksPurchases.OpenEdit();
         PostDatedChecksPurchases.FILTER.SetFilter("Account No.", AccountNo);
         LibraryVariableStorage.Enqueue(NoOfInstallmentAndIntRate);  // Enqueue value for CreateCheckInstallmentsRequestPageHandler.
-        PostDatedChecksPurchases.CreateCheckInstallments.Invoke;  // Call CreateCheckInstallmentsRequestPageHandler.
+        PostDatedChecksPurchases.CreateCheckInstallments.Invoke();  // Call CreateCheckInstallmentsRequestPageHandler.
         PostDatedChecksPurchases.Close();
     end;
 
@@ -814,7 +812,7 @@ codeunit 141031 "ERM Post Dated Checks"
         Assert.AreEqual(PostDatedCheckLine.Count, NoOfInstallmentAndIntRate, InstallmentErr);
         Assert.AreNearlyEqual(
           PostDatedCheckLine."Interest Amount", Amount * NoOfInstallmentAndIntRate / 100 / NoOfInstallmentAndIntRate,
-          LibraryERM.GetInvoiceRoundingPrecisionLCY, InstallmentErr);
+          LibraryERM.GetInvoiceRoundingPrecisionLCY(), InstallmentErr);
 
         // Tear Down.
         UpdateGeneralLedgerSetup(InterestCalExclVAT);
@@ -871,7 +869,7 @@ codeunit 141031 "ERM Post Dated Checks"
     var
         PostDatedCheckLine: Record "Post Dated Check Line";
     begin
-        PostDatedChecksPurchases.OpenEdit;
+        PostDatedChecksPurchases.OpenEdit();
         PostDatedChecksPurchases."Account Type".SetValue(PostDatedCheckLine."Account Type"::Vendor);
         PostDatedChecksPurchases."Account No.".SetValue(VendorNo);
     end;
@@ -910,7 +908,7 @@ codeunit 141031 "ERM Post Dated Checks"
 
         with WHTPostingSetup do begin
             Validate("WHT %", LibraryRandom.RandIntInRange(10, 20));
-            Validate("Payable WHT Account Code", LibraryERM.CreateGLAccountNo);
+            Validate("Payable WHT Account Code", LibraryERM.CreateGLAccountNo());
             Validate("Realized WHT Type", "Realized WHT Type"::Payment);
             Modify(true);
         end;
@@ -1009,20 +1007,20 @@ codeunit 141031 "ERM Post Dated Checks"
         DimensionSetEntry.SetRange("Dimension Set ID", DimensionSetID);
         DimensionSetEntry.FindFirst();
         LibraryVariableStorage.Enqueue(DimensionSetEntry."Dimension Code");  // Enqueue value for EditDimensionSetEntriesModalPageHandler.
-        PostDatedChecks.OpenEdit;
-        PostDatedChecks.Dimensions.Invoke;  // Call EditDimensionSetEntriesModalPageHandler.
+        PostDatedChecks.OpenEdit();
+        PostDatedChecks.Dimensions.Invoke();  // Call EditDimensionSetEntriesModalPageHandler.
     end;
 
     local procedure PostDatedCheckWithFilter(var PostDatedChecks: TestPage "Post Dated Checks"; CustomerNo: Code[20])
     begin
-        PostDatedChecks.OpenEdit;
+        PostDatedChecks.OpenEdit();
         PostDatedChecks.DateFilter.SetValue(WorkDate());
         PostDatedChecks.CustomerNo.SetValue(CustomerNo);
     end;
 
     local procedure PurchPostDatedCheckWithFilter(var PostDatedChecksPurchases: TestPage "Post Dated Checks-Purchases"; VendorNo: Code[20])
     begin
-        PostDatedChecksPurchases.OpenEdit;
+        PostDatedChecksPurchases.OpenEdit();
         PostDatedChecksPurchases.DateFilter.SetValue(WorkDate());
         PostDatedChecksPurchases.VendorNo.SetValue(VendorNo);
     end;
@@ -1061,7 +1059,7 @@ codeunit 141031 "ERM Post Dated Checks"
 
         // Verify Print Acknowledgement report for Post Dated Check Line.
         FindPDCLine(PostDatedCheckLine, AccountNo);
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(PostDatedCheckLineAccountNoCap, PostDatedCheckLine."Account No.");
         LibraryReportDataset.AssertElementWithValueExists(PostDatedCheckLineCheckNoCap, PostDatedCheckLine."Check No.");
         LibraryReportDataset.AssertElementWithValueExists(PostDatedCheckLineAppliesToDocNoCap, PostDatedCheckLine."Applies-to Doc. No.");
@@ -1082,9 +1080,9 @@ codeunit 141031 "ERM Post Dated Checks"
     var
         PostDatedChecks: TestPage "Post Dated Checks";
     begin
-        PostDatedChecks.OpenEdit;
+        PostDatedChecks.OpenEdit();
         PostDatedChecks.FILTER.SetFilter("Account No.", CustomerNo);
-        PostDatedChecks.SuggestChecksToBank.Invoke;
+        PostDatedChecks.SuggestChecksToBank.Invoke();
         PostDatedChecks.Close();
     end;
 
@@ -1106,8 +1104,8 @@ codeunit 141031 "ERM Post Dated Checks"
     var
         PostDatedChecksPurchases: TestPage "Post Dated Checks-Purchases";
     begin
-        PostDatedChecksPurchases.OpenEdit;
-        PostDatedChecksPurchases.SuggestVendorPayments.Invoke; // Call SuggestVendorPaymentsRequestPageHandler.
+        PostDatedChecksPurchases.OpenEdit();
+        PostDatedChecksPurchases.SuggestVendorPayments.Invoke(); // Call SuggestVendorPaymentsRequestPageHandler.
         PostDatedChecksPurchases.Close();
     end;
 
@@ -1180,10 +1178,10 @@ codeunit 141031 "ERM Post Dated Checks"
     [Scope('OnPrem')]
     procedure ApplyVendorEntriesModalPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
         ApplyVendorEntries.Next();
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        ApplyVendorEntries.OK.Invoke;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        ApplyVendorEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1194,7 +1192,7 @@ codeunit 141031 "ERM Post Dated Checks"
     begin
         LibraryVariableStorage.Dequeue(DimensionCode);
         Assert.AreNotEqual(DimensionCode, EditDimensionSetEntries."Dimension Code".Value, UnexpectedErr);
-        EditDimensionSetEntries.OK.Invoke;
+        EditDimensionSetEntries.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1208,7 +1206,7 @@ codeunit 141031 "ERM Post Dated Checks"
         CreateCheckInstallments.InterestPct.SetValue(InstallmentParameters);
         CreateCheckInstallments.PeriodLength.SetValue('<1M>');  // Required 1 month Length Period.
         CreateCheckInstallments.StartDocumentNo.SetValue(Format(LibraryRandom.RandInt(10)));
-        CreateCheckInstallments.OK.Invoke;
+        CreateCheckInstallments.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1219,7 +1217,7 @@ codeunit 141031 "ERM Post Dated Checks"
     begin
         LibraryVariableStorage.Dequeue(AccountNo);
         PDCAcknowledgementReceipt."Post Dated Check Line 2".SetFilter("Account No.", AccountNo);
-        PDCAcknowledgementReceipt.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PDCAcknowledgementReceipt.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1232,7 +1230,7 @@ codeunit 141031 "ERM Post Dated Checks"
         SuggestVendorPayments.Vendor.SetFilter("No.", No);
         SuggestVendorPayments.LastPaymentDate.SetValue(WorkDate());
         SuggestVendorPayments.StartingDocumentNo.SetValue(Format(LibraryRandom.RandInt(10)));
-        SuggestVendorPayments.OK.Invoke;
+        SuggestVendorPayments.OK().Invoke();
     end;
 
     [ModalPageHandler]

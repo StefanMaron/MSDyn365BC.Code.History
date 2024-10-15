@@ -5,6 +5,7 @@ table 5212 "Employee Statistics Group"
     Caption = 'Employee Statistics Group';
     DrillDownPageID = "Employee Statistics Groups";
     LookupPageID = "Employee Statistics Groups";
+    DataClassification = CustomerContent;
 
     fields
     {

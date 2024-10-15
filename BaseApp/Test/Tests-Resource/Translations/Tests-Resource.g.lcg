@@ -448,7 +448,7 @@
   </Item>
   <Item ItemId=";Codeunit 4122090376 - NamedType 88357023" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Type must be equal to 'Job'  in Time Sheet Line: Time Sheet No.=%1, Line No.=0.]]></Val>
+      <Val><![CDATA[Type must be equal to 'Project'  in Time Sheet Line: Time Sheet No.=%1, Line No.=0.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -493,7 +493,7 @@
   </Item>
   <Item ItemId=";Codeunit 348912950 - NamedType 372670812" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Adjusted Job ledger entry exist.]]></Val>
+      <Val><![CDATA[Adjusted Project ledger entry exist.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -547,7 +547,7 @@
   </Item>
   <Item ItemId=";Codeunit 348912950 - NamedType 3276338024" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Incorrect Job Ledger Entry exists.]]></Val>
+      <Val><![CDATA[Incorrect Project Ledger Entry exists.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -556,7 +556,7 @@
   </Item>
   <Item ItemId=";Codeunit 348912950 - NamedType 2110143318" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The job ledger entry item costs have now been updated to equal the related item ledger entry actual costs.]]></Val>
+      <Val><![CDATA[The project ledger entry item costs have now been updated to equal the related item ledger entry actual costs.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -565,7 +565,7 @@
   </Item>
   <Item ItemId=";Codeunit 348912950 - NamedType 1973263797" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Job No. must not be specified when Type = Fixed Asset in Purchase Line Document Type='%1',Document No.='%2',Line No.='%3']]></Val>
+      <Val><![CDATA[Project No. must not be specified when Type = Fixed Asset in Purchase Line Document Type='%1',Document No.='%2',Line No.='%3']]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -592,7 +592,7 @@
   </Item>
   <Item ItemId=";Codeunit 348912950 - NamedType 1673572836" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Job Planning Line must be empty.]]></Val>
+      <Val><![CDATA[Project Planning Line must be empty.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -601,7 +601,7 @@
   </Item>
   <Item ItemId=";Codeunit 348912950 - NamedType 3541040025" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Job Task Type must be equal to 'Posting'  in Job Task:]]></Val>
+      <Val><![CDATA[Project Task Type must be equal to 'Posting'  in Project Task:]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -619,7 +619,7 @@
   </Item>
   <Item ItemId=";Codeunit 348912950 - NamedType 284504191" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There were no job ledger entries that needed to be updated]]></Val>
+      <Val><![CDATA[There were no project ledger entries that needed to be updated]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -628,7 +628,7 @@
   </Item>
   <Item ItemId=";Codeunit 348912950 - NamedType 527076639" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There were no job ledger entries that needed to be updated.]]></Val>
+      <Val><![CDATA[There were no project ledger entries that needed to be updated.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -637,7 +637,7 @@
   </Item>
   <Item ItemId=";Codeunit 348912950 - NamedType 3839242116" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Job No. must not be specified when Type = Charge (Item) in Purchase Line]]></Val>
+      <Val><![CDATA[Project No. must not be specified when Type = Charge (Item) in Purchase Line]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -707,24 +707,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Resource - NamedType WantToUndoConsumptionQst)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3566485718 - NamedType 3308798032" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The end date %1 is not valid. You must keep at least %2 years uncompressed.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 is a date in short date format, %2 is an integer]D;]A;(LookupHint=Codeunit Resource Batch Jobs - NamedType DateCompressionEndingDateErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3566485718 - NamedType 906751469" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Ending Date must be specified.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Resource Batch Jobs - NamedType EndingDateError)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3566485718 - NamedType 359344854" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You must specify an ending date.]]></Val>
@@ -741,15 +723,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Resource Batch Jobs - NamedType ResourceRegisterError)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3566485718 - NamedType 3098962420" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Unknown Error]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Resource Batch Jobs - NamedType UnknownError)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3106737076 - NamedType 2964215133" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

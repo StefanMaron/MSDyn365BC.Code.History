@@ -3,6 +3,7 @@ namespace Microsoft.Finance.VAT.Clause;
 table 562 "VAT Clause by Doc. Type"
 {
     Caption = 'VAT Clause by Document Type';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -17,7 +17,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure CreateVATData()
     begin
-        CreateVATSetup;
+        CreateVATSetup();
     end;
 
     procedure GetVATCalculationType(): Enum "Tax Calculation Type"
@@ -100,7 +100,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateGeneralLedgerSetup()
     begin
-        DisableFullGSTOnPrepayment;
+        DisableFullGSTOnPrepayment();
     end;
 
     procedure UpdatePrepaymentAccounts()
@@ -273,7 +273,7 @@ codeunit 131305 "Library - ERM Country Data"
         if BankAccountLedgerEntries.Amount.Visible() then
             EntryRemainingAmount := BankAccountLedgerEntries.Amount.AsDecimal()
         else
-            if BankAccountLedgerEntries."Credit Amount".AsDecimal <> 0 then
+            if BankAccountLedgerEntries."Credit Amount".AsDecimal() <> 0 then
                 EntryRemainingAmount := -BankAccountLedgerEntries."Credit Amount".AsDecimal()
             else
                 EntryRemainingAmount := BankAccountLedgerEntries."Debit Amount".AsDecimal();
@@ -293,7 +293,7 @@ codeunit 131305 "Library - ERM Country Data"
         if VATPostingSetup.Count = 0 then begin
             LibraryERM.CreateVATPostingSetupWithAccounts(
               VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", LibraryRandom.RandInt(15));
-            VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", CreateGLAccount);
+            VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", CreateGLAccount());
             VATPostingSetup.Modify(true);
         end;
     end;

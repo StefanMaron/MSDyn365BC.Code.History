@@ -28,6 +28,7 @@ codeunit 134321 "General Journal Batch Approval"
         ApprovalCommentWasNotDeletedErr: Label 'The approval comment for this approval entry was not deleted.';
         RecordRestrictedErr: Label 'You cannot use %1 for this action.', Comment = 'You cannot use Customer 10000 for this action.';
         PreventModifyRecordWithOpenApprovalEntryMsg: Label 'You can''t modify a record pending approval. Add a comment or reject the approval to modify the record.';
+        ImposedRestrictionLbl: Label 'Imposed restriction';
         LibraryJobQueue: Codeunit "Library - Job Queue";
         IsInitialized: Boolean;
 
@@ -59,7 +60,7 @@ codeunit 134321 "General Journal Batch Approval"
 
         // Exercise
         Commit();
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror PreviewPost(GenJournalBatch.Name);
         GLPostingPreview.Close();
 
@@ -260,7 +261,7 @@ codeunit 134321 "General Journal Batch Approval"
         Assert.RecordIsEmpty(ApprovalEntry);
         WorkflowStepInstance.SetRange("Workflow Code", Workflow.Code);
         Assert.IsTrue(WorkflowStepInstance.IsEmpty, UnexpectedNoOfWorkflowStepInstancesErr);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -311,7 +312,7 @@ codeunit 134321 "General Journal Batch Approval"
         WorkflowStepInstance.SetRange("Workflow Code", Workflow.Code);
         Assert.IsTrue(WorkflowStepInstance.IsEmpty, UnexpectedNoOfWorkflowStepInstancesErr);
         Assert.IsFalse(ApprovalCommentExists(ApprovalEntry), ApprovalCommentWasNotDeletedErr);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -421,7 +422,7 @@ codeunit 134321 "General Journal Batch Approval"
 
         // Verify
         // PageHandler verifies record
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -457,7 +458,7 @@ codeunit 134321 "General Journal Batch Approval"
 
         // Verify
         // PageHandler verifies record
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -480,7 +481,7 @@ codeunit 134321 "General Journal Batch Approval"
         // Setup
         Initialize();
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode());
         CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
         Commit();
         SendApprovalRequestBatch(GenJournalBatch.Name);
@@ -514,7 +515,7 @@ codeunit 134321 "General Journal Batch Approval"
         // Setup
         Initialize();
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode());
         CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
         Commit();
         SendApprovalRequestBatch(GenJournalBatch.Name);
@@ -559,7 +560,7 @@ codeunit 134321 "General Journal Batch Approval"
         GenJournalBatch."Allow Payment Export" := true;
         GenJournalBatch.Modify();
         Commit();
-        asserterror GenJournalBatch.OnCheckGenJournalLineExportRestrictions;
+        asserterror GenJournalBatch.OnCheckGenJournalLineExportRestrictions();
 
         // Verify
         Assert.ExpectedError(StrSubstNo(RecordRestrictedErr, Format(GenJournalLine.RecordId, 0, 1)));
@@ -676,7 +677,7 @@ codeunit 134321 "General Journal Batch Approval"
         // Exercise
         GenJournalBatch."Allow Payment Export" := false;
         GenJournalBatch.Modify();
-        GenJournalBatch.OnCheckGenJournalLineExportRestrictions;
+        GenJournalBatch.OnCheckGenJournalLineExportRestrictions();
 
         // Verify: No error.
         Assert.AreEqual('', GetLastErrorText, 'No error expected.');
@@ -706,17 +707,17 @@ codeunit 134321 "General Journal Batch Approval"
 
         CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
 
-        GeneralJournal.OpenView;
+        GeneralJournal.OpenView();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        Assert.IsFalse(GeneralJournal.WorkflowStatusBatch.WorkflowDescription.Visible, 'Batch workflow Status factbox is not hidden');
-        Assert.IsFalse(GeneralJournal.WorkflowStatusLine.WorkflowDescription.Visible, 'Line workflow Status factbox is not hidden');
+        Assert.IsFalse(GeneralJournal.WorkflowStatusBatch.WorkflowDescription.Visible(), 'Batch workflow Status factbox is not hidden');
+        Assert.IsFalse(GeneralJournal.WorkflowStatusLine.WorkflowDescription.Visible(), 'Line workflow Status factbox is not hidden');
 
         // [WHEN] Click the Send Approval Request action
-        GeneralJournal.SendApprovalRequestJournalBatch.Invoke;
+        GeneralJournal.SendApprovalRequestJournalBatch.Invoke();
 
         // [THEN] Batch workflow status factbox becomes visible.
-        Assert.IsTrue(GeneralJournal.WorkflowStatusBatch.WorkflowDescription.Visible, 'Batch workflow Status factbox is hidden');
-        Assert.IsFalse(GeneralJournal.WorkflowStatusLine.WorkflowDescription.Visible, 'Line workflow Status factbox is not hidden');
+        Assert.IsTrue(GeneralJournal.WorkflowStatusBatch.WorkflowDescription.Visible(), 'Batch workflow Status factbox is hidden');
+        Assert.IsFalse(GeneralJournal.WorkflowStatusLine.WorkflowDescription.Visible(), 'Line workflow Status factbox is not hidden');
     end;
 
     [Test]
@@ -744,16 +745,16 @@ codeunit 134321 "General Journal Batch Approval"
         CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
 
         // [GIVEN] Approval request sent
-        GeneralJournal.OpenView;
+        GeneralJournal.OpenView();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        GeneralJournal.SendApprovalRequestJournalBatch.Invoke;
+        GeneralJournal.SendApprovalRequestJournalBatch.Invoke();
 
         // [WHEN] Click the Cancel Approval Request action
-        GeneralJournal.CancelApprovalRequestJournalBatch.Invoke;
+        GeneralJournal.CancelApprovalRequestJournalBatch.Invoke();
 
         // [THEN] Batch workflow status factbox becomes not visible.
-        Assert.IsFalse(GeneralJournal.WorkflowStatusBatch.WorkflowDescription.Visible, 'Batch workflow Status factbox is not hidden');
-        Assert.IsFalse(GeneralJournal.WorkflowStatusLine.WorkflowDescription.Visible, 'Line workflow Status factbox is not hidden');
+        Assert.IsFalse(GeneralJournal.WorkflowStatusBatch.WorkflowDescription.Visible(), 'Batch workflow Status factbox is not hidden');
+        Assert.IsFalse(GeneralJournal.WorkflowStatusLine.WorkflowDescription.Visible(), 'Line workflow Status factbox is not hidden');
     end;
 
     [Test]
@@ -772,7 +773,7 @@ codeunit 134321 "General Journal Batch Approval"
         Initialize();
 
         // [GIVEN] Setup user with empty "Approver ID" and "Approval Admin" is TRUE.
-        SetupApprovalAdministrator;
+        SetupApprovalAdministrator();
 
         // [GIVEN] Create new enabled approval Workflow for Gen. Journal Batch.
         CreateDirectApprovalEnabledWorkflow(Workflow);
@@ -805,7 +806,7 @@ codeunit 134321 "General Journal Batch Approval"
         // [GIVEN] Approval setup with users "A" and "B" where "B" is the First Qualified Approver for "A", and "B"."Sales/Purchaser Code" = "X"
         // [GIVEN] Approval workflow wher "Approver Type" = "Salesperson/Purchaser"
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
-        CreateSalesPersonFirstQualifiedApprovalEnabledWorkflow(Workflow, WorkflowSetup.GeneralJournalLineApprovalWorkflowCode);
+        CreateSalesPersonFirstQualifiedApprovalEnabledWorkflow(Workflow, WorkflowSetup.GeneralJournalLineApprovalWorkflowCode());
 
         // [GIVEN] "A" created general journal line with "Salespers./Purch. Code" = "X"
         CreateGeneralJournalBatchWithOneJournalLine(GenJournalBatch, GenJournalLine);
@@ -844,7 +845,7 @@ codeunit 134321 "General Journal Batch Approval"
         // [GIVEN] Approval setup with users "A" and "B" where "B" is the First Qualified Approver for "A", and "B"."Sales/Purchaser Code" = "X"
         // [GIVEN] Approval workflow wher "Approver Type" = "Salesperson/Purchaser"
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
-        CreateSalesPersonFirstQualifiedApprovalEnabledWorkflow(Workflow, WorkflowSetup.SalesOrderApprovalWorkflowCode);
+        CreateSalesPersonFirstQualifiedApprovalEnabledWorkflow(Workflow, WorkflowSetup.SalesOrderApprovalWorkflowCode());
 
         // [GIVEN] "A" created sales order with customer having "Salesperson Code" = "X"
         LibrarySales.CreateCustomer(Customer);
@@ -859,9 +860,9 @@ codeunit 134321 "General Journal Batch Approval"
           SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Customer."No.", '', 0, '', 0D);
 
         // [WHEN] "A" send approval request
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
-        SalesOrder.SendApprovalRequest.Invoke;
+        SalesOrder.SendApprovalRequest.Invoke();
 
         // [THEN] The only single approval request created and sent to "B" with the state = "Open"
         VerifyOpenFirstQualifiedApprovalEntry(SalesHeader.RecordId, UserId, ApprovalUserSetup."User ID");
@@ -887,7 +888,7 @@ codeunit 134321 "General Journal Batch Approval"
         // [GIVEN] Approval setup with users "A" and "B" where "B" is the First Qualified Approver for "A", and "B"."Sales/Purchaser Code" = "X"
         // [GIVEN] Approval workflow wher "Approver Type" = "Salesperson/Purchaser"
         LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
-        CreateSalesPersonFirstQualifiedApprovalEnabledWorkflow(Workflow, WorkflowSetup.PurchaseOrderApprovalWorkflowCode);
+        CreateSalesPersonFirstQualifiedApprovalEnabledWorkflow(Workflow, WorkflowSetup.PurchaseOrderApprovalWorkflowCode());
 
         // [GIVEN] "A" created purchase order with vendor having "Purchaser Code" = "X"
         LibraryPurchase.CreateVendor(Vendor);
@@ -902,9 +903,9 @@ codeunit 134321 "General Journal Batch Approval"
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Vendor."No.", '', 0, '', 0D);
 
         // [WHEN] "A" send approval request
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
-        PurchaseOrder.SendApprovalRequest.Invoke;
+        PurchaseOrder.SendApprovalRequest.Invoke();
 
         // [THEN] The only single approval request created and sent to "B" with the state = "Open"
         VerifyOpenFirstQualifiedApprovalEntry(PurchaseHeader.RecordId, UserId, ApprovalUserSetup."User ID");
@@ -934,32 +935,45 @@ codeunit 134321 "General Journal Batch Approval"
 
         // [THEN] Verify error message
         Assert.ExpectedError(PreventModifyRecordWithOpenApprovalEntryMsg);
-    end;
+    end;    
 
     [Test]
-    procedure ModifyGenJournalLineIsNotAllowedForOpenApprovalEntryOnValidateDocumentNo()
+    procedure ShowImposedRestrictionBatchStatusIfUserModifyGenJournalLineForApprovedApprovalRequest()
     var
+        GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
+        Workflow: Record Workflow;
+        ApprovalUserSetup: Record "User Setup";
+        GeneralJournal: TestPage "General Journal";
         ApprovalStatus: Enum "Approval Status";
     begin
-        // [SCENARIO 495485] Verify that modifying a Gen. Journal Line is not allowed for open approval entry on validate document no.
+        // [SCENARIO 498314] Show imposed restriction batch status if user modifies Gen. Journal Line for approved approval request 
         Initialize();
+
+        GenJournalTemplate.DeleteAll();
+
+        // [GIVEN] Enable Gen. Journal Batch Approval Workflow
+        LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
+        CreateDirectApprovalEnabledWorkflow(Workflow);
 
         // [GIVEN] Create Gen. Journal Line
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
           GenJournalLine."Document Type"::" ", LibraryRandom.RandDec(100, 2));
 
-        // [GIVEN] Create Approval Entry for Gen. Journal Batch
+        // [GIVEN] Create Approval Entry for Gen. Journal Batch with a status Approved
         GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
-        CreateApprovalEntryForCurrentUser(GenJournalBatch.RecordId, ApprovalStatus::Open);
+        CreateApprovalEntryForCurrentUser(GenJournalBatch.RecordId, ApprovalStatus::Approved);
 
-        // [WHEN] Enter Document No.
-        asserterror GenJournalLine.Validate("Document No.", LibraryRandom.RandText(20));
+        // [WHEN] Modify a Gen. Journal Line
+        GenJournalLine.Validate(Amount, LibraryRandom.RandDec(100, 2));
+        GenJournalLine.Modify(true);
 
-        // [THEN] Verify error message
-        Assert.ExpectedError(PreventModifyRecordWithOpenApprovalEntryMsg);
+        // [THEN] Verify result
+        GeneralJournal.OpenView();
+        GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+        Assert.AreEqual(ImposedRestrictionLbl, GeneralJournal.GenJnlBatchApprovalStatus.Value(), 'Imposed restriction is not shown');
     end;
 
     local procedure Initialize()
@@ -986,7 +1000,7 @@ codeunit 134321 "General Journal Batch Approval"
 
     local procedure CreateDirectApprovalEnabledWorkflow(var Workflow: Record Workflow)
     begin
-        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode);
+        LibraryWorkflow.CreateEnabledWorkflow(Workflow, WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode());
     end;
 
     local procedure CreateApprovalChainEnabledWorkflow(var Workflow: Record Workflow)
@@ -994,7 +1008,7 @@ codeunit 134321 "General Journal Batch Approval"
         WorkflowStepArgument: Record "Workflow Step Argument";
     begin
         CreateCustomApproverTypeWorkflow(
-          Workflow, WorkflowStepArgument."Approver Limit Type"::"Approver Chain", WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode);
+          Workflow, WorkflowStepArgument."Approver Limit Type"::"Approver Chain", WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode());
         EnableWorkflow(Workflow);
     end;
 
@@ -1004,7 +1018,7 @@ codeunit 134321 "General Journal Batch Approval"
     begin
         CreateCustomApproverTypeWorkflow(
           Workflow, WorkflowStepArgument."Approver Limit Type"::"First Qualified Approver",
-          WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode);
+          WorkflowSetup.GeneralJournalBatchApprovalWorkflowCode());
         EnableWorkflow(Workflow);
     end;
 
@@ -1045,16 +1059,16 @@ codeunit 134321 "General Journal Batch Approval"
     begin
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, JournalTemplateName);
         GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"G/L Account");
-        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting);
+        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
         GenJournalBatch.Modify(true);
     end;
 
     local procedure CreateGeneralJournalBatchWithOneJournalLine(var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line")
     begin
-        CreateJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate);
+        CreateJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate());
 
         LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
+          GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
           LibraryRandom.RandDec(100, 2));
     end;
 
@@ -1062,7 +1076,7 @@ codeunit 134321 "General Journal Batch Approval"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        CreateJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate);
+        CreateJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate());
 
         LibraryERM.CreateGeneralJnlLineWithBalAcc(GenJournalLine,
           GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
@@ -1072,11 +1086,11 @@ codeunit 134321 "General Journal Batch Approval"
 
     local procedure CreatePaymentJournalBatchWithOneJournalLine(var GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line")
     begin
-        CreateJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate);
-        CreateJournalBatch(GenJournalBatch, LibraryPurchase.SelectPmtJnlTemplate);
+        CreateJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate());
+        CreateJournalBatch(GenJournalBatch, LibraryPurchase.SelectPmtJnlTemplate());
 
         LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
+          GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
           LibraryRandom.RandDec(100, 2));
     end;
 
@@ -1117,7 +1131,7 @@ codeunit 134321 "General Journal Batch Approval"
     begin
         WorkflowStep.SetRange("Workflow Code", Workflow.Code);
         WorkflowStep.SetRange(Type, WorkflowStep.Type::Response);
-        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode);
+        WorkflowStep.SetRange("Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode());
         WorkflowStep.FindFirst();
 
         WorkflowStepArgument.Get(WorkflowStep.Argument);
@@ -1293,7 +1307,7 @@ codeunit 134321 "General Journal Batch Approval"
         Variant: Variant;
     begin
         LibraryVariableStorage.Dequeue(Variant);
-        Assert.IsFalse(ApprovalEntries.First, 'The page is not empty');
+        Assert.IsFalse(ApprovalEntries.First(), 'The page is not empty');
     end;
 
     [PageHandler]
@@ -1306,7 +1320,7 @@ codeunit 134321 "General Journal Batch Approval"
         LibraryVariableStorage.Dequeue(Variant);
         RecordID := Variant;
 
-        Assert.IsTrue(ApprovalEntries.First, 'The page is empty');
+        Assert.IsTrue(ApprovalEntries.First(), 'The page is empty');
         ApprovalEntries.RecordIDText.AssertEquals(Format(RecordID, 0, 1));
     end;
 

@@ -306,7 +306,7 @@ codeunit 134009 "ERM Finance Charge Memo Apply"
         Counter: Integer;
     begin
         // Random use for Quantity Sales Invoice Line and use for Greater than 1 for Sales Invoice Line.
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer());
         for Counter := 1 to 2 * LibraryRandom.RandInt(3) do
             LibrarySales.CreateSalesLine(
               SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem(GetFinanceChargeMinAmount(SalesHeader."Sell-to Customer No.")),
@@ -384,7 +384,7 @@ codeunit 134009 "ERM Finance Charge Memo Apply"
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
         CustLedgerEntry.FindFirst();
         FinChrgMemoMake.Set(Customer, CustLedgerEntry, FinanceChargeMemoHeader);
-        FinChrgMemoMake.Code;
+        FinChrgMemoMake.Code();
     end;
 
     local procedure CreateFinanceChargeTerms(var FinanceChargeTerms: Record "Finance Charge Terms"; PostInterest: Boolean; PostAdditioanalFee: Boolean)
@@ -414,7 +414,7 @@ codeunit 134009 "ERM Finance Charge Memo Apply"
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Modify(true);
 
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
         SalesLine.Validate("Unit Price", LineAmount);
         SalesLine.Validate("VAT %", 10);
         SalesLine.Modify(true);
@@ -431,11 +431,11 @@ codeunit 134009 "ERM Finance Charge Memo Apply"
         FinanceChargeMemoHeader.Validate("Document Date", PostingDate);
         FinanceChargeMemoHeader.Modify(true);
 
-        Commit;
+        Commit();
 
         FinanceChargeMemoPage.OpenEdit();
         FinanceChargeMemoPage.FILTER.SetFilter("No.", FinanceChargeMemoHeader."No.");
-        FinanceChargeMemoPage.SuggestFinChargeMemoLines.Invoke;
+        FinanceChargeMemoPage.SuggestFinChargeMemoLines.Invoke();
         FinanceChargeMemoPage.Close();
     end;
 
@@ -549,7 +549,7 @@ codeunit 134009 "ERM Finance Charge Memo Apply"
     [Scope('OnPrem')]
     procedure SuggestFinChargeMemoLinesRequestPageHandler(var SuggestFinChargeMemoLines: TestRequestPage "Suggest Fin. Charge Memo Lines")
     begin
-        SuggestFinChargeMemoLines.OK.Invoke();
+        SuggestFinChargeMemoLines.OK().Invoke();
     end;
 }
 

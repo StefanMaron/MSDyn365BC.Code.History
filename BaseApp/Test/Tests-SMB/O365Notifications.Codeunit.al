@@ -65,7 +65,7 @@ codeunit 138030 "O365 Notifications"
             DATABASE::Resource:
                 Resource.DeleteAll();
         end;
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
     end;
 
     [Test]
@@ -80,20 +80,20 @@ codeunit 138030 "O365 Notifications"
 
         // Test posting on card
         CreateSalesInvoiceForPosting(SalesInvoice, SalesHeader);
-        asserterror SalesInvoice.Post.Invoke;
+        asserterror SalesInvoice.Post.Invoke();
         Assert.ExpectedError(LinesMissingQuantityErr);
         SalesInvoice.Close();
 
         CreateSalesInvoiceForPosting(SalesInvoice, SalesHeader);
-        asserterror SalesInvoice.PostAndSend.Invoke;
+        asserterror SalesInvoice.PostAndSend.Invoke();
         Assert.ExpectedError(LinesMissingQuantityErr);
         SalesInvoice.Close();
 
         // Test posting on List
         CreateSalesInvoiceForPosting(SalesInvoice, SalesHeader);
-        SalesInvoiceList.OpenView;
+        SalesInvoiceList.OpenView();
         SalesInvoiceList.GotoRecord(SalesHeader);
-        asserterror SalesInvoiceList.PostAndSend.Invoke;
+        asserterror SalesInvoiceList.PostAndSend.Invoke();
         Assert.ExpectedError(LinesMissingQuantityErr);
         SalesInvoiceList.Close();
         SalesInvoice.Close();
@@ -111,44 +111,44 @@ codeunit 138030 "O365 Notifications"
 
         // Test posting on card
         CreateSalesQuoteForPosting(SalesQuote, SalesHeader);
-        asserterror SalesQuote.MakeInvoice.Invoke;
+        asserterror SalesQuote.MakeInvoice.Invoke();
         Assert.ExpectedError(LinesMissingQuantityErr);
         SalesQuote.Close();
 
         CreateSalesQuoteForPosting(SalesQuote, SalesHeader);
-        asserterror SalesQuote.Print.Invoke;
+        asserterror SalesQuote.Print.Invoke();
         Assert.ExpectedError(LinesMissingQuantityErr);
         SalesQuote.Close();
 
         CreateSalesQuoteForPosting(SalesQuote, SalesHeader);
-        asserterror SalesQuote.Email.Invoke;
+        asserterror SalesQuote.Email.Invoke();
         Assert.ExpectedError(LinesMissingQuantityErr);
         SalesQuote.Close();
 
         // Test posting on List
         CreateSalesQuoteForPosting(SalesQuote, SalesHeader);
         // Disable application area while opening the sales quote to make sure MakeInvoice is visible.
-        LibraryApplicationArea.DisableApplicationAreaSetup;
-        SalesQuotes.OpenView;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+        SalesQuotes.OpenView();
         LibraryApplicationArea.EnableFoundationSetup();
         SalesQuotes.GotoRecord(SalesHeader);
-        asserterror SalesQuotes.MakeInvoice.Invoke;
+        asserterror SalesQuotes.MakeInvoice.Invoke();
         Assert.ExpectedError(LinesMissingQuantityErr);
         SalesQuotes.Close();
         SalesQuote.Close();
 
         CreateSalesQuoteForPosting(SalesQuote, SalesHeader);
-        SalesQuotes.OpenView;
+        SalesQuotes.OpenView();
         SalesQuotes.GotoRecord(SalesHeader);
-        asserterror SalesQuotes.Print.Invoke;
+        asserterror SalesQuotes.Print.Invoke();
         Assert.ExpectedError(LinesMissingQuantityErr);
         SalesQuotes.Close();
         SalesQuote.Close();
 
         CreateSalesQuoteForPosting(SalesQuote, SalesHeader);
-        SalesQuotes.OpenView;
+        SalesQuotes.OpenView();
         SalesQuotes.GotoRecord(SalesHeader);
-        asserterror SalesQuotes.Email.Invoke;
+        asserterror SalesQuotes.Email.Invoke();
         Assert.ExpectedError(LinesMissingQuantityErr);
         SalesQuotes.Close();
         SalesQuote.Close();
@@ -166,9 +166,9 @@ codeunit 138030 "O365 Notifications"
 
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
         SalesHeader.DeleteAll();
-        SalesCreditMemos.OpenView;
-        ErrorMessagesPage.Trap;
-        SalesCreditMemos.Post.Invoke;
+        SalesCreditMemos.OpenView();
+        ErrorMessagesPage.Trap();
+        SalesCreditMemos.Post.Invoke();
         ErrorMessagesPage.Description.AssertEquals(DocumentErrorsMgt.GetNothingToPostErrorMsg());
     end;
 
@@ -184,9 +184,9 @@ codeunit 138030 "O365 Notifications"
 
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::"Credit Memo");
         SalesHeader.DeleteAll();
-        SalesCreditMemos.OpenView;
-        ErrorMessagesPage.Trap;
-        SalesCreditMemos.PostAndSend.Invoke;
+        SalesCreditMemos.OpenView();
+        ErrorMessagesPage.Trap();
+        SalesCreditMemos.PostAndSend.Invoke();
         ErrorMessagesPage.Description.AssertEquals(DocumentErrorsMgt.GetNothingToPostErrorMsg());
     end;
 
@@ -202,28 +202,28 @@ codeunit 138030 "O365 Notifications"
 
         // Test posting on card
         CreateSalesCreditMemoForPosting(SalesCreditMemo, SalesHeader);
-        asserterror SalesCreditMemo.Post.Invoke;
+        asserterror SalesCreditMemo.Post.Invoke();
         Assert.ExpectedError(LinesMissingQuantityErr);
         SalesCreditMemo.Close();
 
         CreateSalesCreditMemoForPosting(SalesCreditMemo, SalesHeader);
-        asserterror SalesCreditMemo.PostAndSend.Invoke;
+        asserterror SalesCreditMemo.PostAndSend.Invoke();
         Assert.ExpectedError(LinesMissingQuantityErr);
         SalesCreditMemo.Close();
 
         // Test posting on List
         CreateSalesCreditMemoForPosting(SalesCreditMemo, SalesHeader);
-        SalesCreditMemos.OpenView;
+        SalesCreditMemos.OpenView();
         SalesCreditMemos.GotoRecord(SalesHeader);
-        asserterror SalesCreditMemos.Post.Invoke;
+        asserterror SalesCreditMemos.Post.Invoke();
         Assert.ExpectedError(LinesMissingQuantityErr);
         SalesCreditMemos.Close();
         SalesCreditMemo.Close();
 
         CreateSalesCreditMemoForPosting(SalesCreditMemo, SalesHeader);
-        SalesCreditMemos.OpenView;
+        SalesCreditMemos.OpenView();
         SalesCreditMemos.GotoRecord(SalesHeader);
-        asserterror SalesCreditMemos.PostAndSend.Invoke;
+        asserterror SalesCreditMemos.PostAndSend.Invoke();
         Assert.ExpectedError(LinesMissingQuantityErr);
         SalesCreditMemos.Close();
         SalesCreditMemo.Close();
@@ -241,15 +241,15 @@ codeunit 138030 "O365 Notifications"
 
         // Test posting on card
         CreatePurchaseInvoiceForPosting(PurchaseInvoice, PurchaseHeader);
-        asserterror PurchaseInvoice.Post.Invoke;
+        asserterror PurchaseInvoice.Post.Invoke();
         Assert.ExpectedError(LinesMissingQuantityErr);
         PurchaseInvoice.Close();
 
         // Test posting on List
         CreatePurchaseInvoiceForPosting(PurchaseInvoice, PurchaseHeader);
-        PurchaseInvoices.OpenView;
+        PurchaseInvoices.OpenView();
         PurchaseInvoices.GotoRecord(PurchaseHeader);
-        asserterror PurchaseInvoices.PostSelected.Invoke;
+        asserterror PurchaseInvoices.PostSelected.Invoke();
         Assert.ExpectedError(LinesMissingQuantityErr);
         PurchaseInvoices.Close();
     end;
@@ -266,28 +266,28 @@ codeunit 138030 "O365 Notifications"
 
         // Test posting on card
         CreatePurchaseCreditMemoForPosting(PurchaseCreditMemo, PurchaseHeader);
-        asserterror PurchaseCreditMemo.Post.Invoke;
+        asserterror PurchaseCreditMemo.Post.Invoke();
         Assert.ExpectedError(LinesMissingQuantityErr);
         PurchaseCreditMemo.Close();
 
         CreatePurchaseCreditMemoForPosting(PurchaseCreditMemo, PurchaseHeader);
-        asserterror PurchaseCreditMemo.PostAndPrint.Invoke;
+        asserterror PurchaseCreditMemo.PostAndPrint.Invoke();
         Assert.ExpectedError(LinesMissingQuantityErr);
         PurchaseCreditMemo.Close();
 
         // Test posting on List
         CreatePurchaseCreditMemoForPosting(PurchaseCreditMemo, PurchaseHeader);
-        PurchaseCreditMemos.OpenView;
+        PurchaseCreditMemos.OpenView();
         PurchaseCreditMemos.GotoRecord(PurchaseHeader);
-        asserterror PurchaseCreditMemos.Post.Invoke;
+        asserterror PurchaseCreditMemos.Post.Invoke();
         Assert.ExpectedError(LinesMissingQuantityErr);
         PurchaseCreditMemos.Close();
         PurchaseCreditMemo.Close();
 
         CreatePurchaseCreditMemoForPosting(PurchaseCreditMemo, PurchaseHeader);
-        PurchaseCreditMemos.OpenView;
+        PurchaseCreditMemos.OpenView();
         PurchaseCreditMemos.GotoRecord(PurchaseHeader);
-        asserterror PurchaseCreditMemos.PostAndPrint.Invoke;
+        asserterror PurchaseCreditMemos.PostAndPrint.Invoke();
         Assert.ExpectedError(LinesMissingQuantityErr);
         PurchaseCreditMemos.Close();
         PurchaseCreditMemo.Close();
@@ -304,14 +304,14 @@ codeunit 138030 "O365 Notifications"
         SalesInvoice.OpenNew();
         SalesInvoice."Sell-to Customer Name".SetValue(Customer.Name);
 
-        SalesInvoice.SalesLines.New;
+        SalesInvoice.SalesLines.New();
         SalesInvoice.SalesLines."No.".SetValue(Item."No.");
         SalesInvoice.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(1, 20));
 
-        SalesInvoice.SalesLines.New;
+        SalesInvoice.SalesLines.New();
         SalesInvoice.SalesLines."No.".SetValue(Item."No.");
 
-        SalesInvoice.SalesLines.New;
+        SalesInvoice.SalesLines.New();
         SalesInvoice.SalesLines."No.".SetValue(Item."No.");
 
         FindSalesHeader(Customer, SalesHeader);
@@ -328,14 +328,14 @@ codeunit 138030 "O365 Notifications"
         SalesQuote.OpenNew();
         SalesQuote."Sell-to Customer Name".SetValue(Customer.Name);
 
-        SalesQuote.SalesLines.New;
+        SalesQuote.SalesLines.New();
         SalesQuote.SalesLines."No.".SetValue(Item."No.");
         SalesQuote.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(1, 20));
 
-        SalesQuote.SalesLines.New;
+        SalesQuote.SalesLines.New();
         SalesQuote.SalesLines."No.".SetValue(Item."No.");
 
-        SalesQuote.SalesLines.New;
+        SalesQuote.SalesLines.New();
         SalesQuote.SalesLines."No.".SetValue(Item."No.");
 
         FindSalesHeader(Customer, SalesHeader);
@@ -352,14 +352,14 @@ codeunit 138030 "O365 Notifications"
         SalesCreditMemo.OpenNew();
         SalesCreditMemo."Sell-to Customer Name".SetValue(Customer.Name);
 
-        SalesCreditMemo.SalesLines.New;
+        SalesCreditMemo.SalesLines.New();
         SalesCreditMemo.SalesLines."No.".SetValue(Item."No.");
         SalesCreditMemo.SalesLines.Quantity.SetValue(LibraryRandom.RandIntInRange(1, 20));
 
-        SalesCreditMemo.SalesLines.New;
+        SalesCreditMemo.SalesLines.New();
         SalesCreditMemo.SalesLines."No.".SetValue(Item."No.");
 
-        SalesCreditMemo.SalesLines.New;
+        SalesCreditMemo.SalesLines.New();
         SalesCreditMemo.SalesLines."No.".SetValue(Item."No.");
 
         FindSalesHeader(Customer, SalesHeader);
@@ -379,14 +379,14 @@ codeunit 138030 "O365 Notifications"
         LibraryVariableStorage.Enqueue(DontShowAgain);
         PurchaseInvoice.PurchLines.Description.SetValue('Test Description');
 
-        PurchaseInvoice.PurchLines.New;
+        PurchaseInvoice.PurchLines.New();
         PurchaseInvoice.PurchLines."No.".SetValue(Item."No.");
         PurchaseInvoice.PurchLines.Quantity.SetValue(LibraryRandom.RandIntInRange(1, 20));
 
-        PurchaseInvoice.PurchLines.New;
+        PurchaseInvoice.PurchLines.New();
         PurchaseInvoice.PurchLines."No.".SetValue(Item."No.");
 
-        PurchaseInvoice.PurchLines.New;
+        PurchaseInvoice.PurchLines.New();
         PurchaseInvoice.PurchLines."No.".SetValue(Item."No.");
 
         FindPurchaseHeader(Vendor, PurchaseHeader);
@@ -406,14 +406,14 @@ codeunit 138030 "O365 Notifications"
         LibraryVariableStorage.Enqueue(DontShowAgain);
         PurchaseCreditMemo.PurchLines.Description.SetValue('Test Description');
 
-        PurchaseCreditMemo.PurchLines.New;
+        PurchaseCreditMemo.PurchLines.New();
         PurchaseCreditMemo.PurchLines."No.".SetValue(Item."No.");
         PurchaseCreditMemo.PurchLines.Quantity.SetValue(LibraryRandom.RandIntInRange(1, 20));
 
-        PurchaseCreditMemo.PurchLines.New;
+        PurchaseCreditMemo.PurchLines.New();
         PurchaseCreditMemo.PurchLines."No.".SetValue(Item."No.");
 
-        PurchaseCreditMemo.PurchLines.New;
+        PurchaseCreditMemo.PurchLines.New();
         PurchaseCreditMemo.PurchLines."No.".SetValue(Item."No.");
 
         FindPurchaseHeader(Vendor, PurchaseHeader);

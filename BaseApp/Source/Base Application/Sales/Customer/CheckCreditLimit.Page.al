@@ -19,7 +19,6 @@ page 343 "Check Credit Limit"
     LinksAllowed = false;
     ModifyAllowed = false;
     PageType = ConfirmationDialog;
-    PromotedActionCategories = 'New,Process,Report,Manage,Create';
     SourceTable = Customer;
 
     layout
@@ -75,8 +74,6 @@ page 343 "Check Credit Limit"
                     ApplicationArea = Suite;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Customer Statistics";
                     RunPageLink = "No." = field("No."),
                                   "Date Filter" = field("Date Filter"),

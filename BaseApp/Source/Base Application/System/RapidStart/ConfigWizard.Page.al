@@ -244,7 +244,7 @@ page 8629 "Config. Wizard"
                         ApplicationArea = Basic, Suite;
                         Caption = 'If you still need to change setup data, do not change the profile. Choose the OK button to close the wizard, and then use the configuration worksheet to continue setting up Business Central.';
                         Style = Attention;
-                        StyleExpr = TRUE;
+                        StyleExpr = true;
                         ToolTip = 'Specifies how to set up Dynamics 365 Business Central';
                     }
                 }

@@ -93,7 +93,7 @@
         WHTPostingSetup.Get(PurchaseLine."WHT Business Posting Group", PurchaseLine."WHT Product Posting Group");
         CreateAndPostGenJournalLineWithMultipleAppliesToDocNo(
           PurchaseLine2."Buy-from Vendor No.", DocumentNo, DocumentNo2, WHTPostingSetup."WHT Minimum Invoice Amount");
-        PurchaseInvoiceStatistics.Trap;
+        PurchaseInvoiceStatistics.Trap();
 
         // Exercise.
         OpenStatisticsOnPostedPurchaseInvoicePage(PostedPurchaseInvoice, DocumentNo2);
@@ -123,8 +123,8 @@
         // [GIVEN] Create and Post Purchase Order, Create and Post General Journal with Applies To Document Number.
         Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        UpdateSourceCodeSetupWHTSettlement;
-        RunCalcAndPostWHTSettlement;
+        UpdateSourceCodeSetupWHTSettlement();
+        RunCalcAndPostWHTSettlement();
         DocumentNo :=
           CreateAndPostPurchaseOrder(
             PurchaseLine, CreateVendor(VATPostingSetup."VAT Bus. Posting Group", ''), VATPostingSetup."VAT Prod. Posting Group",
@@ -163,7 +163,7 @@
         Initialize();
         UpdateSourceCodeSetupWHTSettlement();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        RunCalcAndPostWHTSettlement;
+        RunCalcAndPostWHTSettlement();
         DocumentNo :=
           CreateAndPostPurchaseOrder(
             PurchaseLine, CreateVendor(VATPostingSetup."VAT Bus. Posting Group", ''), VATPostingSetup."VAT Prod. Posting Group",
@@ -199,7 +199,7 @@
         // [GIVEN] Create and Post Purchase Order, Create and Post Payment.
         Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        CurrencyCode := CreateCurrencyWithExchangeRate;
+        CurrencyCode := CreateCurrencyWithExchangeRate();
         CreateWHTPostingSetupWithPayableAccount(WHTPostingSetup, CurrencyCode);
         DocumentNo :=
           CreateAndPostPurchaseOrder(
@@ -251,10 +251,10 @@
         DocumentNo := PostPurchaseDocument(PurchaseLine."Document Type"::Order, PurchaseLine."Document No.");
         DocumentNo2 :=
           CreateAndPostGenJournalLine(
-            PurchaseLine."Buy-from Vendor No.", '', DocumentNo, WorkDate(), -FindVendorLedgerEntryAmount(DocumentNo));  // Blank as Currency, WORKDATE - Posting Date.
+            PurchaseLine."Buy-from Vendor No.", '', DocumentNo, WorkDate(), -FindVendorLedgerEntryAmount(DocumentNo));  // Blank as Currency, WorkDate() - Posting Date.
         Vendor.Get(PurchaseLine."Buy-from Vendor No.");
         VendorPostingGroup.Get(Vendor."Vendor Posting Group");
-        PurchaseInvoiceStatistics.Trap;
+        PurchaseInvoiceStatistics.Trap();
 
         // Exercise.
         OpenStatisticsOnPostedPurchaseInvoicePage(PostedPurchaseInvoice, DocumentNo);
@@ -286,7 +286,7 @@
         // [GIVEN] Create and Post multiple Purchase Orders, Create and Post multiple Payment Journal for partial payment.
         Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        CurrencyCode := CreateCurrencyWithExchangeRate;
+        CurrencyCode := CreateCurrencyWithExchangeRate();
         VendorNo := CreateVendor(VATPostingSetup."VAT Bus. Posting Group", '');  // Blank WHT Business Posting Group.
         DocumentNo :=
           CreateAndPostPurchaseOrder(
@@ -329,7 +329,7 @@
         // [GIVEN] Create and Post purchase order with multiple lines and diffrent WHT Posting Setup. Create and Post General Journal Line - Applies To Document Number with Partial payment and full payment.
         Initialize();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        CurrencyCode := CreateCurrencyWithExchangeRate;
+        CurrencyCode := CreateCurrencyWithExchangeRate();
         WHTAmount :=
           CreatePurchaseOrderWithMultipleLines(
             PurchaseLine, VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group", CurrencyCode);
@@ -342,13 +342,13 @@
           PurchaseLine, GenJournalLine."Document Type"::Payment, DocumentNo, CurrencyCode,
           CalcDate('<' + Format(LibraryRandom.RandIntInRange(10, 20)) + 'D>', WorkDate()),
           -(FindVendorLedgerEntryAmount(DocumentNo) + Amount));  // Random - Posting Date more than WORKDATE.
-        PurchaseInvoiceStatistics.Trap;
+        PurchaseInvoiceStatistics.Trap();
 
         // Exercise.
         OpenStatisticsOnPostedPurchaseInvoicePage(PostedPurchaseInvoice, DocumentNo);
 
         // [THEN] Verify Purchase Invoice Statistics Page and Number of created WHT Entry.
-        VerifyPurchaseInvoiceStatisticsPage(PurchaseInvoiceStatistics, 0, Round(WHTAmount, LibraryERM.GetAmountRoundingPrecision));  // Remaining WHT Prepaid Amount - 0.
+        VerifyPurchaseInvoiceStatisticsPage(PurchaseInvoiceStatistics, 0, Round(WHTAmount, LibraryERM.GetAmountRoundingPrecision()));  // Remaining WHT Prepaid Amount - 0.
         FilterOnWHTEntry(WHTEntry, WHTEntry."Document Type"::Payment, PurchaseLine."Buy-from Vendor No.");
         Assert.AreEqual(6, WHTEntry.Count, ValueMustBeSameMsg);  // Six WHT Entry are created in Against of Posted Entries.
         PostedPurchaseInvoice.Close();
@@ -364,7 +364,7 @@
         GenJournalLine: Record "Gen. Journal Line";
         NormalGenJournalLine: Record "Gen. Journal Line";
         GLEntry: Record "G/L Entry";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
         WHTBalAccountNo: Code[20];
         WHTPaymentNo: Code[20];
         TransactionNo: Integer;
@@ -379,11 +379,11 @@
           WHTPostingSetup, GenJournalLine."WHT Business Posting Group", GenJournalLine."WHT Product Posting Group", '');
 
         // [GIVEN] Normal Purchase Invoice = "Inv2"
-        CreateAndPostVendorInvoice(NormalGenJournalLine, LibraryPurchase.CreateVendorNo);
+        CreateAndPostVendorInvoice(NormalGenJournalLine, LibraryPurchase.CreateVendorNo());
 
         // [GIVEN] Use General Journal Batch with No. Series defined
         LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
-        GenJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode);
+        GenJournalBatch.Validate("No. Series", LibraryERM.CreateNoSeriesCode());
         GenJournalBatch.Modify(true);
 
         // [GIVEN] Payment lines within the Batch for "Inv1" and "Inv2"
@@ -391,7 +391,7 @@
           GenJournalLine, GenJournalBatch,
           GenJournalLine."Account Type", GenJournalLine."Account No.", -GenJournalLine.Amount,
           GenJournalLine."Applies-to Doc. Type"::Invoice, GenJournalLine."Document No.",
-          NoSeriesMgt.GetNextNo(GenJournalBatch."No. Series", WorkDate(), false));
+          NoSeriesBatch.GetNextNo(GenJournalBatch."No. Series"));
         WHTPaymentNo := GenJournalLine."Document No.";
         WHTBalAccountNo := GenJournalLine."Bal. Account No.";
 
@@ -399,7 +399,7 @@
           GenJournalLine, GenJournalBatch,
           NormalGenJournalLine."Account Type", NormalGenJournalLine."Account No.", -NormalGenJournalLine.Amount,
           GenJournalLine."Applies-to Doc. Type"::Invoice, NormalGenJournalLine."Document No.",
-          NoSeriesMgt.GetNextNo(GenJournalBatch."No. Series", WorkDate(), false));
+          NoSeriesBatch.GetNextNo(GenJournalBatch."No. Series"));
 
         // [WHEN] Post Gen. Journal Lines
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -474,7 +474,7 @@
         Initialize();
 
         WHTPostingSetup.Init();
-        asserterror WHTPostingSetup.GetPrepaidWHTAccount;
+        asserterror WHTPostingSetup.GetPrepaidWHTAccount();
         Assert.ExpectedErrorCode('TestField');
         Assert.ExpectedError(StrSubstNo(WHTAccountCodeEmptyErr,
             WHTPostingSetup.FieldCaption("Prepaid WHT Account Code"), '', WHTPostingSetup."WHT Product Posting Group"));
@@ -483,7 +483,7 @@
         WHTPostingSetup."Prepaid WHT Account Code" := LibraryUtility.GenerateGUID();
         WHTPostingSetup."Payable WHT Account Code" := LibraryUtility.GenerateGUID();
         Assert.AreEqual(WHTPostingSetup."Prepaid WHT Account Code",
-          WHTPostingSetup.GetPrepaidWHTAccount, 'WHTPostingSetup.GetPrepaidWHTAccount returned wrong data');
+          WHTPostingSetup.GetPrepaidWHTAccount(), 'WHTPostingSetup.GetPrepaidWHTAccount returned wrong data');
     end;
 
     [Test]
@@ -497,7 +497,7 @@
         Initialize();
 
         WHTPostingSetup.Init();
-        asserterror WHTPostingSetup.GetPayableWHTAccount;
+        asserterror WHTPostingSetup.GetPayableWHTAccount();
         Assert.ExpectedErrorCode('TestField');
         Assert.ExpectedError(StrSubstNo(WHTAccountCodeEmptyErr,
             WHTPostingSetup.FieldCaption("Payable WHT Account Code"), '', WHTPostingSetup."WHT Product Posting Group"));
@@ -506,7 +506,7 @@
         WHTPostingSetup."Prepaid WHT Account Code" := LibraryUtility.GenerateGUID();
         WHTPostingSetup."Payable WHT Account Code" := LibraryUtility.GenerateGUID();
         Assert.AreEqual(WHTPostingSetup."Payable WHT Account Code",
-          WHTPostingSetup.GetPayableWHTAccount, 'WHTPostingSetup.GetPayableWHTAccount returned wrong data');
+          WHTPostingSetup.GetPayableWHTAccount(), 'WHTPostingSetup.GetPayableWHTAccount returned wrong data');
     end;
 
     [Test]
@@ -534,7 +534,7 @@
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] Payment posting produced 3 G/L entries including 1 WHT with Document No. = "A0"
-        VerifyPostingNoSeriesOnePostedDoc(GenJournalBatch, 'A0', 3, 1);
+        VerifyPostingNoSeriesOnePostedDoc('A0', 3, 1);
     end;
 
     [Test]
@@ -562,7 +562,7 @@
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] Payment posting produced 3 G/L entries including 1 WHT with Document No. = "B0"
-        VerifyPostingNoSeriesOnePostedDoc(GenJournalBatch, 'B0', 3, 1);
+        VerifyPostingNoSeriesOnePostedDoc('B0', 3, 1);
     end;
 
     [Test]
@@ -593,7 +593,7 @@
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] Payment posting produced 4 G/L entries including 2 WHT with Document No. = "A0"
-        VerifyPostingNoSeriesOnePostedDoc(GenJournalBatch, 'A0', 4, 2);
+        VerifyPostingNoSeriesOnePostedDoc('A0', 4, 2);
     end;
 
     [Test]
@@ -624,7 +624,7 @@
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] Payment posting produced 4 G/L entries including 2 WHT with Document No. = "B0"
-        VerifyPostingNoSeriesOnePostedDoc(GenJournalBatch, 'B0', 4, 2);
+        VerifyPostingNoSeriesOnePostedDoc('B0', 4, 2);
     end;
 
     [Test]
@@ -654,7 +654,7 @@
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] Payment posting produced 6 G/L entries including 3 with Document No. = "A0", 3 with Document No. = "A1"
-        VerifyPostingNoSeriesTwoPostedDocs(GenJournalBatch, 'A0', 'A1');
+        VerifyPostingNoSeriesTwoPostedDocs('A0', 'A1');
     end;
 
     [Test]
@@ -684,7 +684,7 @@
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] Payment posting produced 6 G/L entries including 3 with Document No. = "B0", 3 with Document No. = "B1"
-        VerifyPostingNoSeriesTwoPostedDocs(GenJournalBatch, 'B0', 'B1');
+        VerifyPostingNoSeriesTwoPostedDocs('B0', 'B1');
     end;
 
     [Test]
@@ -714,7 +714,7 @@
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] Payment posting produced 6 G/L entries including 2 WHT with Document No. = "A0"
-        VerifyPostingNoSeriesOnePostedDoc(GenJournalBatch, 'A0', 6, 2);
+        VerifyPostingNoSeriesOnePostedDoc('A0', 6, 2);
     end;
 
     [Test]
@@ -744,7 +744,7 @@
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [THEN] Payment posting produced 6 G/L entries including 2 WHT with Document No. = "B0"
-        VerifyPostingNoSeriesOnePostedDoc(GenJournalBatch, 'B0', 6, 2);
+        VerifyPostingNoSeriesOnePostedDoc('B0', 6, 2);
     end;
 
     local procedure Initialize()
@@ -754,14 +754,14 @@
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
 
-        IF IsInitialized THEN
+        if IsInitialized then
             exit;
         IsInitialized := true;
 
         UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
 
-        LibrarySetupStorage.SavePurchasesSetup;
-        LibrarySetupStorage.SaveGeneralLedgerSetup;
+        LibrarySetupStorage.SavePurchasesSetup();
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
     end;
 
     local procedure ApplyVendorLedgerEntry(var ApplyingVendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
@@ -793,9 +793,9 @@
     var
         BASCalculationSheet: TestPage "BAS Calculation Sheet";
     begin
-        BASCalculationSheet.OpenEdit;
+        BASCalculationSheet.OpenEdit();
         BASCalculationSheet.FILTER.SetFilter(A1, A1);
-        BASCalculationSheet.Update.Invoke;  // Invoke handler - BASUpdateRequestPageHandler.
+        BASCalculationSheet.Update.Invoke();  // Invoke handler - BASUpdateRequestPageHandler.
         BASCalculationSheet.Close();
     end;
 
@@ -832,9 +832,9 @@
         WHTPostingSetup: Record "WHT Posting Setup";
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(10));
+          LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(10));
         SalesLine.Validate("WHT Product Posting Group", WHTProductPostingGroup);
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(1000, 2000, 2));
         SalesLine.Modify(true);
@@ -1062,7 +1062,7 @@
     begin
         LibraryERM.CreateCurrency(Currency);
         LibraryERM.SetCurrencyGainLossAccounts(Currency);
-        Currency.Validate("Invoice Rounding Precision", LibraryERM.GetInvoiceRoundingPrecisionLCY);
+        Currency.Validate("Invoice Rounding Precision", LibraryERM.GetInvoiceRoundingPrecisionLCY());
         Currency.Validate("Residual Gains Account", Currency."Realized Gains Acc.");
         Currency.Validate("Residual Losses Account", Currency."Realized Losses Acc.");
         Currency.Modify(true);
@@ -1100,7 +1100,7 @@
     begin
         CreateGeneralJournalLineWithBalAccountType(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, VendorNo, '',
-          '', GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
+          '', GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
           -LibraryRandom.RandDecInRange(100, 200, 2));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         exit(GenJournalLine."Document No.");
@@ -1111,7 +1111,7 @@
         LibraryJournals.CreateGenJournalLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::Payment, AccountType, AccountNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
           ApplyAmount);
         GenJournalLine.Validate("Document No.", DocumentNo);
         GenJournalLine.Validate("Applies-to Doc. Type", ApplyToDocType);
@@ -1124,7 +1124,7 @@
         LibraryJournals.CreateGenJournalLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::Payment, InvoiceJournalLine."Account Type", InvoiceJournalLine."Account No.",
-          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, -InvoiceJournalLine.Amount);
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), -InvoiceJournalLine.Amount);
         GenJournalLine.Validate("Document No.", DocumentNo);
         GenJournalLine.Validate("Applies-to Doc. Type", InvoiceJournalLine."Document Type");
         GenJournalLine.Validate("Applies-to Doc. No.", InvoiceJournalLine."Document No.");
@@ -1136,7 +1136,7 @@
         LibraryJournals.CreateGenJournalLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, InvoiceJournalLine[1]."Account No.",
-          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
           -(InvoiceJournalLine[1].Amount + InvoiceJournalLine[2].Amount));
         GenJournalLine.Validate("Document No.", DocumentNo);
         GenJournalLine.Validate("Applies-to ID", LibraryUtility.GenerateGUID());
@@ -1228,9 +1228,9 @@
 
     local procedure OpenStatisticsOnPostedPurchaseInvoicePage(var PostedPurchaseInvoice: TestPage "Posted Purchase Invoice"; No: Code[20])
     begin
-        PostedPurchaseInvoice.OpenEdit;
+        PostedPurchaseInvoice.OpenEdit();
         PostedPurchaseInvoice.FILTER.SetFilter("No.", No);
-        PostedPurchaseInvoice.Statistics.Invoke;  // Open Statistics Page.
+        PostedPurchaseInvoice.Statistics.Invoke();  // Open Statistics Page.
     end;
 
     local procedure PostPurchaseDocument(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]): Code[20]
@@ -1352,7 +1352,7 @@
     begin
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.FindFirst();
-        Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
+        Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), ValueMustBeSameMsg);
     end;
 
     local procedure VerifyWHTEntry(DocumentType: Enum "Gen. Journal Document Type"; BillToPayToNo: Code[20]; Amount: Decimal; UnrealizedAmount: Decimal)
@@ -1362,19 +1362,19 @@
         WHTEntry.SetRange("Document Type", DocumentType);
         WHTEntry.SetRange("Bill-to/Pay-to No.", BillToPayToNo);
         WHTEntry.FindFirst();
-        Assert.AreNearlyEqual(Amount, WHTEntry.Amount, LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
-        Assert.AreNearlyEqual(UnrealizedAmount, WHTEntry."Unrealized Amount", LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
+        Assert.AreNearlyEqual(Amount, WHTEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), ValueMustBeSameMsg);
+        Assert.AreNearlyEqual(UnrealizedAmount, WHTEntry."Unrealized Amount", LibraryERM.GetAmountRoundingPrecision(), ValueMustBeSameMsg);
     end;
 
     local procedure VerifyPurchaseInvoiceStatisticsPage(PurchaseInvoiceStatistics: TestPage "Purchase Invoice Statistics"; RemWHTPrepaidAmount: Decimal; PaidWHTPrepaidAmount: Decimal)
     begin
         Assert.AreNearlyEqual(
-          RemWHTPrepaidAmount, PurchaseInvoiceStatistics."Rem. WHT Prepaid Amount (LCY)".AsDEcimal,
-          LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
+          RemWHTPrepaidAmount, PurchaseInvoiceStatistics."Rem. WHT Prepaid Amount (LCY)".AsDecimal(),
+          LibraryERM.GetAmountRoundingPrecision(), ValueMustBeSameMsg);
         Assert.AreNearlyEqual(
-          PaidWHTPrepaidAmount, PurchaseInvoiceStatistics."Paid WHT Prepaid Amount (LCY)".AsDEcimal,
-          LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
-        PurchaseInvoiceStatistics.OK.Invoke;
+          PaidWHTPrepaidAmount, PurchaseInvoiceStatistics."Paid WHT Prepaid Amount (LCY)".AsDecimal(),
+          LibraryERM.GetAmountRoundingPrecision(), ValueMustBeSameMsg);
+        PurchaseInvoiceStatistics.OK().Invoke();
     end;
 
     local procedure VerifyGSTPurchaseEntry(DocumentNo: Code[20])
@@ -1417,7 +1417,7 @@
           Round(
             (Amount * WHTPostingSetup."WHT %" / 100) /
             (CurrencyExchangeRate."Exchange Rate Amount" / CurrencyExchangeRate."Relational Exch. Rate Amount"));
-        Assert.AreNearlyEqual(WHTAmount, WHTEntry."Amount (LCY)", LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
+        Assert.AreNearlyEqual(WHTAmount, WHTEntry."Amount (LCY)", LibraryERM.GetAmountRoundingPrecision(), ValueMustBeSameMsg);
     end;
 
     local procedure VerifyClosedVendorLedgerEntry(DocumentNo: Code[20])
@@ -1440,7 +1440,7 @@
         VerifyClosedVendorLedgerEntry(DcoumentNo[4]);
     end;
 
-    local procedure VerifyPostingNoSeriesOnePostedDoc(GenJournalBatch: Record "Gen. Journal Batch"; PostedNo: Code[20]; GLEntryCount: Integer; WHTEntryCount: Integer)
+    local procedure VerifyPostingNoSeriesOnePostedDoc(PostedNo: Code[20]; GLEntryCount: Integer; WHTEntryCount: Integer)
     var
         GLEntry: Record "G/L Entry";
         WHTEntry: Record "WHT Entry";
@@ -1457,7 +1457,7 @@
         Assert.RecordCount(GLEntry, GLEntryCount);
     end;
 
-    local procedure VerifyPostingNoSeriesTwoPostedDocs(GenJournalBatch: Record "Gen. Journal Batch"; PostedNo1: Code[20]; PostedNo2: Code[20])
+    local procedure VerifyPostingNoSeriesTwoPostedDocs(PostedNo1: Code[20]; PostedNo2: Code[20])
     var
         GLEntry: Record "G/L Entry";
         WHTEntry: Record "WHT Entry";
@@ -1490,7 +1490,7 @@
         BASUpdate.IncludeGSTEntries.SetValue(IncludeGSTEntries::Open);
         BASUpdate.PeriodSelection.SetValue(PeriodSelection::"Within Period");
         BASUpdate."BAS Setup".SetFilter("Setup Name", BASSetup."Setup Name");
-        BASUpdate.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BASUpdate.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -1512,7 +1512,7 @@
         CalcAndPostWHTSettlement.RoundAccNo.SetValue(RoundAccNo);
         CalcAndPostWHTSettlement.ShowWHTEntries.SetValue(false);
         CalcAndPostWHTSettlement.Post.SetValue(true);
-        CalcAndPostWHTSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CalcAndPostWHTSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [MessageHandler]

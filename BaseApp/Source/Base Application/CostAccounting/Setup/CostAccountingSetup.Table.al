@@ -11,12 +11,14 @@ using Microsoft.Finance.Dimension;
 table 1108 "Cost Accounting Setup"
 {
     Caption = 'Cost Accounting Setup';
+    DataClassification = CustomerContent;
 
     fields
     {
         field(1; "Primary Key"; Code[10])
         {
             Caption = 'Primary Key';
+            DataClassification = SystemMetadata;
         }
         field(2; "Starting Date for G/L Transfer"; Date)
         {

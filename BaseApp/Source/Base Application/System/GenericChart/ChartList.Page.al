@@ -60,7 +60,7 @@ page 1391 "Chart List"
                         AccountSchedulesChartSetup.Insert(true);
                         Commit();
                     end;
-                    if Page.RunModal(Page::"Account Schedules Chart Setup", AccountSchedulesChartSetup) = ACTION::LookupOK THEN begin
+                    if Page.RunModal(Page::"Account Schedules Chart Setup", AccountSchedulesChartSetup) = ACTION::LookupOK then begin
                         ChartManagement.EnableChart(rec);
                         if Rec.Enabled then
                             Rec.Modify();

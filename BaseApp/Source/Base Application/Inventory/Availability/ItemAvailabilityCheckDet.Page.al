@@ -34,7 +34,7 @@ page 1873 "Item Availability Check Det."
                 Caption = 'Gross Requirement';
                 DecimalPlaces = 0 : 5;
                 Editable = false;
-                ToolTip = 'Specifies dependent demand plus independent demand. Dependent demand comes from production order components of all statuses, assembly order components, and planning lines. Independent demand comes from sales orders, transfer orders, service orders, job tasks, and demand forecasts.';
+                ToolTip = 'Specifies dependent demand plus independent demand. Dependent demand comes from production order components of all statuses, assembly order components, and planning lines. Independent demand comes from sales orders, transfer orders, service orders, project tasks, and demand forecasts.';
                 Visible = GrossReq <> 0;
             }
             field(ReservedReq; ReservedReq)

@@ -2,7 +2,7 @@ namespace Microsoft.Service.Posting;
 
 using Microsoft.Service.Document;
 using Microsoft.Service.History;
-using System.Utilities;
+using Microsoft.Finance.ReceivablesPayables;
 
 codeunit 5982 "Service-Post+Print"
 {
@@ -19,13 +19,9 @@ codeunit 5982 "Service-Post+Print"
         ServInvHeader: Record "Service Invoice Header";
         ServCrMemoHeader: Record "Service Cr.Memo Header";
         ServicePost: Codeunit "Service-Post";
-        Selection: Integer;
         Ship: Boolean;
         Consume: Boolean;
         Invoice: Boolean;
-
-        Text000: Label '&Ship,&Invoice,Ship &and Invoice,Ship and &Consume';
-        Text001: Label 'Do you want to post and print the %1?';
 
     procedure PostDocument(var Rec: Record "Service Header")
     var
@@ -39,41 +35,29 @@ codeunit 5982 "Service-Post+Print"
 
     local procedure "Code"(var PassedServLine: Record "Service Line")
     var
-        ConfirmManagement: Codeunit "Confirm Management";
         HideDialog: Boolean;
         IsHandled: Boolean;
+        DefaultOption: Integer;
     begin
         HideDialog := false;
         IsHandled := false;
+        DefaultOption := 3;
         OnBeforeConfirmPost(ServiceHeader, HideDialog, Ship, Consume, Invoice, IsHandled, PassedServLine);
         if IsHandled then
             exit;
 
-        with ServiceHeader do begin
-            if not HideDialog then
-                case "Document Type" of
-                    "Document Type"::Order:
-                        begin
-                            Selection := StrMenu(Text000, 3);
-                            if Selection = 0 then
-                                exit;
-                            Ship := Selection in [1, 3, 4];
-                            Consume := Selection in [4];
-                            Invoice := Selection in [2, 3];
-                        end
-                    else
-                        if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text001, "Document Type"), true) then
-                            exit;
-                end;
+        if not HideDialog then
+            if not ConfirmPostAndPrint(ServiceHeader, DefaultOption) then
+                exit;
 
-            OnAfterConfirmPost(ServiceHeader, Ship, Consume, Invoice);
+        OnAfterConfirmPost(ServiceHeader, Ship, Consume, Invoice);
 
-            ServicePost.PostWithLines(ServiceHeader, PassedServLine, Ship, Consume, Invoice);
-            OnAfterPost(ServiceHeader);
+        ServicePost.PostWithLines(ServiceHeader, PassedServLine, Ship, Consume, Invoice);
+        OnAfterPost(ServiceHeader);
 
-            GetReport(ServiceHeader);
-            Commit();
-        end;
+        GetReport(ServiceHeader);
+        Commit();
+
     end;
 
     procedure GetReport(var ServiceHeader: Record "Service Header")
@@ -85,52 +69,68 @@ codeunit 5982 "Service-Post+Print"
         if IsHandled then
             exit;
 
-        with ServiceHeader do
-            case "Document Type" of
-                "Document Type"::Order:
-                    begin
-                        if Ship then begin
-                            ServShptHeader."No." := "Last Shipping No.";
-                            ServShptHeader.SetRecFilter();
-                            IsHandled := false;
-                            OnBeforeServiceShipmentHeaderPrintRecords(ServShptHeader, IsHandled);
-                            if not IsHandled then
-                                ServShptHeader.PrintRecords(false);
-                        end;
-                        if Invoice then begin
-                            ServInvHeader."No." := "Last Posting No.";
-                            ServInvHeader.SetRecFilter();
-                            IsHandled := false;
-                            OnBeforeServiceInvoiceHeaderPrintRecords(ServInvHeader, IsHandled);
-                            if not IsHandled then
-                                ServInvHeader.PrintRecords(false);
-                        end;
+        case ServiceHeader."Document Type" of
+            ServiceHeader."Document Type"::Order:
+                begin
+                    if Ship then begin
+                        ServShptHeader."No." := ServiceHeader."Last Shipping No.";
+                        ServShptHeader.SetRecFilter();
+                        IsHandled := false;
+                        OnBeforeServiceShipmentHeaderPrintRecords(ServShptHeader, IsHandled);
+                        if not IsHandled then
+                            ServShptHeader.PrintRecords(false);
                     end;
-                "Document Type"::Invoice:
-                    begin
-                        if "Last Posting No." = '' then
-                            ServInvHeader."No." := "No."
-                        else
-                            ServInvHeader."No." := "Last Posting No.";
+                    if Invoice then begin
+                        ServInvHeader."No." := ServiceHeader."Last Posting No.";
                         ServInvHeader.SetRecFilter();
                         IsHandled := false;
                         OnBeforeServiceInvoiceHeaderPrintRecords(ServInvHeader, IsHandled);
                         if not IsHandled then
                             ServInvHeader.PrintRecords(false);
                     end;
-                "Document Type"::"Credit Memo":
-                    begin
-                        if "Last Posting No." = '' then
-                            ServCrMemoHeader."No." := "No."
-                        else
-                            ServCrMemoHeader."No." := "Last Posting No.";
-                        ServCrMemoHeader.SetRecFilter();
-                        IsHandled := false;
-                        OnBeforeServiceCrMemoHeaderPrintRecords(ServCrMemoHeader, IsHandled);
-                        if not IsHandled then
-                            ServCrMemoHeader.PrintRecords(false);
-                    end;
-            end;
+                end;
+            ServiceHeader."Document Type"::Invoice:
+                begin
+                    if ServiceHeader."Last Posting No." = '' then
+                        ServInvHeader."No." := ServiceHeader."No."
+                    else
+                        ServInvHeader."No." := ServiceHeader."Last Posting No.";
+                    ServInvHeader.SetRecFilter();
+                    IsHandled := false;
+                    OnBeforeServiceInvoiceHeaderPrintRecords(ServInvHeader, IsHandled);
+                    if not IsHandled then
+                        ServInvHeader.PrintRecords(false);
+                end;
+            ServiceHeader."Document Type"::"Credit Memo":
+                begin
+                    if ServiceHeader."Last Posting No." = '' then
+                        ServCrMemoHeader."No." := ServiceHeader."No."
+                    else
+                        ServCrMemoHeader."No." := ServiceHeader."Last Posting No.";
+                    ServCrMemoHeader.SetRecFilter();
+                    IsHandled := false;
+                    OnBeforeServiceCrMemoHeaderPrintRecords(ServCrMemoHeader, IsHandled);
+                    if not IsHandled then
+                        ServCrMemoHeader.PrintRecords(false);
+                end;
+        end;
+    end;
+
+    local procedure ConfirmPostAndPrint(var PassedServiceHeader: Record "Service Header"; DefaultOption: Integer) Result: Boolean
+    var
+        PostingSelectionManagement: Codeunit "Posting Selection Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeConfirmPostAndPrint(PassedServiceHeader, Ship, Consume, Invoice, DefaultOption, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        Result := PostingSelectionManagement.ConfirmPostServiceDocument(PassedServiceHeader, Ship, Consume, Invoice, DefaultOption, true, false, false);
+        if not Result then
+            exit(false);
+
+        exit(true);
     end;
 
     [IntegrationEvent(false, false)]
@@ -170,6 +170,11 @@ codeunit 5982 "Service-Post+Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostDocument(var ServiceHeader: Record "Service Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmPostAndPrint(var ServiceHeader: Record "Service Header"; var Ship: Boolean; var Consume: Boolean; var Invoice: Boolean; var DefaultOption: Integer; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

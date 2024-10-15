@@ -51,7 +51,7 @@ codeunit 141081 "ERM Journals"
         // [SCENARIO] Payment Journal is posted successfully using Apply Entries functionality.
 
         // [GIVEN] Post Purchase Invoice and apply Payment.
-        DocumentNo := CreateAndPostPurchaseInvoice;
+        DocumentNo := CreateAndPostPurchaseInvoice();
         PurchInvHeader.Get(DocumentNo);
         PurchInvHeader.CalcFields("Amount Including VAT");
         CreateGenJournalLine(
@@ -134,7 +134,7 @@ codeunit 141081 "ERM Journals"
         // [GIVEN] Purchase Invoice of Amount = 1000 with Payment Discount Possible = 100 and VAT % = 10
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(true, true, true);
-        UpdateGeneralPostingSetup;
+        UpdateGeneralPostingSetup();
         CreateAndPostPurchaseOrder(PurchaseHeader);
 
         // [GIVEN] Payment for the invoice within Payment Discount Date
@@ -150,7 +150,7 @@ codeunit 141081 "ERM Journals"
         VerifyGSTPurchaseEntry(GenJournalLine."Document No.", VATEntry.Amount);
 
         // Tear Down.
-        UpdateVATPostingSetup;
+        UpdateVATPostingSetup();
         UpdateGeneralLedgerSetup(GeneralLedgerSetup."Adjust for Payment Disc.",
           GeneralLedgerSetup."GST Report", GeneralLedgerSetup."Enable GST (Australia)");
     end;
@@ -163,7 +163,6 @@ codeunit 141081 "ERM Journals"
         GenJournalLine: Record "Gen. Journal Line";
         SalesHeader: Record "Sales Header";
         GeneralLedgerSetup: Record "General Ledger Setup";
-        VATPostingSetup: Record "VAT Posting Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         ReasonCode: Record "Reason Code";
         VATEntry: Record "VAT Entry";
@@ -174,7 +173,7 @@ codeunit 141081 "ERM Journals"
         // [GIVEN] Sales Invoice of Amount = 1000 with Payment Discount Possible = 100 and VAT % = 10
         GeneralLedgerSetup.Get();
         UpdateGeneralLedgerSetup(true, true, true);
-        UpdateGeneralPostingSetup;
+        UpdateGeneralPostingSetup();
         SalesReceivablesSetup.Get();
         LibraryERM.CreateReasonCode(ReasonCode);
         UpdateSalesReceivableSetup(ReasonCode.Code);
@@ -193,7 +192,7 @@ codeunit 141081 "ERM Journals"
         VerifyGSTSalesEntry(GenJournalLine."Document No.", VATEntry.Amount);
 
         // Tear Down.
-        UpdateVATPostingSetup;
+        UpdateVATPostingSetup();
         UpdateSalesReceivableSetup(SalesReceivablesSetup."Payment Discount Reason Code");
         UpdateGeneralLedgerSetup(GeneralLedgerSetup."Adjust for Payment Disc.",
           GeneralLedgerSetup."GST Report", GeneralLedgerSetup."Enable GST (Australia)");
@@ -213,8 +212,8 @@ codeunit 141081 "ERM Journals"
         // [SCENARIO] Payment Journal is posted successfully using Apply Entries functionality with different Vendors but one GenJournalLine."Document No."
 
         // [GIVEN] Two posted purchase invoices with Vendors: V1, V2
-        DocumentNo[1] := CreateAndPostPurchaseInvoice;
-        DocumentNo[2] := CreateAndPostPurchaseInvoice;
+        DocumentNo[1] := CreateAndPostPurchaseInvoice();
+        DocumentNo[2] := CreateAndPostPurchaseInvoice();
         // [GIVEN] GL Setup has "Enable WHT" = TRUE
         UpdateGLSetupWHT(true);
         // [GIVEN] GenJournalBatch
@@ -301,7 +300,6 @@ codeunit 141081 "ERM Journals"
 
     local procedure CreateAndPostPurchaseOrder(var PurchaseHeader: Record "Purchase Header")
     var
-        Item: Record Item;
         PurchaseLine: Record "Purchase Line";
         GeneralPostingSetup: Record "General Posting Setup";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -328,7 +326,6 @@ codeunit 141081 "ERM Journals"
     var
         GeneralPostingSetup: Record "General Posting Setup";
         VATPostingSetup: Record "VAT Posting Setup";
-        Item: Record Item;
         SalesLine: Record "Sales Line";
     begin
         LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
@@ -409,22 +406,22 @@ codeunit 141081 "ERM Journals"
     var
         PaymentJournal: TestPage "Payment Journal";
     begin
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         PaymentJournal.CurrentJnlBatchName.SetValue(CurrentJnlBatchName);
-        PaymentJournal.ApplyEntries.Invoke;  // Opens ApplyVendorEntriesPageHandler and ApplyCustomerEntriesPageHandler.
-        PaymentJournal.OK.Invoke;
+        PaymentJournal.ApplyEntries.Invoke();  // Opens ApplyVendorEntriesPageHandler and ApplyCustomerEntriesPageHandler.
+        PaymentJournal.OK().Invoke();
     end;
 
     local procedure OpenPaymentJournalPageAndApplyPaymentToInvoiceOnEntries(CurrentJnlBatchName: Code[10])
     var
         PaymentJournal: TestPage "Payment Journal";
     begin
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         PaymentJournal.CurrentJnlBatchName.SetValue(CurrentJnlBatchName);
-        PaymentJournal.ApplyEntries.Invoke;
+        PaymentJournal.ApplyEntries.Invoke();
         PaymentJournal.Next();
-        PaymentJournal.ApplyEntries.Invoke;
-        PaymentJournal.OK.Invoke;
+        PaymentJournal.ApplyEntries.Invoke();
+        PaymentJournal.OK().Invoke();
     end;
 
     local procedure UpdateGeneralPostingSetup()
@@ -523,16 +520,16 @@ codeunit 141081 "ERM Journals"
     [Scope('OnPrem')]
     procedure ApplyVendorEntriesModalPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
     begin
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        ApplyVendorEntries.OK.Invoke;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        ApplyVendorEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesModalPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries.OK().Invoke();
     end;
 }
 

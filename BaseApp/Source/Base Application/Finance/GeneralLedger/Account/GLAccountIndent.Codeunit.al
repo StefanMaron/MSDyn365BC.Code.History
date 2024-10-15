@@ -39,30 +39,29 @@ codeunit 3 "G/L Account-Indent"
 
         Window.Open(Text004);
 
-        with GLAcc do
-            if Find('-') then
-                repeat
-                    Window.Update(1, "No.");
+        if GLAcc.Find('-') then
+            repeat
+                Window.Update(1, GLAcc."No.");
 
-                    if "Account Type" = "Account Type"::"End-Total" then begin
-                        if i < 1 then
-                            Error(
-                              Text005,
-                              "No.");
-                        Totaling := AccNo[i] + '..' + "No.";
-                        i := i - 1;
-                    end;
+                if GLAcc."Account Type" = GLAcc."Account Type"::"End-Total" then begin
+                    if i < 1 then
+                        Error(
+                          Text005,
+                          GLAcc."No.");
+                    GLAcc.Totaling := AccNo[i] + '..' + GLAcc."No.";
+                    i := i - 1;
+                end;
 
-                    Validate(Indentation, i);
-                    Modify();
+                GLAcc.Validate(Indentation, i);
+                GLAcc.Modify();
 
-                    if "Account Type" = "Account Type"::"Begin-Total" then begin
-                        i := i + 1;
-                        if i > ArrayLen(AccNo) then
-                            Error(ArrayExceededErr, ArrayLen(AccNo));
-                        AccNo[i] := "No.";
-                    end;
-                until Next() = 0;
+                if GLAcc."Account Type" = GLAcc."Account Type"::"Begin-Total" then begin
+                    i := i + 1;
+                    if i > ArrayLen(AccNo) then
+                        Error(ArrayExceededErr, ArrayLen(AccNo));
+                    AccNo[i] := GLAcc."No.";
+                end;
+            until GLAcc.Next() = 0;
 
         Window.Close();
 
@@ -90,27 +89,26 @@ codeunit 3 "G/L Account-Indent"
             exit;
 
         Window.Open(Text004);
-        with ICGLAcc do
-            if Find('-') then
-                repeat
-                    Window.Update(1, "No.");
+        if ICGLAcc.Find('-') then
+            repeat
+                Window.Update(1, ICGLAcc."No.");
 
-                    if "Account Type" = "Account Type"::"End-Total" then begin
-                        if i < 1 then
-                            Error(
-                              Text005,
-                              "No.");
-                        i := i - 1;
-                    end;
+                if ICGLAcc."Account Type" = ICGLAcc."Account Type"::"End-Total" then begin
+                    if i < 1 then
+                        Error(
+                          Text005,
+                          ICGLAcc."No.");
+                    i := i - 1;
+                end;
 
-                    Validate(Indentation, i);
-                    Modify();
+                ICGLAcc.Validate(Indentation, i);
+                ICGLAcc.Modify();
 
-                    if "Account Type" = "Account Type"::"Begin-Total" then begin
-                        i := i + 1;
-                        AccNo[i] := "No.";
-                    end;
-                until Next() = 0;
+                if ICGLAcc."Account Type" = ICGLAcc."Account Type"::"Begin-Total" then begin
+                    i := i + 1;
+                    AccNo[i] := ICGLAcc."No.";
+                end;
+            until ICGLAcc.Next() = 0;
         Window.Close();
     end;
 

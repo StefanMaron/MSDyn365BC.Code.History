@@ -6,6 +6,7 @@ table 1541 "Workflow User Group Member"
 {
     Caption = 'Workflow User Group Member';
     ReplicateData = true;
+    DataClassification = CustomerContent;
 
     fields
     {

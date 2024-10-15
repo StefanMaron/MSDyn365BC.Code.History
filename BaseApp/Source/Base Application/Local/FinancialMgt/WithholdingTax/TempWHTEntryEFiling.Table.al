@@ -15,6 +15,7 @@ using Microsoft.Sales.Customer;
 table 16608 "Temp WHT Entry - EFiling"
 {
     Caption = 'Temp WHT Entry - EFiling';
+    DataClassification = CustomerContent;
 
     fields
     {

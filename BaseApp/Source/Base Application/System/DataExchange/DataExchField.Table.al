@@ -7,6 +7,7 @@ table 1221 "Data Exch. Field"
     Caption = 'Data Exch. Field';
     Permissions = TableData "Data Exch. Field" = rimd;
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -45,7 +46,7 @@ table 1221 "Data Exch. Field"
         }
         field(11; "Data Exch. Def Code"; Code[20])
         {
-            CalcFormula = Lookup("Data Exch."."Data Exch. Def Code" where("Entry No." = field("Data Exch. No.")));
+            CalcFormula = lookup("Data Exch."."Data Exch. Def Code" where("Entry No." = field("Data Exch. No.")));
             Caption = 'Data Exch. Def Code';
             FieldClass = FlowField;
         }

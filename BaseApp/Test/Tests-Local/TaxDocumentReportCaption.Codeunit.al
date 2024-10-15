@@ -18,9 +18,6 @@ codeunit 144001 "Tax Document Report Caption"
         InvoiceTxt: Label 'Invoice';
         TaxInvoiceTxt: Label 'Tax Invoice';
         PrepmtTaxInvoiceTxt: Label 'Prepayment Tax Invoice';
-        SalesInvoiceTxt: Label 'Sales - Invoice %1';
-        SalesTaxInvoiceTxt: Label 'Sales - Tax Invoice %1';
-        SalesPrepmtTaxInvoiceTxt: Label 'Sales - Prepayment Tax Invoice %1';
         ServiceInvoiceTxt: Label 'Service - Invoice %1';
         ServiceTaxInvoiceTxt: Label 'Service - Tax Invoice %1';
         LibraryApplicationArea: Codeunit "Library - Application Area";
@@ -35,9 +32,9 @@ codeunit 144001 "Tax Document Report Caption"
         // [FEATURE] [UI]
         Initialize();
         LibraryApplicationArea.EnableFoundationSetup();
-        GeneralLedgerSetupPage.OpenEdit;
-        Assert.IsTrue(GeneralLedgerSetupPage."Tax Invoice Renaming Threshold".Visible, 'Tax Invoice Renaming Threshold is not visible');
-        Assert.IsTrue(GeneralLedgerSetupPage."Tax Invoice Renaming Threshold".Editable, 'Tax Invoice Renaming Threshold is not editable');
+        GeneralLedgerSetupPage.OpenEdit();
+        Assert.IsTrue(GeneralLedgerSetupPage."Tax Invoice Renaming Threshold".Visible(), 'Tax Invoice Renaming Threshold is not visible');
+        Assert.IsTrue(GeneralLedgerSetupPage."Tax Invoice Renaming Threshold".Editable(), 'Tax Invoice Renaming Threshold is not editable');
     end;
 
     [Test]
@@ -191,14 +188,14 @@ codeunit 144001 "Tax Document Report Caption"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("Prices Including VAT", true);
         if CurrencyFactor <> 1 then
             SalesHeader.Validate(
               "Currency Code", LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), CurrencyFactor, CurrencyFactor));
         SalesHeader.Modify();
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
         SalesLine.Validate("Unit Price", TotalAmount);
         SalesLine.Modify();
 
@@ -216,11 +213,11 @@ codeunit 144001 "Tax Document Report Caption"
         ServiceLine: Record "Service Line";
         ServiceInvoiceHeader: Record "Service Invoice Header";
     begin
-        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         ServiceHeader.Validate("Prices Including VAT", true);
         ServiceHeader.Modify();
         LibraryService.CreateServiceLineWithQuantity(
-          ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, 1);
+          ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
         ServiceLine.Validate("Unit Price", TotalAmount);
         ServiceLine.Modify();
 
@@ -242,8 +239,8 @@ codeunit 144001 "Tax Document Report Caption"
 
     local procedure VerifyReportCaption(CaptionName: Text; ExpectedValue: Text)
     begin
-        LibraryReportDataset.LoadDataSetFile;
-        Assert.IsTrue(LibraryReportDataset.GetNextRow, 'Cannot find first row.');
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.IsTrue(LibraryReportDataset.GetNextRow(), 'Cannot find first row.');
         LibraryReportDataset.AssertCurrentRowValueEquals(CaptionName, ExpectedValue);
     end;
 
@@ -251,14 +248,14 @@ codeunit 144001 "Tax Document Report Caption"
     [Scope('OnPrem')]
     procedure ServiceInvoiceRequestPageHandler(var ServiceInvoice: TestRequestPage "Service - Invoice")
     begin
-        ServiceInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        ServiceInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure StdSalesInvoiceRequestPageHandler(var StandardSalesInvoice: TestRequestPage "Standard Sales - Invoice")
     begin
-        StandardSalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StandardSalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

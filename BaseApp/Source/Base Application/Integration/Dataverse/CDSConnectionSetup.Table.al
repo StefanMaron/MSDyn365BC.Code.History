@@ -15,6 +15,7 @@ using System.Threading;
 table 7200 "CDS Connection Setup"
 {
     Caption = 'Dataverse Connection Setup';
+    DataClassification = CustomerContent;
 
     fields
     {

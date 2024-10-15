@@ -36,6 +36,7 @@ table 28074 "Sales Tax Cr.Memo Line"
 {
     Caption = 'Sales Tax Cr.Memo Line';
     DrillDownPageID = "Posted Sales Cr. Memo Subform";
+    DataClassification = CustomerContent;
 
     fields
     {
