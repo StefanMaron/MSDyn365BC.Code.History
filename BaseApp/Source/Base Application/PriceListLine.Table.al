@@ -748,6 +748,11 @@
         Clear(PriceListHeader);
     end;
 
+    internal procedure SetHeader(var NewPriceListHeader: Record "Price List Header")
+    begin
+        PriceListHeader := NewPriceListHeader;
+    end;
+
     local procedure GetValueFromHeader(FieldId: Integer)
     begin
         if not GetHeader() then

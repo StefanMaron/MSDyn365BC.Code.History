@@ -191,7 +191,7 @@ codeunit 142036 "UT COD INTRASTAT"
     var
         Type: Option Receipt,Shipment;
     begin
-        IntrastatMakeDiskTaxAuth."Intrastat Jnl. Line".SetFilter(Type, Format(Type::Receipt))
+        IntrastatMakeDiskTaxAuth.IntrastatJnlLine.SetFilter(Type, Format(Type::Receipt))
     end;
 
     [RequestPageHandler]

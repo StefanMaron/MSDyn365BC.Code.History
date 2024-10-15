@@ -113,6 +113,7 @@ page 510 "Blanket Purchase Order Subform"
 
                     trigger OnValidate()
                     begin
+                        ShowShortcutDimCode(ShortcutDimCode);
                         DeltaUpdateTotals();
                     end;
                 }

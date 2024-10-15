@@ -48,9 +48,8 @@ codeunit 99000810 "Calculate Planning Route Line"
         FirstInBatch: Boolean;
         FirstEntry: Boolean;
         UpdateDates: Boolean;
+        WaitTimeOnly: Boolean;
         PlanningResiliency: Boolean;
-        IsFirstRoutingLine: Boolean;
-        IsFirstCalculate: Boolean;
         CurrentTimeFactor: Decimal;
         CurrentRounding: Decimal;
 
@@ -201,19 +200,17 @@ codeunit 99000810 "Calculate Planning Route Line"
         IsHandled: Boolean;
     begin
         xConCurrCap := 1;
-        if (RemainNeedQty = 0) and ((not FirstEntry) or (not Write)) then
+        if (RemainNeedQty = 0) and ((not FirstEntry) or (not Write) or WaitTimeOnly) then
             exit;
 
         if CalendarEntry.Find('+') then begin
             IsHandled := false;
             OnCreateLoadBackOnBeforeFirstCalculate(PlanningRoutingLine, IsHandled);
             if not IsHandled then
-                if not IsFirstRoutingLine then
-                    if (RemainNeedQty <> 0) and (not IsFirstCalculate) then begin
-                        if TimeType = TimeType::"Wait Time" then
-                            ProdEndingTime := CalendarEntry."Ending Time";
-                        IsFirstCalculate := true;
-                    end;
+                if (TimeType = TimeType::"Wait Time") and (CalendarEntry.Date < ProdEndingDate) then begin
+                    CalendarEntry.Date := ProdEndingDate;
+                    CreateCalendarEntry(CalendarEntry);
+                end;
 
             GetCurrentWorkCenterTimeFactorAndRounding(WorkCenter);
             RemainNeedQtyBase := Round(RemainNeedQty * CurrentTimeFactor, CurrentRounding);
@@ -249,7 +246,7 @@ codeunit 99000810 "Calculate Planning Route Line"
                     FirstInBatch := false;
                     FirstEntry := false;
                 end;
-                if CalendarEntry."Capacity (Effective)" <> 0 then
+                if (CalendarEntry."Capacity (Effective)" <> 0) or (TimeType = TimeType::"Wait Time") then
                     UpdateEndingDateAndTime(CalendarEntry.Date, CalendarEntry."Ending Time");
                 ProdEndingTime := StartingTime;
                 ProdEndingDate := CalendarEntry.Date;
@@ -283,9 +280,13 @@ codeunit 99000810 "Calculate Planning Route Line"
         StopLoop: Boolean;
     begin
         xConCurrCap := 1;
-        if (RemainNeedQty = 0) and ((not FirstEntry) or (not Write)) then
+        if (RemainNeedQty = 0) and ((not FirstEntry) or (not Write) or WaitTimeOnly) then
             exit;
         if CalendarEntry.Find('-') then begin
+            if (TimeType = TimeType::"Wait Time") and (CalendarEntry.Date > ProdStartingDate) then begin
+                CalendarEntry.Date := ProdStartingDate;
+                CreateCalendarEntry(CalendarEntry);
+            end;
             if CalendarEntry."Capacity (Effective)" = 0 then begin
                 CalendarEntry."Starting Time" := ProdStartingTime;
                 CalendarEntry.Date := ProdStartingDate;
@@ -324,7 +325,7 @@ codeunit 99000810 "Calculate Planning Route Line"
                     FirstInBatch := false;
                     FirstEntry := false;
                 end;
-                if CalendarEntry."Capacity (Effective)" <> 0 then
+                if (CalendarEntry."Capacity (Effective)" <> 0) or (TimeType = TimeType::"Wait Time") then
                     UpdateStartingDateAndTime(CalendarEntry.Date, CalendarEntry."Starting Time");
                 if (EndingTime = 000000T) and (AvQtyBase <> 0) then
                     // Ending Time reached 24:00:00 so we need to move date as well
@@ -581,7 +582,6 @@ codeunit 99000810 "Calculate Planning Route Line"
 
         FirstEntry := true;
 
-        IsFirstRoutingLine := CalcStartEndDate;
         if (PlanningRoutingLine."Next Operation No." <> '') and
            CalcStartEndDate
         then begin
@@ -1022,6 +1022,10 @@ codeunit 99000810 "Calculate Planning Route Line"
 
         PlanningRoutingLine := PlanningRoutingLine2;
 
+        WaitTimeOnly :=
+            (PlanningRoutingLine."Setup Time" = 0) and (PlanningRoutingLine."Run Time" = 0) and
+            (PlanningRoutingLine."Move Time" = 0);
+
         if PlanningRoutingLine."Ending Time" = 0T then
             PlanningRoutingLine."Ending Time" := 000000T;
 
@@ -1097,6 +1101,9 @@ codeunit 99000810 "Calculate Planning Route Line"
         EndTime: Time;
         StartTime: Time;
     begin
+        if (RemainNeedQty = 0) and WaitTimeOnly then
+            exit;
+
         EndTime := ProdEndingTime;
         ProdEndingDateTime := CreateDateTime(ProdEndingDate, ProdEndingTime);
         ProdEndingDateTimeAddOneDay := CreateDateTime(ProdEndingDate + 1, ProdEndingTime);
@@ -1238,6 +1245,8 @@ codeunit 99000810 "Calculate Planning Route Line"
         EndTime: Time;
         StartTime: Time;
     begin
+        if (RemainNeedQty = 0) and WaitTimeOnly then
+            exit;
         StartTime := ProdStartingTime;
         ProdStartingDateTime := CreateDateTime(ProdStartingDate, ProdStartingTime);
         ProdStartingDateTimeSubOneDay := CreateDateTime(ProdStartingDate - 1, ProdStartingTime);
@@ -1473,6 +1482,23 @@ codeunit 99000810 "Calculate Planning Route Line"
             Result := GetSendAheadStartingTime(TmpPlanRtngLine, SendAheadLotSize);
 
         exit(Result);
+    end;
+
+    local procedure CreateCalendarEntry(var CalEntry: Record "Calendar Entry")
+    begin
+        CalEntry."Ending Time" := 000000T;
+        CalEntry."Starting Time" := 000000T;
+        CalEntry.Efficiency := 100;
+        CalEntry."Absence Capacity" := 0;
+        CalEntry."Capacity (Total)" := 0;
+        CalEntry."Capacity (Effective)" := CalEntry."Capacity (Total)";
+        CalEntry."Starting Date-Time" := CreateDateTime(CalEntry.Date, CalEntry."Starting Time");
+        CalEntry."Ending Date-Time" := CalEntry."Starting Date-Time" + 86400000;  // 24h * 60m * 60s * 1000ms
+        if not CalEntry.Get(
+            CalEntry."Capacity Type", CalEntry."No.", CalEntry.Date,
+            CalEntry."Starting Time", CalEntry."Ending Time", CalEntry."Work Shift Code")
+        then
+            CalEntry.Insert();
     end;
 
     local procedure GetCurrentWorkCenterTimeFactorAndRounding(var CurrentWorkCenter: Record "Work Center")

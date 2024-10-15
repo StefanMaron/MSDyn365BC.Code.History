@@ -297,14 +297,10 @@ codeunit 350 IntraJnlManagement
     end;
 
     procedure CreateDefaultAdvancedIntrastatSetup()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
     begin
         CreateAdvancedChecklistSetupCommonFields(Report::"Intrastat - Checklist DE");
         CreateAdvancedChecklistSetupCommonFields(Report::"Intrastat - Form DE");
         CreateAdvancedChecklistSetupCommonFields(Report::"Intrastat - Disk Tax Auth DE");
-
-        CreateAdvancedChecklistFieldSetup(Report::"Intrastat - Checklist DE", IntrastatJnlLine.FieldNo("Partner VAT ID"), 'Type: Shipment');
     end;
 
     local procedure CreateAdvancedChecklistSetupCommonFields(ReportId: Integer)
@@ -315,10 +311,10 @@ codeunit 350 IntraJnlManagement
         CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Country/Region Code"), '');
         CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Transaction Type"), '');
         CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Transport Method"), '');
-        CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Transaction Specification"), '');
         CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo(Quantity), 'Supplementary Units: True');
         CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo(Area), '');
-        CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Country/Region of Origin Code"), 'Type: Receipt');
+        CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Partner VAT ID"), 'Type: Shipment');
+        CreateAdvancedChecklistFieldSetup(ReportId, IntrastatJnlLine.FieldNo("Country/Region of Origin Code"), '');
     end;
 
     local procedure CreateAdvancedChecklistFieldSetup(ReportId: Integer; FieldNo: Integer; FilterExpr: Text)

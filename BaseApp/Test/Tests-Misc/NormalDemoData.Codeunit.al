@@ -346,13 +346,11 @@ codeunit 138200 "Normal DemoData"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         AdvancedIntrastatChecklist: Record "Advanced Intrastat Checklist";
     begin
-        Assert.RecordCount(AdvancedIntrastatChecklist, 25);
+        Assert.RecordCount(AdvancedIntrastatChecklist, 24);
 
         AdvancedIntrastatChecklistCommonFields(Report::"Intrastat - Checklist DE");
         AdvancedIntrastatChecklistCommonFields(Report::"Intrastat - Form DE");
         AdvancedIntrastatChecklistCommonFields(Report::"Intrastat - Disk Tax Auth DE");
-
-        AdvancedIntrastatChecklistField(Report::"Intrastat - Checklist DE", IntrastatJnlLine.FieldNo("Partner VAT ID"), 'Type: Shipment');
     end;
 
     local procedure AdvancedIntrastatChecklistCommonFields(ReportId: Integer)
@@ -363,10 +361,10 @@ codeunit 138200 "Normal DemoData"
         AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Country/Region Code"), '');
         AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Transaction Type"), '');
         AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Transport Method"), '');
-        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Transaction Specification"), '');
         AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo(Quantity), 'Supplementary Units: Yes');
         AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo(Area), '');
-        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Country/Region of Origin Code"), 'Type: Receipt');
+        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Partner VAT ID"), 'Type: Shipment');
+        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Country/Region of Origin Code"), '');
     end;
 
     local procedure AdvancedIntrastatChecklistField(ReportId: Integer; FieldNo: Integer; FilterExpr: Text)
