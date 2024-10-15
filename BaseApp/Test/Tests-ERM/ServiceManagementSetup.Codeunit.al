@@ -38,6 +38,7 @@ codeunit 136110 "Service Management Setup"
         CancelReasonBlankErrorServTier: Label '%1 must have a value in %2: %3=%4, %5=%6. It cannot be zero or empty.';
         ContractCancellationQuestion: Label 'It is not possible to change a service contract to its previous status.\\Do you want to cancel the contract?';
         DateRangeError: Label 'The date range you have entered is a longer period than is allowed in the %1 table.';
+        LineDiscountPerError: Label 'Line Discount % field have different values.';
         ServiceInvoiceMassage: Label 'Service Invoice ';
         ZeroOrderCreated: Label '0 service order was created.';
         UnexpectedMessage: Label 'Unknown message %1.';
@@ -1530,6 +1531,40 @@ codeunit 136110 "Service Management Setup"
         // [VERIFY]: Verify COntract Group Code on Service Ledger Entries
         VerifyContractGroupCodeOnServiceLedgerEntry(ServiceContractHeader."Contract No.", ContractGroup.Code);
     end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure TestLineDiscountOnChangingFaultReasonCode()
+    var
+        FaultReasonCode: Record "Fault Reason Code";
+        ServiceHeader: Record "Service Header";
+        ServiceMgtSetup: Record "Service Mgt. Setup";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceLine: Record "Service Line";
+        Item: Record Item;
+    begin
+        // [SCENARIO 491083] The "Line Discount %" field should be updated correctly when the Fault Reason Code that has both warranty and contract discount checked is selected.
+        Initialize();
+
+        // [GIVEN] Create a new Fault Reason Code with Exclude Warranty Discount and Exclude Contract Discount should be true
+        LibraryService.CreateFaultReasonCode(FaultReasonCode, true, true);
+
+        // [GIVEN] Create a new Service Order with Service Item Worksheet in which Warranty will be enabled
+        SetupServiceMgtWarrantyDisc(ServiceMgtSetup, LibraryRandom.RandInt(100), LibraryRandom.RandInt(100));
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, '');
+        LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
+        ServiceItemLine.Validate(Warranty, true);
+        ServiceItemLine.Modify(true);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItem(Item));
+
+        // [WHEN] Input the new Fault Reason Code created 
+        ServiceLine.Validate("Fault Reason Code", FaultReasonCode.Code);
+        ServiceLine.Modify(true);
+
+        // [THEN] Line Discount % value should be 0.
+        Assert.AreEqual(ServiceLine."Line Discount %", 0, LineDiscountPerError);
+    end;
+
 
     local procedure CreateAndPostServiceOrderForResource(var ServiceHeader: Record "Service Header"; ServiceContractLine: Record "Service Contract Line"; CustomerNo: Code[20]; ContractNo: Code[20]; Invoice: Boolean)
     var
