@@ -31,6 +31,7 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         DialogTxt: Label 'Dialog';
         EarlierPostingDateErr: Label 'You cannot apply and post an entry to an entry with an earlier posting date.';
         DifferentCurrenciesErr: Label 'All entries in one application must be in the same currency.';
+        AppliesToDocErr: Label 'Applies-To Doc, should not be blank.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1034,6 +1035,31 @@ codeunit 134000 "ERM Apply Sales/Receivables"
         Assert.ExpectedError(DifferentCurrenciesErr);
 
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NotClearAppliesToDocNoValueFromGenJnlLine()
+    var
+        CustLedgEntry: Record "Cust. Ledger Entry";
+        GenJnlLine: Record "Gen. Journal Line";
+    begin
+        // [SCENARIO 446576] When selecting the Applies-to Doc. No. manually in General Journal, the Account No. is  filled automatically, 
+        // but the Applies-to Doc. No. deleted, if the lines is created from Bank Acc. Reconciliation.
+
+        Initialize();
+
+        // [GIVEN] Customer Ledger Entry and General Journal Line with "Applies-to Doc. No"
+        FindOpenInvCustLedgEntry(CustLedgEntry);
+        CreateGenJnlLineWithAppliesToDocNo(
+          GenJnlLine, GenJnlLine."Account Type"::Customer, '', CustLedgEntry."Document No.");
+
+        // [WHEN] Validate "Applies-to Doc. No." field in General Journal Line. And "Applies-to Doc. No." will not be deleted.
+        GenJnlLine.Validate("Applies-to Doc. No.", CustLedgEntry."Document No.");
+        GenJnlLine.Modify(true);
+
+        // [VERIFY] "Applies-to Doc. No." will be same as  in Customer Ledger Entry
+        Assert.AreEqual(GenJnlLine."Applies-to Doc. No.", CustLedgEntry."Document No.", AppliesToDocErr);
     end;
 
     local procedure Initialize()

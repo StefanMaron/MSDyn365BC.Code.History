@@ -1646,6 +1646,8 @@
                         ItemTemplMgt: Codeunit "Item Templ. Mgt.";
                     begin
                         ItemTemplMgt.UpdateItemFromTemplate(Rec);
+                        EnableControls();
+                        CurrPage.Update();
                     end;
                 }
                 action(SaveAsTemplate)
@@ -2867,6 +2869,7 @@
         if ItemTemplMgt.InsertItemFromTemplate(Item) then begin
             Copy(Item);
             OnCreateItemFromTemplateOnBeforeCurrPageUpdate(Rec);
+            EnableControls();
             CurrPage.Update();
             OnCreateItemFromTemplateOnAfterCurrPageUpdate(Rec);
         end else

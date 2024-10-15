@@ -826,7 +826,7 @@ table 114 "Sales Cr.Memo Header"
             if CorrDocMgt.IsCorrDocument(TempSalesHeader) then begin
                 if SendAsEmail then
                     ReportSelection.SendEmailToCust(
-                      ReportSelection.Usage::CSCM.AsInteger(), SalesCrMemoHeader, "No.", '', ShowRequestForm, "Bill-to Customer No.", 0)
+                      ReportSelection.Usage::CSCM.AsInteger(), SalesCrMemoHeader, "No.", '', ShowRequestForm, "Bill-to Customer No.")
                 else
                     ReportSelection.PrintWithDialogForCust(
                       ReportSelection.Usage::CSCM, SalesCrMemoHeader, ShowRequestForm, FieldNo("Bill-to Customer No."));
@@ -834,7 +834,7 @@ table 114 "Sales Cr.Memo Header"
                 if SendAsEmail then
                     ReportSelection.SendEmailToCust(
                       ReportSelection.Usage::"S.Cr.Memo".AsInteger(), SalesCrMemoHeader, "No.",
-                      ReportDistributionMgt.GetFullDocumentTypeText(SalesCrMemoHeader), ShowRequestForm, "Bill-to Customer No.", 0)
+                      ReportDistributionMgt.GetFullDocumentTypeText(SalesCrMemoHeader), ShowRequestForm, "Bill-to Customer No.")
                 else
                     ReportSelection.PrintWithDialogForCust(
                       ReportSelection.Usage::"S.Cr.Memo", SalesCrMemoHeader, ShowRequestForm, FieldNo("Bill-to Customer No."));

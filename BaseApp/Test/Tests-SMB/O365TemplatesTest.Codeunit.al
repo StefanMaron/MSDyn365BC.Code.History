@@ -42,6 +42,8 @@ codeunit 138012 "O365 Templates Test"
         TemplateMustBeEnabledErr: Label 'New configuration template must be enabled';
         RelationErr: Label 'A template cannot relate to itself. Specify a different template.';
         DuplicateRelationErr: Label 'The template %1 is already in this hierarchy.';
+        StartingNumberTxt: Label 'ABC00010D';
+        EndingNumberTxt: Label 'ABC00090D';
 
     [Test]
     [HandlerFunctions('CustomerTemplateCardHandler')]
@@ -1486,6 +1488,52 @@ codeunit 138012 "O365 Templates Test"
         VendorTemplateCard.OK.Invoke;
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTemplateCardHandler')]
+    [Scope('OnPrem')]
+    procedure CreateItemFromItemTemplateWit()
+    var
+        ItemTempl: Record "Item Templ.";
+        Item: Record Item;
+        NoSeries: Record "No. Series";
+        ItemCard: TestPage "Item Card";
+        ItemNo: Variant;
+        ConfigTemplHeaderCode: Code[20];
+        LastNoUsed: Code[20];
+        NewLastNoUsed: Code[20];
+    begin
+        // [SCENARIO 436572] No Series Lines are no longer automatically closing when the last number is reached.
+        Initialize();
+
+        // [GIVEN] Create No. Series and No. Series Line 
+        CreateNewNumberSeries(NoSeries);
+        CreateNumberSeriesLine(NoSeries, StartingNumberTxt, StartingNumberTxt, 1, 10000, false);
+        CreateNumberSeriesLine(NoSeries, EndingNumberTxt, EndingNumberTxt, 1, 20000, false);
+
+        // [GIVEN] Configuration Template for blank Item with No. Series.
+        CreateBlankItem(Item);
+        CreateTemplateFromItem(Item, ConfigTemplHeaderCode);
+        ItemTempl.Get(ConfigTemplHeaderCode);
+        ItemTempl."No. Series" := NoSeries.Code;
+        ItemTempl.Modify(true);
+
+        // [WHEN] Create new Item
+        ItemCard.OpenNew();
+        ItemNo := ItemCard."No.".Value;
+        ItemCard.Close();
+
+        // [VERIFY] Item is created with No. = "ABC00010D" 
+        VerifyItemNoWithSeries(ItemNo, StartingNumberTxt, NoSeries.Code);
+
+        // [WHEN] Create new Item
+        ItemCard.OpenNew();
+        ItemNo := ItemCard."No.".Value;
+        ItemCard.Close();
+
+        // [VERIFy] Item is created with No. = "ABC00090D".
+        VerifyItemNoWithSeries(ItemNo, EndingNumberTxt, NoSeries.Code);
+    end;
+
     local procedure Initialize()
     var
         SalesSetup: Record "Sales & Receivables Setup";
@@ -2570,6 +2618,36 @@ codeunit 138012 "O365 Templates Test"
         RecordRef2.GetTable(NewItem);
 
         VerifyRecordRefsMatch(RecordRef1, RecordRef2);
+    end;
+
+    local procedure CreateNewNumberSeries(var NoSeries: Record "No. Series")
+    var
+        NoSerCode: Code[20];
+    begin
+        NoSerCode := LibraryRandom.RandText(20);
+        NoSeries.Code := NoSerCode;
+        NoSeries.Description := NoSerCode;
+        NoSeries."Default Nos." := true;
+        NoSeries.Insert();
+    end;
+
+    local procedure CreateNumberSeriesLine(NoSeries: Record "No. Series";
+                                           StartingNumber: Code[20];
+                                           EndingNumber: Code[20];
+                                           IncrementBy: Integer;
+                                           LineNo: Integer;
+                                           AllowGaps: Boolean)
+    var
+        NoSeriesLine: Record "No. Series Line";
+    begin
+        NoSeriesLine."Series Code" := NoSeries.Code;
+        NoSeriesLine."Line No." := LineNo;
+        NoSeriesLine.Validate("Starting No.", StartingNumber);
+        NoSeriesLine.Validate("Ending No.", EndingNumber);
+        NoSeriesLine."Increment-by No." := IncrementBy;
+        NoSeriesLine.Insert();
+        NoSeriesLine.Validate("Allow Gaps in Nos.", AllowGaps);
+        NoSeriesLine.Modify();
     end;
 
     local procedure EditSalesSetupWithVATBusPostGrPrice(BusPostingGroupVal: Code[20])

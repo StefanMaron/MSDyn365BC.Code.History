@@ -35,7 +35,6 @@ codeunit 134101 "ERM Prepayment II"
         ShipmentLinesDocNoErr: Label 'Wrong Document No. in shipment line in "Get Shipment Lines" page.';
         ReceiptLinesDocNoErr: Label 'Wrong Document No. in receipt line in "Get Receipt Lines" page.';
         VATCalculationType: Enum "Tax Calculation Type";
-        PrepmtLineAmtErr: Label 'Prepmt. Line Amount Excl. VAT cannot be more than';
 
     [Test]
     [Scope('OnPrem')]
@@ -418,9 +417,6 @@ codeunit 134101 "ERM Prepayment II"
         // [WHEN] Reopen partially posted Purchase Order and Modify Prepayment %.
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
         asserterror PurchaseHeader.Validate("Prepayment %", 100 - PurchaseHeader."Prepayment %" + LibraryRandom.RandInt(5));
-
-        // [THEN] Error will popup after modifing Prepayment%.
-        Assert.ExpectedError(PrepmtLineAmtErr);
     end;
 
     [Test]

@@ -1,4 +1,4 @@
-table 5612 "FA Depreciation Book"
+﻿table 5612 "FA Depreciation Book"
 {
     Caption = 'FA Depreciation Book';
     Permissions = TableData "FA Ledger Entry" = r,
@@ -940,6 +940,7 @@ table 5612 "FA Depreciation Book"
     trigger OnInsert()
     var
         TaxRegisterSetup: Record "Tax Register Setup";
+        IsHandled: Boolean;
     begin
         "Acquisition Date" := 0D;
         "G/L Acquisition Date" := 0D;
@@ -960,11 +961,15 @@ table 5612 "FA Depreciation Book"
         Description := FA.Description;
         "Main Asset/Component" := FA."Main Asset/Component";
         "Component of Main Asset" := FA."Component of Main Asset";
-        if ("No. of Depreciation Years" <> 0) or ("No. of Depreciation Months" <> 0) then
-            DeprBook.TestField("Fiscal Year 365 Days", false);
-        if TaxRegisterSetup.Get then
+        OnBeforeInsertFADeprBook(Rec, IsHandled);
+        if not IsHandled then
+            if ("No. of Depreciation Years" <> 0) or ("No. of Depreciation Months" <> 0) then
+                DeprBook.TestField("Fiscal Year 365 Days", false);
+
+        if TaxRegisterSetup.Get() then
             if "Depreciation Book Code" = TaxRegisterSetup."Tax Depreciation Book" then
                 "Depr. Bonus %" := TaxRegisterSetup."Default Depr. Bonus %";
+
         CheckApplyDeprBookDefaults();
     end;
 
@@ -1369,5 +1374,9 @@ table 5612 "FA Depreciation Book"
     local procedure OnValidateDepreciationEndingDateOnAfterCalcShowDeprMethodError(var FADepreciationBook: Record "FA Depreciation Book"; var ShowDeprMethodError: Boolean)
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertFADeprBook(FADepreciationBook: Record "FA Depreciation Book"; var IsHandled: Boolean)
+    begin
+    end;
+}

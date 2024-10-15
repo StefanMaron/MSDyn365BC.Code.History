@@ -313,7 +313,7 @@ table 337 "Reservation Entry"
         }
         key(Key11; "Serial No.", "Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line")
         {
-            SumIndexFields = "Quantity (Base)";
+            IncludedFields = "Quantity (Base)";
         }
     }
 

@@ -3967,6 +3967,7 @@
     protected var
         HideValidationDialog: Boolean;
         StatusCheckSuspended: Boolean;
+        SkipTaxCalculation: Boolean;
 
     procedure InitOutstanding()
     var
@@ -6073,6 +6074,16 @@
         TestField(Quantity);
     end;
 
+    procedure CanCalculateTax(): Boolean
+    begin
+        exit(SkipTaxCalculation);
+    end;
+
+    procedure SetSkipTaxCalulation(Skip: Boolean)
+    begin
+        SkipTaxCalculation := Skip;
+    end;
+
     procedure GetCaptionClass(FieldNumber: Integer): Text[80]
     var
         PurchLineCaptionClassMgmt: Codeunit "Purch. Line CaptionClass Mgmt";
@@ -8111,8 +8122,8 @@
             if "Prepmt. Line Amount" <> 0 then begin
                 RemLineAmountToInvoice :=
                   Round("Line Amount" * (Quantity - "Quantity Invoiced") / Quantity, Currency."Amount Rounding Precision");
-                if RemLineAmountToInvoice < ("Prepmt. Line Amount" - "Prepmt Amt Deducted") then
-                    FieldError("Prepmt. Line Amount", StrSubstNo(Text039, RemLineAmountToInvoice + "Prepmt Amt Deducted"));
+                if RemLineAmountToInvoice < ("Prepmt Amt to Deduct" - "Prepmt Amt Deducted") then
+                    FieldError("Prepmt Amt to Deduct", StrSubstNo(Text039, RemLineAmountToInvoice + "Prepmt Amt Deducted"));
             end;
         end else
             if (CurrFieldNo <> 0) and ("Line Amount" <> xRec."Line Amount") and

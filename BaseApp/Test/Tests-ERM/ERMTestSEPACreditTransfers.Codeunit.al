@@ -27,6 +27,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         LibraryJournals: Codeunit "Library - Journals";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         Initialized: Boolean;
         NameTxt: Label 'You Name It';
         AddressTxt: Label 'Privet Drive';
@@ -1558,7 +1559,34 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
 
         // [THEN] All credit transfer register entries are deleted
         Assert.RecordCount(CreditTransferEntry, 0);
+    end;
 
+    [Test]
+    procedure OrgIdOthrIdTagContainsCompanyInfoVATRegNo()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        CompanyInformation: Record "Company Information";
+        TempBlob: Codeunit "Temp Blob";
+        BlobOutStream: OutStream;
+    begin
+        // [SCENARIO 441036] Tag "InitgPty/Id/OrgId/Othr/Id" contains VAT Registration No. from Company Information when xml is exported using "SEPA CT pain.001.001.03" xmlport.
+        Init();
+
+        // [GIVEN] Company Information with VAT Registartion No. "AB12345".
+        LibraryERMCountryData.CompanyInfoSetVATRegistrationNo();
+
+        // [GIVEN] General Journal Line.
+        CreateGenJnlLine(GenJournalLine);
+
+        // [WHEN] Export General Jornal Line using XmlPort "SEPA CT pain.001.001.03".
+        TempBlob.CreateOutStream(BlobOutStream);
+        Xmlport.Export(BankAccount.GetPaymentExportXMLPortID, BlobOutStream, GenJournalLine);
+
+        // [THEN] Tag "InitgPty/Id/OrgId/Othr/Id" has value "AB12345".
+        CompanyInformation.Get();
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, NamespaceTxt);
+        LibraryXPathXMLReader.VerifyNodeValueByXPath(
+            '//CstmrCdtTrfInitn/GrpHdr/InitgPty/Id/OrgId/Othr/Id', CompanyInformation."VAT Registration No.");
     end;
 
     local procedure Init()
