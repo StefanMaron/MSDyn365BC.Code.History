@@ -38,6 +38,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         TooManyValuableSalesEntriesErr: Label 'Too many valuable Sales Lines found.', Comment = '.';
         TooManyValuablePurchaseEntriesErr: Label 'Too many valuable Purchase Lines found.', Comment = '.';
         VATReturnPeriodClosedErr: Label 'VAT Return Period is closed for the selected date. Please select another date.';
+        VATReturnPeriodFromClosedErr: Label 'VAT Entry is in a closed VAT Return Period and can not be changed.';
         PostingDateOutOfPostingDatesErr: Label 'VAT Date is not within your range of allowed posting dates';
 
     [Test]
@@ -3566,6 +3567,176 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     end;
 
     [Test]
+    procedure VATDateChangeFromClosedPeriodFailure()
+    var
+        SalesInvHeader: Record "Sales Invoice Header";
+        VATReturnPeriod: Record "VAT Return Period";
+        VATReportHeader: Record "VAT Report Header";
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        VATEntryPage: TestPage "VAT Entries";
+        DocNo: Code[20];
+        VATDate, NewVATDate : Date;
+        VATEntryNo: Integer;
+        DocType: Enum "Gen. Journal Document Type";
+        PostType: Enum "General Posting Type";
+    begin
+        // [FEATURE] [VAT]
+        // [SCENARIO 466417] Restricting VAT Date change from closed period
+        Initialize();
+        CleanVATReturnPeriod();
+        
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Control VAT Period" := GeneralLedgerSetup."Control VAT Period"::"Block posting within closed and warn for released period";
+        GeneralLedgerSetup.Modify();
+
+        // [WHEN] Posting sales invoice
+        DocType := Enum::"Gen. Journal Document Type"::Invoice;
+        PostType := Enum::"General Posting Type"::Sale;
+        DocNo := CreateAndPostSalesDoc(WorkDate(), DocType);
+        SalesInvHeader.Get(DocNo);
+
+        // [WHEN] Adding VAT Return period that is Closed with VAT Return Status Open
+        CreateVATReturnPeriod(VATReturnPeriod.Status::Closed, VATReportHeader.Status::Open, WorkDate(), WorkDate() + 1);
+
+        // [THEN] Get VAT Entry for document
+        VATEntryNo := VerifyVATEntry(DocNo, DocType, PostType, SalesInvHeader."VAT Reporting Date");
+        NewVATDate := WorkDate() + 2;
+
+        // [WHEN] Change VAT Date to date from VAT period that is closed is not allowed
+        VATEntryPage.OpenEdit();
+        VATEntryPage.Filter.SetFilter("Entry No.", Format(VATEntryNo));
+        VATEntryPage.First();
+        asserterror VATEntryPage."VAT Reporting Date".SetValue(NewVATDate);
+        Assert.ExpectedError(VATReturnPeriodFromClosedErr);
+
+        Assert.AreEqual(WorkDate(), VATEntryPage."VAT Reporting Date".AsDate(), VATDateOnRecordErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerTrue')]
+    procedure VATDateUIChangeDateFromToPeriodSuccessAndFailure()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        VATReturnPeriod: Record "VAT Return Period";
+        VATReportHeader: Record "VAT Report Header";
+        SalesHeader: Record "Sales Header";
+        SalesInvHeader: Record "Sales Invoice Header";
+        VATEntryPage: TestPage "VAT Entries";
+        DocType: Enum "Gen. Journal Document Type";
+        PostType: Enum "General Posting Type";
+        DocNo: Code[20];
+        VATEntryNo: Integer;
+    begin
+        // [FEATURE] [VAT]
+        // [SCENARIO 466417] Blocking change From and To if there is VAT Return Period 
+        Initialize();
+
+        // [WHEN] We disable the control
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Control VAT Period" := GeneralLedgerSetup."Control VAT Period"::Disabled;
+        GeneralLedgerSetup.Modify();
+
+        // [WHEN] Create document that is in VAT Return period that is Closed
+        CleanVATReturnPeriod();
+        WorkDate(20230101D);
+
+        DocType := Enum::"Gen. Journal Document Type"::Invoice;
+        PostType := Enum::"General Posting Type"::Sale;
+        DocNo := CreateAndPostSalesDoc(WorkDate(), DocType);
+        SalesInvHeader.Get(DocNo);
+        
+        VATEntryNo := VerifyVATEntry(DocNo, DocType, PostType, SalesInvHeader."VAT Reporting Date");
+        CreateVATReturnPeriod(VATReturnPeriod.Status::Closed, VATReportHeader.Status::Open, WorkDate(), WorkDate() + 1);
+        CreateVATReturnPeriod(VATReturnPeriod.Status::Open, VATReportHeader.Status::Released, WorkDate() + 2, WorkDate() + 3);
+        CreateVATReturnPeriod(VATReturnPeriod.Status::Open, VATReportHeader.Status::Open, WorkDate() + 4, WorkDate() + 5);
+        Commit();
+
+        // [WHEN] Check that we can do changes through the UI
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 1); // Closed to Closed OK
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 2); // Closed to Relased OK
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate());     // Released to Closed OK
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 4); // Closed to Open OK  
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 2); // Open to Released OK
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 4); // Released to Open OK  
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 2); // Open to Released OK  
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 3); // Released to Released OK  
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate());     // RESET
+
+        // [WHEN] We warn for changes for closed periods
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Control VAT Period" := GeneralLedgerSetup."Control VAT Period"::"Warn when posting in closed period";
+        GeneralLedgerSetup.Modify();
+
+        // [WHEN] Check that we can do changes through the UI and handle warning with accept
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 1); // Closed to Closed OK
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 2); // Closed to Relased OK
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate());     // Released to Closed OK
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 4); // Closed to Open OK  
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 2); // Open to Released OK  
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 4); // Released to Open OK  
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 2); // Open to Released OK  
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 3); // Released to Released OK  
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate());     // RESET
+
+        // [WHEN] We block posting with no warnings
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Control VAT Period" := GeneralLedgerSetup."Control VAT Period"::"Block posting within closed period";
+        GeneralLedgerSetup.Modify();
+        Commit();
+
+        // [WHEN] Check that we are blocked from moving out of closed period
+        CorrectVATDateAndVerifyError(VATEntryNo, WorkDate() + 2, VATReturnPeriodFromClosedErr); // FROM Closed TO Released FAIL
+        CorrectVATDateAndVerifyError(VATEntryNo, WorkDate() + 4, VATReturnPeriodFromClosedErr); // FROM Closed TO Open FAIL
+        CorrectVATDateAndVerifyError(VATEntryNo, WorkDate() + 1, VATReturnPeriodClosedErr); // FROM Closed TO Closed FAIL
+
+        // [WHEN] Change Entry to released period
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Control VAT Period" := GeneralLedgerSetup."Control VAT Period"::Disabled;
+        GeneralLedgerSetup.Modify();
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 2); // Move entry to released
+        GeneralLedgerSetup."Control VAT Period" := GeneralLedgerSetup."Control VAT Period"::"Block posting within closed period";
+        GeneralLedgerSetup.Modify();
+        Commit();
+
+        // [THEN] Check that we can do changes through the UI for released and open and we are blocked for closed 
+        CorrectVATDateAndVerifyError(VATEntryNo, WorkDate(), VATReturnPeriodClosedErr); // FROM Released TO Closed FAIL
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 4); // Released to Open OK 
+        CorrectVATDateAndVerifyError(VATEntryNo, WorkDate(), VATReturnPeriodClosedErr); // FROM Open TO Closed FAIL
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 2); // Open to Released OK  
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 3); // Released to Released OK  
+
+        // [WHEN] Reset VAT entry to closed period and change Control setting
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Control VAT Period" := GeneralLedgerSetup."Control VAT Period"::Disabled;
+        GeneralLedgerSetup.Modify();
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate()); // Reset to closed
+        GeneralLedgerSetup."Control VAT Period" := GeneralLedgerSetup."Control VAT Period"::"Block posting within closed and warn for released period";
+        GeneralLedgerSetup.Modify();
+        Commit();
+
+        // [WHEN] Check that we are blocked from moving out of closed period
+        CorrectVATDateAndVerifyError(VATEntryNo, WorkDate() + 2, VATReturnPeriodFromClosedErr); // FROM Closed TO Released FAIL
+        CorrectVATDateAndVerifyError(VATEntryNo, WorkDate() + 4, VATReturnPeriodFromClosedErr); // FROM Closed TO Open FAIL
+        CorrectVATDateAndVerifyError(VATEntryNo, WorkDate() + 1, VATReturnPeriodClosedErr); // FROM Closed TO Closed FAIL
+
+        // [WHEN] Change Entry to released period
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Control VAT Period" := GeneralLedgerSetup."Control VAT Period"::Disabled;
+        GeneralLedgerSetup.Modify();
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 2); // Move entry to released
+        GeneralLedgerSetup."Control VAT Period" := GeneralLedgerSetup."Control VAT Period"::"Block posting within closed and warn for released period";
+        GeneralLedgerSetup.Modify();
+        Commit();
+
+        // [THEN] Check that we can do changes through the UI for released and open and we are blocked for closed 
+        CorrectVATDateAndVerifyError(VATEntryNo, WorkDate(), VATReturnPeriodClosedErr); // FROM Released TO Closed FAIL
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 4); // Released to Open OK 
+        CorrectVATDateAndVerifyError(VATEntryNo, WorkDate(), VATReturnPeriodClosedErr); // FROM Open TO Closed FAIL
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 2); // Open to Released OK  
+        CorrectVATDateAndVerifyChange(VATEntryNo, WorkDate() + 3); // Released to Released OK
+    end;
+
+    [Test]
     procedure VATPostingDateChangeFailure()
     var
         SalesInvHeader: Record "Sales Invoice Header";
@@ -3581,6 +3752,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [FEATURE] [VAT]
         // [SCENARIO 448198] Restricting VAT Date change
         Initialize();
+        CleanVATReturnPeriod();
 
         // [WHEN] Posting sales invoice
         DocType := Enum::"Gen. Journal Document Type"::Invoice;
@@ -3622,6 +3794,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [FEATURE] [VAT]
         // [SCENARIO 448198] Restricting VAT Date change
         Initialize();
+        CleanVATReturnPeriod();
 
         // [WHEN] Posting sales invoice
         DocType := Enum::"Gen. Journal Document Type"::Invoice;
@@ -3664,6 +3837,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         // [FEATURE] [VAT]
         // [SCENARIO 448198] Restricting VAT Date change
         Initialize();
+        CleanVATReturnPeriod();
 
         // [WHEN] Posting sales invoice
         DocType := Enum::"Gen. Journal Document Type"::Invoice;
@@ -4825,6 +4999,30 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         CreateAndPostSalesDoc(WorkDate(), Enum::"Gen. Journal Document Type"::Invoice);
     end;
 
+    [Test]
+    procedure TestVATDatePostedRecurringJournal()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        RecurringFrequency: array[6] of DateFormula;
+        ExternaDocNo: Code[35];
+        VATDate: Date;
+    begin
+        // [FEATURE] [VAT]
+        // [GIVEN] Recurring Journal Line, with VAT Reporting Date different than Posting Date
+        CreateRecurringJournalLine(GenJournalLine, RecurringFrequency);
+        VatDate := CalcDate('<+5D>', GenJournalLine."Posting Date");
+        GenJournalLine.Validate("VAT Reporting Date", VatDate);
+        GenJournalLine.Modify(true);
+
+        ExternaDocNo := GenJournalLine."External Document No.";
+
+        // [WHEN] Recurring Journal got posted 
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Two VAT Entries are created (one recurring line with VAT Reporting Date = VAT Date, one allocation line wiyth VAT Reporrting Date = Posting Date + 1)  
+        VerifyVATDateRecurringJournal(ExternaDocNo, GenJournalLine."Posting Date", VATDate);
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -4839,6 +5037,7 @@ codeunit 134045 "ERM VAT Sales/Purchase"
 
         GLSetup.Get();
         GLSetup."VAT Reporting Date Usage" := GLSetup."VAT Reporting Date Usage"::Complete;
+        GLSetup."Control VAT Period" := GLSetup."Control VAT Period"::"Block posting within closed and warn for released period";
         GLSetup.Modify();
 
         // Lazy Setup.
@@ -5029,17 +5228,17 @@ codeunit 134045 "ERM VAT Sales/Purchase"
     var
         VATReturnPeriod: Record "VAT Return Period";
         VATReportHeader: Record "VAT Report Header";
+        Random: Codeunit "Library - Random";
     begin
-        VATReportHeader.DeleteAll();
-        VATReportHeader."No." := 'TEST';
+        
+        VATReportHeader."No." := Random.RandText(20);
         VATReportHeader."VAT Report Config. Code" := VATReportHeader."VAT Report Config. Code"::"VAT Return";
         VATReportHeader.Status := VATReportHeaderStatus;
         VATReportHeader.Insert();
 
-        VATReturnPeriod.DeleteAll();
         VATReturnPeriod.Init();
-        VATReturnPeriod."No." := 'TEST';
-        VATReturnPeriod."VAT Return No." := 'TEST';
+        VATReturnPeriod."No." := VATReportHeader."No."; 
+        VATReturnPeriod."VAT Return No." := VATReportHeader."No."; 
         VATReturnPeriod."Start Date" := StartDate;
         VATReturnPeriod."End Date" := EndDate;
         VATReturnPeriod.Status := VATReturnPeriodStatus;
@@ -5057,6 +5256,17 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         Assert.AreEqual(VATDate, VATEntryPage."VAT Reporting Date".AsDate(), VATDateOnRecordErr);
     end;
 
+    local procedure CorrectVATDateAndVerifyError(VATEntryNo: Integer; VATDate: Date; Error: Text)
+    var
+        VATEntryPage: TestPage "VAT Entries";
+    begin
+        VATEntryPage.OpenEdit();
+        VATEntryPage.Filter.SetFilter("Entry No.", Format(VATEntryNo));
+        VATEntryPage.First();
+        asserterror VATEntryPage."VAT Reporting Date".SetValue(VATDate);
+        Assert.ExpectedError(Error);
+    end;
+
     local procedure VerifyVATEntry(DocNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; Type: Enum "General Posting Type"; VATDate: Date): Integer
     var
         VATEntry: Record "VAT Entry";
@@ -5068,6 +5278,22 @@ codeunit 134045 "ERM VAT Sales/Purchase"
         VATEntry.FindFirst();
         Assert.AreEqual(VATDate, VATEntry."VAT Reporting Date", VATDateOnRecordErr);
         exit(VATEntry."Entry No.");
+    end;
+
+    local procedure VerifyVATDateRecurringJournal(ExternalDocNo: Code[35]; Postingdate: Date; VATDate: Date)
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        VATEntry.Reset();
+        VATEntry.SetRange("External Document No.", ExternalDocNo);
+
+        // recurring gen. journal line
+        VATEntry.SetRange("VAT Reporting Date", VATDate);
+        Assert.IsTrue(VATEntry.FindFirst(), VATDateOnRecordErr);
+
+        // allocation
+        VATEntry.SetRange("VAT Reporting Date", CalcDate('<+1D>', Postingdate));
+        Assert.IsTrue(VATEntry.FindFirst(), VATDateOnRecordErr);
     end;
 
     local procedure VerifyGLEntry(DocNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; Type: Enum "General Posting Type"; VATDate: Date)
@@ -5866,6 +6092,67 @@ LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Pos
           StrSubstNo(VATDifferenceErr, GeneralLedgerSetup."Max. VAT Difference Allowed", VATAmountLine.TableCaption()));
     end;
 
+    local procedure CreateRecurringJournalLine(var GenJournalLine: Record "Gen. Journal Line"; var RecurringFrequency: array[6] of DateFormula)
+    var
+        GLAccount: Record "G/L Account";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        // Find G/L Account without VAT.
+        GLAccount.SetFilter("VAT Prod. Posting Group", '<>%1', '');
+        GLAccount.SetRange("Gen. Posting Type", GLAccount."Gen. Posting Type"::Purchase);
+        LibraryERM.FindDirectPostingGLAccount(GLAccount);
+
+        // Create Recurring Journal Lines with Allocation and with random values.
+        LibraryERM.FindRecurringTemplateName(GenJournalTemplate);
+        LibraryERM.CreateRecurringBatchName(GenJournalBatch, GenJournalTemplate.Name);
+
+        CreateGeneralJournalLine(
+          GenJournalLine, GenJournalBatch, GenJournalLine."Recurring Method"::"RF Reversing Fixed", GenJournalLine."Document Type"::" ",
+          GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", LibraryRandom.RandDec(100, 2));
+
+        CreateAllocationLine(GenJournalLine);
+    end;
+
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch";
+        RecurringMethod: Enum "Gen. Journal Recurring Method"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
+    var
+        RecurringFrequency: DateFormula;
+    begin
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType, AccountType, AccountNo, Amount);
+        GenJournalLine.Validate("Recurring Method", RecurringMethod);
+        Evaluate(RecurringFrequency, '<' + Format(LibraryRandom.RandInt(10)) + 'M >');
+        GenJournalLine.Validate("Recurring Frequency", RecurringFrequency);
+        GenJournalLine.Modify(true);
+    end;
+
+    local procedure CreateAllocationLine(GenJournalLine: Record "Gen. Journal Line")
+    var
+        GenJnlAllocation: Record "Gen. Jnl. Allocation";
+        GLAccount: Record "G/L Account";
+    begin
+        // Create GL Account to use in General Journal Allocation Lines.
+        LibraryERM.CreateGLAccount(GLAccount);
+        FindGeneralJournalLine(GenJournalLine);
+
+        // Create Allocation Line for each Recurring Journal Line.
+        repeat
+            LibraryERM.CreateGenJnlAllocation(
+              GenJnlAllocation, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No.");
+            GenJnlAllocation.Validate("Account No.", GLAccount."No.");
+            GenJnlAllocation.Validate("Allocation %", 100);  // Using complete allocation for the Allocation Line.
+            GenJnlAllocation.Modify(true);
+        until GenJournalLine.Next() = 0;
+    end;
+
+    local procedure FindGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+        GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        GenJournalLine.FindSet();
+    end;
+
     local procedure VerifyGLEntry(DocumentNo: Code[20]; VATAmount: Decimal)
     var
         GLEntry: Record "G/L Entry";
@@ -6198,10 +6485,10 @@ LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Pos
     begin
         PostingDate := LibraryVariableStorage.DequeueDate();
         VATDate := LibraryVariableStorage.DequeueDate();
-        BatchPostSalesInvoices.PostingDate.SetValue(PostingDate);
-        BatchPostSalesInvoices.VATDate.SetValue(VATDate);
         BatchPostSalesInvoices.ReplacePostingDate.SetValue(true);
         BatchPostSalesInvoices.ReplaceVATDate.SetValue(true);
+        BatchPostSalesInvoices.PostingDate.SetValue(PostingDate);
+        BatchPostSalesInvoices.VATDate.SetValue(VATDate);
         BatchPostSalesInvoices.OK.Invoke;
     end;
 
@@ -6219,10 +6506,10 @@ LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Pos
         BatchPostSalesOrders.Invoice.SetValue(true);
         BatchPostSalesOrders."Sales Header".SetFilter("No.", DocumentNoFilter);
         BatchPostSalesOrders."Sales Header".SetFilter("Document Type", Format(Enum::"Sales Document Type"::Order));
-        BatchPostSalesOrders.PostingDate.SetValue(PostingDate);
-        BatchPostSalesOrders.VATDate.SetValue(VATDate);
         BatchPostSalesOrders.ReplacePostingDate.SetValue(true);
         BatchPostSalesOrders.ReplaceVATDate.SetValue(true);
+        BatchPostSalesOrders.PostingDate.SetValue(PostingDate);
+        BatchPostSalesOrders.VATDate.SetValue(VATDate);
         BatchPostSalesOrders.OK.Invoke;
     end;
 
@@ -6233,10 +6520,10 @@ LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Pos
     begin
         PostingDate := LibraryVariableStorage.DequeueDate();
         VATDate := LibraryVariableStorage.DequeueDate();
-        BatchPostSalesCreditMemos.PostingDate.SetValue(PostingDate);
-        BatchPostSalesCreditMemos.VATDate.SetValue(VATDate);
         BatchPostSalesCreditMemos.ReplacePostingDate.SetValue(true);
         BatchPostSalesCreditMemos.ReplaceVATDate.SetValue(true);
+        BatchPostSalesCreditMemos.PostingDate.SetValue(PostingDate);
+        BatchPostSalesCreditMemos.VATDate.SetValue(VATDate);
         BatchPostSalesCreditMemos.OK.Invoke;
     end;
 
@@ -6247,10 +6534,10 @@ LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Pos
     begin
         PostingDate := LibraryVariableStorage.DequeueDate();
         VATDate := LibraryVariableStorage.DequeueDate();
-        BatchPostPurchInvoices.PostingDate.SetValue(PostingDate);
-        BatchPostPurchInvoices.VATDate.SetValue(VATDate);
         BatchPostPurchInvoices.ReplacePostingDate.SetValue(true);
         BatchPostPurchInvoices.ReplaceVATDate.SetValue(true);
+        BatchPostPurchInvoices.PostingDate.SetValue(PostingDate);
+        BatchPostPurchInvoices.VATDate.SetValue(VATDate);
         BatchPostPurchInvoices.OK.Invoke;
     end;
 
@@ -6263,10 +6550,10 @@ LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Pos
         VATDate := LibraryVariableStorage.DequeueDate();
         BatchPostPurchOrders.Receive.SetValue(true);
         BatchPostPurchOrders.Invoice.SetValue(true);
-        BatchPostPurchOrders.PostingDate.SetValue(PostingDate);
-        BatchPostPurchOrders.VATDate.SetValue(VATDate);
         BatchPostPurchOrders.ReplacePostingDate.SetValue(true);
         BatchPostPurchOrders.ReplaceVATDate.SetValue(true);
+        BatchPostPurchOrders.PostingDate.SetValue(PostingDate);
+        BatchPostPurchOrders.VATDate.SetValue(VATDate);
         BatchPostPurchOrders.OK.Invoke;
     end;
 
@@ -6277,10 +6564,10 @@ LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Pos
     begin
         PostingDate := LibraryVariableStorage.DequeueDate();
         VATDate := LibraryVariableStorage.DequeueDate();
-        BatchPostPurchCreditMemos.PostingDate.SetValue(PostingDate);
-        BatchPostPurchCreditMemos.VATDate.SetValue(VATDate);
         BatchPostPurchCreditMemos.ReplacePostingDate.SetValue(true);
         BatchPostPurchCreditMemos.ReplaceVATDate.SetValue(true);
+        BatchPostPurchCreditMemos.PostingDate.SetValue(PostingDate);
+        BatchPostPurchCreditMemos.VATDate.SetValue(VATDate);
         BatchPostPurchCreditMemos.OK.Invoke;
     end;
 

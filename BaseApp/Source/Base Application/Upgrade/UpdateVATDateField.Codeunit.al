@@ -12,13 +12,83 @@ codeunit 104051 "Update VAT Date Field"
         UpdateGLEntries();
         UpdatePurchSalesEntries();
         UpdateIssuedDocsEntries();
+
+        if not UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetVATDateFieldVATEntriesBlankUpgrade()) then begin
+            UpdateBlankVATEntries();
+            UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVATDateFieldVATEntriesBlankUpgrade());
+        end;
+
+        if not UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetVATDateFieldGLEntriesBlankUpgrade()) then begin
+            UpdateBlankGLEntries();
+            UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVATDateFieldGLEntriesBlankUpgrade());
+        end;
+
+        if not UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetVATDateFieldSalesPurchBlankUpgrade()) then begin
+            UpdatePurchSalesBlankEntries();
+            UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVATDateFieldSalesPurchBlankUpgrade());
+        end;
+
+        if not UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetVATDateFieldIssuedDocsBlankUpgrade()) then begin
+            UpdateIssuedDocsBlankEntries();
+            UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVATDateFieldIssuedDocsBlankUpgrade());
+        end;
+
+        
     end;
 
     var
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         BlankDate: Date;
+
+    local procedure UpdateBlankVATEntries()
+    var
+        VATEntry: Record "VAT Entry";
+        GLSetup: Record "General Ledger Setup";
+        VATDateDataTransfer: DataTransfer;
+    begin
+        if not GLSetup.Get() then
+            exit;
+
+        VATEntry.SetRange("VAT Reporting Date", 0D);
+        if VATEntry.IsEmpty() then
+            exit;
         
+        // Only update entries that has blank VAT Reporting Date
+        VATDateDataTransfer.SetTables(Database::"VAT Entry", Database::"VAT Entry");
+        VATDateDataTransfer.AddSourceFilter(VATEntry.FieldNo("VAT Reporting Date"), '=%1', 0D);
+        if GLSetup."VAT Reporting Date" = GLSetup."VAT Reporting Date"::"Posting Date" then
+            VATDateDataTransfer.AddFieldValue(VATEntry.FieldNo("Posting Date"), VATEntry.FieldNo("VAT Reporting Date"))
+        else
+            VATDateDataTransfer.AddFieldValue(VATEntry.FieldNo("Document Date"), VATEntry.FieldNo("VAT Reporting Date"));
+        VATDateDataTransfer.UpdateAuditFields := false;
+        VATDateDataTransfer.CopyFields();
+    end;
+
+    local procedure UpdateBlankGLEntries()
+    var
+        GLEntry: Record "G/L Entry";
+        GLSetup: Record "General Ledger Setup";
+        VATDateDataTransfer: DataTransfer;
+    begin
+        if not GLSetup.Get() then
+            exit;
+
+        GLEntry.SetRange("VAT Reporting Date", 0D);
+        if GLEntry.IsEmpty() then
+            exit;
+        
+        // Only update entries that has blank VAT Reporting Date
+        VATDateDataTransfer.SetTables(Database::"G/L Entry", Database::"G/L Entry");
+        VATDateDataTransfer.AddSourceFilter(GLEntry.FieldNo("VAT Reporting Date"), '=%1', 0D);
+        if GLSetup."VAT Reporting Date" = GLSetup."VAT Reporting Date"::"Posting Date" then
+            VATDateDataTransfer.AddFieldValue(GLEntry.FieldNo("Posting Date"), GLEntry.FieldNo("VAT Reporting Date"))
+        else
+            VATDateDataTransfer.AddFieldValue(GLEntry.FieldNo("Document Date"), GLEntry.FieldNo("VAT Reporting Date"));
+        VATDateDataTransfer.UpdateAuditFields := false;
+        VATDateDataTransfer.CopyFields();
+    end;    
+    
     local procedure UpdateVATEntries()
     var
         VATEntry: Record "VAT Entry";
@@ -159,6 +229,87 @@ codeunit 104051 "Update VAT Date Field"
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVATDateFieldSalesPurchUpgrade());
     end;
+
+    local procedure UpdatePurchSalesBlankEntries()
+    var
+        GLSetup: Record "General Ledger Setup";
+        SalesInvHeader: Record "Sales Invoice Header";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        ServiceInvHeader: Record "Service Invoice Header";
+        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchCrMemoHeader: Record "Purch. Cr. Memo Hdr.";
+        VATDateDataTransfer: DataTransfer;
+    begin
+        if not GLSetup.Get() then
+            exit;
+
+        // Only update entries that has blank VAT Reporting Date
+        VATDateDataTransfer.SetTables(Database::"Sales Invoice Header", Database::"Sales Invoice Header");
+        VATDateDataTransfer.AddSourceFilter(SalesInvHeader.FieldNo("VAT Reporting Date"), '=%1', 0D);
+        if GLSetup."VAT Reporting Date" = GLSetup."VAT Reporting Date"::"Posting Date" then
+            VATDateDataTransfer.AddFieldValue(SalesInvHeader.FieldNo("Posting Date"), SalesInvHeader.FieldNo("VAT Reporting Date"))
+        else
+            VATDateDataTransfer.AddFieldValue(SalesInvHeader.FieldNo("Document Date"), SalesInvHeader.FieldNo("VAT Reporting Date"));
+        VATDateDataTransfer.UpdateAuditFields := false;
+        VATDateDataTransfer.CopyFields();
+        Clear(VATDateDataTransfer);
+
+        // Only update entries that has blank VAT Reporting Date
+        VATDateDataTransfer.SetTables(Database::"Sales Cr.Memo Header", Database::"Sales Cr.Memo Header");
+        VATDateDataTransfer.AddSourceFilter(SalesCrMemoHeader.FieldNo("VAT Reporting Date"), '=%1', 0D);
+        if GLSetup."VAT Reporting Date" = GLSetup."VAT Reporting Date"::"Posting Date" then
+            VATDateDataTransfer.AddFieldValue(SalesCrMemoHeader.FieldNo("Posting Date"), SalesCrMemoHeader.FieldNo("VAT Reporting Date"))
+        else
+            VATDateDataTransfer.AddFieldValue(SalesCrMemoHeader.FieldNo("Document Date"), SalesCrMemoHeader.FieldNo("VAT Reporting Date"));
+        VATDateDataTransfer.UpdateAuditFields := false;
+        VATDateDataTransfer.CopyFields();
+        Clear(VATDateDataTransfer);
+
+        // Only update entries that has blank VAT Reporting Date
+        VATDateDataTransfer.SetTables(Database::"Service Invoice Header", Database::"Service Invoice Header");
+        VATDateDataTransfer.AddSourceFilter(ServiceInvHeader.FieldNo("VAT Reporting Date"), '=%1', 0D);
+        if GLSetup."VAT Reporting Date" = GLSetup."VAT Reporting Date"::"Posting Date" then
+            VATDateDataTransfer.AddFieldValue(ServiceInvHeader.FieldNo("Posting Date"), ServiceInvHeader.FieldNo("VAT Reporting Date"))
+        else
+            VATDateDataTransfer.AddFieldValue(ServiceInvHeader.FieldNo("Document Date"), ServiceInvHeader.FieldNo("VAT Reporting Date"));
+        VATDateDataTransfer.UpdateAuditFields := false;
+        VATDateDataTransfer.CopyFields();
+        Clear(VATDateDataTransfer);
+
+        // Only update entries that has blank VAT Reporting Date
+        VATDateDataTransfer.SetTables(Database::"Service Cr.Memo Header", Database::"Service Cr.Memo Header");
+        VATDateDataTransfer.AddSourceFilter(ServiceCrMemoHeader.FieldNo("VAT Reporting Date"), '=%1', 0D);
+        if GLSetup."VAT Reporting Date" = GLSetup."VAT Reporting Date"::"Posting Date" then
+            VATDateDataTransfer.AddFieldValue(ServiceCrMemoHeader.FieldNo("Posting Date"), ServiceCrMemoHeader.FieldNo("VAT Reporting Date"))
+        else
+            VATDateDataTransfer.AddFieldValue(ServiceCrMemoHeader.FieldNo("Document Date"), ServiceCrMemoHeader.FieldNo("VAT Reporting Date"));
+        VATDateDataTransfer.UpdateAuditFields := false;
+        VATDateDataTransfer.CopyFields();
+        Clear(VATDateDataTransfer);
+
+        // Only update entries that has blank VAT Reporting Date
+        VATDateDataTransfer.SetTables(Database::"Purch. Inv. Header", Database::"Purch. Inv. Header");
+        VATDateDataTransfer.AddSourceFilter(PurchInvHeader.FieldNo("VAT Reporting Date"), '=%1', 0D);
+        if GLSetup."VAT Reporting Date" = GLSetup."VAT Reporting Date"::"Posting Date" then
+            VATDateDataTransfer.AddFieldValue(PurchInvHeader.FieldNo("Posting Date"), PurchInvHeader.FieldNo("VAT Reporting Date"))
+        else
+            VATDateDataTransfer.AddFieldValue(PurchInvHeader.FieldNo("Document Date"), PurchInvHeader.FieldNo("VAT Reporting Date"));
+        VATDateDataTransfer.UpdateAuditFields := false;
+        VATDateDataTransfer.CopyFields();
+        Clear(VATDateDataTransfer);
+
+        // Only update entries that has blank VAT Reporting Date
+        VATDateDataTransfer.SetTables(Database::"Purch. Cr. Memo Hdr.", Database::"Purch. Cr. Memo Hdr.");
+        VATDateDataTransfer.AddSourceFilter(PurchCrMemoHeader.FieldNo("VAT Reporting Date"), '=%1', 0D);
+        if GLSetup."VAT Reporting Date" = GLSetup."VAT Reporting Date"::"Posting Date" then
+            VATDateDataTransfer.AddFieldValue(PurchCrMemoHeader.FieldNo("Posting Date"), PurchCrMemoHeader.FieldNo("VAT Reporting Date"))
+        else
+            VATDateDataTransfer.AddFieldValue(PurchCrMemoHeader.FieldNo("Document Date"), PurchCrMemoHeader.FieldNo("VAT Reporting Date"));
+        VATDateDataTransfer.UpdateAuditFields := false;
+        VATDateDataTransfer.CopyFields();
+        Clear(VATDateDataTransfer);
+    end;
     
     local procedure UpdateIssuedDocsEntries()
     var
@@ -190,6 +341,39 @@ codeunit 104051 "Update VAT Date Field"
         Clear(VATDateDataTransfer);
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVATDateFieldIssuedDocsUpgrade());
+    end;
+
+    local procedure UpdateIssuedDocsBlankEntries()
+    var
+        GLSetup: Record "General Ledger Setup";
+        IssuedReminderHeader: Record "Issued Reminder Header";
+        IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header";
+        VATDateDataTransfer: DataTransfer;
+    begin
+        if not GLSetup.Get() then
+            exit;
+
+        // Only update entries that has blank VAT Reporting Date
+        VATDateDataTransfer.SetTables(Database::"Issued Reminder Header", Database::"Issued Reminder Header");
+        VATDateDataTransfer.AddSourceFilter(IssuedReminderHeader.FieldNo("VAT Reporting Date"), '=%1', 0D);
+        if GLSetup."VAT Reporting Date" = GLSetup."VAT Reporting Date"::"Posting Date" then
+            VATDateDataTransfer.AddFieldValue(IssuedReminderHeader.FieldNo("Posting Date"), IssuedReminderHeader.FieldNo("VAT Reporting Date"))
+        else
+            VATDateDataTransfer.AddFieldValue(IssuedReminderHeader.FieldNo("Document Date"), IssuedReminderHeader.FieldNo("VAT Reporting Date"));
+        VATDateDataTransfer.UpdateAuditFields := false;
+        VATDateDataTransfer.CopyFields();
+        Clear(VATDateDataTransfer);
+
+        // Only update entries that has blank VAT Reporting Date
+        VATDateDataTransfer.SetTables(Database::"Issued Fin. Charge Memo Header", Database::"Issued Fin. Charge Memo Header");
+        VATDateDataTransfer.AddSourceFilter(IssuedFinChargeMemoHeader.FieldNo("VAT Reporting Date"), '=%1', 0D);
+        if GLSetup."VAT Reporting Date" = GLSetup."VAT Reporting Date"::"Posting Date" then
+            VATDateDataTransfer.AddFieldValue(IssuedFinChargeMemoHeader.FieldNo("Posting Date"), IssuedFinChargeMemoHeader.FieldNo("VAT Reporting Date"))
+        else
+            VATDateDataTransfer.AddFieldValue(IssuedFinChargeMemoHeader.FieldNo("Document Date"), IssuedFinChargeMemoHeader.FieldNo("VAT Reporting Date"));
+        VATDateDataTransfer.UpdateAuditFields := false;
+        VATDateDataTransfer.CopyFields();
+        Clear(VATDateDataTransfer);
     end;
 
 

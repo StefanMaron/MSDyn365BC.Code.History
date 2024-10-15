@@ -1489,6 +1489,7 @@ xmlport 1601 "Sales Credit Memo - PEPPOL 2.1"
                 begin
                     PEPPOLMgt.GetLegalMonetaryInfo(
                       SalesHeader,
+                      TempSalesLineRounding,
                       TempVATAmtLine,
                       LineExtensionAmount,
                       LegalMonetaryTotalCurrencyID,
@@ -2156,6 +2157,7 @@ xmlport 1601 "Sales Credit Memo - PEPPOL 2.1"
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
+        TempSalesLineRounding: Record "Sales Line" temporary;
         PEPPOLMgt: Codeunit "PEPPOL Management";
         DummyVar: Text;
         SpecifyASalesCreditMemoNoErr: Label 'You must specify a sales credit memo number.';
