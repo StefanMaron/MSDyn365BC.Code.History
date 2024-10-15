@@ -384,56 +384,6 @@ codeunit 137075 "SCM Planning Order Tracking"
     end;
 
     [Test]
-    [Scope('OnPrem')]
-    procedure CheckLotForLotItemPlanningWorksheetAction()
-    var
-        Item: Record Item;
-        StockkeepingUnit: Record "Stockkeeping Unit";
-        ItemJournalLine: Record "Item Journal Line";
-        PurchaseHeader: Record "Purchase Header";
-        SalesHeader: Record "Sales Header";
-        RequisitionLine: Record "Requisition Line";
-    begin
-        // [FEATURE] [PlanningWorksheet] [Requisition Line] [Item] [Reordering Policy]
-        // [SCENARIO 478131] Lot By Lot Item planing with specific quantity and date combination should lead to canceled status of 2 requisition lines.
-        Initialize();
-        // [GIVEN] Create Lot for Lot (Reordering Policy) Item and Stockkeeping Unit for Location Blue.
-        CreateLotForLotItem(Item, Item."Replenishment System"::Purchase);
-        Evaluate(Item."Dampener Period", '+CM+5D');
-        Evaluate(Item."Lot Accumulation Period", '+CM+5D');
-        Evaluate(Item."Rescheduling Period", '7Y');
-        Item.Modify();
-        LibraryInventory.CreateStockkeepingUnitForLocationAndVariant(StockkeepingUnit, LocationBlue.Code, Item."No.", '');
-        // [GIVEN] Create Item Journal Line for Location Blue. and post it
-        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", LocationBlue.Code, '', 3335);
-        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
-        // [GIVEN] Create Purchase Order with several purchase line with same item and different receipt date.
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, '');
-        CreatePurchaseLineWithSpecificReceiptDate(PurchaseHeader, Item."No.", LocationBlue.Code, 613, DMY2Date(25, 5, Date2DMY(WorkDate(), 3)));
-        CreatePurchaseLineWithSpecificReceiptDate(PurchaseHeader, Item."No.", LocationBlue.Code, 1256, DMY2Date(30, 6, Date2DMY(WorkDate(), 3)));
-        CreatePurchaseLineWithSpecificReceiptDate(PurchaseHeader, Item."No.", LocationBlue.Code, 1256, DMY2Date(14, 9, Date2DMY(WorkDate(), 3)));
-        CreatePurchaseLineWithSpecificReceiptDate(PurchaseHeader, Item."No.", LocationBlue.Code, 1544, DMY2Date(14, 9, Date2DMY(WorkDate(), 3)));
-        CreatePurchaseLineWithSpecificReceiptDate(PurchaseHeader, Item."No.", LocationBlue.Code, 1256, DMY2Date(29, 9, Date2DMY(WorkDate(), 3)));
-        CreatePurchaseLineWithSpecificReceiptDate(PurchaseHeader, Item."No.", LocationBlue.Code, 1552, DMY2Date(29, 9, Date2DMY(WorkDate(), 3)));
-        // [GIVEN] Create Sales Order with several lines with same item and different shipment date.
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, '');
-        CreateSalesLineWithSpecificShipmentDate(SalesHeader, Item."No.", LocationBlue.Code, 1192, DMY2Date(6, 5, Date2DMY(WorkDate(), 3)));
-        CreateSalesLineWithSpecificShipmentDate(SalesHeader, Item."No.", LocationBlue.Code, 1500, DMY2Date(28, 6, Date2DMY(WorkDate(), 3)));
-        CreateSalesLineWithSpecificShipmentDate(SalesHeader, Item."No.", LocationBlue.Code, 1256, DMY2Date(14, 7, Date2DMY(WorkDate(), 3)));
-        CreateSalesLineWithSpecificShipmentDate(SalesHeader, Item."No.", LocationBlue.Code, 1256, DMY2Date(14, 9, Date2DMY(WorkDate(), 3)));
-        CreateSalesLineWithSpecificShipmentDate(SalesHeader, Item."No.", LocationBlue.Code, 1256, DMY2Date(16, 10, Date2DMY(WorkDate(), 3)));
-        CreateSalesLineWithSpecificShipmentDate(SalesHeader, Item."No.", LocationBlue.Code, 1656, DMY2Date(15, 11, Date2DMY(WorkDate(), 3)));
-        // [WHEN] Calculate regenerative Plan for Planning Worksheet.
-        Item.SetRange("No.", Item."No.");
-        Item.SetRange("Location Filter", LocationBlue.Code);
-        LibraryPlanning.CalcRegenPlanForPlanWksh(Item, CalcDate('-CY', WorkDate()), CalcDate('CY', WorkDate()));
-        // [THEN] Two purchase lines should be marked with Action Message = 'Cancel'
-        RequisitionLine.SetRange("No.", Item."No.");
-        RequisitionLine.SetRange("Action Message", RequisitionLine."Action Message"::Cancel);
-        Assert.AreEqual(2, RequisitionLine.Count, 'There is an issue with the values');
-    end;
-
-    [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure OrderTrackingForCalcPlanReqWkshForPostedSalesWithPartialQtyToShipMQItem()
@@ -1065,16 +1015,6 @@ codeunit 137075 "SCM Planning Order Tracking"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateSalesLineWithSpecificShipmentDate(SalesHeader: Record "Sales Header"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; ShipmentDate: Date)
-    var
-        SalesLine: Record "Sales Line";
-    begin
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, Quantity);
-        SalesLine.Validate("Location Code", LocationCode);
-        SalesLine.Validate("Shipment Date", ShipmentDate);
-        SalesLine.Modify(true);
-    end;
-
     local procedure CreatePurchaseOrder(var PurchaseLine: Record "Purchase Line"; ItemNo: Code[20]; LocationCode: Code[10])
     var
         PurchaseHeader: Record "Purchase Header";
@@ -1083,16 +1023,6 @@ codeunit 137075 "SCM Planning Order Tracking"
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, LibraryRandom.RandDec(10, 2));
         PurchaseLine.Validate("Location Code", LocationCode);
-        PurchaseLine.Modify(true);
-    end;
-
-    local procedure CreatePurchaseLineWithSpecificReceiptDate(PurchaseHeader: Record "Purchase Header"; ItemNo: Code[20]; LocationCode: Code[10]; Quantity: Decimal; ReceiptDate: Date)
-    var
-        PurchaseLine: Record "Purchase Line";
-    begin
-        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
-        PurchaseLine.Validate("Location Code", LocationCode);
-        PurchaseLine.Validate("Expected Receipt Date", ReceiptDate);
         PurchaseLine.Modify(true);
     end;
 

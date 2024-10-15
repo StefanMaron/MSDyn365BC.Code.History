@@ -101,5 +101,6 @@
                   tabledata "XBRL Taxonomy Label" = RIMD,
                   tabledata "XBRL Taxonomy Line" = RIMD,
 #endif
+                  tabledata "VAT Setup" = RM,
                   tabledata "Vendor Ledger Entry" = Rimd;
 }

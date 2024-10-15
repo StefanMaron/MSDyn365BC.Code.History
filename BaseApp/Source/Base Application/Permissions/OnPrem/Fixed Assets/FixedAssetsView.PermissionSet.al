@@ -24,6 +24,7 @@ permissionset 8689 "Fixed Assets - View"
                   tabledata "Gen. Journal Line" = Ri,
                   tabledata "Gen. Journal Template" = R,
                   tabledata "General Ledger Setup" = rm,
+                  tabledata "VAT Setup" = rm,
                   tabledata "General Posting Setup" = r,
                   tabledata "Ins. Coverage Ledger Entry" = Rimd,
                   tabledata Insurance = R,
