@@ -25,8 +25,6 @@ pageextension 4704 "VAT Rep. Stmt. Sub. Extension" extends "VAT Report Statement
                         exit;
                     if not VATReportHeader."VAT Group Return" then
                         exit;
-                    if Rec.Amount - Rec."Representative Amount" = 0 then
-                        exit;
 
                     VATGroupHelperFunctions.PrepareVATCalculation(VATReportHeader, Rec);
                 end;
@@ -37,7 +35,6 @@ pageextension 4704 "VAT Rep. Stmt. Sub. Extension" extends "VAT Report Statement
         {
             Caption = 'Total Amount';
         }
-
     }
 
     var
