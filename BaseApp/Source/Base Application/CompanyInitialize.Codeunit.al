@@ -204,6 +204,12 @@
         Text14809: Label 'VATONCOST';
         PEPPOLBIS3_ElectronicFormatTxt: Label 'PEPPOL BIS3', Locked = true;
         PEPPOLBIS3_ElectronicFormatDescriptionTxt: Label 'PEPPOL BIS3 Format (Pan-European Public Procurement Online)';
+        SourceCodeGeneralDeferralLbl: Label 'Gen-Defer';
+        SourceCodeSalesDeferralLbl: Label 'Sal-Defer';
+        SourceCodePurchaseDeferralLbl: Label 'Pur-Defer';
+        SourceCodeGeneralDeferralTxt: Label 'General Deferral';
+        SourceCodeSalesDeferralTxt: Label 'Sales Deferral';
+        SourceCodePurchaseDeferralTxt: Label 'Purchase Deferral';
 
     internal procedure InitializeCompany()
     var
@@ -483,6 +489,9 @@
                 InsertSourceCode("Phys. Invt. Orders", InvtOrderTxt, PageName(PAGE::"Physical Inventory Order"));
                 InsertSourceCode("Invt. Receipt", InvtReceiptsTxt, PageName(PAGE::"Invt. Receipts"));
                 InsertSourceCode("Invt. Shipment", InvtShipmentsTxt, PageName(PAGE::"Invt. Shipments"));
+                InsertSourceCode("General Deferral", SourceCodeGeneralDeferralLbl, SourceCodeGeneralDeferralTxt);
+                InsertSourceCode("Sales Deferral", SourceCodeSalesDeferralLbl, SourceCodeSalesDeferralTxt);
+                InsertSourceCode("Purchase Deferral", SourceCodePurchaseDeferralLbl, SourceCodePurchaseDeferralTxt);
                 InsertSourceCode("Advance Statements", Text12400, PageName(PAGE::"Advance Statement"));
                 InsertSourceCode("Deferred VAT Settlement", Text12402, PageName(PAGE::"VAT Settlement Journal"));
                 InsertSourceCode("Customer Prepayments", Text12403, SourceCodeSetup.FieldCaption("Customer Prepayments"));

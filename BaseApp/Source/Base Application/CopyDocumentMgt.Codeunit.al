@@ -590,7 +590,8 @@
             OnCopySalesDocUpdateHeaderOnAfterSetStatusOpen(ToSalesHeader, OldSalesHeader, ShouldValidateDimensionsAndLocation);
             if ShouldValidateDimensionsAndLocation then begin
                 SavedDimSetId := "Dimension Set ID";
-                Validate("Location Code");
+                if not IsCreditDocType() then
+                    Validate("Location Code");
                 Validate("Dimension Set ID", SavedDimSetId);
             end;
             CopyShiptoCodeFromInvToCrMemo(ToSalesHeader, FromSalesInvHeader, FromDocType);
