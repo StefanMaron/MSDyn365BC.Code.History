@@ -32,7 +32,7 @@ codeunit 134645 "Option Lookup Buffer Test"
         TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Sales);
 
         // [THEN] Buffer table is filled
-        Assert.RecordCount(TempOptionLookupBuffer, 6);
+        Assert.RecordCount(TempOptionLookupBuffer, 10);
 
         // [THEN] Buffer table has entry for 'Comment'
         TempOptionLookupBuffer.Get(SalesLine.FormatType);
@@ -87,7 +87,7 @@ codeunit 134645 "Option Lookup Buffer Test"
 
         // [GIVEN] A reference list of options
         TempReferenceOptionLookupBuffer.FillBuffer(TempReferenceOptionLookupBuffer."Lookup Type"::Purchases);
-        TempReferenceOptionLookupBuffer.FindSet;
+        TempReferenceOptionLookupBuffer.FindSet();
 
         repeat
             // [WHEN] Trying to autocomplete an incomplete option
@@ -112,7 +112,7 @@ codeunit 134645 "Option Lookup Buffer Test"
         // [GIVEN] A reference list of options
         TempReferenceOptionLookupBuffer.FillBuffer(TempReferenceOptionLookupBuffer."Lookup Type"::Purchases);
         TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Purchases);
-        TempReferenceOptionLookupBuffer.FindSet;
+        TempReferenceOptionLookupBuffer.FindSet();
 
         repeat
             // [WHEN] Trying to validate an existing option
@@ -181,7 +181,7 @@ codeunit 134645 "Option Lookup Buffer Test"
         SalesInvoice.OpenNew;
 
         TempOptionLookupBuffer.FillBuffer(TempOptionLookupBuffer."Lookup Type"::Sales);
-        TempOptionLookupBuffer.FindSet;
+        TempOptionLookupBuffer.FindSet();
         repeat
             // [WHEN] Opening the Subtype lookup and selecting service
             LibraryVariableStorage.Enqueue(TempOptionLookupBuffer."Lookup Type");
@@ -354,7 +354,7 @@ codeunit 134645 "Option Lookup Buffer Test"
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
     begin
         TempOptionLookupBuffer.FillBuffer(LibraryVariableStorage.DequeueInteger);
-        TempOptionLookupBuffer.FindSet;
+        TempOptionLookupBuffer.FindSet();
         repeat
             OptionLookupList.GotoKey(TempOptionLookupBuffer."Option Caption");
         until TempOptionLookupBuffer.Next = 0;

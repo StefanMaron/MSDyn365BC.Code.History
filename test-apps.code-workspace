@@ -28,6 +28,9 @@
       "path": "./SwissQRBill/Test/QR-Bill Management for Switzerland Tests"
     },
     {
+      "path": "./VATGroupManagement/Test/VAT Group Management Tests"
+    },
+    {
       "path": "./EssentialBusinessHeadlines/Test/Essential Business Headlines Test"
     },
     {
