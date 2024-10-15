@@ -55,8 +55,10 @@ codeunit 5056 "CustCont-Update"
             ContNo := Cont."No.";
             NoSeries := Cont."No. Series";
             Cont.Validate("E-Mail", Cust."E-Mail");
-            if (Cont."VAT Registration No." <> Cust."VAT Registration No.") and CustVATLogExist(Cust) then
+            if (Cont."VAT Registration No." <> Cust."VAT Registration No.") and CustVATLogExist(Cust) then begin
+                Cont.Validate("Country/Region Code", Cust."Country/Region Code");
                 Cont.Validate("VAT Registration No.", Cust."VAT Registration No.");
+            end;
             Cont.TransferFields(Cust);
             Cont."No." := ContNo;
             Cont."No. Series" := NoSeries;

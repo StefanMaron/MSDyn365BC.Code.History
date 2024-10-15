@@ -3772,9 +3772,9 @@
         end;
         LockTable();
         DomesticVendorWarning();
-        PurchHeader."No." := '';
         if ("Deferral Code" <> '') and (GetDeferralAmount() <> 0) then
             UpdateDeferralAmounts();
+        PurchHeader."No." := '';
     end;
 
     trigger OnModify()

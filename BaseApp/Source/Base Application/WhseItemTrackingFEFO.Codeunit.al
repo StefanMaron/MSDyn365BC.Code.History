@@ -57,6 +57,7 @@ codeunit 7326 "Whse. Item Tracking FEFO"
             if IsEmpty() then
                 exit;
 
+            SetLoadFields("Item No.", "Variant Code", "Location Code", "Serial No.", "Lot No.", "Package No.", "Remaining Quantity");
             FindSet();
             repeat
                 NonReservedQtyLotSN := 0;
@@ -67,7 +68,7 @@ codeunit 7326 "Whse. Item Tracking FEFO"
                     repeat
                         NonReservedQtyLotSN += "Remaining Quantity";
                         if not CalledFromMovementWksh then
-                            NonReservedQtyLotSN -= CalcReservedFromILEWithItemTracking(ItemLedgEntry);
+                            NonReservedQtyLotSN -= CalcReservedFromILEWithItemTracking(ItemLedgEntry."Entry No.");
                     until Next() = 0;
 
                     if NonReservedQtyLotSN - CalcNonRegisteredQtyOutstanding(
@@ -84,7 +85,7 @@ codeunit 7326 "Whse. Item Tracking FEFO"
         end;
     end;
 
-    local procedure CalcReservedFromILEWithItemTracking(ItemLedgerEntry: Record "Item Ledger Entry") ReservedQty: Decimal
+    local procedure CalcReservedFromILEWithItemTracking(ItemLedgerEntryNo: Integer) ReservedQty: Decimal
     var
         ReservationEntry: Record "Reservation Entry";
         OppositeReservationEntry: Record "Reservation Entry";
@@ -92,8 +93,9 @@ codeunit 7326 "Whse. Item Tracking FEFO"
     begin
         ReservedQty := 0;
 
-        ItemLedgerEntryReserve.FilterReservFor(ReservationEntry, ItemLedgerEntry);
+        ItemLedgerEntryReserve.FilterReservFor(ReservationEntry, ItemLedgerEntryNo, true);
         ReservationEntry.SetRange("Reservation Status", ReservationEntry."Reservation Status"::Reservation);
+        ReservationEntry.SetLoadFields("Quantity (Base)");
         if ReservationEntry.FindSet() then
             repeat
                 OppositeReservationEntry.Get(ReservationEntry."Entry No.", not ReservationEntry.Positive);
