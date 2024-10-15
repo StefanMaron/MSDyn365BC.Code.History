@@ -36,9 +36,9 @@ codeunit 136603 "ERM RS Package Operations"
         NoDataAfterImportErr: Label 'No Data In Package.';
         ErrorInApplyingWithoutValidationFlagErr: Label 'Data is not applied in case validation flag for field is set to false.';
         FlowFieldAppearedInDataErr: Label 'Only normal fields should be available after import.';
-        ErrorOnEvaluatingErr: Label 'Error on evaluating %1 datatype.', Locked=true;
-        NoErrorOnEvaluatingErr: Label 'Must be error on evaluating %1 datatype.', Locked=true;
-        FieldValueIsIncorrectErr: Label '%1 is incorrect.', Locked=true;
+        ErrorOnEvaluatingErr: Label 'Error on evaluating %1 datatype.', Locked = true;
+        NoErrorOnEvaluatingErr: Label 'Must be error on evaluating %1 datatype.', Locked = true;
+        FieldValueIsIncorrectErr: Label '%1 is incorrect.', Locked = true;
         ExportImportInterfereErr: Label 'XML Package Data Export/Import change existing package data.';
         ExportImportWrongPackageErr: Label 'XML Package Data Export/Import process wrong package.';
         TableNotValidatedErr: Label 'Table ID was validated incorrectly.';
@@ -47,19 +47,19 @@ codeunit 136603 "ERM RS Package Operations"
         NotGZIPFormatErr: Label 'Generated file is not in GZIP format.';
         FileContentMismatchErr: Label 'File content mismatch after GZIP compression.';
         DecompressWrongResultErr: Label 'Decompress returns true for non GZip file.';
-        ValueIsIncorrectErr: Label '%1 value is incorrect.', Locked=true;
-        PackageErr: Label 'There are errors in Package %1.', Locked=true;
+        ValueIsIncorrectErr: Label '%1 value is incorrect.', Locked = true;
+        PackageErr: Label 'There are errors in Package %1.', Locked = true;
         UnhandledConfirmErr: Label 'Unhandled UI: Confirm';
-        PackageImportErr: Label 'An error occurred while importing the %1 table. The table does not exist in the database.', Comment = 'An error occurred while importing the -452 table. The table does not exist in the database.', Locked=true;
+        PackageImportErr: Label 'An error occurred while importing the %1 table. The table does not exist in the database.', Comment = 'An error occurred while importing the -452 table. The table does not exist in the database.', Locked = true;
         RedundancyInTheShopCalendarErr: Label 'There is redundancy in the Shop Calendar.';
         MustBeIntegersErr: Label 'must be Integer or BigInteger';
         FileNameForHandler: Text;
-        MissingLineErr: Label 'Line %1 does not exist in preview page.', Locked=true;
-        ExistingLineErr: Label 'Line %1 must not exist in preview page.', Locked=true;
+        MissingLineErr: Label 'Line %1 does not exist in preview page.', Locked = true;
+        ExistingLineErr: Label 'Line %1 must not exist in preview page.', Locked = true;
         PackageCodeMustMatchErr: Label 'The package code in all sheets of the Excel file must match the selected package code, %1. Modify the package code in the Excel file or import this file from the Configuration Packages page to create a new package.', Comment = '%1 - package code';
         ImportNotAllowedErr: Label 'Cannot import table %1 through a Configuration Package.', Comment = '%1 = The name of the table.';
         ExternalTablesAreNotAllowedErr: Label 'External tables cannot be added in Configuration Packages.';
-        
+
 
 
     [Test]
@@ -1716,7 +1716,7 @@ codeunit 136603 "ERM RS Package Operations"
 
         // [WHEN] Run action "Import From Excel" on package list page
         BindSubscription(ERMRSPackageOperations);
-        ERMRSPackageOperations.SetFileHame(LibraryReportValidation.GetFileName()); // for OnImportExcelToBLOBHandler
+        ERMRSPackageOperations.SetFileName(LibraryReportValidation.GetFileName()); // for OnImportExcelToBLOBHandler
         LibraryVariableStorage.Enqueue(1); // expected numer of sheets in Excel for ExcelImportPreviewHandler
         ConfigPackages.ImportFromExcel.Invoke();
 
@@ -1768,7 +1768,7 @@ codeunit 136603 "ERM RS Package Operations"
 
         // [WHEN] Run action "Import From Excel" on package card page
         BindSubscription(ERMRSPackageOperations);
-        ERMRSPackageOperations.SetFileHame(LibraryReportValidation.GetFileName()); // for OnImportExcelToBLOBHandler
+        ERMRSPackageOperations.SetFileName(LibraryReportValidation.GetFileName()); // for OnImportExcelToBLOBHandler
         LibraryVariableStorage.Enqueue(2); // expected numer of sheets in Excel for ExcelImportPreviewHandler
         ConfigPackageCard.ImportFromExcel.Invoke();
 
@@ -1826,7 +1826,7 @@ codeunit 136603 "ERM RS Package Operations"
 
         // [WHEN] Run action "Import From Excel" on package card page
         BindSubscription(ERMRSPackageOperations);
-        ERMRSPackageOperations.SetFileHame(LibraryReportValidation.GetFileName()); // for OnImportExcelToBLOBHandler
+        ERMRSPackageOperations.SetFileName(LibraryReportValidation.GetFileName()); // for OnImportExcelToBLOBHandler
         asserterror ConfigPackageCard.ImportFromExcel.Invoke();
 
         // [THEN] Error message: 'The package code in all sheets of the excel file must match the selected package code XA'
@@ -1869,7 +1869,7 @@ codeunit 136603 "ERM RS Package Operations"
 
         // [WHEN] Run action "Import From Excel" on table subpage for the table 9.
         BindSubscription(ERMRSPackageOperations);
-        ERMRSPackageOperations.SetFileHame(LibraryReportValidation.GetFileName()); // for OnImportExcelToBLOBHandler
+        ERMRSPackageOperations.SetFileName(LibraryReportValidation.GetFileName()); // for OnImportExcelToBLOBHandler
         LibraryVariableStorage.Enqueue(1); // expected numer of sheets in Excel for ExcelImportPreviewHandler
         ConfigPackageCard.Control10.Last();
         ConfigPackageCard.Control10.ImportFromExcel.Invoke();
@@ -2348,6 +2348,230 @@ codeunit 136603 "ERM RS Package Operations"
         GlobalLanguage(LanguageId);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportImportConfigPackageWithPercentInColumn()
+    var
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageTable: Record "Config. Package Table";
+        InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+        ItemFilter: Text[250];
+        FilePath: Text;
+    begin
+        // [SCENARIO 390268] Export and import of Config. Package with record that has similar columns differ by % symbol
+        Initialize();
+
+        // [GIVEN] 3 "Inventory Adjmt. Entry Order" lines
+        // 1st Line "Indirect Cost %" = 0, Indirect Cost = 1;
+        // 2nd Line "Indirect Cost %" = 0, Indirect Cost = 2;
+        // 3rd Line "Indirect Cost %" = 0, Indirect Cost = 3;
+        InventoryAdjmtEntryOrder.DeleteAll();
+        MockInventoryAdjmtEntryOrderLines(3);
+
+        // [GIVEN] Config. Package with Inventory Adjmt. Entry Order table
+        CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::"Inventory Adjmt. Entry (Order)");
+
+        // [GIVEN] Package "A" is exported to XML
+        ExportToXML(ConfigPackage.Code, ConfigPackageTable, FilePath);
+
+        // [GIVEN] All Inventory Adjmt. Entry Order records are deleted;
+        InventoryAdjmtEntryOrder.DeleteAll();
+
+        // [WHEN] Package "A" is imported from XML
+        // [THEN] No error message appears 
+        ImportPackageXML(ConfigPackage.Code, FilePath);
+        Erase(FilePath);
+
+        // [WHEN] Apply the package 
+        LibraryRapidStart.ApplyPackage(ConfigPackage, true);
+
+        // [THEN] The package is applied without errors
+        // [THEN] "Inventory Adjmt. Entry Order" has original values of "Indirect Cost %" and "Indirect Cost" 
+        VerifyNoConfigPackageErrors(ConfigPackage.Code);
+        VerifyInventoryAdjmtEntryOrderLines(3);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ImportPackageWithDuplicatedXMLFields()
+    var
+        DuplicatedXMLFields: Record DuplicatedXMLFields;
+        TempDuplicatedXMLFields: Record DuplicatedXMLFields temporary;
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageTable: Record "Config. Package Table";
+        FilePath: Text;
+    begin
+        // [SCENARIO 390268] Table with duplicated XML field names can be imported with XML package
+        Initialize();
+        DuplicatedXMLFields.DeleteAll();
+
+        // [GIVEN] Create several records of DuplicatedXMLFields table
+        InsertDuplicatedXMLFieldsRecords(LibraryRandom.RandIntInRange(5, 10), TempDuplicatedXMLFields);
+
+        // [GIVEN] Rapidstart package is created from DuplicatedXMLFields table
+        CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::DuplicatedXMLFields);
+        ExportToXML(ConfigPackage.Code, ConfigPackageTable, FilePath);
+
+        // Cleanup before import
+        DuplicatedXMLFields.DeleteAll();
+        LibraryRapidStart.CleanUp(ConfigPackage.Code);
+
+        // [WHEN] the rapidstart package is imported and applied
+        ConfigXMLExchange.ImportPackageXML(FilePath);
+        LibraryRapidStart.ApplyPackage(ConfigPackage, true);
+
+        // [THEN] DuplicatedXMLFields records are properly applied
+        VerifyDuplicatedXMLFieldsRecords(TempDuplicatedXMLFields);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ExportToExcelDuplicatedXMLFields()
+    var
+        DuplicatedXMLFields: Record DuplicatedXMLFields;
+        TempDuplicatedXMLFields: Record DuplicatedXMLFields temporary;
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageTable: Record "Config. Package Table";
+    begin
+        // [SCENARIO 390268] Table with duplicated XML field names can be exported to Excel 
+        Initialize();
+        DuplicatedXMLFields.DeleteAll();
+
+        // [GIVEN] Create 1 record of DuplicatedXMLFields table
+        InsertDuplicatedXMLFieldsRecords(1, TempDuplicatedXMLFields);
+
+        // [GIVEN] Rapidstart package is created from DuplicatedXMLFields table
+        CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::DuplicatedXMLFields);
+
+        // [WHEN] Export package to Excel
+        Commit();
+        ExportToExcel(ConfigPackageTable);
+
+        // [THEN] Column headers contain field names, decimal cells have proper values
+        VerifyDuplicatedXMLFieldsRecordsExcelFile(TempDuplicatedXMLFields);
+    end;
+
+    [Test]
+    [HandlerFunctions('ExcelImportPreviewHandler')]
+    [Scope('OnPrem')]
+    procedure ImportFromExcelPackageWithDuplicatedXMLFields()
+    var
+        DuplicatedXMLFields: Record DuplicatedXMLFields;
+        TempDuplicatedXMLFields: Record DuplicatedXMLFields temporary;
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageTable: Record "Config. Package Table";
+        ERMRSPackageOperations: Codeunit "ERM RS Package Operations";
+        ConfigExcelExchange: Codeunit "Config. Excel Exchange";
+    begin
+        // [SCENARIO 390268] Table with duplicated XML field names can be imported from Excel 
+        Initialize();
+        DuplicatedXMLFields.DeleteAll();
+
+        // [GIVEN] Create several records of DuplicatedXMLFields table
+        InsertDuplicatedXMLFieldsRecords(LibraryRandom.RandIntInRange(5, 10), TempDuplicatedXMLFields);
+
+        // [GIVEN] Excel file is created from DuplicatedXMLFields table
+        CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::DuplicatedXMLFields);
+        Commit();
+        ExportToExcel(ConfigPackageTable);
+
+        // Cleanup before import
+        DuplicatedXMLFields.DeleteAll();
+
+        // [WHEN] Import package from Excel
+        BindSubscription(ERMRSPackageOperations);
+        ERMRSPackageOperations.SetFileName(LibraryReportValidation.GetFileName()); // for OnImportExcelToBLOBHandler
+        LibraryVariableStorage.Enqueue(1); // expected numer of sheets in Excel for ExcelImportPreviewHandler
+
+        ConfigExcelExchange.ImportExcelFromSelectedPackage(ConfigPackage.Code);
+        LibraryRapidStart.ApplyPackage(ConfigPackage, true);
+
+        // [THEN] DuplicatedXMLFields records are properly applied
+        VerifyDuplicatedXMLFieldsRecords(TempDuplicatedXMLFields);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ImportPackageWithEmptyXMLFieldNames()
+    var
+        DummyRSTable: Record DummyRSTable;
+        TempDummyRSTable: Record DummyRSTable temporary;
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageTable: Record "Config. Package Table";
+        ConfigPackageField: Record "Config. Package Field";
+        FilePath: Text;
+    begin
+        // [SCENARIO 390268] Package can be imported with empty "XML Field Name" fields in the "Config. Package Field" table (old package import scenario)
+        Initialize();
+        DummyRSTable.DeleteAll();
+
+        // [GIVEN] Create several records of DummyRSTable table
+        InsertDummyRSTableRecords(LibraryRandom.RandIntInRange(5, 10), TempDummyRSTable);
+
+        // [GIVEN] Rapidstart package "P" is created from DummyRSTable table
+        CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::DummyRSTable);
+        ExportToXML(ConfigPackage.Code, ConfigPackageTable, FilePath);
+
+        // [GIVEN] Make "XML Field Name" empty for all "Config. Package Field" records of package "P"
+        ConfigPackageField.SetRange("Package Code", ConfigPackage.Code);
+        ConfigPackageField.ModifyAll("XML Field Name", '');
+
+        // Cleanup before import
+        DummyRSTable.DeleteAll();
+        LibraryRapidStart.CleanUp(ConfigPackage.Code);
+
+        // [WHEN] the rapidstart package is imported and applied
+        ConfigXMLExchange.ImportPackageXML(FilePath);
+        LibraryRapidStart.ApplyPackage(ConfigPackage, true);
+
+        // [THEN] DummyRSTable records are properly applied
+        VerifyDummyRSTableRecords(TempDummyRSTable);
+    end;
+
+    [Test]
+    [HandlerFunctions('ExcelImportPreviewHandler')]
+    [Scope('OnPrem')]
+    procedure ImportFromExcelPackageWithEmptyXMLFieldNames()
+    var
+        DummyRSTable: Record DummyRSTable;
+        TempDummyRSTable: Record DummyRSTable temporary;
+        ConfigPackage: Record "Config. Package";
+        ConfigPackageTable: Record "Config. Package Table";
+        ConfigPackageField: Record "Config. Package Field";
+        ERMRSPackageOperations: Codeunit "ERM RS Package Operations";
+        ConfigExcelExchange: Codeunit "Config. Excel Exchange";
+    begin
+        // [SCENARIO 390268] Package can be imported from Excel with empty "XML Field Name" fields in the "Config. Package Field" table (old package import scenario) 
+        Initialize();
+        DummyRSTable.DeleteAll();
+
+        // [GIVEN] Create several records of DummyRSTable table
+        InsertDummyRSTableRecords(LibraryRandom.RandIntInRange(5, 10), TempDummyRSTable);
+
+        // [GIVEN] Excel file is created from DummyRSTable table
+        CreatePackageWithTable(ConfigPackage, ConfigPackageTable, DATABASE::DummyRSTable);
+        Commit();
+        ExportToExcel(ConfigPackageTable);
+
+        // [GIVEN] Make "XML Field Name" empty for all "Config. Package Field" records of package "P"
+        ConfigPackageField.SetRange("Package Code", ConfigPackage.Code);
+        ConfigPackageField.ModifyAll("XML Field Name", '');
+
+        // Cleanup before import
+        DummyRSTable.DeleteAll();
+
+        // [WHEN] Import package from Excel
+        BindSubscription(ERMRSPackageOperations);
+        ERMRSPackageOperations.SetFileName(LibraryReportValidation.GetFileName()); // for OnImportExcelToBLOBHandler
+        LibraryVariableStorage.Enqueue(1); // expected numer of sheets in Excel for ExcelImportPreviewHandler
+
+        ConfigExcelExchange.ImportExcelFromSelectedPackage(ConfigPackage.Code);
+        LibraryRapidStart.ApplyPackage(ConfigPackage, true);
+
+        // [THEN] DummyRSTable records are properly applied
+        VerifyDummyRSTableRecords(TempDummyRSTable);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2371,6 +2595,35 @@ codeunit 136603 "ERM RS Package Operations"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM RS Package Operations");
     end;
 
+    local procedure MockInventoryAdjmtEntryOrderLines(NoOfLines: Integer)
+    var
+        InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+        i: Integer;
+    begin
+        for i := 1 to NoOfLines do begin
+            InventoryAdjmtEntryOrder.Init();
+            InventoryAdjmtEntryOrder.Validate("Order Type", InventoryAdjmtEntryOrder."Order Type"::Production);
+            InventoryAdjmtEntryOrder.Validate("Order No.", Format(i));
+            InventoryAdjmtEntryOrder.Validate("Order Line No.", i);
+            InventoryAdjmtEntryOrder.Validate("Indirect Cost %", 0);
+            InventoryAdjmtEntryOrder.Validate("Indirect Cost", i);
+            InventoryAdjmtEntryOrder.Insert(TRUE);
+        end;
+    end;
+
+    local procedure VerifyInventoryAdjmtEntryOrderLines(NoOfLines: Integer)
+    var
+        InventoryAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
+        i: Integer;
+    begin
+        InventoryAdjmtEntryOrder.FindFirst();
+        for i := 1 to NoOfLines do begin
+            InventoryAdjmtEntryOrder.TestField("Indirect Cost %", 0);
+            InventoryAdjmtEntryOrder.TestField("Indirect Cost", i);
+            InventoryAdjmtEntryOrder.Next();
+        end;
+    end;
+
     local procedure RemoveSalesData()
     var
         Customer: record Customer;
@@ -2390,7 +2643,14 @@ codeunit 136603 "ERM RS Package Operations"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Function Name typo. Replaced with SetFileName','17.6')]
     procedure SetFileHame(FileName: Text)
+    begin
+        FileNameForHandler := FileName;
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetFileName(FileName: Text)
     begin
         FileNameForHandler := FileName;
     end;
@@ -3417,6 +3677,42 @@ codeunit 136603 "ERM RS Package Operations"
         OptionAndEnumRS.Insert();
     end;
 
+    local procedure InsertDuplicatedXMLFieldsRecords(NumberOfEntries: Integer; var TempDuplicatedXMLFields: Record DuplicatedXMLFields temporary)
+    var
+        DuplicatedXMLFields: Record DuplicatedXMLFields;
+        i: Integer;
+    begin
+        for i := 1 to NumberOfEntries do begin
+            DuplicatedXMLFields."Entry No." := i;
+            DuplicatedXMLFields."Indirect Amount %" := LibraryRandom.RandDecInRange(0, 100, 2);
+            DuplicatedXMLFields."Indirect (Amount) %" := LibraryRandom.RandDecInRange(0, 100, 2);
+            DuplicatedXMLFields."Indirect Amount" := LibraryRandom.RandDecInRange(0, 100, 2);
+            DuplicatedXMLFields."<Indirect %> Amount" := LibraryRandom.RandDecInRange(0, 100, 2);
+            DuplicatedXMLFields.Insert();
+
+            TempDuplicatedXMLFields := DuplicatedXMLFields;
+            TempDuplicatedXMLFields.Insert();
+        end;
+    end;
+
+    local procedure InsertDummyRSTableRecords(NumberOfEntries: Integer; var TempDummyRSTable: Record DummyRSTable temporary)
+    var
+        DummyRSTable: Record DummyRSTable;
+        i: Integer;
+    begin
+        for i := 1 to NumberOfEntries do begin
+            DummyRSTable."Entry No." := i;
+            DummyRSTable."Decimal Field" := LibraryRandom.RandDecInRange(0, 100, 2);
+            DummyRSTable."Date Field" := LibraryRandom.RandDateFrom(WorkDate(), 100);
+            DummyRSTable."Code Field" := LibraryUtility.GenerateRandomCode20(DummyRSTable.FieldNo("Code Field"), Database::DummyRSTable);
+            DummyRSTable."Text Field" := LibraryUtility.GenerateRandomText(MaxStrLen(DummyRSTable."Text Field"));
+            DummyRSTable.Insert();
+
+            TempDummyRSTable := DummyRSTable;
+            TempDummyRSTable.Insert();
+        end;
+    end;
+
     local procedure VerifyEnumsAndOptionsAfterApplyingPackage()
     var
         OptionAndEnumRS: Record OptionAndEnumRS;
@@ -3432,6 +3728,48 @@ codeunit 136603 "ERM RS Package Operations"
         OptionAndEnumRS.Get(2);
         Assert.AreEqual(OptionAndEnumRS.OptionField::Two, OptionAndEnumRS.OptionField, 'Option or Enum values differ after rapidstart import');
         Assert.AreEqual(OptionAndEnumRS.EnumField::Ten, OptionAndEnumRS.EnumField, 'Option or Enum values differ after rapidstart import');
+    end;
+
+    local procedure VerifyDuplicatedXMLFieldsRecords(var TempDuplicatedXMLFields: Record DuplicatedXMLFields temporary)
+    var
+        DuplicatedXMLFields: Record DuplicatedXMLFields;
+    begin
+        TempDuplicatedXMLFields.FindSet();
+        repeat
+            DuplicatedXMLFields.Get(TempDuplicatedXMLFields."Entry No.");
+            DuplicatedXMLFields.TestField("<Indirect %> Amount", TempDuplicatedXMLFields."<Indirect %> Amount");
+            DuplicatedXMLFields.TestField("Indirect (Amount) %", TempDuplicatedXMLFields."Indirect (Amount) %");
+            DuplicatedXMLFields.TestField("Indirect Amount %", TempDuplicatedXMLFields."Indirect Amount %");
+            DuplicatedXMLFields.TestField("Indirect Amount", TempDuplicatedXMLFields."Indirect Amount");
+        until TempDuplicatedXMLFields.Next() = 0;
+    end;
+
+    local procedure VerifyDummyRSTableRecords(var TempDummyRSTable: Record DummyRSTable temporary)
+    var
+        DummyRSTable: Record DummyRSTable;
+    begin
+        TempDummyRSTable.FindSet();
+        repeat
+            DummyRSTable.Get(TempDummyRSTable."Entry No.");
+            DummyRSTable.TestField("Decimal Field", TempDummyRSTable."Decimal Field");
+            DummyRSTable.TestField("Date Field", TempDummyRSTable."Date Field");
+            DummyRSTable.TestField("Code Field", TempDummyRSTable."Code Field");
+            DummyRSTable.TestField("Text Field", TempDummyRSTable."Text Field");
+        until TempDummyRSTable.Next() = 0;
+    end;
+
+    local procedure VerifyDuplicatedXMLFieldsRecordsExcelFile(var TempDuplicatedXMLFields: Record DuplicatedXMLFields temporary)
+    begin
+        LibraryReportValidation.OpenExcelFile();
+        LibraryReportValidation.VerifyCellValueByRef('A', 3, 1, TempDuplicatedXMLFields.FieldCaption("Entry No."));
+        LibraryReportValidation.VerifyCellValueByRef('B', 3, 1, TempDuplicatedXMLFields.FieldCaption("Indirect Amount %"));
+        LibraryReportValidation.VerifyCellValueByRef('C', 3, 1, TempDuplicatedXMLFields.FieldCaption("Indirect (Amount) %"));
+        LibraryReportValidation.VerifyCellValueByRef('D', 3, 1, TempDuplicatedXMLFields.FieldCaption("Indirect Amount"));
+        LibraryReportValidation.VerifyCellValueByRef('E', 3, 1, TempDuplicatedXMLFields.FieldCaption("<Indirect %> Amount"));
+        LibraryReportValidation.VerifyCellValueByRef('B', 4, 1, LibraryReportValidation.FormatDecimalValue(TempDuplicatedXMLFields."Indirect Amount %"));
+        LibraryReportValidation.VerifyCellValueByRef('C', 4, 1, LibraryReportValidation.FormatDecimalValue(TempDuplicatedXMLFields."Indirect (Amount) %"));
+        LibraryReportValidation.VerifyCellValueByRef('D', 4, 1, LibraryReportValidation.FormatDecimalValue(TempDuplicatedXMLFields."Indirect Amount"));
+        LibraryReportValidation.VerifyCellValueByRef('E', 4, 1, LibraryReportValidation.FormatDecimalValue(TempDuplicatedXMLFields."<Indirect %> Amount"));
     end;
 
     [ModalPageHandler]

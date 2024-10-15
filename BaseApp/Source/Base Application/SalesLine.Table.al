@@ -5993,7 +5993,9 @@
 
         if ("Location Code" <> '') and ("No." <> '') then begin
             GetLocation("Location Code");
-            if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" then begin
+            if Location."Bin Mandatory" and not Location."Directed Put-away and Pick" and
+               not IsShipmentBinOverridesDefaultBin(Location)
+            then begin
                 if ("Qty. to Assemble to Order" > 0) or IsAsmToOrderRequired then
                     if GetATOBin(Location, "Bin Code") then
                         exit;
@@ -6035,8 +6037,10 @@
     var
         WhseIntegrationMgt: Codeunit "Whse. Integration Management";
     begin
-        if not IsInbound and ("Quantity (Base)" <> 0) then
-            WhseIntegrationMgt.CheckIfBinDedicatedOnSrcDoc("Location Code", "Bin Code", IssueWarning);
+        if IsInbound() or ("Quantity (Base)" = 0) or ("Document Type" = "Document Type"::"Blanket Order") then
+            exit;
+
+        WhseIntegrationMgt.CheckIfBinDedicatedOnSrcDoc("Location Code", "Bin Code", IssueWarning);
     end;
 
     procedure CheckAssocPurchOrder(TheFieldCaption: Text[250])
@@ -7753,6 +7757,15 @@
     begin
         GetSalesHeader();
         ShowDeferrals(SalesHeader."Posting Date", SalesHeader."Currency Code");
+    end;
+
+    local procedure IsShipmentBinOverridesDefaultBin(Location: Record Location): Boolean
+    var
+        Bin: Record Bin;
+        ShipmentBinAvailable: Boolean;
+    begin
+        ShipmentBinAvailable := Bin.Get(Location.Code, Location."Shipment Bin Code");
+        exit(Location."Require Shipment" and ShipmentBinAvailable);
     end;
 
     [IntegrationEvent(false, false)]

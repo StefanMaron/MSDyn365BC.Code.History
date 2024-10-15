@@ -1002,8 +1002,6 @@
             Caption = 'Recurring Method';
 
             trigger OnValidate()
-            var
-                ConfirmManagement: Codeunit "Confirm Management";
             begin
                 if "Recurring Method" in
                    ["Recurring Method"::"B  Balance", "Recurring Method"::"RB Reversing Balance"]
@@ -1011,17 +1009,8 @@
                     TestField("Currency Code", '');
                 UpdateSalesPurchLCY;
 
-                if "Recurring Method".AsInteger() < "Recurring Method"::"BD Balance by Dimension".AsInteger() then begin
-                    if DimFilterExists() then
-                        Error(RecurringMethodsDimFilterErr, "Recurring Method");
-                end else
-                    if LineDimExists() then
-                        Error(RecurringMethodsLineDimdErr, "Recurring Method");
-
-                if "Recurring Method" in ["Recurring Method"::"BD Balance by Dimension", "Recurring Method"::"RBD Reversing Balance by Dimension"] then
-                    if not HideValidationDialog then
-                        if ConfirmManagement.GetResponse(RecurringSetDimFilterQst, true) then
-                            ShowRecurringDimFilter();
+                CheckRecurringDimensionsAndFilters();
+                ShowSetDimFiltersNotification();
             end;
         }
         field(54; "Expiration Date"; Date)
@@ -2802,6 +2791,9 @@
             "Journal Template Name", "Journal Batch Name", 0, '', "Line No.");
 
         Validate("Incoming Document Entry No.", 0);
+
+        RecallSetDimFiltersNotification();
+        DeleteGenJnlDimFilters();
     end;
 
     trigger OnInsert()
@@ -2819,6 +2811,8 @@
 
         ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
         ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
+
+        ShowSetDimFiltersNotification();
     end;
 
     trigger OnModify()
@@ -2917,9 +2911,11 @@
         BlockedErr: Label 'The Blocked field must not be %1 for %2 %3.', Comment = '%1=Blocked field value,%2=Account Type,%3=Account No.';
         BlockedEmplErr: Label 'You cannot export file because employee %1 is blocked due to privacy.', Comment = '%1 = Employee no. ';
         InvoiceForGivenIDDoesNotExistErr: Label 'Invoice for given Applies-to Invoice Id does not exist.';
-        RecurringSetDimFilterQst: Label 'You can use dimension filters for the selected recurring method. Do you want to set the filters now?';
         RecurringMethodsDimFilterErr: Label 'Recurring method %1 cannot be used for the line with dimension filter setup.', Comment = '%1 - Recurring Method value';
         RecurringMethodsLineDimdErr: Label 'Recurring method %1 cannot be used for the line with dimension setup.', Comment = '%1 - Recurring Method value';
+        DontShowAgainActionTxt: Label 'Don''t show again.';
+        SetDimFiltersActionTxt: Label 'Set dimension filters.';
+        SetDimFiltersMessageTxt: Label 'Dimension filters are not set for one or more lines that use the BD Balance by Dimension or RBD Reversing Balance by Dimension options. Do you want to set the filters?';
 
     protected var
         Currency: Record Currency;
@@ -7616,7 +7612,6 @@
     var
         GenJnlDimFilters: Page "Gen. Jnl. Dim. Filters";
     begin
-        Commit();
         GenJnlDimFilters.SetGenJnlLine(Rec);
         GenJnlDimFilters.RunModal();
     end;
@@ -7634,6 +7629,73 @@
     local procedure LineDimExists(): Boolean
     begin
         exit("Dimension Set ID" <> 0);
+    end;
+
+    procedure CheckShortcutDimCodeRecurringMethod(ShortcutDimCode: Code[20])
+    begin
+        if ShortcutDimCode <> '' then
+            if "Recurring Method" in ["Recurring Method"::"BD Balance by Dimension", "Recurring Method"::"RBD Reversing Balance by Dimension"] then
+                FieldError("Recurring Method");
+    end;
+
+    local procedure ShowSetDimFiltersNotification()
+    begin
+        if "Line No." <> 0 then
+            if "Recurring Method" in ["Recurring Method"::"BD Balance by Dimension", "Recurring Method"::"RBD Reversing Balance by Dimension"] then
+                SendSetDimFiltersNotification()
+            else
+                RecallSetDimFiltersNotification();
+    end;
+
+    local procedure SendSetDimFiltersNotification()
+    var
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+        GenJnlDimFilterMgt: Codeunit "Gen. Jnl. Dim. Filter Mgt.";
+        SetDimFiltersNotification: Notification;
+    begin
+        RecallSetDimFiltersNotification();
+
+        if not GenJnlDimFilterMgt.IsNotificationEnabled() or DimFilterExists() then
+            exit;
+
+        SetDimFiltersNotification.Id(CreateGuid());
+        SetDimFiltersNotification.Message(SetDimFiltersMessageTxt);
+        SetDimFiltersNotification.Scope(NotificationScope::LocalScope);
+        SetDimFiltersNotification.AddAction(SetDimFiltersActionTxt, Codeunit::"Gen. Jnl. Dim. Filter Mgt.", 'SetGenJnlDimFilters');
+        SetDimFiltersNotification.AddAction(DontShowAgainActionTxt, Codeunit::"Gen. Jnl. Dim. Filter Mgt.", 'HideNotification');
+        SetDimFiltersNotification.SetData('JournalTemplateName', "Journal Template Name");
+        SetDimFiltersNotification.SetData('JournalBatchName', "Journal Batch Name");
+        SetDimFiltersNotification.SetData('JournalLineNo', Format("Line No."));
+        NotificationLifecycleMgt.SendNotification(SetDimFiltersNotification, RecordId);
+    end;
+
+    local procedure RecallSetDimFiltersNotification()
+    var
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
+    begin
+        NotificationLifecycleMgt.RecallNotificationsForRecord(RecordId, true);
+    end;
+
+    local procedure DeleteGenJnlDimFilters()
+    var
+        GenJnlDimFilter: Record "Gen. Jnl. Dim. Filter";
+    begin
+        GenJnlDimFilter.SetRange("Journal Template Name", "Journal Template Name");
+        GenJnlDimFilter.SetRange("Journal Batch Name", "Journal Batch Name");
+        GenJnlDimFilter.SetRange("Journal Line No.", "Line No.");
+        if not GenJnlDimFilter.IsEmpty then
+            GenJnlDimFilter.DeleteAll();
+    end;
+
+    local procedure CheckRecurringDimensionsAndFilters()
+    begin
+        if not ("Recurring Method" in ["Recurring Method"::"BD Balance by Dimension", "Recurring Method"::"RBD Reversing Balance by Dimension"]) then begin
+            if "Line No." <> 0 then
+                if DimFilterExists() then
+                    Error(RecurringMethodsDimFilterErr, "Recurring Method");
+        end else
+            if LineDimExists() then
+                Error(RecurringMethodsLineDimdErr, "Recurring Method");
     end;
 
     [IntegrationEvent(false, false)]

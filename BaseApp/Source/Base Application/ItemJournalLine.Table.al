@@ -138,17 +138,11 @@
                                 "Unit of Measure Code" := Item."Base Unit of Measure";
                         end;
                     "Entry Type"::Consumption:
-                        begin
-                            ProdOrderComp.SetFilterByReleasedOrderNo("Order No.");
-                            ProdOrderComp.SetRange("Item No.", "Item No.");
-                            OnValidateItemNoOnAfterProdOrderCompSetFilters(Rec, ProdOrderComp);
-                            if ProdOrderComp.Count = 1 then begin
-                                ProdOrderComp.FindFirst;
-                                CopyFromProdOrderComp(ProdOrderComp);
-                            end else begin
-                                "Unit of Measure Code" := Item."Base Unit of Measure";
-                                Validate("Prod. Order Comp. Line No.", 0);
-                            end;
+                        if FindProdOrderComponent(ProdOrderComp) then
+                            CopyFromProdOrderComp(ProdOrderComp)
+                        else begin
+                            "Unit of Measure Code" := Item."Base Unit of Measure";
+                            Validate("Prod. Order Comp. Line No.", 0);
                         end;
                 end;
 
@@ -1908,9 +1902,19 @@
                                                                                                           "Prod. Order Line No." = FIELD("Order Line No."));
 
             trigger OnValidate()
+            var
+                ProdOrderComponent: Record "Prod. Order Component";
             begin
-                if "Prod. Order Comp. Line No." <> xRec."Prod. Order Comp. Line No." then
-                    CreateProdDim;
+                if "Prod. Order Comp. Line No." <> xRec."Prod. Order Comp. Line No." then begin
+                    if ("Order Type" = "Order Type"::Production) and ("Prod. Order Comp. Line No." <> 0) then begin
+                        ProdOrderComponent.Get(
+                          ProdOrderComponent.Status::Released, "Order No.", "Order Line No.", "Prod. Order Comp. Line No.");
+                        if "Item No." <> ProdOrderComponent."Item No." then
+                            Validate("Item No.", ProdOrderComponent."Item No.");
+                    end;
+
+                    CreateProdDim();
+                end;
             end;
         }
         field(5885; Finished; Boolean)
@@ -3840,6 +3844,22 @@
         Result := Location."Bin Mandatory" and not Location."Directed Put-away and Pick";
 
         OnAfterIsDefaultBin(Location, Result);
+    end;
+
+    local procedure FindProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"): Boolean
+    begin
+        ProdOrderComponent.SetFilterByReleasedOrderNo("Order No.");
+        ProdOrderComponent.SetRange("Line No.", "Prod. Order Comp. Line No.");
+        OnValidateItemNoOnAfterProdOrderCompSetFilters(Rec, ProdOrderComponent);
+        ProdOrderComponent.SetRange("Item No.", "Item No.");
+        if ProdOrderComponent.FindFirst() then
+            exit(true);
+
+        ProdOrderComponent.SetRange("Line No.");
+        if ProdOrderComponent.Count() = 1 then
+            exit(ProdOrderComponent.FindFirst());
+
+        exit(false);
     end;
 
     [IntegrationEvent(false, false)]

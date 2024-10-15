@@ -148,10 +148,12 @@
         CalcBasedOn := NewCalcBasedOn;
     end;
 
-    local procedure CreateConsumpJnlLine(LocationCode: Code[10]; BinCode: Code[20]; QtyToPost: Decimal)
+    local procedure CreateConsumpJnlLine(LocationCode: Code[10]; BinCode: Code[20]; OriginalQtyToPost: Decimal)
     var
         Location: Record Location;
+        QtyToPost: Decimal;
     begin
+        QtyToPost := OriginalQtyToPost;
         OnBeforeCreateConsumpJnlLine(LocationCode, BinCode, QtyToPost);
 
         Window.Update(3, QtyToPost);
@@ -163,7 +165,7 @@
            (LocationCode = ItemJnlLine."Location Code") and
            (BinCode = ItemJnlLine."Bin Code")
         then begin
-            ValidateItemJnlLineQuantity(QtyToPost);
+            ValidateItemJnlLineQuantity(QtyToPost, QtyToPost < OriginalQtyToPost);
             OnBeforeItemJnlLineModify(ItemJnlLine, "Prod. Order Component");
             ItemJnlLine.Modify();
         end else begin
@@ -181,7 +183,7 @@
             ItemJnlLine.Validate("Item No.", "Prod. Order Component"."Item No.");
             ItemJnlLine.Validate("Unit of Measure Code", "Prod. Order Component"."Unit of Measure Code");
             ItemJnlLine.Description := "Prod. Order Component".Description;
-            ValidateItemJnlLineQuantity(QtyToPost);
+            ValidateItemJnlLineQuantity(QtyToPost, QtyToPost < OriginalQtyToPost);
             ItemJnlLine."Variant Code" := "Prod. Order Component"."Variant Code";
             ItemJnlLine.Validate("Location Code", LocationCode);
             if BinCode <> '' then
@@ -202,7 +204,7 @@
         OnAfterCreateConsumpJnlLine(LocationCode, BinCode, QtyToPost, ItemJnlLine);
     end;
 
-    local procedure ValidateItemJnlLineQuantity(QtyToPost: Decimal)
+    local procedure ValidateItemJnlLineQuantity(QtyToPost: Decimal; IgnoreRoundingPrecision: Boolean)
     var
         IsHandled: Boolean;
     begin
@@ -211,7 +213,7 @@
         if IsHandled then
             exit;
 
-        if Item."Rounding Precision" > 0 then
+        if (Item."Rounding Precision" > 0) and not IgnoreRoundingPrecision then
             ItemJnlLine.Validate(Quantity, ItemJnlLine.Quantity + UOMMgt.RoundToItemRndPrecision(QtyToPost, Item."Rounding Precision"))
         else
             ItemJnlLine.Validate(Quantity, ItemJnlLine.Quantity + UOMMgt.RoundQty(QtyToPost));

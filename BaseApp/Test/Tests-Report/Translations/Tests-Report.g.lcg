@@ -1400,6 +1400,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Custom Reports - NamedType TargetEmailErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2882671476 - NamedType 3007589352" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[If we receive the payment before %1, you are eligible for a %2% payment discount.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 Discount Due Date %2 = value of Payment Discount % ]D;]A;(LookupHint=Codeunit Test Custom Reports - NamedType PmtDiscTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 491879528 - NamedType 3771913144" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Set Up Reporting Data]]></Val>
