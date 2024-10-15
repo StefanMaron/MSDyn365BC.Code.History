@@ -4303,7 +4303,7 @@
                (OldVendLedgEntry.Count = 1)
             then
                 GenJnlLine."Applies-to Occurrence No." := 1;
-            if GenJnlLine."Applies-to Occurrence No." <> 0 then
+            if (GenJnlLine."Applies-to Occurrence No." <> 0) and (OldVendLedgEntry.Count = 1) then
                 OldVendLedgEntry.SetRange("Document Occurrence", GenJnlLine."Applies-to Occurrence No.");
 
             OldVendLedgEntry.SetRange(Open, true);
@@ -7308,7 +7308,7 @@
         PostDate: Date;
         HasNonDeductibleVAT: Boolean;
         IsHandled: Boolean;
-        DeferralSourceCode: Code[10];	
+        DeferralSourceCode: Code[10];
         VATAmountRounding: Decimal;
         PositiveNDVATAmountRounding: Decimal;
         NegativeNDVATAmountRounding: Decimal;

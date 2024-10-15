@@ -1197,8 +1197,10 @@ codeunit 12184 "Fattura Doc. Helper"
         UnitPrice := LineRecRef.Field(UnitPriceFieldNo).Value;
 
         Currency.Initialize(TempFatturaHeader."Currency Code");
-        UnitPrice := CalcForPricesIncludingVAT(
-            UnitPrice, PricesIncludingVAT, TempFatturaLine."VAT %", Currency."Unit-Amount Rounding Precision");
+        UnitPrice :=
+            ExchangeToLCYAmount(TempFatturaHeader,
+                CalcForPricesIncludingVAT(
+                UnitPrice, PricesIncludingVAT, TempFatturaLine."VAT %", Currency."Unit-Amount Rounding Precision"));
         if Quantity < 0 then
             TempFatturaLine."Unit Price" := -UnitPrice
         else begin
@@ -1206,7 +1208,6 @@ codeunit 12184 "Fattura Doc. Helper"
             TempFatturaLine."Unit of Measure" := LineRecRef.Field(UnitOfMeasureFieldNo).Value;
             TempFatturaLine."Unit Price" := UnitPrice;
         end;
-        TempFatturaLine."Unit Price" := ExchangeToLCYAmount(TempFatturaHeader, TempFatturaLine."Unit Price");
 
         InvDiscAmountByQty :=
           ExchangeToLCYAmount(
@@ -1219,7 +1220,7 @@ codeunit 12184 "Fattura Doc. Helper"
 
         TempFatturaLine.Amount := LineRecRef.Field(LineAmountFieldNo).Value;
         if (TempFatturaLine.Amount <> 0) and (InvDiscAmountByQty = 0) and (LineDiscountPct = 0) and (TempFatturaLine."Discount Amount" = 0) then
-            TempFatturaLine.Amount := Round(TempFatturaLine.Quantity * TempFatturaLine."Unit Price") - TempFatturaLine."Discount Amount"
+            TempFatturaLine.Amount := Round(Quantity * UnitPrice) - TempFatturaLine."Discount Amount"
         else
             TempFatturaLine.Amount :=
               ExchangeToLCYAmount(
@@ -1259,9 +1260,9 @@ codeunit 12184 "Fattura Doc. Helper"
         VATExemptionDescription: Text[50];
         VATBase: Decimal;
     begin
-        if VATEntryCount = 1 then begin
-            TempFatturaLine.Reset();
-            TempFatturaLine.SetRange("Line Type", TempFatturaLine."Line Type"::Document);
+        TempFatturaLine.Reset();
+        TempFatturaLine.SetRange("Line Type", TempFatturaLine."Line Type"::Document);
+        if (VATEntryCount = 1) and (TempFatturaLine.Count() = 1) then begin
             TempFatturaLine.CalcSums(Amount);
             if VATEntry.Base > 0 then
                 VATBase := TempFatturaLine.Amount
@@ -1269,6 +1270,7 @@ codeunit 12184 "Fattura Doc. Helper"
                 VATBase := -TempFatturaLine.Amount;
         end else
             VATBase := VATEntry.Base;
+        TempFatturaLine.SetRange("Line Type");
 
         TempFatturaLine.Init();
         TempFatturaLine."Line No." += 1;

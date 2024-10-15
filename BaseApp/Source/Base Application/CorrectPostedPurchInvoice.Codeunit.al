@@ -369,8 +369,8 @@
             exit;
 
         PurchInvHeader.CalcFields("Amount Including VAT");
-        PurchInvHeader.CalcFields("Remaining Amount");
-        if PurchInvHeader."Amount Including VAT" <> PurchInvHeader."Remaining Amount" then
+        PurchInvHeader.CalcFields("Document Remaining Amount");
+        if PurchInvHeader."Amount Including VAT" <> PurchInvHeader."Document Remaining Amount" then
             ErrorHelperHeader("Correct Purch. Inv. Error Type"::IsPaid, PurchInvHeader);
     end;
 

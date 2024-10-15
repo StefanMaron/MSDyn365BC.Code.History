@@ -80,6 +80,7 @@ codeunit 144164 "ERM Payment Lines"
         LibraryJournals: Codeunit "Library - Journals";
         IsInitialized: Boolean;
         PmtTermsDoesNotExistErr: Label 'The Payment Terms does not exist';
+        VendorBalanceErr: Label 'Vendor Ledger Entries are not applied.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1428,6 +1429,44 @@ codeunit 144164 "ERM Payment Lines"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('UIConfirmHandler,PurchaseInvoiceHandler')]
+    procedure CreateCorrectPostedPurchInvoiceWithMultiplePaymentLines();
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PaymentTermsCode: Code[10];
+        PostedPurchaseDoc: Code[20];
+        PostedPurchInvoice: TestPage "Posted Purchase Invoice";
+    begin
+        // [SCENARIO 459520] Unable to correct a posted purchase invoice when with multiple payment installment in the Italian localization
+        Initialize();
+
+        // [GIVEN] Create Vendor and Payment Term Code of 2 payment lines.
+        LibraryPurchase.CreateVendor(Vendor);
+        PaymentTermsCode := CreatePaymentTerms();
+
+        // [GIVEN] Update Payment Term Code in Vendor .
+        Vendor.Validate("Payment Terms Code", PaymentTermsCode);
+        Vendor.Modify();
+
+        // [GIVEN] Create Purchase document and post the document.
+        CreatePurchaseDocument(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '', PaymentTermsCode, '');
+        PostedPurchaseDoc := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [WHEN] Open Posted Purchase Invoice page and click on "Correct" Invoice action button.
+        PurchInvHeader.Get(PostedPurchaseDoc);
+        PostedPurchInvoice.OpenEdit();
+        PostedPurchInvoice.GoToRecord(PurchInvHeader);
+        PostedPurchInvoice.CorrectInvoice.Invoke();
+
+        // [VERIFY] Verify credit memo posted and applied successfully with the posted invoice and balance of vendor will be 0.
+        Vendor.CalcFields(Balance);
+        Assert.AreEqual(0, Vendor.Balance, VendorBalanceErr);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -2110,6 +2149,20 @@ codeunit 144164 "ERM Payment Lines"
     begin
         SuggestVendorBills.UseSameABICode.SetValue(LibraryVariableStorage.DequeueBoolean);
         SuggestVendorBills.OK.Invoke;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure UIConfirmHandler(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [PageHandler]
+    [Scope('OnPrem')]
+    procedure PurchaseInvoiceHandler(var PurchaseInvoice: TestPage "Purchase Invoice")
+    begin
+        PurchaseInvoice.Close();
     end;
 }
 
