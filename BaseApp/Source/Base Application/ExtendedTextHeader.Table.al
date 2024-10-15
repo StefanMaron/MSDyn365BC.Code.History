@@ -19,7 +19,9 @@ table 279 "Extended Text Header"
             ELSE
             IF ("Table Name" = CONST(Item)) Item
             ELSE
-            IF ("Table Name" = CONST(Resource)) Resource;
+            IF ("Table Name" = CONST (Resource)) Resource
+            ELSE
+            IF ("Table Name" = CONST ("VAT Clause")) "VAT Clause";
         }
         field(3; "Language Code"; Code[10])
         {
@@ -281,6 +283,7 @@ table 279 "Extended Text Header"
         Item: Record Item;
         Res: Record Resource;
         StandardText: Record "Standard Text";
+        VATClause: Record "VAT Clause";
         Descr: Text[100];
     begin
         if "Text No." <> 0 then begin
@@ -308,6 +311,12 @@ table 279 "Extended Text Header"
                         if Res."No." <> "No." then
                             Res.Get("No.");
                         Descr := Res.Name;
+                    end;
+                "Table Name"::"VAT Clause":
+                    begin
+                        if VATClause.Code <> "No." then
+                            VATClause.Get("No.");
+                        Descr := CopyStr(VATClause.Description, 1, MaxStrLen(Descr));
                     end;
                 else
                     OnGetCaption(Rec, Descr);

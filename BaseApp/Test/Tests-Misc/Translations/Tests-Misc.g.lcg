@@ -3940,7 +3940,7 @@
   </Item>
   <Item ItemId=";Codeunit 2742548118 - NamedType 1044102372" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The record already exists.]]></Val>
+      <Val><![CDATA[already exists]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
