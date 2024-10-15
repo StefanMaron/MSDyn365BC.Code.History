@@ -121,6 +121,10 @@ table 9 "Country/Region"
         {
             Caption = 'Foreign Country/Region Code';
         }
+        field(12103; "On Deny List"; Boolean)
+        {
+            Caption = 'On Deny List';
+        }
     }
 
     keys

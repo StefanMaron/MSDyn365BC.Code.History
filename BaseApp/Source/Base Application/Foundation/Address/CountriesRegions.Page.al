@@ -79,6 +79,11 @@ page 10 "Countries/Regions"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the national body that issues the VAT registration number for the country/region in connection with electronic document sending.';
                 }
+                field("On Deny List"; Rec."On Deny List")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies whether the country/region is on deny list according to Italian regulations.';
+                }
             }
         }
         area(factboxes)

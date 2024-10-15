@@ -1080,6 +1080,27 @@ table 5992 "Service Invoice Header"
         end;
     end;
 
+    procedure PrintToDocumentAttachment(var ServiceInvoiceHeader: Record "Service Invoice Header")
+    var
+        ShowNotificationAction: Boolean;
+    begin
+        ShowNotificationAction := ServiceInvoiceHeader.Count() = 1;
+        if ServiceInvoiceHeader.FindSet() then
+            repeat
+                DoPrintToDocumentAttachment(ServiceInvoiceHeader, ShowNotificationAction);
+            until ServiceInvoiceHeader.Next() = 0;
+    end;
+
+    local procedure DoPrintToDocumentAttachment(ServiceInvoiceHeader: Record "Service Invoice Header"; ShowNotificationAction: Boolean)
+    var
+        ReportSelections: Record "Report Selections";
+    begin
+        ServiceInvoiceHeader.SetRecFilter();
+
+        ReportSelections.SaveAsDocumentAttachment(
+            ReportSelections.Usage::"SM.Invoice".AsInteger(), ServiceInvoiceHeader, ServiceInvoiceHeader."No.", ServiceInvoiceHeader."Bill-to Customer No.", ShowNotificationAction);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintRecords(var ServiceInvoiceHeader: Record "Service Invoice Header"; ShowRequestPage: Boolean; var IsHandled: Boolean)
     begin

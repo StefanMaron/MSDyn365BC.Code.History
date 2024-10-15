@@ -14,6 +14,7 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.ReceivablesPayables;
 using Microsoft.Finance.SalesTax;
 using Microsoft.Finance.VAT.Setup;
+using Microsoft.EServices.EDocument;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Company;
@@ -51,7 +52,6 @@ using System.Reflection;
 using System.Security.User;
 using System.Threading;
 using System.Utilities;
-using Microsoft.EServices.EDocument;
 
 table 5900 "Service Header"
 {
@@ -1677,6 +1677,23 @@ table 5900 "Service Header"
                     InitVATDate();
             end;
         }
+        field(165; "Incoming Document Entry No."; Integer)
+        {
+            Caption = 'Incoming Document Entry No.';
+            TableRelation = "Incoming Document";
+
+            trigger OnValidate()
+            var
+                IncomingDocument: Record "Incoming Document";
+            begin
+                if "Incoming Document Entry No." = xRec."Incoming Document Entry No." then
+                    exit;
+                if "Incoming Document Entry No." = 0 then
+                    IncomingDocument.RemoveReferenceToWorkingDocument(xRec."Incoming Document Entry No.")
+                else
+                    IncomingDocument.SetServiceDoc(Rec);
+            end;
+        }
         field(178; "Journal Templ. Name"; Code[10])
         {
             Caption = 'Journal Template Name';
@@ -2826,6 +2843,9 @@ table 5900 "Service Header"
         key(Key8; "Document Type", "Posting Date")
         {
         }
+        key(Key9; "Incoming Document Entry No.")
+        {
+        }
     }
 
     fieldgroups
@@ -2867,6 +2887,7 @@ table 5900 "Service Header"
         if not IsHandled then
             ServPost.DeleteHeader(Rec, ServShptHeader, ServInvHeader, ServCrMemoHeader);
         Validate("Applies-to ID", '');
+        Rec.Validate("Incoming Document Entry No.", 0);
 
         ServLine.Reset();
         ServLine.LockTable();

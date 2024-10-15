@@ -3187,7 +3187,8 @@ codeunit 90 "Purch.-Post"
                 IsHandled := false;
                 OnFinalizePostingOnBeforeUpdateWhseDocuments(PurchHeader, WhseRcptHeader, TempWhseRcptHeader, WhseShptHeader, TempWhseShptHeader, WhseReceive, WhseShip, IsHandled);
                 if not IsHandled then
-                    UpdateWhseDocuments();
+                    if not PreviewMode then
+                        UpdateWhseDocuments();
                 WhsePurchRelease.Release(PurchHeader);
                 UpdateItemChargeAssgnt(PurchHeader);
                 OnFinalizePostingOnAfterUpdateItemChargeAssgnt(PurchHeader, TempDropShptPostBuffer, EverythingInvoiced, TempPurchLine, TempPurchLineGlobal, GenJnlPostLine);
@@ -3220,7 +3221,8 @@ codeunit 90 "Purch.-Post"
                 OnFinalizePostingOnBeforeUpdateAfterPosting(PurchHeader, TempDropShptPostBuffer, EverythingInvoiced, IsHandled, TempPurchLine);
                 if not IsHandled then begin
                     UpdateAfterPosting(PurchHeader);
-                    UpdateWhseDocuments();
+                    if not PreviewMode then
+                        UpdateWhseDocuments();
                     if not OrderArchived then
                         ArchiveManagement.AutoArchivePurchDocument(PurchHeader);
                     DeleteApprovalEntries(PurchHeader);

@@ -224,7 +224,6 @@ codeunit 1313 "Correct Posted Purch. Invoice"
     procedure TestCorrectInvoiceIsAllowed(var PurchInvHeader: Record "Purch. Inv. Header"; Cancelling: Boolean)
     begin
         CancellingOnly := Cancelling;
-        TestPurchaseInvoiceHeaderAmount(PurchInvHeader, Cancelling);
         TestIfPostingIsAllowed(PurchInvHeader);
         TestIfInvoiceIsCorrectedOnce(PurchInvHeader);
         TestIfInvoiceIsNotCorrectiveDoc(PurchInvHeader);
@@ -431,19 +430,6 @@ codeunit 1313 "Correct Posted Purch. Invoice"
     begin
         if CancelledDocument.FindPurchCorrectiveInvoice(PurchInvHeader."No.") then
             ErrorHelperHeader(Enum::"Correct Purch. Inv. Error Type"::IsCorrective, PurchInvHeader);
-    end;
-
-    local procedure TestPurchaseInvoiceHeaderAmount(var PurchInvHeader: Record "Purch. Inv. Header"; Cancelling: Boolean)
-    var
-        IsHandled: Boolean;
-    begin
-        IsHandled := false;
-        OnBeforeTestPurchaseInvoiceHeaderAmount(PurchInvHeader, Cancelling, IsHandled);
-        if IsHandled then
-            exit;
-
-        PurchInvHeader.CalcFields(Amount);
-        PurchInvHeader.TestField(Amount);
     end;
 
     local procedure TestIfPostingIsAllowed(PurchInvHeader: Record "Purch. Inv. Header")
@@ -992,6 +978,7 @@ codeunit 1313 "Correct Posted Purch. Invoice"
     begin
     end;
 
+    [Obsolete('OnBeforeTestPurchaseInvoiceHeaderAmount is not supported anymore.', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestPurchaseInvoiceHeaderAmount(var PurchInvHeader: Record "Purch. Inv. Header"; Cancelling: Boolean; var IsHandled: Boolean)
     begin
