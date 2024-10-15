@@ -84,6 +84,9 @@ codeunit 31038 "Sales Posting Handler CZL"
         GenJournalLine."Source Type" := GenJournalLine."Source Type"::Customer;
         GenJournalLine."Source No." := SalesHeader."Bill-to Customer No.";
         GenJournalLine."Posting No. Series" := SalesHeader."Posting No. Series";
+        GenJournalLine."Country/Region Code" := SalesHeader."VAT Country/Region Code";
+        GenJournalLine."VAT Registration No." := SalesHeader."VAT Registration No.";
+        GenJournalLine.Validate("Registration No. CZL", SalesHeader."Registration No. CZL");
         GenJournalLine."Bal. Account No." := VATPostingSetup."Sales VAT Curr. Exch. Acc CZL";
         GenJournalLine.Quantity := Sign * InvoicePostBuffer.Quantity;
         GenJournalLine.Amount := Round(Sign * InvoicePostBuffer.Amount * CurrFactor, Currency."Amount Rounding Precision");
@@ -178,6 +181,9 @@ codeunit 31038 "Sales Posting Handler CZL"
         GenJournalLine."Source Type" := GenJournalLine."Source Type"::Customer;
         GenJournalLine."Source No." := SalesHeader."Bill-to Customer No.";
         GenJournalLine."Posting No. Series" := SalesHeader."Posting No. Series";
+        GenJournalLine."Country/Region Code" := SalesHeader."VAT Country/Region Code";
+        GenJournalLine."VAT Registration No." := SalesHeader."VAT Registration No.";
+        GenJournalLine.Validate("Registration No. CZL", SalesHeader."Registration No. CZL");
         GenJournalLine."Bal. Account No." := VATPostingSetup."Sales VAT Curr. Exch. Acc CZL";
         GenJournalLine.Quantity := Sign * InvoicePostingBuffer.Quantity;
         GenJournalLine.Amount := Round(Sign * InvoicePostingBuffer.Amount * CurrFactor, Currency."Amount Rounding Precision");

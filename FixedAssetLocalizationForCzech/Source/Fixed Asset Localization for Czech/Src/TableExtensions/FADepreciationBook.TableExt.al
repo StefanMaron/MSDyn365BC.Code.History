@@ -145,8 +145,13 @@ tableextension 31247 "FA Depreciation Book CZF" extends "FA Depreciation Book"
     var
         FixedAsset: Record "Fixed Asset";
         FASubclass: Record "FA Subclass";
+        IsHandled: Boolean;
         FAPostingGroupMustBeSameErr: Label '%1 must be the same as the %2 in %3 ''%4''.', Comment = '%1 = field caption, %2 = field caption, %3 = table caption, %4 = fa subclass code';
     begin
+        OnBeforeCheckDefaultFAPostingGroupCZF(IsHandled);
+        if IsHandled then
+            exit;
+
         if Rec."FA No." = '' then
             exit;
         if not FixedAsset.Get(Rec."FA No.") or not (FixedAsset."FA Subclass Code" <> '') then
@@ -157,5 +162,10 @@ tableextension 31247 "FA Depreciation Book CZF" extends "FA Depreciation Book"
             Error(FAPostingGroupMustBeSameErr,
                 Rec.FieldCaption("FA Posting Group"), FASubclass.FieldCaption("Default FA Posting Group"),
                 FASubclass.TableCaption(), FASubclass.Code);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCheckDefaultFAPostingGroupCZF(var IsHandled: Boolean)
+    begin
     end;
 }
