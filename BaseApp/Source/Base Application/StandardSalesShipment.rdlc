@@ -7,6 +7,7 @@
         <DataProvider>SQL</DataProvider>
         <ConnectString />
       </ConnectionProperties>
+      <rd:SecurityType>None</rd:SecurityType>
       <rd:DataSourceID>b23244e3-9790-4712-be0f-6041ac5f0e69</rd:DataSourceID>
     </DataSource>
   </DataSources>
@@ -2628,6 +2629,9 @@
                               <Height>3.24641cm</Height>
                               <Width>18.35093cm</Width>
                               <ZIndex>1</ZIndex>
+                              <Visibility>
+                                <Hidden>=IIF(Fields!LineNo_Line.Value &lt;&gt; 0,False,True)</Hidden>
+                              </Visibility>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
@@ -3096,6 +3100,9 @@
                               <Height>0.98806cm</Height>
                               <Width>18.45699cm</Width>
                               <ZIndex>3</ZIndex>
+                              <Visibility>
+                                <Hidden>=IIF(Fields!TrackingSpecBufferNo.Value&lt;&gt;"",False,True)</Hidden>
+                              </Visibility>
                               <Style>
                                 <Border>
                                   <Style>None</Style>
