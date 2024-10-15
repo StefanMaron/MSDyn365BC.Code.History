@@ -752,6 +752,9 @@ table 21 "Cust. Ledger Entry"
         key(Key32; "Document Type", Open, "Posting Date", "Closed at Date")
         {
         }
+        key(Key33; "Salesperson Code")
+        {
+        }
     }
 
     fieldgroups

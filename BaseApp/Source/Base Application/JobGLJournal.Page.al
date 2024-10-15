@@ -145,19 +145,19 @@
                 }
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Jobs;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                     Visible = false;
                 }
                 field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Jobs;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                     Visible = false;
                 }
                 field("VAT %"; "VAT %")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Jobs;
                     ToolTip = 'Specifies the relevant VAT rate for the particular combination of VAT business posting group and VAT product posting group. Do not enter the percent sign, only the number. For example, if the VAT rate is 25 %, enter 25 in this field.';
                     Visible = false;
                 }

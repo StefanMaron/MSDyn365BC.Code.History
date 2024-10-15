@@ -149,7 +149,10 @@ table 7311 "Warehouse Journal Line"
                     Location.TestField("Adjustment Bin Code");
                 end;
 
-                "Qty. (Base)" := UOMMgt.CalcBaseQty(Quantity, "Qty. per Unit of Measure");
+                "Qty. (Base)" :=
+                  UOMMgt.CalcBaseQty(
+                    "Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
+
                 "Qty. (Absolute)" := Abs(Quantity);
                 "Qty. (Absolute, Base)" := Abs("Qty. (Base)");
                 if (xRec.Quantity < 0) and (Quantity >= 0) or
@@ -198,7 +201,9 @@ table 7311 "Warehouse Journal Line"
                 if not PhysInvtEntered then
                     TestField("Phys. Inventory", false);
 
-                "Qty. (Absolute, Base)" := UOMMgt.CalcBaseQty("Qty. (Absolute)", "Qty. per Unit of Measure");
+                "Qty. (Absolute, Base)" :=
+                  UOMMgt.CalcBaseQty(
+                    "Item No.", "Variant Code", "Unit of Measure Code", "Qty. (Absolute)", "Qty. per Unit of Measure");
 
                 if Quantity > 0 then
                     WMSMgt.CalcCubageAndWeight(
@@ -825,7 +830,14 @@ table 7311 "Warehouse Journal Line"
     end;
 
     local procedure GetLocation(LocationCode: Code[10])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetLocation(Location, LocationCode, IsHandled);
+        if IsHandled then
+            exit;
+
         if Location.Code <> LocationCode then
             Location.Get(LocationCode);
         Location.TestField("Directed Put-away and Pick");
@@ -846,7 +858,13 @@ table 7311 "Warehouse Journal Line"
     var
         BinContent: Record "Bin Content";
         WhseJnlLine: Record "Warehouse Journal Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckBin(Rec, LocationCode, BinCode, Inbound, IsHandled);
+        if IsHandled then
+            exit;
+
         if (BinCode <> '') and ("Item No." <> '') then begin
             GetLocation(LocationCode);
             if BinCode = Location."Adjustment Bin Code" then
@@ -1037,6 +1055,8 @@ table 7311 "Warehouse Journal Line"
         WhseWkshLine: Record "Whse. Worksheet Line";
         WhseItemTrackingLines: Page "Whse. Item Tracking Lines";
     begin
+        OnBeforeOpenItemTrackingLines(Rec);
+
         TestField("Item No.");
         TestField("Qty. (Base)");
         WhseWkshLine.Init;
@@ -1048,6 +1068,8 @@ table 7311 "Warehouse Journal Line"
         WhseWkshLine."Variant Code" := "Variant Code";
         WhseWkshLine."Qty. (Base)" := "Qty. (Base)";
         WhseWkshLine."Qty. to Handle (Base)" := "Qty. (Base)";
+        OnOpenItemTrackingLinesOnBeforeSetSource(WhseWkshLine, Rec);
+
         WhseItemTrackingLines.SetSource(WhseWkshLine, DATABASE::"Warehouse Journal Line");
         WhseItemTrackingLines.RunModal;
         Clear(WhseItemTrackingLines);
@@ -1235,12 +1257,32 @@ table 7311 "Warehouse Journal Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckBin(WarehouseJournalLine: Record "Warehouse Journal Line"; LocationCode: Code[10]; BinCode: Code[20]; Inbound: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckName(var JnlBatchName: Code[10]; var LocationCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckTemplateName(var JnlTemplateName: Code[10]; var JnlBatchName: Code[10]; var LocationCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetLocation(var Location: Record Location; LocationCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenItemTrackingLines(var WarehouseJournalLine: Record "Warehouse Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenItemTrackingLinesOnBeforeSetSource(var WhseWorksheetLine: Record "Whse. Worksheet Line"; WarehouseJournalLine: Record "Warehouse Journal Line")
     begin
     end;
 }

@@ -249,7 +249,7 @@ table 12185 "Vendor Bill Withholding Tax"
         Text12101: Label '%1 %2 does not exist in table %3.';
         Currency: Record Currency;
 
-    [Scope('OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem')]
     procedure CalculateWithholdingTax()
     var
         WithholdCode: Record "Withhold Code";
@@ -339,7 +339,7 @@ table 12185 "Vendor Bill Withholding Tax"
             Currency.Get(CurrencyCode);
     end;
 
-    [Scope('OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem')]
     procedure ValidateWithhSocSec()
     begin
         CalculateWithholdingTax;

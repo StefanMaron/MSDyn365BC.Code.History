@@ -389,6 +389,8 @@ codeunit 7314 "Warehouse Availability Mgt."
         else
             WhseActivityLine.SetSourceFilter(SourceType, SourceSubType, SourceID, SourceRefNo, -1, true);
         WhseActivityLine.SetFilter("Action Type", '%1|%2', WhseActivityLine."Action Type"::Take, WhseActivityLine."Action Type"::" ");
+        OnCalcQtyOutstandingPickOnAfterSetFilters(WhseActivityLine, SourceType, SourceSubType, SourceID, SourceRefNo, SourceProdOrderLine);
+
         WhseActivityLine.CalcSums("Qty. Outstanding (Base)");
 
         // For not yet committed warehouse activity lines
@@ -405,6 +407,11 @@ codeunit 7314 "Warehouse Availability Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcQtyRcvdNotAvailable(var PostedWhseReceiptLine: Record "Posted Whse. Receipt Line"; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; var QtyRcvdNotAvailable: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcQtyOutstandingPickOnAfterSetFilters(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceType: Integer; SourceSubType: Option; SourceID: Code[20]; SourceRefNo: Integer; SourceProdOrderLine: Integer)
     begin
     end;
 }

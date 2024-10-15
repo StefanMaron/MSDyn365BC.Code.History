@@ -97,7 +97,7 @@ page 12127 "Annual VAT Comm. Preview"
         PeriodSelection: Option "Before and Within Period","Within Period";
         DateFilter: Text;
 
-    [Scope('OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem')]
     procedure UpdateSubForm()
     begin
         CurrPage.VATStatementLineSubForm.PAGE.UpdateForm(Rec, Selection, PeriodSelection, false, '');

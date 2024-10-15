@@ -12,6 +12,26 @@ page 5084 "Content Preview"
                 usercontrol(BodyHTMLMessage; "Microsoft.Dynamics.Nav.Client.WebPageViewer")
                 {
                     ApplicationArea = RelationshipMgmt;
+
+                    trigger ControlAddInReady(callbackUrl: Text)
+                    begin
+                        CurrPage.BodyHTMLMessage.LinksOpenInNewWindow;
+                        CurrPage.BodyHTMLMessage.SetContent(HTMLContent);
+                    end;
+
+                    trigger DocumentReady()
+                    begin
+                    end;
+
+                    trigger Callback(data: Text)
+                    begin
+                    end;
+
+                    trigger Refresh(callbackUrl: Text)
+                    begin
+                        CurrPage.BodyHTMLMessage.LinksOpenInNewWindow;
+                        CurrPage.BodyHTMLMessage.SetContent(HTMLContent);
+                    end;
                 }
             }
         }

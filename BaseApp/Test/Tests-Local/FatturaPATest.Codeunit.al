@@ -466,7 +466,8 @@ codeunit 144200 "FatturaPA Test"
     begin
         // [FEATURE] [Sales] [Invoice] [Unrealized VAT]
         // [SCENARIO 281319] The XML file contains tag <Natura> when VAT Rate = 0
-        // [GIVEN] A posted Sales Invoice with unrealized VAT
+        // [SCENARIO 319833] The XML file does not containt EsigibilitaIVA node when VAT Rate = 0
+        // [GIVEN] A posted Sales Invoice with unrealized VAT, "VAT %" = 0
         CreateUnrealizedVATPostingSetup(VATPostingSetup);
 
         DocumentNo := CreateInvoiceWithVATPostingSetup(SalesHeader, VATPostingSetup);
@@ -2157,6 +2158,7 @@ codeunit 144200 "FatturaPA Test"
         LineAmountIncludingVAT: Decimal;
         Quantity: Decimal;
         VATBaseAmount: Decimal;
+        VATRate: Decimal;
     begin
         // 2.2.2 DatiRiepilogo - summary data for every VAT rate
         with TempXMLBuffer do begin
@@ -2174,8 +2176,10 @@ codeunit 144200 "FatturaPA Test"
                 AssertElementValue(TempXMLBuffer,
                   'ImponibileImporto', FormatAmountFromFieldRef(LineRecRef.Field(VATBaseAmountFieldNo)));
                 AssertElementValue(TempXMLBuffer, 'Imposta', FormatAmount(LineAmountIncludingVAT - VATBaseAmount));
-                AssertElementValue(
-                  TempXMLBuffer, 'EsigibilitaIVA', GetVATType(1, 1, Format(LineRecRef.Field(LineNoFieldNo).Value), IsSplitPaymentDoc));
+                Evaluate(VATRate, Format(LineRecRef.Field(VatPercFieldNo).Value));
+                if VATRate <> 0 then
+                    AssertElementValue(
+                      TempXMLBuffer, 'EsigibilitaIVA', GetVATType(1, 1, Format(LineRecRef.Field(LineNoFieldNo).Value), IsSplitPaymentDoc));
             end;
         end;
     end;

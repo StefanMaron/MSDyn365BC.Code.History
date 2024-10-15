@@ -705,6 +705,7 @@ codeunit 5704 "TransferOrder-Post Shipment"
         NewTransferLine.ResetPostedQty;
         NewTransferLine."Outstanding Quantity" := NewTransferLine.Quantity;
         NewTransferLine."Outstanding Qty. (Base)" := NewTransferLine."Quantity (Base)";
+        OnBeforeNewTransferLineInsert(NewTransferLine, TransferLine);
         NewTransferLine.Insert;
     end;
 
@@ -850,6 +851,11 @@ codeunit 5704 "TransferOrder-Post Shipment"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckItemInInventory(TransferLine: Record "Transfer Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeNewTransferLineInsert(var NewTransferLine: Record "Transfer Line"; TransferLine: Record "Transfer Line")
     begin
     end;
 

@@ -95,6 +95,8 @@ codeunit 408 DimensionManagement
     var
         DimSetEntry: Record "Dimension Set Entry";
     begin
+        OnBeforeGetDimensionSet(TempDimSetEntry);
+
         TempDimSetEntry.DeleteAll;
         with DimSetEntry do begin
             SetRange("Dimension Set ID", DimSetID);
@@ -665,6 +667,8 @@ codeunit 408 DimensionManagement
                     end;
                 end;
             end;
+
+        OnGetDefaultDimIDOnBeforeFindNewDimSetID(TempDimBuf, TableID, No, GlobalDim1Code, GlobalDim2Code);
 
         TempDimBuf.Reset;
         if TempDimBuf.FindSet then begin
@@ -2298,6 +2302,11 @@ codeunit 408 DimensionManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDimensionSet(var TempDimensionSetEntry: Record "Dimension Set Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGetTableIDsForHigherPriorities(TableNo: Integer; RecVar: Variant; var FieldNo: Integer; var TableID: array[10] of Integer; var No: array[10] of Code[20])
     begin
     end;
@@ -2339,6 +2348,11 @@ codeunit 408 DimensionManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnGetDefaultDimOnBeforeCreate(var TempDimBuf: Record "Dimension Buffer" temporary; TableID: Integer; No: Code[20]; GLSetupShortcutDimCode: array[8] of Code[20]; var GlobalDim1Code: Code[20]; var GlobalDim2Code: Code[20]; var IsHandled: Boolean; SourceCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetDefaultDimIDOnBeforeFindNewDimSetID(var TempDimensionBuffer: Record "Dimension Buffer" temporary; TableID: array[10] of Integer; No: array[10] of Code[20]; var GlobalDim1Code: Code[20]; var GlobalDim2Code: Code[20])
     begin
     end;
 }

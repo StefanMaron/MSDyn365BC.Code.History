@@ -29,7 +29,8 @@ report 593 "Intrastat - Make Disk Tax Auth"
                         TestField("Document No.");
                         TestField(Date);
                         TestField("Service Tariff No.");
-                        TestField("Transport Method");
+                        if not SkipTransportMethodVerification("Intrastat Jnl. Line") then
+                            TestField("Transport Method");
                         if "Intrastat Jnl. Batch"."Corrective Entry" then begin
                             TestField("Custom Office No.");
                             TestField("Progressive No.");
@@ -743,6 +744,42 @@ report 593 "Intrastat - Make Disk Tax Auth"
     procedure InitializeRequest(newServerFileName: Text)
     begin
         ServerFileName := newServerFileName;
+    end;
+
+    local procedure SkipTransportMethodVerification(IntrastatJnlLine: Record "Intrastat Jnl. Line"): Boolean
+    var
+        VATEntry: Record "VAT Entry";
+        ValueEntry: Record "Value Entry";
+    begin
+        if IntrastatJnlLine."Source Type" <> IntrastatJnlLine."Source Type"::"VAT Entry" then
+            exit(false);
+
+        if not VATEntry.Get(IntrastatJnlLine."Source Entry No.") then
+            exit(false);
+
+        if not VATEntry."EU Service" then
+            exit(false);
+
+        ValueEntry.SetRange("Document No.", VATEntry."Document No.");
+        ValueEntry.SetRange("Posting Date", VATEntry."Posting Date");
+        ValueEntry.SetFilter("Item No.", '<>%1', '');
+        if ValueEntry.FindSet then begin
+            repeat
+                if IsInventoriableTypeItem(ValueEntry."Item No.") then
+                    exit(false);
+            until ValueEntry.Next = 0;
+            exit(true);
+        end;
+        exit(false);
+    end;
+
+    local procedure IsInventoriableTypeItem(ItemNo: Code[20]): Boolean
+    var
+        Item: Record Item;
+    begin
+        if not Item.Get(ItemNo) then
+            exit(true);
+        exit(Item.IsInventoriableType);
     end;
 }
 

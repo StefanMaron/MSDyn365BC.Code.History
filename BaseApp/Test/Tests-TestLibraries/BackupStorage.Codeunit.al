@@ -358,7 +358,7 @@ codeunit 130012 "Backup Storage"
         if CompanyName = '' then
             exit(false);
 
-        exit(TableID in [1 .. 99999, 150000 .. 1999999999, 2000000080])
+        exit(TableID in [1 .. 99999, 150000 .. 1999999999, 2000000080, 2000000165, 2000000166]);
     end;
 
     local procedure IsSupportedTableType(TableNo: Integer): Boolean

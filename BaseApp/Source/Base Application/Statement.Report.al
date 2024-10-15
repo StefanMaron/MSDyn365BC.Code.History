@@ -598,8 +598,6 @@ report 116 Statement
                     CustLedgerEntry.SetFilter("Currency Code", '>%1', CustLedgerEntry."Currency Code");
                 end;
 
-                PrintedCustomersList := PrintedCustomersList.List;
-
                 if PrintAllHavingBal and not PrintAllHavingEntry then begin
                     SetAutoCalcFields("Balance (LCY)");
                     SetFilter("Balance (LCY)", '<>0');
@@ -842,7 +840,7 @@ report 116 Statement
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         TempAgingBandBuf: Record "Aging Band Buffer" temporary;
         Language: Codeunit Language;
-        PrintedCustomersList: DotNet GenericList1;
+        PrintedCustomersList: List of [Code[20]];
         PrintAllHavingEntry: Boolean;
         PrintAllHavingBal: Boolean;
         PrintEntriesDue: Boolean;

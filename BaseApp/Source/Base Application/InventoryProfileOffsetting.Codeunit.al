@@ -1147,7 +1147,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
                         end;
                     end;
                     if not SupplyExists or (SupplyInvtProfile."Due Date" > DemandInvtProfile."Due Date") then begin
-                        InitSupply(SupplyInvtProfile, DemandInvtProfile."Untracked Quantity", DemandInvtProfile."Due Date");
+                        InitSupply(
+                          SupplyInvtProfile, DemandInvtProfile."Untracked Quantity", DemandInvtProfile."Due Date", DemandInvtProfile."Due Time");
                         TransferAttributes(SupplyInvtProfile, DemandInvtProfile);
                         SupplyInvtProfile."Fixed Date" := SupplyInvtProfile."Due Date";
                         SupplyInvtProfile.Insert;
@@ -1338,30 +1339,9 @@ codeunit 99000854 "Inventory Profile Offsetting"
                     end;
                     OnAfterPrePlanDateSupplyProc(SupplyInvtProfile, DemandInvtProfile, SupplyExists, DemandExists);
 
-                    if LastAvailableInventory < 0 then begin // Emergency order
-                                                             // Insert Supply
-                        InitSupply(SupplyInvtProfile, -LastAvailableInventory, PlanningStartDate - 1);
-                        SupplyInvtProfile."Planning Flexibility" := SupplyInvtProfile."Planning Flexibility"::None;
-                        SupplyInvtProfile.Insert;
-                        MaintainPlanningLine(SupplyInvtProfile, DemandInvtProfile, PlanningLineStage::Exploded, ScheduleDirection::Backward);
-                        Track(SupplyInvtProfile, DemandInvtProfile, true, false, SupplyInvtProfile.Binding::" ");
-                        LastProjectedInventory += SupplyInvtProfile."Remaining Quantity (Base)";
-                        LastAvailableInventory += SupplyInvtProfile."Untracked Quantity";
-                        PlanningTransparency.LogSurplus(
-                          SupplyInvtProfile."Line No.", SupplyInvtProfile."Line No.", 0, '',
-                          SupplyInvtProfile."Untracked Quantity", SurplusType::EmergencyOrder);
-                        SupplyInvtProfile."Untracked Quantity" := 0;
-                        if SupplyInvtProfile."Planning Line No." <> ReqLine."Line No." then
-                            ReqLine.Get(CurrTemplateName, CurrWorksheetName, SupplyInvtProfile."Planning Line No.");
-                        PlanningTransparency.PublishSurplus(SupplyInvtProfile, TempSKU, ReqLine, TempTrkgReservEntry);
-                        DummyInventoryProfileTrackBuffer."Warning Level" := DummyInventoryProfileTrackBuffer."Warning Level"::Emergency;
-                        PlanningTransparency.LogWarning(
-                          0, ReqLine, DummyInventoryProfileTrackBuffer."Warning Level",
-                          StrSubstNo(
-                            Text006, DummyInventoryProfileTrackBuffer."Warning Level", -SupplyInvtProfile."Remaining Quantity (Base)",
-                            PlanningStartDate));
-                        SupplyInvtProfile.Delete;
-                    end;
+                    // Insert supply for emergency order
+                    if LastAvailableInventory < 0 then
+                        InsertEmergencyOrderSupply(SupplyInvtProfile, DemandInvtProfile, LastAvailableInventory, LastProjectedInventory, PlanningStartDate);
 
                     if LastAvailableInventory < TempSKU."Safety Stock Quantity" then begin // Initial Safety Stock Warning
                         SupplyAvailableWithinLeadTime := SumUpAvailableSupply(SupplyInvtProfile, PlanningStartDate, PlanningStartDate);
@@ -1378,7 +1358,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                           SumUpProjectedSupply(SupplyInvtProfile, PlanningStartDate, PlanningStartDate + BucketSizeInDays - 1);
 
                         if LastProjectedInventory + SupplyWithinLeadtime <= TempSKU."Reorder Point" then begin
-                            InitSupply(SupplyInvtProfile, 0, 0D);
+                            InitSupply(SupplyInvtProfile, 0, 0D, 0T);
                             CreateSupplyForward(
                               SupplyInvtProfile, DemandInvtProfile, PlanningStartDate, LastProjectedInventory, NewSupplyHasTakenOver,
                               DemandInvtProfile."Due Date");
@@ -1893,6 +1873,38 @@ codeunit 99000854 "Inventory Profile Offsetting"
         SupplyInvtProfile.Modify;
     end;
 
+    local procedure InsertEmergencyOrderSupply(var SupplyInvtProfile: Record "Inventory Profile"; var DemandInvtProfile: Record "Inventory Profile"; var LastAvailableInventory: Decimal; var LastProjectedInventory: Decimal; PlanningStartDate: Date)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeInsertEmergencyOrderSupply(SupplyInvtProfile, DemandInvtProfile, IsHandled);
+        if IsHandled then
+            exit;
+
+        InitSupply(SupplyInvtProfile, -LastAvailableInventory, PlanningStartDate - 1, 0T);
+        SupplyInvtProfile."Planning Flexibility" := SupplyInvtProfile."Planning Flexibility"::None;
+        SupplyInvtProfile.Insert;
+        MaintainPlanningLine(SupplyInvtProfile, DemandInvtProfile, PlanningLineStage::Exploded, ScheduleDirection::Backward);
+        Track(SupplyInvtProfile, DemandInvtProfile, true, false, SupplyInvtProfile.Binding::" ");
+        LastProjectedInventory += SupplyInvtProfile."Remaining Quantity (Base)";
+        LastAvailableInventory += SupplyInvtProfile."Untracked Quantity";
+        PlanningTransparency.LogSurplus(
+            SupplyInvtProfile."Line No.", SupplyInvtProfile."Line No.", 0, '',
+            SupplyInvtProfile."Untracked Quantity", SurplusType::EmergencyOrder);
+        SupplyInvtProfile."Untracked Quantity" := 0;
+        if SupplyInvtProfile."Planning Line No." <> ReqLine."Line No." then
+            ReqLine.Get(CurrTemplateName, CurrWorksheetName, SupplyInvtProfile."Planning Line No.");
+        PlanningTransparency.PublishSurplus(SupplyInvtProfile, TempSKU, ReqLine, TempTrkgReservEntry);
+        DummyInventoryProfileTrackBuffer."Warning Level" := DummyInventoryProfileTrackBuffer."Warning Level"::Emergency;
+        PlanningTransparency.LogWarning(
+            0, ReqLine, DummyInventoryProfileTrackBuffer."Warning Level",
+            StrSubstNo(
+            Text006, DummyInventoryProfileTrackBuffer."Warning Level", -SupplyInvtProfile."Remaining Quantity (Base)",
+            PlanningStartDate));
+        SupplyInvtProfile.Delete;
+    end;
+
     local procedure DecreaseQty(var SupplyInvtProfile: Record "Inventory Profile"; ReduceQty: Decimal; RespectPlanningParm: Boolean): Boolean
     var
         TempQty: Decimal;
@@ -1984,7 +1996,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     var
         ReorderQty: Decimal;
     begin
-        InitSupply(SupplyInvtProfile, 0, DemandInvtProfile."Due Date");
+        InitSupply(SupplyInvtProfile, 0, DemandInvtProfile."Due Date", DemandInvtProfile."Due Time");
         ReorderQty := DemandInvtProfile."Untracked Quantity";
         if (not IsExceptionOrder) or RespectPlanningParm then begin
             if not RespectPlanningParm then
@@ -2517,7 +2529,13 @@ codeunit 99000854 "Inventory Profile Offsetting"
     var
         DeltaQty: Decimal;
         Rounding: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeAdjustReorderQty(OrderQty, SKU, SupplyLineNo, MinQty, DeltaQty, IsHandled);
+        if IsHandled then
+            exit(DeltaQty);
+
         // Copy of this procedure exists in COD5400- Available Management
         if OrderQty <= 0 then
             exit(0);
@@ -2605,23 +2623,27 @@ codeunit 99000854 "Inventory Profile Offsetting"
                 end;
             TempSKU."Reordering Policy"::"Fixed Reorder Qty.":
                 begin
-                    if PlanningResilicency and (TempSKU."Reorder Quantity" = 0) then
-                        if SKU.Get(TempSKU."Location Code", TempSKU."Item No.", TempSKU."Variant Code") then
-                            ReqLine.SetResiliencyError(
-                              StrSubstNo(
-                                Text004, SKU.FieldCaption("Reorder Quantity"), 0, SKU.TableCaption,
-                                SKU."Location Code", SKU."Item No.", SKU."Variant Code",
-                                SKU.FieldCaption("Reordering Policy"), SKU."Reordering Policy"),
-                              DATABASE::"Stockkeeping Unit", SKU.GetPosition)
-                        else
-                            if Item.Get(TempSKU."Item No.") then
+                    if TempSKU."Reorder Quantity" = 0 then
+                        if SKU.Get(TempSKU."Location Code", TempSKU."Item No.", TempSKU."Variant Code") then begin
+                            if PlanningResilicency then
                                 ReqLine.SetResiliencyError(
                                   StrSubstNo(
-                                    Text005, Item.FieldCaption("Reorder Quantity"), 0, Item.TableCaption,
-                                    Item."No.", Item.FieldCaption("Reordering Policy"), Item."Reordering Policy"),
-                                  DATABASE::Item, Item.GetPosition);
+                                    Text004, SKU.FieldCaption("Reorder Quantity"), 0, SKU.TableCaption,
+                                    SKU."Location Code", SKU."Item No.", SKU."Variant Code",
+                                    SKU.FieldCaption("Reordering Policy"), SKU."Reordering Policy"),
+                                  DATABASE::"Stockkeeping Unit", SKU.GetPosition);
+                            TempSKU.TestField("Reorder Quantity");
+                        end else
+                            if Item.Get(TempSKU."Item No.") then begin
+                                if PlanningResilicency then
+                                    ReqLine.SetResiliencyError(
+                                      StrSubstNo(
+                                        Text005, Item.FieldCaption("Reorder Quantity"), 0, Item.TableCaption,
+                                        Item."No.", Item.FieldCaption("Reordering Policy"), Item."Reordering Policy"),
+                                      DATABASE::Item, Item.GetPosition);
+                                Item.TestField("Reorder Quantity");
+                            end;
 
-                    TempSKU.TestField("Reorder Quantity"); // Assertion
                     QtyToOrder := TempSKU."Reorder Quantity";
                     PlanningTransparency.LogSurplus(
                       SupplyLineNo, 0, DATABASE::Item, TempSKU."Item No.",
@@ -2685,11 +2707,14 @@ codeunit 99000854 "Inventory Profile Offsetting"
             end;
             ReqLine."Original Due Date" := "Original Due Date";
             ReqLine."Due Date" := "Due Date";
-            if "Planning Level Code" = 0 then
+            if "Planning Level Code" = 0 then begin
                 ReqLine."Ending Date" :=
                   LeadTimeMgt.PlannedEndingDate(
-                    "Item No.", "Location Code", "Variant Code", "Due Date", '', ReqLine."Ref. Order Type")
-            else begin
+                    "Item No.", "Location Code", "Variant Code", "Due Date", '', ReqLine."Ref. Order Type");
+                if CalcDate(TempSKU."Safety Lead Time", ReqLine."Ending Date") = ReqLine."Ending Date" then
+                    if CalcDate(ManufacturingSetup."Default Safety Lead Time", ReqLine."Ending Date") = ReqLine."Ending Date" then
+                        ReqLine."Ending Time" := "Due Time";
+            end else begin
                 ReqLine."Ending Date" := "Due Date";
                 ReqLine."Ending Time" := "Due Time";
             end;
@@ -3346,7 +3371,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         CurrSupplyExists := SupplyInvtProfile.Find('=');
 
         // Initiate new supplyprofile
-        InitSupply(TempSupplyInvtProfile, 0, AtDate);
+        InitSupply(TempSupplyInvtProfile, 0, AtDate, 0T);
 
         // Make sure VAR boolean is reset:
         NewSupplyHasTakenOver := false;
@@ -3395,7 +3420,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         while QtyToOrder > 0 do begin
             // In case of max order the new supply could be split in several new supplies:
             if HasLooped then begin
-                InitSupply(TempSupplyInvtProfile, 0, AtDate);
+                InitSupply(TempSupplyInvtProfile, 0, AtDate, 0T);
                 case TempSKU."Reordering Policy" of
                     TempSKU."Reordering Policy"::"Maximum Qty.":
                         SurplusType := SurplusType::MaxInventory;
@@ -3520,7 +3545,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         SupplyInvtProfile.Modify;
     end;
 
-    local procedure InitSupply(var SupplyInvtProfile: Record "Inventory Profile"; OrderQty: Decimal; DueDate: Date)
+    local procedure InitSupply(var SupplyInvtProfile: Record "Inventory Profile"; OrderQty: Decimal; DueDate: Date; DueTime: Time)
     var
         Item: Record Item;
         ItemUnitOfMeasure: Record "Item Unit of Measure";
@@ -3533,6 +3558,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         SupplyInvtProfile."Action Message" := SupplyInvtProfile."Action Message"::New;
         UpdateQty(SupplyInvtProfile, OrderQty);
         SupplyInvtProfile."Due Date" := DueDate;
+        SupplyInvtProfile."Due Time" := DueTime;
         SupplyInvtProfile.IsSupply := true;
         Item.Get(TempSKU."Item No.");
         SupplyInvtProfile."Unit of Measure Code" := Item."Base Unit of Measure";
@@ -4251,7 +4277,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         ReorderQty := OrderQty;
 
         repeat
-            InitSupply(SupplyInventoryProfile, ReorderQty, PlanningStartDate);
+            InitSupply(SupplyInventoryProfile, ReorderQty, PlanningStartDate, 0T);
             if RespectPlanningParm then begin
                 if IsReorderPointPlanning then
                     ReorderQty := CalcOrderQty(ReorderQty, ProjectedInventory, SupplyInventoryProfile."Line No.");
@@ -4660,6 +4686,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertEmergencyOrderSupply(var SupplyInventoryProfile: Record "Inventory Profile"; var DemandInventoryProfile: Record "Inventory Profile"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeMatchAttributesDemandApplicationLoop(var SupplyInventoryProfile: Record "Inventory Profile"; var DemandInventoryProfile: Record "Inventory Profile"; var SupplyExists: Boolean)
     begin
     end;
@@ -4736,6 +4767,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostInvChgReminder(var InventoryProfileChangeReminder: Record "Inventory Profile"; var InventoryProfile: Record "Inventory Profile"; PostOnlyMinimum: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAdjustReorderQty(OrderQty: Decimal; var SKU: Record "Stockkeeping Unit"; SupplyLineNo: Integer; MinQty: Decimal; var DeltaQty: Decimal; var IsHandled: Boolean);
     begin
     end;
 

@@ -20,9 +20,15 @@ codeunit 1406 "Return Shipment Header - Edit"
         ReturnShipmentHeader."Shipping Agent Code" := "Shipping Agent Code";
         ReturnShipmentHeader."3rd Party Loader Type" := "3rd Party Loader Type";
         ReturnShipmentHeader."3rd Party Loader No." := "3rd Party Loader No.";
+        OnBeforeReturnShipmentHeaderModify(ReturnShipmentHeader, Rec);
         ReturnShipmentHeader.TestField("No.", "No.");
         ReturnShipmentHeader.Modify;
         Rec := ReturnShipmentHeader;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeReturnShipmentHeaderModify(var ReturnShipmentHeader: Record "Return Shipment Header"; ReturnShipmentHeaderRec: Record "Return Shipment Header")
+    begin
     end;
 }
 

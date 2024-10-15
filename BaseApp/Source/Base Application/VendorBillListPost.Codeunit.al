@@ -41,7 +41,7 @@ codeunit 12173 "Vendor Bill List - Post"
         BillPostingGroup: Record "Bill Posting Group";
         BillCode: Record Bill;
         WithholdingSocSec: Codeunit "Withholding - Contribution";
-        Tax: Option " ",Withhold,"Free Lance",Company;
+        TaxType: Option " ",Withhold,"Free Lance",Company;
         AmountLCY: Decimal;
     begin
         VendorBillHeader := LocalVendorBillHeader;
@@ -83,11 +83,14 @@ codeunit 12173 "Vendor Bill List - Post"
                 BalanceAmountLCY := BalanceAmountLCY + GenJnlLine."Amount (LCY)";
                 if VendBillWithhTax.Get(VendorBillLine."Vendor Bill List No.", VendorBillLine."Line No.") then begin
                     if (VendBillWithhTax."Withholding Tax Code" <> '') and (VendBillWithhTax."Withholding Tax Amount" <> 0) then
-                        PostTax(VendorBillHeader, VendorBillLine, VendBillWithhTax, VendLedgEntry, BillCode, Tax::Withhold);
+                        PostTax(VendorBillHeader, VendorBillLine, VendBillWithhTax, VendLedgEntry, BillCode, TaxType::Withhold);
                     if (VendBillWithhTax."Social Security Code" <> '') and (VendBillWithhTax."Free-Lance Amount" <> 0) then
-                        PostTax(VendorBillHeader, VendorBillLine, VendBillWithhTax, VendLedgEntry, BillCode, Tax::"Free Lance");
+                        PostTax(VendorBillHeader, VendorBillLine, VendBillWithhTax, VendLedgEntry, BillCode, TaxType::"Free Lance");
                     if (VendBillWithhTax."Social Security Code" <> '') and (VendBillWithhTax."Company Amount" <> 0) then
-                        PostTax(VendorBillHeader, VendorBillLine, VendBillWithhTax, VendLedgEntry, BillCode, Tax::Company);
+                        PostTax(VendorBillHeader, VendorBillLine, VendBillWithhTax, VendLedgEntry, BillCode, TaxType::Company);
+
+                    OnAfterPostTax(VendorBillHeader, VendorBillLine, VendBillWithhTax, VendLedgEntry, BillCode, TaxType);
+
                     TempWithholdingSocSec.TransferFields(VendBillWithhTax);
                     WithholdingSocSec.PostPayments(TempWithholdingSocSec, GenJnlLine, true);
                 end;
@@ -325,6 +328,11 @@ codeunit 12173 "Vendor Bill List - Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPost(var VendorBillHeader: Record "Vendor Bill Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostTax(var VendorBillHeader: Record "Vendor Bill Header"; var VendorBillLine: Record "Vendor Bill Line"; var VendBillWithhTax: Record "Vendor Bill Withholding Tax"; var VendLedgEntry: Record "Vendor Ledger Entry"; BillCode: Record Bill; TaxType: Option);
     begin
     end;
 

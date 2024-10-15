@@ -1115,7 +1115,7 @@ report 20 "Calc. and Post VAT Settlement"
             Error(Text1130008, GLSetup.FieldCaption("Settlement Round. Factor"), GLSetup.TableCaption);
     end;
 
-    [Scope('OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem')]
     procedure CalculateEndDate()
     begin
         case GLSetup."VAT Settlement Period" of
@@ -1132,7 +1132,7 @@ report 20 "Calc. and Post VAT Settlement"
             end;
     end;
 
-    [Scope('OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem')]
     procedure GetGLSetup()
     begin
         if not GLSetupGet then begin

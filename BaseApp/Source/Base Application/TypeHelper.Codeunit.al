@@ -326,6 +326,25 @@ codeunit 10 "Type Helper"
         Duration := TimeZoneInfo.BaseUtcOffset;
     end;
 
+    procedure GetUserClientTypeOffset(var Duration: Duration)
+    var
+        ClientTypeManagement: Codeunit "Client Type Management";
+    begin
+        Duration := 0;
+        if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Web then
+            GetUserTimezoneOffset(Duration);
+    end;
+
+    procedure GetTimezoneOffset(var Duration: Duration; TimeZoneID: Text)
+    var
+        TimeZoneInfo: DotNet TimeZoneInfo;
+    begin
+        if TimeZoneID = '' then
+            Duration := 0;
+        TimeZoneInfo := TimeZoneInfo.FindSystemTimeZoneById(TimeZoneID);
+        Duration := TimeZoneInfo.BaseUtcOffset;
+    end;
+
     procedure EvaluateUnixTimestamp(Timestamp: BigInteger): DateTime
     var
         ResultDateTime: DateTime;
@@ -690,6 +709,21 @@ codeunit 10 "Type Helper"
         exit(Result);
     end;
 
+    procedure ConvertDateTimeFromUTCToTimeZone(InputDateTime: DateTime; TimeZoneTxt: Text): DateTime
+    var
+        TimeZoneInfo: DotNet TimeZoneInfo;
+        Offset: Duration;
+    begin
+        if TimeZoneTxt = '' then
+            exit(InputDateTime);
+
+        GetUserClientTypeOffset(Offset);
+        InputDateTime := InputDateTime - Offset;
+
+        TimeZoneInfo := TimeZoneInfo.FindSystemTimeZoneById(TimeZoneTxt);
+        exit(TimeZoneInfo.ConvertTimeFromUtc(InputDateTime, TimeZoneInfo));
+    end;
+
     procedure IntToHex(IntValue: Integer): Text
     var
         DotNetIntPtr: DotNet IntPtr;
@@ -805,6 +839,14 @@ codeunit 10 "Type Helper"
         CultureInfo := CultureInfo.GetCultureInfo(LocaleId);
         NumberFormat := CultureInfo.NumberFormat;
         CurrencyPositivePattern := NumberFormat.CurrencyPositivePattern;
+    end;
+
+    procedure AddHoursToDateTime(SourceDateTime: DateTime; NoOfHours: Integer): DateTime
+    var
+        MillisecondsToAdd: BigInteger;
+    begin
+        MillisecondsToAdd := NoOfHours * 3600000; // 60 * 60 * 1000
+        exit(SourceDateTime + MillisecondsToAdd);
     end;
 }
 

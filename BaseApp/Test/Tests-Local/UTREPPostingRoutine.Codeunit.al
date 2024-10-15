@@ -17,6 +17,7 @@ codeunit 144068 "UT REP Posting Routine"
     var
         Assert: Codeunit Assert;
         LibraryReportDataset: Codeunit "Library - Report Dataset";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
@@ -69,6 +70,7 @@ codeunit 144068 "UT REP Posting Routine"
         LibrarySales: Codeunit "Library - Sales";
         UnpostedSalesDocumentsMsg: Label 'An unposted sales document with posting number %1 exists.\\%2.', Comment='%1=Posting No.,%2=Sales Header RecordID';
         UnpostedPurchDocumentsMsg: Label 'An unposted puchase document with posting number %1 exists.\\%2.', Comment='%1=Posting No.,%2=Purchase Header RecordID';
+        isInitialized: Boolean;
 
     [Test]
     [HandlerFunctions('CustomerSheetPrintRequestPageHandler')]
@@ -909,9 +911,110 @@ codeunit 144068 "UT REP Posting Routine"
         Assert.AreEqual(GLBookEntry[2]."Credit Amount", LibraryReportDataset.Sum(DecreasesAmntCap), '');
     end;
 
+    [Test]
+    [HandlerFunctions('VATRegisterPrintDateValidateRPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure VATFiscalRegisterPrintValidatesPeriodEndingDate()
+    var
+        GLSetup: Record "General Ledger Setup";
+        PeriodicSettlementVATEntry: Record "Periodic Settlement VAT Entry";
+        VatEntry: Record "VAT Entry";
+    begin
+        // [FEATURE] [VAT Report] [Date]
+        // [SCENARIO 322953] VAT Fiscal Register - Print report's request page validates proper Quarter PeriodEndingDate
+        Initialize;
+
+        // [GIVEN] Set "VAT Settlement Period"::Quarter in General Ledger Setup
+        VatEntry.DeleteAll;
+        PeriodicSettlementVATEntry.DeleteAll;
+        GLSetup.Get;
+        GLSetup.Validate("VAT Settlement Period", GLSetup."VAT Settlement Period"::Quarter);
+        GLSetup.Modify(true);
+
+        // [WHEN] Run report "VAT Register - Print" and set PeriodStartingDate = '01-01-2021' in RPH
+        LibraryVariableStorage.Enqueue(CreateVATRegister);
+        REPORT.Run(REPORT::"VAT Register - Print");
+
+        // [THEN] PeriodEndingDate equals '3/31/2021'
+        Assert.AreEqual('3/31/2021', LibraryVariableStorage.DequeueText, '');
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('VATRegisterPrintQuarterDateRPH')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure VATFiscalRegisterPrintExqcutesForQuarterPeriod()
+    var
+        GLSetup: Record "General Ledger Setup";
+        PeriodicSettlementVATEntry: Record "Periodic Settlement VAT Entry";
+        VatEntry: Record "VAT Entry";
+    begin
+        // [FEATURE] [VAT Report] [Date]
+        // [SCENARIO 322953] VAT Fiscal Register - Print report runs with proper PeriodStartingDate and PeriodEndingDate for Quarter period
+        Initialize;
+
+        // [GIVEN] Set "VAT Settlement Period"::Quarter in General Ledger Setup
+        VatEntry.DeleteAll;
+        PeriodicSettlementVATEntry.DeleteAll;
+        GLSetup.Get;
+        GLSetup.Validate("VAT Settlement Period", GLSetup."VAT Settlement Period"::Quarter);
+        GLSetup.Modify(true);
+
+        // [WHEN] Run report "VAT Register - Print" with proper PeriodStartingDate and PeriodEndingDate for Quarter period (set in RPH)
+        // [THEN] Verify Error Code. Actual error message: There are unposted purchase documents with a reserved Posting No. Please post these before continuing.
+        LibraryVariableStorage.Enqueue(CreateVATRegister);
+        REPORT.Run(REPORT::"VAT Register - Print");
+    end;
+
+    [Test]
+    [HandlerFunctions('VendorSheetPrintRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VendorSheetPrintForMultipleEntries()
+    var
+        DtldVendorLedgEntry: array[3] of Record "Detailed Vendor Ledg. Entry";
+        PurchaseHeaderNo: Code[20];
+    begin
+        // [FEATURE] [Vendor Sheet - Print]
+        // [SCENARIO 328287] Debit and Credit Amount of one line doesn't leak to other lines in report "Vendor Sheet - Print".
+        Initialize;
+
+        // [GIVEN] Three Detailed Vendor Ledger entries (DVLE):
+        // [GIVEN] DVLE1 with Amount (LCY) "D1" > 0;
+        // [GIVEN] DVLE2 with Amount (LCY) "D2" > 0;
+        // [GIVEN] DVLE3 with Amount (LCY) "D3" < 0.
+        PurchaseHeaderNo := CreatePurchaseHeader('');
+        CreateVendorEntries(
+          DtldVendorLedgEntry[1], PurchaseHeaderNo, DtldVendorLedgEntry[1]."Entry Type"::"Initial Entry", LibraryUTUtility.GetNewCode10);
+        CreateVendorEntries(
+          DtldVendorLedgEntry[2], PurchaseHeaderNo, DtldVendorLedgEntry[2]."Entry Type"::"Initial Entry", LibraryUTUtility.GetNewCode10);
+        DtldVendorLedgEntry[2]."Amount (LCY)" := -LibraryRandom.RandDec(10, 2);
+        DtldVendorLedgEntry[2].Modify;
+        CreateVendorEntries(
+          DtldVendorLedgEntry[3], PurchaseHeaderNo, DtldVendorLedgEntry[3]."Entry Type"::"Initial Entry", LibraryUTUtility.GetNewCode10);
+
+        // [WHEN] Report "Vendor Sheet - Print" is run.
+        LibraryVariableStorage.Enqueue(DtldVendorLedgEntry[1]."Vendor No.");
+        Commit;
+        REPORT.Run(REPORT::"Vendor Sheet - Print");
+
+        // [THEN] TotalIcreasesAmntForRTC equal to "D1" + "D2", TotalDecreasesAmntForRTC equal to "D3".
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.AssertElementWithValueExists(
+          'TotalIcreasesAmntForRTC', DtldVendorLedgEntry[1]."Amount (LCY)" + DtldVendorLedgEntry[3]."Amount (LCY)");
+        LibraryReportDataset.AssertElementWithValueExists('TotalDecreasesAmntForRTC', Abs(DtldVendorLedgEntry[2]."Amount (LCY)"));
+    end;
+
     local procedure Initialize()
     begin
+        LibrarySetupStorage.Restore;
         LibraryVariableStorage.Clear;
+        if isInitialized then
+            exit;
+
+        isInitialized := true;
+        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
     end;
 
     local procedure CreateBankAccont(): Code[20]
@@ -1381,6 +1484,33 @@ codeunit 144068 "UT REP Posting Routine"
         VATRegisterPrint.VATRegister.SetValue(VATRegister);
         VATRegisterPrint.PeriodStartingDate.SetValue(WorkDate);
         VATRegisterPrint.PeriodEndingDate.SetValue(WorkDate);
+        VATRegisterPrint.FiscalCode.SetValue(LibraryUTUtility.GetNewCode);
+        VATRegisterPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure VATRegisterPrintDateValidateRPH(var VATRegisterPrint: TestRequestPage "VAT Register - Print")
+    var
+        VATRegister: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(VATRegister);
+        VATRegisterPrint.VATRegister.SetValue(VATRegister);
+        VATRegisterPrint.PeriodStartingDate.SetValue(DMY2Date(1, 1, 2021));
+        LibraryVariableStorage.Enqueue(VATRegisterPrint.PeriodEndingDate.Value);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure VATRegisterPrintQuarterDateRPH(var VATRegisterPrint: TestRequestPage "VAT Register - Print")
+    var
+        VATRegister: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(VATRegister);
+        VATRegisterPrint.VATRegister.SetValue(VATRegister);
+        VATRegisterPrint.PrintCompanyInformations.SetValue(false);
+        VATRegisterPrint.PeriodStartingDate.SetValue(CalcDate('<-CM>', WorkDate));
+        VATRegisterPrint.PeriodEndingDate.SetValue(CalcDate('<+CM+2M>', WorkDate));
         VATRegisterPrint.FiscalCode.SetValue(LibraryUTUtility.GetNewCode);
         VATRegisterPrint.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;

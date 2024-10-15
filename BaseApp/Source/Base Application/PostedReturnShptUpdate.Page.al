@@ -122,19 +122,21 @@ page 1352 "Posted Return Shpt. - Update"
     var
         xReturnShipmentHeader: Record "Return Shipment Header";
 
-    local procedure RecordChanged(): Boolean
+    local procedure RecordChanged() IsChanged: Boolean
     begin
-        exit(
-          ("Ship-to County" <> xReturnShipmentHeader."Ship-to County") or
-          ("Ship-to Country/Region Code" <> xReturnShipmentHeader."Ship-to Country/Region Code") or
-          ("Additional Information" <> xReturnShipmentHeader."Additional Information") or
-          ("Additional Notes" <> xReturnShipmentHeader."Additional Notes") or
-          ("Additional Instructions" <> xReturnShipmentHeader."Additional Instructions") or
-          ("TDD Prepared By" <> xReturnShipmentHeader."TDD Prepared By") or
-          ("Shipment Method Code" <> xReturnShipmentHeader."Shipment Method Code") or
-          ("Shipping Agent Code" <> xReturnShipmentHeader."Shipping Agent Code") or
-          ("3rd Party Loader Type" <> xReturnShipmentHeader."3rd Party Loader Type") or
-          ("3rd Party Loader No." <> xReturnShipmentHeader."3rd Party Loader No."));
+        IsChanged :=
+            ("Ship-to County" <> xReturnShipmentHeader."Ship-to County") or
+            ("Ship-to Country/Region Code" <> xReturnShipmentHeader."Ship-to Country/Region Code") or
+            ("Additional Information" <> xReturnShipmentHeader."Additional Information") or
+            ("Additional Notes" <> xReturnShipmentHeader."Additional Notes") or
+            ("Additional Instructions" <> xReturnShipmentHeader."Additional Instructions") or
+            ("TDD Prepared By" <> xReturnShipmentHeader."TDD Prepared By") or
+            ("Shipment Method Code" <> xReturnShipmentHeader."Shipment Method Code") or
+            ("Shipping Agent Code" <> xReturnShipmentHeader."Shipping Agent Code") or
+            ("3rd Party Loader Type" <> xReturnShipmentHeader."3rd Party Loader Type") or
+            ("3rd Party Loader No." <> xReturnShipmentHeader."3rd Party Loader No.");
+
+        OnAfterRecordChanged(Rec, xRec, IsChanged);
     end;
 
     [Scope('OnPrem')]
@@ -143,5 +145,9 @@ page 1352 "Posted Return Shpt. - Update"
         Rec := ReturnShipmentHeader;
         Insert;
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterRecordChanged(var ReturnShipmentHeader: Record "Return Shipment Header"; xReturnShipmentHeader: Record "Return Shipment Header"; var IsChanged: Boolean);
+    begin
+    end;
+}

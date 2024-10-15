@@ -22,11 +22,11 @@ codeunit 144562 "IT - Datifattura Split VAT"
         LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryUtility: Codeunit "Library - Utility";
-        LibraryPurchase: Codeunit "Library - Purchase";   	
+	    LibraryPurchase: Codeunit "Library - Purchase";   	
         IsInitialized: Boolean;
         EsigibilitaIVATok: Label 'DTE/CessionarioCommittenteDTE/DatiFatturaBodyDTE/DatiRiepilogo/EsigibilitaIVA';
         CAPTok: Label 'DTR/CedentePrestatoreDTR/AltriDatiIdentificativi/Sede/CAP';
-
+      	
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]

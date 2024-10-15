@@ -16,6 +16,7 @@ codeunit 144204 "FatturaPA Discount"
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryITLocalization: Codeunit "Library - IT Localization";
+        LibraryInventory: Codeunit "Library - Inventory";
         IsInitialized: Boolean;
         FatturaPA_ElectronicFormatTxt: Label 'FatturaPA';
         UnexpectedElementValueErr: Label 'Unexpected element value for element %1. Expected element value: %2. Actual element value: %3.', Comment = '%1=XML Element Name;%2=Expected XML Element Value;%3=Actual XML element Value;';
@@ -494,6 +495,40 @@ codeunit 144204 "FatturaPA Discount"
         VerifyLineAmount(ServerFileName, 0);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceWithPricesIncludingVAT()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        ElectronicDocumentFormat: Record "Electronic Document Format";
+        Item: Record Item;
+        ClientFileName: Text[250];
+        ServerFileName: Text[250];
+    begin
+        // [FEATURE] [Sales] [Invoice] [Prices Including VAT] [Line Discount]
+        // [SCENARIO 323459] PrezzoUnitario and PrezzoTotale get exported correctly when Document uses "Prices Including VAT" and Line Discount
+        Initialize;
+
+        // [GIVEN] Item with unit price = "100"
+        CreateItemWithPrice(Item, LibraryRandom.RandDec(100, 2));
+
+        // [GIVEN] Sales Invoice with Quantity = 5, Unit Price = "120", "Line Discount Percent" = "20", Amount = "400"
+        CreateFatturaSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateFatturaCustomerNoWithPricesIncludingVAT);
+        CreateSalesLinesForItemNoWithLineDiscount(SalesHeader, SalesLine, Item."No.", LibraryRandom.RandInt(20));
+
+        // [GIVEN] Sales Invoice was posted
+        SalesInvoiceHeader.SetRange("No.", LibrarySales.PostSalesDocument(SalesHeader, false, true));
+
+        // [WHEN] The document is exported to FatturaPA
+        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+          ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+
+        // [THEN] PrezzoUnitario = "100" and PrezzoTotale = "400"
+        VerifyLineAndUnitPriceAmount(ServerFileName, SalesLine.Amount, Item."Unit Price");
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -524,6 +559,14 @@ codeunit 144204 "FatturaPA Discount"
         SalesHeader.Modify(true);
     end;
 
+    local procedure CreateFatturaSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20])
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
+        SalesHeader.Validate("Payment Terms Code", LibraryITLocalization.CreateFatturaPaymentTermsCode);
+        SalesHeader.Validate("Payment Method Code", LibraryITLocalization.CreateFatturaPaymentMethodCode);
+        SalesHeader.Modify(true);
+    end;
+
     local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; CustomerNo: Code[20]; DocumentType: Option)
     var
         ServiceItem: Record "Service Item";
@@ -541,6 +584,30 @@ codeunit 144204 "FatturaPA Discount"
         exit(
           LibraryITLocalization.CreateFatturaCustomerNo(
             CopyStr(LibraryUtility.GenerateRandomCode(Customer.FieldNo("PA Code"), DATABASE::Customer), 1, 6)));
+    end;
+
+    local procedure CreateFatturaCustomerNoWithPricesIncludingVAT(): Code[20]
+    var
+        Customer: Record Customer;
+    begin
+        Customer.Get(CreateCustomer);
+        Customer.Validate("Prices Including VAT", true);
+        Customer.Modify(true);
+        exit(Customer."No.");
+    end;
+
+    local procedure CreateItemWithPrice(var Item: Record Item; UnitPrice: Decimal)
+    begin
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Unit Price", UnitPrice);
+        Item.Modify(true);
+    end;
+
+    local procedure CreateSalesLinesForItemNoWithLineDiscount(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; ItemNo: Code[20]; LineDiscountPct: Integer)
+    begin
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(10));
+        SalesLine.Validate("Line Discount %", LineDiscountPct);
+        SalesLine.Modify(true);
     end;
 
     local procedure CreatePaymentMethod(): Code[10]
@@ -650,6 +717,22 @@ codeunit 144204 "FatturaPA Discount"
         AssertCurrentElementValue(
           TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/ScontoMaggiorazione/Percentuale',
           FormatAmount(LineDiscPct));
+
+        DeleteServerFile(ServerFileName);
+    end;
+
+    local procedure VerifyLineAndUnitPriceAmount(ServerFileName: Text[250]; LineAmount: Decimal; UnitPrice: Decimal)
+    var
+        TempXMLBuffer: Record "XML Buffer" temporary;
+    begin
+        TempXMLBuffer.Load(ServerFileName);
+
+        AssertCurrentElementValue(
+          TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/PrezzoUnitario',
+          FormatAmount(UnitPrice));
+        AssertCurrentElementValue(
+          TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/PrezzoTotale',
+          FormatAmount(LineAmount));
 
         DeleteServerFile(ServerFileName);
     end;

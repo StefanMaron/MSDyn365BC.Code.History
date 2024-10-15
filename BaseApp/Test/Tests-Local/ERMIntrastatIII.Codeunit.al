@@ -1107,6 +1107,138 @@ codeunit 144064 "ERM Intrastat - III"
           Abs(PurchInvLine.Amount - FindPurchaseCrMemoLine(DocumentNo, PurchCrMemoLine.Type::Item)));
     end;
 
+    [Test]
+    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckTransportMethodIsNotValidatedForServiceItemTypeInPurchaseDocument()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        PurchaseHeader: Record "Purchase Header";
+        FileName: Text;
+        IntrastatJnlBatchName: Code[10];
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Non-Inventoriable]
+        // [SCENARIO 323469] Get Intrastat Journal entries for posted Purchase Invoice with Item and Item.Type = Service.
+
+        Initialize;
+
+        // [GIVEN] Purchase Invoice with Item.Type = Service is created and posted.
+        // [GIVEN] PurchaseHeader."Transport Method" is blank .
+        CreatePurchaseDocumentWithoutTransportMethodWithServiceTypeItem(
+          PurchaseHeader, CreateEUVendor, PurchaseHeader."Document Type"::Invoice, true);  // EU Service - TRUE.
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [WHEN] Get Entries on Intrastat Journal.
+        IntrastatJnlBatchName := GetEntriesIntrastatJournal(
+            IntrastatJnlBatch.Type::Purchases, true, false, false, Format(WorkDate, 0, LibraryFiscalYear.GetStatisticsPeriod), true);  // EU Service - TRUE, CorrectiveEntry - FALSE, AmountsInAddCurrency - FALSE, ShowItemCharges - TRUE
+
+        // [THEN] Intrastat Journal Line was created with blank "Transport Method"
+        FindIntrastatJournalLine(IntrastatJnlLine, IntrastatJnlBatchName, DocumentNo);
+        IntrastatJnlLine.TestField("Transport Method", '');
+
+        // [THEN] 'Intrastat - Make Disk Tax Auth' run successfully
+        FileName := FileManagement.ServerTempFileName('txt');
+        IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlBatchName);
+        RunIntrastatMakeDiskTaxAuth(IntrastatJnlBatch, FileName);
+    end;
+
+    [Test]
+    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckTransportMethodIsNotValidatedForServiceItemTypeInSalesDocument()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        SalesHeader: Record "Sales Header";
+        FileName: Text;
+        IntrastatJnlBatchName: Code[10];
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Non-Inventoriable]
+        // [SCENARIO 323469] Get Intrastat Journal entries for posted Sales Invoice with Item and Item.Type = Service.
+
+        Initialize;
+
+        // [GIVEN] Sales Invoice with Item.Type = Service is created and posted.
+        // [GIVEN] SalesHeader."Transport Method" is blank.
+        CreateSalesDocumentWithoutTransportMethodWithServiceTypeItem(
+          SalesHeader, CreateEUCustomer, true, SalesHeader."Document Type"::Invoice);  // EU Service - TRUE.
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Get Entries on Intrastat Journal.
+        IntrastatJnlBatchName := GetEntriesIntrastatJournal(
+            IntrastatJnlBatch.Type::Sales, true, false, false, Format(WorkDate, 0, LibraryFiscalYear.GetStatisticsPeriod), true);  // EU Service - TRUE, CorrectiveEntry - FALSE, AmountsInAddCurrency - FALSE, ShowItemCharges - TRUE
+
+        // [THEN] Intrastat Journal Line was created with blank "Transport Method"
+        FindIntrastatJournalLine(IntrastatJnlLine, IntrastatJnlBatchName, DocumentNo);
+        IntrastatJnlLine.TestField("Transport Method", '');
+
+        // [THEN] 'Intrastat - Make Disk Tax Auth' run successfully
+        FileName := FileManagement.ServerTempFileName('txt');
+        IntrastatJnlBatch.Get(IntrastatJnlLine."Journal Template Name", IntrastatJnlBatchName);
+        RunIntrastatMakeDiskTaxAuth(IntrastatJnlBatch, FileName);
+    end;
+
+    [Test]
+    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckTransportMethodIsValidatedForNonServiceItemTypeInPurchaseDocument()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        PurchaseHeader: Record "Purchase Header";
+        IntrastatJnlBatchName: Code[10];
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Inventoriable]
+        // [SCENARIO 323469] Get Intrastat Journal entries for posted Purchase Invoice with Inventoriable item.
+
+        Initialize;
+
+        // [GIVEN] Purchase Invoice is created with Transport Method Code and posted.
+        CreatePurchaseDocument(PurchaseHeader, CreateEUVendor, PurchaseHeader."Document Type"::Invoice, true);  // EU Service - TRUE.
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [WHEN] Get Entries on Intrastat Journal.
+        IntrastatJnlBatchName := GetEntriesIntrastatJournal(
+            IntrastatJnlBatch.Type::Purchases, true, false, false, Format(WorkDate, 0, LibraryFiscalYear.GetStatisticsPeriod), true);  // EU Service - TRUE, CorrectiveEntry - FALSE, AmountsInAddCurrency - FALSE, ShowItemCharges - TRUE
+
+        // [THEN] Intrastat Journal Line was created with "Transport Method" value of the Purchase Invoice.
+        FindIntrastatJournalLine(IntrastatJnlLine, IntrastatJnlBatchName, DocumentNo);
+        IntrastatJnlLine.TestField("Transport Method", PurchaseHeader."Transport Method");
+    end;
+
+    [Test]
+    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure CheckTransportMethodIsValidatedForNonServiceItemTypeInSalesDocument()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        SalesHeader: Record "Sales Header";
+        IntrastatJnlBatchName: Code[10];
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Inventoriable]
+        // [SCENARIO 323469] Get Intrastat Journal entries for posted Sales Invoice with Inventoriable item.
+
+        Initialize;
+
+        // [GIVEN] Sales Invoice is created with Transport Method Code and posted.
+        CreateSalesDocument(SalesHeader, CreateEUCustomer, true, SalesHeader."Document Type"::Invoice);  // EU Service - TRUE.
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Get Entries on Intrastat Journal.
+        IntrastatJnlBatchName := GetEntriesIntrastatJournal(
+            IntrastatJnlBatch.Type::Sales, true, false, false, Format(WorkDate, 0, LibraryFiscalYear.GetStatisticsPeriod), true);  // EU Service - TRUE, CorrectiveEntry - FALSE, AmountsInAddCurrency - FALSE, ShowItemCharges - TRUE
+
+        // [THEN] Intrastat Journal Line was created with "Transport Method" value of the Sales Invoice.
+        FindIntrastatJournalLine(IntrastatJnlLine, IntrastatJnlBatchName, DocumentNo);
+        IntrastatJnlLine.TestField("Transport Method", SalesHeader."Transport Method");
+    end;
+
     local procedure Initialize()
     var
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
@@ -2123,6 +2255,59 @@ codeunit 144064 "ERM Intrastat - III"
         File.Read(TextLine); // first line - file header info
         File.Read(TextLine); // second line - document info
         File.Close;
+    end;
+
+    local procedure CreateItemWithVATProdPostingGroupAndServiceType(VATProdPostingGroup: Code[20]): Code[20]
+    var
+        Item: Record Item;
+        TariffNumber: Record "Tariff Number";
+    begin
+        TariffNumber.FindFirst;
+        LibraryInventory.CreateServiceTypeItem(Item);
+        Item.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
+        Item.Validate("Tariff No.", TariffNumber."No.");
+        Item.Validate("Country/Region of Origin Code", CreateVATRegistrationNoFormat);
+        Item.Validate("Net Weight", LibraryRandom.RandDec(10, 2));
+        Item.Modify(true);
+        exit(Item."No.");
+    end;
+
+    local procedure CreateSalesDocumentWithoutTransportMethodWithServiceTypeItem(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; EUService: Boolean; DocumentType: Option): Code[20]
+    var
+        PaymentMethod: Record "Payment Method";
+        SalesLine: Record "Sales Line";
+        ServiceTariffNumber: Record "Service Tariff Number";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+        LibraryITLocalization.CreateServiceTariffNumber(ServiceTariffNumber);
+        CreateSalesHeader(SalesHeader, DocumentType, CustomerNo, PaymentMethod.Code, '', ServiceTariffNumber."No.");
+        CreateVATPostingSetup(
+          VATPostingSetup, SalesHeader."VAT Bus. Posting Group", VATPostingSetup."VAT Calculation Type"::"Normal VAT", EUService);
+        CreateSalesLine(
+          SalesLine,
+          SalesHeader,
+          SalesLine.Type::Item,
+          CreateItemWithVATProdPostingGroupAndServiceType(VATPostingSetup."VAT Prod. Posting Group"));
+        exit(SalesLine."No.");
+    end;
+
+    local procedure CreatePurchaseDocumentWithoutTransportMethodWithServiceTypeItem(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; DocumentType: Option; EUService: Boolean)
+    var
+        PaymentMethod: Record "Payment Method";
+        PurchaseLine: Record "Purchase Line";
+        ServiceTariffNumber: Record "Service Tariff Number";
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+        LibraryITLocalization.CreateServiceTariffNumber(ServiceTariffNumber);
+        CreatePurchaseHeader(PurchaseHeader, DocumentType, VendorNo, PaymentMethod.Code, '', ServiceTariffNumber."No.");
+        CreateVATPostingSetup(
+          VATPostingSetup, PurchaseHeader."VAT Bus. Posting Group",
+          VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", EUService);
+        CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
+          CreateItemWithVATProdPostingGroupAndServiceType(VATPostingSetup."VAT Prod. Posting Group"));
     end;
 
     [RequestPageHandler]

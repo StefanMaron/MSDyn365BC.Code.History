@@ -37,6 +37,7 @@
                     begin
                         CurrPage.SaveRecord;
                         GenJnlManagement.LookupName(CurrentJnlBatchName, Rec);
+                        SetControlAppearanceFromBatch;
                         // Set simple view when batch is changed
                         SetDataForSimpleModeOnBatchChange;
                         CurrPage.Update(false);
@@ -291,7 +292,7 @@
                 }
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT business posting group code that will be used when you post the entry on the journal line.';
                     Visible = false;
                 }
@@ -1703,6 +1704,7 @@
         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
         ShowShortcutDimCode(ShortcutDimCode);
         HasIncomingDocument := "Incoming Document Entry No." <> 0;
+        CurrPage.IncomingDocAttachFactBox.PAGE.SetCurrentRecordID(RecordId);
         SetUserInteractions;
     end;
 
@@ -1722,6 +1724,11 @@
 
         GeneralLedgerSetup.Get();
         SetJobQueueVisibility();
+    end;
+
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    begin
+        CurrPage.IncomingDocAttachFactBox.PAGE.SetCurrentRecordID(RecordId);
     end;
 
     trigger OnModifyRecord(): Boolean

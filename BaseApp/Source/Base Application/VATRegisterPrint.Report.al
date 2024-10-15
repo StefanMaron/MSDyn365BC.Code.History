@@ -1121,6 +1121,11 @@ report 12120 "VAT Register - Print"
     {
     }
 
+    trigger OnInitReport()
+    begin
+        GLSetup.Get;
+    end;
+
     trigger OnPostReport()
     begin
         VATBookEntryTemp.Reset;
@@ -1223,6 +1228,7 @@ report 12120 "VAT Register - Print"
         Text1050: Label 'Test %1';
         Text12100: Label 'You must update the %1 field in the %2 window when you have printed the report.';
         CustLedgEntry: Record "Cust. Ledger Entry";
+        GLSetup: Record "General Ledger Setup";
         VendLedgEntry: Record "Vendor Ledger Entry";
         NoSeries: Record "No. Series";
         VATRegister: Record "VAT Register";
@@ -1374,17 +1380,31 @@ report 12120 "VAT Register - Print"
         SamePeriod := false;
         Date.Reset;
 
-        if EndingDate >= StartingDate then begin
-            Date.Get(Date."Period Type"::Month, StartingDate);
-            if NormalDate(Date."Period End") = EndingDate then
-                SamePeriod := true;
+        if EndingDate < StartingDate then
+            exit;
+
+        case GLSetup."VAT Settlement Period" of
+            GLSetup."VAT Settlement Period"::Month:
+                Date.Get(Date."Period Type"::Month, StartingDate);
+            GLSetup."VAT Settlement Period"::Quarter:
+                Date.Get(Date."Period Type"::Quarter, StartingDate);
         end;
+        if NormalDate(Date."Period End") = EndingDate then
+            SamePeriod := true;
     end;
 
     [Scope('OnPrem')]
     procedure ValidateDate()
+    var
+        PeriodType: Option;
     begin
-        if Date.Get(Date."Period Type"::Month, StartingDate) then
+        case GLSetup."VAT Settlement Period" of
+            GLSetup."VAT Settlement Period"::Month:
+                PeriodType := Date."Period Type"::Month;
+            GLSetup."VAT Settlement Period"::Quarter:
+                PeriodType := Date."Period Type"::Quarter;
+        end;
+        if Date.Get(PeriodType, StartingDate) then
             if Date.Find('>') then
                 EndingDate := Date."Period Start" - 1;
     end;

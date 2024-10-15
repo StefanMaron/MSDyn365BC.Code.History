@@ -1745,7 +1745,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
                 SourceCodeSetup.Get;
                 InsertGLBookEntry(GlobalGLEntry);
-                OnAfterInsertGlobalGLEntry(GlobalGLEntry);
+                OnAfterInsertGlobalGLEntry(GlobalGLEntry, TempGLEntryBuf, NextEntryNo);
             until TempGLEntryBuf.Next = 0;
 
             GLReg."To VAT Entry No." := NextVATEntryNo - 1;
@@ -3161,6 +3161,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 if IsTempGLEntryBufEmpty then
                     DtldCustLedgEntry.SetZeroTransNo(NextTransactionNo);
 
+            OnCustPostApplyCustLedgEntryOnBeforeFinishPosting(GenJnlLine, CustLedgEntry);
+
             FinishPosting(GenJnlLine);
         end;
     end;
@@ -3820,6 +3822,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 if IsTempGLEntryBufEmpty then
                     DtldVendLedgEntry.SetZeroTransNo(NextTransactionNo);
 
+            OnVendPostApplyVendLedgEntryOnBeforeFinishPosting(GenJnlLine, VendLedgEntry);
+
             FinishPosting(GenJnlLine);
         end;
     end;
@@ -4469,17 +4473,22 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
                     OnVendUnrealizedVATOnBeforeInitGLEntryVAT(GenJnlLine, VATEntry2, VATAmount, VATBase, VATAmountAddCurr, VATBaseAddCurr);
 
-                    InitGLEntryVAT(
-                      GenJnlLine, PurchVATUnrealAccount, PurchVATAccount, -VATAmount, -VATAmountAddCurr, false);
-                    GLEntryNo :=
-                      InitGLEntryVATCopy(GenJnlLine, PurchVATAccount, PurchVATUnrealAccount, VATAmount, VATAmountAddCurr, VATEntry2);
-
-                    if (VATEntry2."VAT Calculation Type" =
-                        VATEntry2."VAT Calculation Type"::"Reverse Charge VAT") or
-                       ((VATEntry2."VAT Calculation Type" =
-                         VATEntry2."VAT Calculation Type"::"Sales Tax") and
-                        (VATEntry2.Type = VATEntry2.Type::Purchase) and VATEntry2."Use Tax")
+                    if (VATEntry2."VAT Calculation Type" = VATEntry2."VAT Calculation Type"::"Sales Tax") and
+                       (VATEntry2.Type = VATEntry2.Type::Purchase) and VATEntry2."Use Tax"
                     then begin
+                        InitGLEntryVAT(
+                          GenJnlLine, PurchReverseUnrealAccount, PurchReverseAccount, -VATAmount, -VATAmountAddCurr, false);
+                        GLEntryNo :=
+                          InitGLEntryVATCopy(
+                            GenJnlLine, PurchReverseAccount, PurchReverseUnrealAccount, VATAmount, VATAmountAddCurr, VATEntry2);
+                    end else begin
+                        InitGLEntryVAT(
+                          GenJnlLine, PurchVATUnrealAccount, PurchVATAccount, -VATAmount, -VATAmountAddCurr, false);
+                        GLEntryNo :=
+                          InitGLEntryVATCopy(GenJnlLine, PurchVATAccount, PurchVATUnrealAccount, VATAmount, VATAmountAddCurr, VATEntry2);
+                    end;
+
+                    if VATEntry2."VAT Calculation Type" = VATEntry2."VAT Calculation Type"::"Reverse Charge VAT" then begin
                         InitGLEntryVAT(
                           GenJnlLine, PurchReverseUnrealAccount, PurchReverseAccount, VATAmount, VATAmountAddCurr, false);
                         GLEntryNo :=
@@ -5030,9 +5039,13 @@ codeunit 12 "Gen. Jnl.-Post Line"
     var
         AmountAddCurr: Decimal;
     begin
+        OnBeforePostPmtDiscountVATByUnapply(GenJnlLine, VATEntry);
+
         AmountAddCurr := CalcAddCurrForUnapplication(VATEntry."Posting Date", VATEntry.Amount);
         CreateGLEntry(GenJnlLine, ReverseChargeVATAccNo, VATEntry.Amount, AmountAddCurr, false);
         CreateGLEntry(GenJnlLine, VATAccNo, -VATEntry.Amount, -AmountAddCurr, false);
+
+        OnAfterPostPmtDiscountVATByUnapply(GenJnlLine, VATEntry);
     end;
 
     local procedure PostUnapply(GenJnlLine: Record "Gen. Journal Line"; var VATEntry: Record "VAT Entry"; VATEntryType: Option; BilltoPaytoNo: Code[20]; TransactionNo: Integer; UnapplyVATEntries: Boolean; var TempVATEntry: Record "VAT Entry" temporary)
@@ -6662,7 +6675,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 VATEntry.Type::Sale:
                     exit(TaxJurisdiction.GetSalesAccount(UnrealizedVAT));
                 VATEntry.Type::Purchase:
-                    exit(TaxJurisdiction.GetPurchAccount(UnrealizedVAT));
+                    begin
+                        if VATEntry."Use Tax" then
+                            exit(TaxJurisdiction.GetRevChargeAccount(UnrealizedVAT));
+                        exit(TaxJurisdiction.GetPurchAccount(UnrealizedVAT));
+                    end;
             end;
         end;
 
@@ -6785,6 +6802,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePostPmtDiscountVATByUnapply(var GenJournalLine: Record "Gen. Journal Line"; var VATEntry: Record "VAT Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeFindAmtForAppln(var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf2: Record "CV Ledger Entry Buffer"; var AppliedAmount: Decimal; var AppliedAmountLCY: Decimal; var OldAppliedAmount: Decimal; var Handled: Boolean; var ApplnRoundingPrecision: Decimal)
     begin
     end;
@@ -6855,7 +6877,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertGlobalGLEntry(var GLEntry: Record "G/L Entry")
+    local procedure OnAfterInsertGlobalGLEntry(var GLEntry: Record "G/L Entry"; var TempGLEntryBuf: Record "G/L Entry"; var NextEntryNo: Integer)
     begin
     end;
 
@@ -6881,6 +6903,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterRunWithoutCheck(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostPmtDiscountVATByUnapply(var GenJournalLine: Record "Gen. Journal Line"; var VATEntry: Record "VAT Entry")
     begin
     end;
 
@@ -7350,6 +7377,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCustPostApplyCustLedgEntryOnBeforeFinishPosting(var GenJournalLine: Record "Gen. Journal Line"; CustLedgEntry: Record "Cust. Ledger Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnHandleAddCurrResidualGLEntryOnBeforeInsertGLEntry(GenJournalLine: Record "Gen. Journal Line"; var GLEntry: Record "G/L Entry")
     begin
     end;
@@ -7551,6 +7583,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnVendPostApplyVendLedgEntryOnBeforeCheckPostingGroup(var GenJournalLine: Record "Gen. Journal Line"; Vendor: Record Vendor)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnVendPostApplyVendLedgEntryOnBeforeFinishPosting(var GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
 

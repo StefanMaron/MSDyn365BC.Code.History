@@ -2979,10 +2979,11 @@ table 5900 "Service Header"
         OnCreateDimOnBeforeUpdateLines(Rec, xRec, CurrFieldNo);
 
         if "Dimension Set ID" <> OldDimSetID then begin
-            Modify;
             DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
-            if ServItemLineExists or ServLineExists then
+            if ServItemLineExists or ServLineExists then begin
+                Modify;
                 UpdateAllLineDim("Dimension Set ID", OldDimSetID);
+            end;
         end;
     end;
 
@@ -4126,7 +4127,7 @@ table 5900 "Service Header"
               FieldCaption("Shipment Method Code"), "Shipment Method Code");
     end;
 
-    [Scope('OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem')]
     procedure CheckTDDData()
     var
         ShippingAgent: Record "Shipping Agent";

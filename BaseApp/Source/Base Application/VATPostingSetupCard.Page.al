@@ -14,48 +14,53 @@ page 473 "VAT Posting Setup Card"
                 Caption = 'General';
                 field("VAT Bus. Posting Group"; "VAT Bus. Posting Group")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved customer or vendor to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
                 field("VAT Prod. Posting Group"; "VAT Prod. Posting Group")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT specification of the involved item or resource to link transactions made for this record with the appropriate general ledger account according to the VAT posting setup.';
                 }
                 field("VAT Calculation Type"; "VAT Calculation Type")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how VAT will be calculated for purchases or sales of items with this particular combination of VAT business posting group and VAT product posting group.';
                 }
                 field(Description; Description)
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies description for this particular combination of VAT business posting group and VAT product posting group.';
                 }
                 field("VAT %"; "VAT %")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the relevant VAT rate for the particular combination of VAT business posting group and VAT product posting group. Do not enter the percent sign, only the number. For example, if the VAT rate is 25 %, enter 25 in this field.';
                 }
                 field("Deductible %"; "Deductible %")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the percentage of the transaction amount to which VAT is applied.';
                 }
                 field("Unrealized VAT Type"; "Unrealized VAT Type")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how to handle unrealized VAT, which is VAT that is calculated but not due until the invoice is paid.';
                     Visible = UnrealizedVATVisible;
                 }
                 field("VAT Identifier"; "VAT Identifier")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code to group various VAT posting setups with similar attributes, for example VAT percentage.';
+                }
+                field("VAT Clause Code"; "VAT Clause Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the VAT Clause Code that is associated with the VAT Posting Setup.';
                 }
                 field("EU Service"; "EU Service")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if this combination of VAT business posting group and VAT product posting group are to be reported as services in the periodic VAT reports.';
                 }
                 field("Service Tariff No. Mandatory"; "Service Tariff No. Mandatory")
@@ -65,7 +70,7 @@ page 473 "VAT Posting Setup Card"
                 }
                 field("Adjust for Payment Discount"; "Adjust for Payment Discount")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to recalculate VAT amounts when you post payments that trigger payment discounts.';
                     Visible = AdjustForPmtDiscVisible;
                 }
@@ -74,30 +79,25 @@ page 473 "VAT Posting Setup Card"
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies if you want to include the entry in the VAT transaction report.';
                 }
-                field("VAT Clause Code"; "VAT Clause Code")
-                {
-                    ApplicationArea = VAT;
-                    ToolTip = 'Specifies the VAT Clause Code that is associated with the VAT Posting Setup.';
-                }
                 field("Certificate of Supply Required"; "Certificate of Supply Required")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if documents that use this combination of VAT business posting group and VAT product posting group require a certificate of supply.';
                 }
                 field("Tax Category"; "Tax Category")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT category in connection with electronic document sending. For example, when you send sales documents through the PEPPOL service, the value in this field is used to populate the TaxApplied element in the Supplier group. The number is based on the UNCL5305 standard.';
                 }
                 field("Reversed VAT Bus. Post. Group"; "Reversed VAT Bus. Post. Group")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     Editable = "VAT Calculation Type" = "VAT Calculation Type"::"Full VAT";
                     ToolTip = 'Specifies the business posting group for reversed VAT.';
                 }
                 field("Reversed VAT Prod. Post. Group"; "Reversed VAT Prod. Post. Group")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     Editable = "VAT Calculation Type" = "VAT Calculation Type"::"Full VAT";
                     ToolTip = 'Specifies the product posting group for reversed VAT.';
                 }
@@ -112,12 +112,12 @@ page 473 "VAT Posting Setup Card"
                 Caption = 'Sales';
                 field("Sales VAT Account"; "Sales VAT Account")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general ledger account number to which to post sales VAT for the particular combination of VAT business posting group and VAT product posting group.';
                 }
                 field("Sales VAT Unreal. Account"; "Sales VAT Unreal. Account")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general ledger account number to which to post unrealized sales VAT (as calculated when you post sales invoices) using this particular combination of VAT business posting group and VAT product posting group.';
                     Visible = UnrealizedVATVisible;
                 }
@@ -132,29 +132,29 @@ page 473 "VAT Posting Setup Card"
                 Caption = 'Purchases';
                 field("Purchase VAT Account"; "Purchase VAT Account")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general ledger account number to which to post purchase VAT for the particular combination of business group and product group.';
                 }
                 field("Purch. VAT Unreal. Account"; "Purch. VAT Unreal. Account")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general ledger account number to which to post unrealized purchase VAT (as calculated when you post purchase invoices) using this particular combination of VAT business posting group and VAT product posting group.';
                     Visible = UnrealizedVATVisible;
                 }
                 field("Reverse Chrg. VAT Acc."; "Reverse Chrg. VAT Acc.")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general ledger account number to which you want to post reverse charge VAT (purchase VAT) for this combination of VAT business posting group and VAT product posting group, if you have selected the Reverse Charge VAT option in the VAT Calculation Type field.';
                 }
                 field("Reverse Chrg. VAT Unreal. Acc."; "Reverse Chrg. VAT Unreal. Acc.")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general ledger account number to which you want to post amounts for unrealized reverse charge VAT (purchase VAT) for this combination of VAT business posting group and VAT product posting group, if you have selected the Reverse Charge VAT option in the VAT Calculation Type field.';
                     Visible = UnrealizedVATVisible;
                 }
                 field("Nondeductible VAT Account"; "Nondeductible VAT Account")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the account associated with the VAT amount that is not deducted due to the type of goods or services purchased.';
                 }
                 field("Purch. Prepayments Account"; "Purch. Prepayments Account")
@@ -168,12 +168,12 @@ page 473 "VAT Posting Setup Card"
                 Caption = 'Posting';
                 field("Allow Posting From"; "Allow Posting From")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the start date from which VAT posting is allowed.';
                 }
                 field("Allow Posting To"; "Allow Posting To")
                 {
-                    ApplicationArea = VAT;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the end date to which VAT posting is allowed.';
                 }
             }
@@ -219,7 +219,7 @@ page 473 "VAT Posting Setup Card"
         {
             action(SuggestAccounts)
             {
-                ApplicationArea = VAT;
+                ApplicationArea = Basic, Suite;
                 Caption = 'Suggest Accounts';
                 Image = Default;
                 Promoted = true;
@@ -235,7 +235,7 @@ page 473 "VAT Posting Setup Card"
             }
             action(Copy)
             {
-                ApplicationArea = VAT;
+                ApplicationArea = Basic, Suite;
                 Caption = '&Copy';
                 Ellipsis = true;
                 Image = Copy;

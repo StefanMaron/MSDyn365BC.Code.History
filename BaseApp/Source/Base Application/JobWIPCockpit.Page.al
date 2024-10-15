@@ -128,11 +128,15 @@ page 1027 "Job WIP Cockpit"
                     ToolTip = 'Specifies the difference in total WIP sales.';
                 }
             }
-            part(Control28; "Job WIP Totals")
+            group(JobWIPTotalsGroup)
             {
-                ApplicationArea = Jobs;
-                SubPageLink = "Job No." = FIELD("No."),
-                              "Posted to G/L" = CONST(false);
+                ShowCaption = false;
+                part(Control28; "Job WIP Totals")
+                {
+                    ApplicationArea = Jobs;
+                    SubPageLink = "Job No." = FIELD("No."),
+                                "Posted to G/L" = CONST(false);
+                }
             }
         }
         area(factboxes)

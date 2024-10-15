@@ -894,6 +894,7 @@ report 594 "Get Item Ledger Entries"
         ServiceShipLine: Record "Service Shipment Line";
         ServiceCrMemoLine: Record "Service Cr.Memo Line";
         ServiceCrMemoHeader: Record "Service Cr.Memo Header";
+        TotalCostAmt : Decimal;
     begin
         with ItemLedgerEntry do begin
             TotalInvoicedQty := 0;
@@ -1108,6 +1109,8 @@ report 594 "Get Item Ledger Entries"
                 end;
             CalcTotalItemChargeAmt;
         end;
+
+        OnAfterCalculateTotals(ItemLedgerEntry, IntrastatJnlBatch, TotalAmt, TotalCostAmt);
     end;
 
     local procedure IsJobService(JobLedgEntry: Record "Job Ledger Entry"): Boolean
@@ -1518,6 +1521,11 @@ report 594 "Get Item Ledger Entries"
                 else
                     Type := Type::Receipt;
             end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalculateTotals(var ItemLedgerEntry: Record "Item Ledger Entry"; IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; var TotalAmt: Decimal; var TotalCostAmt: Decimal)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

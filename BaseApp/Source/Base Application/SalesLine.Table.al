@@ -226,6 +226,12 @@ table 37 "Sales Line"
 
                 OnAfterAssignFieldsForNo(Rec, xRec, SalesHeader);
 
+                if Type <> Type::" " then begin
+                    PostingSetupMgt.CheckGenPostingSetupSalesAccount("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
+                    PostingSetupMgt.CheckGenPostingSetupCOGSAccount("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
+                    PostingSetupMgt.CheckVATPostingSetupSalesAccount("VAT Bus. Posting Group", "VAT Prod. Posting Group");
+                end;
+
                 if HasTypeToFillMandatoryFields and (Type <> Type::"Fixed Asset") then
                     Validate("VAT Prod. Posting Group");
 
@@ -273,12 +279,6 @@ table 37 "Sales Line"
                 end;
 
                 UpdateItemCrossRef;
-
-                if Type <> Type::" " then begin
-                    PostingSetupMgt.CheckGenPostingSetupSalesAccount("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
-                    PostingSetupMgt.CheckGenPostingSetupCOGSAccount("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
-                    PostingSetupMgt.CheckVATPostingSetupSalesAccount("VAT Bus. Posting Group", "VAT Prod. Posting Group");
-                end;
             end;
         }
         field(7; "Location Code"; Code[10])
@@ -343,7 +343,8 @@ table 37 "Sales Line"
                             ReserveSalesLine.VerifyChange(Rec, xRec);
                         WhseValidateSourceLine.SalesLineVerifyChange(Rec, xRec);
                     end;
-                    PostingSetupMgt.CheckInvtPostingSetupInventoryAccount("Location Code", "Posting Group");
+                    if IsInventoriableItem then
+                        PostingSetupMgt.CheckInvtPostingSetupInventoryAccount("Location Code", "Posting Group");
                 end;
 
                 UpdateDates;
@@ -445,45 +446,40 @@ table 37 "Sales Line"
                 ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
                 FindRecordMgt: Codeunit "Find Record Management";
                 EnvInfoProxy: Codeunit "Env. Info Proxy";
-                ReturnValue: Text[50];
+                ReturnValue: Text[100];
                 DescriptionIsNo: Boolean;
                 DefaultCreate: Boolean;
-                Confirmed: Boolean;
                 IsHandled: Boolean;
             begin
                 if Type = Type::" " then
                     exit;
 
+                if "No." <> '' then
+                    exit;
+
                 case Type of
                     Type::Item:
                         begin
-                            if (StrLen(Description) <= MaxStrLen(Item."No.")) and ("No." <> '') then
+                            if StrLen(Description) <= MaxStrLen(Item."No.") then
                                 DescriptionIsNo := Item.Get(Description)
                             else
                                 DescriptionIsNo := false;
-                            if ("No." <> '') and (not DescriptionIsNo) and (Description <> '') then begin
-                                Item.SetRange(Description, Description);
-                                if Item.FindFirst then
-                                    Confirmed := EnvInfoProxy.IsInvoicing
-                                else begin
-                                    Item.SetFilter(Description, '''@' + ConvertStr(Description, '''', '?') + '''');
-                                    if not Item.FindFirst then
-                                        exit;
-                                end;
-                                if Item."No." = "No." then
-                                    exit;
-                                if GuiAllowed then
-                                    if not EnvInfoProxy.IsInvoicing then
-                                        Confirmed := Confirm(AnotherItemWithSameDescrQst, false, Item."No.", Item.Description);
-                                if EnvInfoProxy.IsInvoicing or Confirmed then
+
+                            if not DescriptionIsNo then begin
+                                Item.SetFilter(Description, '''@' + ConvertStr(Description, '''', '?') + '''');
+                                Item.SetRange(Blocked, false);
+                                if not IsCreditDocType() then
+                                    Item.SetRange("Sales Blocked", false);
+                                if Item.FindFirst then begin
                                     Validate("No.", Item."No.");
-                                exit;
+                                    exit;
+                                end;
                             end;
 
                             GetSalesSetup;
                             DefaultCreate := ("No." = '') and SalesSetup."Create Item from Description";
                             if Item.TryGetItemNoOpenCard(
-                                 ReturnValue, Description, DefaultCreate, not GetHideValidationDialog, not EnvInfoProxy.IsInvoicing)
+                                 ReturnValue, Description, DefaultCreate, not GetHideValidationDialog, true)
                             then
                                 case ReturnValue of
                                     '':
@@ -499,8 +495,7 @@ table 37 "Sales Line"
                                         end;
                                 end;
                         end;
-                    else
-                        if "No." = '' then begin
+                    else begin
                             IsHandled := false;
                             OnBeforeFindNoByDescription(Rec, xRec, CurrFieldNo, IsHandled);
                             if not IsHandled then begin
@@ -3337,7 +3332,6 @@ table 37 "Sales Line"
         Country: Record "Country/Region";
         Text12106: Label 'The %1 field can only be blank when %2 = 0.';
         ItemChargeAssignmentErr: Label 'You can only assign Item Charges for Line Types of Charge (Item).';
-        AnotherItemWithSameDescrQst: Label 'We found an item with the description "%2" (No. %1).\Did you mean to change the current item to %1?', Comment = '%1=Item no., %2=item description';
         SalesLineCompletelyShippedErr: Label 'You cannot change the purchasing code for a sales line that has been completely shipped.';
         SalesSetupRead: Boolean;
         ReGenerateSplitVATLinesQst: Label 'If you change %1, the existing automatically generated split VAT sales lines will be deleted and new sales lines based on the new information will be created.\\Do you want to change %1?', Comment = '%1=A field name whose value is just being changed.';
@@ -3580,7 +3574,7 @@ table 37 "Sales Line"
         "Profit %" := Item."Profit %";
         "Allow Item Charge Assignment" := true;
         PrepaymentMgt.SetSalesPrepaymentPct(Rec, SalesHeader."Posting Date");
-        if Item.Type = Item.Type::Inventory then
+        if IsInventoriableItem then
             PostingSetupMgt.CheckInvtPostingSetupInventoryAccount("Location Code", "Posting Group");
 
         if SalesHeader."Language Code" <> '' then
@@ -3592,6 +3586,7 @@ table 37 "Sales Line"
             Reserve := Item.Reserve;
 
         "Unit of Measure Code" := Item."Sales Unit of Measure";
+        Validate("Purchasing Code", Item."Purchasing Code");
         OnAfterCopyFromItem(Rec, Item);
 
         InitDeferralCode;
@@ -3937,9 +3932,16 @@ table 37 "Sales Line"
     var
         VATBaseAmount: Decimal;
         LineAmountChanged: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateAmounts(Rec, xRec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if Type = Type::" " then
             exit;
+
         GetSalesHeader;
         VATBaseAmount := "VAT Base Amount";
         "Recalculate Invoice Disc." := true;
@@ -4018,7 +4020,8 @@ table 37 "Sales Line"
             if ("VAT Calculation Type" = "VAT Calculation Type"::"Sales Tax") or
                (("VAT Calculation Type" in
                  ["VAT Calculation Type"::"Normal VAT", "VAT Calculation Type"::"Reverse Charge VAT"]) and ("VAT %" <> 0))
-            then
+            then begin
+                SalesLine2.SetFilter("VAT %", '<>0');
                 if not SalesLine2.IsEmpty then begin
                     SalesLine2.CalcSums("Line Amount", "Inv. Discount Amount", Amount, "Amount Including VAT", "Quantity (Base)");
                     TotalLineAmount := SalesLine2."Line Amount";
@@ -4028,6 +4031,7 @@ table 37 "Sales Line"
                     TotalQuantityBase := SalesLine2."Quantity (Base)";
                     OnAfterUpdateTotalAmounts(Rec, SalesLine2, TotalAmount, TotalAmountInclVAT, TotalLineAmount, TotalInvDiscAmount);
                 end;
+            end;
 
             if SalesHeader."Prices Including VAT" then
                 case "VAT Calculation Type" of
@@ -4142,6 +4146,8 @@ table 37 "Sales Line"
             if ItemCheckAvail.SalesLineCheck(Rec) then
                 ItemCheckAvail.RaiseUpdateInterruptedError;
         end;
+
+        OnAfterCheckItemAvailable(Rec, CalledByFieldNo, HideValidationDialog);
     end;
 
     local procedure CheckCreditLimit()
@@ -4262,7 +4268,7 @@ table 37 "Sales Line"
         OnAfterAutoAsmToOrder(Rec);
     end;
 
-    local procedure GetDate(): Date
+    procedure GetDate(): Date
     begin
         GetSalesHeader;
         if SalesHeader."Posting Date" <> 0D then
@@ -4401,6 +4407,8 @@ table 37 "Sales Line"
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
         ATOLink.UpdateAsmDimFromSalesLine(Rec);
         IsChanged := OldDimSetID <> "Dimension Set ID";
+
+        OnAfterShowDimensions(Rec, xRec);
     end;
 
     procedure OpenItemTrackingLines()
@@ -4418,7 +4426,11 @@ table 37 "Sales Line"
         TestField("Quantity (Base)");
         if "Job Contract Entry No." <> 0 then
             Error(Text048, TableCaption, Job.TableCaption);
-        ReserveSalesLine.CallItemTracking(Rec);
+
+        IsHandled := false;
+        OnBeforeCallItemTracking(Rec, IsHandled);
+        if not IsHandled then
+            ReserveSalesLine.CallItemTracking(Rec);
     end;
 
     procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20])
@@ -4519,7 +4531,7 @@ table 37 "Sales Line"
             NewSalesLine."Line No." := 0;
     end;
 
-    [Scope('OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem')]
     procedure ShowItemSub()
     var
         IsHandled: Boolean;
@@ -4532,7 +4544,7 @@ table 37 "Sales Line"
         Clear(SalesHeader);
         TestStatusOpen;
         ItemSubstitutionMgt.ItemSubstGet(Rec);
-        if TransferExtendedText.SalesCheckIfAnyExtText(Rec, true) then
+        if TransferExtendedText.SalesCheckIfAnyExtText(Rec, false) then
             TransferExtendedText.InsertSalesExtText(Rec);
 
         OnAfterShowItemSub(Rec);
@@ -4565,6 +4577,8 @@ table 37 "Sales Line"
         if not SalesSetupRead then
             SalesSetup.Get;
         SalesSetupRead := true;
+
+        OnAfterGetSalesSetup(Rec, SalesSetup);
     end;
 
     local procedure GetFAPostingGroup()
@@ -5010,6 +5024,7 @@ table 37 "Sales Line"
         with SalesLine do begin
             SetRange("Document Type", SalesHeader."Document Type");
             SetRange("Document No.", SalesHeader."No.");
+            OnCalcVATAmountLinesOnAfterSetFilters(SalesLine, SalesHeader);
             if FindSet then
                 repeat
                     if not ZeroAmountLine(QtyType) then begin
@@ -5166,7 +5181,14 @@ table 37 "Sales Line"
     end;
 
     procedure UpdateWithWarehouseShip()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateWithWarehouseShip(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if Type = Type::Item then
             case true of
                 ("Document Type" in ["Document Type"::Quote, "Document Type"::Order]) and (Quantity >= 0):
@@ -5190,7 +5212,10 @@ table 37 "Sales Line"
                     else
                         Validate("Return Qty. to Receive", "Outstanding Quantity");
             end;
+
         SetDefaultQuantity;
+
+        OnAfterUpdateWithWarehouseShip(SalesHeader, Rec);
     end;
 
     local procedure CheckWarehouse()
@@ -5292,7 +5317,14 @@ table 37 "Sales Line"
     end;
 
     procedure UpdateDates()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateDates(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if CurrFieldNo = 0 then begin
             PlannedShipmentDateCalculated := false;
             PlannedDeliveryDateCalculated := false;
@@ -5311,7 +5343,13 @@ table 37 "Sales Line"
     procedure GetItemTranslation()
     var
         ItemTranslation: Record "Item Translation";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetItemTranslation(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         GetSalesHeader;
         if ItemTranslation.Get("No.", "Variant Code", SalesHeader."Language Code") then begin
             Description := ItemTranslation.Description;
@@ -5475,6 +5513,7 @@ table 37 "Sales Line"
                       ItemCrossReference."Cross-Reference Type"::Customer,
                       ItemCrossReference."Cross-Reference Type"::" ");
                     ItemCrossReference.SetFilter("Cross-Reference Type No.", '%1|%2', SalesHeader."Sell-to Customer No.", '');
+                    OnCrossReferenceNoLookUpOnAfterSetFilters(ItemCrossReference, Rec);
                     if PAGE.RunModal(PAGE::"Cross Reference List", ItemCrossReference) = ACTION::LookupOK then begin
                         "Cross-Reference No." := ItemCrossReference."Cross-Reference No.";
                         ValidateCrossReferenceNo(ItemCrossReference, false);
@@ -5818,6 +5857,8 @@ table 37 "Sales Line"
 
     local procedure SetDefaultItemQuantity()
     begin
+        OnBeforeSetDefaultItemQuantity(Rec);
+
         GetSalesSetup;
         if SalesSetup."Default Item Quantity" then begin
             Validate(Quantity, 1);
@@ -6174,6 +6215,8 @@ table 37 "Sales Line"
             FieldError("Qty. to Invoice", Text057);
         if Abs(Quantity) > Abs(SalesShptLine."Qty. Shipped Not Invoiced") then
             Error(Text058, SalesShptLine."Document No.");
+
+        OnAfterCheckShipmentRelation(Rec, SalesShptLine);
     end;
 
     local procedure CheckRetRcptRelation()
@@ -6185,6 +6228,8 @@ table 37 "Sales Line"
             FieldError("Qty. to Invoice", Text059);
         if Abs(Quantity) > Abs(ReturnRcptLine.Quantity - ReturnRcptLine."Quantity Invoiced") then
             Error(Text060, ReturnRcptLine."Document No.");
+
+        OnAfterCheckRetRcptRelation(Rec, ReturnRcptLine);
     end;
 
     local procedure VerifyItemLineDim()
@@ -6233,6 +6278,8 @@ table 37 "Sales Line"
             else
                 Type := xRec.Type;
         end;
+
+        OnAfterInitType(Rec, xRec);
     end;
 
     [Scope('OnPrem')]
@@ -6364,9 +6411,11 @@ table 37 "Sales Line"
           SalesSetup."Discount Posting", SalesSetup."Discount Posting"::"Invoice Discounts");
     end;
 
-    procedure HasTypeToFillMandatoryFields(): Boolean
+    procedure HasTypeToFillMandatoryFields() ReturnValue: Boolean
     begin
-        exit(Type <> Type::" ");
+        ReturnValue := Type <> Type::" ";
+
+        OnAfterHasTypeToFillMandatoryFields(Rec, ReturnValue);
     end;
 
     [Scope('OnPrem')]
@@ -6821,6 +6870,8 @@ table 37 "Sales Line"
             "Prepmt. Line Amount" := Amount;
         if SalesHeader."Prices Including VAT" and ("Amount Including VAT" > 0) and ("Amount Including VAT" < "Prepmt. Line Amount") then
             "Prepmt. Line Amount" := "Amount Including VAT";
+
+        OnAfterUpdateBaseAmounts(Rec, xRec, CurrFieldNo);
     end;
 
     procedure CalcPlannedDate(): Date
@@ -6894,6 +6945,21 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckItemAvailable(var SalesLine: Record "Sales Line"; CalledByFieldNo: Integer; HideValidationDialog: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckShipmentRelation(SalesLine: Record "Sales Line"; SalesShipmentLine: Record "Sales Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckRetRcptRelation(SalesLine: Record "Sales Line"; ReturnReceiptLine: Record "Return Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromItem(var SalesLine: Record "Sales Line"; Item: Record Item)
     begin
     end;
@@ -6929,7 +6995,17 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterHasTypeToFillMandatoryFields(var SalesLine: Record "Sales Line"; var ReturnValue: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInitQtyToAsm(var SalesLine: Record "Sales Line"; CallingFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetSalesSetup(var SalesLine: Record "Sales Line"; var SalesSetup: Record "Sales & Receivables Setup")
     begin
     end;
 
@@ -6979,6 +7055,11 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCallItemTracking(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckAssocPurchOrder(var SalesLine: Record "Sales Line"; TheFieldCaption: Text[250]; var IsHandled: Boolean; xSalesLine: Record "Sales Line")
     begin
     end;
@@ -7009,12 +7090,17 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetItemTranslation(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGetSalesHeader(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header"; var IsHanded: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetUnitCost(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnBeforeGetUnitCost(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -7035,6 +7121,11 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeMaxQtyToInvoiceBase(SalesLine: Record "Sales Line"; var MaxQty: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetDefaultItemQuantity(var SalesLine: Record "Sales Line")
     begin
     end;
 
@@ -7064,6 +7155,11 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateDates(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdatePrepmtAmounts(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
@@ -7084,7 +7180,17 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateAmounts(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateVATAmounts(var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateWithWarehouseShip(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -7139,6 +7245,11 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterInitType(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCalcLineAmount(var SalesLine: Record "Sales Line"; var LineAmount: Decimal)
     begin
     end;
@@ -7169,12 +7280,22 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateAmounts(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer)
+    local procedure OnAfterShowDimensions(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateAmounts(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateAmountsDone(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateBaseAmounts(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; CurrentFieldNo: Integer)
     begin
     end;
 
@@ -7195,6 +7316,11 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateVATOnLines(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line"; QtyType: Option General,Invoicing,Shipping)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateWithWarehouseShip(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
     end;
 
@@ -7419,11 +7545,20 @@ table 37 "Sales Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCalcVATAmountLinesOnAfterSetFilters(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCrossReferenceNoLookUpOnAfterSetFilters(var ItemCrossReference: Record "Item Cross Reference"; SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCrossReferenceNoLookupOnBeforeValidateUnitPrice(SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
     end;
 
-    [Scope('OnPrem')]
     procedure ShowDeferralSchedule()
     begin
         GetSalesHeader;

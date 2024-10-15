@@ -133,7 +133,7 @@ codeunit 97 "Blanket Purch. Order to Order"
             RecordLinkManagement.CopyLinks(Rec, PurchOrderHeader);
         end;
 
-        if not ShouldRedistributeInvoiceAmount then
+        if not (ShouldRedistributeInvoiceAmount or PurchSetup."Calc. Inv. Discount") then
             PurchCalcDiscByType.ResetRecalculateInvoiceDisc(PurchOrderHeader);
 
         Commit;

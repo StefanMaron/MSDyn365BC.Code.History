@@ -24,12 +24,12 @@ codeunit 135529 "Sales Quote Line E2E Test"
 
     local procedure Initialize()
     begin
+        LibraryApplicationArea.EnableEssentialSetup();
+
         if IsInitialized then
             exit;
 
         LibrarySales.SetStockoutWarning(false);
-
-        LibraryApplicationArea.EnableFoundationSetup;
 
         IsInitialized := true;
         Commit;

@@ -399,6 +399,8 @@ codeunit 5802 "Inventory Posting To G/L"
                 else
                     ErrorNonValidCombination(ValueEntry);
             end;
+
+        OnAfterBufferConsumpPosting(TempInvtPostBuf, ValueEntry, PostBufDimNo);
     end;
 
     local procedure BufferCapPosting(ValueEntry: Record "Value Entry"; CostToPost: Decimal; CostToPostACY: Decimal)
@@ -904,7 +906,7 @@ codeunit 5802 "Inventory Posting To G/L"
     begin
         with GlobalInvtPostBuf do begin
             Reset;
-            OnPostInvtPostBufferOnBeforeFind(GlobalInvtPostBuf);
+            OnPostInvtPostBufferOnBeforeFind(GlobalInvtPostBuf, TempGLItemLedgRelation);
             if not FindSet then
                 exit;
 
@@ -1137,6 +1139,11 @@ codeunit 5802 "Inventory Posting To G/L"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterBufferConsumpPosting(var TempInvtPostingBuffer: array[4] of Record "Invt. Posting Buffer" temporary; ValueEntry: Record "Value Entry"; PostBufDimNo: Integer);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterBufferPosting(var ValueEntry: Record "Value Entry"; var CostToPost: Decimal; var CostToPostACY: Decimal; var ExpCostToPost: Decimal; var ExpCostToPostACY: Decimal)
     begin
     end;
@@ -1242,7 +1249,7 @@ codeunit 5802 "Inventory Posting To G/L"
     end;
 
     [IntegrationEvent(TRUE, false)]
-    local procedure OnPostInvtPostBufferOnBeforeFind(var GlobalInvtPostBuf: Record "Invt. Posting Buffer")
+    local procedure OnPostInvtPostBufferOnBeforeFind(var GlobalInvtPostBuf: Record "Invt. Posting Buffer"; var TempGLItemLedgRelation: Record "G/L - Item Ledger Relation")
     begin
     end;
 

@@ -74,7 +74,7 @@ codeunit 22 "Item Jnl.-Post Line"
         ReserveProdOrderLine: Codeunit "Prod. Order Line-Reserve";
         JobPlanningLineReserve: Codeunit "Job Planning Line-Reserve";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
-        InvtPost: Codeunit "Inventory Posting To G/L";
+        InventoryPostingToGL: Codeunit "Inventory Posting To G/L";
         CostCalcMgt: Codeunit "Cost Calculation Management";
         ACYMgt: Codeunit "Additional-Currency Management";
         UOMMgt: Codeunit "Unit of Measure Management";
@@ -262,6 +262,8 @@ codeunit 22 "Item Jnl.-Post Line"
             VarianceRequired := false;
             LastOperation := false;
 
+            OnBeforePostLineByEntryType(ItemJnlLine, CalledFromAdjustment, CalledFromInvtPutawayPick);
+
             case true of
                 IsAssemblyResourceConsumpLine:
                     PostAssemblyResourceConsump;
@@ -285,7 +287,7 @@ codeunit 22 "Item Jnl.-Post Line"
                 "Item Shpt. Entry No." := GlobalItemLedgEntry."Entry No.";
         end;
 
-        OnAfterPostItemJnlLine(ItemJnlLine, GlobalItemLedgEntry);
+        OnAfterPostItemJnlLine(ItemJnlLine, GlobalItemLedgEntry, ValueEntryNo, InventoryPostingToGL);
     end;
 
     local procedure PostSplitJnlLine(var ItemJnlLineToPost: Record "Item Journal Line"; TrackingSpecExists: Boolean): Boolean
@@ -526,6 +528,8 @@ codeunit 22 "Item Jnl.-Post Line"
             InsertCapValueEntry(CapLedgEntry, "Value Entry Type"::"Direct Cost", ValuedQty, ValuedQty, DirCostAmt);
             InsertCapValueEntry(CapLedgEntry, "Value Entry Type"::"Indirect Cost", ValuedQty, 0, IndirCostAmt);
 
+            OnPostOutputOnAfterInsertCostValueEntries(ItemJnlLine, CapLedgEntry, CalledFromAdjustment, PostToGL);
+
             if LastOperation and ("Output Quantity" <> 0) then begin
                 CheckItemTracking;
                 if ("Output Quantity" < 0) and not Adjustment then begin
@@ -748,6 +752,7 @@ codeunit 22 "Item Jnl.-Post Line"
             if Finished then
                 ProdOrderCapNeed.ModifyAll("Allocated Time", 0)
             else begin
+                OnApplyCapNeedOnAfterSetFilters(ProdOrderCapNeed, ItemJnlLine);
                 if PostedSetupTime <> 0 then begin
                     ProdOrderCapNeed.SetRange("Time Type", ProdOrderCapNeed."Time Type"::Setup);
                     if ProdOrderCapNeed.FindSet then
@@ -798,7 +803,7 @@ codeunit 22 "Item Jnl.-Post Line"
             if "Remaining Qty. (Base)" < 0 then
                 "Remaining Qty. (Base)" := 0;
             "Remaining Quantity" := "Remaining Qty. (Base)" / "Qty. per Unit of Measure";
-            OnBeforeProdOrderLineModify(ProdOrderLine);
+            OnBeforeProdOrderLineModify(ProdOrderLine, ItemJnlLine);
             Modify;
 
             if ReTrack then begin
@@ -969,14 +974,13 @@ codeunit 22 "Item Jnl.-Post Line"
 
             OnBeforeInsertCapValueEntry(ValueEntry, ItemJnlLine);
 
-            InvtPost.SetRunOnlyCheck(true, not InvtSetup."Automatic Cost Posting", false);
-            if InvtPost.BufferInvtPosting(ValueEntry) then
-                InvtPost.PostInvtPostBufPerEntry(ValueEntry);
+            InventoryPostingToGL.SetRunOnlyCheck(true, not InvtSetup."Automatic Cost Posting", false);
+            PostInvtBuffer(ValueEntry);
 
             ValueEntry.Insert(true);
             OnAfterInsertCapValueEntry(ValueEntry, ItemJnlLine);
 
-            UpdateAdjmtProp(ValueEntry, CapLedgEntry."Posting Date");
+            UpdateAdjmtProperties(ValueEntry, CapLedgEntry."Posting Date");
 
             InsertItemReg(0, 0, ValueEntry."Entry No.", 0);
             InsertPostValueEntryToGL(ValueEntry);
@@ -1068,6 +1072,8 @@ codeunit 22 "Item Jnl.-Post Line"
                 end;
 
             InsertValueEntry(GlobalValueEntry, GlobalItemLedgEntry, false);
+
+            OnItemValuePostingOnAfterInsertValueEntry(GlobalValueEntry, GlobalItemLedgEntry, ValueEntryNo);
 
             if ("Value Entry Type" <> "Value Entry Type"::"Direct Cost") or
                ("Item Charge No." <> '')
@@ -1294,7 +1300,13 @@ codeunit 22 "Item Jnl.-Post Line"
         ItemCostMgt: Codeunit ItemCostManagement;
         LastDirectCost: Decimal;
         TotalAmount: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateUnitCost(ValueEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         with ValueEntry do
             if ("Valued Quantity" > 0) and not ("Expected Cost" or ItemJnlLine.Adjustment) then begin
                 Item.LockTable;
@@ -1556,7 +1568,8 @@ codeunit 22 "Item Jnl.-Post Line"
 
         if (ItemLedgEntry."Remaining Quantity" = 0) or
            (ItemLedgEntry."Drop Shipment" and (ItemLedgEntry."Applies-to Entry" = 0)) or
-           ((Item."Costing Method" = Item."Costing Method"::Specific) and ItemLedgEntry.Positive)
+           ((Item."Costing Method" = Item."Costing Method"::Specific) and ItemLedgEntry.Positive) or
+           (ItemJnlLine."Direct Transfer" and (ItemLedgEntry."Location Code" = '') and ItemLedgEntry.Positive)
         then
             exit;
 
@@ -1724,6 +1737,8 @@ codeunit 22 "Item Jnl.-Post Line"
                                not ItemJnlLine.IsReclass(ItemJnlLine)
                             then
                                 OldItemLedgEntry.FieldError("Expiration Date", Text017);
+
+                    OnApplyItemLedgEntryOnBeforeInsertApplEntry(ItemLedgEntry, ItemJnlLine);
 
                     InsertApplEntry(
                       ItemLedgEntry."Entry No.", OldItemLedgEntry."Entry No.", ItemLedgEntry."Entry No.", 0,
@@ -2232,25 +2247,23 @@ codeunit 22 "Item Jnl.-Post Line"
         with ValueEntry do begin
             if CalledFromAdjustment and not PostToGL then
                 exit;
-            InvtPost.SetRunOnlyCheck(true, not PostToGL, false);
-            if InvtPost.BufferInvtPosting(ValueEntry) then
-                InvtPost.PostInvtPostBufPerEntry(ValueEntry);
+
+            InventoryPostingToGL.SetRunOnlyCheck(true, not PostToGL, false);
+            PostInvtBuffer(ValueEntry);
 
             if "Expected Cost" then begin
                 if ("Cost Amount (Expected)" = 0) and ("Cost Amount (Expected) (ACY)" = 0) then
                     SetValueEntry(ValueEntry, 1, 1, false)
                 else
                     SetValueEntry(ValueEntry, "Cost Amount (Expected)", "Cost Amount (Expected) (ACY)", false);
-                InvtPost.SetRunOnlyCheck(true, true, false);
-                if InvtPost.BufferInvtPosting(ValueEntry) then
-                    InvtPost.PostInvtPostBufPerEntry(ValueEntry);
+                InventoryPostingToGL.SetRunOnlyCheck(true, true, false);
+                PostInvtBuffer(ValueEntry);
                 SetValueEntry(ValueEntry, 0, 0, true);
             end else
                 if ("Cost Amount (Actual)" = 0) and ("Cost Amount (Actual) (ACY)" = 0) then begin
                     SetValueEntry(ValueEntry, 1, 1, false);
-                    InvtPost.SetRunOnlyCheck(true, true, false);
-                    if InvtPost.BufferInvtPosting(ValueEntry) then
-                        InvtPost.PostInvtPostBufPerEntry(ValueEntry);
+                    InventoryPostingToGL.SetRunOnlyCheck(true, true, false);
+                    PostInvtBuffer(ValueEntry);
                     SetValueEntry(ValueEntry, 0, 0, false);
                 end;
         end;
@@ -2764,7 +2777,7 @@ codeunit 22 "Item Jnl.-Post Line"
                   ItemLedgEntry.Quantity = ItemLedgEntry."Invoiced Quantity");
             end;
 
-            OnBeforeInsertValueEntry(ValueEntry, ItemJnlLine, ItemLedgEntry, ValueEntryNo, InvtPost, CalledFromAdjustment);
+            OnBeforeInsertValueEntry(ValueEntry, ItemJnlLine, ItemLedgEntry, ValueEntryNo, InventoryPostingToGL, CalledFromAdjustment);
 
             if ValueEntry.Inventoriable and not Item."Inventory Value Zero" then
                 PostInventoryToGL(ValueEntry);
@@ -2775,7 +2788,7 @@ codeunit 22 "Item Jnl.-Post Line"
 
             ItemApplnEntry.SetOutboundsNotUpdated(ItemLedgEntry);
 
-            UpdateAdjmtProp(ValueEntry, ItemLedgEntry."Posting Date");
+            UpdateAdjmtProperties(ValueEntry, ItemLedgEntry."Posting Date");
 
             InsertItemReg(0, 0, ValueEntry."Entry No.", 0);
             InsertPostValueEntryToGL(ValueEntry);
@@ -3272,7 +3285,14 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     local procedure RoundAmtValueEntry(var ValueEntry: Record "Value Entry")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRoundAmtValueEntry(ValueEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         with ValueEntry do begin
             "Sales Amount (Actual)" := Round("Sales Amount (Actual)");
             "Sales Amount (Expected)" := Round("Sales Amount (Expected)");
@@ -3640,7 +3660,9 @@ codeunit 22 "Item Jnl.-Post Line"
                 NonDistrQuantity :=
                   UOMMgt.CalcQtyFromBase(
                     UOMMgt.RoundQty(
-                      UOMMgt.CalcBaseQty(ItemJnlLine2.Quantity, ItemJnlLine2."Qty. per Unit of Measure")),
+                      UOMMgt.CalcBaseQty(
+                        ItemJnlLine2."Item No.", ItemJnlLine2."Variant Code", ItemJnlLine2."Unit of Measure Code",
+                        ItemJnlLine2.Quantity, ItemJnlLine2."Qty. per Unit of Measure")),
                     ItemJnlLine2."Qty. per Unit of Measure");
                 NonDistrAmount := ItemJnlLine2.Amount;
                 NonDistrAmountACY := ItemJnlLine2."Amount (ACY)";
@@ -3899,6 +3921,8 @@ codeunit 22 "Item Jnl.-Post Line"
             end;
         end;
         GLSetupRead := true;
+
+        OnAfterGetGLSetup(GLSetup);
     end;
 
     local procedure GetMfgSetup()
@@ -3988,7 +4012,7 @@ codeunit 22 "Item Jnl.-Post Line"
         end;
 
         NewItemLedgEntry.Modify;
-        UpdateAdjmtProp(NewValueEntry, NewItemLedgEntry."Posting Date");
+        UpdateAdjmtProperties(NewValueEntry, NewItemLedgEntry."Posting Date");
 
         if NewItemLedgEntry.Positive then begin
             UpdateOrigAppliedFromEntry(OldItemLedgEntry."Entry No.");
@@ -4031,7 +4055,7 @@ codeunit 22 "Item Jnl.-Post Line"
         UpdateItemApplnEntry(OldItemLedgEntry."Entry No.", NewItemLedgEntry."Posting Date");
 
         NewItemLedgEntry.Modify;
-        UpdateAdjmtProp(NewValueEntry, NewItemLedgEntry."Posting Date");
+        UpdateAdjmtProperties(NewValueEntry, NewItemLedgEntry."Posting Date");
 
         if NewItemLedgEntry.Positive then
             UpdateOrigAppliedFromEntry(OldItemLedgEntry."Entry No.");
@@ -4134,7 +4158,7 @@ codeunit 22 "Item Jnl.-Post Line"
         NewValueEntry."Exp. Cost Posted to G/L (ACY)" := 0;
 
         OnBeforeInsertCorrValueEntry(
-          NewValueEntry, OldValueEntry, ItemJnlLine, Sign, CalledFromAdjustment, ItemLedgEntry, ValueEntryNo, InvtPost);
+          NewValueEntry, OldValueEntry, ItemJnlLine, Sign, CalledFromAdjustment, ItemLedgEntry, ValueEntryNo, InventoryPostingToGL);
 
         if NewValueEntry.Inventoriable and not Item."Inventory Value Zero" then
             PostInventoryToGL(NewValueEntry);
@@ -4145,7 +4169,7 @@ codeunit 22 "Item Jnl.-Post Line"
 
         ItemApplnEntry.SetOutboundsNotUpdated(ItemLedgEntry);
 
-        UpdateAdjmtProp(NewValueEntry, ItemLedgEntry."Posting Date");
+        UpdateAdjmtProperties(NewValueEntry, ItemLedgEntry."Posting Date");
 
         InsertItemReg(0, 0, NewValueEntry."Entry No.", 0);
         InsertPostValueEntryToGL(NewValueEntry);
@@ -4348,22 +4372,23 @@ codeunit 22 "Item Jnl.-Post Line"
         exit(ProdOrderRtngLine."Next Operation No." <> '');
     end;
 
-    local procedure UpdateAdjmtProp(ValueEntry: Record "Value Entry"; OriginalPostingDate: Date)
+    local procedure UpdateAdjmtProperties(ValueEntry: Record "Value Entry"; OriginalPostingDate: Date)
     begin
         with ValueEntry do
-            SetAdjmtProp("Item No.", "Item Ledger Entry Type", Adjustment,
+            SetAdjmtProperties(
+              "Item No.", "Item Ledger Entry Type", Adjustment,
               "Order Type", "Order No.", "Order Line No.", OriginalPostingDate, "Valuation Date");
 
         OnAfterUpdateAdjmtProp(ValueEntry, OriginalPostingDate);
     end;
 
-    local procedure SetAdjmtProp(ItemNo: Code[20]; ItemLedgEntryType: Option; Adjustment: Boolean; OrderType: Option; OrderNo: Code[20]; OrderLineNo: Integer; OriginalPostingDate: Date; ValuationDate: Date)
+    local procedure SetAdjmtProperties(ItemNo: Code[20]; ItemLedgEntryType: Option; Adjustment: Boolean; OrderType: Option; OrderNo: Code[20]; OrderLineNo: Integer; OriginalPostingDate: Date; ValuationDate: Date)
     begin
-        SetItemAdjmtProp(ItemNo, ItemLedgEntryType, Adjustment, OriginalPostingDate, ValuationDate);
-        SetOrderAdjmtProp(ItemLedgEntryType, OrderType, OrderNo, OrderLineNo, OriginalPostingDate, ValuationDate);
+        SetItemAdjmtProperties(ItemNo, ItemLedgEntryType, Adjustment, OriginalPostingDate, ValuationDate);
+        SetOrderAdjmtProperties(ItemLedgEntryType, OrderType, OrderNo, OrderLineNo, OriginalPostingDate, ValuationDate);
     end;
 
-    local procedure SetItemAdjmtProp(ItemNo: Code[20]; ItemLedgEntryType: Option; Adjustment: Boolean; OriginalPostingDate: Date; ValuationDate: Date)
+    local procedure SetItemAdjmtProperties(ItemNo: Code[20]; ItemLedgEntryType: Option; Adjustment: Boolean; OriginalPostingDate: Date; ValuationDate: Date)
     var
         Item: Record Item;
         ValueEntry: Record "Value Entry";
@@ -4396,14 +4421,20 @@ codeunit 22 "Item Jnl.-Post Line"
             end;
     end;
 
-    local procedure SetOrderAdjmtProp(ItemLedgEntryType: Option; OrderType: Option; OrderNo: Code[20]; OrderLineNo: Integer; OriginalPostingDate: Date; ValuationDate: Date)
+    local procedure SetOrderAdjmtProperties(ItemLedgEntryType: Option; OrderType: Option; OrderNo: Code[20]; OrderLineNo: Integer; OriginalPostingDate: Date; ValuationDate: Date)
     var
         ValueEntry: Record "Value Entry";
         InvtAdjmtEntryOrder: Record "Inventory Adjmt. Entry (Order)";
         ProdOrderLine: Record "Prod. Order Line";
         AssemblyHeader: Record "Assembly Header";
         ModifyOrderAdjmt: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetOrderAdjmtProperties(ItemLedgEntryType, OrderType, OrderNo, OrderLineNo, OriginalPostingDate, ValuationDate, IsHandled);
+        if IsHandled then
+            exit;
+
         if not (OrderType in [ValueEntry."Order Type"::Production,
                               ValueEntry."Order Type"::Assembly])
         then
@@ -4415,7 +4446,24 @@ codeunit 22 "Item Jnl.-Post Line"
             exit;
 
         with InvtAdjmtEntryOrder do
-            if Get(OrderType, OrderNo, OrderLineNo) then begin
+            if not Get(OrderType, OrderNo, OrderLineNo) then
+                case OrderType of
+                    "Order Type"::Production:
+                        begin
+                            ProdOrderLine.Get(ProdOrderLine.Status::Released, OrderNo, OrderLineNo);
+                            SetProdOrderLine(ProdOrderLine);
+                            SetOrderAdjmtProperties(ItemLedgEntryType, OrderType, OrderNo, OrderLineNo, OriginalPostingDate, ValuationDate);
+                        end;
+                    "Order Type"::Assembly:
+                        begin
+                            if OrderLineNo = 0 then begin
+                                AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, OrderNo);
+                                SetAsmOrder(AssemblyHeader);
+                            end;
+                            SetOrderAdjmtProperties(ItemLedgEntryType, OrderType, OrderNo, 0, OriginalPostingDate, ValuationDate);
+                        end;
+                end
+            else
                 if "Allow Online Adjustment" or "Cost is Adjusted" then begin
                     LockTable;
                     if "Cost is Adjusted" then begin
@@ -4428,23 +4476,6 @@ codeunit 22 "Item Jnl.-Post Line"
                     end;
                     if ModifyOrderAdjmt then
                         Modify;
-                end;
-            end else
-                case OrderType of
-                    "Order Type"::Production:
-                        begin
-                            ProdOrderLine.Get(ProdOrderLine.Status::Released, OrderNo, OrderLineNo);
-                            SetProdOrderLine(ProdOrderLine);
-                            SetOrderAdjmtProp(ItemLedgEntryType, OrderType, OrderNo, OrderLineNo, OriginalPostingDate, ValuationDate);
-                        end;
-                    "Order Type"::Assembly:
-                        begin
-                            if OrderLineNo = 0 then begin
-                                AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, OrderNo);
-                                SetAsmOrder(AssemblyHeader);
-                            end;
-                            SetOrderAdjmtProp(ItemLedgEntryType, OrderType, OrderNo, 0, OriginalPostingDate, ValuationDate);
-                        end;
                 end;
     end;
 
@@ -4758,11 +4789,11 @@ codeunit 22 "Item Jnl.-Post Line"
         ValueEntry: Record "Value Entry";
         AvgCostAdjmtEntryPoint: Record "Avg. Cost Adjmt. Entry Point";
     begin
-        ItemLedgerEntry."Applied Entry to Adjust" := true;
-        with ItemLedgerEntry do
-            SetAdjmtProp("Item No.", "Entry Type", IsAdjustment,
-              "Order Type", "Order No.", "Order Line No.",
-              "Posting Date", "Posting Date");
+        with ItemLedgerEntry do begin
+            "Applied Entry to Adjust" := true;
+            SetAdjmtProperties(
+              "Item No.", "Entry Type", IsAdjustment, "Order Type", "Order No.", "Order Line No.", "Posting Date", "Posting Date");
+        end;
 
         OnTouchItemEntryCostOnAfterAfterSetAdjmtProp(ItemLedgerEntry, IsAdjustment);
 
@@ -4922,12 +4953,16 @@ codeunit 22 "Item Jnl.-Post Line"
         TempValueEntry: Record "Value Entry" temporary;
         ProductionOrder: Record "Production Order";
         ValuationDate: Date;
+        IsHandled: Boolean;
     begin
         if not (ItemLedgerEntry."Entry Type" in [ItemLedgerEntry."Entry Type"::Consumption, ItemLedgerEntry."Entry Type"::Output]) then
             exit;
 
-        if not ProductionOrder.Get(ProductionOrder.Status::Released, ItemLedgerEntry."Order No.") then
-            exit;
+        IsHandled := false;
+        OnCorrectOutputValuationDateOnBeforeCheckProdOrder(ItemLedgerEntry, IsHandled);
+        if not IsHandled then
+            if not ProductionOrder.Get(ProductionOrder.Status::Released, ItemLedgerEntry."Order No.") then
+                exit;
 
         ValuationDate := MaxConsumptionValuationDate(ItemLedgerEntry);
 
@@ -5072,7 +5107,7 @@ codeunit 22 "Item Jnl.-Post Line"
             if ItemJnlLine2."Phys. Inventory" then
                 "Qty. (Phys. Inventory)" := "Qty. (Calculated)" + SignFactor * "Quantity (Base)";
 
-            OnAfterSetupTempSplitItemJnlLineSetQty(TempSplitItemJnlLine, ItemJnlLine2, SignFactor);
+            OnAfterSetupTempSplitItemJnlLineSetQty(TempSplitItemJnlLine, ItemJnlLine2, SignFactor, TempTrackingSpecification);
 
             FloatingFactor := Quantity / NonDistrQuantity;
             if FloatingFactor < 1 then begin
@@ -5154,6 +5189,12 @@ codeunit 22 "Item Jnl.-Post Line"
             SetFilter("Qty. to Handle (Base)", '<>0');
             exit(not IsEmpty);
         end;
+    end;
+
+    local procedure PostInvtBuffer(var ValueEntry: Record "Value Entry")
+    begin
+        if InventoryPostingToGL.BufferInvtPosting(ValueEntry) then
+            InventoryPostingToGL.PostInvtPostBufPerEntry(ValueEntry);
     end;
 
     local procedure VerifyTouchedOnInventory()
@@ -5363,7 +5404,7 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPostItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ItemLedgerEntry: Record "Item Ledger Entry")
+    local procedure OnAfterPostItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ItemLedgerEntry: Record "Item Ledger Entry"; var ValueEntryNo: Integer; var InventoryPostingToGL: Codeunit "Inventory Posting To G/L")
     begin
     end;
 
@@ -5418,7 +5459,7 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetupTempSplitItemJnlLineSetQty(var TempSplitItemJnlLine: Record "Item Journal Line" temporary; ItemJournalLine: Record "Item Journal Line"; SignFactor: Integer)
+    local procedure OnAfterSetupTempSplitItemJnlLineSetQty(var TempSplitItemJnlLine: Record "Item Journal Line" temporary; ItemJournalLine: Record "Item Journal Line"; SignFactor: Integer; var TempTrackingSpecification: Record "Tracking Specification" temporary)
     begin
     end;
 
@@ -5468,12 +5509,22 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePostLineByEntryType(var ItemJournalLine: Record "Item Journal Line"; CalledFromAdjustment: Boolean; CalledFromInvtPutawayPick: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeProdOrderCompModify(var ProdOrderComponent: Record "Prod. Order Component"; ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeProdOrderLineModify(var ProdOrderLine: Record "Prod. Order Line")
+    local procedure OnBeforeProdOrderLineModify(var ProdOrderLine: Record "Prod. Order Line"; ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRoundAmtValueEntry(var ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
     begin
     end;
 
@@ -5482,7 +5533,7 @@ codeunit 22 "Item Jnl.-Post Line"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(TRUE, false)]
     local procedure OnBeforeRunWithCheck(var ItemJournalLine: Record "Item Journal Line"; CalledFromAdjustment: Boolean; CalledFromInvtPutawayPick: Boolean; CalledFromApplicationWorksheet: Boolean; PostponeReservationHandling: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -5498,6 +5549,11 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetOrderAdjmtProperties(ItemLedgEntryType: Option; OrderType: Option; OrderNo: Code[20]; OrderLineNo: Integer; OriginalPostingDate: Date; ValuationDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSetupSplitJnlLine(var ItemJnlLine2: Record "Item Journal Line"; TrackingSpecExists: Boolean; var TempTrackingSpecification: Record "Tracking Specification" temporary)
     begin
     end;
@@ -5509,6 +5565,11 @@ codeunit 22 "Item Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; var ItemJournalLine: Record "Item Journal Line"; ReTrack: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateUnitCost(ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
     begin
     end;
 
@@ -5529,6 +5590,11 @@ codeunit 22 "Item Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterApplyItemLedgEntryOnBeforeCalcAppliedQty(OldItemLedgerEntry: Record "Item Ledger Entry"; ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetGLSetup(var GeneralLedgerSetup: Record "General Ledger Setup")
     begin
     end;
 
@@ -5568,6 +5634,16 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnApplyCapNeedOnAfterSetFilters(var ProdOrderCapNeed: Record "Prod. Order Capacity Need"; ItemJnlLine: Record "Item Journal Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyItemLedgEntryOnBeforeInsertApplEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnApplyItemLedgEntryOnBeforeOldItemLedgEntryModify(ItemLedgerEntry: Record "Item Ledger Entry"; var OldItemLedgerEntry: Record "Item Ledger Entry"; ItemJournalLine: Record "Item Journal Line")
     begin
     end;
@@ -5579,6 +5655,11 @@ codeunit 22 "Item Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcILEExpectedAmountOnBeforeCalcCostAmounts(var OldValueEntry2: Record "Value Entry"; var OldValueEntry: Record "Value Entry"; ItemLedgEntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCorrectOutputValuationDateOnBeforeCheckProdOrder(ItemLedgerEntry: Record "Item Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 
@@ -5608,7 +5689,12 @@ codeunit 22 "Item Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnItemQtyPostingOnBeforeApplyItemLedgEntry(var ItemJournalLine: Record "Item Journal Line"; ItemLedgerEntry: Record "Item Ledger Entry")
+    local procedure OnItemQtyPostingOnBeforeApplyItemLedgEntry(var ItemJournalLine: Record "Item Journal Line"; var ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnItemValuePostingOnAfterInsertValueEntry(var ValueEntry: Record "Value Entry"; var ItemLedgerEntry: Record "Item Ledger Entry"; var ValueEntryNo: Integer)
     begin
     end;
 
@@ -5639,6 +5725,11 @@ codeunit 22 "Item Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostOutputOnAfterInsertCapLedgEntry(ItemJournalLine: Record "Item Journal Line"; var SkipPost: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostOutputOnAfterInsertCostValueEntries(ItemJournalLine: Record "Item Journal Line"; var CapLedgEntry: Record "Capacity Ledger Entry"; CalledFromAdjustment: Boolean; PostToGL: Boolean)
     begin
     end;
 

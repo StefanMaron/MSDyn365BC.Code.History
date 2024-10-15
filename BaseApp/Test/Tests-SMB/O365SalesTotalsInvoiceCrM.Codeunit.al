@@ -1255,6 +1255,78 @@ codeunit 138004 "O365 Sales Totals Invoice/Cr.M"
         SalesOrder.Close;
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure InvoiceBillToNameValidationSavesBilltoICPartnerChange()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesInvoice: TestPage "Sales Invoice";
+        ItemUnitPrice: Decimal;
+        Lines: Integer;
+    begin
+        // [FEATURE] [Intercompany]
+        // [SCENARIO 323527] "Bill-to IC Partner Code" is changed on Sales Invoice "Bill-to Name" validation in case of O365 Non-Amount Type Discount Recalculation
+        Initialize;
+
+        // [GIVEN] Sales Invoice "SI01" with Sales Lines created for Customer "CU01" and no discount
+        ItemUnitPrice := LibraryRandom.RandDecInRange(1, 100, 2);
+        CreateItem(Item, ItemUnitPrice);
+        CreateCustomer(Customer);
+        CreateInvoiceWithRandomNumberOfLines(SalesHeader, Item, Customer, 1, Lines);
+        OpenSalesInvoice(SalesHeader, SalesInvoice);
+
+        // [GIVEN] Customer "CU02" with "IC Partner Code" = "ICP01"
+        CreateCustomer(Customer);
+        Customer."IC Partner Code" := LibraryUtility.GenerateGUID;
+        Customer.Modify(true);
+
+        // [WHEN] Set "Bill-to Name" to "CU02" on Sales Invoice Page for "SI01"
+        SalesInvoice."Bill-to Name".SetValue(Customer."No.");
+
+        // [THEN] "Bill-to IC Partner Code" is changed to "ICP01" on "SI01"
+        SalesHeader.Find;
+        SalesHeader.TestField("Bill-to IC Partner Code", Customer."IC Partner Code");
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure CrMemoBillToNameValidationSavesBilltoICPartnerChange()
+    var
+        Customer: Record Customer;
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+        ItemUnitPrice: Decimal;
+        Lines: Integer;
+    begin
+        // [FEATURE] [Intercompany]
+        // [SCENARIO 323527] "Bill-to IC Partner Code" is changed on Sales Credit Memo "Bill-to Name" validation in case of O365 Non-Amount Type Discount Recalculation
+        Initialize;
+
+        // [GIVEN] Sales Credit Memo "SC01" with Sales Lines created for Customer "CU01" and no discount
+        ItemUnitPrice := LibraryRandom.RandDecInRange(1, 100, 2);
+        CreateItem(Item, ItemUnitPrice);
+        CreateCustomer(Customer);
+        CreateCreditMemoWithRandomNumberOfLines(SalesHeader, Item, Customer, 1, Lines);
+        OpenSalesCreditMemo(SalesHeader, SalesCreditMemo);
+
+        // [GIVEN] Customer "CU02" with "IC Partner Code" = "ICP01"
+        CreateCustomer(Customer);
+        Customer."IC Partner Code" := LibraryUtility.GenerateGUID;
+        Customer.Modify(true);
+
+        // [WHEN] Set "Bill-to Name" to "CU02" on Sales Credit Memo Page for "SC01"
+        SalesCreditMemo."Bill-to Name".SetValue(Customer."No.");
+
+        // [THEN] "Bill-to IC Partner Code" is changed to "ICP01" on "SC01"
+        SalesHeader.Find;
+        SalesHeader.TestField("Bill-to IC Partner Code", Customer."IC Partner Code");
+    end;
+
     local procedure CreateCustomerWithDiscount(var Customer: Record Customer; DiscPct: Decimal; MinimumAmount: Decimal)
     begin
         CreateCustomer(Customer);

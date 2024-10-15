@@ -46,21 +46,23 @@ codeunit 12184 "Fattura Doc. Helper"
         NonPublicCompanyLbl: Label 'FPR12', Locked = true;
         BasicVATTypeLbl: Label 'I', Locked = true;
         ReverseChargeVATDescrLbl: Label 'Reverse Charge VAT %1', Comment = '%1 = VAT percent';
+        PricesIncludingVATFieldNo: Integer;
 
     [Scope('OnPrem')]
     procedure CollectDocumentInformation(var TempFatturaHeader: Record "Fattura Header" temporary; var TempFatturaLine: Record "Fattura Line" temporary; HeaderRecRef: RecordRef)
     var
         LineRecRef: RecordRef;
+        PricesIncludingVAT: Boolean;
     begin
         CompanyInformation.Get;
-        if not CollectDocHeaderInformation(TempFatturaHeader, LineRecRef, HeaderRecRef) then
+        if not CollectDocHeaderInformation(TempFatturaHeader, LineRecRef, HeaderRecRef, PricesIncludingVAT) then
             exit;
 
-        CollectDocLinesInformation(TempFatturaLine, LineRecRef, TempFatturaHeader);
+        CollectDocLinesInformation(TempFatturaLine, LineRecRef, TempFatturaHeader, PricesIncludingVAT);
         CollectPaymentInformation(TempFatturaLine, TempFatturaHeader);
     end;
 
-    local procedure CollectDocHeaderInformation(var TempFatturaHeader: Record "Fattura Header" temporary; var LineRecRef: RecordRef; HeaderRecRef: RecordRef): Boolean
+    local procedure CollectDocHeaderInformation(var TempFatturaHeader: Record "Fattura Header" temporary; var LineRecRef: RecordRef; HeaderRecRef: RecordRef; var PricesIncludingVAT: Boolean): Boolean
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         Customer: Record Customer;
@@ -99,10 +101,11 @@ codeunit 12184 "Fattura Doc. Helper"
         UpdateFattureHeaderWithApplicationInformation(TempFatturaHeader);
         UpdateFatturaHeaderWithTaxRepresentativeInformation(TempFatturaHeader);
         TempFatturaHeader.Insert;
+        PricesIncludingVAT := HeaderRecRef.Field(PricesIncludingVATFieldNo).Value;
         exit(true);
     end;
 
-    local procedure CollectDocLinesInformation(var TempFatturaLine: Record "Fattura Line" temporary; var LineRecRef: RecordRef; TempFatturaHeader: Record "Fattura Header" temporary)
+    local procedure CollectDocLinesInformation(var TempFatturaLine: Record "Fattura Line" temporary; var LineRecRef: RecordRef; TempFatturaHeader: Record "Fattura Header" temporary; PricesIncludingVAT: Boolean)
     var
         TempSalesShipmentBuffer: Record "Sales Shipment Buffer" temporary;
         TempVATEntry: Record "VAT Entry" temporary;
@@ -116,7 +119,7 @@ codeunit 12184 "Fattura Doc. Helper"
         LineRecRef.FindSet;
         repeat
             if not IsSplitPaymentLine(LineRecRef) then
-                InsertFatturaLine(TempFatturaLine, DocLineNo, TempFatturaHeader, LineRecRef);
+                InsertFatturaLine(TempFatturaLine, DocLineNo, TempFatturaHeader, LineRecRef, PricesIncludingVAT);
         until LineRecRef.Next = 0;
 
         CollectVATOnLines(TempVATEntry, TempVATPostingSetup, TempFatturaHeader);
@@ -174,8 +177,8 @@ codeunit 12184 "Fattura Doc. Helper"
         TempFatturaHeader."Progressive No." := GetNextProgressiveNo;
         TempFatturaHeader."Transmission Type" := NonPublicCompanyLbl;
         TempFatturaHeader."Fattura Document Type" := GetDefaultFatturaDocType;
-        TempVATEntry.CalcSums(Amount);
-        TempFatturaHeader."Total Amount" := TempVATEntry.Amount;
+        TempVATEntry.CalcSums(Amount, Base);
+        TempFatturaHeader."Total Amount" := Abs(TempVATEntry.Amount) + Abs(TempVATEntry.Base);
         TempFatturaHeader.Insert;
         CollectSelfBillingDocLinesInformation(TempFatturaLine, TempVATEntry);
     end;
@@ -232,6 +235,7 @@ codeunit 12184 "Fattura Doc. Helper"
         FatturaProjectCodeFieldNo := 12182;
         FatturaTenderCodeFieldNo := 12183;
         CustomerPurchaseOrderFieldNo := 12184;
+        PricesIncludingVATFieldNo := 35;
 
         // field id of Line tables
         QuantityFieldNo := 15;
@@ -805,6 +809,13 @@ codeunit 12184 "Fattura Doc. Helper"
         exit(Round(InvDiscAmount / QtyValue));
     end;
 
+    local procedure CalcForPricesIncludingVAT(Amount: Decimal; PricesIncludingVAT: Boolean; VATRate: Decimal; Precision: Decimal): Decimal
+    begin
+        if PricesIncludingVAT then
+            exit(Round(Amount / (1 + VATRate / 100), Precision));
+        exit(Amount);
+    end;
+
     local procedure ExchangeToLCYAmount(TempFatturaHeader: Record "Fattura Header" temporary; Amount: Decimal): Decimal
     var
         Currency: Record Currency;
@@ -1040,9 +1051,10 @@ codeunit 12184 "Fattura Doc. Helper"
         TempSalesShipmentBuffer.Insert;
     end;
 
-    local procedure InsertFatturaLine(var TempFatturaLine: Record "Fattura Line" temporary; var DocLineNo: Integer; TempFatturaHeader: Record "Fattura Header" temporary; LineRecRef: RecordRef)
+    local procedure InsertFatturaLine(var TempFatturaLine: Record "Fattura Line" temporary; var DocLineNo: Integer; TempFatturaHeader: Record "Fattura Header" temporary; LineRecRef: RecordRef; PricesIncludingVAT: Boolean)
     var
         VATPostingSetup: Record "VAT Posting Setup";
+        Currency: Record Currency;
         Quantity: Decimal;
         UnitPrice: Decimal;
         InvDiscAmountByQty: Decimal;
@@ -1060,8 +1072,13 @@ codeunit 12184 "Fattura Doc. Helper"
         TempFatturaLine."No." := LineRecRef.Field(NoFieldNo).Value;
         TempFatturaLine.Description := LineRecRef.Field(DescriptionFieldNo).Value;
 
+        TempFatturaLine."VAT %" := LineRecRef.Field(VatPercFieldNo).Value;
         Quantity := LineRecRef.Field(QuantityFieldNo).Value;
         UnitPrice := LineRecRef.Field(UnitPriceFieldNo).Value;
+
+        Currency.Initialize(TempFatturaHeader."Currency Code");
+        UnitPrice := CalcForPricesIncludingVAT(
+            UnitPrice, PricesIncludingVAT, TempFatturaLine."VAT %", Currency."Unit-Amount Rounding Precision");
         if Quantity < 0 then
             TempFatturaLine."Unit Price" := -UnitPrice
         else begin
@@ -1082,9 +1099,10 @@ codeunit 12184 "Fattura Doc. Helper"
         end;
 
         LineAmount := LineRecRef.Field(LineAmountFieldNo).Value;
+        LineAmount := CalcForPricesIncludingVAT(
+            LineAmount, PricesIncludingVAT, TempFatturaLine."VAT %", Currency."Amount Rounding Precision");
         TempFatturaLine.Amount := ExchangeToLCYAmount(TempFatturaHeader, LineAmount);
 
-        TempFatturaLine."VAT %" := LineRecRef.Field(VatPercFieldNo).Value;
         if TempFatturaLine."VAT %" = 0 then begin
             GetVATPostingSetup(VATPostingSetup, LineRecRef);
             TempFatturaLine."VAT Transaction Nature" := VATPostingSetup."VAT Transaction Nature";
@@ -1115,6 +1133,7 @@ codeunit 12184 "Fattura Doc. Helper"
         VATNatureDescription: Text[100];
         VATExemptionDescription: Text[50];
     begin
+        TempFatturaLine.Init;
         TempFatturaLine."Line No." += 1;
         TempFatturaLine."VAT %" := VATEntry."VAT %";
         if TempFatturaLine."VAT %" = 0 then begin
@@ -1133,7 +1152,8 @@ codeunit 12184 "Fattura Doc. Helper"
             TempFatturaLine."VAT Base" := -TempFatturaLine."VAT Base";
             TempFatturaLine."VAT Amount" := -TempFatturaLine."VAT Amount";
         end;
-        TempFatturaLine.Description := GetVATType(VATEntry, IsSplitPayment);
+        if TempFatturaLine."VAT %" <> 0 then
+            TempFatturaLine.Description := GetVATType(VATEntry, IsSplitPayment);
         TempFatturaLine.Insert;
     end;
 

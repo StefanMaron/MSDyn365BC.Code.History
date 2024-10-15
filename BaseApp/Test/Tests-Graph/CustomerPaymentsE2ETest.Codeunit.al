@@ -73,7 +73,7 @@ codeunit 135515 "Customer Payments E2E Test"
         // [THEN] the response text should contain the customer payment information and the integration record table should map the JournalLineID with the ID
         Assert.AreNotEqual('', ResponseText, 'JSON Should not be blank');
         VerifyLineNoInJson(ResponseText, Format(LineNo));
-        LibraryGraphMgt.VerifyIDInJson(ResponseText);
+        LibraryGraphMgt.VerifyIDFieldInJsonWithoutIntegrationRecord(ResponseText, 'id');
 
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo);
@@ -242,7 +242,7 @@ codeunit 135515 "Customer Payments E2E Test"
         GenJournalLine.SetRange("Line No.", LineNo);
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.FindFirst;
-        CustomerPaymentGUID := GenJournalLine.Id;
+        CustomerPaymentGUID := GenJournalLine.SystemId;
         Commit;
 
         // [WHEN] we GET the line from the web service
@@ -252,7 +252,7 @@ codeunit 135515 "Customer Payments E2E Test"
         LibraryGraphMgt.GetFromWebService(ResponseText, TargetURL);
 
         // [THEN] the line should exist in the response
-        LibraryGraphMgt.VerifyIDInJson(ResponseText);
+        LibraryGraphMgt.VerifyIDFieldInJsonWithoutIntegrationRecord(ResponseText, 'id');
         Assert.IsTrue(
           LibraryGraphMgt.GetObjectIDFromJSON(ResponseText, LineNumberNameTxt, LineNoInJSON),
           'Could not find the ' + LineNumberNameTxt + ' in the JSON');
@@ -297,7 +297,7 @@ codeunit 135515 "Customer Payments E2E Test"
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetFilter("Line No.", Format(LineNo));
         GenJournalLine.FindFirst;
-        CustomerPaymentGUID := GenJournalLine.Id;
+        CustomerPaymentGUID := GenJournalLine.SystemId;
         Assert.AreNotEqual('', CustomerPaymentGUID, 'Customer Payment GUID should not be empty');
         Commit;
 
@@ -354,7 +354,7 @@ codeunit 135515 "Customer Payments E2E Test"
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo);
         GenJournalLine.FindFirst;
-        CustomerPaymentGUID := GenJournalLine.Id;
+        CustomerPaymentGUID := GenJournalLine.SystemId;
         RandomDocNo := LibraryUtility.GenerateGUID;
         LineJSON := LibraryGraphMgt.AddPropertytoJSON('', AppliesToDocNoNameTxt, RandomDocNo);
 
@@ -403,7 +403,7 @@ codeunit 135515 "Customer Payments E2E Test"
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetFilter("Line No.", Format(LineNo));
         GenJournalLine.FindFirst;
-        CustomerPaymentGUID := GenJournalLine.Id;
+        CustomerPaymentGUID := GenJournalLine.SystemId;
         Assert.AreNotEqual('', CustomerPaymentGUID, 'CustomerPaymentGUID should not be empty');
         Commit;
 
@@ -444,7 +444,7 @@ codeunit 135515 "Customer Payments E2E Test"
         GenJournalLine.SetRange("Line No.", LineNo);
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.FindFirst;
-        CustomerPaymentGUID := GenJournalLine.Id;
+        CustomerPaymentGUID := GenJournalLine.SystemId;
         Commit;
 
         // [WHEN] we GET the line from the web service
@@ -454,7 +454,7 @@ codeunit 135515 "Customer Payments E2E Test"
         LibraryGraphMgt.GetFromWebService(ResponseText, TargetURL);
 
         // [THEN] the graph contact id should exist in the response
-        LibraryGraphMgt.VerifyIDInJson(ResponseText);
+        LibraryGraphMgt.VerifyIDFieldInJsonWithoutIntegrationRecord(ResponseText, 'id');
         VerifyContactId(ResponseText, GraphIntegrationRecord."Graph ID");
     end;
 
@@ -526,7 +526,7 @@ codeunit 135515 "Customer Payments E2E Test"
         GenJournalLine.SetRange("Line No.", LineNo);
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.FindFirst;
-        CustomerPaymentGUID := GenJournalLine.Id;
+        CustomerPaymentGUID := GenJournalLine.SystemId;
 
         // [GIVEN] a customer payments JSON with graph contact id
         LibraryGraphDocumentTools.CreateContactWithGraphId(SecondContact, GraphIntegrationRecord);
@@ -577,7 +577,7 @@ codeunit 135515 "Customer Payments E2E Test"
         GenJournalLine.SetRange("Line No.", LineNo);
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.FindFirst;
-        CustomerPaymentGUID := GenJournalLine.Id;
+        CustomerPaymentGUID := GenJournalLine.SystemId;
 
         // [GIVEN] a customer payments JSON with blank graph contact id
         CustomerPaymentWithComplexJSON := CreateCustomerPaymentJSONWithContactId(DummyGraphIntegrationRecord);
@@ -631,7 +631,7 @@ codeunit 135515 "Customer Payments E2E Test"
         // [THEN] the response text should contain the Invoice Number and the Customer Number should be filled with the Invoice's Customer
         Assert.AreNotEqual('', ResponseText, 'JSON Should not be blank');
         VerifyLineNoInJson(ResponseText, Format(LineNo));
-        LibraryGraphMgt.VerifyIDInJson(ResponseText);
+        LibraryGraphMgt.VerifyIDFieldInJsonWithoutIntegrationRecord(ResponseText, 'id');
 
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo);
@@ -677,7 +677,7 @@ codeunit 135515 "Customer Payments E2E Test"
         // [THEN] the response text should contain the Invoice Number and the Customer Number should be filled with the Invoice's Customer
         Assert.AreNotEqual('', ResponseText, 'JSON Should not be blank');
         VerifyLineNoInJson(ResponseText, Format(LineNo));
-        LibraryGraphMgt.VerifyIDInJson(ResponseText);
+        LibraryGraphMgt.VerifyIDFieldInJsonWithoutIntegrationRecord(ResponseText, 'id');
 
         GraphMgtCustomerPayments.SetCustomerPaymentsFilters(GenJournalLine);
         GenJournalLine.SetRange("Line No.", LineNo);
@@ -1009,7 +1009,7 @@ codeunit 135515 "Customer Payments E2E Test"
         Assert.IsTrue(
           LibraryGraphMgt.GetObjectIDFromJSON(ResponseText, LineNumberNameTxt, LineNo),
           'Could not find customer payments number');
-        LibraryGraphMgt.VerifyIDInJson(ResponseText);
+        LibraryGraphMgt.VerifyIDFieldInJsonWithoutIntegrationRecord(ResponseText, 'id');
     end;
 
     local procedure GetJournalID(JournalName: Code[10]): Guid

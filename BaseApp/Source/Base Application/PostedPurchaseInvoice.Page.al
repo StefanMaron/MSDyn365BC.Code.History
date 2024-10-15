@@ -642,6 +642,7 @@
 
                 trigger OnAction()
                 begin
+                    PurchInvHeader := Rec;
                     CurrPage.SetSelectionFilter(PurchInvHeader);
                     PurchInvHeader.PrintRecords(true);
                 end;

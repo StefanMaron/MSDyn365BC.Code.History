@@ -280,6 +280,8 @@ report 12110 "Vendor Sheet - Print"
 
                         Amnt := Amnt + AmountLCY;
 
+                        IcreasesAmnt := 0;
+                        DecreasesAmnt := 0;
                         if AmountLCY > 0 then
                             IcreasesAmnt := AmountLCY
                         else
@@ -306,9 +308,6 @@ report 12110 "Vendor Sheet - Print"
 
                     trigger OnPreDataItem()
                     begin
-                        Clear(AmountLCY);
-                        Clear(IcreasesAmnt);
-                        Clear(DecreasesAmnt);
                         TotalAmountLCYForRTC := 0;
                         TotalIcreasesAmntForRTC := 0;
                         TotalDecreasesAmntForRTC := 0;

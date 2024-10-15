@@ -92,6 +92,56 @@ codeunit 144208 "FatturaPA Unit Tests"
         Assert.RecordCount(TempFatturaLine, 2);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure FatturaLineDescriptionGetsResetCorrectly()
+    var
+        VATPostingSetup: array[2] of Record "VAT Posting Setup";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        DummyGLAccount: Record "G/L Account";
+        TempFatturaLine: Record "Fattura Line" temporary;
+        TempFatturaHeader: Record "Fattura Header" temporary;
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        Customer: Record Customer;
+        FatturaDocHelper: Codeunit "Fattura Doc. Helper";
+        RecRef: RecordRef;
+        VATRate: array[2] of Decimal;
+    begin
+        // [SCENARIO 319765] When collecting VAT Fattura Lines for export description gets reset between lines and is blank when expected
+        Initialize;
+
+        // [GIVEN] Customer with VAT Business Posting Group
+        Customer.Get(CreateCustomerNo);
+
+        // [GIVEN] 2 VAT Posting Setups with the Same VAT Business Posting Group. Different Product Posting Groups: VAT Rate 1 = "10", VAT Rate 2 = "0"
+        VATRate[1] := LibraryRandom.RandDec(10, 2);
+        CreateTwoVATPostingSetupsWithSameBusPostingGroup(VATPostingSetup, VATRate, Customer."VAT Bus. Posting Group");
+
+        // [GIVEN] Sales Invoice For Customer with 2 lines, 1 line for each Product Posting Group
+        CreateFatturaSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup[1],
+            DummyGLAccount."Gen. Posting Type"::Sale), LibraryRandom.RandInt(10));
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account",
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup[2],
+            DummyGLAccount."Gen. Posting Type"::Sale), LibraryRandom.RandInt(10));
+
+        // [GIVEN] Sales Invoice was posted
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+        RecRef.GetTable(SalesInvoiceHeader);
+
+        // [WHEN] Run CollectDocumentInformation on this invoice
+        FatturaDocHelper.InitializeErrorLog(SalesInvoiceHeader);
+        FatturaDocHelper.CollectDocumentInformation(TempFatturaHeader, TempFatturaLine, RecRef);
+
+        // [THEN] Fattura VAT Line for VAT Rate 1 has description = "I"
+        VerifyVATLineDescription(TempFatturaLine, VATRate[1], 'I');
+
+        // [THEN] Fattura VAT Line for VAT Rate 2 has description Blank
+        VerifyVATLineDescription(TempFatturaLine, VATRate[2], '');
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
@@ -128,10 +178,7 @@ codeunit 144208 "FatturaPA Unit Tests"
         TransferExtendedText: Codeunit "Transfer Extended Text";
         i: Integer;
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomerNo);
-        SalesHeader.Validate("Payment Terms Code", LibraryITLocalization.CreateFatturaPaymentTermsCode);
-        SalesHeader.Validate("Payment Method Code", LibraryITLocalization.CreateFatturaPaymentMethodCode);
-        SalesHeader.Modify(true);
+        CreateFatturaSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomerNo);
         for i := 1 to 2 do begin
             LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, CreateItemWithExtendedText, LibraryRandom.RandInt(100));
             SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
@@ -141,6 +188,14 @@ codeunit 144208 "FatturaPA Unit Tests"
         end;
     end;
 
+    local procedure CreateFatturaSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20])
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
+        SalesHeader.Validate("Payment Terms Code", LibraryITLocalization.CreateFatturaPaymentTermsCode);
+        SalesHeader.Validate("Payment Method Code", LibraryITLocalization.CreateFatturaPaymentMethodCode);
+        SalesHeader.Modify(true);
+    end;
+
     local procedure CreateCustomerNo(): Code[20]
     var
         Customer: Record Customer;
@@ -148,6 +203,18 @@ codeunit 144208 "FatturaPA Unit Tests"
         exit(
           LibraryITLocalization.CreateFatturaCustomerNo(
             CopyStr(LibraryUtility.GenerateRandomCode(Customer.FieldNo("PA Code"), DATABASE::Customer), 1, 6)));
+    end;
+
+    local procedure CreateTwoVATPostingSetupsWithSameBusPostingGroup(var VATPostingSetup: array[2] of Record "VAT Posting Setup"; VATRate: array[2] of Decimal; VATBusinessPostingGroup: Code[20])
+    var
+        i: Integer;
+    begin
+        for i := 1 to ArrayLen(VATPostingSetup) do begin
+            LibraryERM.CreateVATPostingSetupWithAccounts(
+              VATPostingSetup[i], VATPostingSetup[i]."VAT Calculation Type"::"Normal VAT", VATRate[i]);
+            VATPostingSetup[i].Validate("VAT Bus. Posting Group", VATBusinessPostingGroup);
+            VATPostingSetup[i].Insert(true);
+        end;
     end;
 
     local procedure CreateItemWithExtendedText(): Code[20]
@@ -185,6 +252,14 @@ codeunit 144208 "FatturaPA Unit Tests"
               SalesHeader."Posting Date",SalesHeader."Currency Code",
               Amount,SalesHeader."Currency Factor"),
             Currency."Amount Rounding Precision"));
+    end;
+
+    local procedure VerifyVATLineDescription(var TempFatturaLine: Record "Fattura Line" temporary; VATRate: Decimal; DescriptionText: Text[250])
+    begin
+        TempFatturaLine.SetRange("Line Type", TempFatturaLine."Line Type"::VAT);
+        TempFatturaLine.SetRange("VAT %", VATRate);
+        TempFatturaLine.FindFirst;
+        TempFatturaLine.TestField(Description, DescriptionText);
     end;
 }
 

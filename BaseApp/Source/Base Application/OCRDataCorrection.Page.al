@@ -88,7 +88,7 @@ page 1272 "OCR Data Correction"
                         }
                         field("VAT Amount"; "VAT Amount")
                         {
-                            ApplicationArea = VAT;
+                            ApplicationArea = Basic, Suite;
                             ToolTip = 'Specifies the amount of VAT that is included in the total amount.';
                         }
                     }
@@ -174,7 +174,7 @@ page 1272 "OCR Data Correction"
                         }
                         field("TempOriginalIncomingDocument.""VAT Amount"""; TempOriginalIncomingDocument."VAT Amount")
                         {
-                            ApplicationArea = VAT;
+                            ApplicationArea = Basic, Suite;
                             Editable = false;
                             ToolTip = 'Specifies the existing value that the OCR service produces for this field.';
                         }

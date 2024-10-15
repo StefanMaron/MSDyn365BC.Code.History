@@ -473,7 +473,9 @@ codeunit 144206 "Self-Billing Documents"
     begin
         TempXMLBuffer.Load(ServerFileName);
         VerifyHeader(TempXMLBuffer, ProgressiveNo);
-        VerifyDocHeader(TempXMLBuffer, VATEntry, VATEntry.Amount);
+    	VATEntry.TestField(Amount);
+        VATEntry.TestField(Base);
+        VerifyDocHeader(TempXMLBuffer, VATEntry, Abs(VATEntry.Amount) + Abs(VATEntry.Base));
         VerifyDocLine(TempXMLBuffer, VATEntry, 1);
     end;
 
@@ -483,7 +485,9 @@ codeunit 144206 "Self-Billing Documents"
     begin
         TempXMLBuffer.Load(DocumentStream);
         VerifyHeader(TempXMLBuffer, ProgressiveNo);
-        VerifyDocHeader(TempXMLBuffer, VATEntry, VATEntry.Amount);
+	    VATEntry.TestField(Amount);
+        VATEntry.TestField(Base);
+        VerifyDocHeader(TempXMLBuffer, VATEntry, Abs(VATEntry.Amount) + Abs(VATEntry.Base));
         VerifyDocLine(TempXMLBuffer, VATEntry, 1);
     end;
 
@@ -495,8 +499,10 @@ codeunit 144206 "Self-Billing Documents"
         TempXMLBuffer.Load(ServerFileName);
         VerifyHeader(TempXMLBuffer, ProgressiveNo);
         TempVATEntry.Reset;
-        TempVATEntry.CalcSums(Amount);
-        VerifyDocHeader(TempXMLBuffer, TempVATEntry, TempVATEntry.Amount);
+        TempVATEntry.CalcSums(Amount, Base);
+        TempVATEntry.TestField(Amount);
+        TempVATEntry.TestField(Base);
+        VerifyDocHeader(TempXMLBuffer, TempVATEntry, Abs(TempVATEntry.Amount) + Abs(TempVATEntry.Base));
         TempVATEntry.SetCurrentKey(
           "Document No.", Type, "VAT Bus. Posting Group", "VAT Prod. Posting Group",
           "VAT %", "Deductible %", "VAT Identifier", "Transaction No.", "Unrealized VAT Entry No.");
