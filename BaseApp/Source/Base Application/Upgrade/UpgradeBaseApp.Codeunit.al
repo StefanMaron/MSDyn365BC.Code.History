@@ -80,6 +80,7 @@ codeunit 104000 "Upgrade - BaseApp"
 #endif
         UpgradeCRMIntegrationRecord();
 
+        UseCustomLookupInPrices();
         UpdateWorkflowTableRelations();
         UpgradeWordTemplateTables();
         UpgradeCustomerVATLiable();
@@ -2594,6 +2595,25 @@ codeunit 104000 "Upgrade - BaseApp"
             until OnlineMapSetup.next = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetEnableOnlineMapUpgradeTag());
+    end;
+
+    local procedure UseCustomLookupInPrices()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetUseCustomLookupUpgradeTag()) then
+            exit;
+
+        if SalesReceivablesSetup.Get() and not SalesReceivablesSetup."Use Customized Lookup" then
+            if PriceCalculationMgt.FindActiveSubscriptions() <> '' then begin
+                SalesReceivablesSetup.Validate("Use Customized Lookup", true);
+                SalesReceivablesSetup.Modify();
+            end;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetUseCustomLookupUpgradeTag());
     end;
 }
 

@@ -198,6 +198,12 @@ report 5911 "Service - Invoice"
                     column(FinishingDateText; FinishingDateText)
                     {
                     }
+                    column(CompanyBankBranchNo; CompanyInfo."Bank Branch No.")
+                    {
+                    }
+                    column(CompanyBankBranchNo_Lbl; CompanyInfo.FieldCaption("Bank Branch No."))
+                    {
+                    }
                     dataitem(DimensionLoop1; "Integer")
                     {
                         DataItemLinkReference = "Service Invoice Header";
@@ -229,7 +235,7 @@ report 5911 "Service - Invoice"
                     {
                         DataItemLink = "Document No." = FIELD("No.");
                         DataItemLinkReference = "Service Invoice Header";
-                        DataItemTableView = SORTING("Document No.", "Line No.");
+                        DataItemTableView = SORTING("Document No.", "Service Item Line No.");
                         column(TypeInt; TypeInt)
                         {
                         }
@@ -461,10 +467,7 @@ report 5911 "Service - Invoice"
                             ServiceShipmentBuffer.Reset();
                             ServiceShipmentBuffer.DeleteAll();
                             FirstValueEntryNo := 0;
-                            MoreLines := Find('+');
-                            while MoreLines and (Description = '') and ("No." = '') and (Quantity = 0) and (Amount = 0) do
-                                MoreLines := Next(-1) <> 0;
-                            if not MoreLines then
+                            if not FindLastMeaningfulLine("Service Invoice Line") then
                                 CurrReport.Break();
                             SetRange("Line No.", 0, "Line No.");
 
@@ -789,7 +792,6 @@ report 5911 "Service - Invoice"
         TotalText: Text[50];
         TotalExclVATText: Text[50];
         TotalInclVATText: Text[50];
-        MoreLines: Boolean;
         NoOfCopies: Integer;
         NoOfLoops: Integer;
         CopyText: Text[30];
@@ -1124,6 +1126,22 @@ report 5911 "Service - Invoice"
                     NoText := "Enterprise No.";
                 end;
         end;
+    end;
+
+    local procedure FindLastMeaningfulLine(var ServiceInvoiceLine: Record "Service Invoice Line") MoreLines: Boolean
+    var
+        ServiceInvLine: Record "Service Invoice Line";
+    begin
+        ServiceInvLine.Copy(ServiceInvoiceLine);
+        ServiceInvLine.SetCurrentKey("Document No.", "Line No.");
+        MoreLines := ServiceInvLine.Find('+');
+        while MoreLines and
+            (ServiceInvLine.Description = '') and (ServiceInvLine."No." = '') and
+            (ServiceInvLine.Quantity = 0) and (ServiceInvLine.Amount = 0)
+        do
+            MoreLines := ServiceInvLine.Next(-1) <> 0;
+        if MoreLines then
+            ServiceInvoiceLine := ServiceInvLine;
     end;
 
     [IntegrationEvent(false, false)]

@@ -367,6 +367,7 @@
                     IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
                     VATReportsConfiguration: Record "VAT Reports Configuration";
                 begin
+                    FeatureTelemetry.LogUptake('0000FAF', IntrastatTok, Enum::"Feature Uptake Status"::Used);
                     if FindVATReportsConfiguration(VATReportsConfiguration) and
                         (VATReportsConfiguration."Validate Codeunit ID" <> 0) and
                         (VATReportsConfiguration."Content Codeunit ID" <> 0)
@@ -388,6 +389,7 @@
                     IntrastatJnlBatch.SetRange("Journal Template Name", "Journal Template Name");
                     IntrastatJnlBatch.SetRange(Name, "Journal Batch Name");
                     REPORT.Run(REPORT::"Intrastat - Make Disk Tax Auth", true, false, IntrastatJnlBatch);
+                    FeatureTelemetry.LogUsage('0000QWE', IntrastatTok, 'File created');
                 end;
             }
             action(Form)
@@ -459,6 +461,8 @@
         ServerSetting: Codeunit "Server Setting";
         JnlSelected: Boolean;
     begin
+        FeatureTelemetry.LogUptake('0000FAS', IntrastatTok, Enum::"Feature Uptake Status"::Discovered);
+        Commit();
         IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
             exit;
@@ -482,7 +486,9 @@
         ReportPrint: Codeunit "Test Report-Print";
         IntraJnlManagement: Codeunit IntraJnlManagement;
         ClientTypeManagement: Codeunit "Client Type Management";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         LineStyleExpression: Text;
+        IntrastatTok: Label 'Intrastat', Locked = true;
         StatisticalValue: Decimal;
         TotalStatisticalValue: Decimal;
         CurrentJnlBatchName: Code[10];

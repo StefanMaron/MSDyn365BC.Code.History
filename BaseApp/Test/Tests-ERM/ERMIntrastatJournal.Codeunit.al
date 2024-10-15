@@ -1120,7 +1120,8 @@ codeunit 134150 "ERM Intrastat Journal"
         IntrastatJournalPage.ErrorMessagesPart."Field Name".AssertEquals(IntrastatJnlLine.FieldName("Transaction Type"));
 
         // [WHEN] Fixing the error
-        TransactionType.FindFirst;
+        TransactionType.Code := LibraryUtility.GenerateGUID();
+        TransactionType.Insert();
         IntrastatJournalPage."Transaction Type".Value(TransactionType.Code);
         // [WHEN] Running Checklist
         IntrastatJournalPage.ChecklistReport.Invoke;

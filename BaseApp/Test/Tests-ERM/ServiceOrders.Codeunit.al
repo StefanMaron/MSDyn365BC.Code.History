@@ -4697,6 +4697,44 @@
         CustLedgerEntry.TestField(Amount, 0);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmMessageHandler')]
+    procedure RecreateServiceCommentLineForServiceItemLine()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceCommentLine: Record "Service Comment Line";
+    begin
+        // [FEATURE] [Service Comment Line] [UT]
+        // [SCENARIO 433493] The Service Comment Lines related to service item line are not deleted after recreate service lines
+        Initialize();
+
+        // [GIVEN] Service Order "SO" with Service Item Line with Service Line "1" for customer "C1"
+        CreateServiceOrderWithItem(
+          ServiceHeader, LibrarySales.CreateCustomerNo, '', LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10));
+        // [GIVEN] Create service line "2"
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo());
+        // [GIVEN] Delete service line "1"
+        ServiceLine.SetRange("Document No.", ServiceHeader."No.");
+        ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
+        ServiceLine.FindFirst();
+        ServiceLine.Delete(true);
+
+        // [GIVEN] Create comment line for service item line (with type Fault)
+        LibraryService.CreateServiceCommentLine(
+            ServiceCommentLine, ServiceCommentLine."Table Name"::"Service Header",
+            ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.", ServiceCommentLine.Type::Fault, 10000);
+
+        // [WHEN] Change "Bill-to Customer No." to "C2" to cuase recreate service lines
+        ServiceHeader.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo());
+        Commit();
+
+        // [THEN] Service comment line is not deleted
+        VerifyCountServiceCommentLine(ServiceCommentLine."Table Name"::"Service Header",
+            ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.", 10000);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

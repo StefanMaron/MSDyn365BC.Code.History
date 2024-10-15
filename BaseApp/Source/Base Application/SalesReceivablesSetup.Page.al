@@ -226,6 +226,11 @@ page 459 "Sales & Receivables Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code of the existing sales price list that stores all new price lines created in the price worksheet page.';
                 }
+                field("Use Customized Lookup"; Rec."Use Customized Lookup")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies whether the Assign-to Parent No., Assign-to No., and Product No. fields on price list pages use standard lookups to find records. If you have customized these fields and prefer your implementation, turn on this toggle.';
+                }
             }
             group(Dimensions)
             {
