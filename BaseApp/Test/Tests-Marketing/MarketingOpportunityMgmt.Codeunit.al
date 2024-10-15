@@ -22,6 +22,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryApplicationArea: Codeunit "Library - Application Area";
+        LibraryDimension: Codeunit "Library - Dimension";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryTemplates: Codeunit "Library - Templates";
@@ -58,6 +59,7 @@ codeunit 136209 "Marketing Opportunity Mgmt"
         OppCardSalesDocTypeErr: Label 'Validation error for Field: Sales Document Type,  Message = ''Your entry of ''%1'' is not an acceptable value for ''Sales Document Type''. (Select Refresh to discard errors)''';
         OppNoNotUpdatedOnSalesQuoteErr: Label 'Opportunity No. not updated on Sales Quote.';
         ToDoCountShouldBeOneErr: Label 'To-do count should be one.';
+        ItemDimensionAllowedFilter: Label 'Allowed Dimension filter must match in both Item template and Item.';
 
     [Test]
     [HandlerFunctions('ModalFormHandlerOpportunity,FormHandlerUpdateOpportunity')]
@@ -1784,6 +1786,58 @@ codeunit 136209 "Marketing Opportunity Mgmt"
 
         // [VERIFY] Only one Task is created.
         Assert.IsTrue(ToDo.Count() = 1, ToDoCountShouldBeOneErr);
+    end;
+
+    [Test]
+    procedure CreateItemFromItemTemplateWithDefaultDimensions()
+    var
+        ItemTempl: Record "Item Templ.";
+        Item: Record Item;
+        Dimension: Record Dimension;
+        DimensionValue: Record "Dimension Value";
+        DefaultDimension: Record "Default Dimension";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+    begin
+        // [SCENARIO 525355] Value filters of dimensions in a Item Template are being transferred to new Item created using the template.
+        Initialize();
+
+        // [GIVEN] Create Item Template to set Dimension.
+        LibraryTemplates.CreateItemTemplate(ItemTempl);
+
+        // [GIVEN] Create a Dimension.
+        LibraryDimension.CreateDimension(Dimension);
+
+        // [GIVEN] Create Dimension Value with the Dimension.
+        LibraryDimension.CreateDimensionValue(DimensionValue, Dimension.Code);
+
+        // [GIVEN] Create Default Dimension for Item Template.
+        LibraryDimension.CreateDefaultDimension(
+            DefaultDimension,
+            DATABASE::"Item Templ.",
+            ItemTempl.Code,
+            DimensionValue."Dimension Code",
+            DimensionValue.Code);
+
+        // [GIVEN] Validate Value Posting and Allowed Values Filter in Default Dimension.
+        DefaultDimension.Validate("Value Posting", DefaultDimension."Value Posting"::"Code Mandatory");
+        DefaultDimension.Validate("Allowed Values Filter", DimensionValue.Code);
+        DefaultDimension.Modify();
+
+        // [WHEN] Create a new Item from the Item Template.
+        Item.Init();
+        Item.Insert(true);
+        ItemTemplMgt.ApplyItemTemplate(Item, ItemTempl);
+
+        // [THEN] Find and check Default Dimensions are copied to the new Item with Allowed Value Filter.
+        DefaultDimension.Reset();
+        DefaultDimension.SetRange("Table ID", DATABASE::Item);
+        DefaultDimension.SetRange("No.", Item."No.");
+        DefaultDimension.SetRange("Dimension Code", DimensionValue."Dimension Code");
+        DefaultDimension.FindFirst();
+        Assert.AreEqual(
+            DefaultDimension."Allowed Values Filter",
+            DefaultDimension."Dimension Value Code",
+            ItemDimensionAllowedFilter);
     end;
 
     local procedure Initialize()

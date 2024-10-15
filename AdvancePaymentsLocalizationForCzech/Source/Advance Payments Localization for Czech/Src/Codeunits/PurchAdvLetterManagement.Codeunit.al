@@ -2065,7 +2065,7 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
                 ExchRateAmount := PurchAdvLetterEntryCZZ2."Amount (LCY)" + GenJournalLine."Amount (LCY)";
                 ExchRateVATAmount := PurchAdvLetterEntryCZZ2."VAT Amount (LCY)" + GenJournalLine."VAT Amount (LCY)";
                 if (ExchRateAmount <> 0) or (ExchRateVATAmount <> 0) then
-                    PostExchangeRate(ExchRateAmount, ExchRateVATAmount, PurchAdvLetterHeaderCZZ, PurchAdvLetterEntryCZZ, VATPostingSetup,
+                    PostExchangeRate(-ExchRateAmount, -ExchRateVATAmount, PurchAdvLetterHeaderCZZ, PurchAdvLetterEntryCZZ, VATPostingSetup,
                         DocumentNo, PostingDate, VATDate, '', PurchAdvLetterHeaderCZZ."Posting Description", PurchAdvLetterEntryCZZ2."Related Entry", true, GenJnlPostLine, false);
 
                 TempAdvancePostingBufferCZZ2.Reset();
@@ -2107,9 +2107,7 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
         VATPostingSetup: Record "VAT Posting Setup";
         GenJournalLine: Record "Gen. Journal Line";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
         VATPostingSetupHandlerCZZ: Codeunit "VAT Posting Setup Handler CZZ";
-        DocumentNo: Code[20];
     begin
         PurchAdvLetterEntryCZZ.TestField("Entry Type", PurchAdvLetterEntryCZZ."Entry Type"::"VAT Usage");
         PurchAdvLetterEntryCZZ.TestField(Cancelled, false);
@@ -2117,7 +2115,6 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
         PurchAdvLetterHeaderCZZ.Get(PurchAdvLetterEntryCZZ."Purch. Adv. Letter No.");
         AdvanceLetterTemplateCZZ.Get(PurchAdvLetterHeaderCZZ."Advance Letter Code");
         AdvanceLetterTemplateCZZ.TestField("Advance Letter Cr. Memo Nos.");
-        DocumentNo := NoSeriesManagement.GetNextNo(AdvanceLetterTemplateCZZ."Advance Letter Cr. Memo Nos.", 0D, true);
 
         GetCurrency(PurchAdvLetterEntryCZZ."Currency Code");
 
@@ -2134,7 +2131,7 @@ codeunit 31019 "PurchAdvLetterManagement CZZ"
                     begin
                         VATPostingSetup.Get(PurchAdvLetterEntryCZZ2."VAT Bus. Posting Group", PurchAdvLetterEntryCZZ2."VAT Prod. Posting Group");
                         PostUnrealizedExchangeRate(PurchAdvLetterEntryCZZ2, PurchAdvLetterHeaderCZZ, VATPostingSetup, -PurchAdvLetterEntryCZZ2."Amount (LCY)", -PurchAdvLetterEntryCZZ2."VAT Amount (LCY)",
-                            PurchAdvLetterEntryCZZ2."Related Entry", 0, DocumentNo, PurchAdvLetterEntryCZZ2."Posting Date", PurchAdvLetterEntryCZZ2."VAT Date", '', GenJnlPostLine, true, false);
+                            PurchAdvLetterEntryCZZ2."Related Entry", 0, PurchAdvLetterEntryCZZ2."Document No.", PurchAdvLetterEntryCZZ2."Posting Date", PurchAdvLetterEntryCZZ2."VAT Date", '', GenJnlPostLine, true, false);
                     end;
                 PurchAdvLetterEntryCZZ2."Entry Type"::"VAT Rate":
                     begin

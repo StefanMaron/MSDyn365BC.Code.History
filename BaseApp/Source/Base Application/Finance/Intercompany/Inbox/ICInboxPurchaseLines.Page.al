@@ -94,6 +94,12 @@ page 647 "IC Inbox Purchase Lines"
                     ToolTip = 'Specifies the date that you want the vendor to deliver your order. The field is used to calculate the latest date you can order, as follows: requested receipt date - lead time calculation = order date. If you do not need delivery on a specific date, you can leave the field blank.';
                     Visible = false;
                 }
+                field("Inv. Discount Amount"; Rec."Inv. Discount Amount")
+                {
+                    ApplicationArea = Intercompany;
+                    ToolTip = 'Specifies the total calculated invoice discount amount for the line.';
+                    Visible = false;
+                }
             }
         }
     }

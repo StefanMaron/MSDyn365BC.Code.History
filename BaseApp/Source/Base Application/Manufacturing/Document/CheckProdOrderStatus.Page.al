@@ -111,9 +111,11 @@ page 99000833 "Check Prod. Order Status"
                 if ReservEntry2.Get(ReservEntry."Entry No.", not ReservEntry.Positive) then
                     case ReservEntry2."Source Type" of
                         Database::"Prod. Order Line":
-                            if ReservEntry2."Source Subtype" <> 1 then begin
+                            if (ReservEntry2."Source Subtype" <> 1) or
+                                ((ReservEntry2."Source Subtype" = 1) and (ReservEntry2."Reservation Status" = ReservEntry2."Reservation Status"::Reservation))
+                            then begin
                                 ProdOrderLine.Get(
-                                  ReservEntry2."Source Subtype", ReservEntry2."Source ID", ReservEntry2."Source Prod. Order Line");
+                                    ReservEntry2."Source Subtype", ReservEntry2."Source ID", ReservEntry2."Source Prod. Order Line");
                                 LastStatus := ProdOrderLine.Status;
                                 LastOrderNo := ProdOrderLine."Prod. Order No.";
                                 LastOrderType := LastOrderType::Production;
