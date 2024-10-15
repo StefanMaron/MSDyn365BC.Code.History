@@ -1,4 +1,4 @@
-codeunit 1395 "Cancel Issued Fin. Charge Memo"
+﻿codeunit 1395 "Cancel Issued Fin. Charge Memo"
 {
     Permissions = TableData "Cust. Ledger Entry" = m,
                   TableData "Reminder/Fin. Charge Entry" = m,
@@ -27,8 +27,7 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
         UseSameDocumentNo: Boolean;
         UseSamePostingDate: Boolean;
         NewPostingDate: Date;
-        EmptyTemplateNameErr: Label 'Enter a Journal Template Name.';
-        EmptyBatchNameErr: Label 'Enter a Journal Batch Name.';
+        MissingFieldNameErr: Label 'Please enter a %1.', Comment = '%1 - field caption';
 
     local procedure CheckIssuedFinChargeMemo(IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header"): Boolean
     begin
@@ -37,9 +36,9 @@ codeunit 1395 "Cancel Issued Fin. Charge Memo"
         GLSetup.Get();
         if GLSetup."Journal Templ. Name Mandatory" then begin
             if GenJnlBatch."Journal Template Name" = '' then
-                Error(EmptyTemplateNameErr);
+                Error(MissingFieldNameErr, TempGenJnlLine.FieldCaption("Journal Template Name"));
             if GenJnlBatch.Name = '' then
-                Error(EmptyBatchNameErr);
+                Error(MissingFieldNameErr, TempGenJnlLine.FieldCaption("Journal Batch Name"));
         end;
 
         exit(CheckAppliedFinChargeMemoCustLedgerEntry(IssuedFinChargeMemoHeader));

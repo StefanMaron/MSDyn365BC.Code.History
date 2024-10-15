@@ -10,6 +10,7 @@ codeunit 142034 "UT COD DELIVREM"
     var
         Assert: Codeunit Assert;
         LibraryUTUtility: Codeunit "Library UT Utility";
+        LibraryRandom: Codeunit "Library - Random";
         SameValueMsg: Label 'Value must be same';
         TrueValueMsg: Label 'Value must be True';
         FalseValueMsg: Label 'Value must be False';
@@ -415,6 +416,31 @@ codeunit 142034 "UT COD DELIVREM"
         // Exercise & Verify : Verify that the reminder line is not created when DeliveryReminderTerms."Max. No. of Delivery Reminders"  <> 0 and does not exceed one more than Reminder levels.
         // Return value from Function Remind must be false.
         Assert.IsFalse(CreateDeliveryReminder.Remind(PurchaseLine, DeliveryReminderTerm, DeliveryReminderLevel, CalcDate('<1D>', WorkDate)), FalseValueMsg);
+    end;
+
+    [Test]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure ValidateVendorItemNoLength()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        PurchaseLine: Record "Purchase Line";
+        DeliveryReminderTerm: Record "Delivery Reminder Term";
+        DeliveryReminderLevel: Record "Delivery Reminder Level";
+        CreateDeliveryReminder: Codeunit "Create Delivery Reminder";
+    begin
+        // [SCENARIO 442903] To ensure that delivery reminder line is able to capture vendor item no. if the length is more than 20
+
+        // [GIVEN] Create a purchase document 
+        UpdatePurchasesPayablesSetup(PurchasesPayablesSetup."Default Del. Rem. Date Field"::"Promised Receipt Date");
+
+        PurchaseLine."Promised Receipt Date" := CalcDate('<1D>', WorkDate());
+        // [WHEN] Vendor item no. is updated for 50 characters
+        PurchaseLine."Vendor Item No." := LibraryRandom.RandText(50);
+        PurchaseLine.Insert();
+
+        // [THEN] Delivery reminder should be created withour any error
+        Assert.IsFalse(CreateDeliveryReminder.Remind(PurchaseLine, DeliveryReminderTerm, DeliveryReminderLevel, WorkDate()), FalseValueMsg);
     end;
 
     local procedure CreateIssuedDelivReminderHeader(var IssuedDelivReminderHeader: Record "Issued Deliv. Reminder Header")

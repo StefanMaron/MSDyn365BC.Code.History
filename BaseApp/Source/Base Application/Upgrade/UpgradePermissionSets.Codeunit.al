@@ -76,10 +76,8 @@ codeunit 104042 "Upgrade Permission Sets"
 
     local procedure ReplacePermissionSet(OldPermissionSet: Code[20]; NewPermissionSet: Code[20])
     var
-        OldAccessControl: Record "Access Control";
-        NewAccessControl: Record "Access Control";
-        OldUserGroupPermissionSet: Record "User Group Permission Set";
-        NewUserGroupPermissionSet: Record "User Group Permission Set";
+        OldAccessControl, NewAccessControl, CurrentAccessControl : Record "Access Control";
+        OldUserGroupPermissionSet, NewUserGroupPermissionSet, CurrentUserGroupPermissionSet : Record "User Group Permission Set";
         AggregatePermissionSet: Record "Aggregate Permission Set";
     begin
         AggregatePermissionSet.SetRange(Scope, AggregatePermissionSet.Scope::System);
@@ -100,20 +98,24 @@ codeunit 104042 "Upgrade Permission Sets"
         OldUserGroupPermissionSet.SetRange("Role ID", OldPermissionSet);
         if OldUserGroupPermissionSet.FindSet() then
             repeat
+                CurrentUserGroupPermissionSet.Get(OldUserGroupPermissionSet.RecordId());
+
                 if NewUserGroupPermissionSet.Get(OldUserGroupPermissionSet."User Group Code", NewPermissionSet, AggregatePermissionSet.Scope, AggregatePermissionSet."App ID") then
-                    OldUserGroupPermissionSet.Delete()
+                    CurrentUserGroupPermissionSet.Delete()
                 else
-                    OldUserGroupPermissionSet.Rename(OldUserGroupPermissionSet."User Group Code", NewPermissionSet, AggregatePermissionSet.Scope, AggregatePermissionSet."App ID");
+                    CurrentUserGroupPermissionSet.Rename(OldUserGroupPermissionSet."User Group Code", NewPermissionSet, AggregatePermissionSet.Scope, AggregatePermissionSet."App ID");
             until OldUserGroupPermissionSet.Next() = 0;
 
         // Change the Access Control entries that point to the old permission set to point to the new one
         OldAccessControl.SetRange("Role ID", OldPermissionSet);
         if OldAccessControl.FindSet() then
             repeat
+                CurrentAccessControl.Get(OldAccessControl.RecordId());
+
                 if NewAccessControl.Get(OldAccessControl."User Security ID", NewPermissionSet, OldAccessControl."Company Name", AggregatePermissionSet.Scope, AggregatePermissionSet."App ID") then
-                    OldAccessControl.Delete()
+                    CurrentAccessControl.Delete()
                 else
-                    OldAccessControl.Rename(OldAccessControl."User Security ID", NewPermissionSet, OldAccessControl."Company Name", AggregatePermissionSet.Scope, AggregatePermissionSet."App ID");
+                    CurrentAccessControl.Rename(OldAccessControl."User Security ID", NewPermissionSet, OldAccessControl."Company Name", AggregatePermissionSet.Scope, AggregatePermissionSet."App ID");
             until OldAccessControl.Next() = 0;
     end;
 
