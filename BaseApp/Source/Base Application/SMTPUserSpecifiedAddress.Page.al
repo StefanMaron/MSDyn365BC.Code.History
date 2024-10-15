@@ -19,9 +19,9 @@ page 410 "SMTP User-Specified Address"
 
                     trigger OnValidate()
                     var
-                        SMTPMail: Codeunit "SMTP Mail";
+                        MailManagement: Codeunit "Mail Management";
                     begin
-                        SMTPMail.CheckValidEmailAddresses(EmailAddress);
+                        MailManagement.CheckValidEmailAddresses(EmailAddress);
                     end;
                 }
 
