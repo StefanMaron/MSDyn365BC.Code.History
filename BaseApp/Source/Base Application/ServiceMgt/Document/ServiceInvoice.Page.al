@@ -559,6 +559,12 @@
                               "Date Filter" = field("Date Filter");
                 Visible = false;
             }
+            part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
+            {
+                ApplicationArea = Service;
+                ShowFilter = false;
+                Visible = false;
+            }
             part(Control1907829707; "Service Hist. Sell-to FactBox")
             {
                 ApplicationArea = Service;
@@ -899,6 +905,7 @@
     trigger OnAfterGetCurrRecord()
     begin
         SetControlAppearance();
+        CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -946,6 +953,7 @@
     begin
         SellToContact.GetOrClear(Rec."Contact No.");
         BillToContact.GetOrClear(Rec."Bill-to Contact No.");
+        CurrPage.IncomingDocAttachFactBox.Page.SetCurrentRecordID(Rec.RecordId);
 
         OnAfterOnAfterGetRecord(Rec);
     end;
