@@ -705,13 +705,13 @@ codeunit 5280 "SAF-T Data Mgt."
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Feature Management Facade", 'OnAfterFeatureEnableConfirmed', '', true, true)]
     local procedure OnAfterFeatureEnableConfirmed(var FeatureKey: Record "Feature Key")
     var
-        SAFTSetupWizard: Page "SAF-T Setup Wizard";
+        SAFTWizard: Page "SAF-T Wizard";
     begin
         if FeatureKey.ID = GetSAFTAuditFileExportFeatureKeyId() then begin
             Commit();
-            SAFTSetupWizard.SetRunFromFeatureMgt();
-            if SAFTSetupWizard.RunModal() = Action::OK then
-                if not SAFTSetupWizard.IsSetupCompleted() then
+            SAFTWizard.SetRunFromFeatureMgt();
+            if SAFTWizard.RunModal() = Action::OK then
+                if not SAFTWizard.IsSetupCompleted() then
                     Error('');
         end;
     end;

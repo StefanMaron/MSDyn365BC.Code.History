@@ -1,4 +1,6 @@
-page 5280 "SAF-T Setup Wizard"
+#pragma warning disable AS0030
+page 5280 "SAF-T Wizard"
+#pragma warning restore AS0030
 {
     Caption = 'SAF-T Setup Guide';
     PageType = NavigatePage;
