@@ -363,6 +363,9 @@
             SetRange("Item No.", ItemJnlLine."Item No.");
             if ItemJnlLine."Prod. Order Comp. Line No." <> 0 then
                 SetRange("Line No.", ItemJnlLine."Prod. Order Comp. Line No.");
+            if ItemJnlLine."Variant Code" <> '' then
+                SetRange("Variant Code", ItemJnlLine."Variant Code");
+
             LockTable();
 
             RemQtyToPost := ItemJnlLine.Quantity;

@@ -164,6 +164,7 @@ permissionset 8611 "Service Documents - Edit"
                   tabledata "VAT Rate Change Conversion" = R,
                   tabledata "VAT Rate Change Log Entry" = Ri,
                   tabledata "VAT Rate Change Setup" = R,
+                  tabledata "VAT Reporting Code" = R,
                   tabledata "VAT Setup Posting Groups" = R,
                   tabledata "Warranty Ledger Entry" = R,
                   tabledata "Work Type" = R;

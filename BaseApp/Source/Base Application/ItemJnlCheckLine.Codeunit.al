@@ -89,7 +89,8 @@
                 if InvtSetup."Location Mandatory" and
                    ("Value Entry Type" = "Value Entry Type"::"Direct Cost") and
                    (Quantity <> 0) and
-                   not Adjustment
+                   not Adjustment and
+                   not Correction
                 then begin
                     ShouldCheckLocationCode := (Type <> Type::Resource) and (Item.Type = Item.Type::Inventory) and
                        (not "Direct Transfer" or ("Document Type" = "Document Type"::"Transfer Shipment"));

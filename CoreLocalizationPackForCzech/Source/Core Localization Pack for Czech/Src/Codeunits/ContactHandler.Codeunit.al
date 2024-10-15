@@ -70,14 +70,14 @@ codeunit 11751 "Contact Handler CZL"
     local procedure RegNoLogOnAfterTransferFieldsFromCustToCont(var Contact: Record Contact; Customer: Record Customer)
     begin
         if CreateContactRegNumberLogFromCustomerLog(Customer, Contact) then
-            Contact.Validate("Registration Number", Customer."Registration Number");
+            Contact.Validate("Registration No. CZL", Customer."Registration No. CZL");
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"VendCont-Update", 'OnAfterTransferFieldsFromVendToCont', '', false, false)]
     local procedure RegNoLogOnAfterTransferFieldsFromVendToCont(var Contact: Record Contact; Vendor: Record Vendor)
     begin
         if CreateContactRegNumberLogFromVendorLog(Vendor, Contact) then
-            Contact.Validate("Registration Number", Vendor."Registration Number");
+            Contact.Validate("Registration No. CZL", Vendor."Registration No. CZL");
     end;
 
     local procedure CreateContactRegNumberLogFromCustomerLog(Customer: Record Customer; Contact: Record Contact): Boolean
@@ -85,20 +85,20 @@ codeunit 11751 "Contact Handler CZL"
         RegistrationLog: Record "Registration Log CZL";
         RegNoServiceConfig: Record "Reg. No. Service Config CZL";
     begin
-        if Customer."Registration Number" = '' then
+        if Customer."Registration No. CZL" = '' then
             exit(false);
         if not RegNoServiceConfig.RegNoSrvIsEnabled() then
             exit(false);
 
         RegistrationLog.SetRange("Account Type", RegistrationLog."Account Type"::Customer);
         RegistrationLog.SetRange("Account No.", Customer."No.");
-        RegistrationLog.SetRange("Registration No.", Customer."Registration Number");
+        RegistrationLog.SetRange("Registration No.", Customer."Registration No. CZL");
         if RegistrationLog.IsEmpty() then
             exit(false);
 
         RegistrationLog.SetRange("Account Type", RegistrationLog."Account Type"::Contact);
         RegistrationLog.SetRange("Account No.", Contact."No.");
-        RegistrationLog.SetRange("Registration No.", Customer."Registration Number");
+        RegistrationLog.SetRange("Registration No.", Customer."Registration No. CZL");
         if RegistrationLog.IsEmpty() then
             exit(true);
     end;
@@ -108,20 +108,20 @@ codeunit 11751 "Contact Handler CZL"
         RegistrationLog: Record "Registration Log CZL";
         RegNoServiceConfig: Record "Reg. No. Service Config CZL";
     begin
-        if Vendor."Registration Number" = '' then
+        if Vendor."Registration No. CZL" = '' then
             exit(false);
         if not RegNoServiceConfig.RegNoSrvIsEnabled() then
             exit(false);
 
         RegistrationLog.SetRange("Account Type", RegistrationLog."Account Type"::Vendor);
         RegistrationLog.SetRange("Account No.", Vendor."No.");
-        RegistrationLog.SetRange("Registration No.", Vendor."Registration Number");
+        RegistrationLog.SetRange("Registration No.", Vendor."Registration No. CZL");
         if RegistrationLog.IsEmpty() then
             exit(false);
 
         RegistrationLog.SetRange("Account Type", RegistrationLog."Account Type"::Contact);
         RegistrationLog.SetRange("Account No.", Contact."No.");
-        RegistrationLog.SetRange("Registration No.", Vendor."Registration Number");
+        RegistrationLog.SetRange("Registration No.", Vendor."Registration No. CZL");
         if RegistrationLog.IsEmpty() then
             exit(true);
     end;

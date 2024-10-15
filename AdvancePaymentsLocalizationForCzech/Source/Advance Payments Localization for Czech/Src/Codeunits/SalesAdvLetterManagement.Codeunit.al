@@ -836,7 +836,7 @@ codeunit 31002 "SalesAdvLetterManagement CZZ"
         VATEntry.CalcSums(Base, Amount);
         VATBaseCorr := VATEntry.Base;
         VATAmountCorr := VATEntry.Amount;
-        if (VATBaseCorr <> -VATAmountCorr) or (VATBaseCorr = 0) then
+        if (VATBaseCorr <> -VATAmountCorr) or (VATBaseCorr = 0) or (Abs(VATBaseCorr) > 1) then
             exit;
 
 #pragma warning disable AA0210

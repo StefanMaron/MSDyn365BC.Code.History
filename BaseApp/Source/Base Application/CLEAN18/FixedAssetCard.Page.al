@@ -322,7 +322,6 @@ page 5600 "Fixed Asset Card"
                 Caption = 'Depreciation Books';
                 SubPageLink = "FA No." = FIELD("No.");
                 Visible = NOT Simple;
-                UpdatePropagation = Both;
             }
             group(Maintenance)
             {
