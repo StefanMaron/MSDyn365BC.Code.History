@@ -315,22 +315,25 @@ table 379 "Detailed Cust. Ledg. Entry"
             "Debit Amount (LCY)" := 0;
             "Credit Amount (LCY)" := -"Amount (LCY)";
         end;
+
+        OnAfterUpdateDebitCredit(Rec, Correction);
     end;
 
     procedure SetZeroTransNo(TransactionNo: Integer)
     var
-        DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
+        DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         ApplicationNo: Integer;
     begin
-        DtldCustLedgEntry.SetCurrentKey("Transaction No.");
-        DtldCustLedgEntry.SetRange("Transaction No.", TransactionNo);
-        if DtldCustLedgEntry.FindSet(true) then begin
-            ApplicationNo := DtldCustLedgEntry."Entry No.";
+        DetailedCustLedgEntry.SetCurrentKey("Transaction No.");
+        DetailedCustLedgEntry.SetRange("Transaction No.", TransactionNo);
+        if DetailedCustLedgEntry.FindSet(true) then begin
+            ApplicationNo := DetailedCustLedgEntry."Entry No.";
             repeat
-                DtldCustLedgEntry."Transaction No." := 0;
-                DtldCustLedgEntry."Application No." := ApplicationNo;
-                DtldCustLedgEntry.Modify();
-            until DtldCustLedgEntry.Next() = 0;
+                DetailedCustLedgEntry."Transaction No." := 0;
+                DetailedCustLedgEntry."Application No." := ApplicationNo;
+                OnSetZeroTransNoOnBeforeDetailedCustLedgEntryModify(DetailedCustLedgEntry);
+                DetailedCustLedgEntry.Modify();
+            until DetailedCustLedgEntry.Next() = 0;
         end;
     end;
 
@@ -358,6 +361,16 @@ table 379 "Detailed Cust. Ledg. Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetLedgerEntryAmount(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateDebitCredit(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; Correction: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetZeroTransNoOnBeforeDetailedCustLedgEntryModify(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry")
     begin
     end;
 }

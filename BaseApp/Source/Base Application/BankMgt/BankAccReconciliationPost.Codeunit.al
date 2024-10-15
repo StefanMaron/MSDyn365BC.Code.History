@@ -430,9 +430,12 @@
             end;
         end;
 
-        OnPostPaymentApplicationsOnAfterInitGenJnlLine(GenJnlLine, BankAccReconLine);
-
         IsApplied := false;
+        IsHandled := false;
+        OnPostPaymentApplicationsOnAfterInitGenJnlLine(GenJnlLine, BankAccReconLine, IsApplied, AppliedAmount, PaymentLineAmount, IsHandled);
+        if IsHandled then
+            exit;
+
         with AppliedPmtEntry do
             if AppliedPmtEntryLinesExist(BankAccReconLine) then
                 repeat
@@ -899,7 +902,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnPostPaymentApplicationsOnAfterInitGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    local procedure OnPostPaymentApplicationsOnAfterInitGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; var IsApplied: Boolean; var AppliedAmount: Decimal; var PaymentLineAmount: Decimal; var IsHandled: Boolean)
     begin
     end;
 

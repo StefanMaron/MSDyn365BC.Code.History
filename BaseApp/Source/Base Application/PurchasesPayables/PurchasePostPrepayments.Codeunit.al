@@ -501,6 +501,7 @@
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         ErrorContextElement: Codeunit "Error Context Element";
     begin
+        OnBeforeUpdateCrMemoDocNos(PurchHeader);
         if GLSetup."Journal Templ. Name Mandatory" then begin
             PurchasesPayablesSetup.Get();
             PurchasesPayablesSetup.TestField("P. Prep. Cr.Memo Template Name");
@@ -526,6 +527,7 @@
                 NoSeriesMgt.GetNextNo(PurchHeader."Prepmt. Cr. Memo No. Series", PurchHeader."Posting Date", true);
             ModifyHeader := true;
         end;
+        OnAfterUpdateCrMemoDocNos(PurchHeader);
     end;
 
     procedure CheckOpenPrepaymentLines(PurchHeader: Record "Purchase Header"; DocumentType: Option) Found: Boolean
@@ -1689,7 +1691,13 @@
         TotalPrepmtAmount: Decimal;
         TotalPrepmtAmtInv: Decimal;
         LastLineNo: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdatePrepmtAmountOnPurchLines(PurchHeader, NewTotalPrepmtAmount, IsHandled);
+        if IsHandled then
+            exit;
+
         Currency.Initialize(PurchHeader."Currency Code");
 
         with PurchLine do begin
@@ -2499,6 +2507,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCodeOnAfterUpdateHeaderAndLines(var PurchaseHeader: Record "Purchase Header"; var PurchInvHeader: Record "Purch. Inv. Header"; var PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr."; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; PreviewMode: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdatePrepmtAmountOnPurchLines(PurchaseHeader: Record "Purchase Header"; NewTotalPrepmtAmount: Decimal; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateCrMemoDocNos(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateCrMemoDocNos(var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 }

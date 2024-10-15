@@ -656,8 +656,8 @@
     begin
         GetLocation(ProdOrderComp."Location Code");
         if not (Location."Require Pick" and Location."Require Shipment") then
-            if ProdOrderComp."Qty. Picked" < QtyPosted then
-                ProdOrderComp.Validate("Qty. Picked", QtyPosted);
+            if ProdOrderComp."Qty. Picked (Base)" < QtyPosted then
+                ProdOrderComp.Validate("Qty. Picked (Base)", QtyPosted);
     end;
 
     local procedure GetOutputProdOrder(var ProdOrder: Record "Production Order")
@@ -1462,7 +1462,8 @@
               CostCalcMgt.CalcActNeededQtyBase(ProdOrderLine, ProdOrderComp, OutputQtyBase) / ProdOrderComp."Qty. per Unit of Measure";
             if (ProdOrderLine."Remaining Qty. (Base)" = OutputQtyBase) and
                (ProdOrderComp."Remaining Quantity" <> 0) and
-               (Abs(Round(QtyToPost, CompItem."Rounding Precision") - ProdOrderComp."Remaining Quantity") <= CompItem."Rounding Precision")
+               (Abs(Round(QtyToPost, CompItem."Rounding Precision") - ProdOrderComp."Remaining Quantity") <= CompItem."Rounding Precision") and
+               (Abs(Round(QtyToPost, CompItem."Rounding Precision") - ProdOrderComp."Remaining Quantity") < 1)
             then
                 QtyToPost := ProdOrderComp."Remaining Quantity";
         end else

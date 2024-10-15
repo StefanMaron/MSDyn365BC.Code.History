@@ -49,6 +49,8 @@ codeunit 5856 "TransferOrder-Post Transfer"
             TransLine.SetFilter(Quantity, '<>%1', 0);
             if TransLine.FindSet() then
                 repeat
+                    if not WhseShip then
+                        TransLine.TestField("Qty. to Ship");
                     TransLine.TestField("Quantity Shipped", 0);
                     TransLine.TestField("Quantity Received", 0);
                     TransLine.CheckDirectTransferQtyToShip()
@@ -140,6 +142,8 @@ codeunit 5856 "TransferOrder-Post Transfer"
         UpdateAnalysisView.UpdateAll(0, true);
         UpdateItemAnalysisView.UpdateAll(0, true);
         TransferHeader2 := TransHeader;
+
+        OnAfterTransferOrderPostTransfer(TransferHeader2, SuppressCommit, DirectTransHeader, InvtPickPutAway);
     end;
 
     var
@@ -270,7 +274,7 @@ codeunit 5856 "TransferOrder-Post Transfer"
         DirectTransHeader."No. Series" := InventorySetup."Posted Direct Trans. Nos.";
         OnInsertDirectTransHeaderOnBeforeGetNextNo(DirectTransHeader, TransferHeader);
         DirectTransHeader."No." :=
-            NoSeriesMgt.GetNextNo(InventorySetup."Posted Direct Trans. Nos.", TransferHeader."Posting Date", true);
+            NoSeriesMgt.GetNextNo(DirectTransHeader."No. Series", TransferHeader."Posting Date", true);
         OnInsertDirectTransHeaderOnBeforeDirectTransHeaderInsert(DirectTransHeader, TransferHeader);
         DirectTransHeader.Insert();
 
@@ -516,6 +520,9 @@ codeunit 5856 "TransferOrder-Post Transfer"
 
     local procedure CheckDirectTransferQtyToShip(var WarehouseShipmentLine: Record "Warehouse Shipment Line")
     begin
+        if WarehouseShipmentLine."Source Type" <> Database::"Transfer Line" then
+            exit;
+
         if WarehouseShipmentLine.CheckDirectTransfer(false, false) then
             WarehouseShipmentLine.TestField("Qty. to Ship (Base)", WarehouseShipmentLine."Qty. Outstanding (Base)");
     end;
@@ -592,6 +599,11 @@ codeunit 5856 "TransferOrder-Post Transfer"
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnAfterTransHeaderSetHideValidationDialog(var TransHeader: Record "Transfer Header"; var Rec: Record "Transfer Header"; var HideValidationDialog: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterTransferOrderPostTransfer(var TransferHeader: Record "Transfer Header"; var SuppressCommit: Boolean; var DirectTransHeader: Record "Direct Trans. Header"; InvtPickPutAway: Boolean)
     begin
     end;
 }

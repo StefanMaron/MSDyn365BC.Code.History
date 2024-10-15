@@ -20,6 +20,7 @@ codeunit 1550 "Record Restriction Mgt."
         if RecRef.IsTemporary then
             exit;
 
+        OnRestrictRecordUsageOnBeforeSetFilter(RestrictedRecord, RecRef);
         SetRestrictedRecordFiltersForRecRef(RestrictedRecord, RecRef);
         if RestrictedRecord.FindFirst() then begin
             RestrictedRecord.Details := CopyStr(RestrictionDetails, 1, MaxStrLen(RestrictedRecord.Details));
@@ -85,6 +86,7 @@ codeunit 1550 "Record Restriction Mgt."
         if RestrictedRecord.IsEmpty() then
             exit;
 
+        OnAllowRecordUsageOnBeforeSetFilter(RestrictedRecord, RecRef);
         SetRestrictedRecordFiltersForRecRef(RestrictedRecord, RecRef);
         RestrictedRecord.LockTable(true);
         RestrictedRecord.DeleteAll(true);
@@ -105,6 +107,7 @@ codeunit 1550 "Record Restriction Mgt."
         if RestrictedRecord.IsEmpty() then
             exit;
 
+        OnUpdateRestrictionOnBeforeSetFilter(RestrictedRecord, RecRef, xRecRef);
         SetRestrictedRecordFiltersForRecRef(RestrictedRecord, xRecRef);
         RestrictedRecord.ModifyAll("Record ID", RecRef.RecordId);
     end;
@@ -166,6 +169,7 @@ codeunit 1550 "Record Restriction Mgt."
         if RestrictedRecord.IsEmpty() then
             exit;
 
+        OnCheckRecordHasUsageRestrictionsOnBeforeSetFilter(RestrictedRecord, RecRef);
         SetRestrictedRecordFiltersForRecRef(RestrictedRecord, RecRef);
         if not RestrictedRecord.FindFirst() then
             exit;
@@ -622,6 +626,26 @@ codeunit 1550 "Record Restriction Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIncomingDocCheckCreateDocRestrictions(var IncomingDocument: Record "Incoming Document"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRestrictRecordUsageOnBeforeSetFilter(var RestrictedRecord: Record "Restricted Record"; RecordReference: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAllowRecordUsageOnBeforeSetFilter(var RestrictedRecord: Record "Restricted Record"; RecordReference: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateRestrictionOnBeforeSetFilter(var RestrictedRecord: Record "Restricted Record"; RecordReference: RecordRef; xRecordReference: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckRecordHasUsageRestrictionsOnBeforeSetFilter(var RestrictedRecord: Record "Restricted Record"; RecordReference: RecordRef)
     begin
     end;
 }

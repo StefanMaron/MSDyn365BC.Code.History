@@ -6515,6 +6515,9 @@ End Function
         <Field Name="CompanyCustomGiro_Lbl">
           <DataField>CompanyCustomGiro_Lbl</DataField>
         </Field>
+        <Field Name="CompanyABNNumber">
+          <DataField>CompanyABNNumber</DataField>
+        </Field>
         <Field Name="CompanyLegalStatement">
           <DataField>CompanyLegalStatement</DataField>
         </Field>

@@ -1,7 +1,7 @@
 ﻿report 20 "Calc. and Post VAT Settlement"
 {
     DefaultLayout = RDLC;
-    RDLCLayout = './CalcandPostVATSettlement.rdlc';
+    RDLCLayout = './FinancialMgt/VAT/CalcandPostVATSettlement.rdlc';
     AdditionalSearchTerms = 'settle vat value added tax,report vat value added tax';
     ApplicationArea = Basic, Suite;
     Caption = 'Calculate and Post VAT Settlement';

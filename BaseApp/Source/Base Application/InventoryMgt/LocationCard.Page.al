@@ -575,7 +575,6 @@ page 5703 "Location Card"
         UseADCSEnable := true;
         DirectedPutawayandPickEnable := true;
         CrossDockBinCodeEnable := true;
-        PickAccordingToFEFOEnable := true;
         AdjustmentBinCodeEnable := true;
         ShipmentBinCodeEnable := true;
         ReceiptBinCodeEnable := true;
@@ -711,7 +710,7 @@ page 5703 "Location Card"
         AssemblyShipmentBinCodeEnable := Rec."Bin Mandatory" and not ShipmentBinCodeEnable;
         DefaultBinSelectionEnable := Rec."Bin Mandatory" and not Rec."Directed Put-away and Pick";
         UseADCSEnable := not Rec."Use As In-Transit" and Rec."Directed Put-away and Pick";
-        PickAccordingToFEFOEnable := Rec."Require Pick" and Rec."Bin Mandatory";
+        PickAccordingToFEFOEnable := Rec.PickAccordingToFEFO();
 
         OnAfterUpdateEnabled(Rec);
     end;
