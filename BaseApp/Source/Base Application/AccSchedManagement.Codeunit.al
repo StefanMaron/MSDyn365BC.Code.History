@@ -263,6 +263,8 @@ codeunit 8 AccSchedManagement
                       ColumnLayoutName."Analysis View Name");
             end;
         end;
+
+        OnAfterCheckAnalysisView(AccSchedName, ColumnLayoutName);
     end;
 
     local procedure AccPeriodStartEnd(ColumnLayout: Record "Column Layout"; Date: Date; var StartDate: Date; var EndDate: Date)
@@ -701,7 +703,7 @@ codeunit 8 AccSchedManagement
             end;
 
             OnBeforeTestBalance(
-              GLAcc, AccSchedName, AccSchedLine, ColumnLayout, AmountType.AsInteger(), ColValue, CalcAddCurr, TestBalance, GLEntry, GLBudgEntry);
+              GLAcc, AccSchedName, AccSchedLine, ColumnLayout, AmountType.AsInteger(), ColValue, CalcAddCurr, TestBalance, GLEntry, GLBudgEntry, Balance);
 
             if TestBalance then begin
                 if AccSchedLine.Show = AccSchedLine.Show::"When Positive Balance" then
@@ -1292,13 +1294,26 @@ codeunit 8 AccSchedManagement
                     if (StrLen(Expression) > 10) and (not IsFilter) then
                         Evaluate(Result, Expression)
                     else
-                        if IsAccSchedLineExpression then
-                            Result := CalcCellValueInAccSchedLines(AccSchedLine, ColumnLayout, Expression, CalcAddCurr, IsFilter)
-                        else
-                            Result := CalcCellValueInColumnLayouts(ColumnLayout, AccSchedLine, Expression, CalcAddCurr, IsFilter);
+                        Result := CalcCellValueInEvaluateExpression(IsAccSchedLineExpression, AccSchedLine, ColumnLayout, Expression, CalcAddCurr, IsFilter);
                 end;
         end;
         CallLevel := CallLevel - 1;
+        exit(Result);
+    end;
+
+    local procedure CalcCellValueInEvaluateExpression(IsAccSchedLineExpression: Boolean; AccSchedLine: Record "Acc. Schedule Line"; ColumnLayout: Record "Column Layout"; Expression: Text; CalcAddCurr: Boolean; IsFilter: Boolean) Result: Decimal
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCalcCellValueInEvaluateExpression(IsAccSchedLineExpression, AccSchedLine, ColumnLayout, Expression, CalcAddCurr, IsFilter, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        if IsAccSchedLineExpression then
+            Result := CalcCellValueInAccSchedLines(AccSchedLine, ColumnLayout, Expression, CalcAddCurr, IsFilter)
+        else
+            Result := CalcCellValueInColumnLayouts(ColumnLayout, AccSchedLine, Expression, CalcAddCurr, IsFilter);
         exit(Result);
     end;
 
@@ -1610,6 +1625,8 @@ codeunit 8 AccSchedManagement
                 DimCode := CostAccSetup."Cost Center Dimension";
             6:
                 DimCode := CostAccSetup."Cost Object Dimension";
+            else
+                OnConvDimTotalingFilterOnDimNoElseCase(DimNo, DimCode, AnalysisView, CostAccSetup);
         end;
         if DimCode = '' then
             exit(DimTotaling);
@@ -2274,6 +2291,11 @@ codeunit 8 AccSchedManagement
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckAnalysisView(AccSchedName: Record "Acc. Schedule Name"; ColumnLayoutName: Record "Column Layout Name")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterInsertGLAccounts(var AccScheduleLine: Record "Acc. Schedule Line")
     begin
     end;
@@ -2343,6 +2365,11 @@ codeunit 8 AccSchedManagement
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcCellValueInEvaluateExpression(IsAccSchedLineExpression: Boolean; AccSchedLine: Record "Acc. Schedule Line"; ColumnLayout: Record "Column Layout"; Expression: Text; CalcAddCurr: Boolean; IsFilter: Boolean; var Result: Decimal; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCalcCellValue(var AccSchedLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean; var Result: Decimal)
     begin
@@ -2369,7 +2396,7 @@ codeunit 8 AccSchedManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTestBalance(var GLAccount: Record "G/L Account"; var AccScheduleName: Record "Acc. Schedule Name"; var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; AmountType: Integer; var ColValue: Decimal; CalcAddCurr: Boolean; var TestBalance: Boolean; var GLEntry: Record "G/L Entry"; var GLBudgetEntry: Record "G/L Budget Entry")
+    local procedure OnBeforeTestBalance(var GLAccount: Record "G/L Account"; var AccScheduleName: Record "Acc. Schedule Name"; var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; AmountType: Integer; var ColValue: Decimal; CalcAddCurr: Boolean; var TestBalance: Boolean; var GLEntry: Record "G/L Entry"; var GLBudgetEntry: Record "G/L Budget Entry"; var Balance: Decimal)
     begin
     end;
 
@@ -2395,6 +2422,11 @@ codeunit 8 AccSchedManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcCellValueOnBeforeExit(var AccScheduleLine: Record "Acc. Schedule Line"; var ColumnLayout: Record "Column Layout"; CalcAddCurr: Boolean; StartDate: Date; EndDate: Date; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnConvDimTotalingFilterOnDimNoElseCase(DimNo: Integer; var DimCode: Code[20]; AnalysisView: Record "Analysis View"; CostAccountingSetup: Record "Cost Accounting Setup")
     begin
     end;
 

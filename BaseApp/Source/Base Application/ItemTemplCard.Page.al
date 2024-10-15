@@ -156,6 +156,26 @@ page 1384 "Item Templ. Card"
                     ToolTip = 'Specifies an item group code that can be used as a criterion to grant a discount when the item is sold to a certain customer.';
                 }
             }
+            group(ItemTracking)
+            {
+                Caption = 'Item Tracking';
+                field("Item Tracking Code"; "Item Tracking Code")
+                {
+                    ApplicationArea = ItemTracking;
+                    Importance = Promoted;
+                    ToolTip = 'Specifies how serial or lot numbers assigned to the item are tracked in the supply chain.';
+                }
+                field("Serial Nos."; "Serial Nos.")
+                {
+                    ApplicationArea = ItemTracking;
+                    ToolTip = 'Specifies a number series code to assign consecutive serial numbers to items produced.';
+                }
+                field("Lot Nos."; "Lot Nos.")
+                {
+                    ApplicationArea = ItemTracking;
+                    ToolTip = 'Specifies the number series code that will be used when assigning lot numbers.';
+                }
+            }
             group(Warehouse)
             {
                 Caption = 'Warehouse';

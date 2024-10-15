@@ -29,6 +29,8 @@ page 291 "Req. Worksheet"
                     CurrPage.SaveRecord;
                     ReqJnlManagement.LookupName(CurrentJnlBatchName, Rec);
                     CurrPage.Update(false);
+
+                    OnAfterLookupCurrentJnlBatchName(Rec, CurrentJnlBatchName);
                 end;
 
                 trigger OnValidate()
@@ -856,6 +858,11 @@ page 291 "Req. Worksheet"
         CarryOutActionMsgReq.SetReqWkshLine(Rec);
         CarryOutActionMsgReq.RunModal;
         CarryOutActionMsgReq.GetReqWkshLine(Rec);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLookupCurrentJnlBatchName(var RequisitionLine: Record "Requisition Line"; var CurrJnlBatchName: Code[10])
+    begin
     end;
 
     [IntegrationEvent(false, false)]

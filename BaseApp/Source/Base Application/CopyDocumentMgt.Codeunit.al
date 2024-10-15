@@ -20,6 +20,7 @@ codeunit 6620 "Copy Document Mgt."
         TempSalesInvLine: Record "Sales Invoice Line" temporary;
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         GLSetup: Record "General Ledger Setup";
+        TempLineNumberBuffer: Record "Line Number Buffer" temporary;
         TranslationHelper: Codeunit "Translation Helper";
         CustCheckCreditLimit: Codeunit "Cust-Check Cr. Limit";
         ItemCheckAvail: Codeunit "Item-Check Avail.";
@@ -344,6 +345,7 @@ codeunit 6620 "Copy Document Mgt."
             LinkJobPlanningLine(ToSalesHeader);
         end;
         SalesCalcSalesTaxLines(ToSalesHeader);
+        UpdateRetentionSalesLines(ToSalesHeader);
 
         OnCopySalesDocOnAfterCopySalesDocLines(
           FromDocType.AsInteger(), FromDocNo, FromDocOccurrenceNo, FromDocVersionNo, FromSalesHeader, IncludeHeader, ToSalesHeader);
@@ -422,6 +424,7 @@ codeunit 6620 "Copy Document Mgt."
                                 CopyFromSalesDocAssgntToLine(
                                   ToSalesLine, FromSalesLine."Document Type", FromSalesLine."Document No.", FromSalesLine."Line No.",
                                   ItemChargeAssgntNextLineNo);
+                            InsertTempLineBufer(FromSalesline."Line No.", NextLineNo); // NextLineNo                                  
                             OnAfterCopySalesLineFromSalesDocSalesLine(
                               ToSalesHeader, ToSalesLine, FromSalesLine, IncludeHeader, RecalculateLines);
                         end;
@@ -1489,6 +1492,9 @@ codeunit 6620 "Copy Document Mgt."
             ToSalesLine."Shortcut Dimension 2 Code" := FromSalesLine."Shortcut Dimension 2 Code";
             OnCopySalesLineOnAfterSetDimensions(ToSalesLine, FromSalesLine);
         end;
+
+        ToSalesLine."Retention Attached to Line No." := FromSalesLine."Retention Attached to Line No.";
+        ToSalesLine."Retention VAT %" := FromSalesLine."Retention VAT %";
 
         IsHandled := false;
         OnCopySalesDocLineOnBeforeCopyThisLine(ToSalesHeader, ToSalesLine, FromSalesLine, FromSalesDocType, RecalculateLines, CopyThisLine, LinesNotCopied, Result, IsHandled);
@@ -2861,6 +2867,7 @@ codeunit 6620 "Copy Document Mgt."
                                       FillExactCostRevLink and ExactCostRevMandatory, MissingExCostRevLink,
                                       FromSalesHeader."Prices Including VAT", ToSalesHeader."Prices Including VAT", true);
                                 end;
+                                InsertTempLineBufer(FromSalesShptLine."Line No.", NextLineNo);
                                 OnAfterCopySalesLineFromSalesShptLineBuffer(
                                   ToSalesLine, FromSalesShptLine, IncludeHeader, RecalculateLines, TempDocSalesLine, ToSalesHeader, FromSalesLineBuf, ExactCostRevMandatory);
                             end;
@@ -3060,6 +3067,7 @@ codeunit 6620 "Copy Document Mgt."
                                   FromSalesHeader."Prices Including VAT", FillExactCostRevLink, MissingExCostRevLink);
                         end;
 
+                        InsertTempLineBufer(FromSalesInvLine."Line No.", NextLineNo);
                         OnAfterCopySalesLineFromSalesLineBuffer(
                           ToSalesLine, FromSalesInvLine, IncludeHeader, RecalculateLines, TempDocSalesLine, ToSalesHeader, TempSalesLineBuf,
                           FromSalesLine2, FromSalesLine, ExactCostRevMandatory);
@@ -3222,6 +3230,7 @@ codeunit 6620 "Copy Document Mgt."
                                   FromSalesHeader."Prices Including VAT", ToSalesHeader."Prices Including VAT", false);
                             end;
                         end;
+                        InsertTempLineBufer(FromSalesCrMemoLine."Line No.", NextLineNo);
                         OnAfterCopySalesLineFromSalesCrMemoLineBuffer(
                           ToSalesLine, FromSalesCrMemoLine, IncludeHeader, RecalculateLines, TempDocSalesLine, ToSalesHeader, FromSalesLineBuf);
                     end;
@@ -3332,6 +3341,7 @@ codeunit 6620 "Copy Document Mgt."
                                       FillExactCostRevLink and ExactCostRevMandatory, MissingExCostRevLink,
                                       FromSalesHeader."Prices Including VAT", ToSalesHeader."Prices Including VAT", true);
                                 end;
+                                InsertTempLineBufer(FromReturnRcptLine."Line No.", NextLineNo);
                                 OnAfterCopySalesLineFromReturnRcptLineBuffer(
                                   ToSalesLine, FromReturnRcptLine, IncludeHeader, RecalculateLines,
                                   TempDocSalesLine, ToSalesHeader, FromSalesLineBuf, CopyItemTrkg);
@@ -4233,7 +4243,7 @@ codeunit 6620 "Copy Document Mgt."
         TempPurchLineBuf."Document No." := FromPurchLine2."Document No.";
         TempPurchLineBuf."Receipt Line No." := FromPurchLine2."Receipt Line No.";
         TempPurchLineBuf."Line No." := NextLineNo;
-        OnAfterCopyPurchLinesToBufferFields(TempPurchLineBuf, FromPurchLine2);
+        OnAfterCopyPurchLinesToBufferFields(TempPurchLineBuf, FromPurchLine2, FromPurchLine);
 
         NextLineNo := NextLineNo + 10000;
         if not IsRecalculateAmount(
@@ -5137,6 +5147,8 @@ codeunit 6620 "Copy Document Mgt."
         CalcVAT(
           Amount, PurchLine."VAT %", FromPricesInclVAT, ToPricesInclVAT, Currency."Amount Rounding Precision");
         PurchLine."Inv. Discount Amount" := Amount;
+
+        OnAfterUpdateRevPurchLineAmount(PurchLine, OrgQtyBase, FromPricesInclVAT, ToPricesInclVAT);
     end;
 
     procedure CalculateRevPurchLineAmount(var PurchLine: Record "Purchase Line"; OrgQtyBase: Decimal; FromPricesInclVAT: Boolean; ToPricesInclVAT: Boolean)
@@ -6742,6 +6754,31 @@ codeunit 6620 "Copy Document Mgt."
             PurchaseLine.CalcSalesTaxLines(ToPurchaseHeader, PurchaseLine);
     end;
 
+    local procedure InsertTempLineBufer(OldLineNo: Integer; NewLineNo: Integer)
+    begin
+        TempLineNumberBuffer."Old Line Number" := OldLineNo;
+        TempLineNumberBuffer."New Line Number" := NewLineNo;
+        if not TempLineNumberBuffer.Insert() then;
+    end;
+
+    local procedure UpdateRetentionSalesLines(ToSalesHeader: Record "Sales Header")
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.SetRange("Document Type", ToSalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", ToSalesHeader."No.");
+        SalesLine.SetFilter("Retention Attached to Line No.", '<>0');
+        if SalesLine.FindSet(true) then
+            repeat
+                if TempLineNumberBuffer.Get(SalesLine."Retention Attached to Line No.") then begin
+                    SalesLine."Retention Attached to Line No." := TempLineNumberBuffer."New Line Number";
+                    SalesLine.Modify();
+                end;
+            until SalesLine.Next() = 0;
+
+        TempLineNumberBuffer.DeleteAll();
+    end;
+
     procedure CheckDateOrder(PostingNo: Code[20]; PostingNoSeries: Code[20]; OldPostingDate: Date; NewPostingDate: Date): Boolean
     var
         NoSeries: Record "No. Series";
@@ -8000,7 +8037,7 @@ codeunit 6620 "Copy Document Mgt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCopyPurchLinesToBufferFields(var TempPurchaseLine: Record "Purchase Line" temporary; FromPurchaseLine: Record "Purchase Line")
+    local procedure OnAfterCopyPurchLinesToBufferFields(var TempPurchaseLine: Record "Purchase Line" temporary; FromPurchaseLine: Record "Purchase Line"; FromPurchLine: Record "Purchase Line")
     begin
     end;
 
@@ -8316,6 +8353,11 @@ codeunit 6620 "Copy Document Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCopyFromSalesToPurchDoc(FromSalesHeader: Record "Sales Header"; var ToPurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateRevPurchLineAmount(var PurchaseLine: Record "Purchase Line"; OrgQtyBase: Decimal; FromPricesInclVAT: Boolean; ToPricesInclVAT: Boolean)
     begin
     end;
 

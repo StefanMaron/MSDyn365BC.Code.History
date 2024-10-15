@@ -1,4 +1,4 @@
-page 5935 "Service Credit Memo"
+﻿page 5935 "Service Credit Memo"
 {
     Caption = 'Service Credit Memo';
     PageType = Document;
@@ -563,13 +563,8 @@ page 5935 "Service Credit Memo"
 
                     trigger OnAction()
                     begin
-                        CalcInvDiscForHeader;
-                        Commit();
                         OnBeforeCalculateSalesTaxStatistics(Rec, true);
-                        if "Tax Area Code" = '' then
-                            PAGE.RunModal(PAGE::"Service Statistics", Rec)
-                        else
-                            PAGE.RunModal(PAGE::"Service Stats.", Rec)
+                        OpenStatistics();
                     end;
                 }
                 action(Card)

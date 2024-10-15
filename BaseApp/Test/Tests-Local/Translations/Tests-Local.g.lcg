@@ -176,6 +176,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Electronic Funds Transfer - NamedType FederalIDNoErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 784540059 - NamedType 327728004" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Warning:  Transactions cannot be financially voided when Force Doc. Balance is set to No]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Electronic Funds Transfer - NamedType ForceDocBalanceFalseQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 784540059 - NamedType 4134082808" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The file export has one or more errors.\\For each line to be exported, resolve the errors displayed to the right and then try to export again.]]></Val>

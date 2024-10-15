@@ -241,6 +241,8 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
         Result :=
             IsBlankedValue(PriceListLine."Currency Code", BestPriceListLine."Currency Code") or
             IsBlankedValue(PriceListLine."Variant Code", BestPriceListLine."Variant Code");
+
+        OnAfterIsDegradedLine(PriceListLine, BestPriceListLine, Result);
     end;
 
     local procedure IsBlankedValue(LineValue: Text; BestLineValue: Text): Boolean
@@ -253,6 +255,8 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
         Result :=
             IsSetValue(PriceListLine."Currency Code", BestPriceListLine."Currency Code") or
             IsSetValue(PriceListLine."Variant Code", BestPriceListLine."Variant Code");
+
+        OnAfterIsImprovedLine(PriceListLine, BestPriceListLine, Result);
     end;
 
     local procedure IsSetValue(LineValue: Text; BestLineValue: Text): Boolean
@@ -405,6 +409,16 @@ codeunit 7002 "Price Calculation - V16" implements "Price Calculation"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterIsBetterLine(PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type"; BestPriceListLine: Record "Price List Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterIsDegradedLine(PriceListLine: Record "Price List Line"; BestPriceListLine: Record "Price List Line"; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterIsImprovedLine(PriceListLine: Record "Price List Line"; BestPriceListLine: Record "Price List Line"; var Result: Boolean)
     begin
     end;
 

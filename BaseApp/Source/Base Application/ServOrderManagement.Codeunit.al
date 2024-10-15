@@ -622,6 +622,8 @@ codeunit 5900 ServOrderManagement
         Cust."Phone No." := ServiceHeader."Phone No.";
         Cust."E-Mail" := ServiceHeader."E-Mail";
         Cust.Blocked := Cust.Blocked::" ";
+
+        OnAfterCopyCustFromServiceHeader(Cust, ServiceHeader);
     end;
 
     local procedure CreateCustDefaultDimFromTemplate(TableId: Integer; No: Code[20]; CustNo: Code[20])
@@ -764,6 +766,11 @@ codeunit 5900 ServOrderManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterReplacementCreateServItem(NewServItem: Record "Service Item"; FromServItem: Record "Service Item"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyCustFromServiceHeader(var Cust: Record Customer; ServiceHeader: Record "Service Header")
     begin
     end;
 

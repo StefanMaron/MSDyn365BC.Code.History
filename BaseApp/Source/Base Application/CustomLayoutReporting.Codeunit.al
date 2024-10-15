@@ -611,6 +611,7 @@ codeunit 8800 "Custom Layout Reporting"
         File.Create(TempFilePath);
         File.CreateOutStream(FileStream);
         ReportSaved := BoundCallReportSaveAs(ReportID, GetRequestParametersText(ReportID), RepFormat, FileStream, DataRecRef);
+        OnSaveAsReportOnBeforeFileClose(ReportSaved, DataRecRef, ReportID, RepFormat, FileStream);
         File.Close;
 
         if ReportSaved and not RemoveEmptyFile(TempFilePath) and FileManagement.ServerFileExists(TempFilePath) and not SupressOutput then
@@ -1227,6 +1228,7 @@ codeunit 8800 "Custom Layout Reporting"
                     if not TempEmailNameValueBuffer.FindFirst() then
                         if BoundCallReportSaveAs(ReportID, GetRequestParametersText(ReportID), REPORTFORMAT::Pdf, FileStream, DataRecRef) then begin
                             TempEmailNameValueBuffer.AddNewEntry(CopyStr(FileName, 1, 250), CopyStr(TempFilePath, 1, 250));
+                            OnCreateReportWithExtensionOnBeforePdfFileClose(ReportID, ReportFormatType, DataRecRef, FileStream);
                             File.Close;
                             exit(TempFilePath);
                         end;
@@ -1240,6 +1242,7 @@ codeunit 8800 "Custom Layout Reporting"
                     if not TempEmailNameValueBuffer.FindFirst() then
                         if BoundCallReportSaveAs(ReportID, GetRequestParametersText(ReportID), REPORTFORMAT::Html, FileStream, DataRecRef) then begin
                             TempEmailNameValueBuffer.AddNewEntry(CopyStr(FileName, 1, 250), CopyStr(TempFilePath, 1, 250));
+                            OnCreateReportWithExtensionOnBeforeHtmlFileClose(ReportID, ReportFormatType, DataRecRef, FileStream);
                             File.Close;
                             exit(TempFilePath);
                         end;
@@ -1541,7 +1544,22 @@ codeunit 8800 "Custom Layout Reporting"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCreateReportWithExtensionOnBeforeHtmlFileClose(ReportID: Integer; RepFormat: ReportFormat; var DataRecRef: RecordRef; var FileStream: OutStream)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateReportWithExtensionOnBeforePdfFileClose(ReportID: Integer; RepFormat: ReportFormat; var DataRecRef: RecordRef; var FileStream: OutStream)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnGenerateFileNameOnAfterAssignFileName(var FileName: Text; ReportID: Integer; Extension: Text; DataRecRef: RecordRef)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSaveAsReportOnBeforeFileClose(ReportSaved: Boolean; var DataRecRef: RecordRef; ReportID: Integer; RepFormat: ReportFormat; var FileStream: OutStream)
     begin
     end;
 }

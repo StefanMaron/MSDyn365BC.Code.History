@@ -37,6 +37,8 @@ codeunit 7201 "CDS Integration Impl."
         OnDisableIntegrationTxt: Label 'On disable integration.', Locked = true;
         DisableIntegrationTxt: Label 'Disable integration.', Locked = true;
         NoPermissionsTxt: Label 'No permissions.', Locked = true;
+        RebuildCouplingTableJobQueueEntryDescriptionTxt: Label 'Rebuilding the Dataverse coupling table after Cloud Migration.';
+        RebuildCouplingTableQst: Label 'You should invoke this action only if you have migrated your Business Central installation from version 2019 Wave 1 (version 14) to the Cloud. Do you want to continue?';
         UpdateSetupTxt: Label 'Update setup.', Locked = true;
         SetupUpdatedTxt: Label 'Setup has been updated.', Locked = true;
         ConnectionFailureTxt: Label 'Connection failure.', Locked = true;
@@ -1368,10 +1370,7 @@ codeunit 7201 "CDS Integration Impl."
             TempAdminCDSConnectionSetup.Domain := CopyStr(AdminADDomain, 1, MaxStrLen(TempAdminCDSConnectionSetup.Domain));
             TempAdminCDSConnectionSetup."User Name" := CopyStr(AdminUser, 1, MaxStrLen(TempAdminCDSConnectionSetup."User Name"));
             TempAdminCDSConnectionSetup.SetPassword(AdminPassword);
-            if TempAdminCDSConnectionSetup."Authentication Type" = TempAdminCDSConnectionSetup."Authentication Type"::OAuth then
-                SetConnectionString(TempAdminCDSConnectionSetup, ReplaceUserNamePasswordInConnectionstring(CDSConnectionSetup, AdminUser, Format(MissingPasswordTok)))
-            else
-                UpdateConnectionString(TempAdminCDSConnectionSetup);
+            SetConnectionString(TempAdminCDSConnectionSetup, ReplaceUserNamePasswordInConnectionstring(CDSConnectionSetup, AdminUser, Format(MissingPasswordTok)))
         end;
     end;
 
@@ -4026,6 +4025,38 @@ codeunit 7201 "CDS Integration Impl."
           ServiceConnection, RecRef.RecordId(),
           CDSConnectionSetup.TableCaption(), CDSConnectionSetup."Server Address",
           PAGE::"CDS Connection Setup", PAGE::"CDS Connection Setup Wizard");
+    end;
+
+    [Scope('OnPrem')]
+    procedure ScheduleRebuildingOfCouplingTable()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        if not Confirm(RebuildCouplingTableQst) then
+            exit;
+
+        JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+        JobQueueEntry.SetRange("Object ID to Run", Codeunit::"Rebuild Dataverse Coupling Tbl");
+
+        if JobQueueEntry.FindFirst() then begin
+            if JobQueueEntry.Status in [JobQueueEntry.Status::Ready, JobQueueEntry.Status::"In Process"] then begin
+                Page.Run(Page::"Job Queue Entry Card", JobQueueEntry);
+                exit;
+            end;
+            JobQueueEntry.DeleteTasks();
+        end;
+
+        JobQueueEntry.Init();
+        JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
+        JobQueueEntry."Object ID to Run" := Codeunit::"Rebuild Dataverse Coupling Tbl";
+        JobQueueEntry."Run in User Session" := false;
+        JobQueueEntry.Description := RebuildCouplingTableJobQueueEntryDescriptionTxt;
+        JobQueueEntry."Maximum No. of Attempts to Run" := 5;
+        JobQueueEntry.Status := JobQueueEntry.Status::Ready;
+        JobQueueEntry."Rerun Delay (sec.)" := 120;
+        JobQueueEntry.Insert(true);
+
+        Page.Run(Page::"Job Queue Entry Card", JobQueueEntry);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"CDS Integration Mgt.", 'OnEnableIntegration', '', true, true)]

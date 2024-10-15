@@ -114,7 +114,6 @@
         TempVATAmountLine0: Record "VAT Amount Line" temporary;
         TempVATAmountLine1: Record "VAT Amount Line" temporary;
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
-        PrepaymentMgt: Codeunit "Prepayment Mgt.";
         Window: Dialog;
         GenJnlLineDocNo: Code[20];
         GenJnlLineExtDocNo: Code[35];
@@ -278,13 +277,7 @@
 
             UpdatePostedSalesDocument(DocumentType, GenJnlLineDocNo);
 
-            CustLedgEntry.FindLast();
-            CustLedgEntry.CalcFields(Amount);
-            If SalesHeader."Document Type" = SalesHeader."Document Type"::Order then begin
-                SalesLine.CalcSums("Amount Including VAT");
-                PrepaymentMgt.AssertPrepmtAmountNotMoreThanDocAmount(
-                    SalesLine."Amount Including VAT", CustLedgEntry.Amount, SalesHeader."Currency Code", SalesSetup."Invoice Rounding");
-            end;
+            SalesAssertPrepmtAmountNotMoreThanDocAmount(CustLedgEntry, SalesHeader, SalesLine);
 
             // Balancing account
             if "Bal. Account No." <> '' then begin
@@ -312,6 +305,25 @@
         SalesHeader2 := SalesHeader;
 
         OnAfterPostPrepayments(SalesHeader2, DocumentType, SuppressCommit, SalesInvHeader, SalesCrMemoHeader);
+    end;
+
+    local procedure SalesAssertPrepmtAmountNotMoreThanDocAmount(var CustLedgEntry: Record "Cust. Ledger Entry"; SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    var
+        PrepaymentMgt: Codeunit "Prepayment Mgt.";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSalesAssertPrepmtAmountNotMoreThanDocAmount(CustLedgEntry, SalesHeader, SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        CustLedgEntry.FindLast();
+        CustLedgEntry.CalcFields(Amount);
+        If SalesHeader."Document Type" = SalesHeader."Document Type"::Order then begin
+            SalesLine.CalcSums("Amount Including VAT");
+            PrepaymentMgt.AssertPrepmtAmountNotMoreThanDocAmount(
+                SalesLine."Amount Including VAT", CustLedgEntry.Amount, SalesHeader."Currency Code", SalesSetup."Invoice Rounding");
+        end;
     end;
 
     procedure CheckPrepmtDoc(SalesHeader: Record "Sales Header"; DocumentType: Option Invoice,"Credit Memo")
@@ -1247,6 +1259,7 @@
 
     local procedure RunGenJnlPostLine(var GenJnlLine: Record "Gen. Journal Line")
     begin
+        OnBeforeRunGenJnlPostLine(GenJnlLine);
         GenJnlPostLine.RunWithCheck(GenJnlLine);
     end;
 
@@ -1425,7 +1438,13 @@
         CustLedgerEntry: Record "Cust. Ledger Entry";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdatePostedSalesDocument(CustLedgerEntry, SalesInvoiceHeader, SalesCrMemoHeader, DocumentType, IsHandled, DocumentNo);
+        if IsHandled then
+            exit;
+
         case DocumentType of
             DocumentType::Invoice:
                 begin
@@ -1805,6 +1824,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesAssertPrepmtAmountNotMoreThanDocAmount(var CustLedgEntry: Record "Cust. Ledger Entry"; SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesInvLineInsert(var SalesInvLine: Record "Sales Invoice Line"; SalesInvHeader: Record "Sales Invoice Header"; PrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; CommitIsSuppressed: Boolean)
     begin
     end;
@@ -1830,7 +1854,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunGenJnlPostLine(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateDocNos(var SalesHeader: Record "Sales Header"; DocumentType: Option Invoice,"Credit Memo"; var DocNo: Code[20]; var NoSeriesCode: Code[20]; var ModifyHeader: Boolean; IsPreviewMode: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdatePostedSalesDocument(var CustLedgerEntry: Record "Cust. Ledger Entry"; var SalesInvoiceHeader: Record "Sales Invoice Header"; var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; DocumentType: Option Invoice,"Credit Memo"; var IsHandled: Boolean; DocumentNo: Code[20])
     begin
     end;
 

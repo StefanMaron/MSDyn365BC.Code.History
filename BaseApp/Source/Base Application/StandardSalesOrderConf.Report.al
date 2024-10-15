@@ -1,4 +1,4 @@
-report 1305 "Standard Sales - Order Conf."
+﻿report 1305 "Standard Sales - Order Conf."
 {
     RDLCLayout = './StandardSalesOrderConf.rdlc';
     WordLayout = './StandardSalesOrderConf.docx';
@@ -587,6 +587,7 @@ report 1305 "Standard Sales - Order Conf."
                     TotalAmountVAT += "Amount Including VAT" - Amount;
                     TotalAmountInclVAT += "Amount Including VAT";
                     TotalPaymentDiscOnVAT += -("Line Amount" - "Inv. Discount Amount" - "Amount Including VAT");
+                    OnLineOnAfterGetRecordOnAfterCalcTotals(Header, Line, TotalAmount, TotalAmountVAT, TotalAmountInclVAT);
 
                     FormatDocument.SetSalesLine(Line, FormattedQuantity, FormattedUnitPrice, FormattedVATPct, FormattedLineAmount);
 
@@ -933,6 +934,7 @@ report 1305 "Standard Sales - Order Conf."
                 Line.CalcVATAmountLines(0, Header, Line, VATAmountLine);
                 Line.UpdateVATOnLines(0, Header, Line, VATAmountLine);
                 Line.CalcSalesTaxLines(Header, Line);
+                OnHeaderOnAfterGetRecordOnAfterUpdateVATOnLines(Header, Line, VATAmountLine);
 
                 if not IsReportInPreviewMode then
                     CODEUNIT.Run(CODEUNIT::"Sales-Printed", Header);
@@ -1024,6 +1026,8 @@ report 1305 "Standard Sales - Order Conf."
         begin
             LogInteractionEnable := true;
             ArchiveDocument := SalesSetup."Archive Orders";
+
+            OnAfterOnInit(Header);
         end;
 
         trigger OnOpenPage()
@@ -1299,6 +1303,21 @@ report 1305 "Standard Sales - Order Conf."
 
         SalesTaxCalculate.GetSalesTaxAmountLineTable(TempSalesTaxAmountLine);
         SalesTaxCalculate.GetSummarizedSalesTaxTable(TempSalesTaxAmountLine);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnInit(var SalesHeader: Record "Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHeaderOnAfterGetRecordOnAfterUpdateVATOnLines(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLineOnAfterGetRecordOnAfterCalcTotals(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATBaseAmount: Decimal; var VATAmount: Decimal; var TotalAmountInclVAT: Decimal)
+    begin
     end;
 }
 

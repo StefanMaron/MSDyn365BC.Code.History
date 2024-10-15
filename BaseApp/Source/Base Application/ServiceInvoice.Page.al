@@ -1,4 +1,4 @@
-page 5933 "Service Invoice"
+﻿page 5933 "Service Invoice"
 {
     Caption = 'Service Invoice';
     PageType = Document;
@@ -582,13 +582,8 @@ page 5933 "Service Invoice"
 
                     trigger OnAction()
                     begin
-                        CalcInvDiscForHeader;
-                        Commit();
                         OnBeforeCalculateSalesTaxStatistics(Rec, true);
-                        if "Tax Area Code" = '' then
-                            PAGE.RunModal(PAGE::"Service Statistics", Rec)
-                        else
-                            PAGE.RunModal(PAGE::"Service Stats.", Rec)
+                        OpenStatistics();
                     end;
                 }
                 action(Card)

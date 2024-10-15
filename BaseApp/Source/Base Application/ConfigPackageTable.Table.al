@@ -317,6 +317,7 @@ table 8613 "Config. Package Table"
         ConfigLine.SetRange("Dimensions as Columns", true);
         ConfigLine.ModifyAll("Dimensions as Columns", false);
         ConfigLine.SetRange("Dimensions as Columns");
+        OnDeleteRelatedTablesOnBeforeModifyAllConfigLineWithEmptyPackageCode(ConfigLine, PackageCode, TableID);
         ConfigLine.ModifyAll("Package Code", '');
     end;
 
@@ -327,14 +328,16 @@ table 8613 "Config. Package Table"
         "Field": Record "Field";
         ProcessingOrder: Integer;
         FieldsAdded: Boolean;
+        ShouldAddField: Boolean;
     begin
         FieldsAdded := false;
         ConfigPackageMgt.SetFieldFilter(Field, "Table ID", 0);
         if Field.FindSet then
             repeat
-                if not ConfigPackageField.Get("Package Code", "Table ID", Field."No.") and
-                   not ConfigPackageMgt.IsDimSetIDField("Table ID", Field."No.")
-                then begin
+                ShouldAddField := not ConfigPackageField.Get("Package Code", "Table ID", Field."No.") and
+                   not ConfigPackageMgt.IsDimSetIDField("Table ID", Field."No.");
+                OnInitPackageFieldsOnAfterCalcShouldAddField(Rec, Field, ShouldAddField);
+                if ShouldAddField then begin
                     ConfigPackageMgt.InsertPackageField(
                       ConfigPackageField, "Package Code", "Table ID", Field."No.", Field.FieldName, Field."Field Caption",
                       true, true, false, false);
@@ -536,7 +539,13 @@ table 8613 "Config. Package Table"
     procedure ShowDatabaseRecords()
     var
         ConfigLine: Record "Config. Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowDatabaseRecords(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Page ID" <> 0 then
             PAGE.Run("Page ID")
         else begin
@@ -682,7 +691,26 @@ table 8613 "Config. Package Table"
             exit(0);
 
         RecRef.Open("Table ID", false, "Company Filter (Source Table)");
-        exit(RecRef.Count);
+        if not RecRef.ReadPermission() then
+            exit(0);
+        exit(RecRef.Count());
+    end;
+
+    procedure GetNoOfDatabaseRecordsText(): Text
+    var
+        ConfigXMLExchange: Codeunit "Config. XML Exchange";
+        RecRef: RecordRef;
+    begin
+        if "Table ID" = 0 then
+            exit;
+
+        if not ConfigXMLExchange.TableObjectExists("Table ID") then
+            exit;
+
+        RecRef.Open("Table ID", false, "Company Filter (Source Table)");
+        if not RecRef.ReadPermission() then
+            exit;
+        exit(Format(RecRef.Count()));
     end;
 
     local procedure CheckParentTables(ConfigPackageTable: Record "Config. Package Table"): Integer
@@ -725,6 +753,21 @@ table 8613 "Config. Package Table"
             childrenFound += 1;
         end;
         exit(childrenFound);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowDatabaseRecords(var ConfigPackageTable: Record "Config. Package Table"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnDeleteRelatedTablesOnBeforeModifyAllConfigLineWithEmptyPackageCode(var ConfigLine: Record "Config. Line"; PackageCode: Code[20]; TableID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitPackageFieldsOnAfterCalcShouldAddField(var ConfigPackageTable: Record "Config. Package Table"; "Field": Record "Field"; var ShouldAddField: Boolean)
+    begin
     end;
 }
 

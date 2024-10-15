@@ -1,4 +1,4 @@
-codeunit 99000845 "Reservation Management"
+﻿codeunit 99000845 "Reservation Management"
 {
     Permissions = TableData "Item Ledger Entry" = rm,
                   TableData "Reservation Entry" = rimd,
@@ -951,6 +951,8 @@ codeunit 99000845 "Reservation Management"
                     RemainingQtyToReserve, RemainingQtyToReserveBase, ReservQty,
                     Description, PurchLine."Expected Receipt Date", QtyThisLine, QtyThisLineBase, CallTrackingSpecification);
             until (PurchLine.Next(NextStep) = 0) or (RemainingQtyToReserveBase = 0);
+
+        OnAfterAutoReservePurchLine(PurchLine, ReservSummEntryNo, RemainingQtyToReserve, RemainingQtyToReserveBase, Description, AvailabilityDate);
     end;
 
     local procedure AutoReserveSalesLine(ReservSummEntryNo: Integer; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; Description: Text[100]; AvailabilityDate: Date; Search: Text[1]; NextStep: Integer)
@@ -1391,7 +1393,7 @@ codeunit 99000845 "Reservation Management"
             end;
             CopySign(RemainingQtyToReserveBase, QtyThisLineBase);
             CopySign(RemainingQtyToReserve, QtyThisLine);
-            OnInsertReservationEntriesOnBeforeCreateReservation(TrackingSpecification);
+            OnInsertReservationEntriesOnBeforeCreateReservation(TrackingSpecification, CalcReservEntry);
             CreateReservation(Description, ExpectedDate, QtyThisLine, QtyThisLineBase, TrackingSpecification);
             RemainingQtyToReserve := RemainingQtyToReserve - QtyThisLine;
             RemainingQtyToReserveBase := RemainingQtyToReserveBase - QtyThisLineBase;
@@ -2000,6 +2002,8 @@ codeunit 99000845 "Reservation Management"
             TempTrackingSpecification.Insert();
         end;
         TempTrackingSpecification.Reset();
+
+        OnAfterSaveTrackingSpecification(ReservEntry, TempTrackingSpecification, QtyReleased);
     end;
 
     procedure CollectTrackingSpecification(var TargetTrackingSpecification: Record "Tracking Specification" temporary): Boolean
@@ -3005,6 +3009,11 @@ codeunit 99000845 "Reservation Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterAutoReservePurchLine(var PurchLine: Record "Purchase Line"; ReservSummEntryNo: Integer; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; Description: Text[100]; AvailabilityDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCalcReservation(var ReservEntry: Record "Reservation Entry"; var ItemLedgEntry: Record "Item Ledger Entry"; var ResSummEntryNo: Integer; var QtyThisLine: Decimal; var QtyThisLineBase: Decimal)
     begin
     end;
@@ -3016,6 +3025,11 @@ codeunit 99000845 "Reservation Management"
 
     [IntegrationEvent(TRUE, false)]
     local procedure OnAfterInitFilter(var CalcReservEntry: Record "Reservation Entry"; EntryID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSaveTrackingSpecification(var ReservationEntry: Record "Reservation Entry"; var TrackingSpecification: Record "Tracking Specification"; QtyReleased: Decimal)
     begin
     end;
 
@@ -3196,7 +3210,7 @@ codeunit 99000845 "Reservation Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertReservationEntriesOnBeforeCreateReservation(var TrackingSpecification: Record "Tracking Specification")
+    local procedure OnInsertReservationEntriesOnBeforeCreateReservation(var TrackingSpecification: Record "Tracking Specification"; var CalcReservEntry: Record "Reservation Entry")
     begin
     end;
 

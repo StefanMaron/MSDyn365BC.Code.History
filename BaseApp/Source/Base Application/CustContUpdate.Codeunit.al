@@ -24,7 +24,6 @@ codeunit 5056 "CustCont-Update"
         ContBusRel: Record "Contact Business Relation";
         Cont: Record Contact;
         OldCont: Record Contact;
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
         ContNo: Code[20];
         NoSeries: Code[20];
     begin
@@ -50,8 +49,6 @@ codeunit 5056 "CustCont-Update"
         Cont."No. Series" := NoSeries;
         OnAfterTransferFieldsFromCustToCont(Cont, Cust);
 
-        if not EnvInfoProxy.IsInvoicing then
-            Cont.Type := OldCont.Type;
         Cont.Validate(Name);
         Cont.DoModify(OldCont);
         Cont.Modify(true);
@@ -113,8 +110,7 @@ codeunit 5056 "CustCont-Update"
                 RMSetup.TestField("Contact Nos.");
                 NoSeriesMgt.InitSeries(RMSetup."Contact Nos.", '', 0D, "No.", "No. Series");
             end;
-            Type := Type::Company;
-            TypeChange;
+            Type := Cust."Contact Type";
             SetSkipDefault;
             OnBeforeContactInsert(Cont, Cust);
             Insert(true);

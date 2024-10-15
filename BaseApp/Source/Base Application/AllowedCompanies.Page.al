@@ -89,6 +89,7 @@ page 9177 "Allowed Companies"
     begin
         SoftwareAsAService := EnvironmentInfo.IsSaaS();
 
+        Rec.DeleteAll();
         foreach CompanyName in UserAccountHelper.GetAllowedCompanies() do
             if Company.Get(CompanyName) then begin
                 Rec := Company;

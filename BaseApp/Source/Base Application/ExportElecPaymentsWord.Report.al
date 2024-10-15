@@ -650,21 +650,22 @@
     trigger OnPreReport()
     var
         GenJournalBatch: Record "Gen. Journal Batch";
-        "Filter": Text;
+        GenJournalLine: Record "Gen. Journal Line";
     begin
         CompanyInformation.Get();
-        Filter := "Gen. Journal Line".GetFilter("Journal Template Name");
-        if Filter = '' then begin
-            "Gen. Journal Line".FilterGroup(0); // head back to the default filter group and check there.
-            Filter := "Gen. Journal Line".GetFilter("Journal Template Name")
-        end;
-        GenJournalTemplate.Get(Filter);
 
-        if not UseRequestPage() then
-            if "Gen. Journal Line".FindFirst() then
-                if GenJournalBatch.Get("Gen. Journal Line"."Journal Template Name", "Gen. Journal Line"."Journal Batch Name") then
+        GenJournalLine.Copy("Gen. Journal Line");
+        if GenJournalLine.FindFirst() then begin
+            GenJournalTemplate.Get(GenJournalLine."Journal Template Name");
+            if not GenJournalTemplate."Force Doc. Balance" then
+                if not Confirm(CannotVoidQst, true) then
+                    Error(UserCancelledErr);
+
+            if not UseRequestPage() then
+                if GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name") then
                     if GenJournalBatch."Bal. Account Type" = GenJournalBatch."Bal. Account Type"::"Bank Account" then
                         BankAccount."No." := GenJournalBatch."Bal. Account No.";
+        end;
 
         with BankAccount do begin
             Get("No.");
@@ -672,11 +673,6 @@
             TestField("Export Format");
             TestField("Last Remittance Advice No.");
         end;
-
-        GenJournalTemplate.Get("Gen. Journal Line".GetFilter("Journal Template Name"));
-        if not GenJournalTemplate."Force Doc. Balance" then
-            if not Confirm(CannotVoidQst, true) then
-                Error(UserCancelledErr);
 
         FormatAddress.Company(CompanyAddress, CompanyInformation)
     end;

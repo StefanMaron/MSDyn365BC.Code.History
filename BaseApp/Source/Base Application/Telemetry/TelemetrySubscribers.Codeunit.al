@@ -31,9 +31,9 @@ codeunit 1351 "Telemetry Subscribers"
         RecordCountCategoryTxt: Label 'AL Record Count', Locked = true;
         JobQueueEntriesCategoryTxt: Label 'AL JobQueueEntries', Locked = true;
         ReusingExistingJobFromIdTxt: Label 'Reusing Job Queue', Locked = true;
-        JobQueueEntryStartedTxt: Label 'JobID = %1, ObjectType = %2, ObjectID = %3, Status = Started', Locked = true;
-        JobQueueEntryFinishedTxt: Label 'JobID = %1, ObjectType = %2, ObjectID = %3, Status = Finished, Result = %4', Locked = true;
-        JobQueueEntryEnqueuedTxt: Label 'JobID = %1, ObjectType = %2, ObjectID = %3, Recurring = %4, Status = %5', Locked = true;
+        JobQueueEntryStartedTxt: Label 'JobID = %1, ObjectType = %2, ObjectID = %3, Status = Started, Company = %4, Scheduled Task Id = %5', Locked = true;
+        JobQueueEntryFinishedTxt: Label 'JobID = %1, ObjectType = %2, ObjectID = %3, Status = Finished, Result = %4, Company = %5, Scheduled Task Id = %6', Locked = true;
+        JobQueueEntryEnqueuedTxt: Label 'JobID = %1, ObjectType = %2, ObjectID = %3, Recurring = %4, Status = %5, Company = %6, Scheduled Task Id = %7', Locked = true;
         JobQueueEntryStartedAllTxt: Label 'Job queue entry started: %1', Comment = '%1 = Job queue id', Locked = true;
         JobQueueEntryFinishedAllTxt: Label 'Job queue entry finished: %1', Comment = '%1 = Job queue id', Locked = true;
         JobQueueEntryEnqueuedAllTxt: Label 'Job queue entry enqueued: %1', Comment = '%1 = Job queue id', Locked = true;
@@ -255,8 +255,10 @@ codeunit 1351 "Telemetry Subscribers"
         Dimensions.Add('JobQueueStatus', Format(JobQueueEntry.Status));
         Dimensions.Add('JobQueueIsRecurring', Format(JobQueueEntry."Recurring Job"));
         Dimensions.Add('JobQueueEarliestStartDateTime', Format(JobQueueEntry."Earliest Start Date/Time"));
+        Dimensions.Add('JobQueueCompanyName', JobQueueEntry.CurrentCompany());
+        Dimensions.Add('JobQueueScheduledTaskId', Format(JobQueueEntry."System Task ID", 0, 4));
 
-        Session.LogMessage('0000F6B', ReusingExistingJobFromIdTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, Dimensions);
+        Session.LogMessage('0000F6B', ReusingExistingJobFromIdTxt, Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, Dimensions);
 
         TranslationHelper.RestoreGlobalLanguage();
     end;
@@ -272,7 +274,7 @@ codeunit 1351 "Telemetry Subscribers"
 
         TranslationHelper.SetGlobalLanguageToDefault();
 
-        Session.LogMessage('0000AIX', StrSubstNo(JobQueueEntryEnqueuedTxt, JobQueueEntry.ID, JobQueueEntry."Object Type to Run", JobQueueEntry."Object ID to Run", JobQueueEntry."Recurring Job", JobQueueEntry.Status), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', JobQueueEntriesCategoryTxt);
+        Session.LogMessage('0000AIX', StrSubstNo(JobQueueEntryEnqueuedTxt, JobQueueEntry.ID, JobQueueEntry."Object Type to Run", JobQueueEntry."Object ID to Run", JobQueueEntry."Recurring Job", JobQueueEntry.Status, JobQueueEntry.CurrentCompany(), JobQueueEntry."System Task ID"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', JobQueueEntriesCategoryTxt);
 
         Dimensions.Add('Category', JobQueueEntriesCategoryTxt);
         Dimensions.Add('JobQueueId', Format(JobQueueEntry.ID, 0, 4));
@@ -281,8 +283,10 @@ codeunit 1351 "Telemetry Subscribers"
         Dimensions.Add('JobQueueStatus', Format(JobQueueEntry.Status));
         Dimensions.Add('JobQueueIsRecurring', Format(JobQueueEntry."Recurring Job"));
         Dimensions.Add('JobQueueEarliestStartDateTime', Format(JobQueueEntry."Earliest Start Date/Time"));
+        Dimensions.Add('JobQueueCompanyName', JobQueueEntry.CurrentCompany());
+        Dimensions.Add('JobQueueScheduledTaskId', Format(JobQueueEntry."System Task ID", 0, 4));
 
-        Session.LogMessage('0000E24', StrSubstNo(JobQueueEntryEnqueuedAllTxt, Format(JobQueueEntry.ID, 0, 4)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
+        Session.LogMessage('0000E24', StrSubstNo(JobQueueEntryEnqueuedAllTxt, Format(JobQueueEntry.ID, 0, 4)), Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All, Dimensions);
 
         TranslationHelper.RestoreGlobalLanguage();
     end;
@@ -298,13 +302,17 @@ codeunit 1351 "Telemetry Subscribers"
 
         TranslationHelper.SetGlobalLanguageToDefault();
 
-        Session.LogMessage('000082B', StrSubstNo(JobQueueEntryStartedTxt, JobQueueEntry.ID, JobQueueEntry."Object Type to Run", JobQueueEntry."Object ID to Run"), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', JobQueueEntriesCategoryTxt);
+        Session.LogMessage('000082B', StrSubstNo(JobQueueEntryStartedTxt, JobQueueEntry.ID, JobQueueEntry."Object Type to Run", JobQueueEntry."Object ID to Run", JobQueueEntry.CurrentCompany(), JobQueueEntry."System Task ID"), Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'Category', JobQueueEntriesCategoryTxt);
+
         Dimensions.Add('Category', JobQueueEntriesCategoryTxt);
         Dimensions.Add('JobQueueId', Format(JobQueueEntry.ID, 0, 4));
         Dimensions.Add('JobQueueObjectType', Format(JobQueueEntry."Object Type to Run"));
         Dimensions.Add('JobQueueObjectId', Format(JobQueueEntry."Object ID to Run"));
         Dimensions.Add('JobQueueStatus', Format(JobQueueEntry.Status));
-        Session.LogMessage('0000E25', StrSubstNo(JobQueueEntryStartedAllTxt, Format(JobQueueEntry.ID, 0, 4)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
+        Dimensions.Add('JobQueueCompanyName', JobQueueEntry.CurrentCompany());
+        Dimensions.Add('JobQueueScheduledTaskId', Format(JobQueueEntry."System Task ID", 0, 4));
+
+        Session.LogMessage('0000E25', StrSubstNo(JobQueueEntryStartedAllTxt, Format(JobQueueEntry.ID, 0, 4)), Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All, Dimensions);
 
         TranslationHelper.RestoreGlobalLanguage();
     end;
@@ -326,7 +334,7 @@ codeunit 1351 "Telemetry Subscribers"
         TranslationHelper.SetGlobalLanguageToDefault();
 
         Session.LogMessage('000082C', StrSubstNo(JobQueueEntryFinishedTxt, JobQueueEntry.ID, JobQueueEntry."Object Type to Run",
-            JobQueueEntry."Object ID to Run", Result), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', JobQueueEntriesCategoryTxt);
+            JobQueueEntry."Object ID to Run", Result, JobQueueEntry.CurrentCompany(), JobQueueEntry."System Task ID"), Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'Category', JobQueueEntriesCategoryTxt);
 
         TranslationHelper.RestoreGlobalLanguage();
     end;
@@ -355,7 +363,10 @@ codeunit 1351 "Telemetry Subscribers"
         Dimensions.Add('JobQueueStatus', Format(JobQueueEntry.Status));
         Dimensions.Add('JobQueueResult', Result);
         Dimensions.Add('JobQueueExecutionTimeInMs', Format(JobQueueExecutionTime));
-        Session.LogMessage('0000E26', StrSubstNo(JobQueueEntryFinishedAllTxt, Format(JobQueueEntry.ID, 0, 4)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, Dimensions);
+        Dimensions.Add('JobQueueCompanyName', JobQueueEntry.CurrentCompany());
+        Dimensions.Add('JobQueueScheduledTaskId', Format(JobQueueEntry."System Task ID", 0, 4));
+
+        Session.LogMessage('0000E26', StrSubstNo(JobQueueEntryFinishedAllTxt, Format(JobQueueEntry.ID, 0, 4)), Verbosity::Normal, DataClassification::OrganizationIdentifiableInformation, TelemetryScope::All, Dimensions);
 
         TranslationHelper.RestoreGlobalLanguage();
     end;

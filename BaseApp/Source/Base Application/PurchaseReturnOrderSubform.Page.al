@@ -1241,6 +1241,11 @@
             SendLineInvoiceDiscountResetNotification();
     end;
 
+    procedure ForceTotalsCalculation()
+    begin
+        DocumentTotals.PurchaseDocTotalsNotUpToDate();
+    end;
+
     procedure UpdateEditableOnRow()
     begin
         IsCommentLine := Type = Type::" ";

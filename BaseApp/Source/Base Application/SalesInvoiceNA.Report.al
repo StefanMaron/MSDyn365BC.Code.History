@@ -737,6 +737,7 @@ report 10074 "Sales Invoice NA"
         trigger OnInit()
         begin
             LogInteractionEnable := true;
+            PrintCompany := true;
         end;
 
         trigger OnOpenPage()

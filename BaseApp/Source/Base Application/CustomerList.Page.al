@@ -1384,8 +1384,6 @@ page 22 "Customer List"
                 Caption = 'Word Template';
                 ToolTip = 'Apply a Word template on the selected records.';
                 Image = Word;
-                Promoted = true;
-                PromotedCategory = Category7;
 
                 trigger OnAction()
                 var
@@ -1400,10 +1398,8 @@ page 22 "Customer List"
             action(Email)
             {
                 ApplicationArea = All;
-                Caption = 'Contact by Email';
+                Caption = 'Send Email';
                 Image = Email;
-                Promoted = true;
-                PromotedCategory = Category7;
                 ToolTip = 'Send an email to this customer.';
 
                 trigger OnAction()
