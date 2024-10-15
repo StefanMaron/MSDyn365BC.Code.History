@@ -216,7 +216,6 @@ codeunit 138035 "O365 Correct Purchase Dim."
         GLAcc.Get(InvtPostingSetup."Inventory Account");
         LibraryDimension.CreateDefaultDimensionWithNewDimValue(
           TempDefaultDim, DATABASE::"G/L Account", GLAcc."No.", TempDefaultDim."Value Posting"::"Code Mandatory");
-
         TempDefaultDim.FindSet();
         repeat
             DefaultDim := TempDefaultDim;
@@ -266,6 +265,57 @@ codeunit 138035 "O365 Correct Purchase Dim."
         BuyItem(BuyFromVendor, Item, 1, PurchInvHeader);
 
         VerifyCorrectionFailsOnMandatoryDimGLAcc(GLAcc."No.", PayToVendor, PurchInvHeader);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CancelPurchDocPayablesAccWithNoCodeDimension()
+    var
+        BuyFromVendor: Record Vendor;
+        PayToVendor: Record Vendor;
+        Item: Record Item;
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        GLAcc: Record "G/L Account";
+        VendorPostingGroup: Record "Vendor Posting Group";
+        InvtPostingSetup: Record "Inventory Posting Setup";
+        DefaultDim: Record "Default Dimension";
+        DefaultDim2: Record "Default Dimension";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+    begin
+        // [SCENARIO 415473] Purchase document with Pyables Account with No Code dimension can be cancelled
+        Initialize();
+
+        // [GIVEN] Item "I" with Dimension and "Value Posting" = "Code Mandatory"
+        CreateItemWithCost(Item, Item.Type::Inventory, 1);
+        CreateBuyFromWithDifferentPayToVendor(BuyFromVendor, PayToVendor);
+        InvtPostingSetup.Get(BuyFromVendor."Location Code", Item."Inventory Posting Group");
+        GLAcc.Get(InvtPostingSetup."Inventory Account");
+        LibraryDimension.CreateDefaultDimensionWithNewDimValue(
+            DefaultDim, DATABASE::Item, Item."No.", DefaultDim."Value Posting"::"Code Mandatory");
+
+        // [GIVEN] Vendor "V" with Vendor Postin Group, with "Paybles Account" = G/L Account with Dimension and "Value Posting" = "No Code"
+        VendorPostingGroup.Get(PayToVendor."Vendor Posting Group");
+        GLAcc.Get(VendorPostingGroup."Payables Account");
+        LibraryDimension.CreateDefaultDimensionGLAcc(DefaultDim2, GLAcc."No.", DefaultDim."Dimension Code", '');
+        DefaultDim2.Validate("Value Posting", DefaultDim2."Value Posting"::"No Code");
+        DefaultDim2.Modify(true);
+
+        // [GIVEN] Posted Purchase Invoice for Vendor "V" and item "I"
+        BuyItem(BuyFromVendor, Item, 1, PurchInvHeader);
+        Commit();
+
+        // [WHEN] Posted Purchase Invoice is cancelled
+        // [THEN] Invoice is Cancelled with no errors
+        CorrectPostedPurchInvoice.CancelPostedInvoice(PurchInvHeader);
+
+        PurchCrMemoHdr.Reset();
+        PurchCrMemoHdr.SetRange("Buy-from Vendor No.", BuyFromVendor."No.");
+        Assert.RecordIsNotEmpty(PurchCrMemoHdr);
+        // Unblock the Dimension
+        DefaultDim.Delete(true);
+        DefaultDim2.Delete(true);
+        Commit();
     end;
 
     local procedure Initialize()

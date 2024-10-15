@@ -261,6 +261,57 @@ codeunit 138034 "O365 Correct Sales Dim."
         VerifyCorrectionFailsOnMandatoryDimGLAcc(GLAcc, BillToCust, SalesInvoiceHeader);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CancelSalesDocPayablesAccWithNoCodeDimension()
+    var
+        SellToCust: Record Customer;
+        BillToCust: Record Customer;
+        Item: Record Item;
+        SalesInvHeader: Record "Sales Invoice Header";
+        SalesCrMemoHdr: Record "Sales Cr.Memo Header";
+        GLAcc: Record "G/L Account";
+        CustomerPostingGroup: Record "Customer Posting Group";
+        InvtPostingSetup: Record "Inventory Posting Setup";
+        DefaultDim: Record "Default Dimension";
+        DefaultDim2: Record "Default Dimension";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        // [SCENARIO 415473] Sales document with Reveivables Account with No Code dimension can be cancelled
+        Initialize();
+
+        // [GIVEN] Item "I" with Dimension and "Value Posting" = "Code Mandatory"
+        CreateItemsWithPrice(Item, 1);
+        CreateSellToWithDifferentBillToCust(SellToCust, BillToCust);
+        InvtPostingSetup.Get(SellToCust."Location Code", Item."Inventory Posting Group");
+        GLAcc.Get(InvtPostingSetup."Inventory Account");
+        LibraryDimension.CreateDefaultDimensionWithNewDimValue(
+            DefaultDim, DATABASE::Item, Item."No.", DefaultDim."Value Posting"::"Code Mandatory");
+
+        // [GIVEN] Vendor "V" with Vendor Postin Group, with "Paybles Account" = G/L Account with Dimension and "Value Posting" = "No Code"
+        CustomerPostingGroup.Get(BillToCust."Customer Posting Group");
+        GLAcc.Get(CustomerPostingGroup."Receivables Account");
+        LibraryDimension.CreateDefaultDimensionGLAcc(DefaultDim2, GLAcc."No.", DefaultDim."Dimension Code", '');
+        DefaultDim2.Validate("Value Posting", DefaultDim2."Value Posting"::"No Code");
+        DefaultDim2.Modify(true);
+
+        // [GIVEN] Posted Purchase Invoice for Vendor "V" and item "I"
+        SellItem(SellToCust, Item, 1, SalesInvHeader);
+        Commit();
+
+        // [WHEN] Posted Purchase Invoice is cancelled
+        // [THEN] Invoice is Cancelled with no errors
+        CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvHeader);
+
+        SalesCrMemoHdr.Reset();
+        SalesCrMemoHdr.SetRange("Sell-to Customer No.", SellToCust."No.");
+        Assert.RecordIsNotEmpty(SalesCrMemoHdr);
+        // Unblock the Dimension
+        DefaultDim.Delete(true);
+        DefaultDim2.Delete(true);
+        Commit();
+    end;
+
     [Normal]
     local procedure Initialize()
     var

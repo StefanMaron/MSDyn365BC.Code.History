@@ -493,13 +493,14 @@ codeunit 134301 "Workflow Notification Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TestNotificationMethodNote()
+    procedure TestNotificationMethodNoteSMTPSetup()
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
         NotificationEntry: Record "Notification Entry";
         NotificationSetup: Record "Notification Setup";
         JobQueueEntry: Record "Job Queue Entry";
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
         NotificationEntryDispatcher: Codeunit "Notification Entry Dispatcher";
     begin
         // [FEATURE] [Approval] [Sales]
@@ -508,12 +509,52 @@ codeunit 134301 "Workflow Notification Test"
         // [WHEN] A Notification Entry record is created
         // [THEN] Record Link is created
         // Setup
-        Initialize;
+        Initialize();
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
 
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
 
         NotificationEntry.CreateNotificationEntry(NotificationEntry.Type::"New Record", UserId, SalesHeader, 0, '', '');
+
+        LibraryWorkflow.CreateNotificationSetup(NotificationSetup, UserId,
+          "Notification Entry Type"::"New Record", NotificationSetup."Notification Method"::Note);
+
+        Commit();
+
+        // Exercise
+        if not NotificationEntryDispatcher.Run(JobQueueEntry) then
+            Error(EmailWasNotSentErr);
+
+        // Validate
+        VerifyRecordLinkCreated(NotificationEntry, SalesHeader, UserId)
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestNotificationMethodNote()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        NotificationEntry: Record "Notification Entry";
+        NotificationSetup: Record "Notification Setup";
+        JobQueueEntry: Record "Job Queue Entry";
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+        NotificationEntryDispatcher: Codeunit "Notification Entry Dispatcher";
+    begin
+        // [FEATURE] [Approval] [Sales]
+        // [SCENARIO] When Notifications Method is Note then Record Link is created
+        // [GIVEN] Workflow is setup to notify a specific user and Notification Method is Note
+        // [WHEN] A Notification Entry record is created
+        // [THEN] Record Link is created
+        // Setup
+        Initialize();
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+
+        LibrarySales.CreateCustomer(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+
+        NotificationEntry.CreateNotificationEntry(NotificationEntry.Type::"New Record", UserId, SalesHeader, 0, '', UserId());
 
         LibraryWorkflow.CreateNotificationSetup(NotificationSetup, UserId,
           "Notification Entry Type"::"New Record", NotificationSetup."Notification Method"::Note);
@@ -1620,7 +1661,7 @@ codeunit 134301 "Workflow Notification Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure SendCorrectNotificationEntriesWhenBatchIsProceeded()
+    procedure SendCorrectNotificationEntriesWhenBatchIsProceededSMTPSetup()
     var
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
@@ -1628,10 +1669,12 @@ codeunit 134301 "Workflow Notification Test"
         NotificationSetup: Record "Notification Setup";
         JobQueueEntry: Record "Job Queue Entry";
         DeletedUserSetup: Record "User Setup";
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
     begin
         // [FEATURE] [Approval]
         // [SCENARIO 229462] When there are invalid Notification Entries in a batch, correct Entries are still processed by Notification Entry Dispatcher
-        Initialize;
+        Initialize();
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
 
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
@@ -1809,17 +1852,6 @@ codeunit 134301 "Workflow Notification Test"
         LibraryEmailFeature: Codeunit "Library - Email Feature";
     begin
         LibraryEmailFeature.SetEmailFeatureEnabled(false);
-        SendersNotMixedWhenTwoUsersNotifyBySingleJobQueueEntry();
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    [TestPermissions(TestPermissions::Disabled)]
-    procedure TestSendersNotMixedWhenTwoUsersNotifyBySingleJobQueueEntry()
-    var
-        LibraryEmailFeature: Codeunit "Library - Email Feature";
-    begin
-        LibraryEmailFeature.SetEmailFeatureEnabled(true);
         SendersNotMixedWhenTwoUsersNotifyBySingleJobQueueEntry();
     end;
 
@@ -2176,9 +2208,6 @@ codeunit 134301 "Workflow Notification Test"
         for Index := 1 to ArrayLen(User) do
             CreateUserWithUserSetupWithEmail(User[Index], UserSetup[Index]);
 
-        // [GIVEN] SMTP Mail Setup with Anonymous authentication and User ID is blank.
-        CreateAnonymousSMTPMailSetup();
-
         // [GIVEN] Item and Approval Entry for it.
         LibraryInventory.CreateItem(Item);
         LibraryDocumentApprovals.CreateApprovalEntryBasic(
@@ -2188,7 +2217,7 @@ codeunit 134301 "Workflow Notification Test"
 
         // [GIVEN] Notification Entry addressed from "User1" to "User2".
         NotificationEntry.CreateNotificationEntry(
-            NotificationEntry.Type::Approval, UserSetup[2]."User ID", ApprovalEntry, 1, '', UserSetup[1]."User ID");
+        NotificationEntry.Type::Approval, UserSetup[2]."User ID", ApprovalEntry, 1, '', UserId());
 
         // [WHEN] Notification Entry is dispatched - OnBeforeSendEmail checks if server file with Email Body exists and saves it.
         BindSubscription(WorkflowNotificationTest);
@@ -2205,7 +2234,7 @@ codeunit 134301 "Workflow Notification Test"
         Assert.IsSubstring(TempErrorMessage.Description, FailedToSendEmailEmailErr);
 
         // [THEN] Email Body contains "User1", "User2" names and Item No.
-        ExpectedValues[1] := StrSubstNo(CreatedByUserTxt, User[1]."Full Name");
+        ExpectedValues[1] := StrSubstNo(CreatedByUserTxt, UserId());
         ExpectedValues[2] := User[2]."Full Name";
         ExpectedValues[3] := Item."No.";
         VerifyEmailBody(ExpectedValues, OnBeforeSendEmailTxt);
