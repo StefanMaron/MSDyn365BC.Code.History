@@ -21,28 +21,27 @@ codeunit 141014 "ERM WHT - APAC"
         WHTAccountCodeEmptyErr: Label '%1 must have a value in WHT Posting Setup: WHT Business Posting Group=%2, WHT Product Posting Group=%3. It cannot be zero or empty.';
         LibrarySales: Codeunit "Library - Sales";
         LibraryUtility: Codeunit "Library - Utility";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        IsInitialized: Boolean;
 
     [Test]
     [Scope('OnPrem')]
     procedure WHTEntryOfPostedInvoiceJnlAndPaymentJnl()
     var
         BankAccount: Record "Bank Account";
-        GeneralLedgerSetup: Record "General Ledger Setup";
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalLine2: Record "Gen. Journal Line";
         VATPostingSetup: Record "VAT Posting Setup";
         WHTEntry: Record "WHT Entry";
         WHTPostingSetup: Record "WHT Posting Setup";
         DocumentNo: Code[20];
-        OldGSTProdPostingGroup: Code[20];
         WHTAmount: Decimal;
     begin
         // [SCENARIO] WHT Entry Amount after post a Purchase transaction through Purchase Journals then make payment.
 
         // [GIVEN] Create and Post Purchase Journal with Document Type - Invoice, Create and Post Payment Journal.
-        Initialize;
-        GeneralLedgerSetup.Get();
-        OldGSTProdPostingGroup := UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
+        Initialize();
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateGeneralJournalLineWithBalAccountType(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, CreateVendor(VATPostingSetup."VAT Bus. Posting Group", ''), '',
           '', GenJournalLine."Bal. Account Type"::"G/L Account", CreateGLAccountWithVATBusPostingGroup(VATPostingSetup),
@@ -63,16 +62,12 @@ codeunit 141014 "ERM WHT - APAC"
         // [THEN] Verify WHT Entry - Amount and Unrealized Amount.
         VerifyWHTEntry(WHTEntry."Document Type"::Payment, GenJournalLine."Account No.", -WHTAmount, 0);  // Unrealized Amount - 0.
         VerifyWHTEntry(WHTEntry."Document Type"::Invoice, GenJournalLine."Account No.", 0, -WHTAmount);  // Amount - 0.
-
-        // Tear Down.
-        UpdateGeneralLedgerSetupAndPurchasesSetup(GeneralLedgerSetup, OldGSTProdPostingGroup);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure PostedMultipleInvoicesWithWHTMinInvAmtAndPayment()
     var
-        GeneralLedgerSetup: Record "General Ledger Setup";
         PurchaseLine: Record "Purchase Line";
         PurchaseLine2: Record "Purchase Line";
         WHTPostingSetup: Record "WHT Posting Setup";
@@ -81,14 +76,12 @@ codeunit 141014 "ERM WHT - APAC"
         PurchaseInvoiceStatistics: TestPage "Purchase Invoice Statistics";
         DocumentNo: Code[20];
         DocumentNo2: Code[20];
-        OldGSTProdPostingGroup: Code[20];
     begin
         // [SCENARIO] WHT Entry Amount, after Posting two Purchase Invoices, having sum equal to WHT minimum invoice amount and apply a single payment entry with more than WHT minimum invoice amount.
 
         // [GIVEN] Create and Post two Purchase Order with WHT minimum invoice amount, Create and Post General Journal with WHT Minimum Invoice Amount for Posted Invoices.
-        Initialize;
-        GeneralLedgerSetup.Get();
-        OldGSTProdPostingGroup := UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
+        Initialize();
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         DocumentNo :=
           CreateAndPostPurchaseOrder(
             PurchaseLine, CreateVendor(VATPostingSetup."VAT Bus. Posting Group", ''), VATPostingSetup."VAT Prod. Posting Group",
@@ -108,9 +101,6 @@ codeunit 141014 "ERM WHT - APAC"
         // [THEN] Verify Purchase Invoice Statistics Page, GST Purchase Entry with 0 value.
         VerifyPurchaseInvoiceStatisticsPage(PurchaseInvoiceStatistics, 0, 0);  // Remaining WHT Prepaid Amount and Paid WHT Prepaid Amount - 0.
         VerifyGSTPurchaseEntry(DocumentNo);
-
-        // Tear Down.
-        UpdateGeneralLedgerSetupAndPurchasesSetup(GeneralLedgerSetup, OldGSTProdPostingGroup);
     end;
 
     [Test]
@@ -118,14 +108,12 @@ codeunit 141014 "ERM WHT - APAC"
     [Scope('OnPrem')]
     procedure PostedPurchInvAndCalculatePostWHTSettlement()
     var
-        GeneralLedgerSetup: Record "General Ledger Setup";
         GLAccount: Record "G/L Account";
         GLAccount2: Record "G/L Account";
         GLEntry: Record "G/L Entry";
         PurchaseLine: Record "Purchase Line";
         VATPostingSetup: Record "VAT Posting Setup";
         WHTPostingSetup: Record "WHT Posting Setup";
-        OldGSTProdPostingGroup: Code[20];
         DocumentNo: Code[20];
         WHTAmount: Decimal;
         WHTRoundingAmount: Decimal;
@@ -133,9 +121,8 @@ codeunit 141014 "ERM WHT - APAC"
         // [SCENARIO] WHT Settlement Amount, Create and Post Purchase Invoice and calculate and Post WHT Settlement.
 
         // [GIVEN] Create and Post Purchase Order, Create and Post General Journal with Applies To Document Number.
-        Initialize;
-        GeneralLedgerSetup.Get();
-        OldGSTProdPostingGroup := UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
+        Initialize();
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         UpdateSourceCodeSetupWHTSettlement;
         RunCalcAndPostWHTSettlement;
         DocumentNo :=
@@ -155,9 +142,6 @@ codeunit 141014 "ERM WHT - APAC"
         WHTRoundingAmount := WHTAmount - Round(WHTAmount, 1, '<');  // Rounded down to nearest whole value.
         VerifyGLEntry(GLEntry, GLAccount."No.", Round(WHTAmount, 1, '<'));  // Rounded down to nearest whole value.
         VerifyGLEntry(GLEntry, GLAccount2."No.", WHTRoundingAmount);
-
-        // Tear Down.
-        UpdateGeneralLedgerSetupAndPurchasesSetup(GeneralLedgerSetup, OldGSTProdPostingGroup);
     end;
 
     [Test]
@@ -166,22 +150,19 @@ codeunit 141014 "ERM WHT - APAC"
     procedure WithheldAmtOnBASCalculationSheet()
     var
         BASCalculationSheet: Record "BAS Calculation Sheet";
-        GeneralLedgerSetup: Record "General Ledger Setup";
         PurchaseLine: Record "Purchase Line";
         VATPostingSetup: Record "VAT Posting Setup";
         WHTPostingSetup: Record "WHT Posting Setup";
         A1: Text[11];
         DocumentNo: Code[20];
-        OldGSTProdPostingGroup: Code[20];
         WHTAmount: Decimal;
     begin
         // [SCENARIO] Withheld Amount on BAS Calculation Sheet, Create and Post Purchase Invoice, make Payment.
 
         // [GIVEN] Create and Post Purchase Order, Create and Post General Journal with Applies To Document Number.
-        Initialize;
-        GeneralLedgerSetup.Get();
-        UpdateSourceCodeSetupWHTSettlement;
-        OldGSTProdPostingGroup := UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
+        Initialize();
+        UpdateSourceCodeSetupWHTSettlement();
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         RunCalcAndPostWHTSettlement;
         DocumentNo :=
           CreateAndPostPurchaseOrder(
@@ -198,16 +179,12 @@ codeunit 141014 "ERM WHT - APAC"
         // [THEN] Verify Amounts Withheld with W4 flow field on BAS Calculation Sheet.
         BASCalculationSheet.FindFirst;
         BASCalculationSheet.TestField(W4, Round(WHTAmount, 1, '<'));  // Rounded down to nearest whole value.
-
-        // Tear Down.
-        UpdateGeneralLedgerSetupAndPurchasesSetup(GeneralLedgerSetup, OldGSTProdPostingGroup);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure WHTEntryForPaymentWithManualApplication()
     var
-        GeneralLedgerSetup: Record "General Ledger Setup";
         GenJournalLine: Record "Gen. Journal Line";
         PurchaseLine: Record "Purchase Line";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -215,15 +192,13 @@ codeunit 141014 "ERM WHT - APAC"
         WHTEntry: Record "WHT Entry";
         CurrencyCode: Code[10];
         DocumentNo: Code[20];
-        OldGSTProdPostingGroup: Code[20];
         WHTAmount: Decimal;
     begin
         // [SCENARIO] posting of payment without applying it to the invoice and manually apply the invoice and payment entries will create correct WHT Entries.
 
         // [GIVEN] Create and Post Purchase Order, Create and Post Payment.
-        Initialize;
-        GeneralLedgerSetup.Get();
-        OldGSTProdPostingGroup := UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
+        Initialize();
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CurrencyCode := CreateCurrencyWithExchangeRate;
         CreateWHTPostingSetupWithPayableAccount(WHTPostingSetup, CurrencyCode);
         DocumentNo :=
@@ -246,16 +221,12 @@ codeunit 141014 "ERM WHT - APAC"
         // [THEN] Verify WHT Entires created for Payment and invoice.
         VerifyWHTEntry(WHTEntry."Document Type"::Payment, GenJournalLine."Account No.", -WHTAmount, 0);  // Unrealized Amount - 0.
         VerifyWHTEntry(WHTEntry."Document Type"::Invoice, GenJournalLine."Account No.", 0, -WHTAmount);  // Amount - 0.
-
-        // Tear Down.
-        UpdateGeneralLedgerSetupAndPurchasesSetup(GeneralLedgerSetup, OldGSTProdPostingGroup);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure WHTEntryForPaymentWithAppliesToDocument()
     var
-        GeneralLedgerSetup: Record "General Ledger Setup";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -265,15 +236,13 @@ codeunit 141014 "ERM WHT - APAC"
         PurchaseInvoiceStatistics: TestPage "Purchase Invoice Statistics";
         DocumentNo: Code[20];
         DocumentNo2: Code[20];
-        OldGSTProdPostingGroup: Code[20];
         WHTAmount: Decimal;
     begin
         // [SCENARIO] Amount on G/L Entry, Post purchase order with multiple line, Create General Journal Line and apply Posted Invoices.
 
         // [GIVEN] Create and Post purchase order with multiple lines, Create and Post General Journal Line - Applies To Document Number.
-        Initialize;
-        GeneralLedgerSetup.Get();
-        OldGSTProdPostingGroup := UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
+        Initialize();
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         WHTAmount :=
           CreatePurchaseOrderWithMultipleLines(
             PurchaseLine, VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group", '');  // Blank as Currency.
@@ -295,23 +264,18 @@ codeunit 141014 "ERM WHT - APAC"
         VerifyAmountOnGLEntry(DocumentNo, VendorPostingGroup."Payables Account", -PurchaseHeader.Amount);
         VerifyAmountOnGLEntry(DocumentNo2, VendorPostingGroup."Payables Account", PurchaseHeader.Amount);
         PostedPurchaseInvoice.Close;
-
-        // Tear Down.
-        UpdateGeneralLedgerSetupAndPurchasesSetup(GeneralLedgerSetup, OldGSTProdPostingGroup);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure WHTEntryForPartialPaymentsWithDiffAccounts()
     var
-        GeneralLedgerSetup: Record "General Ledger Setup";
         PurchaseLine: Record "Purchase Line";
         VATPostingSetup: Record "VAT Posting Setup";
         CurrencyCode: Code[10];
         DocumentNo: Code[20];
         DocumentNo2: Code[20];
         VendorNo: Code[20];
-        OldGSTProdPostingGroup: Code[20];
         GenJnlDocNo: array[4] of Code[20];
         Amount: Decimal;
         Amount2: Decimal;
@@ -320,9 +284,8 @@ codeunit 141014 "ERM WHT - APAC"
         // [SCENARIO] WHT Amount, GST Entry for multiple partial payments to the invoices in different months.
 
         // [GIVEN] Create and Post multiple Purchase Orders, Create and Post multiple Payment Journal for partial payment.
-        Initialize;
-        GeneralLedgerSetup.Get();
-        OldGSTProdPostingGroup := UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
+        Initialize();
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CurrencyCode := CreateCurrencyWithExchangeRate;
         VendorNo := CreateVendor(VATPostingSetup."VAT Bus. Posting Group", '');  // Blank WHT Business Posting Group.
         DocumentNo :=
@@ -344,16 +307,12 @@ codeunit 141014 "ERM WHT - APAC"
         VerifyGSTPurchaseEntry(DocumentNo);
         VerifyGSTPurchaseEntry(DocumentNo2);
         VerifyVendorLedgerEntryAndWHTAmount(GenJnlDocNo, VendorNo, CurrencyCode, Amount, Amount2, Amount3);
-
-        // Tear Down.
-        UpdateGeneralLedgerSetupAndPurchasesSetup(GeneralLedgerSetup, OldGSTProdPostingGroup);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure PostedPurchInvStatsWithMultipleLineAndDiffWHTPayment()
     var
-        GeneralLedgerSetup: Record "General Ledger Setup";
         GenJournalLine: Record "Gen. Journal Line";
         PurchaseLine: Record "Purchase Line";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -362,16 +321,14 @@ codeunit 141014 "ERM WHT - APAC"
         PurchaseInvoiceStatistics: TestPage "Purchase Invoice Statistics";
         CurrencyCode: Code[10];
         DocumentNo: Code[20];
-        OldGSTProdPostingGroup: Code[20];
         Amount: Decimal;
         WHTAmount: Decimal;
     begin
         // [SCENARIO] WHT Amount on Purchase Invoice Statistics Page, Post purchase order with multiple lines and diffrent WHT Posting Setup, make Partial and full payment.
 
         // [GIVEN] Create and Post purchase order with multiple lines and diffrent WHT Posting Setup. Create and Post General Journal Line - Applies To Document Number with Partial payment and full payment.
-        Initialize;
-        GeneralLedgerSetup.Get();
-        OldGSTProdPostingGroup := UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
+        Initialize();
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CurrencyCode := CreateCurrencyWithExchangeRate;
         WHTAmount :=
           CreatePurchaseOrderWithMultipleLines(
@@ -395,9 +352,6 @@ codeunit 141014 "ERM WHT - APAC"
         FilterOnWHTEntry(WHTEntry, WHTEntry."Document Type"::Payment, PurchaseLine."Buy-from Vendor No.");
         Assert.AreEqual(6, WHTEntry.Count, ValueMustBeSameMsg);  // Six WHT Entry are created in Against of Posted Entries.
         PostedPurchaseInvoice.Close;
-
-        // Tear Down.
-        UpdateGeneralLedgerSetupAndPurchasesSetup(GeneralLedgerSetup, OldGSTProdPostingGroup);
     end;
 
     [Test]
@@ -555,9 +509,259 @@ codeunit 141014 "ERM WHT - APAC"
           WHTPostingSetup.GetPayableWHTAccount, 'WHTPostingSetup.GetPayableWHTAccount returned wrong data');
     end;
 
+    [Test]
+    procedure JournalPostingNoSeriesLessThanNoSeriesOnePmtOneInv()
+    var
+        InvoiceGenJournalLine: Record "Gen. Journal Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        // [FEATURE] [No. Series] [Journal] [Payment] [Purchase]
+        // [SCENARIO 384295] Posting of one payment applied to one invoice with WHT in case of
+        // [SCENARIO 384295] journal Posting No Series ("A..") goes before No. Series ("B..")
+        Initialize();
+
+        // [GIVEN] Posted purchase invoice with WHT
+        CreateAndPostVendorInvoice(InvoiceGenJournalLine, CreateDefaultVendorNo());
+
+        // [GIVEN] General Journal Batch with No. Series "B0..B9", Posting No. Series "A0..A9"
+        CreateGenJournalBatchWithCustomNoSeries(GenJournalBatch, 'B0', 'B9', 'A0', 'A9');
+
+        // [GIVEN] One payment applied to the posted invoice (journal Document No. = "B0")
+        CreateOnePmtAppliedToOneInv(GenJournalLine, GenJournalBatch, InvoiceGenJournalLine, 'B0');
+
+        // [WHEN] Post the payment journal
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Payment posting produced 3 G/L entries including 1 WHT with Document No. = "A0"
+        VerifyPostingNoSeriesOnePostedDoc(GenJournalBatch, 'A0', 3, 1);
+    end;
+
+    [Test]
+    procedure JournalPostingNoSeriesMoreThanNoSeriesOnePmtOneInv()
+    var
+        InvoiceGenJournalLine: Record "Gen. Journal Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        // [FEATURE] [No. Series] [Journal] [Payment] [Purchase]
+        // [SCENARIO 384295] Posting of one payment applied to one invoice with WHT in case of
+        // [SCENARIO 384295] journal Posting No Series ("B..") goes after No. Series ("A..")
+        Initialize();
+
+        // [GIVEN] Posted purchase invoice with WHT
+        CreateAndPostVendorInvoice(InvoiceGenJournalLine, CreateDefaultVendorNo());
+
+        // [GIVEN] General Journal Batch with No. Series "A0..A9", Posting No. Series "B0..B9"
+        CreateGenJournalBatchWithCustomNoSeries(GenJournalBatch, 'A0', 'A9', 'B0', 'B9');
+
+        // [GIVEN] One payment applied to the posted invoice (journal Document No. = "A0")
+        CreateOnePmtAppliedToOneInv(GenJournalLine, GenJournalBatch, InvoiceGenJournalLine, 'A0');
+
+        // [WHEN] Post the payment journal
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Payment posting produced 3 G/L entries including 1 WHT with Document No. = "B0"
+        VerifyPostingNoSeriesOnePostedDoc(GenJournalBatch, 'B0', 3, 1);
+    end;
+
+    [Test]
+    procedure JournalPostingNoSeriesLessThanNoSeriesOnePmtTwoInv()
+    var
+        InvoiceGenJournalLine: array[2] of Record "Gen. Journal Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [No. Series] [Journal] [Payment] [Purchase]
+        // [SCENARIO 384295] Posting of one payment applied to two invoices with WHT in case of
+        // [SCENARIO 384295] journal Posting No Series ("A..") goes before No. Series ("B..")
+        Initialize();
+
+        // [GIVEN] Two posted purchase invoice with WHT
+        VendorNo := CreateDefaultVendorNo();
+        CreateAndPostVendorInvoice(InvoiceGenJournalLine[1], VendorNo);
+        CreateAndPostVendorInvoice(InvoiceGenJournalLine[2], VendorNo);
+
+        // [GIVEN] General Journal Batch with No. Series "B0..B9", Posting No. Series "A0..A9"
+        CreateGenJournalBatchWithCustomNoSeries(GenJournalBatch, 'B0', 'B9', 'A0', 'A9');
+
+        // [GIVEN] One payment applied to the both posted invoices (journal Document No. = "B0")
+        CreateOnePmtAppliedToTwoInv(GenJournalLine, GenJournalBatch, InvoiceGenJournalLine, 'B0');
+
+        // [WHEN] Post the payment journal
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Payment posting produced 4 G/L entries including 2 WHT with Document No. = "A0"
+        VerifyPostingNoSeriesOnePostedDoc(GenJournalBatch, 'A0', 4, 2);
+    end;
+
+    [Test]
+    procedure JournalPostingNoSeriesMoreThanNoSeriesOnePmtTwoInv()
+    var
+        InvoiceGenJournalLine: array[2] of Record "Gen. Journal Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [No. Series] [Journal] [Payment] [Purchase]
+        // [SCENARIO 384295] Posting of one payment applied to two invoices with WHT in case of
+        // [SCENARIO 384295] journal Posting No Series ("B..") goes after No. Series ("A..")
+        Initialize();
+
+        // [GIVEN] Two posted purchase invoices with WHT
+        VendorNo := CreateDefaultVendorNo();
+        CreateAndPostVendorInvoice(InvoiceGenJournalLine[1], VendorNo);
+        CreateAndPostVendorInvoice(InvoiceGenJournalLine[2], VendorNo);
+
+        // [GIVEN] General Journal Batch with No. Series "A0..A9", Posting No. Series "B0..B9"
+        CreateGenJournalBatchWithCustomNoSeries(GenJournalBatch, 'A0', 'A9', 'B0', 'B9');
+
+        // [GIVEN] One payment applied to the both posted invoices (journal Document No. = "A0")
+        CreateOnePmtAppliedToTwoInv(GenJournalLine, GenJournalBatch, InvoiceGenJournalLine, 'A0');
+
+        // [WHEN] Post the payment journal
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Payment posting produced 4 G/L entries including 2 WHT with Document No. = "B0"
+        VerifyPostingNoSeriesOnePostedDoc(GenJournalBatch, 'B0', 4, 2);
+    end;
+
+    [Test]
+    procedure JournalPostingNoSeriesLessThanNoSeriesTwoPmtTwoInvDiffDocNos()
+    var
+        InvoiceGenJournalLine: array[2] of Record "Gen. Journal Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        // [FEATURE] [No. Series] [Journal] [Payment] [Purchase]
+        // [SCENARIO 384295] Posting of two payments each applied to one invoice with WHT in case of
+        // [SCENARIO 384295] journal Posting No Series ("A..") goes before No. Series ("B..") and different payment document numbers
+        Initialize();
+
+        // [GIVEN] Two posted purchase invoices with WHT
+        CreateAndPostVendorInvoice(InvoiceGenJournalLine[1], CreateDefaultVendorNo());
+        CreateAndPostVendorInvoice(InvoiceGenJournalLine[2], CreateDefaultVendorNo());
+
+        // [GIVEN] General Journal Batch with No. Series "B0..B9", Posting No. Series "A0..A9"
+        CreateGenJournalBatchWithCustomNoSeries(GenJournalBatch, 'B0', 'B9', 'A0', 'A9');
+
+        // [GIVEN] Two payments each applied to one of the posted invoices (journal lines Document No. = "B0", "B1")
+        CreateOnePmtAppliedToOneInv(GenJournalLine, GenJournalBatch, InvoiceGenJournalLine[1], 'B0');
+        CreateOnePmtAppliedToOneInv(GenJournalLine, GenJournalBatch, InvoiceGenJournalLine[2], 'B1');
+
+        // [WHEN] Post the payment journal
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Payment posting produced 6 G/L entries including 3 with Document No. = "A0", 3 with Document No. = "A1"
+        VerifyPostingNoSeriesTwoPostedDocs(GenJournalBatch, 'A0', 'A1');
+    end;
+
+    [Test]
+    procedure JournalPostingNoSeriesMoreThanNoSeriesTwoPmtTwoInvDiffDocNos()
+    var
+        InvoiceGenJournalLine: array[2] of Record "Gen. Journal Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        // [FEATURE] [No. Series] [Journal] [Payment] [Purchase]
+        // [SCENARIO 384295] Posting of two payments each applied to one invoice with WHT in case of
+        // [SCENARIO 384295] journal Posting No Series ("B..") goes after No. Series ("A..") and different payment document numbers
+        Initialize();
+
+        // [GIVEN] Two posted purchase invoices with WHT
+        CreateAndPostVendorInvoice(InvoiceGenJournalLine[1], CreateDefaultVendorNo());
+        CreateAndPostVendorInvoice(InvoiceGenJournalLine[2], CreateDefaultVendorNo());
+
+        // [GIVEN] General Journal Batch with No. Series "A0..A9", Posting No. Series "B0..B9"
+        CreateGenJournalBatchWithCustomNoSeries(GenJournalBatch, 'A0', 'A9', 'B0', 'B9');
+
+        // [GIVEN] Two payments each applied to one of the posted invoices (journal lines Document No. = "A0", "A1")
+        CreateOnePmtAppliedToOneInv(GenJournalLine, GenJournalBatch, InvoiceGenJournalLine[1], 'A0');
+        CreateOnePmtAppliedToOneInv(GenJournalLine, GenJournalBatch, InvoiceGenJournalLine[2], 'A1');
+
+        // [WHEN] Post the payment journal
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Payment posting produced 6 G/L entries including 3 with Document No. = "B0", 3 with Document No. = "B1"
+        VerifyPostingNoSeriesTwoPostedDocs(GenJournalBatch, 'B0', 'B1');
+    end;
+
+    [Test]
+    procedure JournalPostingNoSeriesLessThanNoSeriesTwoPmtTwoInvSameDocNos()
+    var
+        InvoiceGenJournalLine: array[2] of Record "Gen. Journal Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        // [FEATURE] [No. Series] [Journal] [Payment] [Purchase]
+        // [SCENARIO 384295] Posting of two payments each applied to one invoice with WHT in case of
+        // [SCENARIO 384295] journal Posting No Series ("A..") goes before No. Series ("B..") and the same payment document numbers
+        Initialize();
+
+        // [GIVEN] Two posted purchase invoices with WHT
+        CreateAndPostVendorInvoice(InvoiceGenJournalLine[1], CreateDefaultVendorNo());
+        CreateAndPostVendorInvoice(InvoiceGenJournalLine[2], CreateDefaultVendorNo());
+
+        // [GIVEN] General Journal Batch with No. Series "B0..B9", Posting No. Series "A0..A9"
+        CreateGenJournalBatchWithCustomNoSeries(GenJournalBatch, 'B0', 'B9', 'A0', 'A9');
+
+        // [GIVEN] Two payments each applied to one of the posted invoices (journal lines Document No. = "B0", "B0")
+        CreateOnePmtAppliedToOneInv(GenJournalLine, GenJournalBatch, InvoiceGenJournalLine[1], 'B0');
+        CreateOnePmtAppliedToOneInv(GenJournalLine, GenJournalBatch, InvoiceGenJournalLine[2], 'B0');
+
+        // [WHEN] Post the payment journal
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Payment posting produced 6 G/L entries including 2 WHT with Document No. = "A0"
+        VerifyPostingNoSeriesOnePostedDoc(GenJournalBatch, 'A0', 6, 2);
+    end;
+
+    [Test]
+    procedure JournalPostingNoSeriesMoreThanNoSeriesTwoPmtTwoInvSameDocNos()
+    var
+        InvoiceGenJournalLine: array[2] of Record "Gen. Journal Line";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+    begin
+        // [FEATURE] [No. Series] [Journal] [Payment] [Purchase]
+        // [SCENARIO 384295] Posting of two payments each applied to one invoice with WHT in case of
+        // [SCENARIO 384295] journal Posting No Series ("B..") goes after No. Series ("A..") and the same payment document numbers
+        Initialize();
+
+        // [GIVEN] Two posted purchase invoices with WHT
+        CreateAndPostVendorInvoice(InvoiceGenJournalLine[1], CreateDefaultVendorNo());
+        CreateAndPostVendorInvoice(InvoiceGenJournalLine[2], CreateDefaultVendorNo());
+
+        // [GIVEN] General Journal Batch with No. Series "A0..A9", Posting No. Series "B0..B9"
+        CreateGenJournalBatchWithCustomNoSeries(GenJournalBatch, 'A0', 'A9', 'B0', 'B9');
+
+        // [GIVEN] Two payments each applied to one of the posted invoices (journal lines Document No. = "A0", "A0")
+        CreateOnePmtAppliedToOneInv(GenJournalLine, GenJournalBatch, InvoiceGenJournalLine[1], 'A0');
+        CreateOnePmtAppliedToOneInv(GenJournalLine, GenJournalBatch, InvoiceGenJournalLine[2], 'A0');
+
+        // [WHEN] Post the payment journal
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [THEN] Payment posting produced 6 G/L entries including 2 WHT with Document No. = "B0"
+        VerifyPostingNoSeriesOnePostedDoc(GenJournalBatch, 'B0', 6, 2);
+    end;
+
     local procedure Initialize()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
     begin
         LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore;
+
+        IF IsInitialized THEN
+            exit;
+        IsInitialized := true;
+
+        UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
+
+        LibrarySetupStorage.SavePurchasesSetup;
+        LibrarySetupStorage.SaveGeneralLedgerSetup;
     end;
 
     local procedure ApplyVendorLedgerEntry(var ApplyingVendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
@@ -746,6 +950,14 @@ codeunit 141014 "ERM WHT - APAC"
         exit(Vendor."No.");
     end;
 
+    local procedure CreateDefaultVendorNo(): Code[20]
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+    begin
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        exit(CreateVendor(VATPostingSetup."VAT Bus. Posting Group", ''));
+    end;
+
     local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; No: Code[20]; DirectUnitCost: Decimal)
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, LibraryRandom.RandInt(5));  // Random Quantity.
@@ -907,6 +1119,62 @@ codeunit 141014 "ERM WHT - APAC"
         GenJournalLine.Modify(true);
     end;
 
+    local procedure CreateOnePmtAppliedToOneInv(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; InvoiceJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20])
+    begin
+        LibraryJournals.CreateGenJournalLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Payment, InvoiceJournalLine."Account Type", InvoiceJournalLine."Account No.",
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, -InvoiceJournalLine.Amount);
+        GenJournalLine.Validate("Document No.", DocumentNo);
+        GenJournalLine.Validate("Applies-to Doc. Type", InvoiceJournalLine."Document Type");
+        GenJournalLine.Validate("Applies-to Doc. No.", InvoiceJournalLine."Document No.");
+        GenJournalLine.Modify(true);
+    end;
+
+    local procedure CreateOnePmtAppliedToTwoInv(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; InvoiceJournalLine: array[2] of Record "Gen. Journal Line"; DocumentNo: Code[20])
+    begin
+        LibraryJournals.CreateGenJournalLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, InvoiceJournalLine[1]."Account No.",
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
+          -(InvoiceJournalLine[1].Amount + InvoiceJournalLine[2].Amount));
+        GenJournalLine.Validate("Document No.", DocumentNo);
+        GenJournalLine.Validate("Applies-to ID", LibraryUtility.GenerateGUID());
+        GenJournalLine.Modify(true);
+
+        SetAppliesToIDVendorLedgerEntry(InvoiceJournalLine[1]."Document No.", GenJournalLine."Applies-to ID");
+        SetAppliesToIDVendorLedgerEntry(InvoiceJournalLine[2]."Document No.", GenJournalLine."Applies-to ID");
+    end;
+
+    local procedure CreateGenJournalBatchWithCustomNoSeries(var GenJournalBatch: Record "Gen. Journal Batch"; NoSeriesStartingNo: Code[20]; NoSeriesEndingNo: Code[20]; PostingNoSeriesStartingNo: Code[20]; PostingNoSeriesEndingNo: Code[20])
+    begin
+        LibraryJournals.CreateGenJournalBatch(GenJournalBatch);
+        GenJournalBatch.Validate("No. Series", CreateCustomNoSeries(NoSeriesStartingNo, NoSeriesEndingNo));
+        GenJournalBatch.Validate("Posting No. Series", CreateCustomNoSeries(PostingNoSeriesStartingNo, PostingNoSeriesEndingNo));
+        GenJournalBatch.Modify(true);
+    end;
+
+    local procedure CreateCustomNoSeries(StartingNo: Code[20]; EndingNo: Code[20]): Code[20];
+    var
+        NoSeries: Record "No. Series";
+        NoSeriesLine: Record "No. Series Line";
+    begin
+        LibraryUtility.CreateNoSeries(NoSeries, true, true, false);
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, StartingNo, EndingNo);
+        exit(NoSeries.Code);
+    end;
+
+    local procedure SetAppliesToIDVendorLedgerEntry(DocumentNo: Code[20]; AppliesToID: Code[50])
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+    begin
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, DocumentNo);
+        VendorLedgerEntry.Validate("Applies-to ID", AppliesToID);
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+        VendorLedgerEntry.Validate("Amount to Apply", VendorLedgerEntry."Remaining Amount");
+        VendorLedgerEntry.Modify();
+    end;
+
     local procedure FindBASSetup(AccountTotaling: Text[80]): Code[11]
     var
         BASSetup: Record "BAS Setup";
@@ -1049,11 +1317,11 @@ codeunit 141014 "ERM WHT - APAC"
         UpdateGSTProdPostingGroupOnPurchasesSetup(OldGSTProdPostingGroup);
     end;
 
-    local procedure UpdateGLSetupAndPurchasesPayablesSetup(var VATPostingSetup: Record "VAT Posting Setup"): Code[20]
+    local procedure UpdateGLSetupAndPurchasesPayablesSetup(var VATPostingSetup: Record "VAT Posting Setup")
     begin
         UpdateLocalFunctionalitiesOnGeneralLedgerSetup(true, true, true);  // Enable GST (Australia),Enable WHT and GST Report as True.
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        exit(UpdateGSTProdPostingGroupOnPurchasesSetup(CreateVATPostingSetupWithZeroVATPct(VATPostingSetup."VAT Bus. Posting Group")));
+        UpdateGSTProdPostingGroupOnPurchasesSetup(CreateVATPostingSetupWithZeroVATPct(VATPostingSetup."VAT Bus. Posting Group"));
     end;
 
     local procedure UpdateSourceCodeSetupWHTSettlement()
@@ -1170,6 +1438,43 @@ codeunit 141014 "ERM WHT - APAC"
         VerifyClosedVendorLedgerEntry(DcoumentNo[2]);
         VerifyClosedVendorLedgerEntry(DcoumentNo[3]);
         VerifyClosedVendorLedgerEntry(DcoumentNo[4]);
+    end;
+
+    local procedure VerifyPostingNoSeriesOnePostedDoc(GenJournalBatch: Record "Gen. Journal Batch"; PostedNo: Code[20]; GLEntryCount: Integer; WHTEntryCount: Integer)
+    var
+        GLEntry: Record "G/L Entry";
+        WHTEntry: Record "WHT Entry";
+        GLRegister: Record "G/L Register";
+    begin
+        GLRegister.FindLast();
+        GLRegister.TestField("To Entry No.", GLRegister."From Entry No." + GLEntryCount - 1);
+
+        WHTEntry.SetRange("Entry No.", GLRegister."From WHT Entry No.", GLRegister."To WHT Entry No.");
+        Assert.RecordCount(WHTEntry, WHTEntryCount);
+
+        GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
+        GLEntry.SetRange("Document No.", PostedNo);
+        Assert.RecordCount(GLEntry, GLEntryCount);
+    end;
+
+    local procedure VerifyPostingNoSeriesTwoPostedDocs(GenJournalBatch: Record "Gen. Journal Batch"; PostedNo1: Code[20]; PostedNo2: Code[20])
+    var
+        GLEntry: Record "G/L Entry";
+        WHTEntry: Record "WHT Entry";
+        GLRegister: Record "G/L Register";
+    begin
+        GLRegister.FindLast();
+        GLRegister.TestField("To Entry No.", GLRegister."From Entry No." + 5);
+
+        WHTEntry.SetRange("Entry No.", GLRegister."From WHT Entry No.", GLRegister."To WHT Entry No.");
+        Assert.RecordCount(WHTEntry, 2);
+
+        GLEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
+        GLEntry.SetRange("Document No.", PostedNo1);
+        Assert.RecordCount(GLEntry, 3);
+
+        GLEntry.SetRange("Document No.", PostedNo2);
+        Assert.RecordCount(GLEntry, 3);
     end;
 
     [RequestPageHandler]

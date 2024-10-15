@@ -233,10 +233,8 @@ table 8627 "Config. Setup"
             Caption = 'Package File Name';
 
             trigger OnValidate()
-            var
-                FileManagement: Codeunit "File Management";
             begin
-                ReadPackageHeader(DecompressPackage(FileManagement.IsLocalFileSystemAccessible));
+                ReadPackageHeader(DecompressPackage(false));
             end;
         }
         field(8601; "Package Code"; Code[20])
@@ -301,7 +299,6 @@ table 8627 "Config. Setup"
     [Scope('OnPrem')]
     procedure CompleteWizard(): Boolean
     var
-        FileMgt: Codeunit "File Management";
         Scope: Option System,Tenant;
         AppID: Guid;
     begin
@@ -309,7 +306,7 @@ table 8627 "Config. Setup"
         TestField("Package Code");
         TestField("Package Name");
 
-        ImportPackage(DecompressPackage(FileMgt.IsLocalFileSystemAccessible));
+        ImportPackage(DecompressPackage(false));
         ApplyPackages;
         ApplyAnswers;
         CopyCompInfo;
@@ -488,9 +485,10 @@ table 8627 "Config. Setup"
     var
         ConfigXMLExchange: Codeunit "Config. XML Exchange";
         FileMgt: Codeunit "File Management";
+        ChooseFileTitleMsg: Label 'Choose the file to upload.';
     begin
         if UploadToServer then
-            DecompressedFileName := ConfigXMLExchange.DecompressPackage(FileMgt.UploadFileToServer("Package File Name"))
+            DecompressedFileName := ConfigXMLExchange.DecompressPackage(FileMgt.UploadFile(ChooseFileTitleMsg, ''))
         else
             DecompressedFileName := ConfigXMLExchange.DecompressPackage("Package File Name");
     end;

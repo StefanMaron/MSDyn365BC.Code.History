@@ -104,7 +104,7 @@ report 28167 "BAS - Import/Export Setup"
     begin
         if FileName2 = '' then
             FileName2 := '.xml';
-        NewFileName := FileMgt.OpenFileDialog(Text034, FileName2, '');
+        NewFileName := FileMgt.UploadFile(Text034, FileName2);
         if NewFileName <> '' then
             FileName2 := NewFileName;
     end;

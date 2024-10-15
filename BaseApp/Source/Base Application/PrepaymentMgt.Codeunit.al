@@ -11,6 +11,20 @@ codeunit 441 "Prepayment Mgt."
         StatusOfPurchaseOrderIsChangedTxt: Label 'The status of the purchase order %1 is changed from Pending Prepayment to Release.', Comment = '%1 - purchase order no.';
         UpdateSalesOrderStatusTxt: Label 'Update sales order status.';
         UpdatePurchaseOrderStatusTxt: Label 'Update purchase order status.';
+        PrepaymentAmountHigherThanTheOrderErr: Label 'The Prepayment account is assigned to a VAT product posting group where the VAT percentage is not equal to zero. This can cause posting errors when invoices have mixed VAT lines. To avoid errors, set the VAT percentage to zero for the account.';
+
+    procedure AssertPrepmtAmountNotMoreThanDocAmount(DocumentTotalInclVAT: Decimal; PrepmtTotalInclVAT: Decimal; CurrencyCode: Code[10]; InvoiceRoundingSetup: Boolean)
+    var
+        CurrencyLcl: Record Currency;
+    begin
+        if InvoiceRoundingSetup then begin
+            CurrencyLcl.Initialize(CurrencyCode);
+            DocumentTotalInclVAT :=
+              Round(DocumentTotalInclVAT, CurrencyLcl."Invoice Rounding Precision", CurrencyLcl.InvoiceRoundingDirection());
+        end;
+        if Abs(PrepmtTotalInclVAT) > Abs(DocumentTotalInclVAT) then
+            Error(PrepaymentAmountHigherThanTheOrderErr);
+    end;
 
     procedure SetSalesPrepaymentPct(var SalesLine: Record "Sales Line"; Date: Date)
     var
