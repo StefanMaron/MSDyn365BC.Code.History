@@ -80,6 +80,7 @@
         Text029: Label 'The combination of dimensions used in %1 %2, line no. %3 is blocked. %4';
         Text030: Label 'The dimensions used in %1 %2 are invalid. %3';
         Text031: Label 'The dimensions used in %1 %2, line no. %3 are invalid. %4';
+        VATDateNotAllowedErr: Label 'is not within your range of allowed posting dates.';
         CloseCondition: Boolean;
         ServLinesPassed: Boolean;
         Text035: Label 'The %1 %2 relates to the same %3 as %1 %4.';
@@ -114,8 +115,6 @@
     end;
 
     procedure CheckServiceDocument(var PassedServiceHeader: Record "Service Header"; var PassedServiceLine: Record "Service Line")
-    var
-        GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
     begin
         PrepareDocument(PassedServiceHeader, PassedServiceLine);
         PassedServiceHeader.ValidateSalesPersonOnServiceHeader(PassedServiceHeader, true, true);
@@ -123,9 +122,8 @@
         CheckShippingAdvice();
         CheckDimensions();
         GetAndCheckCustomer();
-        
-        GenJnlCheckLine.CheckVATDateAllowed(PassedServiceHeader."VAT Reporting Date");
 
+        CheckVATDate(PassedServiceHeader);
     end;
 
     local procedure GetInvoicePostingSetup()
@@ -2275,6 +2273,26 @@
         ServLedgEntry.SetFilter("Entry No.", '<%1', ServLedgEntryNo);
 
         OnAfterSetServiceLedgerEntryFilters(ServLedgEntry);
+    end;
+
+    local procedure CheckVATDate(var ServiceHeader: Record "Service Header")
+    var
+        GLSetup: Record "General Ledger Setup";
+        GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
+        SetupRecID: RecordID;
+    begin
+        // ensure VAT Date is filled in
+        If ServiceHeader."VAT Reporting Date" = 0D then begin
+            ServiceHeader."VAT Reporting Date" := GLSetup.GetVATDate(ServiceHeader."Posting Date", ServiceHeader."Document Date");
+            ServiceHeader.Modify();
+        end;
+
+        // check whether VAT Date is within allowed VAT Periods
+        GenJnlCheckLine.CheckVATDateAllowed(ServiceHeader."VAT Reporting Date");
+
+        // check whether VAT Date is within Allowed period defined in Gen. Ledger Setup
+        if GenJnlCheckLine.IsDateNotAllowed(ServiceHeader."VAT Reporting Date", SetupRecID, ServiceHeader."Journal Templ. Name") then
+            ServiceHeader.FieldError(ServiceHeader."VAT Reporting Date", VATDateNotAllowedErr);
     end;
 
 #if not CLEAN20

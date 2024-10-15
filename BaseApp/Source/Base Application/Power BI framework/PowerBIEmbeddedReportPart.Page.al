@@ -85,14 +85,8 @@ page 6325 "Power BI Embedded Report Part"
                     end;
 
                     trigger DocumentReady()
-                    var
-                        LoadReportMessage: Text;
                     begin
-                        if not Rec.IsEmpty() then
-                            if PowerBiEmbedHelper.TryGetLoadReportMessage(LoadReportMessage) then
-                                CurrPage.WebReportViewer.PostMessage(LoadReportMessage, PowerBiEmbedHelper.TargetOrigin(), false)
-                            else
-                                ShowError(GetLastErrorText());
+                        InitializeAddIn();
                     end;
 
                     trigger Callback(data: Text)
@@ -648,6 +642,18 @@ page 6325 "Power BI Embedded Report Part"
     procedure GetOptinImageName(): Text[250]
     begin
         exit(PowerBiOptInImageNameLbl);
+    end;
+
+    [NonDebuggable]
+    local procedure InitializeAddIn()
+    var
+        LoadReportMessage: Text;
+    begin
+        if not Rec.IsEmpty() then
+            if PowerBiEmbedHelper.TryGetLoadReportMessage(LoadReportMessage) then
+                CurrPage.WebReportViewer.PostMessage(LoadReportMessage, PowerBiEmbedHelper.TargetOrigin(), false)
+            else
+                ShowError(GetLastErrorText());
     end;
 
     #endregion

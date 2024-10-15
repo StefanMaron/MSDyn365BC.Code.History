@@ -43,6 +43,12 @@ report 5971 "Service Contract-Detail"
                 column(BilltoName_ServeContrHdr; "Service Contract Header"."Bill-to Name")
                 {
                 }
+                column(CompanyAddr8; CompanyAddr[8])
+                {
+                }
+                column(CompanyAddr7; CompanyAddr[7])
+                {
+                }
                 column(CompanyAddr6; CompanyAddr[6])
                 {
                 }

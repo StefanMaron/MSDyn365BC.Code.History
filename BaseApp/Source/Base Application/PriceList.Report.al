@@ -56,6 +56,12 @@ report 715 "Price List"
             column(CompanyAddr6; CompanyAddr[6])
             {
             }
+            column(CompanyAddr7; CompanyAddr[7])
+            {
+            }
+            column(CompanyAddr8; CompanyAddr[8])
+            {
+            }
             column(SalesType; SalesType)
             {
                 OptionCaption = 'Customer,Customer Price Group,All Customers,Campaign';

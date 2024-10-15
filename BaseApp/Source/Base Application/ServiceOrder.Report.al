@@ -64,6 +64,12 @@ report 5900 "Service Order"
                     column(CustAddr1; CustAddr[1])
                     {
                     }
+                    column(CompanyAddr8; CompanyAddr[8])
+                    {
+                    }
+                    column(CompanyAddr7; CompanyAddr[7])
+                    {
+                    }
                     column(CompanyAddr6; CompanyAddr[6])
                     {
                     }

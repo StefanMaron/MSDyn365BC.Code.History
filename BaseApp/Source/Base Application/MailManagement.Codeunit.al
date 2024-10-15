@@ -81,7 +81,7 @@ codeunit 9520 "Mail Management"
         for Index := 1 to Attachments.Count() do begin
             Attachments.Get(Index, Attachment);
             Attachment.CreateInStream(AttachmentStream);
-            Message.AddAttachment(CopyStr(AttachmentNames.Get(Index), 1, 250), '', AttachmentStream);
+            Message.AddAttachment(GetAttachmentName(AttachmentNames, Index), '', AttachmentStream);
         end;
 
         Session.LogMessage('0000CTW', StrSubstNo(EmailScenarioMsg, Format(CurrentEmailScenario)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailManagementCategoryTxt, 'EmailMessageID', Message.GetId());
@@ -102,6 +102,12 @@ codeunit 9520 "Mail Management"
             ErrorMessageManagement.LogSimpleErrorMessage(GetLastErrorText());
 
         exit(MailSent);
+    end;
+
+    local procedure GetAttachmentName(AttachmentNames: List of [Text]; Index: Integer) AttachmentName: Text[250]
+    begin
+        AttachmentName := CopyStr(AttachmentNames.Get(Index), 1, 250);
+        OnAfterGetAttachmentName(AttachmentNames, Index, AttachmentName);
     end;
 
     internal procedure RecipientStringToList(DelimitedRecipients: Text; var Recipients: List of [Text])
@@ -544,6 +550,11 @@ codeunit 9520 "Mail Management"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterIsBackground(var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetAttachmentName(AttachmentNames: List of [Text]; Index: Integer; var AttachmentName: Text[250])
     begin
     end;
 

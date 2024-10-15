@@ -44,26 +44,17 @@ codeunit 487 "Job Queue Start Report"
                 ProcessPrint(ReportID, JobQueueEntry, RunOnRec, RecRef);
             JobQueueEntry."Report Output Type"::PDF:
                 begin
-                    if RunOnRec then
-                        REPORT.SaveAs(ReportID, JobQueueEntry.GetReportParameters(), REPORTFORMAT::Pdf, OutStr, RecRef)
-                    else
-                        REPORT.SaveAs(ReportID, JobQueueEntry.GetReportParameters(), REPORTFORMAT::Pdf, OutStr);
+                    ProcessSaveAs(ReportID, JobQueueEntry, RunOnRec, RecRef, REPORTFORMAT::Pdf, OutStr);
                     ReportInbox."Output Type" := ReportInbox."Output Type"::PDF;
                 end;
             JobQueueEntry."Report Output Type"::Word:
                 begin
-                    if RunOnRec then
-                        REPORT.SaveAs(ReportID, JobQueueEntry.GetReportParameters(), REPORTFORMAT::Word, OutStr, RecRef)
-                    else
-                        REPORT.SaveAs(ReportID, JobQueueEntry.GetReportParameters(), REPORTFORMAT::Word, OutStr);
+                    ProcessSaveAs(ReportID, JobQueueEntry, RunOnRec, RecRef, REPORTFORMAT::Word, OutStr);
                     ReportInbox."Output Type" := ReportInbox."Output Type"::Word;
                 end;
             JobQueueEntry."Report Output Type"::Excel:
                 begin
-                    if RunOnRec then
-                        REPORT.SaveAs(ReportID, JobQueueEntry.GetReportParameters(), REPORTFORMAT::Excel, OutStr, RecRef)
-                    else
-                        REPORT.SaveAs(ReportID, JobQueueEntry.GetReportParameters(), REPORTFORMAT::Excel, OutStr);
+                    ProcessSaveAs(ReportID, JobQueueEntry, RunOnRec, RecRef, REPORTFORMAT::Excel, OutStr);
                     ReportInbox."Output Type" := ReportInbox."Output Type"::Excel;
                 end;
         end;
@@ -111,6 +102,21 @@ codeunit 487 "Job Queue Start Report"
             REPORT.Print(ReportID, JobQueueEntry.GetReportParameters(), JobQueueEntry."Printer Name");
     end;
 
+    local procedure ProcessSaveAs(ReportID: Integer; var JobQueueEntry: Record "Job Queue Entry"; RunOnRec: Boolean; var RecordRef: RecordRef; RepFormat: ReportFormat; var OutStream: OutStream)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeProcessSaveAs(ReportID, JobQueueEntry, RunOnRec, RecordRef, RepFormat, OutStream, IsHandled);
+        if IsHandled then
+            exit;
+
+        if RunOnRec then
+            REPORT.SaveAs(ReportID, JobQueueEntry.GetReportParameters(), RepFormat, OutStream, RecordRef)
+        else
+            REPORT.SaveAs(ReportID, JobQueueEntry.GetReportParameters(), RepFormat, OutStream);
+    end;
+
     local procedure SetReportTimeOut(JobQueueEntry: Record "Job Queue Entry")
     var
         ReportSettingsOverride: Record "Report Settings Override";
@@ -143,6 +149,11 @@ codeunit 487 "Job Queue Start Report"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeProcessPrint(ReportID: Integer; var JobQueueEntry: Record "Job Queue Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeProcessSaveAs(ReportID: Integer; var JobQueueEntry: Record "Job Queue Entry"; RunOnRec: Boolean; var RecordRef: RecordRef; RepFormat: ReportFormat; var OutStream: OutStream; var IsHandled: Boolean)
     begin
     end;
 

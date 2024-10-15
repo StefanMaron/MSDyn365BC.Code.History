@@ -32,7 +32,7 @@ codeunit 137296 "SCM Inventory Misc. IV"
         ItemVariantExistError: Label 'The Item Variant does not exist. Identification fields and values: Item No.=''%1'',Code=''%2''';
         ItemVariantError: Label 'You cannot delete item variant %1 because there is at least one %2 that includes this Variant Code.';
         UpdateAutomaticCostMessage: Label 'The field Automatic Cost Posting should not be set to Yes if field Use Legacy G/L Entry Locking in General Ledger Setup table is set to No because of possibility of deadlocks.';
-        UpdateExpCostConfMessage: Label 'If you change the Expected Cost Posting to G/L, the program must update table Post Value Entry to G/L.This can take several hours.';
+        UpdateExpCostConfMessage: Label 'If you enable the Expected Cost Posting to G/L, the program must update table Post Value Entry to G/L.This can take several hours.';
         UpdateExpCostMessage: Label 'Expected Cost Posting to G/L has been changed to Yes. You should now run Post Inventory Cost to G/L.';
         UpdateAutomaticCostPeriodMessage: Label 'Some unadjusted value entries will not be covered with the new setting.';
         WrongNextCountingStartDateErr: Label 'Wrong next phys. inventory counting period start date.';
