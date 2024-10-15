@@ -6338,7 +6338,7 @@
         Initialize();
 
         // [GIVEN] Disposed Fixed Asset, Fixed Asset No. = FA01, Depreciation Book Code = DEPRBOOK.
-        MockDisposedFA(FADeprBook);
+        MockFixedAsset(FADeprBook, true);
         Commit();
 
         // [GIVEN] Purchase Order with Purchase Line with disposed Fixed Asset.
@@ -6355,6 +6355,15 @@
         Assert.ExpectedErrorCode('Dialog');
         FixedAsset.Get(FADeprBook."FA No.");
         Assert.ExpectedError(STRSUBSTNO(DisposedErr, DepreciationCalc.FAName(FixedAsset, FADeprBook."Depreciation Book Code")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostingPurchaseOrderPartialReceiveWithDisposedAssetError()
+    begin
+        // [FEATURE] [Fixed Asset]
+        // [SCENARIO 457181] Purchase order with first received and disposed FA and second non-received FA can be posted
+        // Skipped for CZ due to specific disposal processing
     end;
 
     [Test]
@@ -7924,7 +7933,7 @@
         end;
     end;
 
-    local procedure MockDisposedFA(var FADepreciationBook: Record "FA Depreciation Book");
+    local procedure MockFixedAsset(var FADepreciationBook: Record "FA Depreciation Book"; Disposed: Boolean);
     var
         DepreciationBook: Record "Depreciation Book";
         FixedAsset: Record "Fixed Asset";
@@ -7935,7 +7944,8 @@
         DepreciationBook.Modify(true);
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", DepreciationBook.Code);
         FADepreciationBook.Validate("FA Posting Group", FixedAsset."FA Posting Group");
-        FADepreciationBook.Validate("Disposal Date", WorkDate());
+        if Disposed then
+            FADepreciationBook.Validate("Disposal Date", WorkDate());
         FADepreciationBook.Modify(true);
     END;
 

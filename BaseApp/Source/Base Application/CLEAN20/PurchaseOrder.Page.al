@@ -488,17 +488,6 @@ page 50 "Purchase Order"
                         group(Control99)
                         {
                             ShowCaption = false;
-                            group(Control98)
-                            {
-                                ShowCaption = false;
-                                Visible = ShipToOptions = ShipToOptions::Location;
-                                field("Location Code"; "Location Code")
-                                {
-                                    ApplicationArea = Location;
-                                    Importance = Promoted;
-                                    ToolTip = 'Specifies a code for the location where you want the items to be placed when they are received.';
-                                }
-                            }
                             group(Control101)
                             {
                                 ShowCaption = false;
@@ -514,6 +503,18 @@ page 50 "Purchase Order"
                                     ApplicationArea = Suite;
                                     Editable = "Sell-to Customer No." <> '';
                                     ToolTip = 'Specifies the code for another delivery address than the vendor''s own address, which is entered by default.';
+                                }
+                            }
+                            group(Control98)
+                            {
+                                ShowCaption = false;
+                                Visible = (ShipToOptions = ShipToOptions::Location) or (ShipToOptions = ShipToOptions::"Customer Address");
+                                field("Location Code"; Rec."Location Code")
+                                {
+                                    ApplicationArea = Location;
+                                    Importance = Promoted;
+                                    Editable = ShipToOptions = ShipToOptions::Location;
+                                    ToolTip = 'Specifies a code for the location where you want the items to be placed when they are received.';
                                 }
                             }
                             field("Ship-to Name"; "Ship-to Name")

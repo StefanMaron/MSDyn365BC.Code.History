@@ -38,7 +38,8 @@ page 901 "Assembly Order Subform"
 
                     trigger OnValidate()
                     begin
-                        ReserveItem;
+                        ShowShortcutDimCode(ShortcutDimCode);
+                        ReserveItem();                        
                     end;
                 }
                 field(Description; Description)
@@ -69,7 +70,8 @@ page 901 "Assembly Order Subform"
 
                     trigger OnValidate()
                     begin
-                        ReserveItem;
+                        ShowShortcutDimCode(ShortcutDimCode);
+                        ReserveItem();
                     end;
                 }
                 field("Unit of Measure Code"; "Unit of Measure Code")

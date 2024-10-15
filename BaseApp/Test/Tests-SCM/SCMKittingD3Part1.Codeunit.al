@@ -47,6 +47,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
         ErrorInvalidDimensions: Label 'The dimensions that are used in Order ';
         NothingToPostTxt: Label 'There is nothing to post to the general ledger.';
         ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
+        UpdateDimensionOnLine: Label 'You may have changed a dimension.\\Do you want to update the lines?';
 
     [Normal]
     local procedure Initialize()
@@ -123,7 +124,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,DimensionsChangeConfirmHandlerYes,NothingPostedMessageHandler')]
+    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange,NothingPostedMessageHandler')]
     [Scope('OnPrem')]
     procedure BlockHeaderDim()
     var
@@ -138,7 +139,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,DimensionsChangeConfirmHandlerYes')]
+    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange')]
     [Scope('OnPrem')]
     procedure BlockCompDim()
     var
@@ -153,7 +154,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,DimensionsChangeConfirmHandlerYes')]
+    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange')]
     [Scope('OnPrem')]
     procedure BlockAllDim()
     var
@@ -168,7 +169,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,DimensionsChangeConfirmHandlerYes')]
+    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange')]
     [Scope('OnPrem')]
     procedure BlockHeaderDimVal()
     var
@@ -183,7 +184,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,DimensionsChangeConfirmHandlerYes')]
+    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange')]
     [Scope('OnPrem')]
     procedure BlockCompDimComb()
     var
@@ -198,7 +199,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,DimensionsChangeConfirmHandlerYes')]
+    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange')]
     [Scope('OnPrem')]
     procedure BlockHeaderDimComb()
     var
@@ -213,7 +214,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,DimensionsChangeConfirmHandlerYes')]
+    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange')]
     [Scope('OnPrem')]
     procedure BlockAllCombined1()
     var
@@ -228,7 +229,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,DimensionsChangeConfirmHandlerYes')]
+    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange')]
     [Scope('OnPrem')]
     procedure BlockAllCombined2()
     var
@@ -243,7 +244,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,DimensionsChangeConfirmHandlerYes')]
+    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange')]
     [Scope('OnPrem')]
     procedure HeaderDimOverride()
     var
@@ -258,7 +259,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,DimensionsChangeConfirmHandlerYes')]
+    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange')]
     [Scope('OnPrem')]
     procedure HeaderDimIncorrectValue()
     var
@@ -273,7 +274,7 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,DimensionsChangeConfirmHandlerYes')]
+    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateDimensionChange')]
     [Scope('OnPrem')]
     procedure CompDimIncorrectValue()
     var
@@ -1659,6 +1660,13 @@ codeunit 137092 "SCM Kitting - D3 - Part 1"
     begin
         Assert.ExpectedMessage(MsgUpdateDim, Question);
         Reply := true;
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmUpdateDimensionChange(Question: Text[1024]; var Reply: Boolean)
+    begin
+        if (Question = MsgUpdateDim) or (Question = UpdateDimensionOnLine) then
+            Reply := true;
     end;
 
     [MessageHandler]

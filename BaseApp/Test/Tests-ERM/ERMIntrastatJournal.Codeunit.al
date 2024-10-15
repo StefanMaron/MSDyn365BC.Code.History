@@ -2615,6 +2615,7 @@
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Validate("Ship-to Country/Region Code", SalesHeader."Sell-to Country/Region Code");
         SalesHeader.Modify(true);
     end;
 
