@@ -340,8 +340,10 @@ codeunit 18247 "Validate Bank Charges Amount"
             end else
                 SignOfBankAccLedgAmount := Abs(BankAccountLedgerEntry.Amount) / BankAccountLedgerEntry.Amount;
 
-        BankAccountLedgerEntry.Amount += (SignOfBankAccLedgAmount * BankChargeAmount) + BankChargeAmount;
-        BankAccountLedgerEntry."Amount (LCY)" += (SignOfBankAccLedgAmount * BankChargeAmount) + BankChargeAmount;
+        BankAccountLedgerEntry.Amount += (SignOfBankAccLedgAmount * BankChargeAmount);
+        BankAccountLedgerEntry."Amount (LCY)" += (SignOfBankAccLedgAmount * BankChargeAmount);
+        BankAccountLedgerEntry."Remaining Amount" := BankAccountLedgerEntry.Amount;
+        BankAccountLedgerEntry.UpdateDebitCredit(GenJournalLine.Correction);
         BankChargeAmount := (SignOfBankAccLedgAmount * BankChargeAmount);
         GenJournalLine."Amount (LCY)" += BankChargeAmount;
     end;
@@ -484,7 +486,7 @@ codeunit 18247 "Validate Bank Charges Amount"
                       JnlBankCharges.GSTInvoiceRoundingDirection()));
 
             if ExecutionOption = ExecutionOption::PostGLEntriesForBankChg then begin
-                PostGSTOnBankCharge(GenJnlLine);
+                PostGSTOnBankCharge(GenJnlLine, JnlBankCharges."GST Inv. Rounding Precision", JnlBankCharges.GSTInvoiceRoundingDirection());
 
                 if GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::"Bank Account" then
                     BankAccount.Get(GenJnlLine."Bal. Account No.")
@@ -495,6 +497,7 @@ codeunit 18247 "Validate Bank Charges Amount"
                 BankAccountPostingGroup.Get((BankAccount."Bank Acc. Posting Group"));
                 BankAccountPostingGroup.TestField("GST Rounding Account");
 
+                GSTRounding := Round(GSTRounding, JnlBankCharges."GST Inv. Rounding Precision", JnlBankCharges.GSTInvoiceRoundingDirection());
                 if (GSTRounding <> 0) then
                     JnlBankChargesSessionMgt.CreateGSTBankChargesGenJournallLine(GenJnlLine, BankAccountPostingGroup."GST Rounding Account", GSTRounding, GSTRounding);
             end;
@@ -504,7 +507,7 @@ codeunit 18247 "Validate Bank Charges Amount"
         end;
     end;
 
-    local procedure PostGSTOnBankCharge(GenJnlLine: Record "Gen. Journal Line")
+    local procedure PostGSTOnBankCharge(GenJnlLine: Record "Gen. Journal Line"; GSTInvRoundingPrecision: Decimal; GSTRoundingDirection: Text[1])
     var
         JnlBankChargesSessionMgt: Codeunit "GST Bank Charge Session Mgt.";
     begin
@@ -513,8 +516,8 @@ codeunit 18247 "Validate Bank Charges Amount"
                 if (GSTPostingBuffer[1]."Account No." <> '') and (GSTPostingBuffer[1]."GST Amount" <> 0) then
                     JnlBankChargesSessionMgt.CreateGSTBankChargesGenJournallLine(
                         GenJnlLine, GSTPostingBuffer[1]."Account No.",
-                        GSTPostingBuffer[1]."GST Amount",
-                        GSTPostingBuffer[1]."GST Amount");
+                        Round(GSTPostingBuffer[1]."GST Amount", GSTInvRoundingPrecision, GSTRoundingDirection),
+                        Round(GSTPostingBuffer[1]."GST Amount", GSTInvRoundingPrecision, GSTRoundingDirection));
 
                 PostedDocNo := GenJnlLine."Document No.";
                 InsertGSTLedgerEntryBankCharges(GSTPostingBuffer[1], GenJnlLine);

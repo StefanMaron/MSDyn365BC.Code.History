@@ -29,6 +29,8 @@ page 99000852 "Planning Worksheet"
                     CurrPage.SaveRecord;
                     ReqJnlManagement.LookupName(CurrentWkshBatchName, Rec);
                     CurrPage.Update(false);
+
+                    OnAfterLookupCurrentJnlBatchName(Rec, CurrentWkshBatchName);
                 end;
 
                 trigger OnValidate()
@@ -867,7 +869,7 @@ page 99000852 "Planning Worksheet"
 
     protected var
         ItemDescription: Text[100];
-        RoutingDescription: Text[50];
+        RoutingDescription: Text[100];
         ShortcutDimCode: array[8] of Code[20];
 
     local procedure PlanningWarningLevel()
@@ -948,6 +950,11 @@ page 99000852 "Planning Worksheet"
 
         CarryOutActionMsgPlan.SetReqWkshLine(Rec);
         CarryOutActionMsgPlan.RunModal;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLookupCurrentJnlBatchName(var RequisitionLine: Record "Requisition Line"; var CurrJnlBatchName: Code[10])
+    begin
     end;
 
     [IntegrationEvent(false, false)]

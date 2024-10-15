@@ -1,4 +1,4 @@
-codeunit 99000831 "Reservation Engine Mgt."
+﻿codeunit 99000831 "Reservation Engine Mgt."
 {
     Permissions = TableData "Item Ledger Entry" = rm,
                   TableData "Reservation Entry" = rimd,
@@ -441,6 +441,8 @@ codeunit 99000831 "Reservation Engine Mgt."
             ReservEntry2."Changed By" := UserId;
             ReservEntry2.Modify();
         end;
+
+        OnAfterModifyExpectedReceiptDate(ReservEntry2, ReservEntry);
     end;
 
     procedure InitFilterAndSortingFor(var FilterReservEntry: Record "Reservation Entry"; SetFilters: Boolean)
@@ -1331,6 +1333,11 @@ codeunit 99000831 "Reservation Engine Mgt."
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterModifyExpectedReceiptDate(var ReservationEntry2: Record "Reservation Entry"; var ReservationEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterModifyReservEntry(var ReservEntry: Record "Reservation Entry")
     begin
     end;
@@ -1390,7 +1397,7 @@ codeunit 99000831 "Reservation Engine Mgt."
     begin
     end;
 
-    [InternalEvent(false)]
+    [IntegrationEvent(false, false)]
     local procedure OnGetActivePointerFieldsOnBeforeAssignArrayValues(TableID: Integer; var PointerFieldIsActive: array[6] of Boolean; var IsHandled: Boolean)
     begin
     end;

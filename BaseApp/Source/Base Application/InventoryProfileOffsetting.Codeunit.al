@@ -2503,6 +2503,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                         Validate("Unit of Measure Code", SupplyInvtProfile."Unit of Measure Code");
                         "Starting Time" := ManufacturingSetup."Normal Starting Time";
                         "Ending Time" := ManufacturingSetup."Normal Ending Time";
+                        OnMaintainPlanningLineOnAfterValidateFieldsForNewReqLine(ReqLine, SupplyInvtProfile, TempSKU);
                     end else
                         case SupplyInvtProfile."Source Type" of
                             DATABASE::"Purchase Line":
@@ -2944,12 +2945,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
         then
             exit(false);
 
-        SisterInvProfile.Reset();
-        SisterInvProfile.SetRange("Source Type", DATABASE::"Transfer Line");
-        SisterInvProfile.SetRange("Source ID", CurrInvProfile."Source ID");
-        SisterInvProfile.SetRange("Source Ref. No.", CurrInvProfile."Source Ref. No.");
-        SisterInvProfile.SetTrackingFilterFromInvtProfile(CurrInvProfile);
-        SisterInvProfile.SetRange(IsSupply, not CurrInvProfile.IsSupply);
+        SetFiltersForSisterInventoryProfile(CurrInvProfile, SisterInvProfile);
 
         InvtProfileFound := SisterInvProfile.Find('-');
         if InvtProfileFound then
@@ -2957,6 +2953,18 @@ codeunit 99000854 "Inventory Profile Offsetting"
                 Error(Text001, SisterInvProfile.TableCaption());
 
         exit;
+    end;
+
+    local procedure SetFiltersForSisterInventoryProfile(CurrInvProfile: Record "Inventory Profile"; var SisterInvProfile: Record "Inventory Profile")
+    begin
+        SisterInvProfile.Reset();
+        SisterInvProfile.SetRange("Source Type", DATABASE::"Transfer Line");
+        SisterInvProfile.SetRange("Source ID", CurrInvProfile."Source ID");
+        SisterInvProfile.SetRange("Source Ref. No.", CurrInvProfile."Source Ref. No.");
+        SisterInvProfile.SetTrackingFilterFromInvtProfile(CurrInvProfile);
+        SisterInvProfile.SetRange(IsSupply, not CurrInvProfile.IsSupply);
+
+        OnAfterSetFiltersForSisterInventoryProfile(CurrInvProfile, SisterInvProfile);
     end;
 
     local procedure AdjustTransferDates(var TransferReqLine: Record "Requisition Line")
@@ -4439,11 +4447,17 @@ codeunit 99000854 "Inventory Profile Offsetting"
         until OrderQty <= 0; // Create supplies until Safety Stock is met or Reorder point is exceeded
     end;
 
-    local procedure IsTrkgForSpecialOrderOrDropShpt(ReservEntry: Record "Reservation Entry"): Boolean
+    local procedure IsTrkgForSpecialOrderOrDropShpt(ReservEntry: Record "Reservation Entry") Result: Boolean
     var
         SalesLine: Record "Sales Line";
         PurchLine: Record "Purchase Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsTrkgForSpecialOrderOrDropShpt(ReservEntry, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         case ReservEntry."Source Type" of
             DATABASE::"Sales Line":
                 if SalesLine.Get(ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Ref. No.") then
@@ -4502,11 +4516,14 @@ codeunit 99000854 "Inventory Profile Offsetting"
               ReservEntry."Source Type", ReservEntry."Source Subtype", ReservEntry."Source ID", ReservEntry."Source Ref. No.", true);
             ItemTrackingSetup.CopyTrackingFromReservEntry(ReservEntry);
             SetTrackingFilterFromItemTrackingSetupIfNotBlank(ItemTrackingSetup);
+            OnUpdateAppliedItemEntryOnBeforeFindApplEntry(TempItemTrkgEntry, ReservEntry);
             if FindFirst then begin
                 ReservEntry."Appl.-from Item Entry" := "Appl.-from Item Entry";
                 ReservEntry."Appl.-to Item Entry" := "Appl.-to Item Entry";
             end;
         end;
+
+        OnAfterUpdateAppliedItemEntry(ReservEntry, TempItemTrkgEntry);
     end;
 
     local procedure CheckSupplyAndTrack(InventoryProfileFromDemand: Record "Inventory Profile"; InventoryProfileFromSupply: Record "Inventory Profile")
@@ -4838,6 +4855,16 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetFiltersForSisterInventoryProfile(CurrentInventoryProfile: Record "Inventory Profile"; var SisterInventoryProfile: Record "Inventory Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateAppliedItemEntry(var ReservationEntry: Record "Reservation Entry"; var TempItemTrackingEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterMatchAttributes(var SupplyInvtProfile: Record "Inventory Profile"; var DemandInvtProfile: Record "Inventory Profile"; var TempTrkgReservEntry: Record "Reservation Entry" temporary)
     begin
     end;
@@ -4959,6 +4986,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInsertEmergencyOrderSupply(var SupplyInventoryProfile: Record "Inventory Profile"; var DemandInventoryProfile: Record "Inventory Profile"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsTrkgForSpecialOrderOrDropShpt(ReservEntry: Record "Reservation Entry"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -5148,6 +5180,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdateAppliedItemEntryOnBeforeFindApplEntry(var TempItemTrackingEntry: Record "Reservation Entry"; var ReservationEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeMaintainProjectedInventory(var ReminderInvtProfile: Record "Inventory Profile"; AtDate: Date; var LastProjectedInventory: Decimal; var LatestBucketStartDate: Date; var ROPHasBeenCrossed: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -5199,6 +5236,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnMaintainPlanningLineOnBeforeValidateNo(var RequisitionLine: Record "Requisition Line"; InventoryProfile: Record "Inventory Profile"; StockkeepingUnit: Record "Stockkeeping Unit")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMaintainPlanningLineOnAfterValidateFieldsForNewReqLine(var RequisitionLine: Record "Requisition Line"; InventoryProfile: Record "Inventory Profile"; StockkeepingUnit: Record "Stockkeeping Unit")
     begin
     end;
 

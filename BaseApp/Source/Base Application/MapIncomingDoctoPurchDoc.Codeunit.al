@@ -38,6 +38,7 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
     [Scope('OnPrem')]
     procedure ProcessIntermediateData(DataExch: Record "Data Exch.")
     begin
+        OnBeforeProcessIntermediateData(DataExch);
         ProcessHeaders(DataExch);
         ApplyInvoiceDiscounts(DataExch);
         ApplyInvoiceCharges(DataExch);
@@ -129,6 +130,8 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
             if CurrRecordNo <> -1 then
                 RecRef.Modify(true);
         end;
+
+        OnAfterProcessLines(PurchaseHeader, DataExch, ParentRecordNo);
     end;
 
     local procedure ApplyInvoiceDiscounts(DataExch: Record "Data Exch.")
@@ -325,6 +328,7 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
             FldNo := PurchaseHeader.FieldNo("Document Type");
             ProcessField(TempProcessedHdrFldId, RecRef, FldNo,
               GetValueFromIntermediate(IntermediateDataImport, RecRef, FldNo, PurchaseHeader.FieldCaption("Document Type")));
+            OnCreateNewPurchHdrOnBeforeRecRefInsert(RecRef, IntermediateDataImport);
             RecRef.Insert(true);
 
             // Vendor No.
@@ -679,6 +683,21 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
         PurchaseLine.Validate("Line No.", LineNo);
 
         PurchaseLine.Insert(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterProcessLines(PurchaseHeader: Record "Purchase Header"; DataExch: Record "Data Exch."; ParentRecordNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeProcessIntermediateData(DataExch: Record "Data Exch.")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateNewPurchHdrOnBeforeRecRefInsert(var RecRef: RecordRef; var IntermediateDataImport: Record "Intermediate Data Import")
+    begin
     end;
 
     [IntegrationEvent(false, false)]
