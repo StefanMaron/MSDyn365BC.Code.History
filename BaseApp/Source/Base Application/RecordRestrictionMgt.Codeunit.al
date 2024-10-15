@@ -111,11 +111,7 @@
 
     [EventSubscriber(ObjectType::Table, Database::"Gen. Journal Line", 'OnAfterInsertEvent', '', false, false)]
     procedure RestrictGenJournalLineAfterInsert(var Rec: Record "Gen. Journal Line"; RunTrigger: Boolean)
-    var
-        GenJournalBatch: Record "Gen. Journal Batch";
     begin
-        if HasBatchOpenOrPendingApprovalEntries(Rec, GenJournalBatch) then
-            CheckRecordHasUsageRestrictions(GenJournalBatch);
         RestrictGenJournalLine(Rec);
     end;
 
@@ -124,24 +120,7 @@
     begin
         if Format(Rec) = Format(xRec) then
             exit;
-        if HasLineOpenOrPendingApprovalEntries(Rec) then
-            CheckRecordHasUsageRestrictions(Rec);
         RestrictGenJournalLine(Rec);
-    end;
-
-    local procedure HasLineOpenOrPendingApprovalEntries(var GenJournalLine: Record "Gen. Journal Line"): Boolean;
-    var
-        GenJournalBatch: Record "Gen. Journal Batch";
-    begin
-        if GenJournalLine."Pending Approval" then
-            exit(true);
-        exit(HasBatchOpenOrPendingApprovalEntries(GenJournalLine, GenJournalBatch));
-    end;
-
-    local procedure HasBatchOpenOrPendingApprovalEntries(var GenJournalLine: Record "Gen. Journal Line"; var GenJournalBatch: Record "Gen. Journal Batch"): Boolean
-    begin
-        if GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name") then
-            exit(GenJournalBatch."Pending Approval");
     end;
 
     local procedure RestrictGenJournalLine(var GenJournalLine: Record "Gen. Journal Line")

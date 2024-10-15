@@ -1523,6 +1523,44 @@ codeunit 134464 "ERM Item Reference Purchase"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure UpdateVendorItemNoFromItemVendorCatalog()
+    var
+        ItemReference: Record "Item Reference";
+        ItemVendorCatalog: TestPage "Item Vendor Catalog";
+        ItemNo: Code[20];
+        VendorNo: Code[20];
+        ItemVendorNo: Code[10];
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 428994] User can update "Vendor Item No." from Item Vendor Catalog page
+        Initialize();
+
+        // [GIVEN] Item, Vendor, "Item Variant"
+        ItemNo := LibraryInventory.CreateItemNo();
+        VendorNo := LibraryPurchase.CreateVendorNo();
+
+        // [GIVEN] Create new "Item Vendor" by "Item Vendor Catalog"
+        ItemVendorCatalog.OpenNew();
+        ItemVendorCatalog.Filter.SetFilter("Item No.", ItemNo);
+        ItemVendorCatalog."Vendor No.".SetValue(VendorNo);
+        ItemVendorNo := LibraryUtility.GenerateGUID();
+        // [GIVEN] Specify "Vendor Item No."
+        ItemVendorCatalog."Vendor Item No.".SetValue(ItemVendorNo);
+
+        // [WHEN] Move to the next record
+        ItemVendorCatalog.Next();
+
+        // [THEN] "Item Reference" for Item and Vendor is only one
+        ItemReference.SetRange("Item No.", ItemNo);
+        ItemReference.SetRange("Reference Type", ItemReference."Reference Type"::Vendor);
+        ItemReference.SetRange("Reference Type No.", VendorNo);
+        ItemReference.FindFirst();
+        ItemReference.TestField("Reference No.", ItemVendorNo);
+        Assert.RecordCount(ItemReference, 1);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Item Reference Purchase");

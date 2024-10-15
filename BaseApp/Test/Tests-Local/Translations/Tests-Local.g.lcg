@@ -3029,6 +3029,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit MX CFDI - NamedType MissingServiceUnitOfMeasureExcErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1581927567 - NamedType 1992316219" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[http://www.sat.gob.mx/cfd/3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit MX CFDI - NamedType NamespaceCFD3Txt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1581927567 - NamedType 2049408954" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[http://www.sat.gob.mx/cfd/4]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit MX CFDI - NamedType NamespaceCFD4Txt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1581927567 - NamedType 1301722695" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[There is no electronic Document sent yet]]></Val>
@@ -3090,6 +3108,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit MX CFDI - NamedType RFCNoFieldTxt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1581927567 - NamedType 3008527778" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv30.xsd]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit MX CFDI - NamedType SchemaLocationCFD3Txt)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1581927567 - NamedType 4014878947" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit MX CFDI - NamedType SchemaLocationCFD4Txt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1581927567 - NamedType 1167773202" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

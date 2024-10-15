@@ -58,6 +58,10 @@ codeunit 144001 "MX CFDI"
         WrongFieldValueErr: Label 'Wrong value %1 in field %2 of table %3.';
         NoElectronicStampErr: Label 'There is no electronic stamp';
         NoElectronicDocumentSentErr: Label 'There is no electronic Document sent yet';
+        NamespaceCFD3Txt: Label 'http://www.sat.gob.mx/cfd/3';
+        NamespaceCFD4Txt: Label 'http://www.sat.gob.mx/cfd/4';
+        SchemaLocationCFD3Txt: Label 'http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv30.xsd';
+        SchemaLocationCFD4Txt: Label 'http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd';
 
     [Test]
     [HandlerFunctions('StrMenuHandler')]
@@ -1214,7 +1218,7 @@ codeunit 144001 "MX CFDI"
         ExportPaymentToServerFile(CustLedgerEntry, FileName, CustLedgerEntry."Document Type"::Payment, PaymentNo);
 
         // [THEN] 'Complemento' node created with attribute 'MonedaP' = 'USD'
-        // [THEN] 'DoctoRelacionado' node has attribute 'TipoCambioDR' is exported from the invoice, 'MonedaDR' = 'USD'
+        // [THEN] 'DoctoRelacionado' node has attribute 'TipoCambioDR' is not exported from the invoice, 'MonedaDR' = 'USD'
         CustLedgerEntry.CalcFields(Amount);
         LibraryXPathXMLReader.Initialize(FileName, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
@@ -1224,9 +1228,8 @@ codeunit 144001 "MX CFDI"
           'cfdi:Complemento/pago10:Pagos/pago10:Pago', 'MonedaP', Customer."Currency Code");
         LibraryXPathXMLReader.VerifyAttributeValue(
           'cfdi:Complemento/pago10:Pagos/pago10:Pago', 'Monto', FormatDecimal(abs(CustLedgerEntry.Amount), 2));
-        LibraryXPathXMLReader.VerifyAttributeValue(
-          'cfdi:Complemento/pago10:Pagos/pago10:Pago/pago10:DoctoRelacionado', 'TipoCambioDR',
-          FormatDecimal(1 / SalesInvoiceHeader."Currency Factor", 6));
+        LibraryXPathXMLReader.VerifyAttributeAbsence(
+          'cfdi:Complemento/pago10:Pagos/pago10:Pago/pago10:DoctoRelacionado', 'TipoCambioDR');
         LibraryXPathXMLReader.VerifyAttributeValue(
           'cfdi:Complemento/pago10:Pagos/pago10:Pago/pago10:DoctoRelacionado', 'MonedaDR', Customer."Currency Code");
 
@@ -1241,9 +1244,6 @@ codeunit 144001 "MX CFDI"
           FormatDecimal(abs(CustLedgerEntry.Amount), 2), SelectStr(27, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'Monto', OriginalStr));
         Assert.AreEqual(
           Customer."Currency Code", SelectStr(29, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'MonedaDR', OriginalStr));
-        Assert.AreEqual(
-          FormatDecimal(1 / SalesInvoiceHeader."Currency Factor", 6),
-          SelectStr(30, OriginalStr), StrSubstNo(IncorrectOriginalStrValueErr, 'TipoCambioDR', OriginalStr));
     end;
 
     [Test]
@@ -1550,6 +1550,56 @@ codeunit 144001 "MX CFDI"
     [Test]
     [HandlerFunctions('StrMenuHandler')]
     [Scope('OnPrem')]
+    procedure SendPaymentWhenInvoiceAppliedToPayment()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        CustLedgerEntryInv: Record "Cust. Ledger Entry";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        FileName: Text;
+        CustomerNo: Code[20];
+        PaymentNo: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 425402] Request stamp for LCY payment when invoice applied to payment
+        Initialize();
+
+        // [GIVEN] Posted Sales Invoice with "Amount Including VAT" = 1000 
+        CustomerNo := CreateCustomer();
+        UpdateCustomerSATPaymentFields(CustomerNo);
+        CreateAndPostSalesInvoice(CustLedgerEntryInv, CustomerNo);
+        SalesInvoiceHeader.Get(CustLedgerEntryInv."Document No.");
+        SalesInvoiceHeader."Fiscal Invoice Number PAC" := LibraryUtility.GenerateGUID();
+        SalesInvoiceHeader.Modify();
+        SalesInvoiceHeader.CalcFields("Amount Including VAT");
+
+        // [GIVEN] Payment with amount -1000 
+        PaymentNo :=
+          CreatePostPayment(SalesInvoiceHeader."Sell-to Customer No.", '', -SalesInvoiceHeader."Amount Including VAT", '');
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Payment, PaymentNo);
+
+        // [GIVEN] Invoice is applied to the payment
+        LibraryERM.ApplyCustomerLedgerEntries(
+          CustLedgerEntry."Document Type"::Invoice, CustLedgerEntry."Document Type"::Payment,
+          SalesInvoiceHeader."No.", PaymentNo);
+
+        // [WHEN] Request stamp for the payment
+        RequestStamp(DATABASE::"Cust. Ledger Entry", PaymentNo, ResponseOption::Success, ActionOption::"Request Stamp");
+        ExportPaymentToServerFile(CustLedgerEntry, FileName, CustLedgerEntry."Document Type"::Payment, PaymentNo);
+
+        // [THEN] XML document is created for LCY payment with UUID of related invoice
+        LibraryXPathXMLReader.Initialize(FileName, '');
+        LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        LibraryXPathXMLReader.AddAdditionalNamespace('pago10', 'http://www.sat.gob.mx/Pagos');
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/pago10:Pagos/pago10:Pago', 'MonedaP', 'MXN');
+        LibraryXPathXMLReader.VerifyAttributeValue(
+          'cfdi:Complemento/pago10:Pagos/pago10:Pago/pago10:DoctoRelacionado', 'IdDocumento', SalesInvoiceHeader."Fiscal Invoice Number PAC");
+    end;
+
+    [Test]
+    [HandlerFunctions('StrMenuHandler')]
+    [Scope('OnPrem')]
     procedure SalesInvoiceWithRelationDocumentsRequestStamp()
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
@@ -1591,7 +1641,7 @@ codeunit 144001 "MX CFDI"
         TempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         LibraryXPathXMLReader.VerifyAttributeValue('cfdi:CfdiRelacionados', 'TipoRelacion', SalesInvoiceHeader."CFDI Relation");
         for i := 1 to ArrayLen(CFDIRelationDocument) do
             LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
@@ -1657,7 +1707,7 @@ codeunit 144001 "MX CFDI"
         TempBlob.FromRecord(SalesCrMemoHeader, SalesCrMemoHeader.FieldNo("Original Document XML"));
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         LibraryXPathXMLReader.VerifyAttributeValue('cfdi:CfdiRelacionados', 'TipoRelacion', SalesCrMemoHeader."CFDI Relation");
         LibraryXPathXMLReader.VerifyAttributeValue(
           'cfdi:CfdiRelacionados/cfdi:CfdiRelacionado', 'UUID', SalesInvoiceHeader."Fiscal Invoice Number PAC");
@@ -1723,7 +1773,7 @@ codeunit 144001 "MX CFDI"
         TempBlob.FromRecord(SalesCrMemoHeader, SalesCrMemoHeader.FieldNo("Original Document XML"));
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         LibraryXPathXMLReader.VerifyAttributeValue(
           'cfdi:CfdiRelacionados/cfdi:CfdiRelacionado', 'UUID', SalesInvoiceHeader."Fiscal Invoice Number PAC");
         for i := 1 to ArrayLen(CFDIRelationDocument) do
@@ -1791,7 +1841,7 @@ codeunit 144001 "MX CFDI"
         TempBlob.FromRecord(SalesCrMemoHeader, SalesCrMemoHeader.FieldNo("Original Document XML"));
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         LibraryXPathXMLReader.VerifyAttributeValue(
           'cfdi:CfdiRelacionados/cfdi:CfdiRelacionado', 'UUID', SalesInvoiceHeader2."Fiscal Invoice Number PAC");
 
@@ -1855,7 +1905,7 @@ codeunit 144001 "MX CFDI"
         TempBlob.FromRecord(SalesCrMemoHeader, SalesCrMemoHeader.FieldNo("Original Document XML"));
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         LibraryXPathXMLReader.VerifyAttributeValue(
           'cfdi:CfdiRelacionados/cfdi:CfdiRelacionado', 'UUID', SalesInvoiceHeader."Fiscal Invoice Number PAC");
         for i := 1 to ArrayLen(CFDIRelationDocument) do
@@ -1920,7 +1970,7 @@ codeunit 144001 "MX CFDI"
         TempBlob.FromRecord(ServiceCrMemoHeader, ServiceCrMemoHeader.FieldNo("Original Document XML"));
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         for i := 1 to ArrayLen(CFDIRelationDocument) do
             LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
               'cfdi:CfdiRelacionados/cfdi:CfdiRelacionado', 'UUID', CFDIRelationDocument[i]."Fiscal Invoice Number PAC", i - 1);
@@ -1991,7 +2041,7 @@ codeunit 144001 "MX CFDI"
         TempBlob.FromRecord(ServiceCrMemoHeader, ServiceCrMemoHeader.FieldNo("Original Document XML"));
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         for i := 1 to ArrayLen(CFDIRelationDocument) do
             LibraryXPathXMLReader.VerifyAttributeValueByNodeIndex(
               'cfdi:CfdiRelacionados/cfdi:CfdiRelacionado', 'UUID', CFDIRelationDocument[i]."Fiscal Invoice Number PAC", i - 1);
@@ -2060,7 +2110,7 @@ codeunit 144001 "MX CFDI"
         TempBlob.FromRecord(ServiceCrMemoHeader, ServiceCrMemoHeader.FieldNo("Original Document XML"));
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         LibraryXPathXMLReader.VerifyAttributeValue(
           'cfdi:CfdiRelacionados/cfdi:CfdiRelacionado', 'UUID', ServiceInvoiceHeader2."Fiscal Invoice Number PAC");
 
@@ -2884,7 +2934,7 @@ codeunit 144001 "MX CFDI"
         TempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         SalesInvoiceHeader."Original String".CreateInStream(InStream);
         InStream.ReadText(OriginalStr);
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
@@ -2940,7 +2990,7 @@ codeunit 144001 "MX CFDI"
         TempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         SalesInvoiceHeader."Original String".CreateInStream(InStream);
         InStream.ReadText(OriginalStr);
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
@@ -2990,7 +3040,7 @@ codeunit 144001 "MX CFDI"
         TempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         SalesInvoiceHeader."Original String".CreateInStream(InStream);
         InStream.ReadText(OriginalStr);
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
@@ -3033,7 +3083,7 @@ codeunit 144001 "MX CFDI"
         TempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
 
         // [THEN] 'cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados node is not exported
         LibraryXPathXMLReader.VerifyNodeAbsence('cfdi:Conceptos/cfdi:Concepto/cfdi:Impuestos/cfdi:Traslados');
@@ -3080,7 +3130,7 @@ codeunit 144001 "MX CFDI"
         TempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         SalesInvoiceHeader."Original String".CreateInStream(InStream);
         InStream.ReadText(OriginalStr);
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
@@ -3164,7 +3214,7 @@ codeunit 144001 "MX CFDI"
         TempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         SalesInvoiceHeader."Original String".CreateInStream(InStream);
         InStream.ReadText(OriginalStr);
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
@@ -3246,7 +3296,7 @@ codeunit 144001 "MX CFDI"
         TempBlob.FromRecord(ServiceInvoiceHeader, ServiceInvoiceHeader.FieldNo("Original Document XML"));
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         ServiceInvoiceHeader."Original String".CreateInStream(InStream);
         InStream.ReadText(OriginalStr);
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
@@ -3525,7 +3575,7 @@ codeunit 144001 "MX CFDI"
         TempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         SalesInvoiceHeader."Original String".CreateInStream(InStream);
         InStream.ReadText(OriginalStr);
 
@@ -3567,7 +3617,7 @@ codeunit 144001 "MX CFDI"
         TempBlob.FromRecord(SalesCrMemoHeader, SalesCrMemoHeader.FieldNo("Original Document XML"));
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         SalesCrMemoHeader."Original String".CreateInStream(InStream);
         InStream.ReadText(OriginalStr);
 
@@ -3613,7 +3663,7 @@ codeunit 144001 "MX CFDI"
         TempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         LibraryXPathXMLReader.VerifyAttributeValue(
           'cfdi:Conceptos/cfdi:Concepto/cfdi:InformacionAduanera', 'NumeroPedimento', NameValueBuffer.Value);
 
@@ -3671,7 +3721,7 @@ codeunit 144001 "MX CFDI"
         TempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         SalesInvoiceHeader."Original String".CreateInStream(InStream);
         InStream.ReadText(OriginalStr);
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
@@ -3726,7 +3776,7 @@ codeunit 144001 "MX CFDI"
         TempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         SalesInvoiceHeader."Original String".CreateInStream(InStream);
         InStream.ReadText(OriginalStr);
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
@@ -3772,7 +3822,7 @@ codeunit 144001 "MX CFDI"
         TempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         SalesInvoiceHeader."Original String".CreateInStream(InStream);
         InStream.ReadText(OriginalStr);
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
@@ -3841,7 +3891,7 @@ codeunit 144001 "MX CFDI"
         TempBlob.FromRecord(SalesCrMemoHeader, SalesCrMemoHeader.FieldNo("Original Document XML"));
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         SalesCrMemoHeader."Original String".CreateInStream(InStream);
         InStream.ReadText(OriginalStr);
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
@@ -3912,7 +3962,7 @@ codeunit 144001 "MX CFDI"
         TempBlob.FromRecord(SalesInvoiceHeader, SalesInvoiceHeader.FieldNo("Original Document XML"));
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         SalesInvoiceHeader."Original String".CreateInStream(InStream);
         InStream.ReadText(OriginalStr);
         OriginalStr := ConvertStr(OriginalStr, '|', ',');
@@ -4068,7 +4118,7 @@ codeunit 144001 "MX CFDI"
         TempBlob.FromRecord(SalesShipmentHeader, SalesShipmentHeader.FieldNo("Original Document XML"));
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         LibraryXPathXMLReader.AddAdditionalNamespace('cartaporte', 'http://www.sat.gob.mx/CartaPorte20');
         SalesShipmentHeader."Original String".CreateInStream(InStream);
         InStream.ReadText(OriginalStr);
@@ -4108,7 +4158,7 @@ codeunit 144001 "MX CFDI"
         TempBlob.FromRecord(TransferShipmentHeader, TransferShipmentHeader.FieldNo("Original Document XML"));
         LibraryXPathXMLReader.InitializeWithBlob(TempBlob, '');
         LibraryXPathXMLReader.SetDefaultNamespaceUsage(false);
-        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/3');
+        LibraryXPathXMLReader.AddAdditionalNamespace('cfdi', 'http://www.sat.gob.mx/cfd/4');
         LibraryXPathXMLReader.AddAdditionalNamespace('cartaporte', 'http://www.sat.gob.mx/CartaPorte20');
         TransferShipmentHeader."Original String".CreateInStream(InStream);
         InStream.ReadText(OriginalStr);
@@ -4544,6 +4594,7 @@ codeunit 144001 "MX CFDI"
         CountryRegion."SAT Country Code" := CountryRegion.Code;
         CountryRegion.Modify();
         Customer.Validate("Country/Region Code", CountryRegion.Code);
+        Customer."Location Code" := CreateLocation();
         Customer.Modify(true);
         exit(Customer."No.");
     end;
@@ -4574,6 +4625,18 @@ codeunit 144001 "MX CFDI"
         UnitOfMeasure.Modify();
         exit(Item."No.");
     end;
+
+    local procedure CreateLocation(): code[10];
+    var
+        Location: Record Location;
+        SATSuburb: Record "SAT Suburb";
+    begin
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        SATSuburb.Next(LibraryRandom.RandInt(SATSuburb.Count()));
+        Location."SAT Suburb ID" := SATSuburb.ID;
+        Location.Modify();
+    end;
+
 
     local procedure CreateTransferItem(var LocationFrom: Record Location; var LocationTo: Record Location; var Item: Record Item)
     var
@@ -4928,7 +4991,10 @@ codeunit 144001 "MX CFDI"
         TempBlob: Codeunit "Temp Blob";
         RecordRef: RecordRef;
     begin
-        MockRequestStamp(Response, TempBlob);
+        if TableNo = DATABASE::"Cust. Ledger Entry" then
+            MockRequestStamp(Response, TempBlob, NamespaceCFD3Txt, SchemaLocationCFD3Txt)
+        else
+            MockRequestStamp(Response, TempBlob, NamespaceCFD4Txt, SchemaLocationCFD4Txt);
         LibraryVariableStorage.Enqueue(Action);
         case TableNo of
             DATABASE::"Sales Invoice Header":
@@ -5402,10 +5468,10 @@ codeunit 144001 "MX CFDI"
             MockFailure(TempBlob);
     end;
 
-    local procedure MockRequestStamp(Response: Option; var TempBlob: Codeunit "Temp Blob")
+    local procedure MockRequestStamp(Response: Option; var TempBlob: Codeunit "Temp Blob"; NamespaceCFD: Text; SchemaLocationCFD: Text)
     begin
         if Response = ResponseOption::Success then
-            MockSuccessRequestStamp(TempBlob)
+            MockSuccessRequestStamp(TempBlob, NamespaceCFD, SchemaLocationCFD)
         else
             MockFailure(TempBlob);
     end;
@@ -5419,7 +5485,7 @@ codeunit 144001 "MX CFDI"
         OutStream.WriteText('<Resultado Descripcion="Sello del Emisor No Valido" IdRespuesta="302" />');
     end;
 
-    local procedure MockSuccessRequestStamp(var TempBlob: Codeunit "Temp Blob")
+    local procedure MockSuccessRequestStamp(var TempBlob: Codeunit "Temp Blob"; NamespaceCFD: Text; SchemaLocationCFD: Text)
     var
         OutStream: OutStream;
     begin
@@ -5427,8 +5493,9 @@ codeunit 144001 "MX CFDI"
         TempBlob.CreateOutStream(OutStream);
         OutStream.WriteText('<Resultado Descripcion="OK" IdRespuesta="1" >');
         OutStream.WriteText(
-          '  <cfdi:Comprobante xsi:schemaLocation="http://www.sat.gob.mx/cfd/3' +
-          ' http://www.sat.gob.mx/sitio_internet/cfd/3/cfdv3.xsd"');
+          CopyStr(
+            StrSubstNo(
+              '  <cfdi:Comprobante xsi:schemaLocation="%1 %2"', NamespaceCFD, SchemaLocationCFD), 1, 1024));
         OutStream.WriteText(' version="3.0" xmlns="" fecha="2011-11-08T09:02:03" formaDePago="Pago en una sola exhibici');
         OutStream.WriteText(
           'on" noCertificado="30001000000100000800" certificado="MIIE/TCCA+WgAwIBAgIUMzAwMDEwMDAwMDAxMDAwMDA4MDAwDQYJKoZIhvcNAQE');
@@ -5467,8 +5534,10 @@ codeunit 144001 "MX CFDI"
           '" tipoDeComprobante="ingreso" sello="UjFPBbIfOXXlMsVgqeayMUi4gbp291Nwd0vn1e4DRkzjz3Nw3ZXno1jJNXlTdR3P' +
           'OT5BqHM7NYILVFs+KaqnO');
         OutStream.WriteText('msM/05UsapfnTtneGIraoU/F2o4rQvg823nr/l61Cadl0nEm73btQiBhtq/4MrGLiUCGdAvcMiE');
-        OutStream.WriteText('4p4TcOf5qsE=" xmlns:cfdi="http://www.sat.gob.mx/cfd/3" ' +
-          'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">');
+        OutStream.WriteText(
+          CopyStr(
+            StrSubstNo(
+              '4p4TcOf5qsE=" xmlns:cfdi="%1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">', NamespaceCFD), 1, 1024));
         OutStream.WriteText('    <cfdi:Emisor rfc="SWC920404DA3" nombre="CARGILL MEXICO">');
         OutStream.WriteText(
           '      <cfdi:DomicilioFiscal calle="AVE ROBLE 525" colonia="VALLE DEL CAMPESTRE" localidad="MONTERREY" ' +
@@ -5492,7 +5561,10 @@ codeunit 144001 "MX CFDI"
         OutStream.WriteText('        <cfdi:Traslado impuesto="IVA" tasa="15.000000" importe="37.500000" />');
         OutStream.WriteText('      </cfdi:Traslados>');
         OutStream.WriteText('    </cfdi:Impuestos>');
-        OutStream.WriteText('    <cfdi:Complemento xmlns:cfdi="http://www.sat.gob.mx/cfd/3" xmlns="">');
+        OutStream.WriteText(
+          CopyStr(
+            StrSubstNo(
+              '    <cfdi:Complemento xmlns:cfdi="%1" xmlns="">', NamespaceCFD), 1, 1024));
         OutStream.WriteText(
           '      <tfd:TimbreFiscalDigital version="1.0" UUID="9CDBDABD-9399-4DA1-8409-D1B70C5BA4DD" ' +
           'FechaTimbrado="2011-11-08T07:45:56" ');
@@ -5929,7 +6001,7 @@ codeunit 144001 "MX CFDI"
         CompanyInformation: Record "Company Information";
     begin
         CompanyInformation.Get();
-        Assert.AreEqual('3.3', SelectStr(3, OriginalString), StrSubstNo(IncorrectSchemaVersionErr, OriginalString));
+        Assert.AreEqual('4.0', SelectStr(3, OriginalString), StrSubstNo(IncorrectSchemaVersionErr, OriginalString));
 
         Assert.AreEqual(
           CompanyInformation."RFC No.",
@@ -6371,6 +6443,7 @@ codeunit 144001 "MX CFDI"
 
         Customer.Validate("Payment Terms Code", PaymentTerms.Code);
         Customer.Validate("Payment Method Code", PaymentMethod.Code);
+        Customer."Location Code" := CreateLocation();
         Customer.Modify(true);
     end;
 

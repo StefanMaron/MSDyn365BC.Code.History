@@ -54,6 +54,9 @@
                 <TablixColumn>
                   <Width>0.54167in</Width>
                 </TablixColumn>
+                <TablixColumn>
+                  <Width>0.03125in</Width>
+                </TablixColumn>
               </TablixColumns>
               <TablixRows>
                 <TablixRow>
@@ -117,31 +120,6 @@
                             </Paragraph>
                           </Paragraphs>
                           <ZIndex>144</ZIndex>
-                          <Visibility>
-                            <Hidden>=Code.SetData(Fields!CustAddr1.Value + chr(177) + 
-Fields!CustAddr2.Value + chr(177) + 
-Fields!CustAddr3.Value + chr(177) + 
-Fields!CustAddr4.Value + chr(177) + 
-Fields!CustAddr5.Value + chr(177) + 
-Fields!CustAddr6.Value + chr(177) +
-Fields!PhNo_ServeContrHdr.Value  + chr(177) +
-Fields!Email_ServeContrHdr.Value + chr(177) +
-Fields!BilltoName_ServeContrHdr.Value + chr(177) +
-Fields!ContrNo2_ServeContrHdr.Value + chr(177) +
-Fields!StartDate_ServeContrHdr.Value + chr(177) + 
-Fields!InvPeriod_ServeContrHdr.Value + chr(177) + 
-Fields!NextInvDate_ServeContrHdr.Value + chr(177) + 
-Fields!PrepaidFmt_ServeContrHdr.Value + chr(177) +
-Fields!Status_ServeContrHdr.Value + chr(177) +  
-Fields!CompanyAddr1.Value + chr(177) +
-Fields!CompanyAddr2.Value + chr(177) +
-Fields!CompanyAddr3.Value + chr(177) +
-Fields!CompanyAddr4.Value + chr(177) +
-Fields!CompanyAddr5.Value + chr(177) +
-Fields!CompanyAddr6.Value + chr(177) +
-Fields!CompanyInfoPhNo.Value + chr(177) +
-Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
-                          </Visibility>
                           <Style>
                             <Border />
                             <FontFamily>Segoe UI</FontFamily>
@@ -491,10 +469,38 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                         </Textbox>
                       </CellContents>
                     </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox47">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox47</rd:DefaultName>
+                          <Style>
+                            <PaddingLeft>5pt</PaddingLeft>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.13889in</Height>
+                  <Height>0.35278cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -574,10 +580,38 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                         </Textbox>
                       </CellContents>
                     </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox48">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox48</rd:DefaultName>
+                          <Style>
+                            <PaddingLeft>5pt</PaddingLeft>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.13889in</Height>
+                  <Height>0.35278cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -970,10 +1004,38 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                         </Textbox>
                       </CellContents>
                     </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox49">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox49</rd:DefaultName>
+                          <Style>
+                            <PaddingLeft>5pt</PaddingLeft>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.13889in</Height>
+                  <Height>0.35278cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -1086,10 +1148,39 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                         </Textbox>
                       </CellContents>
                     </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox50">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox50</rd:DefaultName>
+                          <Style>
+                            <VerticalAlign>Bottom</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.13889in</Height>
+                  <Height>0.35278cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -1135,10 +1226,38 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                     <TablixCell />
                     <TablixCell />
                     <TablixCell />
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox51">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Left</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox51</rd:DefaultName>
+                          <Style>
+                            <PaddingRight>5pt</PaddingRight>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.13889in</Height>
+                  <Height>0.35278cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -1531,10 +1650,38 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                         </Textbox>
                       </CellContents>
                     </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox53">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox53</rd:DefaultName>
+                          <Style>
+                            <PaddingLeft>5pt</PaddingLeft>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.13889in</Height>
+                  <Height>0.35278cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -1905,10 +2052,39 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                         </Textbox>
                       </CellContents>
                     </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox54">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox54</rd:DefaultName>
+                          <Style>
+                            <VerticalAlign>Bottom</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.13889in</Height>
+                  <Height>0.35278cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -2301,10 +2477,39 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                         </Textbox>
                       </CellContents>
                     </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox55">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox55</rd:DefaultName>
+                          <Style>
+                            <PaddingLeft>5pt</PaddingLeft>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.13889in</Height>
+                  <Height>0.35278cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -2656,10 +2861,40 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                         </Textbox>
                       </CellContents>
                     </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox56">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox56</rd:DefaultName>
+                          <Style>
+                            <VerticalAlign>Bottom</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.06944in</Height>
+                  <Height>0.17638cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -3109,10 +3344,47 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                         </Textbox>
                       </CellContents>
                     </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox57">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox57</rd:DefaultName>
+                          <Style>
+                            <Border>
+                              <Style>None</Style>
+                            </Border>
+                            <BottomBorder>
+                              <Style>Solid</Style>
+                              <Width>1pt</Width>
+                            </BottomBorder>
+                            <VerticalAlign>Bottom</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.06944in</Height>
+                  <Height>0.17638cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -3478,10 +3750,40 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                         </Textbox>
                       </CellContents>
                     </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox58">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                    <FontWeight>Bold</FontWeight>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox58</rd:DefaultName>
+                          <Style>
+                            <VerticalAlign>Bottom</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.13889in</Height>
+                  <Height>0.35278cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -3524,7 +3826,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!Desc_ServeContrLine.Value</Value>
+                                  <Value>=Fields!ContrNo2_ServeContrHdr.Value</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -3822,10 +4124,61 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                         </Textbox>
                       </CellContents>
                     </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox76">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value>=Fields!CustAddr1.Value + chr(177) + 
+Fields!CustAddr2.Value + chr(177) + 
+Fields!CustAddr3.Value + chr(177) + 
+Fields!CustAddr4.Value + chr(177) + 
+Fields!CustAddr5.Value + chr(177) + 
+Fields!CustAddr6.Value + chr(177) +
+Fields!PhNo_ServeContrHdr.Value  + chr(177) +
+Fields!Email_ServeContrHdr.Value + chr(177) +
+Fields!BilltoName_ServeContrHdr.Value + chr(177) +
+Fields!ContrNo2_ServeContrHdr.Value + chr(177) +
+Fields!StartDate_ServeContrHdr.Value + chr(177) + 
+Fields!InvPeriod_ServeContrHdr.Value + chr(177) + 
+Fields!NextInvDate_ServeContrHdr.Value + chr(177) + 
+Fields!PrepaidFmt_ServeContrHdr.Value + chr(177) +
+Fields!Status_ServeContrHdr.Value + chr(177) +  
+Fields!CompanyAddr1.Value + chr(177) +
+Fields!CompanyAddr2.Value + chr(177) +
+Fields!CompanyAddr3.Value + chr(177) +
+Fields!CompanyAddr4.Value + chr(177) +
+Fields!CompanyAddr5.Value + chr(177) +
+Fields!CompanyAddr6.Value + chr(177) +
+Fields!CompanyInfoPhNo.Value + chr(177) +
+Fields!CompanyInfoFaxNo.Value</Value>
+                                  <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox76</rd:DefaultName>
+                          <Style>
+                            <VerticalAlign>Top</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.13889in</Height>
+                  <Height>0.35278cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -3970,10 +4323,38 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                         </Textbox>
                       </CellContents>
                     </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox79">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox79</rd:DefaultName>
+                          <Style>
+                            <PaddingLeft>5pt</PaddingLeft>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.13889in</Height>
+                  <Height>0.35278cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -4339,10 +4720,39 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                         </Textbox>
                       </CellContents>
                     </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox104">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox104</rd:DefaultName>
+                          <Style>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.13889in</Height>
+                  <Height>0.35278cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -4486,10 +4896,39 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                         </Textbox>
                       </CellContents>
                     </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox105">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox105</rd:DefaultName>
+                          <Style>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.13889in</Height>
+                  <Height>0.35278cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -4630,10 +5069,39 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                         </Textbox>
                       </CellContents>
                     </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox106">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox106</rd:DefaultName>
+                          <Style>
+                            <VerticalAlign>Middle</VerticalAlign>
+                            <PaddingLeft>5pt</PaddingLeft>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.13889in</Height>
+                  <Height>0.35278cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -5026,10 +5494,38 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                         </Textbox>
                       </CellContents>
                     </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox107">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox107</rd:DefaultName>
+                          <Style>
+                            <PaddingLeft>5pt</PaddingLeft>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.13889in</Height>
+                  <Height>0.35278cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -5108,10 +5604,38 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                         </Textbox>
                       </CellContents>
                     </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox108">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox108</rd:DefaultName>
+                          <Style>
+                            <PaddingLeft>5pt</PaddingLeft>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.13889in</Height>
+                  <Height>0.35278cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -5188,10 +5712,38 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                         </Textbox>
                       </CellContents>
                     </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox109">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox109</rd:DefaultName>
+                          <Style>
+                            <PaddingLeft>5pt</PaddingLeft>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.13889in</Height>
+                  <Height>0.35278cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -5268,10 +5820,38 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                         </Textbox>
                       </CellContents>
                     </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox110">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox110</rd:DefaultName>
+                          <Style>
+                            <PaddingLeft>5pt</PaddingLeft>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.13889in</Height>
+                  <Height>0.35278cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -5348,10 +5928,38 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                         </Textbox>
                       </CellContents>
                     </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox111">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox111</rd:DefaultName>
+                          <Style>
+                            <PaddingLeft>5pt</PaddingLeft>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.13889in</Height>
+                  <Height>0.35278cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -5428,10 +6036,38 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                         </Textbox>
                       </CellContents>
                     </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox112">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox112</rd:DefaultName>
+                          <Style>
+                            <PaddingLeft>5pt</PaddingLeft>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.13889in</Height>
+                  <Height>0.35278cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -5508,10 +6144,38 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                         </Textbox>
                       </CellContents>
                     </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox113">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox113</rd:DefaultName>
+                          <Style>
+                            <PaddingLeft>5pt</PaddingLeft>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
                   </TablixCells>
                 </TablixRow>
                 <TablixRow>
-                  <Height>0.13889in</Height>
+                  <Height>0.35278cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -5588,12 +6252,41 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                         </Textbox>
                       </CellContents>
                     </TablixCell>
+                    <TablixCell>
+                      <CellContents>
+                        <Textbox Name="Textbox114">
+                          <CanGrow>true</CanGrow>
+                          <KeepTogether>true</KeepTogether>
+                          <Paragraphs>
+                            <Paragraph>
+                              <TextRuns>
+                                <TextRun>
+                                  <Value />
+                                  <Style>
+                                    <FontFamily>Segoe UI</FontFamily>
+                                    <FontSize>8pt</FontSize>
+                                  </Style>
+                                </TextRun>
+                              </TextRuns>
+                              <Style>
+                                <TextAlign>Right</TextAlign>
+                              </Style>
+                            </Paragraph>
+                          </Paragraphs>
+                          <rd:DefaultName>Textbox114</rd:DefaultName>
+                          <Style>
+                            <PaddingLeft>5pt</PaddingLeft>
+                          </Style>
+                        </Textbox>
+                      </CellContents>
+                    </TablixCell>
                   </TablixCells>
                 </TablixRow>
               </TablixRows>
             </TablixBody>
             <TablixColumnHierarchy>
               <TablixMembers>
+                <TablixMember />
                 <TablixMember />
                 <TablixMember />
                 <TablixMember />
@@ -5617,7 +6310,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                       <GroupExpression>=Fields!ContrNo_ServeContrHdr.Value</GroupExpression>
                     </GroupExpressions>
                     <PageBreak>
-                      <BreakLocation>End</BreakLocation>
+                      <BreakLocation>StartAndEnd</BreakLocation>
                     </PageBreak>
                   </Group>
                   <TablixMembers>
@@ -5633,6 +6326,9 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                           <GroupExpression>=Fields!ContrNo_ServeContrHdr.Value</GroupExpression>
                           <GroupExpression>=Fields!CommentsCaption.Value</GroupExpression>
                         </GroupExpressions>
+                        <PageBreak>
+                          <BreakLocation>End</BreakLocation>
+                        </PageBreak>
                       </Group>
                       <TablixMembers>
                         <TablixMember>
@@ -5845,7 +6541,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
             <RepeatRowHeaders>true</RepeatRowHeaders>
             <DataSetName>DataSet_Result</DataSetName>
             <Height>7.84052cm</Height>
-            <Width>18.09722cm</Width>
+            <Width>18.17659cm</Width>
             <Style>
               <FontFamily>Segoe UI</FontFamily>
               <FontSize>8pt</FontSize>
@@ -5858,7 +6554,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
           <FontSize>8pt</FontSize>
         </Style>
       </Body>
-      <Width>18.09722cm</Width>
+      <Width>18.17659cm</Width>
       <Page>
         <PageHeader>
           <Height>7.43867cm</Height>
@@ -5901,7 +6597,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Code.GetData(1,1)</Value>
+                      <Value>=Code.GetDataFromBody(1,ReportItems!Textbox76.Value)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -5917,7 +6613,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Top>0.275in</Top>
               <Height>11pt</Height>
               <Width>365.63379pt</Width>
-              <ZIndex>2</ZIndex>
+              <ZIndex>1</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -5930,7 +6626,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Code.GetData(2,1)</Value>
+                      <Value>=Code.GetDataFromBody(2,ReportItems!Textbox76.Value)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -5946,7 +6642,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Top>29.79999pt</Top>
               <Height>11pt</Height>
               <Width>365.63379pt</Width>
-              <ZIndex>3</ZIndex>
+              <ZIndex>2</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -5959,7 +6655,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Code.GetData(3,1)</Value>
+                      <Value>=Code.GetDataFromBody(3,ReportItems!Textbox76.Value)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -5975,7 +6671,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Top>39.80001pt</Top>
               <Height>11pt</Height>
               <Width>365.63379pt</Width>
-              <ZIndex>4</ZIndex>
+              <ZIndex>3</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -5988,7 +6684,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Code.GetData(4,1)</Value>
+                      <Value>=Code.GetDataFromBody(4,ReportItems!Textbox76.Value)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -6004,7 +6700,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Top>49.80003pt</Top>
               <Height>11pt</Height>
               <Width>365.63379pt</Width>
-              <ZIndex>5</ZIndex>
+              <ZIndex>4</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -6017,7 +6713,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Code.GetData(5,1)</Value>
+                      <Value>=Code.GetDataFromBody(5,ReportItems!Textbox76.Value)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -6033,7 +6729,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Top>59.80003pt</Top>
               <Height>11pt</Height>
               <Width>365.63379pt</Width>
-              <ZIndex>6</ZIndex>
+              <ZIndex>5</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -6046,7 +6742,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Code.GetData(6,1)</Value>
+                      <Value>=Code.GetDataFromBody(6,ReportItems!Textbox76.Value)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -6062,7 +6758,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Top>69.80003pt</Top>
               <Height>11pt</Height>
               <Width>365.63379pt</Width>
-              <ZIndex>7</ZIndex>
+              <ZIndex>6</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -6091,7 +6787,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Top>79.80003pt</Top>
               <Height>11pt</Height>
               <Width>2.5cm</Width>
-              <ZIndex>8</ZIndex>
+              <ZIndex>7</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -6104,7 +6800,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Code.GetData(7,1)</Value>
+                      <Value>=Code.GetDataFromBody(7,ReportItems!Textbox76.Value)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -6121,7 +6817,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Left>2.53529cm</Left>
               <Height>11pt</Height>
               <Width>10.36346cm</Width>
-              <ZIndex>9</ZIndex>
+              <ZIndex>8</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -6150,7 +6846,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Top>89.80003pt</Top>
               <Height>11pt</Height>
               <Width>2.5cm</Width>
-              <ZIndex>10</ZIndex>
+              <ZIndex>9</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -6163,7 +6859,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Code.GetData(8,1)</Value>
+                      <Value>=Code.GetDataFromBody(8,ReportItems!Textbox76.Value)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -6180,7 +6876,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Left>2.53529cm</Left>
               <Height>11pt</Height>
               <Width>10.36346cm</Width>
-              <ZIndex>11</ZIndex>
+              <ZIndex>10</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -6209,7 +6905,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Top>109.80003pt</Top>
               <Height>11pt</Height>
               <Width>2.5cm</Width>
-              <ZIndex>12</ZIndex>
+              <ZIndex>11</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -6222,7 +6918,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Code.GetData(9,1)</Value>
+                      <Value>=Code.GetDataFromBody(9,ReportItems!Textbox76.Value)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -6239,7 +6935,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Left>2.53529cm</Left>
               <Height>11pt</Height>
               <Width>10.36346cm</Width>
-              <ZIndex>13</ZIndex>
+              <ZIndex>12</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -6252,7 +6948,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Code.GetData(16,1)</Value>
+                      <Value>=Code.GetDataFromBody(16,ReportItems!Textbox76.Value)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -6270,7 +6966,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Left>12.97283cm</Left>
               <Height>11pt</Height>
               <Width>4.95742cm</Width>
-              <ZIndex>14</ZIndex>
+              <ZIndex>13</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -6283,7 +6979,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Code.GetData(17,1)</Value>
+                      <Value>=Code.GetDataFromBody(17,ReportItems!Textbox76.Value)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -6301,7 +6997,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Left>12.97283cm</Left>
               <Height>11pt</Height>
               <Width>4.95742cm</Width>
-              <ZIndex>15</ZIndex>
+              <ZIndex>14</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -6314,7 +7010,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Code.GetData(18,1)</Value>
+                      <Value>=Code.GetDataFromBody(18,ReportItems!Textbox76.Value)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -6332,7 +7028,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Left>12.97283cm</Left>
               <Height>11pt</Height>
               <Width>4.95742cm</Width>
-              <ZIndex>16</ZIndex>
+              <ZIndex>15</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -6345,7 +7041,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Code.GetData(19,1)</Value>
+                      <Value>=Code.GetDataFromBody(19,ReportItems!Textbox76.Value)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -6363,7 +7059,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Left>12.97283cm</Left>
               <Height>11pt</Height>
               <Width>4.95742cm</Width>
-              <ZIndex>17</ZIndex>
+              <ZIndex>16</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -6376,7 +7072,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Code.GetData(20,1)</Value>
+                      <Value>=Code.GetDataFromBody(20,ReportItems!Textbox76.Value)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -6394,7 +7090,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Left>12.97283cm</Left>
               <Height>11pt</Height>
               <Width>4.95742cm</Width>
-              <ZIndex>18</ZIndex>
+              <ZIndex>17</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -6407,7 +7103,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Code.GetData(21,1)</Value>
+                      <Value>=Code.GetDataFromBody(21,ReportItems!Textbox76.Value)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -6425,7 +7121,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Left>12.97283cm</Left>
               <Height>11pt</Height>
               <Width>4.95742cm</Width>
-              <ZIndex>19</ZIndex>
+              <ZIndex>18</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -6455,7 +7151,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Left>13.00811cm</Left>
               <Height>11pt</Height>
               <Width>2.22222cm</Width>
-              <ZIndex>20</ZIndex>
+              <ZIndex>19</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -6468,7 +7164,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Code.GetData(22,1)</Value>
+                      <Value>=Code.GetDataFromBody(22,ReportItems!Textbox76.Value)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -6486,7 +7182,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Left>15.23033cm</Left>
               <Height>11pt</Height>
               <Width>2.69992cm</Width>
-              <ZIndex>21</ZIndex>
+              <ZIndex>20</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -6515,7 +7211,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Top>119.80003pt</Top>
               <Height>11pt</Height>
               <Width>2.5cm</Width>
-              <ZIndex>22</ZIndex>
+              <ZIndex>21</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -6528,7 +7224,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Code.GetData(10,1)</Value>
+                      <Value>=Code.GetDataFromBody(10,ReportItems!Textbox76.Value)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -6546,7 +7242,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Left>2.53529cm</Left>
               <Height>11pt</Height>
               <Width>10.36346cm</Width>
-              <ZIndex>23</ZIndex>
+              <ZIndex>22</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -6575,7 +7271,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Top>129.80002pt</Top>
               <Height>11pt</Height>
               <Width>2.5cm</Width>
-              <ZIndex>24</ZIndex>
+              <ZIndex>23</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -6588,7 +7284,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Code.GetData(11,1)</Value>
+                      <Value>=Code.GetDataFromBody(11,ReportItems!Textbox76.Value)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -6606,7 +7302,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Left>2.53529cm</Left>
               <Height>11pt</Height>
               <Width>10.36346cm</Width>
-              <ZIndex>25</ZIndex>
+              <ZIndex>24</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -6619,7 +7315,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=First(Fields!InvoicePeriodCaption.Value, "DataSet_Result")</Value>
+                      <Value>=First(Fields!InvoicePeriodCaption.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -6635,7 +7331,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Top>139.79993pt</Top>
               <Height>11pt</Height>
               <Width>2.5cm</Width>
-              <ZIndex>26</ZIndex>
+              <ZIndex>25</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -6648,7 +7344,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Code.GetData(12,1)</Value>
+                      <Value>=Code.GetDataFromBody(12,ReportItems!Textbox76.Value)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -6666,7 +7362,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Left>2.53529cm</Left>
               <Height>11pt</Height>
               <Width>10.36346cm</Width>
-              <ZIndex>27</ZIndex>
+              <ZIndex>26</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -6695,7 +7391,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Top>149.79987pt</Top>
               <Height>11pt</Height>
               <Width>2.5cm</Width>
-              <ZIndex>28</ZIndex>
+              <ZIndex>27</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -6708,7 +7404,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Code.GetData(13,1)</Value>
+                      <Value>=Code.GetDataFromBody(13,ReportItems!Textbox76.Value)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -6726,7 +7422,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Left>2.53529cm</Left>
               <Height>11pt</Height>
               <Width>10.36346cm</Width>
-              <ZIndex>29</ZIndex>
+              <ZIndex>28</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -6755,7 +7451,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Top>159.79987pt</Top>
               <Height>11pt</Height>
               <Width>2.5cm</Width>
-              <ZIndex>30</ZIndex>
+              <ZIndex>29</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -6768,7 +7464,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Code.GetData(14,1)</Value>
+                      <Value>=Code.GetDataFromBody(14,ReportItems!Textbox76.Value)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -6786,7 +7482,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Left>2.53529cm</Left>
               <Height>11pt</Height>
               <Width>10.36346cm</Width>
-              <ZIndex>31</ZIndex>
+              <ZIndex>30</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -6815,7 +7511,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Top>169.79987pt</Top>
               <Height>11pt</Height>
               <Width>2.5cm</Width>
-              <ZIndex>32</ZIndex>
+              <ZIndex>31</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -6847,7 +7543,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Left>2.53529cm</Left>
               <Height>11pt</Height>
               <Width>10.36346cm</Width>
-              <ZIndex>33</ZIndex>
+              <ZIndex>32</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -6860,7 +7556,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value EvaluationMode="Auto">=First(Fields!StatusCaption.Value, "DataSet_Result")</Value>
+                      <Value>=First(Fields!StatusCaption.Value, "DataSet_Result")</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -6876,7 +7572,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Top>179.79988pt</Top>
               <Height>11pt</Height>
               <Width>2.5cm</Width>
-              <ZIndex>34</ZIndex>
+              <ZIndex>33</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -6889,7 +7585,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
                 <Paragraph>
                   <TextRuns>
                     <TextRun>
-                      <Value>=Code.GetData(15,1)</Value>
+                      <Value>=Code.GetDataFromBody(15,ReportItems!Textbox76.Value)</Value>
                       <Style>
                         <FontFamily>Segoe UI</FontFamily>
                         <FontSize>8pt</FontSize>
@@ -6907,7 +7603,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Left>2.53529cm</Left>
               <Height>11pt</Height>
               <Width>10.36346cm</Width>
-              <ZIndex>35</ZIndex>
+              <ZIndex>34</ZIndex>
               <Style>
                 <Border />
                 <FontFamily>Segoe UI</FontFamily>
@@ -6937,7 +7633,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Left>5.10741in</Left>
               <Height>11pt</Height>
               <Width>1.95175in</Width>
-              <ZIndex>36</ZIndex>
+              <ZIndex>35</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -6962,7 +7658,7 @@ Fields!CompanyInfoFaxNo.Value, 1)</Hidden>
               <Top>99.80003pt</Top>
               <Height>10pt</Height>
               <Width>5.07824in</Width>
-              <ZIndex>37</ZIndex>
+              <ZIndex>36</ZIndex>
               <Style>
                 <Border>
                   <Style>None</Style>
@@ -7356,35 +8052,12 @@ Public Function BlankNegAndZero(ByVal Value As Decimal)
     Return Value
 End Function
 
-Shared Data1,Data2,Data3 As Object
-
-Public Function GetData(Num as Integer, Group as integer) as Object
-if Group = 1 then
-   Return Cstr(Choose(Num, Split(Cstr(Data1),Chr(177))))
-End If
-
-if Group = 2 then
-   Return Cstr(Choose(Num, Split(Cstr(Data2),Chr(177))))
-End If
-
-if Group = 3 then
-   Return Cstr(Choose(Num, Split(Cstr(Data3),Chr(177))))
- End If
+Public Function GetDataFromBody(Num as Integer, Storage as Object) as Object
+  Return Cstr(Choose(Num, Split(Cstr(Storage),Chr(177))))
 End Function
 
-Public Function SetData(NewData as Object,Group as integer)
-  If Group = 1 and NewData &lt;&gt; "" Then
-      Data1 = NewData
-  End If
-
-  If Group = 2 and NewData &lt;&gt; "" Then
-      Data2 = NewData
-  End If
-
-  If Group = 3 and NewData &lt;&gt; "" Then
-      Data3 = NewData
-   End If
-
+Public Function SetDataInBody(NewData as Object,Storage as Object)
+  Storage = NewData
   Return True
 End Function</Code>
   <Language>=User!Language</Language>

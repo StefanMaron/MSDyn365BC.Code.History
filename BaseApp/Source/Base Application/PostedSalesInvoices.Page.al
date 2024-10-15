@@ -864,6 +864,7 @@ page 143 "Posted Sales Invoices"
     begin
         HasFilters := GetFilters <> '';
         SetSecurityFilterOnRespCenter;
+        OnOpenPageOnAfterSetFilters(Rec);
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
         if HasFilters and not Find() then
             if FindFirst() then;
@@ -893,6 +894,11 @@ page 143 "Posted Sales Invoices"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateSalesTaxStatistics(var SalesInvoiceHeader: Record "Sales Invoice Header")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnOpenPageOnAfterSetFilters(var SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
     end;
 }
