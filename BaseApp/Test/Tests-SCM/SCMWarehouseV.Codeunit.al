@@ -1151,8 +1151,8 @@ codeunit 137056 "SCM Warehouse-V"
 
         // Verify: Verify the Unit Of Measure entries on Whse Receipt Line.
         FindWarehouseReceiptNo(WarehouseReceiptLine, WarehouseReceiptLine."Source Document"::"Purchase Order", PurchaseHeader."No.");
-        WarehouseReceiptLine.TestField("Unit of Measure Code", ItemUnitOfMeasure.Code);
-        WarehouseReceiptLine.TestField("Qty. per Unit of Measure", 1);  // Value required.
+        WarehouseReceiptLine.TestField("Unit of Measure Code", ItemUnitOfMeasure3.Code);
+        WarehouseReceiptLine.TestField("Qty. per Unit of Measure", ItemUnitOfMeasure3."Qty. per Unit of Measure");  // Value required.
 
         if UOMOnPutAway then begin
             // Exercise: Craete Put away.
