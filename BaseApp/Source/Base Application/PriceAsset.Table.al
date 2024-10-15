@@ -111,6 +111,10 @@
             DataClassification = SystemMetadata;
             Editable = false;
         }
+        field(16; "Amount Type"; Enum "Price Amount Type")
+        {
+            DataClassification = SystemMetadata;
+        }
         field(17; "Unit Price"; Decimal)
         {
             DataClassification = SystemMetadata;
@@ -197,6 +201,7 @@
         "Asset No." := '';
         Description := '';
         "Unit of Measure Code" := '';
+        "Amount Type" := "Amount Type"::Any;
     end;
 
     procedure IsAssetNoRequired(): Boolean;

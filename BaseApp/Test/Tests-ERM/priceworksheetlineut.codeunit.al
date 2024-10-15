@@ -1302,6 +1302,7 @@ codeunit 134198 "Price Worksheet Line UT"
             PriceListLine, '', "Price Source Type"::Customer, LibrarySales.CreateCustomerNo(),
             "Price Asset Type"::"Item Discount Group", ItemDiscountGroup.Code);
         PriceWorksheetLine.TransferFields(PriceListLine);
+        PriceWorksheetLine.Validate("Asset Type");
 
         // [WHEN] Copy Header to Line
         asserterror PriceWorksheetLine.CopyFrom(PriceListHeader);
