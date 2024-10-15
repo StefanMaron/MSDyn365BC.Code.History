@@ -19,6 +19,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetNewSalesQuoteEntityBufferUpgradeTag());
         PerCompanyUpgradeTags.Add(GetNewSalesCrMemoEntityBufferUpgradeTag());
         PerCompanyUpgradeTags.Add(GetNewSalesShipmentLineUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetDataverseAuthenticationUpgradeTag());
         PerCompanyUpgradeTags.Add(GetCleanupDataExchUpgradeTag());
         PerCompanyUpgradeTags.Add(GetDefaultDimensionAPIUpgradeTag());
         PerCompanyUpgradeTags.Add(GetBalAccountNoOnJournalAPIUpgradeTag());
@@ -511,6 +512,11 @@ codeunit 9998 "Upgrade Tag Definitions"
     procedure GetIntegrationTableMappingUpgradeTag(): Code[250];
     begin
         exit('MS-368854-IntegrationTableMapping-20200818');
+    end;
+
+    internal procedure GetDataverseAuthenticationUpgradeTag(): Code[250];
+    begin
+        exit('MS-423171-DataverseAuthentication-20220125');
     end;
 
     [Obsolete('Function will be removed', '18.0')]
