@@ -1621,7 +1621,6 @@ codeunit 139185 "CRM Synch. Notifications"
         IntegrationTableMapping.SetRange("Table ID", SourceRecordRef.Number);
         IntegrationTableMapping.FindFirst();
 
-        LibraryCRMIntegration.CreateIntegrationRecord(CreateGuid, SourceRecordRef.Number, SourceRecordRef.RecordId);
         CRMIntegrationRecord.CoupleRecordIdToCRMID(SourceRecordRef.RecordId, CreateGuid);
         // [GIVEN] CRM Integration Record does not have data on last synch. jobs
         VerifyLastSynchDataIsBlank(SourceRecordRef.RecordId);

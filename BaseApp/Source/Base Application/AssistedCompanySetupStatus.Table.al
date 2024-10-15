@@ -55,14 +55,6 @@ table 1802 "Assisted Company Setup Status"
     {
     }
 
-#if not CLEAN19
-    [Obsolete('Replaced with GetCompanySetupStatusValue', '19.0')]
-    procedure GetCompanySetupStatus(Name: Text[30]) SetupStatus: Integer
-    begin
-        SetupStatus := GetCompanySetupStatusValue(Name).AsInteger();
-    end;
-#endif
-
     procedure GetCompanySetupStatusValue(Name: Text[30]) SetupStatus: Enum "Company Setup Status"
     begin
         if "Company Name" <> Name then
@@ -100,14 +92,6 @@ table 1802 "Assisted Company Setup Status"
     local procedure OnEnabled(SetupCompanyName: Text[30]; AssistedSetupEnabled: Boolean)
     begin
     end;
-
-#if not CLEAN19
-    [IntegrationEvent(false, false)]
-    [Obsolete('Replaced with OnGetCompanySetupStatusValue', '19.0')]
-    internal procedure OnGetCompanySetupStatus(Name: Text[30]; var SetupStatus: Integer)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnGetCompanySetupStatusValue(Name: Text[30]; var SetupStatus: Enum "Company Setup Status")

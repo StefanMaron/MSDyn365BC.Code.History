@@ -110,4 +110,3 @@ table 5452 "Graph Integration Rec. Archive"
         exit(GraphIntegrationRecArchive.FindFirst());
     end;
 }
-

@@ -18,7 +18,7 @@ page 10911 "IRS Number"
                     ApplicationArea = All;
                     ToolTip = 'Specifies an Internal Revenue Service (IRS) tax number as defined by the Icelandic tax authorities.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a name for the Internal Revenue Service (IRS) tax number.';

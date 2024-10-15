@@ -28,7 +28,7 @@ page 9620 "Page Fields"
                     Caption = 'Field ID';
                     ToolTip = 'Specifies the ID of the field.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = All;
                     Caption = 'Type';
@@ -47,7 +47,7 @@ page 9620 "Page Fields"
                     Caption = 'Caption';
                     ToolTip = 'Specifies the caption of the field.';
                 }
-                field(Status; Status)
+                field(Status; Rec.Status)
                 {
                     ApplicationArea = All;
                     Caption = 'Status';

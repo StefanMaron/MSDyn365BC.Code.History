@@ -18,7 +18,7 @@ page 10902 "IRS Type"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number for this type of Internal Revenue Service (IRS) tax numbers.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a type of Internal Revenue Service (IRS) tax numbers.';
