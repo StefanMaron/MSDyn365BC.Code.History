@@ -29,6 +29,10 @@ codeunit 134924 "ERM Cues"
     procedure SalesCueFlowFields()
     var
         SalesHeader: Record "Sales Header";
+        SalesCue: Record "Sales Cue";
+        SOActivitiesCalculate: Codeunit "SO Activities Calculate";
+        Parameters: Dictionary of [Text, Text];
+        Results: Dictionary of [Text, Text];
     begin
         // [FEATURE] [Sales Cue] [SB Owner Cue]
         // [SCENARIO 347046] Cues in Sales Cue and SB Owner Cue display number of sales documents of corresponding type, status and ship state.
@@ -51,6 +55,13 @@ codeunit 134924 "ERM Cues"
         // [THEN] All cues display correct number of corresponding sales documents.
         VerifySalesCueFlowFields;
         VerifySBOwnerCueNestedFlowField;
+
+        // Bug: 410793
+        Parameters.Add('View', SalesCue.GetView());
+        SOActivitiesCalculate.CalculateFieldValues(Parameters, Results);
+        SOActivitiesCalculate.EvaluateResults(Results, SalesCue);
+
+        VerifySalesCueNonFlowFieldCalculated(SalesCue);
     end;
 
     [Test]
@@ -829,7 +840,14 @@ codeunit 134924 "ERM Cues"
               "Sales Quotes - Open", "Sales Orders - Open", "Ready to Ship",
               Delayed, "Sales Return Orders - Open", "Sales Credit Memos - Open", "Partially Shipped");
             "Average Days Delayed" := CalculateAverageDaysDelayed;
+        end;
 
+        VerifySalesCueFields(SalesCue);
+    end;
+
+    local procedure VerifySalesCueFields(var SalesCue: Record "Sales Cue")
+    begin
+        with SalesCue do begin
             Assert.AreEqual(
               1, "Sales Quotes - Open", StrSubstNo(WrongValueErr, FieldCaption("Sales Quotes - Open"), TableCaption));
             Assert.AreEqual(
@@ -844,16 +862,22 @@ codeunit 134924 "ERM Cues"
               1, "Sales Credit Memos - Open", StrSubstNo(WrongValueErr, FieldCaption("Sales Credit Memos - Open"), TableCaption));
             Assert.AreEqual(
               1, "Partially Shipped", StrSubstNo(WrongValueErr, FieldCaption("Partially Shipped"), TableCaption));
-            Assert.AreEqual(
-              4, "Average Days Delayed", StrSubstNo(WrongValueErr, FieldCaption("Average Days Delayed"), TableCaption));
 
-            // Verify replacement for nested FlowFields
+            VerifySalesCueNonFlowFieldCalculated(SalesCue);
+        end;
+    end;
+
+    local procedure VerifySalesCueNonFlowFieldCalculated(var SalesCue: Record "Sales Cue")
+    begin
+        with SalesCue do begin
             Assert.AreEqual(
-              "Ready to Ship", CountOrders(FieldNo("Ready to Ship")), StrSubstNo(WrongValueErr, 'CountReadyToShip', TableCaption));
+            4, "Average Days Delayed", StrSubstNo(WrongValueErr, FieldCaption("Average Days Delayed"), TableCaption));
             Assert.AreEqual(
-              Delayed, CountOrders(FieldNo(Delayed)), StrSubstNo(WrongValueErr, 'CountDelayed', TableCaption));
+            "Ready to Ship", CountOrders(FieldNo("Ready to Ship")), StrSubstNo(WrongValueErr, 'CountReadyToShip', TableCaption));
             Assert.AreEqual(
-              "Partially Shipped", CountOrders(FieldNo("Partially Shipped")), StrSubstNo(WrongValueErr, 'CountPartiallyShipped', TableCaption));
+            Delayed, CountOrders(FieldNo(Delayed)), StrSubstNo(WrongValueErr, 'CountDelayed', TableCaption));
+            Assert.AreEqual(
+            "Partially Shipped", CountOrders(FieldNo("Partially Shipped")), StrSubstNo(WrongValueErr, 'CountPartiallyShipped', TableCaption));
         end;
     end;
 

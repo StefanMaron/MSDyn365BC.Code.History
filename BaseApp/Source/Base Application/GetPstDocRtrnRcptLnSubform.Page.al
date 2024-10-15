@@ -61,9 +61,9 @@ page 5853 "Get Pst.Doc-RtrnRcptLn Subform"
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
+                    AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
-                    Visible = ItemReferenceVisible;
                 }
                 field("Variant Code"; "Variant Code")
                 {
@@ -254,7 +254,6 @@ page 5853 "Get Pst.Doc-RtrnRcptLn Subform"
 
     trigger OnOpenPage()
     begin
-        SetItemReferenceVisibility();
     end;
 
     var
@@ -262,8 +261,6 @@ page 5853 "Get Pst.Doc-RtrnRcptLn Subform"
         TempReturnRcptLine: Record "Return Receipt Line" temporary;
         [InDataSet]
         DocumentNoHideValue: Boolean;
-        [InDataSet]
-        ItemReferenceVisible: Boolean;
 
     local procedure IsFirstDocLine(): Boolean
     begin
@@ -309,13 +306,6 @@ page 5853 "Get Pst.Doc-RtrnRcptLn Subform"
     begin
         if not IsFirstDocLine then
             DocumentNoHideValue := true;
-    end;
-
-    local procedure SetItemReferenceVisibility()
-    var
-        ItemReferenceMgt: Codeunit "Item Reference Management";
-    begin
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
     end;
 
     [IntegrationEvent(false, false)]

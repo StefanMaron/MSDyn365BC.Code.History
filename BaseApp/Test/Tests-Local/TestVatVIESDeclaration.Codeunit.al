@@ -12,6 +12,7 @@ codeunit 142078 "Test Vat VIES Declaration"
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         FileMgt: Codeunit "File Management";
         ReportingType: Option "Normal transmission","Recall of an earlier report";
         Initialized: Boolean;
@@ -19,9 +20,11 @@ codeunit 142078 "Test Vat VIES Declaration"
 
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Test Vat VIES Declaration");
         if Initialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Test Vat VIES Declaration");
         Initialized := true;
         CreateNoSeries(NoSeries);
     end;

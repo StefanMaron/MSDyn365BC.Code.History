@@ -350,7 +350,7 @@ page 504 "Available - Item Ledg. Entries"
             Rec.SetFilter("Remaining Quantity", '<0');
         end;
 
-        OnAfterSetFilters(Rec, ReservEntry);
+        OnAfterSetFilters(Rec, ReservEntry, ReservMgt);
     end;
 
     local procedure SetPackageTrackingVisibility()
@@ -361,7 +361,7 @@ page 504 "Available - Item Ledg. Entries"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterSetFilters(var ItemLedgerEntry: Record "Item Ledger Entry"; ReservationEntry: Record "Reservation Entry")
+    local procedure OnAfterSetFilters(var ItemLedgerEntry: Record "Item Ledger Entry"; ReservationEntry: Record "Reservation Entry"; var ReservMgt: Codeunit "Reservation Management")
     begin
     end;
 

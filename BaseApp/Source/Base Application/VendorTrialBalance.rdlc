@@ -18,10 +18,10 @@
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>36.79412pt</Width>
+                  <Width>46.79412pt</Width>
                 </TablixColumn>
                 <TablixColumn>
-                  <Width>136.19444pt</Width>
+                  <Width>126.19444pt</Width>
                 </TablixColumn>
                 <TablixColumn>
                   <Width>5pt</Width>
@@ -2717,6 +2717,7 @@
                     <TablixCell>
                       <CellContents>
                         <Textbox Name="VendorNo">
+                          <CanGrow>true</CanGrow>
                           <KeepTogether>true</KeepTogether>
                           <Paragraphs>
                             <Paragraph>

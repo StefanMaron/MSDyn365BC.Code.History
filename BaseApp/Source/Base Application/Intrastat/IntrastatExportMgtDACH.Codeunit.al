@@ -10,7 +10,9 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
         IntrastatSetup: Record "Intrastat Setup";
         XMLDOMMgt: Codeunit "XML DOM Management";
         RegNoExcludeCharsTxt: Label 'ABCDEFGHIJKLMNOPQRSTUVWXYZ/-.+', Comment = 'Locked. Do not translate.';
+#if not CLEAN20
         FieldLengthErr: Label 'It is not possible to display %1 in a field with a maximum length of %2.', Comment = '%1 -  text. %2 - length';
+#endif
         ExportTypeGlb: Option Receipt,Shipment;
         VATIDNo: Text;
         StartDate: Date;
@@ -46,6 +48,7 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
         CreationTime := DT2Time(CreationDateTime);
     end;
 
+#if not CLEAN20
     [Scope('OnPrem')]
     procedure SaveAndCloseFile(ASCIIFileBodyText: Text; var XMLDocument: DotNet XmlDocument; var ServerFileName: Text; FormatType: Option ASCII,XML)
     var
@@ -135,6 +138,37 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
             FileMgt.CopyServerFile(ServerZipArchiveName, ZipFileName, true);
     end;
 
+    procedure DownloadFile(ZipFileName: Text; ServerFileShipments: Text; StatisticsPeriod: Text)
+    var
+        DataCompression: Codeunit "Data Compression";
+        FileMgt: Codeunit "File Management";
+        ServerShipmentsTempBlob: Codeunit "Temp Blob";
+        ServerZipArchive: File;
+        ServerShipmentsInStream: InStream;
+        ServerZipArchiveOutStream: OutStream;
+        ServerZipArchiveName: Text;
+    begin
+        if not FileMgt.ServerFileExists(ServerFileShipments) then
+            exit;
+
+        ServerZipArchiveName := FileMgt.ServerTempFileName('zip');
+        ServerZipArchive.Create(ServerZipArchiveName);
+        ServerZipArchive.CreateOutStream(ServerZipArchiveOutStream);
+        DataCompression.CreateZipArchive();
+        FileMgt.BLOBImportFromServerFile(ServerShipmentsTempBlob, ServerFileShipments);
+        ServerShipmentsTempBlob.CreateInStream(ServerShipmentsInStream);
+        DataCompression.AddEntry(ServerShipmentsInStream, MessageID + '.XML');
+        DataCompression.SaveZipArchive(ServerZipArchiveOutStream);
+        DataCompression.CloseZipArchive();
+        ServerZipArchive.Close();
+
+        if ZipFileName = '' then begin
+            ZipFileName := 'Intrastat-' + StatisticsPeriod + '-XML' + '.zip';
+            FileMgt.DownloadHandler(ServerZipArchiveName, '', '', '', ZipFileName);
+        end else
+            FileMgt.CopyServerFile(ServerZipArchiveName, ZipFileName, true);
+    end;
+
     [Scope('OnPrem')]
     procedure WriteASCII(var ASCIIFileBodyText: Text; IntrastatJnlLine: Record "Intrastat Jnl. Line"; CurrencyIdentifier: Code[10]; LinePrefix: Text; DummyValue1: Text; DummyValue2: Text; DummyValue3: Text; DummyValue4: Text)
     var
@@ -176,6 +210,12 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
             CRLF[2] := 10;
             ASCIIFileBodyText += CRLF;
         end;
+    end;
+#endif
+
+    procedure GetXMLFileName(): Text
+    begin
+        exit(MessageID + '.XML');
     end;
 
     [Scope('OnPrem')]
@@ -420,12 +460,14 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
         end;
     end;
 
+#if not CLEAN20
     local procedure GetAuthorizedNo(ExportType: Option): Code[8]
     begin
         if ExportType = ExportTypeGlb::Receipt then
             exit(CompanyInformation."Purch. Authorized No.");
         exit(CompanyInformation."Sales Authorized No.");
     end;
+#endif
 
     local procedure GetFlowCode(ExportType: Option): Text
     begin
@@ -439,6 +481,7 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
         exit(Format(DecimalValue, 0, '<Precision,0><Standard Format,9>'));
     end;
 
+#if not CLEAN20
     local procedure TextFormatRight(Text: Text; Length: Integer): Text
     begin
         if StrLen(Text) > Length then
@@ -457,6 +500,7 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
             Error(FieldLengthErr, Text, Length);
         exit(PadStr('', Length - StrLen(Text), '0') + Text);
     end;
+#endif
 
     local procedure CheckIntrastatContactMandatoryFields()
     var
@@ -485,6 +529,7 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
         end;
     end;
 
+#if not CLEAN20
     local procedure VerifyCompanyInformation()
     begin
         with CompanyInformation do begin
@@ -493,5 +538,6 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
             TestField("Purch. Authorized No.");
         end;
     end;
+#endif
 }
 

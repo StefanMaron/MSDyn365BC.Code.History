@@ -571,7 +571,7 @@
                     InitQtyToInvoice()
                 else begin
                     "Qty. to Invoice (Base)" := CalcBaseQty("Qty. to Invoice", FieldCaption("Qty. to Invoice"), FieldCaption("Qty. to Invoice (Base)"));
-                    if "Qty. per Unit of Measure" <> 0 then
+                    if ("Qty. per Unit of Measure" <> 0) and not IsSubcontractingCreditMemo() then
                         UOMMgt.ValidateQtyIsBalanced(Quantity, "Quantity (Base)", "Qty. to Invoice", "Qty. to Invoice (Base)", "Quantity Invoiced", "Qty. Invoiced (Base)");
                 end;
                 if ("Qty. to Invoice" * Quantity < 0) or (Abs("Qty. to Invoice") > Abs(MaxQtyToInvoice)) then
@@ -4046,7 +4046,7 @@
         end;
         NotifyOnMissingSetup(FieldNo("Inv. Discount Amount"));
 
-        OnAfterCalcInvDiscToInvoice(Rec);
+        OnAfterCalcInvDiscToInvoice(Rec, OldInvDiscAmtToInv);
     end;
 
     procedure CalcLineAmount() LineAmount: Decimal
@@ -4747,6 +4747,7 @@
         PurchLine2.SetRange("VAT Identifier", "VAT Identifier");
         PurchLine2.SetRange("Tax Group Code", "Tax Group Code");
         PurchLine2.SetRange("Tax Area Code", "Tax Area Code");
+        OnUpdateVATAmountsOnAfterSetFilters(Rec, PurchLine2);
 
         if "Line Amount" = "Inv. Discount Amount" then begin
             Amount := 0;
@@ -4885,7 +4886,7 @@
                 end;
         end;
 
-        OnAfterUpdateVATAmounts(Rec);
+        OnAfterUpdateVATAmounts(Rec, TotalLineAmount, TotalInvDiscAmount, TotalAmount, TotalAmountInclVAT, TotalVATDifference, TotalQuantityBase);
     end;
 
     procedure UpdatePrepmtSetupFields()
@@ -5829,6 +5830,7 @@
                     if not ZeroAmountLine(QtyType) and
                        ((PurchHeader."Document Type" <> PurchHeader."Document Type"::Invoice) or ("Prepmt. Amt. Inv." = 0))
                     then begin
+                        OnUpdateVATOnLinesOnBeforeProcessPurchLine(PurchLine, PurchHeader, VATAmountLine, QtyType);
                         DeferralAmount := GetDeferralAmount;
                         VATAmountLine.Get("VAT Identifier", "VAT Calculation Type", "Tax Group Code", "Use Tax", "Line Amount" >= 0);
                         if VATAmountLine.Modified then begin
@@ -5920,7 +5922,7 @@
                                 end;
                                 OnUpdateVATOnLinesOnAfterCalculateNewAmount(
                                     Rec, PurchHeader, VATAmountLine, TempVATAmountLineRemainder, NewAmountIncludingVAT, VATAmount,
-                                    NewAmount, NewVATBaseAmount);
+                                    NewAmount, NewVATBaseAmount, PurchLine);
                             end else begin
                                 if VATAmountLine.CalcLineAmount = 0 then
                                     VATDifference := 0
@@ -5991,6 +5993,7 @@
             if FindSet then
                 repeat
                     if not ZeroAmountLine(QtyType) then begin
+                        OnCalcVATAmountLinesOnBeforeProcessPurchLine(PurchLine, PurchHeader, VATAmountLine, QtyType);
                         if (Type = Type::"G/L Account") and not "Prepayment Line" then
                             RoundingLineInserted := (("No." = GetVPGInvRoundAcc(PurchHeader)) and "System-Created Entry") or RoundingLineInserted;
                         if "VAT Calculation Type" in
@@ -7160,6 +7163,14 @@
         exit(Item.IsInventoriableType());
     end;
 
+    local procedure IsSubcontractingCreditMemo(): Boolean
+    begin
+        if (Rec."Document Type" = Rec."Document Type"::"Credit Memo") and (Rec."Prod. Order No." <> '') and (Rec."Operation No." <> '') and (Rec."Work Center No." <> '') then
+            exit(true)
+        else
+            exit(false);
+    end;
+
     local procedure CheckReservationForJobNo(): Boolean
     var
         ReservEntry: Record "Reservation Entry";
@@ -7674,7 +7685,7 @@
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckPrepmtAmtInvEmpty(Rec, IsHandled);
+        OnBeforeCheckPrepmtAmtInvEmpty(Rec, IsHandled, xRec);
         if IsHandled then
             exit;
 
@@ -8085,7 +8096,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcInvDiscToInvoice(var PurchaseLine: Record "Purchase Line")
+    local procedure OnAfterCalcInvDiscToInvoice(var PurchaseLine: Record "Purchase Line"; OldInvDiscAmtToInv: Decimal)
     begin
     end;
 
@@ -8215,7 +8226,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateVATAmounts(var PurchaseLine: Record "Purchase Line")
+    local procedure OnAfterUpdateVATAmounts(var PurchaseLine: Record "Purchase Line"; TotalLineAmount: Decimal; TotalInvDiscAmount: Decimal; TotalAmount: Decimal; TotalAmountInclVAT: Decimal; TotalVATDifference: Decimal; TotalQuantityBase: Decimal)
     begin
     end;
 
@@ -8283,7 +8294,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckPrepmtAmtInvEmpty(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckPrepmtAmtInvEmpty(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean; xPurchaseLine: Record "Purchase Line")
     begin
     end;
 
@@ -8673,6 +8684,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnCalcVATAmountLinesOnBeforeProcessPurchLine(var PurchaseLine: Record "Purchase Line"; var PurchHeader: Record "Purchase Header"; var VATAmountLine: Record "VAT Amount Line"; QtyType: Option General,Invoicing,Shipping)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnCalcVATAmountLinesOnQtyTypeInvoicingOnBeforeCalcAmtToHandle(var PurchLine: Record "Purchase Line"; var PurchHeader: Record "Purchase Header"; var QtyToHandle: Decimal; var VATAmountLine: record "VAT Amount Line")
     begin
     end;
@@ -8779,7 +8795,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateVATOnLinesOnAfterCalculateNewAmount(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; VATAmountLine: Record "VAT Amount Line"; VATAmountLineReminder: Record "VAT Amount Line"; var NewAmountIncludingVAT: Decimal; VATAmount: Decimal; var NewAmount: Decimal; var NewVATBaseAmount: Decimal)
+    local procedure OnUpdateVATOnLinesOnAfterCalculateNewAmount(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; VATAmountLine: Record "VAT Amount Line"; VATAmountLineReminder: Record "VAT Amount Line"; var NewAmountIncludingVAT: Decimal; VATAmount: Decimal; var NewAmount: Decimal; var NewVATBaseAmount: Decimal; var CurrentPurchaseLine: Record "Purchase Line")
     begin
     end;
 
@@ -9151,12 +9167,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnUpdateVATAmountsOnAfterSetFilters(var PurchaseLine: Record "Purchase Line"; var PurchaseLine2: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnUpdateVATAmountsOnBeforePurchLineModify(var PurchaseLine: Record "Purchase Line"; var PurchLine2: Record "Purchase Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateVATOnLinesOnBeforeProcessPurchLines(var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; var PurchHeader: Record "Purchase Header"; var VATAmountLine: Record "VAT Amount Line"; var TempVATAmountLineRemainder: Record "VAT Amount Line" temporary; var LineWasModified: Boolean; var IsHandled: Boolean; QtyType: Option General,Invoicing,Shipping)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateVATOnLinesOnBeforeProcessPurchLine(var PurchaseLine: Record "Purchase Line"; var PurchHeader: Record "Purchase Header"; var VATAmountLine: Record "VAT Amount Line"; QtyType: Option General,Invoicing,Shipping)
     begin
     end;
 

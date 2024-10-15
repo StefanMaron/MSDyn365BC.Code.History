@@ -322,12 +322,12 @@
             "Transaction Specification" := "Item Ledger Entry"."Transaction Specification";
             "Shpt. Method Code" := "Item Ledger Entry"."Shpt. Method Code";
             "Location Code" := "Item Ledger Entry"."Location Code";
-            Amount := Round(Abs(TotalAmt), 1);
+            Amount := Abs(TotalAmt);
             if AmountInclItemCharges then
-                Amount := Abs(Round(TotalAmt, 1) + Round(TotalIndirectCost, 1))
+                Amount := Abs(TotalAmt + TotalIndirectCost)
             else begin
-                Amount := Round(Abs(TotalAmt), 1);
-                "Indirect Cost" := Abs(Round(TotalAmt, 1) + Round(TotalIndirectCost, 1)) - Round(Abs(TotalAmt), 1);
+                Amount := Abs(TotalAmt);
+                "Indirect Cost" := Abs(TotalAmt + TotalIndirectCost) - Abs(TotalAmt);
             end;
 
             if Quantity < 0 then
