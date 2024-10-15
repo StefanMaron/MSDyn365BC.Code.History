@@ -77,6 +77,8 @@ codeunit 10680 "Elec. VAT OAuth Mgt."
             "Token DataScope" := "Token DataScope"::UserAndCompany;
             "Daily Limit" := 1000;
             "Feature GUID" := ElecVATSetup."OAuth Feature GUID";
+            "Code Challenge Method" := "Code Challenge Method"::S256;
+            "Use Nonce" := true;
             "User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
             Modify();
         end;
@@ -345,6 +347,8 @@ codeunit 10680 "Elec. VAT OAuth Mgt."
             TestField("Refresh Token URL Path", RefreshTokenURLPathTxt);
             TestField("Authorization Response Type", AuthorizationResponseTypeTxt);
             TestField("Daily Limit", 1000);
+            TestField("Code Challenge Method", "Code Challenge Method"::S256);
+            TestField("Use Nonce");
         end;
     end;
 
@@ -419,6 +423,7 @@ codeunit 10680 "Elec. VAT OAuth Mgt."
         state := Format(CreateGuid(), 0, 4);
         url :=
             StrSubstNo(CurrUrlWithStateTxt, OAuth20Mgt.GetAuthorizationURL(OAuth20Setup, GetToken(OAuth20Setup."Client ID", DataScope::Company)), state);
+        Commit();
         OAuth2ControlAddIn.SetOAuth2Properties(url, state);
         OAuth2ControlAddIn.RunModal();
         auth_error := OAuth2ControlAddIn.GetAuthError();
@@ -562,5 +567,15 @@ codeunit 10680 "Elec. VAT OAuth Mgt."
         ServiceConnection.Status := OAuth20Setup.Status;
         ServiceConnection.InsertServiceConnection(
           ServiceConnection, OAuth20Setup.RecordId(), ServiceConnectionSetupLbl, '', PAGE::"OAuth 2.0 Setup");
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"OAuth 2.0 Mgt.", 'OnBeforeGetServiceUrlForAuthorizationURL', '', false, false)]
+    local procedure OnBeforeGetServiceUrlForAuthorizationURL(var ServiceUrl: Text; OAuth20Setup: Record "OAuth 2.0 Setup")
+    begin
+        if not IsElectronicVATOAuthSetup(OAuth20Setup) then
+            exit;
+        ElecVATSetup.GetRecordOnce();
+        ElecVATSetup.TestField("Login URL");
+        ServiceUrl := ElecVATSetup."Login URL";
     end;
 }

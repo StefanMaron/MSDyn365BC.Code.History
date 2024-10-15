@@ -75,6 +75,11 @@ table 10686 "Elec. VAT Setup"
         {
             Caption = 'Disable Checks On Release';
         }
+        field(20; "Login URL"; Text[250])
+        {
+            Caption = 'Login URL';
+            DataClassification = EndUserIdentifiableInformation;
+        }
     }
 
     trigger OnDelete()

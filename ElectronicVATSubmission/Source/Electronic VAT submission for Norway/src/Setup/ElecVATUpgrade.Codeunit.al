@@ -2,9 +2,14 @@ codeunit 10691 "Elec. VAT Upgrade"
 {
     Subtype = Upgrade;
 
+    var
+        LoginURLTxt: Label 'https://login.idporten.no', Locked = true;
+        AuthenticationURLTxt: Label 'https://idporten.no', Locked = true;
+
     trigger OnUpgradePerCompany()
     begin
         UpgradeReportVATNoteInVATReportSetup();
+        UpgradeElecVATSetupWith2024Endpoints();
     end;
 
     local procedure UpgradeReportVATNoteInVATReportSetup()
@@ -24,9 +29,32 @@ codeunit 10691 "Elec. VAT Upgrade"
         UpgradeTag.SetUpgradeTag(GetReportVATNoteInVATReportSetupTag());
     end;
 
+    local procedure UpgradeElecVATSetupWith2024Endpoints()
+    var
+        ElecVATSetup: Record "Elec. VAT Setup";
+        UpgradeTag: Codeunit "Upgrade Tag";
+    begin
+        if UpgradeTag.HasUpgradeTag(GetUpgradeElecVATSetupWith2024EndpointsSetupTag()) then
+            exit;
+
+        if not ElecVATSetup.Get() then
+            exit;
+
+        ElecVATSetup.Validate("Authentication URL", AuthenticationURLTxt);
+        ElecVATSetup.Validate("Login URL", LoginURLTxt);
+        if ElecVATSetup.Modify(true) then;
+
+        UpgradeTag.SetUpgradeTag(GetUpgradeElecVATSetupWith2024EndpointsSetupTag());
+    end;
+
     local procedure GetReportVATNoteInVATReportSetupTag(): Code[250];
     begin
         exit('MS-433237-ReportVATNoteInVATReportSetupTag-20220418');
+    end;
+
+    local procedure GetUpgradeElecVATSetupWith2024EndpointsSetupTag(): Code[250];
+    begin
+        exit('MS-498271-ElecVATSetupWith2024EndpointsSetupTag-20240219');
     end;
 
 
@@ -34,6 +62,7 @@ codeunit 10691 "Elec. VAT Upgrade"
     local procedure RegisterPerCompanyTags(var PerCompanyUpgradeTags: List of [Code[250]])
     begin
         PerCompanyUpgradeTags.Add(GetReportVATNoteInVATReportSetupTag());
+        PerCompanyUpgradeTags.Add(GetUpgradeElecVATSetupWith2024EndpointsSetupTag());
     end;
 
 }
