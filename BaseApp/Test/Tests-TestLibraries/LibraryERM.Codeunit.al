@@ -3282,9 +3282,11 @@
     procedure GetNonDuePaymentLineCode(): Code[10]
     var
         PaymentLines: Record "Payment Lines";
+        DateFormular_0D: DateFormula;
     begin
+        Evaluate(DateFormular_0D, '<0D>');
         PaymentLines.SetRange(Type, PaymentLines.Type::"Payment Terms");
-        PaymentLines.SetFilter("Due Date Calculation", '0D');
+        PaymentLines.SetRange("Due Date Calculation", DateFormular_0D);
         if PaymentLines.FindFirst then
             exit(PaymentLines.Code);
         exit('');

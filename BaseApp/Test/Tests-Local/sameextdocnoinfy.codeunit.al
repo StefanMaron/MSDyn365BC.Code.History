@@ -23,6 +23,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
         LibraryJobQueue: Codeunit "Library - Job Queue";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
+        LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         IsInitialized: Boolean;
         PurchInvAlreadyExistErr: Label 'Purchase Invoice %1 already exists for this vendor.', Comment = '%1 = purchase invoice no.';
         PurchInvExistsInRepErr: Label 'Purchase Invoice %1 already exists.', Comment = '%1 = external document no.';
@@ -854,6 +855,7 @@ codeunit 144564 "Same Ext. Doc. No. In FY"
     var
         PurchaseLine: Record "Purchase Line";
     begin
+        LibraryNotificationMgt.DisableMyNotification(PurchaseHeader.GetShowExternalDocAlreadyExistNotificationId());
         PurchaseHeader.Validate("Posting Date", DocumentDate + 1); // Document Date should not be greater than Posting Date
         PurchaseHeader.Validate("Document Date", DocumentDate);
         PurchaseHeader.Validate("Vendor Invoice No.", CopyStr(ExtDocNo, 1, MaxStrLen(PurchaseHeader."Vendor Invoice No.")));

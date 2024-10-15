@@ -133,6 +133,7 @@ table 2020 "Image Analysis Setup"
         exit(Regex.IsMatch(LowerCase(ApiUri), '/analyze$'));
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure SetApiKey(ApiKey: Text)
     begin
@@ -142,6 +143,7 @@ table 2020 "Image Analysis Setup"
         IsolatedStorageManagement.Set("Api Key Key", ApiKey, DATASCOPE::Company);
     end;
 
+    [NonDebuggable]
     [Scope('OnPrem')]
     procedure GetApiKey(): Text
     var

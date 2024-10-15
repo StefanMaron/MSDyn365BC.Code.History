@@ -325,6 +325,7 @@ codeunit 20117 "AMC Bank Assisted Mgt."
             exit(true);
     end;
 
+    [NonDebuggable]
     local procedure PrepareSOAPRequestBodyModuleCreate(var BodyRequestMessage: HttpRequestMessage);
     var
         AMCBankServiceSetup: Record "AMC Banking Setup";
@@ -499,6 +500,7 @@ codeunit 20117 "AMC Bank Assisted Mgt."
         exit(false);
     end;
 
+    [NonDebuggable]
     local procedure PrepareSOAPRequestBodyDataExchangeDef(var DataExchRequestMessage: HttpRequestMessage; ApplVersion: Text; BuildNumber: Text);
     var
         AMCBankingSetup: Record "AMC Banking Setup";

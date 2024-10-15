@@ -1705,6 +1705,7 @@
 
     local procedure ShortcutDimension2CodeOnAfterV()
     begin
+        CurrPage.PurchLines.Page.ForceTotalsCalculation();
         CurrPage.Update;
     end;
 

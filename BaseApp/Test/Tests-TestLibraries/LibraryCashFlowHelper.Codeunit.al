@@ -584,6 +584,21 @@ codeunit 131332 "Library - Cash Flow Helper"
         CreateDefaultJobPlanningLine(JobTask, JobPlanningLine."Line Type"::"Both Budget and Billable", JobPlanningLine);
     end;
 
+    procedure CreateDefaultJobForCustomer(var Job: Record Job; CustomerNo: Code[20])
+    var
+        JobTask: Record "Job Task";
+        JobPlanningLine: Record "Job Planning Line";
+    begin
+        LibraryJob.CreateJob(Job);
+        Job.Validate("Bill-to Customer No.", CustomerNo);
+        Job.Modify(true);
+        LibraryJob.CreateJobTask(Job, JobTask);
+
+        CreateDefaultJobPlanningLine(JobTask, JobPlanningLine."Line Type"::Budget, JobPlanningLine);
+        CreateDefaultJobPlanningLine(JobTask, JobPlanningLine."Line Type"::Billable, JobPlanningLine);
+        CreateDefaultJobPlanningLine(JobTask, JobPlanningLine."Line Type"::"Both Budget and Billable", JobPlanningLine);
+    end;
+
     procedure CreateJobPlanningLine(Job: Record Job; LineType: Option; var JobPlanningLine: Record "Job Planning Line")
     var
         JobTask: Record "Job Task";
@@ -1248,11 +1263,17 @@ codeunit 131332 "Library - Cash Flow Helper"
 
     procedure VerifyCFDataOnSnglJnlLine(var CFWorksheetLine: Record "Cash Flow Worksheet Line"; DocumentNo: Code[20]; SourceType: Enum "Cash Flow Source Type"; CFNo: Code[20]; ExpectedCFAmount: Decimal; ExpectedCFDate: Date)
     begin
+        VerifyCFDataOnSnglJnlLineWithDates(
+          CFWorksheetLine, DocumentNo, SourceType, CFNo, ExpectedCFDate, ExpectedCFAmount, ExpectedCFDate);
+    end;
+
+    procedure VerifyCFDataOnSnglJnlLineWithDates(var CFWorksheetLine: Record "Cash Flow Worksheet Line"; DocumentNo: Code[20]; SourceType: Enum "Cash Flow Source Type"; CFNo: Code[20]; DocumentDate: Date; ExpectedCFAmount: Decimal; ExpectedCFDate: Date)
+    begin
         FilterSingleJournalLine(CFWorksheetLine, DocumentNo, SourceType, CFNo);
         if SourceType = CFWorksheetLine."Source Type"::Job then begin
             CFWorksheetLine.SetRange("Document No.");
             CFWorksheetLine.SetRange("Source No.", DocumentNo);
-            CFWorksheetLine.SetRange("Document Date", ExpectedCFDate);
+            CFWorksheetLine.SetRange("Document Date", DocumentDate);
             if CFWorksheetLine.FindFirst then;
         end;
         CFWorksheetLine.CalcSums("Amount (LCY)");

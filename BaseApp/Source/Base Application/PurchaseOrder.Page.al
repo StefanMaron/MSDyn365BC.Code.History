@@ -2120,6 +2120,7 @@
 
     local procedure VATBusPostingGroupOnAfterValid()
     begin
+        CurrPage.PurchLines.Page.ForceTotalsCalculation();
         CurrPage.Update;
     end;
 
