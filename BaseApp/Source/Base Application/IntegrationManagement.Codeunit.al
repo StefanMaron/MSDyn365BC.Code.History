@@ -2,7 +2,8 @@ codeunit 5150 "Integration Management"
 {
     Permissions = TableData "Sales Invoice Header" = rm,
                   TableData "Sales Invoice Line" = rm,
-                  TableData "Marketing Setup" = r;
+                  TableData "Marketing Setup" = r,
+                  TableData "Integration Record" = rm;
     SingleInstance = true;
 
     trigger OnRun()
