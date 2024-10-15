@@ -115,7 +115,7 @@ codeunit 1019 "Job-Explode BOM"
             end;
             AddDescriptionFromTranslationIfExist();
             ToJobPlanningLine."BOM Item No." := BOMItemNo;
-            ToJobPlanningLine.Insert();
+            ToJobPlanningLine.Insert(true);
 
             ToJobPlanningLine.Validate("Qty. to Assemble");
 

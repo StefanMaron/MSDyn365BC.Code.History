@@ -480,6 +480,89 @@ codeunit 139026 "Test Job Queue"
         Assert.AreEqual(JobQueueLogEntry.Status::Error, JobQueueLogEntry.Status, 'The second job queue log entry is not in error state.');
     end;
 
+    [Test]
+    procedure JobQueueErrorMessageDeleteByJQE()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        JobQueueLogEntry: Record "Job Queue Log Entry";
+        ErrorMessage: Record "Error Message";
+        ErrorMessageRegister: Record "Error Message Register";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+    begin
+        // [Scenario] When a JQ runs and fails, once both JQE and JLE are deleted, the error message should be deleted as well.
+        // Delete JQE first, then JQLE
+
+        // [Given] A JQE that will fail and run it
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleSendNotificationEvent(false);
+        Initialize();
+        ErrorMessage.DeleteAll();
+        ErrorMessageRegister.DeleteAll();
+        CreateJobQueueEntry(JobQueueEntry, JobQueueEntry."Object Type to Run"::Codeunit, Codeunit::"Sales Post via Job Queue", JobQueueEntry.Status::Ready);
+
+        // [When] Run the JQE and delete it
+        asserterror Codeunit.Run(Codeunit::"Job Queue Dispatcher", JobQueueEntry);
+        CODEUNIT.Run(CODEUNIT::"Job Queue Error Handler", JobQueueEntry);
+        Assert.AreEqual(JobQueueEntry.Status::Error, JobQueueEntry.Status, 'Job should be in error state');
+        JobQueueEntry.Delete();
+
+        // [Then] The JQE should be deleted, an error message should be created and the error message register should be created
+        Assert.IsFalse(ErrorMessage.IsEmpty(), 'Error message should have been created.');
+        Assert.IsFalse(ErrorMessageRegister.IsEmpty(), 'Error message register should have been created.');
+
+        // [When] Delete the JQLE
+        JobQueueLogEntry.SetRange(ID, JobQueueEntry.ID);
+        JobQueueLogEntry.FindLast();
+        Assert.AreEqual(JobQueueLogEntry.Status::Error, JobQueueLogEntry.Status, 'Job log entry should be in error state');
+        JobQueueLogEntry.DeleteAll();
+
+        // [Then] The error message and register should be deleted
+        Assert.IsTrue(ErrorMessage.IsEmpty(), 'Error message should have been deleted.');
+        Assert.IsTrue(ErrorMessageRegister.IsEmpty(), 'Error message register should have been deleted.');
+
+        UnbindSubscription(LibraryJobQueue);
+    end;
+
+    [Test]
+    procedure JobQueueErrorMessageDeleteByJQLE()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        JobQueueLogEntry: Record "Job Queue Log Entry";
+        ErrorMessage: Record "Error Message";
+        ErrorMessageRegister: Record "Error Message Register";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+    begin
+        // [Scenario] When a JQ runs and fails, once both JQE and JLE are deleted, the error message should be deleted as well.
+        // Delete JQLE first and then JQE
+
+        // [Given] A JQE that will fail and run it
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleSendNotificationEvent(false);
+        Initialize();
+        ErrorMessage.DeleteAll();
+        ErrorMessageRegister.DeleteAll();
+        CreateJobQueueEntry(JobQueueEntry, JobQueueEntry."Object Type to Run"::Codeunit, Codeunit::"Sales Post via Job Queue", JobQueueEntry.Status::Ready);
+
+        // [When] Run the JQE and delete the JQLE 
+        asserterror Codeunit.Run(Codeunit::"Job Queue Dispatcher", JobQueueEntry);
+        CODEUNIT.Run(CODEUNIT::"Job Queue Error Handler", JobQueueEntry);
+        JobQueueLogEntry.SetRange(ID, JobQueueEntry.ID);
+        JobQueueLogEntry.DeleteAll();
+
+        // [Then] The JQE should be deleted, an error message should be created and the error message register should be created
+        Assert.IsFalse(ErrorMessage.IsEmpty(), 'Error message should have been created.');
+        Assert.IsFalse(ErrorMessageRegister.IsEmpty(), 'Error message register should have been created.');
+
+        // [When] Delete the JQE
+        JobQueueEntry.Delete();
+
+        // [Then] The error message and register should be deleted
+        Assert.IsTrue(ErrorMessage.IsEmpty(), 'Error message should have been deleted.');
+        Assert.IsTrue(ErrorMessageRegister.IsEmpty(), 'Error message register should have been deleted.');
+
+        UnbindSubscription(LibraryJobQueue);
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();

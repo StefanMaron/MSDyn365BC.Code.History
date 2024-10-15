@@ -1123,6 +1123,9 @@ table 39 "Purchase Line"
                 CreateDimFromDefaultDim(Rec.FieldNo("Job No."));
 
                 UpdateDirectUnitCostByField(FieldNo("Job No."));
+
+                if (xRec."Line Discount %" <> "Line Discount %") and ("Line Discount Amount" <> 0) then
+                    UpdateLineDiscPct();
             end;
         }
         field(54; "Indirect Cost %"; Decimal)
@@ -5187,6 +5190,7 @@ table 39 "Purchase Line"
             Amount := 0;
             "VAT Base Amount" := 0;
             "Amount Including VAT" := 0;
+            NonDeductibleVAT.ClearNonDeductibleVAT(Rec);
             OnUpdateVATAmountsOnBeforePurchLineModify(Rec, PurchLine2);
             if (Quantity = 0) and (xRec.Quantity <> 0) and (xRec.Amount <> 0) then begin
                 if "Line No." <> 0 then
@@ -6006,7 +6010,7 @@ table 39 "Purchase Line"
            ("Line Discount Amount" = 0) and
            (not PurchHeader."Prices Including VAT")
         then
-            ItemChargeAssgntLineAmt := "Line Amount"
+            ItemChargeAssgntLineAmt := "Line Amount" + NonDeductibleVAT.GetNonDeductibleVATAmountForItemCost(Rec)
         else
             if PurchHeader."Prices Including VAT" then
                 ItemChargeAssgntLineAmt :=
@@ -7448,7 +7452,7 @@ table 39 "Purchase Line"
         end else
             if PurchOrderLine.Get(PurchOrderLine."Document Type"::Order, ReceiptLine."Order No.", ReceiptLine."Order Line No.") then begin
                 if ("Prepayment %" = 100) and (Quantity <> PurchOrderLine.Quantity - PurchOrderLine."Quantity Invoiced") then
-                    "Prepmt Amt to Deduct" := "Line Amount"
+                    "Prepmt Amt to Deduct" := GetLineAmountToHandle(Quantity) - "Inv. Disc. Amount to Invoice"
                 else
                     "Prepmt Amt to Deduct" :=
                       Round((PurchOrderLine."Prepmt. Amt. Inv." - PurchOrderLine."Prepmt Amt Deducted") *
@@ -10842,4 +10846,3 @@ table 39 "Purchase Line"
     begin
     end;
 }
-
