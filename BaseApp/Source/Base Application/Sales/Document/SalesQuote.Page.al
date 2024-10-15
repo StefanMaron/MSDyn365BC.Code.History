@@ -307,6 +307,11 @@ page 41 "Sales Quote"
                     Importance = Additional;
                     QuickEntry = false;
                     ToolTip = 'Specifies the number of the campaign that the document is linked to.';
+                    trigger OnValidate()
+                    begin
+                        if Rec."Campaign No." <> xRec."Campaign No." then
+                            CurrPage.Update();
+                    end;
                 }
                 field("Opportunity No."; Rec."Opportunity No.")
                 {

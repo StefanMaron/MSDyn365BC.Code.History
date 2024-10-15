@@ -1,4 +1,4 @@
-﻿﻿namespace Microsoft.Warehouse.Activity;
+﻿namespace Microsoft.Warehouse.Activity;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Foundation.UOM;
@@ -2605,7 +2605,6 @@ codeunit 7312 "Create Pick"
         QtyAssignedToPick: Decimal;
         AvailableAfterReshuffle: Decimal;
         QtyOnToBinsBase: Decimal;
-        QtyOnToBinsBaseInPicks: Decimal;
         ReservedQtyOnInventory: Decimal;
         ResetWhseItemTrkgExists: Boolean;
         BinTypeFilter: Text[1024];
@@ -2653,14 +2652,8 @@ codeunit 7312 "Create Pick"
                 QtyOnPutAwayBins :=
                     SumWhseEntries(
                         ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup, BinTypeFilter, '', false);
-            if CurrWhseWorksheetLine."To Bin Code" <> '' then
-                if not IsShipZone(CurrWhseWorksheetLine."Location Code", CurrWhseWorksheetLine."To Zone Code") then begin
-                    QtyOnToBinsBase :=
-                        SumWhseEntries(ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup, '', CurrWhseWorksheetLine."To Bin Code", false);
-                    QtyOnToBinsBaseInPicks :=
-                        CalcQtyAssignedToPick(ItemNo, LocationCode, VariantCode, CurrWhseWorksheetLine."To Bin Code", WhseItemTrackingSetup);
-                    QtyOnToBinsBase -= Minimum(QtyOnToBinsBase, QtyOnToBinsBaseInPicks);
-                end;
+
+            CalcQtyOnToBinsBase(WhseItemTrackingSetup, QtyOnToBinsBase, LocationCode, ItemNo, VariantCode);
         end;
 
         QtyOnOutboundBins := WarehouseAvailabilityMgt.CalcQtyOnOutboundBins(LocationCode, ItemNo, VariantCode, WhseItemTrackingSetup, true);
@@ -2771,7 +2764,6 @@ codeunit 7312 "Create Pick"
         QtyAssignedPick: Decimal;
         AvailableAfterReshuffle: Decimal;
         QtyOnToBinsBase: Decimal;
-        QtyOnToBinsBaseInPicks: Decimal;
         ReservedQtyOnInventory: Decimal;
         ResetWhseItemTrkgExists: Boolean;
     begin
@@ -2812,14 +2804,7 @@ codeunit 7312 "Create Pick"
         TotalAvailQtyBase -= QtyAssignedPick;
 
         if CalledFromMoveWksh then begin
-            if CurrWhseWorksheetLine."To Bin Code" <> '' then
-                if not IsShipZone(CurrWhseWorksheetLine."Location Code", CurrWhseWorksheetLine."To Zone Code") then begin
-                    QtyOnToBinsBase :=
-                        SumWhseEntries(ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup, '', CurrWhseWorksheetLine."To Bin Code", false);
-                    QtyOnToBinsBaseInPicks :=
-                        CalcQtyAssignedToPick(ItemNo, LocationCode, VariantCode, CurrWhseWorksheetLine."To Bin Code", WhseItemTrackingSetup);
-                    QtyOnToBinsBase -= Minimum(QtyOnToBinsBase, QtyOnToBinsBaseInPicks);
-                end;
+            CalcQtyOnToBinsBase(WhseItemTrackingSetup, QtyOnToBinsBase, LocationCode, ItemNo, VariantCode);
 
             // For movement worksheet, MaxPickableQtyInWhse does not contain quantity from RECEIVE bins
             TotalAvailQtyBase += MaxPickableQtyInWhse;
@@ -2917,6 +2902,7 @@ codeunit 7312 "Create Pick"
         WhseItemTrackingSetup: Record "Item Tracking Setup";
         BinTypeFilter: Text;
         QtyOnOutboundBins: Decimal;
+        QtyOnToBinsBase: Decimal;
     begin
         ItemTrackingManagement.GetWhseItemTrkgSetup(ItemNo, WhseItemTrackingSetup);
         OnCalcQtyCanBePickedOnAfterGetWhseItemTrkgSetup(WhseItemTrackingSetup, LocationCode);
@@ -2936,8 +2922,11 @@ codeunit 7312 "Create Pick"
                 QtyOnOutboundBins := 0;
             end;
 
-        exit(
-            SumWhseEntries(ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup, BinTypeFilter, '', true) - QtyOnOutboundBins);
+        if CurrLocation."Directed Put-away and Pick" then
+            if CalledFromMoveWksh then
+                CalcQtyOnToBinsBase(WhseItemTrackingSetup, QtyOnToBinsBase, LocationCode, ItemNo, VariantCode);
+
+        exit(SumWhseEntries(ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup, BinTypeFilter, '', true) - QtyOnOutboundBins - QtyOnToBinsBase);
     end;
 
     procedure GetBinTypeFilter(Type: Option Receive,Ship,"Put Away",Pick,"Put Away only") BinTypeFilter: Text[1024]
@@ -3749,7 +3738,7 @@ codeunit 7312 "Create Pick"
             ReservedQty, WhseItemTrackingSetup);
     end;
 
-    local procedure GetReservedQtyByBinAndRemoveDedicatedAndBlockedQty(var CalcQtyInReservEntry: Query CalcQtyInReservEntry; ExcludeReservedQty: Decimal): Decimal
+    local procedure GetReservedQtyByBinAndRemoveDedicatedAndBlockedQty(var CalcQtyInReservEntry: Query CalcQtyInReservEntry; var ExcludeReservedQty: Decimal): Decimal
     var
         TempBinContentBufferByBins: Record "Bin Content Buffer" temporary;
         WhseItemTrackingSetup: Record "Item Tracking Setup";
@@ -3758,7 +3747,8 @@ codeunit 7312 "Create Pick"
         QtyInBin: Decimal;
         Qty: Decimal;
     begin
-        QtyLeftToDistribute := CalcQtyInReservEntry.Quantity__Base_ - ExcludeReservedQty; //ExcludeReservedQty is used to exclude reserved quantities that are already considered in other worksheet lines like pick worksheet. Therfore, there is no need to distribute them again.
+        QtyLeftToDistribute := CalcQtyLeftToDistribute(ExcludeReservedQty, CalcQtyInReservEntry.Quantity__Base_); //ExcludeReservedQty is used to exclude reserved quantities that are already considered in other worksheet lines like pick worksheet. Therfore, there is no need to distribute them again.
+
         GetLocation(CalcQtyInReservEntry.Location_Code);
 
         CalcQtyInWhseEntries.SetRange(Location_Code, CalcQtyInReservEntry.Location_Code);
@@ -4014,6 +4004,21 @@ codeunit 7312 "Create Pick"
         exit(SaveSummary and CurrLocation."Directed Put-away and Pick");
     end;
 
+    local procedure CalcQtyOnToBinsBase(WhseItemTrackingSetup: Record "Item Tracking Setup"; var QtyOnToBinsBase: Decimal; LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10])
+    var
+        QtyOnToBinsBaseInPicks: Decimal;
+    begin
+        if CurrWhseWorksheetLine."To Bin Code" = '' then
+            exit;
+
+        if IsShipZone(CurrWhseWorksheetLine."Location Code", CurrWhseWorksheetLine."To Zone Code") then
+            exit;
+
+        QtyOnToBinsBase := SumWhseEntries(ItemNo, LocationCode, VariantCode, WhseItemTrackingSetup, '', CurrWhseWorksheetLine."To Bin Code", false);
+        QtyOnToBinsBaseInPicks := CalcQtyAssignedToPick(ItemNo, LocationCode, VariantCode, CurrWhseWorksheetLine."To Bin Code", WhseItemTrackingSetup);
+        QtyOnToBinsBase -= Minimum(QtyOnToBinsBase, QtyOnToBinsBaseInPicks);
+    end;
+
     internal procedure SetSummaryPageMessage(MessageTxt: Text; OverwriteMessage: Boolean)
     begin
         if OverwriteMessage then
@@ -4033,6 +4038,19 @@ codeunit 7312 "Create Pick"
                 WarehousePickSummaryPage.Run();
                 exit(true);
             end;
+    end;
+
+    local procedure CalcQtyLeftToDistribute(var ExcludeReservedQty: Decimal; QtyBase: Decimal): Decimal
+    begin
+        if ExcludeReservedQty < QtyBase then
+            exit(QtyBase - ExcludeReservedQty);
+
+        if ExcludeReservedQty = 0 then
+            exit(ExcludeReservedQty - QtyBase);
+
+        ExcludeReservedQty := ExcludeReservedQty - QtyBase;
+
+        exit(0);
     end;
 
     [IntegrationEvent(false, false)]

@@ -236,7 +236,7 @@ codeunit 333 "Req. Wksh.-Make Order"
                         end;
             end;
 
-        OnAfterCode(ReqLine, OrderLineCounter, OrderCounter, PrintPurchOrders, SuppressCommit);
+        OnAfterCode(ReqLine, OrderLineCounter, OrderCounter, PrintPurchOrders, SuppressCommit, PurchOrderHeader);
     end;
 
     local procedure CheckRunPrintPurchOrders()
@@ -832,7 +832,7 @@ codeunit 333 "Req. Wksh.-Make Order"
         PurchOrderHeader."Document Type" := PurchOrderHeader."Document Type"::Order;
         PurchOrderHeader."No." := '';
         PurchOrderHeader."Posting Date" := PostingDateReq;
-        OnBeforePurchOrderHeaderInsert(PurchOrderHeader, ReqLine2, ReceiveDateReq);
+        OnBeforePurchOrderHeaderInsert(PurchOrderHeader, ReqLine2, ReceiveDateReq, OrderDateReq, PostingDateReq, ReferenceReq);
         PurchOrderHeader.Insert(true);
         PurchOrderHeader."Your Reference" := ReferenceReq;
         PurchOrderHeader."Order Date" := OrderDateReq;
@@ -1534,7 +1534,7 @@ codeunit 333 "Req. Wksh.-Make Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePurchOrderHeaderInsert(var PurchaseHeader: Record "Purchase Header"; RequisitionLine: Record "Requisition Line"; var ReceiveDateReq: Date)
+    local procedure OnBeforePurchOrderHeaderInsert(var PurchaseHeader: Record "Purchase Header"; RequisitionLine: Record "Requisition Line"; var ReceiveDateReq: Date; var OrderDateReq: Date; var PostingDateReq: Date; var ReferenceReq: Text[35])
     begin
     end;
 
@@ -1564,7 +1564,7 @@ codeunit 333 "Req. Wksh.-Make Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCode(var RequisitionLine: Record "Requisition Line"; OrderLineCounter: Integer; OrderCounter: Integer; PrintPurchOrders: Boolean; SuppressCommit: Boolean)
+    local procedure OnAfterCode(var RequisitionLine: Record "Requisition Line"; OrderLineCounter: Integer; OrderCounter: Integer; PrintPurchOrders: Boolean; SuppressCommit: Boolean; var PurchOrderHeader: Record "Purchase Header")
     begin
     end;
 

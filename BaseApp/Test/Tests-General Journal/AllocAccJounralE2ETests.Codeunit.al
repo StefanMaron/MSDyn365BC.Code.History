@@ -9,6 +9,7 @@ codeunit 134832 "Alloc. Acc. Jounral E2E Tests"
         LibraryJournals: Codeunit "Library - Journals";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryERM: Codeunit "Library - ERM";
+        LibraryUtility: Codeunit "Library - Utility";
         TestProxyNotifMgtExt: Codeunit "Test Proxy Notif. Mgt. Ext.";
         Any: Codeunit Any;
         Assert: Codeunit Assert;
@@ -78,7 +79,7 @@ codeunit 134832 "Alloc. Acc. Jounral E2E Tests"
         AllocationAccountPage.Close();
 
         // [GIVEN] The General Journal line with Allocation Account
-        CreateLineOnGeneralJounral(DocumentNumber, GeneralJournalPage, DummyGenJournalLine."Account Type"::"Allocation Account", AllocationAccount."No.", DummyGenJournalLine."Bal. Account Type"::"G/L Account", BalancingGLAccount."No.");
+        CreateLineOnGeneralJournal(DocumentNumber, GeneralJournalPage, DummyGenJournalLine."Account Type"::"Allocation Account", AllocationAccount."No.", DummyGenJournalLine."Bal. Account Type"::"G/L Account", BalancingGLAccount."No.");
 
         // [WHEN] The General Journal line is posted
         GeneralJournalPage.Post.Invoke();
@@ -104,6 +105,47 @@ codeunit 134832 "Alloc. Acc. Jounral E2E Tests"
         PostedAmount += GLEntry.Amount;
 
         Assert.AreEqual(GetLineAmountToForceRounding(), PostedAmount, 'The rounding amount was not distributed correctly');
+    end;
+
+    [Test]
+    procedure TestAllocationWithCreditAmountVariableGLAllocation()
+    var
+        AllocationAccount: Record "Allocation Account";
+        AllocationLine: Record "Allocation Line";
+        AllocationAccountMgt: Codeunit "Allocation Account Mgt.";
+        GLAccountNo: array[2] of Code[20];
+        BreakdownGLAccountNo: array[2] of Code[20];
+        PostedAmount: array[2] of Decimal;
+        i: Integer;
+    begin
+        // [SCENARIO 533958] Test variable allocation with credit (negative) amount
+        Initialize();
+
+        // [GIVEN] Create Allocation Account "X" with variable GL distributions
+        AllocationAccount := CreateAllocationAccountWithVariableDistribution();
+
+        // [GIVEN] Create two G/L Accounts "X" and "Y" with direct posting 
+        // [GIVEN] Create two G/L Accounts "M" and "N" with direct posting with negative balance
+        // [GIVEN] Create and post General Journal line: Gen. Journal Batch "X", G/L Account "M", amount is negative
+        // [GIVEN] Create and post General Journal line: Gen. Journal Batch "X", G/L Account "N", amount is negative
+        // [GIVEN] Create two Allocation Account Distribution Lines:
+        // [GIVEN] All. Acc. Distribution Line 1: Allocation Account = "X", G/L Account "X", Breakdown Account "M"
+        // [GIVEN] All. Acc. Distribution Line 2: Allocation Account = "X", G/L Account "Y", Breakdown Account "N"
+        for i := 1 to ArrayLen(GLAccountNo) do begin
+            GLAccountNo[i] := LibraryERM.CreateGLAccountNoWithDirectPosting();
+            BreakdownGLAccountNo[i] := LibraryERM.CreateGLAccountNoWithDirectPosting();
+            CreateBalanceForGLAccount(-Random(100), BreakdownGLAccountNo[i], 0);
+            CreateAllocationAccountDistributionLine(AllocationAccount."No.", GLAccountNo[i], BreakdownGLAccountNo[i]);
+        end;
+
+        // [WHEN] Test allocation calculation on allocation lines, amount to distribute = 1000
+        AllocationAccountMgt.GenerateAllocationLines(AllocationAccount, AllocationLine, 1000, WorkDate(), 0, '');
+
+        // [THEN] The amount and percentage on created Allocation Lines is calculated correctly
+        for i := 1 to ArrayLen(PostedAmount) do
+            PostedAmount[i] := GetPostedAmount(BreakdownGLAccountNo[i]);
+
+        VerifyAllocationLine(AllocationLine, AllocationAccount."No.", PostedAmount[1], PostedAmount[2]);
     end;
 
     [Test]
@@ -139,7 +181,7 @@ codeunit 134832 "Alloc. Acc. Jounral E2E Tests"
         CreateAllocationAccountwithVariableGLDistributions(AllocationAccount, FirstDimensionValue, SecondDimensionValue, ThirdDimensionValue, DestinationGLAccount, FirstBreakdownGLAccount, SecondBreakdownGLAccount, ThirdBreakdownGLAccount);
 
         // [GIVEN] The General Journal line with Allocation Account
-        CreateLineOnGeneralJounral(DocumentNumber, GeneralJournalPage, DummyGenJournalLine."Account Type"::"Allocation Account", AllocationAccount."No.", DummyGenJournalLine."Bal. Account Type"::"G/L Account", BalancingGLAccount."No.");
+        CreateLineOnGeneralJournal(DocumentNumber, GeneralJournalPage, DummyGenJournalLine."Account Type"::"Allocation Account", AllocationAccount."No.", DummyGenJournalLine."Bal. Account Type"::"G/L Account", BalancingGLAccount."No.");
 
         // [WHEN] The General Journal line is posted
         GeneralJournalPage.Post.Invoke();
@@ -206,7 +248,7 @@ codeunit 134832 "Alloc. Acc. Jounral E2E Tests"
         CreateAllocationAccountwithVariableGLDistributions(AllocationAccount, FirstDimensionValue, SecondDimensionValue, ThirdDimensionValue, DestinationGLAccount, FirstBreakdownGLAccount, SecondBreakdownGLAccount, ThirdBreakdownGLAccount);
 
         // [GIVEN] The General Journal line with Allocation Account
-        CreateLineOnGeneralJounral(DocumentNumber, GeneralJournalPage, DummyGenJournalLine."Bal. Account Type"::"G/L Account", BalancingGLAccount."No.", DummyGenJournalLine."Account Type"::"Allocation Account", AllocationAccount."No.");
+        CreateLineOnGeneralJournal(DocumentNumber, GeneralJournalPage, DummyGenJournalLine."Bal. Account Type"::"G/L Account", BalancingGLAccount."No.", DummyGenJournalLine."Account Type"::"Allocation Account", AllocationAccount."No.");
 
         // [WHEN] The General Journal line is posted
         GeneralJournalPage.Post.Invoke();
@@ -280,7 +322,7 @@ codeunit 134832 "Alloc. Acc. Jounral E2E Tests"
         CreateAllocationAccountwithVariableGLDistributions(AllocationAccount, FirstDimensionValue, SecondDimensionValue, ThirdDimensionValue, DestinationGLAccount, FirstBreakdownGLAccount, SecondBreakdownGLAccount, ThirdBreakdownGLAccount);
 
         // [GIVEN] The General Journal line with Allocation Account
-        CreateLineOnGeneralJounral(DocumentNumber, GeneralJournalPage, DummyGenJournalLine."Account Type"::"Allocation Account", AllocationAccount."No.", DummyGenJournalLine."Bal. Account Type"::"G/L Account", BalancingGLAccount."No.");
+        CreateLineOnGeneralJournal(DocumentNumber, GeneralJournalPage, DummyGenJournalLine."Account Type"::"Allocation Account", AllocationAccount."No.", DummyGenJournalLine."Bal. Account Type"::"G/L Account", BalancingGLAccount."No.");
 
         // [GIVEN] User defines an override manually
         LibraryVariableStorage.Enqueue(GetLineAmountToForceRounding());
@@ -364,7 +406,7 @@ codeunit 134832 "Alloc. Acc. Jounral E2E Tests"
         CreateAllocationAccountwithVariableGLDistributions(AllocationAccount, FirstDimensionValue, SecondDimensionValue, ThirdDimensionValue, DestinationGLAccount, FirstBreakdownGLAccount, SecondBreakdownGLAccount, ThirdBreakdownGLAccount);
 
         // [GIVEN] The General Journal line with Allocation Account
-        CreateLineOnGeneralJounral(DocumentNumber, GeneralJournalPage, DummyGenJournalLine."Account Type"::"Allocation Account", AllocationAccount."No.", DummyGenJournalLine."Bal. Account Type"::"G/L Account", BalancingGLAccount."No.");
+        CreateLineOnGeneralJournal(DocumentNumber, GeneralJournalPage, DummyGenJournalLine."Account Type"::"Allocation Account", AllocationAccount."No.", DummyGenJournalLine."Bal. Account Type"::"G/L Account", BalancingGLAccount."No.");
 
         // [GIVEN] User defines an override manually
         LibraryVariableStorage.Enqueue(GetLineAmountToForceRounding());
@@ -445,7 +487,7 @@ codeunit 134832 "Alloc. Acc. Jounral E2E Tests"
         CreateAllocationAccountwithFixedGLDistributions(AllocationAccount, FirstDimensionValue, SecondDimensionValue, ThirdDimensionValue, DestinationGLAccount);
 
         // [GIVEN] The General Journal line with Allocation Account
-        CreateLineOnGeneralJounral(DocumentNumber, GeneralJournalPage, DummyGenJournalLine."Account Type"::"Allocation Account", AllocationAccount."No.", DummyGenJournalLine."Bal. Account Type"::"G/L Account", BalancingGLAccount."No.");
+        CreateLineOnGeneralJournal(DocumentNumber, GeneralJournalPage, DummyGenJournalLine."Account Type"::"Allocation Account", AllocationAccount."No.", DummyGenJournalLine."Bal. Account Type"::"G/L Account", BalancingGLAccount."No.");
 
         // [WHEN] The General Journal line is posted
         GeneralJournalPage.Post.Invoke();
@@ -522,7 +564,7 @@ codeunit 134832 "Alloc. Acc. Jounral E2E Tests"
         AllocationAccountPage.Close();
 
         // [GIVEN] The General Journal line with Allocation Account
-        CreateLineOnGeneralJounral(DocumentNumber, GeneralJournalPage, DummyGenJournalLine."Account Type"::"G/L Account", ThirdDestinationGLAccount."No.", DummyGenJournalLine."Bal. Account Type"::"G/L Account", BalancingGLAccount."No.");
+        CreateLineOnGeneralJournal(DocumentNumber, GeneralJournalPage, DummyGenJournalLine."Account Type"::"G/L Account", ThirdDestinationGLAccount."No.", DummyGenJournalLine."Bal. Account Type"::"G/L Account", BalancingGLAccount."No.");
         GeneralJournalPage."Allocation Account No.".SetValue(AllocationAccount."No.");
 
         // [WHEN] The General Journal line is posted
@@ -585,7 +627,7 @@ codeunit 134832 "Alloc. Acc. Jounral E2E Tests"
         CreateAllocationAccountwithVariableGLDistributionsAndInheritFromParent(AllocationAccount, FirstDimensionValue, SecondDimensionValue, ThirdDimensionValue, FirstBreakdownGLAccount, SecondBreakdownGLAccount, ThirdBreakdownGLAccount);
 
         // [GIVEN] The General Journal line with Allocation Account
-        CreateLineOnGeneralJounral(DocumentNumber, GeneralJournalPage, DummyGenJournalLine."Account Type"::"G/L Account", DestinationGLAccount."No.", DummyGenJournalLine."Bal. Account Type"::"G/L Account", BalancingGLAccount."No.");
+        CreateLineOnGeneralJournal(DocumentNumber, GeneralJournalPage, DummyGenJournalLine."Account Type"::"G/L Account", DestinationGLAccount."No.", DummyGenJournalLine."Bal. Account Type"::"G/L Account", BalancingGLAccount."No.");
         GeneralJournalPage."Allocation Account No.".SetValue(AllocationAccount."No.");
 
         // [WHEN] The General Journal line is posted
@@ -658,7 +700,7 @@ codeunit 134832 "Alloc. Acc. Jounral E2E Tests"
         CreateAllocationAccountwithVariableGLDistributionsAndInheritFromParent(AllocationAccount, FirstDimensionValue, SecondDimensionValue, ThirdDimensionValue, FirstBreakdownGLAccount, SecondBreakdownGLAccount, ThirdBreakdownGLAccount);
 
         // [GIVEN] The General Journal line with Allocation Account
-        CreateLineOnGeneralJounral(DocumentNumber, GeneralJournalPage, DummyGenJournalLine."Account Type"::"G/L Account", DestinationGLAccount."No.", DummyGenJournalLine."Bal. Account Type"::"G/L Account", BalancingGLAccount."No.");
+        CreateLineOnGeneralJournal(DocumentNumber, GeneralJournalPage, DummyGenJournalLine."Account Type"::"G/L Account", DestinationGLAccount."No.", DummyGenJournalLine."Bal. Account Type"::"G/L Account", BalancingGLAccount."No.");
         GeneralJournalPage."Allocation Account No.".SetValue(AllocationAccount."No.");
 
         // [GIVEN] User defines an override manually
@@ -745,7 +787,7 @@ codeunit 134832 "Alloc. Acc. Jounral E2E Tests"
         CreateAllocationAccountwithVariableGLDistributionsAndInheritFromParent(AllocationAccount, FirstDimensionValue, SecondDimensionValue, ThirdDimensionValue, FirstBreakdownGLAccount, SecondBreakdownGLAccount, ThirdBreakdownGLAccount);
 
         // [GIVEN] The Sales Journal line with Allocation Account
-        CreateLineOnSalesJounral(DocumentNumber, SalesJournalPage, DummyGenJournalLine."Account Type"::"G/L Account", DestinationGLAccount."No.", DummyGenJournalLine."Bal. Account Type"::"G/L Account", BalancingGLAccount."No.");
+        CreateLineOnSalesJournal(DocumentNumber, SalesJournalPage, DummyGenJournalLine."Account Type"::"G/L Account", DestinationGLAccount."No.", DummyGenJournalLine."Bal. Account Type"::"G/L Account", BalancingGLAccount."No.");
         SalesJournalPage."Allocation Account No.".SetValue(AllocationAccount."No.");
 
         // [WHEN] The General Journal line is posted
@@ -818,7 +860,7 @@ codeunit 134832 "Alloc. Acc. Jounral E2E Tests"
         CreateAllocationAccountwithVariableGLDistributionsAndInheritFromParent(AllocationAccount, FirstDimensionValue, SecondDimensionValue, ThirdDimensionValue, FirstBreakdownGLAccount, SecondBreakdownGLAccount, ThirdBreakdownGLAccount);
 
         // [GIVEN] The Sales Journal line with Allocation Account
-        CreateLineOnSalesJounral(DocumentNumber, SalesJournalPage, DummyGenJournalLine."Account Type"::"G/L Account", DestinationGLAccount."No.", DummyGenJournalLine."Bal. Account Type"::"G/L Account", BalancingGLAccount."No.");
+        CreateLineOnSalesJournal(DocumentNumber, SalesJournalPage, DummyGenJournalLine."Account Type"::"G/L Account", DestinationGLAccount."No.", DummyGenJournalLine."Bal. Account Type"::"G/L Account", BalancingGLAccount."No.");
         SalesJournalPage."Allocation Account No.".SetValue(AllocationAccount."No.");
 
         // [GIVEN] User defines an override manually
@@ -905,7 +947,7 @@ codeunit 134832 "Alloc. Acc. Jounral E2E Tests"
         CreateAllocationAccountwithVariableGLDistributionsAndInheritFromParent(AllocationAccount, FirstDimensionValue, SecondDimensionValue, ThirdDimensionValue, FirstBreakdownGLAccount, SecondBreakdownGLAccount, ThirdBreakdownGLAccount);
 
         // [GIVEN] The Purchase Journal line with Allocation Account
-        CreateLineOnPurchaseJounral(DocumentNumber, PurchaseJournalPage, DummyGenJournalLine."Account Type"::"G/L Account", DestinationGLAccount."No.", DummyGenJournalLine."Bal. Account Type"::"G/L Account", BalancingGLAccount."No.");
+        CreateLineOnPurchaseJournal(DocumentNumber, PurchaseJournalPage, DummyGenJournalLine."Account Type"::"G/L Account", DestinationGLAccount."No.", DummyGenJournalLine."Bal. Account Type"::"G/L Account", BalancingGLAccount."No.");
         PurchaseJournalPage."Allocation Account No.".SetValue(AllocationAccount."No.");
 
         // [WHEN] The General Journal line is posted
@@ -978,7 +1020,7 @@ codeunit 134832 "Alloc. Acc. Jounral E2E Tests"
         CreateAllocationAccountwithVariableGLDistributionsAndInheritFromParent(AllocationAccount, FirstDimensionValue, SecondDimensionValue, ThirdDimensionValue, FirstBreakdownGLAccount, SecondBreakdownGLAccount, ThirdBreakdownGLAccount);
 
         // [GIVEN] The Purchase Journal line with Allocation Account
-        CreateLineOnPurchaseJounral(DocumentNumber, PurchaseJournalPage, DummyGenJournalLine."Account Type"::"G/L Account", DestinationGLAccount."No.", DummyGenJournalLine."Bal. Account Type"::"G/L Account", BalancingGLAccount."No.");
+        CreateLineOnPurchaseJournal(DocumentNumber, PurchaseJournalPage, DummyGenJournalLine."Account Type"::"G/L Account", DestinationGLAccount."No.", DummyGenJournalLine."Bal. Account Type"::"G/L Account", BalancingGLAccount."No.");
         PurchaseJournalPage."Allocation Account No.".SetValue(AllocationAccount."No.");
 
         // [GIVEN] User defines an override manually
@@ -1065,7 +1107,7 @@ codeunit 134832 "Alloc. Acc. Jounral E2E Tests"
         CreateAllocationAccountwithVariableGLDistributionsAndInheritFromParent(AllocationAccount, FirstDimensionValue, SecondDimensionValue, ThirdDimensionValue, FirstBreakdownGLAccount, SecondBreakdownGLAccount, ThirdBreakdownGLAccount);
 
         // [GIVEN] The Cash Receipt Journal line with Allocation Account
-        CreateLineOnCashReceiptJounral(DocumentNumber, CashReceiptJournalPage, DummyGenJournalLine."Account Type"::"G/L Account", DestinationGLAccount."No.", DummyGenJournalLine."Bal. Account Type"::"G/L Account", BalancingGLAccount."No.");
+        CreateLineOnCashReceiptJournal(DocumentNumber, CashReceiptJournalPage, DummyGenJournalLine."Account Type"::"G/L Account", DestinationGLAccount."No.", DummyGenJournalLine."Bal. Account Type"::"G/L Account", BalancingGLAccount."No.");
         CashReceiptJournalPage."Allocation Account No.".SetValue(AllocationAccount."No.");
 
         // [WHEN] The General Journal line is posted
@@ -1138,7 +1180,7 @@ codeunit 134832 "Alloc. Acc. Jounral E2E Tests"
         CreateAllocationAccountwithVariableGLDistributionsAndInheritFromParent(AllocationAccount, FirstDimensionValue, SecondDimensionValue, ThirdDimensionValue, FirstBreakdownGLAccount, SecondBreakdownGLAccount, ThirdBreakdownGLAccount);
 
         // [GIVEN] The Cash Receipt Journal line with Allocation Account
-        CreateLineOnCashReceiptJounral(DocumentNumber, CashReceiptJournalPage, DummyGenJournalLine."Account Type"::"G/L Account", DestinationGLAccount."No.", DummyGenJournalLine."Bal. Account Type"::"G/L Account", BalancingGLAccount."No.");
+        CreateLineOnCashReceiptJournal(DocumentNumber, CashReceiptJournalPage, DummyGenJournalLine."Account Type"::"G/L Account", DestinationGLAccount."No.", DummyGenJournalLine."Bal. Account Type"::"G/L Account", BalancingGLAccount."No.");
         CashReceiptJournalPage."Allocation Account No.".SetValue(AllocationAccount."No.");
 
         // [GIVEN] User defines an override manually
@@ -1192,7 +1234,7 @@ codeunit 134832 "Alloc. Acc. Jounral E2E Tests"
         Assert.IsTrue(AllocAccManualOverride.IsEmpty(), 'The manual override was not deleted');
     end;
 
-    local procedure CreateLineOnCashReceiptJounral(var DocumentNumber: Code[10]; var CashReceiptJournalPage: TestPage "Cash Receipt Journal"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20];
+    local procedure CreateLineOnCashReceiptJournal(var DocumentNumber: Code[10]; var CashReceiptJournalPage: TestPage "Cash Receipt Journal"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20];
                                                                                                                                                          BalancingAccountType: Enum "Gen. Journal Account Type";
                                                                                                                                                          BalancingAccountNo: Code[20])
     var
@@ -1216,7 +1258,7 @@ codeunit 134832 "Alloc. Acc. Jounral E2E Tests"
         CashReceiptJournalPage."Bal. Account No.".SetValue(BalancingAccountNo);
     end;
 
-    local procedure CreateLineOnPaymentJounral(var DocumentNumber: Code[10]; var PaymentJournalPage: TestPage "Payment Journal"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20];
+    local procedure CreateLineOnPaymentJournal(var DocumentNumber: Code[10]; var PaymentJournalPage: TestPage "Payment Journal"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20];
                                                                                                                                                   BalancingAccountType: Enum "Gen. Journal Account Type";
                                                                                                                                                   BalancingAccountNo: Code[20])
 
@@ -1234,7 +1276,7 @@ codeunit 134832 "Alloc. Acc. Jounral E2E Tests"
         PaymentJournalPage."Bal. Account No.".SetValue(BalancingAccountNo);
     end;
 
-    local procedure CreateLineOnSalesJounral(var DocumentNumber: Code[10]; var SalesJournalPage: TestPage "Sales Journal"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20];
+    local procedure CreateLineOnSalesJournal(var DocumentNumber: Code[10]; var SalesJournalPage: TestPage "Sales Journal"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20];
                                                                                                                                                      BalancingAccountType: Enum "Gen. Journal Account Type";
                                                                                                                                                      BalancingAccountNo: Code[20])
     var
@@ -1258,7 +1300,7 @@ codeunit 134832 "Alloc. Acc. Jounral E2E Tests"
         SalesJournalPage."Bal. Account No.".SetValue(BalancingAccountNo);
     end;
 
-    local procedure CreateLineOnPurchaseJounral(var DocumentNumber: Code[10]; var PurchaseJournalPage: TestPage "Purchase Journal"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20];
+    local procedure CreateLineOnPurchaseJournal(var DocumentNumber: Code[10]; var PurchaseJournalPage: TestPage "Purchase Journal"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20];
                                                                                                                                                    BalancingAccountType: Enum "Gen. Journal Account Type";
                                                                                                                                                    BalancingAccountNo: Code[20])
     var
@@ -1282,7 +1324,7 @@ codeunit 134832 "Alloc. Acc. Jounral E2E Tests"
         PurchaseJournalPage."Bal. Account No.".SetValue(BalancingAccountNo);
     end;
 
-    local procedure CreateLineOnGeneralJounral(var DocumentNumber: Code[10]; var GeneralJournalPage: TestPage "General Journal"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20];
+    local procedure CreateLineOnGeneralJournal(var DocumentNumber: Code[10]; var GeneralJournalPage: TestPage "General Journal"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20];
                                                                                                                                                   BalancingAccountType: Enum "Gen. Journal Account Type";
                                                                                                                                                   BalancingAccountNo: Code[20])
     var
@@ -1487,22 +1529,22 @@ codeunit 134832 "Alloc. Acc. Jounral E2E Tests"
     local procedure CreateBreakdownAccountsWithBalances(var FirstBreakdownGLAccount: Record "G/L Account"; var SecondBreakdownGLAccount: Record "G/L Account"; var ThirdBreakdownGLAccount: Record "G/L Account")
     begin
         FirstBreakdownGLAccount.Get(LibraryERM.CreateGLAccountNoWithDirectPosting());
-        CreateBalanceForGLAccount(100, FirstBreakdownGLAccount, 0);
+        CreateBalanceForGLAccount(100, FirstBreakdownGLAccount."No.", 0);
 
         SecondBreakdownGLAccount.Get(LibraryERM.CreateGLAccountNoWithDirectPosting());
-        CreateBalanceForGLAccount(200, SecondBreakdownGLAccount, 0);
+        CreateBalanceForGLAccount(200, SecondBreakdownGLAccount."No.", 0);
 
         ThirdBreakdownGLAccount.Get(LibraryERM.CreateGLAccountNoWithDirectPosting());
-        CreateBalanceForGLAccount(300, ThirdBreakdownGLAccount, 0);
+        CreateBalanceForGLAccount(300, ThirdBreakdownGLAccount."No.", 0);
     end;
 
-    local procedure CreateBalanceForGLAccount(Balance: Decimal; var GLAccount: Record "G/L Account"; DimensionSetID: Integer)
+    local procedure CreateBalanceForGLAccount(Balance: Decimal; GLAccountNo: Code[20]; DimensionSetID: Integer)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account",
-          GLAccount."No.", Balance);
+          GLAccountNo, Balance);
         GenJournalLine.Validate("Posting Date", WorkDate());
         GenJournalLine.Validate("Dimension Set ID", DimensionSetID);
         GenJournalLine.Modify(true);
@@ -1559,6 +1601,62 @@ codeunit 134832 "Alloc. Acc. Jounral E2E Tests"
         LibraryDimension.CreateDimensionValue(FirstDimensionValue, Dimension.Code);
         LibraryDimension.CreateDimensionValue(SecondDimensionValue, Dimension.Code);
         LibraryDimension.CreateDimensionValue(ThirdDimensionValue, Dimension.Code);
+    end;
+
+    local procedure VerifyAllocationLine(var AllocationLine: Record "Allocation Line"; AllocationAccountNo: Code[20]; PostedAmount1: Decimal; PostedAmount2: Decimal)
+    var
+        TotalPostedAmount: Decimal;
+        AmountRoundingPrecision: Decimal;
+        TestAllocationErr: Label 'Allocation account calculation is not correct.', Locked = true;
+    begin
+        TotalPostedAmount := PostedAmount1 + PostedAmount2;
+
+        AllocationLine.SetLoadFields(Amount, Percentage);
+        AllocationLine.SetRange("Allocation Account No.", AllocationAccountNo);
+        AllocationLine.FindSet();
+
+        AmountRoundingPrecision := LibraryERM.GetAmountRoundingPrecision();
+        Assert.AreEqual(Round(PostedAmount1 * 1000 / TotalPostedAmount, AmountRoundingPrecision), Round(AllocationLine.Amount, AmountRoundingPrecision), TestAllocationErr);
+        Assert.AreEqual(Round(PostedAmount1 * 100 / TotalPostedAmount, AmountRoundingPrecision), Round(AllocationLine.Percentage, AmountRoundingPrecision), TestAllocationErr);
+        AllocationLine.Next();
+        Assert.AreEqual(Round(PostedAmount2 * 1000 / TotalPostedAmount, AmountRoundingPrecision), Round(AllocationLine.Amount, AmountRoundingPrecision), TestAllocationErr);
+        Assert.AreEqual(Round(PostedAmount2 * 100 / TotalPostedAmount, AmountRoundingPrecision), Round(AllocationLine.Percentage, AmountRoundingPrecision), TestAllocationErr);
+    end;
+
+    local procedure GetPostedAmount(GLAccountNo: Code[20]): Decimal
+    var
+        GLEntry: Record "G/L Entry";
+    begin
+        GLEntry.SetLoadFields(Amount);
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        GLEntry.CalcSums(Amount);
+        exit(GLEntry.Amount);
+    end;
+
+    local procedure CreateAllocationAccountWithVariableDistribution() AllocationAccount: Record "Allocation Account"
+    begin
+#pragma warning disable AA0139
+        AllocationAccount."No." := Any.AlphabeticText(MaxStrLen(AllocationAccount."No."));
+#pragma warning restore AA0139
+        AllocationAccount."Account Type" := AllocationAccount."Account Type"::Variable;
+        AllocationAccount.Name := AllocationAccount."No.";
+        AllocationAccount.Insert();
+    end;
+
+    local procedure CreateAllocationAccountDistributionLine(AllocationAccountNo: Code[20]; GLAccountNo: Code[20]; BreakdownGLAccountNo: Code[20])
+    var
+        AllocationAccountDistribution: Record "Alloc. Account Distribution";
+        RecRef: RecordRef;
+    begin
+        AllocationAccountDistribution."Allocation Account No." := AllocationAccountNo;
+        RecRef.GetTable(AllocationAccountDistribution);
+        AllocationAccountDistribution."Line No." := LibraryUtility.GetNewLineNo(RecRef, AllocationAccountDistribution.FieldNo("Line No."));
+        AllocationAccountDistribution."Account Type" := AllocationAccountDistribution."Account Type"::Variable;
+        AllocationAccountDistribution."Destination Account Type" := AllocationAccountDistribution."Destination Account Type"::"G/L Account";
+        AllocationAccountDistribution."Destination Account Number" := GLAccountNo;
+        AllocationAccountDistribution."Breakdown Account Type" := AllocationAccountDistribution."Breakdown Account Type"::"G/L Account";
+        AllocationAccountDistribution."Breakdown Account Number" := BreakdownGLAccountNo;
+        AllocationAccountDistribution.Insert();
     end;
 
     local procedure GetOverrideAmount(): Decimal

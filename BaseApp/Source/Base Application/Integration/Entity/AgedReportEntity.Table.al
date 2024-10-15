@@ -63,6 +63,20 @@ table 5499 "Aged Report Entity"
         {
             Caption = 'Display Order';
         }
+        field(14; "Period 1 Label"; Text[30])
+        {
+            Caption = 'Period 1 Label';
+        }
+        field(15; "Period 2 Label"; Text[30])
+        {
+            Caption = 'Period 2 Label';
+        }
+
+        field(16; "Period 3 Label"; Text[30])
+        {
+            Caption = 'Period 3 Label';
+        }
+
     }
 
     keys

@@ -17,6 +17,7 @@ codeunit 142087 "ERM Nec Report"
         LibraryERM: Codeunit "Library - ERM";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryJournals: Codeunit "Library - Journals";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
@@ -140,6 +141,107 @@ codeunit 142087 "ERM Nec Report"
 
         LibraryVariableStorage.AssertEmpty();
     end;
+
+    [Test]
+    [HandlerFunctions('Vendor1099NecRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure AdjustmentAmountOfPerviousFisalYearShouldNotBeShown()
+    var
+        Vendor: Record Vendor;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        GLAccount: Record "G/L Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        IRS1099Adjustment: Record "IRS 1099 Adjustment";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GenProductPostingGroup: Record "Gen. Product Posting Group";
+        VendNo: Code[20];
+        WorkDates: array[2] of Date;
+        Amount: array[2] of Decimal;
+    begin
+        // [SCENARIO 504572]  The 1099-NEC (or other) Report will not include a 1099 Forms Box Adjustment from a prior year when the Vendor also has a 1099 Invoice posted at the end of the prior year but paid in the current year.
+        Initialize();
+
+        // [GIVEN] Create a Vendor and Assign to Variable.
+        VendNo := LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Calculate Work Date making it two different years.
+        WorkDates[1] := CalcDate('<+1Y>', WorkDate());
+        WorkDates[2] := CalcDate('<-1Y>', WorkDate());
+
+        // [GIVEN] Get Two Amount into Variables.
+        Amount[1] := LibraryRandom.RandIntInRange(5000, 10000);
+        Amount[2] := LibraryRandom.RandIntInRange(10001, 15000);
+
+        // [GIVEN] Create VAT Posting Setup.
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup,
+          VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(2, 5));
+
+        // [GIVEN] Create Gen. Product Posting Group.
+        LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
+
+        // [GIVEN] Create GL Account and validate VAT Product Posting Group and Gen. Product Posting Group.
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount."Gen. Prod. Posting Group" := GenProductPostingGroup.Code;
+        GLAccount.Modify(true);
+
+        // [GIVEN] VAT Posting Setup of VAT Bus. Posting Group from Vendor and Vat Prod. Posting Group is made.
+        VATPostingSetup.Rename(Vendor."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+
+        // [GIVEN] Create a Purchase Order and Validate IRS 1099 Code ad Posting Date.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, VendNo);
+        PurchaseHeader.Validate("IRS 1099 Code", IRS1099CodeNec01Lbl);
+        PurchaseHeader.Validate("Posting Date", WorkDates[2]);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Create a Purchase Line with GL Account and Validate Amount
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", GLAccount."No.", LibraryRandom.RandInt(5));
+        PurchaseLine.Validate("Direct Unit Cost", Amount[1]);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Post Purchase Order.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [GIVEN] Create a Journal With Payment and With Vendor.
+        LibraryJournals.CreateGenJournalLineWithBatch(
+            GenJournalLine,
+            GenJournalLine."Document Type"::Payment,
+            GenJournalLine."Account Type"::Vendor,
+            VendNo,
+            0);
+
+        // [GIVEN] Validate Posting Date, Balancing Account Type, Balancing Account No. and Amount.
+        GenJournalLine.Validate("Posting Date", WorkDates[1]);
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateBankAccountNo());
+        GenJournalLine.Validate(Amount, Amount[2]);
+        GenJournalLine.Modify(true);
+
+        // [GIVEN] Post the General Journal.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Insert Value into IRS1099 Adjustment.
+        IRS1099Adjustment.Init();
+        IRS1099Adjustment.Validate("Vendor No.", VendNo);
+        IRS1099Adjustment.Validate("IRS 1099 Code", IRS1099CodeNec01Lbl);
+        IRS1099Adjustment.Validate(Year, Date2DMY(WorkDates[2], 3));
+        IRS1099Adjustment.Validate(Amount, Amount[2]);
+        IRS1099Adjustment.Insert(true);
+
+        // [GIVEN] Store Vendor No. into LibraryVariableStorage.
+        LibraryVariableStorage.Enqueue(VendNo);
+        Commit();
+
+        // [GIVEN] Run Vendor 1099 NEC Report
+        REPORT.Run(REPORT::"Vendor 1099 Nec");
+        LibraryReportDataset.LoadDataSetFile();
+
+        // [THEN] Amount from previous year should not be included.
+        LibraryReportDataset.AssertElementWithValueNotExist('GetAmtNEC01', Amount[1]);
+    end;
+
 
     local procedure Initialize()
     var

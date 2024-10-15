@@ -444,7 +444,7 @@ codeunit 10500 "IRS 1099 Management"
             repeat
                 Calculate1099Amount(
                   Invoice1099Amount, Amounts, Codes, LastLineNo, TempVendorLedgerEntry, TempVendorLedgerEntry."Amount to Apply");
-                if GetAdjustmentRec(IRS1099Adjustment, TempVendorLedgerEntry) then begin
+                if GetAdjustmentRecFilterDate(IRS1099Adjustment, TempVendorLedgerEntry, PeriodDate) then begin
                     TempIRS1099Adjustment := IRS1099Adjustment;
                     if not TempIRS1099Adjustment.Find() then begin
                         UpdateLines(
@@ -479,6 +479,20 @@ codeunit 10500 "IRS 1099 Management"
                     TempIRS1099Adjustment.Insert();
                 end;
         until IRS1099FormBox.Next() = 0;
+    end;
+
+    procedure GetAdjustmentRecFilterDate(var IRS1099Adjustment: Record "IRS 1099 Adjustment"; VendorLedgerEntry: Record "Vendor Ledger Entry"; PeriodDate: array[2] of Date): Boolean
+    begin
+        if VendorLedgerEntry."IRS 1099 Code" = '' then
+            exit(false);
+
+        if (PeriodDate[1] <> 0D) and (PeriodDate[2] <> 0D) then
+            if (VendorLedgerEntry."Posting Date" >= PeriodDate[1]) and (VendorLedgerEntry."Posting Date" <= PeriodDate[2]) then
+                exit(false);
+
+        exit(
+          IRS1099Adjustment.Get(
+            VendorLedgerEntry."Vendor No.", VendorLedgerEntry."IRS 1099 Code", Date2DMY(VendorLedgerEntry."Posting Date", 3)));
     end;
 
     [IntegrationEvent(false, false)]

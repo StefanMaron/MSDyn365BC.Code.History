@@ -44,6 +44,7 @@ codeunit 136305 "Job Journal"
         AmountErr: Label 'Amount must be right';
         CurrencyDateConfirmTxt: Label 'The currency dates on all planning lines will be updated based on the invoice posting date because there is a difference in currency exchange rates. Recalculations will be based on the Exch. Calculation setup for the Cost and Price values for the project. Do you want to continue?';
         ControlNotFoundErr: Label 'Expected control not found on the page';
+        ProjectTotalCostErr: Label 'Project Total Cost(LCY) must be updated.';
 
     [Test]
     [Scope('OnPrem')]
@@ -2917,6 +2918,58 @@ codeunit 136305 "Job Journal"
         JobPlanningLine.SetRange("Job No.", JobJournalLine."Job No.");
         JobPlanningLine.SetRange("Job Task No.", JobJournalLine."Job Task No.");
         Assert.RecordCount(JobPlanningLine, 1);
+    end;
+
+    [Test]
+    procedure ProjectAmountUpdatedWhenAmountLCYIsInserted()
+    var
+        JobTask: Record "Job Task";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        GLAccount: Record "G/L Account";
+        BankAccount: Record "Bank Account";
+        Currency: Record Currency;
+        PreviousProjectTotalCostLCY: Decimal;
+    begin
+        // [SCENARIO 537315] The Project G/L Ledgers line after changing the "Amount (LCY)" value changes Project Total Cost(LCY).
+        Initialize();
+
+        // [GIVEN] Create a Job and job Task.
+        CreateJobWithJobTask(JobTask);
+
+        // [GIVEN] Create a Job Journal Batch.
+        CreateAndUpdateJobJournalBatch(GenJournalBatch);
+
+        // [GIVEN] Create a GL Account.
+        LibraryERM.CreateGLAccount(GLAccount);
+
+        // [GIVEN] Create a Bank Account.
+        LibraryERM.CreateBankAccount(BankAccount);
+
+        // [GIVEN] Get any existing Currency.
+        LibraryERM.FindCurrency(Currency);
+
+        // [GIVEN] Create General Journal Line.
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
+          GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", LibraryRandom.RandDec(100, 2));
+
+        //[GIVEN] Validate Balancing Accounts.
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
+        GenJournalLine.Validate("Bal. Account No.", BankAccount."No.");
+        GenJournalLine.Validate("Currency Code", Currency.Code);
+        GenJournalLine.Validate("Job Line Type", GenJournalLine."Job Line Type"::"Both Budget and Billable");
+        GenJournalLine.Validate("Job No.", JobTask."Job No.");
+        GenJournalLine.Validate("Job Task No.", JobTask."Job Task No.");
+        GenJournalLine.Validate("Job Quantity", LibraryRandom.RandDec(10, 2));
+
+        // [GIVEN] Store Project Total Cost LCY and Validate Amount (LCY) to new Amount.
+        PreviousProjectTotalCostLCY := GenJournalLine."Job Total Cost (LCY)";
+        GenJournalLine.Validate("Amount (LCY)", LibraryRandom.RandDec(12, 2));
+        GenJournalLine.Modify(true);
+
+        // [THEN] Project Total Cost (LCY) must be updated.
+        Assert.AreNotEqual(GenJournalLine."Job Total Cost (LCY)", PreviousProjectTotalCostLCY, ProjectTotalCostErr);
     end;
 
     local procedure Initialize()

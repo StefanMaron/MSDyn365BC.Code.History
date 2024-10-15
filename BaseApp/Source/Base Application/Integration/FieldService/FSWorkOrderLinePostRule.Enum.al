@@ -8,6 +8,9 @@ enum 6401 "FS Work Order Line Post Rule"
 {
     AssignmentCompatibility = true;
     Extensible = true;
+    ObsoleteReason = 'Field Service is moved to Field Service Integration app.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     value(0; Never)
     {
