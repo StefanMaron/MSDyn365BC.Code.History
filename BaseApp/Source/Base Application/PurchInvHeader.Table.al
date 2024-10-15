@@ -672,6 +672,14 @@ table 122 "Purch. Inv. Header"
         {
             Caption = 'Pay-at Code';
             TableRelation = "Vendor Pmt. Address".Code WHERE("Vendor No." = FIELD("Pay-to Vendor No."));
+            ObsoleteReason = 'Address is taken from the fields Pay-to Address, Pay-to City, etc.';
+#if CLEAN22
+            ObsoleteState = Removed;
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '22.0';
+#endif
         }
     }
 

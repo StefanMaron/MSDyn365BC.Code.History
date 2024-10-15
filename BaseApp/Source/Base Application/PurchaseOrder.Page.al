@@ -673,12 +673,18 @@ page 50 "Purchase Order"
                     {
                         ShowCaption = false;
                         Visible = NOT (PayToOptions = PayToOptions::"Default (Vendor)");
+#if not CLEAN22
                         field("Pay-at Code"; "Pay-at Code")
                         {
                             ApplicationArea = Advanced;
                             Caption = 'Code';
                             ToolTip = 'Specifies a code associated with a payment address, other than the vendor''s standard payment address.';
+                            Visible = false;
+                            ObsoleteReason = 'Address is taken from the fields Pay-to Address, Pay-to City, etc.';
+                            ObsoleteState = Pending;
+                            ObsoleteTag = '22.0';
                         }
+#endif
                         field("Vendor Bank Acc. Code"; "Vendor Bank Acc. Code")
                         {
                             ApplicationArea = Advanced;
@@ -2361,7 +2367,7 @@ page 50 "Purchase Order"
     begin
         OverReceiptMgt.ShowOverReceiptNotificationFromOrder("No.");
     end;
-    
+
     local procedure UpdateDocHasRegimeCode()
     var
         SIISchemeCodeMgt: Codeunit "SII Scheme Code Mgt.";

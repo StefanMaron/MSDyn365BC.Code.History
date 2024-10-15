@@ -343,12 +343,18 @@ page 140 "Posted Purchase Credit Memo"
             group(Payment)
             {
                 Caption = 'Payment';
+#if not CLEAN22
                 field("Pay-at Code"; "Pay-at Code")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the vendor''s payment address code that was on the purchase header, Payments tab, when this credit memo was created.';
+                    Visible = false;
+                    ObsoleteReason = 'Address is taken from the fields Pay-to Address, Pay-to City, etc.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '22.0';
                 }
+#endif
                 field("Vendor Bank Acc. Code"; "Vendor Bank Acc. Code")
                 {
                     ApplicationArea = Basic, Suite;

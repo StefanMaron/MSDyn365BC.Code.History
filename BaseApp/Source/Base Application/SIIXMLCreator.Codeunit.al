@@ -2290,17 +2290,19 @@ codeunit 10750 "SII XML Creator"
     end;
 
     local procedure ExportNonTaxableVATEntries(var TipoDesgloseXMLNode: DotNet XmlNode; var DesgloseFacturaXMLNode: DotNet XmlNode; var DomesticXMLNode: DotNet XmlNode; var DesgloseTipoOperacionXMLNode: DotNet XmlNode; var EUXMLNode: DotNet XmlNode; IsService: Boolean; DomesticCustomer: Boolean; HasEntries: array[2] of Boolean; Amount: array[2] of Decimal)
+    var
+        VATXMLNode: DotNet XmlNode;
     begin
         if HasEntries[1] then
             InsertNoTaxableNode(
               TipoDesgloseXMLNode, DesgloseFacturaXMLNode, DomesticXMLNode, DesgloseTipoOperacionXMLNode,
-              EUXMLNode, IsService, DomesticCustomer,
+              EUXMLNode, VATXMLNode, IsService, DomesticCustomer,
               'ImportePorArticulos7_14_Otros', Amount[1]);
 
         if HasEntries[2] then
             InsertNoTaxableNode(
               TipoDesgloseXMLNode, DesgloseFacturaXMLNode, DomesticXMLNode, DesgloseTipoOperacionXMLNode,
-              EUXMLNode, IsService, DomesticCustomer,
+              EUXMLNode, VATXMLNode, IsService, DomesticCustomer,
               'ImporteTAIReglasLocalizacion', Amount[2]);
     end;
 
@@ -2431,9 +2433,7 @@ codeunit 10750 "SII XML Creator"
                          SIIDocUploadState."Sales Cr. Memo Type"::"F4 Invoice summary entry"]);
     end;
 
-    local procedure InsertNoTaxableNode(var TipoDesgloseXMLNode: DotNet XmlNode; var DesgloseFacturaXMLNode: DotNet XmlNode; var DomesticXMLNode: DotNet XmlNode; var DesgloseTipoOperacionXMLNode: DotNet XmlNode; var EUXMLNode: DotNet XmlNode; EUService: Boolean; DomesticCustomer: Boolean; NodeName: Text; NonTaxableAmount: Decimal)
-    var
-        VATXMLNode: DotNet XmlNode;
+    local procedure InsertNoTaxableNode(var TipoDesgloseXMLNode: DotNet XmlNode; var DesgloseFacturaXMLNode: DotNet XmlNode; var DomesticXMLNode: DotNet XmlNode; var DesgloseTipoOperacionXMLNode: DotNet XmlNode; var EUXMLNode: DotNet XmlNode; var VATXMLNode: DotNet XmlNode; EUService: Boolean; DomesticCustomer: Boolean; NodeName: Text; NonTaxableAmount: Decimal)
     begin
         AddTipoDesgloseDetailHeader(
           TipoDesgloseXMLNode, DesgloseFacturaXMLNode, DomesticXMLNode, DesgloseTipoOperacionXMLNode,

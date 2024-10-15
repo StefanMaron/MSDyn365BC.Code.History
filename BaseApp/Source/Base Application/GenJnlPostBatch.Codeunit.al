@@ -380,7 +380,6 @@
                 GenJnlLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Posting Date", "Document No.")
             else
                 GenJnlLine.SetCurrentKey("Journal Template Name", "Journal Batch Name", "Posting Date", "Transaction No.");
-
         LineCount := 0;
         LastDate := 0D;
         LastDocType := LastDocType::" ";

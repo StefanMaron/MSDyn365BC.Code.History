@@ -3696,7 +3696,9 @@
             CopyFromPurchHeaderPayment(PurchHeader);
 
             InitGenJnlLineAmountFieldsFromTotalPurchLine(GenJnlLine, PurchHeader, TotalPurchLine2, TotalPurchLineLCY2);
+#if not CLEAN22
             "Pmt. Address Code" := PurchHeader."Pay-at Code";
+#endif
             "Recipient Bank Account" := PurchHeader."Vendor Bank Acc. Code";
             "Generate AutoInvoices" := PurchHeader."Generate Autoinvoices" or PurchHeader."Generate Autocredit Memo";
             "AutoDoc. No." := AutoDocNo;

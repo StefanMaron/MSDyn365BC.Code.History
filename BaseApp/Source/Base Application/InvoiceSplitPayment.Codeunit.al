@@ -117,7 +117,9 @@ codeunit 7000005 "Invoice-Split Payment"
                 GenJnlLine."Currency Factor" := CurrencyFactor;
                 GenJnlLine."Payment Terms Code" := "Payment Terms Code";
                 GenJnlLine."Payment Method Code" := "Payment Method Code";
+#if not CLEAN22
                 GenJnlLine."Pmt. Address Code" := "Pay-at Code";
+#endif
                 if SepaDirectDebitMandate.Get("Direct Debit Mandate ID") then
                     GenJnlLine."Recipient Bank Account" := SepaDirectDebitMandate."Customer Bank Account Code"
                 else
@@ -185,7 +187,9 @@ codeunit 7000005 "Invoice-Split Payment"
             GenJnlLine."Currency Factor" := CurrencyFactor;
             GenJnlLine."Payment Terms Code" := "Payment Terms Code";
             GenJnlLine."Payment Method Code" := "Payment Method Code";
+#if not CLEAN22
             GenJnlLine."Pmt. Address Code" := "Pay-at Code";
+#endif
             if SepaDirectDebitMandate.Get("Direct Debit Mandate ID") then
                 GenJnlLine."Recipient Bank Account" := SepaDirectDebitMandate."Customer Bank Account Code"
             else
@@ -361,7 +365,9 @@ codeunit 7000005 "Invoice-Split Payment"
                 GenJnlLine."Currency Factor" := CurrencyFactor;
                 GenJnlLine."Payment Terms Code" := "Payment Terms Code";
                 GenJnlLine."Payment Method Code" := "Payment Method Code";
+#if not CLEAN22
                 GenJnlLine."Pmt. Address Code" := "Pay-at Code";
+#endif
                 GenJnlLine."Recipient Bank Account" := "Vendor Bank Acc. Code";
                 GenJnlLine."Salespers./Purch. Code" := "Purchaser Code";
 
@@ -424,7 +430,9 @@ codeunit 7000005 "Invoice-Split Payment"
             GenJnlLine."Currency Factor" := CurrencyFactor;
             GenJnlLine."Payment Terms Code" := "Payment Terms Code";
             GenJnlLine."Payment Method Code" := "Payment Method Code";
+#if not CLEAN22
             GenJnlLine."Pmt. Address Code" := "Pay-at Code";
+#endif
             GenJnlLine."Recipient Bank Account" := "Vendor Bank Acc. Code";
             GenJnlLine."Salespers./Purch. Code" := "Purchaser Code";
 
@@ -728,7 +736,9 @@ codeunit 7000005 "Invoice-Split Payment"
                 GenJnlLine."Source Code" := SourceCode;
                 GenJnlLine."Currency Factor" := CurrencyFactor;
                 GenJnlLine."Payment Method Code" := "Payment Method Code";
+#if not CLEAN22
                 GenJnlLine."Pmt. Address Code" := "Pay-at Code";
+#endif
                 GenJnlLine."Recipient Bank Account" := "Cust. Bank Acc. Code";
                 GenJnlLine."Salespers./Purch. Code" := "Salesperson Code";
 
@@ -781,7 +791,9 @@ codeunit 7000005 "Invoice-Split Payment"
             GenJnlLine."Source Code" := SourceCode;
             GenJnlLine."Currency Factor" := CurrencyFactor;
             GenJnlLine."Payment Method Code" := "Payment Method Code";
+#if not CLEAN22
             GenJnlLine."Pmt. Address Code" := "Pay-at Code";
+#endif
             GenJnlLine."Recipient Bank Account" := "Cust. Bank Acc. Code";
             GenJnlLine."Salespers./Purch. Code" := "Salesperson Code";
 

@@ -2506,6 +2506,14 @@ table 5900 "Service Header"
         {
             Caption = 'Pay-at Code';
             TableRelation = "Customer Pmt. Address".Code WHERE("Customer No." = FIELD("Bill-to Customer No."));
+            ObsoleteReason = 'Address is taken from the fields Bill-to Address, Bill-to City, etc.';
+#if CLEAN22
+            ObsoleteState = Removed;
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '22.0';
+#endif
         }
     }
 

@@ -1132,6 +1132,14 @@ table 181 "Posted Gen. Journal Line"
         field(7000003; "Pmt. Address Code"; Code[10])
         {
             Caption = 'Pmt. Address Code';
+            ObsoleteReason = 'Address is taken from the fields Address, City, etc. of Customer/Vendor table.';
+#if CLEAN22
+            ObsoleteState = Removed;
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '22.0';
+#endif
             TableRelation = IF ("Account Type" = CONST(Customer)) "Customer Pmt. Address".Code WHERE("Customer No." = FIELD("Account No."))
             ELSE
             IF ("Account Type" = CONST(Vendor)) "Vendor Pmt. Address".Code WHERE("Vendor No." = FIELD("Account No."));

@@ -2522,6 +2522,47 @@ codeunit 147524 "SII Documents No Taxable"
         LibrarySII.ValidateNoElementsByName(XMLDoc, 'sii:CuotaSoportada');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesInvoiceTwoTaxEntriesWithDiffNoTaxType()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        VATPostingSetup: Record "VAT Posting Setup";
+        XMLDoc: DotNet XmlDocument;
+        NoTaxType: Integer;
+    begin
+        // [FEATURE] [EU Service] [No Tax]
+        // [SCENARIO 449799] A single NoSujeta xml node creates for a sales invoice with a foreign customer and two No Taxable VAT lines with EU Service and differrent No Taxable Type
+
+        Initialize();
+
+        LibrarySII.CreateForeignCustWithVATSetup(Customer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, Customer."No.");
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        for NoTaxType := VATPostingSetup."No Taxable Type"::"Non Taxable Art 7-14 and others" to
+            VATPostingSetup."No Taxable Type"::"Non Taxable Due To Localization Rules"
+        do begin
+            LibrarySII.CreateSalesLineWithUnitPrice(
+              SalesHeader,
+              LibrarySII.CreateItemNoWithSpecificVATSetup(
+                LibrarySII.CreateSpecificNoTaxableVATSetup(SalesHeader."VAT Bus. Posting Group", true, 0)));
+            SalesLine.FindLast;
+            VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group");
+            VATPostingSetup.Validate("No Taxable Type", NoTaxType);
+            VATPostingSetup.Validate("EU Service", true);
+            VATPostingSetup.Modify(true);
+        end;
+
+        LibraryERM.FindCustomerLedgerEntry(
+          CustLedgerEntry, SalesHeader."Document Type", LibrarySales.PostSalesDocument(SalesHeader, false, false));
+        Assert.IsTrue(SIIXMLCreator.GenerateXml(CustLedgerEntry, XMLDoc, UploadType::Regular, false), IncorrectXMLDocErr);
+        LibrarySII.VerifyCountOfElements(XMLDoc, 'sii:NoSujeta', 1);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
