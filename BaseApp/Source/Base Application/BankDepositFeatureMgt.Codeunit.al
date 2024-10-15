@@ -6,6 +6,23 @@ codeunit 1514 "Bank Deposit Feature Mgt."
     ObsoleteReason = 'Bank Deposits feature will be enabled by default';
     ObsoleteTag = '21.0';
 
+    procedure LaunchDeprecationNotification()
+    var
+        DeprecationNotification: Notification;
+    begin
+        DeprecationNotification.Message := DeprecationNotificationMsg;
+        DeprecationNotification.Scope := NotificationScope::LocalScope;
+        DeprecationNotification.AddAction(OpenFeatureMgtMsg, Codeunit::"Deposits Page Mgt.", 'OpenFeatureMgtFromNotification');
+        DeprecationNotification.Send();
+    end;
+
+    procedure OnBeforeUpgradeToBankDeposits(var DepositsTableId: Integer; var BankRecHeaderTableId: Integer; var BankRecLineTableId: Integer)
+    begin
+        DepositsTableId := Database::"Deposit Header";
+        BankRecHeaderTableId := Database::"Bank Rec. Header";
+        BankRecLineTableId := Database::"Bank Rec. Line"
+    end;
+
     procedure IsEnabled(): Boolean
     var
         FeatureManagementFacade: Codeunit "Feature Management Facade";
@@ -149,30 +166,10 @@ codeunit 1514 "Bank Deposit Feature Mgt."
         end;
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Feature Management Facade", 'OnAfterFeatureEnableConfirmed', '', false, false)]
-    local procedure HandleOnAfterFeatureEnableConfirmed(var FeatureKey: Record "Feature Key")
-    var
-        BankRecHeader: Record "Bank Rec. Header";
-        DepositHeader: Record "Deposit Header";
-        Company: Record Company;
-    begin
-        if FeatureKey.ID <> GetFeatureKeyId() then
-            exit;
-
-        if Company.FindSet() then
-        repeat
-            BankRecHeader.ChangeCompany(Company.Name);
-            BankRecHeader.Reset();
-            DepositHeader.ChangeCompany(Company.Name);
-            DepositHeader.Reset();
-            if (not DepositHeader.IsEmpty()) or (not BankRecHeader.IsEmpty()) then
-                Error(EnableFeatureErr, Company.Name);
-        until Company.Next() = 0;
-    end;
-
     var
         DepositsPageMgt: Codeunit "Deposits Page Mgt.";
-        EnableFeatureErr: Label 'You must either post or delete all deposits and bank reconciliation worksheets for company %1 and every company on this environment before enabling Bank Deposits feature.', Comment = '%1 - The name of the company';
         FeatureKeyIdTok: Label 'StandardizedBankReconciliationAndDeposits', Locked = true;
+        DeprecationNotificationMsg: Label 'This page will be removed in upcoming releases. To continue using this functionality enable the feature: Standardized bank reconciliation and deposits';
+        OpenFeatureMgtMsg: Label 'Open the feature management page.';
 }
 #endif

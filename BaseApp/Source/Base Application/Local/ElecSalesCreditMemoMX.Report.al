@@ -217,7 +217,7 @@ report 10476 "Elec. Sales Credit Memo MX"
                     column(CopyNo; CopyNo)
                     {
                     }
-                    column(CompanyInformation__RFC_No__; CompanyInformation."RFC No.")
+                    column(CompanyInformation__RFC_No__; CompanyInformation."RFC Number")
                     {
                     }
                     column(Sales_Cr_Memo_Header___Certificate_Serial_No__; "Sales Cr.Memo Header"."Certificate Serial No.")

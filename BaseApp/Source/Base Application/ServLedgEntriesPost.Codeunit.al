@@ -439,7 +439,13 @@
     local procedure InsertServLedgerEntryCrMUsage(var NextEntryNo: Integer; var ServHeader: Record "Service Header"; var ServLine: Record "Service Line"; DocNo: Code[20])
     var
         LineAmount: Decimal;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInsertServLedgerEntryCrMUsage(NextEntryNo, ServHeader, ServLine, DocNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if ServLine."Qty. to Invoice" = 0 then
             exit;
         with ServLine do begin
@@ -1064,6 +1070,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateCreditEntry(var ServiceDocumentRegister: Record "Service Document Register"; var ServiceLine: Record "Service Line"; var ServiceHeader: Record "Service Header"; var ServiceLedgerEntry: Record "Service Ledger Entry"; var GenJnlLineDocNo: Code[20]; var ServDocType: Integer; var PassedNextEntryNo: Integer; var ServDocNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertServLedgerEntryCrMUsage(var NextEntryNo: Integer; var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; DocNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

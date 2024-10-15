@@ -14,6 +14,7 @@ codeunit 9997 "Upgrade Tag Def - Country"
         PerCompanyUpgradeTags.Add(GetGenJnlLineEFTExportSequenceNoUpgradeTag());
         PerCompanyUpgradeTags.Add(GetSalesTaxDiffPositiveFieldUpgradeTag());
         PerCompanyUpgradeTags.Add(GetCFDIEnableOptionUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetCompanyInformationRFCNumberUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -60,6 +61,11 @@ codeunit 9997 "Upgrade Tag Def - Country"
     procedure GetCFDIEnableOptionUpgradeTag(): Code[250]
     begin
         exit('MS-407179-CFDIEnableOption-20200806');
+    end;
+
+    procedure GetCompanyInformationRFCNumberUpgradeTag(): Code[250]
+    begin
+        exit('MS-459664-CompanyInformation-RFCNumber-20230105');
     end;
 }
 

@@ -131,7 +131,7 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
         BankAccReconLine."Transaction Date" := BankAccountLedgerEntry."Posting Date";
         BankAccReconLine.Description := BankAccountLedgerEntry.Description;
         BankAccReconLine."Document No." := BankAccountLedgerEntry."Document No.";
-        BankAccReconLine."Statement Amount" := BankAccountLedgerEntry."Remaining Amount";
+        BankAccReconLine.Validate("Statement Amount", BankAccountLedgerEntry."Remaining Amount");
 
         OnBeforeInsertBankAccReconLine(BankAccReconLine, BankAccountLedgerEntry);
         BankAccReconLine.Insert();
@@ -143,7 +143,7 @@ report 1496 "Suggest Bank Acc. Recon. Lines"
     begin
         if BankAccount.Get(BankAccountLedgerEntry."Bank Account No.") then
             if not BankAccount."Disable Automatic Pmt Matching" then begin
-                BankAccReconciliationLine."Applied Amount" := BankAccReconciliationLine."Statement Amount";
+                BankAccReconciliationLine.Validate("Applied Amount", BankAccReconciliationLine."Statement Amount");
                 BankAccReconciliationLine."Applied Entries" := 1;
                 BankAccSetStmtNo.SetReconNo(BankAccountLedgerEntry, BankAccReconciliationLine);
             end;

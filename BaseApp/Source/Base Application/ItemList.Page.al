@@ -175,8 +175,9 @@
                 }
                 field("Search Description"; Rec."Search Description")
                 {
-                    ApplicationArea = Advanced;
+                    ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a search description that you use to find the item in lists.';
+                    Visible = false;
                 }
                 field("Overhead Rate"; Rec."Overhead Rate")
                 {

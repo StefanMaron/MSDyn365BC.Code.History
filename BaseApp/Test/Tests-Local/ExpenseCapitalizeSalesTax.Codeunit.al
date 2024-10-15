@@ -15,9 +15,12 @@
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryJob: Codeunit "Library - Job";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryReportDataset: Codeunit "Library - Report Dataset";
         Assert: Codeunit Assert;
         WrongAmountErr: Label 'Wrong amount in field %1, table %2.';
         isInitialized: Boolean;
+        TaxAmountLbl: Label 'TaxAmount';
 
     [Test]
     [Scope('OnPrem')]
@@ -717,6 +720,40 @@
         VerifyUnitCostOnJobLedgerEntry(PurchaseLine, 267.50, 664.31);
     end;
 
+    [Test]
+    [HandlerFunctions('PurchOrderRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure VerifyTaxAmountOnPurchaseOrderReport()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        TaxArea: Record "Tax Area";
+        TaxGroup: Record "Tax Group";
+        PurchaseOrder: TestPage "Purchase Order";
+    begin
+        // [SCENARIO 451784] The PO report does not calculate tax correctly when "Expense/Capitalize" = TRUE
+        Initialize();
+
+        // [GIVEN] Sales Tax setup with "Tax Below Maximum" = 10, "Expense/Capitalize" = TRUE
+        CreateSalesTaxSetupWithTaxExpenseJurisdiction(TaxArea, TaxGroup);
+
+        // [GIVEN] Purchase Invoice with "Direct Unit Cost" = 1000
+        CreatePurchaseOrder(PurchaseHeader, TaxArea.Code, TaxGroup.Code, true);
+
+        // [THEN] Open PurchaseOrder page.
+        PurchaseOrder.OpenView;
+        PurchaseOrder.FILTER.SetFilter("No.", PurchaseHeader."No.");
+        Commit();  // Commit required for Run Purchase Order Report.
+
+        // [THEN] Enqueue the value "Buy-from Vendor No."
+        LibraryVariableStorage.Enqueue(PurchaseHeader."Buy-from Vendor No.");
+
+        // [THEN]
+        PurchaseOrder."&Print".Invoke;  // Print.
+
+        // [VERIFY] Verify the TAx Amount on Report xml file.
+        VerifyTaxAmount(PurchaseHeader, TaxGroup.Code);
+    end;
+
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -1157,6 +1194,31 @@
         VATEntry.TestField(Amount, ExpectedAmount);
     end;
 
+    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; TaxAreaCode: Code[20]; TaxGroupCode: Code[20]; TaxLiable: Boolean)
+    begin
+        PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
+        CreatePurchaseDocument(PurchaseHeader, TaxAreaCode, TaxGroupCode, TaxLiable, '');
+    end;
+
+    local procedure VerifyTaxAmount(PurchaseHeader: Record "Purchase Header"; TaxGroupCode: Code[20])
+    var
+        TaxDetail: Record "Tax Detail";
+    begin
+        TaxDetail.SetRange("Tax Group Code", TaxGroupCode);
+        TaxDetail.FindFirst();
+
+        with PurchaseHeader do begin
+            CalcFields(Amount, "Amount Including VAT");
+            VerifyValuesOnReport(TaxAmountLbl, "Amount Including VAT" - Amount);
+        end;
+    end;
+
+    local procedure VerifyValuesOnReport(ValueCaption: Text[100]; Value: Variant)
+    begin
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueExists(ValueCaption, Round(Value));
+    end;
+
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure SalesDocumentTest_RPH(var SalesDocumentTest: TestRequestPage "Sales Document - Test")
@@ -1169,6 +1231,19 @@
     procedure PurchaseDocumentTest_RPH(var PurchaseDocumentTest: TestRequestPage "Purchase Document - Test")
     begin
         PurchaseDocumentTest.Cancel.Invoke;
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure PurchOrderRequestPageHandler(var StandardPurchaseOrder: TestRequestPage "Standard Purchase - Order")
+    var
+        BuyfromVendorNo: Variant;
+        LogInteraction: Variant;
+        PrintCompanyAddress: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(BuyfromVendorNo);
+        StandardPurchaseOrder."Purchase Header".SetFilter("Buy-from Vendor No.", BuyfromVendorNo);
+        StandardPurchaseOrder.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
 

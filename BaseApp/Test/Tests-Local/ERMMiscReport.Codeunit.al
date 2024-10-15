@@ -2154,6 +2154,44 @@ codeunit 142060 "ERM Misc. Report"
         LibraryReportDataset.AssertElementWithValueNotExist('GetAmtMISC07MISC15B', PurchaseLine."Line Amount");
     end;
 
+    [Test]
+    [HandlerFunctions('ItemSalesByCustomerHandler')]
+    [Scope('OnPrem')]
+    procedure ItemSalesByCustomerReportByUndoShipment()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesSetup: Record "Sales & Receivables Setup";
+        Quantity: Decimal;
+        PstdDocNo: Code[20];
+    begin
+        // [SCENARIO 458919] [ALL-E] Item Sales by Customer report does not calculate Invoiced Quantity when 'Shipment on Invoice' is set to FALSE in Sales & Receivables Setup.
+        Initialize();
+
+        // [GIVEN] Set "Shipment on Invoice" as FALSE on "Sales & Receivables Setup"
+        SalesSetup.FindFirst();
+        SalesSetup."Shipment on Invoice" := false;
+        SalesSetup.Modify();
+
+        // [GIVEN] Create Sales Invoice and save Posted Document No.
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        GetSalesLine(SalesLine, SalesHeader);
+        Quantity := SalesLine.Quantity;
+        PstdDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [THEN] Enqueue values to report Item Sales by Customer.
+        EnqueueValuesForItemSalesByCustomerReport(0, 0, 0, 0, SalesLine."No.", '', false);
+
+        // [THEN] Run Item Sales By Customer report.
+        REPORT.Run(REPORT::"Item Sales by Customer");
+
+        // [VERIFY]: Verify Invoiced Quantity on Item Sales By Customer Report.
+        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.SetRange(ItemNoCapLbl, SalesLine."No.");
+        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.AssertCurrentRowValueEquals(ItemLedgerEntryInvoicedQuantityLbl, Quantity);
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -2851,6 +2889,13 @@ codeunit 142060 "ERM Misc. Report"
             Assert.AreEqual(PaymentXNo, "Document No.", StrSubstNo(PaymentNotFoundErr, PaymentXNo));
             Assert.AreEqual(ExpectedVendorNo, "Vendor No.", FieldCaption("Vendor No."));
         end;
+    end;
+
+    local procedure GetSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
+    begin
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst();
     end;
 
     [RequestPageHandler]

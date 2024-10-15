@@ -144,7 +144,7 @@ report 10478 "Elec. Service Cr Memo MX"
                     column(FORMAT_Cust__Tax_Identification_Type__; Format(Cust."Tax Identification Type"))
                     {
                     }
-                    column(CompanyInfo__RFC_No__; CompanyInfo."RFC No.")
+                    column(CompanyInfo__RFC_No__; CompanyInfo."RFC Number")
                     {
                     }
                     column(FolioText; "Service Cr.Memo Header"."Fiscal Invoice Number PAC")

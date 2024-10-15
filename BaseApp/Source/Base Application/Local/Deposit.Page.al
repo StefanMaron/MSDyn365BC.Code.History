@@ -244,6 +244,7 @@ page 10140 Deposit
 
     trigger OnOpenPage()
     begin
+        BankDepositFeatureMgt.LaunchDeprecationNotification();
         CurrentJnlBatchName := Rec."Journal Batch Name";
         if Rec."Journal Template Name" <> '' then begin
             GenJnlLine.FilterGroup(2);
@@ -264,6 +265,7 @@ page 10140 Deposit
         DepositHeader: Record "Deposit Header";
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlManagement: Codeunit GenJnlManagement;
+        BankDepositFeatureMgt: Codeunit "Bank Deposit Feature Mgt.";
         JnlSelected: Boolean;
         CurrentJnlBatchName: Code[10];
 

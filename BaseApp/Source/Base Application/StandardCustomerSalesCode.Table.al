@@ -102,6 +102,9 @@
         {
             Clustered = true;
         }
+        key(Key2; Code, "Currency Code")
+        {
+        }
     }
 
     fieldgroups

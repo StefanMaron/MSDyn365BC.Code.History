@@ -158,8 +158,8 @@ report 7314 "Whse. Change Unit of Measure"
                 Error(Text001, FieldCaption("Qty. (Base)"), QtyChangeBase, BinContent.TableCaption(), FieldCaption("Bin Code"));
 
         if BinContent."Qty. per Unit of Measure" = WarehouseActivityLine."Qty. per Unit of Measure" then begin
-            WarehouseActivityLine.Validate(Quantity, "Qty. to Handle (Base)" / WarehouseActivityLine."Qty. per Unit of Measure");
             WarehouseActivityLine.Validate("Unit of Measure Code");
+            WarehouseActivityLine.Validate(Quantity, "Qty. to Handle (Base)" / WarehouseActivityLine."Qty. per Unit of Measure");
         end else begin
             WarehouseActivityLine.Validate("Unit of Measure Code");
             WarehouseActivityLine."Qty. per Unit of Measure" := BinContent."Qty. per Unit of Measure";

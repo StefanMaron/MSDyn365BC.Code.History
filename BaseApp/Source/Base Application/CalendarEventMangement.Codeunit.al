@@ -98,7 +98,14 @@ codeunit 2160 "Calendar Event Mangement"
     end;
 
     procedure SetJobQueueOnHold(var JobQueueEntry: Record "Job Queue Entry")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetJobQueueOnHold(JobQueueEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         JobQueueEntry.LockTable(true);
         JobQueueEntry.Find();
 
@@ -120,7 +127,13 @@ codeunit 2160 "Calendar Event Mangement"
     local procedure UpdateJobQueueWithSuggestedDate(var JobQueueEntry: Record "Job Queue Entry"; CalendarEvent: Record "Calendar Event")
     var
         OtherCalendarEvent: Record "Calendar Event";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateJobQueueWithSuggestedDate(JobQueueEntry, CalendarEvent, IsHandled);
+        if IsHandled then
+            exit;
+
         JobQueueEntry.LockTable();
         JobQueueEntry.Find();
 
@@ -163,7 +176,13 @@ codeunit 2160 "Calendar Event Mangement"
     local procedure FindOrCreateJobQueue(var JobQueueEntry: Record "Job Queue Entry")
     var
         CalendarEventUserConfig: Record "Calendar Event User Config.";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindOrCreateJobQueue(JobQueueEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if FindJobQueue(JobQueueEntry) then
             exit;
 
@@ -202,7 +221,14 @@ codeunit 2160 "Calendar Event Mangement"
     end;
 
     local procedure SetNextJobQueueRunDate(var JobQueueEntry: Record "Job Queue Entry"; NewDate: Date)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetNextJobQueueRunDate(JobQueueEntry, NewDate, IsHandled);
+        if IsHandled then
+            exit;
+
         JobQueueEntry.LockTable(true);
         JobQueueEntry.Find();
 
@@ -228,6 +254,26 @@ codeunit 2160 "Calendar Event Mangement"
             if not CalendarEventUserConfig.Insert(true) then // Insert failed, possibly because it was just inserted in another session
                 CalendarEventUserConfig.Get(UserId); // Try to get the record one more time before failing
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindOrCreateJobQueue(var JobQueueEntry: Record "Job Queue Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetNextJobQueueRunDate(var JobQueueEntry: Record "Job Queue Entry"; NewDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetJobQueueOnHold(var JobQueueEntry: Record "Job Queue Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateJobQueueWithSuggestedDate(var JobQueueEntry: Record "Job Queue Entry"; CalendarEvent: Record "Calendar Event"; var IsHandled: Boolean)
+    begin
     end;
 }
 

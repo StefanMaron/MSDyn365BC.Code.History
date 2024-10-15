@@ -48,7 +48,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         // [GIVEN] We have a coupled CRM Sales Order and NAV Sales Order
         // [WHEN] The Sales Order is released
         // [THEN] A Post is created on the CRM Sales Order
-        Initialize();
+        Initialize(false);
         ClearCRMData;
 
         // [GIVEN] CRM Salesorder in local currency
@@ -86,7 +86,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         // [GIVEN] We have a coupled CRM Sales Order and NAV Sales Order
         // [WHEN] A shipment is posted for the sales order
         // [THEN] A Post is created on the CRM Sales Order
-        Initialize();
+        Initialize(false);
         ClearCRMData;
 
         // [GIVEN] CRM Salesorder in local currency
@@ -124,7 +124,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         // [GIVEN] We have a Sales Order created to that Customer
         // [WHEN] The Sales Order is posted
         // [THEN] A Post is created on the Account
-        Initialize();
+        Initialize(false);
         CleanCRMPost(CRMPost);
 
         // [GIVEN] CRM Salesorder in local currency
@@ -156,7 +156,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         // [GIVEN] We have a Invoice created to that Customer
         // [WHEN] The Sales Order is posted
         // [THEN] A Post is created on the Account
-        Initialize();
+        Initialize(false);
         CleanCRMPost(CRMPost);
 
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
@@ -187,7 +187,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         // [GIVEN] We have a Invoice created to that Customer
         // [WHEN] The Sales Order is posted
         // [THEN] A Post is created on the Account
-        Initialize();
+        Initialize(false);
         CleanCRMPost(CRMPost);
 
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
@@ -212,7 +212,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     begin
         // [FEATURE] [Currency]
         // [SCENARIO 144800] CRM Salesorder in FCY can be created in NAV
-        Initialize();
+        Initialize(false);
         ClearCRMData;
 
         // [GIVEN]  CRM Salesorder in 'X' currency
@@ -236,7 +236,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     begin
         // [FEATURE] [Currency]
         // [SCENARIO 144800] CRM Salesorder in FCY cannot be created in NAV if Currency not exists
-        Initialize();
+        Initialize(false);
         ClearCRMData;
 
         // [GIVEN]  CRM Salesorder in 'X' currency, Currency not exists in NAV
@@ -261,7 +261,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     begin
         // [FEATURE] [Currency]
         // [SCENARIO 144800] CRM Sales Order in LCY can be created in NAV
-        Initialize();
+        Initialize(false);
         ClearCRMData;
 
         // [GIVEN] CRM Salesorder in local currency
@@ -288,7 +288,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     begin
         // [FEATURE] [External Document No.]
         // [SCENARIO 175130] CRM Sales Order can be invoiced, if "External Document No." is changed in NAV Order
-        Initialize();
+        Initialize(false);
         ClearCRMData;
 
         // [GIVEN] CRM Salesorder in local currency
@@ -317,7 +317,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     begin
         // [FEATURE] [Discount]
         // [SCENARIO 172256] CRM Sales Order, where 1 line has manual discount, created in NAV with line discount
-        Initialize();
+        Initialize(false);
         ClearCRMData;
 
         // [GIVEN]  CRM Salesorder, where 1 line has manual discount 100
@@ -339,7 +339,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     begin
         // [FEATURE] [Discount]
         // [SCENARIO 172256] CRM Sales Order, where 1 line has volume discount, created in NAV with line discount
-        Initialize();
+        Initialize(false);
         ClearCRMData;
 
         // [GIVEN]  CRM Salesorder, where 1 line has volume discount 150
@@ -361,7 +361,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     begin
         // [FEATURE] [Discount]
         // [SCENARIO 172256] CRM Sales Order, where 1 line has manual and volume discount, created in NAV with summed line discount
-        Initialize();
+        Initialize(false);
         ClearCRMData;
 
         // [GIVEN]  CRM Salesorder, where 1 line has manual discount 100 and volume discount 150
@@ -385,7 +385,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     begin
         // [FEATURE] [Discount]
         // [SCENARIO 172256] CRM Sales Order, where is amount discount, created in NAV with order discount
-        Initialize();
+        Initialize(false);
         ClearCRMData;
 
         // [GIVEN]  CRM Salesorder, where is amount discount 400
@@ -411,7 +411,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     begin
         // [FEATURE] [Discount]
         // [SCENARIO 172256] CRM Sales Order, where is percentage discount, created in NAV with order discount
-        Initialize();
+        Initialize(false);
         ClearCRMData;
 
         // [GIVEN]  CRM Salesorder, where is percentage discount 300
@@ -441,7 +441,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     begin
         // [FEATURE] [Discount]
         // [SCENARIO 172256] CRM Sales Order, where is percentage and amount discount, created in NAV with summed order discount
-        Initialize();
+        Initialize(false);
         ClearCRMData;
 
         // [GIVEN]  CRM Salesorder, where is percentage discount 300, amount discount 400
@@ -474,7 +474,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     begin
         // [FEATURE] [Freight]
         // [SCENARIO 172256] Error expected when create NAV Sales Order from CRM Sales Order with freight amount, if "Sales & Receivables Setup"."G/L Freight Account No." is empty
-        Initialize();
+        Initialize(false);
         ClearCRMData;
 
         // [GIVEN] "G/L Freight Account No." is empty in Sales & Receivables Setup
@@ -513,7 +513,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     begin
         // [FEATURE] [Freight]
         // [SCENARIO 172256] CRM Sales Order, where is freight amount, created in NAV with G/L account freight line
-        Initialize();
+        Initialize(false);
         ClearCRMData;
 
         // [GIVEN] "G/L Freight Account No." is not empty in Sales & Receivables Setup
@@ -561,7 +561,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     begin
         // [FEATURE] [Freight] [Discount] [Sales] [Invoice]
         // [SCENARIO] Sales Order with Freight Line should should be copied to CRM Invoice.
-        Initialize();
+        Initialize(false);
         LibraryCRMIntegration.CreateCRMOrganization;
         CRMConnectionSetup.Get();
         CRMConnectionSetup."Is S.Order Integration Enabled" := true;
@@ -630,7 +630,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 211784] CRM Sales Order Integration cannot be disabled when CRM Sales Order in Submitted Status exist
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] CRM Connection Enabled and Sales Order Integration enabled
         LibraryCRMIntegration.ConfigureCRM;
@@ -660,7 +660,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 211784] Disable CRM Sales Order Integration
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] CRM Connection Enabled and Sales Order Integration enabled
         LibraryCRMIntegration.ConfigureCRM;
@@ -676,7 +676,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         CRMOrganization.TestField(IsSOPIntegrationEnabled, false);
         CRMConnectionSetup.Get();
         CRMConnectionSetup.TestField("Is S.Order Integration Enabled", false);
-        ResetDefaultCRMSetupConfiguration();
+        ResetDefaultCRMSetupConfiguration(false);
     end;
 
     [Test]
@@ -687,7 +687,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 211784] CRM Sales Order Integration cannot be enabled if CRM Solution is not installed
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] CRM Connection Enabled and Sales Order Integration disabled
         LibraryCRMIntegration.ConfigureCRM;
@@ -704,7 +704,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
 
         // [THEN] Error message appears stating CRM Solution should be installed
         Assert.ExpectedError(IsCRMSolutionInstalledYesErr);
-        ResetDefaultCRMSetupConfiguration();
+        ResetDefaultCRMSetupConfiguration(false);
     end;
 
     [Test]
@@ -719,7 +719,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     begin
         // [FEATURE] [Get Shipment Lines]
         // [SCENARIO 221153] CRM Sales order got State=Invoiced after related NAV sales order became fully invoiced
-        Initialize();
+        Initialize(false);
         ClearCRMData;
 
         // [GIVEN] CRM Salesorder in local currency
@@ -753,7 +753,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     begin
         // [FEATURE] [Get Shipment Lines]
         // [SCENARIO 221153] CRM Sales orders got State=Invoiced after related NAV sales orders became fully invoiced by one sales invoice
-        Initialize();
+        Initialize(false);
         ClearCRMData;
 
         // [GIVEN] 3 CRM Salesorders in local currency for same customer
@@ -783,7 +783,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     begin
         // [FEATURE] [Get Shipment Lines]
         // [SCENARIO 221153] CRM Sales order State=Submitted after related NAV sales order became shipped only
-        Initialize();
+        Initialize(false);
         ClearCRMData;
 
         // [GIVEN] CRM Salesorder in local currency
@@ -813,7 +813,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     begin
         // [FEATURE] [Get Shipment Lines]
         // [SCENARIO 221153] CRM Sales order State=Submitted after related NAV sales order became partly invoiced
-        Initialize();
+        Initialize(false);
         ClearCRMData;
 
         // [GIVEN] CRM Salesorder in local currency
@@ -851,7 +851,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         SalesHeader: Record "Sales Header";
         CRMIntegrationRecord: Record "CRM Integration Record";
     begin
-        Initialize();
+        Initialize(false);
         ClearCRMData;
 
         // [GIVEN] CRM Salesorder in local currency
@@ -883,7 +883,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         // [FEATURE] [Assembly] [Assemble-to-Order]
         // [SCENARIO 253711] When a sales order is transferred from CRM, and the item being sold has "Assemble-to-Order" assembly policy, linked assembly order should be automatically created
 
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] Item "I" replenished by assembly and having "Assemble-to-Order" assembly policy. Item is coulped with a CRM product.
         CreateCRMSalesorderInLCY(CRMSalesorder);
@@ -921,7 +921,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         CRMProductName: Codeunit "CRM Product Name";
     begin
         // [SCENARIO 211596] Creating Sales Order from CRM Sales Order when SalesSetup."Write-in Product No." is not defined leads to error
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] Write-in Product No. is not defined
         LibraryCRMIntegration.SetSalesSetupWriteInProduct(SalesSetup."Write-in Product Type"::Item, '');
@@ -953,7 +953,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         Item: Record Item;
     begin
         // [SCENARIO 211596] Create Sales Order from CRM Sales Order with write-in product defined as item
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] Setup write-in product as Item 'ITEM'
         LibraryCRMIntegration.PrepareWriteInProductItem(Item);
@@ -984,7 +984,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         Resource: Record Resource;
     begin
         // [SCENARIO 211596] Create Sales Order from CRM Sales Order with write-in product defined as resource
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] Setup write-in product as Resource 'RES'
         LibraryCRMIntegration.PrepareWriteInProductResource(Resource);
@@ -1013,7 +1013,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         SalesHeader: Record "Sales Header";
     begin
         // [SCENARIO 211535] Long CRM Product (item) description causes creating additional sales lines with Description field containing trancated product description part
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] CRM Salesorder in local currency with item
         CreateCRMSalesorderInLCY(CRMSalesorder);
@@ -1038,7 +1038,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         SalesHeader: Record "Sales Header";
     begin
         // [SCENARIO 211535] Long CRM Product (resource) description causes creating additional sales lines with Description field containing trancated product description part
-        Initialize();
+        Initialize(false);
         ClearCRMData;
 
         // [GIVEN] CRM Salesorder in local currency with resource
@@ -1065,7 +1065,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         Item: Record Item;
     begin
         // [SCENARIO 211535] Long write-in product description causes creating additional sales lines with Description field containing trancated product description part
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] Setup write-in product as Item 'ITEM'
         LibraryCRMIntegration.PrepareWriteInProductItem(Item);
@@ -1095,7 +1095,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         SalesHeaderDescriptionText: Text;
     begin
         // CRM Sales Order Line Description (and not CRM Product Description) is used as Business Central Sales Order line description
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] CRM Salesorder in local currency with item
         CreateCRMSalesorderInLCY(CRMSalesorder);
@@ -1129,7 +1129,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         AnnotationText: Text;
     begin
         // CRM Sales Order note is used as Business Central Sales Order note
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] CRM Salesorder in local currency with item
         CreateCRMSalesorderInLCY(CRMSalesorder);
@@ -1161,7 +1161,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         CreatedAfterDateTime: DateTime;
     begin
         // CRM Sales Order note is used as Business Central Sales Order note
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] CRM Salesorder in local currency with item
         CreateCRMSalesorderInLCY(CRMSalesorder);
@@ -1202,7 +1202,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         ModifiedAfterDateTime: DateTime;
     begin
         // CRM Sales Order note is used as Business Central Sales Order note
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] CRM Salesorder in local currency with item
         CreateCRMSalesorderInLCY(CRMSalesorder);
@@ -1244,7 +1244,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         AnnotationText2: Text;
     begin
         // CRM Sales Order note is used as Business Central Sales Order note
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] CRM Salesorder in local currency with item
         CreateCRMSalesorderInLCY(CRMSalesorder);
@@ -1277,7 +1277,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     begin
         // [FEATURE] [Sales Order]
         // [SCENARIO] CRM Sales Order page presents only the orders with StateCode=Submitted and LastBackofficeSubmit equal to 0D or 1900-01-01
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] Submitted CRM sales order with LastBackofficeSubmit=0D
         LibraryCRMIntegration.CreateCRMSalesOrder(CRMSalesorder[1]);
@@ -1328,7 +1328,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         CRMSalesorderdetail: array[5] of Record "CRM Salesorderdetail";
     begin
         // [SCENARIO] Job queue entry "Process submitted sales orders" makes NAV sales order from submitted CRM sales orders with LastBackofficeSubmit equal to 0D or 1900-01-01
-        Initialize();
+        Initialize(false);
         ClearCRMData();
 
         // [GIVEN] Submitted CRM sales order with LastBackofficeSubmit=0D
@@ -1378,7 +1378,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         CRMSalesorderdetail: Record "CRM Salesorderdetail";
     begin
         // [SCENARIO 211593] Job queue entry "Process submitted sales orders" makes NAV sales order from Submitted CRM sales order
-        Initialize();
+        Initialize(false);
         ClearCRMData;
 
         // [GIVEN] CRM Salesorder in local currency with item
@@ -1402,7 +1402,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         CRMSalesorderdetail: array[2] of Record "CRM Salesorderdetail";
     begin
         // [SCENARIO 211593] Job queue entry "Process submitted sales orders" should not stop processing orders after first fail
-        Initialize();
+        Initialize(false);
         ClearCRMData;
 
         // [GIVEN] CRM Salesorder 1 for customer 1 in local currency with item
@@ -1438,7 +1438,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     begin
         // [FEATURE] [External Document No.]
         // [SCENARIO 230310] CRM Sales Order Name field value is copied to Sales Header External Document No field
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] CRM Salesorder in local currency with item
         CreateCRMSalesorderInLCY(CRMSalesorder);
@@ -1472,7 +1472,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         ItemNo: Code[20];
     begin
         // [SCENARIO 270978] Posting Sales Document for coupled Customer when coupled CRM Account is deleted
-        Initialize();
+        Initialize(false);
         LibraryCRMIntegration.ConfigureCRM;
         CleanCRMPost(CRMPost);
 
@@ -1504,7 +1504,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         CRMSalesorderdetail: Record "CRM Salesorderdetail";
     begin
         // [SCENARIO 279148] Sales Order coupled to deleted CRM Sales Order can be deleted
-        Initialize();
+        Initialize(false);
         CRMConnectionSetup.Get();
         CRMConnectionSetup."Is S.Order Integration Enabled" := true;
         CRMConnectionSetup."Is Enabled" := true;
@@ -1533,7 +1533,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         CRMSalesorderdetail: Record "CRM Salesorderdetail";
     begin
         // [SCENARIO 279148] Sales Order coupled to deleted CRM Sales Order can be posted
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] Created NAV Order from CRM Order
         CreateCRMSalesorderInLCY(CRMSalesorder);
@@ -1559,7 +1559,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         Item: Record Item;
     begin
         // [SCENARIO 313501] Write-in CRM Product (item) value should be copied to Sales Order line copied from CRM
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] Setup write-in product as Item 'ITEM'
         LibraryCRMIntegration.PrepareWriteInProductItem(Item);
@@ -1589,7 +1589,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         SalesLine: Record "Sales Line";
     begin
         // [SCENARIO 321940] Sales Line item description is not overwritten by CRM product description for non-writein product
-        Initialize();
+        Initialize(false);
 
         // [GIVEN] CRM Salesorder in local currency with item. Item Description in NAV = "X", Product Description in CRM = "Y"
         CreateCRMSalesorderInLCY(CRMSalesorder);
@@ -1624,7 +1624,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         Item: Record Item;
     begin
         // [SCENARIO 371774] Transfer CRM Sales Order to Sales Order with Prices Includes VAT = TRUE
-        Initialize();
+        Initialize(false);
         ClearCRMData();
 
         // [GIVEN] Customer "C" with "VAT Bus. Posting Group" = "VATBBus" coupled with Account "CA"
@@ -1678,7 +1678,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         Item: Record Item;
     begin
         // [SCENARIO 371774] Transfer CRM Sales Order to Sales Order with Prices Includes VAT = FALSE
-        Initialize();
+        Initialize(false);
         ClearCRMData();
         // [GIVEN] Customer "C" with "VAT Bus. Posting Group" = "VATBBus" coupled with Account "CA"
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
@@ -1711,8 +1711,34 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         SalesLine.TestField("Amount Including VAT", ROUND(Item."Unit Price" * (1 + SalesLine."VAT %" / 100), LibraryERM.GetAmountRoundingPrecision));
     end;
 
-    local procedure Initialize()
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BidirectionalSalesOrderCreatesArchive()
     var
+        SalesHeaderArchive: Record "Sales Header Archive";
+        SalesLineArchive: Record "Sales Line Archive";
+    begin
+        // [SCENARIO] Bidirectional sales order creates an extra sales order archive
+        Initialize(true);
+        ClearCRMData();
+        SalesHeaderArchive.DeleteAll();
+        SalesLineArchive.DeleteAll();
+
+        // [WHEN] A sales order is created and posted
+        CreateAndPostSalesOrder();
+
+        // [THEN] Two archive versions created 
+        Assert.AreEqual(2, SalesHeaderArchive.Count, 'Two archive versions should be created.');
+
+        // [THEN] Latest archive line Qty. Shipped > 0
+        SalesLineArchive.FindLast();
+        Assert.AreNotEqual(SalesLineArchive."Quantity Shipped", 0, 'Quantity shipped should not be equal to zero.');
+    end;
+
+    local procedure Initialize(BidirectionalSOIntegrationEnabled: Boolean)
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
         MyNotifications: Record "My Notifications";
         UpdateCurrencyExchangeRates: Codeunit "Update Currency Exchange Rates";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1722,8 +1748,12 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         // Lazy Setup.
         LibrarySetupStorage.Restore();
         LibraryVariableStorage.Clear();
-        if isInitialized then
-            exit;
+        if isInitialized then begin
+            CRMConnectionSetup.Get();
+            if CRMConnectionSetup."Bidirectional Sales Order Int." = BidirectionalSOIntegrationEnabled then
+                exit;
+        end else
+            LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"CRM Sales Order Integr. Test");
         LibraryPatterns.SETNoSeries();
@@ -1733,11 +1763,10 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryCRMIntegration.ResetEnvironment();
         LibraryCRMIntegration.ConfigureCRM();
-        ResetDefaultCRMSetupConfiguration();
+        ResetDefaultCRMSetupConfiguration(BidirectionalSOIntegrationEnabled);
         isInitialized := true;
         MyNotifications.InsertDefault(UpdateCurrencyExchangeRates.GetMissingExchangeRatesNotificationID, '', '', false);
         Commit();
-        LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"CRM Sales Order Integr. Test");
     end;
 
@@ -2079,7 +2108,7 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         CRMOrganization.Modify();
     end;
 
-    local procedure ResetDefaultCRMSetupConfiguration()
+    local procedure ResetDefaultCRMSetupConfiguration(BidirectionalSOIntegrationEnabled: Boolean)
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
         CDSConnectionSetup: Record "CDS Connection Setup";
@@ -2094,12 +2123,21 @@ codeunit 139175 "CRM Sales Order Integr. Test"
         CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
         CDSConnectionSetup.Modify();
         CRMConnectionSetup."Is CRM Solution Installed" := true;
-        CRMConnectionSetup."Is S.Order Integration Enabled" := true;
+        CRMConnectionSetup."Is S.Order Integration Enabled" := not BidirectionalSOIntegrationEnabled;
+        CRMConnectionSetup.Validate("Bidirectional Sales Order Int.", BidirectionalSOIntegrationEnabled);
         CRMConnectionSetup."Is Enabled" := true;
         CRMConnectionSetup."Unit Group Mapping Enabled" := false;
         CRMConnectionSetup.Modify();
         CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
+    end;
+
+    local procedure CreateAndPostSalesOrder()
+    var
+        SalesHeader: Record "Sales Header";
+    begin
+        LibrarySales.CreateSalesOrder(SalesHeader);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
     [ConfirmHandler]
@@ -2121,4 +2159,3 @@ codeunit 139175 "CRM Sales Order Integr. Test"
     begin
     end;
 }
-

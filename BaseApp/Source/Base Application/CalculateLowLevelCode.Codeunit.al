@@ -98,7 +98,7 @@ codeunit 99000793 "Calculate Low-Level Code"
                 end;
             until ProdBOMLine.Next() = 0;
 
-        OnAfterCalcLevels(Type, No, TotalLevels);
+        OnAfterCalcLevels(Type, No, TotalLevels, Level);
         exit(TotalLevels);
     end;
 
@@ -219,7 +219,7 @@ codeunit 99000793 "Calculate Low-Level Code"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcLevels(Type: Option " ",Item,"Production BOM",Assembly; No: Code[20]; var TotalLevels: Integer)
+    local procedure OnAfterCalcLevels(Type: Option " ",Item,"Production BOM",Assembly; No: Code[20]; var TotalLevels: Integer; Level: Integer)
     begin
     end;
 

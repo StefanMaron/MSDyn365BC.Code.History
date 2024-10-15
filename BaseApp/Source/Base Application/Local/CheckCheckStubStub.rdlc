@@ -529,7 +529,7 @@
  + Cstr(Last(Fields!CheckToAddr_3_.Value)) + Chr(177) 
  + Cstr(Last(Fields!CheckToAddr_4_.Value)) + Chr(177) 
  + Cstr(Last(Fields!CheckToAddr_5_.Value)) + Chr(177)
- + Cstr(Last(Fields!CheckToAddr_1_.Value)) + Chr(177)
+ + Cstr(Last(Fields!CheckToAddr_6_.Value)) + Chr(177)
  + Cstr(Last(Fields!CheckToAddr_2_.Value)) + Chr(177)
  + Cstr(Last(Fields!CheckToAddr_3_.Value)) + Chr(177)
  + Cstr(Last(Fields!CheckToAddr_4_.Value)) + Chr(177)
@@ -1055,7 +1055,7 @@
               <Top>2.5295in</Top>
               <Left>0.61006in</Left>
               <Height>0.16353in</Height>
-              <Width>2.48031in</Width>
+              <Width>0.79895in</Width>
               <ZIndex>11</ZIndex>
               <Style />
             </Textbox>
@@ -1403,6 +1403,28 @@
                   <Style>None</Style>
                 </Border>
               </Style>
+            </Textbox>
+            <Textbox Name="textbox103">
+              <KeepTogether>true</KeepTogether>
+              <Paragraphs>
+                <Paragraph>
+                  <TextRuns>
+                    <TextRun>
+                      <Value>=Cstr(Choose(106,Split(Cstr(ReportItems!FooterInfo.Value), Chr(177))))</Value>
+                      <Style />
+                    </TextRun>
+                  </TextRuns>
+                  <Style>
+                    <TextAlign>Left</TextAlign>
+                  </Style>
+                </Paragraph>
+              </Paragraphs>
+              <Top>2.5295in</Top>
+              <Left>1.40901in</Left>
+              <Height>0.16353in</Height>
+              <Width>1.68864in</Width>
+              <ZIndex>25</ZIndex>
+              <Style />
             </Textbox>
           </ReportItems>
           <Style />
@@ -3824,6 +3846,9 @@ End Function
         </Field>
         <Field Name="Stub2PostingDesc_9_">
           <DataField>Stub2PostingDesc_9_</DataField>
+        </Field>
+        <Field Name="CheckToAddr_6_">
+          <DataField>CheckToAddr_6_</DataField>
         </Field>
         <Field Name="CheckToAddr_5_">
           <DataField>CheckToAddr_5_</DataField>

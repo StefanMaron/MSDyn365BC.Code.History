@@ -162,7 +162,7 @@ report 10479 "Elec. Service Invoice MX"
                     column(Cust__RFC_No__; Cust."RFC No.")
                     {
                     }
-                    column(CompanyInfo__RFC_No__; CompanyInfo."RFC No.")
+                    column(CompanyInfo__RFC_No__; CompanyInfo."RFC Number")
                     {
                     }
                     column(Cust__Phone_No__; Cust."Phone No.")

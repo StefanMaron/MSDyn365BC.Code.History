@@ -533,7 +533,7 @@ codeunit 134329 "ERM Purchase Return Order"
         ErrorMessage.SetRange("Context Record ID", PurchaseHeader.RecordId);
         Assert.RecordCount(ErrorMessage, 1);
         ErrorMessage.FindFirst();
-        Assert.IsSubstring(ErrorMessage.Description, PurchaseHeader.FieldCaption("Vendor Cr. Memo No."));
+        Assert.IsSubstring(ErrorMessage."Message", PurchaseHeader.FieldCaption("Vendor Cr. Memo No."));
         LibraryVariableStorage.AssertEmpty;
         // [THEN] Purchase Return Order is not posted
         PurchaseHeader.Get(PurchaseHeader."Document Type"::"Return Order", PurchaseHeader."No.");
