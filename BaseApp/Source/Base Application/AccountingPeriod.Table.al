@@ -339,5 +339,13 @@ table 50 "Accounting Period"
 
         exit(0D);
     end;
+
+    procedure CorrespondingAccountingPeriodExists(var AccountingPeriod: Record "Accounting Period"; AccSchedDate: Date): Boolean
+    begin
+        AccountingPeriod.SetFilter("Starting Date", '%1', CalcDate('<-CM>', AccSchedDate));
+        if AccountingPeriod.FindFirst() then
+            exit(true);
+        exit(false);
+    end;
 }
 
