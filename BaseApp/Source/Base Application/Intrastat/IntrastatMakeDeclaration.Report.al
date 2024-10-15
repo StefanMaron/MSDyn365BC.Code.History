@@ -16,8 +16,12 @@ report 593 "Intrastat - Make Declaration"
 
                 trigger OnAfterGetRecord()
                 var
+                    CountryRegion: Record "Country/Region";
                     ServerFile: File;
                     ServerFileInStream: InStream;
+                    CountryCode: Code[3];
+                    CountryOfOriginCode: Code[3];
+                    StatSystem: Code[1];
                 begin
                     if LineCounter >= 1000 then begin
                         LineCounter := 0;
@@ -79,12 +83,12 @@ report 593 "Intrastat - Make Declaration"
                     if "Statistical Value" > 9999999999999.0 then
                         Error(Text1100000, FieldCaption("Statistical Value"), "Statistical Value");
 
-                    if Country.Get("Country/Region Code") then
-                        CountryCode := Country."EU Country/Region Code"
+                    if CountryRegion.Get("Country/Region Code") then
+                        CountryCode := CountryRegion."EU Country/Region Code"
                     else
                         CountryCode := '';
-                    if Country.Get("Country/Region of Origin Code") then
-                        CountryOfOriginCode := Country."EU Country/Region Code"
+                    if CountryRegion.Get("Country/Region of Origin Code") then
+                        CountryOfOriginCode := CountryRegion."EU Country/Region Code"
                     else
                         CountryOfOriginCode := '';
                     case "Statistical System" of
@@ -105,21 +109,7 @@ report 593 "Intrastat - Make Declaration"
                     if LineCounter <> 1 then
                         OutStreamObj.WriteText; // This command is to move to next line
 
-                    OutStreamObj.WriteText(
-                      CopyStr(CountryCode, 1, 2) + ';' + // 1
-                      CopyStr(Area, 1, 2) + ';' + // 2
-                      CopyStr("Shpt. Method Code", 1, 3) + ';' + // 3
-                      CopyStr("Transaction Type", 1, 2) + ';' + // 4
-                      CopyStr("Transport Method", 1, 1) + ';' + // 5
-                      CopyStr("Entry/Exit Point", 1, 4) + ';' + // 6
-                      PadStr("Tariff No.", 8) + ';' + // 7
-                      CopyStr(CountryOfOriginCode, 1, 2) + ';' + // 8
-                      StatSystem + ';' + // 9
-                      Format("Total Weight", 0, '<Precision,2:><Integer><Decimal>') + ';' + //10
-                      Format(Quantity, 0, '<Precision,2:><Integer><Decimal>') + ';' + //11
-                      Format(Amount, 0, '<Precision,2:><Integer><Decimal>') + ';' + //12
-                      Format("Statistical Value", 0, '<Precision,2:><Integer><Decimal>') //13
-                      );
+                    WriteGrTotalsToFile("Intrastat Jnl. Line", CountryCode, CountryOfOriginCode, StatSystem);
                 end;
 
                 trigger OnPostDataItem()
@@ -130,11 +120,11 @@ report 593 "Intrastat - Make Declaration"
                     if IntrastatSetup."Use Advanced Checklist" then
                         IntraJnlManagement.CheckForJournalBatchError("Intrastat Jnl. Line", true);
 #endif
+                    IntraFile.Close();
+
                     "Intrastat Jnl. Batch".Reported := true;
                     "Intrastat Jnl. Batch".Modify();
 
-                    // avoid I/O exception error
-                    IntraFile.Close;
                 end;
 
                 trigger OnPreDataItem()
@@ -169,11 +159,17 @@ report 593 "Intrastat - Make Declaration"
 
         layout
         {
-            area(content)
+            area(Content)
             {
                 group(Options)
                 {
                     Caption = 'Options';
+                    field(ExportFormatField; ExportFormat)
+                    {
+                        Caption = 'Export Format';
+                        ToolTip = 'Specifies the year for which to report Intrastat. This ensures that the report has the correct format for that year.';
+                        ApplicationArea = BasicEU;
+                    }
                     field(Filename; ClientFilename)
                     {
                         ApplicationArea = Basic, Suite;
@@ -249,14 +245,16 @@ report 593 "Intrastat - Make Declaration"
         IntraFile.WriteMode := true;
         IntraFile.Create(FileName);
         IntraFile.CreateOutStream(OutStreamObj);
+
+        if ExportFormatIsSpecified then
+            ExportFormat := SpecifiedExportFormat;
     end;
 
     var
         Text000: Label 'Enter the file name.';
         IntrastatJnlLine4: Record "Intrastat Jnl. Line";
-        Country: Record "Country/Region";
-        FileMgt: Codeunit "File Management";
         IntrastatSetup: Record "Intrastat Setup";
+        FileMgt: Codeunit "File Management";
         IntraJnlManagement: Codeunit IntraJnlManagement;
         DataCompression: Codeunit "Data Compression";
         TempZipFile: File;
@@ -268,9 +266,6 @@ report 593 "Intrastat - Make Declaration"
         Text1100000: Label 'The value of %1 %2  is bigger than maximum value allowed (9.999.999.999.999).';
         ServerFileName: Text;
         LineCounter: Integer;
-        StatSystem: Code[1];
-        CountryCode: Code[3];
-        CountryOfOriginCode: Code[3];
         JournalBatch: Record "Intrastat Jnl. Batch";
         Text1100001: Label 'Exporting to file %1';
         TotalRecNo: Integer;
@@ -280,16 +275,67 @@ report 593 "Intrastat - Make Declaration"
         ClientFilename: Text;
         TempZipFileName: Text;
         ZipFilenameTxt: Label 'Intrastat.zip', Locked = true;
+        ExportFormat: Enum "Intrastat Export Format";
+        SpecifiedExportFormat: Enum "Intrastat Export Format";
+        ExportFormatIsSpecified: Boolean;
 
     procedure InitializeRequest(newServerFileName: Text)
     begin
         ServerFileName := newServerFileName;
     end;
 
-    [Scope('OnPrem')]
-    procedure WriteGrTotalsToFile(TotalWeightAmt: Decimal; QuantityAmt: Decimal; StatisticalValueAmt: Decimal)
+    procedure InitializeRequestWithExportFormat(newServerFileName: Text; NewExportFormat: Enum "Intrastat Export Format")
     begin
-        // W1 code referenced DataItemVarName not present in ES; removed (as this function is not called in the ES localization)
+        ServerFileName := newServerFileName;
+        SpecifiedExportFormat := NewExportFormat;
+        ExportFormatIsSpecified := true;
+    end;
+
+    [Scope('OnPrem')]
+    procedure WriteGrTotalsToFile(IntrastatJnlLine: Record "Intrastat Jnl. Line"; CountryCode: Code[3]; CountryOfOriginCode: Code[3]; StatSystem: Code[1])
+    begin
+        IntrastatJnlLine."Total Weight" := IntraJnlManagement.RoundTotalWeight(IntrastatJnlLine."Total Weight");
+
+        if ExportFormat = ExportFormat::"2022" then begin
+            WriteGrTotalsToFile2022(IntrastatJnlLine, CountryCode, CountryOfOriginCode, StatSystem);
+            exit;
+        end;
+
+        OutStreamObj.WriteText(
+              CopyStr(CountryCode, 1, 2) + ';' +
+              CopyStr(IntrastatJnlLine.Area, 1, 2) + ';' +
+              CopyStr(IntrastatJnlLine."Shpt. Method Code", 1, 3) + ';' +
+              CopyStr(IntrastatJnlLine."Transaction Type", 1, 2) + ';' +
+              CopyStr(IntrastatJnlLine."Transport Method", 1, 1) + ';' +
+              CopyStr(IntrastatJnlLine."Entry/Exit Point", 1, 4) + ';' +
+              PadStr(IntrastatJnlLine."Tariff No.", 8) + ';' +
+              CopyStr(CountryOfOriginCode, 1, 2) + ';' +
+              StatSystem + ';' +
+              Format(IntrastatJnlLine."Total Weight", 0, '<Precision,2:><Integer><Decimal>') + ';' +
+              Format(IntrastatJnlLine.Quantity, 0, '<Precision,2:><Integer><Decimal>') + ';' +
+              Format(IntrastatJnlLine.Amount, 0, '<Precision,2:><Integer><Decimal>') + ';' +
+              Format(IntrastatJnlLine."Statistical Value", 0, '<Precision,2:><Integer><Decimal>')
+              );
+    end;
+
+    local procedure WriteGrTotalsToFile2022(IntrastatJnlLine: Record "Intrastat Jnl. Line"; CountryCode: Code[3]; CountryOfOriginCode: Code[3]; StatSystem: Code[1])
+    begin
+        OutStreamObj.WriteText(
+              CopyStr(CountryCode, 1, 2) + ';' +
+              CopyStr(IntrastatJnlLine.Area, 1, 2) + ';' +
+              CopyStr(IntrastatJnlLine."Shpt. Method Code", 1, 3) + ';' +
+              CopyStr(IntrastatJnlLine."Transaction Type", 1, 2) + ';' +
+              CopyStr(IntrastatJnlLine."Transport Method", 1, 1) + ';' +
+              CopyStr(IntrastatJnlLine."Entry/Exit Point", 1, 4) + ';' +
+              PadStr(IntrastatJnlLine."Tariff No.", 8) + ';' +
+              CopyStr(CountryOfOriginCode, 1, 2) + ';' +
+              StatSystem + ';' +
+              Format(IntrastatJnlLine."Total Weight", 0, '<Precision,2:><Integer><Decimal>') + ';' +
+              Format(IntrastatJnlLine.Quantity, 0, '<Precision,2:><Integer><Decimal>') + ';' +
+              Format(IntrastatJnlLine.Amount, 0, '<Precision,2:><Integer><Decimal>') + ';' +
+              Format(IntrastatJnlLine."Statistical Value", 0, '<Precision,2:><Integer><Decimal>') + ';' +
+              IntrastatJnlLine."Partner VAT ID"
+              );
     end;
 
     [Scope('OnPrem')]

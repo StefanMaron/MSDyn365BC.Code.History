@@ -3406,6 +3406,100 @@ codeunit 134106 "ERM Prepayment V"
           StrSubstNo(GenProdPostingGroupErr, GLAccount.FieldCaption("Gen. Prod. Posting Group"), GLAccount.Name, GLAccount."No."));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesPrepmtInvLineVATPctWithDifferentVARates()
+    var
+        PrepmtVATPostingSetup: Record "VAT Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        GeneralPostingSetup: Record "General Posting Setup";
+        GLAccount: Record "G/L Account";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        Customer: Record Customer;
+        PostedInvNo: Code[20];
+    begin
+        // [SCENARIO 413665] Wrong VAT % in prepayment invoice line, document statistics and report in the case of different VAT rates in the document line and prepayment account
+        Initialize();
+
+        // [GIVEN] Prepayment setup with VAT % = "VAT1"
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        CreateVATPostingSetup(PrepmtVATPostingSetup, 67.89);
+        GeneralPostingSetup.Validate("Sales Prepayments Account", CreateGLAccountWithGivenSetup(PrepmtVATPostingSetup, GeneralPostingSetup));
+        GeneralPostingSetup.Modify(true);
+
+        // [GIVEN] Order, line with VAT % = "VAT2"
+        VATPostingSetup.Get(PrepmtVATPostingSetup."VAT Bus. Posting Group", PrepmtVATPostingSetup."VAT Prod. Posting Group");
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        VATPostingSetup."VAT Prod. Posting Group" := VATProductPostingGroup.Code;
+        VATPostingSetup."VAT %" := 23.45;
+        VATPostingSetup.Insert();
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        Customer.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Customer.Modify(true);
+        CreateSalesHeader(SalesHeader, Customer."No.", 50, false);
+        CreateCustomSalesLine(SalesLine, SalesHeader, CreateGLAccountWithGivenSetup(VATPostingSetup, GeneralPostingSetup), 1, 1000);
+
+        // [WHEN] Post prepayment invoice
+        PostedInvNo := LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [THEN] Posted prepayment invoice line "VAT %" = "VAT1"
+        SalesInvoiceLine.Get(PostedInvNo, SalesLine."Line No.");
+        SalesInvoiceLine.TestField("VAT %", PrepmtVATPostingSetup."VAT %");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchasePrepmtInvLineVATPctWithDifferentVARates()
+    var
+        PrepmtVATPostingSetup: Record "VAT Posting Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATProductPostingGroup: Record "VAT Product Posting Group";
+        GeneralPostingSetup: Record "General Posting Setup";
+        GLAccount: Record "G/L Account";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchInvLine: Record "Purch. Inv. Line";
+        Vendor: Record Vendor;
+        PostedInvNo: Code[20];
+    begin
+        // [SCENARIO 413665] Wrong VAT % in prepayment invoice line, document statistics and report in the case of different VAT rates in the document line and prepayment account
+        Initialize();
+
+        // [GIVEN] Prepayment setup with VAT % = "VAT1"
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+        CreateVATPostingSetup(PrepmtVATPostingSetup, 67.89);
+        GeneralPostingSetup.Validate("Purch. Prepayments Account", CreateGLAccountWithGivenSetup(PrepmtVATPostingSetup, GeneralPostingSetup));
+        GeneralPostingSetup.Modify(true);
+
+        // [GIVEN] Order, line with VAT % = "VAT2"
+        VATPostingSetup.Get(PrepmtVATPostingSetup."VAT Bus. Posting Group", PrepmtVATPostingSetup."VAT Prod. Posting Group");
+        LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
+        VATPostingSetup."VAT Prod. Posting Group" := VATProductPostingGroup.Code;
+        VATPostingSetup."VAT %" := 23.45;
+        VATPostingSetup.Insert();
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        Vendor.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        Vendor.Modify(true);
+        CreatePurchaseHeader(PurchaseHeader, Vendor."No.", 50, false);
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
+            CreateGLAccountWithGivenSetup(VATPostingSetup, GeneralPostingSetup), 1);
+        PurchaseLine.Validate("Direct Unit Cost", 1000);
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post prepayment invoice
+        PostedInvNo := LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        // [THEN] Posted prepayment invoice line "VAT %" = "VAT1"
+        PurchInvLine.Get(PostedInvNo, PurchaseLine."Line No.");
+        PurchInvLine.TestField("VAT %", PrepmtVATPostingSetup."VAT %");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -78,6 +78,7 @@ codeunit 431 "IC Outbox Export"
         EmailItem: Record "Email Item";
         MailHandler: Codeunit Mail;
         DocumentMailing: Codeunit "Document-Mailing";
+        GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         ICOutboxExportXML: XMLport "IC Outbox Imp/Exp";
         EmailDialog: Page "Email Dialog";
         InStream: InStream;
@@ -93,6 +94,9 @@ codeunit 431 "IC Outbox Export"
         IsHandled := false;
         OnBeforeSendToExternalPartner(ICOutboxTrans, IsHandled);
         if IsHandled then
+            exit;
+
+        if GenJnlPostPreview.IsActive() then
             exit;
 
         ICPartner.SetFilter("Inbox Type", '<>%1', ICPartner."Inbox Type"::Database);
