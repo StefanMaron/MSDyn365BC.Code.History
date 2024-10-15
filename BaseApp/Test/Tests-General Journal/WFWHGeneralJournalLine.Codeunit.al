@@ -157,7 +157,6 @@ codeunit 134220 "WFWH General Journal Line"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure Ensure2IndependantGeneralJournalLinesCanBeSentForApproval()
     var
@@ -193,7 +192,6 @@ codeunit 134220 "WFWH General Journal Line"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure EnsureGeneralJournalLineApprovalWorkflowFunctionsCorrectlyWhenContinued()
     var
@@ -230,7 +228,6 @@ codeunit 134220 "WFWH General Journal Line"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure EnsureGeneralJournalLineApprovalWorkflowFunctionsCorrectlyWhenRejected()
     var
@@ -267,7 +264,6 @@ codeunit 134220 "WFWH General Journal Line"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure EnsureGeneralJournalLineApprovalWorkflowFunctionsCorrectlyWhenCancelled()
     var
@@ -304,7 +300,6 @@ codeunit 134220 "WFWH General Journal Line"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure EnsurerCashReceiptJournaLineApprovalWorkflowFunctionsCorrectlylWhenContinued()
     var
@@ -340,7 +335,6 @@ codeunit 134220 "WFWH General Journal Line"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure EnsurerCashReceiptJournaLineApprovalWorkflowFunctionsCorrectlylWhenRejected()
     var
@@ -376,7 +370,6 @@ codeunit 134220 "WFWH General Journal Line"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure EnsurerCashReceiptJournaLineApprovalWorkflowFunctionsCorrectlylWhenCancelled()
     var
@@ -412,7 +405,6 @@ codeunit 134220 "WFWH General Journal Line"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure EnsurePaymentJournalLineApprovalWorkflowFunctionsCorrectlyWhenContinued()
     var
@@ -449,7 +441,6 @@ codeunit 134220 "WFWH General Journal Line"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure EnsurePaymentJournalLineApprovalWorkflowFunctionsCorrectlyWhenRejected()
     var
@@ -486,7 +477,6 @@ codeunit 134220 "WFWH General Journal Line"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure EnsurePaymentJournalLineApprovalWorkflowFunctionsCorrectlyWhenCancelled()
     var
@@ -523,7 +513,6 @@ codeunit 134220 "WFWH General Journal Line"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure EnsureFilteredGeneralJournalLineApprovalWorkflowFunctionsCorrectlyWhenContinued()
     var
@@ -560,7 +549,6 @@ codeunit 134220 "WFWH General Journal Line"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure EnsureFilteredGeneralJournalLineApprovalWorkflowFunctionsCorrectlyWhenRejected()
     var
@@ -597,7 +585,6 @@ codeunit 134220 "WFWH General Journal Line"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure EnsureFilteredGeneralJournalLineApprovalWorkflowFunctionsCorrectlyWhenCancelled()
     var
@@ -634,7 +621,6 @@ codeunit 134220 "WFWH General Journal Line"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure EnsureGeneralJournalLineApprovalWorkflowFunctionsCorrectlyWithUnauthorizedContinuation()
     var
@@ -671,7 +657,6 @@ codeunit 134220 "WFWH General Journal Line"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure EnsureGeneralJournalLineApprovalWorkflowFunctionsCorrectlyWithUnauthorizedCancellation()
     var
@@ -710,7 +695,6 @@ codeunit 134220 "WFWH General Journal Line"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure EnsureGeneralJournalLineApprovalWorkflowFunctionsCorrectlyWithUnauthorizedRejection()
     var
@@ -747,7 +731,6 @@ codeunit 134220 "WFWH General Journal Line"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure EnsureGeneralJournalLineApprovalWorkflowFunctionsCorrectlyWhenGeneralJournalLineIsRenamed()
     var
@@ -789,7 +772,6 @@ codeunit 134220 "WFWH General Journal Line"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
     procedure EnsureGeneralJournalLineApprovalWorkflowFunctionsCorrectlyWhenGeneralJournalLineIsDeleted()
     var

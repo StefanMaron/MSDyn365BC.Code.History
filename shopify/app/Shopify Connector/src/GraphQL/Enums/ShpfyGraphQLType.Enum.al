@@ -54,10 +54,10 @@ enum 30111 "Shpfy GraphQL Type" implements "Shpfy IGraphQL"
         Caption = 'Get Order Fulfillment';
         Implementation = "Shpfy IGraphQL" = "Shpfy GQL OrderFulfillment";
     }
-    value(9; GetNextOrderFulfillment)
+    value(9; GetNextOrderFulfillmentLines)
     {
-        Caption = 'Get Next Order Fulfillment';
-        Implementation = "Shpfy IGraphQL" = "Shpfy GQL NextOrderFulfillment";
+        Caption = 'Get Next Order Fulfillment Lines';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL NextFulfillmentLines";
     }
     value(10; GetProductImages)
     {
@@ -144,6 +144,41 @@ enum 30111 "Shpfy GraphQL Type" implements "Shpfy IGraphQL"
     {
         Caption = 'Get Location of the Order Lines';
         Implementation = "Shpfy IGraphQL" = "Shpfy GQL LocationOrderLines";
+    }
+    value(41; CreateFulfillmentService)
+    {
+        Caption = 'Create Fullfilment Service';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL CreateFulfillmentSvc";
+    }
+    value(42; GetOpenFulfillmentOrders)
+    {
+        Caption = 'Get Open Fullfilment Orders';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL OpenFulfillmOrders";
+    }
+    value(43; GetNextOpenFulfillmentOrders)
+    {
+        Caption = 'Get Next Open Fullfilment Orders';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL NextOpenFFOrders";
+    }
+    value(44; GetOpenFulfillmentOrderLines)
+    {
+        Caption = 'Get Open Fullfilment Orders Lines';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL OpenFulfillmOrdLines";
+    }
+    value(45; GetNextOpenFulfillmentOrderLines)
+    {
+        Caption = 'Get Open Fullfilment Orders Lines';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL NextOpenFFOrderLines";
+    }
+    value(48; GetFulfillmentOrdersFromOrder)
+    {
+        Caption = 'Get Fulfillment Orders From Order';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL FFOrdersFromOrder";
+    }
+    value(49; GetNextFulfillmentOrdersFromOrder)
+    {
+        Caption = 'Get Next Fulfillment Orders From Order';
+        Implementation = "Shpfy IGraphQL" = "Shpfy GQL NextFFOrdersFromOrd";
     }
 
 }
