@@ -37,6 +37,7 @@ table 5901 "Service Item Line"
                 ConfirmManagement: Codeunit "Confirm Management";
                 ServContractList: Page "Serv. Contr. List (Serv. Item)";
                 IsHandled: Boolean;
+                ShouldFindServContractLine: Boolean;
             begin
                 if "Loaner No." <> '' then
                     Error(Text055, FieldCaption("Service Item No."),
@@ -96,9 +97,10 @@ table 5901 "Service Item Line"
                         ServContractExist := true;
                     end;
 
-                    OnValidateServiceItemNoOnBeforeEmptyContractNoFindServContractLine(Rec, ServHeader, ServItem);
+                    ShouldFindServContractLine := ServHeader."Contract No." = '';
+                    OnValidateServiceItemNoOnBeforeEmptyContractNoFindServContractLine(Rec, ServHeader, ServItem, ShouldFindServContractLine);
 
-                    if ServHeader."Contract No." = '' then begin
+                    if ShouldFindServContractLine then begin
                         ServContractLine.Reset();
                         ServContractLine.FilterGroup(2);
                         ServContractLine.SetCurrentKey("Service Item No.", "Contract Status");
@@ -2595,7 +2597,7 @@ table 5901 "Service Item Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateServiceItemNoOnBeforeEmptyContractNoFindServContractLine(var ServiceItemLine: Record "Service Item Line"; ServiceHeader: Record "Service Header"; ServiceItem: Record "Service Item")
+    local procedure OnValidateServiceItemNoOnBeforeEmptyContractNoFindServContractLine(var ServiceItemLine: Record "Service Item Line"; ServiceHeader: Record "Service Header"; ServiceItem: Record "Service Item"; var ShouldFindServContractLine: Boolean)
     begin
     end;
 

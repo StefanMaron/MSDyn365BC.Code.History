@@ -327,12 +327,19 @@ table 85 "Acc. Schedule Line"
         Text015: Label 'The %1 refers to %2 %3, which does not exist. The field %4 on table %5 has now been deleted.';
         UnderlineTrueMsg: Label 'The %1 should be true when %2 is %3.', Comment = '%1 - Double Underline; %2 - Totaling Type; %3 - value of Totaling Type';
 
-    procedure LookUpDimFilter(DimNo: Integer; var Text: Text): Boolean
+    procedure LookUpDimFilter(DimNo: Integer; var Text: Text) Result: Boolean
     var
         DimVal: Record "Dimension Value";
         DimValList: Page "Dimension Value List";
+        IsHandled: Boolean;
     begin
         GetAccSchedSetup;
+
+        IsHandled := false;
+        OnBeforeLookUpDimFilter(Rec, DimNo, Text, AccSchedName, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         case DimNo of
             1:
                 DimVal.SetRange("Dimension Code", AnalysisView."Dimension 1 Code");
@@ -390,9 +397,17 @@ table 85 "Acc. Schedule Line"
             Error(Text005);
     end;
 
-    procedure GetCaptionClass(AnalysisViewDimType: Integer): Text[250]
+    procedure GetCaptionClass(AnalysisViewDimType: Integer) Result: Text[250]
+    var
+        IsHandled: Boolean;
     begin
         GetAccSchedSetup;
+
+        IsHandled := false;
+        OnBeforeGetCaptionClass(Rec, AccSchedName, AnalysisViewDimType, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         case AnalysisViewDimType of
             1:
                 begin
@@ -560,9 +575,18 @@ table 85 "Acc. Schedule Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCaptionClass(var AccScheduleLine: Record "Acc. Schedule Line"; AccSchedName: Record "Acc. Schedule Name"; AnalysisViewDimType: Integer; Result: Text[250]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupTotaling(var AccScheduleLine: Record "Acc. Schedule Line"; var IsHandled: Boolean)
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookUpDimFilter(var AccScheduleLine: Record "Acc. Schedule Line"; DimNo: Integer; var Text: Text; AccSchedName: Record "Acc. Schedule Name"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
 }
 

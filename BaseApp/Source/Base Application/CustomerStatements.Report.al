@@ -789,7 +789,7 @@ report 10072 "Customer Statements"
         StatementStyle_Int: Integer;
         [InDataSet]
         LogInteractionEnable: Boolean;
-        PeriodCalcTxt: Label '<-%1>', Comment = '%1 = length of Aging Periods, dateformula';
+        PeriodCalcTxt: Label '-%1', Comment = '%1 = length of Aging Periods, dateformula';
         STATEMENTCaptionLbl: Label 'STATEMENT', Comment = 'Page title.';
         Statement_Date_CaptionLbl: Label 'Statement Date:';
         Account_Number_CaptionLbl: Label 'Account Number:';

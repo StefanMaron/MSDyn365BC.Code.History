@@ -130,6 +130,8 @@ codeunit 7153 "Item Analysis Management"
             if GetFilter("Dimension 3 Filter") <> '' then
                 CopyFilter("Dimension 3 Filter", ItemAnalysisViewEntry."Dimension 3 Value Code");
         end;
+
+        OnAfterFilterItemAnalyViewEntry(ItemStatisticsBuffer, ItemAnalysisViewEntry);
     end;
 
     local procedure FilterItemAnalyViewBudgEntry(var ItemStatisticsBuf: Record "Item Statistics Buffer"; var ItemAnalysisViewBudgEntry: Record "Item Analysis View Budg. Entry")
@@ -157,6 +159,8 @@ codeunit 7153 "Item Analysis Management"
             if GetFilter("Dimension 3 Filter") <> '' then
                 CopyFilter("Dimension 3 Filter", ItemAnalysisViewBudgEntry."Dimension 3 Value Code");
         end;
+
+        OnAfterFilterItemAnalyViewBudgEntry(ItemStatisticsBuf, ItemAnalysisViewBudgEntry);
     end;
 
     local procedure SetDimFilters(var ItemStatisticsBuffer: Record "Item Statistics Buffer"; DimOption: Option Item,Period,Location,"Dimension 1","Dimension 2","Dimension 3"; DimCodeBuf: Record "Dimension Code Buffer")
@@ -813,6 +817,16 @@ codeunit 7153 "Item Analysis Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcActualAmount(ValueType: Option "Sales Amount","Cost Amount",Quantity; var ItemStatisticsBuffer: Record "Item Statistics Buffer"; CurrentItemAnalysisViewCode: Code[10]; var Amount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterItemAnalyViewEntry(var ItemStatisticsBuffer: Record "Item Statistics Buffer"; var ItemAnalysisViewEntry: Record "Item Analysis View Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterItemAnalyViewBudgEntry(var ItemStatisticsBuffer: Record "Item Statistics Buffer"; var ItemAnalysisViewBudgEntry: Record "Item Analysis View Budg. Entry")
     begin
     end;
 }

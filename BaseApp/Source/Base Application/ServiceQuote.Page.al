@@ -1,4 +1,4 @@
-page 5964 "Service Quote"
+﻿page 5964 "Service Quote"
 {
     Caption = 'Service Quote';
     PageType = Document;
@@ -703,13 +703,8 @@ page 5964 "Service Quote"
 
                     trigger OnAction()
                     begin
-                        CalcInvDiscForHeader;
-                        Commit();
                         OnBeforeCalculateSalesTaxStatistics(Rec, true);
-                        if "Tax Area Code" = '' then
-                            PAGE.RunModal(PAGE::"Service Statistics", Rec)
-                        else
-                            PAGE.RunModal(PAGE::"Service Stats.", Rec)
+                        OpenStatistics();
                     end;
                 }
                 action("Customer Card")

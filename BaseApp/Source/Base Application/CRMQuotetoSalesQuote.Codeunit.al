@@ -96,6 +96,7 @@ codeunit 5348 "CRM Quote to Sales Quote"
         OrderCRMIntegrationRecord: Record "CRM Integration Record";
         CRMSalesOrder: Record "CRM Salesorder";
         OrderSalesHeader: Record "Sales Header";
+        ArchiveManagement: Codeunit ArchiveManagement;
         BlankGuid: Guid;
         OpType: Option Create,Update;
         IsOrderCreated: Boolean;
@@ -143,7 +144,7 @@ codeunit 5348 "CRM Quote to Sales Quote"
                             OrderSalesHeader.Modify();
                             Session.LogMessage('0000D6N', UpdatedQuoteNoOnExistingOrderTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CrmTelemetryCategoryTok);
                         end;
-                        ManageSalesQuoteArchive(SalesHeader)
+                        ArchiveManagement.ArchSalesDocumentNoConfirm(SalesHeader)
                     end else begin
                         SalesHeader.Status := SalesHeader.Status::Released;
                         SalesHeader.Modify();

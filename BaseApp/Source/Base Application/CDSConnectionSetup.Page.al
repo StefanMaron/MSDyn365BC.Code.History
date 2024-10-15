@@ -6,7 +6,7 @@ page 7200 "CDS Connection Setup"
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
-    PromotedActionCategories = 'New,Connection,Integration,Encryption,Advanced,Synchronization';
+    PromotedActionCategories = 'New,Connection,Integration,Encryption,Advanced,Synchronization,Cloud Migration';
     ShowFilter = false;
     SourceTable = "CDS Connection Setup";
     UsageCategory = Administration;
@@ -474,6 +474,24 @@ page 7200 "CDS Connection Setup"
 
                     SynchronizeNow(false);
                     Message(SyncNowScheduledMsg, IntegrationSynchJobList.Caption());
+                end;
+            }
+            action(RebuildCouplingTable)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Rebuild Coupling Table';
+                Enabled = true;
+                Image = Restore;
+                Promoted = true;
+                PromotedCategory = Category7;
+                PromotedIsBig = false;
+                ToolTip = 'Rebuilds the coupling table after Cloud Migration from Business Central 2019 Wave 1 (Business Central 14).';
+
+                trigger OnAction()
+                var
+                    CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
+                begin
+                    CDSIntegrationImpl.ScheduleRebuildingOfCouplingTable();
                 end;
             }
         }

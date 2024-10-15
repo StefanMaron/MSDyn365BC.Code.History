@@ -100,7 +100,11 @@ report 6005 "Batch Post Service Cr. Memos"
         }
 
         trigger OnOpenPage()
+        var
+            ClientTypeManagement: Codeunit "Client Type Management";
         begin
+            if ClientTypeManagement.GetCurrentClientType() = ClientType::Background then
+                exit;
             SalesSetup.Get();
             CalcInvDisc := SalesSetup."Calc. Inv. Discount";
             ReplacePostingDate := false;

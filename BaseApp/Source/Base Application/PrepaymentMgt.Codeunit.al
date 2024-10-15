@@ -12,6 +12,7 @@ codeunit 441 "Prepayment Mgt."
         UpdateSalesOrderStatusTxt: Label 'Update sales order status.';
         UpdatePurchaseOrderStatusTxt: Label 'Update purchase order status.';
         PrepaymentAmountHigherThanTheOrderErr: Label 'The Prepayment account is assigned to a VAT product posting group where the VAT percentage is not equal to zero. This can cause posting errors when invoices have mixed VAT lines. To avoid errors, set the VAT percentage to zero for the account.';
+        PrepaymentInvoicesNotPaidErr: Label 'You cannot get lines until you have posted all related prepayment invoices to mark the prepayment as paid.';
 
     procedure AssertPrepmtAmountNotMoreThanDocAmount(DocumentTotalInclVAT: Decimal; PrepmtTotalInclVAT: Decimal; CurrencyCode: Code[10]; InvoiceRoundingSetup: Boolean)
     var
@@ -154,6 +155,18 @@ codeunit 441 "Prepayment Mgt."
                 if PurchaseLine."Prepmt. Amt. Inv." <> PurchaseLine."Prepmt. Line Amount" then
                     exit(true);
             until PurchaseLine.Next() = 0;
+    end;
+
+    procedure TestSalesOrderLineForGetShptLines(SalesLine: Record "Sales Line")
+    begin
+        if SalesLine."Prepmt. Amt. Inv." <> SalesLine."Prepmt. Line Amount" then
+            Error(PrepaymentInvoicesNotPaidErr);
+    end;
+
+    procedure TestPurchaseOrderLineForGetRcptLines(PurchaseLine: Record "Purchase Line")
+    begin
+        if PurchaseLine."Prepmt. Amt. Inv." <> PurchaseLine."Prepmt. Line Amount" then
+            Error(PrepaymentInvoicesNotPaidErr);
     end;
 
     procedure TestSalesPayment(SalesHeader: Record "Sales Header") Result: Boolean

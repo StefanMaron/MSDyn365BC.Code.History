@@ -139,6 +139,8 @@
                         CopyFromResource;
                 end;
 
+                OnValidateNoOnAfterCopyFields(Rec, xRec, ServHeader);
+
                 if Type <> Type::" " then begin
                     PlanPriceCalcByField(FieldNo("No."));
 
@@ -527,7 +529,7 @@
             begin
                 TestStatusOpen;
                 GetServHeader;
-                TestField(Quantity);
+                TestQtyFromLineDiscountAmount();
                 if "Line Discount Amount" <> xRec."Line Discount Amount" then
                     UpdateLineDiscPct;
                 "Inv. Discount Amount" := 0;
@@ -1199,7 +1201,7 @@
                 LineDiscountAmountExpected: Decimal;
             begin
                 TestField(Type);
-                TestField(Quantity);
+                TestQtyFromLineAmount();
                 TestField("Unit Price");
                 Currency.Initialize("Currency Code");
                 "Line Amount" := Round("Line Amount", Currency."Amount Rounding Precision");
@@ -2777,13 +2779,7 @@
         ItemCheckAvail: Codeunit "Item-Check Avail.";
         IsHandled: Boolean;
     begin
-        if "Needed by Date" = 0D then begin
-            GetServHeader;
-            if ServHeader."Order Date" <> 0D then
-                Validate("Needed by Date", ServHeader."Order Date")
-            else
-                Validate("Needed by Date", WorkDate);
-        end;
+        ValidateNeededByDate();
 
         if CurrFieldNo <> CalledByFieldNo then
             exit;
@@ -2806,6 +2802,25 @@
 
         if ItemCheckAvail.ServiceInvLineCheck(Rec) then
             ItemCheckAvail.RaiseUpdateInterruptedError;
+    end;
+
+    local procedure ValidateNeededByDate()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateNeededByDate(ServHeader, Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if "Needed by Date" = 0D then begin
+            GetServHeader;
+            if ServHeader."Order Date" <> 0D then
+                Validate("Needed by Date", ServHeader."Order Date")
+            else
+                Validate("Needed by Date", WorkDate);
+        end;
+
     end;
 
     procedure CreateDim(Type1: Integer; No1: Code[20]; Type2: Integer; No2: Code[20]; Type3: Integer; No3: Code[20])
@@ -2888,6 +2903,7 @@
         SerialNo: Code[50];
         VariantCode: Code[10];
         LocationCode: Code[10];
+        IsHandled: Boolean;
     begin
         ErrorIfAlreadySelectedSI("Service Item Line No.");
         Clear(ServItemReplacement);
@@ -2906,19 +2922,22 @@
                 end;
 
             "Variant Code" := VariantCode;
-            OnReplaceServItemOnAfterAssignVariantCode(Rec, ServItemReplacement, SerialNo);
-            Validate(Quantity, 1);
-            TempTrackingSpecification.DeleteAll();
-            TempTrackingSpecification."Serial No." := SerialNo;
-            TempTrackingSpecification."Variant Code" := VariantCode;
-            TempTrackingSpecification.Insert();
-            if "Line No." <> 0 then
-                InsertItemTracking;
-            case ServItemReplacement.ReturnReplacement of
-                0:
-                    "Spare Part Action" := "Spare Part Action"::"Temporary";
-                1:
-                    "Spare Part Action" := "Spare Part Action"::Permanent;
+            IsHandled := false;
+            OnReplaceServItemOnAfterAssignVariantCode(Rec, ServItemReplacement, SerialNo, IsHandled);
+            if not IsHandled then begin
+                Validate(Quantity, 1);
+                TempTrackingSpecification.DeleteAll();
+                TempTrackingSpecification."Serial No." := SerialNo;
+                TempTrackingSpecification."Variant Code" := VariantCode;
+                TempTrackingSpecification.Insert();
+                if "Line No." <> 0 then
+                    InsertItemTracking;
+                case ServItemReplacement.ReturnReplacement of
+                    0:
+                        "Spare Part Action" := "Spare Part Action"::"Temporary";
+                    1:
+                        "Spare Part Action" := "Spare Part Action"::Permanent;
+                end;
             end;
             "Copy Components From" := ServItemReplacement.ReturnCopyComponentsFrom;
             OnReplaceServItemOnCopyFromReplacementItem(Rec);
@@ -2986,6 +3005,18 @@
 
         if Quantity < 0 then
             FieldError(Quantity, Text029);
+    end;
+
+    local procedure TestQtyFromLineAmount()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTestQtyFromLineAmount(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        TestField(Quantity);
     end;
 
     local procedure ErrorIfAlreadySelectedSI(ServItemLineNo: Integer)
@@ -3097,7 +3128,12 @@
     var
         PriceCalculation: Interface "Price Calculation";
         PriceType: Enum "Price Type";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeApplyDiscount(ServiceHeader, Rec, IsHandled);
+        if IsHandled then
+            exit;
         GetPriceCalculationHandler(PriceType::Sale, ServiceHeader, PriceCalculation);
         PriceCalculation.ApplyDiscount();
         GetLineWithCalculatedPrice(PriceCalculation);
@@ -3169,6 +3205,7 @@
     var
         CustCheckCrLimit: Codeunit "Cust-Check Cr. Limit";
         ExpectedLineAmount: Decimal;
+        ShouldCheckCrLimit: Boolean;
     begin
         if GuiAllowed and (CurrFieldNo <> 0) then
             ConfirmAdjPriceLineChange;
@@ -3188,11 +3225,15 @@
             UpdateVATAmounts;
 
         InitOutstandingAmount;
-        if not IsCustCrLimitChecked and (CurrFieldNo <> 0) then begin
+        ShouldCheckCrLimit := not IsCustCrLimitChecked and (CurrFieldNo <> 0);
+        OnUpdateAmountsOnAfterCalcShouldCheckCrLimit(Rec, IsCustCrLimitChecked, CurrFieldNo, ShouldCheckCrLimit);
+        if ShouldCheckCrLimit then begin
             IsCustCrLimitChecked := true;
             CustCheckCrLimit.ServiceLineCheck(Rec);
         end;
         UpdateRemainingCostsAndAmounts;
+
+        OnAfterUpdateAmounts(Rec);
     end;
 
     local procedure NotifyOnMissingSetup(FieldNumber: Integer)
@@ -3446,6 +3487,7 @@
     begin
         TempServLine := Rec;
         Init;
+        SystemId := TempServLine.SystemId;
 
         if CurrFieldNo <> FieldNo(Type) then
             "No." := TempServLine."No.";
@@ -3870,7 +3912,14 @@
     end;
 
     procedure GetSKU() Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetSKU(Rec, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if (SKU."Location Code" = "Location Code") and
            (SKU."Item No." = "No.") and
            (SKU."Variant Code" = "Variant Code")
@@ -4029,7 +4078,10 @@
     end;
 
     procedure InitQtyToShip()
+    var
+        IsHandled: Boolean;
     begin
+        OnBeforeInitQtyToShip(Rec, CurrFieldNo);
         if LineRequiresShipmentOrReceipt then begin
             "Qty. to Ship" := 0;
             "Qty. to Ship (Base)" := 0;
@@ -4038,7 +4090,11 @@
             "Qty. to Ship (Base)" := "Outstanding Qty. (Base)";
         end;
         Validate("Qty. to Consume");
-        InitQtyToInvoice;
+
+        IsHandled := false;
+        OnInitQtyToShipOnBeforeInitQtyToInvoice(Rec, IsHandled);
+        if not IsHandled then
+            InitQtyToInvoice;
 
         OnAfterInitQtyToShip(Rec, CurrFieldNo);
     end;
@@ -4266,23 +4322,28 @@
         OnAfterUpdateVATAmounts(Rec);
     end;
 
-    procedure MaxQtyToConsume(): Decimal
+    procedure MaxQtyToConsume() Result: Decimal
     begin
-        exit(Quantity - "Quantity Shipped");
+        Result := Quantity - "Quantity Shipped";
+        OnAfterMaxQtyToConsume(Rec, Result);
     end;
 
-    procedure MaxQtyToConsumeBase(): Decimal
+    procedure MaxQtyToConsumeBase() Result: Decimal
     begin
-        exit("Quantity (Base)" - "Qty. Shipped (Base)");
+        Result := "Quantity (Base)" - "Qty. Shipped (Base)";
+        OnAfterMaxQtyToConsumeBase(Rec, Result);
     end;
 
     procedure InitQtyToConsume()
+    var
+        IsHandled: Boolean;
     begin
         "Qty. to Consume" := MaxQtyToConsume;
         "Qty. to Consume (Base)" := MaxQtyToConsumeBase;
-        OnAfterInitQtyToConsume(Rec, CurrFieldNo);
-
-        InitQtyToInvoice;
+        IsHandled := false;
+        OnAfterInitQtyToConsume(Rec, CurrFieldNo, IsHandled);
+        if not IsHandled then
+            InitQtyToInvoice;
     end;
 
     procedure SetServHeader(NewServHeader: Record "Service Header")
@@ -4751,6 +4812,8 @@
               Text039,
               -ShippedQtyNotReturned, ItemLedgEntry.TableCaption, ItemLedgEntry."Entry No.");
         end;
+
+        OnAfterCheckApplFromItemLedgEntry(Rec, ItemLedgEntry);
     end;
 
     procedure SetHideWarrantyWarning(Value: Boolean)
@@ -5175,6 +5238,18 @@
         OnAfterTestStatusOpen(Rec, ServHeader);
     end;
 
+    local procedure TestQtyFromLineDiscountAmount()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeTestQtyFromLineDiscountAmount(Rec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        TestField(Quantity);
+    end;
+
     procedure SuspendStatusCheck(bSuspend: Boolean)
     begin
         StatusCheckSuspended := bSuspend;
@@ -5534,6 +5609,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckApplFromItemLedgEntry(var ServiceLine: Record "Service Line"; var ItemLedgerEntry: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterClearFields(var ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line"; TempServiceLine: Record "Service Line" temporary; CallingFieldNo: Integer)
     begin
     end;
@@ -5568,6 +5648,16 @@
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterMaxQtyToConsume(var ServiceLine: Record "Service Line"; var Result: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterMaxQtyToConsumeBase(var ServiceLine: Record "Service Line"; var Result: Decimal)
+    begin
+    end;
+
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterResourseFindCost(var ServiceLine: Record "Service Line"; var ResourceCost: Record "Resource Cost")
@@ -5591,6 +5681,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateVATAmounts(var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateAmounts(var ServiceLine: Record "Service Line")
     begin
     end;
 
@@ -5625,7 +5720,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInitQtyToConsume(var ServiceLine: Record "Service Line"; CurrFieldNo: Integer)
+    local procedure OnAfterInitQtyToConsume(var ServiceLine: Record "Service Line"; CurrFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -5655,7 +5750,17 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeApplyDiscount(ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckVATCalculationType(var ServiceLine: Record "Service Line"; VATPostingSetup: Record "VAT Posting Setup"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitQtyToShip(var ServiceLine: Record "Service Line"; CurrFieldNo: Integer)
     begin
     end;
 
@@ -5680,12 +5785,27 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetSKU(var ServiceLine: Record "Service Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTestBinCode(var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestQuantityPositive(var ServiceLine: Record "Service Line"; CallingFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestQtyFromLineDiscountAmount(var ServiceLine: Record "Service Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestQtyFromLineAmount(var ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line"; var IsHandled: Boolean)
     begin
     end;
 
@@ -5715,6 +5835,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateNeededByDate(var ServHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateResponsibilityCenter(var Rec: Record "Service Line"; var DimMgt: Codeunit DimensionManagement; var IsHandled: Boolean)
     begin
     end;
@@ -5740,6 +5865,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInitQtyToShipOnBeforeInitQtyToInvoice(var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInitHeaderDefaultsOnAfterAssignLocationCode(var ServiceLine: Record "Service Line"; ServHeader: Record "Service Header")
     begin
     end;
@@ -5761,6 +5891,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateVariantCodeOnAssignItem(var ServiceLine: Record "Service Line"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateNoOnAfterCopyFields(var ServiceLine: Record "Service Line"; var xServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
     begin
     end;
 
@@ -5800,7 +5935,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnReplaceServItemOnAfterAssignVariantCode(var ServiceLine: Record "Service Line"; ServItemReplacement: Page "Service Item Replacement"; SerialNo: Code[50])
+    local procedure OnReplaceServItemOnAfterAssignVariantCode(var ServiceLine: Record "Service Line"; ServItemReplacement: Page "Service Item Replacement"; SerialNo: Code[50]; var IsHandled: Boolean)
     begin
     end;
 
@@ -5818,5 +5953,9 @@
     local procedure OnShowNonstockOnAfterUpdateFromNonstockItem(var ServiceLine: Record "Service Line"; var xServiceLine: Record "Service Line")
     begin
     end;
-}
 
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdateAmountsOnAfterCalcShouldCheckCrLimit(var ServiceLine: Record "Service Line"; IsCustCrLimitChecked: Boolean; CurrentFieldNo: Integer; var ShouldCheckCrLimit: Boolean)
+    begin
+    end;
+}

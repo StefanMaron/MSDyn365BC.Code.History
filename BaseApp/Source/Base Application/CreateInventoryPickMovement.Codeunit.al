@@ -5,6 +5,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
     trigger OnRun()
     begin
+        OnBeforeOnRun(Rec);
         WhseActivHeader := Rec;
         Code;
         Rec := WhseActivHeader;
@@ -1320,6 +1321,9 @@ codeunit 7322 "Create Inventory Pick/Movement"
                 TestField("From Bin Code");
                 FromBinCode := "From Bin Code";
                 TestField("To Bin Code");
+                CheckBin("Location Code", "From Bin Code", false);
+                CheckBin("Location Code", "To Bin Code", true);
+
                 NewWhseActivLine."Bin Code" := "To Bin Code";
                 NewWhseActivLine."Item No." := "Item No.";
                 NewWhseActivLine."Variant Code" := "Variant Code";
@@ -1427,6 +1431,7 @@ codeunit 7322 "Create Inventory Pick/Movement"
                 OnBeforeTempReservEntryInsert(TempReservEntry, WhseItemTrackingLine);
                 TempReservEntry.Insert();
             until WhseItemTrackingLine.Next() = 0;
+        OnAfterPrepareItemTrackingFromWhseIT(TempReservEntry, EntryNo);
     end;
 
     local procedure SynchronizeWhseItemTracking(var TrackingSpecification: Record "Tracking Specification")
@@ -1745,6 +1750,11 @@ codeunit 7322 "Create Inventory Pick/Movement"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterPrepareItemTrackingFromWhseIT(var ReservationEntry: Record "Reservation Entry"; EntryNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSetFilterSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; WarehouseActivityHeader: Record "Warehouse Activity Header"; WarehouseRequest: Record "Warehouse Request"; ShowError: Boolean; var Result: Boolean)
     begin
     end;
@@ -1836,6 +1846,11 @@ codeunit 7322 "Create Inventory Pick/Movement"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeNewWhseActivLineInsertFromComp(var WarehouseActivityLine: Record "Warehouse Activity Line"; var ProdOrderComp: Record "Prod. Order Component"; var WarehouseActivityHeader: Record "Warehouse Activity Header"; var RemQtyToPickBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnRun(var WarehouseActivityHeader: Record "Warehouse Activity Header")
     begin
     end;
 

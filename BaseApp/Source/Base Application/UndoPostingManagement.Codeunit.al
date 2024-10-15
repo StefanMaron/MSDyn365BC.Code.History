@@ -531,7 +531,6 @@ codeunit 5817 "Undo Posting Management"
     procedure PostItemJnlLineAppliedToList(ItemJnlLine: Record "Item Journal Line"; var TempApplyToItemLedgEntry: Record "Item Ledger Entry" temporary; UndoQty: Decimal; UndoQtyBase: Decimal; var TempItemLedgEntry: Record "Item Ledger Entry" temporary; var TempItemEntryRelation: Record "Item Entry Relation" temporary; InvoicedEntry: Boolean)
     var
         ItemApplicationEntry: Record "Item Application Entry";
-        ItemTrackingMgt: Codeunit "Item Tracking Management";
         NonDistrQuantity: Decimal;
         NonDistrQuantityBase: Decimal;
     begin
@@ -558,9 +557,7 @@ codeunit 5817 "Undo Posting Management"
             ItemJnlLine.CopyTrackingFromItemLedgEntry(TempApplyToItemLedgEntry);
 
             // Quantity is filled in according to UOM:
-            ItemTrackingMgt.AdjustQuantityRounding(
-              NonDistrQuantity, ItemJnlLine.Quantity,
-              NonDistrQuantityBase, ItemJnlLine."Quantity (Base)");
+            AdjustQuantityRounding(ItemJnlLine, NonDistrQuantity, NonDistrQuantityBase);
 
             NonDistrQuantity := NonDistrQuantity - ItemJnlLine.Quantity;
             NonDistrQuantityBase := NonDistrQuantityBase - ItemJnlLine."Quantity (Base)";
@@ -578,6 +575,21 @@ codeunit 5817 "Undo Posting Management"
             TempItemLedgEntry := TempApplyToItemLedgEntry;
             TempItemLedgEntry.Insert();
         until TempApplyToItemLedgEntry.Next() = 0;
+    end;
+
+    local procedure AdjustQuantityRounding(var ItemJnlLine: Record "Item Journal Line"; var NonDistrQuantity: Decimal; NonDistrQuantityBase: Decimal)
+    var
+        ItemTrackingMgt: Codeunit "Item Tracking Management";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeAdjustQuantityRounding(ItemJnlLine, NonDistrQuantity, NonDistrQuantityBase, IsHandled);
+        if IsHandled then
+            exit;
+
+        ItemTrackingMgt.AdjustQuantityRounding(
+          NonDistrQuantity, ItemJnlLine.Quantity,
+          NonDistrQuantityBase, ItemJnlLine."Quantity (Base)");
     end;
 
     procedure CollectItemLedgEntries(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; SourceType: Integer; DocumentNo: Code[20]; LineNo: Integer; BaseQty: Decimal; EntryRef: Integer)
@@ -1094,6 +1106,11 @@ codeunit 5817 "Undo Posting Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateServLine(var ServLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAdjustQuantityRounding(var ItemJnlLine: Record "Item Journal Line"; var NonDistrQuantity: Decimal; NonDistrQuantityBase: Decimal; var IsHandled: Boolean)
     begin
     end;
 

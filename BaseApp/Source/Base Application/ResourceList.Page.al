@@ -528,6 +528,7 @@ page 77 "Resource List"
                 ApplicationArea = Jobs;
                 Caption = 'Resource - Price List';
                 Image = "Report";
+                Visible = not ExtendedPriceEnabled;
                 Promoted = true;
                 PromotedCategory = "Report";
                 RunObject = Report "Resource - Price List";
@@ -535,6 +536,17 @@ page 77 "Resource List"
                 ObsoleteState = Pending;
                 ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
                 ObsoleteTag = '17.0';
+            }
+            action("Res. Price List")
+            {
+                ApplicationArea = Jobs;
+                Caption = 'Resource - Price List';
+                Image = "Report";
+                Visible = ExtendedPriceEnabled;
+                Promoted = true;
+                PromotedCategory = "Report";
+                RunObject = Report "Res. Price List";
+                ToolTip = 'Specifies a list of unit prices for the selected resources. By default, a unit price is based on the price in the Resource Prices window. If there is no valid alternative price, then the unit price from the resource card is used. The report can be used by the company''s salespeople or sent to customers.';
             }
             action("Resource Register")
             {

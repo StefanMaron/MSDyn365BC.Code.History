@@ -1,4 +1,4 @@
-report 1303 "Standard Sales - Draft Invoice"
+﻿report 1303 "Standard Sales - Draft Invoice"
 {
     RDLCLayout = './StandardSalesDraftInvoice.rdlc';
     WordLayout = './StandardSalesDraftInvoice.docx';
@@ -560,6 +560,7 @@ report 1303 "Standard Sales - Draft Invoice"
                     TotalAmountVAT += "Amount Including VAT" - Amount;
                     TotalAmountInclVAT += "Amount Including VAT";
                     TotalPaymentDiscOnVAT += -("Line Amount" - "Inv. Discount Amount" - "Amount Including VAT");
+                    OnLineOnAfterGetRecordOnAfterCalcTotals(Header, Line, TotalAmount, TotalAmountVAT, TotalAmountInclVAT);
 
                     FormatDocument.SetSalesLine(Line, FormattedQuantity, FormattedUnitPrice, FormattedVATPct, FormattedLineAmount);
 
@@ -889,6 +890,7 @@ report 1303 "Standard Sales - Draft Invoice"
                 Line.CalcVATAmountLines(0, Header, Line, VATAmountLine);
                 Line.UpdateVATOnLines(0, Header, Line, VATAmountLine);
                 Line.CalcSalesTaxLines(Header, Line);
+                OnHeaderOnAfterGetRecordOnAfterUpdateVATOnLines(Header, Line, VATAmountLine);
 
                 if EnvInfoProxy.IsInvoicing then
                     "Language Code" := Language.GetUserLanguageCode;
@@ -1214,6 +1216,16 @@ report 1303 "Standard Sales - Draft Invoice"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSalesPostGetSalesLines(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnHeaderOnAfterGetRecordOnAfterUpdateVATOnLines(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLineOnAfterGetRecordOnAfterCalcTotals(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATBaseAmount: Decimal; var VATAmount: Decimal; var TotalAmountInclVAT: Decimal)
     begin
     end;
 }
