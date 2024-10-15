@@ -1096,7 +1096,13 @@ codeunit 99000813 "Carry Out Action"
     var
         PlanningComponent: Record "Planning Component";
         ProdOrderComp2: Record "Prod. Order Component";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransferBOM(ReqLine, ProdOrder, ProdOrderLineNo, IsHandled);
+        if IsHandled then
+            exit;
+
         PlanningComponent.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
         PlanningComponent.SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
         PlanningComponent.SetRange("Worksheet Line No.", ReqLine."Line No.");
@@ -1125,7 +1131,13 @@ codeunit 99000813 "Carry Out Action"
     var
         ProdOrderCapNeed: Record "Prod. Order Capacity Need";
         NewProdOrderCapNeed: Record "Prod. Order Capacity Need";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransferCapNeed(ReqLine, ProdOrder, RoutingNo, RoutingRefNo, IsHandled);
+        if IsHandled then
+            exit;
+
         ProdOrderCapNeed.SetCurrentKey("Worksheet Template Name", "Worksheet Batch Name", "Worksheet Line No.");
         ProdOrderCapNeed.SetRange("Worksheet Template Name", ReqLine."Worksheet Template Name");
         ProdOrderCapNeed.SetRange("Worksheet Batch Name", ReqLine."Journal Batch Name");
@@ -1607,6 +1619,16 @@ codeunit 99000813 "Carry Out Action"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintPurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferBOM(ReqLine: Record "Requisition Line"; ProdOrder: Record "Production Order"; ProdOrderLineNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransferCapNeed(ReqLine: Record "Requisition Line"; ProdOrder: Record "Production Order"; RoutingNo: Code[20]; RoutingRefNo: Integer; var IsHandled: Boolean)
     begin
     end;
 

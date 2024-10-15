@@ -59,7 +59,7 @@ codeunit 7043 "Price Asset - Resource" implements "Price Asset"
 
     procedure IsAssetNoRequired(): Boolean;
     begin
-        exit(false)
+        exit(true)
     end;
 
     procedure FillBestLine(PriceCalculationBuffer: Record "Price Calculation Buffer"; AmountType: Enum "Price Amount Type"; var PriceListLine: Record "Price List Line")

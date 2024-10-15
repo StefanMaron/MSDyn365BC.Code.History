@@ -8,7 +8,7 @@ codeunit 5057 "VendCont-Update"
     var
         RMSetup: Record "Marketing Setup";
         VendContactUpdateCategoryTxt: Label 'Vendor Contact Orphaned Links', Locked = true;
-        VendContactUpdateTelemetryMsg: Label 'Contact %1 does not exist. The contact business relation with code %2 which points to it has been deleted', Locked = true;
+        VendContactUpdateTelemetryMsg: Label 'Contact does not exist. The contact business relation which points to it has been deleted', Locked = true;
 
     procedure OnInsert(var Vend: Record Vendor)
     begin
@@ -37,7 +37,7 @@ codeunit 5057 "VendCont-Update"
                 exit;
             if not Cont.Get("Contact No.") then begin
                 Delete();
-                Session.LogMessage('0000B36', StrSubstNo(VendContactUpdateTelemetryMsg, "Contact No.", "Business Relation Code"), Verbosity::Normal, DataClassification::EndUserIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'Category', VendContactUpdateCategoryTxt);
+                Session.LogMessage('0000B36', VendContactUpdateTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', VendContactUpdateCategoryTxt);
                 exit;
             end;
             OldCont := Cont;

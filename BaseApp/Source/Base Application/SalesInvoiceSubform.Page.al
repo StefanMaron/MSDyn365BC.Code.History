@@ -645,6 +645,18 @@
                     ToolTip = 'Specifies the line number.';
                     Visible = false;
                 }
+                field("Retention Attached to Line No."; "Retention Attached to Line No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number of the sales invoice line that the record is linked to.';
+                    Visible = IsPACEnabled;
+                }
+                field("Retention VAT %"; "Retention VAT %")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the retention VAT percentage that is used in the line.';
+                    Visible = IsPACEnabled;
+                }
             }
             group(Control39)
             {
@@ -1105,11 +1117,14 @@
     end;
 
     trigger OnInit()
+    var
+        EInvoiceMgt: Codeunit "E-Invoice Mgt.";
     begin
         SalesSetup.Get();
         Currency.InitRoundingPrecision();
         TempOptionLookupBuffer.FillLookupBuffer("Option Lookup Type"::Sales);
         IsFoundation := ApplicationAreaMgmtFacade.IsFoundationEnabled();
+        IsPACEnabled := EInvoiceMgt.IsPACEnvironmentEnabled();
     end;
 
     trigger OnModifyRecord(): Boolean
@@ -1190,6 +1205,7 @@
         LocationCodeVisible: Boolean;
         UnitofMeasureCodeIsChangeable: Boolean;
         VATAmount: Decimal;
+        IsPACEnabled: Boolean;
 
     procedure ApproveCalcInvDisc()
     begin

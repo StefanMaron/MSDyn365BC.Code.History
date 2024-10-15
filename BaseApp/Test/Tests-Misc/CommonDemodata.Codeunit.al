@@ -338,13 +338,13 @@ codeunit 138500 "Common Demodata"
         ContactBusinessRelation: Record "Contact Business Relation";
     begin
         // [FEATURE] [Business Relation]
-        // [SCENARIO 388067] Contact's "Business Relation" is not 'None' if its company has a business relation 
+        // [SCENARIO 388067,395036] Contact's "Contact Business Relation" is not 'None' if its company has a business relation 
         if ContactBusinessRelation.FindSet() then
             repeat
                 Contact.SetRange("Company No.", ContactBusinessRelation."Contact No.");
                 if Contact.FindSet() then
                     repeat
-                        Assert.AreNotEqual('None', Contact."Business Relation", Contact."No.");
+                        Assert.AreNotEqual("Contact Business Relation"::None, Contact."Contact Business Relation", Contact."No.");
                     until Contact.Next() = 0;
             until ContactBusinessRelation.Next() = 0;
     end;

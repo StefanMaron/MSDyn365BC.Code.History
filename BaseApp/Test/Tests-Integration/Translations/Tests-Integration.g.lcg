@@ -718,7 +718,7 @@
   </Item>
   <Item ItemId=";Codeunit 799481124 - NamedType 3353031170" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[SendToOCR Action is disabled when attachements do not exist]]></Val>
+      <Val><![CDATA[SendToOCR Action is disabled when attachments do not exist]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -727,7 +727,7 @@
   </Item>
   <Item ItemId=";Codeunit 799481124 - NamedType 2084894525" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[SendToOCR Action is enabled when attachements exist]]></Val>
+      <Val><![CDATA[SendToOCR Action is enabled when attachments exist]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

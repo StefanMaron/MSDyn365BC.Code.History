@@ -1017,6 +1017,8 @@ codeunit 353 "Item Availability Forms Mgt"
         Item.SetRange("Date Filter", 0D, Date);
         Item.SetRange("Variant Filter", VariantCode);
         Item.SetRange("Location Filter", LocationCode);
+
+        OnAfterFilterItem(Item, LocationCode, VariantCode, Date);
     end;
 
     procedure ByEvent(): Integer
@@ -1166,6 +1168,11 @@ codeunit 353 "Item Availability Forms Mgt"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculateNeedOnAfterCalcScheduledReceipt(var Item: Record Item; var ScheduledReceipt: Decimal; QtyinTransit: Decimal; TransOrdReceiptQty: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterItem(var Item: Record Item; LocationCode: Code[20]; VariantCode: Code[20]; Date: Date)
     begin
     end;
 }

@@ -172,8 +172,7 @@ report 10116 "Vendor 1099 Misc 2020"
                 VendorNo := 0;
                 PageGroupNo := 0;
 
-                PeriodDate[1] := DMY2Date(1, 1, CurrYear);
-                PeriodDate[2] := DMY2Date(31, 12, CurrYear);
+                UpdatePeriodDateArray();
 
                 Clear(Codes);
                 Clear(LastLineNo);
@@ -223,6 +222,7 @@ report 10116 "Vendor 1099 Misc 2020"
                         begin
                             if (CurrYear < 1980) or (CurrYear > 2060) then
                                 Error(ValidYearErr);
+                            UpdatePeriodDateArray();
                         end;
                     }
                     field(TestPrint; RunTestPrint)
@@ -239,7 +239,7 @@ report 10116 "Vendor 1099 Misc 2020"
         {
         }
 
-        trigger OnOpenPage()
+        trigger OnInit()
         begin
             RunTestPrint := false;
             CurrYear := Date2DMY(WorkDate(), 3);
@@ -311,6 +311,12 @@ report 10116 "Vendor 1099 Misc 2020"
             Error(UnknownMiscCodeErr,
               TempVendorLedgerEntry."Entry No.", TempVendorLedgerEntry."Vendor No.", Code);
         exit(i);
+    end;
+
+    local procedure UpdatePeriodDateArray()
+    begin
+        PeriodDate[1] := DMY2Date(1, 1, CurrYear);
+        PeriodDate[2] := DMY2Date(31, 12, CurrYear);
     end;
 }
 

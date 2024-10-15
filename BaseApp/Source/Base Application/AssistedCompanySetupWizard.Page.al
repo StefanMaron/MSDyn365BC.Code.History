@@ -642,7 +642,7 @@ page 1803 "Assisted Company Setup Wizard"
         CostMethodUrlTxt: Label 'https://go.microsoft.com/fwlink/?linkid=858295', Locked = true;
         BankAccountLinkingFailedMsg: Label 'Linking the company bank account failed with the following message:\''%1''\Link the company bank account from the Bank Accounts page.', Comment = '%1 - an error message';
         AccountingPeriodStartDateBlankErr: Label 'You have not specified a start date for the fiscal year. You must either specify a date in the Fiscal Year Start Date field or select the Skip for Now field.';
-        GraphURLLbl: Label 'https://graph.microsoft.com/v1.0/organization', Locked = true;
+        GraphURLEndpointLbl: Label '%1v1.0/organization', Locked = true;
         ResourceNameTxt: Label 'Azure Service', Locked = true;
         BearerLbl: Label 'Bearer %1', Comment = '%1 = Access Token', Locked = true;
 
@@ -953,6 +953,7 @@ page 1803 "Assisted Company Setup Wizard"
     local procedure TryDownloadCompanyDetailsFromMicrosoft365(var JsonCompanyInfo: JsonObject)
     var
         AzureADMgt: Codeunit "Azure AD Mgt.";
+        UrlHelper: Codeunit "Url Helper";
         Client: HttpClient;
         RequestMessage: HttpRequestMessage;
         ResponseMessage: HttpResponseMessage;
@@ -962,9 +963,9 @@ page 1803 "Assisted Company Setup Wizard"
         JsonContent: Text;
         AccessToken: Text;
     begin
-        AccessToken := AzureADMgt.GetAccessToken(GraphURLLbl, ResourceNameTxt, false);
+        AccessToken := AzureADMgt.GetAccessToken(UrlHelper.GetGraphUrl(), ResourceNameTxt, false);
         RequestMessage.Method('GET');
-        RequestMessage.SetRequestUri(GraphURLLbl);
+        RequestMessage.SetRequestUri(StrSubstNo(GraphURLEndpointLbl, UrlHelper.GetGraphUrl()));
         Client.DefaultRequestHeaders().Add('Authorization', StrSubstNo(BearerLbl, AccessToken));
         Client.DefaultRequestHeaders().Add('Accept', 'application/json');
 

@@ -161,7 +161,7 @@ page 10007 "Customer Credit Information"
 
     trigger OnAfterGetRecord()
     begin
-        AfterGetCurrentRecord;
+        AfterGetCurrentRecord();
     end;
 
     trigger OnInit()
@@ -179,7 +179,7 @@ page 10007 "Customer Credit Information"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        AfterGetCurrentRecord;
+        AfterGetCurrentRecord();
     end;
 
     trigger OnOpenPage()

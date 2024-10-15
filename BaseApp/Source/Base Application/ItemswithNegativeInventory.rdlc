@@ -841,6 +841,9 @@ End Function
         <Field Name="ItemLedgEntryBufferRemainQtyFormat">
           <DataField>ItemLedgEntryBufferRemainQtyFormat</DataField>
         </Field>
+        <Field Name="ItemLedgEntryBufferPackageNo">
+          <DataField>ItemLedgEntryBufferPackageNo</DataField>
+        </Field>
         <Field Name="ItemLedgEntryBufferLotNo">
           <DataField>ItemLedgEntryBufferLotNo</DataField>
         </Field>
@@ -864,6 +867,9 @@ End Function
         </Field>
         <Field Name="ItemLedgEntryBufferRemainQtyCaption">
           <DataField>ItemLedgEntryBufferRemainQtyCaption</DataField>
+        </Field>
+        <Field Name="ItemLedgEntryBufferPackageNoCaption">
+          <DataField>ItemLedgEntryBufferPackageNoCaption</DataField>
         </Field>
         <Field Name="ItemLedgEntryBufferLotNoCaption">
           <DataField>ItemLedgEntryBufferLotNoCaption</DataField>

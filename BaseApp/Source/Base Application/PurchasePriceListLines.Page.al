@@ -15,16 +15,16 @@ page 7011 "Purchase Price List Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(SourceType; VendorSourceType)
+                field(SourceType; SourceType)
                 {
                     ApplicationArea = All;
                     Caption = 'Applies-to Type';
-                    Visible = IsVendorGroup and AllowUpdatingDefaults;
+                    Visible = not IsJobGroup and AllowUpdatingDefaults;
                     ToolTip = 'Specifies the source of the price on the price list line. For example, the price can come from the vendor.';
 
                     trigger OnValidate()
                     begin
-                        ValidateSourceType(VendorSourceType.AsInteger());
+                        ValidateSourceType(SourceType.AsInteger());
                     end;
                 }
                 field(JobSourceType; JobSourceType)
@@ -44,7 +44,7 @@ page 7011 "Purchase Price List Lines"
                     ApplicationArea = All;
                     Caption = 'Applies-to Job No.';
                     Importance = Promoted;
-                    Editable = IsJobTask;
+                    Editable = IsParentAllowed;
                     Visible = AllowUpdatingDefaults and IsJobGroup;
                     ToolTip = 'Specifies the job that is the source of the price on the price list line.';
                 }
@@ -78,6 +78,7 @@ page 7011 "Purchase Price List Lines"
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the type of the product.';
+
                     trigger OnValidate()
                     begin
                         CurrPage.Update(true);
@@ -149,7 +150,7 @@ page 7011 "Purchase Price List Lines"
                     Editable = AmountEditable;
                     Enabled = PriceMandatory;
                     Visible = PriceVisible;
-                    Style = Subordinate;
+                    Style = Attention;
                     StyleExpr = not PriceMandatory or LineToVerify;
                     ToolTip = 'Specifies the direct unit cost of the product.';
                 }
@@ -160,7 +161,7 @@ page 7011 "Purchase Price List Lines"
                     Editable = AmountEditable and ResourceAsset;
                     Enabled = PriceMandatory;
                     Visible = PriceVisible and ResourceAsset;
-                    Style = Subordinate;
+                    Style = Attention;
                     StyleExpr = not PriceMandatory or LineToVerify;
                     ToolTip = 'Specifies the unit cost of the resource.';
                 }
@@ -170,7 +171,7 @@ page 7011 "Purchase Price List Lines"
                     Visible = PriceVisible;
                     Enabled = PriceMandatory;
                     Editable = PriceMandatory;
-                    Style = Subordinate;
+                    Style = Attention;
                     StyleExpr = not PriceMandatory or LineToVerify;
                     ToolTip = 'Specifies if a line discount will be calculated when the price is offered.';
                 }
@@ -181,9 +182,19 @@ page 7011 "Purchase Price List Lines"
                     Visible = DiscountVisible;
                     Enabled = DiscountMandatory;
                     Editable = DiscountMandatory;
-                    Style = Subordinate;
+                    Style = Attention;
                     StyleExpr = not DiscountMandatory or LineToVerify;
                     ToolTip = 'Specifies the line discount percentage for the product.';
+                }
+                field("Allow Invoice Disc."; Rec."Allow Invoice Disc.")
+                {
+                    ApplicationArea = All;
+                    Visible = PriceVisible;
+                    Enabled = PriceMandatory;
+                    Editable = PriceMandatory;
+                    Style = Attention;
+                    StyleExpr = not PriceMandatory or LineToVerify;
+                    ToolTip = 'Specifies if an invoice discount will be calculated when the price is offered.';
                 }
             }
         }
@@ -192,7 +203,7 @@ page 7011 "Purchase Price List Lines"
     trigger OnAfterGetRecord()
     begin
         UpdateSourceType();
-        LineToVerify := (Rec.Status = Rec.Status::Draft) and (PriceListHeader.Status = PriceListHeader.Status::Active);
+        LineToVerify := Rec.IsLineToVerify();
     end;
 
     trigger OnAfterGetCurrRecord()
@@ -200,7 +211,7 @@ page 7011 "Purchase Price List Lines"
         UpdateSourceType();
         SetEditable();
         SetMandatoryAmount();
-        LineToVerify := (Rec.Status = Rec.Status::Draft) and (PriceListHeader.Status = PriceListHeader.Status::Active);
+        LineToVerify := Rec.IsLineToVerify();
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -230,10 +241,9 @@ page 7011 "Purchase Price List Lines"
         AmountTypeIsVisible: Boolean;
         AmountTypeIsEditable: Boolean;
         JobSourceType: Enum "Job Price Source Type";
-        VendorSourceType: Enum "Purchase Price Source Type";
-        IsVendorGroup: Boolean;
+        SourceType: Enum "Purchase Price Source Type";
         IsJobGroup: Boolean;
-        IsJobTask: Boolean;
+        IsParentAllowed: Boolean;
         LineToVerify: Boolean;
         SourceNoEnabled: Boolean;
         AllowUpdatingDefaults: Boolean;
@@ -280,35 +290,37 @@ page 7011 "Purchase Price List Lines"
     end;
 
     procedure SetSubFormLinkFilter(NewViewAmountType: Enum "Price Amount Type")
-    var
-        PriceListLine: Record "Price List Line";
     begin
         ViewAmountType := NewViewAmountType;
+        Rec.FilterGroup(2);
         if ViewAmountType = ViewAmountType::Any then
-            PriceListLine.SetRange("Amount Type")
+            Rec.SetRange("Amount Type")
         else
-            PriceListLine.SetFilter("Amount Type", '%1|%2', ViewAmountType, ViewAmountType::Any);
-        CurrPage.SetTableView(PriceListLine);
+            Rec.SetFilter("Amount Type", '%1|%2', ViewAmountType, ViewAmountType::Any);
+        Rec.FilterGroup(0);
         UpdateColumnVisibility();
         CurrPage.Update(false);
         CurrPage.Activate(true);
     end;
 
     local procedure UpdateSourceType()
+    var
+        PriceSource: Record "Price Source";
     begin
         case PriceListHeader."Source Group" of
             "Price Source Group"::Vendor:
                 begin
-                    IsVendorGroup := true;
-                    VendorSourceType := "Purchase Price Source Type".FromInteger(Rec."Source Type".AsInteger());
+                    IsJobGroup := false;
+                    SourceType := "Purchase Price Source Type".FromInteger(Rec."Source Type".AsInteger());
                 end;
             "Price Source Group"::Job:
                 begin
                     IsJobGroup := true;
                     JobSourceType := "Job Price Source Type".FromInteger(Rec."Source Type".AsInteger());
-                    IsJobTask := JobSourceType = JobSourceType::"Job Task";
                 end;
         end;
+        PriceSource."Source Type" := Rec."Source Type";
+        IsParentAllowed := PriceSource.IsParentSourceAllowed();
     end;
 
     local procedure SetSourceNoEnabled()

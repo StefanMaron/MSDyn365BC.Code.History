@@ -268,18 +268,19 @@ codeunit 8618 "Config. Excel Exchange"
     local procedure IsImportFromExcelConfirmed(var TempConfigPackageTable: Record "Config. Package Table" temporary): Boolean
     var
         ConfigPackageImportPreview: Page "Config. Package Import Preview";
+        ShowDialog: Boolean;
     begin
-        if GuiAllowed and not HideDialog then
-            if ReadPackageTableKeysFromExcel(TempConfigPackageTable) then begin
-                ConfigPackageImportPreview.SetData(SelectedConfigPackage.Code, TempConfigPackageTable);
-                ConfigPackageImportPreview.RunModal;
-                exit(ConfigPackageImportPreview.IsImportConfirmed);
-            end;
+        ShowDialog := GuiAllowed() and not HideDialog;
+        if ReadPackageTableKeysFromExcel(TempConfigPackageTable, ShowDialog) and ShowDialog then begin
+            ConfigPackageImportPreview.SetData(SelectedConfigPackage.Code, TempConfigPackageTable);
+            ConfigPackageImportPreview.RunModal();
+            exit(ConfigPackageImportPreview.IsImportConfirmed());
+        end;
         exit(true);
     end;
 
     [TryFunction]
-    local procedure ReadPackageTableKeysFromExcel(var TempConfigPackageTable: Record "Config. Package Table" temporary)
+    local procedure ReadPackageTableKeysFromExcel(var TempConfigPackageTable: Record "Config. Package Table" temporary; ShowDialog: Boolean)
     var
         WrkShtReader: DotNet WorksheetReader;
         Enumerator: DotNet IEnumerator;
@@ -288,7 +289,8 @@ codeunit 8618 "Config. Excel Exchange"
         WrkSheetId: Integer;
         SheetCount: Integer;
     begin
-        Window.Open(ImportFromExcelMsg);
+        if ShowDialog then
+            Window.Open(ImportFromExcelMsg);
         WrkSheetId := WrkbkReader.FirstSheetId;
         SheetCount := WrkbkReader.Workbook.Sheets.ChildElements.Count + WrkSheetId;
         repeat
@@ -299,8 +301,9 @@ codeunit 8618 "Config. Excel Exchange"
             WrkSheetId += 1;
         until WrkSheetId >= SheetCount;
         SelectedTable.DeleteAll();
-        if TempConfigPackageTable.FindFirst then;
-        Window.Close;
+        if TempConfigPackageTable.FindFirst() then;
+        if ShowDialog then
+            Window.Close();
     end;
 
     local procedure FillImportPreviewBuffer(var TempConfigPackageTable: Record "Config. Package Table" temporary; WrkSheetId: Integer; ColumnNo: Integer; Value: Text)
@@ -575,7 +578,7 @@ codeunit 8618 "Config. Excel Exchange"
                         1,
                         '/DataList/' + (ConfigXMLExchange.GetElementName(ConfigPackageTable."Table Caption") + 'List') +
                         '/' + ConfigXMLExchange.GetElementName(ConfigPackageTable."Table Caption") +
-                        '/' + ConfigXMLExchange.GetElementName(ConfigPackageField."Field Caption"),
+                        '/' + ConfigPackageField.GetElementName(),
                         WrkShtWriter.XmlDataType2XmlDataValues(
                           ConfigXMLExchange.GetXSDType(ConfigPackageTable."Table ID", ConfigPackageField."Field ID")));
                     TableColumn := WrkShtWriter.CreateTableColumn(

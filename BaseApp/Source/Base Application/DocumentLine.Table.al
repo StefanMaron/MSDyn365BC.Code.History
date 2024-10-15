@@ -91,6 +91,15 @@ table 10003 "Document Line"
         {
             Caption = 'Unit of Measure Code';
         }
+        field(10001; "Retention Attached to Line No."; Integer)
+        {
+            Caption = 'Retention Attached to Line No.';
+        }
+        field(10002; "Retention VAT %"; Decimal)
+        {
+            Caption = 'Retention VAT %';
+            AutoFormatType = 2;	    
+        }
     }
 
     keys

@@ -36,7 +36,7 @@ codeunit 1180 "Data Privacy Mgmt"
         end else
             if EntityTypeTableNo = DATABASE::User then begin
                 if GetRecRefForUserTable(RecRef, EntityNo) then
-                    CreateRelatedData(RecRef, EntityTypeTableNo, EntityNo, PackageCode, ActionType, DataSensitivityOption);
+                    CreateRelatedData(RecRef, DATABASE::"User Setup", EntityNo, PackageCode, ActionType, DataSensitivityOption);
             end else
                 OnCreateData(EntityTypeTableNo, EntityNo, PackageCode, ActionType, DataSensitivityOption);
     end;
@@ -60,7 +60,6 @@ codeunit 1180 "Data Privacy Mgmt"
     var
         User: Record User;
         UserRecRef: RecordRef;
-        UserSetupRecRef: RecordRef;
         FieldRef: FieldRef;
         UserNameFieldNo: Integer;
     begin
@@ -74,7 +73,7 @@ codeunit 1180 "Data Privacy Mgmt"
         // If the user exists, create related data using the User Setup table
         if UserRecRef.FindFirst then begin
             RecRef.Open(DATABASE::"User Setup");
-            RecRefGet(UserSetupRecRef, 1, EntityNo);
+            RecRefGet(RecRef, 1, EntityNo);
             if RecRef.FindFirst then
                 exit(true);
         end;
@@ -369,7 +368,7 @@ codeunit 1180 "Data Privacy Mgmt"
         ConfigPackageField.Init();
         ConfigPackageField."Package Code" := PackageCode;
         ConfigPackageField."Table ID" := TableId;
-        ConfigPackageField."Field Name" := Field.FieldName;
+        ConfigPackageField.Validate("Field Name", Field.FieldName);
         ConfigPackageField."Field Caption" := Field."Field Caption";
         ConfigPackageField."Field ID" := FieldId;
         ConfigPackageField."Processing Order" := ProcessingOrder;

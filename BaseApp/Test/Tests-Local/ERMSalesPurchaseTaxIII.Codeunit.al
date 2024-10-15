@@ -800,7 +800,7 @@ codeunit 142092 "ERM Sales/Purchase Tax III"
 
         // [THEN] TotalAmountIncludingVAT in report equals to 86267.67
         LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists('TotalAmountIncludingVAT', 86267.67);
+        LibraryReportDataset.AssertElementWithValueExists('TotalAmountIncludingVAT', Format(86267.67));
     end;
 
     [Test]
