@@ -17,6 +17,7 @@ codeunit 144009 "SEPA DD Integration Test - BE"
         LibraryBEHelper: Codeunit "Library - BE Helper";
         LibraryRandom: Codeunit "Library - Random";
         LibraryXMLRead: Codeunit "Library - XML Read";
+        LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         ServerFileName: Text;
         MandateIDErr: Label 'Direct Debit Mandate ID is not transferred to Domiciliation Journal Line.';
         AppliestoErr: Label 'Applies to Entry shoud not be blank.';
@@ -37,20 +38,16 @@ codeunit 144009 "SEPA DD Integration Test - BE"
     [Scope('OnPrem')]
     procedure SuggestDomJnl()
     var
-        BankAccount: Record "Bank Account";
         DomJnlLine: Record "Domiciliation Journal Line";
         Customer: Record Customer;
-        CustomerBankAccount: Record "Customer Bank Account";
         SalesHeader: Record "Sales Header";
+        BankAccountNo: Code[20];
     begin
         // Setup
-        CreateBankAccountWithExportImportSetup(BankAccount, CODEUNIT::"File Domiciliations", 0, CODEUNIT::"SEPA DD-Check Line");
-        CreateCustomerAndCustomerBankAccount(Customer, CustomerBankAccount, Customer."Partner Type"::Company);
-        CreateCustomerInvoiceWithValidMandate(SalesHeader, CustomerBankAccount);
-        LibrarySales.PostSalesDocument(SalesHeader, false, true);
+        CreatePostCustomerInvoiceWithValidMandate(SalesHeader, BankAccountNo);
 
         // Exercise
-        CreateDomJnlLineForSalesInvoice(DomJnlLine, SalesHeader, BankAccount."No.", Customer."Partner Type"::Company,
+        CreateDomJnlLineForSalesInvoice(DomJnlLine, SalesHeader, BankAccountNo, Customer."Partner Type"::Company,
           SalesHeader."Due Date");
 
         // Verify
@@ -63,20 +60,16 @@ codeunit 144009 "SEPA DD Integration Test - BE"
     [Scope('OnPrem')]
     procedure SuggestDomJnlExclInvAfterPostingDate()
     var
-        BankAccount: Record "Bank Account";
         DomiciliationJournalLine: Record "Domiciliation Journal Line";
         Customer: Record Customer;
-        CustomerBankAccount: Record "Customer Bank Account";
         SalesHeader: Record "Sales Header";
+        BankAccountNo: Code[20];
     begin
         // Setup
-        CreateBankAccountWithExportImportSetup(BankAccount, CODEUNIT::"File Domiciliations", 0, CODEUNIT::"SEPA DD-Check Line");
-        CreateCustomerAndCustomerBankAccount(Customer, CustomerBankAccount, Customer."Partner Type"::Company);
-        CreateCustomerInvoiceWithValidMandate(SalesHeader, CustomerBankAccount);
-        LibrarySales.PostSalesDocument(SalesHeader, false, true);
+        CreatePostCustomerInvoiceWithValidMandate(SalesHeader, BankAccountNo);
 
         // Exercise
-        asserterror CreateDomJnlLineForSalesInvoice(DomiciliationJournalLine, SalesHeader, BankAccount."No.",
+        asserterror CreateDomJnlLineForSalesInvoice(DomiciliationJournalLine, SalesHeader, BankAccountNo,
             Customer."Partner Type"::Company, SalesHeader."Posting Date" - 1);
 
         // Verify
@@ -88,20 +81,16 @@ codeunit 144009 "SEPA DD Integration Test - BE"
     [Scope('OnPrem')]
     procedure ExportDomJnlLegacy()
     var
-        BankAccount: Record "Bank Account";
         DomJnlLine: Record "Domiciliation Journal Line";
         Customer: Record Customer;
-        CustomerBankAccount: Record "Customer Bank Account";
         SalesHeader: Record "Sales Header";
+        BankAccountNo: Code[20];
     begin
         // Setup
-        CreateBankAccountWithExportImportSetup(BankAccount, CODEUNIT::"File Domiciliations", 0, CODEUNIT::"SEPA DD-Check Line");
-        CreateCustomerAndCustomerBankAccount(Customer, CustomerBankAccount, Customer."Partner Type"::Company);
-        CreateCustomerInvoiceWithValidMandate(SalesHeader, CustomerBankAccount);
-        LibrarySales.PostSalesDocument(SalesHeader, false, true);
+        CreatePostCustomerInvoiceWithValidMandate(SalesHeader, BankAccountNo);
 
         // Exercise
-        CreateDomJnlLineForSalesInvoice(DomJnlLine, SalesHeader, BankAccount."No.", Customer."Partner Type"::Company,
+        CreateDomJnlLineForSalesInvoice(DomJnlLine, SalesHeader, BankAccountNo, Customer."Partner Type"::Company,
           SalesHeader."Due Date");
         DomJnlLine.ExportToFile;
 
@@ -511,6 +500,39 @@ codeunit 144009 "SEPA DD Integration Test - BE"
         VerifyDDCIsDeleted(DomJnlLine."Journal Template Name", DomJnlLine."Journal Batch Name")
     end;
 
+    [Test]
+    [HandlerFunctions('SuggestDomiciliationsRequestPageHandler')]
+    procedure ExportDomJnlLineWithCustomMessageToReceipt()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        DomiciliationJournalLine: Record "Domiciliation Journal Line";
+        DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
+        TempBlob: Codeunit "Temp Blob";
+        BankAccountNo: Code[20];
+        ExpectedValue: Text;
+    begin
+        // [SCENARIO] Export domiciliation journal with custom "Message 1" and "Mssage 2" line values
+
+        // [GIVEN] Domiciliation journal line with "Message 1" = "A", "Mssage 2" = "B"
+        CreatePostCustomerInvoiceWithValidMandate(SalesHeader, BankAccountNo);
+        CreateDomJnlLineForSalesInvoice(
+          DomiciliationJournalLine, SalesHeader, BankAccountNo, Customer."Partner Type"::Company, SalesHeader."Due Date");
+        DomiciliationJournalLine.Validate("Message 1", LibraryUtility.GenerateGUID());
+        DomiciliationJournalLine.Validate("Message 2", LibraryUtility.GenerateGUID());
+        DomiciliationJournalLine.Modify(true);
+
+        // [WHEN] Export "File Domiciliation"
+        CreateDirectDebitCollectionEntryFromDomJnl(DirectDebitCollectionEntry, DomiciliationJournalLine);
+        ExportToTempBlob(TempBlob, DirectDebitCollectionEntry);
+
+        // [THEN] Exported XML contains node "../RmtInf/Ustrd" = "A, B"
+        ExpectedValue := DomiciliationJournalLine."Message 1" + ', ' + DomiciliationJournalLine."Message 2";
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, 'urn:iso:std:iso:20022:tech:xsd:pain.008.001.02');
+        LibraryXPathXMLReader.VerifyNodeValueByXPath(
+          '/Document/CstmrDrctDbtInitn/PmtInf/DrctDbtTxInf/RmtInf/Ustrd', ExpectedValue);
+    end;
+
     local procedure CreateBankExportImportSetup(var BankExportImportSetup: Record "Bank Export/Import Setup"; ProcessingCodeunitId: Integer; ProcessingXmlPortId: Integer; CheckExportCodeunitID: Integer)
     begin
         BankExportImportSetup.Init();
@@ -583,6 +605,19 @@ codeunit 144009 "SEPA DD Integration Test - BE"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
     end;
 
+    local procedure CreatePostCustomerInvoiceWithValidMandate(var SalesHeader: Record "Sales Header"; var BankAccountNo: Code[20])
+    var
+        BankAccount: Record "Bank Account";
+        CustomerBankAccount: Record "Customer Bank Account";
+        Customer: Record Customer;
+    begin
+        CreateBankAccountWithExportImportSetup(BankAccount, Codeunit::"File Domiciliations", 0, Codeunit::"SEPA DD-Check Line");
+        BankAccountNo := BankAccount."No.";
+        CreateCustomerAndCustomerBankAccount(Customer, CustomerBankAccount, Customer."Partner Type"::Company);
+        CreateCustomerInvoiceWithValidMandate(SalesHeader, CustomerBankAccount);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+    end;
+
     local procedure CreateDomJnlLineForSalesInvoice(var DomJnlLine: Record "Domiciliation Journal Line"; SalesHeader: Record "Sales Header"; BankAccountNo: Code[20]; DomBatchPartnerType: Enum "Partner Type"; PostingDate: Date)
     var
         DomJnlTemplate: Record "Domiciliation Journal Template";
@@ -604,6 +639,19 @@ codeunit 144009 "SEPA DD Integration Test - BE"
         DomJnlLine.FindFirst;
     end;
 
+    local procedure CreateDirectDebitCollectionEntryFromDomJnl(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; DomiciliationJournalLine: Record "Domiciliation Journal Line")
+    var
+        DirectDebitCollection: Record "Direct Debit Collection";
+    begin
+        DirectDebitCollection.CreateRecord(
+          DomiciliationJournalLine."Journal Template Name",
+          DomiciliationJournalLine."Bank Account No.", DirectDebitCollection."Partner Type"::Company);
+        DirectDebitCollection."Domiciliation Batch Name" := DomiciliationJournalLine."Journal Batch Name";
+        DirectDebitCollection.Modify();
+        DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");
+        Codeunit.Run(Codeunit::"SEPA DD-Prepare Source", DirectDebitCollectionEntry);
+    end;
+
     local procedure ExportToServerTempFile(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry")
     var
         FileManagement: Codeunit "File Management";
@@ -617,6 +665,15 @@ codeunit 144009 "SEPA DD Integration Test - BE"
         ExportFile.CreateOutStream(OutStream);
         XMLPORT.Export(XMLPORT::"SEPA DD pain.008.001.02", OutStream, DirectDebitCollectionEntry);
         ExportFile.Close;
+    end;
+
+    local procedure ExportToTempBlob(TempBlob: Codeunit "Temp Blob"; DirectDebitCollectionEntry: Record "Direct Debit Collection Entry")
+    var
+        OutStream: OutStream;
+    begin
+        TempBlob.CreateOutStream(OutStream);
+        DirectDebitCollectionEntry.SetRecFilter();
+        Xmlport.Export(Xmlport::"SEPA DD pain.008.001.02", OutStream, DirectDebitCollectionEntry);
     end;
 
     local procedure VerifyDDCIsDeleted(DomJnlTemplateCode: Code[10]; DomJnlBatchCode: Code[10])

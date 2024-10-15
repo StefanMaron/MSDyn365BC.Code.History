@@ -329,14 +329,20 @@
 
                                 trigger OnBeforePassVariable()
                                 begin
-                                    RemittanceText := PaymentExportData."Message to Recipient 1" + ' ;' + PaymentExportData."Document No.";
+                                    if PaymentExportData."Message to Recipient 2" <> '' then
+                                        RemittanceText := PaymentExportData."Message to Recipient 2"
+                                    else
+                                        RemittanceText := PaymentExportData."Message to Recipient 1" + ' ;' + PaymentExportData."Document No.";
                                 end;
                             }
 
                             trigger OnBeforePassVariable()
                             begin
-                                if (PaymentExportData."Message to Recipient 1" = '') and (PaymentExportData."Document No." = '') then
-                                    currXMLport.Skip;
+                                if (PaymentExportData."Message to Recipient 1" = '') and
+                                   (PaymentExportData."Message to Recipient 2" = '') and
+								   (PaymentExportData."Document No." = '')
+                                then
+                                    currXMLport.Skip();
                             end;
                         }
                     }

@@ -123,32 +123,5 @@ codeunit 11301 "Localization Management"
         end;
         exit('QV999999999999');
     end;
-
-    [EventSubscriber(ObjectType::Report, 594, 'OnBeforeInsertItemJnlLine', '', false, false)]
-    local procedure UpdateItemIntrastatJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; ItemLedgerEntry: Record "Item Ledger Entry")
-    begin
-        UpdateIntrastatJnlLine(IntrastatJnlLine);
-    end;
-
-    [EventSubscriber(ObjectType::Report, 594, 'OnBeforeInsertValueEntryLine', '', false, false)]
-    local procedure UpdateValueIntrastatJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; ItemLedgerEntry: Record "Item Ledger Entry")
-    begin
-        UpdateIntrastatJnlLine(IntrastatJnlLine);
-    end;
-
-    [EventSubscriber(ObjectType::Report, 594, 'OnBeforeInsertJobLedgerLine', '', false, false)]
-    local procedure UpdateJobIntrastatJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; JobLedgerEntry: Record "Job Ledger Entry")
-    begin
-        UpdateIntrastatJnlLine(IntrastatJnlLine);
-    end;
-
-    local procedure UpdateIntrastatJnlLine(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
-    begin
-        if IntrastatJnlLine.Type = IntrastatJnlLine.Type::Shipment then begin
-            IntrastatJnlLine."Country/Region of Origin Code" :=
-              GetCountryOfOriginCode(IntrastatJnlLine."Item No.");
-            IntrastatJnlLine."Partner ID" := GetPartnerID(IntrastatJnlLine);
-        end;
-    end;
 }
 
