@@ -757,30 +757,26 @@ codeunit 3010541 DtaMgt
                     end;
             // ***** Postzahlung Inland *****
             VendBank."Payment Form"::"Post Payment Domestic":
-                begin
-                    if DtaEzag = 'DTA' then
-                        case xISO of
-                            'CHF':
-                                RecordType := 827;
-                            'EUR':
-                                RecordType := 830;
-                            else
-                                Error(Text115Err, VendBank."Payment Form", VendorNo, Amount);
-                        end
-                    else
-                        RecordType := 22;
-                end;
+                if DtaEzag = 'DTA' then
+                    case xISO of
+                        'CHF':
+                            RecordType := 827;
+                        'EUR':
+                            RecordType := 830;
+                        else
+                            Error(Text115Err, VendBank."Payment Form", VendorNo, Amount);
+                    end
+                else
+                    RecordType := 22;
             // ***** Bankzahlung Inland *****
             VendBank."Payment Form"::"Bank Payment Domestic":
-                begin
-                    if DtaEzag = 'DTA' then begin
-                        if xISO = 'CHF' then
-                            RecordType := 827
-                        else
-                            RecordType := 830;
-                    end else
-                        RecordType := 27
-                end;
+                if DtaEzag = 'DTA' then begin
+                    if xISO = 'CHF' then
+                        RecordType := 827
+                    else
+                        RecordType := 830;
+                end else
+                    RecordType := 27;
             // ***** Zahlungsanweisung Inland *****
             VendBank."Payment Form"::"Cash Outpayment Order Domestic":
                 begin
@@ -799,12 +795,10 @@ codeunit 3010541 DtaMgt
                 end;
             // ***** Bankzahlung Ausland & SWIFT-Zahlung Ausland *****
             VendBank."Payment Form"::"Bank Payment Abroad", VendBank."Payment Form"::"SWIFT Payment Abroad":
-                begin
-                    if DtaEzag = 'DTA' then
-                        RecordType := 830
-                    else
-                        RecordType := 37;
-                end;
+                if DtaEzag = 'DTA' then
+                    RecordType := 830
+                else
+                    RecordType := 37;
             // ***** Postanweisung Ausland *****
             VendBank."Payment Form"::"Cash Outpayment Order Abroad":
                 begin

@@ -152,6 +152,8 @@ report 5604 "Fixed Asset - Details"
     requestpage
     {
         SaveValues = true;
+        AboutTitle = 'About Fixed Asset Details';
+        AboutText = 'The **Fixed Asset Details** report provides a comprehensive overview of all relevant information pertaining to each fixed asset owned by an organization. This report serves as a detailed transaction information and reference tool for asset management.';
 
         layout
         {
@@ -165,6 +167,8 @@ report 5604 "Fixed Asset - Details"
                         ApplicationArea = FixedAssets;
                         Caption = 'Depreciation Book';
                         TableRelation = "Depreciation Book";
+                        AboutTitle = 'Select Depreciation Book';
+                        AboutText = 'Choose the Depreciation Book and specify the applicable options against which details are to be seen in the report.';
                         ToolTip = 'Specifies the code for the depreciation book to be included in the report or batch job.';
                     }
                     field(NewPagePerAsset; PrintOnlyOnePerPage)

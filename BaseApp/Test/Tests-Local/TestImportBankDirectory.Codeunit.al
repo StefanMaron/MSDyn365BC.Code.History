@@ -437,10 +437,8 @@ codeunit 144016 "Test Import Bank Directory"
         // Create a customer with Bank Account
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateCustomerBankAccount(CustomerBankAccount, Customer."No.");
-        with CustomerBankAccount do begin
-            "Bank Branch No." := Format(LibraryRandom.RandIntInRange(11111, 99999));
-            Modify(true);
-        end;
+        CustomerBankAccount."Bank Branch No." := Format(LibraryRandom.RandIntInRange(11111, 99999));
+        CustomerBankAccount.Modify(true);
         Commit();
     end;
 
@@ -450,14 +448,12 @@ codeunit 144016 "Test Import Bank Directory"
     begin
         // Create a vendor with Bank Account
         LibraryPurchase.CreateVendor(Vendor);
-        with VendorBankAccount do begin
-            Init();
-            Validate("Vendor No.", Vendor."No.");
-            Validate(Code, CopyStr(LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Vendor Bank Account"), 1, 5));
-            "Clearing No." := Format(LibraryRandom.RandIntInRange(11111, 99999));
-            "Payment Form" := "Payment Form"::"Bank Payment Domestic";
-            Insert(true);
-        end;
+        VendorBankAccount.Init();
+        VendorBankAccount.Validate("Vendor No.", Vendor."No.");
+        VendorBankAccount.Validate(Code, CopyStr(LibraryUtility.GenerateRandomCode(VendorBankAccount.FieldNo(Code), DATABASE::"Vendor Bank Account"), 1, 5));
+        VendorBankAccount."Clearing No." := Format(LibraryRandom.RandIntInRange(11111, 99999));
+        VendorBankAccount."Payment Form" := VendorBankAccount."Payment Form"::"Bank Payment Domestic";
+        VendorBankAccount.Insert(true);
         Commit();
     end;
 

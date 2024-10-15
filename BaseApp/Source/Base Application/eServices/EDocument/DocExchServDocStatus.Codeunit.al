@@ -1,7 +1,6 @@
 namespace Microsoft.EServices.EDocument;
 
 using Microsoft.Sales.History;
-using Microsoft.Service.History;
 using Microsoft.Utilities;
 using System.Reflection;
 
@@ -12,8 +11,8 @@ codeunit 1420 "Doc. Exch. Serv.- Doc. Status"
     begin
         CheckPostedInvoices();
         CheckPostedCrMemos();
-        CheckPostedServiceInvoices();
-        CheckPostedServiceCrMemos();
+
+        OnAfterCheckPostedDocs();
     end;
 
     var
@@ -53,46 +52,18 @@ codeunit 1420 "Doc. Exch. Serv.- Doc. Status"
             until SalesCrMemoHeader.Next() = 0;
     end;
 
-    local procedure CheckPostedServiceInvoices()
-    var
-        ServiceInvoiceHeader: Record "Service Invoice Header";
-    begin
-        ServiceInvoiceHeader.SetFilter(
-            "Document Exchange Status",
-            StrSubstNo('%1|%2',
-                ServiceInvoiceHeader."Document Exchange Status"::"Sent to Document Exchange Service",
-                ServiceInvoiceHeader."Document Exchange Status"::"Pending Connection to Recipient"));
-        if ServiceInvoiceHeader.FindSet() then
-            repeat
-                DocExchLinks.CheckAndUpdateDocExchServiceInvoiceStatus(ServiceInvoiceHeader);
-                Commit();
-            until ServiceInvoiceHeader.Next() = 0;
-    end;
-
-    local procedure CheckPostedServiceCrMemos()
-    var
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
-    begin
-        ServiceCrMemoHeader.SetFilter(
-            "Document Exchange Status",
-            StrSubstNo('%1|%2',
-                ServiceCrMemoHeader."Document Exchange Status"::"Sent to Document Exchange Service",
-                ServiceCrMemoHeader."Document Exchange Status"::"Pending Connection to Recipient"));
-        if ServiceCrMemoHeader.FindSet() then
-            repeat
-                DocExchLinks.CheckAndUpdateDocExchServiceCrMemoStatus(ServiceCrMemoHeader);
-                Commit();
-            until ServiceCrMemoHeader.Next() = 0;
-    end;
-
     local procedure CheckAndUpdateDocExchStatus(DocRecRef: RecordRef)
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        ServiceInvoiceHeader: Record "Service Invoice Header";
-        ServiceCrMemoHeader: Record "Service Cr.Memo Header";
         DocExchLinks: Codeunit "Doc. Exch. Links";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckAndUpdateDocExchStatus(DocRecRef, IsHandled);
+        if IsHandled then
+            exit;
+
         case DocRecRef.Number of
             DATABASE::"Sales Invoice Header":
                 begin
@@ -103,16 +74,6 @@ codeunit 1420 "Doc. Exch. Serv.- Doc. Status"
                 begin
                     DocRecRef.SetTable(SalesCrMemoHeader);
                     DocExchLinks.CheckAndUpdateDocExchCrMemoStatus(SalesCrMemoHeader);
-                end;
-            DATABASE::"Service Invoice Header":
-                begin
-                    DocRecRef.SetTable(ServiceInvoiceHeader);
-                    DocExchLinks.CheckAndUpdateDocExchServiceInvoiceStatus(ServiceInvoiceHeader);
-                end;
-            DATABASE::"Service Cr.Memo Header":
-                begin
-                    DocRecRef.SetTable(ServiceCrMemoHeader);
-                    DocExchLinks.CheckAndUpdateDocExchServiceCrMemoStatus(ServiceCrMemoHeader);
                 end;
             else
                 Error(UnSupportedTableTypeErr, DocRecRef.Number);
@@ -168,14 +129,30 @@ codeunit 1420 "Doc. Exch. Serv.- Doc. Status"
         ActivityLog.ShowEntries(DocRecRef.RecordId);
     end;
 
-    local procedure IsSupportedByDefaultDocExchStatusDrillDown(DocRecRef: RecordRef): Boolean
+    local procedure IsSupportedByDefaultDocExchStatusDrillDown(DocRecRef: RecordRef) IsSupported: Boolean
     begin
-        exit(DocRecRef.Number in [DATABASE::"Sales Invoice Header", DATABASE::"Sales Cr.Memo Header",
-                                  DATABASE::"Service Invoice Header", DATABASE::"Service Cr.Memo Header"]);
+        IsSupported := DocRecRef.Number in [DATABASE::"Sales Invoice Header", DATABASE::"Sales Cr.Memo Header"];
+
+        OnAfterIsSupportedByDefaultDocExchStatusDrillDown(DocRecRef, IsSupported);
     end;
 
     [IntegrationEvent(false, false)]
     procedure OnDocExchStatusDrillDown(var DocRecRef: RecordRef; var Handled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckAndUpdateDocExchStatus(var DocRecRef: RecordRef; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsSupportedByDefaultDocExchStatusDrillDown(DocRecRef: RecordRef; var IsSupported: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckPostedDocs()
     begin
     end;
 }

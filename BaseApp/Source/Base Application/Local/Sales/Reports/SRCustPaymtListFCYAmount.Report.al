@@ -162,12 +162,11 @@ report 11569 "SR Cust. Paymt List FCY Amount"
                 end;
 
                 Status := Text000;
-                if Open then begin
+                if Open then
                     if "Remaining Amt. (LCY)" = "Amount (LCY)" then
                         Status := Text001
                     else
                         Status := Text002;
-                end;
 
                 AccNo := "Cust. Ledger Entry"."Customer No.";
                 if Customer.Get("Customer No.") then

@@ -273,6 +273,10 @@ table 312 "Purchases & Payables Setup"
         {
             Caption = 'Document Default Line Type';
         }
+        field(51; "Default G/L Account Quantity"; Boolean)
+        {
+            Caption = 'Default G/L Account Quantity';
+        }
         field(52; "Archive Quotes"; Option)
         {
             Caption = 'Archive Quotes';
@@ -538,24 +542,24 @@ table 312 "Purchases & Payables Setup"
         {
             Caption = 'Arch. Orders and Ret. Orders';
             ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '25.0';
         }
         field(5005232; "Archiving Purchase Quote"; Option)
         {
             Caption = 'Archiving Purchase Quote';
             ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             OptionCaption = 'Never,Question,Always';
             OptionMembers = Never,Question,Always;
-            ObsoleteTag = '15.0';
+            ObsoleteTag = '25.0';
         }
         field(5005233; "Archiving Blanket Purch. Order"; Boolean)
         {
             Caption = 'Archiving Blanket Purch. Order';
             ObsoleteReason = 'Merged to W1';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '25.0';
         }
         field(5005270; "Delivery Reminder Nos."; Code[20])
         {
@@ -586,7 +590,9 @@ table 312 "Purchases & Payables Setup"
     }
 
     var
+#pragma warning disable AA0074
         Text001: Label 'Job Queue Priority must be zero or positive.';
+#pragma warning restore AA0074
         RecordHasBeenRead: Boolean;
 
     procedure GetRecordOnce()

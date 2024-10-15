@@ -74,6 +74,7 @@ codeunit 142041 "UT PAG DELIVREM"
     begin
         // Purpose of the test is to validate Print Action for Page 5005273 - Issued Delivery Reminder.
         // Setup: Create Issued Delivery Reminder Header and Open Page Issued Delivery Reminder.
+        CreateReportSelections("Report Selection Usage"::"Issued Delivery Reminder", Report::"Issued Delivery Reminder");
         CreateIssuedDelivReminderHeader(IssuedDelivReminderHeader);
         OpenIssuedDeliveryReminderPage(IssuedDeliveryReminder, IssuedDelivReminderHeader."No.");
 
@@ -154,46 +155,6 @@ codeunit 142041 "UT PAG DELIVREM"
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
-    procedure SetUsageFilterWithIssuedDeliveryReminderReportSelectionComfPurch()
-    var
-        ReportSelectionComfPurch: TestPage "Report Selection - Comf. Purch";
-        ReportUsage: Option "Delivery Reminder Test","Issued Delivery Reminder";
-    begin
-        // Purpose of the test is to validate Function SetUsageFilter for Page 5005391 - Report Selection - Comf. Purch.
-        // Setup.
-        ReportSelectionComfPurch.OpenEdit();
-
-        // Exercise: Use Option Issued Delivery Reminder.
-        ReportSelectionComfPurch.ReportUsage2.SetValue(ReportUsage::"Issued Delivery Reminder");
-
-        // Verify: Verify Report ID on Page Report Selection - Comf. Purch.
-        ReportSelectionComfPurch.FindFirstField("Report ID", 5005273);  // Report ID.
-        ReportSelectionComfPurch.Close();
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
-    procedure SetUsageFilterWithDeliveryReminderTestReportSelectionComfPurch()
-    var
-        ReportSelectionComfPurch: TestPage "Report Selection - Comf. Purch";
-        ReportUsage: Option "Delivery Reminder Test","Issued Delivery Reminder";
-    begin
-        // Purpose of the test is to validate Function SetUsageFilter for Page 5005391 - Report Selection - Comf. Purch.
-        // Setup.
-        ReportSelectionComfPurch.OpenEdit();
-
-        // Exercise: Use Option Delivery Reminder Test.
-        ReportSelectionComfPurch.ReportUsage2.SetValue(ReportUsage::"Delivery Reminder Test");
-
-        // Verify: Verify Report ID on Page Report Selection - Comf. Purch.
-        ReportSelectionComfPurch.FindFirstField("Report ID", 5005272);
-        ReportSelectionComfPurch.Close();
-    end;
-
-    [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
-    [Scope('OnPrem')]
     procedure InsertExtTextsDeliveryReminderSubform()
     var
         DeliveryReminderHeader: Record "Delivery Reminder Header";
@@ -259,6 +220,7 @@ codeunit 142041 "UT PAG DELIVREM"
         // [SCENARIO 284485] Page 5005275 "Issued Delivery Reminders List" has a valid Print Action
         // [GIVEN] Page "Issued Delivery Reminders List" open
         LibraryApplicationArea.EnableFoundationSetup();
+        CreateReportSelections("Report Selection Usage"::"Issued Delivery Reminder", Report::"Issued Delivery Reminder");
         IssuedDeliveryRemindersList.OpenView();
         // [WHEN] Invoke Print Action
         // [THEN] Report "Issued Delivery Reminder" is called
@@ -393,6 +355,16 @@ codeunit 142041 "UT PAG DELIVREM"
     begin
         DeliveryReminder.OpenEdit();
         DeliveryReminder.FILTER.SetFilter("No.", No);
+    end;
+
+    local procedure CreateReportSelections(Usage: Enum "Report Selection Usage"; ReportID: Integer)
+    var
+        ReportSelections: Record "Report Selections";
+    begin
+        ReportSelections.Usage := Usage;
+        ReportSelections.Sequence := LibraryUTUtility.GetNewCode10();
+        ReportSelections."Report ID" := ReportID;
+        ReportSelections.Insert();
     end;
 
     [ReportHandler]

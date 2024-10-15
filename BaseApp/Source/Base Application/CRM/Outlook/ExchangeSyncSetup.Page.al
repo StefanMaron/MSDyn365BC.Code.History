@@ -193,12 +193,11 @@ page 6700 "Exchange Sync. Setup"
             exit(true);
     end;
 
-    [NonDebuggable]
     local procedure EvaluatePasswordRequired()
     var
         AzureADMgt: Codeunit "Azure AD Mgt.";
     begin
-        PasswordRequired := AzureADMgt.GetAccessToken(AzureADMgt.GetO365Resource(), AzureADMgt.GetO365ResourceName(), false) = '';
+        PasswordRequired := AzureADMgt.GetAccessTokenAsSecretText(AzureADMgt.GetO365Resource(), AzureADMgt.GetO365ResourceName(), false).IsEmpty();
     end;
 }
 

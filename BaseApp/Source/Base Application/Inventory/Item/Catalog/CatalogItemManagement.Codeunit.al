@@ -10,7 +10,6 @@ using Microsoft.Manufacturing.ProductionBOM;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Archive;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 using System.Security.AccessControl;
 
 codeunit 5703 "Catalog Item Management"
@@ -26,14 +25,20 @@ codeunit 5703 "Catalog Item Management"
         ItemVend: Record "Item Vendor";
         ProgWindow: Dialog;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Item %1 already exists.';
         Text001: Label 'Item %1 is created.';
+#pragma warning restore AA0470
         Text002: Label 'You cannot enter a catalog item on %1.', Comment = '%1=Sales Line document type';
         Text003: Label 'Creating item card for catalog item\';
+#pragma warning disable AA0470
         Text004: Label 'Manufacturer Code    #1####\';
         Text005: Label 'Vendor               #2##################\';
         Text006: Label 'Vendor Item          #3##################\';
         Text007: Label 'Item No.             #4##################';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure NonstockAutoItem(NonStock2: Record "Nonstock Item")
     var
@@ -221,17 +226,8 @@ codeunit 5703 "Catalog Item Management"
         if NewItem.FindFirst() then
             exit;
 
-        if GuiAllowed() then begin
-            ProgWindow.Open(Text003 +
-            Text004 +
-            Text005 +
-            Text006 +
-            Text007);
-            ProgWindow.Update(1, NonStock."Manufacturer Code");
-            ProgWindow.Update(2, NonStock."Vendor No.");
-            ProgWindow.Update(3, NonStock."Vendor Item No.");
-            ProgWindow.Update(4, SalesLine2."No.");
-        end;
+        if GuiAllowed() then
+            OpenProgressDialog(NonStock, SalesLine2."No.");
 
         CreateNewItem(NonStock);
         OnNonStockSalesOnAfterCreateNewItem(NewItem);
@@ -286,24 +282,15 @@ codeunit 5703 "Catalog Item Management"
         DelNonStockItem(NewItem);
     end;
 
-    procedure DelNonStockFSM(var ServInvLine2: Record "Service Line")
+#if not CLEAN25 
+    [Obsolete('Moved to codeunit Serv. Catalog Item Mgt.', '25.0')]
+    procedure DelNonStockFSM(var ServInvLine2: Record Microsoft.Service.Document."Service Line")
     var
-        IsHandled: Boolean;
+        ServCatalogItemMgt: Codeunit "Serv. Catalog Item Mgt.";
     begin
-        IsHandled := false;
-        OnBeforeDelNonStockFSM(ServInvLine2, IsHandled);
-        if IsHandled then
-            exit;
-
-        if ServInvLine2.Nonstock = false then
-            exit;
-
-        NewItem.Get(ServInvLine2."No.");
-        ServInvLine2."No." := '';
-        ServInvLine2.Modify();
-
-        DelNonStockItem(NewItem);
+        ServCatalogItemMgt.DelNonStockFSM(ServInvLine2);
     end;
+#endif
 
     procedure DelNonStockSalesArch(var SalesLineArchive2: Record "Sales Line Archive")
     var
@@ -322,53 +309,15 @@ codeunit 5703 "Catalog Item Management"
         end;
     end;
 
-    procedure NonStockFSM(var ServInvLine2: Record "Service Line")
+#if not CLEAN25 
+    [Obsolete('Moved to codeunit Serv. Catalog Item Mgt.', '25.0')]
+    procedure NonStockFSM(var ServiceLine: Record Microsoft.Service.Document."Service Line")
     var
-        IsHandled: Boolean;
+        ServCatalogItemMgt: Codeunit "Serv. Catalog Item Mgt.";
     begin
-        NonStock.Get(ServInvLine2."No.");
-        if NonStock."Item No." <> '' then begin
-            ServInvLine2."No." := NonStock."Item No.";
-            exit;
-        end;
-
-        DetermineItemNoAndItemNoSeries(NonStock);
-        NonStock.Modify();
-        ServInvLine2."No." := NonStock."Item No.";
-        OnNonStockFSMOnBeforeInsertItemUnitOfMeasure(NonStock);
-        InsertItemUnitOfMeasure(NonStock."Unit of Measure", ServInvLine2."No.");
-
-        NewItem.SetRange("No.", ServInvLine2."No.");
-        if NewItem.FindFirst() then
-            exit;
-
-        IsHandled := false;
-        OnNonStockFSMOnBeforeProgWindowOpen(ServInvLine2, IsHandled);
-        if not IsHandled and GuiAllowed() then begin
-            ProgWindow.Open(Text003 +
-              Text004 +
-              Text005 +
-              Text006 +
-              Text007);
-            ProgWindow.Update(1, NonStock."Manufacturer Code");
-            ProgWindow.Update(2, NonStock."Vendor No.");
-            ProgWindow.Update(3, NonStock."Vendor Item No.");
-            ProgWindow.Update(4, ServInvLine2."No.");
-        end;
-
-        CreateNewItem(NonStock);
-        OnNonStockFSMOnAfterCreateNewItem(NewItem);
-
-        if CheckLicensePermission(DATABASE::"Item Vendor") then
-            NonstockItemVend(NonStock);
-        if CheckLicensePermission(DATABASE::"Item Reference") then
-            NonstockItemReference(NonStock);
-
-        IsHandled := false;
-        OnNonStockFSMOnBeforeProgWindowClose(IsHandled, ServInvLine2);
-        if not IsHandled and GuiAllowed() then
-            ProgWindow.Close();
+        ServCatalogItemMgt.NonStockFSM(ServiceLine);
     end;
+#endif
 
     procedure CreateItemFromNonstock(Nonstock2: Record "Nonstock Item")
     begin
@@ -394,7 +343,21 @@ codeunit 5703 "Catalog Item Management"
             NonstockItemReference(Nonstock2);
     end;
 
-    local procedure CheckLicensePermission(TableID: Integer): Boolean
+    procedure OpenProgressDialog(NonStockItem: Record "Nonstock Item"; ItemNo: Code[20])
+    begin
+        ProgWindow.Open(Text003 + Text004 + Text005 + Text006 + Text007);
+        ProgWindow.Update(1, NonStockItem."Manufacturer Code");
+        ProgWindow.Update(2, NonStockItem."Vendor No.");
+        ProgWindow.Update(3, NonStockItem."Vendor Item No.");
+        ProgWindow.Update(4, ItemNo);
+    end;
+
+    procedure CloseProgressDialog()
+    begin
+        ProgWindow.Close();
+    end;
+
+    procedure CheckLicensePermission(TableID: Integer): Boolean
     var
         LicensePermission: Record "License Permission";
     begin
@@ -404,7 +367,7 @@ codeunit 5703 "Catalog Item Management"
         exit(LicensePermission.FindFirst());
     end;
 
-    local procedure DelNonStockItem(var Item: Record Item)
+    procedure DelNonStockItem(var Item: Record Item)
     var
         BOMComp: Record "BOM Component";
         ItemLedgEntry: Record "Item Ledger Entry";
@@ -413,7 +376,6 @@ codeunit 5703 "Catalog Item Management"
         PurchLine: Record "Purchase Line";
         SalesLine: Record "Sales Line";
         SalesLineArch: Record "Sales Line Archive";
-        ServInvLine: Record "Service Line";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -436,12 +398,6 @@ codeunit 5703 "Catalog Item Management"
         PurchLine.SetRange(Type, PurchLine.Type::Item);
         PurchLine.SetRange("No.", Item."No.");
         if not PurchLine.IsEmpty() then
-            exit;
-
-        ServInvLine.SetCurrentKey(Type, "No.");
-        ServInvLine.SetRange(Type, ServInvLine.Type::Item);
-        ServInvLine.SetRange("No.", Item."No.");
-        if not ServInvLine.IsEmpty() then
             exit;
 
         BOMComp.SetCurrentKey(Type, "No.");
@@ -467,6 +423,8 @@ codeunit 5703 "Catalog Item Management"
                 then
                     exit;
             until ProdBOMLine.Next() = 0;
+
+        OnDelNonStockItemOnAfterCheckRelations(Item);
 
         NewItem.Get(Item."No.");
         DeleteCreatedFromNonstockItem();
@@ -874,15 +832,31 @@ codeunit 5703 "Catalog Item Management"
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnNonStockFSMOnAfterCreateNewItem(var NewItem: Record Item)
+    begin
+        OnNonStockFSMOnAfterCreateNewItem(NewItem);
+    end;
+
+    [Obsolete('Moved to codeunit Serv. Catalog Item Mgt.', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnNonStockFSMOnAfterCreateNewItem(var NewItem: Record Item)
     begin
     end;
+#endif
 
+#if not CLEAN25
+    internal procedure RunOnNonStockFSMOnBeforeInsertItemUnitOfMeasure(var NonStockItem: Record "Nonstock Item")
+    begin
+        OnNonStockFSMOnBeforeInsertItemUnitOfMeasure(NonStockItem);
+    end;
+
+    [Obsolete('Moved to codeunit Serv. Catalog Item Mgt.', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnNonStockFSMOnBeforeInsertItemUnitOfMeasure(var NonStockItem: Record "Nonstock Item")
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterNonstockItemCrossRef(var NonStock2: Record "Nonstock Item")
@@ -924,15 +898,31 @@ codeunit 5703 "Catalog Item Management"
     begin
     end;
 
-    [IntegrationEvent(false, false)]
-    local procedure OnNonStockFSMOnBeforeProgWindowOpen(var ServiceLine: Record "Service Line"; var IsHandled: Boolean)
+#if not CLEAN25
+    internal procedure RunOnNonStockFSMOnBeforeProgWindowOpen(var ServiceLine: Record Microsoft.Service.Document."Service Line"; var IsHandled: Boolean)
     begin
+        OnNonStockFSMOnBeforeProgWindowOpen(ServiceLine, IsHandled);
     end;
 
+    [Obsolete('Moved to codeunit Serv. Catalog Item Mgt.', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDelNonStockFSM(var ServiceLine2: Record "Service Line"; var IsHandled: Boolean)
+    local procedure OnNonStockFSMOnBeforeProgWindowOpen(var ServiceLine: Record Microsoft.Service.Document."Service Line"; var IsHandled: Boolean)
     begin
     end;
+#endif
+
+#if not CLEAN25
+    internal procedure RunOnBeforeDelNonStockFSM(var ServiceLine2: Record Microsoft.Service.Document."Service Line"; var IsHandled: Boolean)
+    begin
+        OnBeforeDelNonStockFSM(ServiceLine2, IsHandled);
+    end;
+
+    [Obsolete('Moved to codeunit Serv. Catalog Item Mgt.', '25.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDelNonStockFSM(var ServiceLine2: Record Microsoft.Service.Document."Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDelNonStockSalesArch(var SalesLineArchive2: Record "Sales Line Archive"; var IsHandled: Boolean)
@@ -944,13 +934,26 @@ codeunit 5703 "Catalog Item Management"
     begin
     end;
 
+#if not CLEAN25 
+    internal procedure RunOnNonStockFSMOnBeforeProgWindowClose(var IsHandled: Boolean; ServiceLine2: Record Microsoft.Service.Document."Service Line")
+    begin
+        OnNonStockFSMOnBeforeProgWindowClose(IsHandled, ServiceLine2);
+    end;
+
+    [Obsolete('Moved to codeunit Serv. Catalog Item Mgt.', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnNonStockFSMOnBeforeProgWindowClose(var IsHandled: Boolean; ServiceLine2: Record "Service Line")
+    local procedure OnNonStockFSMOnBeforeProgWindowClose(var IsHandled: Boolean; ServiceLine2: Record Microsoft.Service.Document."Service Line")
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateNewItemOnBeforeItemModify(var Item: Record Item; NonstockItem: Record "Nonstock Item")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCreateNewItemOnBeforeItemModify(var Item: Record Item; NonstockItem: Record "Nonstock Item")
+    local procedure OnDelNonStockItemOnAfterCheckRelations(var Item: Record Item)
     begin
     end;
 }

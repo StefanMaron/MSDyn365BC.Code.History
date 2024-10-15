@@ -251,7 +251,9 @@ report 99000758 "Compare List"
         Cost2: Decimal;
         CostDiff: Decimal;
 
+#pragma warning disable AA0074
         Text000: Label 'As of ';
+#pragma warning restore AA0074
         CurrReportPageNoCaptionLbl: Label 'Page';
         CompareListCaptionLbl: Label 'Compare List';
         BOMMatrixListItemNoCaptLbl: Label 'No.';

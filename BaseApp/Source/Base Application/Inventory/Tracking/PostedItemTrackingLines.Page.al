@@ -86,6 +86,8 @@ page 6511 "Posted Item Tracking Lines"
     end;
 
     var
+#pragma warning disable AA0074
         Text001: Label '%1 - %2', Locked = true;
+#pragma warning restore AA0074
 }
 

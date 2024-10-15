@@ -3,13 +3,13 @@ namespace Microsoft.Foundation.ExtendedText;
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.VAT.Clause;
 using Microsoft.Inventory.Item;
+using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
-using Microsoft.Service.Document;
 using Microsoft.Utilities;
 using System.Globalization;
 
@@ -174,28 +174,10 @@ table 279 "Extended Text Header"
             Caption = 'Prepmt. Purchase Credit Memo';
             InitValue = true;
         }
-        field(5900; "Service Order"; Boolean)
+        field(167; "Job"; Boolean)
         {
-            AccessByPermission = TableData "Service Header" = R;
-            Caption = 'Service Order';
-            InitValue = true;
-        }
-        field(5901; "Service Quote"; Boolean)
-        {
-            AccessByPermission = TableData "Service Header" = R;
-            Caption = 'Service Quote';
-            InitValue = true;
-        }
-        field(5902; "Service Invoice"; Boolean)
-        {
-            AccessByPermission = TableData "Service Header" = R;
-            Caption = 'Service Invoice';
-            InitValue = true;
-        }
-        field(5903; "Service Credit Memo"; Boolean)
-        {
-            AccessByPermission = TableData "Service Header" = R;
-            Caption = 'Service Credit Memo';
+            AccessByPermission = TableData Job = R;
+            Caption = 'Project';
             InitValue = true;
         }
         field(6600; "Sales Return Order"; Boolean)

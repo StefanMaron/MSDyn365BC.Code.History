@@ -164,12 +164,10 @@ codeunit 144024 "Vendor Payment Order"
     begin
         LibraryPurchase.CreateVendorBankAccount(VendorBankAccount, FindVendor());
 
-        with VendorBankAccount do begin
-            "Bank Branch No." := BankBranchNo;
-            "Bank Account No." := BankAccountNo;
-            IBAN := NewIBAN;
-            Modify();
-        end;
+        VendorBankAccount."Bank Branch No." := BankBranchNo;
+        VendorBankAccount."Bank Account No." := BankAccountNo;
+        VendorBankAccount.IBAN := NewIBAN;
+        VendorBankAccount.Modify();
 
         Vendor.Get(VendorBankAccount."Vendor No.");
         Vendor.Validate("Preferred Bank Account Code", VendorBankAccount.Code);

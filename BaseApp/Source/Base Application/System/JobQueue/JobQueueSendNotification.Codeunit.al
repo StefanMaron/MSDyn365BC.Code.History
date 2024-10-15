@@ -40,6 +40,147 @@ codeunit 454 "Job Queue - Send Notification"
         ErrorWhenProcessingTxt: Label 'Error when processing ''%1''.', Comment = '%1 = Job queue entry description';
         ErrorMessageLabelTxt: Label 'Error message:';
         JobQueueFinishedTxt: Label '''%1'' finished successfully.', Comment = '%1 = job description, e.g. ''Post Sales Order 1234''';
+        JobQueueFailedNotificationIdTxt: Label '9a3203a3-35a5-4598-941b-2d6c9f08b9bf', Locked = true;
+        JobQueueSingleTaskFailedMsg: Label 'The Job "%1" scheduled by %2 experienced an issue.', Comment = '%1=Job Queue Entry description, %2 = User Id';
+        JobQueueMultipleTaskFailedMsg: Label 'There are %1 scheduled jobs experiencing an issue.', Comment = '%1=Failed job count';
+        JobQueueFailedNotificationDescLbl: Label 'This notification is sent when one or more jobs in the job queue fail.';
+        JobQueueSingleTaskFailedRestartJobActionLbl: Label 'Restart failed job';
+        JobQueueFailedShowMoreDetailActionLbl: Label 'Show more details';
+        JobQueueFailedDisableActionLbl: Label 'Don''t show again';
+        CannotRestartFailedJobErr: Label 'Cannot restart the failed job because the job queue entry cannot be found.';
+        CannotShowMoreDetailErr: Label 'Cannot show more details for this failed job because the job queue entry cannot be found.';
+
+    internal procedure SendNotificationWhenJobFailed()
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        MyNotifications: Record "My Notifications";
+        JobQueueFailedNotificationSetup: Record "Job Queue Notification Setup";
+        JobQueueMgt: Codeunit "Job Queue Management";
+        PageMyNotifications: Page "My Notifications";
+        JobFailedCount: Integer;
+    begin
+        if JobQueueFailedNotificationSetup.IsEmpty() then
+            JobQueueFailedNotificationSetup.Insert();
+        JobQueueFailedNotificationSetup.FindLast();
+
+        if not JobQueueFailedNotificationSetup.InProductNotification then
+            exit;
+
+        if not MyNotifications.Get(UserId, JobQueueFailedNotificationIdTxt) then
+            PageMyNotifications.InitializeNotificationsWithDefaultState();
+        if not MyNotifications.IsEnabled(JobQueueFailedNotificationIdTxt) then
+            exit;
+
+        if JobQueueFailedNotificationSetup.NotifyUserInitiatingTask and JobQueueFailedNotificationSetup.NotifyJobQueueAdmin then begin
+            if not JobQueueMgt.CheckUserInJobQueueAdminList(UserId()) then
+                JobQueueEntry.SetRange("User ID", UserId());
+        end else
+            if JobQueueFailedNotificationSetup.NotifyUserInitiatingTask then
+                JobQueueEntry.SetRange("User ID", UserId())
+            else
+                if JobQueueFailedNotificationSetup.NotifyJobQueueAdmin then begin
+                    if not JobQueueMgt.CheckUserInJobQueueAdminList(UserId()) then
+                        exit;
+                end else
+                    exit;
+
+        JobQueueEntry.SetRange(Status, JobQueueEntry.Status::Error);
+
+        if JobQueueEntry.IsEmpty() then
+            exit;
+
+        JobFailedCount := JobQueueEntry.Count;
+        JobQueueEntry.FindSet();
+
+        if JobQueueFailedNotificationSetup.NotifyWhenJobFailed then
+            SendFailedJobNotification(JobQueueEntry, JobFailedCount)
+        else
+            if JobQueueFailedNotificationSetup.NotifyAfterThreshold then
+                if JobFailedCount >= JobQueueFailedNotificationSetup.Threshold1 then
+                    SendFailedJobNotification(JobQueueEntry, JobFailedCount);
+    end;
+
+    local procedure SendFailedJobNotification(var JobQueueEntry: Record "Job Queue Entry"; JobFailedCount: Integer)
+    var
+        JobFailedNotification: Notification;
+    begin
+        JobFailedNotification.Id := JobQueueFailedNotificationIdTxt;
+        JobFailedNotification.Scope := NOTIFICATIONSCOPE::LocalScope;
+        if JobFailedCount = 1 then begin
+            JobFailedNotification.Message := StrSubstNo(JobQueueSingleTaskFailedMsg, JobQueueEntry.Description, JobQueueEntry."User ID");
+            JobFailedNotification.AddAction(JobQueueSingleTaskFailedRestartJobActionLbl, CODEUNIT::"Job Queue - Send Notification", 'RestartFailedJob');
+            JobFailedNotification.AddAction(JobQueueFailedShowMoreDetailActionLbl, CODEUNIT::"Job Queue - Send Notification", 'ShowMoreDetailForSingleFailedJob');
+            JobFailedNotification.AddAction(JobQueueFailedDisableActionLbl, CODEUNIT::"Job Queue - Send Notification", 'DisableNotification');
+            JobFailedNotification.SetData('JobQueueEntryId', Format(JobQueueEntry.ID));
+            JobFailedNotification.Send();
+        end else begin
+            JobFailedNotification.Message := StrSubstNo(JobQueueMultipleTaskFailedMsg, JobFailedCount);
+            JobFailedNotification.AddAction(JobQueueFailedShowMoreDetailActionLbl, CODEUNIT::"Job Queue - Send Notification", 'ShowMoreDetailForMultipleFailedJobs');
+            JobFailedNotification.AddAction(JobQueueFailedDisableActionLbl, CODEUNIT::"Job Queue - Send Notification", 'DisableNotification');
+            JobFailedNotification.Send();
+        end;
+    end;
+
+    internal procedure GetJobQueueFailedNotificationId(): Guid
+    begin
+        exit(JobQueueFailedNotificationIdTxt);
+    end;
+
+    internal procedure GetJobQueueSingleTaskFailedMsg(): Text
+    begin
+        exit(JobQueueSingleTaskFailedMsg);
+    end;
+
+    internal procedure GetJobQueueMultipleTaskFailedMsg(): Text
+    begin
+        exit(JobQueueMultipleTaskFailedMsg);
+    end;
+
+    internal procedure RestartFailedJob(JobFailedNotification: Notification)
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        if JobQueueEntry.Get(JobFailedNotification.GetData('JobQueueEntryId')) then
+            JobQueueEntry.Restart()
+        else
+            Error(CannotRestartFailedJobErr);
+    end;
+
+    internal procedure ShowMoreDetailForSingleFailedJob(JobFailedNotification: Notification)
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        if JobQueueEntry.Get(JobFailedNotification.GetData('JobQueueEntryId')) then
+            Page.Run(Page::"Job Queue Entry Card", JobQueueEntry)
+        else
+            Error(CannotShowMoreDetailErr);
+    end;
+
+    internal procedure ShowMoreDetailForMultipleFailedJobs(JobFailedNotification: Notification)
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+        JobQueueMgt: Codeunit "Job Queue Management";
+    begin
+        if not JobQueueMgt.CheckUserInJobQueueAdminList(UserId()) then
+            JobQueueEntry.SetRange("User ID", UserId());
+        JobQueueEntry.SetRange(Status, JobQueueEntry.Status::Error);
+        Page.Run(Page::"Job Queue Entries", JobQueueEntry);
+    end;
+
+    internal procedure DisableNotification(JobFailedNotification: Notification)
+    var
+        MyNotifications: Record "My Notifications";
+    begin
+        MyNotifications.Disable(JobQueueFailedNotificationIdTxt);
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"My Notifications", 'OnInitializingNotificationWithDefaultState', '', false, false)]
+    local procedure OnInitializingNotificationWithDefaultState()
+    var
+        MyNotifications: Record "My Notifications";
+    begin
+        MyNotifications.InsertDefault(JobQueueFailedNotificationIdTxt, 'Job Queue Failed Notification', JobQueueFailedNotificationDescLbl, true);
+    end;
 
     procedure SetJobQueueEntryStatusToOnHold(ModifyOnlyWhenReadOnlyNotification: Notification)
     var
@@ -95,6 +236,7 @@ codeunit 454 "Job Queue - Send Notification"
         SystemWebHttpUtility := SystemWebHttpUtility.HttpUtility();
         exit(SystemWebHttpUtility.HtmlEncode(InText));
     end;
+
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterRun(JobQueueEntry: Record "Job Queue Entry"; RecordLink: Record "Record Link")

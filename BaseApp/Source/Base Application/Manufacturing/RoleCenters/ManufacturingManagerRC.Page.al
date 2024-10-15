@@ -26,7 +26,6 @@ using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Resources.Resource;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 
 page 8903 "Manufacturing Manager RC"
 {
@@ -265,12 +264,17 @@ page 8903 "Manufacturing Manager RC"
                         Caption = 'Assembly Orders';
                         RunObject = page "Assembly Orders";
                     }
+#if not CLEAN25
                     action("Orders2")
                     {
                         ApplicationArea = Service;
                         Caption = 'Service Orders';
-                        RunObject = page "Service Orders";
+                        RunObject = page Microsoft.Service.Document."Service Orders";
+                        ObsoleteReason = 'Moving Service Management to separate extension';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '25.0';
                     }
+#endif
                 }
                 group("Group9")
                 {

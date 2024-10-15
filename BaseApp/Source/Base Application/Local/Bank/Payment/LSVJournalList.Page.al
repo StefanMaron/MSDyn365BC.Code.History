@@ -15,7 +15,7 @@ page 3010832 "LSV Journal List"
     PageType = List;
     SourceTable = "LSV Journal";
     SourceTableView = sorting("No.")
-                      order(Ascending);
+                      order(ascending);
     UsageCategory = Lists;
 
     layout

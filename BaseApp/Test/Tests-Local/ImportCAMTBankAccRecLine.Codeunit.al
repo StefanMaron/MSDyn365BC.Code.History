@@ -1968,24 +1968,20 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
     var
         DataExchColumnDef: Record "Data Exch. Column Def";
     begin
-        with DataExchColumnDef do begin
-            SetRange("Data Exch. Def Code", GetCAMT054DataExch());
-            SetRange(Name, 'Ntfctn/Ntry/Amt[@Ccy]');
-            FindFirst();
-            exit("Column No.");
-        end;
+        DataExchColumnDef.SetRange("Data Exch. Def Code", GetCAMT054DataExch());
+        DataExchColumnDef.SetRange(Name, 'Ntfctn/Ntry/Amt[@Ccy]');
+        DataExchColumnDef.FindFirst();
+        exit(DataExchColumnDef."Column No.");
     end;
 
     local procedure GetCAMT054DataExchInvRefColumnNo(): Integer
     var
         DataExchColumnDef: Record "Data Exch. Column Def";
     begin
-        with DataExchColumnDef do begin
-            SetRange("Data Exch. Def Code", GetCAMT054DataExch());
-            SetRange(Name, 'Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Strd/CdtrRefInf/Ref');
-            FindFirst();
-            exit("Column No.");
-        end;
+        DataExchColumnDef.SetRange("Data Exch. Def Code", GetCAMT054DataExch());
+        DataExchColumnDef.SetRange(Name, 'Ntfctn/Ntry/NtryDtls/TxDtls/RmtInf/Strd/CdtrRefInf/Ref');
+        DataExchColumnDef.FindFirst();
+        exit(DataExchColumnDef."Column No.");
     end;
 
     local procedure GetCAMT_053_054_RmtInfStrdCdtrRef(DocumentNo: Code[20]): Text[35]
@@ -2622,22 +2618,18 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
     local procedure VerifyImportCAMT054_PmtWithDetails(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; Currency: Text; Amount: Decimal; InvDbtrName: Text; InvRefTxt: Text)
     begin
-        with BankAccReconciliationLine do begin
-            TestField("Statement Amount", Amount);
-            TestField("Related-Party Name", InvDbtrName);
-            TestField("ESR Reference No.", InvRefTxt);
-            VerifyImportCAMT054_PmtDetails(BankAccReconciliationLine, Currency, InvRefTxt);
-        end;
+        BankAccReconciliationLine.TestField("Statement Amount", Amount);
+        BankAccReconciliationLine.TestField("Related-Party Name", InvDbtrName);
+        BankAccReconciliationLine.TestField("ESR Reference No.", InvRefTxt);
+        VerifyImportCAMT054_PmtDetails(BankAccReconciliationLine, Currency, InvRefTxt);
     end;
 
     local procedure VerifyImportCAMT054_PmtWithTwoDetails(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; Currency: Text; Amount: Decimal; InvDbtrName: array[2] of Text; InvRefTxt: array[2] of Text)
     begin
-        with BankAccReconciliationLine do begin
-            TestField("Statement Amount", Amount);
-            TestField("Related-Party Name", InvDbtrName[1] + ' ' + InvDbtrName[2]);
-            TestField("ESR Reference No.", InvRefTxt[1] + ' ' + InvRefTxt[2]);
-            VerifyImportCAMT054_TwoPmtDetails(BankAccReconciliationLine, Currency, InvRefTxt);
-        end;
+        BankAccReconciliationLine.TestField("Statement Amount", Amount);
+        BankAccReconciliationLine.TestField("Related-Party Name", InvDbtrName[1] + ' ' + InvDbtrName[2]);
+        BankAccReconciliationLine.TestField("ESR Reference No.", InvRefTxt[1] + ' ' + InvRefTxt[2]);
+        VerifyImportCAMT054_TwoPmtDetails(BankAccReconciliationLine, Currency, InvRefTxt);
     end;
 
     local procedure VerifyImportCAMT054_PmtDetails(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; PmtCurrency: Text; InvRef: Text)
@@ -2665,21 +2657,17 @@ codeunit 144084 "Import CAMT Bank AccRecLine"
 
     local procedure VerifyImportCAMT054_PmtCurrency(var DataExchField: Record "Data Exch. Field"; ExpetedValue: Text)
     begin
-        with DataExchField do begin
-            SetRange("Column No.", GetCAMT054DataExchPmtCurrencyColumnNo());
-            Assert.RecordCount(DataExchField, 1);
-            FindFirst();
-            TestField(Value, ExpetedValue);
-        end;
+        DataExchField.SetRange("Column No.", GetCAMT054DataExchPmtCurrencyColumnNo());
+        Assert.RecordCount(DataExchField, 1);
+        DataExchField.FindFirst();
+        DataExchField.TestField(Value, ExpetedValue);
     end;
 
     local procedure VerifyImportCAMT054_InvRef(var DataExchField: Record "Data Exch. Field"; ExpetedValue: Text)
     begin
-        with DataExchField do begin
-            SetRange("Column No.", GetCAMT054DataExchInvRefColumnNo());
-            FindFirst();
-            TestField(Value, ExpetedValue);
-        end;
+        DataExchField.SetRange("Column No.", GetCAMT054DataExchInvRefColumnNo());
+        DataExchField.FindFirst();
+        DataExchField.TestField(Value, ExpetedValue);
     end;
 
     local procedure VerifyImportCAMT054_PmtCount(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; ExpectedCount: Integer)

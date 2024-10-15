@@ -310,10 +310,14 @@ table 6550 "Whse. Item Tracking Line"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'You cannot handle more than %1 units.';
         Text002: Label 'must not be less than %1';
         Text003: Label '%1 must be 0 or 1 when %2 is stated.';
+#pragma warning restore AA0470
         Text004: Label 'must not be negative';
+#pragma warning restore AA0074
 
     procedure GetLastEntryNo(): Integer;
     var

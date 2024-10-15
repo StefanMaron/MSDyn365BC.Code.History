@@ -88,7 +88,7 @@ codeunit 30286 "Shpfy Company API"
             GraphQuery.Append(': \"')
         else
             GraphQuery.Append(': ');
-        GraphQuery.Append(CommunicationMgt.EscapeGrapQLData(Format(ValueAsVariant)));
+        GraphQuery.Append(CommunicationMgt.EscapeGraphQLData(Format(ValueAsVariant)));
         if ValueAsString then
             GraphQuery.Append('\", ')
         else
@@ -177,7 +177,7 @@ codeunit 30286 "Shpfy Company API"
         if ShopifyCompany.Name <> xShopifyCompany.Name then
             HasChange := AddFieldToGraphQuery(GraphQuery, 'name', ShopifyCompany.Name);
         if ShopifyCompany.GetNote() <> xShopifyCompany.GetNote() then
-            HasChange := AddFieldToGraphQuery(GraphQuery, 'note', CommunicationMgt.EscapeGrapQLData(ShopifyCompany.GetNote()));
+            HasChange := AddFieldToGraphQuery(GraphQuery, 'note', CommunicationMgt.EscapeGraphQLData(ShopifyCompany.GetNote()));
 
         if HasChange then begin
             GraphQuery.Remove(GraphQuery.Length - 1, 2);

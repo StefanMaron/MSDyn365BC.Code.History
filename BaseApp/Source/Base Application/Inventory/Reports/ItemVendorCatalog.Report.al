@@ -4,7 +4,7 @@ using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Catalog;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Purchases.Pricing;
 #endif
 using Microsoft.Purchases.Vendor;
@@ -73,7 +73,7 @@ report 720 "Item/Vendor Catalog"
             column(ExtendedPriceFeatureEnabled; ExtendedPriceEnabled)
             {
             }
-#if not CLEAN23
+#if not CLEAN25
             dataitem("Purchase Price"; "Purchase Price")
             {
                 DataItemLink = "Item No." = field("No.");

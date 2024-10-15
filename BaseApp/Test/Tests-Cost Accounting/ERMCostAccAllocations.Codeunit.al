@@ -892,6 +892,7 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         asserterror REPORT.Run(REPORT::"Cost Allocation");
 
         Assert.ExpectedError(StrSubstNo(CostCenterBlockedErr, CostCenter.FieldName(Blocked), CostCenter.Code));
+        Assert.ExpectedTestFieldError(CostCenter.FieldCaption(Blocked), Format(false));
     end;
 
     local procedure Initialize()
@@ -913,11 +914,9 @@ codeunit 134813 "ERM Cost Acc. Allocations"
         LibraryCostAccounting.CreateCostCenter(CostCenter);
         CostAllocationSource.Validate("Cost Center Code", CostCenter.Code);
         CostAllocationSource.Modify(true);
-        with CostAllocationSource do begin
-            VariantField := Format(Count);
-            Validate(Variant, VariantField);
-            Modify(true);
-        end;
+        VariantField := Format(CostAllocationSource.Count);
+        CostAllocationSource.Validate(Variant, VariantField);
+        CostAllocationSource.Modify(true);
 
         SelectCostJournalBatch(CostJournalBatch);
         CreateCostJournalLineWithCC(
@@ -1237,47 +1236,42 @@ codeunit 134813 "ERM Cost Acc. Allocations"
     begin
         // Create Value Entry for the specified period in the case of absence in the local Demo Data
         // to avoid division by zero error in test
-
-        with CostAllocTarget do begin
-            Base := BaseInput;
-            "Date Filter Code" := DateFilterCode;
-            if not (CostAllocTargetBaseSales(CostAllocTarget) or CostAllocTargetBasePurchase(CostAllocTarget)) then
+        CostAllocTarget.Base := BaseInput;
+        CostAllocTarget."Date Filter Code" := DateFilterCode;
+        if not (CostAllocTargetBaseSales(CostAllocTarget) or CostAllocTargetBasePurchase(CostAllocTarget)) then
+            exit;
+        case CostAllocTarget."Date Filter Code" of
+            CostAllocTarget."Date Filter Code"::"Last Month", CostAllocTarget."Date Filter Code"::"Last Period":
+                begin
+                    StartDate := CalcDate('<-CM-1M>', WorkDate());
+                    EndDate := CalcDate('<CM>', StartDate);
+                end;
+            CostAllocTarget."Date Filter Code"::Period, CostAllocTarget."Date Filter Code"::Week:
+                begin
+                    StartDate := CalcDate('<-CW>', WorkDate());
+                    EndDate := CalcDate('<CW>', WorkDate());
+                end;
+            CostAllocTarget."Date Filter Code"::"Last Year", CostAllocTarget."Date Filter Code"::"Last Fiscal Year":
+                begin
+                    StartDate := CalcDate('<-CY-1Y>', WorkDate());
+                    EndDate := CalcDate('<CY>', StartDate);
+                end;
+            else
                 exit;
-            case "Date Filter Code" of
-                "Date Filter Code"::"Last Month", "Date Filter Code"::"Last Period":
-                    begin
-                        StartDate := CalcDate('<-CM-1M>', WorkDate());
-                        EndDate := CalcDate('<CM>', StartDate);
-                    end;
-                "Date Filter Code"::Period, "Date Filter Code"::Week:
-                    begin
-                        StartDate := CalcDate('<-CW>', WorkDate());
-                        EndDate := CalcDate('<CW>', WorkDate());
-                    end;
-                "Date Filter Code"::"Last Year", "Date Filter Code"::"Last Fiscal Year":
-                    begin
-                        StartDate := CalcDate('<-CY-1Y>', WorkDate());
-                        EndDate := CalcDate('<CY>', StartDate);
-                    end;
-                else
-                    exit;
-            end;
         end;
 
-        with ValueEntry do begin
-            FindLast();
-            "Entry No." += 1;
-            "Posting Date" :=
-              CalcDate('<''' + Format(LibraryRandom.RandInt(EndDate - StartDate)) + 'D''>', StartDate);
-            if CostAllocTargetBaseSales(CostAllocTarget) then begin
-                "Item Ledger Entry Type" := "Item Ledger Entry Type"::Sale;
-                "Sales Amount (Actual)" := LibraryRandom.RandInt(100);
-            end else begin
-                "Item Ledger Entry Type" := "Item Ledger Entry Type"::Purchase;
-                "Purchase Amount (Actual)" := LibraryRandom.RandInt(100);
-            end;
-            Insert();
+        ValueEntry.FindLast();
+        ValueEntry."Entry No." += 1;
+        ValueEntry."Posting Date" :=
+          CalcDate('<''' + Format(LibraryRandom.RandInt(EndDate - StartDate)) + 'D''>', StartDate);
+        if CostAllocTargetBaseSales(CostAllocTarget) then begin
+            ValueEntry."Item Ledger Entry Type" := ValueEntry."Item Ledger Entry Type"::Sale;
+            ValueEntry."Sales Amount (Actual)" := LibraryRandom.RandInt(100);
+        end else begin
+            ValueEntry."Item Ledger Entry Type" := ValueEntry."Item Ledger Entry Type"::Purchase;
+            ValueEntry."Purchase Amount (Actual)" := LibraryRandom.RandInt(100);
         end;
+        ValueEntry.Insert();
     end;
 
     local procedure DeleteAllocSource(AllocSourceID: Code[10])
@@ -1407,12 +1401,10 @@ codeunit 134813 "ERM Cost Acc. Allocations"
     var
         CostCenter: Record "Cost Center";
     begin
-        with CostCenter do begin
-            Get(CostCenterCode);
-            SetRange("Date Filter", WorkDate());
-            CalcFields("Balance at Date");
-            Assert.AreEqual(ExpectedBalance, "Balance at Date", StrSubstNo(WrongBalanceErr, CostCenterCode));
-        end;
+        CostCenter.Get(CostCenterCode);
+        CostCenter.SetRange("Date Filter", WorkDate());
+        CostCenter.CalcFields("Balance at Date");
+        Assert.AreEqual(ExpectedBalance, CostCenter."Balance at Date", StrSubstNo(WrongBalanceErr, CostCenterCode));
     end;
 
     [MessageHandler]

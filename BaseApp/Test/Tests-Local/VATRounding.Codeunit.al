@@ -487,11 +487,9 @@ codeunit 144000 "VAT Rounding"
 
     local procedure FindLastSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            FindLast();
-        end;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindLast();
     end;
 
     local procedure SetFixedVATPctInSetupBySalesLine(SalesLine: Record "Sales Line")
@@ -530,14 +528,12 @@ codeunit 144000 "VAT Rounding"
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
         AmtInclVAT: Decimal;
     begin
-        with SalesCrMemoLine do begin
-            SetRange("Document No.", DocNo);
-            FindSet();
-            repeat
-                AmtInclVAT += "Amount Including VAT";
-            until Next() = 0;
-            Assert.AreEqual(ExpectedAmtInclVAT, AmtInclVAT, StrSubstNo(WrongAmtInclVATInCrMemoErr, DocNo));
-        end;
+        SalesCrMemoLine.SetRange("Document No.", DocNo);
+        SalesCrMemoLine.FindSet();
+        repeat
+            AmtInclVAT += SalesCrMemoLine."Amount Including VAT";
+        until SalesCrMemoLine.Next() = 0;
+        Assert.AreEqual(ExpectedAmtInclVAT, AmtInclVAT, StrSubstNo(WrongAmtInclVATInCrMemoErr, DocNo));
     end;
 
     local procedure VerifyAmountsInVATAmountLine(SalesHeader: Record "Sales Header"; ExpectedVATBase: Decimal; ExpectedVATAmount: Decimal; ExpectedAmtInclVAT: Decimal)
@@ -546,11 +542,9 @@ codeunit 144000 "VAT Rounding"
         VATAmountLine: Record "VAT Amount Line" temporary;
     begin
         SalesLine.CalcVATAmountLines(0, SalesHeader, SalesLine, VATAmountLine);
-        with VATAmountLine do begin
-            TestField("VAT Base", ExpectedVATBase);
-            TestField("VAT Amount", ExpectedVATAmount);
-            TestField("Amount Including VAT", ExpectedAmtInclVAT);
-        end;
+        VATAmountLine.TestField("VAT Base", ExpectedVATBase);
+        VATAmountLine.TestField("VAT Amount", ExpectedVATAmount);
+        VATAmountLine.TestField("Amount Including VAT", ExpectedAmtInclVAT);
     end;
 
     local procedure GetAmountTotalIncVAT(var SalesHeader: Record "Sales Header"): Decimal

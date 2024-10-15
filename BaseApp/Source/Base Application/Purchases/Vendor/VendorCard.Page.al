@@ -32,9 +32,6 @@ using Microsoft.Utilities;
 using System.Automation;
 using System.Email;
 using System.Environment;
-#if not CLEAN22
-using System.Environment.Configuration;
-#endif
 using System.Integration.Word;
 using System.Privacy;
 using System.Utilities;
@@ -388,17 +385,6 @@ page 26 "Vendor Card"
                     Importance = Promoted;
                     ToolTip = 'Specifies the default price calculation method.';
                 }
-#if not CLEAN22
-                field("Registration No."; Rec."Registration No.")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the registration number of the vendor.';
-                    ObsoleteReason = 'Replaced with Registration Number';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                    Visible = false;
-                }
-#endif
                 field("Registration Number"; Rec."Registration Number")
                 {
                     ApplicationArea = Basic, Suite;
@@ -493,10 +479,9 @@ page 26 "Vendor Card"
                         if Rec."Block Payment Tolerance" then begin
                             if ConfirmManagement.GetResponseOrDefault(Text002, true) then
                                 PaymentToleranceMgt.DelTolVendLedgEntry(Rec);
-                        end else begin
+                        end else
                             if ConfirmManagement.GetResponseOrDefault(Text001, true) then
                                 PaymentToleranceMgt.CalcTolVendLedgEntry(Rec);
-                        end;
                     end;
                 }
                 field("Preferred Bank Account Code"; Rec."Preferred Bank Account Code")
@@ -594,10 +579,23 @@ page 26 "Vendor Card"
                 SubPageLink = "No." = field("No.");
                 Visible = not IsOfficeAddin;
             }
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = All;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::Vendor),
+                              "No." = field("No.");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = All;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::Vendor),
                               "No." = field("No.");
             }
@@ -858,7 +856,7 @@ page 26 "Vendor Card"
                         PriceUXManagement.ShowPriceListLines(PriceSource, Enum::"Price Amount Type"::Discount);
                     end;
                 }
-#if not CLEAN23
+#if not CLEAN25
                 action(PriceListsDiscounts)
                 {
                     ApplicationArea = Basic, Suite;
@@ -879,7 +877,7 @@ page 26 "Vendor Card"
                     end;
                 }
 #endif
-#if not CLEAN23
+#if not CLEAN25
                 action(Prices)
                 {
                     ApplicationArea = Basic, Suite;
@@ -1051,7 +1049,7 @@ page 26 "Vendor Card"
                     ApplicationArea = ItemTracking;
                     Caption = 'Item &Tracking Entries';
                     Image = ItemTrackingLedger;
-                    ToolTip = 'View serial or lot numbers that are assigned to items.';
+                    ToolTip = 'View serial, lot or package numbers that are assigned to items.';
 
                     trigger OnAction()
                     var
@@ -1385,37 +1383,10 @@ page 26 "Vendor Card"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Create approval flow';
                         ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
-#if not CLEAN22
-                        Visible = IsSaaS and PowerAutomateTemplatesEnabled and IsPowerAutomatePrivacyNoticeApproved;
-#else
                         Visible = IsSaaS and IsPowerAutomatePrivacyNoticeApproved;
-#endif
                         CustomActionType = FlowTemplateGallery;
                         FlowTemplateCategoryName = 'd365bc_approval_vendor';
                     }
-#if not CLEAN22
-                    action(CreateFlow)
-                    {
-                        ApplicationArea = Basic, Suite;
-                        Caption = 'Create a Power Automate approval flow';
-                        Image = Flow;
-                        ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
-                        Visible = IsSaaS and not PowerAutomateTemplatesEnabled and IsPowerAutomatePrivacyNoticeApproved;
-                        ObsoleteReason = 'This action will be handled by platform as part of the CreateFlowFromTemplate customaction';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '22.0';
-
-                        trigger OnAction()
-                        var
-                            FlowServiceManagement: Codeunit "Flow Service Management";
-                            FlowTemplateSelector: Page "Flow Template Selector";
-                        begin
-                            // Opens page 6400 where the user can use filtered templates to create new Flows.
-                            FlowTemplateSelector.SetSearchText(FlowServiceManagement.GetVendorTemplateFilter());
-                            FlowTemplateSelector.Run();
-                        end;
-                    }
-#endif
                 }
             }
             group("F&unctions")
@@ -1774,7 +1745,7 @@ page 26 "Vendor Card"
                 actionref(DiscountLines_Promoted; DiscountLines)
                 {
                 }
-#if not CLEAN23
+#if not CLEAN25
                 actionref(Prices_Promoted; Prices)
                 {
                     ObsoleteState = Pending;
@@ -1782,7 +1753,7 @@ page 26 "Vendor Card"
                     ObsoleteTag = '17.0';
                 }
 #endif
-#if not CLEAN23
+#if not CLEAN25
                 actionref("Line Discounts_Promoted"; "Line Discounts")
                 {
                     ObsoleteState = Pending;
@@ -1874,10 +1845,6 @@ page 26 "Vendor Card"
         ContactEditable := true;
 
         IsPowerAutomatePrivacyNoticeApproved := PrivacyNotice.GetPrivacyNoticeApprovalState(PrivacyNoticeRegistrations.GetPowerAutomatePrivacyNoticeId()) = "Privacy Notice Approval State"::Agreed;
-
-#if not CLEAN22
-        InitPowerAutomateTemplateVisibility();
-#endif
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -1971,8 +1938,10 @@ page 26 "Vendor Card"
         FormatAddress: Codeunit "Format Address";
         PrivacyNotice: Codeunit "Privacy Notice";
         PrivacyNoticeRegistrations: Codeunit "Privacy Notice Registrations";
+#pragma warning disable AA0074
         Text001: Label 'Do you want to allow payment tolerance for entries that are currently open?';
         Text002: Label 'Do you want to remove payment tolerance from entries that are currently open?';
+#pragma warning restore AA0074
         PageBckGrndTaskStartedTxt: Label 'Page Background Task to calculate vendor statistics for vendor %1 started.', Locked = true, Comment = '%1 = Customer No.';
         PageBckGrndTaskCompletedTxt: Label 'Page Background Task to calculate vendor statistics completed successfully.', Locked = true;
         VendorCardServiceCategoryTxt: Label 'Vendor Card', Locked = true;
@@ -2124,22 +2093,6 @@ page 26 "Vendor Card"
                 VendorRecRef.SetTable(Vendor);
             end;
     end;
-
-#if not CLEAN22
-    var
-        PowerAutomateTemplatesEnabled: Boolean;
-        PowerAutomateTemplatesFeatureLbl: Label 'PowerAutomateTemplates', Locked = true;
-
-    local procedure InitPowerAutomateTemplateVisibility()
-    var
-        FeatureKey: Record "Feature Key";
-    begin
-        PowerAutomateTemplatesEnabled := true;
-        if FeatureKey.Get(PowerAutomateTemplatesFeatureLbl) then
-            if FeatureKey.Enabled <> FeatureKey.Enabled::"All Users" then
-                PowerAutomateTemplatesEnabled := false;
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateVendorFromTemplate(var NewMode: Boolean; var Vendor: Record Vendor)

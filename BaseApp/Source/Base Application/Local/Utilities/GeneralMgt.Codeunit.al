@@ -5,9 +5,6 @@
 namespace Microsoft.Utilities;
 
 using Microsoft.Finance.GeneralLedger.Setup;
-#if CLEAN22
-using Microsoft.Purchases.Vendor;
-#endif
 using System.IO;
 
 codeunit 11501 GeneralMgt
@@ -36,9 +33,9 @@ codeunit 11501 GeneralMgt
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        if not (CurrencyCode = '') then begin
-            exit(CurrencyCode);
-        end else begin
+        if not (CurrencyCode = '') then
+            exit(CurrencyCode)
+        else begin
             GeneralLedgerSetup.Get();
             GeneralLedgerSetup.TestField("LCY Code");
             exit(GeneralLedgerSetup."LCY Code");
@@ -62,10 +59,9 @@ codeunit 11501 GeneralMgt
         TargetFile.WriteMode := true;
         TargetFile.Create(FileMgt.ServerTempFileName(''));
 
-        while SourceFile.Read(Z) = 1 do begin
+        while SourceFile.Read(Z) = 1 do
             if not (Z in [10, 13]) then
                 TargetFile.Write(Z);
-        end;
 
         SourceFile.Close();
         TempFileName := TargetFile.Name;
@@ -73,13 +69,5 @@ codeunit 11501 GeneralMgt
 
         exit(TempFileName);
     end;
-
-#if CLEAN22
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Vendor Templ. Mgt.", 'OnApplyTemplateOnBeforeVendorModify', '', false, false)]
-    local procedure ApplyLocalTemplateFields(var Vendor: Record Vendor; VendorTempl: Record "Vendor Templ.")
-    begin 
-        Vendor."Registration Number" := VendorTempl."Registration No.";
-    end;
-#endif
 }
 

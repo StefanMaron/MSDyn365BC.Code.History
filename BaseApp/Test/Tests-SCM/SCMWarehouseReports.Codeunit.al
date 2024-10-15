@@ -15,7 +15,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryAssembly: Codeunit "Library - Assembly";
-#if not CLEAN23
+#if not CLEAN25
         LibraryCosting: Codeunit "Library - Costing";
 #endif
         LibraryWarehouse: Codeunit "Library - Warehouse";
@@ -23,7 +23,7 @@ codeunit 137305 "SCM Warehouse Reports"
         LibraryManufacturing: Codeunit "Library - Manufacturing";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-#if not CLEAN23
+#if not CLEAN25
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
 #endif
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -1115,7 +1115,7 @@ codeunit 137305 "SCM Warehouse Reports"
         WarehouseEmployee.Delete(true);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [HandlerFunctions('PriceListRequestPageHandler')]
     [Scope('OnPrem')]
@@ -2890,7 +2890,7 @@ codeunit 137305 "SCM Warehouse Reports"
         PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateItemWithSalesPrice(var SalesPrice: Record "Sales Price")
     var
         Item: Record Item;
@@ -3536,7 +3536,7 @@ codeunit 137305 "SCM Warehouse Reports"
         Reply := true;
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PriceListRequestPageHandler(var PriceList: TestRequestPage "Price List")

@@ -371,17 +371,15 @@ codeunit 144002 "SEPA DD Integration Test - CH"
         LSVJnlLine.FindSet();
 
         repeat
-            with DirectDebitCollEntry do begin
-                SetRange("Direct Debit Collection No.", DirectDebitCollectionNo);
-                SetRange("Entry No.", LSVJnlLine."Line No.");
-                SetRange("Customer No.", LSVJnlLine."Customer No.");
-                SetRange("Currency Code", LSVJnlLine."Currency Code");
-                SetRange("Transfer Amount", LSVJnlLine."Collection Amount");
-                SetRange("Applies-to Entry No.", LSVJnlLine."Cust. Ledg. Entry No.");
-                SetRange("Applies-to Entry Document No.", LSVJnlLine."Applies-to Doc. No.");
-                SetRange("Mandate ID", LSVJnlLine."Direct Debit Mandate ID");
-                Assert.IsFalse(IsEmpty, StrSubstNo(RecordWithinFilterNotFoundErr, TableCaption));
-            end;
+            DirectDebitCollEntry.SetRange("Direct Debit Collection No.", DirectDebitCollectionNo);
+            DirectDebitCollEntry.SetRange("Entry No.", LSVJnlLine."Line No.");
+            DirectDebitCollEntry.SetRange("Customer No.", LSVJnlLine."Customer No.");
+            DirectDebitCollEntry.SetRange("Currency Code", LSVJnlLine."Currency Code");
+            DirectDebitCollEntry.SetRange("Transfer Amount", LSVJnlLine."Collection Amount");
+            DirectDebitCollEntry.SetRange("Applies-to Entry No.", LSVJnlLine."Cust. Ledg. Entry No.");
+            DirectDebitCollEntry.SetRange("Applies-to Entry Document No.", LSVJnlLine."Applies-to Doc. No.");
+            DirectDebitCollEntry.SetRange("Mandate ID", LSVJnlLine."Direct Debit Mandate ID");
+            Assert.IsFalse(DirectDebitCollEntry.IsEmpty, StrSubstNo(RecordWithinFilterNotFoundErr, DirectDebitCollEntry.TableCaption));
         until LSVJnlLine.Next() = 0;
     end;
 
@@ -414,13 +412,11 @@ codeunit 144002 "SEPA DD Integration Test - CH"
 
     local procedure ValidateCollectionErrorsExist(var PmtJnlExportErrText: Record "Payment Jnl. Export Error Text"; DocNo: Code[20]; JnlLineNo: Integer)
     begin
-        with PmtJnlExportErrText do begin
-            SetRange("Journal Template Name", '');
-            SetRange("Journal Batch Name", Format(DATABASE::"LSV Journal"));
-            SetRange("Document No.", DocNo);
-            SetRange("Journal Line No.", JnlLineNo);
-            Assert.IsFalse(IsEmpty, RecordWithinFilterNotFoundErr);
-        end;
+        PmtJnlExportErrText.SetRange("Journal Template Name", '');
+        PmtJnlExportErrText.SetRange("Journal Batch Name", Format(DATABASE::"LSV Journal"));
+        PmtJnlExportErrText.SetRange("Document No.", DocNo);
+        PmtJnlExportErrText.SetRange("Journal Line No.", JnlLineNo);
+        Assert.IsFalse(PmtJnlExportErrText.IsEmpty, RecordWithinFilterNotFoundErr);
     end;
 
     local procedure FindCustLedgerEntries(var CustLedgEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20])

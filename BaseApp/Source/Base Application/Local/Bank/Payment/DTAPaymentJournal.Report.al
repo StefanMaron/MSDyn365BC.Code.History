@@ -301,12 +301,10 @@ report 3010545 "DTA Payment Journal"
                                 xTxt := VendorLedgerEntry."Reference No.";
                             end;
                         VendorBankAccount."Payment Form"::"Post Payment Domestic":
-                            begin
-                                if VendorBankAccount.IBAN <> '' then
-                                    xAcc := DTAMgt.IBANDELCHR(VendorBankAccount.IBAN)
-                                else
-                                    xAcc := VendorBankAccount."Giro Account No.";
-                            end;
+                            if VendorBankAccount.IBAN <> '' then
+                                xAcc := DTAMgt.IBANDELCHR(VendorBankAccount.IBAN)
+                            else
+                                xAcc := VendorBankAccount."Giro Account No.";
                         VendorBankAccount."Payment Form"::"Bank Payment Domestic":
                             if VendorBankAccount.IBAN <> '' then
                                 xAcc := DTAMgt.IBANDELCHR(VendorBankAccount.IBAN)
@@ -315,12 +313,10 @@ report 3010545 "DTA Payment Journal"
                                 xAcc := VendorBankAccount."Bank Account No.";
                             end;
                         VendorBankAccount."Payment Form"::"Post Payment Abroad":
-                            begin
-                                if VendorBankAccount.IBAN <> '' then
-                                    xAcc := DTAMgt.IBANDELCHR(VendorBankAccount.IBAN)
-                                else
-                                    xAcc := VendorBankAccount."Bank Account No.";
-                            end;
+                            if VendorBankAccount.IBAN <> '' then
+                                xAcc := DTAMgt.IBANDELCHR(VendorBankAccount.IBAN)
+                            else
+                                xAcc := VendorBankAccount."Bank Account No.";
                         VendorBankAccount."Payment Form"::"Bank Payment Abroad":
                             if VendorBankAccount.IBAN <> '' then
                                 xAcc := DTAMgt.IBANDELCHR(VendorBankAccount.IBAN)

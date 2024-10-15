@@ -21,15 +21,11 @@ codeunit 136504 "RES Time Sheet"
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryERM: Codeunit "Library - ERM";
         LibraryJob: Codeunit "Library - Job";
-#if not CLEAN22
-        RESTimeSheet: Codeunit "RES Time Sheet";
-#endif
         IsInitialized: Boolean;
         PageVerify: Label 'The TestPage is already open.';
         TimeSheetNo: Code[20];
         TimeSheetComment: Label '%1 Comments.';
         TimeSheetLineExist: Label 'Time Sheet Line has not be deleted';
-        ResourceBlockedErr: Label 'Blocked must be equal to ''No''  in Resource:';
 
     [Test]
     [Scope('OnPrem')]
@@ -407,251 +403,6 @@ codeunit 136504 "RES Time Sheet"
         ResourcesSetup.TestField("Time Sheet by Job Approval", ResourcesSetup."Time Sheet by Job Approval"::Always);
     end;
 
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure CommentsOnTimeSheetHeaderAndLine()
-    var
-        TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheet: TestPage "Time Sheet";
-        ResourceNo: Code[20];
-    begin
-        // Check comments entered on both Time Sheet Header and Time Sheet Line.
-
-        // Setup: Create User Setup, Resource and Time Sheet.
-        Initialize();
-        TimeSheetHeader.DeleteAll();
-
-        CreateUserSetupAndTimeSheet(TimeSheetHeader);
-        ResourceNo := TimeSheetHeader."Resource No.";
-
-        // Exercise: Enter comments for Time Sheet Header and Time Sheet Line.
-        OpenTimeSheetListAndEnterComments(TimeSheetHeader."No.");
-        OpenTimeSheetAndEnterComments(TimeSheet, TimeSheetHeader."No.");
-        TimeSheet.OK().Invoke();
-
-        // Verify: Verify comments entered on both Time Sheet Header and Time Sheet Line.
-        VerifyCommentsOnTimeSheetHeader(TimeSheetHeader."No.");
-        VerifyCommentsOnTimeSheetLine(TimeSheetHeader."No.");
-
-        // Tear Down: Delete Time Sheet And Resource.
-        DeleteTimeSheetAndResource(TimeSheetHeader."No.", ResourceNo);
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure TimeSheetCommentsDeletion()
-    var
-        TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheet: TestPage "Time Sheet";
-        TimeSheetCommentSheet: TestPage "Time Sheet Comment Sheet";
-        ResourceNo: Code[20];
-    begin
-        // Check comments are removed after deletion of Time Sheet Line.
-
-        // Setup: Create User Setup, Resource, Time Sheet And enter comments for Header and Line.
-        Initialize();
-        CreateUserSetupAndTimeSheet(TimeSheetHeader);
-        ResourceNo := TimeSheetHeader."Resource No.";
-        OpenTimeSheetListAndEnterComments(TimeSheetHeader."No.");
-        OpenTimeSheetAndEnterComments(TimeSheet, TimeSheetHeader."No.");
-        TimeSheet.OK().Invoke();
-
-        // Exercise: Delete comments on Line.
-        TimeSheet.OpenView();
-        TimeSheet.CurrTimeSheetNo.SetValue(TimeSheetHeader."No.");
-        TimeSheetCommentSheet.Trap();
-        TimeSheet.LineComments.Invoke();
-        TimeSheetCommentSheet.Comment.SetValue('');
-        TimeSheet.OK().Invoke();
-
-        // Verify: Verify comments are removed after deletion of Time Sheet Line.
-        TimeSheet.OpenView();
-        TimeSheet.CurrTimeSheetNo.SetValue(TimeSheetHeader."No.");
-        TimeSheetCommentSheet.Trap();
-        TimeSheet.LineComments.Invoke();
-        TimeSheetCommentSheet.Comment.AssertEquals('');
-
-        // Tear Down: Delete Time Sheet And Resource.
-        DeleteTimeSheetAndResource(TimeSheetHeader."No.", ResourceNo);
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure ManagerTimeSheetComments()
-    var
-        TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheet: TestPage "Time Sheet";
-        ManagerTimeSheetList: TestPage "Manager Time Sheet List";
-        ResourceNo: Code[20];
-    begin
-        // Check comments on Manager Time Sheet Header and Line.
-
-        // Setup: Create User Setup, Resource, Time Sheet and enter comments for Header and Line.
-        Initialize();
-        CreateUserSetupAndTimeSheet(TimeSheetHeader);
-        ResourceNo := TimeSheetHeader."Resource No.";
-        OpenTimeSheetListAndEnterComments(TimeSheetHeader."No.");
-        OpenTimeSheetAndEnterComments(TimeSheet, TimeSheetHeader."No.");
-        TimeSheet.OK().Invoke();
-
-        // Exercise.
-        ManagerTimeSheetList.OpenView();
-
-        // Verify: Verify comments on Manager Time Sheet Header And Line.
-        VerifyCommentsOnManagerTimeSheetHeader(TimeSheetHeader."No.");
-        VerifyCommentsOnManagerTimeSheetLine(TimeSheetHeader."No.");
-
-        // Tear Down: Delete Time Sheet And Resource.
-        DeleteTimeSheetAndResource(TimeSheetHeader."No.", ResourceNo);
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('StrMenuHandler')]
-    [Scope('OnPrem')]
-    procedure RejectManagerTimeSheetLines()
-    var
-        TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheet: TestPage "Time Sheet";
-        ManagerTimeSheet: TestPage "Manager Time Sheet";
-        ResourceNo: Code[20];
-    begin
-        // Check comments on both Time Sheet Header and Time Sheet Line after rejection.
-
-        // Setup: Create User Setup, Resource, Time Sheet and enter Comments for Time Sheet Header and Line.
-        Initialize();
-        CreateUserSetupAndTimeSheet(TimeSheetHeader);
-        ResourceNo := TimeSheetHeader."Resource No.";
-        OpenTimeSheetListAndEnterComments(TimeSheetHeader."No.");
-        OpenTimeSheetAndEnterComments(TimeSheet, TimeSheetHeader."No.");
-        TimeSheet.Submit.Invoke();
-        TimeSheet.OK().Invoke();
-
-        // Exercise.
-        ManagerTimeSheet.OpenView();
-        ManagerTimeSheet.CurrTimeSheetNo.Value := TimeSheetHeader."No.";
-        ManagerTimeSheet.Reject.Invoke();
-
-        // Verify: Verify comments Entered on both Time Sheet Header and Time Sheet Line.
-        VerifyCommentsOnTimeSheetHeader(TimeSheetHeader."No.");
-        VerifyCommentsOnTimeSheetLine(TimeSheetHeader."No.");
-
-        // Tear Down: Delete Time Sheet And Resource.
-        DeleteTimeSheetAndResource(TimeSheetHeader."No.", ResourceNo);
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('StrMenuHandler')]
-    [Scope('OnPrem')]
-    procedure SubmitAndApproveTimeSheet()
-    var
-        TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheet: TestPage "Time Sheet";
-        ManagerTimeSheet: TestPage "Manager Time Sheet";
-        ResourceNo: Code[20];
-    begin
-        // Check comments on Manager Time Sheet Header and Time Sheet Line after approval.
-
-        // Setup: Create User Setup, Resource, Time Sheet and enter comments for Header and Line.
-        Initialize();
-        CreateUserSetupAndTimeSheet(TimeSheetHeader);
-        ResourceNo := TimeSheetHeader."Resource No.";
-        OpenTimeSheetListAndEnterComments(TimeSheetHeader."No.");
-        OpenTimeSheetAndEnterComments(TimeSheet, TimeSheetHeader."No.");
-        TimeSheet.Submit.Invoke();
-        TimeSheet.OK().Invoke();
-
-        // Exercise.
-
-        ManagerTimeSheetApproval(TimeSheetHeader."No.");
-
-        // Verify: Verify comments on Manager Time Sheet Header and Line.
-        VerifyCommentsOnManagerTimeSheetHeader(TimeSheetHeader."No.");
-        VerifyCommentsOnManagerTimeSheetLine(TimeSheetHeader."No.");
-
-        // Tear Down: Delete Time Sheet and Resource.
-        ManagerTimeSheet.OpenView();
-        ManagerTimeSheet.CurrTimeSheetNo.Value := TimeSheetHeader."No.";
-        ManagerTimeSheet.Reopen.Invoke();
-        TimeSheet.OpenView();
-        TimeSheet.CurrTimeSheetNo.Value := TimeSheetHeader."No.";
-        TimeSheet.Reopen.Invoke();
-        DeleteTimeSheetAndResource(TimeSheetHeader."No.", ResourceNo);
-    end;
-#endif
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('MoveTimeSheetHandler,MessageHandler,StrMenuHandler')]
-    [Scope('OnPrem')]
-    procedure ArchiveTimeSheet()
-    var
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheetLine: Record "Time Sheet Line";
-        TimeSheetHeaderArchive: Record "Time Sheet Header Archive";
-        MoveTimeSheetsToArchive: Report "Move Time Sheets to Archive";
-        TimeSheet: TestPage "Time Sheet";
-        TimeSheetArchive: TestPage "Time Sheet Archive";
-        TimeSheetArchiveList: TestPage "Time Sheet Archive List";
-        TimeSheetArcCommentSheet: TestPage "Time Sheet Arc. Comment Sheet";
-        ManagerTimeSheet: TestPage "Manager Time Sheet";
-        ResourceNo: Code[20];
-    begin
-        // Check comments after Archiving Time Sheet.
-
-        // Setup: Create User Setup, Resource, Time Sheet and enter comments for Header and Line.
-        Initialize();
-        BindSubscription(RESTimeSheet);
-
-        CreateUserSetupAndTimeSheet(TimeSheetHeader);
-        UpdateTimeSheetLine(TimeSheetHeader."No.");
-        TimeSheetNo := TimeSheetHeader."No.";
-        ResourceNo := TimeSheetHeader."Resource No.";
-        OpenTimeSheetListAndEnterComments(TimeSheetHeader."No.");
-        OpenTimeSheetAndEnterComments(TimeSheet, TimeSheetHeader."No.");
-        TimeSheet.Submit.Invoke();
-        TimeSheet.OK().Invoke();
-        ManagerTimeSheetApproval(TimeSheetHeader."No.");
-        Commit();
-
-        // Exercise: Run Move Time Sheets to Archive Report.
-        Clear(MoveTimeSheetsToArchive);
-        ManagerTimeSheet.OpenView();
-        MoveTimeSheetsToArchive.Run();
-
-        TimeSheetArchiveList.OpenView();
-        TimeSheetArchiveList.FILTER.SetFilter("No.", TimeSheetHeader."No.");
-        TimeSheetArchive.Trap();
-        TimeSheetArchiveList."&View Time Sheet".Invoke();
-        // Verify: Verify comments on Archive Time Sheet.
-        TimeSheetArchive.CurrTimeSheetNo.Value := TimeSheetHeader."No.";
-        TimeSheetArcCommentSheet.Trap();
-        TimeSheetArchive.LineComments.Invoke();
-        TimeSheetArcCommentSheet.Comment.AssertEquals(StrSubstNo(TimeSheetComment, TimeSheetLine.TableCaption()));
-        TimeSheetArcCommentSheet.Close();
-
-        // Delete Time Sheet Archive
-        TimeSheetHeaderArchive.Reset();
-        TimeSheetHeaderArchive.SetRange("No.", TimeSheetHeader."No.");
-        TimeSheetHeaderArchive.FindFirst();
-        TimeSheetHeaderArchive.Delete(true);
-
-        // Tear Down: Delete Resource.
-        Resource.Get(ResourceNo);
-        Resource.Delete(true);
-        UnbindSubscription(RESTimeSheet);
-    end;
-#endif
-
     [Test]
     [Scope('OnPrem')]
     procedure TimeSheetAdminOnUserSetup()
@@ -693,66 +444,6 @@ codeunit 136504 "RES Time Sheet"
         TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
         Assert.IsFalse(TimeSheetLine.FindFirst(), TimeSheetLineExist);
     end;
-
-#if not CLEAN22
-    [Test]
-    [Scope('OnPrem')]
-    procedure TimeSheetDecimalPlaces()
-    var
-        GLSetup: Record "General Ledger Setup";
-        UserSetup: Record "User Setup";
-        TimeSheetHeader: Record "Time Sheet Header";
-        TimeSheetLine: Record "Time Sheet Line";
-        TimeSheetList: TestPage "Time Sheet List";
-        TimeSheet: TestPage "Time Sheet";
-        TestValue: array[3] of Decimal;
-        i: Integer;
-    begin
-        // [FEATURE] [UT] [UI]
-        // [SCENARIO 378723] Time Sheet page has matrix Day's property DecimalPlaces = 0:2 from monday to friday
-        Initialize();
-        BindSubscription(RESTimeSheet);
-        TestValue[1] := 1;
-        TestValue[2] := 1.1;
-        TestValue[3] := 1.12;
-
-        // [GIVEN] Modify GLSetup."Amount Decimal Places" = '0'
-        GLSetup.Get();
-        GLSetup.Validate("Amount Decimal Places", '0');
-        GLSetup.Modify();
-
-        // [GIVEN] Time Sheet line
-        LibraryTimeSheet.CreateUserSetup(UserSetup, true);
-        UserSetup.Validate("Time Sheet Admin.", true);
-        UserSetup.Modify(true);
-
-        LibraryTimeSheet.CreateTimeSheet(TimeSheetHeader, false);
-        LibraryTimeSheet.CreateTimeSheetLine(TimeSheetHeader, TimeSheetLine, TimeSheetLine.Type::Resource, '', '', '', '');
-
-        TimeSheetList.OpenEdit();
-        TimeSheetList.GotoRecord(TimeSheetHeader);
-        TimeSheet.Trap();
-        TimeSheetList.EditTimeSheet.Invoke();
-        TimeSheet.GotoRecord(TimeSheetLine);
-
-        // [WHEN] Validate day's quantity = 1 (or 1.1 or 1.12)
-        // [THEN] Day's value = 1 (or 1.1 or 1.12 correspondently)
-        for i := 1 to ArrayLen(TestValue) do begin
-            TimeSheet.Field1.SetValue(TestValue[i]);
-            TimeSheet.Field1.AssertEquals(Format(TestValue[i]));
-            TimeSheet.Field2.SetValue(TestValue[i]);
-            TimeSheet.Field2.AssertEquals(Format(TestValue[i]));
-            TimeSheet.Field3.SetValue(TestValue[i]);
-            TimeSheet.Field3.AssertEquals(Format(TestValue[i]));
-            TimeSheet.Field4.SetValue(TestValue[i]);
-            TimeSheet.Field4.AssertEquals(Format(TestValue[i]));
-            TimeSheet.Field5.SetValue(TestValue[i]);
-            TimeSheet.Field5.AssertEquals(Format(TestValue[i]));
-        end;
-
-        UnbindSubscription(RESTimeSheet);
-    end;
-#endif
 
     [Test]
     [HandlerFunctions('JobJournalLineHandler,ConfirmHandler')]
@@ -1108,7 +799,7 @@ codeunit 136504 "RES Time Sheet"
         TimeSheetHeader."Resource No." := Resource."No.";
         asserterror TimeSheetHeader.Insert(true);
 
-        Assert.ExpectedError(ResourceBlockedErr);
+        Assert.ExpectedTestFieldError(Resource.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -1129,7 +820,7 @@ codeunit 136504 "RES Time Sheet"
 
         asserterror TimeSheetHeader.Validate("Resource No.", Resource."No.");
 
-        Assert.ExpectedError(ResourceBlockedErr);
+        Assert.ExpectedTestFieldError(Resource.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -1150,7 +841,7 @@ codeunit 136504 "RES Time Sheet"
         TimeSheetHeader.Validate("Starting Date", WorkDate());
         asserterror TimeSheetHeader.Modify(true);
 
-        Assert.ExpectedError(ResourceBlockedErr);
+        Assert.ExpectedTestFieldError(Resource.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -1170,7 +861,7 @@ codeunit 136504 "RES Time Sheet"
 
         asserterror TimeSheetHeader.Rename(LibraryUtility.GenerateGUID());
 
-        Assert.ExpectedError(ResourceBlockedErr);
+        Assert.ExpectedTestFieldError(Resource.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -1190,7 +881,7 @@ codeunit 136504 "RES Time Sheet"
 
         asserterror TimeSheetHeader.Delete(true);
 
-        Assert.ExpectedError(ResourceBlockedErr);
+        Assert.ExpectedTestFieldError(Resource.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -1213,7 +904,7 @@ codeunit 136504 "RES Time Sheet"
         TimeSheetLine."Time Sheet No." := TimeSheetHeader."No.";
         asserterror TimeSheetLine.Insert(true);
 
-        Assert.ExpectedError(ResourceBlockedErr);
+        Assert.ExpectedTestFieldError(Resource.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -1236,7 +927,7 @@ codeunit 136504 "RES Time Sheet"
         TimeSheetLine.Validate(Description, LibraryUtility.GenerateGUID());
         asserterror TimeSheetLine.Modify(true);
 
-        Assert.ExpectedError(ResourceBlockedErr);
+        Assert.ExpectedTestFieldError(Resource.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -1258,63 +949,8 @@ codeunit 136504 "RES Time Sheet"
 
         asserterror TimeSheetLine.Delete(true);
 
-        Assert.ExpectedError(ResourceBlockedErr);
+        Assert.ExpectedTestFieldError(Resource.FieldCaption(Blocked), Format(false));
     end;
-
-#if not CLEAN22
-    [Test]
-    [HandlerFunctions('MoveTimeSheetHandler,MessageHandler,StrMenuHandler')]
-    [Scope('OnPrem')]
-    procedure VerifyCommentonHeaderArchiveTimeSheet()
-    var
-        Resource: Record Resource;
-        TimeSheetHeader: Record "Time Sheet Header";
-        MoveTimeSheetsToArchive: Report "Move Time Sheets to Archive";
-        TimeSheet: TestPage "Time Sheet";
-        TimeSheetArchive: TestPage "Time Sheet Archive";
-        TimeSheetArchiveList: TestPage "Time Sheet Archive List";
-        TimeSheetArcCommentSheet: TestPage "Time Sheet Arc. Comment Sheet";
-        ManagerTimeSheet: TestPage "Manager Time Sheet";
-        ResourceNo: Code[20];
-    begin
-        // [SCENARIO 450262] Header Comments not visible/saved in Time Sheet Archive Card
-        Initialize();
-
-        // [GIVEN] Setup: Create User Setup, Resource, Time Sheet and enter comments for Header and Line.
-        BindSubscription(RESTimeSheet);
-        CreateUserSetupAndTimeSheet(TimeSheetHeader);
-        UpdateTimeSheetLine(TimeSheetHeader."No.");
-        TimeSheetNo := TimeSheetHeader."No.";
-        ResourceNo := TimeSheetHeader."Resource No.";
-        OpenTimeSheetListAndEnterComments(TimeSheetHeader."No.");
-        OpenTimeSheetAndEnterComments(TimeSheet, TimeSheetHeader."No.");
-        TimeSheet.Submit.Invoke();
-        TimeSheet.OK().Invoke();
-        ManagerTimeSheetApproval(TimeSheetHeader."No.");
-        Commit();
-
-        // [THEN] Exercise: Run Move Time Sheets to Archive Report.
-        Clear(MoveTimeSheetsToArchive);
-        ManagerTimeSheet.OpenView();
-        MoveTimeSheetsToArchive.Run();
-
-        TimeSheetArchiveList.OpenView();
-        TimeSheetArchiveList.FILTER.SetFilter("No.", TimeSheetHeader."No.");
-        TimeSheetArchive.Trap();
-        TimeSheetArchiveList."&View Time Sheet".Invoke();
-        // [VERIFY] Verify comments on Archive Time Sheet.
-        TimeSheetArchive.CurrTimeSheetNo.Value := TimeSheetHeader."No.";
-        TimeSheetArcCommentSheet.Trap();
-        TimeSheetArchive.TimeSheetComments.Invoke();
-        TimeSheetArcCommentSheet.Comment.AssertEquals(StrSubstNo(TimeSheetComment, TimeSheetHeader.TableCaption()));
-        TimeSheetArcCommentSheet.Close();
-
-        // [THEN] Tear Down: Delete Resource.
-        Resource.Get(ResourceNo);
-        Resource.Delete(true);
-        UnbindSubscription(RESTimeSheet);
-    end;
-#endif
 
     local procedure Initialize()
     var
@@ -1485,20 +1121,6 @@ codeunit 136504 "RES Time Sheet"
         TimeSheetList.Close();
     end;
 
-#if not CLEAN22
-    local procedure OpenTimeSheetAndEnterComments(var TimeSheet: TestPage "Time Sheet"; TimeSheetHeaderNo: Code[20])
-    var
-        TimeSheetLine: Record "Time Sheet Line";
-        TimeSheetCommentSheet: TestPage "Time Sheet Comment Sheet";
-    begin
-        TimeSheet.OpenView();
-        TimeSheet.CurrTimeSheetNo.SetValue(TimeSheetHeaderNo);
-        TimeSheetCommentSheet.Trap();
-        TimeSheet.LineComments.Invoke();
-        TimeSheetCommentSheet.Comment.SetValue(StrSubstNo(TimeSheetComment, TimeSheetLine.TableCaption()));
-    end;
-#endif
-
     local procedure DeleteTimeSheetAndResource(No: Code[20]; ResourceNo: Code[20])
     var
         Resource: Record Resource;
@@ -1599,13 +1221,11 @@ codeunit 136504 "RES Time Sheet"
         JobJournalTemplate.Modify();
 
         LibraryJob.CreateJobJournalBatch(JobJournalTemplate.Name, JobJournalBatch);
-        with JobJournalLine do begin
-            Init();
-            Validate("Journal Template Name", JobJournalTemplate.Name);
-            Validate("Journal Batch Name", JobJournalBatch.Name);
-            SetRange("Journal Template Name", "Journal Template Name");
-            SetRange("Journal Batch Name", "Journal Batch Name");
-        end;
+        JobJournalLine.Init();
+        JobJournalLine.Validate("Journal Template Name", JobJournalTemplate.Name);
+        JobJournalLine.Validate("Journal Batch Name", JobJournalBatch.Name);
+        JobJournalLine.SetRange("Journal Template Name", JobJournalLine."Journal Template Name");
+        JobJournalLine.SetRange("Journal Batch Name", JobJournalLine."Journal Batch Name");
     end;
 
     local procedure RunSuggestJobJnlLinesReport(SourceCode: Code[10])
@@ -1627,15 +1247,13 @@ codeunit 136504 "RES Time Sheet"
     begin
         ResourcesSetup.Get();
         LibraryTimeSheet.GetAccountingPeriod(AccountingPeriod);
-        with Date do begin
-            SetRange("Period Type", "Period Type"::Date);
-            SetFilter("Period Start", '%1..', AccountingPeriod."Starting Date");
-            SetRange("Period No.", ResourcesSetup."Time Sheet First Weekday" + 1);
-            FindSet();
-            while Date2DMY("Period Start", 1) < 28 do
-                Next();
-            exit("Period Start");
-        end;
+        Date.SetRange("Period Type", Date."Period Type"::Date);
+        Date.SetFilter("Period Start", '%1..', AccountingPeriod."Starting Date");
+        Date.SetRange("Period No.", ResourcesSetup."Time Sheet First Weekday" + 1);
+        Date.FindSet();
+        while Date2DMY(Date."Period Start", 1) < 28 do
+            Date.Next();
+        exit(Date."Period Start");
     end;
 
     local procedure FindTimeSheetHeader(var TimeSheetHeader: Record "Time Sheet Header"; ResourceNo: Code[20])
@@ -1661,11 +1279,9 @@ codeunit 136504 "RES Time Sheet"
 
     local procedure IncrementJobJournalLineBatch(var JobJournalLine: Record "Job Journal Line")
     begin
-        with JobJournalLine do begin
-            "Journal Batch Name" := CopyStr(IncStr("Journal Batch Name"), 1, MaxStrLen("Journal Batch Name"));
-            SetRange("Journal Batch Name", "Journal Batch Name");
-            DeleteAll(true);
-        end;
+        JobJournalLine."Journal Batch Name" := CopyStr(IncStr(JobJournalLine."Journal Batch Name"), 1, MaxStrLen(JobJournalLine."Journal Batch Name"));
+        JobJournalLine.SetRange("Journal Batch Name", JobJournalLine."Journal Batch Name");
+        JobJournalLine.DeleteAll(true);
     end;
 
     local procedure DeleteResource(ResourceNo: Code[20])
@@ -1688,21 +1304,6 @@ codeunit 136504 "RES Time Sheet"
         TimeSheetList.Comments.Invoke();
         TimeSheetCommentSheet.Comment.AssertEquals(StrSubstNo(TimeSheetComment, TimeSheetHeader.TableCaption()));
     end;
-
-#if not CLEAN22
-    local procedure VerifyCommentsOnTimeSheetLine(TimeSheetHeaderNo: Code[20])
-    var
-        TimeSheetLine: Record "Time Sheet Line";
-        TimeSheet: TestPage "Time Sheet";
-        TimeSheetCommentSheet: TestPage "Time Sheet Comment Sheet";
-    begin
-        TimeSheet.OpenView();
-        TimeSheet.CurrTimeSheetNo.Value := TimeSheetHeaderNo;
-        TimeSheetCommentSheet.Trap();
-        TimeSheet.LineComments.Invoke();
-        TimeSheetCommentSheet.Comment.AssertEquals(StrSubstNo(TimeSheetComment, TimeSheetLine.TableCaption()));
-    end;
-#endif
 
     local procedure VerifyCommentsOnManagerTimeSheetHeader(TimeSheetHeaderNo: Code[20])
     var
@@ -1747,20 +1348,10 @@ codeunit 136504 "RES Time Sheet"
         TimeSheetLine: Record "Time Sheet Line";
     begin
         FindTimeSheetHeader(TimeSheetHeader, ResourceNo);
-        with TimeSheetLine do begin
-            SetRange("Time Sheet No.", TimeSheetHeader."No.");
-            SetRange(Posted, true);
-            Assert.RecordCount(TimeSheetLine, ExpectedCount);
-        end;
+        TimeSheetLine.SetRange("Time Sheet No.", TimeSheetHeader."No.");
+        TimeSheetLine.SetRange(Posted, true);
+        Assert.RecordCount(TimeSheetLine, ExpectedCount);
     end;
-
-#if not CLEAN22
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Time Sheet Management", 'OnAfterTimeSheetV2Enabled', '', false, false)]
-    local procedure OnAfterTimeSheetV2Enabled(var Result: Boolean)
-    begin
-        Result := false;
-    end;
-#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]

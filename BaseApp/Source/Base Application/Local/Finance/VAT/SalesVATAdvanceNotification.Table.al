@@ -97,7 +97,7 @@ table 11011 "Sales VAT Advance Notification"
         }
         field(18; "Transmission successful"; Boolean)
         {
-            CalcFormula = Exist("Transmission Log Entry" where("Sales VAT Adv. Notif. No." = field("No."),
+            CalcFormula = exist("Transmission Log Entry" where("Sales VAT Adv. Notif. No." = field("No."),
                                                                 "Transmission successful" = const(true)));
             Caption = 'Transmission successful';
             Editable = false;

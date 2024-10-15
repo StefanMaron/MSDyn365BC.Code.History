@@ -71,14 +71,12 @@ codeunit 142083 "SCM Misc. DACH"
         Location: Record Location;
     begin
         LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
-        with Location do begin
-            Validate("Require Receive", SetRequireReceive);
-            Validate("Require Put-away", SetRequirePutAway);
-            Validate("Require Shipment", SetRequireShipment);
-            Validate("Require Pick", SetRequirePick);
-            Modify(true);
-            exit(Code);
-        end;
+        Location.Validate("Require Receive", SetRequireReceive);
+        Location.Validate("Require Put-away", SetRequirePutAway);
+        Location.Validate("Require Shipment", SetRequireShipment);
+        Location.Validate("Require Pick", SetRequirePick);
+        Location.Modify(true);
+        exit(Location.Code);
     end;
 
     [RequestPageHandler]

@@ -34,17 +34,15 @@ codeunit 132496 MockOnPostNotificationRequest
             'DotNetException':
                 HttpWebRequest := HttpWebRequest.Create('d');
             'WebException':
-                begin
-                    if Sender.GetCurrentRetryCounter() = 1 then begin
-                        HttpWebRequest := HttpWebRequest.Create('https://www.bingsdf.com');
-                        HttpWebRequest.Method := 'POST';
-                        HttpWebRequest.ContentType('application/json');
-                        HttpWebResponse := HttpWebRequest.GetResponse();
-                        HttpWebResponse.Close(); // close connection
-                        HttpWebResponse.Dispose(); // cleanup of IDisposable
-                    end else
-                        exit;
-                end;
+                if Sender.GetCurrentRetryCounter() = 1 then begin
+                    HttpWebRequest := HttpWebRequest.Create('https://www.bingsdf.com');
+                    HttpWebRequest.Method := 'POST';
+                    HttpWebRequest.ContentType('application/json');
+                    HttpWebResponse := HttpWebRequest.GetResponse();
+                    HttpWebResponse.Close(); // close connection
+                    HttpWebResponse.Dispose(); // cleanup of IDisposable
+                end else
+                    exit;
         end;
     end;
 

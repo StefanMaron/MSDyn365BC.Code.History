@@ -247,7 +247,11 @@ report 1404 "Bank Acc. - Detail Trial Bal."
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Period: %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         BankAccFilter: Text;
         DateFilter_BankAccount: Text;
         BankAccBalance: Decimal;

@@ -10,7 +10,6 @@ codeunit 138200 "Normal DemoData"
 
     var
         Assert: Codeunit Assert;
-        NoPurchHeaderErr: Label 'There is no Purchase Header within the filter.';
         EmptyBlobErr: Label 'BLOB field is empty.';
         XOUTGOINGTxt: Label 'OUTGOING';
         XINCOMETxt: Label 'INCOME';
@@ -34,25 +33,6 @@ codeunit 138200 "Normal DemoData"
             IsDemoCompany := CompanyInformation.Name.Contains('CRONUS');
 
         Assert.AreEqual(IsDemoCompany, CompanyInformation."Demo Company", StrSubstNo('%1 must be set to true for Company: %2', CompanyInformation.FieldName("Demo Company"), CompanyInformation.Name));
-    end;
-
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PostPurchInvoices()
-    var
-        PurchHeader: Record "Purchase Header";
-    begin
-        // [FEATURE] [Purchase]
-        // [SCENARIO] There are no Purchase Invoices to post
-        with PurchHeader do begin
-            // [WHEN] Post all Invoices
-            Reset();
-            SetRange("Document Type", "Document Type"::Invoice);
-            asserterror FindFirst();
-            // [THEN] Error: 'There is no Purchase Header within the filter.'
-            Assert.ExpectedError(NoPurchHeaderErr);
-        end;
     end;
 
     [Test]
@@ -181,16 +161,14 @@ codeunit 138200 "Normal DemoData"
     begin
         // [FEATURE] [Electronic Document]
         // [SCENARIO 341241] Electronic document format has setup for PEPPOL BIS3 for all Usage options
-        with ElectronicDocumentFormat do
-            for UsageOption := Usage::"Sales Invoice".AsInteger() to Usage::"Service Validation".AsInteger() do
-                ElectronicDocumentFormat.Get('PEPPOL BIS3', UsageOption);
+        for UsageOption := ElectronicDocumentFormat.Usage::"Sales Invoice".AsInteger() to ElectronicDocumentFormat.Usage::"Service Validation".AsInteger() do
+            ElectronicDocumentFormat.Get('PEPPOL BIS3', UsageOption);
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure JobDefaultDimension()
     var
-
         Job: Record Job;
     begin
         // [FEATURE] [Job] [Dimensions]
@@ -224,16 +202,14 @@ codeunit 138200 "Normal DemoData"
     begin
         // [FEATURE] [VAT Return Period]
         // [SCENARIO 258181] TAB 743 "VAT Report Setup" default setup
-        with VATReportSetup do begin
-            Get();
-            TestField("VAT Return Period No. Series");
-            TestField("Report Version", '');
-            TestField("Period Reminder Calculation", DummyDateFormula);
-            TestField("Update Period Job Frequency", "Update Period Job Frequency"::Never);
-            TestField("Manual Receive Period CU ID", 0);
-            TestField("Receive Submitted Return CU ID", 0);
-            TestField("Auto Receive Period CU ID", 0);
-        end;
+        VATReportSetup.Get();
+        VATReportSetup.TestField("VAT Return Period No. Series");
+        VATReportSetup.TestField("Report Version", '');
+        VATReportSetup.TestField("Period Reminder Calculation", DummyDateFormula);
+        VATReportSetup.TestField("Update Period Job Frequency", VATReportSetup."Update Period Job Frequency"::Never);
+        VATReportSetup.TestField("Manual Receive Period CU ID", 0);
+        VATReportSetup.TestField("Receive Submitted Return CU ID", 0);
+        VATReportSetup.TestField("Auto Receive Period CU ID", 0);
     end;
 
     [Test]
@@ -248,28 +224,6 @@ codeunit 138200 "Normal DemoData"
         DefaultDimension.SetFilter("Allowed Values Filter", '<>%1', '');
         Assert.RecordIsNotEmpty(DefaultDimension);
     end;
-
-#if not CLEAN22
-#pragma warning disable AS0072
-    [Test]
-    [Obsolete('Not Used.', '22.0')]
-    procedure AdvancedIntrastatChecklist()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        AdvancedIntrastatChecklist: Record "Advanced Intrastat Checklist";
-    begin
-        Assert.RecordCount(AdvancedIntrastatChecklist, 21);
-
-        AdvancedIntrastatChecklistCommonFields(Report::"Intrastat - Checklist");
-        AdvancedIntrastatChecklistCommonFields(Report::"Intrastat - Form");
-        AdvancedIntrastatChecklistCommonFields(Report::"Intrastat - Make Disk Tax Auth");
-
-        AdvancedIntrastatChecklistField(Report::"Intrastat - Checklist", IntrastatJnlLine.FieldNo(Quantity), '');
-        AdvancedIntrastatChecklistField(Report::"Intrastat - Form", IntrastatJnlLine.FieldNo(Quantity), 'Supplementary Units: Yes');
-        AdvancedIntrastatChecklistField(Report::"Intrastat - Make Disk Tax Auth", IntrastatJnlLine.FieldNo(Quantity), 'Supplementary Units: Yes');
-    end;
-#pragma warning restore AS0072
-#endif
 
     [Test]
     procedure AccountScheduleHideCurrencySymbol()
@@ -309,32 +263,6 @@ codeunit 138200 "Normal DemoData"
         ColumnLayout.Get(ColumnLayoutName, LineNo);
         ColumnLayout.TestField("Hide Currency Symbol", true);
     end;
-
-#if not CLEAN22
-    local procedure AdvancedIntrastatChecklistCommonFields(ReportId: Integer)
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-    begin
-        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Tariff No."), '');
-        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Country/Region Code"), '');
-        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Transaction Type"), '');
-        // TFS ID 437762: Export with supplementary units option enabled and no weight
-        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Total Weight"), 'Supplementary Units: No');
-        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Partner VAT ID"), 'Type: Shipment');
-        AdvancedIntrastatChecklistField(ReportId, IntrastatJnlLine.FieldNo("Country/Region of Origin Code"), 'Type: Shipment');
-    end;
-
-    local procedure AdvancedIntrastatChecklistField(ReportId: Integer; FieldNo: Integer; FilterExpr: Text)
-    var
-        AdvancedIntrastatChecklist: Record "Advanced Intrastat Checklist";
-    begin
-        AdvancedIntrastatChecklist.SetRange("Object Type", AdvancedIntrastatChecklist."Object Type"::Report);
-        AdvancedIntrastatChecklist.SetRange("Object Id", ReportId);
-        AdvancedIntrastatChecklist.SetRange("Field No.", FieldNo);
-        AdvancedIntrastatChecklist.SetRange("Filter Expression", FilterExpr);
-        Assert.IsFalse(AdvancedIntrastatChecklist.IsEmpty(), 'Advanced Intrastat Checklist Setup');
-    end;
-#endif
 
     [Test]
     procedure GBIsExcludedFromEUCountry()

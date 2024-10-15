@@ -206,7 +206,9 @@ report 1201 "Post Direct Debit Collection"
     end;
 
     var
+#pragma warning disable AA0470
         TemplateTypeErr: Label 'Only General Journal templates of type %1, %2, %3, %4, or %5 are allowed.', Comment = '%1..5 lists Type=General,Purchases,Payments,Sales,Cash Receipts';
+#pragma warning restore AA0470
         DirectDebitCollection: Record "Direct Debit Collection";
         GenJnlLine: Record "Gen. Journal Line";
         GenJnlBatch: Record "Gen. Journal Batch";
@@ -221,7 +223,9 @@ report 1201 "Post Direct Debit Collection"
         CreateJnlOnly: Boolean;
         TotalCount: Integer;
         CurrCount: Integer;
+#pragma warning disable AA0470
         ProgressMsg: Label '#1##################';
+#pragma warning restore AA0470
         JnlCreatedMsg: Label '%1 journal lines were created. %2 lines were skipped.', Comment = '%1 and %2 are both numbers / count.';
         PostedMsg: Label '%1 payments were posted. %2 lines were skipped.', Comment = '%1 and %2 are both numbers / count.';
         SkippedCount: Integer;

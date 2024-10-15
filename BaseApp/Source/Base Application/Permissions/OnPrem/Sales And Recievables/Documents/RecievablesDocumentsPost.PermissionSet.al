@@ -14,6 +14,7 @@ using Microsoft.Foundation.Shipping;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Finance.VAT.RateChange;
+using Microsoft.Finance.VAT.Registration;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.Analysis;
 using Microsoft.Bank.BankAccount;
@@ -47,8 +48,6 @@ using Microsoft.Projects.Resources.Resource;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Comment;
 using Microsoft.Sales.RoleCenters;
-using Microsoft.Service.Document;
-using Microsoft.Service.Setup;
 using Microsoft.Finance.SalesTax;
 using System.Security.User;
 using Microsoft.Warehouse.Request;
@@ -155,8 +154,6 @@ permissionset 2529 "Recievables Documents - Post"
                   tabledata "Sales Shipment Header" = Rim,
                   tabledata "Sales Shipment Line" = Rim,
                   tabledata "Serial No. Information" = R,
-                  tabledata "Service Document Register" = Rd,
-                  tabledata "Service Mgt. Setup" = R,
                   tabledata "Shipping Agent" = R,
                   tabledata "Shipping Agent Services" = R,
                   tabledata "Source Code Setup" = R,
@@ -179,6 +176,7 @@ permissionset 2529 "Recievables Documents - Post"
                   tabledata "VAT Setup Posting Groups" = R,
                   tabledata "VAT Setup" = R,
                   tabledata "VAT Posting Parameters" = R,
+                  tabledata "Alt. Cust. VAT Reg." = R,
                   tabledata "Warehouse Request" = RIMD,
                   tabledata "Whse. Pick Request" = RIMD;
 }

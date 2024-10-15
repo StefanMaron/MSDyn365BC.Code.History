@@ -1,4 +1,4 @@
-#if not CLEAN23
+#if not CLEAN25
 #pragma warning disable AS0072
 codeunit 134167 "Copy Price Data Test"
 {

@@ -183,9 +183,9 @@ report 11509 "Vendor Payment Order"
                 else
                     VendBank.Get(Vendor."No.", Vendor."Preferred Bank Account Code");
 
-                if VendBank.IBAN <> '' then begin
-                    BankAccNo := VendBank.IBAN;
-                end else begin
+                if VendBank.IBAN <> '' then
+                    BankAccNo := VendBank.IBAN
+                else begin
                     if VendBank."Giro Account No." <> '' then
                         GiroAccTxt := VendBank."Giro Account No."
                     else

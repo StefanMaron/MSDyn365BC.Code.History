@@ -3,6 +3,7 @@
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Projects.TimeSheet;
+
 using Microsoft.Projects.Resources.Setup;
 
 page 949 "Time Sheet Lines"
@@ -105,12 +106,6 @@ page 949 "Time Sheet Lines"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies which work type the resource applies to. Prices are updated based on this entry.';
                     Visible = WorkTypeCodeVisible;
-                }
-                field("Service Order No."; Rec."Service Order No.")
-                {
-                    ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the service order number that is associated with the time sheet line.';
-                    Visible = ServiceOrderNoVisible;
                 }
                 field("Assembly Order No."; Rec."Assembly Order No.")
                 {
@@ -371,9 +366,12 @@ page 949 "Time Sheet Lines"
         ColumnCaption: array[7] of Text[30];
         NoOfColumns: Integer;
         LoadEntriesForPeriod: Option Month,Year,All;
-        WorkTypeCodeVisible, JobFieldsVisible, ChargeableVisible, ServiceOrderNoVisible, AbsenceCauseVisible, AssemblyOrderNoVisible : Boolean;
+        WorkTypeCodeVisible, JobFieldsVisible, ChargeableVisible, AbsenceCauseVisible, AssemblyOrderNoVisible : Boolean;
         TimeSheetNoHideValue: Boolean;
         LastStartDate: Date;
+
+    protected var
+        ServiceOrderNoVisible: Boolean;
 
     local procedure UpdateValuesPerDays()
     var
@@ -490,7 +488,7 @@ page 949 "Time Sheet Lines"
         if not TempTimeSheetLine.FindFirst() then
             if Rec.Posted then begin
                 TimeSheetLineArchive.SetRange("Time Sheet No.", Rec."Time Sheet No.");
-                TimeSheetLineArchive.SetFilter(Type, '<>%1&<>%2', TimeSheetLine.Type::Service, TimeSheetLine.Type::"Assembly Order");
+                TimeSheetLineArchive.SetExclusionTypeFilter();
                 if TimeSheetLineArchive.FindLast() then begin
                     TempTimeSheetLine.TransferFields(TimeSheetLineArchive);
                     TempTimeSheetLine.Insert();
@@ -499,7 +497,7 @@ page 949 "Time Sheet Lines"
             else begin
                 TimeSheetLine.CopyFilters(Rec);
                 TimeSheetLine.SetRange("Time Sheet No.", Rec."Time Sheet No.");
-                TimeSheetLine.SetFilter(Type, '<>%1&<>%2', TimeSheetLine.Type::Service, TimeSheetLine.Type::"Assembly Order");
+                TimeSheetLine.SetExclusionTypeFilter();
                 if TimeSheetLine.FindLast() then begin
                     TempTimeSheetLine := TimeSheetLine;
                     TempTimeSheetLine.Insert();

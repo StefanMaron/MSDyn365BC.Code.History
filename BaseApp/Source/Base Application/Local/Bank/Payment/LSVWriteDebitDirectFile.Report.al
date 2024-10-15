@@ -18,17 +18,16 @@ report 3010839 "LSV Write DebitDirect File"
     {
         dataitem("LSV Journal"; "LSV Journal")
         {
-            DataItemTableView = sorting("No.") order(Ascending);
+            DataItemTableView = sorting("No.") order(ascending);
 
             trigger OnAfterGetRecord()
             begin
                 if "File Written On" <> 0D then begin
                     if not Confirm(Text001, true, "No.", "File Written On") then
                         exit;
-                end else begin
+                end else
                     if not Confirm(Text003, true, "No.") then
                         exit;
-                end;
 
                 WriteFile("LSV Journal");
             end;
@@ -432,13 +431,12 @@ report 3010839 "LSV Write DebitDirect File"
     begin
         if MessageTxt = '' then
             MessageTxt := Text038 + CustLedgEntry."Document No."
-        else begin
+        else
             if StrLen(MessageTxt + ' ' + CustLedgEntry."Document No.") < 100 then
                 MessageTxt := MessageTxt + ' ' + CustLedgEntry."Document No."
             else
                 if StrPos(MessageTxt, Text039) = 0 then  // etc. not yet added
                     MessageTxt := MessageTxt + ' ' + Text039;
-        end;
     end;
 
     [Scope('OnPrem')]

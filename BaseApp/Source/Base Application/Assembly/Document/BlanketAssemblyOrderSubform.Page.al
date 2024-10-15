@@ -303,7 +303,7 @@ page 941 "Blanket Assembly Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromAsmLine(Rec, ItemAvailFormsMgt.ByEvent());
+                            AssemblyAvailabilityMgt.ShowItemAvailabilityFromAsmLine(Rec, "Item Availability Type"::"Event");
                         end;
                     }
                     action(Period)
@@ -315,7 +315,7 @@ page 941 "Blanket Assembly Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromAsmLine(Rec, ItemAvailFormsMgt.ByPeriod());
+                            AssemblyAvailabilityMgt.ShowItemAvailabilityFromAsmLine(Rec, "Item Availability Type"::Period);
                         end;
                     }
                     action(Variant)
@@ -327,7 +327,7 @@ page 941 "Blanket Assembly Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromAsmLine(Rec, ItemAvailFormsMgt.ByVariant());
+                            AssemblyAvailabilityMgt.ShowItemAvailabilityFromAsmLine(Rec, "Item Availability Type"::Variant);
                         end;
                     }
                     action(Location)
@@ -340,7 +340,7 @@ page 941 "Blanket Assembly Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromAsmLine(Rec, ItemAvailFormsMgt.ByLocation());
+                            AssemblyAvailabilityMgt.ShowItemAvailabilityFromAsmLine(Rec, "Item Availability Type"::Location);
                         end;
                     }
                     action(Lot)
@@ -363,7 +363,7 @@ page 941 "Blanket Assembly Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromAsmLine(Rec, ItemAvailFormsMgt.ByBOM());
+                            AssemblyAvailabilityMgt.ShowItemAvailabilityFromAsmLine(Rec, "Item Availability Type"::BOM);
                         end;
                     }
                 }
@@ -471,7 +471,7 @@ page 941 "Blanket Assembly Order Subform"
     end;
 
     var
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        AssemblyAvailabilityMgt: Codeunit "Assembly Availability Mgt.";
         VariantCodeMandatory: Boolean;
 
     protected var

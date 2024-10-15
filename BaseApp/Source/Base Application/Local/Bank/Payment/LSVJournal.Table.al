@@ -150,10 +150,9 @@ table 3010832 "LSV Journal"
 
         CustLedgerEntry.Reset();
         CustLedgerEntry.SetCurrentKey("LSV No.");
-        if CustLedgerEntry.FindLast() then begin
+        if CustLedgerEntry.FindLast() then
             if CustLedgerEntry."LSV No." > "No." then
-                "No." := CustLedgerEntry."LSV No." + 1
-        end;
+                "No." := CustLedgerEntry."LSV No." + 1;
     end;
 
     var

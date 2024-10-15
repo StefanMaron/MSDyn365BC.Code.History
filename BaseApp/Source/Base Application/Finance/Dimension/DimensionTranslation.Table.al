@@ -68,7 +68,11 @@ table 388 "Dimension Translation"
     }
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%1 Code';
         Text002: Label '%1 Filter';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

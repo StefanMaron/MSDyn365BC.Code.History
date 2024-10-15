@@ -48,8 +48,10 @@ page 442 "Reminder Comment Sheet"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'untitled';
         Text001: Label 'Reminder';
+#pragma warning restore AA0074
 
     procedure Caption(ReminderCommentLine: Record "Reminder Comment Line"): Text
     begin

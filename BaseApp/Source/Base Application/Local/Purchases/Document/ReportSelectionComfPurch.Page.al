@@ -1,4 +1,5 @@
-﻿// ------------------------------------------------------------------------------------------------
+﻿#if not CLEAN25
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -15,6 +16,9 @@ page 5005391 "Report Selection - Comf. Purch"
     SaveValues = true;
     SourceTable = "DACH Report Selections";
     UsageCategory = Tasks;
+    ObsoleteReason = 'Replaced by page Report Selections Purchase';
+    ObsoleteState = Pending;
+    ObsoleteTag = '25.0';
 
     layout
     {
@@ -96,4 +100,4 @@ page 5005391 "Report Selection - Comf. Purch"
         CurrPage.Update();
     end;
 }
-
+#endif

@@ -32,8 +32,6 @@ using Microsoft.Purchases.Archive;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Archive;
-using Microsoft.Service.Contract;
-using Microsoft.Service.Pricing;
 using Microsoft.Finance.SalesTax;
 using Microsoft.Foundation.Period;
 using Microsoft.Inventory.Item;
@@ -116,8 +114,6 @@ permissionset 9111 "General Ledger Accounts - Edit"
                   tabledata "Sales Line" = r,
                   tabledata "Sales Shipment Header" = r,
                   tabledata "Sales Shipment Line" = r,
-                  tabledata "Service Contract Account Group" = r,
-                  tabledata "Service Cost" = r,
                   tabledata "Standard General Journal" = r,
                   tabledata "Standard General Journal Line" = r,
                   tabledata "Standard Purchase Line" = r,

@@ -811,6 +811,9 @@ report 405 "Order"
                         column(SellToCustNo_PurchHeaderCaption; "Purchase Header".FieldCaption("Sell-to Customer No."))
                         {
                         }
+                        column(ShipToPhoneNo; "Purchase Header"."Ship-to Phone No.")
+                        {
+                        }
 
                         trigger OnPreDataItem()
                         begin
@@ -1144,15 +1147,9 @@ report 405 "Order"
 
         trigger OnInit()
         begin
-            LogInteractionEnable := true;
-            ArchiveDocument := PurchSetup."Archive Orders";
-        end;
-
-        trigger OnOpenPage()
-        begin
             InitLogInteraction();
-
             LogInteractionEnable := LogInteraction;
+            ArchiveDocument := PurchSetup."Archive Orders";
         end;
     }
 
@@ -1179,12 +1176,6 @@ report 405 "Order"
                       "Purchase Header"."No. of Archived Versions", DATABASE::Vendor, "Purchase Header"."Buy-from Vendor No.",
                       "Purchase Header"."Purchaser Code", '', "Purchase Header"."Posting Description", '');
                 until "Purchase Header".Next() = 0;
-    end;
-
-    trigger OnPreReport()
-    begin
-        if not CurrReport.UseRequestPage then
-            InitLogInteraction();
     end;
 
     var
@@ -1239,9 +1230,13 @@ report 405 "Order"
         VALVATAmountLCY: Decimal;
         VALSpecLCYHeader: Text[80];
         VALExchRate: Text[50];
+#pragma warning disable AA0074
         Text007: Label 'VAT Amount Specification in ';
         Text008: Label 'Local Currency';
+#pragma warning disable AA0470
         Text009: Label 'Exchange rate: %1/%2';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PrepmtVATAmount: Decimal;
         PrepmtVATBaseAmount: Decimal;
         PrepmtTotalAmountInclVAT: Decimal;
@@ -1372,12 +1367,12 @@ report 405 "Order"
         CHReportManagement.PrepareFooter(RecRef, REPORT::Order, FooterLabel, FooterTxt);
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterInitReport()
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterPostDataItem(var PurchaseHeader: Record "Purchase Header")
     begin
     end;

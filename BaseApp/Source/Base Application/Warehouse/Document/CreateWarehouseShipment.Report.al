@@ -5,7 +5,6 @@ using Microsoft.Inventory.Tracking;
 using Microsoft.Inventory.Transfer;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 using Microsoft.Warehouse.Request;
 
 report 5708 "Create Warehouse Shipment"
@@ -36,9 +35,10 @@ report 5708 "Create Warehouse Shipment"
                         CreateWarehouseShipmentForSalesOrder();
                     "Source Document"::"Outbound Transfer":
                         CreateWarehouseShipmentForTransferOrder();
-                    "Source Document"::"Service Order":
-                        CreateWarehouseShipmentForServiceOrder();
                 end;
+
+                OnWarehouseRequestOnAfterGetRecord("Warehouse Request");
+
             end;
         }
     }
@@ -138,21 +138,7 @@ report 5708 "Create Warehouse Shipment"
         CreateWarehouseShipmentFromWhseRequest(WarehouseRequest);
     end;
 
-    local procedure CreateWarehouseShipmentForServiceOrder()
-    var
-        ServiceHeader: Record "Service Header";
-        WarehouseRequest: Record "Warehouse Request";
-    begin
-        WarehouseRequest.Copy("Warehouse Request");
-
-        ServiceHeader.Get(ServiceHeader."Document Type"::Order, WarehouseRequest."Source No.");
-        if ServiceHeader."Release Status" <> ServiceHeader."Release Status"::"Released to Ship" then
-            exit;
-
-        CreateWarehouseShipmentFromWhseRequest(WarehouseRequest);
-    end;
-
-    local procedure CreateWarehouseShipmentFromWhseRequest(var WarehouseRequest: Record "Warehouse Request")
+    procedure CreateWarehouseShipmentFromWhseRequest(var WarehouseRequest: Record "Warehouse Request")
     var
         GetSourceDocuments: Report "Get Source Documents";
     begin
@@ -163,5 +149,10 @@ report 5708 "Create Warehouse Shipment"
         GetSourceDocuments.SetTableView(WarehouseRequest);
         GetSourceDocuments.SetHideDialog(true);
         GetSourceDocuments.RunModal();
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnWarehouseRequestOnAfterGetRecord(WarehouseRequest: Record "Warehouse Request")
+    begin
     end;
 }

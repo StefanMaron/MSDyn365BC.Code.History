@@ -32,7 +32,6 @@ using Microsoft.Projects.TimeSheet;
 using Microsoft.Purchases.Setup;
 using Microsoft.Sales.Reminder;
 using Microsoft.Sales.Setup;
-using Microsoft.Service.Setup;
 using System.AI;
 using System.Automation;
 using System.DataAdministration;
@@ -181,12 +180,6 @@ page 8900 "Administrator Main Role Center"
                         Caption = 'Customer/Vendor/Item Templates';
                         RunObject = page "Config Templates";
                     }
-                    // action("Setup and Help Resources")
-                    // {
-                    //     ApplicationArea = Basic, Suite;
-                    //     Caption = 'Setup and Help Resources';
-                    //     RunObject = page 1822;
-                    // }
                     action("Transformation Rules")
                     {
                         ApplicationArea = Basic, Suite;
@@ -292,12 +285,6 @@ page 8900 "Administrator Main Role Center"
                         Caption = 'Report Selections Reminder/Fin. Charge';
                         RunObject = page "Report Selection - Reminder";
                     }
-                    action("Report Selection Service")
-                    {
-                        ApplicationArea = Service;
-                        Caption = 'Report Selections Service';
-                        RunObject = page "Report Selection - Service";
-                    }
                     action("Report Selection Sales")
                     {
                         ApplicationArea = Basic, Suite;
@@ -322,24 +309,17 @@ page 8900 "Administrator Main Role Center"
                         Caption = 'Report Selections Prod. Order';
                         RunObject = page "Report Selection - Prod. Order";
                     }
-                    // action("Report Selections VAT")
-                    // {
-                    //     ApplicationArea = Basic, Suite;
-                    //     Caption = 'Report Selections VAT';
-                    //     RunObject = page "Report Selections VAT";
-                    // }
-                    // action("Report Selection - Comf. Invt.")
-                    // {
-                    //     ApplicationArea = Basic, Suite;
-                    //     Caption = 'Report Selection - Comf. Invt.';
-                    //     RunObject = page 5005392;
-                    // }
+#if not CLEAN25
                     action("Report Selection - Comf. Purch")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Report Selection - Comf. Purch';
                         RunObject = page "Report Selection - Comf. Purch";
+                        ObsoleteReason = 'Replaced by action Report Selection - Purchase';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '25.0';
                     }
+#endif
                 }
                 group("Group7")
                 {
@@ -596,18 +576,6 @@ page 8900 "Administrator Main Role Center"
                     Caption = 'Users';
                     RunObject = page "Users";
                 }
-#if not CLEAN22
-                action("User Groups")
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'User Groups';
-                    RunObject = page "User Groups";
-                    Visible = false; // cannot control the visibility with the feature switch
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced by the Security Groups action.';
-                    ObsoleteTag = '22.0';
-                }
-#endif
                 action("Security Groups")
                 {
                     ApplicationArea = Basic, Suite;
@@ -817,12 +785,6 @@ page 8900 "Administrator Main Role Center"
                     Caption = 'Web Services';
                     RunObject = page "Web Services";
                 }
-                // action("Bank Data Conv. Service Setup")
-                // {
-                //     ApplicationArea = Basic, Suite;
-                //     Caption = 'Bank Data Conv. Service Setup';
-                //     RunObject = page 1260;
-                // }
                 action("Microsoft Dynamics 365 Connection Setup")
                 {
                     ApplicationArea = Suite;

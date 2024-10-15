@@ -93,7 +93,11 @@ page 560 "Dimension Value List"
 
     var
         GLSetup: Record "General Ledger Setup";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Shortcut Dimension %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Emphasize: Boolean;
         NameIndent: Integer;
 

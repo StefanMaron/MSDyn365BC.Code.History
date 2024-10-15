@@ -99,9 +99,13 @@ page 695 "Confirm Financial Void"
         CheckLedgerEntry: Record "Check Ledger Entry";
         VoidDate: Date;
         VoidType: Option "Unapply and void check","Void check only";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Void Date must not be before the original %1.';
         Text001: Label '%1 No.';
+#pragma warning restore AA0470
         Text002: Label 'Do you want to void this check?';
+#pragma warning restore AA0074
 
     procedure SetCheckLedgerEntry(var NewCheckLedgerEntry: Record "Check Ledger Entry")
     begin

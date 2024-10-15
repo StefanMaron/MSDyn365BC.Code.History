@@ -87,7 +87,9 @@ table 1295 "Posted Payment Recon. Hdr"
     end;
 
     var
+#pragma warning disable AA0470
         HasBankEntriesQst: Label 'One or more bank account ledger entries in bank account %1 have been reconciled for bank account statement %2, and contain information about the bank statement. These bank ledger entries will not be modified if you delete bank account statement %2.\\Do you want to continue?';
+#pragma warning restore AA0470
 
     local procedure GetCurrencyCode(): Code[10]
     var

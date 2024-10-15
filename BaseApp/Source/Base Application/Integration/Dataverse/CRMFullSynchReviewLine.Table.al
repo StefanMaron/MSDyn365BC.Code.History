@@ -82,8 +82,8 @@ table 5373 "CRM Full Synch. Review Line"
         field(10; "Job Queue Entry Status"; Option)
         {
             Caption = 'Job Queue Entry Status';
-            OptionCaption = ' ,Ready,In Process,Error,On Hold,Finished';
-            OptionMembers = " ",Ready,"In Process",Error,"On Hold",Finished;
+            OptionCaption = ' ,Ready,In Process,Error,On Hold,Finished,On Hold with Inactivity Timeout,Waiting';
+            OptionMembers = " ",Ready,"In Process",Error,"On Hold",Finished,"On Hold with Inactivity Timeout",Waiting;
 
             trigger OnValidate()
             begin
@@ -461,6 +461,7 @@ table 5373 "CRM Full Synch. Review Line"
     local procedure GetIntTableMappingNameJobQueueEntry(JobQueueEntry: Record "Job Queue Entry"): Code[20]
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
+        SearchIntegrationTableMapping: Record "Integration Table Mapping";
         RecID: RecordID;
         RecRef: RecordRef;
     begin
@@ -470,10 +471,11 @@ table 5373 "CRM Full Synch. Review Line"
         if RecID.TableNo = DATABASE::"Integration Table Mapping" then begin
             RecRef := RecID.GetRecord();
             RecRef.SetTable(IntegrationTableMapping);
-            if not IntegrationTableMapping.Find() then
+            SearchIntegrationTableMapping.SetLoadFields("Full Sync is Running", "Delete After Synchronization", "Parent Name");
+            if not SearchIntegrationTableMapping.Get(IntegrationTableMapping.Name) then
                 exit('');
-            if IntegrationTableMapping.IsFullSynch() then
-                exit(IntegrationTableMapping."Parent Name");
+            if SearchIntegrationTableMapping.IsFullSynch() then
+                exit(SearchIntegrationTableMapping."Parent Name");
         end;
     end;
 

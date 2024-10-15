@@ -66,15 +66,22 @@ codeunit 5818 "Undo Service Shipment Line"
         TempWhseJnlLine: Record "Warehouse Journal Line" temporary;
         WhseUndoQty: Codeunit "Whse. Undo Quantity";
         UndoPostingMgt: Codeunit "Undo Posting Management";
+        ServUndoPostingMgt: Codeunit "Serv. Undo Posting Mgt.";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
+#pragma warning disable AA0074
         Text000: Label 'Do you want to undo the selected shipment line(s)?';
         Text001: Label 'Undo quantity posting...';
         Text002: Label 'There is not enough space to insert correction lines.';
         Text003: Label 'Checking lines...';
+#pragma warning restore AA0074
         NextLineNo: Integer;
         HideDialog: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text004: Label 'The component list for %1 %2 was changed. You may need to adjust the list manually.\';
+#pragma warning restore AA0470
         Text005: Label 'Some shipment lines may have unused service items. Do you want to delete them?';
+#pragma warning restore AA0074
         AlreadyReversedErr: Label 'This service shipment has already been reversed.';
 
     local procedure CheckComponentsAdjusted(var ServiceShptLine: Record "Service Shipment Line"): Boolean
@@ -219,7 +226,7 @@ codeunit 5818 "Undo Service Shipment Line"
         ServShptLine.TestField("Qty. Shipped Not Invoiced", ServShptLine.Quantity);
         if ServShptLine.Correction then
             Error(AlreadyReversedErr);
-        UndoPostingMgt.TestServShptLine(ServShptLine);
+        ServUndoPostingMgt.TestServShptLine(ServShptLine);
         if ServShptLine.Type = ServShptLine.Type::Item then begin
             UndoPostingMgt.CollectItemLedgEntries(TempItemLedgEntry, DATABASE::"Service Shipment Line",
               ServShptLine."Document No.", ServShptLine."Line No.", ServShptLine."Quantity (Base)", ServShptLine."Item Shpt. Entry No.");
@@ -345,7 +352,7 @@ codeunit 5818 "Undo Service Shipment Line"
         ServLine: Record "Service Line";
     begin
         ServLine.Get(ServLine."Document Type"::Order, ServShptLine."Order No.", ServShptLine."Order Line No.");
-        UndoPostingMgt.UpdateServLine(ServLine, ServShptLine.Quantity, ServShptLine."Quantity (Base)", TempGlobalItemLedgEntry);
+        ServUndoPostingMgt.UpdateServLine(ServLine, ServShptLine.Quantity, ServShptLine."Quantity (Base)", TempGlobalItemLedgEntry);
         OnAfterUpdateOrderLine(ServLine, ServShptLine);
     end;
 
@@ -356,7 +363,7 @@ codeunit 5818 "Undo Service Shipment Line"
         if TempItemEntryRelation.Find('-') then
             repeat
                 ItemEntryRelation := TempItemEntryRelation;
-                ItemEntryRelation.TransferFieldsServShptLine(NewServShptLine);
+                NewServShptLine.TransferToItemEntryRelation(ItemEntryRelation);
                 ItemEntryRelation.Insert();
             until TempItemEntryRelation.Next() = 0;
     end;
@@ -367,7 +374,7 @@ codeunit 5818 "Undo Service Shipment Line"
         SrcCodeSetup: Record "Source Code Setup";
         ServiceShptHeader: Record "Service Shipment Header";
         ResJnlPostLine: Codeunit "Res. Jnl.-Post Line";
-        TimeSheetMgt: Codeunit "Time Sheet Management";
+        ServTimeSheetMgt: Codeunit "Serv. Time Sheet Mgt.";
         IsHandled: Boolean;
     begin
         ResJnlLine.Init();
@@ -404,7 +411,7 @@ codeunit 5818 "Undo Service Shipment Line"
             ResJnlPostLine.RunWithCheck(ResJnlLine);
         OnPostResJnlLineOnAfterRunWithCheck(ResJnlLine, ServiceShptLine);
 
-        TimeSheetMgt.CreateTSLineFromServiceShptLine(ServiceShptLine);
+        ServTimeSheetMgt.CreateTSLineFromServiceShptLine(ServiceShptLine);
     end;
 
     local procedure DeleteServShptLineServItems(ServShptLine: Record "Service Shipment Line")

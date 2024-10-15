@@ -323,15 +323,21 @@ table 7338 "Bin Creation Worksheet Line"
         WMSMgt: Codeunit "WMS Management";
         OpenFromBatch: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%1 Worksheet';
+#pragma warning restore AA0470
         Text002: Label 'Default Worksheet';
         Text003: Label 'Cancelled.';
         Text004: Label 'DEFAULT';
+#pragma warning disable AA0470
         Text005: Label 'The Total Cubage %1 of the %2 in the bin contents exceeds the entered %3 %4.\Do you still want to enter this %3?';
         Text007: Label 'The %1 %2 %3 does not match the %4 %5.';
         Text008: Label 'The location %1 of bin creation  Wksh. batch %2 is not enabled for user %3.';
         Text009: Label 'The %1 %2 must not be less than the %3 %4.';
         Text010: Label 'There is already a default bin content for location code %1, item no. %2 and variant code %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure EmptyLine(): Boolean
     begin

@@ -337,12 +337,11 @@ report 11507 "Vendor Payments List"
                         Exrate := CalcExrate("Original Amount", "Original Amt. (LCY)");
 
                     Status := CopyStr(Text000, 1, MaxStrLen(Status));
-                    if Open then begin
+                    if Open then
                         if "Remaining Amt. (LCY)" = "Amount (LCY)" then
                             Status := CopyStr(Text001, 1, MaxStrLen(Status))
                         else
                             Status := CopyStr(Text002, 1, MaxStrLen(Status));
-                    end;
                 end;
 
                 if Layout = Layout::Standard then begin

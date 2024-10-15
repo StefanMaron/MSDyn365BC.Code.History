@@ -235,8 +235,12 @@ report 706 Status
         HereofNegativeCaptionLbl: Label 'Hereof Negative';
         IsAverageCostItem: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'As of %1';
+#pragma warning restore AA0470
         Text001: Label 'Enter the Status Date';
+#pragma warning restore AA0074
 
     local procedure CalcRemainingQty()
     var

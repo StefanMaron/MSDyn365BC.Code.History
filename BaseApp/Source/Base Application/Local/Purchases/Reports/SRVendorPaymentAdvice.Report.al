@@ -190,7 +190,7 @@ report 11561 "SR Vendor Payment Advice"
                 }
                 dataitem(PmtVendEntryLoop; "Integer")
                 {
-                    DataItemTableView = sorting(Number) WHERE(Number = filter(1 ..));
+                    DataItemTableView = sorting(Number) where(Number = filter(1 ..));
                     column(PostingDate_PartPmtVendorEntry; Format(TempVendLedgEntry."Posting Date"))
                     {
                     }
@@ -234,7 +234,7 @@ report 11561 "SR Vendor Payment Advice"
                 }
                 dataitem(RelatedPmtVendEntryLoop; "Integer")
                 {
-                    DataItemTableView = sorting(Number) WHERE(Number = filter(1 ..));
+                    DataItemTableView = sorting(Number) where(Number = filter(1 ..));
                     column(DocNo_PartPmtVendorEntry2; TempRelatedVendLedgEntry."Document No.")
                     {
                     }
@@ -535,7 +535,7 @@ report 11561 "SR Vendor Payment Advice"
     var
         VendBank: Record "Vendor Bank Account";
     begin
-        if TempGenJourLine.Find('-') then begin
+        if TempGenJourLine.Find('-') then
             repeat
                 if not VendBank.Get(TempGenJourLine."Account No.", TempGenJourLine."Recipient Bank Account") then
                     Error(Text002, TempGenJourLine."Recipient Bank Account", TempGenJourLine."Account No.");
@@ -544,7 +544,7 @@ report 11561 "SR Vendor Payment Advice"
                 else
                     TempGenJourLine.Mark(false);
             until TempGenJourLine.Next() = 0;
-        end;
+
         TempGenJourLine.MarkedOnly(true);
     end;
 

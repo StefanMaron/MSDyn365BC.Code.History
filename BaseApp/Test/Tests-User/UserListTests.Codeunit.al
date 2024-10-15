@@ -64,7 +64,7 @@ codeunit 135800 "User List Tests"
         UserCardPage: TestPage "User Card";
     begin
         User.SetRange("User Name", UserName);
-        If User.FindFirst() then
+        if User.FindFirst() then
             exit;
 
         UserCardPage.OpenNew();

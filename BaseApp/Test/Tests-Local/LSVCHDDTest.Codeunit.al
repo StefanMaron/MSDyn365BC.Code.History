@@ -160,13 +160,11 @@ codeunit 144001 "LSV CH DD Test"
     begin
         LibraryLSV.CreateESRSetup(ESRSetup);
         LSVBankCode := LibraryLSV.CreateLSVSetup(LSVSetup, ESRSetup);
-        with LSVSetup do begin
-            "Bal. Account Type" := "Bal. Account Type"::"G/L Account";
-            GLAccount.SetRange("Gen. Posting Type", GLAccount."Gen. Posting Type"::Sale);
-            LibraryERM.FindGLAccount(GLAccount);
-            "Bal. Account No." := GLAccount."No.";
-            Modify();
-        end;
+        LSVSetup."Bal. Account Type" := LSVSetup."Bal. Account Type"::"G/L Account";
+        GLAccount.SetRange("Gen. Posting Type", GLAccount."Gen. Posting Type"::Sale);
+        LibraryERM.FindGLAccount(GLAccount);
+        LSVSetup."Bal. Account No." := GLAccount."No.";
+        LSVSetup.Modify();
         LibraryLSV.CreateLSVJournal(LSVJnl, LSVSetup);
         LibraryLSV.CreateLSVCustomer(Customer, '');
         CreatePostLSVSalesDocs(Customer."No.", 1);
@@ -180,26 +178,22 @@ codeunit 144001 "LSV CH DD Test"
     var
         LSVSetup: Record "LSV Setup";
     begin
-        with LSVSetup do begin
-            Get(LSVBankCode);
-            Result := "DebitDirect Import Filename";
-            "DebitDirect Import Filename" := DDImportFileName;
-            Modify();
-        end;
+        LSVSetup.Get(LSVBankCode);
+        Result := LSVSetup."DebitDirect Import Filename";
+        LSVSetup."DebitDirect Import Filename" := DDImportFileName;
+        LSVSetup.Modify();
     end;
 
     local procedure GetPathToDDFile(LSVBankCode: Code[20]; PathType: Option Export,Import): Text[250]
     var
         LSVSetup: Record "LSV Setup";
     begin
-        with LSVSetup do begin
-            Get(LSVBankCode);
-            case PathType of
-                PathType::Export:
-                    exit("LSV File Folder" + "LSV Filename");
-                PathType::Import:
-                    exit("LSV File Folder" + "LSV Filename" + FileSuffixTxt);
-            end;
+        LSVSetup.Get(LSVBankCode);
+        case PathType of
+            PathType::Export:
+                exit(LSVSetup."LSV File Folder" + LSVSetup."LSV Filename");
+            PathType::Import:
+                exit(LSVSetup."LSV File Folder" + LSVSetup."LSV Filename" + FileSuffixTxt);
         end;
     end;
 
@@ -278,11 +272,10 @@ codeunit 144001 "LSV CH DD Test"
 
     local procedure CheckCustLedgerEntriesAreOnHold(CustLedgEntry: Record "Cust. Ledger Entry")
     begin
-        with CustLedgEntry do
-            repeat
-                Assert.AreEqual("On Hold", 'LSV', FieldCaption("On Hold"));
-                Assert.AreEqual(Open, true, FieldCaption(Open));
-            until Next() = 0;
+        repeat
+            Assert.AreEqual(CustLedgEntry."On Hold", 'LSV', CustLedgEntry.FieldCaption("On Hold"));
+            Assert.AreEqual(CustLedgEntry.Open, true, CustLedgEntry.FieldCaption(Open));
+        until CustLedgEntry.Next() = 0;
     end;
 
     local procedure FindLSVJournalLines(var LSVJnlLine: Record "LSV Journal Line"; LSVJnlNo: Integer)
@@ -295,16 +288,15 @@ codeunit 144001 "LSV CH DD Test"
     var
         LSVJournal: Record "LSV Journal";
     begin
-        with LSVJnlLine do
-            repeat
-                SetRange("Customer No.", CustLedgEntry."Customer No.");
-                SetRange("Currency Code", CustLedgEntry."Currency Code");
-                SetRange("Applies-to Doc. No.", CustLedgEntry."Document No.");
-                SetRange("Cust. Ledg. Entry No.", CustLedgEntry."Entry No.");
-                CustLedgEntry.CalcFields(Amount);
-                SetRange("Remaining Amount", CustLedgEntry.Amount);
-                Assert.IsFalse(IsEmpty, StrSubstNo(RecordNotFoundErr, TableCaption));
-            until CustLedgEntry.Next() = 0;
+        repeat
+            LSVJnlLine.SetRange("Customer No.", CustLedgEntry."Customer No.");
+            LSVJnlLine.SetRange("Currency Code", CustLedgEntry."Currency Code");
+            LSVJnlLine.SetRange("Applies-to Doc. No.", CustLedgEntry."Document No.");
+            LSVJnlLine.SetRange("Cust. Ledg. Entry No.", CustLedgEntry."Entry No.");
+            CustLedgEntry.CalcFields(Amount);
+            LSVJnlLine.SetRange("Remaining Amount", CustLedgEntry.Amount);
+            Assert.IsFalse(LSVJnlLine.IsEmpty, StrSubstNo(RecordNotFoundErr, LSVJnlLine.TableCaption));
+        until CustLedgEntry.Next() = 0;
 
         LSVJournal.Get(LSVJnlLine."LSV Journal No.");
         LSVJournal.CalcFields("No. Of Entries Plus");
@@ -352,16 +344,12 @@ codeunit 144001 "LSV CH DD Test"
         Line: Text[1024];
         i: Integer;
     begin
-        with InFile do begin
-            TextMode(true);
-            Open(PathToFile);
-            CreateInStream(InStr);
-        end;
-        with OutFile do begin
-            TextMode(true);
-            Create(PathToFile + FileSuffixTxt);
-            CreateOutStream(OutStr);
-        end;
+        InFile.TextMode(true);
+        InFile.Open(PathToFile);
+        InFile.CreateInStream(InStr);
+        OutFile.TextMode(true);
+        OutFile.Create(PathToFile + FileSuffixTxt);
+        OutFile.CreateOutStream(OutStr);
         while not InStr.EOS do begin
             i += 1;
             InStr.ReadText(Line);
@@ -402,12 +390,10 @@ codeunit 144001 "LSV CH DD Test"
         GenJournalTemplate.SetRange(Type, GenJournalTemplate.Type::"Cash Receipts");
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
         LibraryERM.FindGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        with GenJournalLine do begin
-            SetRange("Journal Template Name", GenJournalTemplate.Name);
-            SetRange("Journal Batch Name", GenJournalBatch.Name);
-            "Journal Template Name" := GenJournalTemplate.Name;
-            "Journal Batch Name" := GenJournalBatch.Name;
-        end;
+        GenJournalLine.SetRange("Journal Template Name", GenJournalTemplate.Name);
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine."Journal Template Name" := GenJournalTemplate.Name;
+        GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
         LSVMgt.ImportDebitDirectFile(GenJournalLine);
     end;
 
@@ -456,22 +442,19 @@ codeunit 144001 "LSV CH DD Test"
     var
         LSVJnl: Record "LSV Journal";
     begin
-        with LSVJnl do begin
-            SetRange("LSV Bank Code", LSVBankCode);
-            FindFirst();
-            Assert.AreEqual("Collection Completed On", Today, FieldCaption("Collection Completed On"));
-            Assert.AreEqual("Collection Completed By", UserId, FieldCaption("Collection Completed By"));
-            Assert.AreEqual("File Written On", Today, FieldCaption("File Written On"));
-            Assert.AreEqual("LSV Status", "LSV Status"::"File Created", FieldCaption("LSV Status"));
-        end;
+        LSVJnl.SetRange("LSV Bank Code", LSVBankCode);
+        LSVJnl.FindFirst();
+        Assert.AreEqual(LSVJnl."Collection Completed On", Today, LSVJnl.FieldCaption("Collection Completed On"));
+        Assert.AreEqual(LSVJnl."Collection Completed By", UserId, LSVJnl.FieldCaption("Collection Completed By"));
+        Assert.AreEqual(LSVJnl."File Written On", Today, LSVJnl.FieldCaption("File Written On"));
+        Assert.AreEqual(LSVJnl."LSV Status", LSVJnl."LSV Status"::"File Created", LSVJnl.FieldCaption("LSV Status"));
     end;
 
     local procedure VerifyApplicationWithVATBalancingError(GenJournalLine: Record "Gen. Journal Line")
     begin
-        with GenJournalLine do
-            Assert.ExpectedError(
+        Assert.ExpectedError(
               StrSubstNo(
-                PmtApplnErr, "Journal Template Name", "Journal Batch Name", "Line No."));
+                PmtApplnErr, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No."));
     end;
 }
 

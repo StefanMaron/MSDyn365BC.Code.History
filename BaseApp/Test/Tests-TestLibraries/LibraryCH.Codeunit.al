@@ -18,16 +18,14 @@ codeunit 143001 "Library - CH"
     begin
         CreateVATStatementNameWithTemplate(VATStatementName, VATStatementLine);
         LibraryERM.CreateVATStatementLine(VATStatementLine, VATStatementName."Statement Template Name", VATStatementName.Name);
-        with VATStatementLine do begin
-            Validate(Type, Type::"VAT Entry Totaling");
-            Validate("Account Totaling", GLAccountNo);
-            Validate("Gen. Posting Type", VATPostingType);
-            Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-            Validate("Amount Type", AmountType);
-            Validate("VAT Statement Cipher", VATStatementCipher);
-            Modify(true);
-        end;
+        VATStatementLine.Validate(Type, VATStatementLine.Type::"VAT Entry Totaling");
+        VATStatementLine.Validate("Account Totaling", GLAccountNo);
+        VATStatementLine.Validate("Gen. Posting Type", VATPostingType);
+        VATStatementLine.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        VATStatementLine.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        VATStatementLine.Validate("Amount Type", AmountType);
+        VATStatementLine.Validate("VAT Statement Cipher", VATStatementCipher);
+        VATStatementLine.Modify(true);
     end;
 
     [Scope('OnPrem')]
@@ -41,18 +39,16 @@ codeunit 143001 "Library - CH"
         LibraryERM.CreateVATBusinessPostingGroup(VATBusPostingGroup);
         LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroup.Code, VATProdPostingGroup.Code);
-        with VATPostingSetup do begin
-            Validate("VAT Calculation Type", VATCalculationType);
-            Validate("VAT %", LibraryRandom.RandDec(25, 2));
-            Validate("Sales VAT Account", GLAccount."No.");
-            Validate("Purchase VAT Account", GLAccount."No.");
-            Validate("Reverse Chrg. VAT Acc.", GLAccount."No.");
-            Validate("VAT Identifier",
-              LibraryUtility.GenerateRandomCode(FieldNo("VAT Identifier"), DATABASE::"VAT Posting Setup"));
-            Validate("Sales VAT Stat. Cipher", SalesVATStatCipher);
-            Validate("Purch. VAT Stat. Cipher", PurchaseVATStatCipher);
-            Modify(true);
-        end;
+        VATPostingSetup.Validate("VAT Calculation Type", VATCalculationType);
+        VATPostingSetup.Validate("VAT %", LibraryRandom.RandDec(25, 2));
+        VATPostingSetup.Validate("Sales VAT Account", GLAccount."No.");
+        VATPostingSetup.Validate("Purchase VAT Account", GLAccount."No.");
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", GLAccount."No.");
+        VATPostingSetup.Validate("VAT Identifier",
+          LibraryUtility.GenerateRandomCode(VATPostingSetup.FieldNo("VAT Identifier"), DATABASE::"VAT Posting Setup"));
+        VATPostingSetup.Validate("Sales VAT Stat. Cipher", SalesVATStatCipher);
+        VATPostingSetup.Validate("Purch. VAT Stat. Cipher", PurchaseVATStatCipher);
+        VATPostingSetup.Modify(true);
     end;
 
     [Scope('OnPrem')]
@@ -62,12 +58,10 @@ codeunit 143001 "Library - CH"
     begin
         LibraryERM.CreateCountryRegion(CountryRegion);
         LibraryPurchase.CreateVendor(Vendor);
-        with Vendor do begin
-            Validate("Country/Region Code", CountryRegion.Code);
-            Validate("Gen. Bus. Posting Group", GenBusPostingGroup);
-            Validate("VAT Bus. Posting Group", VATBusPostingGroup);
-            Modify(true);
-        end;
+        Vendor.Validate("Country/Region Code", CountryRegion.Code);
+        Vendor.Validate("Gen. Bus. Posting Group", GenBusPostingGroup);
+        Vendor.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
+        Vendor.Modify(true);
     end;
 
     [Scope('OnPrem')]

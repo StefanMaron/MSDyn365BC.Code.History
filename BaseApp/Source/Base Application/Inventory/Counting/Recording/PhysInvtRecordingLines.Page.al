@@ -82,7 +82,7 @@ page 5882 "Phys. Invt. Recording Lines"
                 field("Use Item Tracking"; Rec."Use Item Tracking")
                 {
                     ApplicationArea = Warehouse;
-                    ToolTip = 'Specifies if it is necessary to record the item using serial numbers or lot numbers.';
+                    ToolTip = 'Specifies if it is necessary to record the item using serial, lot or package numbers.';
                 }
                 field("Serial No."; Rec."Serial No.")
                 {

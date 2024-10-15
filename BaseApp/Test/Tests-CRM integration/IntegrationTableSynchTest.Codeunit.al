@@ -704,7 +704,8 @@ codeunit 139165 "Integration Table Synch. Test"
         // [GIVEN] Integration Table Mapping for Customer, where config template is defined
         IntegrationTableMapping.SetRange("Table ID", DATABASE::Customer);
         IntegrationTableMapping.FindFirst();
-        IntegrationTableMapping."Table Config Template Code" := ConfigTemplateHeader.Code;
+        DeleteTableConfigTemplates(IntegrationTableMapping);
+        CreateTableConfigTemplate(IntegrationTableMapping, ConfigTemplateHeader.Code);
 
         // [GIVEN] Field "Location Code" is not mapped
         IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
@@ -751,7 +752,7 @@ codeunit 139165 "Integration Table Synch. Test"
         IntegrationTableSynch: Codeunit "Integration Table Synch.";
         CustomerRecordRef: RecordRef;
         CRMAccountRecordRef: RecordRef;
-        ConfigTemplateName: Text[10];
+        ConfigTemplateName: Code[10];
     begin
         // [FEATURE] [Config. Template]
         // [SCENARIO] Synchronize() should fail if config. template doesn't exist, but defined in the mapping
@@ -763,7 +764,8 @@ codeunit 139165 "Integration Table Synch. Test"
         // [GIVEN] Integration Table Mapping for Customer, where non-existing config template is defined
         IntegrationTableMapping.SetRange("Table ID", DATABASE::Customer);
         IntegrationTableMapping.FindFirst();
-        IntegrationTableMapping."Table Config Template Code" := ConfigTemplateName;
+        DeleteTableConfigTemplates(IntegrationTableMapping);
+        CreateTableConfigTemplate(IntegrationTableMapping, ConfigTemplateName);
 
         IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
         IntegrationFieldMapping.SetRange("Field No.", Customer.FieldNo("Location Code"));
@@ -789,6 +791,223 @@ codeunit 139165 "Integration Table Synch. Test"
         Assert.AreEqual(1, IntegrationSynchJob.Failed, 'Expected the Job Info to record 1 failed item');
         // [THEN] CRMAccount is not coupled
         Assert.IsFalse(CRMIntegrationRecord.FindByCRMID(CRMAccount.AccountId), 'CRM Account should not be coupled.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure MultiTableConfigTemplate()
+    var
+        CRMAccount: Record "CRM Account";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        IntegrationFieldMapping: Record "Integration Field Mapping";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        Customer: Record Customer;
+        ConfigTemplateHeader: Record "Config. Template Header";
+        ConfigTemplateHeader2: Record "Config. Template Header";
+        ConfigTemplateLine: Record "Config. Template Line";
+        ConfigTemplateLine2: Record "Config. Template Line";
+        IntegrationSynchJob: Record "Integration Synch. Job";
+        Location: Record Location;
+        TableConfigTemplate: Record "Table Config Template";
+        DummyCRMAccount: Record "CRM Account";
+        IntegrationTableSynch: Codeunit "Integration Table Synch.";
+        RecordID: RecordID;
+        CustomerRecordRef: RecordRef;
+        CRMAccountRecordRef: RecordRef;
+    begin
+        // [FEATURE] [Config. Template]
+        // [SCENARIO] Synchronize() should apply correct config. template values from multiple templates
+        Initialize();
+        ResetDefaultCRMSetupConfiguration();
+
+        // [GIVEN] Customer two config template, with "Location Code"
+        LibraryWarehouse.CreateLocation(Location);
+
+        ConfigTemplateHeader.Init();
+        ConfigTemplateHeader.Code := CopyStr(
+            LibraryUtility.GenerateRandomCode(ConfigTemplateHeader.FieldNo(Code), DATABASE::"Config. Template Header"),
+            1,
+            MaxStrLen(ConfigTemplateHeader.Code));
+        ConfigTemplateHeader."Table ID" := DATABASE::Customer;
+        ConfigTemplateHeader.Insert();
+
+        ConfigTemplateLine.Init();
+        ConfigTemplateLine."Data Template Code" := ConfigTemplateHeader.Code;
+        ConfigTemplateLine."Line No." := 1;
+        ConfigTemplateLine."Field ID" := Customer.FieldNo("Location Code");
+        ConfigTemplateLine."Default Value" := Location.Code;
+        ConfigTemplateLine.Insert();
+
+        // second location
+        LibraryWarehouse.CreateLocation(Location);
+
+        ConfigTemplateHeader2.Init();
+        ConfigTemplateHeader2.Code := CopyStr(
+            LibraryUtility.GenerateRandomCode(ConfigTemplateHeader2.FieldNo(Code), Database::"Config. Template Header"),
+            1,
+            MaxStrLen(ConfigTemplateHeader2.Code));
+        ConfigTemplateHeader2."Table ID" := Database::Customer;
+        ConfigTemplateHeader2.Insert();
+
+        ConfigTemplateLine2.Init();
+        ConfigTemplateLine2."Data Template Code" := ConfigTemplateHeader2.Code;
+        ConfigTemplateLine2."Line No." := 1;
+        ConfigTemplateLine2."Field ID" := Customer.FieldNo("Location Code");
+        ConfigTemplateLine2."Default Value" := Location.Code;
+        ConfigTemplateLine2.Insert();
+
+        // [GIVEN] Integration Table Mapping for Customer with multiple config templates and different filters
+        IntegrationTableMapping.SetRange("Table ID", Database::Customer);
+        IntegrationTableMapping.FindFirst();
+        DeleteTableConfigTemplates(IntegrationTableMapping);
+        TableConfigTemplate := CreateTableConfigTemplate(IntegrationTableMapping, ConfigTemplateHeader.Code);
+        DummyCRMAccount.SetRange(Fax, '123');
+        TableConfigTemplate.SetIntegrationTableFilter(GetTableFilterFromView(Database::"CRM Account", DummyCRMAccount.TableCaption(), DummyCRMAccount.GetView()));
+        TableConfigTemplate.Modify();
+
+        TableConfigTemplate := CreateTableConfigTemplate(IntegrationTableMapping, ConfigTemplateHeader2.Code);
+        DummyCRMAccount.SetRange(Fax, '456');
+        TableConfigTemplate.SetIntegrationTableFilter(GetTableFilterFromView(Database::"CRM Account", DummyCRMAccount.TableCaption(), DummyCRMAccount.GetView()));
+        TableConfigTemplate.Modify();
+
+        // [GIVEN] Field "Location Code" is not mapped
+        IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
+        IntegrationFieldMapping.SetRange("Field No.", Customer.FieldNo("Location Code"));
+        Assert.IsTrue(IntegrationFieldMapping.IsEmpty(), 'Test should only run on umapped field');
+
+        // Prepare source and Destination references
+        CustomerRecordRef.Open(Database::Customer);
+        CRMAccount.DeleteAll();
+        CRMAccountRecordRef.Open(Database::"CRM Account");
+        LibraryCRMIntegration.CreateCRMAccountWithCoupledOwner(CRMAccount);
+        CRMAccount.Fax := '123';
+        CRMAccount.Modify();
+        CRMAccountRecordRef.GetTable(CRMAccount);
+        IntegrationSynchJob.DeleteAll();
+
+        // [WHEN] Running the Table Sync
+        IntegrationTableSynch.BeginIntegrationSynchJob(
+          TableConnectionType::CRM, IntegrationTableMapping, CRMAccountRecordRef.Number);
+        IntegrationTableSynch.Synchronize(CRMAccountRecordRef, CustomerRecordRef, false, true);
+
+        // [THEN] Row is inserted
+        IntTableSynchSubscriber.VerifyCallbackCounters(1, 1, 1, 1, 0, 0);
+        IntegrationSynchJob.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
+        IntegrationSynchJob.FindFirst();
+        Assert.AreEqual(1, IntegrationSynchJob.Inserted, 'Expected the Job Info to record 1 inserted item');
+
+        // [THEN] Customer, where "Location Code" = 'SOMELOCATION'
+        CRMIntegrationRecord.FindRecordIDFromID(
+          CRMAccount.AccountId, Database::Customer, RecordID);
+        Customer.Get(RecordID);
+        Assert.AreEqual(ConfigTemplateLine."Default Value", Customer."Location Code", 'Location Code to be taken from the template');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure MultiTableConfigTemplateWithPriority()
+    var
+        CRMAccount: Record "CRM Account";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        IntegrationFieldMapping: Record "Integration Field Mapping";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        Customer: Record Customer;
+        ConfigTemplateHeader: Record "Config. Template Header";
+        ConfigTemplateHeader2: Record "Config. Template Header";
+        ConfigTemplateLine: Record "Config. Template Line";
+        ConfigTemplateLine2: Record "Config. Template Line";
+        IntegrationSynchJob: Record "Integration Synch. Job";
+        Location: Record Location;
+        TableConfigTemplate: Record "Table Config Template";
+        IntegrationTableSynch: Codeunit "Integration Table Synch.";
+        RecordID: RecordID;
+        CustomerRecordRef: RecordRef;
+        CRMAccountRecordRef: RecordRef;
+    begin
+        // [FEATURE] [Config. Template]
+        // [SCENARIO] Synchronize() should apply correct config. template values from multiple templates
+        Initialize();
+        ResetDefaultCRMSetupConfiguration();
+
+        // [GIVEN] Customer two config template, with "Location Code"
+        LibraryWarehouse.CreateLocation(Location);
+
+        ConfigTemplateHeader.Init();
+        ConfigTemplateHeader.Code := CopyStr(
+            LibraryUtility.GenerateRandomCode(ConfigTemplateHeader.FieldNo(Code), DATABASE::"Config. Template Header"),
+            1,
+            MaxStrLen(ConfigTemplateHeader.Code));
+        ConfigTemplateHeader."Table ID" := DATABASE::Customer;
+        ConfigTemplateHeader.Insert();
+
+        ConfigTemplateLine.Init();
+        ConfigTemplateLine."Data Template Code" := ConfigTemplateHeader.Code;
+        ConfigTemplateLine."Line No." := 1;
+        ConfigTemplateLine."Field ID" := Customer.FieldNo("Location Code");
+        ConfigTemplateLine."Default Value" := Location.Code;
+        ConfigTemplateLine.Insert();
+
+        // second location
+        LibraryWarehouse.CreateLocation(Location);
+
+        ConfigTemplateHeader2.Init();
+        ConfigTemplateHeader2.Code := CopyStr(
+            LibraryUtility.GenerateRandomCode(ConfigTemplateHeader2.FieldNo(Code), Database::"Config. Template Header"),
+            1,
+            MaxStrLen(ConfigTemplateHeader2.Code));
+        ConfigTemplateHeader2."Table ID" := Database::Customer;
+        ConfigTemplateHeader2.Insert();
+
+        ConfigTemplateLine2.Init();
+        ConfigTemplateLine2."Data Template Code" := ConfigTemplateHeader2.Code;
+        ConfigTemplateLine2."Line No." := 1;
+        ConfigTemplateLine2."Field ID" := Customer.FieldNo("Location Code");
+        ConfigTemplateLine2."Default Value" := Location.Code;
+        ConfigTemplateLine2.Insert();
+
+        // [GIVEN] Integration Table Mapping for Customer with multiple config templates and different priorities
+        IntegrationTableMapping.SetRange("Table ID", Database::Customer);
+        IntegrationTableMapping.FindFirst();
+        DeleteTableConfigTemplates(IntegrationTableMapping);
+        TableConfigTemplate := CreateTableConfigTemplate(IntegrationTableMapping, ConfigTemplateHeader.Code);
+        TableConfigTemplate.Priority := 1;
+        TableConfigTemplate.Modify();
+
+        TableConfigTemplate := CreateTableConfigTemplate(IntegrationTableMapping, ConfigTemplateHeader2.Code);
+        TableConfigTemplate.Priority := 2;
+        TableConfigTemplate.Modify();
+
+        // [GIVEN] Field "Location Code" is not mapped
+        IntegrationFieldMapping.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
+        IntegrationFieldMapping.SetRange("Field No.", Customer.FieldNo("Location Code"));
+        Assert.IsTrue(IntegrationFieldMapping.IsEmpty(), 'Test should only run on umapped field');
+
+        // Prepare source and Destination references
+        CustomerRecordRef.Open(Database::Customer);
+        CRMAccount.DeleteAll();
+        CRMAccountRecordRef.Open(Database::"CRM Account");
+        LibraryCRMIntegration.CreateCRMAccountWithCoupledOwner(CRMAccount);
+        CRMAccount.Fax := '123';
+        CRMAccount.Modify();
+        CRMAccountRecordRef.GetTable(CRMAccount);
+        IntegrationSynchJob.DeleteAll();
+
+        // [WHEN] Running the Table Sync
+        IntegrationTableSynch.BeginIntegrationSynchJob(
+          TableConnectionType::CRM, IntegrationTableMapping, CRMAccountRecordRef.Number);
+        IntegrationTableSynch.Synchronize(CRMAccountRecordRef, CustomerRecordRef, false, true);
+
+        // [THEN] Row is inserted
+        IntTableSynchSubscriber.VerifyCallbackCounters(1, 1, 1, 1, 0, 0);
+        IntegrationSynchJob.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
+        IntegrationSynchJob.FindFirst();
+        Assert.AreEqual(1, IntegrationSynchJob.Inserted, 'Expected the Job Info to record 1 inserted item');
+
+        // [THEN] Customer, where "Location Code" = 'SOMELOCATION'
+        CRMIntegrationRecord.FindRecordIDFromID(
+          CRMAccount.AccountId, Database::Customer, RecordID);
+        Customer.Get(RecordID);
+        Assert.AreEqual(ConfigTemplateLine."Default Value", Customer."Location Code", 'Location Code to be taken from the template');
     end;
 
     [Test]
@@ -2556,11 +2775,13 @@ codeunit 139165 "Integration Table Synch. Test"
         CDSConnectionSetup: Record "CDS Connection Setup";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
+        ClientSecret: Text;
     begin
         CRMConnectionSetup.Get();
         CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
         CDSConnectionSetup.Validate("Client Id", 'ClientId');
-        CDSConnectionSetup.SetClientSecret('ClientSecret');
+        ClientSecret := 'ClientSecret';
+        CDSConnectionSetup.SetClientSecret(ClientSecret);
         CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
         CDSConnectionSetup.Modify();
         CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
@@ -2611,6 +2832,35 @@ codeunit 139165 "Integration Table Synch. Test"
         Assert.AreEqual(Unchanged, IntegrationSynchJob.Unchanged, StrSubstNo('%1. Unchanged', Context));
         Assert.AreEqual(Skipped, IntegrationSynchJob.Skipped, StrSubstNo('%1. Skipped', Context));
         Assert.AreEqual(Failed, IntegrationSynchJob.Failed, StrSubstNo('%1. Failed', Context));
+    end;
+
+    local procedure CreateTableConfigTemplate(IntegrationTableMapping: Record "Integration Table Mapping"; ConfigTemplateName: Code[10]): Record "Table Config Template"
+    var
+        TableConfigTemplate: Record "Table Config Template";
+    begin
+        TableConfigTemplate."Integration Table Mapping Name" := IntegrationTableMapping.Name;
+        TableConfigTemplate."Table ID" := IntegrationTableMapping."Table ID";
+        TableConfigTemplate."Integration Table ID" := IntegrationTableMapping."Integration Table ID";
+        TableConfigTemplate."Table Config Template Code" := ConfigTemplateName;
+        TableConfigTemplate.Insert();
+        exit(TableConfigTemplate);
+    end;
+
+    local procedure DeleteTableConfigTemplates(IntegrationTableMapping: Record "Integration Table Mapping")
+    var
+        TableConfigTemplate: Record "Table Config Template";
+    begin
+        TableConfigTemplate.SetRange("Integration Table Mapping Name", IntegrationTableMapping.Name);
+        TableConfigTemplate.DeleteAll();
+    end;
+
+    local procedure GetTableFilterFromView(TableID: Integer; Caption: Text; View: Text): Text
+    var
+        FilterBuilder: FilterPageBuilder;
+    begin
+        FilterBuilder.AddTable(Caption, TableID);
+        FilterBuilder.SetView(Caption, View);
+        exit(FilterBuilder.GetView(Caption, false));
     end;
 
     [SendNotificationHandler]

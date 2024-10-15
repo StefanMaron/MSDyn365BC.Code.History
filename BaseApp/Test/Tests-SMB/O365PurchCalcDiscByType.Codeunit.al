@@ -430,19 +430,17 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        with PurchaseHeader do begin
-            PurchaseLine.SetRange("Document No.", "No.");
-            PurchaseLine.SetRange("Document Type", "Document Type");
-            PurchaseLine.FindFirst();
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.FindFirst();
 
-            Assert.AreEqual(InvoiceDiscountAmount, "Invoice Discount Value", 'Invoice Discount Amount was not set to correct value');
-            Assert.AreEqual(
-              "Invoice Discount Calculation"::Amount, "Invoice Discount Calculation", 'Invoice Discount Calclulation should be Amount');
+        Assert.AreEqual(InvoiceDiscountAmount, PurchaseHeader."Invoice Discount Value", 'Invoice Discount Amount was not set to correct value');
+        Assert.AreEqual(
+          PurchaseHeader."Invoice Discount Calculation"::Amount, PurchaseHeader."Invoice Discount Calculation", 'Invoice Discount Calclulation should be Amount');
 
-            Assert.AreEqual(
-              RoundAmount(InvoiceDiscountAmount / NumberOfLines), PurchaseLine."Inv. Discount Amount",
-              'Invoice Discount Amount was not distributed equaly accross the lines');
-        end;
+        Assert.AreEqual(
+          RoundAmount(InvoiceDiscountAmount / NumberOfLines), PurchaseLine."Inv. Discount Amount",
+          'Invoice Discount Amount was not distributed equaly accross the lines');
     end;
 
     local procedure VerifyInvoiceDiscountTypePercentage(PurchaseHeader: Record "Purchase Header"; DiscPct: Decimal; NumberOfLines: Decimal)
@@ -450,47 +448,41 @@ codeunit 138013 "O365 Purch. Calc Disc. By Type"
         PurchaseLine: Record "Purchase Line";
         InvoiceDiscountAmount: Decimal;
     begin
-        with PurchaseHeader do begin
-            PurchaseLine.SetRange("Document No.", "No.");
-            PurchaseLine.SetRange("Document Type", "Document Type");
-            PurchaseLine.FindFirst();
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.FindFirst();
 
-            InvoiceDiscountAmount := NumberOfLines * PurchaseLine."Line Amount" * DiscPct / 100;
+        InvoiceDiscountAmount := NumberOfLines * PurchaseLine."Line Amount" * DiscPct / 100;
 
-            Assert.AreEqual(DiscPct, "Invoice Discount Value", 'Invoice Discount Value was not set to correct value');
-            Assert.AreEqual(
-              "Invoice Discount Calculation"::"%", "Invoice Discount Calculation", 'Invoice Discount Calclulation should be %');
+        Assert.AreEqual(DiscPct, PurchaseHeader."Invoice Discount Value", 'Invoice Discount Value was not set to correct value');
+        Assert.AreEqual(
+          PurchaseHeader."Invoice Discount Calculation"::"%", PurchaseHeader."Invoice Discount Calculation", 'Invoice Discount Calclulation should be %');
 
-            Assert.AreEqual(
-              RoundAmount(InvoiceDiscountAmount / NumberOfLines), PurchaseLine."Inv. Discount Amount",
-              'Invoice Discount Amount was not distributed equaly accross the lines');
-        end;
+        Assert.AreEqual(
+          RoundAmount(InvoiceDiscountAmount / NumberOfLines), PurchaseLine."Inv. Discount Amount",
+          'Invoice Discount Amount was not distributed equaly accross the lines');
     end;
 
     local procedure SetAllowInvoiceDiscountOnAllLines(PurchaseHeader: Record "Purchase Header"; AllowInvoiceDiscount: Boolean)
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        with PurchaseLine do begin
-            SetRange("Document No.", PurchaseHeader."No.");
-            SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
 
-            ModifyAll("Allow Invoice Disc.", AllowInvoiceDiscount, true);
-        end;
+        PurchaseLine.ModifyAll("Allow Invoice Disc.", AllowInvoiceDiscount, true);
     end;
 
     local procedure VerifyVendorDiscountPercentage(PurchaseHeader: Record "Purchase Header"; VendDiscPct: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        with PurchaseLine do begin
-            SetRange("Document No.", PurchaseHeader."No.");
-            SetRange("Document Type", PurchaseHeader."Document Type");
-            FindFirst();
-            Assert.AreEqual(
-              VendDiscPct, PurchCalcDiscByType.GetVendInvoiceDiscountPct(PurchaseLine),
-              'VendorDiscountPercentage was not set to expected value');
-        end;
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.FindFirst();
+        Assert.AreEqual(
+          VendDiscPct, PurchCalcDiscByType.GetVendInvoiceDiscountPct(PurchaseLine),
+          'VendorDiscountPercentage was not set to expected value');
     end;
 
     local procedure GenerateTestData(var DiscPct: Decimal; var NumberOfLines: Integer; var InvoiceDiscountAmount: Decimal)

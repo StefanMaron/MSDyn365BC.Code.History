@@ -816,6 +816,10 @@ report 210 "Blanket Sales Order"
                     {
                         DataItemTableView = sorting(Number) where(Number = const(1));
 
+                        column(ShipToPhoneNo; "Sales Header"."Ship-to Phone No.")
+                        {
+                        }
+
                         trigger OnPreDataItem()
                         begin
                             if not ShowShippingAddr then
@@ -1025,9 +1029,13 @@ report 210 "Blanket Sales Order"
         LogInteraction: Boolean;
         VALSpecLCYHeader: Text[80];
         VALExchRate: Text[50];
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text007: Label 'VAT Amount Specification in ';
         Text008: Label 'Local Currency';
         Text009: Label 'Exchange rate: %1/%2';
+#pragma warning restore AA0074
+#pragma warning restore AA0470        
         ArchiveDocument: Boolean;
         LogInteractionEnable: Boolean;
         FooterLabel: array[20] of Text[30];
@@ -1041,7 +1049,12 @@ report 210 "Blanket Sales Order"
         NewPageGroupNo: Integer;
         NewPageLine: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text005: Label 'Page %1';
+        Text11500: Label 'Blanket Order %1';
+#pragma warning restore AA0074
+#pragma warning restore AA0470
         PhNoCaptionLbl: Label 'Phone No.';
         FaxNoCaptionLbl: Label 'Fax No.';
         VATRegNoCaptionLbl: Label 'VAT Reg. No.';
@@ -1081,7 +1094,6 @@ report 210 "Blanket Sales Order"
         BillToContactPhoneNoLbl: Label 'Bill-to Contact Phone No.';
         BillToContactMobilePhoneNoLbl: Label 'Bill-to Contact Mobile Phone No.';
         BillToContactEmailLbl: Label 'Bill-to Contact E-Mail';
-        Text11500: Label 'Blanket Order %1';
 
     protected var
         ShipmentMethod: Record "Shipment Method";

@@ -258,44 +258,11 @@ page 99000914 "Change Production Order Status"
                     Caption = 'Change &Status';
                     Ellipsis = true;
                     Image = ChangeStatus;
-                    ToolTip = 'Change the production order to another status, such as Released.';
+                    ToolTip = 'Change the selected production orders to another status, such as Released.';
 
                     trigger OnAction()
-                    var
-                        ProdOrderStatusMgt: Codeunit "Prod. Order Status Management";
-                        ChangeStatusForm: Page "Change Status on Prod. Order";
-                        Window: Dialog;
-                        NewStatus: Enum "Production Order Status";
-                        NewPostingDate: Date;
-                        NewUpdateUnitCost: Boolean;
-                        NoOfRecords: Integer;
-                        POCount: Integer;
-                        IsHandled: Boolean;
                     begin
-                        ChangeStatusForm.Set(Rec);
-
-                        if ChangeStatusForm.RunModal() <> ACTION::Yes then
-                            exit;
-
-                        ChangeStatusForm.ReturnPostingInfo(NewStatus, NewPostingDate, NewUpdateUnitCost);
-
-                        NoOfRecords := Rec.Count;
-
-                        Window.Open(StrSubstNo(Text000, NewStatus) + Text001);
-
-                        POCount := 0;
-
-                        if Rec.Find('-') then
-                            repeat
-                                POCount := POCount + 1;
-                                Window.Update(1, Rec."No.");
-                                Window.Update(2, Round(POCount / NoOfRecords * 10000, 1));
-                                IsHandled := false;
-                                OnBeforeChangeProdOrderStatus(Rec, NewStatus, NewPostingDate, NewUpdateUnitCost, IsHandled);
-                                if not IsHandled then
-                                    ProdOrderStatusMgt.ChangeProdOrderStatus(Rec, NewStatus, NewPostingDate, NewUpdateUnitCost);
-                                Commit();
-                            until Rec.Next() = 0;
+                        ChangeStatusWithSelectionFilter();
                     end;
                 }
             }
@@ -346,11 +313,11 @@ page 99000914 "Change Production Order Status"
     end;
 
     var
-        Text000: Label 'Changing status to %1...\\';
-        Text001: Label 'Prod. Order #1###### @2@@@@@@@@@@@@@';
         ProdOrderStatus: Option Simulated,Planned,"Firm Planned",Released;
         StartingDate: Date;
         EndingDate: Date;
+        ChangingStatusInfoLbl: Label 'Changing status to %1...\\', Comment = '%1 - New Status';
+        ProcessingProgressTxt: Label 'Prod. Order #1###### @2@@@@@@@@@@@@@', Comment = '%1 - Production Order No.; %2 - Progress Percentage';
 
     protected procedure BuildPage()
     begin
@@ -369,6 +336,43 @@ page 99000914 "Change Production Order Status"
             Rec.SetRange("Ending Date");
 
         CurrPage.Update(false);
+    end;
+
+    local procedure ChangeStatusWithSelectionFilter()
+    var
+        ProductionOrder: Record "Production Order";
+        ProdOrderStatusManagement: Codeunit "Prod. Order Status Management";
+        ChangeStatusOnProdOrder: Page "Change Status on Prod. Order";
+        NewProductionOrderStatus: Enum "Production Order Status";
+        NewPostingDate: Date;
+        NewUpdateUnitCost: Boolean;
+        ProgressDialog: Dialog;
+        NoOfProductionOrdersToProcess: Integer;
+        ProcessedProductionOrdersCounter: Integer;
+        IsHandled: Boolean;
+    begin
+        CurrPage.SetSelectionFilter(ProductionOrder);
+
+        if ProductionOrder.FindSet() then begin
+            ChangeStatusOnProdOrder.Set(ProductionOrder);
+            if ChangeStatusOnProdOrder.RunModal() <> Action::Yes then
+                exit;
+            ChangeStatusOnProdOrder.ReturnPostingInfo(NewProductionOrderStatus, NewPostingDate, NewUpdateUnitCost);
+
+            NoOfProductionOrdersToProcess := ProductionOrder.Count();
+            ProcessedProductionOrdersCounter := 0;
+            ProgressDialog.Open(StrSubstNo(ChangingStatusInfoLbl, NewProductionOrderStatus) + ProcessingProgressTxt);
+            repeat
+                ProcessedProductionOrdersCounter += 1;
+                ProgressDialog.Update(1, ProductionOrder."No.");
+                ProgressDialog.Update(2, Round(ProcessedProductionOrdersCounter / NoOfProductionOrdersToProcess * 10000, 1));
+                IsHandled := false;
+                OnBeforeChangeProdOrderStatus(ProductionOrder, NewProductionOrderStatus, NewPostingDate, NewUpdateUnitCost, IsHandled);
+                if not IsHandled then
+                    ProdOrderStatusManagement.ChangeProdOrderStatus(ProductionOrder, NewProductionOrderStatus, NewPostingDate, NewUpdateUnitCost);
+                Commit();
+            until ProductionOrder.Next() = 0;
+        end;
     end;
 
     local procedure ProdOrderStatusOnAfterValidate()

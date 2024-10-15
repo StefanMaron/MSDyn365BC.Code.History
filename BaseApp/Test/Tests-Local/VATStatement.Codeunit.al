@@ -374,14 +374,12 @@ codeunit 144005 "VAT Statement"
         GLAccount: Record "G/L Account";
     begin
         LibraryERM.CreateGLAccount(GLAccount);
-        with GLAccount do begin
-            Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
-            Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
-            Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
-            Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-            Modify(true);
-            exit("No.");
-        end;
+        GLAccount.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        GLAccount.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Modify(true);
+        exit(GLAccount."No.");
     end;
 
     local procedure CreateCustomer(GenBusPostingGroup: Code[20]; VATBusPostingGroup: Code[20]): Code[20]
@@ -391,13 +389,11 @@ codeunit 144005 "VAT Statement"
     begin
         LibraryERM.CreateCountryRegion(CountryRegion);
         LibrarySales.CreateCustomer(Customer);
-        with Customer do begin
-            Validate("Country/Region Code", CountryRegion.Code);
-            Validate("Gen. Bus. Posting Group", GenBusPostingGroup);
-            Validate("VAT Bus. Posting Group", VATBusPostingGroup);
-            Modify(true);
-            exit("No.");
-        end;
+        Customer.Validate("Country/Region Code", CountryRegion.Code);
+        Customer.Validate("Gen. Bus. Posting Group", GenBusPostingGroup);
+        Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentNo: Code[20])

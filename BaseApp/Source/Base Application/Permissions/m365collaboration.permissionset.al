@@ -36,7 +36,6 @@ using Microsoft.Sales.History;
 using Microsoft.Sales.Setup;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Archive;
-using Microsoft.Service.Document;
 using System.Environment;
 using Microsoft.Inventory.Transfer;
 using Microsoft.Purchases.Vendor;
@@ -118,7 +117,7 @@ permissionset 4785 "M365 COLLABORATION"
                   tabledata "Sales Invoice Header" = R,
                   tabledata "Sales Line" = R,
                   tabledata "Sales Shipment Header" = R,
-                  tabledata "Service Line" = R,
+                  tabledata Microsoft.Service.Document."Service Line" = R,
                   tabledata "Standard Text" = R,
                   tabledata "Tenant Media" = R,
                   tabledata "Tenant Permission" = R,

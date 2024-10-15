@@ -49,7 +49,7 @@ report 11504 "Import Bank Directory"
             }
             dataitem("Customer Bank Account"; "Customer Bank Account")
             {
-                DataItemTableView = sorting("Customer No.", Code) ORDER(Ascending) where("Bank Branch No." = filter(<> ''));
+                DataItemTableView = sorting("Customer No.", Code) order(ascending) where("Bank Branch No." = filter(<> ''));
                 column(CustomerBankAccountTableCaption; "Customer Bank Account".TableCaption())
                 {
                 }
@@ -105,7 +105,7 @@ report 11504 "Import Bank Directory"
             }
             dataitem("Vendor Bank Account"; "Vendor Bank Account")
             {
-                DataItemTableView = sorting("Vendor No.", Code) ORDER(Ascending) where("Clearing No." = filter(<> ''));
+                DataItemTableView = sorting("Vendor No.", Code) order(ascending) where("Clearing No." = filter(<> ''));
                 column(VendorBankAccountTableCaption; "Vendor Bank Account".TableCaption())
                 {
                 }
@@ -171,7 +171,7 @@ report 11504 "Import Bank Directory"
             }
             dataitem(Other; "Integer")
             {
-                DataItemTableView = sorting(Number) ORDER(Ascending) where(Number = const(1));
+                DataItemTableView = sorting(Number) order(ascending) where(Number = const(1));
                 PrintOnlyIfDetail = true;
                 column(OtherText; OtherText)
                 {
@@ -193,7 +193,7 @@ report 11504 "Import Bank Directory"
                 }
                 dataitem("DTA Setup"; "DTA Setup")
                 {
-                    DataItemTableView = sorting("Bank Code") ORDER(Ascending) where("DTA Sender Clearing" = filter(<> ''));
+                    DataItemTableView = sorting("Bank Code") order(ascending) where("DTA Sender Clearing" = filter(<> ''));
                     column(TableCaption_DTASetup; TableCaption)
                     {
                     }
@@ -224,7 +224,7 @@ report 11504 "Import Bank Directory"
                 }
                 dataitem("LSV Setup"; "LSV Setup")
                 {
-                    DataItemTableView = sorting("Bank Code") ORDER(Ascending) where("LSV Sender Clearing" = filter(<> ''));
+                    DataItemTableView = sorting("Bank Code") order(ascending) where("LSV Sender Clearing" = filter(<> ''));
                     column(LSVSetupTableCaption; TableCaption)
                     {
                     }

@@ -6,7 +6,6 @@ namespace Microsoft.Inventory.Location;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Foundation.Address;
-using Microsoft.Service.Contract;
 using System.Email;
 
 table 5714 "Responsibility Center"
@@ -178,15 +177,6 @@ table 5714 "Responsibility Center"
         {
             Caption = 'Date Filter';
             FieldClass = FlowFilter;
-        }
-        field(5901; "Contract Gain/Loss Amount"; Decimal)
-        {
-            AutoFormatType = 1;
-            CalcFormula = sum("Contract Gain/Loss Entry".Amount where("Responsibility Center" = field(Code),
-                                                                       "Change Date" = field("Date Filter")));
-            Caption = 'Contract Gain/Loss Amount';
-            Editable = false;
-            FieldClass = FlowField;
         }
     }
 

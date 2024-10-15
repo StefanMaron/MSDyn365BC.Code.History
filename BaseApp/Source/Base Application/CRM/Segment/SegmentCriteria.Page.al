@@ -112,10 +112,6 @@ page 5143 "Segment Criteria"
     var
         SegCriteriaManagement: Codeunit SegCriteriaManagement;
     begin
-#if not CLEAN22        
-        if Rec."Table View" = '' then
-            Rec."Table View" := Rec.View;
-#endif
         exit(SegCriteriaManagement.GetSegCriteriaFilters(Rec."Table No.", Rec."Table View"));
     end;
 }

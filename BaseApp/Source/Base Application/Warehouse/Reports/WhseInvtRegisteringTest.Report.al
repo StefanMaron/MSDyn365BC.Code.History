@@ -326,16 +326,28 @@ report 7302 "Whse. Invt.-Registering - Test"
         WeightCaptionLbl: Label 'Weight';
         ErrorText_Number_CaptionLbl: Label 'Warning!';
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%1 must be specified.';
         Text002: Label '%1 %2 does not exist.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0470
         MustBeForErr: Label '%1 must be %2 for %3 %4.';
+#pragma warning restore AA0470
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text005: Label '%1 must not be a closing date.';
+#pragma warning restore AA0470
         Text006: Label 'The lines are not listed according to Registering Date because they were not entered in that order.';
+#pragma warning disable AA0470
         Text007: Label '%1 is not within your allowed range of registering dates.';
         Text011: Label '%1 must be 0 when %2 is %3.';
         Text014: Label '%1 must be %2 or %3 when %4 is %5.';
         Text015: Label '%1 must equal %2 - %3 when %4 is %5 and %6 is %7.';
+#pragma warning restore AA0470
         Text017: Label 'There is a gap in the number series.';
+#pragma warning restore AA0074
 
     local procedure AddError(Text: Text[250])
     begin

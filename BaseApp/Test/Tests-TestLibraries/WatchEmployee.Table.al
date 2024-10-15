@@ -1,3 +1,5 @@
+namespace Microsoft.HumanResources.Test;
+
 table 131322 "Watch Employee"
 {
     ReplicateData = false;

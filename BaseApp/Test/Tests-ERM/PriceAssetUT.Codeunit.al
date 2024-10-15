@@ -19,8 +19,6 @@ codeunit 134119 "Price Asset UT"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         AssetNoMustHaveValueErr: Label 'Product No. must have a value';
-        AssetTypeMustBeItemErr: Label 'Product Type must be equal to ''Item''';
-        AssetTypeMustBeResourceErr: Label 'Product Type must be equal to ''Resource''';
         IsInitialized: Boolean;
 
     [Test]
@@ -312,7 +310,7 @@ codeunit 134119 "Price Asset UT"
         // [WHEN] Validate "Work Type Code" with a valid code
         asserterror PriceAsset.Validate("Work Type Code", GetWorkTypeCode(''));
         // [THEN] Error message: 'Work Type Code must be empty'
-        Assert.ExpectedError(AssetTypeMustBeResourceErr);
+        Assert.ExpectedTestFieldError(PriceAsset.FieldCaption("Asset Type"), Format(PriceAsset."Asset Type"::Resource));
     end;
 
     [Test]
@@ -327,7 +325,7 @@ codeunit 134119 "Price Asset UT"
         // [WHEN] Validate "Work Type Code" with a valid code
         asserterror PriceAsset.Validate("Work Type Code", GetWorkTypeCode(''));
         // [THEN] Error message: 'Work Type Code must be empty'
-        Assert.ExpectedError(AssetTypeMustBeResourceErr);
+        Assert.ExpectedTestFieldError(PriceAsset.FieldCaption("Asset Type"), Format(PriceAsset."Asset Type"::Resource));
     end;
 
     [Test]
@@ -342,7 +340,7 @@ codeunit 134119 "Price Asset UT"
         // [WHEN] Validate "Work Type Code" with a valid code
         asserterror PriceAsset.Validate("Work Type Code", GetWorkTypeCode(''));
         // [THEN] Error message: 'Work Type Code must be empty'
-        Assert.ExpectedError(AssetTypeMustBeResourceErr);
+        Assert.ExpectedTestFieldError(PriceAsset.FieldCaption("Asset Type"), Format(PriceAsset."Asset Type"::Resource));
     end;
 
     [Test]
@@ -357,7 +355,7 @@ codeunit 134119 "Price Asset UT"
         // [WHEN] Validate "Work Type Code" with a valid code
         asserterror PriceAsset.Validate("Work Type Code", GetWorkTypeCode(''));
         // [THEN] Error message: 'Work Type Code must be empty'
-        Assert.ExpectedError(AssetTypeMustBeResourceErr);
+        Assert.ExpectedTestFieldError(PriceAsset.FieldCaption("Asset Type"), Format(PriceAsset."Asset Type"::Resource));
     end;
 
     [Test]
@@ -452,7 +450,7 @@ codeunit 134119 "Price Asset UT"
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
         asserterror PriceAsset.Validate("Variant Code", ItemVariant.Code);
         // [THEN] Error message: 'Variant Code must be empty'
-        Assert.ExpectedError(AssetTypeMustBeItemErr);
+        Assert.ExpectedTestFieldError(PriceAsset.FieldCaption("Asset Type"), Format(PriceAsset."Asset Type"::Item));
     end;
 
     [Test]
@@ -472,7 +470,7 @@ codeunit 134119 "Price Asset UT"
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
         asserterror PriceAsset.Validate("Variant Code", ItemVariant.Code);
         // [THEN] Error message: 'Variant Code must be empty'
-        Assert.ExpectedError(AssetTypeMustBeItemErr);
+        Assert.ExpectedTestFieldError(PriceAsset.FieldCaption("Asset Type"), Format(PriceAsset."Asset Type"::Item));
     end;
 
     [Test]
@@ -492,7 +490,7 @@ codeunit 134119 "Price Asset UT"
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
         asserterror PriceAsset.Validate("Variant Code", ItemVariant.Code);
         // [THEN] Error message: 'Variant Code must be empty'
-        Assert.ExpectedError(AssetTypeMustBeItemErr);
+        Assert.ExpectedTestFieldError(PriceAsset.FieldCaption("Asset Type"), Format(PriceAsset."Asset Type"::Item));
     end;
 
     [Test]
@@ -514,7 +512,7 @@ codeunit 134119 "Price Asset UT"
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
         asserterror PriceAsset.Validate("Variant Code", ItemVariant.Code);
         // [THEN] Error message: 'Variant Code must be empty'
-        Assert.ExpectedError(AssetTypeMustBeItemErr);
+        Assert.ExpectedTestFieldError(PriceAsset.FieldCaption("Asset Type"), Format(PriceAsset."Asset Type"::Item));
     end;
 
     [Test]
@@ -536,7 +534,7 @@ codeunit 134119 "Price Asset UT"
         LibraryInventory.CreateItemVariant(ItemVariant, Item."No.");
         asserterror PriceAsset.Validate("Variant Code", ItemVariant.Code);
         // [THEN] Error message: 'Variant Code must be empty'
-        Assert.ExpectedError(AssetTypeMustBeItemErr);
+        Assert.ExpectedTestFieldError(PriceAsset.FieldCaption("Asset Type"), Format(PriceAsset."Asset Type"::Item));
     end;
 
     [Test]

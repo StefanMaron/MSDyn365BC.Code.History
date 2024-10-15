@@ -32,11 +32,6 @@ enum 7004 "Price Asset Type" implements "Price Asset"
         Caption = 'Resource Group';
         Implementation = "Price Asset" = "Price Asset - Resource Group";
     }
-    value(50; "Service Cost")
-    {
-        Caption = 'Service Cost';
-        Implementation = "Price Asset" = "Price Asset - Service Cost";
-    }
     value(60; "G/L Account")
     {
         Caption = 'G/L Account';

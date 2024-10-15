@@ -366,6 +366,8 @@ report 99000756 "Detailed Calculation"
 
     requestpage
     {
+        AboutTitle = 'About Detailed Calculation';
+        AboutText = 'This report provides a detailed breakdown of manufacturing costs, including Production BOM details, Routing operations, and associated expenses. It also accounts for scrap costs, ensuring an accurate total cost for producing the item.';
 
         layout
         {

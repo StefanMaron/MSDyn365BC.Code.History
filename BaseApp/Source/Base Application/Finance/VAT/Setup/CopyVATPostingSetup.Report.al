@@ -160,7 +160,9 @@ report 85 "Copy - VAT Posting Setup"
     }
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Copy VAT Posting Setup?';
+#pragma warning restore AA0074
 
     protected var
         UseVATPostingSetup: Record "VAT Posting Setup";

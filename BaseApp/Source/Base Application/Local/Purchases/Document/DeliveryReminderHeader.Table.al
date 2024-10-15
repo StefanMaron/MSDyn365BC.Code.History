@@ -166,7 +166,7 @@ table 5005270 "Delivery Reminder Header"
         }
         field(30; Comment; Boolean)
         {
-            CalcFormula = exist("Delivery Reminder Comment Line" WHERE("Document Type" = const("Delivery Reminder"),
+            CalcFormula = exist("Delivery Reminder Comment Line" where("Document Type" = const("Delivery Reminder"),
                                                                         "No." = field("No.")));
             Caption = 'Comment';
             Editable = false;

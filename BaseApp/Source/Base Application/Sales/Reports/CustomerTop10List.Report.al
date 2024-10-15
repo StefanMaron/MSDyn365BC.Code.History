@@ -153,6 +153,8 @@ report 111 "Customer - Top 10 List"
 
     requestpage
     {
+        AboutTitle = 'About Customer - Top 10 List';
+        AboutText = 'Review a summary of customers with the most transactions within a selected period to identify sales trends, upcoming collectable debts, and major revenue sources in the company.';
         SaveValues = true;
 
         layout
@@ -237,10 +239,14 @@ report 111 "Customer - Top 10 List"
         ShowTypeNo: Integer;
         ChartTypeVisible: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Sorting customers    #1##########';
         Text001: Label 'Period: %1';
         Text002: Label 'Ranked according to %1';
+#pragma warning restore AA0470
         Text004: Label 'Sales (LCY),Balance (LCY)';
+#pragma warning restore AA0074
         CustomerTop10ListCaptionLbl: Label 'Customer - Top 10 List';
         CurrReportPageNoCaptionLbl: Label 'Page';
         TotalCaptionLbl: Label 'Total';

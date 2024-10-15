@@ -235,6 +235,18 @@ page 6072 "Filed Service Contract"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies a formula that calculates the payment due date, payment discount date, and payment discount amount.';
                 }
+                field("Payment Method Code"; Rec."Payment Method Code")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies how to make payment, such as with bank transfer, cash, or check.';
+                }
+                field("Direct Debit Mandate ID"; Rec."Direct Debit Mandate ID")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the direct-debit mandate that the customer has signed to allow direct-debit collection of payments.';
+                }
                 field("Currency Code"; Rec."Currency Code")
                 {
                     ApplicationArea = Service;
@@ -296,6 +308,12 @@ page 6072 "Filed Service Contract"
                     {
                         ApplicationArea = Service;
                         Caption = 'Country/Region';
+                    }
+                    field("Ship-to Phone No."; Rec."Ship-to Phone No.")
+                    {
+                        ApplicationArea = Service;
+                        Caption = 'Phone No.';
+                        ToolTip = 'Specifies the telephone number of the company''s shipping address.';
                     }
                 }
             }
@@ -488,20 +506,59 @@ page 6072 "Filed Service Contract"
 
     actions
     {
+        area(navigation)
+        {
+            group("&Contract")
+            {
+                Caption = '&Contract';
+                Image = Agreement;
+                action("Service Dis&counts")
+                {
+                    ApplicationArea = Service;
+                    Caption = 'Service Dis&counts';
+                    Image = Discount;
+                    RunObject = Page "Filed Contract/Serv. Discounts";
+                    RunPageLink = "Entry No." = field("Entry No.");
+                    ToolTip = 'View the discounts that you grant for the filed contract on spare parts in particular service item groups, the discounts on resource hours for resources in particular resource groups, and the discounts on particular service costs.';
+                }
+                action("Service &Hours")
+                {
+                    ApplicationArea = Service;
+                    Caption = 'Service &Hours';
+                    Image = ServiceHours;
+                    RunObject = Page "Filed Contract Service Hours";
+                    RunPageLink = "Entry No." = field("Entry No.");
+                    ToolTip = 'View the service hours that are valid for the filed service contract. This window displays the starting and ending service hours for the contract for each weekday.';
+                }
+                action("Co&mments")
+                {
+                    ApplicationArea = Service;
+                    Caption = 'Co&mments';
+                    Image = ViewComments;
+                    RunObject = Page "Filed Serv. Contract Cm. Sheet";
+                    RunPageLink = "Entry No." = field("Entry No."),
+                                  "Table Line No." = const(0);
+                    ToolTip = 'View comments for the record.';
+                }
+            }
+        }
     }
 
-    trigger OnOpenPage()
-    begin
-        ActivateFields();
-    end;
-
     var
-        FormatAddress: Codeunit "Format Address";
         IsShipToCountyVisible: Boolean;
         IsSellToCountyVisible: Boolean;
         IsBillToCountyVisible: Boolean;
 
+    trigger OnOpenPage()
+    begin
+        Rec.SetSecurityFilterOnResponsibilityCenter();
+
+        ActivateFields();
+    end;
+
     local procedure ActivateFields()
+    var
+        FormatAddress: Codeunit "Format Address";
     begin
         IsBillToCountyVisible := FormatAddress.UseCounty(Rec."Bill-to Country/Region Code");
         IsShipToCountyVisible := FormatAddress.UseCounty(Rec."Ship-to Country/Region Code");

@@ -39,7 +39,7 @@ report 3010532 "Sales Invoice ESR"
                 DataItemTableView = sorting(Number);
                 dataitem(PageLoop; "Integer")
                 {
-                    DataItemTableView = sorting(Number) WHERE(Number = const(1));
+                    DataItemTableView = sorting(Number) where(Number = const(1));
                     column(Adr1; Adr[1])
                     {
                     }
@@ -257,7 +257,7 @@ report 3010532 "Sales Invoice ESR"
                     }
                     dataitem(TotalElement; "Integer")
                     {
-                        DataItemTableView = sorting(Number) ORDER(Ascending) WHERE(Number = const(1));
+                        DataItemTableView = sorting(Number) order(ascending) where(Number = const(1));
                         column(HeadCurrencyCode; Head."Currency Code")
                         {
                         }
@@ -499,8 +499,8 @@ report 3010532 "Sales Invoice ESR"
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := GlobalLanguage.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := GlobalLanguage.GetFormatRegionOrDefault("Format Region");
                 // To filter rounding line
                 Cust.Get("Bill-to Customer No.");
                 CustPostGrp.Get("Customer Posting Group");
@@ -513,7 +513,7 @@ report 3010532 "Sales Invoice ESR"
                     "Currency Code" := GlSetup."LCY Code";
 
                 if LogInteraction then
-                    if not CurrReport.Preview then begin
+                    if not CurrReport.Preview then
                         if "Bill-to Contact No." <> '' then
                             SegManagement.LogDocument(
                               4, "No.", 0, 0, DATABASE::Contact, "Bill-to Contact No.", "Salesperson Code",
@@ -522,7 +522,6 @@ report 3010532 "Sales Invoice ESR"
                             SegManagement.LogDocument(
                               4, "No.", 0, 0, DATABASE::Customer, "Bill-to Customer No.", "Salesperson Code",
                               "Campaign No.", "Posting Description", '');
-                    end;
             end;
 
             trigger OnPreDataItem()
@@ -601,7 +600,7 @@ report 3010532 "Sales Invoice ESR"
         CustPostGrp: Record "Customer Posting Group";
         EsrSetup: Record "ESR Setup";
         ESRSetupRequestForm: Record "ESR Setup";
-        Language: Codeunit Language;
+        GlobalLanguage: Codeunit Language;
         CHMgt: Codeunit CHMgt;
         FormatAdr: Codeunit "Format Address";
         SegManagement: Codeunit SegManagement;

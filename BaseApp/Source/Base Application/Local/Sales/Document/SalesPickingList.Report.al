@@ -220,7 +220,7 @@ report 11512 "Sales Picking List"
                     }
                     dataitem(TotalElement; "Integer")
                     {
-                        DataItemTableView = sorting(Number) ORDER(Ascending) where(Number = const(1));
+                        DataItemTableView = sorting(Number) order(ascending) where(Number = const(1));
                     }
                 }
 

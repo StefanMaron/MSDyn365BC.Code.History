@@ -24,11 +24,7 @@ codeunit 134234 "ERM Dimension Allowed by Acc."
         DefaultDimValueErr: Label 'You cannot block dimension value %1 because it is a default value for %2, %3.', Comment = '%1 = dimension value code and %2- table name, %3 - account number';
         InvalidAllowedValuesFilterErr: Label 'There are no dimension values for allowed values filter %1.', Comment = '%1 - allowed values filter';
         NoAllowedValuesSelectedErr: Label 'There are no allowed dimension values selected.';
-        ValuePostingErr: Label 'Value Posting must be equal to ''Code Mandatory''';
         GLAccountFilter: Text;
-        ExpectedErrLbl: Label 'The Dim. Value per Account does not exist. Identification fields and values: Table ID=''%1'',No.=''%2'',Dimension Code=''%3'',Dimension Value Code=''%4''',
-                                Comment = '%1 = Table ID, %2= No., %3= Dimension Code, %4= Dimension Value Code';
-        NoRecordExpected: Label 'No record expected.';
         DefDimensionIsNotAllowedMsg: Label 'Default Dimension is not allowed by default.';
         FilterLbl: Label '..';
 
@@ -219,7 +215,7 @@ codeunit 134234 "ERM Dimension Allowed by Acc."
         asserterror DefaultDimension.Validate("Allowed Values Filter", DimensionValue.Code);
 
         // [THEN] Error Value Posting must be equal to 'Code Mandatory'
-        Assert.ExpectedError(ValuePostingErr);
+        Assert.ExpectedTestFieldError(DefaultDimension.FieldCaption("Value Posting"), Format(DefaultDimension."Value Posting"::"Code Mandatory"));
     end;
 
     [Test]
@@ -1131,7 +1127,7 @@ codeunit 134234 "ERM Dimension Allowed by Acc."
 
         // [VERIFY] "Dim. Value per Account" for DIM02, doesn't have the value from DIM01
         asserterror DimValuePerAccount.Get(Database::"G/L Account", GLAccount."No.", DimensionValue[2]."Dimension Code", DimensionValue[1].Code);
-        assert.AreEqual(StrSubstNo(ExpectedErrLbl, Database::"G/L Account", GLAccount."No.", DimensionValue[2]."Dimension Code", DimensionValue[1].Code), GetLastErrorText(), NoRecordExpected);
+        Assert.ExpectedErrorCannotFind(Database::"Dim. Value per Account");
     end;
 
     [Test]

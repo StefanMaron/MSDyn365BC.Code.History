@@ -46,11 +46,10 @@ page 5077 "Create Interaction"
                         ApplicationArea = RelationshipMgmt;
                         Caption = 'Contact';
                         Editable = IsContactEditable;
-                        Lookup = false;
                         ShowMandatory = true;
                         ToolTip = 'Specifies the contact that you are interacting with.';
 
-                        trigger OnAssistEdit()
+                        trigger OnLookup(var Text: Text): Boolean
                         var
                             Contact: Record Contact;
                         begin
@@ -539,25 +538,6 @@ page 5077 "Create Interaction"
                 end;
             }
         }
-#pragma warning disable AL0788
-        area(Promoted)
-        {
-            group(Category_Process)
-            {
-                Caption = 'Process';
-
-                actionref("Co&mments_Promoted"; "Co&mments")
-                {
-                }
-                actionref(Preview_Promoted; Preview)
-                {
-                }
-                actionref(Finish_Promoted; Finish)
-                {
-                }
-            }
-        }
-#pragma warning restore AL0788
     }
 
     trigger OnInit()

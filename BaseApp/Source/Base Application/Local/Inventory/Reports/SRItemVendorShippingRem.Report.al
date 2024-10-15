@@ -249,8 +249,8 @@ report 11581 "SR Item Vendor Shipping Rem."
 
                 Pos := 0;
 
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := GlobalLanguage.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := GlobalLanguage.GetFormatRegionOrDefault("Format Region");
             end;
 
             trigger OnPreDataItem()
@@ -305,7 +305,7 @@ report 11581 "SR Item Vendor Shipping Rem."
     var
         CompanyInformation: Record "Company Information";
         Purchaser: Record "Salesperson/Purchaser";
-        Language: Codeunit Language;
+        GlobalLanguage: Codeunit Language;
         FormatAdr: Codeunit "Format Address";
         KeyDate: Date;
         OnlyDueEntries: Boolean;

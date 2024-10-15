@@ -303,12 +303,20 @@ table 8622 "Config. Line"
     var
         ConfigMgt: Codeunit "Config. Management";
         ConfigPackageMgt: Codeunit "Config. Package Management";
+#pragma warning disable AA0074
         Text001: Label 'Delete the line instead.';
+#pragma warning disable AA0470
         Text002: Label 'The status %1 is not supported.';
+#pragma warning restore AA0470
         Text003: Label 'The table you are trying to rename is linked to a package. Do you want to remove the link?';
+#pragma warning disable AA0470
         Text004: Label 'You cannot process line for table %1 and package code %2 because it is blocked.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         NoDuplicateLinesMsg: Label 'There are no duplicate lines.';
+#pragma warning disable AA0470
         NoOfDuplicateLinesDeletedMsg: Label '%1 line(s) were deleted.';
+#pragma warning restore AA0470
 
     protected var
         HideValidationDialog: Boolean;

@@ -449,6 +449,11 @@ table 6650 "Return Shipment Header"
             MaxValue = 100;
             MinValue = 0;
         }
+        field(210; "Ship-to Phone No."; Text[30])
+        {
+            Caption = 'Ship-to Phone No.';
+            ExtendedDatatype = PhoneNo;
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -548,7 +553,9 @@ table 6650 "Return Shipment Header"
         DimMgt: Codeunit DimensionManagement;
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         UserSetupMgt: Codeunit "User Setup Management";
+#pragma warning disable AA0074
         Text001: Label 'Posted Document Dimensions';
+#pragma warning restore AA0074
 
     procedure PrintRecords(ShowRequestForm: Boolean)
     var

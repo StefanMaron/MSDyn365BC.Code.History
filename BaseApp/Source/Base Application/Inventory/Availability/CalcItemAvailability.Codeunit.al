@@ -1,6 +1,5 @@
 ﻿namespace Microsoft.Inventory.Availability;
 
-using Microsoft.Assembly.Document;
 using Microsoft.Foundation.Enums;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Ledger;
@@ -13,13 +12,10 @@ using Microsoft.Inventory.Transfer;
 using Microsoft.Manufacturing.Document;
 using Microsoft.Manufacturing.Forecast;
 using Microsoft.Manufacturing.Setup;
-using Microsoft.Projects.Project.Planning;
 using Microsoft.Purchases.Document;
 using Microsoft.Purchases.History;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
-using Microsoft.Service.Document;
-using Microsoft.Service.History;
 
 codeunit 5530 "Calc. Item Availability"
 {
@@ -61,8 +57,6 @@ codeunit 5530 "Calc. Item Availability"
     procedure GetDocumentEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item)
     begin
         TryGetSalesOrdersDemandEntries(InvtEventBuf, Item);
-        TryGetServOrdersDemandEntries(InvtEventBuf, Item);
-        TryGetJobOrdersDemandEntries(InvtEventBuf, Item);
         TryGetPurchRetOrderDemandEntries(InvtEventBuf, Item);
         TryGetProdOrderCompDemandEntries(InvtEventBuf, Item);
         TryGetTransOrderDemandEntries(InvtEventBuf, Item);
@@ -71,8 +65,6 @@ codeunit 5530 "Calc. Item Availability"
         TryGetSalesRetOrderSupplyEntries(InvtEventBuf, Item);
         TryGetProdOrderSupplyEntries(InvtEventBuf, Item);
         TryGetTransferOrderSupplyEntries(InvtEventBuf, Item);
-        TryGetAsmOrderDemandEntries(InvtEventBuf, Item);
-        TryGetAsmOrderSupllyEntries(InvtEventBuf, Item);
 
         OnAfterGetDocumentEntries(InvtEventBuf, Item, EntryNo);
     end;
@@ -142,6 +134,7 @@ codeunit 5530 "Calc. Item Availability"
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
         PurchaseLine: Record "Purchase Line";
+        PurchAvailabilityMgt: Codeunit "Purch. Availability Mgt.";
         IsHandled: Boolean;
     begin
         if not PurchaseLine.ReadPermission then
@@ -152,7 +145,7 @@ codeunit 5530 "Calc. Item Availability"
                 IsHandled := false;
                 OnTryGetPurchOrderSupplyEntriesOnBeforeInsertEntry(PurchaseLine, IsHandled);
                 if not IsHandled then begin
-                    InvtEventBuf.TransferFromPurchase(PurchaseLine);
+                    PurchAvailabilityMgt.TransferFromPurchase(InvtEventBuf, PurchaseLine);
                     InsertEntry(InvtEventBuf);
                 end;
             until PurchaseLine.Next() = 0;
@@ -164,13 +157,14 @@ codeunit 5530 "Calc. Item Availability"
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
         SalesLine: Record "Sales Line";
+        SalesAvailabilityMgt: Codeunit "Sales Availability Mgt.";
     begin
         if not SalesLine.ReadPermission then
             exit(false);
 
         if SalesLine.FindLinesWithItemToPlan(Item, SalesLine."Document Type"::"Return Order") then
             repeat
-                InvtEventBuf.TransferFromSalesReturn(SalesLine);
+                SalesAvailabilityMgt.TransferFromSalesReturn(InvtEventBuf, SalesLine);
                 InsertEntry(InvtEventBuf);
             until SalesLine.Next() = 0;
 
@@ -181,13 +175,14 @@ codeunit 5530 "Calc. Item Availability"
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
         ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderAvailabilityMgt: Codeunit "Prod. Order Availability Mgt.";
     begin
         if not ProdOrderLine.ReadPermission then
             exit(false);
 
         if ProdOrderLine.FindLinesWithItemToPlan(Item, true) then
             repeat
-                InvtEventBuf.TransferFromProdOrder(ProdOrderLine);
+                ProdOrderAvailabilityMgt.TransferFromProdOrder(InvtEventBuf, ProdOrderLine);
                 InsertEntry(InvtEventBuf);
             until ProdOrderLine.Next() = 0;
 
@@ -198,13 +193,14 @@ codeunit 5530 "Calc. Item Availability"
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
         TransLine: Record "Transfer Line";
+        TransferAvailabilityMgt: Codeunit "Transfer Availability Mgt.";
     begin
         if not TransLine.ReadPermission then
             exit(false);
 
         if TransLine.FindLinesWithItemToPlan(Item, true, false) then
             repeat
-                InvtEventBuf.TransferFromInboundTransOrder(TransLine);
+                TransferAvailabilityMgt.TransferFromInboundTransOrder(InvtEventBuf, TransLine);
                 InsertEntry(InvtEventBuf);
             until TransLine.Next() = 0;
 
@@ -215,49 +211,16 @@ codeunit 5530 "Calc. Item Availability"
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
         SalesLine: Record "Sales Line";
+        SalesAvailabilityMgt: Codeunit "Sales Availability Mgt.";
     begin
         if not SalesLine.ReadPermission then
             exit(false);
 
         if SalesLine.FindLinesWithItemToPlan(Item, SalesLine."Document Type"::Order) then
             repeat
-                InvtEventBuf.TransferFromSales(SalesLine);
+                SalesAvailabilityMgt.TransferFromSales(InvtEventBuf, SalesLine);
                 InsertEntry(InvtEventBuf);
             until SalesLine.Next() = 0;
-
-        exit(true);
-    end;
-
-    local procedure TryGetServOrdersDemandEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
-    var
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        ServLine: Record "Service Line";
-    begin
-        if not ServLine.ReadPermission then
-            exit(false);
-
-        if ServLine.FindLinesWithItemToPlan(Item) then
-            repeat
-                InvtEventBuf.TransferFromServiceNeed(ServLine);
-                InsertEntry(InvtEventBuf);
-            until ServLine.Next() = 0;
-
-        exit(true);
-    end;
-
-    local procedure TryGetJobOrdersDemandEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
-    var
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        JobPlanningLine: Record "Job Planning Line";
-    begin
-        if not JobPlanningLine.ReadPermission then
-            exit(false);
-
-        if JobPlanningLine.FindLinesWithItemToPlan(Item) then
-            repeat
-                InvtEventBuf.TransferFromJobNeed(JobPlanningLine);
-                InsertEntry(InvtEventBuf);
-            until JobPlanningLine.Next() = 0;
 
         exit(true);
     end;
@@ -266,13 +229,14 @@ codeunit 5530 "Calc. Item Availability"
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
         PurchLine: Record "Purchase Line";
+        PurchAvailabilityMgt: Codeunit "Purch. Availability Mgt.";
     begin
         if not PurchLine.ReadPermission then
             exit(false);
 
         if PurchLine.FindLinesWithItemToPlan(Item, PurchLine."Document Type"::"Return Order") then
             repeat
-                InvtEventBuf.TransferFromPurchReturn(PurchLine);
+                PurchAvailabilityMgt.TransferFromPurchReturn(InvtEventBuf, PurchLine);
                 InsertEntry(InvtEventBuf);
             until PurchLine.Next() = 0;
 
@@ -283,13 +247,14 @@ codeunit 5530 "Calc. Item Availability"
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
         ProdOrderComp: Record "Prod. Order Component";
+        ProdOrderAvailabilityMgt: Codeunit "Prod. Order Availability Mgt.";
     begin
         if not ProdOrderComp.ReadPermission then
             exit(false);
 
         if ProdOrderComp.FindLinesWithItemToPlan(Item, true) then
             repeat
-                InvtEventBuf.TransferFromProdComp(ProdOrderComp);
+                ProdOrderAvailabilityMgt.TransferFromProdComp(InvtEventBuf, ProdOrderComp);
                 InsertEntry(InvtEventBuf);
             until ProdOrderComp.Next() = 0;
 
@@ -300,49 +265,16 @@ codeunit 5530 "Calc. Item Availability"
     var
         [SecurityFiltering(SecurityFilter::Filtered)]
         TransLine: Record "Transfer Line";
+        TransferAvailabilityMgt: Codeunit "Transfer Availability Mgt.";
     begin
         if not TransLine.ReadPermission then
             exit(false);
 
         if TransLine.FindLinesWithItemToPlan(Item, false, false) then
             repeat
-                InvtEventBuf.TransferFromOutboundTransOrder(TransLine);
+                TransferAvailabilityMgt.TransferFromOutboundTransOrder(InvtEventBuf, TransLine);
                 InsertEntry(InvtEventBuf);
             until TransLine.Next() = 0;
-
-        exit(true);
-    end;
-
-    local procedure TryGetAsmOrderDemandEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
-    var
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        AsmLine: Record "Assembly Line";
-    begin
-        if not AsmLine.ReadPermission then
-            exit(false);
-
-        if AsmLine.FindItemToPlanLines(Item, AsmLine."Document Type"::Order) then
-            repeat
-                InvtEventBuf.TransferFromAsmOrderLine(AsmLine);
-                InsertEntry(InvtEventBuf);
-            until AsmLine.Next() = 0;
-
-        exit(true);
-    end;
-
-    local procedure TryGetAsmOrderSupllyEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item): Boolean
-    var
-        [SecurityFiltering(SecurityFilter::Filtered)]
-        AsmHeader: Record "Assembly Header";
-    begin
-        if not AsmHeader.ReadPermission then
-            exit(false);
-
-        if AsmHeader.FindItemToPlanLines(Item, AsmHeader."Document Type"::Order) then
-            repeat
-                InvtEventBuf.TransferFromAsmOrder(AsmHeader);
-                InsertEntry(InvtEventBuf);
-            until AsmHeader.Next() = 0;
 
         exit(true);
     end;
@@ -354,6 +286,7 @@ codeunit 5530 "Calc. Item Availability"
         ProdForecastEntry: Record "Production Forecast Entry";
         ProdForecastEntry2: Record "Production Forecast Entry";
         CopyOfInvtEventBuf: Record "Inventory Event Buffer";
+        ProdOrderAvailabilityMgt: Codeunit "Prod. Order Availability Mgt.";
         FromDate: Date;
         ToDate: Date;
         ForecastPeriodEndDate: Date;
@@ -483,7 +416,9 @@ codeunit 5530 "Calc. Item Availability"
                             if RemainingForecastQty < 0 then
                                 RemainingForecastQty := 0;
 
-                            InvtEventBuf.TransferFromForecast(ProdForecastEntry, RemainingForecastQty, MfgSetup."Use Forecast on Locations", MfgSetup."Use Forecast on Variants");
+                            ProdOrderAvailabilityMgt.TransferFromForecast(
+                                InvtEventBuf, ProdForecastEntry, RemainingForecastQty,
+                                MfgSetup."Use Forecast on Locations", MfgSetup."Use Forecast on Variants");
                             InsertEntry(InvtEventBuf);
                             OnGetRemainingForecastOAfterInsertEntry(InvtEventBuf, Item, ProdForecastEntry);
 
@@ -498,6 +433,7 @@ codeunit 5530 "Calc. Item Availability"
     var
         BlanketSalesLine: Record "Sales Line";
         CopyOfInvtEventBuf: Record "Inventory Event Buffer";
+        SalesAvailabilityMgt: Codeunit "Sales Availability Mgt.";
         QtyReleased: Decimal;
     begin
         CopyOfInvtEventBuf.Copy(InvtEventBuf);
@@ -517,7 +453,7 @@ codeunit 5530 "Calc. Item Availability"
                 BlanketSalesLine.SetRange("Line No.", BlanketSalesLine."Line No.");
                 repeat
                     if BlanketSalesLine."Outstanding Qty. (Base)" > QtyReleased then begin
-                        InvtEventBuf.TransferFromSalesBlanketOrder(BlanketSalesLine, BlanketSalesLine."Outstanding Qty. (Base)" - QtyReleased);
+                        SalesAvailabilityMgt.TransferFromSalesBlanketOrder(InvtEventBuf, BlanketSalesLine, BlanketSalesLine."Outstanding Qty. (Base)" - QtyReleased);
                         OnGetBlanketSalesOrdersOnAfterTransferFromSalesBlanketOrder(BlanketSalesLine, InvtEventBuf);
                         InsertEntry(InvtEventBuf);
                         QtyReleased := 0;
@@ -535,6 +471,7 @@ codeunit 5530 "Calc. Item Availability"
     local procedure GetPlanningLines(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item)
     var
         ReqLine: Record "Requisition Line";
+        ReqLineAvailabilityMgt: Codeunit "Req. Line Availability Mgt.";
         RecRef: RecordRef;
     begin
         // Planning suggestions
@@ -549,36 +486,36 @@ codeunit 5530 "Calc. Item Availability"
                 case ReqLine."Action Message" of
                     ReqLine."Action Message"::New:
                         begin
-                            InvtEventBuf.TransferFromReqLine(ReqLine, ReqLine."Location Code", ReqLine."Due Date", ReqLine."Quantity (Base)", RecRef.RecordId);
+                            ReqLineAvailabilityMgt.TransferFromReqLine(InvtEventBuf, ReqLine, ReqLine."Location Code", ReqLine."Due Date", ReqLine."Quantity (Base)", RecRef.RecordId);
                             InsertEntry(InvtEventBuf);
                         end;
                     ReqLine."Action Message"::"Change Qty.":
                         begin
-                            InvtEventBuf.TransferFromReqLine(ReqLine, ReqLine."Location Code", ReqLine."Due Date", -ReqLine.GetOriginalQtyBase(), RecRef.RecordId);
+                            ReqLineAvailabilityMgt.TransferFromReqLine(InvtEventBuf, ReqLine, ReqLine."Location Code", ReqLine."Due Date", -ReqLine.GetOriginalQtyBase(), RecRef.RecordId);
                             InsertEntry(InvtEventBuf);
 
-                            InvtEventBuf.TransferFromReqLine(ReqLine, ReqLine."Location Code", ReqLine."Due Date", ReqLine."Quantity (Base)", RecRef.RecordId);
+                            ReqLineAvailabilityMgt.TransferFromReqLine(InvtEventBuf, ReqLine, ReqLine."Location Code", ReqLine."Due Date", ReqLine."Quantity (Base)", RecRef.RecordId);
                             InsertEntry(InvtEventBuf);
                         end;
                     ReqLine."Action Message"::Reschedule:
                         begin
-                            InvtEventBuf.TransferFromReqLine(ReqLine, ReqLine."Location Code", ReqLine."Original Due Date", -ReqLine."Quantity (Base)", RecRef.RecordId);
+                            ReqLineAvailabilityMgt.TransferFromReqLine(InvtEventBuf, ReqLine, ReqLine."Location Code", ReqLine."Original Due Date", -ReqLine."Quantity (Base)", RecRef.RecordId);
                             InsertEntry(InvtEventBuf);
 
-                            InvtEventBuf.TransferFromReqLine(ReqLine, ReqLine."Location Code", ReqLine."Due Date", ReqLine."Quantity (Base)", RecRef.RecordId);
+                            ReqLineAvailabilityMgt.TransferFromReqLine(InvtEventBuf, ReqLine, ReqLine."Location Code", ReqLine."Due Date", ReqLine."Quantity (Base)", RecRef.RecordId);
                             InsertEntry(InvtEventBuf);
                         end;
                     ReqLine."Action Message"::"Resched. & Chg. Qty.":
                         begin
-                            InvtEventBuf.TransferFromReqLine(ReqLine, ReqLine."Location Code", ReqLine."Original Due Date", -ReqLine.GetOriginalQtyBase(), RecRef.RecordId);
+                            ReqLineAvailabilityMgt.TransferFromReqLine(InvtEventBuf, ReqLine, ReqLine."Location Code", ReqLine."Original Due Date", -ReqLine.GetOriginalQtyBase(), RecRef.RecordId);
                             InsertEntry(InvtEventBuf);
 
-                            InvtEventBuf.TransferFromReqLine(ReqLine, ReqLine."Location Code", ReqLine."Due Date", ReqLine."Quantity (Base)", RecRef.RecordId);
+                            ReqLineAvailabilityMgt.TransferFromReqLine(InvtEventBuf, ReqLine, ReqLine."Location Code", ReqLine."Due Date", ReqLine."Quantity (Base)", RecRef.RecordId);
                             InsertEntry(InvtEventBuf);
                         end;
                     ReqLine."Action Message"::Cancel:
                         begin
-                            InvtEventBuf.TransferFromReqLine(ReqLine, ReqLine."Location Code", ReqLine."Due Date", -ReqLine.GetOriginalQtyBase(), RecRef.RecordId);
+                            ReqLineAvailabilityMgt.TransferFromReqLine(InvtEventBuf, ReqLine, ReqLine."Location Code", ReqLine."Due Date", -ReqLine.GetOriginalQtyBase(), RecRef.RecordId);
                             InsertEntry(InvtEventBuf);
                         end;
                 end;
@@ -592,6 +529,7 @@ codeunit 5530 "Calc. Item Availability"
         PlanningComp: Record "Planning Component";
         CopyOfInvtEventBuf: Record "Inventory Event Buffer";
         CameFromInvtEventBuf: Record "Inventory Event Buffer";
+        ReqLineAvailabilityMgt: Codeunit "Req. Line Availability Mgt.";
         ParentActionMessage: Enum "Action Message Type";
     begin
         // Neutralize Prod. Orders Components as they might be replaced by planning components
@@ -612,7 +550,7 @@ codeunit 5530 "Calc. Item Availability"
         // Insert possible replacements
         if PlanningComp.FindLinesWithItemToPlan(Item) then
             repeat
-                InvtEventBuf.TransferFromPlanProdComp(PlanningComp);
+                ReqLineAvailabilityMgt.TransferFromPlanProdComp(InvtEventBuf, PlanningComp);
                 InsertEntry(InvtEventBuf);
             until PlanningComp.Next() = 0;
     end;
@@ -620,7 +558,9 @@ codeunit 5530 "Calc. Item Availability"
     local procedure GetPlanningTransDemand(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item)
     var
         TransferReqLine: Record "Requisition Line";
-        TransLine: Record "Transfer Line";
+        TransferLine: Record "Transfer Line";
+        TransferAvailabilityMgt: Codeunit "Transfer Availability Mgt.";
+        ReqLineAvailabilityMgt: Codeunit "Req. Line Availability Mgt.";
     begin
         TransferReqLine.SetCurrentKey("Replenishment System", Type, "No.", "Variant Code", "Transfer-from Code", "Transfer Shipment Date");
         TransferReqLine.SetRange("Replenishment System", TransferReqLine."Replenishment System"::Transfer);
@@ -634,12 +574,12 @@ codeunit 5530 "Calc. Item Availability"
             repeat
                 if TransferReqLine."Action Message" <> TransferReqLine."Action Message"::New then begin
                     // Neutralize demand from the related document
-                    FindTransDemandToReplace(TransferReqLine, TransLine);
-                    InvtEventBuf.TransferFromOutboundTransOrder(TransLine);
+                    FindTransDemandToReplace(TransferReqLine, TransferLine);
+                    TransferAvailabilityMgt.TransferFromOutboundTransOrder(InvtEventBuf, TransferLine);
                     InvtEventBuf.PlanRevertEntry(InvtEventBuf, TransferReqLine."Action Message");
                     InsertEntry(InvtEventBuf);
                 end;
-                InvtEventBuf.TransferFromReqLineTransDemand(TransferReqLine);
+                ReqLineAvailabilityMgt.TransferFromReqLineTransDemand(InvtEventBuf, TransferReqLine);
                 InsertEntry(InvtEventBuf);
             until TransferReqLine.Next() = 0;
     end;
@@ -797,10 +737,6 @@ codeunit 5530 "Calc. Item Availability"
         PlngComp: Record "Planning Component";
         ProdForecastEntry: Record "Production Forecast Entry";
         ReqLine: Record "Requisition Line";
-        ServiceLine: Record "Service Line";
-        JobPlngLine: Record "Job Planning Line";
-        AssemblyHeader: Record "Assembly Header";
-        AssemblyLine: Record "Assembly Line";
         RecRef: RecordRef;
         IsHandled: Boolean;
     begin
@@ -881,49 +817,17 @@ codeunit 5530 "Calc. Item Availability"
                     SourceBatchName := ReqLine."Journal Batch Name";
                     SourceRefNo := ReqLine."Line No.";
                 end;
-            Database::"Service Line":
-                begin
-                    RecRef.SetTable(ServiceLine);
-                    SourceType := Database::"Service Line";
-                    SourceSubtype := ServiceLine."Document Type".AsInteger();
-                    SourceID := ServiceLine."Document No.";
-                    SourceRefNo := ServiceLine."Line No.";
-                end;
-            Database::"Job Planning Line":
-                begin
-                    RecRef.SetTable(JobPlngLine);
-                    SourceType := Database::"Job Planning Line";
-                    JobPlngLine.Get(JobPlngLine."Job No.", JobPlngLine."Job Task No.", JobPlngLine."Line No.");
-                    SourceSubtype := JobPlngLine.Status.AsInteger();
-                    SourceID := JobPlngLine."Job No.";
-                    SourceRefNo := JobPlngLine."Job Contract Entry No.";
-                end;
             Database::"Production Forecast Entry":
                 begin
                     RecRef.SetTable(ProdForecastEntry);
                     SourceType := Database::"Production Forecast Entry";
                     SourceRefNo := ProdForecastEntry."Entry No.";
                 end;
-            Database::"Assembly Header":
-                begin
-                    RecRef.SetTable(AssemblyHeader);
-                    SourceType := Database::"Assembly Header";
-                    SourceSubtype := AssemblyHeader."Document Type".AsInteger();
-                    SourceID := AssemblyHeader."No.";
-                end;
-            Database::"Assembly Line":
-                begin
-                    RecRef.SetTable(AssemblyLine);
-                    SourceType := Database::"Assembly Line";
-                    SourceSubtype := AssemblyLine."Document Type".AsInteger();
-                    SourceID := AssemblyLine."Document No.";
-                    SourceRefNo := AssemblyLine."Line No.";
-                end
             else begin
                 IsHandled := false;
                 OnAfterGetSourceReferences(
                   FromRecordID, TransferDirection, SourceType, SourceSubtype, SourceID, SourceBatchName, SourceProdOrderLine, SourceRefNo,
-                  IsHandled);
+                  IsHandled, RecRef);
                 if not IsHandled then
                     exit(false);
             end;
@@ -938,9 +842,6 @@ codeunit 5530 "Calc. Item Availability"
         SalesShptHeader: Record "Sales Shipment Header";
         SalesInvHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        ServShptHeader: Record "Service Shipment Header";
-        ServInvHeader: Record "Service Invoice Header";
-        ServCrMemoHeader: Record "Service Cr.Memo Header";
         PurchHeader: Record "Purchase Header";
         PurchRcptHeader: Record "Purch. Rcpt. Header";
         PurchInvHeader: Record "Purch. Inv. Header";
@@ -954,8 +855,6 @@ codeunit 5530 "Calc. Item Availability"
         ProdForecastName: Record "Production Forecast Name";
         RequisitionLine: Record "Requisition Line";
         PlanningComponent: Record "Planning Component";
-        AssemblyHeader: Record "Assembly Header";
-        AssemblyLine: Record "Assembly Line";
         ReqWkshTemplate: Record "Req. Wksh. Template";
         DemandForecastCard: Page "Demand Forecast Card";
         PlanningWorksheet: Page "Planning Worksheet";
@@ -1009,21 +908,6 @@ codeunit 5530 "Calc. Item Availability"
                     OnBeforeShowSalesCrMemoHeader(SalesCrMemoHeader, IsHandled);
                     if not IsHandled then
                         PAGE.RunModal(Page::"Posted Sales Credit Memo", SalesCrMemoHeader);
-                end;
-            Database::"Service Shipment Header":
-                begin
-                    RecRef.SetTable(ServShptHeader);
-                    PAGE.RunModal(Page::"Posted Service Shipment", ServShptHeader);
-                end;
-            Database::"Service Invoice Header":
-                begin
-                    RecRef.SetTable(ServInvHeader);
-                    PAGE.RunModal(Page::"Posted Service Invoice", ServInvHeader);
-                end;
-            Database::"Service Cr.Memo Header":
-                begin
-                    RecRef.SetTable(ServCrMemoHeader);
-                    PAGE.RunModal(Page::"Posted Service Credit Memo", ServCrMemoHeader);
                 end;
             Database::"Purchase Header":
                 begin
@@ -1114,20 +998,9 @@ codeunit 5530 "Calc. Item Availability"
                     PlanningWorksheet.Run();
                     PlanningWorksheet.OpenPlanningComponent(PlanningComponent);
                 end;
-            Database::"Assembly Header":
-                begin
-                    RecRef.SetTable(AssemblyHeader);
-                    PAGE.RunModal(Page::"Assembly Order", AssemblyHeader);
-                end;
-            Database::"Assembly Line":
-                begin
-                    RecRef.SetTable(AssemblyLine);
-                    AssemblyHeader.Get(AssemblyLine."Document Type", AssemblyLine."Document No.");
-                    PAGE.RunModal(Page::"Assembly Order", AssemblyHeader);
-                end
             else begin
                 IsHandled := false;
-                OnAfterShowDocument(RecordID, IsHandled);
+                OnAfterShowDocument(RecordID, IsHandled, RecRef);
                 if not IsHandled then
                     Error(TableNotSupportedErr, RecordID.TableNo);
             end;
@@ -1201,7 +1074,7 @@ codeunit 5530 "Calc. Item Availability"
         end;
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterGetDocumentEntries(var InvtEventBuf: Record "Inventory Event Buffer"; var Item: Record Item; var CurrEntryNo: Integer)
     begin
     end;
@@ -1217,12 +1090,12 @@ codeunit 5530 "Calc. Item Availability"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetSourceReferences(FromRecordID: RecordID; TransferDirection: Enum "Transfer Direction"; var SourceType: Integer; var SourceSubtype: Integer; var SourceID: Code[20]; var SourceBatchName: Code[10]; var SourceProdOrderLine: Integer; var SourceRefNo: Integer; var IsHandled: Boolean)
+    local procedure OnAfterGetSourceReferences(FromRecordID: RecordID; TransferDirection: Enum "Transfer Direction"; var SourceType: Integer; var SourceSubtype: Integer; var SourceID: Code[20]; var SourceBatchName: Code[10]; var SourceProdOrderLine: Integer; var SourceRefNo: Integer; var IsHandled: Boolean; RecRef: RecordRef)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterShowDocument(RecordID: RecordID; var IsHandled: Boolean)
+    local procedure OnAfterShowDocument(RecordID: RecordID; var IsHandled: Boolean; RecRef: RecordRef)
     begin
     end;
 

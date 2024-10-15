@@ -113,9 +113,13 @@ codeunit 246 "Item Jnl.-Explode BOM"
         NextLineNo: Integer;
         NoOfBOMComp: Integer;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Item %1 is not a BOM.';
+#pragma warning restore AA0470
         Text002: Label 'There is not enough space to explode the BOM.';
         Text003: Label '&Copy dimensions from BOM,&Retrieve dimensions from components';
+#pragma warning restore AA0074
 
     local procedure GetItemJnlLineSpacing(OldItemJnlLine: Record "Item Journal Line"; var ToItemJnlLine: Record "Item Journal Line") LineSpacing: Integer
     var

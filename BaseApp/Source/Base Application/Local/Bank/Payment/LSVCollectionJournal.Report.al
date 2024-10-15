@@ -17,7 +17,7 @@ report 3010832 "LSV Collection Journal"
     {
         dataitem("LSV Journal Line"; "LSV Journal Line")
         {
-            DataItemTableView = sorting("LSV Journal No.", "Line No.") order(Ascending);
+            DataItemTableView = sorting("LSV Journal No.", "Line No.") order(ascending);
             column(LSVJnlNo_LSVJnlLine; "LSV Journal No.")
             {
             }

@@ -21,19 +21,18 @@ report 3010834 "Write LSV File"
     {
         dataitem("LSV Journal"; "LSV Journal")
         {
-            DataItemTableView = sorting("No.") order(Ascending);
+            DataItemTableView = sorting("No.") order(ascending);
 
             trigger OnAfterGetRecord()
             begin
                 if "File Written On" <> 0D then begin
                     if not Confirm(Text001, true, "No.", "File Written On") then
                         exit;
-                end else begin
+                end else
                     if not Confirm(Text003, true, "No.") then begin
                         Reset();
                         exit;
-                    end
-                end;
+                    end;
 
                 WriteFile("LSV Journal");
             end;
@@ -365,13 +364,12 @@ report 3010834 "Write LSV File"
     begin
         if MessageTxt = '' then
             MessageTxt := Text033 + ' ' + CustLedgEntry."Document No."
-        else begin
+        else
             if StrLen(MessageTxt + ' ' + CustLedgEntry."Document No.") < 100 then
                 MessageTxt := MessageTxt + ' ' + CustLedgEntry."Document No."
             else
                 if StrPos(MessageTxt, Text034) = 0 then  // etc. not yet added
                     MessageTxt := MessageTxt + ' ' + Text034;
-        end;
     end;
 
     [Scope('OnPrem')]

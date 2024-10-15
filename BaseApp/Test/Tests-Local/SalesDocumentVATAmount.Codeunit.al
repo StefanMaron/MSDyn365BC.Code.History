@@ -354,32 +354,30 @@ codeunit 144048 "Sales Document VAT Amount"
         LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.GetNextRow();
 
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            Assert.IsTrue(Count = 7, 'Wrong number of Sales Line found.');
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        Assert.IsTrue(SalesLine.Count = 7, 'Wrong number of Sales Line found.');
 
-            TotalAllAmountExclVAT := 0;
-            TotalVATAmount := 0;
-            if FindSet() then
-                repeat
-                    LibraryReportDataset.GetNextRow();
-                    if Type <> Type::"New Page" then begin
-                        LibraryReportDataset.AssertCurrentRowValueEquals(GetElementName(SalesHeader, ElementName::UnitPrice), "Unit Price");
-                        TotalLineAmountExclVAT := "Unit Price" * Quantity;
-                        LibraryReportDataset.AssertCurrentRowValueEquals(
-                          GetElementName(SalesHeader, ElementName::LineAmount), TotalLineAmountExclVAT);
-                        if VerifyIsZeroVAT = true then
-                            LibraryReportDataset.AssertCurrentRowValueEquals(GetElementName(SalesHeader, ElementName::VATPercentage), 0)
-                        else
-                            LibraryReportDataset.AssertCurrentRowValueEquals(GetElementName(SalesHeader, ElementName::VATPercentage), "VAT %");
-                        TotalAllAmountExclVAT += TotalLineAmountExclVAT;
-                        TotalVATAmount += ("VAT %" * TotalLineAmountExclVAT) / 100;
-                    end;
-                until Next() = 0;
+        TotalAllAmountExclVAT := 0;
+        TotalVATAmount := 0;
+        if SalesLine.FindSet() then
+            repeat
+                LibraryReportDataset.GetNextRow();
+                if SalesLine.Type <> SalesLine.Type::"New Page" then begin
+                    LibraryReportDataset.AssertCurrentRowValueEquals(GetElementName(SalesHeader, ElementName::UnitPrice), SalesLine."Unit Price");
+                    TotalLineAmountExclVAT := SalesLine."Unit Price" * SalesLine.Quantity;
+                    LibraryReportDataset.AssertCurrentRowValueEquals(
+                      GetElementName(SalesHeader, ElementName::LineAmount), TotalLineAmountExclVAT);
+                    if VerifyIsZeroVAT = true then
+                        LibraryReportDataset.AssertCurrentRowValueEquals(GetElementName(SalesHeader, ElementName::VATPercentage), 0)
+                    else
+                        LibraryReportDataset.AssertCurrentRowValueEquals(GetElementName(SalesHeader, ElementName::VATPercentage), SalesLine."VAT %");
+                    TotalAllAmountExclVAT += TotalLineAmountExclVAT;
+                    TotalVATAmount += (SalesLine."VAT %" * TotalLineAmountExclVAT) / 100;
+                end;
+            until SalesLine.Next() = 0;
 
-            LibraryReportDataset.MoveToRow(Count);
-        end;
+        LibraryReportDataset.MoveToRow(SalesLine.Count);
 
         TotalAllAmountExclVAT := Round(TotalAllAmountExclVAT, 0.01);
         TotalVATAmount := Round(TotalVATAmount, 0.01);
@@ -407,31 +405,29 @@ codeunit 144048 "Sales Document VAT Amount"
         LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.GetNextRow();
 
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            Assert.IsTrue(Count = 7, 'Wrong number of Sales Line found.');
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        Assert.IsTrue(SalesLine.Count = 7, 'Wrong number of Sales Line found.');
 
-            TotalAllAmountExclVAT := 0;
-            TotalVATAmount := 0;
-            if FindSet() then
-                repeat
-                    if Type <> Type::"New Page" then begin
-                        LibraryReportDataset.AssertCurrentRowValueEquals(GetElementName(SalesHeader, ElementName::UnitPrice), Format("Unit Price", 0, '<Integer Thousand><Decimals,3>'));
-                        TotalLineAmountExclVAT := "Unit Price" * Quantity;
-                        LibraryReportDataset.AssertCurrentRowValueEquals(GetElementName(SalesHeader, ElementName::LineAmount), Format(TotalLineAmountExclVAT, 0, '<Integer Thousand><Decimals,3>'));
-                        if VerifyIsZeroVAT = true then
-                            LibraryReportDataset.AssertCurrentRowValueEquals(GetElementName(SalesHeader, ElementName::VATPercentage), Format(0))
-                        else
-                            LibraryReportDataset.AssertCurrentRowValueEquals(GetElementName(SalesHeader, ElementName::VATPercentage), Format("VAT %"));
-                        TotalAllAmountExclVAT += TotalLineAmountExclVAT;
-                        TotalVATAmount += ("VAT %" * TotalLineAmountExclVAT) / 100;
-                    end;
-                    LibraryReportDataset.GetNextRow();
-                until Next() = 0;
+        TotalAllAmountExclVAT := 0;
+        TotalVATAmount := 0;
+        if SalesLine.FindSet() then
+            repeat
+                if SalesLine.Type <> SalesLine.Type::"New Page" then begin
+                    LibraryReportDataset.AssertCurrentRowValueEquals(GetElementName(SalesHeader, ElementName::UnitPrice), Format(SalesLine."Unit Price", 0, '<Integer Thousand><Decimals,3>'));
+                    TotalLineAmountExclVAT := SalesLine."Unit Price" * SalesLine.Quantity;
+                    LibraryReportDataset.AssertCurrentRowValueEquals(GetElementName(SalesHeader, ElementName::LineAmount), Format(TotalLineAmountExclVAT, 0, '<Integer Thousand><Decimals,3>'));
+                    if VerifyIsZeroVAT = true then
+                        LibraryReportDataset.AssertCurrentRowValueEquals(GetElementName(SalesHeader, ElementName::VATPercentage), Format(0))
+                    else
+                        LibraryReportDataset.AssertCurrentRowValueEquals(GetElementName(SalesHeader, ElementName::VATPercentage), Format(SalesLine."VAT %"));
+                    TotalAllAmountExclVAT += TotalLineAmountExclVAT;
+                    TotalVATAmount += (SalesLine."VAT %" * TotalLineAmountExclVAT) / 100;
+                end;
+                LibraryReportDataset.GetNextRow();
+            until SalesLine.Next() = 0;
 
-            LibraryReportDataset.GetLastRow();
-        end;
+        LibraryReportDataset.GetLastRow();
 
         TotalAllAmountExclVAT := Round(TotalAllAmountExclVAT, 0.01);
         TotalVATAmount := Round(TotalVATAmount, 0.01);
@@ -448,48 +444,47 @@ codeunit 144048 "Sales Document VAT Amount"
 
     local procedure GetElementName(SalesHeader: Record "Sales Header"; ElementName: Option UnitPrice,LineAmount,VATPercentage,TotalAmountExVAT,TotalVATAmount): Text
     begin
-        with SalesHeader do
-            case "Document Type" of
-                "Document Type"::Order:
-                    case ElementName of
-                        ElementName::UnitPrice:
-                            exit('UnitPrice_SalesLine');
-                        ElementName::LineAmount:
-                            exit('LineAmt_SalesLine');
-                        ElementName::VATPercentage:
-                            exit('VAT_SalesLine');
-                        ElementName::TotalAmountExVAT:
-                            exit('VATBaseAmount');
-                        ElementName::TotalVATAmount:
-                            exit('VATAmount');
-                    end;
-                "Document Type"::"Blanket Order":
-                    case ElementName of
-                        ElementName::UnitPrice:
-                            exit('SalesLineUnitPrice');
-                        ElementName::LineAmount:
-                            exit('SalesLineLineAmount1');
-                        ElementName::VATPercentage:
-                            exit('SalesLineVAT');
-                        ElementName::TotalAmountExVAT:
-                            exit('VATBaseAmt');
-                        ElementName::TotalVATAmount:
-                            exit('VATAmount');
-                    end;
-                "Document Type"::Quote:
-                    case ElementName of
-                        ElementName::UnitPrice:
-                            exit('UnitPrice');
-                        ElementName::LineAmount:
-                            exit('LineAmount_Line');
-                        ElementName::VATPercentage:
-                            exit('VATPct_Line');
-                        ElementName::TotalAmountExVAT:
-                            exit('TotalNetAmount');
-                        ElementName::TotalVATAmount:
-                            exit('TotalVATAmount');
-                    end;
-            end;
+        case SalesHeader."Document Type" of
+            SalesHeader."Document Type"::Order:
+                case ElementName of
+                    ElementName::UnitPrice:
+                        exit('UnitPrice_SalesLine');
+                    ElementName::LineAmount:
+                        exit('LineAmt_SalesLine');
+                    ElementName::VATPercentage:
+                        exit('VAT_SalesLine');
+                    ElementName::TotalAmountExVAT:
+                        exit('VATBaseAmount');
+                    ElementName::TotalVATAmount:
+                        exit('VATAmount');
+                end;
+            SalesHeader."Document Type"::"Blanket Order":
+                case ElementName of
+                    ElementName::UnitPrice:
+                        exit('SalesLineUnitPrice');
+                    ElementName::LineAmount:
+                        exit('SalesLineLineAmount1');
+                    ElementName::VATPercentage:
+                        exit('SalesLineVAT');
+                    ElementName::TotalAmountExVAT:
+                        exit('VATBaseAmt');
+                    ElementName::TotalVATAmount:
+                        exit('VATAmount');
+                end;
+            SalesHeader."Document Type"::Quote:
+                case ElementName of
+                    ElementName::UnitPrice:
+                        exit('UnitPrice');
+                    ElementName::LineAmount:
+                        exit('LineAmount_Line');
+                    ElementName::VATPercentage:
+                        exit('VATPct_Line');
+                    ElementName::TotalAmountExVAT:
+                        exit('TotalNetAmount');
+                    ElementName::TotalVATAmount:
+                        exit('TotalVATAmount');
+                end;
+        end;
 
         exit('');
     end;

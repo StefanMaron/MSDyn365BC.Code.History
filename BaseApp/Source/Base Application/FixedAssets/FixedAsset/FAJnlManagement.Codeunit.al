@@ -12,12 +12,14 @@ codeunit 5638 FAJnlManagement
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'ASSETS';
         Text001: Label 'Fixed Asset Journal';
         Text002: Label 'Recurring';
         Text003: Label 'Recurring Fixed Asset Journal';
         Text004: Label 'DEFAULT';
         Text005: Label 'Default Journal';
+#pragma warning restore AA0074
         OldFANo: Code[20];
         OpenFromBatch: Boolean;
 

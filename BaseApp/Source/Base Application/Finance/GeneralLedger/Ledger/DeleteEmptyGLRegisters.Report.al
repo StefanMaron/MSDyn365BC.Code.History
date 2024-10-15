@@ -125,10 +125,14 @@ report 99 "Delete Empty G/L Registers"
         NoOfDeleted2: Integer;
         SkipConfirm: Boolean;
 
+#pragma warning disable AA0074
         Text001: Label 'Deleting empty G/L registers...\\';
+#pragma warning disable AA0470
         Text002: Label 'No.                      #1######\';
         Text003: Label 'Posted on                #2######\\';
         Text004: Label 'No. of registers deleted #3######';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         DeleteRegistersQst: Label 'Do you want to delete the registers?';
         RequestFilterDate: Date;
 

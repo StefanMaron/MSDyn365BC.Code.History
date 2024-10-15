@@ -213,9 +213,6 @@ page 1190 "Create Payment"
     var
         GenJnlLine: Record "Gen. Journal Line";
         Vendor: Record Vendor;
-#if not CLEAN22
-        TempPaymentBuffer: Record "Payment Buffer" temporary;
-#endif
         TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary;
         DocumentsToApply: List of [Text];
         PaymentAmt: Decimal;
@@ -249,11 +246,6 @@ page 1190 "Create Payment"
 
                     TempVendorPaymentBuffer.CopyFieldsFromVendorLedgerEntry(VendorLedgerEntry);
                     OnUpdateVendorPaymentBufferFromVendorLedgerEntry(TempVendorPaymentBuffer, VendorLedgerEntry);
-#if not CLEAN22
-                    TempPaymentBuffer.CopyFieldsFromVendorPaymentBuffer(TempVendorPaymentBuffer);
-                    OnUpdateTempBufferFromVendorLedgerEntry(TempPaymentBuffer, VendorLedgerEntry);
-                    TempVendorPaymentBuffer.CopyFieldsFromPaymentBuffer(TempPaymentBuffer);
-#endif
                     TempVendorPaymentBuffer."Dimension Entry No." := 0;
                     TempVendorPaymentBuffer."Global Dimension 1 Code" := '';
                     TempVendorPaymentBuffer."Global Dimension 2 Code" := '';
@@ -302,9 +294,6 @@ page 1190 "Create Payment"
         Vendor: Record Vendor;
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
-#if not CLEAN22
-        TempPaymentBuffer: Record "Payment Buffer" temporary;
-#endif
         LastLineNo: Integer;
     begin
         GenJnlLine.LockTable();
@@ -375,11 +364,6 @@ page 1190 "Create Payment"
                 TempVendorPaymentBuffer.CopyFieldsToGenJournalLine(GenJnlLine);
 
                 OnBeforeUpdateGnlJnlLineDimensionsFromVendorPayment(GenJnlLine, TempVendorPaymentBuffer);
-#if not CLEAN22
-                TempPaymentBuffer.CopyFieldsFromVendorPaymentBuffer(TempVendorPaymentBuffer);
-                OnBeforeUpdateGnlJnlLineDimensionsFromTempBuffer(GenJnlLine, TempPaymentBuffer);
-                TempVendorPaymentBuffer.CopyFieldsFromPaymentBuffer(TempPaymentBuffer);
-#endif
                 UpdateDimensions(GenJnlLine, TempVendorPaymentBuffer);
                 GenJnlLine.Insert();
             until TempVendorPaymentBuffer.Next() = 0;
@@ -506,26 +490,10 @@ page 1190 "Create Payment"
         SetNextNo(GenJournalBatch."No. Series", KeepSaveDocumentNo);
     end;
 
-#if not CLEAN22
-    [Obsolete('Replaced by OnUpdateVendorPaymentBufferFromVendorLedgerEntry.', '22.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnUpdateTempBufferFromVendorLedgerEntry(var TempPaymentBuffer: Record "Payment Buffer" temporary; VendorLedgerEntry: Record "Vendor Ledger Entry")
-    begin
-    end;
-#endif
-
     [IntegrationEvent(false, false)]
     local procedure OnUpdateVendorPaymentBufferFromVendorLedgerEntry(var TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary; VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
     end;
-
-#if not CLEAN22
-    [Obsolete('Replaced by OnBeforeUpdateGnlJnlLineDimensionsFromVendorPayment.', '22.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateGnlJnlLineDimensionsFromTempBuffer(var GenJournalLine: Record "Gen. Journal Line"; TempPaymentBuffer: Record "Payment Buffer" temporary)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateGnlJnlLineDimensionsFromVendorPayment(var GenJournalLine: Record "Gen. Journal Line"; TempVendorPaymentBuffer: Record "Vendor Payment Buffer" temporary)

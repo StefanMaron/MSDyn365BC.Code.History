@@ -537,14 +537,18 @@ page 554 "Analysis by Dimensions"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'Period';
         Text002: Label 'You have not yet defined an analysis view.';
+#pragma warning disable AA0470
         Text003: Label '%1 is not a valid line definition.';
         Text004: Label '%1 is not a valid column definition.';
+#pragma warning restore AA0470
         Text005: Label '1,6,,Dimension 1 Filter';
         Text006: Label '1,6,,Dimension 2 Filter';
         Text007: Label '1,6,,Dimension 3 Filter';
         Text008: Label '1,6,,Dimension 4 Filter';
+#pragma warning restore AA0074
         GLSetup: Record "General Ledger Setup";
         AnalysisView: Record "Analysis View";
         AnalysisViewEntry: Record "Analysis View Entry";
@@ -561,7 +565,11 @@ page 554 "Analysis by Dimensions"
         Dim2FilterEnable: Boolean;
         Dim3FilterEnable: Boolean;
         Dim4FilterEnable: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text009: Label 'Unsupported Account Source %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         TempDimensionCodeBuffer: Record "Dimension Code Buffer" temporary;
@@ -1168,13 +1176,11 @@ page 554 "Analysis by Dimensions"
 
         case Step of
             Step::First:
-                begin
-                    if (Rec."Column Dim Option" = Rec."Column Dim Option"::Period) and (Rec."Date Filter" = '') then
-                        FindRecord(Rec."Column Dim Option", RecRef, '=><')
-                    else
-                        if not FindRecord(Rec."Column Dim Option", RecRef, '-') then
-                            exit;
-                end;
+                if (Rec."Column Dim Option" = Rec."Column Dim Option"::Period) and (Rec."Date Filter" = '') then
+                    FindRecord(Rec."Column Dim Option", RecRef, '=><')
+                else
+                    if not FindRecord(Rec."Column Dim Option", RecRef, '-') then
+                        exit;
             Step::Previous:
                 begin
                     RecRef.SetPosition(PrimaryKeyFirstCaptionInCurrSe);

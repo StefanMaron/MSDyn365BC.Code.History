@@ -318,13 +318,12 @@ report 11518 "Old Swiss VAT Statement"
                                     AccountType := 'D';
                                     AccountNumber := "Bill-to/Pay-to No.";
                                 end;
-                            end else begin
+                            end else
                                 if Vendor.Get("Bill-to/Pay-to No.") then begin
                                     BookTxt := Vendor.Name;
                                     AccountType := 'K';
                                     AccountNumber := "Bill-to/Pay-to No.";
                                 end;
-                            end;
 
                         // If No Cus/Vend Name found, klook into GL/Ledger Entries
                         if (BookTxt = '') and (not "Exchange Rate Adjustment") then begin
@@ -370,9 +369,7 @@ report 11518 "Old Swiss VAT Statement"
                         if Sales then begin
                             case "VAT Posting Setup"."VAT %" of
                                 0: // No VAT
-                                    begin
-                                        NoVATBaseAmount := NoVATBaseAmount + Base;
-                                    end;
+                                    NoVATBaseAmount := NoVATBaseAmount + Base;
                                 NormalRatePerc:
                                     begin
                                         NormalRateBaseAmount := NormalRateBaseAmount + Base;
@@ -456,12 +453,11 @@ report 11518 "Old Swiss VAT Statement"
                                 repeat
                                     SetRange("Closed by Entry No.", BalanceVATEntry2."Entry No.");
                                     SetRange(Closed, true);
-                                    if Find('-') then begin
-                                        if ((Sales = true) and (Type = Type::Sale)) or
-                                           ((Sales = false) and (Type = Type::Purchase))
+                                    if Find('-') then
+                                        if (Sales and (Type = Type::Sale)) or
+                                           ((not Sales) and (Type = Type::Purchase))
                                         then
                                             FoundBalanceEntries := true;
-                                    end;
                                 until FoundBalanceEntries or (BalanceVATEntry2.Next() = 0);
 
                             if not FoundBalanceEntries then
@@ -508,6 +504,8 @@ report 11518 "Old Swiss VAT Statement"
             end;
 
             trigger OnPreDataItem()
+            var
+                DateCreated: Date;
             begin
                 GLSetup.Get();
                 if GLSetup."Unrealized VAT" then
@@ -532,7 +530,12 @@ report 11518 "Old Swiss VAT Statement"
                     if GLRegister."Source Code" <> BalanceVATEntry2."Source Code" then
                         Error(NotVATSettlementErr, GLRegister."No.", BalanceVATEntry2."Source Code");
 
-                    FilterTxt := StrSubstNo(ClosedEntriesTxt, GLRegister."No.", DT2Date(GLRegister.SystemCreatedAt));
+                    if GLRegister.SystemCreatedAt <> 0DT then
+                        DateCreated := DT2Date(GLRegister.SystemCreatedAt)
+                    else
+                        DateCreated := GLRegister."Creation Date";
+
+                    FilterTxt := StrSubstNo(ClosedEntriesTxt, GLRegister."No.", DateCreated);
                 end else
                     FilterTxt := StrSubstNo(OpenEntriesTxt, OpenTillDate);
 

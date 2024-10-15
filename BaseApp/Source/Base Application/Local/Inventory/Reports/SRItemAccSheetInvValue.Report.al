@@ -312,11 +312,10 @@ report 11506 "SR Item Acc Sheet Inv. Value"
         ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgerEntry."Entry No.");
         ValueEntry.SetRange("Expected Cost", false);
 
-        if ValueEntry.Find('-') then begin
+        if ValueEntry.Find('-') then
             repeat
                 ValuePosted := ValuePosted + ValueEntry."Cost Posted to G/L";
             until ValueEntry.Next() = 0;
-        end;
 
         TotalValuePosted := TotalValuePosted + ValuePosted;
         TotalValueAdjusted := TotalValueAdjusted + ItemLedgerEntry."Cost Amount (Actual)";

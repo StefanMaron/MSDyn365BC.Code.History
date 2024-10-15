@@ -109,7 +109,11 @@ table 275 "Bank Account Statement"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot rename a %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         HasBankEntriesQst: Label 'When you use action Delete the bank statement will be deleted, but the bank ledger entries will stay Closed. You will not be able to redo the bank reconciliation for these ledger entries.\\We suggest you use the Undo action instead.\\Do you want to continue with Delete?';
 
     local procedure GetCurrencyCode(): Code[10]

@@ -126,12 +126,20 @@ report 6651 "Delete Invd Sales Ret. Orders"
                 if GuiAllowed() then
                     ProgressDialog.Open(ProcessingProgressTxt);
             end;
+
+            trigger OnPostDataItem()
+            begin
+                if GuiAllowed() then
+                    ProgressDialog.Close();
+            end;
         }
     }
 
     var
-        ProgressDialog: Dialog;
         ProcessingProgressTxt: Label 'Processing sales return orders #1##########', Comment = '%1 - Sales Return Order No.';
+
+    protected var
+        ProgressDialog: Dialog;
 
     local procedure ShouldDeleteSalesOrderLine(var SalesOrderLine: Record "Sales Line"): Boolean
     begin

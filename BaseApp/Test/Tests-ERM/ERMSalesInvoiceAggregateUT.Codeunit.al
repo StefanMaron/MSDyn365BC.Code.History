@@ -1379,14 +1379,14 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         RegisterFieldSet(TempFieldBuffer, SalesInvoiceEntityAggregate.FieldNo("Due Date"));
         SalesInvoiceAggregator.PropagateOnModify(SalesInvoiceEntityAggregate, TempFieldBuffer);
 
-        // [THEN] Due Date must be updated on the Posted Sales Invocie and the related Customer Ledger Entry
+        // [THEN]
+        // Due Date must be updated on the Posted Sales Invocie and the related Customer Ledger Entry
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Document No.", SalesInvoiceHeader."No.");
         CustLedgerEntry.FindLast();
         Assert.AreEqual(NewDueDate, CustLedgerEntry."Due Date", DueDateMustBeUpdatedTxt);
     end;
 
-    [Test]
     [Scope('OnPrem')]
     procedure VerifyUpdateonPostedInvoiceForANonWitheListedField()
     var
@@ -1407,7 +1407,7 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         NewBillToAddress := LibraryUtility.GenerateRandomText(MaxStrLen(NewBillToAddress));
         SalesInvoiceEntityAggregate."Bill-to Address" := NewBillToAddress;
         RegisterFieldSet(TempFieldBuffer, SalesInvoiceEntityAggregate.FieldNo("Bill-to Address"));
-        // [THEN] Update of Invoice should fail
+        // []THEN Update of Invoice should fail
         asserterror SalesInvoiceAggregator.PropagateOnModify(SalesInvoiceEntityAggregate, TempFieldBuffer);
     end;
 
@@ -2146,6 +2146,8 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
           DummySalesInvoiceEntityAggregate.FieldNo("Ship-to County"), DATABASE::"Sales Invoice Entity Aggregate", TempField);
         AddFieldToBuffer(
           DummySalesInvoiceEntityAggregate.FieldNo("Ship-to Country/Region Code"), DATABASE::"Sales Invoice Entity Aggregate", TempField);
+        AddFieldToBuffer(
+          DummySalesInvoiceEntityAggregate.FieldNo("Ship-to Phone No."), DATABASE::"Sales Invoice Entity Aggregate", TempField);
         AddFieldToBuffer(DummySalesInvoiceEntityAggregate.FieldNo("Document Date"), DATABASE::"Sales Invoice Entity Aggregate", TempField);
         AddFieldToBuffer(
           DummySalesInvoiceEntityAggregate.FieldNo("Cust. Ledger Entry No."), DATABASE::"Sales Invoice Entity Aggregate", TempField);
@@ -2442,16 +2444,14 @@ codeunit 134396 "ERM Sales Invoice Aggregate UT"
         then
             exit(true);
 
-        with SalesInvoiceEntityAggregate do begin
-            if (TableNumber = DATABASE::"Sales Invoice Entity Aggregate") and
-               (FieldNumber in [FieldNo("Invoice Discount Calculation"), FieldNo("Invoice Discount Value")])
-            then
-                exit(true);
-            if (TableNumber = DATABASE::"Sales Invoice Header") and
-               (FieldNumber in [FieldNo(IsTest)])
-            then
-                exit(true)
-        end;
+        if (TableNumber = DATABASE::"Sales Invoice Entity Aggregate") and
+           (FieldNumber in [SalesInvoiceEntityAggregate.FieldNo("Invoice Discount Calculation"), SalesInvoiceEntityAggregate.FieldNo("Invoice Discount Value")])
+        then
+            exit(true);
+        if (TableNumber = DATABASE::"Sales Invoice Header") and
+           (FieldNumber in [SalesInvoiceEntityAggregate.FieldNo(IsTest)])
+        then
+            exit(true)
     end;
 
     [SendNotificationHandler]

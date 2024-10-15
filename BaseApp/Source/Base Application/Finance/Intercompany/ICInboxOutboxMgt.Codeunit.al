@@ -46,11 +46,15 @@ codeunit 427 ICInboxOutboxMgt
         DimMgt: Codeunit DimensionManagement;
         GLSetupFound: Boolean;
         CompanyInfoFound: Boolean;
+#pragma warning disable AA0074
         Text000: Label 'Do you want to re-create the transaction?';
+#pragma warning disable AA0470
         Text001: Label '%1 %2 does not exist as a %3 in %1 %4.';
         Text002: Label 'You cannot send IC document because %1 %2 has %3 %4.';
         Text004: Label 'Transaction %1 for %2 %3 already exists in the %4 table.';
         Text005: Label '%1 must be %2 or %3 in order to be re-created.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         NoItemForCommonItemErr: Label 'There is no Item related to Common Item No. %1.', Comment = '%1 = Common Item No value';
         TransactionAlreadyExistsInOutboxHandledQst: Label '%1 %2 has already been sent to intercompany partner %3. Resending it will create a duplicate %1 for them. Do you want to send it again?', Comment = '%1 - Document Type, %2 - Document No, %3 - IC parthner code';
         TransactionCantBeFoundErr: Label 'The Intercompany transaction that originated this document cannot be found.';
@@ -87,9 +91,6 @@ codeunit 427 ICInboxOutboxMgt
         OutboxJnlTransaction."Document No." := TempGenJnlLine."Document No.";
         OutboxJnlTransaction."Posting Date" := TempGenJnlLine."Posting Date";
         OutboxJnlTransaction."Document Date" := TempGenJnlLine."Document Date";
-#if not CLEAN22
-        OutboxJnlTransaction."IC Partner G/L Acc. No." := TempGenJnlLine."IC Partner G/L Acc. No.";
-#endif
         OutboxJnlTransaction."IC Account Type" := TempGenJnlLine."IC Account Type";
         OutboxJnlTransaction."IC Account No." := TempGenJnlLine."IC Account No.";
         OutboxJnlTransaction."Source Line No." := TempGenJnlLine."Source Line No.";
@@ -626,12 +627,6 @@ codeunit 427 ICInboxOutboxMgt
         FeatureTelemetry.LogUsage('0000IK2', ICMapping.GetFeatureTelemetryName(), 'Creating Outbox Journal Line');
 
         GetGLSetup();
-#if not CLEAN22
-        if (TempGenJnlLine."IC Partner G/L Acc. No." <> '') and (TempGenJnlLine."IC Account No." = '') then begin
-            TempGenJnlLine."IC Account Type" := TempGenJnlLine."IC Account Type"::"G/L Account";
-            TempGenJnlLine."IC Account No." := TempGenJnlLine."IC Partner G/L Acc. No.";
-        end;
-#endif
         if ((TempGenJnlLine."Bal. Account Type" in
              [TempGenJnlLine."Bal. Account Type"::Customer, TempGenJnlLine."Bal. Account Type"::Vendor, TempGenJnlLine."Bal. Account Type"::"IC Partner"]) and
             (TempGenJnlLine."Bal. Account No." <> '')) or
@@ -911,6 +906,7 @@ codeunit 427 ICInboxOutboxMgt
             SalesHeader."Ship-to Post Code" := ICInboxSalesHeader."Ship-to Post Code";
             SalesHeader."Ship-to County" := ICInboxSalesHeader."Ship-to County";
             SalesHeader."Ship-to Country/Region Code" := ICInboxSalesHeader."Ship-to Country/Region Code";
+            SalesHeader."Ship-to Phone No." := ICInboxSalesHeader."Ship-to Phone No.";
             if ReplacePostingDate then
                 SalesHeader.Validate("Posting Date", PostingDate)
             else
@@ -1178,6 +1174,7 @@ codeunit 427 ICInboxOutboxMgt
             PurchHeader."Ship-to Post Code" := ICInboxPurchHeader."Ship-to Post Code";
             PurchHeader."Ship-to County" := ICInboxPurchHeader."Ship-to County";
             PurchHeader."Ship-to Country/Region Code" := ICInboxPurchHeader."Ship-to Country/Region Code";
+            PurchHeader."Ship-to Phone No." := ICInboxPurchHeader."Ship-to Phone No.";
             PurchHeader."Vendor Order No." := ICInboxPurchHeader."Vendor Order No.";
             if ReplacePostingDate then
                 PurchHeader.Validate("Posting Date", PostingDate)
@@ -1605,9 +1602,6 @@ codeunit 427 ICInboxOutboxMgt
         InboxTransaction."Transaction Source" := InboxTransaction."Transaction Source"::"Created by Partner";
         InboxTransaction."Transaction Source" := HandledInboxTransaction2."Transaction Source";
         InboxTransaction."Document Date" := HandledInboxTransaction2."Document Date";
-#if not CLEAN22
-        InboxTransaction."IC Partner G/L Acc. No." := HandledInboxTransaction2."IC Partner G/L Acc. No.";
-#endif
         InboxTransaction."IC Account Type" := HandledInboxTransaction2."IC Account Type";
         InboxTransaction."IC Account No." := HandledInboxTransaction2."IC Account No.";
         InboxTransaction."Source Line No." := HandledInboxTransaction2."Source Line No.";
@@ -1767,9 +1761,6 @@ codeunit 427 ICInboxOutboxMgt
             OutboxTransaction."Transaction Source" := OutboxTransaction."Transaction Source"::"Created by Current Company";
             OutboxTransaction."Transaction Source" := HandledOutboxTransaction2."Transaction Source";
             OutboxTransaction."Document Date" := HandledOutboxTransaction2."Document Date";
-#if not CLEAN22
-            OutboxTransaction."IC Partner G/L Acc. No." := HandledOutboxTransaction2."IC Partner G/L Acc. No.";
-#endif
             OutboxTransaction."IC Account Type" := HandledOutboxTransaction2."IC Account Type";
             OutboxTransaction."IC Account No." := HandledOutboxTransaction2."IC Account No.";
             OutboxTransaction."Source Line No." := HandledOutboxTransaction2."Source Line No.";
@@ -2189,9 +2180,6 @@ codeunit 427 ICInboxOutboxMgt
         ICInboxTrans."Posting Date" := ICOutboxTrans."Posting Date";
         ICInboxTrans."Document Date" := ICOutboxTrans."Document Date";
         ICInboxTrans."Line Action" := ICInboxTrans."Line Action"::"No Action";
-#if not CLEAN22
-        ICInboxTrans."IC Partner G/L Acc. No." := ICOutboxTrans."IC Partner G/L Acc. No.";
-#endif
         ICInboxTrans."IC Account Type" := ICOutboxTrans."IC Account Type";
         ICInboxTrans."IC Account No." := ICOutboxTrans."IC Account No.";
         ICInboxTrans."Source Line No." := ICOutboxTrans."Source Line No.";
@@ -2350,6 +2338,7 @@ codeunit 427 ICInboxOutboxMgt
         ICInboxPurchHeader."Ship-to Post Code" := ICOutboxSalesHeader."Ship-to Post Code";
         ICInboxPurchHeader."Ship-to County" := ICOutboxSalesHeader."Ship-to County";
         ICInboxPurchHeader."Ship-to Country/Region Code" := ICOutboxSalesHeader."Ship-to Country/Region Code";
+        ICInboxPurchHeader."Ship-to Phone No." := ICOutboxSalesHeader."Ship-to Phone No.";
         ICInboxPurchHeader."Posting Date" := ICOutboxSalesHeader."Posting Date";
         ICInboxPurchHeader."Due Date" := ICOutboxSalesHeader."Due Date";
         ICInboxPurchHeader."Payment Discount %" := ICOutboxSalesHeader."Payment Discount %";
@@ -2466,6 +2455,7 @@ codeunit 427 ICInboxOutboxMgt
         ICInboxSalesHeader."Ship-to Post Code" := ICOutboxPurchHeader."Ship-to Post Code";
         ICInboxSalesHeader."Ship-to County" := ICOutboxPurchHeader."Ship-to County";
         ICInboxSalesHeader."Ship-to Country/Region Code" := ICOutboxPurchHeader."Ship-to Country/Region Code";
+        ICInboxSalesHeader."Ship-to Phone No." := ICOutboxPurchHeader."Ship-to Phone No.";
         ICInboxSalesHeader."Posting Date" := ICOutboxPurchHeader."Posting Date";
         ICInboxSalesHeader."Due Date" := ICOutboxPurchHeader."Due Date";
         ICInboxSalesHeader."Payment Discount %" := ICOutboxPurchHeader."Payment Discount %";
@@ -2523,6 +2513,13 @@ codeunit 427 ICInboxOutboxMgt
         OnAfterICInboxSalesLineInsert(ICInboxSalesLine, ICOutboxPurchLine);
     end;
 
+    /// <summary>
+    /// Transfers ic outbox transaction dimensions to ic inbox transaction dimensions.
+    /// </summary>
+    /// <param name="ICInboxJnlLine">Ic transaction that is being processed. </param>
+    /// <param name="ICOutboxJnlLineDim">Source ic outbox journal line. </param>
+    /// <param name="ICInboxJnlLineDim">Destination ic inbox journal line. </param>
+    /// <param name="ICInboxTableID">Number of record table. </param>
     procedure OutboxJnlLineDimToInbox(var ICInboxJnlLine: Record "IC Inbox Jnl. Line"; var ICOutboxJnlLineDim: Record "IC Inbox/Outbox Jnl. Line Dim."; var ICInboxJnlLineDim: Record "IC Inbox/Outbox Jnl. Line Dim."; ICInboxTableID: Integer)
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
@@ -2538,6 +2535,14 @@ codeunit 427 ICInboxOutboxMgt
         ICInboxJnlLineDim.Insert();
     end;
 
+    /// <summary>
+    /// Transfers ic outbox document dimensions to ic inbox document dimensions.
+    /// </summary>
+    /// <param name="ICOutboxDocDim">Source ic outbox document dimensions. </param>
+    /// <param name="ICInboxDocDim">Destination ic inbox document dimensions. </param>
+    /// <param name="InboxTableID">Destination table number. </param>
+    /// <param name="InboxICPartnerCode">Ic partner code. </param>
+    /// <param name="InboxTransSource">Source of transaction 'Rejected by Current Company' or 'Created by Current Company'. </param>
     procedure OutboxDocDimToInbox(var ICOutboxDocDim: Record "IC Document Dimension"; var ICInboxDocDim: Record "IC Document Dimension"; InboxTableID: Integer; InboxICPartnerCode: Code[20]; InboxTransSource: Integer)
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
@@ -2553,6 +2558,15 @@ codeunit 427 ICInboxOutboxMgt
         ICInboxDocDim.Insert();
     end;
 
+    /// <summary>
+    /// Moves ic journal line dimensions to handled ic journal dimensions.
+    /// </summary>
+    /// <param name="TableID">Source table number. </param>
+    /// <param name="NewTableID">Destination table number. </param>
+    /// <param name="TransactionNo">Number of transaction that is being processed. </param>
+    /// <param name="ICPartner">Ic partner code. </param>
+    /// <param name="LineNoFilter">If 'true' parameter LineNo will be used.</param>
+    /// <param name="LineNo">Line number of processed dimension.</param>
     procedure MoveICJnlDimToHandled(TableID: Integer; NewTableID: Integer; TransactionNo: Integer; ICPartner: Code[20]; LineNoFilter: Boolean; LineNo: Integer)
     var
         InOutboxJnlLineDim: Record "IC Inbox/Outbox Jnl. Line Dim.";
@@ -2602,6 +2616,10 @@ codeunit 427 ICInboxOutboxMgt
             until ICDocDim.Next() = 0;
     end;
 
+    /// <summary>
+    /// Moves ic outbox documents to handled ic outbox documents.
+    /// </summary>
+    /// <param name="ICOutboxTrans">Ic outbox transaction that is being processed. </param>
     procedure MoveOutboxTransToHandledOutbox(var ICOutboxTrans: Record "IC Outbox Transaction")
     var
         HandledICOutboxTrans: Record "Handled IC Outbox Trans.";
@@ -2733,6 +2751,12 @@ codeunit 427 ICInboxOutboxMgt
             until ICCommentLine.Next() = 0;
     end;
 
+    /// <summary>
+    /// Creates ic document dimensions with provided 'DimSetID'.
+    /// </summary>
+    /// <param name="ICDocDim">Ic Document dimensions that are created. </param>
+    /// <param name="DimSetID">Dimension set id of a given document. </param>
+    /// <param name="TableNo">Table number of document in process. </param>
     procedure CreateICDocDimFromPostedDocDim(ICDocDim: Record "IC Document Dimension"; DimSetID: Integer; TableNo: Integer)
     var
         DimSetEntry: Record "Dimension Set Entry";
@@ -2750,6 +2774,12 @@ codeunit 427 ICInboxOutboxMgt
             until DimSetEntry.Next() = 0;
     end;
 
+    /// <summary>
+    /// Retrieves purchase receipt lines for purchase lines that have been received and not invoiced.
+    /// </summary>
+    /// <param name="PurchRcptLine">Retrieved purchase receipt lines. </param>
+    /// <param name="PurchaseLineSource">Source purchase line. </param>
+    /// <returns>Returns 'true' if found, otherwise 'false'. </returns>
     procedure FindReceiptLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; PurchaseLineSource: Record "Purchase Line") Found: Boolean
     var
         PurchaseHeader: Record "Purchase Header";
@@ -2886,6 +2916,13 @@ codeunit 427 ICInboxOutboxMgt
         end;
     end;
 
+    /// <summary>
+    /// Updates ic partner reference information on created purchase line from ic inbox purchase line.
+    /// </summary>
+    /// <param name="PurchaseLine">Destination purchase document line. </param>
+    /// <param name="PurchaseHeader">Processed purchase document header. </param>
+    /// <param name="ICInboxPurchLine">Source ic inbox purchase line. </param>
+    /// <remarks>Changes made to purchase document line 'PurchaseLine' are not saved to database. </remarks>
     procedure UpdatePurchLineICPartnerReference(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; ICInboxPurchLine: Record "IC Inbox Purchase Line")
     var
         ICPartner: Record "IC Partner";
@@ -2945,6 +2982,12 @@ codeunit 427 ICInboxOutboxMgt
         end;
     end;
 
+    /// <summary>
+    /// Updates purchase line information based on purchase receipt line or return shipment line for given purchase line if exists.
+    /// </summary>
+    /// <param name="PurchaseLine">Source purchase line. </param>
+    /// <remarks>If either purchase receipt line or return shipment line is found, item tracking information will be transferred if exists. 
+    /// Changes made to purchase document line 'PurchaseLine' are not saved to database. </remarks>
     procedure UpdatePurchLineReceiptShipment(var PurchaseLine: Record "Purchase Line")
     var
         PurchRcptLine: Record "Purch. Rcpt. Line";

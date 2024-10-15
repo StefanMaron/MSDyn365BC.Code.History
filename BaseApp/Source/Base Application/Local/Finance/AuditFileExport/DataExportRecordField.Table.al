@@ -40,7 +40,7 @@ table 11005 "Data Export Record Field"
         }
         field(4; "Table Name"; Text[80])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Table),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Table),
                                                                            "Object ID" = field("Table No.")));
             Caption = 'Table Name';
             Editable = false;
@@ -70,7 +70,7 @@ table 11005 "Data Export Record Field"
         }
         field(6; "Field Name"; Text[80])
         {
-            CalcFormula = Lookup(Field."Field Caption" where(TableNo = field("Table No."),
+            CalcFormula = lookup(Field."Field Caption" where(TableNo = field("Table No."),
                                                               "No." = field("Field No.")));
             Caption = 'Field Name';
             Editable = false;

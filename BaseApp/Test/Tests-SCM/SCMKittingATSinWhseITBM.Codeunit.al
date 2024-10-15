@@ -506,12 +506,11 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
 
         CODEUNIT.Run(CODEUNIT::"Release Assembly Document", AssemblyHeader);
 
-        if AssignITBeforeWhseAct then begin
+        if AssignITBeforeWhseAct then
             if WhseActivity = WhseActivityType::None then
                 AssignITToAssemblyLines(AssemblyHeader, false, true, '+')
             else
                 AssignITToAssemblyLines(AssemblyHeader, false, false, '+');
-        end;
 
         CreateAndRegisterWhseActivity(AssemblyHeaderNo, WhseActivity, AssignITOnWhseAct, false, '+', '');
 
@@ -873,12 +872,11 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
 
         PrepareOrderPosting(AssemblyHeader, HeaderQtyFactor);
 
-        if AssignITBeforeWhseAct then begin
+        if AssignITBeforeWhseAct then
             if WhseActivity = WhseActivityType::None then
                 AssignITToAssemblyLines(AssemblyHeader, ITPartial, true, '-')
             else
                 AssignITToAssemblyLines(AssemblyHeader, ITPartial, false, '-');
-        end;
 
         CreateAndRegisterWhseActivity(AssemblyHeader."No.", WhseActivity, AssignITOnWhseAct, ITPartial, '-', '');
 
@@ -946,13 +944,11 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
     begin
         case GLB_ITPageHandler of
             GLB_ITPageHandler::AssignITSpec, GLB_ITPageHandler::AssignITSpecPartial:
-                begin
-                    if PAR_ITPage_AssignSerial then
-                        HNDL_ITPage_AssignSerial(ItemTrackingLinesPage)
-                    else
-                        if PAR_ITPage_AssignLot then
-                            HNDL_ITPage_AssignLot(ItemTrackingLinesPage);
-                end;
+                if PAR_ITPage_AssignSerial then
+                    HNDL_ITPage_AssignSerial(ItemTrackingLinesPage)
+                else
+                    if PAR_ITPage_AssignLot then
+                        HNDL_ITPage_AssignLot(ItemTrackingLinesPage);
             GLB_ITPageHandler::SelectITSpec:
                 HNDL_ITPage_SelectEntries(ItemTrackingLinesPage);
             GLB_ITPageHandler::PutManuallyITSpec:
@@ -1203,12 +1199,11 @@ codeunit 137104 "SCM Kitting ATS in Whse/IT BM"
 
         PrepareOrderPosting(AssemblyHeader, HeaderQtyFactor);
 
-        if AssignITBeforeWhseAct then begin
+        if AssignITBeforeWhseAct then
             if WhseActivity = WhseActivityType::None then
                 AssignITToAssemblyLines(AssemblyHeader, ITPartial, true, '-')
             else
                 AssignITToAssemblyLines(AssemblyHeader, ITPartial, false, '-');
-        end;
 
         CreateAndRegisterWhseActivity(AssemblyHeader."No.", WhseActivity, AssignITOnWhseAct, ITPartial, '-', ExpectedErrorMessageReg);
 

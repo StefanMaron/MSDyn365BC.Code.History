@@ -83,10 +83,23 @@ page 5988 "Service Items"
         }
         area(factboxes)
         {
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Item"),
+                              "No." = field("No.");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Service Item"),
                               "No." = field("No.");
             }
@@ -239,8 +252,10 @@ page 5988 "Service Items"
     }
 
     var
+#pragma warning disable AA0074
         Text000: Label '%1 %2', Comment = '%1=Cust."No."  %2=Cust.Name';
         Text001: Label '%1 %2', Comment = '%1 = Item no, %2 = Item description';
+#pragma warning restore AA0074
 
     local procedure GetCaption(): Text
     var

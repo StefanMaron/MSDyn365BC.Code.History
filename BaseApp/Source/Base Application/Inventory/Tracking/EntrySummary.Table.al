@@ -177,7 +177,11 @@ table 338 "Entry Summary"
 
     var
         UOMMgt: Codeunit "Unit of Measure Management";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'You cannot select more than %1 units.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure GetLastEntryNo(): Integer;
     var

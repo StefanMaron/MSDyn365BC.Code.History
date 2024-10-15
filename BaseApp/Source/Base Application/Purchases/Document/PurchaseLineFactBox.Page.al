@@ -41,7 +41,11 @@ page 9100 "Purchase Line FactBox"
 
                 trigger OnDrillDown()
                 begin
-                    ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByEvent());
+#if not CLEAN25
+                    ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, "Item Availability Type"::"Event".AsInteger());
+#else
+                    PurchAvailabilityMgt.ShowItemAvailabilityFromPurchLine(Rec, "Item Availability Type"::"Event");
+#endif
                     CurrPage.Update(true);
                 end;
             }
@@ -107,7 +111,12 @@ page 9100 "Purchase Line FactBox"
 
     protected var
         PurchInfoPaneMgt: Codeunit "Purchases Info-Pane Management";
+#if not CLEAN25
+        [Obsolete('Replaced by PurchAvailabilityMgt', '25.0')]
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+#else
+        PurchAvailabilityMgt: Codeunit "Purch. Availability Mgt.";
+#endif
 
     protected procedure ShowDetails()
     var

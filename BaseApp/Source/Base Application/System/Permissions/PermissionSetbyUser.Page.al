@@ -199,29 +199,6 @@ page 9816 "Permission Set by User"
         }
         area(factboxes)
         {
-#if not CLEAN22
-            part(Control27; "Permissions FactBox")
-            {
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced with Expanded Permissions factbox';
-                ObsoleteTag = '22.0';
-                ApplicationArea = Basic, Suite;
-                Caption = 'Permissions';
-                Editable = false;
-                SubPageLink = "Role ID" = field("Role ID");
-                Visible = false;
-            }
-            part("Tenant Permissions"; "Tenant Permissions FactBox")
-            {
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced with Expanded Permissions factbox';
-                ObsoleteTag = '22.0';
-                ApplicationArea = Basic, Suite;
-                Caption = 'Tenant Permissions';
-                Editable = false;
-                Visible = false;
-            }
-#endif
             part(ExpandedPermissions; "Expanded Permissions FactBox")
             {
                 ApplicationArea = Basic, Suite;

@@ -1,4 +1,4 @@
-codeunit 14060 "UPG Data Out Of Geo. Apps"
+﻿codeunit 14060 "UPG Data Out Of Geo. Apps"
 {
     Subtype = Upgrade;
 
@@ -8,7 +8,7 @@ codeunit 14060 "UPG Data Out Of Geo. Apps"
     begin
         if not HybridDeployment.VerifyCanStartUpgrade('') then
             exit;
-         
+
         AddDataOutOfGeoApps();
     end;
 
@@ -17,7 +17,7 @@ codeunit 14060 "UPG Data Out Of Geo. Apps"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
     begin
-        If UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetDataOutOfGeoAppTagCh()) THEN
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetDataOutOfGeoAppTagCh()) then
             exit;
 
         InsertDataOutOfGeoApp('d09fa965-9a2a-424d-b704-69f3b54ed0ce'); // Paypal

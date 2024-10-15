@@ -15,7 +15,7 @@ codeunit 132250 "Library - Test Initialize"
     begin
     end;
 
-    [IntegrationEvent(TRUE, false)]
+    [IntegrationEvent(true, false)]
     procedure OnAfterTestSuiteInitialize(CallerCodeunitID: Integer)
     begin
     end;

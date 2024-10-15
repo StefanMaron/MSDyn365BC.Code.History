@@ -848,12 +848,16 @@ report 702 "Inventory Posting - Test"
         ShowDim: Boolean;
         Continue: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '%1 cannot be filtered when you post recurring journals.';
         Text001: Label '%1 must be specified.';
         Text002: Label '%1 %2 does not exist.';
         Text003: Label '%1 must be %2 for %3 %4.';
         Text005: Label '%1 must not be a closing date.';
+#pragma warning restore AA0470
         Text006: Label 'The lines are not listed according to Posting Date because they were not entered in that order.';
+#pragma warning disable AA0470
         Text007: Label '%1 is not within your allowed range of posting dates.';
         Text008: Label '%1 %2 %3 does not exist.';
         Text009: Label '%1 must be 0.';
@@ -863,10 +867,14 @@ report 702 "Inventory Posting - Test"
         Text014: Label '%1 must be %2 or %3 when %4 is %5.';
         Text015: Label '%1 must equal %2 - %3 when %4 is %5 and %6 is %7.';
         Text016: Label '%1 cannot be specified.';
+#pragma warning restore AA0470
         Text017: Label 'There is a gap in the number series.';
+#pragma warning disable AA0470
         Text019: Label '%1,%2,%3 or %4 must be specified.';
         Text020: Label '%1 %2 is not on inventory for %3 %4.';
         Text021: Label '%1 %2 is not on inventory.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         TotalAm1: Decimal;
         TotalAm2: Decimal;
         TotalAm3: Decimal;

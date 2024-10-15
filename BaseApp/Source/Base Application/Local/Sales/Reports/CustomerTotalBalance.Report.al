@@ -193,7 +193,7 @@ report 11003 "Customer Total-Balance"
                             DetailedCustomerLedgEntry2.SetRange("Cust. Ledger Entry No.", DetailedCustomerLedgEntry."Cust. Ledger Entry No.");
                             DetailedCustomerLedgEntry2.SetRange("Entry Type", DetailedCustomerLedgEntry2."Entry Type"::"Initial Entry");
                             DetailedCustomerLedgEntry2.SetRange("Document Type", DetailedCustomerLedgEntry2."Document Type"::Payment);
-                            if DetailedCustomerLedgEntry2.FindSet() then begin
+                            if DetailedCustomerLedgEntry2.FindSet() then
                                 repeat
                                     if ((DetailedCustomerLedgEntry."Debit Amount (LCY)" <> 0) and
                                         (DetailedCustomerLedgEntry2."Credit Amount (LCY)" <> 0)) or
@@ -203,8 +203,8 @@ report 11003 "Customer Total-Balance"
                                         AdjPeriodAmount := AdjPeriodAmount +
                                           DetailedCustomerLedgEntry."Debit Amount (LCY)" +
                                           DetailedCustomerLedgEntry."Credit Amount (LCY)";
-                                until DetailedCustomerLedgEntry2.Next() = 0;
-                            end else begin
+                                until DetailedCustomerLedgEntry2.Next() = 0
+                            else begin
                                 CustomerLedgEntry.Get(DetailedCustomerLedgEntry."Cust. Ledger Entry No.");
                                 if CustomerLedgEntry."Closed by Entry No." <> 0 then begin
                                     CustomerLedgEntry2.Get(CustomerLedgEntry."Closed by Entry No.");
@@ -253,7 +253,7 @@ report 11003 "Customer Total-Balance"
                     DetailedCustomerLedgEntry.SetRange("Posting Date", YearStartDate, EndDate);
                     DetailedCustomerLedgEntry.SetRange("Entry Type", DetailedCustomerLedgEntry."Entry Type"::"Realized Loss",
                       DetailedCustomerLedgEntry."Entry Type"::"Realized Gain");
-                    OnAfterGetRecordCustomerYearOnAfterDetailedCustomerLedgEntrySetFilters(DetailedCustomerLedgEntry);  
+                    OnAfterGetRecordCustomerYearOnAfterDetailedCustomerLedgEntrySetFilters(DetailedCustomerLedgEntry);
                     if DetailedCustomerLedgEntry.FindSet() then
                         repeat
                             DetailedCustomerLedgEntry2.Reset();
@@ -261,7 +261,7 @@ report 11003 "Customer Total-Balance"
                             DetailedCustomerLedgEntry2.SetRange("Cust. Ledger Entry No.", DetailedCustomerLedgEntry."Cust. Ledger Entry No.");
                             DetailedCustomerLedgEntry2.SetRange("Entry Type", DetailedCustomerLedgEntry2."Entry Type"::"Initial Entry");
                             DetailedCustomerLedgEntry2.SetRange("Document Type", DetailedCustomerLedgEntry2."Document Type"::Payment);
-                            if DetailedCustomerLedgEntry2.FindSet() then begin
+                            if DetailedCustomerLedgEntry2.FindSet() then
                                 repeat
                                     if ((DetailedCustomerLedgEntry."Debit Amount (LCY)" <> 0) and
                                         (DetailedCustomerLedgEntry2."Credit Amount (LCY)" <> 0)) or
@@ -271,8 +271,8 @@ report 11003 "Customer Total-Balance"
                                         AdjYearAmount := AdjYearAmount +
                                           DetailedCustomerLedgEntry."Debit Amount (LCY)" +
                                           DetailedCustomerLedgEntry."Credit Amount (LCY)";
-                                until DetailedCustomerLedgEntry2.Next() = 0;
-                            end else begin
+                                until DetailedCustomerLedgEntry2.Next() = 0
+                            else begin
                                 CustomerLedgEntry.Get(DetailedCustomerLedgEntry."Cust. Ledger Entry No.");
                                 if CustomerLedgEntry."Closed by Entry No." <> 0 then begin
                                     CustomerLedgEntry2.Get(CustomerLedgEntry."Closed by Entry No.");
@@ -483,6 +483,6 @@ report 11003 "Customer Total-Balance"
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetRecordCustomerEndOnAfterCalcFieldsNetChangeLCY(var Customer: Record "Customer");
     begin
-    end;    
+    end;
 }
 

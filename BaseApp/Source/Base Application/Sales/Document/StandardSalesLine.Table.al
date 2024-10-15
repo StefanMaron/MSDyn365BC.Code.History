@@ -262,8 +262,12 @@ table 171 "Standard Sales Line"
     var
         StdSalesCode: Record "Standard Sales Code";
         DimMgt: Codeunit DimensionManagement;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot rename a %1.';
         Text001: Label '%1 must not be %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CommentLbl: Label 'Comment';
 
     procedure EmptyLine(): Boolean

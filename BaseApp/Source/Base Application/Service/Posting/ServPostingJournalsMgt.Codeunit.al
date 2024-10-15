@@ -47,14 +47,13 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
         SalesSetup: Record "Sales & Receivables Setup";
-        Cust: Record Customer;
         TempValueEntryRelation: Record "Value Entry Relation" temporary;
         ServITRMgt: Codeunit "Serv-Item Tracking Rsrv. Mgt.";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         ResJnlPostLine: Codeunit "Res. Jnl.-Post Line";
         ServLedgEntryPostSale: Codeunit "ServLedgEntries-Post";
-        TimeSheetMgt: Codeunit "Time Sheet Management";
+        ServTimeSheetMgt: Codeunit "Serv. Time Sheet Mgt.";
         WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line";
         GenJnlLineDocNo: Code[20];
         GenJnlLineExtDocNo: Code[35];
@@ -142,9 +141,8 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         end;
 
         ItemJnlLine.Init();
-        ItemJnlLine.CopyFromServHeader(ServiceHeader);
-        ItemJnlLine.CopyFromServLine(ServiceLine);
-
+        ServiceHeader.CopyToItemJnlLine(ItemJnlLine);
+        ServiceLine.CopyToItemJnlLine(ItemJnlLine);
         ItemJnlLine.CopyTrackingFromSpec(TrackingSpecification);
 
         if GenJnlLineExtDocNo = '' then
@@ -251,11 +249,6 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         ItemJnlLine."Source Code" := SrcCode;
         ItemJnlLine."Item Shpt. Entry No." := ItemLedgShptEntryNo;
         ItemJnlLine."Invoice-to Source No." := ServiceLine."Bill-to Customer No.";
-
-        ItemJnlLine."Customer No." := ServiceHeader."Bill-to Customer No.";
-        if Cust.Get(ServiceHeader."Bill-to Customer No.") then
-            ItemJnlLine."Customer Salesperson Code" := Cust."Salesperson Code";
-        ItemJnlLine."Ship-to Address Code" := ServiceHeader."Ship-to Code";
 
         if SalesSetup."Exact Cost Reversing Mandatory" and (ServiceLine.Type = ServiceLine.Type::Item) then
             if ServiceLine."Document Type" = ServiceLine."Document Type"::"Credit Memo" then
@@ -414,17 +407,6 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             ServiceHeader."Shortcut Dimension 1 Code", ServiceHeader."Shortcut Dimension 2 Code",
             ServiceHeader."Dimension Set ID", ServiceHeader."Reason Code");
 
-        if (ServiceHeader."Posting Description" = Format(ServiceHeader."Document Type") + ' ' + ServiceHeader."No.") or
-           (ServiceHeader."Posting No." <> '') then
-            if ServiceHeader."Document Type" <> ServiceHeader."Document Type"::Order then
-                GenJnlLine.Description :=
-                  CopyStr(CopyStr(Format(ServiceHeader."Document Type"), 1, 4) + '. ' + GenJnlLineDocNo + '/' +
-                    ServiceHeader."Bill-to Name", 1, MaxStrLen(ServiceHeader."Posting Description"))
-            else
-                GenJnlLine.Description :=
-                  CopyStr(CopyStr(Format(ServiceHeader."Document Type"), 1, 4) + '. ' + ServiceHeader."No." + '/' +
-                    ServiceHeader."Bill-to Name", 1, MaxStrLen(ServiceHeader."Posting Description"));
-
         GenJnlLine.CopyDocumentFields(Enum::"Gen. Journal Document Type".FromInteger(DocType), DocNo, ExtDocNo, SrcCode, '');
 
         GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer;
@@ -529,7 +511,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             exit;
 
         if ServiceLine."Time Sheet No." <> '' then
-            TimeSheetMgt.CheckServiceLine(ServiceLine);
+            ServTimeSheetMgt.CheckServiceLine(ServiceLine);
 
         PostResJnlLine(
           ServiceHeader, ServiceLine,
@@ -537,7 +519,7 @@ codeunit 5987 "Serv-Posting Journals Mgt."
           ResJnlLine."Entry Type"::Usage, -ServiceLine."Qty. to Ship",
           ServiceLine.Amount / ServiceLine."Qty. to Ship", -ServiceLine.Amount);
 
-        TimeSheetMgt.CreateTSLineFromServiceLine(ServiceLine, GenJnlLineDocNo, true);
+        ServTimeSheetMgt.CreateTSLineFromServiceLine(ServiceLine, GenJnlLineDocNo, true);
     end;
 
     procedure PostResJnlLineUndoUsage(var ServiceLine: Record "Service Line"; DocNo: Code[20]; ExtDocNo: Code[35])
@@ -572,14 +554,14 @@ codeunit 5987 "Serv-Posting Journals Mgt."
             exit;
 
         if ServiceLine."Time Sheet No." <> '' then
-            TimeSheetMgt.CheckServiceLine(ServiceLine);
+            ServTimeSheetMgt.CheckServiceLine(ServiceLine);
 
         PostResJnlLine(
           ServiceHeader, ServiceLine,
           ServShptHeader."No.", '', SrcCode, ServShptHeader."No. Series",
           ResJnlLine."Entry Type"::Usage, -ServiceLine."Qty. to Consume", 0, 0);
 
-        TimeSheetMgt.CreateTSLineFromServiceLine(ServiceLine, GenJnlLineDocNo, false);
+        ServTimeSheetMgt.CreateTSLineFromServiceLine(ServiceLine, GenJnlLineDocNo, false);
     end;
 
     local procedure PostResJnlLine(ServiceHeader: Record "Service Header"; ServiceLine: Record "Service Line"; DocNo: Code[20]; ExtDocNo: Code[35]; SrcCode: Code[10]; PostingNoSeries: Code[20]; EntryType: Enum "Res. Journal Line Entry Type"; Qty: Decimal; UnitPrice: Decimal; TotalPrice: Decimal)
@@ -589,8 +571,8 @@ codeunit 5987 "Serv-Posting Journals Mgt."
         ResJnlLine.Init();
         OnPostResJnlLineOnAfterResJnlLineInit(ResJnlLine, EntryType, Qty);
         ResJnlLine.CopyDocumentFields(DocNo, ExtDocNo, SrcCode, PostingNoSeries);
-        ResJnlLine.CopyFromServHeader(ServiceHeader);
-        ResJnlLine.CopyFromServLine(ServiceLine);
+        ServiceHeader.CopyToResJournalLine(ResJnlLine);
+        ServiceLine.CopyToResJournalLine(ResJnlLine);
 
         ResJnlLine."Entry Type" := EntryType;
         ResJnlLine.Quantity := Qty;

@@ -100,7 +100,9 @@ table 5214 "Misc. Article Information"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'You cannot delete information if there are comments associated with it.';
+#pragma warning restore AA0074
         MiscArticle: Record "Misc. Article";
 }
 

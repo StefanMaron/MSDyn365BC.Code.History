@@ -116,7 +116,7 @@ report 11535 "SR Cust. Orders per Period"
             dataitem("Sales Line"; "Sales Line")
             {
                 DataItemLink = "Bill-to Customer No." = field("No."), "Shortcut Dimension 2 Code" = field("Global Dimension 2 Filter"), "Shortcut Dimension 1 Code" = field("Global Dimension 1 Filter"), "Currency Code" = field("Currency Filter");
-                DataItemTableView = sorting("Document Type", "Bill-to Customer No.", "Currency Code") WHERE("Document Type" = const(Order), "Outstanding Quantity" = filter(<> 0));
+                DataItemTableView = sorting("Document Type", "Bill-to Customer No.", "Currency Code") where("Document Type" = const(Order), "Outstanding Quantity" = filter(<> 0));
                 column(CurrencyCode_SalesLine; "Currency Code")
                 {
                 }

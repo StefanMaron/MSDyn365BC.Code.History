@@ -184,13 +184,11 @@ codeunit 144028 "Test Vend. Due Amt. Report"
         LibraryERM.CreateGeneralJnlLineWithBalAcc(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, Vendor."No.",
           GenJournalLine."Bal. Account Type"::"G/L Account", GLAccount."No.", -Amount);
-        with GenJournalLine do begin
-            Validate("Posting Date", DueDate);
-            Validate("Due Date", DueDate);
-            Validate("Currency Code", CurrencyCode);
-            Modify(true);
-            LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        end;
+        GenJournalLine.Validate("Posting Date", DueDate);
+        GenJournalLine.Validate("Due Date", DueDate);
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
     local procedure PostInvoicesAcrossKeyDateIntervals(Vendor: Record Vendor; PeriodLength: Text; var Balance: array[5] of Decimal; CurrencyCode: Code[10])

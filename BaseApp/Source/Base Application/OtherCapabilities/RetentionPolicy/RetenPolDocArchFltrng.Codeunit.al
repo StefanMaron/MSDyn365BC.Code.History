@@ -257,6 +257,7 @@ codeunit 3994 "Reten. Pol. Doc. Arch. Fltrng." implements "Reten. Pol. Filtering
         JobArchive: Record "Job Archive";
         VersionFieldRef: FieldRef;
         MaxVersionFieldRef: FieldRef;
+        MatchingTableFound: Boolean;
         Version: Integer;
         MaxVersion: Integer;
     begin
@@ -265,20 +266,26 @@ codeunit 3994 "Reten. Pol. Doc. Arch. Fltrng." implements "Reten. Pol. Filtering
                 begin
                     VersionFieldRef := RecRef.Field(SalesHeaderArchive.FieldNo("Version No."));
                     MaxVersionFieldRef := RecRef.Field(SalesHeaderArchive.FieldNo("No. of Archived Versions"));
+                    MatchingTableFound := true;
                 end;
             Database::"Purchase Header Archive":
                 begin
                     VersionFieldRef := RecRef.Field(PurchaseHeaderArchive.FieldNo("Version No."));
                     MaxVersionFieldRef := RecRef.Field(PurchaseHeaderArchive.FieldNo("No. of Archived Versions"));
+                    MatchingTableFound := true;
                 end;
             Database::"Job Archive":
                 begin
                     VersionFieldRef := RecRef.Field(JobArchive.FieldNo("Version No."));
                     MaxVersionFieldRef := RecRef.Field(JobArchive.FieldNo("No. of Archived Versions"));
+                    MatchingTableFound := true;
                 end;
             else
-                exit(false);
+                OnIsMaxArchivedVersionOnCaseElse(RecRef, VersionFieldRef, MaxVersionFieldRef, MatchingTableFound);
         end;
+        if not MatchingTableFound then
+            exit(false);
+
         MaxVersionFieldRef.CalcField();
         Version := VersionFieldRef.Value();
         MaxVersion := MaxVersionFieldRef.Value();
@@ -312,5 +319,10 @@ codeunit 3994 "Reten. Pol. Doc. Arch. Fltrng." implements "Reten. Pol. Filtering
     procedure MaxNumberOfRecordsToDelete(): Integer
     begin
         exit(250000)
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnIsMaxArchivedVersionOnCaseElse(RecRef: RecordRef; var VersionFieldRef: FieldRef; var MaxVersionFieldRef: FieldRef; var MatchingTableFound: Boolean)
+    begin
     end;
 }

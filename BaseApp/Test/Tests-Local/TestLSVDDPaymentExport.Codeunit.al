@@ -1138,17 +1138,15 @@ codeunit 144040 "Test LSV DD Payment Export"
     var
         CompanyInformation: Record "Company Information";
     begin
-        with CompanyInformation do begin
-            Get();
-            Validate(Name, LibraryUtility.GenerateRandomText(MaxStrLen(LSVSetup."LSV Sender Name")));
-            Validate("Name 2", LibraryUtility.GenerateRandomText(MaxStrLen(LSVSetup."LSV Sender Name 2")));
-            Validate(Address, LibraryUtility.GenerateRandomText(MaxStrLen(LSVSetup."LSV Sender Address")));
-            Validate(City, LibraryUtility.GenerateRandomText(MaxStrLen(LSVSetup."LSV Sender City")));
-            Validate("Post Code", LibraryUtility.GenerateRandomText(MaxStrLen(LSVSetup."LSV Sender Post Code")));
-            Validate("Bank Branch No.", LibraryUtility.GenerateRandomText(MaxStrLen(LSVSetup."LSV Sender Clearing")));
-            Validate("Bank Account No.", LibraryUtility.GenerateRandomText(MaxStrLen(LSVSetup."LSV Credit on Account No.")));
-            Modify(true);
-        end;
+        CompanyInformation.Get();
+        CompanyInformation.Validate(Name, LibraryUtility.GenerateRandomText(MaxStrLen(LSVSetup."LSV Sender Name")));
+        CompanyInformation.Validate("Name 2", LibraryUtility.GenerateRandomText(MaxStrLen(LSVSetup."LSV Sender Name 2")));
+        CompanyInformation.Validate(Address, LibraryUtility.GenerateRandomText(MaxStrLen(LSVSetup."LSV Sender Address")));
+        CompanyInformation.Validate(City, LibraryUtility.GenerateRandomText(MaxStrLen(LSVSetup."LSV Sender City")));
+        CompanyInformation.Validate("Post Code", LibraryUtility.GenerateRandomText(MaxStrLen(LSVSetup."LSV Sender Post Code")));
+        CompanyInformation.Validate("Bank Branch No.", LibraryUtility.GenerateRandomText(MaxStrLen(LSVSetup."LSV Sender Clearing")));
+        CompanyInformation.Validate("Bank Account No.", LibraryUtility.GenerateRandomText(MaxStrLen(LSVSetup."LSV Credit on Account No.")));
+        CompanyInformation.Modify(true);
     end;
 
     local procedure PrepareLSVSalesDocsForCollection(var Customer: Record Customer; var LSVJnl: Record "LSV Journal"; var LSVSetup: Record "LSV Setup"; CurrencyCode: Code[10])

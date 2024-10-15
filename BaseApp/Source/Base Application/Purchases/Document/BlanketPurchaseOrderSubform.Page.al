@@ -76,12 +76,14 @@ page 510 "Blanket Purchase Order Subform"
                         InsertExtendedText(false);
                         DeltaUpdateTotals();
                         OnItemReferenceNoOnLookup(Rec);
+                        CurrPage.Update();
                     end;
 
                     trigger OnValidate()
                     begin
                         InsertExtendedText(false);
                         DeltaUpdateTotals();
+                        CurrPage.Update();
                     end;
                 }
                 field("Variant Code"; Rec."Variant Code")
@@ -611,7 +613,7 @@ page 510 "Blanket Purchase Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByEvent())
+                            PurchAvailabilityMgt.ShowItemAvailabilityFromPurchLine(Rec, "Item Availability Type"::"Event");
                         end;
                     }
                     action(Period)
@@ -623,7 +625,7 @@ page 510 "Blanket Purchase Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByPeriod())
+                            PurchAvailabilityMgt.ShowItemAvailabilityFromPurchLine(Rec, "Item Availability Type"::Period);
                         end;
                     }
                     action(Variant)
@@ -635,7 +637,7 @@ page 510 "Blanket Purchase Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByVariant())
+                            PurchAvailabilityMgt.ShowItemAvailabilityFromPurchLine(Rec, "Item Availability Type"::Variant);
                         end;
                     }
                     action(Location)
@@ -648,7 +650,7 @@ page 510 "Blanket Purchase Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByLocation())
+                            PurchAvailabilityMgt.ShowItemAvailabilityFromPurchLine(Rec, "Item Availability Type"::Location);
                         end;
                     }
                     action(Lot)
@@ -671,7 +673,7 @@ page 510 "Blanket Purchase Order Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByBOM())
+                            PurchAvailabilityMgt.ShowItemAvailabilityFromPurchLine(Rec, "Item Availability Type"::BOM);
                         end;
                     }
                 }
@@ -688,7 +690,7 @@ page 510 "Blanket Purchase Order Subform"
 
                         trigger OnAction()
                         begin
-                            Rec.ShowBlanketOrderPurchaseLines(Enum::"Purchase Document Type"::Order);
+                            Rec.ShowBlanketOrderPurchaseLines("Purchase Document Type"::Order);
                         end;
                     }
                     action(Invoices)
@@ -700,7 +702,7 @@ page 510 "Blanket Purchase Order Subform"
 
                         trigger OnAction()
                         begin
-                            Rec.ShowBlanketOrderPurchaseLines(Enum::"Purchase Document Type"::Invoice);
+                            Rec.ShowBlanketOrderPurchaseLines("Purchase Document Type"::Invoice);
                         end;
                     }
                     action("Return Orders")
@@ -713,7 +715,7 @@ page 510 "Blanket Purchase Order Subform"
 
                         trigger OnAction()
                         begin
-                            Rec.ShowBlanketOrderPurchaseLines(Enum::"Purchase Document Type"::"Return Order");
+                            Rec.ShowBlanketOrderPurchaseLines("Purchase Document Type"::"Return Order");
                         end;
                     }
                     action("Credit Memos")
@@ -725,7 +727,7 @@ page 510 "Blanket Purchase Order Subform"
 
                         trigger OnAction()
                         begin
-                            Rec.ShowBlanketOrderPurchaseLines(Enum::"Purchase Document Type"::"Credit Memo");
+                            Rec.ShowBlanketOrderPurchaseLines("Purchase Document Type"::"Credit Memo");
                         end;
                     }
                 }
@@ -898,7 +900,7 @@ page 510 "Blanket Purchase Order Subform"
         Currency: Record Currency;
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         TransferExtendedText: Codeunit "Transfer Extended Text";
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        PurchAvailabilityMgt: Codeunit "Purch. Availability Mgt.";
         PurchCalcDiscByType: Codeunit "Purch - Calc Disc. By Type";
         DocumentTotals: Codeunit "Document Totals";
         AmountWithDiscountAllowed: Decimal;

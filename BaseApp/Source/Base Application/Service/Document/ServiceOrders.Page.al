@@ -1,3 +1,7 @@
+// ------------------------------------------------------------------------------------------------
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License. See License.txt in the project root for license information.
+// ------------------------------------------------------------------------------------------------
 namespace Microsoft.Service.Document;
 
 using Microsoft.Finance.Dimension;
@@ -206,14 +210,33 @@ page 9318 "Service Orders"
                     ToolTip = 'Specifies the total time in hours that the service specified in the order has taken.';
                     Visible = false;
                 }
+                field("Your Reference"; Rec."Your Reference")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies a customer reference, which will be used when printing service documents.';
+                }
             }
         }
         area(factboxes)
         {
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Service;
                 Caption = 'Attachments';
+                SubPageLink = "Table ID" = const(Database::"Service Header"),
+                              "No." = field("No."),
+                              "Document Type" = field("Document Type");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = Service;
+                Caption = 'Documents';
+                UpdatePropagation = Both;
                 SubPageLink = "Table ID" = const(Database::"Service Header"),
                               "No." = field("No."),
                               "Document Type" = field("Document Type");
@@ -447,9 +470,9 @@ page 9318 "Service Orders"
 
                     trigger OnAction()
                     var
-                        ReportPrint: Codeunit "Test Report-Print";
+                        ServTestReportPrint: Codeunit "Serv. Test Report Print";
                     begin
-                        ReportPrint.PrintServiceHeader(Rec);
+                        ServTestReportPrint.PrintServiceHeader(Rec);
                     end;
                 }
                 action(Post)
@@ -509,7 +532,7 @@ page 9318 "Service Orders"
 
                     trigger OnAction()
                     var
-                        SelectionFilterManagement: Codeunit SelectionFilterManagement;
+                        ServSelectionFilterMgt: Codeunit "Serv. Selection Filter Mgt.";
                     begin
                         Clear(ServHeader);
 
@@ -517,7 +540,7 @@ page 9318 "Service Orders"
                             ServHeader.CopyFilters(Rec)
                         else begin
                             CurrPage.SetSelectionFilter(ServHeader);
-                            ServHeader.SetFilter("No.", SelectionFilterManagement.GetSelectionFilterForServiceHeader(ServHeader));
+                            ServHeader.SetFilter("No.", ServSelectionFilterMgt.GetSelectionFilterForServiceHeader(ServHeader));
                         end;
 
                         ServHeader.SetRange(Status, ServHeader.Status::Finished);
@@ -535,10 +558,10 @@ page 9318 "Service Orders"
 
                     trigger OnAction()
                     var
-                        DocumentPrint: Codeunit "Document-Print";
+                        ServDocumentPrint: Codeunit "Serv. Document Print";
                     begin
                         CurrPage.Update(true);
-                        DocumentPrint.PrintServiceHeader(Rec);
+                        ServDocumentPrint.PrintServiceHeader(Rec);
                     end;
                 }
                 action(AttachAsPDF)
@@ -552,11 +575,11 @@ page 9318 "Service Orders"
                     trigger OnAction()
                     var
                         ServiceHeader: Record "Service Header";
-                        DocumentPrint: Codeunit "Document-Print";
+                        ServDocumentPrint: Codeunit "Serv. Document Print";
                     begin
                         ServiceHeader := Rec;
                         ServiceHeader.SetRecFilter();
-                        DocumentPrint.PrintServiceHeaderToDocumentAttachment(ServiceHeader);
+                        ServDocumentPrint.PrintServiceHeaderToDocumentAttachment(ServiceHeader);
                     end;
                 }
             }
@@ -601,10 +624,10 @@ page 9318 "Service Orders"
 
                     trigger OnAction()
                     var
-                        GetSourceDocOutbound: Codeunit "Get Source Doc. Outbound";
+                        ServGetSourceDocOutbound: Codeunit "Serv. Get Source Doc. Outbound";
                     begin
                         Rec.PerformManualRelease();
-                        GetSourceDocOutbound.CreateFromServiceOrder(Rec);
+                        ServGetSourceDocOutbound.CreateFromServiceOrder(Rec);
                         if not Rec.Find('=><') then
                             Rec.Init();
                     end;

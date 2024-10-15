@@ -300,15 +300,6 @@ page 29 "Vendor Ledger Entries"
                         UserMgt.DisplayUserInformation(Rec."User ID");
                     end;
                 }
-                field("Recipient Bank Account"; Rec."Recipient Bank Account")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the bank account that the amount will be transferred to after it has been exported from the payment journal.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Replaced with RecipientBankAcc.';
-                    ObsoleteTag = '17.0';
-                }
                 field("Source Code"; Rec."Source Code")
                 {
                     ApplicationArea = Suite;

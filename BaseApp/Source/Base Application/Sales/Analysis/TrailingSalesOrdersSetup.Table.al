@@ -70,7 +70,11 @@ table 760 "Trailing Sales Orders Setup"
     }
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Updated at %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure GetCurrentSelectionText(): Text[100]
     begin

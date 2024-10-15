@@ -1,10 +1,9 @@
-namespace System.Security.AccessControl;
+﻿namespace System.Security.AccessControl;
 
 using Microsoft.Bank.Payment;
-#if not CLEAN22
-using Microsoft;
-#endif
+#if not CLEAN25
 using Microsoft.Foundation.Reporting;
+#endif
 using Microsoft.Finance.AuditFileExport;
 using Microsoft.Purchases.Document;
 #if not CLEAN24
@@ -22,10 +21,6 @@ permissionset 1002 "LOCAL READ"
     Caption = 'Country/region-specific read only access.';
 
     Permissions = tabledata "Bank Directory" = R,
-#if not CLEAN22
-                  tabledata Certificate = R,
-#endif
-                  tabledata "DACH Report Selections" = R,
                   tabledata "Data Exp. Primary Key Buffer" = R,
                   tabledata "Data Export" = R,
                   tabledata "Data Export Buffer" = R,
@@ -35,6 +30,9 @@ permissionset 1002 "LOCAL READ"
                   tabledata "Data Export Record Type" = R,
                   tabledata "Data Export Setup" = R,
                   tabledata "Data Export Table Relation" = R,
+#if not CLEAN25
+                  tabledata "DACH Report Selections" = R,
+#endif
                   tabledata "Delivery Reminder Comment Line" = R,
                   tabledata "Delivery Reminder Header" = R,
                   tabledata "Delivery Reminder Ledger Entry" = R,

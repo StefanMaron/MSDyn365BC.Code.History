@@ -215,15 +215,21 @@ page 6564 "Invt. Shipment"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Re&lease';
+                    Enabled = Rec.Status <> Rec.Status::Released;
                     Image = ReleaseDoc;
-                    RunObject = Codeunit "Release Invt. Document";
                     ShortCutKey = 'Ctrl+F9';
-                    ToolTip = 'Enable the record for the next stage of processing. ';
+                    ToolTip = 'Enable the record for the next stage of processing.';
+
+                    trigger OnAction()
+                    begin
+                        Codeunit.Run(Codeunit::"Release Invt. Document", Rec);
+                    end;
                 }
                 action("Reo&pen")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Reo&pen';
+                    Enabled = Rec.Status <> Rec.Status::Open;
                     Image = ReOpen;
                     ToolTip = 'Open the closed or released record.';
 
@@ -245,9 +251,13 @@ page 6564 "Invt. Shipment"
                     Caption = 'P&ost';
                     Ellipsis = true;
                     Image = Post;
-                    RunObject = Codeunit "Invt. Doc.-Post (Yes/No)";
                     ShortCutKey = 'F9';
                     ToolTip = 'Record the related transaction in your books.';
+
+                    trigger OnAction()
+                    begin
+                        Codeunit.Run(Codeunit::"Invt. Doc.-Post (Yes/No)", Rec);
+                    end;
                 }
                 action(PreviewPosting)
                 {
@@ -268,9 +278,13 @@ page 6564 "Invt. Shipment"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Post and &Print';
                     Image = PostPrint;
-                    RunObject = Codeunit "Invt. Doc.-Post + Print";
                     ShortCutKey = 'Shift+F9';
                     ToolTip = 'Finalize and prepare to print the document or journal. The values and quantities are posted to the related accounts. A report request window where you can specify what to include on the print-out.';
+
+                    trigger OnAction()
+                    begin
+                        Codeunit.Run(Codeunit::"Invt. Doc.-Post + Print", Rec);
+                    end;
                 }
             }
             action(Print)

@@ -366,10 +366,9 @@ codeunit 142084 "ERM Gen. Jnl. Line Balance VAT"
 
     local procedure VerifyApplicationWithVATBalancingError(GenJournalLine: Record "Gen. Journal Line")
     begin
-        with GenJournalLine do
-            Assert.ExpectedError(
+        Assert.ExpectedError(
               StrSubstNo(
-                PmtApplnErr, "Journal Template Name", "Journal Batch Name", "Line No."));
+                PmtApplnErr, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No."));
     end;
 }
 

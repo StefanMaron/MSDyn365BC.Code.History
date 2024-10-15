@@ -1209,11 +1209,13 @@
         Assert.AreEqual(
           ExpectedAmount, GLEntry."Additional-Currency Amount", GLEntry.FieldCaption("Additional-Currency Amount"));
     end;
+#if not CLEAN23
 
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
     end;
+#endif
 }
 

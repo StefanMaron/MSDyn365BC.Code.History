@@ -171,19 +171,19 @@ codeunit 142078 "Test Vat VIES Declaration"
 
         UseReportingDate := UseReportingDateVar;
 
-        with VATVIESDeclarationXML do begin
-            ReportingType.SetValue(ReportingTypeVar);
-            if UseReportingDate then
-                ReportingDate.SetValue(WorkDate())
-            else
-                ReportingDate.SetValue(0D);
+        VATVIESDeclarationXML.ReportingType.SetValue(ReportingTypeVar);
+        if UseReportingDate then
+            VATVIESDeclarationXML.ReportingDate.SetValue(WorkDate())
+        else
+            VATVIESDeclarationXML.ReportingDate.SetValue(0D);
 
-            RepPeriodFrom.SetValue(WorkDate() - 2); // Starting Date
-            RepPeriodTo.SetValue(WorkDate() + 5); // Ending Date
-            NoSeries.SetValue(NoSeriesVar);
-            "VAT Entry".SetFilter("VAT Bus. Posting Group", VATBusPostingGroupVar);
-            SaveAsXml(FileMgt.ServerTempFileName('xml'), FileMgt.ServerTempFileName('xml'));
-        end;
+        VATVIESDeclarationXML.RepPeriodFrom.SetValue(WorkDate() - 2);
+        // Starting Date
+        VATVIESDeclarationXML.RepPeriodTo.SetValue(WorkDate() + 5);
+        // Ending Date
+        VATVIESDeclarationXML.NoSeries.SetValue(NoSeriesVar);
+        VATVIESDeclarationXML."VAT Entry".SetFilter("VAT Bus. Posting Group", VATBusPostingGroupVar);
+        VATVIESDeclarationXML.SaveAsXml(FileMgt.ServerTempFileName('xml'), FileMgt.ServerTempFileName('xml'));
     end;
 
     local procedure FindEUCustomer(var Customer: Record Customer)

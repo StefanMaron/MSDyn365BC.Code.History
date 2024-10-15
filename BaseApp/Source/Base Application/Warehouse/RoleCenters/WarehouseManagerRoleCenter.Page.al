@@ -31,7 +31,6 @@ using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Reports;
-using Microsoft.Service.Document;
 using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Activity.History;
 using Microsoft.Warehouse.ADCS;
@@ -111,12 +110,6 @@ page 8909 "Warehouse Manager Role Center"
                     ApplicationArea = Manufacturing;
                     Caption = 'Released Prod. Orders';
                     RunObject = page "Released Production Orders";
-                }
-                action("Orders2")
-                {
-                    ApplicationArea = Service;
-                    Caption = 'Service Orders';
-                    RunObject = page "Service Orders";
                 }
                 group("Group1")
                 {

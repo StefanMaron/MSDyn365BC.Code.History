@@ -1,4 +1,4 @@
-codeunit 144351 "CH DTA Reports"
+﻿codeunit 144351 "CH DTA Reports"
 {
     Subtype = Test;
     TestPermissions = Disabled;
@@ -162,22 +162,20 @@ codeunit 144351 "CH DTA Reports"
 
         // 3. Verify: Verify there are 3 lines in General Journal.
         VerifyGenJournalNoOfLines(GenJournalBatch, 4);
-        with GenJournalLine do begin
-            SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
-            SetRange("Journal Batch Name", GenJournalBatch.Name);
-            FindSet();
-            Assert.AreEqual(Vendor1."No.", "Account No.", GenJournalLineInfoErr);
-            Assert.AreEqual(Amount1, Amount, GenJournalLineInfoErr);
-            Next();
-            Assert.AreEqual(Vendor2."No.", "Account No.", GenJournalLineInfoErr);
-            Assert.AreEqual(Amount2, Amount, GenJournalLineInfoErr);
-            Next();
-            Assert.AreEqual(Vendor3."No.", "Account No.", GenJournalLineInfoErr);
-            Assert.AreEqual(Amount3, Amount, GenJournalLineInfoErr);
-            Next();
-            Assert.AreEqual('G/L Account', Format("Account Type"), GenJournalLineInfoErr);
-            Assert.AreEqual(-Amount1 - Amount2 - Amount3, Amount, GenJournalLineInfoErr);
-        end;
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.FindSet();
+        Assert.AreEqual(Vendor1."No.", GenJournalLine."Account No.", GenJournalLineInfoErr);
+        Assert.AreEqual(Amount1, GenJournalLine.Amount, GenJournalLineInfoErr);
+        GenJournalLine.Next();
+        Assert.AreEqual(Vendor2."No.", GenJournalLine."Account No.", GenJournalLineInfoErr);
+        Assert.AreEqual(Amount2, GenJournalLine.Amount, GenJournalLineInfoErr);
+        GenJournalLine.Next();
+        Assert.AreEqual(Vendor3."No.", GenJournalLine."Account No.", GenJournalLineInfoErr);
+        Assert.AreEqual(Amount3, GenJournalLine.Amount, GenJournalLineInfoErr);
+        GenJournalLine.Next();
+        Assert.AreEqual('G/L Account', Format(GenJournalLine."Account Type"), GenJournalLineInfoErr);
+        Assert.AreEqual(-Amount1 - Amount2 - Amount3, GenJournalLine.Amount, GenJournalLineInfoErr);
     end;
 
     [Test]
@@ -213,12 +211,10 @@ codeunit 144351 "CH DTA Reports"
         // 2. Exercise: Run Report DTA Suggest Vendor Payment.
         RunDTASuggestVendorPayment(GenJournalBatch, PurchaseHeader."Buy-from Vendor No.", Dates[1], Dates[1], Dates[1], '');
 
-        with GenJournalLine do begin
-            SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
-            SetRange("Journal Batch Name", GenJournalBatch.Name);
-            FindFirst();
-            Assert.AreEqual(ExpectedAmount, Amount, AmountNotCorrectlyDiscountedErr);
-        end;
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.FindFirst();
+        Assert.AreEqual(ExpectedAmount, GenJournalLine.Amount, AmountNotCorrectlyDiscountedErr);
     end;
 
     [Test]
@@ -457,16 +453,12 @@ codeunit 144351 "CH DTA Reports"
 
         LibraryDTA.CreateTestPurchaseOrder(Vendor, VendorBankAccount, PurchaseHeader, PurchaseLine,
           GenJournalBatch, Amounts[1], Dates[1], TestOption::None, '', true, false, true, false, true);
-
         // 2. Exercise: Change the DTA Line Field
-        with PurchaseHeader do begin
-            Validate("ESR/ISR Coding Line", '2100000' + DTAESRAmountFormattedTxt + '5>' + DTAReferenceNoTxt + '+030008995>');
-            Modify(true);
-
-            // 3. Verify: Validate that the fields are properly automatically filled.
-            Assert.AreEqual(Format(DTAReferenceNoTxt), Format("Reference No."), FieldIncorrectErr);
-            Assert.AreEqual(Format(DTAESRAmountFormattedTxt), DelStr(Format("ESR Amount" * 100), 3, 1), FieldIncorrectErr);
-        end;
+        PurchaseHeader.Validate("ESR/ISR Coding Line", '2100000' + DTAESRAmountFormattedTxt + '5>' + DTAReferenceNoTxt + '+030008995>');
+        PurchaseHeader.Modify(true);
+        // 3. Verify: Validate that the fields are properly automatically filled.
+        Assert.AreEqual(Format(DTAReferenceNoTxt), Format(PurchaseHeader."Reference No."), FieldIncorrectErr);
+        Assert.AreEqual(Format(DTAESRAmountFormattedTxt), DelStr(Format(PurchaseHeader."ESR Amount" * 100), 3, 1), FieldIncorrectErr);
     end;
 
     [Test]
@@ -762,11 +754,10 @@ codeunit 144351 "CH DTA Reports"
         // 3. Assert that the invoice has the expected Document No.
         GenJournalLine.SetRange("Journal Template Name", GenJournalLineArray[1]."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalLineArray[1]."Journal Batch Name");
-        if GenJournalLine.Find() then begin
+        if GenJournalLine.Find() then
             repeat
                 Assert.AreEqual(Format(TestDocNoTxt), Format(GenJournalLine."Document No."), GenJournalLineInfoErr);
-            until GenJournalLine.Next() = 0
-        end;
+            until GenJournalLine.Next() = 0;
     end;
 
     [Test]
@@ -1019,13 +1010,11 @@ codeunit 144351 "CH DTA Reports"
           Vendor."No.", GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
           LineAmount);
 
-        with GenJournalLine do begin
-            Validate("External Document No.", "Document No.");
-            Validate("Posting Date", PostingDate);
-            if CurrencyCode <> '' then
-                Validate("Currency Code", CurrencyCode);
-            Modify(true);
-        end;
+        GenJournalLine.Validate("External Document No.", GenJournalLine."Document No.");
+        GenJournalLine.Validate("Posting Date", PostingDate);
+        if CurrencyCode <> '' then
+            GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Modify(true);
 
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -1114,26 +1103,22 @@ codeunit 144351 "CH DTA Reports"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do begin
-            SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
-            SetRange("Journal Batch Name", GenJournalBatch.Name);
-            Assert.AreEqual(ExpectedNoOfLines, Count, StrSubstNo(NumberOfLinesErr, ExpectedNoOfLines, TableCaption));
-        end;
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        Assert.AreEqual(ExpectedNoOfLines, GenJournalLine.Count, StrSubstNo(NumberOfLinesErr, ExpectedNoOfLines, GenJournalLine.TableCaption));
     end;
 
     local procedure VerifyGenJournalExtDocNo(GenJournalBatch: Record "Gen. Journal Batch")
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        with GenJournalLine do begin
-            SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
-            SetRange("Journal Batch Name", GenJournalBatch.Name);
-            FindSet();
-            repeat
-                Assert.AreEqual(
-                  "Applies-to Doc. No.", "Applies-to Ext. Doc. No.", FieldCaption("Applies-to Ext. Doc. No."));
-            until Next() = 0;
-        end;
+        GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine.FindSet();
+        repeat
+            Assert.AreEqual(
+              GenJournalLine."Applies-to Doc. No.", GenJournalLine."Applies-to Ext. Doc. No.", GenJournalLine.FieldCaption("Applies-to Ext. Doc. No."));
+        until GenJournalLine.Next() = 0;
     end;
 
     local procedure VerifyExpectedErrorSuggestPayments(GenJournalLine: Record "Gen. Journal Line"; VendBankAccCode: Code[20]; ExpectedError: Text)

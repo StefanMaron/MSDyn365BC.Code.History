@@ -291,14 +291,11 @@ report 3010541 "DTA File"
     procedure AdjustSummaryPmtText()
     begin
         // Adjust text and summary text before DTA record is written
-        if SummaryPmtTxt = VendEntry."External Document No." then
-            // Only one Pmt.
+        if SummaryPmtTxt = VendEntry."External Document No." then // Only one Pmt.
             SummaryPmtTxt := ''
-        else begin
-            if StrPos("Gen. Journal Line".Description, VendEntry."External Document No.") > 0 then
-                // Remove Ext. No in text
+        else
+            if StrPos("Gen. Journal Line".Description, VendEntry."External Document No.") > 0 then // Remove Ext. No in text
                 "Gen. Journal Line".Description := CopyStr("Gen. Journal Line".Description, 1, StrPos("Gen. Journal Line".Description, VendEntry."External Document No.") - 3);
-        end;
     end;
 
     local procedure DtaRecordWrite(_Vendor: Code[20]; _VendBank: Code[20]; _Curr: Code[10]; _Amt: Decimal; _PostDate: Date; _DocNo: Code[20]; _AppDocNo: Code[20]; _PostTxt: Text[100]; _PostTxt2: Text[60])
@@ -391,10 +388,9 @@ report 3010541 "DTA File"
 
                     // *** TA826 Datensatz schreiben, 3 x je 128 Zeichen + CR/LF
 
-                    for i := 1 to ArrayLen(FileText) do begin
+                    for i := 1 to ArrayLen(FileText) do
                         if FileText[i] <> '' then
                             Filename.Write(FileText[i]);
-                    end;
                 end;   // End TA 826 ESR
             827:
                 begin
@@ -426,10 +422,9 @@ report 3010541 "DTA File"
                       xVendoradr, _PostTxt, _PostTxt2, '0', FileText);
 
                     // *** TA827 Datensatz schreiben, 4 x je 128 Zeichen + CR/LF
-                    for i := 1 to ArrayLen(FileText) do begin
+                    for i := 1 to ArrayLen(FileText) do
                         if FileText[i] <> '' then
                             Filename.Write(FileText[i]);
-                    end;
                 end; // End TA 827 Bank/Post Inland
             830:
                 begin
@@ -506,10 +501,9 @@ report 3010541 "DTA File"
                       FileText);
 
                     // *** TA830 write record, 5 x 128 char + CR/LF
-                    for i := 1 to ArrayLen(FileText) do begin
+                    for i := 1 to ArrayLen(FileText) do
                         if FileText[i] <> '' then
                             Filename.Write(FileText[i]);
-                    end;
                 end;   // End TA 830 Ausland
             836:
                 begin
@@ -535,10 +529,9 @@ report 3010541 "DTA File"
                       xAcc, xVendoradr, _PostTxt, _PostTxt2, "Gen. Journal Line"."Payment Fee Code", '0', FileText);
 
                     // *** TA836 write record, 5 x 128 char + CR/LF
-                    for i := 1 to ArrayLen(FileText) do begin
+                    for i := 1 to ArrayLen(FileText) do
                         if FileText[i] <> '' then
                             Filename.Write(FileText[i]);
-                    end;
                 end; // End TA 836 IBAN}
             else
                 Error(Text060, Vendor.Name);
@@ -570,10 +563,9 @@ report 3010541 "DTA File"
 
         FileText[1] := CheckLine(FileText[1] + PadStr(' ', 59));
 
-        for i := 1 to ArrayLen(FileText) do begin
+        for i := 1 to ArrayLen(FileText) do
             if FileText[i] <> '' then
                 Filename.Write(FileText[i]);
-        end;
     end;
 
     [Scope('OnPrem')]
@@ -744,10 +736,9 @@ report 3010541 "DTA File"
             xChkDig);
 
         CompressArray(RecordText);
-        for i := 1 to ArrayLen(RecordText) do begin
+        for i := 1 to ArrayLen(RecordText) do
             if RecordText[i] <> '' then
                 ReturnRecord[i] := CheckLine(RecordText[i]);
-        end;
     end;
 
     [Scope('OnPrem')]
@@ -819,10 +810,9 @@ report 3010541 "DTA File"
         end;
 
         CompressArray(RecordText);
-        for i := 1 to ArrayLen(RecordText) do begin
+        for i := 1 to ArrayLen(RecordText) do
             if RecordText[i] <> '' then
                 ReturnRecord[i] := CheckLine(RecordText[i]);
-        end;
     end;
 
     [Scope('OnPrem')]
@@ -931,10 +921,9 @@ report 3010541 "DTA File"
         end;
 
         CompressArray(RecordText);
-        for i := 1 to ArrayLen(RecordText) do begin
+        for i := 1 to ArrayLen(RecordText) do
             if RecordText[i] <> '' then
                 ReturnRecord[i] := CheckLine(RecordText[i]);
-        end;
     end;
 
     [Scope('OnPrem')]

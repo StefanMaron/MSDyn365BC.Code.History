@@ -139,7 +139,11 @@ table 8612 "Config. Question"
     }
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text002: Label 'Question no. %1 already exists for the field %2.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure FieldLookup()
     var

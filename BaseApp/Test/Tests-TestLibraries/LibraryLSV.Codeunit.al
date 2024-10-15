@@ -34,24 +34,23 @@ codeunit 143000 "Library - LSV"
         LibraryERM.CreatePaymentMethod(PaymentMethod);
         GLSetup.Get();
 
-        with LSVSetup do begin
-            Init();
-            "Bank Code" := BankAcc."No.";
-            "LSV Customer ID" := Format(LibraryRandom.RandIntInRange(11111, 99999));
-            "LSV Sender ID" := Format(LibraryRandom.RandIntInRange(11111, 99999));
-            "LSV Sender Clearing" := Format(LibraryRandom.RandIntInRange(11111, 99999));
-            "LSV Payment Method Code" := PaymentMethod.Code;
-            "LSV Sender Name" := LibraryUtility.GenerateGUID();
-            "LSV Sender City" := LibraryUtility.GenerateGUID();
-            "LSV Currency Code" := GLSetup."LCY Code";
-            "LSV Sender IBAN" := LibraryUtility.GenerateGUID();
-            "ESR Bank Code" := ESRSetup."Bank Code";
-            "LSV File Folder" := 'C:\Windows\Temp\' + TenantId() + Format(LibraryRandom.RandInt(10)); // Cannot use TEMPORARYPATH due to field size.
-            "LSV Filename" := LibraryUtility.GenerateGUID();
-            "DebitDirect Customerno." := Format(LibraryRandom.RandIntInRange(111111, 999999));
-            "DebitDirect Import Filename" := LibraryUtility.GenerateGUID();
-            Insert();
-        end;
+        LSVSetup.Init();
+        LSVSetup."Bank Code" := BankAcc."No.";
+        LSVSetup."LSV Customer ID" := Format(LibraryRandom.RandIntInRange(11111, 99999));
+        LSVSetup."LSV Sender ID" := Format(LibraryRandom.RandIntInRange(11111, 99999));
+        LSVSetup."LSV Sender Clearing" := Format(LibraryRandom.RandIntInRange(11111, 99999));
+        LSVSetup."LSV Payment Method Code" := PaymentMethod.Code;
+        LSVSetup."LSV Sender Name" := LibraryUtility.GenerateGUID();
+        LSVSetup."LSV Sender City" := LibraryUtility.GenerateGUID();
+        LSVSetup."LSV Currency Code" := GLSetup."LCY Code";
+        LSVSetup."LSV Sender IBAN" := LibraryUtility.GenerateGUID();
+        LSVSetup."ESR Bank Code" := ESRSetup."Bank Code";
+        LSVSetup."LSV File Folder" := 'C:\Windows\Temp\' + TenantId() + Format(LibraryRandom.RandInt(10));
+        // Cannot use TEMPORARYPATH due to field size.
+        LSVSetup."LSV Filename" := LibraryUtility.GenerateGUID();
+        LSVSetup."DebitDirect Customerno." := Format(LibraryRandom.RandIntInRange(111111, 999999));
+        LSVSetup."DebitDirect Import Filename" := LibraryUtility.GenerateGUID();
+        LSVSetup.Insert();
 
         exit(LSVSetup."Bank Code");
     end;

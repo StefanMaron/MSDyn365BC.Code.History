@@ -1931,14 +1931,12 @@ codeunit 134379 "ERM Sales Quotes"
 
     local procedure CreateQuoteFromContact(var SalesHeader: Record "Sales Header"; ContactNo: Code[20])
     begin
-        with SalesHeader do begin
-            Init();
-            Validate("Document Type", "Document Type"::Quote);
-            Insert(true);
-            Validate("Document Date", WorkDate());
-            Validate("Sell-to Contact No.", ContactNo);
-            Modify();
-        end;
+        SalesHeader.Init();
+        SalesHeader.Validate("Document Type", SalesHeader."Document Type"::Quote);
+        SalesHeader.Insert(true);
+        SalesHeader.Validate("Document Date", WorkDate());
+        SalesHeader.Validate("Sell-to Contact No.", ContactNo);
+        SalesHeader.Modify();
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; QuoteNo: Code[20])
@@ -1998,7 +1996,7 @@ codeunit 134379 "ERM Sales Quotes"
         VATPostingSetup.SetFilter("VAT Bus. Posting Group", VATBusPostingGrp);
         VATPostingSetup.SetFilter("VAT Prod. Posting Group", VATProdPostingGrouptxt);
         VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
-        IF not VATPostingSetup.FindFirst() then begin
+        if not VATPostingSetup.FindFirst() then begin
             LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup);
             LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGrp, VATProdPostingGroup.Code);
             VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");

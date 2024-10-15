@@ -212,12 +212,10 @@ codeunit 144061 "Test ESR Localized Features"
     var
         VendorBankAccount1: Record "Vendor Bank Account";
     begin
-        with VendorBankAccount1 do begin
-            Validate("Vendor No.", VendorNumber);
-            Validate(Code, 'BANK');
-            Validate("Payment Form", "Payment Form"::"Bank Payment Domestic");
-            Insert(true);
-        end;
+        VendorBankAccount1.Validate("Vendor No.", VendorNumber);
+        VendorBankAccount1.Validate(Code, 'BANK');
+        VendorBankAccount1.Validate("Payment Form", VendorBankAccount1."Payment Form"::"Bank Payment Domestic");
+        VendorBankAccount1.Insert(true);
 
         CreateESRVendorBankAccount(VendorNumber);
     end;

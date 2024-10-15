@@ -8,9 +8,6 @@ using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Company;
-#if not CLEAN22
-using Microsoft.Foundation.Enums;
-#endif
 using System.Utilities;
 
 report 19 "VAT- VIES Declaration Tax Auth"
@@ -182,19 +179,6 @@ report 19 "VAT- VIES Declaration Tax Auth"
                         Caption = 'End date';
                         ToolTip = 'Specifies the end date for the report.';
                     }
-#if not CLEAN22
-                    field(VATDateTypeField; VATDateType)
-                    {
-                        ApplicationArea = VAT;
-                        Caption = 'Period Date Type';
-                        ToolTip = 'Specifies the type of date used for the period.';
-                        Visible = false;
-                        Enabled = false;
-                        ObsoleteReason = 'Selected VAT Date type no longer supported.';
-                        ObsoleteState = Pending;
-                        ObsoleteTag = '22.0';
-                    }
-#endif
                     field(VATRegistrationNoFilter; VATRegistrationNoFilter)
                     {
                         ApplicationArea = Basic, Suite;
@@ -319,12 +303,13 @@ report 19 "VAT- VIES Declaration Tax Auth"
         HeaderText: Text[50];
         CountryBlank: Boolean;
         ShowError: Boolean;
-#if not CLEAN22
-        VATDateType: Enum "VAT Date Type";
-#endif
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'All amounts are in %1.';
         Text001: Label 'The VAT Registration No. is not filled in for all VAT entries where for Customer %1 on one or more entries.';
+#pragma warning restore AA0470
         Text002: Label 'Start and end date must be filled in.';
+#pragma warning restore AA0074
         VATRegistrationNoFilter: Text[250];
 
     procedure InitializeRequest(NewUseAmtsInAddCurr: Boolean; NewStartDate: Date; NedEndDate: Date; SetVATRegistrationNoFilter: Text[250])

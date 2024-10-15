@@ -25,12 +25,18 @@ codeunit 409 "Dimension Value-Indent"
         DimValCode: array[10] of Code[20];
         i: Integer;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'This function updates the indentation of all the dimension values for dimension %1. ';
+#pragma warning restore AA0470
         Text001: Label 'All dimension values between a Begin-Total and the matching End-Total are indented by one level. ';
         Text002: Label 'The Totaling field for each End-Total is also updated.\\';
         Text003: Label 'Do you want to indent the dimension values?';
         Text004: Label 'Indenting Dimension Values @1@@@@@@@@@@@@@@@@@@';
+#pragma warning disable AA0470
         Text005: Label 'End-Total %1 is missing a matching Begin-Total.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ArrayExceededErr: Label 'You can only indent %1 levels for dimension values of the type Begin-Total.', Comment = '%1 = A number bigger than 1';
 
     procedure RunIndent(DimensionCode: Code[20])

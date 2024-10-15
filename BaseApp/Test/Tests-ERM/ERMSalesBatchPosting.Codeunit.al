@@ -640,7 +640,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         LibrarySales.SetPostAndPrintWithJobQueue(true);
         SalesReceivablesSetup.Get();
         // [WHEN] Set "Post with Job Queue" = FALSE
-        SalesReceivablesSetup.Validate("Post with Job Queue", FALSE);
+        SalesReceivablesSetup.Validate("Post with Job Queue", false);
         // [THEN] "Post & Print with Job Queue" = FALSE
         Assert.IsFalse(SalesReceivablesSetup."Post & Print with Job Queue", 'Setup is not correct.');
     end;
@@ -660,10 +660,10 @@ codeunit 134391 "ERM Sales Batch Posting"
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         SalesReceivablesSetup.Get();
         // [WHEN] Set "Report Output Type" = Print
-        ASSERTERROR SalesReceivablesSetup.Validate("Report Output Type", SalesReceivablesSetup."Report Output Type"::Print);
+        asserterror SalesReceivablesSetup.Validate("Report Output Type", SalesReceivablesSetup."Report Output Type"::Print);
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
         // [THEN] Error, "Report Output Type" must be PDF
-        Assert.ExpectedError('Report Output Type must be equal to ''PDF''  in Sales & Receivables Setup');
+        Assert.ExpectedTestFieldError(SalesReceivablesSetup.FieldCaption("Report Output Type"), Format(SalesReceivablesSetup."Report Output Type"::PDF));
     end;
 
     [Test]
@@ -1028,15 +1028,11 @@ codeunit 134391 "ERM Sales Batch Posting"
         JobQueueLogEntry.SetRange(ID, JobQueueEntryId);
         JobQueueLogEntry.FindFirst();
         Assert.IsTrue(JobQueueLogEntry.Status = JobQueueLogEntry.Status::Error, 'Job queue log entry has wrong status');
-        Assert.IsTrue(StrPos(JobQueueLogEntry."Error Message", 'Posting Date must have a value') > 0, 'Job queue log entry has wrong error message');
+        Assert.AreEqual('1 sales documents out of 2 have errors during posting.', JobQueueLogEntry."Error Message", 'Job queue log entry has wrong error message');
 
-        // [THEN] Error message register contains two records, one for error during posting and one for final message
+        // [THEN] Error message register contains one record
         ErrorMessage.SetRange("Register ID", JobQueueLogEntry."Error Message Register Id");
-        Assert.RecordCount(ErrorMessage, 2);
-        ErrorMessage.FindFirst();
-        Assert.IsTrue(StrPos(ErrorMessage."Message", 'Posting Date must have a value') > 0, 'Error message register contains wrong error');
-        ErrorMessage.Next();
-        Assert.AreEqual(ErrorMessage."Message", '1 sales documents out of 2 have errors during posting.', 'Error message register contains wrong error');
+        Assert.RecordCount(ErrorMessage, 1);
     end;
 
     [Test]
@@ -1424,9 +1420,6 @@ codeunit 134391 "ERM Sales Batch Posting"
                 LibraryRandom.RandIntInRange(100, 200));
             GenJournalLine[Index].Validate("IC Account Type", "IC Journal Account Type"::"G/L Account");
             GenJournalLine[Index].Validate("IC Account No.", CreateICGLAccountCode());
-#if not CLEAN22
-            GenJournalLine[Index].Validate("IC Partner G/L Acc. No.", GenJournalLine[Index]."IC Account No.");
-#endif
             GenJournalLine[Index].Modify(true);
         end;
 
@@ -1511,6 +1504,8 @@ codeunit 134391 "ERM Sales Batch Posting"
         LibraryInventory.CreateItem(Item);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", DocQuantity);
         SalesLine.Validate("Unit Price", LibraryRandom.RandInt(100));
+
+
         SalesLine.Modify(true);
     end;
 
@@ -1548,6 +1543,8 @@ codeunit 134391 "ERM Sales Batch Posting"
         ICSetup.Validate("IC Partner Code", ICPartnerCode);
         ICSetup.Validate("IC Inbox Type", ICInboxType);
         ICSetup.Validate("Auto. Send Transactions", AutoSendTransaction);
+
+
         ICSetup.Modify(true);
     end;
 
@@ -1611,7 +1608,7 @@ codeunit 134391 "ERM Sales Batch Posting"
         ReportSelections.Init();
         ReportSelections.Usage := ReportSelections.Usage::"S.Invoice";
         ReportSelections."Report ID" := REPORT::"Standard Sales - Invoice";
-        If ReportSelections.Insert() Then;
+        if ReportSelections.Insert() then;
     end;
 
     local procedure CreateICPartnerBase(var ICPartner: Record "IC Partner")

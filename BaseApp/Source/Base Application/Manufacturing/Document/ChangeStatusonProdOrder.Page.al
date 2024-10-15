@@ -62,7 +62,11 @@ page 99000882 "Change Status on Prod. Order"
         FirmPlannedStatusEditable: Boolean;
         ReleasedStatusEditable: Boolean;
         FinishedStatusEditable: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text666: Label '%1 is not a valid selection.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         ReqUpdUnitCost: Boolean;

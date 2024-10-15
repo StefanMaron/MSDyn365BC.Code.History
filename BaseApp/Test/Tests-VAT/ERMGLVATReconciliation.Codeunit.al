@@ -135,24 +135,20 @@ codeunit 134991 "ERM  G/L - VAT Reconciliation"
 
     local procedure CreateMockGLEntry(var GLEntry: Record 17; GLAccountNo: Code[20]; TransactionNo: Integer)
     begin
-        with GLEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(GLEntry, FIELDNO("Entry No."));
-            "G/L Account No." := GLAccountNo;
-            "Transaction No." := TransactionNo;
-            Insert();
-        end;
+        GLEntry.Init();
+        GLEntry."Entry No." := LibraryUtility.GetNewRecNo(GLEntry, GLEntry.FIELDNO("Entry No."));
+        GLEntry."G/L Account No." := GLAccountNo;
+        GLEntry."Transaction No." := TransactionNo;
+        GLEntry.Insert();
     end;
 
     local procedure CreateMockVATEntry(var VATEntry: Record 254; GLAccountNo: Code[20]; TransactionNo: Integer)
     begin
-        with VATEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FIELDNO("Entry No."));
-            "G/L Acc. No." := GLAccountNo;
-            "Transaction No." := TransactionNo;
-            Insert();
-        end;
+        VATEntry.Init();
+        VATEntry."Entry No." := LibraryUtility.GetNewRecNo(VATEntry, VATEntry.FIELDNO("Entry No."));
+        VATEntry."G/L Acc. No." := GLAccountNo;
+        VATEntry."Transaction No." := TransactionNo;
+        VATEntry.Insert();
     end;
 
     local procedure CreateMockGLEntryVATEntryLink(GLEntryGLAccountNo: Code[20]; VATEntryGLAccountNo: Code[20]; TransactionNo: Integer)

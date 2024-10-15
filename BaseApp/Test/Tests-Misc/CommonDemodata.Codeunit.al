@@ -86,6 +86,13 @@
 
     [Test]
     [Scope('OnPrem')]
+    procedure VATPostingSetupCount()
+    begin
+        // Test mot implemented for CH
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure EmployeeSetup()
     var
         HumanResourcesSetup: Record "Human Resources Setup";

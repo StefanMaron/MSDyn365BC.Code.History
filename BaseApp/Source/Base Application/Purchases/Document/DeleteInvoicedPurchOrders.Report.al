@@ -156,6 +156,12 @@ report 499 "Delete Invoiced Purch. Orders"
                 if GuiAllowed() then
                     Window.Open(ProcessingProgressTxt);
             end;
+
+            trigger OnPostDataItem()
+            begin
+                if GuiAllowed() then
+                    Window.Close();
+            end;
         }
     }
 

@@ -10,7 +10,6 @@ using Microsoft.CRM.Team;
 using Microsoft.Finance.Currency;
 using Microsoft.Foundation.PaymentTerms;
 using Microsoft.Foundation.Shipping;
-using Microsoft.Service.Item;
 using Microsoft.Foundation.UOM;
 using Microsoft.Integration.Dataverse;
 using Microsoft.Integration.SyncEngine;
@@ -77,7 +76,7 @@ codeunit 5334 "CRM Setup Defaults"
         if PriceCalculationMgt.IsExtendedPriceCalculationEnabled() then begin
             ResetPriceListHeaderPricelevelMapping('PLHEADER-PRICE', EnqueueJobQueEntries);
             ResetPriceListLineProductPricelevelMapping('PLLINE-PRODPRICE', EnqueueJobQueEntries);
-#if not CLEAN23
+#if not CLEAN25
         end else begin
             ResetCustomerPriceGroupPricelevelMapping('CUSTPRCGRP-PRICE', EnqueueJobQueEntries);
             ResetSalesPriceProductPricelevelMapping('SALESPRC-PRODPRICE', EnqueueJobQueEntries);
@@ -1225,7 +1224,7 @@ codeunit 5334 "CRM Setup Defaults"
           IntegrationTableMappingName,
           SalesHeader.FieldNo("Invoice Discount Amount"),
           CRMSalesorder.FieldNo(DiscountAmount),
-          IntegrationFieldMapping.Direction::Bidirectional,
+          IntegrationFieldMapping.Direction::ToIntegrationTable,
           '', true, false);
 
         // Shipping Agent Code > address1_shippingmethodcode
@@ -1434,7 +1433,7 @@ codeunit 5334 "CRM Setup Defaults"
         end;
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '18.0')]
     [Scope('OnPrem')]
     procedure ResetCustomerPriceGroupPricelevelMapping(IntegrationTableMappingName: Code[20]; EnqueueJobQueEntry: Boolean)
@@ -1487,7 +1486,6 @@ codeunit 5334 "CRM Setup Defaults"
         CRMProductpricelevel: Record "CRM Productpricelevel";
         IsHandled: Boolean;
     begin
-        OnBeforeResetSalesPriceProductPricelevelMapping(IntegrationTableMappingName, EnqueueJobQueEntry, IsHandled);
         if IsHandled then
             exit;
         InsertIntegrationTableMapping(
@@ -2007,7 +2005,7 @@ codeunit 5334 "CRM Setup Defaults"
         OnResetOpportunityMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName);
     end;
 
-    local procedure InsertIntegrationTableMapping(var IntegrationTableMapping: Record "Integration Table Mapping"; MappingName: Code[20]; TableNo: Integer; IntegrationTableNo: Integer; IntegrationTableUIDFieldNo: Integer; IntegrationTableModifiedFieldNo: Integer; TableConfigTemplateCode: Code[10]; IntegrationTableConfigTemplateCode: Code[10]; SynchOnlyCoupledRecords: Boolean)
+    procedure InsertIntegrationTableMapping(var IntegrationTableMapping: Record "Integration Table Mapping"; MappingName: Code[20]; TableNo: Integer; IntegrationTableNo: Integer; IntegrationTableUIDFieldNo: Integer; IntegrationTableModifiedFieldNo: Integer; TableConfigTemplateCode: Code[10]; IntegrationTableConfigTemplateCode: Code[10]; SynchOnlyCoupledRecords: Boolean)
     var
         IsHandled: Boolean;
         UncoupleCodeunitId: Integer;
@@ -2031,7 +2029,7 @@ codeunit 5334 "CRM Setup Defaults"
           Codeunit::"CRM Integration Table Synch.", UncoupleCodeunitId);
     end;
 
-    local procedure InsertIntegrationFieldMapping(IntegrationTableMappingName: Code[20]; TableFieldNo: Integer; IntegrationTableFieldNo: Integer; SynchDirection: Option; ConstValue: Text; ValidateField: Boolean; ValidateIntegrationTableField: Boolean)
+    procedure InsertIntegrationFieldMapping(IntegrationTableMappingName: Code[20]; TableFieldNo: Integer; IntegrationTableFieldNo: Integer; SynchDirection: Option; ConstValue: Text; ValidateField: Boolean; ValidateIntegrationTableField: Boolean)
     var
         IntegrationFieldMapping: Record "Integration Field Mapping";
         IsHandled: Boolean;
@@ -2165,7 +2163,7 @@ codeunit 5334 "CRM Setup Defaults"
           false);
     end;
 
-    local procedure RecreateJobQueueEntry(EnqueueJobQueEntry: Boolean; CodeunitId: Integer; MinutesBetweenRun: Integer; EntryDescription: Text; StatusReady: Boolean)
+    procedure RecreateJobQueueEntry(EnqueueJobQueEntry: Boolean; CodeunitId: Integer; MinutesBetweenRun: Integer; EntryDescription: Text; StatusReady: Boolean)
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
@@ -2248,7 +2246,7 @@ codeunit 5334 "CRM Setup Defaults"
                 exit(DATABASE::"CRM Invoice");
             DATABASE::"Sales Invoice Line":
                 exit(DATABASE::"CRM Invoicedetail");
-#if not CLEAN23
+#if not CLEAN25
             DATABASE::"Sales Price",
 #endif
             DATABASE::"Price List Line":
@@ -2293,7 +2291,7 @@ codeunit 5334 "CRM Setup Defaults"
           DATABASE::"Price List Line",
           DATABASE::"Sales Invoice Header",
           DATABASE::"Sales Invoice Line",
-#if not CLEAN23
+#if not CLEAN25
           DATABASE::"Sales Price",
 #endif
           DATABASE::"Unit of Measure",
@@ -2346,7 +2344,6 @@ codeunit 5334 "CRM Setup Defaults"
         CRMShippingMethod: Record "CRM Shipping Method";
         SalesHeader: Record "Sales Header";
         CRMSalesorder: Record "CRM Salesorder";
-        ServiceItem: Record "Service Item";
         FieldNo: Integer;
     begin
         OnBeforeGetNameFieldNo(TableID, FieldNo);
@@ -2413,8 +2410,6 @@ codeunit 5334 "CRM Setup Defaults"
                 exit(SalesHeader.FieldNo("No."));
             DATABASE::"CRM Salesorder":
                 exit(CRMSalesorder.FieldNo(Name));
-            DATABASE::"Service Item":
-                exit(ServiceItem.FieldNo("No."));
         end;
     end;
 
@@ -2667,12 +2662,6 @@ codeunit 5334 "CRM Setup Defaults"
     begin
     end;
 
-    [Obsolete('Subscribe to OnBeforeResetPriceListLineProductPricelevelMapping.', '18.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeResetSalesPriceProductPricelevelMapping(var IntegrationTableMappingName: Code[20]; var EnqueueJobQueEntry: Boolean; var IsHandled: Boolean)
-    begin
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnBeforeResetUnitOfMeasureUoMScheduleMapping(var IntegrationTableMappingName: Code[20]; var EnqueueJobQueEntry: Boolean; var IsHandled: Boolean)
     begin
@@ -2728,7 +2717,7 @@ codeunit 5334 "CRM Setup Defaults"
     begin
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnResetCustomerPriceGroupPricelevelMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName: Code[20])
@@ -2736,7 +2725,7 @@ codeunit 5334 "CRM Setup Defaults"
     end;
 #endif
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnResetItemProductMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName: Code[20])
     begin
     end;
@@ -2786,7 +2775,12 @@ codeunit 5334 "CRM Setup Defaults"
     begin
     end;
 
-#if not CLEAN23
+    [IntegrationEvent(true, false)]
+    local procedure OnGetTableIDCRMEntityNameMappingOnAfterAddFSEntityTableMapping(var TempNameValueBuffer: Record "Name/Value Buffer" temporary)
+    begin
+    end;
+
+#if not CLEAN25
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnResetSalesPriceProductPricelevelMappingOnAfterInsertFieldsMapping(IntegrationTableMappingName: Code[20])

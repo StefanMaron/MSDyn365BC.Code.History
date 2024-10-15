@@ -23,7 +23,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryWarehouse: Codeunit "Library - Warehouse";
-#if not CLEAN23
+#if not CLEAN25
         CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
 #endif
         LibraryResource: Codeunit "Library - Resource";
@@ -37,7 +37,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         AddrChangedErr: Label 'field on the purchase order %1 must be the same as on sales order %2.', Comment = '%1: Purchase Order No., %2: Sales Order No.';
         ValueMustBeEqualErr: Label '%1 must be equal to %2 in the %3.', Comment = '%1 = Field Caption , %2 = Expected Value, %3 = Table Caption';
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure CopyPurchOrdCopyHeadRecalcLine()
@@ -353,7 +353,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         VerifyPurchaseLinesAreEqual(OriginalPurchHeader, DestinationPurchHeader);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Test]
     [Scope('OnPrem')]
     procedure CopySalesOrdCopyHeadRecalcLine()
@@ -1671,7 +1671,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         FromSalesShptLine.SetRecFilter();
 
         asserterror CopyDocumentMgt.CopySalesShptLinesToDoc(ToSalesHeader, FromSalesShptLine, DummyInt, DummyBool);
-        Assert.ExpectedError('Prices Including VAT must be equal to ''Yes''');
+        Assert.ExpectedTestFieldError(ToSalesHeader.FieldCaption("Prices Including VAT"), Format(false));
     end;
 
     [Test]
@@ -1694,7 +1694,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         FromSalesShptLine.SetRecFilter();
 
         asserterror CopyDocumentMgt.CopySalesShptLinesToDoc(ToSalesHeader, FromSalesShptLine, DummyInt, DummyBool);
-        Assert.ExpectedError('Prices Including VAT must be equal to ''No''');
+        Assert.ExpectedTestFieldError(ToSalesHeader.FieldCaption("Prices Including VAT"), Format(true));
     end;
 
     [Test]
@@ -1789,7 +1789,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         MockPurchRcptLineWithPricesInclVAT(FromPurchRcptLine, false);
 
         asserterror CopyDocumentMgt.CopyPurchRcptLinesToDoc(ToPurchaseHeader, FromPurchRcptLine, DummyInt, DummyBool);
-        Assert.ExpectedError('Prices Including VAT must be equal to ''Yes''');
+        Assert.ExpectedTestFieldError(ToPurchaseHeader.FieldCaption("Prices Including VAT"), Format(false));
     end;
 
     [Test]
@@ -1811,7 +1811,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         MockPurchRcptLineWithPricesInclVAT(FromPurchRcptLine, true);
 
         asserterror CopyDocumentMgt.CopyPurchRcptLinesToDoc(ToPurchaseHeader, FromPurchRcptLine, DummyInt, DummyBool);
-        Assert.ExpectedError('Prices Including VAT must be equal to ''No''');
+        Assert.ExpectedTestFieldError(ToPurchaseHeader.FieldCaption("Prices Including VAT"), Format(false));
     end;
 
     [Test]
@@ -1833,7 +1833,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         MockPurchInvLineWithPricesInclVAT(FromPurchInvLine, false);
 
         asserterror CopyDocumentMgt.CopyPurchInvLinesToDoc(ToPurchaseHeader, FromPurchInvLine, DummyInt, DummyBool);
-        Assert.ExpectedError('Prices Including VAT must be equal to ''Yes''');
+        Assert.ExpectedTestFieldError(ToPurchaseHeader.FieldCaption("Prices Including VAT"), Format(true));
     end;
 
     [Test]
@@ -1855,7 +1855,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         MockPurchInvLineWithPricesInclVAT(FromPurchInvLine, true);
 
         asserterror CopyDocumentMgt.CopyPurchInvLinesToDoc(ToPurchaseHeader, FromPurchInvLine, DummyInt, DummyBool);
-        Assert.ExpectedError('Prices Including VAT must be equal to ''No''');
+        Assert.ExpectedTestFieldError(ToPurchaseHeader.FieldCaption("Prices Including VAT"), Format(false));
     end;
 
     [Test]
@@ -1877,7 +1877,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         MockPurchCrMemoLineWithPricesInclVAT(FromPurchCrMemoLine, false);
 
         asserterror CopyDocumentMgt.CopyPurchCrMemoLinesToDoc(ToPurchaseHeader, FromPurchCrMemoLine, DummyInt, DummyBool);
-        Assert.ExpectedError('Prices Including VAT must be equal to ''Yes''');
+        Assert.ExpectedTestFieldError(ToPurchaseHeader.FieldCaption("Prices Including VAT"), Format(true));
     end;
 
     [Test]
@@ -1899,7 +1899,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         MockPurchCrMemoLineWithPricesInclVAT(FromPurchCrMemoLine, true);
 
         asserterror CopyDocumentMgt.CopyPurchCrMemoLinesToDoc(ToPurchaseHeader, FromPurchCrMemoLine, DummyInt, DummyBool);
-        Assert.ExpectedError('Prices Including VAT must be equal to ''No''');
+        Assert.ExpectedTestFieldError(ToPurchaseHeader.FieldCaption("Prices Including VAT"), Format(false));
     end;
 
     [Test]
@@ -1921,7 +1921,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         MockReturnShptLineWithPricesInclVAT(FromReturnShipmentLine, false);
 
         asserterror CopyDocumentMgt.CopyPurchReturnShptLinesToDoc(ToPurchaseHeader, FromReturnShipmentLine, DummyInt, DummyBool);
-        Assert.ExpectedError('Prices Including VAT must be equal to ''Yes''');
+        Assert.ExpectedTestFieldError(ToPurchaseHeader.FieldCaption("Prices Including VAT"), Format(true));
     end;
 
     [Test]
@@ -1943,7 +1943,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         MockReturnShptLineWithPricesInclVAT(FromReturnShipmentLine, true);
 
         asserterror CopyDocumentMgt.CopyPurchReturnShptLinesToDoc(ToPurchaseHeader, FromReturnShipmentLine, DummyInt, DummyBool);
-        Assert.ExpectedError('Prices Including VAT must be equal to ''No''');
+        Assert.ExpectedTestFieldError(ToPurchaseHeader.FieldCaption("Prices Including VAT"), Format(false));
     end;
 
     [Test]
@@ -7342,7 +7342,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         Item.Modify(true);
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     local procedure CreateVendorItemDiscount(var PurchaseLineDiscount: Record "Purchase Line Discount"; VendorCode: Code[20]; Item: Record Item)
     begin
         // Create a random discount without item quantity limitation (to be sure it is applied when recalculating lines)
@@ -7437,6 +7437,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         LibraryUtility.FillFieldMaxText(ShipToAddress, ShipToAddress.FieldNo(County));
         ShipToAddress.Get(CustomerNo, ShipToAddress.Code);
         ShipToAddress.Validate("Post Code", CreatePostCode());
+        ShipToAddress.Validate("Phone No.", LibraryUtility.GenerateRandomPhoneNo());
         ShipToAddress.Modify();
         exit(ShipToAddress.Code);
     end;
@@ -7573,6 +7574,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         LibraryUtility.FillFieldMaxText(CompanyInformation, CompanyInformation.FieldNo("Ship-to Contact"));
         CompanyInformation.Get();
         CompanyInformation.Validate("Ship-to Post Code", CreatePostCode());
+        CompanyInformation.Validate("Ship-to Phone No.", LibraryUtility.GenerateRandomPhoneNo());
         CompanyInformation.Modify();
     end;
 
@@ -7591,6 +7593,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         Location.Get(Location.Code);
         Location.Validate("Post Code", CreatePostCode());
         Location.Validate("Country/Region Code", CountryRegionCode);
+        Location.Validate("Phone No.", LibraryUtility.GenerateRandomPhoneNo());
         Location.Modify();
     end;
 
@@ -7607,6 +7610,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         LibraryUtility.FillFieldMaxText(SalesHeader, SalesHeader.FieldNo("Ship-to Contact"));
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
         SalesHeader.Validate("Ship-to Post Code", CreatePostCode());
+        SalesHeader.Validate("Ship-to Phone No.", LibraryUtility.GenerateRandomPhoneNo());
         SalesHeader.Modify();
     end;
 
@@ -7623,6 +7627,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         LibraryUtility.FillFieldMaxText(Customer, Customer.FieldNo(Contact));
         Customer.Get(Customer."No.");
         Customer.Validate("Post Code", CreatePostCode());
+        Customer.Validate("Phone No.", LibraryUtility.GenerateRandomPhoneNo());
         Customer.Modify();
     end;
 
@@ -7648,6 +7653,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
         Evaluate(PurchaseHeader."Inbound Whse. Handling Time", StrSubstNo('<%1D>', LibraryRandom.RandIntInRange(5, 10)));
         PurchaseHeader."Location Code" := LocationCode;
+        PurchaseHeader.Validate("Ship-to Phone No.", LibraryUtility.GenerateRandomPhoneNo());
         PurchaseHeader.Modify();
     end;
 
@@ -7963,34 +7969,30 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
     var
         DummySalesLine: Record "Sales Line";
     begin
-        with DummySalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            SetRange(Type, Type::" ");
-            SetRange("No.", '');
-            SetRange(Description, ExpectedDescription);
-            Assert.RecordIsNotEmpty(DummySalesLine);
-        end;
+        DummySalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        DummySalesLine.SetRange("Document No.", SalesHeader."No.");
+        DummySalesLine.SetRange(Type, DummySalesLine.Type::" ");
+        DummySalesLine.SetRange("No.", '');
+        DummySalesLine.SetRange(Description, ExpectedDescription);
+        Assert.RecordIsNotEmpty(DummySalesLine);
     end;
 
     local procedure VerifyPurchDescriptionLineExists(PurchaseHeader: Record "Purchase Header"; ExpectedDescription: Text[100])
     var
         DummyPurchaseLine: Record "Purchase Line";
     begin
-        with DummyPurchaseLine do begin
-            SetRange("Document Type", PurchaseHeader."Document Type");
-            SetRange("Document No.", PurchaseHeader."No.");
-            SetRange(Type, Type::" ");
-            SetRange("No.", '');
-            SetRange(Description, ExpectedDescription);
-            Assert.RecordIsNotEmpty(DummyPurchaseLine);
-        end;
+        DummyPurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        DummyPurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        DummyPurchaseLine.SetRange(Type, DummyPurchaseLine.Type::" ");
+        DummyPurchaseLine.SetRange("No.", '');
+        DummyPurchaseLine.SetRange(Description, ExpectedDescription);
+        Assert.RecordIsNotEmpty(DummyPurchaseLine);
     end;
 
     local procedure VerifyShiptoAddressInSalesDocToCompanyInfo(SalesHeader: Record "Sales Header")
     var
         CompanyInformation: Record "Company Information";
-        ShiptoAddr: array[9] of Text;
+        ShiptoAddr: array[10] of Text;
     begin
         CompanyInformation.Get();
         ShiptoAddr[1] := CompanyInformation."Ship-to Name";
@@ -8002,13 +8004,14 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         ShiptoAddr[7] := CompanyInformation."Ship-to County";
         ShiptoAddr[8] := CompanyInformation."Ship-to Country/Region Code";
         ShiptoAddr[9] := CompanyInformation."Ship-to Contact";
+        ShiptoAddr[10] := CompanyInformation."Ship-to Phone No.";
         VerifyShiptoAddrSalesDoc(SalesHeader, ShiptoAddr);
     end;
 
     local procedure VerifyShiptoAddressSalesDocToCustomerAddress(SalesHeader: Record "Sales Header"; CustomerNo: Code[20])
     var
         Customer: Record Customer;
-        ShiptoAddr: array[9] of Text;
+        ShiptoAddr: array[10] of Text;
     begin
         Customer.SetRange("No.", CustomerNo);
         Customer.FindFirst();
@@ -8021,13 +8024,14 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         ShiptoAddr[7] := Customer.County;
         ShiptoAddr[8] := Customer."Country/Region Code";
         ShiptoAddr[9] := Customer.Contact;
+        ShiptoAddr[10] := Customer."Phone No.";
         VerifyShiptoAddrSalesDoc(SalesHeader, ShiptoAddr);
     end;
 
     local procedure VerifyShiptoAddressSalesDocToShiptoAddress(SalesHeader: Record "Sales Header"; CustomerNo: Code[20])
     var
         ShipToAddress: Record "Ship-to Address";
-        ShiptoAddr: array[9] of Text;
+        ShiptoAddr: array[10] of Text;
     begin
         ShipToAddress.SetRange("Customer No.", CustomerNo);
         ShipToAddress.FindFirst();
@@ -8040,10 +8044,11 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         ShiptoAddr[7] := ShipToAddress.County;
         ShiptoAddr[8] := ShipToAddress."Country/Region Code";
         ShiptoAddr[9] := ShipToAddress.Contact;
+        ShiptoAddr[10] := ShipToAddress."Phone No.";
         VerifyShiptoAddrSalesDoc(SalesHeader, ShiptoAddr);
     end;
 
-    local procedure VerifyShiptoAddrSalesDoc(SalesHeader: Record "Sales Header"; ShiptoAddr: array[9] of Text)
+    local procedure VerifyShiptoAddrSalesDoc(SalesHeader: Record "Sales Header"; ShiptoAddr: array[10] of Text)
     begin
         SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
         SalesHeader.TestField("Ship-to Name", ShiptoAddr[1]);
@@ -8055,17 +8060,16 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         SalesHeader.TestField("Ship-to County", ShiptoAddr[7]);
         SalesHeader.TestField("Ship-to Country/Region Code", ShiptoAddr[8]);
         SalesHeader.TestField("Ship-to Contact", ShiptoAddr[9]);
+        SalesHeader.TestField("Ship-to Phone No.", ShiptoAddr[10]);
     end;
 
     local procedure VerifySalesLineAndStepNext(var SalesLine: Record "Sales Line"; ExpectedType: Enum "Sales Line Type"; ExpectedNo: Code[20]; ExpectedDescription: Text; StepNext: Boolean)
     begin
-        with SalesLine do begin
-            Assert.AreEqual(ExpectedType, Type, FieldCaption(Type));
-            Assert.AreEqual(ExpectedNo, "No.", FieldCaption("No."));
-            Assert.ExpectedMessage(ExpectedDescription, Description);
-            if StepNext then
-                Next();
-        end;
+        Assert.AreEqual(ExpectedType, SalesLine.Type, SalesLine.FieldCaption(Type));
+        Assert.AreEqual(ExpectedNo, SalesLine."No.", SalesLine.FieldCaption("No."));
+        Assert.ExpectedMessage(ExpectedDescription, SalesLine.Description);
+        if StepNext then
+            SalesLine.Next();
     end;
 
     local procedure VerifySalesDescriptionLine(var SalesLine: Record "Sales Line"; ExpectedDescription: Text)
@@ -8135,13 +8139,11 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
 
     local procedure VerifyPurchaseLineAndStepNext(var PurchaseLine: Record "Purchase Line"; ExpectedType: Enum "Purchase Line Type"; ExpectedNo: Code[20]; ExpectedDescription: Text; StepNext: Boolean)
     begin
-        with PurchaseLine do begin
-            Assert.AreEqual(ExpectedType, Type, FieldCaption(Type));
-            Assert.AreEqual(ExpectedNo, "No.", FieldCaption("No."));
-            Assert.ExpectedMessage(ExpectedDescription, Description);
-            if StepNext then
-                Next();
-        end;
+        Assert.AreEqual(ExpectedType, PurchaseLine.Type, PurchaseLine.FieldCaption(Type));
+        Assert.AreEqual(ExpectedNo, PurchaseLine."No.", PurchaseLine.FieldCaption("No."));
+        Assert.ExpectedMessage(ExpectedDescription, PurchaseLine.Description);
+        if StepNext then
+            PurchaseLine.Next();
     end;
 
     local procedure VerifyPurchaseDescriptionLine(var PurchaseLine: Record "Purchase Line"; ExpectedDescription: Text)
@@ -8180,6 +8182,7 @@ codeunit 134332 "ERM Copy Purch/Sales Doc"
         ToPurchaseHeader.TestField("Ship-to Name 2", FromPurchaseHeader."Ship-to Name 2");
         ToPurchaseHeader.TestField("Ship-to Post Code", FromPurchaseHeader."Ship-to Post Code");
         ToPurchaseHeader.TestField("Ship-to Contact", FromPurchaseHeader."Ship-to Contact");
+        ToPurchaseHeader.TestField("Ship-to Phone No.", FromPurchaseHeader."Ship-to Phone No.");
         ToPurchaseHeader.TestField("Inbound Whse. Handling Time", FromPurchaseHeader."Inbound Whse. Handling Time");
         ToPurchaseHeader.TestField("Location Code", FromPurchaseHeader."Location Code");
     end;

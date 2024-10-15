@@ -133,7 +133,11 @@ report 99000766 "Prod. Order - Picking List"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Component Need : %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ProdOrder: Record "Production Order";
         ItemFilter: Text;
         ComponentFilter: Text;

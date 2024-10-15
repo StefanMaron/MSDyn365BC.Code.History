@@ -506,13 +506,11 @@ codeunit 144054 "Test CH FCY"
         CurrencyCode := CreateCurrency();
         LibraryERM.CreateRandomExchangeRate(CurrencyCode);
 
-        with CurrencyExchangeRate do begin
-            SetRange("Currency Code", CurrencyCode);
-            FindFirst();
-            Validate("VAT Exch. Rate Amount", "Exchange Rate Amount");
-            Validate("Relational VAT Exch. Rate Amt", "Relational Exch. Rate Amount");
-            Modify(true);
-        end;
+        CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
+        CurrencyExchangeRate.FindFirst();
+        CurrencyExchangeRate.Validate("VAT Exch. Rate Amount", CurrencyExchangeRate."Exchange Rate Amount");
+        CurrencyExchangeRate.Validate("Relational VAT Exch. Rate Amt", CurrencyExchangeRate."Relational Exch. Rate Amount");
+        CurrencyExchangeRate.Modify(true);
     end;
 
     local procedure CreateCurrencyWithRelExchangeRates(RelExchRateAmount: Decimal) CurrencyCode: Code[10]
@@ -521,15 +519,13 @@ codeunit 144054 "Test CH FCY"
     begin
         CurrencyCode := CreateCurrency();
         LibraryERM.CreateExchRate(CurrencyExchangeRate, CurrencyCode, WorkDate());
-        with CurrencyExchangeRate do begin
-            Validate("Exchange Rate Amount", 1);
-            Validate("Relational Exch. Rate Amount", RelExchRateAmount);
-            Validate("Adjustment Exch. Rate Amount", 1);
-            Validate("Relational Adjmt Exch Rate Amt", RelExchRateAmount);
-            Validate("VAT Exch. Rate Amount", 1);
-            Validate("Relational VAT Exch. Rate Amt", RelExchRateAmount);
-            Modify(true);
-        end;
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", 1);
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", RelExchRateAmount);
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", 1);
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", RelExchRateAmount);
+        CurrencyExchangeRate.Validate("VAT Exch. Rate Amount", 1);
+        CurrencyExchangeRate.Validate("Relational VAT Exch. Rate Amt", RelExchRateAmount);
+        CurrencyExchangeRate.Modify(true);
     end;
 
     local procedure CreateCurrency(): Code[10]
@@ -537,23 +533,21 @@ codeunit 144054 "Test CH FCY"
         Currency: Record Currency;
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        with Currency do begin
-            GeneralLedgerSetup.Get();
-            LibraryERM.CreateCurrency(Currency);
+        GeneralLedgerSetup.Get();
+        LibraryERM.CreateCurrency(Currency);
 
-            Validate("Invoice Rounding Precision", GeneralLedgerSetup."Inv. Rounding Precision (LCY)");
-            Validate("Residual Gains Account", CreateGLAccount());
-            Validate("Residual Losses Account", CreateGLAccount());
-            Validate("Realized G/L Gains Account", CreateGLAccount());
-            Validate("Realized G/L Losses Account", CreateGLAccount());
-            Validate("Realized Gains Acc.", CreateGLAccount());
-            Validate("Realized Losses Acc.", CreateGLAccount());
-            Validate("Unrealized Gains Acc.", CreateGLAccount());
-            Validate("Unrealized Losses Acc.", CreateGLAccount());
-            Modify(true);
+        Currency.Validate("Invoice Rounding Precision", GeneralLedgerSetup."Inv. Rounding Precision (LCY)");
+        Currency.Validate("Residual Gains Account", CreateGLAccount());
+        Currency.Validate("Residual Losses Account", CreateGLAccount());
+        Currency.Validate("Realized G/L Gains Account", CreateGLAccount());
+        Currency.Validate("Realized G/L Losses Account", CreateGLAccount());
+        Currency.Validate("Realized Gains Acc.", CreateGLAccount());
+        Currency.Validate("Realized Losses Acc.", CreateGLAccount());
+        Currency.Validate("Unrealized Gains Acc.", CreateGLAccount());
+        Currency.Validate("Unrealized Losses Acc.", CreateGLAccount());
+        Currency.Modify(true);
 
-            exit(Code);
-        end;
+        exit(Currency.Code);
     end;
 
     local procedure ModifyExchangeRateAmount(CurrencyCode: Code[10]; IsRaise: Boolean)
@@ -565,14 +559,12 @@ codeunit 144054 "Test CH FCY"
             RaiseValue := 1 / 3
         else
             RaiseValue := 3;
-        with CurrencyExchangeRate do begin
-            SetRange("Currency Code", CurrencyCode);
-            FindFirst();
-            Validate("Relational Exch. Rate Amount", "Relational Exch. Rate Amount" * RaiseValue);
-            Validate("Relational Adjmt Exch Rate Amt", "Relational Exch. Rate Amount" * RaiseValue);
-            Validate("Relational VAT Exch. Rate Amt", "Relational Exch. Rate Amount" * RaiseValue);
-            Modify(true);
-        end;
+        CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
+        CurrencyExchangeRate.FindFirst();
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", CurrencyExchangeRate."Relational Exch. Rate Amount" * RaiseValue);
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", CurrencyExchangeRate."Relational Exch. Rate Amount" * RaiseValue);
+        CurrencyExchangeRate.Validate("Relational VAT Exch. Rate Amt", CurrencyExchangeRate."Relational Exch. Rate Amount" * RaiseValue);
+        CurrencyExchangeRate.Modify(true);
     end;
 
     local procedure FindNoVATGLAccount(): Code[20]
@@ -588,20 +580,18 @@ codeunit 144054 "Test CH FCY"
 
     local procedure CreateExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10]; ExchRate: Decimal)
     begin
-        with CurrencyExchangeRate do begin
-            Init();
-            Validate("Currency Code", CurrencyCode);
-            Validate("Starting Date", WorkDate());
-            Insert(true);
+        CurrencyExchangeRate.Init();
+        CurrencyExchangeRate.Validate("Currency Code", CurrencyCode);
+        CurrencyExchangeRate.Validate("Starting Date", WorkDate());
+        CurrencyExchangeRate.Insert(true);
 
-            Validate("Exchange Rate Amount", 100);
-            Validate("Adjustment Exch. Rate Amount", 100);
-            Validate("Relational Exch. Rate Amount", ExchRate);
-            Validate("Relational Adjmt Exch Rate Amt", ExchRate);
-            Validate("VAT Exch. Rate Amount", 100);
-            Validate("Relational VAT Exch. Rate Amt", ExchRate * (100 + LibraryRandom.RandIntInRange(1, 5)) / 100);
-            Modify(true);
-        end;
+        CurrencyExchangeRate.Validate("Exchange Rate Amount", 100);
+        CurrencyExchangeRate.Validate("Adjustment Exch. Rate Amount", 100);
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", ExchRate);
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", ExchRate);
+        CurrencyExchangeRate.Validate("VAT Exch. Rate Amount", 100);
+        CurrencyExchangeRate.Validate("Relational VAT Exch. Rate Amt", ExchRate * (100 + LibraryRandom.RandIntInRange(1, 5)) / 100);
+        CurrencyExchangeRate.Modify(true);
     end;
 
     local procedure CreateGLAccount(): Code[20]
@@ -634,15 +624,13 @@ codeunit 144054 "Test CH FCY"
           GLAccountCode, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code,
           VATPostingSetup."VAT Calculation Type"::"Full VAT", 100);
 
-        with GLAccount do begin
-            Get(GLAccountCode);
-            Validate("Gen. Posting Type", "Gen. Posting Type"::Purchase);
-            Validate("Gen. Bus. Posting Group", GenBusinessPostingGroup.Code);
-            Validate("Gen. Prod. Posting Group", GenProductPostingGroup.Code);
-            Validate("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
-            Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
-            Modify();
-        end;
+        GLAccount.Get(GLAccountCode);
+        GLAccount.Validate("Gen. Posting Type", GLAccount."Gen. Posting Type"::Purchase);
+        GLAccount.Validate("Gen. Bus. Posting Group", GenBusinessPostingGroup.Code);
+        GLAccount.Validate("Gen. Prod. Posting Group", GenProductPostingGroup.Code);
+        GLAccount.Validate("VAT Bus. Posting Group", VATBusinessPostingGroup.Code);
+        GLAccount.Validate("VAT Prod. Posting Group", VATProductPostingGroup.Code);
+        GLAccount.Modify();
     end;
 
     local procedure CreateAndPostInvoicePurchaseJournal(GLAccountNo: Code[20]; CurrencyCode: Code[10]): Code[20]
@@ -725,11 +713,9 @@ codeunit 144054 "Test CH FCY"
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::Invoice, AccountType, AccountNo, Amount);
-        with GenJournalLine do begin
-            Validate("Currency Code", CurrencyCode);
-            Validate("External Document No.", ExtDocNo);
-            Modify();
-        end;
+        GenJournalLine.Validate("Currency Code", CurrencyCode);
+        GenJournalLine.Validate("External Document No.", ExtDocNo);
+        GenJournalLine.Modify();
     end;
 
     local procedure CreateVATPostingSetup(GLAccountCode: Code[20]; VATBusPostingGroupCode: Code[20]; VATProdPostingGroupCode: Code[20]; VATCalculationType: Enum "Tax Calculation Type"; VATPercent: Decimal)
@@ -737,12 +723,10 @@ codeunit 144054 "Test CH FCY"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroupCode, VATProdPostingGroupCode);
-        with VATPostingSetup do begin
-            Validate("VAT Calculation Type", VATCalculationType);
-            Validate("VAT %", VATPercent);
-            Validate("Purchase VAT Account", GLAccountCode);
-            Modify();
-        end;
+        VATPostingSetup.Validate("VAT Calculation Type", VATCalculationType);
+        VATPostingSetup.Validate("VAT %", VATPercent);
+        VATPostingSetup.Validate("Purchase VAT Account", GLAccountCode);
+        VATPostingSetup.Modify();
     end;
 
     local procedure RunAdjustExchangeRates(CurrencyCode: Text; AdjustGLAcc: Boolean)
@@ -844,11 +828,9 @@ codeunit 144054 "Test CH FCY"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("VAT Calculation Type", "VAT Calculation Type"::"Full VAT");
-            Assert.AreEqual(ExpectedNoOfEntries, Count, StrSubstNo(WrongNoOfEntriesErr, ExpectedNoOfEntries));
-        end;
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.SetRange("VAT Calculation Type", VATEntry."VAT Calculation Type"::"Full VAT");
+        Assert.AreEqual(ExpectedNoOfEntries, VATEntry.Count, StrSubstNo(WrongNoOfEntriesErr, ExpectedNoOfEntries));
     end;
 
     local procedure VerifyAdjmtBase(DocumentNo: Code[20]; InitialBase: Decimal; InitialBaseFCY: Decimal; InitialBaseARC: Decimal; CorrBase: Decimal; CorrBaseFCY: Decimal; CorrBaseARC: Decimal; StartingGLRegNo: Integer)

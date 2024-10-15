@@ -57,10 +57,14 @@ report 1141 "Delete Old Cost Entries"
     var
         CostEntry: Record "Cost Entry";
         YearEndDate: Date;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label '%1 is not at year''s end.';
         Text002: Label 'The selected year ending date %1 must be older than last year.';
         Text003: Label 'Are you sure you want to delete all cost entries up to and including %1?';
         Text004: Label 'All cost entries up to and including %1 deleted.';
         Text005: Label 'No cost entries were found before %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

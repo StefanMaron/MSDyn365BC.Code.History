@@ -229,76 +229,74 @@ codeunit 144022 "Swiss Inventory Cost. Reports"
     local procedure CalculateAmountForColumn(var Item: Record Item; Column: Option Stock,"Inv. Stock","Net Change","Purch. Qty","Sales Qty","Pos. Adj.","Neg. Adj.","On Purch. Order","On Sales Order","Purch. Amt.","Sales Amt.",Profit,"Unit Price","Direct Cost","<blank>") Amount: Decimal
     begin
         // Check the amount columns for the various options.
-        with Item do begin
-            Amount := 0;
+        Amount := 0;
 
-            case Column of
-                Column::Stock:
-                    begin
-                        CalcFields(Inventory);
-                        Amount := Inventory;
-                    end;
-                Column::"Inv. Stock":
-                    begin
-                        CalcFields("Net Invoiced Qty.");
-                        Amount := "Net Invoiced Qty.";
-                    end;
-                Column::"Net Change":
-                    begin
-                        CalcFields("Net Change");
-                        Amount := "Net Change";
-                    end;
-                Column::"Purch. Qty":
-                    begin
-                        CalcFields("Purchases (Qty.)");
-                        Amount := "Purchases (Qty.)";
-                    end;
-                Column::"Sales Qty":
-                    begin
-                        CalcFields("Sales (Qty.)");
-                        Amount := "Sales (Qty.)";
-                    end;
-                Column::"Pos. Adj.":
-                    begin
-                        CalcFields("Positive Adjmt. (Qty.)");
-                        Amount := "Positive Adjmt. (Qty.)";
-                    end;
-                Column::"Neg. Adj.":
-                    begin
-                        CalcFields("Negative Adjmt. (Qty.)");
-                        Amount := "Negative Adjmt. (Qty.)";
-                    end;
-                Column::"On Purch. Order":
-                    begin
-                        CalcFields("Qty. on Purch. Order");
-                        Amount := "Qty. on Purch. Order";
-                    end;
-                Column::"On Sales Order":
-                    begin
-                        CalcFields("Qty. on Sales Order");
-                        Amount := "Qty. on Sales Order";
-                    end;
-                Column::"Purch. Amt.":
-                    begin
-                        CalcFields("Purchases (LCY)");
-                        Amount := "Purchases (LCY)";
-                    end;
-                Column::"Sales Amt.":
-                    begin
-                        CalcFields("Sales (LCY)");
-                        Amount := "Sales (LCY)";
-                    end;
-                Column::Profit:
-                    begin
-                        CalcFields("Sales (LCY)", "COGS (LCY)");
-                        Amount := "Sales (LCY)" - "COGS (LCY)";
-                    end;
-                Column::"Unit Price":
-                    Amount := "Unit Price";
-                Column::"Direct Cost":
-                    Amount := "Unit Cost";
-            end;  // case
-        end;
+        case Column of
+            Column::Stock:
+                begin
+                    Item.CalcFields(Inventory);
+                    Amount := Item.Inventory;
+                end;
+            Column::"Inv. Stock":
+                begin
+                    Item.CalcFields("Net Invoiced Qty.");
+                    Amount := Item."Net Invoiced Qty.";
+                end;
+            Column::"Net Change":
+                begin
+                    Item.CalcFields("Net Change");
+                    Amount := Item."Net Change";
+                end;
+            Column::"Purch. Qty":
+                begin
+                    Item.CalcFields("Purchases (Qty.)");
+                    Amount := Item."Purchases (Qty.)";
+                end;
+            Column::"Sales Qty":
+                begin
+                    Item.CalcFields("Sales (Qty.)");
+                    Amount := Item."Sales (Qty.)";
+                end;
+            Column::"Pos. Adj.":
+                begin
+                    Item.CalcFields("Positive Adjmt. (Qty.)");
+                    Amount := Item."Positive Adjmt. (Qty.)";
+                end;
+            Column::"Neg. Adj.":
+                begin
+                    Item.CalcFields("Negative Adjmt. (Qty.)");
+                    Amount := Item."Negative Adjmt. (Qty.)";
+                end;
+            Column::"On Purch. Order":
+                begin
+                    Item.CalcFields("Qty. on Purch. Order");
+                    Amount := Item."Qty. on Purch. Order";
+                end;
+            Column::"On Sales Order":
+                begin
+                    Item.CalcFields("Qty. on Sales Order");
+                    Amount := Item."Qty. on Sales Order";
+                end;
+            Column::"Purch. Amt.":
+                begin
+                    Item.CalcFields("Purchases (LCY)");
+                    Amount := Item."Purchases (LCY)";
+                end;
+            Column::"Sales Amt.":
+                begin
+                    Item.CalcFields("Sales (LCY)");
+                    Amount := Item."Sales (LCY)";
+                end;
+            Column::Profit:
+                begin
+                    Item.CalcFields("Sales (LCY)", "COGS (LCY)");
+                    Amount := Item."Sales (LCY)" - Item."COGS (LCY)";
+                end;
+            Column::"Unit Price":
+                Amount := Item."Unit Price";
+            Column::"Direct Cost":
+                Amount := Item."Unit Cost";
+        end;  // case
     end;
 }
 

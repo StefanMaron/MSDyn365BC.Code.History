@@ -43,6 +43,7 @@ page 248 "VAT Registration Config"
                     trigger OnValidate()
                     var
                         CustomerConsentMgt: Codeunit "Customer Consent Mgt.";
+                        VATRegServiceEnabledLbl: Label 'VAT Registration Service enabled by UserSecurityId %1.', Locked = true;
                     begin
                         if Rec.Enabled = xRec.Enabled then
                             exit;
@@ -51,7 +52,9 @@ page 248 "VAT Registration Config"
                             if not CustomerConsentMgt.ConfirmUserConsent() then begin
                                 Rec.Enabled := false;
                                 exit;
-                            end;
+                            end else
+                                Session.LogAuditMessage(StrSubstNo(VATRegServiceEnabledLbl, UserSecurityId()), SecurityOperationResult::Success, AuditCategory::ApplicationManagement, 4, 0);
+
                             Rec.TestField("Service Endpoint");
                             Message(TermsAndAgreementMsg);
                         end;

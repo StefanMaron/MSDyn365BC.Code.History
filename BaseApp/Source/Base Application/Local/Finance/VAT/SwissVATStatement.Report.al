@@ -916,12 +916,10 @@ report 26100 "Swiss VAT Statement"
                     CalcTotalAmount(VATStmtLine2, TotalAmount);
                 end;
             VATStmtLine2.Type::"VAT Entry Totaling":
-                begin
-                    if ClosedRgstrNo = 0 then
-                        CalcVATEntryAmount(VATStmtLine2)
-                    else
-                        CalcVATRegisterAmount(VATStmtLine2);
-                end;
+                if ClosedRgstrNo = 0 then
+                    CalcVATEntryAmount(VATStmtLine2)
+                else
+                    CalcVATRegisterAmount(VATStmtLine2);
             VATStmtLine2.Type::"Row Totaling":
                 begin
                     if Level >= ArrayLen(RowNo) then

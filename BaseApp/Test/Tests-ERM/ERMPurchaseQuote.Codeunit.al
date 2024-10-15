@@ -27,7 +27,6 @@ codeunit 134325 "ERM Purchase Quote"
         PayToAddressFieldsEditableErr: Label 'Pay-to address fields should be editable.';
         MakeOrderQst: Label 'Do you want to convert the quote to an order?';
         OpenNewOrderTxt: Label 'The quote has been converted to order', Comment = '%1 - No. of new purchase order.';
-        BlockedResourceErr: Label 'Blocked must be equal to ''No''  in Resource';
 
     [Test]
     [Scope('OnPrem')]
@@ -464,7 +463,7 @@ codeunit 134325 "ERM Purchase Quote"
         asserterror Codeunit.Run(Codeunit::"Purch.-Quote to Order", PurchaseHeader);
 
         // [THEN] Error "Blocked must be equal to 'No'  in Resource: No.= ***. Current value is 'Yes'."
-        Assert.ExpectedError(BlockedResourceErr);
+        Assert.ExpectedTestFieldError(Resource.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]

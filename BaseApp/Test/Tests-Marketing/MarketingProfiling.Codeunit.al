@@ -778,20 +778,16 @@ codeunit 136206 "Marketing Profiling"
 
     local procedure UpdateVendorClass(var ProfileQuestionnaireLine: Record "Profile Questionnaire Line"; VendorClass: Enum "Profile Quest. Vend. Class. Field")
     begin
-        with ProfileQuestionnaireLine do begin
-            Validate("Vendor Class. Field", VendorClass);
-            Evaluate("Starting Date Formula", DateFormulaStartDayTok);
-            Evaluate("Ending Date Formula", DateFormulaCurrentDayTok);
-            Modify(true);
-        end;
+        ProfileQuestionnaireLine.Validate("Vendor Class. Field", VendorClass);
+        Evaluate(ProfileQuestionnaireLine."Starting Date Formula", DateFormulaStartDayTok);
+        Evaluate(ProfileQuestionnaireLine."Ending Date Formula", DateFormulaCurrentDayTok);
+        ProfileQuestionnaireLine.Modify(true);
     end;
 
     local procedure UpdateQuestionClassificationMethod(var ProfileQuestionnaireLine: Record "Profile Questionnaire Line"; ClassificationMethod: Option)
     begin
-        with ProfileQuestionnaireLine do begin
-            Validate("Classification Method", ClassificationMethod);
-            Modify(true);
-        end;
+        ProfileQuestionnaireLine.Validate("Classification Method", ClassificationMethod);
+        ProfileQuestionnaireLine.Modify(true);
     end;
 
     local procedure UpdateQuestionnairesLineType(var ProfileQuestionnaireLine: Record "Profile Questionnaire Line"; Type: Enum "Profile Questionnaire Line Type"; ToValue: Decimal)
@@ -819,10 +815,8 @@ codeunit 136206 "Marketing Profiling"
     local procedure UpdateQuestionnairesLineWithFromValue(ProfileQuestionnaireLine: Record "Profile Questionnaire Line"; Type: Enum "Profile Questionnaire Line Type"; FromValue: Decimal; ToValue: Decimal)
     begin
         UpdateQuestionnairesLineType(ProfileQuestionnaireLine, Type, ToValue);
-        with ProfileQuestionnaireLine do begin
-            Validate("From Value", FromValue);
-            Modify(true);
-        end;
+        ProfileQuestionnaireLine.Validate("From Value", FromValue);
+        ProfileQuestionnaireLine.Modify(true);
     end;
 
     local procedure VerifyAnswerRating(ProfileQuestionnaireCode: Code[10]; FromValue: Decimal; ToValue: Decimal)
@@ -880,18 +874,16 @@ codeunit 136206 "Marketing Profiling"
     var
         ProfileQuestionnaireLine: Record "Profile Questionnaire Line";
     begin
-        with ProfileQuestionnaireLine do begin
-            FindProfileQuestionnaireLine(ProfileQuestionnaireLine, ProfileQuestionnaireCode);
+        FindProfileQuestionnaireLine(ProfileQuestionnaireLine, ProfileQuestionnaireCode);
 
-            Assert.AreEqual(
-              FromValue,
-              "From Value",
-              StrSubstNo(IncorrectFieldValueErr, FieldCaption("From Value")));
-            Assert.AreEqual(
-              ToValue,
-              "To Value",
-              StrSubstNo(IncorrectFieldValueErr, FieldCaption("To Value")));
-        end;
+        Assert.AreEqual(
+          FromValue,
+          ProfileQuestionnaireLine."From Value",
+          StrSubstNo(IncorrectFieldValueErr, ProfileQuestionnaireLine.FieldCaption("From Value")));
+        Assert.AreEqual(
+          ToValue,
+          ProfileQuestionnaireLine."To Value",
+          StrSubstNo(IncorrectFieldValueErr, ProfileQuestionnaireLine.FieldCaption("To Value")));
     end;
 
     [ModalPageHandler]

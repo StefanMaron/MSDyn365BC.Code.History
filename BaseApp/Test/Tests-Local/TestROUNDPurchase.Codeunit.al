@@ -161,11 +161,9 @@ codeunit 144063 "Test ROUND Purchase"
     begin
         LibraryERM.FindGLAccount(GLAccount);
 
-        with GLAccount do begin
-            Validate("VAT Prod. Posting Group", VATProdPostingGroup);
-            Validate("VAT Bus. Posting Group", VATBusPostingGroup);
-            exit("No.");
-        end;
+        GLAccount.Validate("VAT Prod. Posting Group", VATProdPostingGroup);
+        GLAccount.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
+        exit(GLAccount."No.");
     end;
 
     local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; LineType: Enum "Purchase Line Type")
@@ -216,20 +214,18 @@ codeunit 144063 "Test ROUND Purchase"
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        with PurchaseLine do begin
-            SetRange("Document Type", PurchaseHeader."Document Type");
-            SetRange("Document No.", PurchaseHeader."No.");
-            FindFirst();
-            VATAmount := "VAT %" * (-Quantity * "Direct Unit Cost") / 100;
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindFirst();
+        VATAmount := PurchaseLine."VAT %" * (-PurchaseLine.Quantity * PurchaseLine."Direct Unit Cost") / 100;
 
-            case "Document Type" of
-                "Document Type"::Invoice,
-              "Document Type"::Order:
-                    VATAmount := -VATAmount;
-                "Document Type"::"Credit Memo",
-              "Document Type"::"Return Order":
-                    VATAmount := VATAmount;
-            end;
+        case PurchaseLine."Document Type" of
+            PurchaseLine."Document Type"::Invoice,
+          PurchaseLine."Document Type"::Order:
+                VATAmount := -VATAmount;
+            PurchaseLine."Document Type"::"Credit Memo",
+          PurchaseLine."Document Type"::"Return Order":
+                VATAmount := VATAmount;
         end;
     end;
 
@@ -238,15 +234,13 @@ codeunit 144063 "Test ROUND Purchase"
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            Assert.AreNearlyEqual(
-              "VAT Amount",
-              VATAmount, LibraryERM.GetAmountRoundingPrecision(),
-              StrSubstNo('VAT Amounts are not equal. Expected: %1, Actual: %2', "VAT Amount", VATAmount))
-        end;
+        GLEntry.SetRange("Document Type", DocumentType);
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.FindFirst();
+        Assert.AreNearlyEqual(
+          GLEntry."VAT Amount",
+          VATAmount, LibraryERM.GetAmountRoundingPrecision(),
+          StrSubstNo('VAT Amounts are not equal. Expected: %1, Actual: %2', GLEntry."VAT Amount", VATAmount))
     end;
 
     [Normal]
@@ -254,17 +248,15 @@ codeunit 144063 "Test ROUND Purchase"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Document Type", DocumentType);
-            SetRange(Type, Type::Purchase);
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.SetRange("Document Type", DocumentType);
+        VATEntry.SetRange(Type, VATEntry.Type::Purchase);
 
-            FindFirst();
+        VATEntry.FindFirst();
 
-            Assert.AreNearlyEqual(
-              VATAmount, Amount, LibraryERM.GetAmountRoundingPrecision(),
-              StrSubstNo('VAT amounts are not equal. Expected: %1, Actual: %2', Amount, VATAmount));
-        end;
+        Assert.AreNearlyEqual(
+          VATAmount, VATEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
+          StrSubstNo('VAT amounts are not equal. Expected: %1, Actual: %2', VATEntry.Amount, VATAmount));
     end;
 }
 

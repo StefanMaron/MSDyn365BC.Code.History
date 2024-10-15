@@ -12,6 +12,7 @@ codeunit 134420 "ERM Journal Posting"
 
     var
         LibraryAssert: Codeunit "Library Assert";
+        Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryERM: Codeunit "Library - ERM";
         LibraryRandom: Codeunit "Library - Random";
@@ -222,7 +223,7 @@ codeunit 134420 "ERM Journal Posting"
         // [WHEN] Set "Report Output Type" = Print
         asserterror GeneralLedgerSetup.Validate("Report Output Type", GeneralLedgerSetup."Report Output Type"::Print);
         // [THEN] Error, "Report Output Type" must be PDF
-        LibraryAssert.ExpectedError('Report Output Type must be equal to ''PDF''  in General Ledger Setup');
+        Assert.ExpectedTestFieldError(GeneralLedgerSetup.FieldCaption("Report Output Type"), Format(GeneralLedgerSetup."Report Output Type"::PDF));
     end;
 
     [Test]

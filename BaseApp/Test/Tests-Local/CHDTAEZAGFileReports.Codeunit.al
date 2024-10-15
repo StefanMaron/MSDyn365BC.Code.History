@@ -419,18 +419,16 @@ codeunit 144350 "CH DTA/EZAG File Reports"
     var
         Currency: Record Currency;
     begin
-        with Currency do begin
-            Init();
-            repeat
-                Code := CopyStr(LibraryUtility.GenerateRandomText(3), 1, 3);
-            until Insert();
-            "ISO Code" := CopyStr(Code, 1, 3);
-            Modify();
+        Currency.Init();
+        repeat
+            Currency.Code := CopyStr(LibraryUtility.GenerateRandomText(3), 1, 3);
+        until Currency.Insert();
+        Currency."ISO Code" := CopyStr(Currency.Code, 1, 3);
+        Currency.Modify();
 
-            LibraryERM.CreateExchangeRate(
-              Code, WorkDate(), LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2));
-            exit(Code);
-        end;
+        LibraryERM.CreateExchangeRate(
+          Currency.Code, WorkDate(), LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2));
+        exit(Currency.Code);
     end;
 
     [Scope('OnPrem')]

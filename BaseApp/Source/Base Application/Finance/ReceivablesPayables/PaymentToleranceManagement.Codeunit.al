@@ -1541,6 +1541,7 @@ codeunit 426 "Payment Tolerance Management"
                 ApplnRoundingPrecision := Currency."Appln. Rounding Precision";
             end else
                 ApplnRoundingPrecision := 0;
+
         AmountRoundingPrecision := Currency."Amount Rounding Precision";
     end;
 
@@ -1567,6 +1568,7 @@ codeunit 426 "Payment Tolerance Management"
             (DocumentType = DocumentType::"Credit Memo"))
         then
             PositiveFilter := true;
+
         exit(PositiveFilter);
     end;
 
@@ -1577,6 +1579,7 @@ codeunit 426 "Payment Tolerance Management"
             (DocumentType = DocumentType::"Credit Memo"))
         then
             PositiveFilter := true;
+
         exit(PositiveFilter);
     end;
 
@@ -1749,6 +1752,7 @@ codeunit 426 "Payment Tolerance Management"
                 Currency.Get(ApplnCurrencyCode)
             else
                 Currency.Init();
+
         ApplnRoundingPrecision := Currency."Appln. Rounding Precision";
         AmountRoundingPrecision := Currency."Amount Rounding Precision";
     end;

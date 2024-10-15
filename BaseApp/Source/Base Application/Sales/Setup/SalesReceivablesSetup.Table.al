@@ -358,6 +358,10 @@ table 311 "Sales & Receivables Setup"
         {
             Caption = 'Archive Return Orders';
         }
+        field(56; "Default G/L Account Quantity"; Boolean)
+        {
+            Caption = 'Default G/L Account Quantity';
+        }
         field(57; "Create Item from Item No."; Boolean)
         {
             Caption = 'Create Item from Item No.';
@@ -560,7 +564,7 @@ table 311 "Sales & Receivables Setup"
         {
             Caption = 'Write-in Product No.';
             TableRelation = if ("Write-in Product Type" = const(Item)) Item."No." where(Type = filter(Service | "Non-Inventory"))
-            ELSE
+            else
             if ("Write-in Product Type" = const(Resource)) Resource."No.";
 
             trigger OnValidate()
@@ -653,7 +657,7 @@ table 311 "Sales & Receivables Setup"
         field(7003; "Default Price List Code"; Code[20])
         {
             Caption = 'Default Price List Code';
-            TableRelation = "Price List Header" where("Price Type" = Const(Sale), "Source Group" = Const(Customer), "Allow Updating Defaults" = const(true));
+            TableRelation = "Price List Header" where("Price Type" = const(Sale), "Source Group" = const(Customer), "Allow Updating Defaults" = const(true));
             DataClassification = CustomerContent;
             trigger OnLookup()
             var
@@ -722,8 +726,8 @@ table 311 "Sales & Receivables Setup"
             MinValue = 0.01;
             NotBlank = true;
             ObsoleteReason = 'The functionality that depended on this setting was removed.';
-            ObsoleteState = Pending;
-            ObsoleteTag = '15.0';
+            ObsoleteState = Removed;
+            ObsoleteTag = '25.0';
         }
         field(11502; "Apply Inv. Round. Amt. To VAT"; Boolean)
         {

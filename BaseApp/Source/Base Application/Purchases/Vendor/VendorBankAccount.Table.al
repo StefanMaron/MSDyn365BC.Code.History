@@ -58,7 +58,7 @@ table 288 "Vendor Bank Account"
             Caption = 'City';
             TableRelation = if ("Country/Region Code" = const('')) "Post Code".City
             else
-            IF ("Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Country/Region Code"));
+            if ("Country/Region Code" = filter(<> '')) "Post Code".City where("Country/Region Code" = field("Country/Region Code"));
             ValidateTableRelation = false;
 
             trigger OnLookup()
@@ -81,7 +81,7 @@ table 288 "Vendor Bank Account"
             Caption = 'Post Code';
             TableRelation = if ("Country/Region Code" = const('')) "Post Code"
             else
-            IF ("Country/Region Code" = filter(<> '')) "Post Code" where("Country/Region Code" = field("Country/Region Code"));
+            if ("Country/Region Code" = filter(<> '')) "Post Code" where("Country/Region Code" = field("Country/Region Code"));
             ValidateTableRelation = false;
 
             trigger OnLookup()

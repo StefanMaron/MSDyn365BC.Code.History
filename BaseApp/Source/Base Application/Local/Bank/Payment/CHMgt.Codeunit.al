@@ -16,7 +16,6 @@ using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.History;
-using Microsoft.Service.History;
 using Microsoft.Utilities;
 using System.Reflection;
 using System.Utilities;
@@ -55,30 +54,17 @@ codeunit 11503 CHMgt
             SalesInvHeader."Payment Method Code", SalesInvHeader."No.", Amt);
     end;
 
-    procedure PrepareEsrService(ServiceInvHeader: Record "Service Invoice Header"; var ESRSetup: Record "ESR Setup"; var EsrType: Option Default,ESR,"ESR+"; var Adr: array[8] of Text[100]; var AmtTxt: Text[30]; var CurrencyCode: Code[10]; var DocType: Text[10]; var RefNo: Text[35]; var CodingLine: Text[100])
+#if not CLEAN25
+    [Obsolete('Moved to codeunit ServBankPaymentMgt', '25.0')]
+    procedure PrepareEsrService(ServiceInvHeader: Record Microsoft.Service.History."Service Invoice Header"; var ESRSetup: Record "ESR Setup"; var EsrType: Option Default,ESR,"ESR+"; var Adr: array[8] of Text[100]; var AmtTxt: Text[30]; var CurrencyCode: Code[10]; var DocType: Text[10]; var RefNo: Text[35]; var CodingLine: Text[100])
     var
-        ServiceInvoiceLine: Record "Service Invoice Line";
-        Amt: Decimal;
+        ServBankPaymentMgt: Codeunit "Serv. Bank Payment Mgt.";
     begin
-        Adr[1] := ServiceInvHeader."Bill-to Name";
-        Adr[2] := ServiceInvHeader."Bill-to Contact";
-        Adr[3] := ServiceInvHeader."Bill-to Address";
-        Adr[4] := ServiceInvHeader."Bill-to Address 2";
-        Adr[5] := ServiceInvHeader."Bill-to Post Code" + ' ' + ServiceInvHeader."Bill-to City";
-        CompressArray(Adr);
-
-        ServiceInvoiceLine.SetRange("Document No.", ServiceInvHeader."No.");
-        ServiceInvoiceLine.CalcSums("Amount Including VAT");
-        Amt := ServiceInvoiceLine."Amount Including VAT";
-
-        OnPrepareEsrServiceOnBeforeCompressArray(ServiceInvHeader, Adr);
-
-        PrepareEsrConsolidate(
-            ESRSetup, EsrType, AmtTxt, CurrencyCode, DocType, RefNo, CodingLine, ServiceInvHeader."Currency Code",
-            ServiceInvHeader."Payment Method Code", ServiceInvHeader."No.", Amt);
+        ServBankPaymentMgt.PrepareEsrService(ServiceInvHeader, ESRSetup, EsrType, Adr, AmtTxt, CurrencyCode, DocType, RefNo, CodingLine);
     end;
+#endif
 
-    local procedure PrepareEsrConsolidate(var ESRSetup: Record "ESR Setup"; var EsrType: Option Default,ESR,"ESR+"; var AmtTxt: Text[30]; var CurrencyCode: Code[10]; var DocType: Text[10]; var RefNo: Text[35]; var CodingLine: Text[100]; CurrencyCode2: Code[10]; PaymentMethodCode: Code[10]; _No: Code[20]; Amt: Decimal)
+    procedure PrepareEsrConsolidate(var ESRSetup: Record "ESR Setup"; var EsrType: Option Default,ESR,"ESR+"; var AmtTxt: Text[30]; var CurrencyCode: Code[10]; var DocType: Text[10]; var RefNo: Text[35]; var CodingLine: Text[100]; CurrencyCode2: Code[10]; PaymentMethodCode: Code[10]; _No: Code[20]; Amt: Decimal)
     var
         GlSetup: Record "General Ledger Setup";
         BankMgt: Codeunit BankMgt;
@@ -443,8 +429,16 @@ codeunit 11503 CHMgt
     begin
     end;
 
+#if not CLEAN25
+    internal procedure RunOnPrepareEsrServiceOnBeforeCompressArray(var ServiceInvoiceHeader: Record Microsoft.Service.History."Service Invoice Header"; var Adr: array[8] of Text[100])
+    begin
+        OnPrepareEsrServiceOnBeforeCompressArray(ServiceInvoiceHeader, Adr);
+    end;
+
+    [Obsolete('Moved to codeunit ServBankPaymentMgt', '25.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnPrepareEsrServiceOnBeforeCompressArray(var ServiceInvoiceHeader: Record "Service Invoice Header"; var Adr: array[8] of Text[100])
+    local procedure OnPrepareEsrServiceOnBeforeCompressArray(var ServiceInvoiceHeader: Record Microsoft.Service.History."Service Invoice Header"; var Adr: array[8] of Text[100])
     begin
     end;
+#endif
 }

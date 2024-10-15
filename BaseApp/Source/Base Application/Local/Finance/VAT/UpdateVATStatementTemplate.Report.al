@@ -32,12 +32,11 @@ report 11112 "Update VAT Statement Template"
                         UpdateVATAT.UpdateVATStatementTemplate(TemplateName, TemplateDescription, AgricultureVATProdPostingGroups)
                     else
                         Error(SpecifyVATStatementTemplateNameErr);
-                end else begin
+                end else
                     if TemplateName <> '' then
                         UpdateVATCH.UpdateVATStatementTemplate(TemplateName, TemplateDescription)
                     else
                         Error(SpecifyVATStatementTemplateNameErr);
-                end;
             end;
         }
     }

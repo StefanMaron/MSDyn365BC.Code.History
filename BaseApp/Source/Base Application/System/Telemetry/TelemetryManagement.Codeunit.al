@@ -19,6 +19,8 @@ codeunit 1350 "Telemetry Management"
     local procedure ScheduleDailyTelemetryAfterCompanyOpen()
     var
         JobQueueEntry: Record "Job Queue Entry";
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        JobQueueEntry2: Record "Job Queue Entry";
         EnvironmentInformation: Codeunit "Environment Information";
     begin
         if not EnvironmentInformation.IsSaaS() then
@@ -27,7 +29,7 @@ codeunit 1350 "Telemetry Management"
             exit;
         if not TaskScheduler.CanCreateTask() then
             exit;
-        if not (JobQueueEntry.ReadPermission() and JobQueueEntry.WritePermission()) then
+        if not (JobQueueEntry.ReadPermission() and JobQueueEntry2.WritePermission()) then
             exit;
         if not JobQueueEntry.HasRequiredPermissions() then
             exit;

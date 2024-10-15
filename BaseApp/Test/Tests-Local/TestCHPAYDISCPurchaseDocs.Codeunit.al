@@ -356,10 +356,9 @@ codeunit 144067 "Test CH PAYDISC Purchase Docs"
 
     local procedure VerifyApplicationWithVATBalancingError(GenJournalLine: Record "Gen. Journal Line")
     begin
-        with GenJournalLine do
-            Assert.ExpectedError(
-              StrSubstNo(
-                PmtApplnErr, "Journal Template Name", "Journal Batch Name", "Line No."));
+        Assert.ExpectedError(
+            StrSubstNo(
+                PmtApplnErr, GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", GenJournalLine."Line No."));
     end;
 }
 

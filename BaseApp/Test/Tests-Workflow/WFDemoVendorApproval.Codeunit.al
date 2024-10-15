@@ -599,23 +599,21 @@ codeunit 134211 "WF Demo Vendor Approval"
         PreviousWorkflowStep.SetRange("Function Name", WorkflowResponseHandling.SendApprovalRequestForApprovalCode());
         PreviousWorkflowStep.FindFirst();
 
-        with WorkflowStep do begin
-            Validate("Workflow Code", WorkflowCode);
-            Validate(Type, Type::Response);
-            Validate("Function Name", WorkflowResponseHandling.CreateNotificationEntryCode());
-            Validate("Sequence No.", PreviousWorkflowStep."Sequence No.");
-            Validate("Previous Workflow Step ID", PreviousWorkflowStep.ID);
-            Insert(true);
+        WorkflowStep.Validate("Workflow Code", WorkflowCode);
+        WorkflowStep.Validate(Type, WorkflowStep.Type::Response);
+        WorkflowStep.Validate("Function Name", WorkflowResponseHandling.CreateNotificationEntryCode());
+        WorkflowStep.Validate("Sequence No.", PreviousWorkflowStep."Sequence No.");
+        WorkflowStep.Validate("Previous Workflow Step ID", PreviousWorkflowStep.ID);
+        WorkflowStep.Insert(true);
 
-            WorkflowStepID := ID;
-            LibraryWorkflow.InsertNotificationArgument(WorkflowStepID, UserID, 0, '');
+        WorkflowStepID := WorkflowStep.ID;
+        LibraryWorkflow.InsertNotificationArgument(WorkflowStepID, UserID, 0, '');
 
-            Reset();
-            SetFilter(ID, StrSubstNo('<>%1', WorkflowStepID));
-            SetRange("Workflow Code", WorkflowCode);
-            SetRange("Previous Workflow Step ID", PreviousWorkflowStep.ID);
-            ModifyAll("Previous Workflow Step ID", WorkflowStepID, true);
-        end;
+        WorkflowStep.Reset();
+        WorkflowStep.SetFilter(ID, StrSubstNo('<>%1', WorkflowStepID));
+        WorkflowStep.SetRange("Workflow Code", WorkflowCode);
+        WorkflowStep.SetRange("Previous Workflow Step ID", PreviousWorkflowStep.ID);
+        WorkflowStep.ModifyAll("Previous Workflow Step ID", WorkflowStepID, true);
     end;
 
     local procedure VerifyNoWorkflowStepInstanceLeft(WorkflowCode: Code[20])

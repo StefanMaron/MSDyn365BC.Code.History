@@ -400,6 +400,8 @@ table 5870 "BOM Buffer"
         UOMMgt: Codeunit "Unit of Measure Management";
         GLSetupRead: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'The Low-level Code for Item %1 has not been calculated.';
         Text002: Label 'The Quantity per. field in the BOM for Item %1 has not been set.';
         Text003: Label 'Routing %1 has not been certified.';
@@ -408,6 +410,8 @@ table 5870 "BOM Buffer"
         Text006: Label 'Replenishment System for Item %1 is Assembly, but the item is not an assembly BOM. Verify that this is correct.';
         Text007: Label 'Replenishment System for Item %1 is Prod. Order, but the item does not have a production BOM. Verify that this is correct.';
         Text008: Label 'Item %1 is a BOM, but the Replenishment System field is not set to Assembly or Prod. Order. Verify that the value is correct.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure TransferFromItem(var EntryNo: Integer; Item: Record Item; DemandDate: Date)
     begin

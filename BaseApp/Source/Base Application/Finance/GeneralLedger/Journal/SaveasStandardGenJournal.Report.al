@@ -87,8 +87,12 @@ report 750 "Save as Standard Gen. Journal"
         StdGenJnl: Record "Standard General Journal";
         "Code": Code[10];
         Description: Text[100];
+#pragma warning disable AA0074
         Text000: Label 'Enter a code for Standard General Journal.';
+#pragma warning disable AA0470
         Text001: Label 'Standard General Journal %1 already exists. Do you want to overwrite?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         SaveAmount: Boolean;
         StdJournalCreated: Boolean;
         NextLineNo: Integer;

@@ -193,16 +193,14 @@ codeunit 144085 "Swiss SEPA Direct Debit"
     var
         BankExportImportSetup: Record "Bank Export/Import Setup";
     begin
-        with BankExportImportSetup do begin
-            Init();
-            Code := LibraryUtility.GenerateGUID();
-            Direction := Direction::Export;
-            "Processing Codeunit ID" := GetSwissProcCodeunitID();
-            "Processing XMLport ID" := GetSEPADDExportXMLPortID();
-            "Check Export Codeunit" := CODEUNIT::"SEPA DD-Check Line";
-            Insert();
-            exit(Code);
-        end;
+        BankExportImportSetup.Init();
+        BankExportImportSetup.Code := LibraryUtility.GenerateGUID();
+        BankExportImportSetup.Direction := BankExportImportSetup.Direction::Export;
+        BankExportImportSetup."Processing Codeunit ID" := GetSwissProcCodeunitID();
+        BankExportImportSetup."Processing XMLport ID" := GetSEPADDExportXMLPortID();
+        BankExportImportSetup."Check Export Codeunit" := CODEUNIT::"SEPA DD-Check Line";
+        BankExportImportSetup.Insert();
+        exit(BankExportImportSetup.Code);
     end;
 
     local procedure CreateBankAccount(BankExpImpCode: Code[20]): Code[20]
@@ -210,15 +208,13 @@ codeunit 144085 "Swiss SEPA Direct Debit"
         BankAccount: Record "Bank Account";
     begin
         LibraryERM.CreateBankAccount(BankAccount);
-        with BankAccount do begin
-            "SEPA Direct Debit Exp. Format" := BankExpImpCode;
-            "Direct Debit Msg. Nos." := LibraryERM.CreateNoSeriesCode();
-            IBAN := GetIBAN();
-            "SWIFT Code" := GetSWIFT();
-            "Creditor No." := GetRSPID();
-            Modify();
-            exit("No.");
-        end;
+        BankAccount."SEPA Direct Debit Exp. Format" := BankExpImpCode;
+        BankAccount."Direct Debit Msg. Nos." := LibraryERM.CreateNoSeriesCode();
+        BankAccount.IBAN := GetIBAN();
+        BankAccount."SWIFT Code" := GetSWIFT();
+        BankAccount."Creditor No." := GetRSPID();
+        BankAccount.Modify();
+        exit(BankAccount."No.");
     end;
 
     local procedure CreateMockBankAccWithDDSetup(ProcessingCodeunitID: Integer): Integer
@@ -304,14 +300,12 @@ codeunit 144085 "Swiss SEPA Direct Debit"
 
     local procedure CreateMandate(var SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate"; CustNo: Code[20])
     begin
-        with SEPADirectDebitMandate do begin
-            ID := LibraryUtility.GenerateGUID();
-            "Customer No." := CustNo;
-            "Type of Payment" := "Type of Payment"::Recurrent;
-            "Expected Number of Debits" := 10;
-            "Date of Signature" := Today;
-            Insert();
-        end;
+        SEPADirectDebitMandate.ID := LibraryUtility.GenerateGUID();
+        SEPADirectDebitMandate."Customer No." := CustNo;
+        SEPADirectDebitMandate."Type of Payment" := SEPADirectDebitMandate."Type of Payment"::Recurrent;
+        SEPADirectDebitMandate."Expected Number of Debits" := 10;
+        SEPADirectDebitMandate."Date of Signature" := Today;
+        SEPADirectDebitMandate.Insert();
     end;
 
     local procedure GetCreditorNo(BankAccNo: Code[20]): Text

@@ -182,6 +182,8 @@ codeunit 48 PostingSetupManagement
     procedure CheckInvtPostingSetupInventoryAccount(LocationCode: Code[10]; PostingGroup: Code[20])
     var
         InventoryPostingSetup: Record "Inventory Posting Setup";
+        [SecurityFiltering(SecurityFilter::Ignored)]
+        InventoryPostingSetup2: Record "Inventory Posting Setup";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -189,7 +191,7 @@ codeunit 48 PostingSetupManagement
         if IsHandled then
             exit;
 
-        if not IsPostingSetupNotificationEnabled() or not InventoryPostingSetup.WritePermission then
+        if not IsPostingSetupNotificationEnabled() or not InventoryPostingSetup2.WritePermission() then
             exit;
 
         if not InventoryPostingSetup.Get(LocationCode, PostingGroup) then

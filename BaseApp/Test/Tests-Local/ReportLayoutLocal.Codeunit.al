@@ -184,14 +184,12 @@ codeunit 141000 "Report Layout - Local"
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
-        with GenJournalTemplate do begin
-            if IsCust then
-                Validate(Type, Type::"Cash Receipts")
-            else
-                Validate(Type, Type::Payments);
-            Modify();
-            exit(Name);
-        end;
+        if IsCust then
+            GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::"Cash Receipts")
+        else
+            GenJournalTemplate.Validate(Type, GenJournalTemplate.Type::Payments);
+        GenJournalTemplate.Modify();
+        exit(GenJournalTemplate.Name);
     end;
 
     local procedure CreateGeneralJournalBatchWithBankAcc(var GenJournalBatch: Record "Gen. Journal Batch"; GenJnlTemplName: Code[10])
@@ -201,11 +199,9 @@ codeunit 141000 "Report Layout - Local"
     begin
         LibraryERM.CreateBankAccount(BankAccount);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJnlTemplName);
-        with GenJournalBatch do begin
-            Validate("Bal. Account Type", "Bal. Account Type"::"Bank Account");
-            Validate("Bal. Account No.", BankAccount."No.");
-            Modify(true);
-        end;
+        GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
+        GenJournalBatch.Validate("Bal. Account No.", BankAccount."No.");
+        GenJournalBatch.Modify(true);
     end;
 
     local procedure CreateGenJournalLine(GenJnlBatch: Record "Gen. Journal Batch"; IsCust: Boolean; CVNo: Code[20])
@@ -213,22 +209,20 @@ codeunit 141000 "Report Layout - Local"
         GenJnlLine: Record "Gen. Journal Line";
         RecRef: RecordRef;
     begin
-        with GenJnlLine do begin
-            Init();
-            "Journal Template Name" := GenJnlBatch."Journal Template Name";
-            "Journal Batch Name" := GenJnlBatch.Name;
-            RecRef.GetTable(GenJnlLine);
-            "Line No." := LibraryUtility.GetNewLineNo(RecRef, FieldNo("Line No."));
-            "Posting Date" := WorkDate();
-            Amount := LibraryRandom.RandDec(100, 2);
-            "Document Type" := "Document Type"::Payment;
-            if IsCust then
-                "Account Type" := "Account Type"::Customer
-            else
-                "Account Type" := "Account Type"::Vendor;
-            "Account No." := CVNo;
-            Insert();
-        end;
+        GenJnlLine.Init();
+        GenJnlLine."Journal Template Name" := GenJnlBatch."Journal Template Name";
+        GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
+        RecRef.GetTable(GenJnlLine);
+        GenJnlLine."Line No." := LibraryUtility.GetNewLineNo(RecRef, GenJnlLine.FieldNo("Line No."));
+        GenJnlLine."Posting Date" := WorkDate();
+        GenJnlLine.Amount := LibraryRandom.RandDec(100, 2);
+        GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment;
+        if IsCust then
+            GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer
+        else
+            GenJnlLine."Account Type" := GenJnlLine."Account Type"::Vendor;
+        GenJnlLine."Account No." := CVNo;
+        GenJnlLine.Insert();
     end;
 
     local procedure CreateCustomer(): Code[20]
@@ -271,14 +265,12 @@ codeunit 141000 "Report Layout - Local"
 
     local procedure VerifyReportDataset(ExpectedRowCount: Integer; ExpectedAccountNo: Code[20])
     begin
-        with LibraryReportDataset do begin
-            LoadDataSetFile();
-            Assert.AreEqual(ExpectedRowCount, RowCount(), '');
-            MoveToRow(1);
-            repeat
-                AssertCurrentRowValueEquals('AccountNo_GenJournalLine', ExpectedAccountNo);
-            until GetNextRow() = false;
-        end;
+        LibraryReportDataset.LoadDataSetFile();
+        Assert.AreEqual(ExpectedRowCount, LibraryReportDataset.RowCount(), '');
+        LibraryReportDataset.MoveToRow(1);
+        repeat
+            LibraryReportDataset.AssertCurrentRowValueEquals('AccountNo_GenJournalLine', ExpectedAccountNo);
+        until LibraryReportDataset.GetNextRow() = false;
     end;
 
     [PageHandler]

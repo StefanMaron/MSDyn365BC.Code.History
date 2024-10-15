@@ -799,16 +799,22 @@ page 402 "Sales Order Statistics"
         AllowInvDisc: Boolean;
         AllowVATDifference: Boolean;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Sales %1 Statistics';
+#pragma warning restore AA0470
         Text001: Label 'Total';
         Text002: Label 'Amount';
+#pragma warning disable AA0470
         Text003: Label '%1 must not be 0.';
         Text004: Label '%1 must not be greater than %2.';
         Text005: Label 'You cannot change the invoice discount because a customer invoice discount with the code %1 exists.';
+#pragma warning restore AA0470
         Text006: Label 'Prepmt. Amount';
         Text007: Label 'Prepmt. Amt. Invoiced';
         Text008: Label 'Prepmt. Amt. Deducted';
         Text009: Label 'Prepmt. Amt. to Deduct';
+#pragma warning restore AA0074
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
 
     protected var

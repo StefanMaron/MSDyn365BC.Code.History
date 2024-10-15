@@ -179,22 +179,18 @@ codeunit 142061 "ERM Batch Reports DACH"
     var
         FADepreciationBook: Record "FA Depreciation Book";
     begin
-        with FADepreciationBook do begin
-            SetRange("FA No.", FANo);
-            FindFirst();
-            exit("Depreciation Book Code");
-        end;
+        FADepreciationBook.SetRange("FA No.", FANo);
+        FADepreciationBook.FindFirst();
+        exit(FADepreciationBook."Depreciation Book Code");
     end;
 
     local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; GenPostingType: Enum "General Posting Type"; GLAccountNo: Code[20])
     begin
-        with GLEntry do begin
-            SetRange("Document Type", DocumentType);
-            SetRange("Document No.", DocumentNo);
-            SetRange("Gen. Posting Type", GenPostingType);
-            SetRange("G/L Account No.", GLAccountNo);
-            FindFirst();
-        end;
+        GLEntry.SetRange("Document Type", DocumentType);
+        GLEntry.SetRange("Document No.", DocumentNo);
+        GLEntry.SetRange("Gen. Posting Type", GenPostingType);
+        GLEntry.SetRange("G/L Account No.", GLAccountNo);
+        GLEntry.FindFirst();
     end;
 
     local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; VATEntryType: Enum "General Posting Type"; GLAccountNo: Code[20])
