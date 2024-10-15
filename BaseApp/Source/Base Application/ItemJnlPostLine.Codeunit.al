@@ -1415,12 +1415,16 @@
         if QtyToPost = 0 then
             exit;
 
+        GetMfgSetup();
         with ItemJnlLine do begin
             Init;
             "Line No." := 0;
             "Entry Type" := "Entry Type"::Consumption;
             Validate("Posting Date", OldItemJnlLine."Posting Date");
-            "Document No." := OldItemJnlLine."Document No.";
+            if MfgSetup."Doc. No. Is Prod. Order No." then
+                "Document No." := ProdOrderLine."Prod. Order No."
+            else
+                "Document No." := OldItemJnlLine."Document No.";
             "Source No." := ProdOrderLine."Item No.";
             "Order Type" := "Order Type"::Production;
             "Order No." := ProdOrderLine."Prod. Order No.";
