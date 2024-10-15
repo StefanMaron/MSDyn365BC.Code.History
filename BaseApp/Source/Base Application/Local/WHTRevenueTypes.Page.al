@@ -18,7 +18,7 @@ page 28042 "WHT Revenue Types"
                     ApplicationArea = All;
                     ToolTip = 'Specifies code for the Revenue Type.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the description for the WHT Revenue Type.';

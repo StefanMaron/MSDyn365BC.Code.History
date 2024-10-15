@@ -6,26 +6,29 @@ codeunit 132216 "Library - Permissions Verify"
     end;
 
     var
+#if not CLEAN22
         UserGroupIsNotInPlanErr: Label 'User group %1 is not in plan %2.', Comment = '%1=user group,%2=plan name,%3=company name';
         UserGroupIsInPlanErr: Label 'User group %1 should not be part of plan %2.', Comment = '%1=user group,%2=plan name,%3=company name';
-        UserIsNotInPlanErr: Label 'User %1 is not in plan %2.', Comment = '%1=user name,%2=plan name';
         UserIsNotInUserGroupErr: Label 'User %1 is not in user group %2, for company %3.', Comment = '%1=user name,%2=user group name, %3=company name';
-        UserShouldNotBeInPlanErr: Label 'User %1 should not be part of plan %2.', Comment = '%1=user name,%2=plan name';
         UserShouldNotBeInUserGroupErr: Label 'User %1 should not be part of user group %2, for company %3.', Comment = '%1=user name,%2=user group name, %3=company name';
         UserGroupDoesNotExistErr: Label 'User Group %1 does not exist.', Comment = '%1=user group name';
-        PlanDoesNotExistErr: Label 'Plan with GUID %1 does not exist.', Comment = '%1=subscription plan ID';
-        UserDoesNotExistErr: Label 'User with GUID %1 does not exist.', Comment = '%1=User ID';
         UserGroupAccessControlErr: Label 'User Group Access Control still contains records related to user %1 and user group %2, for company %3.', Comment = '%1=user name, %2=user group code, %3=company name';
         UserGroupAccessControlMissingErr: Label 'User Group Access Control is missing records related to user %1 and user group %2, for company %3.', Comment = '%1=user name, %2=user group code, %3=company name';
         UserGroupMemberFoundErr: Label 'Found at least one record in table User Group Member, related to User Group %1.', Comment = '%1=user group code';
         UserGroupPermissionSetFoundErr: Label 'Found at least one record in table User Group Permission Set, related to User Group %1.', Comment = '%1=user group code';
         UserGroupPermissionSetDoesNotExistErr: Label 'User group %1 does not contain permission set %2.', Comment = '%1=user group code,%2=permission set code';
         UserGroupPlanFoundErr: Label 'Found at least one record in table User Group Plan, related to User Group %1.', Comment = '%1=user group code';
+#endif
+        UserIsNotInPlanErr: Label 'User %1 is not in plan %2.', Comment = '%1=user name,%2=plan name';
+        UserShouldNotBeInPlanErr: Label 'User %1 should not be part of plan %2.', Comment = '%1=user name,%2=plan name';
+        PlanDoesNotExistErr: Label 'Plan with GUID %1 does not exist.', Comment = '%1=subscription plan ID';
+        UserDoesNotExistErr: Label 'User with GUID %1 does not exist.', Comment = '%1=User ID';
         UserDoesNotHavePermissionSetErr: Label 'User %1 does not have permission set %2 in company %3.', Comment = '%1=user name, %2=permission set code, %3 = company name.';
         MissingPermissionErr: Label 'You do not have %1  permissions on TableData %2.';
         SupplementalPermissionErr: Label 'Supplemental permissions %1 given on TableData %2.';
         Assert: Codeunit Assert;
 
+#if not CLEAN22
     procedure UserGroupAccessControlDoesNotContain(UserID: Guid; UserGroupCode: Code[20])
     var
         UserGroupAccessControl: Record "User Group Access Control";
@@ -103,6 +106,7 @@ codeunit 132216 "Library - Permissions Verify"
         if UserGroupPlan.FindFirst() then
             Error(UserGroupPlanFoundErr, UserGroupCode);
     end;
+#endif
 
     procedure UserHasPermissionSet(UserID: Guid; PermissionSetCode: Code[20])
     begin
@@ -122,6 +126,7 @@ codeunit 132216 "Library - Permissions Verify"
             Error(UserDoesNotHavePermissionSetErr, User."Full Name", PermissionSetCode, Company);
     end;
 
+#if not CLEAN22
     procedure UserIsInUserGroup(UserID: Guid; UserGroupCode: Code[20])
     var
         UserGroupMember: Record "User Group Member";
@@ -157,6 +162,7 @@ codeunit 132216 "Library - Permissions Verify"
         if not User.Get(UserID) then
             Error(UserDoesNotExistErr, UserID);
     end;
+#endif
 
     procedure CreateRecWithRelatedFields(RecordRef: RecordRef)
     var

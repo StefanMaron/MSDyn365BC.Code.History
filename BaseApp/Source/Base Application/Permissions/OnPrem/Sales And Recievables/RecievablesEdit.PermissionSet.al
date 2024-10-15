@@ -5,6 +5,7 @@ permissionset 7071 "Recievables - Edit"
     Caption = 'S&R  periodic activities';
 
     Permissions = tabledata "Additional Fee Setup" = R,
+                  tabledata "Alt. Customer Posting Group" = r,
                   tabledata "Country/Region" = R,
                   tabledata Currency = rm,
                   tabledata "Currency for Fin. Charge Terms" = R,

@@ -74,7 +74,7 @@ page 28090 "Post Dated Checks"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the document no. for this post-dated check journal.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description for the post-dated check journal line.';
@@ -100,7 +100,7 @@ page 28090 "Post Dated Checks"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the currency code of the post-dated check.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Amount of the post-dated check.';

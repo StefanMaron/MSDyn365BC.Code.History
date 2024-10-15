@@ -13,12 +13,12 @@ page 11608 "BAS Setup Names"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a name according to the requirements for setting up the BAS configuration rules.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the descriptive term for the Business Activity Statement (BAS) Name.';
@@ -41,29 +41,6 @@ page 11608 "BAS Setup Names"
                 ToolTip = 'View the business activity statement (BAS) configuration information.';
             }
         }
-#if not CLEAN19
-        area(creation)
-        {
-            ObsoleteState = Pending;
-            ObsoleteReason = 'Action is duplicated in the page.';
-            ObsoleteTag = '19.0';
-            action("BAS Setup")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'BAS Setup';
-                Image = VATStatement;
-                //The property 'PromotedCategory' can only be set if the property 'Promoted' is set to 'true'
-                //PromotedCategory = New;
-                RunObject = Page "BAS Setup";
-                RunPageMode = Create;
-                ToolTip = 'View or edit the business activity statement (BAS) configuration information.';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Action is duplicated in the page.';
-                ObsoleteTag = '19.0';
-            }
-        }
-#endif
         area(Promoted)
         {
             group(Category_Process)

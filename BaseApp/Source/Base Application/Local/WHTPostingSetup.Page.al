@@ -110,5 +110,10 @@ page 28043 "WHT Posting Setup"
     actions
     {
     }
+    
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    begin
+        TestField(Rec."Revenue Type");
+    end;
 }
 

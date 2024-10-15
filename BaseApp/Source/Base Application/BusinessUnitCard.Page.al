@@ -16,7 +16,7 @@ page 241 "Business Unit Card"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the identifier for the business unit in the consolidated company.';
                 }
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the name of the business unit in the consolidated company.';
@@ -292,10 +292,6 @@ page 241 "Business Unit Card"
         }
         area(Promoted)
         {
-            group(Category_Report)
-            {
-                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
-            }
             group(Category_Category4)
             {
                 Caption = 'Exch. Rates', Comment = 'Generated from the PromotedActionCategories property index 3.';
@@ -309,6 +305,10 @@ page 241 "Business Unit Card"
                 actionref("Last Closing Rate_Promoted"; "Last Closing Rate")
                 {
                 }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
             }
         }
     }

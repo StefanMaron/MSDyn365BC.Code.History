@@ -108,12 +108,19 @@ codeunit 141083 "ERM IC Purchase Details"
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
+        ICSetup: Record "IC Setup";
         Vendor: Record Vendor;
         DocumentNo: Code[20];
         PostedCreditMemoNo: Code[20];
     begin
         // [SCENARIO] Program create correct G\L Entry after posting the Purchase Credit Memos with IC Partner which one is created from Copy functionality on posted Purchase invoice.
         // Setup.
+        if not ICSetup.Get() then begin
+            ICSetup.Init();
+            ICSetup.Insert();
+        end;
+        ICSetup."Auto. Send Transactions" := false;
+        ICSetup.Modify();
         LibraryPurchase.CreateVendor(Vendor);
         CreatePurchaseInvoice(PurchaseLine, Vendor."No.", CreateGLAccountWithDimension, PurchaseLine.Type::"G/L Account");
         UpdateICDetailsOnPurchaseLine(PurchaseLine);
@@ -133,11 +140,18 @@ codeunit 141083 "ERM IC Purchase Details"
     var
         SalesLine: Record "Sales Line";
         Customer: Record Customer;
+        ICSetup: Record "IC Setup";
         DocumentNo: Code[20];
         PostedCreditMemoNo: Code[20];
     begin
         // [SCENARIO] Program create correct G\L Entry after posting the Sales Credit Memos with IC Partner which one is created from Copy functionality on posted Sales invoice.
         // Setup.
+        if not ICSetup.Get() then begin
+            ICSetup.Init();
+            ICSetup.Insert();
+        end;
+        ICSetup."Auto. Send Transactions" := false;
+        ICSetup.Modify();
         LibrarySales.CreateCustomer(Customer);
         DocumentNo := CreateAndPostSalesInvoice(SalesLine, Customer."No.", CreateGLAccountWithDimension);
 

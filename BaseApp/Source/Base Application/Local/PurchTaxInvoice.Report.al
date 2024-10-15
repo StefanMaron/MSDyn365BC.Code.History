@@ -810,7 +810,7 @@ report 28071 "Purch. - Tax Invoice"
 
         trigger OnOpenPage()
         begin
-            LogInteraction := SegManagement.FindInteractTmplCode(14) <> '';
+            LogInteraction := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Purch. Inv.") <> '';
             LogInteractionEnable := LogInteraction;
         end;
     }

@@ -657,6 +657,7 @@ codeunit 10 "Type Helper"
         exit(i3);
     end;
 
+#if not CLEAN17
     [Obsolete('Format() now supports formatting GUIDs into different standards, see https://go.microsoft.com/fwlink/?linkid=2206175', '17.0')]
     procedure GetGuidAsString(GuidValue: Guid): Text[36]
     begin
@@ -664,7 +665,7 @@ codeunit 10 "Type Helper"
         // Example: Converts {21EC2020-3AEA-4069-A2DD-08002B30309D} to 21ec2020-3aea-4069-a2dd-08002b30309d
         exit(LowerCase(Format(GuidValue, 0, 4)));
     end;
-
+#endif
     procedure GetMaxNumberOfParametersInSQLQuery(): Integer
     begin
         exit(2100);
@@ -848,7 +849,7 @@ codeunit 10 "Type Helper"
         UserPersonalization: Record "User Personalization";
     begin
         if not UserPersonalization.Get(UserSecurityId()) then
-            exit('<Precision,0:0><Standard Format,0>');
+            exit(GetDefaultAmountFormat());
 
         exit(GetAmountFormat(UserPersonalization."Locale ID", CurrencySymbol));
     end;
@@ -859,20 +860,25 @@ codeunit 10 "Type Helper"
     begin
         // set position of cyrrency symbol based on the locale
         if not GetCurrencyStyle(LocaleId, CurrencyPositivePattern) then
-            exit('<Precision,0:0><Standard Format,0>');
+            exit(GetDefaultAmountFormat());
 
         case CurrencyPositivePattern of
             0: // $n
-                exit(CurrencySymbol + '<Precision,0:0><Standard Format,0>');
+                exit(CurrencySymbol + GetDefaultAmountFormat());
             1: // n$
-                exit('<Precision,0:0><Standard Format,0>' + CurrencySymbol);
+                exit(GetDefaultAmountFormat() + CurrencySymbol);
             2: // $ n
-                exit(CurrencySymbol + ' <Precision,0:0><Standard Format,0>');
+                exit(CurrencySymbol + ' ' + GetDefaultAmountFormat());
             3: // n $
-                exit('<Precision,0:0><Standard Format,0> ' + CurrencySymbol);
+                exit(GetDefaultAmountFormat() + ' ' + CurrencySymbol);
             else
-                exit('<Precision,0:0><Standard Format,0>');
+                exit(GetDefaultAmountFormat());
         end
+    end;
+
+    internal procedure GetDefaultAmountFormat(): Text
+    begin
+        exit('<Precision,0:0><Standard Format,0>');
     end;
 
     procedure GetXMLAmountFormatWithTwoDecimalPlaces(): Text
@@ -900,8 +906,11 @@ codeunit 10 "Type Helper"
     end;
 
     procedure IsUpper(ch: Char): Boolean
+    var
+        charTxt: Text[1];
     begin
-        exit((ch >= 'A') AND (ch <= 'Z'));
+        charTxt[1] := ch;
+        exit(charTxt = UpperCase(charTxt));
     end;
 
     [TryFunction]

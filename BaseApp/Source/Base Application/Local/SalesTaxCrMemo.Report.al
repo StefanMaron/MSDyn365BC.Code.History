@@ -792,7 +792,7 @@ report 28074 "Sales - Tax Cr. Memo"
 
         trigger OnOpenPage()
         begin
-            LogInteraction := SegManagement.FindInteractTmplCode(6) <> '';
+            LogInteraction := SegManagement.FindInteractionTemplateCode("Interaction Log Entry Document Type"::"Sales Cr. Memo") <> '';
             LogInteractionEnable := LogInteraction;
         end;
     }

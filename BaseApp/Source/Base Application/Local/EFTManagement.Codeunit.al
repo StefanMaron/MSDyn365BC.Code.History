@@ -511,9 +511,6 @@ codeunit 11603 "EFT Management"
     begin
         PaymentBufferGenJournalLine.Init();
 
-#if not CLEAN19
-        OnBeforeInitPaymentBuffer(PaymentBufferGenJournalLine, VendorNo, EFTBankAccountNo, DocumentNo, Amount);
-#endif
         OnBeforeInitPaymentBufferWithPaymentReference(PaymentBufferGenJournalLine, VendorNo, EFTBankAccountNo, DocumentNo, PaymentReference, Amount);
         if PaymentReference = '' then
             PaymentReference := DocumentNo;
@@ -563,14 +560,6 @@ codeunit 11603 "EFT Management"
     local procedure OnBeforeDownloadFile(var DoNotDownloadFile: Boolean)
     begin
     end;
-
-#if not CLEAN19
-    [IntegrationEvent(false, false)]
-    [Obsolete('Payment Reference replaces Document No in export. Use new event OnBeforeInitPaymentBufferWithPaymentReference', '19.0')]
-    local procedure OnBeforeInitPaymentBuffer(var PaymentBufferGenJournalLine: Record "Gen. Journal Line"; var VendorNo: Code[20]; var EFTBankAccountNo: Code[20]; var DocumentNo: Code[20]; var Amount: Decimal)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeInitPaymentBufferWithPaymentReference(var PaymentBufferGenJournalLine: Record "Gen. Journal Line"; var VendorNo: Code[20]; var EFTBankAccountNo: Code[20]; var DocumentNo: Code[20]; var PaymentReference: Code[50]; var Amount: Decimal)

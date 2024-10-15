@@ -74,6 +74,7 @@ codeunit 28040 WHTManagement
         TotalInvoiceAmountLCY: Decimal;
         WHTMinInvoiceAmt: Decimal;
         Text1500004: Label 'You cannot post a transaction using different WHT minimum invoice amounts on lines.';
+        MissingRevenueTypeErr: Label 'The WHT Entry you are trying to process contains WHT Revenue Type `%1`. Please add this value to your WHT Revenue Types and post again.', Comment = '%1 = WHT Revenue Type';
 
     [Scope('OnPrem')]
     procedure ApplyVendInvoiceWHT(var VendLedgerEntry: Record "Vendor Ledger Entry"; var GenJnlLine: Record "Gen. Journal Line") EntryNo: Integer
@@ -1805,7 +1806,9 @@ codeunit 28040 WHTManagement
                         if WHTRevenueTypes.FindFirst() then begin
                             WHTEntry2."WHT Certificate No." := WHTSlipNo;
                             WHTEntry2.Modify();
-                        end;
+                        end else
+                            Error(MissingRevenueTypeErr, WHTEntry."WHT Revenue Type");
+
                     until WHTEntry.Next() = 0;
                 WHTEntry.Reset();
                 WHTEntry.SetCurrentKey("Bill-to/Pay-to No.", "Original Document No.", "WHT Revenue Type");

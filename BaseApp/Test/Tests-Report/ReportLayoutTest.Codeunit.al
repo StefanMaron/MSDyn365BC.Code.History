@@ -325,14 +325,14 @@
         LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, CustomReportLayout.Type::RDLC.AsInteger());
         CustomReportLayout.Get(LayoutCode);
         CustomReportLayout."Report ID" := REPORT::"Standard Sales - Order Conf."; // Force invalid rdlc.
-
+    
         // Execute
         asserterror CustomReportLayout.ValidateLayout(true, false);
-
+    
         // Validate
         Assert.AreEqual('The RDLC layout action has been canceled because of validation errors.', GetLastErrorText, '');
     end;
-
+    
     [Test]
     [Scope('OnPrem')]
     procedure TestValidateCustomRrdlcFailed2()
@@ -345,10 +345,10 @@
         LayoutCode := CustomReportLayout.InitBuiltInLayout(StandardSalesInvoiceReportID, CustomReportLayout.Type::RDLC.AsInteger());
         CustomReportLayout.Get(LayoutCode);
         CustomReportLayout."Report ID" := REPORT::"Standard Sales - Order Conf."; // Force invalid rdlc.
-
+    
         // Execute
         asserterror CustomReportLayout.ValidateLayout(false, false);
-
+    
         // Validate
         Assert.IsTrue(StrPos(GetLastErrorText, 'The RDLC layout does not comply with the current report design (for example') = 1, '');
     end;

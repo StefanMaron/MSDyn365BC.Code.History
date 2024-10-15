@@ -13,12 +13,12 @@ page 11612 "BAS XML Field Setup Names"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Name; Name)
+                field(Name; Rec.Name)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the extensible markup language (XML) field setup name for the business activity statement (BAS).';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the description of the extensible markup language (XML) field setup name for the business activity statement (BAS).';

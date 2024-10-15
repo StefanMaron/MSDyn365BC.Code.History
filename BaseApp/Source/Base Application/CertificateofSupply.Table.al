@@ -4,11 +4,9 @@ table 780 "Certificate of Supply"
 
     fields
     {
-        field(1; "Document Type"; Option)
+        field(1; "Document Type"; Enum "Supply Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = 'Sales Shipment,Service Shipment,Return Shipment';
-            OptionMembers = "Sales Shipment","Service Shipment","Return Shipment";
         }
         field(2; "Document No."; Code[20])
         {
@@ -219,7 +217,7 @@ table 780 "Certificate of Supply"
         if IsHandled then
             exit;
 
-        case DocumentType of
+        case "Supply Document Type".FromInteger(DocumentType) of
             "Document Type"::"Sales Shipment":
                 begin
                     SalesShipmentHeader.Get(DocumentNo);

@@ -350,6 +350,52 @@
         exit(true);
     end;
 
+    procedure GetSalesInvoicePostingPolicy(var PostQty: Boolean; var PostAmount: Boolean)
+    var
+        LocalUserSetup: Record "User Setup";
+    begin
+        PostQty := false;
+        PostAmount := false;
+
+        if UserId <> '' then
+            if LocalUserSetup.Get(UserId) then
+                case LocalUserSetup."Sales Invoice Posting Policy" of
+                    "Invoice Posting Policy"::Prohibited:
+                        begin
+                            PostQty := true;
+                            PostAmount := false;
+                        end;
+                    "Invoice Posting Policy"::Mandatory:
+                        begin
+                            PostQty := true;
+                            PostAmount := true;
+                        end;
+                end;
+    end;
+
+    procedure GetPurchaseInvoicePostingPolicy(var PostQty: Boolean; var PostAmount: Boolean)
+    var
+        LocalUserSetup: Record "User Setup";
+    begin
+        PostQty := false;
+        PostAmount := false;
+
+        if UserId <> '' then
+            if LocalUserSetup.Get(UserId) then
+                case LocalUserSetup."Purch. Invoice Posting Policy" of
+                    "Invoice Posting Policy"::Prohibited:
+                        begin
+                            PostQty := true;
+                            PostAmount := false;
+                        end;
+                    "Invoice Posting Policy"::Mandatory:
+                        begin
+                            PostQty := true;
+                            PostAmount := true;
+                        end;
+                end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetPurchFilter(var UserSetup: Record "User Setup"; var UserRespCenter: Code[10])
     begin

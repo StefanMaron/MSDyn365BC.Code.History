@@ -100,7 +100,7 @@ page 11600 "BAS Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the Business Activity Statement (BAS) Field Label Description.';
                 }
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies what the entries in the BAS line will include.';

@@ -297,14 +297,6 @@ codeunit 6710 ODataUtility
             until TenantWebServiceFilter.Next() = 0;
     end;
 
-#if not CLEAN19
-    [Obsolete('Use ExternalizeName instead', '19.0')]
-    procedure ConvertNavFieldNameToOdataName(NavFieldName: Text): Text
-    begin
-        exit(ExternalizeName(NavFieldName));
-    end;
-#endif
-
     [Scope('OnPrem')]
     procedure GetColumnsFromFilter(var TenantWebService: Record "Tenant Web Service"; FilterText: Text; var ColumnList: DotNet GenericList1)
     var
@@ -317,18 +309,23 @@ codeunit 6710 ODataUtility
 
     procedure EditJournalWorksheetInExcel(PageCaption: Text[240]; PageId: Text; JournalBatchName: Text; JournalTemplateName: Text)
     var
-        EditinExcelHandler: Codeunit "Edit in Excel";
-        Filter: Text;
+        EditinExcel: Codeunit "Edit in Excel";
+        EditinExcelFilters: Codeunit "Edit in Excel Filters";
+        ObjectId: Integer;
     begin
-        Filter := StrSubstNo('Journal_Batch_Name eq ''%1'' and Journal_Template_Name eq ''%2''', JournalBatchName, JournalTemplateName);
-        EditinExcelHandler.EditPageInExcel(PageCaption, PageId, Filter);
+        EditinExcelFilters.AddField('Journal_Batch_Name', Enum::"Edit in Excel Filter Type"::Equal, JournalBatchName, Enum::"Edit in Excel Edm Type"::"Edm.String");
+
+        Evaluate(ObjectId, CopyStr(PageId, 5));
+        EditinExcel.EditPageInExcel(PageCaption, ObjectId, EditinExcelFilters);
     end;
 
     procedure EditWorksheetInExcel(PageCaption: Text[240]; PageId: Text; "Filter": Text)
     var
         EditinExcelHandler: Codeunit "Edit in Excel";
+        ObjectId: Integer;
     begin
-        EditinExcelHandler.EditPageInExcel(PageCaption, PageId, Filter);
+        Evaluate(ObjectId, CopyStr(PageId, 5));
+        EditinExcelHandler.EditPageInExcel(PageCaption, ObjectId);
     end;
 
     [Scope('OnPrem')]
@@ -707,27 +704,5 @@ codeunit 6710 ODataUtility
             exit(GetExcelAddinProviderServiceUrl());
         exit(GetUrl(CLIENTTYPE::Web));
     end;
-
-#if not CLEAN19
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Edit in Excel", 'OnEditInExcel', '', false, false)]
-    local procedure ReRaiseOnEditInExcel(ServiceName: Text[240]; ODataFilter: Text; SearchFilter: Text)
-    begin
-        if (SearchFilter = '') then
-            OnEditInExcel(ServiceName, ODataFilter);
-        OnEditInExcelWithSearch(ServiceName, ODataFilter, SearchFilter); // This event was always raised
-    end;
-
-    [Obsolete('Event has been moved to System App, codeunit "Edit in Excel" event "OnEditInExcel".', '19.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnEditInExcel(ServiceName: Text[240]; ODataFilter: Text)
-    begin
-    end;
-
-    [Obsolete('Event has been moved to System App, codeunit "Edit in Excel" event "OnEditInExcel".', '19.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnEditInExcelWithSearch(ServiceName: Text[240]; ODataFilter: Text; SearchFilter: Text)
-    begin
-    end;
-#endif
 }
 

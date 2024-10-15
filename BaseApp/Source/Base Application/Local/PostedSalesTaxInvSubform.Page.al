@@ -13,7 +13,7 @@ page 28072 "Posted Sales Tax Inv. Subform"
             repeater(Control1500000)
             {
                 ShowCaption = false;
-                field(Type; Type)
+                field(Type; Rec.Type)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the value on the original document.';
@@ -35,7 +35,7 @@ page 28072 "Posted Sales Tax Inv. Subform"
                     ToolTip = 'Specifies the value on the original document.';
                     Visible = false;
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value on the original document.';
@@ -46,7 +46,7 @@ page 28072 "Posted Sales Tax Inv. Subform"
                     ToolTip = 'Specifies the value on the original document.';
                     Visible = false;
                 }
-                field(Quantity; Quantity)
+                field(Quantity; Rec.Quantity)
                 {
                     ApplicationArea = Basic, Suite;
                     BlankZero = true;
