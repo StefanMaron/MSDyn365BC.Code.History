@@ -396,6 +396,7 @@
                 "Document Type" := "Document Type"::Refund;
 
             "Posting Date" := BankAccReconLine."Transaction Date";
+            "VAT Reporting Date" := BankAccReconLine."Transaction Date";
             "Account Type" := "Gen. Journal Account Type".FromInteger(BankAccReconLine.GetAppliedToAccountType());
             BankAccReconciliation.Get(
               BankAccReconLine."Statement Type", BankAccReconLine."Bank Account No.", BankAccReconLine."Statement No.");

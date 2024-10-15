@@ -254,6 +254,7 @@
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
         TempCustLedgEntry: Record "Cust. Ledger Entry" temporary;
+        AppliedAmount: Decimal;
         IsHandled: Boolean;
     begin
         with GenJnlLine do begin
@@ -287,9 +288,14 @@
                                     Amount := Amount - (CustLedgEntry."Amount to Apply" - CustLedgEntry."Remaining Pmt. Disc. Possible")
                                 else
                                     Amount := Amount - CustLedgEntry."Amount to Apply";
-                        end;
+                        end else
+                            GetAppliedAmountOnCustLedgerEntry(TempCustLedgEntry, AppliedAmount);
                     until CustLedgEntry.Next() = 0;
                     TempCustLedgEntry.DeleteAll();
+
+                    if AppliedAmount <> 0 then
+                        Amount += AppliedAmount;
+
                     if ("Bal. Account Type" = "Bal. Account Type"::Customer) or ("Bal. Account Type" = "Bal. Account Type"::Vendor) then
                         Amount := -Amount;
                     Validate(Amount);
@@ -550,6 +556,32 @@
                CurrencyCode), true)
         then
             Error(UpdateInterruptedErr);
+    end;
+
+    local procedure GetAppliedAmountOnCustLedgerEntry(CustLedgEntry: Record "Cust. Ledger Entry"; var AppliedAmount: Decimal)
+    var
+        CustLedgEntry2: Record "Cust. Ledger Entry";
+    begin
+        if CustLedgEntry."Amount to Apply" = 0 then
+            exit;
+
+        CustLedgEntry2.Get(CustLedgEntry."Entry No.");
+        if CustLedgEntry2."Amount to Apply" = CustLedgEntry."Amount to Apply" then
+            CalcAppliedAmountOnCustLedgerEntry(CustLedgEntry, AppliedAmount)
+        else
+            CalcAppliedAmountOnCustLedgerEntry(CustLedgEntry2, AppliedAmount);
+    end;
+
+    local procedure CalcAppliedAmountOnCustLedgerEntry(CustLedgEntry: Record "Cust. Ledger Entry"; var AppliedAmount: Decimal)
+    begin
+        CustLedgEntry.CalcFields("Remaining Amount");
+        if PaymentToleranceMgt.CheckCalcPmtDiscGenJnlCust(GenJnlLine, CustLedgEntry, 0, false) and
+            (Abs(CustLedgEntry."Amount to Apply") >=
+            Abs(CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible"))
+        then
+            AppliedAmount := AppliedAmount - (CustLedgEntry."Amount to Apply" - CustLedgEntry."Remaining Pmt. Disc. Possible")
+        else
+            AppliedAmount := AppliedAmount - CustLedgEntry."Amount to Apply";
     end;
 
     [Scope('OnPrem')]

@@ -299,6 +299,7 @@ codeunit 5851 "Invt. Doc.-Post Shipment"
 
         ItemJnlLine."Bin Code" := InvtShptLine2."Bin Code";
         ItemJnlLine."Dimension Set ID" := InvtShptLine2."Dimension Set ID";
+        ItemJnlLine."Reason Code" := InvtShptLine2."Reason Code";
 
         OnPostItemJnlLineOnBeforeTransferInvtDocToItemJnlLine(InvtDocLine, ItemJnlLine, InvtShptHeader2, InvtShptLine2);
         ReserveInvtDocLine.TransferInvtDocToItemJnlLine(InvtDocLine, ItemJnlLine, ItemJnlLine.Quantity);

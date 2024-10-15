@@ -222,6 +222,7 @@
             repeat
                 LineCount := LineCount + 1;
                 UpdateDialog(RefPostingState::"Checking lines", LineCount, NoOfRecords);
+                AssignVATDateIfEmpty(GenJnlLine);
                 CheckLine(GenJnlLine, PostingAfterWorkingDateConfirmed);
                 TempGenJnlLine := GenJnlLine5;
                 TempGenJnlLine.Insert();
@@ -1730,6 +1731,7 @@
     var
         IsPosted: Boolean;
         SavedPostingDate: Date;
+        SavedVATReportingDate: Date;
     begin
         with GenJournalLine do begin
             if NeedCheckZeroAmount() and (Amount = 0) and IsRecurring() then
@@ -1769,9 +1771,13 @@
 
             if ("Recurring Method".AsInteger() >= "Recurring Method"::"RF Reversing Fixed".AsInteger()) and ("Posting Date" <> 0D) and ("Recurring Method".AsInteger() <> "Recurring Method"::"BD Balance by Dimension".AsInteger()) then begin
                 SavedPostingDate := "Posting Date";
+                if "VAT Reporting Date" = 0D then
+                    "VAT Reporting Date" := "Posting Date";
+                SavedVATReportingDate := "VAT Reporting Date";
+
                 "Posting Date" := CalcReversePostingDate(GenJournalLine);
-                "VAT Reporting Date" := "Posting Date";
                 "Document Date" := "Posting Date";
+                "VAT Reporting Date" := "Posting Date";
                 "Due Date" := "Posting Date";
                 MultiplyAmounts(GenJournalLine, -1);
                 TempGenJnlLine4 := GenJournalLine;
@@ -1779,8 +1785,8 @@
                 TempGenJnlLine4.Insert();
                 NoOfReversingRecords := NoOfReversingRecords + 1;
                 "Posting Date" := SavedPostingDate;
-                "VAT Reporting Date" := SavedPostingDate;
                 "Document Date" := "Posting Date";
+                "VAT Reporting Date" := SavedVATReportingDate;
                 "Due Date" := "Posting Date";
             end;
             PostAllocations(GenJournalLine, false);
@@ -2132,6 +2138,18 @@
             RecordLink.DeleteAll;
     end;
 
+    local procedure AssignVATDateIfEmpty(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+        if GenJnlLine."VAT Reporting Date" = 0D then begin
+            GLSetup.Get();
+            if (GenJnlLine."Document Date" = 0D) and (GLSetup."VAT Reporting Date" = GLSetup."VAT Reporting Date"::"Document Date") then
+                GenJnlLine."VAT Reporting Date" := GenJnlLine."Posting Date"
+            else
+                GenJnlLine."VAT Reporting Date" := GLSetup.GetVATDate(GenJnlLine."Posting Date", GenJnlLine."Document Date");
+            GenJnlLine.Modify();
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckDocumentNo(var GenJournalLine: Record "Gen. Journal Line"; LastDocNo: code[20]; LastPostedDocNo: code[20])
     begin
@@ -2457,4 +2475,3 @@
     begin
     end;
 }
-

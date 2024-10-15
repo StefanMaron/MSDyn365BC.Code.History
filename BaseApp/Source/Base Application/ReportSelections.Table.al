@@ -940,6 +940,7 @@ table 77 "Report Selections"
             Database::"Sales Invoice Header",
             Database::"Sales Cr.Memo Header",
             Database::"Sales Shipment Header",
+            Database::"Service Invoice Header",
             Database::"Return Receipt Header":
                 exit(Database::Customer);
 
@@ -1401,11 +1402,21 @@ table 77 "Report Selections"
         // Related Source - Customer or vendor receiving the document
         TableId := GetAccountTableId(DocumentRecord.Number());
         if TableId = Database::Customer then
-            if DataTypeManagement.FindFieldByName(DocumentRecord, FieldRef, 'Sell-to Customer No.') and Customer.Get(Format(FieldRef.Value())) then begin
-                SourceTableIDs.Add(Database::Customer);
-                SourceIDs.Add(Customer.SystemId);
-                SourceRelationTypes.Add(Enum::"Email Relation Type"::"Related Entity".AsInteger());
+            case DocumentRecord.Number() of
+                Database::"Service Invoice Header":
+                    if DataTypeManagement.FindFieldByName(DocumentRecord, FieldRef, 'Customer No.') and Customer.Get(Format(FieldRef.Value())) then begin
+                        SourceTableIDs.Add(Database::Customer);
+                        SourceIDs.Add(Customer.SystemId);
+                        SourceRelationTypes.Add(Enum::"Email Relation Type"::"Related Entity".AsInteger());
+                    end;
+                else
+                    if DataTypeManagement.FindFieldByName(DocumentRecord, FieldRef, 'Sell-to Customer No.') and Customer.Get(Format(FieldRef.Value())) then begin
+                        SourceTableIDs.Add(Database::Customer);
+                        SourceIDs.Add(Customer.SystemId);
+                        SourceRelationTypes.Add(Enum::"Email Relation Type"::"Related Entity".AsInteger());
+                    end;
             end;
+
         if TableId = Database::Vendor then
             if DataTypeManagement.FindFieldByName(DocumentRecord, FieldRef, 'Buy-from Vendor No.') and Vendor.Get(Format(FieldRef.Value())) then begin
                 SourceTableIDs.Add(Database::Vendor);

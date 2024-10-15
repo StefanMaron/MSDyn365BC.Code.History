@@ -129,7 +129,7 @@
         RunExchangeRateAdjWithSelectedDimensions(
           CurrencyCode, ExchRateAdjPostingDate, DimensionValueY, DimensionValueZ);
         // [THEN] Exchange Rate G/L Entries for Vendor A have Dimension X = Y, Vendor B - Dimension X = Z.
-        asserterror VerifyGLEntriesDimension(ExchRateAdjPostingDate, VendorANo, DimensionValueZ);
+        VerifyGLEntriesDimension(ExchRateAdjPostingDate, VendorANo, DimensionValueZ);
         VerifyGLEntriesDimension(ExchRateAdjPostingDate, VendorBNo, DimensionValueY);
     end;
 

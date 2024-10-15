@@ -167,6 +167,7 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
                     InvtRcptLine."Applies-to Entry" := InvtDocLine."Applies-to Entry";
                     InvtRcptLine."Applies-from Entry" := InvtDocLine."Applies-from Entry";
                     InvtRcptLine."Dimension Set ID" := InvtDocLine."Dimension Set ID";
+                    InvtRcptLine."Reason Code" := InvtDocLine."Reason Code";
                     OnRunOnBeforeInvtRcptLineInsert(InvtRcptLine, InvtDocLine);
                     InvtRcptLine.Insert();
                     OnRunOnAfterInvtRcptLineInsert(InvtRcptLine, InvtDocLine, InvtRcptHeader, InvtDocHeader);
@@ -311,6 +312,7 @@ codeunit 5850 "Invt. Doc.-Post Receipt"
 
         ItemJnlLine."Bin Code" := InvtRcptLine2."Bin Code";
         ItemJnlLine."Dimension Set ID" := InvtRcptLine2."Dimension Set ID";
+        ItemJnlLine."Reason Code" := InvtRcptLine2."Reason Code";
 
         OnPostItemJnlLineOnBeforeTransferInvtDocToItemJnlLine(InvtDocLine, ItemJnlLine, InvtRcptHeader2, InvtRcptLine2);
         ReserveInvtDocLine.TransferInvtDocToItemJnlLine(InvtDocLine, ItemJnlLine, ItemJnlLine.Quantity);

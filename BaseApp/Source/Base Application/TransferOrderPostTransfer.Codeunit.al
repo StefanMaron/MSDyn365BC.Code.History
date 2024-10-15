@@ -18,7 +18,8 @@
             CODEUNIT.Run(CODEUNIT::"Release Transfer Document", Rec);
             Rec.Status := Rec.Status::Open;
             Rec.Modify();
-            Commit();
+            if not SuppressCommit then
+                Commit();
             Rec.Status := Rec.Status::Released;
         end;
         TransHeader := Rec;
@@ -28,7 +29,6 @@
 
         with TransHeader do begin
             CheckBeforeTransferPost();
-
             CheckDim();
 
             WhseShip := TempWhseShptHeader.FindFirst();
@@ -41,6 +41,7 @@
                 repeat
                     TransLine.TestField("Quantity Shipped", 0);
                     TransLine.TestField("Quantity Received", 0);
+                    TransLine.CheckDirectTransferQtyToShip()
                 until TransLine.Next() = 0
             else
                 Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());

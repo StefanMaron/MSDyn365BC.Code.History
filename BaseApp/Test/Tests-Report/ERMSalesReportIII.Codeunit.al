@@ -2672,6 +2672,45 @@ codeunit 134984 "ERM Sales Report III"
         VerifyAppliesCustomerEntriesAndBalanceInCustomerBalanceToDate(GenJournalLine, Amount[2]);
     end;
 
+    [Test]
+    [HandlerFunctions('LotItemTrackingPageHandler,ItemTrackingSummaryPageHandler,RHStandardSalesShipmentSetShowItemTracking')]
+    procedure SalesStandardShipmentReportWithMultipleItemTracking()
+    var
+        Item: Record Item;
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        PostedShipmentNo: Code[20];
+        RequestPageXML: Text;
+        ItemTrackingMode: Option " ","Assign Lot No.","Select Entries","Verify Entries";
+    begin
+        // [SCENARIO 466086] Report 1308 printed with RDLC layout shows only first Serial No.
+        Initialize();
+
+        // [GIVEN] Lot-tracked item.
+        LibraryItemTracking.CreateLotItem(Item);
+
+        // [GIVEN] Post positive adjustment with assigned "Lot No."
+        CreateAndPostItemJournalLineWithTracking(Item."No.", 1);
+        CreateAndPostItemJournalLineWithTracking(Item."No.", 1);
+
+        // [GIVEN] Create and ship sales orders, select "Lot No."and Quantity = 2
+        CreateSalesOrder(SalesHeader, SalesLine, Item."No.", 2);
+        LibraryVariableStorage.Enqueue(ItemTrackingMode::"Select Entries");
+        SalesLine.OpenItemTrackingLines();
+
+        // [GIVEN] Post Sales Shipment 
+        PostedShipmentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [WHEN] Run "Standard Sales - Shipment" report with "Show Serial/Lot Number Appendix" = Yes.
+        SalesShipmentHeader.SetFilter("No.", PostedShipmentNo);
+        RequestPageXML := Report.RunRequestPage(Report::"Standard Sales - Shipment");
+        LibraryReportDataset.RunReportAndLoad(Report::"Standard Sales - Shipment", SalesShipmentHeader, RequestPageXML);
+
+        // [VERIFY] Verify Second Serial No. exist in the report. 
+        LibraryReportDataset.SearchForElementByValue('TrackingSpecBufferLotNo', FindAssignedLotNo(Item."No."));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
