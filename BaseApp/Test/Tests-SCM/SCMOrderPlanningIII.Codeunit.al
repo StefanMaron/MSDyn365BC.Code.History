@@ -46,6 +46,7 @@ codeunit 137088 "SCM Order Planning - III"
         ReserveError: Label 'Reserve must be equal to ''%1''  in Requisition Line';
         LineExistErr: Label 'Requistion line in %1 worksheet should exist for item %2';
         PurchaseLineQuantityBaseErr: Label '%1.%2 must be nearly equal to %3.', Comment = '%1 : Purchase Line, %2 : Quantity (Base), %3 : Value.';
+        NoPurchOrderCreatedErr: Label 'No purchase orders are created.';
 
     [Test]
     [HandlerFunctions('MakeSupplyOrdersPageHandler')]
@@ -1329,6 +1330,62 @@ codeunit 137088 "SCM Order Planning - III"
         PurchaseHeader.TestField("Buy-from Vendor No.", Item."Vendor No.");
 
         LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure PlanningTwoSalesOrdersOneSupplyCoversBoth()
+    var
+        Item: Record Item;
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesOrder: TestPage "Sales Order";
+        PurchaseOrder: TestPage "Purchase Order";
+        Qty: array[2] of Decimal;
+    begin
+        // [FEATURE] [Item] [Sales] [Purchase] [Order]
+        // [SCENARIO 348685] Planning sales order using "Purchase Order from Sales Order" functionality does not suggest purchasing when a purchase has already been planned for this sales order.
+        Initialize();
+        Qty[1] := LibraryRandom.RandIntInRange(50, 100);
+        Qty[2] := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Item with vendor no.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Vendor No.", LibraryPurchase.CreateVendorNo());
+        Item.Modify(true);
+
+        // [GIVEN] First sales order for 50 pcs.
+        // [GIVEN] Plan a purchase from the sales.
+        // [GIVEN] Purchase order for 50 pcs is created.
+        CreateSalesOrder(SalesHeader[1], Item."No.", '', Qty[1], Qty[1]);
+        LibraryVariableStorage.Enqueue(true);
+        PurchaseOrder.Trap;
+        SalesOrder.OpenEdit;
+        SalesOrder.FILTER.SetFilter("No.", SalesHeader[1]."No.");
+        SalesOrder.CreatePurchaseOrder.Invoke;
+        FindPurchaseDocumentByItemNo(PurchaseHeader, PurchaseLine, Item."No.");
+        PurchaseLine.TestField(Quantity, Qty[1]);
+        PurchaseOrder.Close;
+
+        // [GIVEN] Second sales order for 10 pcs on a later date.
+        CreateSalesOrder(SalesHeader[2], Item."No.", '', Qty[2], Qty[2]);
+        FindSalesLine(SalesLine, SalesHeader[2], Item."No.");
+        UpdateSalesLine(SalesLine, SalesLine.FieldNo("Shipment Date"), LibraryRandom.RandDateFrom(SalesLine."Shipment Date", 10));
+
+        // [WHEN] Plan a purchase from the first sales again.
+        LibraryVariableStorage.Enqueue(true);
+        PurchaseOrder.Trap;
+        SalesOrder.FILTER.SetFilter("No.", SalesHeader[1]."No.");
+        asserterror SalesOrder.CreatePurchaseOrder.Invoke;
+
+        // [THEN] No purchase order is suggested as the first sales order is considered supplied.
+        Assert.ExpectedError(NoPurchOrderCreatedErr);
+        Assert.ExpectedErrorCode('Dialog');
+
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()

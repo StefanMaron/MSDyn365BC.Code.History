@@ -315,6 +315,11 @@
                     Importance = Additional;
                     ToolTip = 'Specifies the customer in connection with electronic document sending.';
                 }
+                field("Use GLN in Electronic Document"; "Use GLN in Electronic Document")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies whether the GLN is used in electronic documents as a party identification number.';
+                }
                 field("Copy Sell-to Addr. to Qte From"; "Copy Sell-to Addr. to Qte From")
                 {
                     ApplicationArea = Basic, Suite;

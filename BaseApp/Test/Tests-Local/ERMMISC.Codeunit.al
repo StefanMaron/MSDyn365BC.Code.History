@@ -42,6 +42,7 @@ codeunit 144018 "ERM MISC"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryNLLocalization: Codeunit "Library - NL Localization";
         isInitialized: Boolean;
+        EntryExitPointErr: Label 'Reported Entry/Exit Point is incorrect.';
 
     [Test]
     [Scope('OnPrem')]
@@ -424,6 +425,75 @@ codeunit 144018 "ERM MISC"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [Scope('Internal')]
+    procedure EmptyEntryExitPointInIntrastatFile()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        DeclarationFile: File;
+        Filename: Text;
+    begin
+        // [FEATURE] [Intrastat] [Export]
+        // [SCENARIO 345161] Create Intrastat Decl. with an empty "Entry/Exit Point" on Intrastat Jnl. Line
+        Initialize();
+
+        // [GIVEN] Prepare Intrastat Journal with one Intrastat Journal Line
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        IntrastatJnlBatch.Validate("Currency Identifier", 'EUR');
+        IntrastatJnlBatch.Modify(true);
+        CreateIntrastatJnlLineWithMandatoryFields(IntrastatJnlLine,
+          IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, SetIntrastatDataOnCompanyInfo);
+
+        // [GIVEN] Set an empty "Entry/Exit Point" on Intrastat Jnl. Line
+        IntrastatJnlLine.Validate("Entry/Exit Point", '');
+        IntrastatJnlLine.Modify(true);
+
+        // [WHEN] Create Intrastat Declaration Disc
+        Filename := FileManagement.ServerTempFileName('txt');
+        RunIntrastatMakeDiskTaxAuth(Filename);
+
+        // [THEN] "Entry/Exit Point" in reported file equals '00'
+        DeclarationFile.TextMode(true);
+        Assert.IsTrue(DeclarationFile.Open(Filename), Filename);
+        Assert.AreEqual('00', GetEntryExitPointFromDeclarationFile(DeclarationFile), EntryExitPointErr);
+        DeclarationFile.Close();
+    end;
+
+    [Test]
+    [Scope('Internal')]
+    procedure FilledEntryExitPointInIntrastatFile()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        DeclarationFile: File;
+        Filename: Text;
+    begin
+        // [FEATURE] [Intrastat] [Export]
+        // [SCENARIO 345161] Create Intrastat Decl. with a filled "Entry/Exit Point" on Intrastat Jnl. Line
+        Initialize();
+
+        // [GIVEN] Prepare Intrastat Journal with one Intrastat Journal Line, which "Entry/Exit Point" equals 'XX'
+        LibraryERM.CreateIntrastatJnlTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+        IntrastatJnlBatch.Validate("Currency Identifier", 'EUR');
+        IntrastatJnlBatch.Modify(true);
+        CreateIntrastatJnlLineWithMandatoryFields(IntrastatJnlLine,
+          IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name, SetIntrastatDataOnCompanyInfo);
+
+        // [WHEN] Create Intrastat Declaration Disc
+        Filename := FileManagement.ServerTempFileName('txt');
+        RunIntrastatMakeDiskTaxAuth(Filename);
+
+        // [THEN] "Entry/Exit Point" in reported file equals 'XX'
+        DeclarationFile.TextMode(true);
+        Assert.IsTrue(DeclarationFile.Open(Filename), Filename);
+        Assert.AreEqual(
+          CopyStr(IntrastatJnlLine."Entry/Exit Point", 1, 2),
+          GetEntryExitPointFromDeclarationFile(DeclarationFile),
+          EntryExitPointErr);
+        DeclarationFile.Close();
+    end;
+
     local procedure Initialize()
     var
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
@@ -447,6 +517,17 @@ codeunit 144018 "ERM MISC"
         isInitialized := true;
         Commit;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM MISC");
+    end;
+
+    local procedure GetEntryExitPointFromDeclarationFile(var DeclFile: File): Text[12]
+    var
+        DeclarationString: Text[256];
+    begin
+        DeclFile.TextMode(true);
+        DeclFile.Read(DeclarationString);
+        DeclFile.Read(DeclarationString);
+        DeclarationString := CopyStr(DeclarationString, 33, 2);
+        exit(DeclarationString);
     end;
 
     local procedure CreateCBGStatementWithTemplate(GenJnlTemplateName: Code[10]): Integer

@@ -192,8 +192,6 @@ report 11412 "Tax Authority - Audit File"
             FileMgmt.CopyServerFile(ServerFileName, FileName, true);
 
         Window.Close;
-        TempAuditFileBuffer.Reset;
-        TempAuditFileBuffer.DeleteAll;
     end;
 
     trigger OnPreReport()
@@ -245,7 +243,7 @@ report 11412 "Tax Authority - Audit File"
     var
         GLSetup: Record "General Ledger Setup";
         CompanyInfo: Record "Company Information";
-        TempAuditFileBuffer: Record "Audit File Buffer";
+        TempAuditFileBuffer: Record "Audit File Buffer" temporary;
         AccountingPeriod: Record "Accounting Period";
         Window: Dialog;
         XmlWriter: DotNet XmlWriter;
@@ -329,9 +327,12 @@ report 11412 "Tax Authority - Audit File"
 
         // Line data
         TempAuditFileBuffer.RecordID := Format("G/L Entry"."Entry No.", 20);
-        TempAuditFileBuffer.AccountID := CopyStr("G/L Entry"."G/L Account No.", 1, 15);
-        TempAuditFileBuffer.CustSupID := CopyStr(CustSupID, 1, 15);
-        TempAuditFileBuffer.DocumentID := CopyStr("G/L Entry"."Document No.", 1, 15);
+        TempAuditFileBuffer."Account ID" :=
+          CopyStr("G/L Entry"."G/L Account No.", 1, MaxStrLen(TempAuditFileBuffer."Account ID"));
+        TempAuditFileBuffer."Source ID" :=
+          CopyStr(CustSupID, 1, MaxStrLen(TempAuditFileBuffer."Source ID"));
+        TempAuditFileBuffer."Document ID" :=
+          CopyStr("G/L Entry"."Document No.", 1, MaxStrLen(TempAuditFileBuffer."Document ID"));
         TempAuditFileBuffer.EffectiveDate := "G/L Entry"."Document Date";
         TempAuditFileBuffer.LineDescription := "G/L Entry".Description;
         TempAuditFileBuffer.DebitAmount := "G/L Entry"."Debit Amount";
@@ -557,10 +558,10 @@ report 11412 "Tax Authority - Audit File"
                 end;
                 StartElement('line');
                 WriteElement('recordID', TempAuditFileBuffer.RecordID);
-                WriteElement('accountID', TempAuditFileBuffer.AccountID);
-                if TempAuditFileBuffer.CustSupID <> '' then
-                    WriteElement('custSupID', TempAuditFileBuffer.CustSupID);
-                WriteElement('documentID', TempAuditFileBuffer.DocumentID);
+                WriteElement('accountID', TempAuditFileBuffer."Account ID");
+                if TempAuditFileBuffer."Source ID" <> '' then
+                    WriteElement('custSupID', TempAuditFileBuffer."Source ID");
+                WriteElement('documentID', TempAuditFileBuffer."Document ID");
                 WriteElement('effectiveDate', FormatDate(TempAuditFileBuffer.EffectiveDate));
                 WriteElement('description', TempAuditFileBuffer.LineDescription);
                 if TempAuditFileBuffer.DebitAmount <> 0 then
@@ -618,7 +619,8 @@ report 11412 "Tax Authority - Audit File"
 
         // Line data
         TempAuditFileBuffer.RecordID := Format(FindBeginBalanceEntryNo("G/L Account"."No."), 20);
-        TempAuditFileBuffer.AccountID := CopyStr("G/L Account"."No.", 1, 15);
+        TempAuditFileBuffer."Account ID" :=
+          CopyStr("G/L Account"."No.", 1, MaxStrLen(TempAuditFileBuffer."Account ID"));
         TempAuditFileBuffer.EffectiveDate := StartDate;
         TempAuditFileBuffer.LineDescription := 'Transactie beginbalans';
         if "G/L Account"."Balance at Date" > 0 then

@@ -428,6 +428,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM MISC - NamedType AmountError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2885174154 - NamedType 3083502255" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Reported Entry/Exit Point is incorrect.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM MISC - NamedType EntryExitPointErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1956804364 - NamedType 2146008245" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Total amount (%1) is not equal to total of lines (%2)]]></Val>

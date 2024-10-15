@@ -10,6 +10,8 @@ codeunit 134764 TestPowerBIQueries
 
     var
         Assert: Codeunit Assert;
+        LibraryUtility: Codeunit "Library - Utility";
+        LibraryRandom: Codeunit "Library - Random";
 
     [Test]
     [Scope('OnPrem')]
@@ -323,6 +325,40 @@ codeunit 134764 TestPowerBIQueries
         Assert.IsFalse(PowerBIGLBudgetedAmountList.Read, 'Unexpected record in Query.');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestItemListByCustomerQuery()
+    var
+        Customer: Record Customer;
+        Item: array[2] of Record Item;
+        ValueEntry: Record "Value Entry";
+        ItemSalesByCustomer: Query "Item Sales by Customer";
+        Qty: array[2] of Decimal;
+    begin
+        // [FEATURE] [Sales] [UT]
+        // [SCENARIO 343131] Item List by Customer query shows sales invoices and credit-memos.
+        Qty[1] := LibraryRandom.RandIntInRange(100, 200);
+        Qty[2] := -LibraryRandom.RandIntInRange(10, 20);
+
+        CreateCustomerSimple(Customer, LibraryUtility.GenerateGUID(), 0);
+        CreateItemSimple(Item[1], LibraryUtility.GenerateGUID());
+        CreateItemSimple(Item[2], LibraryUtility.GenerateGUID());
+
+        MockValueEntryForSales(ValueEntry, Customer."No.", ValueEntry."Document Type"::"Sales Invoice", Item[1]."No.", Qty[1]);
+        MockValueEntryForSales(ValueEntry, Customer."No.", ValueEntry."Document Type"::"Sales Credit Memo", Item[2]."No.", Qty[2]);
+
+        ItemSalesByCustomer.SetRange(CustomerNo, Customer."No.");
+        ItemSalesByCustomer.SetRange(Item_No, Item[1]."No.");
+        ItemSalesByCustomer.Open();
+        Assert.IsTrue(ItemSalesByCustomer.Read(), 'Sales Invoice is not displayed in Item Sales by Customer report.');
+        Assert.AreEqual(Qty[1], ItemSalesByCustomer.Item_Ledger_Entry_Quantity, '');
+
+        ItemSalesByCustomer.SetRange(Item_No, Item[2]."No.");
+        ItemSalesByCustomer.Open();
+        Assert.IsTrue(ItemSalesByCustomer.Read(), 'Sales Credit Memo is not displayed in Item Sales by Customer report.');
+        Assert.AreEqual(Qty[2], ItemSalesByCustomer.Item_Ledger_Entry_Quantity, '');
+    end;
+
     local procedure CreateCustomerSimple(var Customer: Record Customer; No: Code[20]; CreditLimit: Decimal)
     begin
         Customer.Init;
@@ -507,6 +543,23 @@ codeunit 134764 TestPowerBIQueries
         GLBudgetEntry.Amount := Amount;
         GLBudgetEntry.Date := RecDate;
         GLBudgetEntry.Insert;
+    end;
+
+    local procedure MockValueEntryForSales(var ValueEntry: Record "Value Entry"; CustomerNo: Code[20]; DocumentType: Option; ItemNo: Code[20]; Qty: Decimal)
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        with ValueEntry do begin
+            Init();
+            "Entry No." := LibraryUtility.GetNewRecNo(ValueEntry, FieldNo("Entry No."));
+            "Item Ledger Entry No." := LibraryUtility.GetNewRecNo(ItemLedgerEntry, ItemLedgerEntry.FieldNo("Entry No."));
+            "Source Type" := "Source Type"::Customer;
+            "Source No." := CustomerNo;
+            "Document Type" := DocumentType;
+            "Item No." := ItemNo;
+            "Item Ledger Entry Quantity" := Qty;
+            Insert();
+        end;
     end;
 
     local procedure VerifyPowerBICustomerList(PowerBICustomerList: Query "Power BI Customer List"; No: Code[20]; CreditLimit: Decimal; BalanceDue: Decimal; PostDate: Date; CustLedgEntry: Integer; Amount: Decimal; TransactionNo: Integer; EntryNo: Integer)

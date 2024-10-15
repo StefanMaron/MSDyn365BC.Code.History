@@ -229,6 +229,21 @@ codeunit 144004 "UT REP Audit"
         Assert.ExpectedErrorCode(TestFieldErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure AuditFileBufferFieldsHaveProperLength()
+    var
+        AuditFileBuffer: Record "Audit File Buffer";
+        GLEntry: Record "G/L Entry";
+        DummyCustVendID: Text[35];
+    begin
+        // [SCENARIO 344653] The fields of table "Audit File Buffer" have correct length
+
+        Assert.AreEqual(MaxStrLen(AuditFileBuffer."Account ID"), MaxStrLen(GLEntry."G/L Account No."), '');
+        Assert.AreEqual(MaxStrLen(AuditFileBuffer."Document ID"), MaxStrLen(GLEntry."Document No."), '');
+        Assert.AreEqual(MaxStrLen(DummyCustVendID), MaxStrLen(AuditFileBuffer."Source ID"), '');
+    end;
+
     local procedure CreateCustomer(): Code[20]
     var
         Customer: Record Customer;
