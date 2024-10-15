@@ -34,5 +34,16 @@
     fieldgroups
     {
     }
+
+    trigger OnInsert()
+    var
+        SATSuburb: Record "SAT Suburb";
+    begin
+        if ID = 0 then begin
+            ID := 1;
+            if SATSuburb.FindLast() then
+                ID += SATSuburb.ID;
+        end;
+    end;
 }
 

@@ -239,20 +239,20 @@
                     if CurrFieldNo = 0 then
                         exit;
 
-                    if xRec.Type <> Type::Meeting then
+                    if not IsMeetingOrPhoneCall(xRec.Type) then
                         TempEndDateTime := CreateDateTime(xRec.Date, xRec."Start Time") - OneDayDuration + xRec.Duration
                     else
                         TempEndDateTime := CreateDateTime(xRec.Date, xRec."Start Time") + xRec.Duration;
 
                     OldEndDate := DT2Date(TempEndDateTime);
 
-                    if (xRec.Type = Type::Meeting) and (Type <> Type::Meeting) then begin
+                    if IsMeetingOrPhoneCall(xRec.Type) and not IsMeetingOrPhoneCall(Rec.Type) then begin
                         "Start Time" := 0T;
                         "All Day Event" := false;
                         SetDuration(OldEndDate, 0T);
                     end;
 
-                    if (xRec.Type <> Type::Meeting) and (Type = Type::Meeting) then begin
+                    if not IsMeetingOrPhoneCall(xRec.Type) and IsMeetingOrPhoneCall(Rec.Type) then begin
                         "Start Time" := 0T;
                         if OldEndDate = Date then begin
                             SetDuration(OldEndDate, DT2Time(CreateDateTime(OldEndDate, 0T) + 30 * 60 * 1000));
@@ -1510,7 +1510,7 @@
 
         if (EndingDate < DMY2Date(1, 1, 1900)) or (EndingDate > DMY2Date(31, 12, 2999)) then
             Error(Text006, DMY2Date(1, 1, 1900), DMY2Date(31, 12, 2999));
-        if not "All Day Event" and (Type = Type::Meeting) then
+        if not "All Day Event" and IsMeetingOrPhoneCall(Rec.Type) then
             Duration := CreateDateTime(EndingDate, EndingTime) - CreateDateTime(Date, "Start Time")
         else
             Duration := CreateDateTime(EndingDate + 1, 0T) - CreateDateTime(Date, 0T);
@@ -1527,7 +1527,7 @@
         if IsHandled then
             exit;
 
-        if (Type <> Type::Meeting) or "All Day Event" then
+        if not IsMeetingOrPhoneCall(Rec.Type) or "All Day Event" then
             if "Start Time" <> 0T then
                 TempEndDateTime := CreateDateTime(Date - 1, "Start Time") + Duration
             else begin
@@ -2942,6 +2942,11 @@
           ExchangeServiceSetup."Exchange Resource Uri");
 
         ExchangeWebServicesServer.SetImpersonatedIdentity(AuthenticationEmail);
+    end;
+
+    local procedure IsMeetingOrPhoneCall(TaskType: Enum "Task Type"): Boolean
+    begin
+        exit(TaskType in [TaskType::Meeting, TaskType::"Phone Call"]);
     end;
 
     [IntegrationEvent(false, false)]
