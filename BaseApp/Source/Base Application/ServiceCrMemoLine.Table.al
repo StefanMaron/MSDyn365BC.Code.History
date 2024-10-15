@@ -68,7 +68,7 @@ table 5995 "Service Cr.Memo Line"
         }
         field(22; "Unit Price"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 2;
             CaptionClass = GetCaptionClass(FieldNo("Unit Price"));
             Caption = 'Unit Price';
@@ -94,21 +94,21 @@ table 5995 "Service Cr.Memo Line"
         }
         field(28; "Line Discount Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Line Discount Amount';
             Editable = false;
         }
         field(29; Amount; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Amount';
             Editable = false;
         }
         field(30; "Amount Including VAT"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Amount Including VAT';
             Editable = false;
@@ -174,7 +174,7 @@ table 5995 "Service Cr.Memo Line"
         }
         field(69; "Inv. Discount Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             Caption = 'Inv. Discount Amount';
         }
         field(74; "Gen. Bus. Posting Group"; Code[20])
@@ -254,13 +254,13 @@ table 5995 "Service Cr.Memo Line"
         }
         field(99; "VAT Base Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'VAT Base Amount';
         }
         field(100; "Unit Cost"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 2;
             Caption = 'Unit Cost';
         }
@@ -271,14 +271,14 @@ table 5995 "Service Cr.Memo Line"
         }
         field(103; "Line Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             CaptionClass = GetCaptionClass(FieldNo("Line Amount"));
             Caption = 'Line Amount';
         }
         field(104; "VAT Difference"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'VAT Difference';
             Editable = false;
@@ -290,7 +290,7 @@ table 5995 "Service Cr.Memo Line"
         }
         field(145; "Pmt. Discount Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Pmt. Discount Amount';
         }
@@ -302,7 +302,7 @@ table 5995 "Service Cr.Memo Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(5402; "Variant Code"; Code[10])

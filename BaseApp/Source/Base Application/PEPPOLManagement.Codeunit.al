@@ -1026,7 +1026,24 @@ codeunit 1605 "PEPPOL Management"
             OutFile.Open(XmlServerPath);
     end;
 
-    procedure MapServiceLineTypeToSalesLineType(ServiceLineType: Option): Integer
+    procedure MapServiceLineTypeToSalesLineType(ServiceLineType: Enum "Service Line Type"): Integer
+    var
+        SalesLine: Record "Sales Line";
+        ServiceInvoiceLine: Record "Service Invoice Line";
+    begin
+        case ServiceLineType of
+            ServiceInvoiceLine.Type::" ":
+                exit(SalesLine.Type::" ".AsInteger());
+            ServiceInvoiceLine.Type::Item:
+                exit(SalesLine.Type::Item.AsInteger());
+            ServiceInvoiceLine.Type::Resource:
+                exit(SalesLine.Type::Resource.AsInteger());
+            else
+                exit(SalesLine.Type::"G/L Account".AsInteger());
+        end;
+    end;
+
+    procedure MapServiceLineTypeToSalesLineTypeEnum(ServiceLineType: Enum "Service Line Type"): Enum "Sales Line Type"
     var
         SalesLine: Record "Sales Line";
         ServiceInvoiceLine: Record "Service Invoice Line";
@@ -1148,7 +1165,7 @@ codeunit 1605 "PEPPOL Management"
                         Found := ServiceInvoiceLine.Next <> 0;
                     if Found then begin
                         TransferLineToSalesLine(ServiceInvoiceLine, SalesLine);
-                        SalesLine.Type := MapServiceLineTypeToSalesLineType(ServiceInvoiceLine.Type);
+                        SalesLine.Type := MapServiceLineTypeToSalesLineTypeEnum(ServiceInvoiceLine.Type);
                     end;
                 end;
         end;
@@ -1211,7 +1228,7 @@ codeunit 1605 "PEPPOL Management"
                         Found := ServiceCrMemoLine.Next <> 0;
                     if Found then begin
                         TransferLineToSalesLine(ServiceCrMemoLine, SalesLine);
-                        SalesLine.Type := MapServiceLineTypeToSalesLineType(ServiceCrMemoLine.Type);
+                        SalesLine.Type := MapServiceLineTypeToSalesLineTypeEnum(ServiceCrMemoLine.Type);
                     end;
                 end;
         end;

@@ -647,7 +647,7 @@ report 2000021 "File Domiciliations"
         TempDomJnlLine."Customer No." := GenJnlBatch."Bal. Account No.";
         TempDomJnlLine.Amount := -(TotalAmountLCY[1] + TotalAmountLCY[2]);
         TempDomJnlLine."Message 1" := '';
-        TempDomJnlLine."Applies-to Doc. Type" := 0;
+        TempDomJnlLine."Applies-to Doc. Type" := TempDomJnlLine."Applies-to Doc. Type"::" ";
         TempDomJnlLine."Applies-to Doc. No." := '';
         TempDomJnlLine.Insert();
     end;
@@ -672,7 +672,7 @@ report 2000021 "File Domiciliations"
             "Source Code" := DomicJnlLine."Source Code";
             "Source No." := DomicJnlLine."Customer No.";
 
-            if DomicJnlLine."Applies-to Doc. Type" = 0 then begin
+            if DomicJnlLine."Applies-to Doc. Type" = DomJnlLine."Applies-to Doc. Type"::" " then begin
                 Validate("Account Type", "Account Type"::"G/L Account");
                 Validate("Account No.", DomicJnlLine."Customer No.");
                 if Amount > 0 then

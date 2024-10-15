@@ -21,7 +21,6 @@ codeunit 134824 "UT Vendor Table"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
-        PurchaseDocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         DeleteVendorPurchaseDocExistsErr: Label 'You cannot delete %1 %2 because there is at least one outstanding Purchase %3 for this vendor.';
         DialogErr: Label 'Dialog';
         PhoneNoCannotContainLettersErr: Label '%1 must not contain letters in %2 %3=''%4''.';
@@ -475,7 +474,7 @@ codeunit 134824 "UT Vendor Table"
         // [GIVEN] Purchase Invoice for Vendor "V"
         // [WHEN] Trying to delete "V"
         // [THEN] Error is shown: 'You cannot delete Vendor "V" because there is at least one outstanding Purchase Invoice for this vendor.'
-        ErrorOnDeleteVendorIfOutstandingDocExists(PurchaseDocumentType::Invoice);
+        ErrorOnDeleteVendorIfOutstandingDocExists("Purchase Document Type"::Invoice);
     end;
 
     [Test]
@@ -489,7 +488,7 @@ codeunit 134824 "UT Vendor Table"
         // [GIVEN] Purchase Quote for Vendor "V"
         // [WHEN] Trying to delete "V"
         // [THEN] Error is shown: 'You cannot delete Vendor "V" because there is at least one outstanding Purchase Quote for this vendor.'
-        ErrorOnDeleteVendorIfOutstandingDocExists(PurchaseDocumentType::Quote);
+        ErrorOnDeleteVendorIfOutstandingDocExists("Purchase Document Type"::Quote);
     end;
 
     [Test]
@@ -503,7 +502,7 @@ codeunit 134824 "UT Vendor Table"
         // [GIVEN] Purchase Credit Memo for Vendor "V"
         // [WHEN] Trying to delete "V"
         // [THEN] Error is shown: 'You cannot delete Vendor "V" because there is at least one outstanding Purchase Credit Memo for this vendor.'
-        ErrorOnDeleteVendorIfOutstandingDocExists(PurchaseDocumentType::"Credit Memo");
+        ErrorOnDeleteVendorIfOutstandingDocExists("Purchase Document Type"::"Credit Memo");
     end;
 
     [Test]
@@ -517,7 +516,7 @@ codeunit 134824 "UT Vendor Table"
         // [GIVEN] Purchase Order for Vendor "V"
         // [WHEN] Trying to delete "V"
         // [THEN] Error is shown: 'You cannot delete Vendor "V" because there is at least one outstanding Purchase Order for this vendor.'
-        ErrorOnDeleteVendorIfOutstandingDocExists(PurchaseDocumentType::Order);
+        ErrorOnDeleteVendorIfOutstandingDocExists("Purchase Document Type"::Order);
     end;
 
     [Test]
@@ -531,7 +530,7 @@ codeunit 134824 "UT Vendor Table"
         // [GIVEN] Purchase Return Order for Vendor "V"
         // [WHEN] Trying to delete "V"
         // [THEN] Error is shown: 'You cannot delete Vendor "V" because there is at least one outstanding Purchase Return Order for this vendor.'
-        ErrorOnDeleteVendorIfOutstandingDocExists(PurchaseDocumentType::"Return Order");
+        ErrorOnDeleteVendorIfOutstandingDocExists("Purchase Document Type"::"Return Order");
     end;
 
     [Test]
@@ -545,7 +544,7 @@ codeunit 134824 "UT Vendor Table"
         // [GIVEN] Purchase Blanket Order for Vendor "V"
         // [WHEN] Trying to delete "V"
         // [THEN] Error is shown: 'You cannot delete Vendor "V" because there is at least one outstanding Purchase Blanket Order for this vendor.'
-        ErrorOnDeleteVendorIfOutstandingDocExists(PurchaseDocumentType::"Blanket Order");
+        ErrorOnDeleteVendorIfOutstandingDocExists("Purchase Document Type"::"Blanket Order");
     end;
 
     [Test]
@@ -722,7 +721,7 @@ codeunit 134824 "UT Vendor Table"
         VendorList.Cancel.Invoke;
     end;
 
-    local procedure CreatePurchaseDocument(PurchaseDocumentType: Integer; VendorNo: Code[20])
+    local procedure CreatePurchaseDocument(PurchaseDocumentType: Enum "Purchase Document Type"; VendorNo: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -746,7 +745,7 @@ codeunit 134824 "UT Vendor Table"
         Vendor.Modify(true);
     end;
 
-    local procedure CreateVendorFromNameAndBlocked(var Vendor: Record Vendor; Name: Text; VendorBlocked: Option)
+    local procedure CreateVendorFromNameAndBlocked(var Vendor: Record Vendor; Name: Text; VendorBlocked: Enum "Vendor Blocked")
     begin
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate(Name, CopyStr(Name, 1, MaxStrLen(Vendor.Name)));
@@ -754,7 +753,7 @@ codeunit 134824 "UT Vendor Table"
         Vendor.Modify(true);
     end;
 
-    local procedure ErrorOnDeleteVendorIfOutstandingDocExists(DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order")
+    local procedure ErrorOnDeleteVendorIfOutstandingDocExists(DocType: Enum "Purchase Document Type")
     var
         Vendor: Record Vendor;
     begin

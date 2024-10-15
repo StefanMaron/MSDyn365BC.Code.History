@@ -300,7 +300,7 @@ codeunit 143000 "Library - BE Helper"
 
     [Normal]
     [Scope('OnPrem')]
-    procedure CreateDomesticCustomerResourceServiceDocumentAndPost(var Customer: Record Customer; DocumentType: Option Quote,"Order",Invoice,"Credit Memo")
+    procedure CreateDomesticCustomerResourceServiceDocumentAndPost(var Customer: Record Customer; DocumentType: Enum "Service Document Type")
     var
         VATPostingSetup: Record "VAT Posting Setup";
         Resource: Record Resource;
@@ -326,7 +326,7 @@ codeunit 143000 "Library - BE Helper"
 
     [Normal]
     [Scope('OnPrem')]
-    procedure CreateForeignCustomerResourceServiceDocumentAndPost(var Customer: Record Customer; DocumentType: Option Quote,"Order",Invoice,"Credit Memo")
+    procedure CreateForeignCustomerResourceServiceDocumentAndPost(var Customer: Record Customer; DocumentType: Enum "Service Document Type")
     var
         VATPostingSetup: Record "VAT Posting Setup";
         Resource: Record Resource;
@@ -351,7 +351,7 @@ codeunit 143000 "Library - BE Helper"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateAndPostServiceDocumentInPeriod(CustomerNo: Code[20]; DocumentType: Option Quote,"Order",Invoice,"Credit Memo"; ResourceNo: Code[20]; StartDate: Date; EndDate: Date)
+    procedure CreateAndPostServiceDocumentInPeriod(CustomerNo: Code[20]; DocumentType: Enum "Service Document Type"; ResourceNo: Code[20]; StartDate: Date; EndDate: Date)
     var
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
@@ -375,7 +375,7 @@ codeunit 143000 "Library - BE Helper"
 
     [Normal]
     [Scope('OnPrem')]
-    procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Option)
+    procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type")
     var
         GLAccount1: Record "G/L Account";
         GLAccount2: Record "G/L Account";
@@ -400,7 +400,7 @@ codeunit 143000 "Library - BE Helper"
 
     [Normal]
     [Scope('OnPrem')]
-    procedure CreateGLAccount(var GLAccount: Record "G/L Account"; VATPostingSetup: Record "VAT Posting Setup"; GenPostingType: Option; NonDeductibleVAT: Integer)
+    procedure CreateGLAccount(var GLAccount: Record "G/L Account"; VATPostingSetup: Record "VAT Posting Setup"; GenPostingType: Enum "General Posting Type"; NonDeductibleVAT: Integer)
     var
         GLAccountNo: Code[20];
     begin

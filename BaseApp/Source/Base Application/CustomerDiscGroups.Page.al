@@ -55,7 +55,11 @@ page 512 "Customer Disc. Groups"
                     Image = SalesLineDisc;
                     Promoted = true;
                     PromotedCategory = Process;
+                    Visible = not ExtendedPriceEnabled;
                     ToolTip = 'View the sales line discounts that are available. These discount agreements can be for individual customers, for a group of customers, for all customers or for a campaign.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
 
                     trigger OnAction()
                     var
@@ -67,9 +71,35 @@ page 512 "Customer Disc. Groups"
                         Page.Run(Page::"Sales Line Discounts", SalesLineDiscount);
                     end;
                 }
+                action(PriceLists)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Price Lists';
+                    Image = SalesLineDisc;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'View or set up different discounts for products that you sell to customers that belong to the customer discount group.';
+
+                    trigger OnAction()
+                    var
+                        PriceUXManagement: Codeunit "Price UX Management";
+                    begin
+                        PriceUXManagement.ShowPriceLists(Rec);
+                    end;
+                }
+
             }
         }
     }
+    trigger OnOpenPage()
+    begin
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
+    end;
+
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        ExtendedPriceEnabled: Boolean;
 
     procedure GetSelectionFilter(): Text
     var

@@ -108,8 +108,8 @@ report 6698 "Move Negative Purchase Lines"
         CopyDocMgt.SetProperties(true, false, true, true, true, false, false);
         if (FromDocType = FromDocType::"Return Order") or (FromDocType = FromDocType::"Credit Memo") then
             ToDocType := ToDocType2;
-        ToPurchHeader."Document Type" := CopyDocMgt.PurchHeaderDocType(ToDocType);
-        CopyDocMgt.CopyPurchDoc(FromDocType, FromPurchHeader."No.", ToPurchHeader);
+        ToPurchHeader."Document Type" := CopyDocMgt.GetPurchaseDocumentType("Purchase Document Type From".FromInteger(ToDocType));
+        CopyDocMgt.CopyPurchDoc("Purchase Document Type From".FromInteger(FromDocType), FromPurchHeader."No.", ToPurchHeader);
     end;
 
     var

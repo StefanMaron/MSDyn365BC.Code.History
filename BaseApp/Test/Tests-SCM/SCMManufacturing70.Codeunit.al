@@ -1572,7 +1572,6 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ItemTrackingCode: Record "Item Tracking Code";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        Direction: Option Outbound,Inbound;
         Quantity: Decimal;
     begin
         // Setup: Create LFLItem With Tracking Code,Create Transfer Route,Stockkeeping Units,Create and Post Item Journal,Create Sales and Transfer Order.
@@ -1603,7 +1602,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         // Verify. Verify Receipt Tracking line on Transfer Order and Requisition line for different Location.
         ItemTracking := ItemTracking::VerifyValue;  // Assign Global Variable for Page handler.
         TrackingQuantity := TransferLine.Quantity;  // Assign Global Variable for Page handler.
-        TransferLine.OpenItemTrackingLines(Direction::Inbound); // Open Tracking Page on Page handler ItemTrackingPageHandler.
+        TransferLine.OpenItemTrackingLines("Transfer Direction"::Inbound); // Open Tracking Page on Page handler ItemTrackingPageHandler.
         VerifyRequisitionLineForLocation(Item."No.", LocationGreen.Code);
         VerifyRequisitionLineForLocation(Item."No.", LocationBlue.Code);
     end;
@@ -2627,7 +2626,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         CreateRouting(RoutingHeader, RoutingLine, MachineCenter."No.", RoutingHeader.Type::Serial, RoutingLine.Type::"Machine Center");
         UpdateRoutingLine(RoutingLine, LibraryRandom.RandInt(15), LibraryRandom.RandInt(15), 0);
 
-        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', OperationNo, 0, WorkCenter."No.");
+        LibraryManufacturing.CreateRoutingLine(RoutingHeader, RoutingLine, '', OperationNo, RoutingLine.Type::"Work Center", WorkCenter."No.");
         RoutingLine.Validate("Wait Time", LibraryRandom.RandInt(5));
         RoutingLine.Modify(true);
         UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
@@ -2705,7 +2704,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         WorkCenter.Get(RoutingLine."No.");
     end;
 
-    local procedure CreateItem(var Item: Record Item; ReplenishmentSystem: Option; ReorderingPolicy: Option; IncludeInventory: Boolean; ReorderPoint: Decimal; ReorderQuantity: Decimal; MaximumInventory: Decimal; RoutingNo: Code[20])
+    local procedure CreateItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; ReorderingPolicy: Enum "Reordering Policy"; IncludeInventory: Boolean; ReorderPoint: Decimal; ReorderQuantity: Decimal; MaximumInventory: Decimal; RoutingNo: Code[20])
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Replenishment System", ReplenishmentSystem);
@@ -2718,7 +2717,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         Item.Modify(true);
     end;
 
-    local procedure CreateStockItem(var Item: Record Item; ReplenishmentSystem: Option; LeadDatesFormula: DateFormula)
+    local procedure CreateStockItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; LeadDatesFormula: DateFormula)
     var
         ItemCategory: Record "Item Category";
     begin
@@ -2751,7 +2750,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         end;
     end;
 
-    local procedure CreateMultipleItems(var Item: Record Item; var Item2: Record Item; var Item3: Record Item; ReplenishmentSystem: Option; ReplenishmentSystem2: Option; ReorderingPolicy: Option; IncludeInventory: Boolean)
+    local procedure CreateMultipleItems(var Item: Record Item; var Item2: Record Item; var Item3: Record Item; ReplenishmentSystem: Enum "Replenishment System"; ReplenishmentSystem2: Enum "Replenishment System"; ReorderingPolicy: Enum "Reordering Policy"; IncludeInventory: Boolean)
     begin
         CreateItem(Item, ReplenishmentSystem, ReorderingPolicy, IncludeInventory, 0, 0, 0, '');
         CreateItem(Item2, ReplenishmentSystem, ReorderingPolicy, IncludeInventory, 0, 0, 0, '');
@@ -2799,7 +2798,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         LibraryItemTracking.AddLotNoTrackingInfo(ChildItem);
     end;
 
-    local procedure CreateItemWithUOM(var Item: Record Item; UnitOfMeasureCode: Code[10]; ReplenishmentSystem: Option)
+    local procedure CreateItemWithUOM(var Item: Record Item; UnitOfMeasureCode: Code[10]; ReplenishmentSystem: Enum "Replenishment System")
     var
         ItemUnitOfMeasure: Record "Item Unit of Measure";
     begin
@@ -2903,7 +2902,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         until ItemJournalLine.Next() = 0;
     end;
 
-    local procedure UpdateRoutingStatus(var RoutingHeader: Record "Routing Header"; Status: Option)
+    local procedure UpdateRoutingStatus(var RoutingHeader: Record "Routing Header"; Status: Enum "Routing Status")
     begin
         RoutingHeader.Validate(Status, Status);
         RoutingHeader.Modify(true);
@@ -2920,7 +2919,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         RequisitionLine.Modify(true);
     end;
 
-    local procedure UpdateProductionBOMHeaderStatus(var ProductionBOMHeader: Record "Production BOM Header"; Status: Option)
+    local procedure UpdateProductionBOMHeaderStatus(var ProductionBOMHeader: Record "Production BOM Header"; Status: Enum "BOM Status")
     begin
         ProductionBOMHeader.Validate(Status, Status);
         ProductionBOMHeader.Modify(true);
@@ -3004,13 +3003,13 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ChildItem.Get(ChildItem."No.");
     end;
 
-    local procedure CreateAndRefreshProdOrder(var ProductionOrder: Record "Production Order"; Status: Option; SourceNo: Code[20]; Quantity: Decimal; SourceType: Option; Forward: Boolean)
+    local procedure CreateAndRefreshProdOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20]; Quantity: Decimal; SourceType: Enum "Prod. Order Source Type"; Forward: Boolean)
     begin
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, SourceType, SourceNo, Quantity);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, Forward, true, true, true, false);
     end;
 
-    local procedure CreateAndRefreshProdOrderWithItemTracking(var ProductionOrder: Record "Production Order"; Status: Option; Item1: Record Item; Quantity: Decimal; SourceType: Option)
+    local procedure CreateAndRefreshProdOrderWithItemTracking(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; Item1: Record Item; Quantity: Decimal; SourceType: Enum "Prod. Order Source Type")
     var
         ProdOrderLine: Record "Prod. Order Line";
         ReleasedProductionOrder: TestPage "Released Production Order";
@@ -3052,7 +3051,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
     end;
 
-    local procedure CreateWorkCenterSetup(var WorkCenter: Record "Work Center"; CapacityType: Option; StartTime: Time; EndTime: Time)
+    local procedure CreateWorkCenterSetup(var WorkCenter: Record "Work Center"; CapacityType: Enum "Capacity Type"; StartTime: Time; EndTime: Time)
     var
         GeneralPostingSetup: Record "General Posting Setup";
         CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
@@ -3147,7 +3146,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         WorkCenter.Modify(true);
     end;
 
-    local procedure CreateWorkCenterFullWorkingWeekCalendar(var WorkCenter: Record "Work Center"; UOMType: Option; FromTime: Time; ToTime: Time)
+    local procedure CreateWorkCenterFullWorkingWeekCalendar(var WorkCenter: Record "Work Center"; UOMType: Enum "Capacity Unit of Measure"; FromTime: Time; ToTime: Time)
     var
         CapacityUnitOfMeasure: Record "Capacity Unit of Measure";
     begin
@@ -3227,19 +3226,19 @@ codeunit 137063 "SCM Manufacturing 7.0"
         RequisitionLine.FilterGroup(0);
     end;
 
-    local procedure FilterProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; Status: Option; ProdOrderNo: Code[20])
+    local procedure FilterProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; Status: Enum "Production Order Status"; ProdOrderNo: Code[20])
     begin
         ProdOrderLine.SetRange(Status, Status);
         ProdOrderLine.SetRange("Prod. Order No.", ProdOrderNo);
     end;
 
-    local procedure FilterProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; Status: Option; ProdOrderNo: Code[20])
+    local procedure FilterProdOrderComponent(var ProdOrderComponent: Record "Prod. Order Component"; Status: Enum "Production Order Status"; ProdOrderNo: Code[20])
     begin
         ProdOrderComponent.SetRange(Status, Status);
         ProdOrderComponent.SetRange("Prod. Order No.", ProdOrderNo);
     end;
 
-    local procedure FilterProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; Status: Option; ProdOrderNo: Code[20])
+    local procedure FilterProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; Status: Enum "Production Order Status"; ProdOrderNo: Code[20])
     begin
         ProdOrderRoutingLine.SetRange("Prod. Order No.", ProdOrderNo);
         ProdOrderRoutingLine.SetRange(Status, Status);
@@ -3337,7 +3336,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         RoutingVersion.Modify(true);
     end;
 
-    local procedure CreateProductionBOMAndCertify(var ProductionBOMHeader: Record "Production BOM Header"; BaseUnitOfMeasure: Code[10]; Type: Option; No: Code[20]; QuantityPer: Integer)
+    local procedure CreateProductionBOMAndCertify(var ProductionBOMHeader: Record "Production BOM Header"; BaseUnitOfMeasure: Code[10]; Type: Enum "Production BOM Line Type"; No: Code[20]; QuantityPer: Integer)
     var
         ProductionBOMLine: Record "Production BOM Line";
     begin
@@ -3345,13 +3344,13 @@ codeunit 137063 "SCM Manufacturing 7.0"
         UpdateProductionBOMHeaderStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
     end;
 
-    local procedure CreateProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; var ProductionBOMLine: Record "Production BOM Line"; BaseUnitOfMeasure: Code[10]; Type: Option; No: Code[20]; QuantityPer: Integer)
+    local procedure CreateProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; var ProductionBOMLine: Record "Production BOM Line"; BaseUnitOfMeasure: Code[10]; Type: Enum "Production BOM Line Type"; No: Code[20]; QuantityPer: Integer)
     begin
         LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, BaseUnitOfMeasure);
         LibraryManufacturing.CreateProductionBOMLine(ProductionBOMHeader, ProductionBOMLine, '', Type, No, QuantityPer);
     end;
 
-    local procedure CreateProductionBOMWithMultipleLinesAndCertify(var ProductionBOMHeader: Record "Production BOM Header"; BaseUnitOfMeasure: Code[10]; Type: Option; ItemNo: Code[20]; ItemNo2: Code[20]; QuantityPer: Integer)
+    local procedure CreateProductionBOMWithMultipleLinesAndCertify(var ProductionBOMHeader: Record "Production BOM Header"; BaseUnitOfMeasure: Code[10]; Type: Enum "Production BOM Line Type"; ItemNo: Code[20]; ItemNo2: Code[20]; QuantityPer: Integer)
     var
         ProductionBOMLine: Record "Production BOM Line";
         ProductionBOMLine2: Record "Production BOM Line";
@@ -3463,7 +3462,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         DefaultDimension.Modify(true);
     end;
 
-    local procedure UpdateFlushingMethodOnWorkCenter(var WorkCenter: Record "Work Center"; FlushingMethod: Option)
+    local procedure UpdateFlushingMethodOnWorkCenter(var WorkCenter: Record "Work Center"; FlushingMethod: Enum "Flushing Method")
     begin
         WorkCenter.Validate("Flushing Method", FlushingMethod);
         WorkCenter.Modify(true);
@@ -3638,7 +3637,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
             LibrarySales.AutoReserveSalesLine(SalesLine);
     end;
 
-    local procedure FindProductionOrder(var ProductionOrder: Record "Production Order"; SourceNo: Code[20]; SourceType: Option)
+    local procedure FindProductionOrder(var ProductionOrder: Record "Production Order"; SourceNo: Code[20]; SourceType: Enum "Prod. Order Source Type")
     begin
         ProductionOrder.SetRange("Source Type", SourceType);
         ProductionOrder.SetRange("Source No.", SourceNo);
@@ -3717,7 +3716,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
     end;
 
-    local procedure CreateRouting(var RoutingHeader: Record "Routing Header"; var RoutingLine: Record "Routing Line"; WorkCenterNo: Code[20]; Type: Option; RoutingLineType: Option)
+    local procedure CreateRouting(var RoutingHeader: Record "Routing Header"; var RoutingLine: Record "Routing Line"; WorkCenterNo: Code[20]; Type: Option; RoutingLineType: Enum "Capacity Type Routing")
     var
         OperationNo: Code[10];
     begin
@@ -3969,13 +3968,11 @@ codeunit 137063 "SCM Manufacturing 7.0"
     end;
 
     local procedure CreateAndPostTransferOrder(var TransferHeader: Record "Transfer Header"; var TransferLine: Record "Transfer Line"; FromLocation: Code[10]; ToLocation: Code[10]; ItemNo: Code[20]; Quantity: Decimal)
-    var
-        Direction: Option Outbound,Inbound;
     begin
         LibraryWarehouse.CreateTransferHeader(TransferHeader, FromLocation, ToLocation, LocationInTransit.Code);
         LibraryWarehouse.CreateTransferLine(TransferHeader, TransferLine, ItemNo, Quantity);
         LibraryWarehouse.ReleaseTransferOrder(TransferHeader);
-        TransferLine.OpenItemTrackingLines(Direction::Outbound);  // Assign Tracking on Page Handler ItemTrackingPageHandler.
+        TransferLine.OpenItemTrackingLines("Transfer Direction"::Outbound);  // Assign Tracking on Page Handler ItemTrackingPageHandler.
         LibraryWarehouse.PostTransferOrder(TransferHeader, true, false);
     end;
 
@@ -3996,7 +3993,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ProdOrderLine.Modify(true);
     end;
 
-    local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; Status: Option; ProductionOrderNo: Code[20])
+    local procedure FindProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; Status: Enum "Production Order Status"; ProductionOrderNo: Code[20])
     begin
         FilterProdOrderLine(ProdOrderLine, Status, ProductionOrderNo);
         ProdOrderLine.FindFirst();
@@ -4053,7 +4050,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         PurchaseOrder.Close;
     end;
 
-    local procedure PostItemStockPurchase(Item: Record Item; Quantity: Decimal; LocationCode: Code[10]; EntryType: Option)
+    local procedure PostItemStockPurchase(Item: Record Item; Quantity: Decimal; LocationCode: Code[10]; EntryType: Enum "Item Ledger Document Type")
     var
         ItemJournalLine: Record "Item Journal Line";
         ItemJournalTemplate: Record "Item Journal Template";
@@ -4413,7 +4410,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         Assert.AreEqual(0, ActualTime, EffectiveCapacityErr);
     end;
 
-    local procedure VerifyQuantityOnRequisitionLine(ItemNo: Code[20]; ReplenishmentSystem: Option; Quantity: Decimal)
+    local procedure VerifyQuantityOnRequisitionLine(ItemNo: Code[20]; ReplenishmentSystem: Enum "Replenishment System"; Quantity: Decimal)
     var
         RequisitionLine: Record "Requisition Line";
     begin
@@ -4487,7 +4484,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         end;
     end;
 
-    local procedure VerifyItemLedgerEntryForOutput(ItemNo: Code[20]; Quantity: Decimal; EntryType: Option)
+    local procedure VerifyItemLedgerEntryForOutput(ItemNo: Code[20]; Quantity: Decimal; EntryType: Enum "Item Ledger Document Type")
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
@@ -4497,7 +4494,7 @@ codeunit 137063 "SCM Manufacturing 7.0"
         ItemLedgerEntry.TestField(Quantity, Quantity);
     end;
 
-    local procedure VerifyItemLedgerEntryForConsumption(ItemNo: Code[20]; EntryType: Option)
+    local procedure VerifyItemLedgerEntryForConsumption(ItemNo: Code[20]; EntryType: Enum "Item Ledger Document Type")
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin

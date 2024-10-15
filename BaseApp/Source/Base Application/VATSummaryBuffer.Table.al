@@ -32,7 +32,7 @@ table 11303 "VAT Summary Buffer"
         }
         field(5; "Add.-Curr. Base Invoices"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Add.-Curr. Base Invoices';
@@ -40,7 +40,7 @@ table 11303 "VAT Summary Buffer"
         }
         field(6; "Add.-Curr. VAT Amount Invoices"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Add.-Curr. VAT Amount Invoices';
             DataClassification = SystemMetadata;
@@ -59,7 +59,7 @@ table 11303 "VAT Summary Buffer"
         }
         field(9; "Add.-Curr. Base CM"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             BlankZero = true;
             Caption = 'Add.-Curr. Base CM';
@@ -67,7 +67,7 @@ table 11303 "VAT Summary Buffer"
         }
         field(10; "Add.-Curr. VAT Amount CM"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Add.-Curr. VAT Amount CM';
             DataClassification = SystemMetadata;

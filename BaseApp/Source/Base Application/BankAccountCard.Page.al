@@ -190,7 +190,15 @@ page 370 "Bank Account Card"
                 field("Phone No."; "Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
+                    ExtendedDatatype = PhoneNo;
                     ToolTip = 'Specifies the telephone number of the bank where you have the bank account.';
+                }
+                field(MobilePhoneNo; "Mobile Phone No.")
+                {
+                    Caption = 'Mobile Phone No.';
+                    ApplicationArea = Basic, Suite;
+                    ExtendedDatatype = PhoneNo;
+                    ToolTip = 'Specifies the mobile telephone number of the bank where you have the bank account.';
                 }
                 field(Contact; Contact)
                 {
@@ -208,6 +216,7 @@ page 370 "Bank Account Card"
                 field("Fax No."; "Fax No.")
                 {
                     ApplicationArea = Basic, Suite;
+                    Importance = Additional;
                     ToolTip = 'Specifies the fax number of the bank where you have the bank account.';
                 }
                 field("E-Mail"; "E-Mail")

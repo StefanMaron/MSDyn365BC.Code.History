@@ -61,7 +61,7 @@ codeunit 144049 "VAT Statement Summery Report T"
     [Scope('OnPrem')]
     procedure ReportOnlyIncludesClosedEntries()
     begin
-        ExecuteAndValidateAmount1(1, VATEntryTwoAmount, 'Expected only closed entries');
+        ExecuteAndValidateAmount1("VAT Statement Report Selection"::Closed, VATEntryTwoAmount, 'Expected only closed entries');
     end;
 
     [Test]
@@ -69,7 +69,7 @@ codeunit 144049 "VAT Statement Summery Report T"
     [Scope('OnPrem')]
     procedure ReportOnlyIncludesOpenEntries()
     begin
-        ExecuteAndValidateAmount1(0, VATEntryOneAmount, 'Expected dataset only to include open entries');
+        ExecuteAndValidateAmount1("VAT Statement Report Selection"::Open, VATEntryOneAmount, 'Expected dataset only to include open entries');
     end;
 
     [Test]
@@ -77,7 +77,7 @@ codeunit 144049 "VAT Statement Summery Report T"
     [Scope('OnPrem')]
     procedure ReportIncludesAllEntries()
     begin
-        ExecuteAndValidateAmount1(2, VATEntryOneAmount + VATEntryTwoAmount, 'Expected dataset to include open and closed entries');
+        ExecuteAndValidateAmount1("VAT Statement Report Selection"::"Open and Closed", VATEntryOneAmount + VATEntryTwoAmount, 'Expected dataset to include open and closed entries');
     end;
 
     [Normal]
@@ -162,7 +162,7 @@ codeunit 144049 "VAT Statement Summery Report T"
     end;
 
     [Normal]
-    local procedure ExecuteAndSelectTestRow(UseLogicalControl: Boolean; VATEntriesType: Option Open,Closed,"Open And Closed"; RoundToWholeNumbers: Boolean)
+    local procedure ExecuteAndSelectTestRow(UseLogicalControl: Boolean; VATEntriesType: Enum "VAT Statement Report Selection"; RoundToWholeNumbers: Boolean)
     var
         ReportStartDate: Date;
     begin

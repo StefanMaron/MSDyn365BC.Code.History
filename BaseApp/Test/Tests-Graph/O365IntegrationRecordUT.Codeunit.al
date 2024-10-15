@@ -26,18 +26,14 @@ codeunit 139319 "O365 Integration Record UT"
     var
         SalesQuoteEntityBuffer: Record "Sales Quote Entity Buffer";
         SalesHeader: Record "Sales Header";
-        IntegrationRecord: Record "Integration Record";
     begin
         SalesQuoteEntityBuffer.SetRange("Document Type", SalesQuoteEntityBuffer."Document Type"::Quote);
         SalesQuoteEntityBuffer.FindSet;
         repeat
             SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Quote);
             SalesHeader.SetRange("No.", SalesQuoteEntityBuffer."No.");
-            SalesHeader.SetRange(Id, SalesQuoteEntityBuffer.Id);
+            SalesHeader.SetRange(SystemId, SalesQuoteEntityBuffer.Id);
             Assert.RecordIsNotEmpty(SalesHeader);
-
-            IntegrationRecord.Get(SalesQuoteEntityBuffer.Id);
-            IntegrationRecord.TestField("Table ID", DATABASE::"Sales Header");
         until SalesQuoteEntityBuffer.Next = 0;
     end;
 
@@ -45,18 +41,14 @@ codeunit 139319 "O365 Integration Record UT"
     var
         SalesInvoiceEntityAggregate: Record "Sales Invoice Entity Aggregate";
         SalesHeader: Record "Sales Header";
-        IntegrationRecord: Record "Integration Record";
     begin
         SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Invoice);
         SalesHeader.FindSet;
         repeat
             SalesInvoiceEntityAggregate.SetRange("Document Type", SalesInvoiceEntityAggregate."Document Type"::Invoice);
             SalesInvoiceEntityAggregate.SetRange("No.", SalesHeader."No.");
-            SalesInvoiceEntityAggregate.SetRange(Id, SalesHeader.Id);
+            SalesInvoiceEntityAggregate.SetRange(Id, SalesHeader.SystemId);
             Assert.RecordIsNotEmpty(SalesInvoiceEntityAggregate);
-
-            IntegrationRecord.Get(SalesHeader.Id);
-            IntegrationRecord.TestField("Table ID", DATABASE::"Sales Header");
         until SalesHeader.Next = 0;
     end;
 
@@ -64,17 +56,13 @@ codeunit 139319 "O365 Integration Record UT"
     var
         SalesOrderEntityBuffer: Record "Sales Order Entity Buffer";
         SalesHeader: Record "Sales Header";
-        IntegrationRecord: Record "Integration Record";
     begin
         SalesOrderEntityBuffer.FindSet;
         repeat
             SalesHeader.SetRange("Document Type", SalesHeader."Document Type"::Order);
             SalesHeader.SetRange("No.", SalesOrderEntityBuffer."No.");
-            SalesHeader.SetRange(Id, SalesOrderEntityBuffer.Id);
+            SalesHeader.SetRange(SystemId, SalesOrderEntityBuffer.Id);
             Assert.RecordIsNotEmpty(SalesHeader);
-
-            IntegrationRecord.Get(SalesOrderEntityBuffer.Id);
-            IntegrationRecord.TestField("Table ID", DATABASE::"Sales Header");
         until SalesOrderEntityBuffer.Next = 0;
     end;
 
@@ -82,18 +70,14 @@ codeunit 139319 "O365 Integration Record UT"
     var
         PurchInvEntityAggregate: Record "Purch. Inv. Entity Aggregate";
         PurchaseHeader: Record "Purchase Header";
-        IntegrationRecord: Record "Integration Record";
     begin
         PurchaseHeader.SetRange("Document Type", PurchaseHeader."Document Type"::Invoice);
         PurchaseHeader.FindSet;
         repeat
             PurchInvEntityAggregate.SetRange("Document Type", PurchInvEntityAggregate."Document Type"::Invoice);
             PurchInvEntityAggregate.SetRange("No.", PurchaseHeader."No.");
-            PurchInvEntityAggregate.SetRange(Id, PurchaseHeader.Id);
+            PurchInvEntityAggregate.SetRange(Id, PurchaseHeader.SystemId);
             Assert.RecordIsNotEmpty(PurchInvEntityAggregate);
-
-            IntegrationRecord.Get(PurchaseHeader.Id);
-            IntegrationRecord.TestField("Table ID", DATABASE::"Purchase Header");
         until PurchaseHeader.Next = 0;
     end;
 }

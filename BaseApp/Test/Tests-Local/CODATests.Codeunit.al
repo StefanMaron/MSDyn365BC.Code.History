@@ -534,6 +534,7 @@ codeunit 144006 "CODA Tests"
         // [THEN] "Application Status" is changed to "Applied"
         // [THEN] "Unapplied Amount" = 0
         CODAStatementLine.TestField("Applies-to ID", CODAStatementLine."Document No.");
+        // BUG 368200: Statement amount must remains unchanged
         CODAStatementLine.TestField("Statement Amount", VendLedgerEntry.Amount);
         CODAStatementLine.TestField(Amount, VendLedgerEntry.Amount);
         CODAStatementLine.TestField("Application Status", CODAStatementLine."Application Status"::Applied);
@@ -587,6 +588,111 @@ codeunit 144006 "CODA Tests"
         // [THEN] "Application Status" is changed to "Partly applied"
         // [THEN] "Unapplied Amount" = "Amt"
         CODAStatementLine.TestField("Applies-to ID", '');
+        CODAStatementLine.TestField("Statement Amount", VendLedgerEntry.Amount);
+        CODAStatementLine.TestField(Amount, 0);
+        CODAStatementLine.TestField("Application Status", CODAStatementLine."Application Status"::"Partly applied");
+        CODAStatementLine.TestField("Unapplied Amount", VendLedgerEntry.Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('ApplyVendorEntriesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CODAStatementLineChangeAmountsWhenAccountNoIsChanged()
+    var
+        VendorBankAccount: Record "Vendor Bank Account";
+        NewVendorBankAccount: Record "Vendor Bank Account";
+        TransactionCoding: Record "Transaction Coding";
+        CODAStatementLine: Record "CODA Statement Line";
+        VendLedgerEntry: Record "Vendor Ledger Entry";
+        CODAWriteStatements: Codeunit "CODA Write Statements";
+    begin
+        // [FEATURE] [Apply] [Applies-to]
+        // [SCENARIO 367180] Revalidation of Account No. with another Vendor restores the values of Unapplied Amount and Amount
+
+        Initialize();
+
+        // [GIVEN] Vendor "X"
+        LibraryCODAHelper.CreateVendorBankAccount(VendorBankAccount);
+
+        // [GIVEN] Create a VendorLedgerEntry for the above created Vendor with Amount = "Amt"
+        CreateVendLedgerEntry(VendLedgerEntry, VendorBankAccount."Vendor No.", false);
+
+        // [GIVEN] Create a CODAStatementLine for the BankAccount that was created earlier
+        // [GIVEN] Set the account type to Vendor and "Statement Amount" = "Amt"
+        CreateCODAStatementLineWithStatementLineNo(
+          CODAStatementLine, VendorBankAccount."Bank Account No.", TransactionCoding."Account Type"::Vendor);
+        UpdateCODAStatementLine(
+          CODAStatementLine, WorkDate, CODAStatementLine."Account Type"::Vendor,
+          VendLedgerEntry.Amount, CODAStatementLine."Application Status"::" ", LibraryUtility.GenerateGUID());
+
+        // [GIVEN] Account No. is "X"
+        CODAStatementLine.Validate("Account No.", VendorBankAccount."Vendor No.");
+        CODAStatementLine.Modify(true);
+
+        // [GIVEN] Vendor Ledger entry applied to CODA Statement Line
+        LibraryVariableStorage.Enqueue(CODAStatementLine."Document No.");
+        CODAWriteStatements.Apply(CODAStatementLine);
+
+        // [GIVEN] Vendor "Y"
+        LibraryCODAHelper.CreateVendorBankAccount(NewVendorBankAccount);
+
+        // [GIVEN] Account No. is "Y"
+        CODAStatementLine.Find();
+        CODAStatementLine.Validate("Account No.", NewVendorBankAccount."Vendor No.");
+
+        // [THEN] "Statement Amount" = "Amt"
+        // [THEN] Amount = 0
+        // [THEN] "Application Status" is changed to "Partly applied"
+        // [THEN] "Unapplied Amount" = "Amt"
+        CODAStatementLine.TestField("Statement Amount", VendLedgerEntry.Amount);
+        CODAStatementLine.TestField(Amount, 0);
+        CODAStatementLine.TestField("Application Status", CODAStatementLine."Application Status"::" ");
+        CODAStatementLine.TestField("Unapplied Amount", VendLedgerEntry.Amount);
+    end;
+
+    [Test]
+    [HandlerFunctions('CancelApplyVendorEntriesModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure CODAStatementLineDidNotChangedAmountsWhenApplicationWasCancelled()
+    var
+        VendorBankAccount: Record "Vendor Bank Account";
+        TransactionCoding: Record "Transaction Coding";
+        CODAStatementLine: Record "CODA Statement Line";
+        VendLedgerEntry: Record "Vendor Ledger Entry";
+        CODAWriteStatements: Codeunit "CODA Write Statements";
+    begin
+        // [FEATURE] [Apply] [Applies-to]
+        // [SCENARIO 368531] No amounts changed when the application process of the CODA statement was cancelled
+
+        Initialize();
+
+        // [GIVEN] Create a Vendor and a VendorBankAccount
+        LibraryCODAHelper.CreateVendorBankAccount(VendorBankAccount);
+
+        // [GIVEN] Create a VendorLedgerEntry for the above created Vendor with Amount = "Amt"
+        CreateVendLedgerEntry(VendLedgerEntry, VendorBankAccount."Vendor No.", false);
+
+        // [GIVEN] Create a CODAStatementLine for the BankAccount that was created earlier
+        // [GIVEN] Set the account type to Vendor and "Statement Amount" = "Amt"
+        CreateCODAStatementLineWithStatementLineNo(
+          CODAStatementLine, VendorBankAccount."Bank Account No.", TransactionCoding."Account Type"::Vendor);
+        UpdateCODAStatementLine(
+          CODAStatementLine, WorkDate, CODAStatementLine."Account Type"::Vendor,
+          VendLedgerEntry.Amount, CODAStatementLine."Application Status"::" ", LibraryUtility.GenerateGUID());
+
+        // [GIVEN] Change the Account No. to VendorAccount
+        CODAStatementLine.Validate("Account No.", VendorBankAccount."Vendor No.");
+        CODAStatementLine.Modify(true);
+
+        // [WHEN] Set applies-to id in the "Apply Entries" page and then press cancel
+        LibraryVariableStorage.Enqueue(CODAStatementLine."Document No.");
+        CODAWriteStatements.Apply(CODAStatementLine);
+
+        // [THEN] "Statement Amount" = Amt
+        // [THEN] "Application Status" is changed to "Partly applied"
+        // [THEN] Amount = 0
+        // [THEN] "Unapplied Amount" = Amt
+        CODAStatementLine.Find();
         CODAStatementLine.TestField("Statement Amount", VendLedgerEntry.Amount);
         CODAStatementLine.TestField(Amount, 0);
         CODAStatementLine.TestField("Application Status", CODAStatementLine."Application Status"::"Partly applied");
@@ -756,6 +862,14 @@ codeunit 144006 "CODA Tests"
     begin
         ApplyVendorEntries.AppliesToID.SetValue(LibraryVariableStorage.DequeueText);
         ApplyVendorEntries.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure CancelApplyVendorEntriesModalPageHandler(var ApplyVendorEntries: TestPage "Apply Vendor Entries")
+    begin
+        ApplyVendorEntries.AppliesToID.SetValue(LibraryVariableStorage.DequeueText());
+        ApplyVendorEntries.Cancel.Invoke();
     end;
 }
 

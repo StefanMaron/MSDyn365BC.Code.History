@@ -147,11 +147,9 @@ table 313 "Inventory Setup"
                     end;
             end;
         }
-        field(5801; "Default Costing Method"; Option)
+        field(5801; "Default Costing Method"; Enum "Costing Method")
         {
             Caption = 'Default Costing Method';
-            OptionCaption = 'FIFO,LIFO,Specific,Average,Standard';
-            OptionMembers = FIFO,LIFO,Specific,"Average",Standard;
         }
         field(5804; "Average Cost Calc. Type"; Option)
         {

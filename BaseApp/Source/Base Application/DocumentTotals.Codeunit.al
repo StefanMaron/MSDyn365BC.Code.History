@@ -575,7 +575,7 @@ codeunit 57 "Document Totals"
             TotalPurchaseLine."Amount Including VAT" -= xPurchaseLine.Amount
         else
             TotalPurchaseLine."Amount Including VAT" -= xPurchaseLine."Amount Including VAT";
-        
+
         TotalPurchaseLine.Amount +=
             CalculateAmountWitnNonDeductibleVAT(PurchaseLine) - CalculateAmountWitnNonDeductibleVAT(xPurchaseLine);
         VATAmount := TotalPurchaseLine."Amount Including VAT" - TotalPurchaseLine.Amount;

@@ -1,4 +1,4 @@
-﻿codeunit 5760 "Whse.-Post Receipt"
+codeunit 5760 "Whse.-Post Receipt"
 {
     Permissions = TableData "Whse. Item Entry Relation" = i,
                   TableData "Posted Whse. Receipt Header" = i,
@@ -42,12 +42,14 @@
         CounterSourceDocTotal: Integer;
         CounterPutAways: Integer;
         PutAwayRequired: Boolean;
-        HideValidationDialog: Boolean;
         ReceivingNo: Code[20];
         ItemEntryRelationCreated: Boolean;
         Text004: Label 'is not within your range of allowed posting dates';
         SuppressCommit: Boolean;
         GenJnlTemplate: Code[10];
+
+    protected var
+        HideValidationDialog: Boolean;
 
     local procedure "Code"()
     var
@@ -660,7 +662,7 @@
 
             IsHandled := false;
             OnPostWhseJnlLineOnAfterInsertWhseItemEntryRelation(PostedWhseRcptHeader, PostedWhseRcptLine, TempWhseSplitSpecification, IsHandled);
-            if not IsHandled then 
+            if not IsHandled then
                 if Location."Bin Mandatory" then begin
                     InsertTempWhseJnlLine(PostedWhseRcptLine);
 
@@ -728,7 +730,7 @@
         exit(CreatePutAway.GetNextPutAwayDocument(WhseActivHeader));
     end;
 
-    local procedure InsertTempWhseJnlLine(PostedWhseRcptLine: Record "Posted Whse. Receipt Line")
+    procedure InsertTempWhseJnlLine(PostedWhseRcptLine: Record "Posted Whse. Receipt Line")
     var
         SourceCodeSetup: Record "Source Code Setup";
         WhseItemTrackingSetup: Record "Item Tracking Setup";
@@ -839,7 +841,7 @@
             IsHandled := false;
             OnBeforeCreatePutAwayDoc(WhseRcptHeader, PostedWhseRcptLine, IsHandled);
             if not IsHandled then begin
-                CreatePutAway.SetValues('', 0, false, false);
+                CreatePutAway.SetValues('', "Whse. Activity Sorting Method"::None, false, false);
                 CreatePutAway.SetCrossDockValues(true);
 
                 if ItemTrackingMgt.GetWhseItemTrkgSetup(PostedWhseRcptLine."Item No.") then

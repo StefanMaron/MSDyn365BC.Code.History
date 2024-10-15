@@ -254,7 +254,7 @@ codeunit 144013 "VAT Annual Listing Report"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"VAT Annual Listing Report");
     end;
 
-    local procedure CreateAndPostSalesDocument(DocumentType: Option; CustomerNo: Code[20])
+    local procedure CreateAndPostSalesDocument(DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";

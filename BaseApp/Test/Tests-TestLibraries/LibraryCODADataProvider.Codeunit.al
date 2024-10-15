@@ -4743,9 +4743,9 @@ codeunit 144016 "Library CODA Data Provider"
         Assert.AreEqual(CODAStatementLine."Application Status"::"Partly applied", CODAStatementLine."Application Status", 'Line ' +
           Format(CODAStatementLine."Statement Line No."));
         Assert.AreEqual('499999', CODAStatementLine."Account No.", 'Line ' + Format(CODAStatementLine."Statement Line No."));
-        Assert.AreEqual(-1208, CODAStatementLine.Amount, 'Line ' + Format(CODAStatementLine."Statement Line No."));
-        Assert.AreEqual(-1208, CODAStatementLine."Amount (LCY)", 'Line ' + Format(CODAStatementLine."Statement Line No."));
-        Assert.AreEqual(0, CODAStatementLine."Unapplied Amount", 'Line ' + Format(CODAStatementLine."Statement Line No."));
+        Assert.AreEqual(0, CODAStatementLine.Amount, 'Line ' + Format(CODAStatementLine."Statement Line No."));
+        Assert.AreEqual(0, CODAStatementLine."Amount (LCY)", 'Line ' + Format(CODAStatementLine."Statement Line No."));
+        Assert.AreEqual(-1208, CODAStatementLine."Unapplied Amount", 'Line ' + Format(CODAStatementLine."Statement Line No."));
     end;
 
     [Scope('OnPrem')]
@@ -4773,7 +4773,7 @@ codeunit 144016 "Library CODA Data Provider"
     procedure ValidateSampleCODAStatementLine8(CODAStatementLine: Record "CODA Statement Line")
     begin
         Assert.AreEqual(true, CODAStatementLine."System-Created Entry", 'Line ' + Format(CODAStatementLine."Statement Line No."));
-        Assert.AreEqual(0, CODAStatementLine."Unapplied Amount", 'Line ' + Format(CODAStatementLine."Statement Line No."));
+        Assert.AreEqual(-182, CODAStatementLine."Unapplied Amount", 'Line ' + Format(CODAStatementLine."Statement Line No."));
     end;
 
     [Scope('OnPrem')]
@@ -4783,9 +4783,9 @@ codeunit 144016 "Library CODA Data Provider"
         Assert.AreEqual(CODAStatementLine."Application Status"::"Partly applied", CODAStatementLine."Application Status", 'Line ' +
           Format(CODAStatementLine."Statement Line No."));
         Assert.AreEqual('411000', CODAStatementLine."Account No.", 'Line ' + Format(CODAStatementLine."Statement Line No."));
-        Assert.AreEqual(-32, CODAStatementLine.Amount, 'Line ' + Format(CODAStatementLine."Statement Line No."));
-        Assert.AreEqual(-32, CODAStatementLine."Amount (LCY)", 'Line ' + Format(CODAStatementLine."Statement Line No."));
-        Assert.AreEqual(0, CODAStatementLine."Unapplied Amount", 'Line ' + Format(CODAStatementLine."Statement Line No."));
+        Assert.AreEqual(0, CODAStatementLine.Amount, 'Line ' + Format(CODAStatementLine."Statement Line No."));
+        Assert.AreEqual(0, CODAStatementLine."Amount (LCY)", 'Line ' + Format(CODAStatementLine."Statement Line No."));
+        Assert.AreEqual(-32, CODAStatementLine."Unapplied Amount", 'Line ' + Format(CODAStatementLine."Statement Line No."));
     end;
 
     [Scope('OnPrem')]
@@ -4797,9 +4797,9 @@ codeunit 144016 "Library CODA Data Provider"
         Assert.AreEqual(CODAStatementLine."Application Status"::"Partly applied", CODAStatementLine."Application Status", 'Line ' +
           Format(CODAStatementLine."Statement Line No."));
         Assert.AreEqual('656000', CODAStatementLine."Account No.", 'Line ' + Format(CODAStatementLine."Statement Line No."));
-        Assert.AreEqual(-150, CODAStatementLine.Amount, 'Line ' + Format(CODAStatementLine."Statement Line No."));
-        Assert.AreEqual(-150, CODAStatementLine."Amount (LCY)", 'Line ' + Format(CODAStatementLine."Statement Line No."));
-        Assert.AreEqual(0, CODAStatementLine."Unapplied Amount", 'Line ' + Format(CODAStatementLine."Statement Line No."));
+        Assert.AreEqual(0, CODAStatementLine.Amount, 'Line ' + Format(CODAStatementLine."Statement Line No."));
+        Assert.AreEqual(0, CODAStatementLine."Amount (LCY)", 'Line ' + Format(CODAStatementLine."Statement Line No."));
+        Assert.AreEqual(-150, CODAStatementLine."Unapplied Amount", 'Line ' + Format(CODAStatementLine."Statement Line No."));
     end;
 }
 

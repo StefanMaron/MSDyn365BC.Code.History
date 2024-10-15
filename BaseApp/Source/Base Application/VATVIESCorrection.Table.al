@@ -84,7 +84,7 @@ table 11300 "VAT VIES Correction"
         }
         field(9; "Additional-Currency Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Additional-Currency Amount';
             Editable = false;

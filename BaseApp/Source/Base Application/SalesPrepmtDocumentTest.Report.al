@@ -620,7 +620,7 @@ report 212 "Sales Prepmt. Document Test"
 
                         if not DimMgt.CheckDimIDComb(TempPrepmtInvLineBuf."Dimension Set ID") then
                             AddError(DimMgt.GetDimCombErr);
-                        TableID[1] := DimMgt.TypeToTableID3(TempSalesLine.Type::"G/L Account");
+                        TableID[1] := DimMgt.TypeToTableID3(TempSalesLine.Type::"G/L Account".AsInteger());
                         No[1] := "Prepayment Inv. Line Buffer"."G/L Account No.";
                         TableID[2] := DATABASE::Job;
                         No[2] := "Prepayment Inv. Line Buffer"."Job No.";

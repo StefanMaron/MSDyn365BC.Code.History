@@ -1945,7 +1945,7 @@ codeunit 144008 "EB - Payment Journal Export"
 
         // [THEN] Resulting Gen. Journal line has "Exported to Payment File" set to True and "Message to Recipient" is equal to "X"
         VerifyGenJnlLinePaymentInfo(GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, VendorNo);
-        
+
         // Tear Down.
         FileMgt.DeleteServerFile(FileName);
     end;
@@ -2234,7 +2234,7 @@ codeunit 144008 "EB - Payment Journal Export"
         exit(PurchaseHeader."No.");
     end;
 
-    local procedure CreatePurchDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20]; UseEuro: Boolean)
+    local procedure CreatePurchDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; UseEuro: Boolean)
     var
         GLAccount: Record "G/L Account";
     begin
@@ -2456,7 +2456,7 @@ codeunit 144008 "EB - Payment Journal Export"
         LibraryDimension.CreateDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
     end;
 
-    local procedure FindVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentType: Option)
+    local procedure FindVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         FilterVendorLedgerEntry(VendorLedgerEntry, VendorNo, DocumentType);
         VendorLedgerEntry.FindFirst;
@@ -2479,7 +2479,7 @@ codeunit 144008 "EB - Payment Journal Export"
         end;
     end;
 
-    local procedure FilterVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentType: Option)
+    local procedure FilterVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         with VendorLedgerEntry do begin
             SetRange("Vendor No.", VendorNo);
@@ -2820,7 +2820,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Assert.AreEqual(ExpectedValue, XmlNode.InnerText, IncorrectNodeValueErr);
     end;
 
-    local procedure VerifyVendLedgEntriesClosed(VendorNo: Code[20]; DocumentType: Option)
+    local procedure VerifyVendLedgEntriesClosed(VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -2828,7 +2828,7 @@ codeunit 144008 "EB - Payment Journal Export"
         Assert.IsFalse(VendorLedgerEntry.Open, '');
     end;
 
-    local procedure VerifyGenJnlLine(DocumentType: Option; AccountType: Option; AccountNo: Code[20]; GLAccDeltaLineNo: Integer)
+    local procedure VerifyGenJnlLine(DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; GLAccDeltaLineNo: Integer)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -2843,7 +2843,7 @@ codeunit 144008 "EB - Payment Journal Export"
         GenJournalLine.TestField("Document Type", DocumentType);
     end;
 
-    local procedure VerifyGenJnlLinePaymentInfo(DocumentType: Option; AccountType: Option; AccountNo: Code[20])
+    local procedure VerifyGenJnlLinePaymentInfo(DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin

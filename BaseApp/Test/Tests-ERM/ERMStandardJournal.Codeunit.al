@@ -340,7 +340,7 @@ codeunit 134921 "ERM Standard Journal"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Option; AccountNo: Code[20]; BalAccountNo: Code[20]; CurrencyCode: Code[10])
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountNo: Code[20]; CurrencyCode: Code[10])
     begin
         // Using the random Amount because value is not important.
         LibraryERM.CreateGeneralJnlLine(
@@ -375,7 +375,7 @@ codeunit 134921 "ERM Standard Journal"
         SaveAsStandardJournal(GenJournalBatch, StandardGeneralJournal.Code);
     end;
 
-    local procedure CreateStandardGeneralJournalLine(StandardGeneralJournal: Record "Standard General Journal"; var StandardGeneralJournalLine: Record "Standard General Journal Line"; AccountType: Option; AccountNo: Code[20])
+    local procedure CreateStandardGeneralJournalLine(StandardGeneralJournal: Record "Standard General Journal"; var StandardGeneralJournalLine: Record "Standard General Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         LineNo: Integer;
     begin

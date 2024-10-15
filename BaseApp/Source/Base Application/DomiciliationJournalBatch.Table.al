@@ -34,11 +34,9 @@ table 2000021 "Domiciliation Journal Batch"
             OptionCaption = ' ,,Processed,Posted';
             OptionMembers = " ",,Processed,Posted;
         }
-        field(10; "Partner Type"; Option)
+        field(10; "Partner Type"; Enum "Partner Type")
         {
             Caption = 'Partner Type';
-            OptionCaption = ' ,Company,Person';
-            OptionMembers = " ",Company,Person;
         }
     }
 

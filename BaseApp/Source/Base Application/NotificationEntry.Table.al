@@ -10,11 +10,9 @@ table 1511 "Notification Entry"
             AutoIncrement = true;
             Caption = 'ID';
         }
-        field(3; Type; Option)
+        field(3; Type; Enum "Notification Entry Type")
         {
             Caption = 'Type';
-            OptionCaption = 'New Record,Approval,Overdue';
-            OptionMembers = "New Record",Approval,Overdue;
         }
         field(4; "Recipient User ID"; Code[50])
         {
@@ -108,12 +106,21 @@ table 1511 "Notification Entry"
     var
         DataTypeManagement: Codeunit "Data Type Management";
 
+    [Obsolete('Replaced by CreateNoficicationEntry().', '17.0')]
     procedure CreateNew(NewType: Option "New Record",Approval,Overdue; NewUserID: Code[50]; NewRecord: Variant; NewLinkTargetPage: Integer; NewCustomLink: Text[250])
     begin
-        CreateNewEntry(NewType, NewUserID, NewRecord, NewLinkTargetPage, NewCustomLink, '');
+        CreateNotificationEntry(
+            "Notification Entry Type".FromInteger(NewType), NewUserID, NewRecord, NewLinkTargetPage, NewCustomLink, '');
     end;
 
+    [Obsolete('Replaced by CreateNoficicationEntry().', '17.0')]
     procedure CreateNewEntry(NewType: Option "New Record",Approval,Overdue; RecipientUserID: Code[50]; NewRecord: Variant; NewLinkTargetPage: Integer; NewCustomLink: Text[250]; NewSenderUserID: Code[50])
+    begin
+        CreateNotificationEntry(
+            "Notification Entry Type".FromInteger(NewType), RecipientUserID, NewRecord, NewLinkTargetPage, NewCustomLink, NewSenderUserID);
+    end;
+
+    procedure CreateNotificationEntry(NewType: Enum "Notification Entry Type"; RecipientUserID: Code[50]; NewRecord: Variant; NewLinkTargetPage: Integer; NewCustomLink: Text[250]; NewSenderUserID: Code[50])
     var
         NotificationSchedule: Record "Notification Schedule";
         UserSetup: Record "User Setup";
@@ -130,7 +137,7 @@ table 1511 "Notification Entry"
             NotificationSchedule.ScheduleNotification(Rec);
     end;
 
-    local procedure InsertRec(NewType: Option "New Record",Approval,Overdue; NewUserID: Code[50]; NewRecordID: RecordID; NewLinkTargetPage: Integer; NewCustomLink: Text[250]; NewSenderUserID: Code[50]): Boolean;
+    local procedure InsertRec(NewType: Enum "Notification Entry Type"; NewUserID: Code[50]; NewRecordID: RecordID; NewLinkTargetPage: Integer; NewCustomLink: Text[250]; NewSenderUserID: Code[50]): Boolean;
     begin
         if not DoesTableMatchType(NewType, NewRecordID.TableNo) then
             exit(false);
@@ -145,12 +152,12 @@ table 1511 "Notification Entry"
         exit(Insert(true));
     end;
 
-    local procedure DoesTableMatchType(NewType: Option; TableNo: Integer): Boolean;
+    local procedure DoesTableMatchType(NewType: Enum "Notification Entry Type"; TableNo: Integer): Boolean;
     begin
         case NewType of
-            type::Approval:
+            "Notification Entry Type"::Approval:
                 exit(TableNo = Database::"Approval Entry");
-            type::Overdue:
+            "Notification Entry Type"::Overdue:
                 exit(TableNo = Database::"Overdue Approval Entry");
         end;
         exit(true);

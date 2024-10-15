@@ -93,7 +93,7 @@ report 2000022 "Create Gen. Jnl. Lines"
         BalancingDomJnlLine."Customer No." := GenJnlBatch."Bal. Account No.";
         BalancingDomJnlLine.Amount := -TotalAmountLCY;
         BalancingDomJnlLine."Message 1" := '';
-        BalancingDomJnlLine."Applies-to Doc. Type" := 0;
+        BalancingDomJnlLine."Applies-to Doc. Type" := BalancingDomJnlLine."Applies-to Doc. Type"::" ";
         BalancingDomJnlLine."Applies-to Doc. No." := '';
         CreateGenJnlLineFromDomJnlLine(BalancingDomJnlLine);
 

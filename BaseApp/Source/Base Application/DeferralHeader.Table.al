@@ -5,11 +5,9 @@ table 1701 "Deferral Header"
 
     fields
     {
-        field(1; "Deferral Doc. Type"; Option)
+        field(1; "Deferral Doc. Type"; Enum "Deferral Document Type")
         {
             Caption = 'Deferral Doc. Type';
-            OptionCaption = 'Purchase,Sales,G/L';
-            OptionMembers = Purchase,Sales,"G/L";
         }
         field(2; "Gen. Jnl. Template Name"; Code[10])
         {
@@ -117,7 +115,7 @@ table 1701 "Deferral Header"
         }
         field(20; "Schedule Line Total"; Decimal)
         {
-            CalcFormula = Sum ("Deferral Line".Amount WHERE("Deferral Doc. Type" = FIELD("Deferral Doc. Type"),
+            CalcFormula = Sum("Deferral Line".Amount WHERE("Deferral Doc. Type" = FIELD("Deferral Doc. Type"),
                                                             "Gen. Jnl. Template Name" = FIELD("Gen. Jnl. Template Name"),
                                                             "Gen. Jnl. Batch Name" = FIELD("Gen. Jnl. Batch Name"),
                                                             "Document Type" = FIELD("Document Type"),
@@ -146,7 +144,7 @@ table 1701 "Deferral Header"
     begin
         // If the user deletes the header, all associated lines should also be deleted
         DeferralUtilities.FilterDeferralLines(
-          DeferralLine, "Deferral Doc. Type", "Gen. Jnl. Template Name", "Gen. Jnl. Batch Name",
+          DeferralLine, "Deferral Doc. Type".AsInteger(), "Gen. Jnl. Template Name", "Gen. Jnl. Batch Name",
           "Document Type", "Document No.", "Line No.");
         DeferralLine.DeleteAll();
     end;
@@ -170,9 +168,10 @@ table 1701 "Deferral Header"
             exit(false);
         end;
         DeferralDescription := "Schedule Description";
-        DeferralUtilities.CreateDeferralSchedule("Deferral Code", "Deferral Doc. Type", "Gen. Jnl. Template Name",
-          "Gen. Jnl. Batch Name", "Document Type", "Document No.", "Line No.", "Amount to Defer",
-          "Calc. Method", "Start Date", "No. of Periods", false, DeferralDescription, false, "Currency Code");
+        DeferralUtilities.CreateDeferralSchedule(
+            "Deferral Code", "Deferral Doc. Type".AsInteger(), "Gen. Jnl. Template Name",
+            "Gen. Jnl. Batch Name", "Document Type", "Document No.", "Line No.", "Amount to Defer",
+            "Calc. Method", "Start Date", "No. of Periods", false, DeferralDescription, false, "Currency Code");
         exit(true);
     end;
 }

@@ -20,11 +20,9 @@ codeunit 131305 "Library - ERM Country Data"
         exit;
     end;
 
-    procedure GetVATCalculationType(): Integer
-    var
-        DummyVATPostingSetup: Record "VAT Posting Setup";
+    procedure GetVATCalculationType(): Enum "Tax Calculation Type"
     begin
-        exit(DummyVATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        exit("Tax Calculation Type"::"Normal VAT");
     end;
 
     [Scope('OnPrem')]
@@ -32,7 +30,7 @@ codeunit 131305 "Library - ERM Country Data"
     var
         ReportSelections: Record "Report Selections";
     begin
-        exit(ReportSelections.Usage::"P.Quote");
+        exit(ReportSelections.Usage::"P.Quote".AsInteger());
     end;
 
     [Scope('OnPrem')]
@@ -40,7 +38,7 @@ codeunit 131305 "Library - ERM Country Data"
     var
         ReportSelections: Record "Report Selections";
     begin
-        exit(ReportSelections.Usage::"S.Quote");
+        exit(ReportSelections.Usage::"S.Quote".AsInteger());
     end;
 
     procedure SetupCostAccounting()
@@ -242,7 +240,7 @@ codeunit 131305 "Library - ERM Country Data"
         GenJnlTemplate.Modify(true);
     end;
 
-    local procedure DeleteExtraGeneralJournalTemplate(PageID: Integer; TemplType: Option)
+    local procedure DeleteExtraGeneralJournalTemplate(PageID: Integer; TemplType: Enum "Gen. Journal Template Type")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         SalesSetup: Record "Sales & Receivables Setup";

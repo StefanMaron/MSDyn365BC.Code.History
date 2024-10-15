@@ -1251,7 +1251,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         Customer.Modify();
     end;
 
-    local procedure InsertRndCFLedgEntries(CashFlowNo: Code[20]; SourceType: Option; CashFlowDate: Date; var TotalAmount: Decimal)
+    local procedure InsertRndCFLedgEntries(CashFlowNo: Code[20]; SourceType: Enum "Cash Flow Source Type"; CashFlowDate: Date; var TotalAmount: Decimal)
     var
         CFForecastEntry: Record "Cash Flow Forecast Entry";
         Amount: Decimal;
@@ -1263,10 +1263,10 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         for i := 1 to Count do begin
             Amount := LibraryRandom.RandDec(100, 2);
             if SourceType in
-               [CFForecastEntry."Source Type"::"Purchase Orders",
-                CFForecastEntry."Source Type"::"Cash Flow Manual Expense",
-                CFForecastEntry."Source Type"::"Fixed Assets Budget",
-                CFForecastEntry."Source Type"::Payables]
+               ["Cash Flow Source Type"::"Purchase Orders",
+                "Cash Flow Source Type"::"Cash Flow Manual Expense",
+                "Cash Flow Source Type"::"Fixed Assets Budget",
+                "Cash Flow Source Type"::Payables]
             then
                 Amount := -Amount;
 
@@ -1278,7 +1278,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     local procedure InsertCFLedgerEntries(var CashFlowForecast: Record "Cash Flow Forecast"; ConsiderSource: array[16] of Boolean; var PostedAmount: array[16, 2] of Decimal)
     var
         CFForecastEntry: Record "Cash Flow Forecast Entry";
-        SourceType: Option;
+        SourceType: Integer;
         Period: Option ,Before,After;
         Amount: Decimal;
     begin
@@ -1289,9 +1289,9 @@ codeunit 134557 "ERM Cash Flow UnitTests"
 
         for SourceType := 1 to ArrayLen(ConsiderSource) do
             if ConsiderSource[SourceType] then begin
-                InsertRndCFLedgEntries(CashFlowForecast."No.", SourceType, CalcDate(MinusOneDayFormula, WorkDate), Amount);
+                InsertRndCFLedgEntries(CashFlowForecast."No.", "Cash Flow Source Type".FromInteger(SourceType), CalcDate(MinusOneDayFormula, WorkDate), Amount);
                 PostedAmount[SourceType, Period::Before] := Amount;
-                InsertRndCFLedgEntries(CashFlowForecast."No.", SourceType, CalcDate(PlusOneDayFormula, WorkDate), Amount);
+                InsertRndCFLedgEntries(CashFlowForecast."No.", "Cash Flow Source Type".FromInteger(SourceType), CalcDate(PlusOneDayFormula, WorkDate), Amount);
                 PostedAmount[SourceType, Period::After] := Amount;
             end;
     end;
@@ -1344,7 +1344,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFForecast.CalculateAllAmounts(FromDate, ToDate, Values, SumTotal);
         for SourceType := 1 to ArrayLen(Values) do begin
             expectedValue := CalcExpectedAmount(FromDate, ToDate, PostedAmount[SourceType]);
-            CFForecast."Source Type Filter" := SourceType;
+            CFForecast."Source Type Filter" := "Cash Flow Source Type".FromInteger(SourceType);
             Assert.AreEqual(
               expectedValue, Values[SourceType],
               StrSubstNo(IncorrectField, CFForecast."Source Type Filter", expectedValue, Values[SourceType]));
@@ -1406,7 +1406,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         PostedAmount: array[16, 2] of Decimal;
     begin
         Initialize;
-        ConsiderSource[CashFlowForecast."Source Type Filter"::Receivables] := true;
+        ConsiderSource[CashFlowForecast."Source Type Filter"::Receivables.AsInteger()] := true;
         InsertCFLedgerEntries(CashFlowForecast, ConsiderSource, PostedAmount);
         CashFlowSetup.SetChartRoleCenterCFNo(CashFlowForecast."No.");
 
@@ -1575,8 +1575,8 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     var
         ConsiderSource: array[16] of Boolean;
     begin
-        ConsiderSource[CashFlowForecast."Source Type Filter"::Receivables] := true;
-        ConsiderSource[CashFlowForecast."Source Type Filter"::Payables] := true;
+        ConsiderSource[CashFlowForecast."Source Type Filter"::Receivables.AsInteger()] := true;
+        ConsiderSource[CashFlowForecast."Source Type Filter"::Payables.AsInteger()] := true;
         InsertCFLedgerEntries(CashFlowForecast, ConsiderSource, PostedAmount);
     end;
 
@@ -1659,7 +1659,7 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         end;
     end;
 
-    local procedure VerifyDateAndSourceTypeOnChartDrillDown(MeasureIndex: Integer; ExpectedSourceType: Integer)
+    local procedure VerifyDateAndSourceTypeOnChartDrillDown(MeasureIndex: Integer; ExpectedSourceType: Enum "Cash Flow Source Type")
     var
         CashFlowSetup: Record "Cash Flow Setup";
         CashFlowForecast: Record "Cash Flow Forecast";
@@ -1688,13 +1688,13 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         repeat
             CFForecastEntries."Cash Flow Forecast No.".AssertEquals(CashFlowForecast."No.");
             CFForecastEntries."Cash Flow Date".AssertEquals(ExpectedDate);
-            if ExpectedSourceType <> 0 then
+            if ExpectedSourceType <> ExpectedSourceType::" " then
                 CFForecastEntries."Source Type".AssertEquals(ExpectedSourceType);
             ActualTotalAmount += CFForecastEntries."Amount (LCY)".AsDEcimal;
         until not CFForecastEntries.Next;
 
-        if ExpectedSourceType <> 0 then
-            ExpectedTotalAmount := PostedAmount[ExpectedSourceType, Period::Before]
+        if ExpectedSourceType <> ExpectedSourceType::" " then
+            ExpectedTotalAmount := PostedAmount[ExpectedSourceType.AsInteger(), Period::Before]
         else
             ExpectedTotalAmount := CalcSum(PostedAmount, Period::Before);
         Assert.AreEqual(ExpectedTotalAmount, ActualTotalAmount, 'Wrong expected sum of Amount (LCY) on the DrillDown page');
@@ -1791,9 +1791,9 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ActualNoOfPosNeg: Integer;
     begin
         Initialize;
-        ConsiderSource[CashFlowForecast."Source Type Filter"::Receivables] := true;
-        ConsiderSource[CashFlowForecast."Source Type Filter"::"Sales Orders"] := true;
-        ConsiderSource[CashFlowForecast."Source Type Filter"::"Service Orders"] := true;
+        ConsiderSource[CashFlowForecast."Source Type Filter"::Receivables.AsInteger()] := true;
+        ConsiderSource[CashFlowForecast."Source Type Filter"::"Sales Orders".AsInteger()] := true;
+        ConsiderSource[CashFlowForecast."Source Type Filter"::"Service Orders".AsInteger()] := true;
         InsertCFLedgerEntries(CashFlowForecast, ConsiderSource, PostedAmount);
 
         BusChartBuf.Initialize;
@@ -1887,8 +1887,8 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ConsiderSource: array[16] of Boolean;
     begin
         Initialize;
-        ConsiderSource[CFForecastEntry."Source Type"::"Service Orders"] := true;
-        ConsiderSource[CFForecastEntry."Source Type"::Receivables] := true;
+        ConsiderSource["Cash Flow Source Type"::"Service Orders".AsInteger()] := true;
+        ConsiderSource["Cash Flow Source Type"::Receivables.AsInteger()] := true;
         SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
 
         CFLedgerEntries.Trap;
@@ -1906,8 +1906,8 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ConsiderSource: array[16] of Boolean;
     begin
         Initialize;
-        ConsiderSource[CFForecastEntry."Source Type"::Receivables] := true;
-        ConsiderSource[CFForecastEntry."Source Type"::Payables] := true;
+        ConsiderSource["Cash Flow Source Type"::Receivables.AsInteger()] := true;
+        ConsiderSource["Cash Flow Source Type"::Payables.AsInteger()] := true;
         SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
 
         CFLedgerEntries.Trap;
@@ -1925,8 +1925,8 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ConsiderSource: array[16] of Boolean;
     begin
         Initialize;
-        ConsiderSource[CFForecastEntry."Source Type"::Payables] := true;
-        ConsiderSource[CFForecastEntry."Source Type"::"Sales Orders"] := true;
+        ConsiderSource["Cash Flow Source Type"::Payables.AsInteger()] := true;
+        ConsiderSource["Cash Flow Source Type"::"Sales Orders".AsInteger()] := true;
         SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
 
         CFLedgerEntries.Trap;
@@ -1944,8 +1944,8 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ConsiderSource: array[16] of Boolean;
     begin
         Initialize;
-        ConsiderSource[CFForecastEntry."Source Type"::"Sales Orders"] := true;
-        ConsiderSource[CFForecastEntry."Source Type"::"Purchase Orders"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Sales Orders".AsInteger()] := true;
+        ConsiderSource["Cash Flow Source Type"::"Purchase Orders".AsInteger()] := true;
         SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
 
         CFLedgerEntries.Trap;
@@ -1963,8 +1963,8 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ConsiderSource: array[16] of Boolean;
     begin
         Initialize;
-        ConsiderSource[CFForecastEntry."Source Type"::"Purchase Orders"] := true;
-        ConsiderSource[CFForecastEntry."Source Type"::"Liquid Funds"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Purchase Orders".AsInteger()] := true;
+        ConsiderSource["Cash Flow Source Type"::"Liquid Funds".AsInteger()] := true;
         SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
 
         CFLedgerEntries.Trap;
@@ -1982,8 +1982,8 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ConsiderSource: array[16] of Boolean;
     begin
         Initialize;
-        ConsiderSource[CFForecastEntry."Source Type"::"Liquid Funds"] := true;
-        ConsiderSource[CFForecastEntry."Source Type"::"Cash Flow Manual Expense"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Liquid Funds".AsInteger()] := true;
+        ConsiderSource["Cash Flow Source Type"::"Cash Flow Manual Expense".AsInteger()] := true;
         SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
 
         CFLedgerEntries.Trap;
@@ -2001,8 +2001,8 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ConsiderSource: array[16] of Boolean;
     begin
         Initialize;
-        ConsiderSource[CFForecastEntry."Source Type"::"Cash Flow Manual Expense"] := true;
-        ConsiderSource[CFForecastEntry."Source Type"::"Cash Flow Manual Revenue"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Cash Flow Manual Expense".AsInteger()] := true;
+        ConsiderSource["Cash Flow Source Type"::"Cash Flow Manual Revenue".AsInteger()] := true;
         SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
 
         CFLedgerEntries.Trap;
@@ -2020,8 +2020,8 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ConsiderSource: array[16] of Boolean;
     begin
         Initialize;
-        ConsiderSource[CFForecastEntry."Source Type"::"Cash Flow Manual Revenue"] := true;
-        ConsiderSource[CFForecastEntry."Source Type"::"Fixed Assets Disposal"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Cash Flow Manual Revenue".AsInteger()] := true;
+        ConsiderSource["Cash Flow Source Type"::"Fixed Assets Disposal".AsInteger()] := true;
         SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
 
         CFLedgerEntries.Trap;
@@ -2039,8 +2039,8 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ConsiderSource: array[16] of Boolean;
     begin
         Initialize;
-        ConsiderSource[CFForecastEntry."Source Type"::"Fixed Assets Disposal"] := true;
-        ConsiderSource[CFForecastEntry."Source Type"::"Fixed Assets Budget"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Fixed Assets Disposal".AsInteger()] := true;
+        ConsiderSource["Cash Flow Source Type"::"Fixed Assets Budget".AsInteger()] := true;
         SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
 
         CFLedgerEntries.Trap;
@@ -2058,8 +2058,8 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ConsiderSource: array[16] of Boolean;
     begin
         Initialize;
-        ConsiderSource[CFForecastEntry."Source Type"::"Fixed Assets Budget"] := true;
-        ConsiderSource[CFForecastEntry."Source Type"::"Fixed Assets Disposal"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Fixed Assets Budget".AsInteger()] := true;
+        ConsiderSource["Cash Flow Source Type"::"Fixed Assets Disposal".AsInteger()] := true;
         SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
 
         CFLedgerEntries.Trap;
@@ -2078,8 +2078,8 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     begin
         // Setup
         Initialize;
-        ConsiderSource[CFForecastEntry."Source Type"::"G/L Budget"] := true;
-        ConsiderSource[CFForecastEntry."Source Type"::"Sales Orders"] := true; // consider some unrelated values as well
+        ConsiderSource["Cash Flow Source Type"::"G/L Budget".AsInteger()] := true;
+        ConsiderSource["Cash Flow Source Type"::"Sales Orders".AsInteger()] := true; // consider some unrelated values as well
         SetupDrillDownOnFactBox(CashFlowCard, ConsiderSource);
 
         // Exercise
@@ -2117,8 +2117,8 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ConsiderSource: array[16] of Boolean;
     begin
         Initialize;
-        ConsiderSource[CFForecastEntry."Source Type"::"Service Orders"] := true;
-        ConsiderSource[CFForecastEntry."Source Type"::Receivables] := true;
+        ConsiderSource["Cash Flow Source Type"::"Service Orders".AsInteger()] := true;
+        ConsiderSource["Cash Flow Source Type"::Receivables.AsInteger()] := true;
         SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
 
         CFLedgerEntries.Trap;
@@ -2136,8 +2136,8 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ConsiderSource: array[16] of Boolean;
     begin
         Initialize;
-        ConsiderSource[CFForecastEntry."Source Type"::Receivables] := true;
-        ConsiderSource[CFForecastEntry."Source Type"::Payables] := true;
+        ConsiderSource["Cash Flow Source Type"::Receivables.AsInteger()] := true;
+        ConsiderSource["Cash Flow Source Type"::Payables.AsInteger()] := true;
         SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
 
         CFLedgerEntries.Trap;
@@ -2155,8 +2155,8 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ConsiderSource: array[16] of Boolean;
     begin
         Initialize;
-        ConsiderSource[CFForecastEntry."Source Type"::Payables] := true;
-        ConsiderSource[CFForecastEntry."Source Type"::"Sales Orders"] := true;
+        ConsiderSource["Cash Flow Source Type"::Payables.AsInteger()] := true;
+        ConsiderSource["Cash Flow Source Type"::"Sales Orders".AsInteger()] := true;
         SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
 
         CFLedgerEntries.Trap;
@@ -2174,8 +2174,8 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ConsiderSource: array[16] of Boolean;
     begin
         Initialize;
-        ConsiderSource[CFForecastEntry."Source Type"::"Sales Orders"] := true;
-        ConsiderSource[CFForecastEntry."Source Type"::"Purchase Orders"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Sales Orders".AsInteger()] := true;
+        ConsiderSource["Cash Flow Source Type"::"Purchase Orders".AsInteger()] := true;
         SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
 
         CFLedgerEntries.Trap;
@@ -2193,8 +2193,8 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ConsiderSource: array[16] of Boolean;
     begin
         Initialize;
-        ConsiderSource[CFForecastEntry."Source Type"::"Purchase Orders"] := true;
-        ConsiderSource[CFForecastEntry."Source Type"::"Liquid Funds"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Purchase Orders".AsInteger()] := true;
+        ConsiderSource["Cash Flow Source Type"::"Liquid Funds".AsInteger()] := true;
         SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
 
         CFLedgerEntries.Trap;
@@ -2212,8 +2212,8 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ConsiderSource: array[16] of Boolean;
     begin
         Initialize;
-        ConsiderSource[CFForecastEntry."Source Type"::"Liquid Funds"] := true;
-        ConsiderSource[CFForecastEntry."Source Type"::"Cash Flow Manual Expense"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Liquid Funds".AsInteger()] := true;
+        ConsiderSource["Cash Flow Source Type"::"Cash Flow Manual Expense".AsInteger()] := true;
         SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
 
         CFLedgerEntries.Trap;
@@ -2231,8 +2231,8 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ConsiderSource: array[16] of Boolean;
     begin
         Initialize;
-        ConsiderSource[CFForecastEntry."Source Type"::"Cash Flow Manual Expense"] := true;
-        ConsiderSource[CFForecastEntry."Source Type"::"Cash Flow Manual Revenue"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Cash Flow Manual Expense".AsInteger()] := true;
+        ConsiderSource["Cash Flow Source Type"::"Cash Flow Manual Revenue".AsInteger()] := true;
         SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
 
         CFLedgerEntries.Trap;
@@ -2250,8 +2250,8 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ConsiderSource: array[16] of Boolean;
     begin
         Initialize;
-        ConsiderSource[CFForecastEntry."Source Type"::"Cash Flow Manual Revenue"] := true;
-        ConsiderSource[CFForecastEntry."Source Type"::"Fixed Assets Disposal"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Cash Flow Manual Revenue".AsInteger()] := true;
+        ConsiderSource["Cash Flow Source Type"::"Fixed Assets Disposal".AsInteger()] := true;
         SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
 
         CFLedgerEntries.Trap;
@@ -2269,8 +2269,8 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ConsiderSource: array[16] of Boolean;
     begin
         Initialize;
-        ConsiderSource[CFForecastEntry."Source Type"::"Fixed Assets Disposal"] := true;
-        ConsiderSource[CFForecastEntry."Source Type"::"Fixed Assets Budget"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Fixed Assets Disposal".AsInteger()] := true;
+        ConsiderSource["Cash Flow Source Type"::"Fixed Assets Budget".AsInteger()] := true;
         SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
 
         CFLedgerEntries.Trap;
@@ -2288,8 +2288,8 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         ConsiderSource: array[16] of Boolean;
     begin
         Initialize;
-        ConsiderSource[CFForecastEntry."Source Type"::"Fixed Assets Budget"] := true;
-        ConsiderSource[CFForecastEntry."Source Type"::"Fixed Assets Disposal"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Fixed Assets Budget".AsInteger()] := true;
+        ConsiderSource["Cash Flow Source Type"::"Fixed Assets Disposal".AsInteger()] := true;
         SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
 
         CFLedgerEntries.Trap;
@@ -2308,8 +2308,8 @@ codeunit 134557 "ERM Cash Flow UnitTests"
     begin
         // Setup
         Initialize;
-        ConsiderSource[CFForecastEntry."Source Type"::"G/L Budget"] := true;
-        ConsiderSource[CFForecastEntry."Source Type"::"Sales Orders"] := true; // create some unrelated entries as well
+        ConsiderSource["Cash Flow Source Type"::"G/L Budget".AsInteger()] := true;
+        ConsiderSource["Cash Flow Source Type"::"Sales Orders".AsInteger()] := true; // create some unrelated entries as well
         SetupDrillDownOnPAG868(CashFlowStatistic, ConsiderSource);
 
         // Exercise
@@ -2369,7 +2369,8 @@ codeunit 134557 "ERM Cash Flow UnitTests"
         CFWkshLine."Source Type" := CFWkshLine."Source Type"::"G/L Budget";
         CFWkshLine.Validate("G/L Budget Name", GLBudgetName.Name);
 
-        CFWkshLine."Source Type" := LibraryRandom.RandIntInRange(1, CFWkshLine."Source Type"::"G/L Budget" - 1);
+        CFWkshLine."Source Type" :=
+            "Cash Flow Source Type".FromInteger(LibraryRandom.RandIntInRange(1, "Cash Flow Source Type"::"G/L Budget".AsInteger() - 1));
         asserterror CFWkshLine.Validate("G/L Budget Name", GLBudgetName.Name);
         Assert.ExpectedError(
           StrSubstNo('%1 must be equal to ''%2''', CFWkshLine.FieldCaption("Source Type"), Format(CFWkshLine."Source Type"::"G/L Budget")));

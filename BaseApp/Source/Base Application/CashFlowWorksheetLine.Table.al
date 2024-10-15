@@ -190,6 +190,10 @@ table 846 "Cash Flow Worksheet Line"
                 TestField("Source Type", "Source Type"::"G/L Budget");
             end;
         }
+        field(36; "Source Line No."; Integer)
+        {
+            Caption = 'Source Line No.';
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
@@ -198,7 +202,7 @@ table 846 "Cash Flow Worksheet Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()

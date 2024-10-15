@@ -777,17 +777,17 @@ codeunit 144001 "Payment Discount"
             CreateSalesLine(SalesLine, SalesHeader);
     end;
 
-    local procedure CreateSalesDocInLCYWithPrepmt(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Option)
+    local procedure CreateSalesDocInLCYWithPrepmt(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Enum "Sales Document Type")
     begin
         CreateSalesDocWithPrepmt(SalesHeader, SalesLine, DocType, '');
     end;
 
-    local procedure CreateSalesDocInFCYWithPrepmt(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Option)
+    local procedure CreateSalesDocInFCYWithPrepmt(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Enum "Sales Document Type")
     begin
         CreateSalesDocWithPrepmt(SalesHeader, SalesLine, DocType, CreateCurrency);
     end;
 
-    local procedure CreateSalesDocWithPrepmt(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Option; CurrencyCode: Code[10])
+    local procedure CreateSalesDocWithPrepmt(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Enum "Sales Document Type"; CurrencyCode: Code[10])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocType, CreateCust);
         SalesHeader."Shipment Date" := WorkDate;
@@ -798,7 +798,7 @@ codeunit 144001 "Payment Discount"
         AddSOPrepayment(SalesHeader, LibraryRandom.RandIntInRange(10, 40));
     end;
 
-    local procedure CreateSalesDocWithMultipleLinesAndPrepmt(var SalesHeader: Record "Sales Header"; DocType: Option): Decimal
+    local procedure CreateSalesDocWithMultipleLinesAndPrepmt(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"): Decimal
     var
         SalesLine: Record "Sales Line";
         i: Integer;
@@ -811,7 +811,7 @@ codeunit 144001 "Payment Discount"
           Round(GetSalesVATBase(SalesHeader) * SalesHeader."Prepayment %" / 100, LibraryERM.GetAmountRoundingPrecision));
     end;
 
-    local procedure CreateSalesDocWithPmtDiscAndPrepmt(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Option)
+    local procedure CreateSalesDocWithPmtDiscAndPrepmt(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocType: Enum "Sales Document Type")
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocType, CreateCust);
         SalesHeader.Validate("Payment Discount %", LibraryRandom.RandInt(10));
@@ -849,17 +849,17 @@ codeunit 144001 "Payment Discount"
             CreatePurchLine(PurchLine, PurchHeader);
     end;
 
-    local procedure CreatePurchDocInLCYWithPrepmt(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; DocType: Option)
+    local procedure CreatePurchDocInLCYWithPrepmt(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; DocType: Enum "Purchase Document Type")
     begin
         CreatePurchDocWithPrepmt(PurchHeader, PurchLine, DocType, '');
     end;
 
-    local procedure CreatePurchDocInFCYWithPrepmt(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; DocType: Option)
+    local procedure CreatePurchDocInFCYWithPrepmt(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; DocType: Enum "Purchase Document Type")
     begin
         CreatePurchDocWithPrepmt(PurchHeader, PurchLine, DocType, CreateCurrency);
     end;
 
-    local procedure CreatePurchDocWithPrepmt(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; DocType: Option; CurrencyCode: Code[10])
+    local procedure CreatePurchDocWithPrepmt(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; DocType: Enum "Purchase Document Type"; CurrencyCode: Code[10])
     begin
         LibraryPurchase.CreatePurchHeader(PurchHeader, DocType, CreateVend);
         PurchHeader.Validate("Currency Code", CurrencyCode);
@@ -868,7 +868,7 @@ codeunit 144001 "Payment Discount"
         AddPOPrepayment(PurchHeader, LibraryRandom.RandIntInRange(10, 40));
     end;
 
-    local procedure CreatePurchDocWithMultipleLinesAndPrepmt(var PurchHeader: Record "Purchase Header"; DocType: Option): Decimal
+    local procedure CreatePurchDocWithMultipleLinesAndPrepmt(var PurchHeader: Record "Purchase Header"; DocType: Enum "Purchase Document Type"): Decimal
     var
         PurchLine: Record "Purchase Line";
         i: Integer;
@@ -881,7 +881,7 @@ codeunit 144001 "Payment Discount"
           Round(GetPurchVATBase(PurchHeader) * PurchHeader."Prepayment %" / 100, LibraryERM.GetAmountRoundingPrecision));
     end;
 
-    local procedure CreatePurchDocWithPmtDiscAndPrepmt(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; DocType: Option)
+    local procedure CreatePurchDocWithPmtDiscAndPrepmt(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; DocType: Enum "Purchase Document Type")
     begin
         LibraryPurchase.CreatePurchHeader(PurchHeader, DocType, CreateVend);
         PurchHeader.Validate("Payment Discount %", LibraryRandom.RandInt(10));
@@ -907,7 +907,7 @@ codeunit 144001 "Payment Discount"
         PurchLine.Modify(true);
     end;
 
-    local procedure CreateServDocWithPricesInclVAT(var ServHeader: Record "Service Header"; DocumentType: Option; PricesInclVAT: Boolean)
+    local procedure CreateServDocWithPricesInclVAT(var ServHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; PricesInclVAT: Boolean)
     var
         i: Integer;
     begin
@@ -926,7 +926,7 @@ codeunit 144001 "Payment Discount"
             CreateServLine(ServHeader, ServLine);
     end;
 
-    local procedure CreateServHeader(var ServHeader: Record "Service Header"; DocumentType: Option; PricesInclVAT: Boolean)
+    local procedure CreateServHeader(var ServHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; PricesInclVAT: Boolean)
     begin
         LibraryService.CreateServiceHeader(ServHeader, DocumentType, CreateCust);
         ServHeader.Validate("Prices Including VAT", PricesInclVAT);

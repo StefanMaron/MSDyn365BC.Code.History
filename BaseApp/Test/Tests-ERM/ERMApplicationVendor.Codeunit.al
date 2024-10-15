@@ -791,7 +791,7 @@ codeunit 134011 "ERM Application Vendor"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
     end;
 
-    local procedure ApplyAndPostMultipleVendorEntries(DocumentType: Option; DocumentNo: Code[20]; AmountToApply: Decimal)
+    local procedure ApplyAndPostMultipleVendorEntries(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; AmountToApply: Decimal)
     var
         GLRegister: Record "G/L Register";
         ApplyingVendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -830,7 +830,7 @@ codeunit 134011 "ERM Application Vendor"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure VendorRealizedAdjust(PmtType: Option; InvType: Option; Amount: Decimal; Stepwise: Boolean; CurrencyAdjustFactor: Decimal; DtldLedgerType: Option)
+    local procedure VendorRealizedAdjust(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean; CurrencyAdjustFactor: Decimal; DtldLedgerType: Option)
     var
         Currency: Record Currency;
         CurrencyExchangeRate: Record "Currency Exchange Rate";
@@ -872,7 +872,7 @@ codeunit 134011 "ERM Application Vendor"
         LibraryERMVendorWatch.AssertVendor;
     end;
 
-    local procedure VendorUnrealizedAdjust(PmtType: Option; InvType: Option; Amount: Decimal; Stepwise: Boolean; CurrencyAdjustFactor: Decimal; DtldLedgerType: Option)
+    local procedure VendorUnrealizedAdjust(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean; CurrencyAdjustFactor: Decimal; DtldLedgerType: Option)
     var
         Currency: Record Currency;
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -905,7 +905,7 @@ codeunit 134011 "ERM Application Vendor"
         LibraryERMVendorWatch.AssertVendor;
     end;
 
-    local procedure VendorPmtDiscVATAdjust(PmtType: Option; InvType: Option; Amount: Decimal; Stepwise: Boolean)
+    local procedure VendorPmtDiscVATAdjust(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean)
     var
         Vendor: Record Vendor;
         DtldVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
@@ -932,7 +932,7 @@ codeunit 134011 "ERM Application Vendor"
         LibraryERMVendorWatch.AssertVendor;
     end;
 
-    local procedure VendorPmtTolVATAdjust(PmtType: Option; InvType: Option; Amount: Decimal; Stepwise: Boolean)
+    local procedure VendorPmtTolVATAdjust(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean)
     var
         Vendor: Record Vendor;
         PaymentTerms: Record "Payment Terms";
@@ -959,7 +959,7 @@ codeunit 134011 "ERM Application Vendor"
         LibraryERMVendorWatch.AssertVendor;
     end;
 
-    local procedure VendorPmtDiscTolVATAdjust(PmtType: Option; InvType: Option; Amount: Decimal; Stepwise: Boolean)
+    local procedure VendorPmtDiscTolVATAdjust(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean)
     var
         Vendor: Record Vendor;
         DtldVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
@@ -992,7 +992,7 @@ codeunit 134011 "ERM Application Vendor"
         LibraryERMVendorWatch.AssertVendor;
     end;
 
-    local procedure VendorInvPmt(PmtType: Option; InvType: Option; Amount: Decimal; Stepwise: Boolean)
+    local procedure VendorInvPmt(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         Vendor: Record Vendor;
@@ -1005,8 +1005,8 @@ codeunit 134011 "ERM Application Vendor"
 
         // Setup basic application watches
         LibraryERMVendorWatch.Init();
-        LibraryERMVendorWatch.EntriesEqual(Vendor."No.", InvType, -Amount);
-        LibraryERMVendorWatch.EntriesEqual(Vendor."No.", PmtType, Amount);
+        LibraryERMVendorWatch.EntriesEqual(Vendor."No.", InvType.AsInteger(), -Amount);
+        LibraryERMVendorWatch.EntriesEqual(Vendor."No.", PmtType.AsInteger(), Amount);
         LibraryERMVendorWatch.DtldEntriesEqual(Vendor."No.", DtldVendorLedgEntry."Entry Type"::"Initial Entry", 0);
         LibraryERMVendorWatch.DtldEntriesGreaterThan(Vendor."No.", DtldVendorLedgEntry."Entry Type"::Application, 0);
 
@@ -1017,7 +1017,7 @@ codeunit 134011 "ERM Application Vendor"
         LibraryERMVendorWatch.AssertVendor;
     end;
 
-    local procedure VendorInvPmtDisc(PmtType: Option; InvType: Option; Amount: Decimal; Stepwise: Boolean)
+    local procedure VendorInvPmtDisc(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         Vendor: Record Vendor;
@@ -1041,7 +1041,7 @@ codeunit 134011 "ERM Application Vendor"
         LibraryERMVendorWatch.AssertVendor;
     end;
 
-    local procedure VendorInvPmtVAT(PmtType: Option; InvType: Option; Amount: Decimal; Stepwise: Boolean)
+    local procedure VendorInvPmtVAT(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         Vendor: Record Vendor;
@@ -1066,8 +1066,8 @@ codeunit 134011 "ERM Application Vendor"
 
         // Try out vendor watch
         LibraryERMVendorWatch.Init();
-        LibraryERMVendorWatch.EntriesEqual(Vendor."No.", InvType, -Amount);
-        LibraryERMVendorWatch.EntriesEqual(Vendor."No.", PmtType, Amount);
+        LibraryERMVendorWatch.EntriesEqual(Vendor."No.", InvType.AsInteger(), -Amount);
+        LibraryERMVendorWatch.EntriesEqual(Vendor."No.", PmtType.AsInteger(), Amount);
         LibraryERMVendorWatch.DtldEntriesEqual(Vendor."No.", DtldVendorLedgEntry."Entry Type"::"Initial Entry", 0);
         LibraryERMVendorWatch.DtldEntriesGreaterThan(Vendor."No.", DtldVendorLedgEntry."Entry Type"::Application, 0);
 
@@ -1078,7 +1078,7 @@ codeunit 134011 "ERM Application Vendor"
         LibraryERMVendorWatch.AssertVendor;
     end;
 
-    local procedure VendorInvPmtCorrection(PmtType: Option; InvType: Option; Amount: Decimal; Stepwise: Boolean)
+    local procedure VendorInvPmtCorrection(PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; Amount: Decimal; Stepwise: Boolean)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         Vendor: Record Vendor;
@@ -1111,7 +1111,7 @@ codeunit 134011 "ERM Application Vendor"
         LibraryERMVendorWatch.AssertVendor;
     end;
 
-    local procedure VendorApplyUnapplyVAT(Vendor: Record Vendor; PmtType: Option; InvType: Option; PmtAmount: Decimal; InvAmount: Decimal; PmtOffset: Text[30]; Stepwise: Boolean)
+    local procedure VendorApplyUnapplyVAT(Vendor: Record Vendor; PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; PmtAmount: Decimal; InvAmount: Decimal; PmtOffset: Text[30]; Stepwise: Boolean)
     var
         GeneralPostingSetup: Record "General Posting Setup";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -1182,7 +1182,7 @@ codeunit 134011 "ERM Application Vendor"
         GeneralLedgerSetup.Modify(true);
     end;
 
-    local procedure GenerateDocument(GenJournalBatch: Record "Gen. Journal Batch"; Vendor: Record Vendor; PmtType: Option; InvType: Option; PmtAmount: Decimal; InvAmount: Decimal; PmtOffset: Text[30]; PmtCurrencyCode: Code[10]; InvCurrencyCode: Code[10]): Text[30]
+    local procedure GenerateDocument(GenJournalBatch: Record "Gen. Journal Batch"; Vendor: Record Vendor; PmtType: Enum "Gen. Journal Document Type"; InvType: Enum "Gen. Journal Document Type"; PmtAmount: Decimal; InvAmount: Decimal; PmtOffset: Text[30]; PmtCurrencyCode: Code[10]; InvCurrencyCode: Code[10]): Text[30]
     var
         GenJournalLine: Record "Gen. Journal Line";
         DocumentNo: Code[20];
@@ -1211,7 +1211,7 @@ codeunit 134011 "ERM Application Vendor"
         exit(Desc);
     end;
 
-    local procedure CreateJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal; PmtOffset: Text[30]; CurrencyCode: Code[10]; DocNo: Code[20]; Description: Text[30]): Code[20]
+    local procedure CreateJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; PmtOffset: Text[30]; CurrencyCode: Code[10]; DocNo: Code[20]; Description: Text[30]): Code[20]
     var
         DateOffset: DateFormula;
     begin
@@ -1390,7 +1390,7 @@ codeunit 134011 "ERM Application Vendor"
         end;
     end;
 
-    local procedure SetApplyVendorEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Option; DocumentNo: Code[20]; AmountToApply: Decimal)
+    local procedure SetApplyVendorEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; AmountToApply: Decimal)
     begin
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocumentType, DocumentNo);
         LibraryERM.SetApplyVendorEntry(VendorLedgerEntry, AmountToApply);
@@ -1580,7 +1580,7 @@ codeunit 134011 "ERM Application Vendor"
         VendLedgerEntry.TestField("Amount to Apply", VendLedgerEntry."Remaining Amount");
     end;
 
-    local procedure VerifyVendorLedgEntryRemAmount(DocumentType: Option; DocumentNo: Code[20]; RemAmount: Decimal)
+    local procedure VerifyVendorLedgEntryRemAmount(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; RemAmount: Decimal)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -1612,7 +1612,7 @@ codeunit 134011 "ERM Application Vendor"
         until GLEntry.Next = 0;
     end;
 
-    local procedure VerifyVLEPaymentDisc(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Option; VendLedgerEntryIsOpen: Boolean; RemPaymentDiscPossible: Decimal; RemainingAmount: Decimal)
+    local procedure VerifyVLEPaymentDisc(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Gen. Journal Document Type"; VendLedgerEntryIsOpen: Boolean; RemPaymentDiscPossible: Decimal; RemainingAmount: Decimal)
     begin
         with VendorLedgerEntry do begin
             SetRange("Document Type", DocType);

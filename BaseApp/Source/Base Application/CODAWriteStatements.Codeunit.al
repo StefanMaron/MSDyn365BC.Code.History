@@ -1,5 +1,6 @@
-﻿codeunit 2000041 "CODA Write Statements"
+codeunit 2000041 "CODA Write Statements"
 {
+    EventSubscriberInstance = Manual;
     Permissions = TableData "Gen. Journal Line" = rimd;
 
     trigger OnRun()
@@ -20,6 +21,7 @@
         CodBankStmtLine: Record "CODA Statement Line";
         LastCodBankStmtLine: Record "CODA Statement Line";
         ArticleIsContinued: Boolean;
+        ApplEntryWasSelected: Boolean;
         NextID: Option ,,,Information,"Free Message";
         RefLineNo: Integer;
         DetailCounter: Integer;
@@ -270,6 +272,7 @@
     procedure Apply(var CodedBankStmtLine: Record "CODA Statement Line")
     var
         GenJnlLine: Record "Gen. Journal Line";
+        CODAWriteStatements: Codeunit "CODA Write Statements";
     begin
         with CodedBankStmtLine do begin
             GenJnlLine.Init();
@@ -283,7 +286,11 @@
                 GenJnlLine.Modify();
             Commit();
             // show error message when Account Type is G/L Account
+            BindSubscription(CODAWriteStatements);
             CODEUNIT.Run(CODEUNIT::"Gen. Jnl.-Apply", GenJnlLine);
+            UnbindSubscription(CODAWriteStatements);
+            if not CODAWriteStatements.WasEntryApplied() then
+                exit;
             if GenJnlLine."Applies-to ID" <> '' then begin
                 if "Account No." = '' then
                     Validate("Account No.", GenJnlLine."Account No.");
@@ -304,6 +311,12 @@
         Apply(CodedBankStmtLine);
     end;
 
+    [Scope('OnPrem')]
+    procedure WasEntryApplied(): Boolean
+    begin
+        exit(ApplEntryWasSelected);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCodBankStmtLineInsert(var CODAStatementSourceLine: Record "CODA Statement Source Line"; var CODAStatementLine: Record "CODA Statement Line")
     begin
@@ -317,6 +330,20 @@
     [IntegrationEvent(false, false)]
     local procedure OnApplyOnBeforeGenJnlLineInsert(var GenJnlLine: Record "Gen. Journal Line"; CodedBankStmtLine: Record "CODA Statement Line")
     begin
+    end;
+    
+    [EventSubscriber(ObjectType::Codeunit, 225, 'OnAfterSelectCustLedgEntry', '', false, false)]
+    [Scope('OnPrem')]
+    local procedure OnAfterSelectCustLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; var AccNo: Code[20]; var Selected: Boolean)
+    begin 
+        ApplEntryWasSelected := Selected;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, 225, 'OnAfterSelectVendLedgEntry', '', false, false)]
+    [Scope('OnPrem')]
+    local procedure OnAfterSelectVendLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; var AccNo: Code[20]; var Selected: Boolean)
+    begin
+        ApplEntryWasSelected := Selected;
     end;
 }
 

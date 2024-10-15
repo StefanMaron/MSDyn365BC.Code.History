@@ -35,9 +35,9 @@ page 594 "Change Log Setup (Field) List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Log Insertion';
                     ToolTip = 'Specifies whether to log the insertion for the selected line on the change log.';
-                    Visible = LogInsertionVisible;
                     Editable = PageIsEditable;
                     Enabled = PageIsEditable;
+                    Visible = LogInsertionVisible;
 
                     trigger OnValidate()
                     begin
@@ -53,9 +53,9 @@ page 594 "Change Log Setup (Field) List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Log Modification';
                     ToolTip = 'Specifies whether to log the modification for the selected line on the change log.';
-                    Visible = LogModificationVisible;
                     Editable = PageIsEditable;
                     Enabled = PageIsEditable;
+                    Visible = LogModificationVisible;
 
                     trigger OnValidate()
                     begin
@@ -71,9 +71,9 @@ page 594 "Change Log Setup (Field) List"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Log Deletion';
                     ToolTip = 'Specifies whether to log the deletion for the selected line on the change log.';
-                    Visible = LogDeletionVisible;
                     Editable = PageIsEditable;
                     Enabled = PageIsEditable;
+                    Visible = LogDeletionVisible;
 
                     trigger OnValidate()
                     begin

@@ -64,6 +64,12 @@ page 52 "Purchase Credit Memo"
 
                         CurrPage.Update;
                     end;
+
+                    trigger OnLookup(var Text: Text): Boolean
+                    begin
+                        if LookupBuyfromVendorName() then
+                            CurrPage.Update();
+                    end;
                 }
                 field("Posting Description"; "Posting Description")
                 {
@@ -139,6 +145,33 @@ page 52 "Purchase Credit Memo"
                         Importance = Additional;
                         QuickEntry = false;
                         ToolTip = 'Specifies the number of your contact at the vendor.';
+                    }
+                    field(BuyFromContactPhoneNo; BuyFromContact."Phone No.")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the vendor contact person.';
+                    }
+                    field(BuyFromContactMobilePhoneNo; BuyFromContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Mobile Phone No.';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the vendor contact person.';
+                    }
+                    field(BuyFromContactEmail; BuyFromContact."E-Mail")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Email';
+                        Importance = Additional;
+                        Editable = false;
+                        ExtendedDatatype = EMail;
+                        ToolTip = 'Specifies the email address of the vendor contact person.';
                     }
                 }
                 field("Buy-from Contact"; "Buy-from Contact")
@@ -573,6 +606,33 @@ page 52 "Purchase Credit Memo"
                         Importance = Additional;
                         ToolTip = 'Specifies the number of the contact who sends the invoice.';
                     }
+                    field(PayToContactPhoneNo; PayToContact."Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the telephone number of the vendor contact person.';
+                    }
+                    field(PayToContactMobilePhoneNo; PayToContact."Mobile Phone No.")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Mobile Phone No.';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = PhoneNo;
+                        ToolTip = 'Specifies the mobile telephone number of the vendor contact person.';
+                    }
+                    field(PayToContactEmail; PayToContact."E-Mail")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Email';
+                        Editable = false;
+                        Importance = Additional;
+                        ExtendedDatatype = Email;
+                        ToolTip = 'Specifies the email address of the vendor contact person.';
+                    }
                     field("Pay-to Contact"; "Pay-to Contact")
                     {
                         ApplicationArea = Basic, Suite;
@@ -784,7 +844,8 @@ page 52 "Purchase Credit Memo"
                     var
                         WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Purchase Header", "Document Type", "No.");
+                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(
+                            RecordId, DATABASE::"Purchase Header", "Document Type".AsInteger(), "No.");
                     end;
                 }
                 action("Co&mments")
@@ -1010,7 +1071,7 @@ page 52 "Purchase Credit Memo"
 
                     trigger OnAction()
                     begin
-                        GetPstdDocLinesToRevere;
+                        GetPstdDocLinesToReverse();
                     end;
                 }
                 action("Get Return &Shipment Lines")
@@ -1191,7 +1252,7 @@ page 52 "Purchase Credit Memo"
                         Image = Flow;
                         Promoted = true;
                         PromotedCategory = Category5;
-                        ToolTip = 'Create a new Flow from a list of relevant Flow templates.';
+                        ToolTip = 'Create a new flow in Power Automate from a list of relevant flow templates.';
                         Visible = IsSaaS;
 
                         trigger OnAction()
@@ -1212,7 +1273,7 @@ page 52 "Purchase Credit Memo"
                         Promoted = true;
                         PromotedCategory = Category5;
                         RunObject = Page "Flow Selector";
-                        ToolTip = 'View and configure Flows that you created.';
+                        ToolTip = 'View and configure Power Automate flows that you created.';
                     }
                 }
             }
@@ -1233,7 +1294,7 @@ page 52 "Purchase Credit Memo"
 
                     trigger OnAction()
                     begin
-                        PostDocument(CODEUNIT::"Purch.-Post (Yes/No)", NavigateAfterPost::"Posted Document");
+                        PostDocument(CODEUNIT::"Purch.-Post (Yes/No)", "Navigate After Posting"::"Posted Document");
                     end;
                 }
                 action(Preview)
@@ -1279,7 +1340,7 @@ page 52 "Purchase Credit Memo"
 
                     trigger OnAction()
                     begin
-                        PostDocument(CODEUNIT::"Purch.-Post + Print", NavigateAfterPost::"Do Nothing");
+                        PostDocument(CODEUNIT::"Purch.-Post + Print", "Navigate After Posting"::"Do Nothing");
                     end;
                 }
                 action(PostAndNew)
@@ -1295,7 +1356,7 @@ page 52 "Purchase Credit Memo"
 
                     trigger OnAction()
                     begin
-                        PostDocument(CODEUNIT::"Purch.-Post (Yes/No)", NavigateAfterPost::"New Document");
+                        PostDocument(CODEUNIT::"Purch.-Post (Yes/No)", "Navigate After Posting"::"New Document");
                     end;
                 }
                 action("Remove From Job Queue")
@@ -1322,6 +1383,8 @@ page 52 "Purchase Credit Memo"
         CurrPage.ApprovalFactBox.PAGE.UpdateApprovalEntriesFromSourceRecord(RecordId);
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(RecordId);
         StatusStyleTxt := GetStatusStyleText();
+        if BuyFromContact.Get("Buy-from Contact No.") then;
+        if PayToContact.Get("Pay-to Contact No.") then;
     end;
 
     trigger OnAfterGetRecord()
@@ -1380,6 +1443,8 @@ page 52 "Purchase Credit Memo"
     end;
 
     var
+        BuyFromContact: Record Contact;
+        PayToContact: Record Contact;
         MoveNegPurchLines: Report "Move Negative Purchase Lines";
         ReportPrint: Codeunit "Test Report-Print";
         UserMgt: Codeunit "User Setup Management";
@@ -1387,7 +1452,6 @@ page 52 "Purchase Credit Memo"
         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
         FormatAddress: Codeunit "Format Address";
         ChangeExchangeRate: Page "Change Exchange Rate";
-        NavigateAfterPost: Option "Posted Document","New Document","Do Nothing";
         [InDataSet]
         JobQueueVisible: Boolean;
         [InDataSet]
@@ -1421,7 +1485,12 @@ page 52 "Purchase Credit Memo"
         IsShipToCountyVisible := FormatAddress.UseCounty("Ship-to Country/Region Code");
     end;
 
-    local procedure PostDocument(PostingCodeunitID: Integer; Navigate: Option)
+    procedure CallPostDocument(PostingCodeunitID: Integer; Navigate: Enum "Navigate After Posting")
+    begin
+        PostDocument(PostingCodeunitID, Navigate);
+    end;
+
+    local procedure PostDocument(PostingCodeunitID: Integer; Navigate: Enum "Navigate After Posting")
     var
         PurchaseHeader: Record "Purchase Header";
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
@@ -1445,7 +1514,7 @@ page 52 "Purchase Credit Memo"
             exit;
 
         case Navigate of
-            NavigateAfterPost::"Posted Document":
+            "Navigate After Posting"::"Posted Document":
                 begin
                     if IsOfficeAddin then begin
                         PurchCrMemoHdr.SetRange("Pre-Assigned No.", "No.");
@@ -1455,7 +1524,7 @@ page 52 "Purchase Credit Memo"
                         if InstructionMgt.IsEnabled(InstructionMgt.ShowPostedConfirmationMessageCode) then
                             ShowPostedConfirmationMessage;
                 end;
-            NavigateAfterPost::"New Document":
+            "Navigate After Posting"::"New Document":
                 if DocumentIsPosted then begin
                     Clear(PurchaseHeader);
                     PurchaseHeader.Init();

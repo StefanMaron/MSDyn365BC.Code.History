@@ -187,19 +187,21 @@ page 161 "Purchase Statistics"
         Text003: Label '%1 must not be 0.';
         Text004: Label '%1 must not be greater than %2.';
         Text005: Label 'You cannot change the invoice discount because a vendor invoice discount with the code %1 exists.';
-        TotalPurchLine: Record "Purchase Line";
-        TotalPurchLineLCY: Record "Purchase Line";
         Vend: Record Vendor;
         TempVATAmountLine: Record "VAT Amount Line" temporary;
         PurchSetup: Record "Purchases & Payables Setup";
         PurchPost: Codeunit "Purch.-Post";
         TotalAmount1: Decimal;
         TotalAmount2: Decimal;
-        VATAmount: Decimal;
         VATAmountText: Text[30];
         PrevNo: Code[20];
         AllowInvDisc: Boolean;
         AllowVATDifference: Boolean;
+
+    protected var
+        TotalPurchLine: Record "Purchase Line";
+        TotalPurchLineLCY: Record "Purchase Line";
+        VATAmount: Decimal;
 
     local procedure UpdateHeaderInfo()
     var

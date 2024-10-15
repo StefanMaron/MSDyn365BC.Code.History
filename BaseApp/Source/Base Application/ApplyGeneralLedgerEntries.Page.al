@@ -1,4 +1,4 @@
-page 11309 "Apply General Ledger Entries"
+﻿page 11309 "Apply General Ledger Entries"
 {
     Caption = 'Apply General Ledger Entries';
     DataCaptionExpression = Header;
@@ -246,6 +246,7 @@ page 11309 "Apply General Ledger Entries"
             group("Ent&ry")
             {
                 Caption = 'Ent&ry';
+                Image = Entry;
                 action(Dimensions)
                 {
                     ApplicationArea = Basic, Suite;
@@ -259,13 +260,14 @@ page 11309 "Apply General Ledger Entries"
                         GLEntry: Record "G/L Entry";
                     begin
                         if GLEntry.Get("Entry No.") then
-                            GLEntry.ShowDimensions;
+                            GLEntry.ShowDimensions();
                     end;
                 }
             }
             group("&Application")
             {
                 Caption = '&Application';
+                Image = Apply;
                 action(SetAppliesToID)
                 {
                     ApplicationArea = Basic, Suite;
@@ -316,7 +318,7 @@ page 11309 "Apply General Ledger Entries"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Process;
@@ -371,11 +373,7 @@ page 11309 "Apply General Ledger Entries"
     end;
 
     var
-        TempGLEntryBuf: Record "G/L Entry Application Buffer" temporary;
         Navigate: Page Navigate;
-        ShowAppliedAmount: Decimal;
-        ShowAmount: Decimal;
-        ShowTotalAppliedAmount: Decimal;
         GLEntryApplID: Code[50];
         Text11300: Label 'Preparing Entries      @1@@@@@@@@@@@@@';
         Text11301: Label 'Another user has modified the record for this general ledger entry after you retrieved it from the database.';
@@ -383,9 +381,16 @@ page 11309 "Apply General Ledger Entries"
         Text11302: Label 'Apply General Ledger Entries';
         Text11303: Label 'Applied General Ledger Entries';
         DynamicCaption: Text[100];
-        IncludeEntryFilter: Option All,Open,Closed;
         Text11304: Label 'You can apply multiple entries only if all entries being applied can be fully closed.';
         Text11305: Label 'There are no general ledger entries to apply';
+
+    protected var
+        TempGLEntryBuf: Record "G/L Entry Application Buffer" temporary;
+        IncludeEntryFilter: Option All,Open,Closed;
+        ShowAppliedAmount: Decimal;
+        ShowAmount: Decimal;
+        ShowTotalAppliedAmount: Decimal;
+
 
     [Scope('OnPrem')]
     procedure Apply(var GLEntryBuf: Record "G/L Entry Application Buffer")
@@ -581,7 +586,7 @@ page 11309 "Apply General Ledger Entries"
         end;
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure UpdateAmounts()
     begin
         ShowAppliedAmount := 0;

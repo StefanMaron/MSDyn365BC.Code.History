@@ -1257,7 +1257,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateAndPostItemJournal(var ItemJournalLine: Record "Item Journal Line"; EntryType: Option; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; UnitAmount: Decimal; AppliesToEntry: Integer)
+    local procedure CreateAndPostItemJournal(var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; UnitAmount: Decimal; AppliesToEntry: Integer)
     var
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalTemplate: Record "Item Journal Template";
@@ -1381,7 +1381,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         exit(Customer."No.");
     end;
 
-    local procedure CreateItem(ItemCategoryCode: Code[20]; CostingMethod: Option): Code[20]
+    local procedure CreateItem(ItemCategoryCode: Code[20]; CostingMethod: Enum "Costing Method"): Code[20]
     var
         Item: Record Item;
     begin
@@ -1416,7 +1416,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         SalesLineDiscount.Modify(true);
     end;
 
-    local procedure CreateItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; ItemJournalTemplateType: Option)
+    local procedure CreateItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; ItemJournalTemplateType: Enum "Item Journal Template Type")
     var
         ItemJournalTemplate: Record "Item Journal Template";
     begin
@@ -1484,21 +1484,21 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, ItemNo, Quantity);
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; BuyFromVendorNo: Code[20])
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; BuyFromVendorNo: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, BuyFromVendorNo);
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Option; No: Code[20]; Quantity: Decimal)
+    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; No: Code[20]; Quantity: Decimal)
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, Quantity);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(10, 2));  // Using Random value for Direct Unit Cost.
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; DocumentType: Option; CustomerNo: Code[20]; No: Code[20]; Quantity: Decimal)
+    local procedure CreateServiceDocument(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; CustomerNo: Code[20]; No: Code[20]; Quantity: Decimal)
     var
         ServiceHeader: Record "Service Header";
     begin
@@ -1608,7 +1608,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         InventoryPostingToGL.GetTempInvtPostToGLTestBuf(TempInvtPostToGLTestBuffer);
     end;
 
-    local procedure FindValueEntry(var ValueEntry: Record "Value Entry"; ItemLedgerEntryType: Option; EntryType: Option; ItemNo: Code[20]; Adjustment: Boolean; LocationCode: Code[10])
+    local procedure FindValueEntry(var ValueEntry: Record "Value Entry"; ItemLedgerEntryType: Enum "Item Ledger Document Type"; EntryType: Enum "Cost Entry Type"; ItemNo: Code[20]; Adjustment: Boolean; LocationCode: Code[10])
     begin
         ValueEntry.SetRange("Item Ledger Entry Type", ItemLedgerEntryType);
         ValueEntry.SetRange("Entry Type", EntryType);
@@ -1618,7 +1618,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         ValueEntry.FindFirst;
     end;
 
-    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Option; ItemNo: Code[20]; Open: Boolean)
+    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; Open: Boolean)
     begin
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
@@ -1738,7 +1738,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         ServiceLine.Modify(true);
     end;
 
-    local procedure VerifyCostAmountActual(ValueEntry: Record "Value Entry"; ItemLedgerEntryType: Option; EntryType: Option; ItemNo: Code[20]; Adjustment: Boolean; LocationCode: Code[10]; CostAmountActual: Decimal)
+    local procedure VerifyCostAmountActual(ValueEntry: Record "Value Entry"; ItemLedgerEntryType: Enum "Item Ledger Document Type"; EntryType: Enum "Cost Entry Type"; ItemNo: Code[20]; Adjustment: Boolean; LocationCode: Code[10]; CostAmountActual: Decimal)
     begin
         FindValueEntry(ValueEntry, ItemLedgerEntryType, EntryType, ItemNo, Adjustment, LocationCode);
         Assert.AreNearlyEqual(
@@ -1757,7 +1757,7 @@ codeunit 137285 "SCM Inventory Batch Jobs"
         ValueEntry.TestField("Cost Amount (Actual)", CostAmountActual);
     end;
 
-    local procedure VerifyItemLedgerEntry(EntryType: Option; ItemNo: Code[20]; CostAmountExpected: Decimal; InvoicedQuantity: Decimal; CostAmountActual: Decimal; Open: Boolean; AppliedEntryToAdjust: Boolean)
+    local procedure VerifyItemLedgerEntry(EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; CostAmountExpected: Decimal; InvoicedQuantity: Decimal; CostAmountActual: Decimal; Open: Boolean; AppliedEntryToAdjust: Boolean)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin

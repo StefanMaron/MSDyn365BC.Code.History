@@ -1,5 +1,8 @@
 codeunit 2831 "Native - Payments"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'These objects will be removed';
+    ObsoleteTag = '17.0';
 
     trigger OnRun()
     begin
@@ -56,10 +59,11 @@ codeunit 2831 "Native - Payments"
     procedure LoadAllPayments(var NativePayment: Record "Native - Payment")
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesInvoiceAggregator: Codeunit "Sales Invoice Aggregator";
     begin
         if SalesInvoiceHeader.FindSet then begin
             repeat
-                LoadPayments(NativePayment, SalesInvoiceHeader.Id);
+                LoadPayments(NativePayment, SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader));
             until SalesInvoiceHeader.Next = 0;
         end;
     end;
@@ -75,8 +79,7 @@ codeunit 2831 "Native - Payments"
             Error(AppliesToInvoiceIDFilterNotSpecifiedErr);
 
         SalesInvoiceHeader.Reset();
-        SalesInvoiceHeader.SetRange(Id, AppliesToInvoiceIdFilter);
-        if not SalesInvoiceHeader.FindFirst then
+        if not SalesInvoiceHeader.GetBySystemId(AppliesToInvoiceIdFilter) then
             Error(AppliesToInvoiceIDFilterDoesNotMatchInvoiceErr);
 
         InvoiceCustLedgerEntry.SetRange("Document Type", InvoiceCustLedgerEntry."Document Type"::Invoice);

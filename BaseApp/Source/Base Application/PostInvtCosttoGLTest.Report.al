@@ -143,11 +143,9 @@ report 1003 "Post Invt. Cost to G/L - Test"
                 }
                 column(ItemValueEntry__Item_Ledger_Entry_Type_; ItemValueEntry."Item Ledger Entry Type")
                 {
-                    OptionMembers = Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output," ","Assembly Consumption","Assembly Output";
                 }
                 column(ItemValueEntry__Entry_Type_; ItemValueEntry."Entry Type")
                 {
-                    OptionMembers = "Direct Cost",Revaluation,Rounding,"Indirect Cost",Variance;
                 }
                 column(ItemValueEntry__Item_Ledger_Entry_No__; ItemValueEntry."Item Ledger Entry No.")
                 {

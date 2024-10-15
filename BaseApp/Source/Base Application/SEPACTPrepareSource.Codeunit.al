@@ -1,4 +1,4 @@
-﻿codeunit 1222 "SEPA CT-Prepare Source"
+codeunit 1222 "SEPA CT-Prepare Source"
 {
     TableNo = "Gen. Journal Line";
 

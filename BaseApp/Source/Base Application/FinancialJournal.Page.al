@@ -536,7 +536,7 @@ page 11300 "Financial Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -827,7 +827,7 @@ page 11300 "Financial Journal"
         if GenJnlTemplate.Type = GenJnlTemplate.Type::Financial then
             GenJnlTemplate.TestField("Bal. Account No.");
         case GenJnlTemplate."Bal. Account Type" of
-            0:
+            "Gen. Journal Account Type"::"G/L Account":
                 begin
                     GLAccount.Get(GenJnlTemplate."Bal. Account No.");
                     GLAccount.CalcFields(Balance);
@@ -836,7 +836,7 @@ page 11300 "Financial Journal"
                         StatementEndingBalance := 0
                     end;
                 end;
-            3:
+            "Gen. Journal Account Type"::"Bank Account":
                 begin
                     BankAccount.Get(GenJnlTemplate."Bal. Account No.");
                     BankAccount.CalcFields(Balance);

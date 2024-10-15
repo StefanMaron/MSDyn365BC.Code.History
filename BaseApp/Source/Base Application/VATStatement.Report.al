@@ -1,4 +1,4 @@
-﻿report 12 "VAT Statement"
+report 12 "VAT Statement"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './VATStatement.rdlc';
@@ -176,7 +176,6 @@
                         ApplicationArea = Basic, Suite;
                         Caption = 'Include VAT Entries';
                         Importance = Additional;
-                        OptionCaption = 'Open,Closed,Open and Closed';
                         ToolTip = 'Specifies if you want to include open VAT entries in the report.';
                     }
                     field(PeriodSelection; PeriodSelection)
@@ -184,7 +183,6 @@
                         ApplicationArea = Basic, Suite;
                         Caption = 'Include VAT Entries';
                         Importance = Additional;
-                        OptionCaption = 'Before and Within Period,Within Period';
                         ToolTip = 'Specifies if you want to include VAT entries from before the specified time period in the report.';
                     }
                     field(RoundToWholeNumbers; PrintInIntegers)
@@ -240,8 +238,8 @@
         GLSetup: Record "General Ledger Setup";
         VATStmtLine: Record "VAT Statement Line";
         GLEntry: Record "G/L Entry";
-        Selection: Option Open,Closed,"Open and Closed";
-        PeriodSelection: Option "Before and Within Period","Within Period";
+        Selection: Enum "VAT Statement Report Selection";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
         PrintInIntegers: Boolean;
         VATStmtLineFilter: Text;
         Heading: Text[50];
@@ -410,7 +408,7 @@
         NetAmountLCY := NetAmountLCY + Amount2;
     end;
 
-    procedure InitializeRequest(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Option Open,Closed,"Open and Closed"; NewPeriodSelection: Option "Before and Within Period","Within Period"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean)
+    procedure InitializeRequest(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean)
     begin
         ClearAll;
         "VAT Statement Name".Copy(NewVATStmtName);

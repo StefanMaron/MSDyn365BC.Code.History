@@ -483,7 +483,7 @@ codeunit 137009 "SCM Availability by Event"
         SalesLine.Modify(true);
     end;
 
-    local procedure FindInvtPageData(var InvtPageData: Record "Inventory Page Data"; DataType: Option)
+    local procedure FindInvtPageData(var InvtPageData: Record "Inventory Page Data"; DataType: Enum "Inventory Page Data Type")
     begin
         InvtPageData.SetRange(Level, 1);
         InvtPageData.SetRange(Type, DataType);

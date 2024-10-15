@@ -1036,7 +1036,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         VerifyDetailedLedgerEntry(DocNo, EntryType, -Amount);
     end;
 
-    local procedure ApplyAndPostCustomerEntry(DocumentNo: Code[20]; AmountToApply: Decimal; DocumentNo2: Code[20]; DocumentType: Option; DocumentType2: Option)
+    local procedure ApplyAndPostCustomerEntry(DocumentNo: Code[20]; AmountToApply: Decimal; DocumentNo2: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type")
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         CustLedgerEntry2: Record "Cust. Ledger Entry";
@@ -1197,7 +1197,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         CurrencyExchangeRate.Modify(true);
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; DocumentType: Option; Amount: Decimal)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -1208,7 +1208,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType, AccountType, AccountNo, Amount);
     end;
 
-    local procedure CreateGenAndModifyExchRate(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; DocumentType: Option; Amount: Decimal; ExchangeRateAmount: Decimal)
+    local procedure CreateGenAndModifyExchRate(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; ExchangeRateAmount: Decimal)
     begin
         CreateGeneralJournalLine(GenJournalLine, AccountType, AccountNo, DocumentType, Amount);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1244,7 +1244,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure CreateAndPostPaymentLine(AccountType: Option; AccountNo: Code[20]; DocumentType: Option; Amount: Decimal; PostingDate: Date)
+    local procedure CreateAndPostPaymentLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; PostingDate: Date)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -1254,7 +1254,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreatePostPaymentWithAppln(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; CurrencyCode: Code[10]; Sign: Integer; PmtPostingDate: Date)
+    local procedure CreatePostPaymentWithAppln(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; CurrencyCode: Code[10]; Sign: Integer; PmtPostingDate: Date)
     var
         InvoiceNo: Code[20];
     begin
@@ -1270,7 +1270,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreatePostInvoiceAndPayment(var GenJournalLine: Record "Gen. Journal Line"; var InvoiceNo: Code[20]; AccountType: Option; AccountNo: Code[20]; CurrencyCode: Code[10]; Sign: Integer; PmtPostingDate: Date)
+    local procedure CreatePostInvoiceAndPayment(var GenJournalLine: Record "Gen. Journal Line"; var InvoiceNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; CurrencyCode: Code[10]; Sign: Integer; PmtPostingDate: Date)
     begin
         CreateGeneralJournalLine(
           GenJournalLine, AccountType, AccountNo, GenJournalLine."Document Type"::Invoice, -Sign * LibraryRandom.RandDec(100, 2));
@@ -1284,7 +1284,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreatePostApplyTwoPurchDocuments(var GenJournalLine: Record "Gen. Journal Line"; var InvoiceNo: Code[20]; CurrencyCode: Code[10]; StartingDate: Date; ApplyDocTypeFrom: Option; ApplyDocTypeTo: Option)
+    local procedure CreatePostApplyTwoPurchDocuments(var GenJournalLine: Record "Gen. Journal Line"; var InvoiceNo: Code[20]; CurrencyCode: Code[10]; StartingDate: Date; ApplyDocTypeFrom: Enum "Gen. Journal Document Type"; ApplyDocTypeTo: Enum "Gen. Journal Document Type")
     var
         VendorLedgerEntryApplyFrom: Record "Vendor Ledger Entry";
         VendorLedgerEntryApplyTo: Record "Vendor Ledger Entry";
@@ -1300,7 +1300,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
           VendorLedgerEntryApplyFrom."Document No.", VendorLedgerEntryApplyTo."Document No.");
     end;
 
-    local procedure CreatePostApplyTwoSalesDocuments(var GenJournalLine: Record "Gen. Journal Line"; var InvoiceNo: Code[20]; CurrencyCode: Code[10]; StartingDate: Date; ApplyDocTypeFrom: Option; ApplyDocTypeTo: Option)
+    local procedure CreatePostApplyTwoSalesDocuments(var GenJournalLine: Record "Gen. Journal Line"; var InvoiceNo: Code[20]; CurrencyCode: Code[10]; StartingDate: Date; ApplyDocTypeFrom: Enum "Gen. Journal Document Type"; ApplyDocTypeTo: Enum "Gen. Journal Document Type")
     var
         CustLedgerEntryApplyFrom: Record "Cust. Ledger Entry";
         CustLedgerEntryApplyTo: Record "Cust. Ledger Entry";
@@ -1396,7 +1396,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         CurrencyExchangeRate.FindFirst;
     end;
 
-    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; GLAccountNo: Code[20]; DocumentType: Option)
+    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentNo: Code[20]; GLAccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
@@ -1417,14 +1417,14 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         exit(CurrencyExchangeRate."Relational Adjmt Exch Rate Amt" - Amount);
     end;
 
-    local procedure FindVendorLedgerEntryByDocType(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocType: Option)
+    local procedure FindVendorLedgerEntryByDocType(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocType: Enum "Gen. Journal Document Type")
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgerEntry.SetRange("Document Type", DocType);
         VendorLedgerEntry.FindFirst;
     end;
 
-    local procedure FindCustLedgerEntryByDocType(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocType: Option)
+    local procedure FindCustLedgerEntryByDocType(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocType: Enum "Gen. Journal Document Type")
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetRange("Document Type", DocType);
@@ -1492,13 +1492,13 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         LibraryERM.ClearGenJournalLines(GenJournalBatch)
     end;
 
-    local procedure UnapplyVendorEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure UnapplyVendorEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocumentType, DocumentNo);
         LibraryERM.UnapplyVendorLedgerEntry(VendorLedgerEntry);
     end;
 
-    local procedure UnapplyCustomerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure UnapplyCustomerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
         LibraryERM.UnapplyCustomerLedgerEntry(CustLedgerEntry);
@@ -1558,7 +1558,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         VerifyDetailedLedgerEntry(DocumentNo, DetailedCustLedgEntry."Entry Type"::"Unrealized Loss", Amount);
     end;
 
-    local procedure VerifyGLEntry(CurrencyCode: Code[10]; DocumentNo: Code[20]; Amount: Decimal; AccountNo: Code[20]; DocumentType: Option)
+    local procedure VerifyGLEntry(CurrencyCode: Code[10]; DocumentNo: Code[20]; Amount: Decimal; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     var
         Currency: Record Currency;
         GLEntry: Record "G/L Entry";
@@ -1579,7 +1579,7 @@ codeunit 134080 "ERM Adjust Exch Rate Cust/Bank"
         GLEntry.TestField(Amount, EntryAmount);
     end;
 
-    local procedure VerifyGLEntryReverseBalance(CurrencyCode: Code[10]; AccountNo: Code[20]; DocumentType: Option; DocumentNo: Code[20])
+    local procedure VerifyGLEntryReverseBalance(CurrencyCode: Code[10]; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         Currency: Record Currency;
         GLEntry: Record "G/L Entry";

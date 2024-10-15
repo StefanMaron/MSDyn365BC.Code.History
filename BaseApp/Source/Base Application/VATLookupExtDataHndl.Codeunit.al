@@ -60,9 +60,9 @@ codeunit 248 "VAT Lookup Ext. Data Hndl"
             TempBlobBody.CreateOutStream(ResponseOutStream);
             CopyStream(ResponseOutStream, ResponseInStream);
 
-            SendTraceTag('0000C3Q', EUVATRegNoValidationServiceTok, VERBOSITY::Normal, ValidationSuccessfulMsg, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000C3Q', ValidationSuccessfulMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EUVATRegNoValidationServiceTok);
         end else begin
-            SendTraceTag('0000C4S', EUVATRegNoValidationServiceTok, VERBOSITY::Error, ValidationFailureMsg, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000C4S', ValidationFailureMsg, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EUVATRegNoValidationServiceTok);
             if ShowErrors then
                 SOAPWebServiceRequestMgt.ProcessFaultResponse('');
         end;

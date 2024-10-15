@@ -15,6 +15,7 @@ codeunit 135414 "Purchase Quote Plan-based E2E"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryERM: Codeunit "Library - ERM";
         Assert: Codeunit Assert;
+        LibraryTemplates: Codeunit "Library - Templates";
         IsInitialized: Boolean;
 
     [Test]
@@ -197,6 +198,7 @@ codeunit 135414 "Purchase Quote Plan-based E2E"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Purchase Quote Plan-based E2E");
 
+        LibraryTemplates.DisableTemplatesFeature();
         LibraryPurchase.SetQuoteNoSeriesInSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;

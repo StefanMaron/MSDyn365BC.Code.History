@@ -430,7 +430,6 @@ report 11311 "VAT Statement Summary"
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Include VAT Entries';
-                        OptionCaption = 'Open,Closed,Open and Closed';
                         ToolTip = 'Specifies the VAT entries to be included in the report. You can choose between Open, Closed and Open and Closed.';
                     }
                     field(PrintInIntegers; PrintInIntegers)
@@ -531,8 +530,8 @@ report 11311 "VAT Statement Summary"
         VATStatement: Report "VAT Statement";
         PeriodFormManagement: Codeunit PeriodFormManagement;
         VATLogicalControls: Codeunit VATLogicalTests;
-        Selection: Option Open,Closed,"Open and Closed";
-        PeriodSelection: Option "Before and Within Period","Within Period";
+        Selection: Enum "VAT Statement Report Selection";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
         PrintInIntegers: Boolean;
         TotalAmount: array[13] of Decimal;

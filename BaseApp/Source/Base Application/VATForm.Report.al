@@ -18,7 +18,7 @@ report 11307 "VAT - Form"
                 trigger OnAfterGetRecord()
                 var
                     VATStatement: Report "VAT Statement";
-                    PeriodSelection: Option "Before and Within Period","Within Period";
+                    PeriodSelection: Enum "VAT Statement Report Period Selection";
                     CorrectionAmount: Decimal;
                     Dummy: Decimal;
                 begin
@@ -144,7 +144,6 @@ report 11307 "VAT - Form"
                             {
                                 ApplicationArea = Basic, Suite;
                                 Caption = 'Include VAT Entries';
-                                OptionCaption = 'Open,Closed,Open and Closed';
                                 ToolTip = 'Specifies the VAT entries to be included in the report. You can choose between Open, Closed and Open and Closed.';
                             }
                         }
@@ -301,7 +300,7 @@ report 11307 "VAT - Form"
         Representative: Record Representative;
         INTERVATHelper: Codeunit "INTERVAT Helper";
         XMLDOMMgt: Codeunit "XML DOM Management";
-        IncludeVatEntries: Option Open,Closed,"Open and Closed";
+        IncludeVatEntries: Enum "VAT Statement Report Selection";
         [InDataSet]
         IsCorrection: Boolean;
         ChoicePeriodType: Option Month,Quarter;
@@ -501,7 +500,7 @@ report 11307 "VAT - Form"
         ChoicePeriodType := NewChoicePeriodType;
         Vperiod := NewVPeriod;
         Vyear := NewVyear;
-        IncludeVatEntries := NewIncludeVatEntries;
+        IncludeVatEntries := "VAt Statement Report Selection".FromInteger(NewIncludeVatEntries);
         PrintPrepayment := NewPrintPrepayment;
         Reimbursement := NewReimbursement;
         PaymForms := NewPaymForms;

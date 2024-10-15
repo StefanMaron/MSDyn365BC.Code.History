@@ -614,9 +614,7 @@ codeunit 144044 "Ledger Reports"
     begin
         // Setup:
         CreateGenJnlTemplate(GenJournalTemplate,
-          GenJournalTemplate.Type::Financial,
-          0,
-          CreateGLAccount);
+          GenJournalTemplate.Type::Financial, "Gen. Journal Template Type"::General, CreateGLAccount);
 
         DebitAmounts[1] := LibraryRandom.RandDec(10000, 2);
         DebitAmounts[2] := LibraryRandom.RandDec(10000, 2);
@@ -631,7 +629,7 @@ codeunit 144044 "Ledger Reports"
           GenJournalLine."Document Type"::"Finance Charge Memo",
           GenJournalLine."Bal. Account Type"::Customer,
           Customer."No.",
-          DebitAmounts[1], '', '', 0);
+          DebitAmounts[1], '', '', "General Posting Type"::" ");
 
         // Create and post Vendor finance gen. journal line.
         LibraryPurchase.CreateVendor(Vendor);
@@ -641,7 +639,7 @@ codeunit 144044 "Ledger Reports"
           GenJournalLine."Document Type"::"Finance Charge Memo",
           GenJournalLine."Bal. Account Type"::Vendor,
           Vendor."No.",
-          CreditAmounts[1], '', '', 0);
+          CreditAmounts[1], '', '', "General Posting Type"::" ");
 
         // Create and post GL account finance gen. journal line with VAT entries.
         LibraryERM.CreateVATBusinessPostingGroup(VATBusinessPostingGroup);
@@ -685,7 +683,7 @@ codeunit 144044 "Ledger Reports"
           GenJournalLine."Document Type"::"Finance Charge Memo",
           GenJournalLine."Bal. Account Type"::Customer,
           Customer."No.",
-          DebitAmounts[2], '', '', 0);
+          DebitAmounts[2], '', '', "General Posting Type"::" ");
 
         // Excersise report
         LibraryVariableStorage.Clear;
@@ -791,7 +789,7 @@ codeunit 144044 "Ledger Reports"
         end;
     end;
 
-    local procedure CreateAndPostGenJnlLine(AccountNo: Code[20]; AccountType: Option; Amount: Decimal): Code[20]
+    local procedure CreateAndPostGenJnlLine(AccountNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; Amount: Decimal): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -800,7 +798,7 @@ codeunit 144044 "Ledger Reports"
         exit(GenJournalLine."Document No.");
     end;
 
-    local procedure CreatePurchaseDocument(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; GenPostingSetup: Record "General Posting Setup"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Option)
+    local procedure CreatePurchaseDocument(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; GenPostingSetup: Record "General Posting Setup"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Enum "Purchase Document Type")
     begin
         LibraryPurchase.CreatePurchHeader(
           PurchHeader, DocumentType, CreateVendor(GenPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group"));
@@ -836,17 +834,17 @@ codeunit 144044 "Ledger Reports"
         exit(GLAccount."No.");
     end;
 
-    local procedure CreateGenJnlTemplate(var GenJournalTemplate: Record "Gen. Journal Template"; Type: Option; BalAccountType: Option; BalAccountNo: Code[20])
+    local procedure CreateGenJnlTemplate(var GenJournalTemplate: Record "Gen. Journal Template"; Type: Enum "Gen. Journal Template Type"; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20])
     begin
         LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
         GenJournalTemplate.Type := Type;
-        if BalAccountType <> 0 then
+        if BalAccountType <> BalAccountType::"G/L Account" then
             GenJournalTemplate."Bal. Account Type" := BalAccountType;
         GenJournalTemplate."Bal. Account No." := BalAccountNo;
         GenJournalTemplate.Modify(true);
     end;
 
-    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; AccountType: Option; Amount: Decimal)
+    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -900,14 +898,14 @@ codeunit 144044 "Ledger Reports"
         end;
     end;
 
-    local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         CustLedgerEntry.SetRange("Document Type", DocumentType);
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
         CustLedgerEntry.FindLast;
     end;
 
-    local procedure FindVendorLedgerEntry(var VendLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindVendorLedgerEntry(var VendLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         VendLedgerEntry.SetRange("Document Type", DocumentType);
         VendLedgerEntry.SetRange("Document No.", DocumentNo);
@@ -925,7 +923,7 @@ codeunit 144044 "Ledger Reports"
         exit(PaymentNo);
     end;
 
-    local procedure CreateAndPostGeneralJournalBatch(var GenJournalTemplate: Record "Gen. Journal Template"; BatchTemplateType: Option; BatchBalAccountType: Option; LineDocumentType: Option; LineBalAccountType: Option; LineAccountNo: Code[20]; LineAmount: Decimal; VATBusinessPostingGroupCode: Code[20]; VATProductPostingGroupCode: Code[20]; GenPostingType: Option)
+    local procedure CreateAndPostGeneralJournalBatch(var GenJournalTemplate: Record "Gen. Journal Template"; BatchTemplateType: Enum "Gen. Journal Template Type"; BatchBalAccountType: Enum "Gen. Journal Account Type"; LineDocumentType: Enum "Gen. Journal Account Type"; LineBalAccountType: Enum "Gen. Journal Account Type"; LineAccountNo: Code[20]; LineAmount: Decimal; VATBusinessPostingGroupCode: Code[20]; VATProductPostingGroupCode: Code[20]; GenPostingType: Enum "General Posting Type")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";

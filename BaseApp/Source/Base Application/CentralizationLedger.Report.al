@@ -61,12 +61,12 @@ report 11303 "Centralization Ledger"
                 }
                 column(TotalAddCurrCredit; TotalAddCurrCredit)
                 {
-                    AutoFormatExpression = GetCurrencyCode;
+                    AutoFormatExpression = GetCurrencyCode();
                     AutoFormatType = 1;
                 }
                 column(TotalAddCurrDebit; TotalAddCurrDebit)
                 {
-                    AutoFormatExpression = GetCurrencyCode;
+                    AutoFormatExpression = GetCurrencyCode();
                     AutoFormatType = 1;
                 }
                 column(TotalMessage; TotalMessage)
@@ -85,12 +85,12 @@ report 11303 "Centralization Ledger"
                 }
                 column(GrTotalAddCurrCredit; GrTotalAddCurrCredit)
                 {
-                    AutoFormatExpression = GetCurrencyCode;
+                    AutoFormatExpression = GetCurrencyCode();
                     AutoFormatType = 1;
                 }
                 column(GrTotalAddCurrDebit; GrTotalAddCurrDebit)
                 {
-                    AutoFormatExpression = GetCurrencyCode;
+                    AutoFormatExpression = GetCurrencyCode();
                     AutoFormatType = 1;
                 }
                 column(GLEntry2GLAccNo; "G/L Entry2".FieldCaption("G/L Account No."))
@@ -142,12 +142,12 @@ report 11303 "Centralization Ledger"
                     DataItemTableView = SORTING("Journal Template Name", "G/L Account No.", "Posting Date", "Document Type");
                     column(AddCurrCreditAmt_GLEntry2; "Add.-Currency Credit Amount")
                     {
-                        AutoFormatExpression = GetCurrencyCode;
+                        AutoFormatExpression = GetCurrencyCode();
                         AutoFormatType = 1;
                     }
                     column(AddCurrDebitAmt_GLEntry2; "Add.-Currency Debit Amount")
                     {
-                        AutoFormatExpression = GetCurrencyCode;
+                        AutoFormatExpression = GetCurrencyCode();
                         AutoFormatType = 1;
                     }
                     column(CreditAmt_GLEntry2; "Credit Amount")

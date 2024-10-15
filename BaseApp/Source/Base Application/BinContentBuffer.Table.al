@@ -103,10 +103,48 @@ table 7330 "Bin Content Buffer"
     {
     }
 
+    procedure UpdateBuffer(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; VariantCode: Code[10]; UnitOfMeasureCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"; QtyBase: Decimal)
+    begin
+        if Get(LocationCode, BinCode, ItemNo, VariantCode, UnitOfMeasureCode, WhseItemTrackingSetup."Lot No.", WhseItemTrackingSetup."Serial No.") then begin
+            "Qty. to Handle (Base)" += QtyBase;
+            Modify();
+        end else begin
+            Init();
+            "Location Code" := LocationCode;
+            "Bin Code" := BinCode;
+            "Item No." := ItemNo;
+            "Variant Code" := VariantCode;
+            "Unit of Measure Code" := UnitOfMeasureCode;
+            CopyTrackingFromWhseItemTrackingSetup(WhseItemTrackingSetup);
+            "Qty. to Handle (Base)" := QtyBase;
+            Insert();
+        end;
+    end;
+
     procedure CopyTrackingFromWhseActivityLine(WhseActivityLine: Record "Warehouse Activity Line")
     begin
         "Serial No." := WhseActivityLine."Serial No.";
         "Lot No." := WhseActivityLine."Lot No.";
+
+        OnAfterCopyTrackingFromWhseActivityLine(Rec, WhseActivityLine);
+    end;
+
+    procedure CopyTrackingFromWhseItemTrackingSetup(WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        "Serial No." := WhseItemTrackingSetup."Serial No.";
+        "Lot No." := WhseItemTrackingSetup."Lot No.";
+
+        OnAfterCopyTrackingFromWhseItemTrackingSetup(Rec, WhseItemTrackingSetup);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromWhseActivityLine(var BinContentBuffer: Record "Bin Content Buffer"; WhseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromWhseItemTrackingSetup(var BinContentBuffer: Record "Bin Content Buffer"; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
     end;
 }
 

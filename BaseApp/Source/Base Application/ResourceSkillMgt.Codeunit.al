@@ -89,7 +89,7 @@ codeunit 5931 "Resource Skill Mgt."
             if ServiceItem.Find('-') then
                 repeat
                     UnifyResSkillCode(Type::"Service Item", ServiceItem."No.", ResSkill);
-                until ServiceItem.Next = 0;
+                until ServiceItem.Next() = 0;
         end;
     end;
 
@@ -106,18 +106,18 @@ codeunit 5931 "Resource Skill Mgt."
                         if AddedResSkill.Get(AddedResSkill.Type::Item, "No.", ResSkill."Skill Code") then
                             AddResSkillToServItems(AddedResSkill);
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
-    local procedure UnifyResSkillCode(ObjectType: Integer; ObjectNo: Code[20]; var UnifiedResSkill: Record "Resource Skill"): Boolean
+    local procedure UnifyResSkillCode(ObjectType: Enum "Resource Skill Type"; ObjectNo: Code[20]; var UnifiedResSkill: Record "Resource Skill"): Boolean
     var
         NewResSkill: Record "Resource Skill";
         ExistingResSkill: Record "Resource Skill";
     begin
         with NewResSkill do begin
             if not ExistingResSkill.Get(ObjectType, ObjectNo, UnifiedResSkill."Skill Code") then begin
-                Init;
+                Init();
                 Type := ObjectType;
                 "No." := ObjectNo;
                 "Skill Code" := UnifiedResSkill."Skill Code";
@@ -219,7 +219,7 @@ codeunit 5931 "Resource Skill Mgt."
                         end;
                         exit
                     end;
-                until ResSkill.Next = 0;
+                until ResSkill.Next() = 0;
     end;
 
     local procedure RemoveItemResSkill(var ResSkill: Record "Resource Skill"; Update: Boolean; IsReassigned: Boolean)
@@ -271,8 +271,8 @@ codeunit 5931 "Resource Skill Mgt."
                                     end else
                                         ConvertResSkillToOriginal(ExistingResSkill2, true)
                             end;
-                        until Next = 0;
-                until ServItem.Next = 0;
+                        until Next() = 0;
+                until ServItem.Next() = 0;
         end;
     end;
 
@@ -310,7 +310,7 @@ codeunit 5931 "Resource Skill Mgt."
                             ExistingResSkill2."Source Code" := ServItem."Item No.";
                             ExistingResSkill2.Modify();
                         end;
-                    until Next = 0;
+                    until Next() = 0;
             end;
     end;
 
@@ -382,7 +382,7 @@ codeunit 5931 "Resource Skill Mgt."
                         ExistingResSkill3.Rename(Type, "No.", ResSkill."Skill Code")
                     else
                         ExistingResSkill3.Delete();
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -409,21 +409,21 @@ codeunit 5931 "Resource Skill Mgt."
                             Modify;
                         end else
                             Delete
-                until ServItem.Next = 0;
+                until ServItem.Next() = 0;
         end;
     end;
 
     procedure AssignServItemResSkills(var ServItem: Record "Service Item")
     var
         ResSkill: Record "Resource Skill";
-        SrcType: Integer;
+        SrcType: Enum "Resource Skill Type";
     begin
         SrcType := ResSkill.Type::"Service Item";
-        AssignRelationWithUpdate(SrcType, ServItem."No.", ResSkill.Type::Item, ServItem."Item No.");
-        AssignRelationWithUpdate(SrcType, ServItem."No.", ResSkill.Type::"Service Item Group", ServItem."Service Item Group Code");
+        AssignResSkillRelationWithUpdate(SrcType, ServItem."No.", ResSkill.Type::Item, ServItem."Item No.");
+        AssignResSkillRelationWithUpdate(SrcType, ServItem."No.", ResSkill.Type::"Service Item Group", ServItem."Service Item Group Code");
     end;
 
-    local procedure AssignRelationConfirmation(SrcType: Integer; SrcCode: Code[20]; DestType: Integer; DestCode: Code[20]): Boolean
+    local procedure AssignRelationConfirmation(SrcType: Enum "Resource Skill Type"; SrcCode: Code[20]; DestType: Enum "Resource Skill Type"; DestCode: Code[20]): Boolean
     var
         ServItemGroup: Record "Service Item Group";
         ServItem: Record "Service Item";
@@ -456,7 +456,14 @@ codeunit 5931 "Resource Skill Mgt."
         end;
     end;
 
+    [Obsolete('Replaced by AssignResSkillRelationWithUpdate().', '17.0')]
     procedure AssignRelationWithUpdate(SrcType: Integer; SrcCode: Code[20]; DestType: Integer; DestCode: Code[20])
+    begin
+        AssignResSkillRelationWithUpdate(
+            "Resource Skill Type".FromInteger(SrcType), SrcCode, "Resource Skill Type".FromInteger(DestType), DestCode);
+    end;
+
+    procedure AssignResSkillRelationWithUpdate(SrcType: Enum "Resource Skill Type"; SrcCode: Code[20]; DestType: Enum "Resource Skill Type"; DestCode: Code[20])
     var
         OriginalResSkill: Record "Resource Skill";
         AddedResSkill: Record "Resource Skill";
@@ -471,7 +478,7 @@ codeunit 5931 "Resource Skill Mgt."
                             if AddedResSkill.Get(SrcType, SrcCode, "Skill Code") then
                                 AddResSkillToServItems(AddedResSkill);
                         end;
-                until Next = 0
+                until Next() = 0
         end;
     end;
 
@@ -501,17 +508,14 @@ codeunit 5931 "Resource Skill Mgt."
                     ExistingResSkill2 := ExistingResSkill;
                     RemoveItemResSkill(ExistingResSkill2, Update, false);
                     ExistingResSkill2.Delete();
-                until Next = 0;
+                until Next() = 0;
 
                 ServiceItem.Reset();
                 ServiceItem.SetRange("Item No.", ItemNo);
                 if ServiceItem.Find('-') then
                     repeat
-                        RemoveServItemGroupRelation(
-                          ServiceItem."No.",
-                          Update,
-                          Type::"Service Item");
-                    until ServiceItem.Next = 0;
+                        RemoveServItemGroupRelation(ServiceItem."No.", Update, Type::"Service Item");
+                    until ServiceItem.Next() = 0;
             end;
         end;
     end;
@@ -541,7 +545,7 @@ codeunit 5931 "Resource Skill Mgt."
                     ExistingResSkill2 := ExistingResSkill;
                     RemoveServItemGroupResSkill(ExistingResSkill2, Update);
                     ExistingResSkill2.Delete();
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -557,7 +561,14 @@ codeunit 5931 "Resource Skill Mgt."
         end;
     end;
 
+    [Obsolete('Replaced by ChangeResSkillRelationWithItem().', '17.0')]
     procedure ChangeRelationWithItem(SrcType: Integer; SrcCode: Code[20]; RelationType: Integer; DestCode: Code[20]; OriginalCode: Code[20]; ServItemGroupCode: Code[10]): Boolean
+    begin
+        ChangeResSkillRelationWithItem(
+            "Resource Skill Type".FromInteger(SrcType), SrcCode, "Resource Skill Type".FromInteger(RelationType), DestCode, OriginalCode, ServItemGroupCode);
+    end;
+
+    procedure ChangeResSkillRelationWithItem(SrcType: Enum "Resource Skill Type"; SrcCode: Code[20]; RelationType: Enum "Resource Skill Type"; DestCode: Code[20]; OriginalCode: Code[20]; ServItemGroupCode: Code[10]): Boolean
     var
         Item: Record Item;
         ExistingResSkill: Record "Resource Skill";
@@ -623,12 +634,19 @@ codeunit 5931 "Resource Skill Mgt."
             RemoveServItemGroupRelation(SrcCode, RemoveWithUpdate, SrcType);
 
         if (DestCode <> '') and AssignWithUpdate then
-            AssignRelationWithUpdate(SrcType, SrcCode, RelationType, DestCode);
+            AssignResSkillRelationWithUpdate(SrcType, SrcCode, RelationType, DestCode);
 
         exit(true);
     end;
 
+    [Obsolete('Replaced by ChangeResSkillRelationWithGroup().', '17.0')]
     procedure ChangeRelationWithGroup(SrcType: Integer; SrcCode: Code[20]; RelationType: Integer; DestCode: Code[20]; OriginalCode: Code[20]): Boolean
+    begin
+        ChangeResSkillRelationWithGroup(
+            "Resource Skill Type".FromInteger(SrcType), SrcCode, "Resource Skill Type".FromInteger(RelationType), DestCode, OriginalCode);
+    end;
+
+    procedure ChangeResSkillRelationWithGroup(SrcType: Enum "Resource Skill Type"; SrcCode: Code[20]; RelationType: Enum "Resource Skill Type"; DestCode: Code[20]; OriginalCode: Code[20]): Boolean
     var
         ExistingResSkill: Record "Resource Skill";
         SelectedOption: Integer;
@@ -666,7 +684,7 @@ codeunit 5931 "Resource Skill Mgt."
             RemoveServItemGroupRelation(SrcCode, RemoveWithUpdate, SrcType);
 
         if (DestCode <> '') and AssignWithUpdate then
-            AssignRelationWithUpdate(SrcType, SrcCode, RelationType, DestCode);
+            AssignResSkillRelationWithUpdate(SrcType, SrcCode, RelationType, DestCode);
 
         exit(true);
     end;
@@ -700,11 +718,11 @@ codeunit 5931 "Resource Skill Mgt."
                                 else
                                     ConvertResSkillToOriginal(ExistingResSkill2, true);
                             end;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
-    local procedure RemoveServItemGroupRelation(SrcCode: Code[20]; RemoveWithUpdate: Boolean; SrcType: Integer)
+    local procedure RemoveServItemGroupRelation(SrcCode: Code[20]; RemoveWithUpdate: Boolean; SrcType: Enum "Resource Skill Type")
     var
         ExistingResSkill: Record "Resource Skill";
         ExistingResSkill2: Record "Resource Skill";
@@ -723,7 +741,7 @@ codeunit 5931 "Resource Skill Mgt."
                     else
                         ConvertResSkillToOriginal(ExistingResSkill, true)
                         ;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -744,7 +762,7 @@ codeunit 5931 "Resource Skill Mgt."
             if Find('-') then
                 repeat
                     ConvertResSkillToOriginal(ResSkill, true);
-                until Next = 0
+                until Next() = 0
         end;
     end;
 
@@ -808,7 +826,7 @@ codeunit 5931 "Resource Skill Mgt."
                                 SetRange("Skill Code", ResSkill."Skill Code");
                                 if not IsEmpty then
                                     exit(true);
-                            until ServItem.Next = 0;
+                            until ServItem.Next() = 0;
                     end;
                 Type::"Service Item Group":
                     begin
@@ -835,7 +853,14 @@ codeunit 5931 "Resource Skill Mgt."
         exit(SelectedOption - 1);
     end;
 
+    [Obsolete('Replaced by RevalidateResSkillRelation().', '17.0')]
     procedure RevalidateRelation(SrcType: Integer; SrcCode: Code[20]; DestType: Integer; DestCode: Code[20]): Boolean
+    begin
+        RevalidateResSkillRelation(
+            "Resource Skill Type".FromInteger(SrcType), SrcCode, "Resource Skill Type".FromInteger(DestType), DestCode);
+    end;
+
+    procedure RevalidateResSkillRelation(SrcType: Enum "Resource Skill Type"; SrcCode: Code[20]; DestType: Enum "Resource Skill Type"; DestCode: Code[20]): Boolean
     var
         AssignRelation: Boolean;
     begin
@@ -846,13 +871,13 @@ codeunit 5931 "Resource Skill Mgt."
                 AssignRelation := true;
 
             if AssignRelation then begin
-                AssignRelationWithUpdate(SrcType, SrcCode, DestType, DestCode);
+                AssignResSkillRelationWithUpdate(SrcType, SrcCode, DestType, DestCode);
                 exit(true)
             end;
         end;
     end;
 
-    local procedure RevalidateRelationConfirmation(SrcType: Integer; SrcCode: Code[20]; DestType: Integer; DestCode: Code[20]): Boolean
+    local procedure RevalidateRelationConfirmation(SrcType: Enum "Resource Skill Type"; SrcCode: Code[20]; DestType: Enum "Resource Skill Type"; DestCode: Code[20]): Boolean
     var
         ServItemGroup: Record "Service Item Group";
         ServItem: Record "Service Item";
@@ -881,7 +906,7 @@ codeunit 5931 "Resource Skill Mgt."
         end;
     end;
 
-    local procedure IsNewCodesAdded(SrcType: Integer; SrcCode: Code[20]; DestType: Integer; DestCode: Code[20]): Boolean
+    local procedure IsNewCodesAdded(SrcType: Enum "Resource Skill Type"; SrcCode: Code[20]; DestType: Enum "Resource Skill Type"; DestCode: Code[20]): Boolean
     var
         DestResSkill: Record "Resource Skill";
         SrcResSkill: Record "Resource Skill";
@@ -896,7 +921,7 @@ codeunit 5931 "Resource Skill Mgt."
                     SrcResSkill.SetRange("Skill Code", "Skill Code");
                     if SrcResSkill.IsEmpty then
                         exit(true);
-                until Next = 0
+                until Next() = 0
         end;
     end;
 
@@ -925,7 +950,7 @@ codeunit 5931 "Resource Skill Mgt."
                     NewResSkill := ResSkill;
                     NewResSkill."No." := DestCode;
                     NewResSkill.Insert();
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 }

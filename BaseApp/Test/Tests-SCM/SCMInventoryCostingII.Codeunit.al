@@ -30,9 +30,7 @@ codeunit 137287 "SCM Inventory Costing II"
         AssignableAmountErr: Label 'Assignable Amount is not correct.';
         DuplicateJournalQst: Label 'Duplicate Revaluation Journals will be generated';
         ItemJnlLineCountErr: Label 'There should be %1 Item Journal Line(s) for Item %2.';
-        PostedSalesDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
         CostAmountNonInvtblErr: Label 'Function NonInvtblCostAmt returned wrong value.';
-        PostedPurchaseDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
         ActualCostErr: Label 'Incorrect Actual Cost LCY';
 
     [Test]
@@ -68,7 +66,7 @@ codeunit 137287 "SCM Inventory Costing II"
         ChargeAssignmentUsingPurchaseDocument(PurchaseHeader."Document Type"::"Return Order");
     end;
 
-    local procedure ChargeAssignmentUsingPurchaseDocument(PurchaseDocumentType: Option)
+    local procedure ChargeAssignmentUsingPurchaseDocument(PurchaseDocumentType: Enum "Purchase Document Type")
     var
         ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
         PurchaseLine: Record "Purchase Line";
@@ -120,7 +118,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PostPurchaseDocumentWithChargeAssignment(PurchaseHeader."Document Type"::"Credit Memo", 1);
     end;
 
-    local procedure PostPurchaseDocumentWithChargeAssignment(PurchaseDocumentType: Option; AmountSignFactor: Integer)
+    local procedure PostPurchaseDocumentWithChargeAssignment(PurchaseDocumentType: Enum "Purchase Document Type"; AmountSignFactor: Integer)
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -204,7 +202,7 @@ codeunit 137287 "SCM Inventory Costing II"
         Initialize;
         LibraryVariableStorage.Enqueue(1);  // Enqueue option value for ItemChargeAssignMenuHandler.
         ItemChargeNo := ChargeAssignmentUsingShipmentLines(PurchaseLine, 1);
-        PurchaseLine.ShowItemChargeAssgnt;
+        PurchaseLine.ShowItemChargeAssgnt();
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
 
         // Exercise.
@@ -292,7 +290,7 @@ codeunit 137287 "SCM Inventory Costing II"
         ChgAssgntUsingSalesRetOrder(PurchaseHeader."Document Type"::"Credit Memo", SalesHeader."Document Type"::"Return Order");
     end;
 
-    local procedure ChgAssgntUsingSalesRetOrder(PurchaseDocumentType: Option; SalesDocumentType: Option)
+    local procedure ChgAssgntUsingSalesRetOrder(PurchaseDocumentType: Enum "Purchase Document Type"; SalesDocumentType: Enum "Sales Document Type")
     var
         ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
         PurchaseLine: Record "Purchase Line";
@@ -343,7 +341,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PostAndVerifyPurchDocWithChgAssignt(PurchaseHeader."Document Type"::"Credit Memo")
     end;
 
-    local procedure PostAndVerifyPurchDocWithChgAssignt(PurchaseDocumentType: Option)
+    local procedure PostAndVerifyPurchDocWithChgAssignt(PurchaseDocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -380,7 +378,7 @@ codeunit 137287 "SCM Inventory Costing II"
         Initialize;
         ItemChargeNo := ChargeAssignmentUsingReceiptLines(PurchaseLine, 1);
         LibraryVariableStorage.Enqueue(1);  // Enqueue option value for ItemChargeAssignMenuHandler.
-        PurchaseLine.ShowItemChargeAssgnt;
+        PurchaseLine.ShowItemChargeAssgnt();
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
 
         // Exercise.
@@ -548,7 +546,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchDocWithChgAssigntToPurchRcptNonInvtCost(PurchaseHeader."Document Type"::"Credit Memo", -1, -1, 1, 1);
     end;
 
-    local procedure PurchDocWithChgAssigntToPurchRcptNonInvtCost(DocumentType: Option; PurchDocSign: Integer; QuantitySignFactor: Integer; CostSignFactor: Integer; AmountSignFactor: Integer)
+    local procedure PurchDocWithChgAssigntToPurchRcptNonInvtCost(DocumentType: Enum "Purchase Document Type"; PurchDocSign: Integer; QuantitySignFactor: Integer; CostSignFactor: Integer; AmountSignFactor: Integer)
     var
         ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
         PurchaseHeader: Record "Purchase Header";
@@ -578,7 +576,7 @@ codeunit 137287 "SCM Inventory Costing II"
           AmountSignFactor * Abs(PurchaseLine2.Quantity * PurchaseLine2."Direct Unit Cost"));
     end;
 
-    local procedure PurchDocWithChgAssigntToPurchRcptActualCost(DocumentType: Option; PurchDocSign: Integer; QuantitySignFactor: Integer; CostSignFactor: Integer; AmountSignFactor: Integer)
+    local procedure PurchDocWithChgAssigntToPurchRcptActualCost(DocumentType: Enum "Purchase Document Type"; PurchDocSign: Integer; QuantitySignFactor: Integer; CostSignFactor: Integer; AmountSignFactor: Integer)
     var
         ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
         PurchaseHeader: Record "Purchase Header";
@@ -652,7 +650,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchDocWithChgAssgntToPurchRetShipt(PurchaseHeader."Document Type"::"Credit Memo", -1, -1, -1); // Respective SignFactors for Quantity, Cost and Amount.
     end;
 
-    local procedure PurchDocWithChgAssgntToPurchRetShipt(DocumentType: Option; QuantitySignFactor: Integer; CostSignFactor: Integer; AmountSignFactor: Integer)
+    local procedure PurchDocWithChgAssgntToPurchRetShipt(DocumentType: Enum "Purchase Document Type"; QuantitySignFactor: Integer; CostSignFactor: Integer; AmountSignFactor: Integer)
     var
         ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
         PurchaseHeader: Record "Purchase Header";
@@ -709,7 +707,7 @@ codeunit 137287 "SCM Inventory Costing II"
           PurchaseLine3, PurchaseHeader, PurchaseLine2.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo,
           2 * PurchaseLine.Quantity, 100 + PurchaseLine."Direct Unit Cost");
         LibraryVariableStorage.Enqueue(2);  // Enqueue option value for ItemChargeAssignMenuHandler.
-        PurchaseLine3.ShowItemChargeAssgnt;
+        PurchaseLine3.ShowItemChargeAssgnt();
         PurchaseHeader.Get(PurchaseLine3."Document Type", PurchaseLine3."Document No.");
 
         // Exercise: Post Purchase Document.
@@ -798,7 +796,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchDocWithInvalidatedChgAssignt(PurchLine."Document Type"::"Return Order");
     end;
 
-    local procedure PurchDocWithInvalidatedChgAssignt(DocumentType: Option)
+    local procedure PurchDocWithInvalidatedChgAssignt(DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -867,7 +865,7 @@ codeunit 137287 "SCM Inventory Costing II"
         SalesDocWithInvalidatedChgAssignt(SalesLine."Document Type"::"Return Order");
     end;
 
-    local procedure SalesDocWithInvalidatedChgAssignt(DocumentType: Option)
+    local procedure SalesDocWithInvalidatedChgAssignt(DocumentType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -936,7 +934,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Exercise: Assign the Item Charge. Running Suggest Item Charge Assignment.
         // Enqueue Assignable Amount and option = Amount for ItemChargeAssignMenuHandler.
         AssignItemChargeWithSuggest(ExpdAssignableAmount, 2);
-        PurchaseLine.ShowItemChargeAssgnt;
+        PurchaseLine.ShowItemChargeAssgnt();
 
         // Verify Assignable Amount & Rem. Amount To Assign is correct
         // in SuggstItemChargeAssgntPurchHandler before running report.
@@ -944,7 +942,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Exercise: Run report Purchase Document - Test.
         // No need run Suggest Item Charge Assignment. Just show Item Charge Assignment.
         RunPurchaseReportAndAssignItemChargeWithoutSuggest(ExpdAssignableAmount);
-        PurchaseLine.ShowItemChargeAssgnt;
+        PurchaseLine.ShowItemChargeAssgnt();
 
         // Verify: Verify Assignable Amount & Rem. Amount To Assign is correct
         // in SuggstItemChargeAssgntPurchHandler after running report.
@@ -979,7 +977,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Exercise: Assign the Item Charge. Running Suggest Item Charge Assignment.
         // Enqueue Assignable Amount and option = Amount for ItemChargeAssignMenuHandler.
         AssignItemChargeWithSuggest(ExpdAssignableAmount, 2);
-        PurchaseLine.ShowItemChargeAssgnt;
+        PurchaseLine.ShowItemChargeAssgnt();
 
         // Verify: Verify Assignable Amount & Rem. Amount To Assign is correct
         // in SuggstItemChargeAssgntPurchHandler before running report.
@@ -987,7 +985,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Exercise: Run report Purchase Document - Test.
         // No need run Suggest Item Charge Assignment. Just show Item Charge Assignment.
         RunPurchaseReportAndAssignItemChargeWithoutSuggest(ExpdAssignableAmount);
-        PurchaseLine.ShowItemChargeAssgnt;
+        PurchaseLine.ShowItemChargeAssgnt();
 
         // Verify: Verify Assignable Amount & Rem. Amount To Assign is correct
         // in SuggstItemChargeAssgntPurchHandler after running report.
@@ -1018,7 +1016,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Exercise: Assign the Item Charge. Running Suggest Item Charge Assignment.
         // Enqueue Assignable Amount and option = Equally for ItemChargeAssignMenuHandler.
         AssignItemChargeWithSuggest(ExpdAssignableAmount, 1);
-        PurchaseLine.ShowItemChargeAssgnt;
+        PurchaseLine.ShowItemChargeAssgnt();
 
         // Verify: Verify Assignable Amount & Rem. Amount To Assign is correct
         // in SuggstItemChargeAssgntPurchHandler before running report.
@@ -1026,7 +1024,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Exercise: Run report Purchase Document - Test.
         // No need run Suggest Item Charge Assignment. Just show Item Charge Assignment.
         RunPurchaseReportAndAssignItemChargeWithoutSuggest(ExpdAssignableAmount);
-        PurchaseLine.ShowItemChargeAssgnt;
+        PurchaseLine.ShowItemChargeAssgnt();
 
         // Verify: Verify Assignable Amount & Rem. Amount To Assign is correct
         // in SuggstItemChargeAssgntPurchHandler after running report.
@@ -1055,7 +1053,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Exercise: Partial Assign the Item Charge in ItemChargeAssignmentPartialPurchHandler.
         LibraryVariableStorage.Enqueue(LibraryRandom.RandInt(5)); // Partial assign quantity.
         LibraryVariableStorage.Enqueue(PartialAssignmentMsg);
-        PurchaseLine.ShowItemChargeAssgnt;
+        PurchaseLine.ShowItemChargeAssgnt();
 
         // Verify: Verify the confirm message pops up when Rem Amount To Assign has value after
         // partially assign item charge for Purchase in ConfirmHandler.
@@ -1087,7 +1085,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Exercise: Assign the Item Charge. Running Suggest Item Charge Assignment.
         // Enqueue Assignable Amount and option = Equally for ItemChargeAssignMenuHandler.
         AssignItemChargeWithSuggest(ExpdAssignableAmount, 1);
-        SalesLine.ShowItemChargeAssgnt;
+        SalesLine.ShowItemChargeAssgnt();
 
         // Verify: Verify Assignable Amount & Rem. Amount To Assign is correct
         // in SuggstItemChargeAssgntSalesHandler before running report.
@@ -1095,7 +1093,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Exercise: Run report Sales Document - Test
         // No need run Suggest Item Charge Assignment. Just show Item Charge Assignment.
         RunSalesReportAndAssignItemChargeWithoutSuggest(ExpdAssignableAmount);
-        SalesLine.ShowItemChargeAssgnt;
+        SalesLine.ShowItemChargeAssgnt();
 
         // Verify: Verify Assignable Amount & Rem. Amount To Assign is correct
         // in SuggstItemChargeAssgntSalesHandler after running report.
@@ -1128,7 +1126,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Exercise: Assign the Item Charge. Running Suggest Item Charge Assignment.
         // Enqueue Assignable Amount and option = Equally for ItemChargeAssignMenuHandler.
         AssignItemChargeWithSuggest(ExpdAssignableAmount, 1);
-        SalesLine.ShowItemChargeAssgnt;
+        SalesLine.ShowItemChargeAssgnt();
 
         // Verify: Verify Assignable Amount & Rem. Amount To Assign is correct
         // in SuggstItemChargeAssgntSalesHandler before running report.
@@ -1136,7 +1134,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Exercise: Run Report Sales Document - Test.
         // No need run Suggest Item Charge Assignment. Just show Item Charge Assignment.
         RunSalesReportAndAssignItemChargeWithoutSuggest(ExpdAssignableAmount);
-        SalesLine.ShowItemChargeAssgnt;
+        SalesLine.ShowItemChargeAssgnt();
 
         // Verify: Verify Assignable Amount & Rem. Amount To Assign is correct
         // in SuggstItemChargeAssgntSalesHandler after running report.
@@ -1168,7 +1166,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Exercise: Assign the Item Charge. Running Suggest Item Charge Assignment.
         // Enqueue Assignable Amount and option = Amount for ItemChargeAssignMenuHandler.
         AssignItemChargeWithSuggest(ExpdAssignableAmount, 2);
-        SalesLine.ShowItemChargeAssgnt;
+        SalesLine.ShowItemChargeAssgnt();
 
         // Verify: Verify Assignable Amount & Rem. Amount To Assign is correct
         // in SuggstItemChargeAssgntSalesHandler before running report.
@@ -1176,7 +1174,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Exercise: Run Report Sales Document - Test.
         // No need run Suggest Item Charge Assignment. Just show Item Charge Assignment.
         RunSalesReportAndAssignItemChargeWithoutSuggest(ExpdAssignableAmount);
-        SalesLine.ShowItemChargeAssgnt;
+        SalesLine.ShowItemChargeAssgnt();
 
         // Verify: Verify Assignable Amount & Rem. Amount To Assign is correct
         // in SuggstItemChargeAssgntSalesHandler after running report.
@@ -1221,7 +1219,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Exercise & Verify: Assignable Amount & Rem. Amount To Assign are verified to be correct
         // in SuggstItemChargeAssgntPurchHandler.
         AssignItemChargeWithSuggest(ExpdAssignableAmount, 2);
-        PurchaseLine.ShowItemChargeAssgnt;
+        PurchaseLine.ShowItemChargeAssgnt();
     end;
 
     [Test]
@@ -1245,7 +1243,7 @@ codeunit 137287 "SCM Inventory Costing II"
 
         PreparePartialReceiptInvoice(PurchaseLine, 1, 1);
         AssignItemChargeWithSuggest(ExpdAssignableAmount, 2);
-        PurchaseLine.ShowItemChargeAssgnt;
+        PurchaseLine.ShowItemChargeAssgnt();
     end;
 
     [Test]
@@ -1272,7 +1270,7 @@ codeunit 137287 "SCM Inventory Costing II"
 
         PreparePartialReceiptInvoice(PurchaseLine, 1, 1);
         AssignItemChargeWithSuggest(ExpdAssignableAmount, 2);
-        PurchaseLine.ShowItemChargeAssgnt;
+        PurchaseLine.ShowItemChargeAssgnt();
     end;
 
     [Test]
@@ -1296,7 +1294,7 @@ codeunit 137287 "SCM Inventory Costing II"
 
         PreparePartialReceiptInvoice(PurchaseLine, 0, 1);
         AssignItemChargeWithSuggest(ExpdAssignableAmount, 2);
-        PurchaseLine.ShowItemChargeAssgnt;
+        PurchaseLine.ShowItemChargeAssgnt();
     end;
 
     local procedure PurchOrderPartItemCharge(var PurchaseLine: Record "Purchase Line"; InvoiceDiscount: Decimal; ItemChargeQty: Decimal; QtyToInvoice: Decimal) ExpdAssignableAmount: Decimal
@@ -1332,7 +1330,7 @@ codeunit 137287 "SCM Inventory Costing II"
         // Exercise & Verify : Assignable Amount & Rem. Amount To Assign are verified to be
         // correct in SuggstItemChargeAssgntSalesHandler.
         AssignItemChargeWithSuggest(ExpdAssignableAmount, 2);
-        SalesLine.ShowItemChargeAssgnt;
+        SalesLine.ShowItemChargeAssgnt();
     end;
 
     [Test]
@@ -1357,7 +1355,7 @@ codeunit 137287 "SCM Inventory Costing II"
 
         PreparePartialShipInvoice(SalesLine, 1, 1);
         AssignItemChargeWithSuggest(ExpdAssignableAmount, 2);
-        SalesLine.ShowItemChargeAssgnt;
+        SalesLine.ShowItemChargeAssgnt();
     end;
 
     [Test]
@@ -1379,21 +1377,21 @@ codeunit 137287 "SCM Inventory Costing II"
         // correct in SuggstItemChargeAssgntSalesHandler.
         PreparePartialShipInvoice(SalesLine, 1, 1);
         AssignItemChargeWithSuggest(ExpdAssignableAmount, 2);
-        SalesLine.ShowItemChargeAssgnt;
+        SalesLine.ShowItemChargeAssgnt();
 
         PostSalesDocument(SalesLine."Document Type", SalesLine."Document No.", true, false);
         SalesLine.Find;
 
         PreparePartialShipInvoice(SalesLine, 1, 1);
         AssignItemChargeWithSuggest(ExpdAssignableAmount, 2);
-        SalesLine.ShowItemChargeAssgnt;
+        SalesLine.ShowItemChargeAssgnt();
 
         PostSalesDocument(SalesLine."Document Type", SalesLine."Document No.", false, true);
 
         SalesLine.Find;
         PreparePartialShipInvoice(SalesLine, 1, 1);
         AssignItemChargeWithSuggest(ExpdAssignableAmount, 2);
-        SalesLine.ShowItemChargeAssgnt;
+        SalesLine.ShowItemChargeAssgnt();
     end;
 
     [Test]
@@ -1418,7 +1416,7 @@ codeunit 137287 "SCM Inventory Costing II"
 
         PreparePartialShipInvoice(SalesLine, 0, 1);
         AssignItemChargeWithSuggest(ExpdAssignableAmount, 2);
-        SalesLine.ShowItemChargeAssgnt;
+        SalesLine.ShowItemChargeAssgnt();
     end;
 
     local procedure SalesOrderPartItemCharge(var SalesLine: Record "Sales Line"; InvoiceDiscount: Decimal; ItemChargeQty: Decimal; QtyToInvoice: Decimal) ExpdAssignableAmount: Decimal
@@ -1572,14 +1570,17 @@ codeunit 137287 "SCM Inventory Costing II"
         // [SCENARIO 378115] Resource Ledger Entries should be included in the Customer Statistics
         Initialize;
 
-        // [GIVEN] Resource Ledger Entry for Customer with "Total Cost" = "X"
         LibrarySales.CreateCustomer(Customer);
-        MockResourceLedgerEntry(ResLedgerEntry, Customer."No.");
+        // [GIVEN] Resource Ledger Entry for Customer with "Entry Type" = Usage "Total Cost" = "Y"
+        MockResourceLedgerEntry(ResLedgerEntry, ResLedgerEntry."Entry Type"::Usage, Customer."No.");
+        // [GIVEN] Resource Ledger Entry for Customer with "Entry Type" = Sales "Total Cost" = "X"
+        MockResourceLedgerEntry(ResLedgerEntry, ResLedgerEntry."Entry Type"::Sale, Customer."No.");
 
         // [WHEN] Calculate Customer Actual Cost LCY
         ActualCostLCY := CostCalculationManagement.CalcCustActualCostLCY(Customer);
 
         // [THEN] Actual Cost LCY is "X"
+        // BUG 369400: CalcCustActualCostLCY function only considers Resource Ledger Entries with Entry Type equals Sale
         Assert.AreEqual(ResLedgerEntry."Total Cost", ActualCostLCY, ActualCostErr);
     end;
 
@@ -1834,7 +1835,7 @@ codeunit 137287 "SCM Inventory Costing II"
         Commit();
 
         LibrarySales.CreateSalesHeader(SalesHeader2, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
-        LibraryVariableStorage.Enqueue(PostedSalesDocType::"Posted Invoice"); // Used in Copy Sales Document handler
+        LibraryVariableStorage.Enqueue("Sales Document Type From"::"Posted Invoice"); // Used in Copy Sales Document handler
         LibraryVariableStorage.Enqueue(PostedDocNo); // Used in Copy Sales Document handler
         Commit();
 
@@ -1869,7 +1870,7 @@ codeunit 137287 "SCM Inventory Costing II"
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, Item."No.", Quantity, Item."Unit Price");
         PostedDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         CreatePurchaseHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", Vendor."No.");
-        LibraryVariableStorage.Enqueue(PostedPurchaseDocType::"Posted Invoice"); // Used in Copy Purchase Document handler
+        LibraryVariableStorage.Enqueue("Purchase Document Type From"::"Posted Invoice"); // Used in Copy Purchase Document handler
         LibraryVariableStorage.Enqueue(PostedDocNo); // Used in Copy Purhcase Document handler
         Commit();
 
@@ -1916,7 +1917,7 @@ codeunit 137287 "SCM Inventory Costing II"
         VerifyNonInventoriableCost(PostedCreditMemoNo, '', Quantity, Item."Unit Cost" * Quantity);
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; SignFactor: Integer)
+    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; SignFactor: Integer)
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -1931,7 +1932,7 @@ codeunit 137287 "SCM Inventory Costing II"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CreateAndPostSalesOrder(var SalesLine: Record "Sales Line"; DocumentType: Option)
+    local procedure CreateAndPostSalesOrder(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -2007,15 +2008,15 @@ codeunit 137287 "SCM Inventory Costing II"
         exit(Customer."No.");
     end;
 
-    local procedure CreatePurchaseDocumentWithChargeAssignment(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; OdrerNo: Code[20]; ItemNo: Code[20]; DirectUnitCost: Decimal)
+    local procedure CreatePurchaseDocumentWithChargeAssignment(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; OrderNo: Code[20]; ItemNo: Code[20]; DirectUnitCost: Decimal)
     var
         ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
     begin
         CreatePurchaseDocumentUsingChargeItem(PurchaseLine, DocumentType, DirectUnitCost);
-        CreateItemChargeAssignmentUsingReceiptLine(ItemChargeAssignmentPurch, PurchaseLine, OdrerNo, ItemNo);
+        CreateItemChargeAssignmentUsingReceiptLine(ItemChargeAssignmentPurch, PurchaseLine, OrderNo, ItemNo);
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; BuyFromVendorNo: Code[20])
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; BuyFromVendorNo: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, BuyFromVendorNo);
         PurchaseHeader.Validate("Vendor Invoice No.", PurchaseHeader."No.");
@@ -2023,14 +2024,14 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Option; No: Code[20]; Quantity: Decimal; DirectUnitCost: Decimal)
+    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; No: Code[20]; Quantity: Decimal; DirectUnitCost: Decimal)
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, Quantity);
         PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocumentAndAssignCharge(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; PurchaseOdrerNo: Code[20]; ItemNo: Code[20]; DirectUnitCost: Decimal)
+    local procedure CreatePurchaseDocumentAndAssignCharge(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; PurchaseOdrerNo: Code[20]; ItemNo: Code[20]; DirectUnitCost: Decimal)
     var
         ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
     begin
@@ -2038,7 +2039,7 @@ codeunit 137287 "SCM Inventory Costing II"
         CreateItemChargeAssignmentUsingShipmentLine(ItemChargeAssignmentPurch, PurchaseLine, PurchaseOdrerNo, ItemNo);
     end;
 
-    local procedure CreatePurchaseDocumentUsingChargeItem(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; DirectUnitCost: Decimal): Code[20]
+    local procedure CreatePurchaseDocumentUsingChargeItem(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DirectUnitCost: Decimal): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -2049,7 +2050,7 @@ codeunit 137287 "SCM Inventory Costing II"
         exit(PurchaseLine."No.");
     end;
 
-    local procedure CreatePurchaseDocumentWithChargeItemAndItem(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20]; QuantitySignFactor: Integer; CostSignFactor: Integer)
+    local procedure CreatePurchaseDocumentWithChargeItemAndItem(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; QuantitySignFactor: Integer; CostSignFactor: Integer)
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -2063,7 +2064,7 @@ codeunit 137287 "SCM Inventory Costing II"
           QuantitySignFactor * PurchaseLine.Quantity, CostSignFactor * PurchaseLine."Direct Unit Cost");
     end;
 
-    local procedure CreatePurchaseDocumentWithMultipleLinesWithItemCharge(var PurchaseLine2: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20]; CurrencyCode: Code[10]; PricesIncludingVAT: Boolean; LineDiscountPct: Decimal; Quantity: Decimal; DirectUnitCost: Decimal): Decimal
+    local procedure CreatePurchaseDocumentWithMultipleLinesWithItemCharge(var PurchaseLine2: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; CurrencyCode: Code[10]; PricesIncludingVAT: Boolean; LineDiscountPct: Decimal; Quantity: Decimal; DirectUnitCost: Decimal): Decimal
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -2096,7 +2097,7 @@ codeunit 137287 "SCM Inventory Costing II"
         exit(VATPostingSetup."VAT %");
     end;
 
-    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; DocumentType: Option; ItemNo: Code[20]; CustomerNo: Code[20]; UnitPrice: Decimal; Quantity: Decimal)
+    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; CustomerNo: Code[20]; UnitPrice: Decimal; Quantity: Decimal)
     var
         SalesLine: Record "Sales Line";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
@@ -2110,7 +2111,7 @@ codeunit 137287 "SCM Inventory Costing II"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; ItemNo: Code[20]; ItemNo2: Code[20]; Quantity: Decimal)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20]; ItemNo2: Code[20]; Quantity: Decimal)
     var
         SalesLine: Record "Sales Line";
     begin
@@ -2119,14 +2120,14 @@ codeunit 137287 "SCM Inventory Costing II"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo2, LibraryRandom.RandDec(10, 2));  // Using Random value for Quantity.
     end;
 
-    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Option; No: Code[20]; Quantity: Decimal; UnitPrice: Decimal)
+    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Enum "Sales Document Type"; No: Code[20]; Quantity: Decimal; UnitPrice: Decimal)
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, Quantity);
         SalesLine.Validate("Unit Price", UnitPrice);
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocumentWithMultipleLinesWithItemCharge(var SalesLine2: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; CurrencyCode: Code[10]; PricesIncludingVAT: Boolean; LineDiscountPct: Decimal; Quantity: Decimal; UnitPrice: Decimal): Decimal
+    local procedure CreateSalesDocumentWithMultipleLinesWithItemCharge(var SalesLine2: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; CurrencyCode: Code[10]; PricesIncludingVAT: Boolean; LineDiscountPct: Decimal; Quantity: Decimal; UnitPrice: Decimal): Decimal
     var
         VATPostingSetup: Record "VAT Posting Setup";
         ItemCharge: Record "Item Charge";
@@ -2409,7 +2410,7 @@ codeunit 137287 "SCM Inventory Costing II"
     local procedure PostPurchasePartialReceiptWithChargeAssignment(var PurchaseLine: Record "Purchase Line"; ExpdAssignableAmount: Decimal; MenuOption: Integer; PostReceipt: Boolean; PostInvoice: Boolean)
     begin
         AssignItemChargeWithSuggest(ExpdAssignableAmount, MenuOption);
-        PurchaseLine.ShowItemChargeAssgnt;
+        PurchaseLine.ShowItemChargeAssgnt();
         PostPurchaseDocument(PurchaseLine."Document Type", PurchaseLine."Document No.", PostReceipt, PostInvoice);
         PurchaseLine.Find;
     end;
@@ -2417,12 +2418,12 @@ codeunit 137287 "SCM Inventory Costing II"
     local procedure PostSalesPartialShipmentWithChargeAssignment(var SalesLine: Record "Sales Line"; ExpdAssignableAmount: Decimal; MenuOption: Integer; PostShipment: Boolean; PostInvoice: Boolean)
     begin
         AssignItemChargeWithSuggest(ExpdAssignableAmount, MenuOption);
-        SalesLine.ShowItemChargeAssgnt;
+        SalesLine.ShowItemChargeAssgnt();
         PostSalesDocument(SalesLine."Document Type", SalesLine."Document No.", PostShipment, PostInvoice);
         SalesLine.Find;
     end;
 
-    local procedure PostSalesAndPurchaseDocumentForChargeItem(var PurchaseHeader: Record "Purchase Header"; PurchaseDocumentType: Option; SalesDocumentType: Option)
+    local procedure PostSalesAndPurchaseDocumentForChargeItem(var PurchaseHeader: Record "Purchase Header"; PurchaseDocumentType: Enum "Purchase Document Type"; SalesDocumentType: Enum "Sales Document Type")
     var
         PurchaseLine: Record "Purchase Line";
         SalesLine: Record "Sales Line";
@@ -2433,7 +2434,7 @@ codeunit 137287 "SCM Inventory Costing II"
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
     end;
 
-    local procedure PostPurchaseDocumentUsingSalesReturnOrder(var PurchaseHeader: Record "Purchase Header"; PurchaseDocumentType: Option; SalesDocumentType: Option)
+    local procedure PostPurchaseDocumentUsingSalesReturnOrder(var PurchaseHeader: Record "Purchase Header"; PurchaseDocumentType: Enum "Purchase Document Type"; SalesDocumentType: Enum "Sales Document Type")
     var
         PurchaseLine: Record "Purchase Line";
         SalesLine: Record "Sales Line";
@@ -2462,7 +2463,7 @@ codeunit 137287 "SCM Inventory Costing II"
         exit(Item."No.");
     end;
 
-    local procedure PostPurchaseDocument(DocumentType: Option; DocumentNo: Code[20]; ToShipReceive: Boolean; ToInvoice: Boolean)
+    local procedure PostPurchaseDocument(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]; ToShipReceive: Boolean; ToInvoice: Boolean)
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -2470,7 +2471,7 @@ codeunit 137287 "SCM Inventory Costing II"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, ToShipReceive, ToInvoice);
     end;
 
-    local procedure PostSalesDocument(DocumentType: Option; DocumentNo: Code[20]; ToShipReceive: Boolean; ToInvoice: Boolean)
+    local procedure PostSalesDocument(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; ToShipReceive: Boolean; ToInvoice: Boolean)
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -2560,11 +2561,12 @@ codeunit 137287 "SCM Inventory Costing II"
             end;
     end;
 
-    local procedure MockResourceLedgerEntry(var ResLedgerEntry: Record "Res. Ledger Entry"; CustomerNo: Code[20])
+    local procedure MockResourceLedgerEntry(var ResLedgerEntry: Record "Res. Ledger Entry"; EntryType: Option; CustomerNo: Code[20])
     begin
         with ResLedgerEntry do begin
             Init;
             "Entry No." := LibraryUtility.GetNewRecNo(ResLedgerEntry, FieldNo("Entry No."));
+            "Entry Type" := EntryType;
             "Source Type" := "Source Type"::Customer;
             "Source No." := CustomerNo;
             "Total Cost" := LibraryRandom.RandDec(10, 2);

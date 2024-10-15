@@ -141,7 +141,7 @@ codeunit 136122 "Service Batch Jobs"
         // [GIVEN] "SO" has comment "SO-TXT".
         LibraryService.CreateServiceCommentLine(
           ServiceCommentLine, ServiceCommentLine."Table Name"::"Service Header",
-          ServiceHeader."Document Type", OrderNo, ServiceCommentLine.Type::General, 0);
+          ServiceHeader."Document Type".AsInteger(), OrderNo, ServiceCommentLine.Type::General, 0);
         ServiceCommentLine.Comment := CommentText;
         ServiceCommentLine.Modify();
 
@@ -161,10 +161,10 @@ codeunit 136122 "Service Batch Jobs"
           ServiceHeader.Get(ServiceHeader."Document Type"::Order, OrderNo), StrSubstNo(ExistError, ServiceHeader.TableCaption, OrderNo));
 
         // [THEN] "SO-TXT" is removed.
-        VerifyServiceCommentLineNotExists(ServiceHeader."Document Type"::Order, CommentText);
+        VerifyServiceCommentLineNotExists(ServiceHeader."Document Type"::Order.AsInteger(), CommentText);
 
         // [THEN] "SQ-TXT" is still exists.
-        VerifyServiceCommentLineExists(ServiceHeader."Document Type"::Quote, CommentText);
+        VerifyServiceCommentLineExists(ServiceHeader."Document Type"::Quote.AsInteger(), CommentText);
     end;
 
     [Test]
@@ -609,7 +609,7 @@ codeunit 136122 "Service Batch Jobs"
         ServiceContractLine.Modify(true);
     end;
 
-    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Option; CustomerNo: Code[20])
+    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; CustomerNo: Code[20])
     var
         ServiceLine: Record "Service Line";
     begin
@@ -622,11 +622,11 @@ codeunit 136122 "Service Batch Jobs"
         Commit();
     end;
 
-    local procedure CreateServiceLine(ServiceHeader: Record "Service Header"; Type: Option; No: Code[20])
+    local procedure CreateServiceLine(ServiceHeader: Record "Service Header"; LineType: Enum "Service Line Type"; No: Code[20])
     var
         ServiceLine: Record "Service Line";
     begin
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, Type, No);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, LineType, No);
         ServiceLine.Validate("Allow Invoice Disc.", true);
         ServiceLine.Validate(Quantity, LibraryRandom.RandInt(100));  // Use Random because value is not important.
         ServiceLine.Validate("VAT %", 0);  // Use 0 to avoid VAT Calculation.
@@ -766,7 +766,7 @@ codeunit 136122 "Service Batch Jobs"
         InsertFaultResolRelations.Run;
     end;
 
-    local procedure MockServiceHeaderWithCommentLine(DocumentType: Option; DocumentNo: Code[20]; CommentText: Text[80])
+    local procedure MockServiceHeaderWithCommentLine(DocumentType: Enum "Service Document Type"; DocumentNo: Code[20]; CommentText: Text[80])
     var
         ServiceHeader: Record "Service Header";
         ServiceCommentLine: Record "Service Comment Line";
@@ -777,7 +777,7 @@ codeunit 136122 "Service Batch Jobs"
 
         LibraryService.CreateServiceCommentLine(
           ServiceCommentLine, ServiceCommentLine."Table Name"::"Service Header",
-          DocumentType, DocumentNo, ServiceCommentLine.Type::General, 0);
+          DocumentType.AsInteger(), DocumentNo, ServiceCommentLine.Type::General, 0);
         ServiceCommentLine.Comment := CommentText;
         ServiceCommentLine.Modify();
     end;
@@ -802,7 +802,7 @@ codeunit 136122 "Service Batch Jobs"
         ServiceContractHeader.Modify(true);
     end;
 
-    local procedure PostServiceInvoiceCreditMemo(ContractNo: Code[20]; DocumentType: Option)
+    local procedure PostServiceInvoiceCreditMemo(ContractNo: Code[20]; DocumentType: Enum "Service Document Type")
     var
         ServiceHeader: Record "Service Header";
     begin

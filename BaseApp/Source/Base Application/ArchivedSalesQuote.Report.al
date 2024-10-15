@@ -255,7 +255,7 @@ report 215 "Archived Sales Quote"
                         column(SalesLineArchTmp_Description; SalesLineArchTmp.Description)
                         {
                         }
-                        column(RoundLoopBody3Visibility; SalesLineArchTmp.Type = 0)
+                        column(RoundLoopBody3Visibility; SalesLineArchTmp.Type = SalesLineArchTmp.Type::" ")
                         {
                         }
                         column(Sales_Line_Archive___No__; "Sales Line Archive"."No.")
@@ -298,7 +298,7 @@ report 215 "Archived Sales Quote"
                         column(SalesLineNoText; Format("Sales Line Archive"."Line No."))
                         {
                         }
-                        column(RoundLoopBody4Visibility; SalesLineArchTmp.Type > 0)
+                        column(RoundLoopBody4Visibility; SalesLineArchTmp.Type <> SalesLineArchTmp.Type::" ")
                         {
                         }
                         column(SalesLineType; Format("Sales Line Archive".Type))

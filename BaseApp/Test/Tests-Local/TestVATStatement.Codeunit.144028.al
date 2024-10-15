@@ -18,7 +18,7 @@ codeunit 144028 "Test VAT Statement"
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         OppositeSignErr: Label 'Calculate With = %1. Expected opposite sign of correction.';
-        VATStatementPreviewSelection: Option Open,Closed,"Open and Closed";
+        VATStatementPreviewSelection: Enum "VAT Statement Report Selection";
         VATBaseErr: Label 'VAT Base Should not contain non deductible VAT in VAT Statement.';
 
     [Test]
@@ -258,7 +258,7 @@ codeunit 144028 "Test VAT Statement"
         VATStatementLine: Record "VAT Statement Line";
         VATStatementPreviewPage: TestPage "VAT Statement Preview";
         ManualVATCorrectionListPage: TestPage "Manual VAT Correction List";
-        PeriodSelection: Option "Before and Within Period","Within Period";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
         ActualCorrValue: Decimal;
         ExpectedCorrValue: Decimal;
     begin
@@ -302,7 +302,7 @@ codeunit 144028 "Test VAT Statement"
         VATStatementLine: Record "VAT Statement Line";
         VATStatementPreviewPage: TestPage "VAT Statement Preview";
         ManualVATCorrectionListPage: TestPage "Manual VAT Correction List";
-        PeriodSelection: Option "Before and Within Period","Within Period";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
         ActualCorrValue: Decimal;
         ExpectedCorrValue: Decimal;
     begin
@@ -599,7 +599,7 @@ codeunit 144028 "Test VAT Statement"
 
         FindAVATStatementLine(VATStatementLine, VATStatementLine."Amount Type"::Base);
         OpenVATStatementPreviewPageWithSelection(
-          VATStatementLine, VATStatementPreviewPage, VATStatementPreviewSelection::Open);
+          VATStatementLine, VATStatementPreviewPage, "VAT Statement Report Selection"::Open);
 
         VATEntriesPage.Trap;
         VATStatementPreviewPage.VATStatementLineSubForm.ColumnValue.DrillDown;
@@ -641,7 +641,7 @@ codeunit 144028 "Test VAT Statement"
 
         FindAVATStatementLine(VATStatementLine, VATStatementLine."Amount Type"::Base);
         OpenVATStatementPreviewPageWithSelection(
-          VATStatementLine, VATStatementPreviewPage, VATStatementPreviewSelection::Closed);
+          VATStatementLine, VATStatementPreviewPage, "VAT Statement Report Selection"::Closed);
 
         VATEntriesPage.Trap;
         VATStatementPreviewPage.VATStatementLineSubForm.ColumnValue.DrillDown;
@@ -666,7 +666,7 @@ codeunit 144028 "Test VAT Statement"
 
         FindAVATStatementLine(VATStatementLine, VATStatementLine."Amount Type"::Base);
         OpenVATStatementPreviewPageWithSelection(
-          VATStatementLine, VATStatementPreviewPage, VATStatementPreviewSelection::"Open and Closed");
+          VATStatementLine, VATStatementPreviewPage, "VAT Statement Report Selection"::"Open and Closed");
 
         VATEntriesPage.Trap;
         VATStatementPreviewPage.VATStatementLineSubForm.ColumnValue.DrillDown;
@@ -691,7 +691,7 @@ codeunit 144028 "Test VAT Statement"
 
         FindAVATStatementLine(VATStatementLine, VATStatementLine."Amount Type"::Base);
         OpenVATStatementPreviewPageWithSelection(
-          VATStatementLine, VATStatementPreviewPage, VATStatementPreviewSelection::Open);
+          VATStatementLine, VATStatementPreviewPage, "VAT Statement Report Selection"::Open);
 
         VATStatementPreviewPage.DateFilter.SetValue := 'W..W+1M';
         VATStatementPreviewPage.PeriodSelection.SetValue := 'Within Period';
@@ -854,7 +854,7 @@ codeunit 144028 "Test VAT Statement"
         Assert.AreEqual(VATEntry.Base - VATEntry."Non Ded. VAT Amount", VATStatementPreviewLine.ColumnValue.AsDEcimal, VATBaseErr);
     end;
 
-    local procedure FindAVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; AmountType: Option)
+    local procedure FindAVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; AmountType: Enum "VAT Statement Line Amount Type")
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -1005,7 +1005,7 @@ codeunit 144028 "Test VAT Statement"
         VATStatementPreviewPage.VATStatementLineSubForm.GotoRecord(VATStatementLine);
     end;
 
-    local procedure OpenVATStatementPreviewPageWithSelection(VATStatementLine: Record "VAT Statement Line"; var VATStatementPreviewPage: TestPage "VAT Statement Preview"; Selection: Option)
+    local procedure OpenVATStatementPreviewPageWithSelection(VATStatementLine: Record "VAT Statement Line"; var VATStatementPreviewPage: TestPage "VAT Statement Preview"; Selection: Enum "VAT Statement Report Selection")
     var
         VATStatementName: Record "VAT Statement Name";
     begin
@@ -1119,7 +1119,7 @@ codeunit 144028 "Test VAT Statement"
         end;
     end;
 
-    local procedure CreateVATStmtLine(VATStatementLine: Record "VAT Statement Line"; LineNo: Integer; LineType: Option; AmountType: Option; RowTotaling: Text[80])
+    local procedure CreateVATStmtLine(VATStatementLine: Record "VAT Statement Line"; LineNo: Integer; LineType: Enum "VAT Statement Line Type"; AmountType: Enum "VAT Statement Line Amount Type"; RowTotaling: Text[80])
     var
         GLEntry: Record "G/L Entry";
     begin
@@ -1167,7 +1167,7 @@ codeunit 144028 "Test VAT Statement"
         exit(Result);
     end;
 
-    local procedure SumUpVATEntriesAmounts(var VATEntriesPage: TestPage "VAT Entries"; AmountType: Option) Result: Decimal
+    local procedure SumUpVATEntriesAmounts(var VATEntriesPage: TestPage "VAT Entries"; AmountType: Enum "VAT Statement Line Amount Type") Result: Decimal
     var
         VATStatementLine: Record "VAT Statement Line";
         LineAmount: Decimal;

@@ -6,11 +6,12 @@ codeunit 5702 "Dist. Integration"
     end;
 
     var
-        Text000: Label 'There are no items with cross reference %1.', Comment = '%1=Cross-Reference No.';
-        ItemCrossReference: Record "Item Cross Reference";
+        ItemsNotFoundErr: Label 'There are no items with cross reference %1.', Comment = '%1=Cross-Reference No.';
         SalesLine: Record "Sales Line";
         PurchLine: Record "Purchase Line";
         ItemVariant: Record "Item Variant";
+        ItemCrossReference: Record "Item Cross Reference";
+        ItemReference: Record "Item Reference";
         Item: Record Item;
         Found: Boolean;
         Text001: Label 'The Quantity per Unit of Measure %1 has changed from %2 to %3 since the sales order was created. Adjust the quantity on the sales order or the unit of measure.', Comment = '%1=Unit of Measure Code,%2=Qty. per Unit of Measure in Sales Line,%3=Qty. per Unit of Measure in Item Unit of Measure';
@@ -220,7 +221,7 @@ codeunit 5702 "Dist. Integration"
 
         case true of
             (QtyCustOrVendCR = 0) and (QtyBarCodeAndBlankCR = 0):
-                Error(Text000, CrossRefNo);
+                Error(ItemsNotFoundErr, CrossRefNo);
             (QtyCustOrVendCR = 0) and (QtyBarCodeAndBlankCR = 1):
                 MultipleItemsToChoose := false;
             (QtyCustOrVendCR = 0) and (QtyBarCodeAndBlankCR > 1):
@@ -237,7 +238,7 @@ codeunit 5702 "Dist. Integration"
 
         if ShowDialog and MultipleItemsToChoose then begin
             if not RunPageCrossReferenceListOnRealOrTempRec(ItemCrossReference, TempRecRequired, CrossRefType, CrossRefTypeNo) then
-                Error(Text000, CrossRefNo);
+                Error(ItemsNotFoundErr, CrossRefNo);
         end else
             if not FindFirstCustVendItemCrossReference(ItemCrossReference, CrossRefType, CrossRefTypeNo) then
                 FindFirstBarCodeOrBlankTypeItemCrossReference(ItemCrossReference);
@@ -457,9 +458,7 @@ codeunit 5702 "Dist. Integration"
                     ProcessSalesLine(SalesLine, PurchLine, NextLineNo, PurchHeader);
                 until SalesLine.Next = 0
             else
-                Error(
-                  Text000,
-                  SalesHeader."No.");
+                Error(ItemsNotFoundErr, SalesHeader."No.");
 
             Modify; // Only version check
             SalesHeader.Modify(); // Only version check
@@ -510,6 +509,44 @@ codeunit 5702 "Dist. Integration"
             NextLineNo := NextLineNo + 10000;
         end;
         OnGetSpecialOrdersOnAfterTransferExtendedText(SalesLine, PurchHeader, NextLineNo);
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::Item, 'OnAfterDeleteRelatedData', '', false, false)]
+    local procedure ItemOnAfterDeleteRelatedData(Item: Record Item)
+    begin
+        ItemCrossReference.SetRange("Item No.", Item."No.");
+        ItemCrossReference.DeleteAll();
+
+        ItemReference.SetRange("Item No.", Item."No.");
+        ItemReference.DeleteAll();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::Customer, 'OnAfterDeleteEvent', '', false, false)]
+    local procedure CustomerOnAfterDelete(var Rec: Record Customer)
+    begin
+        ItemCrossReference.SetCurrentKey("Cross-Reference Type", "Cross-Reference Type No.");
+        ItemCrossReference.SetRange("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::Customer);
+        ItemCrossReference.SetRange("Cross-Reference Type No.", Rec."No.");
+        ItemCrossReference.DeleteAll();
+
+        ItemReference.SetCurrentKey("Reference Type", "Reference Type No.");
+        ItemReference.SetRange("Reference Type", ItemReference."Reference Type"::Customer);
+        ItemReference.SetRange("Reference Type No.", Rec."No.");
+        ItemReference.DeleteAll();
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::Vendor, 'OnAfterDeleteEvent', '', false, false)]
+    local procedure VendorOnAfterDelete(var Rec: Record Vendor)
+    begin
+        ItemCrossReference.SetCurrentKey("Cross-Reference Type", "Cross-Reference Type No.");
+        ItemCrossReference.SetRange("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::Vendor);
+        ItemCrossReference.SetRange("Cross-Reference Type No.", Rec."No.");
+        ItemCrossReference.DeleteAll();
+
+        ItemReference.SetCurrentKey("Reference Type", "Reference Type No.");
+        ItemReference.SetRange("Reference Type", ItemReference."Reference Type"::Vendor);
+        ItemReference.SetRange("Reference Type No.", Rec."No.");
+        ItemReference.DeleteAll();
     end;
 
     [IntegrationEvent(false, false)]

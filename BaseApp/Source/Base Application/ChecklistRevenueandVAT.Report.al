@@ -930,7 +930,7 @@ report 11312 "Checklist Revenue and VAT"
                 VATStatLine.SetFilter("Date Filter", VATDateFilter);
                 VATStatLine."Statement Template Name" := GLSetup."VAT Statement Template Name";
                 VATStatLine."Statement Name" := GLSetup."VAT Statement Name";
-                VATStatLine.Type := VATType::"Row Totaling";
+                VATStatLine.Type := VATStatLine.Type::"Row Totaling";
                 VATStatLine."Row Totaling" := '00|01|02|03|44|45|46|47|48|49';
                 VATStatement.InitializeRequest(
                   VATStatName, VATStatLine, Selection::"Open and Closed",
@@ -1038,9 +1038,8 @@ report 11312 "Checklist Revenue and VAT"
         VATStatLine: Record "VAT Statement Line";
         VATStatement: Report "VAT Statement";
         PeriodFormManagement: Codeunit PeriodFormManagement;
-        VATType: Option "Account Totaling","VAT Entry Totaling","Row Totaling",Description;
-        Selection: Option Open,Closed,"Open and Closed";
-        PeriodSelection: Option "Before and Within Period","Within Period";
+        Selection: Enum "VAT Statement Report Selection";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
         TotalAmount: array[13] of Decimal;
         GlAccountFilter: Text[250];

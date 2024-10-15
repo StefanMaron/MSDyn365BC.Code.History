@@ -313,7 +313,7 @@ report 2000004 "Payment Journal Post"
     local procedure WriteTrailerRecord(AccountType: Option)
     begin
         TempPaymJnlLine := "Payment Journal Line";
-        TempPaymJnlLine."Account Type" := GenJnlBatch."Bal. Account Type";
+        TempPaymJnlLine."Account Type" := GenJnlBatch."Bal. Account Type".AsInteger();
         TempPaymJnlLine."Account No." := GenJnlBatch."Bal. Account No.";
         TempPaymJnlLine."Currency Code" := '';
         TempPaymJnlLine."Currency Factor" := 0;
@@ -325,7 +325,7 @@ report 2000004 "Payment Journal Post"
             TempPaymJnlLine.Amount := -VendorTotalAmount[2];
         end;
         TempPaymJnlLine."Payment Message" := '';
-        TempPaymJnlLine."Applies-to Doc. Type" := 0;
+        TempPaymJnlLine."Applies-to Doc. Type" := TempPaymJnlLine."Applies-to Doc. Type"::" ";
         TempPaymJnlLine."Applies-to Doc. No." := '';
         TempPaymJnlLine."Applies-to ID" := '';
         if BalancingPostingDate <> 0D then
@@ -413,7 +413,7 @@ report 2000004 "Payment Journal Post"
                 "Posting Date" := PaymentJnlLine."Posting Date";
                 "Document Date" := PaymentJnlLine."Posting Date";
 
-                "Account Type" := PaymentJnlLine."Account Type";
+                "Account Type" := "Gen. Journal Account Type".FromInteger(PaymentJnlLine."Account Type");
                 if PaymentJnlLine."Account Type" = 0 then
                     Validate("Account No.", PaymentJnlLine."Account No.")
                 else begin

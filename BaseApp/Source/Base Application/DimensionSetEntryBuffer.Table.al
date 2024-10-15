@@ -2,6 +2,10 @@ table 5489 "Dimension Set Entry Buffer"
 {
     Caption = 'Dimension Set Entry Buffer';
     ReplicateData = false;
+    // TableType = Temporary;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Table will be marked as TableType=Temporary. Make sure you are not using this table to store records';
+    ObsoleteTag = '17.0';
 
     fields
     {
@@ -31,18 +35,23 @@ table 5489 "Dimension Set Entry Buffer"
         }
         field(5; "Dimension Name"; Text[30])
         {
-            CalcFormula = Lookup (Dimension.Name WHERE(Code = FIELD("Dimension Code")));
+            CalcFormula = Lookup(Dimension.Name WHERE(Code = FIELD("Dimension Code")));
             Caption = 'Dimension Name';
             Editable = false;
             FieldClass = FlowField;
         }
         field(6; "Dimension Value Name"; Text[50])
         {
-            CalcFormula = Lookup ("Dimension Value".Name WHERE("Dimension Code" = FIELD("Dimension Code"),
+            CalcFormula = Lookup("Dimension Value".Name WHERE("Dimension Code" = FIELD("Dimension Code"),
                                                                Code = FIELD("Dimension Value Code")));
             Caption = 'Dimension Value Name';
             Editable = false;
             FieldClass = FlowField;
+        }
+        field(7; "Parent Type"; Enum "Dimension Set Entry Buffer Parent Type")
+        {
+            Caption = 'Parent Type';
+            DataClassification = SystemMetadata;
         }
         field(8000; "Dimension Id"; Guid)
         {
@@ -106,14 +115,14 @@ table 5489 "Dimension Set Entry Buffer"
             if "Dimension Code" = '' then
                 Error(IdOrCodeShouldBeFilledErr);
             Dimension.Get("Dimension Code");
-            "Dimension Id" := Dimension.Id;
+            "Dimension Id" := Dimension.SystemId;
         end;
 
         if IsNullGuid("Value Id") then begin
             if "Dimension Value Code" = '' then
                 Error(ValueIdOrValueCodeShouldBeFilledErr);
             DimensionValue.Get("Dimension Code", "Dimension Value Code");
-            "Value Id" := DimensionValue.Id;
+            "Value Id" := DimensionValue.SystemId;
         end;
     end;
 }

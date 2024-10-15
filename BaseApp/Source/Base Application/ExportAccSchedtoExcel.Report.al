@@ -141,7 +141,7 @@ report 29 "Export Acc. Sched. to Excel"
                     TempExcelBuffer.WriteSheet('', CompanyName, UserId);
                     TempExcelBuffer.CloseBook;
                     if not TestMode then
-                        TempExcelBuffer.DownloadAndOpenExcel();
+                        TempExcelBuffer.OpenExcelWithName(ClientFileName);
                 end else begin
                     TempExcelBuffer.CreateBook(ServerFileName, AccSchedName.Name);
                     TempExcelBuffer.WriteSheet(AccSchedName.Description, CompanyName, UserId);

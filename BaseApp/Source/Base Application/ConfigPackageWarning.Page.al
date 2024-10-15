@@ -12,6 +12,19 @@ page 8637 "Config. Package Warning"
     {
         area(Content)
         {
+            group(TopBanner)
+            {
+                Enabled = false;
+                ShowCaption = false;
+                Visible = TopBannerVisible;
+                field(Icon; MediaResources."Media Reference")
+                {
+                    ApplicationArea = All;
+                    Enabled = false;
+                    ShowCaption = false;
+                    Tooltip = ' ';
+                }
+            }
             group(Import)
             {
                 Visible = IsImportContext;
@@ -19,7 +32,7 @@ page 8637 "Config. Package Warning"
                 {
                     Caption = 'You are about to import a large configuration package.';
                     ShowCaption = true;
-                    InstructionalText = 'Using configuration packages to import large amounts of data can impact performance and prevent all users from using Business Central.';
+                    InstructionalText = 'Using configuration packages to import large amounts of data can impact performance and prevent all users from using Business Central during the process.';
                 }
 
                 label("Consider using the following ways to migrate a large amount of data:")
@@ -42,7 +55,7 @@ page 8637 "Config. Package Warning"
                 {
                     Caption = 'You are about to apply a big configuration package.';
                     ShowCaption = true;
-                    InstructionalText = 'Please, be aware that other users'' perfomance can be affected and they may experience locking issues.';
+                    InstructionalText = 'Using configuration packages to apply large amounts of data can impact performance and prevent all users from using Business Central during the process.';
                 }
 
                 label("Consider applying the package outside of the regular business hours.")
@@ -100,6 +113,20 @@ page 8637 "Config. Package Warning"
         }
     }
 
+    trigger OnInit()
+    begin
+        LoadTopBanners();
+    end;
+
+    local procedure LoadTopBanners()
+    var
+        ClientTypeManagement: Codeunit "Client Type Management";
+    begin
+        if MediaRepository.Get('AssistedSetupInfo-NoText.png', Format(ClientTypeManagement.GetCurrentClientType())) then
+            if MediaResources.Get(MediaRepository."Media Resources Ref") then
+                TopBannerVisible := MediaResources."Media Reference".HasValue;
+    end;
+
     internal procedure GetAction(): Action
     begin
         if IsAcknowledged then
@@ -119,6 +146,9 @@ page 8637 "Config. Package Warning"
     end;
 
     var
+        MediaRepository: Record "Media Repository";
+        MediaResources: Record "Media Resources";
+        TopBannerVisible: Boolean;
         [InDataSet]
         Confirmation: Boolean;
         IsAcknowledged: Boolean;

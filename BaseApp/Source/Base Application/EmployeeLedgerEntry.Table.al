@@ -351,7 +351,7 @@ table 5222 "Employee Ledger Entry"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(11300; "Journal Template Name"; Code[10])

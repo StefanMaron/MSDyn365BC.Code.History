@@ -310,8 +310,7 @@ page 2310 "BC O365 Sales Invoice"
 
                         if PAGE.RunModal(PAGE::"BC O365 Payment Instr. List", O365PaymentInstructions) = ACTION::LookupOK then begin
                             Validate("Payment Instructions Id", O365PaymentInstructions.Id);
-                            SendTraceTag('00001SB', PaymentInstrCategoryLbl,
-                              VERBOSITY::Normal, PaymentInstrChangedTelemetryTxt, DATACLASSIFICATION::SystemMetadata);
+                            Session.LogMessage('00001SB', PaymentInstrChangedTelemetryTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PaymentInstrCategoryLbl);
                             O365SalesInvoiceMgmt.GetPaymentInstructionsName("Payment Instructions Id", PaymentInstructionsName);
                         end;
                     end;
@@ -582,7 +581,7 @@ page 2310 "BC O365 Sales Invoice"
                     SetRecFilter;
                     LockTable();
                     Find;
-                    ReportSelections.GetPdfReport(DocumentPath, ReportSelections.Usage::"S.Invoice Draft", Rec, "Sell-to Customer No.");
+                    ReportSelections.GetPdfReportForCust(DocumentPath, ReportSelections.Usage::"S.Invoice Draft", Rec, "Sell-to Customer No.");
                     Download(DocumentPath, '', '', '', DocumentPath);
                     Find;
                 end;

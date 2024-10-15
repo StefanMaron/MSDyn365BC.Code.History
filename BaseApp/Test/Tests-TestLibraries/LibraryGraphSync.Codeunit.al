@@ -63,7 +63,7 @@ codeunit 130620 "Library - Graph Sync"
         GraphContact.Modify();
     end;
 
-    local procedure CreateGraphContact(var GRAPHContact: Record "Graph Contact"; NewContactType: Option; ConnectionName: Text)
+    local procedure CreateGraphContact(var GRAPHContact: Record "Graph Contact"; NewContactType: Enum "Contact Type"; ConnectionName: Text)
     var
         GraphCollectionMgtContact: Codeunit "Graph Collection Mgt - Contact";
     begin
@@ -71,7 +71,7 @@ codeunit 130620 "Library - Graph Sync"
         with GRAPHContact do begin
             Init;
             Id := LibraryUtility.GenerateGUID;
-            SetBusinessTypeString(GraphCollectionMgtContact.AddBusinessType(NewContactType));
+            SetBusinessTypeString(GraphCollectionMgtContact.AddBusinessType(NewContactType.AsInteger()));
             SetIsContactString(GraphCollectionMgtContact.AddIsContact(true));
             SetIsNavCreatedString(GraphCollectionMgtContact.AddIsNavCreated(false));
             GivenName := LibraryUtility.GenerateGUID;

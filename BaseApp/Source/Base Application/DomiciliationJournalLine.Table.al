@@ -34,7 +34,7 @@ table 2000022 "Domiciliation Journal Line"
                 if Cust."Domiciliation No." <> '' then
                     if not DomiciliationJnlMgt.CheckDomiciliationNo(Cust."Domiciliation No.") then
                         Error(Text001, Cust.FieldCaption("Domiciliation No."));
-                if "Applies-to Doc. Type" = 0 then
+                if "Applies-to Doc. Type" = "Applies-to Doc. Type"::" " then
                     "Applies-to Doc. Type" := "Applies-to Doc. Type"::Invoice;
 
                 if "Customer No." <> xRec."Customer No." then begin
@@ -76,7 +76,7 @@ table 2000022 "Domiciliation Journal Line"
 
             trigger OnValidate()
             begin
-                GetCurrencyCode;
+                GetCurrencyCode();
                 Amount := Round(Amount, Currency."Amount Rounding Precision");
 
                 if "Currency Code" = '' then
@@ -129,7 +129,7 @@ table 2000022 "Domiciliation Journal Line"
 
             trigger OnValidate()
             begin
-                GetCurrencyCode;
+                GetCurrencyCode();
                 if "Currency Code" <> '' then begin
                     if ("Currency Code" <> xRec."Currency Code") or
                        ("Posting Date" <> xRec."Posting Date") or
@@ -257,7 +257,7 @@ table 2000022 "Domiciliation Journal Line"
                     CustLedgEntry.SetRange("Document Type");
                     CustLedgEntry.SetRange("Document No.");
                 end else
-                    if "Applies-to Doc. Type" <> 0 then begin
+                    if "Applies-to Doc. Type" <> "Applies-to Doc. Type"::" " then begin
                         CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                         if CustLedgEntry.FindFirst then;
                         CustLedgEntry.SetRange("Document Type");
@@ -332,7 +332,7 @@ table 2000022 "Domiciliation Journal Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()
@@ -525,7 +525,7 @@ table 2000022 "Domiciliation Journal Line"
         DomJnlBatch.Get("Journal Template Name", "Journal Batch Name");
         BankAccount.Get(DomJnlTemp."Bank Account No.");
 
-        DirectDebitCollection.CreateNew("Journal Template Name", DomJnlTemp."Bank Account No.", DomJnlBatch."Partner Type");
+        DirectDebitCollection.CreateRecord("Journal Template Name", DomJnlTemp."Bank Account No.", DomJnlBatch."Partner Type");
         DirectDebitCollection."Domiciliation Batch Name" := "Journal Batch Name";
         DirectDebitCollection.Modify();
         Commit();

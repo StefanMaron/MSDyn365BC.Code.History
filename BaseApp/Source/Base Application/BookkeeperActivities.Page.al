@@ -94,17 +94,29 @@ page 9036 "Bookkeeper Activities"
             cuegroup(Approvals)
             {
                 Caption = 'Approvals';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced with Approvals Activities part';
+                Visible = false;
+                ObsoleteTag = '17.0';
                 field("Requests Sent for Approval"; "Requests Sent for Approval")
                 {
                     ApplicationArea = Suite;
                     DrillDownPageID = "Approval Entries";
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced with Approvals Activities part';
+                    Visible = false;
                     ToolTip = 'Specifies requests for certain documents, cards, or journal lines that your approver must approve before you can proceed.';
+                    ObsoleteTag = '17.0';
                 }
                 field("Requests to Approve"; "Requests to Approve")
                 {
                     ApplicationArea = Suite;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced with Approvals Activities part';
+                    Visible = false;
                     DrillDownPageID = "Requests to Approve";
                     ToolTip = 'Specifies requests for certain documents, cards, or journal lines that you must approve for other users before they can proceed.';
+                    ObsoleteTag = '17.0';
                 }
             }
             cuegroup("Cash Management")
@@ -139,12 +151,20 @@ page 9036 "Bookkeeper Activities"
             cuegroup("My User Tasks")
             {
                 Caption = 'My User Tasks';
+                Visible = false;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced with User Tasks Activities part';
+                ObsoleteTag = '17.0';
                 field("UserTaskManagement.GetMyPendingUserTasksCount"; UserTaskManagement.GetMyPendingUserTasksCount)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Pending User Tasks';
                     Image = Checklist;
                     ToolTip = 'Specifies the number of pending tasks that are assigned to you or to a group that you are a member of.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced with User Tasks Activities part';
+                    ObsoleteTag = '17.0';
 
                     trigger OnDrillDown()
                     var
@@ -172,7 +192,7 @@ page 9036 "Bookkeeper Activities"
 
         SetFilter("Due Date Filter", '<=%1', WorkDate);
         SetFilter("Overdue Date Filter", '<%1', WorkDate);
-        SetFilter("User ID Filter", UserId);
+        SetRange("User ID Filter", UserId);
     end;
 
     var

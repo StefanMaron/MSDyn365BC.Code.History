@@ -3,7 +3,8 @@ codeunit 423 "Change Log Management"
     Permissions = TableData "Change Log Setup" = r,
                   TableData "Change Log Setup (Table)" = r,
                   TableData "Change Log Setup (Field)" = r,
-                  TableData "Change Log Entry" = ri;
+                  TableData "Change Log Entry" = ri,
+                  TableData "Field Monitoring Setup" = r;
     SingleInstance = true;
 
     trigger OnRun()
@@ -12,11 +13,14 @@ codeunit 423 "Change Log Management"
 
     var
         ChangeLogSetup: Record "Change Log Setup";
+        FieldMonitoringSetup: Record "Field Monitoring Setup";
         ChangeLogSetupTable: Record "Change Log Setup (Table)";
         TempChangeLogSetupTable: Record "Change Log Setup (Table)" temporary;
         ChangeLogSetupField: Record "Change Log Setup (Field)";
         TempChangeLogSetupField: Record "Change Log Setup (Field)" temporary;
+        MonitorSensitiveFieldData: Codeunit "Monitor Sensitive Field Data";
         ChangeLogSetupRead: Boolean;
+        MonitorSensitiveFieldSetupRead: Boolean;
 
     procedure GetDatabaseTableTriggerSetup(TableID: Integer; var LogInsert: Boolean; var LogModify: Boolean; var LogDelete: Boolean; var LogRename: Boolean)
     begin
@@ -39,7 +43,12 @@ codeunit 423 "Change Log Management"
             ChangeLogSetupRead := true;
         end;
 
-        if not ChangeLogSetup."Change Log Activated" then
+        if not MonitorSensitiveFieldSetupRead then begin
+            if FieldMonitoringSetup.Get() then;
+            MonitorSensitiveFieldSetupRead := true;
+        end;
+
+        if not (ChangeLogSetup."Change Log Activated" or FieldMonitoringSetup."Monitor Status") then
             exit;
 
         if not TempChangeLogSetupTable.Get(TableID) then begin
@@ -50,6 +59,9 @@ codeunit 423 "Change Log Management"
                 TempChangeLogSetupTable := ChangeLogSetupTable;
             TempChangeLogSetupTable.Insert();
         end;
+
+        if not MonitorSensitiveFieldData.CheckIfTableIsMonitored(TempChangeLogSetupTable, FieldMonitoringSetup, ChangeLogSetup) then
+            exit;
 
         with TempChangeLogSetupTable do begin
             LogInsert := "Log Insertion" <> "Log Insertion"::" ";
@@ -76,8 +88,15 @@ codeunit 423 "Change Log Management"
             if ChangeLogSetup.Get then;
             ChangeLogSetupRead := true;
         end;
-        if not ChangeLogSetup."Change Log Activated" then
+
+        if not MonitorSensitiveFieldSetupRead then begin
+            if FieldMonitoringSetup.Get() then;
+            MonitorSensitiveFieldSetupRead := true;
+        end;
+
+        if not (ChangeLogSetup."Change Log Activated" or FieldMonitoringSetup."Monitor Status") then
             exit(false);
+
         if not TempChangeLogSetupTable.Get(TableNumber) then begin
             if not ChangeLogSetupTable.Get(TableNumber) then begin
                 TempChangeLogSetupTable.Init();
@@ -86,6 +105,9 @@ codeunit 423 "Change Log Management"
                 TempChangeLogSetupTable := ChangeLogSetupTable;
             TempChangeLogSetupTable.Insert();
         end;
+
+        if not MonitorSensitiveFieldData.CheckIfTableIsMonitored(TempChangeLogSetupTable, FieldMonitoringSetup, ChangeLogSetup) then
+            exit(false);
 
         with TempChangeLogSetupTable do
             case TypeOfChange of
@@ -122,6 +144,10 @@ codeunit 423 "Change Log Management"
             TempChangeLogSetupField.Insert();
         end;
 
+        if TempChangeLogSetupField."Monitor Sensitive Field" then
+            if not FieldMonitoringSetup."Monitor Status" then
+                exit(false);
+
         with TempChangeLogSetupField do
             case TypeOfChange of
                 TypeOfChange::Insertion:
@@ -154,7 +180,8 @@ codeunit 423 "Change Log Management"
            DATABASE::"Plan Permission Set",
            DATABASE::"User Group Plan",
            DATABASE::"Tenant Permission Set",
-           DATABASE::"Tenant Permission"];
+           DATABASE::"Tenant Permission",
+           Database::"Field Monitoring Setup"];
 
         OnAfterIsAlwaysLoggedTable(TableID, AlwaysLogTable);
     end;
@@ -165,9 +192,15 @@ codeunit 423 "Change Log Management"
         KeyFldRef: FieldRef;
         KeyRef1: KeyRef;
         i: Integer;
+        AlwaysLog: Boolean;
+        Handled: Boolean;
     begin
         if RecRef.CurrentCompany <> ChangeLogEntry.CurrentCompany then
             ChangeLogEntry.ChangeCompany(RecRef.CurrentCompany);
+
+        if MonitorSensitiveFieldData.IsIgnoredMonitorField(RecRef, FldRef) then
+            exit;
+
         ChangeLogEntry.Init();
         ChangeLogEntry."Date and Time" := CurrentDateTime;
         ChangeLogEntry.Time := DT2Time(ChangeLogEntry."Date and Time");
@@ -218,7 +251,19 @@ codeunit 423 "Change Log Management"
                     end;
             end;
         end;
-        ChangeLogEntry.Insert(true);
+
+        ChangeLogEntry.Validate("Changed Record SystemId", RecRef.Field(RecRef.SystemIdNo).Value);
+        MonitorSensitiveFieldData.HandleMonitorSensitiveFields(ChangeLogEntry, TempChangeLogSetupField, RecRef, FldRef, IsAlwaysLoggedTable(RecRef.Number), FieldMonitoringSetup."Monitor Status");
+
+        AlwaysLog := IsAlwaysLoggedTable(ChangeLogEntry."Table No.");
+        ChangeLogEntry.Consistent := false; // to protect against commits in the subscriber(s)
+        if AlwaysLog then
+            OnBeforeInsertChangeLogEntryByValue(ChangeLogEntry, AlwaysLog, Handled)
+        else
+            OnBeforeInsertChangeLogEntry(ChangeLogEntry, AlwaysLog, Handled);
+        ChangeLogEntry.Consistent := true;
+        if AlwaysLog or not Handled then
+            ChangeLogEntry.Insert(true);
     end;
 
     procedure LogInsertion(var RecRef: RecordRef)
@@ -449,6 +494,16 @@ codeunit 423 "Change Log Management"
         end;
 
         exit(false);
+    end;
+
+    local procedure OnBeforeInsertChangeLogEntryByValue(ChangeLogEntry: Record "Change Log Entry"; AlwaysLog: Boolean; var Handled: Boolean)
+    begin
+        OnBeforeInsertChangeLogEntry(ChangeLogEntry, AlwaysLog, Handled);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertChangeLogEntry(var ChangeLogEntry: Record "Change Log Entry"; AlwaysLog: Boolean; var Handled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

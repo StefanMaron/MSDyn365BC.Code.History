@@ -8,11 +8,9 @@ table 5405 "Production Order"
 
     fields
     {
-        field(1; Status; Option)
+        field(1; Status; Enum "Production Order Status")
         {
             Caption = 'Status';
-            OptionCaption = 'Simulated,Planned,Firm Planned,Released,Finished';
-            OptionMembers = Simulated,Planned,"Firm Planned",Released,Finished;
         }
         field(2; "No."; Code[20])
         {
@@ -162,6 +160,9 @@ table 5405 "Production Order"
         field(20; "Starting Time"; Time)
         {
             Caption = 'Starting Time';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Starting Date-Time field should be used instead.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             var
@@ -173,6 +174,9 @@ table 5405 "Production Order"
         field(21; "Starting Date"; Date)
         {
             Caption = 'Starting Date';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Starting Date-Time field should be used instead.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             begin
@@ -182,6 +186,9 @@ table 5405 "Production Order"
         field(22; "Ending Time"; Time)
         {
             Caption = 'Ending Time';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Ending Date-Time field should be used instead.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             begin
@@ -191,6 +198,9 @@ table 5405 "Production Order"
         field(23; "Ending Date"; Date)
         {
             Caption = 'Ending Date';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Ending Date-Time field should be used instead.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             begin
@@ -316,12 +326,10 @@ table 5405 "Production Order"
             Caption = 'Replan Ref. No.';
             Editable = false;
         }
-        field(35; "Replan Ref. Status"; Option)
+        field(35; "Replan Ref. Status"; Enum "Production Order Status")
         {
             Caption = 'Replan Ref. Status';
             Editable = false;
-            OptionCaption = 'Simulated,Planned,Firm Planned,Released,Finished';
-            OptionMembers = Simulated,Planned,"Firm Planned",Released,Finished;
         }
         field(38; "Low-Level Code"; Integer)
         {
@@ -596,9 +604,9 @@ table 5405 "Production Order"
         end;
 
         if Status = Status::Finished then
-            DeleteFnshdProdOrderRelations
+            DeleteFinishedProdOrderRelations()
         else
-            DeleteRelations;
+            DeleteProdOrderRelations();
 
         RefreshRecord := false;
         OnAfterOnDelete(Rec, RefreshRecord);
@@ -661,11 +669,13 @@ table 5405 "Production Order"
         Text006: Label 'A Finished Production Order cannot be modified.';
         Text007: Label '%1 %2 %3 cannot be created, because a %4 %2 %3 already exists.';
         ItemTrackingMgt: Codeunit "Item Tracking Management";
-        HideValidationDialog: Boolean;
         Text008: Label 'Nothing to handle.';
         UpdateEndDate: Boolean;
         Text010: Label 'You may have changed a dimension.\\Do you want to update the lines?';
         Text011: Label 'You cannot change Finished Production Order dimensions.';
+
+    protected var
+        HideValidationDialog: Boolean;
 
     procedure InitRecord()
     begin
@@ -755,7 +765,7 @@ table 5405 "Production Order"
               Name, Status, TableCaption, "No.", CapLedgEntry.TableCaption);
     end;
 
-    local procedure DeleteRelations()
+    procedure DeleteProdOrderRelations()
     var
         ProdOrderComment: Record "Prod. Order Comment Line";
         WhseRequest: Record "Whse. Pick Request";
@@ -767,7 +777,7 @@ table 5405 "Production Order"
         ProdOrderComment.SetRange("Prod. Order No.", "No.");
         ProdOrderComment.DeleteAll();
 
-        ReservMgt.DeleteDocumentReservation(DATABASE::"Prod. Order Line", Status, "No.", HideValidationDialog);
+        ReservMgt.DeleteDocumentReservation(DATABASE::"Prod. Order Line", Status.AsInteger(), "No.", HideValidationDialog);
 
         ProdOrderLine.LockTable();
         ProdOrderLine.SetRange(Status, Status);
@@ -780,10 +790,10 @@ table 5405 "Production Order"
         if not WhseRequest.IsEmpty then
             WhseRequest.DeleteAll(true);
         ItemTrackingMgt.DeleteWhseItemTrkgLines(
-          DATABASE::"Prod. Order Component", Status, "No.", '', 0, 0, '', false);
+          DATABASE::"Prod. Order Component", Status.AsInteger(), "No.", '', 0, 0, '', false);
     end;
 
-    local procedure DeleteFnshdProdOrderRelations()
+    procedure DeleteFinishedProdOrderRelations()
     var
         FnshdProdOrderRtngLine: Record "Prod. Order Routing Line";
         FnshdProdOrderLine: Record "Prod. Order Line";
@@ -952,7 +962,7 @@ table 5405 "Production Order"
                 ItemTrackingMgt.InitItemTrkgForTempWkshLine(
                   WhseWkshLine."Whse. Document Type"::Production, ProdOrderCompLine."Prod. Order No.",
                   ProdOrderCompLine."Prod. Order Line No.", DATABASE::"Prod. Order Component",
-                  ProdOrderCompLine.Status, ProdOrderCompLine."Prod. Order No.",
+                  ProdOrderCompLine.Status.AsInteger(), ProdOrderCompLine."Prod. Order No.",
                   ProdOrderCompLine."Prod. Order Line No.", ProdOrderCompLine."Line No.");
             until ProdOrderCompLine.Next = 0;
         Commit();
@@ -976,7 +986,8 @@ table 5405 "Production Order"
             CreatePickFromWhseSource.SetProdOrder(Rec);
             CreatePickFromWhseSource.SetHideValidationDialog(HideValidationDialog);
             if HideValidationDialog then
-                CreatePickFromWhseSource.Initialize(AssignedUserID, SortingMethod, PrintDocument, DoNotFillQtyToHandle, SetBreakBulkFilter);
+                CreatePickFromWhseSource.Initialize(
+                    AssignedUserID, "Whse. Activity Sorting Method".FromInteger(SortingMethod), PrintDocument, DoNotFillQtyToHandle, SetBreakBulkFilter);
             CreatePickFromWhseSource.UseRequestPage(not HideValidationDialog);
             CreatePickFromWhseSource.RunModal;
             CreatePickFromWhseSource.GetResultMessage(2);
@@ -1209,12 +1220,18 @@ table 5405 "Production Order"
     end;
 
     [Scope('OnPrem')]
+    [Obsolete('Starting and Ending Date-Time field should be used instead.', '17.0')]
     procedure GetStartingEndingDateAndTime(var StartingTime: Time; var StartingDate: Date; var EndingTime: Time; var EndingDate: Date)
     begin
         StartingTime := DT2Time("Starting Date-Time");
         StartingDate := DT2Date("Starting Date-Time");
         EndingTime := DT2Time("Ending Date-Time");
         EndingDate := DT2Date("Ending Date-Time");
+    end;
+
+    procedure IsStatusLessThanReleased(): Boolean
+    begin
+        exit((Status = Status::Simulated) or (Status = Status::Planned) or (Status = Status::"Firm Planned"));
     end;
 
     local procedure InitFromSourceNo(SourceDescription: Text[100]; SourceDescription2: Text[50]; RoutingNo: Code[20]; InventoryPostingGroup: Code[20]; GenProdPostingGroup: Code[20]; GenBusPostingGroup: Code[20]; UnitCost: Decimal)

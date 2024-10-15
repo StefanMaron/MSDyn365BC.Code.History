@@ -77,7 +77,7 @@ codeunit 137390 "SCM Kitting -  Reports"
 
     [Normal]
     [HandlerFunctions('AvailabilityWindowHandler')]
-    local procedure NormalPosting(var AssemblyHeader: Record "Assembly Header"; CostingMethod: Option; PartialPostFactor: Decimal; IndirectCost: Decimal; AdjustmentSource: Option; AssemblyPolicy: Option; MixedReplenishment: Option)
+    local procedure NormalPosting(var AssemblyHeader: Record "Assembly Header"; CostingMethod: Enum "Costing Method"; PartialPostFactor: Decimal; IndirectCost: Decimal; AdjustmentSource: Option; AssemblyPolicy: Enum "Assembly Policy"; MixedReplenishment: Option)
     var
         ItemJournalLine: Record "Item Journal Line";
         ItemJournalBatch: Record "Item Journal Batch";
@@ -2051,7 +2051,7 @@ codeunit 137390 "SCM Kitting -  Reports"
     end;
 
     [Normal]
-    local procedure ATOSetup(var AssemblyHeader: Record "Assembly Header"; var SalesHeader: Record "Sales Header"; AssemblyPolicy: Option; PartialShipFactor: Decimal)
+    local procedure ATOSetup(var AssemblyHeader: Record "Assembly Header"; var SalesHeader: Record "Sales Header"; AssemblyPolicy: Enum "Assembly Policy"; PartialShipFactor: Decimal)
     var
         SalesLine: Record "Sales Line";
         Item: Record Item;
@@ -2160,7 +2160,7 @@ codeunit 137390 "SCM Kitting -  Reports"
     end;
 
     [Normal]
-    local procedure GetValueEntriesAmount(ItemNo: Code[20]; FromEntryType: Option; ToEntryType: Option; FromILEType: Option; ToILEType: Option; VarianceType: Option): Decimal
+    local procedure GetValueEntriesAmount(ItemNo: Code[20]; FromEntryType: Enum "Cost Entry Type"; ToEntryType: Enum "Cost Entry Type"; FromILEType: Enum "Item Ledger Document Type"; ToILEType: Enum "Item Ledger Document Type"; VarianceType: Enum "Cost Variance Type"): Decimal
     var
         ValueEntry: Record "Value Entry";
     begin
@@ -2292,7 +2292,7 @@ codeunit 137390 "SCM Kitting -  Reports"
     end;
 
     [Normal]
-    local procedure CheckInvtValCostSpecFields(var ValueEntry: Record "Value Entry"; Item: Record Item; EntryType: Option "Direct Cost",Revaluation,Rounding,"Indirect Cost",Variance)
+    local procedure CheckInvtValCostSpecFields(var ValueEntry: Record "Value Entry"; Item: Record Item; EntryType: Enum "Cost Entry Type")
     var
         CostAmount: Decimal;
         UnitCost: Decimal;
@@ -2303,12 +2303,12 @@ codeunit 137390 "SCM Kitting -  Reports"
             exit;
 
         // Unit cost.
-        UnitCost := LibraryReportDataset.Sum('UnitCost' + Format(EntryType + 1));
+        UnitCost := LibraryReportDataset.Sum('UnitCost' + Format(EntryType.AsInteger() + 1));
         Assert.AreNearlyEqual(ValueEntry."Cost Amount (Actual)" / Item.Inventory, UnitCost, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(ErrorCostShares, 'unit cost', Item."No."));
 
         // Cost amount.
-        CostAmount := LibraryReportDataset.Sum('TotalCostTotal' + Format(EntryType + 1));
+        CostAmount := LibraryReportDataset.Sum('TotalCostTotal' + Format(EntryType.AsInteger() + 1));
         Assert.AreNearlyEqual(ValueEntry."Cost Amount (Actual)", CostAmount, LibraryERM.GetAmountRoundingPrecision,
           StrSubstNo(ErrorCostShares, 'cost amount', Item."No."));
     end;
@@ -2364,7 +2364,7 @@ codeunit 137390 "SCM Kitting -  Reports"
         end;
     end;
 
-    local procedure MockValueEntry(ItemNo: Code[20]; ItemLedgerEntryType: Option; EntryType: Option): Integer
+    local procedure MockValueEntry(ItemNo: Code[20]; ItemLedgerEntryType: Enum "Item Ledger Document Type"; EntryType: Enum "Cost Entry Type"): Integer
     var
         ValueEntry: Record "Value Entry";
     begin
@@ -2379,7 +2379,7 @@ codeunit 137390 "SCM Kitting -  Reports"
         end;
     end;
 
-    local procedure MockValueEntryWithOrderType(ItemNo: Code[20]; ItemLedgerEntryType: Option; EntryType: Option; OrderType: Option)
+    local procedure MockValueEntryWithOrderType(ItemNo: Code[20]; ItemLedgerEntryType: Enum "Item Ledger Document Type"; EntryType: Enum "Cost Entry Type"; OrderType: Enum "Inventory Order Type")
     var
         ValueEntry: Record "Value Entry";
     begin
@@ -2388,7 +2388,7 @@ codeunit 137390 "SCM Kitting -  Reports"
         ValueEntry.Modify();
     end;
 
-    local procedure MockValueEntryWithVarianceType(ItemNo: Code[20]; ItemLedgerEntryType: Option; EntryType: Option; VarianceType: Option)
+    local procedure MockValueEntryWithVarianceType(ItemNo: Code[20]; ItemLedgerEntryType: Enum "Item Ledger Document Type"; EntryType: Enum "Cost Entry Type"; VarianceType: Enum "Cost Variance Type")
     var
         ValueEntry: Record "Value Entry";
     begin
@@ -2798,7 +2798,7 @@ codeunit 137390 "SCM Kitting -  Reports"
     end;
 
     [Normal]
-    local procedure CreatePostItemJournal(ItemNo: Code[20]; ProductionOrderNo: Code[20]; ItemJournalTemplateType: Option; QtyToPost: Decimal; PostingDate: Date)
+    local procedure CreatePostItemJournal(ItemNo: Code[20]; ProductionOrderNo: Code[20]; ItemJournalTemplateType: Enum "Item Journal Template Type"; QtyToPost: Decimal; PostingDate: Date)
     var
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalLine: Record "Item Journal Line";

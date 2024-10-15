@@ -74,12 +74,12 @@ report 11302 "General Ledger"
                     }
                     column(AddCurrCrAmt_GLEntry; "Add.-Currency Credit Amount")
                     {
-                        AutoFormatExpression = GetCurrencyCode;
+                        AutoFormatExpression = GetCurrencyCode();
                         AutoFormatType = 1;
                     }
                     column(AddCurrDebitAmt_GLEntry; "Add.-Currency Debit Amount")
                     {
-                        AutoFormatExpression = GetCurrencyCode;
+                        AutoFormatExpression = GetCurrencyCode();
                         AutoFormatType = 1;
                     }
                     column(GLAccNo_GLEntry; "G/L Account No.")
@@ -311,12 +311,12 @@ report 11302 "General Ledger"
                         }
                         column(AddCurrDebitAmt_GLEntry2; "Add.-Currency Debit Amount")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AddCurrCreditAmt_GLEntry2; "Add.-Currency Credit Amount")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(GLAccNoCaption_GLEntry2; FieldCaption("G/L Account No."))
@@ -471,22 +471,22 @@ report 11302 "General Ledger"
                         }
                         column(VATSumBufferAddCurrBaseCM; VATSumBuffer."Add.-Curr. Base CM")
                         {
-                            AutoFormatExpression = VATSumBuffer.GetCurrencyCode;
+                            AutoFormatExpression = VATSumBuffer.GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(VATSumBufferAddCurrVATAmountCM; VATSumBuffer."Add.-Curr. VAT Amount CM")
                         {
-                            AutoFormatExpression = VATSumBuffer.GetCurrencyCode;
+                            AutoFormatExpression = VATSumBuffer.GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(NegVATSumBufferAddCurrVATAmtInv; -VATSumBuffer."Add.-Curr. VAT Amount Invoices")
                         {
-                            AutoFormatExpression = VATSumBuffer.GetCurrencyCode;
+                            AutoFormatExpression = VATSumBuffer.GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(NegVATSumBufferAddCurrBaseInv; -VATSumBuffer."Add.-Curr. Base Invoices")
                         {
-                            AutoFormatExpression = VATSumBuffer.GetCurrencyCode;
+                            AutoFormatExpression = VATSumBuffer.GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(UseAmtsInAddCurr_VATSummary; UseAmtsInAddCurr)
@@ -545,7 +545,7 @@ report 11302 "General Ledger"
                         }
                         column(TotalAmountAddCurr; TotalAmountAddCurr)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(CashDiscountCaption; CashDiscountCaptionLbl)
@@ -742,8 +742,8 @@ report 11302 "General Ledger"
         TotalAmount: Decimal;
         TotalAmountAddCurr: Decimal;
         ReportFilter: Text[250];
-        Selection: Option Open,Closed,"Open and Closed";
-        PeriodSelection: Option "Before and Within Period","Within Period";
+        Selection: Enum "VAT Statement Report Selection";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
         NetAmountLCY: Decimal;
         UseAmtsInAddCurr: Boolean;
         VatAddCurrText: Text[30];

@@ -30,7 +30,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         UnexpectedCFWorksheetLineCountErr: Label 'ENU=Unexpected Cash Flow journal line count within filter: Cash Flow No.: %1, Document No.: %2.', Comment = '%1 - Cash Flow No.; %2 - Document No.';
         PlusOneDayFormula: DateFormula;
         MinusOneDayFormula: DateFormula;
-        SourceType: Option " ",Receivables,Payables,"Liquid Funds","Cash Flow Manual Expense","Cash Flow Manual Revenue","Sales Orders","Purchase Orders","Fixed Assets Budget","Fixed Assets Disposal","Service Orders","G/L Budget";
+        SourceType: Enum "Cash Flow Source Type";
         UnexpectedCFWorksheetLineCountForMultipleSourcesErr: Label 'ENU=Unexpected Cash Flow journal line count within filter: Cash Flow No.: %1, Document No.: %2, %3, %4.', Comment = 'Unexpected Cash Flow journal line count within filter: Cash Flow No.: Cash Flow No, Document No.: Sales Order No, Purchase Order No, Service Order No.';
 
     [Test]
@@ -57,7 +57,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
           EmptyDateFormula, EmptyDateFormula, EmptyDateFormula);
 
         // Exercise
-        ConsiderSource[SourceType::Receivables] := true;
+        ConsiderSource[SourceType::Receivables.AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
@@ -96,7 +96,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
 
         // Exercise
         // forecast is calculated after the discount date, payment already done
-        ConsiderSource[SourceType::Receivables] := true;
+        ConsiderSource[SourceType::Receivables.AsInteger()] := true;
         LibraryCashFlowHelper.FillJnlOnCertDateFormulas(ConsiderSource, CashFlowForecast."No.", PaymentTerms."Discount Date Calculation",
           EmptyDateFormula, CustomDateFormula);
 
@@ -135,7 +135,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
           PaymentTerms."Discount Date Calculation", EmptyDateFormula, MinusOneDayFormula);
 
         // Exercise
-        ConsiderSource[SourceType::Receivables] := true;
+        ConsiderSource[SourceType::Receivables.AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
@@ -175,7 +175,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
           GenJournalLine."Account Type"::Customer, GenJournalLine."Document Type"::Invoice);
 
         // Exercise
-        ConsiderSource[SourceType::Receivables] := true;
+        ConsiderSource[SourceType::Receivables.AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
@@ -223,7 +223,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
 
         // Exercise
         // forecast is done on pmt dsct tol date
-        ConsiderSource[SourceType::Receivables] := true;
+        ConsiderSource[SourceType::Receivables.AsInteger()] := true;
         LibraryCashFlowHelper.FillJnlOnCertDateFormulas(ConsiderSource, CashFlowForecast."No.", PaymentTerms."Discount Date Calculation",
           PmtDiscountGracePeriod, EmptyDateFormula);
 
@@ -270,7 +270,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
 
         // Exercise
         // forecast should be done after pmt dsct tol date
-        ConsiderSource[SourceType::Receivables] := true;
+        ConsiderSource[SourceType::Receivables.AsInteger()] := true;
         LibraryCashFlowHelper.FillJnlOnCertDateFormulas(ConsiderSource, CashFlowForecast."No.", PaymentTerms."Discount Date Calculation",
           PlusOneDayFormula, PmtDiscountGracePeriod);
 
@@ -317,7 +317,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
 
         // Exercise
         // forecast should be done after pmt dsct tol date
-        ConsiderSource[SourceType::Receivables] := true;
+        ConsiderSource[SourceType::Receivables.AsInteger()] := true;
         LibraryCashFlowHelper.FillJnlOnCertDateFormulas(ConsiderSource, CashFlowForecast."No.", PaymentTerms."Discount Date Calculation",
           PlusOneDayFormula, PmtDiscountGracePeriod);
 
@@ -367,7 +367,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // Exercise
         // forecast should be done after payment
         Evaluate(CustomDateFormula, Format(CustomDateFormula) + Format(PlusOneDayFormula));
-        ConsiderSource[SourceType::Receivables] := true;
+        ConsiderSource[SourceType::Receivables.AsInteger()] := true;
         LibraryCashFlowHelper.FillJnlOnCertDateFormulas(ConsiderSource, CashFlowForecast."No.", PaymentTerms."Discount Date Calculation",
           CustomDateFormula, PmtDiscountGracePeriod);
 
@@ -405,7 +405,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
           -(Amount - Round(Amount * 0.5)), EmptyDateFormula, EmptyDateFormula, EmptyDateFormula);
 
         // Exercise
-        ConsiderSource[SourceType::Receivables] := true;
+        ConsiderSource[SourceType::Receivables.AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
@@ -449,7 +449,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
           EmptyDateFormula, EmptyDateFormula, EmptyDateFormula);
 
         // Exercise
-        ConsiderSource[SourceType::Receivables] := true;
+        ConsiderSource[SourceType::Receivables.AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
@@ -492,7 +492,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
           GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::Invoice);
 
         // Exercise
-        ConsiderSource[SourceType::Payables] := true;
+        ConsiderSource[SourceType::Payables.AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
@@ -540,7 +540,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
 
         // Exercise
         // Forecast should be done after payment
-        ConsiderSource[SourceType::Payables] := true;
+        ConsiderSource[SourceType::Payables.AsInteger()] := true;
         LibraryCashFlowHelper.FillJnlOnCertDateFormulas(ConsiderSource, CashFlowForecast."No.", PaymentTerms."Discount Date Calculation",
           PmtDiscountGracePeriod, EmptyDateFormula);
 
@@ -584,7 +584,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
 
         // Exercise
         // forecast should be done after pmt dsct tol date
-        ConsiderSource[SourceType::Payables] := true;
+        ConsiderSource[SourceType::Payables.AsInteger()] := true;
         LibraryCashFlowHelper.FillJnlOnCertDateFormulas(ConsiderSource, CashFlowForecast."No.", PaymentTerms."Discount Date Calculation",
           PlusOneDayFormula, PmtDiscountGracePeriod);
 
@@ -632,7 +632,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         // Exercise
         // forecast should be done after pmt dsct tol date and payment
         Evaluate(CustomDateFormula, Format(CustomDateFormula) + Format(PlusOneDayFormula));
-        ConsiderSource[SourceType::Payables] := true;
+        ConsiderSource[SourceType::Payables.AsInteger()] := true;
         LibraryCashFlowHelper.FillJnlOnCertDateFormulas(ConsiderSource, CashFlowForecast."No.", PaymentTerms."Discount Date Calculation",
           CustomDateFormula, PmtDiscountGracePeriod);
 
@@ -671,7 +671,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
           Amount - Round(Amount * 0.5 / 100), EmptyDateFormula, EmptyDateFormula, EmptyDateFormula);
 
         // Exercise
-        ConsiderSource[SourceType::Payables] := true;
+        ConsiderSource[SourceType::Payables.AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
@@ -716,7 +716,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
           EmptyDateFormula, EmptyDateFormula, EmptyDateFormula);
 
         // Exercise
-        ConsiderSource[SourceType::Payables] := true;
+        ConsiderSource[SourceType::Payables.AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
@@ -756,8 +756,8 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         LibraryCashFlowHelper.CalcSalesExpectedPrepmtAmounts(SalesHeader, 0, ExpectedSOAmount, ExpectedPrePmtAmount);
 
         // Exercise
-        ConsiderSource[SourceType::Receivables] := true;
-        ConsiderSource[SourceType::"Sales Orders"] := true;
+        ConsiderSource[SourceType::Receivables.AsInteger()] := true;
+        ConsiderSource[SourceType::"Sales Orders".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
@@ -797,8 +797,8 @@ codeunit 134553 "ERM Cash Flow - Filling II"
           SalesHeader, PaymentTerms."Discount %", ExpectedSOAmount, ExpectedPrePmtAmount);
 
         // Exercise
-        ConsiderSource[SourceType::Receivables] := true;
-        ConsiderSource[SourceType::"Sales Orders"] := true;
+        ConsiderSource[SourceType::Receivables.AsInteger()] := true;
+        ConsiderSource[SourceType::"Sales Orders".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
@@ -839,8 +839,8 @@ codeunit 134553 "ERM Cash Flow - Filling II"
           SalesHeader, PaymentTerms2."Discount %", ExpectedSOAmount, ExpectedPrePmtAmount);
 
         // Exercise
-        ConsiderSource[SourceType::Receivables] := true;
-        ConsiderSource[SourceType::"Sales Orders"] := true;
+        ConsiderSource[SourceType::Receivables.AsInteger()] := true;
+        ConsiderSource[SourceType::"Sales Orders".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
@@ -883,8 +883,8 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         LibraryApplicationArea.EnableFoundationSetup;
 
         // Exercise
-        ConsiderSource[SourceType::Payables] := true;
-        ConsiderSource[SourceType::"Purchase Orders"] := true;
+        ConsiderSource[SourceType::Payables.AsInteger()] := true;
+        ConsiderSource[SourceType::"Purchase Orders".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
@@ -925,8 +925,8 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         LibraryApplicationArea.EnableFoundationSetup;
 
         // Exercise
-        ConsiderSource[SourceType::Payables] := true;
-        ConsiderSource[SourceType::"Purchase Orders"] := true;
+        ConsiderSource[SourceType::Payables.AsInteger()] := true;
+        ConsiderSource[SourceType::"Purchase Orders".AsInteger()] := true;
         LibraryCashFlowHelper.FillJournal(ConsiderSource, CashFlowForecast."No.", true);
 
         // Verify
@@ -968,8 +968,8 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         LibraryApplicationArea.EnableFoundationSetup;
 
         // Exercise
-        ConsiderSource[SourceType::Payables] := true;
-        ConsiderSource[SourceType::"Purchase Orders"] := true;
+        ConsiderSource[SourceType::Payables.AsInteger()] := true;
+        ConsiderSource[SourceType::"Purchase Orders".AsInteger()] := true;
         LibraryCashFlowHelper.FillJournal(ConsiderSource, CashFlowForecast."No.", true);
 
         // Verify
@@ -1093,7 +1093,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
           LibraryCashFlowHelper.CalcCustDiscAmtLCY(CustLedgerEntry, PaymentTerms."Discount %", RelationalExchangeRateAmount);
 
         // Exercise
-        ConsiderSource[SourceType::Receivables] := true;
+        ConsiderSource[SourceType::Receivables.AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
@@ -1158,7 +1158,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
             VendorLedgerEntry, PaymentTerms."Discount %", RelationalExchangeRateAmount);
 
         // Exercise
-        ConsiderSource[SourceType::Payables] := true;
+        ConsiderSource[SourceType::Payables.AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
@@ -1195,7 +1195,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
           LibraryCashFlowHelper.CalcCustDiscAmt(CustLedgerEntry, PaymentTermsDifferent."Discount %");
 
         // Exercise
-        ConsiderSource[SourceType::Receivables] := true;
+        ConsiderSource[SourceType::Receivables.AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
@@ -1231,7 +1231,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
           LibraryCashFlowHelper.CalcVendDiscAmt(VendorLedgerEntry, PaymentTermsDifferent."Discount %");
 
         // Exercise
-        ConsiderSource[SourceType::Payables] := true;
+        ConsiderSource[SourceType::Payables.AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
@@ -1273,9 +1273,9 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         LibraryApplicationArea.EnableFoundationSetup;
 
         // Excercise
-        ConsiderSource[SourceType::"Sales Orders"] := true;
-        ConsiderSource[SourceType::"Purchase Orders"] := true;
-        ConsiderSource[SourceType::"Service Orders"] := true;
+        ConsiderSource[SourceType::"Sales Orders".AsInteger()] := true;
+        ConsiderSource[SourceType::"Purchase Orders".AsInteger()] := true;
+        ConsiderSource[SourceType::"Service Orders".AsInteger()] := true;
 
         if IsSet then begin
             FillJournalWithGroupBy(ConsiderSource, CashFlowForecast."No.");
@@ -1331,7 +1331,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         ExpectedAmountLCY := LibraryCashFlowHelper.GetTotalSalesAmount(SalesHeader, false);
 
         // Excercise
-        ConsiderSource[SourceType::"Sales Orders"] := true;
+        ConsiderSource[SourceType::"Sales Orders".AsInteger()] := true;
         if IsSet then
             FillJournalWithGroupBy(ConsiderSource, CashFlowForecast."No.")
         else
@@ -1364,7 +1364,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         ExpectedAmountLCY := LibraryCashFlowHelper.GetTotalSalesAmount(SalesHeader, true);
 
         // Excercise
-        ConsiderSource[SourceType::"Sales Orders"] := true;
+        ConsiderSource[SourceType::"Sales Orders".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
@@ -1394,7 +1394,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         ExpectedAmountLCY := LibraryCashFlowHelper.GetTotalSalesAmount(SalesHeader, false);
 
         // Excercise
-        ConsiderSource[SourceType::"Sales Orders"] := true;
+        ConsiderSource[SourceType::"Sales Orders".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
@@ -1427,7 +1427,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         ExpectedAmountLCY := LibraryCashFlowHelper.GetTotalAmountForSalesOrderWithCashFlowPaymentTermsDiscount(SalesHeader);
 
         // Excercise
-        ConsiderSource[SourceType::"Sales Orders"] := true;
+        ConsiderSource[SourceType::"Sales Orders".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
@@ -1470,7 +1470,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         LibraryApplicationArea.EnableFoundationSetup;
 
         // Excercise
-        ConsiderSource[SourceType::"Purchase Orders"] := true;
+        ConsiderSource[SourceType::"Purchase Orders".AsInteger()] := true;
         if isSet then
             FillJournalWithGroupBy(ConsiderSource, CashFlowForecast."No.")
         else
@@ -1504,7 +1504,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         LibraryApplicationArea.EnableFoundationSetup;
 
         // Excercise
-        ConsiderSource[SourceType::"Purchase Orders"] := true;
+        ConsiderSource[SourceType::"Purchase Orders".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
@@ -1535,7 +1535,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         LibraryApplicationArea.EnableFoundationSetup;
 
         // Excercise
-        ConsiderSource[SourceType::"Purchase Orders"] := true;
+        ConsiderSource[SourceType::"Purchase Orders".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
@@ -1569,7 +1569,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         LibraryApplicationArea.EnableFoundationSetup;
 
         // Excercise
-        ConsiderSource[SourceType::"Purchase Orders"] := true;
+        ConsiderSource[SourceType::"Purchase Orders".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
@@ -1611,7 +1611,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         ExpectedAmountLCY := LibraryCashFlowHelper.GetTotalServiceAmount(ServiceHeader, false);
 
         // Excercise
-        ConsiderSource[SourceType::"Service Orders"] := true;
+        ConsiderSource[SourceType::"Service Orders".AsInteger()] := true;
         if isSet then
             FillJournalWithGroupBy(ConsiderSource, CashFlowForecast."No.")
         else
@@ -1644,7 +1644,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         ExpectedAmountLCY := LibraryCashFlowHelper.GetTotalServiceAmount(ServiceHeader, true);
 
         // Excercise
-        ConsiderSource[SourceType::"Service Orders"] := true;
+        ConsiderSource[SourceType::"Service Orders".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
@@ -1674,7 +1674,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         ExpectedAmountLCY := LibraryCashFlowHelper.GetTotalServiceAmount(ServiceHeader, false);
 
         // Excercise
-        ConsiderSource[SourceType::"Service Orders"] := true;
+        ConsiderSource[SourceType::"Service Orders".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
@@ -1707,7 +1707,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         ExpectedAmountLCY := LibraryCashFlowHelper.GetTotalAmountForServiceOrderWithCashFlowPaymentTermsDiscount(ServiceHeader);
 
         // Excercise
-        ConsiderSource[SourceType::"Service Orders"] := true;
+        ConsiderSource[SourceType::"Service Orders".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
@@ -2522,7 +2522,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         PurchaseOrderList.Run;
     end;
 
-    local procedure VerifyCFWorksheetLineAmount(CashFlowForecastNo: Code[20]; DocumentNo: Code[20]; SourceType: Option; ExpectedAmount: Decimal; ErrorText: Text[150])
+    local procedure VerifyCFWorksheetLineAmount(CashFlowForecastNo: Code[20]; DocumentNo: Code[20]; SourceType: Enum "Cash Flow Source Type"; ExpectedAmount: Decimal; ErrorText: Text[150])
     var
         CFWorksheetLine: Record "Cash Flow Worksheet Line";
     begin
@@ -2530,7 +2530,7 @@ codeunit 134553 "ERM Cash Flow - Filling II"
         Assert.AreEqual(ExpectedAmount, CFWorksheetLine."Amount (LCY)", ErrorText);
     end;
 
-    local procedure VerifyExpectedCFAmount(ExpectedAmount: Decimal; DocumentNo: Code[20]; SourceType: Option; CashFlowNo: Code[20])
+    local procedure VerifyExpectedCFAmount(ExpectedAmount: Decimal; DocumentNo: Code[20]; SourceType: Enum "Cash Flow Source Type"; CashFlowNo: Code[20])
     var
         CFWorksheetLine: Record "Cash Flow Worksheet Line";
         TotalAmount: Decimal;

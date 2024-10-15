@@ -33,7 +33,7 @@ codeunit 5488 "Graph Mgt - Reports"
                 TrialBalanceEntityBuffer."No." := GLAccount."No.";
                 TrialBalanceEntityBuffer.Name := GLAccount.Name;
                 TrialBalanceEntityBuffer."Account Type" := GLAccount."Account Type";
-                TrialBalanceEntityBuffer."Account Id" := GLAccount.Id;
+                TrialBalanceEntityBuffer."Account Id" := GLAccount.SystemId;
                 if GLAccount."Account Type" in
                    [GLAccount."Account Type"::"End-Total", GLAccount."Account Type"::Posting, GLAccount."Account Type"::Total]
                 then begin
@@ -134,6 +134,7 @@ codeunit 5488 "Graph Mgt - Reports"
                     ReportType::"Balance Sheet":
                         begin
                             BalanceSheetBuffer.Init();
+                            BalanceSheetBuffer.Id := AccScheduleLine.SystemId;
                             BalanceSheetBuffer."Line No." := AccScheduleLine."Line No.";
                             BalanceSheetBuffer.Description := AccScheduleLine.Description;
                             if not (AccScheduleLine.Totaling = '') and TempColumnLayout.FindSet then
@@ -157,11 +158,14 @@ codeunit 5488 "Graph Mgt - Reports"
                     ReportType::"Retained Earnings":
                         begin
                             AccScheduleLineEntity.Init();
+                            AccScheduleLineEntity.Id := AccScheduleLine.SystemId;
                             AccScheduleLineEntity."Line No." := AccScheduleLine."Line No.";
                             AccScheduleLineEntity.Description := AccScheduleLine.Description;
                             if not (AccScheduleLine.Totaling = '') and TempColumnLayout.FindSet then
                                 Evaluate(AccScheduleLineEntity."Net Change", DelChr(Format(ColumnValues[1], 15, FormatStr(ColumnNo))));
                             AccScheduleLineEntity."Date Filter" := GetDateRangeMax(DateFilter);
+                            if ReportType = ReportType::"Income Statement" then
+                                AccScheduleLineEntity.SetFilter("Date Filter", DateFilter);
                             if (AccScheduleLine.Description = '') and (AccScheduleLine.Totaling = '') then
                                 AccScheduleLineEntity."Line Type" := SpacerLineTypeTxt
                             else
@@ -233,10 +237,10 @@ codeunit 5488 "Graph Mgt - Reports"
                             else
                                 SetPeriodLengthAndStartDateOnAgedRep(AgedReportEntity);
 
-                            if IsNullGuid(Customer.Id) then
+                            if IsNullGuid(Customer.SystemId) then
                                 AgedReportEntity.AccountId := CreateGuid()
                             else
-                                AgedReportEntity.AccountId := Customer.Id;
+                                AgedReportEntity.AccountId := Customer.SystemId;
 
                             AgedReportEntity."No." := Customer."No.";
                             AgedReportEntity.Name := Customer.Name;
@@ -260,10 +264,10 @@ codeunit 5488 "Graph Mgt - Reports"
                             else
                                 SetPeriodLengthAndStartDateOnAgedRep(AgedReportEntity);
 
-                            if IsNullGuid(Vendor.Id) then
+                            if IsNullGuid(Vendor.SystemId) then
                                 AgedReportEntity.AccountId := CreateGuid()
                             else
-                                AgedReportEntity.AccountId := Vendor.Id;
+                                AgedReportEntity.AccountId := Vendor.SystemId;
 
                             AgedReportEntity."No." := Vendor."No.";
                             AgedReportEntity.Name := Vendor.Name;

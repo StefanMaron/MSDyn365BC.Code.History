@@ -302,7 +302,7 @@ codeunit 144005 "ERM Annual Listing"
         IncludeCountry: Option All,Specific;
     begin
         // [SCENARIO 346489] Report Annual Listing - Disk does export credit memos for local Customer with "Enterprise No." wihtout prefixes
-        Initialize();
+        Initialize;
 
         // [GIVEN] Create a Customer with "Enterprise No." wihtout prefixes
         LibraryBEHelper.CreateDomesticCustomer(Customer);
@@ -334,7 +334,7 @@ codeunit 144005 "ERM Annual Listing"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Annual Listing");
     end;
 
-    local procedure InitInfoAndPostLinesInPeriod(DocumentType: Option; DocDate: Date): Code[10]
+    local procedure InitInfoAndPostLinesInPeriod(DocumentType: Enum "Sales Document Type"; DocDate: Date): Code[10]
     var
         Country: Record "Country/Region";
         Customer: Record Customer;
@@ -362,7 +362,7 @@ codeunit 144005 "ERM Annual Listing"
         end;
     end;
 
-    local procedure CreateAndPostSalesDocumentInPeriod(CustomerNo: Code[20]; DocumentType: Option; DocDate: Date)
+    local procedure CreateAndPostSalesDocumentInPeriod(CustomerNo: Code[20]; DocumentType: Enum "Sales Document Type"; DocDate: Date)
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -535,7 +535,7 @@ codeunit 144005 "ERM Annual Listing"
     end;
 
     [RequestPageHandler]
-    [Scope('Internal')]
+    [Scope('OnPrem')]
     procedure VATAnnualListingRequestPageHandler(var VATAnnualListing: TestRequestPage "VAT Annual Listing")
     var
         DequeuedVar: Variant;

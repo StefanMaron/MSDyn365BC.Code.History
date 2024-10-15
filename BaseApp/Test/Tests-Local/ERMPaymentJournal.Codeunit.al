@@ -822,7 +822,7 @@ codeunit 144003 "ERM Payment Journal"
         EBPaymentJournal.ExportPaymentLines.Invoke;
     end;
 
-    local procedure CreateAndPostGenJnlLine(AccountType: Integer; AccountNo: Code[20]; DocumentType: Integer; Amount: Decimal; var DocumentNo: Code[20]; BankAccountNo: Code[20])
+    local procedure CreateAndPostGenJnlLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; var DocumentNo: Code[20]; BankAccountNo: Code[20])
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
@@ -849,7 +849,7 @@ codeunit 144003 "ERM Payment Journal"
         DocumentNo := GenJnlLine."Document No.";
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20])
+    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -919,7 +919,7 @@ codeunit 144003 "ERM Payment Journal"
         CreateVendorBankAccountMod97Compliant(Vendor);
     end;
 
-    local procedure CreateVendorWithGlobalDimensions(var Vendor: Record "Vendor"; GlobalDim1Value: Code[20]; GlobalDim2Value: Code[20])
+    local procedure CreateVendorWithGlobalDimensions(var Vendor: Record "Vendor"; GlobalDim1Value: Code[10]; GlobalDim2Value: Code[10])
     begin
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Global Dimension 1 Code", GlobalDim1Value);
@@ -987,7 +987,7 @@ codeunit 144003 "ERM Payment Journal"
         end;
     end;
 
-    local procedure CreatePaymentJnlLine(TemplateName: Code[10]; BatchName: Code[10]; var PaymentJnlLine: Record "Payment Journal Line"; AccountType: Integer; AccountNo: Code[20]; AppliesToDocType: Integer; AppliesToDocNo: Code[20]; PaymentAmount: Decimal; ExportProtocolCode: Code[20]; BankAccountNo: Code[20])
+    local procedure CreatePaymentJnlLine(TemplateName: Code[10]; BatchName: Code[10]; var PaymentJnlLine: Record "Payment Journal Line"; AccountType: Integer; AccountNo: Code[20]; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20]; PaymentAmount: Decimal; ExportProtocolCode: Code[20]; BankAccountNo: Code[20])
     begin
         CreatePaymentJournalLine(TemplateName, BatchName, PaymentJnlLine);
         with PaymentJnlLine do begin
@@ -1405,7 +1405,7 @@ codeunit 144003 "ERM Payment Journal"
         Assert.AreEqual(PaymJournalBatch.Status::" ", PaymJournalBatch.Status, WrongStatusOfBatchErr);
     end;
 
-    local procedure VerifyCrMemoGenJnlLine(GenJournalBatch: Record "Gen. Journal Batch"; CrMemoNo: Code[20]; ExpectedDocType: Option)
+    local procedure VerifyCrMemoGenJnlLine(GenJournalBatch: Record "Gen. Journal Batch"; CrMemoNo: Code[20]; ExpectedDocType: Enum "Gen. Journal Document Type")
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin

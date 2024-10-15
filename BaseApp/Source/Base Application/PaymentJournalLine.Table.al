@@ -63,7 +63,7 @@ table 2000001 "Payment Journal Line"
                             Validate("Beneficiary Bank Account", Cust."Preferred Bank Account Code");
                             "Payment Method Code" := Cust."Payment Method Code";
                             "Salespers./Purch. Code" := Cust."Salesperson Code";
-                            if "Applies-to Doc. Type" = 0 then
+                            if "Applies-to Doc. Type" = "Applies-to Doc. Type"::" " then
                                 "Applies-to Doc. Type" := "Applies-to Doc. Type"::"Credit Memo";
                         end;
                     "Account Type"::Vendor:
@@ -75,7 +75,7 @@ table 2000001 "Payment Journal Line"
                             Validate("Beneficiary Bank Account", Vend."Preferred Bank Account Code");
                             "Payment Method Code" := Vend."Payment Method Code";
                             "Salespers./Purch. Code" := Vend."Purchaser Code";
-                            if "Applies-to Doc. Type" = 0 then
+                            if "Applies-to Doc. Type" = "Applies-to Doc. Type"::" " then
                                 "Applies-to Doc. Type" := "Applies-to Doc. Type"::Invoice;
                         end;
                 end;
@@ -382,7 +382,7 @@ table 2000001 "Payment Journal Line"
                                     if CustLedgEntry.FindFirst then;
                                     CustLedgEntry.SetRange("Applies-to ID");
                                 end else
-                                    if "Applies-to Doc. Type" <> 0 then begin
+                                    if "Applies-to Doc. Type" <> "Applies-to Doc. Type"::" " then begin
                                         CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                                         if CustLedgEntry.FindFirst then;
                                         CustLedgEntry.SetRange("Document Type");
@@ -425,7 +425,7 @@ table 2000001 "Payment Journal Line"
                                     if VendLedgEntry.FindFirst then;
                                     VendLedgEntry.SetRange("Applies-to ID");
                                 end else
-                                    if "Applies-to Doc. Type" <> 0 then begin
+                                    if "Applies-to Doc. Type" <> "Applies-to Doc. Type"::" " then begin
                                         VendLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                                         if VendLedgEntry.FindFirst then;
                                         VendLedgEntry.SetRange("Document Type");
@@ -637,7 +637,7 @@ table 2000001 "Payment Journal Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()
@@ -805,7 +805,7 @@ table 2000001 "Payment Journal Line"
 
         GenJournalLine.SetCurrentKey("Account Type", "Account No.", "Applies-to Doc. Type", "Applies-to Doc. No.");
         SetFilterToLedgerEntry(
-          PaymentJnlLine."Account Type"::Vendor, VendLedgEntry."Vendor No.", VendLedgEntry."Document Type", VendLedgEntry."Document No.",
+          "Gen. Journal Account Type".FromInteger(PaymentJnlLine."Account Type"::Vendor), VendLedgEntry."Vendor No.", VendLedgEntry."Document Type", VendLedgEntry."Document No.",
           GenJournalLine);
 
         if not PopulateAmountFromGenJournalLine(GenJournalLine) then
@@ -880,7 +880,7 @@ table 2000001 "Payment Journal Line"
 
         GenJournalLine.SetCurrentKey("Account Type", "Account No.", "Applies-to Doc. Type", "Applies-to Doc. No.");
         SetFilterToLedgerEntry(
-          "Account Type"::Customer, CustLedgEntry."Customer No.", CustLedgEntry."Document Type", CustLedgEntry."Document No.",
+          "Gen. Journal Account Type".FromInteger("Account Type"::Customer), CustLedgEntry."Customer No.", CustLedgEntry."Document Type", CustLedgEntry."Document No.",
           GenJournalLine);
 
         if not PopulateAmountFromGenJournalLine(GenJournalLine) then
@@ -995,7 +995,7 @@ table 2000001 "Payment Journal Line"
         exit(true);
     end;
 
-    local procedure SetFilterToLedgerEntry(AccountType: Option; AccountNo: Code[21]; AppliestoDocType: Option; AppliestoDocNo: Code[21]; var GenJournalLine: Record "Gen. Journal Line")
+    local procedure SetFilterToLedgerEntry(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[21]; AppliestoDocType: Enum "Gen. Journal Document Type"; AppliestoDocNo: Code[21]; var GenJournalLine: Record "Gen. Journal Line")
     begin
         GenJournalLine.SetRange("Account Type", AccountType);
         GenJournalLine.SetRange("Account No.", AccountNo);

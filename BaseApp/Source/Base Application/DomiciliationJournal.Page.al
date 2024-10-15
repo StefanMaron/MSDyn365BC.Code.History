@@ -110,7 +110,7 @@ page 2000022 "Domiciliation Journal"
                     trigger OnValidate()
                     begin
                         ShowShortcutDimCode(ShortcutDimCode);
-                        BankAccountNoOnAfterValidate;
+                        BankAccountNoOnAfterValidate();
                     end;
                 }
                 field("Direct Debit Mandate ID"; "Direct Debit Mandate ID")
@@ -323,7 +323,7 @@ page 2000022 "Domiciliation Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }

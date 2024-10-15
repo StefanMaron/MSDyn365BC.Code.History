@@ -71,6 +71,18 @@ page 592 "Change Log Setup"
                         ChangeLogSettingsUpdated := ChangeLogSetupList.IsChangeLogSettingsUpdated();
                     end;
                 }
+                action(RetentionPolicy)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Retention Policy';
+                    Tooltip = 'View or Edit the retention policy.';
+                    Image = Delete;
+                    RunObject = Page "Retention Policy Setup Card";
+                    RunPageLink = "Table Id" = Filter(405); // Database::"Change Log Entry";
+                    AccessByPermission = tabledata "Retention Policy Setup" = R;
+                    RunPageMode = View;
+                    Ellipsis = true;
+                }
             }
         }
     }

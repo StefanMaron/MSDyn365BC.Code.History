@@ -9,7 +9,7 @@ codeunit 5923 "Service-Quote to Order"
         ServQuoteLine: Record "Service Line";
         Customer: Record Customer;
         CustCheckCreditLimit: Codeunit "Cust-Check Cr. Limit";
-        DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
+        DocType: Enum "Sales Document Type";
         SkipDelete: Boolean;
     begin
         OnBeforeRun(Rec);
@@ -119,7 +119,7 @@ codeunit 5923 "Service-Quote to Order"
             if ServCommentLine.Find('-') then
                 repeat
                     ServCommentLine2 := ServCommentLine;
-                    ServCommentLine2."Table Subtype" := "Document Type";
+                    ServCommentLine2."Table Subtype" := "Document Type".AsInteger();
                     ServCommentLine2."No." := "No.";
                     OnBeforeServCommentLineInsert(ServCommentLine2, ServiceHeader, ServOrderHeader);
                     ServCommentLine2.Insert();
@@ -164,10 +164,10 @@ codeunit 5923 "Service-Quote to Order"
 
             LoanerEntry.Reset();
             LoanerEntry.SetCurrentKey("Document Type", "Document No.");
-            LoanerEntry.SetRange("Document Type", ServiceHeader."Document Type" + 1);
+            LoanerEntry.SetRange("Document Type", ServiceHeader."Document Type".AsInteger() + 1);
             LoanerEntry.SetRange("Document No.", ServiceHeader."No.");
             while LoanerEntry.FindFirst do begin
-                LoanerEntry."Document Type" := "Document Type" + 1;
+                LoanerEntry."Document Type" := LoanerEntry.GetDocTypeFromServDocType("Document Type");
                 LoanerEntry."Document No." := "No.";
                 LoanerEntry.Modify();
             end;
@@ -180,7 +180,7 @@ codeunit 5923 "Service-Quote to Order"
             if ServCommentLine.Find('-') then
                 repeat
                     ServCommentLine2 := ServCommentLine;
-                    ServCommentLine2."Table Subtype" := "Document Type";
+                    ServCommentLine2."Table Subtype" := "Document Type".AsInteger();
                     ServCommentLine2."No." := "No.";
                     ServCommentLine2.Insert();
                 until ServCommentLine.Next = 0;

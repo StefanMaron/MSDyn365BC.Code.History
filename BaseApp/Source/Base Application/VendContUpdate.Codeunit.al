@@ -1,4 +1,4 @@
-﻿codeunit 5057 "VendCont-Update"
+codeunit 5057 "VendCont-Update"
 {
 
     trigger OnRun()
@@ -37,7 +37,7 @@
                 exit;
             if not Cont.Get("Contact No.") then begin
                 Delete();
-                SendTraceTag('0000B36', VendContactUpdateCategoryTxt, Verbosity::Normal, StrSubstNo(VendContactUpdateTelemetryMsg, "Contact No.", "Business Relation Code"), DataClassification::EndUserIdentifiableInformation);
+                Session.LogMessage('0000B36', StrSubstNo(VendContactUpdateTelemetryMsg, "Contact No.", "Business Relation Code"), Verbosity::Normal, DataClassification::EndUserIdentifiableInformation, TelemetryScope::ExtensionPublisher, 'Category', VendContactUpdateCategoryTxt);
                 exit;
             end;
             OldCont := Cont;

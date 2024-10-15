@@ -197,7 +197,7 @@ report 5636 "Fixed Asset Document Nos."
         SourceCode: Record "Source Code";
         FALedgEntryFilter: Text;
         LastDocNo: Code[20];
-        LastDocType: Integer;
+        LastDocType: Enum "Gen. Journal Document Type";
         LastPostingDate: Date;
         LastNoSeriesCode: Code[20];
         FirstRecord: Boolean;

@@ -180,8 +180,8 @@ codeunit 144009 "SEPA DD Integration Test - BE"
         // Exercise
         CreateDomJnlLineForSalesInvoice(DomJnlLine, SalesHeader, BankAccount."No.", Customer."Partner Type"::Company,
           SalesHeader."Due Date");
-        DirectDebitCollection.CreateNew(DomJnlLine."Journal Template Name", BankAccount."No.",
-          DirectDebitCollection."Partner Type"::Company);
+        DirectDebitCollection.CreateRecord(
+          DomJnlLine."Journal Template Name", BankAccount."No.", DirectDebitCollection."Partner Type"::Company);
         DirectDebitCollection."Domiciliation Batch Name" := DomJnlLine."Journal Batch Name";
         DirectDebitCollection.Modify();
 
@@ -546,7 +546,7 @@ codeunit 144009 "SEPA DD Integration Test - BE"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateDomJnlBatch(var DomJnlBatch: Record "Domiciliation Journal Batch"; DomTemplateName: Code[10]; PartnerType: Option)
+    procedure CreateDomJnlBatch(var DomJnlBatch: Record "Domiciliation Journal Batch"; DomTemplateName: Code[10]; PartnerType: Enum "Partner Type")
     begin
         DomJnlBatch.Init();
         DomJnlBatch."Journal Template Name" := DomTemplateName;
@@ -555,7 +555,7 @@ codeunit 144009 "SEPA DD Integration Test - BE"
         DomJnlBatch.Insert();
     end;
 
-    local procedure CreateCustomerAndCustomerBankAccount(var Customer: Record Customer; var CustomerBankAccount: Record "Customer Bank Account"; PartnerType: Option)
+    local procedure CreateCustomerAndCustomerBankAccount(var Customer: Record Customer; var CustomerBankAccount: Record "Customer Bank Account"; PartnerType: Enum "Partner Type")
     begin
         LibrarySales.CreateCustomer(Customer);
         Customer.Name := LibraryUtility.GenerateGUID;
@@ -583,7 +583,7 @@ codeunit 144009 "SEPA DD Integration Test - BE"
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", 1);
     end;
 
-    local procedure CreateDomJnlLineForSalesInvoice(var DomJnlLine: Record "Domiciliation Journal Line"; SalesHeader: Record "Sales Header"; BankAccountNo: Code[20]; DomBatchPartnerType: Option; PostingDate: Date)
+    local procedure CreateDomJnlLineForSalesInvoice(var DomJnlLine: Record "Domiciliation Journal Line"; SalesHeader: Record "Sales Header"; BankAccountNo: Code[20]; DomBatchPartnerType: Enum "Partner Type"; PostingDate: Date)
     var
         DomJnlTemplate: Record "Domiciliation Journal Template";
         DomJnlBatch: Record "Domiciliation Journal Batch";

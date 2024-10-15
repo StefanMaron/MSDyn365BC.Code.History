@@ -110,7 +110,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
         SalesReturnApplyCharge(Item."Costing Method"::FIFO, 1, -1);
     end;
 
-    local procedure SalesReturnApplyCharge(CostingMethod: Option; ChargeOnItem: Integer; SignFactor: Decimal)
+    local procedure SalesReturnApplyCharge(CostingMethod: Enum "Costing Method"; ChargeOnItem: Integer; SignFactor: Decimal)
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -239,8 +239,6 @@ codeunit 137012 "SCM Costing Sales Returns I"
         Customer: Record Customer;
         TempSalesLine: Record "Sales Line" temporary;
         TempSalesLine2: Record "Sales Line" temporary;
-        ToDocType: Option ,,"Order",Invoice,"Return Order","Credit Memo";
-        FromDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo";
     begin
         // Covers TFS_TC_ID 120924,121249,121250,121251,121252,121253,121254,127822,127823,127824.
         // 1. Setup: Create required Sales setup.
@@ -255,7 +253,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
         CreateSalesLines(SalesHeader, SalesLine, Item."Costing Method"::FIFO, 2, 0);
         SalesLine.Validate(Quantity, -SalesLine.Quantity);
         SalesLine.Modify(true);
-        MoveNegativeLines(SalesHeader, SalesHeader2, FromDocType::Order, ToDocType::"Return Order");
+        MoveNegativeLines(SalesHeader, SalesHeader2, "Sales Document Type From"::Order, "Sales Document Type From"::"Return Order");
         TransferSalesLineToTemp(TempSalesLine, SalesLine);
         FindSalesLine(SalesLine, SalesHeader2);
         TransferSalesLineToTemp(TempSalesLine2, SalesLine);
@@ -283,7 +281,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
         SalesInvoiceApplyCharge(Item."Costing Method"::FIFO, 1);
     end;
 
-    local procedure SalesInvoiceApplyCharge(CostingMethod: Option; NoOfItemLine: Integer)
+    local procedure SalesInvoiceApplyCharge(CostingMethod: Enum "Costing Method"; NoOfItemLine: Integer)
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -355,8 +353,6 @@ codeunit 137012 "SCM Costing Sales Returns I"
         SalesHeader2: Record "Sales Header";
         TempSalesLine: Record "Sales Line" temporary;
         TempSalesLine2: Record "Sales Line" temporary;
-        ToDocType: Option ,,"Order",Invoice,"Return Order","Credit Memo";
-        FromDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo";
     begin
         // Covers TFS_TC_ID 120875,120877,120878,120879,120881,120882,120883,120884,120885,120886,120887,120888,120889.
         // 1. Setup: Create required Sales setup.
@@ -372,7 +368,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
         SalesLine.Modify(true);
         UpdateApplyFromItemEntryNo(TempSalesLine."No.", SalesHeader);
         CreateSalesLines(SalesHeader, SalesLine, Item."Costing Method"::FIFO, 1, 0);
-        MoveNegativeLines(SalesHeader, SalesHeader2, FromDocType::Order, ToDocType::"Return Order");
+        MoveNegativeLines(SalesHeader, SalesHeader2, "Sales Document Type From"::Order, "Sales Document Type From"::"Return Order");
         TransferSalesLineToTemp(TempSalesLine, SalesLine);
         FindSalesLine(SalesLine, SalesHeader2);
         TransferSalesLineToTemp(TempSalesLine2, SalesLine);
@@ -437,7 +433,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
     end;
 
     [Normal]
-    local procedure CreateSalesReturnSetup(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary; CostingMethod: Option)
+    local procedure CreateSalesReturnSetup(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var TempSalesLine: Record "Sales Line" temporary; CostingMethod: Enum "Costing Method")
     begin
         UpdateSalesAndReceivableSetup(false);
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, CostingMethod);
@@ -461,7 +457,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
         LibrarySales.CreateCustomer(Customer);
     end;
 
-    local procedure CreateItem(CostingMethod: Option): Code[20]
+    local procedure CreateItem(CostingMethod: Enum "Costing Method"): Code[20]
     var
         Item: Record Item;
     begin
@@ -472,7 +468,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
         exit(Item."No.");
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; CostingMethod: Option)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CostingMethod: Enum "Costing Method")
     var
         Customer: Record Customer;
     begin
@@ -481,7 +477,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
         CreateSalesLines(SalesHeader, SalesLine, CostingMethod, 1, 0);
     end;
 
-    local procedure CreateSalesLines(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CostingMethod: Option; NoOfItems: Integer; NoOfCharges: Integer)
+    local procedure CreateSalesLines(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CostingMethod: Enum "Costing Method"; NoOfItems: Integer; NoOfCharges: Integer)
     var
         ItemNo: Code[20];
         "Count": Integer;
@@ -507,7 +503,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
         CopySalesDoc.RunModal;
     end;
 
-    local procedure SalesCopyDocument(var SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary; DocumentType: Option; FromDocType: Option)
+    local procedure SalesCopyDocument(var SalesHeader: Record "Sales Header"; var TempSalesLine: Record "Sales Line" temporary; DocumentType: Enum "Sales Document Type"; FromDocType: Option)
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         SalesShipmentHeader: Record "Sales Shipment Header";
@@ -602,7 +598,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
         ItemChargeAssgntSales.CreateShptChargeAssgnt(SalesShipmentLine, ItemChargeAssignmentSales);
     end;
 
-    local procedure UpdateItemChargeQtyToAssign(DocumentType: Option; DocumentNo: Code[20]; QtyToAssign: Decimal)
+    local procedure UpdateItemChargeQtyToAssign(DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; QtyToAssign: Decimal)
     var
         ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
     begin
@@ -614,12 +610,12 @@ codeunit 137012 "SCM Costing Sales Returns I"
     end;
 
     [Normal]
-    local procedure MoveNegativeLines(var SalesHeader: Record "Sales Header"; var SalesHeader2: Record "Sales Header"; FromDocType: Option; ToDocType: Option)
+    local procedure MoveNegativeLines(var SalesHeader: Record "Sales Header"; var SalesHeader2: Record "Sales Header"; FromDocType: Enum "Sales Document Type From"; ToDocType: Enum "Sales Document Type From")
     var
         CopyDocumentMgt: Codeunit "Copy Document Mgt.";
     begin
         CopyDocumentMgt.SetProperties(true, false, true, true, true, false, false);
-        SalesHeader2."Document Type" := CopyDocumentMgt.SalesHeaderDocType(ToDocType);
+        SalesHeader2."Document Type" := CopyDocumentMgt.GetSalesDocumentType(ToDocType);
         CopyDocumentMgt.CopySalesDoc(FromDocType, SalesHeader."No.", SalesHeader2);
     end;
 

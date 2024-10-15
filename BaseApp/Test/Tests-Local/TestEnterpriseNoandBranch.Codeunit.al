@@ -397,12 +397,11 @@ codeunit 144025 "Test Enterprise No and Branch"
         CompanyInfo: Record "Company Information";
         VATEntry: Record "VAT Entry";
         PostedServiceInvoicesPage: TestPage "Posted Service Invoices";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo";
     begin
         // http://vstfnav:8080/tfs/web/wi.aspx?pcguid=9a2ffec1-5411-458b-b788-8c4a5507644c&id=60106
         Initialize;
 
-        LibraryBEHelper.CreateDomesticCustomerResourceServiceDocumentAndPost(Customer, DocumentType::Invoice);
+        LibraryBEHelper.CreateDomesticCustomerResourceServiceDocumentAndPost(Customer, "Service Document Type"::Invoice);
 
         VATEntry.SetRange("Bill-to/Pay-to No.", Customer."No.");
         VATEntry.FindFirst;
@@ -435,12 +434,11 @@ codeunit 144025 "Test Enterprise No and Branch"
         CompanyInfo: Record "Company Information";
         VATEntry: Record "VAT Entry";
         PostedServiceInvoicesPage: TestPage "Posted Service Invoices";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo";
     begin
         // http://vstfnav:8080/tfs/web/wi.aspx?pcguid=9a2ffec1-5411-458b-b788-8c4a5507644c&id=60106
         Initialize;
 
-        LibraryBEHelper.CreateForeignCustomerResourceServiceDocumentAndPost(Customer, DocumentType::Invoice);
+        LibraryBEHelper.CreateForeignCustomerResourceServiceDocumentAndPost(Customer, "Service Document Type"::Invoice);
 
         VATEntry.SetRange("Bill-to/Pay-to No.", Customer."No.");
         VATEntry.FindFirst;
@@ -473,12 +471,11 @@ codeunit 144025 "Test Enterprise No and Branch"
         CompanyInfo: Record "Company Information";
         VATEntry: Record "VAT Entry";
         PostedServiceCreditMemosPage: TestPage "Posted Service Credit Memos";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo";
     begin
         // http://vstfnav:8080/tfs/web/wi.aspx?pcguid=9a2ffec1-5411-458b-b788-8c4a5507644c&id=60106
         Initialize;
 
-        LibraryBEHelper.CreateDomesticCustomerResourceServiceDocumentAndPost(Customer, DocumentType::"Credit Memo");
+        LibraryBEHelper.CreateDomesticCustomerResourceServiceDocumentAndPost(Customer, "Service Document Type"::"Credit Memo");
 
         VATEntry.SetRange("Bill-to/Pay-to No.", Customer."No.");
         VATEntry.FindFirst;
@@ -511,12 +508,11 @@ codeunit 144025 "Test Enterprise No and Branch"
         CompanyInfo: Record "Company Information";
         VATEntry: Record "VAT Entry";
         PostedServiceCreditMemosPage: TestPage "Posted Service Credit Memos";
-        DocumentType: Option Quote,"Order",Invoice,"Credit Memo";
     begin
         // http://vstfnav:8080/tfs/web/wi.aspx?pcguid=9a2ffec1-5411-458b-b788-8c4a5507644c&id=60106
         Initialize;
 
-        LibraryBEHelper.CreateForeignCustomerResourceServiceDocumentAndPost(Customer, DocumentType::"Credit Memo");
+        LibraryBEHelper.CreateForeignCustomerResourceServiceDocumentAndPost(Customer, "Service Document Type"::"Credit Memo");
 
         VATEntry.SetRange("Bill-to/Pay-to No.", Customer."No.");
         VATEntry.FindFirst;
@@ -1361,7 +1357,7 @@ codeunit 144025 "Test Enterprise No and Branch"
         ServiceInvoiceHeader.FindFirst;
     end;
 
-    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         with VATEntry do begin
             SetRange("Document Type", DocumentType);

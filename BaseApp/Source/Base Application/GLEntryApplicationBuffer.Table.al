@@ -254,21 +254,21 @@ table 11307 "G/L Entry Application Buffer"
         }
         field(68; "Additional-Currency Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Additional-Currency Amount';
             DataClassification = SystemMetadata;
         }
         field(69; "Add.-Currency Debit Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Add.-Currency Debit Amount';
             DataClassification = SystemMetadata;
         }
         field(70; "Add.-Currency Credit Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Add.-Currency Credit Amount';
             DataClassification = SystemMetadata;

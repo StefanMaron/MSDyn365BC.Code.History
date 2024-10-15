@@ -467,7 +467,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         SalesHeader: Record "Sales Header";
         OldDimValCode: Code[20];
         SalesHeaderNo: Code[20];
-        SalesHeaderDocType: Option;
+        SalesHeaderDocType: Enum "Sales Document Type";
         FileName: Text;
         OldManualNos: Boolean;
     begin

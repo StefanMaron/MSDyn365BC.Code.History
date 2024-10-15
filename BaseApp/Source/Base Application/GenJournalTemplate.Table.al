@@ -275,6 +275,19 @@ table 80 "Gen. Journal Template"
         {
             Caption = 'Increment Batch Name';
         }
+        field(31; "Copy to Posted Jnl. Lines"; Boolean)
+        {
+            Caption = 'Copy to Posted Jnl. Lines';
+
+            trigger OnValidate()
+            begin
+                if "Copy to Posted Jnl. Lines" <> xRec."Copy to Posted Jnl. Lines" then begin
+                    TestField(Recurring, false);
+                    GenJnlBatch.SetRange("Journal Template Name", Name);
+                    GenJnlBatch.ModifyAll("Copy to Posted Jnl. Lines", "Copy to Posted Jnl. Lines");
+                end;
+            end;
+        }
         field(11300; "Allow Posting From"; Date)
         {
             Caption = 'Allow Posting From';

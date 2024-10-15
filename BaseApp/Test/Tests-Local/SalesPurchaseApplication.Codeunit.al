@@ -579,7 +579,7 @@ codeunit 144002 "Sales/Purchase Application"
         PostTwoGenJnlLines(GenJnlLine, GenJnlLine."Account Type"::Vendor, CreateVend);
     end;
 
-    local procedure PostTwoGenJnlLines(var GenJnlLine: Record "Gen. Journal Line"; AccType: Option; AccNo: Code[20])
+    local procedure PostTwoGenJnlLines(var GenJnlLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20])
     begin
         with GenJnlLine do begin
             CreateGenJnlLineWithBalAcc(GenJnlLine, "Document Type"::Invoice, AccType, AccNo, GetEntryAmount(AccType));
@@ -588,7 +588,7 @@ codeunit 144002 "Sales/Purchase Application"
         end;
     end;
 
-    local procedure CreateGenJnlLineWithBalAcc(var GenJnlLine: Record "Gen. Journal Line"; DocType: Option; AccType: Option; AccNo: Code[20]; EntryAmount: Decimal)
+    local procedure CreateGenJnlLineWithBalAcc(var GenJnlLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; AccType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; EntryAmount: Decimal)
     begin
         with GenJnlLine do begin
             InitGenJnlLineWithBatch(GenJnlLine);
@@ -615,7 +615,7 @@ codeunit 144002 "Sales/Purchase Application"
         end;
     end;
 
-    local procedure ApplyCustomerLedgerEntries(CustNo: Code[20]; DocType: Option; DocNo: Code[20])
+    local procedure ApplyCustomerLedgerEntries(CustNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     var
         CustomerLedgerEntries: TestPage "Customer Ledger Entries";
     begin
@@ -626,7 +626,7 @@ codeunit 144002 "Sales/Purchase Application"
         CustomerLedgerEntries."Apply Entries".Invoke;
     end;
 
-    local procedure ApplyVendorLedgerEntries(VendNo: Code[20]; DocType: Option; DocNo: Code[20])
+    local procedure ApplyVendorLedgerEntries(VendNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     var
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
     begin
@@ -637,7 +637,7 @@ codeunit 144002 "Sales/Purchase Application"
         VendorLedgerEntries.ActionApplyEntries.Invoke;
     end;
 
-    local procedure ApplyAndPostCustomerEntry(DocType: Option; DocNo: Code[20])
+    local procedure ApplyAndPostCustomerEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
         CustLedgEntry2: Record "Cust. Ledger Entry";
@@ -657,7 +657,7 @@ codeunit 144002 "Sales/Purchase Application"
         LibraryERM.PostCustLedgerApplication(CustLedgEntry);
     end;
 
-    local procedure ApplyAndPostVendorEntry(DocType: Option; DocNo: Code[20])
+    local procedure ApplyAndPostVendorEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
         VendLedgEntry2: Record "Vendor Ledger Entry";
@@ -677,7 +677,7 @@ codeunit 144002 "Sales/Purchase Application"
         LibraryERM.PostVendLedgerApplication(VendLedgEntry);
     end;
 
-    local procedure UnapplyCustomerLedgerEntries(CustNo: Code[20]; DocType: Option; DocNo: Code[20])
+    local procedure UnapplyCustomerLedgerEntries(CustNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     var
         CustomerLedgerEntries: TestPage "Customer Ledger Entries";
     begin
@@ -688,7 +688,7 @@ codeunit 144002 "Sales/Purchase Application"
         CustomerLedgerEntries.UnapplyEntries.Invoke;
     end;
 
-    local procedure UnapplyVendorLedgerEntries(VendNo: Code[20]; DocType: Option; DocNo: Code[20])
+    local procedure UnapplyVendorLedgerEntries(VendNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     var
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
     begin
@@ -712,7 +712,7 @@ codeunit 144002 "Sales/Purchase Application"
         exit(CalcDate('<-1M>', WorkDate));
     end;
 
-    local procedure GetEntryAmount(AccType: Option) Amount: Decimal
+    local procedure GetEntryAmount(AccType: Enum "Gen. Journal Account Type") Amount: Decimal
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin

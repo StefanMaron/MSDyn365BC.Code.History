@@ -83,6 +83,7 @@ codeunit 5495 "Graph Mgt - Sales Order"
               "Ship-to City", "Ship-to County", "Ship-to Country/Region Code", "Ship-to Post Code", JSON);
     end;
 
+    [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
     procedure UpdateIntegrationRecordIds(OnlyRecordsWithoutID: Boolean)
     var
         DummySalesOrderEntityBuffer: Record "Sales Order Entity Buffer";

@@ -4,7 +4,7 @@ page 5498 "Units of Measure Entity"
     DelayedInsert = true;
     EntityName = 'unitOfMeasure';
     EntitySetName = 'unitsOfMeasure';
-    ODataKeyFields = Id;
+    ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = "Unit of Measure";
 
@@ -14,7 +14,7 @@ page 5498 "Units of Measure Entity"
         {
             repeater(Group)
             {
-                field(id; Id)
+                field(id; SystemId)
                 {
                     ApplicationArea = All;
                     Caption = 'Id', Locked = true;

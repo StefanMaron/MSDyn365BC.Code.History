@@ -31,9 +31,7 @@ codeunit 6299 "Power BI Embed Helper"
     procedure HandleAddInCallback(CallbackMessage: Text; CurrentListSelection: Text; var CurrentReportFirstPage: Text; var LatestReceivedFilterInfo: Text; var ResponseForWebPage: Text)
     begin
         if not TryHandleAddInCallback(CallbackMessage, CurrentListSelection, CurrentReportFirstPage, LatestReceivedFilterInfo, ResponseForWebPage) then
-            SendTraceTag('0000B6U', PowerBiServiceMgt.GetPowerBiTelemetryCategory(), Verbosity::Error,
-                StrSubstNo(FailedToHandleCallbackTelemetryMsg, CallbackMessage, GetLastErrorText()),
-                DataClassification::CustomerContent);
+            Session.LogMessage('0000B6U', StrSubstNo(FailedToHandleCallbackTelemetryMsg, CallbackMessage, GetLastErrorText()), Verbosity::Error, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
     end;
 
     [Scope('OnPrem')]
@@ -54,9 +52,7 @@ codeunit 6299 "Power BI Embed Helper"
 
         if JsonCallbackMessage.SelectToken('$.statusCode', TempJsonToken) then
             if WebRequestHelper.IsFailureStatusCode(TempJsonToken.AsValue().AsText()) then
-                SendTraceTag('0000B6V', PowerBiServiceMgt.GetPowerBiTelemetryCategory(), Verbosity::Warning,
-                    StrSubstNo(FailureStatusCodeTelemetryMsg, CallbackMessage),
-                    DataClassification::CustomerContent);
+                Session.LogMessage('0000B6V', StrSubstNo(FailureStatusCodeTelemetryMsg, CallbackMessage), Verbosity::Warning, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
 
         if JsonCallbackMessage.SelectToken('$.url', TempJsonToken) then
             UrlTokenText := TempJsonToken.AsValue().AsText();
@@ -101,9 +97,7 @@ codeunit 6299 "Power BI Embed Helper"
                     ResponseForWebPage := GetPutReportFilterRequest(JsonCallbackMessage, CurrentListSelection);
                 end else begin
                     // There are no filters on the page, that is OK
-                    SendTraceTag('0000B6W', PowerBiServiceMgt.GetPowerBiTelemetryCategory(), Verbosity::Verbose,
-                        StrSubstNo(NoFiltersOnReportTelemetryMsg, CallbackMessage),
-                        DataClassification::CustomerContent);
+                    Session.LogMessage('0000B6W', StrSubstNo(NoFiltersOnReportTelemetryMsg, CallbackMessage), Verbosity::Verbose, DataClassification::CustomerContent, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
                     exit;
                 end;
         end;
@@ -151,7 +145,7 @@ codeunit 6299 "Power BI Embed Helper"
             if EmbeddedTargetOrigin <> '' then
                 exit(EmbeddedTargetOrigin);
 
-        SendTraceTag('0000BI3', PowerBiServiceMgt.GetPowerBiTelemetryCategory(), Verbosity::Warning, TargetOriginWildcardTelemetryMsg, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BI3', TargetOriginWildcardTelemetryMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
         EmbeddedTargetOrigin := '*'; // Give up and post to any TargetOrigin
     end;
 
@@ -189,8 +183,7 @@ codeunit 6299 "Power BI Embed Helper"
             );
 
         if AccessToken = '' then
-            SendTraceTag('0000B6X', PowerBiServiceMgt.GetPowerBiTelemetryCategory(), Verbosity::Error,
-                EmptyAccessTokenForPBITelemetryMsg, DataClassification::SystemMetadata);
+            Session.LogMessage('0000B6X', EmptyAccessTokenForPBITelemetryMsg, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBiServiceMgt.GetPowerBiTelemetryCategory());
 
         exit(StrSubstNo(LoadReportMessageJsonTxt, AccessToken));
     end;

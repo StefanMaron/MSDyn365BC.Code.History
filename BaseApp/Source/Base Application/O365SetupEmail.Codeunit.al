@@ -7,9 +7,11 @@ codeunit 2135 "O365 Setup Email"
     end;
 
     var
-        MailNotConfiguredErr: Label 'An email account must be configured to send emails.';
         ClientTypeManagement: Codeunit "Client Type Management";
+        EmailFeature: Codeunit "Email Feature";
+        MailNotConfiguredErr: Label 'An email account must be configured to send emails.';
 
+    [Obsolete('Use "Email Account Wizard" page from "System Application".', '17.0')]
     procedure SilentSetup()
     var
         GraphMail: Codeunit "Graph Mail";
@@ -30,6 +32,11 @@ codeunit 2135 "O365 Setup Email"
     var
         GraphMail: Codeunit "Graph Mail";
     begin
+        if EmailFeature.IsEnabled() then begin
+            Page.RunModal(Page::"Email Account Wizard");
+            exit;
+        end;
+
         if (not GraphMail.IsEnabled) and SMTPEmailIsSetUp then begin
             SetupSmtpEmail(ForceSetup);
             exit;
@@ -55,21 +62,21 @@ codeunit 2135 "O365 Setup Email"
         RunSetup: Boolean;
     begin
         RunSetup := ForceSetup;
-        if not RunSetup then begin
+        if not RunSetup then
             if not GraphMail.IsEnabled then
-                if not SMTPEmailIsSetUp then
+                if not SMTPEmailIsSetUp or EmailFeature.IsEnabled() then
                     RunSetup := true;
-        end;
 
         if RunSetup then
             if not GraphMail.SetupGraph(ForceSetup) then // Returns if graph mail was setup
-                if not SMTPEmailIsSetUp then begin // If it wasn't maybe smtp was configured instead
+                if not SMTPEmailIsSetUp or EmailFeature.IsEnabled() then begin // If it wasn't maybe smtp was configured instead
                     if ClientTypeManagement.GetCurrentClientType <> CLIENTTYPE::Phone then
                         Error('');
                     Error(MailNotConfiguredErr);
                 end;
     end;
 
+    [Obsolete('Email Accounts are setup using "Email Account Wizard" page from "System Application".', '17.0')]
     local procedure SetupSmtpEmail(ForceSetup: Boolean)
     begin
         if ForceSetup or (not SMTPEmailIsSetUp) then begin
@@ -86,6 +93,7 @@ codeunit 2135 "O365 Setup Email"
 
     [NonDebuggable]
     [Scope('OnPrem')]
+    [Obsolete('Use IsAnyAccountRegistered in "Email Account" codeunit from "System Application".', '17.0')]
     procedure SMTPEmailIsSetUp(): Boolean
     var
         SMTPMailSetup: Record "SMTP Mail Setup";
@@ -96,6 +104,20 @@ codeunit 2135 "O365 Setup Email"
 
         if SMTPMailSetup.GetSetup then
             exit((SMTPMailSetup."User ID" <> '') and (SMTPMailSetup.GetPassword() <> ''));
+    end;
+
+    procedure CheckMailSetup()
+    var
+        EmailAccount: Codeunit "Email Account";
+    begin
+        if EmailFeature.IsEnabled() then begin
+            if not EmailAccount.IsAnyAccountRegistered() then
+                Error(MailNotConfiguredErr);
+            exit;
+        end;
+
+        if not SMTPEmailIsSetUp() then
+            Error(MailNotConfiguredErr);
     end;
 }
 

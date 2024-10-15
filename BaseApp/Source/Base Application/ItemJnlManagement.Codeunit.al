@@ -15,7 +15,7 @@ codeunit 240 ItemJnlManagement
         Text004: Label 'Default Journal';
         OldItemNo: Code[20];
         OldCapNo: Code[20];
-        OldCapType: Option "Work Center","Machine Center";
+        OldCapType: Enum "Capacity Type";
         OldProdOrderNo: Code[20];
         OldOperationNo: Code[20];
         Text005: Label 'REC-';
@@ -120,7 +120,7 @@ codeunit 240 ItemJnlManagement
             for ItemJnlTemplate.Type := ItemJnlTemplate.Type::Item to ItemJnlTemplate.Type::"Prod. Order" do begin
                 ItemJnlTemplate.SetRange(Type, ItemJnlTemplate.Type);
                 if not ItemJnlTemplate.FindFirst then
-                    TemplateSelection(0, ItemJnlTemplate.Type, false, ItemJnlLine, JnlSelected);
+                    TemplateSelection(0, ItemJnlTemplate.Type.AsInteger(), false, ItemJnlLine, JnlSelected);
                 if ItemJnlTemplate.FindFirst then
                     CheckTemplateName(ItemJnlTemplate.Name, ItemJnlBatch.Name);
                 if ItemJnlTemplate.Type in [ItemJnlTemplate.Type::Item,
@@ -130,7 +130,7 @@ codeunit 240 ItemJnlManagement
                 then begin
                     ItemJnlTemplate.SetRange(Recurring, true);
                     if not ItemJnlTemplate.FindFirst then
-                        TemplateSelection(0, ItemJnlTemplate.Type, true, ItemJnlLine, JnlSelected);
+                        TemplateSelection(0, ItemJnlTemplate.Type.AsInteger(), true, ItemJnlLine, JnlSelected);
                     if ItemJnlTemplate.FindFirst then
                         CheckTemplateName(ItemJnlTemplate.Name, ItemJnlBatch.Name);
                     ItemJnlTemplate.SetRange(Recurring);
@@ -271,7 +271,7 @@ codeunit 240 ItemJnlManagement
         end;
     end;
 
-    procedure GetCapacity(CapType: Option "Work Center","Machine Center"; CapNo: Code[20]; var CapDescription: Text[100])
+    procedure GetCapacity(CapType: Enum "Capacity Type"; CapNo: Code[20]; var CapDescription: Text[100])
     var
         WorkCenter: Record "Work Center";
         MachineCenter: Record "Machine Center";

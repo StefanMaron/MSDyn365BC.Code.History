@@ -50,6 +50,11 @@ table 5079 "Marketing Setup"
             Caption = 'Bus. Rel. Code for Bank Accs.';
             TableRelation = "Business Relation";
         }
+        field(10; "Bus. Rel. Code for Employees"; Code[10])
+        {
+            Caption = 'Bus. Rel. Code for Employees';
+            TableRelation = "Business Relation";
+        }
         field(22; "Inherit Salesperson Code"; Boolean)
         {
             Caption = 'Inherit Salesperson Code';
@@ -228,17 +233,20 @@ table 5079 "Marketing Setup"
         {
             Caption = 'Sync with Microsoft Graph';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The field will be removed. The API that this field was used for was discontinued.';
+            ObsoleteTag = '17.0';
 
             trigger OnValidate()
             var
                 WebhookManagement: Codeunit "Webhook Management";
             begin
-                if WebhookManagement.IsSyncAllowed and "Sync with Microsoft Graph" then begin
+                if WebhookManagement.IsSyncAllowed() and "Sync with Microsoft Graph" then begin
                     CODEUNIT.Run(CODEUNIT::"Graph Data Setup");
-                    "WebHook Run Notification As" := GetWebhookSubscriptionUser;
+                    "WebHook Run Notification As" := GetWebhookSubscriptionUser();
                     if UserIsNotValidForWebhookSubscription("WebHook Run Notification As") then
-                        if CurrentUserHasPermissionsForWebhookSubscription then
-                            TrySetWebhookSubscriptionUser(UserSecurityId);
+                        if CurrentUserHasPermissionsForWebhookSubscription() then
+                            TrySetWebhookSubscriptionUser(UserSecurityId());
                 end else
                     "Sync with Microsoft Graph" := false;
             end;
@@ -333,22 +341,22 @@ table 5079 "Marketing Setup"
         OutStream: OutStream;
     begin
         if (ExchangeFolder.FullPath = "Storage Folder Path") and (ExchangeFolder.FullPath <> '') then begin
-            SendTraceTag('0000BXS', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, QueueFolderNotSetTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BXS', QueueFolderNotSetTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Error(Text010);
         end;
-        if (ExchangeFolder.ReadUniqueID = GetStorageFolderUID) and ExchangeFolder."Unique ID".HasValue then begin
-            SendTraceTag('0000BXT', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, QueueFolderNotSetTxt, DataClassification::SystemMetadata);
+        if (ExchangeFolder.ReadUniqueID() = GetStorageFolderUID()) and ExchangeFolder."Unique ID".HasValue() then begin
+            Session.LogMessage('0000BXT', QueueFolderNotSetTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Error(Text010);
         end;
 
-        SendTraceTag('0000BXU', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, QueueFolderSetTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BXU', QueueFolderSetTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
         "Queue Folder Path" := ExchangeFolder.FullPath;
 
         ExchangeFolder."Unique ID".CreateInStream(InStream);
         "Queue Folder UID".CreateOutStream(OutStream);
         CopyStream(OutStream, InStream);
-        Modify;
+        Modify();
     end;
 
     [Scope('OnPrem')]
@@ -358,22 +366,22 @@ table 5079 "Marketing Setup"
         OutStream: OutStream;
     begin
         if (ExchangeFolder.FullPath = "Queue Folder Path") and (ExchangeFolder.FullPath <> '') then begin
-            SendTraceTag('0000BXV', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, StorageFolderNotSetTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BXV', StorageFolderNotSetTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Error(Text010);
         end;
-        if (ExchangeFolder.ReadUniqueID = GetQueueFolderUID) and ExchangeFolder."Unique ID".HasValue then begin
-            SendTraceTag('0000BXW', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, StorageFolderNotSetTxt, DataClassification::SystemMetadata);
+        if (ExchangeFolder.ReadUniqueID() = GetQueueFolderUID()) and ExchangeFolder."Unique ID".HasValue then begin
+            Session.LogMessage('0000BXW', StorageFolderNotSetTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Error(Text010);
         end;
 
-        SendTraceTag('0000BXX', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, StorageFolderSetTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BXX', StorageFolderSetTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
         "Storage Folder Path" := ExchangeFolder.FullPath;
 
         ExchangeFolder."Unique ID".CreateInStream(InStream);
         "Storage Folder UID".CreateOutStream(OutStream);
         CopyStream(OutStream, InStream);
-        Modify;
+        Modify();
     end;
 
     procedure GetQueueFolderUID() Return: Text
@@ -397,10 +405,10 @@ table 5079 "Marketing Setup"
     [Scope('OnPrem')]
     procedure SetExchangeAccountPassword(Password: Text)
     begin
-        SendTraceTag('0000BY0', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, SetExchangeAccountPasswordTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BY0', SetExchangeAccountPasswordTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
         if IsNullGuid("Exchange Account Password Key") then
-            "Exchange Account Password Key" := CreateGuid;
+            "Exchange Account Password Key" := CreateGuid();
 
         IsolatedStorageManagement.Set("Exchange Account Password Key", Password, DATASCOPE::Company);
     end;
@@ -410,23 +418,23 @@ table 5079 "Marketing Setup"
     var
         Value: Text;
     begin
-        SendTraceTag('0000BY1', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ConfigureExchangeAccountTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BY1', ConfigureExchangeAccountTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
 
         if "Exchange Account User Name" = '' then begin
-            SendTraceTag('0000BY2', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, ExchangeAccountNotConfiguredTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BY2', ExchangeAccountNotConfiguredTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Error(ExchangeAccountNotConfiguredErr);
         end;
         if IsNullGuid("Exchange Account Password Key") or
            not ISOLATEDSTORAGE.Contains("Exchange Account Password Key", DATASCOPE::Company)
         then begin
-            SendTraceTag('0000BY3', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, ExchangeAccountNotConfiguredTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000BY3', ExchangeAccountNotConfiguredTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Error(ExchangeAccountNotConfiguredErr);
         end;
 
         IsolatedStorageManagement.Get("Exchange Account Password Key", DATASCOPE::Company, Value);
         WebCredentials := WebCredentials.WebCredentials("Exchange Account User Name", Value);
 
-        SendTraceTag('0000BY4', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ExchangeAccountConfiguredTxt, DataClassification::SystemMetadata);
+        Session.LogMessage('0000BY4', ExchangeAccountConfiguredTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
     end;
 
     procedure TrySetWebhookSubscriptionUser(UserSecurityID: Guid): Boolean
@@ -446,7 +454,7 @@ table 5079 "Marketing Setup"
     var
         MarketingSetup: Record "Marketing Setup";
     begin
-        if MarketingSetup.Get then
+        if MarketingSetup.Get() then
             exit(MarketingSetup."WebHook Run Notification As");
     end;
 
@@ -469,12 +477,12 @@ table 5079 "Marketing Setup"
     var
         MarketingSetup: Record "Marketing Setup";
     begin
-        if not MarketingSetup.Get then
+        if not MarketingSetup.Get() then
             MarketingSetup.Insert(true);
 
         if UserIsNotValidForWebhookSubscription(MarketingSetup."WebHook Run Notification As") then
-            if CurrentUserHasPermissionsForWebhookSubscription then
-                if MarketingSetup.TrySetWebhookSubscriptionUser(UserSecurityId) then
+            if CurrentUserHasPermissionsForWebhookSubscription() then
+                if MarketingSetup.TrySetWebhookSubscriptionUser(UserSecurityId()) then
                     MarketingSetup.Modify(true);
 
         exit(MarketingSetup."WebHook Run Notification As");
@@ -514,9 +522,9 @@ table 5079 "Marketing Setup"
 
         IsolatedStorageManagement.Set("Exchange Tenant Id Key", TenantId, DATASCOPE::Company);
         if TenantId <> '' then
-            SendTraceTag('0000D9J', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ExchangeTenantIdSetTxt, DataClassification::SystemMetadata)
+            Session.LogMessage('0000D9J', ExchangeTenantIdSetTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt)
         else
-            SendTraceTag('0000D9K', EmailLoggingTelemetryCategoryTxt, Verbosity::Normal, ExchangeTenantIdClearedTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000D9K', ExchangeTenantIdClearedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
     end;
 
 
@@ -529,7 +537,7 @@ table 5079 "Marketing Setup"
         if IsNullGuid("Exchange Tenant Id Key") or
            not IsolatedStorage.Contains("Exchange Tenant Id Key", DATASCOPE::Company)
         then begin
-            SendTraceTag('0000CF8', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, ExchangeAccountNotConfiguredTxt, DataClassification::SystemMetadata);
+            Session.LogMessage('0000CF8', ExchangeAccountNotConfiguredTxt, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
             Error(ExchangeAccountNotConfiguredErr);
         end;
 
@@ -564,8 +572,8 @@ table 5079 "Marketing Setup"
         if IsNullGuid("Exchange Client Secret Key") or
            not IsolatedStorage.Contains("Exchange Client Secret Key", DATASCOPE::Company)
         then begin
-            SendTraceTag('0000CF9', EmailLoggingTelemetryCategoryTxt, Verbosity::Warning, ExchangeAccountNotConfiguredTxt, DataClassification::SystemMetadata);
-            Error(ExchangeAccountNotConfiguredErr);
+            Session.LogMessage('0000CF9', ExchangeAccountNotConfiguredTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', EmailLoggingTelemetryCategoryTxt);
+            exit('');
         end;
 
         IsolatedStorageManagement.Get("Exchange Client Secret Key", DATASCOPE::Company, ClientSecret);

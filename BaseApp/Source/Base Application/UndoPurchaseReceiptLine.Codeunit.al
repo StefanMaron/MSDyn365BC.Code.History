@@ -1,4 +1,4 @@
-﻿codeunit 5813 "Undo Purchase Receipt Line"
+codeunit 5813 "Undo Purchase Receipt Line"
 {
     Permissions = TableData "Purchase Line" = imd,
                   TableData "Purch. Rcpt. Line" = imd,
@@ -93,7 +93,7 @@
                         DATABASE::"Purch. Rcpt. Line",
                         "Document No.",
                         DATABASE::"Purchase Line",
-                        PurchLine."Document Type"::Order,
+                        PurchLine."Document Type"::Order.AsInteger(),
                         "Order No.",
                         "Order Line No.");
 
@@ -254,7 +254,7 @@
 
             WhseUndoQty.InsertTempWhseJnlLine(ItemJnlLine,
               DATABASE::"Purchase Line",
-              PurchLine."Document Type"::Order,
+              PurchLine."Document Type"::Order.AsInteger(),
               "Order No.",
               "Line No.",
               TempWhseJnlLine."Reference Document"::"Posted Rcpt.",

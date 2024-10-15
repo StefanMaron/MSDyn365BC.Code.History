@@ -384,6 +384,7 @@ codeunit 134081 "ERM Adjust Exch. Rate Vendor"
     begin
         FindGLEntry(GLEntry, DocumentNo, AccountNo, GLEntry."Document Type"::" ");
         GLEntry.TestField(Amount, EntryAmount);
+        GLEntry.SetRange("G/L Account No.");
     end;
 
     local procedure UpdateExchRateAndCalcGainLossAmt(Amount: Decimal; AmountLCY: Decimal; CurrencyCode: Code[10]; ExchRateAmount: Decimal): Decimal

@@ -45,7 +45,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         IncDocAttachmentOverviewRecRef: RecordRef;
         IncDocAttachmentRecRef: RecordRef;
         CommonFieldRefArray: array[7] of FieldRef;
-        IncDocumentSpecificFieldRefArray: array[3] of FieldRef;
+        IncDocumentSpecificFieldRefArray: array[5] of FieldRef;
     begin
         Initialize;
         GetCommonFields(CommonFieldRefArray);
@@ -421,7 +421,7 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         AddToArray(FieldRefArray, I, RecRef.Field(IncomingDocumentAttachment.FieldNo("File Extension")));
     end;
 
-    local procedure GetIncDocAttachmentOverviewSpecificFields(var FieldRefArray: array[3] of FieldRef)
+    local procedure GetIncDocAttachmentOverviewSpecificFields(var FieldRefArray: array[5] of FieldRef)
     var
         IncDocAttachmentOverview: Record "Inc. Doc. Attachment Overview";
         RecRef: RecordRef;
@@ -433,6 +433,8 @@ codeunit 134418 "Inc Doc Attachment Overview UT"
         AddToArray(FieldRefArray, I, RecRef.Field(IncDocAttachmentOverview.FieldNo("Attachment Type")));
         AddToArray(FieldRefArray, I, RecRef.Field(IncDocAttachmentOverview.FieldNo("Sorting Order")));
         AddToArray(FieldRefArray, I, RecRef.Field(IncDocAttachmentOverview.FieldNo(Indentation)));
+        AddToArray(FieldRefArray, I, RecRef.Field(IncDocAttachmentOverview.FieldNo("Posting Date")));
+        AddToArray(FieldRefArray, I, RecRef.Field(IncDocAttachmentOverview.FieldNo("Document No.")));
     end;
 
     local procedure AddToArray(var FieldRefArray: array[17] of FieldRef; var I: Integer; CurrFieldRef: FieldRef)

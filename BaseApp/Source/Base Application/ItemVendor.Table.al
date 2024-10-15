@@ -1,4 +1,4 @@
-﻿table 99 "Item Vendor"
+table 99 "Item Vendor"
 {
     Caption = 'Item Vendor';
     LookupPageID = "Item Vendor Catalog";
@@ -66,31 +66,75 @@
 
     trigger OnDelete()
     begin
-        DeleteItemCrossReference;
+        if ItemReferenceMgt.IsEnabled() then
+            DeleteItemReference()
+        else
+            DeleteItemCrossReference();
     end;
 
     trigger OnInsert()
     begin
-        InsertItemCrossReference;
+        if ItemReferenceMgt.IsEnabled() then
+            InsertItemReference()
+        else
+            InsertItemCrossReference();
     end;
 
     trigger OnModify()
     begin
-        UpdateItemCrossReference;
+        if ItemReferenceMgt.IsEnabled() then
+            UpdateItemReference()
+        else
+            UpdateItemCrossReference();
     end;
 
     trigger OnRename()
     begin
-        UpdateItemCrossReference;
+        if ItemReferenceMgt.IsEnabled() then
+            UpdateItemReference()
+        else
+            UpdateItemCrossReference();
     end;
 
     var
         Vend: Record Vendor;
-        ItemCrossReference: Record "Item Cross Reference";
-        DistIntegration: Codeunit "Dist. Integration";
         LeadTimeMgt: Codeunit "Lead-Time Management";
+        ItemReferencemgt: Codeunit "Item Reference Management";
+
+    local procedure InsertItemReference()
+    var
+        ItemReference: Record "Item Reference";
+    begin
+        if ItemReference.WritePermission then
+            if ("Vendor No." <> '') and ("Item No." <> '') then
+                ItemReferenceMgt.InsertItemReference(Rec);
+    end;
+
+    local procedure DeleteItemReference()
+    var
+        ItemReference: Record "Item Reference";
+    begin
+        if ItemReference.WritePermission then
+            if ("Vendor No." <> '') and ("Item No." <> '') then
+                ItemReferenceMgt.DeleteItemReference(Rec);
+    end;
+
+    local procedure UpdateItemReference()
+    var
+        ItemReference: Record "Item Reference";
+    begin
+        if ItemReference.WritePermission then
+            if ("Vendor No." <> '') and ("Item No." <> '') then
+                if ("Vendor No." <> xRec."Vendor No.") or ("Item No." <> xRec."Item No.") or
+                   ("Variant Code" <> xRec."Variant Code") or ("Vendor Item No." <> xRec."Vendor Item No.")
+                then
+                    ItemReferenceMgt.UpdateItemReference(Rec, xRec);
+    end;
 
     local procedure InsertItemCrossReference()
+    var
+        ItemCrossReference: Record "Item Cross Reference";
+        DistIntegration: Codeunit "Dist. Integration";
     begin
         if ItemCrossReference.WritePermission then
             if ("Vendor No." <> '') and ("Item No." <> '') then
@@ -98,6 +142,9 @@
     end;
 
     local procedure DeleteItemCrossReference()
+    var
+        ItemCrossReference: Record "Item Cross Reference";
+        DistIntegration: Codeunit "Dist. Integration";
     begin
         if ItemCrossReference.WritePermission then
             if ("Vendor No." <> '') and ("Item No." <> '') then
@@ -106,6 +153,8 @@
 
     local procedure UpdateItemCrossReference()
     var
+        ItemCrossReference: Record "Item Cross Reference";
+        DistIntegration: Codeunit "Dist. Integration";
         IsHandled: Boolean;
     begin
         IsHandled := false;

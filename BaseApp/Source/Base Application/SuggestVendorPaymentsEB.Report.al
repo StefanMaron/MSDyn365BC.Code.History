@@ -1,4 +1,4 @@
-report 2000019 "Suggest Vendor Payments EB"
+﻿report 2000019 "Suggest Vendor Payments EB"
 {
     Caption = 'Suggest Vendor Payments EB';
     ProcessingOnly = true;
