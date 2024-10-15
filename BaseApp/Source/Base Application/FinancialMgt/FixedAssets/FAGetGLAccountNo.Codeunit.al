@@ -87,7 +87,15 @@ codeunit 5602 "FA Get G/L Account No."
     end;
 
     procedure GetMaintenanceAccNo(var MaintenanceLedgEntry: Record "Maintenance Ledger Entry"): Code[20]
+    var
+        AccountNo: Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        AccountNo := '';
+        OnBeforeGetMaintenanceAccNo(MaintenanceLedgEntry, AccountNo, IsHandled);
+        if IsHandled then
+            exit(AccountNo);
         FAPostingGr.GetPostingGroup(
             MaintenanceLedgEntry."FA Posting Group", MaintenanceLedgEntry."Depreciation Book Code");
         exit(FAPostingGr.GetMaintenanceExpenseAccount());
@@ -100,6 +108,11 @@ codeunit 5602 "FA Get G/L Account No."
 
     [IntegrationEvent(false, false)]
     local procedure OnGetAccNoOnAfterGetFAPostingGroup(var FAPostingGr: Record "FA Posting Group"; FALedgerEntry: Record "FA Ledger Entry"; var GLAccNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetMaintenanceAccNo(var MaintenanceLedgEntry: Record "Maintenance Ledger Entry"; var AccountNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 }
