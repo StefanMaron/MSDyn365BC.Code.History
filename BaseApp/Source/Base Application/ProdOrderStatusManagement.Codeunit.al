@@ -500,7 +500,7 @@
                         ActualOutputAndScrapQtyBase :=
                           CostCalcMgt.CalcActOperOutputAndScrap(ProdOrderLine, ProdOrderRtngLine);
                         ActualOutputAndScrapQty := ActualOutputAndScrapQtyBase / ProdOrderLine."Qty. per Unit of Measure";
-                        PutawayQtyBaseToCalc := ActualOutputAndScrapQtyBase - CostCalcMgt.CalcActQtyBase(ProdOrderLine, ProdOrderRtngLine);
+                        PutawayQtyBaseToCalc := CostCalcMgt.CalcActualOutputQtyWithNoCapacity(ProdOrderLine, ProdOrderRtngLine);
                     end;
 
                     if (ProdOrderRtngLine."Flushing Method" = ProdOrderRtngLine."Flushing Method"::Forward) or IsLastOperation then begin
