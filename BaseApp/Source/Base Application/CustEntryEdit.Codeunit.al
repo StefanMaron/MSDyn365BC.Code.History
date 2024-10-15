@@ -22,7 +22,6 @@ codeunit 103 "Cust. Entry-Edit"
             CustLedgEntry.Validate("Payment Method Code", "Payment Method Code");
             CustLedgEntry.Validate("Remaining Pmt. Disc. Possible", "Remaining Pmt. Disc. Possible");
             CustLedgEntry."Transaction Mode Code" := "Transaction Mode Code";
-            CustLedgEntry."Recipient Bank Account" := "Recipient Bank Account";
             CustLedgEntry."Pmt. Disc. Tolerance Date" := "Pmt. Disc. Tolerance Date";
             CustLedgEntry.Validate("Max. Payment Tolerance", "Max. Payment Tolerance");
             CustLedgEntry.Validate("Accepted Payment Tolerance", "Accepted Payment Tolerance");
@@ -31,6 +30,7 @@ codeunit 103 "Cust. Entry-Edit"
             CustLedgEntry.Validate("Applying Entry", "Applying Entry");
             CustLedgEntry.Validate("Applies-to Ext. Doc. No.", "Applies-to Ext. Doc. No.");
             CustLedgEntry.Validate("Message to Recipient", "Message to Recipient");
+            CustLedgEntry.Validate("Recipient Bank Account", "Recipient Bank Account");
             CustLedgEntry."Direct Debit Mandate ID" := "Direct Debit Mandate ID";
         end;
         CustLedgEntry.Validate("Exported to Payment File", "Exported to Payment File");

@@ -30,6 +30,7 @@ codeunit 144051 "ERM EVAT"
     // ---------------------------------------------------------------------------------------
     // ICPCreateElecTaxDeclAmountZero
 
+    EventSubscriberInstance = Manual;
     Subtype = Test;
     TestPermissions = Disabled;
 
@@ -38,6 +39,7 @@ codeunit 144051 "ERM EVAT"
     end;
 
     var
+        NameValueBuffer: Record "Name/Value Buffer";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryERM: Codeunit "Library - ERM";
@@ -55,6 +57,7 @@ codeunit 144051 "ERM EVAT"
         DigipoortError: Label 'A call to Microsoft.Dynamics.NL.DigipoortServices.Deliver failed with this message:';
         FileMgt: Codeunit "File Management";
         LibraryXMLRead: Codeunit "Library - XML Read";
+        LibraryApplicationArea: Codeunit "Library - Application Area";
         AgentConAddressErr: Label 'Agent Contact Address must have a value in Elec. Tax Declaration Setup';
         ValuesMustBeEqual: Label 'The values must be equal';
         SuppliesAmountZeroErr: Label 'Element %1 with Data zero exsits';
@@ -64,6 +67,8 @@ codeunit 144051 "ERM EVAT"
         AttrBdTTok: Label 'xmlns:bd-t';
         AttrBdITok: Label 'xmlns:bd-i';
         AttrBdObTok: Label 'xmlns:bd-ob';
+        DownloadSubmissionMessageQst: Label 'Do you want to download the submission message?';
+        NoSubmissionMessageAvailableErr: Label 'The submission message of the report is not available.';
 
     [Test]
     [HandlerFunctions('CreateElecVATDeclarationRequestPageHandler,VATStatementRequestPageHandler')]
@@ -991,6 +996,116 @@ codeunit 144051 "ERM EVAT"
         VATEntry.Delete;
     end;
 
+    [Test]
+    [HandlerFunctions('CreateElecVATDeclarationRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure NotPossibleToDownloadSubmissionMessageWithoutGeneration()
+    var
+        ElecTaxDeclarationHeader: Record "Elec. Tax Declaration Header";
+        ElecTaxDeclarationCard: TestPage "Elec. Tax Declaration Card";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 367102] Stan cannot download the submission message without generation
+
+        Initialize();
+        LibraryApplicationArea.EnableFoundationSetup();
+
+        // [GIVEN] Electronic Tax Declaration with type = "VAT Declaration"
+        CreateElecTaxDeclarationWithLines(ElecTaxDeclarationHeader);
+        ElecTaxDeclarationCard.OpenEdit();
+        ElecTaxDeclarationCard.FILTER.SetFilter("No.", ElecTaxDeclarationHeader."No.");
+
+        // [WHEN] Download submission message
+        asserterror ElecTaxDeclarationCard.DownloadSubmissionMessage.Invoke();
+
+        // [THEN] An error "The submission message of the report is not available." is shown
+        Assert.ExpectedError(NoSubmissionMessageAvailableErr);
+
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateElecVATDeclarationRequestPageHandler,ConfirmHandlerWithVerification')]
+    [Scope('OnPrem')]
+    procedure SubmissionMessageContentDuringGenerateSubmissionMessage()
+    var
+        ElecTaxDeclarationHeader: Record "Elec. Tax Declaration Header";
+        ERMEVAT: Codeunit "ERM EVAT";
+        ElecTaxDeclarationCard: TestPage "Elec. Tax Declaration Card";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 367102] Stan can check the XBRL content without the actual submission to Digipoort during the generation of the submission message
+
+        Initialize();
+        LibraryApplicationArea.EnableFoundationSetup();
+        BindSubscription(ERMEVAT);
+
+        // [GIVEN] Electronic Tax Declaration with type = "VAT Declaration"
+        CreateElecTaxDeclarationWithLines(ElecTaxDeclarationHeader);
+        LibraryVariableStorage.Enqueue(DownloadSubmissionMessageQst); // for ConfirmHandlerWithVerification
+        LibraryVariableStorage.Enqueue(true); // Choose "Yes" for downloading the submission message
+        ElecTaxDeclarationCard.OpenEdit();
+        ElecTaxDeclarationCard.FILTER.SetFilter("No.", ElecTaxDeclarationHeader."No.");
+
+        // [WHEN] Generate XBRL for Tax Declaration
+        ElecTaxDeclarationCard.GenerateSubmissionMessage.Invoke();
+
+        // [THEN] XBRL content has been generated
+        VerifyVATDeclarationSubmissionMessageGenerated(ElecTaxDeclarationHeader);
+
+        // [THEN] XBRL content was downloaded
+        // Handle download by OnBeforeDownloadFromStreamHandler
+        VerifyContentWasDownloaded;
+
+        // Tear down
+        ElecTaxDeclarationCard.Close();
+        LibraryVariableStorage.AssertEmpty();
+        UnbindSubscription(ERMEVAT);
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+        NameValueBuffer.Delete();
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateElecVATDeclarationRequestPageHandler,ConfirmHandlerWithVerification')]
+    [Scope('OnPrem')]
+    procedure DownloadSubmissionMessageContentAfterGenerateSubmissionMessage()
+    var
+        ElecTaxDeclarationHeader: Record "Elec. Tax Declaration Header";
+        ERMEVAT: Codeunit "ERM EVAT";
+        ElecTaxDeclarationCard: TestPage "Elec. Tax Declaration Card";
+    begin
+        // [FEATURE] [UI]
+        // [SCENARIO 367102] Stan can check the XBRL content without the actual submission to Digipoort after the generation of the submission message
+
+        Initialize();
+        LibraryApplicationArea.EnableFoundationSetup();
+        BindSubscription(ERMEVAT);
+
+        // [GIVEN] Electronic Tax Declaration with type = "VAT Declaration"
+        CreateElecTaxDeclarationWithLines(ElecTaxDeclarationHeader);
+        LibraryVariableStorage.Enqueue(DownloadSubmissionMessageQst); // for ConfirmHandlerWithVerification
+        LibraryVariableStorage.Enqueue(false); // Choose "no" for downloading the submission message.
+        ElecTaxDeclarationCard.OpenEdit();
+        ElecTaxDeclarationCard.FILTER.SetFilter("No.", ElecTaxDeclarationHeader."No.");
+
+        // [GIVEN]  Generate XBRL for Tax Declaration
+        ElecTaxDeclarationCard.GenerateSubmissionMessage.Invoke();
+
+        // [WHEN] Download XBRL for Tax Declaration
+        ElecTaxDeclarationCard.DownloadSubmissionMessage.Invoke();
+
+        // [THEN] XBRL content was downloaded
+        // Handle download by OnBeforeDownloadFromStreamHandler
+        VerifyContentWasDownloaded();
+
+        // Tear down
+        ElecTaxDeclarationCard.Close();
+        LibraryVariableStorage.AssertEmpty();
+        UnbindSubscription(ERMEVAT);
+        LibraryApplicationArea.DisableApplicationAreaSetup();
+        NameValueBuffer.Delete();
+    end;
+
     local procedure Initialize()
     var
         ElecTaxDeclarationHeader: Record "Elec. Tax Declaration Header";
@@ -998,7 +1113,9 @@ codeunit 144051 "ERM EVAT"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM EVAT");
         ElecTaxDeclarationHeader.DeleteAll;
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
+        NameValueBuffer.SetRange(Name, Format(CODEUNIT::"ERM EVAT"));
+        NameValueBuffer.DeleteAll();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(false);
     end;
 
@@ -1218,6 +1335,19 @@ codeunit 144051 "ERM EVAT"
         end;
     end;
 
+    local procedure CreateElecTaxDeclarationWithLines(var ElecTaxDeclarationHeader: Record "Elec. Tax Declaration Header")
+    var
+        VATStatementName: Record "VAT Statement Name";
+    begin
+        InitializeElecTaxDeclSetup(false, false);
+        VATStatementName.FindFirst();
+        LibraryVariableStorage.Enqueue(VATStatementName."Statement Template Name");
+        LibraryVariableStorage.Enqueue(VATStatementName.Name);
+        ElecTaxDeclarationHeader.Get(
+          ElecTaxDeclarationHeader."Declaration Type"::"VAT Declaration",
+          CreateElectronicTaxDeclaration(ElecTaxDeclarationHeader."Declaration Type"::"VAT Declaration"));
+    end;
+
     local procedure MockVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Option; VATCalculationType: Option; TypeValue: Option; BaseValue: Decimal; AmountValue: Decimal; PostingDate: Date; CountryRegionCode: Code[10]; VATRegistrationNo: Text[20])
     begin
         with VATEntry do begin
@@ -1375,6 +1505,20 @@ codeunit 144051 "ERM EVAT"
         ElecTaxDeclLine.SetRange(Name);
     end;
 
+    local procedure VerifyVATDeclarationSubmissionMessageGenerated(ElecTaxDeclarationHeader: Record "Elec. Tax Declaration Header")
+    begin
+        ElecTaxDeclarationHeader.CalcFields("Submission Message BLOB");
+        Assert.IsTrue(ElecTaxDeclarationHeader."Submission Message BLOB".HasValue, 'No submission message has been generated');
+    end;
+
+    local procedure VerifyContentWasDownloaded()
+    begin
+        NameValueBuffer.Reset();
+        NameValueBuffer.SetRange(Name, Format(CODEUNIT::"ERM EVAT"));
+        NameValueBuffer.FindFirst();
+        NameValueBuffer.TestField(Value, 'Submission.zip');
+    end;
+
     local procedure CreateResponseMessage(var NextNo: Integer; StatusCode: Text; Subject: Text; ElecTaxDeclHeader: Record "Elec. Tax Declaration Header"): Integer
     var
         ElecTaxDeclRespMsg: Record "Elec. Tax Decl. Response Msg.";
@@ -1434,6 +1578,14 @@ codeunit 144051 "ERM EVAT"
     procedure ConfirmHandler(Question: Text; var Reply: Boolean)
     begin
         Reply := false; // DO not allow to create a duplicate declaration for a period to catch the error
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerWithVerification(Question: Text; var Reply: Boolean)
+    begin
+        Assert.ExpectedMessage(LibraryVariableStorage.DequeueText, Question);
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 
     local procedure BuildDigipoortErrorXml(): Text
@@ -1517,6 +1669,18 @@ codeunit 144051 "ERM EVAT"
         File.Close;
 
         exit(FileName);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, 419, 'OnBeforeDownloadFromStreamHandler', '', false, false)]
+    [Scope('OnPrem')]
+    procedure OnBeforeDownloadFromStreamHandler(var ToFolder: Text; ToFileName: Text; FromInStream: InStream; var IsHandled: Boolean)
+    begin
+        if NameValueBuffer.FindLast() then;
+        NameValueBuffer.ID += 1;
+        NameValueBuffer.Name := Format(CODEUNIT::"ERM EVAT");
+        NameValueBuffer.Value := CopyStr(ToFileName, 1, MaxStrLen(NameValueBuffer.Name));
+        NameValueBuffer.Insert();
+        IsHandled := true;
     end;
 }
 

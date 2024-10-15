@@ -3444,6 +3444,446 @@ codeunit 137074 "SCM Capacity Requirements"
           CreateDateTime(20200129D, 222000T), CreateDateTime(20200130D, 105000T));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostOutputJnlLineSetupTimeLessThanTotalCapNeedAllocTime()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+        ItemJnlLine: Record "Item Journal Line";
+    begin
+        // [FEATURE] [Routing] [Production Order] [Output Journal]
+        // [SCENARIO 364361] Post a line with Setup Time from Output Journal in case Setup Time < total Allocated Time of Prod. Order Capacity Need of Prod. Order Routing Line.
+        Initialize();
+
+        // [GIVEN] Production Item "I" with Serial Routing with one Routing Line with "Setup Time" = 100.
+        // [GIVEN] Work Center with operational hours 08:00 - 09:00, it works 1 hour per day.
+        CreateProductionItemWithOneLineRouting(Item, 100, 0, 0, 0, 080000T, 090000T, 20200127D);
+
+        // [GIVEN] Released Production Order "RPO" for Item "I", that was refreshed in Forward direction. Starting Date is 27.01.20, Starting Time is 08:00.
+        // [GIVEN] Prod. Order Routing Line with Operation "10" is created. Two Prod. Order Capacity Need lines with Time Type = "Setup" and Allocated Time 60 and 40 are created.
+        CreateAndRefreshForwardReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), 20200127D, 080000T);
+        FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Setup, 60, 40);
+
+        // [GIVEN] Output Journal Line with Order No. "RPO", Operation No. "10" and Setup Time = 70.
+        CreateOutputJnlLineWithSetupRunTime(ItemJnlLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", 70, 0);
+
+        // [WHEN] Post Output Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
+
+        // [THEN] First Prod. Order Capacity Need has Allocated Time = 0. Second Prod. Order Capacity Need has Allocated Time = 40 - (70 - 60) = 30.
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Setup, 0, 30);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostOutputJnlLineSetupTimeLargerThanTotalCapNeedAllocTime()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+        ItemJnlLine: Record "Item Journal Line";
+    begin
+        // [FEATURE] [Routing] [Production Order] [Output Journal]
+        // [SCENARIO 364361] Post a line with Setup Time from Output Journal in case Setup Time > total Allocated Time of Prod. Order Capacity Need of Prod. Order Routing Line.
+        Initialize();
+
+        // [GIVEN] Production Item "I" with Serial Routing with one Routing Line with "Setup Time" = 100.
+        // [GIVEN] Work Center with operational hours 08:00 - 09:00, it works 1 hour per day.
+        CreateProductionItemWithOneLineRouting(Item, 100, 0, 0, 0, 080000T, 090000T, 20200127D);
+
+        // [GIVEN] Released Production Order "RPO" for Item "I", that was refreshed in Forward direction. Starting Date is 27.01.20, Starting Time is 08:00.
+        // [GIVEN] Prod. Order Routing Line with Operation "10" is created. Two Prod. Order Capacity Need lines with Time Type = "Setup" and Allocated Time 60 and 40 are created.
+        CreateAndRefreshForwardReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), 20200127D, 080000T);
+        FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Setup, 60, 40);
+
+        // [GIVEN] Output Journal Line with Order No. "RPO", Operation No. "10" and Setup Time = 120.
+        CreateOutputJnlLineWithSetupRunTime(ItemJnlLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", 120, 0);
+
+        // [WHEN] Post Output Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
+
+        // [THEN] First and second Prod. Order Capacity Need records has Allocated Time = 0.
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Setup, 0, 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostOutputJnlLineSetupTimeIsNegative()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+        ItemJnlLine: Record "Item Journal Line";
+    begin
+        // [FEATURE] [Routing] [Production Order] [Output Journal]
+        // [SCENARIO 364361] Post a line with Setup Time from Output Journal in case Setup Time < 0.
+        Initialize();
+
+        // [GIVEN] Production Item "I" with Serial Routing with one Routing Line with "Setup Time" = 100.
+        // [GIVEN] Work Center with operational hours 08:00 - 09:00, it works 1 hour per day.
+        CreateProductionItemWithOneLineRouting(Item, 100, 0, 0, 0, 080000T, 090000T, 20200127D);
+
+        // [GIVEN] Released Production Order "RPO" for Item "I", that was refreshed in Forward direction. Starting Date is 27.01.20, Starting Time is 08:00.
+        // [GIVEN] Prod. Order Routing Line with Operation "10" is created. Two Prod. Order Capacity Need lines with Time Type = "Setup" and Allocated Time 60 and 40 are created.
+        CreateAndRefreshForwardReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), 20200127D, 080000T);
+        FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Setup, 60, 40);
+
+        // [GIVEN] Output Journal Line with Order No. "RPO", Operation No. "10" and Setup Time = -70.
+        CreateOutputJnlLineWithSetupRunTime(ItemJnlLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", -70, 0);
+
+        // [WHEN] Post Output Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
+
+        // [THEN] Setup Time is added to Allocated Time of the first Prod. Order Capacity Need, Allocated Time = 60 + 70 = 130. Second Prod. Order Capacity Need remains unchanged.
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Setup, 130, 40);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostTwoOutputJnlLinesSetupTimesAreEqualWithOppositeSign()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+        ItemJnlLine: Record "Item Journal Line";
+    begin
+        // [FEATURE] [Routing] [Production Order] [Output Journal]
+        // [SCENARIO 364361] Post two lines with Setup Time from Output Journal in case Setup Time values are equal to 120 and -120.
+        Initialize();
+
+        // [GIVEN] Production Item "I" with Serial Routing with one Routing Line with "Setup Time" = 100.
+        // [GIVEN] Work Center with operational hours 08:00 - 09:00, it works 1 hour per day.
+        CreateProductionItemWithOneLineRouting(Item, 100, 0, 0, 0, 080000T, 090000T, 20200127D);
+
+        // [GIVEN] Released Production Order "RPO" for Item "I", that was refreshed in Forward direction. Starting Date is 27.01.20, Starting Time is 08:00.
+        // [GIVEN] Prod. Order Routing Line with Operation "10" is created. Two Prod. Order Capacity Need lines with Time Type = "Setup" and Allocated Time 60 and 40 are created.
+        CreateAndRefreshForwardReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), 20200127D, 080000T);
+        FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Setup, 60, 40);
+
+        // [GIVEN] Posted Output Journal Line with Order No. "RPO", Operation No. "10" and Setup Time = 120.
+        CreateOutputJnlLineWithSetupRunTime(ItemJnlLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", 120, 0);
+        LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
+
+        // [GIVEN] Output Journal Line with Order No. "RPO", Operation No. "10" and Setup Time = -120.
+        CreateOutputJnlLineWithSetupRunTime(ItemJnlLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", -120, 0);
+
+        // [WHEN] Post Output Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
+
+        // [THEN] Allocated Time of both Prod. Order Capacity Need records remains the same, Allocated Time values are equal to 60 and 40.
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Setup, 60, 40);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostTwoOutputJnlLinesSetupTimesWithOppositeSignSmallerPositive()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+        ItemJnlLine: Record "Item Journal Line";
+    begin
+        // [FEATURE] [Routing] [Production Order] [Output Journal]
+        // [SCENARIO 364361] Post two lines with Setup Time from Output Journal in case Setup Time values are equal to 120 and -200.
+        Initialize();
+
+        // [GIVEN] Production Item "I" with Serial Routing with one Routing Line with "Setup Time" = 100.
+        // [GIVEN] Work Center with operational hours 08:00 - 09:00, it works 1 hour per day.
+        CreateProductionItemWithOneLineRouting(Item, 100, 0, 0, 0, 080000T, 090000T, 20200127D);
+
+        // [GIVEN] Released Production Order "RPO" for Item "I", that was refreshed in Forward direction. Starting Date is 27.01.20, Starting Time is 08:00.
+        // [GIVEN] Prod. Order Routing Line with Operation "10" is created. Two Prod. Order Capacity Need lines with Time Type = "Setup" and Allocated Time 60 and 40 are created.
+        CreateAndRefreshForwardReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), 20200127D, 080000T);
+        FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Setup, 60, 40);
+
+        // [GIVEN] Posted Output Journal Line with Order No. "RPO", Operation No. "10" and Setup Time = 120.
+        CreateOutputJnlLineWithSetupRunTime(ItemJnlLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", 120, 0);
+        LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
+
+        // [GIVEN] Output Journal Line with Order No. "RPO", Operation No. "10" and Setup Time = -200.
+        CreateOutputJnlLineWithSetupRunTime(ItemJnlLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", -200, 0);
+
+        // [WHEN] Post Output Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
+
+        // [THEN] Difference between Setup Time of Output lines is added to Allocated Time of the first Prod. Order Capacity Need, Allocated Time = 60 + (200 - 120) = 140.
+        // [THEN] Allocated Time of the second Prod. Order Capacity Need remains the same as the original one.
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Setup, 140, 40);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostThreeOutputJnlLinesSetupTimesWithOppositeSign()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+        ItemJnlLine: Record "Item Journal Line";
+    begin
+        // [FEATURE] [Routing] [Production Order] [Output Journal]
+        // [SCENARIO 364361] Post three lines with Setup Time from Output Journal in case Setup Time values are equal to 70, 10 and -200.
+        Initialize();
+
+        // [GIVEN] Production Item "I" with Serial Routing with one Routing Line with "Setup Time" = 100.
+        // [GIVEN] Work Center with operational hours 08:00 - 09:00, it works 1 hour per day.
+        CreateProductionItemWithOneLineRouting(Item, 100, 0, 0, 0, 080000T, 090000T, 20200127D);
+
+        // [GIVEN] Released Production Order "RPO" for Item "I", that was refreshed in Forward direction. Starting Date is 27.01.20, Starting Time is 08:00.
+        // [GIVEN] Prod. Order Routing Line with Operation "10" is created. Two Prod. Order Capacity Need lines with Time Type = "Setup" and Allocated Time 60 and 40 are created.
+        CreateAndRefreshForwardReleasedProductionOrder(ProductionOrder, Item."No.", LibraryRandom.RandDecInRange(10, 20, 2), 20200127D, 080000T);
+        FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Setup, 60, 40);
+
+        // [GIVEN] Two posted Output Journal Lines with Order No. "RPO", Operation No. "10" and Setup Time values 70 and 10.
+        CreateOutputJnlLineWithSetupRunTime(ItemJnlLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", 70, 0);
+        LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
+        CreateOutputJnlLineWithSetupRunTime(ItemJnlLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", 10, 0);
+        LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
+
+        // [GIVEN] Output Journal Line with Order No. "RPO", Operation No. "10" and Setup Time = -200.
+        CreateOutputJnlLineWithSetupRunTime(ItemJnlLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", -200, 0);
+
+        // [WHEN] Post Output Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
+
+        // [THEN] Difference between Setup Time of Output lines is added to Allocated Time of the first Prod. Order Capacity Need, Allocated Time = 60 + (200 - 70 - 10) = 180.
+        // [THEN] Allocated Time of the second Prod. Order Capacity Need remains the same as the original one.
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Setup, 180, 40);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostOutputJnlLineRunTimeLessThanTotalCapNeedAllocTime()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+        ItemJnlLine: Record "Item Journal Line";
+    begin
+        // [FEATURE] [Routing] [Production Order] [Output Journal]
+        // [SCENARIO 364361] Post a line with Run Time from Output Journal in case Run Time < total Allocated Time of Prod. Order Capacity Need of Prod. Order Routing Line.
+        Initialize();
+
+        // [GIVEN] Production Item "I" with Serial Routing with one Routing Line with "Run Time" = 100.
+        // [GIVEN] Work Center with operational hours 08:00 - 09:00, it works 1 hour per day.
+        CreateProductionItemWithOneLineRouting(Item, 0, 100, 0, 0, 080000T, 090000T, 20200127D);
+
+        // [GIVEN] Released Production Order "RPO" for Item "I" with Quantity = 1, that was refreshed in Forward direction. Starting Date is 27.01.20, Starting Time is 08:00.
+        // [GIVEN] Prod. Order Routing Line with Operation "10" is created. Two Prod. Order Capacity Need lines with Time Type = "Run" and Allocated Time 60 and 40 are created.
+        CreateAndRefreshForwardReleasedProductionOrder(ProductionOrder, Item."No.", 1, 20200127D, 080000T);
+        FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Run, 60, 40);
+
+        // [GIVEN] Output Journal Line with Order No. "RPO", Operation No. "10" and Run Time = 70.
+        CreateOutputJnlLineWithSetupRunTime(ItemJnlLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", 0, 70);
+
+        // [WHEN] Post Output Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
+
+        // [THEN] First Prod. Order Capacity Need has Allocated Time = 0. Second Prod. Order Capacity Need has Allocated Time = 40 - (70 - 60) = 30.
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Run, 0, 30);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostOutputJnlLineRunTimeLargerThanTotalCapNeedAllocTime()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+        ItemJnlLine: Record "Item Journal Line";
+    begin
+        // [FEATURE] [Routing] [Production Order] [Output Journal]
+        // [SCENARIO 364361] Post a line with Run Time from Output Journal in case Run Time > total Allocated Time of Prod. Order Capacity Need of Prod. Order Routing Line.
+        Initialize();
+
+        // [GIVEN] Production Item "I" with Serial Routing with one Routing Line with "Run Time" = 100.
+        // [GIVEN] Work Center with operational hours 08:00 - 09:00, it works 1 hour per day.
+        CreateProductionItemWithOneLineRouting(Item, 0, 100, 0, 0, 080000T, 090000T, 20200127D);
+
+        // [GIVEN] Released Production Order "RPO" for Item "I" with Quantity = 1, that was refreshed in Forward direction. Starting Date is 27.01.20, Starting Time is 08:00.
+        // [GIVEN] Prod. Order Routing Line with Operation "10" is created. Two Prod. Order Capacity Need lines with Time Type = "Run" and Allocated Time 60 and 40 are created.
+        CreateAndRefreshForwardReleasedProductionOrder(ProductionOrder, Item."No.", 1, 20200127D, 080000T);
+        FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Run, 60, 40);
+
+        // [GIVEN] Output Journal Line with Order No. "RPO", Operation No. "10" and Run Time = 120.
+        CreateOutputJnlLineWithSetupRunTime(ItemJnlLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", 0, 120);
+
+        // [WHEN] Post Output Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
+
+        // [THEN] First and second Prod. Order Capacity Need records has Allocated Time = 0.
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Run, 0, 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostOutputJnlLineRunTimeIsNegative()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+        ItemJnlLine: Record "Item Journal Line";
+    begin
+        // [FEATURE] [Routing] [Production Order] [Output Journal]
+        // [SCENARIO 364361] Post a line with Run Time from Output Journal in case Run Time < 0.
+        Initialize();
+
+        // [GIVEN] Production Item "I" with Serial Routing with one Routing Line with "Run Time" = 100.
+        // [GIVEN] Work Center with operational hours 08:00 - 09:00, it works 1 hour per day.
+        CreateProductionItemWithOneLineRouting(Item, 0, 100, 0, 0, 080000T, 090000T, 20200127D);
+
+        // [GIVEN] Released Production Order "RPO" for Item "I" with Quantity = 1, that was refreshed in Forward direction. Starting Date is 27.01.20, Starting Time is 08:00.
+        // [GIVEN] Prod. Order Routing Line with Operation "10" is created. Two Prod. Order Capacity Need lines with Time Type = "Run" and Allocated Time 60 and 40 are created.
+        CreateAndRefreshForwardReleasedProductionOrder(ProductionOrder, Item."No.", 1, 20200127D, 080000T);
+        FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Run, 60, 40);
+
+        // [GIVEN] Output Journal Line with Order No. "RPO", Operation No. "10" and Run Time = -70.
+        CreateOutputJnlLineWithSetupRunTime(ItemJnlLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", 0, -70);
+
+        // [WHEN] Post Output Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
+
+        // [THEN] Run Time is added to Allocated Time of the first Prod. Order Capacity Need, Allocated Time = 60 + 70 = 130. Second Prod. Order Capacity Need remains unchanged.
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Run, 130, 40);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostTwoOutputJnlLinesRunTimesAreEqualWithOppositeSign()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+        ItemJnlLine: Record "Item Journal Line";
+    begin
+        // [FEATURE] [Routing] [Production Order] [Output Journal]
+        // [SCENARIO 364361] Post two lines with Run Time from Output Journal in case Run Time values are equal to 120 and -120.
+        Initialize();
+
+        // [GIVEN] Production Item "I" with Serial Routing with one Routing Line with "Run Time" = 100.
+        // [GIVEN] Work Center with operational hours 08:00 - 09:00, it works 1 hour per day.
+        CreateProductionItemWithOneLineRouting(Item, 0, 100, 0, 0, 080000T, 090000T, 20200127D);
+
+        // [GIVEN] Released Production Order "RPO" for Item "I" with Quantity = 1, that was refreshed in Forward direction. Starting Date is 27.01.20, Starting Time is 08:00.
+        // [GIVEN] Prod. Order Routing Line with Operation "10" is created. Two Prod. Order Capacity Need lines with Time Type = "Run" and Allocated Time 60 and 40 are created.
+        CreateAndRefreshForwardReleasedProductionOrder(ProductionOrder, Item."No.", 1, 20200127D, 080000T);
+        FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Run, 60, 40);
+
+        // [GIVEN] Posted Output Journal Line with Order No. "RPO", Operation No. "10" and Run Time = 120.
+        CreateOutputJnlLineWithSetupRunTime(ItemJnlLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", 0, 120);
+        LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
+
+        // [GIVEN] Output Journal Line with Order No. "RPO", Operation No. "10" and Run Time = -120.
+        CreateOutputJnlLineWithSetupRunTime(ItemJnlLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", 0, -120);
+
+        // [WHEN] Post Output Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
+
+        // [THEN] Allocated Time of both Prod. Order Capacity Need records remains the same, Allocated Time values are equal to 60 and 40.
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Run, 60, 40);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostTwoOutputJnlLinesRunTimesWithOppositeSignSmallerPositive()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+        ItemJnlLine: Record "Item Journal Line";
+    begin
+        // [FEATURE] [Routing] [Production Order] [Output Journal]
+        // [SCENARIO 364361] Post two lines with Run Time from Output Journal in case Run Time values are equal to 120 and -200.
+        Initialize();
+
+        // [GIVEN] Production Item "I" with Serial Routing with one Routing Line with "Run Time" = 100.
+        // [GIVEN] Work Center with operational hours 08:00 - 09:00, it works 1 hour per day.
+        CreateProductionItemWithOneLineRouting(Item, 0, 100, 0, 0, 080000T, 090000T, 20200127D);
+
+        // [GIVEN] Released Production Order "RPO" for Item "I" with Quantity = 1, that was refreshed in Forward direction. Starting Date is 27.01.20, Starting Time is 08:00.
+        // [GIVEN] Prod. Order Routing Line with Operation "10" is created. Two Prod. Order Capacity Need lines with Time Type = "Run" and Allocated Time 60 and 40 are created.
+        CreateAndRefreshForwardReleasedProductionOrder(ProductionOrder, Item."No.", 1, 20200127D, 080000T);
+        FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Run, 60, 40);
+
+        // [GIVEN] Posted Output Journal Line with Order No. "RPO", Operation No. "10" and Run Time = 120.
+        CreateOutputJnlLineWithSetupRunTime(ItemJnlLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", 0, 120);
+        LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
+
+        // [GIVEN] Output Journal Line with Order No. "RPO", Operation No. "10" and Run Time = -200.
+        CreateOutputJnlLineWithSetupRunTime(ItemJnlLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", 0, -200);
+
+        // [WHEN] Post Output Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
+
+        // [THEN] Difference between Run Time of Output lines is added to Allocated Time of the first Prod. Order Capacity Need, Allocated Time = 60 + (200 - 120) = 140.
+        // [THEN] Allocated Time of the second Prod. Order Capacity Need remains the same as the original one.
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Run, 140, 40);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostThreeOutputJnlLinesRunTimesWithOppositeSign()
+    var
+        Item: Record Item;
+        ProductionOrder: Record "Production Order";
+        ProdOrderRoutingLine: Record "Prod. Order Routing Line";
+        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+        ItemJnlLine: Record "Item Journal Line";
+    begin
+        // [FEATURE] [Routing] [Production Order] [Output Journal]
+        // [SCENARIO 364361] Post three lines with Run Time from Output Journal in case Run Time values are equal to 70, 10 and -200.
+        Initialize();
+
+        // [GIVEN] Production Item "I" with Serial Routing with one Routing Line with "Run Time" = 100.
+        // [GIVEN] Work Center with operational hours 08:00 - 09:00, it works 1 hour per day.
+        CreateProductionItemWithOneLineRouting(Item, 0, 100, 0, 0, 080000T, 090000T, 20200127D);
+
+        // [GIVEN] Released Production Order "RPO" for Item "I" with Quantity = 1, that was refreshed in Forward direction. Starting Date is 27.01.20, Starting Time is 08:00.
+        // [GIVEN] Prod. Order Routing Line with Operation "10" is created. Two Prod. Order Capacity Need lines with Time Type = "Run" and Allocated Time 60 and 40 are created.
+        CreateAndRefreshForwardReleasedProductionOrder(ProductionOrder, Item."No.", 1, 20200127D, 080000T);
+        FindFirstProdOrderRoutingLine(ProdOrderRoutingLine, ProductionOrder."No.");
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Run, 60, 40);
+
+        // [GIVEN] Two posted Output Journal Lines with Order No. "RPO", Operation No. "10" and Run Time values 70 and 10.
+        CreateOutputJnlLineWithSetupRunTime(ItemJnlLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", 0, 70);
+        LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
+        CreateOutputJnlLineWithSetupRunTime(ItemJnlLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", 0, 10);
+        LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
+
+        // [GIVEN] Output Journal Line with Order No. "RPO", Operation No. "10" and Run Time = -200.
+        CreateOutputJnlLineWithSetupRunTime(ItemJnlLine, ProductionOrder."No.", Item."No.", ProdOrderRoutingLine."Operation No.", 0, -200);
+
+        // [WHEN] Post Output Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJnlLine."Journal Template Name", ItemJnlLine."Journal Batch Name");
+
+        // [THEN] Difference between Run Time of Output lines is added to Allocated Time of the first Prod. Order Capacity Need, Allocated Time = 60 + (200 - 70 - 10) = 180.
+        // [THEN] Allocated Time of the second Prod. Order Capacity Need remains the same as the original one.
+        VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine, ProdOrderCapacityNeed."Time Type"::Run, 180, 40);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3566,6 +4006,26 @@ codeunit 137074 "SCM Capacity Requirements"
         CreateProductionItem(Item, Item."Reordering Policy"::"Lot-for-Lot", 0);
         CreateSerialRoutingWithSendAheadAndWorkDays(
           RoutingHeader, WorkCenterCode, SetupTime, RunTime, WaitTime, MoveTime, SendAheadQty, ConcurrentCapacities);
+        Item.Validate("Routing No.", RoutingHeader."No.");
+        Item.Modify(true);
+    end;
+
+    local procedure CreateProductionItemWithOneLineRouting(var Item: Record Item; SetupTime: Decimal; RunTime: Decimal; WaitTime: Decimal; MoveTime: Decimal; WorkCenterStartTime: Time; WorkCenterEndTime: Time; DueDate: Date)
+    var
+        RoutingHeader: Record "Routing Header";
+        RoutingLine: Record "Routing Line";
+        CapacityUOM: Record "Capacity Unit of Measure";
+        WorkCenterCode: Code[20];
+    begin
+        WorkCenterCode :=
+          CreateWorkCenterWithShopCalendar(
+            CapacityUOM.Type::Minutes,
+            LibraryManufacturing.UpdateShopCalendarWorkingDaysCustomTime(WorkCenterStartTime, WorkCenterEndTime), 100, 1, DueDate);
+        CreateProductionItem(Item, Item."Reordering Policy"::"Lot-for-Lot", 0);
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        CreateRoutingLineWithSendAhead(
+          RoutingLine, RoutingHeader, RoutingLine.Type::"Work Center", WorkCenterCode, SetupTime, RunTime, WaitTime, MoveTime, 0, 1, '10', '', '');
+        UpdateStatusOnRoutingHeader(RoutingHeader, RoutingHeader.Status::Certified);
         Item.Validate("Routing No.", RoutingHeader."No.");
         Item.Modify(true);
     end;
@@ -3904,6 +4364,18 @@ codeunit 137074 "SCM Capacity Requirements"
         LibraryPlanning.RefreshPlanningLine(RequisitionLine, Direction::Forward, true, true);
     end;
 
+    local procedure CreateAndRefreshForwardReleasedProductionOrder(var ProductionOrder: Record "Production Order"; SourceNo: Code[20]; Quantity: Decimal; StartingDate: Date; StartingTime: Time)
+    begin
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, SourceNo, Quantity);
+        ProductionOrder.SetUpdateEndDate();
+        ProductionOrder.Validate("Starting Date", StartingDate);
+        ProductionOrder.Validate("Starting Time", StartingTime);
+        ProductionOrder.Validate("Due Date", StartingDate + 1);
+        ProductionOrder.Modify(true);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, true, true, true, true, false);
+    end;
+
     local procedure CreateThreeShiftsShopCalendar(): Code[10]
     var
         ShopCalendar: Record "Shop Calendar";
@@ -3924,6 +4396,23 @@ codeunit 137074 "SCM Capacity Requirements"
             LibraryManufacturing.CreateWorkShiftCode(WorkShift);
             WorkShiftCodes[i] := WorkShift.Code;
         end;
+    end;
+
+    local procedure CreateOutputJnlLineWithSetupRunTime(var ItemJournalLine: Record "Item Journal Line"; ProductionOrderNo: Code[20]; ItemNo: Code[20]; ProdOrderRtngLineOperationNo: Code[10]; SetupTime: Decimal; RunTime: Decimal)
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Output);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Output, ItemJournalTemplate.Name);
+        LibraryInventory.ClearItemJournal(ItemJournalTemplate, ItemJournalBatch);
+        LibraryManufacturing.CreateOutputJournal(
+          ItemJournalLine, ItemJournalTemplate, ItemJournalBatch, ItemNo, ProductionOrderNo);
+
+        ItemJournalLine.Validate("Operation No.", ProdOrderRtngLineOperationNo);
+        ItemJournalLine.Validate("Setup Time", SetupTime);
+        ItemJournalLine.Validate("Run Time", RunTime);
+        ItemJournalLine.Modify(true);
     end;
 
     local procedure OpenWorkCenterLoadPage(var WorkCenterLoad: TestPage "Work Center Load"; WorkCenterNo: Code[20])
@@ -4169,6 +4658,19 @@ codeunit 137074 "SCM Capacity Requirements"
         PlanningRoutingLine.FindFirst;
     end;
 
+    local procedure FindFirstProdOrderCapacityNeedWithTimeType(var ProdOrderCapacityNeed: Record "Prod. Order Capacity Need"; ProdOrderRoutingLine: Record "Prod. Order Routing Line"; TimeType: Option)
+    begin
+        with ProdOrderCapacityNeed do begin
+            SetRange("Prod. Order No.", ProdOrderRoutingLine."Prod. Order No.");
+            SetRange("Operation No.", ProdOrderRoutingLine."Operation No.");
+            SetRange("Routing No.", ProdOrderRoutingLine."Routing No.");
+            SetRange("Routing Reference No.", ProdOrderRoutingLine."Routing Reference No.");
+            SetRange(Status, ProdOrderRoutingLine.Status);
+            SetRange("Time Type", TimeType);
+            FindFirst();
+        end;
+    end;
+
     local procedure GetNextProdOrderRoutingLine(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; NextOperationNo: Code[30])
     begin
         ProdOrderRoutingLine.SetRange("Operation No.", CopyStr(NextOperationNo, 1, MaxStrLen(ProdOrderRoutingLine."Operation No.")));
@@ -4388,6 +4890,17 @@ codeunit 137074 "SCM Capacity Requirements"
         Assert.AreEqual(
           ExpectedTotalAllocatedTime, ProdOrderCapacityNeed."Allocated Time",
           'Wrong allocated time in capacity need for the production order or the planning line.');
+    end;
+
+    local procedure VerifyCapacityNeedAllocatedTimeForTwoLines(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; TimeType: Option; ExpectedAllocatedTime1: Decimal; ExpectedAllocatedTime2: Decimal)
+    var
+        ProdOrderCapacityNeed: Record "Prod. Order Capacity Need";
+    begin
+        FindFirstProdOrderCapacityNeedWithTimeType(ProdOrderCapacityNeed, ProdOrderRoutingLine, TimeType);
+        ProdOrderCapacityNeed.TestField("Allocated Time", ExpectedAllocatedTime1);
+        ProdOrderCapacityNeed.SetRange(Date, ProdOrderCapacityNeed.Date + 1);
+        ProdOrderCapacityNeed.FindFirst();  // find next line
+        ProdOrderCapacityNeed.TestField("Allocated Time", ExpectedAllocatedTime2);
     end;
 
     local procedure VerifyProdOrderStartEndDateTime(ProdOrderRoutingLine: Record "Prod. Order Routing Line"; ExpectedStartingDateTime: DateTime; ExpectedEndingDateTime: DateTime)

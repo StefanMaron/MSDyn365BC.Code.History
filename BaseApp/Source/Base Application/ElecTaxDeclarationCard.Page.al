@@ -96,6 +96,18 @@ page 11411 "Elec. Tax Declaration Card"
                 separator(Action1000024)
                 {
                 }
+                action(DownloadSubmissionMessage)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Download Submission Message';
+                    Image = MoveDown;
+                    ToolTip = 'Download the XBRL message without the actual submission. For example, this can be helpful for troubleshooting submissions.';
+
+                    trigger OnAction()
+                    begin
+                        DownloadSubmissionMessage();
+                    end;
+                }
                 action("Response Messages")
                 {
                     ApplicationArea = Basic, Suite;
@@ -159,6 +171,22 @@ page 11411 "Elec. Tax Declaration Card"
                             "Declaration Type"::"ICP Declaration":
                                 REPORT.RunModal(REPORT::"Create Elec. ICP Declaration", true, false, ElecTaxDeclarationHeader);
                         end;
+                    end;
+                }
+                action(GenerateSubmissionMessage)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Generate submission message.';
+                    Ellipsis = true;
+                    Enabled = SubmitEnabled;
+                    Image = TestFile;
+                    Promoted = true;
+                    PromotedCategory = Process;
+                    ToolTip = 'Generate the xbrl request without the actual submission.';
+
+                    trigger OnAction()
+                    begin
+                        DownloadGeneratedSubmissionMessage();
                     end;
                 }
                 action(SubmitElectronicTaxDeclaration)
