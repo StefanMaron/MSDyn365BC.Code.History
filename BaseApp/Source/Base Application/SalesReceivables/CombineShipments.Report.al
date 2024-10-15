@@ -145,6 +145,8 @@
                     Error(Text000);
                 if DocDateReq = 0D then
                     Error(Text001);
+                if VATDateReq = 0D then
+                    Error(VATDateEmptyErr);
 
                 Window.Open(
                   Text002 +
@@ -174,12 +176,30 @@
                         ApplicationArea = Basic, Suite;
                         Caption = 'Posting Date';
                         ToolTip = 'Specifies the posting date for the invoice(s) that the batch job creates. This field must be filled in.';
+
+                        trigger OnValidate()
+                        begin
+                            UpdateVATDate();
+                        end;
                     }
                     field(DocDateReq; DocDateReq)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Document Date';
                         ToolTip = 'Specifies the document date for the invoice(s) that the batch job creates. This field must be filled in.';
+
+                        trigger OnValidate()
+                        begin
+                            UpdateVATDate();
+                        end;
+                    }
+                    field(VATDate; VATDateReq)
+                    {
+                        ApplicationArea = VAT;
+                        Caption = 'VAT Date';
+                        Editable = VATDateEnabled;
+                        Visible = VATDateEnabled;
+                        ToolTip = 'Specifies the VAT Date for the invoice(s) that the batch job creates. This field must be filled in.';
                     }
                     field(CalcInvDisc; CalcInvDisc)
                     {
@@ -220,13 +240,18 @@
         }
 
         trigger OnOpenPage()
+        var
+            VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
         begin
             if PostingDateReq = 0D then
                 PostingDateReq := WorkDate();
             if DocDateReq = 0D then
                 DocDateReq := WorkDate();
+            if VATDateReq = 0D then
+                VATDateReq := GLSetup.GetVATDate(PostingDateReq, DocDateReq);
             SalesSetup.Get();
             CalcInvDisc := SalesSetup."Calc. Inv. Discount";
+            VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
         end;
     }
 
@@ -270,6 +295,7 @@
         Text008: Label 'There is nothing to combine.';
         Text010: Label 'The shipments are now combined and the number of invoices created is %1.';
         Text011: Label 'The shipments are now combined, and the number of invoices created is %1.\%2 Shipments with nonstandard payment terms have not been combined.', Comment = '%1-Number of invoices,%2-Number Of shipments';
+        VATDateEmptyErr: Label 'Enter the VAT date.';
         NotAllInvoicesCreatedMsg: Label 'Not all the invoices were created. A total of %1 invoices were not created.';
 
     protected var
@@ -278,10 +304,12 @@
         SalesShptLine: Record "Sales Shipment Line";
         PostingDateReq: Date;
         DocDateReq: Date;
+        VATDateReq: Date;
         CalcInvDisc: Boolean;
         PostInv: Boolean;
         OnlyStdPmtTerms: Boolean;
         CopyTextLines: Boolean;
+        VATDateEnabled: Boolean;
 
     local procedure FinalizeSalesInvHeader()
     var
@@ -336,6 +364,7 @@
                 ValidateCustomerNo(SalesHeader, SalesOrderHeader);
                 Validate("Posting Date", PostingDateReq);
                 Validate("Document Date", DocDateReq);
+                Validate("VAT Reporting Date", VATDateReq);
                 Validate("Currency Code", SalesOrderHeader."Currency Code");
                 Validate("EU 3-Party Trade", SalesOrderHeader."EU 3-Party Trade");
                 if GLSetup."Journal Templ. Name Mandatory" then
@@ -357,10 +386,17 @@
     begin
         PostingDateReq := NewPostingDate;
         DocDateReq := NewDocDate;
+        VATDateReq := GLSetup.GetVATDate(PostingDateReq, DocDateReq);
         CalcInvDisc := NewCalcInvDisc;
         PostInv := NewPostInv;
         OnlyStdPmtTerms := NewOnlyStdPmtTerms;
         CopyTextLines := NewCopyTextLines;
+    end;
+
+    procedure InitializeRequest(NewPostingDate: Date; NewDocDate: Date; NewVATDate: Date; NewCalcInvDisc: Boolean; NewPostInv: Boolean; NewOnlyStdPmtTerms: Boolean; NewCopyTextLines: Boolean)
+    begin
+        InitializeRequest(NewPostingDate, NewDocDate, NewCalcInvDisc, NewPostInv, NewOnlyStdPmtTerms, NewCopyTextLines);
+        VATDateReq := NewVATDate;
     end;
 
     local procedure ValidateCustomerNo(var ToSalesHeader: Record "Sales Header"; FromSalesOrderHeader: Record "Sales Header")
@@ -416,6 +452,11 @@
 
         OnAfterShouldFinalizeSalesInvHeader(SalesOrderHeader, SalesHeader, Finalize, SalesShipmentLine, "Sales Shipment Header");
         exit(Finalize);
+    end;
+
+    local procedure UpdateVATDate()
+    begin
+        VATDateReq := GLSetup.GetVATDate(PostingDateReq, DocDateReq);
     end;
 
     [IntegrationEvent(false, false)]
@@ -513,4 +554,3 @@
     begin
     end;
 }
-

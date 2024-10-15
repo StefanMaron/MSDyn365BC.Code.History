@@ -83,6 +83,8 @@ report 6653 "Combine Return Receipts"
                     Error(Text000);
                 if DocDateReq = 0D then
                     Error(Text001);
+                if VATDateReq = 0D then
+                    Error(VATDateEmptyErr);
 
                 Window.Open(
                   Text002 +
@@ -112,12 +114,30 @@ report 6653 "Combine Return Receipts"
                         ApplicationArea = SalesReturnOrder;
                         Caption = 'Posting Date';
                         ToolTip = 'Specifies the posting date for the credit memo(s) that the batch job creates.';
+
+                        trigger OnValidate()
+                        begin
+                            UpdateVATDate();
+                        end;
                     }
                     field(DocDateReq; DocDateReq)
                     {
                         ApplicationArea = SalesReturnOrder;
                         Caption = 'Document Date';
                         ToolTip = 'Specifies the document date for the credit memo(s) that the batch job creates. This field must be filled in.';
+
+                        trigger OnValidate()
+                        begin
+                            UpdateVATDate();
+                        end;
+                    }
+                    field(VATDate; VATDateReq)
+                    {
+                        ApplicationArea = VAT;
+                        Caption = 'VAT Date';
+                        Editable = VATDateEnabled;
+                        Visible = VATDateEnabled;
+                        ToolTip = 'Specifies the VAT date for the credit memo(s) that the batch job creates. This field must be filled in.';
                     }
                     field(CalcInvDisc; CalcInvDisc)
                     {
@@ -146,13 +166,19 @@ report 6653 "Combine Return Receipts"
         }
 
         trigger OnOpenPage()
+        var
+            VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
         begin
             if PostingDateReq = 0D then
                 PostingDateReq := WorkDate();
             if DocDateReq = 0D then
                 DocDateReq := WorkDate();
+            if VATDateReq = 0D then
+                VATDateReq := GLSetup.GetVATDate(PostingDateReq, DocDateReq);
+
             SalesSetup.Get();
             CalcInvDisc := SalesSetup."Calc. Inv. Discount";
+            VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
         end;
     }
 
@@ -161,6 +187,7 @@ report 6653 "Combine Return Receipts"
     }
 
     var
+        GLSetup: Record "General Ledger Setup";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         ReturnRcptLine: Record "Return Receipt Line";
@@ -184,12 +211,15 @@ report 6653 "Combine Return Receipts"
         Text007: Label 'Not all the credit memos were posted. A total of %1 credit memos were not posted.';
         Text008: Label 'There is nothing to combine.';
         Text010: Label 'The return receipts are now combined and the number of credit memos created is %1.';
+        VATDateEmptyErr: Label 'Enter the VAT date.';
 
     protected var
         PostingDateReq: Date;
         DocDateReq: Date;
+        VATDateReq: Date;
         CalcInvDisc: Boolean;
         PostInv: Boolean;
+        VATDateEnabled: Boolean;
 
     local procedure FinalizeSalesInvHeader()
     var
@@ -234,6 +264,7 @@ report 6653 "Combine Return Receipts"
                 Validate("Currency Code", SalesOrderHeader."Currency Code");
                 Validate("Posting Date", PostingDateReq);
                 Validate("Document Date", DocDateReq);
+                Validate("VAT Reporting Date", VATDateReq);
 
                 "Shortcut Dimension 1 Code" := SalesOrderHeader."Shortcut Dimension 1 Code";
                 "Shortcut Dimension 2 Code" := SalesOrderHeader."Shortcut Dimension 2 Code";
@@ -266,8 +297,15 @@ report 6653 "Combine Return Receipts"
     begin
         PostingDateReq := NewPostingDate;
         DocDateReq := NewDocumentDate;
+        VATDateReq := GLSetup.GetVATDate(PostingDateReq, DocDateReq);
         CalcInvDisc := NewCalcInvDisc;
         PostInv := NewPostCreditMemo;
+    end;
+
+    procedure InitializeRequest(NewPostingDate: Date; NewDocumentDate: Date; NewVATDate: Date; NewCalcInvDisc: Boolean; NewPostCreditMemo: Boolean)
+    begin
+        InitializeRequest(NewPostingDate, NewDocumentDate, NewCalcInvDisc, NewPostCreditMemo);
+        VATDateReq := NewVATDate;
     end;
 
     procedure SetHideDialog(NewHideDialog: Boolean)
@@ -301,6 +339,11 @@ report 6653 "Combine Return Receipts"
 
         OnAfterShouldFinalizeSalesInvHeader(SalesOrderHeader, SalesHeader, Finalize, ReturnReceiptLine, "Return Receipt Header");
         exit(Finalize);
+    end;
+
+    local procedure UpdateVATDate()
+    begin
+        VATDateReq := GLSetup.GetVATDate(PostingDateReq, DocDateReq);
     end;
 
     [IntegrationEvent(false, false)]
@@ -363,4 +406,3 @@ report 6653 "Combine Return Receipts"
     begin
     end;
 }
-
