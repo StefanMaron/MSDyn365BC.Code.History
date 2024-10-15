@@ -154,7 +154,10 @@ table 225 "Post Code"
                 if UseDialog and (PostCodeRec2.Next() = 1) then
                     if PAGE.RunModal(PAGE::"Post Codes", PostCodeRec, PostCodeRec.Code) <> ACTION::LookupOK then
                         Error('');
-                PostCode := PostCodeRec.Code;
+
+                if UseDialog or (PostCode = '') then
+                    PostCode := PostCodeRec.Code;
+
                 CityTxt := PostCodeRec.City;
                 CountryCode := PostCodeRec."Country/Region Code";
                 CountyTxt := PostCodeRec.County;

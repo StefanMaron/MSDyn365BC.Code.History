@@ -1146,7 +1146,7 @@ codeunit 8614 "Config. XML Exchange"
                         InnerText := TypeHelper.FormatDate(Date, ConfigPackage."Language ID");
                     end;
                 FieldType::Blob:
-                    InnerText := ExportBlob(FieldRef);
+                    InnerText := ConvertBlobToBase64String(FieldRef);
             end;
 
         OnFormatFieldValueOnBeforeExitInnerText(FieldRef, ConfigPackage, InnerText);
@@ -1502,10 +1502,7 @@ codeunit 8614 "Config. XML Exchange"
     begin
         if ConfigPackageMgt.IsBLOBField(ConfigPackageData."Table ID", ConfigPackageData."Field ID") then begin
             ConfigPackageData."BLOB Value".CreateOutStream(OutStream);
-            if ExcelMode then
-                OutStream.WriteText(GetNodeValue(RecordNode, FieldNodeName))
-            else
-                Base64Convert.FromBase64(GetNodeValue(RecordNode, FieldNodeName), OutStream);
+            Base64Convert.FromBase64(GetNodeValue(RecordNode, FieldNodeName), OutStream);
         end else
             ConfigPackageData.Value := CopyStr(GetNodeValue(RecordNode, FieldNodeName), 1, MaxStrLen(ConfigPackageData.Value));
     end;

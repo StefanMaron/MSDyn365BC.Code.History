@@ -400,7 +400,8 @@ codeunit 1890 "Reminder Communication"
             DescriptionTxt := ReminderEmailText.GetDescriptionLbl();
             IssuedReminderHeader.CalcFields("Email Text");
 
-            if FindReminderEmailText(ReminderEmailText, IssuedReminderHeader) then begin
+            ReminderEmailText.SetAutoCalcFields("Body Text");
+            if GetReminderEmailText(IssuedReminderHeader, ReminderEmailText) then begin
                 GreetingTxt := ReminderEmailText.Greeting;
                 ClosingTxt := ReminderEmailText.Closing;
             end else begin
@@ -445,33 +446,6 @@ codeunit 1890 "Reminder Communication"
         end
         else
             BodyTxt := ReminderEmailText.GetBodyLbl();
-    end;
-
-    local procedure FindReminderEmailText(var ReminderEmailText: Record "Reminder Email Text"; var IssuedReminderHeader: Record "Issued Reminder Header"): Boolean
-    var
-        ReminderLevel: Record "Reminder Level";
-        ReminderTerms: Record "Reminder Terms";
-        LanguageCode: Code[10];
-    begin
-        ReminderEmailText.SetAutoCalcFields("Body Text");
-
-        if (IssuedReminderHeader."Reminder Level" = 0) or (IssuedReminderHeader."Reminder Terms Code" = '') then
-            exit(false);
-
-        if not ReminderLevel.Get(IssuedReminderHeader."Reminder Terms Code", IssuedReminderHeader."Reminder Level") then
-            Error(ReminderLevelNotFoundErr, IssuedReminderHeader."Reminder Level", IssuedReminderHeader."Reminder Terms Code");
-
-        LanguageCode := GetCustomerLanguageOrDefaultUserLanguage(IssuedReminderHeader."Customer No.");
-        if ReminderEmailText.Get(ReminderLevel."Reminder Email Text", LanguageCode) then
-            exit(true);
-
-        if not ReminderTerms.Get(IssuedReminderHeader."Reminder Terms Code") then
-            Error(ReminderTermNotFoundErr, IssuedReminderHeader."Reminder Terms Code");
-
-        if ReminderEmailText.Get(ReminderTerms."Reminder Email Text", LanguageCode) then
-            exit(true);
-
-        exit(false);
     end;
 
     local procedure SubstituteRelatedValues(var BodyTxt: Text; var IssuedReminderHeader: Record "Issued Reminder Header"; NNC_TotalInclVAT: Decimal; CompanyName: Text[100])
@@ -776,13 +750,12 @@ codeunit 1890 "Reminder Communication"
     var
         ReminderEmailText: Record "Reminder Email Text";
     begin
-        if VerifyIfReminderEmailTextExists(IssuedReminderHeader, ReminderEmailText) then begin
-            EmailSubject := ReminderEmailText.Subject;
-            SubstituteRelatedValues(EmailSubject, IssuedReminderHeader, IssuedReminderHeader.CalculateTotalIncludingVAT(), CopyStr(CompanyName, 1, 100));
-            exit(true);
-        end;
+        if not GetReminderEmailText(IssuedReminderHeader, ReminderEmailText) then
+            exit(false);
 
-        exit(false);
+        EmailSubject := ReminderEmailText.Subject;
+        SubstituteRelatedValues(EmailSubject, IssuedReminderHeader, IssuedReminderHeader.CalculateTotalIncludingVAT(), CopyStr(CompanyName, 1, 100));
+        exit(true);
     end;
 
     local procedure ReplaceHTMLText(var IssuedReminderHeader: Record "Issued Reminder Header"; var HtmlContent: Text)
@@ -790,7 +763,8 @@ codeunit 1890 "Reminder Communication"
         ReminderEmailText: Record "Reminder Email Text";
         BodyText: Text;
     begin
-        if FindReminderEmailText(ReminderEmailText, IssuedReminderHeader) then
+        ReminderEmailText.SetAutoCalcFields("Body Text");
+        if GetReminderEmailText(IssuedReminderHeader, ReminderEmailText) then
             SelectEmailBodyText(ReminderEmailText, IssuedReminderHeader, BodyText)
         else
             SelectEmailBodyText(IssuedReminderHeader, BodyText);
@@ -801,19 +775,21 @@ codeunit 1890 "Reminder Communication"
 
     local procedure FindFileName(var IssuedReminderHeader: Record "Issued Reminder Header"; var Filename: Text; FileExtension: Text[30]): Boolean
     var
-        ReminderEmailText: Record "Reminder Email Text";
+        ReminderAttachmentText: Record "Reminder Attachment Text";
     begin
-        if VerifyIfReminderEmailTextExists(IssuedReminderHeader, ReminderEmailText) then begin
-            Filename := ReminderEmailText.Subject + FileExtension;
-            SubstituteRelatedValues(Filename, IssuedReminderHeader, IssuedReminderHeader.CalculateTotalIncludingVAT(), CopyStr(CompanyName, 1, 100));
-            Filename := Filename.Replace('/', '-');
-            exit(true);
-        end;
+        if not GetReminderAttachmentText(IssuedReminderHeader, ReminderAttachmentText) then
+            exit(false);
 
-        exit(false);
+        if ReminderAttachmentText."File Name" = '' then
+            exit(false);
+
+        Filename := ReminderAttachmentText."File Name" + FileExtension;
+        SubstituteRelatedValues(Filename, IssuedReminderHeader, IssuedReminderHeader.CalculateTotalIncludingVAT(), CopyStr(CompanyName, 1, 100));
+        Filename := Filename.Replace('/', '-');
+        exit(true);
     end;
 
-    local procedure VerifyIfReminderEmailTextExists(var IssuedReminderHeader: Record "Issued Reminder Header"; var ReminderEmailText: Record "Reminder Email Text"): Boolean
+    local procedure GetReminderEmailText(var IssuedReminderHeader: Record "Issued Reminder Header"; var ReminderEmailText: Record "Reminder Email Text"): Boolean
     var
         ReminderLevel: Record "Reminder Level";
         ReminderTerms: Record "Reminder Terms";
@@ -833,6 +809,31 @@ codeunit 1890 "Reminder Communication"
             Error(ReminderTermNotFoundErr, IssuedReminderHeader."Reminder Terms Code");
 
         if ReminderEmailText.Get(ReminderTerms."Reminder Email Text", LanguageCode) then
+            exit(true);
+
+        exit(false);
+    end;
+
+    local procedure GetReminderAttachmentText(var IssuedReminderHeader: Record "Issued Reminder Header"; var ReminderAttachmentText: Record "Reminder Attachment Text"): Boolean
+    var
+        ReminderLevel: Record "Reminder Level";
+        ReminderTerms: Record "Reminder Terms";
+        LanguageCode: Code[10];
+    begin
+        if (IssuedReminderHeader."Reminder Level" = 0) or (IssuedReminderHeader."Reminder Terms Code" = '') then
+            exit(false);
+
+        if not ReminderLevel.Get(IssuedReminderHeader."Reminder Terms Code", IssuedReminderHeader."Reminder Level") then
+            Error(ReminderLevelNotFoundErr, IssuedReminderHeader."Reminder Level", IssuedReminderHeader."Reminder Terms Code");
+
+        LanguageCode := GetCustomerLanguageOrDefaultUserLanguage(IssuedReminderHeader."Customer No.");
+        if ReminderAttachmentText.Get(ReminderLevel."Reminder Attachment Text", LanguageCode) then
+            exit(true);
+
+        if not ReminderTerms.Get(IssuedReminderHeader."Reminder Terms Code") then
+            Error(ReminderTermNotFoundErr, IssuedReminderHeader."Reminder Terms Code");
+
+        if ReminderAttachmentText.Get(ReminderTerms."Reminder Attachment Text", LanguageCode) then
             exit(true);
 
         exit(false);
@@ -926,7 +927,7 @@ codeunit 1890 "Reminder Communication"
         if ReportID <> Report::Reminder then
             exit;
 
-        if (FileExtension <> PDFFileExtensionTok) or (Filename.Contains(ReminderLbl)) then
+        if (FileExtension <> PDFFileExtensionTok) or (not Filename.Contains(ReminderLbl)) then
             exit;
 
         if ReportRecordRef.Number <> IssuedReminderHeader.RecordId.TableNo then
@@ -935,5 +936,20 @@ codeunit 1890 "Reminder Communication"
 
         if FindFileName(IssuedReminderHeader, Filename, FileExtension) then
             Success := true;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Document-Mailing", 'OnBeforeGetAttachmentFileName', '', false, false)]
+    local procedure OnBeforeGetAttachmentFileName(PostedDocNo: Code[20]; ReportUsage: Integer; var AttachmentFileName: Text[250])
+    var
+        IssuedReminderHeader: Record "Issued Reminder Header";
+    begin
+        if ReportUsage <> "Report Selection Usage"::Reminder.AsInteger() then
+            exit;
+
+        if not IssuedReminderHeader.Get(PostedDocNo) then
+            exit;
+
+        if not FindFileName(IssuedReminderHeader, AttachmentFileName, PDFFileExtensionTok) then
+            exit;
     end;
 }

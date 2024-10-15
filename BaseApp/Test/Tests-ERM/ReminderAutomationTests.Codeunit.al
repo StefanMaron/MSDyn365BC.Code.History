@@ -755,6 +755,84 @@ codeunit 134979 "Reminder Automation Tests"
         Assert.AreEqual(0, TempEmaiiItemSent.Count(), 'No emails should be sent on the second run');
     end;
 
+    [Test]
+    procedure TestSendReminderByEmailWithAttachment()
+    var
+        Customer: Record Customer;
+        ReminderTerms: Record "Reminder Terms";
+        ReminderHeader: Record "Reminder Header";
+        IssuedReminderHeader: Record "Issued Reminder Header";
+        SendEmailMock: Codeunit "Send Email Mock";
+        LanguageCode: Code[10];
+    begin
+        // [FEATURE] [Issued Reminders]
+        // [SCENARIO 539690] Set file name from "File Name" on "Reminder Attachment Text"
+        Initialize();
+
+        // [GIVEN] Create reminder term with levels
+        CreateReminderTermsWithLevels(ReminderTerms, GetDefaultDueDatePeriodForReminderLevel(), Any.IntegerInRange(2, 5));
+
+        // [GIVEN] Create reminder attachment text, file name = XXX, language code = Y
+        LanguageCode := LibraryERM.GetAnyLanguageDifferentFromCurrent();
+        CreateReminderAttachmentText(ReminderTerms, LanguageCode);
+
+        // [GIVEN] Create a customer X with overdue entries
+        CreateCustomerWithOverdueEntries(Customer, ReminderTerms, Any.IntegerInRange(2, 5));
+
+        // [GIVEN] Set language code Y for customer X
+        Customer."Language Code" := LanguageCode;
+        Customer.Modify();
+
+        // [GIVEN] Create and issue reminder for customer X 
+        CreateAndIssueReminder(ReminderHeader, Customer."No.");
+
+        // [WHEN] Run action "Send by mail" on issued reminder
+        IssuedReminderHeader.SetRange("Pre-Assigned No.", ReminderHeader."No.");
+        IssuedReminderHeader.FindFirst();
+        BindSubscription(SendEmailMock);
+        SendEmailMock.AddSupportedScenario(Enum::"Email Scenario"::Reminder);
+        IssuedReminderHeader.PrintRecords(false, true, false);
+        UnbindSubscription(SendEmailMock);
+
+        // [THEN] The issued reminder has been sent on mail with file name XXX
+        VerifyReminderMailWithAttachmentSentForCustomer(Customer, 1, SendEmailMock);
+    end;
+
+    local procedure CreateReminderAttachmentText(ReminderTerms: Record "Reminder Terms"; LanguageCode: Code[10])
+    var
+        ReminderLevel: Record "Reminder Level";
+        ReminderAttachmentText: Record "Reminder Attachment Text";
+    begin
+        ReminderAttachmentText.Id := CreateGuid();
+        ReminderAttachmentText."Language Code" := LanguageCode;
+        ReminderAttachmentText."File Name" := CopyStr(LibraryRandom.RandText(20), 1, MaxStrLen(ReminderAttachmentText."File Name"));
+        ReminderAttachmentText.Insert();
+
+        ReminderLevel.SetRange("Reminder Terms Code", ReminderTerms.Code);
+        ReminderLevel.FindFirst();
+        ReminderLevel."Reminder Attachment Text" := ReminderAttachmentText.Id;
+        ReminderLevel.Modify();
+
+        LibraryVariableStorage.Enqueue(ReminderAttachmentText."File Name" + '.pdf');
+    end;
+
+    local procedure CreateAndIssueReminder(var ReminderHeader: Record "Reminder Header"; CustomerNo: Code[20])
+    var
+        SuggestReminderLines: Report "Suggest Reminder Lines";
+    begin
+        LibraryERM.CreateReminderHeader(ReminderHeader);
+        ReminderHeader.Validate("Customer No.", CustomerNo);
+        ReminderHeader.Modify(true);
+
+        ReminderHeader.SetRange("No.", ReminderHeader."No.");
+        SuggestReminderLines.SetTableView(ReminderHeader);
+        SuggestReminderLines.UseRequestPage(false);
+        SuggestReminderLines.Run();
+
+        ReminderHeader.SetRecFilter();
+        Report.RunModal(Report::"Issue Reminders", false, true, ReminderHeader);
+    end;
+
     local procedure GetDefaultDueDatePeriodForReminderLevel(): Integer
     begin
         exit(14);
@@ -817,6 +895,23 @@ codeunit 134979 "Reminder Automation Tests"
         Assert.IsTrue(TempEmailItemSent.HasAttachments(), 'The email has no attachments');
     end;
 
+    local procedure VerifyReminderMailWithAttachmentSentForCustomer(var Customer: Record Customer; TotalNumberOfRemindersSent: Integer; SendEmailMock: Codeunit "Send Email Mock")
+    var
+        TempEmailItemSent: Record "Email Item" temporary;
+        TempBlobList: Codeunit "Temp Blob List";
+        AttachmentNames: List of [Text];
+        AttachmentName: Text;
+    begin
+        SendEmailMock.GetEmailsSent(TempEmailItemSent);
+        Assert.AreEqual(TempEmailItemSent.Count(), TotalNumberOfRemindersSent, 'The number of emails sent was not correct');
+        TempEmailItemSent.SetRange("Send to", Customer."E-Mail");
+        Assert.IsTrue(TempEmailItemSent.FindFirst(), 'The email was not sent to the customer');
+        Assert.IsTrue(TempEmailItemSent.HasAttachments(), 'The email has no attachments');
+
+        TempEmailItemSent.GetAttachments(TempBlobList, AttachmentNames);
+        AttachmentNames.Get(1, AttachmentName);
+        Assert.AreEqual(AttachmentName, LibraryVariableStorage.DequeueText(), 'The file name is not correct.');
+    end;
 
     local procedure IncludeReminderTermsInFilter(var ReminderAutomationCard: TestPage "Reminder Automation Card"; var ReminderTerms: Record "Reminder Terms")
     begin
@@ -1072,6 +1167,7 @@ codeunit 134979 "Reminder Automation Tests"
         LibrarySales: Codeunit "Library - Sales";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryErm: Codeunit "Library - ERM";
+        LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
         Any: Codeunit Any;
         IsInitialized: Boolean;

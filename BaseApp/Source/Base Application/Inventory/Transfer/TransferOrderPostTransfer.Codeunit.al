@@ -75,6 +75,7 @@ codeunit 5856 "TransferOrder-Post Transfer"
         TransLine.SetRange("Document No.", TransHeader."No.");
         TransLine.SetRange("Derived From Line No.", 0);
         TransLine.SetFilter(Quantity, '<>%1', 0);
+        OnRunOnAfterTransLineSetFiltersForCheckShipmentLines(TransLine, TransHeader, Location, WhseShip);
         if TransLine.FindSet() then
             repeat
                 if not WhseShip then
@@ -131,6 +132,7 @@ codeunit 5856 "TransferOrder-Post Transfer"
             WhseRqst.LockTable();
         DirectTransLine.LockTable();
         TransLine.SetRange(Quantity);
+        OnRunOnAfterTransLineSetFiltersForInsertShipmentLines(TransLine, TransHeader, Location, WhseShip);
         if TransLine.FindSet() then
             repeat
                 LineCount := LineCount + 1;
@@ -666,6 +668,16 @@ codeunit 5856 "TransferOrder-Post Transfer"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostItemJnlLine(var DirectTransHeader: Record "Direct Trans. Header"; var TransferLine: Record "Transfer Line"; DirectTransLine: Record "Direct Trans. Line"; WhseShptHeader: Record "Warehouse Shipment Header"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; WhseShip: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterTransLineSetFiltersForCheckShipmentLines(var TransferLine: Record "Transfer Line"; TransferHeader: Record "Transfer Header"; Location: Record Location; WhseShip: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnAfterTransLineSetFiltersForInsertShipmentLines(var TransferLine: Record "Transfer Line"; TransferHeader: Record "Transfer Header"; Location: Record Location; WhseShip: Boolean)
     begin
     end;
 }

@@ -6,6 +6,7 @@ using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Posting;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Reporting;
+using Microsoft.EServices.EDocument;
 using Microsoft.Utilities;
 using Microsoft.Finance.AllocationAccount;
 using System.Environment;
@@ -652,6 +653,11 @@ page 1020 "Job G/L Journal"
                               "Journal Batch Name" = field("Journal Batch Name"),
                               "Line No." = field("Line No.");
             }
+            part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
+            {
+                ApplicationArea = Basic, Suite;
+                ShowFilter = false;
+            }
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -947,6 +953,8 @@ page 1020 "Job G/L Journal"
     begin
         GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
         UpdateBalance();
+        CurrPage.IncomingDocAttachFactBox.PAGE.SetCurrentRecordID(Rec.RecordId);
+        CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
         SetJobQueueVisibility();
     end;
 
@@ -973,6 +981,7 @@ page 1020 "Job G/L Journal"
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
     begin
         PreviewGuid := CreateGuid();
+        CurrPage.IncomingDocAttachFactBox.PAGE.SetCurrentRecordID(Rec.RecordId);
     end;
 
     trigger OnModifyRecord(): Boolean

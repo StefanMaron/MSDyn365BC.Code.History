@@ -24,6 +24,8 @@ codeunit 136320 "Job Consump. Whse. Handling"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
+        InvtPickActivitiesCreatedMsg: Label 'Number of Invt. Pick activities created';
+        QuantityErr: Label 'Quantity must be %1 in %2', Comment = '%1 = Job Planning Line Quantity, %2 = Warehouse Activity Line';
 
     [Test]
     [Scope('OnPrem')]
@@ -198,6 +200,104 @@ codeunit 136320 "Job Consump. Whse. Handling"
         WarehouseActivityHeader.Delete(true);
 
         Location.Validate("Job Consump. Whse. Handling", "Job Consump. Whse. Handling"::"No Warehouse Handling");
+    end;
+
+    [Test]
+    [HandlerFunctions('CreateInvtPutAwayPickMvmtRequestPageHandler,InvtPickCreatedMessageHandler')]
+    [Scope('OnPrem')]
+    procedure InvtPickWhseActivityLinesTakesQtyFromJobPlanningLinesWhenCreateInvtPickFromJob()
+    var
+        Item: Record Item;
+        Location: Record Location;
+        Bin: array[2] of Record Bin;
+        ItemJournalLine: Record "Item Journal Line";
+        Job: Record Job;
+        JobTask: array[2] of Record "Job Task";
+        JobPlanningLine: array[2] of Record "Job Planning Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        // [SCENARIO 540094] When Stan runs Create Inventory Pick from a Job then the Inventory Pick Lines created 
+        // Will have Quantity equal to Job Planning Lines Quantity.
+        Initialize();
+
+        // [GIVEN] Create an Item and Validate Replenishment System, Reorderding Policy and Reserve.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Replenishment System", Item."Replenishment System"::Purchase);
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::"Fixed Reorder Qty.");
+        Item.Validate(Reserve, Item.Reserve::Always);
+        Item.Modify(true);
+
+        // [GIVEN] Create a Location and Validate Require Pick, Bin Mandatory and Job Consump. Whse. Handling.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Require Pick", true);
+        Location.Validate("Bin Mandatory", true);
+        Location.Validate("Job Consump. Whse. Handling", Location."Job Consump. Whse. Handling"::"Inventory Pick");
+        Location.Modify(true);
+
+        // [GIVEN] Create two Bins.
+        LibraryWarehouse.CreateBin(Bin[1], Location.Code, Bin[1].Code, '', '');
+        LibraryWarehouse.CreateBin(Bin[2], Location.Code, Bin[2].Code, '', '');
+
+        // [GIVEN] Create an Item Journal Line.
+        LibraryInventory.CreateItemJnlLine(
+            ItemJournalLine,
+            ItemJournalLine."Entry Type"::"Positive Adjmt.",
+            WorkDate(),
+            Item."No.",
+            LibraryRandom.RandIntInRange(10, 10),
+            Location.Code);
+
+        // [GIVEN] Validate Bin Code in Item Journal Line.
+        ItemJournalLine.Validate("Bin Code", Bin[1].Code);
+        ItemJournalLine.Modify(true);
+
+        // [GIVEN] Post Item Journal Line.
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Create a Job.
+        LibraryJob.CreateJob(Job);
+
+        // [GIVEN] Create two Job Tasks.
+        LibraryJob.CreateJobTask(Job, JobTask[1]);
+        LibraryJob.CreateJobTask(Job, JobTask[2]);
+
+        // [GIVEN] Create Job Planning Line and Reserve Quantity.
+        CreateJobPlanningLineAndReserveQty(JobPlanningLine[1], JobTask[1], Item, Location, Bin[1], LibraryRandom.RandIntInRange(4, 4));
+
+        // [GIVEN] Create Job Planning Line 2 and Reserve Quantity.
+        CreateJobPlanningLineAndReserveQty(JobPlanningLine[2], JobTask[2], Item, Location, Bin[1], LibraryRandom.RandIntInRange(4, 4));
+        Commit();
+
+        // [GIVEN] Create Inventory Pick.
+        Job.CreateInvtPutAwayPick();
+
+        // [WHEN] Find Warehouse Activity Line.
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::"Invt. Pick");
+        WarehouseActivityLine.SetRange("Item No.", Item."No.");
+        WarehouseActivityLine.FindFirst();
+
+        // [THEN] Quantity in Warehouse Activity Line must be equal to Quantity in Job Planning Line.
+        Assert.AreEqual(
+            JobPlanningLine[1].Quantity,
+            WarehouseActivityLine.Quantity,
+            StrSubstNo(
+                QuantityErr,
+                JobPlanningLine[1].Quantity,
+                WarehouseActivityLine.TableCaption()));
+
+        // [WHEN] Find Warehouse Activity Line.
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityLine."Activity Type"::"Invt. Pick");
+        WarehouseActivityLine.SetRange("Item No.", Item."No.");
+        WarehouseActivityLine.FindLast();
+
+        // [THEN] Quantity in Warehouse Activity Line must be equal to Quantity in Job Planning Line 2.
+        Assert.AreEqual(
+            JobPlanningLine[2].Quantity,
+            WarehouseActivityLine.Quantity,
+            StrSubstNo(
+                QuantityErr,
+                JobPlanningLine[2].Quantity,
+                WarehouseActivityLine.TableCaption()));
     end;
 
     local procedure Initialize()
@@ -514,11 +614,36 @@ codeunit 136320 "Job Consump. Whse. Handling"
         JobCalcRemainingUsage.Run();
     end;
 
+    local procedure CreateJobPlanningLineAndReserveQty(
+        var JobPlanningLine: Record "Job Planning Line";
+        JobTask: Record "Job Task";
+        Item: Record Item;
+        Location: Record Location;
+        Bin: Record Bin;
+        Qty: Decimal)
+    begin
+        LibraryJob.CreateJobPlanningLine(JobPlanningLine."Line Type"::Budget, JobPlanningLine.Type::Item, JobTask, JobPlanningLine);
+        JobPlanningLine.Validate("No.", Item."No.");
+        JobPlanningLine.Validate("Location Code", Location.Code);
+        JobPlanningLine.Validate("Bin Code", Bin.Code);
+        JobPlanningLine.Validate("Quantity", Qty);
+        JobPlanningLine.Modify(true);
+
+        JobPlanningLine.AutoReserve();
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure SimpleMessageHandler(Message: Text[1024])
     begin
         LibraryVariableStorage.Enqueue(Message);
+    end;
+
+    [MessageHandler]
+    [Scope('OnPrem')]
+    procedure InvtPickCreatedMessageHandler(Message: Text[1024])
+    begin
+        Assert.IsTrue(StrPos(Message, InvtPickActivitiesCreatedMsg) > 0, Message);
     end;
 
     [RequestPageHandler]
@@ -534,6 +659,13 @@ codeunit 136320 "Job Consump. Whse. Handling"
     begin
         JobCalcRemainingUsage.PostingDate.SetValue(Format(WorkDate()));
         JobCalcRemainingUsage.OK().Invoke();
+    end;
+
+    [RequestPageHandler]
+    procedure CreateInvtPutAwayPickMvmtRequestPageHandler(var CreateInvtPutAwayPickMvmt: TestRequestPage "Create Invt Put-away/Pick/Mvmt")
+    begin
+        CreateInvtPutAwayPickMvmt.CInvtPick.SetValue(true);
+        CreateInvtPutAwayPickMvmt.OK().Invoke();
     end;
 
     [ConfirmHandler]
