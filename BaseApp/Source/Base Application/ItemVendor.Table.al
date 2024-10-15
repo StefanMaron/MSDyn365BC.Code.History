@@ -35,11 +35,6 @@ table 99 "Item Vendor"
         field(7; "Vendor Item No."; Text[50])
         {
             Caption = 'Vendor Item No.';
-
-            trigger OnValidate()
-            begin
-                UpdateItemCrossReference();
-            end;
         }
         field(5700; "Variant Code"; Code[10])
         {

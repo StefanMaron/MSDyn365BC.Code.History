@@ -313,12 +313,13 @@ codeunit 12179 "Export FatturaPA Document"
         with TempXMLBuffer do begin
             AddGroupElement('CessionarioCommittente');
             AddGroupElement('DatiAnagrafici');
-            if not Customer."Individual Person" then begin
+            if (Customer."VAT Registration No." <> '') and (not Customer."Individual Person") then begin
                 AddGroupElement('IdFiscaleIVA');
                 AddNonEmptyElement('IdPaese', Customer."Country/Region Code");
                 AddNonEmptyLastElement('IdCodice', Customer."VAT Registration No.");
             end;
-            AddNonEmptyElement('CodiceFiscale', Customer."Fiscal Code");
+            if CompanyInformation."Country/Region Code" = Customer."Country/Region Code" then
+                AddNonEmptyElement('CodiceFiscale', Customer."Fiscal Code");
 
             // 1.4.1.3 Anagrafica
             AddGroupElement('Anagrafica');
@@ -518,15 +519,25 @@ codeunit 12179 "Export FatturaPA Document"
     local procedure PopulateExtendedTextData(FatturaLine: Record "Fattura Line")
     var
         ExtendedTextLength: Integer;
+        TextToCopy: Text;
+        CurrPosition: Integer;
     begin
         ExtendedTextLength := 60;
         TempXMLBuffer.AddGroupElement('AltriDatiGestionali');
         TempXMLBuffer.AddNonEmptyElement('TipoDato', FatturaLine."Ext. Text Source No");
         TempXMLBuffer.AddNonEmptyElement('RiferimentoTesto', CopyStr(FatturaLine.Description, 1, ExtendedTextLength));
-        if StrLen(FatturaLine.Description) > ExtendedTextLength then
-            TempXMLBuffer.AddNonEmptyElement(
-              'RiferimentoTesto', CopyStr(FatturaLine.Description, ExtendedTextLength + 1, ExtendedTextLength));
-        TempXMLBuffer.GetParent;
+        TempXMLBuffer.GetParent();
+        if StrLen(FatturaLine.Description) > ExtendedTextLength then begin
+            CurrPosition := ExtendedTextLength;
+            repeat
+                TextToCopy := CopyStr(FatturaLine.Description, CurrPosition + 1, ExtendedTextLength);
+                CurrPosition := CurrPosition + StrLen(TextToCopy);
+                TempXMLBuffer.AddGroupElement('AltriDatiGestionali');
+                TempXMLBuffer.AddNonEmptyElement('TipoDato', FatturaLine."Ext. Text Source No");
+                TempXMLBuffer.AddNonEmptyElement('RiferimentoTesto', TextToCopy);
+                TempXMLBuffer.GetParent();
+            until CurrPosition >= StrLen(FatturaLine.Description);
+        end;
     end;
 
     local procedure PopulateAttachedToLinesExtText(var TempFatturaLine: Record "Fattura Line" temporary)

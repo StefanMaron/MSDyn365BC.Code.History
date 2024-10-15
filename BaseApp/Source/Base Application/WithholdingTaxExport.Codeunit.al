@@ -174,7 +174,7 @@ codeunit 12132 "Withholding Tax Export"
     begin
         StartNewRecord(ConstRecordType::A);
 
-        FlatFileManagement.WritePositionalValue(16, 5, ConstFormat::NU, 'CUR17', false); // A-3
+        FlatFileManagement.WritePositionalValue(16, 5, ConstFormat::NU, 'CUR21', false); // A-3
 
         if VendorTaxRepresentative.Get(CompanyInformation."Tax Representative No.") then begin
             FlatFileManagement.WritePositionalValue(21, 2, ConstFormat::NU, '10', false); // A-4
@@ -231,25 +231,25 @@ codeunit 12132 "Withholding Tax Export"
         else
             FlatFileManagement.WritePositionalValue(
               297, 12, ConstFormat::AN, FlatFileManagement.CleanPhoneNumber(CompanyInformation."Phone No."), true); // B-16
-        FlatFileManagement.WritePositionalValue(309, 1, ConstFormat::AN, '1', false); // B-17
+        FlatFileManagement.WritePositionalValue(309, 2, ConstFormat::NP, '1', false); // B-17
 
         TempErrorMessage.LogIfEmpty(
           SigningCompanyOfficials, SigningCompanyOfficials.FieldNo("Fiscal Code"), TempErrorMessage."Message Type"::Error);
-        FlatFileManagement.WritePositionalValue(310, 16, ConstFormat::CF, SigningCompanyOfficials."Fiscal Code", false); // B-18
+        FlatFileManagement.WritePositionalValue(311, 16, ConstFormat::CF, SigningCompanyOfficials."Fiscal Code", false); // B-18
         TempErrorMessage.LogIfEmpty(
           SigningCompanyOfficials, SigningCompanyOfficials.FieldNo("Appointment Code"), TempErrorMessage."Message Type"::Error);
-        FlatFileManagement.WritePositionalValue(326, 2, ConstFormat::NU, SigningCompanyOfficials."Appointment Code", false); // B-19
+        FlatFileManagement.WritePositionalValue(327, 2, ConstFormat::NU, SigningCompanyOfficials."Appointment Code", false); // B-19
         TempErrorMessage.LogIfEmpty(
           SigningCompanyOfficials, SigningCompanyOfficials.FieldNo("Last Name"), TempErrorMessage."Message Type"::Error);
-        FlatFileManagement.WritePositionalValue(328, 24, ConstFormat::AN, SigningCompanyOfficials."Last Name", false); // B-20
+        FlatFileManagement.WritePositionalValue(329, 24, ConstFormat::AN, SigningCompanyOfficials."Last Name", false); // B-20
         TempErrorMessage.LogIfEmpty(
           SigningCompanyOfficials, SigningCompanyOfficials.FieldNo("First Name"), TempErrorMessage."Message Type"::Error);
-        FlatFileManagement.WritePositionalValue(352, 20, ConstFormat::AN, SigningCompanyOfficials."First Name", false); // B-21
+        FlatFileManagement.WritePositionalValue(353, 20, ConstFormat::AN, SigningCompanyOfficials."First Name", false); // B-21
 
         if TaxCode <> '' then
-            FlatFileManagement.WritePositionalValue(372, 11, ConstFormat::CN, TaxCode, false); // B-22
+            FlatFileManagement.WritePositionalValue(373, 11, ConstFormat::CN, TaxCode, false); // B-22
 
-        FlatFileManagement.WritePositionalValue(383, 19, ConstFormat::AN, '0000000000000000000', false); // B-23
+        FlatFileManagement.WritePositionalValue(384, 18, ConstFormat::AN, '000000000000000000', false); // B-23
         FlatFileManagement.WritePositionalValue(402, 8, ConstFormat::NU, Format(CommunicationNumber), false); // B-24
         FlatFileManagement.WritePositionalValue(410, 1, ConstFormat::CB, '0', false); // B-25
         FlatFileManagement.WritePositionalValue(411, 1, ConstFormat::CB, '1', false); // B-26

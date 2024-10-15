@@ -575,6 +575,7 @@ codeunit 144202 "FatturaPA II"
         // [THEN] One more RiferimentoTesto has value of "Y1"
         // [THEN] item's "AltriDatiGestionali"."TipoDato" = "TXTITEM012" (10 chars length) (TFS 296782)
         // [THEN] standard text's "AltriDatiGestionali"."TipoDato" = "STDTEXT012" (10 chars length) (TFS 296782)
+        // TFS 387861: Each RiferimentoTesto tag should be under the AltriDatiGestionali tag
         VerifyAltriDatiGestionaliByExtTexts(ServerFileName, ItemNo, StandardText);
     end;
 
@@ -610,6 +611,7 @@ codeunit 144202 "FatturaPA II"
 
         // [THEN] Each extended texts separated by length 60 and 40 with results in 2 RiferimentoTesto nodes, total 6 nodes for 3 extended texts
         // [THEN] One more RiferimentoTesto has value of "Y1"
+        // TFS 387861: Each RiferimentoTesto tag should be under the AltriDatiGestionali tag
         VerifyAltriDatiGestionaliByExtTexts(ServerFileName, ItemNo, StandardText);
     end;
 
@@ -645,6 +647,7 @@ codeunit 144202 "FatturaPA II"
 
         // [THEN] Each extended texts separated by length 60 and 40 with results in 2 RiferimentoTesto nodes, total 6 nodes for 3 extended texts
         // [THEN] One more RiferimentoTesto has value of "Y1"
+        // TFS 387861: Each RiferimentoTesto tag should be under the AltriDatiGestionali tag
         VerifyAltriDatiGestionaliByExtTexts(ServerFileName, ItemNo, StandardText);
     end;
 
@@ -680,6 +683,7 @@ codeunit 144202 "FatturaPA II"
 
         // [THEN] Each extended texts separated by length 60 and 40 with results in 2 RiferimentoTesto nodes, total 6 nodes for 3 extended texts
         // [THEN] One more RiferimentoTesto has value of "Y1"
+        // TFS 387861: Each RiferimentoTesto tag should be under the AltriDatiGestionali tag
         VerifyAltriDatiGestionaliByExtTexts(ServerFileName, ItemNo, StandardText);
     end;
 
@@ -1231,6 +1235,7 @@ codeunit 144202 "FatturaPA II"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         ElectronicDocumentFormat: Record "Electronic Document Format";
         StandardText: Record "Standard Text";
+        TempXMLBuffer: Record "XML Buffer" temporary;
         ItemNo: Code[20];
         DocumentNo: Code[20];
         ServerFileName: Text[250];
@@ -1259,7 +1264,9 @@ codeunit 144202 "FatturaPA II"
           ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] Euro special character replaced with 'EUR' text
-        VerifyAltriDatiGestionaliByExtTexts(ServerFileName, ItemNo, StandardText);
+        // TFS 387861: Each RiferimentoTesto tag should be under the AltriDatiGestionali tag
+        VerifyAltriDatiGestionaliByExtTextLines(TempXMLBuffer, ServerFileName, ItemNo);
+        VerifyAltriDatiGestionaliShortText(TempXMLBuffer, StandardText.Code, StandardText.Description);
         DeleteServerFile(ServerFileName);
     end;
 
@@ -1628,6 +1635,32 @@ codeunit 144202 "FatturaPA II"
 
         // [THEN] RiferimentoNumeroLinea does not exist in the exported file
         VerifyNoRiferimentoNumeroLineaNodeExists(ServerFileName);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure FatturaProjectAndTenderCodesExportToDatiOrdineNodeForGLAccount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        ElectronicDocumentFormat: Record "Electronic Document Format";
+        ServerFileName: Text[250];
+        ClientFileName: Text[250];
+    begin
+        // [SCENARIO 392702] Fattura Project and Fattura Tender codes export under the DatiOrdine XML node for the line with G/L Account
+
+        Initialize();
+
+        // [GIVEN] Sales order with G/L Account and Fattura Project Code = "X", Fattura Tender Code = "Y"
+        PostSalesOrderWithGLAccountAndFatturaCodes(SalesHeader, LibraryITLocalization.CreateCustomer());
+
+        // [WHEN] The document is exported to FatturaPA.
+        SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesHeader."Bill-to Customer No.");
+        ElectronicDocumentFormat.SendElectronically(ServerFileName,
+          ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
+
+        // [THEN] DatiOrdineAcquisto node has two child nodes with values "X" and "Y"
+        VerifyDatiOrdineAcquistoWithFatturaCodes(ServerFileName, SalesHeader."Fattura Project Code", SalesHeader."Fattura Tender Code");
     end;
 
     local procedure Initialize()
@@ -2232,6 +2265,28 @@ codeunit 144202 "FatturaPA II"
         DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
+    local procedure PostSalesOrderWithGLAccountAndFatturaCodes(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20])
+    var
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GLAccount: Record "G/L Account";
+    begin
+        LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CustomerNo);
+        SalesHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        SalesHeader.Validate("Fattura Project Code", LibraryITLocalization.CreateFatturaProjectCode);
+        SalesHeader.Validate("Fattura Tender Code", LibraryITLocalization.CreateFatturaTenderCode);
+        SalesHeader.Modify(true);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Modify(true);
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", GLAccount."No.", LibraryRandom.RandDec(100, 5));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        SalesLine.Modify(true);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+    end;
+
     local procedure FormatAmount(Amount: Decimal): Text[250]
     begin
         exit(Format(Amount, 0, '<Precision,2:2><Standard Format,9>'))
@@ -2356,6 +2411,11 @@ codeunit 144202 "FatturaPA II"
             i += 1;
             AmountArray[i] := -VATEntry.Amount;
         until VATEntry.Next = 0;
+    end;
+
+    local procedure GetMaxRiferimentoTestoLength(): Integer
+    begin
+        exit(60);
     end;
 
     local procedure SetCheckInVATBusPostingGroupExemption(VATBusPostingGroupCode: Code[20])
@@ -2515,6 +2575,21 @@ codeunit 144202 "FatturaPA II"
         DeleteServerFile(ServerFileName);
     end;
 
+    local procedure VerifyDatiOrdineAcquistoWithFatturaCodes(ServerFileName: Text[250]; FatturaProjectCode: Code[15]; FatturaTenderCode: Code[15])
+    var
+        TempXMLBuffer: Record "XML Buffer" temporary;
+        TempResultElementXMLBuffer: Record "XML Buffer" temporary;
+    begin
+        TempXMLBuffer.Load(ServerFileName);
+        TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiOrdineAcquisto');
+        TempXMLBuffer.FindChildElements(TempResultElementXMLBuffer);
+        Assert.RecordCount(TempResultElementXMLBuffer, 2);
+        AssertCurrentElementValue(TempResultElementXMLBuffer, FatturaProjectCode);
+        FindNextElement(TempResultElementXMLBuffer);
+        AssertCurrentElementValue(TempResultElementXMLBuffer, FatturaTenderCode);
+        DeleteServerFile(ServerFileName);
+    end;
+
     local procedure VerifyNoDatiOrdineAcquistoNode(ServerFileName: Text[250])
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
@@ -2657,14 +2732,22 @@ codeunit 144202 "FatturaPA II"
 
     local procedure VerifyAltriDatiGestionaliByExtTexts(ServerFileName: Text[250]; ItemNo: Code[20]; StandardText: Record "Standard Text")
     var
+        TempXMLBuffer: Record "XML Buffer" temporary;
+    begin
+        VerifyAltriDatiGestionaliByExtTextLines(TempXMLBuffer, ServerFileName, ItemNo);
+        VerifyAltriDatiGestionaliLongText(TempXMLBuffer, StandardText.Code, StandardText.Description);
+        DeleteServerFile(ServerFileName);
+    end;
+
+    local procedure VerifyAltriDatiGestionaliByExtTextLines(var TempXMLBuffer: Record "XML Buffer" temporary; ServerFileName: Text[250]; ItemNo: Code[20])
+    var
         ExtendedTextHeader: Record "Extended Text Header";
         ExtendedTextLine: Record "Extended Text Line";
-        TempXMLBuffer: Record "XML Buffer" temporary;
         XPath: Text;
     begin
         TempXMLBuffer.Load(ServerFileName);
-        XPath := '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/AltriDatiGestionali/TipoDato';
-        TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, XPath);
+        XPath := '/p:FatturaElettronica/FatturaElettronicaBody/DatiBeniServizi/DettaglioLinee/AltriDatiGestionali';
+        Assert.IsTrue(TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, XPath), '');
 
         ExtendedTextLine.SetRange("Table Name", ExtendedTextLine."Table Name"::Item);
         ExtendedTextLine.SetRange("No.", ItemNo);
@@ -2673,26 +2756,37 @@ codeunit 144202 "FatturaPA II"
 
         repeat
             TempXMLBuffer.SetRange(Path);
-            VerifyAltriDatiGestionali(TempXMLBuffer, StrSubstNo(TxtTok, ExtendedTextLine."No."), ExtendedTextLine.Text);
+            VerifyAltriDatiGestionaliLongText(TempXMLBuffer, StrSubstNo(TxtTok, ExtendedTextLine."No."), ExtendedTextLine.Text);
             TempXMLBuffer.SetFilter(Path, '*' + XPath);
             FindNextElement(TempXMLBuffer);
         until ExtendedTextLine.Next = 0;
         TempXMLBuffer.SetRange(Path);
-        VerifyAltriDatiGestionali(TempXMLBuffer, StandardText.Code, StandardText.Description);
-        DeleteServerFile(ServerFileName);
     end;
 
-    local procedure VerifyAltriDatiGestionali(var TempXMLBuffer: Record "XML Buffer" temporary; ExtendedItemNo: Text[100]; ExtendedText: Text[100])
+    local procedure VerifyAltriDatiGestionaliLongText(var TempXMLBuffer: Record "XML Buffer" temporary; ExtendedItemNo: Text[100]; ExtendedText: Text[100])
     var
         XMLFieldLength: Integer;
     begin
+        VerifyAltriDatiGestionaliShortText(TempXMLBuffer, ExtendedItemNo, ExtendedText);
+
+        FindNextElement(TempXMLBuffer); // next AltriDatiGestionali
+        FindNextElement(TempXMLBuffer);
         AssertCurrentElementValue(TempXMLBuffer, CopyStr(ExtendedItemNo, 1, 10));
         FindNextElement(TempXMLBuffer);
-        XMLFieldLength := 60;
+        XMLFieldLength := GetMaxRiferimentoTestoLength;
+        AssertCurrentElementValue(TempXMLBuffer, CopyStr(ExtendedText, XMLFieldLength + 1, MaxStrLen(ExtendedText) - XMLFieldLength));
+    end;
+
+    local procedure VerifyAltriDatiGestionaliShortText(var TempXMLBuffer: Record "XML Buffer" temporary; ExtendedItemNo: Text[100]; ExtendedText: Text[100])
+    var
+        XMLFieldLength: Integer;
+    begin
+        FindNextElement(TempXMLBuffer); // go to TipoDato
+        AssertCurrentElementValue(TempXMLBuffer, CopyStr(ExtendedItemNo, 1, 10));
+        FindNextElement(TempXMLBuffer);
+        XMLFieldLength := GetMaxRiferimentoTestoLength;
         NormalizeText(ExtendedText);
         AssertCurrentElementValue(TempXMLBuffer, CopyStr(ExtendedText, 1, XMLFieldLength));
-        FindNextElement(TempXMLBuffer);
-        AssertCurrentElementValue(TempXMLBuffer, CopyStr(ExtendedText, XMLFieldLength + 1, MaxStrLen(ExtendedText) - XMLFieldLength));
     end;
 
     local procedure VerifyNoAltriDatiGestionaliNode(ServerFileName: Text[250])

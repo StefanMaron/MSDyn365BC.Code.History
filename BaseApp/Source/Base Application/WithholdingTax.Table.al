@@ -162,8 +162,8 @@ table 12116 "Withholding Tax"
         field(53; "Non-Taxable Income Type"; Option)
         {
             Caption = 'Non-Taxable Income Type';
-            OptionCaption = ' ,1,2,5,6,7,8,9,10,11';
-            OptionMembers = " ","1","2","5","6","7","8","9","10","11";
+            OptionCaption = ' ,1,2,5,6,7,8,9,10,11,12,13';
+            OptionMembers = " ","1","2","5","6","7","8","9","10","11","12","13";
 
             trigger OnValidate()
             begin
@@ -251,7 +251,7 @@ table 12116 "Withholding Tax"
         WithholdingTaxCreateQst: Label 'The program will create the withhold entry for entry %1 based on the Withholding Tax Code %2.\Do you want to create the withhold entry?', Comment = 'Parameter 1 - entry number, 2 - withholding tax code';
         WithholdingTaxCreatedMsg: Label 'Withholding tax with entry number %1 has been created.';
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure ValorizzaRitenute()
     begin
         WithholdCode.Get("Withholding Tax Code");

@@ -366,13 +366,14 @@ codeunit 144094 "UT PAG Withhold"
     begin
         // [FEATURE] [UT] [UI]
         // [SCENARIO 345377] Withholding tax card has only following options for Non-Taxable Income Visible: ' ,5,6,7,8,9,10,11' and they are equal to corresponding Tab values
-        Initialize;
+        // TFS 391419: New regulation adds two more options: 12 and 13
+        Initialize();
 
         // [GIVEN] Withholding Tax Card page was open
         WithholdingTaxCard.OpenNew;
 
-        // [THEN] There are 8 options visible in the Non-Taxable Income Type
-        Assert.AreEqual(8, WithholdingTaxCard."Non-Taxable Income Type".OptionCount, 'There must be exactly 4 options in this field');
+        // [THEN] There are 10 options visible in the Non-Taxable Income Type
+        Assert.AreEqual(10, WithholdingTaxCard."Non-Taxable Income Type".OptionCount, 'There must be exactly 10 options in this field');
 
         // [THEN] Empty option equals to tab empty option
         WithholdingTaxCard."Non-Taxable Income Type".SetValue(WithholdingTaxCard."Non-Taxable Income Type".GetOption(1));
@@ -405,6 +406,14 @@ codeunit 144094 "UT PAG Withhold"
         // [THEN] Seventh option is tab option "11"
         WithholdingTaxCard."Non-Taxable Income Type".SetValue(WithholdingTaxCard."Non-Taxable Income Type".GetOption(8));
         WithholdingTaxCard."Non-Taxable Income Type".AssertEquals(WithholdingTax."Non-Taxable Income Type"::"11");
+
+        // [THEN] Eigth option is tab option "12"
+        WithholdingTaxCard."Non-Taxable Income Type".SetValue(WithholdingTaxCard."Non-Taxable Income Type".GetOption(9));
+        WithholdingTaxCard."Non-Taxable Income Type".AssertEquals(WithholdingTax."Non-Taxable Income Type"::"12");
+
+        // [THEN] Ninth option is tab option "13"
+        WithholdingTaxCard."Non-Taxable Income Type".SetValue(WithholdingTaxCard."Non-Taxable Income Type".GetOption(10));
+        WithholdingTaxCard."Non-Taxable Income Type".AssertEquals(WithholdingTax."Non-Taxable Income Type"::"13");
     end;
 
     local procedure Initialize()
