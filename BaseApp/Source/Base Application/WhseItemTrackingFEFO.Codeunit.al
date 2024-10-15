@@ -62,18 +62,20 @@ codeunit 7326 "Whse. Item Tracking FEFO"
                 SetRange("Serial No.", "Serial No.");
                 SetRange("CD No.", "CD No.");
                 FindSet;
-                if not IsItemTrackingBlocked("Item No.", "Variant Code", "Lot No.", "Serial No.", "CD No.") then
+                if not IsItemTrackingBlocked("Item No.", "Variant Code", "Lot No.", "Serial No.", "CD No.") then begin
                     repeat
                         CalcFields("Reserved Quantity");
                         NonReservedQtyLotSN += "Remaining Quantity" - ("Reserved Quantity" - CalcReservedToSource("Entry No."));
-                    until Next = 0;
+                    until Next() = 0;
 
-                if NonReservedQtyLotSN - CalcNonRegisteredQtyOutstanding(
-                     "Item No.", "Variant Code", "Location Code", "Lot No.", "Serial No.", "CD No.", HasExpirationDate) > 0
-                then begin
-                    OnSummarizeInventoryFEFOOnBeforeInsertEntrySummaryFEFO(TempGlobalEntrySummary, ItemLedgEntry);
-                    InsertEntrySummaryFEFO("Lot No.", "Serial No.", "CD No.", "Expiration Date");
-                end;
+                    if NonReservedQtyLotSN - CalcNonRegisteredQtyOutstanding(
+                        "Item No.", "Variant Code", "Location Code", "Lot No.", "Serial No.", "CD No.", HasExpirationDate) > 0
+                    then begin
+                        OnSummarizeInventoryFEFOOnBeforeInsertEntrySummaryFEFO(TempGlobalEntrySummary, ItemLedgEntry);
+                        InsertEntrySummaryFEFO("Lot No.", "Serial No.", "CD No.", "Expiration Date");
+                    end;
+                end else
+                    FindLast();
 
                 SetRange("Lot No.");
                 SetRange("Serial No.");

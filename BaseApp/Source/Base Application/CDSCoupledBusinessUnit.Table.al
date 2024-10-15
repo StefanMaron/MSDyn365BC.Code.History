@@ -13,8 +13,16 @@ table 7201 "CDS Coupled Business Unit"
             Editable = false;
 
             trigger OnValidate()
+            var
+                CDSCoupledBusinesUnit: Record "CDS Coupled Business Unit";
             begin
-                Validate();
+                CDSCoupledBusinesUnit.SetRange("Company Id", "Company Id");
+                if CDSCoupledBusinesUnit.FindFirst() then
+                    if SystemId <> CDSCoupledBusinesUnit.SystemId then begin
+                        if not Confirm(CompanyAlreadyCoupledQst) then
+                            Error('');
+                        SendTraceTag('0000DRI', CategoryTok, Verbosity::Warning, CompanyAlreadyCoupledTxt, DataClassification::SystemMetadata);
+                    end;
             end;
         }
         field(2; "Business Unit Id"; Guid)
@@ -24,8 +32,16 @@ table 7201 "CDS Coupled Business Unit"
             Editable = false;
 
             trigger OnValidate()
+            var
+                CDSCoupledBusinesUnit: Record "CDS Coupled Business Unit";
             begin
-                Validate();
+                CDSCoupledBusinesUnit.SetRange("Business Unit Id", "Business Unit Id");
+                if CDSCoupledBusinesUnit.FindFirst() then
+                    if SystemId <> CDSCoupledBusinesUnit.SystemId then begin
+                        if not Confirm(BusinessUnitAlreadyCoupledQst) then
+                            Error('');
+                        SendTraceTag('0000DRH', CategoryTok, Verbosity::Warning, BusinessUnitAlreadyCoupledTxt, DataClassification::SystemMetadata);
+                    end;
             end;
         }
     }
@@ -42,21 +58,9 @@ table 7201 "CDS Coupled Business Unit"
     }
 
     var
-        BusinessUnitAlreadyCoupledErr: Label 'The coupling Common Data Service Business Unit is coupled to another BC Company.';
-        CompanyAlreadyCoupledErr: Label 'The coupling BC Company is coupled to another Common Data Service Business Unit.';
-
-    local procedure Validate()
-    var
-        CDSCoupledBusinesUnit: Record "CDS Coupled Business Unit";
-    begin
-        CDSCoupledBusinesUnit.SetRange("Business Unit Id", "Business Unit Id");
-        if CDSCoupledBusinesUnit.FindFirst() then
-            if SystemId <> CDSCoupledBusinesUnit.SystemId then
-                Error(BusinessUnitAlreadyCoupledErr);
-
-        CDSCoupledBusinesUnit.SetRange("Company Id", "Company Id");
-        if CDSCoupledBusinesUnit.FindFirst() then
-            if SystemId <> CDSCoupledBusinesUnit.SystemId then
-                Error(CompanyAlreadyCoupledErr);
-    end;
+        BusinessUnitAlreadyCoupledQst: Label 'The specified business unit in Common Data Service is coupled to another Business Central company.\\Do you want to continue anyway?';
+        CompanyAlreadyCoupledQst: Label 'The specified Business Central company is coupled to another business unit in Common Data Service.\\Do you want to continue anyway?';
+        BusinessUnitAlreadyCoupledTxt: Label 'The specified business unit in Common Data Service is coupled to another Business Central company.';
+        CompanyAlreadyCoupledTxt: Label 'The specified Business Central company is coupled to another business unit in Common Data Service.';
+        CategoryTok: Label 'AL Common Data Service Integration', Locked = true;
 }

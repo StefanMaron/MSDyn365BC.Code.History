@@ -2727,8 +2727,8 @@
 
             ReservEntry.SetSourceFilter("Source Type", "Source Subtype", "Source ID", "Source Ref. No.", false);
             ReservEntry.SetSourceFilter('', "Source Prod. Order Line");
-            ReservEntry.CalcSums("Qty. to Handle (Base)");
-            Qty += ReservEntry."Qty. to Handle (Base)";
+            ReservEntry.CalcSums("Quantity (Base)");
+            Qty += ReservEntry."Quantity (Base)";
 
             if "Source Type" = DATABASE::"Transfer Line" then begin
                 TransferLine.Get("Source ID", "Source Ref. No.");

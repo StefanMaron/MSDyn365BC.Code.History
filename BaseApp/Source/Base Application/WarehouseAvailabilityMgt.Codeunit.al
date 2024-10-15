@@ -66,6 +66,7 @@
     var
         ReservEntry: Record "Reservation Entry";
         TempReservEntryBuffer: Record "Reservation Entry Buffer" temporary;
+        ReservMgt: Codeunit "Reservation Management";
         ResPickShipQty: Decimal;
         QtyPicked: Decimal;
         QtyToPick: Decimal;
@@ -84,12 +85,14 @@
 
         with TempReservEntryBuffer do begin
             repeat
-                TransferFields(ReservEntry);
-                if Find then begin
-                    "Quantity (Base)" += ReservEntry."Quantity (Base)";
-                    Modify();
-                end else
-                    Insert();
+                if ReservMgt.ReservEntryPositiveTypeIsItemLedgerEntry(ReservEntry."Entry No.") then begin
+                    TransferFields(ReservEntry);
+                    if Find then begin
+                        "Quantity (Base)" += ReservEntry."Quantity (Base)";
+                        Modify();
+                    end else
+                        Insert();
+                end;
             until ReservEntry.Next() = 0;
 
             if FindSet then

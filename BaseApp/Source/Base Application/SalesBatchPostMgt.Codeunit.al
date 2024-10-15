@@ -25,6 +25,8 @@ codeunit 1371 "Sales Batch Post Mgt."
         PostingCodeunitId: Integer;
         PostingDateIsNotSetErr: Label 'Enter the posting date.';
         BatchPostingMsg: Label 'Bacth posting of sales documents.';
+        ApprovalPendingErr: Label 'Cannot post sales document no. %1 of type %2 because it is pending approval.', Comment = '%1 = Document No.; %2 = Document Type';
+        ApprovalWorkflowErr: Label 'Cannot post sales document no. %1 of type %2 due to the approval workflow.', Comment = '%1 = Document No.; %2 = Document Type';
 
     procedure RunBatch(var SalesHeader: Record "Sales Header"; ReplacePostingDate: Boolean; PostingDate: Date; ReplaceDocumentDate: Boolean; CalcInvoiceDiscount: Boolean; Ship: Boolean; Invoice: Boolean)
     var
@@ -148,19 +150,26 @@ codeunit 1371 "Sales Batch Post Mgt."
     end;
 
     local procedure CanPostDocument(var SalesHeader: Record "Sales Header"): Boolean
-    var
-        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
-        if ApprovalsMgmt.IsSalesApprovalsWorkflowEnabled(SalesHeader) then
-            exit(false);
-
-        if SalesHeader.Status = SalesHeader.Status::"Pending Approval" then
+        if not CheckApprovalWorkflow(SalesHeader) then
             exit(false);
 
         if not SalesHeader.IsApprovedForPostingBatch then
             exit(false);
 
         exit(true);
+    end;
+
+    [TryFunction]
+    local procedure CheckApprovalWorkflow(var SalesHeader: Record "Sales Header")
+    var
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
+    begin
+        if ApprovalsMgmt.IsSalesApprovalsWorkflowEnabled(SalesHeader) then
+            Error(ApprovalWorkflowErr, SalesHeader."No.", SalesHeader."Document Type");
+
+        if SalesHeader.Status = SalesHeader.Status::"Pending Approval" then
+            Error(ApprovalPendingErr, SalesHeader."No.", SalesHeader."Document Type");
     end;
 
     procedure AddParameter(ParameterId: Integer; ParameterValue: Variant)

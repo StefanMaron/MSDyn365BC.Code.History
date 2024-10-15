@@ -292,6 +292,7 @@ report 12461 "VAT Ledger Export XML"
         DataDocPdtvUplTxt: Label 'DataDocPdtvUpl', Comment = 'Should be translated as ´Š¢´Š¢ÔáÅ´Š¢Ôóô´Š¢´Š¢';
         DataUcTovTxt: Label 'DataUcTov', Comment = 'Should be translated as ´Š¢´Š¢ÔáôþÆ«´Š¢';
         RegNomTDTxt: Label 'RegNomTD', Comment = 'Should be translated as ´Š¢´Š¢´Š¢´Š¢´Š¢´Š¢´Š¢´Š¢';
+        KodVidTovarTxt: Label 'KodVidTovar';
 
     [Scope('OnPrem')]
     procedure InitializeReport(NewVATLedgerType: Option; NewVATLedgerCode: Code[20]; NewAddSheet: Boolean)
@@ -469,6 +470,8 @@ report 12461 "VAT Ledger Export XML"
             XMLAddSimpleElement(KodVidOperTxt, "VAT Entry Type");
 
             CreateCDNoList(VATLedgerLine);
+            if "Tariff No." <> '' then
+                XMLAddSimpleElement(KodVidTovarTxt, "Tariff No.");
 
             // payment document
             CreatePurchPaymentDocElement(VATLedgerLine);
@@ -640,6 +643,8 @@ report 12461 "VAT Ledger Export XML"
             XMLAddSimpleElement(KodVidOperTxt, "VAT Entry Type");
 
             CreateCDNoList(VATLedgerLineLocal);
+            if "Tariff No." <> '' then
+                XMLAddSimpleElement(KodVidTovarTxt, "Tariff No.");
 
             // payment document
             CreateSalesPaymentDocElement(VATLedgerLineLocal);
