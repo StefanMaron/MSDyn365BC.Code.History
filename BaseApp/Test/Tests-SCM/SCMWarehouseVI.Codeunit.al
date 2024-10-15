@@ -2162,7 +2162,7 @@ codeunit 137408 "SCM Warehouse VI"
         UpdateItemManufacturing(ProdItem, ProductionBOMHeader."No.");
 
         // [GIVEN] Create and refresh production order for "P".
-        CreateAndRefreshProdOrderOnLocation(ProductionOrder, ProdItem."No.", Location.Code);
+        CreateAndRefreshProdOrderOnLocation(ProductionOrder, ProdItem."No.", Location.Code, 1);
 
         // [WHEN] Create warehouse pick to collect the components.
         LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
@@ -2786,6 +2786,69 @@ codeunit 137408 "SCM Warehouse VI"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('WhseItemTrackingPageHandler')]
+    procedure PartialPickingOfProdOrderComponentsWithItemTracking()
+    var
+        Location: Record Location;
+        Bin: Record Bin;
+        CompItem: Record Item;
+        ProdItem: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        ProdOrderComponent: Record "Prod. Order Component";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        Qty: Decimal;
+    begin
+        // [FEATURE] [Warehouse Pick] [Prod. Order Component] [Item Tracking] [FEFO]
+        // [SCENARIO 397287] Picking a component after registering a previous pick and increasing quantity on the production order line.
+        Initialize();
+        Qty := LibraryRandom.RandInt(10);
+
+        // [GIVEN] Location with FEFO enabled.
+        CreateFullWarehouseSetup(Location);
+        UpdateParametersOnLocation(Location, true, false);
+
+        // [GIVEN] Lot-tracked component item "C".
+        // [GIVEN] Production item "P". "Quantity per" in the production BOM = 1.
+        CreateItemWithItemTrackingCodeWithExpirateDate(CompItem);
+        LibraryInventory.CreateItem(ProdItem);
+        CreateAndCertifyProductionBOM(ProductionBOMHeader, CompItem."No.", ProdItem."Base Unit of Measure", 1);
+        ProdItem.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        ProdItem.Modify(true);
+
+        // [GIVEN] Post 100 pcs of component "C" to inventory via Warehouse Item Journal.
+        FindBin(Bin, Location.Code);
+        CreateAndRegisterWhseJnlLineWithLotAndExpDate(
+          Bin, CompItem."No.", LibraryUtility.GenerateGUID, LibraryRandom.RandDate(30), LibraryRandom.RandIntInRange(50, 100));
+        CalculateAndPostWarehouseAdjustment(CompItem);
+
+        // [GIVEN] Released production order for 2 pcs of item "P".
+        CreateAndRefreshProdOrderOnLocation(ProductionOrder, ProdItem."No.", Location.Code, 2 * Qty);
+
+        // [GIVEN] Create warehouse pick and register it in two iterations, each for 1 pc.
+        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+        UpdateQuantityToHandleInWarehouseActivityLine(ProductionOrder."No.", Qty);
+        RegisterWarehouseActivityHeader(Location.Code, WarehouseActivityHeader.Type::Pick);
+        RegisterWarehouseActivityHeader(Location.Code, WarehouseActivityHeader.Type::Pick);
+
+        // [GIVEN] Increase quantity on the production order line to 3 pcs.
+        FindProductionOrderLine(ProdOrderLine, ProductionOrder."No.");
+        ProdOrderLine.Validate("Quantity (Base)", 3 * Qty);
+        ProdOrderLine.Modify(true);
+
+        // [WHEN] Create warehouse pick for the remaining 1 pc.
+        LibraryWarehouse.CreateWhsePickFromProduction(ProductionOrder);
+
+        // [THEN] The warehouse pick can be registered.
+        RegisterWarehouseActivityHeader(Location.Code, WarehouseActivityHeader.Type::Pick);
+
+        // [THEN] All 3 pcs of the component "C" have been picked.
+        FindProductionOrderComponent(ProdOrderComponent, ProductionOrder."No.");
+        ProdOrderComponent.TestField("Qty. Picked", 3 * Qty);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2882,13 +2945,13 @@ codeunit 137408 "SCM Warehouse VI"
         LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
     end;
 
-    local procedure CreateAndCertifyProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; ItemNo3: Code[20]; UnitOfMeasureCode: Code[10])
+    local procedure CreateAndCertifyProductionBOM(var ProductionBOMHeader: Record "Production BOM Header"; ItemNo3: Code[20]; UnitOfMeasureCode: Code[10]; QtyPer: Decimal)
     var
         ProductionBOMLine: Record "Production BOM Line";
     begin
         LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, UnitOfMeasureCode);
         LibraryManufacturing.CreateProductionBOMLine(
-          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ItemNo3, LibraryRandom.RandDec(10, 2));  // Use random QuantityPer.
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::Item, ItemNo3, QtyPer);
         ProductionBOMHeader.Validate(Status, ProductionBOMHeader.Status::Certified);
         ProductionBOMHeader.Modify(true);
     end;
@@ -3076,10 +3139,10 @@ codeunit 137408 "SCM Warehouse VI"
         WhseReclassificationJournal.Quantity.SetValue(Quantity);
     end;
 
-    local procedure CreateAndRefreshProdOrderOnLocation(var ProductionOrder: Record "Production Order"; ItemNo: Code[20]; LocationCode: Code[10])
+    local procedure CreateAndRefreshProdOrderOnLocation(var ProductionOrder: Record "Production Order"; ItemNo: Code[20]; LocationCode: Code[10]; Qty: Decimal)
     begin
         LibraryManufacturing.CreateProductionOrder(
-          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ItemNo, 1);
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ItemNo, Qty);
         ProductionOrder.Validate("Location Code", LocationCode);
         ProductionOrder.Modify(true);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, true);
@@ -3309,7 +3372,7 @@ codeunit 137408 "SCM Warehouse VI"
         CreateAndUpdateLocation(Location, false, false);
         LibraryInventory.CreateItem(Item);  // Use Item for Parent Item.
         LibraryInventory.CreateItem(Item2);  // Use Item2 for Child Item.
-        CreateAndCertifyProductionBOM(ProductionBOMHeader, Item2."No.", Item."Base Unit of Measure");
+        CreateAndCertifyProductionBOM(ProductionBOMHeader, Item2."No.", Item."Base Unit of Measure", LibraryRandom.RandInt(10));
         Item.Validate("Production BOM No.", ProductionBOMHeader."No.");
         Item.Modify(true);
         CreateAndPostItemJournalLine(ItemJournalLine, ItemJournalLine."Entry Type"::"Positive Adjmt.", Item."No.", Location.Code);

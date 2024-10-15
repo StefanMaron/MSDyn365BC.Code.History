@@ -2980,6 +2980,28 @@ codeunit 131300 "Library - ERM"
         CompanyInformation.Modify(true);
     end;
 
+    procedure UpdateSalesPrepmtAccountVATGroup(GenBusPostingGroupCode: Code[20]; GenProdPostingGroupCode: Code[20]; NewVATProdPostingGroupCode: Code[20])
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        GLAccount: Record "G/L Account";
+    begin
+        GeneralPostingSetup.Get(GenBusPostingGroupCode, GenProdPostingGroupCode);
+        GLAccount.Get(GeneralPostingSetup."Sales Prepayments Account");
+        GLAccount.Validate("VAT Prod. Posting Group", NewVATProdPostingGroupCode);
+        GLAccount.Modify();
+    end;
+
+    procedure UpdatePurchPrepmtAccountVATGroup(GenBusPostingGroupCode: Code[20]; GenProdPostingGroupCode: Code[20]; NewVATProdPostingGroupCode: Code[20])
+    var
+        GeneralPostingSetup: Record "General Posting Setup";
+        GLAccount: Record "G/L Account";
+    begin
+        GeneralPostingSetup.Get(GenBusPostingGroupCode, GenProdPostingGroupCode);
+        GLAccount.Get(GeneralPostingSetup."Purch. Prepayments Account");
+        GLAccount.Validate("VAT Prod. Posting Group", NewVATProdPostingGroupCode);
+        GLAccount.Modify();
+    end;
+
     procedure VATAmountRounding(VATAmount: Decimal; CurrencyCode: Code[10]): Decimal
     var
         Currency: Record Currency;

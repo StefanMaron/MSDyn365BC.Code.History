@@ -1,6 +1,9 @@
 table 8451 "Intrastat Checklist Setup"
 {
     Caption = 'Intrastat Checklist Setup';
+    ObsoleteState = Pending;
+    ObsoleteTag = '19.0';
+    ObsoleteReason = 'Replaced by Advanced Intrastat Checklist';
 
     fields
     {

@@ -15,6 +15,10 @@ pageextension 10539 "MTD Report Setup" extends "VAT Report Setup"
                 ToolTip = 'Specifies if fraud prevention headers are disabled. Choose the field if you do not want to include fraud prevention headers in the HTTP requests that are sent to HMRC.';
                 ApplicationArea = Basic, Suite;
                 Importance = Additional;
+                ObsoleteState = Pending;
+                ObsoleteTag = '19.0';
+                ObsoleteReason = 'Replaced by configurable Fraud Prevention Headers Setup page';
+                Visible = false;
             }
             group(Connection)
             {

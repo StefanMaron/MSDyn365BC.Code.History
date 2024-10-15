@@ -2459,6 +2459,7 @@ codeunit 134331 "ERM Purchase Payables"
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryERMCountryData.UpdatePrepaymentAccounts();
         IsInitialized := true;
         Commit();
 

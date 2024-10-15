@@ -15,7 +15,7 @@ page 1394 "Trial Balance Setup"
                 Caption = '';
                 group(Control1)
                 {
-                    InstructionalText = 'Note that the trial balance page shows a maximum of 9 rows because it is intended to show a simplified version of the G/L Trial Balance chart.';
+                    InstructionalText = 'The Trial Balance page shows a simplified version of the Trial Balance chart. It shows the first nine rows from the account schedule, and the first two columns defined for the column layout in reverse order. The second column is on the left, and the first column is on the right. You can set the order of the columns on the Column Layouts page.';
                     ShowCaption = false;
                 }
             }
