@@ -118,7 +118,8 @@ codeunit 1221 "SEPA CT-Fill Export Buffer"
                     AddRemittanceText(TempGenJnlLine."Recipient Ref. Abroad");
                 if TempGenJnlLine.KID <> '' then
                     KID := TempGenJnlLine.KID;
-
+                if TempGenJnlLine."External Document No." <> '' then
+                    "External Document No." := TempGenJnlLine."External Document No.";
                 Validate(Urgent, TempGenJnlLine.Urgent);
 
                 UpdateGenJnlFields(PaymentExportData, TempGenJnlLine, BankExportImportSetup."Reg.Reporting Thresh.Amt (LCY)");

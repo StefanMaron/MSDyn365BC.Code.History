@@ -464,6 +464,10 @@ table 1226 "Payment Export Data"
         {
             Caption = 'KID';
         }
+        field(15000002; "External Document No."; Code[35])
+        {
+            Caption = 'External Document No.';
+        }
     }
 
     keys

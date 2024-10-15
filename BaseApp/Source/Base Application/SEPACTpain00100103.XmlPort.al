@@ -396,15 +396,25 @@ xmlport 1000 "SEPA CT pain.001.001.03"
                                             }
                                         }
                                     }
-                                    fieldelement(Ref; PaymentExportData.KID)
+                                    textelement(rmtinfref)
                                     {
                                         MinOccurs = Zero;
+                                        XmlName = 'Ref';
+
+                                        trigger OnBeforePassVariable()
+                                        begin
+                                            if PaymentExportData.KID <> '' then
+                                                rmtinfref := PaymentExportData.KID
+                                            else
+                                                if PaymentExportData."External Document No." <> '' then
+                                                    rmtinfref := PaymentExportData."External Document No.";
+                                        end;
                                     }
                                 }
 
                                 trigger OnAfterAssignVariable()
                                 begin
-                                    if PaymentExportData.KID = '' then
+                                    if (PaymentExportData.KID = '') and (PaymentExportData."External Document No." = '') then
                                         currXMLport.Skip();
                                 end;
                             }
