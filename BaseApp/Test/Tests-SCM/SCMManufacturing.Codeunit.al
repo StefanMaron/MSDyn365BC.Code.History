@@ -23,6 +23,7 @@ codeunit 137404 "SCM Manufacturing"
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryDimension: Codeunit "Library - Dimension";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
         ExchangeNo: Code[20];
         ItemNo2: Code[20];
@@ -79,6 +80,7 @@ codeunit 137404 "SCM Manufacturing"
         WrongProdOrderLinesCountErr: Label 'Wrong number of production order lines created';
         ItemNoProdOrderErr: Label '%1 must be equal to';
         DueDateEmptyErr: Label 'Due Date must have a value in Production Order';
+        CircularRefInBOMErr: Label 'The production BOM %1 has a circular reference. Pay attention to the production BOM %2 that closes the loop.', Comment = '%1 = Production BOM No., %2 = Production BOM No.';
 
     [Test]
     [HandlerFunctions('ConfirmHandlerTrue,OutputJournalItemtrackingPageHandler,MessageHandler')]
@@ -383,6 +385,7 @@ codeunit 137404 "SCM Manufacturing"
         ShowError := true;  // This variable is made Global as it is used in the Handler.
 
         // [WHEN] Run the Registered Absence From Work Center Report with blank data and catch the Error.
+        Commit();
         Clear(RegAbsFromWorkCenter);
         asserterror RegAbsFromWorkCenter.Run;
 
@@ -470,6 +473,7 @@ codeunit 137404 "SCM Manufacturing"
         EndingTimeError := true;  // This variable is made Global as it is used in the Handler.
 
         // [WHEN] Run the Registered Absence From Machine Center report with blank data and catch the Error.
+        Commit();
         Clear(RegAbsFromMachineCtr);
         asserterror RegAbsFromMachineCtr.Run;
 
@@ -497,6 +501,7 @@ codeunit 137404 "SCM Manufacturing"
         StartingTime := CalculateEndingTime(WorkCenter, EndingTime + 10000);  // StartingTime must be Greater than EndingTime to Generate the Error.
 
         // [WHEN] Run the Registered Absence From Machine Center report and catch the Error.
+        Commit();
         Clear(RegAbsFromMachineCtr);
         asserterror RegAbsFromMachineCtr.Run;
 
@@ -3442,6 +3447,152 @@ codeunit 137404 "SCM Manufacturing"
         PlanningRoutingLine.TestField("Ending Date-Time", PlanningRoutingLine."Starting Date-Time");
     end;
 
+    [Test]
+    procedure ErrorOnCertifyProductionBOMWithCircularReferenceOneLevel()
+    var
+        Item: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        // [FEATURE] [Production BOM]
+        // [SCENARIO 410142] Error on certify production BOM with one-level circular reference.
+        Initialize();
+
+        // [GIVEN] Disable dynamic low-level code in Manufacturing Setup.
+        UpdateDynamicLowLevelCodeInMfgSetup(false);
+
+        // [GIVEN] Create production BOM that refers to itself.
+        LibraryInventory.CreateItem(Item);
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::"Production BOM", ProductionBOMHeader."No.", 1);
+
+        // [WHEN] Try to certify the production BOM.
+        asserterror LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader, ProductionBOMHeader.Status::Certified);
+
+        // [THEN] "The production BOM contains a circular reference" error message is shown.
+        Assert.ExpectedError(StrSubstNo(CircularRefInBOMErr, ProductionBOMHeader."No.", ProductionBOMHeader."No."));
+    end;
+
+    [Test]
+    procedure ErrorOnCertifyProductionBOMWithCircularReferenceThreeLevels()
+    var
+        Item: Record Item;
+        ProductionBOMHeader: array[3] of Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        // [FEATURE] [Production BOM]
+        // [SCENARIO 410142] Error on certify production BOM with three-levels circular reference.
+        Initialize();
+
+        // [GIVEN] Disable dynamic low-level code in Manufacturing Setup.
+        UpdateDynamicLowLevelCodeInMfgSetup(false);
+
+        // [GIVEN] Create production BOMs "A", "B", and "C".
+        // [GIVEN] Production BOM "A" refers to "B", "B" refers to "C", and "C" refers to "A".
+        LibraryInventory.CreateItem(Item);
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader[1], Item."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader[2], Item."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader[3], Item."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader[1], ProductionBOMLine, '', ProductionBOMLine.Type::"Production BOM", ProductionBOMHeader[2]."No.", 1);
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader[2], ProductionBOMLine, '', ProductionBOMLine.Type::"Production BOM", ProductionBOMHeader[3]."No.", 1);
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader[3], ProductionBOMLine, '', ProductionBOMLine.Type::"Production BOM", ProductionBOMHeader[1]."No.", 1);
+
+        // [GIVEN] Certify production BOMs "C" and "B".
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader[3], ProductionBOMHeader[3].Status::Certified);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader[2], ProductionBOMHeader[2].Status::Certified);
+
+        // [WHEN] Try to certify the production BOM "A".
+        asserterror LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader[1], ProductionBOMHeader[1].Status::Certified);
+
+        // [THEN] "The production BOM contains a circular reference" error message is shown.
+        Assert.ExpectedError(StrSubstNo(CircularRefInBOMErr, ProductionBOMHeader[1]."No.", ProductionBOMHeader[3]."No."));
+    end;
+
+    [Test]
+    procedure ErrorOnCertifyProductionBOMWithCircularReferenceAndVersion()
+    var
+        Item: Record Item;
+        ProductionBOMHeader: array[2] of Record "Production BOM Header";
+        ProductionBOMVersion: Record "Production BOM Version";
+        ProductionBOMLine: Record "Production BOM Line";
+    begin
+        // [FEATURE] [Production BOM]
+        // [SCENARIO 410142] Error on certify production BOM with version and circular reference.
+        Initialize();
+
+        // [GIVEN] Disable dynamic low-level code in Manufacturing Setup.
+        UpdateDynamicLowLevelCodeInMfgSetup(false);
+
+        // [GIVEN] Create production BOMs "A" and "B".
+        // [GIVEN] Create BOM version "B+" for the BOM "B".
+        // [GIVEN] Production BOM "A" refers to "B", "B" refers to an item, but version "B+" refers to "A".
+        LibraryInventory.CreateItem(Item);
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader[1], Item."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader[2], Item."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader[1], ProductionBOMLine, '', ProductionBOMLine.Type::"Production BOM", ProductionBOMHeader[2]."No.", 1);
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader[2], ProductionBOMLine, '', ProductionBOMLine.Type::Item, LibraryInventory.CreateItemNo(), 1);
+        LibraryManufacturing.CreateProductionBOMVersion(
+          ProductionBOMVersion, ProductionBOMHeader[2]."No.", LibraryUtility.GenerateGUID, Item."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader[2], ProductionBOMLine, ProductionBOMVersion."Version Code",
+          ProductionBOMLine.Type::"Production BOM", ProductionBOMHeader[1]."No.", 1);
+
+        // [GIVEN] Certify production BOM "B" and version "B+".
+        ProductionBOMVersion.Validate(Status, ProductionBOMVersion.Status::Certified);
+        ProductionBOMVersion.Modify(true);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader[2], ProductionBOMHeader[2].Status::Certified);
+
+        // [WHEN] Try to certify the production BOM "A".
+        asserterror LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader[1], ProductionBOMHeader[1].Status::Certified);
+
+        // [THEN] "The production BOM contains a circular reference" error message is shown.
+        Assert.ExpectedError(StrSubstNo(CircularRefInBOMErr, ProductionBOMHeader[1]."No.", ProductionBOMHeader[2]."No."));
+    end;
+
+    [Test]
+    [HandlerFunctions('BOMStructurePageHandler')]
+    procedure ErrorOnShowBOMStructureWithCircularReference()
+    var
+        Item: Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        BOMStructure: Page "BOM Structure";
+    begin
+        // [FEATURE] [Production BOM]
+        // [SCENARIO 410142] Error on show BOM structure with circular reference.
+        Initialize();
+
+        // [GIVEN] Disable dynamic low-level code in Manufacturing Setup.
+        UpdateDynamicLowLevelCodeInMfgSetup(false);
+
+        // [GIVEN] Certified production BOM that refers to itself. Do not validate Status, assume that the looping BOM existed before the fix.
+        LibraryInventory.CreateItem(Item);
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader, Item."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader, ProductionBOMLine, '', ProductionBOMLine.Type::"Production BOM", ProductionBOMHeader."No.", 1);
+        ProductionBOMHeader.Status := ProductionBOMHeader.Status::Certified;
+        ProductionBOMHeader.Modify();
+
+        // [GIVEN] Assign the production BOM to an item.
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Production BOM No.", ProductionBOMHeader."No.");
+        Item.Modify(true);
+
+        // [WHEN] Open "BOM Structure" for the item.
+        Item.SetRecFilter();
+        BOMStructure.InitItem(Item);
+        asserterror BOMStructure.Run();
+
+        // [THEN] "The production BOM contains a circular reference" error message is shown.
+        Assert.ExpectedError(StrSubstNo(CircularRefInBOMErr, ProductionBOMHeader."No.", ProductionBOMHeader."No."));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3466,6 +3617,7 @@ codeunit 137404 "SCM Manufacturing"
         Clear(GLB_ItemTrackingQty);
         Clear(GLB_SerialNo);
         LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore();
 
         // Lazy Setup.
         if isInitialized then
@@ -3474,6 +3626,8 @@ codeunit 137404 "SCM Manufacturing"
 
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
+
+        LibrarySetupStorage.SaveManufacturingSetup();
 
         isInitialized := true;
         Commit();
@@ -5307,6 +5461,15 @@ codeunit 137404 "SCM Manufacturing"
         RestoreManufacturingSetup(NewDocNoIsProdOrderNo);
     end;
 
+    local procedure UpdateDynamicLowLevelCodeInMfgSetup(DynamicLowLevelCode: Boolean)
+    var
+        ManufacturingSetup: Record "Manufacturing Setup";
+    begin
+        ManufacturingSetup.Get();
+        ManufacturingSetup."Dynamic Low-Level Code" := DynamicLowLevelCode;
+        ManufacturingSetup.Modify(true);
+    end;
+
     local procedure UpdateProductionOrderComponent(ProductionOrderNo: Code[20]; ItemNo: Code[20])
     var
         ProdOrderComponent: Record "Prod. Order Component";
@@ -5980,6 +6143,11 @@ codeunit 137404 "SCM Manufacturing"
         ReservationPage.First;
         ReservationPage."Auto Reserve".Invoke;
         ReservationPage.OK.Invoke;
+    end;
+
+    [PageHandler]
+    procedure BOMStructurePageHandler(var BOMStructure: TestPage "BOM Structure")
+    begin
     end;
 
     local procedure CreateRoutingAndBOM(ItemNo: Code[20]; ComponentNo: Code[20]; WorkCenterNo: Code[20]; ConcurrentCapacities: Integer; RoutingLinkCode: Code[10])

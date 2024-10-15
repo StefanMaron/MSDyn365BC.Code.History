@@ -4346,6 +4346,27 @@ codeunit 137079 "SCM Production Order III"
         ItemLedgerEntry.TestField("Cost Amount (Expected)", ProdOrderLine."Cost Amount");
     end;
 
+    [Test]
+    procedure LastModifiedDateUpdatedOnChangeDueDate()
+    var
+        ProductionOrder: Record "Production Order";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 410598] Update "Last Date Modified" on change due date in production order.
+        Initialize();
+
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Planned, ProductionOrder."Source Type"::Item, LibraryInventory.CreateItemNo(),
+          LibraryRandom.RandInt(10));
+        ProductionOrder."Last Date Modified" := 0D;
+        ProductionOrder.Modify();
+
+        ProductionOrder.SetUpdateEndDate();
+        ProductionOrder.Validate("Due Date", LibraryRandom.RandDateFrom(ProductionOrder."Due Date", 10));
+
+        ProductionOrder.TestField("Last Date Modified", Today);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Production Order III");

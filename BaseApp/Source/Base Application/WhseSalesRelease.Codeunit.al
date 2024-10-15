@@ -19,7 +19,10 @@ codeunit 5771 "Whse.-Sales Release"
         OldWhseType: Enum "Warehouse Request Type";
         IsHandled: Boolean;
     begin
-        OnBeforeRelease(SalesHeader);
+        IsHandled := false;
+        OnBeforeRelease(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
 
         IsHandled := false;
         OnBeforeReleaseSetWhseRequestSourceDocument(SalesHeader, WhseRqst, IsHandled);
@@ -80,7 +83,10 @@ codeunit 5771 "Whse.-Sales Release"
         WhseRqst: Record "Warehouse Request";
         IsHandled: Boolean;
     begin
-        OnBeforeReopen(SalesHeader);
+        IsHandled := false;
+        OnBeforeReopen(SalesHeader, IsHandled);
+        if IsHandled then
+            exit;
 
         with SalesHeader do begin
             IsHandled := false;
@@ -198,7 +204,7 @@ codeunit 5771 "Whse.-Sales Release"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRelease(var SalesHeader: Record "Sales Header")
+    local procedure OnBeforeRelease(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 
@@ -208,7 +214,7 @@ codeunit 5771 "Whse.-Sales Release"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeReopen(var SalesHeader: Record "Sales Header")
+    local procedure OnBeforeReopen(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
     begin
     end;
 

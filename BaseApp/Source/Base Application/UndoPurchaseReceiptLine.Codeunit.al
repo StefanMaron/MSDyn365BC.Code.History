@@ -216,9 +216,12 @@ codeunit 5813 "Undo Purchase Receipt Line"
         SourceCodeSetup: Record "Source Code Setup";
         TempApplyToEntryList: Record "Item Ledger Entry" temporary;
         ItemApplicationEntry: Record "Item Application Entry";
+        ItemLedgerEntry: Record "Item Ledger Entry";
         Item: Record Item;
         ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         ItemLedgEntryNo: Integer;
+        ItemRcptEntryNo: Integer;
+        ItemShptEntryNo: Integer;
         IsHandled: Boolean;
         NewDocLineNo: Integer;
     begin
@@ -295,22 +298,32 @@ codeunit 5813 "Undo Purchase Receipt Line"
                     if "Job No." <> '' then begin
                         Item.Get("No.");
                         if Item.Type = Item.Type::Inventory then begin
-                            UndoPostingMgt.FindItemReceiptApplication(ItemApplicationEntry, "Item Rcpt. Entry No.");
+                            ItemLedgerEntry.Get("Item Rcpt. Entry No.");
+                            if ItemLedgerEntry.Positive then begin
+                                ItemRcptEntryNo := "Item Rcpt. Entry No.";
+                                ItemShptEntryNo := ItemJnlLine."Item Shpt. Entry No.";
+                            end else begin
+                                ItemApplicationEntry.GetInboundEntriesTheOutbndEntryAppliedTo("Item Rcpt. Entry No.");
+                                ItemRcptEntryNo := ItemApplicationEntry."Inbound Item Entry No.";
+                                ItemApplicationEntry.GetOutboundEntriesAppliedToTheInboundEntry(ItemJnlLine."Item Shpt. Entry No.");
+                                ItemShptEntryNo := ItemApplicationEntry."Outbound Item Entry No.";
+                            end;
+                            UndoPostingMgt.FindItemReceiptApplication(ItemApplicationEntry, ItemRcptEntryNo);
                             ItemJnlPostLine.UndoValuePostingWithJob(
-                              "Item Rcpt. Entry No.", ItemApplicationEntry."Outbound Item Entry No.");
+                              ItemRcptEntryNo, ItemApplicationEntry."Outbound Item Entry No.");
                             IsHandled := false;
                             OnPostItemJournalInboundItemEntryPostingWithJob(ItemJnlLine, ItemApplicationEntry, IsHandled);
                             if not IsHandled then begin
-                                UndoPostingMgt.FindItemShipmentApplication(ItemApplicationEntry, ItemJnlLine."Item Shpt. Entry No.");
+                                UndoPostingMgt.FindItemShipmentApplication(ItemApplicationEntry, ItemShptEntryNo);
                                 ItemJnlPostLine.UndoValuePostingWithJob(
-                                  ItemApplicationEntry."Inbound Item Entry No.", ItemJnlLine."Item Shpt. Entry No.");
+                                  ItemApplicationEntry."Inbound Item Entry No.", ItemShptEntryNo);
                             end;
                             Clear(UndoPostingMgt);
-                            UndoPostingMgt.ReapplyJobConsumption("Item Rcpt. Entry No.");
+                            UndoPostingMgt.ReapplyJobConsumption(ItemRcptEntryNo);
                         end;
                     end;
 
-                exit(ItemJnlLine."Item Shpt. Entry No.");
+                exit(ItemShptEntryNo);
             end;
 
             UndoPostingMgt.CollectItemLedgEntries(
@@ -383,7 +396,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
 
         with PurchRcptLine do begin
             PurchLine.Get(PurchLine."Document Type"::Order, "Order No.", "Order Line No.");
-            OnUpdateOrderLineOnBeforeUpdatePurchLine(PurchRcptLine);
+            OnUpdateOrderLineOnBeforeUpdatePurchLine(PurchRcptLine, PurchLine);
             UndoPostingMgt.UpdatePurchLine(PurchLine, Quantity - "Quantity Invoiced", "Quantity (Base)" - "Qty. Invoiced (Base)", TempGlobalItemLedgEntry);
             UndoPostingMgt.UpdatePurchaseLineOverRcptQty(PurchLine, "Over-Receipt Quantity");
             OnAfterUpdateOrderLine(PurchRcptLine, PurchLine);
@@ -596,7 +609,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateOrderLineOnBeforeUpdatePurchLine(var PurchRcptLine: Record "Purch. Rcpt. Line")
+    local procedure OnUpdateOrderLineOnBeforeUpdatePurchLine(var PurchRcptLine: Record "Purch. Rcpt. Line"; var PurchaseLine: Record "Purchase Line")
     begin
     end;
 }

@@ -557,7 +557,13 @@ codeunit 8618 "Config. Excel Exchange"
         FieldRef: FieldRef;
         TableColumnName: Text;
         ColumnID: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateTableColumnNames(ConfigPackageField, ConfigPackageTable, TypeHelper, ConfigXMLExchange, OpenXMLManagement, IsHandled);
+        if IsHandled then
+            exit;
+
         RecRef.Open(ConfigPackageTable."Table ID");
         ConfigPackageField.SetCurrentKey("Package Code", "Table ID", "Processing Order");
         if ConfigPackageField.FindSet then begin
@@ -780,6 +786,11 @@ codeunit 8618 "Config. Excel Exchange"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeBLOBExport(var TempBlob: Codeunit "Temp Blob")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateTableColumnNames(var ConfigPackageField: Record "Config. Package Field"; var ConfigPackageTable: Record "Config. Package Table"; var TypeHelper: Codeunit "Type Helper"; var ConfigXMLExchange: Codeunit "Config. XML Exchange"; var OpenXMLManagement: Codeunit "OpenXML Management"; var IsHandled: Boolean)
     begin
     end;
 
