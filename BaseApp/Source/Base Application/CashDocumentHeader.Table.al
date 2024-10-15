@@ -524,6 +524,9 @@ table 11730 "Cash Document Header"
             Caption = 'EET Cash Register';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31125; "EET Transaction"; Boolean)
         {
@@ -533,6 +536,9 @@ table 11730 "Cash Document Header"
             Caption = 'EET Transaction';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '18.0';
         }
     }
 

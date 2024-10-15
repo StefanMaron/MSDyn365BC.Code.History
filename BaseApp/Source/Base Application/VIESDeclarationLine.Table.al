@@ -253,6 +253,7 @@ table 31067 "VIES Declaration Line"
         VIESDeclarationHeader.TestField(Status, VIESDeclarationHeader.Status::Open);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure GetTradeRole(): Code[10]
     begin
@@ -270,6 +271,7 @@ table 31067 "VIES Declaration Line"
             exit('3');
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure GetCancelCode(): Code[10]
     begin
@@ -278,12 +280,14 @@ table 31067 "VIES Declaration Line"
         exit(CancelNoTxt);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure GetVATRegNo(): Code[20]
     begin
         exit(FormatVATRegNo("VAT Registration No."));
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure GetOrigCustVATRegNo(): Code[20]
     begin
@@ -303,6 +307,7 @@ table 31067 "VIES Declaration Line"
         exit(VATRegNo);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure DrillDownAmountLCY()
     var
@@ -347,6 +352,7 @@ table 31067 "VIES Declaration Line"
         PAGE.Run(0, TempVATEntry);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure CheckLineType()
     begin

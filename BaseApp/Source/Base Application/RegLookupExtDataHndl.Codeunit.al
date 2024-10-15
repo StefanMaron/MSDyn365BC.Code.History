@@ -20,6 +20,7 @@ codeunit 11797 "Reg. Lookup Ext. Data Hndl"
         RegNoValidationWebServiceURLTxt: Label 'http://wwwinfo.mfcr.cz/cgi-bin/ares/darv_bas.cgi', Locked = true;
         NamespaceTxt: Label 'http://wwwinfo.mfcr.cz/ares/xml_doc/schemas/ares/ares_datatypes/v_1.0.3', Locked = true;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure LookupRegistrationFromService(ShowErrors: Boolean)
     var
@@ -68,6 +69,7 @@ codeunit 11797 "Reg. Lookup Ext. Data Hndl"
         exit(RegNoValidationWebServiceURLTxt);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure SetRegistrationLog(RegnLog: Record "Registration Log")
     begin

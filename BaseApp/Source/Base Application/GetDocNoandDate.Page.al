@@ -37,6 +37,7 @@ page 31107 "Get Doc.No and Date"
         CloseDocNo: Code[20];
         CloseDate: Date;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure SetValues(NewDocNo: Code[20]; NewPostingDate: Date)
     begin
@@ -44,6 +45,7 @@ page 31107 "Get Doc.No and Date"
         CloseDate := NewPostingDate;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure GetValues(var NewDocNo: Code[20]; var NewPostingDate: Date)
     begin

@@ -39,6 +39,7 @@
         DimSetFilterCtr: Integer;
         IsCollectErrorsMode: Boolean;
         SourceCode: Code[10];
+        [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
         DontCheckDim: Boolean;
         InitDimQst: Label 'Do you want to initialize dimensions the selected tables. This may take some time and you can undo your changes. Do you really want to continue?';
         EnterDimErr: Label 'You must enter dimension %1.', Comment = '%1 = dimension code';
@@ -2329,6 +2330,7 @@
             until DefaultDim.Next = 0;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure SetCheckDim(NewPostDate: Date)
     var

@@ -183,12 +183,18 @@ page 11735 "Posted Cash Document"
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the EET entry number.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Receipt Serial No."; "Receipt Serial No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies the serial no. of the EET receipt.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                    ObsoleteTag = '18.0';
                 }
                 field("Created ID"; "Created ID")
                 {
@@ -239,6 +245,9 @@ page 11735 "Posted Cash Document"
                 Caption = 'EET Entry';
                 Image = Entry;
                 ToolTip = 'Shows a card of the recorded sale entry.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                ObsoleteTag = '18.0';
 
                 trigger OnAction()
                 begin

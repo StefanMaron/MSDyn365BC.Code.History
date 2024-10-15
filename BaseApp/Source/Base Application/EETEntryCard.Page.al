@@ -1,9 +1,12 @@
 page 31124 "EET Entry Card"
 {
-    Caption = 'EET Entry Card';
+    Caption = 'EET Entry Card (Obsolete)';
     Editable = false;
     PageType = Card;
     SourceTable = "EET Entry";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {

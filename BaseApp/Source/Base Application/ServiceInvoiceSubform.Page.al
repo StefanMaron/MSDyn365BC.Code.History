@@ -330,6 +330,9 @@ page 5934 "Service Invoice Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the statistic indication code.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.4';
                     Visible = false;
                 }
             }

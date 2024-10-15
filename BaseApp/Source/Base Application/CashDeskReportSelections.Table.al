@@ -53,6 +53,7 @@ table 11759 "Cash Desk Report Selections"
     var
         ReportSelection2: Record "Report Selections";
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure NewRecord()
     begin

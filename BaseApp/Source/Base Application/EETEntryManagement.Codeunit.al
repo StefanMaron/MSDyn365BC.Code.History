@@ -3,10 +3,9 @@ codeunit 31121 "EET Entry Management"
     Permissions = TableData "Posted Cash Document Header" = rm,
                   TableData "EET Entry" = rimd,
                   TableData "EET Entry Status" = rimd;
-
-    trigger OnRun()
-    begin
-    end;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '18.0';
 
     var
         EETServiceSetup: Record "EET Service Setup";
@@ -29,6 +28,7 @@ codeunit 31121 "EET Entry Management"
         exit(EETServiceSetup.Get and EETServiceSetup.Enabled);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure IsEETTransaction(CashDocHeader: Record "Cash Document Header"; CashDocLine: Record "Cash Document Line"): Boolean
     begin
@@ -112,6 +112,7 @@ codeunit 31121 "EET Entry Management"
         exit(EETCashRegister);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure CheckCashDocument(var CashDocHeader: Record "Cash Document Header")
     var
@@ -215,8 +216,8 @@ codeunit 31121 "EET Entry Management"
 
         InitEntry(EETEntry);
         EETEntry."Source Type" := EETEntry."Source Type"::"Cash Desk";
-        EETEntry."Source No." := CashDocHeader."Cash Desk No.";
-        EETEntry."Document No." := CashDocHeader."No.";
+        EETEntry."Source No." := PostedCashDocHeader."Cash Desk No.";
+        EETEntry."Document No." := PostedCashDocHeader."No.";
         EETEntry."Business Premises Code" := EETCashReg."Business Premises Code";
         EETEntry."Cash Register Code" := EETCashReg.Code;
         EETEntry."Receipt Serial No." := NoSeriesMgt.GetNextNo(EETCashReg."Receipt Serial Nos.", Today, true);
@@ -298,20 +299,26 @@ codeunit 31121 "EET Entry Management"
                 TempVATEntry.Insert();
                 // If the cash document applies the document then the VAT entry contains the rounding amount of cash document
                 if OriginalDocumentAmountLCY <> 0 then
-                    RoundingAmount := -(TempVATEntry.Base + TempVATEntry.Amount);
+                    RoundingAmount := CashDocHeader.SignAmount() * (TempVATEntry.Base + TempVATEntry.Amount);
             until VATEntry.Next() = 0;
 
         // Calculate coefficient for partial payment
         Coeff := 1;
-        if OriginalDocumentAmountLCY <> 0 then begin
-            OriginalDocumentAmountLCY += RoundingAmount;
-            if OriginalDocumentAmountLCY <> CashDocHeader."Amount Including VAT (LCY)" then
-                Coeff := CashDocHeader."Amount Including VAT (LCY)" / OriginalDocumentAmountLCY;
-        end;
+        if OriginalDocumentAmountLCY <> 0 then
+            if OriginalDocumentAmountLCY <> (CashDocHeader."Amount Including VAT (LCY)" - RoundingAmount) then
+                Coeff := (CashDocHeader."Amount Including VAT (LCY)" - RoundingAmount) / OriginalDocumentAmountLCY;
 
         if TempVATEntry.FindSet() then
             repeat
-                CalculateAmountsFromVATEntry(TempVATEntry, Coeff, EETEntry);
+                TempVATEntry.Base := GetVATBaseFromVATEntry(TempVATEntry);
+                TempVATEntry.Amount := GetVATAmountFromVATEntry(TempVATEntry);
+
+                if PostedCashDocHeader."No." <> TempVATEntry."Document No." then begin
+                    TempVATEntry.Base *= Coeff;
+                    TempVATEntry.Amount *= Coeff;
+                end;
+
+                CalculateAmountsFromVATEntry(TempVATEntry, EETEntry);
             until TempVATEntry.Next() = 0;
 
         RoundAmounts(EETEntry);
@@ -332,7 +339,7 @@ codeunit 31121 "EET Entry Management"
         exit(Abs(CustLedgerEntry."Original Amt. (LCY)"));
     end;
 
-    local procedure CalculateAmountsFromVATEntry(VATEntry: Record "VAT Entry"; Coeff: Decimal; var EETEntry: Record "EET Entry")
+    local procedure CalculateAmountsFromVATEntry(VATEntry: Record "VAT Entry"; var EETEntry: Record "EET Entry")
     var
         VATPostingSetup: Record "VAT Posting Setup";
         AmountArt89: Decimal;
@@ -342,9 +349,6 @@ codeunit 31121 "EET Entry Management"
     begin
         if (VATEntry."Entry No." = 0) or (VATEntry."Unrealized VAT Entry No." <> 0) then
             exit;
-
-        VATEntry.Base := GetVATBaseFromVATEntry(VATEntry) * Coeff;
-        VATEntry.Amount := GetVATAmountFromVATEntry(VATEntry) * Coeff;
 
         if VATEntry.Amount = 0 then begin
             EETEntry."Amount Exempted From VAT" += -VATEntry.Base;
@@ -668,17 +672,27 @@ codeunit 31121 "EET Entry Management"
         CryptographyManagement: Codeunit "Cryptography Management";
         DotNetAsimmetricAlgorithm: Codeunit DotNet_AsymmetricAlgorithm;
         DotNetX509Certificate2: Codeunit DotNet_X509Certificate2;
+#if CLEAN18
+        SignatureKey: Record "Signature Key";
+#else
         TempBlob: Codeunit "Temp Blob";
         KeyStream: InStream;
         OutputStream: OutStream;
+#endif
     begin
-        TempBlob.CreateOutStream(OutputStream);
-        TempBlob.CreateInStream(KeyStream);
-
         IsolatedCertificate.GetDotNetX509Certificate2(DotNetX509Certificate2);
         DotNetX509Certificate2.PrivateKey(DotNetAsimmetricAlgorithm);
+
+#if CLEAN18
+        SignatureKey."Signature Algorithm" := Enum::SignatureAlgorithm::RSA;
+        SignatureKey.FromXmlString(DotNetAsimmetricAlgorithm.ToXmlString(true));
+        CryptographyManagement.SignData(InputString, SignatureKey, Enum::"Hash Algorithm".FromInteger(HashAlgorithmType), SignatureStream);
+#else
+        TempBlob.CreateOutStream(OutputStream);
+        TempBlob.CreateInStream(KeyStream);
         OutputStream.Write(DotNetAsimmetricAlgorithm.ToXmlString(true));
         CryptographyManagement.SignData(InputString, KeyStream, HashAlgorithmType, SignatureStream);
+#endif
     end;
 
     local procedure InitBlob()
@@ -907,4 +921,3 @@ codeunit 31121 "EET Entry Management"
     begin
     end;
 }
-

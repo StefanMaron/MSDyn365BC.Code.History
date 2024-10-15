@@ -238,6 +238,10 @@ page 9022 "Business Manager Role Center"
                         PromotedIsBig = true;
                         RunObject = Report "Balance Sheet";
                         ToolTip = 'View your company''s assets, liabilities, and equity.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.4';
+                        Visible = false;
                     }
                     action("Income Statement")
                     {
@@ -249,6 +253,10 @@ page 9022 "Business Manager Role Center"
                         PromotedIsBig = true;
                         RunObject = Report "Income Statement";
                         ToolTip = 'View your company''s income and expenses.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.4';
+                        Visible = false;
                     }
                     action("Statement of Cash Flows")
                     {
@@ -700,6 +708,10 @@ page 9022 "Business Manager Role Center"
                     Caption = 'VIES Declarations';
                     RunObject = Page "VIES Declarations";
                     ToolTip = 'Specifies vies declarations list';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.4';
+                    Visible = false;
                 }
                 action("Reverse Charges")
                 {

@@ -113,6 +113,10 @@ page 9002 "Acc. Payables Coordinator RC"
                 Caption = 'V&endor - Bal. Reconciliation';
                 RunObject = Report "Vendor - Bal. Reconciliation";
                 ToolTip = 'Opens vendor - bal. reconciliation report';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.4';
+                Visible = false;
             }
             separator(Action63)
             {

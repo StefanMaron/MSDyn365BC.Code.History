@@ -96,6 +96,7 @@ table 11758 "Registration Log"
     {
     }
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure InitRegLog(var RegistrationLog: Record "Registration Log"; AcountType: Option; AccountNo: Code[20]; RegNo: Text[20])
     begin
@@ -105,6 +106,7 @@ table 11758 "Registration Log"
         RegistrationLog."Registration No." := RegNo;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure UpdateCard()
     var

@@ -1,10 +1,13 @@
 page 31130 "Certificate Code List"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Certificate Code List';
+    Caption = 'Certificate Code List (Obsolete)';
     PageType = List;
     SourceTable = "Certificate CZ Code";
     UsageCategory = Lists;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {

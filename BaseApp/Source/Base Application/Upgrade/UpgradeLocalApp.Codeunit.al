@@ -71,14 +71,16 @@ codeunit 104150 "Upgrade - Local App"
             exit;
 
         with Permission do begin
-            SetRange("Object Type", "Object Type"::Table);
+            SetRange("Object Type", "Object Type"::"Table Data");
             SetRange("Object ID", Database::"Certificate CZ");
             if FindSet() then
                 repeat
-                    NewPermission.Init();
-                    NewPermission := Permission;
-                    NewPermission."Object ID" := Database::"Isolated Certificate";
-                    NewPermission.Insert();
+                    if not NewPermission.Get("Role ID", "Object Type", Database::"Isolated Certificate") then begin
+                        NewPermission.Init();
+                        NewPermission := Permission;
+                        NewPermission."Object ID" := Database::"Isolated Certificate";
+                        NewPermission.Insert();
+                    end;
                     Delete();
                 until Next() = 0;
         end;

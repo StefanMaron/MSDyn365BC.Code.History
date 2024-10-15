@@ -3,7 +3,7 @@ report 13 "VAT Register"
     DefaultLayout = RDLC;
     RDLCLayout = './VATRegister.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'VAT Register';
+    Caption = 'VAT Register (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
     DataAccessIntent = ReadOnly;
 

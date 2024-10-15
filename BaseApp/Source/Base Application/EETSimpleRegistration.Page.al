@@ -1,6 +1,6 @@
 page 31126 "EET Simple Registration"
 {
-    Caption = 'EET Simple Registration';
+    Caption = 'EET Simple Registration (Obsolete)';
     DataCaptionExpression = '';
     DeleteAllowed = false;
     InsertAllowed = false;
@@ -11,6 +11,9 @@ page 31126 "EET Simple Registration"
     SourceTableTemporary = true;
     SourceTableView = SORTING("Entry No.")
                       WHERE("Entry No." = CONST(0));
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {

@@ -80,6 +80,9 @@ page 11742 "Cash Desk Events Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that cash desk event is designed to record sales (EET).';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                    ObsoleteTag = '18.0';
                 }
             }
         }

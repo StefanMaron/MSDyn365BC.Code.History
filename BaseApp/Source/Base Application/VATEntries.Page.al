@@ -61,6 +61,10 @@ page 315 "VAT Entries"
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies the VAT date of the original document.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.4';
+                    Visible = false;
                 }
                 field("Document Date"; "Document Date")
                 {

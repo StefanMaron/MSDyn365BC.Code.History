@@ -879,6 +879,9 @@ table 114 "Sales Cr.Memo Header"
         field(31100; "Original Document VAT Date"; Date)
         {
             Caption = 'Original Document VAT Date';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+            ObsoleteTag = '17.4';
         }
     }
 

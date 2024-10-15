@@ -344,6 +344,9 @@ page 5936 "Service Credit Memo Subform"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the statistic indication code.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.4';
                     Visible = false;
                 }
             }

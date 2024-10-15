@@ -1,5 +1,8 @@
 codeunit 31122 "EET Send Entries To Service"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '18.0';
 
     trigger OnRun()
     begin

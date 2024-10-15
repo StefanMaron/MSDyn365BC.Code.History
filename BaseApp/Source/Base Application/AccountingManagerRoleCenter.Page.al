@@ -144,6 +144,10 @@ page 9001 "Accounting Manager Role Center"
                 Image = PrintReport;
                 RunObject = Report "Balance Sheet";
                 ToolTip = 'Open the report for balance sheet.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.4';
+                Visible = false;
             }
             action("Income Statement")
             {
@@ -152,6 +156,10 @@ page 9001 "Accounting Manager Role Center"
                 Image = PrintReport;
                 RunObject = Report "Income Statement";
                 ToolTip = 'Open the report for income statement.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.4';
+                Visible = false;
             }
             separator(Action49)
             {
@@ -383,6 +391,10 @@ page 9001 "Accounting Manager Role Center"
                 Caption = 'VIES Declarations';
                 RunObject = Page "VIES Declarations";
                 ToolTip = 'Specifies vies declarations list';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.4';
+                Visible = false;
             }
             action(Items)
             {
@@ -758,6 +770,10 @@ page 9001 "Accounting Manager Role Center"
                     Caption = 'VAT Periods';
                     RunObject = Page "VAT Periods";
                     ToolTip = 'Specifies vat periods list';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.4';
+                    Visible = false;
                 }
                 action("Number Series")
                 {
@@ -833,6 +849,10 @@ page 9001 "Accounting Manager Role Center"
                 Image = TestReport;
                 RunObject = Page "VIES Declaration";
                 ToolTip = 'Open the page for VIES declaration.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.4';
+                Visible = false;
             }
         }
         area(processing)

@@ -16,6 +16,7 @@ codeunit 11734 "Cash Document-Post + Print"
         CashDocumentHeader: Record "Cash Document Header";
         WithoutConfirmation: Boolean;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure PostWithoutConfirmation(var ParmCashDocumentHeader: Record "Cash Document Header")
     begin
@@ -36,6 +37,7 @@ codeunit 11734 "Cash Document-Post + Print"
         Commit();
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure GetReport(var CashDocumentHeader: Record "Cash Document Header")
     var

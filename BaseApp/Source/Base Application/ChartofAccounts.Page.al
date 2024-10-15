@@ -147,6 +147,9 @@ page 16 "Chart of Accounts"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT date on which the net charge was made for the general ledger entry.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.4';
                     Visible = false;
                 }
                 field("Balance at Date"; "Balance at Date")

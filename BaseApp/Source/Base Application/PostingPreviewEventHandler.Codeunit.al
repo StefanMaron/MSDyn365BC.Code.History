@@ -91,7 +91,6 @@ codeunit 20 "Posting Preview Event Handler"
         VendLedgEntriesPreview: Page "Vend. Ledg. Entries Preview";
         ItemLedgerEntriesPreview: Page "Item Ledger Entries Preview";
         EmplLedgerEntriesPreview: Page "Empl. Ledger Entries Preview";
-        EETEntryPreviewCard: Page "EET Entry Preview Card";
     begin
         case TableNo of
             DATABASE::"G/L Entry":
@@ -144,21 +143,27 @@ codeunit 20 "Posting Preview Event Handler"
                 PAGE.Run(PAGE::"Maint. Ledg. Entries Preview", TempMaintenanceLedgerEntry);
             DATABASE::"Job Ledger Entry":
                 PAGE.Run(PAGE::"Job Ledger Entries Preview", TempJobLedgerEntry);
-                // NAVCZ
+            // NAVCZ
             DATABASE::"Sales Advance Letter Entry":
                 PAGE.Run(PAGE::"Sales Advance Letter Entries", TempSalesAdvanceLetterEntry);
             DATABASE::"Purch. Advance Letter Entry":
                 PAGE.Run(PAGE::"Purch. Advance Letter Entries", TempPurchAdvanceLetterEntry);
             DATABASE::"EET Entry":
-                begin
-                    EETEntryPreviewCard.Set(TempEETEntry, TempEETEntryStatus, TempErrorMessage);
-                    EETEntryPreviewCard.Run;
-                    Clear(EETEntryPreviewCard);
-                end;
+                ShowEETEntries();
             // NAVCZ
             else
                 OnAfterShowEntries(TableNo);
         end;
+    end;
+
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
+    local procedure ShowEETEntries()
+    var
+        EETEntryPreviewCard: Page "EET Entry Preview Card";
+    begin
+        EETEntryPreviewCard.Set(TempEETEntry, TempEETEntryStatus, TempErrorMessage);
+        EETEntryPreviewCard.Run();
+        Clear(EETEntryPreviewCard);
     end;
 
     procedure FillDocumentEntry(var TempDocumentEntry: Record "Document Entry" temporary)
@@ -184,10 +189,16 @@ codeunit 20 "Posting Preview Event Handler"
         // NAVCZ
         InsertDocumentEntry(TempSalesAdvanceLetterEntry, TempDocumentEntry);
         InsertDocumentEntry(TempPurchAdvanceLetterEntry, TempDocumentEntry);
-        InsertDocumentEntry(TempEETEntry, TempDocumentEntry);
+        InsertEETEntry(TempDocumentEntry);
         // NAVCZ
 
         OnAfterFillDocumentEntry(TempDocumentEntry);
+    end;
+
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
+    local procedure InsertEETEntry(var TempDocumentEntry: Record "Document Entry" temporary)
+    begin
+        InsertDocumentEntry(TempEETEntry, TempDocumentEntry);
     end;
 
     procedure InsertDocumentEntry(RecVar: Variant; var TempDocumentEntry: Record "Document Entry" temporary)
@@ -487,7 +498,8 @@ codeunit 20 "Posting Preview Event Handler"
         TempSalesAdvanceLetterEntry.Insert();
     end;
 
-    [EventSubscriber(ObjectType::Table, 31123, 'OnAfterInsertEvent', '', false, false)]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
+    [EventSubscriber(ObjectType::Table, Database::"EET Entry", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnInsertEETEntry(var Rec: Record "EET Entry"; RunTrigger: Boolean)
     begin
         // NAVCZ
@@ -500,7 +512,8 @@ codeunit 20 "Posting Preview Event Handler"
         TempEETEntry.Insert();
     end;
 
-    [EventSubscriber(ObjectType::Table, 31123, 'OnAfterModifyEvent', '', false, false)]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
+    [EventSubscriber(ObjectType::Table, Database::"EET Entry", 'OnAfterModifyEvent', '', false, false)]
     local procedure OnModifyEETEntry(var Rec: Record "EET Entry"; var xRec: Record "EET Entry"; RunTrigger: Boolean)
     begin
         // NAVCZ
@@ -515,7 +528,8 @@ codeunit 20 "Posting Preview Event Handler"
         TempEETEntry.Modify
     end;
 
-    [EventSubscriber(ObjectType::Table, 31124, 'OnAfterInsertEvent', '', false, false)]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
+    [EventSubscriber(ObjectType::Table, Database::"EET Entry Status", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnInsertEETEntryStatus(var Rec: Record "EET Entry Status"; RunTrigger: Boolean)
     begin
         // NAVCZ
@@ -527,7 +541,8 @@ codeunit 20 "Posting Preview Event Handler"
         TempEETEntryStatus.Insert();
     end;
 
-    [EventSubscriber(ObjectType::Table, 700, 'OnAfterInsertEvent', '', false, false)]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
+    [EventSubscriber(ObjectType::Table, Database::"Error Message", 'OnAfterInsertEvent', '', false, false)]
     local procedure OnInsertErrorMessage(var Rec: Record "Error Message"; RunTrigger: Boolean)
     begin
         // NAVCZ

@@ -805,6 +805,7 @@ codeunit 31032 "Prepayment Links Management"
             until PurchAdvanceLetterLine.Next = 0;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure LinkCashDocLine(var CashDocLine: Record "Cash Document Line")
     var
@@ -844,6 +845,7 @@ codeunit 31032 "Prepayment Links Management"
         end;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure UnLinkCashDocLine(var CashDocLine: Record "Cash Document Line")
     begin
@@ -982,6 +984,7 @@ codeunit 31032 "Prepayment Links Management"
     begin
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [IntegrationEvent(false, false)]
     local procedure OnLinkCashDocLineOnBeforeModifyCashDocLine(var CashDocLine: Record "Cash Document Line")
     begin

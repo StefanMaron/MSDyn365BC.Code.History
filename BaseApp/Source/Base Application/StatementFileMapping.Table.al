@@ -98,6 +98,7 @@ table 11766 "Statement File Mapping"
         RowTxt: Label 'R', Comment = 'R';
         ColumnTxt: Label 'C', Comment = 'C';
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure TestRowColumn(Cell: Code[50])
     begin

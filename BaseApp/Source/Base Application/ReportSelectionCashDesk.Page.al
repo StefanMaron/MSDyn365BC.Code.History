@@ -7,6 +7,9 @@ page 11759 "Report Selection - Cash Desk"
     SaveValues = true;
     SourceTable = "Cash Desk Report Selections";
     UsageCategory = Administration;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.4';
 
     layout
     {

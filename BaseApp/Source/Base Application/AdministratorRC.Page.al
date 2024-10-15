@@ -144,12 +144,20 @@ page 8900 "Administrator Main Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Excel Templates';
                         RunObject = page "Excel Template";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.4';
+                        Visible = false;
                     }
                     action("Electronically Govern. Setup")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Electronically Govern. Setup';
                         RunObject = page "Electronically Govern. Setup";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.4';
+                        Visible = false;
                     }
                     action("Certificates Codes")
                     {
@@ -334,12 +342,6 @@ page 8900 "Administrator Main Role Center"
                         Caption = 'Code Coverage';
                         RunObject = page "Code Coverage";
                     }
-                    // action("Sessions")
-                    // {
-                    //	 ApplicationArea = All;
-                    //	 Caption = 'Sessions';
-                    //	 RunObject = codeunit 9500;
-                    // }
                 }
                 action("Feature Management")
                 {
@@ -414,6 +416,10 @@ page 8900 "Administrator Main Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Company Officials';
                         RunObject = page "Company Officials";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.4';
+                        Visible = false;
                     }
                     action("Industry Codes")
                     {
@@ -444,7 +450,6 @@ page 8900 "Administrator Main Role Center"
                         ApplicationArea = All;
                         Caption = 'Data Encryption Management';
                         RunObject = page "Data Encryption Management";
-                        //AccessByPermission = System 5420=X;
                     }
                     action("Data Classification Worksheet")
                     {
@@ -611,12 +616,6 @@ page 8900 "Administrator Main Role Center"
                     Caption = 'Permission Sets';
                     RunObject = page "Permission Sets";
                 }
-                // action("Change Password")
-                // {
-                //     ApplicationArea = Basic, Suite;
-                //     Caption = 'Change Password';
-                //     RunObject = page ;
-                // }
                 action("User Security Status")
                 {
                     ApplicationArea = Basic, Suite;
@@ -918,6 +917,10 @@ page 8900 "Administrator Main Role Center"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Reg. No. Validation Service (ARES) Setting';
                     RunObject = page "Registration Config";
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.4';
+                    Visible = false;
                 }
                 action("API Setup")
                 {
@@ -940,8 +943,13 @@ page 8900 "Administrator Main Role Center"
                 action("EET Service Setup")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'EET Service Setup';
+                    Caption = 'EET Service Setup (Obsolete)';
                     RunObject = page "EET Service Setup";
+                    ToolTip = 'Open the EET Service Setup page.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                    ObsoleteTag = '18.0';
                 }
             }
             group("Group28")

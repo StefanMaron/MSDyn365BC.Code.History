@@ -1,6 +1,9 @@
 table 31120 "EET Service Setup"
 {
-    Caption = 'EET Service Setup';
+    Caption = 'EET Service Setup (Obsolete)';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '18.0';
 
     fields
     {

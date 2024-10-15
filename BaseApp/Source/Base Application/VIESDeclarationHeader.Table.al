@@ -525,6 +525,7 @@ table 31066 "VIES Declaration Header"
         Text004Err: Label 'You cannot change %1 because you already have declaration lines.';
         Text005Err: Label 'The permitted values for %1 are from 1 to %2.', Comment = '%1=fieldcaption.periodnumber;%2=maxperiodnumber';
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure InitRecord()
     var
@@ -555,6 +556,7 @@ table 31066 "VIES Declaration Header"
         "Filled by Employee No." := StatReportingSetup."VIES Decl. Filled by Empl. No.";
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure AssistEdit(VIESDeclarationHeaderold: Record "VIES Declaration Header"): Boolean
     var
@@ -631,6 +633,7 @@ table 31066 "VIES Declaration Header"
         end;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure GetVATRegNo(): Code[20]
     var
@@ -642,6 +645,7 @@ table 31066 "VIES Declaration Header"
         exit(VIESDeclarationLine.GetVATRegNo);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure PrintTestReport()
     var
@@ -652,6 +656,7 @@ table 31066 "VIES Declaration Header"
         REPORT.Run(REPORT::"VIES Declaration - Test", true, false, VIESDeclarationHeader);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure Print()
     var
@@ -674,6 +679,7 @@ table 31066 "VIES Declaration Header"
         Report.Run(StatReportingSetup."VIES Declaration Report No.", true, false, VIESDeclarationHeader);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure Export()
     var

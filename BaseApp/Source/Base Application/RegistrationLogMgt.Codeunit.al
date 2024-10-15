@@ -15,6 +15,7 @@ codeunit 11798 "Registration Log Mgt."
         NotVerifiedRegNoMsg: Label 'We couldn''t verify the registration number. Try again later.';
         DescriptionLbl: Label 'Reg. No. Validation Service Setup (Obsolete)';
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     procedure LogCustomer(Cust: Record Customer)
     var
         RegnLog: Record "Registration Log";
@@ -22,6 +23,7 @@ codeunit 11798 "Registration Log Mgt."
         InsertLogRegistration(Cust."Registration No.", RegnLog."Account Type"::Customer, Cust."No.");
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     procedure LogVendor(Vend: Record Vendor)
     var
         RegnLog: Record "Registration Log";
@@ -29,6 +31,7 @@ codeunit 11798 "Registration Log Mgt."
         InsertLogRegistration(Vend."Registration No.", RegnLog."Account Type"::Vendor, Vend."No.");
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     procedure LogContact(Cont: Record Contact)
     var
         RegnLog: Record "Registration Log";
@@ -50,6 +53,7 @@ codeunit 11798 "Registration Log Mgt."
         end;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure LogVerification(var RegnLog: Record "Registration Log"; XmlDoc: DotNet XmlDocument; Namespace: Text)
     var
@@ -162,6 +166,7 @@ codeunit 11798 "Registration Log Mgt."
         end;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     procedure DeleteCustomerLog(Cust: Record Customer)
     var
         RegnLog: Record "Registration Log";
@@ -169,6 +174,7 @@ codeunit 11798 "Registration Log Mgt."
         DeleteLogRegistration(RegnLog."Account Type"::Customer, Cust."No.");
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     procedure DeleteVendorLog(Vend: Record Vendor)
     var
         RegnLog: Record "Registration Log";
@@ -176,6 +182,7 @@ codeunit 11798 "Registration Log Mgt."
         DeleteLogRegistration(RegnLog."Account Type"::Vendor, Vend."No.");
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     procedure DeleteContactLog(Cont: Record Contact)
     var
         RegnLog: Record "Registration Log";
@@ -194,6 +201,7 @@ codeunit 11798 "Registration Log Mgt."
         end;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     procedure AssistEditCustomerRegNo(Cust: Record Customer)
     var
         RegnLog: Record "Registration Log";
@@ -201,6 +209,7 @@ codeunit 11798 "Registration Log Mgt."
         AssistEditRegNo(RegnLog."Account Type"::Customer, Cust."No.");
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     procedure AssistEditVendorRegNo(Vend: Record Vendor)
     var
         RegnLog: Record "Registration Log";
@@ -208,6 +217,7 @@ codeunit 11798 "Registration Log Mgt."
         AssistEditRegNo(RegnLog."Account Type"::Vendor, Vend."No.");
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     procedure AssistEditContactRegNo(Cont: Record Contact)
     var
         RegnLog: Record "Registration Log";
@@ -228,6 +238,7 @@ codeunit 11798 "Registration Log Mgt."
         end;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure InitServiceSetup()
     var
@@ -244,6 +255,7 @@ codeunit 11798 "Registration Log Mgt."
         RegNoSrvConfig.Modify();
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure SetupService()
     var
@@ -264,6 +276,7 @@ codeunit 11798 "Registration Log Mgt."
         exit(FoundXmlNode.InnerText);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure CheckARESForRegNo(var RecordRef: RecordRef; var RegistrationLog: Record "Registration Log"; RecordVariant: Variant; EntryNo: Code[20]; AccountType: Option)
     var
@@ -284,6 +297,7 @@ codeunit 11798 "Registration Log Mgt."
         end;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure UpdateRecordFromRegLog(var RecordRef: RecordRef; RecordVariant: Variant; RegistrationLog: Record "Registration Log")
     var
@@ -301,6 +315,7 @@ codeunit 11798 "Registration Log Mgt."
         end;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure RunARESUpdate(var RecordRef: RecordRef; RecordVariant: Variant; RegistrationLog: Record "Registration Log")
     var
@@ -312,6 +327,7 @@ codeunit 11798 "Registration Log Mgt."
         AresUpdate.GetRecord(RecordRef);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure ValidateRegNoWithARES(var RecordRef: RecordRef; RecordVariant: Variant; EntryNo: Code[20]; AccountType: Option)
     var
@@ -323,6 +339,7 @@ codeunit 11798 "Registration Log Mgt."
             UpdateRecordFromRegLog(RecordRef, RecordVariant, RegistrationLog);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     procedure GetServiceConditionsURL(): Text
     begin
         exit(ServiceConditionsURLTxt);

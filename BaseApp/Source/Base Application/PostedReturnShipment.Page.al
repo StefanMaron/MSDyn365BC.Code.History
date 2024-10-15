@@ -439,7 +439,7 @@ page 6650 "Posted Return Shipment"
                     ObsoleteState = Pending;
                     ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
                     ObsoleteTag = '17.0';
-                    Visible = false;                    
+                    Visible = false;
                 }
                 field("Transaction Type"; "Transaction Type")
                 {
@@ -482,12 +482,20 @@ page 6650 "Posted Return Shipment"
                     ApplicationArea = PurchReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the registration number of customer.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.4';
+                    Visible = false;
                 }
                 field("Tax Registration No."; "Tax Registration No.")
                 {
                     ApplicationArea = PurchReturnOrder;
                     Editable = false;
                     ToolTip = 'Specifies the secondary VAT registration number for the partner.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.4';
+                    Visible = false;
                 }
                 field("Industry Code"; "Industry Code")
                 {

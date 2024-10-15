@@ -438,36 +438,42 @@ page 11731 "Cash Document Subform"
         DimVisible7: Boolean;
         DimVisible8: Boolean;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure ShowStatistics()
     begin
         ExtStatistics;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure UpdatePage(SetSaveRecord: Boolean)
     begin
         CurrPage.Update(SetSaveRecord);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure LinkAdvLetters()
     begin
         LinkToAdvLetter;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure LinkWholeAdvLetter()
     begin
         LinkWholeLetter;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure UnLinkLinkedAdvLetters()
     begin
         UnLinkWholeLetter;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure SetShowMandatoryConditions()
     begin

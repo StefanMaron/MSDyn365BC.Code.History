@@ -3,6 +3,9 @@ table 31123 "EET Entry"
     Caption = 'EET Entry';
     DrillDownPageID = "EET Entries";
     LookupPageID = "EET Entries";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '18.0';
 
     fields
     {

@@ -65,6 +65,7 @@ codeunit 11730 CashDeskManagement
         UserSetupMgt: Codeunit "User Setup Management";
         UserSetupAdvMgt: Codeunit "User Setup Adv. Management";
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure CashDocumentSelection(var CashDocumentHeader: Record "Cash Document Header"; var CashDeskSelected: Boolean)
     var
@@ -96,6 +97,7 @@ codeunit 11730 CashDeskManagement
         end;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure FromAmountToDescription(FromAmount: Decimal) ToDescription: Text
     var
@@ -141,6 +143,7 @@ codeunit 11730 CashDeskManagement
         ToDescription := UpperCase(CopyStr(ToDescription, 1, 1)) + CopyStr(ToDescription, 2) + '.';
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure ConvertBy100(Hundred: Integer) ToDescription: Text[250]
     var
@@ -213,6 +216,7 @@ codeunit 11730 CashDeskManagement
         end;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure CreateCashDocumentFromSalesInvoice(SalesInvoiceHeader: Record "Sales Invoice Header")
     var
@@ -247,6 +251,7 @@ codeunit 11730 CashDeskManagement
         end;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure CreateCashDocumentFromSalesCrMemo(SalesCrMemoHeader: Record "Sales Cr.Memo Header")
     var
@@ -281,6 +286,7 @@ codeunit 11730 CashDeskManagement
         end;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure CreateCashDocumentFromPurchaseInvoice(PurchInvHeader: Record "Purch. Inv. Header")
     var
@@ -315,6 +321,7 @@ codeunit 11730 CashDeskManagement
         end;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure CreateCashDocumentFromPurchaseCrMemo(PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.")
     var
@@ -349,6 +356,7 @@ codeunit 11730 CashDeskManagement
         end;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure CreateCashDocumentFromServiceInvoice(ServiceInvoiceHeader: Record "Service Invoice Header")
     var
@@ -383,6 +391,7 @@ codeunit 11730 CashDeskManagement
         end;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure CreateCashDocumentFromServiceCrMemo(ServiceCrMemoHeader: Record "Service Cr.Memo Header")
     var
@@ -473,6 +482,7 @@ codeunit 11730 CashDeskManagement
     end;
 
     [TryFunction]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure CheckUserRights(CashDeskNo: Code[20]; ActionType: Option " ",Create,Release,Post,"Release and Print","Post and Print"; EETTransaction: Boolean)
     var
@@ -534,6 +544,7 @@ codeunit 11730 CashDeskManagement
     end;
 
     [TryFunction]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure CheckCashDesk(CashDeskNo: Code[20])
     begin
@@ -541,6 +552,7 @@ codeunit 11730 CashDeskManagement
     end;
 
     [TryFunction]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure CheckCashDesk2(CashDeskNo: Code[20]; UserCode: Code[50])
     begin
@@ -551,6 +563,7 @@ codeunit 11730 CashDeskManagement
     end;
 
     [TryFunction]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure CheckCashDesks()
     begin
@@ -558,6 +571,7 @@ codeunit 11730 CashDeskManagement
     end;
 
     [TryFunction]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure CheckCashDesks2(UserCode: Code[50])
     begin
@@ -595,12 +609,14 @@ codeunit 11730 CashDeskManagement
         end;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure GetCashDesksFilter(): Text
     begin
         exit(GetCashDesksFilter2(UserId));
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure GetCashDesksFilter2(UserCode: Code[50]): Text
     var
@@ -701,6 +717,7 @@ codeunit 11730 CashDeskManagement
         end;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure CreateCashDocumentOnAfterPostServiceDoc(var ServiceHeader: Record "Service Header"; Invoice: Boolean)
     var

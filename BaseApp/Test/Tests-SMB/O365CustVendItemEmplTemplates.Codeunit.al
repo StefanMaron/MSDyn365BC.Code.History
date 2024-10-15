@@ -20,6 +20,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
         LibraryERM: Codeunit "Library - ERM";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         TemplateFeatureEnabled: Boolean;
         GlobalDimCodeTemplateErr: Label 'Value of template Global Dimension Code is wrong';
@@ -1150,6 +1151,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Cust/Vend/Item/Empl Templates");
         LibraryVariableStorage.Clear();
         LibrarySetupStorage.Restore();
 

@@ -70,6 +70,7 @@ page 31069 "VIES Declaration Lines"
         VIESDeclarationLn2: Record "VIES Declaration Line";
         LastLineNo: Integer;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure SetToDeclaration(VIESDeclarationHdrNew: Record "VIES Declaration Header")
     begin
@@ -81,6 +82,7 @@ page 31069 "VIES Declaration Lines"
             LastLineNo := 0;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure CopyLineToDeclaration()
     begin

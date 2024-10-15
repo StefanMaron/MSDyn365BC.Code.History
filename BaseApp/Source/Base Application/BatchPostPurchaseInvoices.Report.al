@@ -1,6 +1,6 @@
 report 497 "Batch Post Purchase Invoices"
 {
-    Caption = 'Batch Post Purchase Invoices';
+    Caption = 'Batch Post Purchase Invoices (Obsolete)';
     ProcessingOnly = true;
 
     dataset
@@ -56,6 +56,9 @@ report 497 "Batch Post Purchase Invoices"
                         ApplicationArea = Basic, Suite;
                         Caption = 'VAT Date';
                         ToolTip = 'Specifies VAT Date for posting.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.4';
                         Visible = UseVATDate;
                     }
                     field(ReplacePostingDate; ReplacePostingDate)
@@ -81,6 +84,9 @@ report 497 "Batch Post Purchase Invoices"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Replace VAT Date';
                         ToolTip = 'Specifies if the new VAT date will be applied.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.4';
                         Visible = UseVATDate;
                     }
                     field(CalcInvDisc; CalcInvDisc)

@@ -155,6 +155,9 @@ page 11730 "Cash Document"
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
                     ToolTip = 'Specifies that the cash register works with EET.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                    ObsoleteTag = '18.0';
                 }
             }
             part(CashDocLines; "Cash Document Subform")

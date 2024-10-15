@@ -220,6 +220,7 @@ codeunit 11735 "Cash Document-Post"
             until CashDocLine.Next = 0;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure InitGenJnlLine(CashDocHeader2: Record "Cash Document Header"; CashDocLine2: Record "Cash Document Line")
     var
@@ -309,6 +310,7 @@ codeunit 11735 "Cash Document-Post"
         end;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure GetGenJnlLine(var TempNewGenJnlLine: Record "Gen. Journal Line" temporary)
     begin
@@ -351,6 +353,7 @@ codeunit 11735 "Cash Document-Post"
         end;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure DeleteCashDocHeader(var CashDocHeader: Record "Cash Document Header")
     var
@@ -413,72 +416,86 @@ codeunit 11735 "Cash Document-Post"
             GenJnlLine2.Validate("VAT % (Non Deductible)");
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure SetPreviewMode(NewPreviewMode: Boolean)
     begin
         PreviewMode := NewPreviewMode;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     procedure SetGenJnlPostLine(var GenJnlPostLineNew: Codeunit "Gen. Jnl.-Post Line")
     begin
         GenJnlPostLine := GenJnlPostLineNew;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterFinalizePosting(var CashDocHdr: Record "Cash Document Header"; var PostedCashDocHdr: Record "Posted Cash Document Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterFinalizePostingPreview(var CashDocHdr: Record "Cash Document Header"; var PostedCashDocHdr: Record "Posted Cash Document Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostCashDoc(var CashDocHdr: Record "Cash Document Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; PostedCashDocHdrNo: Code[20])
     begin
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostedCashDocHeaderInsert(var PostedCashDocHdr: Record "Posted Cash Document Header"; var CashDocHdr: Record "Cash Document Header")
     begin
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostedCashDocLineInsert(var PostedCashDocLine: Record "Posted Cash Document Line"; var PostedCashDocHdr: Record "Posted Cash Document Header"; var CashDocLine: Record "Cash Document Line")
     begin
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; CashDocHdr: Record "Cash Document Header"; CashDocLine: Record "Cash Document Line")
     begin
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDeleteAfterPosting(var CashDocHdr: Record "Cash Document Header"; var PostedCashDocHdr: Record "Posted Cash Document Header")
     begin
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostCashDoc(var CashDocHdr: Record "Cash Document Header")
     begin
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostCashDocHeader(var GenJnlLine: Record "Gen. Journal Line"; var CashDocHdr: Record "Cash Document Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostCashDocLine(var GenJnlLine: Record "Gen. Journal Line"; var CashDocLine: Record "Cash Document Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostedCashDocHeaderInsert(var PostedCashDocHdr: Record "Posted Cash Document Header"; var CashDocHdr: Record "Cash Document Header")
     begin
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostedCashDocLineInsert(var PostedCashDocLine: Record "Posted Cash Document Line"; var PostedCashDocHdr: Record "Posted Cash Document Header"; var CashDocLine: Record "Cash Document Line")
     begin

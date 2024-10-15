@@ -52,6 +52,9 @@ page 11740 "Cash Desk Users"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the user has the right to post only the documents that are marked as "EET Transaction" = Yes.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                    ObsoleteTag = '18.0';
                 }
             }
         }

@@ -1,9 +1,12 @@
 page 31122 "EET Cash Registers"
 {
-    Caption = 'EET Cash Registers';
+    Caption = 'EET Cash Registers (Obsolete)';
     DataCaptionFields = "Business Premises Code";
     PageType = List;
     SourceTable = "EET Cash Register";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {

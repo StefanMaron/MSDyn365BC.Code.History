@@ -3,6 +3,9 @@ table 31130 "Certificate CZ Code"
     Caption = 'Certificate Code';
     DataCaptionFields = "Code", Description;
     LookupPageID = "Certificate Code List";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '18.0';
 
     fields
     {

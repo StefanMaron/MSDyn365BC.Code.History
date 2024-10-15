@@ -49,6 +49,9 @@ page 11741 "Cash Desk Events"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the value of Yes will automatically be filled when the row meets the conditions for a recorded sale.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                    ObsoleteTag = '18.0';
                 }
             }
         }

@@ -207,6 +207,7 @@ table 31101 "VAT Control Report Line"
         VATCtrlRptHdr.TestField(Status, VATCtrlRptHdr.Status::Open);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure Navigate()
     var
@@ -216,6 +217,7 @@ table 31101 "VAT Control Report Line"
         NavigateForm.Run;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure ChangeVATControlRepSection()
     var
@@ -230,6 +232,7 @@ table 31101 "VAT Control Report Line"
         ChangeVATControlRepSectionCode(VATCtrlRptSection.Code);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure ChangeVATControlRepSectionCode(VATCtrlRptSectionCode: Code[20])
     var

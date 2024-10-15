@@ -58,6 +58,10 @@ page 253 "Sales Journal"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the VAT date. This date must be shown on the VAT statement.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.4';
+                    Visible = false;
                 }
                 field("Document Date"; "Document Date")
                 {

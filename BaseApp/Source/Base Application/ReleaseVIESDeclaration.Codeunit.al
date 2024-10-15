@@ -56,6 +56,7 @@ codeunit 31060 "Release VIES Declaration"
         LineNo: Integer;
         Text001Err: Label 'There is nothing to release for declaration No. %1.';
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure Reopen(var VIESDeclarationHeader: Record "VIES Declaration Header")
     begin

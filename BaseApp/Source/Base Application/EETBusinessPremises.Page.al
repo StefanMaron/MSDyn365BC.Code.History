@@ -1,8 +1,11 @@
 page 31121 "EET Business Premises"
 {
-    Caption = 'EET Business Premises';
+    Caption = 'EET Business Premises (Obsolete)';
     PageType = List;
     SourceTable = "EET Business Premises";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {

@@ -618,11 +618,13 @@ page 11774 "Export VAT Statement"
         exit(true);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     procedure GetFileName(): Text
     begin
         exit(FileName);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     procedure EnableExportToServerFile()
     begin
         ExportToServerFile := true;

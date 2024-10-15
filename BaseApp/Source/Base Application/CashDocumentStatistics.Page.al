@@ -166,6 +166,7 @@ page 11734 "Cash Document Statistics"
         VATAmountLCY := AmountInclVATLCY - AmountExclVATLCY;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure UpdateLine(var VATAmountLine: Record "VAT Amount Line")
     var
@@ -224,6 +225,7 @@ page 11734 "Cash Document Statistics"
                 until Next = 0;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure VATLinesDrillDown(var VATLinesToDrillDown: Record "VAT Amount Line"; ThisTabAllowsVATEditing: Boolean)
     begin

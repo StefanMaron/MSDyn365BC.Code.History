@@ -24,6 +24,7 @@ codeunit 11760 "Unc. Payer Mgt."
         VendUncVATPayerStatusNotCheckedQst: Label 'The uncertainty VAT payer status has not been checked for vendor %1 (%2).\\Do you want to continue?', Comment = '%1=Vendor No.;%2=VAT Registration No.';
         VendUncVATPayerQst: Label 'The vendor %1 (%2) is uncertainty VAT payer.\\Do you want to continue?', Comment = '%1=Vendor No.;%2=VAT Registration No.';
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     procedure ImportUncPayerStatus(ShowMessage: Boolean): Boolean
     var
         DotNetArrayVATRegNo: Codeunit DotNet_Array;
@@ -67,6 +68,7 @@ codeunit 11760 "Unc. Payer Mgt."
         exit(true);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     procedure ImportUncPayerStatusForVendor(Vendor: Record Vendor): Boolean
     begin
         if not GetSetup then
@@ -80,6 +82,7 @@ codeunit 11760 "Unc. Payer Mgt."
         exit(ImportUncPayerStatus(true));
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     procedure ImportUncPayerStatusForPaymentOrder(PaymentOrderHeader: Record "Payment Order Header"): Boolean
     var
         PaymentOrderLine: Record "Payment Order Line";
@@ -105,6 +108,7 @@ codeunit 11760 "Unc. Payer Mgt."
         exit(ImportUncPayerStatus(false));
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     procedure ImportUncPayerList(ShowMessage: Boolean): Boolean
     var
         TempBlobResponse: Codeunit "Temp Blob";
@@ -190,6 +194,7 @@ codeunit 11760 "Unc. Payer Mgt."
         exit(true);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     procedure AddVATRegNoToList(VATRegNo: Code[20])
     begin
         if VATRegNo = '' then
@@ -204,6 +209,7 @@ codeunit 11760 "Unc. Payer Mgt."
         VATRegNoList.Add(VATRegNo);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     procedure GetVATRegNoCount(): Integer
     begin
         if IsNull(VATRegNoList) then
@@ -212,6 +218,7 @@ codeunit 11760 "Unc. Payer Mgt."
         exit(VATRegNoList.Count);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     procedure ClearVATRegNoList()
     begin
         if IsNull(VATRegNoList) then
@@ -230,6 +237,7 @@ codeunit 11760 "Unc. Payer Mgt."
         VATRegNoList.CopyTo(Index, DotNetArray, 0, Count);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     procedure IsVATRegNoExportPossible(VATRegNo: Code[20]; CountryCode: Code[10]) ReturnValue: Boolean
     begin
         if not GetSetup then
@@ -243,6 +251,7 @@ codeunit 11760 "Unc. Payer Mgt."
             ReturnValue := false;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure GetLongVATRegNo(VatRegNo: Code[20]): Code[20]
     var
@@ -258,6 +267,7 @@ codeunit 11760 "Unc. Payer Mgt."
         exit(VatRegNo);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure GetVendFromVATRegNo(VATRegNo: Code[20]): Code[20]
     var
@@ -280,6 +290,7 @@ codeunit 11760 "Unc. Payer Mgt."
         end;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure IsPublicBankAccount(VendNo: Code[20]; VATRegNo: Code[20]; BankAccountNo: Code[30]; IBAN: Code[50]) ReturnValue: Boolean
     var
@@ -314,6 +325,7 @@ codeunit 11760 "Unc. Payer Mgt."
         end;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure PublicBankAccountCheckPossible(CheckDate: Date; AmountInclVAT: Decimal) CheckIsPossible: Boolean
     begin
@@ -328,6 +340,7 @@ codeunit 11760 "Unc. Payer Mgt."
             CheckIsPossible := AmountInclVAT >= ElectronicallyGovernSetup."Public Bank Acc.Check Limit";
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure ForeignBankAccountCheckPossible(VendNo: Code[20]; VendBankAccNo: Code[20]): Boolean
     var

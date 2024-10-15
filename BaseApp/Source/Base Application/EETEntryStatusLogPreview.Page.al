@@ -1,12 +1,15 @@
 page 31128 "EET Entry Status Log Preview"
 {
-    Caption = 'EET Entry Status Log Preview';
+    Caption = 'EET Entry Status Log Preview (Obsolete)';
     DataCaptionFields = "EET Entry No.";
     Editable = false;
     LinksAllowed = false;
     PageType = List;
     SourceTable = "EET Entry Status";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {

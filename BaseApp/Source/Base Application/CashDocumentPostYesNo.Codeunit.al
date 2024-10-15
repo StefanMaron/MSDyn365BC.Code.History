@@ -26,6 +26,7 @@ codeunit 11733 "Cash Document-Post (Yes/No)"
         Commit();
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure Preview(CashDocumentHeader: Record "Cash Document Header")
     var

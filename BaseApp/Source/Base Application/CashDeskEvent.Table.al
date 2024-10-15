@@ -206,6 +206,9 @@ table 11741 "Cash Desk Event"
         field(31125; "EET Transaction"; Boolean)
         {
             Caption = 'EET Transaction';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '18.0';
 
             trigger OnValidate()
             begin
@@ -245,6 +248,7 @@ table 11741 "Cash Desk Event"
         BankAccount: Record "Bank Account";
         DimMgt: Codeunit DimensionManagement;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin

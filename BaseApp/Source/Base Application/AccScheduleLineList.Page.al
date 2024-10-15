@@ -1,11 +1,14 @@
 page 31086 "Acc. Schedule Line List"
 {
-    Caption = 'Acc. Schedule Line List';
+    Caption = 'Acc. Schedule Line List (Obsolete)';
     Editable = false;
     PageType = List;
     SourceTable = "Acc. Schedule Line";
     SourceTableView = SORTING("Schedule Name", "Line No.")
                       WHERE("Row Correction" = CONST(''));
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.4';
 
     layout
     {

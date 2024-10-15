@@ -206,6 +206,7 @@ table 11792 "Company Officials"
         CompanyOfficials: Record "Company Officials";
         NoSeriesMgt: Codeunit NoSeriesManagement;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure AssistEdit(OldCompanyOfficials: Record "Company Officials"): Boolean
     begin
@@ -223,6 +224,7 @@ table 11792 "Company Officials"
         end;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure FullName(): Text[100]
     begin
@@ -232,6 +234,7 @@ table 11792 "Company Officials"
         exit("First Name" + ' ' + "Middle Name" + ' ' + "Last Name");
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure DisplayMap()
     var

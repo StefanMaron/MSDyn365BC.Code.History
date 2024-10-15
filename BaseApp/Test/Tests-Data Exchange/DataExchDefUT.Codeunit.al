@@ -542,10 +542,7 @@ codeunit 132543 "Data Exch. Def UT"
         ExportFile.Close;
 
         // Verify that element in XML file with <LineType> tag of Header.
-        if FileManagement.ClientFileExists(ServerFileName) then
-            LibraryXMLRead.Initialize(ServerFileName)
-        else
-            LibraryXMLRead.Initialize(FileManagement.DownloadTempFile(ServerFileName));
+        LibraryXMLRead.Initialize(FileManagement.DownloadTempFile(ServerFileName));
         LibraryXMLRead.VerifyAttributeValueInSubtree('DataExchDef', 'DataExchLineDef', 'LineType', Format(OptionNumber));
     end;
 

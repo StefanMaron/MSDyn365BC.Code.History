@@ -107,6 +107,10 @@ page 9003 "Acc. Receivables Adm. RC"
                 Image = Reconcile;
                 RunObject = Report "Customer - Bal. Reconciliation";
                 ToolTip = 'Open the report for customer''s balance reconciliation.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.4';
+                Visible = false;
             }
             separator(Action20)
             {

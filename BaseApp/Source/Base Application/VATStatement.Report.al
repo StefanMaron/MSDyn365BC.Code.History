@@ -652,6 +652,7 @@ report 12 "VAT Statement"
         TotalAmount := TotalAmount + Amount;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     procedure InitializeRequest(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean; SettlementNoFilter2: Text[50]; PerfCountryCodeFilter2: Code[10])
     begin
         "VAT Statement Name".Copy(NewVATStmtName);
@@ -705,6 +706,7 @@ report 12 "VAT Statement"
         exit('');
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure SetRoundingDirection(NewRoundingDirection: Option)
     begin
@@ -712,6 +714,7 @@ report 12 "VAT Statement"
         RoundingDirection := NewRoundingDirection;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure RoundAmount(Amount3: Decimal): Decimal
     var

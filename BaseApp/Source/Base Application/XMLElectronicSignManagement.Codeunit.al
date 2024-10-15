@@ -1,10 +1,5 @@
 codeunit 31132 "XML Electronic Sign Management"
 {
-
-    trigger OnRun()
-    begin
-    end;
-
     var
         SignedXml: DotNet SignedXml;
         References: DotNet GenericList1;

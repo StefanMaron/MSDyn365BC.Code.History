@@ -1091,6 +1091,7 @@
                         Commit();
                         PAGE.RunModal(PAGE::"Purchase Statistics", Rec);
                         PurchCalcDiscByType.ResetRecalculateInvoiceDisc(Rec);
+                        CurrPage.PurchLines.PAGE.ForceCalculateTotals(); // NAVCZ
                     end;
                 }
                 action(Vendor)

@@ -513,6 +513,7 @@ table 91 "User Setup"
         exit(0);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure GetDefaultCashDeskApprovalLimit(): Integer
     var

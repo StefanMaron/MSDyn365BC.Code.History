@@ -334,7 +334,8 @@ codeunit 1550 "Record Restriction Mgt."
         CheckRecordHasUsageRestrictions(Sender);
     end;
 
-    [EventSubscriber(ObjectType::Table, 11730, 'OnCheckCashDocPostRestrictions', '', false, false)]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
+    [EventSubscriber(ObjectType::Table, Database::"Cash Document Header", 'OnCheckCashDocPostRestrictions', '', false, false)]
     [Scope('OnPrem')]
     procedure CashDocHeaderCheckCashDocPostRestrictions(var Sender: Record "Cash Document Header")
     begin
@@ -342,7 +343,8 @@ codeunit 1550 "Record Restriction Mgt."
         CheckRecordHasUsageRestrictions(Sender);
     end;
 
-    [EventSubscriber(ObjectType::Table, 11730, 'OnCheckCashDocReleaseRestrictions', '', false, false)]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
+    [EventSubscriber(ObjectType::Table, Database::"Cash Document Header", 'OnCheckCashDocReleaseRestrictions', '', false, false)]
     [Scope('OnPrem')]
     procedure CashDocHeaderCheckCashDocReleaseRestrictions(var Sender: Record "Cash Document Header")
     begin
@@ -456,7 +458,8 @@ codeunit 1550 "Record Restriction Mgt."
         AllowRecordUsage(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 11730, 'OnBeforeDeleteEvent', '', false, false)]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
+    [EventSubscriber(ObjectType::Table, Database::"Cash Document Header", 'OnBeforeDeleteEvent', '', false, false)]
     [Scope('OnPrem')]
     procedure RemoveCashDocHeaderRestrictionsBeforeDelete(var Rec: Record "Cash Document Header"; RunTrigger: Boolean)
     begin
@@ -538,7 +541,8 @@ codeunit 1550 "Record Restriction Mgt."
         UpdateRestriction(Rec, xRec);
     end;
 
-    [EventSubscriber(ObjectType::Table, 11730, 'OnAfterRenameEvent', '', false, false)]
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
+    [EventSubscriber(ObjectType::Table, Database::"Cash Document Header", 'OnAfterRenameEvent', '', false, false)]
     [Scope('OnPrem')]
     procedure UpdateCashDocHeaderRestrictionsAfterRename(var Rec: Record "Cash Document Header"; var xRec: Record "Cash Document Header"; RunTrigger: Boolean)
     begin

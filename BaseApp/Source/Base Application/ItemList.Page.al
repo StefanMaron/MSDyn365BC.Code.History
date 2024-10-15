@@ -184,6 +184,9 @@ page 31 "Item List"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the statistic indication code for the item.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.4';
                     Visible = false;
                 }
                 field("Specific Movement"; "Specific Movement")

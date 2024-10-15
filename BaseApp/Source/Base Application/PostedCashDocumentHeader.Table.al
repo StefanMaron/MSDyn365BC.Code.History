@@ -269,6 +269,9 @@ table 11735 "Posted Cash Document Header"
         {
             Caption = 'EET Entry No.';
             TableRelation = "EET Entry";
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '18.0';
         }
         field(31124; "Receipt Serial No."; Code[50])
         {
@@ -276,6 +279,9 @@ table 11735 "Posted Cash Document Header"
             Caption = 'Receipt Serial No.';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '18.0';
         }
     }
 
@@ -316,6 +322,7 @@ table 11735 "Posted Cash Document Header"
         PostedCashDocHeader: Record "Posted Cash Document Header";
         DimMgt: Codeunit DimensionManagement;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure PrintRecords(ShowRequestForm: Boolean)
     var
@@ -338,6 +345,7 @@ table 11735 "Posted Cash Document Header"
         end;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure Navigate()
     var
@@ -348,12 +356,14 @@ table 11735 "Posted Cash Document Header"
         NavigateForm.Run;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure ShowDimensions()
     begin
         DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "No."));
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure ShowEETEntry()
     var

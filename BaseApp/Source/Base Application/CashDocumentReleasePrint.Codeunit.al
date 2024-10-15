@@ -24,6 +24,7 @@ codeunit 11732 "Cash Document-Release + Print"
         Commit();
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure PerformManualRelease(var CashDocumentHeader: Record "Cash Document Header")
     var
@@ -40,6 +41,7 @@ codeunit 11732 "Cash Document-Release + Print"
         CODEUNIT.Run(CODEUNIT::"Cash Document-Release + Print", CashDocumentHeader);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure GetReport(var CashDocumentHeader: Record "Cash Document Header")
     begin

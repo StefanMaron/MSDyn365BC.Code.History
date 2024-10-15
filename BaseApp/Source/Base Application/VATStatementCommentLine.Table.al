@@ -52,6 +52,7 @@ table 11772 "VAT Statement Comment Line"
         CheckAllowance;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure CheckAllowance()
     var

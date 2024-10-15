@@ -968,6 +968,9 @@ table 11731 "Cash Document Line"
         {
             Caption = 'EET Transaction';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '18.0';
         }
     }
 

@@ -178,6 +178,10 @@ page 6630 "Sales Return Order"
                     ApplicationArea = SalesReturnOrder;
                     BlankZero = true;
                     ToolTip = 'Specifies the type of credit memo (corrective tax document, internal correction, insolvency tax document).';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.4';
+                    Visible = false;
                 }
                 field("Postponed VAT"; "Postponed VAT")
                 {

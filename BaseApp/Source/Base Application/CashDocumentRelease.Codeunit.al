@@ -66,6 +66,7 @@ codeunit 11731 "Cash Document-Release"
         MustBePositiveErr: Label 'must be positive';
         CashPaymentLimitErr: Label 'The maximum daily limit of cash payments of %1 was exceeded for the partner %2.', Comment = '%1 = amount of limit of cash payment; %2 = number of partner';
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure Reopen(var CashDocHeader: Record "Cash Document Header")
     begin
@@ -81,6 +82,7 @@ codeunit 11731 "Cash Document-Release"
         OnAfterReopenCashDoc(CashDocHeader);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure PerformManualRelease(var CashDocHeader: Record "Cash Document Header")
     var
@@ -95,6 +97,7 @@ codeunit 11731 "Cash Document-Release"
         CODEUNIT.Run(CODEUNIT::"Cash Document-Release", CashDocHeader);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure PerformManualReopen(var CashDocHeader: Record "Cash Document Header")
     begin
@@ -105,6 +108,7 @@ codeunit 11731 "Cash Document-Release"
         Reopen(CashDocHeader);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure CheckCashDocument(CashDocHeader: Record "Cash Document Header")
     begin
@@ -305,6 +309,7 @@ codeunit 11731 "Cash Document-Release"
         end;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure SetOnHold(CashDocLine2: Record "Cash Document Line")
     var
@@ -340,21 +345,25 @@ codeunit 11731 "Cash Document-Release"
             BankAccount.Get(BankAccountNo);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReleaseCashDoc(var CashDocHdr: Record "Cash Document Header")
     begin
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterReleaseCashDoc(var CashDocHdr: Record "Cash Document Header")
     begin
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReopenCashDoc(var CashDocHdr: Record "Cash Document Header")
     begin
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterReopenCashDoc(var CashDocHdr: Record "Cash Document Header")
     begin

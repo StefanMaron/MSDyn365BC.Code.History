@@ -147,6 +147,10 @@ report 5706 "Create Stockkeeping Unit"
                         ApplicationArea = Warehouse;
                         Caption = 'For SKU Templates Only';
                         ToolTip = 'Specifies if the stockkeeping unit will be created only for the sku templates ';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.4';
+                        Visible = false;
                     }
                 }
             }
@@ -241,6 +245,7 @@ report 5706 "Create Stockkeeping Unit"
         ReplacePreviousSKUs := NewReplacePreviousSKUs;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     procedure InitializeRequest(CreatePerOption: Option Location,Variant,"Location & Variant"; NewItemInInventoryOnly: Boolean; NewReplacePreviousSKUs: Boolean; NewOnlyIfTemplateExists: Boolean)
     begin
         //NAVCZ

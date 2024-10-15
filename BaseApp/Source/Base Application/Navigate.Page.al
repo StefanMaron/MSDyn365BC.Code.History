@@ -546,6 +546,8 @@
         PostedInvtPutawayHeader: Record "Posted Invt. Put-away Header";
         [SecurityFiltering(SecurityFilter::Filtered)]
         PostedCashDocHeader: Record "Posted Cash Document Header";
+        [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
+        [SecurityFiltering(SecurityFilter::Filtered)]
         EETEntry: Record "EET Entry";
         FilterTokens: Codeunit "Filter Tokens";
         ItemTrackingNavigateMgt: Codeunit "Item Tracking Navigate Mgt.";
@@ -838,12 +840,7 @@
             InsertIntoDocEntry(
               Rec, DATABASE::"Purch. Advance Letter Entry", 0, PurchAdvanceLetterEntry.TableCaption, PurchAdvanceLetterEntry.Count);
         end;
-        if EETEntry.ReadPermission then begin
-            EETEntry.Reset();
-            EETEntry.SetCurrentKey("Document No.");
-            EETEntry.SetFilter("Document No.", DocNoFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"EET Entry", 0, EETEntry.TableCaption, EETEntry.Count);
-        end;
+        FindEETEntries();
         // NAVCZ
     end;
 
@@ -1801,7 +1798,7 @@
                 DATABASE::"Purch. Advance Letter Entry":
                     PAGE.Run(0, PurchAdvanceLetterEntry);
                 DATABASE::"EET Entry":
-                    PAGE.Run(PAGE::"EET Entry Card", EETEntry);
+                    ShowEETEntries();
             // NAVCZ
             end;
 
@@ -2181,6 +2178,23 @@
             PostedGenJournalLine.SetFilter("Posting Date", PostingDateFilter);
             InsertIntoDocEntry(Rec, Database::"Posted Gen. Journal Line", 0, PostedGenJournalLineTxt, PostedGenJournalLine.Count);
         end;
+    end;
+
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
+    local procedure FindEETEntries()
+    begin
+        if EETEntry.ReadPermission() then begin
+            EETEntry.Reset();
+            EETEntry.SetCurrentKey("Document No.");
+            EETEntry.SetFilter("Document No.", DocNoFilter);
+            InsertIntoDocEntry(Rec, DATABASE::"EET Entry", 0, EETEntry.TableCaption(), EETEntry.Count());
+        end;
+    end;
+
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '18.0')]
+    local procedure ShowEETEntries()
+    begin
+        PAGE.Run(PAGE::"EET Entry Card", EETEntry);
     end;
 
     [IntegrationEvent(false, false)]

@@ -42,7 +42,7 @@ codeunit 31071 "Business Setup Management CZ"
         VATControlReportSectionsNameTxt: Label 'VAT Control Report Sections (Obsolete)';
         VATControlReportSectionsDescriptionTxt: Label 'Set the codes for each reporting portion of the VAT Control Report.';
         VATControlReportSectionsKeywordsTxt: Label 'VAT, VAT Control Report';
-        EETServiceSetupNameTxt: Label 'EET Service Setup';
+        EETServiceSetupNameTxt: Label 'EET Service Setup (Obsolete)';
         EETServiceSetupDescriptionTxt: Label 'Set up and enable the Electronic registration of sales (EET) service.';
         EETServiceSetupKeywordsTxt: Label 'EET';
         ClassificationCodesNameTxt: Label 'Classification Codes';

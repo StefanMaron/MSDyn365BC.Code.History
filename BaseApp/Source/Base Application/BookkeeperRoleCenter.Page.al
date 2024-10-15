@@ -130,6 +130,10 @@ page 9004 "Bookkeeper Role Center"
                 Caption = 'Balance Sheet';
                 RunObject = Report "Balance Sheet";
                 ToolTip = 'Open the report for balance sheet.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.4';
+                Visible = false;
             }
             action("Income Statement")
             {
@@ -137,6 +141,10 @@ page 9004 "Bookkeeper Role Center"
                 Caption = 'Income Statement';
                 RunObject = Report "Income Statement";
                 ToolTip = 'Open the report for income statement.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.4';
+                Visible = false;
             }
             separator(Action1220003)
             {
@@ -147,6 +155,10 @@ page 9004 "Bookkeeper Role Center"
                 Caption = 'Customer - Bal. Reconciliation';
                 RunObject = Report "Customer - Bal. Reconciliation";
                 ToolTip = 'Open the report for customer''s balance reconciliation.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.4';
+                Visible = false;
             }
             action("Vendor - Bal. Reconciliation")
             {
@@ -154,6 +166,10 @@ page 9004 "Bookkeeper Role Center"
                 Caption = 'Vendor - Bal. Reconciliation';
                 RunObject = Report "Vendor - Bal. Reconciliation";
                 ToolTip = 'Opens vendor - bal. reconciliation report';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.4';
+                Visible = false;
             }
             separator(Action49)
             {
@@ -355,6 +371,10 @@ page 9004 "Bookkeeper Role Center"
                 Caption = 'VIES Declarations';
                 RunObject = Page "VIES Declarations";
                 ToolTip = 'Specifies vies declarations list';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.4';
+                Visible = false;
             }
             action("Purchase Invoices")
             {
@@ -724,6 +744,9 @@ page 9004 "Bookkeeper Role Center"
             }
             separator(Action1220017)
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.4';
             }
             action("VIES Declaration")
             {
@@ -732,6 +755,10 @@ page 9004 "Bookkeeper Role Center"
                 Image = PrintVAT;
                 RunObject = Page "VIES Declaration";
                 ToolTip = 'Specifies prepayment invoces';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.4';
+                Visible = false;
             }
         }
         area(processing)
@@ -775,6 +802,10 @@ page 9004 "Bookkeeper Role Center"
                 Image = PhysicalInventory;
                 RunObject = Report "Phys. Invt. Counting Document";
                 ToolTip = 'Open the report for physical invt. counting document.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.4';
+                Visible = false;
             }
             action("Payment Reconciliation Journals")
             {
@@ -834,6 +865,10 @@ page 9004 "Bookkeeper Role Center"
                 Image = PrintVAT;
                 RunObject = Page "VIES Declarations";
                 ToolTip = 'Specifies vies declarations list';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.4';
+                Visible = false;
             }
             separator(Action84)
             {
@@ -855,6 +890,10 @@ page 9004 "Bookkeeper Role Center"
                 Image = HumanResources;
                 RunObject = Page "Company Officials Card";
                 ToolTip = 'Specifies statutory reporting setup page';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.4';
+                Visible = false;
             }
             separator(History)
             {

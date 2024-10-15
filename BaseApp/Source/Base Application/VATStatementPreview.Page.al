@@ -21,6 +21,10 @@ page 474 "VAT Statement Preview"
                     LookupPageID = "VAT Periods";
                     TableRelation = "VAT Period";
                     ToolTip = 'Specifies the starting date for the VAT period.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.4';
+                    Visible = false;
 
                     trigger OnValidate()
                     begin
@@ -39,6 +43,10 @@ page 474 "VAT Statement Preview"
                     ApplicationArea = VAT;
                     Caption = 'VAT Period End Date';
                     ToolTip = 'Specifies the ending date for the VAT period.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.4';
+                    Visible = false;
 
                     trigger OnValidate()
                     begin
@@ -74,6 +82,10 @@ page 474 "VAT Statement Preview"
                     ApplicationArea = VAT;
                     Caption = 'Date Row Filter';
                     ToolTip = 'Specifies the date row filter for VAT entries.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Unsupported functionality';
+                    ObsoleteTag = '17.4';
+                    Visible = false;
 
                     trigger OnValidate()
                     var
@@ -95,6 +107,10 @@ page 474 "VAT Statement Preview"
                     Caption = 'Performance Country';
                     TableRelation = "Country/Region";
                     ToolTip = 'Specifies performance country code for VAT entries filtr.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed.';
+                    ObsoleteTag = '17.4';
+                    Visible = false;
 
                     trigger OnValidate()
                     begin
@@ -106,6 +122,10 @@ page 474 "VAT Statement Preview"
                     ApplicationArea = VAT;
                     Caption = 'Filter VAT Settlement No.';
                     ToolTip = 'Specifies the filter setup of document number which the VAT entries were closed.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.4';
+                    Visible = false;
 
                     trigger OnValidate()
                     begin

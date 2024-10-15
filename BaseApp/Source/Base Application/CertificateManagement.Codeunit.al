@@ -134,6 +134,7 @@ codeunit 1259 "Certificate Management"
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure GetCertAsBase64String(IsolatedCertificate: Record "Isolated Certificate"): Text
     var
         CertString: Text;
@@ -145,13 +146,11 @@ codeunit 1259 "Certificate Management"
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure GetCertAsDotNetX509Certificate2(IsolatedCertificate: Record "Isolated Certificate"; var DotNetX509Certificate2: Codeunit DotNet_X509Certificate2)
-    var
-        StoredPassword: Text;
     begin
         // NAVCZ
-        if IsolatedStorage.Get(IsolatedCertificate.Code + PasswordSuffixTxt, GetCertDataScope(IsolatedCertificate), StoredPassword) then;
-        ConvertBase64StringToDotNetX509Certificate2(GetCertAsBase64String(IsolatedCertificate), StoredPassword, DotNetX509Certificate2);
+        ConvertBase64StringToDotNetX509Certificate2(GetCertAsBase64String(IsolatedCertificate), GetPassword(IsolatedCertificate), DotNetX509Certificate2);
     end;
 
     [Scope('OnPrem')]
@@ -226,6 +225,7 @@ codeunit 1259 "Certificate Management"
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure ConvertBase64StringToDotNetX509Certificate2(Base64String: Text; Password: Text; var DotNetX509Certificate2: Codeunit DotNet_X509Certificate2)
     var
         DotNetArrayBytes: Codeunit DotNet_Array;
@@ -239,6 +239,7 @@ codeunit 1259 "Certificate Management"
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure ConvertDotNetX509Certificate2ToBase64String(DotNetX509Certificate2: Codeunit DotNet_X509Certificate2; Password: Text; WithPrivateKey: Boolean): Text
     var
         DotNetArrayBytes: Codeunit DotNet_Array;
@@ -255,6 +256,7 @@ codeunit 1259 "Certificate Management"
     end;
 
     [Scope('OnPrem')]
+    [NonDebuggable]
     procedure ConvertDotNetX509Certificate2ToBytes(DotNetX509Certificate2: Codeunit DotNet_X509Certificate2; Password: Text; WithPrivateKey: Boolean; var DotNetArrayBytes: Codeunit DotNet_Array): Boolean
     var
         X509Certificate2: DotNet X509Certificate2;
@@ -287,5 +289,71 @@ codeunit 1259 "Certificate Management"
             exit('');
 
         exit(X509Certificate2.GetNameInfo(X509NameType.SimpleName, false));
+    end;
+
+    [NonDebuggable]
+    procedure SignData(DataText: Text; SignatureOutStream: OutStream; IsolatedCertificate: Record "Isolated Certificate"; ElectronicSignatureProvider: Interface "Electronic Signature Provider")
+    var
+        DataTempBlob: Codeunit "Temp Blob";
+        DataOutStream: OutStream;
+        DataInStream: InStream;
+    begin
+        // NAVCZ
+        DataTempBlob.CreateInStream(DataInStream);
+        DataTempBlob.CreateOutStream(DataOutStream);
+        DataOutStream.WriteText(DataText);
+        SignData(DataInStream, SignatureOutStream, IsolatedCertificate, ElectronicSignatureProvider);
+    end;
+
+    [NonDebuggable]
+    procedure SignData(DataInStream: InStream; SignatureOutStream: OutStream; IsolatedCertificate: Record "Isolated Certificate"; ElectronicSignatureProvider: Interface "Electronic Signature Provider")
+    var
+        SignatureKey: Record "Signature Key";
+        DotNetX509Certificate2: Codeunit DotNet_X509Certificate2;
+        DotNetAsymmetricAlgorithm: Codeunit DotNet_AsymmetricAlgorithm;
+    begin
+        // NAVCZ
+        IsolatedCertificate.TestField("Has Private Key");
+        GetCertAsDotNetX509Certificate2(IsolatedCertificate, DotNetX509Certificate2);
+        DotNetX509Certificate2.PrivateKey(DotNetAsymmetricAlgorithm);
+        SignatureKey."Signature Algorithm" := Enum::SignatureAlgorithm::RSA;
+        SignatureKey.FromXmlString(DotNetAsymmetricAlgorithm.ToXmlString(true));
+        ElectronicSignatureProvider.GetSignature(DataInStream, SignatureKey, SignatureOutStream);
+    end;
+
+    [NonDebuggable]
+    procedure GetCertAsBase64StringWithoutPrivateKey(IsolatedCertificate: Record "Isolated Certificate"): Text
+    var
+        DotNetX509Certificate2: Codeunit DotNet_X509Certificate2;
+    begin
+        // NAVCZ
+        ConvertBase64StringToDotNetX509Certificate2(GetCertAsBase64String(IsolatedCertificate), GetPassword(IsolatedCertificate), DotNetX509Certificate2);
+        exit(ConvertDotNetX509Certificate2ToBase64String(DotNetX509Certificate2, '', false));
+    end;
+
+    [NonDebuggable]
+    procedure VerifyCertificate(CertBase64Value: Text): Boolean
+    var
+        DotNetX509Certificate2: Codeunit DotNet_X509Certificate2;
+        X509Certificate2: DotNet X509Certificate2;
+        X509Chain: DotNet X509Chain;
+        X509RevocationMode: DotNet X509RevocationMode;
+    begin
+        // NAVCZ
+        ConvertBase64StringToDotNetX509Certificate2(CertBase64Value, '', DotNetX509Certificate2);
+        DotNetX509Certificate2.GetX509Certificate2(X509Certificate2);
+        X509Chain := X509Chain.X509Chain();
+        X509Chain.ChainPolicy.RevocationMode := X509RevocationMode.NoCheck;
+        exit(X509Chain.Build(X509Certificate2));
+    end;
+
+    [NonDebuggable]
+    procedure GetCertificateCommonName(IsolatedCertificate: Record "Isolated Certificate"): Text
+    var
+        DotNetX509Certificate2: Codeunit DotNet_X509Certificate2;
+    begin
+        // NAVCZ
+        GetCertAsDotNetX509Certificate2(IsolatedCertificate, DotNetX509Certificate2);
+        exit(GetCertificateCommonName(DotNetX509Certificate2));
     end;
 }

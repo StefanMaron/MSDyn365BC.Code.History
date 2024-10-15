@@ -132,6 +132,10 @@ page 5159 "Sales Order Archive"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the VAT date. This date must be shown on the VAT statement.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.4';
+                    Visible = false;
                 }
                 field("Requested Delivery Date"; "Requested Delivery Date")
                 {

@@ -38,12 +38,20 @@ page 8901 "Finance Manager Role Center"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Open Balance Sheet';
                     RunObject = report "Open Balance Sheet";
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.4';
+                    Visible = false;
                 }
                 action("Close Balance Sheet")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Close Balance Sheet';
                     RunObject = report "Close Balance Sheet";
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.4';
+                    Visible = false;
                 }
                 action("G/L Entry Applying")
                 {
@@ -77,6 +85,10 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'VIES Declarations';
                         RunObject = page "VIES Declarations";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.4';
+                        Visible = false;
                     }
                     action("Reverse Charges")
                     {
@@ -89,6 +101,10 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Mass Uncertainty Payer Get';
                         RunObject = report "Mass Uncertainty Payer Get";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.4';
+                        Visible = false;
                     }
                     action("Non-Deductible VAT Correction")
                     {
@@ -101,12 +117,20 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'VAT Control Reports';
                         RunObject = page "VAT Control Report List";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.4';
+                        Visible = false;
                     }
                     action("VAT Control Report Sections")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'VAT Control Report Sections';
                         RunObject = page "VAT Control Report Sections";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.4';
+                        Visible = false;
                     }
                     group("Group2")
                     {
@@ -156,18 +180,30 @@ page 8901 "Finance Manager Role Center"
                             ApplicationArea = Basic, Suite;
                             Caption = 'G/L VAT Reconciliation';
                             RunObject = report "G/L VAT Reconciliation CZ";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                            ObsoleteTag = '17.4';
+                            Visible = false;
                         }
                         action("VAT Documents List")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'VAT Documents List';
                             RunObject = report "VAT Documents List";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                            ObsoleteTag = '17.4';
+                            Visible = false;
                         }
                         action("Documentation for VAT")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Documentation for VAT';
                             RunObject = report "Documentation for VAT";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                            ObsoleteTag = '17.4';
+                            Visible = false;
                         }
                         action("VAT List on Sales Adv. Letter")
                         {
@@ -485,12 +521,20 @@ page 8901 "Finance Manager Role Center"
                             ApplicationArea = Basic, Suite;
                             Caption = 'Balance Sheet';
                             RunObject = report "Balance Sheet";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                            ObsoleteTag = '17.4';
+                            Visible = false;
                         }
                         action("Income Statement")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Income Statement';
                             RunObject = report "Income Statement";
+                            ObsoleteState = Pending;
+                            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                            ObsoleteTag = '17.4';
+                            Visible = false;
                         }
                         action("Statement of Cashflows")
                         {
@@ -1000,12 +1044,21 @@ page 8901 "Finance Manager Role Center"
                 action("EET Entries")
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'EET Entries';
+                    Caption = 'EET Entries (Obsolete)';
                     RunObject = page "EET Entries";
+                    ToolTip = 'Open the list of EET entries.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                    ObsoleteTag = '18.0';
+                    Visible = false;
                 }
                 group("Group63")
                 {
                     Caption = 'Reports';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                    ObsoleteTag = '17.4';
+
                     action("Cash Desk Book")
                     {
                         ApplicationArea = Basic, Suite;
@@ -1040,6 +1093,10 @@ page 8901 "Finance Manager Role Center"
                 group("Group64")
                 {
                     Caption = 'Setup';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+                    ObsoleteTag = '17.4';
+
                     action("Cash Desks Setup")
                     {
                         ApplicationArea = Basic, Suite;
@@ -1513,12 +1570,20 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Customer - Bal. Reconciliation';
                         RunObject = report "Customer - Bal. Reconciliation";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.4';
+                        Visible = false;
                     }
                     action("Open Customer Entries at Date")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Open Customer Entries at Date';
                         RunObject = report "Open Customer Entries at Date";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.4';
+                        Visible = false;
                     }
                     action("Sales Advance Letter List")
                     {
@@ -1707,6 +1772,10 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Uncertainty Payer Entries';
                         RunObject = page "Uncertainty Payer Entries";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.4';
+                        Visible = false;
                     }
                 }
                 group("Group40")
@@ -1813,6 +1882,10 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Vendor - Bal. Reconciliation';
                         RunObject = report "Vendor - Bal. Reconciliation";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.4';
+                        Visible = false;
                     }
                     action("All Payments on Hold")
                     {
@@ -1829,6 +1902,10 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Open Vendor Entries at Date';
                         RunObject = report "Open Vendor Entries at Date";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.4';
+                        Visible = false;
                     }
                     action("Purch. Advance Letter List")
                     {
@@ -1841,6 +1918,10 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Uncertainty VAT Payer List';
                         RunObject = report "Uncertainty Payer List";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.4';
+                        Visible = false;
                     }
                 }
                 group("Group41")
@@ -2385,12 +2466,20 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Posted Inventory Document';
                         RunObject = report "Posted Inventory Document";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.4';
+                        Visible = false;
                     }
                     action("Phys. Invt. Counting Document")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Phys. Invt. Counting Document';
                         RunObject = report "Phys. Invt. Counting Document";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.4';
+                        Visible = false;
                     }
                     action("Package Tax Calculation")
                     {
@@ -2596,12 +2685,20 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'VAT Periods';
                         RunObject = page "VAT Periods";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.4';
+                        Visible = false;
                     }
                     action("Comodities")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Commodities';
                         RunObject = page "Commodities";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.4';
+                        Visible = false;
                     }
                 }
                 group("Intrastat")
@@ -2609,7 +2706,7 @@ page 8901 "Finance Manager Role Center"
                     Caption = 'Intrastat';
                     action("Intrastat Setup")
                     {
-                        ApplicationArea = Basic, Suite;
+                        ApplicationArea = BasicEU;
                         Caption = 'Intrastat Setup';
                         RunObject = page "Intrastat Setup";
                     }
@@ -2621,37 +2718,37 @@ page 8901 "Finance Manager Role Center"
                     }
                     action("Transaction Types")
                     {
-                        ApplicationArea = Basic, Suite;
+                        ApplicationArea = BasicEU;
                         Caption = 'Transaction Types';
                         RunObject = page "Transaction Types";
                     }
                     action("Transaction Specifications")
                     {
-                        ApplicationArea = Basic, Suite;
+                        ApplicationArea = BasicEU;
                         Caption = 'Transaction Specifications';
                         RunObject = page "Transaction Specifications";
                     }
                     action("Transport Methods")
                     {
-                        ApplicationArea = Basic, Suite;
+                        ApplicationArea = BasicEU;
                         Caption = 'Transport Methods';
                         RunObject = page "Transport Methods";
                     }
                     action("Entry/Exit Points")
                     {
-                        ApplicationArea = Basic, Suite;
+                        ApplicationArea = BasicEU;
                         Caption = 'Entry/Exit Points';
                         RunObject = page "Entry/Exit Points";
                     }
                     action("Areas")
                     {
-                        ApplicationArea = Basic, Suite;
+                        ApplicationArea = BasicEU;
                         Caption = 'Areas';
                         RunObject = page "Areas";
                     }
                     action("Intrastat Journal Templates")
                     {
-                        ApplicationArea = Basic, Suite;
+                        ApplicationArea = BasicEU;
                         Caption = 'Intrastat Journal Templates';
                         RunObject = page "Intrastat Journal Templates";
                     }
@@ -2666,6 +2763,10 @@ page 8901 "Finance Manager Role Center"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Statistic Indications';
                         RunObject = page "Statistic Indications";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.4';
+                        Visible = false;
                     }
                     action("Specific Movements")
                     {

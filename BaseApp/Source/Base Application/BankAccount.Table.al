@@ -1049,6 +1049,9 @@ table 270 "Bank Account"
             Caption = 'EET Cash Register';
             Editable = false;
             FieldClass = FlowField;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'The field is not used anywhere and will be deleted.';
+            ObsoleteTag = '18.0';
         }
     }
 

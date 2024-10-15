@@ -484,12 +484,20 @@ page 118 "General Ledger Setup"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Max. VAT Difference Allowed';
                     ToolTip = 'Specifies the maximum VAT correction amount allowed for the local currency.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.4';
+                    Visible = false;
                 }
                 field("<VAT Rounding Type2>"; "VAT Rounding Type")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'VAT Rounding Type';
                     ToolTip = 'Specifies vat rounding type';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.4';
+                    Visible = false;
                 }
                 field("VAT Coeff. Rounding Precision"; "VAT Coeff. Rounding Precision")
                 {

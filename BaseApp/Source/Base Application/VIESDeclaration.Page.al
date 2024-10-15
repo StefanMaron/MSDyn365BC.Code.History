@@ -416,6 +416,7 @@ page 31066 "VIES Declaration"
         NaturalEmplNoEditable: Boolean;
         DocNoVisible: Boolean;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure SetControlsEditable()
     var

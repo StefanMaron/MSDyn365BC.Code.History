@@ -56,6 +56,10 @@
                 {
                     ApplicationArea = VAT;
                     ToolTip = 'Specifies a general posting type that will be used with the VAT statement.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.4';
+                    Visible = false;
                 }
                 field("Gen. Bus. Posting Group"; "Gen. Bus. Posting Group")
                 {
@@ -97,6 +101,10 @@
                 {
                     ApplicationArea = Prepayments;
                     ToolTip = 'Specifies the VAT statement prepayment type.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.4';
+                    Visible = false;
                 }
                 field("Tax Jurisdiction Code"; "Tax Jurisdiction Code")
                 {
@@ -254,6 +262,7 @@
         Selection: Enum "VAT Statement Report Selection";
         PeriodSelection: Enum "VAT Statement Report Period Selection";
         UseAmtsInAddCurr: Boolean;
+        [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
         SettlementNoFilter: Text[50];
         [Obsolete('The functionality of VAT Registration in Other Countries will be removed and this variable should not be used. (Obsolete::Removed in release 01.2021)', '15.3')]
         CountryCodeFillFilter: Code[10];
@@ -284,6 +293,7 @@
         // NAVCZ
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     procedure UpdateForm(var VATStmtName: Record "VAT Statement Name"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewUseAmtsInAddCurr: Boolean; SettlementNoFilter2: Text[50]; CountryCodeFillFilter2: Code[10])
     begin
         SetRange("Statement Template Name", VATStmtName."Statement Template Name");
@@ -318,6 +328,7 @@
     begin
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [IntegrationEvent(false, false)]
     local procedure OnUpdateFormOnBeforePageUpdate(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean; SettlementNoFilter2: Text[50]; CountryCodeFillFilter2: Code[10])
     begin

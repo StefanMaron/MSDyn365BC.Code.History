@@ -164,6 +164,7 @@ page 31067 "VIES Declaration Subform"
         TradeRoleTypeEditable: Boolean;
         VATRegNoOfOriginalCustEditable: Boolean;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     procedure SetControlsEditable()
     begin
         NumberOfSuppliesEditable := "Trade Type" <> "Trade Type"::" ";

@@ -1,10 +1,13 @@
 page 31075 "Stat. Rep. No. Series Setup"
 {
-    Caption = 'Stat. Rep. No. Series Setup';
+    Caption = 'Stat. Rep. No. Series Setup (Obsolete)';
     DeleteAllowed = false;
     InsertAllowed = false;
     PageType = ListPlus;
     SourceTable = "Stat. Reporting Setup";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.4';
 
     layout
     {
@@ -62,6 +65,7 @@ page 31075 "Stat. Rep. No. Series Setup"
         ReverseChargeNosVisible: Boolean;
         VATControlReportNosVisible: Boolean;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure SetFieldsVisibility(DocType: Option "VIES Declaration","Reverse Charge","VAT Control Report")
     begin

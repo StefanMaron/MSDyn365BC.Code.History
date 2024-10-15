@@ -64,7 +64,9 @@ table 11765 "Excel Template"
         TempBlob: Codeunit "Temp Blob";
         FileMgt: Codeunit "File Management";
         FileName: Text;
+#if not CLEAN17
         ImportQst: Label 'Do you want import Template?';
+#endif
         DeleteQst: Label 'Do you want delete %1?';
         DefaultTxt: Label 'Default';
         ExtensionTxt: Label 'xlsx', Comment = 'xlsx';
@@ -85,6 +87,7 @@ table 11765 "Excel Template"
 
     [Scope('OnPrem')]
     procedure ShowFile(IsTemporary: Boolean)
+#if not CLEAN17
     var
         FileName: Text;
     begin
@@ -99,6 +102,11 @@ table 11765 "Excel Template"
             ImportFile(FileName, IsTemporary);
         DeleteFile(FileName);
     end;
+#else
+    begin
+        Error(NotSupportedErr);
+    end;
+#endif
 
     [Scope('OnPrem')]
     procedure ExportToClientFile(var ExportToFile: Text): Boolean
@@ -170,6 +178,7 @@ table 11765 "Excel Template"
         end;
     end;
 
+#if not CLEAN17
     [Scope('OnPrem')]
     procedure DeleteFile(FileName: Text): Boolean
     var
@@ -187,11 +196,24 @@ table 11765 "Excel Template"
         until FileMgt.DeleteClientFile(FileName) or (i = 25);
         exit(not FileMgt.ClientFileExists(FileName));
     end;
+#else
+    [Scope('OnPrem')]
+    procedure DeleteFile(FileName: Text): Boolean
+    begin
+        if FileName = '' then
+            exit(false);
+
+        exit(true);
+    end;
+#endif
 
     [Scope('OnPrem')]
     procedure ConstFilename() FileName: Text
     begin
+#if not CLEAN17
         FileName := FileMgt.ClientTempFileName(ExtensionTxt);
+#else
+        FileName := FileMgt.CreateFileNameWithExtension(Format(CreateGuid()), ExtensionTxt);
+#endif
     end;
 }
-

@@ -304,6 +304,7 @@ page 31106 "Export VAT Control Report"
         UpdateDateParameters;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure GetClientFileName(): Text
     begin

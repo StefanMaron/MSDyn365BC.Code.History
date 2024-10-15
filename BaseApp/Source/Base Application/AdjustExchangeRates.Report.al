@@ -1903,6 +1903,7 @@ report 595 "Adjust Exchange Rates"
         end;
 
         if not TestMode then begin // NAVCZ
+            OnPostGenJnlLineOnBeforeGenJnlPostLineRun(GenJnlLine);
             GenJnlPostLine.Run(GenJnlLine);
             exit(GenJnlPostLine.GetNextTransactionNo);
         end;
@@ -2709,6 +2710,11 @@ report 595 "Adjust Exchange Rates"
 
     [IntegrationEvent(false, false)]
     local procedure OnVendorAfterGetRecordOnAfterFindVendLedgerEntriesToAdjust(var TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostGenJnlLineOnBeforeGenJnlPostLineRun(var GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 }

@@ -193,7 +193,7 @@
                             GenJnlLineCreatedCount += 1;
                             if BalAccount then
                                 FAInsertGLAcc.GetBalAcc(GenJnlLine, GenJnlNextLineNo);
-                            OnAfterFAInsertGLAccGetBalAcc(GenJnlLine, GenJnlNextLineNo, BalAccount);
+                            OnAfterFAInsertGLAccGetBalAcc(GenJnlLine, GenJnlNextLineNo, BalAccount, TempGenJnlLine);
                         until TempGenJnlLine.Next = 0;
                 end;
                 OnAfterPostDataItem();
@@ -450,7 +450,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterFAInsertGLAccGetBalAcc(var GenJnlLine: Record "Gen. Journal Line"; var GenJnlNextLineNo: Integer; var BalAccount: Boolean)
+    local procedure OnAfterFAInsertGLAccGetBalAcc(var GenJnlLine: Record "Gen. Journal Line"; var GenJnlNextLineNo: Integer; var BalAccount: Boolean; var TempGenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 

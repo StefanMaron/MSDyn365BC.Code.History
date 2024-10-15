@@ -369,18 +369,21 @@ codeunit 5880 "Phys. Invt. Order-Finish"
             end;
     end;
 
-    [Obsolete('Moved to Core Localization Pack for Czech.', '17.0')]
+    [Obsolete('Moved to Core Localization Pack for Czech. "Phys.In.Order Line Handler CZL".GetInvtMovementTemplateName()', '17.0')]
     local procedure GetWhseNetChangeTemplateName(PhysInvtOrderLine: Record "Phys. Invt. Order Line"): Code[10]
     var
         InventorySetup: Record "Inventory Setup";
     begin
         // NAVCZ
         InventorySetup.Get();
-        if PhysInvtOrderLine."Pos. Qty. (Base)" > 0 then
-            exit(InventorySetup."Def.Template for Phys.Pos.Adj");
-        if PhysInvtOrderLine."Neg. Qty. (Base)" > 0 then
-            exit(InventorySetup."Def.Template for Phys.Neg.Adj");
-        exit('');
+        case PhysInvtOrderLine."Entry Type" of
+            PhysInvtOrderLine."Entry Type"::"Positive Adjmt.":
+                exit(InventorySetup."Def.Template for Phys.Pos.Adj");
+            PhysInvtOrderLine."Entry Type"::"Negative Adjmt.":
+                exit(InventorySetup."Def.Template for Phys.Neg.Adj")
+            else
+                exit('');
+        end;
     end;
 
     [IntegrationEvent(false, false)]

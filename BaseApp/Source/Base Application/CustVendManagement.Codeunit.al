@@ -8,6 +8,7 @@ codeunit 11767 CustVendManagement
     begin
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure FillCVBuffer(var CurrencyBuf: Record Currency temporary; var CVLedgEntry: Record "CV Ledger Entry Buffer" temporary; CustomerNo: Code[20]; VendorNo: Code[20]; AtDate: Date; AmountsInCurrency: Boolean)
     var
@@ -88,6 +89,7 @@ codeunit 11767 CustVendManagement
         end;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure CalcCVDebt(CustomerNo: Code[20]; VendorNo: Code[20]; CurrencyCode: Code[10]; Date: Date; InLCY: Boolean) TotalAmount: Decimal
     var

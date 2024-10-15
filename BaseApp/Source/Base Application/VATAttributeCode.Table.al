@@ -52,6 +52,7 @@ table 11779 "VAT Attribute Code"
     var
         ValueCoefErr: Label 'The value of a coefficient %1 must be between 0 and 1.';
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure GetRoundingPrecision(): Decimal
     begin
@@ -60,6 +61,7 @@ table 11779 "VAT Attribute Code"
         exit(1);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure CheckValue(Value: Decimal)
     begin

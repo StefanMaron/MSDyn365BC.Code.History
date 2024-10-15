@@ -3,7 +3,7 @@ report 31 "VAT Exceptions"
     DefaultLayout = RDLC;
     RDLCLayout = './VATExceptions.rdlc';
     ApplicationArea = Basic, Suite;
-    Caption = 'VAT Exceptions';
+    Caption = 'VAT Exceptions (Obsolete)';
     UsageCategory = ReportsAndAnalysis;
 
     dataset

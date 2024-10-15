@@ -350,6 +350,9 @@ table 11736 "Posted Cash Document Line"
         {
             Caption = 'EET Transaction';
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '18.0';
         }
     }
 
@@ -376,12 +379,14 @@ table 11736 "Posted Cash Document Line"
     var
         DimMgt: Codeunit DimensionManagement;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure ShowDimensions()
     begin
         DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2 %3', TableCaption, "Cash Document No.", "Line No."));
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure ExtStatistics()
     var

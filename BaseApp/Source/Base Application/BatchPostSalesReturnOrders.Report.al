@@ -1,6 +1,6 @@
 report 6655 "Batch Post Sales Return Orders"
 {
-    Caption = 'Batch Post Sales Return Orders';
+    Caption = 'Batch Post Sales Return Orders (Obsolete)';
     ProcessingOnly = true;
 
     dataset
@@ -69,6 +69,9 @@ report 6655 "Batch Post Sales Return Orders"
                         ApplicationArea = Basic, Suite;
                         Caption = 'VAT Date';
                         ToolTip = 'Specifies VAT Date for posting.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.4';
                         Visible = UseVATDate;
                     }
                     field(ReplacePostingDate; ReplacePostingDate)
@@ -94,6 +97,9 @@ report 6655 "Batch Post Sales Return Orders"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Replace VAT Date';
                         ToolTip = 'Specifies if the new VAT date will be applied.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.4';
                         Visible = UseVATDate;
                     }
                     field(CalcInvDisc; CalcInvDisc)

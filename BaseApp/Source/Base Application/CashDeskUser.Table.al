@@ -50,6 +50,9 @@ table 11740 "Cash Desk User"
         field(31120; "Post EET Only"; Boolean)
         {
             Caption = 'Post EET Only';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+            ObsoleteTag = '18.0';
         }
     }
 
@@ -68,6 +71,7 @@ table 11740 "Cash Desk User"
     {
     }
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     procedure GetUserName(UserName: Code[50]): Text[80]
     var
         User: Record User;

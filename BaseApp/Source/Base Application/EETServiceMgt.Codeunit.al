@@ -1,9 +1,8 @@
 codeunit 31120 "EET Service Mgt."
 {
-
-    trigger OnRun()
-    begin
-    end;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '18.0';
 
     var
         WebServiceURLTxt: Label 'https://prod.eet.cz/eet/services/EETServiceSOAP/v3', Locked = true;
@@ -611,6 +610,7 @@ codeunit 31120 "EET Service Mgt."
     procedure HandleEETRegisterServiceConnection(var ServiceConnection: Record "Service Connection")
     var
         EETServiceSetup: Record "EET Service Setup";
+        EETServiceSetupPage: Page "EET Service Setup";
         RecRef: RecordRef;
     begin
         if not EETServiceSetup.Get then begin
@@ -625,7 +625,7 @@ codeunit 31120 "EET Service Mgt."
             ServiceConnection.Status := ServiceConnection.Status::Disabled;
         with EETServiceSetup do
             ServiceConnection.InsertServiceConnection(
-              ServiceConnection, RecRef.RecordId, TableName, "Service URL", PAGE::"EET Service Setup");
+              ServiceConnection, RecRef.RecordId, EETServiceSetupPage.Caption(), "Service URL", PAGE::"EET Service Setup");
     end;
 
     [IntegrationEvent(false, false)]

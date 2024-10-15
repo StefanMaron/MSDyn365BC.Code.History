@@ -2,6 +2,9 @@ table 31121 "EET Business Premises"
 {
     Caption = 'EET Business Premises';
     LookupPageID = "EET Business Premises";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '18.0';
 
     fields
     {

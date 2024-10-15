@@ -6,6 +6,9 @@ page 11736 "Posted Cash Document Subform"
     Editable = false;
     PageType = ListPart;
     SourceTable = "Posted Cash Document Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '17.4';
 
     layout
     {

@@ -153,9 +153,16 @@ page 9020 "Small Business Owner RC"
                 Image = PhysicalInventory;
                 RunObject = Report "Phys. Invt. Counting Document";
                 ToolTip = 'Open the report for physical invt. counting document.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.4';
+                Visible = false;
             }
             separator(Action1220000)
             {
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.4';
             }
             action("Balance Sheet")
             {
@@ -164,6 +171,10 @@ page 9020 "Small Business Owner RC"
                 Image = Balance;
                 RunObject = Report "Balance Sheet";
                 ToolTip = 'Open the report for balance sheet.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.4';
+                Visible = false;
             }
             action("Income Statement")
             {
@@ -172,6 +183,10 @@ page 9020 "Small Business Owner RC"
                 Image = VATStatement;
                 RunObject = Report "Income Statement";
                 ToolTip = 'Open the report for income statement.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                ObsoleteTag = '17.4';
+                Visible = false;
             }
             separator(Action1220003)
             {

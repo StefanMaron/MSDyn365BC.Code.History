@@ -1,10 +1,13 @@
 page 31104 "VAT Control Report Statistics"
 {
-    Caption = 'VAT Control Report Statistics';
+    Caption = 'VAT Control Report Statistics (Obsolete)';
     Editable = false;
     LinksAllowed = false;
     PageType = ListPlus;
     SourceTable = "VAT Control Report Header";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+    ObsoleteTag = '17.4';
 
     layout
     {

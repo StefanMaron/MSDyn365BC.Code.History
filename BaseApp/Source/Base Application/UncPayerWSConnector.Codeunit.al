@@ -14,6 +14,7 @@ codeunit 11759 "Unc. Payer WS Connector"
         ServiceUrl: Text;
 
     [TryFunction]
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     procedure GetStatus(var DotNetArrayVATRegNo: Codeunit DotNet_Array; var TempBlobResponse: Codeunit "Temp Blob")
     var
         XMLDOMMgt: Codeunit "XML DOM Management";
@@ -35,6 +36,7 @@ codeunit 11759 "Unc. Payer WS Connector"
     end;
 
     [TryFunction]
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     procedure GetStatusExtended(var DotNetArrayVATRegNo: Codeunit DotNet_Array; var TempBlobResponse: Codeunit "Temp Blob")
     var
         XMLDOMMgt: Codeunit "XML DOM Management";
@@ -56,6 +58,7 @@ codeunit 11759 "Unc. Payer WS Connector"
     end;
 
     [TryFunction]
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     procedure GetList(var TempBlobResponse: Codeunit "Temp Blob")
     var
         XMLDOMMgt: Codeunit "XML DOM Management";
@@ -67,11 +70,13 @@ codeunit 11759 "Unc. Payer WS Connector"
         SendHttpRequest(RequestXmlDocument, TempBlobResponse);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     procedure SetServiceUrl(NewServiceUrl: Text)
     begin
         ServiceUrl := NewServiceUrl;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     procedure GetInputRecordLimit(): Integer
     begin
         exit(100);

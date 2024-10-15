@@ -884,12 +884,20 @@ page 8909 "Warehouse Manager Role Center"
                         ApplicationArea = Warehouse;
                         Caption = 'Stockkeeping Unit Templates';
                         RunObject = page "Stockkeeping Unit Templates";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.4';
+                        Visible = false;
                     }
                     action("Whse. Net Change Template List")
                     {
                         ApplicationArea = Warehouse;
                         Caption = 'Whse. Net Change Templates';
                         RunObject = page "Whse. Net Change Template List";
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.4';
+                        Visible = false;
                     }
                 }
                 group("Group22")

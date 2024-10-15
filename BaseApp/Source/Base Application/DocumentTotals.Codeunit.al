@@ -791,7 +791,7 @@ codeunit 57 "Document Totals"
             Clear(Currency);
             Currency.Initialize(TotalSalesHeader."Currency Code");
         end;
-        if SalesHeader.Get(TotalSalesHeader."Document Type",TotalSalesHeader."No.") then
+        if SalesHeader.Get(TotalSalesHeader."Document Type", TotalSalesHeader."No.") then
             if SalesHeader."Invoice Discount Value" <> TotalSalesHeader."Invoice Discount Value" then
                 TotalsUpToDate := false;
     end;
@@ -816,7 +816,7 @@ codeunit 57 "Document Totals"
             Clear(Currency);
             Currency.Initialize(TotalPurchaseHeader."Currency Code");
         end;
-        if PurchaseHeader.Get(TotalPurchaseHeader."Document Type",TotalPurchaseHeader."No.") then
+        if PurchaseHeader.Get(TotalPurchaseHeader."Document Type", TotalPurchaseHeader."No.") then
             if PurchaseHeader."Invoice Discount Value" <> TotalPurchaseHeader."Invoice Discount Value" then
                 TotalsUpToDate := false;
     end;
@@ -986,6 +986,7 @@ codeunit 57 "Document Totals"
         exit(PurchAdvanceLetterLine.Count <= 100);
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure CalculateCashDocumentTotals(var CashDocumentHeader: Record "Cash Document Header"; var VATAmount: Decimal; CashDocumentLine: Record "Cash Document Line")
     begin
@@ -996,6 +997,7 @@ codeunit 57 "Document Totals"
         end;
     end;
 
+    [Obsolete('Moved to Cash Desk Localization for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure CalculatePostedCashDocumentTotals(var PostedCashDocumentHeader: Record "Posted Cash Document Header"; var VATAmount: Decimal; PostedCashDocumentLine: Record "Posted Cash Document Line")
     begin

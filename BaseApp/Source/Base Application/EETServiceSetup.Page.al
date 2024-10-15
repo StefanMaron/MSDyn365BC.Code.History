@@ -1,7 +1,7 @@
 page 31120 "EET Service Setup"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'EET Service Setup';
+    Caption = 'EET Service Setup (Obsolete)';
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
@@ -9,6 +9,9 @@ page 31120 "EET Service Setup"
     ShowFilter = false;
     SourceTable = "EET Service Setup";
     UsageCategory = Administration;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {

@@ -515,9 +515,11 @@ codeunit 139400 "Permissions Test"
         Assert.IsTrue(OutlookSynchOptionCorrel.ReadPermission, 'OutlookSynchOptionCorrel does not have read permission');
     end;
 
+#if not CLEAN17
     [Test]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
+    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
     procedure ExportUserGroupsWithFilters()
     var
         UserGroupSet: array[3] of Record "User Group";
@@ -550,6 +552,7 @@ codeunit 139400 "Permissions Test"
     [HandlerFunctions('MessageHandlerSimple')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
+    [Obsolete('ClientTempFileName will always throw an error.', '17.3')]
     procedure ExportImportUserGroups()
     var
         UserGroup: Record "User Group";
@@ -585,6 +588,7 @@ codeunit 139400 "Permissions Test"
 
         TearDown;
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -615,10 +619,12 @@ codeunit 139400 "Permissions Test"
         Assert.RecordCount(TempPermissionSetBuffer, RecordCountBeforeFiltered);
     end;
 
+#if not CLEAN17
     [Test]
     [HandlerFunctions('MessageHandlerSimple')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
+    [Obsolete('CopyClientFile will always throw an error.', '17.3')]
     procedure ExportImportUserGroupsWithTennantPermission()
     var
         UserGroup: Record "User Group";
@@ -661,6 +667,7 @@ codeunit 139400 "Permissions Test"
     [HandlerFunctions('MessageHandlerSimple')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
+    [Obsolete('CopyClientFile will always throw an error.', '17.3')]
     procedure ExportImportUserGroupsWithSystemPermission()
     var
         UserGroup: Record "User Group";
@@ -697,6 +704,7 @@ codeunit 139400 "Permissions Test"
 
         TearDown;
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]

@@ -211,12 +211,14 @@ table 31100 "VAT Control Report Header"
         AllowedValuesAreErr: Label 'The permitted values for %1 are from 1 to %2.', Comment = '%1=fieldcaption.periodnumber;%2=maxperiodnumber';
         VATControlReportMgt: Codeunit VATControlReportManagement;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure InitRecord()
     begin
         "Created Date" := WorkDate;
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure AssistEdit(VATCtrlRptHdrOld: Record "VAT Control Report Header"): Boolean
     var
@@ -276,6 +278,7 @@ table 31100 "VAT Control Report Header"
             Error(DateMustBeErr, FieldCaption("Start Date"), FieldCaption("End Date"));
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure PrintTestReport()
     var
@@ -286,6 +289,7 @@ table 31100 "VAT Control Report Header"
         REPORT.Run(REPORT::"VAT Control Report - Test", true, false, VATControlReportHeader);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure Export(): Text
     var
@@ -301,6 +305,7 @@ table 31100 "VAT Control Report Header"
         exit(ExportVATControlReport.GetClientFileName());
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure CloseLines()
     begin
@@ -328,6 +333,7 @@ table 31100 "VAT Control Report Header"
             VATCtrlRptLn.TestField("Closed by Document No.", '');
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure SuggestLines()
     var

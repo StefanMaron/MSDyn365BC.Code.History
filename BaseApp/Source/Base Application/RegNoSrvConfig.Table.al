@@ -43,6 +43,7 @@ table 11757 "Reg. No. Srv Config"
         RegNoSettingIsNotEnabledErr: Label 'Registration Service Setting is not enabled.';
         CannotInsertMultipleSettingsErr: Label 'You cannot insert multiple settings.';
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     procedure RegNoSrvIsEnabled(): Boolean
     var
         RegNoSrvConfig: Record "Reg. No. Srv Config";
@@ -51,6 +52,7 @@ table 11757 "Reg. No. Srv Config"
         exit(RegNoSrvConfig.FindFirst and RegNoSrvConfig.Enabled);
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     procedure GetRegNoURL(): Text
     var
         RegNoSrvConfig: Record "Reg. No. Srv Config";

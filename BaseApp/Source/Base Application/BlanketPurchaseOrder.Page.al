@@ -520,6 +520,10 @@ page 509 "Blanket Purchase Order"
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies whether the document is part of a three-party trade.';
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                    ObsoleteTag = '17.4';
+                    Visible = false;
                 }
             }
             group(Payments)

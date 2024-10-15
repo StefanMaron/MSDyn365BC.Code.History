@@ -1262,6 +1262,10 @@ page 9027 "Accountant Role Center"
                         PromotedIsBig = true;
                         RunObject = Report "Balance Sheet";
                         ToolTip = 'View a report that shows your company''s assets, liabilities, and equity.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.4';
+                        Visible = false;
                     }
                     action("Income Statement")
                     {
@@ -1273,6 +1277,10 @@ page 9027 "Accountant Role Center"
                         PromotedIsBig = true;
                         RunObject = Report "Income Statement";
                         ToolTip = 'View a report that shows your company''s income and expenses.';
+                        ObsoleteState = Pending;
+                        ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+                        ObsoleteTag = '17.4';
+                        Visible = false;
                     }
                     action("Statement of Cash Flows")
                     {

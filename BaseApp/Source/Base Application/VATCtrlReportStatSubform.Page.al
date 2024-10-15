@@ -86,6 +86,7 @@ page 31105 "VAT Ctrl.Report Stat. Subform"
     {
     }
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure SetTempVATCtrlRepBuffer(var NewVATCtrlRptBuf: Record "VAT Control Report Buffer")
     begin

@@ -1,12 +1,15 @@
 page 31123 "EET Entries"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'EET Entries';
+    Caption = 'EET Entries (Obsolete)';
     CardPageID = "EET Entry Card";
     Editable = false;
     PageType = List;
     SourceTable = "EET Entry";
     UsageCategory = History;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {

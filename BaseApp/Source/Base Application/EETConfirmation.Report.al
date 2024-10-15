@@ -2,7 +2,10 @@ report 31120 "EET Confirmation"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './EETConfirmation.rdlc';
-    Caption = 'EET Confirmation';
+    Caption = 'EET Confirmation (Obsolete)';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '18.0';
 
     dataset
     {

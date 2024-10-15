@@ -34,6 +34,7 @@ codeunit 31101 "Release VAT Control Report"
     var
         LinesNotExistErr: Label 'There is nothing to release for VAT Control Report No. %1.', Comment = '%1=VAT Registration No.';
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure Reopen(var VATCtrlRptHdr: Record "VAT Control Report Header")
     begin

@@ -65,6 +65,7 @@ table 11773 "VAT Statement Attachment"
         ReplaceQst: Label 'Do you want to replace the existing attachment?';
         SizeErr: Label 'The file size must not exceed 4 Mb.';
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure CheckAllowance()
     var
@@ -74,6 +75,7 @@ table 11773 "VAT Statement Attachment"
         VATStatementTemplate.TestField("Allow Comments/Attachments");
     end;
 
+    [Obsolete('Moved to Core Localization Pack for Czech.', '17.4')]
     [Scope('OnPrem')]
     procedure Import(): Boolean
     var

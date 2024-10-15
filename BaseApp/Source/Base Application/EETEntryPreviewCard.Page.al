@@ -1,11 +1,14 @@
 page 31127 "EET Entry Preview Card"
 {
-    Caption = 'EET Entry Preview Card';
+    Caption = 'EET Entry Preview Card (Obsolete)';
     Editable = false;
     LinksAllowed = false;
     PageType = Card;
     SourceTable = "EET Entry";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
+    ObsoleteTag = '18.0';
 
     layout
     {
