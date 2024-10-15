@@ -70,7 +70,7 @@ page 97 "Purchase Quote Subform"
 #if not CLEAN17
                 field("Cross-Reference No."; "Cross-Reference No.")
                 {
-                    ApplicationArea = Suite;
+                    ApplicationArea = Advanced;
                     ToolTip = 'Specifies the cross-referenced item number. If you enter a cross reference between yours and your vendor''s or customer''s item number, then this number will override the standard item number when you enter the cross-reference number on a sales or purchase document.';
                     Visible = false;
                     ObsoleteReason = 'Cross-Reference replaced by Item Reference feature.';
@@ -93,7 +93,7 @@ page 97 "Purchase Quote Subform"
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
-                    ApplicationArea = Suite;
+                    ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the cross-referenced item number.';
                     Visible = ItemReferenceVisible;
 
@@ -150,6 +150,13 @@ page 97 "Purchase Quote Subform"
                         DeltaUpdateTotals();
                         NoOnAfterValidate();
                     end;
+                }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
                 }
                 field("Location Code"; "Location Code")
                 {
@@ -470,6 +477,126 @@ page 97 "Purchase Quote Subform"
                         OnAfterValidateShortcutDimCode(Rec, ShortcutDimCode, 8);
                     end;
                 }
+                field("Gross Weight"; "Gross Weight")
+                {
+                    Caption = 'Unit Gross Weight';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the gross weight of one unit of the item. In the purchase statistics window, the gross weight on the line is included in the total gross weight of all the lines for the particular purchase document.';
+                    Visible = false;
+                }
+                field("Net Weight"; "Net Weight")
+                {
+                    Caption = 'Unit Net Weight';
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the net weight of one unit of the item. In the purchase statistics window, the net weight on the line is included in the total net weight of all the lines for the particular purchase document.';
+                    Visible = false;
+                }
+                field("Unit Volume"; "Unit Volume")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the volume of one unit of the item. In the purchase statistics window, the volume of one unit of the item on the line is included in the total volume of all the lines for the particular purchase document.';
+                    Visible = false;
+                }
+                field("Units per Parcel"; "Units per Parcel")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number of units per parcel of the item. In the purchase statistics window, the number of units per parcel on the line helps to determine the total number of units for all the lines for the particular purchase document.';
+                    Visible = false;
+                }
+                field("Expected Receipt Date"; "Expected Receipt Date")
+                {
+                    ApplicationArea = Suite;
+                    ToolTip = 'Specifies the date you expect the items to be available in your warehouse. If you leave the field blank, it will be calculated as follows: Planned Receipt Date + Safety Lead Time + Inbound Warehouse Handling Time = Expected Receipt Date.';
+                    Visible = false;
+                }
+                field("Job No."; "Job No.")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the number of the related job. If you fill in this field and the Job Task No. field, then a job ledger entry will be posted together with the purchase line.';
+                    Visible = false;
+
+                    trigger OnValidate()
+                    begin
+                        ShowShortcutDimCode(ShortcutDimCode);
+                    end;
+                }
+                field("Job Task No."; "Job Task No.")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the number of the related job task.';
+                    Visible = false;
+
+                    trigger OnValidate()
+                    begin
+                        ShowShortcutDimCode(ShortcutDimCode);
+                    end;
+                }
+                field("Job Planning Line No."; "Job Planning Line No.")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the job planning line number that the usage should be linked to when the job journal is posted. You can only link to job planning lines that have the Apply Usage Link option enabled.';
+                    Visible = false;
+                }
+                field("Job Line Type"; "Job Line Type")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the type of planning line that was created when the job ledger entry is posted from the purchase line. If the field is empty, no planning lines were created for this entry.';
+                    Visible = false;
+                }
+                field("Job Unit Price"; "Job Unit Price")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the sales price per unit that applies to the item or general ledger expense that will be posted.';
+                    Visible = false;
+                }
+                field("Job Line Amount"; "Job Line Amount")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the line amount of the job ledger entry that is related to the purchase line.';
+                    Visible = false;
+                }
+                field("Job Line Discount Amount"; "Job Line Discount Amount")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the line discount amount of the job ledger entry that is related to the purchase line.';
+                    Visible = false;
+                }
+                field("Job Line Discount %"; "Job Line Discount %")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the line discount percentage of the job ledger entry that is related to the purchase line.';
+                    Visible = false;
+                }
+                field("Job Total Price"; "Job Total Price")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the gross amount of the line that the purchase line applies to.';
+                    Visible = false;
+                }
+                field("Job Unit Price (LCY)"; "Job Unit Price (LCY)")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the sales price per unit that applies to the item or general ledger expense that will be posted.';
+                    Visible = false;
+                }
+                field("Job Total Price (LCY)"; "Job Total Price (LCY)")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the gross amount of the line, in the local currency.';
+                    Visible = false;
+                }
+                field("Job Line Amount (LCY)"; "Job Line Amount (LCY)")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the line amount of the job ledger entry that is related to the purchase line.';
+                    Visible = false;
+                }
+                field("Job Line Disc. Amount (LCY)"; "Job Line Disc. Amount (LCY)")
+                {
+                    ApplicationArea = Jobs;
+                    ToolTip = 'Specifies the line discount amount of the job ledger entry that is related to the purchase line.';
+                    Visible = false;
+                }
             }
             group(Control40)
             {
@@ -784,9 +911,13 @@ page 97 "Purchase Quote Subform"
 
                     trigger OnAction()
                     var
-                        ODataUtility: Codeunit ODataUtility;
+                        EditinExcel: Codeunit "Edit in Excel";
                     begin
-                        ODataUtility.EditWorksheetInExcel('Purchase_QuotePurchLines', CurrPage.ObjectId(false), StrSubstNo('Document_No eq ''%1''', Rec."Document No."));
+                        EditinExcel.EditPageInExcel(
+                            'Purchase_QuotePurchLines',
+                            CurrPage.ObjectId(false),
+                            StrSubstNo('Document_No eq ''%1''', Rec."Document No."),
+                            StrSubstNo(ExcelFileNameTxt, Rec."Document No."));
                     end;
 
                 }
@@ -854,11 +985,8 @@ page 97 "Purchase Quote Subform"
     end;
 
     trigger OnOpenPage()
-    var
-        ServerSetting: Codeunit "Server Setting";
     begin
-        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
-        SuppressTotals := CurrentClientType() = ClientType::ODataV4;
+        SetOpenPage();
 
         SetDimensionsVisibility();
         SetItemReferenceVisibility();
@@ -868,7 +996,6 @@ page 97 "Purchase Quote Subform"
         Currency: Record Currency;
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         TempOptionLookupBuffer: Record "Option Lookup Buffer" temporary;
-        ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         TransferExtendedText: Codeunit "Transfer Extended Text";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
         CannotUseBOMErr: Label 'You cannot use the Explode BOM function because a prepayment of the related purchase order has been invoiced.';
@@ -886,6 +1013,8 @@ page 97 "Purchase Quote Subform"
         SuppressTotals: Boolean;
         [InDataSet]
         ItemReferenceVisible: Boolean;
+        ExcelFileNameTxt: Label 'Purchase Quote %1 - Lines', Comment = '%1 = document number, ex. 10000';
+
 
     protected var
         TotalPurchaseHeader: Record "Purchase Header";
@@ -904,6 +1033,16 @@ page 97 "Purchase Quote Subform"
         DimVisible8: Boolean;
         IsBlankNumber: Boolean;
         IsCommentLine: Boolean;
+
+    local procedure SetOpenPage()
+    var
+        ServerSetting: Codeunit "Server Setting";
+    begin
+        OnBeforeSetOpenPage();
+
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
+        SuppressTotals := CurrentClientType() = ClientType::ODataV4;
+    end;
 
     procedure ApproveCalcInvDisc()
     begin
@@ -1037,7 +1176,7 @@ page 97 "Purchase Quote Subform"
         UnitofMeasureCodeIsChangeable := not IsCommentLine;
 
         CurrPageIsEditable := CurrPage.Editable;
-        InvDiscAmountEditable := 
+        InvDiscAmountEditable :=
             CurrPageIsEditable and not PurchasesPayablesSetup."Calc. Inv. Discount" and
             (TotalPurchaseHeader.Status = TotalPurchaseHeader.Status::Open);
 
@@ -1081,6 +1220,8 @@ page 97 "Purchase Quote Subform"
           DimVisible1, DimVisible2, DimVisible3, DimVisible4, DimVisible5, DimVisible6, DimVisible7, DimVisible8);
 
         Clear(DimMgt);
+
+        OnAfterSetDimensionsVisibility();
     end;
 
     local procedure SetItemReferenceVisibility()
@@ -1096,10 +1237,11 @@ page 97 "Purchase Quote Subform"
     begin
         IsHandled := false;
         OnBeforeSetDefaultType(Rec, xRec, IsHandled);
-        if not IsHandled then // Set default type Item
-            if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-                if xRec."Document No." = '' then
-                    Type := Type::Item;
+        if IsHandled then
+            exit;
+
+        if xRec."Document No." = '' then
+            Type := GetDefaultLineType();
     end;
 
     [IntegrationEvent(TRUE, false)]
@@ -1146,6 +1288,16 @@ page 97 "Purchase Quote Subform"
 
     [IntegrationEvent(false, false)]
     local procedure OnItemReferenceNoOnLookup(var PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSetOpenPage()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterSetDimensionsVisibility()
     begin
     end;
 }

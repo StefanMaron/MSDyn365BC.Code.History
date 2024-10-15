@@ -434,6 +434,7 @@ codeunit 134153 "Test Intrastat"
         VerifyIntrastatCheckListReportDataSet(IntrastatJnlLine, TariffNo);
     end;
 
+#if not CLEAN17
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler')]
     [Scope('OnPrem')]
@@ -521,6 +522,7 @@ codeunit 134153 "Test Intrastat"
         // Verify
         VerifyIntrastatMakeDiskFile(Filename, TariffNo, IntrastatJnlLine);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,IntratstatJnlFormReqPageHandler')]
@@ -682,6 +684,7 @@ codeunit 134153 "Test Intrastat"
         VerifyIntrastatCheckListReportDataSet(IntrastatJnlLine, TariffNo);
     end;
 
+#if not CLEAN17
     [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler')]
     [Scope('OnPrem')]
@@ -769,6 +772,7 @@ codeunit 134153 "Test Intrastat"
         // Verify
         VerifyIntrastatMakeDiskFile(Filename, TariffNo, IntrastatJnlLine);
     end;
+#endif
 
     [Test]
     [HandlerFunctions('IntrastatMakeDiskTaxAuthCheckControlRequestPageHandler')]
@@ -1156,6 +1160,7 @@ codeunit 134153 "Test Intrastat"
         LibraryReportDataset.AssertCurrentRowValueEquals('IntrastatJnlLinTranMethod', IntrastatJnlLine."Transport Method");
     end;
 
+#if not CLEAN17
     local procedure VerifyIntrastatMakeDiskFile(Filename: Text; TariffNo: Code[20]; var IntrastatJnlLine: Record "Intrastat Jnl. Line")
     var
         Line: Text[1024];
@@ -1210,6 +1215,7 @@ codeunit 134153 "Test Intrastat"
           'Wrong value for Unit Of Measure in file');
         Assert.AreEqual('AAE', Quantity2Code, 'Wrong value for Quantity 2 Code in file');
     end;
+#endif
 
     local procedure VerifyFieldsOnIntrastatJnlLineNotBlank(var IntrastatJnlLine: Record "Intrastat Jnl. Line")
     begin

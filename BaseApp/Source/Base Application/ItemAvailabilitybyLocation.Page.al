@@ -23,12 +23,11 @@ page 492 "Item Availability by Location"
                 {
                     ApplicationArea = Location;
                     Caption = 'View by';
-                    OptionCaption = 'Day,Week,Month,Quarter,Year,Period';
                     ToolTip = 'Specifies by which period amounts are displayed.';
 
                     trigger OnValidate()
                     begin
-                        if ItemPeriodLength = ItemPeriodLength::Period then
+                        if ItemPeriodLength = ItemPeriodLength::"Accounting Period" then
                             PeriodItemPeriodLengthOnValida;
                         if ItemPeriodLength = ItemPeriodLength::Year then
                             YearItemPeriodLengthOnValidate;
@@ -46,7 +45,6 @@ page 492 "Item Availability by Location"
                 {
                     ApplicationArea = Location;
                     Caption = 'View as';
-                    OptionCaption = 'Net Change,Balance at Date';
                     ToolTip = 'Specifies how amounts are displayed. Net Change: The net change in the balance for the selected period. Balance at Date: The balance as of the last day in the selected period.';
 
                     trigger OnValidate()
@@ -201,22 +199,24 @@ page 492 "Item Availability by Location"
     var
         Calendar: Record Date;
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
-        ItemPeriodLength: Option Day,Week,Month,Quarter,Year,Period;
-        AmountType: Option "Net Change","Balance at Date";
+        ItemPeriodLength: Enum "Analysis Period Type";
         LastLocation: Code[10];
         DateFilter: Text;
 
+    protected var
+        AmountType: Enum "Analysis Amount Type";
+
     local procedure FindPeriod(SearchText: Code[10])
     var
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
     begin
         if GetFilter("Date Filter") <> '' then begin
             Calendar.SetFilter("Period Start", GetFilter("Date Filter"));
-            if not PeriodFormMgt.FindDate('+', Calendar, ItemPeriodLength) then
-                PeriodFormMgt.FindDate('+', Calendar, ItemPeriodLength::Day);
+            if not PeriodPageMgt.FindDate('+', Calendar, ItemPeriodLength) then
+                PeriodPageMgt.FindDate('+', Calendar, "Analysis Period Type"::Day);
             Calendar.SetRange("Period Start");
         end;
-        PeriodFormMgt.FindDate(SearchText, Calendar, ItemPeriodLength);
+        PeriodPageMgt.FindDate(SearchText, Calendar, ItemPeriodLength);
         if AmountType = AmountType::"Net Change" then begin
             SetRange("Date Filter", Calendar."Period Start", Calendar."Period End");
             if GetRangeMin("Date Filter") = GetRangeMax("Date Filter") then
@@ -228,7 +228,7 @@ page 492 "Item Availability by Location"
 
     local procedure UpdateSubForm()
     begin
-        CurrPage.ItemAvailLocLines.PAGE.SetItem(Rec, AmountType);
+        CurrPage.ItemAvailLocLines.PAGE.SetLines(Rec, AmountType);
     end;
 
     procedure GetLastLocation(): Code[10]

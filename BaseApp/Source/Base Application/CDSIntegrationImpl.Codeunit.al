@@ -1350,7 +1350,7 @@ codeunit 7201 "CDS Integration Impl."
             repeat
                 TempCRMSystemuser.Init();
                 TempCRMSystemuser.SystemUserId := CRMIntegrationRecord."CRM ID";
-                TempCRMSystemuser.Insert();
+                if TempCRMSystemuser.Insert() then;
             until CRMIntegrationRecord.Next() = 0;
     end;
 
@@ -2604,7 +2604,6 @@ codeunit 7201 "CDS Integration Impl."
         end;
     end;
 
-
     [Scope('OnPrem')]
     [NonDebuggable]
     procedure ReplaceUserNamePasswordInConnectionstring(CDSConnectionSetup: Record "CDS Connection Setup"; NewUserName: Text; NewPassword: Text): Text
@@ -2642,6 +2641,9 @@ codeunit 7201 "CDS Integration Impl."
     var
         OAuth2: Codeunit OAuth2;
         PromptInteraction: Enum "Prompt Interaction";
+#if CLEAN18
+        Scopes: List of [Text];
+#endif
         ClientId: Text;
         ClientSecret: Text;
         FirstPartyAppId: Text;
@@ -2649,6 +2651,9 @@ codeunit 7201 "CDS Integration Impl."
         RedirectUrl: Text;
         AuthCodeError: Text;
     begin
+#if CLEAN18
+        Scopes.Add(ResourceURL + '/user_impersonation');
+#endif
         ClientId := GetCDSConnectionClientId();
         ClientSecret := GetCDSConnectionClientSecret();
         FirstPartyAppId := GetCDSConnectionFirstPartyAppId();
@@ -2665,7 +2670,11 @@ codeunit 7201 "CDS Integration Impl."
                 OAuth2.AcquireAuthorizationCodeTokenFromCacheWithCertificate(FirstPartyAppId, FirstPartyAppCertificate, RedirectUrl, OAuthAuthorityUrlTxt, ResourceURL, AccessToken)
             end else begin
                 Session.LogMessage('0000EIA', AttemptingAuthCodeTokenFromCacheWithClientSecretTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+#if CLEAN18
+                OAuth2.AcquireAuthorizationCodeTokenFromCache(ClientId, ClientSecret, RedirectUrl, OAuthAuthorityUrlTxt, Scopes, AccessToken);
+#else
                 OAuth2.AcquireAuthorizationCodeTokenFromCache(ClientId, ClientSecret, RedirectUrl, OAuthAuthorityUrlTxt, ResourceURL, AccessToken);
+#endif
             end;
         if AccessToken = '' then begin
             if not GuiAllowed then begin
@@ -2686,6 +2695,17 @@ codeunit 7201 "CDS Integration Impl."
                     AuthCodeError)
             end else begin
                 Session.LogMessage('0000EIC', AttemptingAuthCodeTokenWithClientSecretTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+#if CLEAN18
+                    OAuth2.AcquireTokenByAuthorizationCode(
+                        ClientId,
+                        ClientSecret,
+                        OAuthAuthorityUrlTxt,
+                        RedirectUrl,
+                        Scopes,
+                        PromptInteraction::Consent,
+                        AccessToken,
+                        AuthCodeError)
+#else
                 OAuth2.AcquireTokenByAuthorizationCode(
                     ClientId,
                     ClientSecret,
@@ -2695,6 +2715,8 @@ codeunit 7201 "CDS Integration Impl."
                     PromptInteraction::Consent,
                     AccessToken,
                     AuthCodeError)
+#endif
+
             end;
         end;
         if AccessToken = '' then begin

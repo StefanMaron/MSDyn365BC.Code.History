@@ -500,6 +500,7 @@
                 then
                     TempPrepmtInvLineBuf.InsertInvLineBuffer(PrepmtInvLineBuf2);
         end;
+        ErrorMessageMgt.FinishTopContext();
 
         OnAfterBuildInvLineBuffer(TempPrepmtInvLineBuf);
     end;

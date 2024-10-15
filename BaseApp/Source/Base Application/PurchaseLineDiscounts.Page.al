@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 7014 "Purchase Line Discounts"
 {
     Caption = 'Purchase Line Discounts';
@@ -234,4 +235,4 @@ page 7014 "Purchase Line Discounts"
         SetRecFilters;
     end;
 }
-
+#endif

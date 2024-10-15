@@ -83,73 +83,6 @@ codeunit 144017 "VATEXP Report Test"
         TestSalesInvoiceReport(EnableVatBusPostGroup, EnableVatProdPostGroup);
     end;
 
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure SalesCreditMemoReportHandler(var SalesCreditMemoReport: TestRequestPage "Sales - Credit Memo")
-    begin
-        SalesCreditMemoReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesCreditMemoReportHandler')]
-    [Scope('OnPrem')]
-    procedure SalesCreditMemoReportNoBusNoProd()
-    var
-        EnableVatBusPostGroup: Boolean;
-        EnableVatProdPostGroup: Boolean;
-    begin
-        // This report (1307) can show VAT information on both salesheaders (BUS) and saleslines (PROD).
-        Initialize;
-        EnableVatBusPostGroup := false;
-        EnableVatProdPostGroup := false;
-        TestSalesCreditMemoReport(EnableVatBusPostGroup, EnableVatProdPostGroup);
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesCreditMemoReportHandler')]
-    [Scope('OnPrem')]
-    procedure SalesCreditMemoReportBusNoProd()
-    var
-        EnableVatBusPostGroup: Boolean;
-        EnableVatProdPostGroup: Boolean;
-    begin
-        // This report (1307) can show VAT information on both salesheaders (BUS) and saleslines (PROD).
-        Initialize;
-        EnableVatBusPostGroup := true;
-        EnableVatProdPostGroup := false;
-        TestSalesCreditMemoReport(EnableVatBusPostGroup, EnableVatProdPostGroup);
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesCreditMemoReportHandler')]
-    [Scope('OnPrem')]
-    procedure SalesCreditMemoReportNoBusProd()
-    var
-        EnableVatBusPostGroup: Boolean;
-        EnableVatProdPostGroup: Boolean;
-    begin
-        // This report (1307) can show VAT information on both salesheaders (BUS) and saleslines (PROD).
-        Initialize;
-        EnableVatBusPostGroup := false;
-        EnableVatProdPostGroup := true;
-        TestSalesCreditMemoReport(EnableVatBusPostGroup, EnableVatProdPostGroup);
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesCreditMemoReportHandler')]
-    [Scope('OnPrem')]
-    procedure SalesCreditMemoReportBusProd()
-    var
-        EnableVatBusPostGroup: Boolean;
-        EnableVatProdPostGroup: Boolean;
-    begin
-        // This report (1307) can show VAT information on both salesheaders (BUS) and saleslines (PROD).
-        Initialize;
-        EnableVatBusPostGroup := true;
-        EnableVatProdPostGroup := true;
-        TestSalesCreditMemoReport(EnableVatBusPostGroup, EnableVatProdPostGroup);
-    end;
-
     local procedure Initialize()
     begin
         LibraryReportDataset.Reset();
@@ -225,25 +158,6 @@ codeunit 144017 "VATEXP Report Test"
         // No VatBusPostgroup information is available for this report.
         asserterror VerifyVatBusPostGroup;
         asserterror VerifyVatProdPostGroup;
-    end;
-
-    local procedure TestSalesCreditMemoReport(EnableVatBusPostGroup: Boolean; EnableVatProdPostGroup: Boolean)
-    var
-        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        SalesCreditMemoReport: Report "Sales - Credit Memo";
-    begin
-        SetupPostingGroups(EnableVatBusPostGroup, EnableVatProdPostGroup);
-
-        // Execute
-        CreateAndPostSalesCreditMemo(SalesCrMemoHeader);
-        SalesCrMemoHeader.SetRange("No.", SalesCrMemoHeader."No.");
-        SalesCreditMemoReport.UseRequestPage(true);
-        SalesCreditMemoReport.Run;
-
-        // Validate
-        VerifyReportDatasetHasData;
-        VerifyVatBusPostGroup;
-        VerifyVatProdPostGroup;
     end;
 
     local procedure CreateCustomer(var Customer: Record Customer)

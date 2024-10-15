@@ -75,7 +75,7 @@ codeunit 137099 "SCM Kitting Reservation"
         ReservationEntry: Record "Reservation Entry";
         AssemblyHeader: Record "Assembly Header";
         SalesHeader: Record "Sales Header";
-        LotNo: Code[20];
+        LotNo: Code[50];
         OldStockOutWarning: Boolean;
     begin
         // Update Stock Out Warning on Assembly Setup. Create Assembly Order without Tracking. Create and Post Item Journal Line.
@@ -132,7 +132,7 @@ codeunit 137099 "SCM Kitting Reservation"
         ReservationEntry: Record "Reservation Entry";
         AssemblyHeader: Record "Assembly Header";
         SalesHeader: Record "Sales Header";
-        LotNo: Code[20];
+        LotNo: Code[50];
         OldStockOutWarning: Boolean;
     begin
         // Update Stock Out Warning on Assembly Setup. Create Assembly Order with Tracking. Create and Post Item Journal Line.
@@ -190,7 +190,7 @@ codeunit 137099 "SCM Kitting Reservation"
         AssemblyHeader: Record "Assembly Header";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        LotNo: Code[20];
+        LotNo: Code[50];
         OldStockOutWarning: Boolean;
     begin
         // Update Stock Out Warning on Assembly Setup. Create Assembly Order with Tracking. Create and Post Item Journal Line. Create Sales Order.
@@ -252,7 +252,7 @@ codeunit 137099 "SCM Kitting Reservation"
         AssemblyHeader: Record "Assembly Header";
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
-        LotNo: Code[20];
+        LotNo: Code[50];
         LotNo2: Code[20];
         OldStockOutWarning: Boolean;
     begin
@@ -431,7 +431,7 @@ codeunit 137099 "SCM Kitting Reservation"
         UpdateStartingDateOnAssemblyHeader(
           AssemblyHeader, CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', AssemblyHeader."Due Date"));
         LibraryAssembly.CreateAssemblyLine(
-          AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, Item."No.", Item."Base Unit of Measure", LibraryRandom.RandDec(10, 2),
+          AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, Item."No.", Item."Base Unit of Measure", LibraryRandom.RandDec(10, 2),
           LibraryRandom.RandDec(10, 2), Item."No.");
 
         // Exercise.
@@ -597,7 +597,7 @@ codeunit 137099 "SCM Kitting Reservation"
         OldStockOutWarning: Boolean;
         Quantity: Decimal;
         ComponentItemNo: Code[20];
-        LotNo: Code[20];
+        LotNo: Code[50];
     begin
         // Create Purchase Order. Create and post Item Journal Line. Create Assembly Order.
         OldStockOutWarning := UpdateStockOutWarningOnAssemblySetup(false);
@@ -660,7 +660,7 @@ codeunit 137099 "SCM Kitting Reservation"
         OldStockOutWarning: Boolean;
         Quantity: Decimal;
         ComponentItemNo: Code[20];
-        LotNo: Code[20];
+        LotNo: Code[50];
         LotNo2: Code[20];
         Quantity2: Decimal;
     begin
@@ -728,7 +728,7 @@ codeunit 137099 "SCM Kitting Reservation"
         OldStockOutWarning: Boolean;
         Quantity: Decimal;
         ComponentItemNo: Code[20];
-        LotNo: Code[20];
+        LotNo: Code[50];
     begin
         // Create Purchase Order. Create and post Item Journal Line. Create Assembly Order.
         OldStockOutWarning := UpdateStockOutWarningOnAssemblySetup(false);
@@ -1143,7 +1143,7 @@ codeunit 137099 "SCM Kitting Reservation"
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
         CompItemNo: Code[20];
-        LotNo: Code[20];
+        LotNo: Code[50];
         Qty: Decimal;
     begin
         // [FEATURE] [Warehouse Pick] [Item Tracking] [Lot Warehouse Tracking]
@@ -1355,7 +1355,7 @@ codeunit 137099 "SCM Kitting Reservation"
         exit(CalcDate(ManufacturingSetup."Default Safety Lead Time", WorkDate));
     end;
 
-    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; Quantity: Decimal; UseTracking: Boolean) LotNo: Code[20]
+    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; Quantity: Decimal; UseTracking: Boolean) LotNo: Code[50]
     var
         DequeueVariable: Variant;
     begin
@@ -1371,7 +1371,7 @@ codeunit 137099 "SCM Kitting Reservation"
         end;
     end;
 
-    local procedure CreateAndPostItemJournalLineWithLocationAndBin(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; Quantity: Decimal) LotNo: Code[20]
+    local procedure CreateAndPostItemJournalLineWithLocationAndBin(LocationCode: Code[10]; BinCode: Code[20]; ItemNo: Code[20]; Quantity: Decimal) LotNo: Code[50]
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
@@ -1383,7 +1383,7 @@ codeunit 137099 "SCM Kitting Reservation"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
-    local procedure CreateAndPostItemJournalLine(ItemNo: Code[20]; Quantity: Decimal; UseTracking: Boolean) LotNo: Code[20]
+    local procedure CreateAndPostItemJournalLine(ItemNo: Code[20]; Quantity: Decimal; UseTracking: Boolean) LotNo: Code[50]
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
@@ -1516,7 +1516,7 @@ codeunit 137099 "SCM Kitting Reservation"
         exit(ComponentItemNo);
     end;
 
-    local procedure CreateAssemblyOrder(var AssemblyHeader: Record "Assembly Header"; ItemNo: Code[20]; Quantity: Decimal; UseTracking: Boolean) LotNo: Code[20]
+    local procedure CreateAssemblyOrder(var AssemblyHeader: Record "Assembly Header"; ItemNo: Code[20]; Quantity: Decimal; UseTracking: Boolean) LotNo: Code[50]
     var
         DequeueVariable: Variant;
     begin
@@ -1541,7 +1541,7 @@ codeunit 137099 "SCM Kitting Reservation"
         UpdateLocationCodeOnAssemblyLine(AssemblyLine, LocationCode);
     end;
 
-    local procedure CreateAssemblyOrderWithLotItemTracking(var AssemblyHeader: Record "Assembly Header"; UseTracking: Boolean) LotNo: Code[20]
+    local procedure CreateAssemblyOrderWithLotItemTracking(var AssemblyHeader: Record "Assembly Header"; UseTracking: Boolean) LotNo: Code[50]
     var
         ItemTrackingCode: Record "Item Tracking Code";
         Item: Record Item;
@@ -1807,7 +1807,7 @@ codeunit 137099 "SCM Kitting Reservation"
         LibraryVariableStorage.Enqueue(Quantity2);  // Enqueue for ReservationPageHandler.
     end;
 
-    local procedure EnqueueValuesForItemTrackingLines(LotNo: Code[20]; Qty: Decimal)
+    local procedure EnqueueValuesForItemTrackingLines(LotNo: Code[50]; Qty: Decimal)
     begin
         LibraryVariableStorage.Enqueue(ItemTrackingMode::SetLotNo);
         LibraryVariableStorage.Enqueue(LotNo);
@@ -1844,7 +1844,7 @@ codeunit 137099 "SCM Kitting Reservation"
         AssemblyLine.FindSet();
     end;
 
-    local procedure AssignItemTrackingAndReserveATO(SalesLine: Record "Sales Line"; CompItemNo: Code[20]; LotNo: Code[20]; Qty: Decimal)
+    local procedure AssignItemTrackingAndReserveATO(SalesLine: Record "Sales Line"; CompItemNo: Code[20]; LotNo: Code[50]; Qty: Decimal)
     var
         AssemblyHeader: Record "Assembly Header";
         AssemblyLine: Record "Assembly Line";
@@ -1891,7 +1891,7 @@ codeunit 137099 "SCM Kitting Reservation"
         Zone.FindFirst;
     end;
 
-    local procedure FindWhseWorksheetLines(var WhseWorksheetLine: Record "Whse. Worksheet Line"; WhseDocumentType: Option; WhseDocumentNo: Code[20])
+    local procedure FindWhseWorksheetLines(var WhseWorksheetLine: Record "Whse. Worksheet Line"; WhseDocumentType: Enum "Warehouse Worksheet Document Type"; WhseDocumentNo: Code[20])
     begin
         WhseWorksheetLine.SetRange("Whse. Document Type", WhseDocumentType);
         WhseWorksheetLine.SetRange("Whse. Document No.", WhseDocumentNo);
@@ -2143,7 +2143,7 @@ codeunit 137099 "SCM Kitting Reservation"
         AssemblyLine.TestField("Qty. Picked", RestOfQtyPicked);
     end;
 
-    local procedure VerifyReservationEntry(ReservationStatus: Enum "Reservation Status"; ItemNo: Code[20]; SourceType: Integer; LotNo: Code[20]; Quantity: Decimal)
+    local procedure VerifyReservationEntry(ReservationStatus: Enum "Reservation Status"; ItemNo: Code[20]; SourceType: Integer; LotNo: Code[50]; Quantity: Decimal)
     var
         ReservationEntry: Record "Reservation Entry";
     begin

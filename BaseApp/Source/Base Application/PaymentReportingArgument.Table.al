@@ -13,12 +13,12 @@ table 1062 "Payment Reporting Argument"
         field(3; "Document Record ID"; RecordID)
         {
             Caption = 'Document Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(4; "Setup Record ID"; RecordID)
         {
             Caption = 'Setup Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(10; Logo; BLOB)
         {

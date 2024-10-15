@@ -20,7 +20,7 @@ table 552 "VAT Rate Change Log Entry"
         }
         field(11; "Table Caption"; Text[80])
         {
-            CalcFormula = Lookup (AllObj."Object Name" WHERE("Object Type" = CONST(Table),
+            CalcFormula = Lookup(AllObj."Object Name" WHERE("Object Type" = CONST(Table),
                                                              "Object ID" = FIELD("Table ID")));
             Caption = 'Table Caption';
             Editable = false;
@@ -29,7 +29,7 @@ table 552 "VAT Rate Change Log Entry"
         field(20; "Record ID"; RecordID)
         {
             Caption = 'Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(30; "Old Gen. Prod. Posting Group"; Code[20])
         {

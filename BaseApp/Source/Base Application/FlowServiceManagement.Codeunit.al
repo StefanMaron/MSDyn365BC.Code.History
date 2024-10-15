@@ -321,7 +321,7 @@ codeunit 6400 "Flow Service Management"
             SaveFlowUserEnvironmentSelection(TempFlowUserEnvironmentBuffer)
         else begin
             // No environment found so make a post call to create default environment. Post call returns error but actually creates environment
-            PostResult := WebRequestHelper.GetResponseText(
+            PostResult := WebRequestHelper.GetResponseTextUsingCharset(
                 'POST', GetFlowEnvironmentsApi, AzureAdMgt.GetAccessToken(FlowARMResourceUrlTxt, FlowResourceNameTxt, false), ResponseText);
 
             if not PostResult then

@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135513 "Sales Order E2E Test"
 {
     Subtype = Test;
@@ -575,4 +576,4 @@ codeunit 135513 "Sales Order E2E Test"
         Assert.AreEqual(ExpectedCustomer.Name, customerNameValue, 'Wrong setting for Customer Name');
     end;
 }
-
+#endif

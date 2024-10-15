@@ -209,7 +209,9 @@ report 32000000 "Import Ref. Payment"
         Text1090000: Label 'Select Bank Account Code.';
         Text1090002: Label 'Set Transfer File settings for Bank Account %1.';
         CheckAccount: Boolean;
+#if not CLEAN17
         BackUp: Code[10];
+#endif
         BatchName: Code[20];
         TemplateName: Code[20];
         LineNo: Integer;

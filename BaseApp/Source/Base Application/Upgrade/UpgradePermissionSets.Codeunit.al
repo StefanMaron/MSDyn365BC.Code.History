@@ -8,6 +8,7 @@ codeunit 104042 "Upgrade Permission Sets"
     trigger OnUpgradePerDatabase()
     begin
         ReplaceObsoletePermissionSets();
+        ReplaceObsoletePermissionSetsForEditInExcel();
 #if not CLEAN19
         UpdateExcelExportActionUserGroup();
 #endif
@@ -40,6 +41,19 @@ codeunit 104042 "Upgrade Permission Sets"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetExportExcelReportUpgradeTag());
     end;
 #endif
+
+    local procedure ReplaceObsoletePermissionSetsForEditInExcel()
+    var
+        UpgradeTag: Codeunit "Upgrade Tag";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetUpdateEditInExcelPermissionSetUpgradeTag()) then
+            exit;
+
+        ReplacePermissionSet('EXCEL EXPORT ACTION', 'Edit in Excel - View');
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetUpdateEditInExcelPermissionSetUpgradeTag());
+    end;
 
     local procedure ReplaceObsoletePermissionSets()
     var

@@ -611,7 +611,7 @@ page 9233 "G/L Balance by Dim. Matrix"
         MATRIX_Steps: Integer;
     begin
         // IF CurrForm.TotalAmount.VISIBLE THEN
-        Amount := MatrixMgt.RoundValue(CalcAmount(false), AnalysisByDimParameters."Rounding Factor");
+        Amount := MatrixMgt.RoundAmount(CalcAmount(false), AnalysisByDimParameters."Rounding Factor");
 
         MATRIX_CurrentColumnOrdinal := 0;
         MatrixRecord.SetPosition(MATRIX_PrimKeyFirstCol);
@@ -828,7 +828,7 @@ page 9233 "G/L Balance by Dim. Matrix"
         BusUnit: Record "Business Unit";
         Period: Record Date;
         DimVal: Record "Dimension Value";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
     begin
         case DimOption of
             DimOption::"G/L Account":
@@ -851,7 +851,7 @@ page 9233 "G/L Balance by Dim. Matrix"
                     else
                         if not PeriodInitialized and (InternalDateFilter <> '') then
                             Period.SetFilter("Period Start", InternalDateFilter);
-                    Found := PeriodFormMgt.FindDate(Which, Period, AnalysisByDimParameters."Period Type");
+                    Found := PeriodPageMgt.FindDate(Which, Period, AnalysisByDimParameters."Period Type");
                     if Found then
                         CopyPeriodToBuf(Period, DimCodeBuf);
                 end;
@@ -897,7 +897,7 @@ page 9233 "G/L Balance by Dim. Matrix"
         BusUnit: Record "Business Unit";
         Period: Record Date;
         DimVal: Record "Dimension Value";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
     begin
         case DimOption of
             DimOption::"G/L Account":
@@ -914,7 +914,7 @@ page 9233 "G/L Balance by Dim. Matrix"
                     if AnalysisByDimParameters."Date Filter" <> '' then
                         Period.SetFilter("Period Start", AnalysisByDimParameters."Date Filter");
                     Period."Period Start" := DimCodeBuf."Period Start";
-                    ResultSteps := PeriodFormMgt.NextDate(Steps, Period, AnalysisByDimParameters."Period Type");
+                    ResultSteps := PeriodPageMgt.NextDate(Steps, Period, AnalysisByDimParameters."Period Type");
                     if ResultSteps <> 0 then
                         CopyPeriodToBuf(Period, DimCodeBuf);
                 end;
@@ -1011,15 +1011,15 @@ page 9233 "G/L Balance by Dim. Matrix"
     local procedure FindPeriod(SearchText: Code[10])
     var
         Period: Record Date;
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
     begin
         if AnalysisByDimParameters."Date Filter" <> '' then begin
             Period.SetFilter("Period Start", AnalysisByDimParameters."Date Filter");
-            if not PeriodFormMgt.FindDate('+', Period, AnalysisByDimParameters."Period Type") then
-                PeriodFormMgt.FindDate('+', Period, AnalysisByDimParameters."Period Type"::Day);
+            if not PeriodPageMgt.FindDate('+', Period, AnalysisByDimParameters."Period Type") then
+                PeriodPageMgt.FindDate('+', Period, AnalysisByDimParameters."Period Type"::Day);
             Period.SetRange("Period Start");
         end;
-        if PeriodFormMgt.FindDate(SearchText, Period, AnalysisByDimParameters."Period Type") then
+        if PeriodPageMgt.FindDate(SearchText, Period, AnalysisByDimParameters."Period Type") then
             if AnalysisByDimParameters."Closing Entries" = AnalysisByDimParameters."Closing Entries"::Include then
                 Period."Period End" := ClosingDate(Period."Period End");
         if AnalysisByDimParameters."Amount Type" = AnalysisByDimParameters."Amount Type"::"Net Change" then begin
@@ -1388,17 +1388,11 @@ page 9233 "G/L Balance by Dim. Matrix"
 
     local procedure MATRIX_OnAfterGetRecord()
     begin
-        MatrixAmount := MatrixMgt.RoundValue(CalcAmount(true), AnalysisByDimParameters."Rounding Factor");
+        MatrixAmount := MatrixMgt.RoundAmount(CalcAmount(true), AnalysisByDimParameters."Rounding Factor");
 
         MATRIX_CellData[MATRIX_ColumnOrdinal] := MatrixAmount;
     end;
 
-#if not CLEAN16
-    [Obsolete('The function has been replaced with another overload.', '16.0')]
-    procedure Load(NewLineDimCode: Text[30]; NewColumnDimCode: Text[30]; NewPeriodType: Option; NewDateFilter: Text; NewGLAccFilter: Text; NewBusUnitFilter: Text; NewBudgetFilter: Text; NewGlobalDim1Filter: Text; NewGlobalDim2Filter: Text; NewShowActualBudg: Option; NewAmountField: Option; NewClosingEntryFilter: Option; NewRoundingFactor: Option; NewShowInAddCurr: Boolean; NewMATRIX_ColumnCaptions: array[32] of Text[1024]; NewPrimKeyFirstCol: Text[1024]; NewAmountType: Option "Net Change","Balance at Date"; CurrSetLength: Integer)
-    begin
-    end;
-#endif
     procedure Load(NewAnalysisByDimParameters: Record "Analysis by Dim. Parameters"; NewLineDimCode: Text[30]; NewColumnDimCode: Text[30]; NewMATRIX_ColumnCaptions: array[32] of Text[1024]; NewPrimKeyFirstCol: Text[1024]; CurrSetLength: Integer)
     begin
         FindPeriod('');
@@ -1409,7 +1403,7 @@ page 9233 "G/L Balance by Dim. Matrix"
         MATRIX_PrimKeyFirstCol := NewPrimKeyFirstCol;
         PeriodInitialized := true;
         CopyArray(MATRIX_ColumnCaptions, NewMATRIX_ColumnCaptions, 1);
-        RoundingFactorFormatString := MatrixMgt.GetFormatString(AnalysisByDimParameters."Rounding Factor", false);
+        RoundingFactorFormatString := MatrixMgt.FormatRoundingFactor(AnalysisByDimParameters."Rounding Factor", false);
     end;
 
     procedure SetColumnVisibility()
@@ -1458,11 +1452,11 @@ page 9233 "G/L Balance by Dim. Matrix"
         FindPeriod('');
         PeriodInitialized := true;
         MATRIX_CurrSetLength := ArrayLen(MATRIX_ColumnCaptions);
-        MATRIX_GenerateColumnCaptions;
-        RoundingFactorFormatString := MatrixMgt.GetFormatString(AnalysisByDimParameters."Rounding Factor"::None, false);
+        GenerateColumnCaptions();
+        RoundingFactorFormatString := MatrixMgt.FormatRoundingFactor(AnalysisByDimParameters."Rounding Factor"::None, false);
     end;
 
-    local procedure MATRIX_GenerateColumnCaptions()
+    local procedure GenerateColumnCaptions()
     var
         DimCodeBuffer: Record "Dimension Code Buffer";
         Found: Boolean;

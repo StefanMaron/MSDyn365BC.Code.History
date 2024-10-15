@@ -17,11 +17,15 @@ codeunit 137221 "SalesOrder Whse Validate Line"
         LibrarySales: Codeunit "Library - Sales";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryLoweredPermissions: Codeunit "Library - Lower Permissions";
+        LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryErm: Codeunit "Library - ERM";
         IsInitialized: Boolean;
         ErrFieldMustNotBeChanged: Label '%1 must not be changed when a %2 for this %3 exists';
         ErrStatusMustBeOpen: Label 'Status must be equal to ''Open''  in %1';
         ErrCannotBeDeleted: Label 'The %1 cannot be deleted when a related %2 exists';
         UnexpectedMessage: Label 'Unexpected message: "%1". Expected: "%2"';
+        MissingPermissionsMessage: Label 'You do not have the following permissions on TableData %1';
 
     local procedure Initialize()
     var
@@ -197,6 +201,38 @@ codeunit 137221 "SalesOrder Whse Validate Line"
             SalesLine.TableCaption, WhseShptLine.TableCaption);
 
         SalesOrderDelLines(true, ExpectedErrorMessage);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BlockSOwithWhseShptLineDeletionWithoutPermissions()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        Item: Record Item;
+        Location: Record Location;
+        WhseShptLine: Record "Warehouse Shipment Line";
+    begin
+        // [SCENARIO 399442] User without permission to Warehouse Shipment Line is blocked for deletion of S. Order with shipment lines
+        Initialize();
+
+        // [GIVEN] Released Sales Order with Warehouse Shipment Line
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        Location.Validate("Require Shipment", true);
+        Location.Modify(true);
+        LibraryInventory.CreateItem(Item);
+        CreateSalesOrder(SalesHeader, SalesLine, Item, Location);
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        // [GIVEN] User have permissions without access to Warehouse Shipment Line record
+        LibraryLoweredPermissions.SetSalesDocsPost();
+
+        // [WHEN] Sales Order is deleted
+        // [THEN] Error message about missing permissions to Warehouse Shipment Line appears 
+        AssertError SalesHeader.Delete(true);
+        assert.ExpectedError(StrSubstNo(MissingPermissionsMessage, WhseShptLine.TableCaption));
+        ClearLastError;
     end;
 
     local procedure LocationSetup(var Location: Record Location)

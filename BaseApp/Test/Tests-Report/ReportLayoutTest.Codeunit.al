@@ -977,34 +977,6 @@ codeunit 134600 "Report Layout Test"
     end;
 
     [Test]
-    [HandlerFunctions('ReturnOrderConfirmation_RPH')]
-    [Scope('OnPrem')]
-    procedure SalesReturnOrder_Print()
-    var
-        SalesHeader: Record "Sales Header";
-        DocumentPrint: Codeunit "Document-Print";
-        CustomerNo: Code[20];
-    begin
-        Initialize;
-        // [FEATURE] [Sales] [Return Order] [Print]
-        // [SCENARIO 379871]  REP 6631 "Return Order Confirmation" is shown when run "Print" action from Sales Return Order in case of Usage="Invoice" setup in customer document layout
-
-        // [GIVEN] Customer with Document Layout: Usage = "Invoice", "Report ID" = 206 (Sales - Invoice)
-        CustomerNo := LibrarySales.CreateCustomerNo;
-        AddSalesInvoiceToCustomerDocumentLayout(CustomerNo);
-
-        // [GIVEN] Sales Return Order for the given customer
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", CustomerNo);
-
-        // [WHEN] Run "Print" action from Sales Return Order
-        Commit();
-        DocumentPrint.PrintSalesHeader(SalesHeader);
-
-        // [THEN] REP 6631 "Return Order Confirmation" is shown
-        // ReturnOrderConfirmation_RPH
-    end;
-
-    [Test]
     [HandlerFunctions('StandardSalesInvoiceRequestPageHandler')]
     [Scope('OnPrem')]
     procedure JobTaskNosInStandardSalesInvoiceReport()
@@ -1233,14 +1205,6 @@ codeunit 134600 "Report Layout Test"
         AddCustomerDocumentLayoutReport(
           CustomerNo, CustomReportSelection.Usage::"S.Order", REPORT::"Standard Sales - Order Conf.",
           AddOrderConfirmationToCustomReportLayout);
-    end;
-
-    local procedure AddSalesInvoiceToCustomerDocumentLayout(CustomerNo: Code[20])
-    var
-        CustomReportSelection: Record "Custom Report Selection";
-    begin
-        AddCustomerDocumentLayoutReport(
-          CustomerNo, CustomReportSelection.Usage::"S.Invoice", REPORT::"Sales - Invoice", '');
     end;
 
     local procedure AddCustomerDocumentLayoutReport(CustomerNo: Code[20]; NewUsage: Enum "Report Selection Usage"; ReportID: Integer; CustomReportLayoutCode: Code[20])
@@ -1473,12 +1437,6 @@ codeunit 134600 "Report Layout Test"
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure OrderConfirmation_RPH(var OrderConfirmation: TestRequestPage "Standard Sales - Order Conf.")
-    begin
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure ReturnOrderConfirmation_RPH(var ReturnOrderConfirmation: TestRequestPage "Return Order Confirmation")
     begin
     end;
 

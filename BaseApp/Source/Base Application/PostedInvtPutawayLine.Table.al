@@ -203,12 +203,10 @@ table 7341 "Posted Invt. Put-away Line"
             Caption = 'Zone Code';
             TableRelation = Zone.Code WHERE("Location Code" = FIELD("Location Code"));
         }
-        field(7305; "Action Type"; Option)
+        field(7305; "Action Type"; Enum "Warehouse Action Type")
         {
             Caption = 'Action Type';
             Editable = false;
-            OptionCaption = ' ,Take,Place';
-            OptionMembers = " ",Take,Place;
         }
         field(7312; "Special Equipment Code"; Code[10])
         {

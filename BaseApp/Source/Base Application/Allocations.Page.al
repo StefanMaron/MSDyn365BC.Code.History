@@ -322,11 +322,13 @@ page 284 Allocations
         TotalAllocationAmount: Decimal;
         ShowAllocationAmount: Boolean;
         ShowTotalAllocationAmount: Boolean;
-        ShortcutDimCode: array[8] of Code[20];
         [InDataSet]
         AllocationAmountVisible: Boolean;
         [InDataSet]
         TotalAllocationAmountVisible: Boolean;
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
 
     local procedure UpdateAllocationAmount()
     var

@@ -29,6 +29,8 @@ codeunit 137908 "SCM Assembly Order"
         WorkDate2: Date;
         Initialized: Boolean;
         TXTQtyPerNoChange: Label 'You cannot change Quantity per when Type is '' ''.';
+        RoundingTo0Err: Label 'Rounding of the field';
+        RoundingErr: Label 'is of lesser precision than expected';
 
     [Normal]
     local procedure Initialize()
@@ -45,6 +47,11 @@ codeunit 137908 "SCM Assembly Order"
         Initialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Assembly Order");
+    end;
+
+    local procedure CreateAssemblyOrderWithoutLines(var AssemblyHeader: Record "Assembly Header"; DueDate: Date; ItemNo: Code[20])
+    begin
+        AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(DueDate, ItemNo, 0)); // no lines
     end;
 
     [Test]
@@ -119,7 +126,7 @@ codeunit 137908 "SCM Assembly Order"
         LibraryManufacturing.CreateBOMComponent(
           BOMComp, parent, BOMComp.Type::Item, childItem."No.", BOMQtyPer, childItem."Base Unit of Measure");
 
-        AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parent, 0)); // No asm lines
+        CreateAssemblyOrderWithoutLines(AssemblyHeader, WorkDate2, parent);
         AssemblyHeader.Validate("Unit of Measure Code", NonBaseUOM.Code);
         AssemblyHeader.Validate(Quantity, HeaderQty);
 
@@ -553,7 +560,7 @@ codeunit 137908 "SCM Assembly Order"
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parent, 10));
         item.Get(LibraryKitting.CreateItemWithNewUOM(100, 700));
         LibraryAssembly.CreateAssemblyLine(
-          AssemblyHeader, AssemblyLine, AssemblyLine.Type::Item, item."No.", item."Base Unit of Measure", 20, 1, 'Test QuantityPer ');
+          AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, item."No.", item."Base Unit of Measure", 20, 1, 'Test QuantityPer ');
 
         AsmLineFindFirst(AssemblyHeader, AssemblyLine);
         ValidateQuantityPer(AssemblyLine, 1);
@@ -574,7 +581,7 @@ codeunit 137908 "SCM Assembly Order"
         parent := LibraryKitting.CreateStdCostItemWithNewUOM(500, 700, 1);
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parent, 5));
         item.Get(LibraryKitting.CreateItemWithNewUOM(100, 700));
-        LibraryKitting.AddLine(AssemblyHeader, AssemblyLine.Type::Item, item."No.", item."Base Unit of Measure", 20, 0, 'Test QuantityPer');
+        LibraryKitting.AddLine(AssemblyHeader, "BOM Component Type"::Item, item."No.", item."Base Unit of Measure", 20, 0, 'Test QuantityPer');
 
         AsmLineFindFirst(AssemblyHeader, AssemblyLine);
         AssemblyLine.Validate("Quantity per", 0);
@@ -628,7 +635,7 @@ codeunit 137908 "SCM Assembly Order"
         AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parent, 5));
         childItem.Get(LibraryKitting.CreateItemWithNewUOM(100, 700));
         LibraryKitting.AddLine(
-          AssemblyHeader, AssemblyLine.Type::Item, childItem."No.", childItem."Base Unit of Measure", 20, 4, 'Test UOM Header');
+          AssemblyHeader, "BOM Component Type"::Item, childItem."No.", childItem."Base Unit of Measure", 20, 4, 'Test UOM Header');
 
         AssemblyHeader.UpdateUnitCost;
         ValidateOrderUnitCost(AssemblyHeader, 400);
@@ -667,7 +674,7 @@ codeunit 137908 "SCM Assembly Order"
         AssemblyHeader.Validate("Quantity to Assemble", 3);
         AssemblyHeader.Validate("Unit of Measure Code", NonBaseUOM.Code);
 
-        LibraryKitting.AddLine(AssemblyHeader, AssemblyLine.Type::Item, Item."No.", Item."Base Unit of Measure", 10, 1, 'Test UOM consume');
+        LibraryKitting.AddLine(AssemblyHeader, "BOM Component Type"::Item, Item."No.", Item."Base Unit of Measure", 10, 1, 'Test UOM consume');
 
         LibraryAssembly.SetLinkToLines(AssemblyHeader, AssemblyLine);
         AssemblyLine.FindFirst;
@@ -795,6 +802,672 @@ codeunit 137908 "SCM Assembly Order"
         asserterror AssemblyLine.Validate("Quantity to Consume", 3);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorThrownWhenBaseQtyIsRoundedTo0OnAssemblyHeader()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        Initialize;
+        NonBaseQtyPerUOM := 3;
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 0.1;
+
+        Item.Get(MakeItemWithLot);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        CreateAssemblyOrderWithoutLines(AssemblyHeader, WorkDate2, Item."No.");
+        AssemblyHeader.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        asserterror AssemblyHeader.Validate(Quantity, 0.01);
+        Assert.ExpectedError(RoundingTo0Err);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorThrownWhenQtyIsRoundedTo0OnAssemblyHeader()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        Initialize;
+        NonBaseQtyPerUOM := 3;
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 0.1;
+
+        Item.Get(MakeItemWithLot);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        CreateAssemblyOrderWithoutLines(AssemblyHeader, WorkDate2, Item."No.");
+        AssemblyHeader.Validate("Unit of Measure Code", BaseUOM.Code);
+        asserterror AssemblyHeader.Validate(Quantity, 0.01);
+        Assert.ExpectedError(RoundingErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseQtyIsRoundedWithRoundingPrecisionSpecifiedOnAssemblyHeader()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        Initialize;
+        NonBaseQtyPerUOM := 3;
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 0.1;
+
+        Item.Get(MakeItemWithLot);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        CreateAssemblyOrderWithoutLines(AssemblyHeader, WorkDate2, Item."No.");
+        AssemblyHeader.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        AssemblyHeader.Validate(Quantity, 5.67);
+        Assert.AreEqual(17.0, AssemblyHeader."Quantity (Base)", 'Base quantity is not rounded correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseQtyIsRoundedWithRoundingPrecisionUnspecifiedOnAssemblyHeader()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        Initialize;
+        NonBaseQtyPerUOM := 3;
+        BaseQtyPerUOM := 1;
+
+        Item.Get(MakeItemWithLot);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        CreateAssemblyOrderWithoutLines(AssemblyHeader, WorkDate2, Item."No.");
+        AssemblyHeader.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        AssemblyHeader.Validate(Quantity, 5.6666666);
+        Assert.AreEqual(17.00001, AssemblyHeader."Quantity (Base)", 'Base qty. is not rounded correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseQtyIsRoundedWithRoundingPrecisionOnAssemblyHeader()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        Initialize;
+        NonBaseQtyPerUOM := 6;
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 0.1;
+
+        Item.Get(MakeItemWithLot);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        CreateAssemblyOrderWithoutLines(AssemblyHeader, WorkDate2, Item."No.");
+        AssemblyHeader.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        AssemblyHeader.Validate(Quantity, 5 / 6);
+        Assert.AreEqual(5, AssemblyHeader."Quantity (Base)", 'Base quantity is not rounded correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorThrownWhenBaseQtyToAssembleIsRoundedTo0OnAssemblyHeader()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        Initialize;
+        NonBaseQtyPerUOM := 3;
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 0.1;
+
+        Item.Get(MakeItemWithLot);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        CreateAssemblyOrderWithoutLines(AssemblyHeader, WorkDate2, Item."No.");
+        AssemblyHeader.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        AssemblyHeader.Validate(Quantity, 5);
+        asserterror AssemblyHeader.Validate("Quantity to Assemble", 0.01);
+        Assert.ExpectedError(RoundingTo0Err);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorThrownWhenQtyToAssembleIsRoundedTo0OnAssemblyHeader()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        Initialize;
+        NonBaseQtyPerUOM := 3;
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 0.1;
+
+        Item.Get(MakeItemWithLot);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        CreateAssemblyOrderWithoutLines(AssemblyHeader, WorkDate2, Item."No.");
+        AssemblyHeader.Validate("Unit of Measure Code", BaseUOM.Code);
+        AssemblyHeader.Validate(Quantity, 5);
+        asserterror AssemblyHeader.Validate("Quantity to Assemble", 0.01);
+        Assert.ExpectedError(RoundingErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseQtyToAssembleIsRoundedWithRoundingPrecisionSpecifiedOnAssemblyHeader()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        Initialize;
+        NonBaseQtyPerUOM := 3;
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 0.1;
+
+        Item.Get(MakeItemWithLot);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        CreateAssemblyOrderWithoutLines(AssemblyHeader, WorkDate2, Item."No.");
+        AssemblyHeader.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        AssemblyHeader.Validate(Quantity, 10);
+        AssemblyHeader.Validate("Quantity to Assemble", 5.67);
+        Assert.AreEqual(17.0, AssemblyHeader."Quantity to Assemble (Base)", 'Base quantity is not rounded correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseQtyToAssembleIsRoundedWithRoundingPrecisionOnAssemblyHeader()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        Initialize;
+        NonBaseQtyPerUOM := 6;
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 0.1;
+
+        Item.Get(MakeItemWithLot);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        CreateAssemblyOrderWithoutLines(AssemblyHeader, WorkDate2, Item."No.");
+        AssemblyHeader.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        AssemblyHeader.Validate(Quantity, 1);
+        AssemblyHeader.Validate("Quantity to Assemble", 5 / 6);
+        Assert.AreEqual(5, AssemblyHeader."Quantity to Assemble (Base)", 'Base quantity is not rounded correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorThrownWhenBaseQtyIsRoundedTo0OnAssemblyLine()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        ParentItem: Record Item;
+        ChildItem: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        Initialize;
+        NonBaseQtyPerUOM := 3;
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 0.1;
+
+        ParentItem.Get(MakeItemWithLot);
+        ChildItem.Get(MakeItemWithLot);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, ChildItem."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        ChildItem.Validate("Base Unit of Measure", ItemUOM.Code);
+        ChildItem.Modify();
+
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, ChildItem."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, ParentItem."No.", 1));
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, ChildItem."No.", NonBaseUOM.Code, 0, 0, '');
+        asserterror AssemblyLine.Validate(Quantity, 0.01);
+        Assert.ExpectedError(RoundingTo0Err);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorThrownWhenQtyIsRoundedTo0OnAssemblyLine()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        ParentItem: Record Item;
+        ChildItem: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        Initialize;
+        NonBaseQtyPerUOM := 3;
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 0.1;
+
+        ParentItem.Get(MakeItemWithLot);
+        ChildItem.Get(MakeItemWithLot);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, ChildItem."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        ChildItem.Validate("Base Unit of Measure", ItemUOM.Code);
+        ChildItem.Modify();
+
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, ChildItem."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, ParentItem."No.", 1));
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, ChildItem."No.", BaseUOM.Code, 0, 0, '');
+        asserterror AssemblyLine.Validate(Quantity, 0.01);
+        Assert.ExpectedError(RoundingErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseQtyIsRoundedWithRoundingPrecisionSpecifiedOnAssemblyLine()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        ParentItem: Record Item;
+        ChildItem: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        Initialize;
+        NonBaseQtyPerUOM := 3;
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 0.1;
+
+        ParentItem.Get(MakeItemWithLot);
+        ChildItem.Get(MakeItemWithLot);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, ChildItem."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        ChildItem.Validate("Base Unit of Measure", ItemUOM.Code);
+        ChildItem.Modify();
+
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, ChildItem."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, ParentItem."No.", 1));
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, ChildItem."No.", NonBaseUOM.Code, 0, 0, '');
+        AssemblyLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        AssemblyLine.Validate(Quantity, 5.67);
+        Assert.AreEqual(17.0, AssemblyLine."Quantity (Base)", 'Base quantity is not rounded correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseQtyIsRoundedWithRoundingPrecisionUnspecifiedOnAssemblyLine()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        ParentItem: Record Item;
+        ChildItem: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        Initialize;
+        NonBaseQtyPerUOM := 3;
+        BaseQtyPerUOM := 1;
+
+        ParentItem.Get(MakeItemWithLot);
+        ChildItem.Get(MakeItemWithLot);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, ChildItem."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ChildItem.Validate("Base Unit of Measure", ItemUOM.Code);
+        ChildItem.Modify();
+
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, ChildItem."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, ParentItem."No.", 1));
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, ChildItem."No.", NonBaseUOM.Code, 0, 0, '');
+        AssemblyLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        AssemblyLine.Validate(Quantity, 5.6666666);
+        Assert.AreEqual(17.00001, AssemblyLine."Quantity (Base)", 'Base qty. is not rounded correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseQtyIsRoundedWithRoundingPrecisionOnAssemblyLine()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        ParentItem: Record Item;
+        ChildItem: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        Initialize;
+        NonBaseQtyPerUOM := 6;
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 0.1;
+
+        ParentItem.Get(MakeItemWithLot);
+        ChildItem.Get(MakeItemWithLot);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, ChildItem."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        ChildItem.Validate("Base Unit of Measure", ItemUOM.Code);
+        ChildItem.Modify();
+
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, ChildItem."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, ParentItem."No.", 1));
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, ChildItem."No.", NonBaseUOM.Code, 0, 0, '');
+        AssemblyLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        AssemblyLine.Validate(Quantity, 5 / 6);
+        Assert.AreEqual(5, AssemblyLine."Quantity (Base)", 'Base quantity is not rounded correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorThrownWhenBaseQtyToConsumeIsRoundedTo0OnAssemblyLine()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        ParentItem: Record Item;
+        ChildItem: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        Initialize;
+        NonBaseQtyPerUOM := 3;
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 0.1;
+
+        ParentItem.Get(MakeItemWithLot);
+        ChildItem.Get(MakeItemWithLot);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, ChildItem."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        ChildItem.Validate("Base Unit of Measure", ItemUOM.Code);
+        ChildItem.Modify();
+
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, ChildItem."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, ParentItem."No.", 1));
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, ChildItem."No.", NonBaseUOM.Code, 0, 0, '');
+        AssemblyLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        AssemblyLine.Validate(Quantity, 5);
+        asserterror AssemblyLine.Validate("Quantity to Consume", 0.01);
+        Assert.ExpectedError(RoundingTo0Err);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorThrownWhenQtyToConsumeIsRoundedTo0OnAssemblyLine()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        ParentItem: Record Item;
+        ChildItem: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        Initialize;
+        NonBaseQtyPerUOM := 3;
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 0.1;
+
+        ParentItem.Get(MakeItemWithLot);
+        ChildItem.Get(MakeItemWithLot);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, ChildItem."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        ChildItem.Validate("Base Unit of Measure", ItemUOM.Code);
+        ChildItem.Modify();
+
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, ChildItem."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, ParentItem."No.", 1));
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, ChildItem."No.", BaseUOM.Code, 0, 0, '');
+        AssemblyLine.Validate("Unit of Measure Code", BaseUOM.Code);
+        AssemblyLine.Validate(Quantity, 5);
+        asserterror AssemblyLine.Validate("Quantity to Consume", 0.01);
+        Assert.ExpectedError(RoundingErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseQtyToConsumeIsRoundedWithRoundingPrecisionSpecifiedOnAssemblyLine()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        ParentItem: Record Item;
+        ChildItem: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        Initialize;
+        NonBaseQtyPerUOM := 3;
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 0.1;
+
+        ParentItem.Get(MakeItemWithLot);
+        ChildItem.Get(MakeItemWithLot);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, ChildItem."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        ChildItem.Validate("Base Unit of Measure", ItemUOM.Code);
+        ChildItem.Modify();
+
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, ChildItem."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, ParentItem."No.", 1));
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, ChildItem."No.", NonBaseUOM.Code, 0, 0, '');
+        AssemblyLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        AssemblyLine.Validate(Quantity, 10);
+        AssemblyLine.Validate("Quantity to Consume", 5.67);
+        Assert.AreEqual(17.0, AssemblyLine."Quantity to Consume (Base)", 'Base quantity is not rounded correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseQtyToConsumeIsRoundedWithRoundingPrecisionOnAssemblyLine()
+    var
+        AssemblyHeader: Record "Assembly Header";
+        AssemblyLine: Record "Assembly Line";
+        ParentItem: Record Item;
+        ChildItem: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+    begin
+        Initialize;
+        NonBaseQtyPerUOM := 6;
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 0.1;
+
+        ParentItem.Get(MakeItemWithLot);
+        ChildItem.Get(MakeItemWithLot);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, ChildItem."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        ChildItem.Validate("Base Unit of Measure", ItemUOM.Code);
+        ChildItem.Modify();
+
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, ChildItem."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
+
+        AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, ParentItem."No.", 1));
+        LibraryAssembly.CreateAssemblyLine(AssemblyHeader, AssemblyLine, "BOM Component Type"::Item, ChildItem."No.", NonBaseUOM.Code, 0, 0, '');
+        AssemblyLine.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        AssemblyLine.Validate(Quantity, 1);
+        AssemblyLine.Validate("Quantity to Consume", 5 / 6);
+        Assert.AreEqual(5, AssemblyLine."Quantity to Consume (Base)", 'Base quantity is not rounded correctly.');
+    end;
+
     local procedure CreatePostedAssemblyHeader(var PostedAsmHeader: Record "Posted Assembly Header"; AssemblyHeader: Record "Assembly Header")
     var
         AssemblySetup: Record "Assembly Setup";
@@ -853,7 +1526,7 @@ codeunit 137908 "SCM Assembly Order"
         childItem.Get(MakeItem);
         LibraryManufacturing.CreateBOMComponent(
           BOMComp, parent, BOMComp.Type::Item, childItem."No.", 1, childItem."Base Unit of Measure");
-        AssemblyHeader.Get(AssemblyHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, parent, 0));
+        CreateAssemblyOrderWithoutLines(AssemblyHeader, WorkDate2, parent);
         validateCount(AssemblyHeader."No.", 0);
 
         asserterror Error('') // roll back

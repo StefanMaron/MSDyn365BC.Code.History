@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5513 "Time Registration Entity"
 {
     Caption = 'timeRegistrationEntries', Locked = true;
@@ -163,4 +164,4 @@ page 5513 "Time Registration Entity"
         EmployeeNumberDoesNotMatchAnEmployeeErr: Label 'The "employeeNumber" does not match to an Employee.', Locked = true;
         BlankGUID: Guid;
 }
-
+#endif

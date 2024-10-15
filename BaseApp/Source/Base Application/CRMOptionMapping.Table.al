@@ -7,7 +7,7 @@ table 5334 "CRM Option Mapping"
         field(1; "Record ID"; RecordID)
         {
             Caption = 'Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(2; "Option Value"; Integer)
         {

@@ -82,11 +82,9 @@ table 5089 "Contact Profile Answer"
             Caption = 'Profile Questionnaire Priority';
             Editable = false;
         }
-        field(9; "Answer Priority"; Option)
+        field(9; "Answer Priority"; Enum "Profile Answer Priority")
         {
             Caption = 'Answer Priority';
-            OptionCaption = 'Very Low (Hidden),Low,Normal,High,Very High';
-            OptionMembers = "Very Low (Hidden)",Low,Normal,High,"Very High";
         }
         field(10; "Last Date Updated"; Date)
         {

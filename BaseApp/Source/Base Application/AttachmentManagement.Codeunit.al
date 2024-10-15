@@ -259,11 +259,18 @@ codeunit 5052 AttachmentManagement
     begin
         Commit();
         User.SetRange("User Name", UserId);
+#if CLEAN19
+        if not User.FindFirst and not InitializeExchangeWithToken(ExchangeWebServicesServer, User."Authentication Email") then            
+                Error('');
+#else
         if not User.FindFirst and not InitializeExchangeWithToken(ExchangeWebServicesServer, User."Authentication Email") then
             if not InitializeExchangeWithCredentials(ExchangeWebServicesServer) then
                 Error('');
+#endif
     end;
 
+#if not CLEAN19
+    [Obsolete('Removing legacy basic authentication. Exchange service should be intialized using Oauth token.', '19.0')]
     [TryFunction]
     local procedure InitializeExchangeWithCredentials(var ExchangeWebServicesServer: Codeunit "Exchange Web Services Server")
     var
@@ -283,6 +290,7 @@ codeunit 5052 AttachmentManagement
         ExchangeWebServicesServer.Initialize(
           WebCredentialsLogin, ExchangeWebServicesServer.ProdEndpoint, WebCredentials, false);
     end;
+#endif
 
     [TryFunction]
     local procedure InitializeExchangeWithToken(var ExchangeWebServicesServer: Codeunit "Exchange Web Services Server"; AuthenticationEmail: Text[250])

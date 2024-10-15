@@ -11,50 +11,50 @@ page 964 "Period Summary Archive FactBox"
             {
                 ApplicationArea = Jobs;
                 CaptionClass = '3,' + DateDescription[1];
+                ToolTip = 'Specifies the number of hours registered for this day.';
                 Editable = false;
-                ShowCaption = false;
             }
             field("DateQuantity[2]"; DateQuantity[2])
             {
                 ApplicationArea = Jobs;
                 CaptionClass = '3,' + DateDescription[2];
+                ToolTip = 'Specifies the number of hours registered for this day.';
                 Editable = false;
-                ShowCaption = false;
             }
             field("DateQuantity[3]"; DateQuantity[3])
             {
                 ApplicationArea = Jobs;
                 CaptionClass = '3,' + DateDescription[3];
+                ToolTip = 'Specifies the number of hours registered for this day.';
                 Editable = false;
-                ShowCaption = false;
             }
             field("DateQuantity[4]"; DateQuantity[4])
             {
                 ApplicationArea = Jobs;
                 CaptionClass = '3,' + DateDescription[4];
+                ToolTip = 'Specifies the number of hours registered for this day.';
                 Editable = false;
-                ShowCaption = false;
             }
             field("DateQuantity[5]"; DateQuantity[5])
             {
                 ApplicationArea = Jobs;
                 CaptionClass = '3,' + DateDescription[5];
+                ToolTip = 'Specifies the number of hours registered for this day.';
                 Editable = false;
-                ShowCaption = false;
             }
             field("DateQuantity[6]"; DateQuantity[6])
             {
                 ApplicationArea = Jobs;
                 CaptionClass = '3,' + DateDescription[6];
+                ToolTip = 'Specifies the number of hours registered for this day.';
                 Editable = false;
-                ShowCaption = false;
             }
             field("DateQuantity[7]"; DateQuantity[7])
             {
                 ApplicationArea = Jobs;
                 CaptionClass = '3,' + DateDescription[7];
+                ToolTip = 'Specifies the number of hours registered for this day.';
                 Editable = false;
-                ShowCaption = false;
             }
             field(TotalQuantity; TotalQuantity)
             {

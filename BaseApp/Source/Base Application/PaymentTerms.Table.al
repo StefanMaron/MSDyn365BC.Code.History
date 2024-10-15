@@ -73,18 +73,10 @@ table 3 "Payment Terms"
     trigger OnDelete()
     var
         PaymentTermsTranslation: Record "Payment Term Translation";
-        O365SalesInitialSetup: Record "O365 Sales Initial Setup";
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
     begin
-        if EnvInfoProxy.IsInvoicing then
-            if O365SalesInitialSetup.Get and
-               (O365SalesInitialSetup."Default Payment Terms Code" = Code)
-            then
-                Error(CannotRemoveDefaultPaymentTermsErr);
-
         with PaymentTermsTranslation do begin
             SetRange("Payment Term", Code);
-            DeleteAll
+            DeleteAll();
         end;
     end;
 
@@ -105,9 +97,6 @@ table 3 "Payment Terms"
         SetLastModifiedDateTime;
         CRMSyncHelper.UpdateCDSOptionMapping(xRec.RecordId(), RecordId());
     end;
-
-    var
-        CannotRemoveDefaultPaymentTermsErr: Label 'You cannot remove the default payment terms.';
 
     local procedure SetLastModifiedDateTime()
     begin

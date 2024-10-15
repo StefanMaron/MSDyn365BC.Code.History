@@ -662,8 +662,8 @@ page 9245 "Demand Forecast Matrix"
 
     var
         MatrixRecords: array[32] of Record Date;
-        QtyType: Option "Net Change","Balance at Date";
-        ForecastType: Option "Sales Item",Component,Both;
+        QtyType: Enum "Analysis Amount Type";
+        ForecastType: Enum "Demand Forecast Type";
         ProductionForecastName: Code[10];
         LocationFilter: Text;
         DateFilter: Text;
@@ -750,33 +750,42 @@ page 9245 "Demand Forecast Matrix"
 
         if QtyType = QtyType::"Net Change" then
             if MatrixRecords[ColumnID]."Period Start" = MatrixRecords[ColumnID]."Period End" then
-                SetRange("Date Filter", MatrixRecords[ColumnID]."Period Start")
+                Rec.SetRange("Date Filter", MatrixRecords[ColumnID]."Period Start")
             else
-                SetRange("Date Filter", MatrixRecords[ColumnID]."Period Start", MatrixRecords[ColumnID]."Period End")
+                Rec.SetRange("Date Filter", MatrixRecords[ColumnID]."Period Start", MatrixRecords[ColumnID]."Period End")
         else
-            SetRange("Date Filter", 0D, MatrixRecords[ColumnID]."Period End");
+            Rec.SetRange("Date Filter", 0D, MatrixRecords[ColumnID]."Period End");
     end;
 
+#if not CLEAN19
     procedure Load(MatrixColumns1: array[32] of Text[1024]; var MatrixRecords1: array[32] of Record Date; ProductionForecastName1: Code[10]; DateFilter1: Text; LocationFilter1: Text; ForecastType1: Option "Sales Item",Component,Both; QtyType1: Option "Net Change","Balance at Date"; NoOfMatrixColumns1: Integer)
     begin
-        CopyArray(MATRIX_CaptionSet, MatrixColumns1, 1);
-        CopyArray(MatrixRecords, MatrixRecords1, 1);
+        LoadMatrix(
+            MatrixColumns1, MatrixRecords1, ProductionForecastName1, DateFilter1, LocationFilter1,
+            "Demand Forecast Type".FromInteger(ForecastType1), "Analysis Amount Type".FromInteger(QtyType1), NoOfMatrixColumns1);
+    end;
+#endif
 
-        ProductionForecastName := ProductionForecastName1;
-        DateFilter := DateFilter1;
-        LocationFilter := LocationFilter1;
-        ForecastType := ForecastType1;
-        QtyType := QtyType1;
-        MATRIX_NoOfMatrixColumns := NoOfMatrixColumns1;
+    procedure LoadMatrix(NewMatrixColumns: array[32] of Text[1024]; var NewMatrixRecords: array[32] of Record Date; NewProductionForecastName: Code[10]; NewDateFilter: Text; NewLocationFilter: Text; NewForecastType: Enum "Demand Forecast Type"; NewQtyType: Enum "Analysis Amount Type"; NewNoOfMatrixColumns: Integer)
+    begin
+        CopyArray(MATRIX_CaptionSet, NewMatrixColumns, 1);
+        CopyArray(MatrixRecords, NewMatrixRecords, 1);
+
+        ProductionForecastName := NewProductionForecastName;
+        DateFilter := NewDateFilter;
+        LocationFilter := NewLocationFilter;
+        ForecastType := NewForecastType;
+        QtyType := NewQtyType;
+        MATRIX_NoOfMatrixColumns := NewNoOfMatrixColumns;
 
         if ForecastType = ForecastType::Component then
-            SetRange("Component Forecast", true);
+            Rec.SetRange("Component Forecast", true);
         if ForecastType = ForecastType::"Sales Item" then
-            SetRange("Component Forecast", false);
+            Rec.SetRange("Component Forecast", false);
         if ForecastType = ForecastType::Both then
-            SetRange("Component Forecast");
+            Rec.SetRange("Component Forecast");
 
-        SetVisible;
+        SetVisible();
     end;
 
     local procedure MatrixOnDrillDown(ColumnID: Integer)
@@ -800,6 +809,7 @@ page 9245 "Demand Forecast Matrix"
         else
             ProductionForecastEntry.SetRange("Location Code");
         ProductionForecastEntry.SetFilter("Component Forecast", GetFilter("Component Forecast"));
+        OnMatrixOnDrillDownOnAfterSetFilters(Rec, MatrixRecords[ColumnID], ColumnID, ForecastType, ProductionForecastName, LocationFilter, ProductionForecastEntry);
         PAGE.Run(0, ProductionForecastEntry);
     end;
 
@@ -807,23 +817,25 @@ page 9245 "Demand Forecast Matrix"
     begin
         SetDateFilter(ColumnOrdinal);
         if ProductionForecastName <> '' then
-            SetRange("Production Forecast Name", ProductionForecastName)
+            Rec.SetRange("Production Forecast Name", ProductionForecastName)
         else
-            SetRange("Production Forecast Name");
+            Rec.SetRange("Production Forecast Name");
         if LocationFilter <> '' then
-            SetFilter("Location Filter", LocationFilter)
+            Rec.SetFilter("Location Filter", LocationFilter)
         else
-            SetRange("Location Filter");
+            Rec.SetRange("Location Filter");
 
         if ForecastType = ForecastType::Component then
-            SetRange("Component Forecast", true);
+            Rec.SetRange("Component Forecast", true);
         if ForecastType = ForecastType::"Sales Item" then
-            SetRange("Component Forecast", false);
+            Rec.SetRange("Component Forecast", false);
         if ForecastType = ForecastType::Both then
-            SetRange("Component Forecast");
+            Rec.SetRange("Component Forecast");
 
-        CalcFields("Prod. Forecast Quantity (Base)");
-        MATRIX_CellData[ColumnOrdinal] := "Prod. Forecast Quantity (Base)";
+        OnMATRIXOnAfterGetRecordOnAfterSetFilters(Rec, ColumnOrdinal, ForecastType, ProductionForecastName, LocationFilter);
+
+        Rec.CalcFields("Prod. Forecast Quantity (Base)");
+        MATRIX_CellData[ColumnOrdinal] := Rec."Prod. Forecast Quantity (Base)";
     end;
 
     procedure SetVisible()
@@ -968,6 +980,16 @@ page 9245 "Demand Forecast Matrix"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeProdForecastQtyBase_OnValidate(var Item: Record Item; ColumnID: Integer; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMatrixOnDrillDownOnAfterSetFilters(var Item: Record Item; MatrixRecord: Record Date; ColumnID: Integer; ForecastType: Enum "Demand Forecast Type"; ProductionForecastName: Text[30]; LocationFilter: Text; var ProductionForecastEntry: Record "Production Forecast Entry");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMATRIXOnAfterGetRecordOnAfterSetFilters(var Item: Record Item; ColumnID: Integer; ForecastType: Enum "Demand Forecast Type"; ProductionForecastName: Text[30]; LocationFilter: Text)
     begin
     end;
 }

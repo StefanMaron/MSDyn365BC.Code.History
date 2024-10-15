@@ -12,6 +12,7 @@ codeunit 7204 "CDS Setup Defaults"
         VendorTableMappingNameTxt: Label 'VENDOR', Locked = true;
         JobQueueEntryNameTok: Label ' %1 - %2 synchronization job.', Comment = '%1 = The Integration Table Name to synchronized (ex. CUSTOMER), %2 = CRM product name';
         UncoupleJobQueueEntryNameTok: Label ' %1 uncouple job.', Comment = '%1 = Integration mapping description, for example, CUSTOMER <-> CRM Account';
+        CoupleJobQueueEntryNameTok: Label ' %1 coupling job.', Comment = '%1 = Integration mapping description, for example, CUSTOMER <-> CRM Account';
         IntegrationTablePrefixTok: Label 'Dynamics CRM', Comment = 'Product name', Locked = true;
         CDSCustomerConfigTemplateCodeTok: Label 'BCICUSTOME', Comment = 'Config. Template code for Dataverse Accounts created from Customers. Max length 10.', Locked = true;
         CDSVendorConfigTemplateCodeTok: Label 'BCIVENDOR', Comment = 'Config. Template code for Dataverse Accounts created from Vendors. Max length 10.', Locked = true;
@@ -47,7 +48,9 @@ codeunit 7204 "CDS Setup Defaults"
         ResetShipmentMethodMapping('SHIPMENT METHOD');
         ResetShippingAgentMapping('SHIPPING AGENT');
         CDSConnectionSetup.SetBaseCurrencyData();
+#if not CLEAN19
         RemoveCustomerContactLinkJobQueueEntries();
+#endif
 
         SetCustomIntegrationsTableMappings(CDSConnectionSetup);
     end;
@@ -910,6 +913,12 @@ codeunit 7204 "CDS Setup Defaults"
         exit(CreateJobQueueEntry(IntegrationTableMapping, Codeunit::"Int. Uncouple Job Runner", StrSubstNo(UncoupleJobQueueEntryNameTok, IntegrationTableMapping.GetTempDescription())));
     end;
 
+    [Scope('OnPrem')]
+    procedure CreateCoupleJobQueueEntry(var IntegrationTableMapping: Record "Integration Table Mapping"): Boolean
+    begin
+        exit(CreateJobQueueEntry(IntegrationTableMapping, Codeunit::"Int. Coupling Job Runner", StrSubstNo(CoupleJobQueueEntryNameTok, IntegrationTableMapping.GetTempDescription())));
+    end;
+
     procedure CreateJobQueueEntry(IntegrationTableMapping: Record "Integration Table Mapping"): Boolean
     begin
         exit(CreateJobQueueEntry(IntegrationTableMapping, StrSubstNo(JobQueueEntryNameTok, IntegrationTableMapping.GetTempDescription(), CRMProductName.CDSServiceName())));
@@ -984,6 +993,8 @@ codeunit 7204 "CDS Setup Defaults"
             JobQueueEntry.Insert(true);
     end;
 
+#if not CLEAN19
+    [Obsolete('This functionality is replaced with updating related records through subscribers.', '19.0')]
     [Scope('OnPrem')]
     procedure RemoveCustomerContactLinkJobQueueEntries();
     var
@@ -1040,6 +1051,7 @@ codeunit 7204 "CDS Setup Defaults"
         TempNameValueBuffer.Value := Format(Database::Vendor);
         TempNameValueBuffer.Insert();
     end;
+#endif
 
     procedure GetDefaultDirection(NAVTableID: Integer): Integer
     var

@@ -184,25 +184,25 @@ report 7390 "Whse. Calculate Inventory"
     var
         Text001: Label 'Enter the %1.';
         Text002: Label 'Processing bins    #1##########';
-        WhseJnlBatch: Record "Warehouse Journal Batch";
-        WhseJnlLine: Record "Warehouse Journal Line";
         SourceCodeSetup: Record "Source Code Setup";
-        Location: Record Location;
-        Bin: Record Bin;
         TempBinContent: Record "Bin Content" temporary;
         NoSeriesMgt: Codeunit NoSeriesManagement;
         UOMMgt: Codeunit "Unit of Measure Management";
         Window: Dialog;
-        RegisteringDate: Date;
-        CycleSourceType: Option " ",Item,SKU;
-        PhysInvtCountCode: Code[10];
-        NextDocNo: Code[20];
-        NextLineNo: Integer;
-        ZeroQty: Boolean;
         StockProposal: Boolean;
 
     protected var
+        Bin: Record Bin;
+        Location: Record Location;
+        WhseJnlBatch: Record "Warehouse Journal Batch";
+        WhseJnlLine: Record "Warehouse Journal Line";
         HideValidationDialog: Boolean;
+        NextDocNo: Code[20];
+        NextLineNo: Integer;
+        RegisteringDate: Date;
+        CycleSourceType: Option " ",Item,SKU;
+        PhysInvtCountCode: Code[10];
+        ZeroQty: Boolean;
 
     procedure SetWhseJnlLine(var NewWhseJnlLine: Record "Warehouse Journal Line")
     begin
@@ -269,7 +269,7 @@ report 7390 "Whse. Calculate Inventory"
             WhseEntry.SetRange("Variant Code", BinContent."Variant Code");
             WhseEntry.SetRange("Unit of Measure Code", BinContent."Unit of Measure Code");
             OnInsertWhseJnlLineOnAfterWhseEntrySetFilters(WhseEntry, "Bin Content");
-            if WhseEntry.Find('-') then
+            if WhseEntry.Find('-') or ZeroQty then
                 repeat
                     WhseEntry.SetTrackingFilterFromWhseEntry(WhseEntry);
                     WhseEntry.CalcSums("Qty. (Base)");

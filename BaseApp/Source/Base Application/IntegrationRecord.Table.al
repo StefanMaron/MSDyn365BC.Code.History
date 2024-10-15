@@ -18,7 +18,7 @@ table 5151 "Integration Record"
         field(3; "Record ID"; RecordID)
         {
             Caption = 'Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(5150; "Integration ID"; Guid)
         {

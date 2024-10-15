@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135531 "Dimensions E2E Test"
 {
     Subtype = Test;
@@ -93,4 +94,4 @@ codeunit 135531 "Dimensions E2E Test"
         LibraryGraphMgt.VerifyIDInJson(DimensionJSON);
     end;
 }
-
+#endif

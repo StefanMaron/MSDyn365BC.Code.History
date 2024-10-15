@@ -21,7 +21,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
         TeamMemberErr: Label 'You are logged in as a Team Member role, so you cannot complete this task.';
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,ItemChargeAssignmentPurchModalPageHandler,PostedPurchaseInvoicePageHandler,PostedPurchaseCreditMemoHandler')]
+    [HandlerFunctions('SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,ItemChargeAssignmentPurchModalPageHandler,PostedPurchaseInvoicePageHandler,PostedPurchaseCreditMemoHandler')]
     [Scope('OnPrem')]
     procedure ItemChargesCreatePostAndCorrectPurchaseInvoiceAsBusinessManager()
     var
@@ -49,7 +49,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,ItemChargeAssignmentPurchModalPageHandler,PostedPurchaseInvoicePageHandler,PostedPurchaseCreditMemoHandler')]
+    [HandlerFunctions('SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,ItemChargeAssignmentPurchModalPageHandler,PostedPurchaseInvoicePageHandler,PostedPurchaseCreditMemoHandler')]
     [Scope('OnPrem')]
     procedure ItemChargesCreatePostAndCorrectPurchaseInvoiceAsEsternalAccountant()
     var
@@ -77,7 +77,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,ItemChargeAssignmentPurchModalPageHandler,PostedPurchaseInvoicePageHandler,PostedPurchaseCreditMemoHandler')]
+    [HandlerFunctions('SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,ItemChargeAssignmentPurchModalPageHandler,PostedPurchaseInvoicePageHandler,PostedPurchaseCreditMemoHandler')]
     [Scope('OnPrem')]
     procedure ItemChargesCreatePostAndCorrectPurchaseInvoiceAsTeamMember()
     var
@@ -138,7 +138,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,ItemChargeAssignmentPurchModalPageHandler,PostedPurchaseInvoicePageHandler,PostedPurchaseCreditMemoHandler')]
+    [HandlerFunctions('SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,ItemChargeAssignmentPurchModalPageHandler,PostedPurchaseInvoicePageHandler,PostedPurchaseCreditMemoHandler')]
     [Scope('OnPrem')]
     procedure ItemChargesCreatePostAndCorrectPurchaseInvoiceAsEssentialISVEmbUser()
     var
@@ -166,7 +166,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,ItemChargeAssignmentPurchModalPageHandler,PostedPurchaseInvoicePageHandler,PostedPurchaseCreditMemoHandler')]
+    [HandlerFunctions('SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,ItemChargeAssignmentPurchModalPageHandler,PostedPurchaseInvoicePageHandler,PostedPurchaseCreditMemoHandler')]
     [Scope('OnPrem')]
     procedure ItemChargesCreatePostAndCorrectPurchaseInvoiceAsTeamMemberISVEmb()
     var
@@ -229,7 +229,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,ItemChargeAssignmentPurchModalPageHandler,PostedPurchaseInvoicePageHandler,PostedPurchaseCreditMemoHandler')]
+    [HandlerFunctions('SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,ItemChargeAssignmentPurchModalPageHandler,PostedPurchaseInvoicePageHandler,PostedPurchaseCreditMemoHandler')]
     [Scope('OnPrem')]
     procedure ItemChargesCreatePostAndCorrectPurchaseInvoiceAsDeviceISVEmbUser()
     var
@@ -257,7 +257,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,ItemChargeAssignmentSalesModalPageHandler,PostedSalesInvoicePageHandler,PostedSalesCreditMemoHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,ItemChargeAssignmentSalesModalPageHandler,PostedSalesInvoicePageHandler,PostedSalesCreditMemoHandler')]
     [Scope('OnPrem')]
     procedure ItemChargesCreatePostAndCorrectSalesInvoiceAsBusinessManager()
     var
@@ -288,7 +288,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,ItemChargeAssignmentSalesModalPageHandler,PostedSalesInvoicePageHandler,PostedSalesCreditMemoHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,ItemChargeAssignmentSalesModalPageHandler,PostedSalesInvoicePageHandler,PostedSalesCreditMemoHandler')]
     [Scope('OnPrem')]
     procedure ItemChargesCreatePostAndCorrectSalesInvoiceAsExternalAccountant()
     var
@@ -319,7 +319,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,ItemChargeAssignmentSalesModalPageHandler,PostedSalesInvoicePageHandler,PostedSalesCreditMemoHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,ItemChargeAssignmentSalesModalPageHandler,PostedSalesInvoicePageHandler,PostedSalesCreditMemoHandler')]
     [Scope('OnPrem')]
     procedure ItemChargesCreatePostAndCorrectSalesInvoiceAsTeamMember()
     var
@@ -383,7 +383,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,ItemChargeAssignmentSalesModalPageHandler,PostedSalesInvoicePageHandler,PostedSalesCreditMemoHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,ItemChargeAssignmentSalesModalPageHandler,PostedSalesInvoicePageHandler,PostedSalesCreditMemoHandler')]
     [Scope('OnPrem')]
     procedure ItemChargesCreatePostAndCorrectSalesInvoiceAsEssentialISVEmb()
     var
@@ -414,7 +414,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,ItemChargeAssignmentSalesModalPageHandler,PostedSalesInvoicePageHandler,PostedSalesCreditMemoHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,ItemChargeAssignmentSalesModalPageHandler,PostedSalesInvoicePageHandler,PostedSalesCreditMemoHandler')]
     [Scope('OnPrem')]
     procedure ItemChargesCreatePostAndCorrectSalesInvoiceAsTeamMemberISVEmb()
     var
@@ -480,7 +480,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,ItemChargeAssignmentSalesModalPageHandler,PostedSalesInvoicePageHandler,PostedSalesCreditMemoHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,ItemChargeAssignmentSalesModalPageHandler,PostedSalesInvoicePageHandler,PostedSalesCreditMemoHandler')]
     [Scope('OnPrem')]
     procedure ItemChargesCreatePostAndCorrectSalesInvoiceAsDeviceISVEmb()
     var
@@ -529,13 +529,14 @@ codeunit 135406 "Item Charges Plan-based E2E"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Item Charges Plan-based E2E");
 
-        LibraryTemplates.DisableTemplatesFeature();
+        LibraryTemplates.EnableTemplatesFeature();
         EnableReceiptAndShipmentOnInvoice;
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
 
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryTemplates.UpdateTemplatesVatGroups();
 
         IsInitialized := true;
         Commit();
@@ -784,7 +785,6 @@ codeunit 135406 "Item Charges Plan-based E2E"
         VendorName: Text[100];
     begin
         VendorName := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Vendor.Name)), 1, MaxStrLen(Vendor.Name));
-        LibraryVariableStorage.Enqueue('VENDOR');
         VendorCard.OpenNew;
         VendorCard.Name.SetValue(VendorName);
         VendorNo := VendorCard."No.".Value;
@@ -798,7 +798,6 @@ codeunit 135406 "Item Charges Plan-based E2E"
         CustomerName: Text[100];
     begin
         CustomerName := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Customer.Name)), 1, MaxStrLen(Customer.Name));
-        LibraryVariableStorage.Enqueue('CUSTOMER');
         CustomerCard.OpenNew;
         CustomerCard.Name.SetValue(CustomerName);
         CustomerNo := CustomerCard."No.".Value;
@@ -816,7 +815,6 @@ codeunit 135406 "Item Charges Plan-based E2E"
     begin
         UnitCost := LibraryRandom.RandDec(100, 2);
         Description := CopyStr(LibraryUtility.GenerateRandomText(MaxStrLen(Item.Description)), 1, MaxStrLen(Item.Description));
-        LibraryVariableStorage.Enqueue('ITEM');
         LibraryERM.FindGeneralPostingSetupInvtFull(GeneralPostingSetup);
 
         ItemCard.OpenNew;
@@ -858,17 +856,26 @@ codeunit 135406 "Item Charges Plan-based E2E"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ConfigTemplatesModalPageHandler(var ConfigTemplates: TestPage "Config Templates")
-    var
-        Type: Text;
+    procedure SelectCustomerTemplListModalPageHandler(var SelectCustomerTemplList: TestPage "Select Customer Templ. List")
     begin
-        Type := LibraryVariableStorage.DequeueText;
-        if (Type = 'CUSTOMER') or (Type = 'VENDOR') then
-            ConfigTemplates.First
-        else
-            ConfigTemplates.Last;
+        SelectCustomerTemplList.First();
+        SelectCustomerTemplList.OK().Invoke();
+    end;
 
-        ConfigTemplates.OK.Invoke;
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectVendorTemplListModalPageHandler(var SelectVendorTemplList: TestPage "Select Vendor Templ. List")
+    begin
+        SelectVendorTemplList.First();
+        SelectVendorTemplList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectItemTemplListModalPageHandler(var SelectItemTemplList: TestPage "Select Item Templ. List")
+    begin
+        SelectItemTemplList.First();
+        SelectItemTemplList.OK().Invoke();
     end;
 
     [ConfirmHandler]

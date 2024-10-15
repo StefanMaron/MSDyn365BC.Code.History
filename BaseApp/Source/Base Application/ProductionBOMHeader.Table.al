@@ -136,6 +136,9 @@ table 99000771 "Production BOM Header"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "No.", Description, Status)
+        {
+        }
     }
 
     trigger OnDelete()

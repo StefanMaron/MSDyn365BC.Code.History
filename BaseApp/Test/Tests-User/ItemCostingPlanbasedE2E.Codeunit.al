@@ -20,7 +20,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
         WrongAccountBalanceErr: Label 'The account balance is wrong.';
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler,PostedSalesInvoicePageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler,PostedSalesInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure ItemCostingMethodLIFOAsBusinessManager()
     var
@@ -62,7 +62,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler,PostedSalesInvoicePageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler,PostedSalesInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure ItemCostingMethodLIFOAsExternalAccountant()
     var
@@ -104,7 +104,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler')]
     [Scope('OnPrem')]
     procedure ItemCostingMethodLIFOAsTeamMember()
     var
@@ -133,7 +133,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler,PostedSalesInvoicePageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler,PostedSalesInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure ItemCostingMethodLIFOAsEssentialISVEmbUser()
     var
@@ -175,7 +175,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler')]
     [Scope('OnPrem')]
     procedure ItemCostingMethodLIFOAsTeamMemberISVEmb()
     var
@@ -204,7 +204,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler,PostedSalesInvoicePageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler,PostedSalesInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure ItemCostingMethodLIFOAsDeviceISVEmbUser()
     var
@@ -246,7 +246,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler,PostedSalesInvoicePageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler,PostedSalesInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure ItemCostingMethodStandardAsBusinessManager()
     var
@@ -285,7 +285,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler,PostedSalesInvoicePageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler,PostedSalesInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure ItemCostingMethodStandardAsExternalAccountant()
     var
@@ -324,7 +324,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure ItemCostingMethodStandardAsTeamMember()
     var
@@ -353,7 +353,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler,PostedSalesInvoicePageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler,PostedSalesInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure ItemCostingMethodStandardAsEssentialISVEmbUser()
     var
@@ -392,7 +392,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes')]
     [Scope('OnPrem')]
     procedure ItemCostingMethodStandardAsTeamMemberISVEmb()
     var
@@ -421,7 +421,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('ConfigTemplatesModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler,PostedSalesInvoicePageHandler')]
+    [HandlerFunctions('SelectCustomerTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,SelectItemTemplListModalPageHandler,ConfirmHandlerYes,PostedPurchaseInvoicePageHandler,PostedSalesInvoicePageHandler')]
     [Scope('OnPrem')]
     procedure ItemCostingMethodStandardAsDeviceISVEmbUser()
     var
@@ -477,7 +477,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Item Costing Plan-based E2E");
 
-        LibraryTemplates.DisableTemplatesFeature();
+        LibraryTemplates.EnableTemplatesFeature();
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);
 
@@ -486,6 +486,7 @@ codeunit 135409 "Item Costing Plan-based E2E"
 
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
+        LibraryTemplates.UpdateTemplatesVATGroups();
 
         IsInitialized := true;
         Commit();
@@ -713,10 +714,26 @@ codeunit 135409 "Item Costing Plan-based E2E"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ConfigTemplatesModalPageHandler(var ConfigTemplates: TestPage "Config Templates")
+    procedure SelectCustomerTemplListModalPageHandler(var SelectCustomerTemplList: TestPage "Select Customer Templ. List")
     begin
-        ConfigTemplates.First;
-        ConfigTemplates.OK.Invoke;
+        SelectCustomerTemplList.First();
+        SelectCustomerTemplList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectVendorTemplListModalPageHandler(var SelectVendorTemplList: TestPage "Select Vendor Templ. List")
+    begin
+        SelectVendorTemplList.First();
+        SelectVendorTemplList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectItemTemplListModalPageHandler(var SelectItemTemplList: TestPage "Select Item Templ. List")
+    begin
+        SelectItemTemplList.First();
+        SelectItemTemplList.OK().Invoke();
     end;
 
     [ConfirmHandler]

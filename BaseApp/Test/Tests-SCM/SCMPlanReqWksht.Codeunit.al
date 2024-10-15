@@ -49,6 +49,9 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         DateConflictWithExistingReservationsErr: Label 'The change leads to a date conflict with existing reservations.';
         WillNotAffectExistingMsg: Label 'The change will not affect existing entries';
         AutoReservNotPossibleMsg: Label 'Full automatic Reservation is not possible.';
+        QtyRoundingErr: Label 'is of lesser precision than expected';
+        QuantityImbalanceErr: Label '%1 on %2-%3 causes the %4 and %5 to be out of balance. Rounding of the field %5 results to 0.';
+        InvalidReplenishmentOptionErr: Label 'Replenishment System must be equal to';
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -3219,6 +3222,445 @@ codeunit 137067 "SCM Plan-Req. Wksht"
     end;
 
     [Test]
+    [Scope('OnPrem')]
+    procedure ErrorThrownWhenQtyIsRoundedTo0OnRequisitionLine()
+    var
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [SCENARIO 392868] Throw Error while Rounding Item Quantity to 0 on Requisition Line of Type Item based on Rounding Precision.
+        // [GIVEN] An item with base UoM, rounding precision and non-base UoM.
+        Initialize();
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 0.1;
+        NonBaseQtyPerUOM := 3;
+        SetupUoMTest(Item, ItemUOM, BaseUOM, NonBaseUOM, BaseQtyPerUOM, NonBaseQtyPerUOM, QtyRoundingPrecision);
+
+        // [WHEN] Adding an item with Base UoM and quantity 0.01 on requisition line.
+        UpdateRequisitionLine(RequisitionLine, RequisitionLine.Type::Item, Item."No.", BaseUOM.Code, 0);
+
+        // [THEN] Throw error due to rounding of quantity to 0.
+        asserterror RequisitionLine.Validate(Quantity, 0.01);
+        Assert.ExpectedError(QtyRoundingErr);
+
+        SetupUoMTest(Item, ItemUOM, BaseUOM, NonBaseUOM, BaseQtyPerUOM, NonBaseQtyPerUOM, QtyRoundingPrecision);
+        // [WHEN] Adding an item with Non Base UoM and quantity 0.01 on requisition line.
+        RequisitionLine.Init();
+        UpdateRequisitionLine(RequisitionLine, RequisitionLine.Type::Item, Item."No.", NonBaseUOM.Code, 0);
+
+        // [THEN] Throw error due to rounding of quantity to 0.
+        asserterror RequisitionLine.Validate(Quantity, 0.01);
+        Assert.ExpectedError(StrSubstNo(QuantityImbalanceErr,
+                            RequisitionLine.FieldCaption(RequisitionLine."Qty. Rounding Precision"),
+                            'Item',
+                            RequisitionLine."No.",
+                            RequisitionLine.FieldCaption(RequisitionLine.Quantity),
+                            RequisitionLine.FieldCaption(RequisitionLine."Quantity (Base)")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseQtyIsRoundedWithRoundingPrecisionSpecifiedOnRequisitionLine()
+    var
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [SCENARIO 392868] Item Base Quantity should be Rounded on Requisition Line of Type Item based on Specified Rounding Precision.
+        // [GIVEN] An item with base UoM, rounding precision and non-base UoM.
+        Initialize();
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 1;
+        NonBaseQtyPerUOM := 6;
+        SetupUoMTest(Item, ItemUOM, BaseUOM, NonBaseUOM, BaseQtyPerUOM, NonBaseQtyPerUOM, QtyRoundingPrecision);
+
+        // [WHEN] Adding an item with Non Base UoM and quantity 0.5 on requisition line.
+        RequisitionLine.Init();
+        UpdateRequisitionLine(RequisitionLine, RequisitionLine.Type::Item, Item."No.", NonBaseUOM.Code, 0.5);
+
+        // [THEN] The base quantity should be rounded to 3.
+        Assert.AreEqual(3, RequisitionLine."Quantity (Base)", 'Base quantity is not rounded correctly.');
+
+        // [WHEN] Adding an item with Non Base UoM and quantity 1/6 on requisition line.
+        RequisitionLine.Init();
+        UpdateRequisitionLine(RequisitionLine, RequisitionLine.Type::Item, Item."No.", NonBaseUOM.Code, 1 / 6);
+
+        // [THEN] The base quantity should be rounded to 1.
+        Assert.AreEqual(1, RequisitionLine."Quantity (Base)", 'Base quantity is not rounded correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure BaseQtyIsRoundedWithRoundingPrecisionUnspecifiedOnRequisitionLine()
+    var
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [SCENARIO 392868] Item Base Quantity should be Rounded on Requisition Line of Type Item based on Unspecified Rounding Precision.
+        // [GIVEN] An item with base UoM and non-base UoM without rounding precision.
+        Initialize();
+        BaseQtyPerUOM := 1;
+        NonBaseQtyPerUOM := 6;
+        SetupUoMTest(Item, ItemUOM, BaseUOM, NonBaseUOM, BaseQtyPerUOM, NonBaseQtyPerUOM, 0);
+
+        // [WHEN] Adding an item with Non Base UoM and quantity 1/6 on requisition line.
+        UpdateRequisitionLine(RequisitionLine, RequisitionLine.Type::Item, Item."No.", NonBaseUOM.Code, 1 / 6);
+
+        // [THEN] The base quantity should be rounded to 1.00002.
+        Assert.AreEqual(1.00002, RequisitionLine."Quantity (Base)", 'Base quantity is not rounded correctly.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ErrorThrownWhenQtyIsRoundedTo0OnPlanningComponent()
+    var
+        Item: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+        RequisitionLine: Record "Requisition Line";
+        PlanningComponent: Record "Planning Component";
+    begin
+        // [SCENARIO 392868] Throw Error while Rounding Quantity to 0 on planning component based on Rounding Precision.
+        // [GIVEN] An item with base UoM, rounding precision and non-base UoM.
+        Initialize();
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 0.1;
+        NonBaseQtyPerUOM := 3;
+        SetupUoMTest(Item, ItemUOM, BaseUOM, NonBaseUOM, BaseQtyPerUOM, NonBaseQtyPerUOM, QtyRoundingPrecision);
+
+        // [GIVEN] Requisition line.
+        CreateRequisitionLine(RequisitionLine);
+        UpdateRequisitionLine(RequisitionLine, RequisitionLine.Type::Item, Item."No.", BaseUOM.Code, 0);
+        RequisitionLine.Validate("Starting Date", WorkDate());
+        RequisitionLine.Validate("Ending Date", WorkDate());
+
+        // [WHEN] Planning component for item with Base UoM and quantity 0.01.
+        LibraryPlanning.CreatePlanningComponent(PlanningComponent, RequisitionLine);
+        PlanningComponent.Validate("Item No.", Item."No.");
+
+        // [THEN] Throw error due to rounding of base quantity to 0 as Quantity Per is "0.01".
+        asserterror PlanningComponent.Validate("Quantity per", 0.01);
+        Assert.ExpectedError(QtyRoundingErr);
+
+        // [WHEN] Planning component for item with Non Base UoM and quantity 0.01 on requisition line.
+        SetupUoMTest(Item, ItemUOM, BaseUOM, NonBaseUOM, BaseQtyPerUOM, NonBaseQtyPerUOM, QtyRoundingPrecision);
+        PlanningComponent.Validate("Unit of Measure Code", NonBaseUOM.Code);
+
+        // [THEN] Throw error due to rounding of non base quantity to 0.
+        asserterror PlanningComponent.Validate("Quantity per", 0.01);
+        Assert.ExpectedError(StrSubstNo(QuantityImbalanceErr,
+                            PlanningComponent.FieldCaption(PlanningComponent."Qty. Rounding Precision"),
+                            'Item',
+                            Item."No.",
+                            PlanningComponent.FieldCaption(PlanningComponent.Quantity),
+                            PlanningComponent.FieldCaption(PlanningComponent."Quantity (Base)")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure QtyAreRoundedWithRoundingPrecisionSpecifiedOnPlanningComponent()
+    var
+        ItemReqLine: Record Item;
+        ItemPlanningComp: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+        RequisitionLine: Record "Requisition Line";
+        PlanningComponent: Record "Planning Component";
+    begin
+        // [SCENARIO 392868] Item Quantities should be Rounded on Planning Component of based on Specified Rounding Precision.
+        Initialize();
+
+        // [GIVEN] Requisition line containing an item with base UoM, UoM rounding precision, non-base UoM and Quantity = "1/6".
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 1;
+        NonBaseQtyPerUOM := 6;
+        SetupUoMTest(ItemReqLine, ItemUOM, BaseUOM, NonBaseUOM, BaseQtyPerUOM, NonBaseQtyPerUOM, QtyRoundingPrecision);
+        CreateRequisitionLine(RequisitionLine);
+        UpdateRequisitionLine(RequisitionLine, RequisitionLine.Type::Item, ItemReqLine."No.", NonBaseUOM.Code, 4 / 6);
+        RequisitionLine.Validate("Starting Date", WorkDate());
+        RequisitionLine.Validate("Ending Date", WorkDate());
+
+        //[GIVEN] Planning component for the requisition line containing an item with base UoM, UoM rounding precision, non-base UoM.
+        //[GIVEN] Item's rounding precision = 0.00001.
+        BaseQtyPerUOM := 1;
+        QtyRoundingPrecision := 1;
+        NonBaseQtyPerUOM := 24;
+        SetupUoMTest(ItemPlanningComp, ItemUOM, BaseUOM, NonBaseUOM, BaseQtyPerUOM, NonBaseQtyPerUOM, QtyRoundingPrecision);
+        ItemPlanningComp."Rounding Precision" := 0.00001;
+        ItemPlanningComp.Modify();
+        LibraryPlanning.CreatePlanningComponent(PlanningComponent, RequisitionLine);
+        PlanningComponent.Validate("Item No.", ItemPlanningComp."No.");
+        PlanningComponent.Validate("Unit of Measure Code", NonBaseUOM.Code);
+
+        // [WHEN] Setting "Quantity per" as 16/24 on Planning Component.
+        PlanningComponent.Validate("Quantity per", 16 / 24);
+
+        // [THEN] Quantity should be rounded to round(16/24, 0.00001) = 0.66667.
+        Assert.AreEqual(0.66667, PlanningComponent.Quantity, 'PlanningComponent.Quantity is not rounded correctly.');
+
+        // [THEN] The base quantity should be rounded to round(0.66667 * 24, 1) = 16.
+        Assert.AreEqual(16, PlanningComponent."Quantity (Base)", 'PlanningComponent."Quantity (Base)" is not rounded correctly.');
+
+        // [THEN] The expected quantity should be rounded to roundup(0.66667 * 4/6, 0.00001) = 0.44445.
+        Assert.AreEqual(0.44445, PlanningComponent."Expected Quantity", 'PlanningComponent."Expected Quantity" is not rounded correctly.');
+
+        // [THEN] The base expected quantity should be rounded to round(0.44445 * 24, 1) = 11.
+        Assert.AreEqual(11, PlanningComponent."Expected Quantity (Base)", 'PlanningComponent."Expected Quantity (Base)" is not rounded correctly.');
+
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure QtyAreRoundedWithRoundingPrecisionUnspecifiedOnPlanningComponent()
+    var
+        ItemReqLine: Record Item;
+        ItemPlanningComp: Record Item;
+        ItemUOM: Record "Item Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseQtyPerUOM: Decimal;
+        BaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal;
+        RequisitionLine: Record "Requisition Line";
+        PlanningComponent: Record "Planning Component";
+    begin
+        // [SCENARIO 392868] Item Quantities should be Rounded on Planning Component based on Unspecified Rounding Precision.
+        Initialize();
+
+        // [GIVEN] Requisition line containing an item with base UoM, non-base UoM, Quantity = "1/6" and unspecified UoM rounding precision.
+        BaseQtyPerUOM := 1;
+        NonBaseQtyPerUOM := 6;
+        SetupUoMTest(ItemReqLine, ItemUOM, BaseUOM, NonBaseUOM, BaseQtyPerUOM, NonBaseQtyPerUOM, QtyRoundingPrecision);
+        CreateRequisitionLine(RequisitionLine);
+        UpdateRequisitionLine(RequisitionLine, RequisitionLine.Type::Item, ItemReqLine."No.", NonBaseUOM.Code, 4 / 6);
+        RequisitionLine.Validate("Starting Date", WorkDate());
+        RequisitionLine.Validate("Ending Date", WorkDate());
+
+        //[GIVEN] Planning component for the requisition line containing an item with base UoM, unspecified UoM rounding precision, non-base UoM.
+        //[GIVEN] Item's rounding precision = 0.00001.
+        BaseQtyPerUOM := 1;
+        NonBaseQtyPerUOM := 24;
+        SetupUoMTest(ItemPlanningComp, ItemUOM, BaseUOM, NonBaseUOM, BaseQtyPerUOM, NonBaseQtyPerUOM, QtyRoundingPrecision);
+        ItemPlanningComp."Rounding Precision" := 0.00001;
+        ItemPlanningComp.Modify();
+        LibraryPlanning.CreatePlanningComponent(PlanningComponent, RequisitionLine);
+        PlanningComponent.Validate("Item No.", ItemPlanningComp."No.");
+        PlanningComponent.Validate("Unit of Measure Code", NonBaseUOM.Code);
+
+        // [WHEN] Setting "Quantity per" as 16/24 on Planning Component.
+        PlanningComponent.Validate("Quantity per", 16 / 24);
+
+        // [THEN] Quantity should be rounded to round(16/24, 0.00001) = 0.66667.
+        Assert.AreEqual(0.66667, PlanningComponent.Quantity, 'PlanningComponent.Quantity is not rounded correctly.');
+
+        // [THEN] The base quantity should be rounded to round(0.66667 * 24, not specified) = 16.00008.
+        Assert.AreEqual(16.00008, PlanningComponent."Quantity (Base)", 'PlanningComponent."Quantity (Base)" is not rounded correctly.');
+
+        // [THEN] The expected quantity should be rounded to roundup(0.66667 * 4/6, 0.00001) = 0.44445.
+        Assert.AreEqual(0.44445, PlanningComponent."Expected Quantity", 'PlanningComponent."Expected Quantity" is not rounded correctly.');
+
+        // [THEN] The base expected quantity should be rounded to round(0.44445 * 24, not specified) = 10.6668.
+        Assert.AreEqual(10.6668, PlanningComponent."Expected Quantity (Base)", 'PlanningComponent."Expected Quantity (Base)" is not rounded correctly.');
+
+    end;
+
+    [Test]
+    procedure NonInventoryItemAllowedForPurchaseReplenishmentSystem()
+    var
+        NonInventoryItem: Record Item;
+        RequisitionLine: Record "Requisition Line";
+    begin
+        // [SCENARIO] It is possible to add non-inventory items for the purchase replenishment option.
+        Initialize();
+
+        // [GIVEN] A non-inventory item.
+        LibraryInventory.CreateNonInventoryTypeItem(NonInventoryItem);
+
+        // [GIVEN] A requisition line of type item.
+        CreateRequisitionLine(RequisitionLine);
+        RequisitionLine.Type := RequisitionLine.Type::Item;
+
+        // [WHEN] Setting item no for requisition line.
+        RequisitionLine.Validate("No.", NonInventoryItem."No.");
+
+        // [THEN] No error is thrown and replenish option is set to purchase.
+        Assert.AreEqual(
+            RequisitionLine."Replenishment System"::Purchase,
+            RequisitionLine."Replenishment System",
+            'Expected replenish option to be purchase'
+        );
+
+        // [WHEN] Setting setting replenish option to blank.
+        asserterror RequisitionLine.Validate("Replenishment System", RequisitionLine."Replenishment System"::" ");
+
+        // [THEN] An error is thrown.
+        Assert.ExpectedError(InvalidReplenishmentOptionErr);
+
+        // [WHEN] Setting setting replenish option to assembly.
+        asserterror RequisitionLine.Validate("Replenishment System", RequisitionLine."Replenishment System"::Assembly);
+
+        // [THEN] An error is thrown.
+        Assert.ExpectedError(InvalidReplenishmentOptionErr);
+
+        // [WHEN] Setting setting replenish option to prod. order.
+        asserterror RequisitionLine.Validate("Replenishment System", RequisitionLine."Replenishment System"::"Prod. Order");
+
+        // [THEN] An error is thrown.
+        Assert.ExpectedError(InvalidReplenishmentOptionErr);
+
+        // [WHEN] Setting setting replenish option to transfer.
+        asserterror RequisitionLine.Validate("Replenishment System", RequisitionLine."Replenishment System"::Transfer);
+
+        // [THEN] An error is thrown.
+        Assert.ExpectedError(InvalidReplenishmentOptionErr);
+    end;
+
+    [Test]
+    procedure LocationCodeForNonInventoryItemAllowed()
+    var
+        NonInventoryItem: Record Item;
+        Location: Record Location;
+        Vendor: Record Vendor;
+        RequisitionLine: Record "Requisition Line";
+        PurchaseLine: REcord "Purchase Line";
+    begin
+        // [SCENARIO] It is possible to add non-inventory items for the purchase replenishment option.
+        Initialize();
+
+        // [GIVEN] A non-inventory item.
+        LibraryInventory.CreateNonInventoryTypeItem(NonInventoryItem);
+
+        // [GIVEN] A location.
+        LibraryWarehouse.CreateLocation(Location);
+
+        // [GIVEN] A vendor with default location set.
+        LibraryPurchase.CreateVendorWithLocationCode(Vendor, Location.Code);
+
+        // [GIVEN] A requisition line of type item.
+        CreateRequisitionLine(RequisitionLine);
+        RequisitionLine.Type := RequisitionLine.Type::Item;
+
+        // [WHEN] Setting item no for requisition line and vendor.
+        RequisitionLine.Validate("No.", NonInventoryItem."No.");
+        UpdateRequisitionLineVendorNo(RequisitionLine, Vendor."No.");
+        RequisitionLine.Validate(Quantity, 1);
+        RequisitionLine.Modify(true);
+
+        // [THEN] Vendor default location code is set for requisition line.
+        Assert.AreEqual(Location.Code, RequisitionLine."Location Code", 'Expected location code to be set.');
+
+        // [WHEN] Carrying out the action for the requisition line.
+        CarryOutActionPlan(RequisitionLine);
+
+        // [THEN] A purchase order for the non-inventory item is created with the location set.
+        SelectPurchaseLine(PurchaseLine, NonInventoryItem."No.");
+        Assert.AreEqual(RequisitionLine.Quantity, PurchaseLine.Quantity, 'Expected quantity to match requisition line.');
+        Assert.AreEqual(
+            RequisitionLine."Location Code",
+            PurchaseLine."Location Code",
+            'Expected location to match requisition line.'
+        );
+    end;
+
+    [Test]
+    procedure RoundingPrecisionTransferedFromComponentLineToAssemblyLine()
+    var
+        Item: Record Item;
+        ComponentItem: Record Item;
+        ItemBaseUOM: Record "Item Unit of Measure";
+        ItemNonBaseUOM: Record "Item Unit of Measure";
+        BaseUOM: Record "Unit of Measure";
+        NonBaseUOM: Record "Unit of Measure";
+        RequisitionLine: Record "Requisition Line";
+        PlanningComponent: Record "Planning Component";
+        AssemblyLine: Record "Assembly Line";
+    begin
+        // [SCENARIO] It is possible to add non-inventory items for the purchase replenishment option.
+        Initialize();
+
+        // [GIVEN] An item.
+        LibraryInventory.CreateItem(Item);
+
+        // [GIVEN] A component item with base UoM rounding precision 1 and a non-base UoM.
+        LibraryInventory.CreateItem(ComponentItem);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemBaseUOM, ComponentItem."No.", BaseUOM.Code, 1);
+        ItemBaseUOM."Qty. Rounding Precision" := 1;
+        ItemBaseUOM.Modify();
+        ComponentItem.Validate("Base Unit of Measure", ItemBaseUOM.Code);
+        ComponentItem.Modify();
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemNonBaseUOM, ComponentItem."No.", NonBaseUOM.Code, 12);
+
+        // [GIVEN] A requisition line for the item with planning component
+        CreateRequisitionLine(RequisitionLine);
+        RequisitionLine.Type := RequisitionLine.Type::Item;
+        RequisitionLine.Validate("No.", Item."No.");
+        RequisitionLine.Validate(Quantity, 3);
+        RequisitionLine.Validate("Ref. Order Type", RequisitionLine."Ref. Order Type"::Assembly);
+        RequisitionLine.Modify(true);
+
+        LibraryPlanning.CreatePlanningComponent(PlanningComponent, RequisitionLine);
+        PlanningComponent.Validate("Item No.", ComponentItem."No.");
+        PlanningComponent.Validate("Unit of Measure Code", NonBaseUOM.Code);
+        PlanningComponent.Validate("Quantity per", 1);
+        PlanningComponent.Modify(true);
+
+        // [THEN] Rounding precision is set correctly for planning component.
+        Assert.AreEqual(
+            ItemBaseUOM."Qty. Rounding Precision",
+            PlanningComponent."Qty. Rounding Precision (Base)",
+            'Expected rounding precision to match base item UoM'
+        );
+        Assert.AreEqual(
+            ItemNonBaseUOM."Qty. Rounding Precision",
+             PlanningComponent."Qty. Rounding Precision",
+            'Expected rounding precision to match non-base item UoM'
+        );
+
+        // [WHEN] Carrying out action.
+        LibraryPlanning.CarryOutActionMsgPlanWksh(RequisitionLine);
+
+        // [THEN] The rounding precision is transferred from planning component to assemby line.
+        AssemblyLine.SetRange("No.", ComponentItem."No.");
+        AssemblyLine.FindFirst();
+        Assert.AreEqual(
+            PlanningComponent."Qty. Rounding Precision (Base)",
+            AssemblyLine."Qty. Rounding Precision (Base)",
+            'Expected base rounding precision to match planning component.'
+        );
+        Assert.AreEqual(
+            PlanningComponent."Qty. Rounding Precision",
+            AssemblyLine."Qty. Rounding Precision",
+            'Expected rounding precision to match planning component.'
+        );
+    end;
+
+    [Test]
     procedure SkipPlanningBlockedItemsInRequisitionWorksheet()
     var
         BlockedItem: Record Item;
@@ -3395,7 +3837,7 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         Reservation: Page Reservation;
     begin
         LibraryVariableStorage.Enqueue(AutoReservNotPossibleMsg);
-        Reservation.SetSalesLine(SalesLine);
+        Reservation.SetReservSource(SalesLine);
         Reservation.RunModal;
     end;
 
@@ -4534,6 +4976,34 @@ codeunit 137067 "SCM Plan-Req. Wksht"
         TransferLine.SetRange("Transfer-from Code", FromLocationCode);
         TransferLine.SetRange("Transfer-to Code", ToLocationCode);
         Assert.RecordCount(TransferLine, NoOfLines);
+    end;
+
+    local procedure UpdateRequisitionLine(var RequisitionLine: Record "Requisition Line"; ReqLineType: Enum "Requisition Line Type"; ItemNo: Code[20]; UoM: Code[10]; Quantity: Decimal)
+    begin
+        RequisitionLine.Validate(Type, ReqLineType);
+        RequisitionLine.Validate("No.", ItemNo);
+        RequisitionLine.Validate("Unit of Measure Code", UoM);
+        RequisitionLine.Validate(Quantity, Quantity);
+    end;
+
+    local procedure SetupUoMTest(
+        var Item: Record Item;
+        var ItemUOM: Record "Item Unit of Measure";
+        var BaseUOM: Record "Unit of Measure";
+        var NonBaseUOM: Record "Unit of Measure";
+        BaseQtyPerUOM: Decimal;
+        NonBaseQtyPerUOM: Decimal;
+        QtyRoundingPrecision: Decimal)
+    begin
+        LibraryInventory.CreateItem(Item);
+        LibraryInventory.CreateUnitOfMeasureCode(BaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", BaseUOM.Code, BaseQtyPerUOM);
+        ItemUOM."Qty. Rounding Precision" := QtyRoundingPrecision;
+        ItemUOM.Modify();
+        Item.Validate("Base Unit of Measure", ItemUOM.Code);
+        Item.Modify();
+        LibraryInventory.CreateUnitOfMeasureCode(NonBaseUOM);
+        LibraryInventory.CreateItemUnitOfMeasure(ItemUOM, Item."No.", NonBaseUOM.Code, NonBaseQtyPerUOM);
     end;
 
     [RequestPageHandler]

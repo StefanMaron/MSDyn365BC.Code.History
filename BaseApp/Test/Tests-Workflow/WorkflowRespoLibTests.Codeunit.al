@@ -79,7 +79,9 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         JobQueueEntry.SetRange("Record ID to Process", WorkflowStepArgument.RecordId);
         Assert.IsTrue(JobQueueEntry.FindFirst, 'There should be a job queue entry created');
 
-        CODEUNIT.Run(CODEUNIT::"Job Queue Start Codeunit", JobQueueEntry);
+        JobQueueEntry.SetStatus(JobQueueEntry.Status::Ready);
+
+        LibraryJobQueue.RunJobQueueDispatcher(JobQueueEntry);
 
         // Verify.
         GenJournalLine.SetRange("Applies-to Doc. No.", PurchInvHeader."No.");

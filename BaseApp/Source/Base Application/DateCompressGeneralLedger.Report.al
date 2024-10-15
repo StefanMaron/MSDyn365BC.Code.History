@@ -1,4 +1,4 @@
-﻿report 98 "Date Compress General Ledger"
+report 98 "Date Compress General Ledger"
 {
     Caption = 'Date Compress General Ledger';
     Permissions = TableData "G/L Entry" = rimd,
@@ -90,6 +90,9 @@
 
                 if AnalysisView.FindFirst then
                     AnalysisView.UpdateLastEntryNo;
+
+                if UseDataArchive then
+                    DataArchive.Save();
             end;
 
             trigger OnPreDataItem()
@@ -135,6 +138,9 @@
                 SetRange("Posting Date", EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
 
                 InitRegisters;
+
+                if UseDataArchive then
+                    DataArchive.Create(DateComprMgt.GetReportName(Report::"Date Compress General Ledger"));
             end;
         }
     }
@@ -234,6 +240,13 @@
                             ToolTip = 'Specifies the item quantity on the ledger entries that will be date compressed.';
                         }
                     }
+                    field(UseDataArchiveCtrl; UseDataArchive)
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Archive Deleted Entries';
+                        ToolTip = 'Specifies whether the deleted (compressed) entries will be stored in the data archive for later inspection or export.';
+                        Visible = DataArchiveProviderExists;
+                    }
                 }
 
             }
@@ -256,6 +269,11 @@
         trigger OnOpenPage()
         begin
             InitializeParameter;
+        end;
+
+        trigger OnInit()
+        begin
+            DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
         end;
     }
 
@@ -301,6 +319,7 @@
         DateComprMgt: Codeunit DateComprMgt;
         DimBufMgt: Codeunit "Dimension Buffer Management";
         DimMgt: Codeunit DimensionManagement;
+        DataArchive: Codeunit "Data Archive";
         Window: Dialog;
         NoOfFields: Integer;
         NoOfFieldsContents: Integer;
@@ -315,6 +334,9 @@
         ComprDimEntryNo: Integer;
         DimEntryNo: Integer;
         RetainDimText: Text[250];
+        UseDataArchive: Boolean;
+        [InDataSet]
+        DataArchiveProviderExists: Boolean;
         CompressEntriesQst: Label 'This batch job deletes entries. We recommend that you create a backup of the database before you run the batch job.\\Do you want to continue?';
         SkipAnalysisViewUpdateCheck: Boolean;
         StartDateCompressionTelemetryMsg: Label 'Running date compression report %1 %2.', Locked = true;
@@ -432,6 +454,9 @@
             DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
             Window.Update(4, DateComprReg."No. Records Deleted");
         end;
+        if UseDataArchive then
+            DataArchive.SaveRecord(GLEntry);
+
     end;
 
     procedure ComprCollectedEntries()
@@ -531,10 +556,18 @@
             InsertField(FieldNo(Quantity), FieldCaption(Quantity));
         end;
 
+        DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
+        UseDataArchive := DataArchiveProviderExists;
+
         RetainDimText := DimSelectionBuf.GetDimSelectionText(3, REPORT::"Date Compress General Ledger", '');
     end;
 
     procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; Description: Text[100]; RetainDocumentType: Boolean; RetainDocumentNo: Boolean; RetainJobNo: Boolean; RetainBuisnessUnitCode: Boolean; RetainQuantity: Boolean; RetainDimensionText: Text[250])
+    begin
+        InitializeRequest(StartingDate, EndingDate, PeriodLength, Description, RetainDocumentType, RetainDocumentNo, RetainJobNo, RetainBuisnessUnitCode, RetainQuantity, RetainDimensionText, true)
+    end;
+
+    procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; Description: Text[100]; RetainDocumentType: Boolean; RetainDocumentNo: Boolean; RetainJobNo: Boolean; RetainBuisnessUnitCode: Boolean; RetainQuantity: Boolean; RetainDimensionText: Text[250]; DoUseDataArchive: Boolean)
     begin
         InitializeParameter;
         EntrdDateComprReg."Starting Date" := StartingDate;
@@ -547,6 +580,7 @@
         Retain[4] := RetainBuisnessUnitCode;
         Retain[7] := RetainQuantity;
         RetainDimText := RetainDimensionText;
+        UseDataArchive := DataArchiveProviderExists and DoUseDataArchive;
     end;
 
     internal procedure SetSkipAnalysisViewUpdateCheck();
@@ -558,21 +592,19 @@
     var
         TelemetryDimensions: Dictionary of [Text, Text];
     begin
-        // TelemetryDimensions.Add('CompanyName', CompanyName());
         TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
         TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
         TelemetryDimensions.Add('UseRequestPage', Format(CurrReport.UseRequestPage()));
         TelemetryDimensions.Add('StartDate', Format(EntrdDateComprReg."Starting Date", 0, 9));
         TelemetryDimensions.Add('EndDate', Format(EntrdDateComprReg."Ending Date", 0, 9));
         TelemetryDimensions.Add('PeriodLength', Format(EntrdDateComprReg."Period Length", 0, 9));
-        // TelemetryDimensions.Add('Description', EntrdGLEntry.Description);
         TelemetryDimensions.Add('RetainDocumentType', Format(Retain[1], 0, 9));
         TelemetryDimensions.Add('RetainDocumentNo', Format(Retain[2], 0, 9));
         TelemetryDimensions.Add('RetainJobNo', Format(Retain[3], 0, 9));
         TelemetryDimensions.Add('RetainBusinessUnitCode', Format(Retain[4], 0, 9));
         TelemetryDimensions.Add('RetainQuantity', Format(Retain[7], 0, 9));
         TelemetryDimensions.Add('RetainDimensions', RetainDimText);
-        // TelemetryDimensions.Add('Filters', "G/L Entry".GetFilters());
+        TelemetryDimensions.Add('UseDataArchive', Format(UseDataArchive));
 
         Session.LogMessage('0000F4O', StrSubstNo(StartDateCompressionTelemetryMsg, CurrReport.ObjectId(false), CurrReport.ObjectId(true)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);
     end;
@@ -581,7 +613,6 @@
     var
         TelemetryDimensions: Dictionary of [Text, Text];
     begin
-        // TelemetryDimensions.Add('CompanyName', CompanyName());
         TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
         TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
         TelemetryDimensions.Add('RegisterNo', Format(DateComprReg."Register No.", 0, 9));

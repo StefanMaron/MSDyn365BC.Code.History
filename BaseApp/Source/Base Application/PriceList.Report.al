@@ -1,3 +1,4 @@
+#if not CLEAN19
 report 715 "Price List"
 {
     DefaultLayout = RDLC;
@@ -7,7 +8,7 @@ report 715 "Price List"
     PreviewMode = PrintLayout;
     UsageCategory = ReportsAndAnalysis;
     ObsoleteState = Pending;
-    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation: Item Price List report';
     ObsoleteTag = '16.0';
 
     dataset
@@ -729,4 +730,4 @@ report 715 "Price List"
         end;
     end;
 }
-
+#endif

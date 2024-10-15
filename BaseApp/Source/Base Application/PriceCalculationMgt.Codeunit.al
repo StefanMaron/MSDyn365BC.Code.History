@@ -64,7 +64,11 @@ codeunit 7001 "Price Calculation Mgt."
     begin
         if not IsExtendedPriceCalculationEnabled() then begin
             PriceCalculationSetup.Method := PriceCalculationSetup.Method::"Lowest Price";
+#if not CLEAN19
             PriceCalculationSetup.Implementation := PriceCalculationSetup.Implementation::"Business Central (Version 15.0)";
+#else
+            PriceCalculationSetup.Implementation := PriceCalculationSetup.Implementation::"Business Central (Version 16.0)";
+#endif
             exit(true);
         end;
 

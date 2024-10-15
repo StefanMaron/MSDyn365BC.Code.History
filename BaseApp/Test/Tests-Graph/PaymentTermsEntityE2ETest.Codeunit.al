@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135504 "Payment Terms Entity E2E Test"
 {
     Subtype = Test;
@@ -69,4 +70,4 @@ codeunit 135504 "Payment Terms Entity E2E Test"
         LibraryGraphMgt.VerifyIDInJson(PaymentTermJSON);
     end;
 }
-
+#endif

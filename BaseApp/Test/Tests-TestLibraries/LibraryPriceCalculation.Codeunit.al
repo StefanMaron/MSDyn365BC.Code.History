@@ -12,6 +12,7 @@ codeunit 130510 "Library - Price Calculation"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LastHandlerId: Enum "Price Calculation Handler";
+        DefaultPriceListTok: Label 'Default price list.';
 
     procedure AddSetup(var PriceCalculationSetup: Record "Price Calculation Setup"; NewMethod: Enum "Price Calculation Method"; PriceType: Enum "Price Type"; AssetType: Enum "Price Asset Type"; NewImplementation: Enum "Price Calculation Handler"; NewDefault: Boolean): Code[100];
     begin
@@ -156,11 +157,75 @@ codeunit 130510 "Library - Price Calculation"
         AllowEditingActivePurchPrice(false);
     end;
 
-    procedure SetDefaultPriceList(PriceType: Enum "Price Type"; SourceGroup: Enum "Price Source Group"): Code[20];
+    local procedure CreateDefaultPriceList(PriceType: Enum "Price Type"; SourceGroup: Enum "Price Source Group"): Code[20]
     var
-        FeaturePriceCalculation: Codeunit "Feature - Price Calculation";
+        PriceListHeader: Record "Price List Header";
     begin
-        exit(FeaturePriceCalculation.DefineDefaultPriceList(PriceType, SourceGroup));
+        PriceListHeader.Validate("Price Type", PriceType);
+        PriceListHeader.Validate("Source Group", SourceGroup);
+        PriceListHeader.Description := DefaultPriceListTok;
+        case SourceGroup of
+            SourceGroup::Customer:
+                PriceListHeader.Validate("Source Type", PriceListHeader."Source Type"::"All Customers");
+            SourceGroup::Vendor:
+                PriceListHeader.Validate("Source Type", PriceListHeader."Source Type"::"All Vendors");
+            SourceGroup::Job:
+                PriceListHeader.Validate("Source Type", PriceListHeader."Source Type"::"All Jobs");
+        end;
+        PriceListHeader."Allow Updating Defaults" := true;
+        PriceListHeader.Status := "Price Status"::Active;
+        if PriceListHeader.Insert(true) then
+            exit(PriceListHeader.Code);
+    end;
+
+    procedure SetDefaultPriceList(PriceType: Enum "Price Type"; SourceGroup: Enum "Price Source Group") DefaultPriceListCode: Code[20];
+    begin
+        case SourceGroup of
+            SourceGroup::Customer:
+                DefaultPriceListCode := DefineSalesDefaultPriceList();
+            SourceGroup::Vendor:
+                DefaultPriceListCode := DefinePurchDefaultPriceList();
+            SourceGroup::Job:
+                DefaultPriceListCode := DefineJobDefaultPriceList(PriceType);
+        end
+    end;
+
+    local procedure DefineJobDefaultPriceList(PriceType: Enum "Price Type") DefaultPriceListCode: Code[20];
+    var
+        JobsSetup: Record "Jobs Setup";
+    begin
+        JobsSetup.Get();
+        DefaultPriceListCode := CreateDefaultPriceList(PriceType, "Price Source Group"::Job);
+        case PriceType of
+            PriceType::Purchase:
+                JobsSetup."Default Purch Price List Code" := DefaultPriceListCode;
+            PriceType::Sale:
+                JobsSetup."Default Sales Price List Code" := DefaultPriceListCode;
+        end;
+        JobsSetup.Modify();
+    end;
+
+    local procedure DefinePurchDefaultPriceList() DefaultPriceListCode: Code[20];
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchasesPayablesSetup.Get();
+        DefaultPriceListCode := CreateDefaultPriceList("Price Type"::Purchase, "Price Source Group"::Vendor);
+        PurchasesPayablesSetup."Default Price List Code" := DefaultPriceListCode;
+        PurchasesPayablesSetup."Allow Editing Active Price" := true;
+        PurchasesPayablesSetup.Modify();
+    end;
+
+    local procedure DefineSalesDefaultPriceList() DefaultPriceListCode: Code[20];
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        DefaultPriceListCode := CreateDefaultPriceList("Price Type"::Sale, "Price Source Group"::Customer);
+        SalesReceivablesSetup."Default Price List Code" := DefaultPriceListCode;
+        SalesReceivablesSetup."Allow Editing Active Price" := true;
+        SalesReceivablesSetup.Modify();
+        exit(SalesReceivablesSetup."Default Price List Code");
     end;
 
     procedure ClearDefaultPriceList(PriceType: Enum "Price Type"; SourceGroup: Enum "Price Source Group")

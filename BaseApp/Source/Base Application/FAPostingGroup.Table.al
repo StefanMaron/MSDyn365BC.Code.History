@@ -465,6 +465,7 @@
     var
         FAAlloc: Record "FA Allocation";
         GLAcc: Record "G/L Account";
+        PostingSetupMgt: Codeunit PostingSetupManagement;
 
     local procedure CheckGLAcc(AccNo: Code[20]; DirectPosting: Boolean)
     begin
@@ -483,187 +484,249 @@
 
     procedure GetAcquisitionCostAccount(): Code[20]
     begin
-        TestField("Acquisition Cost Account");
+        if "Acquisition Cost Account" = '' then
+            PostingSetupMgt.LogFAPostingGroupFieldError(Rec, FieldNo("Acquisition Cost Account"));
+
         exit("Acquisition Cost Account");
     end;
 
     procedure GetAcquisitionCostAccountOnDisposal(): Code[20]
     begin
-        TestField("Acq. Cost Acc. on Disposal");
+        if "Acq. Cost Acc. on Disposal" = '' then
+            PostingSetupMgt.LogFAPostingGroupFieldError(Rec, FieldNo("Acq. Cost Acc. on Disposal"));
+
         exit("Acq. Cost Acc. on Disposal");
     end;
 
     procedure GetAcquisitionCostBalanceAccount(): Code[20]
     begin
-        TestField("Acquisition Cost Bal. Acc.");
+        if "Acquisition Cost Bal. Acc." = '' then
+            PostingSetupMgt.LogFAPostingGroupFieldError(Rec, FieldNo("Acquisition Cost Bal. Acc."));
+
         exit("Acquisition Cost Bal. Acc.");
     end;
 
     procedure GetAccumDepreciationAccount(): Code[20]
     begin
-        TestField("Accum. Depreciation Account");
+        if "Accum. Depreciation Account" = '' then
+            PostingSetupMgt.LogFAPostingGroupFieldError(Rec, FieldNo("Accum. Depreciation Account"));
+
         exit("Accum. Depreciation Account");
     end;
 
     procedure GetAccumDepreciationAccountOnDisposal(): Code[20]
     begin
-        TestField("Accum. Depr. Acc. on Disposal");
+        if "Accum. Depr. Acc. on Disposal" = '' then
+            PostingSetupMgt.LogFAPostingGroupFieldError(Rec, FieldNo("Accum. Depr. Acc. on Disposal"));
+
         exit("Accum. Depr. Acc. on Disposal");
     end;
 
     procedure GetAppreciationAccount(): Code[20]
     begin
-        TestField("Appreciation Account");
+        if "Appreciation Account" = '' then
+            PostingSetupMgt.LogFAPostingGroupFieldError(Rec, FieldNo("Appreciation Account"));
+
         exit("Appreciation Account");
     end;
 
     procedure GetAppreciationAccountOnDisposal(): Code[20]
     begin
-        TestField("Appreciation Acc. on Disposal");
+        if "Appreciation Acc. on Disposal" = '' then
+            PostingSetupMgt.LogFAPostingGroupFieldError(Rec, FieldNo("Appreciation Acc. on Disposal"));
+
         exit("Appreciation Acc. on Disposal");
     end;
 
     procedure GetAppreciationBalanceAccount(): Code[20]
     begin
-        TestField("Appreciation Bal. Account");
+        if "Appreciation Bal. Account" = '' then
+            PostingSetupMgt.LogFAPostingGroupFieldError(Rec, FieldNo("Appreciation Bal. Account"));
+
         exit("Appreciation Bal. Account");
     end;
 
     procedure GetAppreciationBalAccountOnDisposal(): Code[20]
     begin
-        TestField("Apprec. Bal. Acc. on Disp.");
+        if "Apprec. Bal. Acc. on Disp." = '' then
+            PostingSetupMgt.LogFAPostingGroupFieldError(Rec, FieldNo("Apprec. Bal. Acc. on Disp."));
+
         exit("Apprec. Bal. Acc. on Disp.");
     end;
 
     procedure GetBookValueAccountOnDisposalGain(): Code[20]
     begin
-        TestField("Book Val. Acc. on Disp. (Gain)");
+        if "Book Val. Acc. on Disp. (Gain)" = '' then
+            PostingSetupMgt.LogFAPostingGroupFieldError(Rec, FieldNo("Book Val. Acc. on Disp. (Gain)"));
+
         exit("Book Val. Acc. on Disp. (Gain)");
     end;
 
     procedure GetBookValueAccountOnDisposalLoss(): Code[20]
     begin
-        TestField("Book Val. Acc. on Disp. (Loss)");
+        if "Book Val. Acc. on Disp. (Loss)" = '' then
+            PostingSetupMgt.LogFAPostingGroupFieldError(Rec, FieldNo("Book Val. Acc. on Disp. (Loss)"));
+
         exit("Book Val. Acc. on Disp. (Loss)");
     end;
 
     procedure GetCustom1Account(): Code[20]
     begin
-        TestField("Custom 1 Account");
+        if "Custom 1 Account" = '' then
+            PostingSetupMgt.LogFAPostingGroupFieldError(Rec, FieldNo("Custom 1 Account"));
+
         exit("Custom 1 Account");
     end;
 
     procedure GetCustom2Account(): Code[20]
     begin
-        TestField("Custom 2 Account");
+        if "Custom 2 Account" = '' then
+            PostingSetupMgt.LogFAPostingGroupFieldError(Rec, FieldNo("Custom 2 Account"));
+
         exit("Custom 2 Account");
     end;
 
     procedure GetCustom1AccountOnDisposal(): Code[20]
     begin
-        TestField("Custom 1 Account on Disposal");
+        if "Custom 1 Account on Disposal" = '' then
+            PostingSetupMgt.LogFAPostingGroupFieldError(Rec, FieldNo("Custom 1 Account on Disposal"));
+
         exit("Custom 1 Account on Disposal");
     end;
 
     procedure GetCustom2AccountOnDisposal(): Code[20]
     begin
-        TestField("Custom 2 Account on Disposal");
+        if "Custom 2 Account on Disposal" = '' then
+            PostingSetupMgt.LogFAPostingGroupFieldError(Rec, FieldNo("Custom 2 Account on Disposal"));
+
         exit("Custom 2 Account on Disposal");
     end;
 
     procedure GetCustom1BalAccountOnDisposal(): Code[20]
     begin
-        TestField("Custom 1 Bal. Acc. on Disposal");
+        if "Custom 1 Bal. Acc. on Disposal" = '' then
+            PostingSetupMgt.LogFAPostingGroupFieldError(Rec, FieldNo("Custom 1 Bal. Acc. on Disposal"));
+
         exit("Custom 1 Bal. Acc. on Disposal");
     end;
 
     procedure GetCustom2BalAccountOnDisposal(): Code[20]
     begin
-        TestField("Custom 2 Bal. Acc. on Disposal");
+        if "Custom 2 Bal. Acc. on Disposal" = '' then
+            PostingSetupMgt.LogFAPostingGroupFieldError(Rec, FieldNo("Custom 2 Bal. Acc. on Disposal"));
+
         exit("Custom 2 Bal. Acc. on Disposal");
     end;
 
     procedure GetCustom1ExpenseAccount(): Code[20]
     begin
-        TestField("Custom 1 Expense Acc.");
+        if "Custom 1 Expense Acc." = '' then
+            PostingSetupMgt.LogFAPostingGroupFieldError(Rec, FieldNo("Custom 1 Expense Acc."));
+
         exit("Custom 1 Expense Acc.");
     end;
 
     procedure GetCustom2ExpenseAccount(): Code[20]
     begin
-        TestField("Custom 2 Expense Acc.");
+        if "Custom 2 Expense Acc." = '' then
+            PostingSetupMgt.LogFAPostingGroupFieldError(Rec, FieldNo("Custom 2 Expense Acc."));
+
         exit("Custom 2 Expense Acc.");
     end;
 
     procedure GetDepreciationExpenseAccount(): Code[20]
     begin
-        TestField("Depreciation Expense Acc.");
+        if "Depreciation Expense Acc." = '' then
+            PostingSetupMgt.LogFAPostingGroupFieldError(Rec, FieldNo("Depreciation Expense Acc."));
+
         exit("Depreciation Expense Acc.");
     end;
 
     procedure GetGainsAccountOnDisposal(): Code[20]
     begin
-        TestField("Gains Acc. on Disposal");
+        if "Gains Acc. on Disposal" = '' then
+            PostingSetupMgt.LogFAPostingGroupFieldError(Rec, FieldNo("Gains Acc. on Disposal"));
+
         exit("Gains Acc. on Disposal");
     end;
 
     procedure GetLossesAccountOnDisposal(): Code[20]
     begin
-        TestField("Losses Acc. on Disposal");
+        if "Losses Acc. on Disposal" = '' then
+            PostingSetupMgt.LogFAPostingGroupFieldError(Rec, FieldNo("Losses Acc. on Disposal"));
+
         exit("Losses Acc. on Disposal");
     end;
 
     procedure GetMaintenanceExpenseAccount(): Code[20]
     begin
-        TestField("Maintenance Expense Account");
+        if "Maintenance Expense Account" = '' then
+            PostingSetupMgt.LogFAPostingGroupFieldError(Rec, FieldNo("Maintenance Expense Account"));
+
         exit("Maintenance Expense Account");
     end;
 
     procedure GetMaintenanceBalanceAccount(): Code[20]
     begin
-        TestField("Maintenance Bal. Acc.");
+        if "Maintenance Bal. Acc." = '' then
+            PostingSetupMgt.LogFAPostingGroupFieldError(Rec, FieldNo("Maintenance Bal. Acc."));
+
         exit("Maintenance Bal. Acc.");
     end;
 
     procedure GetSalesBalanceAccount(): Code[20]
     begin
-        TestField("Sales Bal. Acc.");
+        if "Sales Bal. Acc." = '' then
+            PostingSetupMgt.LogFAPostingGroupFieldError(Rec, FieldNo("Sales Bal. Acc."));
+
         exit("Sales Bal. Acc.");
     end;
 
     procedure GetSalesAccountOnDisposalGain(): Code[20]
     begin
-        TestField("Sales Acc. on Disp. (Gain)");
+        if "Sales Acc. on Disp. (Gain)" = '' then
+            PostingSetupMgt.LogFAPostingGroupFieldError(Rec, FieldNo("Sales Acc. on Disp. (Gain)"));
+
         exit("Sales Acc. on Disp. (Gain)");
     end;
 
     procedure GetSalesAccountOnDisposalLoss(): Code[20]
     begin
-        TestField("Sales Acc. on Disp. (Loss)");
+        if "Sales Acc. on Disp. (Loss)" = '' then
+            PostingSetupMgt.LogFAPostingGroupFieldError(Rec, FieldNo("Sales Acc. on Disp. (Loss)"));
+
         exit("Sales Acc. on Disp. (Loss)");
     end;
 
     procedure GetWriteDownAccount(): Code[20]
     begin
-        TestField("Write-Down Account");
+        if "Write-Down Account" = '' then
+            PostingSetupMgt.LogFAPostingGroupFieldError(Rec, FieldNo("Write-Down Account"));
+
         exit("Write-Down Account");
     end;
 
     procedure GetWriteDownAccountOnDisposal(): Code[20]
     begin
-        TestField("Write-Down Acc. on Disposal");
+        if "Write-Down Acc. on Disposal" = '' then
+            PostingSetupMgt.LogFAPostingGroupFieldError(Rec, FieldNo("Write-Down Acc. on Disposal"));
+
         exit("Write-Down Acc. on Disposal");
     end;
 
     procedure GetWriteDownBalAccountOnDisposal(): Code[20]
     begin
-        TestField("Write-Down Bal. Acc. on Disp.");
+        if "Write-Down Bal. Acc. on Disp." = '' then
+            PostingSetupMgt.LogFAPostingGroupFieldError(Rec, FieldNo("Write-Down Bal. Acc. on Disp."));
+
         exit("Write-Down Bal. Acc. on Disp.");
     end;
 
     procedure GetWriteDownExpenseAccount(): Code[20]
     begin
-        TestField("Write-Down Expense Acc.");
+        if "Write-Down Expense Acc." = '' then
+            PostingSetupMgt.LogFAPostingGroupFieldError(Rec, FieldNo("Write-Down Expense Acc."));
+
         exit("Write-Down Expense Acc.");
     end;
 

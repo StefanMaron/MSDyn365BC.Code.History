@@ -49,7 +49,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandler,ConfigTemplatesModalPageHandler,DummyNotificationHandler,RecallNotificationHandler')]
+    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandler,SelectCustomerTemplListModalPageHandler,SelectItemTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,DummyNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestCreatePurchaseOrderFromSalesOrderBusinessManager()
     var
@@ -94,7 +94,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandler,ConfigTemplatesModalPageHandler,DummyNotificationHandler,RecallNotificationHandler')]
+    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandler,SelectCustomerTemplListModalPageHandler,SelectItemTemplListModalPageHandler,SelectVendorTemplListModalPageHandler,DummyNotificationHandler,RecallNotificationHandler')]
     [Scope('OnPrem')]
     procedure TestCreatePurchaseOrderFromSalesOrderExternalAccountant()
     var
@@ -119,7 +119,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandler,ConfigTemplatesModalPageHandler')]
+    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandler,SelectCustomerTemplListModalPageHandler,SelectItemTemplListModalPageHandler,SelectVendorTemplListModalPageHandler')]
     [Scope('OnPrem')]
     procedure TestCreatePurchaseOrderFromSalesOrderEssentialISVEmbUser()
     var
@@ -164,7 +164,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
     end;
 
     [Test]
-    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandler,ConfigTemplatesModalPageHandler')]
+    [HandlerFunctions('PurchOrderFromSalesOrderModalPageHandler,SelectCustomerTemplListModalPageHandler,SelectItemTemplListModalPageHandler,SelectVendorTemplListModalPageHandler')]
     [Scope('OnPrem')]
     procedure TestCreatePurchaseOrderFromSalesOrderDeviceISVEmbUser()
     var
@@ -244,7 +244,7 @@ codeunit 135404 "Sales Document Plan-based E2E"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Sales Document Plan-based E2E");
 
-        LibraryTemplates.DisableTemplatesFeature();
+        LibraryTemplates.EnableTemplatesFeature();
         LibrarySales.DisableWarningOnCloseUnreleasedDoc;
         LibrarySales.DisableWarningOnCloseUnpostedDoc;
 
@@ -343,10 +343,26 @@ codeunit 135404 "Sales Document Plan-based E2E"
 
     [ModalPageHandler]
     [Scope('OnPrem')]
-    procedure ConfigTemplatesModalPageHandler(var ConfigTemplates: TestPage "Config Templates")
+    procedure SelectCustomerTemplListModalPageHandler(var SelectCustomerTemplList: TestPage "Select Customer Templ. List")
     begin
-        ConfigTemplates.First;
-        ConfigTemplates.OK.Invoke;
+        SelectCustomerTemplList.First();
+        SelectCustomerTemplList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectItemTemplListModalPageHandler(var SelectItemTemplList: TestPage "Select Item Templ. List")
+    begin
+        SelectItemTemplList.First();
+        SelectItemTemplList.OK().Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SelectVendorTemplListModalPageHandler(var SelectVendorTemplList: TestPage "Select Vendor Templ. List")
+    begin
+        SelectVendorTemplList.First();
+        SelectVendorTemplList.OK().Invoke();
     end;
 
     [SendNotificationHandler]

@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5506 "Sales Quote Line Entity"
 {
     Caption = 'Sales Quote Line Entity';
@@ -501,4 +502,4 @@ page 5506 "Sales Quote Line Entity"
         UnitOfMeasureId := "Unit of Measure Id";
     end;
 }
-
+#endif

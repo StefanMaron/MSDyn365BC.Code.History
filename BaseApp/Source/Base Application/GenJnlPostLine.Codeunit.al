@@ -106,7 +106,7 @@
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        OnBeforeRunWithCheck(GenJnlLine);
+        OnBeforeRunWithCheck(GenJnlLine, GenJnlLine2);
 
         GenJnlLine.Copy(GenJnlLine2);
         Code(GenJnlLine, true);
@@ -119,7 +119,7 @@
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        OnBeforeRunWithoutCheck(GenJnlLine);
+        OnBeforeRunWithoutCheck(GenJnlLine, GenJnlLine2);
 
         GenJnlLine.Copy(GenJnlLine2);
         Code(GenJnlLine, false);
@@ -757,7 +757,7 @@
         end;
     end;
 
-    local procedure SummarizeVAT(SummarizeGLEntries: Boolean; GLEntry: Record "G/L Entry")
+    procedure SummarizeVAT(SummarizeGLEntries: Boolean; GLEntry: Record "G/L Entry")
     var
         InsertedTempVAT: Boolean;
     begin
@@ -989,7 +989,6 @@
 
             if VendLedgEntry."Payment Date" = 0D then
                 VendLedgEntry."Payment Date" := GenJnlLine."Due Date";
-
             OnPostVendOnAfterInitVendLedgEntry(GenJnlLine, VendLedgEntry);
             UpdateExportedRefPayment(GenJnlLine);
 
@@ -1002,6 +1001,8 @@
             TempDtldCVLedgEntryBuf.Init();
             TempDtldCVLedgEntryBuf.CopyFromGenJnlLine(GenJnlLine);
             TempDtldCVLedgEntryBuf."CV Ledger Entry No." := VendLedgEntry."Entry No.";
+            OnPostVendAfterTempDtldCVLedgEntryBufInit(GenJnlLine, TempDtldCVLedgEntryBuf);
+
             CVLedgEntryBuf.CopyFromVendLedgEntry(VendLedgEntry);
             TempDtldCVLedgEntryBuf.InsertDtldCVLedgEntry(TempDtldCVLedgEntryBuf, CVLedgEntryBuf, true);
             CVLedgEntryBuf.Open := CVLedgEntryBuf."Remaining Amount" <> 0;
@@ -1111,7 +1112,7 @@
         OnMoveGenJournalLine(GenJnlLine, EmployeeLedgerEntry.RecordId);
     end;
 
-    local procedure PostBankAcc(GenJnlLine: Record "Gen. Journal Line"; Balancing: Boolean)
+    local procedure PostBankAcc(var GenJnlLine: Record "Gen. Journal Line"; Balancing: Boolean)
     var
         BankAcc: Record "Bank Account";
         BankAccLedgEntry: Record "Bank Account Ledger Entry";
@@ -3094,7 +3095,10 @@
 
     procedure PostDtldCustLedgEntries(GenJnlLine: Record "Gen. Journal Line"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; CustPostingGr: Record "Customer Posting Group"; LedgEntryInserted: Boolean) DtldLedgEntryInserted: Boolean
     var
-        TempInvPostBuf: Record "Invoice Post. Buffer" temporary;
+#if not CLEAN19
+        TempInvPostBuffer: Record "Invoice Post. Buffer" temporary;
+#endif
+        TempDimPostingBuffer: Record "Dimension Posting Buffer" temporary;
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         AdjAmount: array[4] of Decimal;
         DtldCustLedgEntryNoOffset: Integer;
@@ -3121,7 +3125,7 @@
                 IsHandled := false;
                 OnPostDtldCustLedgEntriesOnBeforeUpdateTotalAmounts(GenJnlLine, DtldCustLedgEntry, IsHandled);
                 if not IsHandled then
-                    UpdateTotalAmounts(TempInvPostBuf, GenJnlLine."Dimension Set ID", DtldCVLedgEntryBuf);
+                    UpdateTotalAmounts(TempDimPostingBuffer, GenJnlLine."Dimension Set ID", DtldCVLedgEntryBuf);
                 IsHandled := false;
                 OnPostDtldCustLedgEntriesOnBeforePostDtldCustLedgEntry(DtldCVLedgEntryBuf, AddCurrencyCode, GenJnlLine, CustPostingGr, AdjAmount, IsHandled);
                 if not IsHandled then
@@ -3134,12 +3138,19 @@
         end;
 
         IsHandled := false;
+#if not CLEAN19
+        CopyDimPostBufToInvPostBuf(TempDimPostingBuffer, TempInvPostBuffer);
         OnPostDtldCustLedgEntriesOnBeforeCreateGLEntriesForTotalAmounts(
             CustPostingGr, DtldCVLedgEntryBuf,
-            GenJnlLine, TempInvPostBuf, AdjAmount, SaveEntryNo, GetCustomerReceivablesAccount(GenJnlLine, CustPostingGr), LedgEntryInserted, AddCurrencyCode, IsHandled);
+            GenJnlLine, TempInvPostBuffer, AdjAmount, SaveEntryNo, GetCustomerReceivablesAccount(GenJnlLine, CustPostingGr), LedgEntryInserted, AddCurrencyCode, IsHandled);
+        CopyInvPostBufToDimPostBuf(TempInvPostBuffer, TempDimPostingBuffer);
+#endif
+        OnPostDtldCustLedgEntriesOnBeforeCreateGLEntriesForTotalAmountsV19(
+            CustPostingGr, DtldCVLedgEntryBuf,
+            GenJnlLine, TempDimPostingBuffer, AdjAmount, SaveEntryNo, GetCustomerReceivablesAccount(GenJnlLine, CustPostingGr), LedgEntryInserted, AddCurrencyCode, IsHandled);
         if not IsHandled then
             CreateGLEntriesForTotalAmounts(
-              GenJnlLine, TempInvPostBuf, AdjAmount, SaveEntryNo, GetCustomerReceivablesAccount(GenJnlLine, CustPostingGr), LedgEntryInserted);
+              GenJnlLine, TempDimPostingBuffer, AdjAmount, SaveEntryNo, GetCustomerReceivablesAccount(GenJnlLine, CustPostingGr), LedgEntryInserted);
 
         OnPostDtldCustLedgEntriesOnAfterCreateGLEntriesForTotalAmounts(TempGLEntryBuf, GlobalGLEntry, NextTransactionNo);
 
@@ -3881,7 +3892,7 @@
 
     procedure PostDtldVendLedgEntries(GenJnlLine: Record "Gen. Journal Line"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; VendPostingGr: Record "Vendor Posting Group"; LedgEntryInserted: Boolean) DtldLedgEntryInserted: Boolean
     var
-        TempInvPostBuf: Record "Invoice Post. Buffer" temporary;
+        TempDimPostingBuffer: Record "Dimension Posting Buffer" temporary;
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
         AdjAmount: array[4] of Decimal;
         DtldVendLedgEntryNoOffset: Integer;
@@ -3908,7 +3919,7 @@
                 IsHandled := false;
                 OnPostDtldVendLedgEntriesOnBeforeUpdateTotalAmounts(GenJnlLine, DtldVendLedgEntry, IsHandled);
                 if not IsHandled then
-                    UpdateTotalAmounts(TempInvPostBuf, GenJnlLine."Dimension Set ID", DtldCVLedgEntryBuf);
+                    UpdateTotalAmounts(TempDimPostingBuffer, GenJnlLine."Dimension Set ID", DtldCVLedgEntryBuf);
                 IsHandled := false;
                 OnPostDtldVendLedgEntriesOnBeforePostDtldVendLedgEntry(GenJnlLine, DtldCVLedgEntryBuf, VendPostingGr, AdjAmount, IsHandled);
                 if not IsHandled then
@@ -3922,7 +3933,7 @@
 
         OnPostDtldVendLedgEntriesOnBeforeCreateGLEntriesForTotalAmounts(VendPostingGr, DtldCVLedgEntryBuf);
         CreateGLEntriesForTotalAmounts(
-            GenJnlLine, TempInvPostBuf, AdjAmount, SaveEntryNo, GetVendorPayablesAccount(GenJnlLine, VendPostingGr), LedgEntryInserted);
+            GenJnlLine, TempDimPostingBuffer, AdjAmount, SaveEntryNo, GetVendorPayablesAccount(GenJnlLine, VendPostingGr), LedgEntryInserted);
 
         OnPostDtldVendLedgEntriesOnAfterCreateGLEntriesForTotalAmounts(TempGLEntryBuf, GlobalGLEntry, NextTransactionNo);
 
@@ -4040,7 +4051,7 @@
 
     procedure PostDtldEmplLedgEntries(GenJnlLine: Record "Gen. Journal Line"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; EmplPostingGr: Record "Employee Posting Group"; LedgEntryInserted: Boolean) DtldLedgEntryInserted: Boolean
     var
-        TempInvPostBuf: Record "Invoice Post. Buffer" temporary;
+        TempDimPostingBuffer: Record "Dimension Posting Buffer" temporary;
         DtldEmplLedgEntry: Record "Detailed Employee Ledger Entry";
         DummyAdjAmount: array[4] of Decimal;
         DtldEmplLedgEntryNoOffset: Integer;
@@ -4062,12 +4073,12 @@
             end;
             repeat
                 InsertDtldEmplLedgEntry(GenJnlLine, DtldCVLedgEntryBuf, DtldEmplLedgEntry, DtldEmplLedgEntryNoOffset);
-                UpdateTotalAmounts(TempInvPostBuf, GenJnlLine."Dimension Set ID", DtldCVLedgEntryBuf);
+                UpdateTotalAmounts(TempDimPostingBuffer, GenJnlLine."Dimension Set ID", DtldCVLedgEntryBuf);
             until DtldCVLedgEntryBuf.Next() = 0;
         end;
 
         CreateGLEntriesForTotalAmounts(
-          GenJnlLine, TempInvPostBuf, DummyAdjAmount, SaveEntryNo, EmplPostingGr.GetPayablesAccount, LedgEntryInserted);
+          GenJnlLine, TempDimPostingBuffer, DummyAdjAmount, SaveEntryNo, EmplPostingGr.GetPayablesAccount, LedgEntryInserted);
 
         DtldLedgEntryInserted := not DtldCVLedgEntryBuf.IsEmpty;
         DtldCVLedgEntryBuf.DeleteAll();
@@ -4506,7 +4517,10 @@
         VATEntry: Record "VAT Entry";
         TempVATEntry2: Record "VAT Entry" temporary;
         CurrencyLCY: Record Currency;
-        TempInvPostBuf: Record "Invoice Post. Buffer" temporary;
+        TempDimPostingBuffer: Record "Dimension Posting Buffer" temporary;
+#if not CLEAN19
+        TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary;
+#endif
         AdjAmount: array[4] of Decimal;
         NextDtldLedgEntryNo: Integer;
         UnapplyVATEntries: Boolean;
@@ -4584,7 +4598,7 @@
         // Look one more time
         OnOnUnapplyCustLedgEntryOnBeforeSecondLook(DtldCustLedgEntry2, NextDtldLedgEntryNo);
         DtldCustLedgEntry2.FindSet();
-        TempInvPostBuf.DeleteAll();
+        TempDimPostingBuffer.DeleteAll();
         repeat
             DtldCustLedgEntry2.TestField(Unapplied, false);
             InsertDtldCustLedgEntryUnapply(GenJnlLine, NewDtldCustLedgEntry, DtldCustLedgEntry2, NextDtldLedgEntryNo);
@@ -4605,7 +4619,7 @@
             IsHandled := false;
             OnOnUnapplyCustLedgEntryOnBeforeUpdateTotalAmounts(IsHandled);
             if not IsHandled then begin
-                UpdateTotalAmounts(TempInvPostBuf, GenJnlLine."Dimension Set ID", DtldCVLedgEntryBuf);
+                UpdateTotalAmounts(TempDimPostingBuffer, GenJnlLine."Dimension Set ID", DtldCVLedgEntryBuf);
 
                 if not (DtldCVLedgEntryBuf."Entry Type" in [
                                                             DtldCVLedgEntryBuf."Entry Type"::"Initial Entry",
@@ -4627,9 +4641,14 @@
         until DtldCustLedgEntry2.Next() = 0;
 
         IsHandled := false;
-        OnBeforeCreateGLEntriesForTotalAmountsUnapply(DtldCustLedgEntry, CustPostingGr, GenJnlLine, TempInvPostBuf, IsHandled);
+#if not CLEAN19
+        CopyDimPostBufToInvPostBuf(TempDimPostingBuffer, TempInvoicePostBuffer);
+        OnBeforeCreateGLEntriesForTotalAmountsUnapply(DtldCustLedgEntry, CustPostingGr, GenJnlLine, TempInvoicePostBuffer, IsHandled);
+        CopyInvPostBufToDimPostBuf(TempInvoicePostBuffer, TempDimPostingBuffer);
+#endif
+        OnBeforeCreateGLEntriesForTotalAmountsUnapplyV19(DtldCustLedgEntry, CustPostingGr, GenJnlLine, TempDimPostingBuffer, IsHandled);
         if not IsHandled then
-            CreateGLEntriesForTotalAmountsUnapply(GenJnlLine, TempInvPostBuf, GetCustomerReceivablesAccount(GenJnlLine, CustPostingGr));
+            CreateGLEntriesForTotalAmountsUnapply(GenJnlLine, TempDimPostingBuffer, GetCustomerReceivablesAccount(GenJnlLine, CustPostingGr));
 
         OnUnapplyCustLedgEntryOnAfterCreateGLEntriesForTotalAmounts(GenJnlLine2, DtldCustLedgEntry, GLReg);
 
@@ -4652,7 +4671,10 @@
         VATEntry: Record "VAT Entry";
         TempVATEntry2: Record "VAT Entry" temporary;
         CurrencyLCY: Record Currency;
-        TempInvPostBuf: Record "Invoice Post. Buffer" temporary;
+        TempDimPostingBuffer: Record "Dimension Posting Buffer" temporary;
+#if not CLEAN19
+        TempInvPostBuffer: Record "Invoice Post. Buffer" temporary;
+#endif
         AdjAmount: array[4] of Decimal;
         NextDtldLedgEntryNo: Integer;
         UnapplyVATEntries: Boolean;
@@ -4730,7 +4752,7 @@
         // Look one more time
         OnUnapplyVendLedgEntryOnBeforeSecondLook(DtldVendLedgEntry2, NextDtldLedgEntryNo);
         DtldVendLedgEntry2.FindSet();
-        TempInvPostBuf.DeleteAll();
+        TempDimPostingBuffer.DeleteAll();
         repeat
             DtldVendLedgEntry2.TestField(Unapplied, false);
             InsertDtldVendLedgEntryUnapply(GenJnlLine, NewDtldVendLedgEntry, DtldVendLedgEntry2, NextDtldLedgEntryNo);
@@ -4751,7 +4773,7 @@
             IsHandled := false;
             OnUnapplyVendLedgEntryOnBeforeUpdateTotalAmounts(IsHandled);
             if not IsHandled then begin
-                UpdateTotalAmounts(TempInvPostBuf, GenJnlLine."Dimension Set ID", DtldCVLedgEntryBuf);
+                UpdateTotalAmounts(TempDimPostingBuffer, GenJnlLine."Dimension Set ID", DtldCVLedgEntryBuf);
 
                 if not (DtldCVLedgEntryBuf."Entry Type" in [
                                                             DtldCVLedgEntryBuf."Entry Type"::"Initial Entry",
@@ -4773,9 +4795,14 @@
         until DtldVendLedgEntry2.Next() = 0;
 
         IsHandled := false;
-        OnBeforeCreateGLEntriesForTotalAmountsUnapplyVendor(DtldVendLedgEntry, VendPostingGr, GenJnlLine, TempInvPostBuf, IsHandled);
+#if not CLEAN19
+        CopyDimPostBufToInvPostBuf(TempDimPostingBuffer, TempInvPostBuffer);
+        OnBeforeCreateGLEntriesForTotalAmountsUnapplyVendor(DtldVendLedgEntry, VendPostingGr, GenJnlLine, TempInvPostBuffer, IsHandled);
+        CopyInvPostBufToDimPostBuf(TempInvPostBuffer, TempDimPostingBuffer);
+#endif
+        OnBeforeCreateGLEntriesForTotalAmountsUnapplyVendorV19(DtldVendLedgEntry, VendPostingGr, GenJnlLine, TempDimPostingBuffer, IsHandled);
         if not IsHandled then
-            CreateGLEntriesForTotalAmountsUnapply(GenJnlLine, TempInvPostBuf, GetVendorPayablesAccount(GenJnlLine, VendPostingGr));
+            CreateGLEntriesForTotalAmountsUnapply(GenJnlLine, TempDimPostingBuffer, GetVendorPayablesAccount(GenJnlLine, VendPostingGr));
 
         OnUnapplyVendLedgEntryOnAfterCreateGLEntriesForTotalAmounts(GenJnlLine2, DtldVendLedgEntry, GLReg);
 
@@ -4796,7 +4823,7 @@
         EmplLedgEntry: Record "Employee Ledger Entry";
         DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer";
         CurrencyLCY: Record Currency;
-        TempInvPostBuf: Record "Invoice Post. Buffer" temporary;
+        TempDimPostingBuffer: Record "Dimension Posting Buffer" temporary;
         NextDtldLedgEntryNo: Integer;
     begin
         GenJnlLine.TransferFields(GenJnlLine2);
@@ -4835,7 +4862,7 @@
 
         // Look one more time
         DtldEmplLedgEntry2.FindSet();
-        TempInvPostBuf.DeleteAll();
+        TempDimPostingBuffer.DeleteAll();
         repeat
             DtldEmplLedgEntry2.TestField(Unapplied, false);
             InsertDtldEmplLedgEntryUnapply(GenJnlLine, NewDtldEmplLedgEntry, DtldEmplLedgEntry2, NextDtldLedgEntryNo);
@@ -4844,7 +4871,7 @@
             DtldCVLedgEntryBuf.TransferFields(NewDtldEmplLedgEntry);
             SetAddCurrForUnapplication(DtldCVLedgEntryBuf);
             CurrencyLCY.InitRoundingPrecision();
-            UpdateTotalAmounts(TempInvPostBuf, GenJnlLine."Dimension Set ID", DtldCVLedgEntryBuf);
+            UpdateTotalAmounts(TempDimPostingBuffer, GenJnlLine."Dimension Set ID", DtldCVLedgEntryBuf);
             DtldEmplLedgEntry2.Unapplied := true;
             DtldEmplLedgEntry2."Unapplied by Entry No." := NewDtldEmplLedgEntry."Entry No.";
             DtldEmplLedgEntry2.Modify();
@@ -4852,7 +4879,7 @@
             UpdateEmplLedgEntry(DtldEmplLedgEntry2);
         until DtldEmplLedgEntry2.Next() = 0;
 
-        CreateGLEntriesForTotalAmountsUnapply(GenJnlLine, TempInvPostBuf, EmployeePostingGroup.GetPayablesAccount);
+        CreateGLEntriesForTotalAmountsUnapply(GenJnlLine, TempDimPostingBuffer, EmployeePostingGroup.GetPayablesAccount);
 
         if IsTempGLEntryBufEmpty then
             DtldEmplLedgEntry.SetZeroTransNo(NextTransactionNo);
@@ -5931,37 +5958,50 @@
         end;
     end;
 
-    local procedure UpdateTotalAmounts(var TempInvPostBuf: Record "Invoice Post. Buffer" temporary; DimSetID: Integer; DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer")
+    local procedure UpdateTotalAmounts(var TempDimPostingBuffer: Record "Dimension Posting Buffer" temporary; DimSetID: Integer; DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer")
     var
+#if not CLEAN19
+        TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary;
+#endif
         IsHandled: Boolean;
     begin
+#if not CLEAN19
+        CopyDimPostBufToInvPostBuf(TempDimPostingBuffer, TempInvoicePostBuffer);
         OnBeforeUpdateTotalAmounts(
-          TempInvPostBuf, DimSetID, DtldCVLedgEntryBuf."Amount (LCY)", DtldCVLedgEntryBuf."Additional-Currency Amount", IsHandled,
+          TempInvoicePostBuffer, DimSetID, DtldCVLedgEntryBuf."Amount (LCY)", DtldCVLedgEntryBuf."Additional-Currency Amount", IsHandled,
+          DtldCVLedgEntryBuf);
+        CopyInvPostBufToDimPostBuf(TempInvoicePostBuffer, TempDimPostingBuffer);
+#endif
+        OnBeforeUpdateTotalAmountsV19(
+          TempDimPostingBuffer, DimSetID, DtldCVLedgEntryBuf."Amount (LCY)", DtldCVLedgEntryBuf."Additional-Currency Amount", IsHandled,
           DtldCVLedgEntryBuf);
         if IsHandled then
             exit;
 
-        with TempInvPostBuf do begin
+        with TempDimPostingBuffer do begin
             SetRange("Dimension Set ID", DimSetID);
-            if FindFirst then begin
+            if FindFirst() then begin
                 Amount += DtldCVLedgEntryBuf."Amount (LCY)";
                 "Amount (ACY)" += DtldCVLedgEntryBuf."Additional-Currency Amount";
-                Modify;
+                Modify();
             end else begin
-                Init;
+                Init();
                 "Dimension Set ID" := DimSetID;
                 Amount := DtldCVLedgEntryBuf."Amount (LCY)";
                 "Amount (ACY)" := DtldCVLedgEntryBuf."Additional-Currency Amount";
-                Insert;
+                Insert();
             end;
         end;
     end;
 
-    local procedure CreateGLEntriesForTotalAmountsUnapply(GenJnlLine: Record "Gen. Journal Line"; var TempInvPostBuf: Record "Invoice Post. Buffer" temporary; GLAccNo: Code[20])
+    local procedure CreateGLEntriesForTotalAmountsUnapply(GenJnlLine: Record "Gen. Journal Line"; var TempDimPostingBuffer: Record "Dimension Posting Buffer" temporary; GLAccNo: Code[20])
     var
+#if not CLEAN19
+        TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary;
+#endif
         DimMgt: Codeunit DimensionManagement;
     begin
-        with TempInvPostBuf do begin
+        with TempDimPostingBuffer do begin
             SetRange("Dimension Set ID");
             if FindSet() then
                 repeat
@@ -5969,33 +6009,51 @@
                        ("Amount (ACY)" <> 0) and (GLSetup."Additional Reporting Currency" <> '')
                     then begin
                         DimMgt.UpdateGenJnlLineDim(GenJnlLine, "Dimension Set ID");
-                        OnCreateGLEntriesForTotalAmountsUnapplyOnBeforeCreateGLEntry(GenJnlLine, TempInvPostBuf, GLAccNo);
+#if not CLEAN19
+                        CopyDimPostBufToInvPostBuf(TempDimPostingBuffer, TempInvoicePostBuffer);
+                        OnCreateGLEntriesForTotalAmountsUnapplyOnBeforeCreateGLEntry(GenJnlLine, TempInvoicePostBuffer, GLAccNo);
+                        CopyInvPostBufToDimPostBuf(TempInvoicePostBuffer, TempDimPostingBuffer);
+#endif
+                        OnCreateGLEntriesForTotalAmountsUnapplyOnBeforeCreateGLEntryV19(GenJnlLine, TempDimPostingBuffer, GLAccNo);
                         CreateGLEntry(GenJnlLine, GLAccNo, Amount, "Amount (ACY)", true);
                     end;
                 until Next() = 0;
         end;
     end;
 
-    local procedure CreateGLEntriesForTotalAmounts(GenJnlLine: Record "Gen. Journal Line"; var InvPostBuf: Record "Invoice Post. Buffer"; AdjAmountBuf: array[4] of Decimal; SavedEntryNo: Integer; GLAccNo: Code[20]; LedgEntryInserted: Boolean)
+    local procedure CreateGLEntriesForTotalAmounts(GenJnlLine: Record "Gen. Journal Line"; var TempDimPostingBuffer: Record "Dimension Posting Buffer" temporary; AdjAmountBuf: array[4] of Decimal; SavedEntryNo: Integer; GLAccNo: Code[20]; LedgEntryInserted: Boolean)
     var
+#if not CLEAN19
+        TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary;
+#endif
         DimMgt: Codeunit DimensionManagement;
         GLEntryInserted: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreateGLEntriesForTotalAmounts(InvPostBuf, GenJnlLine, GLAccNo, IsHandled);
+#if not CLEAN19
+        CopyDimPostBufToInvPostBuf(TempDimPostingBuffer, TempInvoicePostBuffer);
+        OnBeforeCreateGLEntriesForTotalAmounts(TempInvoicePostBuffer, GenJnlLine, GLAccNo, IsHandled);
+        CopyInvPostBufToDimPostBuf(TempInvoicePostBuffer, TempDimPostingBuffer);
+#endif
+        OnBeforeCreateGLEntriesForTotalAmountsV19(TempDimPostingBuffer, GenJnlLine, GLAccNo, IsHandled);
         if IsHandled then
             exit;
 
         GLEntryInserted := false;
 
-        with InvPostBuf do begin
-            Reset;
+        with TempDimPostingBuffer do begin
+            Reset();
             if FindSet() then
                 repeat
                     if (Amount <> 0) or ("Amount (ACY)" <> 0) and (AddCurrencyCode <> '') then begin
                         DimMgt.UpdateGenJnlLineDim(GenJnlLine, "Dimension Set ID");
-                        OnBeforeCreateGLEntryForTotalAmountsForInvPostBuf(GenJnlLine, InvPostBuf, GLAccNo);
+#if not CLEAN19
+                        CopyDimPostBufToInvPostBuf(TempDimPostingBuffer, TempInvoicePostBuffer);
+                        OnBeforeCreateGLEntryForTotalAmountsForInvPostBuf(GenJnlLine, TempInvoicePostBuffer, GLAccNo);
+                        CopyInvPostBufToDimPostBuf(TempInvoicePostBuffer, TempDimPostingBuffer);
+#endif
+                        OnBeforeCreateGLEntryForTotalAmountsForDimPostBuf(GenJnlLine, TempDimPostingBuffer, GLAccNo);
                         CreateGLEntryForTotalAmounts(GenJnlLine, Amount, "Amount (ACY)", AdjAmountBuf, SavedEntryNo, GLAccNo);
                         GLEntryInserted := true;
                     end;
@@ -6005,6 +6063,52 @@
         if not GLEntryInserted and LedgEntryInserted then
             CreateGLEntryForTotalAmounts(GenJnlLine, 0, 0, AdjAmountBuf, SavedEntryNo, GLAccNo);
     end;
+
+#if not CLEAN19
+    local procedure CopyDimPostBufToInvPostBuf(var TempDimPostingBuffer: Record "Dimension Posting Buffer" temporary; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary)
+    var
+        DimSetID: Integer;
+    begin
+        DimSetID := TempDimPostingBuffer."Dimension Set ID";
+        TempInvoicePostBuffer.DeleteAll();
+        TempDimPostingBuffer.Reset();
+        if TempDimPostingBuffer.Find('-') then
+            repeat
+                TempInvoicePostBuffer.Init();
+                TempInvoicePostBuffer."Dimension Set ID" := TempDimPostingBuffer."Dimension Set ID";
+                TempInvoicePostBuffer.Amount := TempDimPostingBuffer.Amount;
+                TempInvoicePostBuffer."Amount (ACY)" := TempDimPostingBuffer."Amount (ACY)";
+                TempInvoicePostBuffer.Insert();
+            until TempDimPostingBuffer.Next() = 0;
+        if DimSetID <> 0 then begin
+            TempInvoicePostBuffer."Dimension Set ID" := DimSetID;
+            TempInvoicePostBuffer.Find();
+        end;
+    end;
+#endif
+
+#if not CLEAN19
+    local procedure CopyInvPostBufToDimPostBuf(var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var TempDimPostingBuffer: Record "Dimension Posting Buffer" temporary)
+    var
+        DimSetID: Integer;
+    begin
+        DimSetID := TempInvoicePostBuffer."Dimension Set ID";
+        TempDimPostingBuffer.DeleteAll();
+        TempInvoicePostBuffer.Reset();
+        if TempInvoicePostBuffer.Find('-') then
+            repeat
+                TempDimPostingBuffer.Init();
+                TempDimPostingBuffer."Dimension Set ID" := TempInvoicePostBuffer."Dimension Set ID";
+                TempDimPostingBuffer.Amount := TempInvoicePostBuffer.Amount;
+                TempDimPostingBuffer."Amount (ACY)" := TempInvoicePostBuffer."Amount (ACY)";
+                TempDimPostingBuffer.Insert();
+            until TempInvoicePostBuffer.Next() = 0;
+        if DimSetID <> 0 then begin
+            TempDimPostingBuffer."Dimension Set ID" := DimSetID;
+            TempDimPostingBuffer.Find();
+        end;
+    end;
+#endif
 
     local procedure CreateGLEntryForTotalAmounts(GenJnlLine: Record "Gen. Journal Line"; Amount: Decimal; AmountACY: Decimal; AdjAmountBuf: array[4] of Decimal; var SavedEntryNo: Integer; GLAccNo: Code[20])
     var
@@ -6462,12 +6566,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRunWithCheck(var GenJournalLine: Record "Gen. Journal Line");
+    local procedure OnBeforeRunWithCheck(var GenJournalLine: Record "Gen. Journal Line"; var GenJournalLine2: Record "Gen. Journal Line");
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRunWithoutCheck(var GenJournalLine: Record "Gen. Journal Line");
+    local procedure OnBeforeRunWithoutCheck(var GenJournalLine: Record "Gen. Journal Line"; var GenJournalLine2: Record "Gen. Journal Line");
     begin
     end;
 
@@ -6876,8 +6980,16 @@
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by event OnBeforeCreateGLEntriesForTotalAmountsV19().', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateGLEntriesForTotalAmounts(var InvoicePostBuffer: Record "Invoice Post. Buffer"; GenJournalLine: Record "Gen. Journal Line"; var GLAccNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateGLEntriesForTotalAmountsV19(var TempDimPostingBuffer: Record "Dimension Posting Buffer" temporary; GenJournalLine: Record "Gen. Journal Line"; var GLAccNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
@@ -7081,8 +7193,16 @@
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by event OnBeforeUpdateTotalAmountsV19().', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateTotalAmounts(var TempInvPostBuf: Record "Invoice Post. Buffer" temporary; var DimSetID: Integer; var AmountToCollect: Decimal; var AmountACYToCollect: Decimal; var IsHandled: Boolean; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer")
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateTotalAmountsV19(var TempDimPostingBuffer: Record "Dimension Posting Buffer" temporary; var DimSetID: Integer; var AmountToCollect: Decimal; var AmountACYToCollect: Decimal; var IsHandled: Boolean; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer")
     begin
     end;
 
@@ -7096,13 +7216,29 @@
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by event OnBeforeCreateGLEntriesForTotalAmountsUnapplyV19().', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateGLEntriesForTotalAmountsUnapply(DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var CustomerPostingGroup: Record "Customer Posting Group"; GenJournalLine: Record "Gen. Journal Line"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var IsHandled: Boolean)
     begin
     end;
+#endif
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateGLEntriesForTotalAmountsUnapplyV19(DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var CustomerPostingGroup: Record "Customer Posting Group"; GenJournalLine: Record "Gen. Journal Line"; var TempIDimPostingBuffer: Record "Dimension Posting Buffer" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+#if not CLEAN19
+    [Obsolete('Replaced by event OnBeforeCreateGLEntriesForTotalAmountsUnapplyVendorV19().', '19.0')]
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateGLEntriesForTotalAmountsUnapplyVendor(DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; var VendorPostingGroup: Record "Vendor Posting Group"; GenJournalLine: Record "Gen. Journal Line"; var TempInvoicePostBuffer: Record "Invoice Post. Buffer" temporary; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateGLEntriesForTotalAmountsUnapplyVendorV19(DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; var VendorPostingGroup: Record "Vendor Posting Group"; GenJournalLine: Record "Gen. Journal Line"; var TempDimPostingBuffer: Record "Dimension Posting Buffer" temporary; var IsHandled: Boolean)
     begin
     end;
 
@@ -7133,7 +7269,9 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostUnapply(GenJnlLine: Record "Gen. Journal Line"; var VATEntry: Record "VAT Entry";
-        VATEntryType: Enum "General Posting Type"; BilltoPaytoNo: Code[20]; TransactionNo: Integer; UnapplyVATEntries: Boolean;
+        VATEntryType: Enum "General Posting Type"; BilltoPaytoNo: Code[20];
+                          TransactionNo: Integer;
+                          UnapplyVATEntries: Boolean;
         var TempVATEntry: Record "VAT Entry" temporary; var IsHandled: Boolean; var NextVATEntryNo: Integer)
     begin
     end;
@@ -7213,8 +7351,16 @@
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by event OnBeforeCreateGLEntryForTotalAmountsForDimPostBuf().', '19.0')]
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCreateGLEntryForTotalAmountsForInvPostBuf(var GenJnlLine: Record "Gen. Journal Line"; InvPostBuf: Record "Invoice Post. Buffer"; var GLAccNo: Code[20])
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCreateGLEntryForTotalAmountsForDimPostBuf(var GenJnlLine: Record "Gen. Journal Line"; TempDimPostingBuffer: Record "Dimension Posting Buffer" temporary; var GLAccNo: Code[20])
     begin
     end;
 
@@ -7278,8 +7424,16 @@
     begin
     end;
 
+#if not CLEAN19
+    [Obsolete('Replaced by. OnCreateGLEntriesForTotalAmountsUnapplyOnBeforeCreateGLEntryV19().', '19.0')]
     [IntegrationEvent(false, false)]
     local procedure OnCreateGLEntriesForTotalAmountsUnapplyOnBeforeCreateGLEntry(var GenJnlLine: Record "Gen. Journal Line"; var TempInvPostBuf: Record "Invoice Post. Buffer" temporary; var GLAccNo: Code[20]);
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateGLEntriesForTotalAmountsUnapplyOnBeforeCreateGLEntryV19(var GenJnlLine: Record "Gen. Journal Line"; var TempDimPostingBuffer: Record "Dimension Posting Buffer" temporary; var GLAccNo: Code[20]);
     begin
     end;
 
@@ -7444,6 +7598,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostVendAfterTempDtldCVLedgEntryBufInit(var GenJnlLine: Record "Gen. Journal Line"; var TempDtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostDtldCVLedgEntryOnBeforeCreateGLEntryGainLoss(var GenJournalLine: Record "Gen. Journal Line"; DtldCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; var Unapply: Boolean; var AccNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
@@ -7463,8 +7622,16 @@
     begin
     end;
 
+#if not CLEAN19
     [IntegrationEvent(true, false)]
+    [Obsolete('Replaced by event OnPostDtldCustLedgEntriesOnBeforeCreateGLEntriesForTotalAmountsV19().', '19.0')]
     local procedure OnPostDtldCustLedgEntriesOnBeforeCreateGLEntriesForTotalAmounts(var CustPostingGr: Record "Customer Posting Group"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; var GenJnlLine: Record "Gen. Journal Line"; var TempInvPostBuf: Record "Invoice Post. Buffer" temporary; AdjAmount: array[4] of Decimal; SaveEntryNo: Integer; GLAccNo: Code[20]; LedgerEntryInserted: Boolean; AddCurrencyCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+#endif
+
+    [IntegrationEvent(true, false)]
+    local procedure OnPostDtldCustLedgEntriesOnBeforeCreateGLEntriesForTotalAmountsV19(var CustPostingGr: Record "Customer Posting Group"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; var GenJnlLine: Record "Gen. Journal Line"; var TempDimPostingBuffer: Record "Dimension Posting Buffer" temporary; AdjAmount: array[4] of Decimal; SaveEntryNo: Integer; GLAccNo: Code[20]; LedgerEntryInserted: Boolean; AddCurrencyCode: Code[10]; var IsHandled: Boolean)
     begin
     end;
 

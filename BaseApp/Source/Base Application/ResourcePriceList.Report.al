@@ -1,3 +1,4 @@
+#if not CLEAN19
 report 1115 "Resource - Price List"
 {
     DefaultLayout = RDLC;
@@ -298,4 +299,4 @@ report 1115 "Resource - Price List"
         Currency.Code := CurrencyCodeFrom;
     end;
 }
-
+#endif

@@ -67,12 +67,7 @@ page 901 "Assembly Order Subform"
                     ToolTip = 'Specifies the location from which you want to post consumption of the assembly component.';
 
                     trigger OnValidate()
-                    var
-                        Item: Record Item;
                     begin
-                        if ("Location Code" <> '') and (Type = Type::Item) then
-                            if Item.Get("No.") then
-                                Item.TestField(Type, Item.Type::Inventory);
                         ReserveItem;
                     end;
                 }

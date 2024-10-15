@@ -191,6 +191,11 @@ codeunit 144010 "Company Field Report Test"
                         LibraryReportDataset.GetElementValueInCurrentRow('CompanyInfoBusinessIDCode', CompanyInfoBusinessIdCode);
                         LibraryReportDataset.GetElementValueInCurrentRow('CompanyInfoRegHomeCity', CompanyInfoRegHomeCity);
                     end;
+                5:
+                    begin
+                        LibraryReportDataset.GetElementValueInCurrentRow('CompanyRegistrationNumber', CompanyInfoBusinessIdCode);
+                        LibraryReportDataset.GetElementValueInCurrentRow('CompanyLegalOffice', CompanyInfoRegHomeCity);
+                    end;
             end;
             Assert.AreEqual(CompanyInformation."Business Identity Code", CompanyInfoBusinessIdCode, 'Incorrect BusinessIdentityCode');
             Assert.AreEqual(CompanyInformation."Registered Home City", CompanyInfoRegHomeCity, 'Incorrect RegisteredHomeCity');
@@ -226,6 +231,7 @@ codeunit 144010 "Company Field Report Test"
         TestBusinessIdentityandHomeCity(3);
     end;
 
+#if not CLEAN19
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ResourceReportHandler(var ResourceReport: TestRequestPage "Resource - Price List")
@@ -245,6 +251,7 @@ codeunit 144010 "Company Field Report Test"
         ResourcePriceListReport.Run;
         TestBusinessIdentityandHomeCity(0);
     end;
+#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]
@@ -388,58 +395,30 @@ codeunit 144010 "Company Field Report Test"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure SalesQuoteReportHandler(var SalesQuoteReport: TestRequestPage "Sales - Quote")
+    procedure SalesQuoteReportHandler(var SalesQuoteReport: TestRequestPage "Standard Sales - Quote")
     var
         DocumentNumber: Variant;
     begin
         LibraryVariableStorage.Dequeue(DocumentNumber);
-        SalesQuoteReport."Sales Header".SetFilter("No.", Format(DocumentNumber));
+        SalesQuoteReport.Header.SetFilter("No.", Format(DocumentNumber));
 
         SalesQuoteReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
     [Test]
-    [HandlerFunctions('SalesQuoteReportHandler,ConfirmUIHandler')]
+    [HandlerFunctions('SalesQuoteReportHandler')]
     [Scope('OnPrem')]
     procedure SalesQuoteReport()
     var
         SalesHeader: Record "Sales Header";
-        SalesQuoteReport: Report "Sales - Quote";
+        SalesQuoteReport: Report "Standard Sales - Quote";
     begin
         Initialize;
 
         CreateSalesDocument(SalesHeader."Document Type"::Quote, false);
         SalesQuoteReport.UseRequestPage(true);
         SalesQuoteReport.Run;
-        TestBusinessIdentityandHomeCity(0);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure OrderConfirmationReportHandler(var OrderConfirmationReport: TestRequestPage "Order Confirmation")
-    var
-        DocumentNumber: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(DocumentNumber);
-        OrderConfirmationReport."Sales Header".SetFilter("No.", Format(DocumentNumber));
-
-        OrderConfirmationReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [Test]
-    [HandlerFunctions('OrderConfirmationReportHandler')]
-    [Scope('OnPrem')]
-    procedure OrderConfirmationReport()
-    var
-        SalesHeader: Record "Sales Header";
-        OrderConfirmationReport: Report "Order Confirmation";
-    begin
-        Initialize;
-
-        CreateSalesDocument(SalesHeader."Document Type"::Order, false);
-        OrderConfirmationReport.UseRequestPage(true);
-        OrderConfirmationReport.Run;
-        TestBusinessIdentityandHomeCity(0);
+        TestBusinessIdentityandHomeCity(5);
     end;
 
     [RequestPageHandler]
@@ -467,34 +446,6 @@ codeunit 144010 "Company Field Report Test"
         CreateSalesDocument(SalesHeader."Document Type"::Invoice, true);
         StandardSalesInvoice.UseRequestPage(true);
         StandardSalesInvoice.Run;
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure SalesCreditMemoReportHandler(var SalesCreditMemoReport: TestRequestPage "Sales - Credit Memo")
-    var
-        DocumentNumber: Variant;
-    begin
-        LibraryVariableStorage.Dequeue(DocumentNumber);
-        SalesCreditMemoReport."Sales Cr.Memo Header".SetFilter("No.", Format(DocumentNumber));
-
-        SalesCreditMemoReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesCreditMemoReportHandler')]
-    [Scope('OnPrem')]
-    procedure SalesCreditMemoReport()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesCreditMemoReport: Report "Sales - Credit Memo";
-    begin
-        Initialize;
-
-        CreateSalesDocument(SalesHeader."Document Type"::"Credit Memo", true);
-        SalesCreditMemoReport.UseRequestPage(true);
-        SalesCreditMemoReport.Run;
-        TestBusinessIdentityandHomeCity(0);
     end;
 
     [RequestPageHandler]
@@ -725,6 +676,7 @@ codeunit 144010 "Company Field Report Test"
         TestBusinessIdentityandHomeCity(0);
     end;
 
+#if not CLEAN19
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PriceListReportHandler(var PriceListReport: TestRequestPage "Price List")
@@ -753,6 +705,7 @@ codeunit 144010 "Company Field Report Test"
 
         LibraryPriceCalculation.SetupDefaultHandler(xImplemetation);
     end;
+#endif
 
     [RequestPageHandler]
     [Scope('OnPrem')]

@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135516 "UofM E2E Test"
 {
     Subtype = Test;
@@ -203,4 +204,4 @@ codeunit 135516 "UofM E2E Test"
           StrSubstNo(WrongPropertyValueErr, 'internationalStandardCode'));
     end;
 }
-
+#endif

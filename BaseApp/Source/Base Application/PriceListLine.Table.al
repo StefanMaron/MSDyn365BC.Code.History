@@ -1,4 +1,4 @@
-﻿table 7001 "Price List Line"
+table 7001 "Price List Line"
 {
     fields
     {
@@ -475,6 +475,16 @@
     begin
         if (Status = Status::Active) and not IsEditable() then
             Error(CannotDeleteActivePriceListLineErr, "Price List Code", "Line No.");
+    end;
+
+    trigger OnInsert()
+    begin
+        if ("Price List Code" = '') and ("Price Type" = "Price Type"::Sale) and ("Amount Type" <> "Amount Type"::Discount) then begin
+            if not ("Source Type" in ["Source Type"::Customer, "Source Type"::"Customer Price Group"]) then
+                "Allow Line Disc." := true;
+            if ("Source Type" <> "Source Type"::"Customer Price Group") and ("Asset Type" <> "Asset Type"::Item) then
+                "Allow Invoice Disc." := true;
+        end;
     end;
 
     protected var

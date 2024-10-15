@@ -21,12 +21,12 @@ table 66 "Merge Duplicates Conflict"
         field(2; Duplicate; RecordID)
         {
             Caption = 'Duplicate';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(3; Current; RecordID)
         {
             Caption = 'Current';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(4; "Field ID"; Integer)
         {
