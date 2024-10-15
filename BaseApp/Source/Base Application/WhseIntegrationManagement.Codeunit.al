@@ -126,18 +126,17 @@ codeunit 7317 "Whse. Integration Management"
     var
         Bin: Record Bin;
     begin
-        if BinCode <> '' then begin
-            Bin.Get(LocationCode, BinCode);
-            if Bin.Dedicated then
-                if IssueWarning then begin
-                    if not
-                       Confirm(
-                         StrSubstNo(Text001, BinCode), false)
-                    then
-                        Error(Text002)
-                end else
-                    BinCode := '';
-        end;
+        if BinCode <> '' then
+            if Bin.Get(LocationCode, BinCode) then
+                if Bin.Dedicated then
+                    if IssueWarning then begin
+                        if not
+                           Confirm(
+                             StrSubstNo(Text001, BinCode), false)
+                        then
+                            Error(Text002)
+                    end else
+                        BinCode := '';
     end;
 
     procedure CheckBinCode(LocationCode: Code[10]; BinCode: Code[20]; BinCaption: Text[30]; SourceTable: Integer; Number: Code[20])
