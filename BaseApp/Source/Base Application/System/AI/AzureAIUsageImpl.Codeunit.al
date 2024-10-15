@@ -90,7 +90,7 @@ codeunit 2005 "Azure AI Usage Impl."
         ApiUri: Text;
         ApiKey: Text;
         ApiUri250: Text[250];
-        ApiKey200: Text[200];
+        ApiKey200: SecretText;
         LimitType: Option;
         LimitValue: Decimal;
         LimitValueInt: Integer;

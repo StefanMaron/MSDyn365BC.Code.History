@@ -7996,6 +7996,15 @@
                     </TablixMember>
                     <TablixMember>
                       <Group Name="Table1_Details_Group">
+                        <Filters>
+                          <Filter>
+                            <FilterExpression>=Fields!Statement_No_BnkAcStmtLine.Value</FilterExpression>
+                            <Operator>GreaterThan</Operator>
+                            <FilterValues>
+                              <FilterValue>""</FilterValue>
+                            </FilterValues>
+                          </Filter>
+                        </Filters>
                         <DataElementName>Detail</DataElementName>
                       </Group>
                       <DataElementName>Detail_Collection</DataElementName>
@@ -8715,6 +8724,12 @@ End Function
         </Field>
         <Field Name="Outstanding_Check_AmountCaption">
           <DataField>Outstanding_Check_AmountCaption</DataField>
+        </Field>
+        <Field Name="Statement_No_BnkAcStmtLine">
+          <DataField>Statement_No_BnkAcStmtLine</DataField>
+        </Field>
+        <Field Name="Statement_Line_No_BnkAcStmtLine">
+          <DataField>Statement_Line_No_BnkAcStmtLine</DataField>
         </Field>
         <Field Name="TrnsctnDte_BnkAcStmtLin">
           <DataField>TrnsctnDte_BnkAcStmtLin</DataField>
