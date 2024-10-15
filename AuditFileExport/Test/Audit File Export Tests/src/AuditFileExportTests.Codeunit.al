@@ -16,7 +16,7 @@ codeunit 148035 "Audit File Export Tests"
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
         AddressMustHaveValueErr: label 'Address must have a value in Contact: No.=%1', Comment = '%1 - Contact No.';
-        CommentMustHaveValueErr: label 'Header Comment must have a value in Audit File Export Header: ID=%1', Comment = 'Audit File Export Header ID';
+        CommentMustHaveValueErr: label 'Header Comment must have a value in Audit File Export Header: ID=%1', Comment = '%1 - Audit File Export Header ID';
 
     [Test]
     [HandlerFunctions('ConfirmHandlerYes')]
@@ -254,6 +254,42 @@ codeunit 148035 "Audit File Export Tests"
 
         // restore setup
         AuditFileExportSetup.InitSetup("Audit File Export Format"::TEST);
+    end;
+
+    [Test]
+    procedure OpenStandardAccountsFromCategories()
+    var
+        StandardAccountCategory: Record "Standard Account Category";
+        StandardAccount: Record "Standard Account";
+        StandardAccountCategories: TestPage "Standard Account Categories";
+        StandardAccounts: TestPage "Standard Accounts";
+        StandardAccountNo: Code[20];
+    begin
+        // [SCENARIO 502546] Open Standard Accounts page from Standard Account Categories page.
+        Initialize();
+
+        // [GIVEN] Standard Account Category "Test Category" and Standard Account "Test Account" with this category.
+        StandardAccountCategory."Standard Account Type" := "Standard Account Type"::"Standard Account Test";
+        StandardAccountCategory."No." := 'Test Category';
+        StandardAccountCategory.Insert();
+
+        StandardAccountNo := 'Test Account';
+        StandardAccount.Type := "Standard Account Type"::"Standard Account Test";
+        StandardAccount."Category No." := StandardAccountCategory."No.";
+        StandardAccount."No." := StandardAccountNo;
+        StandardAccount.Insert();
+
+        // [WHEN] Open Standard Account Categories page, select action "Standard Accounts".
+        StandardAccounts.Trap();
+        StandardAccountCategories.OpenEdit();
+        StandardAccountCategories.Filter.SetFilter("No.", StandardAccountCategory."No.");
+        StandardAccountCategories.StandardAccountCodes.Invoke();
+
+        // [THEN] Standard Accounts page is opened and "Test Account" record is shown.
+        StandardAccounts.First();
+        Assert.AreEqual(StandardAccountNo, StandardAccounts."No.".Value, '');
+        StandardAccounts.Next();
+        Assert.AreEqual('', StandardAccounts."No.".Value, 'There should be only one record');
     end;
 
     local procedure Initialize()

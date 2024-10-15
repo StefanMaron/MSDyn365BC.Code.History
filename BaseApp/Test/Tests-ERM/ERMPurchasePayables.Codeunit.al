@@ -3720,6 +3720,7 @@
         // Handles the Batch Post Purchase Orders Report.
         BatchPostPurchaseOrders.Receive.SetValue(true);
         BatchPostPurchaseOrders.Invoice.SetValue(true);
+        BatchPostPurchaseOrders.ReplacePostingDate.SetValue(false);
         BatchPostPurchaseOrders.PostingDate.SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(20)) + 'D>', WorkDate()));
         BatchPostPurchaseOrders.OK.Invoke;
     end;

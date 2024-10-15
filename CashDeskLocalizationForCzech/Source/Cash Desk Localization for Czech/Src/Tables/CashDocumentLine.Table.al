@@ -141,7 +141,7 @@ table 11733 "Cash Document Line CZP"
                 IsHandled := false;
                 BreakValidation := false;
                 OnValidateAccountNoOnAfterInitRec(Rec, xRec, TempCashDocumentLineCZP, IsHandled, BreakValidation);
-                if BreakValidation  then
+                if BreakValidation then
                     exit;
                 if not IsHandled then
                     if "Account No." = '' then
@@ -456,8 +456,7 @@ table 11733 "Cash Document Line CZP"
 
             trigger OnValidate()
             begin
-                TestField("Account Type");
-                TestField("Account No.");
+                CheckEmptyAccount();
                 UpdateAmounts();
             end;
         }
@@ -482,7 +481,8 @@ table 11733 "Cash Document Line CZP"
         {
             CaptionClass = '1,2,1';
             Caption = 'Shortcut Dimension 1 Code';
-            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(1),
+                                                          Blocked = const(false));
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -494,7 +494,8 @@ table 11733 "Cash Document Line CZP"
         {
             CaptionClass = '1,2,2';
             Caption = 'Shortcut Dimension 2 Code';
-            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2));
+            TableRelation = "Dimension Value".Code where("Global Dimension No." = const(2),
+                                                          Blocked = const(false));
             DataClassification = CustomerContent;
 
             trigger OnValidate()
@@ -1758,6 +1759,19 @@ table 11733 "Cash Document Line CZP"
         end;
     end;
 
+    local procedure CheckEmptyAccount()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckEmptyAccount(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        TestField("Account Type");
+        TestField("Account No.");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeIsEETTransaction(CashDocumentLineCZP: Record "Cash Document Line CZP"; var EETTransaction: Boolean; var IsHandled: Boolean)
     begin
@@ -1850,6 +1864,11 @@ table 11733 "Cash Document Line CZP"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSignAmount(var CashDocumentLineCZP: Record "Cash Document Line CZP"; var Sign: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckEmptyAccount(CashDocumentLineCZP: Record "Cash Document Line CZP"; var IsHandled: Boolean)
     begin
     end;
 }

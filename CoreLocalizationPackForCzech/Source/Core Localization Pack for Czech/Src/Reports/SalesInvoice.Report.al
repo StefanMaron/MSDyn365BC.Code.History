@@ -686,13 +686,8 @@ report 31189 "Sales Invoice CZL"
     end;
 
     var
-        TempVATAmountLine: Record "VAT Amount Line" temporary;
         TempLineFeeNoteonReportHist: Record "Line Fee Note on Report Hist." temporary;
         Customer: Record Customer;
-        PaymentTerms: Record "Payment Terms";
-        PaymentMethod: Record "Payment Method";
-        ShipmentMethod: Record "Shipment Method";
-        ReasonCode: Record "Reason Code";
         Currency: Record Currency;
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         VATClause: Record "VAT Clause";
@@ -706,20 +701,8 @@ report 31189 "Sales Invoice CZL"
 #pragma warning restore AL0432
 #endif
         SegManagement: Codeunit SegManagement;
-        ExchRateText: Text[50];
-        VATClauseText: Text;
-        CompanyAddr: array[8] of Text[100];
-        CustAddr: array[8] of Text[100];
-        ShipToAddr: array[8] of Text[100];
-        DocFooterText: Text[1000];
-        PaymentSymbol: array[2] of Text;
-        PaymentSymbolLabel: array[2] of Text;
+        LogInteractionEnable: Boolean;
         DocumentLbl: Label 'Invoice';
-        CalculatedExchRate: Decimal;
-        UnitPriceExclVAT: Decimal;
-        NoOfCopies: Integer;
-        NoOfLoops: Integer;
-        LogInteraction: Boolean;
         ExchRateLbl: Label 'Exchange Rate %1 %2 / %3 %4', Comment = '%1 = Calculated Exchange Rate, %2 = LCY Code, %3 = Exchange Rate, %4 = Currency Code';
         PageLbl: Label 'Page';
         CopyLbl: Label 'Copy';
@@ -750,8 +733,27 @@ report 31189 "Sales Invoice CZL"
         ClosingLbl: Label 'Sincerely';
         BodyLbl: Label 'Thank you for your business. Your invoice is attached to this message.';
         DocumentNoLbl: Label 'No.';
-        LogInteractionEnable: Boolean;
+
+    protected var
+        PaymentTerms: Record "Payment Terms";
+        PaymentMethod: Record "Payment Method";
+        ReasonCode: Record "Reason Code";
+        ShipmentMethod: Record "Shipment Method";
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
+        CompanyAddr: array[8] of Text[100];
+        CustAddr: array[8] of Text[100];
+        ShipToAddr: array[8] of Text[100];
+        PaymentSymbol: array[2] of Text;
+        PaymentSymbolLabel: array[2] of Text;
+        DocFooterText: Text[1000];
+        ExchRateText: Text[50];
+        VATClauseText: Text;
+        CalculatedExchRate: Decimal;
+        UnitPriceExclVAT: Decimal;
+        NoOfCopies: Integer;
+        NoOfLoops: Integer;
         DisplayAdditionalFeeNote: Boolean;
+        LogInteraction: Boolean;
 
     procedure InitLogInteraction()
     begin

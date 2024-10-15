@@ -612,6 +612,7 @@ table 9650 "Custom Report Layout"
         SetCurrentKey("Report ID", "Company Name", Type);
         SetFilter("Company Name", '%1|%2', '', StrSubstNo('@%1', CompanyName));
         SetRange("Report ID", ReportID);
+        SetRange("Built-In", false);
     end;
 
     procedure LookupLayoutOK(ReportID: Integer): Boolean

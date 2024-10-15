@@ -573,12 +573,7 @@ report 31197 "Service Invoice CZL"
     }
 
     var
-        TempVATAmountLine: Record "VAT Amount Line" temporary;
-        TempLineFeeNoteonReportHist: Record "Line Fee Note on Report Hist." temporary;
         Customer: Record Customer;
-        PaymentTerms: Record "Payment Terms";
-        PaymentMethod: Record "Payment Method";
-        ReasonCode: Record "Reason Code";
         CurrencyExchangeRate: Record "Currency Exchange Rate";
         VATClause: Record "VAT Clause";
         LanguageMgt: Codeunit Language;
@@ -590,19 +585,7 @@ report 31197 "Service Invoice CZL"
         ReplaceVATDateMgtCZL: Codeunit "Replace VAT Date Mgt. CZL";
 #pragma warning restore AL0432
 #endif
-        ExchRateText: Text[50];
-        VATClauseText: Text;
-        CompanyAddr: array[8] of Text[100];
-        CustAddr: array[8] of Text[100];
-        ShipToAddr: array[8] of Text[100];
-        DocFooterText: Text[1000];
-        PaymentSymbol: array[2] of Text;
-        PaymentSymbolLabel: array[2] of Text;
         DocumentLbl: Label 'Invoice';
-        CalculatedExchRate: Decimal;
-        NoOfCopies: Integer;
-        NoOfLoops: Integer;
-        DisplayAdditionalFeeNote: Boolean;
         OrderNoLbl: Label 'Order No.';
         ExchRateLbl: Label 'Exchange Rate %1 %2 / %3 %4', Comment = '%1 = Calculated Exchange Rate, %2 = LCY Code, %3 = Exchange Rate, %4 = Currency Code';
         PageLbl: Label 'Page';
@@ -624,6 +607,25 @@ report 31197 "Service Invoice CZL"
         TotalLbl: Label 'total';
         VATLbl: Label 'VAT';
         PaymentsLbl: Label 'Payments List';
+
+    protected var
+        PaymentTerms: Record "Payment Terms";
+        PaymentMethod: Record "Payment Method";
+        ReasonCode: Record "Reason Code";
+        TempLineFeeNoteonReportHist: Record "Line Fee Note on Report Hist." temporary;
+        TempVATAmountLine: Record "VAT Amount Line" temporary;
+        CompanyAddr: array[8] of Text[100];
+        CustAddr: array[8] of Text[100];
+        ShipToAddr: array[8] of Text[100];
+        PaymentSymbol: array[2] of Text;
+        PaymentSymbolLabel: array[2] of Text;
+        DocFooterText: Text[1000];
+        ExchRateText: Text[50];
+        VATClauseText: Text;
+        CalculatedExchRate: Decimal;
+        NoOfCopies: Integer;
+        NoOfLoops: Integer;
+        DisplayAdditionalFeeNote: Boolean;
 
     local procedure GetLineFeeNoteOnReportHist(ServiceInvoiceHeaderNo: Code[20])
     var

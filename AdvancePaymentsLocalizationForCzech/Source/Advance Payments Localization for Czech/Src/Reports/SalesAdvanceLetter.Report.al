@@ -367,20 +367,10 @@ report 31014 "Sales - Advance Letter CZZ"
     }
 
     var
-        PaymentTerms: Record "Payment Terms";
-        PaymentMethod: Record "Payment Method";
         Language: Codeunit Language;
         FormatAddress: Codeunit "Format Address";
         FormatDocumentMgtCZL: Codeunit "Format Document Mgt. CZL";
         FormatDocument: Codeunit "Format Document";
-        CompanyAddr: array[8] of Text[100];
-        CustAddr: array[8] of Text[100];
-        DocFooterText: Text[1000];
-        PaymentSymbol: array[2] of Text;
-        PaymentSymbolLabel: array[2] of Text;
-        AmountIncludingVAT: Decimal;
-        NoOfCop: Integer;
-        CopyNo: Integer;
         NoOfLoops: Integer;
         DocumentLbl: Label 'Advance Letter';
         PageLbl: Label 'Page';
@@ -397,6 +387,18 @@ report 31014 "Sales - Advance Letter CZZ"
         BodyLbl: Label 'The sales advance letter is attached to this message.';
         DocumentNoLbl: Label 'No.';
         AmountIncludingVATLbl: Label 'Amount Including VAT';
+
+    protected var
+        PaymentTerms: Record "Payment Terms";
+        PaymentMethod: Record "Payment Method";
+        CompanyAddr: array[8] of Text[100];
+        CustAddr: array[8] of Text[100];
+        PaymentSymbol: array[2] of Text;
+        PaymentSymbolLabel: array[2] of Text;
+        DocFooterText: Text[1000];
+        AmountIncludingVAT: Decimal;
+        CopyNo: Integer;
+        NoOfCop: Integer;
 
     local procedure FormatDocumentFields(SalesAdvLetterHeaderCZZ: Record "Sales Adv. Letter Header CZZ")
     begin

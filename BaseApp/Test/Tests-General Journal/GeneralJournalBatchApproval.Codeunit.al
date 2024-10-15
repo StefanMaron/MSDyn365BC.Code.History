@@ -28,6 +28,7 @@ codeunit 134321 "General Journal Batch Approval"
         ApprovalCommentWasNotDeletedErr: Label 'The approval comment for this approval entry was not deleted.';
         RecordRestrictedErr: Label 'You cannot use %1 for this action.', Comment = 'You cannot use Customer 10000 for this action.';
         PreventModifyRecordWithOpenApprovalEntryMsg: Label 'You can''t modify a record pending approval. Add a comment or reject the approval to modify the record.';
+        ImposedRestrictionLbl: Label 'Imposed restriction';
         LibraryJobQueue: Codeunit "Library - Job Queue";
         IsInitialized: Boolean;
 
@@ -937,29 +938,42 @@ codeunit 134321 "General Journal Batch Approval"
     end;
 
     [Test]
-    procedure ModifyGenJournalLineIsNotAllowedForOpenApprovalEntryOnValidateDocumentNo()
+    procedure ShowImposedRestrictionBatchStatusIfUserModifyGenJournalLineForApprovedApprovalRequest()
     var
+        GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
+        Workflow: Record Workflow;
+        ApprovalUserSetup: Record "User Setup";
+        GeneralJournal: TestPage "General Journal";
         ApprovalStatus: Enum "Approval Status";
     begin
-        // [SCENARIO 495485] Verify that modifying a Gen. Journal Line is not allowed for open approval entry on validate document no.
+        // [SCENARIO 498314] Show imposed restriction batch status if user modifies Gen. Journal Line for approved approval request 
         Initialize();
+
+        GenJournalTemplate.DeleteAll();
+
+        // [GIVEN] Enable Gen. Journal Batch Approval Workflow
+        LibraryDocumentApprovals.SetupUsersForApprovals(ApprovalUserSetup);
+        CreateDirectApprovalEnabledWorkflow(Workflow);
 
         // [GIVEN] Create Gen. Journal Line
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
           GenJournalLine."Document Type"::" ", LibraryRandom.RandDec(100, 2));
 
-        // [GIVEN] Create Approval Entry for Gen. Journal Batch
+        // [GIVEN] Create Approval Entry for Gen. Journal Batch with a status Approved
         GenJournalBatch.Get(GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name");
-        CreateApprovalEntryForCurrentUser(GenJournalBatch.RecordId, ApprovalStatus::Open);
+        CreateApprovalEntryForCurrentUser(GenJournalBatch.RecordId, ApprovalStatus::Approved);
 
-        // [WHEN] Enter Document No.
-        asserterror GenJournalLine.Validate("Document No.", LibraryRandom.RandText(20));
+        // [WHEN] Modify a Gen. Journal Line
+        GenJournalLine.Validate(Amount, LibraryRandom.RandDec(100, 2));
+        GenJournalLine.Modify(true);
 
-        // [THEN] Verify error message
-        Assert.ExpectedError(PreventModifyRecordWithOpenApprovalEntryMsg);
+        // [THEN] Verify result
+        GeneralJournal.OpenView();
+        GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
+        Assert.AreEqual(ImposedRestrictionLbl, GeneralJournal.GenJnlBatchApprovalStatus.Value(), 'Imposed restriction is not shown');
     end;
 
     local procedure Initialize()

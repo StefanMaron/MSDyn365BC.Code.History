@@ -903,9 +903,83 @@ table 31257 "Payment Order Line CZB"
             end;
     end;
 
+    [Obsolete('Replaced by CreateDescription function with PlaceholderValues parameter.', '25.0')]
     procedure CreateDescription(DocType: Text[30]; DocNo: Text[20]; PartnerNo: Text[20]; PartnerName: Text[100]; ExtNo: Text[35]): Text[50]
     begin
         exit(CopyStr(StrSubstNo(BankAccount."Payment Order Line Descr. CZB", DocType, DocNo, PartnerNo, PartnerName, ExtNo), 1, 50));
+    end;
+
+    procedure CreateDescription(PlaceholderValues: List of [Text[100]]) Description: Text[100]
+    var
+        PlaceholderDescription: Text[100];
+    begin
+        PlaceholderDescription := GetPlaceholderDescription();
+        Description := ReplacePlaceholdersWithValues(PlaceholderDescription, PlaceholderValues);
+        OnAfterCreateDescription(PlaceholderDescription, PlaceholderValues, Description);
+    end;
+
+    local procedure GetPlaceholderDescription() PlaceholderDescription: Text[100]
+    begin
+        GetPaymentOrder();
+        BankAccount.Get(PaymentOrderHeaderCZB."Bank Account No.");
+        PlaceholderDescription := BankAccount."Payment Order Line Descr. CZB";
+        OnAfterGetPlaceholderDescription(BankAccount, PlaceholderDescription);
+    end;
+
+    local procedure GetPlaceholderDescriptionValues(CustLedgerEntry: Record "Cust. Ledger Entry") PlaceholderValues: List of [Text[100]]
+    var
+        Customer: Record Customer;
+    begin
+        Customer.Get(CustLedgerEntry."Customer No.");
+        PlaceholderValues := GetDefaultPlaceholderDescriptionValues(
+            Format(CustLedgerEntry."Document Type"), CustLedgerEntry."Document No.",
+            Customer."No.", Customer.Name, CustLedgerEntry."External Document No.");
+        OnAfterGetPlaceholderDescriptionValuesFromCustLedgerEntry(CustLedgerEntry, PlaceholderValues);
+    end;
+
+    local procedure GetPlaceholderDescriptionValues(VendorLedgerEntry: Record "Vendor Ledger Entry") PlaceholderValues: List of [Text[100]]
+    begin
+        Vendor.Get(VendorLedgerEntry."Vendor No.");
+        PlaceholderValues := GetDefaultPlaceholderDescriptionValues(
+            Format(VendorLedgerEntry."Document Type"), VendorLedgerEntry."Document No.",
+            Vendor."No.", Vendor.Name, VendorLedgerEntry."External Document No.");
+        OnAfterGetPlaceholderDescriptionValuesFromVendorLedgerEntry(VendorLedgerEntry, PlaceholderValues);
+    end;
+
+    local procedure GetPlaceholderDescriptionValues(EmployeeLedgerEntry: Record "Employee Ledger Entry") PlaceholderValues: List of [Text[100]]
+    var
+        Employee: Record Employee;
+    begin
+        Employee.Get(EmployeeLedgerEntry."Employee No.");
+        PlaceholderValues := GetDefaultPlaceholderDescriptionValues(
+            Format(EmployeeLedgerEntry."Document Type"), EmployeeLedgerEntry."Document No.",
+            Employee."No.", Employee.FullName(), '');
+        OnAfterGetPlaceholderDescriptionValuesFromEmployeeLedgerEntry(EmployeeLedgerEntry, PlaceholderValues);
+    end;
+
+    local procedure GetDefaultPlaceholderDescriptionValues(DocumentType: Text[30]; DocumentNo: Text[20]; PartnerNo: Text[20]; PartnerName: Text[100]; ExternalDocumentNo: Text[35]) PlaceholderValues: List of [Text[100]]
+    begin
+        PlaceholderValues.Add(DocumentType);
+        PlaceholderValues.Add(DocumentNo);
+        PlaceholderValues.Add(PartnerNo);
+        PlaceholderValues.Add(PartnerName);
+        PlaceholderValues.Add(ExternalDocumentNo);
+    end;
+
+    local procedure ReplacePlaceholdersWithValues(PlaceholderText: Text[100]; PlaceholderValues: List of [Text[100]]) ReplacedText: Text[100]
+    var
+        PlaceholderValue: Text[100];
+        i: Integer;
+        PlaceholderTok: Label '%%1', Comment = '%1 = number', Locked = true;
+    begin
+        ReplacedText := PlaceholderText;
+        if ReplacedText = '' then
+            exit('');
+        for i := 1 to PlaceholderValues.Count do begin
+            PlaceholderValues.Get(i, PlaceholderValue);
+            ReplacedText := CopyStr(ReplacedText.Replace(StrSubstNo(PlaceholderTok, i), PlaceholderValue), 1, MaxStrLen(ReplacedText));
+        end;
+        OnAfterReplacePlaceholdersWithValues(PlaceholderText, PlaceholderValues, ReplacedText);
     end;
 
     procedure GetGLSetup()
@@ -928,7 +1002,6 @@ table 31257 "Payment Order Line CZB"
     procedure AppliesToCustLedgEntryNo()
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
-        Customer: Record Customer;
     begin
         CustLedgerEntry.Get("Applies-to C/V/E Entry No.");
         "Applies-to Doc. Type" := CustLedgerEntry."Document Type";
@@ -936,14 +1009,9 @@ table 31257 "Payment Order Line CZB"
         "Variable Symbol" := CustLedgerEntry."Variable Symbol CZL";
         if CustLedgerEntry."Constant Symbol CZL" <> '' then
             "Constant Symbol" := CustLedgerEntry."Constant Symbol CZL";
-        BankAccount.Get(PaymentOrderHeaderCZB."Bank Account No.");
-        if BankAccount."Payment Order Line Descr. CZB" = '' then
-            Description := CustLedgerEntry.Description
-        else begin
-            Customer.Get(CustLedgerEntry."Customer No.");
-            Description := CreateDescription(Format(CustLedgerEntry."Document Type"), CustLedgerEntry."Document No.",
-                Customer."No.", Customer.Name, CustLedgerEntry."External Document No.");
-        end;
+        Description := CreateDescription(GetPlaceholderDescriptionValues(CustLedgerEntry));
+        if Description = '' then
+            Description := CustLedgerEntry.Description;
         Type := Type::Customer;
         "No." := CustLedgerEntry."Customer No.";
         Validate("No.", CustLedgerEntry."Customer No.");
@@ -972,14 +1040,9 @@ table 31257 "Payment Order Line CZB"
         "Variable Symbol" := VendorLedgerEntry."Variable Symbol CZL";
         if VendorLedgerEntry."Constant Symbol CZL" <> '' then
             "Constant Symbol" := VendorLedgerEntry."Constant Symbol CZL";
-        BankAccount.Get(PaymentOrderHeaderCZB."Bank Account No.");
-        if BankAccount."Payment Order Line Descr. CZB" = '' then
-            Description := VendorLedgerEntry.Description
-        else begin
-            Vendor.Get(VendorLedgerEntry."Vendor No.");
-            Description := CreateDescription(Format(VendorLedgerEntry."Document Type"), VendorLedgerEntry."Document No.",
-                Vendor."No.", Vendor.Name, VendorLedgerEntry."External Document No.");
-        end;
+        Description := CreateDescription(GetPlaceholderDescriptionValues(VendorLedgerEntry));
+        if Description = '' then
+            Description := VendorLedgerEntry.Description;
         Type := Type::Vendor;
         "No." := VendorLedgerEntry."Vendor No.";
         Validate("No.", VendorLedgerEntry."Vendor No.");
@@ -1012,13 +1075,9 @@ table 31257 "Payment Order Line CZB"
         "Specific Symbol" := EmployeeLedgerEntry."Specific Symbol CZL";
         if EmployeeLedgerEntry."Constant Symbol CZL" <> '' then
             "Constant Symbol" := EmployeeLedgerEntry."Constant Symbol CZL";
-        BankAccount.Get(PaymentOrderHeaderCZB."Bank Account No.");
-        if BankAccount."Payment Order Line Descr. CZB" = '' then
-            Description := EmployeeLedgerEntry.Description
-        else
-            Description := CreateDescription(Format(EmployeeLedgerEntry."Document Type"), EmployeeLedgerEntry."Document No.",
-                Employee."No.", CopyStr(Employee.FullName(), 1, MaxStrLen(Description)), '');
-
+        Description := CreateDescription(GetPlaceholderDescriptionValues(EmployeeLedgerEntry));
+        if Description = '' then
+            Description := EmployeeLedgerEntry.Description;
         Type := Type::Employee;
         Validate("No.", EmployeeLedgerEntry."Employee No.");
         "Account No." := Employee."Bank Account No.";
@@ -1312,6 +1371,36 @@ table 31257 "Payment Order Line CZB"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFindRelatedAmoutToApply(PaymentOrderLineCZB: Record "Payment Order Line CZB"; var AppliesToAdvanceLetterNo: Code[20]);
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterCreateDescription(PlaceholderDescription: Text[100]; PlaceholderValues: List of [Text[100]]; var Description: Text[100])
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGetPlaceholderDescription(BankAccount: Record "Bank Account"; var PlaceholderDescription: Text[100])
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGetPlaceholderDescriptionValuesFromCustLedgerEntry(CustLedgerEntry: Record "Cust. Ledger Entry"; var PlaceholderValues: List of [Text[100]])
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGetPlaceholderDescriptionValuesFromVendorLedgerEntry(VendorLedgerEntry: Record "Vendor Ledger Entry"; var PlaceholderValues: List of [Text[100]])
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGetPlaceholderDescriptionValuesFromEmployeeLedgerEntry(EmployeeLedgerEntry: Record "Employee Ledger Entry"; var PlaceholderValues: List of [Text[100]])
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterReplacePlaceholdersWithValues(PlaceholderText: Text[100]; PlaceholderValues: List of [Text[100]]; var ReplacedText: Text[100])
     begin
     end;
 }

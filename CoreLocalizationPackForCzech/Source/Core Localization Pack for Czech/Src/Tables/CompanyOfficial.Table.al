@@ -185,7 +185,7 @@ table 11793 "Company Official CZL"
                     "Country/Region Code" := Employee."Country/Region Code";
                     "Phone No." := Employee."Phone No.";
                     "Mobile Phone No." := Employee."Mobile Phone No.";
-                    "E-Mail" := Employee."E-Mail";
+                    "E-Mail" := Employee."Company E-Mail";
                     "Fax No." := Employee."Fax No.";
                     "Employee No." := Employee."No.";
                     "Privacy Blocked" := Employee."Privacy Blocked";
