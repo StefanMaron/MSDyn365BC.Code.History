@@ -1577,6 +1577,8 @@
             SalesInvLine."VAT Bus. Posting Group" := "VAT Bus. Posting Group";
             SalesInvLine."VAT Prod. Posting Group" := "VAT Prod. Posting Group";
             SalesInvLine."VAT %" := "VAT %";
+            IF VATPostingSetup.GET("VAT Bus. Posting Group", "VAT Prod. Posting Group") THEN
+                SalesInvLine."VAT Clause Code" := VATPostingSetup."VAT Clause Code";
             SalesInvLine."Deductible %" := "Deductible %";
             SalesInvLine.Amount := Amount;
             SalesInvLine."VAT Difference" := "VAT Difference";
@@ -1653,6 +1655,8 @@
             SalesCrMemoLine."VAT Bus. Posting Group" := "VAT Bus. Posting Group";
             SalesCrMemoLine."VAT Prod. Posting Group" := "VAT Prod. Posting Group";
             SalesCrMemoLine."VAT %" := "VAT %";
+            IF VATPostingSetup.GET("VAT Bus. Posting Group", "VAT Prod. Posting Group") THEN
+                SalesCrMemoLine."VAT Clause Code" := VATPostingSetup."VAT Clause Code";
             SalesCrMemoLine."Deductible %" := "Deductible %";
             SalesCrMemoLine.Amount := Amount;
             SalesCrMemoLine."VAT Difference" := "VAT Difference";

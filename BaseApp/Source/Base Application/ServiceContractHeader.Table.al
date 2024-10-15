@@ -251,7 +251,7 @@ table 5965 "Service Contract Header"
         field(15; "Salesperson Code"; Code[20])
         {
             Caption = 'Salesperson Code';
-            TableRelation = "Salesperson/Purchaser";
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
 
             trigger OnValidate()
             begin
