@@ -606,7 +606,10 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "Intermediate Data Import" = RIMD,
                   tabledata "Internal Movement Header" = RIMD,
                   tabledata "Internal Movement Line" = RIMD,
+#if not CLEAN19
                   tabledata "Intrastat Checklist Setup" = RIMD,
+#endif
+                  tabledata "Advanced Intrastat Checklist" = RIMD,
                   tabledata "Intrastat Jnl. Batch" = RIMD,
                   tabledata "Intrastat Jnl. Line" = RIMD,
                   tabledata "Intrastat Jnl. Template" = RIMD,
@@ -766,6 +769,9 @@ permissionset 959 "D365 BUS FULL ACCESS"
                   tabledata "MTD-Liability" = RIMD,
                   tabledata "MTD-Payment" = RIMD,
                   tabledata "MTD-Return Details" = RIMD,
+                  tabledata "MTD-Missing Fraud Prev. Hdr" = RIMD,
+                  tabledata "MTD-Session Fraud Prev. Hdr" = RIMD,
+                  tabledata "MTD-Default Fraud Prev. Hdr" = RIMD,
                   tabledata "My Account" = RIMD,
                   tabledata "My Customer" = RIMD,
                   tabledata "My Item" = RIMD,

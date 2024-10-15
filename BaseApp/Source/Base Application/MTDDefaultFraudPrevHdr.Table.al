@@ -1,0 +1,34 @@
+table 10537 "MTD-Default Fraud Prev. Hdr"
+{
+    Caption = 'HMRC Default Fraud Prevention Header';
+    ObsoleteReason = 'Moved to extension Making Tax Digital';
+    ObsoleteState = Pending;
+    ObsoleteTag = '19.0';
+
+    fields
+    {
+        field(1; Header; Code[100])
+        {
+            Caption = 'Header';
+            DataClassification = SystemMetadata;
+        }
+        field(2; Description; Text[250])
+        {
+            Caption = 'Description';
+            DataClassification = SystemMetadata;
+        }
+        field(3; Value; Text[250])
+        {
+            Caption = 'Value';
+            DataClassification = EndUserIdentifiableInformation;
+        }
+    }
+
+    keys
+    {
+        key(Key1; Header)
+        {
+            Clustered = true;
+        }
+    }
+}

@@ -278,6 +278,7 @@ page 9346 "Purchase Quote Archives"
                 }
             }
         }
+#if not CLEAN19
         area(processing)
         {
             action("Delete Quote Versions")
@@ -287,8 +288,12 @@ page 9346 "Purchase Quote Archives"
                 Image = Delete;
                 RunObject = Report "Delete Purchase Quote Versions";
                 ToolTip = 'Find and delete quote versions.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '19.0';
+                ObsoleteReason = 'Please use the retention policy module to clean up document archive records instead.';
             }
         }
+#endif
     }
 }
 

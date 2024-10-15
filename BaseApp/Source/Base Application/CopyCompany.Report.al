@@ -66,10 +66,12 @@ report 357 "Copy Company"
             end;
 
             trigger OnPostDataItem()
+            var
+                JobQueueManagement: Codeunit "Job Queue Management";
             begin
                 ProgressWindow.Close;
                 SetNewNameToNewCompanyInfo;
-                SetRecurringJobsOnHold;
+                JobQueueManagement.SetRecurringJobsOnHold(NewCompanyName);
                 OnAfterCreatedNewCompanyByCopyCompany(NewCompanyName);
                 RegisterUpgradeTags(NewCompanyName);
                 Message(CopySuccessMsg, Name);
@@ -237,21 +239,6 @@ report 357 "Copy Company"
     [IntegrationEvent(false, false)]
     local procedure OnAfterCreatedNewCompanyByCopyCompany(NewCompanyName: Text[30])
     begin
-    end;
-
-    local procedure SetRecurringJobsOnHold()
-    var
-        JobQueueEntry: Record "Job Queue Entry";
-    begin
-        JobQueueEntry.ChangeCompany(NewCompanyName);
-
-        JobQueueEntry.SetRange("Recurring Job", true);
-        JobQueueEntry.SetRange(Status, JobQueueEntry.Status::Ready);
-        if JobQueueEntry.FindSet(true) then
-            repeat
-                JobQueueEntry.Status := JobQueueEntry.Status::"On Hold";
-                JobQueueEntry.Modify();
-            until JobQueueEntry.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

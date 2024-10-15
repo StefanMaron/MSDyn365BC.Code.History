@@ -122,32 +122,40 @@ table 50 "Accounting Period"
     var
         AccountingPeriod: Record "Accounting Period";
     begin
+        exit(GetFiscalYearEndDate(AccountingPeriod, ReferenceDate))
+    end;
+
+    procedure GetFiscalYearEndDate(var AccountingPeriod: Record "Accounting Period"; ReferenceDate: Date): Date
+    begin
+        AccountingPeriod.Reset();
         if AccountingPeriod.IsEmpty() then
             exit(CalcDate('<CY>', ReferenceDate));
 
-        with AccountingPeriod do begin
-            SetRange("New Fiscal Year", true);
-            SetRange("Starting Date", 0D, ReferenceDate);
-            if FindLast then
-                SetRange("Starting Date");
-            if Find('>') then
-                exit("Starting Date" - 1);
-        end;
+        AccountingPeriod.SetRange("New Fiscal Year", true);
+        AccountingPeriod.SetRange("Starting Date", 0D, ReferenceDate);
+        if AccountingPeriod.FindLast() then
+            AccountingPeriod.SetRange("Starting Date");
+        if AccountingPeriod.Find('>') then
+            exit(AccountingPeriod."Starting Date" - 1);
     end;
 
     procedure GetFiscalYearStartDate(ReferenceDate: Date): Date
     var
         AccountingPeriod: Record "Accounting Period";
     begin
+        exit(GetFiscalYearStartDate(AccountingPeriod, ReferenceDate))
+    end;
+
+    procedure GetFiscalYearStartDate(var AccountingPeriod: Record "Accounting Period"; ReferenceDate: Date): Date
+    begin
+        AccountingPeriod.Reset();
         if AccountingPeriod.IsEmpty() then
             exit(CalcDate('<-CY>', ReferenceDate));
 
-        with AccountingPeriod do begin
-            SetRange("New Fiscal Year", true);
-            SetRange("Starting Date", 0D, ReferenceDate);
-            if FindLast then
-                exit("Starting Date")
-        end;
+        AccountingPeriod.SetRange("New Fiscal Year", true);
+        AccountingPeriod.SetRange("Starting Date", 0D, ReferenceDate);
+        if AccountingPeriod.FindLast() then
+            exit(AccountingPeriod."Starting Date")
     end;
 
     procedure CorrespondingAccountingPeriodExists(var AccountingPeriod: Record "Accounting Period"; AccSchedDate: Date): Boolean
