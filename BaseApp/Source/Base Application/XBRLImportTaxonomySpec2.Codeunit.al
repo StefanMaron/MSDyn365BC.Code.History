@@ -66,6 +66,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
         XBRLCommentLine: Record "XBRL Comment Line";
         TempXBRLCommentLine: Record "XBRL Comment Line" temporary;
         XMLDOMManagement: Codeunit "XML DOM Management";
+        FileManagement: Codeunit "File Management";
         TaxonomyDocument: DotNet XmlDocument;
         NamespaceMgr: DotNet XmlNamespaceManager;
         ProgressBox: Dialog;
@@ -89,6 +90,11 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
         LinkPrefix: Text;
         FilesOnServer: Boolean;
         DocumentPrefix: Text[30];
+        InsertedLabelsMsg: Label 'Applied %1 labels.', Comment = '%1 - integer, e.g. "Applied 3 labels."';
+        InsertedPresentationsMsg: Label 'Applied %1 presentation relations.', Comment = '%1 - integer, e.g. "Applied 3 presentation relations."';
+        InsertedCalculationsMsg: Label 'Applied %1 calculations.', Comment = '%1 - integer, e.g. "Applied 3 calculations."';
+        InsertedReferencesMsg: Label 'Applied %1 references.', Comment = '%1 - integer, e.g. "Applied 3 references."';
+        InsertedSchemeMsg: Label 'Applied %1 taxonomy lines.', Comment = '%1 - integer, e.g. "Applied 3 taxonomy lines."';
 
     local procedure HandleDocument()
     var
@@ -147,8 +153,10 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
         end;
         SortPresentationOrder(0, 0, '');
 
-        if TempXBRLLine.Count = 0 then
+        if TempXBRLLine.Count() = 0 then begin
+            Message(StrSubstNo(InsertedSchemeMsg, TempXBRLLine.Count()));
             exit;
+        end;
 
         // Update from existing data, if any
         ProgressBox.Update(1, StrSubstNo(UpdatingTaxonomyfromTaxonomyMsg, XBRLSchema."XBRL Taxonomy Name"));
@@ -221,6 +229,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                 XBRLGLMapLine := TempXBRLGLMapLine;
                 XBRLGLMapLine.Insert();
             until TempXBRLGLMapLine.Next = 0;
+        Message(StrSubstNo(InsertedSchemeMsg, TempXBRLLine.Count()));
     end;
 
     local procedure HandleElement(ElementNode: DotNet XmlNode; ParentLineNo: Integer; ParentLevel: Integer)
@@ -408,6 +417,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
         Progress: Integer;
         NoOfRecords: Integer;
         Schemalocation: Text[1024];
+        Counter: Integer;
     begin
         XBRLSchema.Get(XBRLLinkbase."XBRL Taxonomy Name", XBRLLinkbase."XBRL Schema Line No.");
         Window.Open(
@@ -457,9 +467,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                 Window.Update(6, Round(Progress / NoOfRecords * 10000, 1));
                 XMLNode :=
                   LinkbaseDocNode.SelectSingleNode(
-                    StrSubstNo(
-                      '%3labelLink/%3loc[@%4href="%1#%2"]',
-                      Schemalocation, XBRLTaxonomyLine."Element ID", LinkPrefix, XLinkPrefix), NamespaceMgr);
+                    GetXPathForSelectLinkBases('labelLink', Schemalocation, XBRLTaxonomyLine."Element ID"), NamespaceMgr);
                 if not IsNull(XMLNode) then begin
                     ArcNodeList :=
                       LinkbaseDocNode.SelectNodes(
@@ -476,11 +484,13 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                         for j := 1 to LabelNodeList.Count do begin
                             LabelNode := LabelNodeList.Item(j - 1);
                             InsertLabel(LabelNode, XBRLTaxonomyLine);
+                            Counter += 1;
                         end
                     end;
                 end;
             until XBRLTaxonomyLine.Next = 0;
         Window.Close;
+        Message(StrSubstNo(InsertedLabelsMsg, Counter));
     end;
 
     local procedure InsertLabel(XMLNode: DotNet XmlNode; var XBRLLine: Record "XBRL Taxonomy Line")
@@ -537,6 +547,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
         "Order": Decimal;
         UpdateParentPresentationLineNo: Boolean;
         LastXBRLLineNo: Integer;
+        Counter: Integer;
     begin
         XBRLSchema.Get(XBRLLinkbase."XBRL Taxonomy Name", XBRLLinkbase."XBRL Schema Line No.");
         Window.Open(
@@ -577,9 +588,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                 FromSchemalocation := TempXBRLSchema.schemaLocation;
                 XMLNode :=
                   LinkbaseDocNode.SelectSingleNode(
-                    StrSubstNo(
-                      '%3presentationLink/%3loc[@%4href="%1#%2"]',
-                      FromSchemalocation, TempXBRLLine."Element ID", LinkPrefix, XLinkPrefix), NamespaceMgr);
+                    GetXPathForSelectLinkBases('presentationLink', FromSchemalocation, TempXBRLLine."Element ID"), NamespaceMgr);
                 if not IsNull(XMLNode) then begin
                     fromLabel := GetAttribute(XLinkPrefix + 'label', XMLNode);
                     if XBRLSchema."xmlns:xbrli" = 'http://www.xbrl.org/2001/instance' then // spec. 2.0
@@ -613,6 +622,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                                 i := StrPos(ToName, '#');
                                 if i > 0 then begin
                                     ToSchemalocation := CopyStr(ToName, 1, i - 1);
+                                    ToSchemalocation := FileManagement.GetFileName(ToSchemalocation);
                                     ToName := CopyStr(ToName, i + 1);
                                 end else
                                     ToSchemalocation := '';
@@ -650,6 +660,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                                     TempXBRLLine.Modify();
                                 end;
                                 TempXBRLLine.SetCurrentKey("XBRL Taxonomy Name", "Line No.");
+                                Counter += 1;
                             end;
                         end;
                     end;
@@ -660,6 +671,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
         SaveTaxonomyLines(TempXBRLLine);
 
         Window.Close;
+        Message(StrSubstNo(InsertedPresentationsMsg, Counter));
     end;
 
     [Scope('OnPrem')]
@@ -687,6 +699,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
         Weight: Decimal;
         FromSchemalocation: Text;
         ToSchemalocation: Text;
+        Counter: Integer;
     begin
         XBRLSchema.Get(XBRLLinkbase."XBRL Taxonomy Name", XBRLLinkbase."XBRL Schema Line No.");
         Window.Open(
@@ -731,9 +744,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                 FromSchemalocation := TempXBRLSchema.schemaLocation;
                 XMLNode :=
                   LinkbaseDocNode.SelectSingleNode(
-                    StrSubstNo(
-                      '%3calculationLink/%3loc[@%4href="%1#%2"]',
-                      FromSchemalocation, XBRLTaxonomyLine."Element ID", LinkPrefix, XLinkPrefix), NamespaceMgr);
+                    GetXPathForSelectLinkBases('calculationLink', FromSchemalocation, XBRLTaxonomyLine."Element ID"), NamespaceMgr);
                 if not IsNull(XMLNode) then begin
                     fromLabel := GetAttribute(XLinkPrefix + 'label', XMLNode);
                     if XBRLSchema."xmlns:xbrli" = 'http://www.xbrl.org/2001/instance' then // spec. 2.0
@@ -766,6 +777,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                                 i := StrPos(ToName, '#');
                                 if i > 0 then begin
                                     ToSchemalocation := CopyStr(ToName, 1, i - 1);
+                                    ToSchemalocation := FileManagement.GetFileName(ToSchemalocation);
                                     ToName := CopyStr(ToName, i + 1);
                                 end else
                                     ToSchemalocation := '';
@@ -803,6 +815,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                                         XBRLTaxonomyLine."Source Type" := XBRLTaxonomyLine."Source Type"::Rollup;
                                         XBRLTaxonomyLine.Modify();
                                     end;
+                                    Counter += 1;
                                 end;
                             end;
                         end;
@@ -810,6 +823,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                 end;
             until XBRLTaxonomyLine.Next = 0;
         Window.Close;
+        Message(StrSubstNo(InsertedCalculationsMsg, Counter));
     end;
 
     [Scope('OnPrem')]
@@ -831,6 +845,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
         NoOfRecords: Integer;
         Schemalocation: Text[1024];
         FromLabel: Text[250];
+        Counter: Integer;
     begin
         XBRLSchema.Get(XBRLLinkbase."XBRL Taxonomy Name", XBRLLinkbase."XBRL Schema Line No.");
         Window.Open(
@@ -880,9 +895,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                 Window.Update(6, Round(Progress / NoOfRecords * 10000, 1));
                 XMLNode :=
                   LinkbaseDocNode.SelectSingleNode(
-                    StrSubstNo(
-                      '%3referenceLink/%3loc[@%4href="%1#%2"]',
-                      Schemalocation, XBRLTaxonomyLine."Element ID", LinkPrefix, XLinkPrefix), NamespaceMgr);
+                    GetXPathForSelectLinkBases('referenceLink', Schemalocation, XBRLTaxonomyLine."Element ID"), NamespaceMgr);
                 if not IsNull(XMLNode) then begin
                     FromLabel := GetAttribute(StrSubstNo('%1label', XLinkPrefix), XMLNode);
                     if XBRLSchema."xmlns:xbrli" = 'http://www.xbrl.org/2001/instance' then // spec. 2.0
@@ -920,6 +933,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                                 while not IsNull(ReferenceNode) do begin
                                     InsertReference(ReferenceNode, XBRLCommentLine);
                                     ReferenceNode := ReferenceNode.NextSibling;
+                                    Counter += 1;
                                 end;
                             end;
                         end;
@@ -927,6 +941,7 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
                 end;
             until XBRLTaxonomyLine.Next = 0;
         Window.Close;
+        Message(StrSubstNo(InsertedReferencesMsg, Counter));
     end;
 
     local procedure InsertReference(DocumentationNode2: DotNet XmlNode; var XBRLCommentLine: Record "XBRL Comment Line")
@@ -1009,6 +1024,22 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
         TempXBRLLine.Reset();
     end;
 
+    local procedure GetXPathForSelectLinkBases(LinkElementName: Text; SchemaLocation: Text; ElementID: Text): Text
+    var
+        attr_name: Text;
+        attr_value: Text;
+        attr_value_rel: Text;
+    begin
+        // filter elements with attribute "attr_name" = "attr_value" or "attr_name" = "*/attr_value"
+        attr_name := StrSubstNo('%1href', XLinkPrefix);
+        attr_value := StrSubstNo('%1#%2', SchemaLocation, ElementID);
+        attr_value_rel := StrSubstNo('/%1#%2', SchemaLocation, ElementID);
+        exit(
+          StrSubstNo(
+            '%1%2/%1loc[@%3 = "%4" or substring(@%3, string-length(@%3) - %6)  = "%5"]',
+            LinkPrefix, LinkElementName, attr_name, attr_value, attr_value_rel, STRLEN(attr_value_rel) - 1));
+    end;
+
     local procedure GetCommonXmnsPrefixes(DocNode: DotNet XmlNode)
     begin
         xsdPrefix := GetXmlnsPrefix('http://www.w3.org/2001/XMLSchema', DocNode);
@@ -1074,8 +1105,8 @@ codeunit 422 "XBRL Import Taxonomy Spec. 2"
         SchemaLocation := FileName;
         exit(GetAttribute('targetNamespace', TaxonomyNode));
     end;
-    
-    [Obsolete('The FilesOnServer variable did not use anymore','18.0')]
+
+    [Obsolete('The FilesOnServer variable did not use anymore', '18.0')]
     procedure SetFilesOnServer(NewFilesOnServer: Boolean)
     begin
         // FilesOnServer is used when scripting this codeunit.

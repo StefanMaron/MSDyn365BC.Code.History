@@ -1555,6 +1555,47 @@ codeunit 134932 "ERM Gen. Jnl. Error Handling"
         Assert.IsTrue(JournalErrorsMgt.GetRecXRecOnModify(GenJournalLine, xGenJournalLine), 'GetRecXRecOnModify failed');
     end;
 
+    [Test]
+    procedure ForceDocBalance_False()
+    var
+        GeneralJournalBatch: Record "Gen. Journal Batch";
+        GenJournalTemplate: Record "Gen. Journal Template";
+        GenJournalLine: array[2] of Record "Gen. Journal Line";
+        ERMGenJnlErrorHandling: Codeunit "ERM Gen. Jnl. Error Handling";
+        GeneralJournal: TestPage "General Journal";
+    begin
+        // [FEATURE] [UT]
+        // [SCENARIO 389104] No error should appear when "Force Doc. Balance" = false and lines are balanced only by Date
+        Initialize();
+
+        // [GIVEN] Feature is on
+        EnableFeature(ERMGenJnlErrorHandling);
+
+        // [GIVEN] General Journal Template, where "Force Doc. Balance" is false
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        GenJournalTemplate.Validate("Force Doc. Balance", false);
+        GenJournalTemplate.Modify();
+        LibraryERM.CreateGenJournalBatch(GeneralJournalBatch, GenJournalTemplate.Name);
+        GeneralJournalBatch."Background Error Check" := true;
+        GeneralJournalBatch.Modify();
+
+        // [GIVEN] General Journal Line GJL1: Document Type = "", Document No. := 01, Posting Date = WorkDate, Amount = 10
+        // [GIVEN] General Journal Line GJL2: Document Type = "", Document No. := 02, Posting Date = WorkDate, Amount = -10
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine[1], GeneralJournalBatch."Journal Template Name", GeneralJournalBatch.Name,
+            "Gen. Journal Document Type"::" ", "Gen. Journal Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting(), LibraryRandom.RandInt(10));
+        LibraryERM.CreateGeneralJnlLine(
+           GenJournalLine[2], GeneralJournalBatch."Journal Template Name", GeneralJournalBatch.Name,
+           "Gen. Journal Document Type"::" ", "Gen. Journal Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting(), -GenJournalLine[1].Amount);
+
+        // [WHEN] Open general journal for batch "XXX"
+        GeneralJournal.Trap();
+        Page.Run(Page::"General Journal", GenJournalLine[2]);
+
+        // [THEN] "Lines with Issues" = 0
+        GeneralJournal.JournalErrorsFactBox.NumberOfLinesWithErrors.AssertEquals(0);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();

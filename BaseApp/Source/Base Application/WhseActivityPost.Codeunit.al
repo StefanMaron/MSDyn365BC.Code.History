@@ -156,6 +156,7 @@ codeunit 7324 "Whse.-Activity-Post"
             WhseActivLine.SetRange("Activity Type", Type);
             WhseActivLine.SetRange("No.", "No.");
             WhseActivLine.SetFilter("Qty. Outstanding", '<>%1', 0);
+            OnCodeOnAfterWhseActivLineSetFilters(WhseActivHeader, WhseActivLine);
             if not WhseActivLine.Find('-') then
                 Delete(true);
 
@@ -1206,6 +1207,11 @@ codeunit 7324 "Whse.-Activity-Post"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeWhseActivLineDelete(WarehouseActivityLine: Record "Warehouse Activity Line"; var ForceDelete: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCodeOnAfterWhseActivLineSetFilters(var WhseActivHeader: Record "Warehouse Activity Header"; var WhseActivLine: Record "Warehouse Activity Line")
     begin
     end;
 

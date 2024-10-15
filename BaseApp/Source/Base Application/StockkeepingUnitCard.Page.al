@@ -141,11 +141,17 @@
             group(Replenishment)
             {
                 Caption = 'Replenishment';
-                field("Replenishment System"; "Replenishment System")
+                field("Replenishment System"; SKUReplenishmentSystem)
                 {
                     ApplicationArea = Planning;
+                    Caption = 'Replenishment System';
                     Importance = Promoted;
                     ToolTip = 'Specifies the type of supply order that is created by the planning system when the SKU needs to be replenished.';
+
+                    trigger OnValidate()
+                    begin
+                        Validate("Replenishment System", SKUReplenishmentSystem);
+                    end;
                 }
                 field("Lead Time Calculation"; "Lead Time Calculation")
                 {
@@ -811,8 +817,15 @@
     trigger OnAfterGetRecord()
     begin
         SetItemFilters();
-        EnablePlanningControls;
-        EnableCostingControls;
+        EnablePlanningControls();
+        EnableCostingControls();
+
+        SKUReplenishmentSystem := Rec."Replenishment System";
+    end;
+
+    trigger OnAfterGetCurrRecord()
+    begin
+        SKUReplenishmentSystem := Rec."Replenishment System";
     end;
 
     trigger OnInit()
@@ -840,6 +853,7 @@
         InvtSetup: Record "Inventory Setup";
         Item: Record Item;
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        SKUReplenishmentSystem: Enum "SKU Replenishment System";
         [InDataSet]
         TimeBucketEnable: Boolean;
         [InDataSet]

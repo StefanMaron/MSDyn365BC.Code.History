@@ -2677,7 +2677,11 @@
     var
         Purchasing: Record Purchasing;
         SalesOrderLine: Record "Sales Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeValidateLocationChange(Rec, IsHandled);
+
         case true of
             "Location Code" = xRec."Location Code":
                 exit;
@@ -2690,6 +2694,8 @@
             not SalesOrderLine.Get(SalesOrderLine."Document Type"::Order, "Sales Order No.", "Sales Order Line No."):
                 exit;
             "Location Code" = SalesOrderLine."Location Code":
+                exit;
+            IsHandled:
                 exit;
         end;
 
@@ -3771,6 +3777,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateStartingTime(var RequisitionLine: Record "Requisition Line"; var ShouldSetDueDate: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateLocationChange(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
 

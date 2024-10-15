@@ -281,19 +281,20 @@ report 10215 "Job Cost Budget"
         Res: Record Resource;
         Item: Record Item;
         GLAcc: Record "G/L Account";
+        Result: Text;
     begin
         case Type of
             Type::Resource:
                 if Res.Get(No) then
-                    exit(Res.Name);
+                    Result := Res.Name;
             Type::Item:
                 if Item.Get(No) then
-                    exit(Item.Description);
+                    Result := Item.Description;
             Type::"G/L Account":
                 if GLAcc.Get(No) then
-                    exit(GLAcc.Name);
+                    Result := GLAcc.Name;
         end;
-        exit('');
+        exit(CopyStr(Result, 1, 50))
     end;
 }
 

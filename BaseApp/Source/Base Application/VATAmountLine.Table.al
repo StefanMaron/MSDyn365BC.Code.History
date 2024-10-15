@@ -224,6 +224,20 @@
         exit(true);
     end;
 
+    procedure InsertNewLine(VATIdentifier: Code[20]; VATCalcType: Enum "Tax Calculation Type"; TaxGroupCode: Code[20]; UseTax: Boolean; TaxRate: Decimal; IsPositive: Boolean; IsPrepayment: Boolean)
+    begin
+        Init();
+        "VAT Identifier" := VATIdentifier;
+        "VAT Calculation Type" := VATCalcType;
+        "Tax Group Code" := TaxGroupCode;
+        "Use Tax" := UseTax;
+        "VAT %" := TaxRate;
+        Modified := true;
+        Positive := IsPositive;
+        "Includes Prepayment" := IsPrepayment;
+        Insert();
+    end;
+
     procedure InsertNewLine(VATIdentifier: Code[20]; VATCalcType: Enum "Tax Calculation Type"; TaxGroupCode: Code[20]; TaxAreaCode: Code[20]; UseTax: Boolean; TaxRate: Decimal; IsPositive: Boolean; IsPrepayment: Boolean)
     begin
         Init;

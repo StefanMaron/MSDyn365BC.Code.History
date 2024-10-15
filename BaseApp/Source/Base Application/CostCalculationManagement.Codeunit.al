@@ -1,4 +1,4 @@
-codeunit 5836 "Cost Calculation Management"
+﻿codeunit 5836 "Cost Calculation Management"
 {
     Permissions = TableData "Item Ledger Entry" = r,
                   TableData "Prod. Order Capacity Need" = r,
@@ -115,6 +115,7 @@ codeunit 5836 "Cost Calculation Management"
                 Item."Single-Level Subcontrd. Cost" := InvtAdjmtEntryOrder."Single-Level Subcontrd. Cost";
                 Item."Single-Level Cap. Ovhd Cost" := InvtAdjmtEntryOrder."Single-Level Cap. Ovhd Cost";
                 Item."Single-Level Mfg. Ovhd Cost" := InvtAdjmtEntryOrder."Single-Level Mfg. Ovhd Cost";
+                OnCalcProdOrderLineStdCostOnAfterCalcSingleLevelCost(Item, InvtAdjmtEntryOrder);
                 QtyBase := "Finished Qty. (Base)";
             end else begin
                 Item.Get("Item No.");
@@ -395,6 +396,26 @@ codeunit 5836 "Cost Calculation Management"
             OnCalcActOutputQtyBaseOnAfterSetFilters(CapLedgEntry, ProdOrderLine, ProdOrderRtngLine);
             CalcSums("Output Quantity");
             exit("Output Quantity");
+        end;
+    end;
+
+    procedure CalcActualOutputQtyWithNoCapacity(ProdOrderLine: Record "Prod. Order Line"; ProdOrderRtngLine: Record "Prod. Order Routing Line"): Decimal
+    var
+        CapLedgEntry: Record "Capacity Ledger Entry";
+    begin
+        with CapLedgEntry do begin
+            if ProdOrderLine.Status < ProdOrderLine.Status::Released then
+                exit(0);
+
+            SetCurrentKey(
+              "Order Type", "Order No.", "Order Line No.", "Routing No.", "Routing Reference No.", "Operation No.", "Last Output Line");
+            SetFilterByProdOrderRoutingLine(
+              ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.",
+              ProdOrderRtngLine."Routing No.", ProdOrderRtngLine."Routing Reference No.");
+            SetRange("Last Output Line", true);
+            SetRange(Quantity, 0);
+            CalcSums("Output Quantity", "Scrap Quantity");
+            exit("Output Quantity" + "Scrap Quantity");
         end;
     end;
 
@@ -1287,6 +1308,11 @@ codeunit 5836 "Cost Calculation Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcProdOrderLineExpCostOnExpOperCostCalculated(var ExpOperCost: Decimal; ProdOrderRtngLine: Record "Prod. Order Routing Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcProdOrderLineStdCostOnAfterCalcSingleLevelCost(var Item: record Item; InvtAdjmtEntryOrder: record "Inventory Adjmt. Entry (Order)")
     begin
     end;
 

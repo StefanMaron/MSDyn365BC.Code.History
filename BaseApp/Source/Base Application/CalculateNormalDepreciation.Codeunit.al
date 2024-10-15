@@ -1,4 +1,4 @@
-codeunit 5611 "Calculate Normal Depreciation"
+﻿codeunit 5611 "Calculate Normal Depreciation"
 {
     Permissions = TableData "FA Ledger Entry" = r,
                   TableData "FA Posting Type Setup" = r;
@@ -311,8 +311,11 @@ codeunit 5611 "Calculate Normal Depreciation"
         if CalcTempDeprAmount(TempDeprAmount) then
             exit(TempDeprAmount);
 
-        if SLPercent > 0 then
-            exit((-SLPercent / 100) * (NumberOfDays / DaysInFiscalYear) * DeprBasis);
+        if SLPercent > 0 then begin
+            Result := (-SLPercent / 100) * (NumberOfDays / DaysInFiscalYear) * DeprBasis;
+            OnCalcSLAmountOnAfterCalcFromSLPercent(FA, FADeprBook, BookValue, DeprBasis, DaysInFiscalYear, NumberOfDays, SLPercent, Result);
+            exit(Result);
+        end;
 
         if FixedAmount > 0 then
             exit(-FixedAmount * NumberOfDays / DaysInFiscalYear);
@@ -627,6 +630,11 @@ codeunit 5611 "Calculate Normal Depreciation"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransferValues(FixedAsset: Record "Fixed Asset"; FADepreciationBook: Record "FA Depreciation Book"; Year365Days: Boolean; var DeprYears: Decimal; var DeprMethod: Option)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcSLAmountOnAfterCalcFromSLPercent(FixedAsset: Record "Fixed Asset"; FADepreciationBook: Record "FA Depreciation Book"; BookValue: Decimal; DeprBasis: Decimal; DaysInFiscalYear: Integer; NumberOfDays: Integer; SLPercent: Decimal; var Result: Decimal)
     begin
     end;
 

@@ -1,4 +1,4 @@
-codeunit 1200 "Import Bank Statement"
+﻿codeunit 1200 "Import Bank Statement"
 {
     Permissions = TableData "Data Exch. Field" = rimd;
     TableNo = "Data Exch.";
@@ -70,7 +70,7 @@ codeunit 1200 "Import Bank Statement"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeInsertColumn(DataExchLineDef, EntryNo, LineNo, NodeId, Name, ProgressWindow, IsHandled);
+        OnBeforeInsertColumn(DataExchLineDef, EntryNo, LineNo, NodeId, Name, ProgressWindow, IsHandled, Path, Value);
         if IsHandled then
             exit;
 
@@ -91,7 +91,7 @@ codeunit 1200 "Import Bank Statement"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertColumn(var DataExchLineDef: Record "Data Exch. Line Def"; EntryNo: Integer; LineNo: Integer; NodeId: Text[250]; Name: Text; var ProgressWindow: Dialog; var IsHandled: Boolean)
+    local procedure OnBeforeInsertColumn(var DataExchLineDef: Record "Data Exch. Line Def"; EntryNo: Integer; LineNo: Integer; NodeId: Text[250]; Name: Text; var ProgressWindow: Dialog; var IsHandled: Boolean; Path: Text; Value: Text)
     begin
     end;
 }

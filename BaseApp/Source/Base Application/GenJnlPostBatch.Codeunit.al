@@ -707,6 +707,7 @@
                         GenJnlLine2."Shortcut Dimension 2 Code" := GenJnlAlloc."Shortcut Dimension 2 Code";
                         GenJnlLine2."Dimension Set ID" := GenJnlAlloc."Dimension Set ID";
                         GenJnlLine2."Allow Zero-Amount Posting" := true;
+                        UpdateDimBalBatchName(GenJnlLine2);
                         OnPostAllocationsOnBeforePrepareGenJnlLineAddCurr(GenJnlLine2, AllocateGenJnlLine);
                         PrepareGenJnlLineAddCurr(GenJnlLine2);
                         if not Reversing then begin
@@ -1235,6 +1236,7 @@
                     CheckDocumentNo(GenJournalLine1);
                     GenJournalLine2.Copy(GenJournalLine1);
                     PrepareGenJnlLineAddCurr(GenJournalLine2);
+                    UpdateDimBalBatchName(GenJournalLine2);
                     OnPostReversingLinesOnBeforeGenJnlPostLine(GenJournalLine2, GenJnlPostLine);
                     GenJnlPostLine.RunWithCheck(GenJournalLine2);
                     PostAllocations(GenJournalLine1, true);
@@ -1364,6 +1366,7 @@
             GenJnlLine5.Copy(GenJournalLine);
             PrepareGenJnlLineAddCurr(GenJnlLine5);
             UpdateIncomingDocument(GenJnlLine5);
+            UpdateDimBalBatchName(GenJnlLine5);
             OnBeforePostGenJnlLine(GenJnlLine5, SuppressCommit, IsPosted, GenJnlPostLine);
             if not IsPosted then begin
                 GenJnlPostLine.RunWithoutCheck(GenJnlLine5);
@@ -1605,6 +1608,12 @@
             GenJournalBatch.Delete(true);
             SrcGenJournalLine := SavedGenJournalLine;
         end;
+    end;
+
+    local procedure UpdateDimBalBatchName(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+        if GenJournalLine."Recurring Method" in [GenJournalLine."Recurring Method"::"BD Balance by Dimension", GenJournalLine."Recurring Method"::"RBD Reversing Balance by Dimension"] then
+            GenJournalLine."Journal Batch Name" := SavedGenJournalLine."Journal Batch Name";
     end;
 
     [IntegrationEvent(false, false)]
