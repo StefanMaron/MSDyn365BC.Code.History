@@ -462,15 +462,14 @@
                     Image = SNInfo;
                     Promoted = true;
                     PromotedCategory = Category4;
-                    RunObject = Page "Serial No. Information List";
-                    RunPageLink = "Item No." = FIELD("Item No."),
-                                  "Variant Code" = FIELD("Variant Code"),
-                                  "Serial No." = FIELD("Serial No.");
                     ToolTip = 'View or edit detailed information about the serial number.';
 
                     trigger OnAction()
+                    var
+                        SerialNoInformation: Record "Serial No. Information";
                     begin
                         Rec.TestField("Serial No.");
+                        SerialNoInformation.ShowCard(Rec."Serial No.", Rec);
                     end;
                 }
                 action(Reclass_LotNoInfoCard)
@@ -481,15 +480,14 @@
                     Image = LotInfo;
                     Promoted = true;
                     PromotedCategory = Category4;
-                    RunObject = Page "Lot No. Information List";
-                    RunPageLink = "Item No." = FIELD("Item No."),
-                                  "Variant Code" = FIELD("Variant Code"),
-                                  "Lot No." = FIELD("Lot No.");
                     ToolTip = 'View or edit detailed information about the lot number.';
 
                     trigger OnAction()
+                    var
+                        LotNoInformation: Record "Lot No. Information";
                     begin
                         Rec.TestField("Lot No.");
+                        LotNoInformation.ShowCard(Rec."Lot No.", Rec);
                     end;
                 }
                 separator(Action69)
@@ -506,9 +504,11 @@
                     ToolTip = 'Create a record with detailed information about the serial number.';
 
                     trigger OnAction()
+                    var
+                        SerialNoInformation: Record "Serial No. Information";
                     begin
                         Rec.TestField("New Serial No.");
-                        SerialNoInfoCardAction(Rec."New Serial No.");
+                        SerialNoInformation.ShowCard(Rec."New Serial No.", Rec);
                     end;
                 }
                 action(NewLotNoInformation)
@@ -523,9 +523,11 @@
                     ToolTip = 'Create a record with detailed information about the lot number.';
 
                     trigger OnAction()
+                    var
+                        LotNoInformation: Record "Lot No. Information";
                     begin
                         Rec.TestField("New Lot No.");
-                        LotNoInfoCardAction(Rec."New Lot No.");
+                        LotNoInformation.ShowCard(Rec."New Lot No.", Rec);
                     end;
                 }
             }
@@ -545,9 +547,11 @@
                     ToolTip = 'View or edit detailed information about the serial number.';
 
                     trigger OnAction()
+                    var
+                        SerialNoInformation: Record "Serial No. Information";
                     begin
                         Rec.TestField("Serial No.");
-                        SerialNoInfoCardAction(Rec."Serial No.");
+                        SerialNoInformation.ShowCard(Rec."Serial No.", Rec);
                     end;
                 }
                 action(Line_LotNoInfoCard)
@@ -561,9 +565,11 @@
                     ToolTip = 'View or edit detailed information about the lot number.';
 
                     trigger OnAction()
+                    var
+                        LotNoInformation: Record "Lot No. Information";
                     begin
                         Rec.TestField("Lot No.");
-                        LotNoInfoCardAction(Rec."Lot No.");
+                        LotNoInformation.ShowCard(Rec."Lot No.", Rec);
                     end;
                 }
                 action(Line_PackageNoInfoCard)
@@ -1639,7 +1645,7 @@
         ReturnValue: Boolean;
     begin
         IsHandled := false;
-        OnBeforeUpdateUndefinedQty(Rec, TotalTrackingSpecification, UndefinedQtyArray, SourceQuantityArray, ReturnValue, IsHandled);
+        OnBeforeUpdateUndefinedQty(Rec, TotalTrackingSpecification, UndefinedQtyArray, SourceQuantityArray, ReturnValue, IsHandled, ProdOrderLineHandling);
         if IsHandled then
             exit(ReturnValue);
 
@@ -2495,7 +2501,7 @@
         TestTempSpecificationExists();
         Rec.Insert();
 
-        OnAssignLotNoOnAfterInsert(Rec);
+        OnAssignLotNoOnAfterInsert(Rec, QtyToCreate);
 
         TempItemTrackLineInsert.TransferFields(Rec);
         TempItemTrackLineInsert.Insert();
@@ -3191,39 +3197,6 @@
         end;
     end;
 
-    local procedure SerialNoInfoCardAction(SerialNo: Code[50])
-    var
-        SerialNoInfoNew: Record "Serial No. Information";
-        SerialNoInfoForm: Page "Serial No. Information Card";
-
-    begin
-        Clear(SerialNoInfoForm);
-        SerialNoInfoForm.Init(Rec);
-
-        SerialNoInfoNew.SetRange("Item No.", Rec."Item No.");
-        SerialNoInfoNew.SetRange("Variant Code", Rec."Variant Code");
-        SerialNoInfoNew.SetRange("Serial No.", SerialNo);
-
-        SerialNoInfoForm.SetTableView(SerialNoInfoNew);
-        SerialNoInfoForm.Run;
-    end;
-
-    local procedure LotNoInfoCardAction(LotNo: Code[50])
-    var
-        LotNoInfoNew: Record "Lot No. Information";
-        LotNoInfoForm: Page "Lot No. Information Card";
-    begin
-        Clear(LotNoInfoForm);
-        LotNoInfoForm.Init(Rec);
-
-        LotNoInfoNew.SetRange("Item No.", Rec."Item No.");
-        LotNoInfoNew.SetRange("Variant Code", Rec."Variant Code");
-        LotNoInfoNew.SetRange("Lot No.", LotNo);
-
-        LotNoInfoForm.SetTableView(LotNoInfoNew);
-        LotNoInfoForm.Run;
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnAddReservEntriesToTempRecSetOnAfterTempTrackingSpecificationTransferFields(var TempTrackingSpecification: Record "Tracking Specification" temporary; var ReservEntry: Record "Reservation Entry")
     begin
@@ -3350,7 +3323,7 @@
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAssignLotNoOnAfterInsert(var TrackingSpecification: Record "Tracking Specification")
+    local procedure OnAssignLotNoOnAfterInsert(var TrackingSpecification: Record "Tracking Specification"; QtyToCreate: Decimal)
     begin
     end;
 
@@ -3470,7 +3443,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateUndefinedQty(var TrackingSpecification: Record "Tracking Specification"; var TotalItemTrackingSpecification: Record "Tracking Specification"; var UndefinedQtyArray: array[3] of Decimal; var SourceQuantityArray: array[5] of Decimal; var ReturnValue: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateUndefinedQty(var TrackingSpecification: Record "Tracking Specification"; var TotalItemTrackingSpecification: Record "Tracking Specification"; var UndefinedQtyArray: array[3] of Decimal; var SourceQuantityArray: array[5] of Decimal; var ReturnValue: Boolean; var IsHandled: Boolean; var ProdOrderLineHandling: Boolean)
     begin
     end;
 

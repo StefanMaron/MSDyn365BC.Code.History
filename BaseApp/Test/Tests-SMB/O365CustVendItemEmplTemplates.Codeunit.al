@@ -916,7 +916,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('SelectCustomerTemplListHandler')]
+    [HandlerFunctions('SelectCustomerTemplListHandler,ConfirmHandler')]
     procedure CustomerTemplApplyTemplateFromCustomerTwoTemplatesUT()
     var
         Customer: Record Customer;
@@ -957,7 +957,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('SelectCustomerTemplListHandler')]
+    [HandlerFunctions('SelectCustomerTemplListHandler,ConfirmHandler')]
     procedure CustomerTemplApplyTemplateForTwoCustomersTwoTemplatesUT()
     var
         Customer: array[3] of Record Customer;
@@ -1008,7 +1008,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('SelectItemTemplListHandler')]
+    [HandlerFunctions('SelectItemTemplListHandler,ConfirmHandler')]
     procedure ItemTemplApplyTemplateForTwoItemsTwoTemplatesUT()
     var
         Item: array[3] of Record Item;
@@ -1458,7 +1458,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('SelectEmployeeTemplListHandler')]
+    [HandlerFunctions('SelectEmployeeTemplListHandler,ConfirmHandler')]
     procedure EmployeeTemplApplyTemplateFromEmployeeTwoTemplatesUT()
     var
         Employee: Record Employee;
@@ -1498,7 +1498,7 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
 
     [Test]
     [Scope('OnPrem')]
-    [HandlerFunctions('SelectEmployeeTemplListHandler')]
+    [HandlerFunctions('SelectEmployeeTemplListHandler,ConfirmHandler')]
     procedure EmployeeTemplApplyTemplateForTwoEmployeesTwoTemplatesUT()
     var
         Employee: array[3] of Record Employee;
@@ -2475,6 +2475,12 @@ codeunit 138008 "Cust/Vend/Item/Empl Templates"
     begin
         LibraryVariableStorage.Enqueue(CustomerCard."No.".Value);
         CustomerCard.OK().Invoke();
+    end;
+
+    [ConfirmHandler]
+    procedure ConfirmHandler(Queation: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Customer Templ. Mgt.", 'OnAfterIsEnabled', '', false, false)]

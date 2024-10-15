@@ -883,6 +883,11 @@ codeunit 1535 "Approvals Mgmt."
                     Error(ApproverChainErr);
                 ApproverId := UserSetup."Approver ID";
 
+                IsHandled := false;
+                OnCreateApprovalRequestForApproverChainOnBeforeCheckApproverId(UserSetup, WorkflowStepArgument, ApprovalEntryArgument, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if ApproverId = '' then
                     Error(NoSuitableApproverFoundErr);
 
@@ -2914,6 +2919,11 @@ codeunit 1535 "Approvals Mgmt."
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateApprovalRequestForApproverChainOnAfterCheckUserSetupSenderID(var UserSetup: Record "User Setup"; WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateApprovalRequestForApproverChainOnBeforeCheckApproverId(var UserSetup: Record "User Setup"; WorkflowStepArgument: Record "Workflow Step Argument"; ApprovalEntryArgument: Record "Approval Entry"; var IsHandled: Boolean)
     begin
     end;
 

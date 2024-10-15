@@ -124,6 +124,7 @@ codeunit 5601 "FA Insert G/L Account"
             Reset();
             SetRange(Code, PostingGrCode);
             SetRange("Allocation Type", FAPostingType);
+            OnInsertBufferBalAccOnAfterFAAllocSetFilters(FAAlloc);
             if Find('-') then
                 repeat
                     if ("Account No." = '') and ("Allocation %" > 0) then
@@ -661,6 +662,11 @@ codeunit 5601 "FA Insert G/L Account"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertMaintenanceAccNoOnBeforeInsertBufferEntry(var FAGLPostBuf: Record "FA G/L Posting Buffer"; var MaintenanceLedgEntry: Record "Maintenance Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertBufferBalAccOnAfterFAAllocSetFilters(var FAAllocation: Record "FA Allocation")
     begin
     end;
 

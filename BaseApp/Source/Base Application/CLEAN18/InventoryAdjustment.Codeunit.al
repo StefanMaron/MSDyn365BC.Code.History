@@ -1837,7 +1837,13 @@ codeunit 5895 "Inventory Adjustment"
     local procedure PostItemJnlLine(ItemJnlLine: Record "Item Journal Line"; OrigValueEntry: Record "Value Entry"; NewAdjustedCost: Decimal; NewAdjustedCostACY: Decimal)
     var
         InvtPeriod: Record "Inventory Period";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostItemJnlLine(ItemJnlLine, OrigValueEntry, NewAdjustedCost, NewAdjustedCostACY, SkipUpdateJobItemCost, IsHandled);
+        if IsHandled then
+            exit;
+
         with OrigValueEntry do begin
             ItemJnlLine."Item No." := "Item No.";
             ItemJnlLine."Location Code" := "Location Code";
@@ -2819,6 +2825,11 @@ codeunit 5895 "Inventory Adjustment"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeMakeMultiLevelAdjmt(var Item: Record Item; IsOnlineAdjmt: Boolean; PostToGL: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; OrigValueEntry: Record "Value Entry"; NewAdjustedCost: Decimal; NewAdjustedCostACY: Decimal; SkipUpdateJobItemCost: Boolean; var IsHandled: Boolean)
     begin
     end;
 

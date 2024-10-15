@@ -599,7 +599,7 @@ page 900 "Assembly Order"
                     PromotedIsBig = true;
                     PromotedOnly = true;
                     ShortCutKey = 'Ctrl+F9';
-                    ToolTip = 'Release the document to the next stage of processing. When a document is released, it will be included in all availability calculations from the expected receipt date of the items. You must reopen the document before you can make changes to it.';
+                    ToolTip = 'Release the document to the next stage of processing. You must reopen the document before you can make changes to it.';
 
                     trigger OnAction()
                     begin
@@ -833,6 +833,7 @@ page 900 "Assembly Order"
     begin
         IsUnitCostEditable := not IsStandardCostItem;
         IsAsmToOrderEditable := not IsAsmToOrder;
+        UpdateWarningOnLines();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -852,8 +853,6 @@ page 900 "Assembly Order"
     begin
         IsUnitCostEditable := true;
         IsAsmToOrderEditable := true;
-
-        UpdateWarningOnLines;
     end;
 
     var

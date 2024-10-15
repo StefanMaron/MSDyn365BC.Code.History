@@ -514,7 +514,7 @@ codeunit 333 "Req. Wksh.-Make Order"
             PurchOrderLine."Prod. Order Line No." := "Prod. Order Line No.";
             InitPurchOrderLineUpdateQuantity(RequisitionLine);
 
-            Validate("Order Date", PurchOrderHeader."Order Date");
+            CopyOrderDateFromPurchHeader(RequisitionLine, PurchOrderHeader, PurchOrderLine);
             if PurchOrderHeader."Prices Including VAT" then
                 PurchOrderLine.Validate("Direct Unit Cost", "Direct Unit Cost" * (1 + PurchOrderLine."VAT %" / 100))
             else
@@ -553,6 +553,18 @@ codeunit 333 "Req. Wksh.-Make Order"
             exit;
 
         PurchOrderLine.Validate(Quantity, RequisitionLine.Quantity);
+    end;
+
+    local procedure CopyOrderDateFromPurchHeader(var RequisitionLine: Record "Requisition Line"; PurchOrderHeader: Record "Purchase Header"; PurchOrderLine: Record "Purchase Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCopyOrderDateFromPurchHeader(RequisitionLine, PurchOrderHeader, PurchOrderLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        RequisitionLine.Validate("Order Date", PurchOrderHeader."Order Date");
     end;
 
     procedure InsertPurchOrderLine(var ReqLine2: Record "Requisition Line"; var PurchOrderHeader: Record "Purchase Header")
@@ -1339,6 +1351,11 @@ codeunit 333 "Req. Wksh.-Make Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckPurchOrderLineShipToCode(var RequisitionLine: Record "Requisition Line"; PurchOrderLine: Record "Purchase Line"; SalesOrderHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyOrderDateFromPurchHeader(var RequisitionLine: Record "Requisition Line"; PurchOrderHeader: Record "Purchase Header"; PurchOrderLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 

@@ -3714,6 +3714,48 @@ codeunit 137404 "SCM Manufacturing"
         Assert.ExpectedError(StrSubstNo(CircularRefInBOMErr, ProductionBOMHeader."No.", ProductionBOMHeader."No."));
     end;
 
+    [Test]
+    procedure NoErrorOnSameBOMInDifferentBranchesInBOMTree()
+    var
+        Item: Record Item;
+        ProductionBOMHeader: array[3] of Record "Production BOM Header";
+        ProductionBOMLine: array[2] of Record "Production BOM Line";
+    begin
+        // [FEATURE] [Production BOM]
+        // [SCENARIO 425674] No error when the same production BOM no. is present in unrelated branches in BOM tree.
+        Initialize();
+
+        UpdateDynamicLowLevelCodeInMfgSetup(false);
+
+        // [GIVEN] Certified production BOM "A", component type = Item, component no. = <some item>.
+        LibraryInventory.CreateItem(Item);
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader[1], Item."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader[1], ProductionBOMLine[1], '', ProductionBOMLine[1].Type::Item, Item."No.", 1);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader[1], ProductionBOMHeader[1].Status::Certified);
+
+        // [GIVEN] Certified production BOM "B", component type = Production BOM, component no. = BOM "A".
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader[2], Item."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader[2], ProductionBOMLine[1], '', ProductionBOMLine[1].Type::"Production BOM", ProductionBOMHeader[1]."No.", 1);
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader[2], ProductionBOMHeader[2].Status::Certified);
+
+        // [GIVEN] Production BOM "C" with two lines:
+        // [GIVEN] Line 1. Type = Production BOM, No. = BOM "A".
+        // [GIVEN] Line 2. Type = Production BOM, No. = BOM "B" (whose component is BOM "A")
+        LibraryManufacturing.CreateProductionBOMHeader(ProductionBOMHeader[3], Item."Base Unit of Measure");
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader[3], ProductionBOMLine[1], '', ProductionBOMLine[1].Type::"Production BOM", ProductionBOMHeader[1]."No.", 1);
+        LibraryManufacturing.CreateProductionBOMLine(
+          ProductionBOMHeader[3], ProductionBOMLine[2], '', ProductionBOMLine[2].Type::"Production BOM", ProductionBOMHeader[2]."No.", 1);
+
+        // [WHEN] Certify production BOM "C".
+        LibraryManufacturing.UpdateProductionBOMStatus(ProductionBOMHeader[3], ProductionBOMHeader[3].Status::Certified);
+
+        // [THEN] BOM "C" is certified successfully.
+        ProductionBOMHeader[3].TestField(Status, ProductionBOMHeader[3].Status::Certified);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

@@ -1,4 +1,4 @@
-#if not CLEAN17
+﻿#if not CLEAN17
 report 20 "Calc. and Post VAT Settlement"
 {
     DefaultLayout = RDLC;
@@ -669,7 +669,7 @@ report 20 "Calc. and Post VAT Settlement"
     var
         ConfirmManagement: Codeunit "Confirm Management";
     begin
-        OnBeforePreReport("VAT Posting Setup");
+        OnBeforePreReport("VAT Posting Setup", PostSettlement, GLAccSettle);
 
         if PostingDate = 0D then
             Error(Text000);
@@ -1006,7 +1006,7 @@ report 20 "Calc. and Post VAT Settlement"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePreReport(var VATPostingSetup: Record "VAT Posting Setup")
+    local procedure OnBeforePreReport(var VATPostingSetup: Record "VAT Posting Setup"; PostSettlement: Boolean; GLAccountSettle: Record "G/L Account")
     begin
     end;
 

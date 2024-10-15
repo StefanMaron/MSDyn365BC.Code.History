@@ -47,7 +47,7 @@ codeunit 5703 "Catalog Item Management"
 
         CreateNewItem(NonStock2."Item No.", NonStock2);
         OnNonstockAutoItemOnAfterCreateNewItem(NewItem);
-        Message(Text001, NonStock2."Item No.");
+        ShowItemCreatedMessage(NonStock2);
 
         if CheckLicensePermission(DATABASE::"Item Vendor") then
             NonstockItemVend(NonStock2);
@@ -55,6 +55,16 @@ codeunit 5703 "Catalog Item Management"
             NonstockItemReference(NonStock2);
 
         OnAfterNonstockAutoItem(NonStock2, NewItem);
+    end;
+
+    local procedure ShowItemCreatedMessage(NonStock2: Record "Nonstock Item")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeShowItemCreatedMessage(NewItem, NonStock2, IsHandled);
+        if not IsHandled then
+            Message(Text001, NonStock2."Item No.");
     end;
 
     local procedure CheckNonStockItem(NonStock2: Record "Nonstock Item")
@@ -712,6 +722,11 @@ codeunit 5703 "Catalog Item Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeNonStockSales(var NonStockItem: Record "Nonstock Item"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowItemCreatedMessage(var NewItem: Record Item; NonStockItem: Record "Nonstock Item"; var IsHandled: Boolean)
     begin
     end;
 

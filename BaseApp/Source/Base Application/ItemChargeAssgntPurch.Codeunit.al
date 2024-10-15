@@ -1,4 +1,4 @@
-﻿#if not CLEAN18
+#if not CLEAN18
 codeunit 5805 "Item Charge Assgnt. (Purch.)"
 {
     Permissions = TableData "Purchase Header" = r,
@@ -644,7 +644,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                         end;
                 // NAVCZ
                 end;
-                OnAssignByAmountOnAfterAssignAppliesToDocLineAmount(ItemChargeAssgntPurch, TempItemChargeAssgntPurch);
+                OnAssignByAmountOnAfterAssignAppliesToDocLineAmount(ItemChargeAssgntPurch, TempItemChargeAssgntPurch, PurchHeader, TotalQtyToAssign, TotalAmtToAssign);
                 if TempItemChargeAssgntPurch."Applies-to Doc. Line Amount" <> 0 then
                     TempItemChargeAssgntPurch.Insert
                 else begin
@@ -713,7 +713,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                 TotalGrossWeight := TotalGrossWeight + (LineAray[2] * LineAray[1]);
             end;
         until ItemChargeAssgntPurch.Next() = 0;
-        OnAssignByWeightOnAfterCalcTotalGrossWeight(ItemChargeAssgntPurch, TotalGrossWeight);
+        OnAssignByWeightOnAfterCalcTotalGrossWeight(ItemChargeAssgntPurch, TotalGrossWeight, TempItemChargeAssgntPurch);
 
         if TempItemChargeAssgntPurch.FindSet(true) then
             repeat
@@ -746,6 +746,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                 TotalUnitVolume := TotalUnitVolume + (LineAray[3] * LineAray[1]);
             end;
         until ItemChargeAssgntPurch.Next() = 0;
+        OnAssignByVolumeOnAfterCalcTotalUnitVolume(ItemChargeAssgntPurch, TotalUnitVolume, TempItemChargeAssgntPurch);
 
         if TempItemChargeAssgntPurch.FindSet(true) then
             repeat
@@ -786,7 +787,12 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
         TransferRcptLine: Record "Transfer Receipt Line";
         SalesShptLine: Record "Sales Shipment Line";
         ReturnRcptLine: Record "Return Receipt Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetItemValues(TempItemChargeAssgntPurch, DecimalArray, IsHandled);
+        if not IsHandled then begin
+
         Clear(DecimalArray);
         with TempItemChargeAssgntPurch do
             case "Applies-to Doc. Type" of
@@ -836,6 +842,9 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
                         DecimalArray[3] := SalesShptLine."Unit Volume";
                     end;
             end;
+        end;
+
+        OnAfterGetItemValues(TempItemChargeAssgntPurch, DecimalArray);
     end;
 
     procedure SuggestAssgntFromLine(var FromItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
@@ -954,7 +963,17 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAssignByWeightOnAfterCalcTotalGrossWeight(var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; TotalGrossWeight: Decimal)
+    local procedure OnAfterGetItemValues(var TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary; var DecimalArray: array[3] of Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssignByWeightOnAfterCalcTotalGrossWeight(var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; TotalGrossWeight: Decimal; var TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAssignByVolumeOnAfterCalcTotalUnitVolume(var ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; TotalUnitVolume: Decimal; var TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary)
     begin
     end;
 
@@ -990,6 +1009,11 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateReturnRcptChargeAssgnt(var FromReturnRcptLine: Record "Return Receipt Line"; ItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetItemValues(var TempItemChargeAssgntPurch: Record "Item Charge Assignment (Purch)" temporary; var DecimalArray: array[3] of Decimal; var IsHandled: Boolean)
     begin
     end;
 
@@ -1054,7 +1078,7 @@ codeunit 5805 "Item Charge Assgnt. (Purch.)"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAssignByAmountOnAfterAssignAppliesToDocLineAmount(ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; var TempItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)" temporary);
+    local procedure OnAssignByAmountOnAfterAssignAppliesToDocLineAmount(ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)"; var TempItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)" temporary; PurchHeader: Record "Purchase Header"; TotalQtyToAssign: Decimal; TotalAmtToAssign: Decimal);
     begin
     end;
 }

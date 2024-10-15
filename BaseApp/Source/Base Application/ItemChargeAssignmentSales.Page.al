@@ -442,6 +442,8 @@ page 5814 "Item Charge Assignment (Sales)"
                     UnitVolume := SalesLine."Unit Volume";
                 end;
         end;
+
+        OnAfterUpdateQty(Rec, QtyToShipBase, QtyShippedBase, QtyToRetReceiveBase, QtyRetReceivedBase, GrossWeight, UnitVolume);
     end;
 
     procedure Initialize(NewSalesLine: Record "Sales Line"; NewLineAmt: Decimal)
@@ -455,6 +457,11 @@ page 5814 "Item Charge Assignment (Sales)"
     begin
         CurrPage.Update(false);
         UpdateQtyAssgnt;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateQty(var ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)"; var QtyToShipBase: Decimal; var QtyShippedBase: Decimal; var QtyToRetReceiveBase: Decimal; var QtyRetReceivedBase: Decimal; var GrossWeight: Decimal; var UnitVolume: Decimal)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

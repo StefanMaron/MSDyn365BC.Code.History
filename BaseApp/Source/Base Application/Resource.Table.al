@@ -563,7 +563,7 @@ table 156 Resource
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
-                OnBeforeValidateTimeSheetApproverUserID(Rec, IsHandled);
+                OnBeforeValidateTimeSheetApproverUserID(Rec, IsHandled, xRec);
                 if IsHandled then
                     exit;
 
@@ -992,7 +992,7 @@ table 156 Resource
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateTimeSheetApproverUserID(var Resource: Record Resource; var IsHandled: Boolean)
+    local procedure OnBeforeValidateTimeSheetApproverUserID(var Resource: Record Resource; var IsHandled: Boolean; xResource: Record Resource)
     begin
     end;
 

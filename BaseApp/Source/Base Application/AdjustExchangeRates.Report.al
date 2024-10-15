@@ -1186,6 +1186,7 @@ report 595 "Adjust Exchange Rates"
     var
         CustPostingGr: Record "Customer Posting Group";
     begin
+        OnBeforePostCustAdjmt(AdjExchRateBuffer, TempDtldCVLedgEntryBuf, TempDimSetEntry, TempAdjExchRateBuffer);
         CustPostingGr.Get(TempAdjExchRateBuffer."Posting Group");
         // NAVCZ
         TempDtldCVLedgEntryBuf."Transaction No." :=
@@ -1203,6 +1204,7 @@ report 595 "Adjust Exchange Rates"
     var
         VendPostingGr: Record "Vendor Posting Group";
     begin
+        OnBeforePostVendAdjmt(AdjExchRateBuffer, TempDtldCVLedgEntryBuf, TempDimSetEntry, TempAdjExchRateBuffer);
         VendPostingGr.Get(TempAdjExchRateBuffer."Posting Group");
         // NAVCZ
         TempDtldCVLedgEntryBuf."Transaction No." :=
@@ -1923,11 +1925,17 @@ report 595 "Adjust Exchange Rates"
         exit(DimEntryNo);
     end;
 
-    local procedure PostGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; var DimSetEntry: Record "Dimension Set Entry"): Integer
+    local procedure PostGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; var DimSetEntry: Record "Dimension Set Entry") Result: Integer
     var
         TableID: array[10] of Integer;
         No: array[10] of Code[20];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostGenJnlLine(GenJnlLine, DimSetEntry, GenJnlPostLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         // NAVCZ
         case DimMoveType of
             DimMoveType::"No move":
@@ -1964,6 +1972,8 @@ report 595 "Adjust Exchange Rates"
         if not TestMode then begin // NAVCZ
             OnPostGenJnlLineOnBeforeGenJnlPostLineRun(GenJnlLine);
             GenJnlPostLine.Run(GenJnlLine);
+            OnPostGenJnlLineOnAfterGenJnlPostLineRun(GenJnlLine, GenJnlPostLine);
+
             exit(GenJnlPostLine.GetNextTransactionNo);
         end;
     end;
@@ -2788,9 +2798,28 @@ report 595 "Adjust Exchange Rates"
     begin
     end;
 #endif
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostCustAdjmt(var AdjExchRateBuffer: Record "Adjust Exchange Rate Buffer"; var TempDtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer" temporary; var TempDimSetEntry: Record "Dimension Set Entry" temporary; var TempAdjExchRateBuffer: Record "Adjust Exchange Rate Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostVendAdjmt(var AdjExchRateBuffer: Record "Adjust Exchange Rate Buffer"; var TempDtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer" temporary; var TempDimSetEntry: Record "Dimension Set Entry" temporary; var TempAdjExchRateBuffer: Record "Adjust Exchange Rate Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; var DimSetEntry: Record "Dimension Set Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; var Result: Integer; var IsHandled: Boolean)
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnVendorAfterGetRecordOnAfterFindVendLedgerEntriesToAdjust(var TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostGenJnlLineOnAfterGenJnlPostLineRun(var GenJnlLine: Record "Gen. Journal Line"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
     begin
     end;
 

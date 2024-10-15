@@ -191,7 +191,7 @@ table 418 "IC Inbox Transaction"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeInboxCheckAccept(Rec, IsHandled);
+        OnBeforeInboxCheckAccept(Rec, IsHandled, xRec);
         if IsHandled then
             exit;
 
@@ -256,7 +256,7 @@ table 418 "IC Inbox Transaction"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInboxCheckAccept(var ICInboxTransaction: Record "IC Inbox Transaction"; var IsHandled: Boolean)
+    local procedure OnBeforeInboxCheckAccept(var ICInboxTransaction: Record "IC Inbox Transaction"; var IsHandled: Boolean; xICInboxTransaction: Record "IC Inbox Transaction")
     begin
     end;
 

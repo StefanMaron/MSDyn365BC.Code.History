@@ -120,7 +120,7 @@ codeunit 5600 "FA Insert Ledger Entry"
             if FALedgEntry3."FA Posting Type".AsInteger() <= FALedgEntry3."FA Posting Type"::"Salvage Value".AsInteger() then
                 CODEUNIT.Run(CODEUNIT::"FA Check Consistency", FALedgEntry);
 
-        OnBeforeInsertRegister(FALedgEntry, FALedgEntry2);
+        OnBeforeInsertRegister(FALedgEntry, FALedgEntry2, NextEntryNo);
 
         InsertRegister(0, NextEntryNo);
     end;
@@ -642,7 +642,7 @@ codeunit 5600 "FA Insert Ledger Entry"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertRegister(var FALedgerEntry: Record "FA Ledger Entry"; var FALedgerEntry2: Record "FA Ledger Entry")
+    local procedure OnBeforeInsertRegister(var FALedgerEntry: Record "FA Ledger Entry"; var FALedgerEntry2: Record "FA Ledger Entry"; var NextEntryNo: Integer)
     begin
     end;
 
@@ -662,7 +662,7 @@ codeunit 5600 "FA Insert Ledger Entry"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnInsertFAOnBeforeCheckFALedgEntry(FALedgEntry: Record "FA Ledger Entry"; FALedgEntry2: Record "FA Ledger Entry"; var IsHandled: Boolean)
+    local procedure OnInsertFAOnBeforeCheckFALedgEntry(var FALedgEntry: Record "FA Ledger Entry"; FALedgEntry2: Record "FA Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -1897,7 +1897,80 @@ table 130 "Incoming Document"
         if not DataTypeManagement.FindFieldByName(MainRecordRef, PostingDateFieldRef, SalesInvoiceHeader.FieldName("Posting Date")) then
             exit(false);
 
-        exit(FindByDocumentNoAndPostingDate(IncomingDocument, DocumentNoFieldRef.Value, PostingDateFieldRef.Value))
+        exit(FindByDocumentNoAndPostingDate(MainRecordRef, IncomingDocument, DocumentNoFieldRef.Value, PostingDateFieldRef.Value))
+    end;
+
+    procedure FindByDocumentNoAndPostingDate(MainRecordRef: RecordRef; var IncomingDocument: Record "Incoming Document"; DocumentNo: Text; PostingDateText: Text): Boolean
+    var
+        SalesHeader: Record "Sales Header";
+        PurchaseHeader: Record "Purchase Header";
+        PostingDate: Date;
+    begin
+        if (DocumentNo = '') or (PostingDateText = '') then
+            exit(false);
+
+        if not Evaluate(PostingDate, PostingDateText) then
+            exit(false);
+
+        IncomingDocument.SetRange("Document No.", DocumentNo);
+        IncomingDocument.SetRange("Posting Date", PostingDate);
+
+        case MainRecordRef.Number of
+            Database::"Sales Invoice Header":
+                begin
+                    IncomingDocument.SetRange("Document Type", IncomingDocument."Document Type"::"Sales Invoice");
+                    IncomingDocument.SetRange(Posted, true);
+                end;
+            Database::"Purch. Inv. Header":
+                begin
+                    IncomingDocument.SetRange("Document Type", IncomingDocument."Document Type"::"Purchase Invoice");
+                    IncomingDocument.SetRange(Posted, true);
+                end;
+            Database::"Sales Cr.Memo Header":
+                begin
+                    IncomingDocument.SetRange("Document Type", IncomingDocument."Document Type"::"Sales Credit Memo");
+                    IncomingDocument.SetRange(Posted, true);
+                end;
+            Database::"Purch. Cr. Memo Hdr.":
+                begin
+                    IncomingDocument.SetRange("Document Type", IncomingDocument."Document Type"::"Purchase Credit Memo");
+                    IncomingDocument.SetRange(Posted, true);
+                end;
+            Database::"Sales Header":
+                begin
+                    MainRecordRef.SetTable(SalesHeader);
+                    case SalesHeader."Document Type" of
+                        SalesHeader."Document Type"::Invoice, SalesHeader."Document Type"::Order, SalesHeader."Document Type"::Quote:
+                            begin
+                                IncomingDocument.SetRange("Document Type", IncomingDocument."Document Type"::"Sales Invoice");
+                                IncomingDocument.SetRange(Posted, false);
+                            end;
+                        SalesHeader."Document Type"::"Credit Memo":
+                            begin
+                                IncomingDocument.SetRange("Document Type", IncomingDocument."Document Type"::"Sales Credit Memo");
+                                IncomingDocument.SetRange(Posted, false);
+                            end;
+                    end;
+                end;
+            Database::"Purchase Header":
+                begin
+                    MainRecordRef.SetTable(PurchaseHeader);
+                    case PurchaseHeader."Document Type" of
+                        PurchaseHeader."Document Type"::Invoice, PurchaseHeader."Document Type"::Order, PurchaseHeader."Document Type"::Quote:
+                            begin
+                                IncomingDocument.SetRange("Document Type", IncomingDocument."Document Type"::"Purchase Invoice");
+                                IncomingDocument.SetRange(Posted, false);
+                            end;
+                        PurchaseHeader."Document Type"::"Credit Memo":
+                            begin
+                                IncomingDocument.SetRange("Document Type", IncomingDocument."Document Type"::"Purchase Credit Memo");
+                                IncomingDocument.SetRange(Posted, false);
+                            end;
+                    end
+                end;
+        end;
+
+        exit(IncomingDocument.FindFirst);
     end;
 
     procedure FindByDocumentNoAndPostingDate(var IncomingDocument: Record "Incoming Document"; DocumentNo: Text; PostingDateText: Text): Boolean

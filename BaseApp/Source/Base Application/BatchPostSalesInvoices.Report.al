@@ -146,6 +146,7 @@ report 297 "Batch Post Sales Invoices"
             PrintDoc := false;
             PrintDocVisible := SalesReceivablesSetup."Post & Print with Job Queue";
             SetControlVisibility; // NAVCZ
+            OnAfterOnOpenPage(CalcInvDisc, ReplacePostingDate, ReplaceDocumentDate, PrintDoc, PrintDocVisible);
         end;
     }
 
@@ -177,6 +178,11 @@ report 297 "Batch Post Sales Invoices"
         UseVATDate := GLSetup."Use VAT Date";
     end;
     
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnOpenPage(var CalcInvDisc: Boolean; var ReplacePostingDate: Boolean; var ReplaceDocumentDate: Boolean; var PrintDoc: Boolean; var PrintDocVisible: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesHeaderPreDataItem(var SalesHeader: Record "Sales Header")
     begin

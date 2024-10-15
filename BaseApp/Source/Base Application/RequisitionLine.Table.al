@@ -130,7 +130,7 @@ table 246 "Requisition Line"
 
                     "Net Quantity (Base)" := (Quantity - "Original Quantity") * "Qty. per Unit of Measure";
 
-                    OnValidateQuantityOnBeforeUnitCost(Rec, CurrFieldNo);
+                    OnValidateQuantityOnBeforeUnitCost(Rec, CurrFieldNo, CurrentFieldNo);
                     Validate("Unit Cost");
                     if ValidateFields then
                         if "Ending Date" <> 0D then
@@ -3068,7 +3068,7 @@ table 246 "Requisition Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckVendorBlocked(Rec, Vend, IsHandled);
+        OnBeforeCheckVendorBlocked(Rec, Vend, IsHandled, CurrentFieldNo);
         if IsHandled then
             exit;
 
@@ -3724,7 +3724,7 @@ table 246 "Requisition Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckVendorBlocked(var RequisitionLine: Record "Requisition Line"; var Vendor: Record Vendor; var IsHandled: Boolean);
+    local procedure OnBeforeCheckVendorBlocked(var RequisitionLine: Record "Requisition Line"; var Vendor: Record Vendor; var IsHandled: Boolean; GlobalCurrentFieldNo: Integer);
     begin
     end;
 
@@ -3864,7 +3864,7 @@ table 246 "Requisition Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateQuantityOnBeforeUnitCost(var RequisitionLine: Record "Requisition Line"; CallingFieldNo: Integer)
+    local procedure OnValidateQuantityOnBeforeUnitCost(var RequisitionLine: Record "Requisition Line"; CallingFieldNo: Integer; GlobalCurrentFieldNo: Integer)
     begin
     end;
 

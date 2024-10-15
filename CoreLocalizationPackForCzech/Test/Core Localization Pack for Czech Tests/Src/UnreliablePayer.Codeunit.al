@@ -49,7 +49,7 @@ codeunit 148052 "Unreliable Payer CZL"
         UnrelPayerServiceSetupCZL.DeleteAll();
         UnrelPayerServiceSetupCZL.Init();
         UnrelPayerServiceSetupCZL.Enabled := true;
-        UnrelPayerServiceSetupCZL."Unreliable Payer Web Service" := UnreliablePayerMgtCZL.GetUnreliablePayerServiceURL();
+        UnreliablePayerMgtCZL.SetDefaultUnreliablePayerServiceURL(UnrelPayerServiceSetupCZL);
         UnrelPayerServiceSetupCZL."Public Bank Acc.Chck.Star.Date" := 20900101D;
         UnrelPayerServiceSetupCZL.Insert();
 #if not CLEAN17

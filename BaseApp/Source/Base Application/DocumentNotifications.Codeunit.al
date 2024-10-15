@@ -29,6 +29,7 @@ codeunit 1390 "Document Notifications"
                 Customer.SetAddress(SalesHeader."Sell-to Address", SalesHeader."Sell-to Address 2",
                   SalesHeader."Sell-to Post Code", SalesHeader."Sell-to City", SalesHeader."Sell-to County",
                   SalesHeader."Sell-to Country/Region Code", SalesHeader."Sell-to Contact");
+                OnCopySellToCustomerAddressFieldsFromSalesDocumentOnBeforeModify(Customer, SalesHeader);
                 Customer.Modify(true);
             end;
         end;
@@ -62,7 +63,7 @@ codeunit 1390 "Document Notifications"
         end;
     end;
 
-    local procedure GetCustomerFullAddress(Customer: Record Customer): Text
+    local procedure GetCustomerFullAddress(Customer: Record Customer) Result: Text
     var
         AddressArray: array[7] of Text;
     begin
@@ -74,7 +75,8 @@ codeunit 1390 "Document Notifications"
         AddressArray[6] := Customer."Country/Region Code";
         AddressArray[7] := Customer.Contact;
 
-        exit(FormatAddress(AddressArray));
+        Result := FormatAddress(AddressArray);
+        OnAfterGetCustomerFullAddress(AddressArray, Customer, Result);
     end;
 
     local procedure GetSalesHeaderFullSellToAddress(SalesHeader: Record "Sales Header"): Text
@@ -232,7 +234,7 @@ codeunit 1390 "Document Notifications"
         PAGE.RunModal(PAGE::"User Setup", UserSetup);
     end;
 
-    local procedure GetVendorFullAddress(Vendor: Record Vendor): Text
+    local procedure GetVendorFullAddress(Vendor: Record Vendor) Result: Text
     var
         AddressArray: array[7] of Text;
     begin
@@ -244,7 +246,8 @@ codeunit 1390 "Document Notifications"
         AddressArray[6] := Vendor."Country/Region Code";
         AddressArray[7] := Vendor.Contact;
 
-        exit(FormatAddress(AddressArray));
+        Result := FormatAddress(AddressArray);
+        OnAfterGetVendorFullAddress(AddressArray, Vendor, Result);
     end;
 
     local procedure GetPurchaseHeaderFullBuyFromAddress(PurchaseHeader: Record "Purchase Header"): Text
@@ -395,6 +398,16 @@ codeunit 1390 "Document Notifications"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterGetCustomerFullAddress(AddressArray: array[7] of Text; Customer: Record Customer; var Result: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetVendorFullAddress(AddressArray: array[7] of Text; Vendor: Record Vendor; var Result: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyBillToCustomerAddressFieldsFromSalesDocument(var ModifyCustomerAddressNotification: Notification; var SalesHeader: Record "Sales Header")
     begin
     end;
@@ -411,6 +424,11 @@ codeunit 1390 "Document Notifications"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyPayToVendorAddressFieldsFromSalesDocument(var ModifyVendorAddressNotification: Notification; var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCopySellToCustomerAddressFieldsFromSalesDocumentOnBeforeModify(var Customer: Record Customer; SalesHeader: Record "Sales Header")
     begin
     end;
 }

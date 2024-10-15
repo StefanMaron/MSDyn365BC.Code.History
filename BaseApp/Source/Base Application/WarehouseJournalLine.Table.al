@@ -117,6 +117,9 @@ table 7311 "Warehouse Journal Line"
                 if not PhysInvtEntered then
                     TestField("Phys. Inventory", false);
 
+                if "Item No." <> xRec."Item No." then
+                    DeleteWhseItemTracking();
+
                 SetItemFields();
             end;
         }
@@ -504,6 +507,7 @@ table 7311 "Warehouse Journal Line"
                     GetItem("Item No.", Description);
 
                 if "Variant Code" <> xRec."Variant Code" then begin
+                    DeleteWhseItemTracking();
                     CheckBin("Location Code", "From Bin Code", false);
                     CheckBin("Location Code", "To Bin Code", true);
                 end;
@@ -527,6 +531,9 @@ table 7311 "Warehouse Journal Line"
             begin
                 if not PhysInvtEntered then
                     TestField("Phys. Inventory", false);
+
+                if "Unit of Measure Code" <> xRec."Unit of Measure Code" then
+                    DeleteWhseItemTracking();
 
                 if "Item No." <> '' then begin
                     TestField("Unit of Measure Code");
@@ -702,9 +709,7 @@ table 7311 "Warehouse Journal Line"
 
     trigger OnDelete()
     begin
-        ItemTrackingMgt.DeleteWhseItemTrkgLines(
-          DATABASE::"Warehouse Journal Line", 0, "Journal Batch Name",
-          "Journal Template Name", 0, "Line No.", "Location Code", true);
+        DeleteWhseItemTracking();
     end;
 
     trigger OnInsert()
@@ -1507,6 +1512,12 @@ table 7311 "Warehouse Journal Line"
         "Whse. Document Type" := DocType;
         "Whse. Document No." := DocNo;
         "Whse. Document Line No." := DocLineNo;
+    end;
+
+    local procedure DeleteWhseItemTracking()
+    begin
+        ItemTrackingMgt.DeleteWhseItemTrkgLines(
+          DATABASE::"Warehouse Journal Line", 0, "Journal Batch Name", "Journal Template Name", 0, "Line No.", "Location Code", true);
     end;
 
     [IntegrationEvent(false, false)]

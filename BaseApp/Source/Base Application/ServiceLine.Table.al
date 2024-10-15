@@ -3296,7 +3296,7 @@ table 5902 "Service Line"
         if "Exclude Warranty" or not Warranty then
             Discounts[1] := 0
         else begin
-            if ServItemLine.Get("Document Type", "Document No.", "Service Item Line No.") then
+            if GetServiceItemLine() then
                 case Type of
                     Type::Item:
                         "Warranty Disc. %" := ServItemLine."Warranty % (Parts)";
@@ -3541,6 +3541,17 @@ table 5902 "Service Line"
                 Currency.TestField("Amount Rounding Precision");
             end;
         end;
+    end;
+
+    local procedure GetServiceItemLine(): Boolean
+    begin
+        if ("Document Type" <> ServItemLine."Document Type") or
+           ("Document No." <> ServItemLine."Document No.") or
+           ("Service Item Line No." <> ServItemLine."Line No.")
+        then
+            exit(ServItemLine.Get("Document Type", "Document No.", "Service Item Line No."));
+
+        exit(true);
     end;
 
     local procedure InitHeaderDefaults(ServHeader: Record "Service Header")
@@ -4634,6 +4645,11 @@ table 5902 "Service Line"
             Currency.Get(ServHeader."Currency Code");
             Currency.TestField("Amount Rounding Precision");
         end;
+    end;
+
+    procedure SetServiceItemLine(var NewServiceItemLine: Record "Service Item Line")
+    begin
+        ServItemLine := NewServiceItemLine;
     end;
 
     procedure CalcVATAmountLines(QtyType: Option General,Invoicing,Shipping,Consuming; var ServHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; var VATAmountLine: Record "VAT Amount Line"; isShip: Boolean)

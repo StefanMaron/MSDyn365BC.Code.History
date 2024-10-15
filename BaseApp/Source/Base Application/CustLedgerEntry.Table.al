@@ -948,6 +948,7 @@ table 21 "Cust. Ledger Entry"
         key(Key23; SystemModifiedAt)
         {
         }
+<<<<<<< App/Layers/CZ/BaseApp/CustLedgerEntry.Table.al
 #else
         key(Key18; "Customer No.", "Currency Code", "Customer Posting Group", "Document Type")
         {
@@ -1018,6 +1019,10 @@ table 21 "Cust. Ledger Entry"
             ObsoleteTag = '19.0';
         }
 #endif
+        key(Key35; "Customer No.", "Posting Date", "Applies-to ID")
+        {
+            IncludedFields = "Currency Code", "Amount to Apply", Open;
+        }
     }
 
     fieldgroups

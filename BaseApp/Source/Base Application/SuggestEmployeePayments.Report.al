@@ -404,6 +404,8 @@ report 394 "Suggest Employee Payments"
             "Employee Posting Group".CopyFilter(Code, EmployeeLedgerEntry."Employee Posting Group");
         // NAVCZ
 
+        OnGetEmplLedgEntriesOnAfterSetFilters(EmployeeLedgerEntry, Positive, SkipExportedPayments);
+
         if EmployeeLedgerEntry.FindSet then
             repeat
                 SaveAmount;
@@ -848,6 +850,11 @@ report 394 "Suggest Employee Payments"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyEmployeeLedgerEntriesToTempEmplPaymentBufferOnAfterCopyEmployeeLedgerEntryFields(var TempEmplPaymentBuffer: Record "Employee Payment Buffer" temporary; EmployeeLedgerEntry: Record "Employee Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetEmplLedgEntriesOnAfterSetFilters(var EmployeeLedgerEntry: Record "Employee Ledger Entry"; Positive: Boolean; SkipExportedPayments: Boolean);
     begin
     end;
 }

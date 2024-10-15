@@ -151,11 +151,17 @@ codeunit 5814 "Undo Return Shipment Line"
         end;
     end;
 
-    local procedure GetCorrectionLineNo(ReturnShptLine: Record "Return Shipment Line"): Integer
+    local procedure GetCorrectionLineNo(ReturnShptLine: Record "Return Shipment Line") Result: Integer
     var
         ReturnShptLine2: Record "Return Shipment Line";
         LineSpacing: Integer;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetCorrectionLineNo(ReturnShptLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         with ReturnShptLine do begin
             ReturnShptLine2.SetRange("Document No.", "Document No.");
             ReturnShptLine2."Document No." := "Document No.";
@@ -346,6 +352,11 @@ codeunit 5814 "Undo Return Shipment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterReturnShptLineModify(var ReturnShptLine: Record "Return Shipment Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetCorrectionLineNo(ReturnShptLine: Record "Return Shipment Line"; var Result: Integer; var IsHandled: Boolean)
     begin
     end;
 
