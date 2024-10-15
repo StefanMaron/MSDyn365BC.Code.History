@@ -14,6 +14,7 @@ codeunit 142090 "UT TAB Sales Tax II"
         LibraryJournals: Codeunit "Library - Journals";
         LibraryERM: Codeunit "Library - ERM";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryPermissions: Codeunit "Library - Permissions";
         LibraryUTUtility: Codeunit "Library UT Utility";
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
@@ -646,6 +647,29 @@ codeunit 142090 "UT TAB Sales Tax II"
         // [THEN] Error is shown
         asserterror ServiceContractAccountGroup.Validate("Prepaid Contract Acc.", GLAccount."No.");
         Assert.ExpectedError(StrSubstNo(ExpectedTaxGroupCodeErr, GLAccount."No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VATRegistrationNoVisibility()
+    var
+        CompanyInformationPage: TestPage "Company Information";
+    begin
+        // [FEATURE] [Application Area]
+        // [SCENARIO 382787] "VAT Registration No." is visible/editable on Company Information page in SaaS
+        Initialize();
+
+        // [GIVEN] Enabled SaaS setup       
+        LibraryPermissions.SetTestabilitySoftwareAsAService(true);
+
+        // [WHEN] Vendor List page
+        CompanyInformationPage.OpenEdit();
+
+        // [THEN] Otstanding PO reports are available        
+        Assert.IsTrue(CompanyInformationPage."VAT Registration No.".Visible, '');
+        Assert.IsTrue(CompanyInformationPage."VAT Registration No.".Editable, '');
+        CompanyInformationPage.Close();
+        LibraryPermissions.SetTestabilitySoftwareAsAService(false);
     end;
 
     local procedure Initialize()

@@ -114,6 +114,8 @@ report 10111 "Vendor 1099 Int"
             }
 
             trigger OnAfterGetRecord()
+            var
+                IRS1099Management: Codeunit "IRS 1099 Management";
             begin
                 Clear(Amounts);
                 Clear(Void);
@@ -134,7 +136,7 @@ report 10111 "Vendor 1099 Int"
                 end else begin   // not Test Printing
                     PrintThis := false;
                     // Check through all payments during calendar year
-                    ProcessVendorInvoices("No.", PeriodDate);
+                    IRS1099Management.ProcessVendorInvoices(Amounts, "No.", PeriodDate, Codes, LastLineNo, 'INT*');
 
                     // any printable amounts on this form?
                     for i := 1 to LastLineNo do

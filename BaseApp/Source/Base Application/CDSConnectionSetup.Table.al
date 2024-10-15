@@ -1,6 +1,6 @@
 table 7200 "CDS Connection Setup"
 {
-    Caption = 'Common Data Service Connection Setup';
+    Caption = 'Dataverse Connection Setup';
 
     fields
     {
@@ -554,12 +554,12 @@ table 7200 "CDS Connection Setup"
         TempClientSecret: Text;
         [NonDebuggable]
         TempAccessToken: Text;
-        CategoryTok: Label 'AL Common Data Service Integration', Locked = true;
-        CDSConnDisabledTxt: Label 'CDS connection has been disabled.', Locked = true;
-        CDSConnEnabledTxt: Label 'CDS connection has been enabled.', Locked = true;
-        CRMConnEnabledErr: Label 'To set up the connection with Common Data Service, you must first disable the existing connection with Dynamics 365 Sales. Read more about it in this help topic: https://docs.microsoft.com/en-us/dynamics365/business-central/admin-upgrade-sales-to-cds';
-        CRMConnEnabledTelemetryErr: Label 'User is trying to set up the connection with Common Data Service, while the existing connection with Dynamics 365 Sales is enabled.', Locked = true;
-        CannotDisableCDSErr: Label 'To disable the connection with Common Data Service, you must first disable the existing connection with Dynamics 365 Sales.';
-        TransferringConnectionValuesFromCRMConnectionsetupTxt: Label 'Transferring connection string values from Dynamics 365 sales connection setup to CDS connection setup', Locked = true;
+        CategoryTok: Label 'AL Dataverse Integration', Locked = true;
+        CDSConnDisabledTxt: Label 'Dataverse connection has been disabled.', Locked = true;
+        CDSConnEnabledTxt: Label 'Dataverse connection has been enabled.', Locked = true;
+        CRMConnEnabledErr: Label 'To set up the connection with Dataverse, you must first disable the existing connection with Dynamics 365 Sales. Read more about it in this help topic: https://docs.microsoft.com/en-us/dynamics365/business-central/admin-upgrade-sales-to-cds';
+        CRMConnEnabledTelemetryErr: Label 'User is trying to set up the connection with Dataverse, while the existing connection with Dynamics 365 Sales is enabled.', Locked = true;
+        CannotDisableCDSErr: Label 'To disable the connection with Dataverse, you must first disable the existing connection with Dynamics 365 Sales.';
+        TransferringConnectionValuesFromCRMConnectionsetupTxt: Label 'Transferring connection string values from Dynamics 365 sales connection setup to Dataverse connection setup', Locked = true;
         TestServerAddressTok: Label '@@test@@', Locked = true;
 }

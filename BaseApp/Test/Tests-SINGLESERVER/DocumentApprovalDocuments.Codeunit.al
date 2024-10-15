@@ -17,6 +17,7 @@ codeunit 134203 "Document Approval - Documents"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryRandom: Codeunit "Library - Random";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryERM: Codeunit "Library - ERM";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
         LibraryWorkflow: Codeunit "Library - Workflow";
@@ -25,7 +26,7 @@ codeunit 134203 "Document Approval - Documents"
         IsInitialized: Boolean;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure PurchaseBlanketOrderCommentFactbox()
@@ -57,7 +58,6 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure PurchaseCreditMemoCommentFactbox()
@@ -89,7 +89,6 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure PurchaseInvoiceCommentFactbox()
@@ -121,7 +120,7 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure PurchaseOrderCommentFactbox()
@@ -153,7 +152,7 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure PurchaseQuoteCommentFactbox()
@@ -185,7 +184,6 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure PurchaseReturnOrderCommentFactbox()
@@ -217,7 +215,7 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure SalesBlanketOrderCommentFactbox()
@@ -249,7 +247,6 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure SalesCreditMemoCommentFactbox()
@@ -281,7 +278,6 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure SalesInvoiceCommentFactbox()
@@ -313,7 +309,7 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure SalesOrderCommentFactbox()
@@ -345,7 +341,6 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure SalesQuoteCommentFactbox()
@@ -377,7 +372,6 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure SalesReturnOrderCommentFactbox()
@@ -409,7 +403,7 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure PurchaseOrderWithPrepaymentApproval()
@@ -443,7 +437,7 @@ codeunit 134203 "Document Approval - Documents"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerYes,MessageHandler')]
+    [HandlerFunctions('MessageHandler')]
     [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure SalesOrderWithPrepaymentApproval()
@@ -1027,13 +1021,20 @@ codeunit 134203 "Document Approval - Documents"
     local procedure CreatePurchDocument(var PurchHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     var
         PurchLine: Record "Purchase Line";
-        Item: Record Item;
-        Vendor: Record Vendor;
+        VATPostingSetup: Record "VAT Posting Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        VendorPostingGroup: Record "Vendor Posting Group";
     begin
-        FindVendor(Vendor);
-        FindItem(Item);
-        LibraryPurchase.CreatePurchHeader(PurchHeader, DocumentType, Vendor."No.");
-        LibraryPurchase.CreatePurchaseLine(PurchLine, PurchHeader, PurchLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInRange(5, 10, 2));
+        CreateGeneralPostingSetupWithGroups(GeneralPostingSetup);
+        LibraryPurchase.CreatePurchHeader(
+            PurchHeader, DocumentType, LibraryPurchase.CreateVendorWithBusPostingGroups(GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group"));
+        LibraryPurchase.CreatePurchaseLine(
+            PurchLine, PurchHeader, PurchLine.Type::Item,
+            CreateItemNoWithPostingSetup(GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group"), LibraryRandom.RandDecInRange(10, 20, 2));
+
+        VendorPostingGroup.Get(PurchHeader."Vendor Posting Group");
+        UpdateProdPostingGroupsOnInvRoundingAccount(VendorPostingGroup.GetInvRoundingAccount(), GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
     end;
 
     local procedure CreatePurchDocumentWithPurchaserCode(var PurchHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; PurchaserCode: Code[20])
@@ -1081,14 +1082,21 @@ codeunit 134203 "Document Approval - Documents"
 
     local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     var
-        Customer: Record Customer;
-        Item: Record Item;
         SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        CustomerPostingGroup: Record "Customer Posting Group";
     begin
-        FindCustomer(Customer);
-        FindItem(Item);
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, Customer."No.");
-        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandInt(10));
+        LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandDecInRange(5, 10, 2));
+        CreateGeneralPostingSetupWithGroups(GeneralPostingSetup);
+        LibrarySales.CreateSalesHeader(
+            SalesHeader, DocumentType, LibrarySales.CreateCustomerWithBusPostingGroups(GeneralPostingSetup."Gen. Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group"));
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::Item,
+            CreateItemNoWithPostingSetup(GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group"), LibraryRandom.RandDecInRange(10, 20, 2));
+
+        CustomerPostingGroup.Get(SalesHeader."Customer Posting Group");
+        UpdateProdPostingGroupsOnInvRoundingAccount(CustomerPostingGroup.GetInvRoundingAccount(), GeneralPostingSetup."Gen. Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
     end;
 
     local procedure CreateSalesDocumentWithSalespersonCode(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; SalespersonCode: Code[20])
@@ -1132,6 +1140,29 @@ codeunit 134203 "Document Approval - Documents"
           DocumentType, SalesHeader."No.", SalesHeader.RecordId, "Approval Status"::Open, UserSetup."User ID", '');
         MockApprovalEntry(
           DocumentType, SalesHeader."No.", SalesHeader.RecordId, "Approval Status"::Rejected, UserSetup."User ID", '');
+    end;
+
+    local procedure CreateGeneralPostingSetupWithGroups(var GeneralPostingSetup: Record "General Posting Setup")
+    var
+        GenBusinessPostingGroup: Record "Gen. Business Posting Group";
+        GenProductPostingGroup: Record "Gen. Product Posting Group";
+    begin
+        LibraryERM.CreateGenBusPostingGroup(GenBusinessPostingGroup);
+        LibraryERM.CreateGenProdPostingGroup(GenProductPostingGroup);
+        LibraryERM.CreateGeneralPostingSetup(GeneralPostingSetup, GenBusinessPostingGroup.Code, GenProductPostingGroup.Code);
+    end;
+
+    local procedure CreateItemNoWithPostingSetup(GenProdPostingGroup: Code[20]; VATProductPostingGroup: Code[20]): Code[20]
+    var
+        Item: Record Item;
+        InventoryPostingGroup: Record "Inventory Posting Group";
+    begin
+        LibraryInventory.CreateInventoryPostingGroup(InventoryPostingGroup);
+        LibraryInventory.CreateItemWithPostingSetup(Item, GenProdPostingGroup, VATProductPostingGroup);
+        Item.Validate("Inventory Posting Group", InventoryPostingGroup.Code);
+        Item.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
+        Item.Modify(true);
+        exit(Item."No.");
     end;
 
     local procedure DeleteSalesVATSetup(DocumentNo: Code[20])
@@ -1254,6 +1285,16 @@ codeunit 134203 "Document Approval - Documents"
         UserSetup.Modify(true);
     end;
 
+    local procedure UpdateProdPostingGroupsOnInvRoundingAccount(InvRoundingAccountCode: Code[20]; GenProdPostingGroupCode: Code[20]; VATProdPostingGroupCode: Code[20])
+    var
+        GLAccount: Record "G/L Account";
+    begin
+        GLAccount.Get(InvRoundingAccountCode);
+        GLAccount.Validate("Gen. Prod. Posting Group", GenProdPostingGroupCode);
+        GLAccount.Validate("VAT Prod. Posting Group", VATProdPostingGroupCode);
+        GLAccount.Modify(true);
+    end;
+
     local procedure GetApproval(var ApprovalEntry: Record "Approval Entry"; TableID: Integer; DocumentType: Enum "Approval Document Type"; DocumentNo: Code[20])
     begin
         ApprovalEntry.SetRange("Table ID", TableID);
@@ -1328,51 +1369,11 @@ codeunit 134203 "Document Approval - Documents"
         IsInitialized := true;
     end;
 
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
-    begin
-        Reply := true;
-    end;
-
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
     begin
         // Dummy message handler.
-    end;
-
-    local procedure FindCustomer(var Customer: Record Customer)
-    begin
-        // Filter Customer so that errors are not generated due to mandatory fields.
-        Customer.SetFilter("Customer Posting Group", '<>''''');
-        Customer.SetFilter("Gen. Bus. Posting Group", '<>''''');
-        Customer.SetFilter("Payment Terms Code", '<>''''');
-        Customer.SetRange(Blocked, Customer.Blocked::" ");
-        // For Complete Shipping Advice, partial shipments are disallowed, hence select Partial.
-        Customer.SetRange("Shipping Advice", Customer."Shipping Advice"::Partial);
-        Customer.FindFirst;
-    end;
-
-    local procedure FindItem(var Item: Record Item)
-    begin
-        // Filter Item so that errors are not generated due to mandatory fields or Item Tracking.
-        Item.SetFilter("Inventory Posting Group", '<>''''');
-        Item.SetFilter("Gen. Prod. Posting Group", '<>''''');
-        Item.SetRange("Item Tracking Code", '');
-        Item.SetRange(Blocked, false);
-        Item.SetFilter("Unit Price", '<>0');
-        Item.SetFilter(Reserve, '<>%1', Item.Reserve::Always);
-        Item.FindFirst;
-    end;
-
-    local procedure FindVendor(var Vendor: Record Vendor)
-    begin
-        // Filter Vendor so that errors are not generated due to mandatory fields.
-        Vendor.SetFilter("Vendor Posting Group", '<>''''');
-        Vendor.SetFilter("Gen. Bus. Posting Group", '<>''''');
-        Vendor.SetRange(Blocked, Vendor.Blocked::" ");
-        Vendor.FindFirst;
     end;
 
     local procedure EnableAllApprovalsWorkflows()

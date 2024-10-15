@@ -82,6 +82,11 @@ table 10012 "Sales Tax Amount Difference"
             Caption = 'Tax Difference';
             Editable = false;
         }
+        field(16; Positive; Boolean)
+        {
+            Caption = 'Positive';
+            Editable = false;
+        }
     }
 
     keys
@@ -142,6 +147,7 @@ table 10012 "Sales Tax Amount Difference"
                 ToTaxAmountDifference."Tax Type" := FromTaxAmountDifference."Tax Type";
                 ToTaxAmountDifference."Use Tax" := FromTaxAmountDifference."Use Tax";
                 ToTaxAmountDifference."Tax Difference" := FromTaxAmountDifference."Tax Difference";
+                ToTaxAmountDifference.Positive := FromTaxAmountDifference.Positive;
                 ToTaxAmountDifference.Insert();
             until FromTaxAmountDifference.Next = 0;
         end;

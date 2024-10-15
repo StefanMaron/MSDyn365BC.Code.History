@@ -8667,7 +8667,7 @@ Cstr(Fields!ShipmentMethodCaption.Value)
               </Paragraphs>
               <Top>3.20833in</Top>
               <Height>11pt</Height>
-              <Width>1.25133in</Width>
+              <Width>1.5in</Width>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
               </Style>
@@ -8692,7 +8692,7 @@ Cstr(Fields!ShipmentMethodCaption.Value)
               </Paragraphs>
               <Top>3.06944in</Top>
               <Height>11pt</Height>
-              <Width>1.25133in</Width>
+              <Width>1.5in</Width>
               <ZIndex>1</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -8718,7 +8718,7 @@ Cstr(Fields!ShipmentMethodCaption.Value)
               </Paragraphs>
               <Top>2.93056in</Top>
               <Height>11pt</Height>
-              <Width>1.25133in</Width>
+              <Width>1.5in</Width>
               <ZIndex>2</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -8744,7 +8744,7 @@ Cstr(Fields!ShipmentMethodCaption.Value)
               </Paragraphs>
               <Top>2.23611in</Top>
               <Height>11pt</Height>
-              <Width>1.25133in</Width>
+              <Width>1.5in</Width>
               <ZIndex>3</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -8931,9 +8931,9 @@ Cstr(Fields!ShipmentMethodCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>3.20833in</Top>
-              <Left>1.25133in</Left>
+              <Left>1.5in</Left>
               <Height>11pt</Height>
-              <Width>5.88192in</Width>
+              <Width>5.5in</Width>
               <ZIndex>10</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -9064,9 +9064,9 @@ Cstr(Fields!ShipmentMethodCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>2.65278in</Top>
-              <Left>1.25133in</Left>
+              <Left>1.5in</Left>
               <Height>11pt</Height>
-              <Width>3.60162in</Width>
+              <Width>3in</Width>
               <ZIndex>15</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -9092,7 +9092,7 @@ Cstr(Fields!ShipmentMethodCaption.Value)
               </Paragraphs>
               <Top>2.65278in</Top>
               <Height>11pt</Height>
-              <Width>1.25133in</Width>
+              <Width>1.5in</Width>
               <ZIndex>16</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -9117,9 +9117,9 @@ Cstr(Fields!ShipmentMethodCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>3.06944in</Top>
-              <Left>1.25133in</Left>
+              <Left>1.5in</Left>
               <Height>11pt</Height>
-              <Width>3.60162in</Width>
+              <Width>3in</Width>
               <ZIndex>17</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -9198,9 +9198,9 @@ Cstr(Fields!ShipmentMethodCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>2.93056in</Top>
-              <Left>1.25133in</Left>
+              <Left>1.5in</Left>
               <Height>11pt</Height>
-              <Width>3.60162in</Width>
+              <Width>3in</Width>
               <ZIndex>20</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -9225,9 +9225,9 @@ Cstr(Fields!ShipmentMethodCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>2.51389in</Top>
-              <Left>1.25133in</Left>
+              <Left>1.5in</Left>
               <Height>11pt</Height>
-              <Width>3.60162in</Width>
+              <Width>3in</Width>
               <ZIndex>21</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -9253,7 +9253,7 @@ Cstr(Fields!ShipmentMethodCaption.Value)
               </Paragraphs>
               <Top>2.51389in</Top>
               <Height>11pt</Height>
-              <Width>1.25133in</Width>
+              <Width>1.5in</Width>
               <ZIndex>22</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -9278,9 +9278,9 @@ Cstr(Fields!ShipmentMethodCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>2.23611in</Top>
-              <Left>1.25133in</Left>
+              <Left>1.5in</Left>
               <Height>11pt</Height>
-              <Width>3.60162in</Width>
+              <Width>3in</Width>
               <ZIndex>23</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -9678,9 +9678,9 @@ Cstr(Fields!ShipmentMethodCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>2.375in</Top>
-              <Left>1.25133in</Left>
+              <Left>1.5in</Left>
               <Height>11pt</Height>
-              <Width>3.60162in</Width>
+              <Width>3in</Width>
               <ZIndex>38</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -9733,7 +9733,7 @@ Cstr(Fields!ShipmentMethodCaption.Value)
               </Paragraphs>
               <Top>2.375in</Top>
               <Height>11pt</Height>
-              <Width>1.25133in</Width>
+              <Width>1.5in</Width>
               <ZIndex>40</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -9839,9 +9839,9 @@ Cstr(Fields!ShipmentMethodCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>2.79167in</Top>
-              <Left>1.25133in</Left>
+              <Left>1.5in</Left>
               <Height>11pt</Height>
-              <Width>3.60162in</Width>
+              <Width>3in</Width>
               <ZIndex>44</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -9933,7 +9933,7 @@ Cstr(Fields!ShipmentMethodCaption.Value)
               <rd:DefaultName>Textbox31</rd:DefaultName>
               <Top>2.79167in</Top>
               <Height>11pt</Height>
-              <Width>1.25133in</Width>
+              <Width>1.5in</Width>
               <ZIndex>48</ZIndex>
               <Style>
                 <Border>
@@ -9998,7 +9998,7 @@ Cstr(Fields!ShipmentMethodCaption.Value)
               </Paragraphs>
               <Top>3.34722in</Top>
               <Height>11pt</Height>
-              <Width>1.25133in</Width>
+              <Width>1.5in</Width>
               <ZIndex>50</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -10023,9 +10023,9 @@ Cstr(Fields!ShipmentMethodCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>3.34722in</Top>
-              <Left>1.25133in</Left>
+              <Left>1.5in</Left>
               <Height>11pt</Height>
-              <Width>5.88192in</Width>
+              <Width>5.5in</Width>
               <ZIndex>51</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -10052,7 +10052,7 @@ Cstr(Fields!ShipmentMethodCaption.Value)
               </Paragraphs>
               <Top>3.48611in</Top>
               <Height>11pt</Height>
-              <Width>1.25133in</Width>
+              <Width>1.5in</Width>
               <ZIndex>52</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>
@@ -10077,9 +10077,9 @@ Cstr(Fields!ShipmentMethodCaption.Value)
                 </Paragraph>
               </Paragraphs>
               <Top>3.48611in</Top>
-              <Left>1.25133in</Left>
+              <Left>1.5in</Left>
               <Height>11pt</Height>
-              <Width>5.88192in</Width>
+              <Width>5.5in</Width>
               <ZIndex>53</ZIndex>
               <Style>
                 <VerticalAlign>Top</VerticalAlign>

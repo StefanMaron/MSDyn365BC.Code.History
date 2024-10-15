@@ -14,6 +14,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         LibraryPmtDiscSetup: Codeunit "Library - Pmt Disc Setup";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryJournals: Codeunit "Library - Journals";
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
@@ -462,8 +463,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         // Verify: Verify Vendor Ledger Entry, Detailed Vendor Ledger Entry and G/L Entry.
         PmtDiscount := GetAmountFCY(CurrencyCode2, GetDiscountAmount(Amount));
         VerifyVendorLedgerEntry(GenJnlDocumentType, GenJournalLine."Document No.", GetDiscountAmount(Amount));
-        VerifyDetldVendorLedgerEntry(GenJnlDocumentType2, DetailedVendorLedgEntry."Entry Type"::"Payment Discount", DocumentNo, -PmtDiscount)
-        ;
+        VerifyDetldVendorLedgerEntry(GenJnlDocumentType2, DetailedVendorLedgEntry."Entry Type"::"Payment Discount", DocumentNo, -PmtDiscount);
     end;
 
     [Normal]
@@ -551,6 +551,310 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         exit(GenJournalLine2."Document No.");
     end;
 
+    [Test]
+    [HandlerFunctions('ApplyVendorEntriesPageHandler')]
+    [Scope('OnPrem')]
+    procedure ApplyUnderRefundToCrMemosWhenFirstTwoHaveMaxPmtTolerance()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        DocumentType: Enum "Gen. Journal Document Type";
+        CrMemoAmounts: List of [Decimal];
+        MaxTolAmounts: List of [Decimal];
+        ExpectedPmtTolAmounts: List of [Decimal];
+        TotalCrMemoAmount: Decimal;
+        TotalTolAmount: Decimal;
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO 377808] Apply Refund with underpaid Amount to four posted Purchase Credit Memos when the first two of them have different non-zero "Max. Payment Tolerance".
+        Initialize();
+
+        // [GIVEN] Four posted Purchase Credit Memos with Amounts = 100.
+        VendorNo := CreateVendor();
+        FillListWithDecimalValues(
+            CrMemoAmounts, TotalCrMemoAmount, LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(100, 200, 2),
+            LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(100, 200, 2));
+        CreateGenJournalLinesDifferentAmount(GenJournalLine, DocumentType::"Credit Memo", VendorNo, CrMemoAmounts);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] First two posted Purchase Credit Memos have "Max. Payment Tolerance" = 5.
+        // [GIVEN] Last two posted Purchase Credit Memos have "Max. Payment Tolerance" = 0.
+        FillListWithDecimalValues(
+            MaxTolAmounts, TotalTolAmount, LibraryRandom.RandDecInRange(5, 10, 2), LibraryRandom.RandDecInRange(5, 10, 2), 0, 0);
+        UpdateMaxPaymentToleranceOnVendorLedgerEntry(VendorNo, DocumentType::"Credit Memo", MaxTolAmounts);
+
+        // [GIVEN] Refund with Amount = (<sum of Credit Memos Amounts> - <half of sum of Max Payment Tolerance Amounts>), i.e. 400 - 5 = 395.
+        // [GIVEN] Posting Date of Refund is larger than Due Date of posted Purchase Credit Memos to avoid discounts caused by Payment Terms.
+        CreateDocumentLine(
+            GenJournalLine, DocumentType::Refund, VendorNo, -TotalCrMemoAmount + TotalTolAmount / 2,
+            '', LibraryRandom.RandDateFromInRange(GenJournalLine."Due Date", 10, 20));
+
+        // [WHEN] Apply Refund to four posted Purchase Credit Memos and then post Refund.
+        ApplyAndPostJournalLines(GenJournalLine, DocumentType::"Credit Memo");
+
+        // [THEN] All posted Purchase Credit Memos were closed, i.e. Remaining Amount = 0, Open = false.
+        // [THEN] Underpaid Amount = 5 was distributed over the first two posted Purchase Credit Memos with the proportion = proportion of their Amounts.
+        ExpectedPmtTolAmounts.Add((TotalTolAmount / 2) * CrMemoAmounts.Get(1) / (CrMemoAmounts.Get(1) + CrMemoAmounts.Get(2)));
+        ExpectedPmtTolAmounts.Add((TotalTolAmount / 2) * CrMemoAmounts.Get(2) / (CrMemoAmounts.Get(1) + CrMemoAmounts.Get(2)));
+        ExpectedPmtTolAmounts.Add(0);
+        ExpectedPmtTolAmounts.Add(0);
+        VerifyPmtToleranceOnClosedVendorLedgerEntry(VendorNo, DocumentType::"Credit Memo", ExpectedPmtTolAmounts);
+    end;
+
+    [Test]
+    [HandlerFunctions('ApplyVendorEntriesPageHandler')]
+    [Scope('OnPrem')]
+    procedure ApplyOverRefundToCrMemosWhenFirstTwoHaveMaxPmtTolerance()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        DocumentType: Enum "Gen. Journal Document Type";
+        CrMemoAmounts: List of [Decimal];
+        MaxTolAmounts: List of [Decimal];
+        ExpectedPmtTolAmounts: List of [Decimal];
+        TotalCrMemoAmount: Decimal;
+        TotalTolAmount: Decimal;
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO 377808] Apply Refund with overpaid Amount to four posted Purchase Credit Memos when the first two of them have different non-zero "Max. Payment Tolerance".
+        Initialize();
+
+        // [GIVEN] Four posted Purchase Credit Memos with Amounts = 100.
+        VendorNo := CreateVendor();
+        FillListWithDecimalValues(
+            CrMemoAmounts, TotalCrMemoAmount, LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(100, 200, 2),
+            LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(100, 200, 2));
+        CreateGenJournalLinesDifferentAmount(GenJournalLine, DocumentType::"Credit Memo", VendorNo, CrMemoAmounts);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] First two posted Purchase Credit Memos have "Max. Payment Tolerance" = 5.
+        // [GIVEN] Last two posted Purchase Credit Memos have "Max. Payment Tolerance" = 0.
+        FillListWithDecimalValues(
+            MaxTolAmounts, TotalTolAmount, LibraryRandom.RandDecInRange(5, 10, 2), LibraryRandom.RandDecInRange(5, 10, 2), 0, 0);
+        UpdateMaxPaymentToleranceOnVendorLedgerEntry(VendorNo, DocumentType::"Credit Memo", MaxTolAmounts);
+
+        // [GIVEN] Refund with Amount = (<sum of Credit Memos Amounts> + <half of sum of Max Payment Tolerance Amounts>), i.e. 400 + 5 = 405.
+        // [GIVEN] Posting Date of Refund is larger than Due Date of posted Purchase Credit Memos to avoid discounts caused by Payment Terms.
+        CreateDocumentLine(
+            GenJournalLine, DocumentType::Refund, VendorNo, -TotalCrMemoAmount - TotalTolAmount / 2,
+            '', LibraryRandom.RandDateFromInRange(GenJournalLine."Due Date", 10, 20));
+
+        // [WHEN] Apply Refund to four posted Purchase Credit Memos and then post Refund.
+        ApplyAndPostJournalLines(GenJournalLine, DocumentType::"Credit Memo");
+
+        // [THEN] All posted Purchase Credit Memos were closed, i.e. Remaining Amount = 0, Open = false.
+        // [THEN] Overpaid Amount = 5 was distributed over the first two posted Purchase Credit Memos with the proportion = proportion of their Amounts.
+        ExpectedPmtTolAmounts.Add(-(TotalTolAmount / 2) * CrMemoAmounts.Get(1) / (CrMemoAmounts.Get(1) + CrMemoAmounts.Get(2)));
+        ExpectedPmtTolAmounts.Add(-(TotalTolAmount / 2) * CrMemoAmounts.Get(2) / (CrMemoAmounts.Get(1) + CrMemoAmounts.Get(2)));
+        ExpectedPmtTolAmounts.Add(0);
+        ExpectedPmtTolAmounts.Add(0);
+        VerifyPmtToleranceOnClosedVendorLedgerEntry(VendorNo, DocumentType::"Credit Memo", ExpectedPmtTolAmounts);
+    end;
+
+    [Test]
+    [HandlerFunctions('ApplyVendorEntriesPageHandler')]
+    [Scope('OnPrem')]
+    procedure ApplyUnderPmtToInvoicesWhenFirstTwoHaveMaxPmtTolerance()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        DocumentType: Enum "Gen. Journal Document Type";
+        InvAmounts: List of [Decimal];
+        MaxTolAmounts: List of [Decimal];
+        ExpectedPmtTolAmounts: List of [Decimal];
+        TotalInvAmount: Decimal;
+        TotalTolAmount: Decimal;
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO 377808] Apply Payment with underpaid Amount to four posted Purchase Invoices when the first two of them have different non-zero "Max. Payment Tolerance".
+        Initialize();
+
+        // [GIVEN] Four posted Purchase Invoices with Amounts = 100.
+        VendorNo := CreateVendor();
+        FillListWithDecimalValues(
+            InvAmounts, TotalInvAmount, -LibraryRandom.RandDecInRange(100, 200, 2), -LibraryRandom.RandDecInRange(100, 200, 2),
+            -LibraryRandom.RandDecInRange(100, 200, 2), -LibraryRandom.RandDecInRange(100, 200, 2));
+        CreateGenJournalLinesDifferentAmount(GenJournalLine, DocumentType::Invoice, VendorNo, InvAmounts);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] First two posted Purchase Invoices have "Max. Payment Tolerance" = 5.
+        // [GIVEN] Last two posted Purchase Invoices have "Max. Payment Tolerance" = 0.
+        FillListWithDecimalValues(
+            MaxTolAmounts, TotalTolAmount, -LibraryRandom.RandDecInRange(5, 10, 2), -LibraryRandom.RandDecInRange(5, 10, 2), 0, 0);
+        UpdateMaxPaymentToleranceOnVendorLedgerEntry(VendorNo, DocumentType::Invoice, MaxTolAmounts);
+
+        // [GIVEN] Payment with Amount = (<sum of Invoices Amounts> - <half of sum of Max Payment Tolerance Amounts>), i.e. 400 - 5 = 395.
+        // [GIVEN] Posting Date of Payment is larger than Due Date of posted Purchase Invoices to avoid discounts caused by Payment Terms.
+        CreateDocumentLine(
+            GenJournalLine, DocumentType::Payment, VendorNo, -TotalInvAmount + TotalTolAmount / 2,
+            '', LibraryRandom.RandDateFromInRange(GenJournalLine."Due Date", 10, 20));
+
+        // [WHEN] Apply Payment to four posted Purchase Invoices and then post Payment.
+        ApplyAndPostJournalLines(GenJournalLine, DocumentType::Invoice);
+
+        // [THEN] All posted Purchase Invoices were closed, i.e. Remaining Amount = 0, Open = false.
+        // [THEN] Underpaid Amount = 5 was distributed over the first two posted Purchase Invoices with the proportion = proportion of their Amounts.
+        ExpectedPmtTolAmounts.Add((TotalTolAmount / 2) * InvAmounts.Get(1) / (InvAmounts.Get(1) + InvAmounts.Get(2)));
+        ExpectedPmtTolAmounts.Add((TotalTolAmount / 2) * InvAmounts.Get(2) / (InvAmounts.Get(1) + InvAmounts.Get(2)));
+        ExpectedPmtTolAmounts.Add(0);
+        ExpectedPmtTolAmounts.Add(0);
+        VerifyPmtToleranceOnClosedVendorLedgerEntry(VendorNo, DocumentType::Invoice, ExpectedPmtTolAmounts);
+    end;
+
+    [Test]
+    [HandlerFunctions('ApplyVendorEntriesPageHandler')]
+    [Scope('OnPrem')]
+    procedure ApplyUnderRefundToCrMemosWhenLastTwoHaveMaxPmtTolerance()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        DocumentType: Enum "Gen. Journal Document Type";
+        CrMemoAmounts: List of [Decimal];
+        MaxTolAmounts: List of [Decimal];
+        ExpectedPmtTolAmounts: List of [Decimal];
+        TotalCrMemoAmount: Decimal;
+        TotalTolAmount: Decimal;
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO 377808] Apply Refund with underpaid Amount to four posted Purchase Credit Memos when the last two of them have different non-zero "Max. Payment Tolerance".
+        Initialize();
+
+        // [GIVEN] Four posted Purchase Credit Memos with Amounts = 100.
+        VendorNo := CreateVendor();
+        FillListWithDecimalValues(
+            CrMemoAmounts, TotalCrMemoAmount, LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(100, 200, 2),
+            LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(100, 200, 2));
+        CreateGenJournalLinesDifferentAmount(GenJournalLine, DocumentType::"Credit Memo", VendorNo, CrMemoAmounts);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] First two posted Purchase Credit Memos have "Max. Payment Tolerance" = 0.
+        // [GIVEN] Last two posted Purchase Credit Memos have "Max. Payment Tolerance" = 5.
+        FillListWithDecimalValues(
+            MaxTolAmounts, TotalTolAmount, 0, 0, LibraryRandom.RandDecInRange(5, 10, 2), LibraryRandom.RandDecInRange(5, 10, 2));
+        UpdateMaxPaymentToleranceOnVendorLedgerEntry(VendorNo, DocumentType::"Credit Memo", MaxTolAmounts);
+
+        // [GIVEN] Refund with Amount = (<sum of Credit Memos Amounts> - <half of sum of Max Payment Tolerance Amounts>), i.e. 400 - 5 = 395.
+        // [GIVEN] Posting Date of Refund is larger than Due Date of posted Purchase Credit Memos to avoid discounts caused by Payment Terms.
+        CreateDocumentLine(
+            GenJournalLine, DocumentType::Refund, VendorNo, -TotalCrMemoAmount + TotalTolAmount / 2,
+            '', LibraryRandom.RandDateFromInRange(GenJournalLine."Due Date", 10, 20));
+
+        // [WHEN] Apply Refund to four posted Purchase Credit Memos and then post Refund.
+        ApplyAndPostJournalLines(GenJournalLine, DocumentType::"Credit Memo");
+
+        // [THEN] All posted Purchase Credit Memos were closed, i.e. Remaining Amount = 0, Open = false.
+        // [THEN] Underpaid Amount = 5 was distributed over the last two posted Purchase Credit Memos with the proportion = proportion of their Amounts.
+        ExpectedPmtTolAmounts.Add(0);
+        ExpectedPmtTolAmounts.Add(0);
+        ExpectedPmtTolAmounts.Add((TotalTolAmount / 2) * CrMemoAmounts.Get(3) / (CrMemoAmounts.Get(3) + CrMemoAmounts.Get(4)));
+        ExpectedPmtTolAmounts.Add((TotalTolAmount / 2) * CrMemoAmounts.Get(4) / (CrMemoAmounts.Get(3) + CrMemoAmounts.Get(4)));
+        VerifyPmtToleranceOnClosedVendorLedgerEntry(VendorNo, DocumentType::"Credit Memo", ExpectedPmtTolAmounts);
+    end;
+
+    [Test]
+    [HandlerFunctions('ApplyVendorEntriesPageHandler')]
+    [Scope('OnPrem')]
+    procedure ApplyUnderRefundToCrMemosWhenBigAmtSmallToleranceAndSmallAmtBigTolerance()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        DocumentType: Enum "Gen. Journal Document Type";
+        CrMemoAmounts: List of [Decimal];
+        MaxTolAmounts: List of [Decimal];
+        ExpectedPmtTolAmounts: List of [Decimal];
+        TotalCrMemoAmount: Decimal;
+        TotalTolAmount: Decimal;
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO 377808] Apply Refund with underpaid Amount to posted Purchase Credit Memos when first Credit Memo has big Amount and small Tolerance, and the second one has small Amount and big Tolerance.
+        Initialize();
+
+        // [GIVEN] Posted Purchase Credit Memo with Amount = 10000.
+        // [GIVEN] Posted Purchase Credit Memo with Amount = 100.
+        // [GIVEN] Two posted Purchase Credit Memos with Amount = 100.
+        VendorNo := CreateVendor();
+        FillListWithDecimalValues(
+            CrMemoAmounts, TotalCrMemoAmount, LibraryRandom.RandDecInRange(10000, 20000, 2), LibraryRandom.RandDecInRange(100, 200, 2),
+            LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(100, 200, 2));
+        CreateGenJournalLinesDifferentAmount(GenJournalLine, DocumentType::"Credit Memo", VendorNo, CrMemoAmounts);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] First posted Purchase Credit Memo has "Max. Payment Tolerance" = 1.
+        // [GIVEN] Second posted Purchase Credit Memo has "Max. Payment Tolerance" = 10.
+        // [GIVEN] Last two posted Purchase Credit Memos have "Max. Payment Tolerance" = 0.
+        FillListWithDecimalValues(
+            MaxTolAmounts, TotalTolAmount, LibraryRandom.RandDecInRange(1, 2, 2), LibraryRandom.RandDecInRange(10, 20, 2), 0, 0);
+        UpdateMaxPaymentToleranceOnVendorLedgerEntry(VendorNo, DocumentType::"Credit Memo", MaxTolAmounts);
+
+        // [GIVEN] Refund with Amount = (<sum of Credit Memos Amounts> - <half of sum of Max Payment Tolerance Amounts>), i.e. 10300 - 5.5 = 10294.5.
+        // [GIVEN] Posting Date of Refund is larger than Due Date of posted Purchase Credit Memos to avoid discounts caused by Payment Terms.
+        CreateDocumentLine(
+            GenJournalLine, DocumentType::Refund, VendorNo, -TotalCrMemoAmount + TotalTolAmount / 2,
+            '', LibraryRandom.RandDateFromInRange(GenJournalLine."Due Date", 10, 20));
+
+        // [WHEN] Apply Refund to four posted Purchase Credit Memos and then post Refund.
+        ApplyAndPostJournalLines(GenJournalLine, DocumentType::"Credit Memo");
+
+        // [THEN] All posted Purchase Credit Memos were closed, i.e. Remaining Amount = 0, Open = false.
+        // [THEN] Underpaid Amount = 5.5 was distributed over the first two posted Purchase Credit Memos.
+        // [THEN] "Pmt. Tolerance" = 1 for the first Credit Memo, because "Max. Payment Tolerance" < 5.5 * (10000/10100) ~ 5.45.
+        // [THEN] "Pmt. Tolerance" = 5.5 - 1 = 4.5 for the second Credit Memo.
+        ExpectedPmtTolAmounts.Add(MaxTolAmounts.Get(1));
+        ExpectedPmtTolAmounts.Add(TotalTolAmount / 2 - MaxTolAmounts.Get(1));
+        ExpectedPmtTolAmounts.Add(0);
+        ExpectedPmtTolAmounts.Add(0);
+        VerifyPmtToleranceOnClosedVendorLedgerEntry(VendorNo, DocumentType::"Credit Memo", ExpectedPmtTolAmounts);
+    end;
+
+    [Test]
+    [HandlerFunctions('ApplyVendorEntriesPageHandler')]
+    [Scope('OnPrem')]
+    procedure ApplyOverRefundToCrMemosWhenBigAmtSmallToleranceAndSmallAmtBigTolerance()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        DocumentType: Enum "Gen. Journal Document Type";
+        CrMemoAmounts: List of [Decimal];
+        MaxTolAmounts: List of [Decimal];
+        ExpectedPmtTolAmounts: List of [Decimal];
+        TotalCrMemoAmount: Decimal;
+        TotalTolAmount: Decimal;
+        VendorNo: Code[20];
+    begin
+        // [SCENARIO 377808] Apply Refund with overpaid Amount to posted Purchase Credit Memos when first Credit Memo has big Amount and small Tolerance, and the second one has small Amount and big Tolerance.
+        Initialize();
+
+        // [GIVEN] Posted Purchase Credit Memo with Amount = 10000.
+        // [GIVEN] Posted Purchase Credit Memo with Amount = 100.
+        // [GIVEN] Two posted Purchase Credit Memos with Amount = 100.
+        VendorNo := CreateVendor();
+        FillListWithDecimalValues(
+            CrMemoAmounts, TotalCrMemoAmount, LibraryRandom.RandDecInRange(10000, 20000, 2), LibraryRandom.RandDecInRange(100, 200, 2),
+            LibraryRandom.RandDecInRange(100, 200, 2), LibraryRandom.RandDecInRange(100, 200, 2));
+        CreateGenJournalLinesDifferentAmount(GenJournalLine, DocumentType::"Credit Memo", VendorNo, CrMemoAmounts);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] First posted Purchase Credit Memo has "Max. Payment Tolerance" = 1.
+        // [GIVEN] Second posted Purchase Credit Memo has "Max. Payment Tolerance" = 10.
+        // [GIVEN] Last two posted Purchase Credit Memos have "Max. Payment Tolerance" = 0.
+        FillListWithDecimalValues(
+            MaxTolAmounts, TotalTolAmount, LibraryRandom.RandDecInRange(1, 2, 2), LibraryRandom.RandDecInRange(10, 20, 2), 0, 0);
+        UpdateMaxPaymentToleranceOnVendorLedgerEntry(VendorNo, DocumentType::"Credit Memo", MaxTolAmounts);
+
+        // [GIVEN] Refund with Amount = (<sum of Credit Memos Amounts> + <half of sum of Max Payment Tolerance Amounts>), i.e. 10300 + 5.5 = 10305.5.
+        // [GIVEN] Posting Date of Refund is larger than Due Date of posted Purchase Credit Memos to avoid discounts caused by Payment Terms.
+        CreateDocumentLine(
+            GenJournalLine, DocumentType::Refund, VendorNo, -TotalCrMemoAmount - TotalTolAmount / 2,
+            '', LibraryRandom.RandDateFromInRange(GenJournalLine."Due Date", 10, 20));
+
+        // [WHEN] Apply Refund to four posted Purchase Credit Memos and then post Refund.
+        ApplyAndPostJournalLines(GenJournalLine, DocumentType::"Credit Memo");
+
+        // [THEN] All posted Purchase Credit Memos were closed, i.e. Remaining Amount = 0, Open = false.
+        // [THEN] Overpaid Amount = 5.5 was distributed over the first two posted Purchase Credit Memos.
+        // [THEN] "Pmt. Tolerance" = -1 for the first Credit Memo, because Abs("Max. Payment Tolerance") < Abs(-5.5) * (10000/10100) ~ 5.45.
+        // [THEN] "Pmt. Tolerance" = -5.5 + 1 = -4.5 for the second Credit Memo.
+        ExpectedPmtTolAmounts.Add(-MaxTolAmounts.Get(1));
+        ExpectedPmtTolAmounts.Add(-TotalTolAmount / 2 + MaxTolAmounts.Get(1));
+        ExpectedPmtTolAmounts.Add(0);
+        ExpectedPmtTolAmounts.Add(0);
+        VerifyPmtToleranceOnClosedVendorLedgerEntry(VendorNo, DocumentType::"Credit Memo", ExpectedPmtTolAmounts);
+    end;
+
     [Normal]
     local procedure Initialize()
     var
@@ -569,6 +873,27 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         Commit();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Vendor Pmt Tol With Wrning")
+    end;
+
+    local procedure ApplyAndPostJournalLines(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type")
+    var
+        GLRegister: Record "G/L Register";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        GenJnlApply: Codeunit "Gen. Jnl.-Apply";
+        VendEntrySetApplID: Codeunit "Vend. Entry-SetAppl.ID";
+        ApplyVendorEntries: Page "Apply Vendor Entries";
+    begin
+        GLRegister.FindLast();
+        VendorLedgerEntry.SetRange("Entry No.", GLRegister."From Entry No.", GLRegister."To Entry No.");
+        VendorLedgerEntry.SetRange("Document Type", DocumentType);
+        VendorLedgerEntry.FindSet();
+        repeat
+            VendEntrySetApplID.SetApplId(VendorLedgerEntry, VendorLedgerEntry, GenJournalLine."Document No.");
+            ApplyVendorEntries.CalcApplnAmount();
+        until VendorLedgerEntry.Next() = 0;
+        Commit();
+        GenJnlApply.Run(GenJournalLine);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
     local procedure ComputePmtTolAmountForMinValue(var Amount: Decimal; var Amount2: Decimal)
@@ -651,12 +976,37 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         GenJournalLine.Modify(true);
     end;
 
+    local procedure CreateGenJournalLinesDifferentAmount(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20]; Amounts: List of [Decimal])
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJnlAccType: Enum "Gen. Journal Account Type";
+        BalGLAccountNo: Code[20];
+        Amount: Decimal;
+        i: Integer;
+    begin
+        BalGLAccountNo := LibraryERM.CreateGLAccountNo();
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate());
+        for i := 1 to Amounts.Count() do
+            LibraryJournals.CreateGenJournalLine(
+                GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
+                GenJnlAccType::Vendor, VendorNo, GenJnlAccType::"G/L Account", BalGLAccountNo, Amounts.Get(i));
+    end;
+
     local procedure CalcDueDate(): Date
     var
         PaymentTerms: Record "Payment Terms";
     begin
         PaymentTerms.Get(GetPaymentTerms);
         exit(CalcDate(PaymentTerms."Discount Date Calculation", WorkDate));
+    end;
+
+    local procedure FillListWithDecimalValues(var DecimalsList: List of [Decimal]; var TotalValue: Decimal; Value1: Decimal; Value2: Decimal; Value3: Decimal; Value4: Decimal)
+    begin
+        DecimalsList.Add(Value1);
+        DecimalsList.Add(Value2);
+        DecimalsList.Add(Value3);
+        DecimalsList.Add(Value4);
+        TotalValue := Value1 + Value2 + Value3 + Value4;
     end;
 
     local procedure GetDiscountPercent(): Decimal
@@ -722,6 +1072,21 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
+    local procedure UpdateMaxPaymentToleranceOnVendorLedgerEntry(VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; MaxPmtTolAmounts: List of [Decimal])
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        MaxPmtTolerance: Decimal;
+    begin
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.SetRange("Document Type", DocumentType);
+        VendorLedgerEntry.FindSet(true, false);
+        foreach MaxPmtTolerance in MaxPmtTolAmounts do begin
+            VendorLedgerEntry.Validate("Max. Payment Tolerance", MaxPmtTolerance);
+            VendorLedgerEntry.Modify(true);
+            VendorLedgerEntry.Next();
+        end;
+    end;
+
     [Normal]
     local procedure VerifyVendorLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; ToleranceDiscount: Decimal)
     var
@@ -755,6 +1120,23 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
             ToleranceDiscount, DetailedVendorLedgEntry.TableCaption));
     end;
 
+    local procedure VerifyPmtToleranceOnClosedVendorLedgerEntry(VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; ExpectedPmtTolerances: List of [Decimal])
+    var
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        ExpectedPmtTolAmt: Decimal;
+    begin
+        VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
+        VendorLedgerEntry.SetRange("Document Type", DocumentType);
+        VendorLedgerEntry.FindSet();
+        foreach ExpectedPmtTolAmt in ExpectedPmtTolerances do begin
+            VendorLedgerEntry.CalcFields("Remaining Amount");
+            VendorLedgerEntry.TestField("Remaining Amount", 0);
+            VendorLedgerEntry.TestField(Open, false);
+            Assert.AreNearlyEqual(ExpectedPmtTolAmt, VendorLedgerEntry."Pmt. Tolerance (LCY)", LibraryERM.GetAmountRoundingPrecision(), '');
+            VendorLedgerEntry.Next();
+        end;
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure PaymentTolerancePageHandler(var PaymentToleranceWarning: Page "Payment Tolerance Warning"; var Response: Action)
@@ -771,6 +1153,13 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         // Set Integer Value 1 for option "Post as Payment Disc. Tolerance" on Tolerance Warning page.
         PaymentDiscToleranceWarning.InitializeNewPostingAction(1);
         Response := ACTION::Yes;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ApplyVendorEntriesPageHandler(var ApplyVendorEntries: Page "Apply Vendor Entries"; var Response: Action)
+    begin
+        Response := ACTION::LookupOK;
     end;
 }
 

@@ -12,6 +12,7 @@ codeunit 9997 "Upgrade Tag Def - Country"
         PerCompanyUpgradeTags.Add(GetCFDIPurposeRelationFieldsDocUpdateTag);
         PerCompanyUpgradeTags.Add(GetLastUpdateInvoiceEntryNoUpgradeTagUS);
         PerCompanyUpgradeTags.Add(GetGenJnlLineEFTExportSequenceNoUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetSalesTaxDiffPositiveFieldUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -48,6 +49,11 @@ codeunit 9997 "Upgrade Tag Def - Country"
     procedure GetGenJnlLineEFTExportSequenceNoUpgradeTag(): Code[250];
     begin
         exit('MS-360400-EFTUpdatePart2-20200615');
+    end;
+
+    procedure GetSalesTaxDiffPositiveFieldUpgradeTag(): Code[250]
+    begin
+        exit('MS-377669-SalesTaxDiffNegAndPosLines-20201228');
     end;
 }
 

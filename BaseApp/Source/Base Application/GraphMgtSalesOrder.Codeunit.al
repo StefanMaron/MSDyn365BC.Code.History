@@ -56,7 +56,7 @@ codeunit 5495 "Graph Mgt - Sales Order"
             end;
     end;
 
-    procedure SellToCustomerAddressToJSON(SalesOrderEntityBuffer: Record "Sales Order Entity Buffer") JSON: Text
+    procedure SellToCustomerAddressToJSON(var SalesOrderEntityBuffer: Record "Sales Order Entity Buffer") JSON: Text
     var
         GraphMgtComplexTypes: Codeunit "Graph Mgt - Complex Types";
     begin
@@ -65,7 +65,7 @@ codeunit 5495 "Graph Mgt - Sales Order"
               "Sell-to City", "Sell-to County", "Sell-to Country/Region Code", "Sell-to Post Code", JSON);
     end;
 
-    procedure BillToCustomerAddressToJSON(SalesOrderEntityBuffer: Record "Sales Order Entity Buffer") JSON: Text
+    procedure BillToCustomerAddressToJSON(var SalesOrderEntityBuffer: Record "Sales Order Entity Buffer") JSON: Text
     var
         GraphMgtComplexTypes: Codeunit "Graph Mgt - Complex Types";
     begin
@@ -74,7 +74,7 @@ codeunit 5495 "Graph Mgt - Sales Order"
               "Bill-to City", "Bill-to County", "Bill-to Country/Region Code", "Bill-to Post Code", JSON);
     end;
 
-    procedure ShipToCustomerAddressToJSON(SalesOrderEntityBuffer: Record "Sales Order Entity Buffer") JSON: Text
+    procedure ShipToCustomerAddressToJSON(var SalesOrderEntityBuffer: Record "Sales Order Entity Buffer") JSON: Text
     var
         GraphMgtComplexTypes: Codeunit "Graph Mgt - Complex Types";
     begin

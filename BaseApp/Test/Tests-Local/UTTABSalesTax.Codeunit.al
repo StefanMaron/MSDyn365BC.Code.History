@@ -11,6 +11,7 @@ codeunit 141019 "UT TAB Sales Tax"
     var
         Assert: Codeunit Assert;
         LibraryUTUtility: Codeunit "Library UT Utility";
+        LibraryUtility: Codeunit "Library - Utility";
         TestFieldErr: Label 'TestField';
         LibraryRandom: Codeunit "Library - Random";
         ValueMustNotExistMsg: Label '%1 must not exist.';
@@ -407,6 +408,39 @@ codeunit 141019 "UT TAB Sales Tax"
           TaxArea, TaxArea.FieldNo(Description), SalesTaxAmountLine, SalesTaxAmountLine.FieldNo("Print Description"));
     end;
 
+    [Test]
+    procedure TestCopyTaxDifferenceRecords()
+    var
+        SalesTaxAmountDifferencePos: Record "Sales Tax Amount Difference";
+        SalesTaxAmountDifferenceNeg: Record "Sales Tax Amount Difference";
+        SalesTaxAmountDifference: Record "Sales Tax Amount Difference";
+        FromDocumentNo: Code[20];
+        ToDocumentNo: Code[20];
+    begin
+        // [FEATURE] [Tax Difference] [UT]
+        // [SCENARIO 377669] Tab 10012 "Sales Tax Amount Difference".CopyTaxDifferenceRecords()
+
+        // [GIVEN] Positive and nagative sales tax amount different lines for the document "A"
+        FromDocumentNo := LibraryUtility.GenerateGUID();
+        MockSalesTaxAmountDifference(SalesTaxAmountDifferencePos, FromDocumentNo, true);
+        MockSalesTaxAmountDifference(SalesTaxAmountDifferenceNeg, FromDocumentNo, false);
+
+        // [WHEN] Invoke SalesTaxAmountDifference.CopyTaxDifferenceRecords() using target document "B"
+        ToDocumentNo := LibraryUtility.GenerateGUID();
+        SalesTaxAmountDifference.CopyTaxDifferenceRecords(
+            SalesTaxAmountDifferencePos."Document Product Area", SalesTaxAmountDifferencePos."Document Type", FromDocumentNo,
+            SalesTaxAmountDifferencePos."Document Product Area", SalesTaxAmountDifferencePos."Document Type", ToDocumentNo);
+
+        // [THEN] Two sales tax lines are copied into document "B"
+        SalesTaxAmountDifference.SetRange("Document No.", ToDocumentNo);
+        Assert.RecordCount(SalesTaxAmountDifference, 2);
+
+        VerifySalesTaxAmountDifference(
+            ToDocumentNo, true, SalesTaxAmountDifferencePos."Tax %", SalesTaxAmountDifferencePos."Tax Difference");
+        VerifySalesTaxAmountDifference(
+            ToDocumentNo, false, SalesTaxAmountDifferenceNeg."Tax %", SalesTaxAmountDifferenceNeg."Tax Difference");
+    end;
+
     local procedure CreateCurrency(var Currency: Record Currency)
     begin
         Currency.Code := LibraryUTUtility.GetNewCode10;
@@ -507,6 +541,29 @@ codeunit 141019 "UT TAB Sales Tax"
         TaxJurisdiction.Code := LibraryUTUtility.GetNewCode10;
         TaxJurisdiction.Insert();
         exit(TaxJurisdiction.Code);
+    end;
+
+    local procedure MockSalesTaxAmountDifference(var SalesTaxAmountDifference: Record "Sales Tax Amount Difference"; DocumentNo: Code[20]; Positive: Boolean)
+    begin
+        SalesTaxAmountDifference.Init();
+        SalesTaxAmountDifference."Document No." := DocumentNo;
+        SalesTaxAmountDifference.Positive := Positive;
+        SalesTaxAmountDifference."Tax %" := LibraryRandom.RandIntInRange(10, 100);
+        if not Positive then
+            SalesTaxAmountDifference."Tax %" *= -1;
+        SalesTaxAmountDifference."Tax Difference" := LibraryRandom.RandIntInRange(10, 100);
+        SalesTaxAmountDifference.Insert();
+    end;
+
+    local procedure VerifySalesTaxAmountDifference(DocumentNo: Code[20]; Positive: Boolean; ExpectedTaxPct: Decimal; ExpectedTaxDiff: Decimal)
+    var
+        SalesTaxAmountDifference: Record "Sales Tax Amount Difference";
+    begin
+        SalesTaxAmountDifference.SetRange("Document No.", DocumentNo);
+        SalesTaxAmountDifference.SetRange(Positive, Positive);
+        SalesTaxAmountDifference.FindFirst();
+        SalesTaxAmountDifference.TestField("Tax %", ExpectedTaxPct);
+        SalesTaxAmountDifference.TestField("Tax Difference", ExpectedTaxDiff);
     end;
 }
 

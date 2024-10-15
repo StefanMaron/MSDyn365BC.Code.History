@@ -1407,14 +1407,11 @@ codeunit 1450 "MS - Yodlee Service Mgt."
     end;
 
     local procedure RemoveInvalidXMLCharacters(var InputText: Text)
-    var
-        chr: Char;
     begin
         // so far, in icms we have only seen Char x014 coming from Yodlee
         // therefore remove this one first and continue only if there are more
         InputText := InputText.Replace('&#x14', '');
-        chr := 20;
-        InputText := InputText.Replace(chr, '');
+        InputText := InputText.Replace('ËÇ£“ËÇÖ“í', '');
         if StrPos(InputText, '&#x') = 0 then
             exit;
 

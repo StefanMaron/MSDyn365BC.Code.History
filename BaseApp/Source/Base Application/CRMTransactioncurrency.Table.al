@@ -2,7 +2,7 @@ table 5345 "CRM Transactioncurrency"
 {
     // Dynamics CRM Version: 7.1.0.2040
 
-    Caption = 'CDS Transactioncurrency';
+    Caption = 'Dataverse Transactioncurrency';
     Description = 'Currency in which a financial transaction is carried out.';
     ExternalName = 'transactioncurrency';
     TableType = CRM;

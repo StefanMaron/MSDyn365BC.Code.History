@@ -1,4 +1,4 @@
-codeunit 104000 "Upgrade - BaseApp"
+﻿codeunit 104000 "Upgrade - BaseApp"
 {
     Subtype = Upgrade;
 
@@ -51,6 +51,7 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeContactMobilePhoneNo();
         UpgradePostCodeServiceKey();
         UpgradeIntrastatJnlLine();
+        UpgradeDimensionSetEntry();
     end;
 
     local procedure SetReviewRequiredOnBankPmtApplRules()
@@ -294,11 +295,13 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeSalesCrMemoEntityBuffer;
         UpgradeSalesOrderShipmentMethod;
         UpgradeSalesCrMemoShipmentMethod;
+        UpgradeSalesShipmentLine();
         UpdateItemVariants();
         UpgradeDefaultDimensions();
         UpgradeDimensionValues();
         UpgradeGLAccountAPIType();
         UpgradeInvoicesCreatedFromOrders();
+        UpgradePurchRcptLineDocumentId();
     end;
 
     local procedure CreateTimeSheetDetailsIds()
@@ -315,6 +318,29 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetTimeRegistrationUpgradeTag());
     end;
 
+    local procedure UpgradeSalesShipmentLine()
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        SalesShipmentLine2: Record "Sales Shipment Line";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetNewSalesShipmentLineUpgradeTag()) then
+            exit;
+
+        if SalesShipmentLine.FindSet() then
+            repeat
+                if SalesShipmentHeader.Get(SalesShipmentLine."Document No.") then
+                    if SalesShipmentLine."Document Id" <> SalesShipmentHeader.SystemId then begin
+                        SalesShipmentLine2 := SalesShipmentLine;
+                        SalesShipmentLine2."Document Id" := SalesShipmentHeader.SystemId;
+                        SalesShipmentLine2.Modify();
+                    end;
+            until SalesShipmentLine.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetNewSalesShipmentLineUpgradeTag());
+    end;
 
     local procedure UpgradeSalesInvoiceEntityAggregate()
     var
@@ -1511,6 +1537,30 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.PurchRcptLineOverReceiptCodeUpgradeTag());
     end;
 
+    local procedure UpgradePurchRcptLineDocumentId()
+    var
+        PurchRcptHeader: Record "Purch. Rcpt. Header";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        PurchRcptLine2: Record "Purch. Rcpt. Line";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetNewPurchRcptLineUpgradeTag()) then
+            exit;
+
+        if PurchRcptLine.FindSet() then
+            repeat
+                if PurchRcptHeader.Get(PurchRcptLine."Document No.") then
+                    if PurchRcptLine."Document Id" <> PurchRcptHeader.SystemId then begin
+                        PurchRcptLine2 := PurchRcptLine;
+                        PurchRcptLine2."Document Id" := PurchRcptLine.SystemId;
+                        PurchRcptLine2.Modify();
+                    end;
+            until PurchRcptLine.Next() = 0;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetNewPurchRcptLineUpgradeTag());
+    end;
+
     local procedure UpgradeContactMobilePhoneNo()
     var
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
@@ -1612,18 +1662,58 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
         UpgradeTag: Codeunit "Upgrade Tag";
     begin
-      if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetIntrastatJnlLinePartnerIDUpgradeTag) THEN
-        exit;
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetIntrastatJnlLinePartnerIDUpgradeTag) THEN
+            exit;
 
-      IntrastatJnlLine.SetRange(Type,IntrastatJnlLine.Type::Shipment);
-      if IntrastatJnlLine.FindSet() then
-        repeat
-          IntrastatJnlLine."Country/Region of Origin Code" := IntrastatJnlLine.GetCountryOfOriginCode();
-          IntrastatJnlLine."Partner VAT ID" := IntrastatJnlLine.GetPartnerID();
-          IntrastatJnlLine.Modify();
-        until IntrastatJnlLine.Next() = 0;
+        IntrastatJnlLine.SetRange(Type, IntrastatJnlLine.Type::Shipment);
+        if IntrastatJnlLine.FindSet() then
+            repeat
+                IntrastatJnlLine."Country/Region of Origin Code" := IntrastatJnlLine.GetCountryOfOriginCode();
+                IntrastatJnlLine."Partner VAT ID" := IntrastatJnlLine.GetPartnerID();
+                IntrastatJnlLine.Modify();
+            until IntrastatJnlLine.Next() = 0;
 
-      UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIntrastatJnlLinePartnerIDUpgradeTag);
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIntrastatJnlLinePartnerIDUpgradeTag);
+    end;
+
+    local procedure UpgradeDimensionSetEntry()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        DimensionSetEntry: Record "Dimension Set Entry";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetDimensionSetEntryUpgradeTag()) THEN
+            exit;
+
+        GeneralLedgerSetup.Get();
+
+        if GeneralLedgerSetup."Shortcut Dimension 3 Code" <> '' then begin
+            DimensionSetEntry.SetRange("Dimension Code", GeneralLedgerSetup."Shortcut Dimension 3 Code");
+            DimensionSetEntry.ModifyAll("Global Dimension No.", 3);
+        end;
+        if GeneralLedgerSetup."Shortcut Dimension 4 Code" <> '' then begin
+            DimensionSetEntry.SetRange("Dimension Code", GeneralLedgerSetup."Shortcut Dimension 4 Code");
+            DimensionSetEntry.ModifyAll("Global Dimension No.", 4);
+        end;
+        if GeneralLedgerSetup."Shortcut Dimension 5 Code" <> '' then begin
+            DimensionSetEntry.SetRange("Dimension Code", GeneralLedgerSetup."Shortcut Dimension 5 Code");
+            DimensionSetEntry.ModifyAll("Global Dimension No.", 5);
+        end;
+        if GeneralLedgerSetup."Shortcut Dimension 6 Code" <> '' then begin
+            DimensionSetEntry.SetRange("Dimension Code", GeneralLedgerSetup."Shortcut Dimension 6 Code");
+            DimensionSetEntry.ModifyAll("Global Dimension No.", 6);
+        end;
+        if GeneralLedgerSetup."Shortcut Dimension 7 Code" <> '' then begin
+            DimensionSetEntry.SetRange("Dimension Code", GeneralLedgerSetup."Shortcut Dimension 7 Code");
+            DimensionSetEntry.ModifyAll("Global Dimension No.", 7);
+        end;
+        if GeneralLedgerSetup."Shortcut Dimension 8 Code" <> '' then begin
+            DimensionSetEntry.SetRange("Dimension Code", GeneralLedgerSetup."Shortcut Dimension 8 Code");
+            DimensionSetEntry.ModifyAll("Global Dimension No.", 8);
+        end;
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDimensionSetEntryUpgradeTag());
     end;
 }
 
