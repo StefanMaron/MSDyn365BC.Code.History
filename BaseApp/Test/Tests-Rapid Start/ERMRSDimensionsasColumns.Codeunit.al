@@ -18,6 +18,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IncorrectNumberOfTablesErr: Label 'Incorrect number of tables in package.';
         CannotUseDimensionsAsColumnsErr: Label 'You cannot use the Dimensions as Columns function for table %1.';
         IncorrectDimensionsAsColumnsErr: Label 'Incorrect Dimensions as Columns export.';
@@ -49,7 +50,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         ConfigPackageTable: Record "Config. Package Table";
     begin
         // [SCENARIO] Two dimension package tables added to the package if "Dimensions As Columns" set to 'Yes'
-        Initialize;
+        Initialize();
         // [GIVEN] Package with table Customer
         CreateBasicPackage(ConfigPackage, ConfigPackageTable, DATABASE::Customer);
         // [WHEN] Set "Dimensions As Columns" to 'Yes' on Customer table and answer 'Yes' to confirmation
@@ -69,7 +70,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         ConfigPackageTable: Record "Config. Package Table";
     begin
         // [SCENARIO] Addition of dimension tables on "Dimensions As Columns" set to 'Yes' can be cancelled
-        Initialize;
+        Initialize();
         CreateBasicPackage(ConfigPackage, ConfigPackageTable, DATABASE::Customer);
         asserterror SetDimensionAsColumns(ConfigPackageTable);
         Assert.ExpectedError(DimensionExpectedErr);
@@ -82,7 +83,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         ConfigPackage: Record "Config. Package";
         ConfigPackageTable: Record "Config. Package Table";
     begin
-        Initialize;
+        Initialize();
         CreateBasicPackage(ConfigPackage, ConfigPackageTable, DATABASE::Location);
         asserterror SetDimensionAsColumns(ConfigPackageTable);
         Assert.ExpectedError(StrSubstNo(CannotUseDimensionsAsColumnsErr, ConfigPackageTable."Table ID"));
@@ -99,7 +100,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         Customer: Record Customer;
         FileName: Text[1024];
     begin
-        Initialize;
+        Initialize();
         CreateAndExportBasicPackage(ConfigPackage, ConfigPackageTable, Customer, FileName);
         LibraryReportValidation.OpenExcelFile;
 
@@ -122,7 +123,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         Customer: Record Customer;
         FileName: Text[1024];
     begin
-        Initialize;
+        Initialize();
         CreateAndExportBasicPackage(ConfigPackage, ConfigPackageTable, Customer, FileName);
 
         SetDefaultDimFilter(DefaultDimension, DATABASE::Customer, Customer."No.");
@@ -144,7 +145,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         DefaultDimension: Record "Default Dimension";
         FileName: Text[1024];
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Customer 'X' with Default Dimensions
         // [GIVEN] Export the package 'A', where Table is 'Customer', "Dimensions as Columns" is 'Yes'
         CreateAndExportBasicPackage(ConfigPackage, ConfigPackageTable, Customer, FileName);
@@ -180,7 +181,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         FileName: Text[1024];
         ExpectedDimSetID: Integer;
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Gen. Journal Line, where Dimenson 'PROJECT' is 'TOYOTA'
         ExpectedDimSetID := CreateDimSet(DimensionValue);
         GenJournalLine.DeleteAll;
@@ -259,7 +260,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         FileName: Text[1024];
         ExpectedDimSetID: Integer;
     begin
-        Initialize;
+        Initialize();
         // [GIVEN] Gen. Journal Line, where Dimenson 'PROJECT' is 'TOYOTA'
         ExpectedDimSetID := CreateDimSet(DimensionValue);
         GenJournalLine.DeleteAll;
@@ -315,7 +316,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         DimensionValue: Record "Dimension Value";
         ConfigPackageCode: Code[20];
     begin
-        Initialize;
+        Initialize();
         // [WHEN] Import and apply the package, where "Dimensions as Columns" is 'Yes', exported to Excel
         ConfigPackageCode := ExportImportAndApplyPackageWithNewDimension(Customer, false);
 
@@ -338,7 +339,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
     var
         Customer: Record Customer;
     begin
-        Initialize;
+        Initialize();
         ExportImportAndApplyPackageWithNewDimension(Customer, true);
 
         Assert.IsTrue(
@@ -512,7 +513,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         Customer: Record Customer;
         DimensionCode: Code[20];
     begin
-        Initialize;
+        Initialize();
         CreateConfigLineAssignPackage(ConfigPackage, ConfigLine);
         LibrarySales.CreateCustomer(Customer);
         LibraryRapidStart.CreatePackageData(ConfigPackage.Code, DATABASE::Customer, 1, Customer.FieldNo("No."), Customer."No.");
@@ -554,7 +555,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
     begin
         // Verify that dimensions can be applied from package when field "Dimension Set ID" is not included.
 
-        Initialize;
+        Initialize();
         CreatePackageExcludingDimSetIDField(ConfigPackage, ConfigPackageTable, SalesHeader);
 
         FindDimValueFromDefDim(DimVal, DATABASE::Customer, SalesHeader."Sell-to Customer No.");
@@ -589,7 +590,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         // [SCENARIO 377912] It should be possible to import same Excel Template to Configuration Package with "Dimensions As Columns" twice
 
         // [GIVEN] Config. Package "CP" with basic setup
-        Initialize;
+        Initialize();
         CreateBasicPackage(ConfigPackage, ConfigPackageTable, DATABASE::Customer);
         // [GIVEN] G/L Account "X" with two default dimensions "D[1]" and "D[2]"
         GLAccount.DeleteAll;
@@ -646,7 +647,7 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         // [FEATURE] [Excel]
         // [SCENARIO 322992] It should be possible to import a package with table containing Primary Key field of Field No = 2
 
-        Initialize;
+        Initialize();
         // [GIVEN] Manual Payment with Default Dimension "DefDim"
         CreateManualPaymentWithDefaultDimension(CashFlowManualExpense, DefaultDimension);
         // [GIVEN] Export the package "A", where Table is 'CashFlowManualExpense', "Dimensions as Columns" is 'Yes'
@@ -668,16 +669,22 @@ codeunit 136611 "ERM RS Dimensions as Columns"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
-        LibraryApplicationArea.EnableFoundationSetup;
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM RS Dimensions as Columns");
+
+        LibraryApplicationArea.EnableFoundationSetup();
 
         LibraryRapidStart.CleanUp('');
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM RS Dimensions as Columns");
+
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryRapidStart.SetAPIServicesEnabled(false);
 
         IsInitialized := true;
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM RS Dimensions as Columns");
     end;
 
     local procedure CreateBasicPackage(var ConfigPackage: Record "Config. Package"; var ConfigPackageTable: Record "Config. Package Table"; TableId: Integer)

@@ -12,22 +12,36 @@ codeunit 135301 "O365 Sales Item Charge Tests"
         LibrarySales: Codeunit "Library - Sales";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         IncorrectCreditMemoQtyAssignmentErr: Label 'ENU=Item charge assignment incorrect on corrective credit memo.';
         IncorrectAmountOfLinesErr: Label 'ENU=The amount of lines must be greater than 0.';
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
+        isInitialized: Boolean;
 
     local procedure Initialize()
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"O365 Sales Item Charge Tests");
+
         LibraryVariableStorage.Clear;
+        if IsInitialized then
+            exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"O365 Sales Item Charge Tests");
+
         LibraryApplicationArea.EnableItemChargeSetup;
 
         SalesReceivablesSetup.Get;
         SalesReceivablesSetup."Shipment on Invoice" := true;
         SalesReceivablesSetup.Modify(true);
+
+        Commit();
+        IsInitialized := true;
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"O365 Sales Item Charge Tests");
     end;
 
     [Test]
@@ -40,7 +54,7 @@ codeunit 135301 "O365 Sales Item Charge Tests"
         RandAmountOfItemLines: Integer;
     begin
         // [SCENARIO] Corrective Credit Memo reverses one invoice line with item charge.
-        Initialize;
+        Initialize();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
         // [GIVEN] Create a sales invoice with 1 assigned item charge and random amount of item lines
@@ -69,7 +83,7 @@ codeunit 135301 "O365 Sales Item Charge Tests"
         RandAmountOfItemChargeLines: Integer;
     begin
         // [SCENARIO] Corrective Credit Memo reverses multiple invoice lines with item charge.
-        Initialize;
+        Initialize();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
         // [GIVEN] Create a sales invoice with a random amount of assigned item charge and item lines.
@@ -97,7 +111,7 @@ codeunit 135301 "O365 Sales Item Charge Tests"
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
         // [SCENARIO] Corrective Credit Memo reverses multiple item lines and 1 invoice line with item charge.
-        Initialize;
+        Initialize();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
         // [GIVEN] Create a sales invoice with 50 item lines and 1 item charge
@@ -123,7 +137,7 @@ codeunit 135301 "O365 Sales Item Charge Tests"
     begin
         // [FEATURE] [FCY]
         // [SCENARIO] Corrective Credit Memo reverses 1 item line and 1 invoice line with item charge in foreign currency.
-        Initialize;
+        Initialize();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
         // [GIVEN] Create a sales invoice, using a random currency, with 1 item and item charge
@@ -149,7 +163,7 @@ codeunit 135301 "O365 Sales Item Charge Tests"
         SalesCreditMemo: TestPage "Sales Credit Memo";
     begin
         // [SCENARIO] Corrective Credit Memo reverses 1 item line and 1 invoice line with item charge (while shipments disabled).
-        Initialize;
+        Initialize();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
         // [GIVEN] Disable "shipment on invoice" in the Sales & Receivables Setup

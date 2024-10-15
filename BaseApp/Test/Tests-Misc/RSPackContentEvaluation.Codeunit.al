@@ -20,6 +20,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
         TransReceiptNoSeriesTok: Label 'T-RCPT';
         TransOrderNoSeriesTok: Label 'T-ORD';
         ItemNoSeriesTok: Label 'ITEM';
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryExtensionPerm: Codeunit "Library - Extension Perm.";
         SalesReturnReceiptTok: Label 'S-RCPT';
         NOTAXTok: Label 'NO TAX';
@@ -27,6 +28,7 @@ codeunit 138400 "RS Pack Content - Evaluation"
         xBANKTxt: Label 'BANK';
         XSALESTok: Label 'SALES';
         XPURCHASESTok: Label 'PURCHASES';
+        IsInitialized: Boolean;
 
     [Test]
     [Scope('OnPrem')]
@@ -1061,6 +1063,21 @@ codeunit 138400 "RS Pack Content - Evaluation"
         // [FEATURE] [UT] [Purchasing]
         // [SCENARIO 328635] There are 3 records of Purchasing table
         Assert.RecordCount(Purchasing, 3);
+    end;
+
+    local procedure Initialize()
+    begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"RS Pack Content - Evaluation");
+
+        if IsInitialized then
+            exit;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"RS Pack Content - Evaluation");
+
+        IsInitialized := true;
+        Commit();
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"RS Pack Content - Evaluation");
     end;
 }
 

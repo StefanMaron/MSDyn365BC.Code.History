@@ -224,12 +224,14 @@
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "No." = FIELD("Bill-to Customer No.");
+                SubPageLink = "No." = FIELD("Bill-to Customer No."),
+                              "Date Filter" = FIELD("Date Filter");
             }
             part(Control1900316107; "Customer Details FactBox")
             {
                 ApplicationArea = Basic, Suite;
-                SubPageLink = "No." = FIELD("Sell-to Customer No.");
+                SubPageLink = "No." = FIELD("Bill-to Customer No."),
+                              "Date Filter" = FIELD("Date Filter");
             }
             part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
             {
@@ -306,7 +308,8 @@
                     Promoted = true;
                     PromotedCategory = Category7;
                     RunObject = Page "Customer Card";
-                    RunPageLink = "No." = FIELD("Sell-to Customer No.");
+                    RunPageLink = "No." = FIELD("Sell-to Customer No."),
+                                  "Date Filter" = FIELD("Date Filter");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit detailed information about the customer.';
                 }
@@ -343,14 +346,20 @@
                     ToolTip = 'View statistical information, such as the value of posted entries, for the record.';
 
                     trigger OnAction()
+                    var
+                        IsHandled: Boolean;
                     begin
-                        CalcInvDiscForHeader;
-                        Commit;
-                        OnBeforeCalculateSalesTaxStatistics(Rec, true);
-                        if "Tax Area Code" = '' then
-                            PAGE.RunModal(PAGE::"Sales Statistics", Rec)
-                        else
-                            PAGE.RunModal(PAGE::"Sales Stats.", Rec);
+                        IsHandled := false;
+                        OnBeforeStatisticsAction(Rec, IsHandled);
+                        if not IsHandled then begin
+                            CalcInvDiscForHeader();
+                            Commit();
+                            OnBeforeCalculateSalesTaxStatistics(Rec, true);
+                            if "Tax Area Code" = '' then
+                                PAGE.RunModal(PAGE::"Sales Statistics", Rec)
+                            else
+                                PAGE.RunModal(PAGE::"Sales Stats.", Rec);
+                        end;
                     end;
                 }
                 action("Co&mments")
@@ -630,8 +639,14 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeStatisticsAction(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculateSalesTaxStatistics(var SalesHeader: Record "Sales Header"; ShowDialog: Boolean)
     begin
     end;
+
 }
 

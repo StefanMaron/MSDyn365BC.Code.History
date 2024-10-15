@@ -22,6 +22,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryInvoicingApp: Codeunit "Library - Invoicing App";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         EventSubscriberInvoicingApp: Codeunit "EventSubscriber Invoicing App";
         AzureKeyVault: Codeunit "Azure Key Vault";
         AzureKeyVaultTestLibrary: Codeunit "Azure Key Vault Test Library";
@@ -36,8 +37,8 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         BCO365SalesInvoice: TestPage "BC O365 Sales Invoice";
     begin
         // [GIVEN] A new sales invoice is created with no attachments
-        Initialize;
-        SetupGraphEmail;
+        Initialize();
+        SetupGraphEmail();
         SalesHeader.Get(SalesHeader."Document Type"::Invoice, LibraryInvoicingApp.CreateInvoice);
 
         // [THEN]  No error or warning is created
@@ -49,11 +50,11 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         // [THEN] User gets a warning and cannot send the invoice
         LibraryVariableStorage.Enqueue(EmailSizeAboveMaxErr);
         OpenAndCloseAttachmentListForDraft(SalesHeader);
-        BCO365SalesInvoice.OpenEdit;
+        BCO365SalesInvoice.OpenEdit();
         BCO365SalesInvoice.GotoKey(SalesHeader."Document Type"::Invoice, SalesHeader."No.");
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(EmailSizeAboveMaxErr);
-        BCO365SalesInvoice.Post.Invoke; // Platform treats errors thrown OnQueryClosePage as messages
+        BCO365SalesInvoice.Post.Invoke(); // Platform treats errors thrown OnQueryClosePage as messages
         Assert.ExpectedError(EmailSizeAboveMaxErr);
 
         // [WHEN] The user removes an attachment
@@ -62,10 +63,10 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         // [THEN] No more warnings are thrown
         OpenAndCloseAttachmentListForDraft(SalesHeader);
         LibraryVariableStorage.Enqueue(true);
-        BCO365SalesInvoice.Post.Invoke;
-        LibraryVariableStorage.AssertEmpty;
+        BCO365SalesInvoice.Post.Invoke();
+        LibraryVariableStorage.AssertEmpty();
 
-        CleanupGraphEmail;
+        CleanupGraphEmail();
     end;
 
     [Test]
@@ -77,9 +78,9 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         BCO365SalesQuote: TestPage "BC O365 Sales Quote";
     begin
         // [GIVEN] A new sales invoice is created with no attachments
-        Initialize;
+        Initialize();
         LibraryLowerPermissions.SetInvoiceApp;
-        SetupGraphEmail;
+        SetupGraphEmail();
         SalesHeader.Get(SalesHeader."Document Type"::Quote, LibraryInvoicingApp.CreateEstimate);
 
         // [THEN]  No error or warning is created
@@ -91,11 +92,11 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         // [THEN] User gets a warning and cannot send the estimate
         LibraryVariableStorage.Enqueue(EmailSizeAboveMaxErr);
         OpenAndCloseAttachmentListForEstimates(SalesHeader);
-        BCO365SalesQuote.OpenEdit;
+        BCO365SalesQuote.OpenEdit();
         BCO365SalesQuote.GotoKey(SalesHeader."Document Type"::Quote, SalesHeader."No.");
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(EmailSizeAboveMaxErr);
-        BCO365SalesQuote.EmailQuote.Invoke; // Platform treats errors thrown OnQueryClosePage as messages
+        BCO365SalesQuote.EmailQuote.Invoke(); // Platform treats errors thrown OnQueryClosePage as messages
         Assert.ExpectedError(EmailSizeAboveMaxErr);
 
         // [WHEN] The user removes an attachment
@@ -103,9 +104,9 @@ codeunit 138914 "O365 Sales Invoice Attachments"
 
         // [THEN] No more warnings are thrown
         OpenAndCloseAttachmentListForEstimates(SalesHeader);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
 
-        CleanupGraphEmail;
+        CleanupGraphEmail();
     end;
 
     [Scope('OnPrem')]
@@ -115,8 +116,8 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         BCO365PostedSalesInvoice: TestPage "BC O365 Posted Sales Invoice";
     begin
         // [GIVEN] A new sales invoice is created with no attachments
-        Initialize;
-        SetupGraphEmail;
+        Initialize();
+        SetupGraphEmail();
         LibraryVariableStorage.Enqueue(true);
         SalesInvoiceHeader.Get(LibraryInvoicingApp.SendInvoice(LibraryInvoicingApp.CreateInvoice));
 
@@ -131,11 +132,11 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         OpenAndCloseAttachmentListForPosted(SalesInvoiceHeader);
 
         // [THEN] User cannot re-send the invoice
-        BCO365PostedSalesInvoice.OpenEdit;
+        BCO365PostedSalesInvoice.OpenEdit();
         BCO365PostedSalesInvoice.GotoKey(SalesInvoiceHeader."No.");
         LibraryVariableStorage.Enqueue(true);
         LibraryVariableStorage.Enqueue(EmailSizeAboveMaxErr);
-        BCO365PostedSalesInvoice.Send.Invoke; // Platform treats errors thrown OnQueryClosePage as messages
+        BCO365PostedSalesInvoice.Send.Invoke(); // Platform treats errors thrown OnQueryClosePage as messages
         Assert.ExpectedError(EmailSizeAboveMaxErr);
 
         // [WHEN] The user removes an attachment
@@ -143,9 +144,9 @@ codeunit 138914 "O365 Sales Invoice Attachments"
 
         // [THEN] No more warnings are thrown
         OpenAndCloseAttachmentListForPosted(SalesInvoiceHeader);
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
 
-        CleanupGraphEmail;
+        CleanupGraphEmail();
     end;
 
     [Test]
@@ -157,7 +158,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         O365PostedSalesInvoiceTestPage: TestPage "O365 Posted Sales Invoice";
     begin
         // [GIVEN] A new sales invoice is created and posted
-        Initialize;
+        Initialize();
         InitForPostedInvoice(O365PostedSalesInvoiceTestPage, SalesInvoiceHeader);
 
         // [WHEN] User imports file and page refreshes
@@ -187,7 +188,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         O365PostedSalesInvoiceTestPage: TestPage "O365 Posted Sales Invoice";
     begin
         // [GIVEN] A new sales invoice is created and posted
-        Initialize;
+        Initialize();
         InitForPostedInvoice(O365PostedSalesInvoiceTestPage, SalesInvoiceHeader);
 
         // [WHEN] User takes picture and page refreshes
@@ -218,7 +219,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         O365SalesDocAttachmentsTestPage: TestPage "O365 Sales Doc. Attachments";
     begin
         // [GIVEN] A new draft sales invoice is created
-        Initialize;
+        Initialize();
         InitForDraftInvoice(O365SalesInvoiceTestPage, SalesHeader);
 
         // [WHEN] User imports file and page refreshes
@@ -254,7 +255,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         O365SalesDocAttachmentsTestPage: TestPage "O365 Sales Doc. Attachments";
     begin
         // [GIVEN] A new sales invoice is created
-        Initialize;
+        Initialize();
         InitForDraftInvoice(O365SalesInvoiceTestPage, SalesHeader);
 
         // [WHEN] User takes picture and page refreshes
@@ -290,7 +291,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 211222] CompanyInfo.GetContactUsText returns sentence with phone and email when both are filled in
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company information Phone No. = PPP
         CompanyInformation."Phone No." :=
@@ -319,7 +320,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 211222] CompanyInfo.GetContactUsText returns sentence with phone when it is filled in and email is empty
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company information Phone No. = PPP
         CompanyInformation."Phone No." :=
@@ -347,7 +348,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 211222] CompanyInfo.GetContactUsText returns sentence with email when it is filled in and phone is empty
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company information Phone No. is empty
         CompanyInformation."Phone No." := '';
@@ -375,7 +376,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 211222] CompanyInfo.GetContactUsText returns empty value when both phone and email are empty
-        Initialize;
+        Initialize();
 
         // [GIVEN] Company information Phone No. is empty
         CompanyInformation."Phone No." := '';
@@ -395,8 +396,10 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         O365C2GraphEventSettings: Record "O365 C2Graph Event Settings";
         TaxDetail: Record "Tax Detail";
     begin
-        EventSubscriberInvoicingApp.Clear;
-        LibrarySetupStorage.Restore;
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"O365 Sales Invoice Attachments");
+
+        EventSubscriberInvoicingApp.Clear();
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
 
@@ -544,7 +547,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
     begin
         SalesHeader.DeleteAll;
         CreateNewDraftInvoice(SalesHeader);
-        O365SalesInvoiceTestPage.OpenEdit;
+        O365SalesInvoiceTestPage.OpenEdit();
         O365SalesInvoiceTestPage.GotoRecord(SalesHeader);
 
         // No default attachments to the invoice
@@ -556,7 +559,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
     begin
         SalesInvoiceHeader.DeleteAll;
         CreateAndPostNewInvoice(SalesInvoiceHeader);
-        O365PostedSalesInvoiceTestPage.OpenEdit;
+        O365PostedSalesInvoiceTestPage.OpenEdit();
         O365PostedSalesInvoiceTestPage.GotoRecord(SalesInvoiceHeader);
 
         // No default attachments to the invoice
@@ -605,12 +608,12 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         SendMail := LibraryVariableStorage.DequeueBoolean;
 
         if not SendMail then begin
-            O365SalesEmailDialog.Cancel.Invoke;
+            O365SalesEmailDialog.Cancel.Invoke();
             exit;
         end;
 
         O365SalesEmailDialog.SendToText.SetValue('test@microsoft.com');
-        O365SalesEmailDialog.OK.Invoke;
+        O365SalesEmailDialog.OK.Invoke();
     end;
 
     local procedure SetupGraphEmail()
@@ -677,7 +680,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         BCO365SalesInvoice: TestPage "BC O365 Sales Invoice";
         O365SalesDocAttachments: TestPage "O365 Sales Doc. Attachments";
     begin
-        BCO365SalesInvoice.OpenEdit;
+        BCO365SalesInvoice.OpenEdit();
         BCO365SalesInvoice.GotoKey(SalesHeader."Document Type"::Invoice, SalesHeader."No.");
         O365SalesDocAttachments.Trap;
         BCO365SalesInvoice.NoOfAttachments.DrillDown;
@@ -690,7 +693,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         BCO365PostedSalesInvoice: TestPage "BC O365 Posted Sales Invoice";
         O365PostedSalesInvAtt: TestPage "O365 Posted Sales Inv. Att.";
     begin
-        BCO365PostedSalesInvoice.OpenEdit;
+        BCO365PostedSalesInvoice.OpenEdit();
         BCO365PostedSalesInvoice.GotoKey(SalesInvoiceHeader."No.");
         O365PostedSalesInvAtt.Trap;
         BCO365PostedSalesInvoice.NoOfAttachments.DrillDown;
@@ -703,7 +706,7 @@ codeunit 138914 "O365 Sales Invoice Attachments"
         BCO365SalesQuote: TestPage "BC O365 Sales Quote";
         O365SalesDocAttachments: TestPage "O365 Sales Doc. Attachments";
     begin
-        BCO365SalesQuote.OpenEdit;
+        BCO365SalesQuote.OpenEdit();
         BCO365SalesQuote.GotoKey(SalesHeader."Document Type"::Quote, SalesHeader."No.");
         O365SalesDocAttachments.Trap;
         BCO365SalesQuote.NoOfAttachmentsValueTxt.DrillDown;

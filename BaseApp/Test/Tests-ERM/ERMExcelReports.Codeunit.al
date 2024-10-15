@@ -15,6 +15,7 @@ codeunit 134999 "ERM Excel Reports"
         Assert: Codeunit Assert;
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryReportValidation: Codeunit "Library - Report Validation";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         EvaluateErr: Label 'Value %1 cannot be converted to decimal.';
         IncorrectTotalBalanceLCYErr: Label 'Incorrect total balance LCY value.';
         CellValueNotFoundErr: Label 'Excel cell (row=%1, column=%2) value is not found.';
@@ -35,7 +36,7 @@ codeunit 134999 "ERM Excel Reports"
         // Check Total Balance printing by General Journal Test Report (bug 333253)
 
         // Setup.
-        Initialize;
+        Initialize();
         Create2GenJnlLines(GenJournalLine);
 
         // Exercise: Save General Journal Test Report to Excel.
@@ -54,7 +55,7 @@ codeunit 134999 "ERM Excel Reports"
     begin
         // [FEATURE] [G/L Account] [Report]
         // [SCENARIO 361902] General Journal - Test report shows zero amount warning if posting type is blank in gen. journal and zero amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account X with blank Gen. Posting Type
         CreateGLAccountWithPostingType(GLAccount, GLAccount."Gen. Posting Type"::" ");
@@ -79,7 +80,7 @@ codeunit 134999 "ERM Excel Reports"
     begin
         // [FEATURE] [G/L Account] [Report]
         // [SCENARIO 361902] General Journal - Test report shows zero amount warning if posting type is not blank in gen. journal and zero amount
-        Initialize;
+        Initialize();
 
         // [GIVEN] G/L Account X with not blank Gen. Posting Type
         CreateGLAccountWithPostingType(GLAccount, GLAccount."Gen. Posting Type"::Purchase);
@@ -106,7 +107,7 @@ codeunit 134999 "ERM Excel Reports"
     begin
         // [FEATURE] [Recurring Journal] [Report]
         // [SCENARIO 309575] "General Journal - Test" report processes all recurring lines in current batch in case Document No. contains code like %1, %2 etc.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Two recurring General Journal Lines with Document No. = "%4 ABCD". %4 is substituted by month's name from Posting Date.
         LibraryERM.CreateRecurringTemplateName(GenJournalTemplate);
@@ -128,14 +129,20 @@ codeunit 134999 "ERM Excel Reports"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Excel Reports");
+
         LibraryVariableStorage.Clear;
         Clear(LibraryReportValidation);
         if IsInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM Excel Reports");
+
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM Excel Reports");
     end;
 
     local procedure ClearGeneralJournalLines(var GenJournalBatch: Record "Gen. Journal Batch")

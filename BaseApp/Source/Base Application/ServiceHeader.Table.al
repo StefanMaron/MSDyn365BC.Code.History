@@ -67,17 +67,21 @@ table 5900 "Service Header"
                         end;
                         Modify(true);
 
-                        ServLine.LockTable;
-                        ServLine.Reset;
-                        ServLine.SetRange("Document Type", "Document Type");
-                        ServLine.SetRange("Document No.", "No.");
-                        ServLine.DeleteAll(true);
+                        IsHandled := false;
+                        OnValidateCustomerNoOnBeforeDeleteLines(Rec, IsHandled);
+                        if IsHandled then begin
+                            ServLine.LockTable();
+                            ServLine.Reset();
+                            ServLine.SetRange("Document Type", "Document Type");
+                            ServLine.SetRange("Document No.", "No.");
+                            ServLine.DeleteAll(true);
 
-                        ServItemLine.LockTable;
-                        ServItemLine.Reset;
-                        ServItemLine.SetRange("Document Type", "Document Type");
-                        ServItemLine.SetRange("Document No.", "No.");
-                        ServItemLine.DeleteAll(true);
+                            ServItemLine.LockTable();
+                            ServItemLine.Reset();
+                            ServItemLine.SetRange("Document Type", "Document Type");
+                            ServItemLine.SetRange("Document No.", "No.");
+                            ServItemLine.DeleteAll(true);
+                        end;
 
                         Get("Document Type", "No.");
                         if "Customer No." = '' then begin
@@ -293,6 +297,7 @@ table 5900 "Service Header"
             var
                 ShipToAddr: Record "Ship-to Address";
                 ConfirmManagement: Codeunit "Confirm Management";
+                IsHandled: Boolean;
             begin
                 if ("Ship-to Code" <> xRec."Ship-to Code") and
                    ("Customer No." = xRec."Customer No.")
@@ -371,21 +376,24 @@ table 5900 "Service Header"
 
                 Validate("Service Zone Code");
 
-                if ("Ship-to Code" <> xRec."Ship-to Code") and
-                   ("Customer No." = xRec."Customer No.")
-                then begin
-                    Modify(true);
-                    ServLine.LockTable;
-                    ServItemLine.LockTable;
-                    ServLine.Reset;
-                    ServLine.SetRange("Document Type", "Document Type");
-                    ServLine.SetRange("Document No.", "No.");
-                    ServLine.DeleteAll(true);
-                    ServItemLine.Reset;
-                    ServItemLine.SetRange("Document Type", "Document Type");
-                    ServItemLine.SetRange("Document No.", "No.");
-                    ServItemLine.DeleteAll(true);
-                end;
+                IsHandled := false;
+                OnValidateShipToCodeOnBeforeDleereLines(Rec, IsHandled);
+                if not IsHandled then
+                    if ("Ship-to Code" <> xRec."Ship-to Code") and
+                    ("Customer No." = xRec."Customer No.")
+                    then begin
+                        Modify(true);
+                        ServLine.LockTable();
+                        ServItemLine.LockTable();
+                        ServLine.Reset();
+                        ServLine.SetRange("Document Type", "Document Type");
+                        ServLine.SetRange("Document No.", "No.");
+                        ServLine.DeleteAll(true);
+                        ServItemLine.Reset();
+                        ServItemLine.SetRange("Document Type", "Document Type");
+                        ServItemLine.SetRange("Document No.", "No.");
+                        ServItemLine.DeleteAll(true);
+                    end;
             end;
         }
         field(13; "Ship-to Name"; Text[100])
@@ -532,6 +540,7 @@ table 5900 "Service Header"
             trigger OnValidate()
             var
                 PaymentTerms: Record "Payment Terms";
+                IsHandled: Boolean;
             begin
                 if ("Payment Terms Code" <> '') and ("Document Date" <> 0D) then begin
                     PaymentTerms.Get("Payment Terms Code");
@@ -547,7 +556,10 @@ table 5900 "Service Header"
                         Validate("Payment Discount %", PaymentTerms."Discount %")
                     end;
                 end else begin
-                    Validate("Due Date", "Document Date");
+                    IsHandled := false;
+                    OnValidatePaymentTermsCodeOnBeforeValidateDueDate(Rec, IsHandled);
+                    if not IsHandled then
+                        Validate("Due Date", "Document Date");
                     Validate("Pmt. Discount Date", 0D);
                     Validate("Payment Discount %", 0);
                 end;
@@ -1346,6 +1358,8 @@ table 5900 "Service Header"
             MinValue = 0;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
                 GLSetup.Get;
                 if "VAT Base Discount %" > GLSetup."VAT Tolerance %" then
@@ -1360,24 +1374,28 @@ table 5900 "Service Header"
                 then
                     exit;
 
-                ServLine.Reset;
-                ServLine.SetRange("Document Type", "Document Type");
-                ServLine.SetRange("Document No.", "No.");
-                ServLine.SetFilter(Type, '<>%1', ServLine.Type::" ");
-                ServLine.SetFilter(Quantity, '<>0');
-                ServLine.LockTable;
-                LockTable;
-                if ServLine.FindSet then begin
-                    Modify;
-                    repeat
-                        if (ServLine."Quantity Invoiced" <> ServLine.Quantity) or
-                           ("Shipping Advice" <> "Shipping Advice"::Partial) or
-                           (CurrFieldNo <> 0)
-                        then begin
-                            ServLine.UpdateAmounts;
-                            ServLine.Modify;
-                        end;
-                    until ServLine.Next = 0;
+                IsHandled := false;
+                OnValidateVATBaseDiscountPctOnBeforeUpdateLineAmounts(Rec, IsHandled);
+                if not IsHandled then begin
+                    ServLine.Reset();
+                    ServLine.SetRange("Document Type", "Document Type");
+                    ServLine.SetRange("Document No.", "No.");
+                    ServLine.SetFilter(Type, '<>%1', ServLine.Type::" ");
+                    ServLine.SetFilter(Quantity, '<>0');
+                    ServLine.LockTable();
+                    LockTable();
+                    if ServLine.FindSet then begin
+                        Modify;
+                        repeat
+                            if (ServLine."Quantity Invoiced" <> ServLine.Quantity) or
+                            ("Shipping Advice" = "Shipping Advice"::Complete) or
+                            (CurrFieldNo <> 0)
+                            then begin
+                                ServLine.UpdateAmounts;
+                                ServLine.Modify();
+                            end;
+                        until ServLine.Next = 0;
+                    end;
                 end;
             end;
         }
@@ -2799,6 +2817,7 @@ table 5900 "Service Header"
         TempServDocReg: Record "Service Document Register" temporary;
         ConfirmManagement: Codeunit "Confirm Management";
         ExtendedTextAdded: Boolean;
+        IsHandled: Boolean;
     begin
         if ServLineExists then begin
             if HideValidationDialog then
@@ -2806,10 +2825,16 @@ table 5900 "Service Header"
             else
                 Confirmed :=
                   ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text012, ChangedFieldName), true);
+
             if Confirmed then begin
-                ServLine.LockTable;
-                ReservEntry.LockTable;
-                Modify;
+                ServLine.LockTable();
+                ReservEntry.LockTable();
+                Modify();
+
+                IsHandled := false;
+                OnRecreateServLinesOnBeforeUpdateLines(Rec, IsHandled);
+                if IsHandled then
+                    exit;
 
                 ServLine.Reset;
                 ServLine.SetRange("Document Type", "Document Type");
@@ -2826,7 +2851,7 @@ table 5900 "Service Header"
                         end;
                         TempServLine.Insert;
                         CopyReservEntryToTemp(ServLine);
-                    until ServLine.Next = 0;
+                    until ServLine.Next() = 0;
 
                     if "Location Code" <> xRec."Location Code" then
                         if not TempReservEntry.IsEmpty then
@@ -2839,8 +2864,8 @@ table 5900 "Service Header"
                         if ServDocReg.Find('-') then
                             repeat
                                 TempServDocReg := ServDocReg;
-                                TempServDocReg.Insert;
-                            until ServDocReg.Next = 0;
+                                TempServDocReg.Insert();
+                            until ServDocReg.Next() = 0;
                     end;
                     ServLine.DeleteAll(true);
 
@@ -2848,8 +2873,8 @@ table 5900 "Service Header"
                         if TempServDocReg.Find('-') then
                             repeat
                                 ServDocReg := TempServDocReg;
-                                ServDocReg.Insert;
-                            until TempServDocReg.Next = 0;
+                                ServDocReg.Insert();
+                            until TempServDocReg.Next() = 0;
                     end;
 
                     CreateServiceLines(TempServLine, ExtendedTextAdded);
@@ -4062,7 +4087,7 @@ table 5900 "Service Header"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeConfirmUpdateContractNo(Rec, IsHandled, Confirmed, HideValidationDialog);
+        OnBeforeConfirmUpdateContractNo(Rec, Confirmed, HideValidationDialog, IsHandled);
         if IsHandled then
             exit(Confirmed);
 
@@ -4188,7 +4213,7 @@ table 5900 "Service Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeConfirmUpdateContractNo(var ServiceHeader: Record "Service Header"; Confirmed: Boolean; HideValidationDialog: Boolean; IsHandled: Boolean)
+    local procedure OnBeforeConfirmUpdateContractNo(var ServiceHeader: Record "Service Header"; var Confirmed: Boolean; var HideValidationDialog: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -4234,6 +4259,31 @@ table 5900 "Service Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateDimOnBeforeUpdateLines(var ServiceHeader: Record "Service Header"; xServiceHeader: Record "Service Header"; CurrentFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRecreateServLinesOnBeforeUpdateLines(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateCustomerNoOnBeforeDeleteLines(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateVATBaseDiscountPctOnBeforeUpdateLineAmounts(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidatePaymentTermsCodeOnBeforeValidateDueDate(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateShipToCodeOnBeforeDleereLines(var ServiceHeader: Record "Service Header"; var IsHandled: Boolean)
     begin
     end;
 }

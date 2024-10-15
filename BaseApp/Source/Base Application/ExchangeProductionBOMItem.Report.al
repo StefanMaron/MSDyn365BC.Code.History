@@ -471,7 +471,7 @@ report 99001043 "Exchange Production BOM Item"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertNewProdBOMLine(var ProductionBOMLine: Record "Production BOM Line"; FromProductionBOMLine: Record "Production BOM Line"; QtyMultiply: Decimal)
+    local procedure OnBeforeInsertNewProdBOMLine(var ProductionBOMLine: Record "Production BOM Line"; var FromProductionBOMLine: Record "Production BOM Line"; QtyMultiply: Decimal)
     begin
     end;
 }

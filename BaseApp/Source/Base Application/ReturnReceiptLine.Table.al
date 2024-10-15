@@ -400,6 +400,7 @@ table 6661 "Return Receipt Line"
             ObsoleteState = Removed;
             TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
             ValidateTableRelation = false;
+            ObsoleteTag = '15.0';
         }
         field(5805; "Return Qty. Rcd. Not Invd."; Decimal)
         {

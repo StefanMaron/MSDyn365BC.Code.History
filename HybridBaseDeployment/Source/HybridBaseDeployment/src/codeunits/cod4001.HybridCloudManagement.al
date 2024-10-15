@@ -5,6 +5,7 @@ codeunit 4001 "Hybrid Cloud Management"
     var
         SubscriptionFormatTxt: Label '%1_IntelligentCloud', Comment = '%1 - The source product id', Locked = true;
         ServiceSubscriptionFormatTxt: Label 'IntelligentCloudService_%1', Comment = '%1 - The source product id', Locked = true;
+        DataSyncWizardPageNameTxt: Label 'Set up Cloud Migration';
 
     procedure CanHandleNotification(SubscriptionId: Text; ProductId: Text): Boolean
     var
@@ -345,13 +346,10 @@ codeunit 4001 "Hybrid Cloud Management"
 
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Company-Initialize", 'OnCompanyInitialize', '', false, false)]
-    local procedure AddIntelligentCloudToAssistedSetupInCompany()
+    local procedure AddIntelligentCloudActivityCueInCompany()
     var
-        HybridCloudInstall: Codeunit "Hybrid Cloud Install";
         HybridCueSetupManagement: Codeunit "Hybrid Cue Setup Management";
-        PermissionManager: Codeunit "Permission Manager";
     begin
-        HybridCloudInstall.AddIntelligentCloudToAssistedSetup(PermissionManager.IsIntelligentCloud());
         HybridCueSetupManagement.InsertDataForReplicationSuccessRateCue();
     end;
 
@@ -416,5 +414,19 @@ codeunit 4001 "Hybrid Cloud Management"
 
             WebhookSubscription.ModifyAll("Company Name", ReplacementCompanyName);
         end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Assisted Setup", 'OnRegister', '', false, false)]
+    local procedure AddIntelligentCloudToAssistedSetup()
+    var
+        AssistedSetup: Codeunit "Assisted Setup";
+        PermissionManager: Codeunit "Permission Manager";
+        Info: ModuleInfo;
+        AssistedSetupGroup: Enum "Assisted Setup Group";
+    begin
+        NavApp.GetCurrentModuleInfo(Info);
+        AssistedSetup.Add(Info.Id(), PAGE::"Hybrid Cloud Setup Wizard", DataSyncWizardPageNameTxt, AssistedSetupGroup::GettingStarted);
+        if PermissionManager.IsIntelligentCloud() then
+            AssistedSetup.Complete(PAGE::"Hybrid Cloud Setup Wizard");
     end;
 }

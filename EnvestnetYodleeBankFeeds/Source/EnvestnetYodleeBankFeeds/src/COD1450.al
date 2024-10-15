@@ -1562,6 +1562,7 @@ codeunit 1450 "MS - Yodlee Service Mgt."
         ContentHeaders: HttpHeaders;
         BankFeedText: Text;
         LinkedBankAccountsText: Text;
+        LinkedBankAccountText: Text;
         ApiVersion: Text;
         CobrandEnvironmentName: Text;
         UnsuccessfulRequestTelemetryTxt: Text;
@@ -1628,6 +1629,11 @@ codeunit 1450 "MS - Yodlee Service Mgt."
         IF URL.ToLower().Contains('accounts?status=active') THEN BEGIN
             ResponseMessage.Content().ReadAs(LinkedBankAccountsText);
             SENDTRACETAG('0000BI7', YodleeTelemetryCategoryTok, Verbosity::Normal, LinkedBankAccountsText, DataClassification::CustomerContent);
+        END;
+
+        IF URL.ToLower().Contains('accounts?accountId') THEN BEGIN
+            ResponseMessage.Content().ReadAs(LinkedBankAccountText);
+            SENDTRACETAG('0000BLP', YodleeTelemetryCategoryTok, Verbosity::Normal, LinkedBankAccountText, DataClassification::CustomerContent);
         END;
     end;
 

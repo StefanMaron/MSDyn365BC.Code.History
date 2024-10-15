@@ -420,6 +420,7 @@ table 254 "VAT Entry"
             ObsoleteState = Removed;
             ObsoleteReason = 'Moved to extension';
             OptionMembers = " ","Prof. Services","Lease and Rent","Others";
+            ObsoleteTag = '15.0';
         }
     }
 

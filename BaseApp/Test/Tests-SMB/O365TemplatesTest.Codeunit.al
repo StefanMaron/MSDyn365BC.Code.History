@@ -380,7 +380,7 @@ codeunit 138012 "O365 Templates Test"
         Initialize;
 
         RecRefCust.Open(DATABASE::Customer);
-        TempMiniCustomerTemplate.Init;
+        TempMiniCustomerTemplate.Init();
         RecRefMiniCustTempl.GetTable(TempMiniCustomerTemplate);
 
         TempMiniCustomerTemplate.CreateFieldRefArray(FieldRefArray, RecRefMiniCustTempl);
@@ -400,7 +400,7 @@ codeunit 138012 "O365 Templates Test"
         Initialize;
 
         RecRefVend.Open(DATABASE::Vendor);
-        TempMiniVendorTemplate.Init;
+        TempMiniVendorTemplate.Init();
         RecRefVendTempl.GetTable(TempMiniVendorTemplate);
 
         TempMiniVendorTemplate.CreateFieldRefArray(FieldRefArray, RecRefVendTempl);
@@ -420,7 +420,7 @@ codeunit 138012 "O365 Templates Test"
         Initialize;
 
         RecRefItem.Open(DATABASE::Item);
-        TempItemTemplate.Init;
+        TempItemTemplate.Init();
         RecRefItemTempl.GetTable(TempItemTemplate);
 
         TempItemTemplate.CreateFieldRefArray(FieldRefArray, RecRefItemTempl);
@@ -577,7 +577,7 @@ codeunit 138012 "O365 Templates Test"
         NoreturnCity := 'Noreturn';
 
         PostCodeRec.SetFilter(City, NoreturnCity);
-        PostCodeRec.DeleteAll;
+        PostCodeRec.DeleteAll();
         ExpectedPostCode := '';
         ExpectedRegionCode := '';
         ValidateCustCity(NoreturnCity, ExpectedPostCode, ExpectedRegionCode);
@@ -616,7 +616,7 @@ codeunit 138012 "O365 Templates Test"
         NoreturnPostCode := 'Noreturn';
 
         PostCodeRec.SetFilter(Code, NoreturnPostCode);
-        PostCodeRec.DeleteAll;
+        PostCodeRec.DeleteAll();
         ExpectedCity := '';
         ExpectedRegionCode := '';
         ValidateCustPostCode(ExpectedCity, NoreturnPostCode, ExpectedRegionCode);
@@ -655,7 +655,7 @@ codeunit 138012 "O365 Templates Test"
         NoreturnCity := 'Noreturn';
 
         PostCodeRec.SetFilter(City, NoreturnCity);
-        PostCodeRec.DeleteAll;
+        PostCodeRec.DeleteAll();
         ExpectedPostCode := '';
         ExpectedRegionCode := '';
         ValidateVendCity(NoreturnCity, ExpectedPostCode, ExpectedRegionCode);
@@ -694,7 +694,7 @@ codeunit 138012 "O365 Templates Test"
         NoreturnPostCode := 'Noreturn';
 
         PostCodeRec.SetFilter(Code, NoreturnPostCode);
-        PostCodeRec.DeleteAll;
+        PostCodeRec.DeleteAll();
         ExpectedCity := '';
         ExpectedRegionCode := '';
         ValidateVendPostCode(ExpectedCity, NoreturnPostCode, ExpectedRegionCode);
@@ -982,7 +982,7 @@ codeunit 138012 "O365 Templates Test"
         UpdateMarketingSetup;
         LibrarySmallBusiness.CreateCustomerTemplate(ConfigTemplateHeader);
         LibraryVariableStorage.Enqueue(ConfigTemplateHeader.Code);
-        ContactsCount := Contact.Count;
+        ContactsCount := Contact.Count();
 
         // [WHEN] Create Customer from Template
         CustomerCard.OpenNew;
@@ -1012,7 +1012,7 @@ codeunit 138012 "O365 Templates Test"
         UpdateMarketingSetup;
         LibrarySmallBusiness.CreateVendorTemplate(ConfigTemplateHeader);
         LibraryVariableStorage.Enqueue(ConfigTemplateHeader.Code);
-        ContactsCount := Contact.Count;
+        ContactsCount := Contact.Count();
 
         // [WHEN] Create Vendor from Template
         VendorCard.OpenNew;
@@ -1830,7 +1830,7 @@ codeunit 138012 "O365 Templates Test"
         Initialize;
 
         // [GIVEN] Create new configuration template
-        ConfigTemplateHeader.Init;
+        ConfigTemplateHeader.Init();
 
         // [THEN] New template is created with "Enabled" = TRUE
         Assert.IsTrue(ConfigTemplateHeader.Enabled, TemplateMustBeEnabledErr);
@@ -2008,7 +2008,7 @@ codeunit 138012 "O365 Templates Test"
         // [SCENARIO] Item Template does not allow non-existing values in table relation fields.
 
         // [GIVEN] An item template
-        ItemTemplate.Init;
+        ItemTemplate.Init();
 
         // [WHEN] Assigning a non-existing "Base Unit of Measure"
         asserterror ItemTemplate.Validate("Base Unit of Measure", LibraryUtility.GenerateGUID);
@@ -2065,7 +2065,7 @@ codeunit 138012 "O365 Templates Test"
         // [SCENARIO] Customer Template does not allow non-existing values in table relation fields.
 
         // [GIVEN] A customer template
-        MiniCustomerTemplate.Init;
+        MiniCustomerTemplate.Init();
 
         // [WHEN] Assigning a non-existing "Document Sending Profile"
         asserterror MiniCustomerTemplate.Validate("Document Sending Profile", LibraryUtility.GenerateGUID);
@@ -2142,7 +2142,7 @@ codeunit 138012 "O365 Templates Test"
         // [SCENARIO] Vendor Template does not allow non-existing values in table relation fields.
 
         // [GIVEN] A vendor template
-        MiniVendorTemplate.Init;
+        MiniVendorTemplate.Init();
 
         // [WHEN] Assigning a non-existing "Vendor Posting Group"
         asserterror MiniVendorTemplate.Validate("Vendor Posting Group", LibraryUtility.GenerateGUID);
@@ -2521,9 +2521,9 @@ codeunit 138012 "O365 Templates Test"
         // [SCENARIO] New Item Templates take the costing method from Inventory Setup
 
         // [GIVEN] Default Costing Method = Average
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Default Costing Method", InventorySetup."Default Costing Method"::Average);
-        InventorySetup.Modify;
+        InventorySetup.Modify();
 
         // [WHEN] Opening the Item Template Card
         ItemTemplateCard.OpenNew;
@@ -2552,9 +2552,9 @@ codeunit 138012 "O365 Templates Test"
         TemplateCode := CreateConfigTemplateFromItemWithEnabledOption(true);
 
         // [GIVEN] Default Costing Method Average in the Inventory Setup
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Default Costing Method", InventorySetup."Default Costing Method"::Average);
-        InventorySetup.Modify;
+        InventorySetup.Modify();
 
         // [WHEN] Opening the Item Template Card for the Template
         ItemTemplateCard.Trap;
@@ -2570,7 +2570,7 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplateLine.SetRange("Data Template Code", TemplateCode);
         ConfigTemplateLine.SetRange("Table ID", DATABASE::Item);
         ConfigTemplateLine.SetRange("Field ID", Item.FieldNo("Costing Method"));
-        ConfigTemplateLine.DeleteAll;
+        ConfigTemplateLine.DeleteAll();
 
         ItemTemplateCard.Trap;
         ConfigTemplates."Edit Template".Invoke;
@@ -2591,12 +2591,12 @@ codeunit 138012 "O365 Templates Test"
         // [SCENARIO] Item created manually take the costing method from Inventory Setup
 
         // [GIVEN] Default Costing Method Average in the Inventory Setup
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Default Costing Method", InventorySetup."Default Costing Method"::Average);
-        InventorySetup.Modify;
+        InventorySetup.Modify();
 
         // [WHEN] Create new item manually without template
-        Item.Init;
+        Item.Init();
         Item.Validate("No.", LibraryUtility.GenerateRandomCode20(Item.FieldNo("No."), DATABASE::Item));
 
         // [THEN] The Costing method is Average
@@ -2614,17 +2614,17 @@ codeunit 138012 "O365 Templates Test"
         // [SCENARIO] Rename item created manually keep costing method unchanged
 
         // [GIVEN] Default Costing Method Average in the Inventory Setup
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Default Costing Method", InventorySetup."Default Costing Method"::Average);
-        InventorySetup.Modify;
+        InventorySetup.Modify();
 
         // [GIVEN] New item with Costing Method Average
         LibraryInventory.CreateItem(Item);
 
         // [GIVEN] Default Costing Method Standard in the Inventory Setup
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Default Costing Method", InventorySetup."Default Costing Method"::Standard);
-        InventorySetup.Modify;
+        InventorySetup.Modify();
 
         // [THEN] Rename item
         Item.Rename(LibraryUtility.GenerateRandomCode20(Item.FieldNo("No."), DATABASE::Item));
@@ -3446,6 +3446,108 @@ codeunit 138012 "O365 Templates Test"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [HandlerFunctions('TemplateSelectionPageHandler,CustomerTemplateCardHandler')]
+    [Scope('OnPrem')]
+    procedure ApplyCustomerTemplateWithDimToCustomers()
+    var
+        Customer: array[2] of Record Customer;
+        MiniCustomerTemplate: Record "Mini Customer Template";
+        CustomerCard: TestPage "Customer Card";
+        CustomerTemplateCode: Code[10];
+        CustomerNo: Code[20];
+    begin
+        // [FEATURE] [Customer] [Default Dimension]
+        // [SCENARIO 341169] Customers should have default dimensions from Customer Template after applying the template.
+        Initialize;
+
+        // [GIVEN] Customer Template with default dimensions.
+        CustomerTemplateCode := CreateCustTemplateWithDimFromCustomer();
+        LibraryVariableStorage.Enqueue(CustomerTemplateCode);
+
+        // [GIVEN] Two blank Customers.
+        CreateBlankCustomer(Customer[1]);
+        CreateBlankCustomer(Customer[2]);
+
+        // [WHEN] Applying the template.
+        Customer[1].SetFilter("No.", '%1|%2', Customer[1]."No.", Customer[2]."No.");
+        MiniCustomerTemplate.UpdateCustomersFromTemplate(Customer[1]);
+
+        // [THEN] Customers has default dimensions from template.
+        Customer[1].Find();
+        ValidateCustomerVsConfigTemplate(Customer[1], CustomerTemplateCode);
+        Customer[2].Find();
+        ValidateCustomerVsConfigTemplate(Customer[2], CustomerTemplateCode);
+    end;
+
+    [Test]
+    [HandlerFunctions('TemplateSelectionPageHandler,VendorTemplateCardHandler')]
+    [Scope('OnPrem')]
+    procedure ApplyVendorTemplateWithDimToVendors()
+    var
+        MiniVendorTemplate: Record "Mini Vendor Template";
+        Vendor: array[2] of Record Vendor;
+        VendorCard: TestPage "Vendor Card";
+        VendorTemplateCode: Code[10];
+        VendorNo: Code[20];
+    begin
+        // [FEATURE] [Vendor] [Default Dimension]
+        // [SCENARIO 341169] Vendors should have default dimensions from Vendor Template after applying the template.
+        Initialize;
+
+        // [GIVEN] Vendor Template with default dimensions.
+        VendorTemplateCode := CreateVendTemplateWithDimFromVendor();
+        LibraryVariableStorage.Enqueue(VendorTemplateCode);
+
+        // [GIVEN] Two blank Vendors.
+        CreateBlankVendor(Vendor[1]);
+        CreateBlankVendor(Vendor[2]);
+
+        // [WHEN] Applying the template.
+        Vendor[1].SetFilter("No.", '%1|%2', Vendor[1]."No.", Vendor[2]."No.");
+        MiniVendorTemplate.UpdateVendorsFromTemplate(Vendor[1]);
+
+        // [THEN] Vendors has default dimensions from template.
+        Vendor[1].Find();
+        ValidateVendorVsConfigTemplate(Vendor[1], VendorTemplateCode);
+        Vendor[2].Find();
+        ValidateVendorVsConfigTemplate(Vendor[2], VendorTemplateCode);
+    end;
+
+    [Test]
+    [HandlerFunctions('TemplateSelectionPageHandler,ItemTemplateCardHandler')]
+    [Scope('OnPrem')]
+    procedure ApplyItemTemplateWithDimToItems()
+    var
+        Item: array[2] of Record Item;
+        ItemTemplate: Record "Item Template";
+        ItemCard: TestPage "Item Card";
+        ItemTemplateCode: Code[10];
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Item] [Default Dimension]
+        // [SCENARIO 341169] Item should have default dimensions from Item Template after applying the template.
+        Initialize;
+
+        // [GIVEN] Item Template with default dimensions
+        ItemTemplateCode := CreateItemTemplateWithDimFromItem();
+        LibraryVariableStorage.Enqueue(ItemTemplateCode);
+
+        // [GIVEN] Two blank Items.
+        CreateBlankItem(Item[1]);
+        CreateBlankItem(Item[2]);
+
+        // [WHEN] Applying the template.
+        Item[1].SetFilter("No.", '%1|%2', Item[1]."No.", Item[2]."No.");
+        ItemTemplate.UpdateItemsFromTemplate(Item[1]);
+
+        // [THEN] Items has default dimensions from template.
+        Item[1].Find();
+        ValidateItemVsConfigTemplate(Item[1], ItemTemplateCode);
+        Item[2].Find();
+        ValidateItemVsConfigTemplate(Item[2], ItemTemplateCode);
+    end;
+
     local procedure Initialize()
     var
         SalesSetup: Record "Sales & Receivables Setup";
@@ -3478,12 +3580,12 @@ codeunit 138012 "O365 Templates Test"
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         LibrarySetupStorage.Save(DATABASE::"Inventory Setup");
 
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup."Stockout Warning" := false;
-        SalesSetup.Modify;
+        SalesSetup.Modify();
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Templates Test");
     end;
 
@@ -3501,21 +3603,21 @@ codeunit 138012 "O365 Templates Test"
         LibraryLowerPermissions.SetOutsideO365Scope;
         case TableID of
             DATABASE::"Res. Ledger Entry":
-                ResLedgerEntry.DeleteAll;
+                ResLedgerEntry.DeleteAll();
             DATABASE::"Job Planning Line":
-                JobPlanningLine.DeleteAll;
+                JobPlanningLine.DeleteAll();
             DATABASE::Job:
-                Job.DeleteAll;
+                Job.DeleteAll();
             DATABASE::"Production BOM Line":
-                ProductionBOMLine.DeleteAll;
+                ProductionBOMLine.DeleteAll();
             DATABASE::"Troubleshooting Setup":
-                TroubleshootingSetup.DeleteAll;
+                TroubleshootingSetup.DeleteAll();
             DATABASE::"Resource Skill":
-                ResourceSkill.DeleteAll;
+                ResourceSkill.DeleteAll();
             DATABASE::"Item Identifier":
-                ItemIdentifier.DeleteAll;
+                ItemIdentifier.DeleteAll();
             DATABASE::"Service Item Component":
-                ServiceItemComponent.DeleteAll;
+                ServiceItemComponent.DeleteAll();
         end;
         LibraryLowerPermissions.SetO365Full;
     end;
@@ -3535,19 +3637,19 @@ codeunit 138012 "O365 Templates Test"
 
     local procedure CreateBlankCustomer(var Customer: Record Customer)
     begin
-        Customer.Init;
+        Customer.Init();
         Customer.Insert(true);
     end;
 
     local procedure CreateBlankItem(var Item: Record Item)
     begin
-        Item.Init;
+        Item.Init();
         Item.Insert(true);
     end;
 
     local procedure CreateBlankVendor(var Vendor: Record Vendor)
     begin
-        Vendor.Init;
+        Vendor.Init();
         Vendor.Insert(true);
     end;
 
@@ -3604,7 +3706,7 @@ codeunit 138012 "O365 Templates Test"
         ReminderTerms: Record "Reminder Terms";
     begin
         LibrarySales.CreateCustomer(Customer2);
-        Customer.Init;
+        Customer.Init();
         Customer.Validate(Name, LibraryUtility.GenerateRandomCode(Customer.FieldNo(Name), DATABASE::Customer));
         Customer.Validate(Address, LibraryUtility.GenerateRandomCode(Customer.FieldNo(Address), DATABASE::Customer));
         Customer.Validate("Address 2", LibraryUtility.GenerateRandomCode(Customer.FieldNo("Address 2"), DATABASE::Customer));
@@ -3669,7 +3771,7 @@ codeunit 138012 "O365 Templates Test"
         PaymentMethod: Record "Payment Method";
     begin
         LibraryPurchase.CreateVendor(Vendor2);
-        Vendor.Init;
+        Vendor.Init();
         Vendor.Validate(Name, LibraryUtility.GenerateRandomCode(Vendor.FieldNo(Name), DATABASE::Vendor));
         Vendor.Validate(Address, LibraryUtility.GenerateRandomCode(Vendor.FieldNo(Address), DATABASE::Vendor));
         Vendor.Validate("Address 2", LibraryUtility.GenerateRandomCode(Vendor.FieldNo("Address 2"), DATABASE::Vendor));
@@ -3699,12 +3801,12 @@ codeunit 138012 "O365 Templates Test"
     var
         Dimension: Record Dimension;
     begin
-        DefaultDimension.Init;
+        DefaultDimension.Init();
         DefaultDimension."Table ID" := DATABASE::Vendor;
         DefaultDimension."No." := 'Dimension';
         Dimension.FindFirst;
         DefaultDimension."Dimension Code" := Dimension.Code;
-        DefaultDimension.Insert;
+        DefaultDimension.Insert();
     end;
 
     local procedure CreateTemplateFromCustomer(Customer: Record Customer; var ConfigTemplHeaderCode: Code[10])
@@ -3848,7 +3950,7 @@ codeunit 138012 "O365 Templates Test"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         NoSeries := InventorySetup."Item Nos.";
         ItemNo := LibraryUtility.GetNextNoFromNoSeries(NoSeries, WorkDate);
     end;
@@ -3857,7 +3959,7 @@ codeunit 138012 "O365 Templates Test"
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         NoSeries := SalesReceivablesSetup."Customer Nos.";
         CustomerNo := LibraryUtility.GetNextNoFromNoSeries(NoSeries, WorkDate);
     end;
@@ -3866,7 +3968,7 @@ codeunit 138012 "O365 Templates Test"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         NoSeries := PurchasesPayablesSetup."Vendor Nos.";
         VendorNo := LibraryUtility.GetNextNoFromNoSeries(NoSeries, WorkDate);
     end;
@@ -4147,7 +4249,7 @@ codeunit 138012 "O365 Templates Test"
     var
         TempMiniCustomerTemplate: Record "Mini Customer Template" temporary;
     begin
-        TempMiniCustomerTemplate.Insert;
+        TempMiniCustomerTemplate.Insert();
         TempMiniCustomerTemplate.Validate(City, CityName);
         Assert.AreEqual(ExpectedPostCode, TempMiniCustomerTemplate."Post Code", 'Wrong "Post Code"');
         Assert.AreEqual(ExpectedCountryRegionCode, TempMiniCustomerTemplate."Country/Region Code", 'Wrong "Country/Region Code"');
@@ -4157,7 +4259,7 @@ codeunit 138012 "O365 Templates Test"
     var
         TempMiniCustomerTemplate: Record "Mini Customer Template" temporary;
     begin
-        TempMiniCustomerTemplate.Insert;
+        TempMiniCustomerTemplate.Insert();
         TempMiniCustomerTemplate.Validate("Post Code", PostCode);
         Assert.AreEqual(ExpectedCityName, TempMiniCustomerTemplate.City, 'Wrong City');
         Assert.AreEqual(ExpectedCountryRegionCode, TempMiniCustomerTemplate."Country/Region Code", 'Wrong "Country/Region Code"');
@@ -4167,7 +4269,7 @@ codeunit 138012 "O365 Templates Test"
     var
         TempMiniVendorTemplate: Record "Mini Vendor Template" temporary;
     begin
-        TempMiniVendorTemplate.Insert;
+        TempMiniVendorTemplate.Insert();
         TempMiniVendorTemplate.Validate(City, CityName);
         Assert.AreEqual(ExpectedPostCode, TempMiniVendorTemplate."Post Code", 'Wrong "Post Code"');
         Assert.AreEqual(ExpectedCountryRegionCode, TempMiniVendorTemplate."Country/Region Code", 'Wrong "Country/Region Code"');
@@ -4177,7 +4279,7 @@ codeunit 138012 "O365 Templates Test"
     var
         TempMiniVendorTemplate: Record "Mini Vendor Template" temporary;
     begin
-        TempMiniVendorTemplate.Insert;
+        TempMiniVendorTemplate.Insert();
         TempMiniVendorTemplate.Validate("Post Code", PostCode);
         Assert.AreEqual(ExpectedCityName, TempMiniVendorTemplate.City, 'Wrong City');
         Assert.AreEqual(ExpectedCountryRegionCode, TempMiniVendorTemplate."Country/Region Code", 'Wrong "Country/Region Code"');
@@ -4198,7 +4300,7 @@ codeunit 138012 "O365 Templates Test"
         RecordRef.Open(TableNo);
 
         if not RecordRef.FindFirst then begin
-            RecordRef.Init;
+            RecordRef.Init();
             FieldRef := RecordRef.Field(FieldNo);
             FieldRef.Value := LibraryUtility.GenerateRandomCode(FieldNo, TableNo);
             RecordRef.Insert(true);
@@ -4214,17 +4316,17 @@ codeunit 138012 "O365 Templates Test"
         NumberOfDimensionValues: Integer;
         I: Integer;
     begin
-        Dimension.Init;
+        Dimension.Init();
         Dimension.Code := LibraryUtility.GenerateRandomCode(Dimension.FieldNo(Code), DATABASE::Dimension);
         Dimension.Insert(true);
 
         NumberOfDimensionValues := LibraryRandom.RandIntInRange(2, 10);
 
         for I := 1 to NumberOfDimensionValues do begin
-            DimensionValue.Init;
+            DimensionValue.Init();
             DimensionValue.Code := LibraryUtility.GenerateRandomCode(DimensionValue.FieldNo(Code), DATABASE::"Dimension Value");
             DimensionValue."Dimension Code" := Dimension.Code;
-            DimensionValue.Insert;
+            DimensionValue.Insert();
         end;
     end;
 
@@ -4242,7 +4344,7 @@ codeunit 138012 "O365 Templates Test"
         ConfigTemplateLine.SetRange("Data Template Code", DimensionConfigTemplateCode);
         Assert.AreEqual(3, ConfigTemplateLine.Count, 'Not all values were saved as Config Template Line');
 
-        TempDimensionsTemplate.Insert;
+        TempDimensionsTemplate.Insert();
         Clear(ConfigTemplateLine);
         ConfigTemplateLine.SetRange("Data Template Code", DimensionConfigTemplateCode);
         ConfigTemplateLine.SetRange("Field ID", TempDimensionsTemplate.FieldNo("Dimension Value Code"));
@@ -4326,7 +4428,7 @@ codeunit 138012 "O365 Templates Test"
         Dimension: Record Dimension;
     begin
         CreateDimension(Dimension);
-        DefaultDimension.Init;
+        DefaultDimension.Init();
         DefaultDimension."Table ID" := TableID;
         DefaultDimension."No." := RecordNo;
         DefaultDimension."Dimension Code" := Dimension.Code;
@@ -4334,7 +4436,7 @@ codeunit 138012 "O365 Templates Test"
         DimensionValue.SetRange("Dimension Code", Dimension.Code);
         DimensionValue.FindLast;
         DefaultDimension."Dimension Value Code" := DimensionValue.Code;
-        DefaultDimension.Insert;
+        DefaultDimension.Insert();
     end;
 
     local procedure AddGlobalDimension(RecordNo: Code[20]; TableID: Integer; DimNo: Integer) GlobalDimensionValueCode: Code[20]
@@ -4344,7 +4446,7 @@ codeunit 138012 "O365 Templates Test"
         DimensionCode: Code[20];
     begin
         DimensionCode := LibraryERM.GetGlobalDimensionCode(DimNo);
-        DefaultDimension.Init;
+        DefaultDimension.Init();
         DefaultDimension."Table ID" := TableID;
         DefaultDimension."No." := RecordNo;
         DefaultDimension."Dimension Code" := DimensionCode;
@@ -4352,7 +4454,7 @@ codeunit 138012 "O365 Templates Test"
         LibraryDimension.CreateDimensionValue(DimensionValue, DimensionCode);
         GlobalDimensionValueCode := DimensionValue.Code;
         DefaultDimension."Dimension Value Code" := DimensionValue.Code;
-        DefaultDimension.Insert;
+        DefaultDimension.Insert();
     end;
 
     local procedure VerifyDimensionsSavedCorrectly(MasterRecordNo: Code[20]; TableID: Integer; ConfigTemplateHeaderCode: Code[10])
@@ -4376,10 +4478,10 @@ codeunit 138012 "O365 Templates Test"
     begin
         with PostCodeRec do begin
             SetFilter(City, CityName);
-            DeleteAll;
+            DeleteAll();
             Reset;
             SetFilter(Code, PostCode);
-            DeleteAll;
+            DeleteAll();
 
             Init;
             Code := PostCode;
@@ -4408,7 +4510,7 @@ codeunit 138012 "O365 Templates Test"
         ExpectedCount: Integer;
     begin
         ConfigTemplateLine.SetRange("Data Template Code", OldTemplateCode);
-        ExpectedCount := ConfigTemplateLine.Count;
+        ExpectedCount := ConfigTemplateLine.Count();
 
         ConfigTemplateHeader.Get(OldTemplateCode);
         ConfigTemplateHeader.Rename(NewTemplateCode);
@@ -4425,7 +4527,7 @@ codeunit 138012 "O365 Templates Test"
         MarketingSetup: Record "Marketing Setup";
         BusinessRelation: Record "Business Relation";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         LibraryMarketing.CreateBusinessRelation(BusinessRelation);
         MarketingSetup.Validate("Bus. Rel. Code for Customers", BusinessRelation.Code);
         LibraryMarketing.CreateBusinessRelation(BusinessRelation);
@@ -4438,10 +4540,10 @@ codeunit 138012 "O365 Templates Test"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         NoSeries: Record "No. Series";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         LibraryUtility.CreateNoSeries(NoSeries, false, true, false);
         SalesReceivablesSetup."Customer Nos." := NoSeries.Code;
-        SalesReceivablesSetup.Modify;
+        SalesReceivablesSetup.Modify();
     end;
 
     local procedure UpdatePurchasesPayablesSetupVendNoSeries()
@@ -4449,10 +4551,10 @@ codeunit 138012 "O365 Templates Test"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         NoSeries: Record "No. Series";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         LibraryUtility.CreateNoSeries(NoSeries, false, true, false);
         PurchasesPayablesSetup."Vendor Nos." := NoSeries.Code;
-        PurchasesPayablesSetup.Modify;
+        PurchasesPayablesSetup.Modify();
     end;
 
     local procedure UpdateInventorySetupItemNoSeries()
@@ -4460,10 +4562,10 @@ codeunit 138012 "O365 Templates Test"
         InventorySetup: Record "Inventory Setup";
         NoSeries: Record "No. Series";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         LibraryUtility.CreateNoSeries(NoSeries, false, true, false);
         InventorySetup."Item Nos." := NoSeries.Code;
-        InventorySetup.Modify;
+        InventorySetup.Modify();
     end;
 
     local procedure UpdateConfigTemplateHeaderNoSeries(ConfigTemplHeaderCode: Code[20]; NoSeriesCode: Code[20])
@@ -4538,7 +4640,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         Assert.RecordCount(Contact, ContactsCount + 1);
 
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         ContactBusinessRelation.SetRange("Business Relation Code", MarketingSetup."Bus. Rel. Code for Customers");
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
         ContactBusinessRelation.SetRange("No.", CustomerNo);
@@ -4553,7 +4655,7 @@ codeunit 138012 "O365 Templates Test"
     begin
         Assert.RecordCount(Contact, ContactsCount + 1);
 
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         ContactBusinessRelation.SetRange("Business Relation Code", MarketingSetup."Bus. Rel. Code for Vendors");
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Vendor);
         ContactBusinessRelation.SetRange("No.", VendorNo);
@@ -4711,7 +4813,7 @@ codeunit 138012 "O365 Templates Test"
         Item."Last Date Modified" := NewItem."Last Date Modified";
         Item."Last DateTime Modified" := NewItem."Last DateTime Modified";
         Item.Id := NewItem.Id;
-        Item.Modify;
+        Item.Modify();
         RecordRef1.GetTable(Item);
         RecordRef2.GetTable(NewItem);
 

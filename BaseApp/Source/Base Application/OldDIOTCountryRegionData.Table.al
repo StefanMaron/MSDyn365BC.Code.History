@@ -3,6 +3,7 @@ table 27049 "DIOT-Country/Region Data"
     Caption = 'DIOT Country/Region Data';
     ObsoleteReason = 'Moved to extension';
     ObsoleteState = Removed;
+    ObsoleteTag = '15.0';
 
     fields
     {

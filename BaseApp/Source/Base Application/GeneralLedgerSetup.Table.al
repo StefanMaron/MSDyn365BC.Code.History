@@ -633,6 +633,7 @@ table 98 "General Ledger Setup"
             Caption = 'VAT Reg. No. Validation URL';
             ObsoleteReason = 'This field is obsolete, it has been replaced by Table 248 VAT Reg. No. Srv Config.';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
 
             trigger OnValidate()
             begin
@@ -666,6 +667,7 @@ table 98 "General Ledger Setup"
             Caption = 'VAT in Use';
             ObsoleteReason = 'Replaced by IsVATEnabled';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(10002; "Bank Rec. Adj. Doc. Nos."; Code[20])
         {
@@ -682,6 +684,7 @@ table 98 "General Ledger Setup"
             Caption = 'SAT Certificate Thumbprint';
             ObsoleteReason = 'Using Local Certificate store is deprecated. Use SAT Certificate instead that are linked to certificate table.';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(10005; "Send PDF Report"; Boolean)
         {

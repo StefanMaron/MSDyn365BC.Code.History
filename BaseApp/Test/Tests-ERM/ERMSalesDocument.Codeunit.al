@@ -2122,6 +2122,7 @@ codeunit 134385 "ERM Sales Document"
     [Scope('OnPrem')]
     procedure CustomerListHasDefaultDateFilterUntilWorkDate()
     var
+        Customer: Record Customer;
         CustomerList: TestPage "Customer List";
     begin
         // [FEATURE] [Customer List]
@@ -2130,12 +2131,13 @@ codeunit 134385 "ERM Sales Document"
         Initialize;
 
         // [GIVEN] Work date is 10.01.2018
+        Customer.SetRange("Date Filter", 0D, WorkDate());
 
         // [WHEN] Open "Customer List" page
         CustomerList.OpenView;
 
         // [THEN] "Date Filter" is "..10.01.2018"
-        Assert.AreEqual(StrSubstNo('..%1', WorkDate), CustomerList.FILTER.GetFilter("Date Filter"), 'Incorrect default date filter');
+        Assert.AreEqual(Customer.GetFilter("Date Filter"), CustomerList.FILTER.GetFilter("Date Filter"), 'Incorrect default date filter');
 
         CustomerList.Close;
     end;

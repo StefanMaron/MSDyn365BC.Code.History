@@ -487,6 +487,7 @@ codeunit 333 "Req. Wksh.-Make Order"
         AddOnIntegrMgt: Codeunit AddOnIntegrManagement;
         CarryOutAction: Codeunit "Carry Out Action";
         DimensionSetIDArr: array[10] of Integer;
+        IsHandled: Boolean;
     begin
         OnBeforeInsertPurchOrderLine(ReqLine2, PurchOrderHeader, NextLineNo);
 
@@ -504,9 +505,13 @@ codeunit 333 "Req. Wksh.-Make Order"
                 (CheckInsertFinalizePurchaseOrderHeader(ReqLine2, PurchOrderHeader, true, true) or
                  not PurchasingParametersMatch(PurchOrderHeader, ReqLine2)))
             then begin
-                InsertHeader(ReqLine2);
-                LineCount := 0;
-                NextLineNo := 0;
+                IsHandled := false;
+                OnInsertPurchOrderLineOnBeforeInsertHeader(ReqLine2, PurchOrderHeader, PurchOrderLine, LineCount, NextLineNo, IsHandled);
+                if not IsHandled then begin
+                    InsertHeader(ReqLine2);
+                    LineCount := 0;
+                    NextLineNo := 0;
+                end;
                 PrevPurchCode := "Purchasing Code";
                 PrevShipToCode := "Ship-to Code";
                 PrevLocationCode := "Location Code";
@@ -750,8 +755,7 @@ codeunit 333 "Req. Wksh.-Make Order"
                 if ReqLine2.FindSet then begin
                     ReqLine2.BlockDynamicTracking(true);
                     ReservEntry.SetCurrentKey(
-                    "Source ID", "Source Ref. No.", "Source Type", "Source Subtype",
-                    "Source Batch Name", "Source Prod. Order Line");
+                        "Source ID", "Source Ref. No.", "Source Type", "Source Subtype", "Source Batch Name", "Source Prod. Order Line");
                     repeat
                         if PurchaseOrderLineMatchReqLine(ReqLine2) then begin
                             TempFailedReqLine := ReqLine2;
@@ -1285,6 +1289,16 @@ codeunit 333 "Req. Wksh.-Make Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnFinalizeOrderHeaderOnAfterSetFiltersForNonRecurringReqLine(var RequisitionLine: Record "Requisition Line"; PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertPurchOrderLineOnAfterCheckInsertFinalizePurchaseOrderHeader(var RequisitionLine: Record "Requisition Line"; var PurchaseHeader: Record "Purchase Header"; var NextLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsertPurchOrderLineOnBeforeInsertHeader(var RequisitionLine: Record "Requisition Line"; var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var LineCount: Integer; var NextLineNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

@@ -300,10 +300,10 @@ table 1300 "Mini Customer Template"
     var
         RecRef: RecordRef;
     begin
-        TempMiniCustomerTemplate.Init;
+        TempMiniCustomerTemplate.Init();
         TempMiniCustomerTemplate.Code := ConfigTemplateHeader.Code;
         TempMiniCustomerTemplate."Template Name" := ConfigTemplateHeader.Description;
-        TempMiniCustomerTemplate.Insert;
+        TempMiniCustomerTemplate.Insert();
 
         RecRef.GetTable(TempMiniCustomerTemplate);
 
@@ -424,6 +424,7 @@ table 1300 "Mini Customer Template"
         ConfigTemplateHeader: Record "Config. Template Header";
         DimensionsTemplate: Record "Dimensions Template";
         ConfigTemplates: Page "Config Templates";
+        FldRef: FieldRef;
         CustomerRecRef: RecordRef;
     begin
         if GuiAllowed then begin
@@ -437,7 +438,8 @@ table 1300 "Mini Customer Template"
                 if CustomerRecRef.FindSet then
                     repeat
                         ConfigTemplateManagement.UpdateRecord(ConfigTemplateHeader, CustomerRecRef);
-                        DimensionsTemplate.InsertDimensionsFromTemplates(ConfigTemplateHeader, Customer."No.", DATABASE::Customer);
+                        FldRef := CustomerRecRef.Field(1);
+                        DimensionsTemplate.InsertDimensionsFromTemplates(ConfigTemplateHeader, Format(FldRef.Value), DATABASE::Customer);
                     until CustomerRecRef.Next = 0;
                 CustomerRecRef.SetTable(Customer);
             end;

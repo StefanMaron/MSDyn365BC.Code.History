@@ -279,10 +279,10 @@ table 1303 "Mini Vendor Template"
     var
         RecRef: RecordRef;
     begin
-        TempMiniVendorTemplate.Init;
+        TempMiniVendorTemplate.Init();
         TempMiniVendorTemplate.Code := ConfigTemplateHeader.Code;
         TempMiniVendorTemplate."Template Name" := ConfigTemplateHeader.Description;
-        TempMiniVendorTemplate.Insert;
+        TempMiniVendorTemplate.Insert();
 
         RecRef.GetTable(TempMiniVendorTemplate);
 
@@ -405,6 +405,7 @@ table 1303 "Mini Vendor Template"
         ConfigTemplateHeader: Record "Config. Template Header";
         DimensionsTemplate: Record "Dimensions Template";
         ConfigTemplates: Page "Config Templates";
+        FldRef: FieldRef;
         VendorRecRef: RecordRef;
     begin
         if GuiAllowed then begin
@@ -418,7 +419,8 @@ table 1303 "Mini Vendor Template"
                 if VendorRecRef.FindSet then
                     repeat
                         ConfigTemplateManagement.UpdateRecord(ConfigTemplateHeader, VendorRecRef);
-                        DimensionsTemplate.InsertDimensionsFromTemplates(ConfigTemplateHeader, Vendor."No.", DATABASE::Vendor);
+                        FldRef := VendorRecRef.Field(1);
+                        DimensionsTemplate.InsertDimensionsFromTemplates(ConfigTemplateHeader, Format(FldRef.Value), DATABASE::Vendor);
                     until VendorRecRef.Next = 0;
                 VendorRecRef.SetTable(Vendor);
             end;

@@ -3,6 +3,7 @@ table 27040 "DIOT-Concept"
     Caption = 'DIOT Concept';
     ObsoleteReason = 'Moved to extension';
     ObsoleteState = Removed;
+    ObsoleteTag = '15.0';
 
     fields
     {

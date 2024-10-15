@@ -180,8 +180,67 @@ table 5765 "Warehouse Request"
         SetRange("Source No.", SourceNo);
     end;
 
+    procedure ShowSourceDocumentCard()
+    var
+        PurchHeader: Record "Purchase Header";
+        SalesHeader: Record "Sales Header";
+        TransHeader: Record "Transfer Header";
+        ProdOrder: Record "Production Order";
+        ServiceHeader: Record "Service Header";
+    begin
+        case "Source Document" of
+            "Source Document"::"Purchase Order":
+                begin
+                    PurchHeader.Get("Source Subtype", "Source No.");
+                    PAGE.Run(PAGE::"Purchase Order", PurchHeader);
+                end;
+            "Source Document"::"Purchase Return Order":
+                begin
+                    PurchHeader.Get("Source Subtype", "Source No.");
+                    PAGE.Run(PAGE::"Purchase Return Order", PurchHeader);
+                end;
+            "Source Document"::"Sales Order":
+                begin
+                    SalesHeader.Get("Source Subtype", "Source No.");
+                    PAGE.Run(PAGE::"Sales Order", SalesHeader);
+                end;
+            "Source Document"::"Sales Return Order":
+                begin
+                    SalesHeader.Get("Source Subtype", "Source No.");
+                    PAGE.Run(PAGE::"Sales Return Order", SalesHeader);
+                end;
+            "Source Document"::"Inbound Transfer", "Source Document"::"Outbound Transfer":
+                begin
+                    TransHeader.Get("Source No.");
+                    PAGE.Run(PAGE::"Transfer Order", TransHeader);
+                end;
+            "Source Document"::"Prod. Consumption", "Source Document"::"Prod. Output":
+                begin
+                    ProdOrder.Get("Source Subtype", "Source No.");
+                    PAGE.Run(PAGE::"Released Production Order", ProdOrder);
+                end;
+            "Source Document"::"Service Order":
+                begin
+                    ServiceHeader.Get("Source Subtype", "Source No.");
+                    PAGE.Run(PAGE::"Service Order", ServiceHeader);
+                end;
+            else
+                OnShowSourceDocumentCardCaseElse(Rec);
+        end;
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterDeleteRequest(SourceType: Integer; SourceSubtype: Integer; SourceNo: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetDestinationType(var WhseRequest: Record "Warehouse Request"; ProdOrder: Record "Production Order")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowSourceDocumentCardCaseElse(var WhseRequest: Record "Warehouse Request")
     begin
     end;
 }

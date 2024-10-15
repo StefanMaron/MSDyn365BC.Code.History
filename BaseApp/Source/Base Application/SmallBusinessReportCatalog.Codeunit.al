@@ -1,4 +1,4 @@
-codeunit 9025 "Small Business Report Catalog"
+﻿codeunit 9025 "Small Business Report Catalog"
 {
 
     trigger OnRun()
@@ -24,7 +24,13 @@ codeunit 9025 "Small Business Report Catalog"
         NewStartDate: Date;
         NewEndDate: Date;
         DateChoice: Option "Due Date","Posting Date";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeRunCustomerStatementReport(UseRequestPage, IsHandled);
+        if IsHandled then
+            exit;
+
         // Use default parameters when you launch the request page, with Start/End Date being the YTD of current financial year
         NewPrintEntriesDue := false;
         NewPrintAllHavingEntry := false;
@@ -69,6 +75,11 @@ codeunit 9025 "Small Business Report Catalog"
         ToFile := ToFileNameTxt;
         Download(FileName, '', FileMgt.Magicpath, '', ToFile);
         Erase(FileName);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunCustomerStatementReport(UseRequestPage: Boolean; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

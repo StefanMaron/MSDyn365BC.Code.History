@@ -24,7 +24,7 @@
               </TablixColumns>
               <TablixRows>
                 <TablixRow>
-                  <Height>18.84741cm</Height>
+                  <Height>23.42617cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -4089,7 +4089,7 @@
                               </TablixRowHierarchy>
                               <RepeatRowHeaders>true</RepeatRowHeaders>
                               <DataSetName>DataSet_Result</DataSetName>
-                              <Top>8.38923cm</Top>
+                              <Top>9.01688cm</Top>
                               <Left>0.0497cm</Left>
                               <Height>2.2848cm</Height>
                               <Width>18.47515cm</Width>
@@ -4697,6 +4697,90 @@
                                 <PaddingRight>5pt</PaddingRight>
                               </Style>
                             </Textbox>
+                            <Tablix Name="Tablix6">
+                              <TablixBody>
+                                <TablixColumns>
+                                  <TablixColumn>
+                                    <Width>18.30602cm</Width>
+                                  </TablixColumn>
+                                </TablixColumns>
+                                <TablixRows>
+                                  <TablixRow>
+                                    <Height>0.4cm</Height>
+                                    <TablixCells>
+                                      <TablixCell>
+                                        <CellContents>
+                                          <Textbox Name="WorkDescriptionLine">
+                                            <CanGrow>true</CanGrow>
+                                            <KeepTogether>true</KeepTogether>
+                                            <Paragraphs>
+                                              <Paragraph>
+                                                <TextRuns>
+                                                  <TextRun>
+                                                    <Value>=Fields!WorkDescriptionLine.Value</Value>
+                                                    <Style>
+                                                      <FontFamily>Segoe UI</FontFamily>
+                                                      <FontSize>8pt</FontSize>
+                                                    </Style>
+                                                  </TextRun>
+                                                </TextRuns>
+                                                <Style />
+                                              </Paragraph>
+                                            </Paragraphs>
+                                            <rd:DefaultName>WorkDescriptionLine</rd:DefaultName>
+                                            <Style>
+                                              <Border>
+                                                <Color>LightGrey</Color>
+                                                <Style>None</Style>
+                                              </Border>
+                                              <PaddingLeft>5pt</PaddingLeft>
+                                              <PaddingRight>5pt</PaddingRight>
+                                            </Style>
+                                          </Textbox>
+                                        </CellContents>
+                                      </TablixCell>
+                                    </TablixCells>
+                                  </TablixRow>
+                                </TablixRows>
+                              </TablixBody>
+                              <TablixColumnHierarchy>
+                                <TablixMembers>
+                                  <TablixMember />
+                                </TablixMembers>
+                              </TablixColumnHierarchy>
+                              <TablixRowHierarchy>
+                                <TablixMembers>
+                                  <TablixMember>
+                                    <Group Name="Details6">
+                                      <Filters>
+                                        <Filter>
+                                          <FilterExpression>=Fields!WorkDescriptionLineNumber.Value</FilterExpression>
+                                          <Operator>Between</Operator>
+                                          <FilterValues>
+                                            <FilterValue DataType="Integer">1</FilterValue>
+                                            <FilterValue DataType="Integer">99999</FilterValue>
+                                          </FilterValues>
+                                        </Filter>
+                                      </Filters>
+                                    </Group>
+                                    <Visibility>
+                                      <Hidden>=Fields!ShowWorkDescription.Value = False</Hidden>
+                                    </Visibility>
+                                  </TablixMember>
+                                </TablixMembers>
+                              </TablixRowHierarchy>
+                              <DataSetName>DataSet_Result</DataSetName>
+                              <Top>8.44049cm</Top>
+                              <Left>0.02485cm</Left>
+                              <Height>0.4cm</Height>
+                              <Width>18.30602cm</Width>
+                              <ZIndex>7</ZIndex>
+                              <Style>
+                                <Border>
+                                  <Style>None</Style>
+                                </Border>
+                              </Style>
+                            </Tablix>
                             <Tablix Name="SalesTaxSpecification">
                               <TablixBody>
                                 <TablixColumns>
@@ -5867,6 +5951,9 @@ End Function
         <Field Name="DocumentTitle">
           <DataField>DocumentTitle</DataField>
         </Field>
+        <Field Name="ShowWorkDescription">
+          <DataField>ShowWorkDescription</DataField>
+        </Field>
         <Field Name="Subtotal_Lbl">
           <DataField>Subtotal_Lbl</DataField>
         </Field>
@@ -6037,6 +6124,12 @@ End Function
         </Field>
         <Field Name="VariantCode_AssemblyLine">
           <DataField>VariantCode_AssemblyLine</DataField>
+        </Field>
+        <Field Name="WorkDescriptionLineNumber">
+          <DataField>WorkDescriptionLineNumber</DataField>
+        </Field>
+        <Field Name="WorkDescriptionLine">
+          <DataField>WorkDescriptionLine</DataField>
         </Field>
         <Field Name="InvoiceDiscountAmount_VATAmountLine">
           <DataField>InvoiceDiscountAmount_VATAmountLine</DataField>

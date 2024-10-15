@@ -889,7 +889,7 @@ report 27 "Dimensions - Total"
         FindFirstDim: array[4] of Boolean;
         DimCode: array[4] of Text[30];
         DimValCode: array[4] of Code[20];
-        DimValName: array[4] of Text[50];
+        DimValName: array[4] of Text[100];
         DimValNameIndent: array[4] of Integer;
         LevelFilter: array[4] of Text[250];
         HeaderText: Text[100];
@@ -923,7 +923,7 @@ report 27 "Dimensions - Total"
         PostingType: Option Standard,Heading,Total,"Begin-Total","End-Total";
         LowestLevel: Boolean;
         ThisDimValCode: Code[20];
-        ThisDimValName: Text[50];
+        ThisDimValName: Text[100];
         ThisTotaling: Text[250];
         ThisIndentation: Integer;
         ThisPostingType: Option Standard,Heading,Total,"Begin-Total","End-Total";
@@ -1005,7 +1005,7 @@ report 27 "Dimensions - Total"
     var
         Totaling: Text[250];
         LowestLevel: Boolean;
-        ThisDimValName: Text[50];
+        ThisDimValName: Text[100];
         ThisIndentation: Integer;
         ThisPostingType: Option Standard,Heading,Total,"Begin-Total","End-Total";
         HasValue: Boolean;

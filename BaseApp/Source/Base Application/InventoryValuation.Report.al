@@ -1,7 +1,8 @@
-report 10139 "Inventory Valuation"
+﻿report 10139 "Inventory Valuation"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './InventoryValuation.rdlc';
+    ApplicationArea = Basic, Suite;
     Caption = 'Inventory Valuation';
     UsageCategory = ReportsAndAnalysis;
 
@@ -388,6 +389,11 @@ report 10139 "Inventory Valuation"
             TempEntryBuffer.Insert;
         IsCollecting := false;
         Clear(TempEntryBuffer);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnAfterItemGetRecord(var Item: Record Item; var SkipItem: Boolean)
+    begin
     end;
 }
 

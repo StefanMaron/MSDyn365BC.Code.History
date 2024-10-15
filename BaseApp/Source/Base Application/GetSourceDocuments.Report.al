@@ -196,10 +196,26 @@ report 5753 "Get Source Documents"
                     end;
                 }
 
+                trigger OnAfterGetRecord()
+                var
+                    BreakReport: Boolean;
+                    SkipRecord: Boolean;
+                begin
+                    BreakReport := false;
+                    SkipRecord := false;
+                    OnAfterPurchaseHeaderOnAfterGetRecord("Purchase Header", SkipRecord, BreakReport, "Warehouse Request");
+                    if BreakReport then
+                        CurrReport.Break();
+                    if SkipRecord then
+                        CurrReport.Skip();
+                end;
+
                 trigger OnPreDataItem()
                 begin
                     if "Warehouse Request"."Source Type" <> DATABASE::"Purchase Line" then
-                        CurrReport.Break;
+                        CurrReport.Break();
+
+                    OnAfterOnPreDataItemPurchaseLine("Purchase Header");
                 end;
             }
             dataitem("Transfer Header"; "Transfer Header")
@@ -288,7 +304,9 @@ report 5753 "Get Source Documents"
                 trigger OnPreDataItem()
                 begin
                     if "Warehouse Request"."Source Type" <> DATABASE::"Transfer Line" then
-                        CurrReport.Break;
+                        CurrReport.Break();
+
+                    OnAfterOnPreDataItemTransferLine("Transfer Header");
                 end;
             }
             dataitem("Service Header"; "Service Header")
@@ -696,6 +714,16 @@ report 5753 "Get Source Documents"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterOnPreDataItemPurchaseLine(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterOnPreDataItemTransferLine(var TransferHeader: Record "Transfer Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterProcessDocumentLine(var WarehouseShipmentHeader: Record "Warehouse Shipment Header"; var WarehouseRequest: Record "Warehouse Request"; var LineCreated: Boolean)
     begin
     end;
@@ -707,6 +735,11 @@ report 5753 "Get Source Documents"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterTransHeaderOnAfterGetRecord(TransferHeader: Record "Transfer Header"; var SkipRecord: Boolean; var BreakReport: Boolean; var WarehouseRequest: Record "Warehouse Request")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPurchaseHeaderOnAfterGetRecord(PurchaseHeader: Record "Purchase Header"; var SkipRecord: Boolean; var BreakReport: Boolean; var WarehouseRequest: Record "Warehouse Request")
     begin
     end;
 
@@ -786,7 +819,7 @@ report 5753 "Get Source Documents"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeWhseReceiptHeaderInsert(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; WarehouseRequest: Record "Warehouse Request")
+    local procedure OnBeforeWhseReceiptHeaderInsert(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var WarehouseRequest: Record "Warehouse Request")
     begin
     end;
 

@@ -17,6 +17,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryJournals: Codeunit "Library - Journals";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         isInitialized: Boolean;
         ReversalErr: Label 'You cannot reverse G/L Register No. %1 because the register has already been involved in a reversal.';
@@ -37,7 +38,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
     begin
         // Create and Post General Journal Line and Reverse them and Check Reversed Entries.
 
-        Initialize;
+        Initialize();
         LibraryERM.FindGLAccount(GLAccount);
         DocumentNo := PostGeneralLineAndReverse(GLRegisterNo, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.");
 
@@ -60,7 +61,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
     begin
         // Create and Post General Journal Line, Reverse them and check error when try to reverse again.
 
-        Initialize;
+        Initialize();
         LibraryERM.FindGLAccount(GLAccount);
         PostGeneralLineAndReverse(GLRegisterNo, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.");
 
@@ -81,7 +82,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
     begin
         // Create and Post General Journal Line for Customer and Reverse them and check error while Unapply on Customer Ledger Entry.
 
-        Initialize;
+        Initialize();
         DocumentNo :=
           PostGeneralLineAndReverse(
             GLRegisterNo, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo);
@@ -102,7 +103,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
     begin
         // Create and Post General Journal Line for Vendor and Reverse them and check error while Unapply on Vendor Ledger Entry.
 
-        Initialize;
+        Initialize();
         DocumentNo :=
           PostGeneralLineAndReverse(
             GLRegisterNo, GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo);
@@ -125,7 +126,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         TransactionNo: Integer;
     begin
         // Setup: Set "Unrealized VAT", Create Customer, Create and Post Invoice, Create, Post, and Apply/Unapply Payment
-        Initialize;
+        Initialize();
         LibraryERM.SetUnrealizedVAT(true);
         DocNo := CreateAndPostSalesDocumentUnrealizedVAT(CustNo);
         PmtDocNo := CreatePostAndApplyUnapplyCustPmt(CustNo, DocNo);
@@ -154,7 +155,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         TransactionNo: Integer;
     begin
         // Setup: Set "Unrealized VAT", Create Vendor, Create and Post Invoice, Create, Post, and Apply/Unapply Payment
-        Initialize;
+        Initialize();
         LibraryERM.SetUnrealizedVAT(true);
         DocNo := CreateAndPostPurchDocumentUnrealizedVAT(VendNo);
         PmtDocNo := CreatePostAndApplyUnapplyVendPmt(VendNo, DocNo);
@@ -183,7 +184,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         TransactionNo: Integer;
     begin
         // [SCENARIO 360351] It is not allowed to reverse unapplied Sales Payment transaction with associated Payment Discount
-        Initialize;
+        Initialize();
         SetGLSetupAdjPmtDisc;
         // [GIVEN] Sales Invoice with Payment Term for possible discount
         DocNo := CreateAndPostSalesDocumentPmtDisc(CustNo);
@@ -219,7 +220,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
         TransactionNo: Integer;
     begin
         // [SCENARIO 360351] It is not allowed to reverse unapplied Purchase Payment transaction with associated Payment Discount
-        Initialize;
+        Initialize();
         SetGLSetupAdjPmtDisc;
         // [GIVEN] Purchase Invoice with Payment Term for possible discount
         DocNo := CreateAndPostPurchDocumentPmtDisc(VendNo);
@@ -256,7 +257,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
     begin
         // [FEATURE] [Purchase]
         // [SCENARIO 380984] Reverse unapplied Purchase Payment transaction when some Purchase Invoices were applied
-        Initialize;
+        Initialize();
 
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Application Method", Vendor."Application Method"::"Apply to Oldest");
@@ -294,7 +295,7 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
     begin
         // [FEATURE] [Sales]
         // [SCENARIO 380984] Reverse unapplied Sales Payment transaction when some Sales Invoices were applied
-        Initialize;
+        Initialize();
 
         LibrarySales.CreateCustomer(Customer);
         Customer.Validate("Application Method", Customer."Application Method"::"Apply to Oldest");
@@ -322,19 +323,25 @@ codeunit 134129 "ERM Reverse For Cust/Vendor"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibrarySetupStorage.Restore;
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Reverse For Cust/Vendor");
+
+        LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
 
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM Reverse For Cust/Vendor");
+
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
         isInitialized := true;
         Commit;
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM Reverse For Cust/Vendor");
     end;
 
     local procedure PostGeneralLineAndReverse(var GLRegisterNo: Integer; AccountType: Option; AccountNo: Code[20]) DocumentNo: Code[20]

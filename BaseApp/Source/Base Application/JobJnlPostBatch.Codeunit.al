@@ -53,6 +53,7 @@ codeunit 1013 "Job Jnl.-Post Batch"
         InvtAdjmt: Codeunit "Inventory Adjustment";
         UpdateAnalysisView: Codeunit "Update Analysis View";
         UpdateItemAnalysisView: Codeunit "Update Item Analysis View";
+        IsHandled: Boolean;
     begin
         with JobJnlLine do begin
             SetRange("Journal Template Name", "Journal Template Name");
@@ -129,7 +130,10 @@ codeunit 1013 "Job Jnl.-Post Batch"
                 MakeRecurringTexts(JobJnlLine);
                 if "Posting No. Series" = '' then begin
                     "Posting No. Series" := JobJnlBatch."No. Series";
-                    TestField("Document No.");
+                    IsHandled := false;
+                    OnBeforeTestDocumentNo(JobJnlLine, IsHandled);
+                    if not IsHandled then
+                        TestField("Document No.");
                 end else
                     if not EmptyLine then
                         if ("Document No." = LastDocNo) and ("Document No." <> '') then
@@ -255,7 +259,7 @@ codeunit 1013 "Job Jnl.-Post Batch"
                     if JobJnlLine2.Find then; // Remember the last line
                     JobJnlLine3.Copy(JobJnlLine);
                     IsHandled := false;
-                    OnBeforeDeleteNonRecJnlLines(JobJnlLine3, IsHandled);
+                    OnBeforeDeleteNonRecJnlLines(JobJnlLine3, IsHandled, JobJnlLine, JobJnlLine2);
                     if not IsHandled then begin
                         JobJnlLine3.DeleteAll;
                         JobJnlLine3.Reset;
@@ -313,7 +317,12 @@ codeunit 1013 "Job Jnl.-Post Batch"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeDeleteNonRecJnlLines(var JobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean)
+    local procedure OnBeforeDeleteNonRecJnlLines(var JobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean; var FromJobJournalLine: Record "Job Journal Line"; var JobJournalLine2: Record "Job Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestDocumentNo(var JobJournalLine: Record "Job Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

@@ -29,7 +29,7 @@ codeunit 228 "Test Report-Print"
 
     procedure PrintGenJnlBatch(GenJnlBatch: Record "Gen. Journal Batch")
     begin
-        GenJnlBatch.SetRecFilter;
+        GenJnlBatch.SetRecFilter();
         GenJnlTemplate.Get(GenJnlBatch."Journal Template Name");
         GenJnlTemplate.TestField("Test Report ID");
         REPORT.Run(GenJnlTemplate."Test Report ID", true, false, GenJnlBatch);
@@ -47,7 +47,7 @@ codeunit 228 "Test Report-Print"
 
     procedure PrintVATStmtName(VATStmtName: Record "VAT Statement Name")
     begin
-        VATStmtName.SetRecFilter;
+        VATStmtName.SetRecFilter();
         VATStmtTmpl.Get(VATStmtName."Statement Template Name");
         VATStmtTmpl.TestField("VAT Statement Report ID");
         REPORT.Run(VATStmtTmpl."VAT Statement Report ID", true, false, VATStmtName);
@@ -65,7 +65,7 @@ codeunit 228 "Test Report-Print"
 
     procedure PrintItemJnlBatch(ItemJnlBatch: Record "Item Journal Batch")
     begin
-        ItemJnlBatch.SetRecFilter;
+        ItemJnlBatch.SetRecFilter();
         ItemJnlTemplate.Get(ItemJnlBatch."Journal Template Name");
         ItemJnlTemplate.TestField("Test Report ID");
         REPORT.Run(ItemJnlTemplate."Test Report ID", true, false, ItemJnlBatch);
@@ -97,7 +97,7 @@ codeunit 228 "Test Report-Print"
 
     procedure PrintResJnlBatch(ResJnlBatch: Record "Res. Journal Batch")
     begin
-        ResJnlBatch.SetRecFilter;
+        ResJnlBatch.SetRecFilter();
         ResJnlTemplate.Get(ResJnlBatch."Journal Template Name");
         ResJnlTemplate.TestField("Test Report ID");
         REPORT.Run(ResJnlTemplate."Test Report ID", true, false, ResJnlBatch);
@@ -118,8 +118,8 @@ codeunit 228 "Test Report-Print"
         SalesHeader: Record "Sales Header";
     begin
         SalesHeader := NewSalesHeader;
-        SalesHeader.SetRecFilter;
-        CalcSalesDisc(SalesHeader);
+        SalesHeader.SetRecFilter();
+        CalcSalesDiscount(SalesHeader);
         ReportSelection.PrintWithCheck(ReportSelection.Usage::"S.Test", SalesHeader, SalesHeader.FieldNo("Bill-to Customer No."));
     end;
 
@@ -128,7 +128,7 @@ codeunit 228 "Test Report-Print"
         SalesHeader: Record "Sales Header";
     begin
         SalesHeader := NewSalesHeader;
-        SalesHeader.SetRecFilter;
+        SalesHeader.SetRecFilter();
         ReportSelection.PrintWithCheck(ReportSelection.Usage::"S.Test Prepmt.", SalesHeader, SalesHeader.FieldNo("Bill-to Customer No."));
     end;
 
@@ -137,8 +137,8 @@ codeunit 228 "Test Report-Print"
         PurchHeader: Record "Purchase Header";
     begin
         PurchHeader := NewPurchHeader;
-        PurchHeader.SetRecFilter;
-        CalcPurchDisc(PurchHeader);
+        PurchHeader.SetRecFilter();
+        CalcPurchDiscount(PurchHeader);
         ReportSelection.PrintWithGUIYesNoWithCheckVendor(
           ReportSelection.Usage::"P.Test", PurchHeader, true, PurchHeader.FieldNo("Buy-from Vendor No."));
     end;
@@ -148,7 +148,7 @@ codeunit 228 "Test Report-Print"
         PurchHeader: Record "Purchase Header";
     begin
         PurchHeader := NewPurchHeader;
-        PurchHeader.SetRecFilter;
+        PurchHeader.SetRecFilter();
         ReportSelection.PrintWithGUIYesNoWithCheckVendor(
           ReportSelection.Usage::"P.Test Prepmt.", PurchHeader, true, PurchHeader.FieldNo("Buy-from Vendor No."));
     end;
@@ -158,13 +158,13 @@ codeunit 228 "Test Report-Print"
         BankAccRecon: Record "Bank Acc. Reconciliation";
     begin
         BankAccRecon := NewBankAccRecon;
-        BankAccRecon.SetRecFilter;
+        BankAccRecon.SetRecFilter();
         ReportSelection.PrintWithCheck(ReportSelection.Usage::"B.Recon.Test", BankAccRecon, 0);
     end;
 
     procedure PrintFAJnlBatch(FAJnlBatch: Record "FA Journal Batch")
     begin
-        FAJnlBatch.SetRecFilter;
+        FAJnlBatch.SetRecFilter();
         FAJnlTemplate.Get(FAJnlBatch."Journal Template Name");
         FAJnlTemplate.TestField("Test Report ID");
         REPORT.Run(FAJnlTemplate."Test Report ID", true, false, FAJnlBatch);
@@ -182,7 +182,7 @@ codeunit 228 "Test Report-Print"
 
     procedure PrintInsuranceJnlBatch(InsuranceJnlBatch: Record "Insurance Journal Batch")
     begin
-        InsuranceJnlBatch.SetRecFilter;
+        InsuranceJnlBatch.SetRecFilter();
         InsuranceJnlTempl.Get(InsuranceJnlBatch."Journal Template Name");
         InsuranceJnlTempl.TestField("Test Report ID");
         REPORT.Run(InsuranceJnlTempl."Test Report ID", true, false, InsuranceJnlBatch);
@@ -203,14 +203,14 @@ codeunit 228 "Test Report-Print"
         ServiceHeader: Record "Service Header";
     begin
         ServiceHeader := NewServiceHeader;
-        ServiceHeader.SetRecFilter;
+        ServiceHeader.SetRecFilter();
         CalcServDisc(ServiceHeader);
         ReportSelection.PrintWithCheck(ReportSelection.Usage::"SM.Test", ServiceHeader, ServiceHeader.FieldNo("Bill-to Customer No."));
     end;
 
     procedure PrintWhseJnlBatch(WhseJnlBatch: Record "Warehouse Journal Batch")
     begin
-        WhseJnlBatch.SetRecFilter;
+        WhseJnlBatch.SetRecFilter();
         WhseJnlTemplate.Get(WhseJnlBatch."Journal Template Name");
         WhseJnlTemplate.TestField("Test Report ID");
         REPORT.Run(WhseJnlTemplate."Test Report ID", true, false, WhseJnlBatch);
@@ -231,14 +231,14 @@ codeunit 228 "Test Report-Print"
         InvtPeriod: Record "Inventory Period";
     begin
         InvtPeriod := NewInvtPeriod;
-        InvtPeriod.SetRecFilter;
+        InvtPeriod.SetRecFilter();
 
         ReportSelection.PrintWithCheck(ReportSelection.Usage::"Invt.Period Test", InvtPeriod, 0);
     end;
 
     procedure PrintJobJnlBatch(JobJnlBatch: Record "Job Journal Batch")
     begin
-        JobJnlBatch.SetRecFilter;
+        JobJnlBatch.SetRecFilter();
         JobJnlTemplate.Get(JobJnlBatch."Journal Template Name");
         JobJnlTemplate.TestField("Test Report ID");
         REPORT.Run(JobJnlTemplate."Test Report ID", true, false, JobJnlBatch);
@@ -257,14 +257,14 @@ codeunit 228 "Test Report-Print"
     procedure PrintBankRec(NewBankRecHdr: Record "Bank Rec. Header")
     begin
         BankRecHdr := NewBankRecHdr;
-        BankRecHdr.SetRecFilter;
-        ReportSelection.Reset;
+        BankRecHdr.SetRecFilter();
+        ReportSelection.Reset();
         ReportSelection.SetRange(Usage, ReportSelection.Usage::"B.Recon.Test");
         ReportSelection.Find('-');
         REPORT.Run(ReportSelection."Report ID", true, false, BankRecHdr);
     end;
 
-    local procedure CalcSalesDisc(var SalesHeader: Record "Sales Header")
+    local procedure CalcSalesDiscount(var SalesHeader: Record "Sales Header")
     var
         SalesLine: Record "Sales Line";
         SalesSetup: Record "Sales & Receivables Setup";
@@ -285,7 +285,7 @@ codeunit 228 "Test Report-Print"
         OnAfterCalcSalesDiscount(SalesHeader, SalesLine);
     end;
 
-    local procedure CalcPurchDisc(var PurchHeader: Record "Purchase Header")
+    local procedure CalcPurchDiscount(var PurchHeader: Record "Purchase Header")
     var
         PurchLine: Record "Purchase Line";
         PurchSetup: Record "Purchases & Payables Setup";
@@ -302,6 +302,8 @@ codeunit 228 "Test Report-Print"
             PurchHeader.Get(PurchHeader."Document Type", PurchHeader."No.");
             Commit;
         end;
+
+        OnAfterCalcPurchDiscount(PurchHeader, PurchLine);
     end;
 
     local procedure CalcServDisc(var ServHeader: Record "Service Header")
@@ -324,6 +326,11 @@ codeunit 228 "Test Report-Print"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcSalesDiscount(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCalcPurchDiscount(var PurchHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
     begin
     end;
 

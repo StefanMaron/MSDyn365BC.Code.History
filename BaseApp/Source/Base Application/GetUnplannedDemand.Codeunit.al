@@ -16,27 +16,32 @@ codeunit 5520 "Get Unplanned Demand"
         AsmLine.SetRange("Document Type", AsmLine."Document Type"::Order);
         JobPlanningLine.SetRange(Status, JobPlanningLine.Status::Order);
 
-        OpenWindow(Text000, SalesLine.Count + ProdOrderComp.Count + ServLine.Count + JobPlanningLine.Count);
+        RecordCounter := SalesLine.Count + ProdOrderComp.Count + ServLine.Count + JobPlanningLine.Count;
+        OnBeforeOpenPlanningWindow(RecordCounter);
+        OpenWindow(ProgressMsg, RecordCounter);
+
         GetUnplannedSalesLine(Rec);
         GetUnplannedProdOrderComp(Rec);
         GetUnplannedAsmLine(Rec);
         GetUnplannedServLine(Rec);
         GetUnplannedJobPlanningLine(Rec);
         OnAfterGetUnplanned(Rec);
-        Window.Close;
 
-        Reset;
+        OnBeforeClosePlanningWindow(Rec, Window, NoOfRecords);
+        Window.Close();
+
+        Reset();
         SetCurrentKey("Demand Date", Level);
         SetRange(Level, 1);
-        OpenWindow(Text000, Count);
+        OpenWindow(ProgressMsg, Count);
         CalcNeededDemands(Rec);
-        Window.Close;
+        Window.Close();
     end;
 
     var
         SalesLine: Record "Sales Line";
         ProdOrderComp: Record "Prod. Order Component";
-        Text000: Label 'Determining Unplanned Orders @1@@@@@@@';
+        ProgressMsg: Label 'Determining Unplanned Orders @1@@@@@@@';
         ServLine: Record "Service Line";
         JobPlanningLine: Record "Job Planning Line";
         AsmLine: Record "Assembly Line";
@@ -46,6 +51,7 @@ codeunit 5520 "Get Unplanned Demand"
         i: Integer;
         DemandQtyBase: Decimal;
         IncludeMetDemandForSpecificSalesOrderNo: Code[20];
+        RecordCounter: Integer;
 
     procedure SetIncludeMetDemandForSpecificSalesOrderNo(SalesOrderNo: Code[20])
     begin
@@ -454,6 +460,16 @@ codeunit 5520 "Get Unplanned Demand"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetSalesLineNeededQty(SalesLine: Record "Sales Line"; var NeededQty: Decimal; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOpenPlanningWindow(var RecordCounter: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeClosePlanningWindow(UnplannedDemand: Record "Unplanned Demand"; var Window: Dialog; NoOfRecords: Integer)
     begin
     end;
 }

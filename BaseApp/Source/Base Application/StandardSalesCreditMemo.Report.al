@@ -327,6 +327,9 @@ report 1307 "Standard Sales - Credit Memo"
             column(DocumentTitle; SalesCreditMemoLbl)
             {
             }
+            column(ShowWorkDescription; ShowWorkDescription)
+            {
+            }
             column(Subtotal_Lbl; SubtotalLbl)
             {
             }
@@ -583,6 +586,35 @@ report 1307 "Standard Sales - Credit Memo"
                     PrevLineAmount := 0;
                     FirstLineHasBeenOutput := false;
                     DummyCompanyInfo.Picture := CompanyInfo.Picture;
+                end;
+            }
+            dataitem(WorkDescriptionLines; "Integer")
+            {
+                DataItemTableView = SORTING(Number) WHERE(Number = FILTER(1 .. 99999));
+                column(WorkDescriptionLineNumber; Number)
+                {
+                }
+                column(WorkDescriptionLine; WorkDescriptionLine)
+                {
+                }
+
+                trigger OnAfterGetRecord()
+                begin
+                    if WorkDescriptionInstream.EOS then
+                        CurrReport.Break();
+                    WorkDescriptionInstream.ReadText(WorkDescriptionLine);
+                end;
+
+                trigger OnPostDataItem()
+                begin
+                    Clear(WorkDescriptionInstream)
+                end;
+
+                trigger OnPreDataItem()
+                begin
+                    if not ShowWorkDescription then
+                        CurrReport.Break();
+                    Header."Work Description".CreateInStream(WorkDescriptionInstream, TEXTENCODING::UTF8);
                 end;
             }
             dataitem(VATAmountLine; "VAT Amount Line")
@@ -856,6 +888,8 @@ report 1307 "Standard Sales - Credit Memo"
                 if not IsReportInPreviewMode then
                     CODEUNIT.Run(CODEUNIT::"Sales Cr. Memo-Printed", Header);
 
+                CalcFields("Work Description");
+                ShowWorkDescription := "Work Description".HasValue;
                 CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
 
                 FormatAddressFields(Header);
@@ -1025,6 +1059,8 @@ report 1307 "Standard Sales - Credit Memo"
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
         SegManagement: Codeunit SegManagement;
+        WorkDescriptionInstream: InStream;
+        WorkDescriptionLine: Text;
         CustAddr: array[8] of Text[100];
         ShipToAddr: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
@@ -1039,6 +1075,7 @@ report 1307 "Standard Sales - Credit Memo"
         FormattedLineAmount: Text;
         MoreLines: Boolean;
         CopyText: Text[30];
+        ShowWorkDescription: Boolean;
         ShowShippingAddr: Boolean;
         LogInteraction: Boolean;
         SalesPrepCreditMemoNoLbl: Label 'Sales - Prepmt. Credit Memo %1';

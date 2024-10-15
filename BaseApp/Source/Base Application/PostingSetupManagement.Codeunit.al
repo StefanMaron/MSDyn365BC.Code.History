@@ -49,7 +49,8 @@ codeunit 48 PostingSetupManagement
             exit;
 
         if not GenPostingSetup.Get(GenBusGroupCode, GenProdGroupCode) then
-            CreateGenPostingSetup(GenBusGroupCode, GenProdGroupCode);
+            if not CreateGenPostingSetup(GenBusGroupCode, GenProdGroupCode) then
+                exit;
 
         if GenPostingSetup."Sales Account" = '' then
             SendGenPostingSetupNotification(GenPostingSetup, GenPostingSetup.FieldCaption("Sales Account"));
@@ -63,7 +64,8 @@ codeunit 48 PostingSetupManagement
             exit;
 
         if not GenPostingSetup.Get(GenBusGroupCode, GenProdGroupCode) then
-            CreateGenPostingSetup(GenBusGroupCode, GenProdGroupCode);
+            if not CreateGenPostingSetup(GenBusGroupCode, GenProdGroupCode) then
+                exit;
 
         if GenPostingSetup."Purch. Account" = '' then
             SendGenPostingSetupNotification(GenPostingSetup, GenPostingSetup.FieldCaption("Purch. Account"));
@@ -77,7 +79,8 @@ codeunit 48 PostingSetupManagement
             exit;
 
         if not GenPostingSetup.Get(GenBusGroupCode, GenProdGroupCode) then
-            CreateGenPostingSetup(GenBusGroupCode, GenProdGroupCode);
+            if not CreateGenPostingSetup(GenBusGroupCode, GenProdGroupCode) then
+                exit;
 
         if GenPostingSetup."COGS Account" = '' then
             SendGenPostingSetupNotification(GenPostingSetup, GenPostingSetup.FieldCaption("COGS Account"));
@@ -153,34 +156,37 @@ codeunit 48 PostingSetupManagement
             end;
     end;
 
-    local procedure CreateGenPostingSetup(GenBusGroupCode: Code[20]; GenProdGroupCode: Code[20])
+    local procedure CreateGenPostingSetup(GenBusGroupCode: Code[20]; GenProdGroupCode: Code[20]): Boolean
     var
         GenPostingSetup: Record "General Posting Setup";
     begin
-        GenPostingSetup.Init;
+        if GenProdGroupCode = '' then
+            exit(false);
+        GenPostingSetup.Init();
         GenPostingSetup.Validate("Gen. Bus. Posting Group", GenBusGroupCode);
         GenPostingSetup.Validate("Gen. Prod. Posting Group", GenProdGroupCode);
-        GenPostingSetup.Insert;
+        GenPostingSetup.Insert();
+        exit(true);
     end;
 
     local procedure CreateVATPostingSetup(VATBusGroupCode: Code[20]; VATProdGroupCode: Code[20])
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        VATPostingSetup.Init;
+        VATPostingSetup.Init();
         VATPostingSetup.Validate("VAT Bus. Posting Group", VATBusGroupCode);
         VATPostingSetup.Validate("VAT Prod. Posting Group", VATProdGroupCode);
-        VATPostingSetup.Insert;
+        VATPostingSetup.Insert();
     end;
 
     local procedure CreateInvtPostingSetup(LocationCode: Code[10]; PostingGroupCode: Code[20])
     var
         InventoryPostingSetup: Record "Inventory Posting Setup";
     begin
-        InventoryPostingSetup.Init;
+        InventoryPostingSetup.Init();
         InventoryPostingSetup.Validate("Location Code", LocationCode);
         InventoryPostingSetup.Validate("Invt. Posting Group Code", PostingGroupCode);
-        InventoryPostingSetup.Insert;
+        InventoryPostingSetup.Insert();
     end;
 
     procedure IsPostingSetupNotificationEnabled(): Boolean

@@ -1063,7 +1063,8 @@
                     Promoted = true;
                     PromotedCategory = Category12;
                     RunObject = Page "Customer Card";
-                    RunPageLink = "No." = FIELD("Sell-to Customer No.");
+                    RunPageLink = "No." = FIELD("Sell-to Customer No."),
+                                  "Date Filter" = FIELD("Date Filter");
                     ShortCutKey = 'Shift+F7';
                     ToolTip = 'View or edit detailed information about the customer on the sales document.';
                 }
@@ -2017,7 +2018,7 @@
                 Image = Print;
                 action("Work Order")
                 {
-                    ApplicationArea = Manufacturing;
+                    ApplicationArea = Basic, Suite;
                     Caption = 'Work Order';
                     Ellipsis = true;
                     Image = Print;
@@ -2195,11 +2196,11 @@
             FilterGroup(0);
         end;
 
-        ActivateFields;
+        SetRange("Date Filter", 0D, WorkDate());
 
-        SetRange("Date Filter", 0D, WorkDate - 1);
+        ActivateFields();
 
-        SetDocNoVisible;
+        SetDocNoVisible();
 
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
         IsOfficeHost := OfficeMgt.IsAvailable;

@@ -13,6 +13,7 @@ codeunit 135300 "O365 Purch Item Charge Tests"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         IncorrectCreditMemoQtyAssignmentErr: Label 'Item charge assignment incorrect on corrective credit memo.';
         IncorrectAmountOfLinesErr: Label 'The amount of lines must be greater than 0.';
@@ -23,8 +24,10 @@ codeunit 135300 "O365 Purch Item Charge Tests"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
-        LibraryVariableStorage.Clear;
-        LibraryApplicationArea.EnableItemChargeSetup;
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"O365 Purch Item Charge Tests");
+
+        LibraryVariableStorage.Clear();
+        LibraryApplicationArea.EnableItemChargeSetup();
 
         PurchasesPayablesSetup.Get;
         PurchasesPayablesSetup."Receipt on Invoice" := true;
@@ -40,7 +43,7 @@ codeunit 135300 "O365 Purch Item Charge Tests"
         ItemChargeNo: Code[20];
     begin
         // [FEATURE] [UI]
-        Initialize;
+        Initialize();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
         // [WHEN] Creating a new item charge using the GUI
@@ -69,7 +72,7 @@ codeunit 135300 "O365 Purch Item Charge Tests"
         RandAmountOfItemLines: Integer;
     begin
         // [SCENARIO] Corrective Credit Memo reverses one invoice line with item charge.
-        Initialize;
+        Initialize();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
         RandAmountOfItemLines := LibraryRandom.RandIntInRange(1, 20);
@@ -98,7 +101,7 @@ codeunit 135300 "O365 Purch Item Charge Tests"
         RandAmountOfItemChargeLines: Integer;
     begin
         // [SCENARIO] Corrective Credit Memo reverses multiple invoice lines with item charge.
-        Initialize;
+        Initialize();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
         // [GIVEN] Create a purchase invoice with a random amount of assigned item charge and item lines.
@@ -126,7 +129,7 @@ codeunit 135300 "O365 Purch Item Charge Tests"
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
         // [SCENARIO] Corrective Credit Memo reverses multiple item lines and 1 invoice line with item charge.
-        Initialize;
+        Initialize();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
         // [GIVEN] Create a purchase invoice with 50 item lines and 1 item charge
@@ -152,7 +155,7 @@ codeunit 135300 "O365 Purch Item Charge Tests"
     begin
         // [FEATURE] [FCY]
         // [SCENARIO] Corrective Credit Memo reverses 1 item line and 1 invoice line with item charge in foreign currency.
-        Initialize;
+        Initialize();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
         // [GIVEN] Create a purchase invoice, using a random currency, with 1 item and item charge
@@ -178,7 +181,7 @@ codeunit 135300 "O365 Purch Item Charge Tests"
         PurchaseCreditMemo: TestPage "Purchase Credit Memo";
     begin
         // [SCENARIO] Corrective Credit Memo reverses 1 item line and 1 invoice line with item charge (while receipts disabled).
-        Initialize;
+        Initialize();
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
 
         // [GIVEN] Disable "receipt on invoice" in the Purchases & Payables Setup

@@ -182,6 +182,7 @@ table 325 "VAT Posting Setup"
             MinValue = 0;
             ObsoleteState = Removed;
             ObsoleteReason = 'Moved to extension';
+            ObsoleteTag = '15.0';
         }
     }
 

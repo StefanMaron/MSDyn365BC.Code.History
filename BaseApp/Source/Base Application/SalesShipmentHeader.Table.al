@@ -225,10 +225,13 @@ table 110 "Sales Shipment Header"
             Caption = 'Applies-to Doc. No.';
 
             trigger OnLookup()
+            var
+                CustLedgEntry: Record "Cust. Ledger Entry";
             begin
                 CustLedgEntry.SetCurrentKey("Document No.");
                 CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
                 CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
+                OnLookupAppliesToDocNoOnAfterSetFilters(CustLedgEntry, Rec);
                 PAGE.Run(0, CustLedgEntry);
             end;
         }
@@ -597,7 +600,6 @@ table 110 "Sales Shipment Header"
     var
         SalesShptHeader: Record "Sales Shipment Header";
         SalesCommentLine: Record "Sales Comment Line";
-        CustLedgEntry: Record "Cust. Ledger Entry";
         ShippingAgent: Record "Shipping Agent";
         DimMgt: Codeunit DimensionManagement;
         ApprovalsMgmt: Codeunit "Approvals Mgmt.";
@@ -739,6 +741,11 @@ table 110 "Sales Shipment Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetTrackingInternetAddr(var SalesShipmentHeader: Record "Sales Shipment Header"; var TrackingInternetAddr: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnLookupAppliesToDocNoOnAfterSetFilters(var CustLedgEntry: Record "Cust. Ledger Entry"; SalesShipmentHeader: Record "Sales Shipment Header")
     begin
     end;
 }

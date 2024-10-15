@@ -3,6 +3,7 @@ table 27042 "DIOT-Report Buffer"
     Caption = 'DIOT Report Buffer';
     ObsoleteReason = 'Moved to extension';
     ObsoleteState = Removed;
+    ObsoleteTag = '15.0';
 
     fields
     {
