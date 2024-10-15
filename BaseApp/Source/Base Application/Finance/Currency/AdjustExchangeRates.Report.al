@@ -2204,7 +2204,7 @@ report 595 "Adjust Exchange Rates"
 
         case ValuationMethod of
             ValuationMethod::"Lowest Value":
-                if (CurrAdjAmount >= 0) and (not Application) then
+                 if (CurrAdjAmount >= Abs(CustLedgerEntry."Remaining Amt. (LCY)")) and (not Application) then
                     CurrReport.Skip();
             ValuationMethod::"BilMoG (Germany)":
                 if not Application then
@@ -2385,7 +2385,7 @@ report 595 "Adjust Exchange Rates"
 
         case ValuationMethod of
             ValuationMethod::"Lowest Value":
-                if (CurrAdjAmount >= 0) and (not Application) then
+                if (CurrAdjAmount >= Abs(VendLedgerEntry."Original Amt. (LCY)")) and (not Application) then
                     CurrReport.Skip();
             ValuationMethod::"BilMoG (Germany)":
                 if not Application then
