@@ -1,4 +1,4 @@
-codeunit 246 "Item Jnl.-Explode BOM"
+﻿codeunit 246 "Item Jnl.-Explode BOM"
 {
     TableNo = "Item Journal Line";
 
@@ -34,12 +34,8 @@ codeunit 246 "Item Jnl.-Explode BOM"
         ToItemJnlLine.SetRange("Posting Date", "Posting Date");
         ToItemJnlLine.SetRange("Entry Type", "Entry Type");
         ToItemJnlLine := Rec;
-        if ToItemJnlLine.Find('>') then begin
-            LineSpacing := (ToItemJnlLine."Line No." - "Line No.") div (1 + NoOfBOMComp);
-            if LineSpacing = 0 then
-                Error(Text002);
-        end else
-            LineSpacing := 10000;
+
+        LineSpacing := GetItemJnlLineSpacing(Rec, ToItemJnlLine);
 
         ToItemJnlLine := Rec;
         FromBOMComp.SetFilter("No.", '<>%1', '');
@@ -79,6 +75,7 @@ codeunit 246 "Item Jnl.-Explode BOM"
             ToItemJnlLine."Entry Type" := "Entry Type";
             ToItemJnlLine."Location Code" := "Location Code";
             NextLineNo := NextLineNo + LineSpacing;
+            OnBeforeAssignToItemJnlLineNo(Rec, NextLineNo);
             ToItemJnlLine."Line No." := NextLineNo;
             ToItemJnlLine."Drop Shipment" := "Drop Shipment";
             ToItemJnlLine."Source Code" := "Source Code";
@@ -90,7 +87,7 @@ codeunit 246 "Item Jnl.-Explode BOM"
               Quantity,
               Round("Quantity (Base)" * FromBOMComp."Quantity per", 0.00001));
             ToItemJnlLine.Description := FromBOMComp.Description;
-            OnBeforeToItemJnlLineInsert(ToItemJnlLine, Rec);
+            OnBeforeToItemJnlLineInsert(ToItemJnlLine, Rec, NextLineNo);
             ToItemJnlLine.Insert();
 
             if Selection = 1 then begin
@@ -115,13 +112,40 @@ codeunit 246 "Item Jnl.-Explode BOM"
         NextLineNo: Integer;
         NoOfBOMComp: Integer;
 
+    local procedure GetItemJnlLineSpacing(OldItemJnlLine: Record "Item Journal Line"; var ToItemJnlLine: Record "Item Journal Line") LineSpacing: Integer
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetItemJnlLineSpacing(OldItemJnlLine, ToItemJnlLine, LineSpacing, IsHandled);
+        if IsHandled then
+            exit(LineSpacing);
+
+        if ToItemJnlLine.Find('>') then begin
+            LineSpacing := (ToItemJnlLine."Line No." - OldItemJnlLine."Line No.") div (1 + NoOfBOMComp);
+            if LineSpacing = 0 then
+                Error(Text002);
+        end else
+            LineSpacing := 10000;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeAssignToItemJnlLineNo(FromItemJournalLine: Record "Item Journal Line"; var NextLineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetItemJnlLineSpacing(OldItemJnlLine: Record "Item Journal Line"; var ToItemJnlLine: Record "Item Journal Line"; var LineSpacing: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnRun(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeToItemJnlLineInsert(var ToItemJournalLine: Record "Item Journal Line"; FromItemJournalLine: Record "Item Journal Line")
+    local procedure OnBeforeToItemJnlLineInsert(var ToItemJournalLine: Record "Item Journal Line"; FromItemJournalLine: Record "Item Journal Line"; var NextLineNo: Integer)
     begin
     end;
 }

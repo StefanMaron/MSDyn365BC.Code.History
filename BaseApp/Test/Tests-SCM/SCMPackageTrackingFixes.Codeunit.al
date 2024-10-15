@@ -247,6 +247,136 @@ codeunit 137268 "SCM Package Tracking Fixes"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('WhseItemTrackingLinesModalPageHandler')]
+    procedure AssignNonSpecificPackageNoInWarehousePick()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        ItemTrackingCode: Record "Item Tracking Code";
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        LotNo: Code[50];
+        PackageNo: Code[50];
+    begin
+        // [FEATURE] [Item Tracking] [Package] [Warehouse Pick] [Non-Specific Tracking]
+        // [SCENARIO 425815] Stan can assign non-specific package no. in warehouse pick and register it.
+        Initialize();
+        LotNo := LibraryUtility.GenerateGUID();
+        PackageNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Location set up for directed put-away and pick.
+        WarehouseEmployee.DeleteAll();
+        LibraryWarehouse.CreateFullWMSLocation(Location, 2);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Item with lot warehouse tracking and non-specific package tracking.
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true, false);
+        ItemTrackingCode.Validate("Lot Warehouse Tracking", true);
+        ItemTrackingCode.Validate("Package Sales Outb. Tracking", true);
+        ItemTrackingCode.Modify(true);
+        LibraryItemTracking.CreateItemWithItemTrackingCode(Item, ItemTrackingCode);
+
+        // [GIVEN] Post inventory, assign lot no.
+        LibraryVariableStorage.Enqueue('');
+        LibraryVariableStorage.Enqueue(LotNo);
+        LibraryVariableStorage.Enqueue(1);
+        LibraryWarehouse.UpdateInventoryOnLocationWithDirectedPutAwayAndPick(Item."No.", Location.Code, 1, true);
+
+        // [GIVEN] Sales order, create warehouse shipment and pick.
+        CreateSalesOrderWhseShipmentAndPick(WarehouseShipmentHeader, WarehouseActivityHeader, Item."No.", Location.Code, 1);
+
+        // [WHEN] Select lot no. from inventory and assign new package no. on the pick lines.
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityHeader.Type);
+        WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
+        WarehouseActivityLine.FindSet();
+        repeat
+            WarehouseActivityLine.Validate("Lot No.", LotNo);
+            WarehouseActivityLine.Validate("Package No.", PackageNo);
+            WarehouseActivityLine.Modify(true);
+        until WarehouseActivityLine.Next() = 0;
+
+        // [THEN] No error is thrown on validating lot no. and package no.
+
+        // [THEN] The warehouse pick and warehouse shipment can be successfully registered.
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        // [THEN] Item entry for the sales has both lot no. and package no.
+        VerifyItemLedgerEntry(Item."No.", '', LotNo, PackageNo);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('WhseItemTrackingLinesModalPageHandler')]
+    procedure AssignNonSpecificLotNoInWarehousePick()
+    var
+        Location: Record Location;
+        WarehouseEmployee: Record "Warehouse Employee";
+        ItemTrackingCode: Record "Item Tracking Code";
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        LotNo: Code[50];
+        SerialNo: Code[50];
+    begin
+        // [FEATURE] [Item Tracking] [Warehouse Pick] [Non-Specific Tracking]
+        // [SCENARIO 425815] Stan can assign non-specific lot no. in warehouse pick and register it.
+        Initialize();
+        LotNo := LibraryUtility.GenerateGUID();
+        SerialNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Location set up for directed put-away and pick.
+        WarehouseEmployee.DeleteAll();
+        LibraryWarehouse.CreateFullWMSLocation(Location, 2);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, Location.Code, true);
+
+        // [GIVEN] Item with serial no. warehouse tracking and non-specific lot tracking.
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, true, false, false);
+        ItemTrackingCode.Validate("SN Warehouse Tracking", true);
+        ItemTrackingCode.Validate("Lot Sales Outbound Tracking", true);
+        ItemTrackingCode.Modify(true);
+        LibraryItemTracking.CreateItemWithItemTrackingCode(Item, ItemTrackingCode);
+
+        // [GIVEN] Post inventory, assign serial no.
+        LibraryVariableStorage.Enqueue(SerialNo);
+        LibraryVariableStorage.Enqueue('');
+        LibraryVariableStorage.Enqueue(1);
+        LibraryWarehouse.UpdateInventoryOnLocationWithDirectedPutAwayAndPick(Item."No.", Location.Code, 1, true);
+
+        // [GIVEN] Sales order, create warehouse shipment and pick.
+        CreateSalesOrderWhseShipmentAndPick(WarehouseShipmentHeader, WarehouseActivityHeader, Item."No.", Location.Code, 1);
+
+        // [WHEN] Select serial no. from inventory and assign new lot no. on the pick lines.
+        WarehouseActivityLine.SetRange("Activity Type", WarehouseActivityHeader.Type);
+        WarehouseActivityLine.SetRange("No.", WarehouseActivityHeader."No.");
+        WarehouseActivityLine.FindSet();
+        repeat
+            WarehouseActivityLine.Validate("Serial No.", SerialNo);
+            WarehouseActivityLine.Validate("Lot No.", LotNo);
+            WarehouseActivityLine.Modify(true);
+        until WarehouseActivityLine.Next() = 0;
+
+        // [THEN] No error is thrown on validating serial no. and lot no.
+
+        // [THEN] The warehouse pick and warehouse shipment can be successfully registered.
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        // [THEN] Item entry for the sales has both serial no. and lot no.
+        VerifyItemLedgerEntry(Item."No.", SerialNo, LotNo, '');
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -262,6 +392,7 @@ codeunit 137268 "SCM Package Tracking Fixes"
 
         UpdateSalesSetup();
         UpdateInventorySetup();
+        NoSeriesSetup();
 
         isInitialized := true;
         Commit();
@@ -275,6 +406,27 @@ codeunit 137268 "SCM Package Tracking Fixes"
         LibraryVariableStorage.Enqueue(ItemJournalLine."Quantity (Base)");
         LibraryVariableStorage.Enqueue(NewPackageNo);
         ItemJournalLine.OpenItemTrackingLines(true);
+    end;
+
+    local procedure CreateSalesOrderWhseShipmentAndPick(var WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+                                                        var WarehouseActivityHeader: Record "Warehouse Activity Header";
+                                                        ItemNo: Code[20]; LocationCode: Code[10]; Qty: Decimal)
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, "Sales Document Type"::Order, '', ItemNo, Qty, LocationCode, WorkDate());
+        LibrarySales.ReleaseSalesDocument(SalesHeader);
+        LibraryWarehouse.CreateWhseShipmentFromSO(SalesHeader);
+
+        WarehouseShipmentHeader.SetRange("Location Code", LocationCode);
+        WarehouseShipmentHeader.FindFirst();
+        LibraryWarehouse.CreateWhsePick(WarehouseShipmentHeader);
+
+        WarehouseActivityHeader.SetRange("Location Code", LocationCode);
+        WarehouseActivityHeader.FindFirst();
+        LibraryWarehouse.AutoFillQtyHandleWhseActivity(WarehouseActivityHeader);
     end;
 
     local procedure PostItemJnlLineWithUndefinedPackageNo(EntryType: Enum "Item Ledger Entry Type")
@@ -310,6 +462,15 @@ codeunit 137268 "SCM Package Tracking Fixes"
         SalesReceivablesSetup.Modify();
     end;
 
+    local procedure NoSeriesSetup()
+    var
+        WarehouseSetup: Record "Warehouse Setup";
+    begin
+        LibraryWarehouse.NoSeriesSetup(WarehouseSetup);
+        LibrarySales.SetOrderNoSeriesInSetup();
+        LibraryPurchase.SetOrderNoSeriesInSetup();
+    end;
+
     local procedure UpdateInventorySetup()
     var
         InventorySetup: Record "Inventory Setup";
@@ -317,6 +478,18 @@ codeunit 137268 "SCM Package Tracking Fixes"
         InventorySetup.Get();
         InventorySetup.Validate("Location Mandatory", true);
         InventorySetup.Modify();
+    end;
+
+    local procedure VerifyItemLedgerEntry(ItemNo: Code[20]; SerialNo: Code[50]; LotNo: Code[50]; PackageNo: Code[50])
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Sale);
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.FindFirst();
+        ItemLedgerEntry.TestField("Serial No.", SerialNo);
+        ItemLedgerEntry.TestField("Lot No.", LotNo);
+        ItemLedgerEntry.TestField("Package No.", PackageNo);
     end;
 
     local procedure VerifyTrackingReclassification(ItemJnlLine: Record "Item Journal Line"; ExpectedPackageNo: Code[50])
@@ -346,6 +519,15 @@ codeunit 137268 "SCM Package Tracking Fixes"
         if TrackingOption = ItemTrackingOption::ReclassPackageNo then
             ItemTrackingLines."New Package No.".SetValue(LibraryVariableStorage.DequeueText);
         ItemTrackingLines.OK.Invoke;
+    end;
+
+    [ModalPageHandler]
+    procedure WhseItemTrackingLinesModalPageHandler(var WhseItemTrackingLines: TestPage "Whse. Item Tracking Lines")
+    begin
+        WhseItemTrackingLines."Serial No.".SetValue(LibraryVariableStorage.DequeueText());
+        WhseItemTrackingLines."Lot No.".SetValue(LibraryVariableStorage.DequeueText());
+        WhseItemTrackingLines.Quantity.SetValue(LibraryVariableStorage.DequeueDecimal());
+        WhseItemTrackingLines.OK().Invoke();
     end;
 
     [ModalPageHandler]
