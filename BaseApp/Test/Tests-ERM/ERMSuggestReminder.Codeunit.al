@@ -196,6 +196,14 @@ codeunit 134910 "ERM Suggest Reminder"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Suggest Reminder");
     end;
 
+    local procedure CreateGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+    end;
+
     local procedure CreateAndPostSalesInvoice(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20])
     var
         Item: Record Item;
@@ -222,6 +230,22 @@ codeunit 134910 "ERM Suggest Reminder"
         ReminderNo :=
           CreateAndSuggestingReminder(
             SalesHeader."Sell-to Customer No.", CalcDate('<' + Format(NoOfDays) + 'D>', CalcDate(GracePeriod, SalesHeader."Due Date")));
+    end;
+
+    local procedure CreatePostGeneralJnlLine(CustomerNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; DocDate: Date; Amt: Decimal)
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+    begin
+        CreateGenJournalBatch(GenJournalBatch);
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          DocType, GenJournalLine."Account Type"::Customer, CustomerNo,
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo, Amt);
+        GenJournalLine.Validate("Posting Date", DocDate);
+        GenJournalLine.Modify(true);
+
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
     local procedure CreateCustomer(): Code[20]
@@ -277,6 +301,23 @@ codeunit 134910 "ERM Suggest Reminder"
         ReminderTerms.Modify(true);
         CreateReminderLevel(ReminderTerms.Code, CalculateInterest);
         exit(ReminderTerms.Code);
+    end;
+
+    local procedure CreateFinanceChargeTerms(): Code[10]
+    var
+        FinanceChargeTerms: Record "Finance Charge Terms";
+    begin
+        with FinanceChargeTerms do begin
+            LibraryERM.CreateFinanceChargeTerms(FinanceChargeTerms);
+            Validate("Interest Rate", LibraryRandom.RandDec(10, 2));
+            Validate("Additional Fee (LCY)", LibraryRandom.RandDec(100, 2));
+            Validate("Interest Period (Days)", LibraryRandom.RandInt(30));
+            Evaluate("Due Date Calculation", '<' + Format(LibraryRandom.RandInt(30)) + 'D>');
+            Validate("Post Additional Fee", true);
+            Validate("Post Interest", true);
+            Modify(true);
+            exit(Code);
+        end;
     end;
 
     local procedure GetReminderLevel(var GracePeriod: DateFormula; CustomerNo: Code[20])

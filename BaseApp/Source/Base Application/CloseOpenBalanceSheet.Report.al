@@ -610,20 +610,17 @@ report 12113 "Close/Open Balance Sheet"
         if ClosePerGlobalDimOnly then
             exit;
 
-        GLEntry.SetCurrentKey(
-          "G/L Account No.", "Business Unit Code",
-          "Global Dimension 1 Code", "Global Dimension 2 Code", "Close Income Statement Dim. ID",
-          "Posting Date");
+        GLEntry.SetCurrentKey("G/L Account No.", "Posting Date");
         GLEntry.SetRange("G/L Account No.", AccNo);
-        GLEntry.SetRange("Close Income Statement Dim. ID", 0);
         GLEntry.SetRange("Posting Date", FiscalYearStartDate, FiscYearClosingDate);
+        GLEntry.SetRange("Close Income Statement Dim. ID", 0);
 
-        // FINDSET(TRUE,TRUE) does not iterate through the whole range
-        while GLEntry.FindFirst do begin
-            DimensionSetID := TryInsertDimensionsUsingEntryNo(GLEntry."Entry No.", GLEntry."Dimension Set ID", NextDimID);
-            GLEntry."Close Income Statement Dim. ID" := DimensionSetID;
-            GLEntry.Modify(true);
-        end;
+        if GLEntry.FindSet() then
+            repeat
+                DimensionSetID := TryInsertDimensionsUsingEntryNo(GLEntry."Entry No.", GLEntry."Dimension Set ID", NextDimID);
+                GLEntry."Close Income Statement Dim. ID" := DimensionSetID;
+                GLEntry.Modify(true);
+            until GLEntry.Next() = 0;
     end;
 
     local procedure CalcSumsInFilter()

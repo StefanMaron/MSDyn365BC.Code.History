@@ -173,7 +173,7 @@ codeunit 144194 "IT - LIFO Band"
         CalculateEndYearCosts(CalcDate('<CY>', WorkDate));
     end;
 
-    local procedure CreateItemJournalLine(ItemJournalTemplateName: Text[10]; ItemJournalBatchName: Text[10]; ItemJournalLineEntryType: Option; ItemNo: Text[20]; PostingDate: Date; Quantity: Decimal)
+    local procedure CreateItemJournalLine(ItemJournalTemplateName: Text[10]; ItemJournalBatchName: Text[10]; ItemJournalLineEntryType: Enum "Item Ledger Entry Type"; ItemNo: Text[20]; PostingDate: Date; Quantity: Decimal)
     var
         ItemJournalLine: Record "Item Journal Line";
     begin

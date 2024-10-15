@@ -443,7 +443,7 @@ codeunit 144018 "IT - VAT Reporting - No Thre."
               "Account Type"::Vendor, "Document Type"::Payment, "Gen. Posting Type"::Purchase, false, Resident::Resident, false);  // Individual= FALSE, UsingFiscalCode = FALSE
     end;
 
-    local procedure VerifyGetLn(AccountType: Option; DocumentType: Option; GenPostingType: Option; IndividualPerson: Boolean; Resident: Option; UsingFiscalCode: Boolean)
+    local procedure VerifyGetLn(AccountType: Enum "Gen. Journal Account Type"; DocumentType: Enum "Gen. Journal Document Type"; GenPostingType: Enum "General Posting Type"; IndividualPerson: Boolean; Resident: Option; UsingFiscalCode: Boolean)
     begin
         Initialize;
 
@@ -454,7 +454,7 @@ codeunit 144018 "IT - VAT Reporting - No Thre."
         LibraryVATUtils.TearDown;
     end;
 
-    local procedure VerifyUnrealizedVATTransactions(AccountType: Option; DocumentType: Option; GenPostingType: Option; IndividualPerson: Boolean; Resident: Option; UsingFiscalCode: Boolean)
+    local procedure VerifyUnrealizedVATTransactions(AccountType: Enum "Gen. Journal Account Type"; DocumentType: Enum "Gen. Journal Document Type"; GenPostingType: Enum "General Posting Type"; IndividualPerson: Boolean; Resident: Option; UsingFiscalCode: Boolean)
     var
         GenJournalLine: Record "Gen. Journal Line";
         VATReportHeader: Record "VAT Report Header";

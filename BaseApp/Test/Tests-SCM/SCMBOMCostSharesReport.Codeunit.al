@@ -56,17 +56,17 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
 
         SetupItemWithRoutingWithCosts(Item);
 
-        UpdateItemLotSize(Item,LibraryRandom.RandIntInRange(3,5));
+        UpdateItemLotSize(Item, LibraryRandom.RandIntInRange(3, 5));
         BOMCostShares.Trap;
         RunBOMCostSharesPage(Item);
-        TotalLeafsRolledUpCapacityCost += GetRolledUpCapacityCostValue(BOMCostShares,BOMBuffer.Type::"Machine Center");
-        TotalLeafsRolledUpCapacityCost += GetRolledUpCapacityCostValue(BOMCostShares,BOMBuffer.Type::"Work Center");
-        VerifyParentItemMaterialAndCapacityCost(BOMCostShares,Item."No.",Item."Unit Cost",TotalLeafsRolledUpCapacityCost);
+        TotalLeafsRolledUpCapacityCost += GetRolledUpCapacityCostValue(BOMCostShares, BOMBuffer.Type::"Machine Center");
+        TotalLeafsRolledUpCapacityCost += GetRolledUpCapacityCostValue(BOMCostShares, BOMBuffer.Type::"Work Center");
+        VerifyParentItemMaterialAndCapacityCost(BOMCostShares, Item."No.", Item."Unit Cost", TotalLeafsRolledUpCapacityCost);
         BOMCostShares.Close;
     end;
 
     [Normal]
-    local procedure CreateCostSharesTree(TopItemReplSystem: Option; Depth: Integer; Width: Integer; ShowLevelAs: Option; ShowDetails: Boolean; ShowCostShareAs: Option)
+    local procedure CreateCostSharesTree(TopItemReplSystem: Enum "Replenishment System"; Depth: Integer; Width: Integer; ShowLevelAs: Option; ShowDetails: Boolean; ShowCostShareAs: Option)
     var
         Item: Record Item;
         TempItem: Record Item temporary;
@@ -253,11 +253,11 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
 
     local procedure SetupItemWithRoutingWithCosts(var Item: Record Item)
     begin
-        LibraryAssembly.CreateItem(Item,Item."Costing Method"::FIFO,Item."Replenishment System"::"Prod. Order",'','');
-        Item.Validate("Unit Cost",LibraryRandom.RandDecInRange(50,100,2));
+        LibraryAssembly.CreateItem(Item, Item."Costing Method"::FIFO, Item."Replenishment System"::"Prod. Order", '', '');
+        Item.Validate("Unit Cost", LibraryRandom.RandDecInRange(50, 100, 2));
         Item.Modify(true);
 
-        LibraryAssembly.CreateRouting(Item,LibraryRandom.RandInt(2));
+        LibraryAssembly.CreateRouting(Item, LibraryRandom.RandInt(2));
         UpdateRoutingCostValues(Item."Routing No.");
     end;
 
@@ -269,34 +269,34 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
         WorkCenter: Record "Work Center";
     begin
         RoutingHeader.Get(RoutingNo);
-        RoutingLine.SetRange("Routing No.",RoutingHeader."No.");
+        RoutingLine.SetRange("Routing No.", RoutingHeader."No.");
         RoutingLine.FindSet;
         repeat
-          case RoutingLine.Type of
-            RoutingLine.Type::"Machine Center":
-              begin
-                MachineCenter.Get(RoutingLine."No.");
-                MachineCenter.Validate("Direct Unit Cost",LibraryRandom.RandInt(5));
-                MachineCenter.Modify(true);
-              end;
-            RoutingLine.Type::"Work Center":
-              begin
-                WorkCenter.Get(RoutingLine."No.");
-                WorkCenter.Validate("Direct Unit Cost",LibraryRandom.RandInt(5));
-                WorkCenter.Modify(true);
-              end;
-          end;
+            case RoutingLine.Type of
+                RoutingLine.Type::"Machine Center":
+                    begin
+                        MachineCenter.Get(RoutingLine."No.");
+                        MachineCenter.Validate("Direct Unit Cost", LibraryRandom.RandInt(5));
+                        MachineCenter.Modify(true);
+                    end;
+                RoutingLine.Type::"Work Center":
+                    begin
+                        WorkCenter.Get(RoutingLine."No.");
+                        WorkCenter.Validate("Direct Unit Cost", LibraryRandom.RandInt(5));
+                        WorkCenter.Modify(true);
+                    end;
+            end;
         until RoutingLine.Next = 0;
     end;
 
-    local procedure UpdateItemLotSize(var Item: Record Item;NewLotSize: Integer)
+    local procedure UpdateItemLotSize(var Item: Record Item; NewLotSize: Integer)
     begin
-        Item.Validate("Lot Size",NewLotSize);
+        Item.Validate("Lot Size", NewLotSize);
         Item.Modify(true);
     end;
 
     [Normal]
-    local procedure TestCostSharesTreePage(TopItemReplSystem: Option; Depth: Integer; ChildLeaves: Integer; RoutingLines: Integer)
+    local procedure TestCostSharesTreePage(TopItemReplSystem: Enum "Replenishment System"; Depth: Integer; ChildLeaves: Integer; RoutingLines: Integer)
     var
         Item: Record Item;
         TempItem: Record Item temporary;
@@ -338,7 +338,7 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
     end;
 
     [Normal]
-    local procedure TestBOMStructurePage(TopItemReplSystem: Option; Depth: Integer; ChildLeaves: Integer)
+    local procedure TestBOMStructurePage(TopItemReplSystem: Enum "Replenishment System"; Depth: Integer; ChildLeaves: Integer)
     var
         Item: Record Item;
     begin
@@ -474,20 +474,20 @@ codeunit 137391 "SCM - BOM Cost Shares Report"
           ExpTotalCost, BOMCostShares."Total Cost".AsDEcimal, RoundingFactor, 'Wrong Total Cost in item ' + ItemNo);
     end;
 
-    local procedure VerifyParentItemMaterialAndCapacityCost(var BOMCostShares: TestPage "BOM Cost Shares";ItemNo: Code[20];ExpectedItemCost: Decimal;ExpectedCapacityCost: Decimal)
+    local procedure VerifyParentItemMaterialAndCapacityCost(var BOMCostShares: TestPage "BOM Cost Shares"; ItemNo: Code[20]; ExpectedItemCost: Decimal; ExpectedCapacityCost: Decimal)
     var
         BOMBuffer: Record "BOM Buffer";
     begin
-        BOMCostShares.FILTER.SetFilter(Type,Format(BOMBuffer.Type::Item));
-        BOMCostShares.FILTER.SetFilter("No.",ItemNo);
+        BOMCostShares.FILTER.SetFilter(Type, Format(BOMBuffer.Type::Item));
+        BOMCostShares.FILTER.SetFilter("No.", ItemNo);
         BOMCostShares.First;
         BOMCostShares."Rolled-up Material Cost".AssertEquals(ExpectedItemCost);
         BOMCostShares."Rolled-up Capacity Cost".AssertEquals(ExpectedCapacityCost);
     end;
 
-    local procedure GetRolledUpCapacityCostValue(var BOMCostShares: TestPage "BOM Cost Shares";BOMBufferType: Option): Decimal
+    local procedure GetRolledUpCapacityCostValue(var BOMCostShares: TestPage "BOM Cost Shares"; BOMBufferType: Enum "BOM Type"): Decimal
     begin
-        BOMCostShares.FILTER.SetFilter(Type,Format(BOMBufferType));
+        BOMCostShares.FILTER.SetFilter(Type, Format(BOMBufferType));
         BOMCostShares.First;
         exit(BOMCostShares."Rolled-up Capacity Cost".AsDEcimal);
     end;

@@ -73,7 +73,7 @@ codeunit 144146 "UT PAG Fiscal Code"
         exit(Vendor."No.");
     end;
 
-    local procedure CreateVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Option)
+    local procedure CreateVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type")
     var
         VendorLedgerEntry2: Record "Vendor Ledger Entry";
     begin

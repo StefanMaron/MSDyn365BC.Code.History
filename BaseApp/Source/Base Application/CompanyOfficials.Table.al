@@ -1,4 +1,4 @@
-table 12159 "Company Officials"
+﻿table 12159 "Company Officials"
 {
     Caption = 'Company Officials';
     DataCaptionFields = "No.", "First Name", "Middle Name", "Last Name";

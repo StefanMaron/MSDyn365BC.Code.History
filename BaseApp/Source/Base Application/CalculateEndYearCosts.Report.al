@@ -241,7 +241,7 @@ report 12115 "Calculate End Year Costs"
     [Scope('OnPrem')]
     procedure CalcStartYearInv(): Decimal
     begin
-        SetItemLedgEntryFilters(ItemLedgEntry, 0D, StartingDate - 1, '<>%1', ItemLedgEntry."Entry Type"::Transfer);
+        SetItemLedgerEntryFilters(ItemLedgEntry, 0D, StartingDate - 1, '<>%1', ItemLedgEntry."Entry Type"::Transfer);
         ItemLedgEntry.CalcSums(Quantity);
         exit(ItemLedgEntry.Quantity);
     end;
@@ -251,7 +251,7 @@ report 12115 "Calculate End Year Costs"
     var
         EndYearInv: Decimal;
     begin
-        SetItemLedgEntryFilters(ItemLedgEntry, 0D, ReferenceDate, '<>%1', ItemLedgEntry."Entry Type"::Transfer);
+        SetItemLedgerEntryFilters(ItemLedgEntry, 0D, ReferenceDate, '<>%1', ItemLedgEntry."Entry Type"::Transfer);
         if ItemLedgEntry.FindSet then
             repeat
                 EndYearInv += ItemLedgEntry.Quantity;
@@ -265,7 +265,7 @@ report 12115 "Calculate End Year Costs"
     procedure InitPurchFields()
     begin
         GetBefStartItemQtyAndCost(ItemCostHistory."Purchase Quantity", ItemCostHistory."Purchase Amount");
-        SetItemLedgEntryFilters(ItemLedgEntry, StartingDate, ReferenceDate, '%1', ItemLedgEntry."Entry Type"::Purchase);
+        SetItemLedgerEntryFilters(ItemLedgEntry, StartingDate, ReferenceDate, '%1', ItemLedgEntry."Entry Type"::Purchase);
         if ItemLedgEntry.FindSet then
             repeat
                 ItemLedgEntry.CalcFields("Purchase Amount (Expected)", "Purchase Amount (Actual)");
@@ -284,7 +284,7 @@ report 12115 "Calculate End Year Costs"
         PurchAmt: Decimal;
     begin
         EndYearInv := ItemCostHistory."End Year Inventory";
-        SetItemLedgEntryFilters(ItemLedgEntry, StartingDate, ReferenceDate, '%1', ItemLedgEntry."Entry Type"::Purchase);
+        SetItemLedgerEntryFilters(ItemLedgEntry, StartingDate, ReferenceDate, '%1', ItemLedgEntry."Entry Type"::Purchase);
         if ItemLedgEntry.FindLast then
             repeat
                 PurchAmt := GetPurchAmt(ItemLedgEntry);
@@ -348,7 +348,7 @@ report 12115 "Calculate End Year Costs"
                 until (BefStartItemCost.Next = 0) or (EndYearInv <= 0);
 
         if EndYearInv > 0 then begin
-            SetItemLedgEntryFilters(ItemLedgEntry, StartDate, ReferenceDate, '%1', ItemLedgEntry."Entry Type"::Purchase);
+            SetItemLedgerEntryFilters(ItemLedgEntry, StartDate, ReferenceDate, '%1', ItemLedgEntry."Entry Type"::Purchase);
             if ItemLedgEntry.FindSet then
                 repeat
                     PurchAmt := GetPurchAmt(ItemLedgEntry);
@@ -371,7 +371,7 @@ report 12115 "Calculate End Year Costs"
     begin
         EndYearInv := ItemCostHistory."End Year Inventory";
         GetBefStartItemQtyAndCost(ItemCostHistory."Production Quantity", ItemCostHistory."Production Amount");
-        SetItemLedgEntryFilters(ItemLedgEntry, StartingDate, ReferenceDate, '%1', ItemLedgEntry."Entry Type"::Output);
+        SetItemLedgerEntryFilters(ItemLedgEntry, StartingDate, ReferenceDate, '%1', ItemLedgEntry."Entry Type"::Output);
         if ItemLedgEntry.FindLast then
             repeat
                 ItemCostHistory."Production Quantity" += ItemLedgEntry.Quantity;
@@ -438,7 +438,7 @@ report 12115 "Calculate End Year Costs"
                 until (BefStartItemCost.Next = 0) or (EndYearInv <= 0);
 
         if EndYearInv > 0 then begin
-            SetItemLedgEntryFilters(ItemLedgEntry, StartDate, ReferenceDate, '%1', ItemLedgEntry."Entry Type"::Output);
+            SetItemLedgerEntryFilters(ItemLedgEntry, StartDate, ReferenceDate, '%1', ItemLedgEntry."Entry Type"::Output);
             if ItemLedgEntry.FindSet then
                 repeat
                     ProdAmt := GetProdAmt(ItemLedgEntry, true);
@@ -794,8 +794,15 @@ report 12115 "Calculate End Year Costs"
         end;
     end;
 
+    [Obsolete('Replaced by SetItemLedgerEntryFilters().', '17.0')]
     [Scope('OnPrem')]
     procedure SetItemLedgEntryFilters(var ItemLedgerEntry: Record "Item Ledger Entry"; StartDate: Date; EndDate: Date; FilterTxt: Text[5]; EntryType: Option Purchase,Sale,"Positive Adjmt.","Negative Adjmt.",Transfer,Consumption,Output)
+    begin
+        SetItemLedgerEntryFilters(ItemLedgerEntry, StartDate, EndDate, FilterTxt, "Item Ledger Entry Type".FromInteger(EntryType));
+    end;
+
+    [Scope('OnPrem')]
+    procedure SetItemLedgerEntryFilters(var ItemLedgerEntry: Record "Item Ledger Entry"; StartDate: Date; EndDate: Date; FilterTxt: Text[5]; EntryType: Enum "Item Ledger Entry Type")
     begin
         with ItemLedgEntry do begin
             Reset;

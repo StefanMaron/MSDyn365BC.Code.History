@@ -179,7 +179,7 @@ codeunit 134055 "ERM VAT Reporting - Codeunit"
             VATReportLine[I].Base := LibraryRandom.RandDecInRange(1, 9999, 2);
             VATReportLine[I].Amount := LibraryRandom.RandDecInRange(1, 9999, 2);
             VATReportLine[I]."Posting Date" := LibraryUtility.GenerateRandomDate(20010101D, WorkDate);
-            VATReportLine[I]."Document Type" := LibraryRandom.RandIntInRange(2, 3); // Maps to Invoice or Credit Memo
+            VATReportLine[I]."Document Type" := "Gen. Journal Document Type".FromInteger(LibraryRandom.RandIntInRange(2, 3)); // Maps to Invoice or Credit Memo
             VATReportLine[I]."Document No." :=
               LibraryUtility.GenerateRandomCode(VATReportLine[I].FieldNo("Document No."), DATABASE::"VAT Report Line");
             VATReportLine[I]."VAT Group Identifier" :=

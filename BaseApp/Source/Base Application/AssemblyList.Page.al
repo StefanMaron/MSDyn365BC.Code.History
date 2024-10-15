@@ -152,7 +152,7 @@ page 904 "Assembly List"
 
                 trigger OnAction()
                 begin
-                    OpenItemTrackingLines;
+                    OpenItemTrackingLines();
                 end;
             }
         }

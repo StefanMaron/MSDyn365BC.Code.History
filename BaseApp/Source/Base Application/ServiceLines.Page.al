@@ -63,7 +63,7 @@ page 5905 "Service Lines"
 
                     trigger OnValidate()
                     begin
-                        NoOnAfterValidate;
+                        NoOnAfterValidate();
                     end;
                 }
                 field("No."; "No.")
@@ -73,7 +73,7 @@ page 5905 "Service Lines"
 
                     trigger OnValidate()
                     begin
-                        NoOnAfterValidate;
+                        NoOnAfterValidate();
                     end;
                 }
                 field("Service Tariff No."; "Service Tariff No.")
@@ -117,7 +117,7 @@ page 5905 "Service Lines"
 
                     trigger OnValidate()
                     begin
-                        LocationCodeOnAfterValidate;
+                        LocationCodeOnAfterValidate();
                     end;
                 }
                 field("Bin Code"; "Bin Code")
@@ -141,7 +141,7 @@ page 5905 "Service Lines"
 
                     trigger OnValidate()
                     begin
-                        QuantityOnAfterValidate;
+                        QuantityOnAfterValidate();
                     end;
                 }
                 field("Reserved Quantity"; "Reserved Quantity")
@@ -675,7 +675,7 @@ page 5905 "Service Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 group("Item Availability by")
@@ -772,7 +772,7 @@ page 5905 "Service Lines"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
                 action(SelectItemSubstitution)
@@ -785,11 +785,11 @@ page 5905 "Service Lines"
 
                     trigger OnAction()
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         ShowItemSub;
                         CurrPage.Update(true);
                         if (Reserve = Reserve::Always) and ("No." <> xRec."No.") then begin
-                            AutoReserve;
+                            AutoReserve();
                             CurrPage.Update(false);
                         end;
                     end;
@@ -885,7 +885,7 @@ page 5905 "Service Lines"
 
                     trigger OnAction()
                     begin
-                        ShowReservation;
+                        ShowReservation();
                     end;
                 }
                 action("Order &Tracking")
@@ -897,7 +897,7 @@ page 5905 "Service Lines"
 
                     trigger OnAction()
                     begin
-                        ShowTracking;
+                        ShowTracking();
                     end;
                 }
                 action("Ca&talog Items")
@@ -911,7 +911,7 @@ page 5905 "Service Lines"
                     trigger OnAction()
                     begin
                         ShowNonstock;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action("&Create Lines from Time Sheets")
@@ -947,7 +947,7 @@ page 5905 "Service Lines"
                     trigger OnAction()
                     begin
                         PickPrice();
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action("Adjust Service Price")
@@ -990,11 +990,29 @@ page 5905 "Service Lines"
                     Caption = 'Get Li&ne Discount';
                     Image = LineDiscount;
                     ToolTip = 'Insert the best possible discount in the Line Discount field according to any special discounts that you have set up.';
+                    Visible = not ExtendedPriceEnabled;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
+                    ObsoleteTag = '17.0';
 
                     trigger OnAction()
                     begin
                         PickDiscount();
-                        CurrPage.Update;
+                        CurrPage.Update();
+                    end;
+                }
+                action(GetLineDiscount)
+                {
+                    ApplicationArea = Service;
+                    Caption = 'Get Li&ne Discount';
+                    Image = LineDiscount;
+                    Visible = ExtendedPriceEnabled;
+                    ToolTip = 'Insert the best possible discount in the Line Discount field according to any special discounts that you have set up.';
+
+                    trigger OnAction()
+                    begin
+                        PickDiscount();
+                        CurrPage.Update();
                     end;
                 }
                 action("Calculate Invoice Discount")
@@ -1033,7 +1051,7 @@ page 5905 "Service Lines"
                     begin
                         Clear(ServLine);
                         Modify(true);
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         CurrPage.SetSelectionFilter(ServLine);
 
                         if ServLine.FindFirst then
@@ -1052,10 +1070,10 @@ page 5905 "Service Lines"
                         ServLine.SetRange("Document Type", ServHeader."Document Type");
                         ServLine.SetRange("Document No.", ServHeader."No.");
                         if not ServLine.Find('-') then begin
-                            Reset;
-                            CurrPage.Close;
+                            Reset();
+                            CurrPage.Close();
                         end else
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 action(Preview)
@@ -1072,7 +1090,7 @@ page 5905 "Service Lines"
                         ServPostYesNo: Codeunit "Service-Post (Yes/No)";
                     begin
                         Clear(ServLine);
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         CurrPage.SetSelectionFilter(ServLine);
 
                         if ServLine.FindFirst then
@@ -1131,10 +1149,13 @@ page 5905 "Service Lines"
     end;
 
     trigger OnOpenPage()
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
         Clear(SelectionFilter);
         SelectionFilter := SelectionFilter::"Lines per Selected Service Item";
-        SetSelectionFilter;
+        SetSelectionFilter();
 
         ServMgtSetup.Get();
         case ServMgtSetup."Fault Reporting Level" of
@@ -1175,10 +1196,15 @@ page 5905 "Service Lines"
         ServHeader: Record "Service Header";
         ServItemLine: Record "Service Item Line";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
-        ShortcutDimCode: array[8] of Code[20];
         ServItemLineNo: Integer;
         SelectionFilter: Option "All Service Lines","Lines per Selected Service Item","Lines Not Item Related";
         Text011: Label 'This will reset all price adjusted lines to default values. Do you want to continue?';
+        Text012: Label 'Do you want to create service lines from time sheets?';
+        AddExtendedText: Boolean;
+        ExtendedPriceEnabled: Boolean;
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
         [InDataSet]
         FaultAreaCodeVisible: Boolean;
         [InDataSet]
@@ -1187,8 +1213,6 @@ page 5905 "Service Lines"
         FaultCodeVisible: Boolean;
         [InDataSet]
         ResolutionCodeVisible: Boolean;
-        Text012: Label 'Do you want to create service lines from time sheets?';
-        AddExtendedText: Boolean;
 
     procedure CalcInvDisc(var ServLine: Record "Service Line")
     begin
@@ -1222,12 +1246,12 @@ page 5905 "Service Lines"
 
         if TransferExtendedText.ServCheckIfAnyExtText(Rec, Unconditionally) then begin
             AddExtendedText := true;
-            CurrPage.SaveRecord;
+            CurrPage.SaveRecord();
             AddExtendedText := false;
             TransferExtendedText.InsertServExtText(Rec);
         end;
         if TransferExtendedText.MakeUpdate then
-            CurrPage.Update;
+            CurrPage.Update();
     end;
 
     local procedure InsertStartFee()
@@ -1236,7 +1260,7 @@ page 5905 "Service Lines"
     begin
         Clear(ServOrderMgt);
         if ServOrderMgt.InsertServCost(Rec, 1, false) then
-            CurrPage.Update;
+            CurrPage.Update();
     end;
 
     local procedure InsertTravelFee()
@@ -1245,7 +1269,7 @@ page 5905 "Service Lines"
     begin
         Clear(ServOrderMgt);
         if ServOrderMgt.InsertServCost(Rec, 0, false) then
-            CurrPage.Update;
+            CurrPage.Update();
     end;
 
     local procedure SelectFaultResolutionCode()
@@ -1263,7 +1287,7 @@ page 5905 "Service Lines"
         end;
         ServItemLine.Get("Document Type", "Document No.", "Service Item Line No.");
         Clear(FaultResolutionRelation);
-        FaultResolutionRelation.SetDocument(DATABASE::"Service Line", "Document Type", "Document No.", "Line No.");
+        FaultResolutionRelation.SetDocument(DATABASE::"Service Line", "Document Type".AsInteger(), "Document No.", "Line No.");
         FaultResolutionRelation.SetFilters("Symptom Code", "Fault Code", "Fault Area Code", ServItemLine."Service Item Group Code");
         FaultResolutionRelation.RunModal;
         CurrPage.Update(false);
@@ -1277,8 +1301,8 @@ page 5905 "Service Lines"
            ("Outstanding Qty. (Base)" <> 0) and
            ("No." <> xRec."No.")
         then begin
-            CurrPage.SaveRecord;
-            AutoReserve;
+            CurrPage.SaveRecord();
+            AutoReserve();
             CurrPage.Update(false);
         end;
     end;
@@ -1289,8 +1313,8 @@ page 5905 "Service Lines"
            ("Outstanding Qty. (Base)" <> 0) and
            ("Location Code" <> xRec."Location Code")
         then begin
-            CurrPage.SaveRecord;
-            AutoReserve;
+            CurrPage.SaveRecord();
+            AutoReserve();
         end;
         CurrPage.Update(true);
     end;
@@ -1303,14 +1327,14 @@ page 5905 "Service Lines"
             case Reserve of
                 Reserve::Always:
                     begin
-                        CurrPage.SaveRecord;
-                        AutoReserve;
+                        CurrPage.SaveRecord();
+                        AutoReserve();
                         CurrPage.Update(false);
                         UpdateIsDone := true;
                     end;
                 Reserve::Optional:
                     if (Quantity < xRec.Quantity) and (xRec.Quantity > 0) then begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         CurrPage.Update(false);
                         UpdateIsDone := true;
                     end;
@@ -1329,16 +1353,16 @@ page 5905 "Service Lines"
            ("Outstanding Qty. (Base)" <> 0) and
            ("Posting Date" <> xRec."Posting Date")
         then begin
-            CurrPage.SaveRecord;
-            AutoReserve;
+            CurrPage.SaveRecord();
+            AutoReserve();
             CurrPage.Update(false);
         end;
     end;
 
     local procedure SelectionFilterOnAfterValidate()
     begin
-        CurrPage.Update;
-        SetSelectionFilter;
+        CurrPage.Update();
+        SetSelectionFilter();
     end;
 
     [IntegrationEvent(false, false)]

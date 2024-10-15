@@ -220,11 +220,9 @@ table 99000829 "Planning Component"
                 "Direct Cost Amount" := Round("Expected Quantity" * "Direct Unit Cost");
             end;
         }
-        field(28; "Flushing Method"; Option)
+        field(28; "Flushing Method"; Enum "Flushing Method")
         {
             Caption = 'Flushing Method';
-            OptionCaption = 'Manual,Forward,Backward,Pick + Forward,Pick + Backward';
-            OptionMembers = Manual,Forward,Backward,"Pick + Forward","Pick + Backward";
         }
         field(30; "Location Code"; Code[10])
         {
@@ -284,11 +282,9 @@ table 99000829 "Planning Component"
             Caption = 'Planning Level Code';
             Editable = false;
         }
-        field(37; "Ref. Order Status"; Option)
+        field(37; "Ref. Order Status"; Enum "Production Order Status")
         {
             Caption = 'Ref. Order Status';
-            OptionCaption = 'Simulated,Planned,Firm Planned,Released';
-            OptionMembers = Simulated,Planned,"Firm Planned",Released;
         }
         field(38; "Ref. Order No."; Code[20])
         {
@@ -486,7 +482,7 @@ table 99000829 "Planning Component"
         }
         field(63; "Reserved Qty. (Base)"; Decimal)
         {
-            CalcFormula = - Sum ("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("Worksheet Template Name"),
+            CalcFormula = - Sum("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("Worksheet Template Name"),
                                                                             "Source Ref. No." = FIELD("Line No."),
                                                                             "Source Type" = CONST(99000829),
                                                                             "Source Subtype" = CONST("0"),
@@ -500,7 +496,7 @@ table 99000829 "Planning Component"
         }
         field(71; "Reserved Quantity"; Decimal)
         {
-            CalcFormula = - Sum ("Reservation Entry".Quantity WHERE("Source ID" = FIELD("Worksheet Template Name"),
+            CalcFormula = - Sum("Reservation Entry".Quantity WHERE("Source ID" = FIELD("Worksheet Template Name"),
                                                                    "Source Ref. No." = FIELD("Line No."),
                                                                    "Source Type" = CONST(99000829),
                                                                    "Source Subtype" = CONST("0"),
@@ -550,7 +546,7 @@ table 99000829 "Planning Component"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()
@@ -1062,8 +1058,9 @@ table 99000829 "Planning Component"
                 begin
                     if "Location Code" = ReqLine."Location Code" then
                         if FindFirstRtngLine(PlanningRoutingLine, ReqLine) then
-                            BinCode := WMSManagement.GetProdCenterBinCode(
-                                PlanningRoutingLine.Type, PlanningRoutingLine."No.", "Location Code", true, "Flushing Method");
+                            BinCode :=
+                                WMSManagement.GetProdCenterBinCode(
+                                    PlanningRoutingLine.Type, PlanningRoutingLine."No.", "Location Code", true, "Flushing Method".AsInteger());
                     if BinCode <> '' then
                         exit(BinCode);
                     BinCode := GetFlushingMethodBin;

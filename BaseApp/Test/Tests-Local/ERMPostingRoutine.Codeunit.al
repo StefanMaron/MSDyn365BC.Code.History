@@ -66,12 +66,10 @@ codeunit 144069 "ERM Posting Routine"
         DateOrderErr: Label 'Date Order must have a value in No. Series:';
         InvalidAppliesToOccNoErr: Label 'Invalid Applies-to Occurence No.';
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
-        SalesDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
         CopyDocDateOrderConfirmMsg: Label 'The Posting Date of the copied document is different from the Posting Date of the original document. The original document already has a Posting No. based on a number series with date order. When you post the copied document, you may have the wrong date order in the posted documents.\Do you want to continue?';
         DocumentShouldNotBeCopiedErr: Label 'Document should not be copied';
         DocumentShouldBeCopiedErr: Label 'Document should be copied';
         WrongConfirmationMsgErr: Label 'Wrong confirmation message';
-        PurchDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
         isInitialized: Boolean;
         CheckTotalMsgErr: Label 'Total Reg. %1 is different from total Document %2.', Locked = true;
         CheckTotalCurrMsgErr: Label 'Total Reg. %1 %3 is different from total Document %2 %3.', Locked = true;
@@ -255,7 +253,7 @@ codeunit 144069 "ERM Posting Routine"
         DateOrderPostSalesDocument(SalesHeader."Document Type"::"Return Order");
     end;
 
-    local procedure DateOrderPostSalesDocument(DocumentType: Option)
+    local procedure DateOrderPostSalesDocument(DocumentType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
         NoSeriesCode: Code[20];
@@ -315,7 +313,7 @@ codeunit 144069 "ERM Posting Routine"
         DateOrderPostPurchaseDocument(PurchaseHeader."Document Type"::"Return Order");
     end;
 
-    local procedure DateOrderPostPurchaseDocument(DocumentType: Option)
+    local procedure DateOrderPostPurchaseDocument(DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
         NoSeriesCode: Code[20];
@@ -355,7 +353,7 @@ codeunit 144069 "ERM Posting Routine"
         CreateSalesDocumentForCustomer(SalesHeader, SalesHeader."Document Type"::"Credit Memo", true, SalesHeader."Sell-to Customer No.");
 
         // EXERSIZE
-        LibrarySales.CopySalesDocument(SalesHeader, SalesDocType::"Posted Invoice", PostedInvoiceNo, true, false);
+        LibrarySales.CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Invoice", PostedInvoiceNo, true, false);
 
         // VERIFY
         VerifySalesHeaderAppliesToOccurenceNo(SalesHeader, PostedInvoiceNo);
@@ -382,7 +380,7 @@ codeunit 144069 "ERM Posting Routine"
           PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", true, PurchaseHeader."Pay-to Vendor No.");
 
         // EXERSIZE
-        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, PurchDocType::"Posted Invoice", PostedInvoiceNo, true, false);
+        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, "Purchase Document Type From"::"Posted Invoice", PostedInvoiceNo, true, false);
 
         // VERIFY
         VerifyPurchHeaderAppliesToOccurenceNo(PurchaseHeader, PostedInvoiceNo);
@@ -414,7 +412,7 @@ codeunit 144069 "ERM Posting Routine"
         LibraryVariableStorage.Enqueue(false);
 
         // [WHEN] Run Copy Document from Posted Sales Invoice to Sales Document with Include Header = TRUE
-        CopySalesDocument(SalesHeader, SalesDocType::"Posted Invoice", PostedDocNo);
+        CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Invoice", PostedDocNo);
         SalesHeader.Find;
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
@@ -424,7 +422,7 @@ codeunit 144069 "ERM Posting Routine"
         SalesShipmentHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
         SalesShipmentHeader.FindFirst;
         LibraryVariableStorage.Enqueue(false);
-        CopySalesDocument(SalesHeader, SalesDocType::"Posted Shipment", SalesShipmentHeader."No.");
+        CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Shipment", SalesShipmentHeader."No.");
         SalesHeader.Find;
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
@@ -459,7 +457,7 @@ codeunit 144069 "ERM Posting Routine"
         LibraryVariableStorage.Enqueue(false);
 
         // [WHEN] Run Copy Document from Posted Sales Cr. Memo to Sales Document with Include Header = TRUE
-        CopySalesDocument(SalesHeaderDst, SalesDocType::"Posted Credit Memo", PostedDocNo);
+        CopySalesDocument(SalesHeaderDst, "Sales Document Type From"::"Posted Credit Memo", PostedDocNo);
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
         SalesHeaderDst.Find;
@@ -469,7 +467,7 @@ codeunit 144069 "ERM Posting Routine"
         ReturnReceiptHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
         ReturnReceiptHeader.FindFirst;
         LibraryVariableStorage.Enqueue(false);
-        CopySalesDocument(SalesHeaderDst, SalesDocType::"Posted Return Receipt", ReturnReceiptHeader."No.");
+        CopySalesDocument(SalesHeaderDst, "Sales Document Type From"::"Posted Return Receipt", ReturnReceiptHeader."No.");
         SalesHeaderDst.Find;
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
@@ -500,7 +498,7 @@ codeunit 144069 "ERM Posting Routine"
         LibraryVariableStorage.Enqueue(false);
 
         // [WHEN] Run Copy Document from Sales Quote to Sales Document with Include Header = TRUE
-        CopySalesDocument(SalesHeaderDst, SalesDocType::Quote, SalesHeaderSrc."No.");
+        CopySalesDocument(SalesHeaderDst, "Sales Document Type From"::Quote, SalesHeaderSrc."No.");
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
         SalesHeaderDst.Find;
@@ -528,7 +526,7 @@ codeunit 144069 "ERM Posting Routine"
           LibraryUtility.GenerateRandomCode(SalesHeaderDst.FieldNo("Posting No."), DATABASE::"Sales Header"));
 
         // [WHEN] Run Copy Document from Sales Quote to Sales Document with Include Header = TRUE
-        CopySalesDocument(SalesHeaderDst, SalesDocType::Quote, SalesHeaderSrc."No.");
+        CopySalesDocument(SalesHeaderDst, "Sales Document Type From"::Quote, SalesHeaderSrc."No.");
 
         // [THEN] Confirmation dialog appears with warning and Document is copied after user confirmation
         SalesHeaderDst.Find;
@@ -563,7 +561,7 @@ codeunit 144069 "ERM Posting Routine"
         LibraryVariableStorage.Enqueue(false);
 
         // [WHEN] Run Copy Document from Posted Purchase Invoice to Purchase Document with Include Header = TRUE
-        CopyPurchDocument(PurchHeader, PurchDocType::"Posted Invoice", PostedDocNo);
+        CopyPurchDocument(PurchHeader, "Purchase Document Type From"::"Posted Invoice", PostedDocNo);
         PurchHeader.Find;
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
@@ -573,7 +571,7 @@ codeunit 144069 "ERM Posting Routine"
         PurchRcptHeader.SetRange("Buy-from Vendor No.", VendorNo);
         PurchRcptHeader.FindFirst;
         LibraryVariableStorage.Enqueue(false);
-        CopyPurchDocument(PurchHeader, PurchDocType::"Posted Receipt", PurchRcptHeader."No.");
+        CopyPurchDocument(PurchHeader, "Purchase Document Type From"::"Posted Receipt", PurchRcptHeader."No.");
         PurchHeader.Find;
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
@@ -609,7 +607,7 @@ codeunit 144069 "ERM Posting Routine"
         LibraryVariableStorage.Enqueue(false);
 
         // [WHEN] Run Copy Document from Posted Purchase Cr. Memo to Purchase Document with Include Header = TRUE
-        CopyPurchDocument(PurchHeaderDst, PurchDocType::"Posted Credit Memo", PostedDocNo);
+        CopyPurchDocument(PurchHeaderDst, "Purchase Document Type From"::"Posted Credit Memo", PostedDocNo);
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
         PurchHeaderDst.Find;
@@ -619,7 +617,7 @@ codeunit 144069 "ERM Posting Routine"
         ReturnShptHeader.SetRange("Buy-from Vendor No.", VendorNo);
         ReturnShptHeader.FindFirst;
         LibraryVariableStorage.Enqueue(false);
-        CopyPurchDocument(PurchHeaderDst, PurchDocType::"Posted Return Shipment", ReturnShptHeader."No.");
+        CopyPurchDocument(PurchHeaderDst, "Purchase Document Type From"::"Posted Return Shipment", ReturnShptHeader."No.");
         PurchHeaderDst.Find;
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
@@ -651,7 +649,7 @@ codeunit 144069 "ERM Posting Routine"
         LibraryVariableStorage.Enqueue(false);
 
         // [WHEN] Run Copy Document from Purchase Quote to Purchase Document with Include Header = TRUE
-        CopyPurchDocument(PurchHeaderDst, PurchDocType::Quote, PurchHeaderSrc."No.");
+        CopyPurchDocument(PurchHeaderDst, "Purchase Document Type From"::Quote, PurchHeaderSrc."No.");
 
         // [THEN] Confirmation dialog appears with warning and Document not copied (user pressed cancel)
         PurchHeaderDst.Find;
@@ -680,7 +678,7 @@ codeunit 144069 "ERM Posting Routine"
           LibraryUtility.GenerateRandomCode(PurchHeaderDst.FieldNo("Posting No."), DATABASE::"Purchase Header"));
 
         // [WHEN] Run Copy Document from Purchase Quote to Purchase Document with Include Header = TRUE
-        CopyPurchDocument(PurchHeaderDst, PurchDocType::Quote, PurchHeaderSrc."No.");
+        CopyPurchDocument(PurchHeaderDst, "Purchase Document Type From"::Quote, PurchHeaderSrc."No.");
 
         // [THEN] Confirmation dialog appears with warning and Document is copied after user confirmation
         PurchHeaderDst.Find;
@@ -977,27 +975,27 @@ codeunit 144069 "ERM Posting Routine"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
     end;
 
-    local procedure CopySalesDocument(SalesHeader: Record "Sales Header"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure CopySalesDocument(SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type From"; DocumentNo: Code[20])
     var
         CopySalesDocument: Report "Copy Sales Document";
     begin
         CopySalesDocument.SetSalesHeader(SalesHeader);
-        CopySalesDocument.InitializeRequest(DocumentType, DocumentNo, true, false);
+        CopySalesDocument.SetParameters(DocumentType, DocumentNo, true, false);
         CopySalesDocument.UseRequestPage(false);
         CopySalesDocument.Run;
     end;
 
-    local procedure CopyPurchDocument(PurchHeader: Record "Purchase Header"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure CopyPurchDocument(PurchHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type From"; DocumentNo: Code[20])
     var
         CopyPurchDocument: Report "Copy Purchase Document";
     begin
         CopyPurchDocument.SetPurchHeader(PurchHeader);
-        CopyPurchDocument.InitializeRequest(DocumentType, DocumentNo, true, false);
+        CopyPurchDocument.SetParameters(DocumentType, DocumentNo, true, false);
         CopyPurchDocument.UseRequestPage(false);
         CopyPurchDocument.Run;
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; DateOrder: Boolean)
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; DateOrder: Boolean)
     var
         Vendor: Record Vendor;
     begin
@@ -1013,7 +1011,7 @@ codeunit 144069 "ERM Posting Routine"
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; DateOrder: Boolean)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; DateOrder: Boolean)
     var
         Customer: Record Customer;
     begin
@@ -1029,7 +1027,7 @@ codeunit 144069 "ERM Posting Routine"
         SalesHeader.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocumentForVendor(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; DateOrder: Boolean; VendorNo: Code[20])
+    local procedure CreatePurchaseDocumentForVendor(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; DateOrder: Boolean; VendorNo: Code[20])
     var
         Item: Record Item;
         PurchaseLine: Record "Purchase Line";
@@ -1047,7 +1045,7 @@ codeunit 144069 "ERM Posting Routine"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocumentForCustomer(var SalesHeader: Record "Sales Header"; DocumentType: Option; DateOrder: Boolean; CustomerNo: Code[20])
+    local procedure CreateSalesDocumentForCustomer(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; DateOrder: Boolean; CustomerNo: Code[20])
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";

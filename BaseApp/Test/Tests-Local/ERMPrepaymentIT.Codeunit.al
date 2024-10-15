@@ -632,26 +632,26 @@ codeunit 144172 "ERM Prepayment IT"
         exit(CreateAndPostGenJournalLine(GenJournalLine."Account Type"::Vendor, VendorNo, AmountToApply));
     end;
 
-    local procedure CreateAndPostGenJournalLine(PartnerAccountType: Option; PartnerNo: Code[20]; AmountToApply: Decimal): Code[20]
+    local procedure CreateAndPostGenJournalLine(AccountType: Enum "Gen. Journal Account Type"; PartnerNo: Code[20]; AmountToApply: Decimal): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        CreateGeneralJnlLine(GenJournalLine, PartnerAccountType, PartnerNo, AmountToApply);
+        CreateGeneralJnlLine(GenJournalLine, AccountType, PartnerNo, AmountToApply);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         exit(GenJournalLine."Document No.");
     end;
 
-    local procedure CreateGeneralJnlLine(var GenJournalLine: Record "Gen. Journal Line"; PartnerAccountType: Option; PartnerNo: Code[20]; AmountToApply: Decimal)
+    local procedure CreateGeneralJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; AmountToApply: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         SelectAndClearGenJournalBatch(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
-          PartnerAccountType, PartnerNo, AmountToApply);
+          AccountType, AccountNo, AmountToApply);
     end;
 
-    local procedure ApplyAndPostCustomerEntry(DocumentType: Option; DocumentNo: Code[20]; DocumentNo2: Code[20])
+    local procedure ApplyAndPostCustomerEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; DocumentNo2: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -659,7 +659,7 @@ codeunit 144172 "ERM Prepayment IT"
         LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
     end;
 
-    local procedure ApplyAndPostVendorEntry(DocumentType: Option; DocumentNo: Code[20]; DocumentNo2: Code[20])
+    local procedure ApplyAndPostVendorEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; DocumentNo2: Code[20])
     var
         VendLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -667,7 +667,7 @@ codeunit 144172 "ERM Prepayment IT"
         LibraryERM.PostVendLedgerApplication(VendLedgerEntry);
     end;
 
-    local procedure ApplyVendorEntry(var VendLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Option; DocumentNo: Code[20]; DocumentNo2: Code[20])
+    local procedure ApplyVendorEntry(var VendLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; DocumentNo2: Code[20])
     var
         VendLedgerEntry2: Record "Vendor Ledger Entry";
     begin
@@ -681,7 +681,7 @@ codeunit 144172 "ERM Prepayment IT"
         LibraryERM.SetAppliestoIdVendor(VendLedgerEntry2);
     end;
 
-    local procedure ApplyCustomerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Option; DocumentNo: Code[20]; DocumentNo2: Code[20])
+    local procedure ApplyCustomerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; DocumentNo2: Code[20])
     var
         CustLedgerEntry2: Record "Cust. Ledger Entry";
     begin
@@ -711,12 +711,12 @@ codeunit 144172 "ERM Prepayment IT"
           VendorNo, GenJournalLine."Account Type"::Vendor, InvoiceNoToApply, AmountToApply);
     end;
 
-    local procedure ApplyInvoicePayment(PartnerNo: Code[20]; PartnerAccountType: Option; InvoiceNoToApply: Code[20]; AmountToApply: Decimal)
+    local procedure ApplyInvoicePayment(AccountNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; InvoiceNoToApply: Code[20]; AmountToApply: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
         with GenJournalLine do begin
-            CreateGeneralJnlLine(GenJournalLine, PartnerAccountType, PartnerNo, AmountToApply);
+            CreateGeneralJnlLine(GenJournalLine, AccountType, AccountNo, AmountToApply);
             Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
             Validate("Applies-to Doc. No.", InvoiceNoToApply);
             Modify(true);
@@ -899,7 +899,7 @@ codeunit 144172 "ERM Prepayment IT"
         LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
     end;
 
-    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentNo: Code[20]; DocumentType: Option)
+    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         with VATEntry do begin
             SetRange("Document Type", DocumentType);

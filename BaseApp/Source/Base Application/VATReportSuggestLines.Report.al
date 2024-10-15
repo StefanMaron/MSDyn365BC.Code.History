@@ -203,7 +203,7 @@ report 741 "VAT Report Suggest Lines"
         Clear(TotalAmount);
     end;
 
-    local procedure ProcessTransaction(var VATEntry: Record "VAT Entry"; RecordIdentifier: Code[10]; GroupType: Option)
+    local procedure ProcessTransaction(var VATEntry: Record "VAT Entry"; RecordIdentifier: Code[10]; GroupType: Enum "Gen. Journal Document Type")
     begin
         UpdateTotals(VATEntry);
         if CheckNewGroup(VATEntry) then begin
@@ -259,7 +259,7 @@ report 741 "VAT Report Suggest Lines"
               ("VAT Calculation Type" = "VAT Calculation Type"::"Full VAT"));
     end;
 
-    local procedure DetermineGroupType(var VATEntry: Record "VAT Entry"): Integer
+    local procedure DetermineGroupType(var VATEntry: Record "VAT Entry"): Enum "Gen. Journal Document Type"
     begin
         if IsInvoice(VATEntry) then
             exit(VATEntry."Document Type"::Invoice);

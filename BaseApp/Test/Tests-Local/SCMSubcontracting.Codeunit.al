@@ -612,7 +612,7 @@ codeunit 144081 "SCM Subcontracting"
         ReservationEntry.TestField(Quantity, -ProdOrderComponent."Remaining Quantity");
 
         FindTransferLine(TransferLine, VendorNo);
-        TransferLineReserve.FindReservEntry(TransferLine, ReservationEntry, 1); // 1 for inbound direction of transfer
+        TransferLineReserve.FindReservEntry(TransferLine, ReservationEntry, "Transfer Direction"::Inbound);
         ReservationEntry.TestField(Quantity, ProdOrderComponent."Remaining Quantity");
     end;
 
@@ -1214,7 +1214,7 @@ codeunit 144081 "SCM Subcontracting"
 
         CreateAndPostItemJournalLine(ProdOrderComponent."Item No.", LocationFromCode, '', ProdOrderComponent."Remaining Quantity");
 
-        ProdOrderComponent.AutoReserve;
+        ProdOrderComponent.AutoReserve();
     end;
 
     local procedure CreateSubcontractingVendorWithProcurement(SubcontractingLocationCode: Code[10]; SubcontractorProcurement: Boolean): Code[20]
@@ -1387,7 +1387,7 @@ codeunit 144081 "SCM Subcontracting"
         end;
     end;
 
-    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Option; ItemNo: Code[20]; LocationCode: Code[10]; IsPositive: Boolean)
+    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; LocationCode: Code[10]; IsPositive: Boolean)
     begin
         with ItemLedgerEntry do begin
             SetRange("Entry Type", EntryType);
@@ -1446,7 +1446,7 @@ codeunit 144081 "SCM Subcontracting"
         TransferLine.FindFirst;
     end;
 
-    local procedure GetProductionOrderNo(Status: Option; SourceNo: Code[20]): Code[20]
+    local procedure GetProductionOrderNo(Status: Enum "Production Order Status"; SourceNo: Code[20]): Code[20]
     var
         ProductionOrder: Record "Production Order";
     begin

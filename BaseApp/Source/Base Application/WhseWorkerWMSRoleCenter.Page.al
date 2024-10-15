@@ -15,11 +15,19 @@ page 9009 "Whse. Worker WMS Role Center"
             {
                 ApplicationArea = Warehouse;
             }
-            part(Control1905989608; "My Items")
+            part("User Tasks Activities"; "User Tasks Activities")
+            {
+                ApplicationArea = Suite;
+            }
+            part(ApprovalsActivities; "Approvals Activities")
             {
                 ApplicationArea = Suite;
             }
             part(Control6; "Team Member Activities No Msgs")
+            {
+                ApplicationArea = Suite;
+            }
+            part(Control1905989608; "My Items")
             {
                 ApplicationArea = Suite;
             }

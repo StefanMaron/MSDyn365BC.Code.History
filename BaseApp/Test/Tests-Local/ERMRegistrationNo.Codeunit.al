@@ -95,7 +95,7 @@ codeunit 144184 "ERM Registration No."
         LibraryVariableStorage.Clear;
     end;
 
-    local procedure CreateAndPostGenJournalLine(AccountType: Option; AccountNo: Code[20]; Amount: Decimal; DocumentNo: Code[20])
+    local procedure CreateAndPostGenJournalLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; DocumentNo: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";

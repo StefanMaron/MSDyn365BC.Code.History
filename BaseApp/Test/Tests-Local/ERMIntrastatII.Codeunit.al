@@ -100,7 +100,7 @@ codeunit 144063 "ERM Intrastat - II"
         PostedPurchaseDocumentNoOnIntrastatJnl(PurchaseLine."Document Type"::"Credit Memo", false, -1);  // Corrective Entry - False.
     end;
 
-    local procedure PostedPurchaseDocumentNoOnIntrastatJnl(DocumentType: Option; CorrectiveEntry: Boolean; SignMultiplier: Integer)
+    local procedure PostedPurchaseDocumentNoOnIntrastatJnl(DocumentType: Enum "Purchase Document Type"; CorrectiveEntry: Boolean; SignMultiplier: Integer)
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         PurchaseLine: Record "Purchase Line";
@@ -303,7 +303,7 @@ codeunit 144063 "ERM Intrastat - II"
           CreateServiceTariffNumber, 100, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
 
         // Exercise.
-        RunGLBookPrintReport(PurchaseLine."Document Type"::Invoice, PurchaseLine."Buy-from Vendor No.");
+        RunGLBookPrintReport("Gen. Journal Document Type"::Invoice, PurchaseLine."Buy-from Vendor No.");
 
         // Verify: Verify Final Total - Caption and Amount on generated XML of Report - G/L Book - Print.
         LibraryReportDataset.LoadDataSetFile;
@@ -328,7 +328,7 @@ codeunit 144063 "ERM Intrastat - II"
           CreateServiceTariffNumber, 100, VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
 
         // Exercise.
-        RunGLBookPrintReport(PurchaseLine."Document Type"::"Credit Memo", PurchaseLine."Buy-from Vendor No.");
+        RunGLBookPrintReport("Gen. Journal Document Type"::"Credit Memo", PurchaseLine."Buy-from Vendor No.");
 
         // Verify: Verify Document Type, Buy from Vendor Number and Amount on generated XML of Report - G/L Book - Print.
         VerifyDocumentTypeNumberAndAmount(
@@ -381,7 +381,7 @@ codeunit 144063 "ERM Intrastat - II"
           VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT", LibraryRandom.RandDec(10, 2), 100);  // Random VAT Percentage, Deductible % - 100.
 
         // Exercise.
-        RunGLBookPrintReport(SalesLine."Document Type"::"Credit Memo", SalesLine."Sell-to Customer No.");
+        RunGLBookPrintReport("Gen. Journal Document Type"::"Credit Memo", SalesLine."Sell-to Customer No.");
 
         // Verify: Verify Document Type, Sell To Customer No and Amount on generated XML of Report - G/L Book - Print.
         VerifyDocumentTypeNumberAndAmount(
@@ -554,7 +554,7 @@ codeunit 144063 "ERM Intrastat - II"
         AmountToValidate := SalesLine.Amount;
         CreateSalesDocument(
           SalesHeader, SalesLine, SalesLine."Document Type"::"Credit Memo", CustomerNo,
-          ServiceTariffNo, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATPercent, 100); // Deductible % - 100
+          ServiceTariffNo, 100, VATPostingSetup."VAT Calculation Type"::"Normal VAT", VATPercent); // Deductible % - 100
         with SalesLine do begin
             Validate(Quantity, 1);
             Validate("Unit Price", AmountToValidate / 2);
@@ -1231,7 +1231,7 @@ codeunit 144063 "ERM Intrastat - II"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20]; ServiceTariffNo: Code[10]; DeductiblePercent: Decimal; VATCalcType: Option): Code[20]
+    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; ServiceTariffNo: Code[10]; DeductiblePercent: Decimal; VATCalcType: Enum "Tax Calculation Type"): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -1240,7 +1240,7 @@ codeunit 144063 "ERM Intrastat - II"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20]; ServiceTariffNo: Code[10]; DeductiblePercent: Integer; VATCalcType: Option)
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; ServiceTariffNo: Code[10]; DeductiblePercent: Integer; VATCalcType: Enum "Tax Calculation Type")
     var
         VATPostingSetup: Record "VAT Posting Setup";
         VATPercent: Decimal;
@@ -1257,7 +1257,7 @@ codeunit 144063 "ERM Intrastat - II"
         PurchaseHeader.Validate("Check Total", PurchaseLine."Amount Including VAT");
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; ServiceTariffNo: Code[10]; DeductiblePercent: Integer; VATCalcType: Option; VATPercent: Decimal)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; ServiceTariffNo: Code[10]; DeductiblePercent: Integer; VATCalcType: Enum "Tax Calculation Type"; VATPercent: Decimal)
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
@@ -1272,7 +1272,7 @@ codeunit 144063 "ERM Intrastat - II"
           CreateItemWithVATProductPostingGroup(VATPostingSetup."VAT Prod. Posting Group"));
     end;
 
-    local procedure CreateAndPostSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; SellToCustomerNo: Code[20]; ServiceTariffNo: Code[10]; VATCalculationType: Option; VATPct: Decimal; DeductiblePercent: Decimal): Code[20]
+    local procedure CreateAndPostSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; SellToCustomerNo: Code[20]; ServiceTariffNo: Code[10]; VATCalculationType: Enum "Tax Calculation Type"; VATPct: Decimal; DeductiblePercent: Decimal): Code[20]
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -1285,13 +1285,12 @@ codeunit 144063 "ERM Intrastat - II"
     local procedure CreateSalesCreditMemoUsingCopyDocument(var SalesHeader: Record "Sales Header"; SellToCustomerNo: Code[20]; ServiceTariffNo: Code[10]; DocumentNo: Code[20])
     var
         SalesLine: Record "Sales Line";
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
     begin
         CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", SellToCustomerNo, ServiceTariffNo);
         SalesHeader.Validate("Applies-to Doc. Type", SalesHeader."Applies-to Doc. Type"::Invoice);
         SalesHeader.Validate("Applies-to Doc. No.", DocumentNo);
         SalesHeader.Modify(true);
-        LibrarySales.CopySalesDocument(SalesHeader, DocumentType::"Posted Invoice", DocumentNo, false, true);  // Include Header - False and Recalculate Lines - True.
+        LibrarySales.CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Invoice", DocumentNo, false, true);  // Include Header - False and Recalculate Lines - True.
         FindSalesLine(SalesLine, SalesHeader."No.");
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(10, 20, 2));
         SalesLine.Modify(true);
@@ -1311,7 +1310,7 @@ codeunit 144063 "ERM Intrastat - II"
         SalesHeader.Modify(true);
         CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo);
         LibraryVariableStorage.Enqueue(ItemTrackingMode::"Select Entries");
-        SalesLine.OpenItemTrackingLines;  // Opens handler - ItemTrackingLinesModalPageHandler.
+        SalesLine.OpenItemTrackingLines();  // Opens handler - ItemTrackingLinesModalPageHandler.
         LibraryInventory.CreateItemCharge(ItemCharge);
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, SalesHeader."VAT Bus. Posting Group", ItemCharge."VAT Prod. Posting Group");
         VATPostingSetup."EU Service" := true;
@@ -1418,7 +1417,7 @@ codeunit 144063 "ERM Intrastat - II"
         Item.Modify(true);
     end;
 
-    local procedure CreateItemJournal(var ItemJournalLine: Record "Item Journal Line"; No: Code[20]; EntryType: Option; LocationCode: Code[10])
+    local procedure CreateItemJournal(var ItemJournalLine: Record "Item Journal Line"; No: Code[20]; EntryType: Enum "Item Ledger Entry Type"; LocationCode: Code[10])
     var
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
@@ -1485,7 +1484,7 @@ codeunit 144063 "ERM Intrastat - II"
         LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20]; ServiceTariffNo: Code[10])
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; ServiceTariffNo: Code[10])
     var
         PaymentMethod: Record "Payment Method";
         TransportMethod: Record "Transport Method";
@@ -1539,7 +1538,7 @@ codeunit 144063 "ERM Intrastat - II"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; SellToCustomerNo: Code[20]; ServiceTariffNo: Code[10])
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; SellToCustomerNo: Code[20]; ServiceTariffNo: Code[10])
     var
         TransportMethod: Record "Transport Method";
         PaymentMethod: Record "Payment Method";
@@ -1555,7 +1554,7 @@ codeunit 144063 "ERM Intrastat - II"
         SalesHeader.Modify(true);
     end;
 
-    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Option; ItemNo: Code[20])
+    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; ItemNo: Code[20])
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, ItemNo, LibraryRandom.RandInt(10));  // Random Quantity.
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(50, 100, 2));
@@ -1570,7 +1569,7 @@ codeunit 144063 "ERM Intrastat - II"
         exit(ServiceTariffNumber."No.");
     end;
 
-    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusPostingGroup: Code[20]; VATCalculationType: Option; VATPct: Decimal; IsSales: Boolean)
+    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusPostingGroup: Code[20]; VATCalculationType: Enum "Tax Calculation Type"; VATPct: Decimal; IsSales: Boolean)
     var
         VATProdPostingGroup: Record "VAT Product Posting Group";
         VATIdentifier: Record "VAT Identifier";
@@ -1736,7 +1735,7 @@ codeunit 144063 "ERM Intrastat - II"
         exit(VATEntry."Document No.")
     end;
 
-    local procedure FindVATEntryNo(BillToPayToNo: Code[20]; VATEntryType: Option): Integer
+    local procedure FindVATEntryNo(BillToPayToNo: Code[20]; VATEntryType: Enum "General Posting Type"): Integer
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -1747,7 +1746,7 @@ codeunit 144063 "ERM Intrastat - II"
         exit(VATEntry."Entry No.")
     end;
 
-    local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceDocument: Option; SourceNo: Code[20]; ActivityType: Option)
+    local procedure FindWarehouseActivityHeader(var WarehouseActivityHeader: Record "Warehouse Activity Header"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option)
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -1768,7 +1767,7 @@ codeunit 144063 "ERM Intrastat - II"
         WarehouseShipmentHeader.Get(WarehouseShipmentLine."No.");
     end;
 
-    local procedure FindReverseEntryVATBookEntry(var VATBookEntry: Record "VAT Book Entry"; Type: Option; DocType: Option; VendNo: Code[20])
+    local procedure FindReverseEntryVATBookEntry(var VATBookEntry: Record "VAT Book Entry"; Type: Option; DocType: Enum "Gen. Journal Document Type"; VendNo: Code[20])
     begin
         VATBookEntry.SetRange("Document Type", DocType);
         VATBookEntry.SetRange("Sell-to/Buy-from No.", VendNo);
@@ -1868,7 +1867,7 @@ codeunit 144063 "ERM Intrastat - II"
         NoSeriesLinePurchase.ModifyAll("Last Date Used", NoSeriesLinePurchase."Starting Date");
     end;
 
-    local procedure RunGLBookPrintReport(DocumentType: Option; SourceNo: Code[20])
+    local procedure RunGLBookPrintReport(DocumentType: Enum "Gen. Journal Document Type"; SourceNo: Code[20])
     var
         GLBookEntry: Record "GL Book Entry";
         GLBookPrint: Report "G/L Book - Print";
@@ -1879,7 +1878,7 @@ codeunit 144063 "ERM Intrastat - II"
         GLBookPrint.Run;
     end;
 
-    local procedure RunVATRegisterPrintReport(DocumentType: Option; SellToBuyFromNo: Code[20]; Type: Option)
+    local procedure RunVATRegisterPrintReport(DocumentType: Enum "Gen. Journal Document Type"; SellToBuyFromNo: Code[20]; Type: Option)
     var
         VATBookEntry: Record "VAT Book Entry";
     begin

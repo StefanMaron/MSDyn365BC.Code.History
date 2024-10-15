@@ -156,7 +156,7 @@ table 12182 "Vendor Bill Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(66; "Has Payment Export Error"; Boolean)

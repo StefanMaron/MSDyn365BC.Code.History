@@ -98,12 +98,12 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             exit;
 
         with LotNoInfo do begin
-            Reset;
+            Reset();
             if SetCurrentKey("Lot No.") then;
             SetFilter("Lot No.", LotNoFilter);
             SetFilter("Item No.", ItemNoFilter);
             SetFilter("Variant Code", VariantFilter);
-            if FindSet then
+            if FindSet() then
                 repeat
                     RecRef.GetTable(LotNoInfo);
                     InsertBufferRec(RecRef, '', "Lot No.", "Item No.", "Variant Code");
@@ -117,12 +117,12 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             exit;
 
         with SerialNoInfo do begin
-            Reset;
+            Reset();
             if SetCurrentKey("Serial No.") then;
             SetFilter("Serial No.", SerialNoFilter);
             SetFilter("Item No.", ItemNoFilter);
             SetFilter("Variant Code", VariantFilter);
-            if FindSet then
+            if FindSet() then
                 repeat
                     RecRef.GetTable(SerialNoInfo);
                     InsertBufferRec(RecRef, "Serial No.", '', "Item No.", "Variant Code");
@@ -136,10 +136,10 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             exit;
 
         with MiscArticleInfo do begin
-            Reset;
+            Reset();
             if SetCurrentKey("Serial No.") then;
             SetFilter("Serial No.", SerialNoFilter);
-            if FindSet then
+            if FindSet() then
                 repeat
                     RecRef.GetTable(MiscArticleInfo);
                     InsertBufferRec(RecRef, "Serial No.", '', '', '');
@@ -153,10 +153,10 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             exit;
 
         with FixedAsset do begin
-            Reset;
+            Reset();
             if SetCurrentKey("Serial No.") then;
             SetFilter("Serial No.", SerialNoFilter);
-            if FindSet then
+            if FindSet() then
                 repeat
                     RecRef.GetTable(FixedAsset);
                     InsertBufferRec(RecRef, "Serial No.", '', '', '');
@@ -170,12 +170,12 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             exit;
 
         with ServItemLine do begin
-            Reset;
+            Reset();
             if SetCurrentKey("Serial No.") then;
             SetFilter("Serial No.", SerialNoFilter);
             SetFilter("Item No.", ItemNoFilter);
             SetFilter("Variant Code", VariantFilter);
-            if FindSet then
+            if FindSet() then
                 repeat
                     RecRef.GetTable(ServItemLine);
                     InsertBufferRec(RecRef, "Serial No.", '', "Item No.", "Variant Code");
@@ -189,12 +189,12 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             exit;
 
         with ServiceItem do begin
-            Reset;
+            Reset();
             if SetCurrentKey("Serial No.") then;
             SetFilter("Serial No.", SerialNoFilter);
             SetFilter("Item No.", ItemNoFilter);
             SetFilter("Variant Code", VariantFilter);
-            if FindSet then
+            if FindSet() then
                 repeat
                     RecRef.GetTable(ServiceItem);
                     InsertBufferRec(RecRef, "Serial No.", '', "Item No.", "Variant Code");
@@ -208,12 +208,12 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             exit;
 
         with ServiceItemComponent do begin
-            Reset;
+            Reset();
             if SetCurrentKey("Serial No.") then;
             SetFilter("Serial No.", SerialNoFilter);
             SetFilter("Parent Service Item No.", ItemNoFilter);
             SetFilter("Variant Code", VariantFilter);
-            if FindSet then
+            if FindSet() then
                 repeat
                     RecRef.GetTable(ServiceItemComponent);
                     InsertBufferRec(RecRef, "Serial No.", '', "Parent Service Item No.", "Variant Code");
@@ -227,12 +227,12 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             exit;
 
         with ServContractLine do begin
-            Reset;
+            Reset();
             if SetCurrentKey("Serial No.") then;
             SetFilter("Serial No.", SerialNoFilter);
             SetFilter("Item No.", ItemNoFilter);
             SetFilter("Variant Code", VariantFilter);
-            if FindSet then
+            if FindSet() then
                 repeat
                     RecRef.GetTable(ServContractLine);
                     InsertBufferRec(RecRef, "Serial No.", '', "Item No.", "Variant Code");
@@ -246,11 +246,11 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             exit;
 
         with Loaner do begin
-            Reset;
+            Reset();
             if SetCurrentKey("Serial No.") then;
             SetFilter("Serial No.", SerialNoFilter);
             SetFilter("Item No.", ItemNoFilter);
-            if FindSet then
+            if FindSet() then
                 repeat
                     RecRef.GetTable(Loaner);
                     InsertBufferRec(RecRef, "Serial No.", '', "Item No.", '');
@@ -264,12 +264,12 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             exit;
 
         with FiledContractLine do begin
-            Reset;
+            Reset();
             if SetCurrentKey("Serial No.") then;
             SetFilter("Serial No.", SerialNoFilter);
             SetFilter("Item No.", ItemNoFilter);
             SetFilter("Variant Code", VariantFilter);
-            if FindSet then
+            if FindSet() then
                 repeat
                     RecRef.GetTable(FiledContractLine);
                     InsertBufferRec(RecRef, "Serial No.", '', "Item No.", "Variant Code");
@@ -281,31 +281,31 @@ codeunit 6529 "Item Tracking Navigate Mgt."
     var
         ValueEntry: Record "Value Entry";
     begin
-        if ValueEntry.ReadPermission then
-            with ValueEntry do begin
-                Reset;
-                SetCurrentKey("Item Ledger Entry No.");
-                SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
-                SetRange("Entry Type", "Entry Type"::"Direct Cost");
-                SetFilter("Document Type", '<>%1', ItemLedgEntry."Document Type");
-                if FindSet then
-                    repeat
-                        case "Document Type" of
-                            "Document Type"::"Sales Invoice":
-                                FindSalesInvoice("Document No.");
-                            "Document Type"::"Sales Credit Memo":
-                                FindSalesCrMemo("Document No.");
-                            "Document Type"::"Service Invoice":
-                                FindServInvoice("Document No.");
-                            "Document Type"::"Service Credit Memo":
-                                FindServCrMemo("Document No.");
-                            "Document Type"::"Purchase Invoice":
-                                FindPurchInvoice("Document No.");
-                            "Document Type"::"Purchase Credit Memo":
-                                FindPurchCrMemo("Document No.");
-                        end;
-                    until Next = 0;
-            end;
+        if not ValueEntry.ReadPermission then
+            exit;
+
+        ValueEntry.Reset();
+        ValueEntry.SetCurrentKey("Item Ledger Entry No.");
+        ValueEntry.SetRange("Item Ledger Entry No.", ItemLedgEntry."Entry No.");
+        ValueEntry.SetRange("Entry Type", ValueEntry."Entry Type"::"Direct Cost");
+        ValueEntry.SetFilter("Document Type", '<>%1', ItemLedgEntry."Document Type");
+        if ValueEntry.FindSet() then
+            repeat
+                case ValueEntry."Document Type" of
+                    ValueEntry."Document Type"::"Sales Invoice":
+                        FindSalesInvoice(ValueEntry."Document No.");
+                    ValueEntry."Document Type"::"Sales Credit Memo":
+                        FindSalesCrMemo(ValueEntry."Document No.");
+                    ValueEntry."Document Type"::"Service Invoice":
+                        FindServInvoice(ValueEntry."Document No.");
+                    ValueEntry."Document Type"::"Service Credit Memo":
+                        FindServCrMemo(ValueEntry."Document No.");
+                    ValueEntry."Document Type"::"Purchase Invoice":
+                        FindPurchInvoice(ValueEntry."Document No.");
+                    ValueEntry."Document Type"::"Purchase Credit Memo":
+                        FindPurchCrMemo(ValueEntry."Document No.");
+                end;
+            until ValueEntry.Next() = 0;
     end;
 
     local procedure FindSalesInvoice(DocumentNo: Code[20])
@@ -646,7 +646,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             exit;
 
         with PostedWhseShptLine do begin
-            Reset;
+            Reset();
             SetCurrentKey("Posted Source No.", "Posting Date");
             SetRange("Posted Source No.", ItemLedgEntry."Document No.");
             SetRange("Posting Date", ItemLedgEntry."Posting Date");
@@ -670,7 +670,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             exit;
 
         with PostedWhseRcptLine do begin
-            Reset;
+            Reset();
             SetCurrentKey("Posted Source No.", "Posting Date");
             SetRange("Posted Source No.", ItemLedgEntry."Document No.");
             SetRange("Posting Date", ItemLedgEntry."Posting Date");
@@ -692,7 +692,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             exit;
 
         with PostedInvtPickLine do begin
-            Reset;
+            Reset();
             if LotNoFilter <> '' then
                 if SetCurrentKey("Lot No.") then;
             if SerialNoFilter <> '' then
@@ -701,7 +701,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             SetFilter("Serial No.", SerialNoFilter);
             SetFilter("Item No.", ItemNoFilter);
             SetFilter("Variant Code", VariantFilter);
-            if FindSet then
+            if FindSet() then
                 repeat
                     RecRef.GetTable(PostedInvtPickLine);
                     InsertBufferRec(RecRef, "Serial No.", "Lot No.", "Item No.", "Variant Code");
@@ -715,7 +715,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             exit;
 
         with PostedInvtPutAwayLine do begin
-            Reset;
+            Reset();
             if LotNoFilter <> '' then
                 if SetCurrentKey("Lot No.") then;
             if SerialNoFilter <> '' then
@@ -724,7 +724,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             SetFilter("Serial No.", SerialNoFilter);
             SetFilter("Item No.", ItemNoFilter);
             SetFilter("Variant Code", VariantFilter);
-            if FindSet then
+            if FindSet() then
                 repeat
                     RecRef.GetTable(PostedInvtPutAwayLine);
                     InsertBufferRec(RecRef, "Serial No.", "Lot No.", "Item No.", "Variant Code");
@@ -755,7 +755,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             exit;
 
         with RgstrdWhseActivLine do begin
-            Reset;
+            Reset();
             if LotNoFilter <> '' then
                 if SetCurrentKey("Lot No.") then;
             if SerialNoFilter <> '' then
@@ -764,7 +764,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             SetFilter("Serial No.", SerialNoFilter);
             SetFilter("Item No.", ItemNoFilter);
             SetFilter("Variant Code", VariantFilter);
-            if FindSet then
+            if FindSet() then
                 repeat
                     RecRef.GetTable(RgstrdWhseActivLine);
                     InsertBufferRec(RecRef, "Serial No.", "Lot No.", "Item No.", "Variant Code");
@@ -780,7 +780,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             exit;
 
         with ItemLedgEntry do begin
-            Reset;
+            Reset();
             if LotNoFilter <> '' then
                 if SetCurrentKey("Lot No.") then;
             if SerialNoFilter <> '' then
@@ -789,7 +789,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             SetFilter("Serial No.", SerialNoFilter);
             SetFilter("Item No.", ItemNoFilter);
             SetFilter("Variant Code", VariantFilter);
-            if FindSet then
+            if FindSet() then
                 repeat
                     RecRef.GetTable(ItemLedgEntry);
                     InsertBufferRec(RecRef, "Serial No.", "Lot No.", "Item No.", "Variant Code");
@@ -908,7 +908,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             exit;
 
         with JobLedgEntry do begin
-            Reset;
+            Reset();
             if LotNoFilter <> '' then
                 if SetCurrentKey("Lot No.") then;
             if SerialNoFilter <> '' then
@@ -916,7 +916,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             SetFilter("Lot No.", LotNoFilter);
             SetFilter("Serial No.", SerialNoFilter);
             SetFilter("Variant Code", VariantFilter);
-            if FindSet then
+            if FindSet() then
                 repeat
                     RecRef.GetTable(JobLedgEntry);
                     InsertBufferRec(RecRef, "Serial No.", "Lot No.", '', "Variant Code");
@@ -934,7 +934,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             exit;
 
         with ReservEntry do begin
-            Reset;
+            Reset();
             if LotNoFilter <> '' then
                 if SetCurrentKey("Lot No.") then;
             if SerialNoFilter <> '' then
@@ -943,7 +943,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             SetFilter("Serial No.", SerialNoFilter);
             SetFilter("Item No.", ItemNoFilter);
             SetFilter("Variant Code", VariantFilter);
-            if FindSet then
+            if FindSet() then
                 repeat
                     RecRef.GetTable(ReservEntry);
                     InsertBufferRec(RecRef, "Serial No.", "Lot No.", "Item No.", "Variant Code");
@@ -984,7 +984,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             exit;
 
         with WhseActivLine do begin
-            Reset;
+            Reset();
             if LotNoFilter <> '' then
                 if SetCurrentKey("Lot No.") then;
             if SerialNoFilter <> '' then
@@ -993,7 +993,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             SetFilter("Serial No.", SerialNoFilter);
             SetFilter("Item No.", ItemNoFilter);
             SetFilter("Variant Code", VariantFilter);
-            if FindSet then
+            if FindSet() then
                 repeat
                     RecRef.GetTable(WhseActivLine);
                     InsertBufferRec(RecRef, "Serial No.", "Lot No.", "Item No.", "Variant Code");
@@ -1007,7 +1007,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             exit;
 
         with WhseEntry do begin
-            Reset;
+            Reset();
             if LotNoFilter <> '' then
                 if SetCurrentKey("Lot No.") then;
             if SerialNoFilter <> '' then
@@ -1016,7 +1016,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             SetFilter("Serial No.", SerialNoFilter);
             SetFilter("Item No.", ItemNoFilter);
             SetFilter("Variant Code", VariantFilter);
-            if FindSet then
+            if FindSet() then
                 repeat
                     RecRef.GetTable(WhseEntry);
                     InsertBufferRec(RecRef, "Serial No.", "Lot No.", "Item No.", "Variant Code");
@@ -1127,9 +1127,12 @@ codeunit 6529 "Item Tracking Navigate Mgt."
     end;
 
     local procedure InsertBufferRecFromItemLedgEntry()
+    var
+        TrackingRecRef: RecordRef;
     begin
+        TrackingRecRef.GetTable(ItemLedgEntry);
         with ItemLedgEntry do
-            InsertBufferRec(RecRef, "Serial No.", "Lot No.", "Item No.", "Variant Code");
+            InsertBufferRec(RecRef, "Serial No.", "Lot No.", "Item No.", "Variant Code", TrackingRecRef);
     end;
 
     local procedure InsertBufferRecFromReservEntry()
@@ -1138,7 +1141,14 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             InsertBufferRec(RecRef, "Serial No.", "Lot No.", "Item No.", "Variant Code");
     end;
 
-    local procedure InsertBufferRec(RecRef: RecordRef; SerialNo: Code[50]; LotNo: Code[50]; ItemNo: Code[20]; Variant: Code[10])
+    local procedure InsertBufferRec(RecRef: RecordRef; SerialNo: Code[50]; LotNo: Code[50]; ItemNo: Code[20]; VariantCode: Code[10])
+    var
+        DummyTrackingRecRef: RecordRef;
+    begin
+        InsertBufferRec(RecRef, SerialNo, LotNo, ItemNo, VariantCode, DummyTrackingRecRef);
+    end;
+
+    local procedure InsertBufferRec(RecRef: RecordRef; SerialNo: Code[50]; LotNo: Code[50]; ItemNo: Code[20]; VariantCode: Code[10]; TrackingRecRef: RecordRef)
     var
         KeyFldRef: FieldRef;
         KeyRef1: KeyRef;
@@ -1151,7 +1161,7 @@ codeunit 6529 "Item Tracking Navigate Mgt."
         TempRecordBuffer.SetRange("Serial No.", SerialNo);
         TempRecordBuffer.SetRange("Lot No.", LotNo);
         TempRecordBuffer.SetRange("Item No.", ItemNo);
-        TempRecordBuffer.SetRange("Variant Code", Variant);
+        TempRecordBuffer.SetRange("Variant Code", VariantCode);
         if not TempRecordBuffer.Find('-') then begin
             TempRecordBuffer.Init();
             TempRecordBuffer."Entry No." := LastEntryNo + 10;
@@ -1160,39 +1170,48 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             TempRecordBuffer."Table No." := RecRef.Number;
             TempRecordBuffer."Table Name" := GetTableCaption(RecRef.Number);
             TempRecordBuffer."Record Identifier" := RecRef.RecordId;
-            TempRecordBuffer."Search Record ID" := Format(TempRecordBuffer."Record Identifier");
+            TempRecordBuffer."Search Record ID" :=
+                CopyStr(Format(TempRecordBuffer."Record Identifier"), 1, MaxStrLen(TempRecordBuffer."Search Record ID"));
 
             KeyRef1 := RecRef.KeyIndex(1);
             for i := 1 to KeyRef1.FieldCount do begin
                 KeyFldRef := KeyRef1.FieldIndex(i);
                 if i = 1 then
                     TempRecordBuffer."Primary Key" :=
-                      StrSubstNo('%1=%2', KeyFldRef.Caption, FormatValue(KeyFldRef, RecRef.Number))
+                        CopyStr(
+                            StrSubstNo('%1=%2', KeyFldRef.Caption, FormatValue(KeyFldRef, RecRef.Number)),
+                            1, MaxStrLen(TempRecordBuffer."Primary Key"))
                 else
                     if MaxStrLen(TempRecordBuffer."Primary Key") >
                        StrLen(TempRecordBuffer."Primary Key") +
                        StrLen(StrSubstNo(', %1=%2', KeyFldRef.Caption, FormatValue(KeyFldRef, RecRef.Number)))
                     then
                         TempRecordBuffer."Primary Key" :=
-                          CopyStr(
-                            TempRecordBuffer."Primary Key" +
-                            StrSubstNo(', %1=%2', KeyFldRef.Caption, FormatValue(KeyFldRef, RecRef.Number)),
-                            1, MaxStrLen(TempRecordBuffer."Primary Key"));
+                            CopyStr(
+                                TempRecordBuffer."Primary Key" +
+                                StrSubstNo(', %1=%2', KeyFldRef.Caption, FormatValue(KeyFldRef, RecRef.Number)),
+                                1, MaxStrLen(TempRecordBuffer."Primary Key"));
                 case i of
                     1:
                         begin
                             TempRecordBuffer."Primary Key Field 1 No." := KeyFldRef.Number;
-                            TempRecordBuffer."Primary Key Field 1 Value" := FormatValue(KeyFldRef, RecRef.Number);
+                            TempRecordBuffer."Primary Key Field 1 Value" :=
+                                CopyStr(
+                                    FormatValue(KeyFldRef, RecRef.Number), 1, MaxStrLen(TempRecordBuffer."Primary Key Field 1 Value"));
                         end;
                     2:
                         begin
                             TempRecordBuffer."Primary Key Field 2 No." := KeyFldRef.Number;
-                            TempRecordBuffer."Primary Key Field 2 Value" := FormatValue(KeyFldRef, RecRef.Number);
+                            TempRecordBuffer."Primary Key Field 2 Value" :=
+                                CopyStr(
+                                    FormatValue(KeyFldRef, RecRef.Number), 1, MaxStrLen(TempRecordBuffer."Primary Key Field 2 Value"));
                         end;
                     3:
                         begin
                             TempRecordBuffer."Primary Key Field 3 No." := KeyFldRef.Number;
-                            TempRecordBuffer."Primary Key Field 3 Value" := FormatValue(KeyFldRef, RecRef.Number);
+                            TempRecordBuffer."Primary Key Field 3 Value" :=
+                                CopyStr(
+                                    FormatValue(KeyFldRef, RecRef.Number), 1, MaxStrLen(TempRecordBuffer."Primary Key Field 3 Value"));
                         end;
                 end;
             end;
@@ -1200,8 +1219,9 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             TempRecordBuffer."Serial No." := SerialNo;
             TempRecordBuffer."Lot No." := LotNo;
             TempRecordBuffer."Item No." := ItemNo;
-            TempRecordBuffer."Variant Code" := Variant;
+            TempRecordBuffer."Variant Code" := VariantCode;
 
+            OnBeforeTempRecordBufferInsert(TempRecordBuffer, RecRef, TrackingRecRef);
             TempRecordBuffer.Insert();
         end;
     end;
@@ -1219,14 +1239,14 @@ codeunit 6529 "Item Tracking Navigate Mgt."
             until TempRecordBuffer.Next = 0;
     end;
 
-    local procedure GetTableCaption(TableNumber: Integer): Text[80]
+    local procedure GetTableCaption(TableNumber: Integer): Text[250]
     var
         AllObjWithCaption: Record AllObjWithCaption;
     begin
         AllObjWithCaption.Reset();
         AllObjWithCaption.SetRange("Object Type", AllObjWithCaption."Object Type"::TableData);
         AllObjWithCaption.SetRange("Object ID", TableNumber);
-        if AllObjWithCaption.FindFirst then
+        if AllObjWithCaption.FindFirst() then
             exit(AllObjWithCaption."Object Caption");
 
         exit('');
@@ -1269,6 +1289,11 @@ codeunit 6529 "Item Tracking Navigate Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterShow(TableID: Integer; var TempRecordBuffer: Record "Record Buffer" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTempRecordBufferInsert(var TempRecordBuffer: Record "Record Buffer" temporary; RecRef: RecordRef; TrackingRecRef: RecordRef);
     begin
     end;
 

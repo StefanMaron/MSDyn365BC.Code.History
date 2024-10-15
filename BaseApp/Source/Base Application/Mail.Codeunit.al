@@ -201,6 +201,7 @@ codeunit 397 Mail
     procedure CollectCurrentUserEmailAddresses(var TempNameValueBuffer: Record "Name/Value Buffer" temporary)
     var
         EnvironmentInfo: Codeunit "Environment Information";
+        EmailFeature: Codeunit "Email Feature";
     begin
         AddAddressToCollection('GraphSetup', GetEmailFromGraphSetupTable, TempNameValueBuffer);
         AddAddressToCollection('UserSetup', GetEmailFromUserSetupTable, TempNameValueBuffer);
@@ -208,7 +209,10 @@ codeunit 397 Mail
         AddAddressToCollection('AuthEmail', GetAuthenticationEmailFromUserTable, TempNameValueBuffer);
         if not EnvironmentInfo.IsSaaS then
             AddAddressToCollection('AD', GetActiveDirectoryMailFromUser, TempNameValueBuffer);
-        AddAddressToCollection('SMTPSetup', GetBasicAuthAddressFromSMTPSetup, TempNameValueBuffer);
+
+        if EmailFeature.IsEnabled() then
+            AddAddressToCollection('DefaultEmailAccount', GetDefaultScenarioEmailAddress(), TempNameValueBuffer);
+        AddAddressToCollection('SMTPSetup', GetBasicAuthAddressFromSMTPSetup, TempNameValueBuffer); // To be removed together with deprecated SMTP objects
     end;
 
     local procedure AddAddressToCollection(EmailKey: Text; EmailAddress: Text; var TempNameValueBuffer: Record "Name/Value Buffer" temporary): Boolean
@@ -254,6 +258,15 @@ codeunit 397 Mail
                     if MailManagement.CheckValidEmailAddress(GetSender) then
                         exit(GetSender);
         end;
+    end;
+
+    local procedure GetDefaultScenarioEmailAddress(): Text
+    var
+        EmailAccount: Record "Email Account";
+        EmailScenario: Codeunit "Email Scenario";
+    begin
+        if EmailScenario.GetEmailAccount(Enum::"Email Scenario"::Default, EmailAccount) then
+            exit(EmailAccount."Email Address");
     end;
 
     local procedure GetActiveDirectoryMailFromUser(): Text

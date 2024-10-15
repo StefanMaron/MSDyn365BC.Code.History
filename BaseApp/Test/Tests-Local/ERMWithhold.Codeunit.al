@@ -1236,54 +1236,6 @@ codeunit 144090 "ERM Withhold"
 
     [Test]
     [Scope('OnPrem')]
-    procedure ReasonCodeHasSameOptionStringInWithholdingTaxAndWithholdingContributionTables()
-    var
-        WithholdingTax: Record "Withholding Tax";
-        TmpWithholdingContribution: Record "Tmp Withholding Contribution";
-        WithholdingTaxRecRef: RecordRef;
-        TempWithholdingContributionRecRef: RecordRef;
-        WithholdingTaxFieldRef: FieldRef;
-        TempWithholdingContributionFieldRef: FieldRef;
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 259516] Field "Reason" has same option string in "Withholding Tax" and "Tmp Withholding Contribution" tables
-
-        Initialize;
-        WithholdingTaxRecRef.GetTable(WithholdingTax);
-        WithholdingTaxFieldRef := WithholdingTaxRecRef.Field(WithholdingTax.FieldNo(Reason));
-        TempWithholdingContributionRecRef.GetTable(TmpWithholdingContribution);
-        TempWithholdingContributionFieldRef := TempWithholdingContributionRecRef.Field(TmpWithholdingContribution.FieldNo(Reason));
-
-        Assert.AreEqual(
-          WithholdingTaxFieldRef.OptionString, TempWithholdingContributionFieldRef.OptionString, 'Option string are different');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ReasonCodeHasSameOptionStringInVendorBillWithholdingTaxAndTmpWithholdingContributionTables()
-    var
-        VendorBillWithholdingTax: Record "Vendor Bill Withholding Tax";
-        TmpWithholdingContribution: Record "Tmp Withholding Contribution";
-        VendorBillWithholdingTaxRecRef: RecordRef;
-        TempWithholdingContributionRecRef: RecordRef;
-        VendorBilWithholdingTaxFieldRef: FieldRef;
-        TempWithholdingContributionFieldRef: FieldRef;
-    begin
-        // [FEATURE] [UT]
-        // [SCENARIO 327634] Field "Reason" has same option string in "Vendor Bill Withholding Tax" and "Tmp Withholding Contribution" tables
-
-        Initialize;
-        VendorBillWithholdingTaxRecRef.GetTable(VendorBillWithholdingTax);
-        VendorBilWithholdingTaxFieldRef := VendorBillWithholdingTaxRecRef.Field(VendorBillWithholdingTax.FieldNo(Reason));
-        TempWithholdingContributionRecRef.GetTable(TmpWithholdingContribution);
-        TempWithholdingContributionFieldRef := TempWithholdingContributionRecRef.Field(TmpWithholdingContribution.FieldNo(Reason));
-
-        Assert.AreEqual(
-          VendorBilWithholdingTaxFieldRef.OptionString(), TempWithholdingContributionFieldRef.OptionString(), 'Option string are different');
-    end;
-
-    [Test]
-    [Scope('Internal')]
     procedure WithholdingTaxHasReasonCodeK()
     var
         WithholdingTax: Record "Withholding Tax";
@@ -1537,7 +1489,7 @@ codeunit 144090 "ERM Withhold"
     end;
 
     [Test]
-    [Scope('Internal')]
+    [Scope('OnPrem')]
     procedure VendorBillWithholdingTaxPageHasFieldReason()
     var
         VendorBillWithhTax: TestPage "Vendor Bill Withh. Tax";
@@ -1563,7 +1515,7 @@ codeunit 144090 "ERM Withhold"
         ContributionCode: Code[20];
     begin
         // [SCENARIO 347071] Withholding tax line appears with amount 0 for payment journal if amount of WHT on Invoice was 0
-        Initialize();
+        Initialize;
 
         // [GIVEN] SocSec and WHT setup for 0% WHT
         SetupWithhAndSocSec(ContributionCode, WithholdCode);
@@ -1587,7 +1539,7 @@ codeunit 144090 "ERM Withhold"
     end;
 
     [Test]
-    [Scope('Internal')]
+    [Scope('OnPrem')]
     procedure VendorBillLineAmtToPayWhenSocSecAndManualWHTAmount()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -1823,7 +1775,7 @@ codeunit 144090 "ERM Withhold"
         PurchaseInvoice."With&hold Taxes-Soc. Sec.".Invoke;
     end;
 
-    local procedure ModifyWHTAmountManualForPurchWithhContribution(DocType: Integer; DocNo: Code[20]): Decimal
+    local procedure ModifyWHTAmountManualForPurchWithhContribution(DocType: Enum "Purchase Document Type"; DocNo: Code[20]): Decimal
     var
         PurchWithhContribution: Record "Purch. Withh. Contribution";
     begin
@@ -1861,7 +1813,7 @@ codeunit 144090 "ERM Withhold"
         PostedDocumentNo := PostPurchaseDocument(PurchaseLine."Document Type"::"Credit Memo", PurchaseLine."Document No.");
     end;
 
-    local procedure CreateAndPostGeneralJnlLineWithAppliesToDoc(DocumentType: Option; AppliesToDocNo: Code[20]; AppliesToDocType: Option)
+    local procedure CreateAndPostGeneralJnlLineWithAppliesToDoc(DocumentType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20]; AppliesToDocType: Enum "Gen. Journal Document Type")
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -1886,7 +1838,7 @@ codeunit 144090 "ERM Withhold"
         EXIT(GenJournalLine."Document No.");
     end;
 
-    local procedure CreateAndApplyGeneralJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AppliesToDocNo: Code[20]; AppliesToDocType: Option)
+    local procedure CreateAndApplyGeneralJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20]; AppliesToDocType: Enum "Gen. Journal Document Type")
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -1942,7 +1894,7 @@ codeunit 144090 "ERM Withhold"
         exit(ContributionBracket.Code);
     end;
 
-    local procedure CreateGeneralJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; VendorNo: Code[20]; Amount: Decimal)
+    local procedure CreateGeneralJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20]; Amount: Decimal)
     var
         BankAccount: Record "Bank Account";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -1970,7 +1922,7 @@ codeunit 144090 "ERM Withhold"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20]; PricesIncludingVAT: Boolean)
+    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; PricesIncludingVAT: Boolean)
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -2193,7 +2145,7 @@ codeunit 144090 "ERM Withhold"
         Contributions.FindFirst();
     end;
 
-    local procedure FindGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; BalAccountType: Option; BalAccountNo: Code[20])
+    local procedure FindGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; JournalTemplateName: Code[10]; JournalBatchName: Code[10]; BalAccountType: enum "Gen. Journal Account Type"; BalAccountNo: Code[20])
     begin
         with GenJournalLine do begin
             SetRange("Journal Template Name", JournalTemplateName);
@@ -2243,7 +2195,7 @@ codeunit 144090 "ERM Withhold"
         VendorCard.FILTER.SetFilter("No.", No);
     end;
 
-    local procedure PostPurchaseDocument(DocumentType: Option; No: Code[20]): Code[20]
+    local procedure PostPurchaseDocument(DocumentType: Enum "Purchase Document Type"; No: Code[20]): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -2484,7 +2436,7 @@ codeunit 144090 "ERM Withhold"
           'WithholdingTax."External Document No."');
     end;
 
-    local procedure VerifyAmountInVendorLedgerEntry(DocType: Option; VendorNo: Code[20]; BalAccType: Option; BalAccNo: Code[20]; ExpectedAmount: Decimal)
+    local procedure VerifyAmountInVendorLedgerEntry(DocType: Enum "Gen. Journal Document Type"; VendorNo: Code[20]; BalAccType: Enum "Gen. Journal Account Type"; BalAccNo: Code[20]; ExpectedAmount: Decimal)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -2573,7 +2525,7 @@ codeunit 144090 "ERM Withhold"
             SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
             SetRange("System-Created Entry", true);
             SetRange("Applies-to Doc. No.", GenJournalLine."Applies-to Doc. No.");
-            FindFirst();
+            FindFirst;
             Assert.AreEqual(0, Amount, 'Amount in this line must be 0');
         end;
     end;

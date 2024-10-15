@@ -213,7 +213,7 @@ codeunit 5605 "Calculate Disposal"
                 10:
                     "FA Posting Type" := "FA Posting Type"::"Book Value on Disposal";
             end;
-            exit("FA Posting Type");
+            exit("FA Posting Type".AsInteger());
         end;
     end;
 
@@ -249,7 +249,7 @@ codeunit 5605 "Calculate Disposal"
                 4:
                     "FA Posting Type" := "FA Posting Type"::"Custom 2";
             end;
-            exit("FA Posting Type");
+            exit("FA Posting Type".AsInteger());
         end;
     end;
 

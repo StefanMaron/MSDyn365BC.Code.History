@@ -474,7 +474,7 @@ codeunit 144178 "ERM Details Sales"
         REPORT.Run(REPORT::"Combine Shipments");
     end;
 
-    local procedure ApplyAndPostGeneralJournalLine(CustomerNo: Code[20]; DocumentType: Option; Amount: Decimal) DocumentNo: Code[20]
+    local procedure ApplyAndPostGeneralJournalLine(CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal) DocumentNo: Code[20]
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
@@ -723,7 +723,7 @@ codeunit 144178 "ERM Details Sales"
         BillPostingGroup.FindFirst;
     end;
 
-    local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Option; CustomerNo: Code[20])
+    local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; CustomerNo: Code[20])
     begin
         CustLedgerEntry.SetRange("Document Type", DocumentType);
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
@@ -813,7 +813,7 @@ codeunit 144178 "ERM Details Sales"
         VendorBillListSentCard.Post.Invoke;
     end;
 
-    local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Option; VendorNo: Code[20])
+    local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20])
     begin
         VendorLedgerEntry.SetRange("Document Type", DocumentType);
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
@@ -886,7 +886,7 @@ codeunit 144178 "ERM Details Sales"
         end
     end;
 
-    local procedure VerifyCustomerLedgerEntry(DocumentType: Option; CustomerNo: Code[20]; Amount: Decimal; RemainingAmount: Decimal)
+    local procedure VerifyCustomerLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; CustomerNo: Code[20]; Amount: Decimal; RemainingAmount: Decimal)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -896,7 +896,7 @@ codeunit 144178 "ERM Details Sales"
         Assert.AreNearlyEqual(RemainingAmount, CustLedgerEntry."Remaining Amount", LibraryERM.GetAmountRoundingPrecision, ValueEqualErr);
     end;
 
-    local procedure VerifyVendorLedgerEntry(DocumentType: Option; VendorNo: Code[20]; Amount: Decimal; RemainingAmount: Decimal)
+    local procedure VerifyVendorLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20]; Amount: Decimal; RemainingAmount: Decimal)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -928,7 +928,7 @@ codeunit 144178 "ERM Details Sales"
         end
     end;
 
-    local procedure VerifyVendorLedgerEntryOriginalAmount(DocumentType: Option; VendorNo: Code[20]; Amount: Decimal; RemainingAmount: Decimal)
+    local procedure VerifyVendorLedgerEntryOriginalAmount(DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20]; Amount: Decimal; RemainingAmount: Decimal)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin

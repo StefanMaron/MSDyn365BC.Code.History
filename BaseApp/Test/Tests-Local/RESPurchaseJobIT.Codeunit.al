@@ -107,7 +107,7 @@ codeunit 144188 "RES Purchase Job IT"
         JobsUtil.CreateJobTask(Job, JobTask);
     end;
 
-    local procedure CreatePurchaseLineWithJob(PurchaseHeader: Record "Purchase Header"; Type: Option; No: Code[20])
+    local procedure CreatePurchaseLineWithJob(PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; No: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
         JobTask: Record "Job Task";

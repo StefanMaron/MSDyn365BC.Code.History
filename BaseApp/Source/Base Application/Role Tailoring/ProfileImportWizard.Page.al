@@ -56,38 +56,37 @@ page 9199 "Profile Import Wizard"
                 Caption = '';
                 InstructionalText = 'The package contains the following profiles. If there are profiles that you do not want to import, clear the check box.';
                 Visible = Step2Visible;
-            }
-            repeater(Control1)
-            {
-                Visible = Step2Visible;
 
-                field(Selected; Selected)
+                repeater(Control1)
                 {
-                    ApplicationArea = All;
-                    ToolTip = 'Specifies that the profile from the package will be imported.';
-                    Width = 5;
-                }
-                field(Action; Action)
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                    StyleExpr = ActionStyleExpr;
-                    Caption = 'Action';
-                    ToolTip = 'Specifies the action performed upon import. Each profile from the package will either be added to your list of profiles or will overwrite a profile.';
-                    Width = 10;
-                }
-                field("Profile ID"; "Profile ID")
-                {
-                    ApplicationArea = All;
-                    Editable = false;
-                    ToolTip = 'Specifies an ID that is used to identify the profile (role). There can be more than one profile with the same ID if they come from different extensions.';
-                }
-                field(ApplicationNameField; ApplicationName)
-                {
-                    Caption = 'Source of the profile in Business Central';
-                    editable = false;
-                    ApplicationArea = All;
-                    ToolTip = 'For profiles that will be replaced, this indicates the origin of that profile which can be either an extension, shown by its name, or created by a user.';
+                    field(Selected; Selected)
+                    {
+                        ApplicationArea = All;
+                        ToolTip = 'Specifies that the profile from the package will be imported.';
+                        Width = 5;
+                    }
+                    field(Action; Action)
+                    {
+                        ApplicationArea = All;
+                        Editable = false;
+                        StyleExpr = ActionStyleExpr;
+                        Caption = 'Action';
+                        ToolTip = 'Specifies the action performed upon import. Each profile from the package will either be added to your list of profiles or will overwrite a profile.';
+                        Width = 10;
+                    }
+                    field("Profile ID"; "Profile ID")
+                    {
+                        ApplicationArea = All;
+                        Editable = false;
+                        ToolTip = 'Specifies an ID that is used to identify the profile (role). There can be more than one profile with the same ID if they come from different extensions.';
+                    }
+                    field(ApplicationNameField; ApplicationName)
+                    {
+                        Caption = 'Source of the profile in Business Central';
+                        editable = false;
+                        ApplicationArea = All;
+                        ToolTip = 'For profiles that will be replaced, this indicates the origin of that profile which can be either an extension, shown by its name, or created by a user.';
+                    }
                 }
             }
 

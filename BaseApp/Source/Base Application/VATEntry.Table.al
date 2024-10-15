@@ -39,12 +39,10 @@ table 254 "VAT Entry"
             Caption = 'Document Type';
             Editable = false;
         }
-        field(7; Type; Option)
+        field(7; Type; Enum "General Posting Type")
         {
             Caption = 'Type';
             Editable = false;
-            OptionCaption = ' ,Purchase,Sale,Settlement';
-            OptionMembers = " ",Purchase,Sale,Settlement;
 
             trigger OnValidate()
             begin
@@ -272,7 +270,7 @@ table 254 "VAT Entry"
         field(43; "Additional-Currency Amount"; Decimal)
         {
             AccessByPermission = TableData Currency = R;
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Additional-Currency Amount';
             Editable = false;
@@ -280,21 +278,21 @@ table 254 "VAT Entry"
         field(44; "Additional-Currency Base"; Decimal)
         {
             AccessByPermission = TableData Currency = R;
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Additional-Currency Base';
             Editable = false;
         }
         field(45; "Add.-Currency Unrealized Amt."; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Add.-Currency Unrealized Amt.';
             Editable = false;
         }
         field(46; "Add.-Currency Unrealized Base"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Add.-Currency Unrealized Base';
             Editable = false;
@@ -309,14 +307,14 @@ table 254 "VAT Entry"
         }
         field(49; "Add.-Curr. Rem. Unreal. Amount"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Add.-Curr. Rem. Unreal. Amount';
             Editable = false;
         }
         field(50; "Add.-Curr. Rem. Unreal. Base"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Add.-Curr. Rem. Unreal. Base';
             Editable = false;
@@ -330,7 +328,7 @@ table 254 "VAT Entry"
         field(52; "Add.-Curr. VAT Difference"; Decimal)
         {
             AccessByPermission = TableData Currency = R;
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Add.-Curr. VAT Difference';
             Editable = false;
@@ -427,7 +425,7 @@ table 254 "VAT Entry"
         }
         field(12104; "Add. Curr. Nondeductible Amt."; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Add. Curr. Nondeductible Amt.';
         }
@@ -443,7 +441,7 @@ table 254 "VAT Entry"
         }
         field(12110; "Add. Curr. Nondeductible Base"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Add. Curr. Nondeductible Base';
         }
@@ -687,7 +685,7 @@ table 254 "VAT Entry"
     var
         UnrealizedVATType: Option " ",Percentage,First,Last,"First (Fully Paid)","Last (Fully Paid)";
     begin
-        if (Type <> 0) and
+        if (Type <> Type::" ") and
            (Amount = 0) and
            (Base = 0)
         then begin

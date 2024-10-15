@@ -162,7 +162,7 @@ codeunit 144160 "UT REP VAT Fiscal Register"
         LibraryVariableStorage.Clear;
     end;
 
-    local procedure CreateVATBookEntry(var VATBookEntry: Record "VAT Book Entry"; SellToBuyFromNo: Code[20]; NoSeries: Code[20]; Type: Option; VATCalculationType: Option; DocumentType: Option)
+    local procedure CreateVATBookEntry(var VATBookEntry: Record "VAT Book Entry"; SellToBuyFromNo: Code[20]; NoSeries: Code[20]; Type: Option; VATCalculationType: Enum "Tax Calculation Type"; DocumentType: Enum "Gen. Journal Document Type")
     var
         VATBookEntry2: Record "VAT Book Entry";
     begin
@@ -182,7 +182,7 @@ codeunit 144160 "UT REP VAT Fiscal Register"
         VATBookEntry.Insert();
     end;
 
-    local procedure CreateVATEntry(VATBookEntry: Record "VAT Book Entry"; DocumentType: Option): Integer
+    local procedure CreateVATEntry(VATBookEntry: Record "VAT Book Entry"; DocumentType: Enum "Gen. Journal Document Type"): Integer
     var
         VATEntry: Record "VAT Entry";
         VATEntry2: Record "VAT Entry";
@@ -297,7 +297,7 @@ codeunit 144160 "UT REP VAT Fiscal Register"
         CompanyInformation.Modify();
     end;
 
-    local procedure VATPrintRegisterWithVATBookEntry(var VATBookEntry: Record "VAT Book Entry"; SellToBuyFromNo: Code[20]; Type: Option; VATCalculationType: Option; DocumentType: Option)
+    local procedure VATPrintRegisterWithVATBookEntry(var VATBookEntry: Record "VAT Book Entry"; SellToBuyFromNo: Code[20]; Type: Option; VATCalculationType: Enum "Tax Calculation Type"; DocumentType: Enum "Gen. Journal Document Type")
     var
         NoSeries: Record "No. Series";
     begin

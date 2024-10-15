@@ -36,7 +36,6 @@ page 474 "VAT Statement Preview"
                 {
                     ApplicationArea = VAT;
                     Caption = 'Include VAT entries';
-                    OptionCaption = 'Open,Closed,Open and Closed';
                     ToolTip = 'Specifies that VAT entries are included in the VAT Statement Preview window. This only works for lines of type VAT Entry Totaling. It does not work for lines of type Account Totaling.';
 
                     trigger OnValidate()
@@ -53,7 +52,6 @@ page 474 "VAT Statement Preview"
                 {
                     ApplicationArea = VAT;
                     Caption = 'Include VAT entries';
-                    OptionCaption = 'Before and Within Period,Within Period';
                     ToolTip = 'Specifies that VAT entries are included in the VAT Statement Preview window. This only works for lines of type VAT Entry Totaling. It does not work for lines of type Account Totaling.';
 
                     trigger OnValidate()
@@ -122,19 +120,19 @@ page 474 "VAT Statement Preview"
 
     trigger OnAfterGetRecord()
     begin
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     trigger OnOpenPage()
     begin
         DateFilter := '';
-        UpdateSubForm;
-        PeriodSelection := 1;
+        UpdateSubForm();
+        PeriodSelection := PeriodSelection::"Within Period";
     end;
 
-    var
-        Selection: Option Open,Closed,"Open and Closed";
-        PeriodSelection: Option "Before and Within Period","Within Period";
+    protected var
+        Selection: Enum "VAT Statement Report Selection";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
         VATPeriod: Code[10];
         UseAmtsInAddCurr: Boolean;
         DateFilter: Text[30];
@@ -144,38 +142,45 @@ page 474 "VAT Statement Preview"
         CurrPage.VATStatementLineSubForm.PAGE.UpdateForm(Rec, Selection, PeriodSelection, UseAmtsInAddCurr, VATPeriod);
     end;
 
+    procedure GetParameters(var NewSelection: Enum "VAT Statement Report Selection"; var NewPeriodSelection: Enum "VAT Statement Report Period Selection"; var NewUseAmtsInAddCurr: Boolean)
+    begin
+        NewSelection := Selection;
+        NewPeriodSelection := PeriodSelection;
+        NewUseAmtsInAddCurr := UseAmtsInAddCurr;
+    end;
+
     local procedure OpenandClosedSelectionOnPush()
     begin
         VATPeriod := '';
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure ClosedSelectionOnPush()
     begin
         "Date Filter" := 0D;
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure OpenSelectionOnPush()
     begin
         VATPeriod := '';
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure BeforeandWithinPeriodSelOnPush()
     begin
         VATPeriod := '';
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure WithinPeriodPeriodSelectOnPush()
     begin
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure UseAmtsInAddCurrOnPush()
     begin
-        UpdateSubForm;
+        UpdateSubForm();
     end;
 
     local procedure OpenSelectionOnValidate()

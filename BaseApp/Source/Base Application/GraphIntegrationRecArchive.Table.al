@@ -1,5 +1,8 @@
 table 5452 "Graph Integration Rec. Archive"
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'This functionality will be removed. The API that it was integrating to was discontinued.';
+    ObsoleteTag = '17.0';
     Caption = 'Graph Integration Rec. Archive';
 
     fields
@@ -23,7 +26,7 @@ table 5452 "Graph Integration Rec. Archive"
         }
         field(6; "Table ID"; Integer)
         {
-            CalcFormula = Lookup ("Integration Record"."Table ID" WHERE("Integration ID" = FIELD("Integration ID")));
+            CalcFormula = Lookup("Integration Record"."Table ID" WHERE("Integration ID" = FIELD("Integration ID")));
             Caption = 'Table ID';
             FieldClass = FlowField;
         }

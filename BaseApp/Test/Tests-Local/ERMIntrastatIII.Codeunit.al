@@ -1299,7 +1299,7 @@ codeunit 144064 "ERM Intrastat - III"
         UpdateGLAccountOnCurrency(Vendor."Currency Code");
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20]; PaymentMethodCode: Code[10]; TransportMethod: Code[10]; ServiceTariffNo: Code[10])
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; PaymentMethodCode: Code[10]; TransportMethod: Code[10]; ServiceTariffNo: Code[10])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         SalesHeader.Validate("Payment Method Code", PaymentMethodCode);
@@ -1308,14 +1308,14 @@ codeunit 144064 "ERM Intrastat - III"
         SalesHeader.Modify(true);
     end;
 
-    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header"; Type: Option; No: Code[20])
+    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; var SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; No: Code[20])
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, LibraryRandom.RandInt(10));  // Random Quantity.
         SalesLine.Validate("Unit Price", LibraryRandom.RandInt(100));
         SalesLine.Modify(true);
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20]; PaymentMethodCode: Code[10]; TransportMethod: Code[10]; ServiceTariffNo: Code[10])
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; PaymentMethodCode: Code[10]; TransportMethod: Code[10]; ServiceTariffNo: Code[10])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
@@ -1325,14 +1325,14 @@ codeunit 144064 "ERM Intrastat - III"
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header"; Type: Option; No: Code[20])
+    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; No: Code[20])
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, LibraryRandom.RandInt(10));  // Random Quantity.
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(100));
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; EUService: Boolean; DocumentType: Option): Code[20]
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; EUService: Boolean; DocumentType: Enum "Sales Document Type"): Code[20]
     var
         PaymentMethod: Record "Payment Method";
         SalesLine: Record "Sales Line";
@@ -1351,7 +1351,7 @@ codeunit 144064 "ERM Intrastat - III"
         exit(SalesLine."No.");
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; DocumentType: Option; EUService: Boolean)
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; DocumentType: Enum "Purchase Document Type"; EUService: Boolean)
     var
         PaymentMethod: Record "Payment Method";
         PurchaseLine: Record "Purchase Line";
@@ -1371,7 +1371,7 @@ codeunit 144064 "ERM Intrastat - III"
           CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"));
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; BuyFromVendorNo: Code[20]; DocumentType: Option; Invoice: Boolean): Code[20]
+    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; BuyFromVendorNo: Code[20]; DocumentType: Enum "Purchase Document Type"; Invoice: Boolean): Code[20]
     begin
         CreatePurchaseDocument(PurchaseHeader, BuyFromVendorNo, DocumentType, true);  // EU Service - TRUE.
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, Invoice));
@@ -1570,7 +1570,7 @@ codeunit 144064 "ERM Intrastat - III"
         exit(PurchaseHeader."No.");
     end;
 
-    local procedure CreateAndPostSalesDocument(var SalesHeader: Record "Sales Header"; SellToCustomerNo: Code[20]; DocumentType: Option; Invoice: Boolean; EUService: Boolean): Code[20]
+    local procedure CreateAndPostSalesDocument(var SalesHeader: Record "Sales Header"; SellToCustomerNo: Code[20]; DocumentType: Enum "Sales Document Type"; Invoice: Boolean; EUService: Boolean): Code[20]
     begin
         CreateSalesDocument(SalesHeader, SellToCustomerNo, EUService, DocumentType);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, Invoice));
@@ -1659,7 +1659,7 @@ codeunit 144064 "ERM Intrastat - III"
         SalesHeader2.Validate("Posting Date", PostingDate);
         SalesHeader2.Modify(true);
         CreateSalesLine(SalesLine, SalesHeader2, SalesLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo);
-        SalesLine.ShowItemChargeAssgnt;  // Opens ItemChargeAssignmentSalesPageHandler.
+        SalesLine.ShowItemChargeAssgnt();  // Opens ItemChargeAssignmentSalesPageHandler.
         exit(LibrarySales.PostSalesDocument(SalesHeader2, true, true));
     end;
 
@@ -1674,7 +1674,7 @@ codeunit 144064 "ERM Intrastat - III"
         PurchaseHeader.Validate("Posting Date", PostingDate);
         PurchaseHeader.Modify(true);
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::"Charge (Item)", LibraryInventory.CreateItemChargeNo);
-        PurchaseLine.ShowItemChargeAssgnt;  // Opens ItemChargeAssignmentPurchPageHandler.
+        PurchaseLine.ShowItemChargeAssgnt();  // Opens ItemChargeAssignmentPurchPageHandler.
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
@@ -1797,7 +1797,7 @@ codeunit 144064 "ERM Intrastat - III"
         end;
     end;
 
-    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusPostingGroup: Code[20]; VATCalculationType: Option; EUService: Boolean)
+    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusPostingGroup: Code[20]; VATCalculationType: Enum "Tax Calculation Type"; EUService: Boolean)
     var
         VATProdPostingGroup: Record "VAT Product Posting Group";
         VATIdentifier: Record "VAT Identifier";
@@ -1960,7 +1960,7 @@ codeunit 144064 "ERM Intrastat - III"
         IntrastatJnlLine.FindFirst;
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]; DocumentType: Option)
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type")
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
@@ -1968,7 +1968,7 @@ codeunit 144064 "ERM Intrastat - III"
         SalesLine.FindFirst;
     end;
 
-    local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20])
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", DocumentNo);
@@ -1976,7 +1976,7 @@ codeunit 144064 "ERM Intrastat - III"
         PurchaseLine.FindFirst;
     end;
 
-    local procedure FindSalesInvoiceLine(DocumentNo: Code[20]; Type: Option): Decimal
+    local procedure FindSalesInvoiceLine(DocumentNo: Code[20]; Type: Enum "Sales Line Type"): Decimal
     var
         SalesInvoiceLine: Record "Sales Invoice Line";
     begin
@@ -1984,7 +1984,7 @@ codeunit 144064 "ERM Intrastat - III"
         exit(SalesInvoiceLine.Amount);
     end;
 
-    local procedure FindSalesCrMemoLine(DocumentNo: Code[20]; Type: Option): Decimal
+    local procedure FindSalesCrMemoLine(DocumentNo: Code[20]; Type: Enum "Sales Line Type"): Decimal
     var
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
     begin
@@ -1992,7 +1992,7 @@ codeunit 144064 "ERM Intrastat - III"
         exit(SalesCrMemoLine.Amount);
     end;
 
-    local procedure FindPurchaseInvoiceLine(DocumentNo: Code[20]; Type: Option): Decimal
+    local procedure FindPurchaseInvoiceLine(DocumentNo: Code[20]; Type: Enum "Purchase Line Type"): Decimal
     var
         PurchInvLine: Record "Purch. Inv. Line";
     begin
@@ -2002,7 +2002,7 @@ codeunit 144064 "ERM Intrastat - III"
         exit(PurchInvLine.Amount);
     end;
 
-    local procedure FindPurchaseCrMemoLine(DocumentNo: Code[20]; Type: Option): Decimal
+    local procedure FindPurchaseCrMemoLine(DocumentNo: Code[20]; Type: Enum "Purchase Line Type"): Decimal
     var
         PurchCrMemoLine: Record "Purch. Cr. Memo Line";
     begin
@@ -2012,21 +2012,21 @@ codeunit 144064 "ERM Intrastat - III"
         exit(PurchCrMemoLine.Amount);
     end;
 
-    local procedure SelectSalesInvoiceLine(var SalesInvoiceLine: Record "Sales Invoice Line"; DocumentNo: Code[20]; Type: Option)
+    local procedure SelectSalesInvoiceLine(var SalesInvoiceLine: Record "Sales Invoice Line"; DocumentNo: Code[20]; Type: Enum "Sales Line Type")
     begin
         SalesInvoiceLine.SetRange("Document No.", DocumentNo);
         SalesInvoiceLine.SetRange(Type, Type);
         SalesInvoiceLine.FindFirst;
     end;
 
-    local procedure SelectSalesCreditMemoLine(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; DocumentNo: Code[20]; Type: Option)
+    local procedure SelectSalesCreditMemoLine(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; DocumentNo: Code[20]; Type: Enum "Sales Line Type")
     begin
         SalesCrMemoLine.SetRange("Document No.", DocumentNo);
         SalesCrMemoLine.SetRange(Type, Type);
         SalesCrMemoLine.FindFirst;
     end;
 
-    local procedure SelectPurchaseInvoiceLine(var PurchInvLine: Record "Purch. Inv. Line"; DocumentNo: Code[20]; Type: Option)
+    local procedure SelectPurchaseInvoiceLine(var PurchInvLine: Record "Purch. Inv. Line"; DocumentNo: Code[20]; Type: Enum "Purchase Line Type")
     begin
         PurchInvLine.SetRange("Document No.", DocumentNo);
         PurchInvLine.SetRange(Type, Type);
@@ -2272,7 +2272,7 @@ codeunit 144064 "ERM Intrastat - III"
         exit(Item."No.");
     end;
 
-    local procedure CreateSalesDocumentWithoutTransportMethodWithServiceTypeItem(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; EUService: Boolean; DocumentType: Option): Code[20]
+    local procedure CreateSalesDocumentWithoutTransportMethodWithServiceTypeItem(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; EUService: Boolean; DocumentType: Enum "Sales Document Type"): Code[20]
     var
         PaymentMethod: Record "Payment Method";
         SalesLine: Record "Sales Line";
@@ -2292,7 +2292,7 @@ codeunit 144064 "ERM Intrastat - III"
         exit(SalesLine."No.");
     end;
 
-    local procedure CreatePurchaseDocumentWithoutTransportMethodWithServiceTypeItem(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; DocumentType: Option; EUService: Boolean)
+    local procedure CreatePurchaseDocumentWithoutTransportMethodWithServiceTypeItem(var PurchaseHeader: Record "Purchase Header"; VendorNo: Code[20]; DocumentType: Enum "Purchase Document Type"; EUService: Boolean)
     var
         PaymentMethod: Record "Payment Method";
         PurchaseLine: Record "Purchase Line";

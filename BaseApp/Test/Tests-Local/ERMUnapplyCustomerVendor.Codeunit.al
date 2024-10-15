@@ -138,7 +138,7 @@ codeunit 144158 "ERM Unapply Customer Vendor"
           LibraryRandom.RandDec(10, 2), false);  // Taken random Amount.
     end;
 
-    local procedure UnapplyVendorAfterPostingVATSettlement(DocumentType: Option; DocumentType2: Option; Amount: Decimal; UnrealizedVAT: Boolean)
+    local procedure UnapplyVendorAfterPostingVATSettlement(DocumentType: Enum "Purchase Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal; UnrealizedVAT: Boolean)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         GenJournalLine: Record "Gen. Journal Line";
@@ -278,7 +278,7 @@ codeunit 144158 "ERM Unapply Customer Vendor"
           -LibraryRandom.RandDec(10, 2), false);  // Taken random Amount.
     end;
 
-    local procedure UnapplyCustomerAfterPostingVATSettlement(DocumentType: Option; DocumentType2: Option; Amount: Decimal; UnrealizedVAT: Boolean)
+    local procedure UnapplyCustomerAfterPostingVATSettlement(DocumentType: Enum "Sales Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; Amount: Decimal; UnrealizedVAT: Boolean)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         GenJournalLine: Record "Gen. Journal Line";
@@ -373,7 +373,7 @@ codeunit 144158 "ERM Unapply Customer Vendor"
         exit(Vendor."No.");
     end;
 
-    local procedure CreateAndPostPurchaseDocument(DocumentType: Option; VendorNo: Code[20]; VATProdPostingGroup: Code[20]): Code[20]
+    local procedure CreateAndPostPurchaseDocument(DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; VATProdPostingGroup: Code[20]): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -388,7 +388,7 @@ codeunit 144158 "ERM Unapply Customer Vendor"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure CreateAndPostSalesDocument(DocumentType: Option; CustomerNo: Code[20]; VATProdPostingGroup: Code[20]): Code[20]
+    local procedure CreateAndPostSalesDocument(DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; VATProdPostingGroup: Code[20]): Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -401,7 +401,7 @@ codeunit 144158 "ERM Unapply Customer Vendor"
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Option)
+    local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Enum "Gen. Journal Template Type")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
@@ -410,7 +410,7 @@ codeunit 144158 "ERM Unapply Customer Vendor"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; Type: Option; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; Type: Enum "Gen. Journal Template Type"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -465,7 +465,7 @@ codeunit 144158 "ERM Unapply Customer Vendor"
         REPORT.Run(REPORT::"Calc. and Post VAT Settlement");
     end;
 
-    local procedure UpdateAndPostGeneralJournalLine(GenJournalLine: Record "Gen. Journal Line"; AppliesToDocType: Option; AppliesToDocNo: Code[20]; PostingDate: Date)
+    local procedure UpdateAndPostGeneralJournalLine(GenJournalLine: Record "Gen. Journal Line"; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20]; PostingDate: Date)
     var
         GLAccount: Record "G/L Account";
     begin

@@ -62,7 +62,7 @@ codeunit 12180 "FatturaPA Sales Validation"
         SalesReceivablesSetup.TestField("Fattura PA Electronic Format");
 
         ElectronicDocumentFormat.Code := SalesReceivablesSetup."Fattura PA Electronic Format";
-        ElectronicDocumentFormat.Usage := UsageOption;
+        ElectronicDocumentFormat.Usage := "Report Selection Usage".FromInteger(UsageOption);
         ElectronicDocumentFormat.Find;
         CODEUNIT.Run(ElectronicDocumentFormat."Codeunit ID", RecordVariant);
     end;
@@ -78,7 +78,7 @@ codeunit 12180 "FatturaPA Sales Validation"
         if not SalesReceivablesSetup."Validate Document On Posting" then
             exit;
 
-        AutoValidateDocument(SalesHeader, SalesHeader."Sell-to Customer No.", DummyElectronicDocumentFormat.Usage::"Sales Validation");
+        AutoValidateDocument(SalesHeader, SalesHeader."Sell-to Customer No.", DummyElectronicDocumentFormat.Usage::"Sales Validation".AsInteger());
     end;
 
     [IntegrationEvent(false, false)]

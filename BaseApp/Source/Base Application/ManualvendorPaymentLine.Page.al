@@ -208,7 +208,7 @@ page 12188 "Manual vendor Payment Line"
         SocialSecurityCode: Code[20];
         VendorName: Text[100];
         Desc: Text[30];
-        DocumentType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
+        DocumentType: Enum "Gen. Journal Document Type";
         DocumentDate: Date;
         PostingDate: Date;
         TotalAmount: Decimal;

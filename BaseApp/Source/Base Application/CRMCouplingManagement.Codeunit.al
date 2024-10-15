@@ -6,8 +6,7 @@ codeunit 5331 "CRM Coupling Management"
     end;
 
     var
-        RemoveCoupledContactsUnderCustomerQst: Label 'The Customer and %2 Account have %1 child Contact records coupled to one another. Do you want to delete their couplings as well?', Comment = '%1 is a number, %2 is CRM Product Name';
-        CRMProductName: Codeunit "CRM Product Name";
+        IntegrationRecordNotFoundErr: Label 'The integration record for record %1 was not found.', Comment = '%1 = record ID';
 
     procedure IsRecordCoupledToCRM(RecordID: RecordID): Boolean
     var
@@ -59,6 +58,14 @@ codeunit 5331 "CRM Coupling Management"
         exit(false);
     end;
 
+    [Scope('OnPrem')]
+    procedure RemoveCoupling(var RecRef: RecordRef)
+    var
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
+    begin
+        CRMIntegrationManagement.RemoveCoupling(RecRef);
+    end;
+
     procedure RemoveCoupling(RecordID: RecordID)
     var
         TempCRMIntegrationRecord: Record "CRM Integration Record" temporary;
@@ -66,74 +73,51 @@ codeunit 5331 "CRM Coupling Management"
         RemoveCouplingWithTracking(RecordID, TempCRMIntegrationRecord);
     end;
 
+    procedure RemoveCoupling(TableID: Integer; CRMTableID: Integer; CRMID: Guid)
+    var
+        TempCRMIntegrationRecord: Record "CRM Integration Record" temporary;
+    begin
+        RemoveCouplingWithTracking(TableID, CRMTableID, CRMID, TempCRMIntegrationRecord);
+    end;
+
     procedure RemoveCouplingWithTracking(RecordID: RecordID; var TempCRMIntegrationRecord: Record "CRM Integration Record" temporary)
     begin
-        case RecordID.TableNo of
-            DATABASE::Customer:
-                RemoveCoupledContactsForCustomer(RecordID, TempCRMIntegrationRecord);
-        end;
         RemoveSingleCoupling(RecordID, TempCRMIntegrationRecord);
     end;
 
-    local procedure RemoveSingleCoupling(RecordID: RecordID; var TempCRMIntegrationRecord: Record "CRM Integration Record" temporary)
+    procedure RemoveCouplingWithTracking(TableID: Integer; CRMTableID: Integer; CRMID: Guid; var TempCRMIntegrationRecord: Record "CRM Integration Record" temporary)
+    begin
+        RemoveSingleCoupling(TableID, CRMTableID, CRMID, TempCRMIntegrationRecord);
+    end;
+
+    local procedure RemoveSingleCoupling(RecordID: RecordID; var TempCRMIntegrationRecord: Record "CRM Integration Record" temporary): Boolean
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
-        CRMIntegrationRecord.RemoveCouplingToRecord(RecordID);
+        if not CRMIntegrationRecord.FindByRecordID(RecordID) then
+            Error(IntegrationRecordNotFoundErr, Format(RecordID, 0, 1));
+
+        CRMIntegrationManagement.RemoveCoupling(RecordID);
 
         TempCRMIntegrationRecord := CRMIntegrationRecord;
         TempCRMIntegrationRecord.Skipped := false;
         if TempCRMIntegrationRecord.Insert() then;
     end;
 
-    local procedure RemoveCoupledContactsForCustomer(RecordID: RecordID; var TempCRMIntegrationRecord: Record "CRM Integration Record" temporary)
+    local procedure RemoveSingleCoupling(TableID: Integer; CRMTableID: Integer; CRMID: Guid; var TempCRMIntegrationRecord: Record "CRM Integration Record" temporary): Boolean
     var
-        Contact: Record Contact;
-        ContBusRel: Record "Contact Business Relation";
-        Customer: Record Customer;
-        CRMAccount: Record "CRM Account";
-        CRMContact: Record "CRM Contact";
         CRMIntegrationRecord: Record "CRM Integration Record";
-        TempContact: Record Contact temporary;
-        CRMID: Guid;
+        CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
-        // Convert the RecordID into a Customer
-        Customer.Get(RecordID);
+        if not CRMIntegrationRecord.FindByCRMID(CRMID) then
+            Error(IntegrationRecordNotFoundErr, CRMID);
 
-        // Get the Company Contact for this Customer
-        ContBusRel.SetCurrentKey("Link to Table", "No.");
-        ContBusRel.SetRange("Link to Table", ContBusRel."Link to Table"::Customer);
-        ContBusRel.SetRange("No.", Customer."No.");
-        if ContBusRel.FindFirst then begin
-            // Get all Person Contacts under it
-            Contact.SetCurrentKey("Company Name", "Company No.", Type, Name);
-            Contact.SetRange("Company No.", ContBusRel."Contact No.");
-            Contact.SetRange(Type, Contact.Type::Person);
-            if Contact.FindSet then begin
-                // Count the number of Contacts coupled to CRM Contacts under the CRM Account the Customer is coupled to
-                CRMIntegrationRecord.FindIDFromRecordID(RecordID, CRMID);
-                if CRMAccount.Get(CRMID) then begin
-                    repeat
-                        if CRMIntegrationRecord.FindIDFromRecordID(Contact.RecordId, CRMID) then begin
-                            CRMContact.Get(CRMID);
-                            if CRMContact.ParentCustomerId = CRMAccount.AccountId then begin
-                                TempContact.Copy(Contact);
-                                TempContact.Insert();
-                            end;
-                        end;
-                    until Contact.Next = 0;
+        CRMIntegrationManagement.RemoveCoupling(TableID, CRMTableID, CRMID);
 
-                    // If any, query for breaking their couplings
-                    if TempContact.Count > 0 then
-                        if Confirm(StrSubstNo(RemoveCoupledContactsUnderCustomerQst, TempContact.Count, CRMProductName.FULL)) then begin
-                            TempContact.FindSet;
-                            repeat
-                                RemoveSingleCoupling(TempContact.RecordId, TempCRMIntegrationRecord);
-                            until TempContact.Next = 0;
-                        end;
-                end;
-            end;
-        end;
+        TempCRMIntegrationRecord := CRMIntegrationRecord;
+        TempCRMIntegrationRecord.Skipped := false;
+        if TempCRMIntegrationRecord.Insert() then;
     end;
 }
 

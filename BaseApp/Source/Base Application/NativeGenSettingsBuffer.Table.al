@@ -2,6 +2,9 @@ table 2840 "Native - Gen. Settings Buffer"
 {
     Caption = 'Native - Gen. Settings Buffer';
     ReplicateData = false;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'These objects will be removed';
+    ObsoleteTag = '17.0';
 
     fields
     {
@@ -301,12 +304,12 @@ table 2840 "Native - Gen. Settings Buffer"
         O365SalesInitialSetup.Get();
 
         if PaymentTerms.Get(O365SalesInitialSetup."Default Payment Terms Code") then begin
-            "Default Payment Terms ID" := PaymentTerms.Id;
+            "Default Payment Terms ID" := PaymentTerms.SystemId;
             "Def. Pmt. Term Description" := PaymentTerms.GetDescriptionInCurrentLanguage;
         end;
 
         if PaymentMethod.Get(O365SalesInitialSetup."Default Payment Method Code") then begin
-            "Default Payment Method ID" := PaymentMethod.Id;
+            "Default Payment Method ID" := PaymentMethod.SystemId;
             "Def. Pmt. Method Description" :=
               CopyStr(PaymentMethod.GetDescriptionInCurrentLanguage, 1, MaxStrLen("Def. Pmt. Method Description"));
         end;

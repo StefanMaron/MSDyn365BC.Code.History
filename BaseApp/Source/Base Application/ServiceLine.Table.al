@@ -64,9 +64,9 @@
                 ValidateServiceItemLineNumber(ServiceLine."Service Item Line No.");
 
                 if Type = Type::Item then begin
-                    if ServHeader.InventoryPickConflict("Document Type", "Document No.", ServHeader."Shipping Advice") then
+                    if ServHeader.WhsePickConflict("Document Type", "Document No.", ServHeader."Shipping Advice") then
                         DisplayConflictError(ServHeader.InvPickConflictResolutionTxt);
-                    if ServHeader.WhseShpmntConflict("Document Type", "Document No.", ServHeader."Shipping Advice") then
+                    if ServHeader.WhseShipmentConflict("Document Type", "Document No.", ServHeader."Shipping Advice") then
                         DisplayConflictError(ServHeader.WhseShpmtConflictResolutionTxt);
                 end;
             end;
@@ -176,7 +176,7 @@
 
                 if not IsTemporary then
                     CreateDim(
-                      DimMgt.TypeToTableID5(Type), "No.",
+                      DimMgt.TypeToTableID5(Type.AsInteger()), "No.",
                       DATABASE::Job, "Job No.",
                       DATABASE::"Responsibility Center", "Responsibility Center");
 
@@ -759,7 +759,7 @@
 
                 CreateDim(
                   DATABASE::Job, "Job No.",
-                  DimMgt.TypeToTableID5(Type), "No.",
+                  DimMgt.TypeToTableID5(Type.AsInteger()), "No.",
                   DATABASE::"Responsibility Center", "Responsibility Center");
             end;
         }
@@ -801,6 +801,7 @@
             trigger OnValidate()
             var
                 WorkType: Record "Work Type";
+                PriceType: Enum "Price Type";
             begin
                 if Type = Type::Resource then begin
                     TestStatusOpen;
@@ -810,7 +811,8 @@
                         PlanPriceCalcByField(FieldNo("Work Type Code"));
                     UpdateUnitPriceByField(FieldNo("Work Type Code"));
                     Validate("Unit Price");
-                    FindResUnitCost;
+                    ApplyPrice(PriceType::Purchase, ServHeader, FieldNo("Work Type Code"));
+                    Validate("Unit Cost (LCY)");
                 end;
             end;
         }
@@ -1488,7 +1490,7 @@
                       FieldCaption("Bin Code"),
                       "Location Code",
                       "Bin Code",
-                      "Document Type");
+                      "Document Type".AsInteger());
             end;
         }
         field(5404; "Qty. per Unit of Measure"; Decimal)
@@ -1518,6 +1520,7 @@
                 UnitOfMeasure: Record "Unit of Measure";
                 UnitOfMeasureTranslation: Record "Unit of Measure Translation";
                 ResUnitofMeasure: Record "Resource Unit of Measure";
+                PriceType: Enum "Price Type";
             begin
                 TestField("Quantity Shipped", 0);
                 TestField("Qty. Shipped (Base)", 0);
@@ -1566,7 +1569,8 @@
                             "Qty. per Unit of Measure" := ResUnitofMeasure."Qty. per Unit of Measure";
                             if "Unit of Measure Code" <> xRec."Unit of Measure Code" then
                                 PlanPriceCalcByField(FieldNo("Unit of Measure Code"));
-                            FindResUnitCost;
+                            ApplyPrice(PriceType::Purchase, ServHeader, FieldNo("Unit of Measure Code"));
+                            Validate("Unit Cost (LCY)");
                         end;
                     Type::"G/L Account", Type::" ", Type::Cost:
                         "Qty. per Unit of Measure" := 1;
@@ -1683,7 +1687,7 @@
 
                 CreateDim(
                   DATABASE::"Responsibility Center", "Responsibility Center",
-                  DimMgt.TypeToTableID5(Type), "No.",
+                  DimMgt.TypeToTableID5(Type.AsInteger()), "No.",
                   DATABASE::Job, "Job No.");
             end;
         }
@@ -2426,11 +2430,9 @@
                 end;
             end;
         }
-        field(5970; "Replaced Item Type"; Option)
+        field(5970; "Replaced Item Type"; Enum "Replaced Service Item Component Type")
         {
             Caption = 'Replaced Item Type';
-            OptionCaption = ' ,Service Item,Item';
-            OptionMembers = " ","Service Item",Item;
         }
         field(5994; "Price Adjmt. Status"; Option)
         {
@@ -2688,7 +2690,7 @@
             ReserveServLine.VerifyQuantity(Rec, xRec);
 
         if Type = Type::Item then
-            if ServHeader.InventoryPickConflict("Document Type", "Document No.", ServHeader."Shipping Advice") then
+            if ServHeader.WhsePickConflict("Document Type", "Document No.", ServHeader."Shipping Advice") then
                 DisplayConflictError(ServHeader.InvPickConflictResolutionTxt);
 
         IsCustCrLimitChecked := false;
@@ -3075,7 +3077,7 @@
         OnAfterCalculateDiscount(Rec);
     end;
 
-    local procedure GetLineWithPrice(var PriceCalculation: Interface "Price Calculation")
+    local procedure GetLineWithCalculatedPrice(var PriceCalculation: Interface "Price Calculation")
     var
         Line: Variant;
     begin
@@ -3083,53 +3085,65 @@
         Rec := Line;
     end;
 
-    local procedure GetPriceCalculationHandler(ServiceHeader: Record "Service Header"; var PriceCalculation: Interface "Price Calculation")
+    local procedure GetPriceCalculationHandler(PriceType: Enum "Price Type"; ServiceHeader: Record "Service Header"; var PriceCalculation: Interface "Price Calculation")
     var
         PriceCalculationMgt: codeunit "Price Calculation Mgt.";
-        ServiceLinePrice: Codeunit "Service Line - Price";
-        PriceType: Enum "Price Type";
+        LineWithPrice: Interface "Line With Price";
     begin
         if (ServiceHeader."No." = '') and ("Document No." <> '') then
             ServiceHeader.Get("Document Type", "Document No.");
-        ServiceLinePrice.SetLine(PriceType::Sale, ServiceHeader, Rec);
-        PriceCalculationMgt.GetHandler(ServiceLinePrice, PriceCalculation);
+        GetLineWithPrice(LineWithPrice);
+        LineWithPrice.SetLine(PriceType, ServiceHeader, Rec);
+        PriceCalculationMgt.GetHandler(LineWithPrice, PriceCalculation);
+    end;
+
+    procedure GetLineWithPrice(var LineWithPrice: Interface "Line With Price")
+    var
+        ServiceLinePrice: Codeunit "Service Line - Price";
+    begin
+        LineWithPrice := ServiceLinePrice;
+        OnAfterGetLineWithPrice(LineWithPrice);
     end;
 
     procedure ApplyDiscount(ServiceHeader: Record "Service Header")
     var
         PriceCalculation: Interface "Price Calculation";
+        PriceType: Enum "Price Type";
     begin
-        GetPriceCalculationHandler(ServiceHeader, PriceCalculation);
+        GetPriceCalculationHandler(PriceType::Sale, ServiceHeader, PriceCalculation);
         PriceCalculation.ApplyDiscount();
-        GetLineWithPrice(PriceCalculation);
+        GetLineWithCalculatedPrice(PriceCalculation);
     end;
 
     procedure PickDiscount()
     var
         ServiceHeader: Record "Service Header";
         PriceCalculation: Interface "Price Calculation";
+        PriceType: Enum "Price Type";
     begin
-        GetPriceCalculationHandler(ServiceHeader, PriceCalculation);
+        GetPriceCalculationHandler(PriceType::Sale, ServiceHeader, PriceCalculation);
         PriceCalculation.PickDiscount();
-        GetLineWithPrice(PriceCalculation);
+        GetLineWithCalculatedPrice(PriceCalculation);
     end;
 
     procedure PickPrice()
     var
         ServiceHeader: Record "Service Header";
         PriceCalculation: Interface "Price Calculation";
+        PriceType: Enum "Price Type";
     begin
-        GetPriceCalculationHandler(ServiceHeader, PriceCalculation);
+        GetPriceCalculationHandler(PriceType::Sale, ServiceHeader, PriceCalculation);
         PriceCalculation.PickPrice();
-        GetLineWithPrice(PriceCalculation);
+        GetLineWithCalculatedPrice(PriceCalculation);
     end;
 
     procedure CountDiscount(ShowAll: Boolean): Integer;
     var
         ServiceHeader: Record "Service Header";
         PriceCalculation: Interface "Price Calculation";
+        PriceType: Enum "Price Type";
     begin
-        GetPriceCalculationHandler(ServiceHeader, PriceCalculation);
+        GetPriceCalculationHandler(PriceType::Sale, ServiceHeader, PriceCalculation);
         exit(PriceCalculation.CountDiscount(ShowAll));
     end;
 
@@ -3137,8 +3151,9 @@
     var
         ServiceHeader: Record "Service Header";
         PriceCalculation: Interface "Price Calculation";
+        PriceType: Enum "Price Type";
     begin
-        GetPriceCalculationHandler(ServiceHeader, PriceCalculation);
+        GetPriceCalculationHandler(PriceType::Sale, ServiceHeader, PriceCalculation);
         exit(PriceCalculation.CountPrice(ShowAll));
     end;
 
@@ -3146,8 +3161,9 @@
     var
         ServiceHeader: Record "Service Header";
         PriceCalculation: Interface "Price Calculation";
+        PriceType: Enum "Price Type";
     begin
-        GetPriceCalculationHandler(ServiceHeader, PriceCalculation);
+        GetPriceCalculationHandler(PriceType::Sale, ServiceHeader, PriceCalculation);
         exit(PriceCalculation.IsDiscountExists(ShowAll));
     end;
 
@@ -3155,8 +3171,9 @@
     var
         ServiceHeader: Record "Service Header";
         PriceCalculation: Interface "Price Calculation";
+        PriceType: Enum "Price Type";
     begin
-        GetPriceCalculationHandler(ServiceHeader, PriceCalculation);
+        GetPriceCalculationHandler(PriceType::Sale, ServiceHeader, PriceCalculation);
         exit(PriceCalculation.IsPriceExists(ShowAll));
     end;
 
@@ -3324,6 +3341,8 @@
     end;
 
     local procedure UpdateUnitPriceByField(CalledByFieldNo: Integer)
+    var
+        PriceType: Enum "Price Type";
     begin
         if not IsPriceCalcCalledByField(CalledByFieldNo) then
             exit;
@@ -3334,19 +3353,19 @@
         ServHeader.Get("Document Type", "Document No.");
 
         CalculateDiscount;
-        ApplyPrice(ServHeader, CalledByFieldNo);
+        ApplyPrice(PriceType::Sale, ServHeader, CalledByFieldNo);
         Validate("Unit Price");
 
         ClearFieldCausedPriceCalculation();
         OnAfterUpdateUnitPrice(Rec, xRec, CalledByFieldNo, CurrFieldNo);
     end;
 
-    local procedure ApplyPrice(ServiceHeader: Record "Service Header"; CalledByFieldNo: Integer)
+    local procedure ApplyPrice(PriceType: Enum "Price Type"; ServiceHeader: Record "Service Header"; CalledByFieldNo: Integer)
     var
         PriceCalculation: Interface "Price Calculation";
         Line: Variant;
     begin
-        GetPriceCalculationHandler(ServiceHeader, PriceCalculation);
+        GetPriceCalculationHandler(PriceType, ServiceHeader, PriceCalculation);
         PriceCalculation.ApplyPrice(CalledByFieldNo);
         PriceCalculation.GetLine(Line);
         Rec := Line;
@@ -3414,7 +3433,7 @@
             ReservMgt.SetReservSource(Rec);
             if ReplaceServItemAction then begin
                 ReserveServLine.FindReservEntry(Rec, ReservationEntry);
-                ReservMgt.SetSerialLotNo(ReservationEntry."Serial No.", ReservationEntry."Lot No.");
+                ReservMgt.SetTrackingFromReservEntry(ReservationEntry);
             end;
             ReservMgt.AutoReserve(FullAutoReservation, '', "Order Date", QtyToReserve, QtyToReserveBase);
             Find;
@@ -3664,7 +3683,8 @@
                             ServItemComponent.SetRange(Active, true);
                             ServItemComponent.SetRange("Parent Service Item No.", ServItem."No.");
                             if PAGE.RunModal(0, ServItemComponent) = ACTION::LookupOK then begin
-                                "Replaced Item Type" := ServItemComponent.Type + 1;
+                                "Replaced Item Type" :=
+                                    "Replaced Service Item Component Type".FromInteger(ServItemComponent.Type.AsInteger() + 1);
                                 "Replaced Item No." := ServItemComponent."No.";
                                 "Component Line No." := ServItemComponent."Line No.";
                                 CheckIfServItemReplacement("Component Line No.");
@@ -3692,6 +3712,7 @@
     local procedure CopyFromResource()
     var
         Res: Record Resource;
+        PriceType: Enum "Price Type";
     begin
         Res.Get("No.");
         Res.CheckResourcePrivacyBlocked(false);
@@ -3712,11 +3733,11 @@
             "Warranty Disc. %" := 0;
         end;
         "Unit of Measure Code" := Res."Base Unit of Measure";
-        Validate("Unit Cost (LCY)", Res."Unit Cost");
         "Gen. Prod. Posting Group" := Res."Gen. Prod. Posting Group";
         "VAT Prod. Posting Group" := Res."VAT Prod. Posting Group";
         "Tax Group Code" := Res."Tax Group Code";
-        FindResUnitCost;
+        ApplyPrice(PriceType::Purchase, ServHeader, FieldNo("Unit of Measure Code"));
+        Validate("Unit Cost (LCY)");
 
         OnAfterAssignResourceValues(Rec, Res);
     end;
@@ -3785,15 +3806,15 @@
         if TempTrackingSpecification.FindFirst then begin
             ReserveServLine.DeleteLine(Rec);
             Clear(CreateReservEntry);
-            with ServiceLine do begin
-                CreateReservEntry.CreateReservEntryFor(
-                    DATABASE::"Service Line", "Document Type", "Document No.",
-                    '', 0, "Line No.", "Qty. per Unit of Measure", Quantity, "Quantity (Base)",
-                    TempTrackingSpecification."Serial No.", TempTrackingSpecification."Lot No.");
-                CreateReservEntry.CreateEntry(
-                    "No.", "Variant Code", "Location Code", Description,
-                    0D, "Posting Date", 0, ReservEntry."Reservation Status"::Surplus);
-            end;
+            ReservEntry.CopyTrackingFromSpec(TempTrackingSpecification);
+            CreateReservEntry.CreateReservEntryFor(
+                DATABASE::"Service Line",
+                ServiceLine."Document Type".AsInteger(), ServiceLine."Document No.",
+                '', 0, ServiceLine."Line No.", ServiceLine."Qty. per Unit of Measure",
+                ServiceLine.Quantity, ServiceLine."Quantity (Base)", ReservEntry);
+            CreateReservEntry.CreateEntry(
+                ServiceLine."No.", ServiceLine."Variant Code", ServiceLine."Location Code", ServiceLine.Description,
+                0D, ServiceLine."Posting Date", 0, "Reservation Status"::Surplus);
             TempTrackingSpecification.DeleteAll();
         end;
     end;
@@ -3807,7 +3828,7 @@
                 Location.Get(LocationCode);
     end;
 
-    local procedure GetDefaultBin()
+    procedure GetDefaultBin()
     var
         Bin: Record Bin;
         BinType: Record "Bin Type";
@@ -3907,7 +3928,7 @@
 
     procedure SetReservationEntry(var ReservEntry: Record "Reservation Entry")
     begin
-        ReservEntry.SetSource(DATABASE::"Service Line", "Document Type", "Document No.", "Line No.", '', 0);
+        ReservEntry.SetSource(DATABASE::"Service Line", "Document Type".AsInteger(), "Document No.", "Line No.", '', 0);
         ReservEntry.SetItemData("No.", Description, "Location Code", "Variant Code", "Qty. per Unit of Measure");
         if Type <> Type::Item then
             ReservEntry."Item No." := '';
@@ -3917,7 +3938,7 @@
 
     procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry")
     begin
-        ReservEntry.SetSourceFilter(DATABASE::"Service Line", "Document Type", "Document No.", "Line No.", false);
+        ReservEntry.SetSourceFilter(DATABASE::"Service Line", "Document Type".AsInteger(), "Document No.", "Line No.", false);
         ReservEntry.SetSourceFilter('', 0);
     end;
 
@@ -3941,6 +3962,12 @@
         CODEUNIT.Run(CODEUNIT::"Resource-Find Cost", ResCost);
         OnAfterResourseFindCost(Rec, ResCost);
         Validate("Unit Cost (LCY)", ResCost."Unit Cost" * "Qty. per Unit of Measure");
+    end;
+
+    [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
+    procedure AfterResourseFindCost(var ResourceCost: Record "Resource Cost");
+    begin
+        OnAfterResourseFindCost(Rec, ResourceCost);
     end;
 
     procedure InitOutstanding()
@@ -4891,8 +4918,9 @@
     var
         ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
-        exit(ItemTrackingMgt.ComposeRowID(DATABASE::"Service Line", "Document Type",
-            "Document No.", '', 0, "Line No."));
+        exit(
+            ItemTrackingMgt.ComposeRowID(
+                DATABASE::"Service Line", "Document Type".AsInteger(), "Document No.", '', 0, "Line No."));
     end;
 
     local procedure UpdateReservation(CalledByFieldNo: Integer)
@@ -4933,7 +4961,7 @@
         OrderPromisingLine.SetRange("Source ID", "Document No.");
         OrderPromisingLine.SetRange("Source Line No.", "Line No.");
 
-        OrderPromisingLines.SetSourceType(OrderPromisingLine."Source Type"::"Service Order");
+        OrderPromisingLines.SetSourceType(OrderPromisingLine."Source Type"::"Service Order".AsInteger());
         OrderPromisingLines.SetTableView(OrderPromisingLine);
         OrderPromisingLines.RunModal;
     end;
@@ -5081,7 +5109,7 @@
                     DialogText := DialogText + Location2.GetRequirementText(Location2.FieldNo("Require Receive"));
             end else begin
                 if (Quantity >= 0) and (Location2."Require Shipment" or Location2."Require Pick") then begin
-                    if WhseValidateSourceLine.WhseLinesExist(DATABASE::"Service Line", "Document Type", "Document No.", "Line No.", 0, Quantity)
+                    if WhseValidateSourceLine.WhseLinesExist(DATABASE::"Service Line", "Document Type".AsInteger(), "Document No.", "Line No.", 0, Quantity)
                     then
                         ShowDialog := ShowDialog::Error
                     else
@@ -5099,12 +5127,7 @@
 
                 if (Quantity < 0) and (Location2."Require Receive" or Location2."Require Put-away") then begin
                     if WhseValidateSourceLine.WhseLinesExist(
-                         DATABASE::"Service Line",
-                         "Document Type",
-                         "Document No.",
-                         "Line No.",
-                         0,
-                         Quantity)
+                         DATABASE::"Service Line", "Document Type".AsInteger(), "Document No.", "Line No.", 0, Quantity)
                     then
                         ShowDialog := ShowDialog::Error
                     else
@@ -5521,6 +5544,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetItemTranslation(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; ItemTranslation: Record "Item Translation")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGetLineWithPrice(var LineWithPrice: Interface "Line With Price")
     begin
     end;
 

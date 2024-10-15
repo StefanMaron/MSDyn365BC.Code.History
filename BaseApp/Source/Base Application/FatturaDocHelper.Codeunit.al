@@ -103,8 +103,8 @@ codeunit 12184 "Fattura Doc. Helper"
         if TempFatturaHeader."Entry Type" = TempFatturaHeader."Entry Type"::Sales then
             Evaluate(TempFatturaHeader.Prepayment, Format(HeaderRecRef.Field(PrepaymentInvoiceFieldNo).Value));
         TempFatturaHeader."Fattura Document Type" :=
-            copystr(				
-                GetTipoDocumento(TempFatturaHeader, Customer, HeaderRecRef.Field(FatturaDocumentTypeFieldNo).Value),1,Maxstrlen(TempFatturaHeader."Fattura Document Type"));
+            copystr(
+                GetTipoDocumento(TempFatturaHeader, Customer, HeaderRecRef.Field(FatturaDocumentTypeFieldNo).Value), 1, Maxstrlen(TempFatturaHeader."Fattura Document Type"));
         if TempFatturaHeader."Document Type" = TempFatturaHeader."Document Type"::Invoice then begin
             TempFatturaHeader."Order No." := Format(HeaderRecRef.Field(OrderNoFieldNo).Value);
             TempFatturaHeader."Customer Purchase Order No." := HeaderRecRef.Field(CustomerPurchaseOrderFieldNo).Value;
@@ -195,7 +195,7 @@ codeunit 12184 "Fattura Doc. Helper"
 
         TempFatturaHeader.Init();
         TempFatturaHeader."Entry Type" := TempFatturaHeader."Entry Type"::Sales;
-        TempFatturaHeader."Document Type" := TempVATEntry."Document Type"::Invoice;
+        TempFatturaHeader."Document Type" := TempVATEntry."Document Type"::Invoice.AsInteger();
         TempFatturaHeader."Posting Date" := TempVATEntry."Posting Date";
         TempFatturaHeader."Document No." := TempVATEntry."Document No.";
         TempFatturaHeader."Progressive No." := GetNextProgressiveNo;
@@ -325,7 +325,7 @@ codeunit 12184 "Fattura Doc. Helper"
                     SalesInvoiceHeader.CalcFields("Amount Including VAT", "Invoice Discount Amount");
                     CheckSalesInvHeaderFields(SalesInvoiceHeader, PaymentMethod);
                     TempFatturaHeader."Entry Type" := TempFatturaHeader."Entry Type"::Sales;
-                    TempFatturaHeader."Document Type" := CustLedgerEntry."Document Type"::Invoice;
+                    TempFatturaHeader."Document Type" := CustLedgerEntry."Document Type"::Invoice.AsInteger();
                     TempFatturaHeader."Posting Date" := SalesInvoiceHeader."Posting Date";
                     TempFatturaHeader."Document No." := SalesInvoiceHeader."No.";
                     LineRecRef.Open(DATABASE::"Sales Invoice Line");
@@ -336,7 +336,7 @@ codeunit 12184 "Fattura Doc. Helper"
                     ServiceInvoiceHeader.CalcFields("Amount Including VAT");
                     CheckServiceInvHeaderFields(ServiceInvoiceHeader, PaymentMethod);
                     TempFatturaHeader."Entry Type" := TempFatturaHeader."Entry Type"::Service;
-                    TempFatturaHeader."Document Type" := CustLedgerEntry."Document Type"::Invoice;
+                    TempFatturaHeader."Document Type" := CustLedgerEntry."Document Type"::Invoice.AsInteger();
                     TempFatturaHeader."Posting Date" := ServiceInvoiceHeader."Posting Date";
                     TempFatturaHeader."Document No." := ServiceInvoiceHeader."No.";
                     LineRecRef.Open(DATABASE::"Service Invoice Line");
@@ -347,7 +347,7 @@ codeunit 12184 "Fattura Doc. Helper"
                     SalesCrMemoHeader.CalcFields("Amount Including VAT", "Invoice Discount Amount");
                     CheckSalesCrMemoHeaderFields(SalesCrMemoHeader, PaymentMethod);
                     TempFatturaHeader."Entry Type" := TempFatturaHeader."Entry Type"::Sales;
-                    TempFatturaHeader."Document Type" := CustLedgerEntry."Document Type"::"Credit Memo";
+                    TempFatturaHeader."Document Type" := CustLedgerEntry."Document Type"::"Credit Memo".AsInteger();
                     TempFatturaHeader."Posting Date" := SalesCrMemoHeader."Posting Date";
                     TempFatturaHeader."Document No." := SalesCrMemoHeader."No.";
                     LineRecRef.Open(DATABASE::"Sales Cr.Memo Line");
@@ -358,7 +358,7 @@ codeunit 12184 "Fattura Doc. Helper"
                     ServiceCrMemoHeader.CalcFields("Amount Including VAT");
                     CheckServiceCrMemoHeaderFields(ServiceCrMemoHeader, PaymentMethod);
                     TempFatturaHeader."Entry Type" := TempFatturaHeader."Entry Type"::Service;
-                    TempFatturaHeader."Document Type" := CustLedgerEntry."Document Type"::"Credit Memo";
+                    TempFatturaHeader."Document Type" := CustLedgerEntry."Document Type"::"Credit Memo".AsInteger();
                     TempFatturaHeader."Posting Date" := ServiceCrMemoHeader."Posting Date";
                     TempFatturaHeader."Document No." := ServiceCrMemoHeader."No.";
                     LineRecRef.Open(DATABASE::"Service Cr.Memo Line");
@@ -730,13 +730,13 @@ codeunit 12184 "Fattura Doc. Helper"
     var
         InvDtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         AppliedDtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
-        AppliedDocType: Option;
+        AppliedDocType: Enum "Gen. Journal Document Type";
     begin
         case OriginalCustLedgerEntry."Document Type" of
             OriginalCustLedgerEntry."Document Type"::Invoice:
-                AppliedDocType := OriginalCustLedgerEntry."Document Type"::"Credit Memo";
+                AppliedDocType := "Gen. Journal Document Type"::"Credit Memo";
             OriginalCustLedgerEntry."Document Type"::"Credit Memo":
-                AppliedDocType := OriginalCustLedgerEntry."Document Type"::Invoice;
+                AppliedDocType := "Gen. Journal Document Type"::Invoice;
             else
                 exit(false);
         end;

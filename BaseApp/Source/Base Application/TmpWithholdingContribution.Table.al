@@ -404,7 +404,7 @@ table 12113 "Tmp Withholding Contribution"
         Vend: Record Vendor;
         WithholdingSocSec: Codeunit "Withholding - Contribution";
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure CalculateWithholdingTax()
     begin
         WithholdCode.Get("Withholding Tax Code");
@@ -442,8 +442,8 @@ table 12113 "Tmp Withholding Contribution"
         "Social Security Acc." := SocialSecurityCode."Social Security Payable Acc.";
         "Social Security Charges Acc." := SocialSecurityCode."Social Security Charges Acc.";
 
-        WithholdingSocSec.SocSecLineFilter(SocSecCodeLine, "Social Security Code",
-          "Payment Date", SocSecCodeLine."Contribution Type"::INPS);
+        WithholdingSocSec.SetSocSecLineFilters(
+            SocSecCodeLine, "Social Security Code", "Payment Date", SocSecCodeLine."Contribution Type"::INPS);
         "Social Security %" := SocSecCodeLine."Social Security %";
         "Free-Lance %" := SocSecCodeLine."Free-Lance Amount %";
 
@@ -458,8 +458,9 @@ table 12113 "Tmp Withholding Contribution"
             CalcDate('<-CY>', "Payment Date"),
             CalcDate('<CY>', "Payment Date"));
 
-        WithholdingSocSec.SocSecBracketFilter(SocSecBracketLine, SocSecCodeLine."Social Security Bracket Code",
-          SocSecCodeLine."Contribution Type"::INPS, SocSecBracketLine.Code);
+        WithholdingSocSec.SetSocSecBracketFilters(
+            SocSecBracketLine, SocSecCodeLine."Social Security Bracket Code",
+            SocSecCodeLine."Contribution Type"::INPS, SocSecBracketLine.Code);
         if SocSecBracketLine.Amount - Assoggettato > GrossAmount then
             "Gross Amount" := GrossAmount
         else
@@ -505,9 +506,8 @@ table 12113 "Tmp Withholding Contribution"
         "INAIL Debit Account" := SocialSecurityCode."Social Security Payable Acc.";
         "INAIL Charge Account" := SocialSecurityCode."Social Security Charges Acc.";
 
-        WithholdingSocSec.SocSecLineFilter(SocSecCodeLine, "INAIL Code",
-          "Payment Date",
-          SocSecCodeLine."Contribution Type"::INAIL);
+        WithholdingSocSec.SetSocSecLineFilters(
+            SocSecCodeLine, "INAIL Code", "Payment Date", SocSecCodeLine."Contribution Type"::INAIL);
 
         "INAIL Per Mil" := SocSecCodeLine."Social Security %";
         "INAIL Free-Lance %" := SocSecCodeLine."Free-Lance Amount %";
@@ -518,9 +518,10 @@ table 12113 "Tmp Withholding Contribution"
         Vend.CalcFields("INAIL Company Base");
         Assoggettato := Vend."INAIL Company Base" + Vend."INAIL 3 Parties Base";
 
-        WithholdingSocSec.SocSecBracketFilter(SocSecBracketLine,
-          SocSecCodeLine."Social Security Bracket Code",
-          SocSecCodeLine."Contribution Type"::INAIL, SocSecCodeLine.Code);
+        WithholdingSocSec.SetSocSecBracketFilters(
+            SocSecBracketLine,
+            SocSecCodeLine."Social Security Bracket Code",
+            SocSecCodeLine."Contribution Type"::INAIL, SocSecCodeLine.Code);
 
         if SocSecBracketLine.Amount - Assoggettato > GrossAmount then
             "INAIL Gross Amount" := GrossAmount

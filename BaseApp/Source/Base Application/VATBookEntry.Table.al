@@ -23,7 +23,7 @@ table 12142 "VAT Book Entry"
         }
         field(6; "Document Type"; enum "Gen. Journal Document Type")
         {
-            CalcFormula = Lookup ("VAT Entry"."Document Type" WHERE("Document No." = FIELD("Document No."),
+            CalcFormula = Lookup("VAT Entry"."Document Type" WHERE("Document No." = FIELD("Document No."),
                                                                     Type = FIELD(Type),
                                                                     "VAT Bus. Posting Group" = FIELD("VAT Bus. Posting Group"),
                                                                     "VAT Prod. Posting Group" = FIELD("VAT Prod. Posting Group"),
@@ -36,17 +36,15 @@ table 12142 "VAT Book Entry"
             Editable = false;
             FieldClass = FlowField;
         }
-        field(7; Type; Option)
+        field(7; Type; Enum "General Posting Type")
         {
             Caption = 'Type';
             Editable = false;
-            OptionCaption = ' ,Purchase,Sale,Settlement';
-            OptionMembers = " ",Purchase,Sale,Settlement;
         }
         field(8; Base; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("VAT Entry".Base WHERE("Document No." = FIELD("Document No."),
+            CalcFormula = Sum("VAT Entry".Base WHERE("Document No." = FIELD("Document No."),
                                                       Type = FIELD(Type),
                                                       "VAT Bus. Posting Group" = FIELD("VAT Bus. Posting Group"),
                                                       "VAT Prod. Posting Group" = FIELD("VAT Prod. Posting Group"),
@@ -62,7 +60,7 @@ table 12142 "VAT Book Entry"
         field(9; Amount; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("VAT Entry".Amount WHERE("Document No." = FIELD("Document No."),
+            CalcFormula = Sum("VAT Entry".Amount WHERE("Document No." = FIELD("Document No."),
                                                         Type = FIELD(Type),
                                                         "VAT Bus. Posting Group" = FIELD("VAT Bus. Posting Group"),
                                                         "VAT Prod. Posting Group" = FIELD("VAT Prod. Posting Group"),
@@ -77,7 +75,7 @@ table 12142 "VAT Book Entry"
         }
         field(10; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
-            CalcFormula = Lookup ("VAT Entry"."VAT Calculation Type" WHERE("Document No." = FIELD("Document No."),
+            CalcFormula = Lookup("VAT Entry"."VAT Calculation Type" WHERE("Document No." = FIELD("Document No."),
                                                                            Type = FIELD(Type),
                                                                            "VAT Bus. Posting Group" = FIELD("VAT Bus. Posting Group"),
                                                                            "VAT Prod. Posting Group" = FIELD("VAT Prod. Posting Group"),
@@ -92,7 +90,7 @@ table 12142 "VAT Book Entry"
         }
         field(12; "Sell-to/Buy-from No."; Code[20])
         {
-            CalcFormula = Lookup ("VAT Entry"."Bill-to/Pay-to No." WHERE("Document No." = FIELD("Document No."),
+            CalcFormula = Lookup("VAT Entry"."Bill-to/Pay-to No." WHERE("Document No." = FIELD("Document No."),
                                                                          Type = FIELD(Type),
                                                                          "VAT Bus. Posting Group" = FIELD("VAT Bus. Posting Group"),
                                                                          "VAT Prod. Posting Group" = FIELD("VAT Prod. Posting Group"),
@@ -115,7 +113,7 @@ table 12142 "VAT Book Entry"
         }
         field(26; "External Document No."; Code[35])
         {
-            CalcFormula = Lookup ("VAT Entry"."External Document No." WHERE("Document No." = FIELD("Document No."),
+            CalcFormula = Lookup("VAT Entry"."External Document No." WHERE("Document No." = FIELD("Document No."),
                                                                             Type = FIELD(Type),
                                                                             "VAT Bus. Posting Group" = FIELD("VAT Bus. Posting Group"),
                                                                             "VAT Prod. Posting Group" = FIELD("VAT Prod. Posting Group"),
@@ -130,7 +128,7 @@ table 12142 "VAT Book Entry"
         }
         field(28; "No. Series"; Code[20])
         {
-            CalcFormula = Lookup ("VAT Entry"."No. Series" WHERE("Document No." = FIELD("Document No."),
+            CalcFormula = Lookup("VAT Entry"."No. Series" WHERE("Document No." = FIELD("Document No."),
                                                                  Type = FIELD(Type),
                                                                  "VAT Bus. Posting Group" = FIELD("VAT Bus. Posting Group"),
                                                                  "VAT Prod. Posting Group" = FIELD("VAT Prod. Posting Group"),
@@ -172,7 +170,7 @@ table 12142 "VAT Book Entry"
         field(52; "Nondeductible Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("VAT Entry"."Nondeductible Amount" WHERE("Document No." = FIELD("Document No."),
+            CalcFormula = Sum("VAT Entry"."Nondeductible Amount" WHERE("Document No." = FIELD("Document No."),
                                                                         Type = FIELD(Type),
                                                                         "VAT Bus. Posting Group" = FIELD("VAT Bus. Posting Group"),
                                                                         "VAT Prod. Posting Group" = FIELD("VAT Prod. Posting Group"),
@@ -187,7 +185,7 @@ table 12142 "VAT Book Entry"
         }
         field(53; "Document Date"; Date)
         {
-            CalcFormula = Lookup ("VAT Entry"."Document Date" WHERE("Document No." = FIELD("Document No."),
+            CalcFormula = Lookup("VAT Entry"."Document Date" WHERE("Document No." = FIELD("Document No."),
                                                                     Type = FIELD(Type),
                                                                     "VAT Bus. Posting Group" = FIELD("VAT Bus. Posting Group"),
                                                                     "VAT Prod. Posting Group" = FIELD("VAT Prod. Posting Group"),
@@ -213,7 +211,7 @@ table 12142 "VAT Book Entry"
         }
         field(57; "VAT Difference"; Decimal)
         {
-            CalcFormula = Sum ("VAT Entry"."VAT Difference" WHERE("Document No." = FIELD("Document No."),
+            CalcFormula = Sum("VAT Entry"."VAT Difference" WHERE("Document No." = FIELD("Document No."),
                                                                   Type = FIELD(Type),
                                                                   "VAT Bus. Posting Group" = FIELD("VAT Bus. Posting Group"),
                                                                   "VAT Prod. Posting Group" = FIELD("VAT Prod. Posting Group"),
@@ -228,7 +226,7 @@ table 12142 "VAT Book Entry"
         field(59; "Nondeductible Base"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("VAT Entry"."Nondeductible Base" WHERE("Document No." = FIELD("Document No."),
+            CalcFormula = Sum("VAT Entry"."Nondeductible Base" WHERE("Document No." = FIELD("Document No."),
                                                                       Type = FIELD(Type),
                                                                       "VAT Bus. Posting Group" = FIELD("VAT Bus. Posting Group"),
                                                                       "VAT Prod. Posting Group" = FIELD("VAT Prod. Posting Group"),
@@ -244,7 +242,7 @@ table 12142 "VAT Book Entry"
         field(61; "Unrealized Base"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("VAT Entry"."Unrealized Base" WHERE("Document No." = FIELD("Document No."),
+            CalcFormula = Sum("VAT Entry"."Unrealized Base" WHERE("Document No." = FIELD("Document No."),
                                                                    Type = FIELD(Type),
                                                                    "VAT Bus. Posting Group" = FIELD("VAT Bus. Posting Group"),
                                                                    "VAT Prod. Posting Group" = FIELD("VAT Prod. Posting Group"),
@@ -260,7 +258,7 @@ table 12142 "VAT Book Entry"
         field(62; "Unrealized Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("VAT Entry"."Unrealized Amount" WHERE("Document No." = FIELD("Document No."),
+            CalcFormula = Sum("VAT Entry"."Unrealized Amount" WHERE("Document No." = FIELD("Document No."),
                                                                      Type = FIELD(Type),
                                                                      "VAT Bus. Posting Group" = FIELD("VAT Bus. Posting Group"),
                                                                      "VAT Prod. Posting Group" = FIELD("VAT Prod. Posting Group"),
@@ -301,7 +299,7 @@ table 12142 "VAT Book Entry"
         }
         field(68; "Additional-Currency Amount"; Decimal)
         {
-            CalcFormula = Sum ("VAT Entry"."Additional-Currency Amount" WHERE("Document No." = FIELD("Document No."),
+            CalcFormula = Sum("VAT Entry"."Additional-Currency Amount" WHERE("Document No." = FIELD("Document No."),
                                                                               Type = FIELD(Type),
                                                                               "VAT Bus. Posting Group" = FIELD("VAT Bus. Posting Group"),
                                                                               "VAT Prod. Posting Group" = FIELD("VAT Prod. Posting Group"),
@@ -316,7 +314,7 @@ table 12142 "VAT Book Entry"
         }
         field(69; "Additional-Currency Base"; Decimal)
         {
-            CalcFormula = Sum ("VAT Entry"."Additional-Currency Base" WHERE("Document No." = FIELD("Document No."),
+            CalcFormula = Sum("VAT Entry"."Additional-Currency Base" WHERE("Document No." = FIELD("Document No."),
                                                                             Type = FIELD(Type),
                                                                             "VAT Bus. Posting Group" = FIELD("VAT Bus. Posting Group"),
                                                                             "VAT Prod. Posting Group" = FIELD("VAT Prod. Posting Group"),
@@ -331,7 +329,7 @@ table 12142 "VAT Book Entry"
         }
         field(72; "Add. Curr. Nondeductible Amt."; Decimal)
         {
-            CalcFormula = Sum ("VAT Entry"."Add. Curr. Nondeductible Amt." WHERE("Document No." = FIELD("Document No."),
+            CalcFormula = Sum("VAT Entry"."Add. Curr. Nondeductible Amt." WHERE("Document No." = FIELD("Document No."),
                                                                                  Type = FIELD(Type),
                                                                                  "VAT Bus. Posting Group" = FIELD("VAT Bus. Posting Group"),
                                                                                  "VAT Prod. Posting Group" = FIELD("VAT Prod. Posting Group"),
@@ -346,7 +344,7 @@ table 12142 "VAT Book Entry"
         }
         field(73; "Add. Curr. Nondeductible Base"; Decimal)
         {
-            CalcFormula = Sum ("VAT Entry"."Add. Curr. Nondeductible Base" WHERE("Document No." = FIELD("Document No."),
+            CalcFormula = Sum("VAT Entry"."Add. Curr. Nondeductible Base" WHERE("Document No." = FIELD("Document No."),
                                                                                  Type = FIELD(Type),
                                                                                  "VAT Bus. Posting Group" = FIELD("VAT Bus. Posting Group"),
                                                                                  "VAT Prod. Posting Group" = FIELD("VAT Prod. Posting Group"),

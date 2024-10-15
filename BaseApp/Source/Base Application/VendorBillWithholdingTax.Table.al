@@ -255,7 +255,7 @@ table 12185 "Vendor Bill Withholding Tax"
         Text12101: Label '%1 %2 does not exist in table %3.';
         Currency: Record Currency;
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure CalculateWithholdingTax()
     var
         WithholdCode: Record "Withhold Code";
@@ -294,7 +294,7 @@ table 12185 "Vendor Bill Withholding Tax"
             Error(Text12101, SocialSecurityCode.FieldCaption(Code), "Social Security Code", SocialSecurityCode.TableCaption);
         "Social Security Acc." := SocialSecurityCode."Social Security Payable Acc.";
         "Social Security Charges Acc." := SocialSecurityCode."Social Security Charges Acc.";
-        WithholdingSocSec.SocSecLineFilter(
+        WithholdingSocSec.SetSocSecLineFilters(
           SocSecCodeLine, "Social Security Code", "Payment Date", SocSecCodeLine."Contribution Type"::INPS);
         "Social Security %" := SocSecCodeLine."Social Security %";
         "Free-Lance %" := SocSecCodeLine."Free-Lance Amount %";
@@ -303,9 +303,9 @@ table 12185 "Vendor Bill Withholding Tax"
         Vend.SetFilter("Date Filter", '%1..%2', DMY2Date(1, 1, Date2DMY("Payment Date", 3)), DMY2Date(31, 12, Date2DMY("Payment Date", 3)));
         Vend.CalcFields("Soc. Sec. Company Base");
         CompPartiesBase := Vend."Soc. Sec. Company Base" + Vend."Soc. Sec. 3 Parties Base";
-        WithholdingSocSec.SocSecBracketFilter(
-          SocSecBracketLine, SocSecCodeLine."Social Security Bracket Code",
-          SocSecCodeLine."Contribution Type"::INPS, SocialSecurityCode.Code);
+        WithholdingSocSec.SetSocSecBracketFilters(
+            SocSecBracketLine, SocSecCodeLine."Social Security Bracket Code",
+            SocSecCodeLine."Contribution Type"::INPS, SocialSecurityCode.Code);
         if SocSecBracketLine.Amount - CompPartiesBase > GrossAmount then
             "Gross Amount" := GrossAmount
         else
@@ -345,7 +345,7 @@ table 12185 "Vendor Bill Withholding Tax"
             Currency.Get(CurrencyCode);
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure ValidateWithhSocSec()
     begin
         CalculateWithholdingTax;

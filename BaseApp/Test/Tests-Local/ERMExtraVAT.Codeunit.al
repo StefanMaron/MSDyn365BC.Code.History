@@ -1,4 +1,4 @@
-﻿codeunit 144078 "ERM Extra VAT"
+codeunit 144078 "ERM Extra VAT"
 {
     // // [FEATURE] [VAT]
     //  1. Verify VAT Entry and VAT Book Entry, Post Sales Invoice and fully apply.
@@ -1455,7 +1455,7 @@
             AppliesToDocNo, GenJournalLine."Document Type"::Payment, GenJournalLine."Applies-to Doc. Type"::Invoice));
     end;
 
-    local procedure CreateAndPostGenJournalLine(AccountType: Option; AccountNo: Code[20]; Amount: Decimal; AppliesToDocNo: Code[20]; DocumentType: Option; AppliesToDocType: Option): Code[20]
+    local procedure CreateAndPostGenJournalLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; AppliesToDocNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; AppliesToDocType: Enum "Gen. Journal Document Type"): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -1464,7 +1464,7 @@
         exit(GenJournalLine."Document No.");
     end;
 
-    local procedure CreateAndPostGenJournalLineWithSavingLastNoUsed(var GeneralJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; PurchOperationNoSeries: Record "No. Series"; var ExpectedReverseSalesNo: Code[20]; DocumentType: Option; Quantity: Decimal)
+    local procedure CreateAndPostGenJournalLineWithSavingLastNoUsed(var GeneralJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; PurchOperationNoSeries: Record "No. Series"; var ExpectedReverseSalesNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Quantity: Decimal)
     begin
         LibraryERM.CreateGeneralJnlLine(GeneralJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           DocumentType, GeneralJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo, Quantity);
@@ -1472,7 +1472,7 @@
         LibraryERM.PostGeneralJnlLine(GeneralJournalLine);
     end;
 
-    local procedure CreateAndPostMultiGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Option; LineAmount: Decimal; GLAccountNo: Code[20]; VendorNo: Code[20])
+    local procedure CreateAndPostMultiGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; DocumentType: Enum "Gen. Journal Document Type"; LineAmount: Decimal; GLAccountNo: Code[20]; VendorNo: Code[20])
     begin
         LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           DocumentType, GenJournalLine."Account Type"::Vendor, VendorNo, -LineAmount);
@@ -1523,7 +1523,7 @@
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);  // Post as Ship and Invoice.
     end;
 
-    local procedure CreateSimpleSalesDocument(var SalesLine: Record "Sales Line"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Option; CustomerNo: Code[20])
+    local procedure CreateSimpleSalesDocument(var SalesLine: Record "Sales Line"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
         GLAccount: Record "G/L Account";
@@ -1561,7 +1561,7 @@
         end;
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal; AppliesToDocType: Option; AppliesToDocNo: Code[20])
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20])
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, DocumentType, AccountType, AccountNo, Amount);
         GenJournalLine.Validate("Applies-to Doc. Type", AppliesToDocType);
@@ -1622,7 +1622,7 @@
         CreatePurchaseLine(PurchaseLine2, PurchaseHeader, PurchaseLine2.Type::Item, CreateItem(VATProductPostingGroup));
     end;
 
-    local procedure CreatePurchaseInvoice(var PurchaseLine: Record "Purchase Line"; VATBusinessPostingGroup: Code[20]; PaymentTermsCode: Code[10]; CurrencyCode: Code[10]; Type: Option; No: Code[20])
+    local procedure CreatePurchaseInvoice(var PurchaseLine: Record "Purchase Line"; VATBusinessPostingGroup: Code[20]; PaymentTermsCode: Code[10]; CurrencyCode: Code[10]; Type: Enum "Purchase Line Type"; No: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -1631,7 +1631,7 @@
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No);
     end;
 
-    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Option; No: Code[20])
+    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; No: Code[20])
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, LibraryRandom.RandDec(10, 2));  // Use Random Decimal Quantity.
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
@@ -1663,7 +1663,7 @@
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Option; PaymentTermsCode: Code[10]; CurrencyCode: Code[10]; PricesIncludingVAT: Boolean)
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Enum "Sales Line Type"; PaymentTermsCode: Code[10]; CurrencyCode: Code[10]; PricesIncludingVAT: Boolean)
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -1706,7 +1706,7 @@
         exit(LineAmount1 + LineAmount2);
     end;
 
-    local procedure CreateSalesDocumentWithMultipleLines(var SalesLine: Record "Sales Line"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Option; PaymentTermsCode: Code[10]; CurrencyCode: Code[10]; PricesIncludingVAT: Boolean; CustNo: Code[20]; LineAmount: Decimal)
+    local procedure CreateSalesDocumentWithMultipleLines(var SalesLine: Record "Sales Line"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Enum "Sales Document Type"; PaymentTermsCode: Code[10]; CurrencyCode: Code[10]; PricesIncludingVAT: Boolean; CustNo: Code[20]; LineAmount: Decimal)
     var
         SalesHeader: Record "Sales Header";
         "Count": Integer;
@@ -1868,7 +1868,7 @@
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
     end;
 
-    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; VATEntryType: Option; CVNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
+    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; VATEntryType: Enum "General Posting Type"; CVNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         VATEntry.SetRange(Type, VATEntryType);
         VATEntry.SetRange("Bill-to/Pay-to No.", CVNo);
@@ -1877,7 +1877,7 @@
         VATEntry.FindFirst();
     end;
 
-    local procedure FindAndAssertUnrealVATEntryIsFullyRealized(VATEntryType: Option; CVNo: Code[20]; InvoiceNo: Code[20]): Integer
+    local procedure FindAndAssertUnrealVATEntryIsFullyRealized(VATEntryType: Enum "General Posting Type"; CVNo: Code[20]; InvoiceNo: Code[20]): Integer
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -1887,7 +1887,7 @@
         exit(VATEntry."Entry No.");
     end;
 
-    local procedure FilterVATEntriesOnSalesDocument(var VATEntry: Record "VAT Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FilterVATEntriesOnSalesDocument(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         with VATEntry do begin
             Reset;
@@ -1964,7 +1964,7 @@
         REPORT.Run(REPORT::"Order Confirmation");
     end;
 
-    local procedure SalesDocumentApplyAndUnApply(CustomerNo: Code[20]; DocumentType: Option; AppliesToDocType: Option; AmountIncludingVAT: Decimal; Base: Decimal; Amount: Decimal; AppliesToDocNo: Code[20])
+    local procedure SalesDocumentApplyAndUnApply(CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; AppliesToDocType: Enum "Gen. Journal Document Type"; AmountIncludingVAT: Decimal; Base: Decimal; Amount: Decimal; AppliesToDocNo: Code[20])
     var
         DocumentNo: Code[20];
     begin
@@ -1976,7 +1976,7 @@
         VerifyVATBookEntry(DocumentNo, Base);
     end;
 
-    local procedure SetupDocumentApplication(SalesLine: Record "Sales Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure SetupDocumentApplication(SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20])
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -1994,7 +1994,7 @@
         GenJournalLine.Modify(true);
     end;
 
-    local procedure UnapplyCustLedgerEntry(DocumentType: Option; CustomerNo: Code[20]; AmountIncludingVAT: Decimal; AppliesToDocNo: Code[20]; AppliesToDocType: Option): Code[20]
+    local procedure UnapplyCustLedgerEntry(DocumentType: Enum "Gen. Journal Document Type"; CustomerNo: Code[20]; AmountIncludingVAT: Decimal; AppliesToDocNo: Code[20]; AppliesToDocType: Enum "Gen. Journal Document Type"): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
         CustLedgerEntry: Record "Cust. Ledger Entry";

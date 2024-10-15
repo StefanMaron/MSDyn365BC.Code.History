@@ -501,10 +501,9 @@ codeunit 144127 "ERM  Miscellaneous"
     local procedure CreateAndPostPurchCrMemoWithCopyDocument(PostedInvoiceNo: Code[20]; VendorNo: Code[20]): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::"Credit Memo", VendorNo);
-        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, DocumentType::"Posted Invoice", PostedInvoiceNo, true, false);  // Incluse Header as True and RecalcLine as False.
+        LibraryPurchase.CopyPurchaseDocument(PurchaseHeader, "Purchase Document Type From"::"Posted Invoice", PostedInvoiceNo, true, false);  // Incluse Header as True and RecalcLine as False.
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
         PurchaseHeader.Modify(true);
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));  // Post as receive and invoice.
@@ -733,7 +732,7 @@ codeunit 144127 "ERM  Miscellaneous"
     end;
 
     [ConfirmHandler]
-    [Scope('Internal')]
+    [Scope('OnPrem')]
     procedure ConfirmHandlerWithMessageCheck(Question: Text; var Reply: Boolean)
     begin
         Assert.AreEqual(LibraryVariableStorage.DequeueText(), Question, 'Message is not correct');

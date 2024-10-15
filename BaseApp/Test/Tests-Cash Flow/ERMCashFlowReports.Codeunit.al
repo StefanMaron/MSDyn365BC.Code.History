@@ -390,7 +390,7 @@ codeunit 134989 "ERM Cash Flow - Reports"
         TestAmountsonCashFlowDateListReport(CFForecastEntry."Source Type"::"G/L Budget");
     end;
 
-    local procedure TestAmountsonCashFlowDateListReport(CFEntryType: Option)
+    local procedure TestAmountsonCashFlowDateListReport(CFEntryType: Enum "Cash Flow Source Type")
     var
         CFForecastEntry: Record "Cash Flow Forecast Entry";
         CFForecast: Record "Cash Flow Forecast";
@@ -415,13 +415,6 @@ codeunit 134989 "ERM Cash Flow - Reports"
             LibraryReportDataset.AssertElementWithValueExists('Liquidity', Amount)
         else
             LibraryReportDataset.AssertElementWithValueExists('GLBudget', Amount);
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmHandler(Msg: Text[1024]; var Reply: Boolean)
-    begin
-        Reply := true;
     end;
 
     [Test]
@@ -459,6 +452,13 @@ codeunit 134989 "ERM Cash Flow - Reports"
         LibraryReportValidation.OpenExcelFile();
         LibraryReportValidation.CheckIfValueExistsInSpecifiedColumn('Taxes', StrSubstNo('%1', Amount));
         LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandler(Msg: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
     end;
 
     local procedure Initialize()

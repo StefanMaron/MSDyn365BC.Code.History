@@ -15,13 +15,21 @@ page 9000 "Whse. WMS Role Center"
             {
                 ApplicationArea = Warehouse;
             }
-            part(Control1907692008; "My Customers")
+            part("User Tasks Activities"; "User Tasks Activities")
             {
-                ApplicationArea = Warehouse;
+                ApplicationArea = Suite;
             }
             part(Control73; "Team Member Activities No Msgs")
             {
                 ApplicationArea = Suite;
+            }
+            part(ApprovalsActivities; "Approvals Activities")
+            {
+                ApplicationArea = Suite;
+            }
+            part(Control1907692008; "My Customers")
+            {
+                ApplicationArea = Warehouse;
             }
             part(Control4; "Trailing Sales Orders Chart")
             {

@@ -148,7 +148,7 @@ codeunit 144123 "ERM Details Purchase"
         PostedPurchDocumentWithExpectedReceiptDate(PurchaseHeader."Document Type"::"Return Order", WorkDate);  // Expected Receipt Date same as Posting Date.
     end;
 
-    local procedure PostedPurchDocumentWithExpectedReceiptDate(DocumentType: Option; ExpectedReceiptDate: Date)
+    local procedure PostedPurchDocumentWithExpectedReceiptDate(DocumentType: Enum "Purchase Document Type"; ExpectedReceiptDate: Date)
     var
         PurchaseHeader: Record "Purchase Header";
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
@@ -457,7 +457,7 @@ codeunit 144123 "ERM Details Purchase"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; ExpectedReceiptDate: Date; CurrencyCode: Code[10])
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; ExpectedReceiptDate: Date; CurrencyCode: Code[10])
     var
         Item: Record Item;
         Vendor: Record Vendor;
@@ -602,7 +602,7 @@ codeunit 144123 "ERM Details Purchase"
         end
     end;
 
-    local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Option; VendorNo: Code[20])
+    local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20])
     begin
         with VendorLedgerEntry do begin
             SetRange("Document Type", DocumentType);

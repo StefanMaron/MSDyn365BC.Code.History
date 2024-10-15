@@ -177,7 +177,7 @@ page 12152 "Subcontracting Order"
 
                     trigger OnValidate()
                     begin
-                        PaytoVendorNoOnAfterValidate;
+                        PaytoVendorNoOnAfterValidate();
                     end;
                 }
                 field("Pay-to Contact No."; "Pay-to Contact No.")

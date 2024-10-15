@@ -62,7 +62,7 @@ codeunit 12181 "FatturaPA Service Validation"
             exit;
 
         FatturaPASalesValidation.AutoValidateDocument(
-          PassedServHeader, PassedServHeader."Customer No.", DummyElectronicDocumentFormat.Usage::"Service Validation");
+          PassedServHeader, PassedServHeader."Customer No.", DummyElectronicDocumentFormat.Usage::"Service Validation".AsInteger());
     end;
 }
 

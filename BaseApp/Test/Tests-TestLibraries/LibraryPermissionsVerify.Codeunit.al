@@ -170,6 +170,10 @@ codeunit 132216 "Library - Permissions Verify"
 
         RecordId := RecordRef.RecordId;
         TableRelationsMetadata.SetRange("Table ID", RecordId.TableNo);
+        TableRelationsMetadata.SetFilter("Field No.", '<>%1&<>%2',
+            TableRelationsMetadata.FieldNo(SystemCreatedBy),
+            TableRelationsMetadata.FieldNo(SystemModifiedBy));
+
         TableRelationsMetadata.FindSet;
         repeat
             RelatedRecordRef.Open(TableRelationsMetadata."Related Table ID");
@@ -197,6 +201,9 @@ codeunit 132216 "Library - Permissions Verify"
         TableRelationsMetadata.Init();
         RecordId := RecordRef.RecordId;
         TableRelationsMetadata.SetRange("Table ID", RecordId.TableNo);
+        TableRelationsMetadata.SetFilter("Field No.", '<>%1&<>%2',
+            TableRelationsMetadata.FieldNo(SystemCreatedBy),
+            TableRelationsMetadata.FieldNo(SystemModifiedBy));
         if TableRelationsMetadata.FindSet then
             repeat
                 RelatedRecordRef.Open(TableRelationsMetadata."Related Table ID");

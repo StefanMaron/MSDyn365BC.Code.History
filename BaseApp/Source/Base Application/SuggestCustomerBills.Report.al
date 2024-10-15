@@ -130,7 +130,8 @@ report 12176 "Suggest Customer Bills"
         TotalPayments: Decimal;
         AllowIssue: Boolean;
         UseSameABI: Boolean;
-        PartnerType: Option " ",Company,Person;
+        PartnerType: Enum "Partner Type";
+
 
     [Scope('OnPrem')]
     procedure InitValues(var CustomerBillHeader: Record "Customer Bill Header"; OkIssue: Boolean)

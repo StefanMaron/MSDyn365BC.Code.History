@@ -1,4 +1,4 @@
-﻿table 915 "ATO Sales Buffer"
+table 915 "ATO Sales Buffer"
 {
     Caption = 'ATO Sales Buffer';
     ReplicateData = false;

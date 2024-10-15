@@ -903,7 +903,7 @@ table 263 "Intrastat Jnl. Line"
         end;
     end;
 
-    local procedure GetTotalBaseAmount(TransactionNo: Integer; DocumentNo: Code[20]; TypeFilter: Option; StartDate: Date; EndDate: Date; IsCorrective: Boolean) Result: Decimal
+    local procedure GetTotalBaseAmount(TransactionNo: Integer; DocumentNo: Code[20]; TypeFilter: Enum "General Posting Type"; StartDate: Date; EndDate: Date; IsCorrective: Boolean) Result: Decimal
     var
         VATEntry: Record "VAT Entry";
     begin

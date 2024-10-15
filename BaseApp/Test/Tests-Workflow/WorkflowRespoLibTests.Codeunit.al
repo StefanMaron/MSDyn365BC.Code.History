@@ -3447,8 +3447,8 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         FirstWorkflowStepInstance: Record "Workflow Step Instance";
         ApplyNewValuesWorkflowStepInstance: Record "Workflow Step Instance";
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
-        OldValue: Option;
-        NewValue: Option;
+        OldValue: Enum "Customer Blocked";
+        NewValue: Enum "Customer Blocked";
     begin
         // [SCENARIO] Apply new values for a record.
         // [GIVEN] An active workflow step instance for Apply new values.

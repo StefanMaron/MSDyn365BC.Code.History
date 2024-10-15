@@ -154,7 +154,7 @@ codeunit 144082 "UT Subcontracting"
         DetailedCalculationWithProductionBOMLine(ProductionBOMLine.Type::"Production BOM");
     end;
 
-    local procedure DetailedCalculationWithProductionBOMLine(Type: Option)
+    local procedure DetailedCalculationWithProductionBOMLine(Type: Enum "Production BOM Line Type")
     var
         Item: Record Item;
     begin
@@ -194,7 +194,7 @@ codeunit 144082 "UT Subcontracting"
         exit(ProductionBOMHeader."No.");
     end;
 
-    local procedure CreateProductionBOMLine(No: Code[20]; ProductionBOMNo: Code[20]; Type: Option)
+    local procedure CreateProductionBOMLine(No: Code[20]; ProductionBOMNo: Code[20]; Type: Enum "Production BOM Line Type")
     var
         ProductionBOMLine: Record "Production BOM Line";
     begin

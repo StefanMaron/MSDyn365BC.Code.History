@@ -564,7 +564,7 @@ codeunit 144204 "FatturaPA Discount"
         FileManagement.DeleteServerFile(ServerFileName);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; PaymentMethodCode: Code[10]; PaymentTermsCode: Code[10]; CustomerNo: Code[20]; DocumentType: Option)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; PaymentMethodCode: Code[10]; PaymentTermsCode: Code[10]; CustomerNo: Code[20]; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -575,7 +575,7 @@ codeunit 144204 "FatturaPA Discount"
         SalesHeader.Modify(true);
     end;
 
-    local procedure CreateFatturaSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20])
+    local procedure CreateFatturaSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         SalesHeader.Validate("Payment Terms Code", LibraryITLocalization.CreateFatturaPaymentTermsCode);
@@ -583,7 +583,7 @@ codeunit 144204 "FatturaPA Discount"
         SalesHeader.Modify(true);
     end;
 
-    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; CustomerNo: Code[20]; DocumentType: Option)
+    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; CustomerNo: Code[20]; DocumentType: Enum "Service Document Type")
     var
         ServiceItem: Record "Service Item";
         ServiceLine: Record "Service Line";
@@ -636,7 +636,7 @@ codeunit 144204 "FatturaPA Discount"
         exit(LibraryITLocalization.CreateFatturaPaymentTermsCode);
     end;
 
-    local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocType: Option; CustomerNo: Code[20])
+    local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocType: Enum "Service Document Type"; CustomerNo: Code[20])
     begin
         LibraryService.CreateServiceHeader(ServiceHeader, DocType, CustomerNo);
         ServiceHeader.Validate("Order Date", WorkDate);

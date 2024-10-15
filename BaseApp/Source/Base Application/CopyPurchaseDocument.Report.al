@@ -18,20 +18,19 @@ report 492 "Copy Purchase Document"
                 group(Options)
                 {
                     Caption = 'Options';
-                    field(DocumentType; DocType)
+                    field(DocumentType; FromDocType)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Document Type';
-                        OptionCaption = 'Quote,Blanket Order,Order,Invoice,Return Order,Credit Memo,Posted Receipt,Posted Invoice,Posted Return Shipment,Posted Credit Memo,Arch. Quote,Arch. Order,Arch. Blanket Order,Arch. Return Order';
                         ToolTip = 'Specifies the type of document that is processed by the report or batch job.';
 
                         trigger OnValidate()
                         begin
-                            DocNo := '';
+                            FromDocNo := '';
                             ValidateDocNo;
                         end;
                     }
-                    field(DocumentNo; DocNo)
+                    field(DocumentNo; FromDocNo)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Document No.';
@@ -47,7 +46,7 @@ report 492 "Copy Purchase Document"
                             ValidateDocNo;
                         end;
                     }
-                    field(DocNoOccurrence; DocNoOccurrence)
+                    field(DocNoOccurrence; FromDocNoOccurrence)
                     {
                         ApplicationArea = Basic, Suite;
                         BlankZero = true;
@@ -55,7 +54,7 @@ report 492 "Copy Purchase Document"
                         Editable = false;
                         ToolTip = 'Specifies the number of times the No. value has been used in the number series.';
                     }
-                    field(DocVersionNo; DocVersionNo)
+                    field(DocVersionNo; FromDocVersionNo)
                     {
                         ApplicationArea = Basic, Suite;
                         BlankZero = true;
@@ -96,7 +95,7 @@ report 492 "Copy Purchase Document"
 
                         trigger OnValidate()
                         begin
-                            if (DocType = DocType::"Posted Receipt") or (DocType = DocType::"Posted Return Shipment") then
+                            if (FromDocType = FromDocType::"Posted Receipt") or (FromDocType = FromDocType::"Posted Return Shipment") then
                                 RecalculateLines := true;
                         end;
                     }
@@ -110,53 +109,53 @@ report 492 "Copy Purchase Document"
 
         trigger OnOpenPage()
         begin
-            if DocNo <> '' then begin
-                case DocType of
-                    DocType::Quote:
-                        if FromPurchHeader.Get(FromPurchHeader."Document Type"::Quote, DocNo) then
+            if FromDocNo <> '' then begin
+                case FromDocType of
+                    FromDocType::Quote:
+                        if FromPurchHeader.Get(FromPurchHeader."Document Type"::Quote, FromDocNo) then
                             ;
-                    DocType::"Blanket Order":
-                        if FromPurchHeader.Get(FromPurchHeader."Document Type"::"Blanket Order", DocNo) then
+                    FromDocType::"Blanket Order":
+                        if FromPurchHeader.Get(FromPurchHeader."Document Type"::"Blanket Order", FromDocNo) then
                             ;
-                    DocType::Order:
-                        if FromPurchHeader.Get(FromPurchHeader."Document Type"::Order, DocNo) then
+                    FromDocType::Order:
+                        if FromPurchHeader.Get(FromPurchHeader."Document Type"::Order, FromDocNo) then
                             ;
-                    DocType::Invoice:
-                        if FromPurchHeader.Get(FromPurchHeader."Document Type"::Invoice, DocNo) then
+                    FromDocType::Invoice:
+                        if FromPurchHeader.Get(FromPurchHeader."Document Type"::Invoice, FromDocNo) then
                             ;
-                    DocType::"Return Order":
-                        if FromPurchHeader.Get(FromPurchHeader."Document Type"::"Return Order", DocNo) then
+                    FromDocType::"Return Order":
+                        if FromPurchHeader.Get(FromPurchHeader."Document Type"::"Return Order", FromDocNo) then
                             ;
-                    DocType::"Credit Memo":
-                        if FromPurchHeader.Get(FromPurchHeader."Document Type"::"Credit Memo", DocNo) then
+                    FromDocType::"Credit Memo":
+                        if FromPurchHeader.Get(FromPurchHeader."Document Type"::"Credit Memo", FromDocNo) then
                             ;
-                    DocType::"Posted Receipt":
-                        if FromPurchRcptHeader.Get(DocNo) then
+                    FromDocType::"Posted Receipt":
+                        if FromPurchRcptHeader.Get(FromDocNo) then
                             FromPurchHeader.TransferFields(FromPurchRcptHeader);
-                    DocType::"Posted Invoice":
-                        if FromPurchInvHeader.Get(DocNo) then
+                    FromDocType::"Posted Invoice":
+                        if FromPurchInvHeader.Get(FromDocNo) then
                             FromPurchHeader.TransferFields(FromPurchInvHeader);
-                    DocType::"Posted Return Shipment":
-                        if FromReturnShptHeader.Get(DocNo) then
+                    FromDocType::"Posted Return Shipment":
+                        if FromReturnShptHeader.Get(FromDocNo) then
                             FromPurchHeader.TransferFields(FromReturnShptHeader);
-                    DocType::"Posted Credit Memo":
-                        if FromPurchCrMemoHeader.Get(DocNo) then
+                    FromDocType::"Posted Credit Memo":
+                        if FromPurchCrMemoHeader.Get(FromDocNo) then
                             FromPurchHeader.TransferFields(FromPurchCrMemoHeader);
-                    DocType::"Arch. Order":
-                        if FromPurchHeaderArchive.Get(FromPurchHeaderArchive."Document Type"::Order, DocNo, DocNoOccurrence, DocVersionNo) then
+                    FromDocType::"Arch. Order":
+                        if FromPurchHeaderArchive.Get(FromPurchHeaderArchive."Document Type"::Order, FromDocNo, FromDocNoOccurrence, FromDocVersionNo) then
                             FromPurchHeader.TransferFields(FromPurchHeaderArchive);
-                    DocType::"Arch. Quote":
-                        if FromPurchHeaderArchive.Get(FromPurchHeaderArchive."Document Type"::Quote, DocNo, DocNoOccurrence, DocVersionNo) then
+                    FromDocType::"Arch. Quote":
+                        if FromPurchHeaderArchive.Get(FromPurchHeaderArchive."Document Type"::Quote, FromDocNo, FromDocNoOccurrence, FromDocVersionNo) then
                             FromPurchHeader.TransferFields(FromPurchHeaderArchive);
-                    DocType::"Arch. Blanket Order":
-                        if FromPurchHeaderArchive.Get(FromPurchHeaderArchive."Document Type"::"Blanket Order", DocNo, DocNoOccurrence, DocVersionNo) then
+                    FromDocType::"Arch. Blanket Order":
+                        if FromPurchHeaderArchive.Get(FromPurchHeaderArchive."Document Type"::"Blanket Order", FromDocNo, FromDocNoOccurrence, FromDocVersionNo) then
                             FromPurchHeader.TransferFields(FromPurchHeaderArchive);
-                    DocType::"Arch. Return Order":
-                        if FromPurchHeaderArchive.Get(FromPurchHeaderArchive."Document Type"::"Return Order", DocNo, DocNoOccurrence, DocVersionNo) then
+                    FromDocType::"Arch. Return Order":
+                        if FromPurchHeaderArchive.Get(FromPurchHeaderArchive."Document Type"::"Return Order", FromDocNo, FromDocNoOccurrence, FromDocVersionNo) then
                             FromPurchHeader.TransferFields(FromPurchHeaderArchive);
                 end;
                 if FromPurchHeader."No." = '' then
-                    DocNo := '';
+                    FromDocNo := '';
             end;
             ValidateDocNo;
 
@@ -175,11 +174,11 @@ report 492 "Copy Purchase Document"
         PurchSetup.Get();
         CopyDocMgt.SetProperties(
           IncludeHeader, RecalculateLines, false, false, false, PurchSetup."Exact Cost Reversing Mandatory", false);
-        CopyDocMgt.SetArchDocVal(DocNoOccurrence, DocVersionNo);
+        CopyDocMgt.SetArchDocVal(FromDocNoOccurrence, FromDocVersionNo);
 
         OnPreReportOnBeforeCopyPurchaseDoc(CopyDocMgt);
 
-        CopyDocMgt.CopyPurchDoc(DocType, DocNo, PurchHeader);
+        CopyDocMgt.CopyPurchDoc(FromDocType, FromDocNo, PurchHeader);
     end;
 
     var
@@ -192,16 +191,16 @@ report 492 "Copy Purchase Document"
         FromPurchHeaderArchive: Record "Purchase Header Archive";
         PurchSetup: Record "Purchases & Payables Setup";
         CopyDocMgt: Codeunit "Copy Document Mgt.";
-        DocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo","Arch. Quote","Arch. Order","Arch. Blanket Order","Arch. Return Order";
-        DocNo: Code[20];
+        FromDocType: Enum "Purchase Document Type From";
+        FromDocNo: Code[20];
+        FromDocNoOccurrence: Integer;
+        FromDocVersionNo: Integer;
         IncludeHeader: Boolean;
         RecalculateLines: Boolean;
         Text000: Label 'The price information may not be reversed correctly, if you copy a %1. If possible, copy a %2 instead or use %3 functionality.';
         Text001: Label 'Undo Receipt';
         Text002: Label 'Undo Return Shipment';
         Text003: Label 'Quote,Blanket Order,Order,Invoice,Return Order,Credit Memo,Posted Receipt,Posted Invoice,Posted Return Shipment,Posted Credit Memo';
-        DocNoOccurrence: Integer;
-        DocVersionNo: Integer;
 
     procedure SetPurchHeader(var NewPurchHeader: Record "Purchase Header")
     begin
@@ -210,68 +209,62 @@ report 492 "Copy Purchase Document"
     end;
 
     local procedure ValidateDocNo()
-    var
-        DocType2: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
     begin
-        if DocNo = '' then begin
+        if FromDocNo = '' then begin
             FromPurchHeader.Init();
-            DocNoOccurrence := 0;
-            DocVersionNo := 0;
+            FromDocNoOccurrence := 0;
+            FromDocVersionNo := 0;
         end else
-            if DocNo <> FromPurchHeader."No." then begin
+            if FromDocNo <> FromPurchHeader."No." then begin
                 FromPurchHeader.Init();
-                case DocType of
-                    DocType::Quote,
-                  DocType::"Blanket Order",
-                  DocType::Order,
-                  DocType::Invoice,
-                  DocType::"Return Order",
-                  DocType::"Credit Memo":
-                        FromPurchHeader.Get(CopyDocMgt.PurchHeaderDocType(DocType), DocNo);
-                    DocType::"Posted Receipt":
+                case FromDocType of
+                    FromDocType::Quote,
+                    FromDocType::"Blanket Order",
+                    FromDocType::Order,
+                    FromDocType::Invoice,
+                    FromDocType::"Return Order",
+                    FromDocType::"Credit Memo":
+                        FromPurchHeader.Get(CopyDocMgt.GetPurchaseDocumentType(FromDocType), FromDocNo);
+                    FromDocType::"Posted Receipt":
                         begin
-                            FromPurchRcptHeader.Get(DocNo);
+                            FromPurchRcptHeader.Get(FromDocNo);
                             FromPurchHeader.TransferFields(FromPurchRcptHeader);
                             if PurchHeader."Document Type" in
                                [PurchHeader."Document Type"::"Return Order", PurchHeader."Document Type"::"Credit Memo"]
-                            then begin
-                                DocType2 := DocType2::"Posted Invoice";
-                                Message(Text000, SelectStr(1 + DocType, Text003), SelectStr(1 + DocType2, Text003), Text001);
-                            end;
+                            then
+                                Message(Text000, SelectStr(1 + FromDocType.AsInteger(), Text003), SelectStr(1 + "Purchase Document Type From"::"Posted Invoice".AsInteger(), Text003), Text001);
                         end;
-                    DocType::"Posted Invoice":
+                    FromDocType::"Posted Invoice":
                         begin
-                            FromPurchInvHeader.Get(DocNo);
+                            FromPurchInvHeader.Get(FromDocNo);
                             FromPurchHeader.TransferFields(FromPurchInvHeader);
                         end;
-                    DocType::"Posted Return Shipment":
+                    FromDocType::"Posted Return Shipment":
                         begin
-                            FromReturnShptHeader.Get(DocNo);
+                            FromReturnShptHeader.Get(FromDocNo);
                             FromPurchHeader.TransferFields(FromReturnShptHeader);
                             if PurchHeader."Document Type" in
                                [PurchHeader."Document Type"::Order, PurchHeader."Document Type"::Invoice]
-                            then begin
-                                DocType2 := DocType2::"Posted Credit Memo";
-                                Message(Text000, SelectStr(1 + DocType, Text003), SelectStr(1 + DocType2, Text003), Text002);
-                            end;
+                            then
+                                Message(Text000, SelectStr(1 + FromDocType.AsInteger(), Text003), SelectStr(1 + "Purchase Document Type From"::"Posted Credit Memo".AsInteger(), Text003), Text002);
                         end;
-                    DocType::"Posted Credit Memo":
+                    FromDocType::"Posted Credit Memo":
                         begin
-                            FromPurchCrMemoHeader.Get(DocNo);
+                            FromPurchCrMemoHeader.Get(FromDocNo);
                             FromPurchHeader.TransferFields(FromPurchCrMemoHeader);
                         end;
-                    DocType::"Arch. Quote",
-                    DocType::"Arch. Order",
-                    DocType::"Arch. Blanket Order",
-                    DocType::"Arch. Return Order":
+                    FromDocType::"Arch. Quote",
+                    FromDocType::"Arch. Order",
+                    FromDocType::"Arch. Blanket Order",
+                    FromDocType::"Arch. Return Order":
                         begin
                             if not FromPurchHeaderArchive.Get(
-                                 CopyDocMgt.ArchPurchHeaderDocType(DocType), DocNo, DocNoOccurrence, DocVersionNo)
+                                 CopyDocMgt.GetPurchaseDocumentType(FromDocType), FromDocNo, FromDocNoOccurrence, FromDocVersionNo)
                             then begin
-                                FromPurchHeaderArchive.SetRange("No.", DocNo);
+                                FromPurchHeaderArchive.SetRange("No.", FromDocNo);
                                 if FromPurchHeaderArchive.FindLast then begin
-                                    DocNoOccurrence := FromPurchHeaderArchive."Doc. No. Occurrence";
-                                    DocVersionNo := FromPurchHeaderArchive."Version No.";
+                                    FromDocNoOccurrence := FromPurchHeaderArchive."Doc. No. Occurrence";
+                                    FromDocVersionNo := FromPurchHeaderArchive."Version No.";
                                 end;
                             end;
                             FromPurchHeader.TransferFields(FromPurchHeaderArchive);
@@ -281,12 +274,12 @@ report 492 "Copy Purchase Document"
         FromPurchHeader."No." := '';
 
         IncludeHeader :=
-          (DocType in [DocType::"Posted Invoice", DocType::"Posted Credit Memo"]) and
-          ((DocType = DocType::"Posted Credit Memo") <>
+          (FromDocType in [FromDocType::"Posted Invoice", FromDocType::"Posted Credit Memo"]) and
+          ((FromDocType = FromDocType::"Posted Credit Memo") <>
            (PurchHeader."Document Type" = PurchHeader."Document Type"::"Credit Memo")) and
           (PurchHeader."Buy-from Vendor No." in [FromPurchHeader."Buy-from Vendor No.", '']);
 
-        OnBeforeValidateIncludeHeader(IncludeHeader, DocType);
+        OnBeforeValidateIncludeHeader(IncludeHeader, FromDocType.AsInteger());
         ValidateIncludeHeader;
     end;
 
@@ -294,27 +287,27 @@ report 492 "Copy Purchase Document"
     begin
         OnBeforeLookupDocNo(PurchHeader);
 
-        case DocType of
-            DocType::Quote,
-          DocType::"Blanket Order",
-          DocType::Order,
-          DocType::Invoice,
-          DocType::"Return Order",
-          DocType::"Credit Memo":
-                LookupPurchDoc;
-            DocType::"Posted Receipt":
-                LookupPostedReceipt;
-            DocType::"Posted Invoice":
-                LookupPostedInvoice;
-            DocType::"Posted Return Shipment":
-                LookupPostedReturn;
-            DocType::"Posted Credit Memo":
-                LookupPostedCrMemo;
-            DocType::"Arch. Quote",
-          DocType::"Arch. Order",
-          DocType::"Arch. Blanket Order",
-          DocType::"Arch. Return Order":
-                LookupPurchArchive;
+        case FromDocType of
+            FromDocType::Quote,
+            FromDocType::"Blanket Order",
+            FromDocType::Order,
+            FromDocType::Invoice,
+            FromDocType::"Return Order",
+            FromDocType::"Credit Memo":
+                LookupPurchDoc();
+            FromDocType::"Posted Receipt":
+                LookupPostedReceipt();
+            FromDocType::"Posted Invoice":
+                LookupPostedInvoice();
+            FromDocType::"Posted Return Shipment":
+                LookupPostedReturn();
+            FromDocType::"Posted Credit Memo":
+                LookupPostedCrMemo();
+            FromDocType::"Arch. Quote",
+            FromDocType::"Arch. Order",
+            FromDocType::"Arch. Blanket Order",
+            FromDocType::"Arch. Return Order":
+                LookupPurchArchive();
         end;
         ValidateDocNo;
     end;
@@ -324,19 +317,19 @@ report 492 "Copy Purchase Document"
         OnBeforeLookupPurchDoc(FromPurchHeader, PurchHeader);
 
         FromPurchHeader.FilterGroup := 0;
-        FromPurchHeader.SetRange("Document Type", CopyDocMgt.PurchHeaderDocType(DocType));
-        if PurchHeader."Document Type" = CopyDocMgt.PurchHeaderDocType(DocType) then
+        FromPurchHeader.SetRange("Document Type", CopyDocMgt.GetPurchaseDocumentType(FromDocType));
+        if PurchHeader."Document Type" = CopyDocMgt.GetPurchaseDocumentType(FromDocType) then
             FromPurchHeader.SetFilter("No.", '<>%1', PurchHeader."No.");
         FromPurchHeader.FilterGroup := 2;
-        FromPurchHeader."Document Type" := CopyDocMgt.PurchHeaderDocType(DocType);
-        FromPurchHeader."No." := DocNo;
-        if (DocNo = '') and (PurchHeader."Buy-from Vendor No." <> '') then
+        FromPurchHeader."Document Type" := CopyDocMgt.GetPurchaseDocumentType(FromDocType);
+        FromPurchHeader."No." := FromDocNo;
+        if (FromDocNo = '') and (PurchHeader."Buy-from Vendor No." <> '') then
             if FromPurchHeader.SetCurrentKey("Document Type", "Buy-from Vendor No.") then begin
                 FromPurchHeader."Buy-from Vendor No." := PurchHeader."Buy-from Vendor No.";
                 if FromPurchHeader.Find('=><') then;
             end;
         if PAGE.RunModal(0, FromPurchHeader) = ACTION::LookupOK then
-            DocNo := FromPurchHeader."No.";
+            FromDocNo := FromPurchHeader."No.";
     end;
 
     local procedure LookupPurchArchive()
@@ -344,21 +337,21 @@ report 492 "Copy Purchase Document"
         FromPurchHeaderArchive.Reset();
         OnLookupPurchArchiveOnBeforeSetFilters(FromPurchHeaderArchive, PurchHeader);
         FromPurchHeaderArchive.FilterGroup := 0;
-        FromPurchHeaderArchive.SetRange("Document Type", CopyDocMgt.ArchPurchHeaderDocType(DocType));
+        FromPurchHeaderArchive.SetRange("Document Type", CopyDocMgt.GetPurchaseDocumentType(FromDocType));
         FromPurchHeaderArchive.FilterGroup := 2;
-        FromPurchHeaderArchive."Document Type" := CopyDocMgt.ArchPurchHeaderDocType(DocType);
-        FromPurchHeaderArchive."No." := DocNo;
-        FromPurchHeaderArchive."Doc. No. Occurrence" := DocNoOccurrence;
-        FromPurchHeaderArchive."Version No." := DocVersionNo;
-        if (DocNo = '') and (PurchHeader."Sell-to Customer No." <> '') then
+        FromPurchHeaderArchive."Document Type" := CopyDocMgt.GetPurchaseDocumentType(FromDocType);
+        FromPurchHeaderArchive."No." := FromDocNo;
+        FromPurchHeaderArchive."Doc. No. Occurrence" := FromDocNoOccurrence;
+        FromPurchHeaderArchive."Version No." := FromDocVersionNo;
+        if (FromDocNo = '') and (PurchHeader."Sell-to Customer No." <> '') then
             if FromPurchHeaderArchive.SetCurrentKey("Document Type", "Sell-to Customer No.") then begin
                 FromPurchHeaderArchive."Sell-to Customer No." := PurchHeader."Sell-to Customer No.";
                 if FromPurchHeaderArchive.Find('=><') then;
             end;
         if PAGE.RunModal(0, FromPurchHeaderArchive) = ACTION::LookupOK then begin
-            DocNo := FromPurchHeaderArchive."No.";
-            DocNoOccurrence := FromPurchHeaderArchive."Doc. No. Occurrence";
-            DocVersionNo := FromPurchHeaderArchive."Version No.";
+            FromDocNo := FromPurchHeaderArchive."No.";
+            FromDocNoOccurrence := FromPurchHeaderArchive."Doc. No. Occurrence";
+            FromDocVersionNo := FromPurchHeaderArchive."Version No.";
             RequestOptionsPage.Update(false);
         end;
     end;
@@ -367,22 +360,22 @@ report 492 "Copy Purchase Document"
     begin
         OnBeforeLookupPostedReceipt(FromPurchRcptHeader, PurchHeader);
 
-        FromPurchRcptHeader."No." := DocNo;
-        if (DocNo = '') and (PurchHeader."Buy-from Vendor No." <> '') then
+        FromPurchRcptHeader."No." := FromDocNo;
+        if (FromDocNo = '') and (PurchHeader."Buy-from Vendor No." <> '') then
             if FromPurchRcptHeader.SetCurrentKey("Buy-from Vendor No.") then begin
                 FromPurchRcptHeader."Buy-from Vendor No." := PurchHeader."Buy-from Vendor No.";
                 if FromPurchRcptHeader.Find('=><') then;
             end;
         if PAGE.RunModal(0, FromPurchRcptHeader) = ACTION::LookupOK then
-            DocNo := FromPurchRcptHeader."No.";
+            FromDocNo := FromPurchRcptHeader."No.";
     end;
 
     local procedure LookupPostedInvoice()
     begin
         OnBeforeLookupPostedInvoice(FromPurchInvHeader, PurchHeader);
 
-        FromPurchInvHeader."No." := DocNo;
-        if (DocNo = '') and (PurchHeader."Buy-from Vendor No." <> '') then
+        FromPurchInvHeader."No." := FromDocNo;
+        if (FromDocNo = '') and (PurchHeader."Buy-from Vendor No." <> '') then
             if FromPurchInvHeader.SetCurrentKey("Buy-from Vendor No.") then begin
                 FromPurchInvHeader."Buy-from Vendor No." := PurchHeader."Buy-from Vendor No.";
                 if FromPurchInvHeader.Find('=><') then;
@@ -391,15 +384,15 @@ report 492 "Copy Purchase Document"
         FromPurchInvHeader.SetRange("Prepayment Invoice", false);
         FromPurchInvHeader.FilterGroup(0);
         if PAGE.RunModal(0, FromPurchInvHeader) = ACTION::LookupOK then
-            DocNo := FromPurchInvHeader."No.";
+            FromDocNo := FromPurchInvHeader."No.";
     end;
 
     local procedure LookupPostedCrMemo()
     begin
         OnBeforeLookupPostedCrMemo(FromPurchCrMemoHeader, PurchHeader);
 
-        FromPurchCrMemoHeader."No." := DocNo;
-        if (DocNo = '') and (PurchHeader."Buy-from Vendor No." <> '') then
+        FromPurchCrMemoHeader."No." := FromDocNo;
+        if (FromDocNo = '') and (PurchHeader."Buy-from Vendor No." <> '') then
             if FromPurchCrMemoHeader.SetCurrentKey("Buy-from Vendor No.") then begin
                 FromPurchCrMemoHeader."Buy-from Vendor No." := PurchHeader."Buy-from Vendor No.";
                 if FromPurchCrMemoHeader.Find('=><') then;
@@ -408,35 +401,41 @@ report 492 "Copy Purchase Document"
         FromPurchCrMemoHeader.SetRange("Prepayment Credit Memo", false);
         FromPurchCrMemoHeader.FilterGroup(0);
         if PAGE.RunModal(0, FromPurchCrMemoHeader) = ACTION::LookupOK then
-            DocNo := FromPurchCrMemoHeader."No.";
+            FromDocNo := FromPurchCrMemoHeader."No.";
     end;
 
     local procedure LookupPostedReturn()
     begin
         OnBeforeLookupPostedReturn(FromReturnShptHeader, PurchHeader);
 
-        FromReturnShptHeader."No." := DocNo;
-        if (DocNo = '') and (PurchHeader."Buy-from Vendor No." <> '') then
+        FromReturnShptHeader."No." := FromDocNo;
+        if (FromDocNo = '') and (PurchHeader."Buy-from Vendor No." <> '') then
             if FromReturnShptHeader.SetCurrentKey("Buy-from Vendor No.") then begin
                 FromReturnShptHeader."Buy-from Vendor No." := PurchHeader."Buy-from Vendor No.";
                 if FromReturnShptHeader.Find('=><') then;
             end;
         if PAGE.RunModal(0, FromReturnShptHeader) = ACTION::LookupOK then
-            DocNo := FromReturnShptHeader."No.";
+            FromDocNo := FromReturnShptHeader."No.";
     end;
 
     local procedure ValidateIncludeHeader()
     begin
         RecalculateLines :=
-          (DocType in [DocType::"Posted Receipt", DocType::"Posted Return Shipment"]) or not IncludeHeader;
+          (FromDocType in [FromDocType::"Posted Receipt", FromDocType::"Posted Return Shipment"]) or not IncludeHeader;
     end;
 
-    procedure InitializeRequest(NewDocType: Option; NewDocNo: Code[20]; NewIncludeHeader: Boolean; NewRecalcLines: Boolean)
+    procedure SetParameters(NewFromDocType: Enum "Purchase Document Type From"; NewFromDocNo: Code[20]; NewIncludeHeader: Boolean; NewRecalcLines: Boolean)
     begin
-        DocType := NewDocType;
-        DocNo := NewDocNo;
+        FromDocType := NewFromDocType;
+        FromDocNo := NewFromDocNo;
         IncludeHeader := NewIncludeHeader;
         RecalculateLines := NewRecalcLines;
+    end;
+
+    [Obsolete('Replaced by SetParameters().', '17.0')]
+    procedure InitializeRequest(NewDocType: Option; NewDocNo: Code[20]; NewIncludeHeader: Boolean; NewRecalcLines: Boolean)
+    begin
+        SetParameters("Purchase Document Type From".FromInteger(NewDocType), NewDocNo, NewIncludeHeader, NewRecalcLines);
     end;
 
     [IntegrationEvent(false, false)]

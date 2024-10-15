@@ -16,7 +16,7 @@ codeunit 132213 "Library - Small Business"
         LibraryRandom: Codeunit "Library - Random";
         LibraryDimension: Codeunit "Library - Dimension";
 
-    procedure CreateCommentLine(var CommentLine: Record "Comment Line"; TableName: Option; No: Code[20])
+    procedure CreateCommentLine(var CommentLine: Record "Comment Line"; TableName: Enum "Comment Line Table Name"; No: Code[20])
     var
         RecRef: RecordRef;
     begin
@@ -43,7 +43,7 @@ codeunit 132213 "Library - Small Business"
 
         Clear(SalesCommentLine);
         SalesCommentLine.Init();
-        SalesCommentLine."Document Type" := SalesLine."Document Type".AsInteger();
+        SalesCommentLine."Document Type" := SalesLine."Document Type";
         SalesCommentLine."No." := SalesLine."Document No.";
         SalesCommentLine."Document Line No." := SalesLine."Line No.";
         SalesCommentLine."Line No." := NextLineNo;
@@ -110,7 +110,7 @@ codeunit 132213 "Library - Small Business"
         CurrencyExchangeRate.Insert(true);
     end;
 
-    procedure CreateExtendedTextHeader(var ExtendedTextHeader: Record "Extended Text Header"; TableNameOption: Option "Standard Text","G/L Account",Item,Resource; No: Code[20])
+    procedure CreateExtendedTextHeader(var ExtendedTextHeader: Record "Extended Text Header"; TableNameOption: Enum "Extended Text Table Name"; No: Code[20])
     begin
         Clear(ExtendedTextHeader);
         ExtendedTextHeader.Validate("Table Name", TableNameOption);

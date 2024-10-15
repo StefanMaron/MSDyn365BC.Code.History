@@ -22,14 +22,12 @@ report 742 "VAT Report Request Page"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Include VAT entries';
-                    OptionCaption = 'Open,Closed,Open and Closed';
                     ToolTip = 'Specifies whether to include VAT entries based on their status. For example, Open is useful when submitting for the first time, Open and Closed is useful when resubmitting.';
                 }
                 field(PeriodSelection; PeriodSelection)
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Include VAT entries';
-                    OptionCaption = 'Before and Within Period,Within Period';
                     ToolTip = 'Specifies whether to include VAT entries only from the specified period, or also from previous periods within the specified year.';
                 }
                 field("""VAT Report Header"".""Start Date"""; "VAT Report Header"."Start Date")
@@ -66,7 +64,7 @@ report 742 "VAT Report Request Page"
     }
 
     var
-        Selection: Option Open,Closed,"Open and Closed";
-        PeriodSelection: Option "Before and Within Period","Within Period";
+        Selection: Enum "VAT Statement Report Selection";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
 }
 

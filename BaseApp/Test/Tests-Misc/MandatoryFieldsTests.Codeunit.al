@@ -14,6 +14,7 @@ codeunit 134590 "Mandatory Fields Tests"
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        LibraryTemplates: Codeunit "Library - Templates";
         UnexpectedShowMandatoryValueTxt: Label 'Unexpected value of ShowMandatory property.';
         LibraryInventory: Codeunit "Library - Inventory";
         IsInitialized: Boolean;
@@ -25,6 +26,7 @@ codeunit 134590 "Mandatory Fields Tests"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Mandatory Fields Tests");
 
+        LibraryTemplates.DisableTemplatesFeature();
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Mandatory Fields Tests");
     end;

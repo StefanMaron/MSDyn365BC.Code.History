@@ -49,7 +49,9 @@ codeunit 144016 "IT - SEPA.03 CT Unit Test"
         // Must be record in Tab81 with same Document No.
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
         LibraryERM.FindGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
-        LibraryERM.CreateGeneralJnlLine(GenJnlLine, GenJournalTemplate.Name, GenJournalBatch.Name, 0, 0, '', 0);
+        LibraryERM.CreateGeneralJnlLine(
+            GenJnlLine, GenJournalTemplate.Name, GenJournalBatch.Name, "Gen. Journal Document Type"::" ",
+            "Gen. Journal Account Type"::"G/L Account", '', 0);
         GenJnlLine."Document No." := VendorBillHeader."No.";
         GenJnlLine.Modify();
 

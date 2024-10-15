@@ -277,7 +277,7 @@ codeunit 144077 "UT REP Extra VAT"
         PostInvoiceWithUnrealVATCalcAndPostVATSettlement(VATEntry.Type::Purchase);
     end;
 
-    local procedure PostInvoiceWithUnrealVATCalcAndPostVATSettlement(EntryType: Option)
+    local procedure PostInvoiceWithUnrealVATCalcAndPostVATSettlement(EntryType: Enum "General Posting Type")
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -420,7 +420,7 @@ codeunit 144077 "UT REP Extra VAT"
         LibraryVariableStorage.Clear;
     end;
 
-    local procedure CalcAndPostVATSettlementWithUnrealizedVAT(var VATEntry: Record "VAT Entry"; UnrealizedVAT: Boolean; EntryType: Option; ShowVATEntries: Boolean)
+    local procedure CalcAndPostVATSettlementWithUnrealizedVAT(var VATEntry: Record "VAT Entry"; UnrealizedVAT: Boolean; EntryType: Enum "General Posting Type"; ShowVATEntries: Boolean)
     begin
         // Setup: Update General Ledger Setup and Create VAT Entry.
         UpdateUnrealizedVATOnGeneralLedgerSetup(UnrealizedVAT);
@@ -465,7 +465,7 @@ codeunit 144077 "UT REP Extra VAT"
         VATBookEntry.Insert();
     end;
 
-    local procedure CreateVATEntry(var VATEntry: Record "VAT Entry"; Type: Option)
+    local procedure CreateVATEntry(var VATEntry: Record "VAT Entry"; Type: Enum "General Posting Type")
     var
         VATEntry2: Record "VAT Entry";
         VATPostingSetup: Record "VAT Posting Setup";

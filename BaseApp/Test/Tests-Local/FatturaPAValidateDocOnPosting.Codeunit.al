@@ -870,7 +870,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         LibrarySetupStorage.Save(DATABASE::"Service Mgt. Setup");
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20]; PaymentMethodCode: Code[10])
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; PaymentMethodCode: Code[10])
     var
         SalesLine: Record "Sales Line";
     begin
@@ -884,7 +884,7 @@ codeunit 144201 "FatturaPA ValidateDocOnPosting"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Option; CustomerNo: Code[20]; PaymentMethodCode: Code[10])
+    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; CustomerNo: Code[20]; PaymentMethodCode: Code[10])
     var
         ServiceLine: Record "Service Line";
     begin

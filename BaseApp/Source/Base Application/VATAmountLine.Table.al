@@ -257,7 +257,7 @@
         exit(true);
     end;
 
-    procedure InsertNewLine(VATIdentifier: Code[20]; VATCalcType: Option; TaxGroupCode: Code[20]; UseTax: Boolean; TaxRate: Decimal; IsPositive: Boolean; IsPrepayment: Boolean; DeductiblePercent: Decimal)
+    procedure InsertNewLine(VATIdentifier: Code[20]; VATCalcType: Enum "Tax Calculation Type"; TaxGroupCode: Code[20]; UseTax: Boolean; TaxRate: Decimal; IsPositive: Boolean; IsPrepayment: Boolean; DeductiblePercent: Decimal)
     begin
         Init;
         "VAT Identifier" := VATIdentifier;

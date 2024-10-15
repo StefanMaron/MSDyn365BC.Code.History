@@ -564,7 +564,7 @@ codeunit 144143 "ERM FA Deprciation"
           CalcDate('<1Y>', FADepreciationBook[2]."Depreciation Starting Date"));  // Random Amount.
     end;
 
-    local procedure CreateAndPostGenJournalLine(FADepreciationBook: Record "FA Depreciation Book"; FAPostingType: Option; Amount: Decimal; PostingDate: Date)
+    local procedure CreateAndPostGenJournalLine(FADepreciationBook: Record "FA Depreciation Book"; FAPostingType: Enum "Gen. Journal Line FA Posting Type"; Amount: Decimal; PostingDate: Date)
     var
         GLAccount: Record "G/L Account";
         GenJournalLine: Record "Gen. Journal Line";
@@ -841,7 +841,7 @@ codeunit 144143 "ERM FA Deprciation"
         LibraryERM.FindGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
     end;
 
-    local procedure FindFALedgerEntry(var FALedgerEntry: Record "FA Ledger Entry"; FANo: Code[20]; DepreciationBookCode: Code[10]; DocumentType: Option; FAPostingCategory: Option)
+    local procedure FindFALedgerEntry(var FALedgerEntry: Record "FA Ledger Entry"; FANo: Code[20]; DepreciationBookCode: Code[10]; DocumentType: Enum "Gen. Journal Document Type"; FAPostingCategory: Option)
     begin
         FALedgerEntry.SetRange("FA No.", FANo);
         FALedgerEntry.SetRange("Depreciation Book Code", DepreciationBookCode);

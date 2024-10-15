@@ -35,7 +35,7 @@ codeunit 5612 "Calculate Custom 1 Depr."
         SalvageValue: Decimal;
         AcquisitionDate: Date;
         DisposalDate: Date;
-        DeprMethod: Option StraightLine,DB1,DB2,DB1SL,DB2SL,"User-Defined",Manual,BelowZero;
+        DeprMethod: Enum "FA Depreciation Method";
         DeprStartingDate: Date;
         FirstUserDefinedDeprDate: Date;
         SLPercent: Decimal;
@@ -154,19 +154,19 @@ codeunit 5612 "Calculate Custom 1 Depr."
             CalcDeprBasis;
 
             case DeprMethod of
-                DeprMethod::StraightLine:
-                    DeprAmount := CalcSLAmount;
-                DeprMethod::DB1:
-                    DeprAmount := CalcDB1Amount;
-                DeprMethod::DB2:
-                    DeprAmount := CalcDB2Amount;
-                DeprMethod::DB1SL:
-                    DeprAmount := CalcDBSLAmount;
-                DeprMethod::DB2SL,
+                DeprMethod::"Straight-Line":
+                    DeprAmount := CalcSLAmount();
+                DeprMethod::"Declining-Balance 1":
+                    DeprAmount := CalcDB1Amount();
+                DeprMethod::"Declining-Balance 2":
+                    DeprAmount := CalcDB2Amount();
+                DeprMethod::"DB1/SL":
+                    DeprAmount := CalcDBSLAmount();
+                DeprMethod::"DB2/SL",
               DeprMethod::Manual:
                     DeprAmount := 0;
                 DeprMethod::"User-Defined":
-                    DeprAmount := CalcCustom1Amount;
+                    DeprAmount := CalcCustom1Amount();
             end;
 
             Custom1DeprAmount := CalcCustom1DeprAmount;
@@ -222,13 +222,13 @@ codeunit 5612 "Calculate Custom 1 Depr."
         SLAmount: Decimal;
         DBAmount: Decimal;
     begin
-        if DeprMethod = DeprMethod::DB1SL then
-            DBAmount := CalcDB1Amount
+        if DeprMethod = DeprMethod::"DB1/SL" then
+            DBAmount := CalcDB1Amount()
         else
-            DBAmount := CalcDB2Amount;
+            DBAmount := CalcDB2Amount();
         if UntilDate <= Custom1DeprUntil then
             exit(DBAmount);
-        SLAmount := CalcSLAmount;
+        SLAmount := CalcSLAmount();
         if SLAmount < DBAmount then
             exit(SLAmount);
 
@@ -414,7 +414,7 @@ codeunit 5612 "Calculate Custom 1 Depr."
                 Error(
                   Text003,
                   FAName, FieldCaption("Depreciation Starting Date"), FieldCaption("Depr. Ending Date (Custom 1)"));
-            if (DeprMethod = DeprMethod::DB2SL) and (Custom1DeprUntil > 0D) then
+            if (DeprMethod = DeprMethod::"DB2/SL") and (Custom1DeprUntil > 0D) then
                 Error(
                   Text004,
                   FAName, FieldCaption("Depr. Ending Date (Custom 1)"),

@@ -28,7 +28,7 @@ page 12153 "Subcontracting Order Subform"
                     trigger OnValidate()
                     begin
                         ShowShortcutDimCode(ShortcutDimCode);
-                        NoOnAfterValidate;
+                        NoOnAfterValidate();
                     end;
                 }
                 field("Cross-Reference No."; "Cross-Reference No.")
@@ -220,7 +220,7 @@ page 12153 "Subcontracting Order Subform"
                     trigger OnDrillDown()
                     begin
                         CurrPage.SaveRecord;
-                        ShowItemChargeAssgnt;
+                        ShowItemChargeAssgnt();
                         UpdateForm(false);
                     end;
                 }
@@ -233,7 +233,7 @@ page 12153 "Subcontracting Order Subform"
                     trigger OnDrillDown()
                     begin
                         CurrPage.SaveRecord;
-                        ShowItemChargeAssgnt;
+                        ShowItemChargeAssgnt();
                         UpdateForm(false);
                     end;
                 }
@@ -538,7 +538,7 @@ page 12153 "Subcontracting Order Subform"
                     trigger OnAction()
                     begin
                         Find;
-                        ShowReservation;
+                        ShowReservation();
                     end;
                 }
                 action("Order &Tracking")
@@ -550,7 +550,7 @@ page 12153 "Subcontracting Order Subform"
 
                     trigger OnAction()
                     begin
-                        ShowTracking;
+                        ShowTracking();
                     end;
                 }
             }
@@ -621,7 +621,7 @@ page 12153 "Subcontracting Order Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Item Charge &Assignment")
@@ -632,7 +632,7 @@ page 12153 "Subcontracting Order Subform"
 
                     trigger OnAction()
                     begin
-                        ItemChargeAssgnt;
+                        ItemChargeAssgnt();
                     end;
                 }
                 action("Item Tracking &Lines")
@@ -644,7 +644,7 @@ page 12153 "Subcontracting Order Subform"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
                 action("Production Order")
@@ -765,7 +765,7 @@ page 12153 "Subcontracting Order Subform"
     [Scope('OnPrem')]
     procedure ItemChargeAssgnt()
     begin
-        ShowItemChargeAssgnt;
+        ShowItemChargeAssgnt();
     end;
 
     [Scope('OnPrem')]

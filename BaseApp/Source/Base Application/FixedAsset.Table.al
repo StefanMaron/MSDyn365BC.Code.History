@@ -72,8 +72,10 @@ table 5600 "Fixed Asset"
             var
                 FASubclass: Record "FA Subclass";
             begin
-                if "FA Subclass Code" = '' then
+                if "FA Subclass Code" = '' then begin
+                    Validate("FA Posting Group", FASubclass."Default FA Posting Group");
                     exit;
+                end;
 
                 FASubclass.Get("FA Subclass Code");
                 if "FA Class Code" <> '' then begin

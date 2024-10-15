@@ -190,7 +190,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         LibraryInventory.CreateTrackedItem(Item, '', LibraryUtility.GetGlobalNoSeriesCode, CreateItemTrackingCodeSerialSpecific);  // Use blank value for Lot No.
         CreateAndModifyPurchaseOrder(PurchaseLine, Item."No.", Bin."Location Code", Bin.Code);
         LibraryVariableStorage.Enqueue(TrackingOption::AssignSerialNo);  // Enqueue value for ItemTrackingLinesPageHandler.
-        PurchaseLine.OpenItemTrackingLines;
+        PurchaseLine.OpenItemTrackingLines();
         Count := StoreSerialNos(SerialNo, PurchaseLine."No.");
         PostPurchaseOrder(PurchaseLine, true, false);
 
@@ -2036,7 +2036,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Reports - IV");
     end;
 
-    local procedure AnalysisReportWithAnalysisView(var AnalysisReportName: Record "Analysis Report Name"; var AnalysisLineTemplate: Record "Analysis Line Template"; var AnalysisColumnTemplate: Record "Analysis Column Template"; AnalysisArea: Option; ValueType: Option; RowRefNo: Code[10]; ItemNo: Code[20]): Code[10]
+    local procedure AnalysisReportWithAnalysisView(var AnalysisReportName: Record "Analysis Report Name"; var AnalysisLineTemplate: Record "Analysis Line Template"; var AnalysisColumnTemplate: Record "Analysis Column Template"; AnalysisArea: Option; ValueType: Enum "Analysis Value Type"; RowRefNo: Code[10]; ItemNo: Code[20]): Code[10]
     var
         ItemJournalLine: Record "Item Journal Line";
         AnalysisColumn: Record "Analysis Column";
@@ -2126,7 +2126,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         exit(ChildItem."No.");
     end;
 
-    local procedure CreateAndModifyAnalysisColumn(AnalysisArea: Option; AnalysisColumnTemplate: Code[10]; ColumnHeader: Text[50]; ValueType: Option; IsInvoiced: Boolean)
+    local procedure CreateAndModifyAnalysisColumn(AnalysisArea: Option; AnalysisColumnTemplate: Code[10]; ColumnHeader: Text[50]; ValueType: Enum "Analysis Value Type"; IsInvoiced: Boolean)
     var
         AnalysisColumn: Record "Analysis Column";
     begin
@@ -2144,7 +2144,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         AnalysisColumn.Modify(true);
     end;
 
-    local procedure CreateAnalysisColumnWithTemplate(var AnalysisColumn: Record "Analysis Column"; AnalysisArea: Option; ValueType: Option; Invoiced: Boolean)
+    local procedure CreateAnalysisColumnWithTemplate(var AnalysisColumn: Record "Analysis Column"; AnalysisArea: Option; ValueType: Enum "Analysis Value Type"; Invoiced: Boolean)
     var
         AnalysisColumnTemplate: Record "Analysis Column Template";
     begin
@@ -2155,7 +2155,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         AnalysisColumn.FindFirst;
     end;
 
-    local procedure CreateAnalysisColumnWithTemplateBudgetSource(var AnalysisColumn: Record "Analysis Column"; AnalysisArea: Option; ValueType: Option)
+    local procedure CreateAnalysisColumnWithTemplateBudgetSource(var AnalysisColumn: Record "Analysis Column"; AnalysisArea: Option; ValueType: Enum "Analysis Value Type")
     begin
         CreateAnalysisColumnWithTemplate(AnalysisColumn, AnalysisArea, ValueType, false);
         AnalysisColumn.Validate("Ledger Entry Type", AnalysisColumn."Ledger Entry Type"::"Item Budget Entries");
@@ -2186,7 +2186,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         MockItemAnalysisViewEntry(ItemAnalysisViewEntry, ItemAnalysisView, ItemNo, DimensionValueCode);
     end;
 
-    local procedure CreateAnalysisWithMockAnalysisViewBudgEntry(var AnalysisLine: Record "Analysis Line"; var AnalysisColumn: Record "Analysis Column"; var ItemAnalysisViewBudgEntry: Record "Item Analysis View Budg. Entry"; ValueType: Option)
+    local procedure CreateAnalysisWithMockAnalysisViewBudgEntry(var AnalysisLine: Record "Analysis Line"; var AnalysisColumn: Record "Analysis Column"; var ItemAnalysisViewBudgEntry: Record "Item Analysis View Budg. Entry"; ValueType: Enum "Analysis Value Type")
     var
         ItemAnalysisView: Record "Item Analysis View";
         Item: Record Item;
@@ -2201,7 +2201,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         CreateAnalysisLineWithTemplate(AnalysisLine, ItemAnalysisView."Analysis Area", ItemAnalysisView.Code, Item."No.");
     end;
 
-    local procedure CreateAnalysisWithMockEntry(var AnalysisLine: Record "Analysis Line"; var AnalysisColumn: Record "Analysis Column"; var ItemAnalysisViewEntry: Record "Item Analysis View Entry"; ValueType: Option; Invoiced: Boolean)
+    local procedure CreateAnalysisWithMockEntry(var AnalysisLine: Record "Analysis Line"; var AnalysisColumn: Record "Analysis Column"; var ItemAnalysisViewEntry: Record "Item Analysis View Entry"; ValueType: Enum "Analysis Value Type"; Invoiced: Boolean)
     var
         ItemAnalysisView: Record "Item Analysis View";
         Item: Record Item;
@@ -2215,7 +2215,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         CreateAnalysisLineWithTemplate(AnalysisLine, ItemAnalysisView."Analysis Area", ItemAnalysisView.Code, Item."No.");
     end;
 
-    local procedure CreateAnalysisWithMockItemBudgetEntry(var AnalysisLine: Record "Analysis Line"; var AnalysisColumn: Record "Analysis Column"; var ItemBudgetEntry: Record "Item Budget Entry"; AnalysisArea: Option; ValueType: Option)
+    local procedure CreateAnalysisWithMockItemBudgetEntry(var AnalysisLine: Record "Analysis Line"; var AnalysisColumn: Record "Analysis Column"; var ItemBudgetEntry: Record "Item Budget Entry"; AnalysisArea: Option; ValueType: Enum "Analysis Value Type")
     var
         Item: Record Item;
     begin
@@ -2241,7 +2241,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         AnalysisColumn.Modify(true);
     end;
 
-    local procedure CreateAndModifyAnalysisLine(var AnalysisLine: Record "Analysis Line"; AnalysisArea: Option; AnalysisLineTemplateName: Code[10]; Range: Code[20]; RowRefNo: Code[10]; Type: Option)
+    local procedure CreateAndModifyAnalysisLine(var AnalysisLine: Record "Analysis Line"; AnalysisArea: Option; AnalysisLineTemplateName: Code[10]; Range: Code[20]; RowRefNo: Code[10]; Type: Enum "Analysis Line Type")
     begin
         LibraryInventory.CreateAnalysisLine(AnalysisLine, AnalysisArea, AnalysisLineTemplateName);
         AnalysisLine.Validate(Type, Type);
@@ -2270,7 +2270,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
-    local procedure CreateAndPostItemJournal(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; EntryType: Option; Qty: Decimal; UnitCost: Decimal)
+    local procedure CreateAndPostItemJournal(var ItemJournalLine: Record "Item Journal Line"; ItemNo: Code[20]; EntryType: Enum "Item Ledger Document Type"; Qty: Decimal; UnitCost: Decimal)
     var
         ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalTemplate: Record "Item Journal Template";
@@ -2334,7 +2334,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         PostedDocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, false); // Post as Receive.
     end;
 
-    local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; Status: Option; SourceNo: Code[20]; Quantity: Decimal)
+    local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"; SourceNo: Code[20]; Quantity: Decimal)
     begin
         LibraryManufacturing.CreateProductionOrder(ProductionOrder, Status, ProductionOrder."Source Type"::Item, SourceNo, Quantity);
         LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
@@ -2358,7 +2358,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         exit(Item."No.");
     end;
 
-    local procedure CreateItem(var Item: Record Item; ReplenishmentSystem: Option)
+    local procedure CreateItem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System")
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Costing Method", Item."Costing Method"::Standard);
@@ -2374,7 +2374,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         UpdateItemDimension(DefaultDimension, Item."No.");
     end;
 
-    local procedure CreateItemWithUnitCost(var Item: Record Item; ReplenishmentSystem: Option; UnitCost: Decimal)
+    local procedure CreateItemWithUnitCost(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System"; UnitCost: Decimal)
     begin
         CreateItem(Item, ReplenishmentSystem);
         Item.Validate("Unit Cost", UnitCost);
@@ -2410,7 +2410,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         ItemBudgetEntry.Modify(true);
     end;
 
-    local procedure CreateItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Option)
+    local procedure CreateItemJournalBatch(var ItemJournalBatch: Record "Item Journal Batch"; TemplateType: Enum "Analysis Value Type")
     var
         ItemJournalTemplate: Record "Item Journal Template";
     begin
@@ -2557,14 +2557,14 @@ codeunit 137351 "SCM Inventory Reports - IV"
         ItemJournalLine.FindFirst;
     end;
 
-    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; EntryType: Option)
+    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; EntryType: Enum "Item Ledger Document Type")
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
         ItemLedgerEntry.FindFirst;
     end;
 
-    local procedure FindItemLedgerEntryWithDocType(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; DocumentType: Option)
+    local procedure FindItemLedgerEntryWithDocType(var ItemLedgerEntry: Record "Item Ledger Entry"; ItemNo: Code[20]; DocumentType: Enum "Item Ledger Document Type")
     begin
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange("Document Type", DocumentType);
@@ -2784,7 +2784,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
     end;
 
     [HandlerFunctions('AnalysisRequestPageHandler')]
-    local procedure SetupAnalysisReportWithAnalysisArea(AnalysisArea: Option; ValueType: Option; ShowError: Option; DateFilter: Date; ItemNo: Code[20]; RowRefNo: Code[10]): Code[10]
+    local procedure SetupAnalysisReportWithAnalysisArea(AnalysisArea: Option; ValueType: Enum "Analysis Value Type"; ShowError: Option; DateFilter: Date; ItemNo: Code[20]; RowRefNo: Code[10]): Code[10]
     var
         AnalysisLineTemplate: Record "Analysis Line Template";
         AnalysisColumnTemplate: Record "Analysis Column Template";
@@ -2813,7 +2813,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         LibraryVariableStorage.Enqueue(DefaultDimension."Dimension Value Code");
     end;
 
-    local procedure SetupDimTotalReportWithAnalysisArea(var ItemAnalysisView: Record "Item Analysis View"; var DefaultDimension: Record "Default Dimension"; AnalysisArea: Option; ValueType: Option)
+    local procedure SetupDimTotalReportWithAnalysisArea(var ItemAnalysisView: Record "Item Analysis View"; var DefaultDimension: Record "Default Dimension"; AnalysisArea: Option; ValueType: Enum "Analysis Value Type")
     var
         AnalysisColumnTemplate: Record "Analysis Column Template";
         AnalysisColumn: Record "Analysis Column";

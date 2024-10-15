@@ -1,4 +1,4 @@
-﻿table 1226 "Payment Export Data"
+table 1226 "Payment Export Data"
 {
     Caption = 'Payment Export Data';
 
@@ -364,11 +364,9 @@
         {
             Caption = 'SEPA DD Mandate Signed Date';
         }
-        field(124; "SEPA Partner Type"; Option)
+        field(124; "SEPA Partner Type"; Enum "Partner Type")
         {
             Caption = 'SEPA Partner Type';
-            OptionCaption = ' ,Company,Person';
-            OptionMembers = " ",Company,Person;
 
             trigger OnValidate()
             begin

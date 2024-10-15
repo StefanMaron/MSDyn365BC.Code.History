@@ -109,7 +109,7 @@ codeunit 5847 "Get Average Cost Calc Overview"
                 "Posting Date" := ItemLedgEntry."Posting Date";
                 "Item Ledger Entry No." := ItemLedgEntry."Entry No.";
                 "Entry Type" := ItemLedgEntry."Entry Type";
-                "Document Type" := ItemLedgEntry."Document Type";
+                "Document Type" := ItemLedgEntry."Document Type".AsInteger();
                 "Document No." := ItemLedgEntry."Document No.";
                 "Document Line No." := ItemLedgEntry."Document Line No.";
                 Description := ItemLedgEntry.Description;

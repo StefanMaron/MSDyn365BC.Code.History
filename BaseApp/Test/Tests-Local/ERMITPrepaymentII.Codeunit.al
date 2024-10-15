@@ -964,7 +964,7 @@ codeunit 144173 "ERM IT Prepayment II"
         VerifyGLBookEntry(GLAccount."No.");
     end;
 
-    local procedure ApplyAndPostGeneralJournalLine(AccountType: Option; AccountNo: Code[20]; BalAccountNo: Code[20]; Amount: Decimal; AppliesToDocType: Option; AppliesToDocNo: Code[20])
+    local procedure ApplyAndPostGeneralJournalLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountNo: Code[20]; Amount: Decimal; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
@@ -1064,7 +1064,7 @@ codeunit 144173 "ERM IT Prepayment II"
         exit(Item."No.");
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; PrepaymentPct: Decimal; PrepaymentDueDate: Date; UnrealizedVATType: Option)
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; PrepaymentPct: Decimal; PrepaymentDueDate: Date; UnrealizedVATType: Option)
     var
         GeneralPostingSetup: Record "General Posting Setup";
         PurchaseLine: Record "Purchase Line";

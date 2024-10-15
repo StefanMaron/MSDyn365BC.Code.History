@@ -111,5 +111,27 @@ table 291 "Shipping Agent"
                 Contact.GetTDDAddr("Shipping Agent No.", AddrArray);
         end;
     end;
+
+    procedure GetTrackingInternetAddr(PackageTrackingNo: Text[30]) TrackingInternetAddr: Text
+    var
+        HttpStr: Text;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetTrackingInternetAddr(Rec, TrackingInternetAddr, IsHandled);
+        if IsHandled then
+            exit;
+
+        HttpStr := 'http://';
+        TrackingInternetAddr := StrSubstNo("Internet Address", PackageTrackingNo);
+
+        if StrPos(TrackingInternetAddr, HttpStr) = 0 then
+            TrackingInternetAddr := HttpStr + TrackingInternetAddr;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetTrackingInternetAddr(var ShippingAgent: Record "Shipping Agent"; var TrackingInternetAddr: Text; var IsHandled: Boolean)
+    begin
+    end;
 }
 

@@ -444,7 +444,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
         exit(PaymentMethod.Code);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; Type: Option; VendorNo: Code[20]; No: Code[20]; LocationCode: Code[10]; PrepaymentPercent: Decimal)
+    local procedure CreatePurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; Type: Enum "Purchase Line Type"; VendorNo: Code[20]; No: Code[20]; LocationCode: Code[10]; PrepaymentPercent: Decimal)
     var
         PurchaseHeader: Record "Purchase Header";
         NoSeries: Record "No. Series";
@@ -467,7 +467,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; Type: Option; VATBusPostingGroup: Code[20]; No: Code[20]; PaymentMethodCode: Code[10]; PrepaymentPercent: Decimal)
+    local procedure CreateSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; Type: Enum "Sales Line Type"; VATBusPostingGroup: Code[20]; No: Code[20]; PaymentMethodCode: Code[10]; PrepaymentPercent: Decimal)
     var
         Customer: Record Customer;
         NoSeries: Record "No. Series";
@@ -543,7 +543,7 @@ codeunit 144106 "Miscellaneous Bugs IT"
         exit(VATRegistrationNoFormat."Country/Region Code");
     end;
 
-    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Option; EUService: Boolean)
+    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type"; EUService: Boolean)
     var
         VATBusinessPostingGroup: Record "VAT Business Posting Group";
         VATIdentifier: Record "VAT Identifier";

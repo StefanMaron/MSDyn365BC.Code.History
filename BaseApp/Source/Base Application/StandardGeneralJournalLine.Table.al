@@ -79,8 +79,8 @@ table 751 "Standard General Journal Line"
                     UpdateLineBalance;
                     UpdateSource;
                     CreateDim(
-                      DimMgt.TypeToTableID1("Account Type"), "Account No.",
-                      DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
+                      DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
+                      DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
                       DATABASE::Job, "Job No.",
                       DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
                       DATABASE::Campaign, "Campaign No.");
@@ -117,8 +117,8 @@ table 751 "Standard General Journal Line"
                 UpdateLineBalance;
                 UpdateSource;
                 CreateDim(
-                  DimMgt.TypeToTableID1("Account Type"), "Account No.",
-                  DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
+                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
+                  DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
                   DATABASE::Job, "Job No.",
                   DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
                   DATABASE::Campaign, "Campaign No.");
@@ -213,8 +213,8 @@ table 751 "Standard General Journal Line"
                     UpdateLineBalance;
                     UpdateSource;
                     CreateDim(
-                      DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
-                      DimMgt.TypeToTableID1("Account Type"), "Account No.",
+                      DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
+                      DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
                       DATABASE::Job, "Job No.",
                       DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
                       DATABASE::Campaign, "Campaign No.");
@@ -251,8 +251,8 @@ table 751 "Standard General Journal Line"
                 UpdateLineBalance;
                 UpdateSource;
                 CreateDim(
-                  DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
-                  DimMgt.TypeToTableID1("Account Type"), "Account No.",
+                  DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
+                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
                   DATABASE::Job, "Job No.",
                   DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
                   DATABASE::Campaign, "Campaign No.");
@@ -452,8 +452,8 @@ table 751 "Standard General Journal Line"
             begin
                 CreateDim(
                   DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
-                  DimMgt.TypeToTableID1("Account Type"), "Account No.",
-                  DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
+                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
+                  DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
                   DATABASE::Job, "Job No.",
                   DATABASE::Campaign, "Campaign No.");
             end;
@@ -489,8 +489,8 @@ table 751 "Standard General Journal Line"
             begin
                 CreateDim(
                   DATABASE::Job, "Job No.",
-                  DimMgt.TypeToTableID1("Account Type"), "Account No.",
-                  DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
+                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
+                  DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
                   DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code",
                   DATABASE::Campaign, "Campaign No.");
             end;
@@ -564,11 +564,9 @@ table 751 "Standard General Journal Line"
             Caption = 'Reason Code';
             TableRelation = "Reason Code";
         }
-        field(57; "Gen. Posting Type"; Option)
+        field(57; "Gen. Posting Type"; Enum "General Posting Type")
         {
             Caption = 'Gen. Posting Type';
-            OptionCaption = ' ,Purchase,Sale,Settlement';
-            OptionMembers = " ",Purchase,Sale,Settlement;
 
             trigger OnValidate()
             begin
@@ -576,7 +574,7 @@ table 751 "Standard General Journal Line"
                     TestField("Gen. Posting Type", "Gen. Posting Type"::" ");
                 if ("Gen. Posting Type" = "Gen. Posting Type"::Settlement) and (CurrFieldNo <> 0) then
                     Error(Text006, "Gen. Posting Type");
-                if "Gen. Posting Type" > 0 then
+                if "Gen. Posting Type" <> "Gen. Posting Type"::" " then
                     Validate("VAT Prod. Posting Group");
             end;
         }
@@ -661,11 +659,9 @@ table 751 "Standard General Journal Line"
                     Validate("Payment Terms Code", '');
             end;
         }
-        field(64; "Bal. Gen. Posting Type"; Option)
+        field(64; "Bal. Gen. Posting Type"; Enum "General Posting Type")
         {
             Caption = 'Bal. Gen. Posting Type';
-            OptionCaption = ' ,Purchase,Sale,Settlement';
-            OptionMembers = " ",Purchase,Sale,Settlement;
 
             trigger OnValidate()
             begin
@@ -673,7 +669,7 @@ table 751 "Standard General Journal Line"
                     TestField("Bal. Gen. Posting Type", "Bal. Gen. Posting Type"::" ");
                 if ("Bal. Gen. Posting Type" = "Gen. Posting Type"::Settlement) and (CurrFieldNo <> 0) then
                     Error(Text006, "Bal. Gen. Posting Type");
-                if "Bal. Gen. Posting Type" > 0 then
+                if "Bal. Gen. Posting Type" <> "Bal. Gen. Posting Type"::" " then
                     Validate("Bal. VAT Prod. Posting Group");
             end;
         }
@@ -1055,7 +1051,7 @@ table 751 "Standard General Journal Line"
 
                 "VAT %" := 0;
                 "VAT Calculation Type" := "VAT Calculation Type"::"Normal VAT";
-                if "Gen. Posting Type" <> 0 then begin
+                if "Gen. Posting Type" <> "Gen. Posting Type"::" " then begin
                     if not VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then
                         VATPostingSetup.Init();
                     "VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
@@ -1103,7 +1099,7 @@ table 751 "Standard General Journal Line"
 
                 "Bal. VAT %" := 0;
                 "Bal. VAT Calculation Type" := "Bal. VAT Calculation Type"::"Normal VAT";
-                if "Bal. Gen. Posting Type" <> 0 then begin
+                if "Bal. Gen. Posting Type" <> "Bal. Gen. Posting Type"::" " then begin
                     if not VATPostingSetup.Get("Bal. VAT Bus. Posting Group", "Bal. VAT Prod. Posting Group") then
                         VATPostingSetup.Init();
                     "Bal. VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
@@ -1190,7 +1186,7 @@ table 751 "Standard General Journal Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()
@@ -1207,8 +1203,8 @@ table 751 "Standard General Journal Line"
             begin
                 CreateDim(
                   DATABASE::Campaign, "Campaign No.",
-                  DimMgt.TypeToTableID1("Account Type"), "Account No.",
-                  DimMgt.TypeToTableID1("Bal. Account Type"), "Bal. Account No.",
+                  DimMgt.TypeToTableID1("Account Type".AsInteger()), "Account No.",
+                  DimMgt.TypeToTableID1("Bal. Account Type".AsInteger()), "Bal. Account No.",
                   DATABASE::Job, "Job No.",
                   DATABASE::"Salesperson/Purchaser", "Salespers./Purch. Code");
             end;
@@ -1306,7 +1302,7 @@ table 751 "Standard General Journal Line"
         GLAcc.TestField("Direct Posting", true);
     end;
 
-    local procedure CheckAccount(AccountType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner"; AccountNo: Code[20])
+    local procedure CheckAccount(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         GLAcc: Record "G/L Account";
         Cust: Record Customer;
@@ -1351,7 +1347,7 @@ table 751 "Standard General Journal Line"
         end;
     end;
 
-    local procedure CheckICPartner(ICPartnerCode: Code[20]; AccountType: Option "G/L Account",Customer,Vendor,"Bank Account","Fixed Asset","IC Partner"; AccountNo: Code[20])
+    local procedure CheckICPartner(ICPartnerCode: Code[20]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20])
     var
         ICPartner: Record "IC Partner";
     begin
@@ -1362,7 +1358,7 @@ table 751 "Standard General Journal Line"
             end;
     end;
 
-    local procedure SetCurrencyCode(AccType2: Option "G/L Account",Customer,Vendor,"Bank Account"; AccNo2: Code[20]): Boolean
+    local procedure SetCurrencyCode(AccType2: Enum "Gen. Journal Account Type"; AccNo2: Code[20]): Boolean
     var
         Cust: Record Customer;
         Vend: Record Vendor;
@@ -1406,12 +1402,12 @@ table 751 "Standard General Journal Line"
         case true of
             SourceExists1 and not SourceExists2:
                 begin
-                    "Source Type" := "Account Type";
+                    "Source Type" := "Account Type".AsInteger();
                     "Source No." := "Account No.";
                 end;
             SourceExists2 and not SourceExists1:
                 begin
-                    "Source Type" := "Bal. Account Type";
+                    "Source Type" := "Bal. Account Type".AsInteger();
                     "Source No." := "Bal. Account No.";
                 end;
             else begin
@@ -1488,7 +1484,7 @@ table 751 "Standard General Journal Line"
         "Tax Liable" := GLAcc."Tax Liable";
         "Tax Group Code" := GLAcc."Tax Group Code";
         if WorkDate = ClosingDate(WorkDate) then begin
-            "Gen. Posting Type" := 0;
+            "Gen. Posting Type" := "Gen. Posting Type"::" ";
             "Gen. Bus. Posting Group" := '';
             "Gen. Prod. Posting Group" := '';
             "VAT Bus. Posting Group" := '';
@@ -1527,7 +1523,7 @@ table 751 "Standard General Journal Line"
             "Bal. Gen. Prod. Posting Group" := '';
             "Bal. VAT Bus. Posting Group" := '';
             "Bal. VAT Prod. Posting Group" := '';
-            "Bal. Gen. Posting Type" := 0;
+            "Bal. Gen. Posting Type" := "Bal. Gen. Posting Type"::" ";
         end;
     end;
 
@@ -1549,7 +1545,7 @@ table 751 "Standard General Journal Line"
             Cust.TestField("Currency Code", "Currency Code")
         else
             "Currency Code" := Cust."Currency Code";
-        "Gen. Posting Type" := 0;
+        "Gen. Posting Type" := "Gen. Posting Type"::" ";
         "Gen. Bus. Posting Group" := '';
         "Gen. Prod. Posting Group" := '';
         "VAT Bus. Posting Group" := '';
@@ -1584,7 +1580,7 @@ table 751 "Standard General Journal Line"
             "Currency Code" := Cust."Currency Code";
         if ("Account Type" = "Account Type"::"Bank Account") and ("Currency Code" = '') then
             "Currency Code" := Cust."Currency Code";
-        "Bal. Gen. Posting Type" := 0;
+        "Bal. Gen. Posting Type" := "Bal. Gen. Posting Type"::" ";
         "Bal. Gen. Bus. Posting Group" := '';
         "Bal. Gen. Prod. Posting Group" := '';
         "Bal. VAT Bus. Posting Group" := '';
@@ -1618,7 +1614,7 @@ table 751 "Standard General Journal Line"
             Vend.TestField("Currency Code", "Currency Code")
         else
             "Currency Code" := Vend."Currency Code";
-        "Gen. Posting Type" := 0;
+        "Gen. Posting Type" := "Gen. Posting Type"::" ";
         "Gen. Bus. Posting Group" := '';
         "Gen. Prod. Posting Group" := '';
         "VAT Bus. Posting Group" := '';
@@ -1653,7 +1649,7 @@ table 751 "Standard General Journal Line"
             "Currency Code" := Vend."Currency Code";
         if ("Account Type" = "Account Type"::"Bank Account") and ("Currency Code" = '') then
             "Currency Code" := Vend."Currency Code";
-        "Bal. Gen. Posting Type" := 0;
+        "Bal. Gen. Posting Type" := "Bal. Gen. Posting Type"::" ";
         "Bal. Gen. Bus. Posting Group" := '';
         "Bal. Gen. Prod. Posting Group" := '';
         "Bal. VAT Bus. Posting Group" := '';
@@ -1693,7 +1689,7 @@ table 751 "Standard General Journal Line"
                 BankAcc.TestField("Currency Code", "Currency Code")
             else
                 "Currency Code" := BankAcc."Currency Code";
-        "Gen. Posting Type" := 0;
+        "Gen. Posting Type" := "Gen. Posting Type"::" ";
         "Gen. Bus. Posting Group" := '';
         "Gen. Prod. Posting Group" := '';
         "VAT Bus. Posting Group" := '';
@@ -1724,7 +1720,7 @@ table 751 "Standard General Journal Line"
                 BankAcc.TestField("Currency Code", "Currency Code")
             else
                 "Currency Code" := BankAcc."Currency Code";
-        "Bal. Gen. Posting Type" := 0;
+        "Bal. Gen. Posting Type" := "Bal. Gen. Posting Type"::" ";
         "Bal. Gen. Bus. Posting Group" := '';
         "Bal. Gen. Prod. Posting Group" := '';
         "Bal. VAT Bus. Posting Group" := '';
@@ -1765,7 +1761,7 @@ table 751 "Standard General Journal Line"
             "Currency Code" := ICPartner."Currency Code";
         if ("Bal. Account Type" = "Bal. Account Type"::"Bank Account") and ("Currency Code" = '') then
             "Currency Code" := ICPartner."Currency Code";
-        "Gen. Posting Type" := 0;
+        "Gen. Posting Type" := "Gen. Posting Type"::" ";
         "Gen. Bus. Posting Group" := '';
         "Gen. Prod. Posting Group" := '';
         "VAT Bus. Posting Group" := '';
@@ -1785,7 +1781,7 @@ table 751 "Standard General Journal Line"
             "Currency Code" := ICPartner."Currency Code";
         if ("Account Type" = "Account Type"::"Bank Account") and ("Currency Code" = '') then
             "Currency Code" := ICPartner."Currency Code";
-        "Bal. Gen. Posting Type" := 0;
+        "Bal. Gen. Posting Type" := "Bal. Gen. Posting Type"::" ";
         "Bal. Gen. Bus. Posting Group" := '';
         "Bal. Gen. Prod. Posting Group" := '';
         "Bal. VAT Bus. Posting Group" := '';

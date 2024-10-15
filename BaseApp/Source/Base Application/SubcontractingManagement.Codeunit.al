@@ -295,7 +295,7 @@ codeunit 12152 SubcontractingManagement
                       TempReservEntry."Entry No.", TempReservEntry."Reservation Status");
                     // Refresh Related Line for Item Ledger Entry
                     if ReservEntry.Get(TempReservEntry."Entry No.", not TempReservEntry.Positive) then
-                        if Item."Order Tracking Policy" > Item."Order Tracking Policy"::None then begin
+                        if Item."Order Tracking Policy".AsInteger() > Item."Order Tracking Policy"::None.AsInteger() then begin
                             TotalQty := ReservMgt.SourceQuantity(ReservEntry, true);
                             ReservMgt.AutoTrack(TotalQty);
                         end;

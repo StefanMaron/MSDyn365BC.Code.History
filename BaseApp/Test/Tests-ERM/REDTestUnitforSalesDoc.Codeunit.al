@@ -20,10 +20,9 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         ArchiveManagement: Codeunit ArchiveManagement;
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
-        CalcMethod: Option "Straight-Line","Equal per Period","Days per Period","User-Defined";
-        StartDate: Option "Posting Date","Beginning of Period","End of Period","Beginning of Next Period";
+        CalcMethod: Enum "Deferral Calculation Method";
+        StartDate: Enum "Deferral Calculation Start Date";
         SalesDocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order",Shipment,"Posted Invoice","Posted Credit Memo","Posted Return Receipt";
-        CopyDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
         CreditWarningSetup: Option "Both Warnings","Credit Limit","Overdue Balance","No Warning";
         isInitialized: Boolean;
         StockWarningSetup: Boolean;
@@ -152,7 +151,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         SalesLine.TestField("Deferral Code", DeferralTemplateCode);
 
         // [THEN] The deferral schedule was created
-        DeferralHeader.Get(DeferralUtilities.GetSalesDeferralDocType, '', '',
+        DeferralHeader.Get("Deferral Document Type"::Sales, '', '',
           SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
         DeferralHeader.TestField("Deferral Code", DeferralTemplateCode);
         DeferralHeader.TestField("Start Date", GetStartDate(StartDate::"Beginning of Period", SalesHeader."Posting Date"));
@@ -194,7 +193,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         SalesLine.TestField("Deferral Code", DeferralTemplateCode);
 
         // [THEN] The deferral schedule was created using the sales line Return Deferral Start Date
-        DeferralHeader.Get(DeferralUtilities.GetSalesDeferralDocType, '', '',
+        DeferralHeader.Get("Deferral Document Type"::Sales, '', '',
           SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
         DeferralHeader.TestField("Deferral Code", DeferralTemplateCode);
         DeferralHeader.TestField("Start Date", SalesLine."Returns Deferral Start Date");
@@ -456,7 +455,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
           SalesHeaderDest."Document Type"::"Return Order", StartDate::"Beginning of Next Period", true);
     end;
 
-    local procedure CommonTestCopyPostedInvoiceWithDeferral(CopyToDocType: Option; LocalStartDate: Option; UseStartDateForTest: Boolean)
+    local procedure CommonTestCopyPostedInvoiceWithDeferral(CopyToDocType: Enum "Sales Document Type"; LocalStartDate: Enum "Deferral Calculation Start Date"; UseStartDateForTest: Boolean)
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -482,7 +481,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
 
         // [WHEN] Create New sales document and copy the existing one
         CreateSalesHeaderForCustomer(SalesHeaderDest, CopyToDocType, SetDateDay(1, WorkDate), SalesInvHeader."Sell-to Customer No.");
-        CopyDoc(SalesHeaderDest, CopyDocType::"Posted Invoice", SalesInvHeader."No.", true, false);
+        CopyDoc(SalesHeaderDest, "Sales Document Type From"::"Posted Invoice", SalesInvHeader."No.", true, false);
 
         // [THEN] The deferral schedule was copied from the existing line
         SalesInvLine.SetRange("Document No.", SalesInvHeader."No.");
@@ -2114,7 +2113,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"RED Test Unit for Sales Doc");
     end;
 
-    local procedure CreateDeferralCode(CalcMethod: Option "Straight-Line","Equal per Period","Days per Period","User-Defined"; StartDate: Option "Posting Date","Beginning of Period","End of Period","Beginning of Next Period"; NumOfPeriods: Integer): Code[10]
+    local procedure CreateDeferralCode(CalcMethod: Enum "Deferral Calculation Method"; StartDate: Enum "Deferral Calculation Start Date"; NumOfPeriods: Integer): Code[10]
     begin
         exit(LibraryERM.CreateDeferralTemplateCode(CalcMethod, StartDate, NumOfPeriods));
     end;
@@ -2140,7 +2139,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
           LibraryRandom.RandDec(1000, 2));
     end;
 
-    local procedure CreateItemWithDefaultDeferralCode(var DefaultDeferralCode: Code[10]; var ItemNo: Code[20]; DefaultCalcMethod: Option; DefaultStartDate: Option; DefaultNoOfPeriods: Integer)
+    local procedure CreateItemWithDefaultDeferralCode(var DefaultDeferralCode: Code[10]; var ItemNo: Code[20]; DefaultCalcMethod: Enum "Deferral Calculation Method"; DefaultStartDate: Enum "Deferral Calculation Start Date"; DefaultNoOfPeriods: Integer)
     var
         Item: Record Item;
     begin
@@ -2152,7 +2151,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         ItemNo := Item."No.";
     end;
 
-    local procedure CreateGLAccountWithDefaultDeferralCode(var DefaultDeferralCode: Code[10]; var No: Code[20]; DefaultCalcMethod: Option; DefaultStartDate: Option; DefaultNoOfPeriods: Integer)
+    local procedure CreateGLAccountWithDefaultDeferralCode(var DefaultDeferralCode: Code[10]; var No: Code[20]; DefaultCalcMethod: Enum "Deferral Calculation Method"; DefaultStartDate: Enum "Deferral Calculation Start Date"; DefaultNoOfPeriods: Integer)
     var
         GLAccount: Record "G/L Account";
     begin
@@ -2177,7 +2176,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         LibraryResource.CreateResourceNew(Resource);
     end;
 
-    local procedure CreateSalesDocWithLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; SalesLineType: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"; No: Code[20]; PostingDate: Date)
+    local procedure CreateSalesDocWithLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; SalesLineType: Enum "Sales Line Type"; No: Code[20]; PostingDate: Date)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer);
         UpdateNoSeriesLines(SalesHeader."Posting No. Series", PostingDate);
@@ -2194,7 +2193,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         end;
     end;
 
-    local procedure CreateSalesHeaderForCustomer(var SalesHeader: Record "Sales Header"; DocumentType: Integer; PostingDate: Date; CustomerCode: Code[20])
+    local procedure CreateSalesHeaderForCustomer(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; PostingDate: Date; CustomerCode: Code[20])
     begin
         Clear(SalesHeader);
         SalesHeader.Init();
@@ -2204,7 +2203,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         SalesHeader.Insert(true);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var AmtToDefer: Decimal; var PostingDocNo: Code[20]; DocumentType: Option; ItemNo: Code[20])
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var AmtToDefer: Decimal; var PostingDocNo: Code[20]; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20])
     var
         SalesLine: Record "Sales Line";
         NoSeriesManagement: Codeunit NoSeriesManagement;
@@ -2215,7 +2214,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         PostingDocNo := NoSeriesManagement.GetNextNo(SalesHeader."Posting No. Series", SalesHeader."Posting Date", false);
     end;
 
-    local procedure CreateTwoSalesDocsWithDeferral(var SalesHeader1: Record "Sales Header"; var SalesHeader2: Record "Sales Header"; var DeferralTemplateCode: Code[10]; var AccNo: Code[20]; var DocNo1: Code[20]; var DocNo2: Code[20]; var AmtToDefer1: Decimal; var AmtToDefer2: Decimal; DocType: Option)
+    local procedure CreateTwoSalesDocsWithDeferral(var SalesHeader1: Record "Sales Header"; var SalesHeader2: Record "Sales Header"; var DeferralTemplateCode: Code[10]; var AccNo: Code[20]; var DocNo1: Code[20]; var DocNo2: Code[20]; var AmtToDefer1: Decimal; var AmtToDefer2: Decimal; DocType: Enum "Sales Document Type")
     var
         ItemNo: Code[20];
     begin
@@ -2237,9 +2236,9 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         exit(DMY2Date(Day, Date2DMY(StartDate, 2), Date2DMY(StartDate, 3)));
     end;
 
-    local procedure DeferralLineSetRange(var DeferralLine: Record "Deferral Line"; DocType: Integer; DocNo: Code[20]; LineNo: Integer)
+    local procedure DeferralLineSetRange(var DeferralLine: Record "Deferral Line"; DocType: Enum "Sales Document Type"; DocNo: Code[20]; LineNo: Integer)
     begin
-        DeferralLine.SetRange("Deferral Doc. Type", DeferralUtilities.GetSalesDeferralDocType);
+        DeferralLine.SetRange("Deferral Doc. Type", "Deferral Document Type"::Sales);
         DeferralLine.SetRange("Gen. Jnl. Template Name", '');
         DeferralLine.SetRange("Gen. Jnl. Batch Name", '');
         DeferralLine.SetRange("Document Type", DocType);
@@ -2247,7 +2246,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         DeferralLine.SetRange("Line No.", LineNo);
     end;
 
-    local procedure ValidateDeferralSchedule(DocType: Integer; DocNo: Code[20]; LineNo: Integer; DeferralTemplateCode: Code[10]; HeaderPostingDate: Date; HeaderAmountToDefer: Decimal; NoOfPeriods: Integer)
+    local procedure ValidateDeferralSchedule(DocType: Enum "Sales Document Type"; DocNo: Code[20]; LineNo: Integer; DeferralTemplateCode: Code[10]; HeaderPostingDate: Date; HeaderAmountToDefer: Decimal; NoOfPeriods: Integer)
     var
         DeferralHeader: Record "Deferral Header";
         DeferralLine: Record "Deferral Line";
@@ -2255,7 +2254,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         DeferralAmount: Decimal;
         PostingDate: Date;
     begin
-        DeferralHeader.Get(DeferralUtilities.GetSalesDeferralDocType, '', '', DocType, DocNo, LineNo);
+        DeferralHeader.Get("Deferral Document Type"::Sales, '', '', DocType, DocNo, LineNo);
         DeferralHeader.TestField("Deferral Code", DeferralTemplateCode);
         DeferralHeader.TestField("Start Date", HeaderPostingDate);
         DeferralHeader.TestField("Amount to Defer", HeaderAmountToDefer);
@@ -2279,45 +2278,45 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         DeferralHeader.TestField("Amount to Defer", DeferralAmount);
     end;
 
-    local procedure ValidateDeferralScheduleDoesNotExist(DocType: Integer; DocNo: Code[20]; LineNo: Integer)
+    local procedure ValidateDeferralScheduleDoesNotExist(DocType: Enum "Sales Document Type"; DocNo: Code[20]; LineNo: Integer)
     var
         DeferralHeader: Record "Deferral Header";
         DeferralLine: Record "Deferral Line";
     begin
-        asserterror DeferralHeader.Get(DeferralUtilities.GetSalesDeferralDocType, '', '', DocType, DocNo, LineNo);
+        asserterror DeferralHeader.Get("Deferral Document Type"::Sales, '', '', DocType, DocNo, LineNo);
 
         DeferralLineSetRange(DeferralLine, DocType, DocNo, LineNo);
         asserterror DeferralLine.FindFirst;
     end;
 
-    local procedure CopyDoc(SalesHeader: Record "Sales Header"; DocType: Integer; DocNo: Code[20]; IncludeHeader: Boolean; RecalculateLines: Boolean)
+    local procedure CopyDoc(SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; DocNo: Code[20]; IncludeHeader: Boolean; RecalculateLines: Boolean)
     var
         CopySalesDoc: Report "Copy Sales Document";
     begin
         Clear(CopySalesDoc);
-        CopySalesDoc.InitializeRequest(ConvertDocType(DocType), DocNo, IncludeHeader, RecalculateLines);
+        CopySalesDoc.SetParameters(ConvertDocType(DocType), DocNo, IncludeHeader, RecalculateLines);
         CopySalesDoc.SetSalesHeader(SalesHeader);
         CopySalesDoc.UseRequestPage(false);
         CopySalesDoc.RunModal;
     end;
 
-    local procedure ConvertDocType(DocType: Integer): Integer
+    local procedure ConvertDocType(DocType: Enum "Sales Document Type"): Enum "Sales Document Type From"
     var
         SalesHeader: Record "Sales Header";
     begin
         case DocType of
             SalesHeader."Document Type"::Quote:
-                exit(CopyDocType::Quote);
+                exit("Sales Document Type From"::Quote);
             SalesHeader."Document Type"::"Blanket Order":
-                exit(CopyDocType::"Blanket Order");
+                exit("Sales Document Type From"::"Blanket Order");
             SalesHeader."Document Type"::Order:
-                exit(CopyDocType::Order);
+                exit("Sales Document Type From"::Order);
             SalesHeader."Document Type"::Invoice:
-                exit(CopyDocType::Invoice);
+                exit("Sales Document Type From"::Invoice);
             SalesHeader."Document Type"::"Return Order":
-                exit(CopyDocType::"Return Order");
+                exit("Sales Document Type From"::"Return Order");
             SalesHeader."Document Type"::"Credit Memo":
-                exit(CopyDocType::"Credit Memo");
+                exit("Sales Document Type From"::"Credit Memo");
             else
                 exit(DocType);
         end;
@@ -2358,7 +2357,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         Option := OrigianlOption;
     end;
 
-    local procedure ValidateDeferralHeader(DeferralHeader: Record "Deferral Header"; DeferralCode: Code[10]; AmountToDefer: Decimal; CalcMethod: Option; StartDate: Date; NoOfPeriods: Integer; ScheduleDesc: Text[100]; CurrencyCode: Code[10])
+    local procedure ValidateDeferralHeader(DeferralHeader: Record "Deferral Header"; DeferralCode: Code[10]; AmountToDefer: Decimal; CalcMethod: Enum "Deferral Calculation Method"; StartDate: Date; NoOfPeriods: Integer; ScheduleDesc: Text[100]; CurrencyCode: Code[10])
     begin
         DeferralHeader.TestField("Deferral Code", DeferralCode);
         DeferralHeader.TestField("Amount to Defer", AmountToDefer);
@@ -2407,7 +2406,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
 
     local procedure FindDeferralHeader(SalesLine: Record "Sales Line"; var DeferralHeader: Record "Deferral Header")
     begin
-        DeferralHeader.Get(DeferralUtilities.GetSalesDeferralDocType, '', '',
+        DeferralHeader.Get("Deferral Document Type"::Sales, '', '',
           SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
     end;
 
@@ -2452,8 +2451,8 @@ codeunit 134805 "RED Test Unit for Sales Doc"
 
     local procedure FindPostedDeferralHeader(SalesInvLine: Record "Sales Invoice Line"; var PostedDeferralHeader: Record "Posted Deferral Header")
     begin
-        PostedDeferralHeader.Get(DeferralUtilities.GetSalesDeferralDocType, '', '',
-          CopyDocType::"Posted Invoice", SalesInvLine."Document No.", SalesInvLine."Line No.");
+        PostedDeferralHeader.Get("Deferral Document Type"::Sales, '', '',
+          "Sales Document Type From"::"Posted Invoice", SalesInvLine."Document No.", SalesInvLine."Line No.");
     end;
 
     local procedure RangePostedDeferralLines(PostedDeferralHeader: Record "Posted Deferral Header"; var PostedDeferralLine: Record "Posted Deferral Line")
@@ -2467,18 +2466,18 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         PostedDeferralLine.Find('-');
     end;
 
-    local procedure ModifyDeferral(SalesLine: Record "Sales Line"; CalcMethod: Option; NoOfPeriods: Integer; DeferralAmount: Decimal; StartDate: Date)
+    local procedure ModifyDeferral(SalesLine: Record "Sales Line"; CalcMethod: Enum "Deferral Calculation Method"; NoOfPeriods: Integer; DeferralAmount: Decimal; StartDate: Date)
     var
         DeferralHeader: Record "Deferral Header";
     begin
-        DeferralHeader.Get(DeferralUtilities.GetSalesDeferralDocType, '', '',
+        DeferralHeader.Get("Deferral Document Type"::Sales, '', '',
           SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
-        DeferralUtilities.SetDeferralRecords(DeferralHeader, DeferralUtilities.GetSalesDeferralDocType, '', '',
-          SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.",
+        DeferralUtilities.SetDeferralRecords(DeferralHeader, "Deferral Document Type"::Sales.AsInteger(), '', '',
+          SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.",
           CalcMethod, NoOfPeriods, DeferralAmount, StartDate,
           DeferralHeader."Deferral Code", DeferralHeader."Schedule Description",
           SalesLine.GetDeferralAmount, true, DeferralHeader."Currency Code");
-        DeferralUtilities.CreateDeferralSchedule(DeferralHeader."Deferral Code", DeferralHeader."Deferral Doc. Type",
+        DeferralUtilities.CreateDeferralSchedule(DeferralHeader."Deferral Code", DeferralHeader."Deferral Doc. Type".AsInteger(),
           DeferralHeader."Gen. Jnl. Template Name", DeferralHeader."Gen. Jnl. Batch Name",
           DeferralHeader."Document Type", DeferralHeader."Document No.", DeferralHeader."Line No.",
           DeferralHeader."Amount to Defer", DeferralHeader."Calc. Method", DeferralHeader."Start Date",
@@ -2515,7 +2514,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
 
     local procedure FindDeferralHeaderArchive(SalesLineArchive: Record "Sales Line Archive"; var DeferralHeaderArchive: Record "Deferral Header Archive")
     begin
-        DeferralHeaderArchive.Get(DeferralUtilities.GetSalesDeferralDocType,
+        DeferralHeaderArchive.Get("Deferral Document Type"::Sales,
           SalesLineArchive."Document Type", SalesLineArchive."Document No.",
           SalesLineArchive."Doc. No. Occurrence", SalesLineArchive."Version No.", SalesLineArchive."Line No.");
     end;
@@ -2589,14 +2588,14 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         SalesHeaderArchive.FindFirst;
     end;
 
-    local procedure ValidateDeferralArchiveScheduleDoesNotExist(DocType: Integer; DocNo: Code[20]; LineNo: Integer)
+    local procedure ValidateDeferralArchiveScheduleDoesNotExist(DocType: Enum "Sales Document Type"; DocNo: Code[20]; LineNo: Integer)
     var
         DeferralHeaderArchive: Record "Deferral Header Archive";
         DeferralLineArchive: Record "Deferral Line Archive";
     begin
-        asserterror DeferralHeaderArchive.Get(DeferralUtilities.GetSalesDeferralDocType, '', '', DocType, DocNo, LineNo);
+        asserterror DeferralHeaderArchive.Get("Deferral Document Type"::Sales, '', '', DocType, DocNo, LineNo);
 
-        DeferralLineArchive.SetRange("Deferral Doc. Type", DeferralUtilities.GetSalesDeferralDocType);
+        DeferralLineArchive.SetRange("Deferral Doc. Type", "Deferral Document Type"::Sales);
         DeferralLineArchive.SetRange("Document Type", DocType);
         DeferralLineArchive.SetRange("Document No.", DocNo);
         DeferralLineArchive.SetRange("Line No.", LineNo);
@@ -2611,7 +2610,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         DeferralAmount: Decimal;
         PostingDate: Date;
     begin
-        PostedDeferralHeader.Get(DeferralUtilities.GetSalesDeferralDocType, '', '', DocType, DocNo, LineNo);
+        PostedDeferralHeader.Get("Deferral Document Type"::Sales, '', '', DocType, DocNo, LineNo);
         PostedDeferralHeader.TestField("Deferral Code", DeferralTemplateCode);
         PostedDeferralHeader.TestField("Start Date", HeaderPostingDate);
         PostedDeferralHeader.TestField("Amount to Defer", HeaderAmountToDefer);
@@ -2648,7 +2647,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         SalesCrMemoLine.FindFirst;
     end;
 
-    local procedure FilterGLEntry(var GLEntry: Record "G/L Entry"; DocNo: Code[20]; AccNo: Code[20]; GenPostType: Option)
+    local procedure FilterGLEntry(var GLEntry: Record "G/L Entry"; DocNo: Code[20]; AccNo: Code[20]; GenPostType: Enum "General Posting Type")
     begin
         with GLEntry do begin
             SetRange("Document No.", DocNo);
@@ -2657,7 +2656,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         end;
     end;
 
-    local procedure FilterInvoiceGLEntryGroups(var GLEntry: Record "G/L Entry"; GenPostingType: Option; SalesInvoiceLine: Record "Sales Invoice Line")
+    local procedure FilterInvoiceGLEntryGroups(var GLEntry: Record "G/L Entry"; GenPostingType: Enum "General Posting Type"; SalesInvoiceLine: Record "Sales Invoice Line")
     begin
         with GLEntry do begin
             SetRange("Gen. Posting Type", GenPostingType);
@@ -2668,7 +2667,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         end;
     end;
 
-    local procedure FilterCrMemoGLEntryGroups(var GLEntry: Record "G/L Entry"; GenPostingType: Option; SalesCrMemoLine: Record "Sales Cr.Memo Line")
+    local procedure FilterCrMemoGLEntryGroups(var GLEntry: Record "G/L Entry"; GenPostingType: Enum "General Posting Type"; SalesCrMemoLine: Record "Sales Cr.Memo Line")
     begin
         with GLEntry do begin
             SetRange("Gen. Posting Type", GenPostingType);
@@ -2759,14 +2758,14 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Scope('OnPrem')]
-    procedure ValidateReturnsDeferralStartDate(DocType: Integer; DocNo: Code[20]; LineNo: Integer; RetDeferralStartDate: Date; var DeferralAmount: Decimal)
+    procedure ValidateReturnsDeferralStartDate(DocType: Enum "Sales Document Type"; DocNo: Code[20]; LineNo: Integer; RetDeferralStartDate: Date; var DeferralAmount: Decimal)
     var
         DeferralLine: Record "Deferral Line";
         Period: Integer;
         PostingDate: Date;
     begin
         Clear(DeferralAmount);
-        DeferralLine.SetRange("Deferral Doc. Type", DeferralUtilities.GetSalesDeferralDocType);
+        DeferralLine.SetRange("Deferral Doc. Type", "Deferral Document Type"::Sales);
         DeferralLine.SetRange("Gen. Jnl. Template Name", '');
         DeferralLine.SetRange("Gen. Jnl. Batch Name", '');
         DeferralLine.SetRange("Document Type", DocType);
@@ -2788,7 +2787,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
     end;
 
     [Scope('OnPrem')]
-    procedure GetStartDate(DeferralStartOption: Option; StartDate: Date) AdjustedStartDate: Date
+    procedure GetStartDate(DeferralStartOption: Enum "Deferral Calculation Start Date"; StartDate: Date) AdjustedStartDate: Date
     var
         AccountingPeriod: Record "Accounting Period";
         DeferralTemplate: Record "Deferral Template";
@@ -2826,7 +2825,7 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         exit(Currency.Code);
     end;
 
-    local procedure CreateSalesDocWithCurrencyAndLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; SalesLineType: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"; No: Code[20]; PostingDate: Date)
+    local procedure CreateSalesDocWithCurrencyAndLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; SalesLineType: Enum "Sales Line Type"; No: Code[20]; PostingDate: Date)
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer);
         SalesHeader.Validate("Currency Code", CreateCurrency);
@@ -2936,8 +2935,8 @@ codeunit 134805 "RED Test Unit for Sales Doc"
         DeferralLine: Record "Deferral Line";
         DeferralUtilities: Codeunit "Deferral Utilities";
     begin
-        asserterror DeferralHeader.Get(DeferralUtilities.GetSalesDeferralDocType, '', '', DocType, DocNo, LineNo);
-        asserterror LibraryERM.FindDeferralLine(DeferralLine, DeferralUtilities.GetSalesDeferralDocType, '', '', DocType, DocNo, LineNo);
+        asserterror DeferralHeader.Get("Deferral Document Type"::Sales, '', '', DocType, DocNo, LineNo);
+        asserterror LibraryERM.FindDeferralLine(DeferralLine, "Deferral Document Type"::Sales, '', '', DocType, DocNo, LineNo);
     end;
 
     local procedure VerifyPostedCrMemosDeferralsAndGL(DocType: Option; DocNo: Code[20]; DeferralTemplateCode: Code[10]; AccNo: Code[20]; AmtToDefer: Decimal; AmtToDeferLCY: Decimal; NoOfPeriods: Integer; GLRecordCount: Integer; PostingDate: Date)

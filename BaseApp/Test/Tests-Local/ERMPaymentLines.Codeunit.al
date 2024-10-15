@@ -1210,7 +1210,7 @@ codeunit 144164 "ERM Payment Lines"
         PurchHeader.InitInsert;
 
         // [THEN] Payment lines for this document type, document no are created.
-        VerifyPaymentLinesExist(PaymentLines."Sales/Purchase"::Purchase, PurchHeader."Document Type", PurchHeader."No.");
+        VerifyPaymentLinesExist(PaymentLines."Sales/Purchase"::Purchase, PurchHeader."Document Type".AsInteger(), PurchHeader."No.");
     end;
 
     [Test]
@@ -1493,13 +1493,13 @@ codeunit 144164 "ERM Payment Lines"
         VendorBillListSentCard.CancelList.Invoke;
     end;
 
-    local procedure CreateAndPostServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Option; Invoice: Boolean) AmountIncludingVAT: Decimal
+    local procedure CreateAndPostServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; Invoice: Boolean) AmountIncludingVAT: Decimal
     begin
         AmountIncludingVAT := CreateServiceDocument(ServiceHeader, DocumentType, '');  // Use Blank for Currency.
         LibraryService.PostServiceOrder(ServiceHeader, true, false, Invoice);  // True for Ship
     end;
 
-    local procedure CreateApplyAndPostCustomerPayment(CustomerNo: Code[20]; AppliesToDocumentNo: Code[20]; AppliesToDocumentType: Option; PmtAmount: Decimal): Code[20];
+    local procedure CreateApplyAndPostCustomerPayment(CustomerNo: Code[20]; AppliesToDocumentNo: Code[20]; AppliesToDocumentType: Enum "Sales Document Type"; PmtAmount: Decimal): Code[20];
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -1509,7 +1509,7 @@ codeunit 144164 "ERM Payment Lines"
             GenJournalLine."Document Type"::Payment, AppliesToDocumentType, AppliesToDocumentNo));
     end;
 
-    local procedure CreateApplyAndPostVendorPayment(VendorNo: Code[20]; AppliesToDocumentNo: Code[20]; AppliesToDocumentType: Option; PmtAmount: Decimal): Code[20];
+    local procedure CreateApplyAndPostVendorPayment(VendorNo: Code[20]; AppliesToDocumentNo: Code[20]; AppliesToDocumentType: Enum "Purchase Document Type"; PmtAmount: Decimal): Code[20];
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -1519,7 +1519,7 @@ codeunit 144164 "ERM Payment Lines"
             GenJournalLine."Document Type"::Payment, AppliesToDocumentType, AppliesToDocumentNo));
     end;
 
-    local procedure CreateAndPostGenJournalLine(AccountType: Option; AccountNo: Code[20]; Amount: Decimal; DocumentType: Option; AppliesToDocType: Option; AppliesToDocNo: Code[20]): Code[20];
+    local procedure CreateAndPostGenJournalLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; DocumentType: Enum "Gen. Journal Document Type"; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20]): Code[20];
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -1541,7 +1541,7 @@ codeunit 144164 "ERM Payment Lines"
         exit(Currency.Code);
     end;
 
-    local procedure CreateGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Option)
+    local procedure CreateGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Enum "Gen. Journal Template Type")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
@@ -1551,7 +1551,7 @@ codeunit 144164 "ERM Payment Lines"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; Type: Option; AccountType: Option; AccountNo: Code[20]; PaymentTermsCode: Code[10]; Amount: Decimal)
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; Type: Enum "Gen. Journal Template Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; PaymentTermsCode: Code[10]; Amount: Decimal)
     var
         Customer: Record Customer;
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -1566,7 +1566,7 @@ codeunit 144164 "ERM Payment Lines"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateGenJournalLineWithAppliesTo(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal; AppliesToDocType: Option; AppliesToDocNo: Code[20]);
+    local procedure CreateGenJournalLineWithAppliesTo(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20]);
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, DocumentType, AccountType, AccountNo, Amount);
         GenJournalLine.Validate("Applies-to Doc. Type", AppliesToDocType);
@@ -1643,7 +1643,7 @@ codeunit 144164 "ERM Payment Lines"
         PaymentLines.Modify(true);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; CurrencyCode: Code[10]; PaymentTermsCode: Code[10]; PaymentMethodCode: Code[10]): Decimal
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; CurrencyCode: Code[10]; PaymentTermsCode: Code[10]; PaymentMethodCode: Code[10]): Decimal
     var
         Item: Record Item;
         PurchaseLine: Record "Purchase Line";
@@ -1660,7 +1660,7 @@ codeunit 144164 "ERM Payment Lines"
         exit(PurchaseLine."Amount Including VAT");
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; CurrencyCode: Code[10]; PaymentTermsCode: Code[10]): Decimal
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CurrencyCode: Code[10]; PaymentTermsCode: Code[10]): Decimal
     var
         Customer: Record Customer;
         Item: Record Item;
@@ -1678,7 +1678,7 @@ codeunit 144164 "ERM Payment Lines"
         exit(SalesLine."Amount Including VAT");
     end;
 
-    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Option; CurrencyCode: Code[10]): Decimal
+    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; CurrencyCode: Code[10]): Decimal
     var
         ServiceLine: Record "Service Line";
     begin
@@ -1687,7 +1687,7 @@ codeunit 144164 "ERM Payment Lines"
         exit(ServiceLine."Amount Including VAT");
     end;
 
-    local procedure CreateServiceDocumentWithMultipleLines(var ServiceLine: Record "Service Line"; DocumentType: Option) AmountIncludingVAT: Decimal
+    local procedure CreateServiceDocumentWithMultipleLines(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type") AmountIncludingVAT: Decimal
     var
         Item: Record Item;
         ServiceHeader: Record "Service Header";
@@ -1697,7 +1697,7 @@ codeunit 144164 "ERM Payment Lines"
         AmountIncludingVAT += ServiceLine."Amount Including VAT";
     end;
 
-    local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Option; CurrencyCode: Code[10])
+    local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; CurrencyCode: Code[10])
     var
         Customer: Record Customer;
     begin
@@ -1708,7 +1708,7 @@ codeunit 144164 "ERM Payment Lines"
         ServiceHeader.Modify(true);
     end;
 
-    local procedure CreateServiceLine(var ServiceLine: Record "Service Line"; var ServiceHeader: Record "Service Header"; Type: Option; No: Code[20])
+    local procedure CreateServiceLine(var ServiceLine: Record "Service Line"; var ServiceHeader: Record "Service Header"; Type: Enum "Service Line Type"; No: Code[20])
     begin
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, Type, No);
         ServiceLine.Validate(Quantity, LibraryRandom.RandDecInRange(100, 500, 2));  // Use Random value for Quantity
@@ -1770,7 +1770,7 @@ codeunit 144164 "ERM Payment Lines"
         exit(GenJournalLine."Debit Amount");
     end;
 
-    local procedure CreateGenJnlTmplAndGenJnlBatch(var GenJournalBatch: Record "Gen. Journal Batch"; GenJournalTemplateType: Option)
+    local procedure CreateGenJnlTmplAndGenJnlBatch(var GenJournalBatch: Record "Gen. Journal Batch"; GenJournalTemplateType: Enum "Gen. Journal Template Type")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
@@ -1790,7 +1790,7 @@ codeunit 144164 "ERM Payment Lines"
         VendorBillLine.Delete(true);
     end;
 
-    local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
         CustLedgerEntry.CalcFields(Amount, "Original Amount");
@@ -1805,7 +1805,7 @@ codeunit 144164 "ERM Payment Lines"
         exit(PaymentTerms.Code);
     end;
 
-    local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocumentType, DocumentNo);
         VendorLedgerEntry.CalcFields(Amount, "Original Amount");
@@ -1833,7 +1833,7 @@ codeunit 144164 "ERM Payment Lines"
         end;
     end;
 
-    local procedure UpdateQtyToReceiveInPurchLine(DocType: Option; DocNo: Code[20]; QtyToReceive: Decimal)
+    local procedure UpdateQtyToReceiveInPurchLine(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; QtyToReceive: Decimal)
     var
         PurchLine: Record "Purchase Line";
     begin
@@ -1846,7 +1846,7 @@ codeunit 144164 "ERM Payment Lines"
         end;
     end;
 
-    local procedure UpdateQtyToShipInSalesLine(DocType: Option; DocNo: Code[20]; QtyToShip: Decimal)
+    local procedure UpdateQtyToShipInSalesLine(DocType: Enum "Sales Document Type"; DocNo: Code[20]; QtyToShip: Decimal)
     var
         SalesLine: Record "Sales Line";
     begin

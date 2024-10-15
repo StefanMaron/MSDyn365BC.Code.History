@@ -151,7 +151,7 @@ page 12102 "Subform Sent Vendor Bill Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action("Withholding-INPS")

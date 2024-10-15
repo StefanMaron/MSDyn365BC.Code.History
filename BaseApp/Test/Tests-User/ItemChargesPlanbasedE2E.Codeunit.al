@@ -17,6 +17,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
+        LibraryTemplates: Codeunit "Library - Templates";
         IsInitialized: Boolean;
         TeamMemberErr: Label 'You are logged in as a Team Member role, so you cannot complete this task.';
 
@@ -529,6 +530,7 @@ codeunit 135406 "Item Charges Plan-based E2E"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Item Charges Plan-based E2E");
 
+        LibraryTemplates.DisableTemplatesFeature();
         EnableReceiptAndShipmentOnInvoice;
         LibrarySales.SetCreditWarningsToNoWarnings;
         LibrarySales.SetStockoutWarning(false);

@@ -19,7 +19,7 @@ codeunit 143002 "Library - VAT Utils"
         SENonResidentsPurchasesTxt: Label 'SE';
 
     [Scope('OnPrem')]
-    procedure AdjustAmountSign(Amount: Decimal; DocumentType: Option; AccountType: Option; GenPostingType: Option): Decimal
+    procedure AdjustAmountSign(Amount: Decimal; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; GenPostingType: Enum "General Posting Type"): Decimal
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -60,7 +60,7 @@ codeunit 143002 "Library - VAT Utils"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateAccount(GenPostingType: Option; AccountType: Option; IndividualPerson: Boolean; Resident: Option; InclVAT: Boolean; UsingFiscalCode: Boolean) AccountNo: Code[20]
+    procedure CreateAccount(GenPostingType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; IndividualPerson: Boolean; Resident: Option; InclVAT: Boolean; UsingFiscalCode: Boolean) AccountNo: Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -111,7 +111,7 @@ codeunit 143002 "Library - VAT Utils"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateGenJnlLineWithFiscalCodeAndVATRegNo(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; GenPostingType: Option; IndividualPerson: Boolean; Resident: Option; UsingFiscalCode: Boolean)
+    procedure CreateGenJnlLineWithFiscalCodeAndVATRegNo(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; GenPostingType: Enum "General Posting Type"; IndividualPerson: Boolean; Resident: Option; UsingFiscalCode: Boolean)
     var
         AccountNo: Code[20];
         Amount: Decimal;
@@ -137,10 +137,10 @@ codeunit 143002 "Library - VAT Utils"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; GenPostingType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal): Code[20]
+    procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; GenPostingType: Enum "General Posting Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal): Code[20]
     var
         GenJournalBatch: Record "Gen. Journal Batch";
-        BalAccountType: Option;
+        BalAccountType: Enum "Gen. Journal Account Type";
         BalAccountNo: Code[20];
     begin
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate);
@@ -171,7 +171,7 @@ codeunit 143002 "Library - VAT Utils"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateGLAccount(GenPostingType: Option): Code[20]
+    procedure CreateGLAccount(GenPostingType: enum "General Posting Type"): Code[20]
     var
         GLAccount: Record "G/L Account";
         GeneralPostingSetup: Record "General Posting Setup";
@@ -196,7 +196,7 @@ codeunit 143002 "Library - VAT Utils"
     end;
 
     [Scope('OnPrem')]
-    procedure CreatePostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; GenPostingType: Option; IndividualPerson: Boolean; Resident: Option; UsingFiscalCode: Boolean)
+    procedure CreatePostGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; GenPostingType: Enum "General Posting Type"; IndividualPerson: Boolean; Resident: Option; UsingFiscalCode: Boolean)
     begin
         CreateGenJnlLineWithFiscalCodeAndVATRegNo(
           GenJournalLine, DocumentType, AccountType, GenPostingType, IndividualPerson, Resident, UsingFiscalCode);
@@ -317,7 +317,7 @@ codeunit 143002 "Library - VAT Utils"
     end;
 
     [Scope('OnPrem')]
-    procedure FindMaxVATRate(VATCalculationType: Option) VATRate: Decimal
+    procedure FindMaxVATRate(VATCalculationType: Enum "Tax Calculation Type") VATRate: Decimal
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
@@ -556,7 +556,7 @@ codeunit 143002 "Library - VAT Utils"
     end;
 
     [Scope('OnPrem')]
-    procedure VerifyGetLn(AccountType: Option; DocumentType: Option; GenPostingType: Option; IndividualPerson: Boolean; Resident: Option; UseThreshold: Boolean; UsingFiscalCode: Boolean)
+    procedure VerifyGetLn(AccountType: Enum "Gen. Journal Account Type"; DocumentType: Enum "Gen. Journal Document Type"; GenPostingType: Enum "General Posting Type"; IndividualPerson: Boolean; Resident: Option; UseThreshold: Boolean; UsingFiscalCode: Boolean)
     var
         GenJournalLine: Record "Gen. Journal Line";
         VATReportHeader: Record "VAT Report Header";

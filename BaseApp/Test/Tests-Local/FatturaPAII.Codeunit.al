@@ -1243,7 +1243,7 @@
 
         ItemNo := CreateItemWithMultipleExtendedText;
 
-        // [GIVEN] Posted Sales invoice with standard text containing 'ú' character
+        // [GIVEN] Posted Sales invoice with standard text containing 'ъ' character
         CreateSalesDocWithItemAndExtendedText(SalesHeader, SalesHeader."Document Type"::Invoice, ItemNo);
         CreateStandardText(StandardText);
         EuroChar := 8364;
@@ -1662,7 +1662,7 @@
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; PaymentMethodCode: Code[10]; PaymentTermsCode: Code[10]; CustomerNo: Code[20]; DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order")
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; PaymentMethodCode: Code[10]; PaymentTermsCode: Code[10]; CustomerNo: Code[20]; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -1673,7 +1673,7 @@
         UpdateItemGTIN(SalesLine."No.", Format(LibraryRandom.RandIntInRange(1000, 2000)));
     end;
 
-    local procedure CreateSalesDocWithItemAndStandardText(var StandardText: Record "Standard Text"; DocType: Option; ItemNo: Code[20]): Code[20]
+    local procedure CreateSalesDocWithItemAndStandardText(var StandardText: Record "Standard Text"; DocType: Enum "Sales Document Type"; ItemNo: Code[20]): Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -1685,7 +1685,7 @@
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreateSalesDocWithItemAndExtendedText(var SalesHeader: Record "Sales Header"; DocType: Option; ItemNo: Code[20])
+    local procedure CreateSalesDocWithItemAndExtendedText(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; ItemNo: Code[20])
     var
         SalesLine: Record "Sales Line";
         TransferExtendedText: Codeunit "Transfer Extended Text";
@@ -1754,7 +1754,7 @@
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreateSalesDocWithRounding(var SalesHeader: Record "Sales Header"; DocType: Option)
+    local procedure CreateSalesDocWithRounding(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type")
     var
         Item: Record Item;
         SalesLine: Record "Sales Line";
@@ -1793,7 +1793,7 @@
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateServDocWithItemAndStandardText(var StandardText: Record "Standard Text"; DocType: Option; CustomerNo: Code[20]; ItemNo: Code[20])
+    local procedure CreateServDocWithItemAndStandardText(var StandardText: Record "Standard Text"; DocType: Enum "Sales Document Type"; CustomerNo: Code[20]; ItemNo: Code[20])
     var
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
@@ -1834,7 +1834,7 @@
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
     end;
 
-    local procedure CreateServiceDocWithRounding(var ServiceHeader: Record "Service Header"; DocType: Option)
+    local procedure CreateServiceDocWithRounding(var ServiceHeader: Record "Service Header"; DocType: Enum "Service Document Type")
     var
         Item: Record Item;
         ServiceLine: Record "Service Line";
@@ -2102,7 +2102,7 @@
         ServiceLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocWithPrepmt(var SalesHeader: Record "Sales Header"; DocType: Option; CustomerNo: Code[20]; PrepmtPct: Integer)
+    local procedure CreateSalesDocWithPrepmt(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; CustomerNo: Code[20]; PrepmtPct: Integer)
     var
         SalesLine: Record "Sales Line";
     begin
@@ -2134,7 +2134,7 @@
         SetCheckInVATBusPostingGroupExemption(Customer."VAT Bus. Posting Group");
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocType: Option; CustomerNo: Code[20])
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; CustomerNo: Code[20])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocType, CustomerNo);
         SalesHeader.Validate("Payment Terms Code", CreatePaymentTerms);
@@ -2142,7 +2142,7 @@
         SalesHeader.Modify(true);
     end;
 
-    local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocType: Option; CustomerNo: Code[20])
+    local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocType: Enum "Service Document Type"; CustomerNo: Code[20])
     begin
         LibraryService.CreateServiceHeader(ServiceHeader, DocType, CustomerNo);
         ServiceHeader.Validate("Order Date", WorkDate);
@@ -2205,7 +2205,7 @@
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
     end;
 
-    local procedure PostSalesDocWithPosAndNegLines(var DocNo: Code[20]; var VATAmount: array[2] of Decimal; DocType: Option)
+    local procedure PostSalesDocWithPosAndNegLines(var DocNo: Code[20]; var VATAmount: array[2] of Decimal; DocType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";

@@ -405,12 +405,10 @@ table 382 "CV Ledger Entry Buffer"
             Editable = false;
             TableRelation = "Dimension Set Entry";
         }
-        field(12100; "Document Type to Close"; Option)
+        field(12100; "Document Type to Close"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type to Close';
             DataClassification = SystemMetadata;
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund,,,,Dishonored';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund,,,,Dishonored;
         }
         field(12101; "Document No. to Close"; Code[20])
         {

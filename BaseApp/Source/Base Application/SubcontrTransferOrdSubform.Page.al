@@ -286,7 +286,7 @@ page 12155 "Subcontr.Transfer Ord. Subform"
                     trigger OnAction()
                     begin
                         Find;
-                        ShowReservation;
+                        ShowReservation();
                     end;
                 }
             }
@@ -345,7 +345,7 @@ page 12155 "Subcontr.Transfer Ord. Subform"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 group("Item &Tracking Lines")
@@ -361,7 +361,7 @@ page 12155 "Subcontr.Transfer Ord. Subform"
 
                         trigger OnAction()
                         begin
-                            OpenItemTrackingLines(0);
+                            OpenItemTrackingLines("Transfer Direction"::Outbound);
                         end;
                     }
                     action(Receipt)
@@ -373,7 +373,7 @@ page 12155 "Subcontr.Transfer Ord. Subform"
 
                         trigger OnAction()
                         begin
-                            OpenItemTrackingLines(1);
+                            OpenItemTrackingLines("Transfer Direction"::Inbound);
                         end;
                     }
                 }

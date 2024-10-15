@@ -76,11 +76,11 @@ codeunit 144139 "ERM VAT"
         Quantity := LibraryRandom.RandDec(10, 2);  // Use Random value for Quantity
         DirectUnitCost := LibraryRandom.RandDec(10, 2);  // Use Random value for Direct Unit Cost
         UnapplyVendorLedgerEntryError(
-          true, VATPostingSetup."Unrealized VAT Type"::Percentage, PurchaseLine."Document Type"::Invoice, Quantity, DirectUnitCost,
+          true, VATPostingSetup."Unrealized VAT Type"::Percentage, "Gen. Journal Document Type"::Invoice, Quantity, DirectUnitCost,
           Quantity * DirectUnitCost / 2);  // True for Unrealized VAT and partial value required for Amount
     end;
 
-    local procedure UnapplyVendorLedgerEntryError(UnrealizedVAT: Boolean; UnrealizedVATType: Option; DocumentType: Option; Quantity: Decimal; DirectUnitCost: Decimal; Amount: Decimal)
+    local procedure UnapplyVendorLedgerEntryError(UnrealizedVAT: Boolean; UnrealizedVATType: Option; DocumentType: Enum "Gen. Journal Document Type"; Quantity: Decimal; DirectUnitCost: Decimal; Amount: Decimal)
     var
         GLAccount: Record "G/L Account";
         GenJournalLine: Record "Gen. Journal Line";
@@ -136,11 +136,11 @@ codeunit 144139 "ERM VAT"
         Quantity := LibraryRandom.RandDec(10, 2);  // Use Random value for Quantity
         UnitPrice := LibraryRandom.RandDec(10, 2);  // Use Random value for Unit Price
         UnapplyCustomerLedgerEntryError(
-          true, VATPostingSetup."Unrealized VAT Type"::Percentage, SalesLine."Document Type"::Invoice, Quantity, UnitPrice,
+          true, VATPostingSetup."Unrealized VAT Type"::Percentage, "Gen. Journal Document Type"::Invoice, Quantity, UnitPrice,
           -Quantity * UnitPrice / 2);  // True for Unrealized VAT and partial value required for Amount
     end;
 
-    local procedure UnapplyCustomerLedgerEntryError(UnrealizedVAT: Boolean; UnrealizedVATType: Option; DocumentType: Option; Quantity: Decimal; UnitPrice: Decimal; Amount: Decimal)
+    local procedure UnapplyCustomerLedgerEntryError(UnrealizedVAT: Boolean; UnrealizedVATType: Option; DocumentType: Enum "Gen. Journal Document Type"; Quantity: Decimal; UnitPrice: Decimal; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -857,7 +857,7 @@ codeunit 144139 "ERM VAT"
         Commit();
     end;
 
-    local procedure CreateAndPostGeneralJournalLine(Type: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal; BalAccountNo: Code[20]; AppliesToDocType: Option; AppliesToDocNo: Code[20])
+    local procedure CreateAndPostGeneralJournalLine(Type: Enum "Gen. Journal Template Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; BalAccountNo: Code[20]; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
@@ -873,7 +873,7 @@ codeunit 144139 "ERM VAT"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20]; AppliesToDocNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; DirectUnitCost: Decimal): Code[20]
+    local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; AppliesToDocNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; DirectUnitCost: Decimal): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -885,7 +885,7 @@ codeunit 144139 "ERM VAT"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));  // Post as Invoice
     end;
 
-    local procedure CreateAndPostSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; AppliesToDocNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; UnitPrice: Decimal): Code[20]
+    local procedure CreateAndPostSalesDocument(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; AppliesToDocNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; UnitPrice: Decimal): Code[20]
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -910,7 +910,7 @@ codeunit 144139 "ERM VAT"
         exit(Customer."No.");
     end;
 
-    local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Option)
+    local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Enum "Gen. Journal Template Type")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
@@ -927,7 +927,7 @@ codeunit 144139 "ERM VAT"
         exit(GLAccount."No.");
     end;
 
-    local procedure CreateGLAccount(VATPostingSetup: Record "VAT Posting Setup"; GenPostingType: Option): Code[20]
+    local procedure CreateGLAccount(VATPostingSetup: Record "VAT Posting Setup"; GenPostingType: Enum "General Posting Type"): Code[20]
     var
         GLAccount: Record "G/L Account";
         GeneralPostingSetup: Record "General Posting Setup";
@@ -975,7 +975,7 @@ codeunit 144139 "ERM VAT"
         exit(Item."No.");
     end;
 
-    local procedure CreatePaymentLine(var GenJournalLine: Record "Gen. Journal Line"; AccType: Option; No: Code[20]; Amount: Decimal; DocNo: Code[20])
+    local procedure CreatePaymentLine(var GenJournalLine: Record "Gen. Journal Line"; AccType: Enum "Gen. Journal Account Type"; No: Code[20]; Amount: Decimal; DocNo: Code[20])
     begin
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Payment, AccType, No, Amount);
@@ -1014,7 +1014,7 @@ codeunit 144139 "ERM VAT"
           LibraryRandom.RandDec(100, 2));  // Use Random value for Quantity and Direct Unit Cost
     end;
 
-    local procedure CreatePurchaseLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Type: Option; No: Code[20]; Quantity: Decimal; DirectUnitCost: Decimal)
+    local procedure CreatePurchaseLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Type: Enum "Purchase Line Type"; No: Code[20]; Quantity: Decimal; DirectUnitCost: Decimal)
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, Quantity);
         PurchaseLine.Validate("Direct Unit Cost", DirectUnitCost);
@@ -1033,7 +1033,7 @@ codeunit 144139 "ERM VAT"
           LibraryRandom.RandDec(100, 2));  // Use Random value for Quantity and Unit Price
     end;
 
-    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Option; No: Code[20]; Quantity: Decimal; UnitPrice: Decimal)
+    local procedure CreateSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; No: Code[20]; Quantity: Decimal; UnitPrice: Decimal)
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, No, Quantity);
         SalesLine.Validate("Unit Price", UnitPrice);
@@ -1197,7 +1197,7 @@ codeunit 144139 "ERM VAT"
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure VerifyGLEntry(DocumentType: Option; DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal)
+    local procedure VerifyGLEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin
@@ -1216,7 +1216,7 @@ codeunit 144139 "ERM VAT"
         VerifyGLEntry(GLEntry."Document Type"::"Credit Memo", DocumentNo, GLAccountNo2, -Amount);
     end;
 
-    local procedure VerifyCreditGLEntryExists(DocType: Option; DocNo: Code[20]; GLAccNo: Code[20])
+    local procedure VerifyCreditGLEntryExists(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; GLAccNo: Code[20])
     var
         GLEntry: Record "G/L Entry";
     begin
@@ -1229,7 +1229,7 @@ codeunit 144139 "ERM VAT"
         end;
     end;
 
-    local procedure VerifyReverseChargeDeductibleVATEntries(DocType: Option; DocNo: Code[20])
+    local procedure VerifyReverseChargeDeductibleVATEntries(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     var
         VATEntry: Record "VAT Entry";
         ExpectedVATBase: Decimal;

@@ -136,7 +136,7 @@ table 12184 "Posted Vendor Bill Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
     }

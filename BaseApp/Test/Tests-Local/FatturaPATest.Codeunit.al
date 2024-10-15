@@ -30,7 +30,7 @@ codeunit 144200 "FatturaPA Test"
         FatturaDocHelper: Codeunit "Fattura Doc. Helper";
         IsInitialized: Boolean;
         FatturaPA_ElectronicFormatTxt: Label 'FatturaPA';
-        DocumentType: Option;
+        DocumentType: Enum "Gen. Journal Document Type";
         DocNo: Code[20];
         PostingDate: Date;
         ExportFromType: Option Sales,Service;
@@ -1430,7 +1430,7 @@ codeunit 144200 "FatturaPA Test"
         FileManagement.DeleteServerFile(ServerFileName);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; PaymentMethodCode: Code[10]; PaymentTermsCode: Code[10]; CustomerNo: Code[20]; DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order")
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; PaymentMethodCode: Code[10]; PaymentTermsCode: Code[10]; CustomerNo: Code[20]; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -1519,7 +1519,7 @@ codeunit 144200 "FatturaPA Test"
         exit(GetDocumentNo(DocumentRecordRef));
     end;
 
-    local procedure CreateAndPostSalesDocWithLineDisc(DocType: Option; PaymentMethodCode: Code[10]; PaymentTermsCode: Code[10]; CustomerNo: Code[20]): Code[20]
+    local procedure CreateAndPostSalesDocWithLineDisc(DocType: Enum "Sales Document Type"; PaymentMethodCode: Code[10]; PaymentTermsCode: Code[10]; CustomerNo: Code[20]): Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -1531,7 +1531,7 @@ codeunit 144200 "FatturaPA Test"
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreateAndPostServiceDocument(var ServiceHeader: Record "Service Header"; PaymentMethodCode: Code[10]; PaymentTermsCode: Code[10]; CustomerNo: Code[20]; DocumentType: Option Quote,"Order",Invoice,"Credit Memo")
+    local procedure CreateAndPostServiceDocument(var ServiceHeader: Record "Service Header"; PaymentMethodCode: Code[10]; PaymentTermsCode: Code[10]; CustomerNo: Code[20]; DocumentType: Enum "Service Document Type")
     begin
         CreateServiceHeader(ServiceHeader, CustomerNo, DocumentType);
         ServiceHeader.Validate("Payment Method Code", PaymentMethodCode);
@@ -1593,7 +1593,7 @@ codeunit 144200 "FatturaPA Test"
         exit(GetDocumentNo(DocumentRecordRef));
     end;
 
-    local procedure CreateAndPostServiceDicWithLineDisc(DocType: Option; PaymentMethodCode: Code[10]; PaymentTermsCode: Code[10]; CustomerNo: Code[20])
+    local procedure CreateAndPostServiceDicWithLineDisc(DocType: Enum "Service Document Type"; PaymentMethodCode: Code[10]; PaymentTermsCode: Code[10]; CustomerNo: Code[20])
     var
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
@@ -1691,7 +1691,7 @@ codeunit 144200 "FatturaPA Test"
         exit(LibraryITLocalization.CreateFatturaPaymentTermsCode);
     end;
 
-    local procedure CreateSalesLineWithVATPostingGroup(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Option; VATProdPostingGroup: Code[20])
+    local procedure CreateSalesLineWithVATPostingGroup(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; VATProdPostingGroup: Code[20])
     var
         Item: Record Item;
     begin
@@ -1745,7 +1745,7 @@ codeunit 144200 "FatturaPA Test"
         exit(Format(DocumentRecordRef.Field(3).Value)); // Document No field = 3
     end;
 
-    local procedure GetLineRecord(var LineRecRef: RecordRef; DocNo: Code[20]; DocumentType: Option; ExportFromType: Option Sales,Service)
+    local procedure GetLineRecord(var LineRecRef: RecordRef; DocNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; ExportFromType: Option Sales,Service)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         FieldRef: FieldRef;
@@ -1818,7 +1818,7 @@ codeunit 144200 "FatturaPA Test"
         VerifyDocDiscountData(TempXMLBuffer, HeaderRecRef);
     end;
 
-    local procedure VerifyFatturaPAFileBody(var TempXMLBuffer: Record "XML Buffer" temporary; HeaderRecRef: RecordRef; DocumentType: Option; ExportFromType: Option; OrderNo: Code[20]; ItemGTIN: Boolean; VATTransactionNature: Code[20])
+    local procedure VerifyFatturaPAFileBody(var TempXMLBuffer: Record "XML Buffer" temporary; HeaderRecRef: RecordRef; DocumentType: Enum "Gen. Journal Document Type"; ExportFromType: Option; OrderNo: Code[20]; ItemGTIN: Boolean; VATTransactionNature: Code[20])
     var
         LineRecRef: RecordRef;
         IsSplitPayment: Boolean;
@@ -2355,7 +2355,7 @@ codeunit 144200 "FatturaPA Test"
         end;
     end;
 
-    local procedure VerifyZipArchive(DocumentRecRef1: RecordRef; DocumentRecRef2: RecordRef; ZipClientFileName: Text[250]; ZipServerFileName: Text[250]; ExportFromType: Option Sales,Service; DocumentType: Option)
+    local procedure VerifyZipArchive(DocumentRecRef1: RecordRef; DocumentRecRef2: RecordRef; ZipClientFileName: Text[250]; ZipServerFileName: Text[250]; ExportFromType: Option Sales,Service; DocumentType: Enum "Gen. Journal Document Type")
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
         TempBlob: Codeunit "Temp Blob";
@@ -2708,7 +2708,7 @@ codeunit 144200 "FatturaPA Test"
         CompanyInformation.Modify();
     end;
 
-    local procedure CreateServiceHeaderWithoutPaymentInformation(var ServiceHeader: Record "Service Header"; CustomerNo: Code[20]; DocumentType: Option)
+    local procedure CreateServiceHeaderWithoutPaymentInformation(var ServiceHeader: Record "Service Header"; CustomerNo: Code[20]; DocumentType: Enum "Service Document Type")
     begin
         CreateServiceHeader(ServiceHeader, CustomerNo, DocumentType);
         Clear(ServiceHeader."Payment Method Code");
@@ -2716,7 +2716,7 @@ codeunit 144200 "FatturaPA Test"
         ServiceHeader.Modify();
     end;
 
-    local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; CustomerNo: Code[20]; DocumentType: Option)
+    local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; CustomerNo: Code[20]; DocumentType: Enum "Service Document Type")
     var
         ServiceLine: Record "Service Line";
     begin

@@ -5750,6 +5750,12 @@ End Function</Code>
         <Field Name="CrossReferenceNo_Line_Lbl">
           <DataField>CrossReferenceNo_Line_Lbl</DataField>
         </Field>
+        <Field Name="ItemReferenceNo_Line">
+          <DataField>ItemReferenceNo_Line</DataField>
+        </Field>
+        <Field Name="ItemReferenceNo_Line_Lbl">
+          <DataField>ItemReferenceNo_Line_Lbl</DataField>
+        </Field>
         <Field Name="Quantity_SalesShipLine">
           <DataField>Quantity_SalesShipLine</DataField>
         </Field>

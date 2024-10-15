@@ -488,7 +488,7 @@ codeunit 144203 "FatturaPA Stamp"
         exit(LibraryITLocalization.CreateFatturaPaymentTermsCode);
     end;
 
-    local procedure PostSalesDocumentWithStamp(var SalesHeader: Record "Sales Header"; DocType: Option; FatturaStamp: Boolean): Code[20]
+    local procedure PostSalesDocumentWithStamp(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; FatturaStamp: Boolean): Code[20]
     var
         SalesLine: Record "Sales Line";
     begin
@@ -505,7 +505,7 @@ codeunit 144203 "FatturaPA Stamp"
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure PostServiceDocumentWithStamp(var ServiceHeader: Record "Service Header"; DocType: Option; FatturaStamp: Boolean)
+    local procedure PostServiceDocumentWithStamp(var ServiceHeader: Record "Service Header"; DocType: Enum "Service Document Type"; FatturaStamp: Boolean)
     var
         ServiceItem: Record "Service Item";
         ServiceLine: Record "Service Line";

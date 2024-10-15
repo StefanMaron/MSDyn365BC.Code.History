@@ -367,7 +367,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         VerifyAmountInGLEntry(FANo, GenJournalLine.Amount);
     end;
 
-    local procedure CreateFixedAssetWithIntegration(GenJnlLineFAPostingType: Option; AmountSign: Integer; var GenJournalLine: Record "Gen. Journal Line"): Code[20]
+    local procedure CreateFixedAssetWithIntegration(GenJnlLineFAPostingType: Enum "Gen. Journal Line FA Posting Type"; AmountSign: Integer; var GenJournalLine: Record "Gen. Journal Line"): Code[20]
     var
         FADepreciationBook: Record "FA Depreciation Book";
         FixedAsset: Record "Fixed Asset";
@@ -1451,7 +1451,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateAndPostFAJournalLine(FADepreciationBook: Record "FA Depreciation Book"; Amount: Decimal; FAPostingType: Option)
+    local procedure CreateAndPostFAJournalLine(FADepreciationBook: Record "FA Depreciation Book"; Amount: Decimal; FAPostingType: Enum "FA Journal Line FA Posting Type")
     var
         FAJournalLine: Record "FA Journal Line";
         FAJournalBatch: Record "FA Journal Batch";
@@ -1497,7 +1497,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         CreateFAJournalSetup(FADepreciationBook."Depreciation Book Code");
     end;
 
-    local procedure CreateAndModifyFAGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FADepreciationBook: Record "FA Depreciation Book"; GenJournalBatch: Record "Gen. Journal Batch"; FAPostingType: Option; Amount: Decimal; PostingDate: Date)
+    local procedure CreateAndModifyFAGLJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FADepreciationBook: Record "FA Depreciation Book"; GenJournalBatch: Record "Gen. Journal Batch"; FAPostingType: Enum "Gen. Journal Line FA Posting Type"; Amount: Decimal; PostingDate: Date)
     var
         GLAccount: Record "G/L Account";
     begin
@@ -1551,7 +1551,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
     end;
 
-    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FADepreciationBook: Record "FA Depreciation Book"; GenJournalBatch: Record "Gen. Journal Batch"; FAPostingType: Option; Amount: Decimal; GLAccount: Record "G/L Account")
+    local procedure CreateGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; FADepreciationBook: Record "FA Depreciation Book"; GenJournalBatch: Record "Gen. Journal Batch"; FAPostingType: Enum "Gen. Journal Line FA Posting Type"; Amount: Decimal; GLAccount: Record "G/L Account")
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
@@ -1884,7 +1884,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
         FAJournalLine.TestField(Amount, Amount);
     end;
 
-    local procedure VerifyFALedgerEntry(FAPostingType: Option; FANo: Code[20]; Amount: Decimal)
+    local procedure VerifyFALedgerEntry(FAPostingType: Enum "FA Ledger Entry FA Posting Type"; FANo: Code[20]; Amount: Decimal)
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         FALedgerEntry: Record "FA Ledger Entry";
@@ -1898,7 +1898,7 @@ codeunit 134453 "ERM Fixed Assets GL Journal"
           StrSubstNo(AmountErr, FALedgerEntry.FieldCaption(Amount), Amount, FALedgerEntry.TableCaption));
     end;
 
-    local procedure VerifyLastFALedgEntryAmount(FANo: Code[20]; FAPostingType: Option; ExpectedAmount: Decimal)
+    local procedure VerifyLastFALedgEntryAmount(FANo: Code[20]; FAPostingType: Enum "FA Ledger Entry FA Posting Type"; ExpectedAmount: Decimal)
     var
         FALedgerEntry: Record "FA Ledger Entry";
     begin

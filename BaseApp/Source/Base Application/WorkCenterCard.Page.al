@@ -109,7 +109,7 @@ page 99000754 "Work Center Card"
 
                     trigger OnValidate()
                     begin
-                        SubcontractorNoOnAfterValidate;
+                        SubcontractorNoOnAfterValidate();
                     end;
                 }
                 field("Flushing Method"; "Flushing Method")

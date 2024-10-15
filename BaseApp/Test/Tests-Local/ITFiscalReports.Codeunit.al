@@ -1352,7 +1352,7 @@ codeunit 144192 "IT - Fiscal Reports"
         CompanyInformation[6] := CompanyInfo."Fiscal Code";
     end;
 
-    local procedure CreateAndPostServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Option; VATRegisterCode: Code[10])
+    local procedure CreateAndPostServiceDocument(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; VATRegisterCode: Code[10])
     var
         Customer: Record Customer;
         Item: Record Item;
@@ -1392,7 +1392,7 @@ codeunit 144192 "IT - Fiscal Reports"
         exit(NoSeries.Code);
     end;
 
-    local procedure CreateVATBookEntry(var VATBookEntry: Record "VAT Book Entry"; SellToBuyFromNo: Code[20]; NoSeriesCode: Code[20]; VATBookEntryType: Option; VATCalculationType: Option; PostingDate: Date)
+    local procedure CreateVATBookEntry(var VATBookEntry: Record "VAT Book Entry"; SellToBuyFromNo: Code[20]; NoSeriesCode: Code[20]; VATBookEntryType: Option; VATCalculationType: Enum "Tax Calculation Type"; PostingDate: Date)
     begin
         with VATBookEntry do begin
             "Entry No." := LibraryUtility.GetNewRecNo(VATBookEntry, FieldNo("Entry No."));

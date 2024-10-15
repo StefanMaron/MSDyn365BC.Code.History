@@ -247,7 +247,7 @@ report 5911 "Service - Invoice"
                         }
                         column(LineAmt_ServInvLine; "Line Amount")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Desc_ServInvLine; Description)
@@ -267,7 +267,7 @@ report 5911 "Service - Invoice"
                         }
                         column(UnitPrice_ServInvLine; "Unit Price")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 2;
                         }
                         column(LineDisc_ServInvLine; "Line Discount %")
@@ -281,7 +281,7 @@ report 5911 "Service - Invoice"
                         }
                         column(InvDiscAmt_ServInvLine; -"Inv. Discount Amount")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(TotalText; TotalText)
@@ -289,17 +289,17 @@ report 5911 "Service - Invoice"
                         }
                         column(Amt_ServInvLine; Amount)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmtInclVATAmount; "Amount Including VAT" - Amount)
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmtInclVAT_ServInvLine; "Amount Including VAT")
                         {
-                            AutoFormatExpression = GetCurrencyCode;
+                            AutoFormatExpression = GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(VATAmtLineVATAmtText; VATAmountLine.VATAmountText)
@@ -477,7 +477,7 @@ report 5911 "Service - Invoice"
                             TotalAmount += Amount;
                             TotalAmountInclVAT += "Amount Including VAT";
                             TotalInvDiscAmount += "Inv. Discount Amount";
-                            TypeInt := Type;
+                            TypeInt := Type.AsInteger();
 
                             ServiceLineHidden := (TypeInt = 0) or ((Quantity < 0) and ("Unit Price" > 0) and (Amount = 0));
                         end;
@@ -506,7 +506,7 @@ report 5911 "Service - Invoice"
                         DataItemTableView = SORTING(Number);
                         column(VATAmtLineVATBase; VATAmountLine."VAT Base")
                         {
-                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode;
+                            AutoFormatExpression = "Service Invoice Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(VATAmtLineVATAmt; VATAmountLine."VAT Amount")

@@ -110,7 +110,7 @@ codeunit 144110 "ERM CASHVAT"
         PostedPurchaseDocWithCashVATProductPostingGroup(PurchaseHeader."Document Type"::Invoice, true); // TRUE for multiple Purchase Line.
     end;
 
-    local procedure PostedPurchaseDocWithCashVATProductPostingGroup(DocumentType: Option; MultipleLine: Boolean)
+    local procedure PostedPurchaseDocWithCashVATProductPostingGroup(DocumentType: Enum "Purchase Document Type"; MultipleLine: Boolean)
     var
         VATPostingSetup: Record "VAT Posting Setup";
         PurchInvHeaderNo: Code[20];
@@ -218,7 +218,7 @@ codeunit 144110 "ERM CASHVAT"
         PostedSalesDocWithCashVATProductPostingGroup(SalesHeader."Document Type"::Invoice, true);  // TRUE for multiple Sales Line.
     end;
 
-    local procedure PostedSalesDocWithCashVATProductPostingGroup(DocumentType: Option; MultipleLine: Boolean)
+    local procedure PostedSalesDocWithCashVATProductPostingGroup(DocumentType: Enum "Sales Document Type"; MultipleLine: Boolean)
     var
         VATPostingSetup: Record "VAT Posting Setup";
         SalesInvoiceHeaderNo: Code[20];
@@ -427,7 +427,7 @@ codeunit 144110 "ERM CASHVAT"
         exit(Item."No.")
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VATBusPostingGroup: Code[20]; PrepaymentPct: Decimal)
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VATBusPostingGroup: Code[20]; PrepaymentPct: Decimal)
     var
         Vendor: Record Vendor;
         NoSeries: Record "No. Series";
@@ -450,7 +450,7 @@ codeunit 144110 "ERM CASHVAT"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateAndPostPurchaseDocument(DocumentType: Option; VATProdPostingGroup: Code[20]; VATBusPostingGroup: Code[20]; MultipleLine: Boolean) PostedDocumentNo: Code[20]
+    local procedure CreateAndPostPurchaseDocument(DocumentType: Enum "Purchase Document Type"; VATProdPostingGroup: Code[20]; VATBusPostingGroup: Code[20]; MultipleLine: Boolean) PostedDocumentNo: Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -487,7 +487,7 @@ codeunit 144110 "ERM CASHVAT"
         end;
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; VATBusPostingGroup: Code[20]; PrepaymentPct: Decimal)
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; VATBusPostingGroup: Code[20]; PrepaymentPct: Decimal)
     var
         Customer: Record Customer;
         NoSeries: Record "No. Series";
@@ -500,7 +500,7 @@ codeunit 144110 "ERM CASHVAT"
         SalesHeader.Modify(true);
     end;
 
-    local procedure CreateAndPostSalesDocument(DocumentType: Option; VATProdPostingGroup: Code[20]; VATBusPostingGroup: Code[20]; MultipleLine: Boolean) PostedDocumentNo: Code[20]
+    local procedure CreateAndPostSalesDocument(DocumentType: Enum "Sales Document Type"; VATProdPostingGroup: Code[20]; VATBusPostingGroup: Code[20]; MultipleLine: Boolean) PostedDocumentNo: Code[20]
     var
         SalesHeader: Record "Sales Header";
     begin

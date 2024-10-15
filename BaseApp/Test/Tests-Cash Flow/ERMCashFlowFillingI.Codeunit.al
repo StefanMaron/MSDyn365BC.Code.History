@@ -26,7 +26,6 @@ codeunit 134551 "ERM Cash Flow Filling I"
         IsInitialized: Boolean;
         DateFieldOption: Option DueDate,DiscountDate;
         UnsupportedDateField: Label '''Unsupported Date Field Option: %1''';
-        SourceType: Option " ",Receivables,Payables,"Liquid Funds","Cash Flow Manual Expense","Cash Flow Manual Revenue","Sales Orders","Purchase Orders","Fixed Assets Budget","Fixed Assets Disposal","Service Orders","G/L Budget",,,Job,Tax;
         AmountError: Label '%1 must be equal to %2.', Comment = '%1 = Expected Amount %2 = Actual Amount.';
         CFPaymentTermsNotSupportedInIT: Label 'Cash Flow payment terms are not supported in IT.';
         NoLinesForAppliedPrepaymentErr: Label 'There should not be any %1 for the posted Prepayment Invoice.';
@@ -52,11 +51,11 @@ codeunit 134551 "ERM Cash Flow Filling I"
         CFHelper.CreateManualRevenue(CFManualRevenue);
 
         // Exercise
-        ConsiderSource[SourceType::"Cash Flow Manual Revenue"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Cash Flow Manual Revenue".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
-        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, CFManualRevenue.Code, SourceType::"Cash Flow Manual Revenue",
+        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, CFManualRevenue.Code, "Cash Flow Source Type"::"Cash Flow Manual Revenue",
           CashFlowForecast."No.", CFManualRevenue.Amount, CFManualRevenue."Starting Date");
     end;
 
@@ -78,11 +77,11 @@ codeunit 134551 "ERM Cash Flow Filling I"
         CFHelper.CreateManualPayment(CFManualExpense);
 
         // Exercise
-        ConsiderSource[SourceType::"Cash Flow Manual Expense"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Cash Flow Manual Expense".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
-        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, CFManualExpense.Code, SourceType::"Cash Flow Manual Expense",
+        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, CFManualExpense.Code, "Cash Flow Source Type"::"Cash Flow Manual Expense",
           CashFlowForecast."No.", -CFManualExpense.Amount, CFManualExpense."Starting Date");
     end;
 
@@ -106,7 +105,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         CreateManualRevenueWithStartingDate(CFManualRevenue[2], CalcDate('<+1D>', CashFlowForecast."Manual Payments To"));
 
         // Exercise
-        ConsiderSource[SourceType::"Cash Flow Manual Revenue"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Cash Flow Manual Revenue".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
@@ -114,8 +113,8 @@ codeunit 134551 "ERM Cash Flow Filling I"
             Assert.AreEqual(
               0,
               CFHelper.FilterSingleJournalLine(
-                CFWorksheetLine, CFManualRevenue[i].Code, SourceType::"Cash Flow Manual Revenue", CashFlowForecast."No."),
-              StrSubstNo(CFSourceExistsInJnlErr, SourceType::"Cash Flow Manual Revenue"));
+                CFWorksheetLine, CFManualRevenue[i].Code, "Cash Flow Source Type"::"Cash Flow Manual Revenue", CashFlowForecast."No."),
+              StrSubstNo(CFSourceExistsInJnlErr, "Cash Flow Source Type"::"Cash Flow Manual Revenue"));
     end;
 
     [Test]
@@ -138,7 +137,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         CreateManualExpenseWithStartingDate(CFManualExpense[2], CalcDate('<+1D>', CashFlowForecast."Manual Payments To"));
 
         // Exercise
-        ConsiderSource[SourceType::"Cash Flow Manual Expense"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Cash Flow Manual Expense".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
@@ -146,8 +145,8 @@ codeunit 134551 "ERM Cash Flow Filling I"
             Assert.AreEqual(
               0,
               CFHelper.FilterSingleJournalLine(
-                CFWorksheetLine, CFManualExpense[i].Code, SourceType::"Cash Flow Manual Expense", CashFlowForecast."No."),
-              StrSubstNo(CFSourceExistsInJnlErr, SourceType::"Cash Flow Manual Expense"));
+                CFWorksheetLine, CFManualExpense[i].Code, "Cash Flow Source Type"::"Cash Flow Manual Expense", CashFlowForecast."No."),
+              StrSubstNo(CFSourceExistsInJnlErr, "Cash Flow Source Type"::"Cash Flow Manual Expense"));
     end;
 
     [Test]
@@ -169,15 +168,15 @@ codeunit 134551 "ERM Cash Flow Filling I"
         CreateManualRevenueWithStartingDate(CFManualRevenue, CashFlowForecast."Manual Payments From");
 
         // Exercise
-        ConsiderSource[SourceType::"Cash Flow Manual Revenue"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Cash Flow Manual Revenue".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
         Assert.AreEqual(
           1,
           CFHelper.FilterSingleJournalLine(
-            CFWorksheetLine, CFManualRevenue.Code, SourceType::"Cash Flow Manual Revenue", CashFlowForecast."No."),
-          StrSubstNo(CFSourceExistsInJnlErr, SourceType::"Cash Flow Manual Revenue"));
+            CFWorksheetLine, CFManualRevenue.Code, "Cash Flow Source Type"::"Cash Flow Manual Revenue", CashFlowForecast."No."),
+          StrSubstNo(CFSourceExistsInJnlErr, "Cash Flow Source Type"::"Cash Flow Manual Revenue"));
     end;
 
     [Test]
@@ -199,15 +198,15 @@ codeunit 134551 "ERM Cash Flow Filling I"
         CreateManualExpenseWithStartingDate(CFManualExpense, CashFlowForecast."Manual Payments From");
 
         // Exercise
-        ConsiderSource[SourceType::"Cash Flow Manual Expense"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Cash Flow Manual Expense".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify: Check text message in ManPmtRevExptNeedsUpdateMessageHandler
         Assert.AreEqual(
           1,
           CFHelper.FilterSingleJournalLine(
-            CFWorksheetLine, CFManualExpense.Code, SourceType::"Cash Flow Manual Expense", CashFlowForecast."No."),
-          StrSubstNo(CFSourceExistsInJnlErr, SourceType::"Cash Flow Manual Expense"));
+            CFWorksheetLine, CFManualExpense.Code, "Cash Flow Source Type"::"Cash Flow Manual Expense", CashFlowForecast."No."),
+          StrSubstNo(CFSourceExistsInJnlErr, "Cash Flow Source Type"::"Cash Flow Manual Expense"));
     end;
 
     [Test]
@@ -228,11 +227,11 @@ codeunit 134551 "ERM Cash Flow Filling I"
         CFHelper.CreateDefaultSalesOrder(SalesHeader);
 
         // Exercise
-        ConsiderSource[SourceType::"Sales Orders"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Sales Orders".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
-        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, SalesHeader."No.", SourceType::"Sales Orders",
+        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, SalesHeader."No.", "Cash Flow Source Type"::"Sales Orders",
           CashFlowForecast."No.", CFHelper.GetTotalSalesAmount(SalesHeader, false), SalesHeader."Document Date");
     end;
 
@@ -255,11 +254,11 @@ codeunit 134551 "ERM Cash Flow Filling I"
 
         // Exercise
         LibraryApplicationArea.EnableFoundationSetup;
-        ConsiderSource[SourceType::"Purchase Orders"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Purchase Orders".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
-        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, PurchaseHeader."No.", SourceType::"Purchase Orders",
+        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, PurchaseHeader."No.", "Cash Flow Source Type"::"Purchase Orders",
           CashFlowForecast."No.", -CFHelper.GetTotalPurchaseAmount(PurchaseHeader, false), PurchaseHeader."Document Date");
     end;
 
@@ -281,11 +280,11 @@ codeunit 134551 "ERM Cash Flow Filling I"
         CFHelper.CreateDefaultServiceOrder(ServiceHeader);
 
         // Exercise
-        ConsiderSource[SourceType::"Service Orders"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Service Orders".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
-        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, ServiceHeader."No.", SourceType::"Service Orders",
+        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, ServiceHeader."No.", "Cash Flow Source Type"::"Service Orders",
           CashFlowForecast."No.", CFHelper.GetTotalServiceAmount(ServiceHeader, false), ServiceHeader."Document Date");
     end;
 
@@ -310,12 +309,12 @@ codeunit 134551 "ERM Cash Flow Filling I"
         CFHelper.FindFirstCustLEFromSO(CustLedgerEntry, SalesHeader."No.");
 
         // Exercise
-        ConsiderSource[SourceType::Receivables] := true;
+        ConsiderSource["Cash Flow Source Type"::Receivables.AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
         CustLedgerEntry.CalcFields("Amount (LCY)");
-        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, CustLedgerEntry."Document No.", SourceType::Receivables,
+        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, CustLedgerEntry."Document No.", "Cash Flow Source Type"::Receivables,
           CashFlowForecast."No.", CustLedgerEntry."Amount (LCY)", CustLedgerEntry."Due Date");
     end;
 
@@ -340,12 +339,12 @@ codeunit 134551 "ERM Cash Flow Filling I"
         CFHelper.FindFirstVendorLEFromPO(VendorLedgerEntry, PurchaseHeader."No.");
 
         // Exercise
-        ConsiderSource[SourceType::Payables] := true;
+        ConsiderSource["Cash Flow Source Type"::Payables.AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
         VendorLedgerEntry.CalcFields("Amount (LCY)");
-        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, VendorLedgerEntry."Document No.", SourceType::Payables,
+        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, VendorLedgerEntry."Document No.", "Cash Flow Source Type"::Payables,
           CashFlowForecast."No.", VendorLedgerEntry."Amount (LCY)", VendorLedgerEntry."Due Date");
     end;
 
@@ -374,11 +373,11 @@ codeunit 134551 "ERM Cash Flow Filling I"
         ExpectedDueAndCFDate := CalcDate(FAPostingDateFormula, WorkDate);
 
         // Exercise
-        ConsiderSource[SourceType::"Fixed Assets Budget"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Fixed Assets Budget".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
-        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, FixedAsset."No.", SourceType::"Fixed Assets Budget",
+        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, FixedAsset."No.", "Cash Flow Source Type"::"Fixed Assets Budget",
           CashFlowForecast."No.", -InvestmentAmount, ExpectedDueAndCFDate);
     end;
 
@@ -412,11 +411,11 @@ codeunit 134551 "ERM Cash Flow Filling I"
         ExpectedDueAndCFDate := CalcDate(ExpectedDisposalDateFormula, WorkDate);
 
         // Exercise
-        ConsiderSource[SourceType::"Fixed Assets Disposal"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Fixed Assets Disposal".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
-        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, FixedAsset."No.", SourceType::"Fixed Assets Disposal",
+        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, FixedAsset."No.", "Cash Flow Source Type"::"Fixed Assets Disposal",
           CashFlowForecast."No.", ExpectedDisposalAmount, ExpectedDueAndCFDate);
     end;
 
@@ -444,11 +443,11 @@ codeunit 134551 "ERM Cash Flow Filling I"
         ExpectedCFDate := CalculateDiscountDate(PaymentTerms, SalesHeader."Document Date");
 
         // Exercise
-        ConsiderSource[SourceType::"Sales Orders"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Sales Orders".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
-        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, SalesHeader."No.", SourceType::"Sales Orders",
+        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, SalesHeader."No.", "Cash Flow Source Type"::"Sales Orders",
           CashFlowForecast."No.", ExpectedAmount, ExpectedCFDate);
     end;
 
@@ -495,11 +494,11 @@ codeunit 134551 "ERM Cash Flow Filling I"
           CalculateDiscountDate(PaymentTerms, CalcDate(PmtDiscountGracePeriod, SalesHeader."Document Date"));
 
         // Exercise
-        ConsiderSource[SourceType::"Sales Orders"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Sales Orders".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
-        CFHelper.FilterSingleJournalLine(CFWorksheetLine, SalesHeader."No.", SourceType::"Sales Orders", CashFlowForecast."No.");
+        CFHelper.FilterSingleJournalLine(CFWorksheetLine, SalesHeader."No.", "Cash Flow Source Type"::"Sales Orders", CashFlowForecast."No.");
         CFHelper.VerifyCFDateOnCFJnlLine(CFWorksheetLine, ExpectedCFDate);
 
         // Tear down
@@ -533,11 +532,11 @@ codeunit 134551 "ERM Cash Flow Filling I"
         CFHelper.FindFirstCustLEFromSO(CustLedgerEntry, SalesHeader."No.");
 
         // Exercise
-        ConsiderSource[SourceType::Receivables] := true;
+        ConsiderSource["Cash Flow Source Type"::Receivables.AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
-        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, CustLedgerEntry."Document No.", SourceType::Receivables,
+        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, CustLedgerEntry."Document No.", "Cash Flow Source Type"::Receivables,
           CashFlowForecast."No.", ExpectedAmount, CustLedgerEntry."Pmt. Discount Date");
     end;
 
@@ -584,11 +583,11 @@ codeunit 134551 "ERM Cash Flow Filling I"
         CFHelper.FindFirstVendorLEFromPO(VendorLedgerEntry, PurchaseHeader."No.");
 
         // Exercise
-        ConsiderSource[SourceType::Payables] := true;
+        ConsiderSource["Cash Flow Source Type"::Payables.AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
-        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, VendorLedgerEntry."Document No.", SourceType::Payables,
+        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, VendorLedgerEntry."Document No.", "Cash Flow Source Type"::Payables,
           CashFlowForecast."No.", ExpectedAmount, VendorLedgerEntry."Pmt. Discount Date");
     end;
 
@@ -630,11 +629,11 @@ codeunit 134551 "ERM Cash Flow Filling I"
         ExpectedCFDate := CalculateDiscountDate(PaymentTerms, PurchaseHeader."Document Date");
 
         // Exercise
-        ConsiderSource[SourceType::"Purchase Orders"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Purchase Orders".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
-        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, PurchaseHeader."No.", SourceType::"Purchase Orders",
+        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, PurchaseHeader."No.", "Cash Flow Source Type"::"Purchase Orders",
           CashFlowForecast."No.", ExpectedAmount, ExpectedCFDate);
     end;
 
@@ -676,11 +675,11 @@ codeunit 134551 "ERM Cash Flow Filling I"
         ExpectedCFDate := CalculateDiscountDate(PaymentTerms, ServiceHeader."Document Date");
 
         // Exercise
-        ConsiderSource[SourceType::"Service Orders"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Service Orders".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
-        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, ServiceHeader."No.", SourceType::"Service Orders",
+        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, ServiceHeader."No.", "Cash Flow Source Type"::"Service Orders",
           CashFlowForecast."No.", ExpectedAmount, ExpectedCFDate);
     end;
 
@@ -732,13 +731,13 @@ codeunit 134551 "ERM Cash Flow Filling I"
 
         // Exercise
         LibraryApplicationArea.EnableJobsSetup;
-        ConsiderSource[SourceType::Job] := true;
+        ConsiderSource["Cash Flow Source Type"::Job.AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
-        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, Job."No.", SourceType::Job,
+        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, Job."No.", "Cash Flow Source Type"::Job,
           CashFlowForecast."No.", CFHelper.GetTotalJobsAmount(Job, OldDate), OldDate);
-        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, Job."No.", SourceType::Job,
+        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, Job."No.", "Cash Flow Source Type"::Job,
           CashFlowForecast."No.", CFHelper.GetTotalJobsAmount(Job, NewDate), NewDate);
     end;
 
@@ -790,18 +789,18 @@ codeunit 134551 "ERM Cash Flow Filling I"
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
 
         // Exercise
-        ConsiderSource[SourceType::Tax] := true;
+        ConsiderSource["Cash Flow Source Type"::Tax.AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify - worksheet lines for the two dates for sales
         CFWorksheetLine.SetRange("Source No.", Format(DATABASE::"Sales Header"));
         TaxDueDate1 := CashFlowSetup.GetTaxPaymentDueDate(DocumentDate1);
         CFWorksheetLine.SetRange("Cash Flow Date", TaxDueDate1);
-        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, '', SourceType::Tax,
+        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, '', "Cash Flow Source Type"::Tax,
           CashFlowForecast."No.", CFHelper.GetTotalTaxAmount(TaxDueDate1, DATABASE::"Sales Header"), TaxDueDate1);
         TaxDueDate2 := CashFlowSetup.GetTaxPaymentDueDate(DocumentDate3);
         CFWorksheetLine.SetRange("Cash Flow Date", TaxDueDate2);
-        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, '', SourceType::Tax,
+        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, '', "Cash Flow Source Type"::Tax,
           CashFlowForecast."No.", CFHelper.GetTotalTaxAmount(TaxDueDate2, DATABASE::"Sales Header"), TaxDueDate2);
     end;
 
@@ -860,7 +859,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         BankAccountLedgerEntry.Insert();
 
         // Exercise
-        ConsiderSource[SourceType::Tax] := true;
+        ConsiderSource["Cash Flow Source Type"::Tax.AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify - no worksheet lines for the sales
@@ -943,7 +942,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
 
         // Exercise
-        ConsiderSource[SourceType::Tax] := true;
+        ConsiderSource["Cash Flow Source Type"::Tax.AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify - no worksheet lines for the sales
@@ -976,12 +975,12 @@ codeunit 134551 "ERM Cash Flow Filling I"
         ExpectedSOAmount := CFHelper.GetTotalSalesAmount(SalesHeader, false);
 
         // Exercise
-        ConsiderSource[SourceType::"Sales Orders"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Sales Orders".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
         // Prepayment has not been posted, therefore it must not be considered in the forecast!
-        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, SalesHeader."No.", SourceType::"Sales Orders",
+        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, SalesHeader."No.", "Cash Flow Source Type"::"Sales Orders",
           CashFlowForecast."No.", ExpectedSOAmount, SalesHeader."Document Date");
     end;
 
@@ -1040,18 +1039,18 @@ codeunit 134551 "ERM Cash Flow Filling I"
               GenJournalLine."Account Type"::Customer, PrepaymentInvNo, -ExpectedPrepaymentAmount);
 
         // Exercise
-        ConsiderSource[SourceType::Receivables] := true;
-        ConsiderSource[SourceType::"Sales Orders"] := true;
+        ConsiderSource["Cash Flow Source Type"::Receivables.AsInteger()] := true;
+        ConsiderSource["Cash Flow Source Type"::"Sales Orders".AsInteger()] := true;
         CFHelper.FillJournal(ConsiderSource, CashFlowForecast."No.", GroupByDocumentType);
 
         // Verify
-        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, SalesHeader."No.", SourceType::"Sales Orders",
+        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, SalesHeader."No.", "Cash Flow Source Type"::"Sales Orders",
           CashFlowForecast."No.", ExpectedSOAmount, SalesHeader."Document Date");
         if not ApplyInvoicePayment then
-            CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, PrepaymentInvNo, SourceType::Receivables,
+            CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, PrepaymentInvNo, "Cash Flow Source Type"::Receivables,
               CashFlowForecast."No.", ExpectedPrepaymentAmount, SalesHeader."Document Date")
         else
-            Assert.AreEqual(0, CFHelper.FilterSingleJournalLine(CFWorksheetLine, PrepaymentInvNo, SourceType::Receivables,
+            Assert.AreEqual(0, CFHelper.FilterSingleJournalLine(CFWorksheetLine, PrepaymentInvNo, "Cash Flow Source Type"::Receivables,
                 CashFlowForecast."No."), StrSubstNo(NoLinesForAppliedPrepaymentErr, 'Receivables'));
     end;
 
@@ -1118,18 +1117,18 @@ codeunit 134551 "ERM Cash Flow Filling I"
               GenJournalLine."Account Type"::Customer, FirstPrepaymentInvNo, -FirstPrepaymentAmount);
 
         // Exercise
-        ConsiderSource[SourceType::Receivables] := true;
-        ConsiderSource[SourceType::"Sales Orders"] := true;
+        ConsiderSource["Cash Flow Source Type"::Receivables.AsInteger()] := true;
+        ConsiderSource["Cash Flow Source Type"::"Sales Orders".AsInteger()] := true;
         CFHelper.FillJournal(ConsiderSource, CashFlowForecast."No.", GroupByDocumentType);
 
         // Verify
-        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, SalesHeader."No.", SourceType::"Sales Orders",
+        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, SalesHeader."No.", "Cash Flow Source Type"::"Sales Orders",
           CashFlowForecast."No.", ExpectedSOAmount, SalesHeader."Document Date");
         if ApplySecondInvoicePayment then
-            CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, FirstPrepaymentInvNo, SourceType::Receivables,
+            CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, FirstPrepaymentInvNo, "Cash Flow Source Type"::Receivables,
               CashFlowForecast."No.", FirstPrepaymentAmount, SalesHeader."Document Date")
         else
-            CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, SecondPrepaymentInvNo, SourceType::Receivables,
+            CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, SecondPrepaymentInvNo, "Cash Flow Source Type"::Receivables,
               CashFlowForecast."No.", SecondPrepaymentAmount, SalesHeader."Document Date")
     end;
 
@@ -1152,12 +1151,12 @@ codeunit 134551 "ERM Cash Flow Filling I"
 
         // Exercise
         LibraryApplicationArea.EnableFoundationSetup;
-        ConsiderSource[SourceType::"Purchase Orders"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Purchase Orders".AsInteger()] := true;
         FillJournalWithGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
         // Prepayment has not been posted, therefore it must not be considered in the forecast!
-        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, PurchaseHeader."No.", SourceType::"Purchase Orders",
+        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, PurchaseHeader."No.", "Cash Flow Source Type"::"Purchase Orders",
           CashFlowForecast."No.", -ExpectedPOAmount, PurchaseHeader."Document Date");
     end;
 
@@ -1218,18 +1217,18 @@ codeunit 134551 "ERM Cash Flow Filling I"
 
         // Exercise
         LibraryApplicationArea.EnableFoundationSetup;
-        ConsiderSource[SourceType::Payables] := true;
-        ConsiderSource[SourceType::"Purchase Orders"] := true;
+        ConsiderSource["Cash Flow Source Type"::Payables.AsInteger()] := true;
+        ConsiderSource["Cash Flow Source Type"::"Purchase Orders".AsInteger()] := true;
         CFHelper.FillJournal(ConsiderSource, CashFlowForecast."No.", GroupByDocumentType);
 
         // Verify
-        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, PurchaseHeader."No.", SourceType::"Purchase Orders",
+        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, PurchaseHeader."No.", "Cash Flow Source Type"::"Purchase Orders",
           CashFlowForecast."No.", -ExpectedPOAmount, PurchaseHeader."Document Date");
         if not ApplyInvoicePayment then
-            CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, PrepaymentInvNo, SourceType::Payables,
+            CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, PrepaymentInvNo, "Cash Flow Source Type"::Payables,
               CashFlowForecast."No.", -ExpectedPrepaymentAmount, PurchaseHeader."Document Date")
         else
-            Assert.AreEqual(0, CFHelper.FilterSingleJournalLine(CFWorksheetLine, PrepaymentInvNo, SourceType::Receivables,
+            Assert.AreEqual(0, CFHelper.FilterSingleJournalLine(CFWorksheetLine, PrepaymentInvNo, "Cash Flow Source Type"::Receivables,
                 CashFlowForecast."No."), StrSubstNo(NoLinesForAppliedPrepaymentErr, 'Payables'));
     end;
 
@@ -1299,18 +1298,18 @@ codeunit 134551 "ERM Cash Flow Filling I"
 
         // Exercise
         LibraryApplicationArea.EnableFoundationSetup;
-        ConsiderSource[SourceType::Payables] := true;
-        ConsiderSource[SourceType::"Purchase Orders"] := true;
+        ConsiderSource["Cash Flow Source Type"::Payables.AsInteger()] := true;
+        ConsiderSource["Cash Flow Source Type"::"Purchase Orders".AsInteger()] := true;
         CFHelper.FillJournal(ConsiderSource, CashFlowForecast."No.", GroupByDocumentType);
 
         // Verify
-        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, PurchaseHeader."No.", SourceType::"Purchase Orders",
+        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, PurchaseHeader."No.", "Cash Flow Source Type"::"Purchase Orders",
           CashFlowForecast."No.", -ExpectedPOAmount, PurchaseHeader."Document Date");
         if ApplySecondInvoicePayment then
-            CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, FirstPrepaymentInvNo, SourceType::Payables,
+            CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, FirstPrepaymentInvNo, "Cash Flow Source Type"::Payables,
               CashFlowForecast."No.", -FirstPrepaymentAmount, PurchaseHeader."Document Date")
         else
-            CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, SecondPrepaymentInvNo, SourceType::Payables,
+            CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, SecondPrepaymentInvNo, "Cash Flow Source Type"::Payables,
               CashFlowForecast."No.", -SecondPrepaymentAmount, PurchaseHeader."Document Date");
     end;
 
@@ -1401,11 +1400,11 @@ codeunit 134551 "ERM Cash Flow Filling I"
         CFHelper.CreateDefaultServiceOrder(ServiceHeader);
 
         // Exercise
-        ConsiderSource[SourceType::"Service Orders"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Service Orders".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
-        CFHelper.FilterSingleJournalLine(CFWorksheetLine, ServiceHeader."No.", SourceType::"Service Orders", CashFlowForecast."No.");
+        CFHelper.FilterSingleJournalLine(CFWorksheetLine, ServiceHeader."No.", "Cash Flow Source Type"::"Service Orders", CashFlowForecast."No.");
         CFWorksheetLine.TestField("Source Type", CFWorksheetLine."Source Type"::"Service Orders");
     end;
 
@@ -1425,9 +1424,9 @@ codeunit 134551 "ERM Cash Flow Filling I"
         CFHelper.CreateDefaultServiceOrder(ServiceHeader);
 
         // Exercise
-        ConsiderSource[SourceType::"Service Orders"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Service Orders".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
-        CFHelper.FilterSingleJournalLine(CFWorksheetLine, ServiceHeader."No.", SourceType::"Service Orders", CashFlowForecast."No.");
+        CFHelper.FilterSingleJournalLine(CFWorksheetLine, ServiceHeader."No.", "Cash Flow Source Type"::"Service Orders", CashFlowForecast."No.");
 
         LibraryCF.PostJournalLines(CFWorksheetLine);
 
@@ -1511,7 +1510,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         SetupCashFlowForJobs(CashFlowForecast, Job, JobPlanningLine, OldDate, NewDate);
 
         // Exercise
-        ConsiderSource[SourceType::Job] := true;
+        ConsiderSource["Cash Flow Source Type"::Job.AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify no data have been included for jobs
@@ -1519,13 +1518,13 @@ codeunit 134551 "ERM Cash Flow Filling I"
 
         // Exercise
         LibraryApplicationArea.EnableJobsSetup;
-        ConsiderSource[SourceType::Job] := true;
+        ConsiderSource["Cash Flow Source Type"::Job.AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify data have been included for jobs
-        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, Job."No.", SourceType::Job,
+        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, Job."No.", "Cash Flow Source Type"::Job,
           CashFlowForecast."No.", CFHelper.GetTotalJobsAmount(Job, OldDate), OldDate);
-        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, Job."No.", SourceType::Job,
+        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, Job."No.", "Cash Flow Source Type"::Job,
           CashFlowForecast."No.", CFHelper.GetTotalJobsAmount(Job, NewDate), NewDate);
     end;
 
@@ -1546,7 +1545,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         CFHelper.CreateDefaultPurchaseOrder(PurchaseHeader);
 
         // GIVEN no application area is enabled
-        ConsiderSource[SourceType::"Purchase Orders"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Purchase Orders".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify no data have been included for purchase orders
@@ -1554,11 +1553,11 @@ codeunit 134551 "ERM Cash Flow Filling I"
 
         // GIVEN application area Suite is enabled
         LibraryApplicationArea.EnableFoundationSetup;
-        ConsiderSource[SourceType::"Purchase Orders"] := true;
+        ConsiderSource["Cash Flow Source Type"::"Purchase Orders".AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify data have been included for purchase orders
-        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, PurchaseHeader."No.", SourceType::"Purchase Orders",
+        CFHelper.VerifyCFDataOnSnglJnlLine(CFWorksheetLine, PurchaseHeader."No.", "Cash Flow Source Type"::"Purchase Orders",
           CashFlowForecast."No.", -CFHelper.GetTotalPurchaseAmount(PurchaseHeader, false), PurchaseHeader."Due Date");
     end;
 
@@ -1942,13 +1941,13 @@ codeunit 134551 "ERM Cash Flow Filling I"
         LibraryDimension.CreateDefaultDimension(DefaultDimension, TableID, Code, DimensionValue."Dimension Code", DimensionValue.Code);
     end;
 
-    local procedure FindFilledCashFlowJnlLine(var CashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; SourceType: Option; DocumentNo: Code[20])
+    local procedure FindFilledCashFlowJnlLine(var CashFlowWorksheetLine: Record "Cash Flow Worksheet Line"; SourceType: Enum "Cash Flow Source Type"; DocumentNo: Code[20])
     var
         CashFlowForecast: Record "Cash Flow Forecast";
         ConsiderSource: array[16] of Boolean;
     begin
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
-        ConsiderSource[SourceType] := true;
+        ConsiderSource[SourceType.AsInteger()] := true;
         CFHelper.FillJournal(ConsiderSource, CashFlowForecast."No.", true);
         CFHelper.FilterSingleJournalLine(CashFlowWorksheetLine, DocumentNo, SourceType, CashFlowForecast."No.");
     end;
@@ -2052,11 +2051,11 @@ codeunit 134551 "ERM Cash Flow Filling I"
 
         // Exercise
         ExpectedDate := UpdateCustLedgerEntry(GenJournalLine."Document No.", GenJournalLine."Document Type", DateField);
-        ConsiderSource[SourceType::Receivables] := true;
+        ConsiderSource["Cash Flow Source Type"::Receivables.AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
-        CFHelper.FilterSingleJournalLine(CFWorksheetLine, GenJournalLine."Document No.", SourceType::Receivables, CashFlowForecast."No.");
+        CFHelper.FilterSingleJournalLine(CFWorksheetLine, GenJournalLine."Document No.", "Cash Flow Source Type"::Receivables, CashFlowForecast."No.");
         CFHelper.VerifyCFDateOnCFJnlLine(CFWorksheetLine, ExpectedDate);
     end;
 
@@ -2083,11 +2082,11 @@ codeunit 134551 "ERM Cash Flow Filling I"
 
         // Exercise
         ExpectedDate := UpdateVendLedgerEntry(GenJournalLine."Document No.", GenJournalLine."Document Type", DateField);
-        ConsiderSource[SourceType::Payables] := true;
+        ConsiderSource["Cash Flow Source Type"::Payables.AsInteger()] := true;
         FillJournalWithoutGroupBy(ConsiderSource, CashFlowForecast."No.");
 
         // Verify
-        CFHelper.FilterSingleJournalLine(CFWorksheetLine, GenJournalLine."Document No.", SourceType::Payables, CashFlowForecast."No.");
+        CFHelper.FilterSingleJournalLine(CFWorksheetLine, GenJournalLine."Document No.", "Cash Flow Source Type"::Payables, CashFlowForecast."No.");
         CFHelper.VerifyCFDateOnCFJnlLine(CFWorksheetLine, ExpectedDate);
     end;
 
@@ -2100,7 +2099,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         DefaultDimension.TestField("Dimension Value Code", DimensionValue.Code);
     end;
 
-    local procedure UpdateCustLedgerEntry(DocumentNo: Code[20]; DocumentType: Option; DateField: Option) ExpectedDate: Date
+    local procedure UpdateCustLedgerEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DateField: Option) ExpectedDate: Date
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -2117,7 +2116,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         end;
     end;
 
-    local procedure UpdateVendLedgerEntry(DocumentNo: Code[20]; DocumentType: Option; DateField: Option) ExpectedDate: Date
+    local procedure UpdateVendLedgerEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DateField: Option) ExpectedDate: Date
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -2156,7 +2155,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure GetCustomerLedgerEntryAmount(DocumentNo: Code[20]; DocumentType: Option): Decimal
+    local procedure GetCustomerLedgerEntryAmount(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"): Decimal
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -2165,7 +2164,7 @@ codeunit 134551 "ERM Cash Flow Filling I"
         exit(CustLedgerEntry."Amount (LCY)");
     end;
 
-    local procedure GetVendorLedgerEntryAmount(DocumentNo: Code[20]; DocumentType: Option): Decimal
+    local procedure GetVendorLedgerEntryAmount(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"): Decimal
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin

@@ -98,7 +98,7 @@ codeunit 5312 "Outlook Synch. Setup Defaults"
         with OutlookSynchEntity do begin
             InsertConstConditionFilter(SynchEntityCodeIn, '1');
 
-            OptionCaption := OutlookSynchTypeConv.FieldOptionValueToText(Contact.Type::Person, "Table No.", Contact.FieldNo(Type));
+            OptionCaption := OutlookSynchTypeConv.FieldOptionValueToText(Contact.Type::Person.AsInteger(), "Table No.", Contact.FieldNo(Type));
             InsertOutlookSynchField(Code, 0, "Table No.", "Outlook Item", '', false, false, 0, Contact.FieldNo(Type), OptionCaption, 1);
             InsertOutlookSynchField(Code, 0, "Table No.", "Outlook Item", 'CompanyName', false, false, 5050, 5052, '', 0);
         end;
@@ -156,7 +156,7 @@ codeunit 5312 "Outlook Synch. Setup Defaults"
         with OutlookSynchEntity do begin
             InsertConstConditionFilter(SynchEntityCodeIn, '0');
 
-            OptionCaption := OutlookSynchTypeConv.FieldOptionValueToText(Contact.Type::Company, "Table No.", Contact.FieldNo(Type));
+            OptionCaption := OutlookSynchTypeConv.FieldOptionValueToText(Contact.Type::Company.AsInteger(), "Table No.", Contact.FieldNo(Type));
             InsertOutlookSynchField(Code, 0, "Table No.", "Outlook Item", '', false, false, 0, Contact.FieldNo(Type), OptionCaption, 1);
             InsertOutlookSynchField(Code, 0, "Table No.", "Outlook Item", 'BusinessAddressStreet', false, false, 0, 5, '', 0);
             InsertOutlookSynchField(Code, 0, "Table No.", "Outlook Item", 'BusinessAddressCity', false, false, 225, 2, '', 0);
@@ -331,7 +331,7 @@ codeunit 5312 "Outlook Synch. Setup Defaults"
             Condition := OutlookSynchSetupMgt.ComposeFilterExpression("Record GUID", 0);
             Modify;
 
-            OptionCaption := OutlookSynchTypeConv.FieldOptionValueToText(Task.Type::Meeting, "Table No.", Task.FieldNo(Type));
+            OptionCaption := OutlookSynchTypeConv.FieldOptionValueToText(Task.Type::Meeting.AsInteger(), "Table No.", Task.FieldNo(Type));
             InsertOutlookSynchField(Code, 0, "Table No.", "Outlook Item", '', false, false, 0, Task.FieldNo(Type), OptionCaption, 1);
             InsertOutlookSynchField(Code, 0, "Table No.", "Outlook Item", 'Start', false, false, 0, 9, '', 0);
             InsertOutlookSynchField(Code, 0, "Table No.", "Outlook Item", 'Start', false, false, 0, 28, '', 0);

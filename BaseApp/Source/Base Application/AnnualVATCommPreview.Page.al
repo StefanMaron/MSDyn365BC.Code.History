@@ -106,8 +106,8 @@ page 12127 "Annual VAT Comm. Preview"
     end;
 
     var
-        Selection: Option Open,Closed,"Open and Closed";
-        PeriodSelection: Option "Before and Within Period","Within Period";
+        Selection: Enum "VAT Statement Report Selection";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
         ActivityCode: Code[6];
         DateFilter: Text;
 

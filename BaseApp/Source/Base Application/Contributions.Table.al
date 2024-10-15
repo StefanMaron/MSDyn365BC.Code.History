@@ -296,10 +296,8 @@ table 12117 Contributions
     [Scope('OnPrem')]
     procedure ValorizzaINPS()
     begin
-        WithholdingSocSecMgt.SocSecLineFilter(SocSecCodeLine,
-          "Social Security Code",
-          "Payment Date",
-          SocSecCodeLine."Contribution Type"::INPS);
+        WithholdingSocSecMgt.SetSocSecLineFilters(
+            SocSecCodeLine, "Social Security Code", "Payment Date", SocSecCodeLine."Contribution Type"::INPS);
 
         "Social Security %" := SocSecCodeLine."Social Security %";
         "Free-Lance Amount %" := SocSecCodeLine."Free-Lance Amount %";
@@ -319,10 +317,8 @@ table 12117 Contributions
     [Scope('OnPrem')]
     procedure ValorizzaINAIL()
     begin
-        WithholdingSocSecMgt.SocSecLineFilter(SocSecCodeLine,
-          "INAIL Code",
-          "Payment Date",
-          SocSecCodeLine."Contribution Type"::INAIL);
+        WithholdingSocSecMgt.SetSocSecLineFilters(
+            SocSecCodeLine, "INAIL Code", "Payment Date", SocSecCodeLine."Contribution Type"::INAIL);
 
         "INAIL Per Mil" := SocSecCodeLine."Social Security %";
         "INAIL Free-Lance %" := SocSecCodeLine."Free-Lance Amount %";

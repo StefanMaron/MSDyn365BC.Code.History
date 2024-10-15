@@ -265,7 +265,7 @@
             begin
                 OnBeforeValidateBillToCustomerName(Rec, Customer);
 
-                if ShouldLookForCustomerByName("Bill-to Customer No.") then
+                if ShouldSearchForCustomerByName("Bill-to Customer No.") then
                     Validate("Bill-to Customer No.", Customer.GetCustNo("Bill-to Name"));
             end;
         }
@@ -372,7 +372,7 @@
                     end else
                         if "Sell-to Customer No." <> '' then begin
                             GetCust("Sell-to Customer No.");
-                            CopyShipToCustomerAddressFieldsFromCustomer(Cust);
+                            CopyShipToCustomerAddressFieldsFromCust(Cust);
                         end;
 
                 GetShippingTime(FieldNo("Ship-to Code"));
@@ -503,7 +503,7 @@
                 if "Currency Code" <> '' then begin
                     UpdateCurrencyFactor;
                     if "Currency Factor" <> xRec."Currency Factor" then
-                        ConfirmUpdateCurrencyFactor;
+                        ConfirmCurrencyFactorUpdate();
                 end;
 
                 if "Posting Date" <> xRec."Posting Date" then
@@ -658,7 +658,7 @@
                         if "Currency Code" <> '' then begin
                             UpdateCurrencyFactor;
                             if "Currency Factor" <> xRec."Currency Factor" then
-                                ConfirmUpdateCurrencyFactor;
+                                ConfirmCurrencyFactorUpdate();
                         end;
 
                 if ("No." <> '') and ("Currency Code" <> xRec."Currency Code") then
@@ -833,7 +833,7 @@
         }
         field(46; Comment; Boolean)
         {
-            CalcFormula = Exist ("Sales Comment Line" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist("Sales Comment Line" WHERE("Document Type" = FIELD("Document Type"),
                                                             "No." = FIELD("No."),
                                                             "Document Line No." = CONST(0)));
             Caption = 'Comment';
@@ -870,7 +870,7 @@
                     exit;
 
                 TestField("Bal. Account No.", '');
-                CustLedgEntry.SetApplyToFilters("Bill-to Customer No.", "Applies-to Doc. Type", "Applies-to Doc. No.", Amount);
+                CustLedgEntry.SetApplyToFilters("Bill-to Customer No.", "Applies-to Doc. Type".AsInteger(), "Applies-to Doc. No.", Amount);
                 OnAfterSetApplyToFilters(CustLedgEntry, Rec);
 
                 ApplyCustEntries.SetSales(Rec, CustLedgEntry, SalesHeader.FieldNo("Applies-to Doc. No."));
@@ -937,7 +937,7 @@
         }
         field(56; "Recalculate Invoice Disc."; Boolean)
         {
-            CalcFormula = Exist ("Sales Line" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist("Sales Line" WHERE("Document Type" = FIELD("Document Type"),
                                                     "Document No." = FIELD("No."),
                                                     "Recalculate Invoice Disc." = CONST(true)));
             Caption = 'Recalculate Invoice Disc.';
@@ -961,7 +961,7 @@
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Sales Line".Amount WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Sum("Sales Line".Amount WHERE("Document Type" = FIELD("Document Type"),
                                                          "Document No." = FIELD("No.")));
             Caption = 'Amount';
             Editable = false;
@@ -971,7 +971,7 @@
         {
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
-            CalcFormula = Sum ("Sales Line"."Amount Including VAT" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Sum("Sales Line"."Amount Including VAT" WHERE("Document Type" = FIELD("Document Type"),
                                                                          "Document No." = FIELD("No.")));
             Caption = 'Amount Including VAT';
             Editable = false;
@@ -1065,8 +1065,9 @@
                     exit;
                 end;
 
-                VATRegistrationLogMgt.CheckVIESForVATNo(ResultRecRef, VATRegistrationLog, Customer, Customer."No.",
-                  ApplicableCountryCode, VATRegistrationLog."Account Type"::Customer);
+                VATRegistrationLogMgt.CheckVIESForVATNo(
+                    ResultRecRef, VATRegistrationLog, Customer, Customer."No.",
+                    ApplicableCountryCode, VATRegistrationLog."Account Type"::Customer.AsInteger());
 
                 if VATRegistrationLog.Status = VATRegistrationLog.Status::Valid then begin
                     Message(ValidVATNoMsg);
@@ -1135,20 +1136,8 @@
             ValidateTableRelation = false;
 
             trigger OnLookup()
-            var
-                Customer: Record Customer;
-                StandardCodesMgt: Codeunit "Standard Codes Mgt.";
             begin
-                if "Sell-to Customer No." <> '' then
-                    Customer.Get("Sell-to Customer No.");
-
-                if Customer.LookupCustomer(Customer) then begin
-                    xRec := Rec;
-                    "Sell-to Customer Name" := Customer.Name;
-                    Validate("Sell-to Customer No.", Customer."No.");
-                    if "No." <> '' then
-                        StandardCodesMgt.CheckCreateSalesRecurringLines(Rec);
-                end;
+                LookupSellToCustomerName();
             end;
 
             trigger OnValidate()
@@ -1158,7 +1147,7 @@
             begin
                 OnBeforeValidateSellToCustomerName(Rec, Customer);
 
-                if not EnvInfoProxy.IsInvoicing and ShouldLookForCustomerByName("Sell-to Customer No.") then
+                if not EnvInfoProxy.IsInvoicing and ShouldSearchForCustomerByName("Sell-to Customer No.") then
                     Validate("Sell-to Customer No.", Customer.GetCustNo("Sell-to Customer Name"));
 
                 GetShippingTime(FieldNo("Sell-to Customer Name"));
@@ -1397,7 +1386,7 @@
                 if "Currency Code" <> '' then begin
                     UpdateCurrencyFactor;
                     if "Currency Factor" <> xRec."Currency Factor" then
-                        ConfirmUpdateCurrencyFactor;
+                        ConfirmCurrencyFactorUpdate();
                 end;
 
                 if xRec."Document Date" <> "Document Date" then
@@ -1947,7 +1936,7 @@
         }
         field(166; "Last Email Sent Time"; DateTime)
         {
-            CalcFormula = Max ("O365 Document Sent History"."Created Date-Time" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Max("O365 Document Sent History"."Created Date-Time" WHERE("Document Type" = FIELD("Document Type"),
                                                                                       "Document No." = FIELD("No."),
                                                                                       Posted = CONST(false)));
             Caption = 'Last Email Sent Time';
@@ -1955,7 +1944,7 @@
         }
         field(167; "Last Email Sent Status"; Option)
         {
-            CalcFormula = Lookup ("O365 Document Sent History"."Job Last Status" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Lookup("O365 Document Sent History"."Job Last Status" WHERE("Document Type" = FIELD("Document Type"),
                                                                                        "Document No." = FIELD("No."),
                                                                                        Posted = CONST(false),
                                                                                        "Created Date-Time" = FIELD("Last Email Sent Time")));
@@ -1966,7 +1955,7 @@
         }
         field(168; "Sent as Email"; Boolean)
         {
-            CalcFormula = Exist ("O365 Document Sent History" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist("O365 Document Sent History" WHERE("Document Type" = FIELD("Document Type"),
                                                                     "Document No." = FIELD("No."),
                                                                     Posted = CONST(false),
                                                                     "Job Last Status" = CONST(Finished)));
@@ -1975,7 +1964,7 @@
         }
         field(169; "Last Email Notif Cleared"; Boolean)
         {
-            CalcFormula = Lookup ("O365 Document Sent History".NotificationCleared WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Lookup("O365 Document Sent History".NotificationCleared WHERE("Document Type" = FIELD("Document Type"),
                                                                                          "Document No." = FIELD("No."),
                                                                                          Posted = CONST(false),
                                                                                          "Created Date-Time" = FIELD("Last Email Sent Time")));
@@ -2027,7 +2016,7 @@
         }
         field(300; "Amt. Ship. Not Inv. (LCY)"; Decimal)
         {
-            CalcFormula = Sum ("Sales Line"."Shipped Not Invoiced (LCY)" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Sum("Sales Line"."Shipped Not Invoiced (LCY)" WHERE("Document Type" = FIELD("Document Type"),
                                                                                "Document No." = FIELD("No.")));
             Caption = 'Amount Shipped Not Invoiced (LCY) Incl. VAT';
             Editable = false;
@@ -2035,7 +2024,7 @@
         }
         field(301; "Amt. Ship. Not Inv. (LCY) Base"; Decimal)
         {
-            CalcFormula = Sum ("Sales Line"."Shipped Not Inv. (LCY) No VAT" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Sum("Sales Line"."Shipped Not Inv. (LCY) No VAT" WHERE("Document Type" = FIELD("Document Type"),
                                                                                   "Document No." = FIELD("No.")));
             Caption = 'Amount Shipped Not Invoiced (LCY)';
             Editable = false;
@@ -2071,7 +2060,7 @@
         field(1305; "Invoice Discount Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Sales Line"."Inv. Discount Amount" WHERE("Document No." = FIELD("No."),
+            CalcFormula = Sum("Sales Line"."Inv. Discount Amount" WHERE("Document No." = FIELD("No."),
                                                                          "Document Type" = FIELD("Document Type")));
             Caption = 'Invoice Discount Amount';
             Editable = false;
@@ -2079,7 +2068,7 @@
         }
         field(5043; "No. of Archived Versions"; Integer)
         {
-            CalcFormula = Max ("Sales Header Archive"."Version No." WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Max("Sales Header Archive"."Version No." WHERE("Document Type" = FIELD("Document Type"),
                                                                           "No." = FIELD("No."),
                                                                           "Doc. No. Occurrence" = FIELD("Doc. No. Occurrence")));
             Caption = 'No. of Archived Versions';
@@ -2414,7 +2403,7 @@
                 TestStatusOpen;
                 if InventoryPickConflict("Document Type", "No.", "Shipping Advice") then
                     Error(Text066, FieldCaption("Shipping Advice"), Format("Shipping Advice"), TableCaption);
-                if WhseShpmntConflict("Document Type", "No.", "Shipping Advice") then
+                if WhseShipmentConflict("Document Type", "No.", "Shipping Advice") then
                     Error(Text070, FieldCaption("Shipping Advice"), Format("Shipping Advice"), TableCaption);
                 WhseSourceHeader.SalesHeaderVerifyChange(Rec, xRec);
             end;
@@ -2423,7 +2412,7 @@
         field(5751; "Shipped Not Invoiced"; Boolean)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
-            CalcFormula = Exist ("Sales Line" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist("Sales Line" WHERE("Document Type" = FIELD("Document Type"),
                                                     "Document No." = FIELD("No."),
                                                     "Qty. Shipped Not Invoiced" = FILTER(<> 0)));
             Caption = 'Shipped Not Invoiced';
@@ -2432,7 +2421,7 @@
         }
         field(5752; "Completely Shipped"; Boolean)
         {
-            CalcFormula = Min ("Sales Line"."Completely Shipped" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Min("Sales Line"."Completely Shipped" WHERE("Document Type" = FIELD("Document Type"),
                                                                        "Document No." = FIELD("No."),
                                                                        Type = FILTER(<> " "),
                                                                        "Location Code" = FIELD("Location Filter")));
@@ -2454,7 +2443,7 @@
         field(5755; Shipped; Boolean)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
-            CalcFormula = Exist ("Sales Line" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist("Sales Line" WHERE("Document Type" = FIELD("Document Type"),
                                                     "Document No." = FIELD("No."),
                                                     "Qty. Shipped (Base)" = FILTER(<> 0)));
             Caption = 'Shipped';
@@ -2463,7 +2452,7 @@
         }
         field(5756; "Last Shipment Date"; Date)
         {
-            CalcFormula = Lookup ("Sales Shipment Header"."Shipment Date" WHERE("No." = FIELD("Last Shipping No.")));
+            CalcFormula = Lookup("Sales Shipment Header"."Shipment Date" WHERE("No." = FIELD("Last Shipping No.")));
             Caption = 'Last Shipment Date';
             FieldClass = FlowField;
         }
@@ -2533,7 +2522,7 @@
         field(5795; "Late Order Shipping"; Boolean)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
-            CalcFormula = Exist ("Sales Line" WHERE("Document Type" = FIELD("Document Type"),
+            CalcFormula = Exist("Sales Line" WHERE("Document Type" = FIELD("Document Type"),
                                                     "Sell-to Customer No." = FIELD("Sell-to Customer No."),
                                                     "Document No." = FIELD("No."),
                                                     "Shipment Date" = FIELD("Date Filter"),
@@ -2816,7 +2805,7 @@
         }
         field(12170; "Payment %"; Decimal)
         {
-            CalcFormula = Sum ("Payment Lines"."Payment %" WHERE("Sales/Purchase" = CONST(Sales),
+            CalcFormula = Sum("Payment Lines"."Payment %" WHERE("Sales/Purchase" = CONST(Sales),
                                                                  Type = FIELD("Document Type"),
                                                                  Code = FIELD("No.")));
             Caption = 'Payment %';
@@ -2952,6 +2941,9 @@
         {
         }
         key(Key14; "Salesperson Code")
+        {
+        }
+        key(Key15; SystemModifiedAt)
         {
         }
     }
@@ -3308,7 +3300,7 @@
         UpdateOutboundWhseHandlingTime;
 
         "Responsibility Center" := UserSetupMgt.GetRespCenter(0, "Responsibility Center");
-        "Doc. No. Occurrence" := ArchiveManagement.GetNextOccurrenceNo(DATABASE::"Sales Header", "Document Type", "No.");
+        "Doc. No. Occurrence" := ArchiveManagement.GetNextOccurrenceNo(DATABASE::"Sales Header", "Document Type".AsInteger(), "No.");
 
         Validate("Payment Terms Code");
 
@@ -3590,7 +3582,7 @@
                 TempReservEntry.DeleteAll();
                 RecreateReservEntryReqLine(TempSalesLine, TempATOLink, ATOLink);
                 StoreSalesCommentLineToTemp(TempSalesCommentLine);
-                SalesCommentLine.DeleteComments("Document Type", "No.");
+                SalesCommentLine.DeleteComments("Document Type".AsInteger(), "No.");
                 TransferItemChargeAssgntSalesToTemp(ItemChargeAssgntSales, TempItemChargeAssgntSales);
                 IsHandled := false;
                 OnRecreateSalesLinesOnBeforeSalesLineDeleteAll(Rec, SalesLine, CurrFieldNo, IsHandled);
@@ -3674,7 +3666,7 @@
     begin
         TempSalesCommentLine.SetRange("Document Type", "Document Type");
         TempSalesCommentLine.SetRange("No.", "No.");
-        if TempSalesCommentLine.FindSet() then 
+        if TempSalesCommentLine.FindSet() then
             repeat
                 SalesCommentLine := TempSalesCommentLine;
                 SalesCommentLine.Insert();
@@ -3775,7 +3767,7 @@
         OnAfterUpdateCurrencyFactor(Rec, GetHideValidationDialog);
     end;
 
-    local procedure ConfirmUpdateCurrencyFactor()
+    procedure ConfirmCurrencyFactorUpdate()
     begin
         OnBeforeConfirmUpdateCurrencyFactor(Rec, HideValidationDialog);
 
@@ -3863,9 +3855,7 @@
     var
         "Field": Record "Field";
         JobTransferLine: Codeunit "Job Transfer Line";
-        EnvironmentInfo: Codeunit "Environment Information";
         Question: Text[250];
-        NotRunningOnSaaS: Boolean;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -3879,31 +3869,22 @@
         if not Field.Get(DATABASE::"Sales Header", ChangedFieldNo) then
             Field.Get(DATABASE::"Sales Line", ChangedFieldNo);
 
-        NotRunningOnSaaS := true;
-        case ChangedFieldNo of
-            FieldNo("Shipping Agent Code"),
-          FieldNo("Shipping Agent Service Code"):
-                NotRunningOnSaaS := not EnvironmentInfo.IsSaaS;
-        end;
         if AskQuestion then begin
             Question := StrSubstNo(Text031, Field."Field Caption");
             if GuiAllowed and not GetHideValidationDialog then
-                if NotRunningOnSaaS then
-                    if DIALOG.Confirm(Question, true) then
-                        case ChangedFieldNo of
-                            FieldNo("Shipment Date"),
-                          FieldNo("Shipping Agent Code"),
-                          FieldNo("Shipping Agent Service Code"),
-                          FieldNo("Shipping Time"),
-                          FieldNo("Requested Delivery Date"),
-                          FieldNo("Promised Delivery Date"),
-                          FieldNo("Outbound Whse. Handling Time"):
-                                ConfirmResvDateConflict;
-                        end
-                    else
-                        exit
+                if DIALOG.Confirm(Question, true) then
+                    case ChangedFieldNo of
+                        FieldNo("Shipment Date"),
+                        FieldNo("Shipping Agent Code"),
+                        FieldNo("Shipping Agent Service Code"),
+                        FieldNo("Shipping Time"),
+                        FieldNo("Requested Delivery Date"),
+                        FieldNo("Promised Delivery Date"),
+                        FieldNo("Outbound Whse. Handling Time"):
+                            ConfirmResvDateConflict;
+                    end
                 else
-                    ConfirmResvDateConflict;
+                    exit
         end;
 
         SalesLine.LockTable();
@@ -4071,7 +4052,7 @@
             exit;
 
         if SalesLine.FindSet then begin
-            ReservMgt.DeleteDocumentReservation(DATABASE::"Sales Line", "Document Type", "No.", GetHideValidationDialog);
+            ReservMgt.DeleteDocumentReservation(DATABASE::"Sales Line", "Document Type".AsInteger(), "No.", GetHideValidationDialog);
             repeat
                 SalesLine.SuspendStatusCheck(true);
                 SalesLine.Delete(true);
@@ -4349,13 +4330,7 @@
             "Sell-to Contact" := Cont.Name;
         end;
 
-        if (Cont.Type = Cont.Type::Company) and Customer.Get("Sell-to Customer No.") then
-            "Sell-to Contact" := Customer.Contact
-        else
-            if Cont.Type = Cont.Type::Company then
-                "Sell-to Contact" := ''
-            else
-                "Sell-to Contact" := Cont.Name;
+        UpdateSellToCustContact(Customer, Cont);
 
         if "Document Type" = "Document Type"::Quote then begin
             if Customer.Get("Sell-to Customer No.") or Customer.Get(ContBusinessRelation."No.") then begin
@@ -4884,8 +4859,13 @@
         end;
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
+    [Obsolete('Typo in the function name, use GetPstdDocLinesToReverse instead', '15.1')]
     procedure GetPstdDocLinesToRevere()
+    begin
+        GetPstdDocLinesToReverse();
+    end;
+
+    procedure GetPstdDocLinesToReverse()
     var
         SalesPostedDocLines: Page "Posted Sales Document Lines";
     begin
@@ -4935,7 +4915,7 @@
         if NewSalesLine.Modify then;
     end;
 
-    procedure InventoryPickConflict(DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; DocNo: Code[20]; ShippingAdvice: Option Partial,Complete): Boolean
+    procedure InventoryPickConflict(DocType: Enum "Sales Document Type"; DocNo: Code[20]; ShippingAdvice: Enum "Sales Header Shipping Advice"): Boolean
     var
         WarehouseActivityLine: Record "Warehouse Activity Line";
         SalesLine: Record "Sales Line";
@@ -4956,7 +4936,13 @@
         exit(true);
     end;
 
+    [Obsolete('Replaced by WhseShipmentConflict().', '17.0')]
     procedure WhseShpmntConflict(DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; DocNo: Code[20]; ShippingAdvice: Option Partial,Complete): Boolean
+    begin
+        exit(WhseShipmentConflict("Sales Document Type".FromInteger(DocType), DocNo, "Sales Header Shipping Advice".FromInteger(ShippingAdvice)));
+    end;
+
+    procedure WhseShipmentConflict(DocType: Enum "Sales Document Type"; DocNo: Code[20]; ShippingAdvice: Enum "Sales Header Shipping Advice"): Boolean
     var
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
     begin
@@ -5003,7 +4989,7 @@
     var
         RunCheck: Boolean;
     begin
-        RunCheck := ("Document Type" <= "Document Type"::Invoice) or ("Document Type" = "Document Type"::"Blanket Order");
+        RunCheck := ("Document Type".AsInteger() <= "Document Type"::Invoice.AsInteger()) or ("Document Type" = "Document Type"::"Blanket Order");
         OnAfterCheckCreditLimitCondition(Rec, RunCheck);
         exit(RunCheck);
     end;
@@ -5099,7 +5085,7 @@
               FieldCaption("Shipment Method Code"), "Shipment Method Code");
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure CheckTDDData()
     var
         ShippingAgent: Record "Shipping Agent";
@@ -5238,7 +5224,7 @@
             "Document Type"::Quote:
                 begin
                     DocumentSendingProfile.TrySendToEMail(
-                      DummyReportSelections.Usage::"S.Quote", Rec, FieldNo("No."),
+                      DummyReportSelections.Usage::"S.Quote".AsInteger(), Rec, FieldNo("No."),
                       GetDocTypeTxt, FieldNo("Bill-to Customer No."), ShowDialog);
                     Find;
                     "Quote Sent to Customer" := CurrentDateTime;
@@ -5246,7 +5232,7 @@
                 end;
             "Document Type"::Invoice:
                 DocumentSendingProfile.TrySendToEMail(
-                  DummyReportSelections.Usage::"S.Invoice Draft", Rec, FieldNo("No."),
+                  DummyReportSelections.Usage::"S.Invoice Draft".AsInteger(), Rec, FieldNo("No."),
                   GetDocTypeTxt, FieldNo("Bill-to Customer No."), ShowDialog);
         end;
 
@@ -5276,7 +5262,7 @@
         if IsHandled then
             exit;
 
-        FullDocTypeTxt := SelectStr("Document Type" + 1, FullSalesTypesTxt);
+        FullDocTypeTxt := SelectStr("Document Type".AsInteger() + 1, FullSalesTypesTxt);
     end;
 
     procedure LinkSalesDocWithOpportunity(OldOpportunityNo: Code[20])
@@ -5692,7 +5678,7 @@
         TotalingSalesLine."VAT Identifier" := SplitSalesLine."VAT Identifier";
         TotalingSalesLine."Automatically Generated" := true;
         TotalingSalesLine.CreateDim(
-          DimMgt.TypeToTableID3(TotalingSalesLine.Type), TotalingSalesLine."No.",
+          DimMgt.TypeToTableID3(TotalingSalesLine.Type.AsInteger()), TotalingSalesLine."No.",
           DATABASE::Job, TotalingSalesLine."Job No.",
           DATABASE::"Responsibility Center", TotalingSalesLine."Responsibility Center");
     end;
@@ -5754,8 +5740,8 @@
 
     procedure SetStatus(NewStatus: Option)
     begin
-        Status := NewStatus;
-        Modify;
+        Status := "Sales Document Status".FromInteger(NewStatus);
+        Modify();
     end;
 
     local procedure TestSalesLineFieldsBeforeRecreate()
@@ -5900,18 +5886,23 @@
     end;
 
     [IntegrationEvent(TRUE, false)]
-    [Scope('OnPrem')]
-    procedure OnCustomerCreditLimitExceeded()
+    procedure OnCustomerCreditLimitExceeded(NotificationId: Guid)
     begin
     end;
 
     procedure CustomerCreditLimitExceeded()
+    var
+        NotificationId: Guid;
     begin
-        OnCustomerCreditLimitExceeded();
+        OnCustomerCreditLimitExceeded(NotificationId);
+    end;
+
+    procedure CustomerCreditLimitExceeded(NotificationId: Guid)
+    begin
+        OnCustomerCreditLimitExceeded(NotificationId);
     end;
 
     [IntegrationEvent(TRUE, false)]
-    [Scope('OnPrem')]
     procedure OnCustomerCreditLimitNotExceeded()
     begin
     end;
@@ -5937,9 +5928,8 @@
     procedure DeferralHeadersExist(): Boolean
     var
         DeferralHeader: Record "Deferral Header";
-        DeferralUtilities: Codeunit "Deferral Utilities";
     begin
-        DeferralHeader.SetRange("Deferral Doc. Type", DeferralUtilities.GetSalesDeferralDocType);
+        DeferralHeader.SetRange("Deferral Doc. Type", "Deferral Document Type"::Sales);
         DeferralHeader.SetRange("Gen. Jnl. Template Name", '');
         DeferralHeader.SetRange("Gen. Jnl. Batch Name", '');
         DeferralHeader.SetRange("Document Type", "Document Type");
@@ -6155,7 +6145,7 @@
         OnAfterCopySellToCustomerAddressFieldsFromCustomer(Rec, SellToCustomer, CurrFieldNo);
     end;
 
-    local procedure CopyShipToCustomerAddressFieldsFromCustomer(var SellToCustomer: Record Customer)
+    local procedure CopyShipToCustomerAddressFieldsFromCust(var SellToCustomer: Record Customer)
     var
         SellToCustTemplate: Record "Customer Template";
         IsHandled: Boolean;
@@ -6906,7 +6896,7 @@
         "Posting Date" := xRec."Posting Date";
     end;
 
-    local procedure ShouldLookForCustomerByName(CustomerNo: Code[20]): Boolean
+    procedure ShouldSearchForCustomerByName(CustomerNo: Code[20]): Boolean
     var
         Customer: Record Customer;
     begin
@@ -7049,6 +7039,23 @@
             Result :=
               ConfirmManagement.GetResponseOrDefault(
                 StrSubstNo(Text024, FieldCaption("Prices Including VAT"), SalesLine.FieldCaption("Unit Price")), true);
+    end;
+
+    procedure LookupSellToCustomerName(): Boolean
+    var
+        Customer: Record Customer;
+        StandardCodesMgt: Codeunit "Standard Codes Mgt.";
+    begin
+        if "Sell-to Customer No." <> '' then
+            Customer.Get("Sell-to Customer No.");
+
+        if Customer.LookupCustomer(Customer) then begin
+            "Sell-to Customer Name" := Customer.Name;
+            Validate("Sell-to Customer No.", Customer."No.");
+            if "No." <> '' then
+                StandardCodesMgt.CheckCreateSalesRecurringLines(Rec);
+            exit(true);
+        end;
     end;
 
     local procedure CheckPromisedDeliveryDate()

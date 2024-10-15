@@ -141,7 +141,6 @@ report 12 "VAT Statement"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Include VAT Entries';
                         Importance = Additional;
-                        OptionCaption = 'Open,Closed,Open and Closed';
                         ToolTip = 'Specifies if you want to include open VAT entries in the report.';
 
                         trigger OnValidate()
@@ -155,7 +154,6 @@ report 12 "VAT Statement"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Include VAT Entries';
                         Importance = Additional;
-                        OptionCaption = 'Before and Within Period,Within Period';
                         ToolTip = 'Specifies if you want to include VAT entries from before the specified time period in the report.';
 
                         trigger OnValidate()
@@ -193,7 +191,7 @@ report 12 "VAT Statement"
 
         trigger OnOpenPage()
         begin
-            PeriodSelection := 1;
+            PeriodSelection := PeriodSelection::"Within Period";
         end;
     }
 
@@ -226,8 +224,8 @@ report 12 "VAT Statement"
         VATEntry: Record "VAT Entry";
         GLSetup: Record "General Ledger Setup";
         VATStmtLine: Record "VAT Statement Line";
-        Selection: Option Open,Closed,"Open and Closed";
-        PeriodSelection: Option "Before and Within Period","Within Period";
+        Selection: Enum "VAT Statement Report Selection";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
         PrintInIntegers: Boolean;
         VATStmtLineFilter: Text;
         Heading: Text[50];
@@ -514,7 +512,7 @@ report 12 "VAT Statement"
         TotalAmount := TotalAmount + Amount;
     end;
 
-    procedure InitializeRequest(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Option Open,Closed,"Open and Closed"; NewPeriodSelection: Option "Before and Within Period","Within Period"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean; NewVATPeriod: Code[10])
+    procedure InitializeRequest(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean; NewVATPeriod: Code[10])
     begin
         "VAT Statement Name".Copy(NewVATStmtName);
         "VAT Statement Line".Copy(NewVATStatementLine);

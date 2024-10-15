@@ -260,7 +260,7 @@ table 12170 "Payment Lines"
                 PaymentLines.Init();
                 PaymentLines."Sales/Purchase" := PaymentLines."Sales/Purchase"::Sales;
                 if SalesHeader."Document Type" <> SalesHeader."Document Type"::"Blanket Order" then
-                    PaymentLines.Type := SalesHeader."Document Type"
+                    PaymentLines.Type := SalesHeader."Document Type".AsInteger()
                 else
                     PaymentLines.Type := PaymentLines.Type::"Blanket Order";
                 PaymentLines.Code := SalesHeader."No.";
@@ -370,7 +370,7 @@ table 12170 "Payment Lines"
                 PaymentLines.Init();
                 PaymentLines."Sales/Purchase" := PaymentLines."Sales/Purchase"::Purchase;
                 if PurchaseHeader."Document Type" <> PurchaseHeader."Document Type"::"Blanket Order" then
-                    PaymentLines.Type := PurchaseHeader."Document Type"
+                    PaymentLines.Type := PurchaseHeader."Document Type".AsInteger()
                 else
                     PaymentLines.Type := PaymentLines.Type::"Blanket Order";
                 PaymentLines.Code := PurchaseHeader."No.";
@@ -461,7 +461,7 @@ table 12170 "Payment Lines"
             repeat
                 PaymentLines.Init();
                 PaymentLines."Sales/Purchase" := PaymentLines."Sales/Purchase"::Service;
-                PaymentLines.Type := ServiceHeader."Document Type";
+                PaymentLines.Type := ServiceHeader."Document Type".AsInteger();
                 PaymentLines.Code := ServiceHeader."No.";
                 PaymentCounter := PaymentCounter + 10000;
                 PaymentLines."Line No." := PaymentCounter;
@@ -546,7 +546,7 @@ table 12170 "Payment Lines"
                 begin
                     SalesPurchaseType := "Sales/Purchase"::Sales;
                     SalesHeader := RecVar;
-                    DocumentType := SalesHeader."Document Type";
+                    DocumentType := SalesHeader."Document Type".AsInteger();
                     DocumentNo := SalesHeader."No.";
                     IsBlanketOrder := SalesHeader."Document Type" = SalesHeader."Document Type"::"Blanket Order";
                 end;
@@ -554,7 +554,7 @@ table 12170 "Payment Lines"
                 begin
                     SalesPurchaseType := "Sales/Purchase"::Purchase;
                     PurchaseHeader := RecVar;
-                    DocumentType := PurchaseHeader."Document Type";
+                    DocumentType := PurchaseHeader."Document Type".AsInteger();
                     DocumentNo := PurchaseHeader."No.";
                     IsBlanketOrder := PurchaseHeader."Document Type" = PurchaseHeader."Document Type"::"Blanket Order";
                 end;
@@ -562,7 +562,7 @@ table 12170 "Payment Lines"
                 begin
                     SalesPurchaseType := "Sales/Purchase"::Service;
                     ServiceHeader := RecVar;
-                    DocumentType := ServiceHeader."Document Type";
+                    DocumentType := ServiceHeader."Document Type".AsInteger();
                     DocumentNo := ServiceHeader."No.";
                     IsBlanketOrder := false;
                 end;

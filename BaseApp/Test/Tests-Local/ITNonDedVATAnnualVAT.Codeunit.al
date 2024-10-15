@@ -216,7 +216,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
         GLAccount.Modify(true);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; VATBusPostingGroup: Code[20]; GLAccountNo: Code[20]; DocumentType: Option)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; VATBusPostingGroup: Code[20]; GLAccountNo: Code[20]; DocumentType: Enum "Sales Document Type")
     var
         NoSeries: Record "No. Series";
     begin
@@ -229,7 +229,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateAndPostGenJournalLine(AccountNo: Code[20]; AccountType: Option)
+    local procedure CreateAndPostGenJournalLine(AccountNo: Code[20]; AccountType: Enum "Gen. Journal Account Type")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
@@ -261,7 +261,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
         until VATEntry.Next = 0;
     end;
 
-    local procedure CreateVATStatementLine(VATStatementName: Record "VAT Statement Name"; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; AmountType: Option)
+    local procedure CreateVATStatementLine(VATStatementName: Record "VAT Statement Name"; VATBusPostingGroup: Code[20]; VATProdPostingGroup: Code[20]; AmountType: Enum "VAT Statement Line Amount Type")
     var
         VATStatementLine: Record "VAT Statement Line";
     begin
@@ -299,7 +299,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
         VATPostingSetup.Modify(true);
     end;
 
-    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentType: Option; DocumentNo: Code[20]; GLAcountNo: Code[20])
+    local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; GLAcountNo: Code[20])
     begin
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
@@ -345,7 +345,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
         VATBookEntry.FindFirst;
     end;
 
-    local procedure NonDeductibleVATInAnnualVATCommReportPreview(AmountType: Option)
+    local procedure NonDeductibleVATInAnnualVATCommReportPreview(AmountType: Enum "VAT Statement Line Amount Type")
     var
         VATStatementLine: Record "VAT Statement Line";
         VATStatementName: Record "VAT Statement Name";
@@ -374,7 +374,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
           DeductiblePercent);
     end;
 
-    local procedure NonDeductibleVATInExportedAnnualVATCommFile(AmountType: Option)
+    local procedure NonDeductibleVATInExportedAnnualVATCommFile(AmountType: Enum "VAT Statement Line Amount Type")
     var
         VATStatementLine: Record "VAT Statement Line";
         VATStatementName: Record "VAT Statement Name";
@@ -471,7 +471,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
     end;
 
-    local procedure SetupTransactionData(var VATStatementName: Record "VAT Statement Name"; var GLAccount: Record "G/L Account"; AmountType: Option)
+    local procedure SetupTransactionData(var VATStatementName: Record "VAT Statement Name"; var GLAccount: Record "G/L Account"; AmountType: Enum "VAT Statement Line Amount Type")
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -524,7 +524,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
         CompanyInformation.Modify(true);
     end;
 
-    local procedure VATAmountInGlEntryAfterPostSalesDocument(SalesHeader: Record "Sales Header"; DocumentType: Option; Sign: Decimal)
+    local procedure VATAmountInGlEntryAfterPostSalesDocument(SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; Sign: Decimal)
     var
         VATPostingSetup: Record "VAT Posting Setup";
         GLAccount: Record "G/L Account";
@@ -566,7 +566,7 @@ codeunit 144193 "IT - Non Ded.VAT - Annual VAT"
         Assert.AreEqual(Amount, ActualAmount, StrSubstNo(BaseErr, BaseLbl, Amount));
     end;
 
-    local procedure VerifyGLEntry(DocumentNo: Code[20]; DocumentType: Option; GLAcountNo: Code[20]; Amount: Decimal)
+    local procedure VerifyGLEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; GLAcountNo: Code[20]; Amount: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin

@@ -13,11 +13,10 @@ report 6665 "Batch Post Purch. Ret. Orders"
 
             trigger OnPreDataItem()
             var
-                BatchPostParameterTypes: Codeunit "Batch Post Parameter Types";
                 PurchaseBatchPostMgt: Codeunit "Purchase Batch Post Mgt.";
             begin
-                PurchaseBatchPostMgt.AddParameter(BatchPostParameterTypes.Ship, ShipReq);
-                PurchaseBatchPostMgt.AddParameter(BatchPostParameterTypes.Print, PrintDoc);
+                PurchaseBatchPostMgt.SetParameter("Batch Posting Parameter Type"::Ship, ShipReq);
+                PurchaseBatchPostMgt.SetParameter("Batch Posting Parameter Type"::Print, PrintDoc);
                 PurchaseBatchPostMgt.RunBatch("Purchase Header", ReplacePostingDate, PostingDateReq, ReplaceDocumentDate, CalcInvDisc, false, InvReq);
 
                 CurrReport.Break();

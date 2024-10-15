@@ -383,7 +383,7 @@ report 12116 "Vendor Account Bills List"
                     end;
 
                     TotalVendorBillAmnt := TotalVendorBillAmnt + VendorBillAmnt;
-                    VendorLedgerEmtryTypeINT := "Document Type"
+                    VendorLedgerEmtryTypeINT := "Document Type".AsInteger()
                 end;
 
                 trigger OnPreDataItem()

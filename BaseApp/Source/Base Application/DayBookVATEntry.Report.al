@@ -323,7 +323,7 @@ report 2500 "Day Book VAT Entry"
         Vendor: Record Vendor;
         SellToBuyFromName: Text;
         VATEntryFilter: Text;
-        PrevType: Option;
+        PrevType: Enum "General Posting Type";
         UseAmtsInAddCurr: Boolean;
         Text000Lbl: Label 'All amounts are in %1.', Comment = 'All amounts are in GBP';
         Text001Lbl: Label 'Total for %1 %2.', Comment = 'Total for posting date 12122012';

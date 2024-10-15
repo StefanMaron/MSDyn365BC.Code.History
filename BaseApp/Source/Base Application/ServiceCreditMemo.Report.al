@@ -220,7 +220,7 @@ report 5912 "Service - Credit Memo"
                         }
                         column(LineAmt_ServiceCrMemoLine; "Line Amount")
                         {
-                            AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(Desc_ServCrMemoLine; Description)
@@ -249,7 +249,7 @@ report 5912 "Service - Credit Memo"
                         }
                         column(UnitPrice_ServCrMemoLine; "Unit Price")
                         {
-                            AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode();
                             AutoFormatType = 2;
                         }
                         column(LineDisc_ServCrMemoLine; "Line Discount %")
@@ -266,7 +266,7 @@ report 5912 "Service - Credit Memo"
                         }
                         column(InvDiscAmt_ServiceCrMemoLine; -"Inv. Discount Amount")
                         {
-                            AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(TotalText; TotalText)
@@ -274,7 +274,7 @@ report 5912 "Service - Credit Memo"
                         }
                         column(Amt_ServCrMemoLine; Amount)
                         {
-                            AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(TotalExclVATText; TotalExclVATText)
@@ -285,12 +285,12 @@ report 5912 "Service - Credit Memo"
                         }
                         column(AmtIncVAT_ServiceCrMemoLine; "Amount Including VAT")
                         {
-                            AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(AmtIncVATAmt_ServiceCrMemoLine; "Amount Including VAT" - Amount)
                         {
-                            AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode;
+                            AutoFormatExpression = "Service Cr.Memo Line".GetCurrencyCode();
                             AutoFormatType = 1;
                         }
                         column(VATAmtLineVATAmtText; VATAmountLine.VATAmountText)
@@ -414,13 +414,13 @@ report 5912 "Service - Credit Memo"
                                 VATAmountLine."Inv. Disc. Base Amount" := "Line Amount";
                             VATAmountLine."Invoice Discount Amount" := "Inv. Discount Amount";
                             VATAmountLine."VAT Clause Code" := "VAT Clause Code";
-                            VATAmountLine.InsertLine;
+                            VATAmountLine.InsertLine();
 
                             TotalAmount += Amount;
                             TotalAmountInclVAT += "Amount Including VAT";
                             TotalInvDiscAmount += "Inv. Discount Amount";
                             TotalLineAmount += "Line Amount";
-                            TypeInt := Type;
+                            TypeInt := Type.AsInteger();
 
                             ServiceLineHidden := (TypeInt = 0) or ((Quantity < 0) and ("Unit Price" > 0) and (Amount = 0));
                         end;
@@ -697,9 +697,7 @@ report 5912 "Service - Credit Memo"
             ServiceSetup."Logo Position on Documents"::"No Logo":
                 ;
             ServiceSetup."Logo Position on Documents"::Left:
-                begin
-                    CompanyInfo.CalcFields(Picture);
-                end;
+                CompanyInfo.CalcFields(Picture);
             ServiceSetup."Logo Position on Documents"::Center:
                 begin
                     CompanyInfo1.Get();

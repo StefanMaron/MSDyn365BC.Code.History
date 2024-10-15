@@ -21,7 +21,7 @@ codeunit 148500 "IT RS Pack - Common"
         // [FEATURE] [FatturaPA] [Electronic Document]
         // [SCENARIO 259342] Electronic document format has FatturaPA setup for all Usage options
         with ElectronicDocumentFormat do
-            for UsageOption := Usage::"Sales Invoice" to Usage::"Service Validation" do
+            for UsageOption := Usage::"Sales Invoice".AsInteger() to Usage::"Service Validation".AsInteger() do
                 Get(FatturaPATxt, UsageOption);
     end;
 

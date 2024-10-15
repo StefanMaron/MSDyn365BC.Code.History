@@ -379,7 +379,7 @@ codeunit 144000 "IT - Fixed Assets"
         CalculateTotalDepreciation(true);
     end;
 
-    local procedure CustomDepreciation(FAPostingType: Option)
+    local procedure CustomDepreciation(FAPostingType: Enum "FA Ledger Entry FA Posting Type")
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -627,7 +627,7 @@ codeunit 144000 "IT - Fixed Assets"
         exit(GenJnlLine.FindFirst);
     end;
 
-    local procedure ModifyDepreciationMethod(FANo: Code[20]; DepreciationBook: Code[10]; DepreciationMethod: Integer; DepreciationTableCode: Code[10]; FirstUserDefinedDeprDate: Code[10])
+    local procedure ModifyDepreciationMethod(FANo: Code[20]; DepreciationBook: Code[10]; DepreciationMethod: Enum "FA Depreciation Method"; DepreciationTableCode: Code[10]; FirstUserDefinedDeprDate: Code[10])
     var
         FADepreciationBook: Record "FA Depreciation Book";
         Delta: DateFormula;
@@ -684,7 +684,7 @@ codeunit 144000 "IT - Fixed Assets"
         end;
     end;
 
-    local procedure VerifyUserDefinedDepreciation(DocumentNo: Code[20]; FANo: Code[20]; FAPostingType: Option; Amount: Decimal)
+    local procedure VerifyUserDefinedDepreciation(DocumentNo: Code[20]; FANo: Code[20]; FAPostingType: Enum "FA Ledger Entry FA Posting Type"; Amount: Decimal)
     var
         FALedgerEntry: Record "FA Ledger Entry";
     begin

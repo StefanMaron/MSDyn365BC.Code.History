@@ -63,16 +63,16 @@ codeunit 443 "Sales-Post Prepayment (Yes/No)"
         end;
     end;
 
-    local procedure PostPrepmtDocument(var SalesHeader: Record "Sales Header"; PrepmtDocumentType: Option)
+    local procedure PostPrepmtDocument(var SalesHeader: Record "Sales Header"; PrepmtDocumentType: Enum "Sales Document Type")
     var
         SalesPostPrepayments: Codeunit "Sales-Post Prepayments";
         ErrorMessageHandler: Codeunit "Error Message Handler";
         ErrorMessageMgt: Codeunit "Error Message Management";
     begin
-        OnBeforePostPrepmtDocument(SalesHeader, PrepmtDocumentType);
+        OnBeforePostPrepmtDocument(SalesHeader, PrepmtDocumentType.AsInteger());
 
         ErrorMessageMgt.Activate(ErrorMessageHandler);
-        SalesPostPrepayments.SetDocumentType(PrepmtDocumentType);
+        SalesPostPrepayments.SetDocumentType(PrepmtDocumentType.AsInteger());
         Commit();
         if not SalesPostPrepayments.Run(SalesHeader) then
             ErrorMessageHandler.ShowErrors;

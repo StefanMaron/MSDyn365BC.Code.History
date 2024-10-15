@@ -148,7 +148,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         VerifyVATTransactionData(GenJournalLine."Document Type"::Payment, GenJournalLine."Gen. Posting Type"::Purchase, GenJournalLine."Account Type"::"G/L Account", false, true);
     end;
 
-    local procedure VerifyVATTransactionData(DocumentType: Option; GenPostingType: Option; AccountType: Option; CompAgainstThreshold: Boolean; SetIncludeInVATTransRep: Boolean)
+    local procedure VerifyVATTransactionData(DocumentType: Enum "Gen. Journal Document Type"; GenPostingType: Enum "General Posting Type"; AccountType: Enum "Gen. Journal Account Type"; CompAgainstThreshold: Boolean; SetIncludeInVATTransRep: Boolean)
     var
         GenJournalLine: Record "Gen. Journal Line";
         Amount: Decimal;
@@ -452,7 +452,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         TearDown; // Cleanup for the first test.
     end;
 
-    local procedure AdjustAmountSign(Amount: Decimal; DocumentType: Option; AccountType: Option; GenPostingType: Option): Decimal
+    local procedure AdjustAmountSign(Amount: Decimal; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; GenPostingType: Enum "General Posting Type"): Decimal
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -480,7 +480,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         Amount := GetThresholdAmount(StartingDate, InclVAT) + Delta;
     end;
 
-    local procedure CreateAccount(GenPostingType: Option; AccountType: Option; IndividualPerson: Boolean; Resident: Option; InclVAT: Boolean) AccountNo: Code[20]
+    local procedure CreateAccount(GenPostingType: Enum "General Posting Type"; AccountType: Enum "Gen. Journal Account Type"; IndividualPerson: Boolean; Resident: Option; InclVAT: Boolean) AccountNo: Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -530,14 +530,14 @@ codeunit 144011 "IT - VAT Reporting - Other"
         exit(Customer."No.");
     end;
 
-    local procedure CreateDefaultAccount(GenPostingType: Option; AccountType: Option) AccountNo: Code[20]
+    local procedure CreateDefaultAccount(GenPostingType: Enum "General Posting Type"; AccountType: Enum "Gen. Journal Account Type") AccountNo: Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
         AccountNo := CreateAccount(GenPostingType, AccountType, false, GenJournalLine.Resident::Resident, false); // This is Default Option.
     end;
 
-    local procedure CreateGLAccount(GenPostingType: Option): Code[20]
+    local procedure CreateGLAccount(GenPostingType: Enum "General Posting Type"): Code[20]
     var
         GLAccount: Record "G/L Account";
         GeneralPostingSetup: Record "General Posting Setup";
@@ -609,10 +609,10 @@ codeunit 144011 "IT - VAT Reporting - Other"
         Vendor.Modify(true);
     end;
 
-    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; GenPostingType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal): Code[20]
+    local procedure CreateGenJnlLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; GenPostingType: Enum "General Posting Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal): Code[20]
     var
         GenJournalBatch: Record "Gen. Journal Batch";
-        BalAccountType: Option;
+        BalAccountType: Enum "Gen. Journal Account Type";
         BalAccountNo: Code[20];
     begin
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryERM.SelectGenJnlTemplate);
@@ -671,7 +671,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
-    local procedure CreateApplyAndPostGenJnlLine(DocumentType: Option; AccountType: Option; AccountNo: Code[20]; AppliesToDocType: Option; AppliesToDocNo: Code[20]; Amount: Decimal): Code[20]
+    local procedure CreateApplyAndPostGenJnlLine(DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20]; Amount: Decimal): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -775,7 +775,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         exit(BankAccount."No.");
     end;
 
-    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         VATEntry.SetRange("Document Type", DocumentType);
         VATEntry.SetRange("Document No.", DocumentNo);
@@ -792,7 +792,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         exit(VATPostingSetup.FindFirst);
     end;
 
-    local procedure RunUpdateVATTransDataReport(DocumentType: Option; DocumentNo: Code[20]; CompAgainstThreshold: Boolean; TestOnly: Boolean; SetIncludeInVATTransRep: Boolean)
+    local procedure RunUpdateVATTransDataReport(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; CompAgainstThreshold: Boolean; TestOnly: Boolean; SetIncludeInVATTransRep: Boolean)
     var
         VATEntry: Record "VAT Entry";
         UpdateVATTransData: Report "Update VAT Transaction Data";
@@ -872,7 +872,7 @@ codeunit 144011 "IT - VAT Reporting - Other"
         end;
     end;
 
-    local procedure VerifyIncludeVAT(DocumentType: Option; DocumentNo: Code[20]; InclInVATTransRep: Boolean)
+    local procedure VerifyIncludeVAT(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; InclInVATTransRep: Boolean)
     var
         VATEntry: Record "VAT Entry";
     begin

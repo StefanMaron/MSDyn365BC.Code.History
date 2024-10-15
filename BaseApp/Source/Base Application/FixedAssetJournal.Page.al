@@ -340,7 +340,7 @@ page 5629 "Fixed Asset Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -511,8 +511,10 @@ page 5629 "Fixed Asset Journal"
         ClientTypeManagement: Codeunit "Client Type Management";
         CurrentJnlBatchName: Code[10];
         FADescription: Text[100];
-        ShortcutDimCode: array[8] of Code[20];
         IsSaaSExcelAddinEnabled: Boolean;
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;
         DimVisible3: Boolean;

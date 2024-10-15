@@ -67,7 +67,7 @@ codeunit 6703 "Exchange Contact Sync."
     begin
         SkipDateFilters := FullSync;
         O365ContactSyncHelper.GetO365Contacts(ExchangeSync, TempContact);
-        SendTraceTag('0000ACN', O365SyncManagement.TraceCategory(), Verbosity::Normal, StrSubstNo(ExchangeCountTelemetryTxt, TempContact.Count()), DataClassification::SystemMetadata);
+        Session.LogMessage('0000ACN', StrSubstNo(ExchangeCountTelemetryTxt, TempContact.Count()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', O365SyncManagement.TraceCategory());
 
         O365SyncManagement.ShowProgress(ProcessNavContactsMsg);
         ProcessNavContacts(ExchangeSync, TempContact, SkipDateFilters);

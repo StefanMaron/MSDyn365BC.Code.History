@@ -42,7 +42,7 @@ report 12191 "VAT Transaction"
             column(Base___Amount; Base + Amount)
             {
             }
-            column(Fiscal_Operation_Type; SetOperationType(Type, "EU Service"))
+            column(Fiscal_Operation_Type; SetOperationType(Type.AsInteger(), "EU Service"))
             {
             }
             column(Fiscal_Total_Amount; Base + Amount)
@@ -118,7 +118,7 @@ report 12191 "VAT Transaction"
             column(Base___Amount_Control1130021; Base + Amount)
             {
             }
-            column(SetOperationType_Type__EU_Service__; SetOperationType(Type, "EU Service"))
+            column(SetOperationType_Type__EU_Service__; SetOperationType(Type.AsInteger(), "EU Service"))
             {
             }
             column(Base___Amount_Control1130032; Base + Amount)
@@ -208,7 +208,7 @@ report 12191 "VAT Transaction"
             column(NonResident_Amount; Amount)
             {
             }
-            column(SetOperationType_Type__EU_Service___Control1130053; SetOperationType(Type, "EU Service"))
+            column(SetOperationType_Type__EU_Service___Control1130053; SetOperationType(Type.AsInteger(), "EU Service"))
             {
             }
             column(Base___Amount_Control1130055; Base + Amount)
@@ -307,7 +307,7 @@ report 12191 "VAT Transaction"
             column(Base___Amount_Control1130073; Base + Amount)
             {
             }
-            column(SetOperationType_Type__EU_Service___Control1130076; SetOperationType(Type, "EU Service"))
+            column(SetOperationType_Type__EU_Service___Control1130076; SetOperationType(Type.AsInteger(), "EU Service"))
             {
             }
             column(VAT_Entry_Amount_Control1130079; Amount)

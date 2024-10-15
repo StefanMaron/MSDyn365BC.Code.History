@@ -35,6 +35,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         StatementTitlePdfTxt: Label 'Statement for %1 as of %2.pdf';
         StatementTitleHtmlTxt: Label 'Statement for %1 as of %2.html';
         IgnoringFailureSendingEmailErr: Label 'A call to MailKit.Net.Smtp.SmtpClient.Connect failed with this message: No connection could be made because the target machine actively refused';
+        FailedToSendEmailErr: Label 'Failed to send email';
         MoreErrorsOnErrorMessagesPageErr: Label '%1 contains more errors than expected.';
         LessErrorsOnErrorMessagesPageErr: Label '%1 contains less errors than expected.';
         RequestParametersErr: Label 'Request parameters for the Standard Statement report have not been set up.';
@@ -2649,7 +2650,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         InsertCustomReportSelectionCustomer(
           CustomReportSelection, Customer."No.", GetStandardStatementReportID, true, true,
-          CustomReportLayout.InitBuiltInLayout(GetStandardStatementReportID, CustomReportLayout.Type::Word),
+          CustomReportLayout.InitBuiltInLayout(GetStandardStatementReportID, CustomReportLayout.Type::Word.AsInteger()),
           '', CustomReportSelection.Usage::"C.Statement");
 
         DataRecRef.GETTABLE(Customer);
@@ -2683,12 +2684,33 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     [Test]
     [HandlerFunctions('StandardStatementOKRequestPageHandler,StartJobQueueNoConfirmHandler')]
     [Scope('OnPrem')]
-    procedure Email_Background_SingleCustomer_DataEmail_SmtpError()
+    procedure Test_Email_Background_SingleCustomer_DataEmail_SmtpError() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        Email_Background_SingleCustomer_DataEmail();
+    end;
+
+    // [Test]
+    [HandlerFunctions('StandardStatementOKRequestPageHandler,StartJobQueueNoConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure Test_Email_Background_SingleCustomer_DataEmail()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        Email_Background_SingleCustomer_DataEmail();
+    end;
+
+    procedure Email_Background_SingleCustomer_DataEmail()
     var
         Customer: array[2] of Record Customer;
         TempErrorMessage: Record "Error Message" temporary;
+        EmailFeature: Codeunit "Email Feature";
         LibraryTempNVBufferHandler: Codeunit "Library - TempNVBufferHandler";
         LibrarySMTPMailHandler: Codeunit "Library - SMTP Mail Handler";
+        ConnectorMock: Codeunit "Connector Mock";
     begin
         // [FEATURE] [Email] [Job Queue]
         // [SCENARIO] Enqueueed email with Customer "A" having entries failed with SMTP error
@@ -2701,12 +2723,18 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
         BindSubscription(LibraryTempNVBufferHandler);
         // Email sending throws error (we don't handle it)
-        BindSubscription(LibrarySMTPMailHandler);
+        if EmailFeature.IsEnabled() then begin
+            ConnectorMock.FailOnSend(true);
+            Commit();
+        end else
+            BindSubscription(LibrarySMTPMailHandler);
         RunBackgroundReportFromCard(GetSingleCustomerFilter(Customer[1]), StandardStatementReportOutputType::Email, false);
 
-        AddExpectedErrorMessage(TempErrorMessage, IgnoringFailureSendingEmailErr);
+        if EmailFeature.IsEnabled() then
+            AddExpectedErrorMessage(TempErrorMessage, FailedToSendEmailErr)
+        else
+            AddExpectedErrorMessage(TempErrorMessage, IgnoringFailureSendingEmailErr);
         AssertActivityLog(TempErrorMessage);
-
         LibraryTempNVBufferHandler.AssertEntry(GetStatementTitlePdf(Customer[1])); // buffer to delete temp file
         LibraryTempNVBufferHandler.AssertEntry(GetStatementTitleHtml(Customer[1])); // buffer to delete temp file
         LibraryTempNVBufferHandler.AssertEntry(GetStatementTitlePdf(Customer[1])); // buffer to add to report inbox
@@ -2724,12 +2752,33 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     [Test]
     [HandlerFunctions('StandardStatementOKRequestPageHandler,StartJobQueueNoConfirmHandler')]
     [Scope('OnPrem')]
-    procedure Email_Background_TwoCustomer_A_DataEmail_B_DataEmail_SmtpError()
+    procedure Test_Email_Background_TwoCustomer_A_DataEmail_B_DataEmail_SmtpError() // To be removed together with deprecated SMTP objects
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
+        Email_Background_TwoCustomer_A_DataEmail_B_DataEmail();
+    end;
+
+    // [Test]
+    [HandlerFunctions('StandardStatementOKRequestPageHandler,StartJobQueueNoConfirmHandler')]
+    [Scope('OnPrem')]
+    procedure Test_Email_Background_TwoCustomer_A_DataEmail_B_DataEmail()
+    var
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
+    begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(true);
+        Email_Background_TwoCustomer_A_DataEmail_B_DataEmail();
+    end;
+
+    procedure Email_Background_TwoCustomer_A_DataEmail_B_DataEmail()
     var
         Customer: array[2] of Record Customer;
         TempErrorMessage: Record "Error Message" temporary;
+        EmailFeature: Codeunit "Email Feature";
         LibraryTempNVBufferHandler: Codeunit "Library - TempNVBufferHandler";
         LibrarySMTPMailHandler: Codeunit "Library - SMTP Mail Handler";
+        ConnectorMock: Codeunit "Connector Mock";
     begin
         // [FEATURE] [Email] [Job Queue]
         // [SCENARIO] Enqueueed email with Customers "A" and "B" both having entries failed with SMTP error
@@ -2743,11 +2792,20 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
         BindSubscription(LibraryTempNVBufferHandler);
         // Email sending throws error (we don't handle it)
-        BindSubscription(LibrarySMTPMailHandler);
+        if EmailFeature.IsEnabled() then begin
+            ConnectorMock.FailOnSend(true);
+            Commit();
+        end else
+            BindSubscription(LibrarySMTPMailHandler);
         RunBackgroundReportFromCard(GetTwoCustomersFilter(Customer), StandardStatementReportOutputType::Email, false);
 
-        AddExpectedErrorMessage(TempErrorMessage, IgnoringFailureSendingEmailErr);
-        AddExpectedErrorMessage(TempErrorMessage, IgnoringFailureSendingEmailErr);
+        if EmailFeature.IsEnabled() then begin
+            AddExpectedErrorMessage(TempErrorMessage, FailedToSendEmailErr);
+            AddExpectedErrorMessage(TempErrorMessage, FailedToSendEmailErr);
+        end else begin
+            AddExpectedErrorMessage(TempErrorMessage, IgnoringFailureSendingEmailErr);
+            AddExpectedErrorMessage(TempErrorMessage, IgnoringFailureSendingEmailErr);
+        end;
         AssertActivityLog(TempErrorMessage);
 
         LibraryTempNVBufferHandler.AssertEntry(GetStatementTitlePdf(Customer[1])); // buffer to delete temp file
@@ -2779,8 +2837,12 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         JobQueueEntry: Record "Job Queue Entry";
         ActivityLog: Record "Activity Log";
         ReportInbox: Record "Report Inbox";
+        LibraryWorkflow: Codeunit "Library - Workflow";
+        EmailFeature: Codeunit "Email Feature";
         CustomerCard: TestPage "Customer Card";
     begin
+        if EmailFeature.IsEnabled() then
+            LibraryWorkflow.SetUpEmailAccount();
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Rep. Selections - Std. Stmt.");
 
         LibraryVariableStorage.Clear();
@@ -2938,7 +3000,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         exit(StrSubstNo(StatementTitleHtmlTxt, Customer.Name, Format(WorkDate, 0, 9)));
     end;
 
-    local procedure InsertCustomReportSelectionCustomer(var CustomReportSelection: Record "Custom Report Selection"; CustomerNo: Code[20]; ReportID: Integer; UseForEmailAttachment: Boolean; UseForEmailBody: Boolean; EmailBodyLayoutCode: Code[20]; SendToAddress: Text[200]; ReportUsage: Option)
+    local procedure InsertCustomReportSelectionCustomer(var CustomReportSelection: Record "Custom Report Selection"; CustomerNo: Code[20]; ReportID: Integer; UseForEmailAttachment: Boolean; UseForEmailBody: Boolean; EmailBodyLayoutCode: Code[20]; SendToAddress: Text[200]; ReportUsage: Enum "Report Selection Usage")
     begin
         with CustomReportSelection do begin
             Init;
@@ -2955,7 +3017,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         end;
     end;
 
-    local procedure InsertReportSelections(var ReportSelections: Record "Report Selections"; ReportID: Integer; UseForEmailAttachment: Boolean; UseForEmailBody: Boolean; EmailBodyLayoutCode: Code[20]; ReportUsage: Option)
+    local procedure InsertReportSelections(var ReportSelections: Record "Report Selections"; ReportID: Integer; UseForEmailAttachment: Boolean; UseForEmailBody: Boolean; EmailBodyLayoutCode: Code[20]; ReportUsage: Enum "Report Selection Usage")
     begin
         ReportSelections.SetRange(Usage, ReportUsage);
         ReportSelections.SetRange(Sequence, '1');
@@ -2996,7 +3058,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         if CustomReportLayout.FindFirst then
             CustomReportLayoutCode := CustomReportLayout.Code
         else
-            CustomReportLayoutCode := CustomReportLayout.InitBuiltInLayout(ReportId, CustomReportLayout.Type::Word);
+            CustomReportLayoutCode := CustomReportLayout.InitBuiltInLayout(ReportId, CustomReportLayout.Type::Word.AsInteger());
 
         InsertCustomReportSelectionCustomer(
           CustomReportSelection, Customer."No.", ReportId, true, true,
@@ -3021,7 +3083,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         if CustomReportLayout.FindFirst then
             CustomReportLayoutCode := CustomReportLayout.Code
         else
-            CustomReportLayoutCode := CustomReportLayout.InitBuiltInLayout(ReportId, CustomReportLayout.Type::Word);
+            CustomReportLayoutCode := CustomReportLayout.InitBuiltInLayout(ReportId, CustomReportLayout.Type::Word.AsInteger());
 
         InsertCustomReportSelectionCustomer(
           CustomReportSelection, Customer."No.", ReportId, true, true,

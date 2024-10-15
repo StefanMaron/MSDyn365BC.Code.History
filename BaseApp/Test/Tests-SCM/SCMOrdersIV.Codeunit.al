@@ -375,7 +375,7 @@ codeunit 137156 "SCM Orders IV"
         CreateSalesDocument(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice, SalesLine.Type::"Charge (Item)",
           SalesHeader."Sell-to Customer No.", LibraryInventory.CreateItemChargeNo, Quantity, '');
-        SalesLine.ShowItemChargeAssgnt;
+        SalesLine.ShowItemChargeAssgnt();
 
         // Exercise: Undo Return Receipt Line.
         UndoReturnReceiptLine(PostedDocumentNo);
@@ -1439,7 +1439,7 @@ codeunit 137156 "SCM Orders IV"
 
         LibraryVariableStorage.Enqueue(PostedDocumentNo);
         LibraryVariableStorage.Enqueue(1); // Enqueue for ItemChargeAssignmentMenuHandler, choice for assignment.
-        PurchaseLine.ShowItemChargeAssgnt;
+        PurchaseLine.ShowItemChargeAssgnt();
 
         // Exercise
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -2608,7 +2608,7 @@ codeunit 137156 "SCM Orders IV"
         // [GIVEN] Leave "Applied-to Item Entry" field blank.
         LibrarySales.CreateSalesDocumentWithItem(
           SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order", '', Item."No.", Qty, '', WorkDate);
-        SalesLine.ShowReservation;
+        SalesLine.ShowReservation();
 
         // [WHEN] Receive the sales return.
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, false);
@@ -2648,7 +2648,7 @@ codeunit 137156 "SCM Orders IV"
         // [GIVEN] Leave "Applied-to Item Entry" field blank.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", '', Item."No.", Qty, '', WorkDate);
-        PurchaseLine.ShowReservation;
+        PurchaseLine.ShowReservation();
 
         // [WHEN] Ship the purchase return.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -2686,7 +2686,7 @@ codeunit 137156 "SCM Orders IV"
         // [GIVEN] Leave "Applied-to Item Entry" field blank.
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::"Return Order", '', Item."No.", Qty, '', WorkDate);
-        PurchaseLine.ShowReservation;
+        PurchaseLine.ShowReservation();
 
         // [WHEN] Ship the purchase return.
         asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
@@ -2824,7 +2824,7 @@ codeunit 137156 "SCM Orders IV"
         CustInvoiceDisc.Modify(true);
     end;
 
-    local procedure CannotUndoSalesDocumentWithReservation(DocumentType: Option; SignFactor: Integer)
+    local procedure CannotUndoSalesDocumentWithReservation(DocumentType: Enum "Sales Document Type"; SignFactor: Integer)
     var
         SalesHeader: Record "Sales Header";
         SalesHeader2: Record "Sales Header";
@@ -2841,7 +2841,7 @@ codeunit 137156 "SCM Orders IV"
             SalesHeader, DocumentType, SalesLine.Type::Item, LibrarySales.CreateCustomerNo, Item."No.", Quantity * SignFactor,
             WorkDate, '', 0, false);
         CreateSalesOrder(SalesHeader2, SalesLine, SalesLine.Type::Item, SalesHeader."Sell-to Customer No.", Item."No.", Quantity, '');
-        SalesLine.ShowReservation;
+        SalesLine.ShowReservation();
 
         // Exercise.
         if DocumentType = SalesHeader."Document Type"::Order then
@@ -2901,7 +2901,7 @@ codeunit 137156 "SCM Orders IV"
         LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; Type: Option; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; Invoice: Boolean) PostedDocumentNo: Code[20]
+    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; Type: Enum "Purchase Line Type"; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; Invoice: Boolean) PostedDocumentNo: Code[20]
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -2930,17 +2930,17 @@ codeunit 137156 "SCM Orders IV"
     local procedure CreateAndPostSalesReturnOrderWithCopySalesDocument(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; PostedSalesInvoiceNo: Code[20])
     var
         SalesLine: Record "Sales Line";
-        DocumentType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Receipt","Posted Invoice","Posted Return Shipment","Posted Credit Memo";
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", CustomerNo);
-        LibrarySales.CopySalesDocument(SalesHeader, DocumentType::"Posted Invoice", PostedSalesInvoiceNo, false, true);  // TRUE for RecalculateLines.
+        LibrarySales.CopySalesDocument(
+            SalesHeader, "Sales Document Type From"::"Posted Invoice", PostedSalesInvoiceNo, false, true);  // TRUE for RecalculateLines.
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetRange("No.", '');
         SalesLine.DeleteAll(true);  // Required for DK.
         LibrarySales.PostSalesDocument(SalesHeader, true, false);  // Post as SHIP.
     end;
 
-    local procedure CreateAndPostSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option; Type: Option; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; PostingDate: Date; LocationCode: Code[10]; UnitPrice: Decimal; Invoice: Boolean) PostedDocumentNo: Code[20]
+    local procedure CreateAndPostSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; Type: Enum "Sales Line Type"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; PostingDate: Date; LocationCode: Code[10]; UnitPrice: Decimal; Invoice: Boolean) PostedDocumentNo: Code[20]
     var
         SalesLine: Record "Sales Line";
         UnitOfMeasure: Record "Unit of Measure";
@@ -2969,7 +2969,7 @@ codeunit 137156 "SCM Orders IV"
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, false));  // Post as SHIP.
     end;
 
-    local procedure CreateAndPostSalesOrderWithExtendedText(DocType: Option; var CustomerNo: Code[20]; var ItemNo: Code[20]): Code[20]
+    local procedure CreateAndPostSalesOrderWithExtendedText(DocType: Enum "Sales Document Type"; var CustomerNo: Code[20]; var ItemNo: Code[20]): Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -3001,7 +3001,7 @@ codeunit 137156 "SCM Orders IV"
           SalesHeader, ChargeSalesLine, ChargeSalesLine.Type::"Charge (Item)",
           LibraryInventory.CreateItemChargeNo, ItemSalesLine.Quantity, '');
         UpdateUnitPriceOnSalesLine(ChargeSalesLine);
-        ChargeSalesLine.ShowItemChargeAssgnt;
+        ChargeSalesLine.ShowItemChargeAssgnt();
         LibrarySales.PostSalesDocument(SalesHeader, true, false);  // Post as Ship.
     end;
 
@@ -3087,7 +3087,7 @@ codeunit 137156 "SCM Orders IV"
         SalesHeader: Record "Sales Header";
     begin
         CreateSalesOrder(SalesHeader, SalesLine, SalesLine.Type::Item, '', ItemNo, Quantity, LocationCode);
-        SalesLine.ShowReservation; // Invokes ReserveFromCurrentLineHandler.
+        SalesLine.ShowReservation(); // Invokes ReserveFromCurrentLineHandler.
         LibrarySales.ReleaseSalesDocument(SalesHeader);
     end;
 
@@ -3254,7 +3254,7 @@ codeunit 137156 "SCM Orders IV"
         exit(Item."No.");
     end;
 
-    local procedure CreateItemWithSimpleBOM(var Item: Record Item; ItemNo: Code[20]; ReplenishmentSystem: Option)
+    local procedure CreateItemWithSimpleBOM(var Item: Record Item; ItemNo: Code[20]; ReplenishmentSystem: Enum "Replenishment System")
     var
         ProductionBOMHeader: Record "Production BOM Header";
     begin
@@ -3279,7 +3279,7 @@ codeunit 137156 "SCM Orders IV"
         WhseWorksheetLine: Record "Whse. Worksheet Line";
     begin
         LibraryWarehouse.CreateMovementWorksheetLine(WhseWorksheetLine, Bin, Bin2, ItemNo, '', Quantity);
-        LibraryWarehouse.WhseSourceCreateDocument(WhseWorksheetLine, 0, false, false, false);
+        LibraryWarehouse.WhseSourceCreateDocument(WhseWorksheetLine, "Whse. Activity Sorting Method"::None, false, false, false);
     end;
 
     local procedure CreatePickFromSalesOrder(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
@@ -3294,7 +3294,7 @@ codeunit 137156 "SCM Orders IV"
         CreatePickFromWarehouseShipment(WarehouseShipmentLine."Source Document"::"Sales Order", SalesHeader."No.");
     end;
 
-    local procedure CreatePickFromWarehouseShipment(SourceDocument: Option; SourceNo: Code[20])
+    local procedure CreatePickFromWarehouseShipment(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     var
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
@@ -3304,18 +3304,18 @@ codeunit 137156 "SCM Orders IV"
         LibraryWarehouse.CreatePick(WarehouseShipmentHeader);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Option; Type: Option; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; Type: Enum "Purchase Line Type"; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, ItemNo, Quantity);
     end;
 
-    local procedure CreatePurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Type: Option; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreatePurchaseInvoice(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Type: Enum "Purchase Line Type"; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
     begin
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, Type, VendorNo, ItemNo, Quantity);
     end;
 
-    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Type: Option; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
+    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; Type: Enum "Purchase Line Type"; VendorNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal)
     begin
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, Type, VendorNo, ItemNo, Quantity);
     end;
@@ -3327,7 +3327,7 @@ codeunit 137156 "SCM Orders IV"
         PurchaseLineDiscount.Modify(true);
     end;
 
-    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Option; No: Code[20]; Quantity: Decimal)
+    local procedure CreatePurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; No: Code[20]; Quantity: Decimal)
     begin
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, Type, No, Quantity);
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(50, 2));
@@ -3369,7 +3369,7 @@ codeunit 137156 "SCM Orders IV"
         Code := ReasonCode.Code;
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; Type: Option; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; Type: Enum "Sales Line Type"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         SalesHeader.Validate("Tax Area Code", '');  // Required for CA.
@@ -3389,7 +3389,7 @@ codeunit 137156 "SCM Orders IV"
         exit(SalesHeader."No.");
     end;
 
-    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Option; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
+    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Enum "Sales Line Type"; CustomerNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
     begin
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::Order, Type, CustomerNo, ItemNo, Quantity, LocationCode);
     end;
@@ -3417,7 +3417,7 @@ codeunit 137156 "SCM Orders IV"
         SalesHeader.Modify(true);
     end;
 
-    local procedure CreateSalesDocumentWithItemChargeAssignment(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; PostedDocumentNo: Code[20]; CustomerNo: Code[20]; Quantity: Decimal)
+    local procedure CreateSalesDocumentWithItemChargeAssignment(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; PostedDocumentNo: Code[20]; CustomerNo: Code[20]; Quantity: Decimal)
     var
         ItemChargeAssignment: Option " ",GetShipmentLines,GetReturnReceiptLines;
     begin
@@ -3426,10 +3426,10 @@ codeunit 137156 "SCM Orders IV"
           SalesHeader, SalesLine, DocumentType, SalesLine.Type::"Charge (Item)", CustomerNo,
           LibraryInventory.CreateItemChargeNo, Quantity, '');
         UpdateUnitPriceOnSalesLine(SalesLine);
-        SalesLine.ShowItemChargeAssgnt;
+        SalesLine.ShowItemChargeAssgnt();
     end;
 
-    local procedure CreateSalesDocumentWithItemChargeAssignmentWithLnDiscAndInvDisc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; PricesIncludingVAT: Boolean; Quantity: Decimal; UnitPrice: Decimal; LnDiscPct: Decimal): Decimal
+    local procedure CreateSalesDocumentWithItemChargeAssignmentWithLnDiscAndInvDisc(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; PricesIncludingVAT: Boolean; Quantity: Decimal; UnitPrice: Decimal; LnDiscPct: Decimal): Decimal
     var
         ItemCharge: Record "Item Charge";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -3545,14 +3545,14 @@ codeunit 137156 "SCM Orders IV"
         SalesOrder.SalesLines.Reserve.Invoke;
     end;
 
-    local procedure CreateSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Option; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
+    local procedure CreateSalesLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Enum "Sales Line Type"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10])
     begin
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, Type, ItemNo, Quantity);
         SalesLine.Validate("Location Code", LocationCode);
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateSalesLineWithPurchasingCode(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Option; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; PurchasingCode: Code[10])
+    local procedure CreateSalesLineWithPurchasingCode(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Type: Enum "Sales Line Type"; ItemNo: Code[20]; Quantity: Decimal; LocationCode: Code[10]; PurchasingCode: Code[10])
     begin
         CreateSalesLine(SalesHeader, SalesLine, Type, ItemNo, Quantity, LocationCode);
         SalesLine.Validate("Purchasing Code", PurchasingCode);
@@ -3580,7 +3580,7 @@ codeunit 137156 "SCM Orders IV"
         SalesLineDiscount.Modify(true);
     end;
 
-    local procedure CreateSalesLineDiscountWithType(Type: Option)
+    local procedure CreateSalesLineDiscountWithType(Type: Enum "Sales Line Discount Type")
     var
         Customer: Record Customer;
         Item: Record Item;
@@ -3627,7 +3627,7 @@ codeunit 137156 "SCM Orders IV"
     local procedure CreateSalesPriceForCustomer(var SalesPrice: Record "Sales Price"; var Customer: Record Customer; ItemNo: Code[20]; Quantity: Decimal)
     begin
         LibrarySales.CreateCustomer(Customer);
-        LibraryCosting.CreateSalesPrice(SalesPrice, SalesPrice."Sales Type"::Customer, Customer."No.", ItemNo, 0D, '', '', '', Quantity);  // Use 0D for Blank Date.
+        LibraryCosting.CreateSalesPrice(SalesPrice, "Sales Price Type"::Customer, Customer."No.", ItemNo, 0D, '', '', '', Quantity);  // Use 0D for Blank Date.
         SalesPrice.Validate("Unit Price", LibraryRandom.RandDec(50, 2));
         SalesPrice.Modify(true);
     end;
@@ -3845,7 +3845,7 @@ codeunit 137156 "SCM Orders IV"
         LibraryWarehouse.FindBin(Bin, LocationCode, Zone.Code, LibraryRandom.RandInt(Bin.Count));
     end;
 
-    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; DocumentType: Option; DocumentNo: Code[20]; EntryType: Option; ItemNo: Code[20])
+    local procedure FindItemLedgerEntry(var ItemLedgerEntry: Record "Item Ledger Entry"; DocumentType: Enum "Item Ledger Document Type"; DocumentNo: Code[20]; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20])
     begin
         ItemLedgerEntry.SetRange("Document Type", DocumentType);
         ItemLedgerEntry.SetRange("Document No.", DocumentNo);
@@ -3854,7 +3854,7 @@ codeunit 137156 "SCM Orders IV"
         ItemLedgerEntry.FindFirst;
     end;
 
-    local procedure FindPostedWhseShipmentLine(var PostedWhseShipmentLine: Record "Posted Whse. Shipment Line"; SourceDocument: Option; ItemNo: Code[20])
+    local procedure FindPostedWhseShipmentLine(var PostedWhseShipmentLine: Record "Posted Whse. Shipment Line"; SourceDocument: Enum "Warehouse Activity Source Document"; ItemNo: Code[20])
     begin
         PostedWhseShipmentLine.SetRange("Source Document", SourceDocument);
         PostedWhseShipmentLine.SetRange("Item No.", ItemNo);
@@ -3873,7 +3873,7 @@ codeunit 137156 "SCM Orders IV"
         ReturnReceiptLine.FindFirst;
     end;
 
-    local procedure FindRegisteredWhseActivityLine(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; SourceDocument: Option; SourceNo: Code[20]; ActivityType: Option)
+    local procedure FindRegisteredWhseActivityLine(var RegisteredWhseActivityLine: Record "Registered Whse. Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option)
     begin
         RegisteredWhseActivityLine.SetRange("Source Document", SourceDocument);
         RegisteredWhseActivityLine.SetRange("Source No.", SourceNo);
@@ -3894,14 +3894,14 @@ codeunit 137156 "SCM Orders IV"
         SalesLine.FindFirst;
     end;
 
-    local procedure FindSalesLine2(var SalesLine: Record "Sales Line"; DocumentType: Option; No: Code[20])
+    local procedure FindSalesLine2(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; No: Code[20])
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("No.", No);
         SalesLine.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Option; SourceNo: Code[20]; ActivityType: Option)
+    local procedure FindWarehouseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option)
     begin
         WarehouseActivityLine.SetRange("Source Document", SourceDocument);
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
@@ -3909,14 +3909,14 @@ codeunit 137156 "SCM Orders IV"
         WarehouseActivityLine.FindFirst;
     end;
 
-    local procedure FindWarehouseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceDocument: Option; SourceNo: Code[20])
+    local procedure FindWarehouseShipmentLine(var WarehouseShipmentLine: Record "Warehouse Shipment Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         WarehouseShipmentLine.SetRange("Source Document", SourceDocument);
         WarehouseShipmentLine.SetRange("Source No.", SourceNo);
         WarehouseShipmentLine.FindFirst;
     end;
 
-    local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Option; SourceNo: Code[20])
+    local procedure FindWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     begin
         WarehouseReceiptLine.SetRange("Source Document", SourceDocument);
         WarehouseReceiptLine.SetRange("Source No.", SourceNo);
@@ -4124,7 +4124,7 @@ codeunit 137156 "SCM Orders IV"
 
         EnqueueValuesForItemCharge(ItemChargeAssignment::GetShipmentLines, PostedDocNo[i]);
         for i := 1 to 3 do begin
-            SalesLine2.ShowItemChargeAssgnt;
+            SalesLine2.ShowItemChargeAssgnt();
             EnqueueValuesForMultipleItemCharges(ItemChargeAssignment::GetShipmentLines, PostedDocNo[i]);
         end;
 
@@ -4292,7 +4292,7 @@ codeunit 137156 "SCM Orders IV"
         UpdateExactCostReversingMandatoryOnSalesReceivableSetup(OldExactCostReversingMandatory);
     end;
 
-    local procedure PostWarehouseReceipt(SourceDocument: Option; SourceNo: Code[20])
+    local procedure PostWarehouseReceipt(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     var
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
@@ -4302,7 +4302,7 @@ codeunit 137156 "SCM Orders IV"
         LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
     end;
 
-    local procedure PostWarehouseReceiptPartially(SourceDocument: Option; SourceNo: Code[20]; QtyToReceive: Decimal)
+    local procedure PostWarehouseReceiptPartially(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; QtyToReceive: Decimal)
     var
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
@@ -4312,7 +4312,7 @@ codeunit 137156 "SCM Orders IV"
         LibraryWarehouse.PostWhseReceipt(WarehouseReceiptHeader);
     end;
 
-    local procedure PostWarehouseShipment(SourceDocument: Option; SourceNo: Code[20])
+    local procedure PostWarehouseShipment(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20])
     var
         WarehouseShipmentHeader: Record "Warehouse Shipment Header";
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
@@ -4354,7 +4354,7 @@ codeunit 137156 "SCM Orders IV"
           WarehouseActivityLine."Activity Type"::"Put-away");
     end;
 
-    local procedure RegisterWarehouseActivity(SourceDocument: Option; SourceNo: Code[20]; ItemNo: Code[20]; Type: Option)
+    local procedure RegisterWarehouseActivity(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ItemNo: Code[20]; Type: Option)
     var
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
@@ -4405,7 +4405,7 @@ codeunit 137156 "SCM Orders IV"
         LibrarySales.UndoReturnReceiptLine(ReturnReceiptLine);
     end;
 
-    local procedure UndoSalesDocumentForAppliedQuantity(DocumentType: Option; SignFactor: Integer)
+    local procedure UndoSalesDocumentForAppliedQuantity(DocumentType: Enum "Sales Document Type"; SignFactor: Integer)
     var
         SalesHeader: Record "Sales Header";
         SalesHeader2: Record "Sales Header";
@@ -4581,7 +4581,7 @@ codeunit 137156 "SCM Orders IV"
         SalesCreditMemo.OK.Invoke;
     end;
 
-    local procedure UpdateQtyToReceiveOnWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Option; SourceNo: Code[20]; QtyToReceive: Decimal)
+    local procedure UpdateQtyToReceiveOnWarehouseReceiptLine(var WarehouseReceiptLine: Record "Warehouse Receipt Line"; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; QtyToReceive: Decimal)
     begin
         FindWarehouseReceiptLine(WarehouseReceiptLine, SourceDocument, SourceNo);
         WarehouseReceiptLine.Validate("Qty. to Receive", QtyToReceive);
@@ -4683,7 +4683,7 @@ codeunit 137156 "SCM Orders IV"
         ReservationEntry.SetFilter(Quantity, '%1|%2', Quantity, -Quantity);
     end;
 
-    local procedure VerifyGLEntry(DocumentType: Option; DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal)
+    local procedure VerifyGLEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; GLAccountNo: Code[20]; Amount: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin
@@ -4694,7 +4694,7 @@ codeunit 137156 "SCM Orders IV"
         GLEntry.TestField(Amount, Amount);
     end;
 
-    local procedure VerifyItemLedgerEntry(DocumentType: Option; OrderNo: Code[20]; EntryType: Option; ItemNo: Code[20]; ExpectedQuantity: Decimal)
+    local procedure VerifyItemLedgerEntry(DocumentType: Enum "Item Ledger Document Type"; OrderNo: Code[20]; EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; ExpectedQuantity: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
@@ -4733,7 +4733,7 @@ codeunit 137156 "SCM Orders IV"
         PurchaseLine.TestField("Line Discount %", LineDiscount);
     end;
 
-    local procedure VerifyQtyToInvoiceOnSalesLine(ItemNo: Code[20]; DocumentType: Option; Quantity: Decimal)
+    local procedure VerifyQtyToInvoiceOnSalesLine(ItemNo: Code[20]; DocumentType: Enum "Sales Document Type"; Quantity: Decimal)
     var
         SalesLine: Record "Sales Line";
     begin
@@ -4816,7 +4816,7 @@ codeunit 137156 "SCM Orders IV"
         PostedWhseReceiptHeader.TestField("No. Series", NoSeries);
     end;
 
-    local procedure VerifyNoSeriesOnRegisteredWhseActivityLine(SourceDocument: Option; SourceNo: Code[20]; ActivityType: Option; NoSeries: Code[20])
+    local procedure VerifyNoSeriesOnRegisteredWhseActivityLine(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ActivityType: Option; NoSeries: Code[20])
     var
         RegisteredWhseActivityHdr: Record "Registered Whse. Activity Hdr.";
         RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
@@ -4917,7 +4917,7 @@ codeunit 137156 "SCM Orders IV"
         Assert.AreEqual(ExpectedQty, WarehouseActivityLine.Quantity, QtyOnWhseActivLineErr);
     end;
 
-    local procedure VerifyPurchLineVATIdentifier(DocumentNo: Code[20]; DocumentType: Option; VATIdentifier: Code[20])
+    local procedure VerifyPurchLineVATIdentifier(DocumentNo: Code[20]; DocumentType: Enum "Purchase Document Type"; VATIdentifier: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -4969,7 +4969,7 @@ codeunit 137156 "SCM Orders IV"
         VerifyReservation(ItemNo, '', StrSubstNo('%1|%2', DATABASE::"Item Ledger Entry", DATABASE::"Assembly Line"), AssemblyLine.Quantity);
     end;
 
-    local procedure VerifyItemLedgerEntryByEntryTypeAndQuantity(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Option; Quantity: Decimal; "Count": Integer)
+    local procedure VerifyItemLedgerEntryByEntryTypeAndQuantity(var ItemLedgerEntry: Record "Item Ledger Entry"; EntryType: Enum "Item Ledger Document Type"; Quantity: Decimal; "Count": Integer)
     begin
         ItemLedgerEntry.SetRange("Entry Type", EntryType);
         ItemLedgerEntry.SetRange(Quantity, Quantity);

@@ -87,8 +87,8 @@ report 5084 "Email Merge"
         CompanyInformation.CalcFields(Picture);
 
         if Contact.Get(SegmentLine."Contact No.") then begin
-            Formal_Salutation := Contact.GetSalutation(0, SegmentLine."Language Code");
-            Informal_Salutation := Contact.GetSalutation(1, SegmentLine."Language Code");
+            Formal_Salutation := Contact.GetSalutation("Salutation Formula Salutation Type"::Formal, SegmentLine."Language Code");
+            Informal_Salutation := Contact.GetSalutation("Salutation Formula Salutation Type"::Informal, SegmentLine."Language Code");
         end;
 
         if SalespersonPurchaser.Get(InSegmentLine."Salesperson Code") then;

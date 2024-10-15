@@ -138,7 +138,9 @@ codeunit 139309 "Email Setup Wizard Tests"
     var
         AssistedSetupTestLibrary: Codeunit "Assisted Setup Test Library";
         LibraryAzureKVMockMgmt: Codeunit "Library - Azure KV Mock Mgmt.";
+        LibraryEmailFeature: Codeunit "Library - Email Feature";
     begin
+        LibraryEmailFeature.SetEmailFeatureEnabled(false);
         AssistedSetupTestLibrary.DeleteAll();
         LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider;
         LibraryAzureKVMockMgmt.EnsureSecretNameIsAllowed('SmtpSetup');

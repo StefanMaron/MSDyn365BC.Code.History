@@ -863,7 +863,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         LibraryVariableStorage.Clear;
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option): Code[20]
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"): Code[20]
     var
         Item: Record Item;
         Vendor: Record Vendor;
@@ -883,7 +883,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         exit(Vendor."No.");
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Option): Code[20]
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"): Code[20]
     var
         SalesLine: Record "Sales Line";
         Item: Record Item;
@@ -898,7 +898,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         exit(Customer."No.");
     end;
 
-    local procedure CreateServiceDocument(DocumentType: Option): Code[20]
+    local procedure CreateServiceDocument(DocumentType: Enum "Service Document Type"): Code[20]
     var
         Customer: Record Customer;
         Item: Record Item;
@@ -916,7 +916,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         exit(Customer."No.");
     end;
 
-    local procedure CreatePurchaseDocumentWithOperationAndDocumentDate(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; DocumentDate: Date; OperationOccurredDate: Date)
+    local procedure CreatePurchaseDocumentWithOperationAndDocumentDate(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; DocumentDate: Date; OperationOccurredDate: Date)
     var
         BuyFromVendorNo: Code[20];
     begin
@@ -926,7 +926,7 @@ codeunit 144066 "ERM Batch POSTROUT"
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure CreateSalesDocumentWithOperationAndDocumentDate(var SalesHeader: Record "Sales Header"; DocumentType: Option; DocumentDate: Date; OperationOccurredDate: Date)
+    local procedure CreateSalesDocumentWithOperationAndDocumentDate(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; DocumentDate: Date; OperationOccurredDate: Date)
     var
         SellToCustomerNo: Code[20];
     begin
@@ -1100,14 +1100,14 @@ codeunit 144066 "ERM Batch POSTROUT"
         BatchPostServiceOrders.Run;  // Opens handler - BatchPostServiceOrdersRequestPageHandler.
     end;
 
-    local procedure FindPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; BuyFromVendorNo: Code[20]; DocumentType: Option)
+    local procedure FindPurchaseHeader(var PurchaseHeader: Record "Purchase Header"; BuyFromVendorNo: Code[20]; DocumentType: Enum "Purchase Document Type")
     begin
         PurchaseHeader.SetRange("Document Type", DocumentType);
         PurchaseHeader.SetRange("Buy-from Vendor No.", BuyFromVendorNo);
         PurchaseHeader.FindFirst;
     end;
 
-    local procedure FindSalesHeader(var SalesHeader: Record "Sales Header"; SellToCustomerNo: Code[20]; DocumentType: Option)
+    local procedure FindSalesHeader(var SalesHeader: Record "Sales Header"; SellToCustomerNo: Code[20]; DocumentType: Enum "Sales Document Type")
     begin
         SalesHeader.SetRange("Document Type", DocumentType);
         SalesHeader.SetRange("Sell-to Customer No.", SellToCustomerNo);

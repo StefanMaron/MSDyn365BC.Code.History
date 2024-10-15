@@ -1,4 +1,4 @@
-﻿table 3 "Payment Terms"
+table 3 "Payment Terms"
 {
     Caption = 'Payment Terms';
     DataCaptionFields = "Code", Description;

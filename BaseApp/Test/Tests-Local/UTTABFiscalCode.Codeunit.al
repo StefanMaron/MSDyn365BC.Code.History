@@ -21,6 +21,7 @@ codeunit 144145 "UT TAB Fiscal Code"
         LibraryRandom: Codeunit "Library - Random";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryITLocalization: Codeunit "Library - IT Localization";
+        LibraryTemplates: Codeunit "Library - Templates";
         IsInitialized: Boolean;
 
     [Test]
@@ -365,7 +366,7 @@ codeunit 144145 "UT TAB Fiscal Code"
         OnValidateVendorOnContactType(Contact.Type::Company, false);  // Individual Person - False.
     end;
 
-    local procedure OnValidateVendorOnContactType(Type: Option; IndividualPerson: Boolean)
+    local procedure OnValidateVendorOnContactType(Type: Enum "Contact Type"; IndividualPerson: Boolean)
     var
         Contact: Record Contact;
         ContactList: TestPage "Contact List";
@@ -421,6 +422,7 @@ codeunit 144145 "UT TAB Fiscal Code"
         if IsInitialized then
             exit;
 
+        LibraryTemplates.DisableTemplatesFeature();
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
 
         IsInitialized := true;
@@ -477,7 +479,7 @@ codeunit 144145 "UT TAB Fiscal Code"
         end;
     end;
 
-    local procedure CreateContact(var Contact: Record Contact; ContactType: Option)
+    local procedure CreateContact(var Contact: Record Contact; ContactType: Enum "Contact Type")
     begin
         Contact."No." := LibraryUTUtility.GetNewCode;
         Contact."Company No." := Contact."No.";

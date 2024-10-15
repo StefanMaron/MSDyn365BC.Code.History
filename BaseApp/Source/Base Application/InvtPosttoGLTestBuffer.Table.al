@@ -104,12 +104,10 @@ table 5822 "Invt. Post to G/L Test Buffer"
             DataClassification = SystemMetadata;
             TableRelation = "Inventory Posting Group";
         }
-        field(19; "Inventory Account Type"; Option)
+        field(19; "Inventory Account Type"; Enum "Invt. Posting Buffer Account Type")
         {
             Caption = 'Inventory Account Type';
             DataClassification = SystemMetadata;
-            OptionCaption = 'Inventory (Interim),Invt. Accrual (Interim),Inventory,WIP Inventory,Inventory Adjmt.,Direct Cost Applied,Overhead Applied,Purchase Variance,COGS,COGS (Interim),Material Variance,Capacity Variance,Subcontracted Variance,Cap. Overhead Variance,Mfg. Overhead Variance';
-            OptionMembers = "Inventory (Interim)","Invt. Accrual (Interim)",Inventory,"WIP Inventory","Inventory Adjmt.","Direct Cost Applied","Overhead Applied","Purchase Variance",COGS,"COGS (Interim)","Material Variance","Capacity Variance","Subcontracted Variance","Cap. Overhead Variance","Mfg. Overhead Variance";
         }
         field(480; "Dimension Set ID"; Integer)
         {

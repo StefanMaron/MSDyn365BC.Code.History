@@ -181,7 +181,6 @@ report 12107 "Calculate Interest on Arrears"
                     }
                     column(DocType_Number_; DocType[Number])
                     {
-                        OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund,,,,Dishonored';
                     }
                     column(DueDate_Number_; Format(DueDate[Number]))
                     {
@@ -530,7 +529,6 @@ report 12107 "Calculate Interest on Arrears"
                     DataItemTableView = SORTING(Number);
                     column(DocType_Number__Control1130067; DocType[Number])
                     {
-                        OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund,,,,Dishonored';
                     }
                     column(DocNo_Number__Control1130068; DocNo[Number])
                     {
@@ -851,7 +849,7 @@ report 12107 "Calculate Interest on Arrears"
         DueDateTmp: array[100] of Date;
         ix: Integer;
         ix2: Integer;
-        DocType: array[100] of Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund,,,,Dishonored;
+        DocType: array[100] of Enum "Gen. Journal Document Type";
         DocNo: array[100] of Code[20];
         PostingDate: array[100] of Date;
         DueDate: array[100] of Date;

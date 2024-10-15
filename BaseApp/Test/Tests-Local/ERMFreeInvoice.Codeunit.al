@@ -123,8 +123,8 @@ codeunit 144136 "ERM Free Invoice"
         DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);  // Post as Ship and Invoice.
 
         // Verify.
-        VerifyCustomerLedgerEntry(DocumentNo, SalesHeader."Payment Method Code", '', Open, SalesHeader."Document Type"::Invoice);  // Using blank for Bal. Account No.
-        VerifyCustomerLedgerEntry(DocumentNo, '', GLAccountNo, false, 0);  // Using blank for Payment Method Code, FALSE for Open and 0 for blank Document Type.
+        VerifyCustomerLedgerEntry(DocumentNo, SalesHeader."Payment Method Code", '', Open, "Gen. Journal Document Type"::Invoice);  // Using blank for Bal. Account No.
+        VerifyCustomerLedgerEntry(DocumentNo, '', GLAccountNo, false, "Gen. Journal Document Type"::" ");  // Using blank for Payment Method Code, FALSE for Open and 0 for blank Document Type.
 
         // Tear Down.
         UpdateCustomerPostingGroup(SalesHeader."Customer Posting Group", OldFreeInvoiceAccount);
@@ -185,7 +185,7 @@ codeunit 144136 "ERM Free Invoice"
         CustomerPostingGroup.Modify(true);
     end;
 
-    local procedure VerifyCustomerLedgerEntry(DocumentNo: Code[20]; PaymentMethod: Code[10]; BalAccountNo: Code[20]; Open: Boolean; DocumentType: Option)
+    local procedure VerifyCustomerLedgerEntry(DocumentNo: Code[20]; PaymentMethod: Code[10]; BalAccountNo: Code[20]; Open: Boolean; DocumentType: Enum "Gen. Journal Document Type")
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin

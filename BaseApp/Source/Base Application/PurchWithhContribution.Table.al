@@ -403,7 +403,7 @@ table 12137 "Purch. Withh. Contribution"
         SocSecBracketLine: Codeunit "Withholding - Contribution";
         WHTAmtManualEqWHTAmtErr: Label '%1 must not be equal to %2 in %3.', Comment = '%1=FIELDCAPTION("WHT Amount Manual"),%2=FIELDCAPTION("Withholding Tax Amount"),%3=TABLECAPTION("Purch. Withh. Contribution")';
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure ValorizzaRitenute()
     begin
         if "Payment Date" <> 0D then
@@ -434,26 +434,23 @@ table 12137 "Purch. Withh. Contribution"
         Gap: Decimal;
     begin
         if "Payment Date" <> 0D then begin
-            SocSecBracketLine.SocSecLineFilter(WithholdCodeLine,
-              "Social Security Code",
-              "Payment Date",
-              WithholdCodeLine."Contribution Type"::INPS);
+            SocSecBracketLine.SetSocSecLineFilters(
+                WithholdCodeLine, "Social Security Code", "Payment Date", WithholdCodeLine."Contribution Type"::INPS);
 
             Vend.SetFilter("Date Filter", '%1..%2', DMY2Date(1, 1, Date2DMY("Payment Date", 3)),
               DMY2Date(31, 12, Date2DMY("Payment Date", 3)));
         end else begin
-            SocSecBracketLine.SocSecLineFilter(WithholdCodeLine,
-              "Social Security Code",
-              PurchHeader."Document Date",
-              WithholdCodeLine."Contribution Type"::INPS);
+            SocSecBracketLine.SetSocSecLineFilters(
+                WithholdCodeLine, "Social Security Code", PurchHeader."Document Date", WithholdCodeLine."Contribution Type"::INPS);
 
             Vend.SetFilter("Date Filter", '%1..%2', DMY2Date(1, 1, Date2DMY(PurchHeader."Document Date", 3)),
               DMY2Date(31, 12, Date2DMY(PurchHeader."Document Date", 3)));
         end;
 
-        SocSecBracketLine.SocSecBracketFilter(SocSecCodeLine,
-          WithholdCodeLine."Social Security Bracket Code",
-          WithholdCodeLine."Contribution Type"::INPS, WithholdCodeLine.Code);
+        SocSecBracketLine.SetSocSecBracketFilters(
+            SocSecCodeLine,
+            WithholdCodeLine."Social Security Bracket Code",
+            WithholdCodeLine."Contribution Type"::INPS, WithholdCodeLine.Code);
 
         "Social Security %" := WithholdCodeLine."Social Security %";
         "Free-Lance %" := WithholdCodeLine."Free-Lance Amount %";
@@ -517,26 +514,23 @@ table 12137 "Purch. Withh. Contribution"
     begin
         // INAIL START
         if "Payment Date" <> 0D then begin
-            SocSecBracketLine.SocSecLineFilter(WithholdFilter,
-              "INAIL Code",
-              "Payment Date",
-              WithholdFilter."Contribution Type"::INAIL);
+            SocSecBracketLine.SetSocSecLineFilters(
+                WithholdFilter, "INAIL Code", "Payment Date", WithholdFilter."Contribution Type"::INAIL);
 
             Vend.SetFilter("Date Filter", '%1..%2', DMY2Date(1, 1, Date2DMY("Payment Date", 3)),
               DMY2Date(31, 12, Date2DMY("Payment Date", 3)));
         end else begin
-            SocSecBracketLine.SocSecLineFilter(WithholdFilter,
-              "INAIL Code",
-              PurchHeader."Document Date",
-              WithholdFilter."Contribution Type"::INAIL);
+            SocSecBracketLine.SetSocSecLineFilters(
+                WithHoldFilter, "INAIL Code", PurchHeader."Document Date", WithholdFilter."Contribution Type"::INAIL);
 
             Vend.SetFilter("Date Filter", '%1..%2', DMY2Date(1, 1, Date2DMY(PurchHeader."Document Date", 3)),
               DMY2Date(31, 12, Date2DMY(PurchHeader."Document Date", 3)));
         end;
 
-        SocSecBracketLine.SocSecBracketFilter(RigheScaglioniINAIL,
-          WithholdFilter."Social Security Bracket Code",
-          WithholdFilter."Contribution Type"::INAIL, WithholdFilter.Code);
+        SocSecBracketLine.SetSocSecBracketFilters(
+            RigheScaglioniINAIL,
+            WithholdFilter."Social Security Bracket Code",
+            WithholdFilter."Contribution Type"::INAIL, WithholdFilter.Code);
 
         "INAIL Per Mil" := WithholdFilter."Social Security %";
         "INAIL Free-Lance %" := WithholdFilter."Free-Lance Amount %";

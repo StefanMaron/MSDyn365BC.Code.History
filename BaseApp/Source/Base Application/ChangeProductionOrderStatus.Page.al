@@ -275,7 +275,7 @@ page 99000914 "Change Production Order Status"
                         ProdOrderStatusMgt: Codeunit "Prod. Order Status Management";
                         ChangeStatusForm: Page "Change Status on Prod. Order";
                         Window: Dialog;
-                        NewStatus: Option Simulated,Planned,"Firm Planned",Released,Finished;
+                        NewStatus: Enum "Production Order Status";
                         NewPostingDate: Date;
                         NewUpdateUnitCost: Boolean;
                         NoOfRecords: Integer;
@@ -292,7 +292,7 @@ page 99000914 "Change Production Order Status"
                         NoOfRecords := Count;
 
                         Window.Open(
-                          StrSubstNo(Text000, SelectStr(NewStatus + 1, LocalText000)) +
+                          StrSubstNo(Text000, SelectStr(NewStatus.AsInteger() + 1, LocalText000)) +
                           Text001);
 
                         POCount := 0;
@@ -302,8 +302,7 @@ page 99000914 "Change Production Order Status"
                                 POCount := POCount + 1;
                                 Window.Update(1, "No.");
                                 Window.Update(2, Round(POCount / NoOfRecords * 10000, 1));
-                                ProdOrderStatusMgt.ChangeStatusOnProdOrder(
-                                  Rec, NewStatus, NewPostingDate, NewUpdateUnitCost);
+                                ProdOrderStatusMgt.ChangeProdOrderStatus(Rec, NewStatus, NewPostingDate, NewUpdateUnitCost);
                                 Commit();
                             until Next = 0;
                     end;

@@ -297,7 +297,7 @@ codeunit 144176 "ERM Reverse"
         ReversGeneralLedgerEntries(GenJournalLine."Document Type"::"Credit Memo", CreditMemoErr, -LibraryRandom.RandDec(100, 2));  // Using Random value for Amount.
     end;
 
-    local procedure ReversGeneralLedgerEntries(DocumentType: Option; DocumentErr: Text; Amount: Decimal)
+    local procedure ReversGeneralLedgerEntries(DocumentType: Enum "Gen. Journal Document Type"; DocumentErr: Text; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         GLRegisters: TestPage "G/L Registers";
@@ -335,7 +335,7 @@ codeunit 144176 "ERM Reverse"
         ReverseCustomerLedgerEntries(GenJournalLine."Document Type"::"Credit Memo", CreditMemoErr, -LibraryRandom.RandDec(100, 2));  // Using Random value for Amount.
     end;
 
-    local procedure ReverseCustomerLedgerEntries(DocumentType: Option; DocumentErr: Text; Amount: Decimal)
+    local procedure ReverseCustomerLedgerEntries(DocumentType: Enum "Gen. Journal Document Type"; DocumentErr: Text; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         CustomerLedgerEntries: TestPage "Customer Ledger Entries";
@@ -374,7 +374,7 @@ codeunit 144176 "ERM Reverse"
         ReverseVendorLedgerEntries(GenJournalLine."Document Type"::"Credit Memo", CreditMemoErr, LibraryRandom.RandDec(100, 2));  // Using Random value for Amount.
     end;
 
-    local procedure ReverseVendorLedgerEntries(DocumentType: Option; DocumentErr: Text; Amount: Decimal)
+    local procedure ReverseVendorLedgerEntries(DocumentType: Enum "Gen. Journal Document Type"; DocumentErr: Text; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         Vendor: Record Vendor;
@@ -431,7 +431,7 @@ codeunit 144176 "ERM Reverse"
         GLBookEntry.DeleteAll(false); // Delete Demo Data.
     end;
 
-    local procedure ApplyAndPostGeneralJournalLine(AccountType: Option; AccountNo: Code[20]; AppliesToDocNo: Code[20]; Amount: Decimal): Code[20]
+    local procedure ApplyAndPostGeneralJournalLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; AppliesToDocNo: Code[20]; Amount: Decimal): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -443,7 +443,7 @@ codeunit 144176 "ERM Reverse"
         exit(GenJournalLine."Document No.");
     end;
 
-    local procedure CreateAndPostGeneralJournalLine(DocumentType: Option; AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateAndPostGeneralJournalLine(DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -454,7 +454,7 @@ codeunit 144176 "ERM Reverse"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateAndPostGeneralJournalLines(TemplateType: Option; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; GenPostingType: Option; VATBusPostingGroupCode: Code[20]; Amount: Decimal; NoOfLines: Integer)
+    local procedure CreateAndPostGeneralJournalLines(TemplateType: Enum "Gen. Journal Template Type"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; GenPostingType: Enum "General Posting Type"; VATBusPostingGroupCode: Code[20]; Amount: Decimal; NoOfLines: Integer)
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -493,7 +493,7 @@ codeunit 144176 "ERM Reverse"
         exit(Customer."No.");
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; DocumentType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; DocumentType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -503,7 +503,7 @@ codeunit 144176 "ERM Reverse"
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType, AccountType, AccountNo, Amount);
     end;
 
-    local procedure CreateGeneralJournalLineWithBatch(GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line"; TemplateType: Option; AccountType: Option; DocumentType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateGeneralJournalLineWithBatch(GenJournalBatch: Record "Gen. Journal Batch"; var GenJournalLine: Record "Gen. Journal Line"; TemplateType: Enum "Gen. Journal Template Type"; AccountType: Enum "Gen. Journal Account Type"; DocumentType: Enum "Gen. Journal Document Type"; AccountNo: Code[20]; Amount: Decimal)
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType, AccountType, AccountNo, Amount);
@@ -627,7 +627,7 @@ codeunit 144176 "ERM Reverse"
         GeneralPostingSetup.Modify(true);
     end;
 
-    local procedure FindGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; TemplateType: Option)
+    local procedure FindGenJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch"; TemplateType: Enum "Gen. Journal Template Type")
     var
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
@@ -637,7 +637,7 @@ codeunit 144176 "ERM Reverse"
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
     end;
 
-    local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; Type: Option; DocumentNo: Code[20])
+    local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; Type: Enum "Purchase Line Type"; DocumentNo: Code[20])
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", DocumentNo);
@@ -645,7 +645,7 @@ codeunit 144176 "ERM Reverse"
         PurchaseLine.FindFirst;
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; Type: Option; DocumentNo: Code[20])
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; Type: Enum "Sales Line Type"; DocumentNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);

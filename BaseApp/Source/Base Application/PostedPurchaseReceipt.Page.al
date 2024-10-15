@@ -33,6 +33,33 @@ page 136 "Posted Purchase Receipt"
                     Editable = false;
                     ToolTip = 'Specifies the number of the contact person at the vendor who delivered the items.';
                 }
+                field(BuyFromContactPhoneNo; BuyFromContact."Phone No.")
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Phone No.';
+                    Importance = Additional;
+                    Editable = false;
+                    ExtendedDatatype = PhoneNo;
+                    ToolTip = 'Specifies the telephone number of the vendor contact person.';
+                }
+                field(BuyFromContactMobilePhoneNo; BuyFromContact."Mobile Phone No.")
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Mobile Phone No.';
+                    Importance = Additional;
+                    Editable = false;
+                    ExtendedDatatype = PhoneNo;
+                    ToolTip = 'Specifies the mobile telephone number of the vendor contact person.';
+                }
+                field(BuyFromContactEmail; BuyFromContact."E-Mail")
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Email';
+                    Importance = Additional;
+                    Editable = false;
+                    ExtendedDatatype = EMail;
+                    ToolTip = 'Specifies the email address of the vendor contact person.';
+                }
                 group("Buy-from")
                 {
                     Caption = 'Buy-from';
@@ -190,6 +217,33 @@ page 136 "Posted Purchase Receipt"
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the person to contact about an invoice from this vendor.';
+                }
+                field(PayToContactPhoneNo; PayToContact."Phone No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Phone No.';
+                    Editable = false;
+                    Importance = Additional;
+                    ExtendedDatatype = PhoneNo;
+                    ToolTip = 'Specifies the telephone number of the vendor contact person.';
+                }
+                field(PayToContactMobilePhoneNo; PayToContact."Mobile Phone No.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Mobile Phone No.';
+                    Editable = false;
+                    Importance = Additional;
+                    ExtendedDatatype = PhoneNo;
+                    ToolTip = 'Specifies the mobile telephone number of the vendor contact person.';
+                }
+                field(PayToContactEmail; PayToContact."E-Mail")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Email';
+                    Editable = false;
+                    Importance = Additional;
+                    ExtendedDatatype = Email;
+                    ToolTip = 'Specifies the email address of the vendor contact person.';
                 }
                 group("Pay-to")
                 {
@@ -432,7 +486,7 @@ page 136 "Posted Purchase Receipt"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
                 action(Approvals)
@@ -477,11 +531,12 @@ page 136 "Posted Purchase Receipt"
             action("&Navigate")
             {
                 ApplicationArea = Basic, Suite;
-                Caption = '&Navigate';
+                Caption = 'Find entries...';
                 Image = Navigate;
                 Promoted = true;
                 PromotedCategory = Category4;
-                ToolTip = 'Find all entries and documents that exist for the document number and posting date on the selected entry or document.';
+                ShortCutKey = 'Shift+Ctrl+I';
+                ToolTip = 'Find entries and documents that exist for the document number and posting date on the selected document. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
                 begin
@@ -498,8 +553,16 @@ page 136 "Posted Purchase Receipt"
         ActivateFields;
     end;
 
+    trigger OnAfterGetRecord()
+    begin
+        if BuyFromContact.Get("Buy-from Contact No.") then;
+        if PayToContact.Get("Pay-to Contact No.") then;
+    end;
+
     var
         PurchRcptHeader: Record "Purch. Rcpt. Header";
+        BuyFromContact: Record Contact;
+        PayToContact: Record Contact;
         FormatAddress: Codeunit "Format Address";
         IsBuyFromCountyVisible: Boolean;
         IsPayToCountyVisible: Boolean;

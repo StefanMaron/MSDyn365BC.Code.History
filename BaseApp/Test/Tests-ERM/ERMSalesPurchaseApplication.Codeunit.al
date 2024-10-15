@@ -81,7 +81,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
           GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo", CreateCurrency, CreateCurrency);
     end;
 
-    local procedure ApplyCustEntry(DocumentType: Option; DocumentType2: Option; CurrencyCode2: Code[10]; CurrencyCode3: Code[10])
+    local procedure ApplyCustEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; CurrencyCode2: Code[10]; CurrencyCode3: Code[10])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
@@ -139,7 +139,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         ApplyAndPostCustEntry(GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo");
     end;
 
-    local procedure ApplyAndPostCustEntry(DocumentType: Option; DocumentType2: Option)
+    local procedure ApplyAndPostCustEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type")
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -280,7 +280,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
           GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo", CreateCurrency, CreateCurrency);
     end;
 
-    local procedure ApplyVendorEntry(DocumentType: Option; DocumentType2: Option; CurrencyCode3: Code[10]; CurrencyCode2: Code[10])
+    local procedure ApplyVendorEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type"; CurrencyCode3: Code[10]; CurrencyCode2: Code[10])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
@@ -338,7 +338,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         ApplyAndPostVendorEntry(GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo");
     end;
 
-    local procedure ApplyAndPostVendorEntry(DocumentType: Option; DocumentType2: Option)
+    local procedure ApplyAndPostVendorEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type")
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         GeneralLedgerSetup: Record "General Ledger Setup";
@@ -707,7 +707,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         CreateGeneralLineAndApplyEntries(GenJournalLine."Account Type"::Vendor, CreateVendor, -LibraryRandom.RandDec(100, 2)); // Take Random Amount for General Line.
     end;
 
-    local procedure CreateGeneralLineAndApplyEntries(AccountType: Option; AccountNo: Code[20]; Amount: Decimal)
+    local procedure CreateGeneralLineAndApplyEntries(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
@@ -904,7 +904,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         GenJournalTemplate.Init();
         GenJournalTemplate.SetRange(Name, 'SALES');
         GenJournalTemplate.FindFirst;
-        GenJournalTemplate.Type := 0;
+        GenJournalTemplate.Type := GenJournalTemplate.Type::General;
         GenJournalTemplate.Modify();
 
         // [WHEN] Sales Journal opens, it will look for a template of type Sales.  Not finding one, it will create Sale1.
@@ -1305,12 +1305,12 @@ codeunit 134918 "ERM Sales/Purchase Application"
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales/Purchase Application");
         LibraryVariableStorage.Clear;
-        
+
         // Lazy Setup.
         if isInitialized then
             exit;
-        GenJnlManagement.SetJournalSimplePageModePreference(true,Page::"Sales Journal");
-        GenJnlManagement.SetJournalSimplePageModePreference(true,Page::"Purchase Journal");
+        GenJnlManagement.SetJournalSimplePageModePreference(true, Page::"Sales Journal");
+        GenJnlManagement.SetJournalSimplePageModePreference(true, Page::"Purchase Journal");
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Sales/Purchase Application");
 
         LibraryERMCountryData.CreateVATData;
@@ -1369,7 +1369,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         exit(Customer."No.");
     end;
 
-    local procedure CreateGeneralJournalLines(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountNo: Code[20]; DocumentType: Option; Amount: Decimal; CurrencyCode: Code[10]; AccountType: Option)
+    local procedure CreateGeneralJournalLines(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal; CurrencyCode: Code[10]; AccountType: Enum "Gen. Journal Account Type")
     begin
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType, AccountType, AccountNo, Amount);
@@ -1404,8 +1404,8 @@ codeunit 134918 "ERM Sales/Purchase Application"
     local procedure CreateAndPostCustomerEntries(var GenJournalLine: Record "Gen. Journal Line")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
-        ApplyCustEntryDocumentType: Option;
-        ApplyCustEntryDocumentType2: Option;
+        ApplyCustEntryDocumentType: Enum "Gen. Journal Document Type";
+        ApplyCustEntryDocumentType2: Enum "Gen. Journal Document Type";
     begin
         // Create and Post Invoice,Credit Memo and create Payment.
         // Take Random Amount on Gen. Journal Line.
@@ -1432,7 +1432,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
           0, '', GenJournalLine."Account Type");
     end;
 
-    local procedure CreateGeneralBatchAndTemplate(Type: Option): Code[10]
+    local procedure CreateGeneralBatchAndTemplate(Type: Enum "Gen. Journal Template Type"): Code[10]
     var
         GenJournalTemplate: Record "Gen. Journal Template";
         GenJournalBatch: Record "Gen. Journal Batch";
@@ -1443,7 +1443,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         exit(GenJournalBatch.Name);
     end;
 
-    local procedure CreateAndPostMultipleJnlLinesWithTwoCrMemos(var PaymentNo: Code[20]; AccountType: Option; AccountNo: Code[20]; Sign: Integer)
+    local procedure CreateAndPostMultipleJnlLinesWithTwoCrMemos(var PaymentNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Sign: Integer)
     var
         GenJournalLine: Record "Gen. Journal Line";
         InvAmount: Decimal;
@@ -1514,7 +1514,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure OpenAndVerifyCustLedgerEntry(GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; OriginalPmtDiscPossible: Decimal; DocumentType: Option; DocumentType2: Option)
+    local procedure OpenAndVerifyCustLedgerEntry(GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; OriginalPmtDiscPossible: Decimal; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type")
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -1531,7 +1531,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
             CustLedgerEntry.TableCaption));
     end;
 
-    local procedure OpenAndVerifyVendorLedgerEntry(GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; OriginalPmtDiscPossible: Decimal; DocumentType: Option; DocumentType2: Option)
+    local procedure OpenAndVerifyVendorLedgerEntry(GenJournalLine: Record "Gen. Journal Line"; DocumentNo: Code[20]; OriginalPmtDiscPossible: Decimal; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type")
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -1548,7 +1548,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
             VendorLedgerEntry.TableCaption));
     end;
 
-    local procedure OpenCustLedgerEntryPage(DocumentType: Option; CustomerNo: Code[20])
+    local procedure OpenCustLedgerEntryPage(DocumentType: Enum "Gen. Journal Document Type"; CustomerNo: Code[20])
     var
         CustomerLedgerEntries: TestPage "Customer Ledger Entries";
     begin
@@ -1571,7 +1571,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         SalesAnalysisByDimensions.ShowMatrix_Process.Invoke;
     end;
 
-    local procedure OpenVendorLedgerEntryPage(DocumentType: Option; VendorNo: Code[20])
+    local procedure OpenVendorLedgerEntryPage(DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20])
     var
         VendorLedgerEntries: TestPage "Vendor Ledger Entries";
     begin
@@ -1606,7 +1606,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
         exit(ItemAnalysisView.Code);
     end;
 
-    local procedure SetJournalLineAppliesToDocNo(DocumentType: Option; DocumentNo: Code[20]; BatchName: Code[10])
+    local procedure SetJournalLineAppliesToDocNo(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; BatchName: Code[10])
     var
         CashReceiptJournal: TestPage "Cash Receipt Journal";
     begin
@@ -1650,7 +1650,7 @@ codeunit 134918 "ERM Sales/Purchase Application"
           Customer."No.", -LibraryRandom.RandIntInRange(100, 999));
     end;
 
-    local procedure CreateAndPostJournalLine(DocumentType: Option; AccountType: Option; AccountNo: Code[20]; LineAmount: Decimal)
+    local procedure CreateAndPostJournalLine(DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; LineAmount: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin

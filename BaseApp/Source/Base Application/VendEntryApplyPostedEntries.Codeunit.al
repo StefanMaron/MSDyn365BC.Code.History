@@ -1,4 +1,4 @@
-codeunit 227 "VendEntry-Apply Posted Entries"
+﻿codeunit 227 "VendEntry-Apply Posted Entries"
 {
     EventSubscriberInstance = Manual;
     Permissions = TableData "Vendor Ledger Entry" = rimd;

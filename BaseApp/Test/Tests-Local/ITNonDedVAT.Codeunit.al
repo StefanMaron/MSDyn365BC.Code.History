@@ -586,7 +586,7 @@ codeunit 144001 "IT - Non Ded. VAT"
         VATPostingSetup.Modify(true);
     end;
 
-    local procedure CreateNonDeductibleVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Option; NonDeductibleGLAccount: Code[20]; DeductiblePct: Decimal)
+    local procedure CreateNonDeductibleVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type"; NonDeductibleGLAccount: Code[20]; DeductiblePct: Decimal)
     begin
         with VATPostingSetup do begin
             LibraryERM.CreateVATPostingSetupWithAccounts(

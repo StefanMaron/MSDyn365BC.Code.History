@@ -557,7 +557,6 @@ codeunit 144561 "ERM Split VAT"
         SalesHeader: Record "Sales Header";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         CopyDocumentMgt: Codeunit "Copy Document Mgt.";
-        RefDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
         GLAccountNo: Code[20];
     begin
         // [FEATURE] [Copy Document]
@@ -573,7 +572,7 @@ codeunit 144561 "ERM Split VAT"
           SalesHeader, SalesHeader."Document Type"::"Credit Memo", SalesInvoiceHeader."Sell-to Customer No.");
 
         // [WHEN] Posted invoice is being copied to credit memo
-        CopyDocumentMgt.CopySalesDoc(RefDocType::"Posted Invoice", SalesInvoiceHeader."No.", SalesHeader);
+        CopyDocumentMgt.CopySalesDoc("Sales Document Type From"::"Posted Invoice", SalesInvoiceHeader."No.", SalesHeader);
 
         // [THEN] Automatically Generated value has been copied
         VerifyCopiedSalesLine(SalesHeader, GLAccountNo);
@@ -586,7 +585,6 @@ codeunit 144561 "ERM Split VAT"
         SalesHeader: Record "Sales Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         CopyDocumentMgt: Codeunit "Copy Document Mgt.";
-        RefDocType: Option Quote,"Blanket Order","Order",Invoice,"Return Order","Credit Memo","Posted Shipment","Posted Invoice","Posted Return Receipt","Posted Credit Memo";
         GLAccountNo: Code[20];
     begin
         // [FEATURE] [Copy Document]
@@ -602,7 +600,7 @@ codeunit 144561 "ERM Split VAT"
           SalesHeader, SalesHeader."Document Type"::Invoice, SalesCrMemoHeader."Sell-to Customer No.");
 
         // [WHEN] Posted invoice is being copied to credit memo
-        CopyDocumentMgt.CopySalesDoc(RefDocType::"Posted Credit Memo", SalesCrMemoHeader."No.", SalesHeader);
+        CopyDocumentMgt.CopySalesDoc("Sales Document Type From"::"Posted Credit Memo", SalesCrMemoHeader."No.", SalesHeader);
 
         // [THEN] Automatically Generated value has been copied
         VerifyCopiedSalesLine(SalesHeader, GLAccountNo);
@@ -1640,7 +1638,7 @@ codeunit 144561 "ERM Split VAT"
     end;
 
     [Test]
-    [Scope('Internal')]
+    [Scope('OnPrem')]
     procedure GenerateServiceSplitVATLinesDimensions()
     var
         ServiceHeader: Record "Service Header";
@@ -1752,7 +1750,7 @@ codeunit 144561 "ERM Split VAT"
             SalesInvoice.GenerateSplitVATLines.Invoke;
     end;
 
-    local procedure CreateSalesDocWithSplitVATLineFullVAT(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option)
+    local procedure CreateSalesDocWithSplitVATLineFullVAT(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type")
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
@@ -1762,7 +1760,7 @@ codeunit 144561 "ERM Split VAT"
         LibrarySplitVAT.FindSalesLine(SalesLine, SalesHeader, false);
     end;
 
-    local procedure CreateServiceDocWithSplitVATLineFullVAT(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; DocumentType: Option)
+    local procedure CreateServiceDocWithSplitVATLineFullVAT(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type")
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
@@ -1809,7 +1807,7 @@ codeunit 144561 "ERM Split VAT"
         LibrarySplitVAT.UpdateVATPostingSetupFullVAT(SplitVATPostingSetup);
     end;
 
-    local procedure CreatePostSalesDocWithSplitVATLineFullVAT(DocumentType: Option; var GLAccountNo: Code[20]): Code[20]
+    local procedure CreatePostSalesDocWithSplitVATLineFullVAT(DocumentType: Enum "Sales Document Type"; var GLAccountNo: Code[20]): Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -1939,7 +1937,7 @@ codeunit 144561 "ERM Split VAT"
         exit(VATPostingSetup."Sales VAT Account");
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; DocumentNo: Code[20]; AutomaticallyGenerated: Boolean)
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; DocumentNo: Code[20]; AutomaticallyGenerated: Boolean)
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
@@ -1947,7 +1945,7 @@ codeunit 144561 "ERM Split VAT"
         SalesLine.FindFirst;
     end;
 
-    local procedure FindServiceLine(var ServiceLine: Record "Service Line"; DocumentType: Option; DocumentNo: Code[20]; AutomaticallyGenerated: Boolean)
+    local procedure FindServiceLine(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; DocumentNo: Code[20]; AutomaticallyGenerated: Boolean)
     begin
         ServiceLine.SetRange("Document Type", DocumentType);
         ServiceLine.SetRange("Document No.", DocumentNo);

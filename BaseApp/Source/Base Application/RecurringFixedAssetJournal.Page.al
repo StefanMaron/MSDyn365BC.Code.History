@@ -337,7 +337,7 @@ page 5634 "Recurring Fixed Asset Journal"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -481,6 +481,8 @@ page 5634 "Recurring Fixed Asset Journal"
         ReportPrint: Codeunit "Test Report-Print";
         CurrentJnlBatchName: Code[10];
         FADescription: Text[100];
+
+    protected var
         ShortcutDimCode: array[8] of Code[20];
         DimVisible1: Boolean;
         DimVisible2: Boolean;

@@ -389,7 +389,7 @@ codeunit 144560 "UT Split VAT"
         LibrarySplitVAT.CreateSalesDoc(SalesHeader, VATPostingSetup, SalesHeader."Document Type"::Invoice);
     end;
 
-    local procedure CreateServiceDoc(var ServiceHeader: Record "Service Header"; DocumentType: Option)
+    local procedure CreateServiceDoc(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type")
     var
         VATPostingSetup: Record "VAT Posting Setup";
         SplitVATPostingSetup: Record "VAT Posting Setup";

@@ -325,7 +325,7 @@ page 99000886 "Subcontracting Worksheet"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
                 action(Dimensions)
@@ -341,7 +341,7 @@ page 99000886 "Subcontracting Worksheet"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }

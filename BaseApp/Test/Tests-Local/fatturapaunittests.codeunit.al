@@ -35,15 +35,15 @@ codeunit 144208 "FatturaPA Unit Tests"
         // [SCENARIO 308849] All the FCY amounts of the document converts to LCY when runnning CollectDocumentInformation of "Fattura Doc. Helper" codeunit again posted sales invoice
 
         Initialize;
-        CreateSalesInvoiceFCY(SalesHeader,SalesLine);
-        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader,true,true));
+        CreateSalesInvoiceFCY(SalesHeader, SalesLine);
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
         RecRef.GetTable(SalesInvoiceHeader);
         FatturaDocHelper.InitializeErrorLog(SalesInvoiceHeader);
-        FatturaDocHelper.CollectDocumentInformation(TempFatturaHeader,TempFatturaLine,RecRef);
+        FatturaDocHelper.CollectDocumentInformation(TempFatturaHeader, TempFatturaLine, RecRef);
         TempFatturaLine.FindFirst;
-        Assert.AreEqual(ExchangeToLCYAmount(SalesHeader,SalesLine."Unit Price"),TempFatturaLine."Unit Price",'');
-        Assert.AreEqual(ExchangeToLCYAmount(SalesHeader,SalesLine.Amount),TempFatturaLine.Amount,'');
-        Assert.AreEqual(ExchangeToLCYAmount(SalesHeader,SalesLine."Amount Including VAT"),TempFatturaHeader."Total Amount",'');
+        Assert.AreEqual(ExchangeToLCYAmount(SalesHeader, SalesLine."Unit Price"), TempFatturaLine."Unit Price", '');
+        Assert.AreEqual(ExchangeToLCYAmount(SalesHeader, SalesLine.Amount), TempFatturaLine.Amount, '');
+        Assert.AreEqual(ExchangeToLCYAmount(SalesHeader, SalesLine."Amount Including VAT"), TempFatturaHeader."Total Amount", '');
     end;
 
     [Test]
@@ -58,13 +58,13 @@ codeunit 144208 "FatturaPA Unit Tests"
         // [SCENARIO 305855] When a file name generates by function GetFileName of "Fattura Doc. Helper" codeunit it takes ten chars from "Progressive No." passed as parameter
 
         Initialize;
-        ProgressiveNo := CopyStr(LibraryUtility.GenerateRandomText(10),1,MaxStrLen(ProgressiveNo));
+        ProgressiveNo := CopyStr(LibraryUtility.GenerateRandomText(10), 1, MaxStrLen(ProgressiveNo));
         CompanyInformation.Get();
-        BaseString := CopyStr(DelChr(ProgressiveNo,'=',',?;.:/-_ '),1,10);
-        ZeroNo := PadStr('',10 - StrLen(BaseString),'0');
+        BaseString := CopyStr(DelChr(ProgressiveNo, '=', ',?;.:/-_ '), 1, 10);
+        ZeroNo := PadStr('', 10 - StrLen(BaseString), '0');
         Assert.AreEqual(
           CompanyInformation."Country/Region Code" + CompanyInformation."Fiscal Code" + '_' + ZeroNo + BaseString,
-          FatturaDocHelper.GetFileName(ProgressiveNo),'');
+          FatturaDocHelper.GetFileName(ProgressiveNo), '');
     end;
 
     [Test]
@@ -146,7 +146,7 @@ codeunit 144208 "FatturaPA Unit Tests"
     begin
         LibrarySetupStorage.Restore;
         if IsInitialized then
-          exit;
+            exit;
 
         LibraryITLocalization.SetupFatturaPA;
         LibrarySetupStorage.Save(DATABASE::"Company Information");
@@ -154,21 +154,21 @@ codeunit 144208 "FatturaPA Unit Tests"
         IsInitialized := true;
     end;
 
-    local procedure CreateSalesInvoiceFCY(var SalesHeader: Record "Sales Header";var SalesLine: Record "Sales Line")
+    local procedure CreateSalesInvoiceFCY(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     var
         CustNo: Code[20];
     begin
         CustNo := CreateCustomerNo;
-        LibrarySales.CreateSalesHeader(SalesHeader,SalesHeader."Document Type"::Invoice,CustNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustNo);
         SalesHeader.Validate(
-          "Payment Terms Code",LibraryITLocalization.CreateFatturaPaymentTermsCode);
+          "Payment Terms Code", LibraryITLocalization.CreateFatturaPaymentTermsCode);
         SalesHeader.Validate(
-          "Payment Method Code",LibraryITLocalization.CreateFatturaPaymentMethodCode);
-        SalesHeader.Validate("Currency Code",LibraryERM.CreateCurrencyWithRandomExchRates);
+          "Payment Method Code", LibraryITLocalization.CreateFatturaPaymentMethodCode);
+        SalesHeader.Validate("Currency Code", LibraryERM.CreateCurrencyWithRandomExchRates);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLine,SalesHeader,SalesLine.Type::Item,LibraryInventory.CreateItemNo,LibraryRandom.RandInt(100));
-        SalesLine.Validate("Unit Price",LibraryRandom.RandDec(100,2));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
     end;
 
@@ -188,7 +188,7 @@ codeunit 144208 "FatturaPA Unit Tests"
         end;
     end;
 
-    local procedure CreateFatturaSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20])
+    local procedure CreateFatturaSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
         SalesHeader.Validate("Payment Terms Code", LibraryITLocalization.CreateFatturaPaymentTermsCode);
@@ -239,7 +239,7 @@ codeunit 144208 "FatturaPA Unit Tests"
         exit(Item."No.");
     end;
 
-    local procedure ExchangeToLCYAmount(SalesHeader: Record "Sales Header";Amount: Decimal): Decimal
+    local procedure ExchangeToLCYAmount(SalesHeader: Record "Sales Header"; Amount: Decimal): Decimal
     var
         Currency: Record Currency;
         CurrExchRate: Record "Currency Exchange Rate";
@@ -249,8 +249,8 @@ codeunit 144208 "FatturaPA Unit Tests"
         exit(
           Round(
             CurrExchRate.ExchangeAmtFCYToLCY(
-              SalesHeader."Posting Date",SalesHeader."Currency Code",
-              Amount,SalesHeader."Currency Factor"),
+              SalesHeader."Posting Date", SalesHeader."Currency Code",
+              Amount, SalesHeader."Currency Factor"),
             Currency."Amount Rounding Precision"));
     end;
 

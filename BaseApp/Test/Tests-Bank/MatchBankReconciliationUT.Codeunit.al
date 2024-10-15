@@ -756,9 +756,9 @@ codeunit 134252 "Match Bank Reconciliation - UT"
 
         // Exercise.
         AddBankEntriesToTemp(TempBankAccountLedgerEntry, BankAccountNo);
-        TempBankAccountLedgerEntry.FindLast;
-        TempBankAccountLedgerEntry.Delete;
-        TempBankAccReconciliationLine.DeleteAll;
+        TempBankAccountLedgerEntry.FindLast();
+        TempBankAccountLedgerEntry.Delete();
+        TempBankAccReconciliationLine.DeleteAll();
         MatchBankRecLines.RemoveMatch(TempBankAccReconciliationLine, TempBankAccountLedgerEntry);
 
         // Verify.

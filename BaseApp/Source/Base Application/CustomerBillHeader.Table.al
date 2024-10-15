@@ -67,7 +67,7 @@ table 12174 "Customer Bill Header"
         field(60; "Total Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Customer Bill Line".Amount WHERE("Customer Bill No." = FIELD("No.")));
+            CalcFormula = Sum("Customer Bill Line".Amount WHERE("Customer Bill No." = FIELD("No.")));
             Caption = 'Total Amount';
             Editable = false;
             FieldClass = FlowField;
@@ -81,11 +81,9 @@ table 12174 "Customer Bill Header"
             Caption = 'User ID';
             DataClassification = EndUserIdentifiableInformation;
         }
-        field(132; "Partner Type"; Option)
+        field(132; "Partner Type"; Enum "Partner Type")
         {
             Caption = 'Partner Type';
-            OptionCaption = ' ,Company,Person';
-            OptionMembers = " ",Company,Person;
         }
     }
 
@@ -164,7 +162,7 @@ table 12174 "Customer Bill Header"
     var
         SEPADDExportMgt: Codeunit "SEPA - DD Export Mgt.";
     begin
-        SEPADDExportMgt.ExportBillToFile("No.", "Bank Account No.", "Partner Type", DATABASE::"Customer Bill Header");
+        SEPADDExportMgt.ExportBillToFile("No.", "Bank Account No.", "Partner Type".AsInteger(), DATABASE::"Customer Bill Header");
     end;
 }
 

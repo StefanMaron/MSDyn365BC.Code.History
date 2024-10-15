@@ -1240,7 +1240,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
           VATEntry, VATEntry.Type::Settlement, Base, Amount, VATEntryDate, VATEntry."VAT Calculation Type"::"Sales Tax");
     end;
 
-    local procedure Create4VATEntryWithVATPostingSetupAndDifferentVATCalculationType(VATPostingSetup: Record "VAT Posting Setup"; Amount: Decimal; Base: Decimal; DeductiblePercent: Decimal; VATEntryDate: Date; VATType: Option)
+    local procedure Create4VATEntryWithVATPostingSetupAndDifferentVATCalculationType(VATPostingSetup: Record "VAT Posting Setup"; Amount: Decimal; Base: Decimal; DeductiblePercent: Decimal; VATEntryDate: Date; VATType: Enum "General Posting Type")
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -1258,7 +1258,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
           VATEntryDate, VATEntry."VAT Calculation Type"::"Sales Tax");
     end;
 
-    local procedure CreateVATEntry(var VATEntry: Record "VAT Entry"; VATType: Option; VATBase: Decimal; VATAmount: Decimal; OpOccuredDate: Date; VATCalculationType: Option)
+    local procedure CreateVATEntry(var VATEntry: Record "VAT Entry"; VATType: Enum "General Posting Type"; VATBase: Decimal; VATAmount: Decimal; OpOccuredDate: Date; VATCalculationType: Enum "Tax Calculation Type")
     begin
         with VATEntry do begin
             Init;
@@ -1272,7 +1272,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         end;
     end;
 
-    local procedure CreateVATEntryWithVATPostingSetupDeductPercent(var VATEntry: Record "VAT Entry"; VATPostingSetup: Record "VAT Posting Setup"; DeductiblePercent: Decimal; VATType: Option; VATBase: Decimal; VATAmount: Decimal; OpOccuredDate: Date; VATCalculationType: Option)
+    local procedure CreateVATEntryWithVATPostingSetupDeductPercent(var VATEntry: Record "VAT Entry"; VATPostingSetup: Record "VAT Posting Setup"; DeductiblePercent: Decimal; VATType: Enum "General Posting Type"; VATBase: Decimal; VATAmount: Decimal; OpOccuredDate: Date; VATCalculationType: Enum "Tax Calculation Type")
     begin
         CreateVATEntry(VATEntry, VATType, VATBase, VATAmount, OpOccuredDate, VATCalculationType);
         UpdateVATEntryPostingGroups(VATEntry, VATPostingSetup);
@@ -1286,7 +1286,7 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         end;
     end;
 
-    local procedure CreateVATEntryWithVATPostingSetupGetTotal(VATPostingSetup: Record "VAT Posting Setup"; VATBase: Decimal; VATAmount: Decimal; VATEntryType: Option; OpOccuredDate: Date; var TotalSales: Decimal; var TotalSalesTax: Decimal; Sign: Integer)
+    local procedure CreateVATEntryWithVATPostingSetupGetTotal(VATPostingSetup: Record "VAT Posting Setup"; VATBase: Decimal; VATAmount: Decimal; VATEntryType: Enum "General Posting Type"; OpOccuredDate: Date; var TotalSales: Decimal; var TotalSalesTax: Decimal; Sign: Integer)
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -1297,13 +1297,13 @@ codeunit 144150 "Periodic VAT Pmt. Comm. Tests"
         TotalSalesTax += Sign * VATEntry.Amount;
     end;
 
-    local procedure CreateVATEntryWithVATPostingSetup(var VATEntry: Record "VAT Entry"; VATPostingSetup: Record "VAT Posting Setup"; VATType: Option; VATBase: Decimal; VATAmount: Decimal; OpOccuredDate: Date; VATCalculationType: Option)
+    local procedure CreateVATEntryWithVATPostingSetup(var VATEntry: Record "VAT Entry"; VATPostingSetup: Record "VAT Posting Setup"; VATType: Enum "General Posting Type"; VATBase: Decimal; VATAmount: Decimal; OpOccuredDate: Date; VATCalculationType: Enum "Tax Calculation Type")
     begin
         CreateVATEntry(VATEntry, VATType, VATBase, VATAmount, OpOccuredDate, VATCalculationType);
         UpdateVATEntryPostingGroups(VATEntry, VATPostingSetup);
     end;
 
-    local procedure CreateVATPostingSetupWithAccountsAndIncludeInVATCommRep(var VATPostingSetup: Record "VAT Posting Setup"; IncludeInVATCommRep: Boolean; VATCalculationType: Option; VATRate: Decimal)
+    local procedure CreateVATPostingSetupWithAccountsAndIncludeInVATCommRep(var VATPostingSetup: Record "VAT Posting Setup"; IncludeInVATCommRep: Boolean; VATCalculationType: Enum "Tax Calculation Type"; VATRate: Decimal)
     begin
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATCalculationType, VATRate);
         VATPostingSetup.Validate("Include in VAT Comm. Rep.", IncludeInVATCommRep);

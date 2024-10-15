@@ -1,4 +1,4 @@
-﻿table 5740 "Transfer Header"
+table 5740 "Transfer Header"
 {
     Caption = 'Transfer Header';
     DataCaptionFields = "No.";
@@ -565,7 +565,6 @@
         field(5752; "Completely Shipped"; Boolean)
         {
             CalcFormula = Min("Transfer Line"."Completely Shipped" WHERE("Document No." = FIELD("No."),
-                                                                          "Derived From Line No." = CONST(0),
                                                                           "Shipment Date" = FIELD("Date Filter"),
                                                                           "Transfer-from Code" = FIELD("Location Filter"),
                                                                           "Derived From Line No." = CONST(0)));
@@ -816,12 +815,14 @@
         DimMgt: Codeunit DimensionManagement;
         NoSeriesMgt: Codeunit NoSeriesManagement;
         WhseSourceHeader: Codeunit "Whse. Validate Source Header";
-        HideValidationDialog: Boolean;
         HasInventorySetup: Boolean;
         CalledFromWhse: Boolean;
         Text007: Label 'You may have changed a dimension.\\Do you want to update the lines?';
         Text12100: Label ' %1 %2 must be Vendor/Contact for %3 %4 3rd-Party Loader.';
         ShipmentMethod: Record "Shipment Method";
+
+    protected var
+        HideValidationDialog: Boolean;
 
     procedure InitRecord()
     begin
@@ -1171,8 +1172,10 @@
 
         if NewParentDimSetID = OldParentDimSetID then
             exit;
-        if not (HideValidationDialog or ConfirmManagement.GetResponseOrDefault(Text007, true)) then
-            exit;
+
+        if not HideValidationDialog and GuiAllowed then
+            if not ConfirmManagement.GetResponseOrDefault(Text007, true) then
+                exit;
 
         TransLine.Reset();
         TransLine.SetRange("Document No.", "No.");

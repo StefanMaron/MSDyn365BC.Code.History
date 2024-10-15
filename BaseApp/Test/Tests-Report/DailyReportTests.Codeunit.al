@@ -352,7 +352,7 @@ codeunit 133769 "Daily Report Tests"
         DayBookVendorLedgerEntry.SaveAsPdf(FomatFileName(DayBookVendorLedgerEntry.Caption));
     end;
 
-    local procedure DayBookVATEntryReport(Type: Option; BillToPayToNo: Code[20])
+    local procedure DayBookVATEntryReport(Type: Enum "General Posting Type"; BillToPayToNo: Code[20])
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -432,7 +432,7 @@ codeunit 133769 "Daily Report Tests"
         exit(DetailedCustLedgEntry."Entry No.");
     end;
 
-    local procedure CreateVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; AppliesToID: Code[50]; VendorNo: Code[20]; PrintVendLedgerDetails: Boolean; AmountToApply: Decimal; DocumentType: Option)
+    local procedure CreateVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; AppliesToID: Code[50]; VendorNo: Code[20]; PrintVendLedgerDetails: Boolean; AmountToApply: Decimal; DocumentType: Enum "Gen. Journal Document Type")
     begin
         CreateVendorLedgerEntryWithGLEntry(VendorLedgerEntry, AppliesToID, VendorNo, AmountToApply, DocumentType);
         VendorLedgerEntry."Remaining Pmt. Disc. Possible" := LibraryRandom.RandDec(10, 2); // Using Random value less than Amount.
@@ -460,7 +460,7 @@ codeunit 133769 "Daily Report Tests"
         exit(DetailedVendorLedgEntry."Entry No.");
     end;
 
-    local procedure CreateVATEntry(var VATEntry: Record "VAT Entry"; TransactionNo: Integer; Type: Option; Base: Decimal; VATProdPostingSetup: Code[10]; VATBusPostingSetup: Code[10]; BillToPayToNo: Code[20])
+    local procedure CreateVATEntry(var VATEntry: Record "VAT Entry"; TransactionNo: Integer; Type: Enum "General Posting Type"; Base: Decimal; VATProdPostingSetup: Code[10]; VATBusPostingSetup: Code[10]; BillToPayToNo: Code[20])
     var
         VATEntry2: Record "VAT Entry";
     begin
@@ -515,7 +515,7 @@ codeunit 133769 "Daily Report Tests"
         GLEntry.Insert();
     end;
 
-    local procedure CreateVendorLedgerEntryWithGLEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; AppliesToID: Code[50]; VendorNo: Code[20]; AmountToApply: Decimal; DocumentType: Option)
+    local procedure CreateVendorLedgerEntryWithGLEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; AppliesToID: Code[50]; VendorNo: Code[20]; AmountToApply: Decimal; DocumentType: Enum "Gen. Journal Document Type")
     var
         GLEntry: Record "G/L Entry";
     begin

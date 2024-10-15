@@ -371,7 +371,7 @@ codeunit 144050 "ERM Auto Payment"
         PostVendorBillListForSingleInvoice(GenJournalLine."Document Type"::"Credit Memo");
     end;
 
-    local procedure PostVendorBillListForSingleInvoice(DocumentType: Option)
+    local procedure PostVendorBillListForSingleInvoice(DocumentType: Enum "Gen. Journal Document Type")
     var
         DocumentNo: Code[20];
     begin
@@ -405,7 +405,7 @@ codeunit 144050 "ERM Auto Payment"
         PostVendorBillListForMultipleInvoices(GenJournalLine."Document Type"::"Credit Memo");
     end;
 
-    local procedure PostVendorBillListForMultipleInvoices(DocumentType: Option)
+    local procedure PostVendorBillListForMultipleInvoices(DocumentType: Enum "Gen. Journal Document Type")
     var
         DocumentNo: Code[20];
         VendorNo: Code[20];
@@ -513,7 +513,7 @@ codeunit 144050 "ERM Auto Payment"
         SuggestVendorBillLineForBlockedVendor(Vendor.Blocked::Payment);
     end;
 
-    local procedure SuggestVendorBillLineForBlockedVendor(Blocked: Option)
+    local procedure SuggestVendorBillLineForBlockedVendor(Blocked: Enum "Vendor Blocked")
     var
         Vendor: Record Vendor;
         VendorBillHeader: Record "Vendor Bill Header";
@@ -1101,10 +1101,10 @@ codeunit 144050 "ERM Auto Payment"
 
         with CustLedgerEntry do begin
             LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, "Document Type"::Invoice, DocumentNo);
-            PaymentEntryNo := FindCLEDocumentToClose(Customer."No.",
-                "Document Type"::Payment, "Document Type", "Document No.", "Document Occurrence");
-            RecallEntryNo := FindCLEDocumentToClose(Customer."No.", "Document Type"::" ",
-                "Document Type", "Document No.", "Document Occurrence");
+            PaymentEntryNo :=
+                FindCLEDocumentToClose(Customer."No.", "Document Type"::Payment, "Document Type", "Document No.", "Document Occurrence");
+            RecallEntryNo :=
+                FindCLEDocumentToClose(Customer."No.", "Document Type"::" ", "Document Type", "Document No.", "Document Occurrence");
         end;
 
         // [THEN] Recall Customer Ledger Entry is applied to the second customer bill issued
@@ -1151,7 +1151,7 @@ codeunit 144050 "ERM Auto Payment"
         InsertVendorBillLineManual(VendorNo, WithholdCode, TotalAmount, VendorBillHeader."No.");
     end;
 
-    local procedure ApplyAndPostGeneralJournalLine(CustomerNo: Code[20]; Amount: Decimal; AccountType: Option; DocumentType: Option) DocumentNo: Code[20]
+    local procedure ApplyAndPostGeneralJournalLine(CustomerNo: Code[20]; Amount: Decimal; AccountType: Enum "Gen. Journal Account Type"; DocumentType: Enum "Gen. Journal Document Type") DocumentNo: Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -1172,7 +1172,7 @@ codeunit 144050 "ERM Auto Payment"
         CashReceiptJournal.OK.Invoke;
     end;
 
-    local procedure ApplyToDocumentAfterIssueVendorBill(VendorNo: Code[20]; DocumentType: Option) DocumentNo: Code[20]
+    local procedure ApplyToDocumentAfterIssueVendorBill(VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type") DocumentNo: Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
         Amount: Decimal;
@@ -1306,7 +1306,7 @@ codeunit 144050 "ERM Auto Payment"
         LibraryDimension.CreateDefaultDimensionCustomer(DefaultDimension, CustomerNo, DimensionValue."Dimension Code", DimensionValue.Code);
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; Amount: Decimal; AccountType: Option; DocumentType: Option)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; Amount: Decimal; AccountType: Enum "Gen. Journal Account Type"; DocumentType: Enum "Gen. Journal Document Type")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -1582,7 +1582,7 @@ codeunit 144050 "ERM Auto Payment"
         CustomerBillLine.FindFirst;
     end;
 
-    local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Option)
+    local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         CustLedgerEntry.SetRange("Document Type", DocumentType);
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
@@ -1664,7 +1664,7 @@ codeunit 144050 "ERM Auto Payment"
         exit(PaymentMethod.Code);
     end;
 
-    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; BaseAmount: Decimal; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; BaseAmount: Decimal; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         VATEntry.SetRange(Base, BaseAmount);
         VATEntry.SetRange("Document Type", DocumentType);
@@ -1678,7 +1678,7 @@ codeunit 144050 "ERM Auto Payment"
         DetailedCustLedgEntry.FindFirst;
     end;
 
-    local procedure FindCLEDocumentToClose(CustomerNo: Code[20]; DocumentType: Option; DocumentTypeToClose: Option; DocumentNoToClose: Code[20]; DocumentOccurrenceToClose: Integer): Integer
+    local procedure FindCLEDocumentToClose(CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentTypeToClose: Enum "Gen. Journal Document Type"; DocumentNoToClose: Code[20]; DocumentOccurrenceToClose: Integer): Integer
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -1868,7 +1868,7 @@ codeunit 144050 "ERM Auto Payment"
         Customer.Modify(true);
     end;
 
-    local procedure UpdateBlockedVendorToAll(VendorNo: Code[20]; Blocked: Option)
+    local procedure UpdateBlockedVendorToAll(VendorNo: Code[20]; Blocked: Enum "Vendor Blocked")
     var
         Vendor: Record Vendor;
     begin
@@ -1908,7 +1908,7 @@ codeunit 144050 "ERM Auto Payment"
         BillPostingGroup.Modify(true);
     end;
 
-    local procedure VerifyCustomerLedgerEntry(Amount: Decimal; CustomerNo: Code[20]; DocumentType: Option)
+    local procedure VerifyCustomerLedgerEntry(Amount: Decimal; CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -1920,7 +1920,7 @@ codeunit 144050 "ERM Auto Payment"
           StrSubstNo(AmountErr, CustLedgerEntry.FieldCaption(Amount), Amount, CustLedgerEntry.TableCaption));
     end;
 
-    local procedure VerifyBankRcptTempNoOnCustLedgEntry(CustomerNo: Code[20]; DocumentType: Option)
+    local procedure VerifyBankRcptTempNoOnCustLedgEntry(CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin

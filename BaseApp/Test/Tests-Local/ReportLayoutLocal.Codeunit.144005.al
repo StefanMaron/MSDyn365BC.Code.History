@@ -2438,12 +2438,12 @@ codeunit 144005 "Report Layout - Local"
         CustomerTags[4] := ClosedByAmountLCYCustomerTok;
     end;
 
-    local procedure VendorAccountBillsListScenario(var PurchaseDocNo: Code[20]; var PaymentDocNo: Code[20]; DocumentType: Option; Apply: Boolean; ApplyFactor: Decimal): Decimal
+    local procedure VendorAccountBillsListScenario(var PurchaseDocNo: Code[20]; var PaymentDocNo: Code[20]; DocumentType: Enum "Purchase Document Type"; Apply: Boolean; ApplyFactor: Decimal): Decimal
     var
         GenJournalLine: Record "Gen. Journal Line";
         PurchaseHeader: Record "Purchase Header";
-        GenJournalDocumentType: Option;
-        AppliesToDocType: Option;
+        GenJournalDocumentType: Enum "Gen. Journal Document Type";
+        AppliesToDocType: Enum "Gen. Journal Account Type";
         AppliesToDocNo: Code[20];
         VendorNo: Code[20];
         Amount: Decimal;
@@ -2477,12 +2477,12 @@ codeunit 144005 "Report Layout - Local"
         exit(Amount);
     end;
 
-    local procedure VendorAccountBillsListScenarioNonGLApplication(var PurchaseDocNo: Code[20]; var AppliedDocNo: Code[20]; DocumentType: Option; Apply: Boolean; ApplyFactor: Decimal)
+    local procedure VendorAccountBillsListScenarioNonGLApplication(var PurchaseDocNo: Code[20]; var AppliedDocNo: Code[20]; DocumentType: Enum "Purchase Document Type"; Apply: Boolean; ApplyFactor: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         PurchaseHeader: Record "Purchase Header";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
-        GenJournalDocumentType: Option;
+        GenJournalDocumentType: Enum "Gen. Journal Document Type";
         VendorNo: Code[20];
         Amount: Decimal;
     begin
@@ -2513,12 +2513,12 @@ codeunit 144005 "Report Layout - Local"
         RunVendorAccountBillsListReport(VendorNo);
     end;
 
-    local procedure CustomerBillsListScenario(var SalesDocNo: Code[20]; var PaymentDocNo: Code[20]; DocumentType: Option; Apply: Boolean; ApplyFactor: Decimal)
+    local procedure CustomerBillsListScenario(var SalesDocNo: Code[20]; var PaymentDocNo: Code[20]; DocumentType: Enum "Sales Document Type"; Apply: Boolean; ApplyFactor: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         SalesHeader: Record "Sales Line";
-        GenJournalDocumentType: Option;
-        AppliesToDocType: Option;
+        GenJournalDocumentType: Enum "Gen. Journal Document Type";
+        AppliesToDocType: Enum "Gen. Journal Account Type";
         AppliesToDocNo: Code[20];
         CustomerNo: Code[20];
         Amount: Decimal;
@@ -2550,12 +2550,12 @@ codeunit 144005 "Report Layout - Local"
         RunCustomerBillsListReport(CustomerNo);
     end;
 
-    local procedure CustomerBillsListScenarioNonGLApplication(var SalesDocNo: Code[20]; var AppliedDocNo: Code[20]; DocumentType: Option; Apply: Boolean; ApplyFactor: Decimal)
+    local procedure CustomerBillsListScenarioNonGLApplication(var SalesDocNo: Code[20]; var AppliedDocNo: Code[20]; DocumentType: Enum "Sales Document Type"; Apply: Boolean; ApplyFactor: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         SalesHeader: Record "Sales Header";
         CustLedgerEntry: Record "Cust. Ledger Entry";
-        GenJournalDocumentType: Option;
+        GenJournalDocumentType: Enum "Gen. Journal Document Type";
         CustomerNo: Code[20];
         Amount: Decimal;
     begin
@@ -2591,7 +2591,7 @@ codeunit 144005 "Report Layout - Local"
         ReportFileName := DelChr(ReportCaption, '=', '/') + '.pdf'
     end;
 
-    local procedure ApplyGenJournalLineTwoVendorDocs(var GenJournalLine: Record "Gen. Journal Line"; ApplyToDocType: Integer; AmountToApply1: Decimal; AmountToApply2: Decimal)
+    local procedure ApplyGenJournalLineTwoVendorDocs(var GenJournalLine: Record "Gen. Journal Line"; ApplyToDocType: Enum "Gen. Journal Document Type"; AmountToApply1: Decimal; AmountToApply2: Decimal)
     var
         VendorLedgerEntry: Record "Vendor Ledger Entry";
     begin
@@ -2609,7 +2609,7 @@ codeunit 144005 "Report Layout - Local"
         VendorLedgerEntry.Modify(true);
     end;
 
-    local procedure ApplyGenJournalLineTwoCustomerDocs(var GenJournalLine: Record "Gen. Journal Line"; ApplyToDocType: Integer; AmountToApply1: Decimal; AmountToApply2: Decimal)
+    local procedure ApplyGenJournalLineTwoCustomerDocs(var GenJournalLine: Record "Gen. Journal Line"; ApplyToDocType: Enum "Gen. Journal Document Type"; AmountToApply1: Decimal; AmountToApply2: Decimal)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -2627,7 +2627,7 @@ codeunit 144005 "Report Layout - Local"
         CustLedgerEntry.Modify(true);
     end;
 
-    local procedure ApplyAndPostCustomerEntry(DocumentTypeX: Option; DocumentNoX: Code[20]; DocumentTypeY: Option; DocumentNoY: Code[20])
+    local procedure ApplyAndPostCustomerEntry(DocumentTypeX: Enum "Gen. Journal Document Type"; DocumentNoX: Code[20]; DocumentTypeY: Enum "Gen. Journal Document Type"; DocumentNoY: Code[20])
     var
         CustLedgerEntryX: Record "Cust. Ledger Entry";
         CustLedgerEntryY: Record "Cust. Ledger Entry";
@@ -2642,7 +2642,7 @@ codeunit 144005 "Report Layout - Local"
         LibraryERM.PostCustLedgerApplication(CustLedgerEntryX);
     end;
 
-    local procedure ApplyAndPostVendorEntry(DocumentTypeX: Option; DocumentNoX: Code[20]; DocumentTypeY: Option; DocumentNoY: Code[20])
+    local procedure ApplyAndPostVendorEntry(DocumentTypeX: Enum "Gen. Journal Document Type"; DocumentNoX: Code[20]; DocumentTypeY: Enum "Gen. Journal Document Type"; DocumentNoY: Code[20])
     var
         VendorLedgerEntryX: Record "Vendor Ledger Entry";
         VendorLedgerEntryY: Record "Vendor Ledger Entry";
@@ -2678,7 +2678,7 @@ codeunit 144005 "Report Layout - Local"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure ApplyAndPostVendorDocuments(VendorNo: Code[20]; ApplyingDocumentType: Option; ApplyingDocumentNo: Code[20]; AppliedDocumentNo: array[2] of Code[20])
+    local procedure ApplyAndPostVendorDocuments(VendorNo: Code[20]; ApplyingDocumentType: Enum "Gen. Journal Document Type"; ApplyingDocumentNo: Code[20]; AppliedDocumentNo: array[2] of Code[20])
     var
         ApplyingVendorLedgerEntry: Record "Vendor Ledger Entry";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -2716,7 +2716,7 @@ codeunit 144005 "Report Layout - Local"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure ApplyAndPostCustomerDocuments(CustomerNo: Code[20]; ApplyingDocumentType: Option; ApplyingDocumentNo: Code[20]; AppliedDocumentNo: array[2] of Code[20])
+    local procedure ApplyAndPostCustomerDocuments(CustomerNo: Code[20]; ApplyingDocumentType: Enum "Gen. Journal Document Type"; ApplyingDocumentNo: Code[20]; AppliedDocumentNo: array[2] of Code[20])
     var
         ApplyingCustLedgerEntry: Record "Cust. Ledger Entry";
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -2778,7 +2778,7 @@ codeunit 144005 "Report Layout - Local"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreatePostGeneralJournalLine(DocumentType: Option; AccountType: Option; AccountNo: Code[20]; LineAmount: Decimal): Code[20]
+    local procedure CreatePostGeneralJournalLine(DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; LineAmount: Decimal): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -2787,7 +2787,7 @@ codeunit 144005 "Report Layout - Local"
         exit(GenJournalLine."Document No.");
     end;
 
-    local procedure CreateApplyAndPostGeneralJournalLine(DocumentType: Option; AccountType: Option; AccountNo: Code[20]; AppliesToDocType: Option; AppliesToDocNo: Code[20]; Amount: Decimal): Code[20]
+    local procedure CreateApplyAndPostGeneralJournalLine(DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20]; Amount: Decimal): Code[20]
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";
@@ -2805,7 +2805,7 @@ codeunit 144005 "Report Layout - Local"
         exit(GenJournalLine."Document No.");
     end;
 
-    local procedure PostPurchaseDocument(var Amount: Decimal; DocumentType: Option; VendorNo: Code[20]): Code[20]
+    local procedure PostPurchaseDocument(var Amount: Decimal; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]): Code[20]
     var
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
@@ -2816,7 +2816,7 @@ codeunit 144005 "Report Layout - Local"
         exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 
-    local procedure CreateTwoGenJnlLinesForSameAccountInSameBatch(var GenJournalLine: Record "Gen. Journal Line"; DocType: Integer; AccountType: Integer; AccountNo: Code[20]; Amount: array[2] of Decimal; Sign: Integer)
+    local procedure CreateTwoGenJnlLinesForSameAccountInSameBatch(var GenJournalLine: Record "Gen. Journal Line"; DocType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: array[2] of Decimal; Sign: Integer)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GLAccount: Record "G/L Account";
@@ -2830,7 +2830,7 @@ codeunit 144005 "Report Layout - Local"
               GenJournalLine."Bal. Account Type"::"G/L Account", GLAccount."No.", Amount[Index] * Sign);
     end;
 
-    local procedure CreatePurchHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20])
+    local procedure CreatePurchHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20])
     begin
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, VendorNo);
         PurchaseHeader.Validate("Vendor Cr. Memo No.", PurchaseHeader."No.");
@@ -2845,7 +2845,7 @@ codeunit 144005 "Report Layout - Local"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure PostSalesDocument(var Amount: Decimal; DocumentType: Option; CustomerNo: Code[20]): Code[20]
+    local procedure PostSalesDocument(var Amount: Decimal; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]): Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -2856,7 +2856,7 @@ codeunit 144005 "Report Layout - Local"
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20])
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20])
     begin
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
     end;
@@ -2885,7 +2885,7 @@ codeunit 144005 "Report Layout - Local"
         exit(GLAccount."No.");
     end;
 
-    local procedure PostAndApplyPmtGenJnlLine(DocumentNo: Code[20]; AccountType: Option; AccountNo: Code[20]; Amount: Decimal): Decimal
+    local procedure PostAndApplyPmtGenJnlLine(DocumentNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal): Decimal
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -2899,7 +2899,7 @@ codeunit 144005 "Report Layout - Local"
         exit(Amount + GenJournalLine.Amount);
     end;
 
-    local procedure PostAndApplyPmtGenJnlLineWithHigherAmount(DocumentNo: Code[20]; AccountType: Option; AccountNo: Code[20]; Amount: Decimal): Decimal
+    local procedure PostAndApplyPmtGenJnlLineWithHigherAmount(DocumentNo: Code[20]; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal): Decimal
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -3011,13 +3011,13 @@ codeunit 144005 "Report Layout - Local"
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
     end;
 
-    local procedure GetRemainingAmountOnCustomer(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure GetRemainingAmountOnCustomer(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, DocumentType, DocumentNo);
         CustLedgerEntry.CalcFields("Remaining Amount");
     end;
 
-    local procedure GetRemainingAmountOnVendor(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure GetRemainingAmountOnVendor(var VendorLedgerEntry: Record "Vendor Ledger Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, DocumentType, DocumentNo);
         VendorLedgerEntry.CalcFields("Remaining Amount");
@@ -3101,7 +3101,7 @@ codeunit 144005 "Report Layout - Local"
         SalesSetup.Modify(true);
     end;
 
-    local procedure UpdateGenJournalLineWithAppliesToDoc(var GenJournalLine: Record "Gen. Journal Line"; AppliesToDocType: Option; AppliesToDocNo: Code[20])
+    local procedure UpdateGenJournalLineWithAppliesToDoc(var GenJournalLine: Record "Gen. Journal Line"; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20])
     begin
         if AppliesToDocNo <> '' then begin
             GenJournalLine.Validate("Applies-to Doc. Type", AppliesToDocType);

@@ -3138,7 +3138,7 @@ codeunit 144019 "IT - VAT Rep - Export Unittest"
         Assert.Fail(StrSubstNo(RecordNotFoundErr, VATReportLine."Line No.", VATReportLine."Record Identifier", BlockKey, Value));
     end;
 
-    local procedure VerifyCustomerTotal(var TextFile: BigText; CustType: Option; CustNo: Code[20]; Total: Decimal): Boolean
+    local procedure VerifyCustomerTotal(var TextFile: BigText; CustType: Enum "General Posting Type"; CustNo: Code[20]; Total: Decimal): Boolean
     var
         Customer: Record Customer;
         Vendor: Record Vendor;

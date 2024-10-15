@@ -62,7 +62,7 @@ codeunit 144072 "UT COD VAT Exemption"
         OnRunDocumentTypeSalesPost(SalesHeader."Document Type"::"Credit Memo");
     end;
 
-    local procedure OnRunDocumentTypeSalesPost(DocumentType: Option)
+    local procedure OnRunDocumentTypeSalesPost(DocumentType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -98,7 +98,7 @@ codeunit 144072 "UT COD VAT Exemption"
         OnRunDocumentTypeServicePost(ServiceHeader."Document Type"::Invoice);
     end;
 
-    local procedure OnRunDocumentTypeServicePost(DocumentType: Option)
+    local procedure OnRunDocumentTypeServicePost(DocumentType: Enum "Service Document Type")
     var
         ServiceHeader: Record "Service Header";
     begin
@@ -158,7 +158,7 @@ codeunit 144072 "UT COD VAT Exemption"
     end;
 
     [TransactionModel(TransactionModel::AutoCommit)]
-    local procedure OnRunDocumentTypePurchasePost(DocumentType: Option)
+    local procedure OnRunDocumentTypePurchasePost(DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -277,7 +277,7 @@ codeunit 144072 "UT COD VAT Exemption"
         exit(NoSeries.Code);
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VATExemption: Boolean)
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VATExemption: Boolean)
     begin
         PurchaseHeader."Document Type" := DocumentType;
         PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
@@ -318,7 +318,7 @@ codeunit 144072 "UT COD VAT Exemption"
         exit(PurchaseLine."Gen. Prod. Posting Group");
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     begin
         SalesHeader."Document Type" := DocumentType;
         SalesHeader."No." := LibraryUTUtility.GetNewCode;
@@ -332,7 +332,7 @@ codeunit 144072 "UT COD VAT Exemption"
         SalesHeader.Insert();
     end;
 
-    local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Option)
+    local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type")
     begin
         ServiceHeader."Document Type" := DocumentType;
         ServiceHeader."No." := LibraryUTUtility.GetNewCode;
@@ -348,7 +348,7 @@ codeunit 144072 "UT COD VAT Exemption"
         ServiceHeader.Insert();
     end;
 
-    local procedure CreateServiceLine(DocumentNo: Code[20]; DocumentType: Option)
+    local procedure CreateServiceLine(DocumentNo: Code[20]; DocumentType: Enum "Service Document Type")
     var
         Item: Record Item;
         ServiceLine: Record "Service Line";

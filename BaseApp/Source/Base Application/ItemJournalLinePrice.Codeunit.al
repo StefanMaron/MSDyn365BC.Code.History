@@ -57,17 +57,18 @@ codeunit 7022 "Item Journal Line - Price" implements "Line With Price"
         if FoundPrice then
             Result := true
         else
-            case AmountType of
-                AmountType::Price:
-                    Result :=
-                        Result or
-                        not (CalledByFieldNo in [ItemJournalLine.FieldNo(Quantity), ItemJournalLine.FieldNo("Variant Code")]);
-                AmountType::Cost:
-                    Result :=
-                        Result or
-                        not ((CalledByFieldNo = ItemJournalLine.FieldNo(Quantity)) or
-                            ((CalledByFieldNo = ItemJournalLine.FieldNo("Variant Code")) and not IsSKU))
-            end;
+            if AmountType <> AmountType::Discount then
+                case CurrPriceType of
+                    CurrPriceType::Sale:
+                        Result :=
+                            Result or
+                            not (CalledByFieldNo in [ItemJournalLine.FieldNo(Quantity), ItemJournalLine.FieldNo("Variant Code")]);
+                    CurrPriceType::Purchase:
+                        Result :=
+                            Result or
+                            not ((CalledByFieldNo = ItemJournalLine.FieldNo(Quantity)) or
+                                ((CalledByFieldNo = ItemJournalLine.FieldNo("Variant Code")) and not IsSKU))
+                end;
     end;
 
     procedure IsDiscountAllowed() Result: Boolean;
@@ -156,26 +157,24 @@ codeunit 7022 "Item Journal Line - Price" implements "Line With Price"
 
     procedure ValidatePrice(AmountType: enum "Price Amount Type")
     begin
-        case AmountType of
-            AmountType::Price,
-            AmountType::Cost:
-                ItemJournalLine.Validate("Unit Amount");
-        end;
+        if AmountType <> AmountType::Discount then
+            ItemJournalLine.Validate("Unit Amount");
     end;
 
     procedure SetPrice(AmountType: enum "Price Amount Type"; PriceListLine: Record "Price List Line")
     begin
-        case AmountType of
-            AmountType::Price:
-                begin
-                    ItemJournalLine."Unit Amount" := PriceListLine."Unit Price";
-                    if PriceListLine.IsRealLine() then
-                        DiscountIsAllowed := PriceListLine."Allow Line Disc.";
-                    PriceCalculated := true;
-                end;
-            AmountType::Cost:
-                ItemJournalLine."Unit Amount" := PriceListLine."Unit Cost";
-        end;
+        if AmountType <> AmountType::Discount then
+            Case CurrPriceType of
+                CurrPriceType::Sale:
+                    begin
+                        ItemJournalLine."Unit Amount" := PriceListLine."Unit Price";
+                        if PriceListLine.IsRealLine() then
+                            DiscountIsAllowed := PriceListLine."Allow Line Disc.";
+                        PriceCalculated := true;
+                    end;
+                CurrPriceType::Purchase:
+                    ItemJournalLine."Unit Amount" := PriceListLine."Unit Cost";
+            end;
         OnAfterSetPrice(ItemJournalLine, PriceListLine, AmountType);
     end;
 

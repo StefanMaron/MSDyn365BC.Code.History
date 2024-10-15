@@ -649,7 +649,7 @@ codeunit 144169 "UT REP Company Information"
         end;
     end;
 
-    local procedure MockCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Option; CurrencyCode: Code[10])
+    local procedure MockCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; CurrencyCode: Code[10])
     var
         LastEntryNo: Integer;
     begin

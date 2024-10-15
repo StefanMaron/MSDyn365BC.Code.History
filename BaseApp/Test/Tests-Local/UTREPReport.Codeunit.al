@@ -356,7 +356,7 @@ codeunit 144149 "UT REP Report"
         end;
     end;
 
-    local procedure MockCustLedgerEntry(TransactionNo: Integer; CustomerNo: Code[20]; DocumentType: Option): Integer
+    local procedure MockCustLedgerEntry(TransactionNo: Integer; CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"): Integer
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         RecRef: RecordRef;

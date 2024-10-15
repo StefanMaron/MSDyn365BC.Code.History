@@ -523,7 +523,7 @@ codeunit 144117 "UT VAT Communication"
           VATRegNoOperationOccurredDateCap, VATRegistrationNoCap);  // Using EU Service False and blank Tax Representative Type.
     end;
 
-    local procedure RunVATTransaction(Resident: Option; Type: Option; TaxRepresentativeType: Option; EUService: Boolean; OperationOccurredDate: Text; VATRegistrationNo: Text)
+    local procedure RunVATTransaction(Resident: Option; Type: Enum "General Posting Type"; TaxRepresentativeType: Option; EUService: Boolean; OperationOccurredDate: Text; VATRegistrationNo: Text)
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -662,7 +662,7 @@ codeunit 144117 "UT VAT Communication"
         ServiceLine.Insert();
     end;
 
-    local procedure CreateVATEntry(var VATEntry: Record "VAT Entry"; Type: Option; TaxRepresentativeType: Option; Resident: Option; EUService: Boolean)
+    local procedure CreateVATEntry(var VATEntry: Record "VAT Entry"; Type: Enum "General Posting Type"; TaxRepresentativeType: Option; Resident: Option; EUService: Boolean)
     var
         VATEntry2: Record "VAT Entry";
     begin

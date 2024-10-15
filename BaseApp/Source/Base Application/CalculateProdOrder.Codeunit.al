@@ -1,4 +1,4 @@
-codeunit 99000773 "Calculate Prod. Order"
+﻿codeunit 99000773 "Calculate Prod. Order"
 {
     Permissions = TableData Item = r,
                   TableData "Prod. Order Line" = rimd,
@@ -331,7 +331,7 @@ codeunit 99000773 "Calculate Prod. Order"
         end;
         if ProdOrderComp.HasErrorOccured then
             ErrorOccured := true;
-        ProdOrderComp.AutoReserve;
+        ProdOrderComp.AutoReserve();
         CopyProdBOMComments(ProdBOMLine[Level]);
     end;
 
@@ -351,7 +351,7 @@ codeunit 99000773 "Calculate Prod. Order"
                 if not IsHandled then begin
                     ProdOrderComp.Validate("Routing Link Code");
                     ProdOrderComp.Modify();
-                    ProdOrderComp.AutoReserve;
+                    ProdOrderComp.AutoReserve();
                 end;
             until ProdOrderComp.Next = 0;
             OnAfterCalculateComponents(ProdOrderLine);
@@ -819,12 +819,9 @@ codeunit 99000773 "Calculate Prod. Order"
             exit;
 
         ProdOrderRoutingLineBinCode :=
-          WMSManagement.GetProdRtngLastOperationFromBinCode(
-            ProdOrderLine.Status,
-            ProdOrderLine."Prod. Order No.",
-            ProdOrderLine."Line No.",
-            ProdOrderLine."Routing No.",
-            ProdOrderLine."Location Code");
+            WMSManagement.GetProdRoutingLastOperationFromBinCode(
+                ProdOrderLine.Status, ProdOrderLine."Prod. Order No.", ProdOrderLine."Line No.",
+                ProdOrderLine."Routing No.", ProdOrderLine."Location Code");
         SetProdOrderLineBinCode(ProdOrderLine, ProdOrderRoutingLineBinCode, ProdOrderLine."Location Code");
     end;
 
@@ -870,7 +867,13 @@ codeunit 99000773 "Calculate Prod. Order"
             end;
     end;
 
+    [Obsolete('Replaced by FindAndSetProdOrderLineBinCodeFromProdRoutingLines with enum Production Order Status.', '17.0')]
     procedure FindAndSetProdOrderLineBinCodeFromProdRtngLines(ProdOrderStatus: Option; ProdOrderNo: Code[20]; ProdOrderLineNo: Integer)
+    begin
+        FindAndSetProdOrderLineBinCodeFromProdRoutingLines("Production Order Status".FromInteger(ProdOrderStatus), ProdOrderNo, ProdOrderLineNo);
+    end;
+
+    procedure FindAndSetProdOrderLineBinCodeFromProdRoutingLines(ProdOrderStatus: Enum "Production Order Status"; ProdOrderNo: Code[20]; ProdOrderLineNo: Integer)
     begin
         if ProdOrderLine.Get(ProdOrderStatus, ProdOrderNo, ProdOrderLineNo) then begin
             SetProdOrderLineBinCodeFromProdRtngLines(ProdOrderLine);
@@ -889,7 +892,7 @@ codeunit 99000773 "Calculate Prod. Order"
             then begin
                 ProdOrderRoutingLine.Type := ProdOrderRoutingLine.Type::"Machine Center";
                 ProdOrderRoutingLine.Validate("No.", MachineCenter."No.");
-                FindAndSetProdOrderLineBinCodeFromProdRtngLines(
+                FindAndSetProdOrderLineBinCodeFromProdRoutingLines(
                   ProdOrderRoutingLine.Status, ProdOrderRoutingLine."Prod. Order No.", ProdOrderRoutingLine."Routing Reference No.");
             end;
     end;

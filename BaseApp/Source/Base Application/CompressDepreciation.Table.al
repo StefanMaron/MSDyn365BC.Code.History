@@ -4,11 +4,9 @@ table 12100 "Compress Depreciation"
 
     fields
     {
-        field(1; "FA Posting Type"; Option)
+        field(1; "FA Posting Type"; Enum "FA Journal Line FA Posting Type")
         {
             Caption = 'FA Posting Type';
-            OptionCaption = 'Acquisition Cost,Depreciation,Write-Down,Appreciation,Custom 1,Custom 2,Disposal,Maintenance,Salvage Value';
-            OptionMembers = "Acquisition Cost",Depreciation,"Write-Down",Appreciation,"Custom 1","Custom 2",Disposal,Maintenance,"Salvage Value";
         }
         field(2; "FA Posting Group"; Code[20])
         {

@@ -433,8 +433,7 @@ page 1806 "Exchange Setup Wizard"
             if NeedCredentials then
                 ExchangeAddinSetup.InitializeServiceWithCredentials(Email, Password);
 
-        SendTraceTag('0000ACW', OfficeMgt.GetOfficeAddinTelemetryCategory(), Verbosity::Normal,
-            StrSubstNo(SetupTelemetryTxt, Format(DeploymentMode)), DataClassification::SystemMetadata);
+        Session.LogMessage('0000ACW', StrSubstNo(SetupTelemetryTxt, Format(DeploymentMode)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', OfficeMgt.GetOfficeAddinTelemetryCategory());
 
         if DeploymentMode = DeploymentMode::User then begin
             ProgressWindow.Update(1, DeployAccountMsg);

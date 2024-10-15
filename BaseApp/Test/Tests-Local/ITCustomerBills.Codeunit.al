@@ -118,7 +118,7 @@ codeunit 144191 "IT - Customer Bills"
         VerifyCustomerBillListReport(ExpectedLines, Amount);
     end;
 
-    local procedure ApplyCustBillToPayment(CustomerNo: Code[20]; Amount: Decimal; OpenEntriesOnly: Boolean; DocumentType: Option): Integer
+    local procedure ApplyCustBillToPayment(CustomerNo: Code[20]; Amount: Decimal; OpenEntriesOnly: Boolean; DocumentType: Enum "Gen. Journal Document Type"): Integer
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJournalLine: Record "Gen. Journal Line";

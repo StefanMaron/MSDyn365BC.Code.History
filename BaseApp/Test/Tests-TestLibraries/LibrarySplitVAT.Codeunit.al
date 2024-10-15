@@ -37,7 +37,7 @@ codeunit 143003 "Library - Split VAT"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; VATBusPostingGroupCode: Code[20])
+    procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Service Document Type"; VATBusPostingGroupCode: Code[20])
     begin
         LibrarySales.CreateSalesHeader(
           SalesHeader, DocumentType, LibrarySales.CreateCustomerWithVATBusPostingGroup(VATBusPostingGroupCode));
@@ -54,7 +54,7 @@ codeunit 143003 "Library - Split VAT"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Option)
+    procedure CreateSalesDoc(var SalesHeader: Record "Sales Header"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
     begin
@@ -62,7 +62,7 @@ codeunit 143003 "Library - Split VAT"
         CreateSalesLine(SalesLine, SalesHeader, VATPostingSetup."VAT Prod. Posting Group");
     end;
 
-    local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Option; VATBusPostingGroupCode: Code[20])
+    local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; VATBusPostingGroupCode: Code[20])
     begin
         LibraryService.CreateServiceHeader(
           ServiceHeader, DocumentType, LibrarySales.CreateCustomerWithVATBusPostingGroup(VATBusPostingGroupCode));
@@ -80,7 +80,7 @@ codeunit 143003 "Library - Split VAT"
     end;
 
     [Scope('OnPrem')]
-    procedure CreateServiceDoc(var ServiceHeader: Record "Service Header"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Option)
+    procedure CreateServiceDoc(var ServiceHeader: Record "Service Header"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Enum "Service Document Type")
     var
         ServiceLine: Record "Service Line";
     begin

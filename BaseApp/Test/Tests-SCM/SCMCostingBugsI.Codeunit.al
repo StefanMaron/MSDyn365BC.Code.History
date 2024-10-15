@@ -233,7 +233,7 @@ codeunit 137620 "SCM Costing Bugs I"
         VSTF234233(Item."Costing Method"::Standard);
     end;
 
-    local procedure VSTF234233(CostingMethod: Option)
+    local procedure VSTF234233(CostingMethod: Enum "Costing Method")
     var
         Item: Record Item;
         PurchaseHeader: Record "Purchase Header";
@@ -952,7 +952,7 @@ codeunit 137620 "SCM Costing Bugs I"
     end;
 
     [Normal]
-    local procedure PostModifiedOutputJournal(var ItemJournalLine: Record "Item Journal Line"; Item: Record Item; NewType: Option; NewNo: Code[20])
+    local procedure PostModifiedOutputJournal(var ItemJournalLine: Record "Item Journal Line"; Item: Record Item; NewType: Enum "Capacity Type Journal"; NewNo: Code[20])
     var
         ProductionOrder: Record "Production Order";
         ProdOrderLine: Record "Prod. Order Line";

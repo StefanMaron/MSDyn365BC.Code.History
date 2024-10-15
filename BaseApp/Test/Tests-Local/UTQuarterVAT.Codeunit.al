@@ -513,7 +513,7 @@ codeunit 144174 "UT Quarter VAT"
         end;
     end;
 
-    local procedure MockVATEntry(PostingDate: Date; Amount: Decimal; VATEntryType: Option; var VATPostingSetup: Record "VAT Posting Setup")
+    local procedure MockVATEntry(PostingDate: Date; Amount: Decimal; VATEntryType: Enum "General Posting Type"; var VATPostingSetup: Record "VAT Posting Setup")
     var
         VATEntry: Record "VAT Entry";
         VATEntryLast: Record "VAT Entry";

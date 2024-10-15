@@ -203,7 +203,7 @@ codeunit 131902 "Library - Service"
     procedure CreateCommentLineForServHeader(var ServiceCommentLine: Record "Service Comment Line"; ServiceItemLine: Record "Service Item Line"; Type: Option)
     begin
         CreateServiceCommentLine(
-          ServiceCommentLine, ServiceCommentLine."Table Name"::"Service Header", ServiceItemLine."Document Type",
+          ServiceCommentLine, ServiceCommentLine."Table Name"::"Service Header", ServiceItemLine."Document Type".AsInteger(),
           ServiceItemLine."Document No.", Type, ServiceItemLine."Line No.");
     end;
 
@@ -304,7 +304,7 @@ codeunit 131902 "Library - Service"
         ServiceCreditMemo.OK.Invoke;
     end;
 
-    procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Option; CustomerNo: Code[20])
+    procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type"; CustomerNo: Code[20])
     var
         PaymentMethod: Record "Payment Method";
         PaymentTerms: Record "Payment Terms";
@@ -342,8 +342,7 @@ codeunit 131902 "Library - Service"
         ServiceOrder.OK.Invoke;
     end;
 
-    [Scope('OnPrem')]
-    procedure CreateServiceDocumentWithItemServiceLine(var ServiceHeader: Record "Service Header"; DocumentType: Option)
+    procedure CreateServiceDocumentWithItemServiceLine(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type")
     var
         ServiceItem: Record "Service Item";
         ServiceItemLine: Record "Service Item Line";
@@ -418,7 +417,7 @@ codeunit 131902 "Library - Service"
         ServiceItem.Modify(true);
     end;
 
-    procedure CreateServiceItemComponent(var ServiceItemComponent: Record "Service Item Component"; ServiceItemNo: Code[20]; Type: Option; No: Code[20])
+    procedure CreateServiceItemComponent(var ServiceItemComponent: Record "Service Item Component"; ServiceItemNo: Code[20]; Type: Enum "Service Item Component Type"; No: Code[20])
     var
         RecRef: RecordRef;
     begin
@@ -458,14 +457,14 @@ codeunit 131902 "Library - Service"
         ServiceItemLine.Modify(true);
     end;
 
-    procedure CreateServiceLineWithQuantity(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; Type: Option; No: Code[20]; Quantity: Integer)
+    procedure CreateServiceLineWithQuantity(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; Type: Enum "Service Line Type"; No: Code[20]; Quantity: Integer)
     begin
         CreateServiceLine(ServiceLine, ServiceHeader, Type, No);
         ServiceLine.Validate(Quantity, Quantity);
         ServiceLine.Modify(true);
     end;
 
-    procedure CreateServiceLine(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; Type: Option; No: Code[20])
+    procedure CreateServiceLine(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; Type: Enum "Service Line Type"; No: Code[20])
     var
         Item: Record Item;
         Customer: Record Customer;
@@ -942,7 +941,7 @@ codeunit 131902 "Library - Service"
 
     procedure AutoReserveServiceLine(ServiceLine: Record "Service Line")
     begin
-        ServiceLine.AutoReserve;
+        ServiceLine.AutoReserve();
     end;
 
     procedure UndoShipmentLinesByServiceOrderNo(ServiceOrderNo: Code[20])

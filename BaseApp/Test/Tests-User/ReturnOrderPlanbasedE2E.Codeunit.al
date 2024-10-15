@@ -12,6 +12,7 @@ codeunit 135408 "Return Order Plan-based E2E"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryTemplates: Codeunit "Library - Templates";
         isInitialized: Boolean;
 
     [Test]
@@ -378,6 +379,7 @@ codeunit 135408 "Return Order Plan-based E2E"
 
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Return Order Plan-based E2E");
 
+        LibraryTemplates.DisableTemplatesFeature();
         ApplicationAreaMgmtFacade.SaveExperienceTierCurrentCompany(ExperienceTierSetup.FieldCaption(Essential));
 
         LibrarySales.SetCreditWarningsToNoWarnings;

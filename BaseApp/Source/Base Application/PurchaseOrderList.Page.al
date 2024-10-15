@@ -347,7 +347,7 @@ page 9307 "Purchase Order List"
                     var
                         WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Purchase Header", "Document Type", "No.");
+                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Purchase Header", "Document Type".AsInteger(), "No.");
                     end;
                 }
                 action("Co&mments")
@@ -692,7 +692,6 @@ page 9307 "Purchase Order List"
                         PurchaseHeader: Record "Purchase Header";
                         PurchaseBatchPostMgt: Codeunit "Purchase Batch Post Mgt.";
                         BatchProcessingMgt: Codeunit "Batch Processing Mgt.";
-                        BatchPostParameterTypes: Codeunit "Batch Post Parameter Types";
                         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
                         LinesInstructionMgt: Codeunit "Lines Instruction Mgt.";
                     begin
@@ -702,8 +701,8 @@ page 9307 "Purchase Order List"
                         CurrPage.SetSelectionFilter(PurchaseHeader);
 
                         if PurchaseHeader.Count > 1 then begin
-                            BatchProcessingMgt.AddParameter(BatchPostParameterTypes.Invoice, true);
-                            BatchProcessingMgt.AddParameter(BatchPostParameterTypes.Receive, true);
+                            BatchProcessingMgt.SetParameter("Batch Posting Parameter Type"::Invoice, true);
+                            BatchProcessingMgt.SetParameter("Batch Posting Parameter Type"::Receive, true);
 
                             PurchaseBatchPostMgt.SetBatchProcessor(BatchProcessingMgt);
                             PurchaseBatchPostMgt.RunWithUI(PurchaseHeader, Count, ReadyToPostQst);
@@ -841,7 +840,7 @@ page 9307 "Purchase Order List"
         OpenApprovalEntriesExist: Boolean;
         CanCancelApprovalForRecord: Boolean;
         SkipLinesWithoutVAT: Boolean;
-        ReadyToPostQst: Label '%1 out of %2 selected orders are ready for post. \Do you want to continue and post them?', Comment = '%1 - selected count, %2 - total count';
+        ReadyToPostQst: Label 'The number of orders that will be posted is %1. \Do you want to continue?', Comment = '%1 - selected count';
         CanRequestApprovalForFlow: Boolean;
         CanCancelApprovalForFlow: Boolean;
 

@@ -9,11 +9,9 @@ table 179 "Reversal Entry"
         {
             Caption = 'Line No.';
         }
-        field(2; "Entry Type"; Option)
+        field(2; "Entry Type"; Enum "Reversal Entry Type")
         {
             Caption = 'Entry Type';
-            OptionCaption = ' ,G/L Account,Customer,Vendor,Bank Account,Fixed Asset,Maintenance,VAT,Employee';
-            OptionMembers = " ","G/L Account",Customer,Vendor,"Bank Account","Fixed Asset",Maintenance,VAT,Employee;
         }
         field(3; "Entry No."; Integer)
         {
@@ -30,7 +28,9 @@ table 179 "Reversal Entry"
             ELSE
             IF ("Entry Type" = CONST(Maintenance)) "Maintenance Ledger Entry"
             ELSE
-            IF ("Entry Type" = CONST(VAT)) "VAT Entry";
+            IF ("Entry Type" = CONST(VAT)) "VAT Entry"
+            ELSE
+            IF ("Entry Type" = CONST(Employee)) "Employee Ledger Entry";
         }
         field(4; "G/L Register No."; Integer)
         {
@@ -323,7 +323,7 @@ table 179 "Reversal Entry"
             if GLEntry.IsEmpty then
                 Error(CannotReverseDeletedErr, GLEntry.TableCaption, GLAcc.TableCaption);
             if GLEntry.Find('-') then begin
-                CheckDocumentType(GLEntry."Entry No.", GLEntry."Document Type");
+                CheckReverseDocumentType(GLEntry."Entry No.", GLEntry."Document Type");
                 if GLEntry."Journal Batch Name" = '' then
                     TestFieldError;
                 repeat
@@ -641,7 +641,7 @@ table 179 "Reversal Entry"
         GLEntry2.SetRange("Entry No.", GLReg."From Entry No.", GLReg."To Entry No.");
         if GLEntry2.Find('-') then
             repeat
-                CheckDocumentType(GLEntry2."Entry No.", GLEntry2."Document Type");
+                CheckReverseDocumentType(GLEntry2."Entry No.", GLEntry2."Document Type");
             until GLEntry2.Next = 0;
 
         if GLReg."Journal Batch Name" = '' then
@@ -877,7 +877,13 @@ table 179 "Reversal Entry"
         HideDialog := NewHideDialog;
     end;
 
+    [Obsolete('Replaced by CheckReverseDocumentType().', '17.0')]
     procedure CheckDocumentType(EntryNo: Integer; DocumentType: Option " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund,,,,Dishonored)
+    begin
+        CheckReverseDocumentType(EntryNo, "Gen. Journal Document Type".FromInteger(DocumentType));
+    end;
+
+    procedure CheckReverseDocumentType(EntryNo: Integer; DocumentType: Enum "Gen. Journal Document Type")
     var
         Text1130000: Label 'You cannot reverse the entry %1 because it''s an %2 Document.';
     begin
@@ -1196,7 +1202,7 @@ table 179 "Reversal Entry"
         "Entry No." := FALedgEntry."Entry No.";
         "Posting Date" := FALedgEntry."Posting Date";
         "FA Posting Category" := FALedgEntry."FA Posting Category";
-        "FA Posting Type" := FALedgEntry."FA Posting Type" + 1;
+        "FA Posting Type" := "Reversal Entry FA Posting Type".FromInteger(FALedgEntry."FA Posting Type".AsInteger() + 1);
         "Source Code" := FALedgEntry."Source Code";
         "Journal Batch Name" := FALedgEntry."Journal Batch Name";
         "Transaction No." := FALedgEntry."Transaction No.";

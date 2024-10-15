@@ -527,7 +527,7 @@ codeunit 144133 "ERM Dishonor"
         LibraryVariableStorage.Clear;
     end;
 
-    local procedure ApplyAndPostGeneralJournalLine(CustomerNo: Code[20]; Amount: Decimal; DocumentType: Option) DocumentNo: Code[20]
+    local procedure ApplyAndPostGeneralJournalLine(CustomerNo: Code[20]; Amount: Decimal; DocumentType: Enum "Gen. Journal Document Type") DocumentNo: Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -571,7 +571,7 @@ codeunit 144133 "ERM Dishonor"
         TempPurchaseLine.Insert();
     end;
 
-    local procedure CreateAndPostCashReceiptJournal(AccountNo: Code[20]; AppliesToDocNo: Code[20]; Amount: Decimal; DocumentType: Option; AppliesToDocType: Option) DocumentNo: Code[20]
+    local procedure CreateAndPostCashReceiptJournal(AccountNo: Code[20]; AppliesToDocNo: Code[20]; Amount: Decimal; DocumentType: Enum "Gen. Journal Document Type"; AppliesToDocType: Enum "Gen. Journal Document Type") DocumentNo: Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -672,7 +672,7 @@ codeunit 144133 "ERM Dishonor"
         GenJournalBatch.Modify(true);
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; Amount: Decimal; AccountType: Option; DocumentType: Option)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; Amount: Decimal; AccountType: Enum "Gen. Journal Account Type"; DocumentType: Enum "Gen. Journal Document Type")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -741,7 +741,7 @@ codeunit 144133 "ERM Dishonor"
         exit(Bill.Code);
     end;
 
-    local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Option)
+    local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         CustLedgerEntry.SetRange("Document Type", DocumentType);
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
@@ -1028,7 +1028,7 @@ codeunit 144133 "ERM Dishonor"
         CustomerEntryStatistics.Close;
     end;
 
-    local procedure VerifyCustomerLedgerEntry(CustomerNo: Code[20]; DocumentType: Option; Open: Boolean; DocumentTypeToClose: Option; DocumentNoToClose: Code[20])
+    local procedure VerifyCustomerLedgerEntry(CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Open: Boolean; DocumentTypeToClose: Option; DocumentNoToClose: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin

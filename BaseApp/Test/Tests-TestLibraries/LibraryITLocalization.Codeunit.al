@@ -310,12 +310,12 @@ codeunit 143000 "Library - IT Localization"
         FatturaProjectInfo.Type := Type;
         FatturaProjectInfo.Code :=
           LibraryUtility.GenerateRandomCodeWithLength(FatturaProjectInfo.FieldNo(Code),
-            DATABASE::"Fattura Project Info",MaxStrLen(FatturaProjectInfo.Code));
+            DATABASE::"Fattura Project Info", MaxStrLen(FatturaProjectInfo.Code));
         FatturaProjectInfo.Insert();
         exit(FatturaProjectInfo.Code);
     end;
 
-    local procedure FindVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Option; VATPercentage: Integer)
+    local procedure FindVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type"; VATPercentage: Integer)
     begin
         with VATPostingSetup do begin
             LibraryERM.FindVATPostingSetup(VATPostingSetup, "VAT Calculation Type"::"Normal VAT");
@@ -381,17 +381,17 @@ codeunit 143000 "Library - IT Localization"
         ElectronicDocumentFormat: Record "Electronic Document Format";
     begin
         ElectronicDocumentFormat.InsertElectronicFormat(
-          FormatCode, '', CODEUNIT::"Export FatturaPA Document", 0, ElectronicDocumentFormat.Usage::"Sales Invoice");
+          FormatCode, '', CODEUNIT::"Export FatturaPA Document", 0, ElectronicDocumentFormat.Usage::"Sales Invoice".AsInteger());
         ElectronicDocumentFormat.InsertElectronicFormat(
-          FormatCode, '', CODEUNIT::"Export FatturaPA Document", 0, ElectronicDocumentFormat.Usage::"Sales Credit Memo");
+          FormatCode, '', CODEUNIT::"Export FatturaPA Document", 0, ElectronicDocumentFormat.Usage::"Sales Credit Memo".AsInteger());
         ElectronicDocumentFormat.InsertElectronicFormat(
-          FormatCode, '', CODEUNIT::"Export FatturaPA Document", 0, ElectronicDocumentFormat.Usage::"Service Invoice");
+          FormatCode, '', CODEUNIT::"Export FatturaPA Document", 0, ElectronicDocumentFormat.Usage::"Service Invoice".AsInteger());
         ElectronicDocumentFormat.InsertElectronicFormat(
-          FormatCode, '', CODEUNIT::"Export FatturaPA Document", 0, ElectronicDocumentFormat.Usage::"Service Credit Memo");
+          FormatCode, '', CODEUNIT::"Export FatturaPA Document", 0, ElectronicDocumentFormat.Usage::"Service Credit Memo".AsInteger());
         ElectronicDocumentFormat.InsertElectronicFormat(
-          FormatCode, '', CODEUNIT::"FatturaPA Sales Validation", 0, ElectronicDocumentFormat.Usage::"Sales Validation");
+          FormatCode, '', CODEUNIT::"FatturaPA Sales Validation", 0, ElectronicDocumentFormat.Usage::"Sales Validation".AsInteger());
         ElectronicDocumentFormat.InsertElectronicFormat(
-          FormatCode, '', CODEUNIT::"FatturaPA Service Validation", 0, ElectronicDocumentFormat.Usage::"Service Validation");
+          FormatCode, '', CODEUNIT::"FatturaPA Service Validation", 0, ElectronicDocumentFormat.Usage::"Service Validation".AsInteger());
     end;
 
     procedure SetValidateDocumentOnPostingSales(Validate: Boolean; FormatCode: Code[20])
@@ -413,8 +413,8 @@ codeunit 143000 "Library - IT Localization"
         UpdateFatturaCompanyInformation;
         ClearAllXMLFilesInTempFolder;
         with SalesReceivablesSetup do begin
-          Get;
-          "Fattura PA Nos." := InsertFatturaNoSeries;
+            Get;
+            "Fattura PA Nos." := InsertFatturaNoSeries;
         end;
 
         InsertFatturaElectronicFormats(FatturaPA_ElectronicFormatTxt);
@@ -428,9 +428,9 @@ codeunit 143000 "Library - IT Localization"
         DocumentSendingProfile.DeleteAll();
         DocumentSendingProfile.Init();
         DocumentSendingProfile.Code := LibraryUtility.GenerateGUID;
-        DocumentSendingProfile.Validate(Disk,DocumentSendingProfile.Disk::"Electronic Document");
-        DocumentSendingProfile.Validate("Disk Format",FatturaPA_ElectronicFormatTxt);
-        DocumentSendingProfile.Validate(Default,true);
+        DocumentSendingProfile.Validate(Disk, DocumentSendingProfile.Disk::"Electronic Document");
+        DocumentSendingProfile.Validate("Disk Format", FatturaPA_ElectronicFormatTxt);
+        DocumentSendingProfile.Validate(Default, true);
         DocumentSendingProfile.Insert();
     end;
 
@@ -470,15 +470,15 @@ codeunit 143000 "Library - IT Localization"
         NoSeriesLine: Record "No. Series Line";
     begin
         NoSeries.Get(LibraryERM.CreateNoSeriesCode);
-        NoSeriesLine.SetRange("Series Code",NoSeries.Code);
+        NoSeriesLine.SetRange("Series Code", NoSeries.Code);
         NoSeriesLine.FindFirst;
-        NoSeriesLine.Validate("Starting No.",'1001');
-        NoSeriesLine.Validate("Ending No.",'1999');
-        NoSeriesLine.Validate("Last No. Used",'1995');
+        NoSeriesLine.Validate("Starting No.", '1001');
+        NoSeriesLine.Validate("Ending No.", '1999');
+        NoSeriesLine.Validate("Last No. Used", '1995');
         NoSeriesLine.Modify(true);
         exit(NoSeries.Code);
     end;
-    
+
     [Scope('OnPrem')]
     procedure ClearAllXMLFilesInTempFolder()
     var

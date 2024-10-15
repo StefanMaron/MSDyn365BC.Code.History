@@ -11,7 +11,7 @@ codeunit 12179 "Export FatturaPA Document"
         HeaderRecRef: RecordRef;
         XMLServerPath: Text[250];
     begin
-        SendTraceTag('0000CQ6', FatturaTok, VERBOSITY::Normal, ExportFatturaMsg, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('0000CQ6', ExportFatturaMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', FatturaTok);
 
         HeaderRecRef.Get(RecordID);
         FatturaDocHelper.InitializeErrorLog(Rec);
@@ -30,12 +30,12 @@ codeunit 12179 "Export FatturaPA Document"
         if not FatturaDocHelper.HasErrors then
             XMLServerPath := GenerateXMLFile(TempFatturaLine, TempFatturaHeader, ClientFileName)
         else
-            SendTraceTag('0000CQ7', FatturaTok, VERBOSITY::Error, DocumentValidationErrMsg, DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000CQ7', DocumentValidationErrMsg, Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', FatturaTok);
 
         ServerFilePath := XMLServerPath;
         Modify;
 
-        SendTraceTag('0000CQ8', FatturaTok, VERBOSITY::Normal, ExportFatturaSuccMsg, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('0000CQ8', ExportFatturaSuccMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', FatturaTok);
     end;
 
     var
@@ -62,7 +62,7 @@ codeunit 12179 "Export FatturaPA Document"
         ServerFileName: Text[250];
         FileName: Text;
     begin
-        SendTraceTag('0000CQ9', FatturaTok, VERBOSITY::Normal, GenerateXMLMsg, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('0000CQ9', GenerateXMLMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', FatturaTok);
 
         CompanyInformation.Get();
         BindSubscription(ExportFatturaPADocument);
@@ -73,12 +73,12 @@ codeunit 12179 "Export FatturaPA Document"
 
         // create file
         if not TryCreateFatturaElettronicaHeader(TempFatturaHeader) then begin
-            SendTraceTag('0000CQA', FatturaTok, VERBOSITY::Error, StrSubstNo(HeaderErrMsg, GetLastErrorText()), DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000CQA', StrSubstNo(HeaderErrMsg, GetLastErrorText()), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', FatturaTok);
             Error(GetLastErrorText());
         end;
 
         if not TryCreateFatturaElettronicaBody(TempFatturaLine, TempFatturaHeader) then begin
-            SendTraceTag('0000CQB', FatturaTok, VERBOSITY::Error, StrSubstNo(BodyErrMsg, GetLastErrorText()), DATACLASSIFICATION::SystemMetadata);
+            Session.LogMessage('0000CQB', StrSubstNo(BodyErrMsg, GetLastErrorText()), Verbosity::Error, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', FatturaTok);
             Error(GetLastErrorText());
         end;
 
@@ -86,7 +86,7 @@ codeunit 12179 "Export FatturaPA Document"
         TempXMLBuffer.FindFirst;
         TempXMLBuffer.Save(FileName);
 
-        SendTraceTag('0000CQC', FatturaTok, VERBOSITY::Normal, GenerateXMLSuccMsg, DATACLASSIFICATION::SystemMetadata);
+        Session.LogMessage('0000CQC', GenerateXMLSuccMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', FatturaTok);
         exit(CopyStr(FileName, 1, 250))
     end;
 

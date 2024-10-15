@@ -277,7 +277,7 @@ page 518 "Purchase Lines"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
             }
@@ -296,6 +296,8 @@ page 518 "Purchase Lines"
 
     var
         PurchHeader: Record "Purchase Header";
+
+    protected var
         ShortcutDimCode: array[8] of Code[20];
 }
 

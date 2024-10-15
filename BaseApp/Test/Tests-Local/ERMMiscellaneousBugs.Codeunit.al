@@ -700,7 +700,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         GetEntriesFromIntrastatJournalForSale(SalesHeader."Document Type"::"Credit Memo", false);  // Corrected Entry - FALSE.
     end;
 
-    local procedure GetEntriesFromIntrastatJournalForSale(DocumentType: Option; CorrectedEntry: Boolean)
+    local procedure GetEntriesFromIntrastatJournalForSale(DocumentType: Enum "Sales Document Type"; CorrectedEntry: Boolean)
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         IntrastatJournal: TestPage "Intrastat Journal";
@@ -775,7 +775,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         OperationOccurredDateOnServiceDocument(ServiceHeader."Document Type"::Order);
     end;
 
-    local procedure OperationOccurredDateOnServiceDocument(DocumentType: Option)
+    local procedure OperationOccurredDateOnServiceDocument(DocumentType: Enum "Service Document Type")
     var
         Customer: Record Customer;
         ServiceHeader: Record "Service Header";
@@ -923,7 +923,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         AmountOnSalesDocumentWithChargeItemIntrastatJournal(SalesHeader."Document Type"::"Credit Memo", false);  // Corrected Entry as False.
     end;
 
-    local procedure AmountOnSalesDocumentWithChargeItemIntrastatJournal(DocumentType: Option; CorrectedEntry: Boolean)
+    local procedure AmountOnSalesDocumentWithChargeItemIntrastatJournal(DocumentType: Enum "Sales Document Type"; CorrectedEntry: Boolean)
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
         SalesHeader: Record "Sales Header";
@@ -1586,7 +1586,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         asserterror Error('');
     end;
 
-    local procedure ApplyAndPostGeneralJournalLine(AccountType: Option; AccountNo: Code[20]; AppliesToDocNo: Code[20]; Amount: Decimal): Code[20]
+    local procedure ApplyAndPostGeneralJournalLine(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; AppliesToDocNo: Code[20]; Amount: Decimal): Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -1595,7 +1595,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         exit(GenJournalLine."Document No.");
     end;
 
-    local procedure VendorNameOnVATRegisterPrint(DocumentType: Option)
+    local procedure VendorNameOnVATRegisterPrint(DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
         PrintingType: Option Test,Final,Reprint;
@@ -1627,7 +1627,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         exit(GenJournalLine."Document No.");
     end;
 
-    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; VenderNo: Code[20]; DocumentType: Option)
+    local procedure CreateAndPostPurchaseDocument(var PurchaseHeader: Record "Purchase Header"; VenderNo: Code[20]; DocumentType: Enum "Purchase Document Type")
     begin
         CreatePurchaseDocumentWithServiceTariffNumber(PurchaseHeader, VenderNo, DocumentType);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -1643,7 +1643,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreateAndPostSalesDocumentWithServiceTariffNumber(CustomerNo: Code[20]; DocumentType: Option): Code[10]
+    local procedure CreateAndPostSalesDocumentWithServiceTariffNumber(CustomerNo: Code[20]; DocumentType: Enum "Sales Document Type"): Code[10]
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -1903,14 +1903,14 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         exit(Vendor."No.");
     end;
 
-    local procedure CreateGenJnlLineWithAppliesToOccurence(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccNo: Code[20]; DocNo: Code[20]; OccurenceNo: Integer; Amount: Decimal)
+    local procedure CreateGenJnlLineWithAppliesToOccurence(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccNo: Code[20]; DocNo: Code[20]; OccurenceNo: Integer; Amount: Decimal)
     begin
         CreateGeneralJournalLine(GenJournalLine, AccountType, AccNo, DocNo, Amount);
         GenJournalLine.Validate("Applies-to Occurrence No.", OccurenceNo);
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; AppliesToDocNo: Code[20]; Amount: Decimal)
+    local procedure CreateGeneralJournalLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; AppliesToDocNo: Code[20]; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -1977,7 +1977,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         exit(PostCode.Code);
     end;
 
-    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20]; No: Code[20]; Type: Option; LineDiscountPct: Decimal): Decimal
+    local procedure CreatePurchaseDocument(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; No: Code[20]; Type: Enum "Purchase Line Type"; LineDiscountPct: Decimal): Decimal
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -2004,7 +2004,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         FindPurchaseLine(PurchaseLine, PurchaseHeader."Document Type", PurchaseLine.Type::"G/L Account", PurchaseHeader."No.");
     end;
 
-    local procedure CreatePurchaseDocumentWithServiceTariffNumber(var PurchaseHeader: Record "Purchase Header"; VenderNo: Code[20]; DocumentType: Option)
+    local procedure CreatePurchaseDocumentWithServiceTariffNumber(var PurchaseHeader: Record "Purchase Header"; VenderNo: Code[20]; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -2043,7 +2043,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         exit(SalesLine.Amount);
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20])
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20])
     var
         PaymentMethod: Record "Payment Method";
         ServiceTariffNumber: Record "Service Tariff Number";
@@ -2063,7 +2063,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         end;
     end;
 
-    local procedure CreatePurchaseLine(PurchaseHeader: Record "Purchase Header"; Type: Option; ItemNo: Code[20])
+    local procedure CreatePurchaseLine(PurchaseHeader: Record "Purchase Header"; Type: Enum "Purchase Line Type"; ItemNo: Code[20])
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -2072,7 +2072,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; Amount: Integer; DocumentType: Option): Code[20]
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; Amount: Integer; DocumentType: Enum "Sales Document Type"): Code[20]
     var
         SalesLine: Record "Sales Line";
     begin
@@ -2084,7 +2084,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         exit(SalesLine."Sell-to Customer No.");
     end;
 
-    local procedure CreateSalesDocumentWithServiceTariffNumber(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; DocumentType: Option)
+    local procedure CreateSalesDocumentWithServiceTariffNumber(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; DocumentType: Enum "Sales Document Type")
     var
         SalesLine: Record "Sales Line";
         VATPostingSetup: Record "VAT Posting Setup";
@@ -2095,7 +2095,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         CreateSalesLine(SalesHeader, SalesLine.Type::Item, CreateItemWithVATProdPostingGroup(VATPostingSetup."VAT Prod. Posting Group"));
     end;
 
-    local procedure CreateAndPostSalesDocument(CustomerNo: Code[20]; DocumentType: Option; VATCalculationType: Option): Code[20]
+    local procedure CreateAndPostSalesDocument(CustomerNo: Code[20]; DocumentType: Enum "Sales Document Type"; VATCalculationType: Enum "Tax Calculation Type"): Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -2114,7 +2114,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option; CustomerNo: Code[20])
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20])
     var
         PaymentMethod: Record "Payment Method";
         ServiceTariffNumber: Record "Service Tariff Number";
@@ -2131,7 +2131,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         SalesHeader.Modify(true);
     end;
 
-    local procedure CreateSalesLine(SalesHeader: Record "Sales Header"; Type: Option; ItemNo: Code[20])
+    local procedure CreateSalesLine(SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; ItemNo: Code[20])
     var
         SalesLine: Record "Sales Line";
     begin
@@ -2140,7 +2140,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         SalesLine.Modify(true);
     end;
 
-    local procedure CreateAndUpdateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusPostingGroup: Code[20]; VATCalculationType: Option)
+    local procedure CreateAndUpdateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusPostingGroup: Code[20]; VATCalculationType: Enum "Tax Calculation Type")
     begin
         CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroup, VATCalculationType);
         VATPostingSetup.Validate("VAT Identifier", LibraryERM.CreateRandomVATIdentifierAndGetCode);
@@ -2148,7 +2148,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         VATPostingSetup.Modify(true);
     end;
 
-    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusPostingGroup: Code[20]; VATCalculationType: Option)
+    local procedure CreateVATPostingSetup(var VATPostingSetup: Record "VAT Posting Setup"; VATBusPostingGroup: Code[20]; VATCalculationType: Enum "Tax Calculation Type")
     var
         VATProdPostingGroup: Record "VAT Product Posting Group";
     begin
@@ -2285,7 +2285,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         exit(Bill.Code);
     end;
 
-    local procedure FindCustLedgerEntryWithDocumentType(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Option)
+    local procedure FindCustLedgerEntryWithDocumentType(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetRange("Document Type", DocumentType);
@@ -2338,7 +2338,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         exit(PaymentMethod.Code);
     end;
 
-    local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Option; Type: Option; DocumentNo: Code[20])
+    local procedure FindPurchaseLine(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; Type: Enum "Purchase Line Type"; DocumentNo: Code[20])
     begin
         PurchaseLine.SetRange("Document Type", DocumentType);
         PurchaseLine.SetRange("Document No.", DocumentNo);
@@ -2346,16 +2346,14 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         PurchaseLine.FindFirst;
     end;
 
-    local procedure FindLineAmount(DocumentType: Option; Amount: Decimal): Decimal
-    var
-        DocumentTypeOption: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
+    local procedure FindLineAmount(DocumentType: Enum "Sales Document Type"; Amount: Decimal): Decimal
     begin
-        if DocumentType = DocumentTypeOption::Invoice then
+        if DocumentType = "Sales Document Type"::Invoice then
             exit(Amount);
         exit(-Amount);
     end;
 
-    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Option; Type: Option; DocumentNo: Code[20])
+    local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; Type: Enum "Sales Line Type"; DocumentNo: Code[20])
     begin
         SalesLine.SetRange("Document Type", DocumentType);
         SalesLine.SetRange("Document No.", DocumentNo);
@@ -2396,7 +2394,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         WithholdCodeLine.FindFirst;
     end;
 
-    local procedure FullVATSalesDocumentOnVatReport(DocumentType: Option)
+    local procedure FullVATSalesDocumentOnVatReport(DocumentType: Enum "Sales Document Type")
     var
         VATPostingSetup: Record "VAT Posting Setup";
         DocumentNo: Code[20];
@@ -2754,7 +2752,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         LibraryReportDataSet.AssertElementWithValueExists(AmountCap, Amount);
     end;
 
-    local procedure VerifyGLEntryAmount(DocumentType: Option; DocumentNo: Code[20]; GLAccountNo: Code[20]; CreditAmount: Decimal; DebitAmount: Decimal; PostingDate: Date)
+    local procedure VerifyGLEntryAmount(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; GLAccountNo: Code[20]; CreditAmount: Decimal; DebitAmount: Decimal; PostingDate: Date)
     var
         GLEntry: Record "G/L Entry";
     begin
@@ -2767,7 +2765,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         Assert.AreNearlyEqual(DebitAmount, GLEntry."Debit Amount", LibraryERM.GetAmountRoundingPrecision, ValueMustNotSameMsg);
     end;
 
-    local procedure VerifyCustLedgerEntryPaymentMethodAmountAndDueDate(DocumentType: Option; DocumentNo: Code[20]; CustomerNo: Code[20]; PaymentMethod: Code[10]; Amount: Decimal; DueDate: Date)
+    local procedure VerifyCustLedgerEntryPaymentMethodAmountAndDueDate(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; CustomerNo: Code[20]; PaymentMethod: Code[10]; Amount: Decimal; DueDate: Date)
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
@@ -2779,7 +2777,7 @@ codeunit 144105 "ERM Miscellaneous Bugs"
         Assert.AreNearlyEqual(Amount, CustLedgerEntry.Amount, LibraryERM.GetAmountRoundingPrecision, ValueMustNotSameMsg);
     end;
 
-    local procedure VerifyPurchCommentLine(DocumentNo: Code[20]; DocumentType: Option)
+    local procedure VerifyPurchCommentLine(DocumentNo: Code[20]; DocumentType: Enum "Purchase Comment Document Type")
     var
         PurchCommentLine: Record "Purch. Comment Line";
     begin

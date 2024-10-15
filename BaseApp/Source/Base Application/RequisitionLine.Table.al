@@ -1,4 +1,4 @@
-﻿table 246 "Requisition Line"
+table 246 "Requisition Line"
 {
     Caption = 'Requisition Line';
     DataCaptionFields = "Journal Batch Name", "Line No.";
@@ -230,6 +230,7 @@
                 UpdateDescription;
 
                 GetLocationCode;
+                OnValidateVendorNoOnAfterGetLocationCode(Rec);
 
                 "Order Address Code" := '';
 
@@ -501,7 +502,7 @@
         }
         field(31; "Reserved Quantity"; Decimal)
         {
-            CalcFormula = Sum ("Reservation Entry".Quantity WHERE("Source ID" = FIELD("Worksheet Template Name"),
+            CalcFormula = Sum("Reservation Entry".Quantity WHERE("Source ID" = FIELD("Worksheet Template Name"),
                                                                   "Source Ref. No." = FIELD("Line No."),
                                                                   "Source Type" = CONST(246),
                                                                   "Source Subtype" = CONST("0"),
@@ -521,7 +522,7 @@
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()
@@ -665,7 +666,7 @@
         }
         field(5431; "Reserved Qty. (Base)"; Decimal)
         {
-            CalcFormula = Sum ("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("Worksheet Template Name"),
+            CalcFormula = Sum("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("Worksheet Template Name"),
                                                                            "Source Ref. No." = FIELD("Line No."),
                                                                            "Source Type" = CONST(246),
                                                                            "Source Subtype" = CONST("0"),
@@ -756,7 +757,7 @@
                     TestField(Reserve, Item.Reserve = Item.Reserve::Always);
                 if Reserve and
                    ("Demand Type" = DATABASE::"Prod. Order Component") and
-                   ("Demand Subtype" = ProdOrderCapNeed.Status::Planned)
+                   ("Demand Subtype" = ProdOrderCapNeed.Status::Planned.AsInteger())
                 then
                     Error(Text030);
                 TestField("Planning Level", 0);
@@ -891,7 +892,7 @@
         }
         field(7100; "Blanket Purch. Order Exists"; Boolean)
         {
-            CalcFormula = Exist ("Purchase Line" WHERE("Document Type" = CONST("Blanket Order"),
+            CalcFormula = Exist("Purchase Line" WHERE("Document Type" = CONST("Blanket Order"),
                                                        Type = CONST(Item),
                                                        "No." = FIELD("No."),
                                                        "Outstanding Quantity" = FILTER(<> 0)));
@@ -1495,7 +1496,7 @@
         field(99000909; "Expected Operation Cost Amt."; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Planning Routing Line"."Expected Operation Cost Amt." WHERE("Worksheet Template Name" = FIELD("Worksheet Template Name"),
+            CalcFormula = Sum("Planning Routing Line"."Expected Operation Cost Amt." WHERE("Worksheet Template Name" = FIELD("Worksheet Template Name"),
                                                                                             "Worksheet Batch Name" = FIELD("Journal Batch Name"),
                                                                                             "Worksheet Line No." = FIELD("Line No.")));
             Caption = 'Expected Operation Cost Amt.';
@@ -1505,7 +1506,7 @@
         field(99000910; "Expected Component Cost Amt."; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Planning Component"."Cost Amount" WHERE("Worksheet Template Name" = FIELD("Worksheet Template Name"),
+            CalcFormula = Sum("Planning Component"."Cost Amount" WHERE("Worksheet Template Name" = FIELD("Worksheet Template Name"),
                                                                         "Worksheet Batch Name" = FIELD("Journal Batch Name"),
                                                                         "Worksheet Line No." = FIELD("Line No.")));
             Caption = 'Expected Component Cost Amt.';
@@ -1926,20 +1927,19 @@
 
     procedure UpdateDescription()
     var
-        Vend: Record Vendor;
-        ItemCrossRef: Record "Item Cross Reference";
-        ItemTranslation: Record "Item Translation";
         ItemVariant: Record "Item Variant";
         SalesLine: Record "Sales Line";
+        ItemReferenceMgt: Codeunit "Item Reference Management";
         IsHandled: Boolean;
     begin
         OnBeforeUpdateDescription(Rec, CurrFieldNo, IsHandled);
         if IsHandled then
             exit;
+
         if (Type <> Type::Item) or ("No." = '') then
             exit;
         if "Variant Code" = '' then begin
-            GetItem;
+            GetItem();
             Description := Item.Description;
             "Description 2" := Item."Description 2";
             OnUpdateDescriptionFromItem(Rec, Item);
@@ -1957,18 +1957,10 @@
         end;
 
         if "Vendor No." <> '' then
-            if not ItemCrossRef.GetItemDescription(
-                 Description, "Description 2", "No.", "Variant Code", "Unit of Measure Code",
-                 ItemCrossRef."Cross-Reference Type"::Vendor, "Vendor No.")
-            then begin
-                Vend.Get("Vendor No.");
-                if Vend."Language Code" <> '' then
-                    if ItemTranslation.Get("No.", "Variant Code", Vend."Language Code") then begin
-                        Description := ItemTranslation.Description;
-                        "Description 2" := ItemTranslation."Description 2";
-                        OnUpdateDescriptionFromItemTranslation(Rec, ItemTranslation);
-                    end;
-            end;
+            if ItemReferencemgt.IsEnabled() then
+                UpdateItemReferenceDescription()
+            else
+                UpdateItemCrossRefDescription();
     end;
 
     local procedure ValidateItemDescriptionAndQuantity(Vendor: Record Vendor)
@@ -1983,6 +1975,47 @@
         if Type = Type::Item then
             UpdateDescription;
         Validate(Quantity);
+    end;
+
+    local procedure UpdateItemReferenceDescription()
+    var
+        ItemReference: Record "Item Reference";
+        ItemTranslation: Record "Item Translation";
+        Vendor: Record Vendor;
+    begin
+        if not ItemReference.FindItemDescription(
+                Description, "Description 2", "No.", "Variant Code", "Unit of Measure Code",
+                "Item Reference Type"::Vendor, "Vendor No.")
+        then begin
+            Vendor.Get("Vendor No.");
+            if Vendor."Language Code" <> '' then
+                if ItemTranslation.Get("No.", "Variant Code", Vendor."Language Code") then begin
+                    Description := ItemTranslation.Description;
+                    "Description 2" := ItemTranslation."Description 2";
+                    OnUpdateDescriptionFromItemTranslation(Rec, ItemTranslation);
+                end;
+        end;
+    end;
+
+    [Obsolete('Replaced by Item Reference feature.', '17.0')]
+    local procedure UpdateItemCrossRefDescription()
+    var
+        ItemCrossRef: Record "Item Cross Reference";
+        ItemTranslation: Record "Item Translation";
+        Vendor: Record Vendor;
+    begin
+        if not ItemCrossRef.FindItemDescription(
+                Description, "Description 2", "No.", "Variant Code", "Unit of Measure Code",
+                ItemCrossRef."Cross-Reference Type"::Vendor, "Vendor No.")
+        then begin
+            Vendor.Get("Vendor No.");
+            if Vendor."Language Code" <> '' then
+                if ItemTranslation.Get("No.", "Variant Code", Vendor."Language Code") then begin
+                    Description := ItemTranslation.Description;
+                    "Description 2" := ItemTranslation."Description 2";
+                    OnUpdateDescriptionFromItemTranslation(Rec, ItemTranslation);
+                end;
+        end;
     end;
 
     procedure BlockDynamicTracking(SetBlock: Boolean)
@@ -2421,7 +2454,7 @@
         "Planning Flexibility" := ProdOrderLine."Planning Flexibility";
         "Ref. Order No." := ProdOrderLine."Prod. Order No.";
         "Ref. Order Type" := "Ref. Order Type"::"Prod. Order";
-        "Ref. Order Status" := ProdOrderLine.Status;
+        "Ref. Order Status" := ProdOrderLine.Status.AsInteger();
         "Ref. Line No." := ProdOrderLine."Line No.";
 
         OnAfterTransferFromProdOrderLine(Rec, ProdOrderLine);
@@ -2517,7 +2550,7 @@
         "MPS Order" := AsmHeader."MPS Order";
         "Planning Flexibility" := AsmHeader."Planning Flexibility";
         "Ref. Order Type" := "Ref. Order Type"::Assembly;
-        "Ref. Order Status" := AsmHeader."Document Type";
+        "Ref. Order Status" := AsmHeader."Document Type".AsInteger();
         "Ref. Order No." := AsmHeader."No.";
         "Ref. Line No." := 0;
 
@@ -2684,7 +2717,7 @@
     procedure GetDirectCost(CalledByFieldNo: Integer)
     var
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
-        RequisitionLinePrice: Codeunit "Requisition Line - Price";
+        LineWithPrice: Interface "Line With Price";
         PriceCalculation: Interface "Price Calculation";
         PriceType: enum "Price Type";
         Line: Variant;
@@ -2697,8 +2730,9 @@
 
         GetWorkCenter;
         if ("Replenishment System" = "Replenishment System"::Purchase) and not Subcontracting then begin
-            RequisitionLinePrice.SetLine(PriceType::Purchase, Rec);
-            PriceCalculationMgt.GetHandler(RequisitionLinePrice, PriceCalculation);
+            GetLineWithPrice(LineWithPrice);
+            LineWithPrice.SetLine(PriceType::Purchase, Rec);
+            PriceCalculationMgt.GetHandler(LineWithPrice, PriceCalculation);
             PriceCalculation.ApplyDiscount();
             PriceCalculation.ApplyPrice(CalledByFieldNo);
             PriceCalculation.GetLine(Line);
@@ -2706,6 +2740,14 @@
         end;
 
         OnAfterGetDirectCost(Rec, CalledByFieldNo);
+    end;
+
+    procedure GetLineWithPrice(var LineWithPrice: Interface "Line With Price")
+    var
+        RequisitionLinePrice: Codeunit "Requisition Line - Price";
+    begin
+        LineWithPrice := RequisitionLinePrice;
+        OnAfterGetLineWithPrice(LineWithPrice);
     end;
 
     local procedure ValidateLocationChange()
@@ -3436,7 +3478,7 @@
         Item.TestField("Base Unit of Measure");
         if "Ref. Order No." = '' then begin
             "Ref. Order Type" := "Ref. Order Type"::Assembly;
-            "Ref. Order Status" := AssemblyHeader."Document Type"::Order;
+            "Ref. Order Status" := AssemblyHeader."Document Type"::Order.AsInteger();
         end;
         Validate("Vendor No.", '');
         Validate("Production BOM No.", '');
@@ -3535,6 +3577,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetDirectCost(var RequisitionLine: Record "Requisition Line"; CalledByFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGetLineWithPrice(var LineWithPrice: Interface "Line With Price")
     begin
     end;
 
@@ -3637,12 +3684,10 @@
     local procedure OnBeforeLookupVendor(var RequisitionLine: Record "Requisition Line"; var Vendor: Record Vendor; var PreferItemVendorCatalog: Boolean; var IsHandled: Boolean; var IsVendorSelected: Boolean)
     begin
     end;
-
     [IntegrationEvent(false, false)]
     local procedure OnBeforeLookupVendorNo(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin
     end;
-
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetFromBinCode(var RequisitionLine: Record "Requisition Line"; var IsHandled: Boolean)
     begin

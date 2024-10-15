@@ -407,7 +407,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         with GenJournalLine do
-            VerifyGetLn("Account Type"::Customer, "Document Type"::Invoice, "Gen. Posting Type"::Sale, false, Resident::Resident, false);  // Individual= FALSE, UsingFiscalCode = FALSE
+            VerifyGetLine("Account Type"::Customer, "Document Type"::Invoice, "Gen. Posting Type"::Sale, false, Resident::Resident, false);  // Individual= FALSE, UsingFiscalCode = FALSE
     end;
 
     [Test]
@@ -417,7 +417,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         with GenJournalLine do
-            VerifyGetLn("Account Type"::Customer, "Document Type"::"Credit Memo", "Gen. Posting Type"::Sale, false, Resident::Resident, false);  // Individual= FALSE, UsingFiscalCode = FALSE
+            VerifyGetLine("Account Type"::Customer, "Document Type"::"Credit Memo", "Gen. Posting Type"::Sale, false, Resident::Resident, false);  // Individual= FALSE, UsingFiscalCode = FALSE
     end;
 
     [Test]
@@ -427,7 +427,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         with GenJournalLine do
-            asserterror VerifyGetLn(
+            asserterror VerifyGetLine(
                 "Account Type"::Customer, "Document Type"::"Credit Memo", "Gen. Posting Type"::Sale, false, Resident::"Non-Resident", false);  // Individual= FALSE, UsingFiscalCode = FALSE
         Assert.ExpectedError(NonResidentCrMemosNotReportedErr);
     end;
@@ -439,7 +439,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         with GenJournalLine do
-            VerifyGetLn("Account Type"::Customer, "Document Type"::Invoice, "Gen. Posting Type"::Sale, true, Resident::Resident, true);  // Individual= TRUE, UsingFiscalCode = TRUE
+            VerifyGetLine("Account Type"::Customer, "Document Type"::Invoice, "Gen. Posting Type"::Sale, true, Resident::Resident, true);  // Individual= TRUE, UsingFiscalCode = TRUE
     end;
 
     [Test]
@@ -449,7 +449,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         with GenJournalLine do
-            VerifyGetLn("Account Type"::Customer, "Document Type"::"Credit Memo", "Gen. Posting Type"::Sale, true, Resident::Resident, true);  // Individual= TRUE, UsingFiscalCode = TRUE
+            VerifyGetLine("Account Type"::Customer, "Document Type"::"Credit Memo", "Gen. Posting Type"::Sale, true, Resident::Resident, true);  // Individual= TRUE, UsingFiscalCode = TRUE
     end;
 
     [Test]
@@ -459,7 +459,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         with GenJournalLine do
-            VerifyGetLn("Account Type"::Customer, "Document Type"::Invoice, "Gen. Posting Type"::Sale, true, Resident::"Non-Resident", false); // Individual= TRUE, UsingFiscalCode = FALSE
+            VerifyGetLine("Account Type"::Customer, "Document Type"::Invoice, "Gen. Posting Type"::Sale, true, Resident::"Non-Resident", false); // Individual= TRUE, UsingFiscalCode = FALSE
     end;
 
     [Test]
@@ -469,7 +469,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         with GenJournalLine do
-            VerifyGetLn("Account Type"::"G/L Account", "Document Type"::Payment, "Gen. Posting Type"::Sale, true, Resident::Resident, true); // Individual= TRUE, UsingFiscalCode = TRUE
+            VerifyGetLine("Account Type"::"G/L Account", "Document Type"::Payment, "Gen. Posting Type"::Sale, true, Resident::Resident, true); // Individual= TRUE, UsingFiscalCode = TRUE
     end;
 
     [Test]
@@ -479,7 +479,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         with GenJournalLine do
-            VerifyGetLn("Account Type"::"G/L Account", "Document Type"::Invoice, "Gen. Posting Type"::Sale, true, Resident::Resident, true); // Individual= TRUE, UsingFiscalCode = TRUE
+            VerifyGetLine("Account Type"::"G/L Account", "Document Type"::Invoice, "Gen. Posting Type"::Sale, true, Resident::Resident, true); // Individual= TRUE, UsingFiscalCode = TRUE
     end;
 
     [Test]
@@ -489,7 +489,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         with GenJournalLine do
-            VerifyGetLn("Account Type"::"G/L Account", "Document Type"::Refund, "Gen. Posting Type"::Sale, true, Resident::Resident, true);  // Individual= TRUE, UsingFiscalCode = TRUE
+            VerifyGetLine("Account Type"::"G/L Account", "Document Type"::Refund, "Gen. Posting Type"::Sale, true, Resident::Resident, true);  // Individual= TRUE, UsingFiscalCode = TRUE
     end;
 
     [Test]
@@ -499,7 +499,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         with GenJournalLine do
-            VerifyGetLn(
+            VerifyGetLine(
               "Account Type"::"G/L Account", "Document Type"::"Credit Memo", "Gen. Posting Type"::Sale, true, Resident::Resident, true); // Individual= TRUE, UsingFiscalCode = TRUE
     end;
 
@@ -510,7 +510,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         with GenJournalLine do
-            VerifyGetLn("Account Type"::Vendor, "Document Type"::Invoice, "Gen. Posting Type"::Purchase, false, Resident::Resident, false);  // Individual= FALSE, UsingFiscalCode = FALSE
+            VerifyGetLine("Account Type"::Vendor, "Document Type"::Invoice, "Gen. Posting Type"::Purchase, false, Resident::Resident, false);  // Individual= FALSE, UsingFiscalCode = FALSE
     end;
 
     [Test]
@@ -520,7 +520,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         with GenJournalLine do
-            VerifyGetLn(
+            VerifyGetLine(
               "Account Type"::Vendor, "Document Type"::"Credit Memo", "Gen. Posting Type"::Purchase, false, Resident::Resident, false);  // Individual= FALSE, UsingFiscalCode = FALSE
     end;
 
@@ -531,7 +531,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         with GenJournalLine do
-            asserterror VerifyGetLn(
+            asserterror VerifyGetLine(
                 "Account Type"::Vendor, "Document Type"::"Credit Memo", "Gen. Posting Type"::Purchase, false, Resident::"Non-Resident", false);  // Individual= FALSE, UsingFiscalCode = FALSE
         Assert.ExpectedError(NonResidentCrMemosNotReportedErr);
     end;
@@ -543,7 +543,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         with GenJournalLine do
-            VerifyGetLn(
+            VerifyGetLine(
                 "Account Type"::Vendor, "Document Type"::Invoice, "Gen. Posting Type"::Purchase, true, Resident::Resident, true);
         // Individual= TRUE, UsingFiscalCode = TRUE
     end;
@@ -555,7 +555,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         with GenJournalLine do
-            VerifyGetLn(
+            VerifyGetLine(
               "Account Type"::Vendor, "Document Type"::"Credit Memo", "Gen. Posting Type"::Purchase, true, Resident::Resident, true);
         // Individual= TRUE, UsingFiscalCode = TRUE
     end;
@@ -567,7 +567,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         with GenJournalLine do
-            VerifyGetLn("Account Type"::Vendor, "Document Type"::Invoice, "Gen. Posting Type"::Purchase, true, Resident::"Non-Resident", false); // Individual= TRUE, UsingFiscalCode = FALSE
+            VerifyGetLine("Account Type"::Vendor, "Document Type"::Invoice, "Gen. Posting Type"::Purchase, true, Resident::"Non-Resident", false); // Individual= TRUE, UsingFiscalCode = FALSE
     end;
 
     [Test]
@@ -577,7 +577,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         with GenJournalLine do
-            VerifyGetLn(
+            VerifyGetLine(
                 "Account Type"::"G/L Account", "Document Type"::Payment, "Gen. Posting Type"::Purchase, true, Resident::Resident, true);
         // Individual= TRUE, UsingFiscalCode = TRUE
     end;
@@ -589,7 +589,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         with GenJournalLine do
-            VerifyGetLn(
+            VerifyGetLine(
                 "Account Type"::"G/L Account", "Document Type"::Invoice, "Gen. Posting Type"::Purchase, true, Resident::Resident, true);
         // Individual= TRUE, UsingFiscalCode = TRUE
     end;
@@ -601,7 +601,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         with GenJournalLine do
-            VerifyGetLn(
+            VerifyGetLine(
                 "Account Type"::"G/L Account", "Document Type"::Refund, "Gen. Posting Type"::Purchase, true, Resident::Resident, true);
         // Individual= TRUE, UsingFiscalCode = TRUE
     end;
@@ -613,11 +613,11 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         with GenJournalLine do
-            VerifyGetLn(
+            VerifyGetLine(
               "Account Type"::"G/L Account", "Document Type"::"Credit Memo", "Gen. Posting Type"::Purchase, true, Resident::Resident, true); // Individual= TRUE, UsingFiscalCode = TRUE
     end;
 
-    local procedure VerifyGetLn(AccountType: Option; DocumentType: Option; GenPostingType: Option; IndividualPerson: Boolean; Resident: Option; UsingFiscalCode: Boolean)
+    local procedure VerifyGetLine(AccountType: Enum "Gen. Journal Account Type"; DocumentType: Enum "Gen. Journal Document Type"; GenPostingType: Enum "General Posting Type"; IndividualPerson: Boolean; Resident: Option; UsingFiscalCode: Boolean)
     begin
         Initialize;
 
@@ -708,7 +708,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         VerifyContractGetLn(VATReportLine.Type::Purchase, PurchaseHeader."Document Type"::"Credit Memo", false);
     end;
 
-    local procedure VerifyContractGetLn(VATReportLineType: Option; DocumentType: Option; UseThreshold: Boolean)
+    local procedure VerifyContractGetLn(VATReportLineType: Enum "General Posting Type"; DocumentType: Enum "Gen. Journal Document Type"; UseThreshold: Boolean)
     var
         PurchHeader: Record "Purchase Header";
         SalesHeader: Record "Sales Header";
@@ -775,7 +775,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         VATReportLine: Record "VAT Report Line";
         SalesHeader: Record "Sales Header";
     begin
-        VerifyContractBelowThresholdGetLn(VATReportLine.Type::Sale, SalesHeader."Document Type"::Order);
+        VerifyContractBelowThresholdGetLn(VATReportLine.Type::Sale, SalesHeader."Document Type"::Order.AsInteger());
     end;
 
     [Test]
@@ -785,7 +785,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         VATReportLine: Record "VAT Report Line";
         PurchaseHeader: Record "Purchase Header";
     begin
-        VerifyContractBelowThresholdGetLn(VATReportLine.Type::Purchase, PurchaseHeader."Document Type"::Order);
+        VerifyContractBelowThresholdGetLn(VATReportLine.Type::Purchase, PurchaseHeader."Document Type"::Order.AsInteger());
     end;
 
     [Test]
@@ -795,7 +795,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         VATReportLine: Record "VAT Report Line";
         SalesHeader: Record "Sales Header";
     begin
-        VerifyContractBelowThresholdGetLn(VATReportLine.Type::Sale, SalesHeader."Document Type"::"Credit Memo");
+        VerifyContractBelowThresholdGetLn(VATReportLine.Type::Sale, SalesHeader."Document Type"::"Credit Memo".AsInteger());
     end;
 
     [Test]
@@ -805,10 +805,10 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         VATReportLine: Record "VAT Report Line";
         PurchaseHeader: Record "Purchase Header";
     begin
-        VerifyContractBelowThresholdGetLn(VATReportLine.Type::Purchase, PurchaseHeader."Document Type"::"Credit Memo");
+        VerifyContractBelowThresholdGetLn(VATReportLine.Type::Purchase, PurchaseHeader."Document Type"::"Credit Memo".AsInteger());
     end;
 
-    local procedure VerifyContractBelowThresholdGetLn(VATReportLineType: Option; DocumentType: Option)
+    local procedure VerifyContractBelowThresholdGetLn(VATReportLineType: Enum "General Posting Type"; DocumentType: Option)
     var
         PurchHeader: Record "Purchase Header";
         SalesHeader: Record "Sales Header";
@@ -834,7 +834,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
                     // Create Sales Order Linked to Blanket Order.
                     CreateSalesOrderLinkedBlOrd(
                       SalesHeader, LibraryVATUtils.CreateCustomer(false, SalesHeader.Resident::Resident, true, false, false), OrderAmount, LineAmount,
-                      DocumentType);
+                      "Sales Document Type".FromInteger(DocumentType));
                     // Post Sales Order.
                     LibrarySales.PostSalesDocument(SalesHeader, true, true);
                 end;
@@ -843,7 +843,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
                     // Create Purchase Order Linked to Blanket Order.
                     CreatePurchOrderLinkedBlOrd(
                       PurchHeader, LibraryVATUtils.CreateVendor(false, PurchHeader.Resident::Resident, true, false, false), OrderAmount, LineAmount,
-                      DocumentType);
+                      "Purchase Document Type".FromInteger(DocumentType));
                     // Post Purchase Order.
                     LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
                 end;
@@ -896,7 +896,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         VerifyContractApplyGetLn(VATReportLine.Type::Purchase, false);
     end;
 
-    local procedure VerifyContractApplyGetLn(VATReportLineType: Option; UseThreshold: Boolean)
+    local procedure VerifyContractApplyGetLn(VATReportLineType: Enum "General Posting Type"; UseThreshold: Boolean)
     var
         PurchHeader: Record "Purchase Header";
         SalesHeader: Record "Sales Header";
@@ -1165,7 +1165,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         VerifyCMGetLn(GenJournalLine."Account Type"::Customer, true, GenJournalLine."Document Type"::Invoice, false, false);
     end;
 
-    local procedure VerifyCMGetLn(AccountType: Option; UnrealizedVAT: Boolean; ApplyingEntry: Option; InvoiceAboveThreshold: Boolean; CreditMemoAboveThreshold: Boolean)
+    local procedure VerifyCMGetLn(AccountType: Enum "Gen. Journal Account Type"; UnrealizedVAT: Boolean; ApplyingEntry: Enum "Gen. Journal Document Type"; InvoiceAboveThreshold: Boolean; CreditMemoAboveThreshold: Boolean)
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalLine2: Record "Gen. Journal Line";
@@ -1304,7 +1304,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         VerifyInvPayGetLn(GenJournalLine."Account Type"::Vendor, GenJournalLine."Document Type"::Invoice, true);
     end;
 
-    local procedure VerifyInvPayGetLn(AccountType: Option; ApplyingEntry: Option; Unapply: Boolean)
+    local procedure VerifyInvPayGetLn(AccountType: Enum "Gen. Journal Account Type"; ApplyingEntry: Enum "Gen. Journal Document Type"; Unapply: Boolean)
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalLine2: Record "Gen. Journal Line";
@@ -1434,7 +1434,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         VerifyInvPayCMGetLn(GenJournalLine."Account Type"::Vendor, true, true);
     end;
 
-    local procedure VerifyInvPayCMGetLn(AccountType: Option; Unapply: Boolean; UnrealizedVAT: Boolean)
+    local procedure VerifyInvPayCMGetLn(AccountType: Enum "Gen. Journal Account Type"; Unapply: Boolean; UnrealizedVAT: Boolean)
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalLine2: Record "Gen. Journal Line";
@@ -1525,7 +1525,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         VerifyInvCMPartGetLn(GenJournalLine."Account Type"::Vendor, true, true, GenJournalLine."Document Type"::"Credit Memo");
     end;
 
-    local procedure VerifyInvCMPartGetLn(AccountType: Option; Unapply: Boolean; UnrealizedVAT: Boolean; ApplyingEntry: Option)
+    local procedure VerifyInvCMPartGetLn(AccountType: Enum "Gen. Journal Account Type"; Unapply: Boolean; UnrealizedVAT: Boolean; ApplyingEntry: Enum "Gen. Journal Document Type")
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalLine2: Record "Gen. Journal Line";
@@ -1614,14 +1614,14 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         VerifyCMMultiAppGetLn(GenJournalLine."Account Type"::Vendor, true);
     end;
 
-    local procedure VerifyCMMultiAppGetLn(AccountType: Option; UnrealizedVAT: Boolean)
+    local procedure VerifyCMMultiAppGetLn(AccountType: Enum "Gen. Journal Account Type"; UnrealizedVAT: Boolean)
     var
         GenJournalLine: Record "Gen. Journal Line";
         GenJournalLine2: Record "Gen. Journal Line";
         VATReportHeader: Record "VAT Report Header";
         VATReportLine: Record "VAT Report Line";
         LineAmount: Decimal;
-        GenPostingType: Option;
+        GenPostingType: Enum "General Posting Type";
         EndDate: Date;
     begin
         Initialize;
@@ -1795,7 +1795,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         Assert.ExpectedError(GJLResidentIndErr);
     end;
 
-    local procedure VerifyGenJnlGroupingGetLn(DocumentType: Option; GenPostingType: Option; Resident: Option)
+    local procedure VerifyGenJnlGroupingGetLn(DocumentType: Enum "Gen. Journal Document Type"; GenPostingType: Enum "General Posting Type"; Resident: Option)
     var
         GenJournalLine: Record "Gen. Journal Line";
         VATReportHeader: Record "VAT Report Header";
@@ -1936,7 +1936,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         VerifyDocGroupingGetLn(VATReportLine.Type::Purchase, true, VATEntry.Resident::Resident);
     end;
 
-    local procedure VerifyDocGroupingGetLn(VATReportLineType: Option; IndividualPerson: Boolean; Resident: Option)
+    local procedure VerifyDocGroupingGetLn(VATReportLineType: Enum "General Posting Type"; IndividualPerson: Boolean; Resident: Option)
     var
         PurchHeader: Record "Purchase Header";
         PurchLine: Record "Purchase Line";
@@ -2042,7 +2042,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         VerifyCMGroupingGetLn(VATEntry.Type::Purchase, true, VATEntry.Resident::Resident);
     end;
 
-    local procedure VerifyCMGroupingGetLn(VATReportLineType: Option; IndividualPerson: Boolean; Resident: Option)
+    local procedure VerifyCMGroupingGetLn(VATReportLineType: Enum "General Posting Type"; IndividualPerson: Boolean; Resident: Option)
     var
         PurchHeader: Record "Purchase Header";
         PurchLine: Record "Purchase Line";
@@ -2527,7 +2527,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         exit(Abs(AmountToApply) * Sign);
     end;
 
-    local procedure ApplyLedgerEntries(AccountType: Option; DocumentType: Option; DocumentNo: Code[20]; DocumentType2: Option; DocumentNo2: Code[20]; AmountToApply: Decimal)
+    local procedure ApplyLedgerEntries(AccountType: Enum "Gen. Journal Account Type"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; DocumentType2: Enum "Gen. Journal Document Type"; DocumentNo2: Code[20]; AmountToApply: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
         CustLedgerEntry: Record "Cust. Ledger Entry";
@@ -2584,14 +2584,14 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         GenJournalLine.Insert(true);
     end;
 
-    local procedure CreateDefaultAccount(GenPostingType: Option; AccountType: Option) AccountNo: Code[20]
+    local procedure CreateDefaultAccount(GenPostingType: Enum "General Posting Type"; AccountType: Enum "Gen. Journal Account Type") AccountNo: Code[20]
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
         AccountNo := LibraryVATUtils.CreateAccount(GenPostingType, AccountType, false, GenJournalLine.Resident::Resident, false, false); // This is Default Option.
     end;
 
-    local procedure CreatePurchDocument(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; DocumentType: Option; VendorNo: Code[20]; LineAmount: Decimal)
+    local procedure CreatePurchDocument(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20]; LineAmount: Decimal)
     begin
         // Create Purch. Header.
         CreatePurchHeader(PurchHeader, DocumentType, VendorNo);
@@ -2603,7 +2603,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         UpdateCheckTotal(PurchHeader, LineAmount);
     end;
 
-    local procedure CreatePurchDocumentWithVATSetup(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Option; LineAmount: Decimal)
+    local procedure CreatePurchDocumentWithVATSetup(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Enum "Purchase Document Type"; LineAmount: Decimal)
     begin
         CreatePurchHeader(
           PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorWithVATBusPostingGroup(VATPostingSetup."VAT Bus. Posting Group"));
@@ -2617,7 +2617,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         UpdateCheckTotal(PurchaseHeader, LineAmount);
     end;
 
-    local procedure CreatePurchHeader(var PurchHeader: Record "Purchase Header"; DocumentType: Option; VendorNo: Code[20])
+    local procedure CreatePurchHeader(var PurchHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type"; VendorNo: Code[20])
     begin
         // Create Purch. Header.
         LibraryPurchase.CreatePurchHeader(PurchHeader, DocumentType, VendorNo);
@@ -2688,7 +2688,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
           CrMemoAmount);
     end;
 
-    local procedure CreatePurchOrderLinkedBlOrd(var PurchHeader: Record "Purchase Header"; VendorNo: Code[20]; OrderAmount: Decimal; LineAmount: Decimal; DocumentType: Option): Code[20]
+    local procedure CreatePurchOrderLinkedBlOrd(var PurchHeader: Record "Purchase Header"; VendorNo: Code[20]; OrderAmount: Decimal; LineAmount: Decimal; DocumentType: Enum "Purchase Document Type"): Code[20]
     var
         PurchHeader2: Record "Purchase Header";
         PurchLine: Record "Purchase Line";
@@ -2719,7 +2719,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         exit(PurchHeader2."No.");
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Option; CustomerNo: Code[20]; LineAmount: Decimal)
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; CustomerNo: Code[20]; LineAmount: Decimal)
     begin
         // Create Sales Header.
         LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
@@ -2787,7 +2787,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
           CrMemoAmount);
     end;
 
-    local procedure CreateSalesOrderLinkedBlOrd(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; OrderAmount: Decimal; LineAmount: Decimal; DocumentType: Option): Code[20]
+    local procedure CreateSalesOrderLinkedBlOrd(var SalesHeader: Record "Sales Header"; CustomerNo: Code[20]; OrderAmount: Decimal; LineAmount: Decimal; DocumentType: Enum "Sales Document Type"): Code[20]
     var
         SalesHeader2: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -2818,7 +2818,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         exit(SalesLine2."Document No.");
     end;
 
-    local procedure CreatePostCMJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; Amount: Decimal; AppliesToDocNo: Code[20])
+    local procedure CreatePostCMJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; AppliesToDocNo: Code[20])
     begin
         LibraryVATUtils.CreateGenJnlLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo", GetGenPostingType(AccountType), AccountType, AccountNo, Amount);
@@ -2827,9 +2827,9 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreatePostInvoiceJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; Amount: Decimal)
+    local procedure CreatePostInvoiceJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; Amount: Decimal)
     var
-        GenPostingType: Option;
+        GenPostingType: Enum "General Posting Type";
     begin
         GenPostingType := GetGenPostingType(AccountType);
         LibraryVATUtils.CreateGenJnlLine(
@@ -2839,7 +2839,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreatePostPaymentJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; Amount: Decimal; AppliesToDocNo: Code[20])
+    local procedure CreatePostPaymentJnlLine(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal; AppliesToDocNo: Code[20])
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -2855,7 +2855,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreatePostPurchaseDocumentInNextPeriod(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option)
+    local procedure CreatePostPurchaseDocumentInNextPeriod(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -2864,7 +2864,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CreatePostPurchaseDocumentInNextPeriodWithVATSetup(var PurchaseHeader: Record "Purchase Header"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Option)
+    local procedure CreatePostPurchaseDocumentInNextPeriodWithVATSetup(var PurchaseHeader: Record "Purchase Header"; VATPostingSetup: Record "VAT Posting Setup"; DocumentType: Enum "Purchase Document Type")
     var
         PurchaseLine: Record "Purchase Line";
     begin
@@ -2874,7 +2874,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure CreateApplyCM(var GenJnlLine: Record "Gen. Journal Line"; GenJnlLine2: Record "Gen. Journal Line"; GenPostingType: Option; Amount: Decimal) PostingDate: Date
+    local procedure CreateApplyCM(var GenJnlLine: Record "Gen. Journal Line"; GenJnlLine2: Record "Gen. Journal Line"; GenPostingType: Enum "General Posting Type"; Amount: Decimal) PostingDate: Date
     begin
         // Create Credit Memo.
         LibraryVATUtils.CreateGenJnlLine(
@@ -2890,7 +2890,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
     end;
 
-    local procedure CreatePostGenJnlLineWithoutFiscCodeAndVATRegNo(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; GenPostingType: Option)
+    local procedure CreatePostGenJnlLineWithoutFiscCodeAndVATRegNo(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; GenPostingType: Enum "General Posting Type")
     begin
         with GenJournalLine do begin
             LibraryVATUtils.CreateGenJnlLineWithFiscalCodeAndVATRegNo(
@@ -2904,7 +2904,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         UpdateIncInVATRepOnVATEntry(GenJournalLine."Document Type", GenJournalLine."Document No.");
     end;
 
-    local procedure CreateVATPostingSetupWithAccountsAndDeductible(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Option; VATRate: Decimal; Deductible: Decimal)
+    local procedure CreateVATPostingSetupWithAccountsAndDeductible(var VATPostingSetup: Record "VAT Posting Setup"; VATCalculationType: Enum "Tax Calculation Type"; VATRate: Decimal; Deductible: Decimal)
     begin
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATCalculationType, VATRate);
         VATPostingSetup.Validate("Deductible %", Deductible);
@@ -2930,7 +2930,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
           VATReportHeader, VATReportLine, VATReportHeader."VAT Report Config. Code"::"VAT Transactions Report", WorkDate, WorkDate);
     end;
 
-    local procedure GetGenPostingType(AccountType: Option) GenPostingType: Integer
+    local procedure GetGenPostingType(AccountType: Enum "Gen. Journal Account Type") GenPostingType: Enum "General Posting Type"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
@@ -2951,7 +2951,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         exit(VATEntry."Operation Occurred Date");
     end;
 
-    local procedure SetAppliesTo(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure SetAppliesTo(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         GenJournalLine.Validate("Applies-to Doc. Type", DocumentType);
         GenJournalLine.Validate("Applies-to Doc. No.", DocumentNo);
@@ -2972,7 +2972,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure UpdateIncInVATRepOnVATEntry(DocType: Option; DocNo: Code[20])
+    local procedure UpdateIncInVATRepOnVATEntry(DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20])
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -2993,7 +2993,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         PurchaseHeader.Modify(true);
     end;
 
-    local procedure VerifyVATReportLine(VATReportNo: Code[20]; DocType: Option; DocNo: Code[20]; ExpectedAmount: Decimal)
+    local procedure VerifyVATReportLine(VATReportNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; DocNo: Code[20]; ExpectedAmount: Decimal)
     var
         VATReportLine: Record "VAT Report Line";
     begin
@@ -3006,7 +3006,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         end;
     end;
 
-    local procedure VerifyVATReportLine2(var VATReportLine: Record "VAT Report Line"; DocumentType: Option; AmountInclVAT: Decimal)
+    local procedure VerifyVATReportLine2(var VATReportLine: Record "VAT Report Line"; DocumentType: Enum "Gen. Journal Document Type"; AmountInclVAT: Decimal)
     begin
         VATReportLine.SetRange("Document Type", DocumentType);
         VATReportLine.FindFirst;
@@ -3032,7 +3032,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         Assert.AreEqual(VatReportLineCounterExpected, VatReportLineCounterActual, ErrorUnexpectedNumberOfLines);
     end;
 
-    local procedure VerifyVATEntryAndVATReportLineForScenarioWithExcludingReverseChangeSalesVATEntry(PurchaseHeader: Record "Purchase Header"; DocumentType: Option; VATReportNo: Code[20])
+    local procedure VerifyVATEntryAndVATReportLineForScenarioWithExcludingReverseChangeSalesVATEntry(PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Gen. Journal Document Type"; VATReportNo: Code[20])
     var
         VATEntry: Record "VAT Entry";
         VATReportLine: Record "VAT Report Line";
@@ -3063,7 +3063,7 @@ codeunit 144010 "IT - VAT Reporting - Get Lines"
         VATReportLine.TestField(Amount, PurchaseHeader."Amount Including VAT" - PurchaseHeader.Amount);
     end;
 
-    local procedure UnapplyEntry(AccountType: Option; DocumentType: Option; DocumentNo: Code[20])
+    local procedure UnapplyEntry(AccountType: Enum "Gen. Journal Account Type"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         VendLedgerEntry: Record "Vendor Ledger Entry";

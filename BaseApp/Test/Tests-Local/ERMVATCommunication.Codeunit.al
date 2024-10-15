@@ -210,7 +210,7 @@ codeunit 144118 "ERM VAT Communication"
           SalesHeader, SalesLine.Type::Item, CreateItem(VATPostingSetup."VAT Prod. Posting Group"), CreateServiceTariffNumber);
     end;
 
-    local procedure CreateSalesLine(SalesHeader: Record "Sales Header"; Type: Option; No: Code[20]; ServiceTariffNo: Code[10])
+    local procedure CreateSalesLine(SalesHeader: Record "Sales Header"; Type: Enum "Sales Line Type"; No: Code[20]; ServiceTariffNo: Code[10])
     var
         SalesLine: Record "Sales Line";
     begin

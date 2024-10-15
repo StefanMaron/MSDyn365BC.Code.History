@@ -6,11 +6,9 @@ table 901 "Assembly Line"
 
     fields
     {
-        field(1; "Document Type"; Option)
+        field(1; "Document Type"; Enum "Assembly Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = 'Quote,Order,,,Blanket Order';
-            OptionMembers = Quote,"Order",,,"Blanket Order";
 
             trigger OnValidate()
             begin
@@ -383,7 +381,7 @@ table 901 "Assembly Line"
         }
         field(48; "Reserved Quantity"; Decimal)
         {
-            CalcFormula = - Sum ("Reservation Entry".Quantity WHERE("Source ID" = FIELD("Document No."),
+            CalcFormula = - Sum("Reservation Entry".Quantity WHERE("Source ID" = FIELD("Document No."),
                                                                    "Source Ref. No." = FIELD("Line No."),
                                                                    "Source Type" = CONST(901),
                                                                    "Source Subtype" = FIELD("Document Type"),
@@ -395,7 +393,7 @@ table 901 "Assembly Line"
         }
         field(49; "Reserved Qty. (Base)"; Decimal)
         {
-            CalcFormula = - Sum ("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("Document No."),
+            CalcFormula = - Sum("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("Document No."),
                                                                             "Source Ref. No." = FIELD("Line No."),
                                                                             "Source Type" = CONST(901),
                                                                             "Source Subtype" = FIELD("Document Type"),
@@ -412,7 +410,7 @@ table 901 "Assembly Line"
         }
         field(51; "Substitution Available"; Boolean)
         {
-            CalcFormula = Exist ("Item Substitution" WHERE(Type = CONST(Item),
+            CalcFormula = Exist("Item Substitution" WHERE(Type = CONST(Item),
                                                            "Substitute Type" = CONST(Item),
                                                            "No." = FIELD("No."),
                                                            "Variant Code" = FIELD("Variant Code")));
@@ -567,7 +565,7 @@ table 901 "Assembly Line"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()
@@ -579,7 +577,7 @@ table 901 "Assembly Line"
         }
         field(7301; "Pick Qty."; Decimal)
         {
-            CalcFormula = Sum ("Warehouse Activity Line"."Qty. Outstanding" WHERE("Activity Type" = FILTER(<> "Put-away"),
+            CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding" WHERE("Activity Type" = FILTER(<> "Put-away"),
                                                                                   "Source Type" = CONST(901),
                                                                                   "Source Subtype" = FIELD("Document Type"),
                                                                                   "Source No." = FIELD("Document No."),
@@ -596,7 +594,7 @@ table 901 "Assembly Line"
         }
         field(7302; "Pick Qty. (Base)"; Decimal)
         {
-            CalcFormula = Sum ("Warehouse Activity Line"."Qty. Outstanding (Base)" WHERE("Activity Type" = FILTER(<> "Put-away"),
+            CalcFormula = Sum("Warehouse Activity Line"."Qty. Outstanding (Base)" WHERE("Activity Type" = FILTER(<> "Put-away"),
                                                                                          "Source Type" = CONST(901),
                                                                                          "Source Subtype" = FIELD("Document Type"),
                                                                                          "Source No." = FIELD("Document No."),
@@ -664,7 +662,7 @@ table 901 "Assembly Line"
         WhseAssemblyRelease.DeleteLine(Rec);
         AssemblyLineReserve.DeleteLine(Rec);
         ItemTrackingMgt.DeleteWhseItemTrkgLines(
-          DATABASE::"Assembly Line", "Document Type", "Document No.", '', 0, "Line No.", "Location Code", true);
+          DATABASE::"Assembly Line", "Document Type".AsInteger(), "Document No.", '', 0, "Line No.", "Location Code", true);
 
         CalcFields("Reserved Qty. (Base)");
         TestField("Reserved Qty. (Base)", 0);
@@ -696,6 +694,7 @@ table 901 "Assembly Line"
         Text029: Label 'must be positive', Comment = 'starts with "Quantity"';
         Text042: Label 'When posting the Applied to Ledger Entry, %1 will be opened first.';
         Text99000002: Label 'You cannot change %1 when %2 is ''%3''.';
+        AvailabilityPageTitleLbl: Label 'The available inventory for item %1 is lower than the entered quantity at this location.', Comment = '%1=Item No.';
         AssemblyHeader: Record "Assembly Header";
         StockkeepingUnit: Record "Stockkeeping Unit";
         GLSetup: Record "General Ledger Setup";
@@ -871,6 +870,48 @@ table 901 "Assembly Line"
         ItemCheckAvail.AssemblyLineCheck(Rec);
     end;
 
+    [Scope('OnPrem')]
+    procedure ShowAvailabilityWarningPage()
+    var
+        ItemCheckAvail: Codeunit "Item-Check Avail.";
+        ItemAvailabilityCheck: Page "Item Availability Check";
+        ItemNo: Code[20];
+        UnitOfMeasureCode: Code[10];
+        InventoryQty: Decimal;
+        GrossReq: Decimal;
+        ReservedReq: Decimal;
+        SchedRcpt: Decimal;
+        ReservedRcpt: Decimal;
+        CurrentQuantity: Decimal;
+        CurrentReservedQty: Decimal;
+        TotalQuantity: Decimal;
+        EarliestAvailDate: Date;
+    begin
+        TestField(Type, Type::Item);
+
+        if "Due Date" = 0D then begin
+            GetHeader();
+            if AssemblyHeader."Due Date" <> 0D then
+                Validate("Due Date", AssemblyHeader."Due Date")
+            else
+                Validate("Due Date", WorkDate());
+        end;
+
+        if not ItemCheckAvail.AsmOrderLineShowWarning(Rec) then
+            exit;
+
+        ItemCheckAvail.FetchCalculation(
+          ItemNo, UnitOfMeasureCode, InventoryQty,
+          GrossReq, ReservedReq, SchedRcpt, ReservedRcpt,
+          CurrentQuantity, CurrentReservedQty, TotalQuantity, EarliestAvailDate);
+
+        ItemAvailabilityCheck.InitializeFromData(ItemNo, UnitOfMeasureCode, InventoryQty,
+          GrossReq, ReservedReq, SchedRcpt, ReservedRcpt, CurrentQuantity, CurrentReservedQty, TotalQuantity,
+          EarliestAvailDate, "Location Code");
+        ItemAvailabilityCheck.SetHeading(StrSubstNo(AvailabilityPageTitleLbl, ItemNo));
+        ItemAvailabilityCheck.RunModal();
+    end;
+
     local procedure CalcBaseQty(Qty: Decimal): Decimal
     var
         UOMMgt: Codeunit "Unit of Measure Management";
@@ -960,7 +1001,7 @@ table 901 "Assembly Line"
             if not FullAutoReservation and (CurrFieldNo <> 0) then
                 if Confirm(Text001, true) then begin
                     Commit();
-                    ShowReservation;
+                    ShowReservation();
                     Find;
                 end;
         end;
@@ -1021,7 +1062,7 @@ table 901 "Assembly Line"
 
     procedure SetReservationEntry(var ReservEntry: Record "Reservation Entry")
     begin
-        ReservEntry.SetSource(DATABASE::"Assembly Line", "Document Type", "Document No.", "Line No.", '', 0);
+        ReservEntry.SetSource(DATABASE::"Assembly Line", "Document Type".AsInteger(), "Document No.", "Line No.", '', 0);
         ReservEntry.SetItemData("No.", Description, "Location Code", "Variant Code", "Qty. per Unit of Measure");
         if Type <> Type::Item then
             ReservEntry."Item No." := '';
@@ -1031,7 +1072,7 @@ table 901 "Assembly Line"
 
     procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry")
     begin
-        ReservEntry.SetSourceFilter(DATABASE::"Assembly Line", "Document Type", "Document No.", "Line No.", false);
+        ReservEntry.SetSourceFilter(DATABASE::"Assembly Line", "Document Type".AsInteger(), "Document No.", "Line No.", false);
         ReservEntry.SetSourceFilter('', 0);
 
         OnAfterSetReservationFilters(ReservEntry, Rec);
@@ -1172,7 +1213,7 @@ table 901 "Assembly Line"
         exit(CalcQuantityFromBOM(Type, LineQtyPer, HeaderQty, 1, "Resource Usage Type"));
     end;
 
-    procedure FilterLinesWithItemToPlan(var Item: Record Item; DocumentType: Option)
+    procedure SetItemToPlanFilters(var Item: Record Item; DocumentType: Enum "Assembly Document Type")
     begin
         Reset;
         SetCurrentKey("Document Type", Type, "No.", "Variant Code", "Location Code");
@@ -1187,19 +1228,37 @@ table 901 "Assembly Line"
         SetFilter("Remaining Quantity (Base)", '<>0');
         SetFilter("Unit of Measure Code", Item.GetFilter("Unit of Measure Filter"));
 
-        OnAfterFilterLinesWithItemToPlan(Rec, Item, DocumentType);
+        OnAfterFilterLinesWithItemToPlan(Rec, Item, DocumentType.AsInteger());
     end;
 
-    procedure FindLinesWithItemToPlan(var Item: Record Item; DocumentType: Option): Boolean
+    [Obsolete('Replaced by SetItemToPlanFilters().', '17.0')]
+    procedure FilterLinesWithItemToPlan(var Item: Record Item; DocumentType: Option)
     begin
-        FilterLinesWithItemToPlan(Item, DocumentType);
+        SetItemToPlanFilters(Item, "Assembly Document Type".FromInteger(DocumentType));
+    end;
+
+    procedure FindItemToPlanLines(var Item: Record Item; DocumentType: Enum "Assembly Document Type"): Boolean
+    begin
+        SetItemToPlanFilters(Item, DocumentType);
         exit(Find('-'));
     end;
 
+    [Obsolete('Replaced by FindItemToPlanLines().', '17.0')]
+    procedure FindLinesWithItemToPlan(var Item: Record Item; DocumentType: Option): Boolean
+    begin
+        exit(FindItemToPlanLines(Item, "Assembly Document Type".FromInteger(DocumentType)));
+    end;
+
+    procedure ItemToPlanLinesExist(var Item: Record Item; DocumentType: Enum "Assembly Document Type"): Boolean
+    begin
+        SetItemToPlanFilters(Item, DocumentType);
+        exit(not IsEmpty);
+    end;
+
+    [Obsolete('Replaced by ItemToPlanLinesExist().', '17.0')]
     procedure LinesWithItemToPlanExist(var Item: Record Item; DocumentType: Option): Boolean
     begin
-        FilterLinesWithItemToPlan(Item, DocumentType);
-        exit(not IsEmpty);
+        exit(ItemToPlanLinesExist(Item, "Assembly Document Type".FromInteger(DocumentType)));
     end;
 
     procedure FilterLinesForReservation(ReservationEntry: Record "Reservation Entry"; DocumentType: Option; AvailabilityFilter: Text; Positive: Boolean)
@@ -1396,8 +1455,8 @@ table 901 "Assembly Line"
     begin
         case "Document Type" of
             "Document Type"::Quote,
-          "Document Type"::Order,
-          "Document Type"::"Blanket Order":
+            "Document Type"::Order,
+            "Document Type"::"Blanket Order":
                 exit(-Value);
         end;
     end;
@@ -1406,7 +1465,7 @@ table 901 "Assembly Line"
     var
         ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
-        exit(ItemTrackingMgt.ComposeRowID(DATABASE::"Assembly Line", "Document Type", "Document No.", '', 0, "Line No."));
+        exit(ItemTrackingMgt.ComposeRowID(DATABASE::"Assembly Line", "Document Type".AsInteger(), "Document No.", '', 0, "Line No."));
     end;
 
     local procedure CheckBin()

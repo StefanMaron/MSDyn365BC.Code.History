@@ -141,7 +141,7 @@ page 12193 "Subform Posted Vend Bill Lines"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                     end;
                 }
             }

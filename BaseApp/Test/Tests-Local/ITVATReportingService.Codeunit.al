@@ -101,7 +101,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         VerifyServDocInclInVATTransRep(ServiceHeader."Document Type"::Invoice, true, false, true);
     end;
 
-    local procedure VerifyServDocInclInVATTransRep(DocumentType: Option; InclVAT: Boolean; InclInVATSetup: Boolean; InclInVATTransRep: Boolean)
+    local procedure VerifyServDocInclInVATTransRep(DocumentType: Enum "Service Document Type"; InclVAT: Boolean; InclInVATSetup: Boolean; InclInVATTransRep: Boolean)
     var
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
@@ -438,7 +438,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         VerifyServDocPostIncl(ServiceHeader."Document Type"::Invoice, true, false);
     end;
 
-    local procedure VerifyServDocPostIncl(DocumentType: Option; InclVAT: Boolean; InclInVATTransRep: Boolean)
+    local procedure VerifyServDocPostIncl(DocumentType: Enum "Service Document Type"; InclVAT: Boolean; InclInVATTransRep: Boolean)
     var
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
@@ -457,7 +457,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         DocumentNo := PostServiceHeader(ServiceHeader);
 
         // Verify Service Line.
-        VerifyIncludeVAT(GetDocumentTypeVATEntry(DATABASE::"Service Header", DocumentType), DocumentNo, true); // Amount is no longer compared to Threshold.
+        VerifyIncludeVAT(GetDocumentTypeVATEntry(DATABASE::"Service Header", DocumentType.AsInteger()), DocumentNo, true); // Amount is no longer compared to Threshold.
 
         // Tear Down.
         TearDown;
@@ -499,7 +499,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         VerifyServDocWithContractPost(ServiceHeader."Document Type"::"Credit Memo");
     end;
 
-    local procedure VerifyServDocWithContractPost(DocumentType: Option)
+    local procedure VerifyServDocWithContractPost(DocumentType: Enum "Service Document Type")
     var
         Customer: Record Customer;
         ServiceContractHeader: Record "Service Contract Header";
@@ -649,7 +649,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         VerifyServDocRefTo(ServiceHeader."Document Type"::"Credit Memo", ServiceHeader."Refers to Period"::"Current Calendar Year", true);
     end;
 
-    local procedure VerifyServDocRefTo(DocumentType: Option; RefersToPeriod: Option; UpdateLine: Boolean)
+    local procedure VerifyServDocRefTo(DocumentType: Enum "Service Document Type"; RefersToPeriod: Option; UpdateLine: Boolean)
     var
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
@@ -693,7 +693,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
             VerifyRefersToPeriod(DATABASE::"Service Cr.Memo Header", DocumentNo, RefersToPeriod);
 
         // Verify VAT Entry.
-        VerifyIncludeVAT(GetDocumentTypeVATEntry(DATABASE::"Service Header", DocumentType), DocumentNo, true);
+        VerifyIncludeVAT(GetDocumentTypeVATEntry(DATABASE::"Service Header", DocumentType.AsInteger()), DocumentNo, true);
 
         // Tear Down.
         TearDown;
@@ -756,7 +756,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         DocumentNo := PostServiceHeader(ServiceHeader);
 
         // Verify VAT Entry.
-        VerifyTaxRep(GetDocumentTypeVATEntry(DATABASE::"Service Header", ServiceHeader."Document Type"), DocumentNo, ExpectedTaxRepType, TaxRepNo);
+        VerifyTaxRep(GetDocumentTypeVATEntry(DATABASE::"Service Header", ServiceHeader."Document Type".AsInteger()), DocumentNo, ExpectedTaxRepType, TaxRepNo);
 
         // Tear Down.
         TearDown;
@@ -867,7 +867,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         VerifyServDocReqFields(ServiceHeader."Document Type"::Invoice, false, Customer.Resident::Resident, Customer.FieldNo("VAT Registration No."));
     end;
 
-    local procedure VerifyServDocReqFields(DocumentType: Option; IndividualPerson: Boolean; Resident: Option; FieldId: Integer)
+    local procedure VerifyServDocReqFields(DocumentType: Enum "Service Document Type"; IndividualPerson: Boolean; Resident: Option; FieldId: Integer)
     var
         Customer: Record Customer;
         ServiceHeader: Record "Service Header";
@@ -949,7 +949,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         VerifyServDocReqFieldsExcl(ServiceHeader."Document Type"::Invoice, false, Customer.Resident::Resident);
     end;
 
-    local procedure VerifyServDocReqFieldsExcl(DocumentType: Option; IndividualPerson: Boolean; Resident: Option)
+    local procedure VerifyServDocReqFieldsExcl(DocumentType: Enum "Service Document Type"; IndividualPerson: Boolean; Resident: Option)
     var
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
@@ -1070,7 +1070,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         exit(Customer."No.");
     end;
 
-    local procedure CreateGLAccount(GenPostingType: Option): Code[20]
+    local procedure CreateGLAccount(GenPostingType: Enum "General Posting Type"): Code[20]
     var
         GLAccount: Record "G/L Account";
         GeneralPostingSetup: Record "General Posting Setup";
@@ -1136,7 +1136,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         ServiceContractHeader.Modify(true);
     end;
 
-    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; DocumentType: Option; CustomerNo: Code[20]; LineAmount: Decimal)
+    local procedure CreateServiceDocument(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; CustomerNo: Code[20]; LineAmount: Decimal)
     begin
         // Create Service Header.
         LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, CustomerNo);
@@ -1215,7 +1215,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         exit(CountryRegion.Code);
     end;
 
-    local procedure GetDocumentTypeVATEntry(TableNo: Option; DocumentType: Option) DocumentTypeVATEntry: Integer
+    local procedure GetDocumentTypeVATEntry(TableNo: Option; DocumentType: Option) DocumentTypeVATEntry: Enum "Gen. Journal Document Type"
     var
         PurchHeader: Record "Purchase Header";
         SalesHeader: Record "Sales Header";
@@ -1224,26 +1224,31 @@ codeunit 144009 "IT - VAT Reporting - Service"
     begin
         case TableNo of
             DATABASE::"Gen. Journal Line":
-                DocumentTypeVATEntry := DocumentType;
+                DocumentTypeVATEntry := "Gen. Journal Document Type".FromInteger(DocumentType);
             DATABASE::"Sales Header":
                 case DocumentType of
-                    SalesHeader."Document Type"::Invoice, SalesHeader."Document Type"::Order:
+                    SalesHeader."Document Type"::Invoice.AsInteger(),
+                    SalesHeader."Document Type"::Order.AsInteger():
                         DocumentTypeVATEntry := VATEntry."Document Type"::Invoice;
-                    SalesHeader."Document Type"::"Credit Memo", SalesHeader."Document Type"::"Return Order":
+                    SalesHeader."Document Type"::"Credit Memo".AsInteger(),
+                    SalesHeader."Document Type"::"Return Order".AsInteger():
                         DocumentTypeVATEntry := VATEntry."Document Type"::"Credit Memo";
                 end;
             DATABASE::"Service Header":
                 case DocumentType of
-                    ServiceHeader."Document Type"::Invoice, ServiceHeader."Document Type"::Order:
+                    ServiceHeader."Document Type"::Invoice.AsInteger(),
+                    ServiceHeader."Document Type"::Order.AsInteger():
                         DocumentTypeVATEntry := VATEntry."Document Type"::Invoice;
-                    ServiceHeader."Document Type"::"Credit Memo":
+                    ServiceHeader."Document Type"::"Credit Memo".AsInteger():
                         DocumentTypeVATEntry := VATEntry."Document Type"::"Credit Memo";
                 end;
             DATABASE::"Purchase Header":
                 case DocumentType of
-                    PurchHeader."Document Type"::Invoice, PurchHeader."Document Type"::Order:
+                    PurchHeader."Document Type"::Invoice.AsInteger(),
+                    PurchHeader."Document Type"::Order.AsInteger():
                         DocumentTypeVATEntry := VATEntry."Document Type"::Invoice;
-                    PurchHeader."Document Type"::"Credit Memo", PurchHeader."Document Type"::"Return Order":
+                    PurchHeader."Document Type"::"Credit Memo".AsInteger(),
+                    PurchHeader."Document Type"::"Return Order".AsInteger():
                         DocumentTypeVATEntry := VATEntry."Document Type"::"Credit Memo";
                 end;
         end;
@@ -1286,7 +1291,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         ServiceDocumentRegister.FindFirst;
     end;
 
-    local procedure FindServiceLine(var ServiceLine: Record "Service Line"; DocumentType: Option; DocumentNo: Code[20]; SkipEmptyLine: Boolean)
+    local procedure FindServiceLine(var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; DocumentNo: Code[20]; SkipEmptyLine: Boolean)
     begin
         ServiceLine.SetRange("Document Type", DocumentType);
         ServiceLine.SetFilter("Document No.", DocumentNo);
@@ -1295,7 +1300,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         ServiceLine.FindFirst;
     end;
 
-    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindVATEntry(var VATEntry: Record "VAT Entry"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         VATEntry.SetRange("Document Type", DocumentType);
         VATEntry.SetRange("Document No.", DocumentNo);
@@ -1357,7 +1362,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         exit(ServiceDocumentRegister."Destination Document No.");
     end;
 
-    local procedure VerifyContractNo(DocumentType: Option; DocumentNo: Code[20]; Base: Decimal; ContractNo: Code[20])
+    local procedure VerifyContractNo(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; Base: Decimal; ContractNo: Code[20])
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -1370,7 +1375,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         until VATEntry.Next = 0;
     end;
 
-    local procedure VerifyIncludeVAT(DocumentType: Option; DocumentNo: Code[20]; InclInVATTransRep: Boolean)
+    local procedure VerifyIncludeVAT(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; InclInVATTransRep: Boolean)
     var
         VATEntry: Record "VAT Entry";
     begin
@@ -1419,7 +1424,7 @@ codeunit 144009 "IT - VAT Reporting - Service"
         until VATEntry.Next = 0;
     end;
 
-    local procedure VerifyTaxRep(DocumentType: Option; DocumentNo: Code[20]; TaxRepType: Option; TaxRepNo: Code[20])
+    local procedure VerifyTaxRep(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; TaxRepType: Option; TaxRepNo: Code[20])
     var
         VATEntry: Record "VAT Entry";
     begin

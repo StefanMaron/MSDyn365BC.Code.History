@@ -19,8 +19,8 @@ codeunit 144207 "FatturaPA Applications"
         LibraryITLocalization: Codeunit "Library - IT Localization";
         IsInitialized: Boolean;
         FatturaPA_ElectronicFormatTxt: Label 'FatturaPA';
-        UnexpectedElementNameErr: Label 'Unexpected element name. Expected element name: %1. Actual element name: %2.', Comment='%1=Expetced XML Element Name;%2=Actual XML Element Name;';
-        UnexpectedElementValueErr: Label 'Unexpected element value for element %1. Expected element value: %2. Actual element value: %3.', Comment='%1=XML Element Name;%2=Expected XML Element Value;%3=Actual XML element Value;';
+        UnexpectedElementNameErr: Label 'Unexpected element name. Expected element name: %1. Actual element name: %2.', Comment = '%1=Expetced XML Element Name;%2=Actual XML Element Name;';
+        UnexpectedElementValueErr: Label 'Unexpected element value for element %1. Expected element value: %2. Actual element value: %3.', Comment = '%1=XML Element Name;%2=Expected XML Element Value;%3=Actual XML element Value;';
 
     [Test]
     procedure InvoiceToCreditMemoFromDocument()
@@ -42,20 +42,20 @@ codeunit 144207 "FatturaPA Applications"
 
         // [GIVEN] Posted Sales Credit Memo with "Document No." = "X", "Posting Date" = 01.01.2020, "Fattura Project Code" = "A", "Fattura Tender Code" = "B"
         CreatePostSalesDocWithFatturaCodes(
-          CustLedgerEntry,FatturaProjectCode,FatturaTenderCode,CustLedgerEntry."Document Type"::"Credit Memo");
+          CustLedgerEntry, FatturaProjectCode, FatturaTenderCode, CustLedgerEntry."Document Type"::"Credit Memo");
 
         // [GIVEN] Sales Invoice with "Applies-To Doc. No." = "X"
         CreateSalesDocument(
-          SalesHeader,SalesHeader."Document Type"::Invoice,CustLedgerEntry."Sell-to Customer No.",'','',
-          SalesHeader."Applies-to Doc. Type"::"Credit Memo",CustLedgerEntry."Document No.");
+          SalesHeader, SalesHeader."Document Type"::Invoice, CustLedgerEntry."Sell-to Customer No.", '', '',
+          SalesHeader."Applies-to Doc. Type"::"Credit Memo", CustLedgerEntry."Document No.");
 
         // [GIVEN] Sales Invoice was posted
-        DocNo := LibrarySales.PostSalesDocument(SalesHeader,true,true);
-        SalesInvoiceHeader.SetRange("No.",DocNo);
+        DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        SalesInvoiceHeader.SetRange("No.", DocNo);
 
         // [WHEN] Export Sales Invoice
         ElectronicDocumentFormat.SendElectronically(ServerFileName,
-          ClientFileName,SalesInvoiceHeader,CopyStr(FatturaPA_ElectronicFormatTxt,1,20));
+          ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] XML file has the following XML nodes under node DatiFattureCollegate
         // [THEN] "IdDocumento" = "X"
@@ -63,7 +63,7 @@ codeunit 144207 "FatturaPA Applications"
         // [THEN] "CodiceCUP" = "A"
         // [THEN] "CodiceCIG" = "B"
         VerifyApplicationInformation(
-          ServerFileName,CustLedgerEntry."Document No.",CustLedgerEntry."Posting Date",FatturaProjectCode,FatturaTenderCode);
+          ServerFileName, CustLedgerEntry."Document No.", CustLedgerEntry."Posting Date", FatturaProjectCode, FatturaTenderCode);
     end;
 
     [Test]
@@ -85,19 +85,19 @@ codeunit 144207 "FatturaPA Applications"
 
         // [GIVEN] Posted Sales Credit Memo with "Document No." = "X", "Posting Date" = 01.01.2020, "Fattura Project Code" = "A", "Fattura Tender Code" = "B"
         CreatePostSalesDocWithFatturaCodes(
-          CrMemoCustLedgerEntry,FatturaProjectCode,FatturaTenderCode,CrMemoCustLedgerEntry."Document Type"::"Credit Memo");
+          CrMemoCustLedgerEntry, FatturaProjectCode, FatturaTenderCode, CrMemoCustLedgerEntry."Document Type"::"Credit Memo");
 
         // [GIVEN] Posted Sales Invoice
         CreatePostedSalesDoc(
-          InvCustLedgerEntry,CrMemoCustLedgerEntry."Sell-to Customer No.",InvCustLedgerEntry."Document Type"::Invoice,'','');
+          InvCustLedgerEntry, CrMemoCustLedgerEntry."Sell-to Customer No.", InvCustLedgerEntry."Document Type"::Invoice, '', '');
 
         // [GIVEN] Posted Sales Invoice applied to Sales Credit Memo
-        ApplyCustLedgEntries(InvCustLedgerEntry,CrMemoCustLedgerEntry);
-        SalesInvoiceHeader.SetRange("No.",InvCustLedgerEntry."Document No.");
+        ApplyCustLedgEntries(InvCustLedgerEntry, CrMemoCustLedgerEntry);
+        SalesInvoiceHeader.SetRange("No.", InvCustLedgerEntry."Document No.");
 
         // [WHEN] Export Sales Invoice
         ElectronicDocumentFormat.SendElectronically(ServerFileName,
-          ClientFileName,SalesInvoiceHeader,CopyStr(FatturaPA_ElectronicFormatTxt,1,20));
+          ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] XML file has the following XML nodes under node DatiFattureCollegate
         // [THEN] "IdDocumento" = "X"
@@ -105,7 +105,7 @@ codeunit 144207 "FatturaPA Applications"
         // [THEN] "CodiceCUP" = "A"
         // [THEN] "CodiceCIG" = "B"
         VerifyApplicationInformation(
-          ServerFileName,CrMemoCustLedgerEntry."Document No.",CrMemoCustLedgerEntry."Posting Date",FatturaProjectCode,FatturaTenderCode);
+          ServerFileName, CrMemoCustLedgerEntry."Document No.", CrMemoCustLedgerEntry."Posting Date", FatturaProjectCode, FatturaTenderCode);
     end;
 
     [Test]
@@ -127,19 +127,19 @@ codeunit 144207 "FatturaPA Applications"
 
         // [GIVEN] Posted Sales Credit Memo with "Document No." = "X", "Posting Date" = 01.01.2020, "Fattura Project Code" = "A", "Fattura Tender Code" = "B"
         CreatePostSalesDocWithFatturaCodes(
-          CrMemoCustLedgerEntry,FatturaProjectCode,FatturaTenderCode,CrMemoCustLedgerEntry."Document Type"::"Credit Memo");
+          CrMemoCustLedgerEntry, FatturaProjectCode, FatturaTenderCode, CrMemoCustLedgerEntry."Document Type"::"Credit Memo");
 
         // [GIVEN] Posted Sales Invoice
         CreatePostedSalesDoc(
-          InvCustLedgerEntry,CrMemoCustLedgerEntry."Sell-to Customer No.",InvCustLedgerEntry."Document Type"::Invoice,'','');
+          InvCustLedgerEntry, CrMemoCustLedgerEntry."Sell-to Customer No.", InvCustLedgerEntry."Document Type"::Invoice, '', '');
 
         // [GIVEN] Posted Sales Credit Memo applied to Sales Invoice
-        ApplyCustLedgEntries(CrMemoCustLedgerEntry,InvCustLedgerEntry);
-        SalesInvoiceHeader.SetRange("No.",InvCustLedgerEntry."Document No.");
+        ApplyCustLedgEntries(CrMemoCustLedgerEntry, InvCustLedgerEntry);
+        SalesInvoiceHeader.SetRange("No.", InvCustLedgerEntry."Document No.");
 
         // [WHEN] Export Sales Invoice
         ElectronicDocumentFormat.SendElectronically(ServerFileName,
-          ClientFileName,SalesInvoiceHeader,CopyStr(FatturaPA_ElectronicFormatTxt,1,20));
+          ClientFileName, SalesInvoiceHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] XML file has the following XML nodes under node DatiFattureCollegate
         // [THEN] "IdDocumento" = "X"
@@ -147,7 +147,7 @@ codeunit 144207 "FatturaPA Applications"
         // [THEN] "CodiceCUP" = "A"
         // [THEN] "CodiceCIG" = "B"
         VerifyApplicationInformation(
-          ServerFileName,CrMemoCustLedgerEntry."Document No.",CrMemoCustLedgerEntry."Posting Date",FatturaProjectCode,FatturaTenderCode);
+          ServerFileName, CrMemoCustLedgerEntry."Document No.", CrMemoCustLedgerEntry."Posting Date", FatturaProjectCode, FatturaTenderCode);
     end;
 
     [Test]
@@ -170,20 +170,20 @@ codeunit 144207 "FatturaPA Applications"
 
         // [GIVEN] Posted Sales Invoice with "Document No." = "X", "Posting Date" = 01.01.2020, "Fattura Project Code" = "A", "Fattura Tender Code" = "B"
         CreatePostSalesDocWithFatturaCodes(
-          CustLedgerEntry,FatturaProjectCode,FatturaTenderCode,CustLedgerEntry."Document Type"::Invoice);
+          CustLedgerEntry, FatturaProjectCode, FatturaTenderCode, CustLedgerEntry."Document Type"::Invoice);
 
         // [GIVEN] Sales Credit Memo with "Applies-To Doc. No." = "X"
         CreateSalesDocument(
-          SalesHeader,SalesHeader."Document Type"::"Credit Memo",CustLedgerEntry."Sell-to Customer No.",'','',
-          SalesHeader."Applies-to Doc. Type"::Invoice,CustLedgerEntry."Document No.");
+          SalesHeader, SalesHeader."Document Type"::"Credit Memo", CustLedgerEntry."Sell-to Customer No.", '', '',
+          SalesHeader."Applies-to Doc. Type"::Invoice, CustLedgerEntry."Document No.");
 
         // [GIVEN] Sales Credit Memo was posted
-        DocNo := LibrarySales.PostSalesDocument(SalesHeader,true,true);
-        SalesCrMemoHeader.SetRange("No.",DocNo);
+        DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        SalesCrMemoHeader.SetRange("No.", DocNo);
 
         // [WHEN] Export Sales Credit Memo
         ElectronicDocumentFormat.SendElectronically(ServerFileName,
-          ClientFileName,SalesCrMemoHeader,CopyStr(FatturaPA_ElectronicFormatTxt,1,20));
+          ClientFileName, SalesCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] XML file has the following XML nodes under node DatiFattureCollegate
         // [THEN] "IdDocumento" = "X"
@@ -191,7 +191,7 @@ codeunit 144207 "FatturaPA Applications"
         // [THEN] "CodiceCUP" = "A"
         // [THEN] "CodiceCIG" = "B"
         VerifyApplicationInformation(
-          ServerFileName,CustLedgerEntry."Document No.",CustLedgerEntry."Posting Date",FatturaProjectCode,FatturaTenderCode);
+          ServerFileName, CustLedgerEntry."Document No.", CustLedgerEntry."Posting Date", FatturaProjectCode, FatturaTenderCode);
     end;
 
     [Test]
@@ -213,19 +213,19 @@ codeunit 144207 "FatturaPA Applications"
 
         // [GIVEN] Posted Sales Invoice with "Document No." = "X", "Posting Date" = 01.01.2020, "Fattura Project Code" = "A", "Fattura Tender Code" = "B"
         CreatePostSalesDocWithFatturaCodes(
-          InvCustLedgerEntry,FatturaProjectCode,FatturaTenderCode,InvCustLedgerEntry."Document Type"::Invoice);
+          InvCustLedgerEntry, FatturaProjectCode, FatturaTenderCode, InvCustLedgerEntry."Document Type"::Invoice);
 
         // [GIVEN] Posted Sales Credit Memo
         CreatePostedSalesDoc(
-          CrMemoCustLedgerEntry,InvCustLedgerEntry."Sell-to Customer No.",CrMemoCustLedgerEntry."Document Type"::"Credit Memo",'','');
+          CrMemoCustLedgerEntry, InvCustLedgerEntry."Sell-to Customer No.", CrMemoCustLedgerEntry."Document Type"::"Credit Memo", '', '');
 
         // [GIVEN] Posted Sales Credit Memo applied to Sales Invoice
-        ApplyCustLedgEntries(CrMemoCustLedgerEntry,InvCustLedgerEntry);
-        SalesCrMemoHeader.SetRange("No.",CrMemoCustLedgerEntry."Document No.");
+        ApplyCustLedgEntries(CrMemoCustLedgerEntry, InvCustLedgerEntry);
+        SalesCrMemoHeader.SetRange("No.", CrMemoCustLedgerEntry."Document No.");
 
         // [WHEN] Export Sales Credit Memo
         ElectronicDocumentFormat.SendElectronically(ServerFileName,
-          ClientFileName,SalesCrMemoHeader,CopyStr(FatturaPA_ElectronicFormatTxt,1,20));
+          ClientFileName, SalesCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] XML file has the following XML nodes under node DatiFattureCollegate
         // [THEN] "IdDocumento" = "X"
@@ -233,7 +233,7 @@ codeunit 144207 "FatturaPA Applications"
         // [THEN] "CodiceCUP" = "A"
         // [THEN] "CodiceCIG" = "B"
         VerifyApplicationInformation(
-          ServerFileName,InvCustLedgerEntry."Document No.",InvCustLedgerEntry."Posting Date",FatturaProjectCode,FatturaTenderCode);
+          ServerFileName, InvCustLedgerEntry."Document No.", InvCustLedgerEntry."Posting Date", FatturaProjectCode, FatturaTenderCode);
     end;
 
     [Test]
@@ -255,19 +255,19 @@ codeunit 144207 "FatturaPA Applications"
 
         // [GIVEN] Posted Sales Invoice with "Document No." = "X", "Posting Date" = 01.01.2020, "Fattura Project Code" = "A", "Fattura Tender Code" = "B"
         CreatePostSalesDocWithFatturaCodes(
-          InvCustLedgerEntry,FatturaProjectCode,FatturaTenderCode,InvCustLedgerEntry."Document Type"::Invoice);
+          InvCustLedgerEntry, FatturaProjectCode, FatturaTenderCode, InvCustLedgerEntry."Document Type"::Invoice);
 
         // [GIVEN] Posted Sales Credit Memo
         CreatePostedSalesDoc(
-          CrMemoCustLedgerEntry,InvCustLedgerEntry."Sell-to Customer No.",CrMemoCustLedgerEntry."Document Type"::"Credit Memo",'','');
+          CrMemoCustLedgerEntry, InvCustLedgerEntry."Sell-to Customer No.", CrMemoCustLedgerEntry."Document Type"::"Credit Memo", '', '');
 
         // [GIVEN] Posted Sales Invoice applied to Sales Credit Memo
-        ApplyCustLedgEntries(InvCustLedgerEntry,CrMemoCustLedgerEntry);
-        SalesCrMemoHeader.SetRange("No.",CrMemoCustLedgerEntry."Document No.");
+        ApplyCustLedgEntries(InvCustLedgerEntry, CrMemoCustLedgerEntry);
+        SalesCrMemoHeader.SetRange("No.", CrMemoCustLedgerEntry."Document No.");
 
         // [WHEN] Export Sales Credit Memo
         ElectronicDocumentFormat.SendElectronically(ServerFileName,
-          ClientFileName,SalesCrMemoHeader,CopyStr(FatturaPA_ElectronicFormatTxt,1,20));
+          ClientFileName, SalesCrMemoHeader, CopyStr(FatturaPA_ElectronicFormatTxt, 1, 20));
 
         // [THEN] XML file has the following XML nodes under node DatiFattureCollegate
         // [THEN] "IdDocumento" = "X"
@@ -275,14 +275,14 @@ codeunit 144207 "FatturaPA Applications"
         // [THEN] "CodiceCUP" = "A"
         // [THEN] "CodiceCIG" = "B"
         VerifyApplicationInformation(
-          ServerFileName,InvCustLedgerEntry."Document No.",InvCustLedgerEntry."Posting Date",FatturaProjectCode,FatturaTenderCode);
+          ServerFileName, InvCustLedgerEntry."Document No.", InvCustLedgerEntry."Posting Date", FatturaProjectCode, FatturaTenderCode);
     end;
 
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore;
         if IsInitialized then
-          exit;
+            exit;
 
         LibraryITLocalization.SetupFatturaPA;
         LibrarySetupStorage.Save(DATABASE::"Company Information");
@@ -290,56 +290,56 @@ codeunit 144207 "FatturaPA Applications"
         IsInitialized := true;
     end;
 
-    local procedure CreatePostSalesDocWithFatturaCodes(var CustLedgerEntry: Record "Cust. Ledger Entry";var FatturaProjectCode: Code[15];var FatturaTenderCode: Code[15];DocType: Option)
+    local procedure CreatePostSalesDocWithFatturaCodes(var CustLedgerEntry: Record "Cust. Ledger Entry"; var FatturaProjectCode: Code[15]; var FatturaTenderCode: Code[15]; DocType: Enum "Gen. Journal Document Type")
     begin
         FatturaProjectCode := LibraryITLocalization.CreateFatturaProjectCode;
         FatturaTenderCode := LibraryITLocalization.CreateFatturaTenderCode;
-        CreateNormalPostedSalesDoc(CustLedgerEntry,DocType,FatturaProjectCode,FatturaTenderCode);
+        CreateNormalPostedSalesDoc(CustLedgerEntry, DocType, FatturaProjectCode, FatturaTenderCode);
     end;
 
-    local procedure CreateNormalPostedSalesDoc(var CustLedgerEntry: Record "Cust. Ledger Entry";DocType: Option;FatturaProjectCode: Code[15];FatturaTenderCode: Code[15])
+    local procedure CreateNormalPostedSalesDoc(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Sales Document Type"; FatturaProjectCode: Code[15]; FatturaTenderCode: Code[15])
     var
         Customer: Record Customer;
         CustNo: Code[20];
     begin
         CustNo :=
           LibraryITLocalization.CreateFatturaCustomerNo(
-            CopyStr(LibraryUtility.GenerateRandomCode(Customer.FieldNo("PA Code"),DATABASE::Customer),1,6));
-        CreatePostedSalesDoc(CustLedgerEntry,CustNo,DocType,FatturaProjectCode,FatturaTenderCode);
+            CopyStr(LibraryUtility.GenerateRandomCode(Customer.FieldNo("PA Code"), DATABASE::Customer), 1, 6));
+        CreatePostedSalesDoc(CustLedgerEntry, CustNo, DocType, FatturaProjectCode, FatturaTenderCode);
     end;
 
-    local procedure CreatePostedSalesDoc(var CustLedgerEntry: Record "Cust. Ledger Entry";CustNo: Code[20];DocType: Option;FatturaProjectCode: Code[15];FatturaTenderCode: Code[15])
+    local procedure CreatePostedSalesDoc(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustNo: Code[20]; DocType: Enum "Sales Document Type"; FatturaProjectCode: Code[15]; FatturaTenderCode: Code[15])
     var
         SalesHeader: Record "Sales Header";
     begin
-        CreateSalesDocument(SalesHeader,DocType,CustNo,FatturaProjectCode,FatturaTenderCode,0,'');
+        CreateSalesDocument(SalesHeader, DocType, CustNo, FatturaProjectCode, FatturaTenderCode, "Gen. Journal Document Type"::" ", '');
         LibraryERM.FindCustomerLedgerEntry(
-          CustLedgerEntry,DocType,
-          LibrarySales.PostSalesDocument(SalesHeader,true,true));
+          CustLedgerEntry, DocType,
+          LibrarySales.PostSalesDocument(SalesHeader, true, true));
     end;
 
-    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header";DocType: Option;CustNo: Code[20];FatturaProjectCode: Code[15];FatturaTenderCode: Code[15];AppliesToDocType: Option;AppliesToDocNo: Code[20])
+    local procedure CreateSalesDocument(var SalesHeader: Record "Sales Header"; DocType: Enum "Sales Document Type"; CustNo: Code[20]; FatturaProjectCode: Code[15]; FatturaTenderCode: Code[15]; AppliesToDocType: Enum "Gen. Journal Document Type"; AppliesToDocNo: Code[20])
     var
         SalesLine: Record "Sales Line";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader,DocType,CustNo);
-        SalesHeader.Validate("Payment Terms Code",LibraryITLocalization.CreateFatturaPaymentTermsCode);
-        SalesHeader.Validate("Payment Method Code",LibraryITLocalization.CreateFatturaPaymentMethodCode);
-        SalesHeader.Validate("Fattura Project Code",FatturaProjectCode);
-        SalesHeader.Validate("Fattura Tender Code",FatturaTenderCode);
-        SalesHeader.Validate("Applies-to Doc. Type",AppliesToDocType);
-        SalesHeader.Validate("Applies-to Doc. No.",AppliesToDocNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocType, CustNo);
+        SalesHeader.Validate("Payment Terms Code", LibraryITLocalization.CreateFatturaPaymentTermsCode);
+        SalesHeader.Validate("Payment Method Code", LibraryITLocalization.CreateFatturaPaymentMethodCode);
+        SalesHeader.Validate("Fattura Project Code", FatturaProjectCode);
+        SalesHeader.Validate("Fattura Tender Code", FatturaTenderCode);
+        SalesHeader.Validate("Applies-to Doc. Type", AppliesToDocType);
+        SalesHeader.Validate("Applies-to Doc. No.", AppliesToDocNo);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLine,SalesHeader,SalesLine.Type::Item,LibraryInventory.CreateItemNo,LibraryRandom.RandInt(100));
-        SalesLine.Validate("Unit Price",LibraryRandom.RandDec(100,2));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+        SalesLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         SalesLine.Modify(true);
     end;
 
-    local procedure ApplyCustLedgEntries(ApplyFromCustLedgEntry: Record "Cust. Ledger Entry";ApplyToCustLedgEntry: Record "Cust. Ledger Entry")
+    local procedure ApplyCustLedgEntries(ApplyFromCustLedgEntry: Record "Cust. Ledger Entry"; ApplyToCustLedgEntry: Record "Cust. Ledger Entry")
     begin
         ApplyFromCustLedgEntry.CalcFields("Remaining Amount");
-        LibraryERM.SetApplyCustomerEntry(ApplyFromCustLedgEntry,ApplyFromCustLedgEntry."Remaining Amount");
+        LibraryERM.SetApplyCustomerEntry(ApplyFromCustLedgEntry, ApplyFromCustLedgEntry."Remaining Amount");
         ApplyToCustLedgEntry.SetRecFilter;
         LibraryERM.SetAppliestoIdCustomer(ApplyToCustLedgEntry);
         LibraryERM.PostCustLedgerApplication(ApplyFromCustLedgEntry);
@@ -349,7 +349,7 @@ codeunit 144207 "FatturaPA Applications"
     var
         TypeHelper: Codeunit "Type Helper";
     begin
-        exit(Format(DateToFormat,0,TypeHelper.GetXMLDateFormat));
+        exit(Format(DateToFormat, 0, TypeHelper.GetXMLDateFormat));
     end;
 
     local procedure DeleteServerFile(ServerFileName: Text)
@@ -359,41 +359,41 @@ codeunit 144207 "FatturaPA Applications"
         FileManagement.DeleteServerFile(ServerFileName);
     end;
 
-    local procedure AssertElementValue(var TempXMLBuffer: Record "XML Buffer" temporary;ElementName: Text;ElementValue: Text)
+    local procedure AssertElementValue(var TempXMLBuffer: Record "XML Buffer" temporary; ElementName: Text; ElementValue: Text)
     begin
         FindNextElement(TempXMLBuffer);
-        Assert.AreEqual(ElementName,TempXMLBuffer.GetElementName,
-          StrSubstNo(UnexpectedElementNameErr,ElementName,TempXMLBuffer.GetElementName));
-        Assert.AreEqual(ElementValue,TempXMLBuffer.Value,
-          StrSubstNo(UnexpectedElementValueErr,ElementName,ElementValue,TempXMLBuffer.Value));
+        Assert.AreEqual(ElementName, TempXMLBuffer.GetElementName,
+          StrSubstNo(UnexpectedElementNameErr, ElementName, TempXMLBuffer.GetElementName));
+        Assert.AreEqual(ElementValue, TempXMLBuffer.Value,
+          StrSubstNo(UnexpectedElementValueErr, ElementName, ElementValue, TempXMLBuffer.Value));
     end;
 
     local procedure FindNextElement(var TempXMLBuffer: Record "XML Buffer" temporary)
     begin
         if TempXMLBuffer.HasChildNodes then
-          TempXMLBuffer.FindChildElements(TempXMLBuffer)
+            TempXMLBuffer.FindChildElements(TempXMLBuffer)
         else
-          if not (TempXMLBuffer.Next > 0) then begin
-            TempXMLBuffer.GetParent;
-            TempXMLBuffer.SetRange("Parent Entry No.",TempXMLBuffer."Parent Entry No.");
-            if not (TempXMLBuffer.Next > 0) then
-              repeat
+            if not (TempXMLBuffer.Next > 0) then begin
                 TempXMLBuffer.GetParent;
-                TempXMLBuffer.SetRange("Parent Entry No.",TempXMLBuffer."Parent Entry No.");
-              until (TempXMLBuffer.Next > 0);
-          end;
+                TempXMLBuffer.SetRange("Parent Entry No.", TempXMLBuffer."Parent Entry No.");
+                if not (TempXMLBuffer.Next > 0) then
+                    repeat
+                        TempXMLBuffer.GetParent;
+                        TempXMLBuffer.SetRange("Parent Entry No.", TempXMLBuffer."Parent Entry No.");
+                    until (TempXMLBuffer.Next > 0);
+            end;
     end;
 
-    local procedure VerifyApplicationInformation(ServerFileName: Text[250];DocNo: Code[20];PostingDate: Date;FatturaProjectCode: Code[15];FatturaTenderCode: Code[15])
+    local procedure VerifyApplicationInformation(ServerFileName: Text[250]; DocNo: Code[20]; PostingDate: Date; FatturaProjectCode: Code[15]; FatturaTenderCode: Code[15])
     var
         TempXMLBuffer: Record "XML Buffer" temporary;
     begin
         TempXMLBuffer.Load(ServerFileName);
-        TempXMLBuffer.FindNodesByXPath(TempXMLBuffer,'/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiFattureCollegate');
-        AssertElementValue(TempXMLBuffer,'IdDocumento',DocNo);
-        AssertElementValue(TempXMLBuffer,'Data',FormatDate(PostingDate));
-        AssertElementValue(TempXMLBuffer,'CodiceCUP',FatturaProjectCode);
-        AssertElementValue(TempXMLBuffer,'CodiceCIG',FatturaTenderCode);
+        TempXMLBuffer.FindNodesByXPath(TempXMLBuffer, '/p:FatturaElettronica/FatturaElettronicaBody/DatiGenerali/DatiFattureCollegate');
+        AssertElementValue(TempXMLBuffer, 'IdDocumento', DocNo);
+        AssertElementValue(TempXMLBuffer, 'Data', FormatDate(PostingDate));
+        AssertElementValue(TempXMLBuffer, 'CodiceCUP', FatturaProjectCode);
+        AssertElementValue(TempXMLBuffer, 'CodiceCIG', FatturaTenderCode);
         DeleteServerFile(ServerFileName);
     end;
 }

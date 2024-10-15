@@ -1204,7 +1204,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
     end;
 
     [Normal]
-    local procedure SetupInventoryForReport(var ParentItem: Record Item; var ChildItem: Record Item; var PurchaseHeader: Record "Purchase Header"; var ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; ParentCostingMethod: Option; ChildCostingMethod: Option; Invoice: Boolean; Qty: Decimal; QtyPer: Decimal; ReceiptDate: Date)
+    local procedure SetupInventoryForReport(var ParentItem: Record Item; var ChildItem: Record Item; var PurchaseHeader: Record "Purchase Header"; var ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; ParentCostingMethod: Enum "Costing Method"; ChildCostingMethod: Enum "Costing Method"; Invoice: Boolean; Qty: Decimal; QtyPer: Decimal; ReceiptDate: Date)
     var
         ProductionBOMHeader: Record "Production BOM Header";
     begin
@@ -1227,7 +1227,7 @@ codeunit 137353 "SCM Inventory Valuation - WIP"
         ProdOrderLine.FindFirst;
     end;
 
-    local procedure SetupInventoryForReportWithoutPurchOrder(var ParentItem: Record Item; var ChildItem: Record Item; var ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; ParentCostingMethod: Option; ChildCostingMethod: Option; Invoice: Boolean; Qty: Decimal; QtyPer: Decimal; ReceiptDate: Date)
+    local procedure SetupInventoryForReportWithoutPurchOrder(var ParentItem: Record Item; var ChildItem: Record Item; var ProductionOrder: Record "Production Order"; var ProdOrderLine: Record "Prod. Order Line"; ParentCostingMethod: Enum "Costing Method"; ChildCostingMethod: Enum "Costing Method"; Invoice: Boolean; Qty: Decimal; QtyPer: Decimal; ReceiptDate: Date)
     var
         PurchaseHeader: Record "Purchase Header";
     begin

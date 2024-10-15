@@ -22,11 +22,11 @@ codeunit 144562 "IT - Datifattura Split VAT"
         LibraryXPathXMLReader: Codeunit "Library - XPath XML Reader";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryUtility: Codeunit "Library - Utility";
-		LibraryPurchase: Codeunit "Library - Purchase";   	
+        LibraryPurchase: Codeunit "Library - Purchase";
         IsInitialized: Boolean;
         EsigibilitaIVATok: Label 'DTE/CessionarioCommittenteDTE/DatiFatturaBodyDTE/DatiRiepilogo/EsigibilitaIVA';
-		CAPTok: Label 'DTR/CedentePrestatoreDTR/AltriDatiIdentificativi/Sede/CAP';
-      	
+        CAPTok: Label 'DTR/CedentePrestatoreDTR/AltriDatiIdentificativi/Sede/CAP';
+
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
@@ -113,7 +113,7 @@ codeunit 144562 "IT - Datifattura Split VAT"
         // [GIVEN] Created Vendor "V" with Italian VAT reg. no. 
         // [GIVEN] Created Purchase invoice "V".
         LibraryITDatifattura.CreateVendor(Vendor);
-        UpdateVendorVatRegNo(Vendor, 'IT' ,LibraryERM.GenerateVATRegistrationNo('IT'));
+        UpdateVendorVatRegNo(Vendor, 'IT', LibraryERM.GenerateVATRegistrationNo('IT'));
         LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseHeader, Vendor."No.");
 
         // [GIVEN] Purchase Invoice was posted. VATReportHeader and VATReportLine was created for it.
@@ -136,7 +136,7 @@ codeunit 144562 "IT - Datifattura Split VAT"
         Assert.AreEqual(Vendor."Country/Region Code", 'IT', 'Vendor."Country/Region Code" <> IT');
         Assert.AreEqual(Vendor."Post Code", DotNetXmlNode.InnerText, CAPTok);
     end;
-    
+
     [Test]
     [HandlerFunctions('MessageHandler')]
     [Scope('OnPrem')]
@@ -147,7 +147,7 @@ codeunit 144562 "IT - Datifattura Split VAT"
         Vendor: Record "Vendor";
         PurchaseHeader: Record "Purchase Header";
         CountryRegion: Record "Country/Region";
-	    VATReportMediator: Codeunit "VAT Report Mediator";
+        VATReportMediator: Codeunit "VAT Report Mediator";
         DotNetXmlNode: DotNet XmlNode;
         FilePath: Text;
     begin
@@ -167,10 +167,10 @@ codeunit 144562 "IT - Datifattura Split VAT"
         LibraryPurchase.CreatePurchaseInvoiceForVendorNo(PurchaseHeader, Vendor."No.");
 
         // [GIVEN] Purchase Invoice was posted. VATReportHeader and VATReportLine was created for it.
-        LibraryPurchase.PostPurchaseDocument(PurchaseHeader,true,true);
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
         LibraryVATUtils.CreateVATReportHeader(
             VATReportHeader, VATReportHeader."VAT Report Config. Code"::Datifattura, VATReportHeader."VAT Report Type"::Standard,
-            WorkDate,WorkDate);
+            WorkDate, WorkDate);
 
         VATReportMediator.GetLines(VATReportHeader);
         FindVATReportLineByVendor(VATReportLine, VATReportHeader, VATReportLine."Document Type"::Invoice, Vendor."No.");
@@ -179,14 +179,14 @@ codeunit 144562 "IT - Datifattura Split VAT"
         // [WHEN] Export "VATReport" to XML file
         FilePath := LibraryITDatifattura.ExportVATReport(VATReportHeader);
         LibraryXPathXMLReader.Initialize(FilePath, '');
-        LibraryXPathXMLReader.GetNodeByXPath(CAPTok,DotNetXmlNode);
+        LibraryXPathXMLReader.GetNodeByXPath(CAPTok, DotNetXmlNode);
 
         // [THEN] Vendor."Country/Region Code" is not equal for 'IT'
         // [THEN] There is '00000' value for vendor with (XML.Node = CAP)
         Assert.AreNotEqual(Vendor."Country/Region Code", 'IT', 'Vendor."Country/Region Code" = IT');
         Assert.AreEqual('00000', DotNetXmlNode.InnerText, CAPTok);
     end;
-        
+
     [Test]
     [HandlerFunctions('DatifatturaSuggestLinesRequestPageHandler')]
     [Scope('OnPrem')]
@@ -259,7 +259,7 @@ codeunit 144562 "IT - Datifattura Split VAT"
         VATReportLine.DeleteAll();
     end;
 
-    local procedure FindVATReportLine(var VATReportLine: Record "VAT Report Line"; VATReportHeader: Record "VAT Report Header"; DocumentType: Option; DocumentNo: Code[20])
+    local procedure FindVATReportLine(var VATReportLine: Record "VAT Report Line"; VATReportHeader: Record "VAT Report Header"; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
     begin
         VATReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
         VATReportLine.SetRange("Document No.", DocumentNo);
@@ -290,15 +290,15 @@ codeunit 144562 "IT - Datifattura Split VAT"
 
     local procedure UpdateVendorVatRegNo(VAR Vendor: Record "Vendor"; CountryRegionCode: Code[10]; VATRegistrationCode: Text[20]);
     begin
-     	Vendor.Validate(Address, LibraryUtility.GenerateRandomCode(Vendor.FieldNo(Address),DATABASE::Vendor));
-        Vendor.Validate(City, LibraryUtility.GenerateRandomCode(Vendor.FieldNo(City),DATABASE::Vendor));
+        Vendor.Validate(Address, LibraryUtility.GenerateRandomCode(Vendor.FieldNo(Address), DATABASE::Vendor));
+        Vendor.Validate(City, LibraryUtility.GenerateRandomCode(Vendor.FieldNo(City), DATABASE::Vendor));
         Vendor.Validate("Country/Region Code", CountryRegionCode);
         Vendor.Validate("VAT Registration No.", VATRegistrationCode);
-        Vendor.Validate("Post Code", LibraryUtility.GenerateRandomCode(Vendor.FieldNo("Post Code"),DATABASE::Vendor));
+        Vendor.Validate("Post Code", LibraryUtility.GenerateRandomCode(Vendor.FieldNo("Post Code"), DATABASE::Vendor));
         Vendor.Modify(true);
     end;
 
-    local procedure FindVATReportLineByVendor(VAR VATReportLine: Record "VAT Report Line"; VATReportHeader: Record "VAT Report Header"; DocumentType: Option; VendorNo: Code[20]);
+    local procedure FindVATReportLineByVendor(VAR VATReportLine: Record "VAT Report Line"; VATReportHeader: Record "VAT Report Header"; DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20]);
     begin
         VATReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
         VATReportLine.SetRange("Bill-to/Pay-to No.", VendorNo);

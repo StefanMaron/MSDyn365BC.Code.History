@@ -792,7 +792,7 @@ codeunit 144190 "IT - Annual VAT Communication"
           GenJournalLine."Account Type"::"G/L Account", GLAccountNo, LibraryRandom.RandDec(1000, 2));  // Using random value for field Amount.
     end;
 
-    local procedure CreateVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; VATStatementName: Record "VAT Statement Name"; GLAccountNo: Code[20]; Type: Option; AnnualVATComm: Option)
+    local procedure CreateVATStatementLine(var VATStatementLine: Record "VAT Statement Line"; VATStatementName: Record "VAT Statement Name"; GLAccountNo: Code[20]; Type: Enum "VAT Statement Line Type"; AnnualVATComm: Option)
     begin
         LibraryERM.CreateVATStatementLine(VATStatementLine, VATStatementName."Statement Template Name", VATStatementName.Name);
         VATStatementLine.Validate(

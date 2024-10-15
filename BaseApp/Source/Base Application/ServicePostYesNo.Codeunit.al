@@ -1,4 +1,4 @@
-﻿codeunit 5981 "Service-Post (Yes/No)"
+codeunit 5981 "Service-Post (Yes/No)"
 {
     EventSubscriberInstance = Manual;
     TableNo = "Service Line";

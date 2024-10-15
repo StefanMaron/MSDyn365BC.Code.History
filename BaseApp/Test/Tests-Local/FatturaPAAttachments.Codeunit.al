@@ -208,9 +208,8 @@ codeunit 144205 "FatturaPA Attachments"
     local procedure CreatePostSalesInvoice(var RecRef: RecordRef)
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
-        DummySalesHeader: Record "Sales Header";
     begin
-        SalesInvoiceHeader.Get(CreatePostSalesDoc(DummySalesHeader."Document Type"::Invoice));
+        SalesInvoiceHeader.Get(CreatePostSalesDoc("Sales Document Type"::Invoice));
         RecRef.Get(SalesInvoiceHeader.RecordId);
         RecRef.SetRecFilter;
     end;
@@ -218,14 +217,13 @@ codeunit 144205 "FatturaPA Attachments"
     local procedure CreatePostSalesCrMemo(var RecRef: RecordRef)
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
-        DummySalesHeader: Record "Sales Header";
     begin
-        SalesCrMemoHeader.Get(CreatePostSalesDoc(DummySalesHeader."Document Type"::"Credit Memo"));
+        SalesCrMemoHeader.Get(CreatePostSalesDoc("Sales Document Type"::"Credit Memo"));
         RecRef.Get(SalesCrMemoHeader.RecordId);
         RecRef.SetRecFilter;
     end;
 
-    local procedure CreatePostSalesDoc(DocumentType: Option): Code[20]
+    local procedure CreatePostSalesDoc(DocumentType: Enum "Sales Document Type"): Code[20]
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";

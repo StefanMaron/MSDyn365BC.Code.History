@@ -209,11 +209,9 @@ table 379 "Detailed Cust. Ledg. Entry"
         {
             Caption = 'Bank Receipt';
         }
-        field(12103; "Original Document Type"; Option)
+        field(12103; "Original Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Original Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund,,,,Dishonored';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund,,,,Dishonored;
         }
         field(12104; "Original Document No."; Code[20])
         {

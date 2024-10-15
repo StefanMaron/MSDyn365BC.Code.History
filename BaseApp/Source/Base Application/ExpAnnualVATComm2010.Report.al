@@ -360,8 +360,8 @@ report 12127 "Exp.Annual VAT Comm. - 2010"
         ExportFile: File;
         ServerTempFileName: Text;
         ServerFileName: Text;
-        Selection: Option Open,Closed,"Open and Closed";
-        PeriodSelection: Option "Before and Within Period","Within Period";
+        Selection: Enum "VAT Statement Report Selection";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
         RecordCount: Integer;
         SeparateLedger: Boolean;
         GroupSettlement: Boolean;

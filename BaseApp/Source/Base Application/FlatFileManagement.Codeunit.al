@@ -30,7 +30,6 @@ codeunit 12133 "Flat File Management"
         TotalRecordCount: Integer;
         EstimatedNumberOfRecords: Integer;
 
-    [Scope('OnPrem')]
     procedure CleanPhoneNumber(PhoneNumber: Text): Text
     var
         CleanedNumber: Text;
@@ -43,7 +42,6 @@ codeunit 12133 "Flat File Management"
         exit(CleanedNumber);
     end;
 
-    [Scope('OnPrem')]
     procedure CleanString(InputStr: Text) OutputStr: Text
     var
         Index: Integer;
@@ -59,7 +57,6 @@ codeunit 12133 "Flat File Management"
         OutputStr[IndexWrite] := 0;
     end;
 
-    [Scope('OnPrem')]
     procedure CopyStringEnding(InputStr: Text; Length: Integer): Text
     var
         InputLength: Integer;
@@ -70,7 +67,6 @@ codeunit 12133 "Flat File Management"
         exit(InputStr);
     end;
 
-    [Scope('OnPrem')]
     procedure EndFile()
     begin
         if IsRecordOpen then
@@ -88,7 +84,6 @@ codeunit 12133 "Flat File Management"
         IsRecordOpen := false;
     end;
 
-    [Scope('OnPrem')]
     procedure DownloadFile(FileName: Text)
     var
         FileManagement: Codeunit "File Management";
@@ -135,7 +130,6 @@ codeunit 12133 "Flat File Management"
             end;
     end;
 
-    [Scope('OnPrem')]
     procedure FormatDate(InputDate: Date; OutputFormat: Option): Text
     begin
         case OutputFormat of
@@ -151,7 +145,6 @@ codeunit 12133 "Flat File Management"
         exit(Format(InputDate));
     end;
 
-    [Scope('OnPrem')]
     procedure FormatNum(Number: Decimal; ValueFormat: Option): Text
     var
         RoundOption: Text;
@@ -175,7 +168,6 @@ codeunit 12133 "Flat File Management"
         exit(Format(Number));
     end;
 
-    [Scope('OnPrem')]
     procedure FormatPadding(ValueFormat: Option; Value: Text; Length: Integer): Text
     begin
         case ValueFormat of
@@ -191,37 +183,31 @@ codeunit 12133 "Flat File Management"
         exit(Value);
     end;
 
-    [Scope('OnPrem')]
     procedure GetFileCount(): Integer
     begin
         exit(FileCount);
     end;
 
-    [Scope('OnPrem')]
     procedure GetMaxRecordsPerFile(): Integer
     begin
         exit((ConstMaxFileSize - HeaderFooterRecordCountPerFile * ConstMaxRecordLength) div ConstMaxRecordLength);
     end;
 
-    [Scope('OnPrem')]
     procedure GetRecordCount(RecordType: Option A,B,C,D,E,G,H,Z): Integer
     begin
         exit(RecordCount[RecordType + 1]);
     end;
 
-    [Scope('OnPrem')]
     procedure GetEstimatedNumberOfRecords(): Integer
     begin
         exit(EstimatedNumberOfRecords);
     end;
 
-    [Scope('OnPrem')]
     procedure GetTotalTransmissions(): Integer
     begin
         exit(NumberOfFiles);
     end;
 
-    [Scope('OnPrem')]
     procedure Initialize()
     var
         FileManagement: Codeunit "File Management";
@@ -239,7 +225,6 @@ codeunit 12133 "Flat File Management"
         ServerTempFileName := FileManagement.ServerTempFileName('txt');
     end;
 
-    [Scope('OnPrem')]
     procedure RecordsPerFileExceeded(Type: Option A,B,C,D,E,G,H,Z): Boolean
     begin
         if Type in [ConstRecordType::C, ConstRecordType::D, ConstRecordType::H] then
@@ -249,26 +234,22 @@ codeunit 12133 "Flat File Management"
         exit(false);
     end;
 
-    [Scope('OnPrem')]
     procedure SetServerFileName(FileName: Text)
     begin
         ServerFileName := FileName;
     end;
 
-    [Scope('OnPrem')]
     procedure SetEstimatedNumberOfRecords(NewEstimatedNumberOfRecords: Integer)
     begin
         EstimatedNumberOfRecords := NewEstimatedNumberOfRecords;
         NumberOfFiles := EstimatedNumberOfRecords div (GetMaxRecordsPerFile + 1) + 1;
     end;
 
-    [Scope('OnPrem')]
     procedure SetHeaderFooterRecordCountPerFile(NewHeaderFooterRecordCountPerFile: Integer)
     begin
         HeaderFooterRecordCountPerFile := NewHeaderFooterRecordCountPerFile;
     end;
 
-    [Scope('OnPrem')]
     procedure StartNewFile()
     var
         ServerTempFileNameSeries: Text;
@@ -284,7 +265,6 @@ codeunit 12133 "Flat File Management"
         Clear(RecordCount);
     end;
 
-    [Scope('OnPrem')]
     procedure StartNewRecord(Type: Option A,B,C,D,E,G,H,Z)
     begin
         if IsRecordOpen then
@@ -307,7 +287,6 @@ codeunit 12133 "Flat File Management"
         WritePositionalValue(1, 1, ConstFormat::AN, Format(Type), false);
     end;
 
-    [Scope('OnPrem')]
     procedure WritePositionalValue(Position: Integer; Length: Integer; ValueFormat: Option; Value: Text; Truncate: Boolean)
     begin
         if ValueFormat = ConstFormat::NU then
@@ -322,7 +301,6 @@ codeunit 12133 "Flat File Management"
         WriteValue(Position, Length, FormatPadding(ValueFormat, Value, Length))
     end;
 
-    [Scope('OnPrem')]
     procedure WriteBlockValue("Code": Code[8]; ValueFormat: Option; Value: Text)
     var
         Splits: Integer;
@@ -371,7 +349,6 @@ codeunit 12133 "Flat File Management"
         end
     end;
 
-    [Scope('OnPrem')]
     procedure WriteValue(Position: Integer; Length: Integer; Value: Text)
     var
         Index: Integer;

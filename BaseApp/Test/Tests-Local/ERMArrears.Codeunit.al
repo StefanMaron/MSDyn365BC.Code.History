@@ -809,7 +809,7 @@ codeunit 144095 "ERM Arrears"
         LibraryVariableStorage.Clear;
     end;
 
-    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; AccountType: Option; AccountNo: Code[20]; PostingDate: Date; Amount: Decimal)
+    local procedure CreateAndPostGenJournalLine(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; PostingDate: Date; Amount: Decimal)
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -823,7 +823,7 @@ codeunit 144095 "ERM Arrears"
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
-    local procedure CreateAndPostSalesDocument(DocumentType: Option; CustomerNo: Code[20])
+    local procedure CreateAndPostSalesDocument(DocumentType: Enum "Gen. Journal Document Type"; CustomerNo: Code[20])
     var
         Item: Record Item;
         SalesHeader: Record "Sales Header";
@@ -936,7 +936,7 @@ codeunit 144095 "ERM Arrears"
         exit(GLAccount."No.");
     end;
 
-    local procedure CreateInvoiceAndMakePayment(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Option; AccountNo: Code[20]; NoOfDays: Text[10]; Amount: Decimal; PaymentPart: Integer)
+    local procedure CreateInvoiceAndMakePayment(var GenJournalLine: Record "Gen. Journal Line"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; NoOfDays: Text[10]; Amount: Decimal; PaymentPart: Integer)
     var
         GenJournalLine2: Record "Gen. Journal Line";
     begin
@@ -996,7 +996,7 @@ codeunit 144095 "ERM Arrears"
         LibraryVariableStorage.Enqueue(PrintDetails);
     end;
 
-    local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Option)
+    local procedure FindCustomerLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         CustLedgerEntry.SetRange("Customer No.", CustomerNo);
         CustLedgerEntry.SetRange("Document Type", DocumentType);
@@ -1014,7 +1014,7 @@ codeunit 144095 "ERM Arrears"
         exit(PaymentTerms.Code);
     end;
 
-    local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentType: Option)
+    local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
         VendorLedgerEntry.SetRange("Document Type", DocumentType);
@@ -1099,7 +1099,7 @@ codeunit 144095 "ERM Arrears"
         LibraryReportDataset.AssertElementWithValueExists(RateLabelCap, GetInterestRate(DiffInterestRate, Format(InterestRate)));
     end;
 
-    local procedure VerifyGLEntry(SourceNo: Code[20]; DocumentType: Option)
+    local procedure VerifyGLEntry(SourceNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     var
         GLEntry: Record "G/L Entry";
         CustLedgerEntry: Record "Cust. Ledger Entry";

@@ -4006,7 +4006,7 @@ codeunit 134629 "Test Graph Collection Mgmt."
         // Setup
         BusinessTypeString := '{  "PropertyId": "String {bdba944b-fc2b-47a1-8ba4-cafc4ae13ea2} Name BusinessType",  "Value": "Individual"}';
         // Exercise
-        NewBusinessTypeString := GraphCollectionMgtContact.AddBusinessType(Contact.Type::Person);
+        NewBusinessTypeString := GraphCollectionMgtContact.AddBusinessType(Contact.Type::Person.AsInteger());
 
         // Verify
         Assert.AreEqual(BusinessTypeString, DelChr(NewBusinessTypeString, '=', CrLf), '');

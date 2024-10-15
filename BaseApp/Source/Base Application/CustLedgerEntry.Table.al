@@ -553,7 +553,7 @@ table 21 "Cust. Ledger Entry"
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(1200; "Direct Debit Mandate ID"; Code[35])
@@ -597,11 +597,9 @@ table 21 "Cust. Ledger Entry"
                 TestField("Bank Receipt Issued", false);
             end;
         }
-        field(12177; "Document Type to Close"; Option)
+        field(12177; "Document Type to Close"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type to Close';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund,,,,Dishonored';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund,,,,Dishonored;
         }
         field(12178; "Document No. to Close"; Code[20])
         {

@@ -430,7 +430,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         ApplicationBySetAppliesToID(VendorLedgerEntry."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund);
     end;
 
-    local procedure ApplicationBySetAppliesToID(VendorLedgerEntryDocumentType: Option; GeneralJournalLineDocumentType: Option)
+    local procedure ApplicationBySetAppliesToID(VendorLedgerEntryDocumentType: Enum "Gen. Journal Document Type"; GeneralJournalLineDocumentType: Enum "Gen. Journal Document Type")
     var
         GenJournalLine: Record "Gen. Journal Line";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -482,7 +482,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         ApplyWhereAmountToApplyIsMore(VendorLedgerEntry."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund);
     end;
 
-    local procedure ApplyWhereAmountToApplyIsMore(VendorLedgerEntryDocumentType: Option; GeneralJournalLineDocumentType: Option)
+    local procedure ApplyWhereAmountToApplyIsMore(VendorLedgerEntryDocumentType: Enum "Gen. Journal Document Type"; GeneralJournalLineDocumentType: Enum "Gen. Journal Document Type")
     var
         GenJournalLine: Record "Gen. Journal Line";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -568,7 +568,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
           GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::"Credit Memo");
     end;
 
-    local procedure ApplyWhereAmountToApplyIsLess(VendorLedgerEntryDocumentType: Option; SetupGeneralLineDocumentType: Option; SetupGeneralLineDocumentType2: Option; GeneralJournalLineDocumentType: Option)
+    local procedure ApplyWhereAmountToApplyIsLess(VendorLedgerEntryDocumentType: Enum "Gen. Journal Document Type"; SetupGeneralLineDocumentType: Enum "Gen. Journal Document Type"; SetupGeneralLineDocumentType2: Enum "Gen. Journal Document Type"; GeneralJournalLineDocumentType: Enum "Gen. Journal Document Type")
     var
         GenJournalLine: Record "Gen. Journal Line";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -653,7 +653,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         AmountToApplyHasSameSignError(VendorLedgerEntry."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund);
     end;
 
-    local procedure AmountToApplyHasSameSignError(VendorLedgerEntryDocumentType: Option; GeneralJournalLineDocumentType: Option)
+    local procedure AmountToApplyHasSameSignError(VendorLedgerEntryDocumentType: Enum "Gen. Journal Document Type"; GeneralJournalLineDocumentType: Enum "Gen. Journal Document Type")
     var
         GenJournalLine: Record "Gen. Journal Line";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -705,7 +705,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         AmountToApplyMoreThanInitial(VendorLedgerEntry."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund, -1)
     end;
 
-    local procedure AmountToApplyMoreThanInitial(VendorLedgerEntryDocumentType: Option; GeneralJournalLineDocumentType: Option; SignFactor: Integer)
+    local procedure AmountToApplyMoreThanInitial(VendorLedgerEntryDocumentType: Enum "Gen. Journal Document Type"; GeneralJournalLineDocumentType: Enum "Gen. Journal Document Type"; SignFactor: Integer)
     var
         GenJournalLine: Record "Gen. Journal Line";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -753,7 +753,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         ApplytoOldestWithInvoice(GenJournalLine."Document Type"::"Credit Memo");
     end;
 
-    local procedure ApplytoOldestWithInvoice(DocumentType: Option)
+    local procedure ApplytoOldestWithInvoice(DocumentType: Enum "Gen. Journal Document Type")
     var
         GenJournalLine: Record "Gen. Journal Line";
         Counter: Integer;
@@ -826,7 +826,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund);
     end;
 
-    local procedure ApplyWithMoreCurrency(VendorLedgerEntryDocumentType: Option; SetupGeneralLineDocumentType: Option; SetupGeneralLineDocumentType2: Option; GeneralJournalLineDocumentType: Option)
+    local procedure ApplyWithMoreCurrency(VendorLedgerEntryDocumentType: Enum "Gen. Journal Document Type"; SetupGeneralLineDocumentType: Enum "Gen. Journal Document Type"; SetupGeneralLineDocumentType2: Enum "Gen. Journal Document Type"; GeneralJournalLineDocumentType: Enum "Gen. Journal Document Type")
     var
         GenJournalLine: Record "Gen. Journal Line";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -884,7 +884,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund);
     end;
 
-    local procedure ApplyWithLessCurrency(VendorLedgerEntryDocumentType: Option; SetupGeneralLineDocumentType: Option; SetupGeneralLineDocumentType2: Option; GeneralJournalLineDocumentType: Option)
+    local procedure ApplyWithLessCurrency(VendorLedgerEntryDocumentType: Enum "Gen. Journal Document Type"; SetupGeneralLineDocumentType: Enum "Gen. Journal Document Type"; SetupGeneralLineDocumentType2: Enum "Gen. Journal Document Type"; GeneralJournalLineDocumentType: Enum "Gen. Journal Document Type")
     var
         GenJournalLine: Record "Gen. Journal Line";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -943,7 +943,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund);
     end;
 
-    local procedure ApplyForMultipleDocuments(VendorLedgerEntryDocumentType: Option; SetupGeneralLineDocumentType: Option; SetupGeneralLineDocumentType2: Option; GeneralJournalLineDocumentType: Option)
+    local procedure ApplyForMultipleDocuments(VendorLedgerEntryDocumentType: Enum "Gen. Journal Document Type"; SetupGeneralLineDocumentType: Enum "Gen. Journal Document Type"; SetupGeneralLineDocumentType2: Enum "Gen. Journal Document Type"; GeneralJournalLineDocumentType: Enum "Gen. Journal Document Type")
     var
         GenJournalLine: Record "Gen. Journal Line";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -999,7 +999,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
           VendorLedgerEntry."Document Type"::"Credit Memo", GenJournalLine."Document Type"::"Credit Memo", 1); // Signfactor is 1.
     end;
 
-    local procedure AmountExceedsPaymentTolerance(VendorLedgerEntryDocumentType: Option; SetupGeneralLineDocumentType: Option; SignFactor: Integer)
+    local procedure AmountExceedsPaymentTolerance(VendorLedgerEntryDocumentType: Enum "Gen. Journal Document Type"; SetupGeneralLineDocumentType: Enum "Gen. Journal Document Type"; SignFactor: Integer)
     var
         GenJournalLine: Record "Gen. Journal Line";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -1062,7 +1062,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
           VendorLedgerEntry."Document Type"::"Credit Memo", GenJournalLine."Document Type"::"Credit Memo", 1); // Sign Factor is 1.
     end;
 
-    local procedure AmountLessThanPaymentTolerance(VendorLedgerEntryDocumentType: Option; SetupGeneralLineDocumentType: Option; SignFactor: Integer)
+    local procedure AmountLessThanPaymentTolerance(VendorLedgerEntryDocumentType: Enum "Gen. Journal Document Type"; SetupGeneralLineDocumentType: Enum "Gen. Journal Document Type"; SignFactor: Integer)
     var
         GenJournalLine: Record "Gen. Journal Line";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -1245,7 +1245,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
           OldPaymentToleranceWarning, OldPaymentTolerancePerc, OldMaxPaymentToleranceAmount); // Set default value to Zero in Max. Payment Tolerance Amount field.
     end;
 
-    local procedure ApplyExceedsPaymentTolerance(VendorLedgerEntryDocumentType: Option; SetupGeneralLineDocumentType: Option; GeneralJournalLineDocumentType: Option; AppliedVendorEntryDocumentType: Option; SignFactor: Integer)
+    local procedure ApplyExceedsPaymentTolerance(VendorLedgerEntryDocumentType: Enum "Gen. Journal Document Type"; SetupGeneralLineDocumentType: Enum "Gen. Journal Document Type"; GeneralJournalLineDocumentType: Enum "Gen. Journal Document Type"; AppliedVendorEntryDocumentType: Enum "Gen. Journal Document Type"; SignFactor: Integer)
     var
         GenJournalLine: Record "Gen. Journal Line";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
@@ -1466,7 +1466,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
     end;
 
     [Normal]
-    local procedure CreateDocumentLine(var GenJournalLine: Record "Gen. Journal Line"; var GenJournalBatch: Record "Gen. Journal Batch"; NumberOfLines: Integer; DocumentType: Option; VendorNo: Code[20]; Amount: Decimal)
+    local procedure CreateDocumentLine(var GenJournalLine: Record "Gen. Journal Line"; var GenJournalBatch: Record "Gen. Journal Batch"; NumberOfLines: Integer; DocumentType: Enum "Gen. Journal Document Type"; VendorNo: Code[20]; Amount: Decimal)
     var
         Counter: Integer;
     begin
@@ -1494,7 +1494,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateLineWhichWillBeApplied(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; Amount: Decimal)
+    local procedure CreateLineWhichWillBeApplied(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         AccountNo: Code[20];
     begin
@@ -1520,7 +1520,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         PurchaseLine.Modify(true);
     end;
 
-    local procedure CreateAndPostInvoiceRefundGLLines(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Option; DocumentType2: Option)
+    local procedure CreateAndPostInvoiceRefundGLLines(var GenJournalLine: Record "Gen. Journal Line"; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
         PaymentTerms: Record "Payment Terms";
@@ -1640,7 +1640,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         GenJournalLine.Modify(true);
     end;
 
-    local procedure CreateAndPostGeneralLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; Amount: Decimal; DocumentType: Option)
+    local procedure CreateAndPostGeneralLine(var GenJournalLine: Record "Gen. Journal Line"; AccountNo: Code[20]; Amount: Decimal; DocumentType: Enum "Gen. Journal Document Type")
     var
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
@@ -1696,7 +1696,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         exit(GenJournalTemplate.Name);
     end;
 
-    local procedure FindVendorLedgerEntriesAmount(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentType: Option) Amount: Decimal
+    local procedure FindVendorLedgerEntriesAmount(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type") Amount: Decimal
     begin
         VendorLedgerEntry.SetRange("Document Type", DocumentType);
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
@@ -1707,7 +1707,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         until VendorLedgerEntry.Next = 0;
     end;
 
-    local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentType: Option)
+    local procedure FindVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type")
     begin
         VendorLedgerEntry.SetRange("Document Type", DocumentType);
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
@@ -1715,7 +1715,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         VendorLedgerEntry.CalcFields("Remaining Amount", Amount);
     end;
 
-    local procedure FindGLAccount(GenPostingType: Option): Code[20]
+    local procedure FindGLAccount(GenPostingType: Enum "General Posting Type"): Code[20]
     var
         GLAccount: Record "G/L Account";
     begin
@@ -1860,7 +1860,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
           UnknownError);
     end;
 
-    local procedure VerifyDetailedVendorLedger(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; VendorNo: Code[20]; DocumentType: Option; Amount: Decimal)
+    local procedure VerifyDetailedVendorLedger(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     begin
         DetailedVendorLedgEntry.SetRange("Vendor No.", VendorNo);
         DetailedVendorLedgEntry.SetRange("Document Type", DocumentType);
@@ -1868,7 +1868,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         DetailedVendorLedgEntry.TestField(Amount, Amount);
     end;
 
-    local procedure VerifyGLEntry(DocumentNo: Code[20]; DocType: Option; Amount: Decimal)
+    local procedure VerifyGLEntry(DocumentNo: Code[20]; DocType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         GLEntry: Record "G/L Entry";
     begin
@@ -1888,7 +1888,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
             Error(VendorLedgerEntryError, VendorLedgerEntry.TableCaption);
     end;
 
-    local procedure VerifyPaymentToleranceEntry(VendorNo: Code[20]; DocumentType: Option; Amount: Decimal)
+    local procedure VerifyPaymentToleranceEntry(VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
@@ -1896,7 +1896,7 @@ codeunit 134004 "ERM Partial Payment Vendor"
         VerifyDetailedVendorLedger(DetailedVendorLedgEntry, VendorNo, DocumentType, Amount);
     end;
 
-    local procedure VerifyPaymentDiscountEntry(VendorNo: Code[20]; DocumentType: Option; Amount: Decimal)
+    local procedure VerifyPaymentDiscountEntry(VendorNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; Amount: Decimal)
     var
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin

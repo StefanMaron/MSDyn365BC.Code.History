@@ -29,11 +29,9 @@ table 5411 "Prod. Order Routing Tool"
                                                                               "Prod. Order No." = FIELD("Prod. Order No."),
                                                                               "Routing No." = FIELD("Routing No."));
         }
-        field(22; Status; Option)
+        field(22; Status; Enum "Production Order Status")
         {
             Caption = 'Status';
-            OptionCaption = 'Simulated,Planned,Firm Planned,Released,Finished';
-            OptionMembers = Simulated,Planned,"Firm Planned",Released,Finished;
         }
         field(23; "Prod. Order No."; Code[20])
         {

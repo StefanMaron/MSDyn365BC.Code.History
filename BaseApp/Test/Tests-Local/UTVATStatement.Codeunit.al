@@ -194,7 +194,7 @@ codeunit 144166 "UT VAT Statement"
         VATEntry.Insert();
     end;
 
-    local procedure CreateVATStatementLine(VATPostingSetup: Record "VAT Posting Setup"; VATStatementName: Record "VAT Statement Name"; Type: Option; AmountType: Option; RowTotaling: Text): Code[10]
+    local procedure CreateVATStatementLine(VATPostingSetup: Record "VAT Posting Setup"; VATStatementName: Record "VAT Statement Name"; Type: Enum "VAT Statement Line Type"; AmountType: Enum "VAT Statement Line Amount Type"; RowTotaling: Text): Code[10]
     var
         VATStatementLine: Record "VAT Statement Line";
     begin
@@ -256,7 +256,7 @@ codeunit 144166 "UT VAT Statement"
         VATStatement.OK.Invoke;
     end;
 
-    local procedure VerifyVATStatementLine(RowNo: Code[10]; AmountType: Option)
+    local procedure VerifyVATStatementLine(RowNo: Code[10]; AmountType: Enum "VAT Statement Line Amount Type")
     var
         VATStatementLine: Record "VAT Statement Line";
     begin

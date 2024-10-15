@@ -405,7 +405,7 @@ codeunit 144100 "ERM Fiscal LIFO"
         REPORT.Run(REPORT::"Calculate End Year Costs");  // Opens CalculateEndYearCostsRequestPageHandler.
     end;
 
-    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; EntryType: Option; ItemNo: Code[20]; PostingDate: Date; Qty: Decimal; UnitAmount: Decimal)
+    local procedure CreateItemJournalLine(var ItemJournalLine: Record "Item Journal Line"; EntryType: Enum "Item Ledger Entry Type"; ItemNo: Code[20]; PostingDate: Date; Qty: Decimal; UnitAmount: Decimal)
     var
         ItemJournalTemplate: Record "Item Journal Template";
         ItemJournalBatch: Record "Item Journal Batch";
@@ -477,7 +477,7 @@ codeunit 144100 "ERM Fiscal LIFO"
         exit(Item."No.");
     end;
 
-    local procedure CreateItemForReplenishmentSystem(var Item: Record Item; ReplenishmentSystem: Option)
+    local procedure CreateItemForReplenishmentSystem(var Item: Record Item; ReplenishmentSystem: Enum "Replenishment System")
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Replenishment System", ReplenishmentSystem);

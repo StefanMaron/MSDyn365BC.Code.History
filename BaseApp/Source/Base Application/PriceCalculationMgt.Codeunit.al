@@ -2,34 +2,35 @@ codeunit 7001 "Price Calculation Mgt."
 {
     trigger OnRun()
     begin
-        if IsExtendedPriceCalculationEnabled() then
-            RefreshSetup();
+        RefreshSetup();
     end;
 
     var
+        ExtendedPriceFeatureIdTok: Label 'SalesPrices', Locked = true;
         NotImplementedMethodErr: Label 'Method %1 does not have active implementations for %2 price type.', Comment = '%1 - method name, %2 - price type name';
+        FeatureIsOffErr: Label 'Extended price calculation feature is not enabled.';
+        FilterTok: Label '<>%1', Locked = true;
 
-    local procedure RefreshSetup()
+    procedure RefreshSetup() Updated: Boolean;
     var
         TempPriceCalculationSetup: Record "Price Calculation Setup" temporary;
         PriceCalculationSetup: Record "Price Calculation Setup";
     begin
-        OnFindSupportedSetup(TempPriceCalculationSetup);
-        PriceCalculationSetup.CopyDefaultFlagTo(TempPriceCalculationSetup);
-        PriceCalculationSetup.MoveFrom(TempPriceCalculationSetup);
-        SetCodeunitAsDefault(Codeunit::"Price Calculation - V15");
-    end;
+        if not IsExtendedPriceCalculationEnabled() then
+            exit(false);
 
-    local procedure SetCodeunitAsDefault(Implementation: Integer)
-    var
-        PriceCalculationSetup: Record "Price Calculation Setup";
-    begin
-        PriceCalculationSetup.SetRange(Default, true);
-        if PriceCalculationSetup.IsEmpty then begin
-            PriceCalculationSetup.Reset();
-            PriceCalculationSetup.SetRange(Implementation, Implementation);
-            PriceCalculationSetup.ModifyAll(Default, true);
-        end;
+        OnFindSupportedSetup(TempPriceCalculationSetup);
+        if PriceCalculationSetup.FindSet() then
+            repeat
+                if TempPriceCalculationSetup.Get(PriceCalculationSetup.Code) then
+                    TempPriceCalculationSetup.Delete()
+                else begin
+                    PriceCalculationSetup.Delete();
+                    Updated := true;
+                end;
+            until PriceCalculationSetup.Next() = 0;
+        if PriceCalculationSetup.MoveFrom(TempPriceCalculationSetup) then
+            Updated := true;
     end;
 
     procedure GetHandler(LineWithPrice: Interface "Line With Price"; var PriceCalculation: Interface "Price Calculation") Result: Boolean;
@@ -92,9 +93,23 @@ codeunit 7001 "Price Calculation Mgt."
         exit(false);
     end;
 
-    procedure IsExtendedPriceCalculationEnabled() Result: Boolean;
+    procedure IsExtendedPriceCalculationEnabled() FeatureEnabled: Boolean;
+    var
+        FeatureManagementFacade: Codeunit "Feature Management Facade";
     begin
-        OnIsExtendedPriceCalculationEnabled(Result);
+        FeatureEnabled := FeatureManagementFacade.IsEnabled(ExtendedPriceFeatureIdTok);
+        OnIsExtendedPriceCalculationEnabled(FeatureEnabled);
+    end;
+
+    procedure GetFeatureKey(): Text[50]
+    begin
+        exit(ExtendedPriceFeatureIdTok);
+    end;
+
+    procedure TestIsEnabled()
+    begin
+        if not IsExtendedPriceCalculationEnabled() then
+            Error(FeatureIsOffErr);
     end;
 
     [IntegrationEvent(false, false)]
@@ -105,5 +120,11 @@ codeunit 7001 "Price Calculation Mgt."
     [IntegrationEvent(false, false)]
     local procedure OnFindSupportedSetup(var TempPriceCalculationSetup: Record "Price Calculation Setup" temporary)
     begin
+    end;
+
+    [EventSubscriber(ObjectType::Page, Page::"Feature Management", 'OnOpenFeatureMgtPage', '', false, false)]
+    local procedure HideFeatureOnOpenFeatureMgtPage(var FeatureIDFilter: Text; var IgnoreFilter: Boolean);
+    begin
+        FeatureIDFilter := StrSubstNo(FilterTok, GetFeatureKey());
     end;
 }

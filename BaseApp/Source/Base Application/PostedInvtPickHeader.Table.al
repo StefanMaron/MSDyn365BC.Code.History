@@ -79,12 +79,10 @@ table 7342 "Posted Invt. Pick Header"
             IF ("Source Type" = CONST(5405)) "Production Order"."No." WHERE(Status = FILTER(Released | Finished),
                                                                                                 "No." = FIELD("Source No."));
         }
-        field(7307; "Source Document"; Option)
+        field(7307; "Source Document"; Enum "Warehouse Activity Source Document")
         {
             BlankZero = true;
             Caption = 'Source Document';
-            OptionCaption = ' ,Sales Order,,,Sales Return Order,Purchase Order,,,Purchase Return Order,Inbound Transfer,Outbound Transfer,Prod. Consumption,Prod. Output';
-            OptionMembers = " ","Sales Order",,,"Sales Return Order","Purchase Order",,,"Purchase Return Order","Inbound Transfer","Outbound Transfer","Prod. Consumption","Prod. Output";
         }
         field(7308; "Source Type"; Integer)
         {

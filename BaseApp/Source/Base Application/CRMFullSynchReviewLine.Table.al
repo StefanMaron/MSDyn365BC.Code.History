@@ -128,8 +128,6 @@ table 5373 "CRM Full Synch. Review Line"
         IntegrationTableMapping.SetRange("Synch. Codeunit ID", CODEUNIT::"CRM Integration Table Synch.");
         IntegrationTableMapping.SetRange("Int. Table UID Field Type", Field.Type::GUID);
         IntegrationTableMapping.SetRange("Delete After Synchronization", false);
-        // if integration to Dynamics 365 Sales is disabled, do not suggest to do a full sync on Dynamics 365 Sales - specific integration table mappings
-        // in this case, include only mappings for the synchronization to CDS base entities
         if not CRMIntegrationManagement.IsCRMIntegrationEnabled() then
             if handled and (OwnershipModel = CDSConnectionSetup."Ownership Model"::Team) then
                 IntegrationTableMappingFilter := 'CUSTOMER|VENDOR|CONTACT|CURRENCY|PAYMENT TERMS|SHIPPING AGENT|SHIPMENT METHOD'
@@ -137,9 +135,9 @@ table 5373 "CRM Full Synch. Review Line"
                 IntegrationTableMappingFilter := 'CUSTOMER|VENDOR|CONTACT|CURRENCY|PAYMENT TERMS|SHIPPING AGENT|SHIPMENT METHOD|SALESPEOPLE'
         else
             if handled and (OwnershipModel = CDSConnectionSetup."Ownership Model"::Team) then
-                IntegrationTableMappingFilter := '<>SALESPEOPLE&<>SALESORDER-ORDER'
+                IntegrationTableMappingFilter := '<>SALESPEOPLE&<>SALESORDER-ORDER&<>POSTEDSALESLINE-INV'
             else
-                IntegrationTableMappingFilter := '<>SALESORDER-ORDER';
+                IntegrationTableMappingFilter := '<>SALESORDER-ORDER&<>POSTEDSALESLINE-INV';
 
         if IntegrationTableMappingFilter <> '' then
             IntegrationTableMapping.SetFilter(Name, IntegrationTableMappingFilter);
@@ -159,13 +157,13 @@ table 5373 "CRM Full Synch. Review Line"
                 Validate("Dependency Filter", IntegrationTableMapping."Dependency Filter");
                 Validate("Initial Synch Recommendation", GetInitialSynchRecommendation(IntegrationTableMapping));
                 Direction := IntegrationTableMapping.Direction;
-                SendTraceTag('0000CDF', CategoryTok, Verbosity::Normal, StrSubstNo(SynchRecommDetailsTxt, Name, Format(Direction), Format("Initial Synch Recommendation")), DataClassification::SystemMetadata);
+                Session.LogMessage('0000CDF', StrSubstNo(SynchRecommDetailsTxt, Name, Format(Direction), Format("Initial Synch Recommendation")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                 Insert(true);
             end else
                 if "Job Queue Entry Status" = "Job Queue Entry Status"::" " then begin
                     Validate("Dependency Filter", IntegrationTableMapping."Dependency Filter");
                     Validate("Initial Synch Recommendation", GetInitialSynchRecommendation(IntegrationTableMapping));
-                    SendTraceTag('0000CDF', CategoryTok, Verbosity::Normal, StrSubstNo(SynchRecommDetailsTxt, Name, Format(Direction), Format("Initial Synch Recommendation")), DataClassification::SystemMetadata);
+                    Session.LogMessage('0000CDF', StrSubstNo(SynchRecommDetailsTxt, Name, Format(Direction), Format("Initial Synch Recommendation")), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
                     Modify(true);
                 end;
         end;

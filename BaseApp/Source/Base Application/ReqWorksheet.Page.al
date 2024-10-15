@@ -495,6 +495,7 @@ page 291 "Req. Worksheet"
                         Promoted = true;
                         PromotedCategory = Category7;
                         ToolTip = 'Get a graphical view of an item''s projected inventory based on future supply and demand events, with or without planning suggestions. The result is a graphical representation of the inventory profile.';
+                        Visible = false;
 
                         trigger OnAction()
                         begin
@@ -516,7 +517,7 @@ page 291 "Req. Worksheet"
 
                     trigger OnAction()
                     begin
-                        ShowDimensions;
+                        ShowDimensions();
                         CurrPage.SaveRecord;
                     end;
                 }
@@ -533,7 +534,7 @@ page 291 "Req. Worksheet"
 
                     trigger OnAction()
                     begin
-                        OpenItemTrackingLines;
+                        OpenItemTrackingLines();
                     end;
                 }
             }
@@ -661,7 +662,7 @@ page 291 "Req. Worksheet"
                     trigger OnAction()
                     begin
                         CurrPage.SaveRecord;
-                        ShowReservation;
+                        ShowReservation();
                     end;
                 }
                 action(CarryOutActionMessage)
@@ -814,8 +815,10 @@ page 291 "Req. Worksheet"
         CurrentJnlBatchName: Code[10];
         Description2: Text[100];
         BuyFromVendorName: Text[100];
-        ShortcutDimCode: array[8] of Code[20];
         OpenedFromBatch: Boolean;
+
+    protected var
+        ShortcutDimCode: array[8] of Code[20];
 
     local procedure CurrentJnlBatchNameOnAfterVali()
     begin

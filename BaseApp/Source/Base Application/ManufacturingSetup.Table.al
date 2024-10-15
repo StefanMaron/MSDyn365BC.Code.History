@@ -30,6 +30,14 @@ table 99000765 "Manufacturing Setup"
         field(12; "Dynamic Low-Level Code"; Boolean)
         {
             Caption = 'Dynamic Low-Level Code';
+
+            trigger OnValidate()
+            var
+                LowLevelCodeCalculator: Codeunit "Low-Level Code Calculator";
+            begin
+                if xRec."Dynamic Low-Level Code" and (not "Dynamic Low-Level Code") then
+                    LowLevelCodeCalculator.SuggestToRunAsBackgroundJob();
+            end;
         }
         field(18; "Planning Warning"; Boolean)
         {
@@ -86,12 +94,13 @@ table 99000765 "Manufacturing Setup"
         }
         field(37; "Use Forecast on Locations"; Boolean)
         {
-            Caption = 'Use Forecast on Locations';
+            Caption = 'Use forecast on locations';
         }
         field(38; "Combined MPS/MRP Calculation"; Boolean)
         {
             AccessByPermission = TableData "Planning Component" = R;
             Caption = 'Combined MPS/MRP Calculation';
+            InitValue = true;
         }
         field(39; "Components at Location"; Code[10])
         {
@@ -129,6 +138,13 @@ table 99000765 "Manufacturing Setup"
         {
             Caption = 'Show Capacity In';
             TableRelation = "Capacity Unit of Measure".Code;
+        }
+        field(3687; "Optimize low-level code calc."; Boolean)
+        {
+            Caption = 'Optimize low-level code calculation';
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Codeunit Calc. Low-level code is obsolete. Use Codeunit Low-Level Code Calculator instead.';
+            ObsoleteTag = '17.0';
         }
         field(5500; "Preset Output Quantity"; Option)
         {

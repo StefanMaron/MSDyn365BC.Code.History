@@ -355,7 +355,7 @@
                             GenJnlLine."Operation Occurred Date" := PostingDate;
                             if GLSetup."Use Activity Code" then
                                 GenJnlLine."Activity Code" := ActivityCode.Code;
-                            GenJnlLine."Document Type" := 0;
+                            GenJnlLine."Document Type" := GenJnlLine."Document Type"::" ";
                             GenJnlLine."Document No." := DocNo;
                             GenJnlLine."Source Code" := SourceCodeSetup."VAT Settlement";
                             GenJnlLine."VAT Posting" := GenJnlLine."VAT Posting"::"Manual VAT Entry";
@@ -503,18 +503,18 @@
                                     if FindFirstEntry then begin
                                         if not VATEntry.Find('-') then
                                             repeat
-                                                VATType := VATType + 1;
+                                                VATType := "General Posting Type".FromInteger((VATType.AsInteger() + 1));
                                                 VATEntry.SetRange(Type, VATType);
                                             until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
                                         FindFirstEntry := false;
                                     end else begin
                                         if VATEntry.Next = 0 then
                                             repeat
-                                                VATType := VATType + 1;
+                                                VATType := "General Posting Type".FromInteger((VATType.AsInteger() + 1));
                                                 VATEntry.SetRange(Type, VATType);
                                             until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
                                     end;
-                                    if VATType < VATEntry.Type::Settlement then
+                                    if VATType.AsInteger() < VATEntry.Type::Settlement.AsInteger() then
                                         VATEntry.Find('+');
                                 end;
                             "VAT Posting Setup"."VAT Calculation Type"::"Sales Tax":
@@ -523,7 +523,7 @@
                                     if FindFirstEntry then begin
                                         if not VATEntry.Find('-') then
                                             repeat
-                                                VATType := VATType + 1;
+                                                VATType := "General Posting Type".FromInteger((VATType.AsInteger() + 1));
                                                 VATEntry.SetRange(Type, VATType);
                                             until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
                                         FindFirstEntry := false;
@@ -532,11 +532,11 @@
                                         VATEntry.SetRange("Use Tax");
                                         if VATEntry.Next = 0 then
                                             repeat
-                                                VATType := VATType + 1;
+                                                VATType := "General Posting Type".FromInteger((VATType.AsInteger() + 1));
                                                 VATEntry.SetRange(Type, VATType);
                                             until (VATType = VATEntry.Type::Settlement) or VATEntry.Find('-');
                                     end;
-                                    if VATType < VATEntry.Type::Settlement then begin
+                                    if VATType.AsInteger() < VATEntry.Type::Settlement.AsInteger() then begin
                                         VATEntry.SetRange("Tax Jurisdiction Code", VATEntry."Tax Jurisdiction Code");
                                         VATEntry.SetRange("Use Tax", VATEntry."Use Tax");
                                         VATEntry.Find('+');
@@ -562,7 +562,7 @@
                     trigger OnAfterGetRecord()
                     begin
                         if (VATBusPostingGroup = "VAT Posting Setup"."VAT Bus. Posting Group") and
-                        (VATProdPostingGroup = "VAT Posting Setup"."VAT Prod. Posting Group")
+                           (VATProdPostingGroup = "VAT Posting Setup"."VAT Prod. Posting Group")
                         then begin
                             if (TotalSaleRounded - TotalPurchRounded) < 0 then
                                 CreditNextPeriod := -(TotalSaleRounded - TotalPurchRounded);
@@ -594,7 +594,7 @@
                     GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
                     GenJnlLine.Validate("Account No.", GLAccSettle."No.");
                     GenJnlLine."Posting Date" := PostingDate;
-                    GenJnlLine."Document Type" := 0;
+                    GenJnlLine."Document Type" := GenJnlLine."Document Type"::" ";
                     GenJnlLine."Document No." := DocNo;
                     GenJnlLine.Description := Text004;
                     GenJnlLine.Validate(Amount, VATAmount);
@@ -624,7 +624,7 @@
                             GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
                             GenJnlLine.Validate("Account No.", GLAccSettle."No.");
                             GenJnlLine."Posting Date" := PostingDate;
-                            GenJnlLine."Document Type" := 0;
+                            GenJnlLine."Document Type" := GenJnlLine."Document Type"::" ";
                             GenJnlLine."Document No." := DocNo;
                             GenJnlLine.Description := Text1130006;
                             GenJnlLine.Validate(Amount, RoundAmount);
@@ -641,7 +641,7 @@
                             else
                                 GenJnlLine.Validate("Account No.", GLAccNegRounding."No.");
                             GenJnlLine."Posting Date" := PostingDate;
-                            GenJnlLine."Document Type" := 0;
+                            GenJnlLine."Document Type" := GenJnlLine."Document Type"::" ";
                             GenJnlLine."Document No." := DocNo;
                             GenJnlLine.Description := Text1130006;
                             GenJnlLine.Validate(Amount, -RoundAmount);
@@ -660,7 +660,7 @@
             trigger OnPreDataItem()
             begin
                 GLEntry.LockTable(); // Avoid deadlock with function 12
-                if GLEntry.Find('+') then;
+                if GLEntry.FindLast then;
                 VATEntry.LockTable();
                 VATEntry.Reset();
                 NextVATEntryNo := VATEntry.GetLastEntryNo();
@@ -778,7 +778,7 @@
                             if (GLSetup."Last Settlement Date" <> 0D) then
                                 if not ((EntrdStartDate - GLSetup."Last Settlement Date") = 1) then Error(Text1130007, GLSetup."Last Settlement Date");
 
-                            CalculateEndDate;
+                            CalculateEndDate();
                         end;
                     }
                     field(EndingDate; EndDateReq)
@@ -810,8 +810,8 @@
                         trigger OnValidate()
                         begin
                             if GLAccSettle."No." <> '' then begin
-                                GLAccSettle.Find;
-                                GLAccSettle.CheckGLAcc;
+                                GLAccSettle.Find();
+                                GLAccSettle.CheckGLAcc();
                             end;
                         end;
                     }
@@ -858,10 +858,10 @@
 
         trigger OnOpenPage()
         begin
-            GetGLSetup;
+            GetGLSetup();
             if GLSetup."Last Settlement Date" <> 0D then begin
                 EntrdStartDate := GLSetup."Last Settlement Date" + 1;
-                CalculateEndDate;
+                CalculateEndDate();
             end else
                 Clear(EntrdStartDate);
         end;
@@ -873,7 +873,7 @@
 
     trigger OnPostReport()
     begin
-        OnAfterPostReport;
+        OnAfterPostReport();
     end;
 
     trigger OnPreReport()
@@ -883,7 +883,7 @@
     begin
         OnBeforePreReport("VAT Posting Setup");
 
-        GetGLSetup;
+        GetGLSetup();
         if EndDateReq = 0D then
             Error(Text1130000);
 
@@ -901,13 +901,13 @@
                 Error(Text001);
             if GLAccSettle."No." = '' then
                 Error(Text002);
-            GLAccSettle.Find;
+            GLAccSettle.Find();
             if GLAccPosRounding."No." = '' then
                 Error(Text1130003);
-            GLAccPosRounding.Find;
+            GLAccPosRounding.Find();
             if GLAccNegRounding."No." = '' then
                 Error(Text1130004);
-            GLAccNegRounding.Find;
+            GLAccNegRounding.Find();
         end;
 
         if EntrdStartDate > EndDateReq then
@@ -971,7 +971,7 @@
         NextVATEntryNo: Integer;
         PostingDate: Date;
         DocNo: Code[20];
-        VATType: Integer;
+        VATType: Enum "General Posting Type";
         VATAmount: Decimal;
         VATAmountAddCurr: Decimal;
         PostSettlement: Boolean;
@@ -1111,7 +1111,7 @@
         GenJnlLine2."Account Type" := GenJnlLine2."Account Type"::"G/L Account";
         GenJnlLine2.Description := GenJnlLine.Description;
         GenJnlLine2."Posting Date" := PostingDate;
-        GenJnlLine2."Document Type" := 0;
+        GenJnlLine2."Document Type" := GenJnlLine2."Document Type"::" ";
         GenJnlLine2."Document No." := DocNo;
         GenJnlLine2."Source Code" := SourceCodeSetup."VAT Settlement";
         GenJnlLine2."VAT Posting" := GenJnlLine2."VAT Posting"::"Manual VAT Entry";
@@ -1130,7 +1130,7 @@
             Error(Text1130008, GLSetup.FieldCaption("Settlement Round. Factor"), GLSetup.TableCaption);
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure CalculateEndDate()
     begin
         case GLSetup."VAT Settlement Period" of
@@ -1147,7 +1147,7 @@
             end;
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem','15.1')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure GetGLSetup()
     begin
         if not GLSetupGet then begin
@@ -1213,13 +1213,35 @@
         GLSetup."Last Settlement Date" := EndDateReq;
         GLSetup.Modify();
     end;
-    
+
     local procedure SetVatPostingSetupToGenJnlLine(var GenJnlLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup")
     begin
         GenJnlLine."Gen. Posting Type" := GenJnlLine."Gen. Posting Type"::Settlement;
         GenJnlLine."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
         GenJnlLine."VAT Prod. Posting Group" := VATPostingSetup."VAT Prod. Posting Group";
         GenJnlLine."VAT Calculation Type" := VATPostingSetup."VAT Calculation Type";
+    end;
+
+    local procedure IncrementGenPostingType(var OldGenPostingType: Enum "General Posting Type") NewGenPostingType: Enum "General Posting Type"
+    begin
+        case OldGenPostingType of
+            OldGenPostingType::" ":
+                exit(NewGenPostingType::Purchase);
+            OldGenPostingType::Purchase:
+                exit(NewGenPostingType::Sale);
+            OldGenPostingType::Sale:
+                exit(NewGenPostingType::Settlement);
+        end;
+
+        OnAfterIncrementGenPostingType(OldGenPostingType, NewGenPostingType);
+    end;
+
+    local procedure IsNotSettlement(GenPostingType: Enum "General Posting Type"): Boolean
+    begin
+        exit(
+            (GenPostingType = GenPostingType::" ") or
+            (GenPostingType = GenPostingType::Purchase) or
+            (GenPostingType = GenPostingType::Sale));
     end;
 
     [IntegrationEvent(false, false)]
@@ -1237,14 +1259,13 @@
     begin
     end;
 
-    [Obsolete('Unused for IT localization', '17.0')]
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePostGenJnlLineReverseChargeVAT(var GenJnlLine: Record "Gen. Journal Line"; var VATEntry: Record "VAT Entry"; var VATAmount: Decimal; var VATAmountAddCurr: Decimal)
+    local procedure OnBeforePreReport(var VATPostingSetup: Record "VAT Posting Setup")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforePreReport(var VATPostingSetup: Record "VAT Posting Setup")
+    local procedure OnAfterIncrementGenPostingType(OldGenPostingType: Enum "General Posting Type"; var NewGenPostingType: Enum "General Posting Type")
     begin
     end;
 }

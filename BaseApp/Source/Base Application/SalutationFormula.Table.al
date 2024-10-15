@@ -15,11 +15,9 @@ table 5069 "Salutation Formula"
             Caption = 'Language Code';
             TableRelation = Language;
         }
-        field(3; "Salutation Type"; Option)
+        field(3; "Salutation Type"; Enum "Salutation Formula Salutation Type")
         {
             Caption = 'Salutation Type';
-            OptionCaption = 'Formal,Informal';
-            OptionMembers = Formal,Informal;
         }
         field(4; Salutation; Text[50])
         {

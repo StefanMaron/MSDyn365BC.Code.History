@@ -21,7 +21,6 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         isInitialized: Boolean;
         FieldValueErr: Label '%1 must be equal to ''%2''';
         FieldBlankErr: Label 'Mandate ID must have a value in the currently selected record.';
-        PartnerType: Option " ",Company,Person;
         PartnerTypeErr: Label 'The customer''s %1, %2, must be equal to the %1, %3, specified in the collection.', Comment = '%1 = Partner Type, %2 = Company/Person, %3 = Company/Person.';
         ValueNotFoundErr: Label 'Value not found.';
 
@@ -75,7 +74,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
     end;
 
     [Normal]
-    local procedure SuggestCustomerBillLinesWithPartnerType(NewPartnerType: Option; BlankLineCount: Integer; CompanyLineCount: Integer; PersonLineCount: Integer)
+    local procedure SuggestCustomerBillLinesWithPartnerType(NewPartnerType: Enum "Partner Type"; BlankLineCount: Integer; CompanyLineCount: Integer; PersonLineCount: Integer)
     var
         BankAccount: Record "Bank Account";
         Customer1: Record Customer;
@@ -88,9 +87,9 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         Initialize;
 
         // Setup.
-        CreateCustomerWithEntry(Customer1, CustLedgerEntry, PartnerType::" ");
-        CreateCustomerWithEntry(Customer2, CustLedgerEntry, PartnerType::Company);
-        CreateCustomerWithEntry(Customer3, CustLedgerEntry, PartnerType::Person);
+        CreateCustomerWithEntry(Customer1, CustLedgerEntry, "Partner Type"::" ");
+        CreateCustomerWithEntry(Customer2, CustLedgerEntry, "Partner Type"::Company);
+        CreateCustomerWithEntry(Customer3, CustLedgerEntry, "Partner Type"::Person);
         LibraryITLocalization.CreateCustomerBillHeader(CustomerBillHeader);
         LibraryERM.CreateBankAccount(BankAccount);
         CustomerBillHeader."Bank Account No." := BankAccount."No.";
@@ -119,7 +118,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
     [Scope('OnPrem')]
     procedure SuggestCustomerBillLinesWithPartnerTypeNotBlank()
     begin
-        SuggestCustomerBillLinesWithPartnerType(PartnerType::Company, 0, 1, 0);
+        SuggestCustomerBillLinesWithPartnerType("Partner Type"::Company, 0, 1, 0);
     end;
 
     [Test]
@@ -127,7 +126,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
     [Scope('OnPrem')]
     procedure SuggestCustomerBillLinesWithPartnerTypeBlank()
     begin
-        SuggestCustomerBillLinesWithPartnerType(PartnerType::" ", 1, 0, 0);
+        SuggestCustomerBillLinesWithPartnerType("Partner Type"::" ", 1, 0, 0);
     end;
 
     [Test]
@@ -984,7 +983,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         SEPADDFillExportBuffer: Codeunit "SEPA DD-Fill Export Buffer";
     begin
         PaymentExportData.DeleteAll();
-        DirectDebitCollection.CreateNew(PaymentDocNo, BankAccountNo, DirectDebitCollection."Partner Type"::Company);
+        DirectDebitCollection.CreateRecord(PaymentDocNo, BankAccountNo, DirectDebitCollection."Partner Type"::Company);
         DirectDebitCollection."Source Table ID" := SourceTableID;
         DirectDebitCollection.Modify();
         DirectDebitCollectionEntry.SetRange("Direct Debit Collection No.", DirectDebitCollection."No.");
@@ -1108,7 +1107,7 @@ codeunit 144017 "IT - SEPA.02 DD Unit Test"
         CustLedgerEntry.FindLast;
     end;
 
-    local procedure CreateCustomerWithEntry(var Customer: Record Customer; var CustLedgerEntry: Record "Cust. Ledger Entry"; PartnerType: Option)
+    local procedure CreateCustomerWithEntry(var Customer: Record Customer; var CustLedgerEntry: Record "Cust. Ledger Entry"; PartnerType: Enum "Partner Type")
     var
         CustomerBankAccount: Record "Customer Bank Account";
         SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";

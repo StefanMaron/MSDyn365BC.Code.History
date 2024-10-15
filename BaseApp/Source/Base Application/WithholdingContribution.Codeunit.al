@@ -1,4 +1,4 @@
-﻿codeunit 12101 "Withholding - Contribution"
+codeunit 12101 "Withholding - Contribution"
 {
 
     trigger OnRun()
@@ -467,8 +467,7 @@
             Error(WithholdCodeLinesNotSpecifiedErr, WithholdCode);
     end;
 
-    [Scope('OnPrem')]
-    procedure SocSecLineFilter(var SocSecCodeLine: Record "Contribution Code Line"; SocialSecurityCode: Code[20]; StartingDate: Date; TipoContributo: Option INPS,INAIL)
+    procedure SetSocSecLineFilters(var SocSecCodeLine: Record "Contribution Code Line"; SocialSecurityCode: Code[20]; StartingDate: Date; TipoContributo: Option INPS,INAIL)
     begin
         if StartingDate = 0D then
             StartingDate := WorkDate;
@@ -484,14 +483,27 @@
             Error(ContributionCodeLinesNotSpecifiedErr, SocialSecurityCode);
     end;
 
+    [Obsolete('Replaced by SetSocSecLineFilters().', '17.0')]
     [Scope('OnPrem')]
-    procedure SocSecBracketFilter(var SocSecBracketLine: Record "Contribution Bracket Line"; SocialSecurityBracketCode: Code[10]; TipoContributo: Option INPS,INAIL; "Code": Code[20])
+    procedure SocSecLineFilter(var SocSecCodeLine: Record "Contribution Code Line"; SocialSecurityCode: Code[20]; StartingDate: Date; ContributionType: Option INPS,INAIL)
+    begin
+        SetSocSecLineFilters(SocSecCodeLine, SocialSecurityCode, StartingDate, ContributionType);
+    end;
+
+    procedure SetSocSecBracketFilters(var SocSecBracketLine: Record "Contribution Bracket Line"; SocialSecurityBracketCode: Code[10]; TipoContributo: Option INPS,INAIL; "Code": Code[20])
     begin
         SocSecBracketLine.Reset();
         SocSecBracketLine.SetFilter("Contribution Type", '%1', TipoContributo);
         SocSecBracketLine.SetRange(Code, SocialSecurityBracketCode);
         if not SocSecBracketLine.FindLast then
             Error(ContributionBracketLinesNotSpecifiedErr, SocialSecurityBracketCode, Code);
+    end;
+
+    [Obsolete('Replaced by SetSocSecBracketFilters()', '17.0')]
+    [Scope('OnPrem')]
+    procedure SocSecBracketFilter(var SocSecBracketLine: Record "Contribution Bracket Line"; SocialSecurityBracketCode: Code[10]; ContributionType: Option INPS,INAIL; "Code": Code[20])
+    begin
+        SetSocSecBracketFilters(SocSecBracketLine, SocialSecurityBracketCode, ContributionType, Code);
     end;
 
     [Scope('OnPrem')]

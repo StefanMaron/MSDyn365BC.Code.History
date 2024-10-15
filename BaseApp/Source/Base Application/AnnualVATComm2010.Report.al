@@ -485,8 +485,8 @@ report 12126 "Annual VAT Comm. - 2010"
         EndDate: Date;
         StartDate: Date;
         VATPeriod: Code[10];
-        Selection: Option Open,Closed,"Open and Closed";
-        PeriodSelection: Option "Before and Within Period","Within Period";
+        Selection: Enum "VAT Statement Report Selection";
+        PeriodSelection: Enum "VAT Statement Report Period Selection";
         SeparateLedgerTxt: Text[1];
         GroupSettlementTxt: Text[1];
         ExceptionalEventTxt: Text[1];
@@ -556,7 +556,7 @@ report 12126 "Annual VAT Comm. - 2010"
     end;
 
     [Scope('OnPrem')]
-    procedure InitializeVATStatement(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Option Open,Closed,"Open and Closed"; NewPeriodSelection: Option "Before and Within Period","Within Period"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean; NewVATPeriod: Code[10])
+    procedure InitializeVATStatement(var NewVATStmtName: Record "VAT Statement Name"; var NewVATStatementLine: Record "VAT Statement Line"; NewSelection: Enum "VAT Statement Report Selection"; NewPeriodSelection: Enum "VAT Statement Report Period Selection"; NewPrintInIntegers: Boolean; NewUseAmtsInAddCurr: Boolean; NewVATPeriod: Code[10])
     begin
         VATStatement.InitializeRequest(
           NewVATStmtName, NewVATStatementLine, NewSelection, NewPeriodSelection, NewPrintInIntegers, NewUseAmtsInAddCurr, NewVATPeriod);

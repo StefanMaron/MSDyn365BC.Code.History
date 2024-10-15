@@ -1,4 +1,4 @@
-﻿table 5406 "Prod. Order Line"
+table 5406 "Prod. Order Line"
 {
     Caption = 'Prod. Order Line';
     DataCaptionFields = "Prod. Order No.";
@@ -8,11 +8,9 @@
 
     fields
     {
-        field(1; Status; Option)
+        field(1; Status; Enum "Production Order Status")
         {
             Caption = 'Status';
-            OptionCaption = 'Simulated,Planned,Firm Planned,Released,Finished';
-            OptionMembers = Simulated,Planned,"Firm Planned",Released,Finished;
         }
         field(2; "Prod. Order No."; Code[20])
         {
@@ -445,7 +443,7 @@
         }
         field(68; "Reserved Quantity"; Decimal)
         {
-            CalcFormula = Sum ("Reservation Entry".Quantity WHERE("Source ID" = FIELD("Prod. Order No."),
+            CalcFormula = Sum("Reservation Entry".Quantity WHERE("Source ID" = FIELD("Prod. Order No."),
                                                                   "Source Ref. No." = CONST(0),
                                                                   "Source Type" = CONST(5406),
                                                                   "Source Subtype" = FIELD(Status),
@@ -526,7 +524,7 @@
         }
         field(84; "Reserved Qty. (Base)"; Decimal)
         {
-            CalcFormula = Sum ("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("Prod. Order No."),
+            CalcFormula = Sum("Reservation Entry"."Quantity (Base)" WHERE("Source ID" = FIELD("Prod. Order No."),
                                                                            "Source Ref. No." = CONST(0),
                                                                            "Source Type" = CONST(5406),
                                                                            "Source Subtype" = FIELD(Status),
@@ -541,7 +539,7 @@
         field(90; "Expected Operation Cost Amt."; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Prod. Order Routing Line"."Expected Operation Cost Amt." WHERE(Status = FIELD(Status),
+            CalcFormula = Sum("Prod. Order Routing Line"."Expected Operation Cost Amt." WHERE(Status = FIELD(Status),
                                                                                                "Prod. Order No." = FIELD("Prod. Order No."),
                                                                                                "Routing No." = FIELD("Routing No."),
                                                                                                "Routing Reference No." = FIELD("Routing Reference No.")));
@@ -551,7 +549,7 @@
         }
         field(91; "Total Exp. Oper. Output (Qty.)"; Decimal)
         {
-            CalcFormula = Sum ("Prod. Order Line".Quantity WHERE(Status = FIELD(Status),
+            CalcFormula = Sum("Prod. Order Line".Quantity WHERE(Status = FIELD(Status),
                                                                  "Prod. Order No." = FIELD("Prod. Order No."),
                                                                  "Routing No." = FIELD("Routing No."),
                                                                  "Routing Reference No." = FIELD("Routing Reference No."),
@@ -564,7 +562,7 @@
         field(94; "Expected Component Cost Amt."; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Sum ("Prod. Order Component"."Cost Amount" WHERE(Status = FIELD(Status),
+            CalcFormula = Sum("Prod. Order Component"."Cost Amount" WHERE(Status = FIELD(Status),
                                                                            "Prod. Order No." = FIELD("Prod. Order No."),
                                                                            "Prod. Order Line No." = FIELD("Line No."),
                                                                            "Due Date" = FIELD("Date Filter")));
@@ -602,7 +600,7 @@
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
 
             trigger OnValidate()
@@ -612,14 +610,14 @@
         }
         field(5831; "Cost Amount (ACY)"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Cost Amount (ACY)';
             Editable = false;
         }
         field(5832; "Unit Cost (ACY)"; Decimal)
         {
-            AutoFormatExpression = GetCurrencyCode;
+            AutoFormatExpression = GetCurrencyCode();
             AutoFormatType = 1;
             Caption = 'Unit Cost (ACY)';
             Editable = false;
@@ -937,6 +935,11 @@
         CalcProdOrder.BlockDynamicTracking(Blocked);
     end;
 
+    procedure IsDynamicTrackingBlocked(): Boolean
+    begin
+        exit(Blocked);
+    end;
+
     procedure CreateDim(Type1: Integer; No1: Code[20])
     var
         TableID: array[10] of Integer;
@@ -1069,8 +1072,7 @@
         ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
         exit(
-          ItemTrackingMgt.ComposeRowID(DATABASE::"Prod. Order Line", Status,
-            "Prod. Order No.", '', "Line No.", 0));
+          ItemTrackingMgt.ComposeRowID(DATABASE::"Prod. Order Line", Status.AsInteger(), "Prod. Order No.", '', "Line No.", 0));
     end;
 
     local procedure GetLocation(LocationCode: Code[10])
@@ -1129,7 +1131,7 @@
 
     procedure SetReservationEntry(var ReservEntry: Record "Reservation Entry")
     begin
-        ReservEntry.SetSource(DATABASE::"Prod. Order Line", Status, "Prod. Order No.", 0, '', "Line No.");
+        ReservEntry.SetSource(DATABASE::"Prod. Order Line", Status.AsInteger(), "Prod. Order No.", 0, '', "Line No.");
         ReservEntry.SetItemData("Item No.", Description, "Location Code", "Variant Code", "Qty. per Unit of Measure");
         ReservEntry."Expected Receipt Date" := "Due Date";
         ReservEntry."Shipment Date" := "Due Date";
@@ -1138,7 +1140,7 @@
 
     procedure SetReservationFilters(var ReservEntry: Record "Reservation Entry")
     begin
-        ReservEntry.SetSourceFilter(DATABASE::"Prod. Order Line", Status, "Prod. Order No.", 0, false);
+        ReservEntry.SetSourceFilter(DATABASE::"Prod. Order Line", Status.AsInteger(), "Prod. Order No.", 0, false);
         ReservEntry.SetSourceFilter('', "Line No.");
 
         OnAfterSetReservationFilters(ReservEntry, Rec);
@@ -1336,7 +1338,7 @@
         ProdOrderRoutingLine.SetRange("Routing No.", "Routing No.");
 
         PAGE.RunModal(PAGE::"Prod. Order Routing", ProdOrderRoutingLine);
-        CalcProdOrder.FindAndSetProdOrderLineBinCodeFromProdRtngLines(Status, "Prod. Order No.", "Line No.");
+        CalcProdOrder.FindAndSetProdOrderLineBinCodeFromProdRoutingLines(Status, "Prod. Order No.", "Line No.");
     end;
 
     procedure SetFilterByReleasedOrderNo(OrderNo: Code[20])
@@ -1361,6 +1363,11 @@
         StartingDate := DT2Date("Starting Date-Time");
         EndingTime := DT2Time("Ending Date-Time");
         EndingDate := DT2Date("Ending Date-Time");
+    end;
+
+    procedure IsStatusLessThanReleased(): Boolean
+    begin
+        exit((Status = Status::Simulated) or (Status = Status::Planned) or (Status = Status::"Firm Planned"));
     end;
 
     [IntegrationEvent(false, false)]

@@ -493,7 +493,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         LibraryAssembly.CreateAssemblyListComponent(BOMComponent.Type::Item, ComponentItemNo, AssemblyItemNo, '', 0, QtyPer, true);
     end;
 
-    local procedure CreateItem(var Item: Record Item; CostingMethod: Option; ReplenishmentSystem: Option; StandardCostAmt: Decimal)
+    local procedure CreateItem(var Item: Record Item; CostingMethod: Enum "Costing Method"; ReplenishmentSystem: Enum "Replenishment System"; StandardCostAmt: Decimal)
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Costing Method", CostingMethod);
@@ -557,7 +557,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         end;
     end;
 
-    local procedure VerifyOutputCostAmount(ItemNo: Code[20]; EntryType: Option; ExpectedCostLCY: Decimal; ExpectedCostACY: Decimal)
+    local procedure VerifyOutputCostAmount(ItemNo: Code[20]; EntryType: Enum "Item Ledger Document Type"; ExpectedCostLCY: Decimal; ExpectedCostACY: Decimal)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
         Currency: Record Currency;

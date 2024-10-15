@@ -61,7 +61,7 @@ codeunit 144070 "UT TAB VAT Exemption"
         OnValidateBillToCustomerNoDocumentTypeServiceHeader(ServiceHeader."Document Type"::"Credit Memo");
     end;
 
-    local procedure OnValidateBillToCustomerNoDocumentTypeServiceHeader(DocumentType: Option)
+    local procedure OnValidateBillToCustomerNoDocumentTypeServiceHeader(DocumentType: Enum "Service Document Type")
     var
         ServiceHeader: Record "Service Header";
         VATExemption: Record "VAT Exemption";
@@ -122,7 +122,7 @@ codeunit 144070 "UT TAB VAT Exemption"
         OnValidateBillToCustomerNoDocumentTypeSalesHeader(SalesHeader."Document Type"::"Credit Memo");
     end;
 
-    local procedure OnValidateBillToCustomerNoDocumentTypeSalesHeader(DocumentType: Option)
+    local procedure OnValidateBillToCustomerNoDocumentTypeSalesHeader(DocumentType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
         VATExemption: Record "VAT Exemption";
@@ -165,7 +165,7 @@ codeunit 144070 "UT TAB VAT Exemption"
         OnValidateCustomerNoDocumentTypeServiceHeader(ServiceHeader."Document Type"::"Credit Memo");
     end;
 
-    local procedure OnValidateCustomerNoDocumentTypeServiceHeader(DocumentType: Option)
+    local procedure OnValidateCustomerNoDocumentTypeServiceHeader(DocumentType: Enum "Service Document Type")
     var
         ServiceHeader: Record "Service Header";
     begin
@@ -223,7 +223,7 @@ codeunit 144070 "UT TAB VAT Exemption"
         OnValidateSellToCustomerNoDocumentTypeSalesHeader(SalesHeader."Document Type"::"Credit Memo");
     end;
 
-    local procedure OnValidateSellToCustomerNoDocumentTypeSalesHeader(DocumentType: Option)
+    local procedure OnValidateSellToCustomerNoDocumentTypeSalesHeader(DocumentType: Enum "Sales Document Type")
     var
         SalesHeader: Record "Sales Header";
     begin
@@ -278,10 +278,10 @@ codeunit 144070 "UT TAB VAT Exemption"
         PurchaseHeader: Record "Purchase Header";
     begin
         // Purpose of the test is to validate Buy-from Vendor No. - OnValidate Trigger of Table ID - 38 Purchase Header.
-        OnValidateBuyFromVendorNoDocumentTypePurchaseHeader(PurchaseHeader."Document Type"::"Credit Memo");
+        OnValidateBuyFromVendorNoDocumentTypePurchaseHeader("Purchase Document Type"::"Credit Memo");
     end;
 
-    local procedure OnValidateBuyFromVendorNoDocumentTypePurchaseHeader(DocumentType: Option)
+    local procedure OnValidateBuyFromVendorNoDocumentTypePurchaseHeader(DocumentType: Enum "Purchase Document Type")
     var
         PurchaseHeader: Record "Purchase Header";
     begin
@@ -617,14 +617,14 @@ codeunit 144070 "UT TAB VAT Exemption"
         exit(NoSeries.Code);
     end;
 
-    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Option)
+    local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     begin
         PurchaseHeader."Document Type" := DocumentType;
         PurchaseHeader."No." := LibraryUTUtility.GetNewCode;
         PurchaseHeader.Insert();
     end;
 
-    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Option)
+    local procedure CreateSalesHeader(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type")
     begin
         SalesHeader."Document Type" := DocumentType;
         SalesHeader."No." := LibraryUTUtility.GetNewCode;
@@ -632,7 +632,7 @@ codeunit 144070 "UT TAB VAT Exemption"
         SalesHeader.Insert();
     end;
 
-    local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Option)
+    local procedure CreateServiceHeader(var ServiceHeader: Record "Service Header"; DocumentType: Enum "Service Document Type")
     begin
         ServiceHeader."Document Type" := DocumentType;
         ServiceHeader."No." := LibraryUTUtility.GetNewCode;

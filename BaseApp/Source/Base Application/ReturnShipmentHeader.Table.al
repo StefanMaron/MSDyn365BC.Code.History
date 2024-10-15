@@ -479,7 +479,7 @@
 
             trigger OnLookup()
             begin
-                ShowDimensions;
+                ShowDimensions();
             end;
         }
         field(5050; "Campaign No."; Code[20])
@@ -637,7 +637,7 @@
     begin
         with ReturnShptHeader do begin
             Copy(Rec);
-            ReportSelection.PrintWithGUIYesNoVendor(
+            ReportSelection.PrintWithDialogForVend(
               ReportSelection.Usage::"P.Ret.Shpt.", ReturnShptHeader, ShowRequestForm, FieldNo("Buy-from Vendor No."));
         end;
     end;

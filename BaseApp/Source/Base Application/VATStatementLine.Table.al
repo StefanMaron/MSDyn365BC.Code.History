@@ -1,4 +1,4 @@
-table 256 "VAT Statement Line"
+﻿table 256 "VAT Statement Line"
 {
     Caption = 'VAT Statement Line';
 
@@ -34,7 +34,7 @@ table 256 "VAT Statement Line"
             begin
                 if Type <> xRec.Type then begin
                     TempType := Type;
-                    Init;
+                    Init();
                     "Statement Template Name" := xRec."Statement Template Name";
                     "Statement Name" := xRec."Statement Name";
                     "Line No." := xRec."Line No.";
@@ -82,11 +82,9 @@ table 256 "VAT Statement Line"
         {
             Caption = 'Row Totaling';
         }
-        field(12; "Amount Type"; Option)
+        field(12; "Amount Type"; Enum "VAT Statement Line Amount Type")
         {
             Caption = 'Amount Type';
-            OptionCaption = ' ,Amount,Base,Unrealized Amount,Unrealized Base,Blacklist Amount,Non-Deductible Amount,Non-Deductible Base';
-            OptionMembers = " ",Amount,Base,"Unrealized Amount","Unrealized Base","Blacklist Amount","Non-Deductible Amount","Non-Deductible Base";
         }
         field(13; "Calculate with"; Option)
         {
@@ -165,11 +163,9 @@ table 256 "VAT Statement Line"
             FieldClass = FlowFilter;
             TableRelation = "Activity Code".Code;
         }
-        field(12126; "Document Type"; Option)
+        field(12126; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund,,,,Dishonored';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund,,,,Dishonored;
         }
         field(12127; "EU Service"; Boolean)
         {
@@ -212,7 +208,7 @@ table 256 "VAT Statement Line"
     var
         Text000: Label 'must not be %1';
         GLAcc: Record "G/L Account";
-        TempType: Integer;
+        TempType: Enum "VAT Statement Line Type";
 
     [Scope('OnPrem')]
     procedure Export(var NewVATStatementLine: Record "VAT Statement Line")

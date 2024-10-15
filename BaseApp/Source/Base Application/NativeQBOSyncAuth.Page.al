@@ -6,6 +6,9 @@ page 2844 "Native - QBO Sync Auth"
     Permissions = TableData "Webhook Subscription" = rimd;
     SourceTable = "O365 Settings Menu";
     SourceTableTemporary = true;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Quickbooks integration to Invoicing is discontinued.';
+    ObsoleteTag = '17.0';
 
     layout
     {
