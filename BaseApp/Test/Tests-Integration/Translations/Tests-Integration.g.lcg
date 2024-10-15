@@ -232,7 +232,7 @@
   </Item>
   <Item ItemId=";Codeunit 1980943398 - NamedType 3622229719" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Phone1]]></Val>
+      <Val><![CDATA[111222333]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -241,7 +241,7 @@
   </Item>
   <Item ItemId=";Codeunit 1980943398 - NamedType 4088153384" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Mobile1]]></Val>
+      <Val><![CDATA[444555666]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -430,7 +430,7 @@
   </Item>
   <Item ItemId=";Codeunit 1980943398 - NamedType 2113541134" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[O365Phone1]]></Val>
+      <Val><![CDATA[365112233]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -439,7 +439,7 @@
   </Item>
   <Item ItemId=";Codeunit 1980943398 - NamedType 1428750788" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[O365Phone12]]></Val>
+      <Val><![CDATA[365445566]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -448,7 +448,7 @@
   </Item>
   <Item ItemId=";Codeunit 1980943398 - NamedType 3155413059" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[O365Phone13]]></Val>
+      <Val><![CDATA[365778899]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

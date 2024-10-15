@@ -1547,7 +1547,7 @@ codeunit 148052 "OIOUBL-ERM Misc Elec. Invoice"
         ContactCard.OPENEDIT();
         // TODO
         // ContactCard.FILTER.SETFILTER("No.",ContactNo);
-        ContactCard."Phone No.".SETVALUE(LibraryUtility.GenerateGUID());
+        ContactCard."Phone No.".SETVALUE(LibraryUtility.GenerateRandomPhoneNo());
         ContactCard."Fax No.".SETVALUE(LibraryUtility.GenerateGUID());
         ContactCard."E-Mail".SETVALUE(LibraryUtility.GenerateRandomEmail());
         ContactCard.OK().INVOKE();
