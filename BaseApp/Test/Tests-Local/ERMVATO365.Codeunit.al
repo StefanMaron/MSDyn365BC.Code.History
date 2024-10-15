@@ -15,7 +15,6 @@ codeunit 144023 "ERM VAT O365"
         Assert: Codeunit Assert;
         LibraryRandom: Codeunit "Library - Random";
         AmountErr: Label '%1 must be %2 in %3.', Comment = '%1 = Amount FieldCaption, %2 = Amount Value, %3 = Record TableCaption';
-        FieldNotFoundCodeErr: Label 'TestFieldNotFound';
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
 
@@ -139,7 +138,7 @@ codeunit 144023 "ERM VAT O365"
 
     [Test]
     [Scope('OnPrem')]
-    procedure TheVATStatementTemplatesPageIsNotVisibleWithFoundationSetup()
+    procedure TheVATStatementTemplatesPageIsVisibleWithFoundationSetup()
     var
         VATStatementTemplates: TestPage "VAT Statement Templates";
     begin
@@ -152,18 +151,16 @@ codeunit 144023 "ERM VAT O365"
         // [WHEN] Page "VAT Statement Templates" is opened
         VATStatementTemplates.OpenEdit();
 
-        // [THEN] The controls Name and Description are not visible
-        asserterror Assert.IsFalse(VATStatementTemplates.Name.Visible(), '');
-        Assert.ExpectedErrorCode(FieldNotFoundCodeErr);
-        asserterror Assert.IsFalse(VATStatementTemplates.Description.Visible(), '');
-        Assert.ExpectedErrorCode(FieldNotFoundCodeErr);
+        // [THEN] The controls Name and Description are visible
+        Assert.IsTrue(VATStatementTemplates.Name.Visible(), '');
+        Assert.IsTrue(VATStatementTemplates.Description.Visible(), '');
         VATStatementTemplates.Close();
         LibraryApplicationArea.DisableApplicationAreaSetup();
     end;
 
     [Test]
     [Scope('OnPrem')]
-    procedure TheVATStatementTemplateListPageIsNotVisibleWithFoundationSetup()
+    procedure TheVATStatementTemplateListPageIsVisibleWithFoundationSetup()
     var
         VATStatementTemplateList: TestPage "VAT Statement Template List";
     begin
@@ -176,11 +173,9 @@ codeunit 144023 "ERM VAT O365"
         // [WHEN] Page "VAT Statement Template List" is opened
         VATStatementTemplateList.OpenEdit();
 
-        // [THEN] The controls Name and Description are not visible
-        asserterror Assert.IsFalse(VATStatementTemplateList.Name.Visible(), '');
-        Assert.ExpectedErrorCode(FieldNotFoundCodeErr);
-        asserterror Assert.IsFalse(VATStatementTemplateList.Description.Visible(), '');
-        Assert.ExpectedErrorCode(FieldNotFoundCodeErr);
+        // [THEN] The controls Name and Description are visible
+        Assert.IsTrue(VATStatementTemplateList.Name.Visible(), '');
+        Assert.IsTrue(VATStatementTemplateList.Description.Visible(), '');
         VATStatementTemplateList.Close();
         LibraryApplicationArea.DisableApplicationAreaSetup();
     end;

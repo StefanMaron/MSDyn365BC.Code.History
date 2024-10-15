@@ -13,6 +13,7 @@ codeunit 134159 "Test Price Calculation - V16"
         Assert: Codeunit Assert;
         LibraryERM: Codeunit "Library - ERM";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryJob: Codeunit "Library - Job";
         LibraryMarketing: Codeunit "Library - Marketing";
         LibraryNotificationMgt: Codeunit "Library - Notification Mgt.";
         LibraryPriceCalculation: Codeunit "Library - Price Calculation";
@@ -30,7 +31,7 @@ codeunit 134159 "Test Price Calculation - V16"
         CampaignActivatedMsg: Label 'Campaign %1 is now activated.';
 
     [Test]
-    procedure T010_SalesLineAddsActivatedCampaignOnHeaderAsSource()
+    procedure T001_SalesLineAddsActivatedCampaignOnHeaderAsSource()
     var
         Campaign: Array[5] of Record Campaign;
         Contact: Record Contact;
@@ -66,7 +67,7 @@ codeunit 134159 "Test Price Calculation - V16"
     end;
 
     [Test]
-    procedure T011_SalesLineAddsActivatedCustomerCampaignAsSource()
+    procedure T002_SalesLineAddsActivatedCustomerCampaignAsSource()
     var
         Campaign: Array[5] of Record Campaign;
         Contact: Record Contact;
@@ -101,7 +102,7 @@ codeunit 134159 "Test Price Calculation - V16"
     end;
 
     [Test]
-    procedure T012_SalesLineAddsActivatedContactCampaignAsSource()
+    procedure T003_SalesLineAddsActivatedContactCampaignAsSource()
     var
         Campaign: Array[5] of Record Campaign;
         Contact: Record Contact;
@@ -135,47 +136,675 @@ codeunit 134159 "Test Price Calculation - V16"
         VerifyCampaignSource(SalesLinePrice, Campaign[5]."No.", 2);
     end;
 
-    local procedure CreateCustomerWithContactAndActivatedCampaigns(var Customer: Record Customer; var Contact: Record Contact; var Campaign: Array[5] of Record Campaign; SkipCustomerCampaign: Boolean)
+    [Test]
+    procedure T010_SalesLinePriceCopyToBufferWithoutPostingDate()
     var
-        CampaignTargetGr: Record "Campaign Target Group";
-        i: Integer;
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        SalesLine: Record "Sales Line";
+        SalesLinePrice: Codeunit "Sales Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
     begin
-        LibraryMarketing.CreateCampaign(Campaign[1]);
+        // [FEATURE] [UT] [Sales]
+        Initialize();
+        // [GIVEN] Sales Line, where 'Posting Date' is <blank>, while WorkDate is '250120'
+        SalesLine."Posting Date" := 0D;
+        SalesLine.Type := SalesLine.Type::"G/L Account";
+        SalesLine."No." := LibraryERM.CreateGLAccountNo();
 
-        LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
-        if not SkipCustomerCampaign then begin
+        // [GIVEN] Initialize LineWithPrice with SalesLine, no Header set
+        LineWithPrice := SalesLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, SalesLine);
 
-            CampaignTargetGr.Init();
-            CampaignTargetGr.Type := CampaignTargetGr.Type::Customer;
-            CampaignTargetGr."No." := Customer."No.";
-            for i := 2 to 3 do begin
-                LibraryMarketing.CreateCampaign(Campaign[i]);
-                CampaignTargetGr."Campaign No." := Campaign[i]."No.";
-                CampaignTargetGr.Insert();
-            end;
-        end;
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
 
-        CampaignTargetGr.Init();
-        CampaignTargetGr.Type := CampaignTargetGr.Type::Contact;
-        CampaignTargetGr."No." := Contact."No.";
-        for i := 4 to 5 do begin
-            LibraryMarketing.CreateCampaign(Campaign[i]);
-            CampaignTargetGr."Campaign No." := Campaign[i]."No.";
-            CampaignTargetGr.Insert();
-        end;
+        // [THEN] Buffer, where "Document Date" is '250120'(from WorkDate)
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", WorkDate());
     end;
 
-    local procedure VerifyCampaignSource(SalesLinePrice: Codeunit "Sales Line - Price"; CampaignNo: code[20]; ExpectedCount: Integer)
+    [Test]
+    procedure T011_SalesLinePriceCopyToBufferWithoutHeader()
     var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        SalesLine: Record "Sales Line";
+        SalesLinePrice: Codeunit "Sales Line - Price";
         PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
-        TempPriceSource: Record "Price Source" temporary;
+        LineWithPrice: Interface "Line With Price";
     begin
-        SalesLinePrice.CopyToBuffer(PriceCalculationBufferMgt);
-        PriceCalculationBufferMgt.GetSources(TempPriceSource);
-        TempPriceSource.SetRange("Source Type", TempPriceSource."Source Type"::Campaign);
-        Assert.RecordCount(TempPriceSource, ExpectedCount);
-        TempPriceSource.SetRange("Source No.", CampaignNo);
-        TempPriceSource.FindFirst();
+        // [FEATURE] [UT] [Sales]
+        Initialize();
+        // [GIVEN] Sales Line, where 'Posting Date' is '300120', while WorkDate is '250120'
+        SalesLine."Posting Date" := WorkDate() + 5;
+        SalesLine.Type := SalesLine.Type::"G/L Account";
+        SalesLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with SalesLine, no Header set
+        LineWithPrice := SalesLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, SalesLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '300120'(from Line."Posting Date")
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", SalesLine."Posting Date");
+    end;
+
+    [Test]
+    procedure T012_SalesLinePriceCopyToBufferWithHeaderBlankNo()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLinePrice: Codeunit "Sales Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Sales]
+        Initialize();
+        // [GIVEN] Sales Header, where "Document Type" is Invoice, "No." is <blank>, "Posting Date" is '300120', "Order Date" is '290120'
+        SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
+        SalesHeader."No." := '';
+        SalesHeader."Posting Date" := WorkDate() + 5;
+        SalesHeader."Order Date" := SalesHeader."Posting Date" - 1;
+
+        // [GIVEN] Sales Line, where 'Posting Date' is '310120', while WorkDate is '250120'
+        SalesLine."Posting Date" := SalesHeader."Posting Date" + 1;
+        SalesLine.Type := SalesLine.Type::"G/L Account";
+        SalesLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with SalesLine and Header
+        LineWithPrice := SalesLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, SalesHeader, SalesLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '310120' (from Line."Posting Date")
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", SalesLine."Posting Date");
+    end;
+
+    [Test]
+    procedure T013_SalesLinePriceCopyToBufferWithHeaderInvoice()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLinePrice: Codeunit "Sales Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Sales]
+        Initialize();
+        // [GIVEN] Sales Header, where "Document Type" is Invoice, "No." is 'X', "Posting Date" is '300120', "Order Date" is '290120'
+        SalesHeader."Document Type" := SalesHeader."Document Type"::Invoice;
+        SalesHeader."No." := LibraryRandom.RandText(20);
+        SalesHeader."Posting Date" := WorkDate() + 5;
+        SalesHeader."Order Date" := SalesHeader."Posting Date" - 1;
+
+        // [GIVEN] Sales Line, where 'Posting Date' is '310120', while WorkDate is '250120'
+        SalesLine."Posting Date" := SalesHeader."Posting Date" + 1;
+        SalesLine.Type := SalesLine.Type::"G/L Account";
+        SalesLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with SalesLine and Header
+        LineWithPrice := SalesLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, SalesHeader, SalesLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '300120' (from Header."Posting Date")
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", SalesHeader."Posting Date");
+    end;
+
+    [Test]
+    procedure T014_SalesLinePriceCopyToBufferWithHeaderOrder()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesLinePrice: Codeunit "Sales Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Sales]
+        Initialize();
+        // [GIVEN] Sales Header, where "Document Type" is Order, "No." is 'X', "Posting Date" is '300120', "Order Date" is '290120'
+        SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
+        SalesHeader."No." := LibraryRandom.RandText(20);
+        SalesHeader."Posting Date" := WorkDate() + 5;
+        SalesHeader."Order Date" := SalesHeader."Posting Date" - 1;
+        // [GIVEN] Sales Line, where 'Order Date' is '310120', while WorkDate is '250120'
+        SalesLine."Posting Date" := SalesHeader."Posting Date" + 1;
+        SalesLine.Type := SalesLine.Type::"G/L Account";
+        SalesLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with SalesLine and Header
+        LineWithPrice := SalesLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, SalesHeader, SalesLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '290120' (from Header."Order Date")
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", SalesHeader."Order Date");
+    end;
+
+    [Test]
+    procedure T015_ServiceLinePriceCopyToBufferWithoutPostingDate()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        ServiceLine: Record "Service Line";
+        ServiceLinePrice: Codeunit "Service Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Service]
+        Initialize();
+        // [GIVEN] Service Line, where 'Posting Date' is <blank>, while WorkDate is '250120'
+        ServiceLine."Posting Date" := 0D;
+        ServiceLine.Type := ServiceLine.Type::"G/L Account";
+        ServiceLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with ServiceLine, no Header set
+        LineWithPrice := ServiceLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, ServiceLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '250120'(from WorkDate)
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", WorkDate());
+    end;
+
+    [Test]
+    procedure T016_ServiceLinePriceCopyToBufferWithoutHeader()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        ServiceLine: Record "Service Line";
+        ServiceLinePrice: Codeunit "Service Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Service]
+        Initialize();
+        // [GIVEN] Service Line, where 'Posting Date' is '300120', while WorkDate is '250120'
+        ServiceLine."Posting Date" := WorkDate() + 5;
+        ServiceLine.Type := ServiceLine.Type::"G/L Account";
+        ServiceLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with ServiceLine, no Header set
+        LineWithPrice := ServiceLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, ServiceLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '300120'(from Line."Posting Date")
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", ServiceLine."Posting Date");
+    end;
+
+    [Test]
+    procedure T017_ServiceLinePriceCopyToBufferWithHeaderBlankNo()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceLinePrice: Codeunit "Service Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Service]
+        Initialize();
+        // [GIVEN] Service Header, where "Document Type" is Invoice, "No." is <blank>, "Posting Date" is '300120', "Order Date" is '290120'
+        ServiceHeader."Document Type" := ServiceHeader."Document Type"::Invoice;
+        ServiceHeader."No." := '';
+        ServiceHeader."Posting Date" := WorkDate() + 5;
+        ServiceHeader."Order Date" := ServiceHeader."Posting Date" - 1;
+
+        // [GIVEN] Service Line, where 'Posting Date' is '310120', while WorkDate is '250120'
+        ServiceLine."Posting Date" := ServiceHeader."Posting Date" + 1;
+        ServiceLine.Type := ServiceLine.Type::"G/L Account";
+        ServiceLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with ServiceLine and Header
+        LineWithPrice := ServiceLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, ServiceHeader, ServiceLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '310120' (from Line."Posting Date")
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", ServiceLine."Posting Date");
+    end;
+
+    [Test]
+    procedure T018_ServiceLinePriceCopyToBufferWithHeaderInvoice()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceLinePrice: Codeunit "Service Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Service]
+        Initialize();
+        // [GIVEN] Service Header, where "Document Type" is Invoice, "No." is 'X', "Posting Date" is '300120', "Order Date" is '290120'
+        ServiceHeader."Document Type" := ServiceHeader."Document Type"::Invoice;
+        ServiceHeader."No." := LibraryRandom.RandText(20);
+        ServiceHeader."Posting Date" := WorkDate() + 5;
+        ServiceHeader."Order Date" := ServiceHeader."Posting Date" - 1;
+
+        // [GIVEN] Service Line, where 'Posting Date' is '310120', while WorkDate is '250120'
+        ServiceLine."Posting Date" := ServiceHeader."Posting Date" + 1;
+        ServiceLine.Type := ServiceLine.Type::"G/L Account";
+        ServiceLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with ServiceLine and Header
+        LineWithPrice := ServiceLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, ServiceHeader, ServiceLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '300120' (from Header."Posting Date")
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", ServiceHeader."Posting Date");
+    end;
+
+    [Test]
+    procedure T019_ServiceLinePriceCopyToBufferWithHeaderOrder()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceLinePrice: Codeunit "Service Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Service]
+        Initialize();
+        // [GIVEN] Service Header, where "Document Type" is Order, "No." is 'X', "Posting Date" is '300120', "Order Date" is '290120'
+        ServiceHeader."Document Type" := ServiceHeader."Document Type"::Order;
+        ServiceHeader."No." := LibraryRandom.RandText(20);
+        ServiceHeader."Posting Date" := WorkDate() + 5;
+        ServiceHeader."Order Date" := ServiceHeader."Posting Date" - 1;
+        // [GIVEN] Service Line, where 'Order Date' is '310120', while WorkDate is '250120'
+        ServiceLine."Posting Date" := ServiceHeader."Posting Date" + 1;
+        ServiceLine.Type := ServiceLine.Type::"G/L Account";
+        ServiceLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with ServiceLine and Header
+        LineWithPrice := ServiceLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, ServiceHeader, ServiceLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '290120' (from Header."Order Date")
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", ServiceHeader."Order Date");
+    end;
+
+    [Test]
+    procedure T020_PurchaseLinePriceCopyToBufferWithoutPostingDate()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLinePrice: Codeunit "Purchase Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Purchase]
+        Initialize();
+        // [GIVEN] Purchase Line, while WorkDate is '250120'
+        PurchaseLine.Type := PurchaseLine.Type::"G/L Account";
+        PurchaseLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with PurchaseLine, no Header set
+        LineWithPrice := PurchaseLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, PurchaseLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '250120'(from WorkDate)
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", WorkDate());
+    end;
+
+    [Test]
+    procedure T021_PurchaseLinePriceCopyToBufferWithHeaderInvoice()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLinePrice: Codeunit "Purchase Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Purchase]
+        Initialize();
+        // [GIVEN] Purchase Header, where "Document Type" is Invoice, "No." is 'X', "Posting Date" is '300120', "Order Date" is '290120'
+        PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Invoice;
+        PurchaseHeader."No." := LibraryRandom.RandText(20);
+        PurchaseHeader."Posting Date" := WorkDate() + 5;
+        PurchaseHeader."Order Date" := PurchaseHeader."Posting Date" - 1;
+
+        // [GIVEN] Purchase Line, while WorkDate is '250120'
+        PurchaseLine.Type := PurchaseLine.Type::"G/L Account";
+        PurchaseLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with PurchaseLine and Header
+        LineWithPrice := PurchaseLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, PurchaseHeader, PurchaseLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '300120' (from Header."Posting Date")
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", PurchaseHeader."Posting Date");
+    end;
+
+    [Test]
+    procedure T022_PurchaseLinePriceCopyToBufferWithHeaderOrder()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLinePrice: Codeunit "Purchase Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Purchase]
+        Initialize();
+        // [GIVEN] Purchase Header, where "Document Type" is Order, "No." is 'X', "Posting Date" is '300120', "Order Date" is '290120'
+        PurchaseHeader."Document Type" := PurchaseHeader."Document Type"::Order;
+        PurchaseHeader."No." := LibraryRandom.RandText(20);
+        PurchaseHeader."Posting Date" := WorkDate() + 5;
+        PurchaseHeader."Order Date" := PurchaseHeader."Posting Date" - 1;
+        // [GIVEN] Purchase Line, while WorkDate is '250120'
+        PurchaseLine.Type := PurchaseLine.Type::"G/L Account";
+        PurchaseLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with PurchaseLine and Header
+        LineWithPrice := PurchaseLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, PurchaseHeader, PurchaseLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '290120' (from Header."Order Date")
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", PurchaseHeader."Order Date");
+    end;
+
+    [Test]
+    procedure T025_ItemJournalLinePriceCopyToBufferWithoutPostingDate()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalLinePrice: Codeunit "Item Journal Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Item Journal]
+        Initialize();
+        // [GIVEN] Item Journal Line, while WorkDate is '250120'
+        ItemJournalLine.Type := ItemJournalLine.Type::Resource;
+        ItemJournalLine."Item No." := LibraryInventory.CreateItemNo();
+
+        // [GIVEN] Initialize LineWithPrice with ItemJournalLine
+        LineWithPrice := ItemJournalLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, ItemJournalLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '250120'(from WorkDate)
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", WorkDate());
+    end;
+
+    [Test]
+    procedure T026_ItemJournalLinePriceCopyToBufferWithPostingDate()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        ItemJournalLine: Record "Item Journal Line";
+        ItemJournalLinePrice: Codeunit "Item Journal Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Item Journal]
+        Initialize();
+        // [GIVEN] Item Journal Line, where "Posting Date" is 300120, while WorkDate is '250120'
+        ItemJournalLine."Posting Date" := WorkDate() + 5;
+        ItemJournalLine."Item No." := LibraryInventory.CreateItemNo();
+
+        // [GIVEN] Initialize LineWithPrice with ItemJournalLine
+        LineWithPrice := ItemJournalLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, ItemJournalLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '300120'(from ItemJournalLine."Posting Date")
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", ItemJournalLine."Posting Date");
+    end;
+
+    [Test]
+    procedure T027_StandardItemJournalLinePriceCopyToBufferWithoutPostingDate()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        StandardItemJournalLine: Record "Standard Item Journal Line";
+        StdItemJnlLinePrice: Codeunit "Std. Item Jnl. Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Standard Item Journal]
+        Initialize();
+        // [GIVEN] Item Journal Line, while WorkDate is '250120'
+        StandardItemJournalLine."Item No." := LibraryInventory.CreateItemNo();
+
+        // [GIVEN] Initialize LineWithPrice with StandardItemJournalLine
+        LineWithPrice := StdItemJnlLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, StandardItemJournalLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '250120'(from WorkDate)
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", WorkDate());
+    end;
+
+    [Test]
+    procedure T028_JobJournalLinePriceCopyToBufferWithoutPostingDate()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        Job: Record Job;
+        JobJournalLine: Record "Job Journal Line";
+        JobJournalLinePrice: Codeunit "Job Journal Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Job Journal]
+        Initialize();
+        // [GIVEN] Job Journal Line, while WorkDate is '250120'
+        LibraryJob.CreateJob(Job);
+        JobJournalLine."Job No." := Job."No.";
+        JobJournalLine.Type := JobJournalLine.Type::"G/L Account";
+        JobJournalLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with JobJournalLine
+        LineWithPrice := JobJournalLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, JobJournalLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '250120'(from WorkDate)
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", WorkDate());
+    end;
+
+    [Test]
+    procedure T029_JobJournalLinePriceCopyToBufferWithPostingDate()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        Job: Record Job;
+        JobJournalLine: Record "Job Journal Line";
+        JobJournalLinePrice: Codeunit "Job Journal Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Job Journal]
+        Initialize();
+        // [GIVEN] Job Journal Line, where "Posting Date" is 300120, while WorkDate is '250120'
+        LibraryJob.CreateJob(Job);
+        JobJournalLine."Job No." := Job."No.";
+        JobJournalLine."Posting Date" := WorkDate() + 5;
+        JobJournalLine.Type := JobJournalLine.Type::"G/L Account";
+        JobJournalLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with JobJournalLine
+        LineWithPrice := JobJournalLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, JobJournalLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '300120'(from JobJournalLine."Posting Date")
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", JobJournalLine."Posting Date");
+    end;
+
+    [Test]
+    procedure T030_JobPlanningLinePriceCopyToBufferWithoutPostingDate()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        Job: Record Job;
+        JobPlanningLine: Record "Job Planning Line";
+        JobPlanningLinePrice: Codeunit "Job Planning Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Job Planning]
+        Initialize();
+        // [GIVEN] Job Planning Line, where "Planning Date" is <blank>, while WorkDate is '250120'
+        LibraryJob.CreateJob(Job);
+        JobPlanningLine."Job No." := Job."No.";
+        JobPlanningLine.Type := JobPlanningLine.Type::"G/L Account";
+        JobPlanningLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with JobPlanningLine
+        LineWithPrice := JobPlanningLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, JobPlanningLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '250120'(from WorkDate)
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", WorkDate());
+    end;
+
+    [Test]
+    procedure T031_JobPlanningLinePriceCopyToBufferWithPostingDate()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        Job: Record Job;
+        JobPlanningLine: Record "Job Planning Line";
+        JobPlanningLinePrice: Codeunit "Job Planning Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Job Planning]
+        Initialize();
+        // [GIVEN] Job Planning Line, where "Planning Date" is 300120, while WorkDate is '250120'
+        LibraryJob.CreateJob(Job);
+        JobPlanningLine."Job No." := Job."No.";
+        JobPlanningLine."Planning Date" := WorkDate() + 5;
+        JobPlanningLine.Type := JobPlanningLine.Type::"G/L Account";
+        JobPlanningLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with JobPlanningLine
+        LineWithPrice := JobPlanningLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, JobPlanningLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '300120'(from JobPlanningLine."Planning Date")
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", JobPlanningLine."Planning Date");
+    end;
+
+    [Test]
+    procedure T032_RequisitionLinePriceCopyToBufferWithoutPostingDate()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        RequisitionLine: Record "Requisition Line";
+        RequisitionLinePrice: Codeunit "Requisition Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Requisition Line]
+        Initialize();
+        // [GIVEN] Requisition Line, where "Order Date" is <blank>, while WorkDate is '250120'
+        RequisitionLine.Type := RequisitionLine.Type::"G/L Account";
+        RequisitionLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with RequisitionLine
+        LineWithPrice := RequisitionLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, RequisitionLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '250120'(from WorkDate)
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", WorkDate());
+    end;
+
+    [Test]
+    procedure T033_RequisitionLinePriceCopyToBufferWithPostingDate()
+    var
+        PriceCalculationBuffer: Record "Price Calculation Buffer";
+        RequisitionLine: Record "Requisition Line";
+        RequisitionLinePrice: Codeunit "Requisition Line - Price";
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        LineWithPrice: Interface "Line With Price";
+    begin
+        // [FEATURE] [UT] [Requisition Line]
+        Initialize();
+        // [GIVEN] Requisition Line, where "Order Date" is 300120, while WorkDate is '250120'
+        RequisitionLine."Order Date" := WorkDate() + 5;
+        RequisitionLine.Type := RequisitionLine.Type::"G/L Account";
+        RequisitionLine."No." := LibraryERM.CreateGLAccountNo();
+
+        // [GIVEN] Initialize LineWithPrice with RequisitionLine
+        LineWithPrice := RequisitionLinePrice;
+        LineWithPrice.SetLine("Price Type"::Sale, RequisitionLine);
+
+        // [WHEN] CopyToBuffer()
+        LineWithPrice.CopyToBuffer(PriceCalculationBufferMgt);
+
+        // [THEN] Buffer, where "Document Date" is '300120'(from RequisitionLine."Order Date")
+        PriceCalculationBufferMgt.GetBuffer(PriceCalculationBuffer);
+        PriceCalculationBuffer.TestField("Document Date", RequisitionLine."Order Date");
     end;
 
     [Test]
@@ -1750,6 +2379,36 @@ codeunit 134159 "Test Price Calculation - V16"
             PriceListLine, PriceListLine."Source Type"::Customer, Customer."No.", PriceListLine."Asset Type"::Item, Item."No.");
     end;
 
+    local procedure CreateCustomerWithContactAndActivatedCampaigns(var Customer: Record Customer; var Contact: Record Contact; var Campaign: Array[5] of Record Campaign; SkipCustomerCampaign: Boolean)
+    var
+        CampaignTargetGr: Record "Campaign Target Group";
+        i: Integer;
+    begin
+        LibraryMarketing.CreateCampaign(Campaign[1]);
+
+        LibraryMarketing.CreateContactWithCustomer(Contact, Customer);
+        if not SkipCustomerCampaign then begin
+
+            CampaignTargetGr.Init();
+            CampaignTargetGr.Type := CampaignTargetGr.Type::Customer;
+            CampaignTargetGr."No." := Customer."No.";
+            for i := 2 to 3 do begin
+                LibraryMarketing.CreateCampaign(Campaign[i]);
+                CampaignTargetGr."Campaign No." := Campaign[i]."No.";
+                CampaignTargetGr.Insert();
+            end;
+        end;
+
+        CampaignTargetGr.Init();
+        CampaignTargetGr.Type := CampaignTargetGr.Type::Contact;
+        CampaignTargetGr."No." := Contact."No.";
+        for i := 4 to 5 do begin
+            LibraryMarketing.CreateCampaign(Campaign[i]);
+            CampaignTargetGr."Campaign No." := Campaign[i]."No.";
+            CampaignTargetGr.Insert();
+        end;
+    end;
+
     local procedure CreatePriceLine(var PriceListLine: Record "Price List Line"; Customer: Record Customer; Item: Record Item; AllowLineDisc: Boolean)
     begin
         LibraryPriceCalculation.CreatePriceLine(
@@ -1842,6 +2501,19 @@ codeunit 134159 "Test Price Calculation - V16"
         PriceCalculationBuffer."Currency Code" := CurrencyCode;
         PriceCalculationBuffer."Currency Factor" := CurrencyFactor;
         PriceCalculationBufferMgt.Set(PriceCalculationBuffer, DummyPriceSourceList);
+    end;
+
+    local procedure VerifyCampaignSource(SalesLinePrice: Codeunit "Sales Line - Price"; CampaignNo: code[20]; ExpectedCount: Integer)
+    var
+        PriceCalculationBufferMgt: Codeunit "Price Calculation Buffer Mgt.";
+        TempPriceSource: Record "Price Source" temporary;
+    begin
+        SalesLinePrice.CopyToBuffer(PriceCalculationBufferMgt);
+        PriceCalculationBufferMgt.GetSources(TempPriceSource);
+        TempPriceSource.SetRange("Source Type", TempPriceSource."Source Type"::Campaign);
+        Assert.RecordCount(TempPriceSource, ExpectedCount);
+        TempPriceSource.SetRange("Source No.", CampaignNo);
+        TempPriceSource.FindFirst();
     end;
 
     local procedure VerifyLineDiscount(var SalesLine: Record "Sales Line"; LineDisc: Decimal)

@@ -719,6 +719,7 @@ report 10402 "Deposit Test Report"
 
                     trigger OnAfterGetRecord()
                     begin
+                        DimSetEntry2.SetRange("Dimension Set ID", "Dimension Set ID");
                         ErrorCounter := 0;
 
                         if "Account No." = '' then
@@ -848,7 +849,6 @@ report 10402 "Deposit Test Report"
                     begin
                         Clear(TableID);
                         Clear(No);
-                        DimSetEntry2.SetRange("Dimension Set ID", "Dimension Set ID");
                     end;
                 }
             }

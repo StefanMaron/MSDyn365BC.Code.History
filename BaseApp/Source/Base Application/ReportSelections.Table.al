@@ -1,4 +1,4 @@
-﻿table 77 "Report Selections"
+table 77 "Report Selections"
 {
     Caption = 'Report Selections';
 
@@ -1086,7 +1086,10 @@
 
     procedure GetVendorEmailAddress(BuyFromVendorNo: Code[20]; RecVar: Variant; ReportUsage: Option): Text[250]
     var
+        Contact: Record Contact;
+        PurchaseHeader: Record "Purchase Header";
         Vendor: Record Vendor;
+        RecRef: RecordRef;
         ToAddress: Text[250];
         IsHandled: Boolean;
     begin
@@ -1095,6 +1098,15 @@
             exit(ToAddress);
 
         ToAddress := GetPurchaseOrderEmailAddress(BuyFromVendorNo, RecVar, ReportUsage);
+
+        if ToAddress = '' then begin
+            RecRef.GetTable(RecVar);
+            if RecRef.Number = DATABASE::"Purchase Header" then begin
+                PurchaseHeader := RecVar;
+                if Contact.Get(PurchaseHeader."Buy-from Contact No.") then
+                    ToAddress := Contact."E-Mail";
+            end;
+        end;
 
         if ToAddress = '' then
             if Vendor.Get(BuyFromVendorNo) then

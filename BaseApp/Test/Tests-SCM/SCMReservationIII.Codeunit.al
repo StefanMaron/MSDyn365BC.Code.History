@@ -1388,6 +1388,62 @@ codeunit 137270 "SCM Reservation III"
         SalesLine.TestField("Reserved Quantity", Round(QtyPurch * QtyPer1 / QtyPer2, 0.00001));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReservedQtyFromInventoryIsAdjustedByPickedQty()
+    var
+        ReservationEntry: Record "Reservation Entry";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary;
+        WarehouseAvailabilityMgt: Codeunit "Warehouse Availability Mgt.";
+        QtyReservedAndPicked: Decimal;
+    begin
+        // [FEATURE] [Pick] [UT]
+        // [SCENARIO 374777] Function "CalcReservQtyOnPicksShips" calculates reserved quantity from inventory that is prepared for picking.
+        Initialize();
+
+        // [GIVEN] Pair of reservation entries representing 20 pcs on sales line reserved from inventory.
+        // [GIVEN] Warehouse pick for 10 pcs for the sales line.
+        MockPairedReservationEntries(ReservationEntry, DATABASE::"Item Ledger Entry");
+        MockPickLine(WarehouseActivityLine, ReservationEntry);
+
+        // [WHEN] Calculate quantity that is both reserved and prepared for picking.
+        QtyReservedAndPicked :=
+          WarehouseAvailabilityMgt.CalcReservQtyOnPicksShips(
+            ReservationEntry."Location Code", ReservationEntry."Item No.", '', TempWarehouseActivityLine);
+
+        // [THEN] Quantity = 10 pcs.
+        Assert.AreEqual(WarehouseActivityLine."Qty. Outstanding (Base)", QtyReservedAndPicked, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ReservedQtyFromOtherSourcesNotAdjustedByPickedQty()
+    var
+        ReservationEntry: Record "Reservation Entry";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        TempWarehouseActivityLine: Record "Warehouse Activity Line" temporary;
+        WarehouseAvailabilityMgt: Codeunit "Warehouse Availability Mgt.";
+        QtyReservedAndPicked: Decimal;
+    begin
+        // [FEATURE] [Pick] [UT]
+        // [SCENARIO 374777] Function "CalcReservQtyOnPicksShips" returns 0 when the quantity is reserved not from inventory.
+        Initialize();
+
+        // [GIVEN] Pair of reservation entries representing 20 pcs on sales line reserved from assembly.
+        // [GIVEN] Warehouse pick for 10 pcs for the sales line.
+        MockPairedReservationEntries(ReservationEntry, DATABASE::"Assembly Header");
+        MockPickLine(WarehouseActivityLine, ReservationEntry);
+
+        // [WHEN] Calculate quantity that is both reserved and prepared for picking.
+        QtyReservedAndPicked :=
+          WarehouseAvailabilityMgt.CalcReservQtyOnPicksShips(
+            ReservationEntry."Location Code", ReservationEntry."Item No.", '', TempWarehouseActivityLine);
+
+        // [THEN] Quantity = 0 pcs.
+        Assert.AreEqual(0, QtyReservedAndPicked, '');
+    end;
+
     local procedure Initialize()
     var
         InventorySetup: Record "Inventory Setup";
@@ -1935,6 +1991,46 @@ codeunit 137270 "SCM Reservation III"
           WhseInternalPutAwayHeader, WhseInternalPutAwayLine, SalesLine."No.", SalesLine.Quantity);
         WhseIntPutAwayRelease.Release(WhseInternalPutAwayHeader);
         exit(Bin.Code);
+    end;
+
+    local procedure MockPairedReservationEntries(var ReservEntry: Record "Reservation Entry"; SourceType: Integer)
+    var
+        PairedReservEntry: Record "Reservation Entry";
+    begin
+        with ReservEntry do begin
+            Init();
+            "Entry No." := LibraryUtility.GetNewRecNo(ReservEntry, FieldNo("Entry No."));
+            Positive := false;
+            "Reservation Status" := "Reservation Status"::Reservation;
+            "Item No." := LibraryUtility.GenerateGUID();
+            "Location Code" := LibraryUtility.GenerateGUID();
+            "Quantity (Base)" := -LibraryRandom.RandIntInRange(11, 20);
+            SetSource(DATABASE::"Sales Line", 0, LibraryUtility.GenerateGUID(), LibraryRandom.RandInt(10), '', 0);
+            Insert();
+        end;
+
+        with PairedReservEntry do begin
+            PairedReservEntry := ReservEntry;
+            Positive := not Positive;
+            "Quantity (Base)" *= -1;
+            SetSource(SourceType, 0, '', LibraryRandom.RandInt(10), '', 0);
+            Insert();
+        end;
+    end;
+
+    local procedure MockPickLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ReservEntry: Record "Reservation Entry")
+    begin
+        with WarehouseActivityLine do begin
+            Init();
+            "Activity Type" := "Activity Type"::Pick;
+            "No." := LibraryUtility.GenerateGUID();
+            "Line No." := LibraryUtility.GetNewRecNo(WarehouseActivityLine, FieldNo("Line No."));
+            SetSource(
+              ReservEntry."Source Type", ReservEntry."Source Subtype", ReservEntry."Source ID",
+              ReservEntry."Source Ref. No.", 0);
+            "Qty. Outstanding (Base)" := LibraryRandom.RandInt(10);
+            Insert();
+        end;
     end;
 
     local procedure DeleteSalesLine(DocumentNo: Code[20])

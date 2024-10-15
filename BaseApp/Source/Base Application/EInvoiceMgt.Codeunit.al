@@ -74,6 +74,7 @@ codeunit 10145 "E-Invoice Mgt."
         ProcessPaymentErr: Label 'Cannot process payment %2', Locked = true;
         SendPaymentMsg: Label 'Sending payment', Locked = true;
         SendPaymentSuccessMsg: Label 'Payment successfully sent', Locked = true;
+        SpecialCharsTxt: Label 'áéíñóúüÁÉÍÑÓÚÜ', Locked = true;
 
     procedure RequestStampDocument(var RecRef: RecordRef; Prepayment: Boolean)
     var
@@ -3037,7 +3038,8 @@ codeunit 10145 "E-Invoice Mgt."
         Response := IWebServiceInvoker.InvokeMethodWithCertificate(PACWebServiceDetail.Address,
             PACWebServiceDetail."Method Name", CertificateManagement.GetCertAsBase64String(IsolatedCertificate), SecureStringPassword);
         SendTraceTag('0000C7W', MXElectronicInvoicingTok, VERBOSITY::Normal, StrSubstNo(InvokeMethodSuccessMsg, MethodType), DATACLASSIFICATION::SystemMetadata);
-
+        if MethodType = MethodType::Cancel then
+            Response := DelChr(Response, '=', SpecialCharsTxt);
         exit(Response)
     end;
 
