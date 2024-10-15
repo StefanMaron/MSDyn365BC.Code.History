@@ -49,6 +49,7 @@
         UndoneTransLineQtyErr: Label 'Expected Quantity to be 0 after Transfer Shipment was undone';
         DerivedTransLineErr: Label 'Expected no Derived Transfer Line i.e. line with "Derived From Line No." equal to original transfer line.';
         IncorrectSNUndoneErr: Label 'The Serial No. of the item on the transfer shipment line that was undone was different from the SN on the corresponding transfer line.';
+        ApplToItemEntryErr: Label '%1 must be %2 in %3.', Comment = '%1 is Appl-to Item Entry, %2 is Item Ledger Entry No. and %3 is Transfer Line';
 
     [Test]
     [HandlerFunctions('MessageHandler')]
@@ -3458,6 +3459,159 @@
         PostedTranferReceipt.Close();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('PostedPurchaseReceiptsModalPageHandler,PostedPurchRcptLinesModalPageHandler')]
+    procedure GetReceiptLinesShowListOfPostedPurchRcptsHavingTransferFromCodeInLocationCodeOfPurchRcptLines()
+    var
+        Item: Record Item;
+        Vendor: Record Vendor;
+        Location: Record Location;
+        Location2: Record Location;
+        Location3: Record Location;
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseHeader2: Record "Purchase Header";
+        PurchaseHeader3: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseLine2: Record "Purchase Line";
+        PurchaseLine3: Record "Purchase Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        ItemLedgerEntryNo: Integer;
+        PurchaseReceiptNo: Code[20];
+        TransferOrder: TestPage "Transfer Order";
+    begin
+        // [SCENARIO 500597] Get Receipt Lines action on Transfer Order shows list of Posted Purchase Receipts having Transfer-from Code in Location Code of Purch Rcpt Lines and after selecting it populates Appl-to Item Entry field in Transfer Lines.
+        Initialize();
+
+        // [GIVEN] Create an Item and Validate Costing Method.
+        LibraryInventory.CreateItem(Item);
+        Item.Validate("Costing Method", Item."Costing Method"::FIFO);
+        Item.Modify(true);
+
+        // [GIVEN] Create two Locations with Inventory Posting Setup.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location);
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location2);
+
+        // [GIVEN] Create another Location with Inventory Posting Setup 
+        // And Validate Use As In-Transit.
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(Location3);
+        Location3.Validate("Use As In-Transit", true);
+        Location3.Modify(true);
+
+        // [GIVEN] Create a Vendor.
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create and Post Purchase Receipt with Location Code on Header.
+        CreateAndPostPurchRcptWithLocationCodeInPurchHeader(PurchaseHeader, PurchaseLine, Vendor, Item, Location);
+
+        // [GIVEN] Create and Post Purchase Receipt 2 with Location Code on Header.
+        CreateAndPostPurchRcptWithLocationCodeInPurchHeader(PurchaseHeader2, PurchaseLine2, Vendor, Item, Location);
+
+        // [GIVEN] Create and Post Purchase Receipt 3 with Location Code on Line.
+        PurchaseReceiptNo := CreateAndPostPurchRcptWithLocationCodeInPurchLine(
+            PurchaseHeader3,
+            PurchaseLine3,
+            Vendor,
+            Item,
+            Location);
+
+        // [GIVEN] Find and save Item Ledger Entry No. in a Variable.
+        ItemLedgerEntry.SetRange("Document No.", PurchaseReceiptNo);
+        ItemLedgerEntry.FindFirst();
+        ItemLedgerEntryNo := ItemLedgerEntry."Entry No.";
+
+        // [GIVEN] Find Purch. Rcpt Line.
+        FindRandomReceiptLine(PurchaseReceiptNo, PurchRcptLine);
+
+        // [GIVEN] Create Transfer Header.
+        LibraryInventory.CreateTransferHeader(TransferHeader, Location.Code, Location2.Code, Location3.Code);
+
+        // [GIVEN] Open Transfer Order page and run Get Receipt Line action.
+        TransferOrder.OpenEdit();
+        TransferOrder.GoToRecord(TransferHeader);
+        LibraryVariableStorage.Enqueue(PurchaseReceiptNo);
+        LibraryVariableStorage.Enqueue(PurchaseReceiptNo);
+        LibraryVariableStorage.Enqueue(PurchRcptLine."No.");
+        TransferOrder.GetReceiptLines.Invoke();
+
+        // [WHEN] Find Transfer Line.
+        TransferLine.SetRange("Document No.", TransferHeader."No.");
+        TransferLine.FindFirst();
+
+        // [VERIFY] Appl-to Item Entry and Item Ledger Entry No. are same.
+        Assert.AreEqual(
+            ItemLedgerEntryNo,
+            TransferLine."Appl.-to Item Entry",
+            StrSubstNo(
+                ApplToItemEntryErr,
+                TransferLine.FieldCaption("Appl.-to Item Entry"),
+                ItemLedgerEntryNo,
+                TransferLine.TableCaption));
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    [Scope('OnPrem')]
+    procedure AdjustCostOfUndoneTransferShipment()
+    var
+        Item: Record Item;
+        InTransitLocation: Record Location;
+        TransferHeader: Record "Transfer Header";
+        TransferLine: Record "Transfer Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        ItemLedgerEntryNo: Integer;
+        LocationFromCode, LocationTOCode : Code[10];
+        OldCost, NewCost : Decimal;
+    begin
+        // [FEATURE] [Transfer] [Undo Shipment] [Costing] [Adjust Cost - Item Entries]
+        // [SCENARIO 496575] Item ledger entry for undone transfer shipment is adjusted with the correct cost.
+        Initialize();
+        OldCost := LibraryRandom.RandDec(100, 2);
+        NewCost := LibraryRandom.RandDecInDecimalRange(101, 200, 2);
+
+        // [GIVEN] Item "I".
+        // [GIVEN] Locations "From" and "To".
+        LibraryInventory.CreateItem(Item);
+        CreateLocations(LocationFromCode, LocationToCode);
+        LibraryWarehouse.CreateInTransitLocation(InTransitLocation);
+
+        // [GIVEN] Post inventory adjustment of "I" to location "From". Unit Cost = 10.
+        CreateAndPostItemJnlWithCostLocationVariant(
+          "Item Ledger Entry Type"::"Positive Adjmt.", Item."No.", 1, OldCost, LocationFromCode, '');
+        ItemLedgerEntryNo := FindLastILENo(Item."No.");
+
+        // [GIVEN] Create transfer order from "From" to "To".
+        // [GIVEN] Ship the transfer order.
+        LibraryInventory.CreateTransferHeader(TransferHeader, LocationFromCode, LocationToCode, InTransitLocation.Code);
+        LibraryInventory.CreateTransferLine(TransferHeader, TransferLine, Item."No.", 1);
+        LibraryInventory.PostTransferHeader(TransferHeader, true, false);
+
+        // [GIVEN] Revaluate the item entry for the inventory adjustment, new cost = 12.
+        CreateAndPostRevaluationJournal(Item."No.", ItemLedgerEntryNo, 1, NewCost);
+
+        // [GIVEN] Adjust cost.
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [WHEN] Undo the transfer shipment and run the cost adjustment.
+        LibraryInventory.UndoTransferShipments(TransferHeader."No.");
+        LibraryCosting.AdjustCostItemEntries(Item."No.", '');
+
+        // [THEN] Unit cost of "I" = 12.
+        Item.Find();
+        Item.TestField("Unit Cost", NewCost);
+
+        // [THEN] Item ledger entry for the undone transfer shipment is adjusted. Unit Cost = 12.
+        ItemLedgerEntry.Get(FindLastILENo(Item."No."));
+        ItemLedgerEntry.TestField("Entry Type", ItemLedgerEntry."Entry Type"::Transfer);
+        ItemLedgerEntry.TestField("Location Code", LocationFromCode);
+        ItemLedgerEntry.TestField(Positive, true);
+        ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
+        ItemLedgerEntry.TestField("Cost Amount (Actual)", NewCost);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3569,6 +3723,26 @@
 
         UpdateLocation(LocationCode[1], false, HandlingTime, HandlingTime2);
         UpdateLocation(LocationCode[5], true, HandlingTime2, HandlingTime2);
+    end;
+
+    local procedure CreateAndPostRevaluationJournal(ItemNo: Code[20]; AppliesToEntry: Integer; InventoryValueRevalued: Decimal; UnitCostRevalued: Decimal)
+    var
+        ItemJournalTemplate: Record "Item Journal Template";
+        ItemJournalBatch: Record "Item Journal Batch";
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Revaluation);
+        LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
+        ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, ItemJournalLine."Entry Type"::" ", ItemNo, 0);
+        ItemJournalLine.Validate("Value Entry Type", ItemJournalLine."Value Entry Type"::Revaluation);
+        ItemJournalLine.Validate("Applies-to Entry", AppliesToEntry);
+        ItemJournalLine.Validate("Inventory Value (Revalued)", InventoryValueRevalued);
+        ItemJournalLine.Validate("Unit Cost (Revalued)", UnitCostRevalued);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
 
     local procedure PostTransferShipmentPartiallyWithBlockedItem(DirectTransfer: Boolean)
@@ -4956,6 +5130,52 @@
         Assert.AreEqual(LineCount, TransferReceiptLine.Count(), '');
     end;
 
+    local procedure CreateAndPostPurchRcptWithLocationCodeInPurchHeader(
+        var PurchaseHeader: Record "Purchase Header";
+        var PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        Item: Record Item;
+        Location: Record Location)
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        PurchaseHeader.Validate("Location Code", Location.Code);
+        PurchaseHeader.Modify(true);
+
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            PurchaseLine.Type::Item,
+            Item."No.",
+            LibraryRandom.RandIntInRange(10, 10));
+
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(15000));
+        PurchaseLine.Modify(true);
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+    end;
+
+    local procedure CreateAndPostPurchRcptWithLocationCodeInPurchLine(
+        var PurchaseHeader: Record "Purchase Header";
+        var PurchaseLine: Record "Purchase Line";
+        Vendor: Record Vendor;
+        Item: Record Item;
+        Location: Record Location): Code[20]
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, Vendor."No.");
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            PurchaseLine.Type::Item,
+            Item."No.",
+            LibraryRandom.RandIntInRange(10, 10));
+
+        PurchaseLine.Validate("Location Code", Location.Code);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(15000));
+        PurchaseLine.Modify(true);
+
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false));
+    end;
+
     [MessageHandler]
     [Scope('OnPrem')]
     procedure MessageHandler(Message: Text[1024])
@@ -5177,6 +5397,20 @@
     begin
         // 0 = Item.Type::Inventory
         Assert.AreEqual('0', ItemList.Filter.GetFilter("Type"), 'Item List contains non-inventory items.');
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostedPurchRcptLinesModalPageHandler(var PostedPurchaseReceiptLines: Page "Posted Purchase Receipt Lines"; var Response: Action)
+    var
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+    begin
+        PurchRcptLine.SetRange("Document No.", LibraryVariableStorage.DequeueText());
+        PurchRcptLine.SetRange("No.", LibraryVariableStorage.DequeueText());
+        PurchRcptLine.FindFirst();
+        PostedPurchaseReceiptLines.SetRecord(PurchRcptLine);
+
+        Response := ACTION::LookupOK;
     end;
 }
 
