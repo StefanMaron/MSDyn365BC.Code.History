@@ -1,4 +1,4 @@
-table 5902 "Service Line"
+﻿table 5902 "Service Line"
 {
     Caption = 'Service Line';
     DrillDownPageID = "Service Line List";
@@ -1196,15 +1196,21 @@ table 5902 "Service Line"
             Caption = 'Line Amount';
 
             trigger OnValidate()
+            var
+                ServAmountsMgt: Codeunit "Serv-Amounts Mgt.";
+                LineDiscountAmountExpected: Decimal;
             begin
                 TestField(Type);
                 TestField(Quantity);
                 TestField("Unit Price");
                 Currency.Initialize("Currency Code");
                 "Line Amount" := Round("Line Amount", Currency."Amount Rounding Precision");
-                Validate(
-                  "Line Discount Amount",
-                  Round(CalcChargeableQty * "Unit Price", Currency."Amount Rounding Precision") - "Line Amount");
+                LineDiscountAmountExpected := Round(CalcChargeableQty * "Unit Price", Currency."Amount Rounding Precision") - "Line Amount";
+                if ServAmountsMgt.AmountsDifferByMoreThanRoundingPrecision(LineDiscountAmountExpected, "Line Discount Amount", Currency."Amount Rounding Precision") then
+                    Validate("Line Discount Amount", LineDiscountAmountExpected);
+                GetServHeader();
+                if ServHeader."Tax Area Code" = '' then
+                    UpdateVATAmounts;
             end;
         }
         field(104; "VAT Difference"; Decimal)
@@ -1707,8 +1713,6 @@ table 5902 "Service Line"
             Caption = 'Product Group Code';
             ObsoleteReason = 'Product Groups became first level children of Item Categories.';
             ObsoleteState = Removed;
-            TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
-            ValidateTableRelation = false;
             ObsoleteTag = '15.0';
         }
         field(5750; "Whse. Outstanding Qty. (Base)"; Decimal)
@@ -2897,11 +2901,18 @@ table 5902 "Service Line"
             Rec, CurrFieldNo, TableID, No, SourceCodeSetup."Service Management",
             "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", DimensionSetID, DATABASE::Customer);
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        OnAfterCreateDim(Rec, CurrFieldNo);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    var
+        IsHandled: Boolean;
     begin
-        OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
+        IsHandled := false;
+        OnBeforeValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode, IsHandled);
+        if IsHandled then
+            exit;
 
         DimMgt.ValidateShortcutDimValues(FieldNumber, ShortcutDimCode, "Dimension Set ID");
 
@@ -2909,7 +2920,14 @@ table 5902 "Service Line"
     end;
 
     procedure LookupShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeLookupShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode, IsHandled);
+        if IsHandled then
+            exit;
+
         DimMgt.LookupDimValueCode(FieldNumber, ShortcutDimCode);
         ValidateShortcutDimCode(FieldNumber, ShortcutDimCode);
     end;
@@ -3159,6 +3177,7 @@ table 5902 "Service Line"
     procedure UpdateAmounts()
     var
         CustCheckCrLimit: Codeunit "Cust-Check Cr. Limit";
+        ExpectedLineAmount: Decimal;
     begin
         if GuiAllowed and (CurrFieldNo <> 0) then
             ConfirmAdjPriceLineChange;
@@ -3170,14 +3189,11 @@ table 5902 "Service Line"
             "VAT Difference (LCY)" := 0;
             "VAT Correction" := false;
         end; // NAVCZ
-        if "Line Amount" <>
-           Round(
-             CalcChargeableQty * "Unit Price",
-             Currency."Amount Rounding Precision") - "Line Discount Amount"
-        then begin
-            "Line Amount" :=
-              Round(CalcChargeableQty * "Unit Price",
-                Currency."Amount Rounding Precision") - "Line Discount Amount";
+        ExpectedLineAmount := Round(
+                     CalcChargeableQty * "Unit Price",
+                     Currency."Amount Rounding Precision") - "Line Discount Amount";
+        if "Line Amount" <> ExpectedLineAmount then begin
+            "Line Amount" := ExpectedLineAmount;
             "VAT Difference" := 0;
             // NAVCZ
             "VAT Difference (LCY)" := 0;
@@ -3357,7 +3373,14 @@ table 5902 "Service Line"
     end;
 
     procedure ShowDimensions()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeShowDimensions(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
         if ("Contract No." <> '') and ("Appl.-to Service Entry" <> 0) then
             ViewDimensionSetEntries
         else
@@ -6029,6 +6052,11 @@ table 5902 "Service Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeLookupShortcutDimCode(var ServiceLine: Record "Service Line"; var xServiceLine: Record "Service Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeTestStatusOpen(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header")
     begin
     end;
@@ -6044,7 +6072,7 @@ table 5902 "Service Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidateShortcutDimCode(var ServiceLine: Record "Service Line"; var xServiceLine: Record "Service Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    local procedure OnBeforeValidateShortcutDimCode(var ServiceLine: Record "Service Line"; var xServiceLine: Record "Service Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20]; var IsHandled: Boolean)
     begin
     end;
 
@@ -6090,6 +6118,16 @@ table 5902 "Service Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnDeleteOnAfterServiceLineSetFilter(var ServiceLine2: Record "Service Line"; var ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateDim(var ServiceLine: Record "Service Line"; CurrFieldNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeShowDimensions(var ServiceLine: Record "Service Line"; xServiceLine: Record "Service Line"; var IsHandled: Boolean)
     begin
     end;
 }

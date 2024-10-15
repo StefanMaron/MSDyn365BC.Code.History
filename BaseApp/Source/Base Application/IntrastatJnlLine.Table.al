@@ -411,13 +411,13 @@ table 263 "Intrastat Jnl. Line"
     trigger OnModify()
     begin
         IntrastatJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-        IntrastatJnlBatch.TestField(Reported, false);
+        CheckBatchIsNotReported(IntrastatJnlBatch);
     end;
 
     trigger OnRename()
     begin
         IntrastatJnlBatch.Get(xRec."Journal Template Name", xRec."Journal Batch Name");
-        IntrastatJnlBatch.TestField(Reported, false);
+        CheckBatchIsNotReported(IntrastatJnlBatch);
     end;
 
     var
@@ -428,7 +428,14 @@ table 263 "Intrastat Jnl. Line"
         UnitOfMeasureManagement: Codeunit "Unit of Measure Management";
 
     local procedure GetItemDescription()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetItemDescription(IsHandled);
+        if IsHandled then
+            exit;
+
         if "Tariff No." <> '' then begin
             TariffNumber.Get("Tariff No.");
             // NAVCZ
@@ -507,6 +514,18 @@ table 263 "Intrastat Jnl. Line"
         exit((("Journal Batch Name" <> '') and ("Journal Template Name" = '')) or (BatchFilter <> ''));
     end;
 
+    local procedure CheckBatchIsNotReported(IntrastatJnlBatch: Record "Intrastat Jnl. Batch")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckBatchIsNotReported(xRec, IntrastatJnlBatch, IsHandled);
+        if IsHandled then
+            exit;
+
+        IntrastatJnlBatch.TestField(Reported, false);
+    end;
+
     local procedure PrecisionFormat(): Text
     begin
         // NAVCZ
@@ -517,6 +536,16 @@ table 263 "Intrastat Jnl. Line"
     begin
         // NAVCZ
         OnCheckIntrastatJnlTemplateUserRestrictions(GetRangeMax("Journal Template Name"));
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCheckBatchIsNotReported(xIntrastatJnlLine: Record "Intrastat Jnl. Line"; IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeGetItemDescription(var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

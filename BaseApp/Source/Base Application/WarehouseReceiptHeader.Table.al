@@ -154,7 +154,7 @@ table 7316 "Warehouse Receipt Header"
         }
         field(11; Comment; Boolean)
         {
-            CalcFormula = Exist ("Warehouse Comment Line" WHERE("Table Name" = CONST("Whse. Receipt"),
+            CalcFormula = Exist("Warehouse Comment Line" WHERE("Table Name" = CONST("Whse. Receipt"),
                                                                 Type = CONST(" "),
                                                                 "No." = FIELD("No.")));
             Caption = 'Comment';
@@ -332,9 +332,11 @@ table 7316 "Warehouse Receipt Header"
         Text005: Label 'must not be the %1 of the %2';
         Text006: Label 'You have changed %1 on the %2, but it has not been changed on the existing Warehouse Receipt Lines.\';
         Text007: Label 'You must update the existing Warehouse Receipt Lines manually.';
-        HideValidationDialog: Boolean;
         Text008: Label 'The Whse. Receipt is not completely received.\Do you really want to delete the Whse. Receipt?';
         Text009: Label 'Cancelled.';
+
+    protected var
+        HideValidationDialog: Boolean;
 
     procedure AssistEdit(OldWhseRcptHeader: Record "Warehouse Receipt Header"): Boolean
     begin
@@ -376,7 +378,7 @@ table 7316 "Warehouse Receipt Header"
             "Sorting Method"::"Due Date":
                 WhseRcptLine.SetCurrentKey("No.", "Due Date");
             else
-                OnSortWhseDocOnCaseSortingMethodElse(Rec);
+                OnSortWhseDocOnCaseSortingMethodElse(Rec, WhseRcptLine);
         end;
 
         if WhseRcptLine.Find('-') then begin
@@ -583,7 +585,7 @@ table 7316 "Warehouse Receipt Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSortWhseDocOnCaseSortingMethodElse(var WarehouseReceiptHeader: Record "Warehouse Receipt Header")
+    local procedure OnSortWhseDocOnCaseSortingMethodElse(var WarehouseReceiptHeader: Record "Warehouse Receipt Header"; var WhseRcptLine: Record "Warehouse Receipt Line")
     begin
     end;
 }

@@ -259,10 +259,8 @@ table 483 "Change Global Dim. Log Entry"
     var
         "Field": Record "Field";
     begin
-        if RecRef.FieldExist(480) then begin // W1 "Dimension Set ID" fields must have ID = 480
-            "Dim. Set ID Field No." := 480;
+        if FindDefaultDimSetIDFieldNo(RecRef) then
             exit(true);
-        end;
         Field.SetRange(TableNo, RecRef.Number);
         Field.SetRange(RelationTableNo, DATABASE::"Dimension Set Entry");
         Field.SetRange(FieldName, 'Dimension Set ID');
@@ -271,6 +269,16 @@ table 483 "Change Global Dim. Log Entry"
             "Dim. Set ID Field No." := Field."No.";
             exit(true);
         end;
+    end;
+
+    local procedure FindDefaultDimSetIDFieldNo(RecRef: RecordRef) Found: Boolean
+    begin
+        // W1 "Dimension Set ID" fields must have ID = 480
+        if RecRef.FieldExist(480) then begin
+            "Dim. Set ID Field No." := 480;
+            Found := true;
+        end;
+        OnAfterFindDefaultDimSetIDFieldNo(RecRef, Found);
     end;
 
     procedure FindDimensionValueCode(RecRef: RecordRef; DimNo: Integer): Code[20]
@@ -489,6 +497,11 @@ table 483 "Change Global Dim. Log Entry"
         OnFindingScheduledTask("Task ID", TaskExists);
         if not TaskExists then
             exit(ScheduledTask.Get("Task ID"));
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterFindDefaultDimSetIDFieldNo(RecRef: RecordRef; var Found: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

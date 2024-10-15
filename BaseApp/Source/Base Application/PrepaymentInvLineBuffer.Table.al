@@ -1,4 +1,4 @@
-table 461 "Prepayment Inv. Line Buffer"
+﻿table 461 "Prepayment Inv. Line Buffer"
 {
     Caption = 'Prepayment Inv. Line Buffer';
     ReplicateData = false;
@@ -237,6 +237,7 @@ table 461 "Prepayment Inv. Line Buffer"
         "VAT Amount (ACY)" := "VAT Amount (ACY)" + PrepmtInvLineBuf."VAT Amount (ACY)";
         "VAT Base Amount (ACY)" := "VAT Base Amount (ACY)" + PrepmtInvLineBuf."VAT Base Amount (ACY)";
         "VAT Difference" := "VAT Difference" + PrepmtInvLineBuf."VAT Difference";
+        OnAfterIncrAmounts(Rec, PrepmtInvLineBuf);
     end;
 
     procedure ReverseAmounts()
@@ -249,6 +250,7 @@ table 461 "Prepayment Inv. Line Buffer"
         "VAT Amount (ACY)" := -"VAT Amount (ACY)";
         "VAT Base Amount (ACY)" := -"VAT Base Amount (ACY)";
         "VAT Difference" := -"VAT Difference";
+        OnAfterReverseAmounts()
     end;
 
     procedure SetAmounts(AmountLCY: Decimal; AmountInclVAT: Decimal; VATBaseAmount: Decimal; AmountACY: Decimal; VATBaseAmountACY: Decimal; VATDifference: Decimal)
@@ -425,7 +427,17 @@ table 461 "Prepayment Inv. Line Buffer"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterIncrAmounts(var PrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer"; PrepmtInvLineBuf: Record "Prepayment Inv. Line Buffer")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterFillFromGLAcc(var PrepaymentInvLineBuffer: Record "Prepayment Inv. Line Buffer"; GLAccount: Record "G/L Account")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterReverseAmounts()
     begin
     end;
 }

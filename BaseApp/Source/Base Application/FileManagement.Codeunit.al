@@ -1009,7 +1009,8 @@ codeunit 419 "File Management"
 
     procedure StripNotsupportChrInFileName(InText: Text): Text
     begin
-        exit(DelChr(InText, '=', InvalidWindowsChrStringTxt));
+        InText := DelChr(InText, '=', InvalidWindowsChrStringTxt);
+        exit(GetSafeFileName(InText));
     end;
 
     [Scope('OnPrem')]

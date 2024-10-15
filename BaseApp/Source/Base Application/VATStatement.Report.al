@@ -1,4 +1,4 @@
-report 12 "VAT Statement"
+﻿report 12 "VAT Statement"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './VATStatement.rdlc';
@@ -601,6 +601,7 @@ report 12 "VAT Statement"
                             end;
                     // NAVCZ
                     end;
+                    OnCalcLineTotalOnBeforeCalcTotalAmountVATEntryTotaling(VATStmtLine2, VATEntry, Amount);
                     CalcTotalAmount(VATStmtLine2, TotalAmount);
                 end;
             VATStmtLine2.Type::"Row Totaling":
@@ -855,6 +856,11 @@ report 12 "VAT Statement"
         with VATEntry2 do
             exit(PerfCountryCurrExchRate.ExchangeAmount(
                 "Posting Date", "Perform. Country/Region Code", "Currency Code", AmountAdd * "Currency Factor"));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcLineTotalOnBeforeCalcTotalAmountVATEntryTotaling(VATStmtLine: Record "VAT Statement Line"; var VATEntry: Record "VAT Entry"; var Amount: Decimal)
+    begin
     end;
 }
 

@@ -150,11 +150,12 @@ codeunit 441 "Prepayment Mgt."
             until PurchaseLine.Next = 0;
     end;
 
-    procedure TestSalesPayment(SalesHeader: Record "Sales Header"): Boolean
+    procedure TestSalesPayment(SalesHeader: Record "Sales Header") Result: Boolean
     var
         SalesSetup: Record "Sales & Receivables Setup";
         CustLedgerEntry: Record "Cust. Ledger Entry";
         SalesInvHeader: Record "Sales Invoice Header";
+        IsHandled: Boolean;
     begin
         // NAVCZ
         if SalesHeader."Prepayment Type" = SalesHeader."Prepayment Type"::Advance then
@@ -165,11 +166,17 @@ codeunit 441 "Prepayment Mgt."
         if not SalesSetup."Check Prepmt. when Posting" then
             exit(false);
 
+        IsHandled := false;
+        OnBeforeTestSalesPayment(SalesHeader, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         SalesInvHeader.SetCurrentKey("Prepayment Order No.", "Prepayment Invoice");
         SalesInvHeader.SetRange("Prepayment Order No.", SalesHeader."No.");
         SalesInvHeader.SetRange("Prepayment Invoice", true);
         if SalesInvHeader.FindSet then
             repeat
+                OnTestSalesPaymentOnBeforeCustLedgerEntrySetFilter(CustLedgerEntry, SalesHeader, SalesInvHeader);
                 CustLedgerEntry.SetCurrentKey("Document No.");
                 CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
                 CustLedgerEntry.SetRange("Document No.", SalesInvHeader."No.");
@@ -181,11 +188,12 @@ codeunit 441 "Prepayment Mgt."
         exit(false);
     end;
 
-    procedure TestPurchasePayment(PurchaseHeader: Record "Purchase Header"): Boolean
+    procedure TestPurchasePayment(PurchaseHeader: Record "Purchase Header") Result: Boolean
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         VendLedgerEntry: Record "Vendor Ledger Entry";
         PurchInvHeader: Record "Purch. Inv. Header";
+        IsHandled: Boolean;
     begin
         // NAVCZ
         if PurchaseHeader."Prepayment Type" = PurchaseHeader."Prepayment Type"::Advance then
@@ -196,11 +204,17 @@ codeunit 441 "Prepayment Mgt."
         if not PurchasesPayablesSetup."Check Prepmt. when Posting" then
             exit(false);
 
+        IsHandled := false;
+        OnBeforeTestPurchasePayment(PurchaseHeader, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         PurchInvHeader.SetCurrentKey("Prepayment Order No.", "Prepayment Invoice");
         PurchInvHeader.SetRange("Prepayment Order No.", PurchaseHeader."No.");
         PurchInvHeader.SetRange("Prepayment Invoice", true);
         if PurchInvHeader.FindSet then
             repeat
+                OnTestPurchasePaymentOnBeforeVendLedgerEntrySetFilter(VendLedgerEntry, PurchaseHeader, PurchInvHeader);
                 VendLedgerEntry.SetCurrentKey("Document No.");
                 VendLedgerEntry.SetRange("Document Type", VendLedgerEntry."Document Type"::Invoice);
                 VendLedgerEntry.SetRange("Document No.", PurchInvHeader."No.");
@@ -299,6 +313,26 @@ codeunit 441 "Prepayment Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTestPurchPrepayment(PurchHeader: Record "Purchase Header"; var TestResult: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestSalesPayment(SalesHeader: Record "Sales Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestPurchasePayment(PurchaseHeader: Record "Purchase Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestSalesPaymentOnBeforeCustLedgerEntrySetFilter(var CustLedgerEntry: Record "Cust. Ledger Entry"; SalesHeader: Record "Sales Header"; SalesInvHeader: Record "Sales Invoice Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnTestPurchasePaymentOnBeforeVendLedgerEntrySetFilter(var VendLedgerEntry: Record "Vendor Ledger Entry"; PurchaseHeader: Record "Purchase Header"; PurchInvHeader: Record "Purch. Inv. Header")
     begin
     end;
 }

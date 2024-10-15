@@ -721,16 +721,7 @@ table 5740 "Transfer Header"
     trigger OnInsert()
     begin
         GetInventorySetup;
-        if "No." = '' then begin
-            TestNoSeries;
-            // NAVCZ
-            if "No. Series" <> '' then
-                NoSeriesMgt.InitSeries("No. Series", xRec."No. Series", "Posting Date", "No.", "No. Series")
-            else
-                // NAVCZ
-                NoSeriesMgt.InitSeries(GetNoSeriesCode, xRec."No. Series", "Posting Date", "No.", "No. Series");
-        end;
-        InitRecord;
+        InitInsert();
         Validate("Shipment Date", WorkDate);
     end;
 
@@ -1375,6 +1366,27 @@ table 5740 "Transfer Header"
         Location.TestField("Require Receive", false);
     end;    
 
+    local procedure InitInsert()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnInitInsertOnBeforeInitSeries(xRec, IsHandled);
+        if not IsHandled then
+            if "No." = '' then begin
+                TestNoSeries();
+                // NAVCZ
+                if "No. Series" <> '' then
+                    NoSeriesMgt.InitSeries("No. Series", xRec."No. Series", "Posting Date", "No.", "No. Series")
+                else
+                // NAVCZ
+                    NoSeriesMgt.InitSeries(GetNoSeriesCode(), xRec."No. Series", "Posting Date", "No.", "No. Series");
+            end;
+
+        OnInitInsertOnBeforeInitRecord(xRec);
+        InitRecord();
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAddTransferLineFromReceiptLineOnBeforeTransferLineInsert(var TransferLine: Record "Transfer Line"; PurchRcptLine: Record "Purch. Rcpt. Line")
     begin
@@ -1472,6 +1484,16 @@ table 5740 "Transfer Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateShipmentDateOnBeforeCalcReceiptDate(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnInitInsertOnBeforeInitSeries(var xTransferHeader: Record "Transfer Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnInitInsertOnBeforeInitRecord(var xTransferHeader: Record "Transfer Header")
     begin
     end;
 }

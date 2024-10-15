@@ -1,4 +1,4 @@
-report 20 "Calc. and Post VAT Settlement"
+﻿report 20 "Calc. and Post VAT Settlement"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './CalcandPostVATSettlement.rdlc';
@@ -273,6 +273,7 @@ report 20 "Calc. and Post VAT Settlement"
 
                         trigger OnAfterGetRecord()
                         begin
+                            OnBeforeCheckPrintVATEntries("VAT Entry");
                             if not PrintVATEntries then
                                 CurrReport.Skip();
                             // NAVCZ
@@ -964,6 +965,17 @@ report 20 "Calc. and Post VAT Settlement"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPostReport()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckPrintVATEntries(var VATEntry: Record "VAT Entry")
+    begin
+    end;
+
+    [Obsolete('Unused for CZ localization', '17.0')]
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostGenJnlLineReverseChargeVAT(var GenJnlLine: Record "Gen. Journal Line"; var VATEntry: Record "VAT Entry"; var VATAmount: Decimal; var VATAmountAddCurr: Decimal)
     begin
     end;
 

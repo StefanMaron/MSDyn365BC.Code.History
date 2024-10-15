@@ -428,7 +428,19 @@ dotnet
         {
         }
 
+        type("Microsoft.Dynamics.Nav.Client.Capabilities.LocationStatus"; LocationStatus)
+        {
+        }
+
+        type("Microsoft.Dynamics.Nav.Client.Capabilities.Coordinate"; Coordinate)
+        {
+        }
+
         type("Microsoft.Dynamics.Nav.Client.Capabilities.LocationProvider"; "LocationProvider")
+        {
+        }
+
+        type("Microsoft.Dynamics.Nav.Client.Capabilities.LocationOptions"; LocationOptions)
         {
         }
 
@@ -1685,22 +1697,6 @@ dotnet
         }
 
         type("System.Text.RegularExpressions.RegexOptions"; "RegexOptions")
-        {
-        }
-
-        type("System.Uri"; "Uri")
-        {
-        }
-
-        type("System.UriBuilder"; "UriBuilder")
-        {
-        }
-
-        type("System.UriKind"; "UriKind")
-        {
-        }
-
-        type("System.UriPartial"; "UriPartial")
         {
         }
     }

@@ -7,7 +7,7 @@ codeunit 5631 "FA Jnl.-Check Line"
         GLSetup: Record "General Ledger Setup";
         UserSetupAdvMgt: Codeunit "User Setup Adv. Management";
     begin
-        TestField("Job No.", '');
+        CheckJobNo(Rec);
         TestField("FA Posting Type");
         TestField("Depreciation Book Code");
         if "Duplicate in Depreciation Book" = "Depreciation Book Code" then
@@ -226,6 +226,18 @@ codeunit 5631 "FA Jnl.-Check Line"
         CheckConsistency;
         CheckErrorNo;
         CheckMainAsset;
+    end;
+
+    local procedure CheckJobNo(var GenJournalLine: Record "Gen. Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckJobNo(GenJournalLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        GenJournalLine.TestField("Job No.", '');
     end;
 
     local procedure CheckFAPostingDate()
@@ -738,6 +750,11 @@ codeunit 5631 "FA Jnl.-Check Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckFAPostingDate(GenJournalLine: Record "Gen. Journal Line"; FAJournalLine: Record "FA Journal Line"; DepreciationBook: Record "Depreciation Book"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckJobNo(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
     end;
 

@@ -893,15 +893,25 @@ table 11730 "Cash Document Header"
         CashDocLine.Reset();
         CashDocLine.SetRange("Cash Desk No.", "Cash Desk No.");
         CashDocLine.SetRange("Cash Document No.", "No.");
-        if CashDocLine.IsEmpty then
+        if CashDocLine.IsEmpty() then
             exit;
 
         CashDocLine.CalcSums("Amount Including VAT");
 
+        CashDocLine2.Reset();
+        CashDocLine2.SetRange("Cash Desk No.", "Cash Desk No.");
+        CashDocLine2.SetRange("Cash Document No.", "No.");
+        CashDocLine2.SetRange("Account Type", CashDocLine."Account Type"::"G/L Account");
+        CashDocLine2.SetFilter("Account No.", '%1|%2',
+            BankAccount2."Debit Rounding Account", BankAccount2."Credit Rounding Account");
+        CashDocLine2.SetRange("System-Created Entry", true);
+        if CashDocLine2.FindFirst() then
+            CashDocLine."Amount Including VAT" -= CashDocLine2."Amount Including VAT";
+
         RoundingMethod.Reset();
         RoundingMethod.SetRange(Code, BankAccount2."Rounding Method Code");
         RoundingMethod.SetFilter("Minimum Amount", '..%1', Abs(CashDocLine."Amount Including VAT"));
-        RoundingMethod.FindLast;
+        RoundingMethod.FindLast();
         RoundingMethod.TestField(Precision);
         case RoundingMethod.Type of
             RoundingMethod.Type::Nearest:
@@ -915,27 +925,19 @@ table 11730 "Cash Document Header"
         RoundedAmount :=
           Round(CashDocLine."Amount Including VAT", RoundingMethod.Precision, Direction) - CashDocLine."Amount Including VAT";
 
-        CashDocLine2.Reset();
-        CashDocLine2.SetRange("Cash Desk No.", "Cash Desk No.");
-        CashDocLine2.SetRange("Cash Document No.", "No.");
-        if CashDocLine2.FindLast then
-            LastLineNo := CashDocLine2."Line No.";
+        if (RoundedAmount <> 0) and (CashDocLine2."Amount Including VAT" <> RoundedAmount) then begin
+            CashDocLine2.Reset();
+            CashDocLine2.SetRange("Cash Desk No.", "Cash Desk No.");
+            CashDocLine2.SetRange("Cash Document No.", "No.");
+            if CashDocLine2.FindLast() then
+                LastLineNo := CashDocLine2."Line No.";
 
-        CashDocLine2.SetRange("Account Type", CashDocLine."Account Type"::"G/L Account");
-        CashDocLine2.SetFilter("Account No.", '%1|%2',
-          BankAccount2."Debit Rounding Account", BankAccount2."Credit Rounding Account");
-        CashDocLine2.SetRange("System-Created Entry", true);
-        if not CashDocLine2.FindFirst then
-            CashDocLine2.Init();
-
-        if (RoundedAmount <> 0) and (CashDocLine2.Amount <> RoundedAmount) then begin
             LastLineNo += 10000;
-
             CashDocLine2.SetRange("Account Type", CashDocLine."Account Type"::"G/L Account");
             CashDocLine2.SetFilter("Account No.", '%1|%2',
               BankAccount2."Debit Rounding Account", BankAccount2."Credit Rounding Account");
             CashDocLine2.SetRange("System-Created Entry", true);
-            if not CashDocLine2.IsEmpty then
+            if not CashDocLine2.IsEmpty() then
                 CashDocLine2.DeleteAll(true);
 
             CashDocLine2.Init();

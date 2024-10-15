@@ -18,6 +18,7 @@ codeunit 407 "Adjust Gen. Journal Balance"
         // NAVCZ
 
         with GenJnlLine do begin
+            OnRunOnBeforeGenJnlLineFind(GenJnlLine);
             if not Find('-') then
                 exit;
             PrevGenJnlLine := GenJnlLine;
@@ -154,6 +155,11 @@ codeunit 407 "Adjust Gen. Journal Balance"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGenJnlLineInsert(var NewGenJnlLine: Record "Gen. Journal Line"; GenJnlLine2: Record "Gen. Journal Line"; PrevGenJnlLine2: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunOnBeforeGenJnlLineFind(var GenJnlLine: Record "Gen. Journal Line")
     begin
     end;
 }

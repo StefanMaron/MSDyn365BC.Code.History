@@ -3064,6 +3064,48 @@ codeunit 134385 "ERM Sales Document"
         LibraryVariableStorage.AssertEmpty;
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostSalesOrderAfterLastAccoutningPeriodWithAutomaticCostAdjustment()
+    var
+        SalesHeader: Record "Sales Header";
+        AccountingPeriod: Record "Accounting Period";
+        InventorySetup: Record "Inventory Setup";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        Item: Record Item;
+        DocumentNo: Code[20];
+
+    begin
+        // Verify that Customer ledger entry exist With Document Type Refund when payment method code with balancing account.
+
+        // Setup: Set automatic cost adjustment to always and average costing period to be accounting period
+        Initialize;
+        InventorySetup.FindFirst();
+        InventorySetup."Automatic Cost Adjustment" := InventorySetup."Automatic Cost Adjustment"::Always;
+        InventorySetup."Average Cost Period" := InventorySetup."Average Cost Period"::"Accounting Period";
+        InventorySetup.Modify();
+
+        // Setup: Create an Item and set the costing method to average
+        Item.Get(CreateItem());
+        Item.Validate("Costing Method", Item."Costing Method"::Average);
+        Item.Modify();
+
+        // Setup: Create Sales Order where the posting date is greater than the last accounting period
+        CreateSalesDocumentWithItem(SalesHeader, SalesHeader."Document Type"::Order, Item."No.", CreateCustomer());
+        if not AccountingPeriod.FindLast() then begin
+            CreateAccountingPeriod();
+            AccountingPeriod.FindLast();
+        end;
+        SalesHeader.Validate("Posting Date", CalcDate('<2D>', AccountingPeriod."Starting Date"));
+        SalesHeader.Modify(true);
+
+        // Exercise: Post Sales Order.
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // Verify: Posting succeeds and Custoemr Ledger Entry can be found.
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, DocumentNo);
+    end;
+
     local procedure Initialize()
     var
         AllProfile: Record "All Profile";

@@ -195,10 +195,14 @@ table 11709 "Payment Order Line"
                 BankOperationsFunctions: Codeunit "Bank Operations Functions";
             begin
                 TestStatusOpen;
-                BankOperationsFunctions.CheckBankAccountNoCharacters("Account No.");
 
-                CompanyInfo.Get();
-                CompanyInfo.CheckCzBankAccountNo("Account No.");
+                GetPaymentOrder();
+                if not PmtOrdHdr."Foreign Payment Order" then begin
+                    BankOperationsFunctions.CheckBankAccountNoCharacters("Account No.");
+                    
+                    CompanyInfo.Get();
+                    CompanyInfo.CheckCzBankAccountNo("Account No.");
+                end;
 
                 if "Account No." <> xRec."Account No." then begin
                     Type := Type::" ";

@@ -364,8 +364,6 @@ table 5993 "Service Invoice Line"
             Caption = 'Product Group Code';
             ObsoleteReason = 'Product Groups became first level children of Item Categories.';
             ObsoleteState = Removed;
-            TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
-            ValidateTableRelation = false;
             ObsoleteTag = '15.0';
         }
         field(5902; "Service Item No."; Code[20])
@@ -663,6 +661,7 @@ table 5993 "Service Invoice Line"
                 TempVATAmountLine."Amount Including VAT (LCY)" := "Amount Including VAT";
                 TempVATAmountLine."Calculated VAT Amount (LCY)" := "Amount Including VAT" - Amount - "VAT Difference (LCY)";
                 // NAVCZ
+                OnCalcVATAmountLinesOnBeforeInsertLine(ServInvHeader, TempVATAmountLine);
                 TempVATAmountLine.InsertLine;
             until Next = 0;
     end;
@@ -834,6 +833,11 @@ table 5993 "Service Invoice Line"
     begin
         // NAVCZ
         Number := Number + Number2;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcVATAmountLinesOnBeforeInsertLine(ServInvHeader: Record "Service Invoice Header"; var TempVATAmountLine: Record "VAT Amount Line" temporary)
+    begin
     end;
 }
 

@@ -417,7 +417,7 @@
         OnAfterRestoreSalesLines(SalesHeader, SalesLine, SalesHeaderArchive, SalesLineArchive);
     end;
 
-    procedure GetNextOccurrenceNo(TableId: Integer; DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; DocNo: Code[20]): Integer
+    procedure GetNextOccurrenceNo(TableId: Integer; DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; DocNo: Code[20]) OccurenceNo: Integer
     var
         SalesHeaderArchive: Record "Sales Header Archive";
         PurchHeaderArchive: Record "Purchase Header Archive";
@@ -443,10 +443,14 @@
 
                     exit(1);
                 end;
+            else begin
+                    OnGetNextOccurrenceNo(TableId, DocType, DocNo, OccurenceNo);
+                    exit(OccurenceNo)
+                end;
         end;
     end;
 
-    procedure GetNextVersionNo(TableId: Integer; DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; DocNo: Code[20]; DocNoOccurrence: Integer): Integer
+    procedure GetNextVersionNo(TableId: Integer; DocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; DocNo: Code[20]; DocNoOccurrence: Integer) VersionNo: Integer
     var
         SalesHeaderArchive: Record "Sales Header Archive";
         PurchHeaderArchive: Record "Purchase Header Archive";
@@ -473,6 +477,10 @@
                         exit(PurchHeaderArchive."Version No." + 1);
 
                     exit(1);
+                end;
+            else begin
+                    OnGetNextVersionNo(TableId, DocType, DocNo, DocNoOccurrence, VersionNo);
+                    exit(VersionNo)
                 end;
         end;
     end;
@@ -821,6 +829,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeStoreSalesDocument(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetNextOccurrenceNo(TableId: Integer; DocType: Option; DocNo: Code[20]; var OccurenceNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetNextVersionNo(TableId: Integer; DocType: Option; DocNo: Code[20]; DocNoOccurrence: Integer; var VersionNo: Integer)
     begin
     end;
 

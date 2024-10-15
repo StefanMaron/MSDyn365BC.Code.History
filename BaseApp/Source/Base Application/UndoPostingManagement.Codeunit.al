@@ -360,6 +360,7 @@ codeunit 5817 "Undo Posting Management"
     local procedure TestPostedWhseShipmentLine(UndoLineNo: Integer; SourceType: Integer; SourceSubtype: Integer; SourceID: Code[20]; SourceRefNo: Integer)
     var
         PostedWhseShipmentLine: Record "Posted Whse. Shipment Line";
+        WhseManagement: Codeunit "Whse. Management";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -368,7 +369,7 @@ codeunit 5817 "Undo Posting Management"
             exit;
 
         with PostedWhseShipmentLine do begin
-            SetSourceFilter(SourceType, SourceSubtype, SourceID, SourceRefNo, true);
+            WhseManagement.SetSourceFilterForPostedWhseShptLine(PostedWhseShipmentLine, SourceType, SourceSubtype, SourceID, SourceRefNo, true);
             if not IsEmpty then
                 if not Confirm(Text007, true, UndoLineNo) then
                     Error('');
@@ -919,12 +920,14 @@ codeunit 5817 "Undo Posting Management"
                 until Next = 0;
                 ReservEngineMgt.UpdateOrderTracking(TempReservEntry);
             end;
+        OnAfterRevertPostedItemTracking(TempReservEntry);
     end;
 
     procedure PostItemJnlLine(var ItemJnlLine: Record "Item Journal Line")
     var
         ItemJnlLine2: Record "Item Journal Line";
         PostJobConsumptionBeforePurch: Boolean;
+        IsHandled: Boolean;
     begin
         Clear(ItemJnlLine2);
         ItemJnlLine2 := ItemJnlLine;
@@ -934,11 +937,14 @@ codeunit 5817 "Undo Posting Management"
 
         ItemJnlPostLine.Run(ItemJnlLine);
 
-        if ItemJnlLine2."Job No." <> '' then
-            if not PostJobConsumptionBeforePurch then begin
-                SetItemJnlLineAppliesToEntry(ItemJnlLine2, ItemJnlLine."Item Shpt. Entry No.");
-                ItemJnlPostLine.Run(ItemJnlLine2);
-            end;
+        IsHandled := false;
+        OnPostItemJnlLineOnBeforePostJobConsumption(ItemJnlLine2, IsHandled);
+        if not IsHandled then
+            if ItemJnlLine2."Job No." <> '' then
+                if not PostJobConsumptionBeforePurch then begin
+                    SetItemJnlLineAppliesToEntry(ItemJnlLine2, ItemJnlLine."Item Shpt. Entry No.");
+                    ItemJnlPostLine.Run(ItemJnlLine2);
+                end;
     end;
 
     local procedure PostItemJnlLineForJob(var ItemJnlLine: Record "Item Journal Line"; var ItemJnlLine2: Record "Item Journal Line"): Boolean
@@ -1165,6 +1171,11 @@ codeunit 5817 "Undo Posting Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterRevertPostedItemTracking(var TempReservEntry: Record "Reservation Entry" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateSalesLine(var SalesLine: Record "Sales Line")
     begin
     end;
@@ -1261,6 +1272,11 @@ codeunit 5817 "Undo Posting Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateSalesLineOnBeforeInitOustanding(var SalesLine: Record "Sales Line"; var UndoQty: Decimal; var UndoQtyBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostItemJnlLineOnBeforePostJobConsumption(var ItemJnlLine2: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

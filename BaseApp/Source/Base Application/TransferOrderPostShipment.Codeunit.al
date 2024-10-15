@@ -346,6 +346,8 @@
                 Error(
                   Text006,
                   TransHeader."No.", TransferLine."Line No.", DimMgt.GetDimCombErr);
+
+        OnAfterCheckDimComb(TransferHeader, TransferLine);
     end;
 
     local procedure CheckDimValuePosting(TransferHeader: Record "Transfer Header"; TransferLine: Record "Transfer Line")
@@ -465,6 +467,8 @@
     var
         TransShptLine: Record "Transfer Shipment Line";
     begin
+        OnBeforeInsertTransShipmentLine(TransLine);
+
         TransShptLine.Init();
         TransShptLine."Document No." := TransShptHeader."No.";
         TransShptLine.CopyFromTransferLine(TransLine);
@@ -573,6 +577,7 @@
             if Location."Bin Mandatory" then
                 if WMSMgmt.CreateWhseJnlLine(ItemJnlLine, 1, WhseJnlLine, false) then begin
                     WMSMgmt.SetTransferLine(TransLine, WhseJnlLine, 0, TransShptHeader."No.");
+                    OnPostWhseJnlLineOnBeforeSplitWhseJnlLine();
                     ItemTrackingMgt.SplitWhseJnlLine(
                       WhseJnlLine, TempWhseJnlLine2, TempWhseSplitSpecification, true);
                     if TempWhseJnlLine2.Find('-') then
@@ -843,6 +848,21 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnBeforeCommit(var TransferHeader: Record "Transfer Header"; TransferShipmentHeader: Record "Transfer Shipment Header"; PostedWhseShptHeader: Record "Posted Whse. Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckDimComb(TransferHeader: Record "Transfer Header"; TransferLine: Record "Transfer Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostWhseJnlLineOnBeforeSplitWhseJnlLine()
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInsertTransShipmentLine(TransLine: Record "Transfer Line")
     begin
     end;
 }

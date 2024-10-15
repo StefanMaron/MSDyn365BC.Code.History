@@ -2228,6 +2228,7 @@ table 18 Customer
 
     procedure GetTotalAmountLCY() TotalAmountLCY: Decimal
     var
+        xSecurityFilter: SecurityFilter;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -2235,8 +2236,12 @@ table 18 Customer
         if IsHandled then
             exit(TotalAmountLCY);
 
+        xSecurityFilter := SecurityFiltering;
+        SecurityFiltering(SecurityFiltering::Ignored);
         CalcFields("Balance (LCY)", "Outstanding Orders (LCY)", "Shipped Not Invoiced (LCY)", "Outstanding Invoices (LCY)",
           "Outstanding Serv. Orders (LCY)", "Serv Shipped Not Invoiced(LCY)", "Outstanding Serv.Invoices(LCY)");
+        if SecurityFiltering <> xSecurityFilter then
+            SecurityFiltering(xSecurityFilter);
 
         exit(GetTotalAmountLCYCommon);
     end;
@@ -2260,8 +2265,12 @@ table 18 Customer
         InvoicedPrepmtAmountLCY: Decimal;
         RetRcdNotInvAmountLCY: Decimal;
         AdditionalAmountLCY: Decimal;
+        IsHandled: Boolean;
     begin
-        OnBeforeGetTotalAmountLCYCommon(Rec, AdditionalAmountLCY);
+        IsHandled := false;
+        OnBeforeGetTotalAmountLCYCommon(Rec, AdditionalAmountLCY, IsHandled);
+        if IsHandled then
+            exit(AdditionalAmountLCY);
 
         SalesOutstandingAmountFromShipment := SalesLine.OutstandingInvoiceAmountFromShipment("No.");
         ServOutstandingAmountFromShipment := ServiceLine.OutstandingInvoiceAmountFromShipment("No.");
@@ -2361,6 +2370,7 @@ table 18 Customer
 
     procedure GetReturnRcdNotInvAmountLCY(): Decimal
     var
+        [SecurityFiltering(SecurityFilter::Ignored)]
         SalesLine: Record "Sales Line";
     begin
         SalesLine.SetCurrentKey("Document Type", "Bill-to Customer No.");
@@ -2372,6 +2382,7 @@ table 18 Customer
 
     procedure GetInvoicedPrepmtAmountLCY() InvoicedPrepmtAmountLCY: Decimal
     var
+        [SecurityFiltering(SecurityFilter::Ignored)]
         SalesLine: Record "Sales Line";
         IsHandled: Boolean;
     begin
@@ -3320,7 +3331,7 @@ table 18 Customer
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeGetTotalAmountLCYCommon(var Customer: Record Customer; var AdditionalAmountLCY: Decimal)
+    local procedure OnBeforeGetTotalAmountLCYCommon(var Customer: Record Customer; var AdditionalAmountLCY: Decimal; var IsHandled: Boolean)
     begin
     end;
 

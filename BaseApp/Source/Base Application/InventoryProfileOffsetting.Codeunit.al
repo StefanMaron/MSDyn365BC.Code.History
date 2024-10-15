@@ -272,7 +272,13 @@ codeunit 99000854 "Inventory Profile Offsetting"
     local procedure TransProdOrderCompToProfile(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item)
     var
         ProdOrderComp: Record "Prod. Order Component";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTransProdOrderCompToProfile(InventoryProfile, Item, IsHandled);
+        if IsHandled then
+            exit;
+
         if ProdOrderComp.FindLinesWithItemToPlan(Item, true) then
             repeat
                 if ProdOrderComp."Due Date" <> 0D then begin
@@ -1272,6 +1278,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                   (TempSKU."Reorder Point" > TempSKU."Safety Stock Quantity") or
                   (TempSKU."Reordering Policy" = TempSKU."Reordering Policy"::"Maximum Qty.") or
                   (TempSKU."Reordering Policy" = TempSKU."Reordering Policy"::"Fixed Reorder Qty.");
+                OnPlanItemAfterCalcIsReorderPointPlanning(TempSKU, IsReorderPointPlanning);
 
                 BucketSize := TempSKU."Time Bucket";
                 // Minimum bucket size is 1 day:
@@ -2589,6 +2596,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
     var
         Item: Record Item;
         SKU: Record "Stockkeeping Unit";
+        IsHandled: Boolean;
     begin
         // Calculate qty to order:
         // If Max:   QtyToOrder = MaxInv - ProjInvLevel
@@ -2649,8 +2657,12 @@ codeunit 99000854 "Inventory Profile Offsetting"
                       SupplyLineNo, 0, DATABASE::Item, TempSKU."Item No.",
                       QtyToOrder, SurplusType::FixedOrderQty);
                 end;
-            else
-                QtyToOrder := NeededQty;
+            else begin
+                    IsHandled := false;
+                    OnCalcReorderQtyOnCaseElse(QtyToOrder, NeededQty, ProjectedInventory, SupplyLineNo, TempSKU, PlanningResilicency, IsHandled);
+                    if not IsHandled then
+                        QtyToOrder := NeededQty;
+                end;
         end;
     end;
 
@@ -4845,6 +4857,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeTransProdOrderCompToProfile(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnEndOfPrePlanDateApplicationLoop(var SupplyInventoryProfile: Record "Inventory Profile"; var DemandInventoryProfile: Record "Inventory Profile"; var SupplyExists: Boolean; var DemandExists: Boolean)
     begin
     end;
@@ -4870,6 +4887,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPlanItemAfterCalcIsReorderPointPlanning(TempSKU: Record "Stockkeeping Unit"; var IsReorderPointPlanning: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeMaintainProjectedInventory(var ReminderInvtProfile: Record "Inventory Profile"; AtDate: Date; var LastProjectedInventory: Decimal; var LatestBucketStartDate: Date; var ROPHasBeenCrossed: Boolean; var IsHandled: Boolean)
     begin
     end;
@@ -4891,6 +4913,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalculatePlanFromWorksheetOnAfterForecastConsumption(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item; var OrderDate: Date; var ToDate: Date; var LineNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcReorderQtyOnCaseElse(var QtyToOrder: Decimal; NeededQty: Decimal; ProjectedInventory: Decimal; SupplyLineNo: Integer; TempSKU: Record "Stockkeeping Unit"; PlanningResilicency: Boolean; var IsHandled: Boolean);
     begin
     end;
 

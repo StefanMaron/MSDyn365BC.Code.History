@@ -406,13 +406,18 @@ table 179 "Reversal Entry"
     local procedure CheckGLAcc(GLEntry: Record "G/L Entry"; var BalanceCheckAmount: Decimal; var BalanceCheckAddCurrAmount: Decimal)
     var
         GLAcc: Record "G/L Account";
+        IsHandled: Boolean;
     begin
         OnBeforeCheckGLAcc(GLEntry);
 
         GLAcc.Get(GLEntry."G/L Account No.");
         CheckPostingDate(GLEntry."Posting Date", GLEntry.TableCaption, GLEntry."Entry No.");
-        GLAcc.TestField(Blocked, false);
-        GLEntry.TestField("Job No.", '');
+        IsHandled := false;
+        OnCheckGLAccOnBeforeTestFields(GLAcc, GLEntry, IsHandled);
+        if not IsHandled then begin
+            GLAcc.TestField(Blocked, false);
+            GLEntry.TestField("Job No.", '');
+        end;
         // NAVCZ
         GLEntry.CalcFields("Applied Amount");
         if GLEntry."Applied Amount" <> 0 then
@@ -1584,6 +1589,11 @@ ReverseAdvPaymErr, TableCaption, "Entry No.");
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeCheckCust(var CustLedgEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckGLAccOnBeforeTestFields(GLAcc: Record "G/L Account"; GLEntry: Record "G/L Entry"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -1,4 +1,4 @@
-page 576 "VAT Specification Subform"
+﻿page 576 "VAT Specification Subform"
 {
     Caption = 'Lines';
     DeleteAllowed = false;
@@ -314,6 +314,7 @@ page 576 "VAT Specification Subform"
 
     procedure InitGlobals(NewCurrencyCode: Code[10]; NewAllowVATDifference: Boolean; NewAllowVATDifferenceOnThisTab: Boolean; NewPricesIncludingVAT: Boolean; NewAllowInvDisc: Boolean; NewVATBaseDiscPct: Decimal)
     begin
+        OnBeforeInitGlobals(NewCurrencyCode, NewAllowVATDifference, NewAllowVATDifferenceOnThisTab, NewPricesIncludingVAT, NewAllowInvDisc, NewVATBaseDiscPct);
         CurrencyCode := NewCurrencyCode;
         AllowVATDifference := NewAllowVATDifference;
         AllowVATDifferenceOnThisTab := NewAllowVATDifferenceOnThisTab;
@@ -418,6 +419,11 @@ page 576 "VAT Specification Subform"
         VATCurrencyFactor := NewVATCurrencyFactor;
         UseExtAmount := true;
         // NAVCZ
+    end;
+
+    [IntegrationEvent(true, false)]
+    procedure OnBeforeInitGlobals(NewCurrencyCode: Code[10]; NewAllowVATDifference: Boolean; NewAllowVATDifferenceOnThisTab: Boolean; NewPricesIncludingVAT: Boolean; NewAllowInvDisc: Boolean; NewVATBaseDiscPct: Decimal)
+    begin
     end;
 }
 

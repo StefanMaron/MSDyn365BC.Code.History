@@ -63,7 +63,13 @@ codeunit 312 "Cust-Check Cr. Limit"
     var
         SalesHeader: Record "Sales Header";
         AdditionalContextId: Guid;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSalesLineCheck(SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if not SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.") then
             SalesHeader.Init();
 
@@ -240,6 +246,11 @@ codeunit 312 "Cust-Check Cr. Limit"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesHeaderCheck(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSalesLineCheck(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
     begin
     end;
 }

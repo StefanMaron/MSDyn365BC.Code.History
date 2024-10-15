@@ -111,9 +111,6 @@ codeunit 11709 "Payment Order Management"
                     PmtOrdLn, FieldNo("Amount to Pay"), TempErrorMessage2."Message Type"::Error, 0);
                 TempErrorMessage2.LogIfEmpty(
                     PmtOrdLn, FieldNo("Due Date"), TempErrorMessage2."Message Type"::Error);
-                TempErrorMessage2.LogIfInvalidCharacters(
-                    PmtOrdLn, FieldNo("Account No."), TempErrorMessage2."Message Type"::Error,
-                    BankOperationsFunctions.GetValidCharactersForBankAccountNo());
                 TempErrorMessage2.LogIfEmpty(
                     PmtOrdLn, FieldNo("Variable Symbol"), TempErrorMessage2."Message Type"::Error);
                 TempErrorMessage2.LogIfInvalidCharacters(
@@ -155,6 +152,9 @@ codeunit 11709 "Payment Order Management"
                 then
                     exit(true);
 
+                TempErrorMessage2.LogIfInvalidCharacters(
+                    PmtOrdLn, FieldNo("Account No."), TempErrorMessage2."Message Type"::Error,
+                    BankOperationsFunctions.GetValidCharactersForBankAccountNo());
                 if not BankOperationsFunctions.CheckBankAccountNo("Account No.", false) then
                     TempErrorMessage2.LogMessage(
                         PmtOrdLn, FieldNo("Account No."), TempErrorMessage2."Message Type"::Error,
