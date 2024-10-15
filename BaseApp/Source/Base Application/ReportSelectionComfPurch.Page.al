@@ -84,7 +84,7 @@ page 5005391 "Report Selection - Comf. Purch"
 
     local procedure ReportUsage2OnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

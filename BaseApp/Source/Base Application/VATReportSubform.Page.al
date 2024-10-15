@@ -73,7 +73,7 @@ page 741 "VAT Report Subform"
                 VATEntry.Get(VATReportLineRelation."Entry No.");
                 VATEntryTmp.TransferFields(VATEntry, true);
                 VATEntryTmp.Insert();
-            until VATReportLineRelation.Next = 0;
+            until VATReportLineRelation.Next() = 0;
             PAGE.RunModal(0, VATEntryTmp);
         end;
     end;

@@ -112,7 +112,7 @@ codeunit 134059 "ERM VAT Reporting - Pages"
         VATReportSetup: Record "VAT Report Setup";
     begin
         // Create VAT Report Setup.
-        if VATReportSetup.IsEmpty then
+        if VATReportSetup.IsEmpty() then
             VATReportSetup.Insert();
         VATReportSetup."No. Series" := LibraryUtility.GetGlobalNoSeriesCode;
         VATReportSetup.Modify();

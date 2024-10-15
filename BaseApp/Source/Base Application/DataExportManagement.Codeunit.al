@@ -95,7 +95,7 @@ codeunit 11000 "Data Export Management"
                                 Indented := true;
                                 RelDataExportRecordSource.Modify();
                             end;
-                        until (not Indented) or (RelDataExportRecordSource.Next = 0);
+                        until (not Indented) or (RelDataExportRecordSource.Next() = 0);
                     end else
                         // unindent:
                         repeat
@@ -109,7 +109,7 @@ codeunit 11000 "Data Export Management"
                                 RelDataExportRecordSource.Modify();
                                 Indented := true;
                             end;
-                        until (not Indented) or (RelDataExportRecordSource.Next = 0);
+                        until (not Indented) or (RelDataExportRecordSource.Next() = 0);
                 end;
             end;
 
@@ -212,7 +212,7 @@ codeunit 11000 "Data Export Management"
                 AddFieldsData(DataExportRecField, TempPKDataExportRecordField, 'VariablePrimaryKey', XMLCurrNode);
                 AddFieldsData(DataExportRecField, TempNonPKDataExportRecordField, 'VariableColumn', XMLCurrNode);
 
-            until TempDataExportRecordSource.Next = 0;
+            until TempDataExportRecordSource.Next() = 0;
         end;
 
         XMLDocOut.Save(OutStr);
@@ -259,7 +259,7 @@ codeunit 11000 "Data Export Management"
                         AddFieldNoToBuffer(TempPKDataExportRecordField, DataExportRecField)
                     else
                         AddFieldNoToBuffer(TempNonPKDataExportRecordField, DataExportRecField);
-                until Next = 0;
+                until Next() = 0;
                 RecRef.Close;
             end;
     end;
@@ -331,7 +331,7 @@ codeunit 11000 "Data Export Management"
                     else
                         XMLDOMManagement.AddLastNode(XMLCurrNode, 'AlphaNumeric', '');
                 end;
-            until TempDataExportRecordField.Next = 0;
+            until TempDataExportRecordField.Next() = 0;
         RecRef.Close;
     end;
 

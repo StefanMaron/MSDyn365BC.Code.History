@@ -257,7 +257,7 @@ report 11002 "G/L Total-Balance"
         AccountingPeriod."Starting Date" := StartDate;
         AccountingPeriod.Find('=<');
         YearStartDate := AccountingPeriod."Starting Date";
-        if AccountingPeriod.Next = 0 then
+        if AccountingPeriod.Next() = 0 then
             Error(Text1140000);
 
         YearText := Format(YearStartDate) + '..' + Format(EndDate);

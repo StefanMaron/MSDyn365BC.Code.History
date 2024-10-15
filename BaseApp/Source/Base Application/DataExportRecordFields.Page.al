@@ -157,7 +157,7 @@ page 11027 "Data Export Record Fields"
         DataExportRecordField.SetRange("Data Export Code", DataExportCode);
         DataExportRecordField.SetRange("Data Exp. Rec. Type Code", RecordCode);
         DataExportRecordField.SetRange("Source Line No.", SourceLineNo);
-        if DataExportRecordField.IsEmpty then
+        if DataExportRecordField.IsEmpty() then
             SelectedLineNo := 0
         else
             SelectedLineNo := "Line No.";

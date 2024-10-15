@@ -195,8 +195,8 @@ report 741 "VAT Report Suggest Lines"
                         VATReportLineRelation := TempVATReportLineRelation;
                         VATReportLineRelation."VAT Report Line No." := VATReportLine."Line No.";
                         VATReportLineRelation.Insert();
-                    until TempVATReportLineRelation.Next = 0;
-            until TempVATReportLine.Next = 0;
+                    until TempVATReportLineRelation.Next() = 0;
+            until TempVATReportLine.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -234,13 +234,13 @@ report 741 "VAT Report Suggest Lines"
                                 VATReportLineRelation := TempVATReportLineRelation;
                                 VATReportLineRelation."VAT Report Line No." := VATReportLine."Line No.";
                                 VATReportLineRelation.Insert();
-                            until TempVATReportLineRelation.Next = 0;
+                            until TempVATReportLineRelation.Next() = 0;
                     end else
                         if HaveDifferentRelations(VATReportLine2, TempVATReportLine) then
                             TempVATReportLine.InsertCorrLine(
                               VATReportHeader, VATReportLine2, TempVATReportLine, TempVATReportLineRelation);
                 end;
-            until TempVATReportLine.Next = 0;
+            until TempVATReportLine.Next() = 0;
     end;
 
     local procedure CancelOutOfScopeLines()
@@ -281,7 +281,7 @@ report 741 "VAT Report Suggest Lines"
                         end;
                     end;
                 end;
-            until ExistingVATReportLine.Next = 0;
+            until ExistingVATReportLine.Next() = 0;
         end;
     end;
 
@@ -401,7 +401,7 @@ report 741 "VAT Report Suggest Lines"
             repeat
                 if VATReportLineRelation."Entry No." <> TempVATReportLineRelation."Entry No." then
                     exit(true);
-            until (VATReportLineRelation.Next = 0) or (TempVATReportLineRelation.Next = 0);
+            until (VATReportLineRelation.Next() = 0) or (TempVATReportLineRelation.Next() = 0);
 
         exit(false);
     end;

@@ -72,7 +72,7 @@ codeunit 1501 "Workflow Management"
 
         if not StartWorkflow then begin
             Workflow.SetRange(Enabled, true);
-            if Workflow.IsEmpty then begin
+            if Workflow.IsEmpty() then begin
                 WorkflowStepInstanceLoop.SetRange(Type, WorkflowStepInstanceLoop.Type::"Event");
                 WorkflowStepInstanceLoop.SetRange(Status, WorkflowStepInstanceLoop.Status::Active);
                 WorkflowStepInstanceLoop.SetRange("Function Name", FunctionName);
@@ -180,13 +180,13 @@ codeunit 1501 "Workflow Management"
         WorkflowEvent: Record "Workflow Event";
     begin
         Workflow.SetRange(Enabled, true);
-        if Workflow.IsEmpty then
+        if Workflow.IsEmpty() then
             exit(false);
 
         WorkflowEvent.SetRange("Table ID", RecRef.Number);
         WorkflowEvent.SetRange("Function Name", FunctionName);
 
-        if WorkflowEvent.IsEmpty then
+        if WorkflowEvent.IsEmpty() then
             exit(false);
 
         WorkflowStep.SetLoadFields(WorkflowStep."Workflow Code", WorkflowStep.Argument);
@@ -204,7 +204,7 @@ codeunit 1501 "Workflow Management"
                             exit(true);
                         end;
                     end;
-            until WorkflowStep.Next = 0;
+            until WorkflowStep.Next() = 0;
         Clear(Workflow);
         exit(false);
     end;
@@ -235,7 +235,7 @@ codeunit 1501 "Workflow Management"
         if WorkflowTableRelationValue.FindSet(true) then
             repeat
                 WorkflowTableRelationValue.UpdateRelationValue(RecRef);
-            until WorkflowTableRelationValue.Next = 0;
+            until WorkflowTableRelationValue.Next() = 0;
     end;
 
     local procedure FindMatchingWorkflowStepInstance(RecRef: RecordRef; xRecRef: RecordRef; var WorkflowStepInstance: Record "Workflow Step Instance"; FunctionName: Code[128]): Boolean
@@ -251,7 +251,7 @@ codeunit 1501 "Workflow Management"
                 if WorkflowStepInstance.MatchesRecordValues(RecRef) then
                     if EvaluateCondition(RecRef, xRecRef, WorkflowStepInstance.Argument, WorkflowRule) then
                         exit(true);
-            until WorkflowStepInstance.Next = 0;
+            until WorkflowStepInstance.Next() = 0;
         end;
         exit(false);
     end;
@@ -303,7 +303,7 @@ codeunit 1501 "Workflow Management"
         if WorkflowRule.FindSet then
             repeat
                 Result := Result and WorkflowRule.EvaluateRule(RecRef, xRecRef);
-            until (WorkflowRule.Next = 0) or (not Result);
+            until (WorkflowRule.Next() = 0) or (not Result);
 
         exit(Result);
     end;
@@ -342,7 +342,7 @@ codeunit 1501 "Workflow Management"
                     ToArchiveWorkflowStepArgument.Delete(true);
                 end;
                 WorkflowStepInstanceArchive.Insert();
-            until ToArchiveWorkflowStepInstance.Next = 0;
+            until ToArchiveWorkflowStepInstance.Next() = 0;
 
             ToArchiveWorkflowStepInstance.DeleteAll(true);
         end;
@@ -354,7 +354,7 @@ codeunit 1501 "Workflow Management"
                 WorkflowRecordChangeArchive.Init();
                 WorkflowRecordChangeArchive.TransferFields(ToArchiveWorkflowRecordChange);
                 WorkflowRecordChangeArchive.Insert();
-            until ToArchiveWorkflowRecordChange.Next = 0;
+            until ToArchiveWorkflowRecordChange.Next() = 0;
 
             ToArchiveWorkflowRecordChange.DeleteAll(true);
         end;
@@ -377,12 +377,12 @@ codeunit 1501 "Workflow Management"
                     RecRefRelated.Open(WorkflowTableRelation."Related Table ID");
                     if RequestPageParametersHelper.ConvertParametersToFilters(RecRefRelated, TempBlob, TextEncoding::UTF8) then begin
                         ApplyRelationshipFilters(RecRef, RecRefRelated);
-                        if RecRefRelated.IsEmpty then
+                        if RecRefRelated.IsEmpty() then
                             exit(false);
                     end;
                     RecRefRelated.Close;
                 end;
-            until WorkflowTableRelation.Next = 0;
+            until WorkflowTableRelation.Next() = 0;
         end;
 
         exit(true);
@@ -401,7 +401,7 @@ codeunit 1501 "Workflow Management"
                 FieldRefRelated := RecRefRelated.Field(WorkflowTableRelation."Related Field ID");
                 FieldRefSrc := RecRef.Field(WorkflowTableRelation."Field ID");
                 FieldRefRelated.SetRange(FieldRefSrc.Value);
-            until WorkflowTableRelation.Next = 0
+            until WorkflowTableRelation.Next() = 0
     end;
 
     procedure FindResponse(var ResponseWorkflowStepInstance: Record "Workflow Step Instance"; PreviousWorkflowStepInstance: Record "Workflow Step Instance"): Boolean
@@ -489,7 +489,7 @@ codeunit 1501 "Workflow Management"
                     ActionableWorkflowStepInstance := WorkflowStepInstance;
                     ActionableStepFound := true;
                 end;
-            until (WorkflowStepInstance.Next = 0) or ActionableStepFound;
+            until (WorkflowStepInstance.Next() = 0) or ActionableStepFound;
 
         if ActionableStepFound then begin
             GetTelemetryDimensions(FunctionName, ActionableWorkflowStepInstance.ToString(), TelemetryDimensions);
@@ -615,7 +615,7 @@ codeunit 1501 "Workflow Management"
                         WorkflowEventQueue.Delete();
                     end;
                 end;
-            until WorkflowEventQueue.Next = 0;
+            until WorkflowEventQueue.Next() = 0;
     end;
 
     procedure ChangeStatusForResponsesAndEvents(WorkflowStepInstance: Record "Workflow Step Instance")
@@ -636,12 +636,12 @@ codeunit 1501 "Workflow Management"
                     // check if queued event
                     WorkflowEventQueue.SetRange("Session ID", SessionId);
                     WorkflowEventQueue.SetRange("Step Record ID", MarkWorkflowStepInstance."Record ID");
-                    if WorkflowEventQueue.IsEmpty then begin
+                    if WorkflowEventQueue.IsEmpty() then begin
                         MarkWorkflowStepInstance.Status := MarkWorkflowStepInstance.Status::Active;
                         MarkWorkflowStepInstance.Modify(true);
                     end;
                 end;
-            until MarkWorkflowStepInstance.Next = 0;
+            until MarkWorkflowStepInstance.Next() = 0;
     end;
 
     local procedure UpdateStepAndRelatedTableData(var WorkflowStepInstance: Record "Workflow Step Instance"; RecRef: RecordRef)
@@ -770,13 +770,13 @@ codeunit 1501 "Workflow Management"
     begin
         WFEventResponseCombination.SetRange(Type, WFEventResponseCombinationType);
         WFEventResponseCombination.SetRange("Function Name", FunctionName);
-        if not WFEventResponseCombination.IsEmpty then
+        if not WFEventResponseCombination.IsEmpty() then
             WFEventResponseCombination.DeleteAll(true);
 
         WFEventResponseCombination.Reset();
         WFEventResponseCombination.SetRange("Predecessor Type", WFEventResponseCombinationType);
         WFEventResponseCombination.SetRange("Predecessor Function Name", FunctionName);
-        if not WFEventResponseCombination.IsEmpty then
+        if not WFEventResponseCombination.IsEmpty() then
             WFEventResponseCombination.DeleteAll(true);
     end;
 
@@ -798,9 +798,9 @@ codeunit 1501 "Workflow Management"
         Workflow: Record Workflow;
         ApprovalEntry: Record "Approval Entry";
     begin
-        if Workflow.IsEmpty then
+        if Workflow.IsEmpty() then
             exit(false);
-        if ApprovalEntry.IsEmpty then
+        if ApprovalEntry.IsEmpty() then
             exit(false);
         exit(true);
     end;

@@ -335,7 +335,7 @@ report 595 "Adjust Exchange Rates"
                             TempCustLedgerEntry.Find('-');
                             FirstEntry := false
                         end else
-                            if TempCustLedgerEntry.Next = 0 then
+                            if TempCustLedgerEntry.Next() = 0 then
                                 CurrReport.Break();
                         CustLedgerEntry.Get(TempCustLedgerEntry."Entry No.");
                         CustLedgerEntry.SetRange("Date Filter", StartDate, EndDate);
@@ -380,7 +380,7 @@ report 595 "Adjust Exchange Rates"
                                     TempCustLedgerEntry."Entry No." := CustLedgerEntry."Entry No.";
                                     if TempCustLedgerEntry.Insert() then;
                                 end;
-                        until DtldCustLedgEntry.Next = 0;
+                        until DtldCustLedgEntry.Next() = 0;
 
                     CustLedgerEntry.SetCurrentKey("Customer No.", Open);
                     CustLedgerEntry.SetRange("Customer No.", "No.");
@@ -390,7 +390,7 @@ report 595 "Adjust Exchange Rates"
                         repeat
                             TempCustLedgerEntry."Entry No." := CustLedgerEntry."Entry No.";
                             if TempCustLedgerEntry.Insert() then;
-                        until CustLedgerEntry.Next = 0;
+                        until CustLedgerEntry.Next() = 0;
                     CustLedgerEntry.Reset();
 
                     OnCustomerAfterGetRecordOnAfterFindCustLedgerEntriesToAdjust(TempCustLedgerEntry);
@@ -509,7 +509,7 @@ report 595 "Adjust Exchange Rates"
                             TempVendorLedgerEntry.Find('-');
                             FirstEntry := false
                         end else
-                            if TempVendorLedgerEntry.Next = 0 then
+                            if TempVendorLedgerEntry.Next() = 0 then
                                 CurrReport.Break();
                         VendorLedgerEntry.Get(TempVendorLedgerEntry."Entry No.");
                         VendorLedgerEntry.SetRange("Date Filter", StartDate, EndDate);
@@ -552,7 +552,7 @@ report 595 "Adjust Exchange Rates"
                                     TempVendorLedgerEntry."Entry No." := VendorLedgerEntry."Entry No.";
                                     if TempVendorLedgerEntry.Insert() then;
                                 end;
-                        until DtldVendLedgEntry.Next = 0;
+                        until DtldVendLedgEntry.Next() = 0;
 
                     VendorLedgerEntry.SetCurrentKey("Vendor No.", Open);
                     VendorLedgerEntry.SetRange("Vendor No.", "No.");
@@ -562,7 +562,7 @@ report 595 "Adjust Exchange Rates"
                         repeat
                             TempVendorLedgerEntry."Entry No." := VendorLedgerEntry."Entry No.";
                             if TempVendorLedgerEntry.Insert() then;
-                        until VendorLedgerEntry.Next = 0;
+                        until VendorLedgerEntry.Next() = 0;
                     VendorLedgerEntry.Reset();
 
                     OnVendorAfterGetRecordOnAfterFindVendLedgerEntriesToAdjust(TempVendorLedgerEntry);
@@ -666,7 +666,7 @@ report 595 "Adjust Exchange Rates"
                                 AdjustPurchTax(true);
                                 AdjustVATEntries(VATEntry.Type::Sale, false);
                                 AdjustSalesTax;
-                            until TaxJurisdiction.Next = 0;
+                            until TaxJurisdiction.Next() = 0;
                         VATEntry.SetRange("Tax Jurisdiction Code");
                     end;
                     Clear(VATEntryTotalBase);
@@ -1063,7 +1063,7 @@ report 595 "Adjust Exchange Rates"
                             CheckExchRateAdjustment(
                               "Sales VAT Unreal. Account", TableCaption, FieldCaption("Sales VAT Unreal. Account"));
                         end;
-                    until Next = 0;
+                    until Next() = 0;
 
             with TaxJurisdiction2 do
                 if Find('-') then
@@ -1080,7 +1080,7 @@ report 595 "Adjust Exchange Rates"
                           "Tax Account (Sales)", TableCaption, FieldCaption("Tax Account (Sales)"));
                         CheckExchRateAdjustment(
                           "Unreal. Tax Acc. (Sales)", TableCaption, FieldCaption("Unreal. Tax Acc. (Sales)"));
-                    until Next = 0;
+                    until Next() = 0;
 
             AddCurrCurrencyFactor :=
               CurrExchRate2.ExchangeRateAdjmt(PostingDate, GLSetup."Additional Reporting Currency");
@@ -1336,7 +1336,7 @@ report 595 "Adjust Exchange Rates"
                     AdjExchRateBuffer2.Insert();
                 end else
                     AdjExchRateBuffer2.Modify();
-            until AdjExchRateBuffer.Next = 0;
+            until AdjExchRateBuffer.Next() = 0;
 
             // Post per posting group and per currency
             if AdjExchRateBuffer2.Find('-') then
@@ -1381,7 +1381,7 @@ report 595 "Adjust Exchange Rates"
                                             TotalVendorsAdjusted += 1;
                                         end;
                                 end;
-                        until Next = 0;
+                        until Next() = 0;
                     end;
 
                     with AdjExchRateBuffer2 do begin
@@ -1395,7 +1395,7 @@ report 595 "Adjust Exchange Rates"
                               Currency2.GetUnrealizedLossesAccount, -TotalLossesAmount, AdjBase, "Currency Code", TempDimSetEntry,
                               "Posting Date", "IC Partner Code");
                     end;
-                until AdjExchRateBuffer2.Next = 0;
+                until AdjExchRateBuffer2.Next() = 0;
 
             if PostSettlement then begin
                 GLEntry.GetLastEntry(LastEntryNo, LastTransactionNo);
@@ -1409,7 +1409,7 @@ report 595 "Adjust Exchange Rates"
                                     TempDtldCustLedgEntry."Transaction No." := LastTransactionNo;
                                 DtldCustLedgEntry := TempDtldCustLedgEntry;
                                 DtldCustLedgEntry.Insert(true);
-                            until TempDtldCustLedgEntry.Next = 0;
+                            until TempDtldCustLedgEntry.Next() = 0;
                     2: // Vendor
                         if TempDtldVendLedgEntry.Find('-') then
                             repeat
@@ -1419,7 +1419,7 @@ report 595 "Adjust Exchange Rates"
                                     TempDtldVendLedgEntry."Transaction No." := LastTransactionNo;
                                 DtldVendLedgEntry := TempDtldVendLedgEntry;
                                 DtldVendLedgEntry.Insert(true);
-                            until TempDtldVendLedgEntry.Next = 0;
+                            until TempDtldVendLedgEntry.Next() = 0;
                 end;
             end;
 
@@ -1490,7 +1490,7 @@ report 595 "Adjust Exchange Rates"
                     Accumulate(VATEntry2."Add.-Currency Unrealized Base", -"Add.-Currency Unrealized Base");
                     Accumulate(VATEntry2."Add.-Curr. Rem. Unreal. Amount", -"Add.-Curr. Rem. Unreal. Amount");
                     Accumulate(VATEntry2."Add.-Curr. Rem. Unreal. Base", -"Add.-Curr. Rem. Unreal. Base");
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -1720,7 +1720,7 @@ report 595 "Adjust Exchange Rates"
                 DimBuf."Dimension Code" := DimSetEntry."Dimension Code";
                 DimBuf."Dimension Value Code" := DimSetEntry."Dimension Value Code";
                 DimBuf.Insert();
-            until DimSetEntry.Next = 0;
+            until DimSetEntry.Next() = 0;
     end;
 
     local procedure GetDimCombID(var DimBuf: Record "Dimension Buffer"): Integer
@@ -2163,10 +2163,10 @@ report 595 "Adjust Exchange Rates"
                         if DetailedCustLedgEntry.FindSet then
                             repeat
                                 AdjustCustomerLedgerEntry(CustLedgerEntry, DetailedCustLedgEntry."Posting Date", false);
-                            until DetailedCustLedgEntry.Next = 0;
+                            until DetailedCustLedgEntry.Next() = 0;
                         HandlePostAdjmt(1);
                     end;
-                until TempCustLedgerEntry.Next = 0;
+                until TempCustLedgerEntry.Next() = 0;
         end;
     end;
 
@@ -2197,10 +2197,10 @@ report 595 "Adjust Exchange Rates"
                         if DetailedVendLedgEntry.FindSet then
                             repeat
                                 AdjustVendorLedgerEntry(VendLedgerEntry, DetailedVendLedgEntry."Posting Date", false);
-                            until DetailedVendLedgEntry.Next = 0;
+                            until DetailedVendLedgEntry.Next() = 0;
                         HandlePostAdjmt(2);
                     end;
-                until TempVendLedgerEntry.Next = 0;
+                until TempVendLedgerEntry.Next() = 0;
         end;
     end;
 

@@ -11,9 +11,8 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
         CRMSalesOrderId: Guid;
         CRMDocumentHasBeenPostedMsg: Label '%1 ''%2'' has been posted.', Comment = '%1=Document Type;%2=Document Id';
 
-    [EventSubscriber(ObjectType::Table, 36, 'OnBeforeDeleteEvent', '', false, false)]
-    [Scope('OnPrem')]
-    procedure SetCRMSalesOrderIdOnSalesHeaderDeletion(var Rec: Record "Sales Header"; RunTrigger: Boolean)
+    [EventSubscriber(ObjectType::Table, Database::"Sales Header", 'OnBeforeDeleteEvent', '', false, false)]
+    local procedure SetCRMSalesOrderIdOnSalesHeaderDeletion(var Rec: Record "Sales Header"; RunTrigger: Boolean)
     var
         CRMIntegrationRecord: Record "CRM Integration Record";
     begin
@@ -29,9 +28,8 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
             Clear(CRMSalesOrderId);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnAfterPostSalesDoc', '', false, false)]
-    [Scope('OnPrem')]
-    procedure PostCRMSalesDocumentOnAfterPostSalesDoc(var SalesHeader: Record "Sales Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; SalesShptHdrNo: Code[20]; RetRcpHdrNo: Code[20]; SalesInvHdrNo: Code[20]; SalesCrMemoHdrNo: Code[20])
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterPostSalesDoc', '', false, false)]
+    local procedure PostCRMSalesDocumentOnAfterPostSalesDoc(var SalesHeader: Record "Sales Header"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line"; SalesShptHdrNo: Code[20]; RetRcpHdrNo: Code[20]; SalesInvHdrNo: Code[20]; SalesCrMemoHdrNo: Code[20])
     begin
         if not CRMIntegrationManagement.IsCRMIntegrationEnabled then
             exit;
@@ -124,7 +122,7 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
                 if IsSalesOrderFullyInvoiced(SalesHeaderOrder) then
                     if CRMIntegrationRecord.FindIDFromRecordID(SalesHeaderOrder.RecordId, CRMSalesOrderId) then
                         SetCRMSalesOrderStateAsInvoiced;
-            until SalesHeaderOrder.Next = 0;
+            until SalesHeaderOrder.Next() = 0;
     end;
 
     local procedure IsSalesOrderFullyInvoiced(SalesHeader: Record "Sales Header"): Boolean
@@ -137,7 +135,7 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
         if SalesLine.FindFirst then begin
             SalesLine.SetRange("Quantity Invoiced");
             SalesLine.SetFilter("Outstanding Quantity", '<>0');
-            if SalesLine.IsEmpty then begin
+            if SalesLine.IsEmpty() then begin
                 SalesLine.SetRange("Outstanding Quantity");
                 SalesLine.SetFilter("Qty. Shipped Not Invoiced", '<>0');
                 exit(SalesLine.IsEmpty);
@@ -147,7 +145,7 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
         exit(false);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnAfterReleaseSalesDoc', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterReleaseSalesDoc', '', false, false)]
     local procedure CreateCRMPostOnAfterReleaseSalesDoc(var SalesHeader: Record "Sales Header")
     var
         CRMPostBuffer: Record "CRM Post Buffer";
@@ -161,7 +159,7 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
         CreateCRMPostBufferEntry(SalesHeader.RecordId, CRMPostBuffer.ChangeType::SalesDocReleased);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 414, 'OnAfterReleaseSalesDoc', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Release Sales Document", 'OnAfterReleaseSalesDoc', '', false, false)]
     local procedure CreateACRMPostOnAfterReleaseSalesDoc(var SalesHeader: Record "Sales Header"; PreviewMode: Boolean; var LinesWereModified: Boolean)
     var
         CRMPostBuffer: Record "CRM Post Buffer";
@@ -178,7 +176,7 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
         CreateCRMPostBufferEntry(SalesHeader.RecordId, CRMPostBuffer.ChangeType::SalesDocReleased);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnAfterSalesShptHeaderInsert', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterSalesShptHeaderInsert', '', false, false)]
     local procedure CreateACRMPostOnAfterSalesShptHeaderInsert(var SalesShipmentHeader: Record "Sales Shipment Header"; SalesHeader: Record "Sales Header"; SuppressCommit: Boolean)
     var
         CRMPostBuffer: Record "CRM Post Buffer";
@@ -192,7 +190,7 @@ codeunit 5346 "CRM Sales Document Posting Mgt"
         CreateCRMPostBufferEntry(SalesHeader.RecordId, CRMPostBuffer.ChangeType::SalesShptHeaderCreated);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 80, 'OnAfterSalesInvHeaderInsert', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Sales-Post", 'OnAfterSalesInvHeaderInsert', '', false, false)]
     local procedure CreateACRMPostOnAfterSalesInvHeaderInsert(var SalesInvHeader: Record "Sales Invoice Header"; SalesHeader: Record "Sales Header"; CommitIsSuppressed: Boolean)
     var
         CRMPostBuffer: Record "CRM Post Buffer";

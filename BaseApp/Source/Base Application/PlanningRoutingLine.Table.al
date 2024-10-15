@@ -798,7 +798,7 @@ table 99000830 "Planning Routing Line"
                 ProdOrderCapNeed."Work Center No." := "Work Center No.";
                 ProdOrderCapNeed."Work Center Group Code" := "Work Center Group Code";
                 ProdOrderCapNeed.Modify();
-            until ProdOrderCapNeed.Next = 0;
+            until ProdOrderCapNeed.Next() = 0;
     end;
 
     local procedure AdjustComponents(var ReqLine: Record "Requisition Line")
@@ -813,7 +813,7 @@ table 99000830 "Planning Routing Line"
             repeat
                 PlanningComponent.Validate("Routing Link Code");
                 PlanningComponent.Modify();
-            until PlanningComponent.Next = 0;
+            until PlanningComponent.Next() = 0;
     end;
 
     procedure TransferFromProdOrderRouting(var ProdOrderRoutingLine: Record "Prod. Order Routing Line")
@@ -976,12 +976,12 @@ table 99000830 "Planning Routing Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterWorkCenterTransferFields(var PlanningRoutingLine: Record "Planning Routing Line"; WorkCenter: Record "Work Center")
+    local procedure OnAfterWorkCenterTransferFields(var PlanningRoutingLine: Record "Planning Routing Line"; var WorkCenter: Record "Work Center")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterMachineCtrTransferFields(var PlanningRoutingLine: Record "Planning Routing Line"; WorkCenter: Record "Work Center"; MachineCenter: Record "Machine Center")
+    local procedure OnAfterMachineCtrTransferFields(var PlanningRoutingLine: Record "Planning Routing Line"; var WorkCenter: Record "Work Center"; var MachineCenter: Record "Machine Center")
     begin
     end;
 
@@ -991,12 +991,12 @@ table 99000830 "Planning Routing Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromRoutingLine(var PlanningRoutingLine: Record "Planning Routing Line"; RoutingLine: Record "Routing Line")
+    local procedure OnAfterTransferFromRoutingLine(var PlanningRoutingLine: Record "Planning Routing Line"; var RoutingLine: Record "Routing Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterTransferFromReqLine(var PlanningRoutingLine: Record "Planning Routing Line"; RequisitionLine: Record "Requisition Line")
+    local procedure OnAfterTransferFromReqLine(var PlanningRoutingLine: Record "Planning Routing Line"; var RequisitionLine: Record "Requisition Line")
     begin
     end;
 }

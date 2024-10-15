@@ -424,7 +424,7 @@ table 741 "VAT Report Line"
                     VATReportLineRelation.Insert();
                     VATReportLineRelation."VAT Report Line No." := CancellationLineNo;
                     VATReportLineRelation.Insert();
-                until TempVATReportLineRelation.Next = 0;
+                until TempVATReportLineRelation.Next() = 0;
         end;
     end;
 

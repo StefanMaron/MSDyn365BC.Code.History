@@ -89,7 +89,7 @@ report 1004 "Close Inventory Period - Test"
                         end;
                         ValueEntry.SetRange("Valuation Date", 0D, "Inventory Period"."Ending Date");
 
-                        if not ValueEntry.IsEmpty then
+                        if not ValueEntry.IsEmpty() then
                             StoreOrderInErrorBuffer("Inventory Adjmt. Entry (Order)");
                     end;
                 }
@@ -323,7 +323,7 @@ report 1004 "Close Inventory Period - Test"
                             Bookmark := Format(RecRef.RecordId, 0, 10);
                             StoreItemInErrorBuffer(InventoryAdjmtEntryOrder."Item No.", DATABASE::"Inventory Adjmt. Entry (Order)",
                               StrSubstNo(Text009, Text010), Bookmark, PostedAssemblyHeader."No.", PAGE::"Posted Assembly Order");
-                        until PostedAssemblyHeader.Next = 0;
+                        until PostedAssemblyHeader.Next() = 0;
                 end;
         end;
     end;

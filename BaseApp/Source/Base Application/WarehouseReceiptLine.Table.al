@@ -1,4 +1,4 @@
-﻿table 7317 "Warehouse Receipt Line"
+table 7317 "Warehouse Receipt Line"
 {
     Caption = 'Warehouse Receipt Line';
     DrillDownPageID = "Whse. Receipt Lines";
@@ -499,7 +499,7 @@
                     Validate("Qty. to Receive", "Qty. Outstanding");
                     OnAutoFillQtyToReceiveOnBeforeModify(WhseReceiptLine);
                     Modify;
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -598,9 +598,9 @@
         PurchaseLine: Record "Purchase Line";
         SalesLine: Record "Sales Line";
         TransferLine: Record "Transfer Line";
-        ReservePurchLine: Codeunit "Purch. Line-Reserve";
-        ReserveSalesLine: Codeunit "Sales Line-Reserve";
-        ReserveTransferLine: Codeunit "Transfer Line-Reserve";
+        PurchLineReserve: Codeunit "Purch. Line-Reserve";
+        SalesLineReserve: Codeunit "Sales Line-Reserve";
+        TransferLineReserve: Codeunit "Transfer Line-Reserve";
         SecondSourceQtyArray: array[3] of Decimal;
         Direction: Enum "Transfer Direction";
         IsHandled: Boolean;
@@ -624,18 +624,18 @@
             DATABASE::"Purchase Line":
                 begin
                     if PurchaseLine.Get("Source Subtype", "Source No.", "Source Line No.") then
-                        ReservePurchLine.CallItemTracking(PurchaseLine, SecondSourceQtyArray);
+                        PurchLineReserve.CallItemTracking(PurchaseLine, SecondSourceQtyArray);
                 end;
             DATABASE::"Sales Line":
                 begin
                     if SalesLine.Get("Source Subtype", "Source No.", "Source Line No.") then
-                        ReserveSalesLine.CallItemTracking(SalesLine, SecondSourceQtyArray);
+                        SalesLineReserve.CallItemTracking(SalesLine, SecondSourceQtyArray);
                 end;
             DATABASE::"Transfer Line":
                 begin
                     Direction := Direction::Inbound;
                     if TransferLine.Get("Source No.", "Source Line No.") then
-                        ReserveTransferLine.CallItemTracking(TransferLine, Direction, SecondSourceQtyArray);
+                        TransferLineReserve.CallItemTracking(TransferLine, Direction, SecondSourceQtyArray);
                 end
         end;
 

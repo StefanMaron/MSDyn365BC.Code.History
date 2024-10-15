@@ -83,7 +83,7 @@ codeunit 741 "VAT Report Release/Reopen"
                     VATReportLine.SetRange("Line No.", CorrVATReportLine."Related Line No.");
                     VATReportLine.SetRange("Able to Correct Line", true);
                     VATReportLine.ModifyAll("Able to Correct Line", false, false);
-                until CorrVATReportLine.Next = 0;
+                until CorrVATReportLine.Next() = 0;
         end;
     end;
 

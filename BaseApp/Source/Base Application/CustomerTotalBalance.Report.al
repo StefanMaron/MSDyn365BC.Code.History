@@ -189,7 +189,7 @@ report 11003 "Customer Total-Balance"
                                         AdjPeriodAmount := AdjPeriodAmount +
                                           DetailedCustomerLedgEntry."Debit Amount (LCY)" +
                                           DetailedCustomerLedgEntry."Credit Amount (LCY)";
-                                until DetailedCustomerLedgEntry2.Next = 0;
+                                until DetailedCustomerLedgEntry2.Next() = 0;
                             end else begin
                                 CustomerLedgEntry.Get(DetailedCustomerLedgEntry."Cust. Ledger Entry No.");
                                 if CustomerLedgEntry."Closed by Entry No." <> 0 then begin
@@ -204,11 +204,11 @@ report 11003 "Customer Total-Balance"
                                     if CustomerLedgEntry2.FindSet then
                                         repeat
                                             AdjPeriodAmount := AdjPeriodAmount + GetAdjAmount(CustomerLedgEntry2."Entry No.");
-                                        until CustomerLedgEntry2.Next = 0;
+                                        until CustomerLedgEntry2.Next() = 0;
                                 end;
                             end;
 
-                        until DetailedCustomerLedgEntry.Next = 0;
+                        until DetailedCustomerLedgEntry.Next() = 0;
                     PeriodDebitAmount := PeriodDebitAmount - AdjPeriodAmount;
                     PeriodCreditAmount := PeriodCreditAmount - AdjPeriodAmount;
                 end;
@@ -254,7 +254,7 @@ report 11003 "Customer Total-Balance"
                                         AdjYearAmount := AdjYearAmount +
                                           DetailedCustomerLedgEntry."Debit Amount (LCY)" +
                                           DetailedCustomerLedgEntry."Credit Amount (LCY)";
-                                until DetailedCustomerLedgEntry2.Next = 0;
+                                until DetailedCustomerLedgEntry2.Next() = 0;
                             end else begin
                                 CustomerLedgEntry.Get(DetailedCustomerLedgEntry."Cust. Ledger Entry No.");
                                 if CustomerLedgEntry."Closed by Entry No." <> 0 then begin
@@ -269,10 +269,10 @@ report 11003 "Customer Total-Balance"
                                     if CustomerLedgEntry2.FindSet then
                                         repeat
                                             AdjYearAmount := AdjYearAmount + GetAdjAmount(CustomerLedgEntry2."Entry No.");
-                                        until CustomerLedgEntry2.Next = 0;
+                                        until CustomerLedgEntry2.Next() = 0;
                                 end;
                             end;
-                        until DetailedCustomerLedgEntry.Next = 0;
+                        until DetailedCustomerLedgEntry.Next() = 0;
                     YearDebitAmount := YearDebitAmount - AdjYearAmount;
                     YearCreditAmount := YearCreditAmount - AdjYearAmount;
                 end;
@@ -350,7 +350,7 @@ report 11003 "Customer Total-Balance"
         AccountingPeriod."Starting Date" := StartDate;
         AccountingPeriod.Find('=<');
         YearStartDate := AccountingPeriod."Starting Date";
-        if AccountingPeriod.Next = 0 then
+        if AccountingPeriod.Next() = 0 then
             Error(Text1140000);
 
         YearText := Format(YearStartDate) + '..' + Format(EndDate);
@@ -426,7 +426,7 @@ report 11003 "Customer Total-Balance"
                    ((DetailedCustomerLedgEntry."Credit Amount (LCY)" <> 0) and (DetailedCustomerLedgEntry2."Debit Amount (LCY)" <> 0))
                 then
                     AdjAmount := AdjAmount + DetailedCustomerLedgEntry."Debit Amount (LCY)" + DetailedCustomerLedgEntry."Credit Amount (LCY)";
-            until DetailedCustomerLedgEntry2.Next = 0;
+            until DetailedCustomerLedgEntry2.Next() = 0;
         exit(AdjAmount);
     end;
 }

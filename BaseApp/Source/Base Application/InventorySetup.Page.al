@@ -1,4 +1,4 @@
-page 461 "Inventory Setup"
+﻿page 461 "Inventory Setup"
 {
     ApplicationArea = Basic, Suite;
     Caption = 'Inventory Setup';
@@ -90,6 +90,12 @@ page 461 "Inventory Setup"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if you want the description on item cards to be copied to item ledger entries during posting.';
                 }
+                field("Allow Invt. Doc. Reservation"; "Allow Invt. Doc. Reservation")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if you want to allow reservation for inventory receipts and shipments.';
+                    Visible = false;
+                }
             }
             group(Location)
             {
@@ -107,6 +113,12 @@ page 461 "Inventory Setup"
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the dimension code that you want to use for product groups in analysis reports.';
+                }
+                field("Package Caption"; "Package Caption")
+                {
+                    ApplicationArea = ItemTracking;
+                    ToolTip = 'Specifies the alternative caption of Package tracking dimension that you want to use for captions for this dimension. For example, Size.';
+                    Visible = PackageVisible;
                 }
             }
             group(Numbering)
@@ -141,6 +153,16 @@ page 461 "Inventory Setup"
                     ApplicationArea = Location;
                     Importance = Additional;
                     ToolTip = 'Specifies the number series that will be used to assign numbers to posted transfer receipts.';
+                }
+                field("Posted Direct Trans. Nos."; "Posted Direct Trans. Nos.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number series from which numbers are assigned to new records.';
+                }
+                field("Direct Transfer Posting"; "Direct Transfer Posting")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies if Direct Transfer should be posted separately as Shipment and Receipt or as single Direct Transfer document.';
                 }
                 field("Inventory Put-away Nos."; "Inventory Put-away Nos.")
                 {
@@ -193,6 +215,26 @@ page 461 "Inventory Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number series that will be used to assign numbers to physical inventory orders when they are posted.';
+                }
+                field("Invt. Receipt Nos."; Rec."Invt. Receipt Nos.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number series from which numbers are assigned to new records.';
+                }
+                field("Posted Invt. Receipt Nos."; Rec."Posted Invt. Receipt Nos.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number series from which numbers are assigned to new records.';
+                }
+                field("Invt. Shipment Nos."; Rec."Invt. Shipment Nos.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number series from which numbers are assigned to new records.';
+                }
+                field("Posted Invt. Shipment Nos."; Rec."Posted Invt. Shipment Nos.")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies the number series from which numbers are assigned to new records.';
                 }
             }
         }
@@ -305,11 +347,23 @@ page 461 "Inventory Setup"
 
     trigger OnOpenPage()
     begin
-        Reset;
-        if not Get then begin
-            Init;
-            Insert;
+        Rec.Reset();
+        if not Rec.Get() then begin
+            Rec.Init();
+            Rec.Insert();
         end;
+
+        SetPackageVisibility();
+    end;
+
+    var
+        PackageMgt: Codeunit "Package Management";
+        [InDataSet]
+        PackageVisible: Boolean;
+
+    local procedure SetPackageVisibility()
+    begin
+        PackageVisible := PackageMgt.IsEnabled();
     end;
 }
 

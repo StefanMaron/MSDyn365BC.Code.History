@@ -134,7 +134,7 @@ page 7390 "Posted Invt. Put-away"
 
     trigger OnDeleteRecord(): Boolean
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     var

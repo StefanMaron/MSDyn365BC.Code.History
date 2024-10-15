@@ -1,4 +1,4 @@
-﻿codeunit 7380 "Phys. Invt. Count.-Management"
+codeunit 7380 "Phys. Invt. Count.-Management"
 {
 
     trigger OnRun()
@@ -22,7 +22,7 @@
                         InsertTempPhysCountBuffer(
                           "No.", '', '', "Shelf No.", "Phys Invt Counting Period Code",
                           Description, "Next Counting Start Date", "Next Counting End Date", "Last Counting Period Update", 1);
-                until Next = 0;
+                until Next() = 0;
         end;
 
         with SKU do begin
@@ -45,7 +45,7 @@
                               "Shelf No.", "Phys Invt Counting Period Code", Description,
                               "Next Counting Start Date", "Next Counting End Date", "Last Counting Period Update", 2);
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
 
         IsHandled := false;
@@ -140,7 +140,7 @@
                     DocNo, PostingDate, ZeroQty, TempPhysInvtItemSelection, IsHandled, ItemJnlLine);
                 if not IsHandled then
                     CalcInvtQtyOnHand(DocNo, PostingDate, ZeroQty, TempPhysInvtItemSelection);
-            until TempPhysInvtItemSelection.Next = 0;
+            until TempPhysInvtItemSelection.Next() = 0;
             Window.Close;
 
             if PrintDoc then begin
@@ -183,7 +183,7 @@
                 OnBeforeCalcWhseQtyOnHand(DocNo, PostingDate, ZeroQty, TempPhysInvtItemSelection, IsHandled);
                 if not IsHandled then
                     CalcWhseQtyOnHand(DocNo, PostingDate, ZeroQty, TempPhysInvtItemSelection);
-            until TempPhysInvtItemSelection.Next = 0;
+            until TempPhysInvtItemSelection.Next() = 0;
             Window.Close;
 
             if PrintDoc then begin
@@ -383,7 +383,7 @@
                   TempPhysInvtItemSelection."Item No.");
                 TempPhysInvtItemSelection.Find('+');
                 TempPhysInvtItemSelection.SetRange("Item No.");
-            until TempPhysInvtItemSelection.Next = 0;
+            until TempPhysInvtItemSelection.Next() = 0;
         end;
         Clear(PhysInvtList);
     end;
@@ -433,7 +433,7 @@
                   TempPhysInvtItemSelection."Item No.");
                 TempPhysInvtItemSelection.Find('+');
                 TempPhysInvtItemSelection.SetRange("Item No.");
-            until TempPhysInvtItemSelection.Next = 0;
+            until TempPhysInvtItemSelection.Next() = 0;
         end;
         Clear(WhsePhysInvtList);
     end;
@@ -446,16 +446,16 @@
             if (not MarkedOnly) and (GetFilters = '') then
                 SetRecFilter;
 
-            FindSet;
+            FindSet();
             repeat
                 TestField("Phys Invt Counting Period Code");
-            until Next = 0;
+            until Next() = 0;
 
             if not HideValidationDialog then
                 if not Confirm(Text001, false, TableCaption) then
                     Error(Text002);
 
-            FindSet;
+            FindSet();
             repeat
                 GetPhysInvtCount("Phys Invt Counting Period Code");
                 PhysInvtCount.TestField("Count Frequency per Year");
@@ -464,7 +464,7 @@
                   "Last Counting Period Update", "Next Counting Start Date", "Next Counting End Date",
                   PhysInvtCount."Count Frequency per Year");
                 Modify;
-            until Next = 0;
+            until Next() = 0;
         end;
 
         OnAfterUpdateSKUPhysInvtCount(SKU);
@@ -476,16 +476,16 @@
             if (not MarkedOnly) and (GetFilters = '') then
                 SetRecFilter;
 
-            FindSet;
+            FindSet();
             repeat
                 TestField("Phys Invt Counting Period Code");
-            until Next = 0;
+            until Next() = 0;
 
             if not HideValidationDialog then
                 if not Confirm(Text001, false, TableCaption) then
                     Error(Text002);
 
-            FindSet;
+            FindSet();
             repeat
                 GetPhysInvtCount("Phys Invt Counting Period Code");
                 PhysInvtCount.TestField("Count Frequency per Year");
@@ -494,7 +494,7 @@
                   "Last Counting Period Update", "Next Counting Start Date", "Next Counting End Date",
                   PhysInvtCount."Count Frequency per Year");
                 Modify;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -509,7 +509,7 @@
                     Item.Reset();
                     Item.Get("No.");
                     UpdateItemPhysInvtCount(Item);
-                until Next = 0;
+                until Next() = 0;
         end;
 
         with TempSKU do begin
@@ -518,7 +518,7 @@
                     SKU.Reset();
                     SKU.Get("Location Code", "Item No.", "Variant Code");
                     UpdateSKUPhysInvtCount(SKU);
-                until Next = 0;
+                until Next() = 0;
         end;
     end;
 
@@ -610,7 +610,7 @@
             CalcPhysInvtOrderLinesRep.SetTableView(Item);
             CalcPhysInvtOrderLinesRep.RunModal;
             Clear(CalcPhysInvtOrderLinesRep);
-        until TempPhysInvtItemSelection.Next = 0;
+        until TempPhysInvtItemSelection.Next() = 0;
         Window.Close;
     end;
 

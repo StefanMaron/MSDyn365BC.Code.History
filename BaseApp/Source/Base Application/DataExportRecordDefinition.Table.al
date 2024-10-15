@@ -164,7 +164,7 @@ table 11003 "Data Export Record Definition"
                         until Count1 = 0;
                         i := 1;
                         Count1 := Count2;
-                    until DataExportRecordField.Next = 0;
+                    until DataExportRecordField.Next() = 0;
 
                 if DataExportRecordSource.IsPeriodFieldInTableFilter then begin
                     ErrorsFound := true;
@@ -172,7 +172,7 @@ table 11003 "Data Export Record Definition"
                     Message(CannotIncludePeriodFieldMsg, DataExportRecordSource."Period Field Name", DataExportRecordSource."Table Name");
                 end;
 
-            until DataExportRecordSource.Next = 0;
+            until DataExportRecordSource.Next() = 0;
 
         if not ErrorsFound then
             Message(ValidatedCorrectlyMsg);
@@ -193,7 +193,7 @@ table 11003 "Data Export Record Definition"
                 KeyBuffer."Field No." := Key."No.";
                 KeyBuffer.Key := CopyStr(Key.Key, 1, 250);
                 KeyBuffer.Insert();
-            until Key.Next = 0;
+            until Key.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -253,7 +253,7 @@ table 11003 "Data Export Record Definition"
                 DataExportRecordSource.Modify();
 
                 ParentLineNo[DataExportRecordSource.Indentation + 1] := DataExportRecordSource."Line No.";
-            until DataExportRecordSource.Next = 0;
+            until DataExportRecordSource.Next() = 0;
     end;
 
     local procedure FindDateFilterHandling(DataExportRecordSource: Record "Data Export Record Source"): Integer
@@ -277,7 +277,7 @@ table 11003 "Data Export Record Definition"
                         DataExportRecordField.SetRange("Field Class", DataExportRecordField."Field Class"::FlowField);
                         if DataExportRecordField.FindFirst then
                             exit(DataExportRecordField."Date Filter Handling");
-                    until TempTableFilter.Next = 0;
+                    until TempTableFilter.Next() = 0;
             end;
         end;
     end;
@@ -298,7 +298,7 @@ table 11003 "Data Export Record Definition"
                     NewDataExportRecordField."Source Line No." := DataExportRecordSource."Line No.";
                     NewDataExportRecordField.Validate("Field No.");
                     NewDataExportRecordField.Insert();
-                until Next = 0;
+                until Next() = 0;
                 DeleteAll();
                 Updated := true;
             end;

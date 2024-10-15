@@ -1,4 +1,4 @@
-page 1288 "Payment-to-Entry Match"
+﻿page 1288 "Payment-to-Entry Match"
 {
     Caption = 'Payment-to-Entry Match';
     PageType = CardPart;
@@ -137,6 +137,10 @@ page 1288 "Payment-to-Entry Match"
                       NoOfLedgerEntriesWithinAmountTolerance, NoOfLedgerEntriesOutsideAmountTolerance);
                 "Account Type"::Vendor:
                     MatchBankPayments.MatchSingleLineVendor(
+                      BankPmtApplRule, BankAccReconciliationLine, AppliesToEntryNo,
+                      NoOfLedgerEntriesWithinAmountTolerance, NoOfLedgerEntriesOutsideAmountTolerance);
+                "Account Type"::Employee:
+                    MatchBankPayments.MatchSingleLineEmployee(
                       BankPmtApplRule, BankAccReconciliationLine, AppliesToEntryNo,
                       NoOfLedgerEntriesWithinAmountTolerance, NoOfLedgerEntriesOutsideAmountTolerance);
                 "Account Type"::"Bank Account":

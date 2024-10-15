@@ -44,7 +44,7 @@ codeunit 744 "VAT Report Validate"
 
     local procedure ShowErrorLog()
     begin
-        if not TempVATReportErrorLog.IsEmpty then begin
+        if not TempVATReportErrorLog.IsEmpty() then begin
             PAGE.Run(PAGE::"VAT Report Error Log", TempVATReportErrorLog);
             Error('');
         end;
@@ -53,7 +53,7 @@ codeunit 744 "VAT Report Validate"
     local procedure ValidateVATReportLinesExists(VATReportHeader: Record "VAT Report Header")
     begin
         VATReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
-        if VATReportLine.IsEmpty then begin
+        if VATReportLine.IsEmpty() then begin
             InsertErrorLog(Text000);
             ShowErrorLog;
         end;
@@ -131,7 +131,7 @@ codeunit 744 "VAT Report Validate"
                         "Line Type"::Correction:
                             CorrectLines += 1;
                     end;
-                until Next = 0;
+                until Next() = 0;
             if CancelLines <> CorrectLines then
                 Error(Text003);
         end;

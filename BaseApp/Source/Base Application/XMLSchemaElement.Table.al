@@ -169,7 +169,7 @@ table 9610 "XML Schema Element"
                 XMLSchemaElement.Selected := XMLSchemaElement.Selected or (XMLSchemaElement.MinOccurs > 0);
                 XMLSchemaElement.Modify();
                 XMLSchemaElement.SelectMandatoryNodes;
-            until XMLSchemaElement.Next = 0;
+            until XMLSchemaElement.Next() = 0;
     end;
 }
 

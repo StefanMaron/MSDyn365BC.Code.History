@@ -71,7 +71,7 @@ page 471 "VAT Product Posting Groups"
                 if FilterString <> '' then
                     FilterString := FilterString + '|';
                 FilterString := FilterString + '''' + VATProductPostingGroup.Code + '''';
-            until VATProductPostingGroup.Next = 0;
+            until VATProductPostingGroup.Next() = 0;
         exit(FilterString);
     end;
 }

@@ -18,7 +18,7 @@ codeunit 5473 "Graph Mgt - Company Info."
             GraphMgtComplexTypes.GetPostalAddressJSON(Address, "Address 2", City, County, "Country/Region Code", "Post Code", JSON);
     end;
 
-    [Obsolete('Integration Records will be replaced by SystemID and SystemLastDateTimeModified', '17.0')]
+    [Obsolete('Integration Records will be replaced by SystemID and SystemModifiedAt ', '17.0')]
     procedure UpdateIntegrationRecords(IsCompanyIdFound: Boolean)
     var
         DummyCompanyInfo: Record "Company Information";
@@ -129,7 +129,7 @@ codeunit 5473 "Graph Mgt - Company Info."
                 JSONMgt.AddJPropertyToJObject(JObject, 'address', O365SocialNetwork.URL);
                 JSONMgt.AddJPropertyToJObject(JObject, 'displayName', O365SocialNetwork.Name);
                 JSONMgt.AddJObjectToCollection(JObject);
-            until O365SocialNetwork.Next = 0;
+            until O365SocialNetwork.Next() = 0;
             SocialNetworks := JSONMgt.WriteCollectionToString;
         end;
     end;
@@ -271,7 +271,7 @@ codeunit 5473 "Graph Mgt - Company Info."
                         O365SocialNetwork.Modify(true);
                     end else
                         O365SocialNetwork.Delete(true);
-            until O365SocialNetwork.Next = 0;
+            until O365SocialNetwork.Next() = 0;
     end;
 
     procedure UpdateWorkWebsiteJson(WebsitesString: Text; WebsiteType: Text; Address: Text[80]): Text
@@ -288,7 +288,7 @@ codeunit 5473 "Graph Mgt - Company Info."
         exit(JSONManagement.WriteObjectToString);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 5465, 'ApiSetup', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Graph Mgt - General Tools", 'ApiSetup', '', false, false)]
     local procedure HandleApiSetup()
     begin
         UpdateIntegrationRecords(false);

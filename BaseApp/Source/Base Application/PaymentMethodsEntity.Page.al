@@ -7,6 +7,9 @@ page 5486 "Payment Methods Entity"
     ODataKeyFields = SystemId;
     PageType = API;
     SourceTable = "Payment Method";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {
@@ -60,7 +63,7 @@ page 5486 "Payment Methods Entity"
         RecRef: RecordRef;
     begin
         PaymentMethod.SetRange(Code, Code);
-        if not PaymentMethod.IsEmpty then
+        if not PaymentMethod.IsEmpty() then
             Insert;
 
         Insert(true);

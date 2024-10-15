@@ -191,10 +191,12 @@ table 5335 "Integration Table Mapping"
         IntegrationFieldMapping.SetRange("Integration Table Mapping Name", Name);
         IntegrationFieldMapping.DeleteAll();
 
-        CRMOptionMapping.SetRange("Table ID", "Table ID");
-        CRMOptionMapping.SetRange("Integration Table ID", "Integration Table ID");
-        CRMOptionMapping.SetRange("Integration Field ID", "Integration Table UID Fld. No.");
-        CRMOptionMapping.DeleteAll();
+        if (not Rec.IsTemporary()) and (not Rec."Delete After Synchronization") then begin
+            CRMOptionMapping.SetRange("Table ID", "Table ID");
+            CRMOptionMapping.SetRange("Integration Table ID", "Integration Table ID");
+            CRMOptionMapping.SetRange("Integration Field ID", "Integration Table UID Fld. No.");
+            CRMOptionMapping.DeleteAll();
+        end;
     end;
 
     trigger OnInsert()

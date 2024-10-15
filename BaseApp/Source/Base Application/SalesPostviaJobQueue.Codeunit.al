@@ -152,7 +152,7 @@ codeunit 88 "Sales Post via Job Queue"
             if not IsNullGuid("Job Queue Entry ID") then
                 JobQueueEntry.SetRange(ID, "Job Queue Entry ID");
             JobQueueEntry.SetRange("Record ID to Process", RecordId);
-            if not JobQueueEntry.IsEmpty then
+            if not JobQueueEntry.IsEmpty() then
                 JobQueueEntry.DeleteAll(true);
         end;
     end;
@@ -178,7 +178,7 @@ codeunit 88 "Sales Post via Job Queue"
         exit(result);
     end;
 
-    local procedure GetJobQueueCategoryCode(): Code[10]
+    internal procedure GetJobQueueCategoryCode(): Code[10]
     var
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         JobQueueCategory: Record "Job Queue Category";

@@ -191,7 +191,7 @@ table 9657 "Custom Report Selection"
         if "Use for Email Body" then begin
             CustomReportSelection.FilterEmailBodyUsage("Source Type", "Source No.", Usage.AsInteger());
             CustomReportSelection.SetFilter(Sequence, '<>%1', Sequence);
-            if not CustomReportSelection.IsEmpty then
+            if not CustomReportSelection.IsEmpty() then
                 Error(EmailBodyIsAlreadyDefinedErr, Usage);
 
             if "Email Body Layout Code" = '' then
@@ -246,7 +246,7 @@ table 9657 "Custom Report Selection"
             repeat
                 CustomReportSelection.SetRange(Usage, ReportSelections.Usage);
                 CustomReportSelection.SetRange("Report ID", ReportSelections."Report ID");
-                if CustomReportSelection.IsEmpty then begin
+                if CustomReportSelection.IsEmpty() then begin
                     Init();
                     Validate("Source Type", SourceType);
                     Validate("Source No.", SourceNo);
@@ -405,11 +405,13 @@ table 9657 "Custom Report Selection"
         "Send To Email" := CopyStr(EmailList, 1, MaxStrLen("Send To Email"));
     end;
 
+#if not CLEAN17
     [Obsolete('Replaced by UpdateSendtoEmail(Update: Boolean).', '17.0')]
     procedure UpdateSendtoEmail()
     begin
         UpdateSendtoEmail(true);
     end;
+#endif
 
     procedure UpdateSendtoEmail(Update: Boolean)
     begin

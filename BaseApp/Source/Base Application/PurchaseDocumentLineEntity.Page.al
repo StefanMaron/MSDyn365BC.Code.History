@@ -1,9 +1,12 @@
-page 6405 "Purchase Document Line Entity"
+﻿page 6405 "Purchase Document Line Entity"
 {
     Caption = 'Purchase Document Line Entity', Locked = true;
     DelayedInsert = true;
     PageType = ListPart;
     SourceTable = "Purchase Line";
+    ObsoleteState = Pending;
+    ObsoleteReason = 'API version beta will be deprecated.';
+    ObsoleteTag = '18.0';
 
     layout
     {
@@ -746,6 +749,7 @@ page 6405 "Purchase Document Line Entity"
                     ApplicationArea = All;
                     Caption = 'Responsibility Center', Locked = true;
                 }
+#if not CLEAN17
                 field(crossReferenceNumber; "Cross-Reference No.")
                 {
                     ApplicationArea = All;
@@ -766,6 +770,7 @@ page 6405 "Purchase Document Line Entity"
                     ApplicationArea = All;
                     Caption = 'Cross-Reference Type No.', Locked = true;
                 }
+#endif
                 field(itemCategoryCode; "Item Category Code")
                 {
                     ApplicationArea = All;

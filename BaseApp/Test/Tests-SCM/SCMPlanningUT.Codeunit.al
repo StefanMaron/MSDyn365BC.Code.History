@@ -451,6 +451,47 @@ codeunit 137801 "SCM - Planning UT"
     end;
 
     [Test]
+    [HandlerFunctions('SalesOrderPlanningPageHandler')]
+    [Scope('OnPrem')]
+    procedure AvailableItemsOtherThanItemTypeInventory()
+    var
+        Item: Record Item;
+        SalesLine: Record "Sales Line";
+        SalesHeader: Record "Sales Header";
+        Qty: Integer;
+    begin
+        Initialize();
+
+        // [GIVEN] Sales Order with Non-Inventory item with 100 quantity.
+        Qty := 100;
+        LibraryInventory.CreateItem(Item);
+        Item.Type := Item.Type::"Non-Inventory";
+        Item.Modify(true);
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", Qty, '', WorkDate());
+
+        // [WHEN] Open Sales Order Planning Page.        
+        // [THEN] Available items should be equal to 0 on Page Handler SalesOrderPlanningPageHandler.
+        LibraryVariableStorage.Enqueue(SalesLine."No.");  // Enqueue value for Verifying Item No on Planning Page.
+        LibraryVariableStorage.Enqueue(0);  // Enqueue value for Verifying Available on Planning Page.
+        OpenSalesOrderPlanning(SalesLine."Document No.");
+
+        // [GIVEN] Sales Order with Service item with 100 quantity.
+        Qty := 100;
+        LibraryInventory.CreateItem(Item);
+        Item.Type := Item.Type::Service;
+        Item.Modify(true);
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", Qty, '', WorkDate());
+
+        // [WHEN] Open Sales Order Planning Page.        
+        // [THEN] Available items should be equal to 0 on Page Handler SalesOrderPlanningPageHandler.
+        LibraryVariableStorage.Enqueue(SalesLine."No.");  // Enqueue value for Verifying Item No on Planning Page.
+        LibraryVariableStorage.Enqueue(0);  // Enqueue value for Verifying Available on Planning Page.
+        OpenSalesOrderPlanning(SalesLine."Document No.");
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure ManufacturingSetupWithEssentialUserExperience()
     var
@@ -666,7 +707,7 @@ codeunit 137801 "SCM - Planning UT"
         // 1 line has quantity Item."Maximum Inventory" - Item."Safety Stock Quantity"
         with RequisitionLine do begin
             SetRange("Worksheet Template Name", ReqWkshTempName);
-            FindSet;
+            FindSet();
             repeat
                 if not (Quantity in [Item."Safety Stock Quantity" + SalesLineQuantity,
                                      Item."Maximum Inventory" - Item."Safety Stock Quantity"])
@@ -690,6 +731,27 @@ codeunit 137801 "SCM - Planning UT"
         RequisitionLine.FindFirst;
         RecRef.GetTable(RequisitionLine);
         CalcItemAvailability.ShowDocument(RecRef.RecordId);
+    end;
+
+    local procedure OpenSalesOrderPlanning(No: Code[20])
+    var
+        SalesOrderPlanning: Page "Sales Order Planning";
+    begin
+        // Open Sales Order Planning page for required Sales Order.
+        SalesOrderPlanning.SetSalesOrder(No);
+        SalesOrderPlanning.RunModal();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure SalesOrderPlanningPageHandler(var SalesOrderPlanning: TestPage "Sales Order Planning")
+    var
+        DequeuedVar: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(DequeuedVar); // Dequeue Code or Text type variable.
+        SalesOrderPlanning."Item No.".AssertEquals(Format(DequeuedVar));
+        LibraryVariableStorage.Dequeue(DequeuedVar); // Dequeue Integer or Decimal type variable.
+        SalesOrderPlanning.Available.AssertEquals(DequeuedVar);
     end;
 
     [ModalPageHandler]

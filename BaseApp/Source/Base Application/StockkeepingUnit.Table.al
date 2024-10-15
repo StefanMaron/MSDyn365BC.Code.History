@@ -426,6 +426,9 @@ table 5700 "Stockkeeping Unit"
         }
         field(5421; "Scheduled Need (Qty.)"; Decimal)
         {
+            ObsoleteState = Pending;
+            ObsoleteReason = 'Use the field ''Qty. on Component Lines'' instead';
+            ObsoleteTag = '18.0';
             CalcFormula = Sum("Prod. Order Component"."Remaining Qty. (Base)" WHERE(Status = FILTER(Planned .. Released),
                                                                                      "Item No." = FIELD("Item No."),
                                                                                      "Location Code" = FIELD("Location Code"),
@@ -676,6 +679,16 @@ table 5700 "Stockkeeping Unit"
         {
             Caption = 'Next Counting End Date';
         }
+        field(99000750; "Routing No."; Code[20])
+        {
+            Caption = 'Routing No.';
+            TableRelation = "Routing Header";
+        }
+        field(99000751; "Production BOM No."; Code[20])
+        {
+            Caption = 'Production BOM No.';
+            TableRelation = "Production BOM Header";
+        }
         field(99000765; "Planned Order Receipt (Qty.)"; Decimal)
         {
             CalcFormula = Sum("Prod. Order Line"."Remaining Qty. (Base)" WHERE(Status = CONST(Planned),
@@ -908,7 +921,7 @@ table 5700 "Stockkeeping Unit"
                     ErrorString := ErrorString + ' ->' + ToSKU."Location Code";
                     exit(false);
                 end;
-            until ToSKU.Next = 0;
+            until ToSKU.Next() = 0;
         exit(true);
     end;
 
@@ -924,7 +937,7 @@ table 5700 "Stockkeeping Unit"
         ItemLedgEntry.SetRange("Item No.", "Item No.");
         ItemLedgEntry.SetRange("Variant Code", "Variant Code");
         ItemLedgEntry.SetRange("Location Code", "Location Code");
-        if not ItemLedgEntry.IsEmpty then
+        if not ItemLedgEntry.IsEmpty() then
             Error(
               Text008,
               CurrentFieldName);
@@ -965,7 +978,7 @@ table 5700 "Stockkeeping Unit"
                     ErrorString := ErrorString + ' ->' + TempToSKU."Location Code";
                     exit(false);
                 end;
-            until TempToSKU.Next = 0;
+            until TempToSKU.Next() = 0;
         exit(true);
     end;
 

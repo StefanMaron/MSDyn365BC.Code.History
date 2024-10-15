@@ -291,7 +291,7 @@ report 11503 "Item ABC Analysis"
                         NoCalculated := NoCalculated + 1;
                         d.Update(2, Format(NoCalculated));
                         d.Update(3, Format("No."));
-                    until Next = 0;
+                    until Next() = 0;
                 FindFirst;
 
                 ABlimit := Col1TotalAllRec / 100 * (Bpct + Cpct);
@@ -304,7 +304,7 @@ report 11503 "Item ABC Analysis"
                             BminAmt := Buffer.Amount;
                         if (CumAmt > ABlimit) and (AminAmt = 0) then
                             AminAmt := Buffer.Amount;
-                    until Buffer.Next = 0;
+                    until Buffer.Next() = 0;
                 Clear(Col1Value);
                 Clear(Col2Value);
                 Clear(Pct);

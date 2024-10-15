@@ -155,145 +155,145 @@ codeunit 9080 "Journal Errors Mgt."
     begin
     end;
 
-    [EventSubscriber(ObjectType::Page, 39, 'OnDeleteRecordEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"General Journal", 'OnDeleteRecordEvent', '', false, false)]
     local procedure OnDeleteRecordEventGeneralJournal(var Rec: Record "Gen. Journal Line"; var AllowDelete: Boolean)
     begin
         InsertDeletedLine(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 39, 'OnModifyRecordEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"General Journal", 'OnModifyRecordEvent', '', false, false)]
     local procedure OnModifyRecordEventGeneralJournal(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; var AllowModify: Boolean)
     begin
         SetRecXRecOnModify(xRec, Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 39, 'OnInsertRecordEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"General Journal", 'OnInsertRecordEvent', '', false, false)]
     local procedure OnInsertRecordEventGeneralJournal(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; var AllowInsert: Boolean)
     begin
         SetRecXRecOnModify(xRec, Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 253, 'OnDeleteRecordEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Sales Journal", 'OnDeleteRecordEvent', '', false, false)]
     local procedure OnDeleteRecordEventSalesJournal(var Rec: Record "Gen. Journal Line"; var AllowDelete: Boolean)
     begin
         InsertDeletedLine(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 253, 'OnModifyRecordEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Sales Journal", 'OnModifyRecordEvent', '', false, false)]
     local procedure OnModifyRecordEventSalesJournal(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; var AllowModify: Boolean)
     begin
         SetRecXRecOnModify(xRec, Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 253, 'OnInsertRecordEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Sales Journal", 'OnInsertRecordEvent', '', false, false)]
     local procedure OnInsertRecordEventSalesJournal(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; var AllowInsert: Boolean)
     begin
         SetRecXRecOnModify(xRec, Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 254, 'OnDeleteRecordEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Purchase Journal", 'OnDeleteRecordEvent', '', false, false)]
     local procedure OnDeleteRecordEventPurchaseJournal(var Rec: Record "Gen. Journal Line"; var AllowDelete: Boolean)
     begin
         InsertDeletedLine(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 254, 'OnModifyRecordEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Purchase Journal", 'OnModifyRecordEvent', '', false, false)]
     local procedure OnModifyRecordEventPurchaseJournal(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; var AllowModify: Boolean)
     begin
         SetRecXRecOnModify(xRec, Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 254, 'OnInsertRecordEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Purchase Journal", 'OnInsertRecordEvent', '', false, false)]
     local procedure OnInsertRecordEventPurchaseJournal(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; var AllowInsert: Boolean)
     begin
         SetRecXRecOnModify(xRec, Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 255, 'OnDeleteRecordEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Cash Receipt Journal", 'OnDeleteRecordEvent', '', false, false)]
     local procedure OnDeleteRecordEventCashReceiptJournal(var Rec: Record "Gen. Journal Line"; var AllowDelete: Boolean)
     begin
         InsertDeletedLine(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 255, 'OnModifyRecordEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Cash Receipt Journal", 'OnModifyRecordEvent', '', false, false)]
     local procedure OnModifyRecordEventCashReceiptJournal(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; var AllowModify: Boolean)
     begin
         SetRecXRecOnModify(xRec, Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 255, 'OnInsertRecordEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Cash Receipt Journal", 'OnInsertRecordEvent', '', false, false)]
     local procedure OnInsertRecordEventCashReceiptJournal(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; var AllowInsert: Boolean)
     begin
         SetRecXRecOnModify(xRec, Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 256, 'OnDeleteRecordEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Payment Journal", 'OnDeleteRecordEvent', '', false, false)]
     local procedure OnDeleteRecordEventPaymentJournal(var Rec: Record "Gen. Journal Line"; var AllowDelete: Boolean)
     begin
         InsertDeletedLine(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 256, 'OnModifyRecordEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Payment Journal", 'OnModifyRecordEvent', '', false, false)]
     local procedure OnModifyRecordEventPaymentJournal(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; var AllowModify: Boolean)
     begin
         SetRecXRecOnModify(xRec, Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 256, 'OnInsertRecordEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Payment Journal", 'OnInsertRecordEvent', '', false, false)]
     local procedure OnInsertRecordEventPaymentJournal(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; var AllowInsert: Boolean)
     begin
         SetRecXRecOnModify(xRec, Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 610, 'OnDeleteRecordEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"IC General Journal", 'OnDeleteRecordEvent', '', false, false)]
     local procedure OnDeleteRecordEventICGeneralJournal(var Rec: Record "Gen. Journal Line"; var AllowDelete: Boolean)
     begin
         InsertDeletedLine(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 610, 'OnModifyRecordEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"IC General Journal", 'OnModifyRecordEvent', '', false, false)]
     local procedure OnModifyRecordEventICGeneralJournal(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; var AllowModify: Boolean)
     begin
         SetRecXRecOnModify(xRec, Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 610, 'OnInsertRecordEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"IC General Journal", 'OnInsertRecordEvent', '', false, false)]
     local procedure OnInsertRecordEventICGeneralJournal(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; var AllowInsert: Boolean)
     begin
         SetRecXRecOnModify(xRec, Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 1020, 'OnDeleteRecordEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Job G/L Journal", 'OnDeleteRecordEvent', '', false, false)]
     local procedure OnDeleteRecordEventJobGLJournal(var Rec: Record "Gen. Journal Line"; var AllowDelete: Boolean)
     begin
         InsertDeletedLine(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 1020, 'OnModifyRecordEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Job G/L Journal", 'OnModifyRecordEvent', '', false, false)]
     local procedure OnModifyRecordEventJobGLJournal(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; var AllowModify: Boolean)
     begin
         SetRecXRecOnModify(xRec, Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 1020, 'OnInsertRecordEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Job G/L Journal", 'OnInsertRecordEvent', '', false, false)]
     local procedure OnInsertRecordEventJobJournal(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; var AllowInsert: Boolean)
     begin
         SetRecXRecOnModify(xRec, Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 5628, 'OnDeleteRecordEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Fixed Asset G/L Journal", 'OnDeleteRecordEvent', '', false, false)]
     local procedure OnDeleteRecordEventFixedAssetGLJournal(var Rec: Record "Gen. Journal Line"; var AllowDelete: Boolean)
     begin
         InsertDeletedLine(Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 5628, 'OnModifyRecordEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Fixed Asset G/L Journal", 'OnModifyRecordEvent', '', false, false)]
     local procedure OnModifyRecordEventFixedAssetGLJournal(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; var AllowModify: Boolean)
     begin
         SetRecXRecOnModify(xRec, Rec);
     end;
 
-    [EventSubscriber(ObjectType::Page, 5628, 'OnInsertRecordEvent', '', false, false)]
+    [EventSubscriber(ObjectType::Page, Page::"Fixed Asset G/L Journal", 'OnInsertRecordEvent', '', false, false)]
     local procedure OnInsertRecordEventFixedAssetGLJournal(var Rec: Record "Gen. Journal Line"; var xRec: Record "Gen. Journal Line"; var AllowInsert: Boolean)
     begin
         SetRecXRecOnModify(xRec, Rec);

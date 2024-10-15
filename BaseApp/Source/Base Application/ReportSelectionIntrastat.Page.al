@@ -88,7 +88,7 @@ page 26100 "Report Selection - Intrastat"
 
     local procedure ReportUsage2OnAfterValidate()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

@@ -367,7 +367,7 @@ page 35517 "Payment Journal FactBox"
             PaymDiscDeductAmount += CurrPaymDiscDeductAmount;
             AcceptedPaymentTol += CurrAcceptedPaymentTol;
             RemainAfterPayment += CurrRemainAfterPayment;
-        until VendLedgEntry.Next = 0;
+        until VendLedgEntry.Next() = 0;
     end;
 }
 

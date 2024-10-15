@@ -81,9 +81,9 @@ page 742 "VAT Report Lines"
                         TempVATReportLineRelation := VATReportLineRelation;
                         TempVATReportLineRelation."VAT Report No." := VATReportHeader."No.";
                         TempVATReportLineRelation.Insert();
-                    until VATReportLineRelation.Next = 0;
+                    until VATReportLineRelation.Next() = 0;
                 VATReportLine.InsertCorrLine(VATReportHeader, VATReportLine, VATReportLine, TempVATReportLineRelation);
-            until VATReportLine.Next = 0;
+            until VATReportLine.Next() = 0;
     end;
 }
 

@@ -841,6 +841,7 @@ codeunit 134389 "ERM Customer Statistics"
         Key.SetFilter(
           Key,
           'Customer No.,Currency Code,Initial Entry Global Dim. 1,Initial Entry Global Dim. 2,Initial Entry Due Date,*');
+        Key.SetFilter(ObsoleteState, 'No');
         Key.FindFirst;
         Key.TestField(MaintainSIFTIndex, true);
     end;

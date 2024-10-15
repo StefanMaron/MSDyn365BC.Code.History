@@ -26,7 +26,7 @@ page 11004 "Data Export Record Source"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 field("Table Name"; "Table Name")
@@ -176,7 +176,7 @@ page 11004 "Data Export Record Source"
                     trigger OnAction()
                     begin
                         Validate(Indentation, Indentation + 1);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action(Unindent)
@@ -191,7 +191,7 @@ page 11004 "Data Export Record Source"
                     trigger OnAction()
                     begin
                         Validate(Indentation, Indentation - 1);
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action(Relationships)

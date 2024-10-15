@@ -436,7 +436,7 @@ codeunit 134561 "ERM Account Schedule Charts"
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Account Schedule Charts");
     end;
 
-    local procedure CreateColumnLayout(var ColumnLayout: Record "Column Layout"; ColumnType: Option): Code[10]
+    local procedure CreateColumnLayout(var ColumnLayout: Record "Column Layout"; ColumnType: Enum "Column Layout Type"): Code[10]
     var
         ColumnLayoutName: Record "Column Layout Name";
     begin

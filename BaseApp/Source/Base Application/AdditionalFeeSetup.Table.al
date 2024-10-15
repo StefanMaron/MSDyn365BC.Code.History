@@ -119,7 +119,7 @@ table 1050 "Additional Fee Setup"
 
                     exit(AdditionalFee);
                 end;
-            until Next = 0;
+            until Next() = 0;
             exit(0);
         end;
     end;
@@ -152,7 +152,7 @@ table 1050 "Additional Fee Setup"
                     RemainingAmount := "Threshold Remaining Amount";
                     AdditionalFee += RangeAddFeeAmount;
                 end;
-            until Next = 0;
+            until Next() = 0;
         end;
         exit(AdditionalFee);
     end;

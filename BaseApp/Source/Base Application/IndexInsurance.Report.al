@@ -47,7 +47,7 @@ report 5691 "Index Insurance"
                                 InsuranceJnlLine.Insert(true);
                             end;
                         end;
-                    until InsCoverageLedgEntry.Next = 0;
+                    until InsCoverageLedgEntry.Next() = 0;
             end;
 
             trigger OnPreDataItem()

@@ -1,7 +1,7 @@
 page 1920 "Container Sandbox Environment"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Container Sandbox Environment (Preview)';
+    Caption = 'Container Sandbox Environment';
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
@@ -46,7 +46,7 @@ page 1920 "Container Sandbox Environment"
             }
             group(Control10)
             {
-                InstructionalText = 'This Sandbox environment feature is provided as a free preview solely for testing, development and evaluation. You will not use the Sandbox in a live operating environment. Microsoft may, in its sole discretion, change the Sandbox environment or subject it to a fee for a final, commercial version, if any, or may elect not to release one.';
+                InstructionalText = 'This Sandbox environment feature is provided solely for testing, development and evaluation. You will not use the Sandbox in a live operating environment. Microsoft may, in its sole discretion, change the Sandbox environment or subject it to a fee for a final, commercial version, if any, or may elect not to release one.';
                 ShowCaption = false;
             }
         }

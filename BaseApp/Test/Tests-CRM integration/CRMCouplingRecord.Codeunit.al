@@ -224,7 +224,7 @@ codeunit 139174 "CRM Coupling Record"
     end;
 
     [Test]
-    [HandlerFunctions('CRMSystemuserListHandler,ConfirmYes')]
+    [HandlerFunctions('CRMSystemuserListHandler')]
     [Scope('OnPrem')]
     procedure LookupCouplingRecordForSalesperson()
     var
@@ -523,7 +523,7 @@ codeunit 139174 "CRM Coupling Record"
     end;
 
     [Test]
-    [HandlerFunctions('FilteredCRMSystemuserListHandler,ConfirmYes')]
+    [HandlerFunctions('FilteredCRMSystemuserListHandler')]
     [Scope('OnPrem')]
     procedure LookupFilteredCRMRecordForSalesperson()
     var
@@ -1779,13 +1779,6 @@ codeunit 139174 "CRM Coupling Record"
         InitCouplingRecordBuf(RecordID, TempCouplingRecordBuffer);
         CRMCouplingRecord.Trap;
         PAGE.Run(PAGE::"CRM Coupling Record", TempCouplingRecordBuffer);
-    end;
-
-    [ConfirmHandler]
-    [Scope('OnPrem')]
-    procedure ConfirmYes(Question: Text; var Reply: Boolean)
-    begin
-        Reply := true;
     end;
 
     local procedure InitCouplingRecordBuf(RecordID: RecordID; var CouplingRecordBuffer: Record "Coupling Record Buffer")

@@ -20,7 +20,7 @@ page 740 "VAT Report"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("VAT Report Type"; "VAT Report Type")

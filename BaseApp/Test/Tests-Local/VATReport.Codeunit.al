@@ -1589,7 +1589,7 @@ codeunit 144001 "VAT Report"
         CreateVATEntries(
           NoOfAddEntries, TestPeriodStart, TestPeriodEnd, VATReportLine."Country/Region Code", VATReportLine."VAT Registration No.", true);
         VATEntry.SetFilter("Entry No.", '>%1', VATEntry."Entry No.");
-        VATEntry.FindSet;
+        VATEntry.FindSet();
         repeat
             AmountY += -VATEntry.Base;
         until VATEntry.Next = 0;
@@ -3146,7 +3146,7 @@ codeunit 144001 "VAT Report"
 
     local procedure VerifyMandatoryFieldsInVATReport(var VATReportBuf: Record "Data Export Buffer")
     begin
-        VATReportBuf.FindSet;
+        VATReportBuf.FindSet();
         repeat
             case VATReportBuf."Field Value"[1] of
                 '0':
@@ -3239,7 +3239,7 @@ codeunit 144001 "VAT Report"
     local procedure CountReportBufferLines(var ReportBuf: Record "Data Export Buffer"; RecordType: Text[1]) NoOfLines: Integer
     begin
         ReportBuf.Reset();
-        ReportBuf.FindSet;
+        ReportBuf.FindSet();
         repeat
             if Format(ReportBuf."Field Value"[1]) = RecordType then
                 NoOfLines += 1;
@@ -3251,7 +3251,7 @@ codeunit 144001 "VAT Report"
         VATReportType: Text[2];
     begin
         ReportBuf.Reset();
-        ReportBuf.FindSet;
+        ReportBuf.FindSet();
         repeat
             VATReportType := CopyStr(ReportBuf."Field Value", 13, 2);
             if VATReportType = VATReportTypeFilter then
@@ -3327,7 +3327,7 @@ codeunit 144001 "VAT Report"
             SetRange("Posting Date", TestPeriodStart, TestPeriodEnd);
             SetRange("VAT Registration No.", VATRegNo);
             SetRange("Country/Region Code", CountryCode);
-            FindSet;
+            FindSet();
             repeat
                 VATReportLineRelation.SetRange("VAT Report No.", VATReportNo);
                 VATReportLineRelation.SetRange("Entry No.", "Entry No.");

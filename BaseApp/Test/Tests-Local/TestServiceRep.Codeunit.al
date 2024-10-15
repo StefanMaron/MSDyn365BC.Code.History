@@ -76,7 +76,7 @@ codeunit 142080 "Test ServiceRep"
         with LibraryReportDataset do begin
             VATEntry.SetFilter("Country/Region Code", '<>%1', '');
             VATEntry.SetCurrentKey("Country/Region Code");
-            VATEntry.FindSet;
+            VATEntry.FindSet();
             repeat
                 GetNextRow;
                 AssertCurrentRowValueEquals('GroupNo', GroupNoSection1);
@@ -95,7 +95,7 @@ codeunit 142080 "Test ServiceRep"
 
             VATEntry.SetFilter("Gen. Prod. Posting Group", '<>%1', '');
             VATEntry.SetCurrentKey("Gen. Prod. Posting Group");
-            VATEntry.FindSet;
+            VATEntry.FindSet();
             repeat
                 GetNextRow;
                 AssertCurrentRowValueEquals('GroupNo', GroupNoSection2);

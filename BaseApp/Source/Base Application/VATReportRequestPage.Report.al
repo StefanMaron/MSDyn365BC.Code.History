@@ -79,7 +79,7 @@ report 742 "VAT Report Request Page"
 
         trigger OnOpenPage()
         begin
-            "VAT Report Header".FindFirst;
+            "VAT Report Header".FindFirst();
         end;
     }
 

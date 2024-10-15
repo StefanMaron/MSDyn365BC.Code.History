@@ -163,7 +163,7 @@ table 31 "Item Picture Buffer"
                         "Import Status" := "Import Status"::Completed;
                         Modify;
                     end;
-            until Next = 0;
+            until Next() = 0;
 
         Window.Close;
     end;

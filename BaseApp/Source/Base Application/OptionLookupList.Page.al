@@ -29,12 +29,12 @@ page 1670 "Option Lookup List"
     var
         OptionLookupBuffer: Record "Option Lookup Buffer";
     begin
-        if GetFilter("Lookup Type") = '' then
+        if Rec.GetFilter("Lookup Type") = '' then
             exit;
 
-        Evaluate(OptionLookupBuffer."Lookup Type", GetFilter("Lookup Type"));
-        FillBuffer(OptionLookupBuffer."Lookup Type");
-        SetCurrentKey(ID);
+        Evaluate(OptionLookupBuffer."Lookup Type", Rec.GetFilter("Lookup Type"));
+        Rec.FillLookupBuffer(OptionLookupBuffer."Lookup Type");
+        Rec.SetCurrentKey(ID);
     end;
 }
 

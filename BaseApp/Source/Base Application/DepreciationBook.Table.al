@@ -250,7 +250,7 @@ table 5611 "Depreciation Book"
                     repeat
                         FADeprBook.CalcDeprPeriod;
                         FADeprBook.Modify();
-                    until FADeprBook.Next = 0;
+                    until FADeprBook.Next() = 0;
             end;
         }
     }
@@ -275,7 +275,7 @@ table 5611 "Depreciation Book"
         FASetup.Get();
         FADeprBook.SetCurrentKey("Depreciation Book Code");
         FADeprBook.SetRange("Depreciation Book Code", Code);
-        if not FADeprBook.IsEmpty then
+        if not FADeprBook.IsEmpty() then
             Error(Text000);
 
         if not InsCoverageLedgEntry.IsEmpty and (FASetup."Insurance Depr. Book" = Code) then

@@ -128,7 +128,7 @@ codeunit 5981 "Service-Post (Yes/No)"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 19, 'OnRunPreview', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Preview", 'OnRunPreview', '', false, false)]
     local procedure OnRunPreview(var Result: Boolean; Subscriber: Variant; RecVar: Variant)
     var
         ServicePostYesNo: Codeunit "Service-Post (Yes/No)";

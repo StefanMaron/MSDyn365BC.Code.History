@@ -19,7 +19,7 @@ page 99000766 Routing
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field(Description; Description)
@@ -196,7 +196,7 @@ page 99000766 Routing
 
     local procedure LastDateModifiedOnAfterValidat()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

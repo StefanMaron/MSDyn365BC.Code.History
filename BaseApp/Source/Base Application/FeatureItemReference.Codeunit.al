@@ -41,6 +41,7 @@ Codeunit 5721 "Feature - Item Reference" implements "Feature Data Update"
     var
         StartDateTime: DateTime;
     begin
+#if not CLEAN16
         if ItemCrossReference.IsEmpty() then
             exit;
 
@@ -49,7 +50,8 @@ Codeunit 5721 "Feature - Item Reference" implements "Feature Data Update"
         repeat
             ItemReference.Init();
             ItemReference.TransferFields(ItemCrossReference, true);
-            ItemReference.Insert();
+            ItemReference.SystemId := ItemCrossReference.SystemId;
+            ItemReference.Insert(false, true);
         until ItemCrossReference.Next() = 0;
         FeatureDataUpdateMgt.LogTask(FeatureDataUpdateStatus, ItemReference.TableCaption(), StartDateTime);
 
@@ -74,6 +76,7 @@ Codeunit 5721 "Feature - Item Reference" implements "Feature Data Update"
         UpgradePurchaseLines(FeatureDataUpdateStatus);
 
         UpgradeSalesLines(FeatureDataUpdateStatus);
+#endif
     end;
 
     procedure GetTaskDescription() TaskDescription: Text;
@@ -82,7 +85,9 @@ Codeunit 5721 "Feature - Item Reference" implements "Feature Data Update"
     end;
 
     var
+#if not CLEAN16
         ItemCrossReference: Record "Item Cross Reference";
+#endif
         ItemReference: Record "Item Reference";
         ItemJournalLine: Record "Item Journal Line";
         ItemLedgerEntry: Record "Item Ledger Entry";
@@ -115,6 +120,7 @@ Codeunit 5721 "Feature - Item Reference" implements "Feature Data Update"
 
     local procedure CountRecords()
     begin
+#if not CLEAN16
         TempDocumentEntry.DeleteAll();
         InsertDocumentEntry(Database::"Item Cross Reference", ItemCrossReference.TableCaption, ItemCrossReference.CountApprox);
         ItemLedgerEntry.SetFilter("Cross-Reference No.", '<>%1', '');
@@ -175,6 +181,7 @@ Codeunit 5721 "Feature - Item Reference" implements "Feature Data Update"
         HandledICOutboxSalesLine.SetRange("IC Partner Ref. Type", "IC Partner Reference Type"::"Cross Reference");
         HandledICOutboxSalesLine.SetFilter("IC Partner Reference", '<>%1', '');
         InsertDocumentEntry(Database::"Handled IC Outbox Sales Line", HandledICOutboxSalesLine.TableCaption, handledICOutboxSalesLine.CountApprox);
+#endif
 
         OnAfterCountRecords(TempDocumentEntry);
     end;
@@ -198,6 +205,7 @@ Codeunit 5721 "Feature - Item Reference" implements "Feature Data Update"
         TempDocumentEntry.Insert();
     end;
 
+#if not CLEAN16
     local procedure UpgradePurchaseLines(FeatureDataUpdateStatus: Record "Feature Data Update Status")
     var
         StartDateTime: DateTime;
@@ -322,7 +330,9 @@ Codeunit 5721 "Feature - Item Reference" implements "Feature Data Update"
             until HandledICOutboxPurchLine.Next() = 0;
         FeatureDataUpdateMgt.LogTask(FeatureDataUpdateStatus, ICInboxPurchaseLine.FieldCaption("IC Partner Reference"), StartDateTime);
     end;
+#endif
 
+#if not CLEAN16
     local procedure UpgradeSalesLines(FeatureDataUpdateStatus: Record "Feature Data Update Status")
     var
         StartDateTime: DateTime;
@@ -447,7 +457,9 @@ Codeunit 5721 "Feature - Item Reference" implements "Feature Data Update"
             until HandledICOutboxSalesLine.Next() = 0;
         FeatureDataUpdateMgt.LogTask(FeatureDataUpdateStatus, ICInboxSalesLine.FieldCaption("IC Partner Reference"), StartDateTime);
     end;
+#endif
 
+#if not CLEAN16
     local procedure ConvertCrossRefTypeToItemRefType(CrossReferenceType: Option): Enum "Item Reference Type"
     begin
         case CrossReferenceType of
@@ -461,4 +473,5 @@ Codeunit 5721 "Feature - Item Reference" implements "Feature Data Update"
                 exit("Item Reference Type"::"Bar Code");
         end;
     end;
+#endif
 }

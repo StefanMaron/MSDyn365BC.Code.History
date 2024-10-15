@@ -26,7 +26,7 @@ page 930 "Assembly Quote"
                     trigger OnAssistEdit()
                     begin
                         if AssistEdit(xRec) then
-                            CurrPage.Update;
+                            CurrPage.Update();
                     end;
                 }
                 field("Item No."; "Item No.")
@@ -306,7 +306,7 @@ page 930 "Assembly Quote"
                     trigger OnAction()
                     begin
                         RefreshBOM;
-                        CurrPage.Update;
+                        CurrPage.Update();
                     end;
                 }
                 action("Show Availability")

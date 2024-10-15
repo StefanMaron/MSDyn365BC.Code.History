@@ -58,7 +58,7 @@ codeunit 5005270 "Issue Delivery Reminder"
                     end;
                     LineCount := LineCount + 1;
                     Window.Update(2, LineCount);
-                until DeliveryReminderLine.Next = 0;
+                until DeliveryReminderLine.Next() = 0;
 
             // Issuing
             SourceCodeSetup.Get('');
@@ -115,7 +115,7 @@ codeunit 5005270 "Issue Delivery Reminder"
                     OnBeforeIssuedDeliveryReminderLineInsert(IssuedDeliveryReminderLine, DeliveryReminderLine);
                     IssuedDeliveryReminderLine.Insert();
                     OnAfterIssuedDeliveryReminderLineInsert(IssuedDeliveryReminderLine, DeliveryReminderLine);
-                until DeliveryReminderLine.Next = 0;
+                until DeliveryReminderLine.Next() = 0;
             DeliveryReminderLine.DeleteAll();
 
             DeliveryReminderCommentLine.Reset();
@@ -127,7 +127,7 @@ codeunit 5005270 "Issue Delivery Reminder"
                     IssDelivReminCommLine2."Document Type" := DeliveryReminderCommentLine."Document Type"::"Issued Delivery Reminder";
                     IssDelivReminCommLine2."No." := IssuedDeliveryReminderHeader."No.";
                     IssDelivReminCommLine2.Insert();
-                until DeliveryReminderCommentLine.Next = 0;
+                until DeliveryReminderCommentLine.Next() = 0;
             DeliveryReminderCommentLine.DeleteAll();
 
             Delete;

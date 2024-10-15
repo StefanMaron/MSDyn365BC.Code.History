@@ -117,7 +117,7 @@ table 5338 "Integration Synch. Job"
             repeat
                 if IntegrationSynchJob.CanBeRemoved then
                     IntegrationSynchJob.Delete(true);
-            until IntegrationSynchJob.Next = 0;
+            until IntegrationSynchJob.Next() = 0;
     end;
 
     procedure GetErrorForRecordID(RecID: RecordID; var IntegrationSynchJobErrors: Record "Integration Synch. Job Errors"): Boolean
@@ -133,6 +133,7 @@ table 5338 "Integration Synch. Job"
         exit(IntegrationSynchJobErrors.FindLast);
     end;
 
+    [Obsolete('Replaced by AreSomeRecordsFailed procedure', '18.0')]
     procedure AreAllRecordsFailed(): Boolean
     begin
         exit(
@@ -140,11 +141,17 @@ table 5338 "Integration Synch. Job"
           (Unchanged = 0) and (Skipped = 0) and (Failed <> 0));
     end;
 
+    [Scope('Cloud')]
+    procedure AreSomeRecordsFailed(): Boolean
+    begin
+        exit(Failed <> 0);
+    end;
+
     procedure HaveJobsBeenIdle(JobQueueLogEntryNo: Integer): Boolean
     begin
         Reset;
         SetRange("Job Queue Log Entry No.", JobQueueLogEntryNo);
-        if not IsEmpty then begin
+        if not IsEmpty() then begin
             CalcSums(Inserted, Modified, Deleted, Failed);
             exit(Inserted + Modified + Deleted + Failed = 0);
         end;

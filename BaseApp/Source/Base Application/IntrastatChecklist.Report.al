@@ -152,7 +152,7 @@ report 502 "Intrastat - Checklist"
                               "Intrastat Jnl. Line",
                               IntrastatChecklistSetup."Field No.",
                               ErrorMessage."Message Type"::Error);
-                        until IntrastatChecklistSetup.Next = 0;
+                        until IntrastatChecklistSetup.Next() = 0;
 
                     if Country.Get("Country/Region Code") then;
                     IntrastatJnlLineTemp.Reset();

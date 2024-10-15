@@ -15,7 +15,6 @@ page 524 "Report Selection - Reminder"
             {
                 ApplicationArea = Suite;
                 Caption = 'Usage';
-                OptionCaption = 'Reminder,Fin. Charge,Reminder Test,Fin. Charge Test';
                 ToolTip = 'Specifies which type of document the report is used for.';
 
                 trigger OnValidate()
@@ -26,41 +25,41 @@ page 524 "Report Selection - Reminder"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field(Sequence; Sequence)
+                field(Sequence; Rec.Sequence)
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a number that indicates where this report is in the printing order.';
                 }
-                field("Report ID"; "Report ID")
+                field("Report ID"; Rec."Report ID")
                 {
                     ApplicationArea = Suite;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the object ID of the report.';
                 }
-                field("Report Caption"; "Report Caption")
+                field("Report Caption"; Rec."Report Caption")
                 {
                     ApplicationArea = Suite;
                     DrillDown = false;
                     LookupPageID = Objects;
                     ToolTip = 'Specifies the display name of the report.';
                 }
-                field("Use for Email Body"; "Use for Email Body")
+                field("Use for Email Body"; Rec."Use for Email Body")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to insert summarized information, such as invoice number, due date in the body of the email that you send.';
                 }
-                field("Use for Email Attachment"; "Use for Email Attachment")
+                field("Use for Email Attachment"; Rec."Use for Email Attachment")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to attach the related document to the email.';
                 }
-                field("Email Body Layout Code"; "Email Body Layout Code")
+                field("Email Body Layout Code"; Rec."Email Body Layout Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the email body layout that is used.';
                     Visible = false;
                 }
-                field("Email Body Layout Description"; "Email Body Layout Description")
+                field("Email Body Layout Description"; Rec."Email Body Layout Description")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the email body layout that is used.';
@@ -69,8 +68,8 @@ page 524 "Report Selection - Reminder"
                     var
                         CustomReportLayout: Record "Custom Report Layout";
                     begin
-                        if CustomReportLayout.LookupLayoutOK("Report ID") then
-                            Validate("Email Body Layout Code", CustomReportLayout.Code);
+                        if CustomReportLayout.LookupLayoutOK(Rec."Report ID") then
+                            Rec.Validate("Email Body Layout Code", CustomReportLayout.Code);
                     end;
                 }
             }
@@ -96,7 +95,7 @@ page 524 "Report Selection - Reminder"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        NewRecord;
+        Rec.NewRecord();
     end;
 
     trigger OnOpenPage()
@@ -106,45 +105,58 @@ page 524 "Report Selection - Reminder"
     end;
 
     var
-        ReportUsage2: Option Reminder,"Fin. Charge","Reminder Test","Fin. Charge Test";
+        ReportUsage2: Enum "Report Selection Usage Reminder";
 
     local procedure SetUsageFilter(ModifyRec: Boolean)
     begin
         if ModifyRec then
-            if Modify then;
-        FilterGroup(2);
+            if Rec.Modify() then;
+        Rec.FilterGroup(2);
         case ReportUsage2 of
-            ReportUsage2::Reminder:
-                SetRange(Usage, Usage::Reminder);
-            ReportUsage2::"Fin. Charge":
-                SetRange(Usage, Usage::"Fin.Charge");
-            ReportUsage2::"Reminder Test":
-                SetRange(Usage, Usage::"Rem.Test");
-            ReportUsage2::"Fin. Charge Test":
-                SetRange(Usage, Usage::"F.C.Test");
+            "Report Selection Usage Reminder"::Reminder:
+                Rec.SetRange(Usage, "Report Selection Usage"::Reminder);
+            "Report Selection Usage Reminder"::"Fin. Charge":
+                Rec.SetRange(Usage, "Report Selection Usage"::"Fin.Charge");
+            "Report Selection Usage Reminder"::"Reminder Test":
+                Rec.SetRange(Usage, "Report Selection Usage"::"Rem.Test");
+            "Report Selection Usage Reminder"::"Fin. Charge Test":
+                Rec.SetRange(Usage, "Report Selection Usage"::"F.C.Test");
         end;
-        FilterGroup(0);
-        CurrPage.Update;
+        OnSetUsageFilterOnAfterSetFiltersByReportUsage(Rec, ReportUsage2);
+        Rec.FilterGroup(0);
+        CurrPage.Update();
     end;
 
     local procedure InitUsageFilter()
     var
-        DummyReportSelections: Record "Report Selections";
+        ReportUsage: Enum "Report Selection Usage";
     begin
-        if GetFilter(Usage) <> '' then begin
-            if Evaluate(DummyReportSelections.Usage, GetFilter(Usage)) then
-                case DummyReportSelections.Usage of
-                    Usage::Reminder:
+        if Rec.GetFilter(Usage) <> '' then begin
+            if Evaluate(ReportUsage, Rec.GetFilter(Usage)) then
+                case ReportUsage of
+                    "Report Selection Usage"::Reminder:
                         ReportUsage2 := ReportUsage2::Reminder;
-                    Usage::"Fin.Charge":
+                    "Report Selection Usage"::"Fin.Charge":
                         ReportUsage2 := ReportUsage2::"Fin. Charge";
-                    Usage::"Rem.Test":
+                    "Report Selection Usage"::"Rem.Test":
                         ReportUsage2 := ReportUsage2::"Reminder Test";
-                    Usage::"F.C.Test":
+                    "Report Selection Usage"::"F.C.Test":
                         ReportUsage2 := ReportUsage2::"Fin. Charge Test";
+                    else
+                        OnInitUsageFilterOnElseCase(ReportUsage, ReportUsage2);
                 end;
-            SetRange(Usage);
+            Rec.SetRange(Usage);
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetUsageFilterOnAfterSetFiltersByReportUsage(var Rec: Record "Report Selections"; ReportUsage2: Enum "Report Selection Usage Reminder")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInitUsageFilterOnElseCase(ReportUsage: Enum "Report Selection Usage"; var ReportUsage2: Enum "Report Selection Usage Reminder")
+    begin
     end;
 }
 

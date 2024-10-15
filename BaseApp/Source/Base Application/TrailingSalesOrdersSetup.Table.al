@@ -40,7 +40,7 @@ table 760 "Trailing Sales Orders Setup"
         field(7; "Latest Order Document Date"; Date)
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
-            CalcFormula = Max ("Sales Header"."Document Date" WHERE("Document Type" = CONST(Order)));
+            CalcFormula = Max("Sales Header"."Document Date" WHERE("Document Type" = CONST(Order)));
             Caption = 'Latest Order Document Date';
             FieldClass = FlowField;
         }
@@ -85,19 +85,25 @@ table 760 "Trailing Sales Orders Setup"
         exit(StartDate);
     end;
 
+#if not CLEAN18
+    [Obsolete('Replaced by GetBusinessChartType().', '18.0')]
     procedure GetChartType(): Integer
-    var
-        BusinessChartBuf: Record "Business Chart Buffer";
+    begin
+        exit(GetBusinessChartType().AsInteger());
+    end;
+#endif
+
+    procedure GetBusinessChartType(): Enum "Business Chart Type"
     begin
         case "Chart Type" of
             "Chart Type"::"Stacked Area":
-                exit(BusinessChartBuf."Chart Type"::StackedArea);
+                exit("Business Chart Type"::StackedArea);
             "Chart Type"::"Stacked Area (%)":
-                exit(BusinessChartBuf."Chart Type"::StackedArea100);
+                exit("Business Chart Type"::StackedArea100);
             "Chart Type"::"Stacked Column":
-                exit(BusinessChartBuf."Chart Type"::StackedColumn);
+                exit("Business Chart Type"::StackedColumn);
             "Chart Type"::"Stacked Column (%)":
-                exit(BusinessChartBuf."Chart Type"::StackedColumn100);
+                exit("Business Chart Type"::StackedColumn100);
         end;
     end;
 

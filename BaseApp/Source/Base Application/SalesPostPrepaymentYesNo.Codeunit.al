@@ -78,7 +78,6 @@ codeunit 443 "Sales-Post Prepayment (Yes/No)"
             ErrorMessageHandler.ShowErrors;
     end;
 
-    [Scope('OnPrem')]
     procedure Preview(var SalesHeader: Record "Sales Header"; DocumentType: Option)
     var
         SalesPostPrepaymentYesNo: Codeunit "Sales-Post Prepayment (Yes/No)";
@@ -131,7 +130,7 @@ codeunit 443 "Sales-Post Prepayment (Yes/No)"
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 19, 'OnRunPreview', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Preview", 'OnRunPreview', '', false, false)]
     local procedure OnRunPreview(var Result: Boolean; Subscriber: Variant; RecVar: Variant)
     var
         SalesHeader: Record "Sales Header";

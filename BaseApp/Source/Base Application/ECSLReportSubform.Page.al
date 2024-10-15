@@ -78,7 +78,7 @@ page 322 "ECSL Report Subform"
                     repeat
                         if VATEntry.Get(ECSLVATReportLineRelation."VAT Entry No.") then
                             VATEntry.Mark(true);
-                    until ECSLVATReportLineRelation.Next = 0;
+                    until ECSLVATReportLineRelation.Next() = 0;
 
                     VATEntry.MarkedOnly(true);
                     PAGE.Run(0, VATEntry);
@@ -89,7 +89,7 @@ page 322 "ECSL Report Subform"
 
     procedure UpdateForm()
     begin
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 }
 

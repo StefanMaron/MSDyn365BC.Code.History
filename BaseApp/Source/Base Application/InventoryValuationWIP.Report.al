@@ -265,7 +265,7 @@ report 5802 "Inventory Valuation - WIP"
                     if Find('-') then
                         repeat
                             LengthRecord := LengthRecord + 1;
-                        until Next = 0;
+                        until Next() = 0;
                 end;
             }
 
@@ -430,7 +430,7 @@ report 5802 "Inventory Valuation - WIP"
             SetRange("Order Type", "Order Type"::Production);
             SetRange("Order No.", "Production Order"."No.");
             SetRange("Completely Invoiced", false);
-            if not IsEmpty then
+            if not IsEmpty() then
                 exit(false);
         end;
 

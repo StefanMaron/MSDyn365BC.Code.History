@@ -82,7 +82,7 @@ codeunit 5920 ServItemManagement
                         TrackingLinesExist := TempTrackingSpecification.Find('-');
                         if TrackingLinesExist then begin
                             NewServItemComponent."Serial No." := TempTrackingSpecification."Serial No.";
-                            if TempTrackingSpecification.Next = 0 then
+                            if TempTrackingSpecification.Next() = 0 then
                                 TrackingLinesExist := false;
                         end;
                         OnBeforeInsertNewServItemComponent(NewServItemComponent, ServLine);
@@ -101,7 +101,7 @@ codeunit 5920 ServItemManagement
                             InitNewServItemComponent(NewServItemComponent, ServLine, ComponentLine, ServHeader."Posting Date");
                             if TrackingLinesExist then begin
                                 NewServItemComponent."Serial No." := TempTrackingSpecification."Serial No.";
-                                if TempTrackingSpecification.Next = 0 then
+                                if TempTrackingSpecification.Next() = 0 then
                                     TrackingLinesExist := false;
                             end;
                             OnBeforeInsertNewServItemComponent(NewServItemComponent, ServLine);
@@ -131,7 +131,7 @@ codeunit 5920 ServItemManagement
                             NewServItemComponent."Service Order No." := "Document No.";
                             if TrackingLinesExist then begin
                                 NewServItemComponent."Serial No." := TempTrackingSpecification."Serial No.";
-                                if TempTrackingSpecification.Next = 0 then
+                                if TempTrackingSpecification.Next() = 0 then
                                     TrackingLinesExist := false;
                             end;
                             OnBeforeInsertNewServItemComponent(NewServItemComponent, ServLine);
@@ -231,7 +231,7 @@ codeunit 5920 ServItemManagement
                 TempReservEntry.SetRange("Source Subtype", SalesLine."Document Type");
                 TempReservEntry.SetRange("Source ID", SalesLine."Document No.");
                 TempReservEntry.SetRange("Source Ref. No.", SalesLine."Line No.");
-                TrackingLinesExist := TempReservEntry.FindSet;
+                TrackingLinesExist := TempReservEntry.FindSet();
 
                 TempServiceItem.DeleteAll();
                 TempServiceItemComp.DeleteAll();
@@ -338,8 +338,8 @@ codeunit 5920 ServItemManagement
                                                 TempServiceItemComp := ServItemComponent;
                                                 TempServiceItemComp.Insert();
                                             end;
-                                        until BOMComp2.Next = 0;
-                                until BOMComp.Next = 0;
+                                        until BOMComp2.Next() = 0;
+                                until BOMComp.Next() = 0;
                         end;
 
                     OnCreateServItemOnSalesLineShptOnAfterAddServItemComponents(
@@ -472,7 +472,7 @@ codeunit 5920 ServItemManagement
         if SalesLine.FindSet then
             repeat
                 CopyReservationEntryLine(SalesLine);
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
     end;
 
     procedure CopyReservationEntryService(ServHeader: Record "Service Header")
@@ -495,7 +495,7 @@ codeunit 5920 ServItemManagement
             repeat
                 TempReservEntry := ReservEntry;
                 TempReservEntry.Insert();
-            until ReservEntry.Next = 0;
+            until ReservEntry.Next() = 0;
     end;
 
     procedure CreateServItemOnSalesInvoice(var SalesHeader: Record "Sales Header")
@@ -508,7 +508,7 @@ codeunit 5920 ServItemManagement
         if SalesLine.FindSet then
             repeat
                 CreateServItemOnSalesLineShpt(SalesHeader, SalesLine, DummySalesShptLine);
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
     end;
 
     local procedure CheckWholeNumber(var ServLine: Record "Service Line")
@@ -528,13 +528,13 @@ codeunit 5920 ServItemManagement
             repeat
                 TempServItem := TempServiceItem;
                 TempServItem.Insert();
-            until TempServiceItem.Next = 0;
+            until TempServiceItem.Next() = 0;
         TempServItemComp.DeleteAll();
         if TempServiceItemComp.Find('-') then
             repeat
                 TempServItemComp := TempServiceItemComp;
                 TempServItemComp.Insert();
-            until TempServiceItemComp.Next = 0;
+            until TempServiceItemComp.Next() = 0;
     end;
 
     procedure DeleteServItemOnSaleCreditMemo(SalesHeader: Record "Sales Header")
@@ -576,9 +576,9 @@ codeunit 5920 ServItemManagement
                                     if ServItem.Delete(true) then
                                         ServItemDeleted := true;
                             end;
-                        until ReservationEntry.Next = 0;
+                        until ReservationEntry.Next() = 0;
                 end;
-            until SalesLine.Next = 0;
+            until SalesLine.Next() = 0;
         if ServItemDeleted then
             Message(Text005);
     end;
@@ -601,7 +601,7 @@ codeunit 5920 ServItemManagement
             repeat
                 TempReservEntry := ReservEntry;
                 TempReservEntry.Insert();
-            until ReservEntry.Next = 0;
+            until ReservEntry.Next() = 0;
     end;
 
     procedure CopyReservation(PurchaseHeader: Record "Purchase Header")
@@ -617,7 +617,7 @@ codeunit 5920 ServItemManagement
             repeat
                 if SalesLine.Get(SalesLine."Document Type"::Order, PurchaseLine."Sales Order No.", PurchaseLine."Sales Order Line No.") then
                     CopyReservationEntryLine(SalesLine);
-            until PurchaseLine.Next = 0;
+            until PurchaseLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]

@@ -230,7 +230,7 @@ page 381 "Apply Bank Acc. Ledger Entries"
             repeat
                 TempBankAccLedgerEntry := BankAccLedgerEntry;
                 TempBankAccLedgerEntry.Insert();
-            until BankAccLedgerEntry.Next = 0;
+            until BankAccLedgerEntry.Next() = 0;
     end;
 
     procedure SetUserInteractions()
@@ -258,7 +258,7 @@ page 381 "Apply Bank Acc. Ledger Entries"
             SetRange("Statement Line No.", 0);
         end else
             Reset;
-        CurrPage.Update;
+        CurrPage.Update();
     end;
 
     local procedure CalcBalanceToReconcile(): Decimal

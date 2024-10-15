@@ -74,7 +74,7 @@ xmlport 9010 "Export/Import Plans"
                         UserGroupPlan: Record "User Group Plan";
                     begin
                         if OnlyLicenseVar or UserGroupPlan.Get(id, "User Group Plan"."User Group Code") then
-                            currXMLport.Skip;
+                            currXMLport.Skip();
                         "User Group Plan"."Plan ID" := id;
                     end;
                 }
@@ -112,7 +112,7 @@ xmlport 9010 "Export/Import Plans"
             if UserGroupPermissionSet.FindSet then
                 repeat
                     InsertPlanPermissionset(UserGroupPermissionSet."Role ID", id);
-                until UserGroupPermissionSet.Next = 0;
+                until UserGroupPermissionSet.Next() = 0;
             InsertPlanPermissionset(XLOCALTxt, id);
         end;
         Commit

@@ -1,4 +1,4 @@
-﻿report 790 "Calculate Inventory"
+report 790 "Calculate Inventory"
 {
     Caption = 'Calculate Inventory';
     ProcessingOnly = true;
@@ -64,7 +64,7 @@
                                             end;
                                             WhseEntry.Find('+');
                                             Item.CopyFilter("Bin Filter", WhseEntry."Bin Code");
-                                        until WhseEntry.Next = 0;
+                                        until WhseEntry.Next() = 0;
                                     end;
                             end;
                         end else
@@ -106,7 +106,7 @@
 
                 trigger OnAfterGetRecord()
                 begin
-                    if not "Item Ledger Entry".IsEmpty then
+                    if not "Item Ledger Entry".IsEmpty() then
                         CurrReport.Skip();   // Skip if item has any record in Item Ledger Entry.
 
                     Clear(QuantityOnHandBuffer);
@@ -435,7 +435,7 @@
                             DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID",
                               "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
                             Modify;
-                        until TempDimBufOut.Next = 0;
+                        until TempDimBufOut.Next() = 0;
                         TempDimBufOut.DeleteAll();
                     end;
                 end;
@@ -513,19 +513,19 @@
                     if WhseEntry."Qty. (Base)" <> 0 then begin
                         if "Order Type" = "Order Type"::Production then
                             OrderLineNo := "Order Line No.";
+                        ReservEntry.CopyTrackingFromWhseEntry(WhseEntry);
                         CreateReservEntry.CreateReservEntryFor(
                             DATABASE::"Item Journal Line", "Entry Type".AsInteger(), "Journal Template Name", "Journal Batch Name", OrderLineNo,
                             "Line No.", "Qty. per Unit of Measure",
-                            Abs(WhseEntry.Quantity), Abs(WhseEntry."Qty. (Base)"),
-                            WhseEntry."Serial No.", WhseEntry."Lot No.");
+                            Abs(WhseEntry.Quantity), Abs(WhseEntry."Qty. (Base)"), ReservEntry);
                         if WhseEntry."Qty. (Base)" < 0 then             // only Date on positive adjustments
                             CreateReservEntry.SetDates(WhseEntry."Warranty Date", WhseEntry."Expiration Date");
                         CreateReservEntry.CreateEntry(
-                            "Item No.", "Variant Code", "Location Code", Description, 0D, 0D, 0, ReservEntry."Reservation Status"::Prospect);
+                            "Item No.", "Variant Code", "Location Code", Description, 0D, 0D, 0, "Reservation Status"::Prospect);
                     end;
                     WhseEntry.Find('+');
                     WhseEntry.ClearTrackingFilter;
-                until WhseEntry.Next = 0;
+                until WhseEntry.Next() = 0;
         end;
     end;
 
@@ -548,7 +548,7 @@
                      UserId, 3, REPORT::"Calculate Inventory", '', DimSetEntry."Dimension Code")
                 then
                     InsertDim(DATABASE::"Item Ledger Entry", DimSetID, DimSetEntry."Dimension Code", DimSetEntry."Dimension Value Code");
-            until DimSetEntry.Next = 0;
+            until DimSetEntry.Next() = 0;
         end;
     end;
 
@@ -610,8 +610,8 @@
                             repeat
                                 PosQuantity := PosQuantity + 1;
                                 NegQuantity := NegQuantity - 1;
-                                NoWhseEntry := WhseEntry.Next = 0;
-                                NoWhseEntry2 := WhseEntry2.Next = 0;
+                                NoWhseEntry := WhseEntry.Next() = 0;
+                                NoWhseEntry2 := WhseEntry2.Next() = 0;
                             until NoWhseEntry2 or NoWhseEntry
                         else
                             AdjustPosQty := true;
@@ -621,12 +621,13 @@
 
                         WhseEntry.Find('+');
                         WhseEntry.SetRange("Serial No.");
-                    until WhseEntry.Next = 0;
+                    until WhseEntry.Next() = 0;
                 end;
             end else begin
                 if WhseEntry.Find('-') then
                     repeat
                         WhseEntry.SetRange("Lot No.", WhseEntry."Lot No.");
+                        OnCalcWhseQtyOnAfterLotRequiredWhseEntrySetFilters(WhseEntry);
                         WhseEntry.CalcSums("Qty. (Base)");
                         if WhseEntry."Qty. (Base)" <> 0 then begin
                             if WhseEntry."Qty. (Base)" > 0 then
@@ -636,7 +637,8 @@
                         end;
                         WhseEntry.Find('+');
                         WhseEntry.SetRange("Lot No.");
-                    until WhseEntry.Next = 0;
+                        OnCalcWhseQtyOnAfterLotRequiredWhseEntryClearFilters(WhseEntry);
+                    until WhseEntry.Next() = 0;
                 if PosQuantity <> WhseQuantity then
                     PosQuantity := WhseQuantity - PosQuantity;
                 if NegQuantity <> -WhseQuantity then
@@ -765,7 +767,7 @@
                     QuantityOnHandBuffer."Location Code" := SKU."Location Code";
                     QuantityOnHandBuffer.Insert();
                 end;
-            until SKU.Next = 0;
+            until SKU.Next() = 0;
         end;
     end;
 
@@ -783,15 +785,15 @@
                 if (Item.GetFilter("Variant Filter") <> '') and ItemVariant.FindSet then
                     repeat
                         InsertQuantityOnHandBuffer(ItemNo, Location.Code, ItemVariant.Code);
-                    until ItemVariant.Next = 0
+                    until ItemVariant.Next() = 0
                 else
                     InsertQuantityOnHandBuffer(ItemNo, Location.Code, '');
-            until Location.Next = 0
+            until Location.Next() = 0
         else
             if (Item.GetFilter("Variant Filter") <> '') and ItemVariant.FindSet then
                 repeat
                     InsertQuantityOnHandBuffer(ItemNo, '', ItemVariant.Code);
-                until ItemVariant.Next = 0
+                until ItemVariant.Next() = 0
             else
                 InsertQuantityOnHandBuffer(ItemNo, '', '');
     end;
@@ -847,7 +849,7 @@
                         InsertItemJnlLine(
                           "Item No.", "Variant Code", "Dimension Entry No.",
                           "Bin Code", Quantity, Quantity);
-                until Next = 0;
+                until Next() = 0;
                 DeleteAll();
             end;
         end;
@@ -864,7 +866,7 @@
             if FindSet then
                 repeat
                     InsertDim(DATABASE::Item, 0, "Dimension Code", "Dimension Value Code");
-                until Next = 0;
+                until Next() = 0;
         end;
 
         DimEntryNo := DimBufMgt.InsertDimensions(TempDimBufIn);
@@ -936,6 +938,16 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnItemLedgerEntryOnPreDataItemOnBeforeClearQuantityOnHandBuffer(var ItemLedgerEntry: Record "Item Ledger Entry"; Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcWhseQtyOnAfterLotRequiredWhseEntryClearFilters(var WarehouseEntry: Record "Warehouse Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcWhseQtyOnAfterLotRequiredWhseEntrySetFilters(var WarehouseEntry: Record "Warehouse Entry")
     begin
     end;
 

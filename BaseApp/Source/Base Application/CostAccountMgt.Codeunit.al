@@ -105,7 +105,7 @@ codeunit 1100 "Cost Account Mgt"
                             "Cost Type No." := "No.";
                         end;
                     Modify;
-                until Next = 0;
+                until Next() = 0;
             Window.Close;
         end;
 
@@ -355,7 +355,7 @@ codeunit 1100 "Cost Account Mgt"
                             Error(ArrayExceededErr, ArrayLen(CostTypeNo));
                         CostTypeNo[i] := "No.";
                     end;
-                until Next = 0;
+                until Next() = 0;
         end;
 
         if ShowMessage then
@@ -396,8 +396,8 @@ codeunit 1100 "Cost Account Mgt"
                         GLAcc."Cost Type No." := CostType."No.";
                         NoOfGLAcc := NoOfGLAcc + 1;
                         GLAcc.Modify();
-                    until GLAcc.Next = 0;
-            until CostType.Next = 0;
+                    until GLAcc.Next() = 0;
+            until CostType.Next() = 0;
 
         Window.Close;
     end;
@@ -423,7 +423,7 @@ codeunit 1100 "Cost Account Mgt"
                     Window.Update(1, Code);
                     if InsertCostCenterFromDimValue(DimValue) then
                         RecsProcessed := RecsProcessed + 1;
-                until DimValue.Next = 0;
+                until DimValue.Next() = 0;
                 Window.Close;
             end;
         end;
@@ -488,7 +488,7 @@ codeunit 1100 "Cost Account Mgt"
                             else
                                 CostCenterRange := CostCenterRange + '|' + Code;
                         end;
-                    until Next = 0;
+                    until Next() = 0;
             end else begin
                 SetCurrentKey(Code);
                 if FindSet then
@@ -509,7 +509,7 @@ codeunit 1100 "Cost Account Mgt"
                                 Error(ArrayExceededErr, ArrayLen(StartRange));
                             StartRange[i] := Code;
                         end;
-                    until Next = 0;
+                    until Next() = 0;
             end;
         end;
         Window.Close;
@@ -536,7 +536,7 @@ codeunit 1100 "Cost Account Mgt"
                     Window.Update(1, Code);
                     if InsertCostObjectFromDimValue(DimValue) then
                         RecsProcessed := RecsProcessed + 1;
-                until DimValue.Next = 0;
+                until DimValue.Next() = 0;
                 Window.Close;
             end;
         end;
@@ -602,7 +602,7 @@ codeunit 1100 "Cost Account Mgt"
                             else
                                 CostObjRange := CostObjRange + '|' + Code;
                         end;
-                    until Next = 0;
+                    until Next() = 0;
             end else begin
                 SetCurrentKey(Code);
                 if Find('-') then
@@ -623,7 +623,7 @@ codeunit 1100 "Cost Account Mgt"
                                 Error(ArrayExceededErr, ArrayLen(StartRange));
                             StartRange[i] := Code;
                         end;
-                    until Next = 0;
+                    until Next() = 0;
             end;
         end;
         Window.Close;
@@ -893,7 +893,7 @@ codeunit 1100 "Cost Account Mgt"
     begin
         CostType.Reset();
         CostType.SetRange("No.", GLAccNo);
-        if CostType.IsEmpty then begin
+        if CostType.IsEmpty() then begin
             CostTypeExists := false;
             CostType.Reset();
             CostType.SetRange(Type, CostType.Type::"Cost Type");
@@ -907,8 +907,8 @@ codeunit 1100 "Cost Account Mgt"
                         repeat
                             if GLAccNo = GLAcc."No." then
                                 CostTypeExists := true
-                        until (GLAcc.Next = 0) or CostTypeExists;
-                until (CostType.Next = 0) or CostTypeExists;
+                        until (GLAcc.Next() = 0) or CostTypeExists;
+                until (CostType.Next() = 0) or CostTypeExists;
         end;
     end;
 

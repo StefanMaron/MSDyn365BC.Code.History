@@ -14,8 +14,8 @@ codeunit 134915 "ERM Online Mapping Setup"
         isInitialized: Boolean;
         Bing: Label 'BING';
         BingMaps: Label 'Bing Maps';
-        BingMapsURL: Label 'http://bing.com/maps/default.aspx?where1={1}+{2}+{6}&v=2&mkt={7}', Locked = true;
-        BingDirectionsURL: Label 'http://bing.com/maps/default.aspx?rtp=adr.{1}+{2}+{6}~adr.{1}+{2}+{6}&v=2&mkt={7}&rtop={9}~0~0', Locked = true;
+        BingMapsURL: Label 'https://bing.com/maps/default.aspx?where1={1}+{2}+{6}&v=2&mkt={7}', Locked = true;
+        BingDirectionsURL: Label 'https://bing.com/maps/default.aspx?rtp=adr.{1}+{2}+{6}~adr.{1}+{2}+{6}&v=2&mkt={7}&rtop={9}~0~0', Locked = true;
         BingComment: Label 'http://go.microsoft.com/fwlink/?LinkId=519372', Locked = true;
         RollBackMessage: Label 'Revert back the tables to their original state.';
 

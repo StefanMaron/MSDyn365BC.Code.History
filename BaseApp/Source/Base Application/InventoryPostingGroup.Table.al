@@ -45,11 +45,11 @@ table 94 "Inventory Posting Group"
         ValueEntry: Record "Value Entry";
     begin
         Item.SetRange("Inventory Posting Group", Code);
-        if not Item.IsEmpty then
+        if not Item.IsEmpty() then
             Error(YouCannotDeleteErr, Code);
 
         ValueEntry.SetRange("Inventory Posting Group", Code);
-        if not ValueEntry.IsEmpty then
+        if not ValueEntry.IsEmpty() then
             Error(YouCannotDeleteErr, Code);
     end;
 }

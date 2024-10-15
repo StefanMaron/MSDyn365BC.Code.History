@@ -86,7 +86,7 @@ page 583 "XBRL Taxonomy Lines"
                         XBRLTaxonomyLabel.SetRange("XBRL Taxonomy Name", CurrentTaxonomy);
                         XBRLTaxonomyLabel.SetRange("XML Language Identifier", CurrentLang);
                         if CurrentLang <> '' then
-                            if XBRLTaxonomyLabel.IsEmpty then
+                            if XBRLTaxonomyLabel.IsEmpty() then
                                 Error(Text001, CurrentLang);
                         SetFilters;
                     end;

@@ -77,6 +77,14 @@ table 5331 "CRM Integration Record"
         {
             Caption = 'Option Mapping Failure';
             Editable = false;
+            ObsoleteReason = 'This field is deprecated.';
+#if not CLEAN18
+            ObsoleteState = Pending;
+            ObsoleteTag = '18.0';
+#else
+            ObsoleteState = Removed;
+            ObsoleteTag = '21.0';
+#endif
         }
         field(13; "Statistics Uploaded"; Boolean)
         {
@@ -120,6 +128,15 @@ table 5331 "CRM Integration Record"
     trigger OnInsert()
     begin
         CheckTableID();
+    end;
+
+    trigger OnDelete()
+    var
+        CDSFailedOptionMapping: Record "CDS Failed Option Mapping";
+    begin
+        CDSFailedOptionMapping.SetRange("CRM Integration Record Id", Rec.SystemId);
+        if not CDSFailedOptionMapping.IsEmpty() then
+            CDSFailedOptionMapping.DeleteAll();
     end;
 
     var
@@ -614,24 +631,26 @@ table 5331 "CRM Integration Record"
         CRMIntegrationRecord: Record "CRM Integration Record";
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
-        if FindRowFromCRMID(SourceCRMID, DestinationTableID, CRMIntegrationRecord) then
-            with CRMIntegrationRecord do begin
-                case Direction of
-                    IntegrationTableMapping.Direction::FromIntegrationTable:
-                        begin
-                            "Last Synch. Job ID" := JobId;
-                            "Last Synch. Result" := "Last Synch. Result"::Success;
-                        end;
-                    IntegrationTableMapping.Direction::ToIntegrationTable:
-                        begin
-                            "Last Synch. CRM Job ID" := JobId;
-                            "Last Synch. CRM Result" := "Last Synch. CRM Result"::Success;
-                        end;
+        if not FindRowFromCRMID(SourceCRMID, DestinationTableID, CRMIntegrationRecord) then
+            exit;
+
+        case Direction of
+            IntegrationTableMapping.Direction::FromIntegrationTable:
+                begin
+                    CRMIntegrationRecord."Last Synch. Job ID" := JobId;
+                    CRMIntegrationRecord."Last Synch. Result" := "Last Synch. Result"::Success;
                 end;
-                "Last Synch. Modified On" := LastModifiedOn;
-                "Last Synch. CRM Modified On" := CRMLastModifiedOn;
-                Modify(true);
-            end;
+            IntegrationTableMapping.Direction::ToIntegrationTable:
+                begin
+                    CRMIntegrationRecord."Last Synch. CRM Job ID" := JobId;
+                    CRMIntegrationRecord."Last Synch. CRM Result" := "Last Synch. CRM Result"::Success;
+                end;
+        end;
+        if LastModifiedOn > CRMIntegrationRecord."Last Synch. Modified On" then
+            CRMIntegrationRecord."Last Synch. Modified On" := LastModifiedOn;
+        if CRMLastModifiedOn > CRMIntegrationRecord."Last Synch. CRM Modified On" then
+            CRMIntegrationRecord."Last Synch. CRM Modified On" := CRMLastModifiedOn;
+        CRMIntegrationRecord.Modify(true);
     end;
 
     procedure SetLastSynchCRMModifiedOn(CRMID: Guid; DestinationTableID: Integer; CRMLastModifiedOn: DateTime)
@@ -639,7 +658,8 @@ table 5331 "CRM Integration Record"
         CRMIntegrationRecord: Record "CRM Integration Record";
     begin
         if FindRowFromCRMID(CRMID, DestinationTableID, CRMIntegrationRecord) then begin
-            CRMIntegrationRecord."Last Synch. CRM Modified On" := CRMLastModifiedOn;
+            if CRMLastModifiedOn > CRMIntegrationRecord."Last Synch. CRM Modified On" then
+                CRMIntegrationRecord."Last Synch. CRM Modified On" := CRMLastModifiedOn;
             CRMIntegrationRecord.Modify(true);
         end;
     end;

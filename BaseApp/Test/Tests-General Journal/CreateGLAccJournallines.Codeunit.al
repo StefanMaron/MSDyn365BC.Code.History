@@ -33,7 +33,7 @@ codeunit 136401 "Create G/L Acc. Journal lines"
         // Validate generated general journal line against standard journal line
         GenJnlLine.FindFirst;
         StandardGenJnlLine.SetRange("Standard Journal Code", StandJnlCode);
-        StandardGenJnlLine.FindSet;
+        StandardGenJnlLine.FindSet();
         repeat
             GenJnlLine.TestField("Journal Template Name", JnlTemplate);
             GenJnlLine.TestField("Journal Batch Name", JnlBatch);

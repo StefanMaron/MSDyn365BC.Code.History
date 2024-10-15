@@ -108,16 +108,14 @@ table 5765 "Warehouse Request"
         {
             Caption = 'Shipment Date';
         }
-        field(19; Type; Option)
+        field(19; Type; Enum "Warehouse Request Type")
         {
             Caption = 'Type';
             Editable = false;
-            OptionCaption = 'Inbound,Outbound';
-            OptionMembers = Inbound,Outbound;
         }
         field(20; "Put-away / Pick No."; Code[20])
         {
-            CalcFormula = Lookup ("Warehouse Activity Line"."No." WHERE("Source Type" = FIELD("Source Type"),
+            CalcFormula = Lookup("Warehouse Activity Line"."No." WHERE("Source Type" = FIELD("Source Type"),
                                                                         "Source Subtype" = FIELD("Source Subtype"),
                                                                         "Source No." = FIELD("Source No."),
                                                                         "Location Code" = FIELD("Location Code")));
@@ -161,7 +159,7 @@ table 5765 "Warehouse Request"
     procedure DeleteRequest(SourceType: Integer; SourceSubtype: Integer; SourceNo: Code[20])
     begin
         SetSourceFilter(SourceType, SourceSubtype, SourceNo);
-        if not IsEmpty then
+        if not IsEmpty() then
             DeleteAll();
 
         OnAfterDeleteRequest(SourceType, SourceSubtype, SourceNo);

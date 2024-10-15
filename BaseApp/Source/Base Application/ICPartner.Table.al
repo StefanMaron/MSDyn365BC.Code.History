@@ -153,13 +153,13 @@ table 413 "IC Partner"
         AccountingPeriod.SetRange(Closed, false);
         if AccountingPeriod.FindFirst then
             GLEntry.SetFilter("Posting Date", '>=%1', AccountingPeriod."Starting Date");
-        if not GLEntry.IsEmpty then
+        if not GLEntry.IsEmpty() then
             Error(Text000, xRec.Code);
 
         GLSetup.Get();
         if GLSetup."Allow G/L Acc. Deletion Before" <> 0D then begin
             GLEntry.SetFilter("Posting Date", '>=%1', GLSetup."Allow G/L Acc. Deletion Before");
-            if not GLEntry.IsEmpty then
+            if not GLEntry.IsEmpty() then
                 Error(Text001, Code, GLSetup."Allow G/L Acc. Deletion Before");
         end;
 
@@ -172,11 +172,11 @@ table 413 "IC Partner"
                 Error(Text002, Code, Vend.TableCaption, Vend."No.");
 
         ICInbox.SetRange("IC Partner Code", Code);
-        if not ICInbox.IsEmpty then
+        if not ICInbox.IsEmpty() then
             Error(Text003, Code, ICInbox.TableCaption);
 
         ICOutbox.SetRange("IC Partner Code", Code);
-        if not ICOutbox.IsEmpty then
+        if not ICOutbox.IsEmpty() then
             Error(Text003, Code, ICOutbox.TableCaption);
 
         GLEntry.Reset();

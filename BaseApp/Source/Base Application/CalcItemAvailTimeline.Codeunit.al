@@ -57,7 +57,7 @@ codeunit 5540 "Calc. Item Avail. Timeline"
                 TempInventoryEventBuffer2."Availability Date" := InitialDate;
                 repeat
                     TempInventoryEventBuffer2."Remaining Quantity (Base)" += "Remaining Quantity (Base)";
-                until Next = 0;
+                until Next() = 0;
                 InsertTimelineEvent(TempTimelineEvent, TempInventoryEventBuffer2)
             end;
 
@@ -69,7 +69,7 @@ codeunit 5540 "Calc. Item Avail. Timeline"
             if FindSet then
                 repeat
                     InsertTimelineEvent(TempTimelineEvent, TempInventoryEventBuffer);
-                until Next = 0;
+                until Next() = 0;
 
             OnCreateTimelineEventsBeforePlanning(TempTimelineEvent, TempInventoryEventBuffer);
 
@@ -80,7 +80,7 @@ codeunit 5540 "Calc. Item Avail. Timeline"
             if FindSet then
                 repeat
                     InsertTimelineEvent(TempTimelineEvent, TempInventoryEventBuffer);
-                until Next = 0;
+                until Next() = 0;
 
             // Final Inventory
             Reset;
@@ -532,7 +532,7 @@ codeunit 5540 "Calc. Item Avail. Timeline"
         TempEmptyLocation.Init();
         TempEmptyLocation.Insert();
         TempEmptyLocation.SetFilter(Code, LocationFilter);
-        if not TempEmptyLocation.IsEmpty then
+        if not TempEmptyLocation.IsEmpty() then
             exit('');
 
         if BlankFilterStr(LocationFilter) then
@@ -553,7 +553,7 @@ codeunit 5540 "Calc. Item Avail. Timeline"
         TempEmptyItemVariant.Insert();
         TempEmptyItemVariant.SetRange("Item No.", ItemNo);
         TempEmptyItemVariant.SetFilter(Code, VariantFilter);
-        if not TempEmptyItemVariant.IsEmpty then
+        if not TempEmptyItemVariant.IsEmpty() then
             exit('');
 
         if BlankFilterStr(VariantFilter) then
@@ -644,7 +644,7 @@ codeunit 5540 "Calc. Item Avail. Timeline"
                 if not NewSupplyTransfer then
                     NewSupplyTransfer := TimelineEventChange.NewSupply;
 
-            until TimelineEventChange.Next = 0;
+            until TimelineEventChange.Next() = 0;
     end;
 
     local procedure HasLicensePermission(ObjectType: Option; ObjectID: Integer): Boolean

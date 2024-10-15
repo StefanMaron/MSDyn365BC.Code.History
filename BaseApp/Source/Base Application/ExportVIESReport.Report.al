@@ -18,7 +18,7 @@ report 11008 "Export VIES Report"
                 if VATReportLine.FindSet then
                     repeat
                         MakeLineRecord("VAT Report Header", VATReportLine);
-                    until VATReportLine.Next = 0;
+                    until VATReportLine.Next() = 0;
 
                 if VATReportSetup."Export Cancellation Lines" then
                     VATReportLine.SetFilter("Line Type", '<>%1', VATReportLine."Line Type"::New)
@@ -28,7 +28,7 @@ report 11008 "Export VIES Report"
                 if VATReportLine.FindSet then
                     repeat
                         MakeLineRecord("VAT Report Header", VATReportLine);
-                    until VATReportLine.Next = 0;
+                    until VATReportLine.Next() = 0;
 
                 MakeTotalRecord("VAT Report Header");
             end;
@@ -47,7 +47,7 @@ report 11008 "Export VIES Report"
                     ExportFile.CreateOutStream(ExportStream);
                     repeat
                         ExportStream.WriteText(TempDataExportBuffer."Field Value", StrLen(TempDataExportBuffer."Field Value"));
-                    until TempDataExportBuffer.Next = 0;
+                    until TempDataExportBuffer.Next() = 0;
                     ExportFile.Close;
 
                     ClientFileName := MakeFileName("VAT Report Header");
@@ -112,7 +112,7 @@ report 11008 "Export VIES Report"
             repeat
                 TempDataExportBuffer2 := TempDataExportBuffer;
                 TempDataExportBuffer2.Insert();
-            until TempDataExportBuffer.Next = 0;
+            until TempDataExportBuffer.Next() = 0;
     end;
 
     [Scope('OnPrem')]

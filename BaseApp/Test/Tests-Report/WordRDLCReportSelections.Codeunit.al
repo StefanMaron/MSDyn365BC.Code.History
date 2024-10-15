@@ -1211,7 +1211,7 @@ codeunit 134775 "Word & RDLC Report Selections"
         Assert.IsFalse(FileMgt.ServerFileExists(FullFilePath), StrSubstNo(ExpectedMissingFilePathErr, FileName));
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, 8800, 'OnBeforeVerifyXmlContainsDataset', '', false, false)]
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Custom Layout Reporting", 'OnBeforeVerifyXmlContainsDataset', '', false, false)]
     local procedure CancelVerificationOnBeforeVerifyXmlContainsDataset(var CancelVerification: Boolean)
     begin
         CancelVerification := true;

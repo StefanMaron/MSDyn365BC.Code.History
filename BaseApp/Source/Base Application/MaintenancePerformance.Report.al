@@ -96,7 +96,7 @@ report 5982 "Maintenance Performance"
                     repeat
                         if (ServShptHeader."Posting Date" >= StartingDate) and (ServShptHeader."Posting Date" <= EndingDate) then
                             ActualServices := ActualServices + 1
-                    until ServShptHeader.Next = 0;
+                    until ServShptHeader.Next() = 0;
 
                 if AnnualServices > 0 then begin
                     RoundedAmount := Round("Annual Amount", 1);

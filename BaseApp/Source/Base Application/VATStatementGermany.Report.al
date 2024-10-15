@@ -352,7 +352,7 @@ report 11005 "VAT Statement Germany"
                         repeat
                             GLAcc.CalcFields("Net Change", "Additional-Currency Net Change");
                             Amount := ConditionalAdd(Amount, GLAcc."Net Change", GLAcc."Additional-Currency Net Change");
-                        until GLAcc.Next = 0;
+                        until GLAcc.Next() = 0;
                     CalcTotalAmount(VATStmtLine2, TotalAmount, TotalEmpty, TotalBase, TotalUnrealizedAmount, TotalUnrealizedBase);
                 end;
             VATStmtLine2.Type::"VAT Entry Totaling":
@@ -432,7 +432,7 @@ report 11005 "VAT Statement Germany"
                                 ErrorText := ErrorText + '...';
                                 VATStmtLine2.FieldError("Row No.", ErrorText);
                             end;
-                        until VATStmtLine2.Next = 0;
+                        until VATStmtLine2.Next() = 0;
                 end;
             VATStmtLine2.Type::Description:
                 ;

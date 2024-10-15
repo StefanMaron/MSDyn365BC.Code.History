@@ -1395,7 +1395,7 @@ report 11514 "G/L Setup Information"
                                 NumberSeriesBuffer2.Copy(NumberSeriesBuffer);
                                 NumberSeriesBuffer2.Insert();
                             end;
-                        until RecRef.Next = 0;
+                        until RecRef.Next() = 0;
                     RecRef.Close;
                 end;
 
@@ -1452,13 +1452,13 @@ report 11514 "G/L Setup Information"
                                         NumberSeriesBuffer2.Modify();
                                         FirstEntry := true;
                                     end;
-                                until NumberSeriesBuffer2.Next = 0;
+                                until NumberSeriesBuffer2.Next() = 0;
                             if FirstEntry then begin
                                 NumberSeriesBuffer2.Get(NumberSeriesBuffer."Entry No.");
                                 NumberSeriesBuffer2.Checked := true;
                                 NumberSeriesBuffer2.Modify();
                             end;
-                        until NumberSeriesBuffer.Next = 0;
+                        until NumberSeriesBuffer.Next() = 0;
                     SetRange(Number, 1, ErrorCounter);
                 end;
             }
