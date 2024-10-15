@@ -1,3 +1,4 @@
+#if not CLEAN22
 codeunit 144023 "ERM Accrual Accounting"
 {
     // 1. Test to verify GL Entries when General Journal Line is posted with Automatic Account Group.
@@ -12,6 +13,9 @@ codeunit 144023 "ERM Accrual Accounting"
 
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Moved to Automatic Account Codes app.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
 
     trigger OnRun()
     begin
@@ -132,4 +136,4 @@ codeunit 144023 "ERM Accrual Accounting"
         Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualMsg);
     end;
 }
-
+#endif

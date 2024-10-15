@@ -1,7 +1,11 @@
+#if not CLEAN22
 codeunit 134150 "ERM Intrastat Journal"
 {
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
+    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
 
     trigger OnRun()
     begin
@@ -80,6 +84,7 @@ codeunit 134150 "ERM Intrastat Journal"
         CreateAndVerifyIntrastatLine(DocumentNo, PurchaseLine."No.", PurchaseLine.Quantity, IntrastatJnlLine.Type::Receipt);
     end;
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure NoIntrastatLineForPurchase()
@@ -97,6 +102,7 @@ codeunit 134150 "ERM Intrastat Journal"
         // [THEN] Verify that no Intrastat Journal Lines exist for Posted Purchase Order.
         DeleteAndVerifyNoIntrastatLine;
     end;
+#endif
 
     [Test]
     [HandlerFunctions('UndoDocumentConfirmHandler')]
@@ -188,6 +194,7 @@ codeunit 134150 "ERM Intrastat Journal"
         CreateAndVerifyIntrastatLine(DocumentNo, SalesLine."No.", SalesLine.Quantity, IntrastatJnlLine.Type::Shipment);
     end;
 
+#if not CLEAN22
     [Test]
     [Scope('OnPrem')]
     procedure NoIntrastatLineForSales()
@@ -205,6 +212,7 @@ codeunit 134150 "ERM Intrastat Journal"
         // [THEN] Verify that no lines exist for Posted Sales Order.
         DeleteAndVerifyNoIntrastatLine;
     end;
+#endif
 
     [Test]
     [HandlerFunctions('UndoDocumentConfirmHandler')]
@@ -1240,43 +1248,6 @@ codeunit 134150 "ERM Intrastat Journal"
         // [THEN] Error message is logged for Intrastat Journal Line
         VerifyErrorMessageExists(IntrastatJnlLine);
     end;
-
-#if not CLEAN19
-    [Test]
-    [HandlerFunctions('FieldListModalPageHandler')]
-    [Scope('OnPrem')]
-    procedure ChecklistSetupUI()
-    var
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        IntrastatChecklistSetupPage: TestPage "Intrastat Checklist Setup";
-        IntrastatSetupPage: TestPage "Intrastat Setup";
-    begin
-        // [SCENARIO] User select fields from Intrastat Journal Line table to verify
-        Initialize();
-        // [GIVEN] Intrastat Checklist Setup, verify "Document No."
-        CreateIntrastatChecklistSetup;
-        // [GIVEN] Intrastat Setup page
-        IntrastatSetupPage.OpenEdit;
-        IntrastatChecklistSetupPage.Trap;
-        // [WHEN] Run Intrastat Checklist Setup page
-        IntrastatSetupPage.IntrastatChecklistSetup.Invoke;
-        IntrastatChecklistSetupPage.First;
-        // [THEN] Field "Document No." exists on the page
-        Assert.AreEqual(
-          IntrastatJnlLine.FieldName("Document No."),
-          IntrastatChecklistSetupPage."Field Name".Value,
-          'field Document No. should exist on the page');
-
-        // [WHEN] Lookup for other fields and select the first one FieldListModalPageHandler
-        IntrastatChecklistSetupPage."Field Name".Lookup;
-        // [THEN] Field "Type" should exist on the page
-        IntrastatChecklistSetupPage.First;
-        Assert.AreEqual(
-          IntrastatJnlLine.FieldName(Type),
-          IntrastatChecklistSetupPage."Field Name".Value,
-          'field Type should exist on the page');
-    end;
-#endif
 
     [Test]
     [HandlerFunctions('ConfirmHandler,MessageHandler')]
@@ -3246,6 +3217,7 @@ codeunit 134150 "ERM Intrastat Journal"
         FindItemLedgerEntry(ItemLedgerEntry, ServiceHeader."Customer No.", ItemNo);
     end;
 
+#if not CLEAN22
     local procedure DeleteAndVerifyNoIntrastatLine()
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
@@ -3262,6 +3234,7 @@ codeunit 134150 "ERM Intrastat Journal"
         // Verify.
         VerifyNoIntrastatLineExist(IntrastatJnlBatch."Journal Template Name", IntrastatJnlBatch.Name);
     end;
+#endif
 
     local procedure GetCountryRegionCode(): Code[10]
     var
@@ -3722,30 +3695,9 @@ codeunit 134150 "ERM Intrastat Journal"
         VendorLookup.OK.Invoke;
     end;
 
-#if not CLEAN19
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure FieldListModalPageHandler(var FieldsLookup: TestPage "Fields Lookup")
-    begin
-        FieldsLookup.First;
-        FieldsLookup.OK.Invoke;
-    end;
-#endif
     local procedure CreateIntrastatChecklistSetup()
-#if not CLEAN19
-    var
-        IntrastatChecklistSetup: Record "Intrastat Checklist Setup";
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-    begin
-        IntrastatChecklistSetup.DeleteAll();
-
-        IntrastatChecklistSetup.Init();
-        IntrastatChecklistSetup.Validate("Field No.", IntrastatJnlLine.FieldNo("Document No."));
-        IntrastatChecklistSetup.Insert();
-#else
     begin
         CreateAdvIntrastatChecklistSetup();
-#endif
     end;
 
     local procedure CreateAdvIntrastatChecklistSetup()
@@ -3829,4 +3781,4 @@ codeunit 134150 "ERM Intrastat Journal"
         IntrastatMakeDiskTaxAuth.Cancel.Invoke();
     end;
 }
-
+#endif

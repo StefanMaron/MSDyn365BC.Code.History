@@ -92,17 +92,16 @@
         ClassifySessionEvent();
         ClassifyUserDefaultStyleSheet();
         ClassifyUserPlan();
+#if not CLEAN22
         ClassifyUserGroupAccessControl();
         ClassifyUserGroupMember();
+#endif
         ClassifyAADApplication();
         ClassifyAnalysisSelectedDimension();
         ClassifyItemAnalysisViewBudgEntry();
         ClassifyItemAnalysisViewEntry();
         ClassifyTokenCache();
         ClassifyTenantLicenseState();
-#if not CLEAN19
-        ClassifyOutlookSynchUserSetup();
-#endif
         ClassifyFAJournalSetup();
         ClassifyCustomizedCalendarEntry();
         ClassifyOfficeContactDetails();
@@ -168,6 +167,7 @@
         ClassifyICInboxSalesHeader();
         ClassifyHandledICOutboxPurchHdr();
         ClassifyPersistentBlob();
+        ClassifyPublishedApplication();
     end;
 
     local procedure ClassifyTablesPart2()
@@ -295,6 +295,7 @@
         ClassifyItemLedgerEntry();
         ClassifyTimeSheetHeader();
         ClassifyItem();
+        ClassifyEntityText();
         ClassifyVendorLedgerEntry();
         ClassifyVendor();
         ClassifyCustLedgerEntry();
@@ -305,6 +306,7 @@
         ClassifyManufacturingUserTemplate();
         ClassifyVendorBankAccount();
         ClassifyApiWebhookSubscripitonFields();
+        ClassifyExternalEventSubscriptionFields();
         ClassifySupportInformation();
         ClassifyCRMSynchStatus();
         ClassifyRetentionPolicyLogEntry();
@@ -330,8 +332,6 @@
         ClassifyDataMigrationError();
         ClassifyDataMigrationParameters();
         ClassifyErrorMessage();
-        ClassifyIntegrationRecord();
-        ClassifyIntegrationRecordArchive();
         ClassifyIntegrationSynchJobErrors();
         ClassifyInventoryPageData();
         ClassifyNotificationContext();
@@ -366,16 +366,14 @@
         ClassifyParallelSessionEntry();
         ClassifyWorkflowsEntriesBuffer();
         ClassifyRecordSetTree();
-#if not CLEAN19
-        ClassifyOutlookSynchLink();
-#endif
 #if not CLEAN20
         ClassifyExtraSettings();
 #endif
         ClassifyApplicationUserSettings();
-        ClassifyCustomPermissionSetInPlan();
+        ClassifyPermissionSetInPlan();
         ClassifyFinancialReports();
         ClassifyRemitToAddress();
+        ClassifyICBankAccount();
     end;
 
     local procedure ClassifyFinancialReports()
@@ -424,7 +422,9 @@
         SetTableFieldsToNormal(DATABASE::"Exch. Rate Adjmt. Ledg. Entry");
         SetTableFieldsToNormal(DATABASE::"BOM Component");
         SetTableFieldsToNormal(DATABASE::"Customer Posting Group");
+        SetTableFieldsToNormal(DATABASE::"Alt. Customer Posting Group");
         SetTableFieldsToNormal(DATABASE::"Vendor Posting Group");
+        SetTableFieldsToNormal(DATABASE::"Alt. Vendor Posting Group");
         SetTableFieldsToNormal(DATABASE::"Inventory Posting Group");
         SetTableFieldsToNormal(DATABASE::"G/L Budget Name");
         SetTableFieldsToNormal(DATABASE::"Comment Line");
@@ -468,7 +468,9 @@
         SetTableFieldsToNormal(DATABASE::"Source Code Setup");
         SetTableFieldsToNormal(DATABASE::"Req. Wksh. Template");
         SetTableFieldsToNormal(DATABASE::"Requisition Wksh. Name");
+#if not CLEAN22
         SetTableFieldsToNormal(DATABASE::"Intrastat Setup");
+#endif
         SetTableFieldsToNormal(DATABASE::"VAT Reg. No. Srv Config");
         SetTableFieldsToNormal(DATABASE::"VAT Reg. No. Srv. Template");
         SetTableFieldsToNormal(DATABASE::"Gen. Business Posting Group");
@@ -480,13 +482,12 @@
         SetTableFieldsToNormal(DATABASE::"Transaction Type");
         SetTableFieldsToNormal(DATABASE::"Transport Method");
         SetTableFieldsToNormal(DATABASE::"Tariff Number");
+#if not CLEAN22
         SetTableFieldsToNormal(DATABASE::"Intrastat Jnl. Template");
         SetTableFieldsToNormal(DATABASE::"Intrastat Jnl. Batch");
         SetTableFieldsToNormal(DATABASE::"Intrastat Jnl. Line");
-#if not CLEAN19
-        SetTableFieldsToNormal(DATABASE::"Intrastat Checklist Setup");
-#endif
         SetTableFieldsToNormal(DATABASE::"Advanced Intrastat Checklist");
+#endif
         SetTableFieldsToNormal(DATABASE::"Currency Amount");
         SetTableFieldsToNormal(DATABASE::"Customer Amount");
         SetTableFieldsToNormal(DATABASE::"Vendor Amount");
@@ -781,6 +782,7 @@
         SetTableFieldsToNormal(DATABASE::"Time Series Forecast");
         SetTableFieldsToNormal(2004); // Azure AI Usage table
         SetTableFieldsToNormal(DATABASE::"Image Analysis Setup");
+        SetTableFieldsToNormal(DATABASE::"Image Analysis Scenario");
         SetTableFieldsToNormal(DATABASE::"Sales Document Icon");
 #if not CLEAN21
         SetTableFieldsToNormal(DATABASE::"O365 Customer");
@@ -869,7 +871,7 @@
         SetTableFieldsToNormal(DATABASE::"RM Matrix Management");
         SetTableFieldsToNormal(DATABASE::"Interaction Tmpl. Language");
         SetTableFieldsToNormal(DATABASE::"Segment Interaction Language");
-#if not CLEAN19
+#if not CLEAN20
         SetTableFieldsToNormal(DATABASE::"Customer Template");
 #endif
         SetTableFieldsToNormal(DATABASE::Rating);
@@ -894,15 +896,6 @@
         SetTableFieldsToNormal(DATABASE::"Human Resources Setup");
         SetTableFieldsToNormal(DATABASE::"HR Confidential Comment Line");
         SetTableFieldsToNormal(DATABASE::"Human Resource Unit of Measure");
-#if not CLEAN19
-        SetTableFieldsToNormal(DATABASE::"Outlook Synch. Entity");
-        SetTableFieldsToNormal(DATABASE::"Outlook Synch. Entity Element");
-        SetTableFieldsToNormal(DATABASE::"Outlook Synch. Filter");
-        SetTableFieldsToNormal(DATABASE::"Outlook Synch. Field");
-        SetTableFieldsToNormal(DATABASE::"Outlook Synch. Lookup Name");
-        SetTableFieldsToNormal(DATABASE::"Outlook Synch. Option Correl.");
-        SetTableFieldsToNormal(DATABASE::"Outlook Synch. Dependency");
-#endif
         SetTableFieldsToNormal(DATABASE::"Exchange Folder");
         SetTableFieldsToNormal(DATABASE::"Exchange Service Setup");
         SetTableFieldsToNormal(DATABASE::"CRM Redirect");
@@ -951,7 +944,6 @@
         SetTableFieldsToNormal(DATABASE::"CRM NAV Connection");
         SetTableFieldsToNormal(DATABASE::"CRM Synch. Job Status Cue");
         SetTableFieldsToNormal(DATABASE::"CRM Full Synch. Review Line");
-        SetTableFieldsToNormal(DATABASE::"Ext Txt ID Integration Record");
         SetTableFieldsToNormal(DATABASE::"Item Variant");
         SetTableFieldsToNormal(DATABASE::"Unit of Measure Translation");
         SetTableFieldsToNormal(DATABASE::"Item Unit of Measure");
@@ -1011,9 +1003,6 @@
         SetTableFieldsToNormal(DATABASE::"Responsibility Center");
         SetTableFieldsToNormal(DATABASE::"Item Substitution");
         SetTableFieldsToNormal(DATABASE::"Substitution Condition");
-#if not CLEAN19
-        SetTableFieldsToNormal(DATABASE::"Item Cross Reference");
-#endif        
         SetTableFieldsToNormal(DATABASE::"Item Reference");
         SetTableFieldsToNormal(DATABASE::"Nonstock Item");
         SetTableFieldsToNormal(DATABASE::"Nonstock Item Setup");
@@ -1235,12 +1224,15 @@
         SetTableFieldsToNormal(DATABASE::"Config. Field Map");
         SetTableFieldsToNormal(DATABASE::"Config. Table Processing Rule");
         SetTableFieldsToNormal(DATABASE::"Config. Record For Processing");
+#if not CLEAN22
         SetTableFieldsToNormal(DATABASE::"User Group");
         SetTableFieldsToNormal(DATABASE::"User Group Permission Set");
+        SetTableFieldsToNormal(DATABASE::"User Group Plan");
+#endif
 #if not CLEAN20
         SetTableFieldsToNormal(DATABASE::"Plan Permission Set");
 #endif
-        SetTableFieldsToNormal(DATABASE::"User Group Plan");
+        SetTableFieldsToNormal(9020); // Security Group
         SetTableFieldsToNormal(DATABASE::"Team Member Cue");
         SetTableFieldsToNormal(DATABASE::"Warehouse Basic Cue");
         SetTableFieldsToNormal(DATABASE::"Warehouse WMS Cue");
@@ -1403,9 +1395,6 @@
     begin
         SetTableFieldsToNormal(DATABASE::"Inter. Log Entry Comment Line");
         SetTableFieldsToNormal(DATABASE::"To-do Interaction Language");
-#if not CLEAN19
-        SetTableFieldsToNormal(DATABASE::"Outlook Synch. Setup Detail");
-#endif
         SetTableFieldsToNormal(DATABASE::"CRM Connection Setup");
         SetTableFieldsToNormal(DATABASE::"Production Order");
         SetTableFieldsToNormal(DATABASE::"Transfer Header");
@@ -1422,7 +1411,9 @@
         SetTableFieldsToNormal(DATABASE::"Power BI Report Configuration");
         SetTableFieldsToNormal(DATABASE::"Power BI Report Uploads");
         SetTableFieldsToNormal(DATABASE::"Power BI User Status");
+#if not CLEAN22
         SetTableFieldsToNormal(DATABASE::"Power BI Service Status Setup");
+#endif
         SetTableFieldsToNormal(DATABASE::"Power BI Customer Reports");
         SetTableFieldsToNormal(DATABASE::"Power BI Blob");
         SetTableFieldsToNormal(DATABASE::"Power BI Default Selection");
@@ -1484,7 +1475,6 @@
         SetTableFieldsToNormal(Database::"Retention Policy Setup Line");
         SetTableFieldsToNormal(3903); // Database::"Reten. Pol. Allowed Table"
         SetTableFieldsToNormal(Database::"Feature Data Update Status");
-        SetTableFieldsToNormal(Database::"Integration Management Setup");
         SetTableFieldsToNormal(Database::"OData Initialized Status");
         SetTableFieldsToNormal(149000); // Database::"BCPT Header"
         SetTableFieldsToNormal(149001); // Database::"BCPT Line"
@@ -1873,26 +1863,6 @@
         SetFieldToCompanyConfidential(TableNo, DummyIntegrationSynchJobErrors.FieldNo("Destination Record ID"));
     end;
 
-    local procedure ClassifyIntegrationRecordArchive()
-    var
-        DummyIntegrationRecordArchive: Record "Integration Record Archive";
-        TableNo: Integer;
-    begin
-        TableNo := DATABASE::"Integration Record Archive";
-        SetTableFieldsToNormal(TableNo);
-        SetFieldToCompanyConfidential(TableNo, DummyIntegrationRecordArchive.FieldNo("Record ID"));
-    end;
-
-    local procedure ClassifyIntegrationRecord()
-    var
-        DummyIntegrationRecord: Record "Integration Record";
-        TableNo: Integer;
-    begin
-        TableNo := DATABASE::"Integration Record";
-        SetTableFieldsToNormal(TableNo);
-        SetFieldToCompanyConfidential(TableNo, DummyIntegrationRecord.FieldNo("Record ID"));
-    end;
-
     local procedure ClassifyErrorMessage()
     var
         DummyErrorMessage: Record "Error Message";
@@ -1973,18 +1943,6 @@
         SetTableFieldsToNormal(TableNo);
         SetFieldToCompanyConfidential(TableNo, DummyBankAccount.FieldNo("Bank Stmt. Service Record ID"));
     end;
-
-#if not CLEAN19
-    local procedure ClassifyOutlookSynchLink()
-    var
-        DummyOutlookSynchLink: Record "Outlook Synch. Link";
-        TableNo: Integer;
-    begin
-        TableNo := DATABASE::"Outlook Synch. Link";
-        SetTableFieldsToNormal(TableNo);
-        SetFieldToCompanyConfidential(TableNo, DummyOutlookSynchLink.FieldNo("Record ID"));
-    end;
-#endif
 
     local procedure ClassifyCreditTransferEntry()
     var
@@ -2467,6 +2425,7 @@
         SetFieldToPersonal(TableNo, 1); // "UserPlan"."User Security ID"
     end;
 
+#if not CLEAN22
     local procedure ClassifyUserGroupAccessControl()
     var
         DummyUserGroupAccessControl: Record "User Group Access Control";
@@ -2487,6 +2446,7 @@
         SetFieldToPersonal(TableNo, DummyUserGroupMember.FieldNo("User Security ID"));
         SetFieldToPersonal(TableNo, DummyUserGroupMember.FieldNo("User Group Code"));
     end;
+#endif
 
     local procedure ClassifyAADApplication()
     var
@@ -2605,18 +2565,6 @@
         SetTableFieldsToNormal(TableNo);
         SetFieldToPersonal(TableNo, DummyTenantLicenseState.FieldNo("User Security ID"));
     end;
-
-#if not CLEAN19
-    local procedure ClassifyOutlookSynchUserSetup()
-    var
-        DummyOutlookSynchUserSetup: Record "Outlook Synch. User Setup";
-        TableNo: Integer;
-    begin
-        TableNo := DATABASE::"Outlook Synch. User Setup";
-        SetTableFieldsToNormal(TableNo);
-        SetFieldToPersonal(TableNo, DummyOutlookSynchUserSetup.FieldNo("User ID"));
-    end;
-#endif
 
     local procedure ClassifyFAJournalSetup()
     var
@@ -3053,6 +3001,21 @@
         SetFieldToPersonal(TableNo, DummyPurchaseLineArchive.FieldNo("Tax Area Code"));
     end;
 
+    local procedure ClassifyPublishedApplication()
+    var
+        DummyPublishedApplication: Record "Published Application";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"Published Application";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToPersonal(TableNo, DummyPublishedApplication.FieldNo(Description));
+        SetFieldToPersonal(TableNo, DummyPublishedApplication.FieldNo(Blob));
+        SetFieldToPersonal(TableNo, DummyPublishedApplication.FieldNo(Brief));
+        SetFieldToPersonal(TableNo, DummyPublishedApplication.FieldNo(Logo));
+        SetFieldToPersonal(TableNo, DummyPublishedApplication.FieldNo(Documentation));
+        SetFieldToPersonal(TableNo, DummyPublishedApplication.FieldNo(Screenshots));
+    end;
+
     local procedure ClassifyPurchaseHeaderArchive()
     var
         DummyPurchaseHeaderArchive: Record "Purchase Header Archive";
@@ -3236,12 +3199,16 @@
 
     local procedure ClassifyMarketingSetup()
     var
+#if not CLEAN22
         DummyMarketingSetup: Record "Marketing Setup";
+#endif
         TableNo: Integer;
     begin
         TableNo := DATABASE::"Marketing Setup";
         SetTableFieldsToNormal(TableNo);
+#if not CLEAN22
         SetFieldToPersonal(TableNo, DummyMarketingSetup.FieldNo("Exchange Account User Name"));
+#endif
     end;
 
     local procedure ClassifySegmentLine()
@@ -4073,6 +4040,8 @@
         SetFieldToPersonal(9988, 4); // Template
         SetFieldToPersonal(9990, 1); // Code
         SetFieldToPersonal(9990, 7); // Related Table Code
+        SetFieldToPersonal(9989, 1); // Word Template Code
+        SetFieldToPersonal(9989, 5); // Exclude
     end;
 
     local procedure ClassifyDocumentSharing()
@@ -6088,6 +6057,16 @@
         SetFieldToSensitive(TableNo, DummyAPIWebhookSubscription.FieldNo("Client State"));
     end;
 
+    local procedure ClassifyExternalEventSubscriptionFields()
+    var
+        DummyExternalEventSubscription: Record "External Event Subscription";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"External Event Subscription";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToSensitive(TableNo, DummyExternalEventSubscription.FieldNo("Client State"));
+    end;
+
     local procedure ClassifyUserSetup()
     var
         DummyUserSetup: Record "User Setup";
@@ -6484,6 +6463,13 @@
         TableNo := DATABASE::Item;
         SetTableFieldsToNormal(TableNo);
         SetFieldToPersonal(TableNo, DummyItem.FieldNo("Application Wksh. User ID"));
+    end;
+
+    local procedure ClassifyEntityText()
+    begin
+        SetTableFieldsToNormal(Database::"Entity Text");
+        SetTableFieldsToNormal(2010); // Azure OpenAi Settings
+        SetFieldToCompanyConfidential(2010, 4); // Secret
     end;
 
     local procedure ClassifyVendorLedgerEntry()
@@ -7085,7 +7071,7 @@
         SetFieldToCompanyConfidential(TableNo, BankAccRecMatchBuffer.FieldNo("Bank Account No."));
     end;
 
-    local procedure ClassifyCustomPermissionSetInPlan()
+    local procedure ClassifyPermissionSetInPlan()
     var
         TableNo: Integer;
     begin
@@ -7093,6 +7079,10 @@
         SetTableFieldsToNormal(TableNo);
         SetFieldToCompanyConfidential(TableNo, 3); // FieldNo("Role ID")
         SetFieldToCompanyConfidential(TableNo, 8); // FieldNo("Company Name")
+
+        TableNo := 9019; // Database::"Default Permission Set In Plan"
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToCompanyConfidential(TableNo, 3); // FieldNo("Role ID")
     end;
 
     local procedure ClassifyRemitToAddress()
@@ -7115,5 +7105,17 @@
         SetFieldToPersonal(TableNo, RemitAddress.FieldNo(County));
         SetFieldToPersonal(TableNo, RemitAddress.FieldNo("E-Mail"));
         SetFieldToPersonal(TableNo, RemitAddress.FieldNo("Home Page"));
+    end;
+
+    local procedure ClassifyICBankAccount()
+    var
+        RemitAddress: Record "IC Bank Account";
+        TableNo: Integer;
+    begin
+        TableNo := DATABASE::"IC Bank Account";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToPersonal(TableNo, RemitAddress.FieldNo(Name));
+        SetFieldToPersonal(TableNo, RemitAddress.FieldNo("Bank Account No."));
+        SetFieldToPersonal(TableNo, RemitAddress.FieldNo(IBAN));
     end;
 }

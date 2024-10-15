@@ -18,7 +18,7 @@ page 32000005 "Payment Method Codes"
                     ApplicationArea = All;
                     ToolTip = 'Specifies a code to identify the payment term.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies a description of the terms.';

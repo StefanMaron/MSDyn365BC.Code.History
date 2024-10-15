@@ -20,8 +20,10 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Payment Buffer");
 #endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Vendor Payment Buffer");
+#if not CLEAN22
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Automatic Acc. Header");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Automatic Acc. Line");
+#endif
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Intrastat - File Setup");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Depr. Diff. Posting Buffer");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Reference File Setup");

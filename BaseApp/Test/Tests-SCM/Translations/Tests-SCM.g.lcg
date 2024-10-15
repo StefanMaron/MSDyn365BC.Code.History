@@ -131,15 +131,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Item Blocked Test - NamedType SalesBlockedErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2188927000 - NamedType 3312755539" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Enabled must be equal to 'All Users'  in Feature Key: ID=DocumentJournalBackgroundCheck]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Item Jnl. Error Handling - NamedType DisabledFeatureErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2188927000 - NamedType 2126021569" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must have a value]]></Val>
@@ -4613,6 +4604,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory Miscellaneous - NamedType TransferOrderReceiptLineNotErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3961248247 - NamedType 1430239001" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Transfer Order is not received during batch post]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory Miscellaneous - NamedType TransferOrderReceiveBatchPostErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3961248247 - NamedType 834435722" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Transfer Order is not shipped during batch post]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory Miscellaneous - NamedType TransferOrderShipBatchPostErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3961248247 - NamedType 2539356102" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Transfer order should be completely shipped.]]></Val>
@@ -4631,6 +4640,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory Miscellaneous - NamedType TransferOrderShippingNotErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3961248247 - NamedType 3652799506" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Unexpected message: "%1". Expected: "%2"]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory Miscellaneous - NamedType UnexpectedMessage)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3961248247 - NamedType 1433120437" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong number of transfer orders to print]]></Val>
@@ -4638,6 +4656,51 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Inventory Miscellaneous - NamedType WrongNumberOfOrdersToPrintErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3961248247 - Method 48161465 - NamedType 2485944915" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1|%2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Transfer Header code, %2 = Transfer Header code]D;]A;(LookupHint=Codeunit SCM Inventory Miscellaneous - Method BatchPostDirectTransferTransferOrder - NamedType TransferFilterLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3961248247 - Method 3732861694 - NamedType 2485944915" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1|%2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Transfer Header code, %2 = Transfer Header code]D;]A;(LookupHint=Codeunit SCM Inventory Miscellaneous - Method BatchPostReceiveTransferOrder - NamedType TransferFilterLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3961248247 - Method 3544889110 - NamedType 2485944915" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1|%2|%3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Transfer Header code, %2 = Transfer Header code, %3 = Transfer Header code]D;]A;(LookupHint=Codeunit SCM Inventory Miscellaneous - Method BatchPostReceiveTransferOrderWithTwoNotShipped - NamedType TransferFilterLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3961248247 - Method 3025586237 - NamedType 2485944915" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1|%2]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Transfer Header code, %2 = Transfer Header code]D;]A;(LookupHint=Codeunit SCM Inventory Miscellaneous - Method BatchPostShipTransferOrder - NamedType TransferFilterLbl)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3961248247 - Method 1836635709 - NamedType 2485944915" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[%1|%2|%3]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Transfer Header code, %2 = Transfer Header code, %3 = Transfer Header code]D;]A;(LookupHint=Codeunit SCM Inventory Miscellaneous - Method BatchPostShipTransferOrderWithNoQuantity - NamedType TransferFilterLbl)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2137039471 - NamedType 1813302585" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -7995,6 +8058,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Manufacturing - NamedType ProdOrdRtngLnNotExistErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1233714583 - NamedType 2174063146" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Production Order Routing Lines were found with an incorrect Routing No.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Manufacturing - NamedType ProdOrdRtngLnWrongRoutingNoErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1233714583 - NamedType 3114760801" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -11570,6 +11642,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Production Orders - NamedType WrongLotQtyOnItemJnlErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3590079757 - NamedType 3958965251" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Actual time used on "Production Order Statistics" Page was incorrect. Should be equal to sum of "Setup Time", "Run Time" and "Stop Time".]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Production Orders II - NamedType ActualTimeUsedErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3590079757 - NamedType 3201592730" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Cancel reservation]]></Val>
@@ -11921,6 +12002,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Purchases & Payables - NamedType AssociatedSalesOrderError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2922115478 - NamedType 2702302391" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot post the invoice]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Purchases & Payables - NamedType CannotPostInvoiceErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2922115478 - NamedType 1933280002" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Location Code gets changed on purchase line.]]></Val>
@@ -11993,6 +12083,33 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Purchases & Payables - NamedType OrdersDeletedError)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2922115478 - NamedType 1607127864" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to post the %1?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Document Type]D;]A;(LookupHint=Codeunit SCM Purchases & Payables - NamedType PostDocConfirmQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2922115478 - NamedType 1433715481" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to post the receipt?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Purchases & Payables - NamedType ReceiveConfirmQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2922115478 - NamedType 3394273634" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to post the receipt and invoice?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Purchases & Payables - NamedType ReceiveInvoiceConfirmQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2922115478 - NamedType 66211046" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Return Orders must be deleted.]]></Val>
@@ -12027,6 +12144,24 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Purchases & Payables - NamedType SelltoCustomerBlankErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2922115478 - NamedType 3269445698" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to post the shipment?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Purchases & Payables - NamedType ShipConfirmQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2922115478 - NamedType 145803633" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to post the shipment and invoice?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Purchases & Payables - NamedType ShipInvoiceConfirmQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2810759144 - NamedType 3114637384" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -12589,7 +12724,7 @@
   </Item>
   <Item ItemId=";Codeunit 3764345726 - NamedType 699736859" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Item Tracking Serial No.  Lot No. %1 Package No.  for Item No. %2 Variant  cannot be fully applied.]]></Val>
+      <Val><![CDATA[Item Tracking Serial No.  Lot No. %1 for Item No. %2 Variant  cannot be fully applied.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -13262,6 +13397,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Sales & Receivables - NamedType AutomaticReservationMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 714575624 - NamedType 2702302391" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot post the invoice]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Sales & Receivables - NamedType CannotPostInvoiceErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 714575624 - NamedType 3651476427" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[This batch job deletes entries]]></Val>
@@ -13334,6 +13478,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Sales & Receivables - NamedType NumberofLineErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 714575624 - NamedType 1607127864" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to post the %1?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Document Type]D;]A;(LookupHint=Codeunit SCM Sales & Receivables - NamedType PostDocConfirmQst)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 714575624 - NamedType 3287536173" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Qty. to invoice must be equal.]]></Val>
@@ -13368,6 +13521,42 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Sales & Receivables - NamedType QuantityErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 714575624 - NamedType 1433715481" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to post the receipt?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Sales & Receivables - NamedType ReceiveConfirmQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 714575624 - NamedType 3394273634" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to post the receipt and invoice?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Sales & Receivables - NamedType ReceiveInvoiceConfirmQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 714575624 - NamedType 3269445698" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to post the shipment?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Sales & Receivables - NamedType ShipConfirmQst)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 714575624 - NamedType 145803633" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Do you want to post the shipment and invoice?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Sales & Receivables - NamedType ShipInvoiceConfirmQst)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 714575624 - NamedType 10390114" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -14063,6 +14252,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Transfers - NamedType AnotherItemWithSameDescTxt)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1950942247 - NamedType 3522767768" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected no Derived Transfer Line i.e. line with "Derived From Line No." equal to original transfer line.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Transfers - NamedType DerivedTransLineErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1950942247 - NamedType 1203950504" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[No. of Line Must Be Equal.]]></Val>
@@ -14070,6 +14268,33 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Transfers - NamedType ErrNoOfLinesMustBeEqual)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1950942247 - NamedType 679312264" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected same number of corrected and not corrected Item Ledger Entries for undone Transfer Shipment]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Transfers - NamedType ILECorrectedAndNotErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1950942247 - NamedType 1242230441" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected sum of quantities to be 0 for Item Ledger Entries after undone Transfer Shipment]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Transfers - NamedType ILEIncorrectSumErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1950942247 - NamedType 2016938150" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The Serial No. of the item on the transfer shipment line that was undone was different from the SN on the corresponding transfer line.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Transfers - NamedType IncorrectSNUndoneErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1950942247 - NamedType 1840115643" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -14115,6 +14340,42 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Transfers - NamedType TransferOrderSubpageNotUpdatedErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1950942247 - NamedType 3998952870" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected sum of quantities to be 0 for Transfer Shipment Lines of undone Transfer Shipment]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Transfers - NamedType TransShptIncorrectSumErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1950942247 - NamedType 1397898759" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected Line of undone Transfer Shipment to have "Correction Line"=true, but it din't]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Transfers - NamedType TransShptLineNotCorrectionErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1950942247 - NamedType 830011242" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected Quantity to be 0 after Transfer Shipment was undone]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Transfers - NamedType UndoneTransLineQtyErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1950942247 - NamedType 264972561" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Expected Qty. to Ship to be reset after Transfer Shipment was undone]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Transfers - NamedType UndoneTransLineQtyToShipErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1950942247 - NamedType 3012474141" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -16297,11 +16558,20 @@
   </Item>
   <Item ItemId=";Codeunit 3297871101 - NamedType 2612304741" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You cannot undo line %1 because warehouse activity lines have already been posted.]]></Val>
+      <Val><![CDATA[You cannot undo line %1 because warehouse activity lines have already been created.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse Management II - NamedType UndoErrorMessage)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 3297871101 - NamedType 1960080776" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot undo line %1 because warehouse shipment lines have already been created.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Warehouse Management II - NamedType UndoErrorMessage_Shipment)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1345441247 - NamedType 845954999" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

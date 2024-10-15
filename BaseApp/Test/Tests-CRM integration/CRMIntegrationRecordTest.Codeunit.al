@@ -606,7 +606,7 @@ codeunit 139161 "CRM Integration Record Test"
         Assert.IsTrue(CRMIntegrationRecord.Find(), 'CRM Integration Record is not found.');
         Assert.AreEqual(Database::Customer, CRMIntegrationRecord."Table ID", 'Table ID has wrong value.');
     end;
-    
+
     [Test]
     [Scope('OnPrem')]
     procedure RepairBrokenCouplingsInBulkFull()

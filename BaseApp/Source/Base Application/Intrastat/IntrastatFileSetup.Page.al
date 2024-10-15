@@ -1,3 +1,4 @@
+#if not CLEAN22
 page 13400 "Intrastat - File Setup"
 {
     ApplicationArea = Basic, Suite;
@@ -7,6 +8,9 @@ page 13400 "Intrastat - File Setup"
     PageType = Card;
     SourceTable = "Intrastat - File Setup";
     UsageCategory = Tasks;
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
+    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
 
     layout
     {
@@ -52,4 +56,4 @@ page 13400 "Intrastat - File Setup"
         end;
     end;
 }
-
+#endif

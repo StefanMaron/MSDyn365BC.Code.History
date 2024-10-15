@@ -57,12 +57,4 @@ codeunit 132225 "Library - Item Reference"
         // turn off ItemReferenceMgt.IsEnable()
         UnbindSubscription(LibraryItemReference);
     end;
-
-#if not CLEAN19
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Reference Management", 'OnAfterIsEnabled', '', false, false)]
-    local procedure IsFeatureEnabled(var FeatureEnabled: Boolean)
-    begin
-        FeatureEnabled := true;
-    end;
-#endif
 }

@@ -231,7 +231,7 @@ codeunit 144010 "Company Field Report Test"
         TestBusinessIdentityandHomeCity(3);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure ResourceReportHandler(var ResourceReport: TestRequestPage "Resource - Price List")
@@ -359,7 +359,7 @@ codeunit 144010 "Company Field Report Test"
     end;
 
     [Test]
-    [HandlerFunctions('FinanceChargeMemoReportHandler')]
+    [HandlerFunctions('FinanceChargeMemoReportHandler,ConfirmHandler')]
     [Scope('OnPrem')]
     procedure FinanceChargeMemoReport()
     var
@@ -676,7 +676,7 @@ codeunit 144010 "Company Field Report Test"
         TestBusinessIdentityandHomeCity(0);
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PriceListReportHandler(var PriceListReport: TestRequestPage "Price List")

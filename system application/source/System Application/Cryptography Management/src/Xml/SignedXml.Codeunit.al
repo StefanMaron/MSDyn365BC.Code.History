@@ -9,6 +9,8 @@
 codeunit 1460 SignedXml
 {
     Access = Public;
+    InherentEntitlements = X;
+    InherentPermissions = X;
 
     var
         SignedXmlImpl: Codeunit "SignedXml Impl.";

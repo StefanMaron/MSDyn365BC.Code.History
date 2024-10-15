@@ -190,12 +190,17 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Recurring General Journals';
                         RunObject = page "Recurring General Journal";
                     }
+#if not CLEAN22
                     action("Intrastat Journals")
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Intrastat Journals';
                         RunObject = page "Intrastat Journal";
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '22.0';
+                        ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
                     }
+#endif
                     action("General Journals2")
                     {
                         ApplicationArea = Intercompany;
@@ -401,18 +406,26 @@ page 8901 "Finance Manager Role Center"
                     group("Group10")
                     {
                         Caption = 'Miscellaneous';
+#if not CLEAN22
                         action("Intrastat - Checklist")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Intrastat - Checklist';
                             RunObject = report "Intrastat - Checklist";
+                            ObsoleteState = Pending;
+                            ObsoleteTag = '22.0';
+                            ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
                         }
                         action("Intrastat - Form")
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Intrastat - Form';
                             RunObject = report "Intrastat - Form";
+                            ObsoleteState = Pending;
+                            ObsoleteTag = '22.0';
+                            ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
                         }
+#endif
                         action("Foreign Currency Balance")
                         {
                             ApplicationArea = Basic, Suite;
@@ -2057,12 +2070,17 @@ page 8901 "Finance Manager Role Center"
                 group("Group57")
                 {
                     Caption = 'Intrastat';
+#if not CLEAN22
                     action("Intrastat Setup")
                     {
                         ApplicationArea = BasicEU;
                         Caption = 'Intrastat Setup';
                         RunObject = page "Intrastat Setup";
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '22.0';
+                        ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
                     }
+#endif
                     action("Tariff Numbers")
                     {
                         ApplicationArea = Basic, Suite;
@@ -2105,12 +2123,17 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Areas';
                         RunObject = page "Areas";
                     }
+#if not CLEAN22
                     action("Intrastat Journal Templates")
                     {
                         ApplicationArea = BasicEU;
                         Caption = 'Intrastat Journal Templates';
                         RunObject = page "Intrastat Journal Templates";
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '22.0';
+                        ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
                     }
+#endif
                 }
                 group("Group58")
                 {
@@ -2221,12 +2244,18 @@ page 8901 "Finance Manager Role Center"
                         Caption = 'Vendor Posting Groups';
                         RunObject = page "Vendor Posting Groups";
                     }
+#if not CLEAN22
                     action("Auto. Acc. Groups")
                     {
                         ApplicationArea =;
                         Caption = 'Automatic Acc. Groups';
                         RunObject = page "Automatic Acc. List";
+                        Visible = false;
+                        ObsoleteReason = 'Moved to Automatic Account Codes app.';
+                        ObsoleteState = Pending;
+                        ObsoleteTag = '22.0';
                     }
+#endif
                     action("Bank Account")
                     {
                         ApplicationArea = Basic, Suite;

@@ -1,3 +1,4 @@
+#if not CLEAN22
 codeunit 144025 "UT Accrual Accounting"
 {
     // 1. Purpose of this test to validate On New Record Trigger of Page 11207 - "Automatic Acc. Line".
@@ -20,6 +21,9 @@ codeunit 144025 "UT Accrual Accounting"
 
     Subtype = Test;
     TestPermissions = Disabled;
+    ObsoleteReason = 'Moved to Automatic Account Codes app.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
 
     trigger OnRun()
     begin
@@ -185,4 +189,4 @@ codeunit 144025 "UT Accrual Accounting"
         EditDimensionSetEntries.OK.Invoke;
     end;
 }
-
+#endif

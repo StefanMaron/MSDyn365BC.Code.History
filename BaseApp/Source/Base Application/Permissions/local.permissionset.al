@@ -4,13 +4,17 @@ permissionset 1001 "LOCAL"
     Assignable = true;
     Caption = 'Country/region-specific func.';
 
-    Permissions = tabledata "Automatic Acc. Header" = RIMD,
-                  tabledata "Automatic Acc. Line" = RIMD,
-                  tabledata "Depr. Diff. Posting Buffer" = RIMD,
-                  tabledata "Foreign Payment Types" = RIMD,
-                  tabledata "Intrastat - File Setup" = RIMD,
-                  tabledata "Ref. Payment - Exported" = RIMD,
-                  tabledata "Ref. Payment - Exported Buffer" = RIMD,
-                  tabledata "Ref. Payment - Imported" = RIMD,
-                  tabledata "Reference File Setup" = RIMD;
+    IncludedPermissionSets = "LOCAL READ";
+
+    Permissions = tabledata "Depr. Diff. Posting Buffer" = IMD,
+                  tabledata "Foreign Payment Types" = IMD,
+#if not CLEAN22
+                  tabledata "Automatic Acc. Header" = IMD,
+                  tabledata "Automatic Acc. Line" = IMD,
+#endif
+                  tabledata "Intrastat - File Setup" = IMD,
+                  tabledata "Ref. Payment - Exported" = IMD,
+                  tabledata "Ref. Payment - Exported Buffer" = IMD,
+                  tabledata "Ref. Payment - Imported" = IMD,
+                  tabledata "Reference File Setup" = IMD;
 }

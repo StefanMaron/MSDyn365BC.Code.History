@@ -1,6 +1,10 @@
+#if not CLEAN22
 table 13400 "Intrastat - File Setup"
 {
     Caption = 'Intrastat - File Setup';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
+    ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
 
     fields
     {
@@ -40,4 +44,4 @@ table 13400 "Intrastat - File Setup"
     {
     }
 }
-
+#endif

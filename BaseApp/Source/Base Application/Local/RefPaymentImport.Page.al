@@ -24,7 +24,7 @@ page 32000001 "Ref. Payment - Import"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies an entry number for the reference payment.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the payment amount for the reference payment.';

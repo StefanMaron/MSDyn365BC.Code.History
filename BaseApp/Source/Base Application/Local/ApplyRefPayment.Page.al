@@ -47,7 +47,7 @@ page 32000002 "Apply Ref. Payment"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the customer name that is associated with the reference payment.';
                 }
-                field(Amount; Amount)
+                field(Amount; Rec.Amount)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the payment amount for the reference payment.';
@@ -57,7 +57,7 @@ page 32000002 "Apply Ref. Payment"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a customer number for the reference payment.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description for the reference payment.';

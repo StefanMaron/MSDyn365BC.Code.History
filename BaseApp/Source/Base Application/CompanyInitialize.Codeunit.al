@@ -23,8 +23,10 @@
                   TableData "Warehouse Setup" = i,
                   TableData "Service Mgt. Setup" = i,
                   tabledata "Trial Balance Setup" = i,
-                  TableData "Config. Setup" = i,
-                  TableData "User Group Member" = d;
+#if not CLEAN22
+                  TableData "User Group Member" = d,
+#endif
+                  TableData "Config. Setup" = i;
 
     trigger OnRun()
     var
@@ -199,6 +201,8 @@
         SourceCodeGeneralDeferralTxt: Label 'General Deferral';
         SourceCodeSalesDeferralTxt: Label 'Sales Deferral';
         SourceCodePurchaseDeferralTxt: Label 'Purchase Deferral';
+        ProductionOrderLbl: Label 'PRODUCTION';
+        ProductionOrderTxt: Label 'Production Order';
 
     internal procedure InitializeCompany()
     var
@@ -472,6 +476,7 @@
                 InsertSourceCode("General Deferral", SourceCodeGeneralDeferralLbl, SourceCodeGeneralDeferralTxt);
                 InsertSourceCode("Sales Deferral", SourceCodeSalesDeferralLbl, SourceCodeSalesDeferralTxt);
                 InsertSourceCode("Purchase Deferral", SourceCodePurchaseDeferralLbl, SourceCodePurchaseDeferralTxt);
+                InsertSourceCode("Production Order", ProductionOrderLbl, ProductionOrderTxt);
                 Insert();
             end;
     end;
@@ -688,7 +693,7 @@
         if ClientAddIn.Insert() then;
     end;
 
-    local procedure InsertJobWIPMethod("Code": Code[20]; Description: Text[100]; RecognizedCosts: Option; RecognizedSales: Option; SystemDefinedIndex: Integer)
+    local procedure InsertJobWIPMethod("Code": Code[20]; Description: Text[100]; RecognizedCosts: Enum "Job WIP Recognized Costs Type"; RecognizedSales: Enum "Job WIP Recognized Sales Type"; SystemDefinedIndex: Integer)
     var
         JobWIPMethod: Record "Job WIP Method";
     begin
@@ -761,8 +766,10 @@
     local procedure OnAfterCompanyDeleteRemoveReferences(var Rec: Record Company; RunTrigger: Boolean)
     var
         AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
+#if not CLEAN22
         UserGroupMember: Record "User Group Member";
         UserGroupAccessControl: Record "User Group Access Control";
+#endif
         ApplicationAreaSetup: Record "Application Area Setup";
         CustomReportLayout: Record "Custom Report Layout";
         ReportLayoutSelection: Record "Report Layout Selection";
@@ -773,10 +780,12 @@
 
         AssistedCompanySetupStatus.SetRange("Company Name", Rec.Name);
         AssistedCompanySetupStatus.DeleteAll();
+#if not CLEAN22
         UserGroupMember.SetRange("Company Name", Rec.Name);
         UserGroupMember.DeleteAll();
         UserGroupAccessControl.SetRange("Company Name", Rec.Name);
         UserGroupAccessControl.DeleteAll();
+#endif
         ApplicationAreaSetup.SetRange("Company Name", Rec.Name);
         ApplicationAreaSetup.DeleteAll();
         CustomReportLayout.SetRange("Company Name", Rec.Name);

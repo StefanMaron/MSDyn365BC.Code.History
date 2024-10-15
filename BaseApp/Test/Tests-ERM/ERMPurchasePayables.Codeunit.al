@@ -1151,9 +1151,12 @@
         // [SCENARIO 380573] Purchase Invoice is posted with "Vendor Posting Group" from Purchase Header when "Vendor Posting Group" in Vendor Card is different
 
         Initialize();
+        SetPurchAllowMultiplePostingGroups(true);
 
         // [GIVEN] Vendor "X" with "Vendor Posting Group" "DOMESTIC"
         LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Allow Multiple Posting Groups", true);
+        Vendor.Modify();
         LibraryPurchase.CreatePurchHeader(PurchHeader, PurchHeader."Document Type"::Invoice, Vendor."No.");
         LibraryPurchase.CreatePurchaseLine(
           PurchLine, PurchHeader, PurchLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(100));
@@ -1162,11 +1165,13 @@
 
         // [GIVEN] Purchase Invoice with Vendor "X" and "Vendor Posting Group" "FOREIGN"
         LibraryPurchase.CreateVendorPostingGroup(VendorPostingGroup);
+        LibraryPurchase.CreateAltVendorPostingGroup(Vendor."Vendor Posting Group", VendorPostingGroup.Code);
         PurchHeader.Validate("Vendor Posting Group", VendorPostingGroup.Code);
         PurchHeader.Modify(true);
 
         // [WHEN] Post Purchase Invoice
         InvNo := LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
+        SetPurchAllowMultiplePostingGroups(false);
 
         // [THEN] Vendor Ledger Entry with "Vendor Posting Group" "FOREIGN" is posted
         LibraryERM.FindVendorLedgerEntry(VendLedgEntry, VendLedgEntry."Document Type"::Invoice, InvNo);
@@ -2952,6 +2957,7 @@
         PurchasePrices.StartingDateFilter.AssertEquals(StartingDate);
     end;
 #endif
+
     local procedure SuggestVendorPayment(var GenJournalLine: Record "Gen. Journal Line"; LastPmtDate: Date; VendorNo: Code[20]; SummarizePerVendor: Boolean)
     var
         GenJournalTemplate: Record "Gen. Journal Template";
@@ -2976,6 +2982,16 @@
             "Gen. Journal Account Type"::"G/L Account", '', "Bank Payment Type"::" ");  // Blank value for Account No.
         SuggestVendorPayments.UseRequestPage(false);
         SuggestVendorPayments.Run();
+    end;
+
+    local procedure SetPurchAllowMultiplePostingGroups(AllowMultiplePostingGroups: Boolean)
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup."Allow Multiple Posting Groups" := AllowMultiplePostingGroups;
+        PurchasesPayablesSetup."Check Multiple Posting Groups" := "Posting Group Change Method"::"Alternative Groups";
+        PurchasesPayablesSetup.Modify();
     end;
 
     local procedure UpdateUserSetupPurchRespCtrFilter(var UserSetup: Record "User Setup"; PurchRespCtrFilter: Code[10]) OldPurchRespCtrFilter: Code[10]

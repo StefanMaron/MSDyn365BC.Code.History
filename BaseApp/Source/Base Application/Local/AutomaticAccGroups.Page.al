@@ -1,8 +1,12 @@
+#if not CLEAN22
 page 11206 "Automatic Acc. Groups"
 {
     Caption = 'Automatic Acc. Groups';
     PageType = ListPlus;
     SourceTable = "Automatic Acc. Header";
+    ObsoleteReason = 'Moved to Automatic Account Codes app.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
 
     layout
     {
@@ -16,7 +20,7 @@ page 11206 "Automatic Acc. Groups"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the automatic account group number in this field.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies an appropriate description of the automatic account group in this field.';
@@ -33,5 +37,15 @@ page 11206 "Automatic Acc. Groups"
     actions
     {
     }
+    trigger OnOpenPage()
+    var
+        FeatureKeyManagemnt: Codeunit "Feature Key Management";
+    begin
+        if FeatureKeyManagemnt.IsAutomaticAccountCodesEnabled() then begin
+            Page.Run(4850); // page 4850 "Automatic Account Group"
+            Error('');
+        end;
+    end;
 }
+#endif
 

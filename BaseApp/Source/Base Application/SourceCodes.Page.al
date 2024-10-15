@@ -18,7 +18,7 @@ page 257 "Source Codes"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the source code.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of what the code stands for.';

@@ -62,6 +62,7 @@ codeunit 137072 "SCM Production Orders II"
         CalcMethod: Option "No Levels","One level","All levels";
         IncorrectValueErr: Label 'Incorrect value of %1.%2.';
         ExpectedQuantityErr: Label 'Expected Quantity is wrong.';
+        ActualTimeUsedErr: Label 'Actual time used on "Production Order Statistics" Page was incorrect. Should be equal to sum of "Setup Time", "Run Time" and "Stop Time".';
         ConfirmStatusFinishTxt: Label 'has not been finished. Some output is still missing. Do you still want to finish the order?';
         TimeShiftedOnParentLineMsg: Label 'The production starting date-time of the end item has been moved forward because a subassembly is taking longer than planned.';
         DateConflictInReservErr: Label 'The change leads to a date conflict with existing reservations.';
@@ -788,6 +789,62 @@ codeunit 137072 "SCM Production Orders II"
         // Verify: Verify the correct Actual Cost Amount on Finished Production Order Statistics page.
         ActualCost := FamilyItemQuantity * (FamilyItemQuantity * ChildItem."Unit Cost" + FamilyItemQuantity * ChildItem2."Unit Cost");
         VerifyCostAmountActualOnFinishedProductionOrderStatisticsPage(ProductionOrder."No.", ActualCost);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ActualCapactiyNeedOnFinishedProductionOrderCalculatedCorrectly()
+    var
+        WorkCenter: Record "Work Center";
+        RoutingLine: Record "Routing Line";
+        RoutingHeader: Record "Routing Header";
+        ParentItem: Record Item;
+        ChildItem: Record Item;
+        ProductionOrder: Record "Production Order";
+        ReleasedProdOrderPage: TestPage "Released Production Order";
+        ProductionOrderStatistics: TestPage "Production Order Statistics";
+        Quantity: Integer;
+        SetupTime: Integer;
+        RunTime: Integer;
+        StopTime: Integer;
+    begin
+        // [FEATURE] [Production]
+        // [SCENARIO] Verify that Actual Time Used in "Production Order Statistics" is correct after posting Output Journal with setup time, run time and stop time.
+        // Created for bug 443592: The actual capacity Need in the production order statistics Card shows an incorrect result
+        Initialize();
+        Quantity := LibraryRandom.RandInt(10) + 10;
+        SetupTime := LibraryRandom.RandInt(10) + 10;
+        RunTime := LibraryRandom.RandInt(10) + 10;
+        StopTime := LibraryRandom.RandInt(10) + 10;
+
+        // [GIVEN] WorkCenter with routing
+        LibraryManufacturing.CreateWorkCenterWithCalendar(WorkCenter);
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(
+          RoutingHeader, RoutingLine, '', LibraryUtility.GenerateGUID, RoutingLine.Type::"Work Center", WorkCenter."No.");
+        LibraryManufacturing.UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
+
+        // [GIVEN] Parent and Child Items in with Production BOM and routing
+        CreateItemsSetup(ParentItem, ChildItem);
+        ParentItem.Validate("Replenishment System", ParentItem."Replenishment System"::"Prod. Order");
+        ParentItem.Validate("Routing No.", RoutingHeader."No.");
+        ParentItem.Modify(true);
+
+        // [GIVEN] Inventory of child item we create a Production Order (released) for ParentItem and refresh it
+        CreateAndPostItemJournalLine(ChildItem."No.", LibraryRandom.RandInt(100) + 100, '', '', false);
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, ParentItem."No.", Quantity);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+
+        // [WHEN] Output journal is posted (creating Capacity Ledger Entries)
+        CreateAndPostOutputJournal(ProductionOrder."No.", Quantity, SetupTime, RunTime, StopTime);
+
+        // [THEN] The "Production Order Statistics" page shows the correct time used (by summing the created Capacity Ledger Entries)
+        ReleasedProdOrderPage.OpenEdit();
+        ReleasedProdOrderPage.FILTER.SetFilter("No.", ProductionOrder."No.");
+        ProductionOrderStatistics.Trap();
+        ReleasedProdOrderPage.Statistics.Invoke();
+        Assert.AreEqual(SetupTime + RunTime + StopTime, ProductionOrderStatistics.ActTimeUsed.AsInteger(), ActualTimeUsedErr);
     end;
 
     [Test]
@@ -4168,6 +4225,19 @@ codeunit 137072 "SCM Production Orders II"
         ItemJournalLine.Validate(Quantity, Quantity);
         ItemJournalLine.Modify(true);
         LibraryInventory.PostItemJournalLine(OutputItemJournalBatch."Journal Template Name", OutputItemJournalBatch.Name);
+    end;
+
+    local procedure CreateAndPostOutputJournal(ProductionOrderNo: Code[20]; OutputQty: Decimal; SetupTime: Decimal; RunTime: Decimal; StopTime: Decimal)
+    var
+        ItemJournalLine: Record "Item Journal Line";
+    begin
+        CreateOutputJournalWithExlpodeRouting(ItemJournalLine, ProductionOrderNo);
+        ItemJournalLine.Validate("Output Quantity", OutputQty);
+        ItemJournalLine.Validate("Setup Time", SetupTime);
+        ItemJournalLine.Validate("Run Time", RunTime);
+        ItemJournalLine.Validate("Stop Time", StopTime);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
     end;
 
     local procedure CreateAndPostOutputJournal(ProductionOrderNo: Code[20]; OutputQty: Decimal)

@@ -387,13 +387,18 @@ page 9004 "Bookkeeper Role Center"
                                     Recurring = CONST(true));
                 ToolTip = 'Define how to post transactions that recur with few or no changes to general ledger, bank, customer, vendor, or fixed asset accounts';
             }
+#if not CLEAN22
             action("Intrastat Journals")
             {
                 ApplicationArea = BasicEU;
                 Caption = 'Intrastat Journals';
                 RunObject = Page "Intrastat Jnl. Batches";
                 ToolTip = 'Summarize the value of your purchases and sales with business partners in the EU for statistical purposes and prepare to send it to the relevant authority.';
+                ObsoleteState = Pending;
+                ObsoleteTag = '22.0';
+                ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
             }
+#endif
         }
         area(sections)
         {
@@ -541,6 +546,7 @@ page 9004 "Bookkeeper Role Center"
                     RunObject = Page "No. Series";
                     ToolTip = 'View or edit the number series that are used to organize transactions';
                 }
+#if not CLEAN22
                 action("Automatic Acc. list (new)")
                 {
                     ApplicationArea = Basic, Suite;
@@ -548,7 +554,12 @@ page 9004 "Bookkeeper Role Center"
                     Image = Account;
                     RunObject = Page "Automatic Acc. List";
                     ToolTip = 'View or edit the list of automatic account groups. ';
+                    Visible = false;
+                    ObsoleteReason = 'Moved to Automatic Account Codes app.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '22.0';
                 }
+#endif
             }
         }
         area(creation)

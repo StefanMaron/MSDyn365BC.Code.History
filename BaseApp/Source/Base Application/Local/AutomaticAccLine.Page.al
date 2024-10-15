@@ -1,3 +1,4 @@
+#if not CLEAN22
 page 11207 "Automatic Acc. Line"
 {
     AutoSplitKey = true;
@@ -5,6 +6,9 @@ page 11207 "Automatic Acc. Line"
     DelayedInsert = true;
     PageType = ListPart;
     SourceTable = "Automatic Acc. Line";
+    ObsoleteReason = 'Moved to Automatic Account Codes app.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
 
     layout
     {
@@ -23,7 +27,7 @@ page 11207 "Automatic Acc. Line"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the general ledger account that the allocation must be posted to.';
                 }
-                field(Description; Description)
+                field(Description; Rec.Description)
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = false;
@@ -202,4 +206,4 @@ page 11207 "Automatic Acc. Line"
         AutoHead: Record "Automatic Acc. Header";
         ShortcutDimCode: array[8] of Code[20];
 }
-
+#endif

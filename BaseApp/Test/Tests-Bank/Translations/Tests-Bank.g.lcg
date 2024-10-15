@@ -151,7 +151,7 @@
   </Item>
   <Item ItemId=";Codeunit 184886348 - NamedType 542491835" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 is not equal to Total Balance.]]></Val>
+      <Val><![CDATA[%1 must be equal to Total Balance.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -286,7 +286,7 @@
   </Item>
   <Item ItemId=";Codeunit 456907316 - NamedType 4033331863" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 is not equal to Total Balance.]]></Val>
+      <Val><![CDATA[%1 must be equal to Total Balance.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

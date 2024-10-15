@@ -1,8 +1,16 @@
 table 11204 "Automatic Acc. Line"
 {
     Caption = 'Automatic Acc. Line';
+    ObsoleteReason = 'Moved to Automatic Account Codes app.';
+#if CLEAN22
+    ObsoleteState = Removed;
+    ObsoleteTag = '25.0';
+#else
     DrillDownPageID = "Automatic Acc. Line";
     LookupPageID = "Automatic Acc. Line";
+    ObsoleteState = Pending;
+    ObsoleteTag = '22.0';
+#endif
 
     fields
     {
@@ -53,7 +61,7 @@ table 11204 "Automatic Acc. Line"
         }
         field(7; Description; Text[50])
         {
-            CalcFormula = Lookup ("G/L Account".Name WHERE("No." = FIELD("G/L Account No.")));
+            CalcFormula = Lookup("G/L Account".Name WHERE("No." = FIELD("G/L Account No.")));
             Caption = 'Description';
             Editable = false;
             FieldClass = FlowField;

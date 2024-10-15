@@ -2,7 +2,7 @@
     "id":  "cc85911b-390d-42d5-b4bb-1ec519019a30",
     "name":  "Norwegian language (Norway)",
     "publisher":  "Microsoft",
-    "version":  "21.5.53619.53819",
+    "version":  "22.0.54157.54635",
     "dependencies":  [
 
                      ],
@@ -15,5 +15,5 @@
     "EULA":  "https://go.microsoft.com/fwlink/?linkid=2009120",
     "help":  "https://go.microsoft.com/fwlink/?linkid=2115116",
     "url":  "https://www.microsoft.com/en-us/dynamics365/contact-us",
-    "application":  "21.5.0.0"
+    "application":  "22.0.0.0"
 }
