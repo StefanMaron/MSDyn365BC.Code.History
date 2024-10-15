@@ -346,13 +346,6 @@ codeunit 11700 "Acc. Schedule Management CZL"
             until (ColumnLayout.Next() = 0) or NonZero;
         exit(not NonZero);
     end;
-#if not CLEAN22
-    [Obsolete('The event will be replaced by OnBeforePrintAccScheduleByType.', '22.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeAccScheduleNameOnBeforePrint(var AccScheduleName: Record "Acc. Schedule Name"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintAccScheduleByType(var FinancialReport: Record "Financial Report"; var IsHandled: Boolean)

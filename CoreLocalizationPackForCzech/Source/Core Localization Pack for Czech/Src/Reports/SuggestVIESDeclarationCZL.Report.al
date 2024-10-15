@@ -269,13 +269,6 @@ report 31077 "Suggest VIES Declaration CZL"
             VIESDeclarationHeaderCZL."EU Goods/Services"::Services:
                 VATEntry.SetRange("EU Service", true);
         end;
-#if not CLEAN22
-#pragma warning disable AL0432
-        if not VATEntry.IsReplaceVATDateEnabled() then
-            VATEntry.SetRange("VAT Date CZL", VIESDeclarationHeaderCZL."Start Date", VIESDeclarationHeaderCZL."End Date")
-        else
-#pragma warning restore AL0432
-#endif
         VATEntry.SetRange("VAT Reporting Date", VIESDeclarationHeaderCZL."Start Date", VIESDeclarationHeaderCZL."End Date");
         VATEntry.SetFilter(Base, '<>%1', 0);
     end;

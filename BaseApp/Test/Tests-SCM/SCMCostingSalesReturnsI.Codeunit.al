@@ -19,8 +19,6 @@ codeunit 137012 "SCM Costing Sales Returns I"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         isInitialized: Boolean;
         SalesAmountMustBeSameErr: Label 'Sales Amount must be same.';
-        ErrorGeneratedMustBeSameErr: Label 'Error Generated Must Be Same.';
-        ApplFromItemEntryNoTxt: Label 'Appl.-from Item Entry must have a value in Sales Line: Document Type=%1, Document No.=%2, Line No.=%3. It cannot be zero or empty.', Comment = 'Document Type=%1, Document No.=%2, Line No.=%3';
         MsgSalesLineTxt: Label 'Sales Line must not exist.';
         CorrectedInvoiceNoQst: Label 'have a Corrected Invoice No. Do you want to continue?';
 
@@ -186,9 +184,7 @@ codeunit 137012 "SCM Costing Sales Returns I"
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // 3. Verify: Verify Apply from Item Entry Error.
-        Assert.AreEqual(
-          StrSubstNo(ApplFromItemEntryNoTxt, SalesHeader."Document Type", SalesHeader."No.", SalesLine."Line No."),
-          GetLastErrorText, ErrorGeneratedMustBeSameErr);
+        Assert.ExpectedTestFieldError(SalesLine.FieldCaption("Appl.-from Item Entry"), '');
     end;
 
     [Test]

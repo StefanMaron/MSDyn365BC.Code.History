@@ -786,210 +786,6 @@ table 5994 "Service Cr.Memo Header"
         field(9001; "Quote No."; Code[20])
         {
             Caption = 'Quote No.';
-        }	
-        field(11700; "Bank Account Code"; Code[20])
-        {
-            Caption = 'Bank Account Code';
-            TableRelation = "Customer Bank Account".Code where("Customer No." = field("Bill-to Customer No."));
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11701; "Bank Account No."; Text[30])
-        {
-            Caption = 'Bank Account No.';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11702; "Bank Branch No."; Text[20])
-        {
-            Caption = 'Bank Branch No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11703; "Specific Symbol"; Code[10])
-        {
-            Caption = 'Specific Symbol';
-            CharAllowed = '09';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11704; "Variable Symbol"; Code[10])
-        {
-            Caption = 'Variable Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11705; "Constant Symbol"; Code[10])
-        {
-            Caption = 'Constant Symbol';
-            CharAllowed = '09';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11706; "Transit No."; Text[20])
-        {
-            Caption = 'Transit No.';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11707; IBAN; Code[50])
-        {
-            Caption = 'IBAN';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11708; "SWIFT Code"; Code[20])
-        {
-            Caption = 'SWIFT Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11709; "Bank Name"; Text[100])
-        {
-            Caption = 'Bank Name';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11730; "Cash Desk Code"; Code[20])
-        {
-            Caption = 'Cash Desk Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11731; "Cash Document Status"; Option)
-        {
-            Caption = 'Cash Document Status';
-            OptionCaption = ' ,Create,Release,Post,Release and Print,Post and Print';
-            OptionMembers = " ",Create,Release,Post,"Release and Print","Post and Print";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Cash Desk Localization for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11760; "VAT Date"; Date)
-        {
-            Caption = 'VAT Date';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11761; "VAT Currency Factor"; Decimal)
-        {
-            Caption = 'VAT Currency Factor';
-            DecimalPlaces = 0 : 15;
-            Editable = false;
-            MinValue = 0;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11763; "Postponed VAT"; Boolean)
-        {
-            Caption = 'Postponed VAT';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(11764; "Postponed VAT Realized"; Boolean)
-        {
-            Caption = 'Postponed VAT Realized';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(11766; "Credit Memo Type"; Option)
-        {
-            Caption = 'Credit Memo Type';
-            OptionCaption = ',Corrective Tax Document,Internal Correction,Insolvency Tax Document';
-            OptionMembers = ,"Corrective Tax Document","Internal Correction","Insolvency Tax Document";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11790; "Registration No."; Text[20])
-        {
-            Caption = 'Registration No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11791; "Tax Registration No."; Text[20])
-        {
-            Caption = 'Tax Registration No.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11792; "Original User ID"; Code[50])
-        {
-            Caption = 'Original User ID';
-            DataClassification = EndUserIdentifiableInformation;
-            TableRelation = User."User Name";
-            ValidateTableRelation = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'This field is not needed and it should not be used.';
-            ObsoleteTag = '18.0';
-        }
-        field(31060; "Perform. Country/Region Code"; Code[10])
-        {
-            Caption = 'Perform. Country/Region Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31061; "Curr. Factor Perf. Country/Reg"; Decimal)
-        {
-            Caption = 'Curr. Factor Perf. Country/Reg';
-            DecimalPlaces = 0 : 15;
-            Editable = false;
-            MinValue = 0;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of VAT Registration in Other Countries has been removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31063; "Physical Transfer"; Boolean)
-        {
-            Caption = 'Physical Transfer';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31064; "Intrastat Exclude"; Boolean)
-        {
-            Caption = 'Intrastat Exclude';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31065; "Industry Code"; Code[20])
-        {
-            Caption = 'Industry Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Industry Classification will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(31066; "EU 3-Party Intermediate Role"; Boolean)
-        {
-            Caption = 'EU 3-Party Intermediate Role';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
         }
     }
 
@@ -1138,6 +934,15 @@ table 5994 "Service Cr.Memo Header"
         end;
     end;
 
+    procedure OpenStatistics()
+    var
+        StatPageID: Integer;
+    begin
+        StatPageID := Page::"Service Credit Memo Statistics";
+        OnOpenStatisticsOnAfterSetStatPageID(Rec, StatPageID);
+        Page.RunModal(StatPageID, Rec);
+    end;
+
     procedure GetDocExchStatusStyle(): Text
     begin
         case "Document Exchange Status" of
@@ -1197,6 +1002,11 @@ table 5994 "Service Cr.Memo Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSendRecords(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var DocumentSendingProfile: Record "Document Sending Profile"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnOpenStatisticsOnAfterSetStatPageID(var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var StatPageID: Integer);
     begin
     end;
 }

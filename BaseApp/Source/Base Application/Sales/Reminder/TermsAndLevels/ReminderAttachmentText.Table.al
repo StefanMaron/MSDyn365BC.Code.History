@@ -40,6 +40,15 @@ table 502 "Reminder Attachment Text"
         {
             Caption = 'Beginning Line';
             DataClassification = CustomerContent;
+#if not CLEAN25
+            ObsoleteReason = 'To support the use of multiple lines, this field will be replaced by the Reminder Attachment Text Line table.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteReason = 'To support the use of multiple lines, this is replaced by Reminder Attachment Text Line table.';
+            ObsoleteState = Removed;
+            ObsoleteTag = '28.0';
+#endif
         }
         field(6; "Inline Fee Description"; Text[100])
         {
@@ -50,6 +59,35 @@ table 502 "Reminder Attachment Text"
         {
             Caption = 'Ending Line';
             DataClassification = CustomerContent;
+#if not CLEAN25
+            ObsoleteReason = 'To support the use of multiple lines, this field will be replaced by the Reminder Attachment Text Line table.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '25.0';
+#else
+            ObsoleteReason = 'To support the use of multiple lines, this is replaced by Reminder Attachment Text Line table.';
+            ObsoleteState = Removed;
+            ObsoleteTag = '28.0';
+#endif
+        }
+        field(10; "Beginning Lines"; Boolean)
+        {
+            CalcFormula = exist("Reminder Attachment Text Line"
+                                where(Id = field(Id),
+                                      "Language Code" = field("Language Code"),
+                                      Position = const("Beginning Line")));
+            Caption = 'Beginning Line';
+            Editable = false;
+            FieldClass = FlowField;
+        }
+        field(11; "Ending Lines"; Boolean)
+        {
+            CalcFormula = exist("Reminder Attachment Text Line"
+                                where(Id = field(Id),
+                                      "Language Code" = field("Language Code"),
+                                      Position = const("Ending Line")));
+            Caption = 'Ending Line';
+            Editable = false;
+            FieldClass = FlowField;
         }
     }
 
@@ -78,6 +116,7 @@ table 502 "Reminder Attachment Text"
         OnlyOneLanguage: Boolean;
         EmptyGuid: Guid;
     begin
+        DeleteReminderAttachmentTextLines(Rec);
         ReminderAttachmentText.SetRange(Id, Rec.Id);
         OnlyOneLanguage := ReminderAttachmentText.Count() <= 1;
 
@@ -164,6 +203,18 @@ table 502 "Reminder Attachment Text"
                     end;
                 end;
         end;
+    end;
+
+    internal procedure DeleteReminderAttachmentTextLines(ReminderAttachmentText: Record "Reminder Attachment Text")
+    var
+        ReminderAttachmentTextLine: Record "Reminder Attachment Text Line";
+    begin
+        ReminderAttachmentTextLine.SetRange(Id, ReminderAttachmentText.Id);
+        ReminderAttachmentTextLine.SetRange("Language Code", ReminderAttachmentText."Language Code");
+        if ReminderAttachmentTextLine.IsEmpty() then
+            exit;
+
+        ReminderAttachmentTextLine.DeleteAll();
     end;
 }
 

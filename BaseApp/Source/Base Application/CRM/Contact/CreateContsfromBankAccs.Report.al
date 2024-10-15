@@ -91,8 +91,12 @@ report 5193 "Create Conts. from Bank Accs."
         Window: Dialog;
         DuplicateContactExist: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Processing vendors...\\';
+#pragma warning disable AA0470
         Text001: Label 'Bank Account No.  #1##########';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSkipDefaults(var BankAccount: Record "Bank Account"; var Contact: Record Contact)

@@ -2,9 +2,6 @@ namespace Microsoft.Bank.Reconciliation;
 
 using Microsoft.Finance.GeneralLedger.Journal;
 
-#if not CLEAN22
-#pragma warning disable AS0109
-#endif
 table 1250 "Bank Statement Matching Buffer"
 {
     Caption = 'Bank Statement Matching Buffer';
@@ -114,17 +111,17 @@ table 1250 "Bank Statement Matching Buffer"
             DataClassification = SystemMetadata;
             OptionCaption = 'Sales,Purchase';
             OptionMembers = Sales,Purchase;
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '19.0';
+            ObsoleteTag = '25.0';
         }
         field(31001; "Letter No."; Code[20])
         {
             Caption = 'Letter No.';
             DataClassification = SystemMetadata;
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '19.0';
+            ObsoleteTag = '25.0';
         }
         field(20; "Doc. No. Exact Score"; Integer)
         {

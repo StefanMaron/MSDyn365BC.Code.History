@@ -555,7 +555,11 @@ page 5902 "Service Order Subform"
         SymptomCodeVisible: Boolean;
         FaultCodeVisible: Boolean;
         ResolutionCodeVisible: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot open the window because %1 is %2 in the %3 table.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure RegisterServInvLines()
     var

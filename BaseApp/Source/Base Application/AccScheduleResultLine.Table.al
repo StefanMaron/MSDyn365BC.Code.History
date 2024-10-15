@@ -29,7 +29,7 @@ table 31082 "Acc. Schedule Result Line"
             Caption = 'Totaling';
             TableRelation = if ("Totaling Type" = const("Posting Accounts")) "G/L Account"
             else
-            IF ("Totaling Type" = const("Total Accounts")) "G/L Account";
+            if ("Totaling Type" = const("Total Accounts")) "G/L Account";
             ValidateTableRelation = false;
         }
         field(6; "Totaling Type"; Option)

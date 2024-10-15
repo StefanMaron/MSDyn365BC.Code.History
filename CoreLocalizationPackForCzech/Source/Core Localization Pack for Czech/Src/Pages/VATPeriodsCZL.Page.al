@@ -104,9 +104,6 @@ page 11769 "VAT Periods CZL"
                 Caption = '&Create Periods';
                 Ellipsis = true;
                 Image = Period;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 RunObject = report "Create VAT Period CZL";
                 ToolTip = 'This batch job automatically creates VAT periods.';
             }
@@ -134,14 +131,23 @@ page 11769 "VAT Periods CZL"
                 Visible = NonDeductibleVATVisible;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                actionref("Create Periods_Promoted"; "Create Periods")
+                {
+                }
+            }
+        }
     }
 
     trigger OnOpenPage()
     begin
-        NonDeductibleVATVisible := NonDeductibleVAT.IsNonDeductibleVATEnabled();
+        NonDeductibleVATVisible := NonDeductibleVATCZL.IsNonDeductibleVATEnabled();
     end;
 
     var
-        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
+        NonDeductibleVATCZL: Codeunit "Non-Deductible VAT CZL";
         NonDeductibleVATVisible: Boolean;
 }

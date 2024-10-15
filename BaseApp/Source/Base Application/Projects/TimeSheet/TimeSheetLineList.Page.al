@@ -76,12 +76,6 @@ page 946 "Time Sheet Line List"
                     ToolTip = 'Specifies which work type the resource applies to. Prices are updated based on this entry.';
                     Visible = WorkTypeCodeVisible;
                 }
-                field("Service Order No."; Rec."Service Order No.")
-                {
-                    ApplicationArea = Service;
-                    ToolTip = 'Specifies the service order number that is associated with the time sheet line.';
-                    Visible = ServiceOrderNoVisible;
-                }
                 field("Assembly Order No."; Rec."Assembly Order No.")
                 {
                     ApplicationArea = Assembly;
@@ -127,6 +121,8 @@ page 946 "Time Sheet Line List"
 
     var
         TimeSheetMgt: Codeunit "Time Sheet Management";
-        WorkTypeCodeVisible, JobFieldsVisible, ChargeableVisible, ServiceOrderNoVisible, AbsenceCauseVisible, AssemblyOrderNoVisible : Boolean;
+        WorkTypeCodeVisible, JobFieldsVisible, ChargeableVisible, AbsenceCauseVisible, AssemblyOrderNoVisible : Boolean;
 
+    protected var
+        ServiceOrderNoVisible: Boolean;
 }

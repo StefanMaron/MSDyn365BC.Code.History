@@ -2255,12 +2255,10 @@ codeunit 134120 "Price Source UT"
     var
         BlankGuid: Guid;
     begin
-        with PriceSource do begin
-            Testfield("Parent Source No.", '');
-            Testfield("Source No.", '');
-            Testfield("Source ID", BlankGuid);
-            TestField("Filter Source No.", '');
-        end;
+        PriceSource.Testfield("Parent Source No.", '');
+        PriceSource.Testfield("Source No.", '');
+        PriceSource.Testfield("Source ID", BlankGuid);
+        PriceSource.TestField("Filter Source No.", '');
     end;
 
     local procedure AllAmountTypesAllowed(var PriceSource: Record "Price Source")

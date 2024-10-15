@@ -2,9 +2,11 @@ namespace Microsoft.Purchases.Document;
 
 using Microsoft.Inventory.Tracking;
 using Microsoft.Purchases.History;
+using Microsoft.Warehouse.Activity;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Request;
+using Microsoft.Warehouse.Worksheet;
 
 codeunit 5992 "Purchases Warehouse Mgt."
 {
@@ -12,6 +14,7 @@ codeunit 5992 "Purchases Warehouse Mgt."
 #if not CLEAN23
         WMSManagement: Codeunit "WMS Management";
 #endif
+        WhseManagement: Codeunit "Whse. Management";
         WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
         WhseCreateSourceDocument: Codeunit "Whse.-Create Source Document";
 
@@ -465,5 +468,67 @@ codeunit 5992 "Purchases Warehouse Mgt."
     [IntegrationEvent(false, false)]
     local procedure OnSetFiltersOnSourceTablesOnBeforeSetPurchaseTableView(var WarehouseSourceFilter: Record "Warehouse Source Filter"; var WarehouseRequest: Record "Warehouse Request"; var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
     begin
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Management", 'OnAfterGetSrcDocLineQtyOutstanding', '', false, false)]
+    local procedure OnAfterGetSrcDocLineQtyOutstanding(SourceType: Integer; SourceSubType: Integer; SourceNo: Code[20]; SourceLineNo: Integer; var QtyBaseOutstanding: Decimal; var QtyOutstanding: Decimal)
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        if SourceType = Database::"Purchase Line" then
+            if PurchaseLine.Get(SourceSubType, SourceNo, SourceLineNo) then begin
+                QtyOutstanding := PurchaseLine."Outstanding Quantity";
+                QtyBaseOutstanding := PurchaseLine."Outstanding Qty. (Base)";
+            end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Management", 'OnAfterGetSourceDocumentType', '', false, false)]
+    local procedure WhseManagementGetSourceDocumentType(SourceType: Integer; SourceSubType: Integer; var SourceDocument: Enum "Warehouse Journal Source Document"; var IsHandled: Boolean)
+    begin
+        if SourceType = Database::"Purchase Line" then begin
+            case SourceSubtype of
+                1:
+                    SourceDocument := "Warehouse Journal Source Document"::"P. Order";
+                2:
+                    SourceDocument := "Warehouse Journal Source Document"::"P. Invoice";
+                3:
+                    SourceDocument := "Warehouse Journal Source Document"::"P. Credit Memo";
+                5:
+                    SourceDocument := "Warehouse Journal Source Document"::"P. Return Order";
+            end;
+            IsHandled := true;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Whse. Management", 'OnAfterGetJournalSourceDocument', '', false, false)]
+    local procedure WhseManagementGetJournalSourceDocument(SourceType: Integer; SourceSubType: Integer; var SourceDocument: Enum "Warehouse Journal Source Document"; var IsHandled: Boolean)
+    begin
+        if SourceType = Database::"Purchase Line" then begin
+            case SourceSubtype of
+                1:
+                    SourceDocument := SourceDocument::"P. Order";
+                2:
+                    SourceDocument := SourceDocument::"P. Invoice";
+                3:
+                    SourceDocument := SourceDocument::"P. Credit Memo";
+                5:
+                    SourceDocument := SourceDocument::"P. Return Order";
+            end;
+            IsHandled := true;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Report, Report::"Create Pick", 'OnCheckSourceDocument', '', false, false)]
+    local procedure CreatePickOnCheckSourceDocument(var PickWhseWkshLine: Record "Whse. Worksheet Line")
+    var
+        PurchLine: Record "Purchase Line";
+    begin
+        if PickWhseWkshLine."Source Type" = Database::"Purchase Line" then begin
+            PurchLine.SetRange("Document Type", PickWhseWkshLine."Source Subtype");
+            PurchLine.SetRange("Document No.", PickWhseWkshLine."Source No.");
+            PurchLine.SetRange("Line No.", PickWhseWkshLine."Source Line No.");
+            if PurchLine.IsEmpty() then
+                Error(WhseManagement.GetSourceDocumentDoesNotExistErr(), PurchLine.TableCaption(), PurchLine.GetFilters());
+        end;
     end;
 }

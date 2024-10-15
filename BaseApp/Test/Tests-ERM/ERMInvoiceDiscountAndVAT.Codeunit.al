@@ -1742,13 +1742,11 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         RemainderAmt: Decimal;
     begin
         CreateCurrency(Currency, Decimals);
-        with Vendor do begin
-            Get(PurchaseHeader."Buy-from Vendor No.");
-            Validate("Currency Code", Currency.Code);
-            Modify(true);
-            PurchaseHeader.Validate("Currency Code", Currency.Code);
-            PurchaseHeader.Modify(true);
-        end;
+        Vendor.Get(PurchaseHeader."Buy-from Vendor No.");
+        Vendor.Validate("Currency Code", Currency.Code);
+        Vendor.Modify(true);
+        PurchaseHeader.Validate("Currency Code", Currency.Code);
+        PurchaseHeader.Modify(true);
 
         ItemNo := CreateItem(true, VATPostingSetup."VAT Prod. Posting Group");
 
@@ -1780,12 +1778,10 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         ItemNo := CreateItem(true, VATPostingSetup."VAT Prod. Posting Group");
         ItemCost := LibraryRandom.RandDec(1000, 2);
 
-        with VendorInvoiceDisc do begin
-            SetRange(Code, PurchaseHeader."Buy-from Vendor No.");
-            SetRange("Currency Code", PurchaseHeader."Currency Code");
-            FindFirst();
-            Discount := "Discount %";
-        end;
+        VendorInvoiceDisc.SetRange(Code, PurchaseHeader."Buy-from Vendor No.");
+        VendorInvoiceDisc.SetRange("Currency Code", PurchaseHeader."Currency Code");
+        VendorInvoiceDisc.FindFirst();
+        Discount := VendorInvoiceDisc."Discount %";
 
         Quantity := LibraryRandom.RandDecInRange(100, 1000, 2) * Discount;
 
@@ -1813,13 +1809,11 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         Decimals: Integer;
     begin
         CreateCurrency(Currency, Decimals);
-        with Customer do begin
-            Get(SalesHeader."Sell-to Customer No.");
-            Validate("Currency Code", Currency.Code);
-            Modify(true);
-            SalesHeader.Validate("Currency Code", Currency.Code);
-            SalesHeader.Modify(true);
-        end;
+        Customer.Get(SalesHeader."Sell-to Customer No.");
+        Customer.Validate("Currency Code", Currency.Code);
+        Customer.Modify(true);
+        SalesHeader.Validate("Currency Code", Currency.Code);
+        SalesHeader.Modify(true);
 
         ItemNo := CreateItem(true, VATPostingSetup."VAT Prod. Posting Group");
 
@@ -1851,12 +1845,10 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         ItemNo := CreateItem(true, VATPostingSetup."VAT Prod. Posting Group");
         UnitPrice := LibraryRandom.RandDec(1000, 2);
 
-        with CustInvoiceDisc do begin
-            SetRange(Code, SalesHeader."Sell-to Customer No.");
-            SetRange("Currency Code", SalesHeader."Currency Code");
-            FindFirst();
-            Discount := "Discount %";
-        end;
+        CustInvoiceDisc.SetRange(Code, SalesHeader."Sell-to Customer No.");
+        CustInvoiceDisc.SetRange("Currency Code", SalesHeader."Currency Code");
+        CustInvoiceDisc.FindFirst();
+        Discount := CustInvoiceDisc."Discount %";
 
         Quantity := LibraryRandom.RandDecInRange(100, 1000, 2) * Discount;
 
@@ -2068,12 +2060,10 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         LibraryERM.CreateInvDiscForVendor(VendorInvoiceDisc, Vendor."No.", Vendor."Currency Code", 0); // Minimum Amount set 0 to ensure Invoice Discount is always enabled
         VendorInvoiceDisc.Validate("Discount %", LibraryRandom.RandInt(10));
         VendorInvoiceDisc.Modify(true);
-        with Vendor do begin
-            Validate("VAT Bus. Posting Group", VATBusPostingGroup);
-            Validate("Invoice Disc. Code", VendorInvoiceDisc.Code);
-            Modify(true);
-            exit("No.");
-        end;
+        Vendor.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
+        Vendor.Validate("Invoice Disc. Code", VendorInvoiceDisc.Code);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     local procedure CreateVendorWithInvoiceDiscountGenPostGroup(VATBusPostingGroup: Code[20]; GenBusPostingGroup: Code[20]): Code[20]
@@ -2085,13 +2075,11 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         LibraryERM.CreateInvDiscForVendor(VendorInvoiceDisc, Vendor."No.", Vendor."Currency Code", 0); // Minimum Amount set 0 to ensure Invoice Discount is always enabled
         VendorInvoiceDisc.Validate("Discount %", LibraryRandom.RandInt(10));
         VendorInvoiceDisc.Modify(true);
-        with Vendor do begin
-            Validate("Gen. Bus. Posting Group", GenBusPostingGroup);
-            Validate("VAT Bus. Posting Group", VATBusPostingGroup);
-            Validate("Invoice Disc. Code", VendorInvoiceDisc.Code);
-            Modify(true);
-            exit("No.");
-        end;
+        Vendor.Validate("Gen. Bus. Posting Group", GenBusPostingGroup);
+        Vendor.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
+        Vendor.Validate("Invoice Disc. Code", VendorInvoiceDisc.Code);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     local procedure CreateVendorWithDiscount(): Code[20]
@@ -2103,34 +2091,30 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         Decimals: Integer;
     begin
         CreateCurrency(Currency, Decimals);
-        with Vendor do begin
-            VendorNo := CreateVendor();
-            Get(VendorNo);
-            Validate("Currency Code", Currency.Code);
-            Modify(true);
+        VendorNo := CreateVendor();
+        Vendor.Get(VendorNo);
+        Vendor.Validate("Currency Code", Currency.Code);
+        Vendor.Modify(true);
 
-            LibraryERM.CreateInvDiscForVendor(VendInvoiceDisc, VendorNo, Currency.Code, 0);
-            VendInvoiceDisc.Validate("Discount %", LibraryRandom.RandDecInRange(10, 90, Decimals));
-            VendInvoiceDisc.Modify(true);
+        LibraryERM.CreateInvDiscForVendor(VendInvoiceDisc, VendorNo, Currency.Code, 0);
+        VendInvoiceDisc.Validate("Discount %", LibraryRandom.RandDecInRange(10, 90, Decimals));
+        VendInvoiceDisc.Modify(true);
 
-            Get(VendorNo);
-            Validate("Invoice Disc. Code", VendInvoiceDisc.Code);
-            Modify(true);
+        Vendor.Get(VendorNo);
+        Vendor.Validate("Invoice Disc. Code", VendInvoiceDisc.Code);
+        Vendor.Modify(true);
 
-            exit(VendorNo);
-        end;
+        exit(VendorNo);
     end;
 
     local procedure CreateVendorWithVATBusPostingGroup(VATBusPostingGroupCode: Code[20]): Code[20]
     var
         Vendor: Record Vendor;
     begin
-        with Vendor do begin
-            LibraryPurchase.CreateVendor(Vendor);
-            Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
-            Modify(true);
-            exit("No.");
-        end;
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     local procedure CreateSalesOrderWithCustomVATAndLineDiscount(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; Quantity: Decimal; UnitPrice: Decimal; LineDiscPct: Decimal)
@@ -2223,14 +2207,12 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            FindFirst();
-            Validate("Qty. to Ship", Round(Quantity / LibraryRandom.RandInt(5), 1));
-            Modify(true);
-            LibrarySales.PostSalesDocument(SalesHeader, true, true);
-        end;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst();
+        SalesLine.Validate("Qty. to Ship", Round(SalesLine.Quantity / LibraryRandom.RandInt(5), 1));
+        SalesLine.Modify(true);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
     local procedure CreatePurchOrderWithCustomVATAndLineDiscount(var PurchHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; Quantity: Decimal; DirectUnitCost: Decimal; LineDiscPct: Decimal)
@@ -2320,14 +2302,12 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     var
         PurchLine: Record "Purchase Line";
     begin
-        with PurchLine do begin
-            SetRange("Document Type", PurchHeader."Document Type");
-            SetRange("Document No.", PurchHeader."No.");
-            FindFirst();
-            Validate("Qty. to Receive", Round(Quantity / LibraryRandom.RandInt(5), 1));
-            Modify(true);
-            LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
-        end;
+        PurchLine.SetRange("Document Type", PurchHeader."Document Type");
+        PurchLine.SetRange("Document No.", PurchHeader."No.");
+        PurchLine.FindFirst();
+        PurchLine.Validate("Qty. to Receive", Round(PurchLine.Quantity / LibraryRandom.RandInt(5), 1));
+        PurchLine.Modify(true);
+        LibraryPurchase.PostPurchaseDocument(PurchHeader, true, true);
     end;
 
     local procedure CreateFixedAsset(): Code[20]
@@ -2494,11 +2474,9 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         Customer: Record Customer;
     begin
         LibrarySales.CreateCustomer(Customer);
-        with Customer do begin
-            Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
-            Modify(true);
-            exit("No.");
-        end;
+        Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateCustomerWithInvoiceDiscount(VATBusPostingGroup: Code[20]): Code[20]
@@ -2510,12 +2488,10 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         LibraryERM.CreateInvDiscForCustomer(CustInvoiceDisc, Customer."No.", Customer."Currency Code", 0); // Minimum Amount set 0 to ensure Invoice Discount is always enabled
         CustInvoiceDisc.Validate("Discount %", LibraryRandom.RandInt(10));
         CustInvoiceDisc.Modify(true);
-        with Customer do begin
-            Validate("VAT Bus. Posting Group", VATBusPostingGroup);
-            Validate("Invoice Disc. Code", CustInvoiceDisc.Code);
-            Modify(true);
-            exit("No.");
-        end;
+        Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
+        Customer.Validate("Invoice Disc. Code", CustInvoiceDisc.Code);
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateCustomerWithInvoiceDiscountGenPostGroup(VATBusPostingGroup: Code[20]; GenBusPostingGroup: Code[20]): Code[20]
@@ -2527,13 +2503,11 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         LibraryERM.CreateInvDiscForCustomer(CustInvoiceDisc, Customer."No.", Customer."Currency Code", 0); // Minimum Amount set 0 to ensure Invoice Discount is always enabled
         CustInvoiceDisc.Validate("Discount %", LibraryRandom.RandInt(10));
         CustInvoiceDisc.Modify(true);
-        with Customer do begin
-            Validate("Gen. Bus. Posting Group", GenBusPostingGroup);
-            Validate("VAT Bus. Posting Group", VATBusPostingGroup);
-            Validate("Invoice Disc. Code", CustInvoiceDisc.Code);
-            Modify(true);
-            exit("No.");
-        end;
+        Customer.Validate("Gen. Bus. Posting Group", GenBusPostingGroup);
+        Customer.Validate("VAT Bus. Posting Group", VATBusPostingGroup);
+        Customer.Validate("Invoice Disc. Code", CustInvoiceDisc.Code);
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateCustomerWithDiscount(VATPostingSetup: Record "VAT Posting Setup"): Code[20]
@@ -2545,22 +2519,20 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         Decimals: Integer;
     begin
         CreateCurrency(Currency, Decimals);
-        with Customer do begin
-            CustomerNo := CreateCustomer(VATPostingSetup."VAT Bus. Posting Group");
-            Get(CustomerNo);
-            Validate("Currency Code", Currency.Code);
-            Modify(true);
+        CustomerNo := CreateCustomer(VATPostingSetup."VAT Bus. Posting Group");
+        Customer.Get(CustomerNo);
+        Customer.Validate("Currency Code", Currency.Code);
+        Customer.Modify(true);
 
-            LibraryERM.CreateInvDiscForCustomer(CustInvoiceDisc, CustomerNo, Currency.Code, 0);
-            CustInvoiceDisc.Validate("Discount %", LibraryRandom.RandDecInRange(10, 90, Decimals));
-            CustInvoiceDisc.Modify(true);
+        LibraryERM.CreateInvDiscForCustomer(CustInvoiceDisc, CustomerNo, Currency.Code, 0);
+        CustInvoiceDisc.Validate("Discount %", LibraryRandom.RandDecInRange(10, 90, Decimals));
+        CustInvoiceDisc.Modify(true);
 
-            Get(CustomerNo);
-            Validate("Invoice Disc. Code", CustInvoiceDisc.Code);
-            Modify(true);
+        Customer.Get(CustomerNo);
+        Customer.Validate("Invoice Disc. Code", CustInvoiceDisc.Code);
+        Customer.Modify(true);
 
-            exit(CustomerNo);
-        end;
+        exit(CustomerNo);
     end;
 
     local procedure CreateAndModifyVendor(VATBusPostingGroup: Code[20]): Code[20]
@@ -2619,19 +2591,15 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         LibraryERM.CreateVATPostingSetup(
           VATPostingSetup, VATBusinessPostingGroup.Code, VATProductPostingGroup.Code);
 
-        with VATPostingSetup do begin
-            Validate("VAT %", VATPercent);
-            Modify(true);
-        end;
+        VATPostingSetup.Validate("VAT %", VATPercent);
+        VATPostingSetup.Modify(true);
     end;
 
     local procedure MockCustomerTemplate(var CustomerTemplate: Record "Customer Templ."; InvoiceDiscCode: Code[20])
     begin
-        with CustomerTemplate do begin
-            Code := LibraryUtility.GenerateGUID();
-            "Invoice Disc. Code" := InvoiceDiscCode;
-            Insert();
-        end;
+        CustomerTemplate.Code := LibraryUtility.GenerateGUID();
+        CustomerTemplate."Invoice Disc. Code" := InvoiceDiscCode;
+        CustomerTemplate.Insert();
     end;
 
     local procedure UpdateInvDiscAmtOnPurchaseLine(var PurchaseLine: Record "Purchase Line"; NewInvDiscAmount: Decimal)
@@ -2763,13 +2731,11 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         VendorPostingGroup: Record "Vendor Posting Group";
         GLAccount: Record "G/L Account";
     begin
-        with VendorPostingGroup do begin
-            Get(VendorPostingGroupCode);
-            Validate(
-              "Invoice Rounding Account",
-              LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
-            Modify(true);
-        end;
+        VendorPostingGroup.Get(VendorPostingGroupCode);
+        VendorPostingGroup.Validate(
+          "Invoice Rounding Account",
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase));
+        VendorPostingGroup.Modify(true);
     end;
 
     local procedure SetupCustomerInvoiceRoundingAccount(CustomerPostingGroupCode: Code[20]; VATPostingSetup: Record "VAT Posting Setup")
@@ -2777,13 +2743,11 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         CustomerPostingGroup: Record "Customer Posting Group";
         GLAccount: Record "G/L Account";
     begin
-        with CustomerPostingGroup do begin
-            Get(CustomerPostingGroupCode);
-            Validate(
-              "Invoice Rounding Account",
-              LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale));
-            Modify(true);
-        end;
+        CustomerPostingGroup.Get(CustomerPostingGroupCode);
+        CustomerPostingGroup.Validate(
+          "Invoice Rounding Account",
+          LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Sale));
+        CustomerPostingGroup.Modify(true);
     end;
 
     local procedure OpenSalesOrderStatistics(SalesHeader: Record "Sales Header"; InvDiscountAmount: Decimal)
@@ -2802,32 +2766,28 @@ codeunit 134027 "ERM Invoice Discount And VAT"
 
     local procedure GetSalesLineInvoiced(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            SetFilter(Type, '<>%1', Type::" ");
-            SetFilter("Quantity Invoiced", '<>%1', 0);
-            Find('-');
-            repeat
-            until (Next() = 0) or (Quantity = "Quantity Invoiced");
-            Assert.AreEqual(
-              Quantity, "Quantity Invoiced", StrSubstNo(WrongFieldValueErr, FieldCaption("Quantity Invoiced")));
-        end;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetFilter(Type, '<>%1', SalesLine.Type::" ");
+        SalesLine.SetFilter("Quantity Invoiced", '<>%1', 0);
+        SalesLine.Find('-');
+        repeat
+        until (SalesLine.Next() = 0) or (SalesLine.Quantity = SalesLine."Quantity Invoiced");
+        Assert.AreEqual(
+          SalesLine.Quantity, SalesLine."Quantity Invoiced", StrSubstNo(WrongFieldValueErr, SalesLine.FieldCaption("Quantity Invoiced")));
     end;
 
     local procedure GetPurchLineInvoiced(var PurchLine: Record "Purchase Line"; PurchHeader: Record "Purchase Header")
     begin
-        with PurchLine do begin
-            SetRange("Document Type", PurchHeader."Document Type");
-            SetRange("Document No.", PurchHeader."No.");
-            SetFilter(Type, '<>%1', Type::" ");
-            SetFilter("Quantity Invoiced", '<>%1', 0);
-            Find('-');
-            repeat
-            until (Next() = 0) or (Quantity = "Quantity Invoiced");
-            Assert.AreEqual(
-              Quantity, "Quantity Invoiced", StrSubstNo(WrongFieldValueErr, FieldCaption("Quantity Invoiced")));
-        end;
+        PurchLine.SetRange("Document Type", PurchHeader."Document Type");
+        PurchLine.SetRange("Document No.", PurchHeader."No.");
+        PurchLine.SetFilter(Type, '<>%1', PurchLine.Type::" ");
+        PurchLine.SetFilter("Quantity Invoiced", '<>%1', 0);
+        PurchLine.Find('-');
+        repeat
+        until (PurchLine.Next() = 0) or (PurchLine.Quantity = PurchLine."Quantity Invoiced");
+        Assert.AreEqual(
+          PurchLine.Quantity, PurchLine."Quantity Invoiced", StrSubstNo(WrongFieldValueErr, PurchLine.FieldCaption("Quantity Invoiced")));
     end;
 
     local procedure GetServInNo(OrderNo: Code[20]): Code[20]
@@ -2910,20 +2870,18 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         SalesLine: Record "Sales Line";
         TotalInvDiscountAmount: Decimal;
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            if FindSet() then
-                repeat
-                    VerifySalesLineAmountsAgainstDiscounts(SalesLine);
-                    TotalInvDiscountAmount += "Inv. Discount Amount";
-                until Next() = 0;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        if SalesLine.FindSet() then
+            repeat
+                VerifySalesLineAmountsAgainstDiscounts(SalesLine);
+                TotalInvDiscountAmount += SalesLine."Inv. Discount Amount";
+            until SalesLine.Next() = 0;
 
-            Assert.AreEqual(
-              InvDiscountAmount,
-              TotalInvDiscountAmount,
-              StrSubstNo(TotalInvDiscountAmountErr, TableCaption(), InvDiscountAmount));
-        end;
+        Assert.AreEqual(
+          InvDiscountAmount,
+          TotalInvDiscountAmount,
+          StrSubstNo(TotalInvDiscountAmountErr, SalesLine.TableCaption(), InvDiscountAmount));
     end;
 
     local procedure VerifyPurchaseLineAmounts(PurchaseHeader: Record "Purchase Header"; InvDiscountAmount: Decimal)
@@ -2931,20 +2889,18 @@ codeunit 134027 "ERM Invoice Discount And VAT"
         PurchLine: Record "Purchase Line";
         TotalInvDiscountAmount: Decimal;
     begin
-        with PurchLine do begin
-            SetRange("Document Type", PurchaseHeader."Document Type");
-            SetRange("Document No.", PurchaseHeader."No.");
-            if FindSet() then
-                repeat
-                    VerifyPurchaseLineAmountsAgainstDiscounts(PurchLine);
-                    TotalInvDiscountAmount += "Inv. Discount Amount";
-                until Next() = 0;
+        PurchLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchLine.SetRange("Document No.", PurchaseHeader."No.");
+        if PurchLine.FindSet() then
+            repeat
+                VerifyPurchaseLineAmountsAgainstDiscounts(PurchLine);
+                TotalInvDiscountAmount += PurchLine."Inv. Discount Amount";
+            until PurchLine.Next() = 0;
 
-            Assert.AreEqual(
-              InvDiscountAmount,
-              TotalInvDiscountAmount,
-              StrSubstNo(TotalInvDiscountAmountErr, TableCaption(), InvDiscountAmount));
-        end;
+        Assert.AreEqual(
+          InvDiscountAmount,
+          TotalInvDiscountAmount,
+          StrSubstNo(TotalInvDiscountAmountErr, PurchLine.TableCaption(), InvDiscountAmount));
     end;
 
     local procedure VerifyAmountAndAmountIncludingVATOnSalesLine(SalesLine: Record "Sales Line")
@@ -3044,28 +3000,24 @@ codeunit 134027 "ERM Invoice Discount And VAT"
 
     local procedure VerifySalesLineAmountsAgainstDiscounts(SalesLine: Record "Sales Line")
     begin
-        with SalesLine do begin
-            Assert.IsFalse(
-              ("Line Amount" >= 0) and ("Inv. Discount Amount" < 0),
-              StrSubstNo(NegativeInvDiscountErr, TableCaption));
+        Assert.IsFalse(
+            (SalesLine."Line Amount" >= 0) and (SalesLine."Inv. Discount Amount" < 0),
+            StrSubstNo(NegativeInvDiscountErr, SalesLine.TableCaption));
 
-            Assert.IsTrue(
-              Abs("Line Amount" - "Line Discount Amount") >= Abs(Amount),
-              StrSubstNo(WrongLineAmountErr, TableCaption));
-        end;
+        Assert.IsTrue(
+          Abs(SalesLine."Line Amount" - SalesLine."Line Discount Amount") >= Abs(SalesLine.Amount),
+          StrSubstNo(WrongLineAmountErr, SalesLine.TableCaption));
     end;
 
     local procedure VerifyPurchaseLineAmountsAgainstDiscounts(PurchaseLine: Record "Purchase Line")
     begin
-        with PurchaseLine do begin
-            Assert.IsFalse(
-              ("Line Amount" >= 0) and ("Inv. Discount Amount" < 0),
-              StrSubstNo(NegativeInvDiscountErr, TableCaption));
+        Assert.IsFalse(
+            (PurchaseLine."Line Amount" >= 0) and (PurchaseLine."Inv. Discount Amount" < 0),
+            StrSubstNo(NegativeInvDiscountErr, PurchaseLine.TableCaption));
 
-            Assert.IsTrue(
-              Abs("Line Amount" - "Line Discount Amount") >= Abs(Amount),
-              StrSubstNo(WrongLineAmountErr, TableCaption));
-        end;
+        Assert.IsTrue(
+          Abs(PurchaseLine."Line Amount" - PurchaseLine."Line Discount Amount") >= Abs(PurchaseLine.Amount),
+          StrSubstNo(WrongLineAmountErr, PurchaseLine.TableCaption));
     end;
 
     local procedure VerifySalesOrderInvoiceDiscountAmount(var SalesHeader: Record "Sales Header"; InvoiceDiscountAmount: Decimal)
@@ -3102,15 +3054,13 @@ codeunit 134027 "ERM Invoice Discount And VAT"
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("Document Type", "Document Type"::Invoice);
-            SetRange("Document No.", DocNo);
-            SetRange("G/L Account No.", AccNo);
-            FindSet();
-            TestField(Amount, FirstExpectedAmt);
-            Next();
-            TestField(Amount, SecondExpectedAmt)
-        end;
+        GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
+        GLEntry.SetRange("Document No.", DocNo);
+        GLEntry.SetRange("G/L Account No.", AccNo);
+        GLEntry.FindSet();
+        GLEntry.TestField(Amount, FirstExpectedAmt);
+        GLEntry.Next();
+        GLEntry.TestField(Amount, SecondExpectedAmt)
     end;
 
     local procedure VerifyGLEntry(DocNo: Code[20]; GLAccNo: Code[20]; ExpectedAmount: Decimal)

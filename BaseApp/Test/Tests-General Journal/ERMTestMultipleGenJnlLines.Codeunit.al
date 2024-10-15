@@ -23,12 +23,11 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         IsInitialized: Boolean;
         GenJournalTemplateErr: Label 'Gen. Journal Template name is blank.';
         GenJournalBatchErr: Label 'Gen. Journal Batch name is blank.';
-        PostingNoSeriesMustBeEmptyErr: Label 'Posting No. Series must be equal to ''''';
         OutOfBalanceErr: Label 'is out of balance';
         ConfirmManualCheckTxt: Label 'A balancing account is not specified for one or more lines. If you print checks without specifying balancing accounts you will not be able to void the checks, if needed. Do you want to continue?';
         WrongDocNoErr: Label 'Document should be other than old document no. : %1', Comment = '%1 - Document no.';
-        GLEntryMustBeFoundErr: Label 'GL Entry must be found.';
         LastDocNoAndLastNoUsedMustMatchErr: Label 'Last Document No and Last No Used must match.';
+        GLEntryMustBeFoundErr: Label 'GL Entry must be found.';
 
     [Test]
     [Scope('OnPrem')]
@@ -492,7 +491,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // Verify: Verify Error Message.
-        Assert.ExpectedError(PostingNoSeriesMustBeEmptyErr);
+        Assert.ExpectedTestFieldError(GenJournalLine.FieldCaption("Posting No. Series"), '''');
     end;
 
     [Test]
@@ -1899,18 +1898,16 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     begin
         LibraryERM.CreateGenJournalTemplate(GenJnlTemplate);
         LibraryERM.CreateGenJournalBatch(GenJnlBatch, GenJnlTemplate.Name);
-        with GenJnlLine do begin
-            LibraryERM.CreateGeneralJnlLineWithBalAcc(
-              GenJnlLine, GenJnlTemplate.Name, GenJnlBatch.Name, DocumentType,
-              AccountType, AccountNo, BalAccountType, '', LineAmount);
-            DocumentNo := "Document No.";
-            LibraryERM.CreateGeneralJnlLineWithBalAcc(
-              GenJnlLine, GenJnlTemplate.Name, GenJnlBatch.Name, DocumentType,
-              "Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo(), BalAccountType, '', -LineAmount);
-            Validate("Document No.", DocumentNo);
-            Validate("Bank Payment Type", "Bank Payment Type"::"Manual Check");
-            Modify(true);
-        end;
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+          GenJnlLine, GenJnlTemplate.Name, GenJnlBatch.Name, DocumentType,
+          AccountType, AccountNo, BalAccountType, '', LineAmount);
+        DocumentNo := GenJnlLine."Document No.";
+        LibraryERM.CreateGeneralJnlLineWithBalAcc(
+          GenJnlLine, GenJnlTemplate.Name, GenJnlBatch.Name, DocumentType,
+          GenJnlLine."Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo(), BalAccountType, '', -LineAmount);
+        GenJnlLine.Validate("Document No.", DocumentNo);
+        GenJnlLine.Validate("Bank Payment Type", GenJnlLine."Bank Payment Type"::"Manual Check");
+        GenJnlLine.Modify(true);
     end;
 
     local procedure CreateAndPostGeneralJournalLinesUsingNoSeriesByPage(LineCount: Integer): Code[10]
@@ -2216,12 +2213,11 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         LibraryVariableStorage.Enqueue(GenJournalBatch."Journal Template Name");
         GeneralJournal.OK().Invoke(); // Need to close the Page to ensure changes are reflected on Record Variable.
         FindGeneralJournalLine(GenJournalLine, GenJournalBatch);
-        with GenJournalLine do begin
-            repeat
-                Validate(Amount, LibraryRandom.RandDec(100, 2)); // Update Random Amount.
-                Modify(true);
-            until Next() = 0;
-        end;
+        repeat
+            GenJournalLine.Validate(Amount, LibraryRandom.RandDec(100, 2));
+            // Update Random Amount.
+            GenJournalLine.Modify(true);
+        until GenJournalLine.Next() = 0;
         GeneralJournal.OpenEdit();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
     end;

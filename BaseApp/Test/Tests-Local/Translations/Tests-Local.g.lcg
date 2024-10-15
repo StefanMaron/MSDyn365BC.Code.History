@@ -5,13 +5,4 @@
     <Cmt Name="LcxAdmin" />
     <Cmt Name="Rccx" />
   </OwnedComments>
-  <Item ItemId=";Codeunit 3382378424 - NamedType 762284302" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There are one or more errors. For details, see the journal error FactBox.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Intrastat - NamedType AdvChecklistErr)]]></Cmt>
-    </Cmts>
-  </Item>
 </LCX>

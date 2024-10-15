@@ -71,9 +71,9 @@ table 11705 "Bank Statement Line"
         field(5; "Cust./Vendor Bank Account Code"; Code[20])
         {
             Caption = 'Cust./Vendor Bank Account Code';
-            TableRelation = if (Type = const(Customer)) "Customer Bank Account".Code WHERE("Customer No." = field("No."))
+            TableRelation = if (Type = const(Customer)) "Customer Bank Account".Code where("Customer No." = field("No."))
             else
-            if (Type = const(Vendor)) "Vendor Bank Account".Code WHERE("Vendor No." = field("No."));
+            if (Type = const(Vendor)) "Vendor Bank Account".Code where("Vendor No." = field("No."));
 
             trigger OnValidate()
             var

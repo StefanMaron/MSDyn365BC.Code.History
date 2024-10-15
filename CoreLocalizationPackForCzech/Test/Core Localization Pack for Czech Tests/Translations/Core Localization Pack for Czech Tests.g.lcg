@@ -284,15 +284,6 @@
       <Cmt Name="Dev"><![CDATA[%1=fieldcaption, %2=vendor number list]D;]A;(LookupHint=Codeunit Identification Numbers CZL - NamedType RegNoEnteredVendMsg)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 322256283 - NamedType 1888892564" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Inventory Movement Template must be equal to %1  in Item Document Header]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = expected value of template]D;]A;(LookupHint=Codeunit Invt. Mvmt. Templates CZL - NamedType TemplateMustBeEmptyErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 322256283 - NamedType 1069379362" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The field Inventory Movement Template of table Item Document Header contains a value (%1) that cannot be found in the related table (Inventory Movement Template).]]></Val>
@@ -498,15 +489,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit VAT Date CZL - NamedType VATSettlementDocNoTok)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3753419350 - Method 1030885232 - NamedType 3598109445" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Closed must be equal to 'No'  in VAT Period: Starting Date=%1. Current value is 'Yes'.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = Starting Date of VAT period]D;]A;(LookupHint=Codeunit VAT Date CZL - Method GenJnlLinePostWithVATToClosedVATPeriod - NamedType TestClosedFieldErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 4169948640 - Method 2590279828 - NamedType 750713676" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">

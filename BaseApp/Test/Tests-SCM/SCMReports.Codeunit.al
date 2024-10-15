@@ -1994,27 +1994,23 @@ codeunit 137309 "SCM Reports"
 
     local procedure GetCostPostedtoGLFromValueEntry(var ValueEntry: Record "Value Entry"; DocumentNo: Code[20]; PostingDate: Date) CostPostedtoGL: Decimal
     begin
-        with ValueEntry do begin
-            SetRange("Document No.", DocumentNo);
-            SetRange("Posting Date", PostingDate);
-            FindSet();
-            repeat
-                CostPostedtoGL += "Cost Amount (Expected)" + "Cost Posted to G/L";
-            until Next() = 0;
-        end;
+        ValueEntry.SetRange("Document No.", DocumentNo);
+        ValueEntry.SetRange("Posting Date", PostingDate);
+        ValueEntry.FindSet();
+        repeat
+            CostPostedtoGL += ValueEntry."Cost Amount (Expected)" + ValueEntry."Cost Posted to G/L";
+        until ValueEntry.Next() = 0;
     end;
 
     local procedure GetQuantityFromItemLedgerEntry(ItemNo: Code[20]; LocationCode: Code[10]): Decimal
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Item No.", ItemNo);
-            if LocationCode <> '' then
-                SetRange("Location Code", LocationCode);
-            FindFirst();
-            exit(Quantity);
-        end;
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        if LocationCode <> '' then
+            ItemLedgerEntry.SetRange("Location Code", LocationCode);
+        ItemLedgerEntry.FindFirst();
+        exit(ItemLedgerEntry.Quantity);
     end;
 
     local procedure InvValuationWIPReportForCostPostedtoGL(InventoryValuationWIPDate: Date; AllowPostingFromDate: Date)

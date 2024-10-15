@@ -2,9 +2,6 @@ namespace Microsoft.Inventory.Costing;
 
 using Microsoft.Finance.Dimension;
 
-#if not CLEAN22
-#pragma warning disable AS0109
-#endif
 table 48 "Invt. Posting Buffer"
 {
     Caption = 'Invt. Posting Buffer';

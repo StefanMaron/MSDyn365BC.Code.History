@@ -39,11 +39,15 @@ codeunit 213 "Res. Jnl.-Post Batch"
         LastDocNo2: Code[20];
         LastPostedDocNo: Code[20];
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'Journal Batch Name    #1##########\\';
         Text002: Label 'Checking lines        #2######\';
         Text003: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@\';
         Text004: Label 'Updating lines        #5###### @6@@@@@@@@@@@@@';
         Text005: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure "Code"()
     var

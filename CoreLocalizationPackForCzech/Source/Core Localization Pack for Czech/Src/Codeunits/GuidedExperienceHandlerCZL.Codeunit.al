@@ -10,9 +10,6 @@ using Microsoft.Finance.Registration;
 using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Reporting;
 using Microsoft.Foundation.Company;
-#if not CLEAN22
-using Microsoft.Inventory.Intrastat;
-#endif
 using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Location;
 using Microsoft.Purchases.Vendor;
@@ -47,11 +44,6 @@ codeunit 11747 "Guided Experience Handler CZL"
         RegisterEETBusinessPremises();
         RegisterEETCashRegisters();
         RegisterNonDeductibleVATSetup();
-#if not CLEAN22
-        RegisterStatisticIndications();
-        RegisterSpecificMovements();
-        RegisterIntrastatDeliveryGroups();
-#endif
     end;
 
     local procedure RegisterInventoryMovementTemplates()
@@ -223,37 +215,4 @@ codeunit 11747 "Guided Experience Handler CZL"
         GuidedExperience.InsertManualSetup(NonDeductibleVATNameTxt, NonDeductibleVATNameTxt, NonDeductibleVATDescriptionTxt,
           2, ObjectType::Page, Page::"Non-Deductible VAT Setup CZL", ManualSetupCategory::Finance, NonDeductibleVATKeywordsTxt);
     end;
-#if not CLEAN22
-#pragma warning disable AL0432
-    local procedure RegisterStatisticIndications()
-    var
-        StatisticIndicationsNameTxt: Label 'Statistic Indications (Obsolete)';
-        StatisticIndicationsDescriptionTxt: Label 'Set up or update Statistic Indications.';
-        StatisticIndicationsKeywordsTxt: Label 'Intrastat';
-    begin
-        GuidedExperience.InsertManualSetup(StatisticIndicationsNameTxt, StatisticIndicationsNameTxt, StatisticIndicationsDescriptionTxt,
-          2, ObjectType::Page, Page::"Statistic Indications CZL", ManualSetupCategory::"Intrastat CZL", StatisticIndicationsKeywordsTxt);
-    end;
-
-    local procedure RegisterSpecificMovements()
-    var
-        SpecificMovementsNameTxt: Label 'Specific Movements (Obsolete)';
-        SpecificMovementsDescriptionTxt: Label 'Set up or update Specific Movements.';
-        SpecificMovementsKeywordsTxt: Label 'Intrastat';
-    begin
-        GuidedExperience.InsertManualSetup(SpecificMovementsNameTxt, SpecificMovementsNameTxt, SpecificMovementsDescriptionTxt,
-          2, ObjectType::Page, Page::"Specific Movements CZL", ManualSetupCategory::"Intrastat CZL", SpecificMovementsKeywordsTxt);
-    end;
-
-    local procedure RegisterIntrastatDeliveryGroups()
-    var
-        IntrastatDeliveryGroupsNameTxt: Label 'Intrastat Delivery Groups (Obsolete)';
-        IntrastatDeliveryGroupsDescriptionTxt: Label 'Set up or update Intrastat Delivery Groups.';
-        IntrastatDeliveryGroupsKeywordsTxt: Label 'Intrastat';
-    begin
-        GuidedExperience.InsertManualSetup(IntrastatDeliveryGroupsNameTxt, IntrastatDeliveryGroupsNameTxt, IntrastatDeliveryGroupsDescriptionTxt,
-          1, ObjectType::Page, Page::"Intrastat Delivery Groups CZL", ManualSetupCategory::"Intrastat CZL", IntrastatDeliveryGroupsKeywordsTxt);
-    end;
-#pragma warning restore AL0432
-#endif
 }

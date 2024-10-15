@@ -1184,7 +1184,7 @@ codeunit 139174 "CRM Coupling Record"
         // [THEN] The first Customer is coupled, "Last Synch. CRM Result" is 'Failure'
         Assert.IsTrue(CRMIntegrationRecord.FindByRecordID(Customer[1].RecordId), CouplingErr);
         CRMIntegrationRecord.TestField("Last Synch. CRM Result", CRMIntegrationRecord."Last Synch. CRM Result"::Failure);
-        CRMIntegrationRecord.TestField("Last Synch. Result", 0);
+        CRMIntegrationRecord.TestField("Last Synch. Result", CRMIntegrationRecord."Last Synch. Result"::" ");
         CRMIntegrationRecord.TestField(Skipped, false);
 
         // [THEN] The second Customer is coupled, "Last Synch. CRM Result" and "Last Synch. Result" are 'Failure'
@@ -1547,28 +1547,24 @@ codeunit 139174 "CRM Coupling Record"
     var
         IntegrationFieldMapping: Record "Integration Field Mapping";
     begin
-        with IntegrationTableMapping do begin
-            DeleteAll();
-            Init();
-            Name := LibraryUtility.GenerateGUID();
-            "Table ID" := TableId;
-            "Integration Table ID" := CRMTableId;
-            "Integration Table UID Fld. No." := UIDFldNo;
-            "Int. Tbl. Modified On Fld. No." := ModifiedOnFldNo;
-            "Synch. Codeunit ID" := CODEUNIT::"CRM Integration Table Synch.";
-            Insert(true);
-        end;
+        IntegrationTableMapping.DeleteAll();
+        IntegrationTableMapping.Init();
+        IntegrationTableMapping.Name := LibraryUtility.GenerateGUID();
+        IntegrationTableMapping."Table ID" := TableId;
+        IntegrationTableMapping."Integration Table ID" := CRMTableId;
+        IntegrationTableMapping."Integration Table UID Fld. No." := UIDFldNo;
+        IntegrationTableMapping."Int. Tbl. Modified On Fld. No." := ModifiedOnFldNo;
+        IntegrationTableMapping."Synch. Codeunit ID" := CODEUNIT::"CRM Integration Table Synch.";
+        IntegrationTableMapping.Insert(true);
 
-        with IntegrationFieldMapping do begin
-            DeleteAll();
-            Init();
-            "No." := 0;
-            "Integration Table Mapping Name" := IntegrationTableMapping.Name;
-            "Field No." := FldNo;
-            "Integration Table Field No." := IntTableFldNo;
-            Direction := Direction::ToIntegrationTable;
-            Insert(true);
-        end;
+        IntegrationFieldMapping.DeleteAll();
+        IntegrationFieldMapping.Init();
+        IntegrationFieldMapping."No." := 0;
+        IntegrationFieldMapping."Integration Table Mapping Name" := IntegrationTableMapping.Name;
+        IntegrationFieldMapping."Field No." := FldNo;
+        IntegrationFieldMapping."Integration Table Field No." := IntTableFldNo;
+        IntegrationFieldMapping.Direction := IntegrationFieldMapping.Direction::ToIntegrationTable;
+        IntegrationFieldMapping.Insert(true);
     end;
 
     local procedure SetIntTableFilter(IntegrationTableMapping: Record "Integration Table Mapping"; "Filter": Text)
@@ -1795,11 +1791,13 @@ codeunit 139174 "CRM Coupling Record"
         CDSConnectionSetup: Record "CDS Connection Setup";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
+        ClientSecret: Text;
     begin
         CRMConnectionSetup.Get();
         CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
         CDSConnectionSetup.Validate("Client Id", 'ClientId');
-        CDSConnectionSetup.SetClientSecret('ClientSecret');
+        ClientSecret := 'ClientSecret';
+        CDSConnectionSetup.SetClientSecret(ClientSecret);
         CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
         CDSConnectionSetup.Modify();
         CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);

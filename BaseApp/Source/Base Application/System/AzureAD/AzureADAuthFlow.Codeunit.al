@@ -50,38 +50,80 @@ codeunit 6303 "Azure AD Auth Flow"
         else
             OnInitialize(RedirectUri, AuthFlow);
     end;
+#if not CLEAN25
 
     [Scope('OnPrem')]
     [NonDebuggable]
+    [Obsolete('Replaced by AcquireTokenByAuthorizationCodeAsSecretText', '25.0')]
     procedure AcquireTokenByAuthorizationCode(AuthorizationCode: Text; ResourceName: Text) AccessToken: Text
     begin
-        CheckProvider();
-        if CanHandle() then
-            AccessToken := AuthFlow.ALAcquireTokenByAuthorizationCode(AuthorizationCode, ResourceName)
-        else
-            OnAcquireTokenByAuthorizationCode(AuthorizationCode, ResourceName, AccessToken);
+        exit(AcquireTokenByAuthorizationCodeAsSecretText(AuthorizationCode, ResourceName).Unwrap());
     end;
+#endif
 
-    [Scope('OnPrem')]
     [NonDebuggable]
-    procedure AcquireTokenByAuthorizationCodeWithCredentials(AuthorizationCode: Text; ClientID: Text; ApplicationKey: Text; ResourceName: Text) AccessToken: Text
+    [Scope('OnPrem')]
+    procedure AcquireTokenByAuthorizationCodeAsSecretText(AuthorizationCode: SecretText; ResourceName: Text) AccessToken: SecretText
+    var
+        AccessTokenFromEvent: Text;
     begin
         CheckProvider();
         if CanHandle() then
-            AccessToken := AuthFlow.ALAcquireTokenByAuthorizationCodeWithCredentials(AuthorizationCode, ClientID, ApplicationKey, ResourceName)
-        else
-            OnAcquireTokenByAuthorizationCodeWithCredentials(AuthorizationCode, ClientID, ApplicationKey, ResourceName, AccessToken);
+            AccessToken := AuthFlow.ALAcquireTokenByAuthorizationCode(AuthorizationCode.Unwrap(), ResourceName)
+        else begin
+            OnAcquireTokenByAuthorizationCode('', ResourceName, AccessTokenFromEvent);
+            AccessToken := AccessTokenFromEvent;
+        end;
     end;
+#if not CLEAN25
 
     [Scope('OnPrem')]
     [NonDebuggable]
+    [Obsolete('Replaced by AcquireTokenByAuthorizationCodeWithCredentialsAsSecretText', '25.0')]
+    procedure AcquireTokenByAuthorizationCodeWithCredentials(AuthorizationCode: Text; ClientID: Text; ApplicationKey: Text; ResourceName: Text) AccessToken: Text
+    begin
+        exit(AcquireTokenByAuthorizationCodeWithCredentialsAsSecretText(AuthorizationCode, ClientID, ApplicationKey, ResourceName).Unwrap());
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure AcquireTokenByAuthorizationCodeWithCredentialsAsSecretText(AuthorizationCode: SecretText; ClientID: Text; ApplicationKey: SecretText; ResourceName: Text) AccessToken: SecretText
+    var
+        AccessTokenFromEvent, ApplicationKeyFromEvent : Text;
+    begin
+        CheckProvider();
+        if CanHandle() then
+            AccessToken := AuthFlow.ALAcquireTokenByAuthorizationCodeWithCredentials(AuthorizationCode.Unwrap(), ClientID, ApplicationKey, ResourceName)
+        else begin
+            OnAcquireTokenByAuthorizationCodeWithCredentials('', ClientID, ApplicationKeyFromEvent, ResourceName, AccessTokenFromEvent);
+            AccessToken := AccessTokenFromEvent;
+        end;
+    end;
+#if not CLEAN25
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    [Obsolete('Replaced by procedure AcquireTokenFromCacheAsSecretText', '25.0')]
     procedure AcquireTokenFromCache(ResourceName: Text) AccessToken: Text
+    begin
+        exit(AcquireTokenFromCacheAsSecretText(ResourceName).Unwrap());
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure AcquireTokenFromCacheAsSecretText(ResourceName: Text) AccessToken: SecretText
+    var
+        [NonDebuggable]
+        AccessTokenFromEvent: Text;
     begin
         CheckProvider();
         if CanHandle() then
             AccessToken := AuthFlow.ALAcquireTokenFromCache(ResourceName)
-        else
-            OnAcquireTokenFromCache(ResourceName, AccessToken);
+        else begin
+            OnAcquireTokenFromCache(ResourceName, AccessTokenFromEvent);
+            AccessToken := AccessTokenFromEvent;
+        end;
     end;
 
     [NonDebuggable]
@@ -105,16 +147,30 @@ codeunit 6303 "Azure AD Auth Flow"
         else
             OnAcquireGuestToken(ResourceName, GuestTenantId, AccessToken);
     end;
+#if not CLEAN25
 
     [Scope('OnPrem')]
     [NonDebuggable]
+    [Obsolete('Replaced by AcquireOnBehalfOfTokenAsSecretText', '25.0')]
     procedure AcquireOnBehalfOfToken(ResourceName: Text) AccessToken: Text
+    begin
+        exit(AcquireOnBehalfOfTokenAsSecretText(ResourceName).Unwrap());
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure AcquireOnBehalfOfTokenAsSecretText(ResourceName: Text) AccessToken: SecretText
+    var
+        [NonDebuggable]
+        AccessTokenFromEvent: Text;
     begin
         CheckProvider();
         if CanHandle() then
             AccessToken := AuthFlow.ALAcquireOnBehalfOfToken(ResourceName)
-        else
-            OnAcquireAcquireOnBehalfOfToken(ResourceName, AccessToken);
+        else begin
+            OnAcquireAcquireOnBehalfOfToken(ResourceName, AccessTokenFromEvent);
+            AccessToken := AccessTokenFromEvent;
+        end;
     end;
 
     [NonDebuggable]
@@ -127,16 +183,30 @@ codeunit 6303 "Azure AD Auth Flow"
         else
             OnAcquireOnBehalfOfTokenAndTokenCacheState(ResourceName, AccessToken, TokenCacheState);
     end;
+#if not CLEAN25
 
     [Scope('OnPrem')]
     [NonDebuggable]
+    [Obsolete('Replaced by AcquireTokenFromCacheWithCredentialsAsSecretText', '25.0')]
     procedure AcquireTokenFromCacheWithCredentials(ClientID: Text; AppKey: Text; ResourceName: Text) AccessToken: Text
+    begin
+        exit(AcquireTokenFromCacheWithCredentialsAsSecretText(ClientID, AppKey, ResourceName).Unwrap());
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure AcquireTokenFromCacheWithCredentialsAsSecretText(ClientID: Text; AppKey: SecretText; ResourceName: Text) AccessToken: SecretText
+    var
+        AccessTokenFromEvent: Text;
     begin
         CheckProvider();
         if CanHandle() then
             AccessToken := AuthFlow.ALAcquireTokenFromCacheWithCredentials(ClientID, AppKey, ResourceName)
-        else
-            OnAcquireTokenFromCacheWithCredentials(ClientID, AppKey, ResourceName, AccessToken);
+        else begin
+            OnAcquireTokenFromCacheWithCredentials(ClientID, '', ResourceName, AccessTokenFromEvent);
+            AccessToken := AccessTokenFromEvent;
+        end;
     end;
 
     [Scope('OnPrem')]
@@ -165,17 +235,30 @@ codeunit 6303 "Azure AD Auth Flow"
         if CanHandle() then
             InitialTenantDomainName := AuthFlow.ALGetInitialDomainNameFromAad();
     end;
+#if not CLEAN25
 
     [Scope('OnPrem')]
     [NonDebuggable]
+    [Obsolete('Replaced by CreateExchangeServiceWrapperWithToken(Token: SecretText; var Service: DotNet ExchangeServiceWrapper)', '25.0')]
     procedure CreateExchangeServiceWrapperWithToken(Token: Text; var Service: DotNet ExchangeServiceWrapper)
+    var
+        TokenAsSecretText: SecretText;
+    begin
+        TokenAsSecretText := Token;
+        CreateExchangeServiceWrapperWithToken(TokenAsSecretText, Service);
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    [NonDebuggable]
+    procedure CreateExchangeServiceWrapperWithToken(Token: SecretText; var Service: DotNet ExchangeServiceWrapper)
     var
         ServiceFactory: DotNet ServiceWrapperFactory;
     begin
         if CanHandle() then
-            Service := ServiceFactory.CreateServiceWrapperWithToken(Token)
+            Service := ServiceFactory.CreateServiceWrapperWithToken(Token.Unwrap())
         else
-            OnCreateExchangeServiceWrapperWithToken(Token, Service);
+            OnCreateExchangeServiceWrapperWithToken('', Service);
     end;
 
     [Scope('OnPrem')]

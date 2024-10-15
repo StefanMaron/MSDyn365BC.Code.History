@@ -63,7 +63,9 @@
     }
 
     var
+#pragma warning disable AA0470
         CannotInsertWithNullIntegrationIdErr: Label 'Integration ID cannot be null. Table %1';
+#pragma warning restore AA0470
 
     trigger OnInsert()
     var

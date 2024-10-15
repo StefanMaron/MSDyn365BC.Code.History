@@ -25,7 +25,6 @@ codeunit 136400 "Resource Employee"
         EmployeeNoSeriesCode: Code[20];
         InvalidEmailAddressTxt: Label 'invalidemail';
         ValidEmailTxt: Label 'valid@contoso.com';
-        QtyPerUnitOfMeasureErr: Label 'Qty. per Unit of Measure must be equal to ''%1''  in Human Resource Unit of Measure: Code=%3. Current value is ''%2''.';
         TextValue: Text[100];
 
     [Test]
@@ -552,7 +551,7 @@ codeunit 136400 "Resource Employee"
 
         // [WHEN] HRS "Base Unit of Measure" validated with X
         asserterror HumanResourcesSetup.Validate("Base Unit of Measure", HumanResUnitOfMeasure.Code);
-        Assert.ExpectedError(StrSubstNo(QtyPerUnitOfMeasureErr, '1', Format(QtyPerUnitOfMeasure), HumanResUnitOfMeasure.Code));
+        Assert.ExpectedTestFieldError(HumanResUnitOfMeasure.FieldCaption("Qty. per Unit of Measure"), Format(1));
 
         // [THEN]  HRS "Base Unit of Measure" = Y
         HumanResourcesSetup.Get();

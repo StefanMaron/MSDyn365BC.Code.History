@@ -4,9 +4,6 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Finance.Currency;
 
-#if not CLEAN22
-#pragma warning disable AS0109
-#endif
 table 331 "Adjust Exchange Rate Buffer"
 {
     Caption = 'Adjust Exchange Rate Buffer';

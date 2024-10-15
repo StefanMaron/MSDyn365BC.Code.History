@@ -21,15 +21,9 @@ permissionset 618 "D365 DYN CRM READ"
                   tabledata "CDS Connection Setup" = R,
                   tabledata "CDS Coupled Business Unit" = R,
                   tabledata "CDS Environment" = R,
-#if not CLEAN22
-                  tabledata "CDS Failed Option Mapping" = R,
-#endif
                   tabledata "CDS Solution" = R,
                   tabledata "CDS Teammembership" = R,
                   tabledata "CDS Teamroles" = R,
-#if not CLEAN22
-                  tabledata "Coupling Field Buffer" = R,
-#endif
                   tabledata "Coupling Record Buffer" = R,
                   tabledata "Dataverse Entity Change" = R,
                   tabledata "CRM Account" = R,
@@ -101,6 +95,7 @@ permissionset 618 "D365 DYN CRM READ"
 #endif
                   tabledata "Customer Templ." = R,
                   tabledata "Vendor Templ." = R,
+                  tabledata "Int. Table Config Template" = R,
                   tabledata "Integration Field Mapping" = R,
                   tabledata "Integration Synch. Job" = R,
                   tabledata "Integration Synch. Job Errors" = R,
@@ -109,5 +104,6 @@ permissionset 618 "D365 DYN CRM READ"
                   tabledata "Man. Integration Field Mapping" = R,
                   tabledata "Man. Integration Table Mapping" = R,
                   tabledata "Temp Integration Field Mapping" = R,
-                  tabledata "Man. Int. Field Mapping" = R;
+                  tabledata "Man. Int. Field Mapping" = R,
+                  tabledata "Table Config Template" = R;
 }

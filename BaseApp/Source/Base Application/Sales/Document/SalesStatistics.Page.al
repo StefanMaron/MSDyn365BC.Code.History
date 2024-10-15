@@ -286,12 +286,18 @@ page 160 "Sales Statistics"
     var
         SalesSetup: Record "Sales & Receivables Setup";
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Sales %1 Statistics';
+#pragma warning restore AA0470
         Text001: Label 'Total';
         Text002: Label 'Amount';
+#pragma warning disable AA0470
         Text003: Label '%1 must not be 0.';
         Text004: Label '%1 must not be greater than %2.';
         Text005: Label 'You cannot change the invoice discount because there is a %1 record for %2 %3.', Comment = 'You cannot change the invoice discount because there is a Cust. Invoice Disc. record for Invoice Disc. Code 30000.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         TotalSalesLine: Record "Sales Line";
@@ -369,6 +375,7 @@ page 160 "Sales Statistics"
 
     local procedure SetVATSpecification()
     begin
+        CurrPage.Subform.PAGE.SetSourceHeader(Rec);
         CurrPage.SubForm.PAGE.SetTempVATAmountLine(TempVATAmountLine);
         CurrPage.SubForm.PAGE.InitGlobals(
           Rec."Currency Code", AllowVATDifference, AllowVATDifference,

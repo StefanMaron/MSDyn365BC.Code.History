@@ -4,14 +4,10 @@
 // ------------------------------------------------------------------------------------------------
 namespace Microsoft.Upgrade;
 
-using Microsoft;
 using System.Environment;
 using System.Environment.Configuration;
 using System.IO;
 using System.Reflection;
-#if not CLEAN22
-using System.Security.AccessControl;
-#endif
 using System.Upgrade;
 
 codeunit 104040 "Upgrade Profiles V2"
@@ -47,7 +43,6 @@ codeunit 104040 "Upgrade Profiles V2"
 
     trigger OnUpgradePerDatabase()
     begin
-        DisableBlankProfile();
         UpgradeProfileReferences();
     end;
 
@@ -64,28 +59,11 @@ codeunit 104040 "Upgrade Profiles V2"
         Session.LogMessage('0000A33', StrSubstNo('Per-database upgrade of profile references started. System Profiles: %1. Tenant Profiles: %2.', AppProfile.Count(), TenantProfile.Count()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategory);
 
         UpdateApplicationAreaSetup();
-#if not CLEAN22
-        UpdateUserGroup();
-#endif
         UpdateUserPersonalizations();
 
         Session.LogMessage('0000A34', StrSubstNo('Per-database upgrade of profile references finished. System Profiles: %1. Tenant Profiles: %2.', AppProfile.Count(), TenantProfile.Count()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategory);
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDef.GetUpdateProfileReferencesForDatabaseTag());
-    end;
-
-    local procedure DisableBlankProfile()
-    var
-        BaseAppInstall: Codeunit "BaseApp Install";
-        UpgradeTag: Codeunit "Upgrade Tag";
-        UpgradeTagDef: Codeunit "Upgrade Tag Definitions";
-    begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDef.GetHideBlankProfileUpgradeTag()) then
-            exit;
-
-        BaseAppInstall.DisableBlankProfile();
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDef.GetHideBlankProfileUpgradeTag());
     end;
 
     // Table-specific upgrade functions
@@ -129,7 +107,7 @@ codeunit 104040 "Upgrade Profiles V2"
         UserPersonalization.SetRange(Scope, UserPersonalization.Scope::System);
         UserPersonalization.SetFilter("Profile ID", '<>%1', '');
 
-        if UserPersonalization.FindSet(true) then begin
+        if UserPersonalization.FindSet(true) then
             repeat
                 if FindTenantProfileFromAppProfile(UserPersonalization."Profile ID", TenantProfile) then begin
                     UserPersonalization."Profile ID" := TenantProfile."Profile ID";
@@ -144,41 +122,9 @@ codeunit 104040 "Upgrade Profiles V2"
                 end else
                     FailedModifications += 1; // Telemetry already raised as part of FindTenantProfileFromAppProfile
             until UserPersonalization.Next() = 0;
-        end;
 
         SendProfileReferenceUpdatedTag(SuccessfulModifications, FailedModifications, UserPersonalization.TableName);
     end;
-
-#if not CLEAN22
-    local procedure UpdateUserGroup()
-    var
-        UserGroup: Record "User Group";
-        TenantProfile: Record "Tenant Profile";
-        SuccessfulModifications: Integer;
-        FailedModifications: Integer;
-    begin
-        UserGroup.SetRange("Default Profile Scope", UserGroup."Default Profile Scope"::System);
-        UserGroup.SetFilter("Default Profile ID", '<>%1', '');
-
-        if UserGroup.FindSet(true) then
-            repeat
-                if FindTenantProfileFromAppProfile(UserGroup."Default Profile ID", TenantProfile) then begin
-                    UserGroup."Default Profile ID" := TenantProfile."Profile ID";
-                    UserGroup."Default Profile App ID" := TenantProfile."App ID";
-                    UserGroup."Default Profile Scope" := UserGroup."Default Profile Scope"::Tenant;
-                    if UserGroup.Modify() then
-                        SuccessfulModifications += 1
-                    else begin
-                        SendFailedToUpdateProfileReferenceTag(UserGroup.TableName, UserGroup."Default Profile ID", TenantProfile);
-                        FailedModifications += 1;
-                    end;
-                end else
-                    FailedModifications += 1; // Telemetry already raised as part of FindTenantProfileFromAppProfile
-            until UserGroup.Next() = 0;
-
-        SendProfileReferenceUpdatedTag(SuccessfulModifications, FailedModifications, UserGroup.TableName);
-    end;
-#endif
 
     local procedure UpdateApplicationAreaSetup()
     var
@@ -393,7 +339,9 @@ codeunit 104040 "Upgrade Profiles V2"
     end;
 
     var
+#pragma warning disable AA0074
         TelemetryCategory: Label 'AL Upg Profiles', Locked = true;
+#pragma warning restore AA0074
 
     // Profile IDs that are LOCKED (must match profiles in the Tenant scope added by AL objects)
     var

@@ -976,7 +976,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         // [WHEN] Standard Sales Code is deleted
         // [THEN] Confirmation message appears 
         // [WHEN] User agrees with confirmation
-        StdSalesCode.Delete(True);
+        StdSalesCode.Delete(true);
 
         // [THEN] Standard Sales Code and Standard Customer Sales Code linked are deleted
         StdSalesCode.Reset();
@@ -1015,7 +1015,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
         // [WHEN] Standard Sales Code is deleted
         // [THEN] Confirmation message appears 
         // [WHEN] User disagree with confirmation
-        AssertError StdSalesCode.Delete(true);
+        asserterror StdSalesCode.Delete(true);
         Assert.ExpectedError('');
 
         // [THEN] Standard Sales Code and Standard Customer Sales Code linked are not deleted
@@ -1043,7 +1043,7 @@ codeunit 134563 "ERM Insert Std. Sales Lines"
 
         // [WHEN] Standard Sales Code is deleted
         // [THEN] Confirmation message does not appear
-        StdSalesCode.Delete(True);
+        StdSalesCode.Delete(true);
 
         // [THEN] Standard Sales Code is deleted
         StdSalesCode.Reset();

@@ -272,6 +272,31 @@ tableextension 31004 "Gen. Journal Line CZZ" extends "Gen. Journal Line"
         OnAfterCopyFromVendorLedgerEntryCZZ(VendorLedgerEntry, Rec);
     end;
 
+    procedure GetAdvanceGLAccountNoCZZ(): Code[20]
+    var
+        AdvanceLetterTemplateCZZ: Record "Advance Letter Template CZZ";
+        PurchAdvLetterHeaderCZZ: Record "Purch. Adv. Letter Header CZZ";
+        SalesAdvLetterHeaderCZZ: Record "Sales Adv. Letter Header CZZ";
+    begin
+        case "Account Type" of
+            "Account Type"::Customer:
+                begin
+                    SalesAdvLetterHeaderCZZ.Get("Adv. Letter No. (Entry) CZZ");
+                    SalesAdvLetterHeaderCZZ.TestField("Advance Letter Code");
+                    AdvanceLetterTemplateCZZ.Get(SalesAdvLetterHeaderCZZ."Advance Letter Code");
+                end;
+            "Account Type"::Vendor:
+                begin
+                    PurchAdvLetterHeaderCZZ.Get("Adv. Letter No. (Entry) CZZ");
+                    PurchAdvLetterHeaderCZZ.TestField("Advance Letter Code");
+                    AdvanceLetterTemplateCZZ.Get(PurchAdvLetterHeaderCZZ."Advance Letter Code");
+                end;
+        end;
+
+        AdvanceLetterTemplateCZZ.TestField("Advance Letter G/L Account");
+        exit(AdvanceLetterTemplateCZZ."Advance Letter G/L Account");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitNewLineCZZ(var GenJournalLine: Record "Gen. Journal Line")
     begin

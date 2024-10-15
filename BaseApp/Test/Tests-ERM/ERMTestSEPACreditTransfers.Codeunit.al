@@ -217,17 +217,15 @@
         CreditTransferRegister: Record "Credit Transfer Register";
         i: Integer;
     begin
-        with CreditTransferRegister do begin
-            if FindLast() then;
-            i := "No.";
-            CreateNew('ID123', 'BANK1');
-            Assert.AreEqual(i + 1, "No.", 'No. was not incremented correctly.');
-            TestField(Identifier, 'ID123');
-            TestField("From Bank Account No.", 'BANK1');
-            TestField(Status, Status::Canceled);
-            SetStatus(Status::"File Created");
-            TestField(Status, Status::"File Created");
-        end;
+        if CreditTransferRegister.FindLast() then;
+        i := CreditTransferRegister."No.";
+        CreditTransferRegister.CreateNew('ID123', 'BANK1');
+        Assert.AreEqual(i + 1, CreditTransferRegister."No.", 'No. was not incremented correctly.');
+        CreditTransferRegister.TestField(Identifier, 'ID123');
+        CreditTransferRegister.TestField("From Bank Account No.", 'BANK1');
+        CreditTransferRegister.TestField(Status, CreditTransferRegister.Status::Canceled);
+        CreditTransferRegister.SetStatus(CreditTransferRegister.Status::"File Created");
+        CreditTransferRegister.TestField(Status, CreditTransferRegister.Status::"File Created");
     end;
 
     [Test]
@@ -269,58 +267,56 @@
         EmployeeLedgerEntry.Description := 'Test';
         EmployeeLedgerEntry."Currency Code" := '';
         EmployeeLedgerEntry.Insert();
-        with CreditTransferEntry do begin
-            if FindLast() then;
-            CredTrfRegNo := "Credit Transfer Register No.";
-            i := "Entry No.";
-            TrfDate := GetTodayDate();
-            CreateNew(
-              CredTrfRegNo, 0, GenJnlLine."Account Type"::Vendor, VendorLedgerEntry."Vendor No.", VendorLedgerEntry."Entry No.",
-              TrfDate, VendorLedgerEntry."Currency Code", 123.45, 'ID123',
-              GenJnlLine."Recipient Bank Account", GenJnlLine."Message to Recipient");
-            Assert.AreEqual(i + 1, "Entry No.", 'Entry No. was not incremented correctly.');
-            TestField("Transfer Date", TrfDate);
-            TestField("Credit Transfer Register No.", CredTrfRegNo);
-            TestField("Account No.", VendorLedgerEntry."Vendor No.");
-            TestField("Applies-to Entry No.", VendorLedgerEntry."Entry No.");
-            TestField("Currency Code", VendorLedgerEntry."Currency Code");
-            TestField("Transfer Amount", 123.45);
-            TestField("Transaction ID", 'ID123');
-            VendorLedgerEntry.CalcFields(Amount, "Remaining Amount");
-            Assert.AreEqual(Vendor.Name, "Recipient Name", 'Wrong Creditor Name.');
-            Assert.AreEqual(VendorLedgerEntry."Document No.", AppliesToEntryDocumentNo(), 'Wrong VLE Doc. No.');
-            Assert.AreEqual(VendorLedgerEntry.Description, AppliesToEntryDescription(), 'Wrong VLE Description.');
-            Assert.AreEqual(VendorLedgerEntry."Posting Date", AppliesToEntryPostingDate(), 'Wrong VLE Posting Date.');
-            Assert.AreEqual(VendorLedgerEntry."Currency Code", AppliesToEntryCurrencyCode(), 'Wrong VLE Currency Code.');
-            Assert.AreEqual(VendorLedgerEntry.Amount, AppliesToEntryAmount(), 'Wrong VLE Amount.');
-            Assert.AreEqual(VendorLedgerEntry."Remaining Amount", AppliesToEntryRemainingAmount(), 'Wrong VLE Rem. Amt.');
+        if CreditTransferEntry.FindLast() then;
+        CredTrfRegNo := CreditTransferEntry."Credit Transfer Register No.";
+        i := CreditTransferEntry."Entry No.";
+        TrfDate := GetTodayDate();
+        CreditTransferEntry.CreateNew(
+          CredTrfRegNo, 0, GenJnlLine."Account Type"::Vendor, VendorLedgerEntry."Vendor No.", VendorLedgerEntry."Entry No.",
+          TrfDate, VendorLedgerEntry."Currency Code", 123.45, 'ID123',
+          GenJnlLine."Recipient Bank Account", GenJnlLine."Message to Recipient");
+        Assert.AreEqual(i + 1, CreditTransferEntry."Entry No.", 'Entry No. was not incremented correctly.');
+        CreditTransferEntry.TestField("Transfer Date", TrfDate);
+        CreditTransferEntry.TestField("Credit Transfer Register No.", CredTrfRegNo);
+        CreditTransferEntry.TestField("Account No.", VendorLedgerEntry."Vendor No.");
+        CreditTransferEntry.TestField("Applies-to Entry No.", VendorLedgerEntry."Entry No.");
+        CreditTransferEntry.TestField("Currency Code", VendorLedgerEntry."Currency Code");
+        CreditTransferEntry.TestField("Transfer Amount", 123.45);
+        CreditTransferEntry.TestField("Transaction ID", 'ID123');
+        VendorLedgerEntry.CalcFields(Amount, "Remaining Amount");
+        Assert.AreEqual(Vendor.Name, CreditTransferEntry."Recipient Name", 'Wrong Creditor Name.');
+        Assert.AreEqual(VendorLedgerEntry."Document No.", CreditTransferEntry.AppliesToEntryDocumentNo(), 'Wrong VLE Doc. No.');
+        Assert.AreEqual(VendorLedgerEntry.Description, CreditTransferEntry.AppliesToEntryDescription(), 'Wrong VLE Description.');
+        Assert.AreEqual(VendorLedgerEntry."Posting Date", CreditTransferEntry.AppliesToEntryPostingDate(), 'Wrong VLE Posting Date.');
+        Assert.AreEqual(VendorLedgerEntry."Currency Code", CreditTransferEntry.AppliesToEntryCurrencyCode(), 'Wrong VLE Currency Code.');
+        Assert.AreEqual(VendorLedgerEntry.Amount, CreditTransferEntry.AppliesToEntryAmount(), 'Wrong VLE Amount.');
+        Assert.AreEqual(VendorLedgerEntry."Remaining Amount", CreditTransferEntry.AppliesToEntryRemainingAmount(), 'Wrong VLE Rem. Amt.');
 
-            CreateNew(
-              CredTrfRegNo, 0, GenJnlLine."Account Type"::Customer, CustLedgerEntry."Customer No.", CustLedgerEntry."Entry No.",
-              TrfDate, CustLedgerEntry."Currency Code", 123.45, 'ID123',
-              GenJnlLine."Recipient Bank Account", GenJnlLine."Message to Recipient");
-            CustLedgerEntry.CalcFields(Amount, "Remaining Amount");
-            Assert.AreEqual(Customer.Name, "Recipient Name", 'Wrong Creditor Name.');
-            Assert.AreEqual(CustLedgerEntry."Document No.", AppliesToEntryDocumentNo(), 'Wrong CLE Doc. No.');
-            Assert.AreEqual(CustLedgerEntry.Description, AppliesToEntryDescription(), 'Wrong CLE Description.');
-            Assert.AreEqual(CustLedgerEntry."Posting Date", AppliesToEntryPostingDate(), 'Wrong CLE Posting Date.');
-            Assert.AreEqual(CustLedgerEntry."Currency Code", AppliesToEntryCurrencyCode(), 'Wrong CLE Currency Code.');
-            Assert.AreEqual(CustLedgerEntry.Amount, AppliesToEntryAmount(), 'Wrong CLE Amount.');
-            Assert.AreEqual(CustLedgerEntry."Remaining Amount", AppliesToEntryRemainingAmount(), 'Wrong CLE Rem. Amt.');
+        CreditTransferEntry.CreateNew(
+          CredTrfRegNo, 0, GenJnlLine."Account Type"::Customer, CustLedgerEntry."Customer No.", CustLedgerEntry."Entry No.",
+          TrfDate, CustLedgerEntry."Currency Code", 123.45, 'ID123',
+          GenJnlLine."Recipient Bank Account", GenJnlLine."Message to Recipient");
+        CustLedgerEntry.CalcFields(Amount, "Remaining Amount");
+        Assert.AreEqual(Customer.Name, CreditTransferEntry."Recipient Name", 'Wrong Creditor Name.');
+        Assert.AreEqual(CustLedgerEntry."Document No.", CreditTransferEntry.AppliesToEntryDocumentNo(), 'Wrong CLE Doc. No.');
+        Assert.AreEqual(CustLedgerEntry.Description, CreditTransferEntry.AppliesToEntryDescription(), 'Wrong CLE Description.');
+        Assert.AreEqual(CustLedgerEntry."Posting Date", CreditTransferEntry.AppliesToEntryPostingDate(), 'Wrong CLE Posting Date.');
+        Assert.AreEqual(CustLedgerEntry."Currency Code", CreditTransferEntry.AppliesToEntryCurrencyCode(), 'Wrong CLE Currency Code.');
+        Assert.AreEqual(CustLedgerEntry.Amount, CreditTransferEntry.AppliesToEntryAmount(), 'Wrong CLE Amount.');
+        Assert.AreEqual(CustLedgerEntry."Remaining Amount", CreditTransferEntry.AppliesToEntryRemainingAmount(), 'Wrong CLE Rem. Amt.');
 
-            CreateNew(
-              CredTrfRegNo, 0, GenJnlLine."Account Type"::Employee, EmployeeLedgerEntry."Employee No.", EmployeeLedgerEntry."Entry No.",
-              TrfDate, EmployeeLedgerEntry."Currency Code", 123.45, 'ID123',
-              GenJnlLine."Recipient Bank Account", GenJnlLine."Message to Recipient");
-            EmployeeLedgerEntry.CalcFields(Amount, "Remaining Amount");
-            Assert.AreEqual(Employee.FullName(), "Recipient Name", 'Wrong Creditor Name.');
-            Assert.AreEqual(EmployeeLedgerEntry."Document No.", AppliesToEntryDocumentNo(), 'Wrong ELE Doc. No.');
-            Assert.AreEqual(EmployeeLedgerEntry.Description, AppliesToEntryDescription(), 'Wrong ELE Description.');
-            Assert.AreEqual(EmployeeLedgerEntry."Posting Date", AppliesToEntryPostingDate(), 'Wrong ELE Posting Date.');
-            Assert.AreEqual(EmployeeLedgerEntry."Currency Code", AppliesToEntryCurrencyCode(), 'Wrong ELE Currency Code.');
-            Assert.AreEqual(EmployeeLedgerEntry.Amount, AppliesToEntryAmount(), 'Wrong ELE Amount.');
-            Assert.AreEqual(EmployeeLedgerEntry."Remaining Amount", AppliesToEntryRemainingAmount(), 'Wrong ELE Rem. Amt.');
-        end;
+        CreditTransferEntry.CreateNew(
+          CredTrfRegNo, 0, GenJnlLine."Account Type"::Employee, EmployeeLedgerEntry."Employee No.", EmployeeLedgerEntry."Entry No.",
+          TrfDate, EmployeeLedgerEntry."Currency Code", 123.45, 'ID123',
+          GenJnlLine."Recipient Bank Account", GenJnlLine."Message to Recipient");
+        EmployeeLedgerEntry.CalcFields(Amount, "Remaining Amount");
+        Assert.AreEqual(Employee.FullName(), CreditTransferEntry."Recipient Name", 'Wrong Creditor Name.');
+        Assert.AreEqual(EmployeeLedgerEntry."Document No.", CreditTransferEntry.AppliesToEntryDocumentNo(), 'Wrong ELE Doc. No.');
+        Assert.AreEqual(EmployeeLedgerEntry.Description, CreditTransferEntry.AppliesToEntryDescription(), 'Wrong ELE Description.');
+        Assert.AreEqual(EmployeeLedgerEntry."Posting Date", CreditTransferEntry.AppliesToEntryPostingDate(), 'Wrong ELE Posting Date.');
+        Assert.AreEqual(EmployeeLedgerEntry."Currency Code", CreditTransferEntry.AppliesToEntryCurrencyCode(), 'Wrong ELE Currency Code.');
+        Assert.AreEqual(EmployeeLedgerEntry.Amount, CreditTransferEntry.AppliesToEntryAmount(), 'Wrong ELE Amount.');
+        Assert.AreEqual(EmployeeLedgerEntry."Remaining Amount", CreditTransferEntry.AppliesToEntryRemainingAmount(), 'Wrong ELE Rem. Amt.');
     end;
 
     [Test]
@@ -329,13 +325,11 @@
     var
         PaymentExportData: Record "Payment Export Data";
     begin
-        with PaymentExportData do begin
-            Init();
-            Validate("SEPA Instruction Priority", "SEPA Instruction Priority"::NORMAL);
-            TestField("SEPA Instruction Priority Text", 'NORM');
-            Validate("SEPA Instruction Priority", "SEPA Instruction Priority"::HIGH);
-            TestField("SEPA Instruction Priority Text", 'HIGH');
-        end;
+        PaymentExportData.Init();
+        PaymentExportData.Validate("SEPA Instruction Priority", PaymentExportData."SEPA Instruction Priority"::NORMAL);
+        PaymentExportData.TestField("SEPA Instruction Priority Text", 'NORM');
+        PaymentExportData.Validate("SEPA Instruction Priority", PaymentExportData."SEPA Instruction Priority"::HIGH);
+        PaymentExportData.TestField("SEPA Instruction Priority Text", 'HIGH');
     end;
 
     [Test]
@@ -344,15 +338,13 @@
     var
         PaymentExportData: Record "Payment Export Data";
     begin
-        with PaymentExportData do begin
-            Init();
-            Validate("SEPA Payment Method", "SEPA Payment Method"::CHK);
-            TestField("SEPA Payment Method Text", 'CHK');
-            Validate("SEPA Payment Method", "SEPA Payment Method"::TRF);
-            TestField("SEPA Payment Method Text", 'TRF');
-            Validate("SEPA Payment Method", "SEPA Payment Method"::TRA);
-            TestField("SEPA Payment Method Text", 'TRA');
-        end;
+        PaymentExportData.Init();
+        PaymentExportData.Validate("SEPA Payment Method", PaymentExportData."SEPA Payment Method"::CHK);
+        PaymentExportData.TestField("SEPA Payment Method Text", 'CHK');
+        PaymentExportData.Validate("SEPA Payment Method", PaymentExportData."SEPA Payment Method"::TRF);
+        PaymentExportData.TestField("SEPA Payment Method Text", 'TRF');
+        PaymentExportData.Validate("SEPA Payment Method", PaymentExportData."SEPA Payment Method"::TRA);
+        PaymentExportData.TestField("SEPA Payment Method Text", 'TRA');
     end;
 
     [Test]
@@ -361,17 +353,15 @@
     var
         PaymentExportData: Record "Payment Export Data";
     begin
-        with PaymentExportData do begin
-            Init();
-            Validate("SEPA Charge Bearer", "SEPA Charge Bearer"::DEBT);
-            TestField("SEPA Charge Bearer Text", 'DEBT');
-            Validate("SEPA Charge Bearer", "SEPA Charge Bearer"::CRED);
-            TestField("SEPA Charge Bearer Text", 'CRED');
-            Validate("SEPA Charge Bearer", "SEPA Charge Bearer"::SHAR);
-            TestField("SEPA Charge Bearer Text", 'SHAR');
-            Validate("SEPA Charge Bearer", "SEPA Charge Bearer"::SLEV);
-            TestField("SEPA Charge Bearer Text", 'SLEV');
-        end;
+        PaymentExportData.Init();
+        PaymentExportData.Validate("SEPA Charge Bearer", PaymentExportData."SEPA Charge Bearer"::DEBT);
+        PaymentExportData.TestField("SEPA Charge Bearer Text", 'DEBT');
+        PaymentExportData.Validate("SEPA Charge Bearer", PaymentExportData."SEPA Charge Bearer"::CRED);
+        PaymentExportData.TestField("SEPA Charge Bearer Text", 'CRED');
+        PaymentExportData.Validate("SEPA Charge Bearer", PaymentExportData."SEPA Charge Bearer"::SHAR);
+        PaymentExportData.TestField("SEPA Charge Bearer Text", 'SHAR');
+        PaymentExportData.Validate("SEPA Charge Bearer", PaymentExportData."SEPA Charge Bearer"::SLEV);
+        PaymentExportData.TestField("SEPA Charge Bearer Text", 'SLEV');
     end;
 
     [Test]
@@ -380,34 +370,32 @@
     var
         PaymentExportData: Record "Payment Export Data";
     begin
-        with PaymentExportData do begin
-            Init();
-            "Line No." := 1;
-            Assert.IsFalse(IsFieldBlank(FieldNo("Line No.")), FieldName("Line No."));
-            "Line No." := 0;
-            Assert.IsTrue(IsFieldBlank(FieldNo("Line No.")), FieldName("Line No."));
-            Amount := 1;
-            Assert.IsFalse(IsFieldBlank(FieldNo(Amount)), FieldName(Amount));
-            Amount := 0;
-            Assert.IsTrue(IsFieldBlank(FieldNo(Amount)), FieldName(Amount));
-            "Sender Bank Account Code" := 'x';
-            Assert.IsFalse(IsFieldBlank(FieldNo("Sender Bank Account Code")), FieldName("Sender Bank Account Code"));
-            "Sender Bank Account Code" := '';
-            Assert.IsTrue(IsFieldBlank(FieldNo("Sender Bank Account Code")), FieldName("Sender Bank Account Code"));
-            "Sender Bank Account No." := 'x';
-            Assert.IsFalse(IsFieldBlank(FieldNo("Sender Bank Account No.")), FieldName("Sender Bank Account No."));
-            "Sender Bank Account No." := '';
-            Assert.IsTrue(IsFieldBlank(FieldNo("Sender Bank Account No.")), FieldName("Sender Bank Account No."));
-            "Transfer Date" := DMY2Date(1, 1, 2001);
-            Assert.IsFalse(IsFieldBlank(FieldNo("Transfer Date")), FieldName("Transfer Date"));
-            "Transfer Date" := 0D;
-            Assert.IsTrue(IsFieldBlank(FieldNo("Transfer Date")), FieldName("Transfer Date"));
-            // an option field always returns FALSE;
-            "SEPA Payment Method" := 1;
-            Assert.IsFalse(IsFieldBlank(FieldNo("SEPA Payment Method")), FieldName("SEPA Payment Method"));
-            "SEPA Payment Method" := 0;
-            Assert.IsFalse(IsFieldBlank(FieldNo("SEPA Payment Method")), FieldName("SEPA Payment Method"));
-        end;
+        PaymentExportData.Init();
+        PaymentExportData."Line No." := 1;
+        Assert.IsFalse(PaymentExportData.IsFieldBlank(PaymentExportData.FieldNo("Line No.")), PaymentExportData.FieldName("Line No."));
+        PaymentExportData."Line No." := 0;
+        Assert.IsTrue(PaymentExportData.IsFieldBlank(PaymentExportData.FieldNo("Line No.")), PaymentExportData.FieldName("Line No."));
+        PaymentExportData.Amount := 1;
+        Assert.IsFalse(PaymentExportData.IsFieldBlank(PaymentExportData.FieldNo(Amount)), PaymentExportData.FieldName(Amount));
+        PaymentExportData.Amount := 0;
+        Assert.IsTrue(PaymentExportData.IsFieldBlank(PaymentExportData.FieldNo(Amount)), PaymentExportData.FieldName(Amount));
+        PaymentExportData."Sender Bank Account Code" := 'x';
+        Assert.IsFalse(PaymentExportData.IsFieldBlank(PaymentExportData.FieldNo("Sender Bank Account Code")), PaymentExportData.FieldName("Sender Bank Account Code"));
+        PaymentExportData."Sender Bank Account Code" := '';
+        Assert.IsTrue(PaymentExportData.IsFieldBlank(PaymentExportData.FieldNo("Sender Bank Account Code")), PaymentExportData.FieldName("Sender Bank Account Code"));
+        PaymentExportData."Sender Bank Account No." := 'x';
+        Assert.IsFalse(PaymentExportData.IsFieldBlank(PaymentExportData.FieldNo("Sender Bank Account No.")), PaymentExportData.FieldName("Sender Bank Account No."));
+        PaymentExportData."Sender Bank Account No." := '';
+        Assert.IsTrue(PaymentExportData.IsFieldBlank(PaymentExportData.FieldNo("Sender Bank Account No.")), PaymentExportData.FieldName("Sender Bank Account No."));
+        PaymentExportData."Transfer Date" := DMY2Date(1, 1, 2001);
+        Assert.IsFalse(PaymentExportData.IsFieldBlank(PaymentExportData.FieldNo("Transfer Date")), PaymentExportData.FieldName("Transfer Date"));
+        PaymentExportData."Transfer Date" := 0D;
+        Assert.IsTrue(PaymentExportData.IsFieldBlank(PaymentExportData.FieldNo("Transfer Date")), PaymentExportData.FieldName("Transfer Date"));
+        // an option field always returns FALSE;
+        PaymentExportData."SEPA Payment Method" := 1;
+        Assert.IsFalse(PaymentExportData.IsFieldBlank(PaymentExportData.FieldNo("SEPA Payment Method")), PaymentExportData.FieldName("SEPA Payment Method"));
+        PaymentExportData."SEPA Payment Method" := 0;
+        Assert.IsFalse(PaymentExportData.IsFieldBlank(PaymentExportData.FieldNo("SEPA Payment Method")), PaymentExportData.FieldName("SEPA Payment Method"));
     end;
 
     [Test]
@@ -419,25 +407,23 @@
         i: Integer;
     begin
         if GenJnlLine.FindLast() then;
-        with PaymentJnlExportErrorText do begin
-            SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
-            SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
-            SetRange("Journal Line No.", GenJnlLine."Line No.");
-            if FindLast() then;
-            i := "Line No.";
-            CreateNew(GenJnlLine, 'Error 1', '', '');
-            FindLast();
-            Assert.AreEqual(i + 1, "Line No.", 'Wrong Line No.');
-            TestField("Error Text", 'Error 1');
-            Assert.IsTrue(GenJnlLine.HasPaymentFileErrors(), 'Journal line is missing error text.');
-            Assert.IsTrue(JnlLineHasErrors(GenJnlLine), 'Error text not found.');
-            DeleteJnlLineErrors(GenJnlLine);
-            Assert.IsFalse(GenJnlLine.HasPaymentFileErrors(), 'Journal line has an error text.');
-            Assert.IsFalse(JnlLineHasErrors(GenJnlLine), 'Error text 1 found.');
-            CreateNew(GenJnlLine, 'Error 2', '', '');
-            DeleteJnlBatchErrors(GenJnlLine);
-            Assert.IsFalse(JnlLineHasErrors(GenJnlLine), 'Error text 2 found.');
-        end;
+        PaymentJnlExportErrorText.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
+        PaymentJnlExportErrorText.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
+        PaymentJnlExportErrorText.SetRange("Journal Line No.", GenJnlLine."Line No.");
+        if PaymentJnlExportErrorText.FindLast() then;
+        i := PaymentJnlExportErrorText."Line No.";
+        PaymentJnlExportErrorText.CreateNew(GenJnlLine, 'Error 1', '', '');
+        PaymentJnlExportErrorText.FindLast();
+        Assert.AreEqual(i + 1, PaymentJnlExportErrorText."Line No.", 'Wrong Line No.');
+        PaymentJnlExportErrorText.TestField("Error Text", 'Error 1');
+        Assert.IsTrue(GenJnlLine.HasPaymentFileErrors(), 'Journal line is missing error text.');
+        Assert.IsTrue(PaymentJnlExportErrorText.JnlLineHasErrors(GenJnlLine), 'Error text not found.');
+        PaymentJnlExportErrorText.DeleteJnlLineErrors(GenJnlLine);
+        Assert.IsFalse(GenJnlLine.HasPaymentFileErrors(), 'Journal line has an error text.');
+        Assert.IsFalse(PaymentJnlExportErrorText.JnlLineHasErrors(GenJnlLine), 'Error text 1 found.');
+        PaymentJnlExportErrorText.CreateNew(GenJnlLine, 'Error 2', '', '');
+        PaymentJnlExportErrorText.DeleteJnlBatchErrors(GenJnlLine);
+        Assert.IsFalse(PaymentJnlExportErrorText.JnlLineHasErrors(GenJnlLine), 'Error text 2 found.');
     end;
 
     [Test]
@@ -447,15 +433,13 @@
         TempPaymentExportData: Record "Payment Export Data" temporary;
         TempPaymentExportRemittanceText: Record "Payment Export Remittance Text" temporary;
     begin
-        with TempPaymentExportData do begin
-            SetPreserveNonLatinCharacters(true);
-            CreatePaymentExportDataCharSetData(TempPaymentExportData);
-            Assert.AreEqual(AccentuateText(NameTxt), "Recipient Name", 'Name has been converted.');
-            Assert.AreEqual(AccentuateText(AddressTxt), "Recipient Address", 'Address has been converted.');
-            GetRemittanceTexts(TempPaymentExportRemittanceText);
-            TempPaymentExportRemittanceText.FindFirst();
-            Assert.AreEqual(AccentuateText(RemitTxt), TempPaymentExportRemittanceText.Text, 'Remittance text has been converted.');
-        end;
+        TempPaymentExportData.SetPreserveNonLatinCharacters(true);
+        CreatePaymentExportDataCharSetData(TempPaymentExportData);
+        Assert.AreEqual(AccentuateText(NameTxt), TempPaymentExportData."Recipient Name", 'Name has been converted.');
+        Assert.AreEqual(AccentuateText(AddressTxt), TempPaymentExportData."Recipient Address", 'Address has been converted.');
+        TempPaymentExportData.GetRemittanceTexts(TempPaymentExportRemittanceText);
+        TempPaymentExportRemittanceText.FindFirst();
+        Assert.AreEqual(AccentuateText(RemitTxt), TempPaymentExportRemittanceText.Text, 'Remittance text has been converted.');
     end;
 
     [Test]
@@ -465,15 +449,13 @@
         TempPaymentExportData: Record "Payment Export Data" temporary;
         TempPaymentExportRemittanceText: Record "Payment Export Remittance Text" temporary;
     begin
-        with TempPaymentExportData do begin
-            SetPreserveNonLatinCharacters(false);
-            CreatePaymentExportDataCharSetData(TempPaymentExportData);
-            Assert.AreEqual(Format(NameTxt), "Recipient Name", 'Name has not been converted.');
-            Assert.AreEqual(Format(AddressTxt), "Recipient Address", 'Address has not been converted.');
-            GetRemittanceTexts(TempPaymentExportRemittanceText);
-            TempPaymentExportRemittanceText.FindFirst();
-            Assert.AreEqual(Format(RemitTxt), TempPaymentExportRemittanceText.Text, 'Remittance text has not been converted.');
-        end;
+        TempPaymentExportData.SetPreserveNonLatinCharacters(false);
+        CreatePaymentExportDataCharSetData(TempPaymentExportData);
+        Assert.AreEqual(Format(NameTxt), TempPaymentExportData."Recipient Name", 'Name has not been converted.');
+        Assert.AreEqual(Format(AddressTxt), TempPaymentExportData."Recipient Address", 'Address has not been converted.');
+        TempPaymentExportData.GetRemittanceTexts(TempPaymentExportRemittanceText);
+        TempPaymentExportRemittanceText.FindFirst();
+        Assert.AreEqual(Format(RemitTxt), TempPaymentExportRemittanceText.Text, 'Remittance text has not been converted.');
     end;
 
     [Test]
@@ -483,14 +465,12 @@
         CompanyInformation: Record "Company Information";
         PaymentExportData: Record "Payment Export Data";
     begin
-        with CompanyInformation do begin
-            Init();
-            Name := CopyStr(AccentuateText(NameTxt), 1, MaxStrLen(Name));
-            Address := CopyStr(AccentuateText(AddressTxt), 1, MaxStrLen(Address));
-            PaymentExportData.CompanyInformationConvertToLatin(CompanyInformation);
-            Assert.AreEqual(Format(NameTxt), Name, 'Name has not been converted.');
-            Assert.AreEqual(Format(AddressTxt), Address, 'Address has not been converted.');
-        end;
+        CompanyInformation.Init();
+        CompanyInformation.Name := CopyStr(AccentuateText(NameTxt), 1, MaxStrLen(CompanyInformation.Name));
+        CompanyInformation.Address := CopyStr(AccentuateText(AddressTxt), 1, MaxStrLen(CompanyInformation.Address));
+        PaymentExportData.CompanyInformationConvertToLatin(CompanyInformation);
+        Assert.AreEqual(Format(NameTxt), CompanyInformation.Name, 'Name has not been converted.');
+        Assert.AreEqual(Format(AddressTxt), CompanyInformation.Address, 'Address has not been converted.');
     end;
 
     [Test]
@@ -1144,11 +1124,9 @@
         // [THEN] "Payment Information ID" = "Y/X"
         // [THEN] "End-to-End ID" = "Y/X"
         PaymentInformationID := MessageID + '/' + Format(EntryNo);
-        with PaymentExportData do begin
-            Assert.AreEqual(MessageID, "Message ID", MessageIDErr);
-            Assert.AreEqual(PaymentInformationID, "Payment Information ID", PaymentInformationIDErr);
-            Assert.AreEqual(PaymentInformationID, "End-to-End ID", EndtoEndIDErr);
-        end;
+        Assert.AreEqual(MessageID, PaymentExportData."Message ID", MessageIDErr);
+        Assert.AreEqual(PaymentInformationID, PaymentExportData."Payment Information ID", PaymentInformationIDErr);
+        Assert.AreEqual(PaymentInformationID, PaymentExportData."End-to-End ID", EndtoEndIDErr);
     end;
 
     [Test]
@@ -1837,26 +1815,25 @@
 
     local procedure CreateGenJnlLineForAccType(var GenJnlLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: enum "Gen. Journal Account Type"; AccountNo: Code[20]; RecipientBankAcc: Code[20]; CurrencyCode: Code[10])
     begin
-        with GenJnlLine do begin
-            SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
-            SetRange("Journal Batch Name", GenJournalBatch.Name);
+        GenJnlLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJnlLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
 
-            Init();
-            LibraryERM.CreateGeneralJnlLine(
-              GenJnlLine, GenJournalTemplate.Name, GenJournalBatch.Name,
-              "Document Type"::Payment, AccountType, AccountNo, 1);
+        GenJnlLine.Init();
+        LibraryERM.CreateGeneralJnlLine(
+          GenJnlLine, GenJournalTemplate.Name, GenJournalBatch.Name,
+          GenJnlLine."Document Type"::Payment, AccountType, AccountNo, 1);
 
-            if "Applies-to Ext. Doc. No." = '' then
-                "Applies-to Ext. Doc. No." := ExtDocNoTxt;
-            Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
-            Validate("Currency Code", CurrencyCode);
-            Validate(Amount, DefaultLineAmount);
-            Validate("Bal. Account Type", "Bal. Account Type"::"Bank Account");
-            Validate("Bal. Account No.", BankAccount."No.");
-            Validate("Recipient Bank Account", RecipientBankAcc);
-            Validate("Posting Date", Today); // NAVCZ
-            Modify();
-        end;
+        if GenJnlLine."Applies-to Ext. Doc. No." = '' then
+            GenJnlLine."Applies-to Ext. Doc. No." := ExtDocNoTxt;
+        GenJnlLine.Validate("Applies-to Doc. Type", GenJnlLine."Applies-to Doc. Type"::Invoice);
+        GenJnlLine.Validate("Currency Code", CurrencyCode);
+        GenJnlLine.Validate(Amount, DefaultLineAmount);
+        GenJnlLine.Validate("Bal. Account Type", GenJnlLine."Bal. Account Type"::"Bank Account");
+        GenJnlLine.Validate("Bal. Account No.", BankAccount."No.");
+        GenJnlLine.Validate("Recipient Bank Account", RecipientBankAcc);
+        GenJnlLine.Validate("Posting Date", Today);
+        // NAVCZ
+        GenJnlLine.Modify();
     end;
 
     local procedure CreateGenJnlLinesDiffDate(var GenJnlLine: Record "Gen. Journal Line"; NoOfGroups: Integer; NoOfPmtsPerGroup: Integer)
@@ -1890,27 +1867,23 @@
 
     local procedure CreateBankExpSetup()
     begin
-        with BankExportImportSetup do begin
-            Code := 'SEPA-TEST';
-            if Find() then
-                Delete();
-            Direction := Direction::Export;
-            "Processing Codeunit ID" := CODEUNIT::"SEPA CT-Export File";
-            "Processing XMLport ID" := XMLPORT::"SEPA CT pain.001.001.09";
-            "Check Export Codeunit" := CODEUNIT::"SEPA CT-Check Line";
-            Insert();
-        end;
+        BankExportImportSetup.Code := 'SEPA-TEST';
+        if BankExportImportSetup.Find() then
+            BankExportImportSetup.Delete();
+        BankExportImportSetup.Direction := BankExportImportSetup.Direction::Export;
+        BankExportImportSetup."Processing Codeunit ID" := CODEUNIT::"SEPA CT-Export File";
+        BankExportImportSetup."Processing XMLport ID" := XMLPORT::"SEPA CT pain.001.001.09";
+        BankExportImportSetup."Check Export Codeunit" := CODEUNIT::"SEPA CT-Check Line";
+        BankExportImportSetup.Insert();
     end;
 
     local procedure CreatePaymentExportDataCharSetData(var PaymentExportData: Record "Payment Export Data")
     begin
-        with PaymentExportData do begin
-            Init();
-            "Recipient Name" := CopyStr(AccentuateText(NameTxt), 1, MaxStrLen("Recipient Name"));
-            "Recipient Address" := CopyStr(AccentuateText(AddressTxt), 1, MaxStrLen("Recipient Address"));
-            AddRemittanceText(CopyStr(AccentuateText(RemitTxt), 1, 140));
-            Insert(true);
-        end;
+        PaymentExportData.Init();
+        PaymentExportData."Recipient Name" := CopyStr(AccentuateText(NameTxt), 1, MaxStrLen(PaymentExportData."Recipient Name"));
+        PaymentExportData."Recipient Address" := CopyStr(AccentuateText(AddressTxt), 1, MaxStrLen(PaymentExportData."Recipient Address"));
+        PaymentExportData.AddRemittanceText(CopyStr(AccentuateText(RemitTxt), 1, 140));
+        PaymentExportData.Insert(true);
     end;
 
     local procedure CreateVendorLedgerEntry(var VendLedgerEntry: Record "Vendor Ledger Entry"; DateOffset: Integer)
@@ -2259,14 +2232,12 @@
     var
         PaymentJnlExportErrorText: Record "Payment Jnl. Export Error Text";
     begin
-        with PaymentJnlExportErrorText do begin
-            SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
-            SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
-            SetRange("Document No.", GenJnlLine."Document No.");
-            SetRange("Journal Line No.", GenJnlLine."Line No.");
-            FindFirst();
-            TestField("Error Text", ErrText);
-        end;
+        PaymentJnlExportErrorText.SetRange("Journal Template Name", GenJnlLine."Journal Template Name");
+        PaymentJnlExportErrorText.SetRange("Journal Batch Name", GenJnlLine."Journal Batch Name");
+        PaymentJnlExportErrorText.SetRange("Document No.", GenJnlLine."Document No.");
+        PaymentJnlExportErrorText.SetRange("Journal Line No.", GenJnlLine."Line No.");
+        PaymentJnlExportErrorText.FindFirst();
+        PaymentJnlExportErrorText.TestField("Error Text", ErrText);
     end;
 
     local procedure VerifyExportedToPaymentFileFlagVendor(var GenJournalLine: Record "Gen. Journal Line"; var VendorLedgerEntry: Record "Vendor Ledger Entry"; ExpectedFlag: Boolean)

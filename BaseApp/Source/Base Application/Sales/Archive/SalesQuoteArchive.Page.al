@@ -196,17 +196,6 @@ page 5162 "Sales Quote Archive"
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies information about sales quotes, purchase quotes, or orders in earlier versions of the document.';
                 }
-#if not CLEAN22
-                field("Bill-to Customer Template Code"; Rec."Bill-to Customer Template Code")
-                {
-                    ApplicationArea = Suite;
-                    ToolTip = 'Specifies information about sales quotes, purchase quotes, or orders in earlier versions of the document.';
-                    ObsoleteReason = 'Replaced by field "Bill-to Customer Templ. Code"';
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                    Visible = false;
-                }
-#endif
                 group("Bill-to")
                 {
                     Caption = 'Bill-to';
@@ -399,6 +388,12 @@ page 5162 "Sales Quote Archive"
                         ApplicationArea = Suite;
                         Caption = 'Country/Region';
                         ToolTip = 'Specifies the country or region of the ship-to address.';
+                    }
+                    field("Ship-to Phone No."; Rec."Ship-to Phone No.")
+                    {
+                        ApplicationArea = Suite;
+                        Caption = 'Phone No.';
+                        ToolTip = 'Specifies the telephone number of the company''s shipping address.';
                     }
                     field("Ship-to Contact"; Rec."Ship-to Contact")
                     {

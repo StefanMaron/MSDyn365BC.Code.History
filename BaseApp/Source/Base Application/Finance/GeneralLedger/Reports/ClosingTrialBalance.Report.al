@@ -200,8 +200,12 @@ report 10 "Closing Trial Balance"
         AllAmountsInLbl: Label 'All amounts are in';
         GLAccountTypePosting: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Enter the starting date for the fiscal year.';
+#pragma warning disable AA0470
         Text001: Label 'Period: %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure GetCurrency(): Code[10]
     begin

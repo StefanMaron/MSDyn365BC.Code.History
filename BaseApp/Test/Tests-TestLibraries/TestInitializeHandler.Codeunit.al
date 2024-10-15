@@ -8,9 +8,6 @@ codeunit 143060 "Test Initialize Handler"
         UpdatePurchasesPayablesSetup();
         UpdateSalesReceivablesSetup();
         UpdateInventorySetup();
-#if not CLEAN22
-        UpdateIntrastat();
-#endif
         UpdateGeneralPostingSetup();
         UpdateReportSelections();
     end;
@@ -43,14 +40,6 @@ codeunit 143060 "Test Initialize Handler"
         InventorySetup."Automatic Cost Posting" := false;
         InventorySetup.Modify();
     end;
-#if not CLEAN22
-    local procedure UpdateIntrastat()
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-    begin
-        IntrastatJnlBatch.DeleteAll();
-    end;
-#endif
 
     local procedure UpdateGeneralPostingSetup()
     var

@@ -116,7 +116,7 @@ page 1871 "Credit Limit Details"
     begin
         if Rec.GetFilter("Date Filter") = '' then
             Rec.SetFilter("Date Filter", '..%1', WorkDate());
-        Rec.CalcFields("Balance (LCY)", "Shipped Not Invoiced (LCY)", "Serv Shipped Not Invoiced(LCY)");
+        Rec.CalcFields("Balance (LCY)", "Shipped Not Invoiced (LCY)");
     end;
 
     var
@@ -147,7 +147,7 @@ page 1871 "Credit Limit Details"
 
         if Rec.GetFilter("Date Filter") = '' then
             Rec.SetFilter("Date Filter", '..%1', WorkDate());
-        Rec.CalcFields("Balance (LCY)", "Shipped Not Invoiced (LCY)", "Serv Shipped Not Invoiced(LCY)");
+        Rec.CalcFields("Balance (LCY)", "Shipped Not Invoiced (LCY)");
 
         Evaluate(OrderAmountTotalLCY, CreditLimitNotification.GetData('OrderAmountTotalLCY'));
         Evaluate(ShippedRetRcdNotIndLCY, CreditLimitNotification.GetData('ShippedRetRcdNotIndLCY'));

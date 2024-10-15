@@ -601,15 +601,13 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         LibraryJournals.CreateGenJournalBatchWithType(GenJournalBatch, GenJournalBatch."Template Type"::Assets);
-        with GenJournalLine do begin
-            LibraryJournals.CreateGenJournalLine(
-              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-              "Document Type"::" ", "Account Type"::"Fixed Asset", FANo,
-              "Bal. Account Type"::"G/L Account", BalGLAccountNo, LineAmount);
-            Validate("FA Posting Type", FAPostingType);
-            Validate("Depreciation Book Code", DepreciationBookCode);
-            Modify(true);
-        end;
+        LibraryJournals.CreateGenJournalLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+          GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"Fixed Asset", FANo,
+          GenJournalLine."Bal. Account Type"::"G/L Account", BalGLAccountNo, LineAmount);
+        GenJournalLine.Validate("FA Posting Type", FAPostingType);
+        GenJournalLine.Validate("Depreciation Book Code", DepreciationBookCode);
+        GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -637,14 +635,12 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         DepreciationBook: Record "Depreciation Book";
     begin
         LibraryFixedAsset.CreateDepreciationBook(DepreciationBook);
-        with DepreciationBook do begin
-            Validate("G/L Integration - Acq. Cost", true);
-            Validate("G/L Integration - Maintenance", false);
-            Validate("G/L Integration - Depreciation", true);
-            Validate("G/L Integration - Disposal", true);
-            Modify(true);
-            exit(Code);
-        end;
+        DepreciationBook.Validate("G/L Integration - Acq. Cost", true);
+        DepreciationBook.Validate("G/L Integration - Maintenance", false);
+        DepreciationBook.Validate("G/L Integration - Depreciation", true);
+        DepreciationBook.Validate("G/L Integration - Disposal", true);
+        DepreciationBook.Modify(true);
+        exit(DepreciationBook.Code);
     end;
 
     local procedure CreateDepreciationBookWithMaintenanceGLIntegration(var DepreciationBook: Record "Depreciation Book")
@@ -676,18 +672,16 @@ codeunit 134135 "ERM Reverse Fixed Assets"
         FALedgerEntry.SetRange("Entry No.", FALedgerEntryNo);
         CancelFALedgerEntries.TransferLine(FALedgerEntry, false, 0D);
         FAJournalSetup.Get(DepreciationBookCode, '');
-        with GenJournalLine do begin
-            SetRange("Journal Template Name", FAJournalSetup."Gen. Jnl. Template Name");
-            SetRange("Journal Batch Name", FAJournalSetup."Gen. Jnl. Batch Name");
-            SetFilter("FA Error Entry No.", '<>%1', FALedgerEntry."Entry No.");
-            DeleteAll(true);
-            SetRange("FA Error Entry No.");
-            FindFirst();
-            Validate("Document No.", LibraryUtility.GenerateGUID());
-            Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", BalGLAccountNo);
-            Modify(true);
-        end;
+        GenJournalLine.SetRange("Journal Template Name", FAJournalSetup."Gen. Jnl. Template Name");
+        GenJournalLine.SetRange("Journal Batch Name", FAJournalSetup."Gen. Jnl. Batch Name");
+        GenJournalLine.SetFilter("FA Error Entry No.", '<>%1', FALedgerEntry."Entry No.");
+        GenJournalLine.DeleteAll(true);
+        GenJournalLine.SetRange("FA Error Entry No.");
+        GenJournalLine.FindFirst();
+        GenJournalLine.Validate("Document No.", LibraryUtility.GenerateGUID());
+        GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
+        GenJournalLine.Validate("Bal. Account No.", BalGLAccountNo);
+        GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 

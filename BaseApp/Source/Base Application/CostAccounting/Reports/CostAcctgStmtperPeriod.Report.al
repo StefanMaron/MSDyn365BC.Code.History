@@ -286,11 +286,15 @@ report 1123 "Cost Acctg. Stmt. per Period"
         NewPage: Boolean;
         LineTypeInt: Integer;
 
+#pragma warning disable AA0074
         Text000: Label 'Starting date and ending date for the current period and comparison period must be defined.';
         Text001: Label 'Ending date must not be before starting date.';
         Text002: Label 'Filter:';
+#pragma warning disable AA0470
         Text003: Label 'Balance at %1';
+#pragma warning restore AA0470
         Text004: Label 'Movement  %1 - %2', Comment = '%1 = Start Date, %2 = End Date';
+#pragma warning restore AA0074
         FreeCompTypeErr: Label 'You cannot change the date because the Comparison Type is not set to Free Comparison.';
         FreeCompSamePeriodTypeErr: Label 'You cannot change the date because the Comparison Type is not set to Free Comparison or Same Period Last Year.';
         AllAmountareLbl: Label 'All amounts are in';

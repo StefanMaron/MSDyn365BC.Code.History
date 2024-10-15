@@ -16,7 +16,7 @@ table 11799 "No. Series Link"
         }
         field(2; "Initial No. Series Desc."; Text[50])
         {
-            CalcFormula = Lookup("No. Series".Description where(Code = field("Initial No. Series")));
+            CalcFormula = lookup("No. Series".Description where(Code = field("Initial No. Series")));
             Caption = 'Initial No. Series Desc.';
             Editable = false;
             FieldClass = FlowField;
@@ -28,7 +28,7 @@ table 11799 "No. Series Link"
         }
         field(4; "Linked No. Series Desc."; Text[50])
         {
-            CalcFormula = Lookup("No. Series".Description where(Code = field("Linked No. Series")));
+            CalcFormula = lookup("No. Series".Description where(Code = field("Linked No. Series")));
             Caption = 'Linked No. Series Desc.';
             Editable = false;
             FieldClass = FlowField;
@@ -40,7 +40,7 @@ table 11799 "No. Series Link"
         }
         field(6; "Posting No. Series Desc."; Text[50])
         {
-            CalcFormula = Lookup("No. Series".Description where(Code = field("Posting No. Series")));
+            CalcFormula = lookup("No. Series".Description where(Code = field("Posting No. Series")));
             Caption = 'Posting No. Series Desc.';
             Editable = false;
             FieldClass = FlowField;
@@ -52,7 +52,7 @@ table 11799 "No. Series Link"
         }
         field(8; "Shipping No. Series Desc."; Text[50])
         {
-            CalcFormula = Lookup("No. Series".Description where(Code = field("Shipping No. Series")));
+            CalcFormula = lookup("No. Series".Description where(Code = field("Shipping No. Series")));
             Caption = 'Shipping No. Series Desc.';
             Editable = false;
             FieldClass = FlowField;
@@ -64,7 +64,7 @@ table 11799 "No. Series Link"
         }
         field(10; "Receiving No. Series Desc."; Text[50])
         {
-            CalcFormula = Lookup("No. Series".Description where(Code = field("Receiving No. Series")));
+            CalcFormula = lookup("No. Series".Description where(Code = field("Receiving No. Series")));
             Caption = 'Receiving No. Series Desc.';
             Editable = false;
             FieldClass = FlowField;
@@ -76,7 +76,7 @@ table 11799 "No. Series Link"
         }
         field(12; "Shipping Wh. No. Series Desc."; Text[50])
         {
-            CalcFormula = Lookup("No. Series".Description where(Code = field("Shipping Wh. No. Series")));
+            CalcFormula = lookup("No. Series".Description where(Code = field("Shipping Wh. No. Series")));
             Caption = 'Shipping Wh. No. Series Desc.';
             Editable = false;
             FieldClass = FlowField;
@@ -88,7 +88,7 @@ table 11799 "No. Series Link"
         }
         field(14; "Receiving Wh. No. Series Desc."; Text[50])
         {
-            CalcFormula = Lookup("No. Series".Description where(Code = field("Receiving Wh. No. Series")));
+            CalcFormula = lookup("No. Series".Description where(Code = field("Receiving Wh. No. Series")));
             Caption = 'Receiving Wh. No. Series Desc.';
             Editable = false;
             FieldClass = FlowField;

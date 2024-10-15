@@ -401,8 +401,12 @@ page 9203 "Budget Matrix"
         Emphasize: Boolean;
         NameIndent: Integer;
 
+#pragma warning disable AA0074
         Text001: Label 'Period';
+#pragma warning disable AA0470
         Text002: Label 'You may only edit column 1 to %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure DimCodeToOption(DimCode: Text[30]): Integer
     var

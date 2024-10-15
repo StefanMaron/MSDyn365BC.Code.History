@@ -1,12 +1,12 @@
-﻿namespace Microsoft.Service.Setup;
+namespace Microsoft.Service.Setup;
 
 using Microsoft.CRM.Setup;
 using Microsoft.CRM.Team;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.ReceivablesPayables;
-using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.Calendar;
 using Microsoft.Foundation.NoSeries;
+using Microsoft.Service.Archive;
 using Microsoft.Service.Contract;
 using Microsoft.Service.Posting;
 using Microsoft.Service.Pricing;
@@ -336,6 +336,19 @@ table 5911 "Service Mgt. Setup"
             Caption = 'Check Multiple Posting Groups';
             DataClassification = SystemMetadata;
         }
+        field(185; "Archive Quotes"; Enum "Archive Service Quotes")
+        {
+            Caption = 'Archive Quotes';
+        }
+        field(186; "Archive Orders"; Boolean)
+        {
+            Caption = 'Archive Orders';
+        }
+        field(190; "Del. Filed Cont. w. main Cont."; Boolean)
+        {
+            Caption = 'Delete Filed Contracts with related main Contract';
+            ToolTip = 'Specifies whether to automatically delete all Filed Contracts when related main Contract / Contract Quote is deleted.';
+        }
         field(200; "Serv. Inv. Template Name"; Code[10])
         {
             Caption = 'Serv. Invoice Template Name';
@@ -382,51 +395,6 @@ table 5911 "Service Mgt. Setup"
             AccessByPermission = TableData "Service Contract Line" = R;
             Caption = 'Contract Credit Memo Nos.';
             TableRelation = "No. Series";
-        }
-        field(11765; "Posting Desc. Code"; Code[10])
-        {
-            Caption = 'Posting Desc. Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of posting description will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(11766; "Default VAT Date"; Option)
-        {
-            Caption = 'Default VAT Date';
-            OptionCaption = 'Posting Date,Document Date,Blank';
-            OptionMembers = "Posting Date","Document Date",Blank;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(11767; "Allow Alter Cust. Post. Groups"; Boolean)
-        {
-            Caption = 'Allow Alter Cust. Post. Groups';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11772; "Reas.Cd. on Tax Corr.Doc.Mand."; Boolean)
-        {
-            Caption = 'Reas.Cd. on Tax Corr.Doc.Mand.';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(11775; "Reason Code For Payment Disc."; Code[10])
-        {
-            Caption = 'Reason Code For Payment Disc.';
-            TableRelation = "Reason Code".Code;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(11777; "Credit Memo Confirmation"; Boolean)
-        {
-            Caption = 'Credit Memo Confirmation';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Postponing VAT on Sales Cr.Memo will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
         }
     }
 

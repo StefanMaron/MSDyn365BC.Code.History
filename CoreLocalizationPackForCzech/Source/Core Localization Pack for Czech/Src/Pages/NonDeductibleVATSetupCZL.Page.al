@@ -38,15 +38,11 @@ page 31215 "Non-Deductible VAT Setup CZL"
         }
     }
 
-    var
-        NonDeductibleVATIsNoEnabledErr: Label 'The Non-Deductible VAT feature is not enabled. Please enable it in the VAT Setup page.';
-
     trigger OnOpenPage()
     begin
-        if not NonDeductibleVAT.IsNonDeductibleVATEnabled() then
-            Error(NonDeductibleVATIsNoEnabledErr);
+        NonDeductibleVATCZL.CheckNonDeductibleVATEnabled();
     end;
 
     var
-        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
+        NonDeductibleVATCZL: Codeunit "Non-Deductible VAT CZL";
 }

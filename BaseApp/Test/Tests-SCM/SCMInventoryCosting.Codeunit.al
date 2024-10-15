@@ -23,7 +23,7 @@ codeunit 137007 "SCM Inventory Costing"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryRandom: Codeunit "Library - Random";
         LibraryWarehouse: Codeunit "Library - Warehouse";
-        AverageCostPeriod: Option " ",Day,Week,Month,Quarter,Year,"Accounting Period";
+        AverageCostPeriod: Enum "Average Cost Period Type";
         CalculatePerValues: Option "Item Ledger Entry",Item;
         isInitialized: Boolean;
         InvAmountDoNotMatchErr: Label 'The Inventory amount totals must be equal.';
@@ -1362,7 +1362,7 @@ codeunit 137007 "SCM Inventory Costing"
         // [GIVEN] Set "Unit-Amount Rounding Precision" in General ledger Setup. 
         GLSetup.Get();
         GLSetup."Unit-Amount Rounding Precision" := 0.00001;
-        GLSetup.Modify(True);
+        GLSetup.Modify(true);
 
         // [GIVEN] Create Two WorkCenters with Cost Values.
         CreateWorkCentersWithCost(WorkCenter, WorkCenter2);
@@ -1480,7 +1480,7 @@ codeunit 137007 "SCM Inventory Costing"
         RunBOMCostSharesPage(Item1);
 
         // [WHEN] Find BOMCostShares & Evaluate & Save Rolled-Up Capacity Value in a Varible.
-        BOMCostShares.Expand(True);
+        BOMCostShares.Expand(true);
         BOMCostShares.FILTER.SetFilter(Type, Format(BOMBuffer.Type::"Work Center"));
         BOMCostShares.FILTER.SetFilter("No.", WorkCenter."No.");
         BOMCostShares.FILTER.SetFilter("Qty. per Top Item", Format(RoutingLine1."Setup Time" + RoutingLine1."Run Time" * QtyPerBOMLine2 + RoutingLine1."Wait Time" + RoutingLine1."Move Time"));
@@ -1652,12 +1652,10 @@ codeunit 137007 "SCM Inventory Costing"
     local procedure CreateManufacturingItem(var Item: Record Item; ProductionBOMNo: Code[20])
     begin
         LibraryInventory.CreateItem(Item);
-        with Item do begin
-            Validate("Production BOM No.", ProductionBOMNo);
-            Validate("Replenishment System", "Replenishment System"::"Prod. Order");
-            Validate("Costing Method", "Costing Method"::FIFO);
-            Modify(true);
-        end;
+        Item.Validate("Production BOM No.", ProductionBOMNo);
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Costing Method", Item."Costing Method"::FIFO);
+        Item.Modify(true);
     end;
 
     local procedure CreateItemsSetup(var Item: Record Item; var Item2: Record Item)
@@ -2229,12 +2227,10 @@ codeunit 137007 "SCM Inventory Costing"
     var
         BOMBuffer: Record "BOM Buffer";
     begin
-        with BOMBuffer do begin
-            SetRange(Type, Type::Item);
-            SetRange("No.", ItemNo);
-            FindFirst();
-            Assert.AreEqual(QtyPerTopItem, "Qty. per Top Item", QtyPerTopItemErr);
-        end;
+        BOMBuffer.SetRange(Type, BOMBuffer.Type::Item);
+        BOMBuffer.SetRange("No.", ItemNo);
+        BOMBuffer.FindFirst();
+        Assert.AreEqual(QtyPerTopItem, BOMBuffer."Qty. per Top Item", QtyPerTopItemErr);
     end;
 
     local procedure VerifyValueEntryCostPostedToGL(ItemNo: Code[20]; ExpectedCostAmount: Decimal)
@@ -2252,29 +2248,27 @@ codeunit 137007 "SCM Inventory Costing"
     begin
         FindStandardCostWorksheet(StandardCostWorksheet, StandardCostWkshName, Item."No.");
 
-        with StandardCostWorksheet do begin
-            TestField("Single-Lvl Material Cost", Item."Single-Level Material Cost");
-            TestField("New Single-Lvl Material Cost", Item."Single-Level Material Cost");
-            TestField("Single-Lvl Cap. Cost", Item."Single-Level Capacity Cost");
-            TestField("New Single-Lvl Cap. Cost", Item."Single-Level Capacity Cost");
-            TestField("Single-Lvl Subcontrd Cost", Item."Single-Level Subcontrd. Cost");
-            TestField("New Single-Lvl Subcontrd Cost", Item."Single-Level Subcontrd. Cost");
-            TestField("Single-Lvl Cap. Ovhd Cost", Item."Single-Level Cap. Ovhd Cost");
-            TestField("New Single-Lvl Cap. Ovhd Cost", Item."Single-Level Cap. Ovhd Cost");
-            TestField("Single-Lvl Mfg. Ovhd Cost", Item."Single-Level Mfg. Ovhd Cost");
-            TestField("New Single-Lvl Mfg. Ovhd Cost", Item."Single-Level Mfg. Ovhd Cost");
+        StandardCostWorksheet.TestField("Single-Lvl Material Cost", Item."Single-Level Material Cost");
+        StandardCostWorksheet.TestField("New Single-Lvl Material Cost", Item."Single-Level Material Cost");
+        StandardCostWorksheet.TestField("Single-Lvl Cap. Cost", Item."Single-Level Capacity Cost");
+        StandardCostWorksheet.TestField("New Single-Lvl Cap. Cost", Item."Single-Level Capacity Cost");
+        StandardCostWorksheet.TestField("Single-Lvl Subcontrd Cost", Item."Single-Level Subcontrd. Cost");
+        StandardCostWorksheet.TestField("New Single-Lvl Subcontrd Cost", Item."Single-Level Subcontrd. Cost");
+        StandardCostWorksheet.TestField("Single-Lvl Cap. Ovhd Cost", Item."Single-Level Cap. Ovhd Cost");
+        StandardCostWorksheet.TestField("New Single-Lvl Cap. Ovhd Cost", Item."Single-Level Cap. Ovhd Cost");
+        StandardCostWorksheet.TestField("Single-Lvl Mfg. Ovhd Cost", Item."Single-Level Mfg. Ovhd Cost");
+        StandardCostWorksheet.TestField("New Single-Lvl Mfg. Ovhd Cost", Item."Single-Level Mfg. Ovhd Cost");
 
-            TestField("Rolled-up Material Cost", Item."Rolled-up Material Cost");
-            TestField("New Rolled-up Material Cost", Item."Rolled-up Material Cost");
-            TestField("Rolled-up Cap. Cost", Item."Rolled-up Capacity Cost");
-            TestField("New Rolled-up Cap. Cost", Item."Rolled-up Capacity Cost");
-            TestField("Rolled-up Subcontrd Cost", Item."Rolled-up Subcontracted Cost");
-            TestField("New Rolled-up Subcontrd Cost", Item."Rolled-up Subcontracted Cost");
-            TestField("Rolled-up Cap. Ovhd Cost", Item."Rolled-up Cap. Overhead Cost");
-            TestField("New Rolled-up Cap. Ovhd Cost", Item."Rolled-up Cap. Overhead Cost");
-            TestField("Rolled-up Mfg. Ovhd Cost", Item."Rolled-up Mfg. Ovhd Cost");
-            TestField("New Rolled-up Mfg. Ovhd Cost", Item."Rolled-up Mfg. Ovhd Cost");
-        end;
+        StandardCostWorksheet.TestField("Rolled-up Material Cost", Item."Rolled-up Material Cost");
+        StandardCostWorksheet.TestField("New Rolled-up Material Cost", Item."Rolled-up Material Cost");
+        StandardCostWorksheet.TestField("Rolled-up Cap. Cost", Item."Rolled-up Capacity Cost");
+        StandardCostWorksheet.TestField("New Rolled-up Cap. Cost", Item."Rolled-up Capacity Cost");
+        StandardCostWorksheet.TestField("Rolled-up Subcontrd Cost", Item."Rolled-up Subcontracted Cost");
+        StandardCostWorksheet.TestField("New Rolled-up Subcontrd Cost", Item."Rolled-up Subcontracted Cost");
+        StandardCostWorksheet.TestField("Rolled-up Cap. Ovhd Cost", Item."Rolled-up Cap. Overhead Cost");
+        StandardCostWorksheet.TestField("New Rolled-up Cap. Ovhd Cost", Item."Rolled-up Cap. Overhead Cost");
+        StandardCostWorksheet.TestField("Rolled-up Mfg. Ovhd Cost", Item."Rolled-up Mfg. Ovhd Cost");
+        StandardCostWorksheet.TestField("New Rolled-up Mfg. Ovhd Cost", Item."Rolled-up Mfg. Ovhd Cost");
     end;
 
     local procedure VerifyStdCostWorksheetPurchItem(StandardCostWkshName: Code[10]; ItemNo: Code[20]; StandardCost: Decimal)
@@ -2293,12 +2287,10 @@ codeunit 137007 "SCM Inventory Costing"
     var
         StockkeepingUnit: Record "Stockkeeping Unit";
     begin
-        with StockkeepingUnit do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Location Code", LocationCode);
-            FindFirst();
-            TestField("Last Direct Cost", ExpectedAmount);
-        end;
+        StockkeepingUnit.SetRange("Item No.", ItemNo);
+        StockkeepingUnit.SetRange("Location Code", LocationCode);
+        StockkeepingUnit.FindFirst();
+        StockkeepingUnit.TestField("Last Direct Cost", ExpectedAmount);
     end;
 
     local procedure VerifySKUUnitCost(ItemNo: Code[20]; LocationCode: Code[10]; ExpectedUnitCost: Decimal)
@@ -2313,14 +2305,12 @@ codeunit 137007 "SCM Inventory Costing"
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetRange("Item No.", ItemJournalLine."Item No.");
-            CalcSums("Cost Amount (Actual)");
-            Assert.AreEqual(
-              RevaluedAmount, "Cost Amount (Actual)",
-              StrSubstNo(
-                UnexpectedCostAmtErr, FieldCaption("Cost Amount (Actual)"), ItemJournalLine.FieldCaption("Inventory Value (Revalued)")));
-        end;
+        ValueEntry.SetRange("Item No.", ItemJournalLine."Item No.");
+        ValueEntry.CalcSums("Cost Amount (Actual)");
+        Assert.AreEqual(
+          RevaluedAmount, ValueEntry."Cost Amount (Actual)",
+          StrSubstNo(
+            UnexpectedCostAmtErr, ValueEntry.FieldCaption("Cost Amount (Actual)"), ItemJournalLine.FieldCaption("Inventory Value (Revalued)")));
     end;
 
     local procedure RunBOMCostSharesPage(var Item: Record Item)
@@ -2340,7 +2330,7 @@ codeunit 137007 "SCM Inventory Costing"
         WorkCenter.Validate("Unit Cost Calculation", WorkCenter."Unit Cost Calculation"::Time);
         WorkCenter.Validate("Unit of Measure Code", MinutesLbl);
         WorkCenter.Validate(Capacity, LibraryRandom.RandDec(0, 0));
-        WorkCenter.Modify(True);
+        WorkCenter.Modify(true);
 
         LibraryManufacturing.CreateWorkCenter(WorkCenter2);
     end;
@@ -2364,7 +2354,7 @@ codeunit 137007 "SCM Inventory Costing"
         RoutingLine.Validate("Setup Time", LibraryRandom.RandDec(10, 0));
         RoutingLine.Validate("Run Time", LibraryRandom.RandDecInRange(1, 1, 1));
         RoutingLine.Validate("Lot Size", LibraryRandom.RandDec(0, 0));
-        RoutingLine.Modify(True);
+        RoutingLine.Modify(true);
 
         LibraryManufacturing.CreateRoutingLine(
             RoutingHeader,
@@ -2376,7 +2366,7 @@ codeunit 137007 "SCM Inventory Costing"
 
         RoutingLine2.Validate("Setup Time", LibraryRandom.RandDec(10, 0));
         RoutingLine2.Validate("Move Time", LibraryRandom.RandDec(2, 0));
-        RoutingLine2.Modify(True);
+        RoutingLine2.Modify(true);
 
         LibraryManufacturing.UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
     end;
@@ -2398,7 +2388,7 @@ codeunit 137007 "SCM Inventory Costing"
         RoutingLine.Validate("Setup Time", LibraryRandom.RandDec(10, 0));
         RoutingLine.Validate("Run Time", LibraryRandom.RandDecInRange(1, 1, 2));
         RoutingLine.Validate("Lot Size", LibraryRandom.RandDec(0, 0));
-        RoutingLine.Modify(True);
+        RoutingLine.Modify(true);
 
         LibraryManufacturing.UpdateRoutingStatus(RoutingHeader, RoutingHeader.Status::Certified);
     end;
@@ -2414,7 +2404,7 @@ codeunit 137007 "SCM Inventory Costing"
         Item.Validate("Costing Method", CostingMethod);
         Item.Validate("Standard Cost", LibraryRandom.RandDec(40, 0));
         Item.Validate("Replenishment System", ReplenishmentSystem);
-        Item.Modify(True);
+        Item.Modify(true);
     end;
 
     local procedure CreateItemWithCostingMethodAndReplenishmentSystem(
@@ -2427,7 +2417,7 @@ codeunit 137007 "SCM Inventory Costing"
         Item.Validate("Purch. Unit of Measure", PCSLbl);
         Item.Validate("Costing Method", CostingMethod);
         Item.Validate("Replenishment System", ReplenishmentSystem);
-        Item.Modify(True);
+        Item.Modify(true);
     end;
 
     [StrMenuHandler]
@@ -2461,12 +2451,10 @@ codeunit 137007 "SCM Inventory Costing"
         ItemNo: Variant;
     begin
         LibraryVariableStorage.Dequeue(ItemNo);
-        with BOMStructure do begin
-            FILTER.SetFilter(Type, Format(BOMBuffer.Type::Item));
-            Expand(true);
-            Next();
-            "No.".AssertEquals(ItemNo);
-        end;
+        BOMStructure.FILTER.SetFilter(Type, Format(BOMBuffer.Type::Item));
+        BOMStructure.Expand(true);
+        BOMStructure.Next();
+        BOMStructure."No.".AssertEquals(ItemNo);
         Assert.IsFalse(BOMStructure.Next(), BOMStructureErr);
     end;
 

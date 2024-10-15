@@ -386,8 +386,8 @@ codeunit 134413 "Test Doc. Exch. Service Setup"
 
         // Verify
         DocExchServiceSetup.Get();
-        Assert.AreEqual(ClientSecret, DocExchServiceMgt.GetClientSecret(false), 'Unexpected client secret');
-        Assert.AreEqual(ClientSecret, DocExchServiceSetup.GetClientSecret(), 'Unexpected client secret');
+        AssertSecret(ClientSecret, DocExchServiceMgt.GetClientSecretAsSecretText(false), 'Unexpected client secret');
+        AssertSecret(ClientSecret, DocExchServiceSetup.GetClientSecretAsSecretText(), 'Unexpected client secret');
     end;
 
     [Test]
@@ -475,7 +475,7 @@ codeunit 134413 "Test Doc. Exch. Service Setup"
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
         DocExchServiceMgt: Codeunit "Doc. Exch. Service Mgt.";
         ClientId: Text;
-        ClientSecret: Text;
+        ClientSecret: SecretText;
     begin
         // Init
         AzureKeyVaultTestLibrary.ClearSecrets();
@@ -485,11 +485,11 @@ codeunit 134413 "Test Doc. Exch. Service Setup"
 
         // Execute
         ClientId := DocExchServiceMgt.GetClientId(false);
-        ClientSecret := DocExchServiceMgt.GetClientSecret(false);
+        ClientSecret := DocExchServiceMgt.GetClientSecretAsSecretText(false);
 
         // Verify
         Assert.AreEqual('', ClientId, 'Unexpected client id');
-        Assert.AreEqual('', ClientSecret, 'Unexpected client secret');
+        Assert.IsTrue(ClientSecret.IsEmpty(), 'Unexpected client secret');
     end;
 
     [Test]
@@ -499,7 +499,7 @@ codeunit 134413 "Test Doc. Exch. Service Setup"
         DocExchServiceSetup: Record "Doc. Exch. Service Setup";
         DocExchServiceMgt: Codeunit "Doc. Exch. Service Mgt.";
         ActualClientId: Text;
-        ActualClientSecret: Text;
+        ActualClientSecret: SecretText;
         ExpectedClientId: Text;
         ExpectedClientSecret: Text;
     begin
@@ -514,12 +514,12 @@ codeunit 134413 "Test Doc. Exch. Service Setup"
 
         // Execute
         ActualClientId := DocExchServiceMgt.GetClientId(false);
-        ActualClientSecret := DocExchServiceMgt.GetClientSecret(false);
+        ActualClientSecret := DocExchServiceMgt.GetClientSecretAsSecretText(false);
         AzureKeyVaultTestLibrary.ClearSecrets();
 
         // Verify
         Assert.AreEqual(ExpectedClientId, ActualClientId, 'Unexpected client id.');
-        Assert.AreEqual(ExpectedClientsecret, ActualClientSecret, 'Unexpected client secret');
+        AssertSecret(ExpectedClientsecret, ActualClientSecret, 'Unexpected client secret');
     end;
 
     [Test]
@@ -530,7 +530,7 @@ codeunit 134413 "Test Doc. Exch. Service Setup"
         DocExchServiceMgt: Codeunit "Doc. Exch. Service Mgt.";
         TestDocExchServiceSetup: Codeunit "Test Doc. Exch. Service Setup";
         ClientId: Text;
-        ClientSecret: Text;
+        ClientSecret: SecretText;
     begin
         // Init
         AzureKeyVaultTestLibrary.ClearSecrets();
@@ -541,12 +541,12 @@ codeunit 134413 "Test Doc. Exch. Service Setup"
 
         // Execute
         ClientId := DocExchServiceMgt.GetClientId(false);
-        ClientSecret := DocExchServiceMgt.GetClientSecret(false);
+        ClientSecret := DocExchServiceMgt.GetClientSecretAsSecretText(false);
         UnbindSubscription(TestDocExchServiceSetup);
 
         // Verify
         Assert.AreNotEqual('', ClientId, 'Unexpected client id');
-        Assert.AreNotEqual('', ClientSecret, 'Unexpected client secret');
+        Assert.IsFalse(ClientSecret.IsEmpty(), 'Unexpected client secret');
     end;
 
     [Test]
@@ -606,6 +606,12 @@ codeunit 134413 "Test Doc. Exch. Service Setup"
         MockAzureKeyVaultSecretProvider.AddSecretMapping('DocExchClientIdTest', ClientId);
         MockAzureKeyVaultSecretProvider.AddSecretMapping('DocExchClientSecretTest', ClientSecret);
         AzureKeyVaultTestLibrary.SetAzureKeyVaultSecretProvider(MockAzureKeyVaultSecretProvider);
+    end;
+
+    [NonDebuggable]
+    local procedure AssertSecret(Expected: Text; Actual: SecretText; Message: Text)
+    begin
+        Assert.AreEqual(Expected, Actual.Unwrap(), Message);
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Doc. Exch. Service Mgt.", 'OnGetClientId', '', false, false)]

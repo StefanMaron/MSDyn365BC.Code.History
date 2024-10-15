@@ -27,7 +27,6 @@ codeunit 134835 "Test Item Lookup"
         LibraryTemplates: Codeunit "Library - Templates";
         IsInitialized: Boolean;
         ItemDoesNotExistMenuTxt: Label 'This item is not registered. To continue, choose one of the following options';
-        ItemDoesNotExistErr: Label 'The Item does not exist. Identification fields and values: No.=''%1''';
 
     [Test]
     [Scope('OnPrem')]
@@ -1044,7 +1043,7 @@ codeunit 134835 "Test Item Lookup"
 
         asserterror SalesLine.Validate("No.", NewItemNo);
 
-        Assert.ExpectedError(StrSubstNo(ItemDoesNotExistErr, NewItemNo));
+        Assert.ExpectedErrorCannotFind(Database::Item, NewItemNo);
     end;
 
     [Test]
@@ -1163,7 +1162,7 @@ codeunit 134835 "Test Item Lookup"
 
         asserterror PurchaseLine.Validate("No.", NewItemNo);
 
-        Assert.ExpectedError(StrSubstNo(ItemDoesNotExistErr, NewItemNo));
+        Assert.ExpectedErrorCannotFind(Database::Item, NewItemNo);
     end;
 
     [Test]

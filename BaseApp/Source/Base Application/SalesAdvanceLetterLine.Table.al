@@ -196,7 +196,7 @@ table 31001 "Sales Advance Letter Line"
         }
         field(31016; "Customer Posting Group"; Code[20])
         {
-            CalcFormula = Lookup("Sales Advance Letter Header"."Customer Posting Group" where("No." = field("Letter No.")));
+            CalcFormula = lookup("Sales Advance Letter Header"."Customer Posting Group" where("No." = field("Letter No.")));
             Caption = 'Customer Posting Group';
             Editable = false;
             FieldClass = FlowField;

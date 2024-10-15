@@ -64,8 +64,6 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         BinValidationErr: Label 'Location code validation in the Production Order must prioritize Default Bin codes';
         NoOfPostedOrdersMsg: Label 'All the documents were posted.', Comment = '%1: Count(Sales Header)';
         VendorHistBuyFromFactBoxMustBeNonEditableTxt: Label 'Vendor Hist. Buy-from FactBox Must Be NonEditable.';
-        BlockedItemErr: Label 'Blocked must be equal to ''No''  in Item: No.=%1.';
-        BlockedResErr: Label 'Blocked must be equal to ''No''  in Resource: No.=%1.';
 
     [Test]
     [HandlerFunctions('ItemTrackingLinesPageHandler,SelectLotOnItemTrackingSummaryPageHandler')]
@@ -1480,7 +1478,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         asserterror CODEUNIT.Run(CODEUNIT::"Sales-Quote to Invoice", FromSalesHeader);
 
         // [THEN] Error "Blocked must be equal to 'No'..Current value is 'Yes'." has been thrown
-        Assert.ExpectedError(StrSubstNo(BlockedItemErr, Item."No."));
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -1514,7 +1512,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         asserterror CODEUNIT.Run(CODEUNIT::"Sales-Quote to Invoice", FromSalesHeader);
 
         // [THEN] Error "Blocked must be equal to 'No'..Current value is 'Yes'." has been thrown
-        Assert.ExpectedError(StrSubstNo(BlockedResErr, Resource."No."));
+        Assert.ExpectedTestFieldError(Resource.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -1539,7 +1537,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         asserterror LibrarySales.QuoteMakeOrder(SalesHeader);
 
         // [THEN] Error "Blocked must be equal to 'No'..Current value is 'Yes'." has been thrown
-        Assert.ExpectedError(StrSubstNo(BlockedItemErr, Item."No."));
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Blocked), Format(false));
 
         // Tear down.
         UpdateCreditWarningOnSalesAndReceivablesSetup(OldCreditWarning);
@@ -1577,7 +1575,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         asserterror CODEUNIT.Run(CODEUNIT::"Sales-Quote to Order", FromSalesHeader);
 
         // [THEN] Error "Blocked must be equal to 'No'..Current value is 'Yes'." has been thrown
-        Assert.ExpectedError(StrSubstNo(BlockedResErr, Resource."No."));
+        Assert.ExpectedTestFieldError(Resource.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -1602,7 +1600,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         asserterror LibrarySales.BlanketSalesOrderMakeOrder(SalesHeader);
 
         // [THEN] Error "Blocked must be equal to 'No'..Current value is 'Yes'." has been thrown
-        Assert.ExpectedError(StrSubstNo(BlockedItemErr, Item."No."));
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Blocked), Format(false));
 
         // Tear down.
         UpdateCreditWarningOnSalesAndReceivablesSetup(OldCreditWarning);
@@ -1640,7 +1638,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         asserterror CODEUNIT.Run(CODEUNIT::"Blanket Sales Order to Order", FromSalesHeader);
 
         // [THEN] Error "Blocked must be equal to 'No'..Current value is 'Yes'." has been thrown
-        Assert.ExpectedError(StrSubstNo(BlockedResErr, Resource."No."));
+        Assert.ExpectedTestFieldError(Resource.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -1660,7 +1658,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         asserterror LibraryPurchase.QuoteMakeOrder(PurchaseHeader);
 
         // [THEN] Error "Blocked must be equal to 'No'..Current value is 'Yes'." has been thrown
-        Assert.ExpectedError(StrSubstNo(BlockedItemErr, Item."No."));
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -1680,7 +1678,7 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         asserterror LibraryPurchase.BlanketPurchaseOrderMakeOrder(PurchaseHeader);
 
         // [THEN] Error "Blocked must be equal to 'No'..Current value is 'Yes'." has been thrown
-        Assert.ExpectedError(StrSubstNo(BlockedItemErr, Item."No."));
+        Assert.ExpectedTestFieldError(Item.FieldCaption(Blocked), Format(false));
     end;
 
     [Test]
@@ -2720,12 +2718,10 @@ codeunit 137155 "SCM Warehouse - Shipping II"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        with InventorySetup do begin
-            Get();
-            OldAutomaticCostAdjValue := "Automatic Cost Adjustment";
-            "Automatic Cost Adjustment" := NewAutomaticCostAdjValue;
-            Modify();
-        end;
+        InventorySetup.Get();
+        OldAutomaticCostAdjValue := InventorySetup."Automatic Cost Adjustment";
+        InventorySetup."Automatic Cost Adjustment" := NewAutomaticCostAdjValue;
+        InventorySetup.Modify();
     end;
 
     local procedure NoSeriesSetup()
@@ -2869,14 +2865,12 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         LibraryWarehouse.CreateBin(Bin, LocationCode, LibraryUtility.GenerateGUID(), '', '');
         LibraryWarehouse.CreateBinContent(
           BinContent, Bin."Location Code", Bin."Zone Code", Bin.Code, Item."No.", '', Item."Base Unit of Measure");
-        with BinContent do begin
-            Validate("Bin Ranking", Bin."Bin Ranking");
-            Validate(Fixed, true);
-            Validate(Default, true);
-            Validate("Min. Qty.", MinQty);
-            Validate("Max. Qty.", MaxQty);
-            Modify(true);
-        end;
+        BinContent.Validate("Bin Ranking", Bin."Bin Ranking");
+        BinContent.Validate(Fixed, true);
+        BinContent.Validate(Default, true);
+        BinContent.Validate("Min. Qty.", MinQty);
+        BinContent.Validate("Max. Qty.", MaxQty);
+        BinContent.Modify(true);
     end;
 
     local procedure CreateInvtPickFromRPOUsingFirmPlannedProdOrder(var ProductionOrder: Record "Production Order")
@@ -3414,13 +3408,11 @@ codeunit 137155 "SCM Warehouse - Shipping II"
     local procedure CreateItemWithRoutingAndProductionBOM(var Item: Record Item; ProductionBOMNo: Code[20]; RoutingNo: Code[20])
     begin
         LibraryInventory.CreateItem(Item);
-        with Item do begin
-            Validate("Replenishment System", "Replenishment System"::"Prod. Order");
-            Validate("Reordering Policy", "Reordering Policy"::Order);
-            Validate("Production BOM No.", ProductionBOMNo);
-            Validate("Routing No.", RoutingNo);
-            Modify(true);
-        end;
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Reordering Policy", Item."Reordering Policy"::Order);
+        Item.Validate("Production BOM No.", ProductionBOMNo);
+        Item.Validate("Routing No.", RoutingNo);
+        Item.Modify(true);
     end;
 
     local procedure CreateAssemblyItemWithBOM(var ParentItem: Record Item; var ComponentItem: Record Item)
@@ -3974,39 +3966,33 @@ codeunit 137155 "SCM Warehouse - Shipping II"
 
     local procedure MockSalesOrder(var SalesHeader: Record "Sales Header")
     begin
-        with SalesHeader do begin
-            Init();
-            "Document Type" := "Document Type"::Order;
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Sales Header");
-            "Posting Date" := LibraryRandom.RandDateFromInRange(WorkDate(), 10, 20);
-            Insert();
-        end;
+        SalesHeader.Init();
+        SalesHeader."Document Type" := SalesHeader."Document Type"::Order;
+        SalesHeader."No." := LibraryUtility.GenerateRandomCode(SalesHeader.FieldNo("No."), DATABASE::"Sales Header");
+        SalesHeader."Posting Date" := LibraryRandom.RandDateFromInRange(WorkDate(), 10, 20);
+        SalesHeader.Insert();
     end;
 
     local procedure MockATOLink(SalesHeader: Record "Sales Header"; AssemblyHeader: Record "Assembly Header")
     var
         AssembleToOrderLink: Record "Assemble-to-Order Link";
     begin
-        with AssembleToOrderLink do begin
-            Init();
-            "Assembly Document Type" := AssemblyHeader."Document Type";
-            "Assembly Document No." := AssemblyHeader."No.";
-            Type := Type::Sale;
-            "Document Type" := SalesHeader."Document Type";
-            "Document No." := SalesHeader."No.";
-            Insert();
-        end;
+        AssembleToOrderLink.Init();
+        AssembleToOrderLink."Assembly Document Type" := AssemblyHeader."Document Type";
+        AssembleToOrderLink."Assembly Document No." := AssemblyHeader."No.";
+        AssembleToOrderLink.Type := AssembleToOrderLink.Type::Sale;
+        AssembleToOrderLink."Document Type" := SalesHeader."Document Type";
+        AssembleToOrderLink."Document No." := SalesHeader."No.";
+        AssembleToOrderLink.Insert();
     end;
 
     local procedure MockAssemblyHeader(var AssemblyHeader: Record "Assembly Header")
     begin
-        with AssemblyHeader do begin
-            Init();
-            "Document Type" := "Document Type"::Order;
-            "No." := LibraryUtility.GenerateRandomCode(FieldNo("No."), DATABASE::"Assembly Header");
-            "Posting Date" := WorkDate();
-            Insert();
-        end;
+        AssemblyHeader.Init();
+        AssemblyHeader."Document Type" := AssemblyHeader."Document Type"::Order;
+        AssemblyHeader."No." := LibraryUtility.GenerateRandomCode(AssemblyHeader.FieldNo("No."), DATABASE::"Assembly Header");
+        AssemblyHeader."Posting Date" := WorkDate();
+        AssemblyHeader.Insert();
     end;
 
     local procedure MockWhseActivityLineWithQty(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; ActivityNo: Code[20]; LineNo: Integer; Qty: Decimal; QtyOutstanding: Decimal; QtyToHandle: Decimal)
@@ -4161,12 +4147,10 @@ codeunit 137155 "SCM Warehouse - Shipping II"
 
     local procedure FindPlanningComponent(var PlanningComponent: Record "Planning Component"; RequisitionLine: Record "Requisition Line")
     begin
-        with PlanningComponent do begin
-            SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
-            SetRange("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
-            SetRange("Worksheet Line No.", RequisitionLine."Line No.");
-            FindFirst();
-        end;
+        PlanningComponent.SetRange("Worksheet Template Name", RequisitionLine."Worksheet Template Name");
+        PlanningComponent.SetRange("Worksheet Batch Name", RequisitionLine."Journal Batch Name");
+        PlanningComponent.SetRange("Worksheet Line No.", RequisitionLine."Line No.");
+        PlanningComponent.FindFirst();
     end;
 
     local procedure FindSalesLine(var SalesLine: Record "Sales Line"; DocumentNo: Code[20])
@@ -4801,12 +4785,10 @@ codeunit 137155 "SCM Warehouse - Shipping II"
         for i := 1 to 3 do
             LibraryWarehouse.CreateBin(Bin[i], LocationCode, LibraryUtility.GenerateGUID(), '', '');
 
-        with WorkCenter do begin
-            Validate("Open Shop Floor Bin Code", Bin[1].Code);
-            Validate("From-Production Bin Code", Bin[2].Code);
-            Validate("To-Production Bin Code", Bin[3].Code);
-            Modify(true);
-        end;
+        WorkCenter.Validate("Open Shop Floor Bin Code", Bin[1].Code);
+        WorkCenter.Validate("From-Production Bin Code", Bin[2].Code);
+        WorkCenter.Validate("To-Production Bin Code", Bin[3].Code);
+        WorkCenter.Modify(true);
     end;
 
     local procedure UpdateLocationOnWorkCenter(var WorkCenter: Record "Work Center"; LocationCode: Code[10])
@@ -4874,15 +4856,13 @@ codeunit 137155 "SCM Warehouse - Shipping II"
     begin
         CreateItemJournalLine(ItemJournalLine, Item."No.", LocationBlue.Code, Quantity, WorkDate(), '', Item."Base Unit of Measure");
         CODEUNIT.Run(CODEUNIT::"Item Jnl.-Explode BOM", ItemJournalLine);
-        with ItemJournalLine do begin
-            FindSet();
-            repeat
-                if ("Location Code" = '') and ("Item No." <> '') then begin
-                    Validate("Location Code", LocationBlue.Code);
-                    Modify();
-                end
-            until Next() = 0;
-        end;
+        ItemJournalLine.FindSet();
+        repeat
+            if (ItemJournalLine."Location Code" = '') and (ItemJournalLine."Item No." <> '') then begin
+                ItemJournalLine.Validate("Location Code", LocationBlue.Code);
+                ItemJournalLine.Modify();
+            end
+        until ItemJournalLine.Next() = 0;
         LibraryInventory.PostItemJournalLine(ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name);
     end;
 
@@ -5066,13 +5046,11 @@ codeunit 137155 "SCM Warehouse - Shipping II"
     var
         RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
     begin
-        with RegisteredWhseActivityLine do begin
-            SetRange("Activity Type", "Activity Type"::Pick);
-            SetRange("Bin Code", BinCode);
-            SetRange("Item No.", ItemNo);
-            CalcSums("Qty. (Base)");
-            Assert.AreEqual(TotalQtyBase, "Qty. (Base)", ValueMustBeEqualTxt);
-        end;
+        RegisteredWhseActivityLine.SetRange("Activity Type", RegisteredWhseActivityLine."Activity Type"::Pick);
+        RegisteredWhseActivityLine.SetRange("Bin Code", BinCode);
+        RegisteredWhseActivityLine.SetRange("Item No.", ItemNo);
+        RegisteredWhseActivityLine.CalcSums("Qty. (Base)");
+        Assert.AreEqual(TotalQtyBase, RegisteredWhseActivityLine."Qty. (Base)", ValueMustBeEqualTxt);
     end;
 
     local procedure VerifyRegisteredPickLines(SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; ItemNo: Code[20]; Quantity: Decimal; VariantCode: Code[10]; BinCode: Code[20]; BinCode2: Code[20])

@@ -1,4 +1,4 @@
-namespace Microsoft.Service.History;
+﻿namespace Microsoft.Service.History;
 
 using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Account;
@@ -606,45 +606,6 @@ table 5993 "Service Invoice Line"
             Caption = 'Customer Disc. Group';
             TableRelation = "Customer Discount Group";
         }
-        field(11762; "Reason Code"; Code[10])
-        {
-            Caption = 'Reason Code';
-            TableRelation = "Reason Code";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(11764; "VAT Difference (LCY)"; Decimal)
-        {
-            AutoFormatExpression = GetCurrencyCode();
-            AutoFormatType = 1;
-            Caption = 'VAT Difference (LCY)';
-            ObsoleteState = Removed;
-            ObsoleteTag = '23.0';
-            ObsoleteReason = 'Functionality will be removed and this field should not be used.';
-        }
-        field(31061; "Tariff No."; Code[20])
-        {
-            Caption = 'Tariff No.';
-            TableRelation = "Tariff Number";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(31062; "Statistic Indication"; Code[10])
-        {
-            Caption = 'Statistic Indication';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(31063; "Country/Region of Origin Code"; Code[10])
-        {
-            Caption = 'Country/Region of Origin Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
     }
 
     keys
@@ -713,10 +674,34 @@ table 5993 "Service Invoice Line"
         if Find('-') then
             repeat
                 TempVATAmountLine.Init();
-                TempVATAmountLine.CopyFromServInvLine(Rec);
+                Rec.CopyToVATAmountLine(TempVATAmountLine);
                 OnCalcVATAmountLinesOnBeforeInsertLine(ServInvHeader, TempVATAmountLine);
                 TempVATAmountLine.InsertLine();
             until Next() = 0;
+    end;
+
+    procedure CopyToVATAmountLine(var VATAmountLine: Record "VAT Amount Line")
+    begin
+        VATAmountLine."VAT Identifier" := Rec."VAT Identifier";
+        VATAmountLine."VAT Calculation Type" := Rec."VAT Calculation Type";
+        VATAmountLine."VAT Clause Code" := Rec."VAT Clause Code";
+        VATAmountLine."Tax Group Code" := Rec."Tax Group Code";
+        VATAmountLine."VAT %" := Rec."VAT %";
+        VATAmountLine."VAT Base" := Rec.Amount;
+        VATAmountLine."VAT Amount" := Rec."Amount Including VAT" - Rec.Amount;
+        VATAmountLine."Amount Including VAT" := Rec."Amount Including VAT";
+        VATAmountLine."Line Amount" := Rec."Line Amount";
+        if Rec."Allow Invoice Disc." then
+            VATAmountLine."Inv. Disc. Base Amount" := Rec."Line Amount";
+        VATAmountLine."Invoice Discount Amount" := Rec."Inv. Discount Amount";
+        VATAmountLine.Quantity := Rec."Quantity (Base)";
+        VATAmountLine."Calculated VAT Amount" := Rec."Amount Including VAT" - Rec.Amount - Rec."VAT Difference";
+        VATAmountLine."VAT Difference" := Rec."VAT Difference";
+
+        OnAfterCopyToVATAmountLine(Rec, VATAmountLine);
+#if not CLEAN25
+        VATAmountLine.RunOnAfterCopyFromServInvLine(VATAmountLine, Rec);
+#endif
     end;
 
     procedure RowID1(): Text[250]
@@ -835,6 +820,11 @@ table 5993 "Service Invoice Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSecurityFilterOnRespCenter(var ServiceInvoiceLine: Record "Service Invoice Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyToVATAmountLine(ServiceInvoiceLine: Record "Service Invoice Line"; var VATAmountLine: Record "VAT Amount Line")
     begin
     end;
 }

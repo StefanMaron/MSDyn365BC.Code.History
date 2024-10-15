@@ -177,7 +177,9 @@ report 298 "Batch Post Sales Credit Memos"
 
     var
         VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
+#pragma warning disable AA0074
         Text003: Label 'The exchange rate associated with the new posting date on the sales header will apply to the sales lines.';
+#pragma warning restore AA0074
 
     protected var
         CalcInvDisc: Boolean;

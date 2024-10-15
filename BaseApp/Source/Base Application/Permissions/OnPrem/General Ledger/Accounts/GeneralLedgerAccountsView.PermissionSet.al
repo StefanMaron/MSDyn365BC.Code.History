@@ -13,7 +13,6 @@ using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Ledger;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Setup;
-using Microsoft.Service.Contract;
 using Microsoft.Purchases.Vendor;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Inventory.Item;
@@ -55,7 +54,6 @@ permissionset 4123 "General Ledger Accounts - View"
                   tabledata "General Posting Setup" = R,
                   tabledata "Inventory Posting Setup" = R,
                   tabledata "Job Posting Group" = R,
-                  tabledata "Service Contract Account Group" = R,
                   tabledata "VAT Assisted Setup Bus. Grp." = R,
                   tabledata "VAT Assisted Setup Templates" = R,
                   tabledata "VAT Entry" = R,

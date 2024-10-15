@@ -94,7 +94,9 @@ xmlport 1230 "Export Generic CSV"
         QuitLoop: Boolean;
         ColumnsNotSequentialErr: Label 'The data to be exported is not structured correctly. The columns in the dataset must be sequential.';
         LinesNotSequentialErr: Label 'The data to be exported is not structured correctly. The lines in the dataset must be sequential.';
+#pragma warning disable AA0470
         ProgressMsg: Label 'Exporting line no. #1######';
+#pragma warning restore AA0470
 
     local procedure InitializeGlobals()
     begin

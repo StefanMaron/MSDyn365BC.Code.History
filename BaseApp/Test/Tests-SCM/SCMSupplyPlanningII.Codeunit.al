@@ -46,7 +46,6 @@ codeunit 137071 "SCM Supply Planning -II"
         NothingToCreateMessage: Label 'There is nothing to create.';
         CannotChangeQuantityError: Label 'You cannot change Quantity because the order line is associated with sales order ';
         ProductionOrderMustNotExist: Label 'Production Order Must No Exist for Item %1.';
-        TransferOrderNotExistError: Label 'The Transfer Header does not exist.';
         ReservationEntryExistMsg: Label 'One or more reservation entries exist for the item with';
         ShipFieldErr: Label 'The Ship field on Sales Header is not correct.';
         ReceiveFieldErr: Label 'The Receive field on Purchase Header is not correct.';
@@ -1666,7 +1665,7 @@ codeunit 137071 "SCM Supply Planning -II"
         asserterror TransferHeader.Get(TransferHeader."No.");
 
         // Verify: Verify the Transfer Order having tracking attached to it, is deleted.
-        Assert.ExpectedError(TransferOrderNotExistError);
+        Assert.ExpectedErrorCannotFind(Database::"Transfer Header");
     end;
 
     [Test]
@@ -3653,12 +3652,10 @@ codeunit 137071 "SCM Supply Planning -II"
 
     local procedure FindWarehouseEntry(var WarehouseEntry: Record "Warehouse Entry"; ItemNo: Code[20]; LocationCode: Code[10])
     begin
-        with WarehouseEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Location Code", LocationCode);
-            SetRange("Entry Type", "Entry Type"::"Negative Adjmt.");
-            FindFirst();
-        end;
+        WarehouseEntry.SetRange("Item No.", ItemNo);
+        WarehouseEntry.SetRange("Location Code", LocationCode);
+        WarehouseEntry.SetRange("Entry Type", WarehouseEntry."Entry Type"::"Negative Adjmt.");
+        WarehouseEntry.FindFirst();
     end;
 
     local procedure UpdateCostingMethodToAverageOnItem(var Item: Record Item)
@@ -4159,7 +4156,7 @@ codeunit 137071 "SCM Supply Planning -II"
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
 
-    local procedure SelectReferenceOrderType(var Item: Record Item; var RequisitionLine: Record "Requisition Line") RefOrderType: Integer
+    local procedure SelectReferenceOrderType(var Item: Record Item; var RequisitionLine: Record "Requisition Line") RefOrderType: Enum "Requisition Ref. Order Type"
     begin
         if Item."Replenishment System" = Item."Replenishment System"::Purchase then
             RefOrderType := RequisitionLine."Ref. Order Type"::Purchase
@@ -4249,12 +4246,11 @@ codeunit 137071 "SCM Supply Planning -II"
     local procedure CreateProdOrderLotForLotItem(var Item: Record Item)
     begin
         CreateLotForLotItem(Item);
-        UpdateReplenishmentSystemOnItem(Item); // "Replenishment System"::"Prod. Order"
-        with Item do begin
-            Validate("Order Tracking Policy", "Order Tracking Policy"::"Tracking Only");
-            Validate("Manufacturing Policy", "Manufacturing Policy"::"Make-to-Order");
-            Modify(true);
-        end;
+        UpdateReplenishmentSystemOnItem(Item);
+        // "Replenishment System"::"Prod. Order"
+        Item.Validate("Order Tracking Policy", Item."Order Tracking Policy"::"Tracking Only");
+        Item.Validate("Manufacturing Policy", Item."Manufacturing Policy"::"Make-to-Order");
+        Item.Modify(true);
     end;
 
     local procedure CreateSafetyStockBOMItemWithDemand(ChildItemNo: Code[20]; SafetyStockQuantity: Decimal; DemandQuantity: Decimal; ShipmentDate: Date; var Item: Record Item)
@@ -4286,11 +4282,9 @@ codeunit 137071 "SCM Supply Planning -II"
 
     local procedure UpdateItemIncludeInventoryAndSafetyStockQuantity(var Item: Record Item; IncludeInventory: Boolean; SafetyStockQuantity: Decimal)
     begin
-        with Item do begin
-            Validate("Include Inventory", IncludeInventory);
-            Validate("Safety Stock Quantity", SafetyStockQuantity);
-            Modify(true);
-        end;
+        Item.Validate("Include Inventory", IncludeInventory);
+        Item.Validate("Safety Stock Quantity", SafetyStockQuantity);
+        Item.Modify(true);
     end;
 
     local procedure CalcRegenPlanForPlanWkshWithItemFilterAndPeriod(ItemFilter: Text; FromDate: Date; ToDate: Date)
@@ -4303,12 +4297,10 @@ codeunit 137071 "SCM Supply Planning -II"
 
     local procedure GetParentRequisitionLineByNoAndQtyBase(ItemNo: Code[20]; Qty: Decimal; var RequisitionLine: Record "Requisition Line")
     begin
-        with RequisitionLine do begin
-            SetRange(Type, Type::Item);
-            SetRange("No.", ItemNo);
-            SetRange(Quantity, Qty);
-            FindFirst();
-        end;
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", ItemNo);
+        RequisitionLine.SetRange(Quantity, Qty);
+        RequisitionLine.FindFirst();
     end;
 
     local procedure FilterChildRequisitionLineByNoAndQty(ParentItemNo: Code[20]; ChildItemNo: Code[20]; Qty: Decimal; var ChildRequisitionLine: Record "Requisition Line")
@@ -4316,15 +4308,13 @@ codeunit 137071 "SCM Supply Planning -II"
         ParentRequisitionLine: Record "Requisition Line";
     begin
         GetParentRequisitionLineByNoAndQtyBase(ParentItemNo, Qty, ParentRequisitionLine);
-        with ChildRequisitionLine do begin
-            SetRange("Worksheet Template Name", ParentRequisitionLine."Worksheet Template Name");
-            SetRange("Journal Batch Name", ParentRequisitionLine."Journal Batch Name");
-            SetFilter("Line No.", '<>%1', ParentRequisitionLine."Line No.");
-            SetRange(Type, Type::Item);
-            SetRange("No.", ChildItemNo);
-            SetRange("Ref. Order No.", ParentRequisitionLine."Ref. Order No.");
-            SetRange(Quantity, ParentRequisitionLine.Quantity);
-        end;
+        ChildRequisitionLine.SetRange("Worksheet Template Name", ParentRequisitionLine."Worksheet Template Name");
+        ChildRequisitionLine.SetRange("Journal Batch Name", ParentRequisitionLine."Journal Batch Name");
+        ChildRequisitionLine.SetFilter("Line No.", '<>%1', ParentRequisitionLine."Line No.");
+        ChildRequisitionLine.SetRange(Type, ChildRequisitionLine.Type::Item);
+        ChildRequisitionLine.SetRange("No.", ChildItemNo);
+        ChildRequisitionLine.SetRange("Ref. Order No.", ParentRequisitionLine."Ref. Order No.");
+        ChildRequisitionLine.SetRange(Quantity, ParentRequisitionLine.Quantity);
     end;
 
     local procedure CreateItemWithDampenerQuantity(var Item: Record Item; DampenerQuantity: Decimal): Code[20]
@@ -4416,7 +4406,7 @@ codeunit 137071 "SCM Supply Planning -II"
         Assert.RecordIsEmpty(PlanningComponent);
     end;
 
-    local procedure VerifyRequisitionLineWithDueDateForItem(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20]; RefOrderType: Option; DueDate: Date)
+    local procedure VerifyRequisitionLineWithDueDateForItem(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20]; RefOrderType: Enum "Requisition Ref. Order Type"; DueDate: Date)
     begin
         RequisitionLine.SetRange("Due Date", DueDate);
         RequisitionLine.FindFirst();
@@ -4434,7 +4424,7 @@ codeunit 137071 "SCM Supply Planning -II"
     local procedure VerifyRequisitionLineWithItem(Item: Record Item; ActionMessage: Enum "Action Message Type"; Quantity: Decimal; OriginalQuantity: Decimal; LocationCode: Code[10]; VariantCode: Code[10])
     var
         RequisitionLine: Record "Requisition Line";
-        RefOrderType: Option;
+        RefOrderType: Enum "Requisition Ref. Order Type";
     begin
         RefOrderType := SelectReferenceOrderType(Item, RequisitionLine);
         SelectRequisitionLine(RequisitionLine, Item."No.");
@@ -4448,7 +4438,7 @@ codeunit 137071 "SCM Supply Planning -II"
     local procedure VerifyRequisitionLineWithDueDate(var Item: Record Item; ActionMessage: Enum "Action Message Type"; Quantity: Decimal; OriginalQuantity: Decimal; DueDate: Date)
     var
         RequisitionLine: Record "Requisition Line";
-        RefOrderType: Option;
+        RefOrderType: Enum "Requisition Ref. Order Type";
     begin
         RefOrderType := SelectReferenceOrderType(Item, RequisitionLine);
         VerifyRequisitionLineWithDueDateForItem(RequisitionLine, Item."No.", RefOrderType, DueDate);
@@ -4469,7 +4459,7 @@ codeunit 137071 "SCM Supply Planning -II"
     local procedure VerifyRequisitionLineForUnitOfMeasure(var Item: Record Item; UnitOfMeasureCode: Code[10]; ActionMessage: Enum "Action Message Type"; Quantity: Decimal; OriginalQuantity: Decimal; DueDate: Date)
     var
         RequisitionLine: Record "Requisition Line";
-        RefOrderType: Option;
+        RefOrderType: Enum "Requisition Ref. Order Type";
     begin
         RefOrderType := SelectReferenceOrderType(Item, RequisitionLine);
         VerifyRequisitionLineWithDueDateForItem(RequisitionLine, Item."No.", RefOrderType, DueDate);
@@ -4480,7 +4470,7 @@ codeunit 137071 "SCM Supply Planning -II"
     local procedure VerifyRequisitionLineForLocationAndVariant(var Item: Record Item; ActionMessage: Enum "Action Message Type"; Quantity: Decimal; OriginalQuantity: Decimal; DueDate: Date; LocationCode: Code[10]; VariantCode: Code[10])
     var
         RequisitionLine: Record "Requisition Line";
-        RefOrderType: Option;
+        RefOrderType: Enum "Requisition Ref. Order Type";
     begin
         RefOrderType := SelectReferenceOrderType(Item, RequisitionLine);
         VerifyRequisitionLineWithDueDateForItem(RequisitionLine, Item."No.", RefOrderType, DueDate);
@@ -4584,11 +4574,9 @@ codeunit 137071 "SCM Supply Planning -II"
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        with ReservationEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Source Type", SourceType);
-            Assert.IsTrue(IsEmpty, ReservationEntryErr);
-        end;
+        ReservationEntry.SetRange("Item No.", ItemNo);
+        ReservationEntry.SetRange("Source Type", SourceType);
+        Assert.IsTrue(ReservationEntry.IsEmpty, ReservationEntryErr);
     end;
 
     [RequestPageHandler]

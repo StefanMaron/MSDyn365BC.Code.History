@@ -13,10 +13,8 @@ using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Finance.VAT.Ledger;
 using Microsoft.Finance.VAT.Setup;
 using Microsoft.Foundation.AuditCodes;
-#if not CLEAN22
-using Microsoft.Purchases.Payables;
-using Microsoft.Sales.Receivables;
-#endif
+using Microsoft.Purchases.Vendor;
+using Microsoft.Sales.Customer;
 using System.Utilities;
 using System.Security.User;
 
@@ -24,6 +22,9 @@ codeunit 31315 "Gen.Jnl. Post Line Handler CZL"
 {
     Permissions = tabledata "VAT Entry" = d,
                   tabledata "G/L Entry - VAT Entry Link" = d;
+
+    var
+        NonDeductibleVATCZL: Codeunit "Non-Deductible VAT CZL";
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnBeforeInsertGlobalGLEntry', '', false, false)]
     local procedure UserChecksAllowedOnBeforeInsertGlobalGLEntry(var GlobalGLEntry: Record "G/L Entry")
@@ -243,15 +244,6 @@ codeunit 31315 "Gen.Jnl. Post Line Handler CZL"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnBeforeCode', '', false, false)]
     local procedure UpdateVatDateOnBeforeCode(var GenJnlLine: Record "Gen. Journal Line")
     begin
-#if not CLEAN22
-#pragma warning disable AL0432
-        if not GenJnlLine.IsReplaceVATDateEnabled() then begin
-            if GenJnlLine."VAT Date CZL" = 0D then
-                GenJnlLine.Validate("VAT Date CZL", GenJnlLine."Posting Date");
-            exit;
-        end;
-#pragma warning restore AL0432
-#endif
         if GenJnlLine."VAT Reporting Date" = 0D then
             GenJnlLine.Validate("VAT Reporting Date", GenJnlLine."Posting Date");
     end;
@@ -277,11 +269,6 @@ codeunit 31315 "Gen.Jnl. Post Line Handler CZL"
 
     local procedure UpdateVATEntryCZL(var VATEntry: Record "VAT Entry"; var GenJournalLine: Record "Gen. Journal Line")
     begin
-#if not CLEAN22
-#pragma warning disable AL0432
-        VATEntry."VAT Date CZL" := GenJournalLine."VAT Date CZL";
-#pragma warning restore AL0432
-#endif
         VATEntry."Original Doc. VAT Date CZL" := GenJournalLine."Original Doc. VAT Date CZL";
         VATEntry."Registration No. CZL" := GenJournalLine."Registration No. CZL";
         VATEntry."Tax Registration No. CZL" := GenJournalLine."Tax Registration No. CZL";
@@ -302,65 +289,6 @@ codeunit 31315 "Gen.Jnl. Post Line Handler CZL"
             NextEntryNo -= 1;
         end;
     end;
-
-#if not CLEAN22
-#pragma warning disable AL0432
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnBeforeGetDtldCustLedgEntryAccNo', '', false, false)]
-    local procedure GetApplAcrossPostGrpAccNoOnBeforeGetDtldCustLedgEntryAccNo(var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; var AccountNo: Code[20]; var IsHandled: Boolean)
-    begin
-        if IsHandled then
-            exit;
-        if not DetailedCVLedgEntryBuffer."Appl. Across Post. Groups CZL" then
-            exit;
-
-        AccountNo := GetReceivablesAccNo(DetailedCVLedgEntryBuffer."CV Ledger Entry No.");
-        IsHandled := true;
-    end;
-
-    local procedure GetReceivablesAccNo(CustLedgerEntryNo: Integer): Code[20]
-    var
-        CustLedgerEntry: Record "Cust. Ledger Entry";
-    begin
-        CustLedgerEntry.Get(CustLedgerEntryNo);
-        exit(CustLedgerEntry.GetReceivablesAccNoCZL());
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnBeforeGetDtldVendLedgEntryAccNo', '', false, false)]
-    local procedure GetApplAcrossPostGrpAccNoOnBeforeGetDtldVendLedgEntryAccNo(var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; var AccountNo: Code[20]; var IsHandled: Boolean)
-    begin
-        if IsHandled then
-            exit;
-        if not DetailedCVLedgEntryBuffer."Appl. Across Post. Groups CZL" then
-            exit;
-
-        AccountNo := GetPayablesAccNo(DetailedCVLedgEntryBuffer."CV Ledger Entry No.");
-        IsHandled := true;
-    end;
-
-    local procedure GetPayablesAccNo(VendorLedgerEntryNo: Integer): Code[20]
-    var
-        VendorLedgerEntry: Record "Vendor Ledger Entry";
-    begin
-        VendorLedgerEntry.Get(VendorLedgerEntryNo);
-        exit(VendorLedgerEntry.GetPayablesAccNoCZL());
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnBeforePostDtldCVLedgEntry', '', false, false)]
-    local procedure PostApplAcrossPostGroupsOnBeforePostDtldCVLedgEntry(Sender: Codeunit "Gen. Jnl.-Post Line"; var GenJournalLine: Record "Gen. Journal Line"; var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; var AccNo: Code[20]; var Unapply: Boolean; var AdjAmount: array[4] of Decimal)
-    var
-        GeneralLedgerSetup: Record "General Ledger Setup";
-        CorrectionFlag: Boolean;
-    begin
-        if not DetailedCVLedgEntryBuffer."Appl. Across Post. Groups CZL" then
-            exit;
-        GeneralLedgerSetup.Get();
-        CorrectionFlag := GenJournalLine.Correction;
-        GenJournalLine.Correction := not Unapply;
-        Sender.CreateGLEntry(GenJournalLine, AccNo, DetailedCVLedgEntryBuffer."Amount (LCY)", 0, DetailedCVLedgEntryBuffer."Currency Code" = GeneralLedgerSetup."Additional Reporting Currency");
-        GenJournalLine.Correction := CorrectionFlag;
-    end;
-#pragma warning restore AL0432
-#endif
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnBeforeInsertGLEntryBuffer', '', false, false)]
     local procedure UpdateCheckAmountsOnBeforeInsertGLEntryBuffer(var TempGLEntryBuf: Record "G/L Entry")
@@ -454,21 +382,62 @@ codeunit 31315 "Gen.Jnl. Post Line Handler CZL"
         IsHandled := PersistConfirmResponseCZL.GetPersistentResponse();
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnBeforePostDtldCVLedgEntry', '', false, false)]
+    local procedure OnBeforePostDtldCVLedgEntry(sender: Codeunit "Gen. Jnl.-Post Line"; var GenJournalLine: Record "Gen. Journal Line"; var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; var AccNo: Code[20]; var IsHandled: Boolean; AddCurrencyCode: Code[10]; MultiplePostingGroups: Boolean)
+    var
+        CustomerPostingGroup: Record "Customer Posting Group";
+        VendorPostingGroup: Record "Vendor Posting Group";
+        PostingGroupAccountNo: Code[20];
+        OldCorrection: Boolean;
+    begin
+        if IsHandled then
+            exit;
+
+        if MultiplePostingGroups and
+           (DetailedCVLedgEntryBuffer."Entry Type" = DetailedCVLedgEntryBuffer."Entry Type"::Application)
+        then begin
+            case GenJournalLine."Account Type" of
+                GenJournalLine."Account Type"::Customer:
+                    begin
+                        CustomerPostingGroup.Get(GenJournalLine."Posting Group");
+                        PostingGroupAccountNo := CustomerPostingGroup.GetReceivablesAccount();
+                    end;
+                GenJournalLine."Account Type"::Vendor:
+                    begin
+                        VendorPostingGroup.Get(GenJournalLine."Posting Group");
+                        PostingGroupAccountNo := VendorPostingGroup.GetPayablesAccount();
+                    end;
+                else
+                    exit;
+            end;
+
+            if AccNo = PostingGroupAccountNo then begin
+                OldCorrection := GenJournalLine.Correction;
+                GenJournalLine.Correction := true;
+                sender.CreateGLEntry(GenJournalLine, AccNo, DetailedCVLedgEntryBuffer."Amount (LCY)", 0, DetailedCVLedgEntryBuffer."Currency Code" = AddCurrencyCode);
+                GenJournalLine.Correction := OldCorrection;
+                IsHandled := true;
+            end;
+        end;
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnPostDeferralPostBufferOnAfterFindDeferalPostingBuffer', '', false, false)]
     local procedure GetNonDeductibleVATPctOnPostDeferralPostBufferOnAfterFindDeferalPostingBuffer(GenJournalLine: Record "Gen. Journal Line"; var DeferralPostingBuffer: Record "Deferral Posting Buffer"; var NonDeductibleVATPct: Decimal)
     begin
+        if not NonDeductibleVATCZL.IsNonDeductibleVATEnabled() then
+            exit;
         NonDeductibleVATPct := GetNonDeductibleVATPct(GenJournalLine, DeferralPostingBuffer."Deferral Doc. Type");
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnPostDeferralOnAfterGetNonDeductibleVATPct', '', false, false)]
     local procedure GetNonDeductibleVATPctOnPostDeferralOnAfterGetNonDeductibleVATPct(GenJournalLine: Record "Gen. Journal Line"; DeferralDocType: Enum "Deferral Document Type"; var NonDeductibleVATPct: Decimal)
     begin
+        if not NonDeductibleVATCZL.IsNonDeductibleVATEnabled() then
+            exit;
         NonDeductibleVATPct := GetNonDeductibleVATPct(GenJournalLine, DeferralDocType);
     end;
 
     local procedure GetNonDeductibleVATPct(GenJournalLine: Record "Gen. Journal Line"; DeferralDocType: Enum "Deferral Document Type"): Decimal
-    var
-        NonDeductibleVATCZL: Codeunit "Non-Deductible VAT CZL";
     begin
         exit(NonDeductibleVATCZL.GetNonDeductibleVATPct(
             GenJournalLine."VAT Bus. Posting Group", GenJournalLine."VAT Prod. Posting Group",
@@ -486,5 +455,25 @@ codeunit 31315 "Gen.Jnl. Post Line Handler CZL"
     begin
         if GenJnlLine."Additional Currency Factor CZL" <> 0 then
             CurrencyFactor := GenJnlLine."Additional Currency Factor CZL";
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnPostDeferralPostBufferOnBeforeInsertGLEntryForDeferralAccount', '', false, false)]
+    local procedure OnPostDeferralPostBufferOnBeforeInsertGLEntryForDeferralAccount(GenJournalLine: Record "Gen. Journal Line"; var GLEntry: Record "G/L Entry")
+    var
+        GLEntryasCorrectionCZL: Codeunit "G/L Entry as Correction CZL";
+    begin
+        if (GLEntry.Amount < 0) and
+           (GLEntry."Posting Date" = GenJournalLine."Posting Date") and
+           (GLEntry."G/L Account No." = GenJournalLine."Account No.")
+        then
+            GLEntryasCorrectionCZL.Enable();
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Post Line", 'OnPostDeferralPostBufferOnAfterInsertGLEntry', '', false, false)]
+    local procedure OnPostDeferralPostBufferOnAfterInsertGLEntry()
+    var
+        GLEntryasCorrectionCZL: Codeunit "G/L Entry as Correction CZL";
+    begin
+        GLEntryasCorrectionCZL.Disable();
     end;
 }

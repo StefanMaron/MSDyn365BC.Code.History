@@ -87,7 +87,9 @@ report 172 "Create Recurring Sales Inv."
         MissingDatesErr: Label 'You must enter both a posting date and an order date.';
         TotalCount: Integer;
         Counter: Integer;
+#pragma warning disable AA0470
         ProgressMsg: Label 'Creating Invoices #1##################';
         NoOfInvoicesMsg: Label '%1 invoices were created.';
+#pragma warning restore AA0470
 }
 

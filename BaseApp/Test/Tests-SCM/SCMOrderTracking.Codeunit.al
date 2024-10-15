@@ -1035,39 +1035,23 @@ codeunit 137066 "SCM Order Tracking"
     end;
 
     local procedure OpenOrderTrackingForProduction(ProdOrderLine: Record "Prod. Order Line")
-    var
-        OrderTracking: Page "Order Tracking";
     begin
-        // Open Order Tracking page for required Production Order.
-        OrderTracking.SetProdOrderLine(ProdOrderLine);
-        OrderTracking.RunModal();
+        ProdOrderLine.ShowOrderTracking();
     end;
 
     local procedure OpenOrderTrackingForProdOrderComponent(ProdOrderComponent: Record "Prod. Order Component")
-    var
-        OrderTracking: Page "Order Tracking";
     begin
-        // Open Order Tracking page for required Production Order Component line.
-        OrderTracking.SetProdOrderComponent(ProdOrderComponent);
-        OrderTracking.RunModal();
+        ProdOrderComponent.ShowOrderTracking();
     end;
 
     local procedure OpenOrderTrackingForSales(SalesLine: Record "Sales Line")
-    var
-        OrderTracking: Page "Order Tracking";
     begin
-        // Open Order Tracking page for required Sales Order.
-        OrderTracking.SetSalesLine(SalesLine);
-        OrderTracking.RunModal();
+        SalesLine.ShowOrderTracking();
     end;
 
     local procedure OpenOrderTrackingForPurchase(PurchaseLine: Record "Purchase Line")
-    var
-        OrderTracking: Page "Order Tracking";
     begin
-        // Open Order Tracking page for required Purchase Order.
-        OrderTracking.SetPurchLine(PurchaseLine);
-        OrderTracking.RunModal();
+        PurchaseLine.ShowOrderTracking();
     end;
 
     local procedure SelectProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; ProdOrderNo: Code[20]; Status: Enum "Production Order Status"; ItemNo: Code[20])
@@ -1181,15 +1165,13 @@ codeunit 137066 "SCM Order Tracking"
         ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
         LibraryManufacturing.CalculateConsumptionForJournal(ProductionOrder, ProdOrderComponent, WorkDate(), false);
 
-        with ItemJournalLine do begin
-            SetRange("Order Type", "Order Type"::Production);
-            SetRange("Order No.", ProductionOrder."No.");
-            SetRange("Entry Type", "Entry Type"::Consumption);
-            FindFirst();
-            Validate(Quantity, ConsumptionQty);
-            Validate("Applies-to Entry", AppliedToEntryNo);
-            Modify(true);
-        end;
+        ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
+        ItemJournalLine.SetRange("Order No.", ProductionOrder."No.");
+        ItemJournalLine.SetRange("Entry Type", ItemJournalLine."Entry Type"::Consumption);
+        ItemJournalLine.FindFirst();
+        ItemJournalLine.Validate(Quantity, ConsumptionQty);
+        ItemJournalLine.Validate("Applies-to Entry", AppliedToEntryNo);
+        ItemJournalLine.Modify(true);
         LibraryManufacturing.PostConsumptionJournal();
     end;
 
@@ -1200,23 +1182,19 @@ codeunit 137066 "SCM Order Tracking"
     begin
         LibraryManufacturing.OutputJournalExplodeRouting(ProductionOrder);
 
-        with ItemJournalLine do begin
-            SetRange("Order Type", "Order Type"::Production);
-            SetRange("Order No.", ProductionOrder."No.");
-            SetRange("Entry Type", "Entry Type"::Output);
-            FindFirst();
-            Validate("Output Quantity", OutputQty);
-            Modify(true);
-        end;
+        ItemJournalLine.SetRange("Order Type", ItemJournalLine."Order Type"::Production);
+        ItemJournalLine.SetRange("Order No.", ProductionOrder."No.");
+        ItemJournalLine.SetRange("Entry Type", ItemJournalLine."Entry Type"::Output);
+        ItemJournalLine.FindFirst();
+        ItemJournalLine.Validate("Output Quantity", OutputQty);
+        ItemJournalLine.Modify(true);
         LibraryManufacturing.PostOutputJournal();
 
-        with ItemLedgerEntry do begin
-            SetRange("Entry Type", "Entry Type"::Output);
-            SetRange("Order Type", "Order Type"::Production);
-            SetRange("Order No.", ProductionOrder."No.");
-            FindLast();
-            exit("Entry No.");
-        end;
+        ItemLedgerEntry.SetRange("Entry Type", ItemLedgerEntry."Entry Type"::Output);
+        ItemLedgerEntry.SetRange("Order Type", ItemLedgerEntry."Order Type"::Production);
+        ItemLedgerEntry.SetRange("Order No.", ProductionOrder."No.");
+        ItemLedgerEntry.FindLast();
+        exit(ItemLedgerEntry."Entry No.");
     end;
 
     local procedure UpdateVariantCodeOnProdOrderComponent(ProductionOrderNo: Code[20]; ItemNo: Code[20]; VariantCode: Code[10])

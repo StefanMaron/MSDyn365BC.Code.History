@@ -5,6 +5,7 @@
 namespace Microsoft.HumanResources.Payables;
 
 using Microsoft.Bank.Setup;
+using Microsoft.HumanResources.Employee;
 using Microsoft.Finance.ReceivablesPayables;
 
 tableextension 11790 "Employee Ledger Entry CZL" extends "Employee Ledger Entry"
@@ -32,17 +33,53 @@ tableextension 11790 "Employee Ledger Entry CZL" extends "Employee Ledger Entry"
         }
     }
 
+    procedure CollectSuggestedApplicationCZL(var CrossApplicationBufferCZL: Record "Cross Application Buffer CZL"): Boolean
+    var
+        CrossApplicationMgtCZL: Codeunit "Cross Application Mgt. CZL";
+    begin
+        exit(CrossApplicationMgtCZL.CollectSuggestedApplication(Rec, CrossApplicationBufferCZL));
+    end;
+
+    procedure CollectSuggestedApplicationCZL(CalledFrom: Variant; var CrossApplicationBufferCZL: Record "Cross Application Buffer CZL"): Boolean
+    var
+        CrossApplicationMgtCZL: Codeunit "Cross Application Mgt. CZL";
+    begin
+        exit(CrossApplicationMgtCZL.CollectSuggestedApplication(Rec, CalledFrom, CrossApplicationBufferCZL));
+    end;
+
     procedure CalcSuggestedAmountToApplyCZL(): Decimal
     var
         CrossApplicationMgtCZL: Codeunit "Cross Application Mgt. CZL";
     begin
-        exit(CrossApplicationMgtCZL.CalcSuggestedAmountToApplyEmployeeLedgerEntry(Rec));
+        exit(CrossApplicationMgtCZL.CalcSuggestedAmountToApply(Rec));
     end;
 
     procedure DrillDownSuggestedAmountToApplyCZL()
     var
         CrossApplicationMgtCZL: Codeunit "Cross Application Mgt. CZL";
     begin
-        CrossApplicationMgtCZL.DrillDownSuggestedAmountToApplyEmployeeLedgerEntry(Rec);
+        CrossApplicationMgtCZL.DrillDownSuggestedAmountToApply(Rec);
+    end;
+
+    procedure GetPayablesAccNoCZL(): Code[20]
+    var
+        EmployeePostingGroup: Record "Employee Posting Group";
+        GLAccountNo: Code[20];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetPayablesAccountNoCZL(Rec, GLAccountNo, IsHandled);
+        if IsHandled then
+            exit(GLAccountNo);
+
+        TestField("Employee Posting Group");
+        EmployeePostingGroup.Get("Employee Posting Group");
+        EmployeePostingGroup.TestField("Payables Account");
+        exit(EmployeePostingGroup.GetPayablesAccount());
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetPayablesAccountNoCZL(EmployeeLedgerEntry: Record "Employee Ledger Entry"; var GLAccountNo: Code[20]; var IsHandled: Boolean)
+    begin
     end;
 }

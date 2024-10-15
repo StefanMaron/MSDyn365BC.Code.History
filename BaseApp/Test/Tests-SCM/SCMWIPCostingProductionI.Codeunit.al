@@ -331,12 +331,11 @@ codeunit 137003 "SCM WIP Costing Production-I"
         TempPurchaseLine: Record "Purchase Line" temporary;
         ItemNo: Code[20];
         ItemNo2: Code[20];
-        AverageCostPeriod: Option " ",Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         // 1. Setup: Update Inventory Setup, Create Items with Flushing method - Manual.
         Initialize();
         LibraryInventory.UpdateInventorySetup(
-          InventorySetup, AutoCostPosting, false, "Automatic Cost Adjustment Type"::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
+          InventorySetup, AutoCostPosting, false, "Automatic Cost Adjustment Type"::Never, "Average Cost Calculation Type"::Item, "Average Cost Period Type"::Day);
         CreateComponentItems(ItemNo, ItemNo2, "Costing Method"::Average, FlushingMethod, false);
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, ItemNo, ItemNo2, Qty, QtyToReceive, DirectUnitCost);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);  // Receive.
@@ -1498,13 +1497,12 @@ codeunit 137003 "SCM WIP Costing Production-I"
         ItemNo: Code[20];
         ItemNo2: Code[20];
         CurrencyCode: Code[10];
-        AverageCostPeriod: Option " ",Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
         // 1. Setup: Update Inventory Setup, Create Items with Flushing method - Manual.
         Initialize();
         LibraryERM.SetAddReportingCurrency('');
         LibraryInventory.UpdateInventorySetup(
-          InventorySetup, AutoCostPosting, false, "Automatic Cost Adjustment Type"::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
+          InventorySetup, AutoCostPosting, false, "Automatic Cost Adjustment Type"::Never, "Average Cost Calculation Type"::Item, "Average Cost Period Type"::Day);
         CreateComponentItems(ItemNo, ItemNo2, "Costing Method"::Average, FlushingMethod, false);
         CreatePurchaseOrderAddnlCurr(PurchaseHeader, PurchaseLine, '', ItemNo, ItemNo2, Qty, QtyToReceive, DirectUnitCost);
         CurrencyCode := UpdateAddnlReportingCurrency();
@@ -1784,14 +1782,13 @@ codeunit 137003 "SCM WIP Costing Production-I"
         ProductionBOMNo: Code[20];
         ItemNo2: Code[20];
         ProdOrderRoutingLineType: Option "Work Center","Machine Center";
-        AverageCostPeriod: Option " ",Day,Week,Month,Quarter,Year,"Accounting Period";
         Qty: Decimal;
     begin
         // Update Manufacturing Setup, Inventory Setup and Update Shop Calendar Working Days based on Work Shift code.
         Initialize();
         LibraryManufacturing.UpdateManufacturingSetup(ManufacturingSetup, '', '', true, true, true);
         LibraryInventory.UpdateInventorySetup(
-          InventorySetup, AutoCostPosting, false, "Automatic Cost Adjustment Type"::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
+          InventorySetup, AutoCostPosting, false, "Automatic Cost Adjustment Type"::Never, "Average Cost Calculation Type"::Item, "Average Cost Period Type"::Day);
 
         // Create Work Center and Machine Center with required Flushing method and Create Routing.
         CreateWorkCenter(WorkCenterNo, FlushingMethod);
@@ -1881,7 +1878,6 @@ codeunit 137003 "SCM WIP Costing Production-I"
         ItemNo2: Code[20];
         ItemNo4: Code[20];
         ProdOrderRoutingLineType: Option "Work Center","Machine Center";
-        AverageCostPeriod: Option " ",Day,Week,Month,Quarter,Year,"Accounting Period";
         Qty: Decimal;
     begin
         // Update Manufacturing Setup, Inventory Setup and Update Shop Calendar Working Days based on Work Shift code.
@@ -1889,7 +1885,7 @@ codeunit 137003 "SCM WIP Costing Production-I"
         LibraryManufacturing.UpdateManufacturingSetup(ManufacturingSetup, '', '', true, true, true);
         LibraryERM.SetAddReportingCurrency('');
         LibraryInventory.UpdateInventorySetup(
-          InventorySetup, AutoCostPosting, false, "Automatic Cost Adjustment Type"::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
+          InventorySetup, AutoCostPosting, false, "Automatic Cost Adjustment Type"::Never, "Average Cost Calculation Type"::Item, "Average Cost Period Type"::Day);
 
         // Create Work Center and Machine Center with required Flushing method and Create Routing.
         CreateWorkCenter(WorkCenterNo, FlushingMethod);
@@ -2211,13 +2207,11 @@ codeunit 137003 "SCM WIP Costing Production-I"
     var
         ProdOrderLine: Record "Prod. Order Line";
     begin
-        with ProdOrderLine do begin
-            SetRange(Status, ProductionOrder.Status);
-            SetRange("Prod. Order No.", ProductionOrder."No.");
-            SetRange("Item No.", ItemNo);
-            FindFirst();
-            exit("Line No.");
-        end;
+        ProdOrderLine.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderLine.SetRange("Item No.", ItemNo);
+        ProdOrderLine.FindFirst();
+        exit(ProdOrderLine."Line No.");
     end;
 
     local procedure PostProdJournal(ProductionOrder: Record "Production Order"; ItemNo: Code[20])
@@ -2233,15 +2227,13 @@ codeunit 137003 "SCM WIP Costing Production-I"
         Item: Record Item;
     begin
         Item.Get(ParentItemNo);
-        with ProdBOMLine do begin
-            SetRange("Production BOM No.", Item."Production BOM No.");
-            SetRange(Type, Type::Item);
-            FindSet();
-            repeat
-                Item.Get("No.");
-                MaterialCost += Item."Single-Level Material Cost";
-            until Next() = 0;
-        end;
+        ProdBOMLine.SetRange("Production BOM No.", Item."Production BOM No.");
+        ProdBOMLine.SetRange(Type, ProdBOMLine.Type::Item);
+        ProdBOMLine.FindSet();
+        repeat
+            Item.Get(ProdBOMLine."No.");
+            MaterialCost += Item."Single-Level Material Cost";
+        until ProdBOMLine.Next() = 0;
     end;
 
     local procedure UpdateDiffQtyConsmpJournal(ProductionOrderNo: Code[20])
@@ -2643,22 +2635,20 @@ codeunit 137003 "SCM WIP Costing Production-I"
         PurchRcptLine.SetRange("No.", ItemNo);
         PurchRcptLine.FindFirst();
 
-        with ItemChargeAssignmentPurch do begin
-            Init();
-            Validate("Document Type", PurchaseHeader."Document Type");
-            Validate("Document No.", PurchaseHeader."No.");
-            Validate("Document Line No.", PurchaseLine."Line No.");
-            Validate("Item Charge No.", PurchaseLine."No.");
+        ItemChargeAssignmentPurch.Init();
+        ItemChargeAssignmentPurch.Validate("Document Type", PurchaseHeader."Document Type");
+        ItemChargeAssignmentPurch.Validate("Document No.", PurchaseHeader."No.");
+        ItemChargeAssignmentPurch.Validate("Document Line No.", PurchaseLine."Line No.");
+        ItemChargeAssignmentPurch.Validate("Item Charge No.", PurchaseLine."No.");
 
-            Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Receipt);
-            Validate("Applies-to Doc. No.", PurchRcptLine."Document No.");
-            Validate("Applies-to Doc. Line No.", PurchRcptLine."Line No.");
+        ItemChargeAssignmentPurch.Validate("Applies-to Doc. Type", ItemChargeAssignmentPurch."Applies-to Doc. Type"::Receipt);
+        ItemChargeAssignmentPurch.Validate("Applies-to Doc. No.", PurchRcptLine."Document No.");
+        ItemChargeAssignmentPurch.Validate("Applies-to Doc. Line No.", PurchRcptLine."Line No.");
 
-            Validate("Unit Cost", Amount);
-            Validate("Item No.", ItemNo);
-            Validate("Qty. to Assign", 1);
-            Insert(true);
-        end;
+        ItemChargeAssignmentPurch.Validate("Unit Cost", Amount);
+        ItemChargeAssignmentPurch.Validate("Item No.", ItemNo);
+        ItemChargeAssignmentPurch.Validate("Qty. to Assign", 1);
+        ItemChargeAssignmentPurch.Insert(true);
 
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
     end;
@@ -2735,17 +2725,15 @@ codeunit 137003 "SCM WIP Costing Production-I"
         ActualMaterialCost: Decimal;
         StdCost: array[6] of Decimal;
     begin
-        with ProdOrderLine do begin
-            SetRange(Status, Status::Finished);
-            SetRange("Prod. Order No.", ProductionOrderNo);
-            FindSet();
-            repeat
-                CostCalculationMgt.CalcProdOrderLineStdCost(
-                  ProdOrderLine, 1, LibraryERM.GetUnitAmountRoundingPrecision(),
-                  StdCost[1], StdCost[2], StdCost[3], StdCost[4], StdCost[5]);
-                ActualMaterialCost += StdCost[1] / "Quantity (Base)";
-            until Next() = 0;
-        end;
+        ProdOrderLine.SetRange(Status, ProdOrderLine.Status::Finished);
+        ProdOrderLine.SetRange("Prod. Order No.", ProductionOrderNo);
+        ProdOrderLine.FindSet();
+        repeat
+            CostCalculationMgt.CalcProdOrderLineStdCost(
+              ProdOrderLine, 1, LibraryERM.GetUnitAmountRoundingPrecision(),
+              StdCost[1], StdCost[2], StdCost[3], StdCost[4], StdCost[5]);
+            ActualMaterialCost += StdCost[1] / ProdOrderLine."Quantity (Base)";
+        until ProdOrderLine.Next() = 0;
 
         Assert.AreEqual(ExpectedMaterialCost, ActualMaterialCost, ExpectedMaterialCostErr);
     end;

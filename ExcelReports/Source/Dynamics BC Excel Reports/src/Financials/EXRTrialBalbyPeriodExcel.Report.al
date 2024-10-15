@@ -37,6 +37,7 @@ report 4408 "EXR Trial Bal by Period Excel"
             dataitem(EXRTrialBalanceBuffer; "EXR Trial Balance Buffer")
             {
                 DataItemLink = "G/L Account No." = field("No.");
+                RequestFilterFields = Balance, "Net Change";
                 column(Account; "G/L Account No.") { IncludeCaption = true; }
                 column(Dimension1Code; "Dimension 1 Code") { IncludeCaption = true; }
                 column(Dimension2Code; "Dimension 2 Code") { IncludeCaption = true; }
@@ -177,8 +178,8 @@ report 4408 "EXR Trial Bal by Period Excel"
         LocalGLAccount: Record "G/L Account";
     begin
         LocalGLAccount.Copy(GLAccount);
-        LocalGLAccount.SetFilter("Global Dimension 1 Code", Dimension1Code);
-        LocalGLAccount.SetFilter("Global Dimension 2 Code", Dimension2Code);
+        LocalGLAccount.SetFilter("Global Dimension 1 Filter", Dimension1Code);
+        LocalGLAccount.SetFilter("Global Dimension 2 Filter", Dimension2Code);
 
         LocalGLAccount.CalcFields("Net Change", "Balance at Date");
         Clear(EXRTrialBalanceBuffer);

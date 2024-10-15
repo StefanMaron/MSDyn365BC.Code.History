@@ -272,13 +272,19 @@ report 7323 "Create Invt Put-away/Pick/Mvmt"
         TotalPickCounter: Integer;
         TotalMovementCounter: Integer;
 
+#pragma warning disable AA0074
         Text001: Label 'Creating Inventory Activities...\\';
+#pragma warning disable AA0470
         Text002: Label 'Source Type     #1##########\';
         Text003: Label 'Source No.      #2##########';
+#pragma warning restore AA0470
         Text004: Label 'There is nothing to create.';
+#pragma warning disable AA0470
         Text005: Label 'Number of %1 activities created: %2 out of a total of %3.';
+#pragma warning restore AA0470
         Text006: Label '%1\\%2', Locked = true;
         Text008: Label 'You must select Create Invt. Put-away, Create Invt. Pick, or Create Invt. Movement.';
+#pragma warning restore AA0074
 
     protected var
         WarehouseActivityHeader: Record "Warehouse Activity Header";

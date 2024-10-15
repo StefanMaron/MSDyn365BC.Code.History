@@ -24,20 +24,14 @@ codeunit 104051 "Update VAT Date Field"
         UpdatePurchSalesEntries();
         UpdateIssuedDocsEntries();
 
-        if not UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetVATDateFieldVATEntriesBlankUpgrade()) then begin
-            UpdateBlankVATEntries();
+        if not UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetVATDateFieldVATEntriesBlankUpgrade()) then
             UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVATDateFieldVATEntriesBlankUpgrade());
-        end;
 
-        if not UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetVATDateFieldGLEntriesBlankUpgrade()) then begin
-            UpdateBlankGLEntries();
+        if not UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetVATDateFieldGLEntriesBlankUpgrade()) then
             UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVATDateFieldGLEntriesBlankUpgrade());
-        end;
 
-        if not UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetVATDateFieldSalesPurchBlankUpgrade()) then begin
-            UpdatePurchSalesBlankEntries();
+        if not UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetVATDateFieldSalesPurchBlankUpgrade()) then
             UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVATDateFieldSalesPurchBlankUpgrade());
-        end;
 
         if not UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetVATDateFieldIssuedDocsBlankUpgrade()) then begin
             UpdateIssuedDocsBlankEntries();
@@ -103,18 +97,6 @@ codeunit 104051 "Update VAT Date Field"
         Clear(VATDateDataTransfer);
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetVATDateFieldIssuedDocsUpgrade());
-    end;
-
-    local procedure UpdateBlankVATEntries()
-    begin
-    end;
-
-    local procedure UpdateBlankGLEntries()
-    begin
-    end;
-
-    local procedure UpdatePurchSalesBlankEntries()
-    begin
     end;
 
     local procedure UpdateIssuedDocsBlankEntries()

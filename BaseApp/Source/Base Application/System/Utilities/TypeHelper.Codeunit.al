@@ -614,9 +614,9 @@ codeunit 10 "Type Helper"
         OrderString: Text;
     begin
         if Ascending then
-            OrderString := 'ORDER(Ascending)'
+            OrderString := 'order(ascending)'
         else
-            OrderString := 'ORDER(Descending)';
+            OrderString := 'order(descending)';
 
         RecRef.SetView(StrSubstNo('SORTING(%1) %2', CommaSeparatedFieldsToSort, OrderString));
         if RecRef.FindSet() then;

@@ -6,9 +6,6 @@ using Microsoft.HumanResources.Payables;
 using Microsoft.Purchases.Payables;
 using Microsoft.Sales.Receivables;
 
-#if not CLEAN22
-#pragma warning disable AS0109
-#endif
 table 1248 "Ledger Entry Matching Buffer"
 {
     Caption = 'Ledger Entry Matching Buffer';

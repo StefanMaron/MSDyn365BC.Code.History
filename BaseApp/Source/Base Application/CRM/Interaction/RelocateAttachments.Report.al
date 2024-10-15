@@ -102,10 +102,14 @@ report 5181 "Relocate Attachments"
 
     var
         RMSetup: Record "Marketing Setup";
+#pragma warning disable AA0074
         Text000: Label 'Do you want to relocate existing attachments?';
+#pragma warning restore AA0074
         FileManagement: Codeunit "File Management";
         Window: Dialog;
+#pragma warning disable AA0074
         Text001: Label 'Relocating attachments @1@@@@@@@@@@@@@';
+#pragma warning restore AA0074
         NoOfRecords: Integer;
         LineCount: Integer;
 }

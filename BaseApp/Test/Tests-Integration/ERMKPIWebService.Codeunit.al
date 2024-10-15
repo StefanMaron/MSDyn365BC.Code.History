@@ -44,13 +44,11 @@ codeunit 134401 "ERM KPI Web Service"
     begin
         InitSetupData();
 
-        with GLBudgetEntry do begin
-            SetCurrentKey("Last Date Modified", "Budget Name");
-            SetRange("Budget Name", GetBudgetName());
-            FindLast();
-            Assert.AreEqual(
-              "Last Date Modified", AccSchedKPIWebSrvSetup.GetLastBudgetChangedDate(), 'Wrong Last Date Modified for existing budget.');
-        end;
+        GLBudgetEntry.SetCurrentKey("Last Date Modified", "Budget Name");
+        GLBudgetEntry.SetRange("Budget Name", GetBudgetName());
+        GLBudgetEntry.FindLast();
+        Assert.AreEqual(
+          GLBudgetEntry."Last Date Modified", AccSchedKPIWebSrvSetup.GetLastBudgetChangedDate(), 'Wrong Last Date Modified for existing budget.');
     end;
 
     [Test]
@@ -63,72 +61,70 @@ codeunit 134401 "ERM KPI Web Service"
         StartDate: Date;
         EndDate: Date;
     begin
-        with AccSchedKPIWebSrvSetup do begin
-            if Get() then
-                Delete(true);
-            InitSetupData();
-            Get();
+        if AccSchedKPIWebSrvSetup.Get() then
+            AccSchedKPIWebSrvSetup.Delete(true);
+        InitSetupData();
+        AccSchedKPIWebSrvSetup.Get();
 
-            Period := Period::"Fiscal Year - Last Locked Period";
-            "View By" := "View By"::Day;
-            GetPeriodLength(NoOfLines, StartDate, EndDate);
-            Assert.AreNearlyEqual(365, NoOfLines, 1, 'Wrong number of lines returned');
-            AccountingPeriod.Get(StartDate);
-            AccountingPeriod.TestField("New Fiscal Year");
+        AccSchedKPIWebSrvSetup.Period := AccSchedKPIWebSrvSetup.Period::"Fiscal Year - Last Locked Period";
+        AccSchedKPIWebSrvSetup."View By" := AccSchedKPIWebSrvSetup."View By"::Day;
+        AccSchedKPIWebSrvSetup.GetPeriodLength(NoOfLines, StartDate, EndDate);
+        Assert.AreNearlyEqual(365, NoOfLines, 1, 'Wrong number of lines returned');
+        AccountingPeriod.Get(StartDate);
+        AccountingPeriod.TestField("New Fiscal Year");
 
-            Period := Period::"Current Fiscal Year";
-            "View By" := "View By"::Day;
-            GetPeriodLength(NoOfLines, StartDate, EndDate);
-            AccountingPeriod.Get(StartDate);
-            AccountingPeriod.TestField("New Fiscal Year");
-            Assert.AreNearlyEqual(365, NoOfLines, 1, 'Wrong number of lines returned - curr. fiscal year.');
+        AccSchedKPIWebSrvSetup.Period := AccSchedKPIWebSrvSetup.Period::"Current Fiscal Year";
+        AccSchedKPIWebSrvSetup."View By" := AccSchedKPIWebSrvSetup."View By"::Day;
+        AccSchedKPIWebSrvSetup.GetPeriodLength(NoOfLines, StartDate, EndDate);
+        AccountingPeriod.Get(StartDate);
+        AccountingPeriod.TestField("New Fiscal Year");
+        Assert.AreNearlyEqual(365, NoOfLines, 1, 'Wrong number of lines returned - curr. fiscal year.');
 
-            Period := Period::"Current Period";
-            GetPeriodLength(NoOfLines, StartDate, EndDate);
-            AccountingPeriod.Get(StartDate);
+        AccSchedKPIWebSrvSetup.Period := AccSchedKPIWebSrvSetup.Period::"Current Period";
+        AccSchedKPIWebSrvSetup.GetPeriodLength(NoOfLines, StartDate, EndDate);
+        AccountingPeriod.Get(StartDate);
 
-            Period := Period::"Last Locked Period";
-            GetPeriodLength(NoOfLines, StartDate, EndDate);
-            AccountingPeriod.Get(StartDate);
+        AccSchedKPIWebSrvSetup.Period := AccSchedKPIWebSrvSetup.Period::"Last Locked Period";
+        AccSchedKPIWebSrvSetup.GetPeriodLength(NoOfLines, StartDate, EndDate);
+        AccountingPeriod.Get(StartDate);
 
-            Period := Period::"Current Calendar Year";
-            GetPeriodLength(NoOfLines, StartDate, EndDate);
-            Assert.AreEqual(1, Date2DMY(StartDate, 1), 'Wrong day of startdate for current calendar year.');
-            Assert.AreEqual(1, Date2DMY(StartDate, 2), 'Wrong month of startdate for current calendar year.');
-            Assert.AreEqual(31, Date2DMY(EndDate, 1), 'Wrong day of enddate for current calendar year.');
-            Assert.AreEqual(12, Date2DMY(EndDate, 2), 'Wrong month of enddate for current calendar year.');
-            Assert.AreNearlyEqual(365, NoOfLines, 1, 'Wrong number of lines returned for current calendar year.');
-            "View By" := "View By"::Year;
-            GetPeriodLength(NoOfLines, StartDate, EndDate);
-            Assert.AreEqual(1, NoOfLines, 'Wrong number of lines returned for current calendar year / year.');
-            "View By" := "View By"::Quarter;
-            GetPeriodLength(NoOfLines, StartDate, EndDate);
-            Assert.AreEqual(4, NoOfLines, 'Wrong number of lines returned for current calendar year / quarter.');
-            "View By" := "View By"::Month;
-            GetPeriodLength(NoOfLines, StartDate, EndDate);
-            Assert.AreEqual(12, NoOfLines, 'Wrong number of lines returned for current calendar year / month.');
-            "View By" := "View By"::Week;
-            GetPeriodLength(NoOfLines, StartDate, EndDate);
-            Assert.AreNearlyEqual(52, NoOfLines, 2, 'Wrong number of lines returned for current calendar year / week.');
+        AccSchedKPIWebSrvSetup.Period := AccSchedKPIWebSrvSetup.Period::"Current Calendar Year";
+        AccSchedKPIWebSrvSetup.GetPeriodLength(NoOfLines, StartDate, EndDate);
+        Assert.AreEqual(1, Date2DMY(StartDate, 1), 'Wrong day of startdate for current calendar year.');
+        Assert.AreEqual(1, Date2DMY(StartDate, 2), 'Wrong month of startdate for current calendar year.');
+        Assert.AreEqual(31, Date2DMY(EndDate, 1), 'Wrong day of enddate for current calendar year.');
+        Assert.AreEqual(12, Date2DMY(EndDate, 2), 'Wrong month of enddate for current calendar year.');
+        Assert.AreNearlyEqual(365, NoOfLines, 1, 'Wrong number of lines returned for current calendar year.');
+        AccSchedKPIWebSrvSetup."View By" := AccSchedKPIWebSrvSetup."View By"::Year;
+        AccSchedKPIWebSrvSetup.GetPeriodLength(NoOfLines, StartDate, EndDate);
+        Assert.AreEqual(1, NoOfLines, 'Wrong number of lines returned for current calendar year / year.');
+        AccSchedKPIWebSrvSetup."View By" := AccSchedKPIWebSrvSetup."View By"::Quarter;
+        AccSchedKPIWebSrvSetup.GetPeriodLength(NoOfLines, StartDate, EndDate);
+        Assert.AreEqual(4, NoOfLines, 'Wrong number of lines returned for current calendar year / quarter.');
+        AccSchedKPIWebSrvSetup."View By" := AccSchedKPIWebSrvSetup."View By"::Month;
+        AccSchedKPIWebSrvSetup.GetPeriodLength(NoOfLines, StartDate, EndDate);
+        Assert.AreEqual(12, NoOfLines, 'Wrong number of lines returned for current calendar year / month.');
+        AccSchedKPIWebSrvSetup."View By" := AccSchedKPIWebSrvSetup."View By"::Week;
+        AccSchedKPIWebSrvSetup.GetPeriodLength(NoOfLines, StartDate, EndDate);
+        Assert.AreNearlyEqual(52, NoOfLines, 2, 'Wrong number of lines returned for current calendar year / week.');
 
-            "View By" := "View By"::Day;
-            Period := Period::"Current Calendar Quarter";
-            GetPeriodLength(NoOfLines, StartDate, EndDate);
-            Assert.AreEqual(1, Date2DMY(StartDate, 1), 'Wrong day of startdate for current calendar quarter.');
-            Assert.AreEqual(CalcDate('<-CQ>', WorkDate()), StartDate, 'Wrong startdate for current calendar quarter.');
-            Assert.AreEqual(CalcDate('<CQ>', WorkDate()), EndDate, 'Wrong enddate for current calendar quarter.');
+        AccSchedKPIWebSrvSetup."View By" := AccSchedKPIWebSrvSetup."View By"::Day;
+        AccSchedKPIWebSrvSetup.Period := AccSchedKPIWebSrvSetup.Period::"Current Calendar Quarter";
+        AccSchedKPIWebSrvSetup.GetPeriodLength(NoOfLines, StartDate, EndDate);
+        Assert.AreEqual(1, Date2DMY(StartDate, 1), 'Wrong day of startdate for current calendar quarter.');
+        Assert.AreEqual(CalcDate('<-CQ>', WorkDate()), StartDate, 'Wrong startdate for current calendar quarter.');
+        Assert.AreEqual(CalcDate('<CQ>', WorkDate()), EndDate, 'Wrong enddate for current calendar quarter.');
 
-            Period := Period::"Current Month";
-            GetPeriodLength(NoOfLines, StartDate, EndDate);
-            Assert.AreEqual(1, Date2DMY(StartDate, 1), 'Wrong day of startdate for current month.');
-            Assert.AreEqual(CalcDate('<-CM>', WorkDate()), StartDate, 'Wrong startdate for current month.');
-            Assert.AreEqual(CalcDate('<CM>', StartDate), EndDate, 'Wrong enddate for current month.');
+        AccSchedKPIWebSrvSetup.Period := AccSchedKPIWebSrvSetup.Period::"Current Month";
+        AccSchedKPIWebSrvSetup.GetPeriodLength(NoOfLines, StartDate, EndDate);
+        Assert.AreEqual(1, Date2DMY(StartDate, 1), 'Wrong day of startdate for current month.');
+        Assert.AreEqual(CalcDate('<-CM>', WorkDate()), StartDate, 'Wrong startdate for current month.');
+        Assert.AreEqual(CalcDate('<CM>', StartDate), EndDate, 'Wrong enddate for current month.');
 
-            Period := Period::Today;
-            GetPeriodLength(NoOfLines, StartDate, EndDate);
-            Assert.AreEqual(WorkDate(), StartDate, 'Wrong day of startdate for today.');
-            Assert.AreEqual(WorkDate(), EndDate, 'Wrong day of startdate for today.');
-        end;
+        AccSchedKPIWebSrvSetup.Period := AccSchedKPIWebSrvSetup.Period::Today;
+        AccSchedKPIWebSrvSetup.GetPeriodLength(NoOfLines, StartDate, EndDate);
+        Assert.AreEqual(WorkDate(), StartDate, 'Wrong day of startdate for today.');
+        Assert.AreEqual(WorkDate(), EndDate, 'Wrong day of startdate for today.');
     end;
 
     [Test]
@@ -143,22 +139,20 @@ codeunit 134401 "ERM KPI Web Service"
     begin
         InitSetupData();
 
-        with AccSchedKPIWebSrvSetup do begin
-            Get();
-            "View By" := "View By"::Day;
-            GetPeriodLength(NoOfLines, StartDate, EndDate);
-            Date := CalcNextStartDate(StartDate, 1);
-            Assert.AreEqual(StartDate + 1, Date, 'Wrong calculation in CalcNextStartDate, 1 day.');
-            Date := CalcNextStartDate(StartDate, NoOfLines);
-            Assert.AreEqual(EndDate + 1, Date, 'Wrong calculation in CalcNextStartDate, 365 days.');
+        AccSchedKPIWebSrvSetup.Get();
+        AccSchedKPIWebSrvSetup."View By" := AccSchedKPIWebSrvSetup."View By"::Day;
+        AccSchedKPIWebSrvSetup.GetPeriodLength(NoOfLines, StartDate, EndDate);
+        Date := AccSchedKPIWebSrvSetup.CalcNextStartDate(StartDate, 1);
+        Assert.AreEqual(StartDate + 1, Date, 'Wrong calculation in CalcNextStartDate, 1 day.');
+        Date := AccSchedKPIWebSrvSetup.CalcNextStartDate(StartDate, NoOfLines);
+        Assert.AreEqual(EndDate + 1, Date, 'Wrong calculation in CalcNextStartDate, 365 days.');
 
-            "View By" := "View By"::Month;
-            GetPeriodLength(NoOfLines, StartDate, EndDate);
-            Date := CalcNextStartDate(StartDate, 1);
-            Assert.AreEqual(CalcDate('<1M>', StartDate), Date, 'Wrong calculation in CalcNextStartDate, 1 month.');
-            Date := CalcNextStartDate(StartDate, NoOfLines);
-            Assert.AreEqual(EndDate + 1, Date, 'Wrong calculation in CalcNextStartDate, 12 months.');
-        end;
+        AccSchedKPIWebSrvSetup."View By" := AccSchedKPIWebSrvSetup."View By"::Month;
+        AccSchedKPIWebSrvSetup.GetPeriodLength(NoOfLines, StartDate, EndDate);
+        Date := AccSchedKPIWebSrvSetup.CalcNextStartDate(StartDate, 1);
+        Assert.AreEqual(CalcDate('<1M>', StartDate), Date, 'Wrong calculation in CalcNextStartDate, 1 month.');
+        Date := AccSchedKPIWebSrvSetup.CalcNextStartDate(StartDate, NoOfLines);
+        Assert.AreEqual(EndDate + 1, Date, 'Wrong calculation in CalcNextStartDate, 12 months.');
     end;
 
     [Test]
@@ -565,15 +559,13 @@ codeunit 134401 "ERM KPI Web Service"
         AccSchedKPIBuffer: Record "Acc. Sched. KPI Buffer";
         GLEntry: Record "G/L Entry";
     begin
-        with AccSchedKPIWebSrvSetup do begin
-            if Get() then
-                Delete();
-            Init();
-            "G/L Budget Name" := GetBudgetName();
-            "Web Service Name" := 'kpi';
-            "View By" := "View By"::Day;
-            Insert();
-        end;
+        if AccSchedKPIWebSrvSetup.Get() then
+            AccSchedKPIWebSrvSetup.Delete();
+        AccSchedKPIWebSrvSetup.Init();
+        AccSchedKPIWebSrvSetup."G/L Budget Name" := GetBudgetName();
+        AccSchedKPIWebSrvSetup."Web Service Name" := 'kpi';
+        AccSchedKPIWebSrvSetup."View By" := AccSchedKPIWebSrvSetup."View By"::Day;
+        AccSchedKPIWebSrvSetup.Insert();
 
         AccSchedKPIBuffer.DeleteAll();
 
@@ -601,42 +593,39 @@ codeunit 134401 "ERM KPI Web Service"
     var
         AccScheduleName: Record "Acc. Schedule Name";
     begin
-        with AccScheduleName do
-            if not Get(Name2) then begin
-                Init();
-                Name := Name2;
-                Description := Format(Name2[1]) + CopyStr(LowerCase(Name2), 2);
-                Insert();
-            end;
+        if not AccScheduleName.Get(Name2) then begin
+            AccScheduleName.Init();
+            AccScheduleName.Name := Name2;
+            AccScheduleName.Description := Format(Name2[1]) + CopyStr(LowerCase(Name2), 2);
+            AccScheduleName.Insert();
+        end;
     end;
 
     local procedure InsertAccSchedLine(Name2: Code[10]; LineNo: Integer; RowNo: Code[10]; Description2: Text[30]; Totaling2: Code[30])
     var
         AccScheduleLine: Record "Acc. Schedule Line";
     begin
-        with AccScheduleLine do
-            if not Get(Name2, LineNo) then begin
-                Init();
-                "Schedule Name" := Name2;
-                "Line No." := LineNo;
-                "Row No." := RowNo;
-                Description := Description2;
-                Totaling := Totaling2;
-                "Totaling Type" := "Totaling Type"::"Posting Accounts";
-                Insert();
-            end;
+        if not AccScheduleLine.Get(Name2, LineNo) then begin
+            AccScheduleLine.Init();
+            AccScheduleLine."Schedule Name" := Name2;
+            AccScheduleLine."Line No." := LineNo;
+            AccScheduleLine."Row No." := RowNo;
+            AccScheduleLine.Description := Description2;
+            AccScheduleLine.Totaling := Totaling2;
+            AccScheduleLine."Totaling Type" := AccScheduleLine."Totaling Type"::"Posting Accounts";
+            AccScheduleLine.Insert();
+        end;
     end;
 
     local procedure InsertAccSchedWSLine(Name2: Code[10])
     var
         AccSchedKPIWebSrvLine: Record "Acc. Sched. KPI Web Srv. Line";
     begin
-        with AccSchedKPIWebSrvLine do
-            if not Get(Name2) then begin
-                Init();
-                "Acc. Schedule Name" := Name2;
-                Insert();
-            end;
+        if not AccSchedKPIWebSrvLine.Get(Name2) then begin
+            AccSchedKPIWebSrvLine.Init();
+            AccSchedKPIWebSrvLine."Acc. Schedule Name" := Name2;
+            AccSchedKPIWebSrvLine.Insert();
+        end;
     end;
 
     local procedure GetBudgetName(): Code[10]
@@ -661,12 +650,10 @@ codeunit 134401 "ERM KPI Web Service"
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            SetRange("G/L Account No.", AccNo);
-            SetRange("Posting Date", FromDate, ToDate);
-            CalcSums(Amount);
-            exit(Amount);
-        end;
+        GLEntry.SetRange("G/L Account No.", AccNo);
+        GLEntry.SetRange("Posting Date", FromDate, ToDate);
+        GLEntry.CalcSums(Amount);
+        exit(GLEntry.Amount);
     end;
 
     local procedure GetNetChangeBudget(AccNo: Code[20]; Date: Date): Decimal
@@ -683,12 +670,10 @@ codeunit 134401 "ERM KPI Web Service"
     var
         GLBudgetEntry: Record "G/L Budget Entry";
     begin
-        with GLBudgetEntry do begin
-            SetRange("G/L Account No.", AccNo);
-            SetRange(Date, FromDate, ToDate);
-            CalcSums(Amount);
-            exit(Amount);
-        end;
+        GLBudgetEntry.SetRange("G/L Account No.", AccNo);
+        GLBudgetEntry.SetRange(Date, FromDate, ToDate);
+        GLBudgetEntry.CalcSums(Amount);
+        exit(GLBudgetEntry.Amount);
     end;
 
     local procedure CopyBudgetEntries(var FromGLBudgetEntry: Record "G/L Budget Entry"; var ToGLBudgetEntry: Record "G/L Budget Entry")

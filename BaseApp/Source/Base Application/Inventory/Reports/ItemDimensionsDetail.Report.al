@@ -396,6 +396,8 @@ report 7150 "Item Dimensions - Detail"
 
     requestpage
     {
+        AboutTitle = 'About Item Dimensions - Detail';
+        AboutText = 'Build a grouping of dimensions for each permutation of dimension values, defined through a hierarchy of dimension levels from an analysis view, and list all GL entries for each group.';
         SaveValues = true;
 
         layout
@@ -592,12 +594,14 @@ report 7150 "Item Dimensions - Detail"
         QtyTotal: array[3] of Decimal;
         DimFilterText: Text[250];
 
+#pragma warning disable AA0074
         Text000: Label 'Enter an analysis view code.';
         Text001: Label 'Enter a date filter.';
         Text002: Label 'Include Dimensions';
         Text003: Label '(no dimension value)';
         Text004: Label 'Not updated';
         Text014: Label '(no location code)';
+#pragma warning restore AA0074
         PeriodCaptionLbl: Label 'Period';
         AnalysisViewCaptionLbl: Label 'Analysis View';
         LastDateUpdatedCaptionLbl: Label 'Last Date Updated';

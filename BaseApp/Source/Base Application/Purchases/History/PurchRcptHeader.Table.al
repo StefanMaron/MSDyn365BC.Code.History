@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.History;
+namespace Microsoft.Purchases.History;
 
 using Microsoft.Bank.BankAccount;
 using Microsoft.Bank.Payment;
@@ -462,6 +462,11 @@ table 120 "Purch. Rcpt. Header"
         {
             Caption = 'Quote No.';
             Editable = false;
+        }
+        field(210; "Ship-to Phone No."; Text[30])
+        {
+            Caption = 'Ship-to Phone No.';
+            ExtendedDatatype = PhoneNo;
         }
         field(480; "Dimension Set ID"; Integer)
         {

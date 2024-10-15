@@ -462,7 +462,15 @@ report 31018 "Sales - Invoice with Adv. CZZ"
                         }
 
                         trigger OnAfterGetRecord()
+                        var
+                            SalesAdvLetterEntryCZZVATUsage: Record "Sales Adv. Letter Entry CZZ";
                         begin
+                            SalesAdvLetterEntryCZZVATUsage.SetRange("Entry Type", SalesAdvLetterEntryCZZVATUsage."Entry Type"::"VAT Usage");
+                            SalesAdvLetterEntryCZZVATUsage.SetRange("Related Entry", SalesAdvanceUsage."Entry No.");
+                            SalesAdvLetterEntryCZZVATUsage.Setrange("Auxiliary Entry", false);
+                            if SalesAdvLetterEntryCZZVATUsage.IsEmpty() then
+                                CurrReport.Break();
+
                             SetRange("Sales Adv. Letter No.", "Sales Adv. Letter No.");
                             SetRange("Document No.", "Document No.");
                             FindLast();
@@ -649,12 +657,6 @@ report 31018 "Sales - Invoice with Adv. CZZ"
                           4, "No.", 0, 0, DATABASE::Customer, "Bill-to Customer No.", "Salesperson Code",
                           "Campaign No.", "Posting Description", '');
 
-#if not CLEAN22
-#pragma warning disable AL0432
-                if not ReplaceVATDateMgtCZL.IsEnabled() then
-                    "VAT Reporting Date" := "VAT Date CZL";
-#pragma warning restore AL0432
-#endif
                 Clear(QRPaymentCode);
                 if "Sales & Receivables Setup"."Print QR Payment CZL" and PaymentMethod."Print QR Payment CZL" then begin
                     CalcFields("Remaining Amount");
@@ -750,11 +752,6 @@ report 31018 "Sales - Invoice with Adv. CZZ"
         FormatDocument: Codeunit "Format Document";
         FormatDocumentMgtCZL: Codeunit "Format Document Mgt. CZL";
         SegManagement: Codeunit SegManagement;
-#if not CLEAN22
-#pragma warning disable AL0432
-        ReplaceVATDateMgtCZL: Codeunit "Replace VAT Date Mgt. CZL";
-#pragma warning restore AL0432
-#endif
         LogInteractionEnable: Boolean;
         NoOfLoops: Integer;
         ExchRateLbl: Label 'Exchange Rate %1 %2 / %3 %4', Comment = '%1 = Calculated Exch. Rate, %2 = General Ledger Setup LCY Code, %3 = Exch. Rate Exchange Rate Amount, %4 = Currency Code';

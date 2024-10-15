@@ -475,10 +475,14 @@ report 1003 "Post Invt. Cost to G/L - Test"
         ErrorCounter: Integer;
         IsJournalTemplNameVisible: Boolean;
         SetupBlockedErr: Label 'Setup is blocked in %1 for %2 %3 and %4 %5.', Comment = '%1 - General/Inventory Posting Setup, %2 %3 %4 %5 - posting groups.';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text011: Label '%1 is missing for %2 %3 and %4 %5.';
         Text012: Label '%1 is missing in %2, %3 %4.';
         Text013: Label '%1 must be false, if %2 is not Direct Cost or Revaluation.';
         Text014: Label '%1 and %2 must be zero, if %3 is not Direct Cost or Revaluation.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Post_Inventory_Cost_to_G_L___TestCaptionLbl: Label 'Post Inventory Cost to G/L - Test';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         DocNoCaptionLbl: Label 'Document No.';

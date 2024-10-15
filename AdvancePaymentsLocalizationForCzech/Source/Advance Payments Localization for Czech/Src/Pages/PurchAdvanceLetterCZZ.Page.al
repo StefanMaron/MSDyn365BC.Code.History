@@ -214,10 +214,28 @@ page 31181 "Purch. Advance Letter CZZ"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies if post VAT usage automatically.';
                 }
+#if not CLEAN25
                 field("Amount on Iss. Payment Order"; "Amount on Iss. Payment Order")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies amount on issued payment order.';
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'This field is obsolete and will be removed in a future release. The CalcSuggestedAmountToApply function should be used instead.';
+                    ObsoleteTag = '25.0';
+                }
+#endif
+                field(SuggestedAmountToApplyCZL; Rec.CalcSuggestedAmountToApply())
+                {
+                    Caption = 'Suggested Amount to Apply (LCY)';
+                    ApplicationArea = Basic, Suite;
+                    Editable = false;
+                    ToolTip = 'Specifies the total Amount (LCY) suggested to apply.';
+
+                    trigger OnDrillDown()
+                    begin
+                        Rec.DrillDownSuggestedAmountToApply();
+                    end;
                 }
             }
             part(AdvLetterLines; "Purch. Advance Letter Line CZZ")
@@ -378,16 +396,27 @@ page 31181 "Purch. Advance Letter CZZ"
                 ApplicationArea = Basic, Suite;
                 SubPageLink = "No." = field("Pay-to Vendor No.");
             }
+#if not CLEAN25
             part("Attached Documents"; "Document Attachment Factbox")
             {
+                ObsoleteTag = '25.0';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'The "Document Attachment FactBox" has been replaced by "Doc. Attachment List Factbox", which supports multiple files upload.';
                 ApplicationArea = Basic, Suite;
                 Caption = 'Attachments';
-                SubPageLink = "Table ID" = const(31008), "No." = field("No.");
+                SubPageLink = "Table ID" = const(Database::"Purch. Adv. Letter Header CZZ"), "No." = field("No.");
+            }
+#endif
+            part("Attached Documents List"; "Doc. Attachment List Factbox")
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Documents';
+                SubPageLink = "Table ID" = const(Database::"Purch. Adv. Letter Header CZZ"), "No." = field("No.");
             }
             part(PendingApprovalFactBox; "Pending Approval FactBox")
             {
                 ApplicationArea = All;
-                SubPageLink = "Table ID" = const(31008), "Document No." = field("No.");
+                SubPageLink = "Table ID" = const(Database::"Purch. Adv. Letter Header CZZ"), "Document No." = field("No.");
                 Visible = OpenApprovalEntriesExistForCurrUser;
             }
             part(ApprovalFactBox; "Approval FactBox")
@@ -803,80 +832,6 @@ page 31181 "Purch. Advance Letter CZZ"
                 {
                 }
             }
-#if not CLEAN22
-#pragma warning disable AS0072
-            group(Category_Report)
-            {
-                Caption = 'Report';
-                ObsoleteTag = '22.0';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'This group has been removed.';
-                Visible = false;
-
-                actionref(Print_Promoted; Print)
-                {
-                    ObsoleteTag = '22.0';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This group has been removed.';
-                }
-                actionref(PrintToAttachment_Promoted; PrintToAttachment)
-                {
-                    ObsoleteTag = '22.0';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This group has been removed.';
-                }
-            }
-
-            group(Category_History)
-            {
-                Caption = 'History';
-                ObsoleteTag = '22.0';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'This group has been removed.';
-                Visible = false;
-
-                actionref(Entries_Promoted; Entries)
-                {
-                    ObsoleteTag = '22.0';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This group has been removed.';
-                }
-            }
-            group(Category_Approve)
-            {
-                Caption = 'Approve';
-                ObsoleteTag = '22.0';
-                ObsoleteState = Pending;
-                ObsoleteReason = 'This group has been removed.';
-                Visible = false;
-
-                actionref(Approve_Promoted; Approve)
-                {
-                    ObsoleteTag = '22.0';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This group has been removed.';
-                }
-                actionref(Reject_Promoted; Reject)
-                {
-                    ObsoleteTag = '22.0';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This group has been removed.';
-                }
-                actionref(Delegate_Promoted; Delegate)
-                {
-                    ObsoleteTag = '22.0';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This group has been removed.';
-                }
-                actionref(Comment_Promoted; Comment)
-                {
-                    ObsoleteTag = '22.0';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This group has been removed.';
-                }
-            }
-#pragma warning restore AS0072
-#endif
             group(Category_Category7)
             {
                 Caption = 'Purchase Advance Letter';

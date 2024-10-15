@@ -3403,9 +3403,6 @@ codeunit 134154 "ERM Intercompany III"
           AccountType, AccountNo, Amount);
         GenJournalLine.Validate("Bal. Account Type", BalAccountType);
         GenJournalLine.Validate("Bal. Account No.", BalAccountNo);
-#if not CLEAN22
-        GenJournalLine.Validate("IC Partner G/L Acc. No.", ICPartnerGLAccNo);
-#endif
         GenJournalLine.Validate("IC Account Type", "IC Journal Account Type"::"G/L Account");
         GenJournalLine.Validate("IC Account No.", ICPartnerGLAccNo);
 
@@ -3897,67 +3894,56 @@ codeunit 134154 "ERM Intercompany III"
 
     local procedure MockICOutboxTrans(var ICOutboxTransaction: Record "IC Outbox Transaction")
     begin
-        with ICOutboxTransaction do begin
-            Init();
-            "Transaction No." := LibraryUtility.GetNewRecNo(ICOutboxTransaction, FieldNo("Transaction No."));
-            "IC Partner Code" := CreateICPartnerCode();
-            "Transaction Source" := "Transaction Source"::"Created by Current Company";
-            "Document Type" := "Document Type"::Invoice;
-            "Source Type" := "Source Type"::"Journal Line";
-            "Document No." := LibraryUtility.GenerateGUID();
-            "Posting Date" := LibraryRandom.RandDate(10);
-            "Document Date" := LibraryRandom.RandDate(10);
-            "IC Account Type" := "IC Journal Account Type"::"G/L Account";
-            "IC Account No." := LibraryUtility.GenerateGUID();
-#if not CLEAN22
-            "IC Partner G/L Acc. No." := "IC Account No.";
-#endif
-            "Source Line No." := LibraryRandom.RandInt(100);
-            Insert();
-        end;
+        ICOutboxTransaction.Init();
+        ICOutboxTransaction."Transaction No." := LibraryUtility.GetNewRecNo(ICOutboxTransaction, ICOutboxTransaction.FieldNo("Transaction No."));
+        ICOutboxTransaction."IC Partner Code" := CreateICPartnerCode();
+        ICOutboxTransaction."Transaction Source" := ICOutboxTransaction."Transaction Source"::"Created by Current Company";
+        ICOutboxTransaction."Document Type" := ICOutboxTransaction."Document Type"::Invoice;
+        ICOutboxTransaction."Source Type" := ICOutboxTransaction."Source Type"::"Journal Line";
+        ICOutboxTransaction."Document No." := LibraryUtility.GenerateGUID();
+        ICOutboxTransaction."Posting Date" := LibraryRandom.RandDate(10);
+        ICOutboxTransaction."Document Date" := LibraryRandom.RandDate(10);
+        ICOutboxTransaction."IC Account Type" := "IC Journal Account Type"::"G/L Account";
+        ICOutboxTransaction."IC Account No." := LibraryUtility.GenerateGUID();
+        ICOutboxTransaction."Source Line No." := LibraryRandom.RandInt(100);
+        ICOutboxTransaction.Insert();
     end;
 
     local procedure MockICOutboxTransaction(var ICOutboxTransaction: Record "IC Outbox Transaction"; ICPartnerCode: Code[20]; SourceType: Option; DocumentType: Enum "IC Transaction Document Type"; DocumentNo: Code[20])
     begin
-        with ICOutboxTransaction do begin
-            Init();
-            "IC Partner Code" := ICPartnerCode;
-            "Source Type" := SourceType;
-            "Document Type" := DocumentType;
-            "Document No." := DocumentNo;
-            "Posting Date" := WorkDate();
-            "Transaction Source" := "Transaction Source"::"Created by Current Company";
-            "Document Date" := WorkDate();
-            "Transaction No." := LibraryUtility.GetNewRecNo(ICOutboxTransaction, FieldNo("Transaction No."));
-            Insert();
-        end;
+        ICOutboxTransaction.Init();
+        ICOutboxTransaction."IC Partner Code" := ICPartnerCode;
+        ICOutboxTransaction."Source Type" := SourceType;
+        ICOutboxTransaction."Document Type" := DocumentType;
+        ICOutboxTransaction."Document No." := DocumentNo;
+        ICOutboxTransaction."Posting Date" := WorkDate();
+        ICOutboxTransaction."Transaction Source" := ICOutboxTransaction."Transaction Source"::"Created by Current Company";
+        ICOutboxTransaction."Document Date" := WorkDate();
+        ICOutboxTransaction."Transaction No." := LibraryUtility.GetNewRecNo(ICOutboxTransaction, ICOutboxTransaction.FieldNo("Transaction No."));
+        ICOutboxTransaction.Insert();
     end;
 
     local procedure MockICOutboxSalesHeader(var ICOutboxSalesHeader: Record "IC Outbox Sales Header"; ICOutboxTransaction: Record "IC Outbox Transaction")
     begin
-        with ICOutboxSalesHeader do begin
-            Init();
-            "IC Transaction No." := ICOutboxTransaction."Transaction No.";
-            "IC Partner Code" := ICOutboxTransaction."IC Partner Code";
-            "Transaction Source" := ICOutboxTransaction."Transaction Source";
-            "No." := LibraryUtility.GenerateGUID();
-            "Order No." := LibraryUtility.GenerateGUID();
-            Insert();
-        end;
+        ICOutboxSalesHeader.Init();
+        ICOutboxSalesHeader."IC Transaction No." := ICOutboxTransaction."Transaction No.";
+        ICOutboxSalesHeader."IC Partner Code" := ICOutboxTransaction."IC Partner Code";
+        ICOutboxSalesHeader."Transaction Source" := ICOutboxTransaction."Transaction Source";
+        ICOutboxSalesHeader."No." := LibraryUtility.GenerateGUID();
+        ICOutboxSalesHeader."Order No." := LibraryUtility.GenerateGUID();
+        ICOutboxSalesHeader.Insert();
     end;
 
     local procedure MockICOutboxSalesLine(var ICOutboxSalesLine: Record "IC Outbox Sales Line"; ICOutboxSalesHeader: Record "IC Outbox Sales Header")
     begin
-        with ICOutboxSalesLine do begin
-            Init();
-            "Document No." := ICOutboxSalesHeader."No.";
-            "IC Transaction No." := ICOutboxSalesHeader."IC Transaction No.";
-            "IC Partner Code" := ICOutboxSalesHeader."IC Partner Code";
-            "Transaction Source" := ICOutboxSalesHeader."Transaction Source";
-            "Shipment Line No." := LibraryRandom.RandInt(1000);
-            "Shipment No." := LibraryUtility.GenerateGUID();
-            Insert();
-        end;
+        ICOutboxSalesLine.Init();
+        ICOutboxSalesLine."Document No." := ICOutboxSalesHeader."No.";
+        ICOutboxSalesLine."IC Transaction No." := ICOutboxSalesHeader."IC Transaction No.";
+        ICOutboxSalesLine."IC Partner Code" := ICOutboxSalesHeader."IC Partner Code";
+        ICOutboxSalesLine."Transaction Source" := ICOutboxSalesHeader."Transaction Source";
+        ICOutboxSalesLine."Shipment Line No." := LibraryRandom.RandInt(1000);
+        ICOutboxSalesLine."Shipment No." := LibraryUtility.GenerateGUID();
+        ICOutboxSalesLine.Insert();
     end;
 
     local procedure MockICOutboxPurchaseDocument(var ICOutboxPurchaseHeader: Record "IC Outbox Purchase Header"; ICOutboxTransaction: Record "IC Outbox Transaction"; VendorNo: Code[20]; QuantityValue: Decimal; DirectUnitCost: Decimal)
@@ -3974,48 +3960,42 @@ codeunit 134154 "ERM Intercompany III"
             else
                 ICPurchaseDocumentType := ICOutboxTransaction."Document Type";
         end;
-        with ICOutboxPurchaseHeader do begin
-            Init();
-            "Document Type" := ICPurchaseDocumentType;
-            "Buy-from Vendor No." := VendorNo;
-            "No." := ICOutboxTransaction."Document No.";
-            "Pay-to Vendor No." := VendorNo;
-            "Posting Date" := WorkDate();
-            "Document Date" := WorkDate();
-            "IC Partner Code" := ICOutboxTransaction."IC Partner Code";
-            "IC Transaction No." := ICOutboxTransaction."Transaction No.";
-            "Transaction Source" := ICOutboxTransaction."Transaction Source";
-            Insert();
-        end;
+        ICOutboxPurchaseHeader.Init();
+        ICOutboxPurchaseHeader."Document Type" := ICPurchaseDocumentType;
+        ICOutboxPurchaseHeader."Buy-from Vendor No." := VendorNo;
+        ICOutboxPurchaseHeader."No." := ICOutboxTransaction."Document No.";
+        ICOutboxPurchaseHeader."Pay-to Vendor No." := VendorNo;
+        ICOutboxPurchaseHeader."Posting Date" := WorkDate();
+        ICOutboxPurchaseHeader."Document Date" := WorkDate();
+        ICOutboxPurchaseHeader."IC Partner Code" := ICOutboxTransaction."IC Partner Code";
+        ICOutboxPurchaseHeader."IC Transaction No." := ICOutboxTransaction."Transaction No.";
+        ICOutboxPurchaseHeader."Transaction Source" := ICOutboxTransaction."Transaction Source";
+        ICOutboxPurchaseHeader.Insert();
 
-        with ICOutboxPurchaseLine do begin
-            "Document Type" := ICPurchaseDocumentType;
-            "Document No." := ICOutboxTransaction."Document No.";
-            Quantity := QuantityValue;
-            "Direct Unit Cost" := DirectUnitCost;
-            "IC Partner Code" := ICOutboxTransaction."IC Partner Code";
-            "IC Transaction No." := ICOutboxTransaction."Transaction No.";
-            "Transaction Source" := ICOutboxTransaction."Transaction Source";
-            "Line No." := LibraryUtility.GetNewRecNo(ICOutboxPurchaseLine, FieldNo("Line No."));
-            Insert();
-        end;
+        ICOutboxPurchaseLine."Document Type" := ICPurchaseDocumentType;
+        ICOutboxPurchaseLine."Document No." := ICOutboxTransaction."Document No.";
+        ICOutboxPurchaseLine.Quantity := QuantityValue;
+        ICOutboxPurchaseLine."Direct Unit Cost" := DirectUnitCost;
+        ICOutboxPurchaseLine."IC Partner Code" := ICOutboxTransaction."IC Partner Code";
+        ICOutboxPurchaseLine."IC Transaction No." := ICOutboxTransaction."Transaction No.";
+        ICOutboxPurchaseLine."Transaction Source" := ICOutboxTransaction."Transaction Source";
+        ICOutboxPurchaseLine."Line No." := LibraryUtility.GetNewRecNo(ICOutboxPurchaseLine, ICOutboxPurchaseLine.FieldNo("Line No."));
+        ICOutboxPurchaseLine.Insert();
     end;
 
     local procedure MockICInboxTransaction(var ICInboxTransaction: Record "IC Inbox Transaction"; ICPartnerCode: Code[20]; SourceType: Option; DocumentType: Enum "IC Transaction Document Type"; DocumentNo: Code[20])
     begin
-        with ICInboxTransaction do begin
-            Init();
-            "IC Partner Code" := ICPartnerCode;
-            "Source Type" := SourceType;
-            "Document Type" := DocumentType;
-            "Document No." := DocumentNo;
-            "Posting Date" := WorkDate();
-            "Transaction Source" := "Transaction Source"::"Created by Partner";
-            "Document Date" := WorkDate();
-            "Original Document No." := DocumentNo;
-            "Transaction No." := LibraryUtility.GetNewRecNo(ICInboxTransaction, FieldNo("Transaction No."));
-            Insert();
-        end;
+        ICInboxTransaction.Init();
+        ICInboxTransaction."IC Partner Code" := ICPartnerCode;
+        ICInboxTransaction."Source Type" := SourceType;
+        ICInboxTransaction."Document Type" := DocumentType;
+        ICInboxTransaction."Document No." := DocumentNo;
+        ICInboxTransaction."Posting Date" := WorkDate();
+        ICInboxTransaction."Transaction Source" := ICInboxTransaction."Transaction Source"::"Created by Partner";
+        ICInboxTransaction."Document Date" := WorkDate();
+        ICInboxTransaction."Original Document No." := DocumentNo;
+        ICInboxTransaction."Transaction No." := LibraryUtility.GetNewRecNo(ICInboxTransaction, ICInboxTransaction.FieldNo("Transaction No."));
+        ICInboxTransaction.Insert();
     end;
 
     local procedure MockICInboxSalesDocument(var ICInboxSalesHeader: Record "IC Inbox Sales Header"; ICInboxTransaction: Record "IC Inbox Transaction"; CustomerNo: Code[20]; QuantityValue: Decimal; UnitPrice: Decimal)
@@ -4032,31 +4012,27 @@ codeunit 134154 "ERM Intercompany III"
             else
                 ICSalesDocumentType := ICInboxTransaction."Document Type";
         end;
-        with ICInboxSalesHeader do begin
-            Init();
-            "Document Type" := ICSalesDocumentType;
-            "Sell-to Customer No." := CustomerNo;
-            "No." := ICInboxTransaction."Document No.";
-            "Bill-to Customer No." := CustomerNo;
-            "Posting Date" := WorkDate();
-            "Document Date" := WorkDate();
-            "IC Partner Code" := ICInboxTransaction."IC Partner Code";
-            "IC Transaction No." := ICInboxTransaction."Transaction No.";
-            "Transaction Source" := ICInboxTransaction."Transaction Source";
-            Insert();
-        end;
+        ICInboxSalesHeader.Init();
+        ICInboxSalesHeader."Document Type" := ICSalesDocumentType;
+        ICInboxSalesHeader."Sell-to Customer No." := CustomerNo;
+        ICInboxSalesHeader."No." := ICInboxTransaction."Document No.";
+        ICInboxSalesHeader."Bill-to Customer No." := CustomerNo;
+        ICInboxSalesHeader."Posting Date" := WorkDate();
+        ICInboxSalesHeader."Document Date" := WorkDate();
+        ICInboxSalesHeader."IC Partner Code" := ICInboxTransaction."IC Partner Code";
+        ICInboxSalesHeader."IC Transaction No." := ICInboxTransaction."Transaction No.";
+        ICInboxSalesHeader."Transaction Source" := ICInboxTransaction."Transaction Source";
+        ICInboxSalesHeader.Insert();
 
-        with ICInboxSalesLine do begin
-            "Document Type" := ICSalesDocumentType;
-            "Document No." := ICInboxTransaction."Document No.";
-            Quantity := QuantityValue;
-            "Unit Price" := UnitPrice;
-            "IC Partner Code" := ICInboxTransaction."IC Partner Code";
-            "IC Transaction No." := ICInboxTransaction."Transaction No.";
-            "Transaction Source" := ICInboxTransaction."Transaction Source";
-            "Line No." := LibraryUtility.GetNewRecNo(ICInboxSalesLine, FieldNo("Line No."));
-            Insert();
-        end;
+        ICInboxSalesLine."Document Type" := ICSalesDocumentType;
+        ICInboxSalesLine."Document No." := ICInboxTransaction."Document No.";
+        ICInboxSalesLine.Quantity := QuantityValue;
+        ICInboxSalesLine."Unit Price" := UnitPrice;
+        ICInboxSalesLine."IC Partner Code" := ICInboxTransaction."IC Partner Code";
+        ICInboxSalesLine."IC Transaction No." := ICInboxTransaction."Transaction No.";
+        ICInboxSalesLine."Transaction Source" := ICInboxTransaction."Transaction Source";
+        ICInboxSalesLine."Line No." := LibraryUtility.GetNewRecNo(ICInboxSalesLine, ICInboxSalesLine.FieldNo("Line No."));
+        ICInboxSalesLine.Insert();
     end;
 
     local procedure RunCopyICDimensionsFromDimensions()
@@ -4453,16 +4429,14 @@ codeunit 134154 "ERM Intercompany III"
         ItemJournalLine: Record "Item Journal Line";
         ItemJournalTemplate: Record "Item Journal Template";
     begin
-        with LibraryInventory do begin
-            SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
-            SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
-            CreateItemJournalLine(
-              ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.",
-              ItemNo, Quantity);
-            ItemJournalLine.Validate("Location Code", LocationCode);
-            ItemJournalLine.Modify(true);
-            PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
-        end;
+        LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
+        LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type, ItemJournalTemplate.Name);
+        LibraryInventory.CreateItemJournalLine(
+          ItemJournalLine, ItemJournalTemplate.Name, ItemJournalBatch.Name, ItemJournalLine."Entry Type"::"Positive Adjmt.",
+          ItemNo, Quantity);
+        ItemJournalLine.Validate("Location Code", LocationCode);
+        ItemJournalLine.Modify(true);
+        LibraryInventory.PostItemJournalLine(ItemJournalTemplate.Name, ItemJournalBatch.Name);
     end;
 
     local procedure CreateAndRegisterPick(ItemNo: Code[20]; LocationCode: Code[10])

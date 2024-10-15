@@ -114,7 +114,9 @@ report 7300 "Calculate Bin Replenishment"
     var
         WhseWorksheetName: Record "Whse. Worksheet Name";
         Replenishmt: Codeunit Replenishment;
+#pragma warning disable AA0074
         Text000: Label 'There is nothing to replenish.';
+#pragma warning restore AA0074
 
     protected var
         WhseWkshTemplateName: Code[10];
@@ -124,6 +126,7 @@ report 7300 "Calculate Bin Replenishment"
         DoNotFillQtytoHandle: Boolean;
         HideDialog: Boolean;
         LocationCode: Code[10];
+
     procedure InitializeRequest(WhseWkshTemplateName2: Code[10]; WhseWkshName2: Code[10]; LocationCode2: Code[10]; AllowBreakbulk2: Boolean; HideDialog2: Boolean; DoNotFillQtytoHandle2: Boolean)
     begin
         WhseWkshTemplateName := WhseWkshTemplateName2;

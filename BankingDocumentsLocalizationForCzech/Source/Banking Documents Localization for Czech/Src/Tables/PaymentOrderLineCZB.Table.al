@@ -20,7 +20,6 @@ using Microsoft.Purchases.Vendor;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.History;
 using Microsoft.Sales.Receivables;
-using System.Utilities;
 
 table 31257 "Payment Order Line CZB"
 {
@@ -514,11 +513,7 @@ table 31257 "Payment Order Line CZB"
             begin
                 if "Applies-to C/V/E Entry No." <> 0 then
                     if CurrFieldNo = FieldNo("Applies-to C/V/E Entry No.") then
-                        if not PaymentOrderManagementCZB.CheckPaymentOrderLineApply(Rec, false) then begin
-                            if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(LedgerAlreadyAppliedQst, "Applies-to C/V/E Entry No."), false) then
-                                Error('');
-                            "Amount Must Be Checked" := true;
-                        end;
+                        "Amount Must Be Checked" := not PaymentOrderManagementCZB.CheckPaymentOrderLineApply(Rec, false);
 
                 TestStatusOpen();
                 GetPaymentOrder();
@@ -870,11 +865,9 @@ table 31257 "Payment Order Line CZB"
         BankAccount: Record "Bank Account";
         Vendor: Record Vendor;
         PaymentOrderManagementCZB: Codeunit "Payment Order Management CZB";
-        ConfirmManagement: Codeunit "Confirm Management";
         GLSetupRead: Boolean;
         ExistEntryErr: Label 'For the field %1 in table %2 exist more than one value %3.', Comment = '%1 = FieldCaption, %2 = TableCaption, %3 = Applies-to Doc. No.';
         NotExistEntryErr: Label 'For the field %1 in table %2 not exist value %3.', Comment = '%1 = FieldCaption, %2 = TableCaption, %3 = Applies-to Doc. No.';
-        LedgerAlreadyAppliedQst: Label 'Ledger entry %1 is already applied on payment order. Continue?', Comment = '%1 = Applies-to C/V Entry No.';
         StatusCheckSuspended: Boolean;
 
     procedure GetPaymentOrder()
@@ -1287,56 +1280,59 @@ table 31257 "Payment Order Line CZB"
 
     procedure CalcRelatedAmountToApply(): Decimal
     var
-        TempCrossApplicationBufferCZL: Record "Cross Application Buffer CZL" temporary;
+        CrossApplicationBufferCZL: Record "Cross Application Buffer CZL";
     begin
-        FindRelatedAmountToApply(TempCrossApplicationBufferCZL);
-        TempCrossApplicationBufferCZL.CalcSums("Amount (LCY)");
-        exit(TempCrossApplicationBufferCZL."Amount (LCY)");
+        CollectSuggestedApplication(CrossApplicationBufferCZL);
+        CrossApplicationBufferCZL.CalcSums("Amount (LCY)");
+        exit(CrossApplicationBufferCZL."Amount (LCY)");
     end;
 
     procedure DrillDownRelatedAmountToApply()
     var
-        TempCrossApplicationBufferCZL: Record "Cross Application Buffer CZL" temporary;
+        CrossApplicationBufferCZL: Record "Cross Application Buffer CZL";
     begin
-        FindRelatedAmountToApply(TempCrossApplicationBufferCZL);
-        Page.Run(Page::"Cross Application CZL", TempCrossApplicationBufferCZL);
+        CollectSuggestedApplication(CrossApplicationBufferCZL);
+        Page.Run(Page::"Cross Application CZL", CrossApplicationBufferCZL);
     end;
 
-    local procedure FindRelatedAmountToApply(var TempCrossApplicationBufferCZL: Record "Cross Application Buffer CZL" temporary)
+    local procedure CollectSuggestedApplication(var CrossApplicationBufferCZL: Record "Cross Application Buffer CZL")
     var
         CustLedgerEntry: Record "Cust. Ledger Entry";
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         EmployeeLedgerEntry: Record "Employee Ledger Entry";
+#if not CLEAN25
         CrossApplicationMgtCZL: Codeunit "Cross Application Mgt. CZL";
         AppliesToAdvanceLetterNo: Code[20];
+#endif
     begin
-        if Rec."No." = '' then
+        if "No." = '' then
             exit;
 
-        case Rec.Type of
-            Rec.Type::Customer:
-                if Rec."Applies-to C/V/E Entry No." <> 0 then
-                    if CustLedgerEntry.Get(Rec."Applies-to C/V/E Entry No.") then
-                        CrossApplicationMgtCZL.OnGetSuggestedAmountForCustLedgerEntry(CustLedgerEntry, TempCrossApplicationBufferCZL,
-                                                                                      Database::"Iss. Payment Order Line CZB", Rec."Payment Order No.", Rec."Line No.");
-            Rec.Type::Vendor:
-                begin
-                    if Rec."Applies-to C/V/E Entry No." <> 0 then
-                        if VendorLedgerEntry.Get(Rec."Applies-to C/V/E Entry No.") then
-                            CrossApplicationMgtCZL.OnGetSuggestedAmountForVendLedgerEntry(VendorLedgerEntry, TempCrossApplicationBufferCZL,
-                                                                                          Database::"Iss. Payment Order Line CZB", Rec."Payment Order No.", Rec."Line No.");
-
-                    OnBeforeFindRelatedAmoutToApply(Rec, AppliesToAdvanceLetterNo);
-                    if AppliesToAdvanceLetterNo <> '' then
-                        CrossApplicationMgtCZL.OnGetSuggestedAmountForPurchAdvLetterHeader(AppliesToAdvanceLetterNo, TempCrossApplicationBufferCZL,
-                                                                                           Database::"Iss. Payment Order Line CZB", Rec."Payment Order No.", Rec."Line No.");
-                end;
-            Rec.Type::Employee:
-                if Rec."Applies-to C/V/E Entry No." <> 0 then
-                    if EmployeeLedgerEntry.Get(Rec."Applies-to C/V/E Entry No.") then
-                        CrossApplicationMgtCZL.OnGetSuggestedAmountForEmplLedgerEntry(EmployeeLedgerEntry, TempCrossApplicationBufferCZL,
-                                                                                      Database::"Iss. Payment Order Line CZB", Rec."Payment Order No.", Rec."Line No.");
+        if "Applies-to C/V/E Entry No." <> 0 then
+            case Type of
+                Type::Customer:
+                    if CustLedgerEntry.Get("Applies-to C/V/E Entry No.") then
+                        CustLedgerEntry.CollectSuggestedApplicationCZL(Rec, CrossApplicationBufferCZL);
+                Type::Vendor:
+                    if VendorLedgerEntry.Get("Applies-to C/V/E Entry No.") then
+                        VendorLedgerEntry.CollectSuggestedApplicationCZL(Rec, CrossApplicationBufferCZL);
+                Type::Employee:
+                    if EmployeeLedgerEntry.Get("Applies-to C/V/E Entry No.") then
+                        EmployeeLedgerEntry.CollectSuggestedApplicationCZL(Rec, CrossApplicationBufferCZL);
+            end;
+#if not CLEAN25
+#pragma warning disable AL0432
+        if Type = Type::Vendor then begin
+            OnBeforeFindRelatedAmoutToApply(Rec, AppliesToAdvanceLetterNo);
+            if AppliesToAdvanceLetterNo <> '' then
+                CrossApplicationMgtCZL.OnGetSuggestedAmountForPurchAdvLetterHeader(
+                    AppliesToAdvanceLetterNo, CrossApplicationBufferCZL,
+                    Database::"Iss. Payment Order Line CZB", Rec."Payment Order No.", Rec."Line No.");
         end;
+#pragma warning restore AL0432
+#endif
+
+        OnAfterCollectSuggestedApplication(Rec, CrossApplicationBufferCZL);
     end;
 
     [IntegrationEvent(false, false)]
@@ -1368,12 +1364,20 @@ table 31257 "Payment Order Line CZB"
     local procedure OnAfterAppliesToEmplLedgEntryNo(var PaymentOrderLineCZB: Record "Payment Order Line CZB"; EmployeeLedgerEntry: Record "Employee Ledger Entry");
     begin
     end;
+#if not CLEAN25
 
+    [Obsolete('The event is obsolete and will be removed in the future version. Use OnAfterCollectSuggestedApplication instead.', '25.0')]
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFindRelatedAmoutToApply(PaymentOrderLineCZB: Record "Payment Order Line CZB"; var AppliesToAdvanceLetterNo: Code[20]);
     begin
     end;
+#endif
 
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCollectSuggestedApplication(PaymentOrderLineCZB: Record "Payment Order Line CZB"; var CrossApplicationBufferCZL: Record "Cross Application Buffer CZL")
+    begin
+    end;
+    
     [IntegrationEvent(true, false)]
     local procedure OnAfterCreateDescription(PlaceholderDescription: Text[100]; PlaceholderValues: List of [Text[100]]; var Description: Text[100])
     begin

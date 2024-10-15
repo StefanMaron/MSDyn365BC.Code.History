@@ -17,7 +17,11 @@ codeunit 358 "DateFilter-Calc"
         AccountingPeriod: Record "Accounting Period";
         StartDate: Date;
 
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Fiscal Year %1';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure CreateFiscalYearFilter(var "Filter": Text[30]; var Name: Text[30]; Date: Date; NextStep: Integer)
     begin

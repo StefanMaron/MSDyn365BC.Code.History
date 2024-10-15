@@ -3,7 +3,7 @@ namespace Microsoft.Service.Analysis;
 using Microsoft.Pricing.Calculation;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Projects.Project.Planning;
-#if not CLEAN23
+#if not CLEAN25
 using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Projects.Resources.Resource;
@@ -470,7 +470,7 @@ page 9215 "Res. All. per Service  Matrix"
             {
                 Caption = '&Prices';
                 Image = Price;
-#if not CLEAN23
+#if not CLEAN25
                 action(Costs)
                 {
                     ApplicationArea = Service;

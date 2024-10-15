@@ -242,9 +242,9 @@ table 1296 "Posted Payment Recon. Line"
         field(31000; "Advance Letter Link Code"; Code[30])
         {
             Caption = 'Advance Letter Link Code';
-            ObsoleteState = Pending;
+            ObsoleteState = Removed;
             ObsoleteReason = 'Replaced by Advance Payments Localization for Czech.';
-            ObsoleteTag = '19.0';
+            ObsoleteTag = '25.0';
         }
     }
 

@@ -648,23 +648,21 @@ codeunit 137021 "SCM Planning - NTF tests"
         ClearDefaultLocation();
     end;
 
-    local procedure FilterRequisitionLineOnPlanningWorksheet(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20]; LocationCode: Code[10]; ActionMsg: Enum "Action Message Type"; RefOrderType: Option; OrigDueDate: Date; DueDate: Date; OrigQty: Decimal)
+    local procedure FilterRequisitionLineOnPlanningWorksheet(var RequisitionLine: Record "Requisition Line"; ItemNo: Code[20]; LocationCode: Code[10]; ActionMsg: Enum "Action Message Type"; RefOrderType: Enum "Requisition Ref. Order Type"; OrigDueDate: Date; DueDate: Date; OrigQty: Decimal)
     begin
-        with RequisitionLine do begin
-            SetCurrentKey(Type, "No.", "Variant Code", "Location Code", "Starting Date");
-            SetRange(Type, Type::Item);
-            SetRange("No.", ItemNo);
-            SetRange("Action Message", ActionMsg);
-            SetRange("Original Due Date", OrigDueDate);
-            SetRange("Due Date", DueDate);
-            SetRange("Original Quantity", OrigQty);
-            SetRange("Ref. Order Type", RefOrderType);
-            if LocationCode <> '' then
-                SetRange("Location Code", LocationCode);
-        end;
+        RequisitionLine.SetCurrentKey(Type, "No.", "Variant Code", "Location Code", "Starting Date");
+        RequisitionLine.SetRange(Type, RequisitionLine.Type::Item);
+        RequisitionLine.SetRange("No.", ItemNo);
+        RequisitionLine.SetRange("Action Message", ActionMsg);
+        RequisitionLine.SetRange("Original Due Date", OrigDueDate);
+        RequisitionLine.SetRange("Due Date", DueDate);
+        RequisitionLine.SetRange("Original Quantity", OrigQty);
+        RequisitionLine.SetRange("Ref. Order Type", RefOrderType);
+        if LocationCode <> '' then
+            RequisitionLine.SetRange("Location Code", LocationCode);
     end;
 
-    local procedure AssertPlanningLine(Item: Record Item; ActionMsg: Enum "Action Message Type"; OrigDueDate: Date; DueDate: Date; OrigQty: Decimal; Quantity: Decimal; RefOrderType: Option; LocationCode: Code[10]; NoOfLines: Integer)
+    local procedure AssertPlanningLine(Item: Record Item; ActionMsg: Enum "Action Message Type"; OrigDueDate: Date; DueDate: Date; OrigQty: Decimal; Quantity: Decimal; RefOrderType: Enum "Requisition Ref. Order Type"; LocationCode: Code[10]; NoOfLines: Integer)
     var
         RequisitionLine: Record "Requisition Line";
     begin
@@ -675,7 +673,7 @@ codeunit 137021 "SCM Planning - NTF tests"
         Assert.AreEqual(NoOfLines, RequisitionLine.Count, StrSubstNo(FilterRequisitionLineMsg, RequisitionLine.GetFilters));
     end;
 
-    local procedure AssertPlanningLineWithMaximumOrderQty(ItemNo: Code[20]; ActionMsg: Enum "Action Message Type"; OrigDueDate: Date; DueDate: Date; OrigQty: Decimal; Quantity: Decimal; RefOrderType: Option; LocationCode: Code[10])
+    local procedure AssertPlanningLineWithMaximumOrderQty(ItemNo: Code[20]; ActionMsg: Enum "Action Message Type"; OrigDueDate: Date; DueDate: Date; OrigQty: Decimal; Quantity: Decimal; RefOrderType: Enum "Requisition Ref. Order Type"; LocationCode: Code[10])
     var
         RequisitionLine: Record "Requisition Line";
         TotalQuantity: Decimal;
@@ -758,28 +756,24 @@ codeunit 137021 "SCM Planning - NTF tests"
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        with ReservationEntry do begin
-            SetCurrentKey("Item No.", "Variant Code", "Location Code", "Reservation Status", "Shipment Date");
-            SetRange("Item No.", ItemNo);
-            SetRange("Variant Code", VariantCode);
-            SetRange("Location Code", LocationCode);
+        ReservationEntry.SetCurrentKey("Item No.", "Variant Code", "Location Code", "Reservation Status", "Shipment Date");
+        ReservationEntry.SetRange("Item No.", ItemNo);
+        ReservationEntry.SetRange("Variant Code", VariantCode);
+        ReservationEntry.SetRange("Location Code", LocationCode);
 
-            Assert.AreEqual(NoOfLines, Count, StrSubstNo(Text001, NoOfLines, GetFilters));
-        end;
+        Assert.AreEqual(NoOfLines, ReservationEntry.Count, StrSubstNo(Text001, NoOfLines, ReservationEntry.GetFilters));
     end;
 
     local procedure AssertTrackingLineForSource(SourceType: Integer; SourceSubType: Integer; SourceID: Code[20]; NoOfLines: Integer)
     var
         ReservationEntry: Record "Reservation Entry";
     begin
-        with ReservationEntry do begin
-            SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype");
-            SetRange("Source ID", SourceID);
-            SetRange("Source Type", SourceType);
-            SetRange("Source Subtype", SourceSubType);
+        ReservationEntry.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype");
+        ReservationEntry.SetRange("Source ID", SourceID);
+        ReservationEntry.SetRange("Source Type", SourceType);
+        ReservationEntry.SetRange("Source Subtype", SourceSubType);
 
-            Assert.AreEqual(NoOfLines, Count, StrSubstNo(Text001, NoOfLines, GetFilters));
-        end;
+        Assert.AreEqual(NoOfLines, ReservationEntry.Count, StrSubstNo(Text001, NoOfLines, ReservationEntry.GetFilters));
     end;
 
     local procedure FinishSetupOfItem(var ItemFG: Record Item; var ItemComp: Record Item)
@@ -907,23 +901,21 @@ codeunit 137021 "SCM Planning - NTF tests"
         ProdOrderComponent: Record "Prod. Order Component";
         ReservationEntry: Record "Reservation Entry";
     begin
-        with ReservationEntry do begin
-            ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
-            ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
-            ProdOrderComponent.FindFirst();
+        ProdOrderComponent.SetRange(Status, ProductionOrder.Status);
+        ProdOrderComponent.SetRange("Prod. Order No.", ProductionOrder."No.");
+        ProdOrderComponent.FindFirst();
 
-            SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype");
-            SetRange("Source ID", ProdOrderComponent."Prod. Order No.");
-            SetRange("Source Type", DATABASE::"Prod. Order Component");
-            SetRange("Source Subtype", ProdOrderComponent.Status);
-            SetRange("Source Prod. Order Line", ProdOrderComponent."Prod. Order Line No.");
-            SetRange("Source Ref. No.", ProdOrderComponent."Line No.");
-            FindFirst();
-            Validate("Lot No.", LotNo);
+        ReservationEntry.SetCurrentKey("Source ID", "Source Ref. No.", "Source Type", "Source Subtype");
+        ReservationEntry.SetRange("Source ID", ProdOrderComponent."Prod. Order No.");
+        ReservationEntry.SetRange("Source Type", DATABASE::"Prod. Order Component");
+        ReservationEntry.SetRange("Source Subtype", ProdOrderComponent.Status);
+        ReservationEntry.SetRange("Source Prod. Order Line", ProdOrderComponent."Prod. Order Line No.");
+        ReservationEntry.SetRange("Source Ref. No.", ProdOrderComponent."Line No.");
+        ReservationEntry.FindFirst();
+        ReservationEntry.Validate("Lot No.", LotNo);
 
-            UpdateItemTracking();
-            Modify(true);
-        end;
+        ReservationEntry.UpdateItemTracking();
+        ReservationEntry.Modify(true);
     end;
 
     [Test]

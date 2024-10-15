@@ -40,17 +40,6 @@ pageextension 11717 "General Ledger Setup CZL" extends "General Ledger Setup"
             {
                 Caption = 'VAT';
 
-#if not CLEAN22
-                field("Use VAT Date CZL"; Rec."Use VAT Date CZL")
-                {
-                    ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies if you want to be able to record different accounting and VAT dates in accounting cases.';
-                    Visible = not ReplaceVATDateEnabled;
-                    ObsoleteState = Pending;
-                    ObsoleteTag = '22.0';
-                    ObsoleteReason = 'Replaced by VAT Reporting Date.';
-                }
-#endif
                 field("Def. Orig. Doc. VAT Date CZL"; Rec."Def. Orig. Doc. VAT Date CZL")
                 {
                     ApplicationArea = Basic, Suite;
@@ -65,11 +54,7 @@ pageextension 11717 "General Ledger Setup CZL" extends "General Ledger Setup"
                     ObsoleteState = Pending;
                     ObsoleteTag = '24.0';
                     ObsoleteReason = 'Replaced by "Allow VAT Date From" field from "VAT Setup" table.';
-#if not CLEAN22
-                    Visible = not ReplaceVATDateEnabled;
-#else
                     Visible = false;
-#endif
                 }
                 field("Allow VAT Posting To CZL"; Rec."Allow VAT Posting To CZL")
                 {
@@ -79,11 +64,7 @@ pageextension 11717 "General Ledger Setup CZL" extends "General Ledger Setup"
                     ObsoleteState = Pending;
                     ObsoleteTag = '24.0';
                     ObsoleteReason = 'Replaced by "Allow VAT Date To" field from "VAT Setup" table.';
-#if not CLEAN22
-                    Visible = not ReplaceVATDateEnabled;
-#else
                     Visible = false;
-#endif
                 }
 #endif
                 field("Allow VAT Date From CZL"; VATSetup."Allow VAT Date From")
@@ -91,11 +72,7 @@ pageextension 11717 "General Ledger Setup CZL" extends "General Ledger Setup"
                     ApplicationArea = VAT;
                     Caption = 'Allow VAT Date From';
                     ToolTip = 'Specifies the earliest date on which VAT posting to the company books is allowed.';
-#if not CLEAN22
-                    Visible = IsVATDateEnabled and ReplaceVATDateEnabled;
-#else
                     Visible = IsVATDateEnabled;
-#endif
 
                     trigger OnValidate()
                     begin
@@ -108,11 +85,7 @@ pageextension 11717 "General Ledger Setup CZL" extends "General Ledger Setup"
                     ApplicationArea = VAT;
                     Caption = 'Allow VAT Date To';
                     ToolTip = 'Specifies the last date on which VAT posting to the company books is allowed.';
-#if not CLEAN22
-                    Visible = IsVATDateEnabled and ReplaceVATDateEnabled;
-#else
                     Visible = IsVATDateEnabled;
-#endif
 
                     trigger OnValidate()
                     begin
@@ -154,16 +127,6 @@ pageextension 11717 "General Ledger Setup CZL" extends "General Ledger Setup"
             }
         }
         movefirst(VatCZL; "VAT Reporting Date Usage", "Default VAT Reporting Date")
-#if not CLEAN22
-        modify("VAT Reporting Date Usage")
-        {
-            Visible = ReplaceVATDateEnabled;
-        }
-        modify("Default VAT Reporting Date")
-        {
-            Visible = ReplaceVATDateEnabled;
-        }
-#endif
     }
     actions
     {
@@ -185,11 +148,8 @@ pageextension 11717 "General Ledger Setup CZL" extends "General Ledger Setup"
     var
         VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
     begin
-#if not CLEAN22
-        ReplaceVATDateEnabled := ReplaceVATDateMgtCZL.IsEnabled();
-#endif
         IsVATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
-        NonDeductibleVATVisible := NonDeductibleVAT.IsNonDeductibleVATEnabled();
+        NonDeductibleVATVisible := NonDeductibleVATCZL.IsNonDeductibleVATEnabled();
     end;
 
     trigger OnAfterGetRecord()
@@ -199,13 +159,7 @@ pageextension 11717 "General Ledger Setup CZL" extends "General Ledger Setup"
 
     var
         VATSetup: Record "VAT Setup";
-        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
-#if not CLEAN22
-#pragma warning disable AL0432
-        ReplaceVATDateMgtCZL: Codeunit "Replace VAT Date Mgt. CZL";
-#pragma warning restore AL0432
-        ReplaceVATDateEnabled: Boolean;
-#endif
+        NonDeductibleVATCZL: Codeunit "Non-Deductible VAT CZL";
         IsVATDateEnabled: Boolean;
         NonDeductibleVATVisible: Boolean;
 }

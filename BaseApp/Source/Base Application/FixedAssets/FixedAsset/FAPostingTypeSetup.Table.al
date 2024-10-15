@@ -99,6 +99,10 @@ table 5604 "FA Posting Type Setup"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot rename a %1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

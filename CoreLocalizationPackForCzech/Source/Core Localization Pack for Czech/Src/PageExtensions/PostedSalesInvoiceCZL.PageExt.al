@@ -6,20 +6,11 @@ namespace Microsoft.Sales.History;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Setup;
-#if not CLEAN22
-using Microsoft.Finance.VAT.Calculation;
-#endif
 
 pageextension 11733 "Posted Sales Invoice CZL" extends "Posted Sales Invoice"
 {
     layout
     {
-#if not CLEAN22
-        modify("VAT Reporting Date")
-        {
-            Visible = ReplaceVATDateEnabled and VATDateEnabled;
-        }
-#endif
         addbefore("Location Code")
         {
             field("Reason Code CZL"; Rec."Reason Code")
@@ -30,22 +21,6 @@ pageextension 11733 "Posted Sales Invoice CZL" extends "Posted Sales Invoice"
                 Visible = true;
             }
         }
-#if not CLEAN22
-        addafter("Posting Date")
-        {
-            field("VAT Date CZL"; Rec."VAT Date CZL")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'VAT Date (Obsolete)';
-                ToolTip = 'Specifies date by which the accounting transaction will enter VAT statement.';
-                Editable = false;
-                ObsoleteState = Pending;
-                ObsoleteTag = '22.0';
-                ObsoleteReason = 'Replaced by VAT Reporting Date.';
-                Visible = not ReplaceVATDateEnabled;
-            }
-        }
-#endif
         addbefore("Customer Posting Group")
         {
             field("VAT Bus. Posting Group CZL"; Rec."VAT Bus. Posting Group")
@@ -103,12 +78,6 @@ pageextension 11733 "Posted Sales Invoice CZL" extends "Posted Sales Invoice"
 
                 trigger OnAssistEdit()
                 begin
-#if not CLEAN22
-#pragma warning disable AL0432
-                    if not ReplaceVATDateEnabled then
-                        Rec."VAT Reporting Date" := Rec."VAT Date CZL";
-#pragma warning restore AL0432
-#endif
                     ChangeExchangeRate.SetParameter(Rec."VAT Currency Code CZL", Rec."VAT Currency Factor CZL", Rec."VAT Reporting Date");
                     ChangeExchangeRate.Editable(false);
                     ChangeExchangeRate.RunModal();
@@ -150,18 +119,6 @@ pageextension 11733 "Posted Sales Invoice CZL" extends "Posted Sales Invoice"
                 Editable = false;
                 ToolTip = 'Specifies when the sales header will use European Union third-party intermediate trade rules. This option complies with VAT accounting standards for EU third-party trade.';
             }
-#if not CLEAN22
-            field("Intrastat Exclude CZL"; Rec."Intrastat Exclude CZL")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Intrastat Exclude (Obsolete)';
-                Editable = false;
-                ToolTip = 'Specifies that entry will be excluded from intrastat.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '22.0';
-                ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions. This field is not used any more.';
-            }
-#endif
         }
         addafter("Foreign Trade")
         {
@@ -241,25 +198,11 @@ pageextension 11733 "Posted Sales Invoice CZL" extends "Posted Sales Invoice"
 
     trigger OnOpenPage()
     begin
-#if not CLEAN22
-        VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
-        ReplaceVATDateEnabled := ReplaceVATDateMgtCZL.IsEnabled();
-#endif
         AddCurrencyVisible := GeneralLedgerSetup.IsAdditionalCurrencyEnabled();
     end;
 
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
-#if not CLEAN22
-#pragma warning disable AL0432
-        ReplaceVATDateMgtCZL: Codeunit "Replace VAT Date Mgt. CZL";
-#pragma warning restore AL0432
-        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
-#endif
         ChangeExchangeRate: Page "Change Exchange Rate";
-#if not CLEAN22
-        ReplaceVATDateEnabled: Boolean;
-        VATDateEnabled: Boolean;
-#endif
         AddCurrencyVisible: Boolean;
 }

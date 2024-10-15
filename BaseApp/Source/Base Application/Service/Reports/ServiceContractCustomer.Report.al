@@ -150,7 +150,9 @@ report 5977 "Service Contract - Customer"
         ServContractFilter: Text;
         AmountOnExpiredLines: Decimal;
 
+#pragma warning disable AA0074
         Text000: Label 'Total for ';
+#pragma warning restore AA0074
         ServContractsCustCaptionLbl: Label 'Service Contracts - Customer';
         CurrReportPageNoCaptionLbl: Label 'Page';
         StatusCaptionLbl: Label 'Status';

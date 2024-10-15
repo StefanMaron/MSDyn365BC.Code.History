@@ -18,7 +18,9 @@ codeunit 1262 "Pre & Post Process XML Import"
         MissingCrdDbtIndInDataMsg: Label 'The credit/debit indicator was not found in the data to be imported.';
         MissingBalTypeInDataMsg: Label 'The balance type was not found in the data to be imported.';
         MissingClosingBalInDataMsg: Label 'The closing balance was not found in the data to be imported.';
+#pragma warning disable AA0470
         MissingBankAccNoQst: Label 'Bank account %1 does not have a bank account number.\\Do you want to continue?';
+#pragma warning restore AA0470
         BankAccCurrErr: Label 'The bank statement that you are importing contains transactions in currencies other than the %1 %2 of bank account %3.', Comment = '%1 %2 = Currency Code EUR; %3 = Bank Account No.';
         MultipleStmtErr: Label 'The file that you are trying to import contains more than one bank statement.';
         MissingBankAccNoInDataErr: Label 'The bank account number was not found in the data to be imported.';

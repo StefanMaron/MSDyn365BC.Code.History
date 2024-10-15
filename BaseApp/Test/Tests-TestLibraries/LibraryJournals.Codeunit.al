@@ -215,19 +215,17 @@ codeunit 131306 "Library - Journals"
         JournalUserPreferences: Record "Journal User Preferences";
     begin
         // NAVCZ
-        with JournalUserPreferences do begin
-            SETFILTER("User ID", '%1', USERSECURITYID());
-            SETFILTER("Page ID", '%1', PageID);
-            IF FindFirst() then BEGIN
-                "Journal Batch Name" := GenJournalBatchName;
-                Modify();
-            END else begin
-                Init();
-                "User ID" := USERSECURITYID();
-                "Page ID" := PageID;
-                "Journal Batch Name" := GenJournalBatchName;
-                Insert();
-            end;
+        JournalUserPreferences.SETFILTER("User ID", '%1', USERSECURITYID());
+        JournalUserPreferences.SETFILTER("Page ID", '%1', PageID);
+        IF JournalUserPreferences.FindFirst() then BEGIN
+            JournalUserPreferences."Journal Batch Name" := GenJournalBatchName;
+            JournalUserPreferences.Modify();
+        END else begin
+            JournalUserPreferences.Init();
+            JournalUserPreferences."User ID" := USERSECURITYID();
+            JournalUserPreferences."Page ID" := PageID;
+            JournalUserPreferences."Journal Batch Name" := GenJournalBatchName;
+            JournalUserPreferences.Insert();
         end;
     end;
 }

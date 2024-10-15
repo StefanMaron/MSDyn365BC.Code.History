@@ -566,12 +566,6 @@ report 31190 "Sales Credit Memo CZL"
 
                 if "Currency Code" = '' then
                     "Currency Code" := "General Ledger Setup"."LCY Code";
-#if not CLEAN22
-#pragma warning disable AL0432
-                if not ReplaceVATDateMgtCZL.IsEnabled() then
-                    "VAT Reporting Date" := "VAT Date CZL";
-#pragma warning restore AL0432
-#endif
             end;
         }
     }
@@ -647,11 +641,6 @@ report 31190 "Sales Credit Memo CZL"
         FormatAddress: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
         FormatDocumentMgtCZL: Codeunit "Format Document Mgt. CZL";
-#if not CLEAN22
-#pragma warning disable AL0432
-        ReplaceVATDateMgtCZL: Codeunit "Replace VAT Date Mgt. CZL";
-#pragma warning restore AL0432
-#endif
         SegManagement: Codeunit SegManagement;
         ExchRateText: Text[50];
         VATClauseText: Text;

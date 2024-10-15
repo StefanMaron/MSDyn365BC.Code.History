@@ -7,7 +7,6 @@ namespace Microsoft.Finance.AdvancePayments;
 using Microsoft.Bank.Documents;
 using Microsoft.Finance.Currency;
 using Microsoft.Purchases.Vendor;
-using System.Utilities;
 
 tableextension 31039 "Payment Order Line CZZ" extends "Payment Order Line CZB"
 {
@@ -31,11 +30,8 @@ tableextension 31039 "Payment Order Line CZZ" extends "Payment Order Line CZB"
                 if "Purch. Advance Letter No. CZZ" = '' then
                     exit;
                 if CurrFieldNo = FieldNo("Purch. Advance Letter No. CZZ") then
-                    if not PaymentOrderManagementCZB.CheckPaymentOrderLineApply(Rec, false) then begin
-                        if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(AdvanceLetterAlreadyAppliedQst, "Purch. Advance Letter No. CZZ"), false) then
-                            Error('');
-                        "Amount Must Be Checked" := true;
-                    end;
+                    "Amount Must Be Checked" := not PaymentOrderManagementCZB.CheckPaymentOrderLineApply(Rec, false);
+
                 Rec.TestField(Type, Rec.Type::Vendor);
 
                 PurchAdvLetterHeaderCZZ.Get("Purch. Advance Letter No. CZZ");
@@ -86,10 +82,8 @@ tableextension 31039 "Payment Order Line CZZ" extends "Payment Order Line CZB"
 
     var
         PaymentOrderManagementCZB: Codeunit "Payment Order Management CZB";
-        ConfirmManagement: Codeunit "Confirm Management";
         AdvanceTxt: Label 'Advance';
         AdvanceNoTxt: Label 'Advance %1', Comment = '%1 = Advance No.';
-        AdvanceLetterAlreadyAppliedQst: Label 'Advance Letter %1 is already applied on payment order. Do you want to continue?', Comment = '%1 = Advance Letter No.';
 
     local procedure GetPlaceholderDescriptionValues(PurchAdvLetterHeaderCZZ: Record "Purch. Adv. Letter Header CZZ"; PartnerNo: Text[20]; PartnerName: Text[100]) PlaceholderValues: List of [Text[100]]
     begin

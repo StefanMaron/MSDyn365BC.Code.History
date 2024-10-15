@@ -24,10 +24,12 @@ using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Setup;
 using Microsoft.Inventory.Tracking;
 using Microsoft.Pricing.Calculation;
+using Microsoft.Inventory.Journal;
 using Microsoft.Pricing.PriceList;
 using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Planning;
-#if not CLEAN23
+using Microsoft.Projects.Resources.Journal;
+#if not CLEAN25
 using Microsoft.Projects.Resources.Pricing;
 #endif
 using Microsoft.Projects.Resources.Resource;
@@ -1397,10 +1399,9 @@ table 5902 "Service Line"
                     if JobPlanningLine.Quantity >= 0 then begin
                         if "Job Remaining Qty." < 0 then
                             "Job Remaining Qty." := 0;
-                    end else begin
+                    end else
                         if "Job Remaining Qty." > 0 then
                             "Job Remaining Qty." := 0;
-                    end;
                 end;
                 "Job Remaining Qty. (Base)" := CalcBaseQty("Job Remaining Qty.", FieldCaption("Job Remaining Qty."), FieldCaption("Job Remaining Qty. (Base)"));
                 UpdateRemainingCostsAndAmounts();
@@ -2402,7 +2403,7 @@ table 5902 "Service Line"
                                     ContractGroup.Init();
                                 if not ContractGroup."Disc. on Contr. Orders Only" or
                                    (ContractGroup."Disc. on Contr. Orders Only" and (ServHeader."Contract No." <> ''))
-                                then begin
+                                then
                                     case Type of
                                         Type::" ":
                                             "Contract Disc. %" := 0;
@@ -2444,8 +2445,8 @@ table 5902 "Service Line"
                                                 CODEUNIT.Run(CODEUNIT::"ContractDiscount-Find", ContractServDisc);
                                                 "Contract Disc. %" := ContractServDisc."Discount %";
                                             end;
-                                    end;
-                                end else
+                                    end
+                                else
                                     "Contract Disc. %" := 0;
                             end;
                         end else
@@ -2704,68 +2705,6 @@ table 5902 "Service Line"
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
-        field(11762; "Reason Code"; Code[10])
-        {
-            Caption = 'Reason Code';
-            TableRelation = "Reason Code";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'The functionality of Tax corrective documents for VAT will be removed and this field should not be used. (Obsolete::Removed in release 01.2021)';
-            ObsoleteTag = '18.0';
-        }
-        field(11763; "VAT Correction"; Boolean)
-        {
-            Caption = 'VAT Correction';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11764; "VAT Difference (LCY)"; Decimal)
-        {
-            AutoFormatExpression = Rec."Currency Code";
-            AutoFormatType = 1;
-            Caption = 'VAT Difference (LCY)';
-            Editable = false;
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(11768; Negative; Boolean)
-        {
-            Caption = 'Negative';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31060; "Physical Transfer"; Boolean)
-        {
-            Caption = 'Physical Transfer';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
-        field(31061; "Tariff No."; Code[20])
-        {
-            Caption = 'Tariff No.';
-            TableRelation = "Tariff Number";
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(31062; "Statistic Indication"; Code[10])
-        {
-            Caption = 'Statistic Indication';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '20.0';
-        }
-        field(31063; "Country/Region of Origin Code"; Code[10])
-        {
-            Caption = 'Country/Region of Origin Code';
-            ObsoleteState = Removed;
-            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
-            ObsoleteTag = '21.0';
-        }
     }
 
     keys
@@ -2873,7 +2812,7 @@ table 5902 "Service Line"
         OnDeleteOnDelNonStockFSMBeforeModify(Rec, IsHandled);
         if not IsHandled then
             if (Type = Type::Item) and Item.Get("No.") then
-                CatalogItemMgt.DelNonStockFSM(Rec);
+                ServCatalogItemMgt.DelNonStockFSM(Rec);
 
         if (Type <> Type::" ") and
            (("Contract No." <> '') or
@@ -2937,24 +2876,34 @@ table 5902 "Service Line"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot invoice more than %1 units.';
         Text001: Label 'You cannot invoice more than %1 base units.';
         Text002: Label 'You cannot rename a %1.';
         Text003: Label 'must not be less than %1';
         Text004: Label 'You must confirm %1 %2, because %3 is not equal to %4 in %5 %6.';
+#pragma warning restore AA0470
         Text005: Label 'The update has been interrupted to respect the warning.';
         Text006: Label 'Replace Component,New Component,Ignore';
+#pragma warning disable AA0470
         Text007: Label 'You must select a %1.';
         Text008: Label 'You cannot change the value of the %1 field because the %2 field in the Fault Reason Codes window contains a check mark for the %3 %4.';
         Text009: Label 'You have changed the value of the field %1.\Do you want to continue ?';
         Text010: Label '%1 cannot be less than %2.';
         Text011: Label 'When replacing a %1 the quantity must be 1.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         ManualReserveQst: Label 'Automatic reservation is not possible.\Do you want to reserve items manually?';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text013: Label ' must be 0 when %1 is %2.';
         Text015: Label 'You have already selected %1 %2 for replacement.';
         Text016: Label 'You cannot ship more than %1 units.';
         Text017: Label 'You cannot ship more than %1 base units.';
         Text018: Label '%1 %2 is greater than %3 and was adjusted to %4.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CompAlreadyReplacedErr: Label 'The component that you selected has already been replaced in service line %1.', Comment = '%1 = Line No.';
         SalesSetup: Record "Sales & Receivables Setup";
         ServMgtSetup: Record "Service Mgt. Setup";
@@ -2969,9 +2918,10 @@ table 5902 "Service Line"
         CurrExchRate: Record "Currency Exchange Rate";
         SKU: Record "Stockkeeping Unit";
         DimMgt: Codeunit DimensionManagement;
+        ServDimMgt: Codeunit "Serv. Dimension Management";
         SalesTaxCalculate: Codeunit "Sales Tax Calculate";
         UOMMgt: Codeunit "Unit of Measure Management";
-        CatalogItemMgt: Codeunit "Catalog Item Management";
+        ServCatalogItemMgt: Codeunit "Serv. Catalog Item Mgt.";
         ServItemReferenceMgt: Codeunit "Serv. Item Reference Mgt.";
         ServiceLineReserve: Codeunit "Service Line-Reserve";
         ServiceWarehouseMgt: Codeunit "Service Warehouse Mgt.";
@@ -2981,39 +2931,63 @@ table 5902 "Service Line"
         CalledFromServiceItemLine: Boolean;
         FullAutoReservation: Boolean;
         HideReplacementDialog: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text022: Label 'The %1 cannot be greater than the %2 set on the %3.';
+#pragma warning restore AA0470
         Text023: Label 'You must enter a serial number.';
+#pragma warning restore AA0074
         ReplaceServItemAction: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text026: Label 'When replacing or creating a service item component you may only enter a whole number into the %1 field.';
         Text027: Label 'The %1 %2 with a check mark in the %3 field cannot be entered if the service line type is other than Item or Resource.';
         Text028: Label 'You cannot consume more than %1 units.';
+#pragma warning restore AA0470
         Text029: Label 'must be positive';
         Text030: Label 'must be negative';
+#pragma warning disable AA0470
         Text031: Label 'You must specify %1.';
         Text032: Label 'You cannot consume more than %1 base units.';
+#pragma warning restore AA0470
         Text033: Label 'The line you are trying to change has the adjusted price.\';
         Text034: Label 'Do you want to continue?';
         Text035: Label 'Warehouse';
         Text036: Label 'Inventory';
+#pragma warning disable AA0470
         Text037: Label 'You cannot change %1 when %2 is %3 and %4 is positive.';
         Text038: Label 'You cannot change %1 when %2 is %3 and %4 is negative.';
         Text039: Label 'You cannot return more than %1 units for %2 %3.';
+#pragma warning restore AA0470
         Text041: Label 'There were no Resource Lines to split.';
+#pragma warning disable AA0470
         Text042: Label 'When posting the Applied to Ledger Entry %1 will be opened first';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         HideCostWarning: Boolean;
         HideWarrantyWarning: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text043: Label 'You cannot change the value of the %1 field manually if %2 for this line is %3.';
+#pragma warning restore AA0470
         Text044: Label 'Do you want to split the resource line and use it to create resource lines\for the other service items with divided amounts?';
         Text045: Label 'You cannot delete this service line because one or more service entries exist for this line.';
+#pragma warning disable AA0470
         Text046: Label 'You cannot change the %1 when the %2 has been filled in.';
         Text047: Label '%1 can only be set when %2 is set.';
         Text048: Label '%1 cannot be changed when %2 is set.';
         Text049: Label '%1 is required for %2 = %3.', Comment = 'Example: Inventory put-away is required for Line 50000.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         WhseRequirementMsg: Label '%1 is required for this line. The entered information may be disregarded by warehouse activities.', Comment = '%1=Document';
         StatusCheckSuspended: Boolean;
+#pragma warning disable AA0074
         Text051: Label 'You cannot add an item line.';
+#pragma warning disable AA0470
         Text052: Label 'You cannot change the %1 field because one or more service entries exist for this line.';
+#pragma warning restore AA0470
         Text053: Label 'You cannot modify the service line because one or more service entries exist for this line.';
+#pragma warning restore AA0074
         IsCustCrLimitChecked: Boolean;
         LocationChangedMsg: Label 'Item %1 with serial number %2 is stored on location %3. The Location Code field on the service line will be updated.', Comment = '%1 = Item No., %2 = Item serial No., %3 = Location code';
         LineDiscountPctErr: Label 'The value in the Line Discount % field must be between 0 and 100.';
@@ -3025,7 +2999,7 @@ table 5902 "Service Line"
 
     procedure CheckItemAvailable(CalledByFieldNo: Integer)
     var
-        ItemCheckAvail: Codeunit "Item-Check Avail.";
+        ServItemCheckAvail: Codeunit "Serv. Item Check Avail.";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -3053,8 +3027,8 @@ table 5902 "Service Line"
             if not ("Document Type" in ["Document Type"::Order, "Document Type"::Invoice]) then
                 exit;
 
-            if ItemCheckAvail.ServiceInvLineCheck(Rec) then
-                ItemCheckAvail.RaiseUpdateInterruptedError();
+            if ServItemCheckAvail.ServiceInvLineCheck(Rec) then
+                ServItemCheckAvail.RaiseUpdateInterruptedError();
         end;
 
         OnAfterCheckItemAvailable(Rec, CalledByFieldNo);
@@ -3514,7 +3488,7 @@ table 5902 "Service Line"
 
     procedure UpdateAmounts()
     var
-        CustCheckCrLimit: Codeunit "Cust-Check Cr. Limit";
+        ServCheckCreditLimit: Codeunit "Serv. Check Credit Limit";
         ExpectedLineAmount: Decimal;
         ShouldCheckCrLimit: Boolean;
         IsHandled: Boolean;
@@ -3546,7 +3520,7 @@ table 5902 "Service Line"
         OnUpdateAmountsOnAfterCalcShouldCheckCrLimit(Rec, IsCustCrLimitChecked, CurrFieldNo, ShouldCheckCrLimit);
         if ShouldCheckCrLimit then begin
             IsCustCrLimitChecked := true;
-            CustCheckCrLimit.ServiceLineCheck(Rec);
+            ServCheckCreditLimit.ServiceLineCheck(Rec);
         end;
         UpdateRemainingCostsAndAmounts();
 
@@ -3582,7 +3556,14 @@ table 5902 "Service Line"
         exit(ServHeader."Posting Date");
     end;
 
-    procedure GetServHeader()
+    procedure GetServHeader(): Record "Service Header"
+    begin
+        GetServHeader(ServHeader, Currency);
+        exit(ServHeader);
+    end;
+
+    procedure GetServHeader(var OutServiceHeader: Record "Service Header"; var OutCurrency: Record Currency)
+    var
     begin
         TestField("Document No.");
         if ("Document Type" <> ServHeader."Document Type") or ("Document No." <> ServHeader."No.") then begin
@@ -3595,6 +3576,9 @@ table 5902 "Service Line"
                 Currency.TestField("Amount Rounding Precision");
             end;
         end;
+
+        OutServiceHeader := ServHeader;
+        OutCurrency := Currency;
     end;
 
     local procedure GetServiceItemLine(): Boolean
@@ -3791,7 +3775,7 @@ table 5902 "Service Line"
               DimMgt.EditDimensionSet(
                 Rec, "Dimension Set ID", StrSubstNo('%1 %2 %3', "Document Type", "Document No.", "Line No."),
                 "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
-             OnAfterShowDimensions(Rec, xRec);   
+        OnAfterShowDimensions(Rec, xRec);
     end;
 
     procedure ShowReservation()
@@ -3922,7 +3906,7 @@ table 5902 "Service Line"
                 CheckNonstockItemTemplate(NonstockItem);
 
                 "No." := NonstockItem."Entry No.";
-                CatalogItemMgt.NonStockFSM(Rec);
+                ServCatalogItemMgt.NonStockFSM(Rec);
                 Validate("No.", "No.");
                 Validate("Unit Price", NonstockItem."Unit Price");
                 OnShowNonstockOnAfterUpdateFromNonstockItem(Rec, xRec);
@@ -4176,7 +4160,7 @@ table 5902 "Service Line"
 
     procedure ShowItemSub()
     var
-        ItemSubstMgt: Codeunit "Item Subst.";
+        ServItemSubstitution: Codeunit "Serv. Item Substitution";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -4184,7 +4168,7 @@ table 5902 "Service Line"
         if IsHandled then
             exit;
 
-        ItemSubstMgt.ItemServiceSubstGet(Rec);
+        ServItemSubstitution.ItemServiceSubstGet(Rec);
     end;
 
     procedure SetHideReplacementDialog(NewHideReplacementDialog: Boolean)
@@ -4399,7 +4383,7 @@ table 5902 "Service Line"
     end;
 
 
-#if not CLEAN23
+#if not CLEAN25
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     procedure AfterResourseFindCost(var ResourceCost: Record "Resource Cost");
     begin
@@ -5223,10 +5207,9 @@ table 5902 "Service Line"
         if "Document Type" in ["Document Type"::"Credit Memo"] then begin
             if Quantity < 0 then
                 FieldError(Quantity, Text029);
-        end else begin
+        end else
             if Quantity > 0 then
                 FieldError(Quantity, Text030);
-        end;
 
         ItemLedgEntry.Get("Appl.-from Item Entry");
         ItemLedgEntry.TestField(Positive, false);
@@ -5401,7 +5384,7 @@ table 5902 "Service Line"
                 ServDocReg.DeleteAll();
             end;
 
-        if ("Contract No." <> '') and (Type <> Type::" ") and not DeleteRecord then begin
+        if ("Contract No." <> '') and (Type <> Type::" ") and not DeleteRecord then
             if "Document Type" = "Document Type"::Invoice then
                 ServDocReg.InsertServiceSalesDocument(
                   ServDocReg."Source Document Type"::Contract, "Contract No.",
@@ -5410,8 +5393,7 @@ table 5902 "Service Line"
                 if "Document Type" = "Document Type"::"Credit Memo" then
                     ServDocReg.InsertServiceSalesDocument(
                       ServDocReg."Source Document Type"::Contract, "Contract No.",
-                      ServDocReg."Destination Document Type"::"Credit Memo", "Document No.")
-        end;
+                      ServDocReg."Destination Document Type"::"Credit Memo", "Document No.");
     end;
 
     procedure RowID1(): Text[250]
@@ -5433,8 +5415,6 @@ table 5902 "Service Line"
     end;
 
     procedure UpdateReservation(CalledByFieldNo: Integer)
-    var
-        ReservationCheckDateConfl: Codeunit "Reservation-Check Date Confl.";
     begin
         if (CurrFieldNo <> CalledByFieldNo) and (CurrFieldNo <> 0) then
             exit;
@@ -5445,7 +5425,7 @@ table 5902 "Service Line"
                    (Quantity <> 0) and
                    (Reserve <> Reserve::Never)
                 then
-                    ReservationCheckDateConfl.ServiceInvLineCheck(Rec, true);
+                    ServiceLineReserve.ServiceInvLineCheck(Rec, true);
             FieldNo(Quantity):
                 ServiceLineReserve.VerifyQuantity(Rec, xRec);
         end;
@@ -5455,10 +5435,10 @@ table 5902 "Service Line"
 
     procedure ShowTracking()
     var
-        OrderTrackingForm: Page "Order Tracking";
+        OrderTracking: Page "Order Tracking";
     begin
-        OrderTrackingForm.SetServLine(Rec);
-        OrderTrackingForm.RunModal();
+        OrderTracking.SetVariantRec(Rec, Rec."No.", Rec."Outstanding Qty. (Base)", Rec."Needed by Date", Rec."Needed by Date");
+        OrderTracking.RunModal();
     end;
 
     procedure ShowOrderPromisingLine()
@@ -5981,6 +5961,7 @@ table 5902 "Service Line"
             exit(false);
         if "No." = '' then
             exit(false);
+        Item.SetLoadFields(Type);
         GetItem(Item);
         exit(Item.IsNonInventoriableType());
     end;
@@ -5993,6 +5974,7 @@ table 5902 "Service Line"
             exit(false);
         if "No." = '' then
             exit(false);
+        Item.SetLoadFields(Type);
         GetItem(Item);
         exit(Item.IsInventoriableType());
     end;
@@ -6010,6 +5992,7 @@ table 5902 "Service Line"
         ServiceItemLine.SetRange("Document No.", Rec."Document No.");
         ServiceItemLine.SetRange("Line No.", Rec."Service Item Line No.");
         ServiceItemLine.SetRange("Service Item No.", Rec."Service Item No.");
+        ServiceItemLine.SetLoadFields("Item No.");
         if ServiceItemLine.FindFirst() then
             if ServiceItemLine."Item No." <> '' then
                 Item.SetFilter("No.", '<>%1', ServiceItemLine."Item No.");
@@ -6205,7 +6188,7 @@ table 5902 "Service Line"
 
         case true of
             FieldNo = Rec.FieldNo("No."):
-                TableValuePair.Add(DimMgt.TypeToTableID5(Rec.Type.AsInteger()), Rec."No.");
+                TableValuePair.Add(ServDimMgt.ServiceLineTypeToTableID(Rec.Type), Rec."No.");
             FieldNo = Rec.FieldNo("Responsibility Center"):
                 TableValuePair.Add(Database::"Responsibility Center", Rec."Responsibility Center");
             FieldNo = Rec.FieldNo("Job No."):
@@ -6218,7 +6201,7 @@ table 5902 "Service Line"
 
     local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
-        DimMgt.AddDimSource(DefaultDimSource, DimMgt.TypeToTableID5(Rec.Type.AsInteger()), Rec."No.", FieldNo = Rec.FieldNo("No."));
+        DimMgt.AddDimSource(DefaultDimSource, ServDimMgt.ServiceLineTypeToTableID(Rec.Type), Rec."No.", FieldNo = Rec.FieldNo("No."));
         DimMgt.AddDimSource(DefaultDimSource, Database::Job, Rec."Job No.", FieldNo = Rec.FieldNo("Job No."));
         DimMgt.AddDimSource(DefaultDimSource, Database::"Responsibility Center", Rec."Responsibility Center", FieldNo = Rec.FieldNo("Responsibility Center"));
         DimMgt.AddDimSource(DefaultDimSource, Database::Location, Rec."Location Code", FieldNo = Rec.FieldNo("Location Code"));
@@ -6292,6 +6275,83 @@ table 5902 "Service Line"
         NotificationLifecycleMgt.SendNotification(NotificationToSend, Rec.RecordId());
     end;
     # endregion Blocked Item/Item Variant Notifications
+
+    procedure CopyToItemJnlLine(var ItemJournalLine: Record "Item Journal Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCopyToItemJnlLine(ItemJournalLine, Rec, IsHandled);
+#if not CLEAN25
+        ItemJournalLine.RunOnBeforeCopyItemJnlLineFromServLine(ItemJournalLine, Rec, IsHandled);
+#endif
+        if not IsHandled then begin
+            ItemJournalLine."Item No." := Rec."No.";
+            ItemJournalLine."Posting Date" := Rec."Posting Date";
+            ItemJournalLine.Description := Rec.Description;
+            ItemJournalLine."Shortcut Dimension 1 Code" := Rec."Shortcut Dimension 1 Code";
+            ItemJournalLine."Shortcut Dimension 2 Code" := Rec."Shortcut Dimension 2 Code";
+            ItemJournalLine."Dimension Set ID" := Rec."Dimension Set ID";
+            ItemJournalLine."Location Code" := Rec."Location Code";
+            ItemJournalLine."Bin Code" := Rec."Bin Code";
+            ItemJournalLine."Variant Code" := Rec."Variant Code";
+            ItemJournalLine."Inventory Posting Group" := Rec."Posting Group";
+            ItemJournalLine."Gen. Bus. Posting Group" := Rec."Gen. Bus. Posting Group";
+            ItemJournalLine."Gen. Prod. Posting Group" := Rec."Gen. Prod. Posting Group";
+            ItemJournalLine."Applies-to Entry" := Rec."Appl.-to Item Entry";
+            ItemJournalLine."Transaction Type" := Rec."Transaction Type";
+            ItemJournalLine."Transport Method" := Rec."Transport Method";
+            ItemJournalLine."Entry/Exit Point" := Rec."Exit Point";
+            ItemJournalLine.Area := Rec.Area;
+            ItemJournalLine."Transaction Specification" := Rec."Transaction Specification";
+            ItemJournalLine."Entry Type" := ItemJournalLine."Entry Type"::Sale;
+            ItemJournalLine."Unit of Measure Code" := Rec."Unit of Measure Code";
+            ItemJournalLine."Qty. per Unit of Measure" := Rec."Qty. per Unit of Measure";
+            ItemJournalLine."Qty. Rounding Precision" := Rec."Qty. Rounding Precision";
+            ItemJournalLine."Qty. Rounding Precision (Base)" := Rec."Qty. Rounding Precision (Base)";
+            ItemJournalLine."Derived from Blanket Order" := false;
+            ItemJournalLine."Item Category Code" := Rec."Item Category Code";
+            ItemJournalLine.Nonstock := Rec.Nonstock;
+            ItemJournalLine."Return Reason Code" := Rec."Return Reason Code";
+            ItemJournalLine."Order Type" := ItemJournalLine."Order Type"::Service;
+            ItemJournalLine."Order No." := Rec."Document No.";
+            ItemJournalLine."Order Line No." := Rec."Line No.";
+            ItemJournalLine."Job No." := Rec."Job No.";
+            ItemJournalLine."Job Task No." := Rec."Job Task No.";
+            ItemJournalLine."Price Calculation Method" := Rec."Price Calculation Method";
+            ItemJournalLine."Invoice-to Source No." := Rec."Bill-to Customer No.";
+        end;
+
+        OnAfterCopyToItemJnlLine(ItemJournalLine, Rec);
+#if not CLEAN25
+        ItemJournalLine.RunOnAfterCopyItemJnlLineFromServLine(ItemJournalLine, Rec);
+#endif
+    end;
+
+    procedure CopyToResJournalLine(var ResJournalLine: Record "Res. Journal Line")
+    begin
+        ResJournalLine."Posting Date" := Rec."Posting Date";
+        ResJournalLine."Order Type" := ResJournalLine."Order Type"::Service;
+        ResJournalLine."Order Line No." := Rec."Line No.";
+        ResJournalLine."Resource No." := Rec."No.";
+        ResJournalLine.Description := Rec.Description;
+        ResJournalLine."Work Type Code" := Rec."Work Type Code";
+        ResJournalLine."Shortcut Dimension 1 Code" := Rec."Shortcut Dimension 1 Code";
+        ResJournalLine."Shortcut Dimension 2 Code" := Rec."Shortcut Dimension 2 Code";
+        ResJournalLine."Dimension Set ID" := Rec."Dimension Set ID";
+        ResJournalLine."Unit of Measure Code" := Rec."Unit of Measure Code";
+        ResJournalLine."Qty. per Unit of Measure" := Rec."Qty. per Unit of Measure";
+        ResJournalLine."Gen. Bus. Posting Group" := Rec."Gen. Bus. Posting Group";
+        ResJournalLine."Gen. Prod. Posting Group" := Rec."Gen. Prod. Posting Group";
+        ResJournalLine."Source Type" := ResJournalLine."Source Type"::Customer;
+        ResJournalLine."Source No." := Rec."Customer No.";
+        ResJournalLine."Time Sheet No." := Rec."Time Sheet No.";
+        ResJournalLine."Time Sheet Line No." := Rec."Time Sheet Line No.";
+        ResJournalLine."Time Sheet Date" := Rec."Time Sheet Date";
+        ResJournalLine."Job No." := Rec."Job No.";
+
+        OnAfterCopyToResJournalLine(ResJournalLine, Rec);
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var ServiceLine: Record "Service Line"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
@@ -6403,7 +6463,7 @@ table 5902 "Service Line"
     begin
     end;
 
-#if not CLEAN23
+#if not CLEAN25
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterResourseFindCost(var ServiceLine: Record "Service Line"; var ResourceCost: Record "Resource Cost")
@@ -7108,6 +7168,21 @@ table 5902 "Service Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterPickPrice(var ServiceLine: Record "Service Line"; var PriceCalculation: Interface "Price Calculation")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCopyToItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ServiceLine: Record "Service Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyToItemJnlLine(var ItemJournalLine: Record "Item Journal Line"; ServiceLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyToResJournalLine(var ResJournalLine: Record "Res. Journal Line"; ServiceLine: Record "Service Line")
     begin
     end;
 

@@ -47,32 +47,32 @@ table 11787 "Detailed Fin. Charge Memo Line"
         }
         field(9; "Entry Type"; Enum "Detailed CV Ledger Entry Type")
         {
-            CalcFormula = Lookup("Detailed Cust. Ledg. Entry"."Entry Type" where("Entry No." = field("Detailed Customer Entry No.")));
+            CalcFormula = lookup("Detailed Cust. Ledg. Entry"."Entry Type" where("Entry No." = field("Detailed Customer Entry No.")));
             Caption = 'Entry Type';
             FieldClass = FlowField;
         }
         field(10; "Posting Date"; Date)
         {
-            CalcFormula = Lookup("Detailed Cust. Ledg. Entry"."Posting Date" where("Entry No." = field("Detailed Customer Entry No.")));
+            CalcFormula = lookup("Detailed Cust. Ledg. Entry"."Posting Date" where("Entry No." = field("Detailed Customer Entry No.")));
             Caption = 'Posting Date';
             FieldClass = FlowField;
         }
         field(11; "Document Type"; Enum "Gen. Journal Document Type")
         {
-            CalcFormula = Lookup("Detailed Cust. Ledg. Entry"."Document Type" where("Entry No." = field("Detailed Customer Entry No.")));
+            CalcFormula = lookup("Detailed Cust. Ledg. Entry"."Document Type" where("Entry No." = field("Detailed Customer Entry No.")));
             Caption = 'Document Type';
             FieldClass = FlowField;
         }
         field(12; "Document No."; Code[20])
         {
-            CalcFormula = Lookup("Detailed Cust. Ledg. Entry"."Document No." where("Entry No." = field("Detailed Customer Entry No.")));
+            CalcFormula = lookup("Detailed Cust. Ledg. Entry"."Document No." where("Entry No." = field("Detailed Customer Entry No.")));
             Caption = 'Document No.';
             FieldClass = FlowField;
         }
         field(13; "Base Amount"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Lookup("Detailed Cust. Ledg. Entry".Amount where("Entry No." = field("Detailed Customer Entry No.")));
+            CalcFormula = lookup("Detailed Cust. Ledg. Entry".Amount where("Entry No." = field("Detailed Customer Entry No.")));
             Caption = 'Base Amount';
             FieldClass = FlowField;
         }

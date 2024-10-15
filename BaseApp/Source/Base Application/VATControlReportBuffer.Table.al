@@ -202,7 +202,7 @@ table 31103 "VAT Control Report Buffer"
         }
         field(100; "VAT Control Rep. Section Desc."; Text[50])
         {
-            CalcFormula = Lookup("VAT Control Report Section".Description where(Code = field("VAT Control Rep. Section Code")));
+            CalcFormula = lookup("VAT Control Report Section".Description where(Code = field("VAT Control Rep. Section Code")));
             Caption = 'VAT Control Rep. Section Desc.';
             Editable = false;
             FieldClass = FlowField;

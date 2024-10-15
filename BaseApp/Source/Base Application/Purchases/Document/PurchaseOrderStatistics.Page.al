@@ -566,12 +566,18 @@ page 403 "Purchase Order Statistics"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Purchase %1 Statistics';
+#pragma warning restore AA0470
         Text001: Label 'Total';
         Text002: Label 'Amount';
+#pragma warning disable AA0470
         Text003: Label '%1 must not be 0.';
         Text004: Label '%1 must not be greater than %2.';
         Text005: Label 'You cannot change the invoice discount because there is a %1 record for %2 %3.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Vend: Record Vendor;
         TempVATAmountLine1: Record "VAT Amount Line" temporary;
         TempVATAmountLine2: Record "VAT Amount Line" temporary;
@@ -590,10 +596,12 @@ page 403 "Purchase Order Statistics"
         VATLinesFormIsEditable: Boolean;
         AllowInvDisc: Boolean;
         AllowVATDifference: Boolean;
+#pragma warning disable AA0074
         Text006: Label 'Prepmt. Amount';
         Text007: Label 'Prepmt. Amt. Invoiced';
         Text008: Label 'Prepmt. Amt. Deducted';
         Text009: Label 'Prepmt. Amt. to Deduct';
+#pragma warning restore AA0074
         UpdateInvDiscountQst: Label 'One or more lines have been invoiced. The discount distributed to invoiced lines will not be taken into account.\\Do you want to update the invoice discount?';
 
     protected var

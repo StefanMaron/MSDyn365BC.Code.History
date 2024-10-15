@@ -310,7 +310,7 @@ page 40 "Item Journal"
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies the expiration date, if any, of the item carrying the item tracking number.';
-                    Editable = ItemTrackingEditable;
+                    Editable = ExpirationDateEditable;
                     Visible = CanSelectItemTrackingOnLines;
                 }
                 field("Warranty Date"; Rec."Warranty Date")
@@ -508,7 +508,7 @@ page 40 "Item Journal"
                     Caption = 'Item &Tracking Lines';
                     Image = ItemTrackingLines;
                     ShortCutKey = 'Ctrl+Alt+I';
-                    ToolTip = 'View or edit serial numbers and lot numbers that are assigned to the item on the document or journal line.';
+                    ToolTip = 'View or edit serial, lot and package numbers that are assigned to the item on the document or journal line.';
 
                     trigger OnAction()
                     begin
@@ -584,7 +584,7 @@ page 40 "Item Journal"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByEvent())
+                            ItemAvailFormsMgt.ShowItemAvailabilityFromItemJnlLine(Rec, "Item Availability Type"::"Event")
                         end;
                     }
                     action(Period)
@@ -596,7 +596,7 @@ page 40 "Item Journal"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByPeriod())
+                            ItemAvailFormsMgt.ShowItemAvailabilityFromItemJnlLine(Rec, "Item Availability Type"::Period)
                         end;
                     }
                     action("Variant")
@@ -608,7 +608,7 @@ page 40 "Item Journal"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByVariant())
+                            ItemAvailFormsMgt.ShowItemAvailabilityFromItemJnlLine(Rec, "Item Availability Type"::Variant)
                         end;
                     }
                     action(Location)
@@ -621,7 +621,7 @@ page 40 "Item Journal"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByLocation())
+                            ItemAvailFormsMgt.ShowItemAvailabilityFromItemJnlLine(Rec, "Item Availability Type"::Location)
                         end;
                     }
                     action(Lot)
@@ -645,7 +645,7 @@ page 40 "Item Journal"
 
                         trigger OnAction()
                         begin
-                            ItemAvailFormsMgt.ShowItemAvailFromItemJnlLine(Rec, ItemAvailFormsMgt.ByBOM())
+                            ItemAvailFormsMgt.ShowItemAvailabilityFromItemJnlLine(Rec, "Item Availability Type"::BOM)
                         end;
                     }
                 }
@@ -1025,6 +1025,8 @@ page 40 "Item Journal"
         ItemTrackingEditable := false;
         if CanSelectItemTrackingOnLines then
             ItemTrackingEditable := not Rec.ReservEntryExist();
+
+        ExpirationDateEditable := SetExpirationDateVisibility();
     end;
 
     trigger OnAfterGetRecord()
@@ -1035,6 +1037,8 @@ page 40 "Item Journal"
         ItemTrackingEditable := false;
         if CanSelectItemTrackingOnLines then
             ItemTrackingEditable := not Rec.ReservEntryExist();
+
+        ExpirationDateEditable := SetExpirationDateVisibility();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -1084,9 +1088,14 @@ page 40 "Item Journal"
         BackgroundErrorCheck: Boolean;
         ShowAllLinesEnabled: Boolean;
         IsSaaSExcelAddinEnabled: Boolean;
+        ExpirationDateEditable: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot use entry type %1 in this journal.';
         Text001: Label 'Item Journal lines have been successfully inserted from Standard Item Journal %1.';
         Text002: Label 'Standard Item Journal %1 has been successfully created.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     protected var
         EntryType: Enum "Item Journal Entry Type";
@@ -1137,6 +1146,7 @@ page 40 "Item Journal"
     begin
         ItemJnlMgt.GetItem(Rec."Item No.", ItemDescription);
         Rec.ShowShortcutDimCode(ShortcutDimCode);
+        ExpirationDateEditable := SetExpirationDateVisibility();
     end;
 
     local procedure SetDimensionsVisibility()
@@ -1182,6 +1192,28 @@ page 40 "Item Journal"
     begin
         if Rec."Entry Type".AsInteger() > Rec."Entry Type"::"Negative Adjmt.".AsInteger() then
             Error(Text000, Rec."Entry Type");
+    end;
+
+    local procedure SetExpirationDateVisibility(): Boolean
+    var
+        Item: Record Item;
+        ItemTrackingCode: Record "Item Tracking Code";
+    begin
+        if not ItemTrackingEditable then
+            exit(false);
+
+        if Rec."Item No." = '' then
+            exit(false);
+
+        Item.SetLoadFields("Item Tracking Code");
+        Item.Get(Rec."Item No.");
+
+        if Item."Item Tracking Code" = '' then
+            exit(false);
+
+        ItemTrackingCode.SetLoadFields("Use Expiration Dates");
+        ItemTrackingCode.Get(Item."Item Tracking Code");
+        exit(ItemTrackingCode."Use Expiration Dates");
     end;
 
     [IntegrationEvent(false, false)]

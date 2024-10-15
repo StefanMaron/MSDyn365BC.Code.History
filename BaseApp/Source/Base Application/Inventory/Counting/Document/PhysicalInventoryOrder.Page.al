@@ -357,6 +357,8 @@ page 5875 "Physical Inventory Order"
                 end;
             }
         }
+#if not CLEAN25
+#pragma warning disable AL0545
         area(creation)
         {
             action("New Phys. Inventory Recording")
@@ -366,8 +368,13 @@ page 5875 "Physical Inventory Order"
                 Image = PhysicalInventory;
                 RunObject = Page "Phys. Inventory Recording";
                 ToolTip = 'Create new physical inventory recording.';
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Action removed as creation area is not supported and not rendered in document page.';
+                ObsoleteTag = '25.0';
             }
         }
+#pragma warning restore AL0545
+#endif
         area(reporting)
         {
             action("Physical Inventory Recording")

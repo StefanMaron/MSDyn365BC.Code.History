@@ -46,7 +46,6 @@ report 5914 "Delete Invoiced Service Orders"
                 if GuiAllowed() then
                     ProgressDialog.Update(1, "No.");
 
-
                 ServiceOrderLine.SetRange("Document Type", "Document Type");
                 ServiceOrderLine.SetRange("Document No.", "No.");
                 ServiceOrderLine.SetFilter("Quantity Invoiced", '<>0');

@@ -82,15 +82,6 @@ codeunit 31316 "Gen.Jnl.Check Line Handler CZL"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Gen. Jnl.-Check Line", 'OnBeforeRunCheck', '', false, false)]
     local procedure CheckVatDateOnBeforeRunCheck(var GenJournalLine: Record "Gen. Journal Line")
     begin
-#if not CLEAN22
-#pragma warning disable AL0432
-        if not GenJournalLine.IsReplaceVATDateEnabled() then begin
-            if GenJournalLine."VAT Date CZL" = 0D then
-                GenJournalLine.Validate("VAT Date CZL", GenJournalLine."Posting Date");
-            exit;
-        end;
-#pragma warning restore AL0432
-#endif
         if GenJournalLine."VAT Reporting Date" = 0D then
             GenJournalLine.Validate("VAT Reporting Date", GenJournalLine."Posting Date");
     end;
@@ -125,14 +116,6 @@ codeunit 31316 "Gen.Jnl.Check Line Handler CZL"
            (GenJournalLine."Document Type" in [GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Invoice])
         then
             GenJournalLine.TestField("Original Doc. VAT Date CZL");
-#if not CLEAN22
-#pragma warning disable AL0432
-        if not GenJournalLine.IsReplaceVATDateEnabled() then
-            if GenJournalLine."Original Doc. VAT Date CZL" > GenJournalLine."VAT Date CZL" then
-                GenJournalLine.FieldError("Original Doc. VAT Date CZL", StrSubstNo(MustBeLessOrEqualErr, GenJournalLine.FieldCaption(GenJournalLine."VAT Date CZL")));
-        if GenJournalLine.IsReplaceVATDateEnabled() then
-#pragma warning restore AL0432
-#endif
             if GenJournalLine."Original Doc. VAT Date CZL" > GenJournalLine."VAT Reporting Date" then
                 GenJournalLine.FieldError("Original Doc. VAT Date CZL", StrSubstNo(MustBeLessOrEqualErr, GenJournalLine.FieldCaption(GenJournalLine."VAT Reporting Date")));
     end;

@@ -185,6 +185,10 @@ table 741 "VAT Report Line"
 
     var
         VATReportHeader: Record "VAT Report Header";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text001: Label 'This is not allowed because of the setup in the %1 window.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 }
 

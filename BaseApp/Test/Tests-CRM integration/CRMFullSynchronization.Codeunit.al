@@ -77,7 +77,7 @@ codeunit 139187 "CRM Full Synchronization"
         VerifyDependencyFilter('ITEM-PRODUCT', 'UNIT OF MEASURE');
         // [THEN] 'RESOURCE-PRODUCT' line, where "Dependency Filter" = 'UNIT OF MEASURE'
         VerifyDependencyFilter('RESOURCE-PRODUCT', 'UNIT OF MEASURE');
-#if not CLEAN23
+#if not CLEAN25
         // [THEN] 'CUSTPRCGRP-PRICE' line, where "Dependency Filter" = 'CURRENCY|ITEM-PRODUCT'
         VerifyDependencyFilter('CUSTPRCGRP-PRICE', 'CURRENCY|ITEM-PRODUCT');
         // [THEN] 'SALESPRC-PRODPRICE' line, where "Dependency Filter" = 'CUSTPRCGRP-PRICE|ITEM-PRODUCT'
@@ -143,7 +143,7 @@ codeunit 139187 "CRM Full Synchronization"
         VerifyDependencyFilter('ITEM-PRODUCT', 'ITEM UOM');
         // [THEN] 'RESOURCE-PRODUCT' line, where "Dependency Filter" = 'RESOURCE UOM'
         VerifyDependencyFilter('RESOURCE-PRODUCT', 'RESOURCE UOM');
-#if not CLEAN23
+#if not CLEAN25
         // [THEN] 'CUSTPRCGRP-PRICE' line, where "Dependency Filter" = 'CURRENCY|ITEM-PRODUCT'
         VerifyDependencyFilter('CUSTPRCGRP-PRICE', 'CURRENCY|ITEM-PRODUCT');
         // [THEN] 'SALESPRC-PRODPRICE' line, where "Dependency Filter" = 'CUSTPRCGRP-PRICE|ITEM-PRODUCT'
@@ -642,32 +642,30 @@ codeunit 139187 "CRM Full Synchronization"
         CRMFullSynchReviewLine: Record "CRM Full Synch. Review Line";
     begin
         // [FEATURE] [UT] [Status] [Style]
-        with CRMFullSynchReviewLine do begin
-            "Job Queue Entry Status" := "Job Queue Entry Status"::Error;
-            Assert.AreEqual('Unfavorable', GetStatusStyleExpression(Format("Job Queue Entry Status")), 'Job Queue Entry Status::Error');
+        CRMFullSynchReviewLine."Job Queue Entry Status" := CRMFullSynchReviewLine."Job Queue Entry Status"::Error;
+        Assert.AreEqual('Unfavorable', CRMFullSynchReviewLine.GetStatusStyleExpression(Format(CRMFullSynchReviewLine."Job Queue Entry Status")), 'Job Queue Entry Status::Error');
 
-            "Job Queue Entry Status" := "Job Queue Entry Status"::Finished;
-            Assert.AreEqual('Favorable', GetStatusStyleExpression(Format("Job Queue Entry Status")), 'Job Queue Entry Status::Finished');
+        CRMFullSynchReviewLine."Job Queue Entry Status" := CRMFullSynchReviewLine."Job Queue Entry Status"::Finished;
+        Assert.AreEqual('Favorable', CRMFullSynchReviewLine.GetStatusStyleExpression(Format(CRMFullSynchReviewLine."Job Queue Entry Status")), 'Job Queue Entry Status::Finished');
 
-            "Job Queue Entry Status" := "Job Queue Entry Status"::"In Process";
-            Assert.AreEqual('Ambiguous', GetStatusStyleExpression(Format("Job Queue Entry Status")), 'Job Queue Entry Status::In Process');
+        CRMFullSynchReviewLine."Job Queue Entry Status" := CRMFullSynchReviewLine."Job Queue Entry Status"::"In Process";
+        Assert.AreEqual('Ambiguous', CRMFullSynchReviewLine.GetStatusStyleExpression(Format(CRMFullSynchReviewLine."Job Queue Entry Status")), 'Job Queue Entry Status::In Process');
 
-            "Job Queue Entry Status" := "Job Queue Entry Status"::"On Hold";
-            Assert.AreEqual('Subordinate', GetStatusStyleExpression(Format("Job Queue Entry Status")), 'Job Queue Entry Status::On Hold');
+        CRMFullSynchReviewLine."Job Queue Entry Status" := CRMFullSynchReviewLine."Job Queue Entry Status"::"On Hold";
+        Assert.AreEqual('Subordinate', CRMFullSynchReviewLine.GetStatusStyleExpression(Format(CRMFullSynchReviewLine."Job Queue Entry Status")), 'Job Queue Entry Status::On Hold');
 
-            "Job Queue Entry Status" := "Job Queue Entry Status"::Ready;
-            Assert.AreEqual('Subordinate', GetStatusStyleExpression(Format("Job Queue Entry Status")), 'Job Queue Entry Status::Ready');
+        CRMFullSynchReviewLine."Job Queue Entry Status" := CRMFullSynchReviewLine."Job Queue Entry Status"::Ready;
+        Assert.AreEqual('Subordinate', CRMFullSynchReviewLine.GetStatusStyleExpression(Format(CRMFullSynchReviewLine."Job Queue Entry Status")), 'Job Queue Entry Status::Ready');
 
-            "To Int. Table Job Status" := "To Int. Table Job Status"::Error;
-            Assert.AreEqual('Unfavorable', GetStatusStyleExpression(Format("To Int. Table Job Status")), 'To Int. Table Job Status::Error');
+        CRMFullSynchReviewLine."To Int. Table Job Status" := CRMFullSynchReviewLine."To Int. Table Job Status"::Error;
+        Assert.AreEqual('Unfavorable', CRMFullSynchReviewLine.GetStatusStyleExpression(Format(CRMFullSynchReviewLine."To Int. Table Job Status")), 'To Int. Table Job Status::Error');
 
-            "To Int. Table Job Status" := "To Int. Table Job Status"::"In Process";
-            Assert.AreEqual(
-              'Ambiguous', GetStatusStyleExpression(Format("To Int. Table Job Status")), 'To Int. Table Job Status::In Process');
+        CRMFullSynchReviewLine."To Int. Table Job Status" := CRMFullSynchReviewLine."To Int. Table Job Status"::"In Process";
+        Assert.AreEqual(
+          'Ambiguous', CRMFullSynchReviewLine.GetStatusStyleExpression(Format(CRMFullSynchReviewLine."To Int. Table Job Status")), 'To Int. Table Job Status::In Process');
 
-            "To Int. Table Job Status" := "To Int. Table Job Status"::Success;
-            Assert.AreEqual('Favorable', GetStatusStyleExpression(Format("To Int. Table Job Status")), 'To Int. Table Job Status::Success');
-        end;
+        CRMFullSynchReviewLine."To Int. Table Job Status" := CRMFullSynchReviewLine."To Int. Table Job Status"::Success;
+        Assert.AreEqual('Favorable', CRMFullSynchReviewLine.GetStatusStyleExpression(Format(CRMFullSynchReviewLine."To Int. Table Job Status")), 'To Int. Table Job Status::Success');
     end;
 
     [Test]
@@ -766,7 +764,7 @@ codeunit 139187 "CRM Full Synchronization"
         // [WHEN] Run "Start"
         CRMFullSynchReviewLine.Start();
 
-#if not CLEAN23
+#if not CLEAN25
         // [THEN] Lines 'CUSTPRCGRP-PRICE' and 'CUSTOMER' get "Status" = 'On Hold'
         OnHold := 3;
         CRMFullSynchReviewLine.SetFilter(Name, 'CUSTPRCGRP-PRICE|CUSTOMER|VENDOR');
@@ -807,7 +805,7 @@ codeunit 139187 "CRM Full Synchronization"
         SetStatus('PAYMENT TERMS', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         SetStatus('SHIPMENT METHOD', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         SetStatus('SHIPPING AGENT', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
-#if not CLEAN23
+#if not CLEAN25
         SetStatus('CUSTPRCGRP-PRICE', CRMFullSynchReviewLine."Job Queue Entry Status"::Finished);
         Finished := 7;
 #else
@@ -817,7 +815,7 @@ codeunit 139187 "CRM Full Synchronization"
         // [WHEN] Run "Start"
         CRMFullSynchReviewLine.Start();
 
-#if not CLEAN23
+#if not CLEAN25
         // [THEN] Lines 'CUSTPRCGRP-PRICE','RESOURCE-PRODUCT','SALESPEOPLE' get "Job Queue Entry Status" = 'On Hold'
         OnHold := 3;
         CRMFullSynchReviewLine.SetFilter(Name, 'SALESPRC-PRODPRICE|RESOURCE-PRODUCT|SALESPEOPLE');
@@ -1123,6 +1121,7 @@ codeunit 139187 "CRM Full Synchronization"
         CRMOrganization: Record "CRM Organization";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
         CDSSetupDefaults: Codeunit "CDS Setup Defaults";
+        ClientSecret: Text;
     begin
         LibraryPriceCalculation.DisableExtendedPriceCalculation();
         if EnableExtendedPrice then
@@ -1135,7 +1134,8 @@ codeunit 139187 "CRM Full Synchronization"
         CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
         CDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model"::Person;
         CDSConnectionSetup.Validate("Client Id", 'ClientId');
-        CDSConnectionSetup.SetClientSecret('ClientSecret');
+        ClientSecret := 'ClientSecret';
+        CDSConnectionSetup.SetClientSecret(ClientSecret);
         CDSConnectionSetup.Validate("Redirect URL", 'RedirectURL');
         CDSConnectionSetup.Modify();
         CRMConnectionSetup."Unit Group Mapping Enabled" := EnableUnitGroupMapping;
@@ -1150,12 +1150,13 @@ codeunit 139187 "CRM Full Synchronization"
 
     local procedure BlankTableConfigTemplateCodes(MapName: Code[20])
     var
-        IntegrationTableMapping: Record "Integration Table Mapping";
+        TableConfigTemplate: Record "Table Config Template";
+        IntTableConfigTemplate: Record "Int. Table Config Template";
     begin
-        IntegrationTableMapping.Get(MapName);
-        IntegrationTableMapping."Table Config Template Code" := '';
-        IntegrationTableMapping."Int. Tbl. Config Template Code" := '';
-        IntegrationTableMapping.Modify();
+        TableConfigTemplate.SetRange("Integration Table Mapping Name", MapName);
+        TableConfigTemplate.DeleteAll();
+        IntTableConfigTemplate.SetRange("Integration Table Mapping Name", MapName);
+        IntTableConfigTemplate.DeleteAll();
     end;
 
     local procedure SetStatus(Name: Code[20]; NewStatus: Option)
@@ -1270,18 +1271,16 @@ codeunit 139187 "CRM Full Synchronization"
     var
         CRMFullSynchReviewLine: Record "CRM Full Synch. Review Line";
     begin
-        with CRMFullSynchReviewLine do begin
-            Get(MapName);
-            Assert.IsFalse(IsNullGuid("Job Queue Entry ID"), 'Job Queue Entry ID should not be null');
-            TestField("Job Queue Entry Status", "Job Queue Entry Status"::"In Process");
-            Assert.IsTrue(IsActiveSession(), 'Session should be active');
+        CRMFullSynchReviewLine.Get(MapName);
+        Assert.IsFalse(IsNullGuid(CRMFullSynchReviewLine."Job Queue Entry ID"), 'Job Queue Entry ID should not be null');
+        CRMFullSynchReviewLine.TestField("Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::"In Process");
+        Assert.IsTrue(CRMFullSynchReviewLine.IsActiveSession(), 'Session should be active');
 
-            Assert.IsFalse(IsNullGuid("To Int. Table Job ID"), 'To Int. Table Job ID is null.');
-            TestField("To Int. Table Job Status", "To Int. Table Job Status"::"In Process");
+        Assert.IsFalse(IsNullGuid(CRMFullSynchReviewLine."To Int. Table Job ID"), 'To Int. Table Job ID is null.');
+        CRMFullSynchReviewLine.TestField("To Int. Table Job Status", CRMFullSynchReviewLine."To Int. Table Job Status"::"In Process");
 
-            Assert.IsTrue(IsNullGuid("From Int. Table Job ID"), 'From Int. Table Job ID is not null.');
-            TestField("From Int. Table Job Status", "From Int. Table Job Status"::" ");
-        end;
+        Assert.IsTrue(IsNullGuid(CRMFullSynchReviewLine."From Int. Table Job ID"), 'From Int. Table Job ID is not null.');
+        CRMFullSynchReviewLine.TestField("From Int. Table Job Status", CRMFullSynchReviewLine."From Int. Table Job Status"::" ");
     end;
 
     local procedure VerifyNAVRecIsCoupled(RecID: RecordID)
@@ -1380,21 +1379,19 @@ codeunit 139187 "CRM Full Synchronization"
         if SourceRecordRef.Number <> DATABASE::"CRM Account" then
             exit;
         SourceRecordRef.SetTable(CRMAccount);
-        with CRMFullSynchReviewLine do begin
-            Get('CUSTOMER');
-            Assert.IsFalse(IsNullGuid("Job Queue Entry ID"), 'Job Queue Entry ID should not be null');
-            TestField("Job Queue Entry Status", "Job Queue Entry Status"::"In Process");
-            Assert.IsTrue(IsActiveSession(), 'Session should be active');
+        CRMFullSynchReviewLine.Get('CUSTOMER');
+        Assert.IsFalse(IsNullGuid(CRMFullSynchReviewLine."Job Queue Entry ID"), 'Job Queue Entry ID should not be null');
+        CRMFullSynchReviewLine.TestField("Job Queue Entry Status", CRMFullSynchReviewLine."Job Queue Entry Status"::"In Process");
+        Assert.IsTrue(CRMFullSynchReviewLine.IsActiveSession(), 'Session should be active');
 
-            Assert.IsFalse(IsNullGuid("To Int. Table Job ID"), 'To Int. Table Job ID is null.');
-            if CRMAccount.Name = 'FAIL' then
-                TestField("To Int. Table Job Status", "To Int. Table Job Status"::Error)
-            else
-                TestField("To Int. Table Job Status", "To Int. Table Job Status"::Success);
+        Assert.IsFalse(IsNullGuid(CRMFullSynchReviewLine."To Int. Table Job ID"), 'To Int. Table Job ID is null.');
+        if CRMAccount.Name = 'FAIL' then
+            CRMFullSynchReviewLine.TestField("To Int. Table Job Status", CRMFullSynchReviewLine."To Int. Table Job Status"::Error)
+        else
+            CRMFullSynchReviewLine.TestField("To Int. Table Job Status", CRMFullSynchReviewLine."To Int. Table Job Status"::Success);
 
-            Assert.IsFalse(IsNullGuid("From Int. Table Job ID"), 'From Int. Table Job ID is null.');
-            TestField("From Int. Table Job Status", "From Int. Table Job Status"::"In Process");
-        end;
+        Assert.IsFalse(IsNullGuid(CRMFullSynchReviewLine."From Int. Table Job ID"), 'From Int. Table Job ID is null.');
+        CRMFullSynchReviewLine.TestField("From Int. Table Job Status", CRMFullSynchReviewLine."From Int. Table Job Status"::"In Process");
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"CRM Integration Table Synch.", 'OnQueryPostFilterIgnoreRecord', '', false, false)]

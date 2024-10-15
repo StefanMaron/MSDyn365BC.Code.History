@@ -142,11 +142,15 @@ report 99003800 "Reg. Abs. (from Machine Ctr.)"
     end;
 
     var
+#pragma warning disable AA0074
         Text000: Label 'The Starting Date field must not be blank.';
         Text001: Label 'The Ending Date field must not be blank.';
+#pragma warning disable AA0470
         Text002: Label 'The %1 field must not be blank.';
+#pragma warning restore AA0470
         Text003: Label 'The ending date must be later than the starting date.';
         Text004: Label 'The ending time must be later than the starting time.';
+#pragma warning restore AA0074
         AbsenceChange: Record "Registered Absence";
         StartingDate: Date;
         EndingDate: Date;

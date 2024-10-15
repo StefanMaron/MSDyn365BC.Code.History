@@ -56,7 +56,9 @@ report 7110 "Renumber Analysis Lines"
     var
         AnalysisLine: Record "Analysis Line";
         RowRefNo: Code[20];
+#pragma warning disable AA0074
         Text000: Label 'The reference numbers were successfully changed.';
+#pragma warning restore AA0074
 
     procedure Init(var AnalysisLine2: Record "Analysis Line")
     begin

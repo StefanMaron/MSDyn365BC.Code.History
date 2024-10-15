@@ -19,7 +19,9 @@
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
+#if not CLEAN23
         ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
+#endif
         WrongAmountErr: Label '%1 must be %2 in %3.';
         WrongBankAccLedgEntryAmtErr: Label 'Wrong %1 in Bank Account Ledger Entry.';
 
@@ -193,7 +195,9 @@
     end;
 
     [Test]
+#if not CLEAN23
     [HandlerFunctions('StatisticsMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure SalesInvoiceWithPaymentGeneralAndUnrealizedLoss()
     begin
@@ -204,7 +208,9 @@
     end;
 
     [Test]
+#if not CLEAN23
     [HandlerFunctions('StatisticsMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure SalesInvoiceWithPaymentGeneralAndUnrealizedGain()
     begin
@@ -414,7 +420,9 @@
     end;
 
     [Test]
+#if not CLEAN23
     [HandlerFunctions('StatisticsMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure PurchInvoiceWithPaymentGeneralAndUnrealizedLoss()
     begin
@@ -425,7 +433,9 @@
     end;
 
     [Test]
+#if not CLEAN23
     [HandlerFunctions('StatisticsMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure PurchInvoiceWithPaymentGeneralAndUnrealizedGain()
     begin
@@ -1169,6 +1179,7 @@
         Assert.AreEqual(
           ExpectedAmount, GLEntry."Additional-Currency Amount", GLEntry.FieldCaption("Additional-Currency Amount"));
     end;
+#if not CLEAN23
 
     [MessageHandler]
     [Scope('OnPrem')]
@@ -1176,5 +1187,6 @@
     begin
         Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
     end;
+#endif
 }
 

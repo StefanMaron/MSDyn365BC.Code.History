@@ -1,4 +1,4 @@
-﻿﻿namespace Microsoft.Warehouse.Activity;
+﻿namespace Microsoft.Warehouse.Activity;
 
 using Microsoft.Assembly.Document;
 using Microsoft.Finance.GeneralLedger.Preview;
@@ -52,9 +52,13 @@ codeunit 7324 "Whse.-Activity-Post"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'Warehouse Activity    #1##########\\';
         Text001: Label 'Checking lines        #2######\';
         Text002: Label 'Posting lines         #3###### @4@@@@@@@@@@@@@';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         Location: Record Location;
         Item: Record Item;
         WhseActivHeader: Record "Warehouse Activity Header";
@@ -82,7 +86,11 @@ codeunit 7324 "Whse.-Activity-Post"
         LineCount: Integer;
         PostingReference: Integer;
         HideDialog: Boolean;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text005: Label 'The source document %1 %2 is not released.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         InvoiceSourceDoc: Boolean;
         PrintDoc: Boolean;
         SuppressCommit: Boolean;
@@ -1183,7 +1191,7 @@ codeunit 7324 "Whse.-Activity-Post"
         ProdOrderRouteManagement.Check(ProdOrderLine);
     end;
 
-    local procedure GetLocation(LocationCode: Code[10])
+    procedure GetLocation(LocationCode: Code[10])
     begin
         if LocationCode = '' then
             Clear(Location)

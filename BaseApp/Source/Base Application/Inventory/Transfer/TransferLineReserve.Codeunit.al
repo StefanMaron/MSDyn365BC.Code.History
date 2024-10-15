@@ -5,11 +5,7 @@ using Microsoft.Inventory.Journal;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Planning;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Manufacturing.Document;
-using Microsoft.Projects.Project.Planning;
-using Microsoft.Purchases.Document;
-using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
+using Microsoft.Inventory.Ledger;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.Ledger;
 
@@ -35,7 +31,9 @@ codeunit 99000836 "Transfer Line-Reserve"
         Text002Err: Label 'must be filled in when a quantity is reserved';
         Text003Err: Label 'must not be changed when a quantity is reserved';
         Text006Err: Label 'Outbound,Inbound';
+        TransferTxt: Label 'Transfer';
         SummaryTypeTxt: Label '%1, %2', Locked = true;
+        SourceDoc3Txt: Label '%1 %2 %3', Locked = true;
 
     procedure CreateReservation(var TransferLine: Record "Transfer Line"; Description: Text[100]; ExpectedReceiptDate: Date; Quantity: Decimal; QuantityBase: Decimal; ForReservationEntry: Record "Reservation Entry"; Direction: Enum "Transfer Direction")
     var
@@ -74,7 +72,7 @@ codeunit 99000836 "Transfer Line-Reserve"
                           Text001Err,
                           Abs(TransferLine."Outstanding Qty. (Base)") - Abs(TransferLine."Reserved Qty. Inbnd. (Base)"));
                     ExpectedReceiptDate := TransferLine."Receipt Date";
-                    ShipmentDate := GetInboundReservEntryShipmentDate();
+                    ShipmentDate := FromTrackingSpecification.GetSourceShipmentDate();
                 end;
         end;
 
@@ -99,6 +97,11 @@ codeunit 99000836 "Transfer Line-Reserve"
     procedure CreateReservationSetFrom(TrackingSpecification: Record "Tracking Specification")
     begin
         FromTrackingSpecification := TrackingSpecification;
+    end;
+
+    procedure SetBinding(Binding: Enum "Reservation Binding")
+    begin
+        CreateReservEntry.SetBinding(Binding);
     end;
 
     procedure Caption(TransferLine: Record "Transfer Line") CaptionText: Text
@@ -575,7 +578,7 @@ codeunit 99000836 "Transfer Line-Reserve"
         ItemTrackingLines: Page "Item Tracking Lines";
         AvalabilityDate: Date;
     begin
-        TrackingSpecification.InitFromTransLine(TransferLine, AvalabilityDate, Direction);
+        InitFromTransLine(TrackingSpecification, TransferLine, AvalabilityDate, Direction);
         if DirectTransfer then
             ItemTrackingLines.SetDirectTransfer(true);
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, AvalabilityDate);
@@ -591,7 +594,7 @@ codeunit 99000836 "Transfer Line-Reserve"
         ItemTrackingLines: Page "Item Tracking Lines";
         AvailabilityDate: Date;
     begin
-        TrackingSpecification.InitFromTransLine(TransferLine, AvailabilityDate, Direction);
+        InitFromTransLine(TrackingSpecification, TransferLine, AvailabilityDate, Direction);
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, AvailabilityDate);
         ItemTrackingLines.SetSecondSourceQuantity(SecondSourceQuantityArray);
         OnCallItemTrackingOnBeforeItemTrackingLinesRunModal(TransferLine, ItemTrackingLines);
@@ -628,91 +631,14 @@ codeunit 99000836 "Transfer Line-Reserve"
     begin
         if not TempTrackingSpecification.FindSet() then
             exit;
-        SourceTrackingSpecification.InitFromTransLine(TransferLine, TransferLine."Shipment Date", Enum::"Transfer Direction"::Outbound);
+
+        InitFromTransLine(SourceTrackingSpecification, TransferLine, TransferLine."Shipment Date", Enum::"Transfer Direction"::Outbound);
 
         Clear(ItemTrackingLines);
         ItemTrackingLines.SetRunMode(Enum::"Item Tracking Run Mode"::Transfer);
         ItemTrackingLines.SetSourceSpec(SourceTrackingSpecification, TransferLine."Shipment Date");
         ItemTrackingLines.RegisterItemTrackingLines(
           SourceTrackingSpecification, TransferLine."Shipment Date", TempTrackingSpecification);
-    end;
-
-    local procedure GetInboundReservEntryShipmentDate() InboundReservEntryShipmentDate: Date
-    begin
-        case FromTrackingSpecification."Source Type" of
-            Database::"Sales Line":
-                InboundReservEntryShipmentDate := GetInboundReservEntryShipmentDateBySalesLine();
-            Database::"Purchase Line":
-                InboundReservEntryShipmentDate := GetInboundReservEntryShipmentDateByPurchaseLine();
-            Database::"Transfer Line":
-                InboundReservEntryShipmentDate := GetInboundReservEntryShipmentDateByTransferLine();
-            Database::"Service Line":
-                InboundReservEntryShipmentDate := GetInboundReservEntryShipmentDateByServiceLine();
-            Database::"Job Planning Line":
-                InboundReservEntryShipmentDate := GetInboundReservEntryShipmentDateByJobPlanningLine();
-            Database::"Prod. Order Component":
-                InboundReservEntryShipmentDate := GetInboundReservEntryShipmentDateByProdOrderComponent();
-        end;
-    end;
-
-    local procedure GetInboundReservEntryShipmentDateByProdOrderComponent(): Date
-    var
-        ProdOrderComponent: Record "Prod. Order Component";
-    begin
-        ProdOrderComponent.Get(
-            FromTrackingSpecification."Source Subtype", FromTrackingSpecification."Source ID",
-            FromTrackingSpecification."Source Prod. Order Line", FromTrackingSpecification."Source Ref. No.");
-        exit(ProdOrderComponent."Due Date");
-    end;
-
-    local procedure GetInboundReservEntryShipmentDateBySalesLine(): Date
-    var
-        SalesLine: Record "Sales Line";
-    begin
-        SalesLine.Get(
-            FromTrackingSpecification."Source Subtype", FromTrackingSpecification."Source ID",
-            FromTrackingSpecification."Source Ref. No.");
-        exit(SalesLine."Shipment Date");
-    end;
-
-    local procedure GetInboundReservEntryShipmentDateByPurchaseLine(): Date
-    var
-        PurchaseLine: Record "Purchase Line";
-    begin
-        PurchaseLine.Get(
-            FromTrackingSpecification."Source Subtype", FromTrackingSpecification."Source ID",
-            FromTrackingSpecification."Source Ref. No.");
-        exit(PurchaseLine."Expected Receipt Date");
-    end;
-
-    local procedure GetInboundReservEntryShipmentDateByTransferLine(): Date
-    var
-        TransferLine: Record "Transfer Line";
-    begin
-        TransferLine.Get(
-            FromTrackingSpecification."Source ID", FromTrackingSpecification."Source Ref. No.");
-        exit(TransferLine."Shipment Date");
-    end;
-
-    local procedure GetInboundReservEntryShipmentDateByServiceLine(): Date
-    var
-        ServiceLine: Record "Service Line";
-    begin
-        ServiceLine.Get(
-            FromTrackingSpecification."Source Subtype", FromTrackingSpecification."Source ID",
-            FromTrackingSpecification."Source Ref. No.");
-        exit(ServiceLine."Needed by Date");
-    end;
-
-    local procedure GetInboundReservEntryShipmentDateByJobPlanningLine(): Date
-    var
-        JobPlanningLine: Record "Job Planning Line";
-    begin
-        JobPlanningLine.SetRange(Status, FromTrackingSpecification."Source Subtype");
-        JobPlanningLine.SetRange("Job No.", FromTrackingSpecification."Source ID");
-        JobPlanningLine.SetRange("Job Contract Entry No.", FromTrackingSpecification."Source Ref. No.");
-        JobPlanningLine.FindFirst();
-        exit(JobPlanningLine."Planning Date");
     end;
 
     local procedure AutoTracking(OldTransferLine: Record "Transfer Line"; NewTransferLine: Record "Transfer Line"; var TempReservationEntry: Record "Reservation Entry" temporary; Direction: Enum "Transfer Direction")
@@ -772,14 +698,14 @@ codeunit 99000836 "Transfer Line-Reserve"
     end;
 
     [EventSubscriber(ObjectType::Page, Page::Reservation, 'OnSetReservSource', '', false, false)]
-    local procedure OnSetReservSource(SourceRecRef: RecordRef; var ReservEntry: Record "Reservation Entry"; var CaptionText: Text; Direction: Integer)
+    local procedure ReservationOnSetReservSource(SourceRecRef: RecordRef; var ReservEntry: Record "Reservation Entry"; var CaptionText: Text; Direction: Integer)
     begin
         if MatchThisTable(SourceRecRef.Number) then
             SetReservSourceFor(SourceRecRef, ReservEntry, CaptionText, Enum::"Transfer Direction".FromInteger(Direction));
     end;
 
     [EventSubscriber(ObjectType::Page, Page::Reservation, 'OnDrillDownTotalQuantity', '', false, false)]
-    local procedure OnDrillDownTotalQuantity(SourceRecRef: RecordRef; ReservEntry: Record "Reservation Entry"; EntrySummary: Record "Entry Summary"; Location: Record Location; MaxQtyToReserve: Decimal)
+    local procedure ReservationOnDrillDownTotalQuantity(SourceRecRef: RecordRef; ReservEntry: Record "Reservation Entry"; EntrySummary: Record "Entry Summary"; Location: Record Location; MaxQtyToReserve: Decimal)
     var
         AvailableTransferLines: page "Available - Transfer Lines";
     begin
@@ -791,7 +717,7 @@ codeunit 99000836 "Transfer Line-Reserve"
     end;
 
     [EventSubscriber(ObjectType::Page, Page::Reservation, 'OnFilterReservEntry', '', false, false)]
-    local procedure OnFilterReservEntry(var FilterReservEntry: Record "Reservation Entry"; ReservEntrySummary: Record "Entry Summary")
+    local procedure ReservationOnFilterReservEntry(var FilterReservEntry: Record "Reservation Entry"; ReservEntrySummary: Record "Entry Summary")
     begin
         if MatchThisEntry(ReservEntrySummary."Entry No.") then begin
             FilterReservEntry.SetRange("Source Type", Database::"Transfer Line");
@@ -800,12 +726,24 @@ codeunit 99000836 "Transfer Line-Reserve"
     end;
 
     [EventSubscriber(ObjectType::Page, Page::Reservation, 'OnAfterRelatesToSummEntry', '', false, false)]
-    local procedure OnRelatesToEntrySummary(var FilterReservEntry: Record "Reservation Entry"; FromEntrySummary: Record "Entry Summary"; var IsHandled: Boolean)
+    local procedure ReservationOnRelatesToEntrySummary(var FilterReservEntry: Record "Reservation Entry"; FromEntrySummary: Record "Entry Summary"; var IsHandled: Boolean)
     begin
         if MatchThisEntry(FromEntrySummary."Entry No.") then
             IsHandled :=
                 (FilterReservEntry."Source Type" = Database::"Transfer Line") and
                 (FilterReservEntry."Source Subtype" = FromEntrySummary."Entry No." - EntryStartNo());
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Ledger Entry-Reserve", 'OnDrillDownTotalQuantity', '', false, false)]
+    local procedure ItemLedgerEntryOnDrillDownTotalQuantity(SourceRecRef: RecordRef; EntrySummary: Record "Entry Summary" temporary; ReservEntry: Record "Reservation Entry"; Location: Record Location; MaxQtyToReserve: Decimal; var IsHandled: Boolean; sender: Codeunit "Item Ledger Entry-Reserve")
+    var
+        CheckOutbound: Boolean;
+    begin
+        if MatchThisTable(ReservEntry."Source Type") then begin
+            CheckOutbound := Location."Bin Mandatory" or Location."Require Pick";
+            sender.DrillDownTotalQuantity(SourceRecRef, EntrySummary, ReservEntry, MaxQtyToReserve, CheckOutbound, true);
+            IsHandled := true;
+        end;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnCreateReservation', '', false, false)]
@@ -951,6 +889,93 @@ codeunit 99000836 "Transfer Line-Reserve"
         PAGE.RunModal(0, TransferLine);
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnAfterAutoReserveOneLine', '', false, false)]
+    local procedure OnAfterAutoReserveOneLine(ReservSummEntryNo: Integer; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; Description: Text[100]; AvailabilityDate: Date; Search: Text[1]; NextStep: Integer; CalcReservEntry: Record "Reservation Entry"; CalcReservEntry2: Record "Reservation Entry"; Positive: Boolean; var sender: Codeunit "Reservation Management")
+    begin
+        if MatchThisEntry(ReservSummEntryNo) then
+            AutoReserveTransLine(
+                CalcReservEntry, sender, ReservSummEntryNo, RemainingQtyToReserve, RemainingQtyToReserveBase,
+                Description, AvailabilityDate, Search, NextStep, Positive);
+    end;
+
+    local procedure AutoReserveTransLine(var CalcReservEntry: Record "Reservation Entry"; var sender: Codeunit "Reservation Management"; ReservSummEntryNo: Integer; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; Description: Text[100]; AvailabilityDate: Date; Search: Text[1]; NextStep: Integer; Positive: Boolean)
+    var
+        CallTrackingSpecification: Record "Tracking Specification";
+        TransLine: Record "Transfer Line";
+        TransferDirection: Enum "Transfer Direction";
+        QtyThisLine: Decimal;
+        QtyThisLineBase: Decimal;
+        ReservQty: Decimal;
+        LocationCode: Code[10];
+        EntryDate: Date;
+        IsReserved: Boolean;
+    begin
+#if not CLEAN25
+        IsReserved := false;
+        sender.RunOnBeforeAutoReserveTransLine(
+          ReservSummEntryNo, RemainingQtyToReserve, RemainingQtyToReserve, Description, AvailabilityDate, IsReserved, Search, NextStep, CalcReservEntry);
+        if IsReserved then
+            exit;
+#endif
+        IsReserved := false;
+        OnBeforeAutoReserveTransLine(
+          ReservSummEntryNo, RemainingQtyToReserve, RemainingQtyToReserve, Description, AvailabilityDate, IsReserved, Search, NextStep, CalcReservEntry);
+        if IsReserved then
+            exit;
+
+        case ReservSummEntryNo of
+            Enum::"Reservation Summary Type"::"Transfer Shipment".AsInteger():
+                TransLine.FilterOutboundLinesForReservation(CalcReservEntry, sender.GetAvailabilityFilter(AvailabilityDate), Positive);
+            Enum::"Reservation Summary Type"::"Transfer Receipt".AsInteger():
+                TransLine.FilterInboundLinesForReservation(CalcReservEntry, sender.GetAvailabilityFilter(AvailabilityDate), Positive);
+        end;
+        if TransLine.Find(Search) then
+            repeat
+                case ReservSummEntryNo of
+                    Enum::"Reservation Summary Type"::"Transfer Shipment".AsInteger():
+                        begin
+                            TransLine.CalcFields("Reserved Qty. Outbnd. (Base)");
+                            QtyThisLine := -TransLine."Outstanding Quantity";
+                            QtyThisLineBase := -TransLine."Outstanding Qty. (Base)";
+                            ReservQty := -TransLine."Reserved Qty. Outbnd. (Base)";
+                            EntryDate := TransLine."Shipment Date";
+                            LocationCode := TransLine."Transfer-from Code";
+                            if Positive = (QtyThisLineBase < 0) then begin
+                                QtyThisLine := 0;
+                                QtyThisLineBase := 0;
+                            end;
+                            sender.SetQtyToReserveDownToTrackedQuantity(
+                                CalcReservEntry, TransLine.RowID1(TransferDirection::Outbound), QtyThisLine, QtyThisLineBase);
+                        end;
+                    Enum::"Reservation Summary Type"::"Transfer Receipt".AsInteger():
+                        begin
+                            TransLine.CalcFields("Reserved Qty. Inbnd. (Base)");
+                            QtyThisLine := TransLine."Outstanding Quantity";
+                            QtyThisLineBase := TransLine."Outstanding Qty. (Base)";
+                            ReservQty := TransLine."Reserved Qty. Inbnd. (Base)";
+                            EntryDate := TransLine."Receipt Date";
+                            LocationCode := TransLine."Transfer-to Code";
+                            if Positive = (QtyThisLineBase < 0) then begin
+                                QtyThisLine := 0;
+                                QtyThisLineBase := 0;
+                            end;
+                            sender.SetQtyToReserveDownToTrackedQuantity(
+                                CalcReservEntry, TransLine.RowID1(TransferDirection::Inbound), QtyThisLine, QtyThisLineBase);
+                        end;
+                end;
+
+                CallTrackingSpecification.InitTrackingSpecification(
+                  Database::"Transfer Line", ReservSummEntryNo - Enum::"Reservation Summary Type"::"Transfer Shipment".AsInteger(),
+                  TransLine."Document No.", '', TransLine."Derived From Line No.", TransLine."Line No.",
+                  TransLine."Variant Code", LocationCode, TransLine."Qty. per Unit of Measure");
+                CallTrackingSpecification.CopyTrackingFromReservEntry(CalcReservEntry);
+
+                sender.InsertReservationEntries(
+                    RemainingQtyToReserve, RemainingQtyToReserveBase, ReservQty,
+                    Description, EntryDate, QtyThisLine, QtyThisLineBase, CallTrackingSpecification);
+            until (TransLine.Next(NextStep) = 0) or (RemainingQtyToReserveBase = 0);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCallItemTracking(var TransferLine: Record "Transfer Line")
     begin
@@ -1017,6 +1042,11 @@ codeunit 99000836 "Transfer Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeAutoReserveTransLine(ReservSummEntryNo: Integer; var RemainingQtyToReserve: Decimal; var RemainingQtyToReserveBase: Decimal; Description: Text[100]; AvailabilityDate: Date; var IsReserved: Boolean; var Search: Text[1]; var NextStep: Integer; CalcReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeUpdateItemTrackingAfterPosting(var ReservationEntry2: Record "Reservation Entry"; var ReservationEntry: Record "Reservation Entry")
     begin
     end;
@@ -1024,6 +1054,122 @@ codeunit 99000836 "Transfer Line-Reserve"
     [IntegrationEvent(false, false)]
     local procedure OnCreateReservationOnBeforeCreateReservation(var TransferLine: Record "Transfer Line"; var TrackingSpecification: Record "Tracking Specification"; var Description: Text[100]; var ExpectedDate: Date; var Quantity: Decimal; var QuantityBase: Decimal; var ReservationEntry: Record "Reservation Entry")
     begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetSourceForReservationOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; TransferLine: Record "Transfer Line")
+    begin
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnIssueActionMessageOnSetSourceTypeFromSKU', '', false, false)]
+    local procedure OnIssueActionMessageOnSetSourceTypeFromSKU(var ActionMessageEntry: Record "Action Message Entry"; SKU: Record "Stockkeeping Unit")
+    begin
+        if SKU."Replenishment System" = SKU."Replenishment System"::Transfer then
+            ActionMessageEntry."Source Type" := Database::"Transfer Line";
+    end;
+
+    // codeunit Reservation Engine Mgt. subscribers
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Engine Mgt.", 'OnRevertDateToSourceDate', '', false, false)]
+    local procedure OnRevertDateToSourceDate(var ReservEntry: Record "Reservation Entry")
+    var
+        TransferLine: Record "Transfer Line";
+    begin
+        if ReservEntry."Source Type" = Database::"Transfer Line" then begin
+            TransferLine.Get(ReservEntry."Source ID", ReservEntry."Source Ref. No.");
+            if ReservEntry.Positive then begin
+                ReservEntry."Expected Receipt Date" := TransferLine."Receipt Date";
+                ReservEntry."Shipment Date" := 0D;
+            end else begin
+                ReservEntry."Expected Receipt Date" := 0D;
+                ReservEntry."Shipment Date" := TransferLine."Shipment Date";
+            end;
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Engine Mgt.", 'OnGetActivePointerFieldsOnBeforeAssignArrayValues', '', false, false)]
+    local procedure OnGetActivePointerFieldsOnBeforeAssignArrayValues(TableID: Integer; var PointerFieldIsActive: array[6] of Boolean; var IsHandled: Boolean)
+    begin
+        if TableID = Database::"Transfer Line" then begin
+            PointerFieldIsActive[1] := true;  // Type
+            PointerFieldIsActive[2] := true;  // SubType
+            PointerFieldIsActive[3] := true;  // ID
+            PointerFieldIsActive[5] := true;  // ProdOrderLine
+            PointerFieldIsActive[6] := true;  // RefNo
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Engine Mgt.", 'OnCreateText', '', false, false)]
+    local procedure OnAfterCreateText(ReservationEntry: Record "Reservation Entry"; var Description: Text[80])
+    var
+        TransferDirection: Enum "Transfer Direction";
+    begin
+        if ReservationEntry."Source Type" = Database::"Transfer Line" then begin
+            TransferDirection := "Transfer Direction".FromInteger(ReservationEntry."Source Subtype");
+            Description := StrSubstNo(SourceDoc3Txt, TransferTxt, ReservationEntry."Source ID", Format(TransferDirection));
+        end;
+    end;
+
+    procedure InitFromTransLine(var TrackingSpecification: Record "Tracking Specification"; var TransLine: Record "Transfer Line"; var AvalabilityDate: Date; Direction: Enum "Transfer Direction")
+    begin
+        case Direction of
+            Direction::Outbound:
+                begin
+                    TrackingSpecification.Init();
+                    TrackingSpecification.SetItemData(
+                      TransLine."Item No.", TransLine.Description, TransLine."Transfer-from Code", TransLine."Variant Code",
+                      TransLine."Transfer-from Bin Code", TransLine."Qty. per Unit of Measure", TransLine."Qty. Rounding Precision (Base)");
+                    TrackingSpecification.SetSource(
+                      Database::"Transfer Line", Direction.AsInteger(), TransLine."Document No.", TransLine."Line No.", '',
+                      TransLine."Derived From Line No.");
+                    TrackingSpecification.SetQuantities(
+                      TransLine."Quantity (Base)", TransLine."Qty. to Ship", TransLine."Qty. to Ship (Base)", TransLine.Quantity,
+                      TransLine."Quantity (Base)", TransLine."Qty. Shipped (Base)", 0);
+                    AvalabilityDate := TransLine."Shipment Date";
+                end;
+            Direction::Inbound:
+                begin
+                    TrackingSpecification.Init();
+                    TrackingSpecification.SetItemData(
+                      TransLine."Item No.", TransLine.Description, TransLine."Transfer-to Code", TransLine."Variant Code",
+                      TransLine."Transfer-To Bin Code", TransLine."Qty. per Unit of Measure", TransLine."Qty. Rounding Precision (Base)");
+                    TrackingSpecification.SetSource(
+                      Database::"Transfer Line", Direction.AsInteger(), TransLine."Document No.", TransLine."Line No.", '',
+                      TransLine."Derived From Line No.");
+                    TrackingSpecification.SetQuantities(
+                      TransLine."Quantity (Base)", TransLine."Qty. to Receive", TransLine."Qty. to Receive (Base)", TransLine.Quantity,
+                      TransLine."Quantity (Base)", TransLine."Qty. Received (Base)", 0);
+                    AvalabilityDate := TransLine."Receipt Date";
+                end;
+        end;
+
+        OnAfterInitFromTransLine(TrackingSpecification, TransLine, Direction);
+#if not CLEAN25
+        TrackingSpecification.RunOnAfterInitFromTransLine(TrackingSpecification, TransLine, Direction);
+#endif
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitFromTransLine(var TrackingSpecification: Record "Tracking Specification"; TransferLine: Record "Transfer Line"; Direction: Enum "Transfer Direction")
+    begin
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Reservation Entry", 'OnAfterSummEntryNo', '', false, false)]
+    local procedure OnBeforeSummEntryNo(ReservationEntry: Record "Reservation Entry"; var ReturnValue: Integer)
+    begin
+        if MatchThisTable(ReservationEntry."Source Type") then
+            ReturnValue := Enum::"Reservation Summary Type"::"Transfer Shipment".AsInteger() + ReservationEntry."Source Subtype";
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Tracking Specification", 'OnGetSourceShipmentDate', '', false, false)]
+    local procedure OnGetSourceShipmentDate(var TrackingSpecification: Record "Tracking Specification"; var ShipmentDate: Date);
+    var
+        TransferLine: Record "Transfer Line";
+    begin
+        if TrackingSpecification."Source Type" = Database::"Transfer Line" then begin
+            TransferLine.Get(TrackingSpecification."Source ID", TrackingSpecification."Source Ref. No.");
+            ShipmentDate := TransferLine."Shipment Date";
+        end;
     end;
 }
 

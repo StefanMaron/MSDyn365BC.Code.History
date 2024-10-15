@@ -226,6 +226,8 @@ report 5808 "Item Age Composition - Value"
 
     requestpage
     {
+        AboutTitle = 'About Item Age Composition – Value';
+        AboutText = 'Review the age of stock in your warehouse by value to determine obsolescence and identify slow moving inventory. View your open inventory value split across 5 aging buckets based on the period length and ending date. Filter the report by Location to determine the age of Inventory by warehouse.';
         SaveValues = true;
 
         layout
@@ -309,7 +311,9 @@ report 5808 "Item Age Composition - Value"
         AverageCost: array[5] of Decimal;
         AverageCostACY: array[5] of Decimal;
 
+#pragma warning disable AA0074
         Text002: Label 'Enter the ending date';
+#pragma warning restore AA0074
         ItemAgeCompositionValueCaptionLbl: Label 'Item Age Composition - Value';
         CurrReportPageNoCaptionLbl: Label 'Page';
         AfterCaptionLbl: Label 'After...';

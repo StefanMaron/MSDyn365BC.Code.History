@@ -156,11 +156,11 @@ codeunit 137212 "SCM Copy Document Mgt."
     procedure TestOverwriteHeader()
     var
         SalesHeader: Record "Sales Header";
+        SalesHeader2: Record "Sales Header";
         SourceType: Enum "Sales Document Type From";
         DestType: Enum "Sales Document Type";
         SourceNo: Code[20];
         DestNo: Code[20];
-        ExpectedErrorMsg: Text[50];
     begin
         Initialize();
 
@@ -179,14 +179,10 @@ codeunit 137212 "SCM Copy Document Mgt."
           CopyDocumentMgt.GetSalesDocumentType(SourceType), CreateCustomer());
 
         DestNo := CopyToDestinationSalesDocument(SourceType, SourceNo, SalesHeader);
+        SalesHeader2.Get(CopyDocumentMgt.GetSalesDocumentType(SourceType), SourceNo);
 
         asserterror VerifyCopy(SourceType, SourceNo, DestType, DestNo);
-
-        ExpectedErrorMsg := 'Sell-to Customer No. must be equal to';
-
-        Assert.AreEqual(CopyStr(GetLastErrorText, 1, StrLen(ExpectedErrorMsg)), ExpectedErrorMsg,
-          StrSubstNo('Unexpected error message when validating copied header. Got %1, expected %2.',
-            GetLastErrorText, ExpectedErrorMsg));
+        Assert.ExpectedTestFieldError(SalesHeader.FieldCaption("Sell-to Customer No."), SalesHeader2."Sell-to Customer No.");
     end;
 
     [Test]
@@ -1061,10 +1057,10 @@ codeunit 137212 "SCM Copy Document Mgt."
         Clear(SalesHeader);
 
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
-        ASSERTERROR LibrarySales.CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Invoice", DocumentNo, true, false);
+        asserterror LibrarySales.CopySalesDocument(SalesHeader, "Sales Document Type From"::"Posted Invoice", DocumentNo, true, false);
 
-        IF NOT GETLASTERRORTEXT.Contains('covers more than one shipment of linked assembly orders that potentially have different assembly components. Select Posted Shipment as document type, and then select a specific shipment of assembled items.') THEN
-            ERROR('Unexpected error: %1', GETLASTERRORTEXT);
+        if not GetLastErrorText().Contains('covers more than one shipment of linked assembly orders that potentially have different assembly components. Select Posted Shipment as document type, and then select a specific shipment of assembled items.') then
+            Error('Unexpected error: %1', GetLastErrorText());
     end;
 
     [Test]
@@ -1977,60 +1973,52 @@ codeunit 137212 "SCM Copy Document Mgt."
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        with PurchaseLine do begin
-            SetRange("Document Type", PurchaseHeader."Document Type");
-            SetRange("Document No.", PurchaseHeader."No.");
-            FindSet();
-            repeat
-                Validate("Qty. to Receive", QtyToReceive);
-                Modify(true);
-            until Next() = 0;
-        end;
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindSet();
+        repeat
+            PurchaseLine.Validate("Qty. to Receive", QtyToReceive);
+            PurchaseLine.Modify(true);
+        until PurchaseLine.Next() = 0;
     end;
 
     local procedure UpdateReturnQtyToShipOnPurchaseLines(PurchaseHeader: Record "Purchase Header"; ReturnQtyToShip: Decimal)
     var
         PurchaseLine: Record "Purchase Line";
     begin
-        with PurchaseLine do begin
-            SetRange("Document Type", PurchaseHeader."Document Type");
-            SetRange("Document No.", PurchaseHeader."No.");
-            FindSet();
-            repeat
-                Validate("Return Qty. to Ship", ReturnQtyToShip);
-                Modify(true);
-            until Next() = 0;
-        end;
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindSet();
+        repeat
+            PurchaseLine.Validate("Return Qty. to Ship", ReturnQtyToShip);
+            PurchaseLine.Modify(true);
+        until PurchaseLine.Next() = 0;
     end;
 
     local procedure UpdateQtyToShipOnSalesLines(SalesHeader: Record "Sales Header"; QtyToShip: Decimal)
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            FindSet();
-            repeat
-                Validate("Qty. to Ship", QtyToShip);
-                Modify(true);
-            until Next() = 0;
-        end;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindSet();
+        repeat
+            SalesLine.Validate("Qty. to Ship", QtyToShip);
+            SalesLine.Modify(true);
+        until SalesLine.Next() = 0;
     end;
 
     local procedure UpdateReturnQtyToReceiveOnSalesLines(SalesHeader: Record "Sales Header"; ReturnQtyToReceive: Decimal)
     var
         SalesLine: Record "Sales Line";
     begin
-        with SalesLine do begin
-            SetRange("Document Type", SalesHeader."Document Type");
-            SetRange("Document No.", SalesHeader."No.");
-            FindSet();
-            repeat
-                Validate("Return Qty. to Receive", ReturnQtyToReceive);
-                Modify(true);
-            until Next() = 0;
-        end;
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindSet();
+        repeat
+            SalesLine.Validate("Return Qty. to Receive", ReturnQtyToReceive);
+            SalesLine.Modify(true);
+        until SalesLine.Next() = 0;
     end;
 
     local procedure VerifyCopy(SourceType: Enum "Sales Document Type From"; SourceNo: Code[20]; DestType: Enum "Sales Document Type"; DestNo: Code[20])

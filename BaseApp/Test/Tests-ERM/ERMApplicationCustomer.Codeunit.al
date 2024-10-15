@@ -22,7 +22,9 @@ codeunit 134010 "ERM Application Customer"
         DeltaAssert: Codeunit "Delta Assert";
         LibraryRandom: Codeunit "Library - Random";
         isInitialized: Boolean;
+#if not CLEAN23
         ExchRateWasAdjustedTxt: Label 'One or more currency exchange rates have been adjusted.';
+#endif
         WrongBalancePerTransNoErr: Label 'Wrong total amount of detailed entries per transaction.';
 
     [Test]
@@ -34,13 +36,12 @@ codeunit 134010 "ERM Application Customer"
     begin
         Initialize();
 
-        for Stepwise := false to true do
-            with GenJournalLine do begin
-                CustomerInvPmt("Document Type"::Payment, "Document Type"::Invoice, GetCustomerAmount(), Stepwise);
-                CustomerInvPmt("Document Type"::Refund, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
-                CustomerInvPmt("Document Type"::Payment, "Document Type"::Refund, GetCustomerAmount(), Stepwise);
-                CustomerInvPmt("Document Type"::Invoice, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
-            end;
+        for Stepwise := false to true do begin
+            CustomerInvPmt(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Invoice, GetCustomerAmount(), Stepwise);
+            CustomerInvPmt(GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
+            CustomerInvPmt(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Refund, GetCustomerAmount(), Stepwise);
+            CustomerInvPmt(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
+        end;
 
         TearDown();
     end;
@@ -54,16 +55,15 @@ codeunit 134010 "ERM Application Customer"
     begin
         Initialize();
 
-        for Stepwise := false to true do
-            with GenJournalLine do begin
-                CustomerInvPmtDisc("Document Type"::Payment, "Document Type"::Invoice, GetCustomerAmount(), Stepwise);
-                CustomerInvPmtDisc("Document Type"::Refund, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
-                // The following two combinations do not generate discount ledger entries and will thus fail to close.
-                asserterror CustomerInvPmtDisc("Document Type"::Payment, "Document Type"::Refund, GetCustomerAmount(), Stepwise);
-                DeltaAssert.Reset();
-                asserterror CustomerInvPmtDisc("Document Type"::Invoice, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
-                DeltaAssert.Reset();
-            end;
+        for Stepwise := false to true do begin
+            CustomerInvPmtDisc(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Invoice, GetCustomerAmount(), Stepwise);
+            CustomerInvPmtDisc(GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
+            // The following two combinations do not generate discount ledger entries and will thus fail to close.
+            asserterror CustomerInvPmtDisc(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Refund, GetCustomerAmount(), Stepwise);
+            DeltaAssert.Reset();
+            asserterror CustomerInvPmtDisc(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
+            DeltaAssert.Reset();
+        end;
 
         TearDown();
     end;
@@ -77,13 +77,12 @@ codeunit 134010 "ERM Application Customer"
     begin
         Initialize();
 
-        for Stepwise := false to true do
-            with GenJournalLine do begin
-                CustomerInvPmtVAT("Document Type"::Payment, "Document Type"::Invoice, GetCustomerAmount(), Stepwise);
-                CustomerInvPmtVAT("Document Type"::Refund, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
-                CustomerInvPmtVAT("Document Type"::Payment, "Document Type"::Refund, GetCustomerAmount(), Stepwise);
-                CustomerInvPmtVAT("Document Type"::Invoice, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
-            end;
+        for Stepwise := false to true do begin
+            CustomerInvPmtVAT(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Invoice, GetCustomerAmount(), Stepwise);
+            CustomerInvPmtVAT(GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
+            CustomerInvPmtVAT(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Refund, GetCustomerAmount(), Stepwise);
+            CustomerInvPmtVAT(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
+        end;
 
         TearDown();
     end;
@@ -97,13 +96,12 @@ codeunit 134010 "ERM Application Customer"
     begin
         Initialize();
 
-        for Stepwise := false to true do
-            with GenJournalLine do begin
-                CustomerInvPmtCorrection("Document Type"::Payment, "Document Type"::Invoice, GetCustomerAmount(), Stepwise);
-                CustomerInvPmtCorrection("Document Type"::Refund, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
-                CustomerInvPmtCorrection("Document Type"::Payment, "Document Type"::Refund, GetCustomerAmount(), Stepwise);
-                CustomerInvPmtCorrection("Document Type"::Invoice, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
-            end;
+        for Stepwise := false to true do begin
+            CustomerInvPmtCorrection(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Invoice, GetCustomerAmount(), Stepwise);
+            CustomerInvPmtCorrection(GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
+            CustomerInvPmtCorrection(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Refund, GetCustomerAmount(), Stepwise);
+            CustomerInvPmtCorrection(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
+        end;
 
         TearDown();
     end;
@@ -117,14 +115,13 @@ codeunit 134010 "ERM Application Customer"
     begin
         Initialize();
 
-        for Stepwise := false to true do
-            with GenJournalLine do begin
-                CustomerPmtDiscVATAdjust("Document Type"::Payment, "Document Type"::Invoice, GetCustomerAmount(), Stepwise);
-                CustomerPmtDiscVATAdjust("Document Type"::Refund, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
-                // The following two combinations do not generate payment tolerance ledger entries and will thus fail to close.
-                asserterror CustomerPmtDiscVATAdjust("Document Type"::Payment, "Document Type"::Refund, GetCustomerAmount(), Stepwise);
-                asserterror CustomerPmtDiscVATAdjust("Document Type"::Invoice, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
-            end;
+        for Stepwise := false to true do begin
+            CustomerPmtDiscVATAdjust(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Invoice, GetCustomerAmount(), Stepwise);
+            CustomerPmtDiscVATAdjust(GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
+            // The following two combinations do not generate payment tolerance ledger entries and will thus fail to close.
+            asserterror CustomerPmtDiscVATAdjust(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Refund, GetCustomerAmount(), Stepwise);
+            asserterror CustomerPmtDiscVATAdjust(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
+        end;
 
         TearDown();
     end;
@@ -140,14 +137,13 @@ codeunit 134010 "ERM Application Customer"
 
         SetupPaymentTolerance();
 
-        for Stepwise := false to true do
-            with GenJournalLine do begin
-                CustomerPmtTolVATAdjust("Document Type"::Payment, "Document Type"::Invoice, GetCustomerAmount(), Stepwise);
-                CustomerPmtTolVATAdjust("Document Type"::Refund, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
-                // The following two combinations do not generate payment tolerance ledger entries and will thus fail to close.
-                asserterror CustomerPmtTolVATAdjust("Document Type"::Payment, "Document Type"::Refund, GetCustomerAmount(), Stepwise);
-                asserterror CustomerPmtTolVATAdjust("Document Type"::Invoice, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
-            end;
+        for Stepwise := false to true do begin
+            CustomerPmtTolVATAdjust(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Invoice, GetCustomerAmount(), Stepwise);
+            CustomerPmtTolVATAdjust(GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
+            // The following two combinations do not generate payment tolerance ledger entries and will thus fail to close.
+            asserterror CustomerPmtTolVATAdjust(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Refund, GetCustomerAmount(), Stepwise);
+            asserterror CustomerPmtTolVATAdjust(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
+        end;
 
         TearDown();
     end;
@@ -163,14 +159,13 @@ codeunit 134010 "ERM Application Customer"
 
         LibraryPmtDiscSetup.SetPmtDiscGracePeriodByText('<5D>');
 
-        for Stepwise := false to true do
-            with GenJournalLine do begin
-                CustomerPmtDiscTolVATAdjust("Document Type"::Payment, "Document Type"::Invoice, GetCustomerAmount(), Stepwise);
-                CustomerPmtDiscTolVATAdjust("Document Type"::Refund, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
-                // The following two combinations do not generate payment discount / tolerance ledger entries and will thus fail to close.
-                asserterror CustomerPmtDiscTolVATAdjust("Document Type"::Payment, "Document Type"::Refund, GetCustomerAmount(), Stepwise);
-                asserterror CustomerPmtDiscTolVATAdjust("Document Type"::Invoice, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
-            end;
+        for Stepwise := false to true do begin
+            CustomerPmtDiscTolVATAdjust(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Invoice, GetCustomerAmount(), Stepwise);
+            CustomerPmtDiscTolVATAdjust(GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
+            // The following two combinations do not generate payment discount / tolerance ledger entries and will thus fail to close.
+            asserterror CustomerPmtDiscTolVATAdjust(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Refund, GetCustomerAmount(), Stepwise);
+            asserterror CustomerPmtDiscTolVATAdjust(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise);
+        end;
 
         TearDown();
     end;
@@ -185,17 +180,16 @@ codeunit 134010 "ERM Application Customer"
     begin
         Initialize();
 
-        for Stepwise := false to true do
-            with GenJournalLine do begin
-                CustomerRealizedAdjust("Document Type"::Payment, "Document Type"::Invoice, GetCustomerAmount(), Stepwise,
-                  0.9, DtldCustLedgEntry."Entry Type"::"Realized Loss");
-                CustomerRealizedAdjust("Document Type"::Refund, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise,
-                  1.1, DtldCustLedgEntry."Entry Type"::"Realized Loss");
-                CustomerRealizedAdjust("Document Type"::Payment, "Document Type"::Refund, GetCustomerAmount(), Stepwise,
-                  0.9, DtldCustLedgEntry."Entry Type"::"Realized Loss");
-                CustomerRealizedAdjust("Document Type"::Invoice, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise,
-                  1.1, DtldCustLedgEntry."Entry Type"::"Realized Loss");
-            end;
+        for Stepwise := false to true do begin
+            CustomerRealizedAdjust(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Invoice, GetCustomerAmount(), Stepwise,
+              0.9, DtldCustLedgEntry."Entry Type"::"Realized Loss");
+            CustomerRealizedAdjust(GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise,
+              1.1, DtldCustLedgEntry."Entry Type"::"Realized Loss");
+            CustomerRealizedAdjust(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Refund, GetCustomerAmount(), Stepwise,
+              0.9, DtldCustLedgEntry."Entry Type"::"Realized Loss");
+            CustomerRealizedAdjust(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise,
+              1.1, DtldCustLedgEntry."Entry Type"::"Realized Loss");
+        end;
 
         TearDown();
     end;
@@ -210,23 +204,24 @@ codeunit 134010 "ERM Application Customer"
     begin
         Initialize();
 
-        for Stepwise := false to true do
-            with GenJournalLine do begin
-                CustomerRealizedAdjust("Document Type"::Payment, "Document Type"::Invoice, GetCustomerAmount(), Stepwise,
-                  1.1, DtldCustLedgEntry."Entry Type"::"Realized Gain");
-                CustomerRealizedAdjust("Document Type"::Refund, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise,
-                  0.9, DtldCustLedgEntry."Entry Type"::"Realized Gain");
-                CustomerRealizedAdjust("Document Type"::Payment, "Document Type"::Refund, GetCustomerAmount(), Stepwise,
-                  1.1, DtldCustLedgEntry."Entry Type"::"Realized Gain");
-                CustomerRealizedAdjust("Document Type"::Invoice, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise,
-                  0.9, DtldCustLedgEntry."Entry Type"::"Realized Gain");
-            end;
+        for Stepwise := false to true do begin
+            CustomerRealizedAdjust(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Invoice, GetCustomerAmount(), Stepwise,
+              1.1, DtldCustLedgEntry."Entry Type"::"Realized Gain");
+            CustomerRealizedAdjust(GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise,
+              0.9, DtldCustLedgEntry."Entry Type"::"Realized Gain");
+            CustomerRealizedAdjust(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Refund, GetCustomerAmount(), Stepwise,
+              1.1, DtldCustLedgEntry."Entry Type"::"Realized Gain");
+            CustomerRealizedAdjust(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise,
+              0.9, DtldCustLedgEntry."Entry Type"::"Realized Gain");
+        end;
 
         TearDown();
     end;
 
     [Test]
+#if not CLEAN23
     [HandlerFunctions('StatisticsMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure CustomerUnrealizedGain()
     var
@@ -236,23 +231,24 @@ codeunit 134010 "ERM Application Customer"
     begin
         Initialize();
 
-        for Stepwise := false to true do
-            with GenJournalLine do begin
-                CustomerUnrealizedAdjust("Document Type"::Payment, "Document Type"::Invoice, GetCustomerAmount(), Stepwise,
-                  0.9, DtldCustLedgEntry."Entry Type"::"Realized Loss");
-                CustomerUnrealizedAdjust("Document Type"::Refund, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise,
-                  1.1, DtldCustLedgEntry."Entry Type"::"Realized Loss");
-                CustomerUnrealizedAdjust("Document Type"::Payment, "Document Type"::Refund, GetCustomerAmount(), Stepwise,
-                  0.9, DtldCustLedgEntry."Entry Type"::"Realized Loss");
-                CustomerUnrealizedAdjust("Document Type"::Invoice, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise,
-                  1.1, DtldCustLedgEntry."Entry Type"::"Realized Loss");
-            end;
+        for Stepwise := false to true do begin
+            CustomerUnrealizedAdjust(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Invoice, GetCustomerAmount(), Stepwise,
+              0.9, DtldCustLedgEntry."Entry Type"::"Realized Loss");
+            CustomerUnrealizedAdjust(GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise,
+              1.1, DtldCustLedgEntry."Entry Type"::"Realized Loss");
+            CustomerUnrealizedAdjust(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Refund, GetCustomerAmount(), Stepwise,
+              0.9, DtldCustLedgEntry."Entry Type"::"Realized Loss");
+            CustomerUnrealizedAdjust(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise,
+              1.1, DtldCustLedgEntry."Entry Type"::"Realized Loss");
+        end;
 
         TearDown();
     end;
 
     [Test]
+#if not CLEAN23
     [HandlerFunctions('StatisticsMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure CustomerUnrealizedLoss()
     var
@@ -262,23 +258,24 @@ codeunit 134010 "ERM Application Customer"
     begin
         Initialize();
 
-        for Stepwise := false to true do
-            with GenJournalLine do begin
-                CustomerUnrealizedAdjust("Document Type"::Payment, "Document Type"::Invoice, GetCustomerAmount(), Stepwise,
-                  1.1, DtldCustLedgEntry."Entry Type"::"Realized Gain");
-                CustomerUnrealizedAdjust("Document Type"::Refund, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise,
-                  0.9, DtldCustLedgEntry."Entry Type"::"Realized Gain");
-                CustomerUnrealizedAdjust("Document Type"::Payment, "Document Type"::Refund, GetCustomerAmount(), Stepwise,
-                  1.1, DtldCustLedgEntry."Entry Type"::"Realized Gain");
-                CustomerUnrealizedAdjust("Document Type"::Invoice, "Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise,
-                  0.9, DtldCustLedgEntry."Entry Type"::"Realized Gain");
-            end;
+        for Stepwise := false to true do begin
+            CustomerUnrealizedAdjust(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Invoice, GetCustomerAmount(), Stepwise,
+              1.1, DtldCustLedgEntry."Entry Type"::"Realized Gain");
+            CustomerUnrealizedAdjust(GenJournalLine."Document Type"::Refund, GenJournalLine."Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise,
+              0.9, DtldCustLedgEntry."Entry Type"::"Realized Gain");
+            CustomerUnrealizedAdjust(GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Refund, GetCustomerAmount(), Stepwise,
+              1.1, DtldCustLedgEntry."Entry Type"::"Realized Gain");
+            CustomerUnrealizedAdjust(GenJournalLine."Document Type"::Invoice, GenJournalLine."Document Type"::"Credit Memo", -GetCustomerAmount(), Stepwise,
+              0.9, DtldCustLedgEntry."Entry Type"::"Realized Gain");
+        end;
 
         TearDown();
     end;
 
     [Test]
+#if not CLEAN23
     [HandlerFunctions('StatisticsMessageHandler')]
+#endif
     [Scope('OnPrem')]
     procedure FutureCurrAdjTransaction()
     var
@@ -307,34 +304,31 @@ codeunit 134010 "ERM Application Customer"
         LibrarySales.CreateCustomer(Customer);
 
         GetGLBalancedBatch(GenJournalTemplate, GenJournalBatch, GenJournalTemplate.Type::General);
-        for i := 1 to 3 do
-            with GenJournalLine do begin
-                // [GIVEN] Post Invoice in "FCY" on WorkDate
-                InvAmount := LibraryRandom.RandDec(1000, 2);
-                DocumentNo :=
-                  CreateJournalLine(
-                    GenJournalLine, GenJournalBatch, "Document Type"::Invoice, "Account Type"::Customer,
-                    Customer."No.", InvAmount, '<0D>', CurrencyCode, LibraryUtility.GenerateGUID(), '');
-                RunGenJnlPostLine(GenJournalLine);
-
-                // [GIVEN] Post 1st partial Payment in "FCY" on WorkDate with application to Invoice
-                CreateJournalLine(
-                  GenJournalLine, GenJournalBatch, "Document Type"::Payment, "Account Type"::Customer,
-                  Customer."No.", -InvAmount / (i + 1), '<0D>', CurrencyCode, LibraryUtility.GenerateGUID(), '');
-                Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
-                Validate("Applies-to Doc. No.", DocumentNo);
-                Modify();
-                RunGenJnlPostLine(GenJournalLine);
-
-                // [GIVEN] Post 2nd partial Payment in "FCY" on (WorkDate() + 2) with application to Invoice
-                CreateJournalLine(
-                  GenJournalLine, GenJournalBatch, "Document Type"::Payment, "Account Type"::Customer,
-                  Customer."No.", -InvAmount - Amount, '<2D>', CurrencyCode, LibraryUtility.GenerateGUID(), '');
-                Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
-                Validate("Applies-to Doc. No.", DocumentNo);
-                Modify();
-                RunGenJnlPostLine(GenJournalLine);
-            end;
+        for i := 1 to 3 do begin
+            // [GIVEN] Post Invoice in "FCY" on WorkDate
+            InvAmount := LibraryRandom.RandDec(1000, 2);
+            DocumentNo :=
+              CreateJournalLine(
+                GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer,
+                Customer."No.", InvAmount, '<0D>', CurrencyCode, LibraryUtility.GenerateGUID(), '');
+            RunGenJnlPostLine(GenJournalLine);
+            // [GIVEN] Post 1st partial Payment in "FCY" on WorkDate with application to Invoice
+            CreateJournalLine(
+              GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer,
+              Customer."No.", -InvAmount / (i + 1), '<0D>', CurrencyCode, LibraryUtility.GenerateGUID(), '');
+            GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+            GenJournalLine.Validate("Applies-to Doc. No.", DocumentNo);
+            GenJournalLine.Modify();
+            RunGenJnlPostLine(GenJournalLine);
+            // [GIVEN] Post 2nd partial Payment in "FCY" on (WorkDate() + 2) with application to Invoice
+            CreateJournalLine(
+              GenJournalLine, GenJournalBatch, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer,
+              Customer."No.", -InvAmount - GenJournalLine.Amount, '<2D>', CurrencyCode, LibraryUtility.GenerateGUID(), '');
+            GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+            GenJournalLine.Validate("Applies-to Doc. No.", DocumentNo);
+            GenJournalLine.Modify();
+            RunGenJnlPostLine(GenJournalLine);
+        end;
 
         LastTransactionNo[1] := GetLastTransactionNo();
 
@@ -1653,23 +1647,20 @@ codeunit 134010 "ERM Application Customer"
         Desc: Text[30];
     begin
         ClearJournalBatch(GenJournalBatch);
-
         // Create four documents with seperate document no. and external document no. but with unique description.
-        with GenJournalLine do begin
-            DocumentNo := CreateJournalLine(
-                GenJournalLine, GenJournalBatch, PmtType, "Account Type"::Customer,
-                Customer."No.", PmtAmount / 4, PmtOffset, PmtCurrencyCode, DocumentNo, '');
-            Desc := DocumentNo;
-            DocumentNo := CreateJournalLine(
-                GenJournalLine, GenJournalBatch, PmtType, "Account Type"::Customer,
-                Customer."No.", PmtAmount / 4, PmtOffset, PmtCurrencyCode, IncStr(DocumentNo), Desc);
-            DocumentNo := CreateJournalLine(
-                GenJournalLine, GenJournalBatch, PmtType, "Account Type"::Customer,
-                Customer."No.", PmtAmount / 2, PmtOffset, PmtCurrencyCode, IncStr(DocumentNo), Desc);
-            DocumentNo := CreateJournalLine(
-                GenJournalLine, GenJournalBatch, InvType, "Account Type"::Customer,
-                Customer."No.", -InvAmount, '<0D>', InvCurrencyCode, IncStr(DocumentNo), Desc);
-        end;
+        DocumentNo := CreateJournalLine(
+            GenJournalLine, GenJournalBatch, PmtType, GenJournalLine."Account Type"::Customer,
+            Customer."No.", PmtAmount / 4, PmtOffset, PmtCurrencyCode, DocumentNo, '');
+        Desc := DocumentNo;
+        DocumentNo := CreateJournalLine(
+            GenJournalLine, GenJournalBatch, PmtType, GenJournalLine."Account Type"::Customer,
+            Customer."No.", PmtAmount / 4, PmtOffset, PmtCurrencyCode, IncStr(DocumentNo), Desc);
+        DocumentNo := CreateJournalLine(
+            GenJournalLine, GenJournalBatch, PmtType, GenJournalLine."Account Type"::Customer,
+            Customer."No.", PmtAmount / 2, PmtOffset, PmtCurrencyCode, IncStr(DocumentNo), Desc);
+        DocumentNo := CreateJournalLine(
+            GenJournalLine, GenJournalBatch, InvType, GenJournalLine."Account Type"::Customer,
+            Customer."No.", -InvAmount, '<0D>', InvCurrencyCode, IncStr(DocumentNo), Desc);
 
         PostJournalBatch(GenJournalBatch);
         exit(Desc);
@@ -1744,41 +1735,35 @@ codeunit 134010 "ERM Application Customer"
 
     local procedure MockCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
-        with CustLedgerEntry do begin
-            Init();
-            "Entry No." :=
-              LibraryUtility.GetNewRecNo(CustLedgerEntry, FieldNo("Entry No."));
-            Open := true;
-            Insert();
-            MockDtldLedgEntry("Entry No.");
-        end;
+        CustLedgerEntry.Init();
+        CustLedgerEntry."Entry No." :=
+          LibraryUtility.GetNewRecNo(CustLedgerEntry, CustLedgerEntry.FieldNo("Entry No."));
+        CustLedgerEntry.Open := true;
+        CustLedgerEntry.Insert();
+        MockDtldLedgEntry(CustLedgerEntry."Entry No.");
     end;
 
     local procedure MockDtldLedgEntry(CustLedgEntryNo: Integer)
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        with DetailedCustLedgEntry do begin
-            Init();
-            "Entry No." :=
-              LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, FieldNo("Entry No."));
-            "Cust. Ledger Entry No." := CustLedgEntryNo;
-            "Entry Type" := "Entry Type"::"Initial Entry";
-            Amount := LibraryRandom.RandDec(100, 2);
-            Insert();
-        end;
+        DetailedCustLedgEntry.Init();
+        DetailedCustLedgEntry."Entry No." :=
+          LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, DetailedCustLedgEntry.FieldNo("Entry No."));
+        DetailedCustLedgEntry."Cust. Ledger Entry No." := CustLedgEntryNo;
+        DetailedCustLedgEntry."Entry Type" := DetailedCustLedgEntry."Entry Type"::"Initial Entry";
+        DetailedCustLedgEntry.Amount := LibraryRandom.RandDec(100, 2);
+        DetailedCustLedgEntry.Insert();
     end;
 
     local procedure MockAppliedCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry")
     begin
-        with CustLedgerEntry do begin
-            MockCustLedgEntry(CustLedgerEntry);
-            "Amount to Apply" := LibraryRandom.RandDec(100, 2);
-            "Applies-to ID" := LibraryUtility.GenerateGUID();
-            "Accepted Pmt. Disc. Tolerance" := true;
-            "Accepted Payment Tolerance" := LibraryRandom.RandDec(100, 2);
-            Modify();
-        end;
+        MockCustLedgEntry(CustLedgerEntry);
+        CustLedgerEntry."Amount to Apply" := LibraryRandom.RandDec(100, 2);
+        CustLedgerEntry."Applies-to ID" := LibraryUtility.GenerateGUID();
+        CustLedgerEntry."Accepted Pmt. Disc. Tolerance" := true;
+        CustLedgerEntry."Accepted Payment Tolerance" := LibraryRandom.RandDec(100, 2);
+        CustLedgerEntry.Modify();
     end;
 
     local procedure PostJournalBatch(GenJournalBatch: Record "Gen. Journal Batch")
@@ -1956,16 +1941,14 @@ codeunit 134010 "ERM Application Customer"
 
     local procedure GetVATBalancedBatch(var GenJournalTemplate: Record "Gen. Journal Template"; var GenJournalBatch: Record "Gen. Journal Batch"; GLAccount: Record "G/L Account")
     begin
-        with GenJournalBatch do begin
-            SetRange("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            SetRange("Bal. Account No.", GLAccount."No.");
-            if not FindFirst() then begin
-                GetGLBalancedBatch(GenJournalTemplate, GenJournalBatch, GenJournalTemplate.Type::General);
-                Name := 'CustVAT';
-                "Bal. Account Type" := "Bal. Account Type"::"G/L Account";
-                "Bal. Account No." := GLAccount."No.";
-                Insert(true);
-            end;
+        GenJournalBatch.SetRange("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"G/L Account");
+        GenJournalBatch.SetRange("Bal. Account No.", GLAccount."No.");
+        if not GenJournalBatch.FindFirst() then begin
+            GetGLBalancedBatch(GenJournalTemplate, GenJournalBatch, GenJournalTemplate.Type::General);
+            GenJournalBatch.Name := 'CustVAT';
+            GenJournalBatch."Bal. Account Type" := GenJournalBatch."Bal. Account Type"::"G/L Account";
+            GenJournalBatch."Bal. Account No." := GLAccount."No.";
+            GenJournalBatch.Insert(true);
         end;
     end;
 
@@ -2048,10 +2031,8 @@ codeunit 134010 "ERM Application Customer"
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        with DetailedCustLedgEntry do begin
-            SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
-            SetRange("Entry Type", "Entry Type"::"Appln. Rounding");
-        end;
+        DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
+        DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::"Appln. Rounding");
         Assert.RecordIsNotEmpty(DetailedCustLedgEntry);
     end;
 
@@ -2059,10 +2040,8 @@ codeunit 134010 "ERM Application Customer"
     var
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
-        with DetailedCustLedgEntry do begin
-            SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
-            SetRange("Entry Type", "Entry Type"::"Appln. Rounding");
-        end;
+        DetailedCustLedgEntry.SetRange("Cust. Ledger Entry No.", CustLedgerEntry."Entry No.");
+        DetailedCustLedgEntry.SetRange("Entry Type", DetailedCustLedgEntry."Entry Type"::"Appln. Rounding");
         Assert.RecordIsEmpty(DetailedCustLedgEntry);
     end;
 
@@ -2118,6 +2097,7 @@ codeunit 134010 "ERM Application Customer"
         PostApplication.OK().Invoke();
     end;
 
+#if not CLEAN23
     [MessageHandler]
     [Scope('OnPrem')]
     procedure StatisticsMessageHandler(Message: Text[1024])
@@ -2125,6 +2105,7 @@ codeunit 134010 "ERM Application Customer"
         Assert.ExpectedMessage(ExchRateWasAdjustedTxt, Message);
     end;
 
+#endif
     [MessageHandler]
     [Scope('OnPrem')]
     procedure SimpleMessageHandler(Message: Text[1024])

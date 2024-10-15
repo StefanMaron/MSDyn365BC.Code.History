@@ -34,7 +34,7 @@
   </Item>
   <Item ItemId=";Codeunit 2507221943 - NamedType 518004169" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[is of lesser precision than expected]]></Val>
+      <Val><![CDATA[is of lower precision than expected]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

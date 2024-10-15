@@ -241,11 +241,15 @@ report 1142 "Export Cost Budget to Excel"
         IncludeTotalingFormulas: Boolean;
         HasFormulaError: Boolean;
 
+#pragma warning disable AA0074
         Text001: Label 'You can only export one budget at a time.';
         Text002: Label 'You must specify the starting date, number of periods, and period length.';
         Text005: Label 'Analyzing Data...\\';
         Text006: Label 'Export Filters';
+#pragma warning disable AA0470
         Text007: Label 'Some filters cannot be converted into Excel formulas. You must verify %1 errors in the Excel worksheet. Do you want to create the Excel worksheet?';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     local procedure CalcPeriodStart(EntryDate: Date): Date
     begin

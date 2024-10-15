@@ -10,12 +10,6 @@ pageextension 11755 "VAT Entries CZL" extends "VAT Entries"
 {
     layout
     {
-#if not CLEAN22
-        modify("VAT Reporting Date")
-        {
-            Visible = ReplaceVATDateEnabled and VATDateEnabled;
-        }
-#endif
         addafter("VAT Reporting Date")
         {
             field("Original Doc. VAT Date CZL"; Rec."Original Doc. VAT Date CZL")
@@ -26,18 +20,6 @@ pageextension 11755 "VAT Entries CZL" extends "VAT Entries"
         }
         addafter("Posting Date")
         {
-#if not CLEAN22
-            field("VAT Date CZL"; Rec."VAT Date CZL")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'VAT Date (Obsolete)';
-                ToolTip = 'Specifies date by which the accounting transaction will enter VAT statement.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '22.0';
-                ObsoleteReason = 'Replaced by VAT Reporting Date.';
-                Visible = not ReplaceVATDateEnabled;
-            }
-#endif
             field("VAT Settlement No. CZL"; Rec."VAT Settlement No. CZL")
             {
                 ApplicationArea = Basic, Suite;
@@ -129,22 +111,10 @@ pageextension 11755 "VAT Entries CZL" extends "VAT Entries"
     }
     trigger OnOpenPage()
     begin
-#if not CLEAN22
-        VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
-        ReplaceVATDateEnabled := ReplaceVATDateMgtCZL.IsEnabled();
-#endif
-        NonDeductibleVATVisible := NonDeductibleVAT.IsNonDeductibleVATEnabled();
+        NonDeductibleVATVisible := NonDeductibleVATCZL.IsNonDeductibleVATEnabled();
     end;
 
     var
-        NonDeductibleVAT: Codeunit "Non-Deductible VAT";
-#if not CLEAN22
-        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
-#pragma warning disable AL0432
-        ReplaceVATDateMgtCZL: Codeunit "Replace VAT Date Mgt. CZL";
-#pragma warning restore AL0432
-        ReplaceVATDateEnabled: Boolean;
-        VATDateEnabled: Boolean;
-#endif
+        NonDeductibleVATCZL: Codeunit "Non-Deductible VAT CZL";
         NonDeductibleVATVisible: Boolean;
 }

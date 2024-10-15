@@ -740,7 +740,6 @@ codeunit 137004 "SCM WIP Costing Production-II"
         CurrencyCode: Code[10];
         ProductionOrderNo: Code[20];
         AutomaticCostAdjustment: Enum "Automatic Cost Adjustment Type";
-        AverageCostPeriod: Option " ",Day,Week,Month,Quarter,Year,"Accounting Period";
         SetupTime: Decimal;
         RunTime: Decimal;
     begin
@@ -752,7 +751,7 @@ codeunit 137004 "SCM WIP Costing Production-II"
         RaiseConfirmHandler();
         LibraryManufacturing.CreateCapacityUnitOfMeasure(CapacityUnitOfMeasure, "Capacity Unit of Measure"::Minutes);
         LibraryInventory.UpdateInventorySetup(
-          InventorySetup, true, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, AverageCostPeriod::Day);
+          InventorySetup, true, false, AutomaticCostAdjustment::Never, "Average Cost Calculation Type"::Item, "Average Cost Period Type"::Day);
         LibraryManufacturing.UpdateManufacturingSetup(ManufacturingSetup, '', '', true, true, true);
         ShopCalendarCode := LibraryManufacturing.UpdateShopCalendarWorkingDays();
         if AdditionalCurrencyExist then
@@ -1657,31 +1656,27 @@ codeunit 137004 "SCM WIP Costing Production-II"
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        with ItemLedgerEntry do begin
-            SetRange("Item No.", ItemNo);
-            SetRange("Entry Type", EntryType);
-            SetRange("Posting Date", PostingDate);
-            FindFirst();
-            CalcFields("Cost Amount (Actual)");
-            TestField("Cost Amount (Actual)", CostAmount);
-        end;
+        ItemLedgerEntry.SetRange("Item No.", ItemNo);
+        ItemLedgerEntry.SetRange("Entry Type", EntryType);
+        ItemLedgerEntry.SetRange("Posting Date", PostingDate);
+        ItemLedgerEntry.FindFirst();
+        ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
+        ItemLedgerEntry.TestField("Cost Amount (Actual)", CostAmount);
     end;
 
     local procedure VerifyValueEntryValuationDate(ProdOrderLine: Record "Prod. Order Line"; ItemNo: Code[20]; EntryType: Enum "Item Ledger Entry Type"; PostingDate: Date; ExpectedValuationDate: Date)
     var
         ValueEntry: Record "Value Entry";
     begin
-        with ValueEntry do begin
-            SetRange("Order Type", "Order Type"::Production);
-            SetRange("Order No.", ProdOrderLine."Prod. Order No.");
-            SetRange("Order Line No.", ProdOrderLine."Line No.");
-            SetRange("Item No.", ItemNo);
-            SetRange("Item Ledger Entry Type", EntryType);
-            SetRange("Posting Date", PostingDate);
-            FindFirst();
+        ValueEntry.SetRange("Order Type", ValueEntry."Order Type"::Production);
+        ValueEntry.SetRange("Order No.", ProdOrderLine."Prod. Order No.");
+        ValueEntry.SetRange("Order Line No.", ProdOrderLine."Line No.");
+        ValueEntry.SetRange("Item No.", ItemNo);
+        ValueEntry.SetRange("Item Ledger Entry Type", EntryType);
+        ValueEntry.SetRange("Posting Date", PostingDate);
+        ValueEntry.FindFirst();
 
-            TestField("Valuation Date", ExpectedValuationDate);
-        end;
+        ValueEntry.TestField("Valuation Date", ExpectedValuationDate);
     end;
 
     [Normal]

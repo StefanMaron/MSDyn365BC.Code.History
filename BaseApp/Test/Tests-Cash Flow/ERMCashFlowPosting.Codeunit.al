@@ -33,28 +33,25 @@ codeunit 134554 "ERM Cash Flow - Posting"
     begin
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
 
-        with CashFlowForecast do begin
-            ConsiderAllSources(ConsiderSource);
-            CFHelper.FillJournal(ConsiderSource, "No.", false);
+        ConsiderAllSources(ConsiderSource);
+        CFHelper.FillJournal(ConsiderSource, CashFlowForecast."No.", false);
 
-            CFWorksheetLine.SetCurrentKey("Cash Flow Forecast No.");
-            CFWorksheetLine.SetRange("Cash Flow Forecast No.", "No.");
-            CounterBefore := CFWorksheetLine.Count();
-            CFWorksheetLine.CalcSums("Amount (LCY)");
-            AmountBefore := CFWorksheetLine."Amount (LCY)";
+        CFWorksheetLine.SetCurrentKey("Cash Flow Forecast No.");
+        CFWorksheetLine.SetRange("Cash Flow Forecast No.", CashFlowForecast."No.");
+        CounterBefore := CFWorksheetLine.Count();
+        CFWorksheetLine.CalcSums("Amount (LCY)");
+        AmountBefore := CFWorksheetLine."Amount (LCY)";
 
-            PostBatch(CFWorksheetLine);
+        PostBatch(CFWorksheetLine);
+        // Validate results
+        CFForecastEntry.SetCurrentKey("Cash Flow Forecast No.");
+        CFForecastEntry.SetRange("Cash Flow Forecast No.", CashFlowForecast."No.");
+        CounterAfter := CFForecastEntry.Count();
+        CFForecastEntry.CalcSums("Amount (LCY)");
+        AmountAfter := CFForecastEntry."Amount (LCY)";
 
-            // Validate results
-            CFForecastEntry.SetCurrentKey("Cash Flow Forecast No.");
-            CFForecastEntry.SetRange("Cash Flow Forecast No.", "No.");
-            CounterAfter := CFForecastEntry.Count();
-            CFForecastEntry.CalcSums("Amount (LCY)");
-            AmountAfter := CFForecastEntry."Amount (LCY)";
-
-            Assert.AreEqual(CounterBefore, CounterAfter, StrSubstNo(BeforeAndAfterCounter, CounterBefore, CounterAfter));
-            Assert.AreEqual(AmountBefore, AmountAfter, WrongAmounta);
-        end;
+        Assert.AreEqual(CounterBefore, CounterAfter, StrSubstNo(BeforeAndAfterCounter, CounterBefore, CounterAfter));
+        Assert.AreEqual(AmountBefore, AmountAfter, WrongAmounta);
     end;
 
     [Test]
@@ -69,32 +66,29 @@ codeunit 134554 "ERM Cash Flow - Posting"
     begin
         CFHelper.CreateCashFlowForecastDefault(CashFlowForecast);
 
-        with CashFlowForecast do begin
-            CFAccountComment."Table Name" := CFAccountComment."Table Name"::"Cash Flow Forecast";
-            CFAccountComment."No." := "No.";
-            CFAccountComment."Line No." := 1;
-            CFAccountComment.Comment := "No.";
-            CFAccountComment.Insert();
+        CFAccountComment."Table Name" := CFAccountComment."Table Name"::"Cash Flow Forecast";
+        CFAccountComment."No." := CashFlowForecast."No.";
+        CFAccountComment."Line No." := 1;
+        CFAccountComment.Comment := CashFlowForecast."No.";
+        CFAccountComment.Insert();
 
-            ConsiderAllSources(ConsiderSource);
-            CFHelper.FillJournal(ConsiderSource, "No.", false);
+        ConsiderAllSources(ConsiderSource);
+        CFHelper.FillJournal(ConsiderSource, CashFlowForecast."No.", false);
 
-            CFWorksheetLine.SetCurrentKey("Cash Flow Forecast No.");
-            CFWorksheetLine.SetRange("Cash Flow Forecast No.", "No.");
-            PostBatch(CFWorksheetLine);
+        CFWorksheetLine.SetCurrentKey("Cash Flow Forecast No.");
+        CFWorksheetLine.SetRange("Cash Flow Forecast No.", CashFlowForecast."No.");
+        PostBatch(CFWorksheetLine);
 
-            Delete(true);
+        CashFlowForecast.Delete(true);
+        // Validate results
+        CFAccountComment.Reset();
+        CFAccountComment.SetRange("Table Name", CFAccountComment."Table Name"::"Cash Flow Forecast");
+        CFAccountComment.SetRange("No.", CashFlowForecast."No.");
+        Assert.AreEqual(0, CFAccountComment.Count, StrSubstNo(RecordNotDeleted, CFAccountComment.TableCaption()));
 
-            // Validate results
-            CFAccountComment.Reset();
-            CFAccountComment.SetRange("Table Name", CFAccountComment."Table Name"::"Cash Flow Forecast");
-            CFAccountComment.SetRange("No.", "No.");
-            Assert.AreEqual(0, CFAccountComment.Count, StrSubstNo(RecordNotDeleted, CFAccountComment.TableCaption()));
-
-            CFForecastEntry.SetCurrentKey("Cash Flow Forecast No.");
-            CFForecastEntry.SetRange("Cash Flow Forecast No.", "No.");
-            Assert.AreEqual(0, CFForecastEntry.Count, StrSubstNo(RecordNotDeleted, CFForecastEntry.TableCaption()));
-        end;
+        CFForecastEntry.SetCurrentKey("Cash Flow Forecast No.");
+        CFForecastEntry.SetRange("Cash Flow Forecast No.", CashFlowForecast."No.");
+        Assert.AreEqual(0, CFForecastEntry.Count, StrSubstNo(RecordNotDeleted, CFForecastEntry.TableCaption()));
     end;
 
     [Test]
@@ -181,19 +175,17 @@ codeunit 134554 "ERM Cash Flow - Posting"
         GLBudgetEntry.Validate(Amount, LibraryRandom.RandDec(100, 2));
         GLBudgetEntry.Modify(true);
 
-        with CFWorksheetLine do begin
-            Init();
-            "Cash Flow Date" := WorkDate();
-            "Document No." := Format(LibraryRandom.RandInt(50));
-            "Cash Flow Forecast No." := CashFlowForecast."No.";
-            Description := "Document No.";
-            "Cash Flow Account No." := CFAccount."No.";
-            "Amount (LCY)" := CashFlowAmount;
-            "Source Type" := "Source Type"::"G/L Budget";
-            "Source No." := GLAccount."No.";
-            "G/L Budget Name" := GLBudgetName.Name;
-            Insert(true);
-        end;
+        CFWorksheetLine.Init();
+        CFWorksheetLine."Cash Flow Date" := WorkDate();
+        CFWorksheetLine."Document No." := Format(LibraryRandom.RandInt(50));
+        CFWorksheetLine."Cash Flow Forecast No." := CashFlowForecast."No.";
+        CFWorksheetLine.Description := CFWorksheetLine."Document No.";
+        CFWorksheetLine."Cash Flow Account No." := CFAccount."No.";
+        CFWorksheetLine."Amount (LCY)" := CashFlowAmount;
+        CFWorksheetLine."Source Type" := CFWorksheetLine."Source Type"::"G/L Budget";
+        CFWorksheetLine."Source No." := GLAccount."No.";
+        CFWorksheetLine."G/L Budget Name" := GLBudgetName.Name;
+        CFWorksheetLine.Insert(true);
     end;
 
     local procedure ConsiderAllSources(var ConsiderSource: array[16] of Boolean)

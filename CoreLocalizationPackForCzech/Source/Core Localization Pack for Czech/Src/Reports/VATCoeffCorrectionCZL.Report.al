@@ -45,12 +45,6 @@ report 11749 "VAT Coeff. Correction CZL"
 
                 GetVATPostingSetup("VAT Bus. Posting Group", "VAT Prod. Posting Group");
 
-#if not CLEAN22
-#pragma warning disable AL0432     
-                if not ReplaceVATDateMgtCZL.IsEnabled() then
-                    "VAT Reporting Date" := "VAT Date CZL";
-#pragma warning restore AL0432
-#endif
                 if not NonDeductibleVATSetupCZL.FindToDate("VAT Reporting Date") then
                     Error(NonDeductVATSetupNotFoundErr, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Reporting Date");
 
@@ -67,12 +61,6 @@ report 11749 "VAT Coeff. Correction CZL"
                     TempVATEntry."Posting Date" := UsePostingDate;
                     TempVATEntry."Document Date" := UsePostingDate;
                 end;
-#if not CLEAN22
-#pragma warning disable AL0432
-                if UseVATDate <> 0D then
-                    TempVATEntry."VAT Date CZL" := UseVATDate;
-#pragma warning restore AL0432                        
-#endif                    
                 if UseVATDate <> 0D then
                     TempVATEntry."VAT Reporting Date" := UseVATDate;
 
@@ -87,14 +75,7 @@ report 11749 "VAT Coeff. Correction CZL"
 
             trigger OnPreDataItem()
             begin
-#if not CLEAN22
-                if not ReplaceVATDateMgtCZL.IsEnabled() then
-#pragma warning disable AL0432
-                    SetRange("VAT Date CZL", FromVATDate, ToVATDate)
-#pragma warning restore AL0432
-                else
-#endif                
-                    SetRange("VAT Reporting Date", FromVATDate, ToVATDate);
+                SetRange("VAT Reporting Date", FromVATDate, ToVATDate);
             end;
         }
         dataitem(Loop; Integer)
@@ -149,12 +130,6 @@ report 11749 "VAT Coeff. Correction CZL"
                     TempVATEntry.Next();
 
                 VATEntry.Get(TempVATEntry."Entry No.");
-#if not CLEAN22
-#pragma warning disable AL0432
-                if not ReplaceVATDateMgtCZL.IsEnabled() then
-                    VATEntry."VAT Reporting Date" := VATEntry."VAT Date CZL";
-#pragma warning restore AL0432
-#endif                    
 
                 LastVATEntry.FindLastByOriginalVATEntryCZL(TempVATEntry."Entry No.");
 
@@ -283,13 +258,13 @@ report 11749 "VAT Coeff. Correction CZL"
     end;
 
     protected var
+        TempVATEntry: Record "VAT Entry" temporary;
         FromVATDate, ToVATDate, UsePostingDate, UseVATDate : Date;
         Post: Boolean;
         UseDimensions: Option "From G/L Account","None";
         UseDocumentNo: Code[20];
 
     var
-        TempVATEntry: Record "VAT Entry" temporary;
         TempVATPostingSetup: Record "VAT Posting Setup" temporary;
         VATEntry: Record "VAT Entry";
         ModifyVATEntry: Record "VAT Entry";
@@ -297,11 +272,6 @@ report 11749 "VAT Coeff. Correction CZL"
         SourceCodeSetup: Record "Source Code Setup";
         GLRegister: Record "G/L Register";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
-#if not CLEAN22
-#pragma warning disable AL0432
-        ReplaceVATDateMgtCZL: Codeunit "Replace VAT Date Mgt. CZL";
-#pragma warning restore AL0432
-#endif         
         FirstVATEntryNo: Integer;
         NonDeductVATSetupNotFoundErr: Label 'Non-Deductible VAT setup has not been found for %1 %2 <= %3.', Comment = '%1 = VAT Bus. Posting Group, %2 = VAT Prod. Posting Group, %3 = VAT Reporting Date';
         NothingToCorrectErr: Label 'No entries to correct have been found.';
@@ -310,15 +280,19 @@ report 11749 "VAT Coeff. Correction CZL"
     local procedure PostVAT()
     var
         GenJournalLine: Record "Gen. Journal Line";
+        GLAccount: Record "G/L Account";
         EntryNo: Integer;
     begin
         // Only G/L Account without VAT
         GetVATPostingSetup(TempVATEntry."VAT Bus. Posting Group", TempVATEntry."VAT Prod. Posting Group");
+        GLAccount.Get(TempVATPostingSetup."VAT Coeff. Corr. Account CZL");
         GenJournalLine.Init();
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::"G/L Account";
-        GenJournalLine."Account No." := TempVATPostingSetup."VAT Coeff. Corr. Account CZL";
-        GenJournalLine."System-Created Entry" := true;
+        GenJournalLine."Account No." := GLAccount."No.";
+        GenJournalLine."Bal. Account Type" := GenJournalLine."Account Type"::"G/L Account";
         GenJournalLine."Bal. Account No." := TempVATPostingSetup."Purchase VAT Account";
+        GenJournalLine.Description := GLAccount.Name;
+        GenJournalLine."System-Created Entry" := true;
         GenJournalLine."Source Code" := SourceCodeSetup."VAT Coeff. Correction CZL";
         GenJournalLine."Posting Date" := TempVATEntry."Posting Date";
         GenJournalLine."Document No." := TempVATEntry."Document No.";
@@ -327,13 +301,6 @@ report 11749 "VAT Coeff. Correction CZL"
         GenJournalLine."Tax Group Code" := TempVATEntry."Tax Group Code";
         GenJournalLine."VAT Registration No." := TempVATEntry."VAT Registration No.";
         GenJournalLine."Registration No. CZL" := TempVATEntry."Registration No. CZL";
-#if not CLEAN22
-        if not ReplaceVATDateMgtCZL.IsEnabled() then
-#pragma warning disable AL0432
-            GenJournalLine.Validate("VAT Date CZL", TempVATEntry."VAT Date CZL")
-#pragma warning restore AL0432
-        else
-#endif
         GenJournalLine.Validate("VAT Reporting Date", TempVATEntry."VAT Reporting Date");
         GenJournalLine.Validate("Amount", -TempVATEntry.Amount);
 

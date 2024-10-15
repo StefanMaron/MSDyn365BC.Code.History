@@ -338,12 +338,6 @@ report 11971 "Calc. and Post VAT Settl. CZL"
                                 CurrReport.Skip();
                             VATEntryDocumentNo := "Document No.";
                             VATEntryDocumentType := Format("Document Type");
-#if not CLEAN22
-#pragma warning disable AL0432
-                            if not IsReplaceVATDateEnabled() then
-                                "VAT Reporting Date" := "VAT Date CZL";
-#pragma warning restore AL0432
-#endif
                             if "Original VAT Entry No. CZL" <> 0 then
                                 Base := CalcDeductibleVATBaseCZL();
                         end;
@@ -513,13 +507,6 @@ report 11971 "Calc. and Post VAT Settl. CZL"
                         VATEntry.Reset();
                         VATEntry.SetRange(Type, VATType);
                         VATEntry.SetRange(Closed, false);
-#if not CLEAN22
-#pragma warning disable AL0432
-                        if not VATEntry.IsReplaceVATDateEnabled() then
-                            VATEntry.SetFilter("VAT Date CZL", VATDateFilter)
-                        else
-#pragma warning restore AL0432
-#endif
                         VATEntry.SetFilter("VAT Reporting Date", VATDateFilter);
                         VATEntry.SetRange("VAT Bus. Posting Group", "VAT Posting Setup"."VAT Bus. Posting Group");
                         VATEntry.SetRange("VAT Prod. Posting Group", "VAT Posting Setup"."VAT Prod. Posting Group");
@@ -552,13 +539,6 @@ report 11971 "Calc. and Post VAT Settl. CZL"
                                 end;
                             "VAT Posting Setup"."VAT Calculation Type"::"Sales Tax":
                                 begin
-#if not CLEAN22
-#pragma warning disable AL0432
-                                    if not VATEntry.IsReplaceVATDateEnabled() then
-                                        VATEntry.SetCurrentKey(Type, Closed, "Tax Jurisdiction Code", "Use Tax", "VAT Date CZL")
-                                    else
-#pragma warning restore AL0432
-#endif
                                     VATEntry.SetCurrentKey(Type, Closed, "Tax Jurisdiction Code", "Use Tax", "VAT Reporting Date");
                                     if FindFirstEntry then begin
                                         if VATEntry.IsEmpty() then
@@ -613,13 +593,6 @@ report 11971 "Calc. and Post VAT Settl. CZL"
 
                     GenJournalLine.Validate("Account No.", SettleGLAccount."No.");
                     GenJournalLine."Posting Date" := PostingDate;
-#if not CLEAN22
-#pragma warning disable AL0432
-                    if not GenJournalLine.IsReplaceVATDateEnabled() then
-                        GenJournalLine.Validate("VAT Date CZL", PostingDate)
-                    else
-#pragma warning restore AL0432
-#endif
                     GenJournalLine.Validate("VAT Reporting Date", PostingDate);
                     GenJournalLine."Document Type" := GenJournalLine."Document Type"::" ";
                     GenJournalLine."Document No." := DocNo;
@@ -768,25 +741,11 @@ report 11971 "Calc. and Post VAT Settl. CZL"
                 CurrReport.Quit();
 
         VATPostingSetupFilter := "VAT Posting Setup".GetFilters();
-#if not CLEAN22
-#pragma warning disable AL0432
-        if not VATEntry.IsReplaceVATDateEnabled() then begin
-            if EndDateReq = 0D then
-                VATEntry.SetFilter("VAT Date CZL", '%1..', EntrdStartDate)
-            else
-                VATEntry.SetRange("VAT Date CZL", EntrdStartDate, EndDateReq);
-            VATDateFilter := VATEntry.GetFilter("VAT Date CZL");
-        end else begin
-#pragma warning restore AL0432
-#endif
             if EndDateReq = 0D then
                 VATEntry.SetFilter("VAT Reporting Date", '%1..', EntrdStartDate)
             else
                 VATEntry.SetRange("VAT Reporting Date", EntrdStartDate, EndDateReq);
             VATDateFilter := VATEntry.GetFilter("VAT Reporting Date");
-#if not CLEAN22
-        end;
-#endif
         Clear(GenJnlPostLine);
         OnAfterPreReport();
     end;
@@ -923,13 +882,6 @@ report 11971 "Calc. and Post VAT Settl. CZL"
                     '>'), 1, MaxStrLen(CreatedGenJournalLine.Description));
         end;
         CreatedGenJournalLine."Posting Date" := PostingDate;
-#if not CLEAN22
-#pragma warning disable AL0432
-        if not CreatedGenJournalLine.IsReplaceVATDateEnabled() then
-            CreatedGenJournalLine.Validate("VAT Date CZL", PostingDate)
-        else
-#pragma warning restore AL0432
-#endif
         CreatedGenJournalLine.Validate("VAT Reporting Date", PostingDate);
         CreatedGenJournalLine."Document Type" := CreatedGenJournalLine."Document Type"::" ";
         CreatedGenJournalLine."Document No." := DocNo;

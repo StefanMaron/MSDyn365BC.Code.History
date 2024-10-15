@@ -419,15 +419,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Consumption Service - NamedType JobBlockedError)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 4132516129 - NamedType 2948557245" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Quantity Consumed must be equal to '0'  in %1: %2=%3, %4=%5, %6=%7. Current value is '%8'.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Consumption Service - NamedType QuantityConsumedErrorServTier)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 4132516129 - NamedType 270244598" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[You cannot undo consumption on the line because it has been already posted to Projects.]]></Val>
@@ -453,6 +444,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Creation Wizard Tests - NamedType RollingBackChangesErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 565894397 - Method 4083394143 - NamedType 2750183112" ItemType=";Codeunit - LocalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[You cannot change %1 because one or more entries are associated with this %2.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Name of field used in the error; %2 = The name of the Project table]D;]A;(LookupHint=Codeunit Job Customer Change Test - Method ChangeOfCustNotAllowedTest - NamedType AssociatedEntriesExistErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1338490621 - NamedType 430733052" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -662,15 +662,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Journal - NamedType AmountErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1703860994 - NamedType 1078610936" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must have a value in %2: %3=%4, %5=%6, %7=%8, %9=%10, %11=%12, %13=%14. It cannot be zero or empty.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=Field name,%2=Table name,%3=Field,%4=Field value,%5=Field,%6=Field value,%7=Field,%8=Field value,%9=Field,%10=Field value,%11=Field,%12=Field value,%13=Field,%14=Field value]D;]A;(LookupHint=Codeunit Job Journal - NamedType BlankJobNoError)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1703860994 - NamedType 4036353235" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Expected control not found on the page]]></Val>
@@ -698,15 +689,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Journal - NamedType FieldCodeError)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1703860994 - NamedType 2419795805" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must have a value in %2: %3=%4, %5=%6, %7=%8, %9=%10. It cannot be zero or empty.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1=Field,%2=TableName,%3=Fieldname,%4=FieldValue,%5=Fieldname,%6=FieldValue,%7=Fieldname,%8=FieldValue,%9=Fieldname,%10=FieldValue]D;]A;(LookupHint=Codeunit Job Journal - NamedType FieldsBlankError)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1703860994 - NamedType 3552946879" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Incorrect field value %1.]]></Val>
@@ -723,15 +705,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[%1: Field Caption;%2: Project Planning Type Value;%3:Project No; %4 Project Task No;%5: Line No]D;]A;(LookupHint=Codeunit Job Journal - NamedType JobPlanningLineError)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1703860994 - NamedType 2082237734" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must be equal to 'Posting'  in %2: %3=%4, %5=%6. Current value is '%7'.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1= Field name,%2=Table name,%3=Field,%4=Field value,%5=Field,%6=Field value,%7=Field value]D;]A;(LookupHint=Codeunit Job Journal - NamedType JobTaskTypeError)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1703860994 - NamedType 867463979" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -867,15 +840,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Posting - NamedType BinContentNotDeletedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3107932713 - NamedType 3621259247" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Blocked must be equal to 'No'  in Item: No.=%1. Current value is 'Yes'.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Posting - NamedType BlockedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3107932713 - NamedType 3236411727" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1373,15 +1337,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Job Reservation - NamedType PlanningDateError)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2478735241 - NamedType 2639314109" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must be equal to '0'  in %2: %3=%4, %5=%6, %7=%8. Current value is '%9'.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 Field Caption %2 Table Caption %3 Field Caption%4 value, %5 Table Caption %6 value %7 Field Caption %8 value.%9 value.]D;]A;(LookupHint=Codeunit Job Reservation - NamedType PlanningLinesReservationErrorForReserve)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2478735241 - NamedType 3970321001" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Description in Requisition Line should be same as in Item Reference]]></Val>
@@ -1479,6 +1434,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[Remaining Quantity, Document Type, No.]D;]A;(LookupHint=Codeunit Jobs - Assemble-to Order - NamedType RemainingQtyGreaterThanErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 1292684493 - NamedType 2101146428" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Job Contract Entry No. is empty.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Jobs - Assemble-to Order - NamedType ZeroJobContractLineMsg)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3185217834 - NamedType 2750183112" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1596,24 +1560,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Jobs Stockout - NamedType ValidateQuantityDocumentErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3739650216 - NamedType 2008442154" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must not be specified when %2 = %3 in Purchase Line]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1: Field1;%2:Field2;%3:FieldValue]D;]A;(LookupHint=Codeunit JOBs-60SP1-Scripts - NamedType JobNoError)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3739650216 - NamedType 3541040025" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must be equal to '%2'  in %3]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1: Field;%2:FieldValue:%3:TableCaption]D;]A;(LookupHint=Codeunit JOBs-60SP1-Scripts - NamedType JobTaskTypeErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3739650216 - NamedType 2008153173" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -2261,7 +2207,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Whse. Pick On Job Planning - NamedType DeletionNotPossibleErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = Table 1 caption, %2 = Table 2 caption]D;]A;(LookupHint=Codeunit Whse. Pick On Job Planning - NamedType DeletionNotPossibleErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3594567583 - NamedType 3118086428" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -2270,7 +2216,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Whse. Pick On Job Planning - NamedType FieldMustNotBeChangedErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = Table 1 caption, %2 = Table 2 caption]D;]A;(LookupHint=Codeunit Whse. Pick On Job Planning - NamedType FieldMustNotBeChangedErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3594567583 - NamedType 129610050" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -2297,7 +2243,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 = 10, %2 = Bine Code]D;]A;(LookupHint=Codeunit Whse. Pick On Job Planning - NamedType WarehouseEntryTotalErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[%1 = 10, %2 = Bin Code]D;]A;(LookupHint=Codeunit Whse. Pick On Job Planning - NamedType WarehouseEntryTotalErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3594567583 - NamedType 4033538487" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

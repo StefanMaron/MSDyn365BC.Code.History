@@ -196,7 +196,7 @@ table 31021 "Purch. Advance Letter Line"
         }
         field(31016; "Vendor Posting Group"; Code[20])
         {
-            CalcFormula = Lookup("Purch. Advance Letter Header"."Vendor Posting Group" where("No." = field("Letter No.")));
+            CalcFormula = lookup("Purch. Advance Letter Header"."Vendor Posting Group" where("No." = field("Letter No.")));
             Caption = 'Vendor Posting Group';
             Editable = false;
             FieldClass = FlowField;

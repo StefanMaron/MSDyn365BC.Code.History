@@ -184,7 +184,7 @@ codeunit 137109 "SCM Kitting - Std Cost Wksheet"
         StdCostWorksheetPage.OK().Invoke();
     end;
 
-    local procedure VerifyStdCostWksheetLine(Type: Option; No: Code[20]; Implemented: Boolean; RndMethodCode: Code[10])
+    local procedure VerifyStdCostWksheetLine(Type: Enum "Standard Cost Source Type"; No: Code[20]; Implemented: Boolean; RndMethodCode: Code[10])
     var
         StdCostWorksheet: Record "Standard Cost Worksheet";
         Item: Record Item;

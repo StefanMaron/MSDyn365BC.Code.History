@@ -244,6 +244,14 @@ table 11736 "Posted Cash Document Line"
         field(62; "VAT Difference (LCY)"; Decimal)
         {
             Caption = 'VAT Difference (LCY)';
+            ObsoleteReason = 'Moved to Core Localization Pack for Czech.';
+#if CLEAN25
+            ObsoleteState = Removed;
+            ObsoleteTag = '28.0';
+#else
+            ObsoleteState = Pending;
+            ObsoleteTag = '25.0';
+#endif
         }
         field(63; "System-Created Entry"; Boolean)
         {

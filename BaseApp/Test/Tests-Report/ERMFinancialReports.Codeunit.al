@@ -31,7 +31,6 @@ codeunit 134982 "ERM Financial Reports"
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
         ReportErr: Label '%1 must be %2 in Report.', Locked = true;
-        DepreciationBookErr: Label '%1 does not exist.', Locked = true;
 #if not CLEAN24
         RelatedNoSeriesTok: Label 'Related No. Series', Locked = true;
 #endif
@@ -328,7 +327,6 @@ codeunit 134982 "ERM Financial Reports"
     [Scope('OnPrem')]
     procedure FixedAssetWithoutOption()
     var
-        DepreciationBook: Record "Depreciation Book";
         FixedAssetDetails: Report "Fixed Asset - Details";
     begin
         // Verify Error on Fixed Asset Detail Report when no option is set.
@@ -340,7 +338,7 @@ codeunit 134982 "ERM Financial Reports"
         asserterror FixedAssetDetails.Run();
 
         // Verify: Verify error on Fixed Asset Detail Report when no option is set.
-        Assert.ExpectedError(StrSubstNo(DepreciationBookErr, DepreciationBook.TableCaption()));
+        Assert.ExpectedErrorCannotFind(Database::"Depreciation Book");
     end;
 
     [Test]
@@ -399,7 +397,6 @@ codeunit 134982 "ERM Financial Reports"
     [Scope('OnPrem')]
     procedure MaintenanceDetailWithoutOption()
     var
-        DepreciationBook: Record "Depreciation Book";
         MaintenanceDetails: Report "Maintenance - Details";
     begin
         // Verify Error on Maintenance Details Report when no option is set.
@@ -413,7 +410,7 @@ codeunit 134982 "ERM Financial Reports"
         asserterror MaintenanceDetails.Run();
 
         // Verify: Verify error on Maintenance Detail Report when no option is set.
-        Assert.ExpectedError(StrSubstNo(DepreciationBookErr, DepreciationBook.TableCaption()));
+        Assert.ExpectedErrorCannotFind(Database::"Depreciation Book");
     end;
 
     [Test]
@@ -734,6 +731,7 @@ codeunit 134982 "ERM Financial Reports"
     [Scope('OnPrem')]
     procedure NoSeriesWithRelationship()
     var
+        LibraryNoSeries: Codeunit "Library - No. Series";
         NoSeriesCode: Code[20];
         RelatedNoSeriesCode: Code[20];
     begin
@@ -743,7 +741,7 @@ codeunit 134982 "ERM Financial Reports"
         Initialize();
         NoSeriesCode := CreateNoSeries();
         RelatedNoSeriesCode := CreateNoSeries();
-        LibraryUtility.CreateNoSeriesRelationship(NoSeriesCode, RelatedNoSeriesCode);
+        LibraryNoSeries.CreateNoSeriesRelationship(NoSeriesCode, RelatedNoSeriesCode);
 
         // Exercise.
         SaveNoSeriesReport(NoSeriesCode);
@@ -1223,11 +1221,7 @@ codeunit 134982 "ERM Financial Reports"
         asserterror RunVATVIESDeclarationDisk(VATEntry, FileName);
 
         // [THEN] Error raised about Country/Region Code must have a value in "SellCust"
-        Assert.ExpectedErrorCode('TestField');
-        Assert.ExpectedError(
-          StrSubstNo('%1 must have a value in %2: %3=%4.',
-            SellToCustomer.FieldCaption("Country/Region Code"),
-            SellToCustomer.TableCaption(), SellToCustomer.FieldCaption("No."), SellToCustomer."No."));
+        Assert.ExpectedTestFieldError(SellToCustomer.FieldCaption("Country/Region Code"), '');
     end;
 
     [Test]
@@ -1341,7 +1335,7 @@ codeunit 134982 "ERM Financial Reports"
 
         // [GIVEN] "Bill-to/Sell-to VAT Calc." = "Sell-to/Buy-from No." in G/L Setup
         LibraryERM.SetBillToSellToVATCalc(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No.");
-        LibraryPmtDiscSetup.SetAdjustForPaymentDisc(TRUE);
+        LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
 
         // [GIVEN] Customer "Cust1", Bill-to Customer = "Cust2" with Payment Discount Terms
         CreateVATPostingSetup(VATPostingSetup);
@@ -1401,7 +1395,7 @@ codeunit 134982 "ERM Financial Reports"
 
         // [GIVEN] "Bill-to/Sell-to VAT Calc." = "Sell-to/Buy-from No." in G/L Setup
         LibraryERM.SetBillToSellToVATCalc(GeneralLedgerSetup."Bill-to/Sell-to VAT Calc."::"Sell-to/Buy-from No.");
-        LibraryPmtDiscSetup.SetAdjustForPaymentDisc(TRUE);
+        LibraryPmtDiscSetup.SetAdjustForPaymentDisc(true);
 
         // [GIVEN] Customer with Payment Discount Terms
         CreateVATPostingSetup(VATPostingSetup);
@@ -1472,18 +1466,16 @@ codeunit 134982 "ERM Financial Reports"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
-            Type := Type::Sale;
-            "Posting Date" := PostingDate;
-            "VAT Reporting Date" := PostingDate;
-            "Bill-to/Pay-to No." := Customer."No.";
-            "VAT Registration No." := Customer."VAT Registration No.";
-            "Country/Region Code" := Customer."Country/Region Code";
-            Base := LibraryRandom.RandDecInRange(10, 20, 2);
-            Insert();
-        end;
+        VATEntry.Init();
+        VATEntry."Entry No." := LibraryUtility.GetNewRecNo(VATEntry, VATEntry.FieldNo("Entry No."));
+        VATEntry.Type := VATEntry.Type::Sale;
+        VATEntry."Posting Date" := PostingDate;
+        VATEntry."VAT Reporting Date" := PostingDate;
+        VATEntry."Bill-to/Pay-to No." := Customer."No.";
+        VATEntry."VAT Registration No." := Customer."VAT Registration No.";
+        VATEntry."Country/Region Code" := Customer."Country/Region Code";
+        VATEntry.Base := LibraryRandom.RandDecInRange(10, 20, 2);
+        VATEntry.Insert();
     end;
 
     local procedure CreateAndPostGenLine(var GenJournalLine: Record "Gen. Journal Line")
@@ -1529,14 +1521,12 @@ codeunit 134982 "ERM Financial Reports"
     var
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
     begin
-        with BankAccReconciliationLine do begin
-            SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
-            SetRange("Statement No.", BankAccReconciliation."Statement No.");
-            FindSet();
-            repeat
-                Sum += "Statement Amount";
-            until Next() = 0;
-        end;
+        BankAccReconciliationLine.SetRange("Bank Account No.", BankAccReconciliation."Bank Account No.");
+        BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
+        BankAccReconciliationLine.FindSet();
+        repeat
+            Sum += BankAccReconciliationLine."Statement Amount";
+        until BankAccReconciliationLine.Next() = 0;
     end;
 
     local procedure CreateAndPostGenLineAndRunTrialBalance(var GenJournalLine: Record "Gen. Journal Line"; NoOfBlankLines: Integer)
@@ -1904,12 +1894,10 @@ codeunit 134982 "ERM Financial Reports"
         GLAccount: Record "G/L Account";
         LibraryUTUtility: Codeunit "Library UT Utility";
     begin
-        with GLAccount do begin
-            LibraryERM.CreateGLAccount(GLAccount);
-            Validate("Consol. Debit Acc.", LibraryUTUtility.GetNewCode());
-            Validate("Consol. Credit Acc.", LibraryUTUtility.GetNewCode());
-            Modify(true);
-        end;
+        LibraryERM.CreateGLAccount(GLAccount);
+        GLAccount.Validate("Consol. Debit Acc.", LibraryUTUtility.GetNewCode());
+        GLAccount.Validate("Consol. Credit Acc.", LibraryUTUtility.GetNewCode());
+        GLAccount.Modify(true);
     end;
 
     local procedure CreateNoSeries(): Code[20]
@@ -1926,18 +1914,16 @@ codeunit 134982 "ERM Financial Reports"
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            Init();
-            "Entry No." := LibraryUtility.GetNewRecNo(VATEntry, FieldNo("Entry No."));
-            Type := Type::Sale;
-            "Posting Date" := WorkDate();
-            "VAT Reporting Date" := WorkDate();
-            "Bill-to/Pay-to No." := Customer."No.";
-            "VAT Registration No." := Customer."VAT Registration No.";
-            "Country/Region Code" := Customer."Country/Region Code";
-            Base := LibraryRandom.RandDecInRange(10, 20, 2);
-            Insert();
-        end;
+        VATEntry.Init();
+        VATEntry."Entry No." := LibraryUtility.GetNewRecNo(VATEntry, VATEntry.FieldNo("Entry No."));
+        VATEntry.Type := VATEntry.Type::Sale;
+        VATEntry."Posting Date" := WorkDate();
+        VATEntry."VAT Reporting Date" := WorkDate();
+        VATEntry."Bill-to/Pay-to No." := Customer."No.";
+        VATEntry."VAT Registration No." := Customer."VAT Registration No.";
+        VATEntry."Country/Region Code" := Customer."Country/Region Code";
+        VATEntry.Base := LibraryRandom.RandDecInRange(10, 20, 2);
+        VATEntry.Insert();
     end;
 
     local procedure FindGLEntry(DocumentNo: Code[20]): Integer

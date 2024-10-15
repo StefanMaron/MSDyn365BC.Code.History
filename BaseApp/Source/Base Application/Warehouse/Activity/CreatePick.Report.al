@@ -3,14 +3,10 @@
 using Microsoft.Assembly.Document;
 using Microsoft.Inventory.Location;
 using Microsoft.Inventory.Tracking;
-using Microsoft.Inventory.Transfer;
 using Microsoft.Manufacturing.Document;
-using Microsoft.Projects.Project.Job;
 using Microsoft.Projects.Project.Planning;
-using Microsoft.Purchases.Document;
 using Microsoft.Sales.Customer;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 using Microsoft.Warehouse.Document;
 using Microsoft.Warehouse.InternalDocument;
 using Microsoft.Warehouse.Reports;
@@ -43,7 +39,7 @@ report 5754 "Create Pick"
                     else
                         Location.Get(PickWhseWkshLine."Location Code");
                     repeat
-                        CheckSourceDocument();
+                        OnCheckSourceDocument(PickWhseWkshLine);
                         PickWhseWkshLine.CheckBin(PickWhseWkshLine."Location Code", PickWhseWkshLine."To Bin Code", true);
                         TempNo := TempNo + 1;
 
@@ -259,12 +255,32 @@ report 5754 "Create Pick"
         Cust: Record Customer;
         LocationCode: Code[10];
         AssignedID: Code[50];
-        FirstPickNo: Code[20];
         FirstSetPickNo: Code[20];
-        LastPickNo: Code[20];
         MaxNoOfLines: Integer;
-        MaxNoOfSourceDoc: Integer;
         TempNo: Integer;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
+        Text003: Label 'You can create a Pick only for the available quantity in %1 %2 = %3,%4 = %5,%6 = %7,%8 = %9.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+        BreakbulkFilter: Boolean;
+
+        NothingToHandedErr: Label 'There is nothing to handle, because the worksheet lines do not contain a value for quantity to handle.';
+#pragma warning disable AA0074
+#pragma warning disable AA0470
+        Text001: Label 'Pick activity no. %1 has been created.';
+        Text002: Label 'Pick activities no. %1 to %2 have been created.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
+#pragma warning disable AA0470
+        NothingToHandleErr: Label 'There is nothing to handle. %1.';
+#pragma warning restore AA0470
+
+    protected var
+        PickWhseWkshLine: Record "Whse. Worksheet Line";
+        CreatePick: Codeunit "Create Pick";
+        FirstPickNo: Code[20];
+        LastPickNo: Code[20];
         PerDestination: Boolean;
         PerItem: Boolean;
         PerZone: Boolean;
@@ -272,24 +288,12 @@ report 5754 "Create Pick"
         PerWhseDoc: Boolean;
         PerDate: Boolean;
         PrintPick: Boolean;
-        Text003: Label 'You can create a Pick only for the available quantity in %1 %2 = %3,%4 = %5,%6 = %7,%8 = %9.';
-        BreakbulkFilter: Boolean;
-
-        NothingToHandedErr: Label 'There is nothing to handle, because the worksheet lines do not contain a value for quantity to handle.';
-        Text001: Label 'Pick activity no. %1 has been created.';
-        Text002: Label 'Pick activities no. %1 to %2 have been created.';
-        NothingToHandleErr: Label 'There is nothing to handle. %1.';
-        SourceDocumentDoesNotExistErr: Label 'The %1 does not exist. Filters: %2.', Comment = '%1 = Table caption; %2 = filters';
-
-    protected var
-        PickWhseWkshLine: Record "Whse. Worksheet Line";
-        CreatePick: Codeunit "Create Pick";
         DoNotFillQtytoHandleReq: Boolean;
+        MaxNoOfSourceDoc: Integer;
         SortActivity: Enum "Whse. Activity Sorting Method";
 
     local procedure CreateTempLine()
     var
-        DummySalesHeader: Record "Sales Header";
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
         PickWhseActivHeader: Record "Warehouse Activity Header";
         TempWhseItemTrkgLine: Record "Whse. Item Tracking Line" temporary;
@@ -370,9 +374,9 @@ report 5754 "Create Pick"
                 if not IsHandled then
                     case PickWhseWkshLine."Source Document" of
                         PickWhseWkshLine."Source Document"::"Sales Order":
-                            Cust.CheckBlockedCustOnDocs(Cust, DummySalesHeader."Document Type"::Order, false, false);
+                            Cust.CheckBlockedCustOnDocs(Cust, "Sales Document Type"::Order, false, false);
                         PickWhseWkshLine."Source Document"::"Sales Return Order":
-                            Cust.CheckBlockedCustOnDocs(Cust, DummySalesHeader."Document Type"::"Return Order", false, false);
+                            Cust.CheckBlockedCustOnDocs(Cust, "Sales Document Type"::"Return Order", false, false);
                     end;
             end;
 
@@ -550,75 +554,6 @@ report 5754 "Create Pick"
         end;
     end;
 
-    local procedure CheckSourceDocument()
-    var
-        SalesLine: Record "Sales Line";
-        PurchLine: Record "Purchase Line";
-        TransLine: Record "Transfer Line";
-        ProdOrderComp: Record "Prod. Order Component";
-        AssemblyLine: Record "Assembly Line";
-        ServiceLine: Record "Service Line";
-        JobPlanningLine: Record "Job Planning Line";
-    begin
-        case PickWhseWkshLine."Source Type" of
-            Database::"Sales Line":
-                begin
-                    SalesLine.SetRange("Document Type", PickWhseWkshLine."Source Subtype");
-                    SalesLine.SetRange("Document No.", PickWhseWkshLine."Source No.");
-                    SalesLine.SetRange("Line No.", PickWhseWkshLine."Source Line No.");
-                    if SalesLine.IsEmpty() then
-                        Error(SourceDocumentDoesNotExistErr, SalesLine.TableCaption(), SalesLine.GetFilters());
-                end;
-            Database::"Purchase Line":
-                begin
-                    PurchLine.SetRange("Document Type", PickWhseWkshLine."Source Subtype");
-                    PurchLine.SetRange("Document No.", PickWhseWkshLine."Source No.");
-                    PurchLine.SetRange("Line No.", PickWhseWkshLine."Source Line No.");
-                    if PurchLine.IsEmpty() then
-                        Error(SourceDocumentDoesNotExistErr, PurchLine.TableCaption(), PurchLine.GetFilters());
-                end;
-            Database::"Transfer Line":
-                begin
-                    TransLine.SetRange("Document No.", PickWhseWkshLine."Source No.");
-                    TransLine.SetRange("Line No.", PickWhseWkshLine."Source Line No.");
-                    if TransLine.IsEmpty() then
-                        Error(SourceDocumentDoesNotExistErr, TransLine.TableCaption(), TransLine.GetFilters());
-                end;
-            Database::"Prod. Order Component":
-                begin
-                    ProdOrderComp.SetRange(Status, PickWhseWkshLine."Source Subtype");
-                    ProdOrderComp.SetRange("Prod. Order No.", PickWhseWkshLine."Source No.");
-                    ProdOrderComp.SetRange("Prod. Order Line No.", PickWhseWkshLine."Source Line No.");
-                    ProdOrderComp.SetRange("Line No.", PickWhseWkshLine."Source Subline No.");
-                    if ProdOrderComp.IsEmpty() then
-                        Error(SourceDocumentDoesNotExistErr, ProdOrderComp.TableCaption(), ProdOrderComp.GetFilters());
-                end;
-            Database::"Assembly Line":
-                begin
-                    AssemblyLine.SetRange("Document Type", PickWhseWkshLine."Source Subtype");
-                    AssemblyLine.SetRange("Document No.", PickWhseWkshLine."Source No.");
-                    AssemblyLine.SetRange("Line No.", PickWhseWkshLine."Source Line No.");
-                    if AssemblyLine.IsEmpty() then
-                        Error(SourceDocumentDoesNotExistErr, AssemblyLine.TableCaption(), AssemblyLine.GetFilters());
-                end;
-            Database::Job:
-                begin
-                    JobPlanningLine.SetRange("Job Contract Entry No.", PickWhseWkshLine."Source Line No.");
-                    if not JobPlanningLine.FindFirst() then
-                        Error(SourceDocumentDoesNotExistErr, JobPlanningLine.TableCaption(), JobPlanningLine.GetFilters());
-                    JobPlanningLine.TestStatusOpen();
-                end;
-            Database::"Service Line":
-                begin
-                    ServiceLine.SetRange("Document Type", PickWhseWkshLine."Source Subtype");
-                    ServiceLine.SetRange("Document No.", PickWhseWkshLine."Source No.");
-                    ServiceLine.SetRange("Line No.", PickWhseWkshLine."Source Line No.");
-                    if ServiceLine.IsEmpty() then
-                        Error(SourceDocumentDoesNotExistErr, ServiceLine.TableCaption(), ServiceLine.GetFilters());
-                end;
-        end;
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnAfterGetResultMessage(var ReturnValue: Boolean)
     begin
@@ -709,7 +644,11 @@ report 5754 "Create Pick"
     begin
     end;
 
-    
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckSourceDocument(var PickWhseWkshLine: Record "Whse. Worksheet Line")
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnCreateTempLineOnBeforeCalcAvailableQtyBase(PickWhseWorksheetLine: Record "Whse. Worksheet Line"; var IsHandled: Boolean)
     begin

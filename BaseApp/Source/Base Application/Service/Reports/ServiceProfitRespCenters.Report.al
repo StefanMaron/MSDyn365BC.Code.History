@@ -193,7 +193,9 @@ report 5909 "Service Profit (Resp. Centers)"
         ServShipmentHeaderFilter: Text;
         ShowDetail: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Total for ';
+#pragma warning restore AA0074
         TotalForLbl: Label 'Total:';
         PageCaptionLbl: Label 'Page';
         ServProfitRespCentersCaptionLbl: Label 'Service Profit (Responsibility Centers)';

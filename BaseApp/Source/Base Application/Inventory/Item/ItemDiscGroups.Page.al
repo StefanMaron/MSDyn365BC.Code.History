@@ -54,7 +54,7 @@ page 513 "Item Disc. Groups"
             group("Item &Disc. Groups")
             {
                 Caption = 'Item &Disc. Groups';
-#if not CLEAN23
+#if not CLEAN25
                 action("Sales &Line Discounts")
                 {
                     ApplicationArea = Basic, Suite;
@@ -111,7 +111,7 @@ page 513 "Item Disc. Groups"
             {
                 Caption = 'Prices & Discounts', Comment = 'Generated from the PromotedActionCategories property index 3.';
 
-#if not CLEAN23
+#if not CLEAN25
                 actionref("Sales &Line Discounts_Promoted"; "Sales &Line Discounts")
                 {
                     ObsoleteState = Pending;

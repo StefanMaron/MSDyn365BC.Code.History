@@ -114,7 +114,11 @@ table 5413 "Prod. Order Rtng Qlty Meas."
 
     var
         QltyMeasure: Record "Quality Measure";
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'A %1 %2 cannot be inserted, modified, or deleted.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
 
     procedure Caption(): Text
     var

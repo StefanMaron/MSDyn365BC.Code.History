@@ -5,7 +5,9 @@
 namespace Microsoft.Finance.AdvancePayments;
 
 using Microsoft.Bank.BankAccount;
+#if not CLEAN25
 using Microsoft.Bank.Documents;
+#endif
 using Microsoft.Bank.Setup;
 using Microsoft.CRM.BusinessRelation;
 using Microsoft.CRM.Contact;
@@ -406,19 +408,8 @@ table 31008 "Purch. Adv. Letter Header CZZ"
                 end;
 
                 GetSetup();
-#if not CLEAN22
-#pragma warning disable AL0432
-                if not ReplaceVATDateMgtCZL.IsEnabled() then begin
-                    if PurchasesPayablesSetup."Default VAT Date CZL" = PurchasesPayablesSetup."Default VAT Date CZL"::"Posting Date" then
-                        Validate("VAT Date", "Posting Date");
-                end else begin
-#pragma warning restore AL0432
-#endif
-                    GeneralLedgerSetup.UpdateVATDate("Posting Date", Enum::"VAT Reporting Date"::"Posting Date", "VAT Date");
-                    Validate("VAT Date");
-#if not CLEAN22
-                end;
-#endif
+                GeneralLedgerSetup.UpdateVATDate("Posting Date", Enum::"VAT Reporting Date"::"Posting Date", "VAT Date");
+                Validate("VAT Date");
                 GeneralLedgerSetup.UpdateOriginalDocumentVATDateCZL("Posting Date", Enum::"Default Orig.Doc. VAT Date CZL"::"Posting Date", "Original Document VAT Date");
                 Validate("Original Document VAT Date");
 
@@ -444,16 +435,8 @@ table 31008 "Purch. Adv. Letter Header CZZ"
                 Validate("Payment Terms Code");
 
                 GetSetup();
-#if not CLEAN22
-#pragma warning disable AL0432
-                if not ReplaceVATDateMgtCZL.IsEnabled() then begin
-                    if PurchasesPayablesSetup."Default VAT Date CZL" = PurchasesPayablesSetup."Default VAT Date CZL"::"Document Date" then
-                        Validate("VAT Date", "Document Date");
-                end else
-#pragma warning restore AL0432
-#endif
-                    if GeneralLedgerSetup."VAT Reporting Date" = GeneralLedgerSetup."VAT Reporting Date"::"Document Date" then
-                        Validate("VAT Date", "Document Date");
+                if GeneralLedgerSetup."VAT Reporting Date" = GeneralLedgerSetup."VAT Reporting Date"::"Document Date" then
+                    Validate("VAT Date", "Document Date");
 
                 GeneralLedgerSetup.UpdateOriginalDocumentVATDateCZL("Document Date", Enum::"Default Orig.Doc. VAT Date CZL"::"Document Date", "Original Document VAT Date");
                 Validate("Original Document VAT Date");
@@ -810,13 +793,18 @@ table 31008 "Purch. Adv. Letter Header CZZ"
                     IncomingDocument.SetPurchaseAdvanceCZZ(Rec);
             end;
         }
+#if not CLEAN25
         field(31040; "Amount on Iss. Payment Order"; Decimal)
         {
             Caption = 'Amount on Issued Payment Order';
             FieldClass = FlowField;
             CalcFormula = sum("Iss. Payment Order Line CZB".Amount where("Purch. Advance Letter No. CZZ" = field("No.")));
             Editable = false;
+            ObsoleteState = Pending;
+            ObsoleteReason = 'This field is obsolete and will be removed in a future release. The CalcSuggestedAmountToApply function should be used instead.';
+            ObsoleteTag = '25.0';
         }
+#endif
         field(31112; "Original Document VAT Date"; Date)
         {
             Caption = 'Original Document VAT Date';
@@ -861,11 +849,6 @@ table 31008 "Purch. Adv. Letter Header CZZ"
 #endif
         DimensionManagement: Codeunit DimensionManagement;
         UserSetupManagement: Codeunit "User Setup Management";
-#if not CLEAN22
-#pragma warning disable AL0432
-        ReplaceVATDateMgtCZL: Codeunit "Replace VAT Date Mgt. CZL";
-#pragma warning restore AL0432
-#endif
         VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
         HasPurchSetup: Boolean;
         HideValidationDialog: Boolean;
@@ -979,20 +962,6 @@ table 31008 "Purch. Adv. Letter Header CZZ"
             "Posting Date" := 0D;
 
         "Document Date" := WorkDate();
-#if not CLEAN22
-#pragma warning disable AL0432
-        if not ReplaceVATDateMgtCZL.IsEnabled() then
-            case PurchasesPayablesSetup."Default VAT Date CZL" of
-                PurchasesPayablesSetup."Default VAT Date CZL"::"Posting Date":
-                    "VAT Date" := "Posting Date";
-                PurchasesPayablesSetup."Default VAT Date CZL"::"Document Date":
-                    "VAT Date" := "Document Date";
-                PurchasesPayablesSetup."Default VAT Date CZL"::Blank:
-                    "VAT Date" := 0D;
-            end
-        else
-#pragma warning restore AL0432
-#endif
         "VAT Date" := GeneralLedgerSetup.GetVATDate("Posting Date", "Document Date");
         "Original Document VAT Date" :=
             GeneralLedgerSetup.GetOriginalDocumentVATDateCZL("Posting Date", "VAT Date", "Document Date");
@@ -1514,6 +1483,7 @@ table 31008 "Purch. Adv. Letter Header CZZ"
     begin
         PurchAdvLetterEntryCZZ.SetRange("Purch. Adv. Letter No.", "No.");
         PurchAdvLetterEntryCZZ.SetRange(Cancelled, false);
+        PurchAdvLetterEntryCZZ.SetRange("Auxiliary Entry", false);
         PurchAdvLetterEntryCZZ.SetFilter("Entry Type", '<>%1', PurchAdvLetterEntryCZZ."Entry Type"::"Initial Entry");
         PurchAdvLetterEntryCZZ.CalcSums("VAT Base Amount", "VAT Amount", "VAT Base Amount (LCY)", "VAT Amount (LCY)");
         VATBaseAmount := PurchAdvLetterEntryCZZ."VAT Base Amount";
@@ -1622,18 +1592,32 @@ table 31008 "Purch. Adv. Letter Header CZZ"
         ApprovalsMgmt.OnDeleteRecordInApprovalRequest(RecordId);
     end;
 
+    procedure CollectSuggestedApplication(var CrossApplicationBufferCZL: Record "Cross Application Buffer CZL"): Boolean
+    var
+        CrossApplicationMgtCZL: Codeunit "Cross Application Mgt. CZL";
+    begin
+        exit(CrossApplicationMgtCZL.CollectSuggestedApplication(Rec, CrossApplicationBufferCZL));
+    end;
+
+    procedure CollectSuggestedApplication(CalledFrom: Variant; var CrossApplicationBufferCZL: Record "Cross Application Buffer CZL"): Boolean
+    var
+        CrossApplicationMgtCZL: Codeunit "Cross Application Mgt. CZL";
+    begin
+        exit(CrossApplicationMgtCZL.CollectSuggestedApplication(Rec, CalledFrom, CrossApplicationBufferCZL));
+    end;
+
     procedure CalcSuggestedAmountToApply(): Decimal
     var
         CrossApplicationMgtCZL: Codeunit "Cross Application Mgt. CZL";
     begin
-        exit(CrossApplicationMgtCZL.CalcSuggestedAmountToApplyPurchAdvLetterHeader(Rec."No."));
+        exit(-CrossApplicationMgtCZL.CalcSuggestedAmountToApply(Rec));
     end;
 
     procedure DrillDownSuggestedAmountToApply()
     var
         CrossApplicationMgtCZL: Codeunit "Cross Application Mgt. CZL";
     begin
-        CrossApplicationMgtCZL.DrillDownSuggestedAmountToApplyPurchAdvLetterHeader(Rec."No.");
+        CrossApplicationMgtCZL.DrillDownSuggestedAmountToApply(Rec);
     end;
 
     internal procedure PerformManualRelease(var PurchAdvLetterHeaderCZZ: Record "Purch. Adv. Letter Header CZZ")

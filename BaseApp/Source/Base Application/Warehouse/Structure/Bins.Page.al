@@ -159,7 +159,9 @@ page 7302 Bins
     end;
 
     var
+#pragma warning disable AA0074
         Text004: Label 'Do you want to update the bin contents?';
+#pragma warning restore AA0074
 
     local procedure GetCaption(): Text[250]
     var

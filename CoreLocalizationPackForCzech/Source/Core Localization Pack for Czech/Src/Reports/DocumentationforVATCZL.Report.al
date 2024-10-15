@@ -251,13 +251,6 @@ report 11757 "Documentation for VAT CZL"
                     }
                     trigger OnAfterGetRecord()
                     begin
-#if not CLEAN22
-#pragma warning disable AL0432
-                        if not IsReplaceVATDateEnabled() then
-                            "VAT Reporting Date" := "VAT Date CZL";
-#pragma warning restore AL0432
-#endif
-
                         VATEntrySubtotalAmt[1] += Base;
                         VATEntrySubtotalAmt[2] += Amount;
                         VATEntrySubtotalAmt[3] += "Original VAT Base CZL";
@@ -346,13 +339,6 @@ report 11757 "Documentation for VAT CZL"
                         else
                             VATEntry.SetRange(Closed);
                     end;
-#if not CLEAN22
-#pragma warning disable AL0432
-                    if not VATEntry.IsReplaceVATDateEnabled() then
-                        VATEntry.SetFilter("VAT Date CZL", VATDateFilter)
-                    else
-#pragma warning restore AL0432
-#endif
                     VATEntry.SetFilter("VAT Reporting Date", VATDateFilter);
                     VATEntry.SetRange("VAT Bus. Posting Group", "VAT Posting Setup"."VAT Bus. Posting Group");
                     VATEntry.SetRange("VAT Prod. Posting Group", "VAT Posting Setup"."VAT Prod. Posting Group");
@@ -425,13 +411,6 @@ report 11757 "Documentation for VAT CZL"
                                 VATEntry.Base := VATEntry.CalcDeductibleVATBaseCZL();
 
                             if MergeByDocumentNo then begin
-#if not CLEAN22
-#pragma warning disable AL0432
-                                if not VATEntry.IsReplaceVATDateEnabled() then
-                                    "VAT Entry".SetRange("VAT Date CZL", VATEntry."VAT Date CZL")
-                                else
-#pragma warning restore AL0432
-#endif
                                 "VAT Entry".SetRange("VAT Reporting Date", VATEntry."VAT Reporting Date");
                                 "VAT Entry".SetRange("VAT Bus. Posting Group", VATEntry."VAT Bus. Posting Group");
                                 "VAT Entry".SetRange("VAT Prod. Posting Group", VATEntry."VAT Prod. Posting Group");
@@ -588,25 +567,11 @@ report 11757 "Documentation for VAT CZL"
     begin
         if "VAT Posting Setup".GetFilters() <> '' then
             VATPostingSetupFilter := "VAT Posting Setup".TableCaption() + ': ' + "VAT Posting Setup".GetFilters();
-#if not CLEAN22
-#pragma warning disable AL0432
-        if not VATEntry.IsReplaceVATDateEnabled() then begin
-            if EndDateReq = 0D then
-                VATEntry.SetFilter("VAT Date CZL", '%1..', StartDateReq)
-            else
-                VATEntry.SetRange("VAT Date CZL", StartDateReq, EndDateReq);
-            VATDateFilter := VATEntry.GetFilter("VAT Date CZL");
-        end else begin
-#pragma warning restore AL0432
-#endif
-            if EndDateReq = 0D then
-                VATEntry.SetFilter("VAT Reporting Date", '%1..', StartDateReq)
-            else
-                VATEntry.SetRange("VAT Reporting Date", StartDateReq, EndDateReq);
-            VATDateFilter := VATEntry.GetFilter("VAT Reporting Date");
-#if not CLEAN22
-        end;
-#endif
+        if EndDateReq = 0D then
+            VATEntry.SetFilter("VAT Reporting Date", '%1..', StartDateReq)
+        else
+            VATEntry.SetRange("VAT Reporting Date", StartDateReq, EndDateReq);
+        VATDateFilter := VATEntry.GetFilter("VAT Reporting Date");
     end;
 
     var

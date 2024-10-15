@@ -54,11 +54,13 @@ codeunit 5813 "Undo Purchase Receipt Line"
         JobItem: Boolean;
         NextLineNo: Integer;
 
+#pragma warning disable AA0074
         Text000: Label 'Do you really want to undo the selected Receipt lines?';
         Text001: Label 'Undo quantity posting...';
         Text002: Label 'There is not enough space to insert correction lines.';
         Text003: Label 'Checking lines...';
         Text004: Label 'This receipt has already been invoiced. Undo Receipt can be applied only to posted, but not invoiced receipts.';
+#pragma warning restore AA0074
         AllLinesCorrectedErr: Label 'All lines have been already corrected.';
         AlreadyReversedErr: Label 'This receipt has already been reversed.';
 

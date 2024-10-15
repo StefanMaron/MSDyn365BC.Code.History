@@ -82,6 +82,8 @@ report 5608 "Fixed Asset - Acquisition List"
     requestpage
     {
         SaveValues = true;
+        AboutTitle = 'About Fixed Asset Acquisition List';
+        AboutText = 'The **Fixed Asset Acquisition List** report is a detailed accounting document that provides an organized summary of all fixed assets acquired by an organization during a specific period. This report is essential for tracking new additions to the asset base and ensuring accurate financial reporting.';
 
         layout
         {
@@ -95,6 +97,8 @@ report 5608 "Fixed Asset - Acquisition List"
                         ApplicationArea = FixedAssets;
                         Caption = 'Depreciation Book';
                         TableRelation = "Depreciation Book";
+                        AboutTitle = 'Select Depreciation Book';
+                        AboutText = 'Choose the Depreciation Book and specify the Starting Date and Ending Date for which details are to be seen in the report.';
                         ToolTip = 'Specifies the code for the depreciation book to be included in the report or batch job.';
                     }
                     group("Acquisition Period")
@@ -117,6 +121,8 @@ report 5608 "Fixed Asset - Acquisition List"
                     {
                         ApplicationArea = FixedAssets;
                         Caption = 'Include Fixed Assets Not Yet Acquired';
+                        AboutTitle = 'Enable Include Fixed Assets Not Yet Acquired';
+                        AboutText = 'Specifies if you want to include a fixed asset for which the first acquisition cost has not yet been posted.';
                         ToolTip = 'Specifies if you want to include a fixed asset for which the first acquisition cost has not yet been posted.';
                     }
                 }
@@ -161,9 +167,11 @@ report 5608 "Fixed Asset - Acquisition List"
         EndingDate: Date;
         FAWithoutAcqDate: Boolean;
         PrintFA: Boolean;
+#pragma warning disable AA0074
         Text001: Label 'You must specify a Starting Date.';
         Text002: Label 'You must specify an Ending Date.';
         Text003: Label 'You must specify an Ending Date that is later than the Starting Date.';
+#pragma warning restore AA0074
         FixedAssetAcqListCptnLbl: Label 'Fixed Asset - Acquisition List';
         CurrReportPageNoCaptionLbl: Label 'Page';
         FADeprBkAcquisitionDtCptnLbl: Label 'Acquisition Date';

@@ -15,7 +15,6 @@ using Microsoft.Manufacturing.Setup;
 using Microsoft.Projects.Project.Planning;
 using Microsoft.Purchases.Document;
 using Microsoft.Sales.Document;
-using Microsoft.Service.Document;
 
 codeunit 5431 "Calc. Item Plan - Plan Wksh."
 {
@@ -43,10 +42,12 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
         UseForecast: Code[10];
         FromDate: Date;
         ToDate: Date;
+#pragma warning disable AA0074
         Text000: Label 'You must decide what to calculate.';
         Text001: Label 'Enter a starting date.';
         Text002: Label 'Enter an ending date.';
         Text003: Label 'The ending date must not be before the order date.';
+#pragma warning restore AA0074
         ExcludeForecastBefore: Date;
         RespectPlanningParm: Boolean;
 
@@ -217,13 +218,13 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
         SKU: Record "Stockkeeping Unit";
         ForecastEntry: Record "Production Forecast Entry";
         SalesLine: Record "Sales Line";
-        ServLine: Record "Service Line";
         PurchaseLine: Record "Purchase Line";
         ProdOrderLine: Record "Prod. Order Line";
         PlanningAssignment: Record "Planning Assignment";
         JobPlanningLine: Record "Job Planning Line";
         IsHandled: Boolean;
         DoExit: Boolean;
+        LinesExist: Boolean;
     begin
         IsHandled := false;
         OnBeforePlanThisItem(Item, IsHandled, MPS, MRP, NetChange, FromDate, ToDate, UseForecast, RespectPlanningParm, Result);
@@ -275,7 +276,9 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
         DoExit := false;
         OnPlanThisItemOnBeforeCheckServJobPlanningLines(Item, IsHandled, MPS, MRP, NetChange, FromDate, ToDate, UseForecast, RespectPlanningParm, Result, DoExit);
         if not IsHandled then begin
-            if ServLine.LinesWithItemToPlanExist(Item) then
+            LinesExist := false;
+            OnPlanThisItemOnBeforeExitMPS(Item, LinesExist);
+            if LinesExist then
                 exit(MPS);
 
             if JobPlanningLine.LinesWithItemToPlanExist(Item) then
@@ -360,6 +363,11 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
 
     [IntegrationEvent(false, false)]
     local procedure OnPlanThisItemOnBeforeCheckServJobPlanningLines(var Item: Record Item; var IsHandled: Boolean; MPS: Boolean; MRP: Boolean; NetChange: Boolean; var FromDate: Date; ToDate: Date; UseForecast: Code[10]; RespectPlanningParm: Boolean; var Result: Boolean; var DoExit: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPlanThisItemOnBeforeExitMPS(var Item: Record Item; var LinesExist: Boolean)
     begin
     end;
 }

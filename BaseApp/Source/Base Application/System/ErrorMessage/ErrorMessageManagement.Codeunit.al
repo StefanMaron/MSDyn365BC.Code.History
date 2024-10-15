@@ -712,6 +712,20 @@ codeunit 28 "Error Message Management"
         exit(ReturnErrorInfo);
     end;
 
+    procedure BuildActionableErrorInfo(ErrorTitle: Text; ErrorMessage: Text; SysId: Guid; ActionMessage: Text; ActionCodeunuitId: Integer; ActionName: Text; ActionDescription: Text): ErrorInfo
+    var
+        ReturnErrorInfo: ErrorInfo;
+    begin
+        ReturnErrorInfo.Title := ErrorTitle;
+        ReturnErrorInfo.Message := ErrorMessage;
+        ReturnErrorInfo.SystemId := SysId;
+        if ActionDescription <> '' then
+            ReturnErrorInfo.AddAction(ActionMessage, ActionCodeunuitId, ActionName, ActionDescription)
+        else
+            ReturnErrorInfo.AddAction(ActionMessage, ActionCodeunuitId, ActionName);
+        exit(ReturnErrorInfo);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnPushContext()
     begin
@@ -742,50 +756,6 @@ codeunit 28 "Error Message Management"
     local procedure OnLogLastError()
     begin
     end;
-
-#if not CLEAN22
-    [EventSubscriber(ObjectType::Table, Database::"Error Message", 'OnBeforeInsertEvent', '', false, false)]
-    [Obsolete('Temporarily syncing Description and Message fields until Description is obsolete.', '22.0')]
-    local procedure ErrorMessageOnBeforeInsertEvent(var Rec: Record "Error Message")
-    begin
-        if Rec.Message = '' then
-            Rec.Message := Rec.Description
-        else
-            Rec.Description := CopyStr(Rec.Message, 1, MaxStrLen(Rec.Description));
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Error Message", 'OnBeforeModifyEvent', '', false, false)]
-    [Obsolete('Temporarily syncing Description and Message fields until Description is obsolete.', '22.0')]
-    local procedure ErrorMessageOnBeforeModifyEvent(var Rec: Record "Error Message"; var xRec: Record "Error Message")
-    begin
-        if Rec.Message <> xRec.Message then
-            Rec.Description := CopyStr(Rec.Message, 1, MaxStrLen(Rec.Description))
-        else
-            if Rec.Description <> xRec.Description then
-                Rec.Message := Rec.Description;
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Error Message Register", 'OnBeforeInsertEvent', '', false, false)]
-    [Obsolete('Temporarily syncing Description and Message fields until Description is obsolete.', '22.0')]
-    local procedure ErrorMessageRegisterOnBeforeInsertEvent(var Rec: Record "Error Message Register")
-    begin
-        if Rec.Message = '' then
-            Rec.Message := Rec.Description
-        else
-            Rec.Description := CopyStr(Rec.Message, 1, MaxStrLen(Rec.Description));
-    end;
-
-    [EventSubscriber(ObjectType::Table, Database::"Error Message Register", 'OnBeforeModifyEvent', '', false, false)]
-    [Obsolete('Temporarily syncing Description and Message fields until Description is obsolete.', '22.0')]
-    local procedure ErrorMessageRegisterOnBeforeModifyEvent(var Rec: Record "Error Message Register"; var xRec: Record "Error Message Register")
-    begin
-        if Rec.Message <> xRec.Message then
-            Rec.Description := CopyStr(Rec.Message, 1, MaxStrLen(Rec.Description))
-        else
-            if Rec.Description <> xRec.Description then
-                Rec.Message := Rec.Description;
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetContextRecID(ContextVariant: Variant; var ContextRecID: RecordID; var IsHandled: Boolean)

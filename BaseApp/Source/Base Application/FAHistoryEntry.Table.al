@@ -31,17 +31,17 @@ table 31044 "FA History Entry"
         {
             Caption = 'Old Value';
             Editable = false;
-            TableRelation = if (Type = CONST(Location)) "FA Location".Code
+            TableRelation = if (Type = const(Location)) "FA Location".Code
             else
-            if (Type = CONST("Responsible Employee")) Employee."No.";
+            if (Type = const("Responsible Employee")) Employee."No.";
         }
         field(5; "New Value"; Code[20])
         {
             Caption = 'New Value';
             Editable = false;
-            TableRelation = if (Type = CONST(Location)) "FA Location".Code
+            TableRelation = if (Type = const(Location)) "FA Location".Code
             else
-            if (Type = CONST("Responsible Employee")) Employee."No.";
+            if (Type = const("Responsible Employee")) Employee."No.";
         }
         field(6; "Creation Date"; Date)
         {

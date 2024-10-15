@@ -4,6 +4,7 @@ using Microsoft.Finance.Dimension;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Setup;
 using Microsoft.Foundation.Navigate;
+using Microsoft.Foundation.NoSeries;
 using System.Telemetry;
 using System.Utilities;
 
@@ -56,6 +57,7 @@ codeunit 19 "Gen. Jnl.-Post Preview"
         ErrorContextElement: Codeunit "Error Context Element";
         ErrorMessageHandler: Codeunit "Error Message Handler";
         ErrorMessageMgt: Codeunit "Error Message Management";
+        SequenceNoMgt: Codeunit "Sequence No. Mgt.";
         RunResult: Boolean;
     begin
         if not Subscriber.IsCodeunit then
@@ -67,9 +69,11 @@ codeunit 19 "Gen. Jnl.-Post Preview"
         ErrorMessageMgt.Activate(ErrorMessageHandler);
         ErrorMessageMgt.PushContext(ErrorContextElement, RecVar, 0, PreviewModeErr);
         OnAfterBindSubscription(PostingPreviewEventHandler);
+        SequenceNoMgt.StartPreviewMode();
 
         RunResult := RunPreview(Subscriber, RecVar);
 
+        SequenceNoMgt.StopPreviewMode();
         UnbindSubscription(PostingPreviewEventHandler);
         OnAfterUnbindSubscription();
 

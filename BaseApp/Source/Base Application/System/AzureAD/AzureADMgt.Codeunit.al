@@ -33,32 +33,50 @@ codeunit 6300 "Azure AD Mgt."
             AuthCodeUrl += '&resource=' + UrlEncode(ResourceName);
         AuthCodeUrl += '&redirect_uri=' + UrlEncode(GetRedirectUrl());
     end;
+#if not CLEAN25
 
     [NonDebuggable]
+    [Obsolete('Replaced by AcquireTokenByAuthorizationCodeAsSecretText', '25.0')]
     [Scope('OnPrem')]
     procedure AcquireTokenByAuthorizationCode(AuthorizationCode: Text; ResourceUrl: Text) AccessToken: Text
+    begin
+        exit(AcquireTokenByAuthorizationCodeAsSecretText(AuthorizationCode, ResourceUrl).Unwrap());
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure AcquireTokenByAuthorizationCodeAsSecretText(AuthorizationCode: SecretText; ResourceUrl: Text) AccessToken: SecretText
     begin
         // This will return access token and also cache it for future use.
         AzureADAuthFlow.Initialize(GetRedirectUrl());
 
         if IsSaaS() then
-            AccessToken := AzureADAuthFlow.AcquireTokenByAuthorizationCode(AuthorizationCode, ResourceUrl)
+            AccessToken := AzureADAuthFlow.AcquireTokenByAuthorizationCodeAsSecretText(AuthorizationCode, ResourceUrl)
         else begin
             AzureADAppSetup.FindFirst();
-            AccessToken := AzureADAuthFlow.AcquireTokenByAuthorizationCodeWithCredentials(
+            AccessToken := AzureADAuthFlow.AcquireTokenByAuthorizationCodeWithCredentialsAsSecretText(
                 AuthorizationCode,
                 GetClientId(),
-                AzureADAppSetup.GetSecretKeyFromIsolatedStorage(),
+                AzureADAppSetup.GetSecretKeyFromIsolatedStorageAsSecretText(),
                 ResourceUrl);
         end;
     end;
+#if not CLEAN25
 
     [Scope('OnPrem')]
     [NonDebuggable]
+    [Obsolete('Replaced by GetAccessTokenAsSecretText', '25.0')]
     procedure GetAccessToken(ResourceUrl: Text; ResourceName: Text; ShowDialog: Boolean) AccessToken: Text
+    begin
+        exit(GetAccessTokenAsSecretText(ResourceUrl, ResourceName, ShowDialog).Unwrap());
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure GetAccessTokenAsSecretText(ResourceUrl: Text; ResourceName: Text; ShowDialog: Boolean) AccessToken: SecretText
     var
         AzureADAccessDialog: Page "Azure AD Access Dialog";
-        AuthorizationCode: Text;
+        AuthorizationCode: SecretText;
     begin
         // Does everything required to retrieve an access token for the given service, including
         // showing the Azure AD wizard and auth code retrieval form if necessary.
@@ -66,20 +84,22 @@ codeunit 6300 "Azure AD Mgt."
             PAGE.RunModal(PAGE::"Azure AD App Setup Wizard");
             if not IsAzureADAppSetupDone() then
                 // Don't continue if user cancelled or errored out of the setup wizard.
-                exit('');
+                exit(AccessToken);
         end;
 
         if AcquireToken(ResourceUrl, AccessToken) then
-            if AccessToken <> '' then
+            if not AccessToken.IsEmpty() then
                 exit(AccessToken);
 
-        if IsSaaS() then
-            exit('');
+        if IsSaaS() then begin
+            Clear(AccessToken);
+            exit(AccessToken);
+        end;
 
         if ShowDialog then
-            AuthorizationCode := AzureADAccessDialog.GetAuthorizationCode(ResourceUrl, ResourceName);
-        if AuthorizationCode <> '' then
-            AccessToken := AcquireTokenByAuthorizationCode(AuthorizationCode, ResourceUrl);
+            AuthorizationCode := AzureADAccessDialog.GetAuthorizationCodeAsSecretText(ResourceUrl, ResourceName);
+        if not AuthorizationCode.IsEmpty() then
+            AccessToken := AcquireTokenByAuthorizationCodeAsSecretText(AuthorizationCode, ResourceUrl);
     end;
 
     [Scope('OnPrem')]
@@ -91,13 +111,22 @@ codeunit 6300 "Azure AD Mgt."
             if AccessToken <> '' then
                 exit(AccessToken);
     end;
+#if not CLEAN25
 
     [Scope('OnPrem')]
     [NonDebuggable]
+    [Obsolete('Replaced by GetOnBehalfAccessTokenAsSecretText(ResourceUrl: Text): SecretText', '25.0')]
     procedure GetOnBehalfAccessToken(ResourceUrl: Text): Text
     begin
+        exit(GetOnBehalfAccessTokenAsSecretText(ResourceUrl).Unwrap());
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure GetOnBehalfAccessTokenAsSecretText(ResourceUrl: Text): SecretText
+    begin
         AzureADAuthFlow.Initialize(GetRedirectUrl());
-        exit(AzureADAuthFlow.AcquireOnBehalfOfToken(ResourceUrl));
+        exit(AzureADAuthFlow.AcquireOnBehalfOfTokenAsSecretText(ResourceUrl));
     end;
 
     [NonDebuggable]
@@ -247,10 +276,22 @@ codeunit 6300 "Azure AD Mgt."
 
         exit(true);
     end;
+#if not CLEAN25
 
     [Scope('OnPrem')]
     [NonDebuggable]
+    [Obsolete('Replaced by CreateExchangeServiceWrapperWithToken(Token: SecretText; var Service: DotNet ExchangeServiceWrapper)', '25.0')]
     procedure CreateExchangeServiceWrapperWithToken(Token: Text; var Service: DotNet ExchangeServiceWrapper)
+    var
+        TokenAsSecretText: SecretText;
+    begin
+        TokenAsSecretText := Token;
+        CreateExchangeServiceWrapperWithToken(Token, Service);
+    end;
+#endif
+
+    [Scope('OnPrem')]
+    procedure CreateExchangeServiceWrapperWithToken(Token: SecretText; var Service: DotNet ExchangeServiceWrapper)
     begin
         AzureADAuthFlow.CreateExchangeServiceWrapperWithToken(Token, Service);
     end;
@@ -260,7 +301,7 @@ codeunit 6300 "Azure AD Mgt."
     [NonDebuggable]
     local procedure OnGetUserToken(Resource: Text; Scenario: Text; var Token: Text)
     begin
-        Token := GetAccessToken(Resource, Resource, false);
+        Token := GetAccessTokenAsSecretText(Resource, Resource, false).Unwrap();
     end;
 
     [TryFunction]
@@ -274,10 +315,22 @@ codeunit 6300 "Azure AD Mgt."
         end else
             AccessToken := '';
     end;
+#if not CLEAN25
 
     [TryFunction]
     [NonDebuggable]
+    [Obsolete('Replaced by parameter with AccessToken: SecretText', '25.0')]
     local procedure AcquireToken(ResourceName: Text; var AccessToken: Text)
+    var
+        AccessTokenAsSecretText: SecretText;
+    begin
+        AcquireToken(ResourceName, AccessTokenAsSecretText);
+        AccessToken := AccessTokenAsSecretText.Unwrap();
+    end;
+#endif
+
+    [TryFunction]
+    local procedure AcquireToken(ResourceName: Text; var AccessToken: SecretText)
     begin
         // This function will return access token for a resource
         // Need to run the Azure AD Setup wizard before calling into this.
@@ -286,12 +339,12 @@ codeunit 6300 "Azure AD Mgt."
         AzureADAuthFlow.Initialize(GetRedirectUrl());
 
         if IsSaaS() then
-            AccessToken := AzureADAuthFlow.AcquireTokenFromCache(ResourceName)
+            AccessToken := AzureADAuthFlow.AcquireTokenFromCacheAsSecretText(ResourceName)
         else begin
             AzureADAppSetup.FindFirst();
-            AccessToken := AzureADAuthFlow.AcquireTokenFromCacheWithCredentials(
+            AccessToken := AzureADAuthFlow.AcquireTokenFromCacheWithCredentialsAsSecretText(
                 GetClientId(),
-                AzureADAppSetup.GetSecretKeyFromIsolatedStorage(),
+                AzureADAppSetup.GetSecretKeyFromIsolatedStorageAsSecretText(),
                 ResourceName);
         end;
     end;

@@ -375,14 +375,14 @@ xmlport 31061 "VIES Declaration CZL"
         TempVIESDeclarationLineCZL.DeleteAll();
     end;
 
-    local procedure FormatDate(Date: Date): Text
-    begin
-        exit(Format(Date, 0, '<Day,2>.<Month,2>.<Year4>'));
-    end;
-    
     procedure SetShowAmtInAddCurrency(SetAmtInAddCurrency: Boolean)
     begin
         ShowAmtInAddCurrency := SetAmtInAddCurrency;
+    end;
+
+    local procedure FormatDate(Date: Date): Text
+    begin
+        exit(Format(Date, 0, '<Day,2>.<Month,2>.<Year4>'));
     end;
 
     var

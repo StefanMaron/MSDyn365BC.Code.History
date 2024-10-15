@@ -28,7 +28,11 @@ codeunit 74 "Purch.-Get Receipt"
     end;
 
     var
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'The %1 on the %2 %3 and the %4 %5 must be the same.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         PurchHeader: Record "Purchase Header";
         PurchLine: Record "Purchase Line";
         PurchRcptHeader: Record "Purch. Rcpt. Header";

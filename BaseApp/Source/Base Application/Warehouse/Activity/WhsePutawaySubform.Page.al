@@ -1,6 +1,7 @@
 ﻿namespace Microsoft.Warehouse.Activity;
 
 using Microsoft.Inventory.Availability;
+using Microsoft.Warehouse.Availability;
 using Microsoft.Inventory.Location;
 using Microsoft.Warehouse.Journal;
 using Microsoft.Warehouse.Structure;
@@ -350,7 +351,7 @@ page 5771 "Whse. Put-away Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByEvent());
+                            ItemAvailability("Item Availability Type"::"Event");
                         end;
                     }
                     action(Period)
@@ -362,7 +363,7 @@ page 5771 "Whse. Put-away Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByPeriod());
+                            ItemAvailability("Item Availability Type"::Period);
                         end;
                     }
                     action(Variant)
@@ -374,7 +375,7 @@ page 5771 "Whse. Put-away Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByVariant());
+                            ItemAvailability("Item Availability Type"::Variant);
                         end;
                     }
                     action(Location)
@@ -387,7 +388,7 @@ page 5771 "Whse. Put-away Subform"
 
                         trigger OnAction()
                         begin
-                            ItemAvailability(ItemAvailFormsMgt.ByLocation());
+                            ItemAvailability("Item Availability Type"::Location);
                         end;
                     }
                     action(Lot)
@@ -436,7 +437,7 @@ page 5771 "Whse. Put-away Subform"
     end;
 
     var
-        ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
+        WarehouseAvailabilityMgt: Codeunit "Warehouse Availability Mgt.";
         WMSMgt: Codeunit "WMS Management";
 
     protected var
@@ -455,9 +456,9 @@ page 5771 "Whse. Put-away Subform"
           Rec."Source Type", Rec."Source Subtype", Rec."Source No.", Rec."Source Line No.", Rec."Source Subline No.");
     end;
 
-    local procedure ItemAvailability(AvailabilityType: Option Date,Variant,Location,Bin,"Event",BOM)
+    local procedure ItemAvailability(AvailabilityType: Enum "Item Availability Type")
     begin
-        ItemAvailFormsMgt.ShowItemAvailFromWhseActivLine(Rec, AvailabilityType);
+        WarehouseAvailabilityMgt.ShowItemAvailabilityFromWhseActivLine(Rec, AvailabilityType);
     end;
 
     local procedure ChangeUOM()

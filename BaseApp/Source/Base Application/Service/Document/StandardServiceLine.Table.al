@@ -253,9 +253,13 @@ table 5997 "Standard Service Line"
     var
         StdServCode: Record "Standard Service Code";
         DimMgt: Codeunit DimensionManagement;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot rename a %1.';
         Text001: Label 'must not be %1';
+#pragma warning restore AA0470
         Text002: Label 'must be positive';
+#pragma warning restore AA0074
 
     procedure EmptyLine(): Boolean
     begin
@@ -334,8 +338,10 @@ table 5997 "Standard Service Line"
     end;
 
     local procedure InitDefaultDimensionSources(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]])
+    var
+        ServDimMgt: Codeunit "Serv. Dimension Management";
     begin
-        DimMgt.AddDimSource(DefaultDimSource, DimMgt.TypeToTableID5(Rec.Type.AsInteger()), Rec."No.");
+        DimMgt.AddDimSource(DefaultDimSource, ServDimMgt.ServiceLineTypeToTableID(Rec.Type), Rec."No.");
 
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
     end;

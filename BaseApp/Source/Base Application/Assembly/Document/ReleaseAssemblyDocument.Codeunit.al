@@ -47,7 +47,9 @@ codeunit 903 "Release Assembly Document"
     end;
 
     var
+#pragma warning disable AA0074
         Text001: Label 'There is nothing to release for %1 %2.', Comment = '%1 = Document Type, %2 = No.';
+#pragma warning restore AA0074
 
     procedure Reopen(var AssemblyHeader: Record "Assembly Header")
     var

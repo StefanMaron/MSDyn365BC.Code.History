@@ -11,16 +11,10 @@ table 372 "Payment Buffer"
 {
     Caption = 'Payment Buffer';
     ReplicateData = false;
-#if CLEAN22
     TableType = Temporary;
     ObsoleteReason = 'Replaced by Vendor Payment Buffer.';
     ObsoleteState = Removed;
     ObsoleteTag = '25.0';
-#else
-    ObsoleteReason = 'This table will be replaced by Vendor Payment Buffer.';
-    ObsoleteState = Pending;
-    ObsoleteTag = '22.0';
-#endif
     DataClassification = CustomerContent;
 
     fields
@@ -130,31 +124,17 @@ table 372 "Payment Buffer"
             Caption = 'Vendor Posting Group';
             DataClassification = SystemMetadata;
             TableRelation = "Vendor Posting Group";
-#if CLEAN22
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#else
-            ObsoleteState = Pending;
-            ObsoleteTag = '21.0';
-#endif
             ObsoleteReason = 'The field is not used anymore.';
         }
     }
 
     keys
     {
-#if CLEAN22
         key(Key1; "Vendor No.", "Currency Code", "Vendor Ledg. Entry No.", "Dimension Entry No.")
-#else
-        key(Key1; "Vendor No.", "Currency Code", "Vendor Ledg. Entry No.", "Dimension Entry No.", "Vendor Posting Group")
-#endif
         {
             Clustered = true;
-#if not CLEAN22
-            ObsoleteState = Pending;
-            ObsoleteReason = 'The obsoleted fields will be removed from primary key.';
-            ObsoleteTag = '21.0';
-#endif
         }
     }
 

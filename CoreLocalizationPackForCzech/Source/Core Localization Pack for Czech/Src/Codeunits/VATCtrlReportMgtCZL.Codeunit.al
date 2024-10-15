@@ -38,11 +38,6 @@ codeunit 31102 "VAT Ctrl. Report Mgt. CZL"
         TempDocumentBudgetBuffer: Record "Budget Buffer" temporary;
         TempErrorBuffer: Record "Error Buffer" temporary;
         TempGlobalVATEntry: Record "VAT Entry" temporary;
-#if not CLEAN22
-#pragma warning disable AL0432
-        ReplaceVATDateMgtCZL: Codeunit "Replace VAT Date Mgt. CZL";
-#pragma warning restore AL0432
-#endif
         VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
         WindowDialog: Dialog;
         ProgressDialogMsg: Label 'VAT Statement Line Progress     #1######## #2######## #3########', Comment = '%1 = Statement Template Name; %2 = Statement Name; %3 = Line No.';
@@ -312,16 +307,30 @@ codeunit 31102 "VAT Ctrl. Report Mgt. CZL"
                 TempDocumentBudgetBuffer."Dimension Value Code 3" := TempVATEntry."Bill-to/Pay-to No.";
                 TempDocumentBudgetBuffer.Date := TempVATEntry."Posting Date";
                 repeat
-                    if TempGlobalVATEntry."VAT Calculation Type" = TempGlobalVATEntry."VAT Calculation Type"::"Reverse Charge VAT" then
-                        TempDocumentBudgetBuffer.Amount += TempGlobalVATEntry.Base
-                    else
-                        TempDocumentBudgetBuffer.Amount += (TempGlobalVATEntry.Base + TempGlobalVATEntry.Amount);
+                    TempDocumentBudgetBuffer.Amount += GetAmount(TempGlobalVATEntry);
                 until TempGlobalVATEntry.Next() = 0;
                 OnGetDocumentAmountOnBeforeInsertTempDocumentBudgetBuffer(TempVATEntry, TempDocumentBudgetBuffer);
                 TempDocumentBudgetBuffer.Insert();
             end;
         end;
         exit(TempDocumentBudgetBuffer.Amount);
+    end;
+
+    local procedure GetAmount(var TempVATEntry: Record "VAT Entry" temporary): Decimal
+    var
+        Base, Amount : Decimal;
+    begin
+        if GeneralLedgerSetup."Additional Reporting Currency" <> '' then begin
+            Base := TempVATEntry."Additional-Currency Base";
+            Amount := TempVATEntry."Additional-Currency Amount";
+        end else begin
+            Base := TempVATEntry.Base;
+            Amount := TempVATEntry.Amount;
+        end;
+
+        if TempVATEntry."VAT Calculation Type" = TempVATEntry."VAT Calculation Type"::"Reverse Charge VAT" then
+            exit(Base);
+        exit(Base + Amount);
     end;
 
     local procedure IsDocumentWithReverseChargeVAT(DocumentNo: Code[20]; PostingDate: Date): Boolean
@@ -435,12 +444,6 @@ codeunit 31102 "VAT Ctrl. Report Mgt. CZL"
         GlobalLineNo += 1;
         TempVATCtrlReportBufferCZL."Line No." := GlobalLineNo;
         TempVATCtrlReportBufferCZL."Posting Date" := VATEntry."Posting Date";
-#if not CLEAN22
-#pragma warning disable AL0432
-        if not VATEntry.IsReplaceVATDateEnabled() then
-            VATEntry."VAT Reporting Date" := VATEntry."VAT Date CZL";
-#pragma warning restore AL0432
-#endif
         TempVATCtrlReportBufferCZL."VAT Date" := VATEntry."VAT Reporting Date";
         TempVATCtrlReportBufferCZL."Original Document VAT Date" := VATEntry."Original Doc. VAT Date CZL";
         TempVATCtrlReportBufferCZL."Bill-to/Pay-to No." := VATEntry."Bill-to/Pay-to No.";
@@ -577,12 +580,6 @@ codeunit 31102 "VAT Ctrl. Report Mgt. CZL"
             if SalesInvoiceHeader."No." <> SalesInvoiceLine."Document No." then
                 SalesInvoiceHeader.Get(SalesInvoiceLine."Document No.");
             repeat
-#if not CLEAN22
-#pragma warning disable AL0432
-                if not ReplaceVATDateMgtCZL.IsEnabled() then
-                    SalesInvoiceHeader."VAT Reporting Date" := SalesInvoiceHeader."VAT Date CZL";
-#pragma warning restore AL0432
-#endif
                 IsHandled := false;
                 OnSplitFromSalesInvLineOnBeforeUpdateTempDropShptPostBuffer(SalesInvoiceHeader, SalesInvoiceLine, TempDropShptPostBuffer, IsHandled);
                 if not IsHandled then
@@ -609,12 +606,6 @@ codeunit 31102 "VAT Ctrl. Report Mgt. CZL"
             if SalesCrMemoHeader."No." <> SalesCrMemoLine."Document No." then
                 SalesCrMemoHeader.Get(SalesCrMemoLine."Document No.");
             repeat
-#if not CLEAN22
-#pragma warning disable AL0432
-                if not ReplaceVATDateMgtCZL.IsEnabled() then
-                    SalesCrMemoHeader."VAT Reporting Date" := SalesCrMemoHeader."VAT Date CZL";
-#pragma warning restore AL0432
-#endif
                 IsHandled := false;
                 OnSplitFromSalesCrMemoLineOnBeforeUpdateTempDropShptPostBuffer(SalesCrMemoHeader, SalesCrMemoLine, TempDropShptPostBuffer, IsHandled);
                 if not IsHandled then
@@ -642,12 +633,6 @@ codeunit 31102 "VAT Ctrl. Report Mgt. CZL"
             if PurchInvHeader."No." <> PurchInvLine."Document No." then
                 PurchInvHeader.Get(PurchInvLine."Document No.");
             repeat
-#if not CLEAN22
-#pragma warning disable AL0432
-                if not ReplaceVATDateMgtCZL.IsEnabled() then
-                    PurchInvHeader."VAT Reporting Date" := PurchInvHeader."VAT Date CZL";
-#pragma warning restore AL0432
-#endif
                 IsHandled := false;
                 OnSplitFromPurchInvLineOnBeforeUpdateTempDropShptPostBuffer(PurchInvHeader, PurchInvLine, TempDropShptPostBuffer, IsHandled);
                 if not IsHandled then
@@ -674,12 +659,6 @@ codeunit 31102 "VAT Ctrl. Report Mgt. CZL"
             if PurchCrMemoHdr."No." <> PurchCrMemoLine."Document No." then
                 PurchCrMemoHdr.Get(PurchCrMemoLine."Document No.");
             repeat
-#if not CLEAN22
-#pragma warning disable AL0432
-                if not ReplaceVATDateMgtCZL.IsEnabled() then
-                    PurchCrMemoHdr."VAT Reporting Date" := PurchCrMemoHdr."VAT Date CZL";
-#pragma warning restore AL0432
-#endif
                 IsHandled := false;
                 OnSplitFromPurchCrMemoLineOnBeforeUpdateTempDropShptPostBuffer(PurchCrMemoHdr, PurchCrMemoLine, TempDropShptPostBuffer, IsHandled);
                 if not IsHandled then

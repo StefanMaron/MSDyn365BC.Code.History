@@ -5,24 +5,15 @@
 namespace Microsoft.Purchases.Document;
 
 using Microsoft.Finance.Currency;
-using Microsoft.Finance.GeneralLedger.Setup;
 #if not CLEAN24
 using Microsoft.Finance.EU3PartyTrade;
 #endif
-#if not CLEAN22
-using Microsoft.Finance.VAT.Calculation;
-#endif
+using Microsoft.Finance.GeneralLedger.Setup;
 
 pageextension 11741 "Purchase Return Order CZL" extends "Purchase Return Order"
 {
     layout
     {
-#if not CLEAN22
-        modify("VAT Reporting Date")
-        {
-            Visible = ReplaceVATDateEnabled and VATDateEnabled;
-        }
-#endif
         addlast(General)
         {
             field("Posting Description CZL"; Rec."Posting Description")
@@ -39,18 +30,6 @@ pageextension 11741 "Purchase Return Order CZL" extends "Purchase Return Order"
         }
         addafter("Posting Date")
         {
-#if not CLEAN22
-            field("VAT Date CZL"; Rec."VAT Date CZL")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'VAT Date (Obsolete)';
-                ToolTip = 'Specifies date by which the accounting transaction will enter VAT statement.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '22.0';
-                ObsoleteReason = 'Replaced by VAT Reporting Date.';
-                Visible = not ReplaceVATDateEnabled;
-            }
-#endif
             field("Original Doc. VAT Date CZL"; Rec."Original Doc. VAT Date CZL")
             {
                 ApplicationArea = Basic, Suite;
@@ -65,22 +44,6 @@ pageextension 11741 "Purchase Return Order CZL" extends "Purchase Return Order"
                 ToolTip = 'Specifies if you need to post a corrective entry to an account.';
             }
         }
-#if not CLEAN22
-        addafter("Vendor Posting Group")
-        {
-            field("Vendor Posting Group CZL"; Rec."Vendor Posting Group")
-            {
-                ApplicationArea = Basic, Suite;
-                Editable = false;
-                Visible = false;
-                Importance = Additional;
-                ToolTip = 'Specifies the vendor''s market type to link business transactions to.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '22.0';
-                ObsoleteReason = 'Replaced by Vendor Posting Group field.';
-            }
-        }
-#endif
         addlast("Invoice Details")
         {
             field("VAT Registration No. CZL"; Rec."VAT Registration No.")
@@ -127,12 +90,6 @@ pageextension 11741 "Purchase Return Order CZL" extends "Purchase Return Order"
 
                 trigger OnAssistEdit()
                 begin
-#if not CLEAN22
-#pragma warning disable AL0432
-                    if not ReplaceVATDateEnabled then
-                        Rec."VAT Reporting Date" := Rec."VAT Date CZL";
-#pragma warning restore AL0432
-#endif
                     if Rec."VAT Reporting Date" <> 0D then
                         ChangeExchangeRate.SetParameter(Rec."VAT Currency Code CZL", Rec."VAT Currency Factor CZL", Rec."VAT Reporting Date")
                     else
@@ -157,17 +114,6 @@ pageextension 11741 "Purchase Return Order CZL" extends "Purchase Return Order"
                 ApplicationArea = Basic, Suite;
                 ToolTip = 'Specifies the code that represents the shipment method for this purchase.';
             }
-#if not CLEAN22
-            field("Physical Transfer CZL"; Rec."Physical Transfer CZL")
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Physical Transfer (Obsolete)';
-                ToolTip = 'Specifies if there is physical transfer of the item.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '22.0';
-                ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions.';
-            }
-#endif
         }
         addlast("Foreign Trade")
         {
@@ -206,17 +152,6 @@ pageextension 11741 "Purchase Return Order CZL" extends "Purchase Return Order"
                 Editable = false;
                 ToolTip = 'Specifies if the entry is an Intrastat transaction.';
             }
-#if not CLEAN22
-            field("Intrastat Exclude CZL"; Rec."Intrastat Exclude CZL")
-            {
-                ApplicationArea = BasicEU;
-                Caption = 'Intrastat Exclude (Obsolete)';
-                ToolTip = 'Specifies that entry will be excluded from intrastat.';
-                ObsoleteState = Pending;
-                ObsoleteTag = '22.0';
-                ObsoleteReason = 'Intrastat related functionalities are moved to Intrastat extensions. This field is not used any more.';
-            }
-#endif
         }
         movebefore("EU 3-Party Intermed. Role CZL"; "EU 3rd Party Trade")
         addafter("Foreign Trade")
@@ -287,10 +222,6 @@ pageextension 11741 "Purchase Return Order CZL" extends "Purchase Return Order"
 
     trigger OnOpenPage()
     begin
-#if not CLEAN22
-        VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
-        ReplaceVATDateEnabled := ReplaceVATDateMgtCZL.IsEnabled();
-#endif    
 #if not CLEAN24
         EU3PartyTradeFeatureEnabled := EU3PartyTradeFeatMgt.IsEnabled();
 #endif    
@@ -299,22 +230,12 @@ pageextension 11741 "Purchase Return Order CZL" extends "Purchase Return Order"
 
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
-#if not CLEAN22
-        VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
-#pragma warning disable AL0432
-        ReplaceVATDateMgtCZL: Codeunit "Replace VAT Date Mgt. CZL";
-#pragma warning restore AL0432
-#endif
 #if not CLEAN24
 #pragma warning disable AL0432
         EU3PartyTradeFeatMgt: Codeunit "EU3 Party Trade Feat Mgt. CZL";
 #pragma warning restore AL0432
 #endif
         ChangeExchangeRate: Page "Change Exchange Rate";
-#if not CLEAN22
-        ReplaceVATDateEnabled: Boolean;
-        VATDateEnabled: Boolean;
-#endif
 #if not CLEAN24
         EU3PartyTradeFeatureEnabled: Boolean;
 #endif

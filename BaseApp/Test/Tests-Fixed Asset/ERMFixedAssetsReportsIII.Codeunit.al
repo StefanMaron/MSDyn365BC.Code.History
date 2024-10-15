@@ -25,7 +25,6 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         Amounts3Caption: Label 'Amounts3';
         DateErr: Label 'You must specify the Starting Date and the Ending Date.';
         DateErr2: Label 'You must specify the starting date and the ending date';
-        DepreciationBookErr: Label 'The Depreciation Book does not exist. Identification fields and values: Code=''''';
         EndingDateErr: Label 'You must specify an Ending Date.';
         FaDeprBookAcquDateCaption: Label 'FaDeprBookAcquDate';
         FANoCaption: Label 'FANo';
@@ -344,7 +343,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         asserterror REPORT.Run(REPORT::"Fixed Asset - List");
 
         // Verify: Verify error on Fixed Asset List report for blank Depreciation Book Code.
-        Assert.ExpectedError(DepreciationBookErr);
+        Assert.ExpectedErrorCannotFind(Database::"Depreciation Book");
     end;
 
     [Test]
@@ -422,7 +421,7 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
         asserterror REPORT.Run(REPORT::"Maintenance - Analysis");
 
         // Verify: Verify error on Maintenance Analysis report for blank Depreciation Book Code.
-        Assert.ExpectedError(DepreciationBookErr);
+        Assert.ExpectedErrorCannotFind(Database::"Depreciation Book");
     end;
 
     [Test]
@@ -753,40 +752,35 @@ codeunit 134990 "ERM Fixed Assets Reports - III"
     local procedure CollectDocEntries(FALedgerEntry: Record "FA Ledger Entry"; var TempDocumentEntry: Record "Document Entry" temporary)
     var
         GLEntry: Record "G/L Entry";
-        Navigate: Page Navigate;
     begin
         GLEntry.Reset();
         GLEntry.SetCurrentKey("Document No.", "Posting Date");
         GLEntry.SetFilter("Document No.", FALedgerEntry."Document No.");
         GLEntry.SetRange("Posting Date", FALedgerEntry."Posting Date");
-        Navigate.InsertIntoDocEntry(TempDocumentEntry, DATABASE::"G/L Entry", GLEntry.TableCaption(), GLEntry.Count);
+        TempDocumentEntry.InsertIntoDocEntry(DATABASE::"G/L Entry", GLEntry.TableCaption(), GLEntry.Count);
         FALedgerEntry.Reset();
         FALedgerEntry.SetCurrentKey("Document No.", "Posting Date");
         FALedgerEntry.SetFilter("Document No.", FALedgerEntry."Document No.");
         FALedgerEntry.SetRange("Posting Date", FALedgerEntry."Posting Date");
-        Navigate.InsertIntoDocEntry(TempDocumentEntry, DATABASE::"FA Ledger Entry", FALedgerEntry.TableCaption(), FALedgerEntry.Count);
+        TempDocumentEntry.InsertIntoDocEntry(DATABASE::"FA Ledger Entry", FALedgerEntry.TableCaption(), FALedgerEntry.Count);
     end;
 
     local procedure CollectDocEntries(MaintenanceLedgEntry: Record "Maintenance Ledger Entry"; var TempDocumentEntry: Record "Document Entry" temporary)
-    var
-        Navigate: Page Navigate;
     begin
         MaintenanceLedgEntry.Reset();
         MaintenanceLedgEntry.SetCurrentKey("Document No.", "Posting Date");
         MaintenanceLedgEntry.SetFilter("Document No.", MaintenanceLedgEntry."Document No.");
         MaintenanceLedgEntry.SetRange("Posting Date", MaintenanceLedgEntry."Posting Date");
-        Navigate.InsertIntoDocEntry(TempDocumentEntry, DATABASE::"Maintenance Ledger Entry", MaintenanceLedgEntry.TableCaption(), MaintenanceLedgEntry.Count);
+        TempDocumentEntry.InsertIntoDocEntry(DATABASE::"Maintenance Ledger Entry", MaintenanceLedgEntry.TableCaption(), MaintenanceLedgEntry.Count);
     end;
 
     local procedure CollectDocEntries(var InsCoverageLedgerEntry: Record "Ins. Coverage Ledger Entry"; var TempDocumentEntry: Record "Document Entry" temporary)
-    var
-        Navigate: Page Navigate;
     begin
         InsCoverageLedgerEntry.Reset();
         InsCoverageLedgerEntry.SetCurrentKey("Document No.", "Posting Date");
         InsCoverageLedgerEntry.SetFilter("Document No.", InsCoverageLedgerEntry."Document No.");
         InsCoverageLedgerEntry.SetRange("Posting Date", InsCoverageLedgerEntry."Posting Date");
-        Navigate.InsertIntoDocEntry(TempDocumentEntry, DATABASE::"Ins. Coverage Ledger Entry", InsCoverageLedgerEntry.TableCaption(), InsCoverageLedgerEntry.Count);
+        TempDocumentEntry.InsertIntoDocEntry(DATABASE::"Ins. Coverage Ledger Entry", InsCoverageLedgerEntry.TableCaption(), InsCoverageLedgerEntry.Count);
     end;
 
     local procedure CreateAndPostFAJournalLine(FANo: Code[20]; FAPostingType: Enum "Gen. Journal Line FA Posting Type"; MaintenanceCode: Code[10]; Amount: Decimal)

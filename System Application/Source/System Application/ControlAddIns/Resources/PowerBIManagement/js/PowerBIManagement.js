@@ -49,7 +49,7 @@ function RaiseReportVisualLoaded(correlationId) {
     Microsoft.Dynamics.NAV.InvokeExtensibilityMethod('ReportVisualLoaded', [correlationId]);
 }
 
-// Exposed Functions
+// Obsolete Functions
 
 function InitializeReport(reportLink, reportId, authToken, powerBIEnv) {
     // OBSOLETE
@@ -85,14 +85,70 @@ function EmbedReportVisual(reportVisualLink, reportId, pageName, visualName, aut
     EmbedPowerBIReportVisual(reportVisualLink, reportId, pageName, visualName);
 }
 
+function ViewMode() {
+    // OBSOLETE
+    embed.switchMode('View').catch(function (error) {
+        ProcessError('ViewMode', error);
+    });
+}
+
+function EditMode() {
+    // OBSOLETE
+    embed.switchMode('Edit').catch(function (error) {
+        ProcessError('EditMode', error);
+    });
+}
+
+function InitializeFrame(fullpage, ratio) {
+    // OBSOLETE
+    settingsObject = {
+        panes: {
+            bookmarks: {
+                visible: false
+            },
+            fields: {
+                visible: fullpage,
+                expanded: false
+            },
+            filters: {
+                visible: fullpage,
+                expanded: fullpage
+            },
+            pageNavigation: {
+                visible: fullpage
+            },
+            selection: {
+                visible: fullpage
+            },
+            syncSlicers: {
+                visible: fullpage
+            },
+            visualizations: {
+                visible: fullpage,
+                expanded: false
+            }
+        },
+
+        background: models.BackgroundType.Transparent,
+
+        layoutType: models.LayoutType.Custom,
+        customLayout: {
+            displayOption: models.DisplayOption.FitToPage
+        }
+    }
+}
+
+// Exposed Functions
+
 function EmbedPowerBIReport(reportLink, reportId, pageName) {
     ClearEmbedGlobals();
+    ValidatePowerBIHost(reportLink);
 
     var embedConfiguration = InitializeEmbedConfig();
     embedConfiguration.type = 'report';
     embedConfiguration.id = SanitizeId(reportId);
     embedConfiguration.embedUrl = reportLink;
-    if (pageName && (pageName != '')){
+    if (pageName && (pageName != '')) {
         embedConfiguration.pageName = pageName;
     }
     DisplayEmbed(embedConfiguration);
@@ -106,36 +162,36 @@ function EmbedPowerBIReport(reportLink, reportId, pageName) {
         var pageFilters = null;
         var embedCorrelationId = null;
 
-        var promises = 
-        [
-            embed.getCorrelationId().then(function (correlationId) {
-                embedCorrelationId = correlationId;
-            }),
-            
-            embed.getPages().then(function (pages) {
-                var pagesArray = pages.reduce(ReduceByNameFunction, []);
-                reportPages = JSON.stringify(pagesArray);
-            }),
+        var promises =
+            [
+                embed.getCorrelationId().then(function (correlationId) {
+                    embedCorrelationId = correlationId;
+                }),
 
-            embed.getFilters().then(function (filters) {
-                reportFilters = JSON.stringify(filters);
-            }),
+                embed.getPages().then(function (pages) {
+                    var pagesArray = pages.reduce(ReduceByNameFunction, []);
+                    reportPages = JSON.stringify(pagesArray);
+                }),
 
-            embed.getActivePage().then(function (page) {
-                activePage = page;
-                return page.getFilters().then(function (filters) {
-                    pageFilters = JSON.stringify(filters);
-                });
-            })
-        ]
+                embed.getFilters().then(function (filters) {
+                    reportFilters = JSON.stringify(filters);
+                }),
+
+                embed.getActivePage().then(function (page) {
+                    activePage = page;
+                    return page.getFilters().then(function (filters) {
+                        pageFilters = JSON.stringify(filters);
+                    });
+                })
+            ]
 
         Promise.all(promises).then(
-        function (values) {
-            RaiseReportLoaded(reportFilters, reportPages, pageFilters, embedCorrelationId);
-        },
-        function (error) {
-            ProcessError('LoadReportDetails', error);
-        });
+            function (values) {
+                RaiseReportLoaded(reportFilters, reportPages, pageFilters, embedCorrelationId);
+            },
+            function (error) {
+                ProcessError('LoadReportDetails', error);
+            });
     });
 
     embed.off("pageChanged");
@@ -144,15 +200,16 @@ function EmbedPowerBIReport(reportLink, reportId, pageName) {
         activePage.getFilters().then(function (filters) {
             RaiseReportPageChanged(activePage.name, JSON.stringify(filters));
         },
-        function (error) {
-            ProcessError('LoadPageFilters', error);
-        });
+            function (error) {
+                ProcessError('LoadPageFilters', error);
+            });
     });
 }
 
 function EmbedPowerBIDashboard(dashboardLink, dashboardId) {
     ClearEmbedGlobals();
-    
+    ValidatePowerBIHost(dashboardLink);
+
     var embedConfiguration = InitializeEmbedConfig();
     embedConfiguration.type = 'dashboard';
     embedConfiguration.id = SanitizeId(dashboardId);
@@ -166,19 +223,20 @@ function EmbedPowerBIDashboard(dashboardLink, dashboardId) {
         embed.getCorrelationId().then(function (correlationId) {
             RaiseDashboardLoaded(correlationId);
         },
-        function (error) {
-            ProcessError('LoadDashboardCorrelationId', error);
-        });
+            function (error) {
+                ProcessError('LoadDashboardCorrelationId', error);
+            });
     });
 }
 
 function EmbedPowerBIDashboardTile(dashboardTileLink, dashboardId, tileId) {
     ClearEmbedGlobals();
-    
+    ValidatePowerBIHost(dashboardTileLink);
+
     var embedConfiguration = InitializeEmbedConfig();
     embedConfiguration.type = 'tile';
     embedConfiguration.id = SanitizeId(tileId);
-    embedConfiguration.dashboardId = SanitizeId(dashboardId); 
+    embedConfiguration.dashboardId = SanitizeId(dashboardId);
     embedConfiguration.embedUrl = dashboardTileLink;
     DisplayEmbed(embedConfiguration);
 
@@ -189,14 +247,15 @@ function EmbedPowerBIDashboardTile(dashboardTileLink, dashboardId, tileId) {
         embed.getCorrelationId().then(function (correlationId) {
             RaiseDashboardTileLoaded(correlationId);
         },
-        function (error) {
-            ProcessError('LoadDashboardTileCorrelationId', error);
-        });
+            function (error) {
+                ProcessError('LoadDashboardTileCorrelationId', error);
+            });
     });
 }
 
 function EmbedPowerBIReportVisual(reportVisualLink, reportId, pageName, visualName) {
     ClearEmbedGlobals();
+    ValidatePowerBIHost(reportVisualLink);
 
     var embedConfiguration = InitializeEmbedConfig();
     embedConfiguration.type = 'visual';
@@ -213,9 +272,57 @@ function EmbedPowerBIReportVisual(reportVisualLink, reportId, pageName, visualNa
         embed.getCorrelationId().then(function (correlationId) {
             RaiseReportVisualLoaded(correlationId);
         },
-        function (error) {
-            ProcessError('LoadReportVisualCorrelationId', error);
-        });
+            function (error) {
+                ProcessError('LoadReportVisualCorrelationId', error);
+            });
+    });
+}
+
+function FullScreen() {
+    embed.fullscreen();
+}
+
+function UpdateReportFilters(filters) {
+    var newFilters = null;
+    try {
+        newFilters = JSON.parse(filters);
+    } catch (err) {
+        ProcessError('ParseReportFilters', err);
+    }
+
+    embed.updateFilters(models.FiltersOperations.Replace, newFilters).catch(function (error) {
+        ProcessError('UpdateReportFilters', error);
+    });
+}
+
+function RemoveReportFilters() {
+    embed.removeFilters().catch(function (error) {
+        ProcessError('RemoveReportFilters', error);
+    });
+}
+
+function UpdatePageFilters(filters) {
+    var newFilters = null;
+    try {
+        newFilters = JSON.parse(filters);
+    } catch (err) {
+        ProcessError('ParsePageFilters', err);
+    }
+
+    activePage.updateFilters(models.FiltersOperations.Replace, newFilters).catch(function (error) {
+        ProcessError('UpdatePageFilters', error);
+    });
+}
+
+function RemovePageFilters() {
+    activePage.removeFilters().catch(function (error) {
+        ProcessError('RemovePageFilters', error);
+    });
+}
+
+function SetPage(pageName) {
+    report.setPage(pageName).catch(function (error) {
+        ProcessError('SetPage', error);
     });
 }
 
@@ -278,104 +385,6 @@ function SetSettings(showBookmarkSelection, showFilters, showPageSelection, show
     }
 }
 
-function ViewMode() {
-    embed.switchMode('View').catch(function (error) {
-        ProcessError('ViewMode', error);
-    });
-}
-
-function EditMode() {
-    embed.switchMode('Edit').catch(function (error) {
-        ProcessError('EditMode', error);
-    });
-}
-
-function FullScreen() {
-    embed.fullscreen();
-}
-
-function UpdateReportFilters(filters) {
-    var newFilters = null;
-    try {
-        newFilters = JSON.parse(filters);
-    } catch (err) {
-        ProcessError('ParseReportFilters', err);
-    }
-
-    embed.updateFilters(models.FiltersOperations.Replace, newFilters).catch(function (error) {
-        ProcessError('UpdateReportFilters', error);
-    });
-}
-
-function RemoveReportFilters() {
-    embed.removeFilters().catch(function (error) {
-        ProcessError('RemoveReportFilters', error);
-    });
-}
-
-function UpdatePageFilters(filters) {
-    var newFilters = null;
-    try {
-        newFilters = JSON.parse(filters);
-    } catch (err) {
-        ProcessError('ParsePageFilters', err);
-    }
-
-    activePage.updateFilters(models.FiltersOperations.Replace, newFilters).catch(function (error) {
-        ProcessError('UpdatePageFilters', error);
-    });
-}
-
-function RemovePageFilters() {
-    activePage.removeFilters().catch(function (error) {
-        ProcessError('RemovePageFilters', error);
-    });
-}
-
-function SetPage(pageName) {
-    report.setPage(pageName).catch(function (error) {
-        ProcessError('SetPage', error);
-    });
-}
-
-function InitializeFrame(fullpage, ratio) {
-    settingsObject = {
-        panes: {
-            bookmarks: {
-                visible: false
-            },
-            fields: {
-                visible: fullpage,
-                expanded: false
-            },
-            filters: {
-                visible: fullpage,
-                expanded: fullpage
-            },
-            pageNavigation: {
-                visible: fullpage
-            },
-            selection: {
-                visible: fullpage
-            },
-            syncSlicers: {
-                visible: fullpage
-            },
-            visualizations: {
-                visible: fullpage,
-                expanded: false
-            }
-        },
-
-        background: models.BackgroundType.Transparent,
-
-        layoutType: models.LayoutType.Custom,
-        customLayout: {
-            displayOption: models.DisplayOption.FitToPage
-        }
-    }
-}
-
 // Internal functions
 
 function ClearEmbedGlobals() {
@@ -413,7 +422,7 @@ function DisplayEmbed(embedConfiguration) {
     embed = powerbi.embed(reportContainer, embedConfiguration);
 }
 
-function RegisterCommonEmbedEvents(){
+function RegisterCommonEmbedEvents() {
     embed.off("error");
     embed.on("error", function (event) {
         ProcessError('OnError', event);
@@ -425,7 +434,7 @@ function ReduceByNameFunction(accumulator, current) {
     return accumulator;
 }
 
-function SanitizeId(id){
+function SanitizeId(id) {
     // From: {79a5e047-a665-4c83-900b-f5ccf19e01c7}
     // To:    79a5e047-a665-4c83-900b-f5ccf19e01c7
     return id.replace(/[{}]/g, "");
@@ -448,14 +457,23 @@ function LogErrorToConsole(operation, error) {
     console.error(error);
 }
 
-function GetErrorMessage(error){
-    if (error && error.message){
+function GetErrorMessage(error) {
+    if (error && error.message) {
         return error.message;
     }
 
-    if (error && error.detail && error.detail.message){
+    if (error && error.detail && error.detail.message) {
         return error.detail.message;
     }
 
-    return '';
+    return error.toString();
+}
+
+function ValidatePowerBIHost(embedUrl) {
+    var urlHost = GetHost(embedUrl);
+    if (!urlHost.endsWith(".powerbi.com") && !urlHost.endsWith('.analysis-df.windows.net')) {
+        var errorMsg = 'The host "' + urlHost + '" is not a valid Power BI host.';
+        ProcessError('InvalidHost', errorMsg);
+        throw new Error(errorMsg);
+    }
 }

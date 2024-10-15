@@ -230,15 +230,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse GL Entries - NamedType ReversalErrorForPeriod)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1270787925 - NamedType 3528833645" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Blocked must be equal to 'No'  in G/L Account: No.=%1. Current value is 'Yes'.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Reverse GL Entries - NamedType ReversalErrorFromLedger)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 1270787925 - NamedType 2033929381" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Cannot find an applied entry within the specified filter.]]></Val>

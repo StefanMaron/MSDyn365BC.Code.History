@@ -18,8 +18,12 @@ codeunit 99000844 "Job Jnl. Line-Reserve"
         DeleteItemTracking: Boolean;
         CalledFromInvtPutawayPick: Boolean;
 
+#pragma warning disable AA0074
         Text002: Label 'must be filled in when a quantity is reserved.';
         Text004: Label 'must not be changed when a quantity is reserved.';
+#pragma warning restore AA0074
+        JobJournalTxt: Label 'Project Journal';
+        SourceDoc4Txt: Label '%1 %2 %3 %4', Locked = true;
 
     local procedure FindReservEntry(JobJnlLine: Record "Job Journal Line"; var ReservEntry: Record "Reservation Entry"): Boolean
     begin
@@ -183,7 +187,7 @@ codeunit 99000844 "Job Jnl. Line-Reserve"
         TrackingSpecification: Record "Tracking Specification";
         ItemTrackingLines: Page "Item Tracking Lines";
     begin
-        TrackingSpecification.InitFromJobJnlLine(JobJnlLine);
+        InitFromJobJnlLine(TrackingSpecification, JobJnlLine);
         if IsReclass then
             ItemTrackingLines.SetRunMode(Enum::"Item Tracking Run Mode"::Reclass);
         ItemTrackingLines.SetSourceSpec(TrackingSpecification, JobJnlLine."Posting Date");
@@ -258,6 +262,75 @@ codeunit 99000844 "Job Jnl. Line-Reserve"
     [IntegrationEvent(false, false)]
     local procedure OnVerifyChangeOnBeforeHasError(NewJobJnlLine: Record "Job Journal Line"; OldJobJnlLine: Record "Job Journal Line"; var HasError: Boolean; var ShowError: Boolean)
     begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetSourceForReservationOnBeforeUpdateReservation(var ReservEntry: Record "Reservation Entry"; JobJnlLine: Record "Job Journal Line")
+    begin
+    end;
+
+    // codeunit Create Reserv. Entry
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Create Reserv. Entry", 'OnCheckSourceTypeSubtype', '', false, false)]
+    local procedure CheckSourceTypeSubtype(var ReservationEntry: Record "Reservation Entry"; var IsError: Boolean)
+    begin
+        if MatchThisTable(ReservationEntry."Source Type") then
+            IsError := ReservationEntry.Binding = ReservationEntry.Binding::"Order-to-Order";
+    end;
+
+    // codeunit Reservation Engine Mgt. subscribers
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Engine Mgt.", 'OnGetActivePointerFieldsOnBeforeAssignArrayValues', '', false, false)]
+    local procedure OnGetActivePointerFieldsOnBeforeAssignArrayValues(TableID: Integer; var PointerFieldIsActive: array[6] of Boolean; var IsHandled: Boolean)
+    begin
+        if TableID = Database::"Job Journal Line" then begin
+            PointerFieldIsActive[1] := true;  // Type
+            PointerFieldIsActive[2] := true;  // SubType
+            PointerFieldIsActive[3] := true;  // ID
+            PointerFieldIsActive[4] := true;  // BatchName
+            PointerFieldIsActive[6] := true;  // RefNo
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Engine Mgt.", 'OnCreateText', '', false, false)]
+    local procedure OnAfterCreateText(ReservationEntry: Record "Reservation Entry"; var Description: Text[80])
+    begin
+        if MatchThisTable(ReservationEntry."Source Type") then
+            Description :=
+                StrSubstNo(
+                    SourceDoc4Txt, JobJournalTxt, Enum::"Job Journal Line Entry Type".FromInteger(ReservationEntry."Source Subtype"),
+                    ReservationEntry."Source ID", ReservationEntry."Source Batch Name");
+    end;
+
+    procedure InitFromJobJnlLine(var TrackingSpecification: Record "Tracking Specification"; var JobJnlLine: Record "Job Journal Line")
+    begin
+        TrackingSpecification.Init();
+        TrackingSpecification.SetItemData(
+            JobJnlLine."No.", JobJnlLine.Description, JobJnlLine."Location Code", JobJnlLine."Variant Code", JobJnlLine."Bin Code",
+            JobJnlLine."Qty. per Unit of Measure", JobJnlLine."Qty. Rounding Precision (Base)");
+        TrackingSpecification.SetSource(
+            Database::"Job Journal Line", JobJnlLine."Entry Type".AsInteger(), JobJnlLine."Journal Template Name", JobJnlLine."Line No.",
+            JobJnlLine."Journal Batch Name", 0);
+        TrackingSpecification.SetQuantities(
+            JobJnlLine."Quantity (Base)", JobJnlLine.Quantity, JobJnlLine."Quantity (Base)", JobJnlLine.Quantity,
+            JobJnlLine."Quantity (Base)", 0, 0);
+
+        OnAfterInitFromJobJnlLine(TrackingSpecification, JobJnlLine);
+#if not CLEAN25
+        TrackingSpecification.RunOnAfterInitFromJobJnlLine(TrackingSpecification, JobJnlLine);
+#endif
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitFromJobJnlLine(var TrackingSpecification: Record "Tracking Specification"; JobJournalLine: Record "Job Journal Line")
+    begin
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Reservation Entry", 'OnAfterSummEntryNo', '', false, false)]
+    local procedure OnBeforeSummEntryNo(ReservationEntry: Record "Reservation Entry"; var ReturnValue: Integer)
+    begin
+        if MatchThisTable(ReservationEntry."Source Type") then
+            ReturnValue := Enum::"Reservation Summary Type"::"Job Journal Usage".AsInteger() + ReservationEntry."Source Subtype";
     end;
 }
 

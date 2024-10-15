@@ -183,7 +183,9 @@ report 87 "Copy - General Posting Setup"
         CopyInventory: Boolean;
         CopyManufacturing: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Copy General Posting Setup?';
+#pragma warning restore AA0074
 
     protected var
         Selection: Option "All fields","Selected fields";

@@ -21,10 +21,12 @@ codeunit 5671 "FA. Jnl.-B.Post+Print"
         FAReg: Record "FA Register";
         JournalWithErrors: Boolean;
 
+#pragma warning disable AA0074
         Text000: Label 'Do you want to post the journals and print the posting report?';
         Text001: Label 'The journals were successfully posted.';
         Text002: Label 'It was not possible to post all of the journals. ';
         Text003: Label 'The journals that were not successfully posted are now marked.';
+#pragma warning restore AA0074
 
     local procedure "Code"()
     var

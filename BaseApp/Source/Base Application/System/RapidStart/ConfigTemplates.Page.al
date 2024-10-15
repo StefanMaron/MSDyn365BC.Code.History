@@ -124,6 +124,7 @@ page 1340 "Config Templates"
     var
         ConfigTemplateManagement: Codeunit "Config. Template Management";
         FilteredTableId: Integer;
+#pragma warning disable AA0074
         ConfigurationTemplatesCap: Label 'Configuration Templates';
         CustomerTemplatesCap: Label 'Customer Templates';
         VendorTemplatesCap: Label 'Vendor Templates';
@@ -132,6 +133,7 @@ page 1340 "Config Templates"
         SelectCustomerTemplatesCap: Label 'Select a template for a new customer';
         SelectVendorTemplatesCap: Label 'Select a template for a new vendor';
         SelectItemTemplatesCap: Label 'Select a template for a new item';
+#pragma warning restore AA0074
         DeleteQst: Label 'Delete %1?', Comment = '%1 - configuration template code';
 
     protected var

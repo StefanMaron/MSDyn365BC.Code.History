@@ -7,9 +7,6 @@ namespace Microsoft.Finance.VAT.Ledger;
 #if not CLEAN23
 using Microsoft.Finance.EU3PartyTrade;
 #endif
-#if not CLEAN22
-using Microsoft.Finance.VAT.Calculation;
-#endif
 using Microsoft.Finance.VAT.Reporting;
 
 tableextension 11737 "VAT Entry CZL" extends "VAT Entry"
@@ -21,13 +18,8 @@ tableextension 11737 "VAT Entry CZL" extends "VAT Entry"
             Caption = 'VAT Date';
             Editable = false;
             DataClassification = CustomerContent;
-#if not CLEAN22
-            ObsoleteState = Pending;
-            ObsoleteTag = '22.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '25.0';
-#endif
             ObsoleteReason = 'Replaced by VAT Reporting Date.';
         }
         field(11711; "VAT Settlement No. CZL"; Code[20])
@@ -188,14 +180,6 @@ tableextension 11737 "VAT Entry CZL" extends "VAT Entry"
 
     procedure SetDateFilterCZL(StartDate: Date; EndDate: Date; UseVATDate: Boolean)
     begin
-#if not CLEAN22
-#pragma warning disable AL0432
-        if UseVATDate and not IsReplaceVATDateEnabled() then begin
-            SetRange("VAT Date CZL", StartDate, EndDate);
-            exit;
-        end;
-#pragma warning restore AL0432
-#endif
         if UseVATDate then
             SetRange("VAT Reporting Date", StartDate, EndDate)
         else
@@ -243,17 +227,6 @@ tableextension 11737 "VAT Entry CZL" extends "VAT Entry"
         OnAfterGetIsAdvanceEntryCZL(Rec, AdvanceEntry);
         exit(AdvanceEntry);
     end;
-#if not CLEAN22
-
-    internal procedure IsReplaceVATDateEnabled(): Boolean
-    var
-#pragma warning disable AL0432
-        ReplaceVATDateMgtCZL: Codeunit "Replace VAT Date Mgt. CZL";
-#pragma warning restore AL0432
-    begin
-        exit(ReplaceVATDateMgtCZL.IsEnabled());
-    end;
-#endif
 
     procedure ToTemporaryCZL(var TempVATEntry: Record "VAT Entry" temporary)
     begin

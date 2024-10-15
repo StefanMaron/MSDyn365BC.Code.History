@@ -299,11 +299,15 @@ table 413 "IC Partner"
     var
         CommentLine: Record "Comment Line";
         DimMgt: Codeunit DimensionManagement;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label 'You cannot delete IC Partner %1 because it has ledger entries in a fiscal year that has not been closed yet.';
         Text001: Label 'You cannot delete IC Partner %1 because it has ledger entries after %2.';
         Text002: Label 'You cannot delete IC Partner %1 because it is used for %2 %3';
         Text003: Label 'You cannot delete IC Partner %1 because it is used in %2';
         Text004: Label '%1 %2 is linked to a blocked IC Partner.';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         CantFindCompanyErr: Label 'The selected company cannot be found.';
         CompanyNotICConfiguredErr: Label 'The selected company has not been configured for using intercompany.';
         PartnerCompanySameICSetupCodeErr: Label 'The partner company has been configured with the same Intercompany code as this company. This can cause issues when using intercompany features.';
@@ -427,8 +431,7 @@ table 413 "IC Partner"
         Rec."Country/Region Code" := TempCompanyInformation."Country/Region Code";
     end;
 
-    [NonDebuggable]
-    internal procedure SetSecret(SecretKey: Guid; ClientSecretText: Text): Guid
+    internal procedure SetSecret(SecretKey: Guid; ClientSecretText: SecretText): Guid
     var
         NewSecretKey: Guid;
     begin
@@ -437,7 +440,7 @@ table 413 "IC Partner"
 
         NewSecretKey := CreateGuid();
 
-        if (not EncryptionEnabled() or (StrLen(ClientSecretText) > 215)) then
+        if (not EncryptionEnabled() or (SecretLength(ClientSecretText) > 215)) then
             IsolatedStorage.Set(NewSecretKey, ClientSecretText, DataScope::Company)
         else
             IsolatedStorage.SetEncrypted(NewSecretKey, ClientSecretText, DataScope::Company);
@@ -446,9 +449,14 @@ table 413 "IC Partner"
     end;
 
     [NonDebuggable]
-    internal procedure GetSecret(SecretKey: Guid): Text
+    local procedure SecretLength(SecretValue: SecretText): Integer
+    begin
+        exit(StrLen(SecretValue.Unwrap()));
+    end;
+
+    internal procedure GetSecret(SecretKey: Guid): SecretText
     var
-        ClientSecretText: Text;
+        ClientSecretText: SecretText;
     begin
         if not IsNullGuid(SecretKey) then
             if not IsolatedStorage.Get(SecretKey, DataScope::Company, ClientSecretText) then;

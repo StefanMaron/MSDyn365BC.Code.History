@@ -9,10 +9,16 @@ codeunit 8615 "Config. Progress Bar"
 
     var
         Window: Dialog;
+#pragma warning disable AA0074
+#pragma warning disable AA0470
         Text000: Label '#1##################\\';
         Text001: Label '#2##################\';
+#pragma warning restore AA0470
+#pragma warning restore AA0074
         MaxCount: Integer;
+#pragma warning disable AA0074
         Text002: Label '@3@@@@@@@@@@@@@@@@@@\';
+#pragma warning restore AA0074
         StepCount: Integer;
         Counter: Integer;
         LastWindowText: Text;
