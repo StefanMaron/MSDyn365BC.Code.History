@@ -193,6 +193,12 @@
         Text1140005: Label 'Delivery Reminders';
         PEPPOLBIS3_ElectronicFormatTxt: Label 'PEPPOL BIS3', Locked = true;
         PEPPOLBIS3_ElectronicFormatDescriptionTxt: Label 'PEPPOL BIS3 Format (Pan-European Public Procurement Online)';
+        SourceCodeGeneralDeferralLbl: Label 'Gen-Defer';
+        SourceCodeSalesDeferralLbl: Label 'Sal-Defer';
+        SourceCodePurchaseDeferralLbl: Label 'Pur-Defer';
+        SourceCodeGeneralDeferralTxt: Label 'General Deferral';
+        SourceCodeSalesDeferralTxt: Label 'Sales Deferral';
+        SourceCodePurchaseDeferralTxt: Label 'Purchase Deferral';
         SwissSEPACTCodeTxt: Label 'SEPACT SWISS', Comment = 'No need to translate - but can be translated at will.';
         SwissSEPACTNameTxt: Label 'Swiss SEPA Credit Transfer';
         SwissSEPADDCodeTxt: Label 'SEPADD SWISS', Comment = 'No need to translate - but can be translated at will.';
@@ -454,6 +460,9 @@
                 InsertSourceCode("Phys. Invt. Orders", InvtOrderTxt, PageName(PAGE::"Physical Inventory Order"));
                 InsertSourceCode("Invt. Receipt", InvtReceiptsTxt, PageName(PAGE::"Invt. Receipts"));
                 InsertSourceCode("Invt. Shipment", InvtShipmentsTxt, PageName(PAGE::"Invt. Shipments"));
+                InsertSourceCode("General Deferral", SourceCodeGeneralDeferralLbl, SourceCodeGeneralDeferralTxt);
+                InsertSourceCode("Sales Deferral", SourceCodeSalesDeferralLbl, SourceCodeSalesDeferralTxt);
+                InsertSourceCode("Purchase Deferral", SourceCodePurchaseDeferralLbl, SourceCodePurchaseDeferralTxt);
                 InsertSourceCode("Delivery Reminder", Text1140004, Text1140005);
                 Insert();
             end;

@@ -46,4 +46,8 @@ codeunit 9997 "Upgrade Tag Def - Country"
         exit('MS-390169-DataOutOfGeoAppTagCh-20210525');
     end;
 
+    procedure GetVendorRegistrationNoTag(): Code[250]
+    begin
+        exit('MS-359959-GetVendorRegistrationNo-20230208');
+    end;
 }
