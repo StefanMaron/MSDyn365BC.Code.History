@@ -201,7 +201,7 @@ codeunit 5920 ServItemManagement
         ShouldCreateServiceItem: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCreateServItemOnSalesLineShpt(SalesHeader, SalesLine, SalesShipmentLine, IsHandled, TempReservEntry);
+        OnBeforeCreateServItemOnSalesLineShpt(SalesHeader, SalesLine, SalesShipmentLine, IsHandled, TempReservEntry, TempServiceItem, TempServiceItemComp);
         if IsHandled then
             exit;
 
@@ -659,7 +659,7 @@ codeunit 5920 ServItemManagement
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCreateServItemOnSalesLineShpt(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; SalesShipmentLine: Record "Sales Shipment Line"; var IsHandled: Boolean; var TempReservEntry: Record "Reservation Entry")
+    local procedure OnBeforeCreateServItemOnSalesLineShpt(SalesHeader: Record "Sales Header"; SalesLine: Record "Sales Line"; SalesShipmentLine: Record "Sales Shipment Line"; var IsHandled: Boolean; var TempReservEntry: Record "Reservation Entry"; var TempServiceItem: Record "Service Item" temporary; var TempServiceItemComponent: Record "Service Item Component" temporary)
     begin
     end;
 

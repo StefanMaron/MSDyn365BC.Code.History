@@ -1013,14 +1013,14 @@ codeunit 5529 "Purch. Inv. Aggregator"
             Error(CannotModifyPostedInvioceErr);
     end;
 
-    local procedure UpdateLineAmountsFromPurchaseLine(var PurchInvLineAggregate: Record "Purch. Inv. Line Aggregate")
+    procedure UpdateLineAmountsFromPurchaseLine(var PurchInvLineAggregate: Record "Purch. Inv. Line Aggregate")
     begin
         PurchInvLineAggregate."Line Tax Amount" :=
           PurchInvLineAggregate."Line Amount Including Tax" - PurchInvLineAggregate."Line Amount Excluding Tax";
         UpdateInvoiceDiscountAmount(PurchInvLineAggregate);
     end;
 
-    local procedure SetItemVariantId(var PurchInvLineAggregate: Record "Purch. Inv. Line Aggregate"; ItemNo: Code[20]; VariantCode: Code[20])
+    procedure SetItemVariantId(var PurchInvLineAggregate: Record "Purch. Inv. Line Aggregate"; ItemNo: Code[20]; VariantCode: Code[20])
     var
         ItemVariant: Record "Item Variant";
     begin
@@ -1035,7 +1035,7 @@ codeunit 5529 "Purch. Inv. Aggregator"
         UpdateInvoiceDiscountAmount(PurchInvLineAggregate);
     end;
 
-    local procedure UpdateInvoiceDiscountAmount(var PurchInvLineAggregate: Record "Purch. Inv. Line Aggregate")
+    procedure UpdateInvoiceDiscountAmount(var PurchInvLineAggregate: Record "Purch. Inv. Line Aggregate")
     begin
         if PurchInvLineAggregate."Prices Including Tax" then
             PurchInvLineAggregate."Inv. Discount Amount Excl. VAT" :=

@@ -135,12 +135,12 @@ page 536 Dimensions
                     trigger OnAction()
                     var
                         Dimension: Record Dimension;
-                        ICMappingDimensions: Codeunit "IC Mapping Dimensions";
+                        ICMapping: Codeunit "IC Mapping";
                     begin
                         CurrPage.SetSelectionFilter(Dimension);
                         if Dimension.Find('-') and Confirm(Text000) then
                             repeat
-                                ICMappingDimensions.MapOutgoingICDimensions(Dimension);
+                                ICMapping.MapOutgoingICDimensions(Dimension);
                             until Dimension.Next() = 0;
                     end;
                 }

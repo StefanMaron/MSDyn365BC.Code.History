@@ -35,7 +35,7 @@ codeunit 1026 "Job Link Usage"
         MatchedQty: Decimal;
         MatchedTotalCost: Decimal;
         MatchedLineAmount: Decimal;
-        RemainingQtyToMatch: Decimal;
+        RemainingQtyToMatch, RemainingQtyToMatchPerUoM : Decimal;
     begin
         RemainingQtyToMatch := JobLedgerEntry."Quantity (Base)";
         repeat
@@ -50,7 +50,8 @@ codeunit 1026 "Job Link Usage"
                 end else
                     CreateJobPlanningLine(JobPlanningLine, JobLedgerEntry, RemainingQtyToMatch);
 
-            if (RemainingQtyToMatch = JobPlanningLine."Qty. Posted") and (JobPlanningLine."Remaining Qty. (Base)" = 0) then
+            RemainingQtyToMatchPerUoM := UOMMgt.CalcQtyFromBase(RemainingQtyToMatch, JobPlanningLine."Qty. per Unit of Measure");
+            if (RemainingQtyToMatchPerUoM = JobPlanningLine."Qty. Posted") and (JobPlanningLine."Remaining Qty. (Base)" = 0) then
                 exit;
 
             if RemainingQtyToMatch <> 0 then begin

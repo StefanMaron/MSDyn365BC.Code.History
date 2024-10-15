@@ -478,6 +478,7 @@ codeunit 133100 "Extension Management Test"
     end;
 
     [Test]
+    [HandlerFunctions('ExtensionSettingsModalHandler')]
     [Scope('OnPrem')]
     procedure ExistingSetupCanBeMarkedAsPrimary()
     var

@@ -65,6 +65,7 @@ page 729 "Copy Item"
                 field(GeneralItemInformation; "General Item Information")
                 {
                     ApplicationArea = Basic, Suite;
+                    Editable = false;
                     Caption = 'General Item Information';
                     ToolTip = 'Specifies if the selected data type if also copied to the new item.';
                 }
@@ -165,7 +166,7 @@ page 729 "Copy Item"
                 field(BOMComponents; "BOM Components")
                 {
                     ApplicationArea = Assembly, Manufacturing;
-                    Caption = 'BOM Components';
+                    Caption = 'Assembly BOM Components';
                     ToolTip = 'Specifies if the selected data type if also copied to the new item.';
                 }
                 field(ItemVendors; "Item Vendors")
@@ -243,6 +244,7 @@ page 729 "Copy Item"
             "Target No. Series" := InventorySetup."Item Nos.";
         end;
         "Source Item No." := TempItem."No.";
+        Rec."General Item Information" := true;
         Insert();
 
         OnAfterInitCopyItemBuffer(Rec);
