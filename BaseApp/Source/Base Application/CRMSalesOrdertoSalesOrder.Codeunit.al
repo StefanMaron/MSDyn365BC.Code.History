@@ -296,7 +296,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         CRMAnnotationCoupling: Record "CRM Annotation Coupling";
     begin
         CRMAnnotation.SetRange(ObjectId, CRMSalesorder.SalesOrderId);
-        CRMAnnotation.SetRange(IsDocument, true);
+        CRMAnnotation.SetRange(IsDocument, false);
         CRMAnnotation.SetRange(FileSize, 0);
         if CRMAnnotation.FindSet then
             repeat
@@ -308,6 +308,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
     [Scope('OnPrem')]
     procedure CreateNote(SalesHeader: Record "Sales Header"; CRMAnnotation: Record "CRM Annotation"; var RecordLink: Record "Record Link")
     var
+        CRMAnnotationCoupling: Record "CRM Annotation Coupling";
         RecordLinkManagement: Codeunit "Record Link Management";
         InStream: InStream;
         AnnotationText: Text;
@@ -319,6 +320,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         CRMAnnotation.CalcFields(NoteText);
         CRMAnnotation.NoteText.CreateInStream(InStream, TEXTENCODING::UTF16);
         InStream.Read(AnnotationText);
+        AnnotationText := CRMAnnotationCoupling.ExtractNoteText(AnnotationText);
         RecordLinkManagement.WriteNote(RecordLink, AnnotationText);
         RecordLink.Created := CRMAnnotation.CreatedOn;
         RecordLink.Company := CompanyName;
@@ -336,6 +338,7 @@ codeunit 5343 "CRM Sales Order to Sales Order"
         if CRMSalesorderdetail.FindSet then begin
             repeat
                 InitializeSalesOrderLine(CRMSalesorderdetail, SalesHeader, SalesLine);
+                OnCreateSalesOrderLinesOnBeforeSalesLineInsert(SalesLine, CRMSalesorderdetail);
                 SalesLine.Insert();
                 if SalesLine."Qty. to Assemble to Order" <> 0 then
                     SalesLine.Validate("Qty. to Assemble to Order");
@@ -574,6 +577,11 @@ codeunit 5343 "CRM Sales Order to Sales Order"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateSalesOrderHeaderOnBeforeSalesHeaderInsert(var SalesHeader: Record "Sales Header"; CRMSalesorder: Record "CRM Salesorder")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesOrderLinesOnBeforeSalesLineInsert(var SalesLine: Record "Sales Line"; CRMSalesorderdetail: Record "CRM Salesorderdetail")
     begin
     end;
 }

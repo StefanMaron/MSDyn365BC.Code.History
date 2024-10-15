@@ -71,7 +71,7 @@ codeunit 448 "Job Queue Dispatcher"
             else
                 SetResultDeletedEntry;
             Commit();
-            FinalizeLogEntry(JobQueueLogEntry);
+            FinalizeLogEntry(JobQueueLogEntry, ErrorMessageHandler.GetErrorCallStack());
 
             if DoesExistLocked then
                 FinalizeRun;

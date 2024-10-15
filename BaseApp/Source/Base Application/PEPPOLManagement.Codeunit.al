@@ -817,6 +817,7 @@ codeunit 1605 "PEPPOL Management"
     procedure GetTotals(SalesLine: Record "Sales Line"; var VATAmtLine: Record "VAT Amount Line")
     var
         VATPostingSetup: Record "VAT Posting Setup";
+        IsHandled: Boolean;
     begin
         if not VATPostingSetup.Get(SalesLine."VAT Bus. Posting Group", SalesLine."VAT Prod. Posting Group") then
             VATPostingSetup.Init();
@@ -833,12 +834,13 @@ codeunit 1605 "PEPPOL Management"
                 "Inv. Disc. Base Amount" := SalesLine."Line Amount";
             "Invoice Discount Amount" := SalesLine."Inv. Discount Amount";
 
-            OnGetTotalsOnBeforeInsertVATAmtLine(SalesLine, VATAmtLine);
-
-            if InsertLine then begin
-                "Line Amount" += SalesLine."Line Amount";
-                Modify();
-            end;
+            IsHandled := false;
+            OnGetTotalsOnBeforeInsertVATAmtLine(SalesLine, VATAmtLine, VATPostingSetup, IsHandled);
+            if not IsHandled then
+                if InsertLine then begin
+                    "Line Amount" += SalesLine."Line Amount";
+                    Modify();
+                end;
         end;
     end;
 
@@ -1133,6 +1135,7 @@ codeunit 1605 "PEPPOL Management"
                 end;
         end;
 
+        OnAfterFindNextInvoiceLineRec(SalesInvoiceLine, ServiceInvoiceLine, SalesLine, ProcessedDocType, Found);
         exit(Found);
     end;
 
@@ -1199,6 +1202,11 @@ codeunit 1605 "PEPPOL Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterFindNextInvoiceLineRec(var SalesInvoiceLine: Record "Sales Invoice Line"; var ServiceInvoiceLine: Record "Service Invoice Line"; var SalesLine: Record "Sales Line"; ProcessedDocType: Option Sale,Service; var Found: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetAdditionalDocRefInfo(var AdditionalDocumentReferenceID: Text; var AdditionalDocRefDocumentType: Text; var URI: Text; var MimeCode: Text; var EmbeddedDocumentBinaryObject: Text)
     begin
     end;
@@ -1244,7 +1252,7 @@ codeunit 1605 "PEPPOL Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetTotalsOnBeforeInsertVATAmtLine(SalesLine: Record "Sales Line"; var VATAmtLine: Record "VAT Amount Line")
+    local procedure OnGetTotalsOnBeforeInsertVATAmtLine(SalesLine: Record "Sales Line"; var VATAmtLine: Record "VAT Amount Line"; VATPostingSetup: Record "VAT Posting Setup"; var IsHandled: Boolean)
     begin
     end;
 }

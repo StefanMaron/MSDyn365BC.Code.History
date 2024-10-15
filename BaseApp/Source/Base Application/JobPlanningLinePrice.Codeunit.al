@@ -164,6 +164,7 @@ codeunit 7024 "Job Planning Line - Price" implements "Line With Price"
         // Discounts
         PriceCalculationBuffer."Allow Line Disc." := IsDiscountAllowed();
         PriceCalculationBuffer."Allow Invoice Disc." := false;
+        OnAfterFillBuffer(PriceCalculationBuffer, JobPlanningLine);
     end;
 
     local procedure AddSources()
@@ -217,6 +218,7 @@ codeunit 7024 "Job Planning Line - Price" implements "Line With Price"
                         JobPlanningLine."Unit Cost" := PriceListLine."Unit Cost";
                 end;
         end;
+        OnAfterSetPrice(JobPlanningLine, PriceListLine, AmountType);
     end;
 
     procedure ValidatePrice(AmountType: enum "Price Amount Type")
@@ -235,5 +237,15 @@ codeunit 7024 "Job Planning Line - Price" implements "Line With Price"
     begin
         if not DiscountIsAllowed then
             JobPlanningLine."Line Discount %" := 0;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFillBuffer(var PriceCalculationBuffer: Record "Price Calculation Buffer"; JobPlanningLine: Record "Job Planning Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetPrice(var JobPlanningLine: Record "Job Planning Line"; PriceListLine: Record "Price List Line"; AmountType: Enum "Price Amount Type")
+    begin
     end;
 }

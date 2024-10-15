@@ -42,6 +42,7 @@ codeunit 1372 "Purchase Batch Post Mgt."
         BatchProcessingMgt.AddParameter(BatchPostParameterTypes.PostingDate, PostingDate);
         BatchProcessingMgt.AddParameter(BatchPostParameterTypes.ReplacePostingDate, ReplacePostingDate);
         BatchProcessingMgt.AddParameter(BatchPostParameterTypes.ReplaceDocumentDate, ReplaceDocumentDate);
+        OnRunBatchOnAfterAddParameters(BatchProcessingMgt);
 
         PurchaseBatchPostMgt.SetBatchProcessor(BatchProcessingMgt);
         Commit();
@@ -224,6 +225,11 @@ codeunit 1372 "Purchase Batch Post Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterRunBatch(var PurchaseHeader: Record "Purchase Header"; var TempErrorMessage: Record "Error Message" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnRunBatchOnAfterAddParameters(var BatchProcessingMgt: Codeunit "Batch Processing Mgt.")
     begin
     end;
 }

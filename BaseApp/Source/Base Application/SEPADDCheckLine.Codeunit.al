@@ -1,4 +1,4 @@
-codeunit 1233 "SEPA DD-Check Line"
+﻿codeunit 1233 "SEPA DD-Check Line"
 {
     TableNo = "Direct Debit Collection Entry";
 
@@ -34,7 +34,13 @@ codeunit 1233 "SEPA DD-Check Line"
         DirectDebitCollection: Record "Direct Debit Collection";
         GLSetup: Record "General Ledger Setup";
         SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckCollectionEntry(DirectDebitCollectionEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         GLSetup.Get();
         with DirectDebitCollectionEntry do begin
             if "Transfer Amount" <= 0 then
@@ -135,6 +141,11 @@ codeunit 1233 "SEPA DD-Check Line"
         end;
 
         exit(not DirectDebitCollectionEntry.HasPaymentFileErrors);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckCollectionEntry(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var IsHandled: Boolean)
+    begin
     end;
 }
 

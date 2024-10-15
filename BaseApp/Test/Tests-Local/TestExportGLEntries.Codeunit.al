@@ -338,19 +338,21 @@ codeunit 144563 "Test Export G/L Entries"
         ReportFileName: Text[250];
         StartingDate: Date;
     begin
-        // set up
+        // [SCENARIO 360632] Export G/L Entries - Tax Audit for document related to bank account
         ReportFileName := GetTempFile;
         StartingDate := GetStartingDate;
 
-        // exercise
+        // [GIVEN] Gen. Journal Line is posted for Bank Account
         CreateAndPostBankGenJnlLine(
           BankAccount,
           GenJournalLine."Account Type"::"Bank Account",
           StartingDate);
 
+        // [WHEN] Export Tax Audit report
         ExportReportFile(ReportFileName, StartingDate, StartingDate, '', false); // IncludeOpeningBalancesValue = FALSE
 
-        // verify
+        // [THEN] Fields 7 CompAuxNume and 8 CompAuxLib are exported as Bank Account's number and name respectively for Bank Account Posting G/L Account
+        // [THEN] All non-posting accounts have fields 7 CompAuxNume and 8 CompAuxLib with blank values
         GLRegister.FindLast;
         VerifyExportGLEntriesReport(
           GLRegister,
@@ -374,19 +376,21 @@ codeunit 144563 "Test Export G/L Entries"
         ReportFileName: Text[250];
         StartingDate: Date;
     begin
-        // set up
+        // [SCENARIO 360632] Export G/L Entries - Tax Audit for document related to customer
         ReportFileName := GetTempFile;
         StartingDate := GetStartingDate;
 
-        // exercise
+        // [GIVEN] Gen. Journal Line is posted for Customer
         CreateAndPostCustomGenJnlLine(
           Customer,
           GenJournalLine."Account Type"::Customer,
           StartingDate);
 
+        // [WHEN] Export Tax Audit report
         ExportReportFile(ReportFileName, StartingDate, StartingDate, '', false); // IncludeOpeningBalancesValue = FALSE
 
-        // verify
+        // [THEN] Fields 7 CompAuxNume and 8 CompAuxLib are exported as Customer's number and name respectively for Customer Receivables Account
+        // [THEN] All non-posting accounts have fields 7 CompAuxNume and 8 CompAuxLib with blank values
         GLRegister.FindLast;
         VerifyExportGLEntriesReport(
           GLRegister,
@@ -410,19 +414,21 @@ codeunit 144563 "Test Export G/L Entries"
         ReportFileName: Text[250];
         StartingDate: Date;
     begin
-        // set up
+        // [SCENARIO 360632] Export G/L Entries - Tax Audit for document related to vendor
         ReportFileName := GetTempFile;
         StartingDate := GetStartingDate;
 
-        // exercise
+        // [GIVEN] Gen. Journal Line is posted for Vendor
         CreateAndPostVendorGenJnlLine(
           Vendor,
           GenJournalLine."Account Type"::Vendor,
           StartingDate);
 
+        // [WHEN] Export Tax Audit report
         ExportReportFile(ReportFileName, StartingDate, StartingDate, '', false); // IncludeOpeningBalancesValue = FALSE
 
-        // verify
+        // [THEN] Fields 7 CompAuxNume and 8 CompAuxLib are exported as Vendor's number and name respectively for Vendor Payables Account
+        // [THEN] All non-posting accounts have fields 7 CompAuxNume and 8 CompAuxLib with blank values
         GLRegister.FindLast;
         VerifyExportGLEntriesReport(
           GLRegister,
@@ -2898,6 +2904,49 @@ codeunit 144563 "Test Export G/L Entries"
         end;
     end;
 
+    local procedure GetPostingGLAccount(GLEntry: Record "G/L Entry"): Code[20]
+    begin
+        case GLEntry."Source Type" of
+            GLEntry."Source Type"::Customer:
+                exit(GetCustReceivablesAccount(GLEntry."Source No."));
+            GLEntry."Source Type"::Vendor:
+                exit(GetVendPayablesAccount(GLEntry."Source No."));
+            GLEntry."Source Type"::"Bank Account":
+                exit(GetBankPostingGLAccount(GLEntry."Source No."));
+        end;
+        exit('');
+    end;
+
+    local procedure GetCustReceivablesAccount(CustomerNo: Code[20]): Code[20]
+    var
+        Customer: Record Customer;
+        CustomerPostingGroup: Record "Customer Posting Group";
+    begin
+        Customer.Get(CustomerNo);
+        CustomerPostingGroup.Get(Customer."Customer Posting Group");
+        exit(CustomerPostingGroup."Receivables Account");
+    end;
+
+    local procedure GetVendPayablesAccount(VendorNo: Code[20]): Code[20]
+    var
+        Vendor: Record Vendor;
+        VendorPostingGroup: Record "Vendor Posting Group";
+    begin
+        Vendor.Get(VendorNo);
+        VendorPostingGroup.Get(Vendor."Vendor Posting Group");
+        exit(VendorPostingGroup."Payables Account");
+    end;
+
+    local procedure GetBankPostingGLAccount(BankAccountNo: Code[20]): Code[20]
+    var
+        BankAccount: Record "Bank Account";
+        BankAccountPostingGroup: Record "Bank Account Posting Group";
+    begin
+        BankAccount.Get(BankAccountNo);
+        BankAccountPostingGroup.Get(BankAccount."Bank Acc. Posting Group");
+        exit(BankAccountPostingGroup."G/L Account No.");
+    end;
+
     local procedure InsertCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerPostingGroupCode: Code[20]; TransactionNo: Integer; DocumentNo: Code[20])
     var
         Customer: Record Customer;
@@ -3156,7 +3205,6 @@ codeunit 144563 "Test Export G/L Entries"
 
     local procedure VerifyExportGLEntriesReport(GLRegister: Record "G/L Register"; ReportFile: Text[250]; GLAccountNo: Code[250]; PartyNo: Code[20]; PartyName: Text[100])
     var
-        BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         GLEntry: Record "G/L Entry";
         iStream: InStream;
         InputFile: File;
@@ -3168,16 +3216,15 @@ codeunit 144563 "Test Export G/L Entries"
 
         GLEntry.SetFilter("Entry No.", '%1..%2', GLRegister."From Entry No.", GLRegister."To Entry No.");
         GLEntry.SetFilter("G/L Account No.", GLAccountNo);
-        if GLEntry.FindSet then
-            repeat
-                PopulateFieldsArray(iStream, FieldsValueArray);
-                VerifyGLEntryFieldValues(FieldsValueArray, GLEntry, GLRegister."No.", GLRegister."Creation Date");
-                if BankAccountLedgerEntry.Get(GLEntry."Entry No.") then
-                    VerifyLedgerFieldValues(
-                      FieldsValueArray,
-                      PartyNo,
-                      PartyName);
-            until GLEntry.Next = 0;
+        GLEntry.FindSet;
+        repeat
+            PopulateFieldsArray(iStream, FieldsValueArray);
+            VerifyGLEntryFieldValues(FieldsValueArray, GLEntry, GLRegister."No.", GLRegister."Creation Date");
+            if GLEntry."G/L Account No." = GetPostingGLAccount(GLEntry) then
+                VerifyLedgerFieldValues(FieldsValueArray, PartyNo, PartyName)
+            else
+                VerifyLedgerFieldValues(FieldsValueArray, '', '');
+        until GLEntry.Next = 0;
 
         InputFile.Close;
     end;

@@ -10,7 +10,7 @@ codeunit 1230 "SEPA DD-Export File"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         DirectDebitCollectionEntry.Copy(Rec);
-        DirectDebitCollection.Get(DirectDebitCollectionEntry.GetRangeMin("Direct Debit Collection No."));
+        GetDirectDebitCollection(Rec, DirectDebitCollection);
         DirectDebitCollection.TestField("To Bank Account No.");
         BankAccount.Get(DirectDebitCollection."To Bank Account No.");
         GeneralLedgerSetup.Get();
@@ -48,9 +48,26 @@ codeunit 1230 "SEPA DD-Export File"
         exit(FileManagement.BLOBExport(TempBlob, StrSubstNo('%1.XML', FileName), not ExportToServerFile) <> '');
     end;
 
+    local procedure GetDirectDebitCollection(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var DirectDebitCollection: Record "Direct Debit Collection")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetDirectDebitCollection(DirectDebitCollectionEntry, DirectDebitCollection, IsHandled);
+        if IsHandled then
+            exit;
+
+        DirectDebitCollection.Get(DirectDebitCollectionEntry.GetRangeMin("Direct Debit Collection No."));
+    end;
+
     procedure EnableExportToServerFile()
     begin
         ExportToServerFile := true;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDirectDebitCollection(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; var DirectDebitCollection: Record "Direct Debit Collection"; var IsHandled: Boolean)
+    begin
     end;
 }
 

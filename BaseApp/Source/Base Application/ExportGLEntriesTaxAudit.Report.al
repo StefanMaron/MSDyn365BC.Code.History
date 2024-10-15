@@ -348,14 +348,11 @@ report 10885 "Export G/L Entries - Tax Audit"
             until DetailedVendorLedgEntryOriginal.Next = 0;
     end;
 
-    local procedure GetBankLedgerEntryData(BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; var PartyNo: Code[20]; var PartyName: Text[100]; var Amount: Text[250]; var CurrencyCode: Code[10]; DocNoApplied: Text; DateApplied: Date)
-    var
-        BankAcc: Record "Bank Account";
+    local procedure GetBankLedgerEntryData(BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; GLAccountNo: Code[20]; var PartyNo: Code[20]; var PartyName: Text[100]; var Amount: Text[250]; var CurrencyCode: Code[10]; DocNoApplied: Text; DateApplied: Date)
     begin
-        if BankAcc.Get(BankAccountLedgerEntry."Bank Account No.") then begin
-            PartyNo := BankAcc."No.";
-            PartyName := BankAcc.Name;
-        end;
+        if GetBankPostingGLAccount(BankAccountLedgerEntry."Bank Acc. Posting Group") = GLAccountNo then
+            GetBankAccountData(BankAccountLedgerEntry."Bank Account No.", PartyNo, PartyName);
+
         if BankAccountLedgerEntry."Currency Code" <> '' then begin
             Amount := FormatAmount(Abs(BankAccountLedgerEntry.Amount));
             CurrencyCode := BankAccountLedgerEntry."Currency Code";
@@ -455,6 +452,20 @@ report 10885 "Export G/L Entries - Tax Audit"
         exit(GLAccount."Balance at Date")
     end;
 
+    local procedure GetCustomerPostingGroup(CustomerNo: Code[20]): Code[20]
+    var
+        Customer: Record Customer;
+    begin
+        Customer.Get(CustomerNo);
+        exit(Customer."Customer Posting Group");
+    end;
+
+    local procedure GetVendorPostingGroup(VendorNo: Code[20]): Code[20]
+    begin
+        Vendor.Get(VendorNo);
+        exit(Vendor."Vendor Posting Group");
+    end;
+
     local procedure GetPayablesAccount(VendorPostingGroupCode: Code[20]): Code[20]
     var
         VendorPostingGroup: Record "Vendor Posting Group";
@@ -469,6 +480,14 @@ report 10885 "Export G/L Entries - Tax Audit"
     begin
         CustomerPostingGroup.Get(CustomerPostingGroupCode);
         exit(CustomerPostingGroup."Receivables Account")
+    end;
+
+    local procedure GetBankPostingGLAccount(BankAccPostingGroup: Code[20]): Code[20]
+    var
+        BankAccountPostingGroup: Record "Bank Account Posting Group";
+    begin
+        BankAccountPostingGroup.Get(BankAccPostingGroup);
+        exit(BankAccountPostingGroup."G/L Bank Account No.")
     end;
 
     local procedure GetSourceCodeDesc("Code": Code[10]): Text[100]
@@ -617,6 +636,8 @@ report 10885 "Export G/L Entries - Tax Audit"
         DocNoApplied: Text;
         DateApplied: Date;
     begin
+        PartyNo := '';
+        PartyName := '';
         if (GLEntry."Transaction No." <> CurrentTransactionNo) or (GLEntry."Source Type" <> CurrentSourceType) then begin
             ResetTransactionData;
             GetLedgerEntryDataForCustVend(
@@ -633,23 +654,26 @@ report 10885 "Export G/L Entries - Tax Audit"
         end;
 
         if BankAccountLedgerEntry.Get(GLEntry."Entry No.") then
-            GetBankLedgerEntryData(BankAccountLedgerEntry, PartyNo, PartyName, FCYAmount, CurrencyCode, DocNoApplied, DateApplied);
+            GetBankLedgerEntryData(
+              BankAccountLedgerEntry, GLEntry."G/L Account No.", PartyNo, PartyName, FCYAmount, CurrencyCode, DocNoApplied, DateApplied);
 
-        case true of
-            GLEntry."G/L Account No." = PayRecAccount:
-                begin
-                    PartyNo := CustVendLedgEntryPartyNo;
-                    PartyName := CustVendLedgEntryPartyName;
-                    FCYAmount := CustVendLedgEntryFCYAmount;
-                    CurrencyCode := CustVendLedgEntryCurrencyCode;
-                    DocNoApplied := CustVendDocNoSet;
-                    DateApplied := CustVendDateApplied;
-                end;
-            (GLEntry."Source Type" = GLEntry."Source Type"::Customer) and (GLEntry."Source No." <> ''):
-                GetCustomerData(GLEntry."Source No.", PartyNo, PartyName);
-            (GLEntry."Source Type" = GLEntry."Source Type"::Vendor) and (GLEntry."Source No." <> ''):
-                GetVendorData(GLEntry."Source No.", PartyNo, PartyName);
+        if GLEntry."G/L Account No." = PayRecAccount then begin
+            PartyNo := CustVendLedgEntryPartyNo;
+            PartyName := CustVendLedgEntryPartyName;
+            FCYAmount := CustVendLedgEntryFCYAmount;
+            CurrencyCode := CustVendLedgEntryCurrencyCode;
+            DocNoApplied := CustVendDocNoSet;
+            DateApplied := CustVendDateApplied;
         end;
+        if CustVendLedgEntryPartyNo = '*' then
+            case GLEntry."Source Type" of
+                GLEntry."Source Type"::Customer:
+                    if GetReceivablesAccount(GetCustomerPostingGroup(GLEntry."Source No.")) = GLEntry."G/L Account No." then
+                        GetCustomerData(GLEntry."Source No.", PartyNo, PartyName);
+                GLEntry."Source Type"::Vendor:
+                    if GetPayablesAccount(GetVendorPostingGroup(GLEntry."Source No.")) = GLEntry."G/L Account No." then
+                        GetVendorData(GLEntry."Source No.", PartyNo, PartyName);
+            end;
 
         FindGLRegister(GLRegister, GLEntry."Entry No.");
 

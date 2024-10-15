@@ -1,4 +1,4 @@
-codeunit 10860 "Payment Management"
+﻿codeunit 10860 "Payment Management"
 {
     Permissions = TableData "Cust. Ledger Entry" = rm,
                   TableData "Vendor Ledger Entry" = rm;
@@ -55,8 +55,8 @@ codeunit 10860 "Payment Management"
         Text020: Label 'You must specify an account number in the payment header.';
         Text021: Label 'Code %1 does not contain a number.';
         Text022: Label 'The status of document %1 does not authorize archiving.';
-        CheckDimVauePostingLineErr: Label 'A dimension used in %1 %2 %3 has caused an error. %4', Comment='%1=Payment Header No., %2=tablecaption, %3=Payment Line No., %4=Error text';
-        CheckDimVauePostingHeaderErr: Label 'A dimension used in %1 has caused an error. %2', Comment='%1=Payment Header No., %2=Error text';
+        CheckDimVauePostingLineErr: Label 'A dimension used in %1 %2 %3 has caused an error. %4', Comment = '%1=Payment Header No., %2=tablecaption, %3=Payment Line No., %4=Error text';
+        CheckDimVauePostingHeaderErr: Label 'A dimension used in %1 has caused an error. %2', Comment = '%1=Payment Header No., %2=Error text';
         Text100: Label 'Rounding on %1';
 
     local procedure ProcessPaymentStep(PaymentHeaderNo: Code[20]; PaymentStep: Record "Payment Step")
@@ -65,6 +65,7 @@ codeunit 10860 "Payment Management"
         Window: Dialog;
         ActionValidated: Boolean;
     begin
+        OnBeforeProcessPaymentStep(PaymentHeaderNo, PaymentStep);
         PaymentHeader.Get(PaymentHeaderNo);
         PaymentHeader.SetRange("No.", PaymentHeader."No.");
 
@@ -165,6 +166,8 @@ codeunit 10860 "Payment Management"
             PaymentLine.ModifyAll("Payment in Progress", PaymentStatus."Payment in Progress");
         end else
             Message(Text007);
+
+        OnAfterProcessPaymentStep(PaymentHeaderNo, PaymentStep);
     end;
 
     [Scope('OnPrem')]
@@ -849,8 +852,8 @@ codeunit 10860 "Payment Management"
 
     local procedure CheckDimCombAndValue(PaymentLine2: Record "Payment Line")
     var
-        TableID: array [10] of Integer;
-        No: array [10] of Code[20];
+        TableID: array[10] of Integer;
+        No: array[10] of Code[20];
     begin
         if PaymentLine."Line No." = 0 then begin
             if not DimMgt.CheckDimIDComb(PaymentHeader."Dimension Set ID") then
@@ -859,8 +862,8 @@ codeunit 10860 "Payment Management"
                   PaymentHeader."No.", DimMgt.GetDimCombErr);
             TableID[1] := DATABASE::"Payment Header";
             No[1] := PaymentHeader."No.";
-            if not DimMgt.CheckDimValuePosting(TableID,No,PaymentHeader."Dimension Set ID") then
-                ThrowPmtPostError(PaymentLine2,CheckDimVauePostingHeaderErr,DimMgt.GetDimValuePostingErr);
+            if not DimMgt.CheckDimValuePosting(TableID, No, PaymentHeader."Dimension Set ID") then
+                ThrowPmtPostError(PaymentLine2, CheckDimVauePostingHeaderErr, DimMgt.GetDimValuePostingErr);
         end;
 
         if PaymentLine."Line No." <> 0 then begin
@@ -870,8 +873,8 @@ codeunit 10860 "Payment Management"
                   PaymentHeader."No.", PaymentLine2."Line No.", DimMgt.GetDimCombErr);
             TableID[1] := TypeToTableID(PaymentLine2."Account Type");
             No[1] := PaymentLine2."Account No.";
-            if not DimMgt.CheckDimValuePosting(TableID,No,PaymentLine2."Dimension Set ID") then
-                ThrowPmtPostError(PaymentLine2,CheckDimVauePostingLineErr,DimMgt.GetDimValuePostingErr);
+            if not DimMgt.CheckDimValuePosting(TableID, No, PaymentLine2."Dimension Set ID") then
+                ThrowPmtPostError(PaymentLine2, CheckDimVauePostingLineErr, DimMgt.GetDimValuePostingErr);
         end;
     end;
 
@@ -903,13 +906,13 @@ codeunit 10860 "Payment Management"
         end;
     end;
 
-    local procedure ThrowPmtPostError(ReceivedPaymentLine: Record "Payment Line";ErrorTemplate: Text;ErrorText: Text)
+    local procedure ThrowPmtPostError(ReceivedPaymentLine: Record "Payment Line"; ErrorTemplate: Text; ErrorText: Text)
     begin
         with ReceivedPaymentLine do
             if "Line No." <> 0 then
                 Error(
-                  ErrorTemplate,PaymentHeader."No.",TableCaption,"Line No.",ErrorText);
-        Error(ErrorTemplate,PaymentHeader."No.",ErrorText);
+                  ErrorTemplate, PaymentHeader."No.", TableCaption, "Line No.", ErrorText);
+        Error(ErrorTemplate, PaymentHeader."No.", ErrorText);
     end;
 
     [Scope('OnPrem')]
@@ -1119,6 +1122,16 @@ codeunit 10860 "Payment Management"
         if GLEntry.FindLast then
             exit(GLEntry."Entry No.");
         exit(0);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeProcessPaymentStep(PaymentHeaderNo: Code[20]; PaymentStep: Record "Payment Step")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterProcessPaymentStep(PaymentHeaderNo: Code[20]; PaymentStep: Record "Payment Step")
+    begin
     end;
 }
 

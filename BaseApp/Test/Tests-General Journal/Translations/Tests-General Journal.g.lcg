@@ -365,6 +365,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM TestMultipleGenJnlLines - NamedType OutOfBalanceErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 619305359 - NamedType 3869127802" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[A balancing account is not specified for one or more lines. If you print checks without specifying balancing accounts you will not be able to void the checks, if needed. Do you want to continue?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM TestMultipleGenJnlLines - NamedType ConfirmManualCheckTxt)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 396517504 - NamedType 1172068007" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Unexpected number of approval entries found.]]></Val>

@@ -64,6 +64,10 @@ codeunit 231 "Gen. Jnl.-Post"
                         exit;
             end;
 
+            if not HideDialog then
+                if not GenJnlPostBatch.ConfirmPostingUnvoidableChecks("Journal Batch Name", "Journal Template Name") then
+                    exit;
+
             TempJnlBatchName := "Journal Batch Name";
 
             GeneralLedgerSetup.Get();
