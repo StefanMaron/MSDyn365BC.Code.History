@@ -8,6 +8,7 @@ using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.Address;
 using Microsoft.Foundation.Attachment;
 using Microsoft.Foundation.Reporting;
+using Microsoft.EServices.EDocument;
 using Microsoft.Intercompany;
 using Microsoft.Intercompany.GLAccount;
 using Microsoft.Purchases.Comment;
@@ -772,6 +773,12 @@ page 6640 "Purchase Return Order"
                 ApplicationArea = PurchReturnOrder;
                 SubPageLink = "No." = field("Pay-to Vendor No."),
                               "Date Filter" = field("Date Filter");
+            }
+            part(IncomingDocAttachFactBox; "Incoming Doc. Attach. FactBox")
+            {
+                ApplicationArea = Suite;
+                ShowFilter = false;
+                Visible = false;
             }
             part(Control1903435607; "Vendor Hist. Buy-from FactBox")
             {
@@ -1558,6 +1565,7 @@ page 6640 "Purchase Return Order"
     trigger OnAfterGetCurrRecord()
     begin
         SetControlAppearance();
+        CurrPage.IncomingDocAttachFactBox.PAGE.LoadDataFromRecord(Rec);
         CurrPage.ApprovalFactBox.PAGE.UpdateApprovalEntriesFromSourceRecord(Rec.RecordId);
         ShowWorkflowStatus := CurrPage.WorkflowStatus.PAGE.SetFilterOnWorkflowRecord(Rec.RecordId);
         StatusStyleTxt := Rec.GetStatusStyleText();
@@ -1568,6 +1576,7 @@ page 6640 "Purchase Return Order"
         CalculateCurrentShippingOption();
         BuyFromContact.GetOrClear(Rec."Buy-from Contact No.");
         PayToContact.GetOrClear(Rec."Pay-to Contact No.");
+        CurrPage.IncomingDocAttachFactBox.Page.SetCurrentRecordID(Rec.RecordId);
 
         OnAfterOnAfterGetRecord(Rec);
     end;

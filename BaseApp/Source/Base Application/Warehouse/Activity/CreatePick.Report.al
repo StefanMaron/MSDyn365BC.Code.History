@@ -306,15 +306,19 @@ report 5754 "Create Pick"
         repeat
             if Location."Bin Mandatory" and
                (not Location."Always Create Pick Line")
-            then
-                if PickWhseWkshLine.CalcAvailableQtyBase() < PickWhseWkshLine."Qty. to Handle (Base)" then
-                    Error(
-                      Text003,
-                      PickWhseWkshLine.TableCaption(), PickWhseWkshLine.FieldCaption("Worksheet Template Name"),
-                      PickWhseWkshLine."Worksheet Template Name", PickWhseWkshLine.FieldCaption(Name),
-                      PickWhseWkshLine.Name, PickWhseWkshLine.FieldCaption("Location Code"),
-                      PickWhseWkshLine."Location Code", PickWhseWkshLine.FieldCaption("Line No."),
-                      PickWhseWkshLine."Line No.");
+            then begin
+                IsHandled := false;
+                OnCreateTempLineOnBeforeCalcAvailableQtyBase(PickWhseWkshLine, IsHandled);
+                if not IsHandled then
+                    if PickWhseWkshLine.CalcAvailableQtyBase() < PickWhseWkshLine."Qty. to Handle (Base)" then
+                        Error(
+                          Text003,
+                          PickWhseWkshLine.TableCaption(), PickWhseWkshLine.FieldCaption("Worksheet Template Name"),
+                          PickWhseWkshLine."Worksheet Template Name", PickWhseWkshLine.FieldCaption(Name),
+                          PickWhseWkshLine.Name, PickWhseWkshLine.FieldCaption("Location Code"),
+                          PickWhseWkshLine."Location Code", PickWhseWkshLine.FieldCaption("Line No."),
+                          PickWhseWkshLine."Line No.");
+            end;
 
             PickWhseWkshLine.TestField("Qty. per Unit of Measure");
             CreatePick.SetWhseWkshLine(PickWhseWkshLine, TempNo);
@@ -702,6 +706,12 @@ report 5754 "Create Pick"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateTempLineOnBeforeCreatePickCreateTempLine(PickWhseWkshLine: Record "Whse. Worksheet Line")
+    begin
+    end;
+
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateTempLineOnBeforeCalcAvailableQtyBase(PickWhseWorksheetLine: Record "Whse. Worksheet Line"; var IsHandled: Boolean)
     begin
     end;
 }

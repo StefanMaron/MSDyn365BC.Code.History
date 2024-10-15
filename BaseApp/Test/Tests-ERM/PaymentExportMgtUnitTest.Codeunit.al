@@ -2162,6 +2162,41 @@ codeunit 132571 "Payment Export Mgt Unit Test"
         PaymentExportMgtUnitTest.VerifyEventHitsCounter(BatchCount);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PaymentExportGenJnlLineCleanErrors()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        PaymentJnlExportErrorText: Record "Payment Jnl. Export Error Text";
+    begin
+        // [FEATURE] [[Payment Export]] [Gen. Journal Line] 
+        // [SCENARIO 539686] Clean Payment Jnl. Export Errors when change Bank Payment Type
+        Initialize();
+
+        // [GIVEN] The Gen. Journal line with Bank Payment Type = "Electronic Payment" and Payment Jnl. Export Error Text
+        LibraryJournals.CreateGenJournalLineWithBatch(
+            GenJournalLine, "Gen. Journal Document Type"::Payment, GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(), LibraryRandom.RandDec(1000, 2));
+        GenJournalLine.Validate(GenJournalLine."Bal. Account Type", GenJournalLine."Bal. Account Type"::"Bank Account");
+        GenJournalLine.Validate("Bank Payment Type", GenJournalLine."Bank Payment Type"::"Electronic Payment");
+        GenJournalLine.Modify(true);
+
+        PaymentJnlExportErrorText.Init();
+        PaymentJnlExportErrorText."Journal Template Name" := GenJournalLine."Journal Template Name";
+        PaymentJnlExportErrorText."Journal Batch Name" := GenJournalLine."Journal Batch Name";
+        PaymentJnlExportErrorText."Journal Line No." := GenJournalLine."Line No.";
+        PaymentJnlExportErrorText."Document No." := GenJournalLine."Document No.";
+        PaymentJnlExportErrorText.Insert();
+
+        // [WHEN] Change Bank Payment Type to " "
+        GenJournalLine.Validate("Bank Payment Type", GenJournalLine."Bank Payment Type"::" ");
+
+        // [THEN] Payment Jnl. Export Error Text is removed
+        PaymentJnlExportErrorText.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
+        PaymentJnlExportErrorText.SetRange("Journal Batch Name", GenJournalLine."Journal Batch Name");
+        PaymentJnlExportErrorText.SetRange("Journal Line No.", GenJournalLine."Line No.");
+        Assert.RecordIsEmpty(PaymentJnlExportErrorText);
+    end;
+
     local procedure Initialize()
     var
         PaymentExportData: Record "Payment Export Data";

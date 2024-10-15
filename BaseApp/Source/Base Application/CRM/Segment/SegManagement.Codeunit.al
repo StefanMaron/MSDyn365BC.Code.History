@@ -14,8 +14,9 @@ using System.IO;
 
 codeunit 5051 SegManagement
 {
-    Permissions = tableData "Interaction Log Entry" = rimd,
+    Permissions = tabledata "Interaction Log Entry" = rimd,
                   tabledata "Interaction Template" = r,
+                  tabledata "Inter. Log Entry Comment Line" = rd,
                   tabledata Contact = r;
 
     trigger OnRun()
@@ -430,7 +431,7 @@ codeunit 5051 SegManagement
 
     procedure FindInteractionTemplateCode(DocumentType: Enum "Interaction Log Entry Document Type") InteractTmplCode: Code[10]
     begin
-        if not InteractionTemplateSetup.ReadPermission then
+        if not InteractionTemplateSetup.ReadPermission() then
             exit('');
         if InteractionTemplateSetup.Get() then
             case DocumentType of
@@ -708,7 +709,7 @@ codeunit 5051 SegManagement
     var
         InterLogEntryCommentLine: Record "Inter. Log Entry Comment Line";
     begin
-        DeleteInteractionLogEntryComments(InteractionLogEntryNo);
+        DeleteExistingInteractionLogEntryComments(InteractionLogEntryNo);
         if TempInterLogEntryCommentLine.FindSet() then
             repeat
                 InterLogEntryCommentLine.Init();
@@ -718,12 +719,13 @@ codeunit 5051 SegManagement
             until TempInterLogEntryCommentLine.Next() = 0;
     end;
 
-    local procedure DeleteInteractionLogEntryComments(InteractionLogEntryNo: Integer)
+    local procedure DeleteExistingInteractionLogEntryComments(InteractionLogEntryNo: Integer)
     var
         InterLogEntryCommentLine: Record "Inter. Log Entry Comment Line";
     begin
         InterLogEntryCommentLine.SetRange("Entry No.", InteractionLogEntryNo);
-        InterLogEntryCommentLine.DeleteAll();
+        if not InterLogEntryCommentLine.IsEmpty() then
+            InterLogEntryCommentLine.DeleteAll();
     end;
 
     local procedure GetNextLoggedSegmentEntryNo(): Integer

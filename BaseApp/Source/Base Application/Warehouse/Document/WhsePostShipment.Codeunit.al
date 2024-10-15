@@ -976,6 +976,10 @@ codeunit 5763 "Whse.-Post Shipment"
             exit;
         end;
 
+        if WhseShptHeader."Shipping No." <> '' then
+            if PostedWhseShptHeader.Get(WhseShptHeader."Shipping No.") then
+                exit;
+
         PostedWhseShptHeader.Init();
         PostedWhseShptHeader."No." := WhseShptHeader."Shipping No.";
         PostedWhseShptHeader."Location Code" := WhseShptHeader."Location Code";

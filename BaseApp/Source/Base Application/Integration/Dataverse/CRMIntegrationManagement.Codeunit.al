@@ -37,7 +37,6 @@ using System.Utilities;
 using Microsoft.Integration.FieldService;
 #endif
 using System.Apps;
-using System.Globalization;
 
 codeunit 5330 "CRM Integration Management"
 {
@@ -197,7 +196,7 @@ codeunit 5330 "CRM Integration Management"
         CannotAssignFieldSecurityProfileToUserTelemetryLbl: Label 'Cannot assign field security profile to integration user.', Locked = true;
         CannotAssignFieldSecurityProfileToUserQst: Label 'To enable the setup, you must sign in to %1 as administrator and assign the column security profile "Field Service - Administrator" to the Business Central integration user. Do you want to open the Business Central integration user card in %1?', Comment = '%1 - Dataverse environment URL';
 #endif
-        FSIntegrationAppSourceLinkTxt: Label 'https://appsource.microsoft.com/%1/product/dynamics-365-business-central/PUBID.microsoftdynsmb|AID.fieldserviceintegration|PAPPID.1ba1031e-eae9-4f20-b9d2-d19b6d1e3f29', Locked = true;
+        FSIntegrationAppSourceLinkTxt: Label 'https://go.microsoft.com/fwlink/?linkid=2277825', Locked = true;
         FieldServiceIntegrationAppIdLbl: Label '1ba1031e-eae9-4f20-b9d2-d19b6d1e3f29', Locked = true;
 
     procedure IsCRMIntegrationEnabled(): Boolean
@@ -4430,19 +4429,8 @@ codeunit 5330 "CRM Integration Management"
     end;
 
     procedure GetFieldServiceIntegrationAppSourceLink(): Text
-    var
-        UserSettingsRec: Record "User Settings";
-        Language: Codeunit Language;
-        UserSettings: Codeunit "User Settings";
-        LanguageID: Integer;
-        CultureName: Text;
     begin
-        UserSettings.GetUserSettings(UserSecurityId(), UserSettingsRec);
-        LanguageID := UserSettingsRec."Language ID";
-        if (LanguageID = 0) then
-            LanguageID := 1033; // Default to EN-US
-        CultureName := Language.GetCultureName(LanguageID).ToLower();
-        exit(StrSubstNo(FSIntegrationAppSourceLinkTxt, CultureName));
+        exit(FSIntegrationAppSourceLinkTxt);
     end;
 
     procedure IsFieldServiceIntegrationAppInstalled(): Boolean
