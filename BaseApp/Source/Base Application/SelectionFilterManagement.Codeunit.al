@@ -24,7 +24,7 @@ codeunit 46 SelectionFilterManagement
         More: Boolean;
     begin
         if TempRecRef.IsTemporary then begin
-            RecRef := TempRecRef.Duplicate;
+            RecRef := TempRecRef.Duplicate();
             RecRef.Reset();
         end else
             RecRef.Open(TempRecRef.Number, false, TempRecRef.CurrentCompany);
@@ -35,8 +35,8 @@ codeunit 46 SelectionFilterManagement
             TempRecRef.Find('-');
             while TempRecRefCount > 0 do begin
                 TempRecRefCount := TempRecRefCount - 1;
-                RecRef.SetPosition(TempRecRef.GetPosition);
-                RecRef.Find;
+                RecRef.SetPosition(TempRecRef.GetPosition());
+                RecRef.Find();
                 FieldRef := RecRef.Field(SelectionFieldID);
                 FirstRecRef := Format(FieldRef.Value);
                 LastRecRef := FirstRecRef;
@@ -45,9 +45,9 @@ codeunit 46 SelectionFilterManagement
                     if RecRef.Next() = 0 then
                         More := false
                     else begin
-                        SavePos := TempRecRef.GetPosition;
-                        TempRecRef.SetPosition(RecRef.GetPosition);
-                        if not TempRecRef.Find then begin
+                        SavePos := TempRecRef.GetPosition();
+                        TempRecRef.SetPosition(RecRef.GetPosition());
+                        if not TempRecRef.Find() then begin
                             More := false;
                             TempRecRef.SetPosition(SavePos);
                         end else begin
@@ -65,7 +65,7 @@ codeunit 46 SelectionFilterManagement
                 else
                     SelectionFilter := SelectionFilter + AddQuotes(FirstRecRef) + '..' + AddQuotes(LastRecRef);
                 if TempRecRefCount > 0 then
-                    TempRecRef.Next;
+                    TempRecRef.Next();
             end;
             exit(SelectionFilter);
         end;

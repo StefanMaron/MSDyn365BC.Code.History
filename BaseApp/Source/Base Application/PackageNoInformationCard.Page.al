@@ -130,7 +130,7 @@ page 6526 "Package No. Information Card"
                         ShowPackageNoInfo.SetRange("Variant Code", Rec."Variant Code");
 
                         FocusOnPackageNoInfo.Copy(ShowPackageNoInfo);
-                        FocusOnPackageNoInfo.SetRange("Package No.", TrackingSpec."Package No.");
+                        FocusOnPackageNoInfo.SetRange("Package No.", TrackingSpecification."Package No.");
 
                         PackageNoInfoList.SetTableView(ShowPackageNoInfo);
 
@@ -147,8 +147,6 @@ page 6526 "Package No. Information Card"
             {
                 Caption = 'Find entries...';
                 Image = Navigate;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Find entries and documents that exist for the package number on the selected record. (Formerly this action was named Navigate.)';
 
                 trigger OnAction()
@@ -162,6 +160,17 @@ page 6526 "Package No. Information Card"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Navigate_Promoted; Navigate)
+                {
+                }
+            }
+        }
     }
 
     trigger OnOpenPage()
@@ -173,21 +182,23 @@ page 6526 "Package No. Information Card"
     end;
 
     var
-        TrackingSpec: Record "Tracking Specification";
         ShowButtonFunctions: Boolean;
         [InDataSet]
         ButtonFunctionsVisible: Boolean;
         PageCaptionTxt: Label '%1 No. Information Card', Comment = '%1 - package caption';
 
-    procedure Init(CurrentTrackingSpec: Record "Tracking Specification")
+    protected var
+        TrackingSpecification: Record "Tracking Specification";
+
+    procedure Init(CurrentTrackingSpecification: Record "Tracking Specification")
     begin
-        TrackingSpec := CurrentTrackingSpec;
+        TrackingSpecification := CurrentTrackingSpecification;
         ShowButtonFunctions := true;
     end;
 
     procedure InitWhse(WhseItemTrackingLine: Record "Whse. Item Tracking Line")
     begin
-        TrackingSpec."Package No." := WhseItemTrackingLine."Package No.";
+        TrackingSpecification."Package No." := WhseItemTrackingLine."Package No.";
         ShowButtonFunctions := true;
     end;
 

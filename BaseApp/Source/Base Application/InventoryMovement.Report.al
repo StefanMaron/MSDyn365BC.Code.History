@@ -28,7 +28,7 @@ report 7321 "Inventory Movement"
             column(JournalBatchNameFieldCaption; "Item Journal Line".FieldCaption("Journal Batch Name"))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TodayFormatted; Format(Today, 0, 4))
@@ -221,7 +221,7 @@ report 7321 "Inventory Movement"
 
     trigger OnPreReport()
     begin
-        ItemJnlLineFilter := "Item Journal Line".GetFilters;
+        ItemJnlLineFilter := "Item Journal Line".GetFilters();
     end;
 
     var

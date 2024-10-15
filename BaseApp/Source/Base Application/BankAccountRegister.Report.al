@@ -16,7 +16,7 @@ report 1403 "Bank Account Register"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(PrintAmountsInLCY; PrintAmountsInLCY)
@@ -185,7 +185,7 @@ report 1403 "Bank Account Register"
 
     trigger OnPreReport()
     begin
-        GLRegFilter := "G/L Register".GetFilters;
+        GLRegFilter := "G/L Register".GetFilters();
     end;
 
     var

@@ -13,48 +13,48 @@ report 705 "Inventory Availability"
         {
             DataItemTableView = WHERE(Type = CONST(Inventory));
             RequestFilterFields = "No.", "Location Filter", "Variant Filter", "Search Description", "Assembly BOM", "Inventory Posting Group", "Statistics Group", "Vendor No.";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
-            column(TableItemFilter; TableCaption + ': ' + ItemFilter)
+            column(TableItemFilter; TableCaption + ': ' + GlobalItemFilter)
             {
             }
-            column(ItemFilter; ItemFilter)
+            column(ItemFilter; GlobalItemFilter)
             {
             }
-            column(GetCurrentKey; GetCurrentKey)
+            column(GetCurrentKey; GlobalGetCurrentKey)
             {
             }
-            column(UseStockkeepingUnit; UseStockkeepingUnit)
+            column(UseStockkeepingUnit; GlobalUseStockkeepingUnit)
             {
             }
             column(InventPostGroup_Item; "Inventory Posting Group")
             {
             }
-            column(InvtReorder; Format(InvtReorder))
+            column(InvtReorder; Format(GlobalInvtReorder))
             {
             }
             column(ReorderPoint_Item; "Reorder Point")
             {
                 IncludeCaption = true;
             }
-            column(ProjAvailBalance; ProjAvailBalance)
+            column(ProjAvailBalance; GlobalProjAvailBalance)
             {
                 DecimalPlaces = 0 : 5;
             }
-            column(PlannedOrderReceipt; PlannedOrderReceipt)
+            column(PlannedOrderReceipt; GlobalPlannedOrderReceipt)
             {
                 DecimalPlaces = 0 : 5;
             }
-            column(BackOrderQty; BackOrderQty)
+            column(BackOrderQty; GlobalBackOrderQty)
             {
                 DecimalPlaces = 0 : 5;
             }
-            column(ScheduledReceipt; ScheduledReceipt)
+            column(ScheduledReceipt; GlobalScheduledReceipt)
             {
                 DecimalPlaces = 0 : 5;
             }
-            column(GrossRequirement; GrossRequirement)
+            column(GrossRequirement; GlobalGrossRequirement)
             {
                 DecimalPlaces = 0 : 5;
             }
@@ -110,29 +110,29 @@ report 705 "Inventory Availability"
                 column(UnitofMeasure_Item; Item."Base Unit of Measure")
                 {
                 }
-                column(InvtReorder2; Format(InvtReorder))
+                column(InvtReorder2; Format(GlobalInvtReorder))
                 {
                 }
                 column(ReordPoint_StockkeepUnit; "Reorder Point")
                 {
                 }
-                column(ProjAvailBalance2; ProjAvailBalance)
+                column(ProjAvailBalance2; GlobalProjAvailBalance)
                 {
                     DecimalPlaces = 0 : 5;
                 }
-                column(BackOrderQty2; BackOrderQty)
+                column(BackOrderQty2; GlobalBackOrderQty)
                 {
                     DecimalPlaces = 0 : 5;
                 }
-                column(PlannedOrderReceipt2; PlannedOrderReceipt)
+                column(PlannedOrderReceipt2; GlobalPlannedOrderReceipt)
                 {
                     DecimalPlaces = 0 : 5;
                 }
-                column(ScheduledReceipt2; ScheduledReceipt)
+                column(ScheduledReceipt2; GlobalScheduledReceipt)
                 {
                     DecimalPlaces = 0 : 5;
                 }
-                column(GrossRequirement2; GrossRequirement)
+                column(GrossRequirement2; GlobalGrossRequirement)
                 {
                     DecimalPlaces = 0 : 5;
                 }
@@ -144,13 +144,13 @@ report 705 "Inventory Availability"
                 {
                     IncludeCaption = true;
                 }
-                column(SKUPrintLoop; SKUPrintLoop)
+                column(SKUPrintLoop; GlobalSKUPrintLoop)
                 {
                 }
 
                 trigger OnAfterGetRecord()
                 begin
-                    SKUPrintLoop := SKUPrintLoop + 1;
+                    GlobalSKUPrintLoop := GlobalSKUPrintLoop + 1;
                     if "Reordering Policy" in ["Reordering Policy"::Order, "Reordering Policy"::"Lot-for-Lot"] then
                         "Reorder Point" := 0;
                     CalcNeed(Item, "Location Code", "Variant Code", "Reorder Point");
@@ -158,16 +158,16 @@ report 705 "Inventory Availability"
 
                 trigger OnPreDataItem()
                 begin
-                    if not UseStockkeepingUnit then
+                    if not GlobalUseStockkeepingUnit then
                         CurrReport.Break();
 
-                    SKUPrintLoop := 0;
+                    GlobalSKUPrintLoop := 0;
                 end;
             }
 
             trigger OnAfterGetRecord()
             begin
-                if not UseStockkeepingUnit then begin
+                if not GlobalUseStockkeepingUnit then begin
                     if "Reordering Policy" in ["Reordering Policy"::Order, "Reordering Policy"::"Lot-for-Lot"] then
                         "Reorder Point" := 0;
                     CalcNeed(Item, GetFilter("Location Filter"), GetFilter("Variant Filter"), "Reorder Point");
@@ -176,7 +176,7 @@ report 705 "Inventory Availability"
 
             trigger OnPreDataItem()
             begin
-                GetCurrentKey := CurrentKey;
+                GlobalGetCurrentKey := CurrentKey;
             end;
         }
     }
@@ -192,7 +192,7 @@ report 705 "Inventory Availability"
                 group(Options)
                 {
                     Caption = 'Options';
-                    field(UseStockkeepingUnit; UseStockkeepingUnit)
+                    field(UseStockkeepingUnit; GlobalUseStockkeepingUnit)
                     {
                         ApplicationArea = Warehouse;
                         Caption = 'Use Stockkeeping Unit';
@@ -213,21 +213,21 @@ report 705 "Inventory Availability"
 
     trigger OnPreReport()
     begin
-        ItemFilter := Item.GetFilters;
+        GlobalItemFilter := Item.GetFilters();
     end;
 
     var
         AvailToPromise: Codeunit "Available to Promise";
-        ItemFilter: Text;
-        BackOrderQty: Decimal;
-        InvtReorder: Boolean;
-        GrossRequirement: Decimal;
-        PlannedOrderReceipt: Decimal;
-        ScheduledReceipt: Decimal;
-        ProjAvailBalance: Decimal;
-        UseStockkeepingUnit: Boolean;
-        SKUPrintLoop: Integer;
-        GetCurrentKey: Text[250];
+        GlobalItemFilter: Text;
+        GlobalBackOrderQty: Decimal;
+        GlobalInvtReorder: Boolean;
+        GlobalGrossRequirement: Decimal;
+        GlobalPlannedOrderReceipt: Decimal;
+        GlobalScheduledReceipt: Decimal;
+        GlobalProjAvailBalance: Decimal;
+        GlobalUseStockkeepingUnit: Boolean;
+        GlobalSKUPrintLoop: Integer;
+        GlobalGetCurrentKey: Text;
         InventoryAvailabilityCaptionLbl: Label 'Inventory Availability';
         PageCaptionLbl: Label 'Page';
         BOMCaptionLbl: Label 'BOM';
@@ -238,14 +238,14 @@ report 705 "Inventory Availability"
         ProjectedAvailableBalCaptionLbl: Label 'Projected Available Balance';
         ReorderCaptionLbl: Label 'Reorder';
 
-    procedure CalcNeed(Item: Record Item; LocationFilter: Text[250]; VariantFilter: Text[250]; ReorderPoint: Decimal)
+    procedure CalcNeed(Item: Record Item; LocationFilter: Text; VariantFilter: Text; ReorderPoint: Decimal)
     begin
         with Item do begin
             SetFilter("Location Filter", LocationFilter);
             SetFilter("Variant Filter", VariantFilter);
             SetRange("Drop Shipment Filter", false);
 
-            SetRange("Date Filter", 0D, WorkDate);
+            SetRange("Date Filter", 0D, WorkDate());
             CalcFields(
               "Qty. on Purch. Order",
               "Planning Receipt (Qty.)",
@@ -255,15 +255,15 @@ report 705 "Inventory Availability"
               "Qty. in Transit",
               "Trans. Ord. Receipt (Qty.)",
               "Reserved Qty. on Inventory");
-            BackOrderQty :=
+            GlobalBackOrderQty :=
               "Qty. on Purch. Order" + "Scheduled Receipt (Qty.)" + "Planned Order Receipt (Qty.)" +
               "Qty. in Transit" + "Trans. Ord. Receipt (Qty.)" +
               "Planning Receipt (Qty.)" + "Purch. Req. Receipt (Qty.)";
 
             SetRange("Date Filter", 0D, DMY2Date(31, 12, 9999));
-            GrossRequirement :=
+            GlobalGrossRequirement :=
               AvailToPromise.CalcGrossRequirement(Item);
-            ScheduledReceipt :=
+            GlobalScheduledReceipt :=
               AvailToPromise.CalcScheduledReceipt(Item);
 
             CalcFields(
@@ -273,26 +273,26 @@ report 705 "Inventory Availability"
               "Purch. Req. Receipt (Qty.)",
               "Res. Qty. on Req. Line");
 
-            ScheduledReceipt := ScheduledReceipt - "Planned Order Receipt (Qty.)";
+            GlobalScheduledReceipt := GlobalScheduledReceipt - "Planned Order Receipt (Qty.)";
 
-            PlannedOrderReceipt :=
+            GlobalPlannedOrderReceipt :=
               "Planned Order Receipt (Qty.)" +
               "Purch. Req. Receipt (Qty.)";
 
-            ProjAvailBalance :=
+            GlobalProjAvailBalance :=
               Inventory +
-              ScheduledReceipt -
-              GrossRequirement +
+              GlobalScheduledReceipt -
+              GlobalGrossRequirement +
               "Purch. Req. Receipt (Qty.)" -
               "Res. Qty. on Req. Line";
 
-            InvtReorder := ProjAvailBalance < ReorderPoint;
+            GlobalInvtReorder := GlobalProjAvailBalance < ReorderPoint;
         end;
     end;
 
     procedure InitializeRequest(NewUseStockkeepingUnit: Boolean)
     begin
-        UseStockkeepingUnit := NewUseStockkeepingUnit;
+        GlobalUseStockkeepingUnit := NewUseStockkeepingUnit;
     end;
 }
 

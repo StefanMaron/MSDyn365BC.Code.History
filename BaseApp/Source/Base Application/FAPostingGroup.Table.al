@@ -511,7 +511,7 @@
         if AccNo = '' then
             exit;
         GLAcc.Get(AccNo);
-        GLAcc.CheckGLAcc;
+        GLAcc.CheckGLAcc();
         if DirectPosting then
             GLAcc.TestField("Direct Posting");
     end;

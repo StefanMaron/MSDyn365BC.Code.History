@@ -204,8 +204,8 @@ codeunit 144562 "ERM Payment Slip"
     begin
         InitPaymentHeader(PaymentHeader);
         PaymentHeader.Validate("Payment Class", PaymentClassCode);
-        PaymentHeader.Validate("Posting Date", CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(5)), WorkDate));
-        PaymentHeader.Validate("Document Date", CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(5)), WorkDate));
+        PaymentHeader.Validate("Posting Date", CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(5)), WorkDate()));
+        PaymentHeader.Validate("Document Date", CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(5)), WorkDate()));
         PaymentHeader.Modify(true);
     end;
 
@@ -247,7 +247,7 @@ codeunit 144562 "ERM Payment Slip"
         ServerFile.Create(ServerFileName);
         ServerFile.CreateOutStream(Fileoutstream);
         XMLPORT.Export(XMLPORT::"Import/Export Parameters", Fileoutstream, PaymentClass);
-        ServerFile.Close;
+        ServerFile.Close();
         exit(ServerFileName);
     end;
 

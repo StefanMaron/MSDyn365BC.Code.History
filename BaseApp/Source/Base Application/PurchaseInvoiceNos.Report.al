@@ -14,7 +14,7 @@ report 324 "Purchase Invoice Nos."
             DataItemTableView = SORTING("No.");
             RequestFilterFields = "No.";
             RequestFilterHeading = 'Posted Purchase Invoice';
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(STRSUBSTNO_Text004_PurchInvHeaderFilter_; StrSubstNo(Text004, PurchInvHeaderFilter))
@@ -171,7 +171,7 @@ report 324 "Purchase Invoice Nos."
 
     trigger OnPreReport()
     begin
-        PurchInvHeaderFilter := "Purch. Inv. Header".GetFilters;
+        PurchInvHeaderFilter := "Purch. Inv. Header".GetFilters();
     end;
 
     var

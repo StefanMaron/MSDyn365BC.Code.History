@@ -145,7 +145,7 @@ codeunit 144027 "UT COD FA Derogatory Depr."
     begin
         FADepreciationBook."FA No." := CreateFixedAsset;
         FADepreciationBook."Depreciation Book Code" := CreateDepreciationBook;
-        FADepreciationBook."Depreciation Starting Date" := WorkDate;
+        FADepreciationBook."Depreciation Starting Date" := WorkDate();
         FADepreciationBook.Insert();
     end;
 
@@ -179,7 +179,7 @@ codeunit 144027 "UT COD FA Derogatory Depr."
         GenJournalLine."Journal Template Name" := GenJournalBatch."Journal Template Name";
         GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
         GenJournalLine."Source Code" := CreateSourceCode;
-        GenJournalLine."Posting Date" := WorkDate;
+        GenJournalLine."Posting Date" := WorkDate();
         GenJournalLine."FA Posting Type" := GenJournalLine."FA Posting Type"::"Acquisition Cost";
         GenJournalLine."Document No." := DocumentNo;
         GenJournalLine."Depreciation Book Code" := DepreciationBookCode;

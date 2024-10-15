@@ -24,7 +24,7 @@ codeunit 1609 "Exp. Service Cr.M. - PEPPOL2.0"
     begin
         SalesCreditMemoPEPPOL20.Initialize(VariantRec);
         SalesCreditMemoPEPPOL20.SetDestination(OutStr);
-        SalesCreditMemoPEPPOL20.Export;
+        SalesCreditMemoPEPPOL20.Export();
     end;
 
 #if not CLEAN20
@@ -41,7 +41,7 @@ codeunit 1609 "Exp. Service Cr.M. - PEPPOL2.0"
 
         OutFile.CreateOutStream(OutStream);
         GenerateXMLFile(VariantRec, OutStream);
-        OutFile.Close;
+        OutFile.Close();
 
         exit(CopyStr(XmlServerPath, 1, 250));
     end;

@@ -138,8 +138,8 @@ codeunit 134334 "ERM Vendor Statistics"
         CreatePurchaseLine(PurchaseHeader, PurchaseLine);
 
         // [GIVEN] Release Purchase Order.
-        OldWorkDate := WorkDate;  // Need to preserve Old WorkDate.
-        WorkDate := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(10)), WorkDate);
+        OldWorkDate := WorkDate();  // Need to preserve Old WorkDate.
+        WorkDate := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(10)), WorkDate());
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         BalanceLCY := PurchaseLine."Outstanding Amount (LCY)";
         OutstandingOrdersLCY := 0;   // Value is important here.
@@ -231,8 +231,8 @@ codeunit 134334 "ERM Vendor Statistics"
         PaymentAmountLCY := PostPartialPaymentForVendor(Vendor."No.", InvoiceAmountLCY);
 
         // [WHEN] Change Work date after Posting Payment.
-        OldWorkDate := WorkDate;
-        WorkDate := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(10)), WorkDate);
+        OldWorkDate := WorkDate();
+        WorkDate := CalcDate(StrSubstNo('<%1D>', LibraryRandom.RandInt(10)), WorkDate());
 
         // [THEN] Verifing Over Due Balance on Vendor Statistics.
         Assert.AreEqual(Vendor.CalcOverDueBalance, Round(InvoiceAmountLCY - PaymentAmountLCY), OverDueBalanceErr);
@@ -320,8 +320,8 @@ codeunit 134334 "ERM Vendor Statistics"
         VendorLedgerEntries.First;
         Assert.AreEqual(VendorLedgerEntry."Entry No.", VendorLedgerEntries."Entry No.".AsInteger, '');
         Assert.IsFalse(VendorLedgerEntries.Next, '');
-        VendorLedgerEntries.Close;
-        VendorList.Close;
+        VendorLedgerEntries.Close();
+        VendorList.Close();
     end;
 
     [Test]
@@ -349,8 +349,8 @@ codeunit 134334 "ERM Vendor Statistics"
         VendorLedgerEntries.First;
         Assert.AreEqual(VendorLedgerEntry."Entry No.", VendorLedgerEntries."Entry No.".AsInteger, '');
         Assert.IsFalse(VendorLedgerEntries.Next, '');
-        VendorLedgerEntries.Close;
-        VendorCard.Close;
+        VendorLedgerEntries.Close();
+        VendorCard.Close();
     end;
 
     [Test]
@@ -387,8 +387,8 @@ codeunit 134334 "ERM Vendor Statistics"
         Assert.IsFalse(VendorLedgerEntries.Next, '');
 
         // Tear down.
-        VendorLedgerEntries.Close;
-        VendorList.Close;
+        VendorLedgerEntries.Close();
+        VendorList.Close();
     end;
 
     [Test]
@@ -425,8 +425,8 @@ codeunit 134334 "ERM Vendor Statistics"
         Assert.IsFalse(VendorLedgerEntries.Next, '');
 
         // Tear down.
-        VendorLedgerEntries.Close;
-        VendorCard.Close;
+        VendorLedgerEntries.Close();
+        VendorCard.Close();
     end;
 
     [Test]
@@ -443,7 +443,7 @@ codeunit 134334 "ERM Vendor Statistics"
 
         Initialize();
         LibraryPurchase.CreateVendor(Vendor);
-        MockDtldVendLedgEntry(DetailedVendorLedgEntry, Vendor."No.", WorkDate, WorkDate);
+        MockDtldVendLedgEntry(DetailedVendorLedgEntry, Vendor."No.", WorkDate(), WorkDate());
         TotalAmount += DetailedVendorLedgEntry.Amount;
         NewDate := WorkDate + 1;
         MockDtldVendLedgEntry(DetailedVendorLedgEntry, Vendor."No.", NewDate, NewDate);
@@ -469,7 +469,7 @@ codeunit 134334 "ERM Vendor Statistics"
 
         Initialize();
         LibraryPurchase.CreateVendor(Vendor);
-        MockDtldVendLedgEntry(DetailedVendorLedgEntry, Vendor."No.", WorkDate, WorkDate);
+        MockDtldVendLedgEntry(DetailedVendorLedgEntry, Vendor."No.", WorkDate(), WorkDate());
         TotalAmount += DetailedVendorLedgEntry."Amount (LCY)";
         NewDate := WorkDate + 1;
         MockDtldVendLedgEntry(DetailedVendorLedgEntry, Vendor."No.", NewDate, NewDate);
@@ -495,8 +495,8 @@ codeunit 134334 "ERM Vendor Statistics"
 
         Initialize();
         LibraryPurchase.CreateVendor(Vendor);
-        DueDate := CalcDate('<1M>', WorkDate);
-        MockDtldVendLedgEntry(DetailedVendorLedgEntry, Vendor."No.", WorkDate, DueDate);
+        DueDate := CalcDate('<1M>', WorkDate());
+        MockDtldVendLedgEntry(DetailedVendorLedgEntry, Vendor."No.", WorkDate(), DueDate);
         ExpectedAmount := -DetailedVendorLedgEntry.Amount;
         NewDate := DueDate + 1;
         MockDtldVendLedgEntry(DetailedVendorLedgEntry, Vendor."No.", NewDate, CalcDate('<1M>', NewDate));
@@ -521,8 +521,8 @@ codeunit 134334 "ERM Vendor Statistics"
 
         Initialize();
         LibraryPurchase.CreateVendor(Vendor);
-        DueDate := CalcDate('<1M>', WorkDate);
-        MockDtldVendLedgEntry(DetailedVendorLedgEntry, Vendor."No.", WorkDate, DueDate);
+        DueDate := CalcDate('<1M>', WorkDate());
+        MockDtldVendLedgEntry(DetailedVendorLedgEntry, Vendor."No.", WorkDate(), DueDate);
         ExpectedAmount := -DetailedVendorLedgEntry."Amount (LCY)";
         NewDate := DueDate + 1;
         MockDtldVendLedgEntry(DetailedVendorLedgEntry, Vendor."No.", NewDate, CalcDate('<1M>', NewDate));
@@ -621,7 +621,7 @@ codeunit 134334 "ERM Vendor Statistics"
         MockDetailedVendorLedgerEntryWithDueDate(DetailedVendorLedgEntry[2], VendorLedgerEntry[2]);
 
         // [WHEN] Set "Date Filter" = WORKDATE.
-        Vendor.SetFilter("Date Filter", Format(WorkDate));
+        Vendor.SetFilter("Date Filter", Format(WorkDate()));
 
         // [THEN] "Balance Due" = 200.
         Vendor.CalcFields("Balance Due");
@@ -650,7 +650,7 @@ codeunit 134334 "ERM Vendor Statistics"
         MockDetailedVendorLedgerEntryWithPostingDate(DetailedVendorLedgEntry[2], VendorLedgerEntry, LibraryRandom.RandDate(-100));
 
         // [WHEN] Set "Date Filter" = WORKDATE.
-        Vendor.SetFilter("Date Filter", Format(WorkDate));
+        Vendor.SetFilter("Date Filter", Format(WorkDate()));
 
         // [THEN] "Balance Due" = 300.
         Vendor.CalcFields("Balance Due");
@@ -673,13 +673,13 @@ codeunit 134334 "ERM Vendor Statistics"
         LibraryPurchase.CreateVendor(Vendor);
 
         // [GIVEN] Post payment "PAYM1" on 01.01
-        PaymentDate[1] := CalcDate('<-CM>', WorkDate);
+        PaymentDate[1] := CalcDate('<-CM>', WorkDate());
         PostPaymentForVendor(Vendor."No.", PaymentDate[1]);
         // [GIVEN] Post payment "PAYM2" on 15.01
-        PaymentDate[2] := CalcDate('<-CM+14D>', WorkDate);
+        PaymentDate[2] := CalcDate('<-CM+14D>', WorkDate());
         PostPaymentForVendor(Vendor."No.", PaymentDate[2]);
         // [GIVEN] Post payment "PAYM3" on 31.01
-        PaymentDate[3] := CalcDate('<CM>', WorkDate);
+        PaymentDate[3] := CalcDate('<CM>', WorkDate());
         PostPaymentForVendor(Vendor."No.", PaymentDate[3]);
         // [GIVEN] Reverse payment "PAYM3"
         ReversePayment(Vendor."No.", PaymentDate[3]);
@@ -709,13 +709,13 @@ codeunit 134334 "ERM Vendor Statistics"
         LibraryPurchase.CreateVendor(Vendor);
 
         // [GIVEN] Post payment "PAYM1" on 01.01
-        PaymentDate[1] := CalcDate('<-CM>', WorkDate);
+        PaymentDate[1] := CalcDate('<-CM>', WorkDate());
         PostPaymentForVendor(Vendor."No.", PaymentDate[1]);
         // [GIVEN] Post payment "PAYM2" on 15.01
-        PaymentDate[2] := CalcDate('<-CM+14D>', WorkDate);
+        PaymentDate[2] := CalcDate('<-CM+14D>', WorkDate());
         PostPaymentForVendor(Vendor."No.", PaymentDate[2]);
         // [GIVEN] Post payment "PAYM3" on 31.01
-        PaymentDate[3] := CalcDate('<CM>', WorkDate);
+        PaymentDate[3] := CalcDate('<CM>', WorkDate());
         PostPaymentForVendor(Vendor."No.", PaymentDate[3]);
         // [GIVEN] Reverse payment "PAYM3"
         ReversePayment(Vendor."No.", PaymentDate[3]);
@@ -898,12 +898,12 @@ codeunit 134334 "ERM Vendor Statistics"
     local procedure CreateBasicVendorLedgerEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; VendorNo: Code[20])
     begin
         with VendorLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, FieldNo("Entry No."));
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Vendor No." := VendorNo;
             Open := true;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -917,27 +917,27 @@ codeunit 134334 "ERM Vendor Statistics"
     local procedure MockDetailedVendorLedgerEntryWithDueDate(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; VendorLedgerEntry: Record "Vendor Ledger Entry")
     begin
         with DetailedVendorLedgEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, FieldNo("Entry No."));
-            "Posting Date" := WorkDate;
+            "Posting Date" := WorkDate();
             "Vendor Ledger Entry No." := VendorLedgerEntry."Entry No.";
             "Initial Entry Due Date" := VendorLedgerEntry."Due Date";
             "Vendor No." := VendorLedgerEntry."Vendor No.";
             Amount := LibraryRandom.RandDec(1000, 2);
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure MockDetailedVendorLedgerEntryWithPostingDate(var DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; VendorLedgerEntry: Record "Vendor Ledger Entry"; PostingDate: Date)
     begin
         with DetailedVendorLedgEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, FieldNo("Entry No."));
             "Posting Date" := PostingDate;
             "Vendor Ledger Entry No." := VendorLedgerEntry."Entry No.";
             "Vendor No." := VendorLedgerEntry."Vendor No.";
             Amount := LibraryRandom.RandDec(1000, 2);
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1037,7 +1037,7 @@ codeunit 134334 "ERM Vendor Statistics"
             "Initial Entry Due Date" := InitialEntryDueDate;
             Amount := LibraryRandom.RandDec(100, 2);
             "Amount (LCY)" := LibraryRandom.RandDec(100, 2);
-            Insert;
+            Insert();
         end;
     end;
 

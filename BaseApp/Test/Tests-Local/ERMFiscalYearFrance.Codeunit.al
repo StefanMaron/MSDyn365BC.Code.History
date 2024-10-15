@@ -250,7 +250,7 @@ codeunit 144074 "ERM Fiscal Year France"
     begin
         AccountingPeriods.OpenView;
         AccountingPeriods."F&iscally Close Year".Invoke;
-        AccountingPeriods.Close;
+        AccountingPeriods.Close();
     end;
 
     local procedure FiscallyCloseFiscalPeriod()
@@ -261,7 +261,7 @@ codeunit 144074 "ERM Fiscal Year France"
         AccountingPeriods.FILTER.SetFilter(Closed, Format(true));
         AccountingPeriods.FILTER.SetFilter("Fiscally Closed", Format(false));
         AccountingPeriods.CloseFiscalPeriod.Invoke;
-        AccountingPeriods.Close;
+        AccountingPeriods.Close();
     end;
 
     local procedure GetFirstAccountingPeriodDate(FiscallyClosed: Boolean): Date

@@ -127,7 +127,7 @@ page 9020 "Small Business Owner RC"
                 RunObject = Report "Salesperson - Sales Statistics";
                 ToolTip = 'View amounts for sales, profit, invoice discount, and payment discount, as well as profit percentage, for each salesperson for a selected period. The report also shows the adjusted profit and adjusted profit percentage, which reflect any changes to the original costs of the items in the sales.';
             }
-#if not CLEAN19
+#if not CLEAN21
             action("Price &List")
             {
                 ApplicationArea = Basic, Suite;
@@ -790,7 +790,7 @@ page 9020 "Small Business Owner RC"
                     RunObject = Page "Resource Groups";
                     ToolTip = 'View all resource groups.';
                 }
-#if not CLEAN19
+#if not CLEAN21
                 action("Resource Price Changes")
                 {
                     ApplicationArea = Basic, Suite;
@@ -1024,7 +1024,7 @@ page 9020 "Small Business Owner RC"
                 RunObject = Page "Payment Report";
                 ToolTip = 'View all payment documents that belong to a payment class and have the same status.';
             }
-#if not CLEAN19
+#if not CLEAN21
             action("Sales Price &Worksheet")
             {
                 ApplicationArea = Basic, Suite;

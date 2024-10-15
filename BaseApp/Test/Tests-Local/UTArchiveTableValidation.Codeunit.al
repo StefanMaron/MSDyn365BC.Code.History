@@ -39,8 +39,8 @@ codeunit 144039 "UT Archive Table Validation"
             end;
         end;
 
-        RecRef2.Close;
-        RecRef1.Close;
+        RecRef2.Close();
+        RecRef1.Close();
     end;
 }
 

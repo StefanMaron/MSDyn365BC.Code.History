@@ -62,7 +62,7 @@ codeunit 144000 "DEB DTI Export Tests"
         Assert.ExpectedError(
           StrSubstNo(
             StatisticsPeriodError,
-            IntrastatJnlBatch.FieldCaption("Statistics Period"), IntrastatJnlBatch.TableCaption,
+            IntrastatJnlBatch.FieldCaption("Statistics Period"), IntrastatJnlBatch.TableCaption(),
             IntrastatJnlBatch.FieldCaption("Journal Template Name"), IntrastatJnlBatch."Journal Template Name",
             IntrastatJnlBatch.FieldCaption(Name), IntrastatJnlBatch.Name));
     end;
@@ -98,7 +98,7 @@ codeunit 144000 "DEB DTI Export Tests"
         SetCompanyInfoCISDValue('');
 
         asserterror DefaultExportToXML(TempIntrastatJnlLine);
-        Assert.ExpectedError(StrSubstNo(CompanyInfoError, CompanyInfo.FieldCaption(CISD), CompanyInfo.TableCaption));
+        Assert.ExpectedError(StrSubstNo(CompanyInfoError, CompanyInfo.FieldCaption(CISD), CompanyInfo.TableCaption()));
     end;
 
     [Test]
@@ -301,7 +301,7 @@ codeunit 144000 "DEB DTI Export Tests"
         Assert.ExpectedError(
           StrSubstNo(
             TransactionSpecificationError, TempIntrastatJnlLine.FieldCaption("Transaction Specification"),
-            TempIntrastatJnlLine.TableCaption,
+            TempIntrastatJnlLine.TableCaption(),
             TempIntrastatJnlLine.FieldCaption("Journal Template Name"), TempIntrastatJnlLine."Journal Template Name",
             TempIntrastatJnlLine.FieldCaption("Journal Batch Name"),
             TempIntrastatJnlLine."Journal Batch Name", TempIntrastatJnlLine.FieldCaption("Line No."), TempIntrastatJnlLine."Line No."));
@@ -370,7 +370,7 @@ codeunit 144000 "DEB DTI Export Tests"
         Assert.ExpectedError(
           StrSubstNo(
             TransactionSpecificationError, TempIntrastatJnlLine.FieldCaption("Transaction Specification"),
-            TempIntrastatJnlLine.TableCaption,
+            TempIntrastatJnlLine.TableCaption(),
             TempIntrastatJnlLine.FieldCaption("Journal Template Name"), TempIntrastatJnlLine."Journal Template Name",
             TempIntrastatJnlLine.FieldCaption("Journal Batch Name"),
             TempIntrastatJnlLine."Journal Batch Name", TempIntrastatJnlLine.FieldCaption("Line No."), TempIntrastatJnlLine."Line No."));
@@ -403,7 +403,7 @@ codeunit 144000 "DEB DTI Export Tests"
         SetCompanyInfoNameValue('');
 
         asserterror DefaultExportToXML(TempIntrastatJnlLine);
-        Assert.ExpectedError(StrSubstNo(CompanyInfoError, CompanyInfo.FieldCaption(Name), CompanyInfo.TableCaption));
+        Assert.ExpectedError(StrSubstNo(CompanyInfoError, CompanyInfo.FieldCaption(Name), CompanyInfo.TableCaption()));
     end;
 
     [Test]
@@ -505,7 +505,7 @@ codeunit 144000 "DEB DTI Export Tests"
         SetCompanyInfoRegNoValue('');
 
         asserterror DefaultExportToXML(TempIntrastatJnlLine);
-        Assert.ExpectedError(StrSubstNo(CompanyInfoError, CompanyInfo.FieldCaption("Registration No."), CompanyInfo.TableCaption));
+        Assert.ExpectedError(StrSubstNo(CompanyInfoError, CompanyInfo.FieldCaption("Registration No."), CompanyInfo.TableCaption()));
     end;
 
     [Test]
@@ -573,7 +573,7 @@ codeunit 144000 "DEB DTI Export Tests"
         asserterror DefaultExportToXML(TempIntrastatJnlLine);
         Assert.ExpectedError(
           StrSubstNo(
-            CompanyInfoError, CompanyInfo.FieldCaption("VAT Registration No."), CompanyInfo.TableCaption));
+            CompanyInfoError, CompanyInfo.FieldCaption("VAT Registration No."), CompanyInfo.TableCaption()));
     end;
 
     [Test]
@@ -626,7 +626,7 @@ codeunit 144000 "DEB DTI Export Tests"
         IntrastatJnlLine."Journal Batch Name" := IntrastatJnlBatch.Name;
         IntrastatJnlLine."Line No." := IntrastatJnlLine."Line No." + 10000;
         IntrastatJnlLine.Type := IntrastatJnlLine.Type::Shipment;
-        IntrastatJnlLine.Date := WorkDate;
+        IntrastatJnlLine.Date := WorkDate();
         IntrastatJnlLine.Quantity := 9001.0;
         IntrastatJnlLine.Amount := 10003.12;
         IntrastatJnlLine."Statistical Value" := 19234.5;
@@ -671,7 +671,7 @@ codeunit 144000 "DEB DTI Export Tests"
     var
         "Area": Record "Area";
     begin
-        Area.Init;
+        Area.Init();
         Area.Code :=
           LibraryUtility.GenerateRandomCodeWithLength(Area.FieldNo(Code), DATABASE::Area, MaxStrLen(Area.Code));
         Area.Insert;
@@ -682,7 +682,7 @@ codeunit 144000 "DEB DTI Export Tests"
     var
         EntryExitPoint: Record "Entry/Exit Point";
     begin
-        EntryExitPoint.Init;
+        EntryExitPoint.Init();
         EntryExitPoint.Code :=
           LibraryUtility.GenerateRandomCodeWithLength(
             EntryExitPoint.FieldNo(Code), DATABASE::"Entry/Exit Point", MaxStrLen(EntryExitPoint.Code));
@@ -739,7 +739,7 @@ codeunit 144000 "DEB DTI Export Tests"
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
         StatsPeriod: Code[10];
     begin
-        StatsPeriod := GetStatsPeriodForDate(WorkDate);
+        StatsPeriod := GetStatsPeriodForDate(WorkDate());
         if not IntrastatJnlTemplate.FindFirst() then begin
             IntrastatJnlTemplate.Init();
             IntrastatJnlTemplate.Name := 'Test';
@@ -980,7 +980,7 @@ codeunit 144000 "DEB DTI Export Tests"
         CompanyInfo.Get();
         VerifyNodeHasChildren('Declaration');
 
-        LibraryXMLRead.VerifyNodeValue('referencePeriod', Format(WorkDate, 0, '<Year4>-<Month,2>'));
+        LibraryXMLRead.VerifyNodeValue('referencePeriod', Format(WorkDate(), 0, '<Year4>-<Month,2>'));
         LibraryXMLRead.VerifyNodeValue('PSIId', CompanyInfo.GetPartyID);
 
         VerifyNodeHasChildren('Function');

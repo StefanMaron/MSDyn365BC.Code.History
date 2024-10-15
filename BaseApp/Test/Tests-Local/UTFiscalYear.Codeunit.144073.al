@@ -62,7 +62,7 @@ codeunit 144073 "UT Fiscal Year"
         // Verify: Verify that Accounting Periods Page successfully opened.
 
         // Tear Down.
-        FiscalYearClosingSteps.Close;
+        FiscalYearClosingSteps.Close();
     end;
 
     [Test]
@@ -204,7 +204,7 @@ codeunit 144073 "UT Fiscal Year"
         Assert.ExpectedErrorCode('TestValidation');
 
         // Tear Down.
-        AccountingPeriods.Close;
+        AccountingPeriods.Close();
     end;
 
     [Test]
@@ -224,7 +224,7 @@ codeunit 144073 "UT Fiscal Year"
           AccountingPeriods."Fiscally Closed".Editable, StrSubstNo(UneditableErr, AccountingPeriods."Fiscally Closed".Caption));
 
         // Tear Down.
-        AccountingPeriods.Close;
+        AccountingPeriods.Close();
     end;
 
     [Test]
@@ -251,7 +251,7 @@ codeunit 144073 "UT Fiscal Year"
         Assert.ExpectedErrorCode('TestWrapped:Dialog');
 
         // Tear Down.
-        AccountingPeriods.Close;
+        AccountingPeriods.Close();
     end;
 
     local procedure CreateGeneralJournalLine()
@@ -275,7 +275,7 @@ codeunit 144073 "UT Fiscal Year"
     [Scope('OnPrem')]
     procedure AccountingPeriodsPageHandler(var AccountingPeriods: TestPage "Accounting Periods")
     begin
-        AccountingPeriods.Close;
+        AccountingPeriods.Close();
     end;
 
     [ConfirmHandler]

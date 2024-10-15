@@ -69,7 +69,7 @@ table 24 "Vendor Invoice Disc."
                     CurrencyDate, CurrencyCode,
                     BaseAmount, CurrencyFactor));
                 if not Find('+') then
-                    Init
+                    Init()
                 else begin
                     Currency.Get(CurrencyCode);
                     "Service Charge" :=
@@ -80,7 +80,7 @@ table 24 "Vendor Invoice Disc."
                         Currency."Amount Rounding Precision");
                 end;
             end else
-                Init;
+                Init();
     end;
 }
 

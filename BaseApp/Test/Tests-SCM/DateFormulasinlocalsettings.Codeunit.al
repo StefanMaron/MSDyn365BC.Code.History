@@ -39,7 +39,7 @@ codeunit 137024 "DateFormulas in local settings"
         Evaluate(PurchaseLine."Safety Lead Time", SafetyLeadTimeDF);
         Evaluate(PurchaseLine."Inbound Whse. Handling Time", InbndWhseHandlingTime);
         Evaluate(ExpectedDF, ExpectedResult);
-        Assert.AreEqual(Format(ExpectedDF), Format(PurchaseLine.InternalLeadTimeDays(WorkDate)), '');
+        Assert.AreEqual(Format(ExpectedDF), Format(PurchaseLine.InternalLeadTimeDays(WorkDate())), '');
     end;
 }
 

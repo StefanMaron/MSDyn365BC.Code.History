@@ -9,6 +9,7 @@ permissionset 4737 "Dynamics CRM - View"
                   tabledata "CDS Teamroles" = R,
                   tabledata "Coupling Field Buffer" = R,
                   tabledata "Coupling Record Buffer" = R,
+                  tabledata "Dataverse Entity Change" = Rd,
                   tabledata "CRM Account" = R,
                   tabledata "CRM Account Statistics" = R,
                   tabledata "CRM Annotation" = R,

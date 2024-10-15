@@ -454,11 +454,11 @@ codeunit 144563 "Test Export G/L Entries"
 
         // Setup: Create and post General Journl Line.
         ReportFileName := GetTempFile;
-        GLAccountNo[1] := CreateAndPostGLGenJnlLine(GenJournalLine."Account Type"::"G/L Account", WorkDate);
-        GLAccountNo[2] := CreateAndPostGLGenJnlLine(GenJournalLine."Account Type"::"G/L Account", WorkDate);
+        GLAccountNo[1] := CreateAndPostGLGenJnlLine(GenJournalLine."Account Type"::"G/L Account", WorkDate());
+        GLAccountNo[2] := CreateAndPostGLGenJnlLine(GenJournalLine."Account Type"::"G/L Account", WorkDate());
 
         // Exercise: Generate Tax Audit Report.
-        ExportReportFile(ReportFileName, WorkDate, WorkDate, GLAccountNo[2], false); // IncludeOpeningBalancesValue = FALSE
+        ExportReportFile(ReportFileName, WorkDate(), WorkDate, GLAccountNo[2], false); // IncludeOpeningBalancesValue = FALSE
 
         // Verify: Verify G/L Account No. Filter work correctly for G/L Entry on Tax Audit Report.
         VerifyExportGLEntriesReportWithGLAccNoFilter(ReportFileName, GLAccountNo[2]);
@@ -880,15 +880,15 @@ codeunit 144563 "Test Export G/L Entries"
         ReportFileName := GetTempFile;
 
         // [GIVEN] G/L Entry with zero Amount and "G/L Account" = "Acc1"
-        GLAccountNo[1] := CreateAndPostGLGenJnlLine(GenJournalLine."Account Type"::"G/L Account", WorkDate);
+        GLAccountNo[1] := CreateAndPostGLGenJnlLine(GenJournalLine."Account Type"::"G/L Account", WorkDate());
         SetZeroAmountToGLEntry(GLAccountNo[1]);
 
         // [GIVEN] G/L Entry with non-zero Amount and "G/L Account" = "Acc2";
-        GLAccountNo[2] := CreateAndPostGLGenJnlLine(GenJournalLine."Account Type"::"G/L Account", WorkDate);
+        GLAccountNo[2] := CreateAndPostGLGenJnlLine(GenJournalLine."Account Type"::"G/L Account", WorkDate());
 
         // [WHEN] Running "Export G/L Entries - Tax Audit report" for G/L Accounts "Acc1" and "Acc2"
         ExportReportFile(
-          ReportFileName, WorkDate, WorkDate, GLAccountNo[1] + '..' + GLAccountNo[2], false);
+          ReportFileName, WorkDate(), WorkDate, GLAccountNo[1] + '..' + GLAccountNo[2], false);
 
         // [THEN] Then only line with non-zero Amount is exported
         VerifyExportGLEntriesReportWithGLAccNoFilter(ReportFileName, GLAccountNo[2]);
@@ -939,7 +939,7 @@ codeunit 144563 "Test Export G/L Entries"
         // [SCENARIO 263234] Export REP 10885 ExportGLEntriesTaxAudit in case of Customer and Vendor entries for the same Transaction No.
         TransactionNo := GetTransactionNo;
         ReportFileName := GetTempFile;
-        PostingDate := LibraryRandom.RandDateFromInRange(WorkDate, 10, 20);
+        PostingDate := LibraryRandom.RandDateFromInRange(WorkDate(), 10, 20);
 
         // [GIVEN] Customer and Vendor ledger entries having the same Transaction No.
         CreatePostCustVendOneTransactionGenJnlLine(Customer, Vendor, PostingDate);
@@ -975,7 +975,7 @@ codeunit 144563 "Test Export G/L Entries"
         // [SCENARIO 263234] Export REP 10885 ExportGLEntriesTaxAudit in case of two Customer entries for the same Transaction No.
         TransactionNo := GetTransactionNo;
         ReportFileName := GetTempFile;
-        PostingDate := LibraryRandom.RandDateFromInRange(WorkDate, 10, 20);
+        PostingDate := LibraryRandom.RandDateFromInRange(WorkDate(), 10, 20);
         // [GIVEN] Two customers "C1" and "C2" ledger entries having the same Transaction No.
         CreatePostCustCustOneTransactionGenJnlLine(Customer, PostingDate);
         // [WHEN] Export REP 10885 "Export G/L Entries - Tax Audit"
@@ -1008,7 +1008,7 @@ codeunit 144563 "Test Export G/L Entries"
         // [SCENARIO 263234] Export REP 10885 ExportGLEntriesTaxAudit in case of two Vendor entries for the same Transaction No.
         TransactionNo := GetTransactionNo;
         ReportFileName := GetTempFile;
-        PostingDate := LibraryRandom.RandDateFromInRange(WorkDate, 10, 20);
+        PostingDate := LibraryRandom.RandDateFromInRange(WorkDate(), 10, 20);
         // [GIVEN] Two vendors "V1" and "V2" ledger entries having the same Transaction No.
         CreatePostVendVendOneTransactionGenJnlLine(Vendor, PostingDate);
         // [WHEN] Export REP 10885 "Export G/L Entries - Tax Audit"
@@ -1073,14 +1073,14 @@ codeunit 144563 "Test Export G/L Entries"
         CustomerNo[4] := CreateCustomerWithPostingGroup(CreateCustomerPostingGroup(GLAccountNo2));
 
         for i := 1 to ArrayLen(CustomerNo) do
-            Amount[i] := CreatePostCustGenJnlLineOnDate(CustomerNo[i], '', WorkDate - 1);
+            Amount[i] := CreatePostCustGenJnlLineOnDate(CustomerNo[i], '', WorkDate() - 1);
 
         // [GIVEN] An entry for "Cust4" on 01.01.2019
-        CreatePostCustGenJnlLineOnDate(CustomerNo[4], '', WorkDate);
+        CreatePostCustGenJnlLineOnDate(CustomerNo[4], '', WorkDate());
 
         // [WHEN] Run 'Export G/L Entries - Tax Audit' on 01.01.2019..31.12.2019 for "GLAcc1" and "GLAcc2"
         ReportFileName := GetTempFile;
-        ExportTaxAuditReport(ReportFileName, WorkDate, WorkDate + 1, GLAccountNo1 + '|' + GLAccountNo2, true);
+        ExportTaxAuditReport(ReportFileName, WorkDate(), WorkDate + 1, GLAccountNo1 + '|' + GLAccountNo2, true);
 
         CreateReadStream(iStream, InputFile, ReportFileName);
         iStream.ReadText(LineToRead); // read header
@@ -1115,15 +1115,15 @@ codeunit 144563 "Test Export G/L Entries"
         GLAccountNo := CreateGLAccountWithDetailedBalance;
         CustomerNo[1] := CreateCustomerWithPostingGroup(CreateCustomerPostingGroup(GLAccountNo));
         CustomerNo[2] := CreateCustomerWithPostingGroup(CreateCustomerPostingGroup(GLAccountNo));
-        Amount[1] := CreatePostCustGenJnlLineOnDate(CustomerNo[1], '', WorkDate - 1);
-        Amount[2] := CreatePostCustGenJnlLineOnDate(CustomerNo[2], CreateCurrency, WorkDate - 1);
+        Amount[1] := CreatePostCustGenJnlLineOnDate(CustomerNo[1], '', WorkDate() - 1);
+        Amount[2] := CreatePostCustGenJnlLineOnDate(CustomerNo[2], CreateCurrency, WorkDate() - 1);
 
         // [GIVEN] An entry for "Cust2" on 01.01.2019
-        CreatePostCustGenJnlLineOnDate(CustomerNo[2], '', WorkDate);
+        CreatePostCustGenJnlLineOnDate(CustomerNo[2], '', WorkDate());
 
         // [WHEN] Run 'Export G/L Entries - Tax Audit' on 01.01.2019..31.12.2019 for "GLAcc"
         ReportFileName := GetTempFile;
-        ExportTaxAuditReport(ReportFileName, WorkDate, WorkDate + 1, GLAccountNo, true);
+        ExportTaxAuditReport(ReportFileName, WorkDate(), WorkDate + 1, GLAccountNo, true);
 
         CreateReadStream(iStream, InputFile, ReportFileName);
         iStream.ReadText(LineToRead); // read header
@@ -1160,16 +1160,16 @@ codeunit 144563 "Test Export G/L Entries"
         Amount := CreatePostCustGenJnlLineOnDate(CustomerNo, CurrencyCode, WorkDate - 2);
 
         // [GIVEN] Payment of amount 100 USD is posted on 31.12.2018 with updated exchange rate, 400 in local currency
-        CreateCurrencyExchRate(CurrencyCode, WorkDate - 1);
+        CreateCurrencyExchRate(CurrencyCode, WorkDate() - 1);
         ApplnPart := 1 / 2;
-        CreateApplyCustomerPayment(CustomerNo, WorkDate - 1, ApplnPart);
+        CreateApplyCustomerPayment(CustomerNo, WorkDate() - 1, ApplnPart);
 
         // [GIVEN] An entry for "Cust" on 01.01.2019
-        CreatePostCustGenJnlLineOnDate(CustomerNo, '', WorkDate);
+        CreatePostCustGenJnlLineOnDate(CustomerNo, '', WorkDate());
 
         // [WHEN] Run 'Export G/L Entries - Tax Audit' on 01.01.2019..31.12.2019 for "GLAcc"
         ReportFileName := GetTempFile;
-        ExportTaxAuditReport(ReportFileName, WorkDate, WorkDate + 1, GLAccountNo, true);
+        ExportTaxAuditReport(ReportFileName, WorkDate(), WorkDate + 1, GLAccountNo, true);
 
         CreateReadStream(iStream, InputFile, ReportFileName);
         iStream.ReadText(LineToRead); // read header
@@ -1208,18 +1208,18 @@ codeunit 144563 "Test Export G/L Entries"
         CreatePostCustGenJnlLineOnDate(CustomerNo[2], CurrencyCode, WorkDate - 2);
 
         // [GIVEN] Adjusted currency exchange rate on 31.12.2018 with updated exchange rate
-        CreateCurrencyExchRate(CurrencyCode, WorkDate - 1);
+        CreateCurrencyExchRate(CurrencyCode, WorkDate() - 1);
 #if not CLEAN20
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate - 1, WorkDate - 1);
+        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate() - 1, WorkDate() - 1);
 #else
-        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate - 1, WorkDate - 1);
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate() - 1, WorkDate() - 1);
 #endif
         // [GIVEN] An entry for "Cust2" on 01.01.2019
-        CreatePostCustGenJnlLineOnDate(CustomerNo[2], '', WorkDate);
+        CreatePostCustGenJnlLineOnDate(CustomerNo[2], '', WorkDate());
 
         // [WHEN] Run 'Export G/L Entries - Tax Audit' on 01.01.2019..31.12.2019 for "GLAcc"
         ReportFileName := GetTempFile;
-        ExportTaxAuditReport(ReportFileName, WorkDate, WorkDate + 1, GLAccountNo, true);
+        ExportTaxAuditReport(ReportFileName, WorkDate(), WorkDate + 1, GLAccountNo, true);
 
         CreateReadStream(iStream, InputFile, ReportFileName);
         iStream.ReadText(LineToRead); // read header
@@ -1227,11 +1227,11 @@ codeunit 144563 "Test Export G/L Entries"
         // [THEN] Opening balance entry for "GLAcc" and "Cust1" has Amount = 160 (150lcy + 10 unrealized losses)
         VerifyOpeningBalanceEntry(
           iStream, GLAccountNo, CustomerNo[1],
-          Round(LibraryERM.ConvertCurrency(GetCustInvoiceAmount(CustomerNo[1]), CurrencyCode, '', WorkDate - 1)), 0);
+          Round(LibraryERM.ConvertCurrency(GetCustInvoiceAmount(CustomerNo[1]), CurrencyCode, '', WorkDate() - 1)), 0);
         // [THEN] Opening balance entry for "GLAcc" and "Cust2" has Amount = 320  (300lcy + 20 unrealized losses)
         VerifyOpeningBalanceEntry(
           iStream, GLAccountNo, CustomerNo[2],
-          Round(LibraryERM.ConvertCurrency(GetCustInvoiceAmount(CustomerNo[2]), CurrencyCode, '', WorkDate - 1)), 0);
+          Round(LibraryERM.ConvertCurrency(GetCustInvoiceAmount(CustomerNo[2]), CurrencyCode, '', WorkDate() - 1)), 0);
     end;
 
     [Test]
@@ -1264,19 +1264,19 @@ codeunit 144563 "Test Export G/L Entries"
         CreatePostCustGenJnlLineOnDate(CustomerNo[2], CurrencyCode, WorkDate - 2);
 
         // [GIVEN] Adjusted currency exchange rate on 31.12.2018 with updated exchange rate
-        CreateCurrencyExchRate(CurrencyCode, WorkDate - 1);
+        CreateCurrencyExchRate(CurrencyCode, WorkDate() - 1);
 #if not CLEAN20
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate - 1, WorkDate - 1);
+        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate() - 1, WorkDate() - 1);
 #else
-        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate - 1, WorkDate - 1);
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate() - 1, WorkDate() - 1);
 #endif
 
         // [GIVEN] An entry for "Cust2" on 01.01.2019
-        CreatePostCustGenJnlLineOnDate(CustomerNo[2], '', WorkDate);
+        CreatePostCustGenJnlLineOnDate(CustomerNo[2], '', WorkDate());
 
         // [WHEN] Run 'Export G/L Entries - Tax Audit' on 01.01.2019..31.12.2019 for "GLAcc"
         ReportFileName := GetTempFile;
-        ExportTaxAuditReport(ReportFileName, WorkDate, WorkDate + 1, GLAccountNo[1] + '|' + GLAccountNo[2], true);
+        ExportTaxAuditReport(ReportFileName, WorkDate(), WorkDate + 1, GLAccountNo[1] + '|' + GLAccountNo[2], true);
 
         CreateReadStream(iStream, InputFile, ReportFileName);
         iStream.ReadText(LineToRead); // read header
@@ -1284,11 +1284,11 @@ codeunit 144563 "Test Export G/L Entries"
         // [THEN] Opening balance entry for "GLAcc1" and "Cust1" has Amount = 160 (150lcy + 10 unrealized losses)
         VerifyOpeningBalanceEntry(
           iStream, GLAccountNo[1], CustomerNo[1],
-          Round(LibraryERM.ConvertCurrency(GetCustInvoiceAmount(CustomerNo[1]), CurrencyCode, '', WorkDate - 1)), 0);
+          Round(LibraryERM.ConvertCurrency(GetCustInvoiceAmount(CustomerNo[1]), CurrencyCode, '', WorkDate() - 1)), 0);
         // [THEN] Opening balance entry for "GLAcc2" and "Cust2" has Amount = 320  (300lcy + 20 unrealized losses)
         VerifyOpeningBalanceEntry(
           iStream, GLAccountNo[2], CustomerNo[2],
-          Round(LibraryERM.ConvertCurrency(GetCustInvoiceAmount(CustomerNo[2]), CurrencyCode, '', WorkDate - 1)), 0);
+          Round(LibraryERM.ConvertCurrency(GetCustInvoiceAmount(CustomerNo[2]), CurrencyCode, '', WorkDate() - 1)), 0);
     end;
 
     [Test]
@@ -1313,15 +1313,15 @@ codeunit 144563 "Test Export G/L Entries"
         CustomerNo := CreateCustomerWithPostingGroup(CreateCustomerPostingGroup(GLAccountNo));
         CreateGenJnlLineWithBalAccOnDate(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, CustomerNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account", GLAccountNo, WorkDate - 1, 1);
+          GenJournalLine."Bal. Account Type"::"G/L Account", GLAccountNo, WorkDate() - 1, 1);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [GIVEN] An entry for "Cust" on 01.01.2019
-        CreatePostCustGenJnlLineOnDate(CustomerNo, '', WorkDate);
+        CreatePostCustGenJnlLineOnDate(CustomerNo, '', WorkDate());
 
         // [WHEN] Run 'Export G/L Entries - Tax Audit' on 01.01.2019..31.12.2019 for "GLAcc"
         ReportFileName := GetTempFile;
-        ExportTaxAuditReport(ReportFileName, WorkDate, WorkDate + 1, GLAccountNo, true);
+        ExportTaxAuditReport(ReportFileName, WorkDate(), WorkDate + 1, GLAccountNo, true);
 
         CreateReadStream(iStream, InputFile, ReportFileName);
         iStream.ReadText(LineToRead); // read header
@@ -1352,15 +1352,15 @@ codeunit 144563 "Test Export G/L Entries"
         CustomerNo := CreateCustomerWithPostingGroup(CreateCustomerPostingGroup(GLAccountNo));
         CreateGenJnlLineWithBalAccOnDate(
           GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, CustomerNo,
-          GenJournalLine."Bal. Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo, WorkDate - 1, -1);
+          GenJournalLine."Bal. Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo, WorkDate() - 1, -1);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [GIVEN] An entry for "Cust" on 01.01.2019
-        CreatePostCustGenJnlLineOnDate(CustomerNo, '', WorkDate);
+        CreatePostCustGenJnlLineOnDate(CustomerNo, '', WorkDate());
 
         // [WHEN] Run 'Export G/L Entries - Tax Audit' on 01.01.2019..31.12.2019 for "GLAcc"
         ReportFileName := GetTempFile;
-        ExportTaxAuditReport(ReportFileName, WorkDate, WorkDate + 1, GLAccountNo, true);
+        ExportTaxAuditReport(ReportFileName, WorkDate(), WorkDate + 1, GLAccountNo, true);
 
         CreateReadStream(iStream, InputFile, ReportFileName);
         iStream.ReadText(LineToRead); // read header
@@ -1390,20 +1390,20 @@ codeunit 144563 "Test Export G/L Entries"
         // [GIVEN] Customer "Cust" of Customer Posting Group with "GLAcc1" has entry of amount 100 on 31.12.2017
         GLAccountNo1 := CreateGLAccountWithDetailedBalance;
         CustomerNo := CreateCustomerWithPostingGroup(CreateCustomerPostingGroup(GLAccountNo1));
-        Amount1 := CreatePostCustGenJnlLineOnDate(CustomerNo, '', CalcDate('<-1Y>', WorkDate - 1));
+        Amount1 := CreatePostCustGenJnlLineOnDate(CustomerNo, '', CalcDate('<-1Y>', WorkDate() - 1));
 
         // [GIVEN] Customer Posting Group has changed posting account to "GLAcc2" with detailed balance in next period
         // [GIVEN] Customer "Cust" has entry of amount 200 on 31.12.2018
         GLAccountNo2 := CreateGLAccountWithDetailedBalance;
         UpdateCustomerPostingAccount(CustomerNo, GLAccountNo2);
-        Amount2 := CreatePostCustGenJnlLineOnDate(CustomerNo, '', WorkDate - 1);
+        Amount2 := CreatePostCustGenJnlLineOnDate(CustomerNo, '', WorkDate() - 1);
 
         // [GIVEN] An entry for "Cust" on 01.01.2019
-        CreatePostCustGenJnlLineOnDate(CustomerNo, '', WorkDate);
+        CreatePostCustGenJnlLineOnDate(CustomerNo, '', WorkDate());
 
         // [WHEN] Run 'Export G/L Entries - Tax Audit' on 01.01.2019..31.12.2019 for "GLAcc1" and "GLAcc2"
         ReportFileName := GetTempFile;
-        ExportTaxAuditReport(ReportFileName, WorkDate, WorkDate + 1, GLAccountNo1 + '|' + GLAccountNo2, true);
+        ExportTaxAuditReport(ReportFileName, WorkDate(), WorkDate + 1, GLAccountNo1 + '|' + GLAccountNo2, true);
 
         CreateReadStream(iStream, InputFile, ReportFileName);
         iStream.ReadText(LineToRead); // read header
@@ -1435,20 +1435,20 @@ codeunit 144563 "Test Export G/L Entries"
         // [GIVEN] Customer "Cust" of Customer Posting Group with "GLAcc" has entry of amount 100 on 31.12.2018
         GLAccountNo := CreateGLAccountWithDetailedBalance;
         CustomerNo := CreateCustomerWithPostingGroup(CreateCustomerPostingGroup(GLAccountNo));
-        Amount := CreatePostCustGenJnlLineOnDate(CustomerNo, '', WorkDate - 1);
+        Amount := CreatePostCustGenJnlLineOnDate(CustomerNo, '', WorkDate() - 1);
 
         // [GIVEN] Amount 200 is posted for "GLAcc" on 31.12.2018
         AmountRem := LibraryRandom.RandDecInRange(100, 200, 2);
         CreateAndPostGenJnlLine(
             "Gen. Journal Account Type"::"G/L Account", GLAccountNo, "Gen. Journal Document Type"::" ",
-            WorkDate - 1, AmountRem);
+            WorkDate() - 1, AmountRem);
 
         // [GIVEN] An entry for "Cust" on 01.01.2019
-        CreatePostCustGenJnlLineOnDate(CustomerNo, '', WorkDate);
+        CreatePostCustGenJnlLineOnDate(CustomerNo, '', WorkDate());
 
         // [WHEN] Run 'Export G/L Entries - Tax Audit' on 01.01.2019..31.12.2019 for "GLAcc"
         ReportFileName := GetTempFile;
-        ExportTaxAuditReport(ReportFileName, WorkDate, WorkDate + 1, GLAccountNo, true);
+        ExportTaxAuditReport(ReportFileName, WorkDate(), WorkDate + 1, GLAccountNo, true);
 
         CreateReadStream(iStream, InputFile, ReportFileName);
         iStream.ReadText(LineToRead); // read header
@@ -1491,14 +1491,14 @@ codeunit 144563 "Test Export G/L Entries"
         VendorNo[4] := CreateVendorWithPostingGroup(CreateVendorPostingGroup(GLAccountNo2));
 
         for i := 1 to ArrayLen(VendorNo) do
-            Amount[i] := CreatePostVendGenJnlLineOnDate(VendorNo[i], '', WorkDate - 1);
+            Amount[i] := CreatePostVendGenJnlLineOnDate(VendorNo[i], '', WorkDate() - 1);
 
         // [GIVEN] An entry for "Vend4" on 01.01.2019
-        CreatePostVendGenJnlLineOnDate(VendorNo[4], '', WorkDate);
+        CreatePostVendGenJnlLineOnDate(VendorNo[4], '', WorkDate());
 
         // [WHEN] Run 'Export G/L Entries - Tax Audit' on 01.01.2019..31.12.2019 for "GLAcc1" and "GLAcc2"
         ReportFileName := GetTempFile;
-        ExportTaxAuditReport(ReportFileName, WorkDate, WorkDate + 1, GLAccountNo1 + '|' + GLAccountNo2, true);
+        ExportTaxAuditReport(ReportFileName, WorkDate(), WorkDate + 1, GLAccountNo1 + '|' + GLAccountNo2, true);
 
         CreateReadStream(iStream, InputFile, ReportFileName);
         iStream.ReadText(LineToRead); // read header
@@ -1533,15 +1533,15 @@ codeunit 144563 "Test Export G/L Entries"
         GLAccountNo := CreateGLAccountWithDetailedBalance;
         VendorNo[1] := CreateVendorWithPostingGroup(CreateVendorPostingGroup(GLAccountNo));
         VendorNo[2] := CreateVendorWithPostingGroup(CreateVendorPostingGroup(GLAccountNo));
-        Amount[1] := CreatePostVendGenJnlLineOnDate(VendorNo[1], '', WorkDate - 1);
-        Amount[2] := CreatePostVendGenJnlLineOnDate(VendorNo[2], CreateCurrency, WorkDate - 1);
+        Amount[1] := CreatePostVendGenJnlLineOnDate(VendorNo[1], '', WorkDate() - 1);
+        Amount[2] := CreatePostVendGenJnlLineOnDate(VendorNo[2], CreateCurrency, WorkDate() - 1);
 
         // [GIVEN] An entry for "Vend2" on 01.01.2019
-        CreatePostVendGenJnlLineOnDate(VendorNo[2], '', WorkDate);
+        CreatePostVendGenJnlLineOnDate(VendorNo[2], '', WorkDate());
 
         // [WHEN] Run 'Export G/L Entries - Tax Audit' on 01.01.2019..31.12.2019 for "GLAcc"
         ReportFileName := GetTempFile;
-        ExportTaxAuditReport(ReportFileName, WorkDate, WorkDate + 1, GLAccountNo, true);
+        ExportTaxAuditReport(ReportFileName, WorkDate(), WorkDate + 1, GLAccountNo, true);
 
         CreateReadStream(iStream, InputFile, ReportFileName);
         iStream.ReadText(LineToRead); // read header
@@ -1578,16 +1578,16 @@ codeunit 144563 "Test Export G/L Entries"
         Amount := CreatePostVendGenJnlLineOnDate(VendorNo, CurrencyCode, WorkDate - 2);
 
         // [GIVEN] Payment of amount 100 USD is posted on 31.12.2018 with updated exchange rate, 400 in local currency
-        CreateCurrencyExchRate(CurrencyCode, WorkDate - 1);
+        CreateCurrencyExchRate(CurrencyCode, WorkDate() - 1);
         ApplnPart := 1 / 2;
-        CreateApplyVendorPayment(VendorNo, WorkDate - 1, ApplnPart);
+        CreateApplyVendorPayment(VendorNo, WorkDate() - 1, ApplnPart);
 
         // [GIVEN] An entry for "Vend" on 01.01.2019
-        CreatePostVendGenJnlLineOnDate(VendorNo, '', WorkDate);
+        CreatePostVendGenJnlLineOnDate(VendorNo, '', WorkDate());
 
         // [WHEN] Run 'Export G/L Entries - Tax Audit' on 01.01.2019..31.12.2019 for "GLAcc"
         ReportFileName := GetTempFile;
-        ExportTaxAuditReport(ReportFileName, WorkDate, WorkDate + 1, GLAccountNo, true);
+        ExportTaxAuditReport(ReportFileName, WorkDate(), WorkDate + 1, GLAccountNo, true);
 
         CreateReadStream(iStream, InputFile, ReportFileName);
         iStream.ReadText(LineToRead); // read header
@@ -1626,18 +1626,18 @@ codeunit 144563 "Test Export G/L Entries"
         CreatePostVendGenJnlLineOnDate(VendorNo[2], CurrencyCode, WorkDate - 2);
 
         // [GIVEN] Adjusted currency exchange rate on 31.12.2018 with updated exchange rate
-        CreateCurrencyExchRate(CurrencyCode, WorkDate - 1);
+        CreateCurrencyExchRate(CurrencyCode, WorkDate() - 1);
 #if not CLEAN20
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate - 1, WorkDate - 1);
+        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate() - 1, WorkDate() - 1);
 #else
-        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate - 1, WorkDate - 1);
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate() - 1, WorkDate() - 1);
 #endif
         // [GIVEN] An entry for "Vend2" on 01.01.2019
-        CreatePostVendGenJnlLineOnDate(VendorNo[2], '', WorkDate);
+        CreatePostVendGenJnlLineOnDate(VendorNo[2], '', WorkDate());
 
         // [WHEN] Run 'Export G/L Entries - Tax Audit' on 01.01.2019..31.12.2019 for "GLAcc"
         ReportFileName := GetTempFile;
-        ExportTaxAuditReport(ReportFileName, WorkDate, WorkDate + 1, GLAccountNo, true);
+        ExportTaxAuditReport(ReportFileName, WorkDate(), WorkDate + 1, GLAccountNo, true);
 
         CreateReadStream(iStream, InputFile, ReportFileName);
         iStream.ReadText(LineToRead); // read header
@@ -1645,11 +1645,11 @@ codeunit 144563 "Test Export G/L Entries"
         // [THEN] Opening balance entry for "GLAcc" and "Vend1" has Amount = 160 (150lcy + 10 unrealized gains)
         VerifyOpeningBalanceEntry(
           iStream, GLAccountNo, VendorNo[1],
-          0, Round(LibraryERM.ConvertCurrency(-GetVendInvoiceAmount(VendorNo[1]), CurrencyCode, '', WorkDate - 1)));
+          0, Round(LibraryERM.ConvertCurrency(-GetVendInvoiceAmount(VendorNo[1]), CurrencyCode, '', WorkDate() - 1)));
         // [THEN] Opening balance entry for "GLAcc" and "Vend2" has Amount = 320  (300lcy + 20 unrealized gains)
         VerifyOpeningBalanceEntry(
           iStream, GLAccountNo, VendorNo[2],
-          0, Round(LibraryERM.ConvertCurrency(-GetVendInvoiceAmount(VendorNo[2]), CurrencyCode, '', WorkDate - 1)));
+          0, Round(LibraryERM.ConvertCurrency(-GetVendInvoiceAmount(VendorNo[2]), CurrencyCode, '', WorkDate() - 1)));
     end;
 
     [Test]
@@ -1682,18 +1682,18 @@ codeunit 144563 "Test Export G/L Entries"
         CreatePostVendGenJnlLineOnDate(VendorNo[2], CurrencyCode, WorkDate - 2);
 
         // [GIVEN] Adjusted currency exchange rate on 31.12.2018 with updated exchange rate
-        CreateCurrencyExchRate(CurrencyCode, WorkDate - 1);
+        CreateCurrencyExchRate(CurrencyCode, WorkDate() - 1);
 #if not CLEAN20
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate - 1, WorkDate - 1);
+        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate() - 1, WorkDate() - 1);
 #else
-        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate - 1, WorkDate - 1);
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate() - 1, WorkDate() - 1);
 #endif
         // [GIVEN] An entry for "Vend2" on 01.01.2019
-        CreatePostVendGenJnlLineOnDate(VendorNo[2], '', WorkDate);
+        CreatePostVendGenJnlLineOnDate(VendorNo[2], '', WorkDate());
 
         // [WHEN] Run 'Export G/L Entries - Tax Audit' on 01.01.2019..31.12.2019 for "GLAcc"
         ReportFileName := GetTempFile;
-        ExportTaxAuditReport(ReportFileName, WorkDate, WorkDate + 1, GLAccountNo[1] + '|' + GLAccountNo[2], true);
+        ExportTaxAuditReport(ReportFileName, WorkDate(), WorkDate + 1, GLAccountNo[1] + '|' + GLAccountNo[2], true);
 
         CreateReadStream(iStream, InputFile, ReportFileName);
         iStream.ReadText(LineToRead); // read header
@@ -1701,11 +1701,11 @@ codeunit 144563 "Test Export G/L Entries"
         // [THEN] Opening balance entry for "GLAcc1" and "Vend1" has Amount = 160 (150lcy + 10 unrealized gains)
         VerifyOpeningBalanceEntry(
           iStream, GLAccountNo[1], VendorNo[1],
-          0, Round(LibraryERM.ConvertCurrency(-GetVendInvoiceAmount(VendorNo[1]), CurrencyCode, '', WorkDate - 1)));
+          0, Round(LibraryERM.ConvertCurrency(-GetVendInvoiceAmount(VendorNo[1]), CurrencyCode, '', WorkDate() - 1)));
         // [THEN] Opening balance entry for "GLAcc2" and "Vend2" has Amount = 320  (300lcy + 20 unrealized gains)
         VerifyOpeningBalanceEntry(
           iStream, GLAccountNo[2], VendorNo[2],
-          0, Round(LibraryERM.ConvertCurrency(-GetVendInvoiceAmount(VendorNo[2]), CurrencyCode, '', WorkDate - 1)));
+          0, Round(LibraryERM.ConvertCurrency(-GetVendInvoiceAmount(VendorNo[2]), CurrencyCode, '', WorkDate() - 1)));
     end;
 
     [Test]
@@ -1730,15 +1730,15 @@ codeunit 144563 "Test Export G/L Entries"
         VendorNo := CreateVendorWithPostingGroup(CreateVendorPostingGroup(GLAccountNo));
         CreateGenJnlLineWithBalAccOnDate(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Vendor, VendorNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account", GLAccountNo, WorkDate - 1, -1);
+          GenJournalLine."Bal. Account Type"::"G/L Account", GLAccountNo, WorkDate() - 1, -1);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [GIVEN] An entry for "Vend" on 01.01.2019
-        CreatePostVendGenJnlLineOnDate(VendorNo, '', WorkDate);
+        CreatePostVendGenJnlLineOnDate(VendorNo, '', WorkDate());
 
         // [WHEN] Run 'Export G/L Entries - Tax Audit' on 01.01.2019..31.12.2019 for "GLAcc"
         ReportFileName := GetTempFile;
-        ExportTaxAuditReport(ReportFileName, WorkDate, WorkDate + 1, GLAccountNo, true);
+        ExportTaxAuditReport(ReportFileName, WorkDate(), WorkDate + 1, GLAccountNo, true);
 
         CreateReadStream(iStream, InputFile, ReportFileName);
         iStream.ReadText(LineToRead); // read header
@@ -1769,15 +1769,15 @@ codeunit 144563 "Test Export G/L Entries"
         VendorNo := CreateVendorWithPostingGroup(CreateVendorPostingGroup(GLAccountNo));
         CreateGenJnlLineWithBalAccOnDate(
           GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, VendorNo,
-          GenJournalLine."Bal. Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo, WorkDate - 1, 1);
+          GenJournalLine."Bal. Account Type"::"Bank Account", LibraryERM.CreateBankAccountNo, WorkDate() - 1, 1);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [GIVEN] An entry for "Vend" on 01.01.2019
-        CreatePostVendGenJnlLineOnDate(VendorNo, '', WorkDate);
+        CreatePostVendGenJnlLineOnDate(VendorNo, '', WorkDate());
 
         // [WHEN] Run 'Export G/L Entries - Tax Audit' on 01.01.2019..31.12.2019 for "GLAcc"
         ReportFileName := GetTempFile;
-        ExportTaxAuditReport(ReportFileName, WorkDate, WorkDate + 1, GLAccountNo, true);
+        ExportTaxAuditReport(ReportFileName, WorkDate(), WorkDate + 1, GLAccountNo, true);
 
         CreateReadStream(iStream, InputFile, ReportFileName);
         iStream.ReadText(LineToRead); // read header
@@ -1807,20 +1807,20 @@ codeunit 144563 "Test Export G/L Entries"
         // [GIVEN] Vendor "Vend" of Vendor Posting Group with "GLAcc1" has entry of amount 100 on 31.12.2017
         GLAccountNo1 := CreateGLAccountWithDetailedBalance;
         VendorNo := CreateVendorWithPostingGroup(CreateVendorPostingGroup(GLAccountNo1));
-        Amount1 := CreatePostVendGenJnlLineOnDate(VendorNo, '', CalcDate('<-1Y>', WorkDate - 1));
+        Amount1 := CreatePostVendGenJnlLineOnDate(VendorNo, '', CalcDate('<-1Y>', WorkDate() - 1));
 
         // [GIVEN] Vendor Posting Group has changed posting account to "GLAcc2" with detailed balance in next period
         // [GIVEN] Vendor "Vendor" has entry of amount 200 on 31.12.2018
         GLAccountNo2 := CreateGLAccountWithDetailedBalance;
         UpdateVendorPostingAccount(VendorNo, GLAccountNo2);
-        Amount2 := CreatePostVendGenJnlLineOnDate(VendorNo, '', WorkDate - 1);
+        Amount2 := CreatePostVendGenJnlLineOnDate(VendorNo, '', WorkDate() - 1);
 
         // [GIVEN] An entry for "Vendor" on 01.01.2019
-        CreatePostVendGenJnlLineOnDate(VendorNo, '', WorkDate);
+        CreatePostVendGenJnlLineOnDate(VendorNo, '', WorkDate());
 
         // [WHEN] Run 'Export G/L Entries - Tax Audit' on 01.01.2019..31.12.2019 for "GLAcc1" and "GLAcc2"
         ReportFileName := GetTempFile;
-        ExportTaxAuditReport(ReportFileName, WorkDate, WorkDate + 1, GLAccountNo1 + '|' + GLAccountNo2, true);
+        ExportTaxAuditReport(ReportFileName, WorkDate(), WorkDate + 1, GLAccountNo1 + '|' + GLAccountNo2, true);
 
         CreateReadStream(iStream, InputFile, ReportFileName);
         iStream.ReadText(LineToRead); // read header
@@ -1852,19 +1852,19 @@ codeunit 144563 "Test Export G/L Entries"
         // [GIVEN] Vendor "Vend" of Vendor Posting Group with "GLAcc" has entry of amount 100 on 31.12.2018
         GLAccountNo := CreateGLAccountWithDetailedBalance;
         VendorNo := CreateVendorWithPostingGroup(CreateVendorPostingGroup(GLAccountNo));
-        Amount := CreatePostVendGenJnlLineOnDate(VendorNo, '', WorkDate - 1);
+        Amount := CreatePostVendGenJnlLineOnDate(VendorNo, '', WorkDate() - 1);
 
         // [GIVEN] Amount 200 is posted for "GLAcc" on 31.12.2018
         AmountRem := LibraryRandom.RandDecInRange(100, 200, 2);
         CreateAndPostGenJnlLine(
-            "Gen. Journal Account Type"::"G/L Account", GLAccountNo, "Gen. Journal Document Type"::" ", WorkDate - 1, AmountRem);
+            "Gen. Journal Account Type"::"G/L Account", GLAccountNo, "Gen. Journal Document Type"::" ", WorkDate() - 1, AmountRem);
 
         // [GIVEN] An entry for "Vend" on 01.01.2019
-        CreatePostVendGenJnlLineOnDate(VendorNo, '', WorkDate);
+        CreatePostVendGenJnlLineOnDate(VendorNo, '', WorkDate());
 
         // [WHEN] Run 'Export G/L Entries - Tax Audit' on 01.01.2019..31.12.2019 for "GLAcc"
         ReportFileName := GetTempFile;
-        ExportTaxAuditReport(ReportFileName, WorkDate, WorkDate + 1, GLAccountNo, true);
+        ExportTaxAuditReport(ReportFileName, WorkDate(), WorkDate + 1, GLAccountNo, true);
 
         CreateReadStream(iStream, InputFile, ReportFileName);
         iStream.ReadText(LineToRead); // read header
@@ -1907,14 +1907,14 @@ codeunit 144563 "Test Export G/L Entries"
         BankAccountNo[4] := CreateBankAccWithPostingGroup(CreateBankAccPostingGroup(GLAccountNo2), '');
 
         for i := 1 to ArrayLen(BankAccountNo) do
-            Amount[i] := CreatePostBankAccGenJnlLineOnDate(BankAccountNo[i], '', WorkDate - 1);
+            Amount[i] := CreatePostBankAccGenJnlLineOnDate(BankAccountNo[i], '', WorkDate() - 1);
 
         // [GIVEN] An entry for "Bank4" on 01.01.2019
-        CreatePostBankAccGenJnlLineOnDate(BankAccountNo[4], '', WorkDate);
+        CreatePostBankAccGenJnlLineOnDate(BankAccountNo[4], '', WorkDate());
 
         // [WHEN] Run 'Export G/L Entries - Tax Audit' on 01.01.2019..31.12.2019 for "GLAcc1" and "GLAcc2"
         ReportFileName := GetTempFile;
-        ExportTaxAuditReport(ReportFileName, WorkDate, WorkDate + 1, GLAccountNo1 + '|' + GLAccountNo2, true);
+        ExportTaxAuditReport(ReportFileName, WorkDate(), WorkDate + 1, GLAccountNo1 + '|' + GLAccountNo2, true);
 
         CreateReadStream(iStream, InputFile, ReportFileName);
         iStream.ReadText(LineToRead); // read header
@@ -1949,15 +1949,15 @@ codeunit 144563 "Test Export G/L Entries"
         GLAccountNo := CreateGLAccountWithDetailedBalance;
         BankAccountNo[1] := CreateBankAccWithPostingGroup(CreateBankAccPostingGroup(GLAccountNo), '');
         BankAccountNo[2] := CreateBankAccWithPostingGroup(CreateBankAccPostingGroup(GLAccountNo), '');
-        Amount[1] := CreatePostBankAccGenJnlLineOnDate(BankAccountNo[1], '', WorkDate - 1);
-        Amount[2] := CreatePostBankAccGenJnlLineOnDate(BankAccountNo[2], CreateCurrency, WorkDate - 1);
+        Amount[1] := CreatePostBankAccGenJnlLineOnDate(BankAccountNo[1], '', WorkDate() - 1);
+        Amount[2] := CreatePostBankAccGenJnlLineOnDate(BankAccountNo[2], CreateCurrency, WorkDate() - 1);
 
         // [GIVEN] An entry for "Bank2" on 01.01.2019
-        CreatePostBankAccGenJnlLineOnDate(BankAccountNo[2], '', WorkDate);
+        CreatePostBankAccGenJnlLineOnDate(BankAccountNo[2], '', WorkDate());
 
         // [WHEN] Run 'Export G/L Entries - Tax Audit' on 01.01.2019..31.12.2019 for "GLAcc"
         ReportFileName := GetTempFile;
-        ExportTaxAuditReport(ReportFileName, WorkDate, WorkDate + 1, GLAccountNo, true);
+        ExportTaxAuditReport(ReportFileName, WorkDate(), WorkDate + 1, GLAccountNo, true);
 
         CreateReadStream(iStream, InputFile, ReportFileName);
         iStream.ReadText(LineToRead); // read header
@@ -1999,19 +1999,19 @@ codeunit 144563 "Test Export G/L Entries"
         CreatePostBankAccGenJnlLineOnDate(BankAccountNo[2], CurrencyCode, WorkDate - 2);
 
         // [GIVEN] Adjusted currency exchange rate on 31.12.2018 with updated exchange rate
-        CreateCurrencyExchRate(CurrencyCode, WorkDate - 1);
+        CreateCurrencyExchRate(CurrencyCode, WorkDate() - 1);
 #if not CLEAN20
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate - 1, WorkDate - 1);
+        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate() - 1, WorkDate() - 1);
 #else
-        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate - 1, WorkDate - 1);
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate() - 1, WorkDate() - 1);
 #endif
 
         // [GIVEN] An entry for "Bank2" on 01.01.2019
-        CreatePostBankAccGenJnlLineOnDate(BankAccountNo[2], CurrencyCode, WorkDate);
+        CreatePostBankAccGenJnlLineOnDate(BankAccountNo[2], CurrencyCode, WorkDate());
 
         // [WHEN] Run 'Export G/L Entries - Tax Audit' on 01.01.2019..31.12.2019 for "GLAcc"
         ReportFileName := GetTempFile;
-        ExportTaxAuditReport(ReportFileName, WorkDate, WorkDate + 1, GLAccountNo, true);
+        ExportTaxAuditReport(ReportFileName, WorkDate(), WorkDate + 1, GLAccountNo, true);
 
         CreateReadStream(iStream, InputFile, ReportFileName);
         iStream.ReadText(LineToRead); // read header
@@ -2019,11 +2019,11 @@ codeunit 144563 "Test Export G/L Entries"
         // [THEN] Opening balance entry for "GLAcc" and "Bank1" has Amount = 160 (150lcy + 10 unrealized losses)
         VerifyOpeningBalanceEntry(
           iStream, GLAccountNo, BankAccountNo[1],
-          Round(LibraryERM.ConvertCurrency(GetBankAccInvoiceAmount(BankAccountNo[1]), CurrencyCode, '', WorkDate - 1)), 0);
+          Round(LibraryERM.ConvertCurrency(GetBankAccInvoiceAmount(BankAccountNo[1]), CurrencyCode, '', WorkDate() - 1)), 0);
         // [THEN] Opening balance entry for "GLAcc" and "Bank2" has Amount = 320  (300lcy + 20 unrealized losses)
         VerifyOpeningBalanceEntry(
           iStream, GLAccountNo, BankAccountNo[2],
-          Round(LibraryERM.ConvertCurrency(GetBankAccInvoiceAmount(BankAccountNo[2]), CurrencyCode, '', WorkDate - 1)), 0);
+          Round(LibraryERM.ConvertCurrency(GetBankAccInvoiceAmount(BankAccountNo[2]), CurrencyCode, '', WorkDate() - 1)), 0);
     end;
 
     [Test]
@@ -2057,19 +2057,19 @@ codeunit 144563 "Test Export G/L Entries"
         CreatePostBankAccGenJnlLineOnDate(BankAccountNo[2], CurrencyCode, WorkDate - 2);
 
         // [GIVEN] Adjusted currency exchange rate on 31.12.2018 with updated exchange rate
-        CreateCurrencyExchRate(CurrencyCode, WorkDate - 1);
+        CreateCurrencyExchRate(CurrencyCode, WorkDate() - 1);
 #if not CLEAN20
-        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate - 1, WorkDate - 1);
+        LibraryERM.RunAdjustExchangeRatesSimple(CurrencyCode, WorkDate() - 1, WorkDate() - 1);
 #else
-        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate - 1, WorkDate - 1);
+        LibraryERM.RunExchRateAdjustmentSimple(CurrencyCode, WorkDate() - 1, WorkDate() - 1);
 #endif
 
         // [GIVEN] An entry for "Bank2" on 01.01.2019
-        CreatePostBankAccGenJnlLineOnDate(BankAccountNo[2], CurrencyCode, WorkDate);
+        CreatePostBankAccGenJnlLineOnDate(BankAccountNo[2], CurrencyCode, WorkDate());
 
         // [WHEN] Run 'Export G/L Entries - Tax Audit' on 01.01.2019..31.12.2019 for "GLAcc"
         ReportFileName := GetTempFile;
-        ExportTaxAuditReport(ReportFileName, WorkDate, WorkDate + 1, GLAccountNo[1] + '|' + GLAccountNo[2], true);
+        ExportTaxAuditReport(ReportFileName, WorkDate(), WorkDate + 1, GLAccountNo[1] + '|' + GLAccountNo[2], true);
 
         CreateReadStream(iStream, InputFile, ReportFileName);
         iStream.ReadText(LineToRead); // read header
@@ -2077,11 +2077,11 @@ codeunit 144563 "Test Export G/L Entries"
         // [THEN] Opening balance entry for "GLAcc1" and "Bank1" has Amount = 160 (150lcy + 10 unrealized losses)
         VerifyOpeningBalanceEntry(
           iStream, GLAccountNo[1], BankAccountNo[1],
-          Round(LibraryERM.ConvertCurrency(GetBankAccInvoiceAmount(BankAccountNo[1]), CurrencyCode, '', WorkDate - 1)), 0);
+          Round(LibraryERM.ConvertCurrency(GetBankAccInvoiceAmount(BankAccountNo[1]), CurrencyCode, '', WorkDate() - 1)), 0);
         // [THEN] Opening balance entry for "GLAcc2" and "Bank2" has Amount = 320  (300lcy + 20 unrealized losses)
         VerifyOpeningBalanceEntry(
           iStream, GLAccountNo[2], BankAccountNo[2],
-          Round(LibraryERM.ConvertCurrency(GetBankAccInvoiceAmount(BankAccountNo[2]), CurrencyCode, '', WorkDate - 1)), 0);
+          Round(LibraryERM.ConvertCurrency(GetBankAccInvoiceAmount(BankAccountNo[2]), CurrencyCode, '', WorkDate() - 1)), 0);
     end;
 
     [Test]
@@ -2106,15 +2106,15 @@ codeunit 144563 "Test Export G/L Entries"
         BankAccountNo := CreateBankAccWithPostingGroup(CreateBankAccPostingGroup(GLAccountNo), '');
         CreateGenJnlLineWithBalAccOnDate(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::"Bank Account", BankAccountNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account", GLAccountNo, WorkDate - 1, 1);
+          GenJournalLine."Bal. Account Type"::"G/L Account", GLAccountNo, WorkDate() - 1, 1);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [GIVEN] An entry for "BankAcc" on 01.01.2019
-        CreatePostBankAccGenJnlLineOnDate(BankAccountNo, '', WorkDate);
+        CreatePostBankAccGenJnlLineOnDate(BankAccountNo, '', WorkDate());
 
         // [WHEN] Run 'Export G/L Entries - Tax Audit' on 01.01.2019..31.12.2019 for "GLAcc"
         ReportFileName := GetTempFile;
-        ExportTaxAuditReport(ReportFileName, WorkDate, WorkDate + 1, GLAccountNo, true);
+        ExportTaxAuditReport(ReportFileName, WorkDate(), WorkDate + 1, GLAccountNo, true);
 
         CreateReadStream(iStream, InputFile, ReportFileName);
         iStream.ReadText(LineToRead); // read header
@@ -2144,20 +2144,20 @@ codeunit 144563 "Test Export G/L Entries"
         // [GIVEN] Bank Account "BankAcc" of Bank Account Posting Group with "GLAcc1" has entry of amount 100 on 31.12.2017
         GLAccountNo1 := CreateGLAccountWithDetailedBalance;
         BankAccountNo := CreateBankAccWithPostingGroup(CreateBankAccPostingGroup(GLAccountNo1), '');
-        Amount1 := CreatePostBankAccGenJnlLineOnDate(BankAccountNo, '', CalcDate('<-1Y>', WorkDate - 1));
+        Amount1 := CreatePostBankAccGenJnlLineOnDate(BankAccountNo, '', CalcDate('<-1Y>', WorkDate() - 1));
 
         // [GIVEN] Bank Account Posting Group has changed posting account to "GLAcc2" with detailed balance in next period
         // [GIVEN] Bank Account "Bank Acc" has entry of amount 200 on 31.12.2018
         GLAccountNo2 := CreateGLAccountWithDetailedBalance;
         UpdateBankAccountPostingAccount(BankAccountNo, GLAccountNo2);
-        Amount2 := CreatePostBankAccGenJnlLineOnDate(BankAccountNo, '', WorkDate - 1);
+        Amount2 := CreatePostBankAccGenJnlLineOnDate(BankAccountNo, '', WorkDate() - 1);
 
         // [GIVEN] An entry for "BankAcc" on 01.01.2019
-        CreatePostBankAccGenJnlLineOnDate(BankAccountNo, '', WorkDate);
+        CreatePostBankAccGenJnlLineOnDate(BankAccountNo, '', WorkDate());
 
         // [WHEN] Run 'Export G/L Entries - Tax Audit' on 01.01.2019..31.12.2019 for "GLAcc1" and "GLAcc2"
         ReportFileName := GetTempFile;
-        ExportTaxAuditReport(ReportFileName, WorkDate, WorkDate + 1, GLAccountNo1 + '|' + GLAccountNo2, true);
+        ExportTaxAuditReport(ReportFileName, WorkDate(), WorkDate + 1, GLAccountNo1 + '|' + GLAccountNo2, true);
 
         CreateReadStream(iStream, InputFile, ReportFileName);
         iStream.ReadText(LineToRead); // read header
@@ -2189,18 +2189,18 @@ codeunit 144563 "Test Export G/L Entries"
         // [GIVEN] Bank Account "BankAcc" of Bank Account Posting Group with "GLAcc" has entry of amount 100 on 31.12.2018
         GLAccountNo := CreateGLAccountWithDetailedBalance;
         BankAccountNo := CreateBankAccWithPostingGroup(CreateBankAccPostingGroup(GLAccountNo), '');
-        Amount := CreatePostBankAccGenJnlLineOnDate(BankAccountNo, '', WorkDate - 1);
+        Amount := CreatePostBankAccGenJnlLineOnDate(BankAccountNo, '', WorkDate() - 1);
 
         // [GIVEN] Amount 200 is posted for "GLAcc" on 31.12.2018
         AmountRem := LibraryRandom.RandDecInRange(100, 200, 2);
-        CreateAndPostGenJnlLine("Gen. Journal Account Type"::"G/L Account", GLAccountNo, "Gen. Journal Document Type"::" ", WorkDate - 1, AmountRem);
+        CreateAndPostGenJnlLine("Gen. Journal Account Type"::"G/L Account", GLAccountNo, "Gen. Journal Document Type"::" ", WorkDate() - 1, AmountRem);
 
         // [GIVEN] An entry for "BankAcc" on 01.01.2019
-        CreatePostBankAccGenJnlLineOnDate(BankAccountNo, '', WorkDate);
+        CreatePostBankAccGenJnlLineOnDate(BankAccountNo, '', WorkDate());
 
         // [WHEN] Run 'Export G/L Entries - Tax Audit' on 01.01.2019..31.12.2019 for "GLAcc"
         ReportFileName := GetTempFile;
-        ExportTaxAuditReport(ReportFileName, WorkDate, WorkDate + 1, GLAccountNo, true);
+        ExportTaxAuditReport(ReportFileName, WorkDate(), WorkDate + 1, GLAccountNo, true);
 
         CreateReadStream(iStream, InputFile, ReportFileName);
         iStream.ReadText(LineToRead); // read header
@@ -2267,17 +2267,17 @@ codeunit 144563 "Test Export G/L Entries"
         ReportFileName := GetTempFile;
         LibraryERM.CreateGLAccount(GLAccount);
         CreateAndPostGenJnlLine(
-          GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", 0, WorkDate, -LibraryRandom.RandDec(100, 2));
+          GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", 0, WorkDate(), -LibraryRandom.RandDec(100, 2));
         GLEntry.SetRange("G/L Account No.", GLAccount."No.");
         GLEntry.FindFirst();
         GLEntry."Source Code" := '';
-        GLEntry.Modify;
+        GLEntry.Modify();
 
         // [GIVEN] Source Code "X"
         CreateSourceCodeAndDesc(SourceCode);
 
         // Exercise: Generate Tax Audit Report.
-        ExportReportFileWithDefaultSourceCode(ReportFileName, WorkDate, WorkDate, GLAccount."No.", false, SourceCode.Code);
+        ExportReportFileWithDefaultSourceCode(ReportFileName, WorkDate(), WorkDate, GLAccount."No.", false, SourceCode.Code);
 
         // Verify: Verify G/L Account No. Filter work correctly for G/L Entry on Tax Audit Report.
         VerifySourceCodeOfExportedGLEntriesReport(ReportFileName, GLAccount."No.", SourceCode.Code);
@@ -2779,7 +2779,7 @@ codeunit 144563 "Test Export G/L Entries"
     begin
         ExchRate := LibraryRandom.RandIntInRange(2, 10);
         exit(
-          LibraryERM.CreateCurrencyWithExchangeRate(CalcDate('<-CM>', WorkDate), ExchRate, ExchRate));
+          LibraryERM.CreateCurrencyWithExchangeRate(CalcDate('<-CM>', WorkDate()), ExchRate, ExchRate));
     end;
 
     local procedure CreateCurrencyExchRate(CurrencyCode: Code[10]; StartingDate: Date)
@@ -2910,7 +2910,7 @@ codeunit 144563 "Test Export G/L Entries"
         GLEntry: Record "G/L Entry";
         StartingDate: Date;
     begin
-        StartingDate := WorkDate;
+        StartingDate := WorkDate();
         repeat
             StartingDate := CalcDate('<+1D>', StartingDate);
             GLEntry.SetRange("Posting Date", StartingDate);
@@ -3145,7 +3145,7 @@ codeunit 144563 "Test Export G/L Entries"
         GLEntry."Entry No." := EntryNo;
         GLEntry."Transaction No." := TransactionNo;
         GLEntry."G/L Account No." := GLAccountNo;
-        GLEntry."Posting Date" := WorkDate;
+        GLEntry."Posting Date" := WorkDate();
         GLEntry.Insert();
     end;
 
@@ -3233,7 +3233,7 @@ codeunit 144563 "Test Export G/L Entries"
                     repeat
                         VendorLedgerEntry.CalcFields("Original Amount");
                         LedgerAmount += VendorLedgerEntry."Original Amount";
-                    until VendorLedgerEntry.Next = 0;
+                    until VendorLedgerEntry.Next() = 0;
                     FCYAmountExpected := FormatAmount(LedgerAmount);
                 end;
                 CurrencyCodeExpected := VendorLedgerEntry."Currency Code";
@@ -3270,7 +3270,7 @@ codeunit 144563 "Test Export G/L Entries"
                     repeat
                         CustLedgerEntry.CalcFields("Original Amount");
                         LedgerAmount += CustLedgerEntry."Original Amount";
-                    until CustLedgerEntry.Next = 0;
+                    until CustLedgerEntry.Next() = 0;
                     FCYAmountExpected := FormatAmount(LedgerAmount);
                 end;
                 CurrencyCodeExpected := CustLedgerEntry."Currency Code";
@@ -3303,9 +3303,9 @@ codeunit 144563 "Test Export G/L Entries"
                 VerifyLedgerFieldValues(FieldsValueArray, PartyNo, PartyName)
             else
                 VerifyLedgerFieldValues(FieldsValueArray, '', '');
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
 
-        InputFile.Close;
+        InputFile.Close();
     end;
 
     local procedure VerifyExportGLEntriesReportWithGLAccNoFilter(ReportFile: Text[250]; GLAccountNo: Code[20])
@@ -3326,7 +3326,7 @@ codeunit 144563 "Test Export G/L Entries"
         VerifyGLEntryFieldValues(FieldsValueArray, GLEntry, GLRegister."No.", GLRegister."Creation Date");
         iStream.ReadText(LineToRead);
         Assert.AreEqual('', LineToRead, FilterErr); // Read the next line, empty string means there are no other entries and filter function work correctly.
-        InputFile.Close;
+        InputFile.Close();
     end;
 
     local procedure VerifySourceCodeOfExportedGLEntriesReport(ReportFile: Text[250]; GLAccountNo: Code[20]; SourceCode: Code[10])
@@ -3345,7 +3345,7 @@ codeunit 144563 "Test Export G/L Entries"
         GLEntry.FindFirst();
         PopulateFieldsArray(iStream, FieldsValueArray);
         Assert.AreEqual(SourceCode, FieldsValueArray[1], GetErrorTextForAssertStmnt(1));
-        InputFile.Close;
+        InputFile.Close();
     end;
 
     local procedure VerifyLedgerFieldValues(FieldsValueArray: array[18] of Text[50]; PartyNo: Code[20]; PartyName: Text[100])
@@ -3374,9 +3374,9 @@ codeunit 144563 "Test Export G/L Entries"
                 VerifyGLEntryFieldValues(FieldsValueArray, GLEntry, GLRegister."No.", GLRegister."Creation Date");
                 Assert.AreEqual(AppliedEntries, FieldsValueArray[14], GetErrorTextForAssertStmnt(14));
                 Assert.AreEqual(GetFormattedDate(AppliedDate), FieldsValueArray[15], GetErrorTextForAssertStmnt(15));
-            until GLEntry.Next = 0;
+            until GLEntry.Next() = 0;
 
-        InputFile.Close;
+        InputFile.Close();
     end;
 
     local procedure VerifyGLEntryFieldValues(FieldsValueArray: array[18] of Text[50]; GLEntry: Record "G/L Entry"; GLRegisterNo: Integer; GLRegisterCreationDate: Date)

@@ -26,7 +26,7 @@ report 501 "Intrastat - Form"
                 column(IntrastatJnlBatchStatisticsPeriod; StrSubstNo(Text002, "Intrastat Jnl. Batch"."Statistics Period"))
                 {
                 }
-                column(CompanyName; COMPANYPROPERTY.DisplayName)
+                column(CompanyName; COMPANYPROPERTY.DisplayName())
                 {
                 }
                 column(Type_IntrastatJnlLine; Format("Intrastat Jnl. Line".Type))
@@ -293,7 +293,7 @@ report 501 "Intrastat - Form"
 
     trigger OnPreReport()
     begin
-        IntraJnlLineFilter := "Intrastat Jnl. Line".GetFilters;
+        IntraJnlLineFilter := "Intrastat Jnl. Line".GetFilters();
         if not ("Intrastat Jnl. Line".GetRangeMin(Type) = "Intrastat Jnl. Line".GetRangeMax(Type)) then
             "Intrastat Jnl. Line".FieldError(Type, Text000);
 
@@ -305,10 +305,6 @@ report 501 "Intrastat - Form"
     end;
 
     var
-        Text000: Label 'must be either Receipt or Shipment';
-        Text001: Label 'WwWw';
-        Text002: Label 'Statistics Period: %1';
-        Text003: Label 'All amounts are in %1.';
         CompanyInfo: Record "Company Information";
         Country: Record "Country/Region";
         GLSetup: Record "General Ledger Setup";
@@ -324,11 +320,16 @@ report 501 "Intrastat - Form"
         HeaderFilter: Text;
         SubTotalWeight: Decimal;
         TotalWeight: Decimal;
-        Text10800: Label ' (no %1)';
         PhoneNo: Text[30];
         FaxNo: Text[30];
         Contact: Text[50];
         ObligationLevel: Option "1","2","3","4";
+
+        Text000: Label 'must be either Receipt or Shipment';
+        Text001: Label 'WwWw';
+        Text002: Label 'Statistics Period: %1';
+        Text003: Label 'All amounts are in %1.';
+        Text10800: Label ' (no %1)';
         IntrastatFormCaptionLbl: Label 'Intrastat - Form';
         CurrReportPageNoCaptionLbl: Label 'Page';
         VATRegNoCaptionLbl: Label 'VAT Registration No.';

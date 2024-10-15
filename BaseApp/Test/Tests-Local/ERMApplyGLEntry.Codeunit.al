@@ -912,7 +912,7 @@ codeunit 144007 "ERM Apply GL Entry"
         ApplyGLEntries."Applies-to ID".AssertEquals(UserId);
         ApplyGLEntries.PostApplication.Invoke;
         ApplyGLEntries.Letter.AssertEquals('aaa');
-        ApplyGLEntries.Close;
+        ApplyGLEntries.Close();
     end;
 
     [Test]
@@ -932,7 +932,7 @@ codeunit 144007 "ERM Apply GL Entry"
         ApplyGLEntries."Applies-to ID".AssertEquals('');
         ApplyGLEntries.PostApplication.Invoke;
         ApplyGLEntries.Letter.AssertEquals('aaa');
-        ApplyGLEntries.Close;
+        ApplyGLEntries.Close();
     end;
 
     [Test]
@@ -953,7 +953,7 @@ codeunit 144007 "ERM Apply GL Entry"
         ApplyGLEntries."Applies-to ID".AssertEquals(UserId);
         ApplyGLEntries.PostApplication.Invoke;
         ApplyGLEntries.Letter.AssertEquals('aaa');
-        ApplyGLEntries.Close;
+        ApplyGLEntries.Close();
     end;
 
     [Test]
@@ -974,7 +974,7 @@ codeunit 144007 "ERM Apply GL Entry"
         ApplyGLEntries."Applies-to ID".AssertEquals(UserId);
         ApplyGLEntries.PostApplication.Invoke;
         ApplyGLEntries.Letter.AssertEquals('aaa');
-        ApplyGLEntries.Close;
+        ApplyGLEntries.Close();
     end;
 
     [Test]
@@ -994,7 +994,7 @@ codeunit 144007 "ERM Apply GL Entry"
         ApplyGLEntries."Applies-to ID".AssertEquals(UserId);
         ApplyGLEntries.SetAppliesToID.Invoke;
         ApplyGLEntries."Applies-to ID".AssertEquals('');
-        ApplyGLEntries.Close;
+        ApplyGLEntries.Close();
     end;
 
     [Test]
@@ -1014,7 +1014,7 @@ codeunit 144007 "ERM Apply GL Entry"
         ApplyGLEntries."Applies-to ID".AssertEquals(UserId);
         ApplyGLEntries.SetAppliesToID.Invoke;
         ApplyGLEntries."Applies-to ID".AssertEquals('');
-        ApplyGLEntries.Close;
+        ApplyGLEntries.Close();
     end;
 
     local procedure ApplyGLEntries(No: Code[20])
@@ -1049,12 +1049,12 @@ codeunit 144007 "ERM Apply GL Entry"
         GLEntry: Record "G/L Entry";
     begin
         with GLEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(GLEntry, FieldNo("Entry No."));
             "G/L Account No." := GLAccountNo;
             Amount := NewAmount;
             Letter := NewLetter;
-            Insert;
+            Insert();
             exit("Entry No.");
         end;
     end;
@@ -1125,7 +1125,7 @@ codeunit 144007 "ERM Apply GL Entry"
         ApplyGLEntries.Last;
         ApplyGLEntries.SetAppliesToID.Invoke;
         ApplyGLEntries.PostApplication.Invoke;
-        ApplyGLEntries.Close;
+        ApplyGLEntries.Close();
     end;
 
     [ConfirmHandler]

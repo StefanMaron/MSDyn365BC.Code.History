@@ -79,9 +79,6 @@ page 985 "Document Search"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Search';
                     Image = Navigate;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     ToolTip = 'Search for unposted documents that have the specified numbers or amount.';
 
                     trigger OnAction()
@@ -89,6 +86,17 @@ page 985 "Document Search"
                         PaymentRegistrationMgt.FindRecords(TempDocumentSearchResult, DocumentNo, Amount, AmountTolerance);
                         PAGE.Run(PAGE::"Document Search Result", TempDocumentSearchResult);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Search_Promoted; Search)
+                {
                 }
             }
         }

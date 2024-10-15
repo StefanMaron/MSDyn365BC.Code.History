@@ -194,7 +194,7 @@ table 5520 "Unplanned Demand"
         "Quantity (Base)" := QtyBase;
         "Demand Date" := DemandDate;
         if "Demand Date" = 0D then
-            "Demand Date" := WorkDate;
+            "Demand Date" := WorkDate();
         Level := 1;
     end;
 }

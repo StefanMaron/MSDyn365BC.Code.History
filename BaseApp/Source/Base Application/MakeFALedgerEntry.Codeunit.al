@@ -103,7 +103,7 @@ codeunit 5604 "Make FA Ledger Entry"
             "FA Subclass Code" := FA."FA Subclass Code";
             "FA Location Code" := FA."FA Location Code";
             "Location Code" := FA."Location Code";
-            "FA Exchange Rate" := FADeprBook.GetExchangeRate;
+            "FA Exchange Rate" := FADeprBook.GetExchangeRate();
             "Depreciation Method" := FADeprBook."Depreciation Method";
             "Depreciation Starting Date" := FADeprBook."Depreciation Starting Date";
             "Depreciation Ending Date" := FADeprBook."Depreciation Ending Date";

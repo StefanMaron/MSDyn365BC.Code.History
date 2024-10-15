@@ -54,7 +54,7 @@ codeunit 144072 "UT REP Fiscal Year"
     begin
         // Purpose of the test is to verify error message on OnPreDataItemDate trigger for Report 10800 (G/L Journal).
         // Actual Error message is: You must specify a Starting Date.
-        LocalGLReportErrors(REPORT::"G/L Journal", StrSubstNo(PeriodStartFilterTxt, '', WorkDate), DialogTxt);  // Use first parameter as Blank for Period Start.
+        LocalGLReportErrors(REPORT::"G/L Journal", StrSubstNo(PeriodStartFilterTxt, '', WorkDate()), DialogTxt);  // Use first parameter as Blank for Period Start.
     end;
 
     [Test]
@@ -66,7 +66,7 @@ codeunit 144072 "UT REP Fiscal Year"
         // Purpose of the test is to verify error message on OnPreDataItemDate trigger for Report 10800 (G/L Journal).
         // Actual Error message is: The starting date must be the first day of a month.
         LocalGLReportErrors(
-          REPORT::"G/L Journal", StrSubstNo(PeriodStartFilterTxt, CalcDate('<1D>', CalcDate('<-CM>', WorkDate)), WorkDate), DialogTxt);  // Use a Date that is not a Starting Date of month.
+          REPORT::"G/L Journal", StrSubstNo(PeriodStartFilterTxt, CalcDate('<1D>', CalcDate('<-CM>', WorkDate())), WorkDate()), DialogTxt);  // Use a Date that is not a Starting Date of month.
     end;
 
     [Test]
@@ -88,7 +88,7 @@ codeunit 144072 "UT REP Fiscal Year"
     begin
         // Purpose of the test is to verify error message on OnPreDataItem GL Account trigger for Report 10803 (G/L Trial Balance).
         // Actual error message: You must specify a Starting Date.
-        LocalGLReportErrors(REPORT::"G/L Trial Balance", StrSubstNo(PeriodStartFilterTxt, '', WorkDate), DialogTxt);  // Use first parameter as Blank for Date Filter field.
+        LocalGLReportErrors(REPORT::"G/L Trial Balance", StrSubstNo(PeriodStartFilterTxt, '', WorkDate()), DialogTxt);  // Use first parameter as Blank for Date Filter field.
     end;
 
     [Test]
@@ -110,7 +110,7 @@ codeunit 144072 "UT REP Fiscal Year"
     begin
         // Purpose of the test is to verify error message on OnPreDataItem GL Account trigger for Report 10804 (G/L Detail Trial Balance).
         // Actual error message: You must specify a Starting Date.
-        LocalGLReportErrors(REPORT::"G/L Detail Trial Balance", StrSubstNo(PeriodStartFilterTxt, '', WorkDate), DialogTxt);  // Use first parameter as Blank for Date Filter field.
+        LocalGLReportErrors(REPORT::"G/L Detail Trial Balance", StrSubstNo(PeriodStartFilterTxt, '', WorkDate()), DialogTxt);  // Use first parameter as Blank for Date Filter field.
     end;
 
     [Test]
@@ -122,7 +122,7 @@ codeunit 144072 "UT REP Fiscal Year"
         // Purpose of the test is to verify error message on OnPreDataItem GL Account trigger for Report 10804 (G/L Detail Trial Balance).
         // Actual error message: The selected starting date XXXXXX is not the start of a Month.
         LocalGLReportErrors(
-          REPORT::"G/L Detail Trial Balance", StrSubstNo(PeriodStartFilterTxt, CalcDate('<1D>', CalcDate('<-CM>', WorkDate)), WorkDate),
+          REPORT::"G/L Detail Trial Balance", StrSubstNo(PeriodStartFilterTxt, CalcDate('<1D>', CalcDate('<-CM>', WorkDate())), WorkDate()),
           DialogTxt);  // Use a Date that is not a Starting Date of month.
     end;
 
@@ -136,7 +136,7 @@ codeunit 144072 "UT REP Fiscal Year"
         // Actual error message: The selected ending date XXXXXX is not the end of a Month.
         LocalGLReportErrors(
           REPORT::"G/L Detail Trial Balance",
-          StrSubstNo(PeriodStartFilterTxt, CalcDate('<-CM>', WorkDate), CalcDate('<-1D>', CalcDate('<CM>', WorkDate))), DialogTxt);  // Use a Date that is not a Starting Date of month.
+          StrSubstNo(PeriodStartFilterTxt, CalcDate('<-CM>', WorkDate()), CalcDate('<-1D>', CalcDate('<CM>', WorkDate()))), DialogTxt);  // Use a Date that is not a Starting Date of month.
     end;
 
     [Test]
@@ -158,7 +158,7 @@ codeunit 144072 "UT REP Fiscal Year"
     begin
         // Purpose of the test is to verify error message on OnPreDataItemDate trigger for Report 10801 (Journals).
         // Actual error message: You must specify a Starting Date.
-        LocalGLReportErrors(REPORT::Journals, StrSubstNo(PeriodStartFilterTxt, '', WorkDate), DialogTxt);  // Use first parameter as Blank for Period Start.
+        LocalGLReportErrors(REPORT::Journals, StrSubstNo(PeriodStartFilterTxt, '', WorkDate()), DialogTxt);  // Use first parameter as Blank for Period Start.
     end;
 
     [Test]
@@ -170,7 +170,7 @@ codeunit 144072 "UT REP Fiscal Year"
         // Purpose of the test is to verify error message on OnPreDataItemDate trigger for Report 10801 (Journals).
         // Actual error message: The selected starting date XXXXXX is not the start of a Month.
         LocalGLReportErrors(
-          REPORT::Journals, StrSubstNo(PeriodStartFilterTxt, CalcDate('<1D>', CalcDate('<-CW>', WorkDate)), WorkDate), DialogTxt);  // Use a Date that is not a Starting Date of month.
+          REPORT::Journals, StrSubstNo(PeriodStartFilterTxt, CalcDate('<1D>', CalcDate('<-CW>', WorkDate())), WorkDate()), DialogTxt);  // Use a Date that is not a Starting Date of month.
     end;
 
     [Test]
@@ -182,7 +182,7 @@ codeunit 144072 "UT REP Fiscal Year"
         // Purpose of the test is to verify error message on OnPreDataItemDate trigger for Report 10801 (Journals).
         // Actual error message: The selected ending date XXXXXX is not the end of a Month.
         LocalGLReportErrors(
-          REPORT::Journals, StrSubstNo(PeriodStartFilterTxt, CalcDate('<-1D>', CalcDate('<CM>', WorkDate)), WorkDate), DialogTxt);  // Period End;
+          REPORT::Journals, StrSubstNo(PeriodStartFilterTxt, CalcDate('<-1D>', CalcDate('<CM>', WorkDate())), WorkDate()), DialogTxt);  // Period End;
     end;
 
     [Test]
@@ -237,7 +237,7 @@ codeunit 144072 "UT REP Fiscal Year"
     begin
         // [FEATURE] [G/L Journal Report] [UT]
         // [SCENARIO 375111] If one date is specified in Period Start filter of "G/L Journal" report (10800) instead of period - error message should appear
-        LocalGLReportErrors(REPORT::"G/L Journal", Format(CalcDate('<-CY>', WorkDate)), DialogTxt);
+        LocalGLReportErrors(REPORT::"G/L Journal", Format(CalcDate('<-CY>', WorkDate())), DialogTxt);
     end;
 
     [Test]
@@ -253,9 +253,9 @@ codeunit 144072 "UT REP Fiscal Year"
 
         // [GIVEN] Two G/L Accounts with Entries for Amount 100 and 333 respectively.
         LibraryERM.CreateGLAccount(GLAccount[1]);
-        CreateGLEntry(GLEntry[1], GLAccount[1]."No.", LibraryRandom.RandDec(10, 2), WorkDate);
+        CreateGLEntry(GLEntry[1], GLAccount[1]."No.", LibraryRandom.RandDec(10, 2), WorkDate());
         LibraryERM.CreateGLAccount(GLAccount[2]);
-        CreateGLEntry(GLEntry[2], GLAccount[2]."No.", LibraryRandom.RandDec(10, 2), WorkDate);
+        CreateGLEntry(GLEntry[2], GLAccount[2]."No.", LibraryRandom.RandDec(10, 2), WorkDate());
 
         // [WHEN] Report "G/L Detail Trial Balance" is run for these accounts.
         LibraryVariableStorage.Enqueue(StrSubstNo('%1|%2', GLAccount[1]."No.", GLAccount[2]."No."));
@@ -282,7 +282,7 @@ codeunit 144072 "UT REP Fiscal Year"
         // [SCENARIO 383626] Balance of a G/L Account doesn't include G/L Entry with posting date at Closing Date when date filter ends with Normal Date
         Initialize();
 
-        PostingDate := CalcDate('<CM>', WorkDate);
+        PostingDate := CalcDate('<CM>', WorkDate());
 
         LibraryERM.CreateGLAccount(GLAccount[1]);
         CreateGLEntry(GLEntry[1], GLAccount[1]."No.", LibraryRandom.RandDecInRange(10, 100, 2), PostingDate);
@@ -316,7 +316,7 @@ codeunit 144072 "UT REP Fiscal Year"
         // [SCENARIO 383626] Balance of a G/L Account includes G/L Entry with posting date at Closing Date when date filter ends with Closing Date
         Initialize();
 
-        PostingDate := CalcDate('<CM>', WorkDate);
+        PostingDate := CalcDate('<CM>', WorkDate());
 
         LibraryERM.CreateGLAccount(GLAccount[1]);
         CreateGLEntry(GLEntry[1], GLAccount[1]."No.", LibraryRandom.RandDecInRange(10, 100, 2), PostingDate);
@@ -348,7 +348,7 @@ codeunit 144072 "UT REP Fiscal Year"
     begin
         with GLEntry do begin
             if FindLast() then
-                Init;
+                Init();
             "Entry No." += 1;
             "G/L Account No." := GLAccountNo;
             "Debit Amount" := DebitAmount;
@@ -384,7 +384,7 @@ codeunit 144072 "UT REP Fiscal Year"
         Journals.Journals.SetValue(Display::"Centralized Journals");
         Journals."Posting Date".SetValue(PostingDate);
         Journals.Date.SetFilter("Period Type", Format(Date."Period Type"::Month));
-        Journals.Date.SetFilter("Period Start", StrSubstNo(PeriodStartFilterTxt, CalcDate('<-CM>', WorkDate), WorkDate));  // Period Start.
+        Journals.Date.SetFilter("Period Start", StrSubstNo(PeriodStartFilterTxt, CalcDate('<-CM>', WorkDate()), WorkDate()));  // Period Start.
         Journals.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -462,7 +462,7 @@ codeunit 144072 "UT REP Fiscal Year"
     begin
         LibraryVariableStorage.Dequeue(PeriodEnd);
         Journals.Date.SetFilter("Period Type", Format(Date."Period Type"::Month));
-        Journals.Date.SetFilter("Period Start", StrSubstNo(PeriodStartFilterTxt, CalcDate('<-CM>', WorkDate), WorkDate));
+        Journals.Date.SetFilter("Period Start", StrSubstNo(PeriodStartFilterTxt, CalcDate('<-CM>', WorkDate()), WorkDate()));
         Journals.Date.SetFilter("Period End", PeriodEnd);
         Journals.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;

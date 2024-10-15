@@ -1,4 +1,4 @@
-report 5692 "Calculate Depreciation"
+﻿report 5692 "Calculate Depreciation"
 {
     AdditionalSearchTerms = 'write down fixed asset';
     ApplicationArea = FixedAssets;
@@ -159,7 +159,7 @@ report 5692 "Calculate Depreciation"
                     end;
                     if TempFAJnlLine.Find('-') then
                         repeat
-                            Init;
+                            Init();
                             "Line No." := 0;
                             FAJnlSetup.SetFAJnlTrailCodes(FAJnlLine);
                             LineNo := LineNo + 1;
@@ -201,7 +201,7 @@ report 5692 "Calculate Depreciation"
                     end;
                     if TempGenJnlLine.Find('-') then
                         repeat
-                            Init;
+                            Init();
                             "Line No." := 0;
                             FAJnlSetup.SetGenJnlTrailCodes(GenJnlLine);
                             LineNo := LineNo + 1;
@@ -343,8 +343,8 @@ report 5692 "Calculate Depreciation"
         begin
             BalAccount := true;
             if ClientTypeManagement.GetCurrentClientType() <> CLIENTTYPE::Background then begin
-                PostingDate := WorkDate;
-                DeprUntilDate := WorkDate;
+                PostingDate := WorkDate();
+                DeprUntilDate := WorkDate();
             end;
             if DeprBookCode = '' then begin
                 FASetup.Get();
@@ -373,7 +373,7 @@ report 5692 "Calculate Depreciation"
             if ErrorMessageHandler.ShowErrors() then
                 Error('');
 
-        Window.Close;
+        Window.Close();
         if (FAJnlLineCreatedCount = 0) and (GenJnlLineCreatedCount = 0) then begin
             Message(CompletionStatsMsg);
             exit;
@@ -432,7 +432,7 @@ report 5692 "Calculate Depreciation"
               FAJnlLine.FieldCaption("Posting Date"),
               DeprBook.FieldCaption("Use Same FA+G/L Posting Dates"),
               false,
-              DeprBook.TableCaption,
+              DeprBook.TableCaption(),
               DeprBook.FieldCaption(Code),
               DeprBook.Code);
 
@@ -443,13 +443,6 @@ report 5692 "Calculate Depreciation"
     end;
 
     var
-        Text000: Label 'You must specify %1.';
-        Text001: Label 'Force No. of Days must be activated.';
-        Text002: Label '%1 and %2 must be identical. %3 must be %4 in %5 %6 = %7.';
-        Text003: Label 'Depreciating fixed asset      #1##########\';
-        Text004: Label 'Not depreciating fixed asset  #2##########\';
-        Text005: Label 'Inserting journal lines       #3##########';
-        Text006: Label 'Use Force No. of Days must be activated.';
         GenJnlLine: Record "Gen. Journal Line";
         TempGenJnlLine: Record "Gen. Journal Line" temporary;
         FASetup: Record "FA Setup";
@@ -480,14 +473,22 @@ report 5692 "Calculate Depreciation"
         FADeprBook: Record "FA Depreciation Book";
         DeprAmount2: Decimal;
         HasDerogatorySetup: Boolean;
-        Text10800: Label 'Depreciation cannot be posted on depreciation book %1 because it is set up as derogatory.';
-        Text10801: Label 'Reversal of Derogatory Balance at %1';
-        CompletionStatsMsg: Label 'The depreciation has been calculated.\\No journal lines were created.';
         FAJnlLineCreatedCount: Integer;
         GenJnlLineCreatedCount: Integer;
+        DeprUntilDateModified: Boolean;
+
+        Text000: Label 'You must specify %1.';
+        Text001: Label 'Force No. of Days must be activated.';
+        Text002: Label '%1 and %2 must be identical. %3 must be %4 in %5 %6 = %7.';
+        Text003: Label 'Depreciating fixed asset      #1##########\';
+        Text004: Label 'Not depreciating fixed asset  #2##########\';
+        Text005: Label 'Inserting journal lines       #3##########';
+        Text006: Label 'Use Force No. of Days must be activated.';
+        CompletionStatsMsg: Label 'The depreciation has been calculated.\\No journal lines were created.';
         CompletionStatsFAJnlQst: Label 'The depreciation has been calculated.\\%1 fixed asset journal lines were created.\\Do you want to open the Fixed Asset Journal window?', Comment = 'The depreciation has been calculated.\\5 fixed asset journal lines were created.\\Do you want to open the Fixed Asset Journal window?';
         CompletionStatsGenJnlQst: Label 'The depreciation has been calculated.\\%1 fixed asset G/L journal lines were created.\\Do you want to open the Fixed Asset G/L Journal window?', Comment = 'The depreciation has been calculated.\\2 fixed asset G/L  journal lines were created.\\Do you want to open the Fixed Asset G/L Journal window?';
-        DeprUntilDateModified: Boolean;
+        Text10800: Label 'Depreciation cannot be posted on depreciation book %1 because it is set up as derogatory.';
+        Text10801: Label 'Reversal of Derogatory Balance at %1';
 
     protected var
         DeprBookCode: Code[10];

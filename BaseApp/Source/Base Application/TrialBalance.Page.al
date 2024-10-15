@@ -362,7 +362,7 @@ page 1393 "Trial Balance"
                     end;
                     TrialBalanceMgt.PreviousPeriod(Descriptions, Values, PeriodCaptionTxt, NoOfColumns);
 
-                    SetStyles;
+                    SetStyles();
                     CurrPage.Update();
                 end;
             }
@@ -382,7 +382,7 @@ page 1393 "Trial Balance"
                     end;
 
                     TrialBalanceMgt.NextPeriod(Descriptions, Values, PeriodCaptionTxt, NoOfColumns);
-                    SetStyles;
+                    SetStyles();
                     CurrPage.Update();
                 end;
             }
@@ -395,7 +395,7 @@ page 1393 "Trial Balance"
                 var
                     TrialBalanceSetup: Page "Trial Balance Setup";
                 begin
-                    if TrialBalanceSetup.RunModal <> Action::Cancel then begin
+                    if TrialBalanceSetup.RunModal() <> Action::Cancel then begin
                         IsError := false;
                         LoadTrialBalanceData(true);
                         CurrPage.Update();
@@ -430,7 +430,7 @@ page 1393 "Trial Balance"
         PeriodVisible := true;
         NoOfColumns := 2;
 
-        if (ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Phone) or AccountingPeriod.IsEmpty() then begin
+        if (ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Phone) or AccountingPeriod.IsEmpty() then begin
             NoOfColumns := 1;
             PeriodVisible := false;
         end;
@@ -501,19 +501,19 @@ page 1393 "Trial Balance"
             exit;
 
         if not SkipCache then
-            if (not TrialBalanceCacheMgt.IsCacheStale) and (NoOfColumns <> 1) then begin
+            if (not TrialBalanceCacheMgt.IsCacheStale()) and (NoOfColumns <> 1) then begin
                 DataLoaded := TrialBalanceCacheMgt.LoadFromCache(Descriptions, Values, PeriodCaptionTxt);
                 LoadedFromCache := true;
             end;
 
         if not DataLoaded then begin
-            DataLoaded := TryLoadTrialBalanceData;
+            DataLoaded := TryLoadTrialBalanceData();
             if DataLoaded and (NoOfColumns <> 1) then
                 TrialBalanceCacheMgt.SaveToCache(Descriptions, Values, PeriodCaptionTxt);
         end;
 
         if DataLoaded then
-            SetStyles
+            SetStyles()
         else
             IsError := true;
     end;

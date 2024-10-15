@@ -1,7 +1,7 @@
 page 5640 "FA Reclass. Journal Batches"
 {
     Caption = 'FA Reclass. Journal Batches';
-    DataCaptionExpression = DataCaption;
+    DataCaptionExpression = DataCaption();
     Editable = true;
     PageType = List;
     RefreshOnActivate = true;
@@ -50,9 +50,6 @@ page 5640 "FA Reclass. Journal Batches"
                 ApplicationArea = FixedAssets;
                 Caption = 'Edit Journal';
                 Image = OpenJournal;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ShortCutKey = 'Return';
                 ToolTip = 'Open a journal based on the journal batch.';
 
@@ -60,6 +57,17 @@ page 5640 "FA Reclass. Journal Batches"
                 begin
                     FAReclassJnlMgt.TemplateSelectionFromBatch(Rec);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Edit Journal_Promoted"; "Edit Journal")
+                {
+                }
             }
         }
     }

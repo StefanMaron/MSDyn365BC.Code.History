@@ -537,10 +537,10 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
 
         // [GIVEN] Closed Vendor Ledger Entry with "Amount (LCY)" = "A".
         // [GIVEN] Payment with "Posting Date" > "Due Date" of invoice.
-        MockVendLedgEntryWithAmt(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, StartingDate, WorkDate - 1, false);
+        MockVendLedgEntryWithAmt(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, StartingDate, WorkDate() - 1, false);
         VendorLedgerEntry.CalcFields("Amount (LCY)");
         MockPaymentApplication(
-          VendorLedgerEntry."Entry No.", WorkDate, -VendorLedgerEntry."Amount (LCY)", -VendorLedgerEntry."Amount (LCY)");
+          VendorLedgerEntry."Entry No.", WorkDate(), -VendorLedgerEntry."Amount (LCY)", -VendorLedgerEntry."Amount (LCY)");
 
         // [GIVEN] Run "Payment Practices Reporting" report.
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
@@ -643,8 +643,8 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
 
     local procedure SetStartingEndingDates(var StartingDate: Date; var EndingDate: Date)
     begin
-        StartingDate := CalcDate('<-CM>', WorkDate);
-        EndingDate := CalcDate('<CM>', WorkDate);
+        StartingDate := CalcDate('<-CM>', WorkDate());
+        EndingDate := CalcDate('<CM>', WorkDate());
     end;
 
     local procedure CreateInvoicesOpenedAndPartlyPaid(PostingDate: Date; var UnpaidAmount: Decimal; var TotalInvoiceAmount: Decimal)
@@ -734,14 +734,14 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
     local procedure MockVendLedgEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; ExcludeFromPmtReporting: Boolean; DocType: Enum "Gen. Journal Document Type"; PostingDate: Date; DueDate: Date; IsOpen: Boolean)
     begin
         with VendorLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, FieldNo("Entry No."));
             "Document Type" := DocType;
             "Posting Date" := PostingDate;
             "Vendor No." := MockVendor(ExcludeFromPmtReporting);
             "Due Date" := DueDate;
             Open := IsOpen;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -792,7 +792,7 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
         with DetailedVendorLedgEntry do begin
-            Init;
+            Init();
             "Entry Type" := EntryType;
             "Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, FieldNo("Entry No."));
             "Document Type" := DocType;
@@ -801,7 +801,7 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
             "Applied Vend. Ledger Entry No." := AppliedLedgEntryNo;
             "Amount (LCY)" := AppliedAmount;
             "Ledger Entry Amount" := EntryType = "Entry Type"::"Initial Entry";
-            Insert;
+            Insert();
             exit("Entry No.");
         end;
     end;
@@ -811,7 +811,7 @@ codeunit 144564 "ERM Puch. Pmt. Practices"
         TempPaymentApplicationBuffer.Init();
         TempPaymentApplicationBuffer."Invoice Entry No." := LibraryRandom.RandIntInRange(1000, 9999);
         TempPaymentApplicationBuffer."Pmt. Entry No." := PmtEntryNo;
-        TempPaymentApplicationBuffer."Posting Date" := WorkDate;
+        TempPaymentApplicationBuffer."Posting Date" := WorkDate();
         TempPaymentApplicationBuffer."Document Type" := TempPaymentApplicationBuffer."Document Type"::Invoice;
         TempPaymentApplicationBuffer."Invoice Is Open" := true;
         TempPaymentApplicationBuffer."Days Since Due Date" := DaysSinceDueDate;

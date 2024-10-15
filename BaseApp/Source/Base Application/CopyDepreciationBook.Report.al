@@ -193,7 +193,7 @@ report 5687 "Copy Depreciation Book"
             EndingDate2 := EndingDate;
         DeprBook.Get(DeprBookCode);
         DeprBook2.Get(DeprBookCode2);
-        ExchangeRate := GetExchangeRate;
+        ExchangeRate := GetExchangeRate();
         DeprBook2.IndexGLIntegration(GLIntegration);
         FirstGenJnl := true;
         FirstFAJnl := true;
@@ -201,8 +201,6 @@ report 5687 "Copy Depreciation Book"
     end;
 
     var
-        Text000: Label 'The Starting Date is later than the Ending Date.';
-        Text001: Label 'Copying fixed asset    #1##########';
         GenJnlLine: Record "Gen. Journal Line";
         FASetup: Record "FA Setup";
         FAJnlLine: Record "FA Journal Line";
@@ -235,6 +233,9 @@ report 5687 "Copy Depreciation Book"
         FirstFAJnl: Boolean;
         FAJnlNextLineNo: Integer;
         GenJnlNextLineNo: Integer;
+
+        Text000: Label 'The Starting Date is later than the Ending Date.';
+        Text001: Label 'Copying fixed asset    #1##########';
 
     local procedure InsertGenJnlLine(var FALedgEntry: Record "FA Ledger Entry")
     var
@@ -311,7 +312,7 @@ report 5687 "Copy Depreciation Book"
         if IsHandled then
             exit;
 
-        Index := FALedgEntry.ConvertPostingType + 1;
+        Index := FALedgEntry.ConvertPostingType() + 1;
         if CopyChoices[Index] then begin
             if GLIntegration[Index] and not "Fixed Asset"."Budgeted Asset" then
                 JournalType := JournalType::GenJnlType

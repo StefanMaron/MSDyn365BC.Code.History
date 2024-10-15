@@ -226,7 +226,7 @@ codeunit 136132 "Sales Stockout"
         // EXECUTE: Open the sales order page, Change Location on Sales Order Through UI to location M.
         OpenSalesOrderPageByNo(SalesOrderNo, SalesOrder);
         SalesOrder.SalesLines."Location Code".Value(LocationB);
-        SalesOrder.Close;
+        SalesOrder.Close();
 
         // VERIFY: Quantity on sales order after warning is Y and location M.
         ValidateQuantity(SalesOrderNo, SaleQuantity);
@@ -258,8 +258,8 @@ codeunit 136132 "Sales Stockout"
 
         // EXECUTE: Open the sales order page, Change Date on Sales Order Through UI to Date = Workdate - 1.
         OpenSalesOrderPageByNo(SalesOrderNo, SalesOrder);
-        SalesOrder.SalesLines."Planned Shipment Date".Value(Format(WorkDate));
-        SalesOrder.Close;
+        SalesOrder.SalesLines."Planned Shipment Date".Value(Format(WorkDate()));
+        SalesOrder.Close();
 
         // VERIFY: Quantity on sales order after warning is Y and Date is Workdate - 1.
         ValidateQuantity(SalesOrderNo, SaleQuantity);
@@ -291,7 +291,7 @@ codeunit 136132 "Sales Stockout"
         BoxUOM := CreateItemUOM(Item."No.", QtyPerUOM);
 
         // [GIVEN] Create Purchase Order with 2 PCS on WorkDate
-        CreatePurchSupplyWithUOMAtLocation(Item."No.", LocationCode, PcsUOM, 2, WorkDate);
+        CreatePurchSupplyWithUOMAtLocation(Item."No.", LocationCode, PcsUOM, 2, WorkDate());
 
         // [GIVEN] Create Purchase Order with 1 BOX on SupplyDate = WorkDate + 1Day
         StockAvailSupplyDate := WorkDate + 1;
@@ -412,13 +412,13 @@ codeunit 136132 "Sales Stockout"
     local procedure CreatePurchaseSupply(ItemNo: Code[20]; ItemQuantity: Integer): Code[20]
     begin
         // Creates a Purchase order for the given item.
-        exit(CreatePurchaseSupplyBasis(ItemNo, ItemQuantity, '', WorkDate));
+        exit(CreatePurchaseSupplyBasis(ItemNo, ItemQuantity, '', WorkDate()));
     end;
 
     local procedure CreatePurchaseSupplyAtLocation(ItemNo: Code[20]; ItemQuantity: Integer; LocationCode: Code[10]): Code[20]
     begin
         // Creates a Purchase order for the given item at the specified location.
-        exit(CreatePurchaseSupplyBasis(ItemNo, ItemQuantity, LocationCode, WorkDate));
+        exit(CreatePurchaseSupplyBasis(ItemNo, ItemQuantity, LocationCode, WorkDate()));
     end;
 
     local procedure CreatePurchaseSupplyAfter(ItemNo: Code[20]; Quantity: Integer; ReceiptDate: Date): Code[20]
@@ -450,7 +450,7 @@ codeunit 136132 "Sales Stockout"
     local procedure CreateSalesDemand(ItemNo: Code[20]; ItemQuantity: Integer): Code[20]
     begin
         // Creates a sales order for the given item.
-        exit(CreateSalesDemandBasis(ItemNo, ItemQuantity, '', WorkDate));
+        exit(CreateSalesDemandBasis(ItemNo, ItemQuantity, '', WorkDate()));
     end;
 
     local procedure CreateSalesDemandAtLocation(ItemNo: Code[20]; ItemQuantity: Integer; LocationCode: Code[10]): Code[20]
@@ -496,7 +496,7 @@ codeunit 136132 "Sales Stockout"
 
         // EXECUTE: Change Demand Type on Sales Order Through UI.
         SalesOrder.SalesLines.Type.Value(SaleType);
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     [Normal]
@@ -507,7 +507,7 @@ codeunit 136132 "Sales Stockout"
 
         // EXECUTE: Change Demand Quantity on Sales Order Through UI.
         SalesOrder.SalesLines.Quantity.Value(Format(SaleQuantity));
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     local procedure GetShipmentDate(SalesHeaderNo: Code[20]): Date
@@ -575,7 +575,7 @@ codeunit 136132 "Sales Stockout"
         SalesOrder.GotoRecord(SalesHeader);
         Evaluate(SaleQuantity, SalesOrder.SalesLines.Quantity.Value);
         SalesOrder.SalesLines."Unit of Measure Code".SetValue(UOM);  // Should trigger the avail.warning
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     local procedure GetPcsUOM(ItemNo: Code[20]): Code[10]

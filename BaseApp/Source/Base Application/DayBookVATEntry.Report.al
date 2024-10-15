@@ -24,7 +24,7 @@ report 2500 "Day Book VAT Entry"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(USERID; UserId)
@@ -64,7 +64,7 @@ report 2500 "Day Book VAT Entry"
             {
                 AutoFormatType = 1;
             }
-            column(Total_for______VAT_Entry__TABLENAME__________VATEntryFilter; StrSubstNo(Text003Lbl, "VAT Entry".TableCaption, VATEntryFilter))
+            column(Total_for______VAT_Entry__TABLENAME__________VATEntryFilter; StrSubstNo(Text003Lbl, "VAT Entry".TableCaption(), VATEntryFilter))
             {
             }
             column(VAT_Entry__Amount_Control47; "VAT Entry".Amount)
@@ -75,7 +75,7 @@ report 2500 "Day Book VAT Entry"
             {
                 AutoFormatType = 1;
             }
-            column(Total_for______VAT_Entry__TABLENAME__________VATEntryFilter_Control52; StrSubstNo(Text003Lbl, "VAT Entry".TableCaption, VATEntryFilter))
+            column(Total_for______VAT_Entry__TABLENAME__________VATEntryFilter_Control52; StrSubstNo(Text003Lbl, "VAT Entry".TableCaption(), VATEntryFilter))
             {
             }
             column(VAT_Entry___Additional_Currency_Base__Control55; "VAT Entry"."Additional-Currency Base")
@@ -313,7 +313,7 @@ report 2500 "Day Book VAT Entry"
 
     trigger OnPreReport()
     begin
-        VATEntryFilter := ReqVATEntry.GetFilters;
+        VATEntryFilter := ReqVATEntry.GetFilters();
         GLSetup.Get();
     end;
 

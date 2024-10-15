@@ -15,7 +15,7 @@ report 5206 "Employee - Qualifications"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Employee_Qualification__TABLECAPTION__________EmployeeQualificationFilter; TableCaption + ': ' + EmployeeQualificationFilter)
@@ -27,7 +27,7 @@ report 5206 "Employee - Qualifications"
             column(Employee_Qualification__Employee_No__; "Employee No.")
             {
             }
-            column(Employee_FullName; Employee.FullName)
+            column(Employee_FullName; Employee.FullName())
             {
             }
             column(Employee_Qualification__Qualification_Code_; "Qualification Code")
@@ -98,7 +98,7 @@ report 5206 "Employee - Qualifications"
 
     trigger OnPreReport()
     begin
-        EmployeeQualificationFilter := "Employee Qualification".GetFilters;
+        EmployeeQualificationFilter := "Employee Qualification".GetFilters();
     end;
 
     var

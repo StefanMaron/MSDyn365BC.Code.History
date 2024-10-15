@@ -19,11 +19,12 @@ codeunit 407 "Adjust Gen. Journal Balance"
                 exit;
             PrevGenJnlLine := GenJnlLine;
             CorrectionEntry := true;
+            TotalAmountLCY := 0;
             repeat
                 if ("Posting Date" <> PrevGenJnlLine."Posting Date") or
                    ("Document No." <> PrevGenJnlLine."Document No.")
                 then begin
-                    if CheckCurrBalance and (TotalAmountLCY <> 0) then begin
+                    if CheckCurrBalance() and (TotalAmountLCY <> 0) then begin
                         PrevGenJnlLine.Correction := CorrectionEntry;
                         InsertCorrectionLines(GenJnlLine, PrevGenJnlLine);
                     end;
@@ -65,7 +66,7 @@ codeunit 407 "Adjust Gen. Journal Balance"
 
             Clear(PrevGenJnlLine);
 
-            if CheckCurrBalance and (TotalAmountLCY <> 0) then begin
+            if CheckCurrBalance() and (TotalAmountLCY <> 0) then begin
                 Correction := CorrectionEntry;
                 InsertCorrectionLines(PrevGenJnlLine, GenJnlLine);
             end;
@@ -73,9 +74,10 @@ codeunit 407 "Adjust Gen. Journal Balance"
     end;
 
     var
+        TempCurrTotalBuffer: Record "Currency Total Buffer" temporary;
+
         Text000: Label 'The program cannot find a key between line number %1 and line number %2.';
         Text002: Label 'Rounding correction for %1';
-        TempCurrTotalBuffer: Record "Currency Total Buffer" temporary;
 
     local procedure CheckCurrBalance(): Boolean
     var
@@ -103,7 +105,7 @@ codeunit 407 "Adjust Gen. Journal Balance"
             repeat
                 Currency.Get(TempCurrTotalBuffer."Currency Code");
                 with NewGenJnlLine do begin
-                    Init;
+                    Init();
                     if GenJnlLine2."Line No." = 0 then
                         "Line No." := "Line No." + 10000
                     else
@@ -118,9 +120,9 @@ codeunit 407 "Adjust Gen. Journal Balance"
                     "Account Type" := "Account Type"::"G/L Account";
                     Correction := PrevGenJnlLine2.Correction;
                     if Correction xor (TempCurrTotalBuffer."Total Amount (LCY)" <= 0) then
-                        Validate("Account No.", Currency.GetConvLCYRoundingDebitAccount)
+                        Validate("Account No.", Currency.GetConvLCYRoundingDebitAccount())
                     else
-                        Validate("Account No.", Currency.GetConvLCYRoundingCreditAccount);
+                        Validate("Account No.", Currency.GetConvLCYRoundingCreditAccount());
                     "Posting Date" := PrevGenJnlLine2."Posting Date";
                     "Document No." := PrevGenJnlLine2."Document No.";
                     Description := StrSubstNo(Text002, TempCurrTotalBuffer."Currency Code");
@@ -134,7 +136,7 @@ codeunit 407 "Adjust Gen. Journal Balance"
                     OnBeforeGenJnlLineInsert(NewGenJnlLine, GenJnlLine2, PrevGenJnlLine2);
                     if TempCurrTotalBuffer."Total Amount (LCY)" <> 0 then begin
                         OnInsertCorrectionLinesOnBeforeNewGenJnlLineInsert(GenJnlLine2, PrevGenJnlLine2, NewGenJnlLine);
-                        Insert;
+                        Insert();
                     end;
                 end;
             until TempCurrTotalBuffer.Next() = 0;

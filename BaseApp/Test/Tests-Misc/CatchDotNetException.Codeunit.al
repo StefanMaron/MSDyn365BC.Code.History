@@ -65,7 +65,7 @@ codeunit 132567 "Catch DotNet Exception"
         with MasterDataSetupSample do begin
             Name := CopyStr(FileMgt.GetFileName(FileName), 1, MaxStrLen(Name));
             Path := CopyStr(FileMgt.GetDirectoryName(FileName), 1, MaxStrLen(Path));
-            Insert;
+            Insert();
         end;
     end;
 

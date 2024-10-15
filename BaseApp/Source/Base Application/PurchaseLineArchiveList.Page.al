@@ -12,22 +12,22 @@ page 6626 "Purchase Line Archive List"
             repeater(Control14)
             {
                 ShowCaption = false;
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the type of purchase document.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the document number.';
                 }
-                field("Buy-from Vendor No."; "Buy-from Vendor No.")
+                field("Buy-from Vendor No."; Rec."Buy-from Vendor No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the vendor who delivered the items.';
                 }
-                field("Line No."; "Line No.")
+                field("Line No."; Rec."Line No.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of the line.';
@@ -38,12 +38,12 @@ page 6626 "Purchase Line Archive List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the entry type.';
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the archived purchase line.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -54,20 +54,20 @@ page 6626 "Purchase Line Archive List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the record.';
                 }
-                field("Description 2"; "Description 2")
+                field("Description 2"; Rec."Description 2")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;
                     ToolTip = 'Specifies information in addition to the description.';
                     Visible = false;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies a code for the location where you want the items to be placed when they are received.';
                     Visible = false;
                 }
-                field("Unit of Measure"; "Unit of Measure")
+                field("Unit of Measure"; Rec."Unit of Measure")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the unit of measure used for the item, for example bottle or piece.';
@@ -82,7 +82,7 @@ page 6626 "Purchase Line Archive List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the sum of amounts in the Line Amount field on the purchase lines.';
                 }
-                field("Amount Including VAT"; "Amount Including VAT")
+                field("Amount Including VAT"; Rec."Amount Including VAT")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the net amount, including VAT, for this line.';

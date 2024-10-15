@@ -22,7 +22,7 @@ page 7156 "Purchase Analysis View Card"
                     ApplicationArea = PurchaseAnalysis;
                     ToolTip = 'Specifies the name of the analysis view.';
                 }
-                field("Item Filter"; "Item Filter")
+                field("Item Filter"; Rec."Item Filter")
                 {
                     ApplicationArea = PurchaseAnalysis;
                     ToolTip = 'Specifies a filter to specify the items that will be included in an analysis view.';
@@ -32,13 +32,13 @@ page 7156 "Purchase Analysis View Card"
                         ItemList: Page "Item List";
                     begin
                         ItemList.LookupMode(true);
-                        if not (ItemList.RunModal = ACTION::LookupOK) then begin
-                            Text := ItemList.GetSelectionFilter;
+                        if not (ItemList.RunModal() = ACTION::LookupOK) then begin
+                            Text := ItemList.GetSelectionFilter();
                             exit(true);
                         end;
                     end;
                 }
-                field("Location Filter"; "Location Filter")
+                field("Location Filter"; Rec."Location Filter")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies a location filter to specify that only entries posted to a particular location are to be included in an analysis view.';
@@ -48,43 +48,43 @@ page 7156 "Purchase Analysis View Card"
                         LocList: Page "Location List";
                     begin
                         LocList.LookupMode(true);
-                        if LocList.RunModal = ACTION::LookupOK then begin
-                            Text := LocList.GetSelectionFilter;
+                        if LocList.RunModal() = ACTION::LookupOK then begin
+                            Text := LocList.GetSelectionFilter();
                             exit(true);
                         end;
                     end;
                 }
-                field("Date Compression"; "Date Compression")
+                field("Date Compression"; Rec."Date Compression")
                 {
                     ApplicationArea = PurchaseAnalysis;
                     ToolTip = 'Specifies the period that the program will combine entries for, in order to create a single entry for that time period.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = PurchaseAnalysis;
                     ToolTip = 'Specifies the date from which item ledger entries will be included in an analysis view.';
                 }
-                field("Last Date Updated"; "Last Date Updated")
+                field("Last Date Updated"; Rec."Last Date Updated")
                 {
                     ApplicationArea = PurchaseAnalysis;
                     ToolTip = 'Specifies the date on which the analysis view was last updated.';
                 }
-                field("Last Entry No."; "Last Entry No.")
+                field("Last Entry No."; Rec."Last Entry No.")
                 {
                     ApplicationArea = PurchaseAnalysis;
                     ToolTip = 'Specifies the number of the last item ledger entry you posted, prior to updating the analysis view.';
                 }
-                field("Last Budget Entry No."; "Last Budget Entry No.")
+                field("Last Budget Entry No."; Rec."Last Budget Entry No.")
                 {
                     ApplicationArea = PurchaseBudget;
                     ToolTip = 'Specifies the number of the last item budget entry you entered prior to updating the analysis view.';
                 }
-                field("Update on Posting"; "Update on Posting")
+                field("Update on Posting"; Rec."Update on Posting")
                 {
                     ApplicationArea = PurchaseAnalysis;
                     ToolTip = 'Specifies if the analysis view is updated every time that you post an item ledger entry, for example from a sales invoice.';
                 }
-                field("Include Budgets"; "Include Budgets")
+                field("Include Budgets"; Rec."Include Budgets")
                 {
                     ApplicationArea = PurchaseBudget;
                     ToolTip = 'Specifies whether to include an update of analysis view budget entries, when updating an analysis view.';
@@ -98,17 +98,17 @@ page 7156 "Purchase Analysis View Card"
             group(Dimensions)
             {
                 Caption = 'Dimensions';
-                field("Dimension 1 Code"; "Dimension 1 Code")
+                field("Dimension 1 Code"; Rec."Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies one of the four dimensions that you can include in an analysis view.';
                 }
-                field("Dimension 2 Code"; "Dimension 2 Code")
+                field("Dimension 2 Code"; Rec."Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies one of the four dimensions that you can include in an analysis view.';
                 }
-                field("Dimension 3 Code"; "Dimension 3 Code")
+                field("Dimension 3 Code"; Rec."Dimension 3 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies one of the four dimensions that you can include in an analysis view.';
@@ -157,8 +157,6 @@ page 7156 "Purchase Analysis View Card"
                 ApplicationArea = PurchaseAnalysis;
                 Caption = '&Update';
                 Image = Refresh;
-                Promoted = true;
-                PromotedCategory = Process;
                 RunObject = Codeunit "Update Item Analysis View";
                 ToolTip = 'Get the latest entries into the analysis view.';
             }
@@ -185,6 +183,17 @@ page 7156 "Purchase Analysis View Card"
                 begin
                     SetUpdateOnPosting(false);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("&Update_Promoted"; "&Update")
+                {
+                }
             }
         }
     }

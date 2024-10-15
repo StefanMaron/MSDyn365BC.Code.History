@@ -146,10 +146,10 @@
 
             AddressNearness := RecordMatchMgt.CalculateStringNearness(CompanyAddr, ImportedAddress, MatchThreshold(), NormalizingFactor());
 
-            if (ImportedName <> '') and (NameNearness < RequiredNearness) then
+            if (ImportedName <> '') and (NameNearness < RequiredNearness()) then
                 LogErrorMessage(EntryNo, CompanyInfo, CompanyInfo.FieldNo(Name), StrSubstNo(InvalidCompanyInfoNameErr, ImportedName));
 
-            if (ImportedAddress <> '') and (AddressNearness < RequiredNearness) then
+            if (ImportedAddress <> '') and (AddressNearness < RequiredNearness()) then
                 LogErrorMessage(EntryNo, CompanyInfo, CompanyInfo.FieldNo(Address), StrSubstNo(InvalidCompanyInfoAddressErr, ImportedAddress));
         end;
     end;
@@ -180,7 +180,7 @@
             if IsLCY then begin
                 // Update Document Currency
                 Value := '';
-                Modify;
+                Modify();
             end;
 
             // Ensure the currencies all match the same document currency
@@ -592,10 +592,10 @@
                 repeat
                     NameNearness := RecordMatchMgt.CalculateStringNearness(VendorName, Vendor.Name, MatchThreshold(), NormalizingFactor());
                     if VendorAddress = '' then
-                        AddressNearness := RequiredNearness
+                        AddressNearness := RequiredNearness()
                     else
                         AddressNearness := RecordMatchMgt.CalculateStringNearness(VendorAddress, Vendor.Address, MatchThreshold(), NormalizingFactor());
-                    if (NameNearness >= RequiredNearness) and (AddressNearness >= RequiredNearness) then begin
+                    if (NameNearness >= RequiredNearness()) and (AddressNearness >= RequiredNearness()) then begin
                         InsertOrUpdateEntry(EntryNo, DATABASE::"Purchase Header", FieldID, 0, RecordNo, Vendor."No.");
                         exit(Vendor."No.");
                     end;
@@ -669,7 +669,7 @@
             if Vendor.FindSet() then
                 repeat
                     PhoneNoNearness := RecordMatchMgt.CalculateStringNearness(PhoneNo, Vendor."Phone No.", MatchThreshold(), NormalizingFactor());
-                    if PhoneNoNearness >= RequiredNearness then begin
+                    if PhoneNoNearness >= RequiredNearness() then begin
                         InsertOrUpdateEntry(EntryNo, DATABASE::"Purchase Header", FieldID, 0, RecordNo, Vendor."No.");
                         exit(Vendor."No.");
                     end;
@@ -1158,7 +1158,7 @@
             InsertOrUpdateEntry(EntryNo, DATABASE::"Purchase Line", PurchaseLine.FieldNo("Line Discount Amount"),
               HeaderRecordNo, RecordNo, Format(LineDiscountAmount, 0, 9));
 
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1244,7 +1244,7 @@
         with IntermediateDataImport do begin
             if not FindEntry(EntryNo, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Document Type"), ParentRecNo, CurrRecNo) then
                 LogErrorMessage(EntryNo, DataExchDef, DataExchDef.FieldNo(Code),
-                  ConstructDocumenttypeUnknownErr);
+                  ConstructDocumenttypeUnknownErr());
 
             case UpperCase(Value) of
                 GetDocumentTypeOptionString(PurchaseHeader."Document Type"::Invoice.AsInteger()),
@@ -1256,7 +1256,7 @@
                     DocumentType := Format(PurchaseHeader."Document Type"::"Credit Memo", 0, 9);
                 else
                     LogErrorMessage(EntryNo, DataExchDef, DataExchDef.FieldNo(Code),
-                      ConstructDocumenttypeUnknownErr);
+                      ConstructDocumenttypeUnknownErr());
             end;
         end;
 
@@ -1301,7 +1301,7 @@
             GetDocumentTypeOptionCaption(PurchaseHeader."Document Type"::"Credit Memo".AsInteger()),
             DataExchColumnDef.FieldCaption(Constant),
             PurchaseHeader.FieldCaption("Document Type"),
-            PurchaseHeader.TableCaption));
+            PurchaseHeader.TableCaption()));
     end;
 
     procedure FindAppropriateGLAccount(EntryNo: Integer; HeaderRecordNo: Integer; LineDescription: Text[250]; LineDirectUnitCost: Decimal; VendorNo: Code[20]): Code[20]
@@ -1344,19 +1344,15 @@
         PurchasesPayablesSetup.Get();
         case DocumentType of
             "Gen. Journal Document Type"::Invoice:
-                begin
-                    if LineDirectUnitCost >= 0 then
-                        DefaultGLAccount := PurchasesPayablesSetup."Debit Acc. for Non-Item Lines"
-                    else
-                        DefaultGLAccount := PurchasesPayablesSetup."Credit Acc. for Non-Item Lines";
-                end;
+                if LineDirectUnitCost >= 0 then
+                    DefaultGLAccount := PurchasesPayablesSetup."Debit Acc. for Non-Item Lines"
+                else
+                    DefaultGLAccount := PurchasesPayablesSetup."Credit Acc. for Non-Item Lines";
             "Gen. Journal Document Type"::"Credit Memo":
-                begin
-                    if LineDirectUnitCost >= 0 then
-                        DefaultGLAccount := PurchasesPayablesSetup."Credit Acc. for Non-Item Lines"
-                    else
-                        DefaultGLAccount := PurchasesPayablesSetup."Debit Acc. for Non-Item Lines";
-                end;
+                if LineDirectUnitCost >= 0 then
+                    DefaultGLAccount := PurchasesPayablesSetup."Credit Acc. for Non-Item Lines"
+                else
+                    DefaultGLAccount := PurchasesPayablesSetup."Debit Acc. for Non-Item Lines";
         end;
         if DefaultGLAccount = '' then
             LogErrorMessage(EntryNo, TextToAccountMapping, TextToAccountMapping.FieldNo("Mapping Text"),
@@ -1406,6 +1402,8 @@
         BlockedPaymentVendorNo: Code[20];
         BlockedAllVendorNo: Code[20];
     begin
+        BlockedAllVendorNo := '';
+        BlockedPaymentVendorNo := '';
         if VendorBankAccount.FindSet() then
             repeat
                 if Vendor.Get(VendorBankAccount."Vendor No.") then begin

@@ -234,7 +234,7 @@ codeunit 135414 "Purchase Quote Plan-based E2E"
         PurchaseOrderList.FILTER.SetFilter("Buy-from Vendor No.", VendorNo);
         PurchaseOrderList.First;
         PurchaseOrderNo := PurchaseOrderList."No.".Value;
-        PurchaseOrderList.Close;
+        PurchaseOrderList.Close();
 
         PurchaseOrder.OpenEdit;
         PurchaseOrder.GotoKey(PurchaseHeader."Document Type"::Order, PurchaseOrderNo);

@@ -480,7 +480,7 @@ codeunit 144058 "UT SEPA"
         CODEUNIT.Run(CODEUNIT::"SEPA CT-Prepare Source", GenJournalLine);
 
         // [THEN] "Gen. Journal Line"."Message to Recipient" is equal to first 140 symbols of merged "Document No."s from Customer Ledger Entries
-        GenJournalLine.Find;
+        GenJournalLine.Find();
         GenJournalLine.TestField("Message to Recipient",
           CopyStr(Result, MaxStrLen(GenJournalLine.Description) + 9, MaxStrLen(GenJournalLine."Message to Recipient")));
 
@@ -513,7 +513,7 @@ codeunit 144058 "UT SEPA"
         CODEUNIT.Run(CODEUNIT::"SEPA CT-Prepare Source", GenJournalLine);
 
         // [THEN] "Gen. Journal Line"."Message to Recipient" is equal to first 140 symbols of merged "Document No."s from Vendor Ledger Entries
-        GenJournalLine.Find;
+        GenJournalLine.Find();
         GenJournalLine.TestField("Message to Recipient",
           CopyStr(Result, MaxStrLen(GenJournalLine.Description) + 9, MaxStrLen(GenJournalLine."Message to Recipient")));
 

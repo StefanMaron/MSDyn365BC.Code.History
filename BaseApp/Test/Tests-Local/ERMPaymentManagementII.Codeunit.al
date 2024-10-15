@@ -219,7 +219,7 @@ codeunit 144055 "ERM Payment Management II"
         VendorNo := CreateVendor(CurrencyCode);
         VendorNo2 := CreateVendor('');
         PaymentClassCode :=
-          CreatePaymentSlipAndSuggestVendorPayment(VendorNo, VendorNo2, CurrencyCode, WorkDate, SummarizePer::" ", StrSubstNo(
+          CreatePaymentSlipAndSuggestVendorPayment(VendorNo, VendorNo2, CurrencyCode, WorkDate(), SummarizePer::" ", StrSubstNo(
               FilterRangeTxt, VendorNo, VendorNo2));
 
         // Verify: Verify Vendor No. on Payment Line.
@@ -243,7 +243,7 @@ codeunit 144055 "ERM Payment Management II"
         VendorNo := CreateVendor(CreateCurrency);
         VendorNo2 := CreateVendor('');  // Blank for Currency.
         PaymentClassCode :=
-          CreatePaymentSlipAndSuggestVendorPayment(VendorNo, VendorNo2, '', WorkDate, SummarizePer::" ", StrSubstNo(
+          CreatePaymentSlipAndSuggestVendorPayment(VendorNo, VendorNo2, '', WorkDate(), SummarizePer::" ", StrSubstNo(
               FilterRangeTxt, VendorNo, VendorNo2));  // Blank for Currency.
 
         // Verify: Verify Vendor No. on Payment Line.
@@ -264,7 +264,7 @@ codeunit 144055 "ERM Payment Management II"
 
         // Setup: Create Vendor, Create payment Slip.
         Initialize();
-        DueDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate);
+        DueDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate());
         VendorNo := CreateVendor('');
         CreatePaymentSlipAndSuggestVendorPayment(VendorNo, VendorNo, '', DueDate, SummarizePer::Vendor, '');  // Blank for Currency and VendorFilter.
 
@@ -478,7 +478,7 @@ codeunit 144055 "ERM Payment Management II"
         PaymentClassCode :=
           SetupForPaymentOnPaymentSlip(
             GenJournalLine."Account Type"::Customer, CustomerNo, CustomerNo2,
-            LibraryRandom.RandDec(10, 2), PaymentClass.Suggestions::Customer, CurrencyCode, WorkDate);
+            LibraryRandom.RandDec(10, 2), PaymentClass.Suggestions::Customer, CurrencyCode, WorkDate());
         OpenPaymentSlip(PaymentSlip, PaymentClassCode);
         EnqueueValuesForHandler(StrSubstNo(FilterRangeTxt, CustomerNo, CustomerNo2), CurrencyCode, SummarizePer::" ");  // Enqueue for SuggestVendorPaymentsFRRequestPageHandler.
 
@@ -865,7 +865,7 @@ codeunit 144055 "ERM Payment Management II"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         CreateAndPostGeneralJournal(GenJournalLine, AccountType, AccountNo, DueDate, Amount);
-        CreateAndPostGeneralJournal(GenJournalLine, AccountType, AccountNo2, WorkDate, Amount);
+        CreateAndPostGeneralJournal(GenJournalLine, AccountType, AccountNo2, WorkDate(), Amount);
         PaymentClassCode := CreatePaymentSlip(Suggestion, CurrencyCode);
     end;
 
@@ -916,7 +916,7 @@ codeunit 144055 "ERM Payment Management II"
         FindPaymentLine(PaymentLine, PaymentClassCode);
         CustLedgerEntry.CalcFields(Amount, "Amount (LCY)");
         CustLedgerEntry.TestField(Amount, PaymentLine.Amount);
-        CustLedgerEntry.TestField("Amount (LCY)", LibraryERM.ConvertCurrency(PaymentLine.Amount, CurrencyCode, '', WorkDate));
+        CustLedgerEntry.TestField("Amount (LCY)", LibraryERM.ConvertCurrency(PaymentLine.Amount, CurrencyCode, '', WorkDate()));
     end;
 
     local procedure VerifyVATEntry(BillToPayToNo: Code[20]; Amount: Decimal)
@@ -941,7 +941,7 @@ codeunit 144055 "ERM Payment Management II"
             AssertElementWithValueExists('PaymtHeader_IBAN', BankAccount.IBAN);
             AssertElementWithValueExists(
               'HeaderText1',
-              StrSubstNo(HeaderTxt, VendorBankAccount."SWIFT Code", VendorBankAccount."Agency Code", VendorBankAccount.IBAN, WorkDate));
+              StrSubstNo(HeaderTxt, VendorBankAccount."SWIFT Code", VendorBankAccount."Agency Code", VendorBankAccount.IBAN, WorkDate()));
         end;
     end;
 
@@ -980,7 +980,7 @@ codeunit 144055 "ERM Payment Management II"
         LibraryVariableStorage.Dequeue(No);
         LibraryVariableStorage.Dequeue(CurrencyFilter);
         SuggestCustomerPayments.Customer.SetFilter("No.", No);
-        SuggestCustomerPayments.LastPaymentDate.SetValue(WorkDate);  // Required month end date.
+        SuggestCustomerPayments.LastPaymentDate.SetValue(WorkDate());  // Required month end date.
         SuggestCustomerPayments.CurrencyFilter.SetValue(CurrencyFilter);
         SuggestCustomerPayments.OK.Invoke;
     end;
@@ -997,7 +997,7 @@ codeunit 144055 "ERM Payment Management II"
         LibraryVariableStorage.Dequeue(CurrencyFilter);
         LibraryVariableStorage.Dequeue(SummarizePer);
         SuggestVendorPaymentsFR.Vendor.SetFilter("No.", No);
-        SuggestVendorPaymentsFR.LastPaymentDate.SetValue(CalcDate('<1M>', WorkDate));  // Required month end date.
+        SuggestVendorPaymentsFR.LastPaymentDate.SetValue(CalcDate('<1M>', WorkDate()));  // Required month end date.
         SuggestVendorPaymentsFR.CurrencyFilter.SetValue(CurrencyFilter);
         SuggestVendorPaymentsFR.SummarizePer.SetValue(SummarizePer);
         SuggestVendorPaymentsFR.OK.Invoke;

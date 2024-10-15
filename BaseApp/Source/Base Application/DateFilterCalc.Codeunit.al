@@ -6,13 +6,14 @@ codeunit 358 "DateFilter-Calc"
     end;
 
     var
-        Text000: Label 'Fiscal Year %1';
         AccountingPeriod: Record "Accounting Period";
         StartDate: Date;
         Text10800: Label 'The selected date is not a starting period.';
         Text10801: Label 'The starting date must be the first day of a month.';
         Text10802: Label 'The ending date must be the last day of a month.';
         DateInsteadOfPeriodErr: Label 'You must enter a date interval, such as 01.01.17..31.01.17.';
+
+        Text000: Label 'Fiscal Year %1';
 
     procedure CreateFiscalYearFilter(var "Filter": Text[30]; var Name: Text[30]; Date: Date; NextStep: Integer)
     begin
@@ -61,7 +62,7 @@ codeunit 358 "DateFilter-Calc"
             Name := StrSubstNo(Text000, Format(Date2DMY(StartDate, 3)))
         else
             Name := AccountingPeriod.Name;
-        if AccountingPeriod.Next <> 0 then
+        if AccountingPeriod.Next() <> 0 then
             Filter := Format(StartDate) + '..' + Format(AccountingPeriod."Starting Date" - 1)
         else begin
             Filter := Format(StartDate) + '..' + Format(DMY2Date(31, 12, 9999));

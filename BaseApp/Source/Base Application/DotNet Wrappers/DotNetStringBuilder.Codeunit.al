@@ -30,7 +30,7 @@ codeunit 3014 DotNet_StringBuilder
 
     procedure AppendLine()
     begin
-        DotNetStringBuilder.AppendLine
+        DotNetStringBuilder.AppendLine();
     end;
 
     [Scope('OnPrem')]

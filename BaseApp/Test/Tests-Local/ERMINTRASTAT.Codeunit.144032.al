@@ -584,7 +584,7 @@ codeunit 144032 "ERM INTRASTAT"
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         // [GIVEN] Intrastat Journal Lines created on 01 january for Item "X" with "Group Entries" = No
-        RunGetItemLedgerEntriesReport(IntrastatJnlLine, WorkDate, false);
+        RunGetItemLedgerEntriesReport(IntrastatJnlLine, WorkDate(), false);
 
         // [WHEN] Run Get Item Ledger Entries report on 01 february for Item "X" with "Group Entries" = Yes
         RunGetItemLedgerEntriesReport(IntrastatJnlLine, WorkDate + 1, true);
@@ -1078,7 +1078,7 @@ codeunit 144032 "ERM INTRASTAT"
     begin
         LibraryERM.CreateIntrastatJnlTemplate(IntrastatJnlTemplate);
         LibraryERM.CreateIntrastatJnlBatch(IntrastatJnlBatch, IntrastatJnlTemplate.Name);
-        IntrastatJnlBatch.Validate("Statistics Period", Format(WorkDate, 0, LibraryFiscalYear.GetStatisticsPeriod));
+        IntrastatJnlBatch.Validate("Statistics Period", Format(WorkDate(), 0, LibraryFiscalYear.GetStatisticsPeriod));
         IntrastatJnlBatch.Modify(true);
     end;
 
@@ -1342,7 +1342,7 @@ codeunit 144032 "ERM INTRASTAT"
 
     local procedure RunGetItemLedgerEntriesReportAndUpdate(var IntrastatJnlLine: Record "Intrastat Jnl. Line"; Type: Option; DocumentNo: Code[20])
     begin
-        RunGetItemLedgerEntriesReport(IntrastatJnlLine, WorkDate, false);
+        RunGetItemLedgerEntriesReport(IntrastatJnlLine, WorkDate(), false);
 
         // Delete unnecessary Intrastat Journal Lines, find necessary Intrastat Journal Line and updated with mandatory fields.
         DeleteIntrastatJnlLine(IntrastatJnlLine."Journal Template Name", IntrastatJnlLine."Journal Batch Name", DocumentNo);

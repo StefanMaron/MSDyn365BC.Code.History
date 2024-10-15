@@ -68,27 +68,27 @@ table 5392 "CRM Annotation Coupling"
         if FindByCRMId(CRMAnnotation.AnnotationId) then
             Error(CRMAnnotationAlreadyCoupledErr, CRMAnnotation.AnnotationId);
 
-        Init;
+        Init();
         "Record Link Record ID" := RecordLink.RecordId;
         "CRM Annotation ID" := CRMAnnotation.AnnotationId;
         "Last Synch. DateTime" := CurrentDateTime;
         "CRM Created On" := CRMAnnotation.CreatedOn;
         "CRM Modified On" := CRMAnnotation.ModifiedOn;
-        Insert;
+        Insert();
     end;
 
     [Scope('OnPrem')]
     procedure FindByRecordId(RecordId: RecordID): Boolean
     begin
         SetRange("Record Link Record ID", RecordId);
-        exit(FindFirst)
+        exit(FindFirst());
     end;
 
     [Scope('OnPrem')]
     procedure FindByCRMId(CRMId: Guid): Boolean
     begin
         SetRange("CRM Annotation ID", CRMId);
-        exit(FindFirst)
+        exit(FindFirst());
     end;
 
     [Scope('OnPrem')]

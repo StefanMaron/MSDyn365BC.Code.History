@@ -1,5 +1,6 @@
 table 130642 "Webhook Notification Trigger"
 {
+    ReplicateData = false;
 
     fields
     {
@@ -32,7 +33,7 @@ table 130642 "Webhook Notification Trigger"
     trigger OnInsert()
     begin
         if IsNullGuid(ID) then
-            ID := CreateGuid;
+            ID := CreateGuid();
     end;
 }
 

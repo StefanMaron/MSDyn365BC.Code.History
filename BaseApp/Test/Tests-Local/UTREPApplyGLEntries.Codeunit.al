@@ -31,7 +31,7 @@ codeunit 144006 "UT REP Apply GL Entries"
         // Purpose of the test is to validate G/L Entry - OnAfterGetRecord Trigger of Report - 10842 G/L Account Statement.
 
         // Evaluation Date as WORKDATE and GL Entry Type as Not Applied for report G/L Account Statement. Letter for first and second GL Entry.
-        EvaluationDateEntryTypeLetterGLAccountStmt(WorkDate, GLEntries::"Not Applied", CapitalLetterTxt, SmallLetterTxt);
+        EvaluationDateEntryTypeLetterGLAccountStmt(WorkDate(), GLEntries::"Not Applied", CapitalLetterTxt, SmallLetterTxt);
     end;
 
     [Test]
@@ -59,7 +59,7 @@ codeunit 144006 "UT REP Apply GL Entries"
         // Purpose of the test is to validate G/L Entry - OnAfterGetRecord Trigger of Report - 10842 G/L Account Statement.
 
         // Evaluation Date as WORKDATE and GL Entry Type as Applied for report G/L Account Statement. Letter for first and second GL Entry.
-        EvaluationDateEntryTypeLetterGLAccountStmt(WorkDate, GLEntries::Applied, SmallLetterTxt, CapitalLetterTxt);
+        EvaluationDateEntryTypeLetterGLAccountStmt(WorkDate(), GLEntries::Applied, SmallLetterTxt, CapitalLetterTxt);
     end;
 
     [Test]
@@ -83,7 +83,7 @@ codeunit 144006 "UT REP Apply GL Entries"
         // Setup: Create two GL Entry with different Letter and Posting Date.
         Initialize();
         CreateGLEntry(GLEntry, CreateGLAccount, Letter, 0D);  // Using Posting Date as blank.
-        CreateGLEntry(GLEntry, GLEntry."G/L Account No.", Letter2, WorkDate); // Using Posting Date as WORKDATE.
+        CreateGLEntry(GLEntry, GLEntry."G/L Account No.", Letter2, WorkDate()); // Using Posting Date as WORKDATE.
 
         // Enqueue values in handler - GLAccountStatementRequestPageHandler.
         LibraryVariableStorage.Enqueue(GLEntry."G/L Account No.");

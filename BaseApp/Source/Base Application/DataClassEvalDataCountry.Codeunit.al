@@ -9,13 +9,13 @@ codeunit 1752 "Data Class. Eval. Data Country"
     var
         DataClassificationEvalData: Codeunit "Data Classification Eval. Data";
     begin
-        ClassifyEmployee;
-        ClassifyPayableEmployeeLedgerEntry;
-        ClassifyDetailedEmployeeLedgerEntry;
-        ClassifyEmployeeLedgerEntry;
-        ClassifyEmployeeRelative;
-        ClassifyEmployeeQualification;
-        ClassifyVATReportHeader;
+        ClassifyEmployee();
+        ClassifyPayableEmployeeLedgerEntry();
+        ClassifyDetailedEmployeeLedgerEntry();
+        ClassifyEmployeeLedgerEntry();
+        ClassifyEmployeeRelative();
+        ClassifyEmployeeQualification();
+        ClassifyVATReportHeader();
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"FR Acc. Schedule Name");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"FR Acc. Schedule Line");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Shipment Invoiced");

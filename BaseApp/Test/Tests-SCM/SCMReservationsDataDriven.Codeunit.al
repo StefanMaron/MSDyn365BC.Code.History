@@ -85,8 +85,8 @@ codeunit 137017 "SCM Reservations Data Driven"
                 ErrorCount += 1;
                 Log := CopyStr(Log + CopyStr(GetLastErrorText, 1, 25) + '||', 1, 1000);
             end;
-            ClearLastError;
-        until TempItem.Next = 0;
+            ClearLastError();
+        until TempItem.Next() = 0;
 
         Assert.IsTrue(StrLen(Log) = 0, Format(ErrorCount) + ' error(s):' + Log);
 
@@ -182,7 +182,7 @@ codeunit 137017 "SCM Reservations Data Driven"
                         asserterror LibraryWarehouse.CreatePick(WhseShipmentHeader);
                         Assert.IsTrue(StrPos(GetLastErrorText, ErrNothingToHandle) > 0,
                           'Creating picks with same bin on Take & Place lines not allowed');
-                        ClearLastError;
+                        ClearLastError();
                         Bin.SetRange("Location Code", LocationCode);
                         Bin.SetFilter(Code, '<>%1', WhseShipmentLine."Bin Code");
                         Bin.FindFirst();
@@ -335,7 +335,7 @@ codeunit 137017 "SCM Reservations Data Driven"
         if ReservationEntry.FindSet() then
             repeat
                 ActualQty += Abs(ReservationEntry.Quantity);
-            until ReservationEntry.Next = 0;
+            until ReservationEntry.Next() = 0;
 
         Assert.AreEqual(ExpectedQty, ActualQty, 'Wrong reserved qty. on ' + Format(SourceID))
     end;
@@ -505,7 +505,7 @@ codeunit 137017 "SCM Reservations Data Driven"
             then
                 WhseActivityLine."Bin Code" := PlaceBinCode;
             WhseActivityLine.Modify(true);
-        until WhseActivityLine.Next = 0;
+        until WhseActivityLine.Next() = 0;
 
         Clear(WhseActivityHeader);
         WhseActivityHeader.SetCurrentKey(Type, "No.");
@@ -603,7 +603,7 @@ codeunit 137017 "SCM Reservations Data Driven"
         repeat
             Location.Get(PurchaseLine."Location Code");
             SupplyQty += PurchaseLine."Quantity Received";
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
 
         // Expected qty to pick is minimum betqeen requested qty for the last document, and available qty to pick.
         if SupplyQty - DemandQty >= 0 then
@@ -879,7 +879,7 @@ codeunit 137017 "SCM Reservations Data Driven"
                     BinCode := Bin.Code;
                     exit;
                 end;
-            until Bin.Next = 0;
+            until Bin.Next() = 0;
     end;
 }
 

@@ -142,10 +142,10 @@ codeunit 144036 "UT REP Legal Report"
         // Setup.
         Initialize();
         CreateBankAccountWithDimension(BankAccount);
-        CreateBankAccountLedgerEntry(BankAccount."No.", WorkDate);
+        CreateBankAccountLedgerEntry(BankAccount."No.", WorkDate());
 
         // Exercise.
-        RunTrialBalanceReport(BankAccount."No.", Format(WorkDate), false, '', REPORT::"Bank Account Trial Balance");  // PrintBankAccountsWithoutBalance FALSE.
+        RunTrialBalanceReport(BankAccount."No.", Format(WorkDate()), false, '', REPORT::"Bank Account Trial Balance");  // PrintBankAccountsWithoutBalance FALSE.
 
         // Verify: Verify the Bank Account No, Debit Amount and Credit Amount after running report Bank Account Trial Balance with Balance.
         LibraryReportDataset.LoadDataSetFile;
@@ -167,11 +167,11 @@ codeunit 144036 "UT REP Legal Report"
         // Setup.
         Initialize();
         CreateBankAccountWithDimension(BankAccount);
-        CreateBankAccountLedgerEntry(BankAccount."No.", WorkDate);
+        CreateBankAccountLedgerEntry(BankAccount."No.", WorkDate());
 
         // Exercise.
         RunTrialBalanceReport(
-          BankAccount."No.", Format(WorkDate), true, BankAccount."Global Dimension 1 Code", REPORT::"Bank Account Trial Balance");  // PrintBankAccountsWithoutBalance TRUE.
+          BankAccount."No.", Format(WorkDate()), true, BankAccount."Global Dimension 1 Code", REPORT::"Bank Account Trial Balance");  // PrintBankAccountsWithoutBalance TRUE.
 
         // Verify: Verify the Bank Account No, Debit Amount,Credit Amount and Dimension after running report Bank Account Trial Balance with Dimension.
         LibraryReportDataset.LoadDataSetFile;
@@ -180,7 +180,7 @@ codeunit 144036 "UT REP Legal Report"
           BankAccountNoCap, BankAccount."No.", BankAccountDebitAmountLCYCap, BankAccount."Debit Amount (LCY)",
           BankAccountCreditAmountLCYCap, BankAccount."Credit Amount (LCY)");
         LibraryReportDataset.AssertElementWithValueExists(
-          FilterCap, StrSubstNo(FilterValueTxt, BankAccount."No.", BankAccount."Global Dimension 1 Code", Format(WorkDate)));
+          FilterCap, StrSubstNo(FilterValueTxt, BankAccount."No.", BankAccount."Global Dimension 1 Code", Format(WorkDate())));
     end;
 
     [Test]
@@ -195,10 +195,10 @@ codeunit 144036 "UT REP Legal Report"
         // Setup.
         Initialize();
         CreateBankAccountWithDimension(BankAccount);
-        CreateBankAccountLedgerEntry('', WorkDate);
+        CreateBankAccountLedgerEntry('', WorkDate());
 
         // Exercise.
-        RunTrialBalanceReport(BankAccount."No.", Format(WorkDate), true, '', REPORT::"Bank Account Trial Balance");  // PrintBankAccountsWithoutBalance TRUE.
+        RunTrialBalanceReport(BankAccount."No.", Format(WorkDate()), true, '', REPORT::"Bank Account Trial Balance");  // PrintBankAccountsWithoutBalance TRUE.
 
         // Verify: Verify the Bank Account No, Debit Amount and Credit Amount as zero after running report Bank Account Trial Balance.
         LibraryReportDataset.LoadDataSetFile;
@@ -218,11 +218,11 @@ codeunit 144036 "UT REP Legal Report"
         // Setup.
         Initialize();
         CreateCustomerWithDimension(Customer);
-        CreateDetailedCustomerLedgerEntry(CreateCustomerLedgerEntry(Customer."No.", WorkDate));
+        CreateDetailedCustomerLedgerEntry(CreateCustomerLedgerEntry(Customer."No.", WorkDate()));
 
         // Exercise.
         RunTrialBalanceReport(
-          Customer."No.", Format(CalcDate('<1M>', WorkDate)), false, Customer."Global Dimension 1 Code",
+          Customer."No.", Format(CalcDate('<1M>', WorkDate())), false, Customer."Global Dimension 1 Code",
           REPORT::"Customer Detail Trial Balance");  // ExcludeBalanceOnly FALSE.
 
         // Verify: Verify the Customer No, Credit Amount and Dimension after running report Customer Detail Trial Balance.
@@ -232,7 +232,7 @@ codeunit 144036 "UT REP Legal Report"
           CustomerNoCap, Customer."No.", PreviousCreditAmountLCYCap, Customer."Credit Amount (LCY)",
           GeneralCreditAmountLCYCap, Customer."Credit Amount (LCY)");
         LibraryReportDataset.AssertElementWithValueExists(
-          FilterCap, StrSubstNo(FilterValueTxt, Customer."No.", Customer."Global Dimension 1 Code", Format(CalcDate('<1M>', WorkDate))));
+          FilterCap, StrSubstNo(FilterValueTxt, Customer."No.", Customer."Global Dimension 1 Code", Format(CalcDate('<1M>', WorkDate()))));
     end;
 
     [Test]
@@ -247,8 +247,8 @@ codeunit 144036 "UT REP Legal Report"
         // Setup.
         Initialize();
         CreateCustomerWithDimension(Customer);
-        CreateDetailedCustomerLedgerEntry(CreateCustomerLedgerEntry(Customer."No.", WorkDate));
-        RunTrialBalanceReport(Customer."No.", Format(CalcDate('<1M>', WorkDate)), true, '', REPORT::"Customer Detail Trial Balance");  // ExcludeBalanceOnly TRUE.
+        CreateDetailedCustomerLedgerEntry(CreateCustomerLedgerEntry(Customer."No.", WorkDate()));
+        RunTrialBalanceReport(Customer."No.", Format(CalcDate('<1M>', WorkDate())), true, '', REPORT::"Customer Detail Trial Balance");  // ExcludeBalanceOnly TRUE.
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.GetNextRow;
 
@@ -271,10 +271,10 @@ codeunit 144036 "UT REP Legal Report"
         // Setup.
         Initialize();
         CreateCustomerWithDimension(Customer);
-        CreateDetailedCustomerLedgerEntry(CreateCustomerLedgerEntry(Customer."No.", WorkDate));
+        CreateDetailedCustomerLedgerEntry(CreateCustomerLedgerEntry(Customer."No.", WorkDate()));
 
         // Exercise.
-        RunTrialBalanceReport(Customer."No.", Format(CalcDate('<1M>', WorkDate)), false, '', REPORT::"Customer Detail Trial Balance");  // ExcludeBalanceOnly FALSE.
+        RunTrialBalanceReport(Customer."No.", Format(CalcDate('<1M>', WorkDate())), false, '', REPORT::"Customer Detail Trial Balance");  // ExcludeBalanceOnly FALSE.
 
         // Verify: Verify the Customer No and Credit Amount after running report Customer Detail Trial Balance.
         LibraryReportDataset.LoadDataSetFile;
@@ -311,10 +311,10 @@ codeunit 144036 "UT REP Legal Report"
         // Setup.
         Initialize();
         CreateCustomerWithDimension(Customer);
-        CreateDetailedCustomerLedgerEntry(CreateCustomerLedgerEntry(Customer."No.", WorkDate));
+        CreateDetailedCustomerLedgerEntry(CreateCustomerLedgerEntry(Customer."No.", WorkDate()));
 
         // Exercise.
-        RunTrialBalanceReport(Customer."No.", Format(WorkDate), PrintCustomersWithoutBalance, '', ReportID);  // PrintCustomersWithoutBalance TRUE.
+        RunTrialBalanceReport(Customer."No.", Format(WorkDate()), PrintCustomersWithoutBalance, '', ReportID);  // PrintCustomersWithoutBalance TRUE.
 
         // Verify: Verify the Customer No and Debit Amount as zero after running report Customer Trial Balance without Balance.
         LibraryReportDataset.LoadDataSetFile;
@@ -334,17 +334,17 @@ codeunit 144036 "UT REP Legal Report"
         // Setup.
         Initialize();
         CreateCustomerWithDimension(Customer);
-        CreateDetailedCustomerLedgerEntry(CreateCustomerLedgerEntry(Customer."No.", WorkDate));
+        CreateDetailedCustomerLedgerEntry(CreateCustomerLedgerEntry(Customer."No.", WorkDate()));
 
         // Exercise.
-        RunTrialBalanceReport(Customer."No.", Format(WorkDate), false, Customer."Global Dimension 1 Code", REPORT::"Customer Trial Balance FR");  // PrintCustomersWithoutBalance FALSE.
+        RunTrialBalanceReport(Customer."No.", Format(WorkDate()), false, Customer."Global Dimension 1 Code", REPORT::"Customer Trial Balance FR");  // PrintCustomersWithoutBalance FALSE.
 
         // Verify: Verify the Customer No, Credit Amount and Dimension after running report Customer Trial Balance with Dimension.
         LibraryReportDataset.LoadDataSetFile;
         Customer.CalcFields("Credit Amount (LCY)");
         VerifyNoAndCreditAmount(CustomerNoCap, Customer."No.", PeriodCreditAmountLCYCap, Customer."Credit Amount (LCY)");
         LibraryReportDataset.AssertElementWithValueExists(
-          FilterCap, StrSubstNo(FilterValueTxt, Customer."No.", Customer."Global Dimension 1 Code", Format(WorkDate)));
+          FilterCap, StrSubstNo(FilterValueTxt, Customer."No.", Customer."Global Dimension 1 Code", Format(WorkDate())));
     end;
 
     [Test]
@@ -363,7 +363,7 @@ codeunit 144036 "UT REP Legal Report"
         for Index := 1 to ArrayLen(CustomerNo) do
             CustomerNo[Index] := LibrarySales.CreateCustomerNo();
 
-        CreateDetailedCustomerLedgerEntry(CreateCustomerLedgerEntry(CustomerNo[1], WorkDate));
+        CreateDetailedCustomerLedgerEntry(CreateCustomerLedgerEntry(CustomerNo[1], WorkDate()));
         CreateDetailedCustomerLedgerEntry(CreateCustomerLedgerEntry(CustomerNo[2], WorkDate - 40));
 
         // Date Filter = WORKDATE
@@ -383,7 +383,7 @@ codeunit 144036 "UT REP Legal Report"
         SummarizedBy: Option Date,Week,Month,Quarter,Year;
     begin
         // Purpose of the test is to validate GL Account - OnAfterGetRecord of the Report, ID: 10804, GL Detail Trial Balance centralized by Date.
-        GLDetailTrialBalanceTestReport(SummarizedBy::Date, Format(StrSubstNo(RangeCap, WorkDate, WorkDate)));
+        GLDetailTrialBalanceTestReport(SummarizedBy::Date, Format(StrSubstNo(RangeCap, WorkDate(), WorkDate())));
     end;
 
     [Test]
@@ -396,7 +396,7 @@ codeunit 144036 "UT REP Legal Report"
     begin
         // Purpose of the test is to validate GL Account - OnAfterGetRecord of the Report, ID: 10804, GL Detail Trial Balance centralized by Week.
         GLDetailTrialBalanceTestReport(
-          SummarizedBy::Week, Format(StrSubstNo(RangeCap, CalcDate('<-CW>', WorkDate), CalcDate('<CW>', WorkDate))));
+          SummarizedBy::Week, Format(StrSubstNo(RangeCap, CalcDate('<-CW>', WorkDate()), CalcDate('<CW>', WorkDate()))));
     end;
 
     [Test]
@@ -409,7 +409,7 @@ codeunit 144036 "UT REP Legal Report"
     begin
         // Purpose of the test is to validate GL Account - OnAfterGetRecord of the Report, ID: 10804, GL Detail Trial Balance centralized by Month.
         GLDetailTrialBalanceTestReport(
-          SummarizedBy::Month, Format(StrSubstNo(RangeCap, CalcDate('<-CM>', WorkDate), CalcDate('<CM>', WorkDate))));
+          SummarizedBy::Month, Format(StrSubstNo(RangeCap, CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate()))));
     end;
 
     [Test]
@@ -422,7 +422,7 @@ codeunit 144036 "UT REP Legal Report"
     begin
         // Purpose of the test is to validate GL Account - OnAfterGetRecord of the Report, ID: 10804, GL Detail Trial Balance centralized by Quarter.
         GLDetailTrialBalanceTestReport(
-          SummarizedBy::Quarter, Format(StrSubstNo(RangeCap, CalcDate('<-CQ>', WorkDate), CalcDate('<CQ>', WorkDate))));
+          SummarizedBy::Quarter, Format(StrSubstNo(RangeCap, CalcDate('<-CQ>', WorkDate()), CalcDate('<CQ>', WorkDate()))));
     end;
 
     [Test]
@@ -435,7 +435,7 @@ codeunit 144036 "UT REP Legal Report"
     begin
         // Purpose of the test is to validate GL Account - OnAfterGetRecord of the Report, ID: 10804, GL Detail Trial Balance centralized by Year.
         GLDetailTrialBalanceTestReport(
-          SummarizedBy::Year, Format(StrSubstNo(RangeCap, CalcDate('<-CY>', WorkDate), CalcDate('<CY>', WorkDate))));
+          SummarizedBy::Year, Format(StrSubstNo(RangeCap, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()))));
     end;
 
     local procedure GLDetailTrialBalanceTestReport(SummarizedBy: Option Date,Week,Month,Quarter,Year; DateFilter: Text)
@@ -470,8 +470,8 @@ codeunit 144036 "UT REP Legal Report"
         // Setup.
         Initialize();
         CreateVendorWithDimension(Vendor);
-        CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(Vendor."No.", WorkDate));
-        RunTrialBalanceReport(Vendor."No.", Format(CalcDate('<1M>', WorkDate)), true, '', REPORT::"Vendor Detail Trial Balance FR");  // ExcludeBalanceOnly TRUE.
+        CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(Vendor."No.", WorkDate()));
+        RunTrialBalanceReport(Vendor."No.", Format(CalcDate('<1M>', WorkDate())), true, '', REPORT::"Vendor Detail Trial Balance FR");  // ExcludeBalanceOnly TRUE.
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.GetNextRow;
 
@@ -494,10 +494,10 @@ codeunit 144036 "UT REP Legal Report"
         // Setup.
         Initialize();
         CreateVendorWithDimension(Vendor);
-        CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(Vendor."No.", WorkDate));
+        CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(Vendor."No.", WorkDate()));
 
         // Exercise.
-        RunTrialBalanceReport(Vendor."No.", Format(CalcDate('<1M>', WorkDate)), false, '', REPORT::"Vendor Detail Trial Balance FR");  // ExcludeBalanceOnly FALSE.
+        RunTrialBalanceReport(Vendor."No.", Format(CalcDate('<1M>', WorkDate())), false, '', REPORT::"Vendor Detail Trial Balance FR");  // ExcludeBalanceOnly FALSE.
 
         // Verify: Verify the Vendor No and Credit Amount is available after running report Vendor Detail Trial Balance with Balance.
         LibraryReportDataset.LoadDataSetFile;
@@ -519,11 +519,11 @@ codeunit 144036 "UT REP Legal Report"
         // Setup.
         Initialize();
         CreateVendorWithDimension(Vendor);
-        CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(Vendor."No.", WorkDate));
+        CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(Vendor."No.", WorkDate()));
 
         // Exercise.
         RunTrialBalanceReport(
-          Vendor."No.", Format(CalcDate('<1M>', WorkDate)), false, Vendor."Global Dimension 1 Code", REPORT::"Vendor Detail Trial Balance FR");  // ExcludeBalanceOnly FALSE.
+          Vendor."No.", Format(CalcDate('<1M>', WorkDate())), false, Vendor."Global Dimension 1 Code", REPORT::"Vendor Detail Trial Balance FR");  // ExcludeBalanceOnly FALSE.
 
         // Verify: Verify the Vendor No, Credit Amount and Dimension is available after running report Vendor Detail Trial Balance with Balance.
         LibraryReportDataset.LoadDataSetFile;
@@ -532,7 +532,7 @@ codeunit 144036 "UT REP Legal Report"
           VendorNoCap, Vendor."No.", PreviousCreditAmountLCYCap, Vendor."Credit Amount (LCY)", GeneralCreditAmountLCYCap,
           Vendor."Credit Amount (LCY)");
         LibraryReportDataset.AssertElementWithValueExists(
-          FilterCap, StrSubstNo(FilterValueTxt, Vendor."No.", Vendor."Global Dimension 1 Code", Format(CalcDate('<1M>', WorkDate))));
+          FilterCap, StrSubstNo(FilterValueTxt, Vendor."No.", Vendor."Global Dimension 1 Code", Format(CalcDate('<1M>', WorkDate()))));
     end;
 
     [Test]
@@ -547,18 +547,18 @@ codeunit 144036 "UT REP Legal Report"
         // Setup.
         Initialize();
         CreateVendorWithDimension(Vendor);
-        CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(Vendor."No.", WorkDate));
+        CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(Vendor."No.", WorkDate()));
 
         // Exercise.
         RunTrialBalanceReport(
-          Vendor."No.", Format(WorkDate), false, Vendor."Global Dimension 1 Code", REPORT::"Vendor Trial Balance FR");  // PrintVendorsWithoutBalance FALSE.
+          Vendor."No.", Format(WorkDate()), false, Vendor."Global Dimension 1 Code", REPORT::"Vendor Trial Balance FR");  // PrintVendorsWithoutBalance FALSE.
 
         // Verify: Verify the Vendor No, Credit Amount and Dimension is available after running report Vendor Trial Balance with Balance.
         LibraryReportDataset.LoadDataSetFile;
         Vendor.CalcFields("Credit Amount (LCY)");
         VerifyNoAndCreditAmount(VendorNoCap, Vendor."No.", PeriodCreditAmountLCYCap, Vendor."Credit Amount (LCY)");
         LibraryReportDataset.AssertElementWithValueExists(
-          FilterCap, StrSubstNo(FilterValueTxt, Vendor."No.", Vendor."Global Dimension 1 Code", Format(WorkDate)));
+          FilterCap, StrSubstNo(FilterValueTxt, Vendor."No.", Vendor."Global Dimension 1 Code", Format(WorkDate())));
     end;
 
     [Test]
@@ -576,7 +576,7 @@ codeunit 144036 "UT REP Legal Report"
         CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(Vendor."No.", WorkDate - 40));
 
         // Exercise.
-        RunTrialBalanceReport(Vendor."No.", Format(WorkDate), true, '', REPORT::"Vendor Trial Balance FR");  // PrintVendorsWithoutBalance TRUE.
+        RunTrialBalanceReport(Vendor."No.", Format(WorkDate()), true, '', REPORT::"Vendor Trial Balance FR");  // PrintVendorsWithoutBalance TRUE.
 
         // Verify: Verify the Vendor No and Credit Amount as zero after running report Vendor Trial Balance without Balance.
         LibraryReportDataset.LoadDataSetFile;
@@ -599,7 +599,7 @@ codeunit 144036 "UT REP Legal Report"
         for Index := 1 to ArrayLen(VendorNo) do
             VendorNo[Index] := LibraryPurchase.CreateVendorNo();
 
-        CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(VendorNo[1], WorkDate));
+        CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(VendorNo[1], WorkDate()));
         CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(VendorNo[2], WorkDate - 40));
 
         // Date Filter = WORKDATE
@@ -627,7 +627,7 @@ codeunit 144036 "UT REP Legal Report"
 
         // Exercise.
         RunGLDetailTrialBalanceReport(
-          GLAccount."No.", Format(StrSubstNo(RangeCap, CalcDate('<-CY>', WorkDate), CalcDate('<CY>', WorkDate))),
+          GLAccount."No.", Format(StrSubstNo(RangeCap, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate()))),
           SummarizedBy::Year, GLAccount."Global Dimension 1 Code");
 
         // Verify: Verify the Credit Amount, Debit Amount and Dimension after running report GL Detail Trial Balance.
@@ -638,7 +638,7 @@ codeunit 144036 "UT REP Legal Report"
         LibraryReportDataset.AssertElementWithValueExists(
           FilterCap, StrSubstNo(
             FilterValueTxt, GLAccount."No.", GLAccount."Global Dimension 1 Code", Format(
-              StrSubstNo(RangeCap, CalcDate('<-CY>', WorkDate), CalcDate('<CY>', WorkDate)))));
+              StrSubstNo(RangeCap, CalcDate('<-CY>', WorkDate()), CalcDate('<CY>', WorkDate())))));
     end;
 
     [Test]
@@ -654,14 +654,14 @@ codeunit 144036 "UT REP Legal Report"
         // Setup.
         Initialize();
         CreateBankAccountWithDimension(BankAccount);
-        CreateBankAccountLedgerEntry(BankAccount."No.", WorkDate);
+        CreateBankAccountLedgerEntry(BankAccount."No.", WorkDate());
 
         // Exercise and Verify.
         DimensionOnBankAccountDetailTrialBalanceReport(BankAccount, BankAccount."Global Dimension 1 Code");
         LibraryReportDataset.AssertElementWithValueExists(
           FilterCap, StrSubstNo(
             FilterValueTxt, BankAccount."No.", BankAccount."Global Dimension 1 Code", Format(
-              StrSubstNo(RangeCap, CalcDate('<-CY>', WorkDate), WorkDate))));
+              StrSubstNo(RangeCap, CalcDate('<-CY>', WorkDate()), WorkDate()))));
     end;
 
     [Test]
@@ -677,7 +677,7 @@ codeunit 144036 "UT REP Legal Report"
         // Setup.
         Initialize();
         CreateBankAccountWithDimension(BankAccount);
-        CreateBankAccountLedgerEntry(BankAccount."No.", WorkDate);
+        CreateBankAccountLedgerEntry(BankAccount."No.", WorkDate());
 
         // Exercise and Verify.
         DimensionOnBankAccountDetailTrialBalanceReport(BankAccount, '');  // Blank for Dimension.
@@ -699,14 +699,14 @@ codeunit 144036 "UT REP Legal Report"
         // [GIVEN] Bank Account with entry on 31.12.16 of credit amount 100
         // [GIVEN] Second entry on 15.01.17 of credit amount 200
         CreateBankAccountWithDimension(BankAccount);
-        StartDate := CalcDate('<-1Y>', WorkDate);
+        StartDate := CalcDate('<-1Y>', WorkDate());
         CreateBankAccountLedgerEntry(BankAccount."No.", StartDate);
-        CreateBankAccountLedgerEntry(BankAccount."No.", WorkDate);
+        CreateBankAccountLedgerEntry(BankAccount."No.", WorkDate());
 
         // [WHEN] Run report Bank Acc. Detail Trial Balance from 01.01.17
         RunBankAccountDetailTrialBalanceReport(
           BankAccount."No.",
-          StrSubstNo(RangeCap, CalcDate('<-CY>', WorkDate), WorkDate), '');
+          StrSubstNo(RangeCap, CalcDate('<-CY>', WorkDate()), WorkDate()), '');
 
         // [THEN] 'PreviousCreditAmountLCY' has value 100
         LibraryReportDataset.LoadDataSetFile;
@@ -714,7 +714,7 @@ codeunit 144036 "UT REP Legal Report"
         BankAccount.CalcFields("Credit Amount (LCY)");
         LibraryReportDataset.AssertElementWithValueExists('PreviousCreditAmountLCY', BankAccount."Credit Amount (LCY)");
         // [THEN] 'Bank_Account_Ledger_Entry__Credit_Amount__LCY__' has value 200
-        BankAccount.SetRange("Date Filter", WorkDate);
+        BankAccount.SetRange("Date Filter", WorkDate());
         BankAccount.CalcFields("Credit Amount (LCY)");
         LibraryReportDataset.AssertElementWithValueExists(BankAccountLedgerEntryCrAmtCap, BankAccount."Credit Amount (LCY)");
     end;
@@ -724,7 +724,7 @@ codeunit 144036 "UT REP Legal Report"
         // Exercise.
         RunBankAccountDetailTrialBalanceReport(
           BankAccount."No.", Format(
-            StrSubstNo(RangeCap, CalcDate('<-CY>', WorkDate), WorkDate)), GlobalDimension1Code);
+            StrSubstNo(RangeCap, CalcDate('<-CY>', WorkDate()), WorkDate())), GlobalDimension1Code);
 
         // Verify: Verify the Credit Amount and Dimension after running report GL Detail Trial Balance.
         LibraryReportDataset.LoadDataSetFile;
@@ -747,7 +747,7 @@ codeunit 144036 "UT REP Legal Report"
         CreateGLEntry(GLAccount."No.");
 
         // Exercise.
-        RunGLTrialBalanceReport(GLAccount."No.", Format(WorkDate), false);  // PrintGLAccsWithoutBalance FALSE.
+        RunGLTrialBalanceReport(GLAccount."No.", Format(WorkDate()), false);  // PrintGLAccsWithoutBalance FALSE.
 
         // Verify: Verify the GL Account No, Credit Amount and Debit Amount after running report GL Trial Balance.
         LibraryReportDataset.LoadDataSetFile;
@@ -772,7 +772,7 @@ codeunit 144036 "UT REP Legal Report"
         CreateGLEntry('');
 
         // Exercise.
-        RunGLTrialBalanceReport(GLAccount."No.", Format(WorkDate), true);  // PrintGLAccsWithoutBalance TRUE.
+        RunGLTrialBalanceReport(GLAccount."No.", Format(WorkDate()), true);  // PrintGLAccsWithoutBalance TRUE.
 
         // Verify: Verify the GL Account No, Credit Amount and Debit Amount as zero after running report GL Trial Balance.
         LibraryReportDataset.LoadDataSetFile;
@@ -798,7 +798,7 @@ codeunit 144036 "UT REP Legal Report"
           GLAccount."No.", -LibraryRandom.RandDec(10, 2), 0);
 
         // [WHEN] Run report G/L Trial Balance
-        RunGLTrialBalanceReport(GLAccount."No.", Format(WorkDate), false);
+        RunGLTrialBalanceReport(GLAccount."No.", Format(WorkDate()), false);
 
         // [THEN] Credit Balance Date Range Column has value = ABS("X")
         LibraryReportDataset.LoadDataSetFile;
@@ -826,7 +826,7 @@ codeunit 144036 "UT REP Legal Report"
           GLAccount."No.", 0, -LibraryRandom.RandDec(10, 2));
 
         // [WHEN] Run report G/L Trial Balance
-        RunGLTrialBalanceReport(GLAccount."No.", Format(WorkDate), false);
+        RunGLTrialBalanceReport(GLAccount."No.", Format(WorkDate()), false);
 
         // [THEN] Debit Balance Date Range Column has value = ABS("X")
         LibraryReportDataset.LoadDataSetFile;
@@ -848,7 +848,7 @@ codeunit 144036 "UT REP Legal Report"
         // Setup.
         Initialize();
         CreateBankAccountWithDimension(BankAccount);
-        CreateBankAccountLedgerEntry(BankAccount."No.", WorkDate);
+        CreateBankAccountLedgerEntry(BankAccount."No.", WorkDate());
 
         // Exercise.
         asserterror RunBankAccountDetailTrialBalanceReport(BankAccount."No.", '', '');  // Blank DateFilter, Dimension.
@@ -869,7 +869,7 @@ codeunit 144036 "UT REP Legal Report"
         // Setup.
         Initialize();
         CreateBankAccountWithDimension(BankAccount);
-        CreateBankAccountLedgerEntry(BankAccount."No.", WorkDate);
+        CreateBankAccountLedgerEntry(BankAccount."No.", WorkDate());
 
         // Exercise.
         asserterror RunTrialBalanceReport(BankAccount."No.", '', false, '', REPORT::"Bank Account Trial Balance");  // Blank DateFilter, Dimension.
@@ -905,7 +905,7 @@ codeunit 144036 "UT REP Legal Report"
         // Setup.
         Initialize();
         CreateCustomerWithDimension(Customer);
-        CreateDetailedCustomerLedgerEntry(CreateCustomerLedgerEntry(Customer."No.", WorkDate));
+        CreateDetailedCustomerLedgerEntry(CreateCustomerLedgerEntry(Customer."No.", WorkDate()));
 
         // Exercise.
         asserterror RunTrialBalanceReport(Customer."No.", '', false, '', ReportID);  // Blank DateFilter.
@@ -984,7 +984,7 @@ codeunit 144036 "UT REP Legal Report"
         // Setup.
         Initialize();
         CreateVendorWithDimension(Vendor);
-        CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(Vendor."No.", WorkDate));
+        CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(Vendor."No.", WorkDate()));
 
         // Exercise.
         asserterror RunTrialBalanceReport(Vendor."No.", '', false, '', ReportID);  // Blank DateFilter.
@@ -1030,7 +1030,7 @@ codeunit 144036 "UT REP Legal Report"
         SortingBy: Option "Posting Date","Document No.";
     begin
         // Purpose of the test is to validate GLAccount - OnAfterGetRecord with Period Type Date and sorting by Posting Date of the Report, ID: 10801, Journal.
-        JournalReportWithPeriodType(Date."Period Type"::Date, SortingBy::"Posting Date", WorkDate);
+        JournalReportWithPeriodType(Date."Period Type"::Date, SortingBy::"Posting Date", WorkDate());
     end;
 
     [Test]
@@ -1043,7 +1043,7 @@ codeunit 144036 "UT REP Legal Report"
         SortingBy: Option "Posting Date","Document No.";
     begin
         // Purpose of the test is to validate GLAccount - OnAfterGetRecord with Period Type Month and sorting by Posting Date of the Report, ID: 10801, Journal.
-        JournalReportWithPeriodType(Date."Period Type"::Month, SortingBy::"Posting Date", CalcDate('<-CM>', WorkDate));
+        JournalReportWithPeriodType(Date."Period Type"::Month, SortingBy::"Posting Date", CalcDate('<-CM>', WorkDate()));
     end;
 
     [Test]
@@ -1056,7 +1056,7 @@ codeunit 144036 "UT REP Legal Report"
         SortingBy: Option "Posting Date","Document No.";
     begin
         // Purpose of the test is to validate GLAccount - OnAfterGetRecord with Period Type Year and sorting by Posting Date of the Report, ID: 10801, Journal.
-        JournalReportWithPeriodType(Date."Period Type"::Year, SortingBy::"Posting Date", CalcDate('<-CY>', WorkDate));
+        JournalReportWithPeriodType(Date."Period Type"::Year, SortingBy::"Posting Date", CalcDate('<-CY>', WorkDate()));
     end;
 
     [Test]
@@ -1069,7 +1069,7 @@ codeunit 144036 "UT REP Legal Report"
         SortingBy: Option "Posting Date","Document No.";
     begin
         // Purpose of the test is to validate GLAccount - OnAfterGetRecord with Period Type Week and sorting by Document No. of the Report, ID: 10801, Journal.
-        JournalReportWithPeriodType(Date."Period Type"::Week, SortingBy::"Document No.", CalcDate('<-CW>', WorkDate));
+        JournalReportWithPeriodType(Date."Period Type"::Week, SortingBy::"Document No.", CalcDate('<-CW>', WorkDate()));
     end;
 
     [Test]
@@ -1082,7 +1082,7 @@ codeunit 144036 "UT REP Legal Report"
         SortingBy: Option "Posting Date","Document No.";
     begin
         // Purpose of the test is to validate GLAccount - OnAfterGetRecord with Period Type Quarter and sorting by Document No. of the Report, ID: 10801, Journal.
-        JournalReportWithPeriodType(Date."Period Type"::Quarter, SortingBy::"Document No.", CalcDate('<-CQ>', WorkDate));
+        JournalReportWithPeriodType(Date."Period Type"::Quarter, SortingBy::"Document No.", CalcDate('<-CQ>', WorkDate()));
     end;
 
     local procedure JournalReportWithPeriodType(PeriodType: Option; SortingBy: Option; PeriodStart: Date)
@@ -1115,7 +1115,7 @@ codeunit 144036 "UT REP Legal Report"
         SortingBy: Option "Posting Date","Document No.";
     begin
         // Purpose of the test is to validate Customer - OnAfterGetRecord with Period Type Date and sorting by Posting Date of the Report, ID: 10813, Customer Journal.
-        CustomerJournalReportWithPeriodType(Date."Period Type"::Date, SortingBy::"Posting Date", WorkDate);
+        CustomerJournalReportWithPeriodType(Date."Period Type"::Date, SortingBy::"Posting Date", WorkDate());
     end;
 
     [Test]
@@ -1128,7 +1128,7 @@ codeunit 144036 "UT REP Legal Report"
         SortingBy: Option "Posting Date","Document No.";
     begin
         // Purpose of the test is to validate Customer - OnAfterGetRecord with Period Type Month and sorting by Posting Date of the Report, ID: 10813, Customer Journal.
-        CustomerJournalReportWithPeriodType(Date."Period Type"::Month, SortingBy::"Posting Date", CalcDate('<-CM>', WorkDate));
+        CustomerJournalReportWithPeriodType(Date."Period Type"::Month, SortingBy::"Posting Date", CalcDate('<-CM>', WorkDate()));
     end;
 
     [Test]
@@ -1141,7 +1141,7 @@ codeunit 144036 "UT REP Legal Report"
         SortingBy: Option "Posting Date","Document No.";
     begin
         // Purpose of the test is to validate Customer - OnAfterGetRecord with Period Type Year and sorting by Posting Date of the Report, ID: 10813, Customer Journal.
-        CustomerJournalReportWithPeriodType(Date."Period Type"::Year, SortingBy::"Posting Date", CalcDate('<-CY>', WorkDate));
+        CustomerJournalReportWithPeriodType(Date."Period Type"::Year, SortingBy::"Posting Date", CalcDate('<-CY>', WorkDate()));
     end;
 
     [Test]
@@ -1154,7 +1154,7 @@ codeunit 144036 "UT REP Legal Report"
         SortingBy: Option "Posting Date","Document No.";
     begin
         // Purpose of the test is to validate Customer - OnAfterGetRecord with Period Type Week and sorting by Document No. of the Report, ID: 10813, Customer Journal.
-        CustomerJournalReportWithPeriodType(Date."Period Type"::Week, SortingBy::"Document No.", CalcDate('<-CW>', WorkDate));
+        CustomerJournalReportWithPeriodType(Date."Period Type"::Week, SortingBy::"Document No.", CalcDate('<-CW>', WorkDate()));
     end;
 
     [Test]
@@ -1167,7 +1167,7 @@ codeunit 144036 "UT REP Legal Report"
         SortingBy: Option "Posting Date","Document No.";
     begin
         // Purpose of the test is to validate Customer - OnAfterGetRecord with Period Type Quarter and sorting by Document No. of the Report, ID: 10813, Customer Journal.
-        CustomerJournalReportWithPeriodType(Date."Period Type"::Quarter, SortingBy::"Document No.", CalcDate('<-CQ>', WorkDate));
+        CustomerJournalReportWithPeriodType(Date."Period Type"::Quarter, SortingBy::"Document No.", CalcDate('<-CQ>', WorkDate()));
     end;
 
     local procedure CustomerJournalReportWithPeriodType(PeriodType: Option; SortingBy: Option; PeriodStart: Date)
@@ -1177,7 +1177,7 @@ codeunit 144036 "UT REP Legal Report"
         // Setup.
         Initialize();
         CreateCustomerWithDimension(Customer);
-        CreateCustomerLedgerEntry(Customer."No.", WorkDate);
+        CreateCustomerLedgerEntry(Customer."No.", WorkDate());
 
         // Exercise: Run Customer Journal report with Period Type and Period Start.
         RunJournalReportWithPeriodType(PeriodType, SortingBy, PeriodStart, REPORT::"Customer Journal");
@@ -1200,7 +1200,7 @@ codeunit 144036 "UT REP Legal Report"
         SortingBy: Option "Posting Date","Document No.";
     begin
         // Purpose of the test is to validate Vendor - OnAfterGetRecord with Period Type Date and sorting by Posting Date of the Report, ID: 10814, Vendor Journal.
-        VendorJournalReportWithPeriodType(Date."Period Type"::Date, SortingBy::"Posting Date", WorkDate);
+        VendorJournalReportWithPeriodType(Date."Period Type"::Date, SortingBy::"Posting Date", WorkDate());
     end;
 
     [Test]
@@ -1213,7 +1213,7 @@ codeunit 144036 "UT REP Legal Report"
         SortingBy: Option "Posting Date","Document No.";
     begin
         // Purpose of the test is to validate Vendor - OnAfterGetRecord with Period Type Month and sorting by Posting Date of the Report, ID: 10814, Vendor Journal.
-        VendorJournalReportWithPeriodType(Date."Period Type"::Month, SortingBy::"Posting Date", CalcDate('<-CM>', WorkDate));
+        VendorJournalReportWithPeriodType(Date."Period Type"::Month, SortingBy::"Posting Date", CalcDate('<-CM>', WorkDate()));
     end;
 
     [Test]
@@ -1226,7 +1226,7 @@ codeunit 144036 "UT REP Legal Report"
         SortingBy: Option "Posting Date","Document No.";
     begin
         // Purpose of the test is to validate Vendor - OnAfterGetRecord with Period Type Year and sorting by Posting Date of the Report, ID: 10814, Vendor Journal.
-        VendorJournalReportWithPeriodType(Date."Period Type"::Year, SortingBy::"Posting Date", CalcDate('<-CY>', WorkDate));
+        VendorJournalReportWithPeriodType(Date."Period Type"::Year, SortingBy::"Posting Date", CalcDate('<-CY>', WorkDate()));
     end;
 
     [Test]
@@ -1239,7 +1239,7 @@ codeunit 144036 "UT REP Legal Report"
         SortingBy: Option "Posting Date","Document No.";
     begin
         // Purpose of the test is to validate Vendor - OnAfterGetRecord with Period Type Week and sorting by Document No. of the Report, ID: 10814, Vendor Journal.
-        VendorJournalReportWithPeriodType(Date."Period Type"::Week, SortingBy::"Document No.", CalcDate('<-CW>', WorkDate));
+        VendorJournalReportWithPeriodType(Date."Period Type"::Week, SortingBy::"Document No.", CalcDate('<-CW>', WorkDate()));
     end;
 
     [Test]
@@ -1252,7 +1252,7 @@ codeunit 144036 "UT REP Legal Report"
         SortingBy: Option "Posting Date","Document No.";
     begin
         // Purpose of the test is to validate Vendor - OnAfterGetRecord with Period Type Quarter and sorting by Document No. of the Report, ID: 10814, Vendor Journal.
-        VendorJournalReportWithPeriodType(Date."Period Type"::Quarter, SortingBy::"Document No.", CalcDate('<-CQ>', WorkDate));
+        VendorJournalReportWithPeriodType(Date."Period Type"::Quarter, SortingBy::"Document No.", CalcDate('<-CQ>', WorkDate()));
     end;
 
     local procedure VendorJournalReportWithPeriodType(PeriodType: Option; SortingBy: Option; PeriodStart: Date)
@@ -1262,7 +1262,7 @@ codeunit 144036 "UT REP Legal Report"
         // Setup.
         Initialize();
         CreateVendorWithDimension(Vendor);
-        CreateVendorLedgerEntry(Vendor."No.", WorkDate);
+        CreateVendorLedgerEntry(Vendor."No.", WorkDate());
 
         // Exercise: Run Vendor Journal report with Period Type and Period Start.
         RunJournalReportWithPeriodType(PeriodType, SortingBy, PeriodStart, REPORT::"Vendor Journal");
@@ -1285,7 +1285,7 @@ codeunit 144036 "UT REP Legal Report"
         SortingBy: Option "Posting Date","Document No.";
     begin
         // Purpose of the test is to validate Bank Account - OnAfterGetRecord with Period Type Date of and sorting by Posting Date the Report, ID: 10815, Bank Account Journal.
-        BankAccountJournalReportWithPeriodType(Date."Period Type"::Date, SortingBy::"Posting Date", WorkDate);
+        BankAccountJournalReportWithPeriodType(Date."Period Type"::Date, SortingBy::"Posting Date", WorkDate());
     end;
 
     [Test]
@@ -1298,7 +1298,7 @@ codeunit 144036 "UT REP Legal Report"
         SortingBy: Option "Posting Date","Document No.";
     begin
         // Purpose of the test is to validate Bank Account - OnAfterGetRecord with Period Type Month and sorting by Posting Date of the Report, ID: 10815, Bank Account Journal.
-        BankAccountJournalReportWithPeriodType(Date."Period Type"::Month, SortingBy::"Posting Date", CalcDate('<-CM>', WorkDate));
+        BankAccountJournalReportWithPeriodType(Date."Period Type"::Month, SortingBy::"Posting Date", CalcDate('<-CM>', WorkDate()));
     end;
 
     [Test]
@@ -1311,7 +1311,7 @@ codeunit 144036 "UT REP Legal Report"
         SortingBy: Option "Posting Date","Document No.";
     begin
         // Purpose of the test is to validate Bank Account - OnAfterGetRecord with Period Type Year and sorting by Posting Date of the Report, ID: 10815, Bank Account Journal.
-        BankAccountJournalReportWithPeriodType(Date."Period Type"::Year, SortingBy::"Posting Date", CalcDate('<-CY>', WorkDate));
+        BankAccountJournalReportWithPeriodType(Date."Period Type"::Year, SortingBy::"Posting Date", CalcDate('<-CY>', WorkDate()));
     end;
 
     [Test]
@@ -1324,7 +1324,7 @@ codeunit 144036 "UT REP Legal Report"
         SortingBy: Option "Posting Date","Document No.";
     begin
         // Purpose of the test is to validate Bank Account - OnAfterGetRecord with Period Type Week and sorting by Document No. of the Report, ID: 10815, Bank Account Journal.
-        BankAccountJournalReportWithPeriodType(Date."Period Type"::Week, SortingBy::"Document No.", CalcDate('<-CW>', WorkDate));
+        BankAccountJournalReportWithPeriodType(Date."Period Type"::Week, SortingBy::"Document No.", CalcDate('<-CW>', WorkDate()));
     end;
 
     [Test]
@@ -1337,7 +1337,7 @@ codeunit 144036 "UT REP Legal Report"
         SortingBy: Option "Posting Date","Document No.";
     begin
         // Purpose of the test is to validate Bank Account - OnAfterGetRecord with Period Type Quarter and sorting by Document No. of the Report, ID: 10815, Bank Account Journal.
-        BankAccountJournalReportWithPeriodType(Date."Period Type"::Quarter, SortingBy::"Document No.", CalcDate('<-CQ>', WorkDate));
+        BankAccountJournalReportWithPeriodType(Date."Period Type"::Quarter, SortingBy::"Document No.", CalcDate('<-CQ>', WorkDate()));
     end;
 
     local procedure BankAccountJournalReportWithPeriodType(PeriodType: Option; SortingBy: Option; PeriodStart: Date)
@@ -1347,7 +1347,7 @@ codeunit 144036 "UT REP Legal Report"
         // Setup.
         Initialize();
         CreateBankAccountWithDimension(BankAccount);
-        CreateBankAccountLedgerEntry(BankAccount."No.", WorkDate);
+        CreateBankAccountLedgerEntry(BankAccount."No.", WorkDate());
 
         // Exercise: Run Bank Account Journal report with Period Type and Period Start.
         RunJournalReportWithPeriodType(PeriodType, SortingBy, PeriodStart, REPORT::"Bank Account Journal");
@@ -1377,16 +1377,16 @@ codeunit 144036 "UT REP Legal Report"
         CreateCustomer(Customer);
 
         // [GIVEN] Detailed Customer Ledger Entry with "Posting Date" = 23-01-20, "Entry Type" = "Initial Entry"  and "Credit Amount (LCY)" = 100
-        CreateDetailedCustomerLedgerEntry(CreateCustomerLedgerEntry(Customer."No.", WorkDate));
+        CreateDetailedCustomerLedgerEntry(CreateCustomerLedgerEntry(Customer."No.", WorkDate()));
 
         // [GIVEN] Detailed Customer Ledger Entry with "Posting Date" = 23-01-20, "Entry Type" = "Correction of Remaining Amount" and "Credit Amount (LCY)" = 50
         CreateDetailedCustomerLedgerEntryWithEntryType(
-          CreateCustomerLedgerEntry(Customer."No.", WorkDate),
+          CreateCustomerLedgerEntry(Customer."No.", WorkDate()),
           DetailedCustLedgEntry."Entry Type"::"Correction of Remaining Amount");
 
         // [WHEN] Run Report "Customer Detail Trial Balance" with "Date Filter" = 23-02-20
         RunTrialBalanceReport(
-          Customer."No.", Format(CalcDate('<1M>', WorkDate)), false, Customer."Global Dimension 1 Code",
+          Customer."No.", Format(CalcDate('<1M>', WorkDate())), false, Customer."Global Dimension 1 Code",
           REPORT::"Customer Detail Trial Balance");
 
         // [THEN] Row found for Customer where Field 'General Credit Amount (LCY)' = 150
@@ -1413,16 +1413,16 @@ codeunit 144036 "UT REP Legal Report"
         CreateVendor(Vendor);
 
         // [GIVEN] Detailed Vendor Ledger Entry with "Posting Date" = 23-01-20, "Entry Type" = "Initial Entry"  and "Credit Amount (LCY)" = 100
-        CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(Vendor."No.", WorkDate));
+        CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(Vendor."No.", WorkDate()));
 
         // [GIVEN] Detailed Vendor Ledger Entry with "Posting Date" = 23-01-20, "Entry Type" = "Correction of Remaining Amount" and "Credit Amount (LCY)" = 50
         CreateDetailedVendorLedgerEntryWithEntryType(
-          CreateVendorLedgerEntry(Vendor."No.", WorkDate),
+          CreateVendorLedgerEntry(Vendor."No.", WorkDate()),
           DetailedVendorLedgEntry."Entry Type"::"Correction of Remaining Amount");
 
         // [WHEN] Run Report "Vendor Detail Trial Balance FR" with "Date Filter" = 23-02-20
         RunTrialBalanceReport(
-          Vendor."No.", Format(CalcDate('<1M>', WorkDate)), false, Vendor."Global Dimension 1 Code",
+          Vendor."No.", Format(CalcDate('<1M>', WorkDate())), false, Vendor."Global Dimension 1 Code",
           REPORT::"Vendor Detail Trial Balance FR");
 
         // [THEN] Row found for Vendor where Field 'General Credit Amount (LCY)' = 150
@@ -1450,7 +1450,7 @@ codeunit 144036 "UT REP Legal Report"
         CreateCustomer(Customer);
 
         // [GIVEN] Starting Date 10-10-2020
-        StartingDate := CalcDate('<-CM>', WorkDate) + LibraryRandom.RandInt(10);
+        StartingDate := CalcDate('<-CM>', WorkDate()) + LibraryRandom.RandInt(10);
 
         // [GIVEN] Detailed Customer Ledger Entry with "Posting Date" = 20-10-20, "Entry Type" = "Initial Entry"  and "Credit Amount (LCY)" = 100
         CreateDetailedCustomerLedgerEntry(CreateCustomerLedgerEntry(Customer."No.", StartingDate + LibraryRandom.RandInt(10)));
@@ -1487,7 +1487,7 @@ codeunit 144036 "UT REP Legal Report"
         CreateVendor(Vendor);
 
         // [GIVEN] Starting Date 10-10-2020
-        StartingDate := CalcDate('<-CM>', WorkDate) + LibraryRandom.RandInt(10);
+        StartingDate := CalcDate('<-CM>', WorkDate()) + LibraryRandom.RandInt(10);
 
         // [GIVEN] Detailed Vendor Ledger Entry with "Posting Date" = 20-10-20, "Entry Type" = "Initial Entry"  and "Credit Amount (LCY)" = 100
         CreateDetailedVendorLedgerEntry(CreateVendorLedgerEntry(Vendor."No.", StartingDate + LibraryRandom.RandInt(10)));
@@ -1519,10 +1519,10 @@ codeunit 144036 "UT REP Legal Report"
         // [SCENARIO 333888] Report "Purchase Advice" can be printed without RDLC rendering errors
         Initialize();
         CreateBankAccountWithDimension(BankAccount);
-        CreateBankAccountLedgerEntry(BankAccount."No.", WorkDate);
+        CreateBankAccountLedgerEntry(BankAccount."No.", WorkDate());
 
         // [WHEN] Report "Purchase Advice" is being printed to PDF
-        RunTrialBalanceReport(BankAccount."No.", Format(WorkDate), false, '', REPORT::"Bank Account Trial Balance");
+        RunTrialBalanceReport(BankAccount."No.", Format(WorkDate()), false, '', REPORT::"Bank Account Trial Balance");
         // [THEN] No RDLC rendering errors
     end;
 
@@ -1541,10 +1541,10 @@ codeunit 144036 "UT REP Legal Report"
 
         // [GIVEN] Bank Account has entries with Debit Amount = 300 and Credit Amount = 100 on workdate
         CreateBankAccountWithDimension(BankAccount);
-        CreateBankAccountLedgerEntry(BankAccount."No.", WorkDate);
+        CreateBankAccountLedgerEntry(BankAccount."No.", WorkDate());
 
         // [WHEN] Run Bank Account Trial Balance on workdate
-        RunTrialBalanceReport(BankAccount."No.", Format(WorkDate), false, '', REPORT::"Bank Account Trial Balance");  // PrintBankAccountsWithoutBalance FALSE.
+        RunTrialBalanceReport(BankAccount."No.", Format(WorkDate()), false, '', REPORT::"Bank Account Trial Balance");  // PrintBankAccountsWithoutBalance FALSE.
 
         // [THEN] Debit Amount = 300, Credit Amount = 100, Debit End Balance = 200, Credit End Balance = 0
         LibraryReportValidation.OpenExcelFile;
@@ -2027,7 +2027,7 @@ codeunit 144036 "UT REP Legal Report"
     [Scope('OnPrem')]
     procedure CustomerTrialBalanceDateFilterRequestPageHandler(var CustomerTrialBalance: TestRequestPage "Customer Trial Balance FR")
     begin
-        CustomerTrialBalance.Customer.SetFilter("Date Filter", Format(WorkDate));
+        CustomerTrialBalance.Customer.SetFilter("Date Filter", Format(WorkDate()));
         CustomerTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -2056,7 +2056,7 @@ codeunit 144036 "UT REP Legal Report"
     procedure GLJournalRequestPageHandler(var GLJournals: TestRequestPage "G/L Journal")
     begin
         GLJournals.Date.SetFilter(
-          "Period Start", StrSubstNo(RangeCap, Format(CalcDate('<-CM>', WorkDate)), Format(CalcDate('<CM>', WorkDate))));
+          "Period Start", StrSubstNo(RangeCap, Format(CalcDate('<-CM>', WorkDate())), Format(CalcDate('<CM>', WorkDate()))));
         GLJournals.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -2155,7 +2155,7 @@ codeunit 144036 "UT REP Legal Report"
     [Scope('OnPrem')]
     procedure VendorTrialBalanceDateFilterRequestPageHandler(var VendorTrialBalance: TestRequestPage "Vendor Trial Balance FR")
     begin
-        VendorTrialBalance.Vendor.SetFilter("Date Filter", Format(WorkDate));
+        VendorTrialBalance.Vendor.SetFilter("Date Filter", Format(WorkDate()));
         VendorTrialBalance.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }

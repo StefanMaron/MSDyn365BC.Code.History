@@ -16,7 +16,7 @@ report 7390 "Whse. Calculate Inventory"
                     CurrReport.Skip();
 
                 if not HideValidationDialog then
-                    Window.Update;
+                    Window.Update();
                 CalcFields("Quantity (Base)");
                 if ("Quantity (Base)" <> 0) or ZeroQty then
                     InsertWhseJnlLine("Bin Content");
@@ -25,7 +25,7 @@ report 7390 "Whse. Calculate Inventory"
             trigger OnPostDataItem()
             begin
                 if not HideValidationDialog then
-                    Window.Close;
+                    Window.Close();
             end;
 
             trigger OnPreDataItem()
@@ -142,7 +142,7 @@ report 7390 "Whse. Calculate Inventory"
 
                         trigger OnValidate()
                         begin
-                            ValidateRegisteringDate;
+                            ValidateRegisteringDate();
                         end;
                     }
                     field(WhseDocumentNo; NextDocNo)
@@ -168,8 +168,8 @@ report 7390 "Whse. Calculate Inventory"
         trigger OnOpenPage()
         begin
             if RegisteringDate = 0D then
-                RegisteringDate := WorkDate;
-            ValidateRegisteringDate;
+                RegisteringDate := WorkDate();
+            ValidateRegisteringDate();
         end;
     }
 
@@ -183,14 +183,15 @@ report 7390 "Whse. Calculate Inventory"
     end;
 
     var
-        Text001: Label 'Enter the %1.';
-        Text002: Label 'Processing bins    #1##########';
         SourceCodeSetup: Record "Source Code Setup";
         TempBinContent: Record "Bin Content" temporary;
         NoSeriesMgt: Codeunit NoSeriesManagement;
         UOMMgt: Codeunit "Unit of Measure Management";
         Window: Dialog;
         StockProposal: Boolean;
+
+        Text001: Label 'Enter the %1.';
+        Text002: Label 'Processing bins    #1##########';
 
     protected var
         Bin: Record Bin;
@@ -277,7 +278,7 @@ report 7390 "Whse. Calculate Inventory"
                     if (WhseEntry."Qty. (Base)" <> 0) or ZeroQty then begin
                         ItemUOM.Get(BinContent."Item No.", BinContent."Unit of Measure Code");
                         NextLineNo := NextLineNo + 10000;
-                        Init;
+                        Init();
                         "Line No." := NextLineNo;
                         Validate("Registering Date", RegisteringDate);
                         Validate("Entry Type", "Entry Type"::"Positive Adjmt.");
@@ -305,7 +306,7 @@ report 7390 "Whse. Calculate Inventory"
                             "Expiration Date" := WhseEntry."Expiration Date";
                         "Phys. Inventory" := true;
 
-                        "Qty. (Calculated)" := Round(WhseEntry."Qty. (Base)" / ItemUOM."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+                        "Qty. (Calculated)" := Round(WhseEntry."Qty. (Base)" / ItemUOM."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
                         "Qty. (Calculated) (Base)" := WhseEntry."Qty. (Base)";
 
                         Validate("Qty. (Phys. Inventory)", "Qty. (Calculated)");
@@ -326,7 +327,7 @@ report 7390 "Whse. Calculate Inventory"
                         OnAfterWhseJnlLineInsert(WhseJnlLine, NextLineNo, "Bin Content");
                     end;
                     if WhseEntry.Find('+') then;
-                    WhseEntry.ClearTrackingFilter;
+                    WhseEntry.ClearTrackingFilter();
                 until WhseEntry.Next() = 0;
         end;
     end;

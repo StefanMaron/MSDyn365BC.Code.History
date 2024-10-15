@@ -17,7 +17,7 @@ table 17 "G/L Entry"
 
             trigger OnValidate()
             begin
-                UpdateAccountID;
+                UpdateAccountID();
             end;
         }
         field(4; "Posting Date"; Date)
@@ -288,6 +288,11 @@ table 17 "G/L Entry"
                 ShowDimensions();
             end;
         }
+        field(79; "VAT Reporting Date"; Date)
+        {
+            Caption = 'VAT Date';
+            Editable = false;
+        }
         field(481; "Shortcut Dimension 3 Code"; Code[20])
         {
             CaptionClass = '1,2,3';
@@ -396,7 +401,7 @@ table 17 "G/L Entry"
 
             trigger OnValidate()
             begin
-                UpdateAccountNo;
+                UpdateAccountNo();
             end;
         }
         field(8005; "Last Modified DateTime"; DateTime)
@@ -585,7 +590,7 @@ table 17 "G/L Entry"
     var
         DimMgt: Codeunit DimensionManagement;
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "Entry No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "Entry No."));
     end;
 
     procedure UpdateDebitCredit(Correction: Boolean)
@@ -615,6 +620,7 @@ table 17 "G/L Entry"
 
     procedure CopyFromGenJnlLine(GenJnlLine: Record "Gen. Journal Line")
     begin
+        SetVATDate(GenJnlLine);
         "Posting Date" := GenJnlLine."Posting Date";
         "Document Date" := GenJnlLine."Document Date";
         "Document Type" := GenJnlLine."Document Type";
@@ -764,6 +770,14 @@ table 17 "G/L Entry"
             exit;
 
         "G/L Account No." := GLAccount."No.";
+    end;
+
+    local procedure SetVATDate(var GenJnlLine: Record "Gen. Journal Line")
+    begin
+        if GenJnlLine."VAT Reporting Date" = 0D then
+            "VAT Reporting Date" := GLSetup.GetVATDate(GenJnlLine."Posting Date", GenJnlLine."Document Date")
+        else 
+            "VAT Reporting Date" := GenJnlLine."VAT Reporting Date";
     end;
 
     [IntegrationEvent(false, false)]

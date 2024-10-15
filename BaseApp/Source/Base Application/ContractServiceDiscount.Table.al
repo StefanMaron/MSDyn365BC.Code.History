@@ -64,7 +64,7 @@ table 5972 "Contract/Service Discount"
     trigger OnDelete()
     begin
         if "Contract Type" = "Contract Type"::Contract then begin
-            VerifyContractOpen;
+            VerifyContractOpen();
             ServMgtSetup.Get();
             if ServMgtSetup."Register Contract Changes" then
                 ContractChangeLog.LogContractChange(
@@ -77,7 +77,7 @@ table 5972 "Contract/Service Discount"
     begin
         TestField("Contract No.");
         if "Contract Type" = "Contract Type"::Contract then begin
-            VerifyContractOpen;
+            VerifyContractOpen();
             ServMgtSetup.Get();
             if ServMgtSetup."Register Contract Changes" then
                 ContractChangeLog.LogContractChange(
@@ -89,7 +89,7 @@ table 5972 "Contract/Service Discount"
     trigger OnModify()
     begin
         if "Contract Type" = "Contract Type"::Contract then begin
-            VerifyContractOpen;
+            VerifyContractOpen();
             ServMgtSetup.Get();
             if "Discount %" <> xRec."Discount %" then
                 if ServMgtSetup."Register Contract Changes" then
@@ -105,9 +105,10 @@ table 5972 "Contract/Service Discount"
     end;
 
     var
-        Text000: Label 'You cannot rename the record.';
         ContractChangeLog: Record "Contract Change Log";
         ServMgtSetup: Record "Service Mgt. Setup";
+
+        Text000: Label 'You cannot rename the record.';
 
     local procedure VerifyContractOpen()
     var

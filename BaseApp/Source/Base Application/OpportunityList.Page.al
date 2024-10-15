@@ -4,7 +4,7 @@ page 5123 "Opportunity List"
     ApplicationArea = RelationshipMgmt;
     Caption = 'Opportunities';
     CardPageID = "Opportunity Card";
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     Editable = false;
     PageType = List;
     SourceTable = Opportunity;
@@ -18,7 +18,7 @@ page 5123 "Opportunity List"
             {
                 Editable = false;
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
@@ -28,7 +28,7 @@ page 5123 "Opportunity List"
                     ApplicationArea = All;
                     ToolTip = 'Specifies that the opportunity is closed.';
                 }
-                field("Creation Date"; "Creation Date")
+                field("Creation Date"; Rec."Creation Date")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the date that the opportunity was created.';
@@ -38,18 +38,18 @@ page 5123 "Opportunity List"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the description of the opportunity.';
                 }
-                field("Contact No."; "Contact No.")
+                field("Contact No."; Rec."Contact No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the contact that this opportunity is linked to.';
                 }
-                field("Contact Company No."; "Contact Company No.")
+                field("Contact Company No."; Rec."Contact Company No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the company that is linked to this opportunity.';
                     Visible = false;
                 }
-                field("Salesperson Code"; "Salesperson Code")
+                field("Salesperson Code"; Rec."Salesperson Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the code of the salesperson that is responsible for the opportunity.';
@@ -59,7 +59,7 @@ page 5123 "Opportunity List"
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the status of the opportunity. There are four options:';
                 }
-                field("Sales Cycle Code"; "Sales Cycle Code")
+                field("Sales Cycle Code"; Rec."Sales Cycle Code")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the code of the sales cycle that the opportunity is linked to.';
@@ -71,43 +71,43 @@ page 5123 "Opportunity List"
                     Caption = 'Current Sales Cycle Stage';
                     ToolTip = 'Specifies the current sales cycle stage of the opportunity.';
                 }
-                field("Campaign No."; "Campaign No.")
+                field("Campaign No."; Rec."Campaign No.")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of the campaign to which this opportunity is linked.';
                 }
-                field("Campaign Description"; "Campaign Description")
+                field("Campaign Description"; Rec."Campaign Description")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDown = false;
                     ToolTip = 'Specifies the description of the campaign to which the opportunity is linked. The program automatically fills in this field when you have entered a number in the Campaign No. field.';
                 }
-                field("Sales Document Type"; "Sales Document Type")
+                field("Sales Document Type"; Rec."Sales Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of the sales document (Quote, Order, Posted Invoice). The combination of Sales Document No. and Sales Document Type specifies which sales document is assigned to the opportunity.';
                 }
-                field("Sales Document No."; "Sales Document No.")
+                field("Sales Document No."; Rec."Sales Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the sales document that has been created for this opportunity.';
                 }
-                field("Estimated Closing Date"; "Estimated Closing Date")
+                field("Estimated Closing Date"; Rec."Estimated Closing Date")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the estimated closing date of the opportunity.';
                 }
-                field("Estimated Value (LCY)"; "Estimated Value (LCY)")
+                field("Estimated Value (LCY)"; Rec."Estimated Value (LCY)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the estimated value of the opportunity.';
                 }
-                field("Calcd. Current Value (LCY)"; "Calcd. Current Value (LCY)")
+                field("Calcd. Current Value (LCY)"; Rec."Calcd. Current Value (LCY)")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the current calculated value of the opportunity.';
                 }
-                field("Coupled to CRM"; "Coupled to CRM")
+                field("Coupled to CRM"; Rec."Coupled to CRM")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies that the opportunity is coupled to an opportunity in Dynamics 365 Sales.';
@@ -117,14 +117,14 @@ page 5123 "Opportunity List"
             group(Control45)
             {
                 ShowCaption = false;
-                field("Contact Name"; "Contact Name")
+                field("Contact Name"; Rec."Contact Name")
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Contact Name';
                     DrillDown = false;
                     ToolTip = 'Specifies the name of the contact to which this opportunity is linked. The program automatically fills in this field when you have entered a number in the No. field.';
                 }
-                field("Contact Company Name"; "Contact Company Name")
+                field("Contact Company Name"; Rec."Contact Company Name")
                 {
                     ApplicationArea = RelationshipMgmt;
                     DrillDown = false;
@@ -165,8 +165,6 @@ page 5123 "Opportunity List"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     RunObject = Page "Opportunity Statistics";
                     RunPageLink = "No." = FIELD("No.");
                     ShortCutKey = 'F7';
@@ -188,9 +186,6 @@ page 5123 "Opportunity List"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Postponed &Interactions';
                     Image = PostponedInteractions;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     RunObject = Page "Postponed Interactions";
                     RunPageLink = "Opportunity No." = FIELD("No.");
                     RunPageView = SORTING("Opportunity No.", Date);
@@ -223,14 +218,12 @@ page 5123 "Opportunity List"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Show Sales Quote';
                     Image = Quote;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     Scope = Repeater;
                     ToolTip = 'Show the assigned sales quote.';
 
                     trigger OnAction()
                     begin
-                        ShowSalesQuoteWithCheck;
+                        ShowSalesQuoteWithCheck();
                     end;
                 }
             }
@@ -267,7 +260,7 @@ page 5123 "Opportunity List"
                         OpportunityRecordRef: RecordRef;
                     begin
                         CurrPage.SetSelectionFilter(Opportunity);
-                        Opportunity.Next;
+                        Opportunity.Next();
 
                         if Opportunity.Count = 1 then
                             CRMIntegrationManagement.UpdateOneNow(Opportunity.RecordId)
@@ -365,15 +358,12 @@ page 5123 "Opportunity List"
                     Caption = 'Update';
                     Enabled = OppInProgress;
                     Image = Refresh;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     Scope = Repeater;
                     ToolTip = 'Update all the actions that are related to your opportunities.';
 
                     trigger OnAction()
                     begin
-                        UpdateOpportunity;
+                        UpdateOpportunity();
                     end;
                 }
                 action(Close)
@@ -382,15 +372,12 @@ page 5123 "Opportunity List"
                     Caption = 'Close';
                     Enabled = OppNotStarted OR OppInProgress;
                     Image = Close;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     Scope = Repeater;
                     ToolTip = 'Close all the actions that are related to your opportunities.';
 
                     trigger OnAction()
                     begin
-                        CloseOpportunity;
+                        CloseOpportunity();
                     end;
                 }
                 action("Activate First Stage")
@@ -399,15 +386,12 @@ page 5123 "Opportunity List"
                     Caption = 'Activate First Stage';
                     Enabled = OppNotStarted;
                     Image = "Action";
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedOnly = true;
                     Scope = Repeater;
                     ToolTip = 'Specify if the opportunity is to be activated. The status is set to In Progress.';
 
                     trigger OnAction()
                     begin
-                        StartActivateFirstStage;
+                        StartActivateFirstStage();
                     end;
                 }
                 action(CreateSalesQuote)
@@ -416,15 +400,12 @@ page 5123 "Opportunity List"
                     Caption = 'Create Sales &Quote';
                     Enabled = OppInProgress;
                     Image = Allocate;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = true;
                     Scope = Repeater;
                     ToolTip = 'Create a new sales quote with the opportunity inserted as the customer.';
 
                     trigger OnAction()
                     begin
-                        CreateQuote;
+                        CreateQuote();
                     end;
                 }
                 action("Print Details")
@@ -439,7 +420,7 @@ page 5123 "Opportunity List"
                         Opp: Record Opportunity;
                     begin
                         Opp := Rec;
-                        Opp.SetRecFilter;
+                        Opp.SetRecFilter();
                         REPORT.Run(REPORT::"Opportunity - Details", true, false, Opp);
                     end;
                 }
@@ -448,8 +429,6 @@ page 5123 "Opportunity List"
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Create &Interaction';
                     Image = CreateInteraction;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     Scope = Repeater;
                     ToolTip = 'Create an interaction with a specified opportunity.';
 
@@ -459,6 +438,80 @@ page 5123 "Opportunity List"
                     begin
                         TempSegmentLine.CreateInteractionFromOpp(Rec);
                     end;
+                }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Activate First Stage_Promoted"; "Activate First Stage")
+                {
+                }
+#if not CLEAN21
+                actionref(Statistics_Promoted; Statistics)
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+#if not CLEAN21
+                actionref("Postponed &Interactions_Promoted"; "Postponed &Interactions")
+                {
+                    Visible = false;
+                    ObsoleteState = Pending;
+                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
+                    ObsoleteTag = '21.0';
+                }
+#endif
+                actionref(Close_Promoted; Close)
+                {
+                }
+                actionref(Update_Promoted; Update)
+                {
+                }
+                actionref("Show Sales Quote_Promoted"; "Show Sales Quote")
+                {
+                }
+                actionref(CreateSalesQuote_Promoted; CreateSalesQuote)
+                {
+                }
+                actionref("Create &Interaction_Promoted"; "Create &Interaction")
+                {
+                }
+                group(Category_Synchronize)
+                {
+                    Caption = 'Synchronize';
+                    Visible = CRMIntegrationEnabled;
+
+                    actionref(CRMGotoOpportunity_Promoted; CRMGotoOpportunity)
+                    {
+                    }
+                    actionref(CRMSynchronizeNow_Promoted; CRMSynchronizeNow)
+                    {
+                    }
+                    actionref(ShowLog_Promoted; ShowLog)
+                    {
+                    }
+                    group(Category_Coupling)
+                    {
+                        Caption = 'Coupling';
+                        ShowAs = SplitButton;
+
+                        actionref(ManageCRMCoupling_Promoted; ManageCRMCoupling)
+                        {
+                        }
+                        actionref(DeleteCRMCoupling_Promoted; DeleteCRMCoupling)
+                        {
+                        }
+                        actionref(MatchBasedCoupling_Promoted; MatchBasedCoupling)
+                        {
+                        }
+                    }
                 }
             }
         }
@@ -498,7 +551,7 @@ page 5123 "Opportunity List"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
         CurrPage.Editable := true;
-        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled;
+        CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
     end;
 
     var

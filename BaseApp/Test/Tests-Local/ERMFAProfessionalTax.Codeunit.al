@@ -151,8 +151,8 @@ codeunit 144056 "ERM FA Professional Tax"
         FAPostingGroup.FindFirst();
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, CreateFixedAsset(ProfessionalTax), CreateDepreciationBook);
         FADepreciationBook.Validate("FA Posting Group", FAPostingGroup.Code);
-        FADepreciationBook.Validate("Depreciation Starting Date", CalcDate('<-CY>', WorkDate));  // Calculate begining date of the year.
-        FADepreciationBook.Validate("Depreciation Ending Date", CalcDate('<CY>', WorkDate));  // Calculate closing date of the year.
+        FADepreciationBook.Validate("Depreciation Starting Date", CalcDate('<-CY>', WorkDate()));  // Calculate begining date of the year.
+        FADepreciationBook.Validate("Depreciation Ending Date", CalcDate('<CY>', WorkDate()));  // Calculate closing date of the year.
         FADepreciationBook.Modify(true);
     end;
 
@@ -183,7 +183,7 @@ codeunit 144056 "ERM FA Professional Tax"
         FixedAssetCard.FILTER.SetFilter("No.", No);
         FixedAssetCard."Professional Tax".AssertEquals(ProfessionalTax);
         Assert.AreEqual(ProfessionalTaxCap, FixedAssetCard."Professional Tax".Caption, UnexpectedErr);
-        FixedAssetCard.Close;
+        FixedAssetCard.Close();
     end;
 
     [RequestPageHandler]
@@ -203,8 +203,8 @@ codeunit 144056 "ERM FA Professional Tax"
         LibraryVariableStorage.Dequeue(GroupTotals);
         FixedAssetProfessionalTax."Fixed Asset".SetFilter("No.", No);
         FixedAssetProfessionalTax.DepreciationBooks.SetValue(DepreciationBooks);
-        FixedAssetProfessionalTax.StartingDate.SetValue(Format(CalcDate('<-CY>', WorkDate)));  // Calculate begining date of the year.
-        FixedAssetProfessionalTax.EndDate.SetValue(Format(CalcDate('<CY>', WorkDate)));  // Calculate closing date of the year.
+        FixedAssetProfessionalTax.StartingDate.SetValue(Format(CalcDate('<-CY>', WorkDate())));  // Calculate begining date of the year.
+        FixedAssetProfessionalTax.EndDate.SetValue(Format(CalcDate('<CY>', WorkDate())));  // Calculate closing date of the year.
         FixedAssetProfessionalTax.GroupTotals.SetValue(GroupTotals);
         FixedAssetProfessionalTax.PrintPerFixedAsset.SetValue(PrintPerFixedAsset);
         FixedAssetProfessionalTax.FixedAssetMoreThan30years1.SetValue(Format(FAProfessionaTaxPercent));

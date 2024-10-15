@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2195 "O365 Country/Region Card"
 {
     Caption = 'Country/Region';
@@ -5,6 +6,9 @@ page 2195 "O365 Country/Region Card"
     PageType = Card;
     SourceTable = "O365 Country/Region";
     SourceTableTemporary = true;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -12,12 +16,12 @@ page 2195 "O365 Country/Region Card"
         {
             field("Code"; Code)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 ToolTip = 'Specifies the ISO code of the country or region.';
             }
             field(Name; Name)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 ToolTip = 'Specifies the name of the country or region.';
             }
         }
@@ -40,4 +44,4 @@ page 2195 "O365 Country/Region Card"
     var
         O365SalesManagement: Codeunit "O365 Sales Management";
 }
-
+#endif

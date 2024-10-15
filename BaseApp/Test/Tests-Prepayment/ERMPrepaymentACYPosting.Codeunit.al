@@ -44,12 +44,12 @@ codeunit 134110 "ERM Prepayment ACY Posting"
         PostSalesPrepayment(SalesHeader);
         SalesHeader.CalcFields("Amount Including VAT");
         PostCashPayment(
-          "Gen. Journal Account Type"::Customer, Customer."No.", BankAccount."No.", AddCurrency.Code, CalcDate('<+1M>', WorkDate),
+          "Gen. Journal Account Type"::Customer, Customer."No.", BankAccount."No.", AddCurrency.Code, CalcDate('<+1M>', WorkDate()),
           -SalesHeader."Amount Including VAT", FindPostedSalesInvoiceForCustomer(Customer."No."));
 
         // Applied cash receipt posting updates sales header status. Need to re-read it.
-        SalesHeader.Find;
-        UpdatePostingDateOnSalesHeader(SalesHeader, CalcDate('<+2M>', WorkDate));
+        SalesHeader.Find();
+        UpdatePostingDateOnSalesHeader(SalesHeader, CalcDate('<+2M>', WorkDate()));
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         VerifyACYAmountIsZero(AddCurrency."Realized Losses Acc.");
@@ -77,14 +77,14 @@ codeunit 134110 "ERM Prepayment ACY Posting"
         PostPurchasePrepayment(PurchaseHeader);
         PurchaseHeader.CalcFields("Amount Including VAT");
         PostCashPayment(
-          "Gen. Journal Account Type"::Vendor, Vendor."No.", BankAccount."No.", AddCurrency.Code, CalcDate('<+1M>', WorkDate),
+          "Gen. Journal Account Type"::Vendor, Vendor."No.", BankAccount."No.", AddCurrency.Code, CalcDate('<+1M>', WorkDate()),
           PurchaseHeader."Amount Including VAT", FindPostedPurchaseInvoiceForVendor(Vendor."No."));
 
         // Applied cash payment posting updates purchase header status. Need to re-read it.
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
 
-        UpdatePostingDateOnPurchaseHeader(PurchaseHeader, CalcDate('<+2M>', WorkDate));
+        UpdatePostingDateOnPurchaseHeader(PurchaseHeader, CalcDate('<+2M>', WorkDate()));
         PurchaseHeader.Validate(
           "Vendor Invoice No.",
           CopyStr(PurchaseHeader."No." + PurchaseHeader."Buy-from Vendor No.", 1, MaxStrLen(PurchaseHeader."Vendor Invoice No.")));
@@ -113,7 +113,7 @@ codeunit 134110 "ERM Prepayment ACY Posting"
 
         CreateSalesOrder(SalesHeader, Customer, GLAccount."No.");
         PostSalesPrepayment(SalesHeader);
-        SalesHeader.Find;
+        SalesHeader.Find();
         SalesHeader.CalcFields("Amount Including VAT");
         VerifySalesInvRoundingAmount(
           Customer."Customer Posting Group", SalesHeader, AddCurrency."Invoice Rounding Precision");
@@ -138,7 +138,7 @@ codeunit 134110 "ERM Prepayment ACY Posting"
 
         CreatePurchaseOrder(PurchaseHeader, Vendor, GLAccount."No.");
         PostPurchasePrepayment(PurchaseHeader);
-        PurchaseHeader.Find;
+        PurchaseHeader.Find();
         PurchaseHeader.CalcFields("Amount Including VAT");
         VerifyPurchInvRoundingAmount(
           Vendor."Vendor Posting Group", PurchaseHeader, AddCurrency."Invoice Rounding Precision");
@@ -164,7 +164,7 @@ codeunit 134110 "ERM Prepayment ACY Posting"
 
         PostPurchasePrepayment(PurchaseHeader);
 
-        UpdatePostingDateOnPurchaseHeader(PurchaseHeader, CalcDate('<+2M>', WorkDate));
+        UpdatePostingDateOnPurchaseHeader(PurchaseHeader, CalcDate('<+2M>', WorkDate()));
         PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryPurchase.GegVendorLedgerEntryUniqueExternalDocNo);
         PurchaseHeader.Modify(true);
         PostPurchasePrepmtCreditMemo(PurchaseHeader);
@@ -192,7 +192,7 @@ codeunit 134110 "ERM Prepayment ACY Posting"
 
         PostSalesPrepayment(SalesHeader);
 
-        UpdatePostingDateOnSalesHeader(SalesHeader, CalcDate('<+2M>', WorkDate));
+        UpdatePostingDateOnSalesHeader(SalesHeader, CalcDate('<+2M>', WorkDate()));
         PostSalesPrepmtCreditMemo(SalesHeader);
 
         VerifyACYAmountIsZero(AddCurrency."Realized Losses Acc.");
@@ -310,7 +310,7 @@ codeunit 134110 "ERM Prepayment ACY Posting"
         BaseExchRate := LibraryRandom.RandIntInRange(100, 200);
 
         for I := -1 to 3 do
-            CreateExchangeRate(AddCurrency.Code, CalcDate(StrSubstNo('<%1M>', Format(I)), WorkDate), BaseExchRate, BaseExchRate + 10 * I + 20);
+            CreateExchangeRate(AddCurrency.Code, CalcDate(StrSubstNo('<%1M>', Format(I)), WorkDate()), BaseExchRate, BaseExchRate + 10 * I + 20);
     end;
 
     local procedure CreateCustomer(var Customer: Record Customer; GenBusPostingGroupCode: Code[20]; VATBusPostingGroupCode: Code[20]; CurrencyCode: Code[10])

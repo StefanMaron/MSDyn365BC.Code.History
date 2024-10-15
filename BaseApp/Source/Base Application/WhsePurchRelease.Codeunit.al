@@ -132,7 +132,7 @@ codeunit 5772 "Whse.-Purch. Release"
 
     local procedure FilterWarehouseRequest(var WarehouseRequest: Record "Warehouse Request"; PurchaseHeader: Record "Purchase Header"; DocumentStatus: Option)
     begin
-        WarehouseRequest.Reset;
+        WarehouseRequest.Reset();
         WarehouseRequest.SetCurrentKey("Source Type", "Source Subtype", "Source No.");
         WarehouseRequest.SetRange("Source Type", DATABASE::"Purchase Line");
         WarehouseRequest.SetRange("Source Subtype", PurchaseHeader."Document Type");

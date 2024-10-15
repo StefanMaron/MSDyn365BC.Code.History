@@ -24,7 +24,7 @@ table 5611 "Depreciation Book"
 
             trigger OnValidate()
             begin
-                CheckIntegrationFields;
+                CheckIntegrationFields();
             end;
         }
         field(4; "G/L Integration - Depreciation"; Boolean)
@@ -33,7 +33,7 @@ table 5611 "Depreciation Book"
 
             trigger OnValidate()
             begin
-                CheckIntegrationFields;
+                CheckIntegrationFields();
             end;
         }
         field(5; "G/L Integration - Write-Down"; Boolean)
@@ -42,7 +42,7 @@ table 5611 "Depreciation Book"
 
             trigger OnValidate()
             begin
-                CheckIntegrationFields;
+                CheckIntegrationFields();
             end;
         }
         field(6; "G/L Integration - Appreciation"; Boolean)
@@ -51,7 +51,7 @@ table 5611 "Depreciation Book"
 
             trigger OnValidate()
             begin
-                CheckIntegrationFields;
+                CheckIntegrationFields();
             end;
         }
         field(7; "G/L Integration - Custom 1"; Boolean)
@@ -60,7 +60,7 @@ table 5611 "Depreciation Book"
 
             trigger OnValidate()
             begin
-                CheckIntegrationFields;
+                CheckIntegrationFields();
             end;
         }
         field(8; "G/L Integration - Custom 2"; Boolean)
@@ -69,7 +69,7 @@ table 5611 "Depreciation Book"
 
             trigger OnValidate()
             begin
-                CheckIntegrationFields;
+                CheckIntegrationFields();
             end;
         }
         field(9; "G/L Integration - Disposal"; Boolean)
@@ -78,7 +78,7 @@ table 5611 "Depreciation Book"
 
             trigger OnValidate()
             begin
-                CheckIntegrationFields;
+                CheckIntegrationFields();
             end;
         }
         field(10; "G/L Integration - Maintenance"; Boolean)
@@ -87,7 +87,7 @@ table 5611 "Depreciation Book"
 
             trigger OnValidate()
             begin
-                CheckIntegrationFields;
+                CheckIntegrationFields();
             end;
         }
         field(11; "Disposal Calculation Method"; Option)
@@ -282,12 +282,12 @@ table 5611 "Depreciation Book"
                     TestField("Periodic Depr. Date Calc.", "Periodic Depr. Date Calc."::"Last Entry");
                 end;
                 FADeprBook.LockTable();
-                Modify;
+                Modify();
                 FADeprBook.SetCurrentKey("Depreciation Book Code", "FA No.");
                 FADeprBook.SetRange("Depreciation Book Code", Code);
                 if FADeprBook.FindSet(true) then
                     repeat
-                        FADeprBook.CalcDeprPeriod;
+                        FADeprBook.CalcDeprPeriod();
                         FADeprBook.Modify();
                     until FADeprBook.Next() = 0;
             end;
@@ -331,7 +331,7 @@ table 5611 "Depreciation Book"
                 if "Derogatory Calculation" = Code then
                     Error(Text10801, "Derogatory Calculation", Code);
 
-                CheckIntegrationFields;
+                CheckIntegrationFields();
             end;
         }
         field(10801; "Used with Derogatory Book"; Code[10])
@@ -347,7 +347,7 @@ table 5611 "Depreciation Book"
 
             trigger OnValidate()
             begin
-                CheckIntegrationFields;
+                CheckIntegrationFields();
             end;
         }
     }
@@ -375,10 +375,10 @@ table 5611 "Depreciation Book"
         if not FADeprBook.IsEmpty() then
             Error(Text000);
 
-        if not InsCoverageLedgEntry.IsEmpty and (FASetup."Insurance Depr. Book" = Code) then
+        if not InsCoverageLedgEntry.IsEmpty() and (FASetup."Insurance Depr. Book" = Code) then
             Error(
               Text001,
-              FASetup.TableCaption, FASetup.FieldCaption("Insurance Depr. Book"), Code);
+              FASetup.TableCaption(), FASetup.FieldCaption("Insurance Depr. Book"), Code);
 
         FAPostingTypeSetup.SetRange("Depreciation Book Code", Code);
         FAPostingTypeSetup.DeleteAll();
@@ -399,18 +399,18 @@ table 5611 "Depreciation Book"
             "Depreciation Type" := false;
             "Acquisition Type" := true;
             Sign := Sign::Debit;
-            Insert;
+            Insert();
             "FA Posting Type" := "FA Posting Type"::"Write-Down";
             "Part of Depreciable Basis" := false;
             "Include in Gain/Loss Calc." := true;
             "Depreciation Type" := true;
             "Acquisition Type" := false;
             Sign := Sign::Credit;
-            Insert;
+            Insert();
             "FA Posting Type" := "FA Posting Type"::"Custom 1";
-            Insert;
+            Insert();
             "FA Posting Type" := "FA Posting Type"::"Custom 2";
-            Insert;
+            Insert();
         end;
     end;
 
@@ -425,8 +425,6 @@ table 5611 "Depreciation Book"
     end;
 
     var
-        Text000: Label 'The book cannot be deleted because it is in use.';
-        Text001: Label 'The book cannot be deleted because %1 %2 = %3.';
         FASetup: Record "FA Setup";
         FAJnlSetup: Record "FA Journal Setup";
         GLIntegration: array[13] of Boolean;
@@ -435,6 +433,9 @@ table 5611 "Depreciation Book"
         Text10802: Label 'The depreciation book %1 is already set up in combination with derogatory depreciation book %2.';
         Text10803: Label 'Derogatory depreciation books cannot be integrated with the general ledger. Please make sure that none of the fields on the Integration tab are checked.';
         Text10804: Label 'The depreciation book %1 is a derogatory depreciation book.';
+
+        Text000: Label 'The book cannot be deleted because it is in use.';
+        Text001: Label 'The book cannot be deleted because %1 %2 = %3.';
 
     protected var
         FAPostingTypeSetup: Record "FA Posting Type Setup";

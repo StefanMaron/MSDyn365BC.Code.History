@@ -139,7 +139,7 @@ codeunit 139054 "Office Addin Redeploy"
 
         // [WHEN] User has chosen to ignore updating notification
         // Force update notification disabled
-        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.OfficeUpdateNotificationCode);
+        InstructionMgt.DisableMessageForCurrentUser(InstructionMgt.OfficeUpdateNotificationCode());
 
         // [THEN] Update notifcation is not displayed and addin is loaded
         InitializeOfficeHostProvider(OfficeHostType.OutlookItemRead, UserVersion);
@@ -156,7 +156,7 @@ codeunit 139054 "Office Addin Redeploy"
     begin
         // [GIVEN] User can update and has non breaking update available
         // Force update notification enabled
-        InstructionMgt.EnableMessageForCurrentUser(InstructionMgt.OfficeUpdateNotificationCode);
+        InstructionMgt.EnableMessageForCurrentUser(InstructionMgt.OfficeUpdateNotificationCode());
         LibraryLowerPermissions.SetOutsideO365Scope();
         InitializeOAuth(true);
         LibraryLowerPermissions.SetO365Full();
@@ -213,7 +213,7 @@ codeunit 139054 "Office Addin Redeploy"
         AddinDeploymentHelper.CheckVersion(OfficeHostType.OutlookItemRead, '0.0.0.0');
 
         // [THEN] The add-in record is updated to the latest version
-        OfficeAddin.Find;
+        OfficeAddin.Find();
         OfficeAddin.TestField(Version, LatestVersion);
     end;
 
@@ -244,7 +244,7 @@ codeunit 139054 "Office Addin Redeploy"
         OfficeNewContactDlg.Trap;
         PAGE.Run(PAGE::"Outlook Mail Engine", OfficeAddinContext);
 
-        OfficeNewContactDlg.Close;
+        OfficeNewContactDlg.Close();
     end;
 
     local procedure SetOfficeHostUnAvailable()
@@ -284,7 +284,7 @@ codeunit 139054 "Office Addin Redeploy"
         else
             UserVersion := LatestVersion + '01';
 
-        if not OfficeAddin.Modify then
+        if not OfficeAddin.Modify() then
             OfficeAddin.Insert();
 
         Commit();
@@ -319,12 +319,12 @@ codeunit 139054 "Office Addin Redeploy"
         AzureADMgtSetup.Modify();
 
         with AzureADAppSetup do
-            if not Get then begin
-                Init;
+            if not Get() then begin
+                Init();
                 "Redirect URL" := 'http://dummyurl:1234/Main_Instance1/WebClient/OAuthLanding.htm';
-                "App ID" := CreateGuid;
-                SetSecretKeyToIsolatedStorage(CreateGuid);
-                Insert;
+                "App ID" := CreateGuid();
+                SetSecretKeyToIsolatedStorage(CreateGuid());
+                Insert();
             end;
     end;
 

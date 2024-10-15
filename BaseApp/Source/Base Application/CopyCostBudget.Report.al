@@ -57,7 +57,7 @@ report 1134 "Copy Cost Budget"
 
             trigger OnPostDataItem()
             begin
-                Window.Close;
+                Window.Close();
 
                 if NoInserted = 0 then begin
                     Message(Text010);
@@ -209,9 +209,9 @@ report 1134 "Copy Cost Budget"
         CostBudgetEntryReqForm: Record "Cost Budget Entry";
         CostBudgetEntryTarget: Record "Cost Budget Entry";
         CostBudgetNameTarget: Record "Cost Budget Name";
+        DateFormula: DateFormula;
         Window: Dialog;
         DateChangeFormula: Code[10];
-        DateFormula: DateFormula;
         LastEntryNo: Integer;
         NextEntryNo: Integer;
         NoOfCopies: Integer;
@@ -219,6 +219,7 @@ report 1134 "Copy Cost Budget"
         i: Integer;
         NoInserted: Integer;
         CostBudgetRegNo: Integer;
+
         Text000: Label 'The multiplication factor must not be 0.';
         Text001: Label 'Number of copies must be at least 1.';
         Text002: Label 'If more than one copy is created, a formula for date change must be defined.';

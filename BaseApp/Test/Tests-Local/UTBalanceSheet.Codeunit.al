@@ -76,7 +76,7 @@ codeunit 144009 "UT Balance Sheet"
         // Verify: Verification done in FRAccountSchedulePageHandler.
 
         // Teardown.
-        FRAccountScheduleNames.Close;
+        FRAccountScheduleNames.Close();
     end;
 
     [Test]
@@ -105,7 +105,7 @@ codeunit 144009 "UT Balance Sheet"
         VerifyValueOnFRAccountScheduleReport(FRAccScheduleLine."Schedule Name");
 
         // Teardown.
-        FRAccountSchedule.Close;
+        FRAccountSchedule.Close();
     end;
 
     [Test]
@@ -169,7 +169,7 @@ codeunit 144009 "UT Balance Sheet"
         // Verify.
         Assert.IsTrue(
           FRAccScheduleLine.Get(FRAccScheduleLine."Schedule Name", FRAccScheduleLine."Line No."),
-          StrSubstNo('%1 must exist', FRAccScheduleLine.TableCaption));
+          StrSubstNo('%1 must exist', FRAccScheduleLine.TableCaption()));
     end;
 
     [Test]
@@ -368,7 +368,7 @@ codeunit 144009 "UT Balance Sheet"
         GLAccountNo := CreateGLEntry;
         FindGLEntryByGLAccNo(GLEntry, GLAccountNo);
 
-        GLEntry."Applies-to ID" := CopyStr(Format(CreateGuid), 1, MaxStrLen(GLEntry."Applies-to ID"));
+        GLEntry."Applies-to ID" := CopyStr(Format(CreateGuid()), 1, MaxStrLen(GLEntry."Applies-to ID"));
         GLEntry.Modify();
 
         GLEntryApplication.Validate(GLEntry);
@@ -412,7 +412,7 @@ codeunit 144009 "UT Balance Sheet"
         GLEntry."Entry No." := GLEntry2."Entry No." + 1;
         GLEntry."G/L Account No." := CreateGLAccount;
         GLEntry.Amount := LibraryRandom.RandDec(10, 2);
-        GLEntry."Posting Date" := WorkDate;
+        GLEntry."Posting Date" := WorkDate();
         GLEntry.Insert();
         exit(GLEntry."G/L Account No.");
     end;
@@ -430,8 +430,8 @@ codeunit 144009 "UT Balance Sheet"
     begin
         CreateFRAccScheduleLine(FRAccScheduleLine, TotalingType);
         FRAccScheduleLine.Description := LibraryUTUtility.GetNewCode;
-        FRAccScheduleLine."Date Filter" := WorkDate;
-        FRAccScheduleLine."Date Filter 2" := WorkDate;
+        FRAccScheduleLine."Date Filter" := WorkDate();
+        FRAccScheduleLine."Date Filter 2" := WorkDate();
         FRAccScheduleLine."G/L Entry Type Filter" := GLEntryTypeFilter;
         FRAccScheduleLine."Calculate with" := CalculateWith;
         FRAccScheduleLine."New Page" := NewPage;
@@ -513,7 +513,7 @@ codeunit 144009 "UT Balance Sheet"
     begin
         LibraryVariableStorage.Dequeue(ScheduleName);
         FRAccountSchedule."FR Acc. Schedule Name".SetFilter(Name, ScheduleName);
-        FRAccountSchedule."FR Acc. Schedule Line".SetFilter("Date Filter", Format(WorkDate));
+        FRAccountSchedule."FR Acc. Schedule Line".SetFilter("Date Filter", Format(WorkDate()));
         FRAccountSchedule.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 

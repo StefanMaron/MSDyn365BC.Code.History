@@ -290,7 +290,7 @@ codeunit 144025 "UT TAB FA Derogatory Depr."
         FADateType."Entry No." := 11;  // Required on the basis of CreateTypes function of Table ID - 5645 FA Date Type for Derogatory.
 
         // Exercise.
-        FADateType.CreateTypes;
+        FADateType.CreateTypes();
 
         // Verify: Verify FA Date Type No. as Field No of Last Derogatory Date and FA Date Type Name as Field Caption of Last Derogatory Date of FA Depreciation Book.
         FADateType.TestField("FA Date Type No.", FADepreciationBook.FieldNo("Last Derogatory Date"));
@@ -310,7 +310,7 @@ codeunit 144025 "UT TAB FA Derogatory Depr."
         FAMatrixPostingType."Entry No." := 12;  // Required on the basis of CreateTypes function of Table ID - 5647 FA Matrix Posting Type for Derogatory.
 
         // Exercise.
-        FAMatrixPostingType.CreateTypes;
+        FAMatrixPostingType.CreateTypes();
 
         // Verify: Verify FA Posting Type Name as Field Caption of Derogatory of FA Depreciation Book.
         FAMatrixPostingType.TestField("FA Posting Type Name", FADepreciationBook.FieldCaption(Derogatory));

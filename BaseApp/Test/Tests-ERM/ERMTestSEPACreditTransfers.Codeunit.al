@@ -29,6 +29,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         LibraryHumanResource: Codeunit "Library - Human Resource";
         LibraryJournals: Codeunit "Library - Journals";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         Initialized: Boolean;
         NameTxt: Label 'You Name It';
         AddressTxt: Label 'Privet Drive';
@@ -241,7 +242,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         TrfDate: Date;
         i: Integer;
     begin
-        Init;
+        Init();
         GenJnlLine.Init();
         if CustLedgerEntry.FindLast() then;
         CustLedgerEntry."Entry No." += 1;
@@ -307,7 +308,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         PaymentExportData: Record "Payment Export Data";
     begin
         with PaymentExportData do begin
-            Init;
+            Init();
             Validate("SEPA Instruction Priority", "SEPA Instruction Priority"::NORMAL);
             TestField("SEPA Instruction Priority Text", 'NORM');
             Validate("SEPA Instruction Priority", "SEPA Instruction Priority"::HIGH);
@@ -322,7 +323,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         PaymentExportData: Record "Payment Export Data";
     begin
         with PaymentExportData do begin
-            Init;
+            Init();
             Validate("SEPA Payment Method", "SEPA Payment Method"::CHK);
             TestField("SEPA Payment Method Text", 'CHK');
             Validate("SEPA Payment Method", "SEPA Payment Method"::TRF);
@@ -339,7 +340,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         PaymentExportData: Record "Payment Export Data";
     begin
         with PaymentExportData do begin
-            Init;
+            Init();
             Validate("SEPA Charge Bearer", "SEPA Charge Bearer"::DEBT);
             TestField("SEPA Charge Bearer Text", 'DEBT');
             Validate("SEPA Charge Bearer", "SEPA Charge Bearer"::CRED);
@@ -358,7 +359,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         PaymentExportData: Record "Payment Export Data";
     begin
         with PaymentExportData do begin
-            Init;
+            Init();
             "Line No." := 1;
             Assert.IsFalse(IsFieldBlank(FieldNo("Line No.")), FieldName("Line No."));
             "Line No." := 0;
@@ -461,7 +462,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         PaymentExportData: Record "Payment Export Data";
     begin
         with CompanyInformation do begin
-            Init;
+            Init();
             Name := CopyStr(AccentuateText(NameTxt), 1, MaxStrLen(Name));
             Address := CopyStr(AccentuateText(AddressTxt), 1, MaxStrLen(Address));
             PaymentExportData.CompanyInformationConvertToLatin(CompanyInformation);
@@ -480,7 +481,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         TempPaymentExportRemittanceText: Record "Payment Export Remittance Text" temporary;
         SEPACTFillExportBuffer: Codeunit "SEPA CT-Fill Export Buffer";
     begin
-        Init;
+        Init();
         CreateGenJnlLine(GenJnlLine);
         SEPACTFillExportBuffer.FillExportBuffer(GenJnlLine, TempPaymentExportData);
         Assert.AreEqual(1, TempPaymentExportData.Count, 'Wrong number of payment lines created.');
@@ -503,7 +504,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         SEPACTFillExportBuffer: Codeunit "SEPA CT-Fill Export Buffer";
         LastTransferRegNo: Integer;
     begin
-        Init;
+        Init();
         CreateGenJnlLine(GenJnlLine);
         GenJnlLine.Amount := -GenJnlLine.Amount;
         GenJnlLine.Modify();
@@ -667,7 +668,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         InStr: InStream;
         s: Text;
     begin
-        Init;
+        Init();
         CreateGenJnlLine(GenJnlLine);
         TempBlob.CreateOutStream(OutStr);
         XMLPORT.Export(BankAccount.GetPaymentExportXMLPortID, OutStr, GenJnlLine);
@@ -699,7 +700,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         NoOfPmtInf: Integer;
         i: Integer;
     begin
-        Init;
+        Init();
 
         ExpectedNoOfGroups := 4;
         NoOfPmtsPerGroup := 5;
@@ -756,7 +757,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         RequiredMessageLength: Integer;
     begin
         // [SCENARIO 109389] Message to recipient is not stored in the exported file for FR
-        Init;
+        Init();
         RequiredMessageLength := 140;
 
         // [GIVEN] A Payment Journal Line
@@ -801,7 +802,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         RequiredMessageLength: Integer;
     begin
         // [SCENARIO 109389] Message to recipient cannot contain more than 140 characters
-        Init;
+        Init();
         RequiredMessageLength := 141;
 
         // [GIVEN] A Payment Journal Line
@@ -824,7 +825,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         TempPaymentExportData: Record "Payment Export Data" temporary;
         SEPACTFillExportBuffer: Codeunit "SEPA CT-Fill Export Buffer";
     begin
-        Init;
+        Init();
         // Setup.
         CreateGenJnlLine(GenJnlLine);
         GenJnlLine."Posting Date" := CalcDate('<1D>', GetTodayDate());
@@ -848,7 +849,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         TempPaymentExportData: Record "Payment Export Data" temporary;
         SEPACTFillExportBuffer: Codeunit "SEPA CT-Fill Export Buffer";
     begin
-        Init;
+        Init();
         // Setup.
         CreateVendorLedgerEntry(VendLedgerEntry, -2);
         VendLedgerEntry."Posting Date" := CalcDate('<-1D>', Today());
@@ -877,7 +878,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         TempPaymentExportData: Record "Payment Export Data" temporary;
         SEPACTFillExportBuffer: Codeunit "SEPA CT-Fill Export Buffer";
     begin
-        Init;
+        Init();
         // Setup.
         CreateVendorLedgerEntry(VendLedgerEntry, -2);
         CreateGenJnlLine(GenJnlLine);
@@ -900,7 +901,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        Init;
+        Init();
         // Setup.
         CreateVendorLedgerEntry(VendorLedgerEntry, 0);
         CreateGenJnlLine(GenJnlLine);
@@ -930,7 +931,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         NoSeriesLine: Record "No. Series Line";
         BankAcc: Record "Bank Account";
     begin
-        Init;
+        Init();
 
         // Pre-Setup
         CreateGenJnlLine(GenJnlLine);
@@ -969,7 +970,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         CreditTransferRegister: Record "Credit Transfer Register";
         SEPACTFillExportBuffer: Codeunit "SEPA CT-Fill Export Buffer";
     begin
-        Init;
+        Init();
 
         // Pre-Setup
         CreateGenJnlLine(GenJnlLine);
@@ -1001,7 +1002,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         GenJnlLine: Record "Gen. Journal Line";
         CreditTransferRegister: Record "Credit Transfer Register";
     begin
-        Init;
+        Init();
 
         // Pre-Setup
         GenJournalBatch.Validate("Bal. Account Type", GenJournalBatch."Bal. Account Type"::"Bank Account");
@@ -1079,7 +1080,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         CreditTransferEntry: Record "Credit Transfer Entry";
     begin
         // [SCENARIO 305129] When creating SEPA Export File with Gen. Journal Line applied to several Ledger Entries, Credit Transfer Entries get generated for all the Ledger Entries
-        Init;
+        Init();
 
         // [GIVEN] Gen. Journal Line
         CreateGenJnlLine(GenJnlLine);
@@ -1113,7 +1114,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         GenJnlLine: array[2] of Record "Gen. Journal Line";
     begin
         // [SCENARIO 329011]  When creating SEPA Export File with multiple Gen. Journal Lines applied to Ledger Entries, Gen. Journal Line's TotalExportedAmount is equal to Amount.
-        Init;
+        Init();
 
         // [GIVEN] Two Gen. Journal Line applied to Vendor Ledger Entries.
         CreateGenJnlLineWithVendLedgerEntry(GenJnlLine[1]);
@@ -1136,7 +1137,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         GenJnlLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO 329011]  When creating SEPA Export File with Gen. Journal Lines not applied to Ledger Entries, Gen. Journal Line's TotalExportedAmount is equal to Amount.
-        Init;
+        Init();
         CreditTransferEntry.SetRange("Account No.", Vendor."No.");
         CreditTransferEntry.DeleteAll();
 
@@ -1159,7 +1160,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         GenJnlLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO 327227] It is possible to use SEPA CT Export Gen. Jnl. Line with Non-Euro currency when "Allow Non-Euro Export" is set to TRUE.
-        Init;
+        Init();
 
         // [GIVEN] "Allow Non-Euro Export" is set to TRUE in General Ledger Setup.
         LibraryERM.SetAllowNonEuroExport(true);
@@ -1192,7 +1193,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
         GenJnlLine: Record "Gen. Journal Line";
     begin
         // [SCENARIO 327227] Using SEPA CT Export Gen. Jnl. Line with Non-Euro currency when "Allow Non-Euro Export" is set to FALSE leads to an error.
-        Init;
+        Init();
 
         // [GIVEN] "Allow Non-Euro Export" is set to FALSE in General Ledger Setup.
         LibraryERM.SetAllowNonEuroExport(false);
@@ -1551,7 +1552,34 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
 
         // [THEN] All credit transfer register entries are deleted
         Assert.RecordCount(CreditTransferEntry, 0);
+    end;
 
+    [Test]
+    procedure OrgIdOthrIdTagContainsCompanyInfoVATRegNo()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        CompanyInformation: Record "Company Information";
+        TempBlob: Codeunit "Temp Blob";
+        BlobOutStream: OutStream;
+    begin
+        // [SCENARIO 441036] Tag "InitgPty/Id/OrgId/Othr/Id" contains VAT Registration No. from Company Information when xml is exported using "SEPA CT pain.001.001.03" xmlport.
+        Init();
+
+        // [GIVEN] Company Information with VAT Registartion No. "AB12345".
+        LibraryERMCountryData.CompanyInfoSetVATRegistrationNo();
+
+        // [GIVEN] General Journal Line.
+        CreateGenJnlLine(GenJournalLine);
+
+        // [WHEN] Export General Jornal Line using XmlPort "SEPA CT pain.001.001.03".
+        TempBlob.CreateOutStream(BlobOutStream);
+        Xmlport.Export(BankAccount.GetPaymentExportXMLPortID, BlobOutStream, GenJournalLine);
+
+        // [THEN] Tag "InitgPty/Id/OrgId/Othr/Id" has value "AB12345".
+        CompanyInformation.Get();
+        LibraryXPathXMLReader.InitializeWithBlob(TempBlob, NamespaceTxt);
+        LibraryXPathXMLReader.VerifyNodeValueByXPath(
+            '//CstmrCdtTrfInitn/GrpHdr/InitgPty/Id/OrgId/Othr/Id', CompanyInformation."VAT Registration No.");
     end;
 
     local procedure Init()
@@ -1586,7 +1614,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
 
         Vendor.Init();
         Vendor."No." := 'TEST-SEPA';
-        if Vendor.Find then
+        if Vendor.Find() then
             Vendor.Delete();
         Vendor.Name := 'Microsoft';
         Vendor.Address := 'Microsoft Way 1';
@@ -1630,7 +1658,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
             SetRange("Journal Template Name", GenJournalTemplate.Name);
             SetRange("Journal Batch Name", GenJournalBatch.Name);
 
-            Init;
+            Init();
             LibraryERM.CreateGeneralJnlLine(
               GenJnlLine, GenJournalTemplate.Name, GenJournalBatch.Name,
               "Document Type"::Payment, "Account Type"::Vendor, Vendor."No.", 1);
@@ -1642,7 +1670,7 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
             Validate(Amount, DefaultLineAmount);
             Validate("Bal. Account Type", "Bal. Account Type"::"Bank Account");
             Validate("Bal. Account No.", BankAccount."No.");
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1679,20 +1707,20 @@ codeunit 134403 "ERM Test SEPA Credit Transfers"
     begin
         with BankExportImportSetup do begin
             Code := 'SEPA-TEST';
-            if Find then
-                Delete;
+            if Find() then
+                Delete();
             Direction := Direction::Export;
             "Processing Codeunit ID" := CODEUNIT::"SEPA CT-Export File";
             "Processing XMLport ID" := XMLPORT::"SEPA CT pain.001.001.03";
             "Check Export Codeunit" := CODEUNIT::"SEPA CT-Check Line";
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure CreatePaymentExportDataCharSetData(var PaymentExportData: Record "Payment Export Data")
     begin
         with PaymentExportData do begin
-            Init;
+            Init();
             "Recipient Name" := CopyStr(AccentuateText(NameTxt), 1, MaxStrLen("Recipient Name"));
             "Recipient Address" := CopyStr(AccentuateText(AddressTxt), 1, MaxStrLen("Recipient Address"));
             AddRemittanceText(CopyStr(AccentuateText(RemitTxt), 1, 140));

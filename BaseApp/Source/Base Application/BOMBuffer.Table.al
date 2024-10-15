@@ -379,6 +379,9 @@ table 5870 "BOM Buffer"
 
     var
         GLSetup: Record "General Ledger Setup";
+        UOMMgt: Codeunit "Unit of Measure Management";
+        GLSetupRead: Boolean;
+
         Text001: Label 'The Low-level Code for Item %1 has not been calculated.';
         Text002: Label 'The Quantity per. field in the BOM for Item %1 has not been set.';
         Text003: Label 'Routing %1 has not been certified.';
@@ -387,12 +390,10 @@ table 5870 "BOM Buffer"
         Text006: Label 'Replenishment System for Item %1 is Assembly, but the item is not an assembly BOM. Verify that this is correct.';
         Text007: Label 'Replenishment System for Item %1 is Prod. Order, but the item does not have a production BOM. Verify that this is correct.';
         Text008: Label 'Item %1 is a BOM, but the Replenishment System field is not set to Assembly or Prod. Order. Verify that the value is correct.';
-        UOMMgt: Codeunit "Unit of Measure Management";
-        GLSetupRead: Boolean;
 
     procedure TransferFromItem(var EntryNo: Integer; Item: Record Item; DemandDate: Date)
     begin
-        Init;
+        Init();
         EntryNo += 1;
         "Entry No." := EntryNo;
         Type := Type::Item;
@@ -412,7 +413,7 @@ table 5870 "BOM Buffer"
     var
         BOMItem: Record Item;
     begin
-        Init;
+        Init();
         EntryNo += 1;
         "Entry No." := EntryNo;
         Type := Type::Item;
@@ -436,7 +437,7 @@ table 5870 "BOM Buffer"
     var
         BOMItem: Record Item;
     begin
-        Init;
+        Init();
         EntryNo += 1;
         "Entry No." := EntryNo;
         Type := Type::Item;
@@ -462,7 +463,7 @@ table 5870 "BOM Buffer"
         BOMItem: Record Item;
         BOMRes: Record Resource;
     begin
-        Init;
+        Init();
         EntryNo += 1;
         "Entry No." := EntryNo;
 
@@ -482,10 +483,10 @@ table 5870 "BOM Buffer"
 
         Description := BOMComp.Description;
         "Qty. per Parent" := BOMComp."Quantity per";
-        "Qty. per Top Item" := Round(BOMComp."Quantity per" * ParentQtyPer, UOMMgt.QtyRndPrecision);
+        "Qty. per Top Item" := Round(BOMComp."Quantity per" * ParentQtyPer, UOMMgt.QtyRndPrecision());
 
         "Scrap Qty. per Top Item" :=
-          "Qty. per Top Item" - Round((ParentQtyPer - ParentScrapQtyPer) * "Qty. per Parent", UOMMgt.QtyRndPrecision);
+          "Qty. per Top Item" - Round((ParentQtyPer - ParentScrapQtyPer) * "Qty. per Parent", UOMMgt.QtyRndPrecision());
 
         "Unit of Measure Code" := BOMComp."Unit of Measure Code";
         "Variant Code" := BOMComp."Variant Code";
@@ -504,7 +505,7 @@ table 5870 "BOM Buffer"
         UOMMgt: Codeunit "Unit of Measure Management";
         CostCalculationMgt: Codeunit "Cost Calculation Management";
     begin
-        Init;
+        Init();
         EntryNo += 1;
         "Entry No." := EntryNo;
         Type := Type::Item;
@@ -518,18 +519,18 @@ table 5870 "BOM Buffer"
         Description := ProdBOMLine.Description;
         "Qty. per Parent" :=
           CostCalculationMgt.CalcCompItemQtyBase(
-            ProdBOMLine, WorkDate,
+            ProdBOMLine, WorkDate(),
             CostCalculationMgt.CalcQtyAdjdForBOMScrap(ParentItem."Lot Size", ParentScrapPct), ParentItem."Routing No.", true) /
           UOMMgt.GetQtyPerUnitOfMeasure(BOMItem, ProdBOMLine."Unit of Measure Code") /
           BOMQtyPerUOM / ParentItem."Lot Size";
-        "Qty. per Top Item" := Round(ParentQtyPer * "Qty. per Parent", UOMMgt.QtyRndPrecision);
-        "Qty. per Parent" := Round("Qty. per Parent", UOMMgt.QtyRndPrecision);
+        "Qty. per Top Item" := Round(ParentQtyPer * "Qty. per Parent", UOMMgt.QtyRndPrecision());
+        "Qty. per Parent" := Round("Qty. per Parent", UOMMgt.QtyRndPrecision());
 
         "Scrap Qty. per Parent" := "Qty. per Parent" - (ProdBOMLine.Quantity / BOMQtyPerUOM);
         "Scrap Qty. per Top Item" :=
           "Qty. per Top Item" -
-          Round((ParentQtyPer - ParentScrapQtyPer) * ("Qty. per Parent" - "Scrap Qty. per Parent"), UOMMgt.QtyRndPrecision);
-        "Scrap Qty. per Parent" := Round("Scrap Qty. per Parent", UOMMgt.QtyRndPrecision);
+          Round((ParentQtyPer - ParentScrapQtyPer) * ("Qty. per Parent" - "Scrap Qty. per Parent"), UOMMgt.QtyRndPrecision());
+        "Scrap Qty. per Parent" := Round("Scrap Qty. per Parent", UOMMgt.QtyRndPrecision());
 
         "Qty. per BOM Line" := ProdBOMLine."Quantity per";
         "Unit of Measure Code" := ProdBOMLine."Unit of Measure Code";
@@ -550,7 +551,7 @@ table 5870 "BOM Buffer"
     var
         BOMItem: Record Item;
     begin
-        Init;
+        Init();
         EntryNo += 1;
         "Entry No." := EntryNo;
         Type := Type::Item;
@@ -576,7 +577,7 @@ table 5870 "BOM Buffer"
     var
         BOMItem: Record Item;
     begin
-        Init;
+        Init();
         EntryNo += 1;
         "Entry No." := EntryNo;
         Type := Type::Item;
@@ -604,7 +605,7 @@ table 5870 "BOM Buffer"
         RunTimeQty: Decimal;
         SetupWaitMoveTimeQty: Decimal;
     begin
-        Init;
+        Init();
         EntryNo += 1;
         "Entry No." := EntryNo;
 
@@ -658,7 +659,7 @@ table 5870 "BOM Buffer"
         else
             "Replenishment System" := Item."Replenishment System";
         if "Replenishment System" = "Replenishment System"::"Prod. Order" then begin
-            VersionCode := VersionMgt.GetBOMVersion("Production BOM No.", WorkDate, true);
+            VersionCode := VersionMgt.GetBOMVersion("Production BOM No.", WorkDate(), true);
             "BOM Unit of Measure Code" := VersionMgt.GetBOMUnitOfMeasure("Production BOM No.", VersionCode);
             ProductionBOMCheck.CheckBOM("Production BOM No.", VersionCode);
         end;
@@ -765,9 +766,9 @@ table 5870 "BOM Buffer"
 
         if "Is Leaf" then begin
             if "Qty. per Parent" <> 0 then
-                "Able to Make Parent" := Round(AvailQty / ("Qty. per Parent" * QtyPerUOM), UOMMgt.QtyRndPrecision);
+                "Able to Make Parent" := Round(AvailQty / ("Qty. per Parent" * QtyPerUOM), UOMMgt.QtyRndPrecision());
             if "Qty. per Top Item" <> 0 then
-                "Able to Make Top Item" := Round(AvailQty / ("Qty. per Top Item" * QtyPerUOM), UOMMgt.QtyRndPrecision);
+                "Able to Make Top Item" := Round(AvailQty / ("Qty. per Top Item" * QtyPerUOM), UOMMgt.QtyRndPrecision());
         end else
             if Indentation = 0 then begin
                 "Able to Make Parent" := "Able to Make Parent";
@@ -775,13 +776,13 @@ table 5870 "BOM Buffer"
             end else begin
                 if "Qty. per Parent" <> 0 then
                     "Able to Make Parent" :=
-                      Round((AvailQty + "Able to Make Parent") / ("Qty. per Parent" * QtyPerUOM), UOMMgt.QtyRndPrecision);
+                      Round((AvailQty + "Able to Make Parent") / ("Qty. per Parent" * QtyPerUOM), UOMMgt.QtyRndPrecision());
                 if "Qty. per Top Item" <> 0 then
                     "Able to Make Top Item" :=
-                      Round(AvailQty / ("Qty. per Top Item" * QtyPerUOM) + "Able to Make Top Item", UOMMgt.QtyRndPrecision);
+                      Round(AvailQty / ("Qty. per Top Item" * QtyPerUOM) + "Able to Make Top Item", UOMMgt.QtyRndPrecision());
             end;
 
-        SetAbleToMakeToZeroIfNegative;
+        SetAbleToMakeToZeroIfNegative();
     end;
 
     procedure AddMaterialCost(SingleLvlCostAmt: Decimal; RolledUpCostAmt: Decimal)
@@ -956,7 +957,7 @@ table 5870 "BOM Buffer"
 
     procedure CalcUnitCost()
     begin
-        "Total Cost" := CalcDirectCost + CalcIndirectCost;
+        "Total Cost" := CalcDirectCost() + CalcIndirectCost();
         "Unit Cost" := 0;
         if "Qty. per Top Item" <> 0 then
             "Unit Cost" := Round("Total Cost" / "Qty. per Top Item", 0.00001);
@@ -1023,7 +1024,7 @@ table 5870 "BOM Buffer"
             exit(true);
 
         if LogWarning then
-            BOMWarningLog.SetWarning(StrSubstNo(Text001, Item."No."), DATABASE::Item, Item.GetPosition);
+            BOMWarningLog.SetWarning(StrSubstNo(Text001, Item."No."), DATABASE::Item, Item.GetPosition());
     end;
 
     local procedure TraverseIsLowLevelOk(ParentItem: Record Item): Boolean
@@ -1038,7 +1039,7 @@ table 5870 "BOM Buffer"
 
         ParentItem.Get("No.");
         ParentBOMBuffer := Rec;
-        while (Next <> 0) and (ParentBOMBuffer.Indentation < Indentation) do
+        while (Next() <> 0) and (ParentBOMBuffer.Indentation < Indentation) do
             if (ParentBOMBuffer.Indentation + 1 = Indentation) and (Type = Type::Item) and ("No." <> '') then begin
                 ChildItem.Get("No.");
                 if ParentItem."Low-Level Code" >= ChildItem."Low-Level Code" then begin
@@ -1068,7 +1069,7 @@ table 5870 "BOM Buffer"
 
         if LogWarning then begin
             CopyOfBOMBuffer.Copy(Rec);
-            Reset;
+            Reset();
             SetRange(Indentation, 0, Indentation);
             SetRange(Type, Type::Item);
             while (Next(-1) <> 0) and (Indentation >= CopyOfBOMBuffer.Indentation) do
@@ -1077,10 +1078,10 @@ table 5870 "BOM Buffer"
                 Item.Get("No.");
                 Item.CalcFields("Assembly BOM");
                 if Item."Assembly BOM" then
-                    BOMWarningLog.SetWarning(StrSubstNo(Text002, Item."No."), DATABASE::Item, Item.GetPosition)
+                    BOMWarningLog.SetWarning(StrSubstNo(Text002, Item."No."), DATABASE::Item, Item.GetPosition())
                 else
                     if ProdBOMHeader.Get(Item."Production BOM No.") then
-                        BOMWarningLog.SetWarning(StrSubstNo(Text002, Item."No."), DATABASE::"Production BOM Header", ProdBOMHeader.GetPosition)
+                        BOMWarningLog.SetWarning(StrSubstNo(Text002, Item."No."), DATABASE::"Production BOM Header", ProdBOMHeader.GetPosition())
             end;
             Copy(CopyOfBOMBuffer);
         end;
@@ -1097,7 +1098,7 @@ table 5870 "BOM Buffer"
             exit(true);
 
         if LogWarning then
-            BOMWarningLog.SetWarning(StrSubstNo(Text004, ProdBOMHeader."No."), DATABASE::"Production BOM Header", ProdBOMHeader.GetPosition);
+            BOMWarningLog.SetWarning(StrSubstNo(Text004, ProdBOMHeader."No."), DATABASE::"Production BOM Header", ProdBOMHeader.GetPosition());
     end;
 
     local procedure IsRoutingOk(LogWarning: Boolean; var BOMWarningLog: Record "BOM Warning Log"): Boolean
@@ -1111,7 +1112,7 @@ table 5870 "BOM Buffer"
             exit(true);
 
         if LogWarning then
-            BOMWarningLog.SetWarning(StrSubstNo(Text003, RoutingHeader."No."), DATABASE::"Routing Header", RoutingHeader.GetPosition);
+            BOMWarningLog.SetWarning(StrSubstNo(Text003, RoutingHeader."No."), DATABASE::"Routing Header", RoutingHeader.GetPosition());
     end;
 
     local procedure IsReplenishmentOk(LogWarning: Boolean; var BOMWarningLog: Record "BOM Warning Log"): Boolean
@@ -1128,12 +1129,12 @@ table 5870 "BOM Buffer"
             if Item."Replenishment System" in ["Replenishment System"::Purchase, "Replenishment System"::Transfer] then
                 exit(true);
             if LogWarning then
-                BOMWarningLog.SetWarning(StrSubstNo(Text005, Item."No."), DATABASE::Item, Item.GetPosition);
+                BOMWarningLog.SetWarning(StrSubstNo(Text005, Item."No."), DATABASE::Item, Item.GetPosition());
         end else begin
             if Item."Replenishment System" in ["Replenishment System"::"Prod. Order", "Replenishment System"::Assembly] then
                 exit(IsBOMOk(LogWarning, BOMWarningLog));
             if LogWarning then
-                BOMWarningLog.SetWarning(StrSubstNo(Text008, Item."No."), DATABASE::Item, Item.GetPosition);
+                BOMWarningLog.SetWarning(StrSubstNo(Text008, Item."No."), DATABASE::Item, Item.GetPosition());
         end;
     end;
 
@@ -1154,14 +1155,14 @@ table 5870 "BOM Buffer"
                     if Item."Assembly BOM" then
                         exit(true);
                     if LogWarning then
-                        BOMWarningLog.SetWarning(StrSubstNo(Text006, Item."No."), DATABASE::Item, Item.GetPosition);
+                        BOMWarningLog.SetWarning(StrSubstNo(Text006, Item."No."), DATABASE::Item, Item.GetPosition());
                 end;
             Item."Replenishment System"::"Prod. Order":
                 begin
                     if Item."Production BOM No." <> '' then
                         exit(true);
                     if LogWarning then
-                        BOMWarningLog.SetWarning(StrSubstNo(Text007, Item."No."), DATABASE::Item, Item.GetPosition);
+                        BOMWarningLog.SetWarning(StrSubstNo(Text007, Item."No."), DATABASE::Item, Item.GetPosition());
                 end;
             else
                 exit(true);
@@ -1190,7 +1191,7 @@ table 5870 "BOM Buffer"
         BOMWarningLog.Reset();
         BOMWarningLog.DeleteAll();
 
-        Reset;
+        Reset();
         if FindSet() then
             repeat
                 if not IsLineOk(true, BOMWarningLog) then

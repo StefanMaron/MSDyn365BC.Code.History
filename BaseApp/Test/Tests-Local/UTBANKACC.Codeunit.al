@@ -194,7 +194,7 @@ codeunit 144010 "UT BANKACC"
 
         // Verify.
         CustomerCard."Preferred Bank Account Code".AssertEquals(CustomerBankAccount.Code);
-        CustomerCard.Close;
+        CustomerCard.Close();
     end;
 
     [Test]
@@ -216,7 +216,7 @@ codeunit 144010 "UT BANKACC"
 
         // Verify.
         VendorCard."Preferred Bank Account Code".AssertEquals(VendorBankAccount.Code);
-        VendorCard.Close;
+        VendorCard.Close();
     end;
 
     local procedure CreateBankAccount(var BankAccount: Record "Bank Account")

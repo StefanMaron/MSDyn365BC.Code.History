@@ -146,7 +146,7 @@ page 7157 "Purch. Analysis by Dimensions"
                         ItemList: Page "Item List";
                     begin
                         ItemList.LookupMode(true);
-                        if ItemList.RunModal = ACTION::LookupOK then begin
+                        if ItemList.RunModal() = ACTION::LookupOK then begin
                             Text := ItemList.GetSelectionFilter();
                             exit(true);
                         end;
@@ -169,7 +169,7 @@ page 7157 "Purch. Analysis by Dimensions"
                         LocationList: Page "Location List";
                     begin
                         LocationList.LookupMode(true);
-                        if LocationList.RunModal = ACTION::LookupOK then begin
+                        if LocationList.RunModal() = ACTION::LookupOK then begin
                             Text := LocationList.GetSelectionFilter();
                             exit(true);
                         end;
@@ -366,9 +366,6 @@ page 7157 "Purch. Analysis by Dimensions"
                 ApplicationArea = Dimensions;
                 Caption = '&Show Matrix';
                 Image = ShowMatrix;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'View the actual analysis report according to the selected filters and options.';
 
                 trigger OnAction()
@@ -382,9 +379,6 @@ page 7157 "Purch. Analysis by Dimensions"
                 ApplicationArea = Dimensions;
                 Caption = 'Previous Set';
                 Image = PreviousSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Go to the previous set of data.';
 
                 trigger OnAction()
@@ -397,15 +391,29 @@ page 7157 "Purch. Analysis by Dimensions"
                 ApplicationArea = Dimensions;
                 Caption = 'Next Set';
                 Image = NextSet;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'Go to the next set of data.';
 
                 trigger OnAction()
                 begin
                     GenerateColumnCaptions("Matrix Page Step Type"::Next);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(ShowMatrix_Promoted; ShowMatrix)
+                {
+                }
+                actionref(PreviousSet_Promoted; PreviousSet)
+                {
+                }
+                actionref(NextSet_Promoted; NextSet)
+                {
+                }
             }
         }
     }
@@ -462,7 +470,7 @@ page 7157 "Purch. Analysis by Dimensions"
 
         FindPeriod('');
 
-        NoOfColumns := PurchAnalysisByDimMatrix.GetMatrixDimension;
+        NoOfColumns := PurchAnalysisByDimMatrix.GetMatrixDimension();
         GenerateColumnCaptions("Matrix Page Step Type"::Initial);
     end;
 

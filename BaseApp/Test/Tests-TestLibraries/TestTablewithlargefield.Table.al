@@ -1,5 +1,6 @@
 table 139173 "Test Table with large field"
 {
+    ReplicateData = false;
 
     fields
     {

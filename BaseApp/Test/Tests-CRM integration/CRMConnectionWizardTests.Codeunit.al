@@ -49,7 +49,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
 
         // [WHEN] The CRM Connection Setup Wizard is run to the end but not finished
         RunWizardToCompletion(CRMConnectionSetupWizard);
-        CRMConnectionSetupWizard.Close;
+        CRMConnectionSetupWizard.Close();
 
         // [THEN] Status of assisted setup remains Not Completed
         Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"CRM Connection Setup Wizard"), 'CRM Connection Setup status should not be completed.');
@@ -70,7 +70,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         // [WHEN] The CRM Connection Setup Wizard wizard is exited right away
         CRMConnectionSetupWizard.Trap;
         PAGE.Run(PAGE::"CRM Connection Setup Wizard");
-        CRMConnectionSetupWizard.Close;
+        CRMConnectionSetupWizard.Close();
 
         // [THEN] Status of assisted setup remains Not Completed
         Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"CRM Connection Setup Wizard"), 'CRM Connection Setup status should not be completed.');
@@ -91,7 +91,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         // [WHEN] The CRM Connection Setup Wizard is closed but closing is not confirmed
         CRMConnectionSetupWizard.Trap;
         PAGE.Run(PAGE::"CRM Connection Setup Wizard");
-        CRMConnectionSetupWizard.Close;
+        CRMConnectionSetupWizard.Close();
 
         // [THEN] Status of assisted setup remains Not Completed
         Assert.IsFalse(GuidedExperience.IsAssistedSetupComplete(ObjectType::Page, Page::"CRM Connection Setup Wizard"), 'CRM Connection Setup status should not be completed.');
@@ -163,7 +163,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         asserterror CRMConnectionSetupWizard.ActionNext.Invoke;
 
         // [THEN] Error message appears that Dynamics CRM URL should not be empty
-        Assert.ExpectedError(StrSubstNo(DynamicsCRMURLEmptyErr, CRMProductName.SHORT));
+        Assert.ExpectedError(StrSubstNo(DynamicsCRMURLEmptyErr, CRMProductName.SHORT()));
     end;
 
     [Test]
@@ -183,7 +183,6 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CreateCRMConnectionSetup(CRMConnectionSetup);
         CRMConnectionSetup."Is Enabled" := false;
         CRMConnectionSetup."Is CRM Solution Installed" := false;
-        CRMConnectionSetup."Is S.Order Integration Enabled" := false;
         CRMConnectionSetup.Modify();
 
         // [GIVEN] CRM Connection Setup Wizard is opened
@@ -209,12 +208,6 @@ codeunit 139314 "CRM Connection Wizard Tests"
           CRMConnectionSetupWizard.EnableCRMConnection.Enabled,
           StrSubstNo(ShouldBeErr, CRMConnectionSetupWizard.EnableCRMConnection.Caption, EnabledTxt));
         CRMConnectionSetupWizard.EnableCRMConnection.AssertEquals(true);
-
-        // [THEN] EnableSalesOrderIntegration = FALSE and user can change it
-        Assert.IsTrue(
-          CRMConnectionSetupWizard.EnableSalesOrderIntegration.Enabled,
-          StrSubstNo(ShouldBeErr, CRMConnectionSetupWizard.EnableSalesOrderIntegration.Caption, EnabledTxt));
-        CRMConnectionSetupWizard.EnableSalesOrderIntegration.AssertEquals(true);
     end;
 
     [Test]
@@ -234,7 +227,6 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CreateCRMConnectionSetup(CRMConnectionSetup);
         CRMConnectionSetup."Is Enabled" := true;
         CRMConnectionSetup."Is CRM Solution Installed" := true;
-        CRMConnectionSetup."Is S.Order Integration Enabled" := true;
         CRMConnectionSetup.Modify();
 
         // [GIVEN] CRM Connection Setup Wizard is opened
@@ -260,12 +252,6 @@ codeunit 139314 "CRM Connection Wizard Tests"
           CRMConnectionSetupWizard.EnableCRMConnection.Enabled,
           StrSubstNo(ShouldNotBeErr, CRMConnectionSetupWizard.EnableCRMConnection.Caption, EnabledTxt));
         CRMConnectionSetupWizard.EnableCRMConnection.AssertEquals(true);
-
-        // [THEN] EnableSalesOrderIntegration = True and user cannot change it
-        Assert.IsFalse(
-          CRMConnectionSetupWizard.EnableSalesOrderIntegration.Enabled,
-          StrSubstNo(ShouldNotBeErr, CRMConnectionSetupWizard.EnableSalesOrderIntegration.Caption, EnabledTxt));
-        CRMConnectionSetupWizard.EnableSalesOrderIntegration.AssertEquals(true);
     end;
 
     [Test]
@@ -355,7 +341,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         asserterror CRMConnectionSetupWizard.ActionFinish.Invoke;
 
         // [THEN] Error message appears stating user should fill synch user credentials
-        Assert.ExpectedError(StrSubstNo(EmptySynchUserCredentialsErr, CRMProductName.SHORT));
+        Assert.ExpectedError(StrSubstNo(EmptySynchUserCredentialsErr, CRMProductName.SHORT()));
     end;
 
     [Test]
@@ -409,7 +395,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
         TempCRMConnectionSetup.Insert();
         asserterror TempCRMConnectionSetup.EnableCRMConnectionFromWizard;
         // [THEN] Error: 'All credentials required to enable connection'
-        Assert.ExpectedError(StrSubstNo(AllCredentialsRequiredErr, CRMProductName.SHORT));
+        Assert.ExpectedError(StrSubstNo(AllCredentialsRequiredErr, CRMProductName.SHORT()));
     end;
 
     [Test]
@@ -470,10 +456,8 @@ codeunit 139314 "CRM Connection Wizard Tests"
         CRMConnectionSetup.Get();
         CRMConnectionSetup.TestField("User Password Key");
         CRMConnectionSetup.TestField("Is Enabled");
-        Assert.ExpectedMessage('Url', CRMConnectionSetup.GetConnectionString);
-        // [THEN] SO integration is enabled
+        Assert.ExpectedMessage('Url', CRMConnectionSetup.GetConnectionString());
         CRMConnectionSetup.RefreshDataFromCRM;
-        CRMConnectionSetup.TestField("Is S.Order Integration Enabled");
         // [THEN] user mapping is disabled
         // [THEN] The latest SDK proxy version is by default
         LatestSDKVersion := LibraryCRMIntegration.GetLastestSDKVersion();
@@ -710,7 +694,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
             Email.SetValue('test@test.com');
             Password.SetValue('test1234');
             ImportCRMSolution.SetValue(false);
-            EnableSalesOrderIntegration.SetValue(false);
+            EnableBidirectionalSalesOrderIntegration.SetValue(false);
             EnableCRMConnection.SetValue(false);
             Assert.IsFalse(ActionNext.Enabled, 'Next should not be enabled at the end of the wizard');
         end;
@@ -758,7 +742,7 @@ codeunit 139314 "CRM Connection Wizard Tests"
     var
         User: Record User;
     begin
-        Reply := not User.IsEmpty;
+        Reply := not User.IsEmpty();
     end;
 
     [ModalPageHandler]

@@ -936,7 +936,7 @@ codeunit 137510 "SMB Service Item"
         SalesLine.Validate("Location Code", FindLocation);
         SalesLine.Modify(true);
 
-        SalesHeader.Find;
+        SalesHeader.Find();
         LibrarySales.PostSalesDocument(SalesHeader, true, true);
 
         CheckEntries(Item);
@@ -1034,7 +1034,7 @@ codeunit 137510 "SMB Service Item"
         PurchHeader.Modify(true);
 
         // Verify
-        PurchLine.Find;
+        PurchLine.Find();
         Assert.AreEqual(Vend2."Location Code", PurchLine."Location Code", '');
     end;
 
@@ -1158,7 +1158,7 @@ codeunit 137510 "SMB Service Item"
         PurchLine.Validate("Location Code", FindLocation);
         PurchLine.Modify(true);
 
-        PurchHeader.Find;
+        PurchHeader.Find();
         LibraryPurch.PostPurchaseDocument(PurchHeader, true, true);
 
         CheckEntries(Item);
@@ -2022,7 +2022,7 @@ codeunit 137510 "SMB Service Item"
         Assert.IsTrue(ItemCard."Indirect Cost %".Enabled, 'Indirect Cost % must be enabled on inventory item card.');
         Assert.IsTrue(ItemCard."Overhead Rate".Enabled, 'Overhead Rate must be enabled on inventory item card.');
 
-        ItemCard.Close;
+        ItemCard.Close();
     end;
 
     [Test]
@@ -2040,7 +2040,7 @@ codeunit 137510 "SMB Service Item"
         LibraryInventory.CreateServiceTypeItem(Item);
 
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10), '', WorkDate);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
 
         asserterror PurchaseLine.Validate("Indirect Cost %", LibraryRandom.RandDec(100, 2));
 
@@ -2107,7 +2107,7 @@ codeunit 137510 "SMB Service Item"
 
         // [GIVEN] Purchase invoice for item "I".
         LibraryPurchase.CreatePurchaseDocumentWithItem(
-          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, '', Item."No.", LibraryRandom.RandInt(10), '', WorkDate);
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice, '', Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchaseLine.Modify(true);
 
@@ -2142,13 +2142,13 @@ codeunit 137510 "SMB Service Item"
 
         // [GIVEN] Sales order with the non-inventory item and blank location code.
         LibrarySales.CreateSalesDocumentWithItem(
-          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10), '', WorkDate);
+          SalesHeader, SalesLine, SalesHeader."Document Type"::Order, '', Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
 
         // [WHEN] Ship the sales order.
         LibrarySales.PostSalesDocument(SalesHeader, true, false);
 
         // [THEN] The sales order is shipped.
-        SalesLine.Find;
+        SalesLine.Find();
         SalesLine.TestField("Quantity Shipped", SalesLine.Quantity);
     end;
 
@@ -2621,12 +2621,12 @@ codeunit 137510 "SMB Service Item"
         AsmSetup.Modify();
         Commit();
 
-        LibraryAsm.CreateAssemblyHeader(AsmHeader, CalcDate('<+2D>', WorkDate), ParentItem."No.", '', 1, '');
+        LibraryAsm.CreateAssemblyHeader(AsmHeader, CalcDate('<+2D>', WorkDate()), ParentItem."No.", '', 1, '');
 
         BOMComp.Delete(true);
         Commit();
 
-        ChildItem.Find;
+        ChildItem.Find();
         asserterror ParentItem.Validate(Type, ParentItem.Type::Service);
         AssertRunTime('You cannot change the Type field', '');
         asserterror ChildItem.Validate(Type, ChildItem.Type::Service);
@@ -2783,7 +2783,7 @@ codeunit 137510 "SMB Service Item"
         ItemApplnEntry: Record "Item Application Entry";
         PostValueEntryToGL: Record "Post Value Entry to G/L";
     begin
-        Item.Find;
+        Item.Find();
         Assert.AreEqual((Item.Type = Item.Type::Service) or (Item.Type = Item.Type::"Non-Inventory"),
           Item."Cost is Adjusted", 'The Item should be marked always as Cost is Adjusted');
 
@@ -2813,7 +2813,7 @@ codeunit 137510 "SMB Service Item"
                   (Item.Type = Item.Type::Service) or (Item.Type = Item.Type::"Non-Inventory"), ItemApplnEntry.IsEmpty,
                   'There should be no Application Enties');
             end;
-        until ItemLedgEntry.Next = 0;
+        until ItemLedgEntry.Next() = 0;
 
         if (Item.Type = Item.Type::Service) or (Item.Type = Item.Type::"Non-Inventory") then begin
             PostValueEntryToGL.SetRange("Item No.", Item."No.");
@@ -2853,7 +2853,7 @@ codeunit 137510 "SMB Service Item"
     local procedure AssertRunTime(ExpectedErrorTextContains: Text; Msg: Text)
     begin
         Assert.IsTrue(StrPos(GetLastErrorText, ExpectedErrorTextContains) > 0, Msg);
-        ClearLastError;
+        ClearLastError();
     end;
 
     local procedure SetNoSeries()

@@ -312,7 +312,7 @@ codeunit 144046 "UT TAB Payment Management"
         LibraryVariableStorage.Enqueue(DimValue[1]."Dimension Code");
         LibraryVariableStorage.Enqueue(DimValue[1].Code);
         PaymentSlip."Shortcut Dimension 1 Code".Lookup;
-        PaymentHeader.Find;
+        PaymentHeader.Find();
 
         // [THEN] Payment Line "Department Code" = X1
         VerifyPaymentLineDimSetID(PaymentLine, PaymentHeader."Dimension Set ID");
@@ -321,7 +321,7 @@ codeunit 144046 "UT TAB Payment Management"
         LibraryVariableStorage.Enqueue(DimValue[2]."Dimension Code");
         LibraryVariableStorage.Enqueue(DimValue[2].Code);
         PaymentSlip."Shortcut Dimension 2 Code".Lookup;
-        PaymentHeader.Find;
+        PaymentHeader.Find();
 
         // [THEN] Payment Line "Project Code" = X2
         VerifyPaymentLineDimSetID(PaymentLine, PaymentHeader."Dimension Set ID");
@@ -676,7 +676,7 @@ codeunit 144046 "UT TAB Payment Management"
         PaymentSlip.OpenEdit;
         PaymentSlip.FILTER.SetFilter("No.", PaymentLine."No.");
         PaymentSlip.Lines."Account No.".AssertEquals(PaymentLine."Account No.");
-        PaymentSlip.Close;
+        PaymentSlip.Close();
     end;
 
     local procedure CreateBlockedCustomer(Blocked: Enum "Customer Blocked"): Code[20]
@@ -752,13 +752,13 @@ codeunit 144046 "UT TAB Payment Management"
             else
                 EntryNo := 1;
 
-            Init;
+            Init();
             "Entry No." := EntryNo;
             "Applies-to ID" := AppliesToID;
             "Document No." := LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"Cust. Ledger Entry");
             "Document Type" := "Gen. Journal Document Type".FromInteger(LibraryRandom.RandInt(7));
             Open := true;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -791,13 +791,13 @@ codeunit 144046 "UT TAB Payment Management"
             else
                 EntryNo := 1;
 
-            Init;
+            Init();
             "Entry No." := EntryNo;
             "Applies-to ID" := AppliesToID;
             "Document No." := LibraryUtility.GenerateRandomCode(FieldNo("Document No."), DATABASE::"Vendor Ledger Entry");
             "Document Type" := "Gen. Journal Document Type".FromInteger(LibraryRandom.RandInt(7));
             Open := true;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -842,12 +842,12 @@ codeunit 144046 "UT TAB Payment Management"
 
         // Verify: Verify Realize VAT control on Payment Step Card.
         Assert.AreEqual(RealizeVAT, PaymentStepCard."Realize VAT".Enabled, UnexpectedErr);
-        PaymentStepCard.Close;
+        PaymentStepCard.Close();
     end;
 
     local procedure VerifyPaymentLineDimSetID(PaymentLine: Record "Payment Line"; DimensionSetID: Integer)
     begin
-        PaymentLine.Find;
+        PaymentLine.Find();
         PaymentLine.TestField("Dimension Set ID", DimensionSetID);
     end;
 

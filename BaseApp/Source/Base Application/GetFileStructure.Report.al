@@ -95,31 +95,25 @@ report 1235 "Get File Structure"
 
     local procedure CheckFileType(DataExchDef: Record "Data Exch. Def")
     begin
-        with DataExchDef do begin
-            Find;
-            case "File Type" of
-                "File Type"::Xml:
-                    if not (FileType in [FileType::Xml]) then
-                        Error(FileTypeCannotBeSelectedErr, FileType, "File Type", TableCaption);
-                "File Type"::Json:
-                    if not (FileType in [FileType::Json]) then
-                        Error(FileTypeCannotBeSelectedErr, FileType, "File Type", TableCaption);
-            end;
+        case DataExchDef."File Type" of
+            DataExchDef."File Type"::Xml:
+                if not (FileType in [FileType::Xml]) then
+                    Error(FileTypeCannotBeSelectedErr, FileType, DataExchDef."File Type", DataExchDef.TableCaption);
+            DataExchDef."File Type"::Json:
+                if not (FileType in [FileType::Json]) then
+                    Error(FileTypeCannotBeSelectedErr, FileType, DataExchDef."File Type", DataExchDef.TableCaption);
         end;
     end;
 
     local procedure SetFileType(DataExchDef: Record "Data Exch. Def")
     begin
-        with DataExchDef do begin
-            Find;
-            case "File Type" of
-                "File Type"::Xml:
-                    FileType := FileType::Xml;
-                "File Type"::Json:
-                    FileType := FileType::Json;
-                else
-                    Error(FileTypeNotSupportedErr, "File Type");
-            end;
+        case DataExchDef."File Type" of
+            DataExchDef."File Type"::Xml:
+                FileType := FileType::Xml;
+            DataExchDef."File Type"::Json:
+                FileType := FileType::Json;
+            else
+                Error(FileTypeNotSupportedErr, DataExchDef."File Type");
         end;
     end;
 }

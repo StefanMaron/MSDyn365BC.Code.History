@@ -189,38 +189,6 @@ codeunit 139196 "CDS Connection Setup Test"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmYes')]
-    [Scope('OnPrem')]
-    procedure ChangeProxyVersion()
-    var
-        CDSConnectionSetup: Record "CDS Connection Setup";
-        CDSConnectionSetupPage: TestPage "CDS Connection Setup";
-    begin
-        // [FEATURE] [Multiple SDK]
-        // [SCENARIO] When SDK Version is changed in page it changes in record also
-        Initialize();
-        // [GIVEN] Connection is not enabled
-        InitializeSetup(false);
-        // [GIVEN] Connection Setup page is opened
-        CDSConnectionSetupPage.OpenEdit();
-
-        // [WHEN] SDK Version is set to "9"
-        CDSConnectionSetupPage."SDK Version".SetValue(9);
-        CDSConnectionSetupPage.Close();
-        // [THEN] Proxy Version in CDS Connection Setup record is "9"
-        CDSConnectionSetup.Get();
-        CDSConnectionSetup.TestField("Proxy Version", 9);
-
-        // [WHEN] SDK Version is set to "91"
-        CDSConnectionSetupPage.OpenEdit();
-        CDSConnectionSetupPage."SDK Version".SetValue(91);
-        CDSConnectionSetupPage.Close();
-        // [THEN] Proxy Version in CDS Connection Setup record is "91"
-        CDSConnectionSetup.Get();
-        CDSConnectionSetup.TestField("Proxy Version", 91);
-    end;
-
-    [Test]
     [HandlerFunctions('SDKVersionListModalHandler,ConfirmYes')]
     [Scope('OnPrem')]
     procedure ChangeProxyVersionUpdatesConnectionString()
@@ -240,18 +208,6 @@ codeunit 139196 "CDS Connection Setup Test"
 
         // [WHEN] Connection Setup page is opened
         CDSConnectionSetupPage.OpenEdit();
-        // [WHEN] Proxy Version is set to "9"
-        LibraryVariableStorage.Enqueue(9);
-        CDSConnectionSetupPage."SDK Version".AssistEdit();
-        // [THEN] Proxy Version in Connection String is "9"
-        CDSConnectionSetupPage."SDK Version".AssertEquals(9);
-        Assert.ExpectedMessage('ProxyVersion=9', CDSConnectionSetupPage."Connection String".Value());
-        CDSConnectionSetupPage.Close();
-        CDSConnectionSetup.Get();
-        Assert.ExpectedMessage('ProxyVersion=9', CDSConnectionSetup."Connection String");
-
-        // [WHEN] Connection Setup page is opened
-        CDSConnectionSetupPage.OpenEdit();
         // [WHEN] Proxy Version is set to "91"
         LibraryVariableStorage.Enqueue(91);
         CDSConnectionSetupPage."SDK Version".AssistEdit();
@@ -261,6 +217,18 @@ codeunit 139196 "CDS Connection Setup Test"
         CDSConnectionSetupPage.Close();
         CDSConnectionSetup.Get();
         Assert.ExpectedMessage('ProxyVersion=91', CDSConnectionSetup."Connection String");
+
+        // [WHEN] Connection Setup page is opened
+        CDSConnectionSetupPage.OpenEdit();
+        // [WHEN] Proxy Version is set to "100"
+        LibraryVariableStorage.Enqueue(100);
+        CDSConnectionSetupPage."SDK Version".AssistEdit();
+        // [THEN] Proxy Version in Connection String is "100"
+        CDSConnectionSetupPage."SDK Version".AssertEquals(100);
+        Assert.ExpectedMessage('ProxyVersion=100', CDSConnectionSetupPage."Connection String".Value());
+        CDSConnectionSetupPage.Close();
+        CDSConnectionSetup.Get();
+        Assert.ExpectedMessage('ProxyVersion=100', CDSConnectionSetup."Connection String");
     end;
 
     [Test]

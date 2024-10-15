@@ -37,7 +37,7 @@ codeunit 144068 "UT REP VAT2010"
     begin
         // Purpose of the test is to verify error for Report - 10876 (EC Sales List - Services) with no data.
         // Verify actual error: "There is no data to export. No XML file is created."
-        ECSalesListServicesReportErrors(StrSubstNo(DateFilterTxt, CalcDate('<-CM>', WorkDate), CalcDate('<CM>', WorkDate)));
+        ECSalesListServicesReportErrors(StrSubstNo(DateFilterTxt, CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate())));
     end;
 
     [Test]
@@ -48,7 +48,7 @@ codeunit 144068 "UT REP VAT2010"
     begin
         // Purpose of the test is to verify error for Report - 10876 (EC Sales List - Services) without date range.
         // Verify actual error: "Posting Date filter must be corrected, to run the report monthly."
-        ECSalesListServicesReportErrors(Format(WorkDate));
+        ECSalesListServicesReportErrors(Format(WorkDate()));
     end;
 
     local procedure ECSalesListServicesReportErrors(PostingDate: Text)
@@ -130,7 +130,7 @@ codeunit 144068 "UT REP VAT2010"
     local procedure ExecuteECSalesListServicesReportWithData(VATRegistrationNo: Text[20]; CurrencyCode: Code[10]; ShowAmountsInAddReportingCurrency: Boolean)
     begin
         EnqueueForECSalesListServicesReqPageHandler(
-          false, ShowAmountsInAddReportingCurrency, StrSubstNo(DateFilterTxt, CalcDate('<-CM>', WorkDate), CalcDate('<CM>', WorkDate)));  // Create XML as False.
+          false, ShowAmountsInAddReportingCurrency, StrSubstNo(DateFilterTxt, CalcDate('<-CM>', WorkDate()), CalcDate('<CM>', WorkDate())));  // Create XML as False.
 
         // Exercise.
         REPORT.Run(REPORT::"EC Sales List - Services");

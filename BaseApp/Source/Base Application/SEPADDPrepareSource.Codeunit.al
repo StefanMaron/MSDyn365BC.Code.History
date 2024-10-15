@@ -48,10 +48,10 @@
         if PaymentLine.FindSet() then
             with ToDirectDebitCollectionEntry do
                 repeat
-                    Init;
+                    Init();
                     "Entry No." := PaymentLine."Line No.";
                     "Direct Debit Collection No." := DirectDebitCollection."No.";
-                    DeletePaymentFileErrors;
+                    DeletePaymentFileErrors();
                     if SEPADDCheckLine.CheckPaymentLine(ToDirectDebitCollectionEntry, PaymentLine, AppliesToEntryNo) then begin
                         Validate("Customer No.", PaymentLine."Account No.");
                         Validate("Applies-to Entry No.", AppliesToEntryNo);
@@ -60,12 +60,12 @@
                         Validate("Transfer Amount", PaymentLine."Credit Amount");
                         Validate("Mandate ID", PaymentLine."Direct Debit Mandate ID");
                         OnCreateTempCollectionEntriesOnBeforeInsert(ToDirectDebitCollectionEntry, PaymentHeader, PaymentLine);
-                        Insert;
+                        Insert();
                         SEPADDCheckLine.CheckCollectionEntry(ToDirectDebitCollectionEntry);
                     end;
                 until PaymentLine.Next() = 0;
 
-        if DirectDebitCollection.HasPaymentFileErrors then begin
+        if DirectDebitCollection.HasPaymentFileErrors() then begin
             Commit();
             Error(HasErrorsErr);
         end;

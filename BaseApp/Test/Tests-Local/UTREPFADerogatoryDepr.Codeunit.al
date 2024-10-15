@@ -148,7 +148,7 @@ codeunit 144026 "UT REP FA Derogatory Depr."
         FALedgerEntry."FA Posting Type" := FALedgerEntry."FA Posting Type"::Derogatory;
         FALedgerEntry."FA No." := FANo;
         FALedgerEntry."Depreciation Book Code" := DepreciationBookCode;
-        FALedgerEntry."Posting Date" := WorkDate;
+        FALedgerEntry."Posting Date" := WorkDate();
         FALedgerEntry.Insert();
     end;
 

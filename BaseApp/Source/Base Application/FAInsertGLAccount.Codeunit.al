@@ -36,7 +36,7 @@
             FAGLPostBuf."FA Entry Type" := FAGLPostBuf."FA Entry Type"::"Fixed Asset";
         FAGLPostBuf."Automatic Entry" := "Automatic Entry";
         GLEntryNo := "G/L Entry No.";
-        InsertBufferEntry;
+        InsertBufferEntry();
         "G/L Entry No." := TempFAGLPostBuf."Entry No.";
         if DisposalEntry then
             CalcDisposalAmount(Rec);
@@ -45,8 +45,6 @@
     end;
 
     var
-        Text000: Label 'must not be more than 100';
-        Text001: Label 'There is not enough space to insert the balance accounts.';
         TempFAGLPostBuf: Record "FA G/L Posting Buffer" temporary;
         FAGLPostBuf: Record "FA G/L Posting Buffer";
         FAAlloc: Record "FA Allocation";
@@ -70,6 +68,9 @@
         DisposalAmount: Decimal;
         BookValueEntry: Boolean;
         NetDisp: Boolean;
+
+        Text000: Label 'must not be more than 100';
+        Text001: Label 'There is not enough space to insert the balance accounts.';
         TemporaryRecordExpectedErr: Label 'Use a temporary record as a parameter for GetBalAccBuffer.';
 
     procedure InsertMaintenanceAccNo(var MaintenanceLedgEntry: Record "Maintenance Ledger Entry")
@@ -86,7 +87,7 @@
             FAGLPostBuf."FA Entry Type" := FAGLPostBuf."FA Entry Type"::Maintenance;
             GLEntryNo := "G/L Entry No.";
             OnInsertMaintenanceAccNoOnBeforeInsertBufferEntry(FAGLPostBuf, MaintenanceLedgEntry);
-            InsertBufferEntry;
+            InsertBufferEntry();
             "G/L Entry No." := TempFAGLPostBuf."Entry No.";
         end;
 
@@ -236,8 +237,8 @@
         TempFAGLPostBuf.DeleteAll();
         TempGenJnlLine.Init();
         with GenJnlLine do begin
-            Reset;
-            Find;
+            Reset();
+            Find();
             TestField("Bal. Account No.", '');
             CheckAccountType(GenJnlLine);
             TestField("Account No.");
@@ -545,9 +546,9 @@
         else
             GLAmount := FADeprBook."Gain/Loss";
         if GLAmount <= 0 then
-            TempFAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalGain
+            TempFAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalGain()
         else
-            TempFAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalLoss;
+            TempFAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalLoss();
         OnBeforeTempFAGLPostBufModify(FAPostingGr2, TempFAGLPostBuf, GLAmount);
         TempFAGLPostBuf.Modify();
         FAGLPostBuf := TempFAGLPostBuf;
@@ -555,7 +556,7 @@
             exit;
         if IdenticalSign(FADeprBook."Gain/Loss", GainLossAmount, DisposalAmount) then
             exit;
-        if FAPostingGr2.GetSalesAccountOnDisposalGain = FAPostingGr2.GetSalesAccountOnDisposalLoss then
+        if FAPostingGr2.GetSalesAccountOnDisposalGain() = FAPostingGr2.GetSalesAccountOnDisposalLoss() then
             exit;
         FAGLPostBuf."FA Entry No." := 0;
         FAGLPostBuf."FA Entry Type" := FAGLPostBuf."FA Entry Type"::" ";
@@ -564,7 +565,7 @@
         if FADeprBook."Gain/Loss" <= 0 then begin
             FAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalGain();
             FAGLPostBuf.Amount := DisposalAmount;
-            InsertBufferEntry;
+            InsertBufferEntry();
             FAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalLoss();
             FAGLPostBuf.Amount := -DisposalAmount;
             FAGLPostBuf.Correction := not FAGLPostBuf.Correction;
@@ -572,7 +573,7 @@
         end else begin
             FAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalLoss();
             FAGLPostBuf.Amount := DisposalAmount;
-            InsertBufferEntry;
+            InsertBufferEntry();
             FAGLPostBuf."Account No." := FAPostingGr2.GetSalesAccountOnDisposalGain();
             FAGLPostBuf.Amount := -DisposalAmount;
             FAGLPostBuf.Correction := not FAGLPostBuf.Correction;
@@ -597,7 +598,7 @@
         FAGLPostBuf := TempFAGLPostBuf;
         if IdenticalSign(FADeprBook."Gain/Loss", GainLossAmount, BookValueAmount) then
             exit;
-        if FAPostingGr2.GetBookValueAccountOnDisposalGain = FAPostingGr2.GetBookValueAccountOnDisposalLoss then
+        if FAPostingGr2.GetBookValueAccountOnDisposalGain() = FAPostingGr2.GetBookValueAccountOnDisposalLoss() then
             exit;
         OrgGenJnlLine := false;
         OnCorrectBookValueEntryOnBeforeInsertBufferBalAcc(FAGLPostBuf);

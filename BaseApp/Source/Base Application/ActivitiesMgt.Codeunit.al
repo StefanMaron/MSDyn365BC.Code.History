@@ -3,8 +3,8 @@ codeunit 1311 "Activities Mgt."
 
     trigger OnRun()
     begin
-        if IsCueDataStale then
-            RefreshActivitiesCueData;
+        if IsCueDataStale() then
+            RefreshActivitiesCueData();
     end;
 
     var
@@ -43,7 +43,7 @@ codeunit 1311 "Activities Mgt."
     begin
         Amount := 0;
         if UseCachedValue then
-            if ActivitiesCue.Get then
+            if ActivitiesCue.Get() then
                 if not IsPassedCueData(ActivitiesCue) then
                     Exit(ActivitiesCue."Overdue Sales Invoice Amount");
         SetFilterOverdueSalesInvoice(CustLedgerEntry, CalledFromWebService);
@@ -122,7 +122,7 @@ codeunit 1311 "Activities Mgt."
     begin
         Amount := 0;
         if UseCachedValue then
-            if ActivitiesCue.Get then
+            if ActivitiesCue.Get() then
                 if not IsPassedCueData(ActivitiesCue) then
                     exit(ActivitiesCue."Overdue Purch. Invoice Amount");
         SetFilterOverduePurchaseInvoice(VendorLedgerEntry, CalledFromWebService);
@@ -203,9 +203,9 @@ codeunit 1311 "Activities Mgt."
         CustLedgEntrySales: Query "Cust. Ledg. Entry Sales";
     begin
         CustLedgEntrySales.SetRange(Posting_Date, AccountingPeriod.GetFiscalYearStartDate(GetDefaultWorkDate()), GetDefaultWorkDate());
-        CustLedgEntrySales.Open;
+        CustLedgEntrySales.Open();
 
-        if CustLedgEntrySales.Read then
+        if CustLedgEntrySales.Read() then
             Amount := CustLedgEntrySales.Sum_Sales_LCY;
     end;
 
@@ -216,9 +216,9 @@ codeunit 1311 "Activities Mgt."
     begin
         // Total Sales (LCY) by top 10 list of customers year-to-date.
         Top10CustomerSales.SetRange(Posting_Date, AccountingPeriod.GetFiscalYearStartDate(GetDefaultWorkDate()), GetDefaultWorkDate());
-        Top10CustomerSales.Open;
+        Top10CustomerSales.Open();
 
-        while Top10CustomerSales.Read do
+        while Top10CustomerSales.Read() do
             Amount += Top10CustomerSales.Sum_Sales_LCY;
     end;
 
@@ -227,9 +227,9 @@ codeunit 1311 "Activities Mgt."
         TotalSales: Decimal;
     begin
         // Ratio of Sales by top 10 list of customers year-to-date.
-        TotalSales := CalcSalesYTD;
+        TotalSales := CalcSalesYTD();
         if TotalSales <> 0 then
-            Amount := CalcTop10CustomerSalesYTD / TotalSales;
+            Amount := CalcTop10CustomerSalesYTD() / TotalSales;
     end;
 
     procedure CalcAverageCollectionDays() AverageDays: Decimal
@@ -296,7 +296,7 @@ codeunit 1311 "Activities Mgt."
         GLAccCategory.setrange("Additional Report Definition", GlaccCategory."Additional Report Definition"::"Cash Accounts");
         if GLAccCategory.IsEmpty() then
             Message(NoSubCategoryWithAdditionalReportDefinitionOfCashAccountsTok,
-              GLAccCategory.TableCaption, GLAccCategory.FieldCaption("Additional Report Definition"),
+              GLAccCategory.TableCaption(), GLAccCategory.FieldCaption("Additional Report Definition"),
               GLAccCategory."Additional Report Definition"::"Cash Accounts");
     end;
 
@@ -325,7 +325,7 @@ codeunit 1311 "Activities Mgt."
             ActivitiesCue."Sales This Month" := CalcSalesThisMonthAmount(false);
 
         if ActivitiesCue.FieldActive("Average Collection Days") then
-            ActivitiesCue."Average Collection Days" := CalcAverageCollectionDays;
+            ActivitiesCue."Average Collection Days" := CalcAverageCollectionDays();
 
         ActivitiesCue."Last Date/Time Modified" := CurrentDateTime;
         OnRefreshActivitiesCueDataOnBeforeModify(ActivitiesCue);
@@ -338,7 +338,7 @@ codeunit 1311 "Activities Mgt."
     var
         ActivitiesCue: Record "Activities Cue";
     begin
-        if not ActivitiesCue.Get then
+        if not ActivitiesCue.Get() then
             exit(false);
 
         exit(IsPassedCueData(ActivitiesCue));
@@ -349,7 +349,7 @@ codeunit 1311 "Activities Mgt."
         if ActivitiesCue."Last Date/Time Modified" = 0DT then
             exit(true);
 
-        exit(CurrentDateTime - ActivitiesCue."Last Date/Time Modified" >= GetActivitiesCueRefreshInterval)
+        exit(CurrentDateTime - ActivitiesCue."Last Date/Time Modified" >= GetActivitiesCueRefreshInterval())
     end;
 
     local procedure GetDefaultWorkDate(): Date
@@ -357,7 +357,7 @@ codeunit 1311 "Activities Mgt."
         LogInManagement: Codeunit LogInManagement;
     begin
         if DefaultWorkDate = 0D then
-            DefaultWorkDate := LogInManagement.GetDefaultWorkDate;
+            DefaultWorkDate := LogInManagement.GetDefaultWorkDate();
         exit(DefaultWorkDate);
     end;
 
@@ -381,14 +381,13 @@ codeunit 1311 "Activities Mgt."
         FilterOperand := '|';
         with GLAccCategory do begin
             GLAccCategory.SetRange("Additional Report Definition", AddRepDef);
-            if GLAccCategory.FindSet() then begin
+            if GLAccCategory.FindSet() then
                 repeat
                     if FilterTxt = '' then
                         FilterTxt := Format("Entry No.") + FilterOperand
                     else
                         FilterTxt := FilterTxt + Format("Entry No.") + FilterOperand;
                 until GLAccCategory.Next() = 0;
-            end;
         end;
         // Remove the last |
         exit(DelChr(FilterTxt, '>', FilterOperand));
@@ -400,16 +399,14 @@ codeunit 1311 "Activities Mgt."
         FilterTxt: Text;
     begin
         FilterOperand := '|';
-        with GLAccount do begin
-            if GLAccount.FindSet() then begin
+        with GLAccount do
+            if GLAccount.FindSet() then
                 repeat
                     if FilterTxt = '' then
                         FilterTxt := Format("No.") + FilterOperand
                     else
                         FilterTxt := FilterTxt + Format("No.") + FilterOperand;
                 until GLAccount.Next() = 0;
-            end;
-        end;
         // Remove the last |
         exit(DelChr(FilterTxt, '>', FilterOperand));
     end;

@@ -15,7 +15,7 @@ page 1754 "Data Subject"
         {
             repeater(Group)
             {
-                field("Table Caption"; "Table Caption")
+                field("Table Caption"; Rec."Table Caption")
                 {
                     ApplicationArea = All;
                     ShowCaption = false;
@@ -40,8 +40,6 @@ page 1754 "Data Subject"
                 ApplicationArea = All;
                 Caption = 'Data Privacy Utility';
                 Image = Setup;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Open the Data Privacy Setup page.';
 
                 trigger OnAction()
@@ -53,6 +51,17 @@ page 1754 "Data Subject"
                         DataPrivacyWizard.RunModal();
                     end;
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Data Privacy Setup_Promoted"; "Data Privacy Setup")
+                {
+                }
             }
         }
     }

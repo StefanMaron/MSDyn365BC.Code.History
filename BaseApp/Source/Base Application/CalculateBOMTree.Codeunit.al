@@ -12,17 +12,18 @@ codeunit 5870 "Calculate BOM Tree"
         TempItem: Record Item temporary;
         AvailableToPromise: Codeunit "Available to Promise";
         UOMMgt: Codeunit "Unit of Measure Management";
+        ZeroDF: DateFormula;
         Window: Dialog;
         WindowUpdateDateTime: DateTime;
         LocationSpecific: Boolean;
         HideDialog: Boolean;
         EntryNo: Integer;
-        ZeroDF: DateFormula;
         AvailToUse: Option UpdatedQtyOnItemAvail,QtyOnItemAvail,QtyAvail;
         MarkBottleneck: Boolean;
-        Text000: Label 'Generating Tree @1@@@@@@@';
         ShowTotalAvailability: Boolean;
         TreeType: Option " ",Availability,Cost;
+
+        Text000: Label 'Generating Tree @1@@@@@@@';
 
     local procedure OpenWindow()
     begin
@@ -124,7 +125,7 @@ codeunit 5870 "Calculate BOM Tree"
             exit;
 
         with ParentItem do begin
-            InitVars;
+            InitVars();
 
             BOMComp.SetRange(Type, BOMComp.Type::Item);
             BOMComp.SetRange("No.", "No.");
@@ -132,7 +133,7 @@ codeunit 5870 "Calculate BOM Tree"
             ProdBOMLine.SetRange(Type, ProdBOMLine.Type::Item);
             ProdBOMLine.SetRange("No.", "No.");
 
-            if HasBOM or ("Routing No." <> '') then begin
+            if HasBOM() or ("Routing No." <> '') then begin
                 IsHandled := false;
                 OnBeforeFilterBOMBuffer(ParentItem, BOMBuffer, DemandDate, TreeType, IsHandled);
                 if not IsHandled then begin
@@ -151,7 +152,7 @@ codeunit 5870 "Calculate BOM Tree"
     begin
         InitBOMBuffer(BOMBuffer);
         InitTreeType(TreeType);
-        InitVars;
+        InitVars();
 
         LocationSpecific := true;
 
@@ -168,7 +169,7 @@ codeunit 5870 "Calculate BOM Tree"
     begin
         InitBOMBuffer(BOMBuffer);
         InitTreeType(TreeType);
-        InitVars;
+        InitVars();
 
         LocationSpecific := true;
         BOMBuffer.SetLocationVariantFiltersFrom(ItemFilter);
@@ -240,10 +241,10 @@ codeunit 5870 "Calculate BOM Tree"
                           EntryNo, BOMComp, ParentBOMBuffer.Indentation + 1,
                           Round(
                             ParentBOMBuffer."Qty. per Top Item" *
-                            UOMMgt.GetQtyPerUnitOfMeasure(ParentItem, ParentBOMBuffer."Unit of Measure Code"), UOMMgt.QtyRndPrecision),
+                            UOMMgt.GetQtyPerUnitOfMeasure(ParentItem, ParentBOMBuffer."Unit of Measure Code"), UOMMgt.QtyRndPrecision()),
                           Round(
                             ParentBOMBuffer."Scrap Qty. per Top Item" *
-                            UOMMgt.GetQtyPerUnitOfMeasure(ParentItem, ParentBOMBuffer."Unit of Measure Code"), UOMMgt.QtyRndPrecision),
+                            UOMMgt.GetQtyPerUnitOfMeasure(ParentItem, ParentBOMBuffer."Unit of Measure Code"), UOMMgt.QtyRndPrecision()),
                           CalcCompDueDate(ParentBOMBuffer."Needed by Date", ParentItem, "Lead-Time Offset"),
                           ParentBOMBuffer."Location Code");
                         if Type = Type::Item then
@@ -276,7 +277,7 @@ codeunit 5870 "Calculate BOM Tree"
             exit;
         with ProdBOMLine do begin
             SetRange("Production BOM No.", ParentItem."Production BOM No.");
-            SetRange("Version Code", VersionMgt.GetBOMVersion(ParentItem."Production BOM No.", WorkDate, true));
+            SetRange("Version Code", VersionMgt.GetBOMVersion(ParentItem."Production BOM No.", WorkDate(), true));
             SetFilter("Starting Date", '%1|..%2', 0D, ParentBOMBuffer."Needed by Date");
             SetFilter("Ending Date", '%1|%2..', 0D, ParentBOMBuffer."Needed by Date");
             IsHandled := false;
@@ -299,15 +300,15 @@ codeunit 5870 "Calculate BOM Tree"
                                         BomQtyPerUom :=
                                         GetQtyPerBOMHeaderUnitOfMeasure(
                                             ParentItem, ParentBOMBuffer."Production BOM No.",
-                                            VersionMgt.GetBOMVersion(ParentBOMBuffer."Production BOM No.", WorkDate, true));
+                                            VersionMgt.GetBOMVersion(ParentBOMBuffer."Production BOM No.", WorkDate(), true));
                                         BOMBuffer.TransferFromProdComp(
                                         EntryNo, ProdBOMLine, ParentBOMBuffer.Indentation + 1,
                                         Round(
                                             ParentBOMBuffer."Qty. per Top Item" *
-                                            UOMMgt.GetQtyPerUnitOfMeasure(ParentItem, ParentBOMBuffer."Unit of Measure Code"), UOMMgt.QtyRndPrecision),
+                                            UOMMgt.GetQtyPerUnitOfMeasure(ParentItem, ParentBOMBuffer."Unit of Measure Code"), UOMMgt.QtyRndPrecision()),
                                         Round(
                                             ParentBOMBuffer."Scrap Qty. per Top Item" *
-                                            UOMMgt.GetQtyPerUnitOfMeasure(ParentItem, ParentBOMBuffer."Unit of Measure Code"), UOMMgt.QtyRndPrecision),
+                                            UOMMgt.GetQtyPerUnitOfMeasure(ParentItem, ParentBOMBuffer."Unit of Measure Code"), UOMMgt.QtyRndPrecision()),
                                         ParentBOMBuffer."Scrap %",
                                         CalcCompDueDate(ParentBOMBuffer."Needed by Date", ParentItem, "Lead-Time Offset"),
                                         ParentBOMBuffer."Location Code",
@@ -327,14 +328,14 @@ codeunit 5870 "Calculate BOM Tree"
                                         OnBeforeTransferFromProdBOM(BOMBuffer, ProdBOMLine, ParentItem, ParentBOMBuffer, EntryNo, TreeType);
 
                                         BOMBuffer := ParentBOMBuffer;
-                                        BOMBuffer."Qty. per Top Item" := Round(BOMBuffer."Qty. per Top Item" * "Quantity per", UOMMgt.QtyRndPrecision);
+                                        BOMBuffer."Qty. per Top Item" := Round(BOMBuffer."Qty. per Top Item" * "Quantity per", UOMMgt.QtyRndPrecision());
                                         if ParentItem."Production BOM No." <> ParentBOMBuffer."Production BOM No." then
                                             BOMBuffer."Qty. per Parent" := ParentBOMBuffer."Qty. per Parent" * "Quantity per"
                                         else
                                             BOMBuffer."Qty. per Parent" := "Quantity per";
 
                                         BOMBuffer."Scrap %" := CombineScrapFactors(BOMBuffer."Scrap %", "Scrap %");
-                                        if CostCalculationMgt.FindRountingLine(RoutingLine, ProdBOMLine, WorkDate, ParentItem."Routing No.") then
+                                        if CostCalculationMgt.FindRountingLine(RoutingLine, ProdBOMLine, WorkDate(), ParentItem."Routing No.") then
                                             BOMBuffer."Scrap %" := CombineScrapFactors(BOMBuffer."Scrap %", RoutingLine."Scrap Factor % (Accumulated)" * 100);
                                         BOMBuffer."Scrap %" := Round(BOMBuffer."Scrap %", 0.00001);
 
@@ -358,7 +359,7 @@ codeunit 5870 "Calculate BOM Tree"
         if RoutingLine.ReadPermission then
             with RoutingLine do
                 if (TreeType in [TreeType::" ", TreeType::Cost]) and
-                   CertifiedRoutingVersionExists(ParentItem."Routing No.", WorkDate)
+                   CertifiedRoutingVersionExists(ParentItem."Routing No.", WorkDate())
                 then begin
                     repeat
                         RunIteration := "No." <> '';
@@ -547,11 +548,11 @@ codeunit 5870 "Calculate BOM Tree"
                     TempItemAvailByDate."Updated Available Qty" := TempItemAvailByDate."Available Qty";
                     TempItemAvailByDate.Insert();
 
-                    Modify;
+                    Modify();
                 end;
             until (Next() = 0) or (Indentation <= ParentBOMBuffer.Indentation);
         BOMBuffer := ParentBOMBuffer;
-        BOMBuffer.Find;
+        BOMBuffer.Find();
     end;
 
     local procedure UpdateAvailability(var BOMBuffer: Record "BOM Buffer"; ShowTotalAvailability: Boolean)
@@ -563,13 +564,13 @@ codeunit 5870 "Calculate BOM Tree"
         with BOMBuffer do begin
             CopyOfBOMBuffer.Copy(BOMBuffer);
             SetRange("Inventoriable", true);
-            if Find then
+            if Find() then
                 repeat
                     if Indentation = 0 then begin
                         InitItemAvailDates(BOMBuffer);
                         SubOptimalQty := TraverseTree(BOMBuffer, AvailToUse::QtyOnItemAvail);
                         TempMemoizedResult.DeleteAll();
-                        OptimalQty := BinarySearchOptimal(BOMBuffer, UOMMgt.QtyRndPrecision, SubOptimalQty);
+                        OptimalQty := BinarySearchOptimal(BOMBuffer, UOMMgt.QtyRndPrecision(), SubOptimalQty);
                         MarkBottlenecks(BOMBuffer, OptimalQty);
                         CalcAvailability(BOMBuffer, OptimalQty, false);
                         if ShowTotalAvailability then
@@ -592,7 +593,7 @@ codeunit 5870 "Calculate BOM Tree"
         ParentBOMBuffer := BOMBuffer;
         IsFirst := true;
         with BOMBuffer do begin
-            while (Next <> 0) and (ParentBOMBuffer.Indentation < Indentation) do
+            while (Next() <> 0) and (ParentBOMBuffer.Indentation < Indentation) do
                 if ParentBOMBuffer.Indentation + 1 = Indentation then begin
                     if not "Is Leaf" then
                         TraverseTree(BOMBuffer, AvailToUse)
@@ -625,7 +626,7 @@ codeunit 5870 "Calculate BOM Tree"
     begin
         with BOMBuffer do begin
             CopyOfBOMBuffer.Copy(BOMBuffer);
-            if Find then
+            if Find() then
                 repeat
                     if Indentation = 0 then
                         TraverseCostTree(BOMBuffer);
@@ -640,7 +641,7 @@ codeunit 5870 "Calculate BOM Tree"
     begin
         ParentBOMBuffer := BOMBuffer;
         with BOMBuffer do begin
-            while (Next <> 0) and (ParentBOMBuffer.Indentation < Indentation) do
+            while (Next() <> 0) and (ParentBOMBuffer.Indentation < Indentation) do
                 if (ParentBOMBuffer.Indentation + 1 = Indentation) and
                    (("Qty. per Top Item" <> 0) or (Type in [Type::"Machine Center", Type::"Work Center"]))
                 then begin
@@ -692,23 +693,23 @@ codeunit 5870 "Calculate BOM Tree"
             if "Is Leaf" then begin
                 case Type of
                     Type::Item:
-                        GetItemCosts;
+                        GetItemCosts();
                     Type::Resource:
-                        GetResCosts;
+                        GetResCosts();
                 end;
                 RoundCosts(1 / LotSize);
             end else
                 if HasBomStructure("No.") then begin
-                    CalcOvhdCost;
+                    CalcOvhdCost();
                     RoundCosts(1 / LotSize);
                 end else
                     if Type = Type::Item then begin
                         RoundCosts(1 / LotSize);
-                        GetItemCosts;
+                        GetItemCosts();
                     end;
 
-            CalcUnitCost;
-            Modify;
+            CalcUnitCost();
+            Modify();
         end;
     end;
 
@@ -722,11 +723,11 @@ codeunit 5870 "Calculate BOM Tree"
             TempMemoizedResult.DeleteAll();
             exit(InputHigh);
         end;
-        if InputHigh - InputLow = UOMMgt.QtyRndPrecision then begin
+        if InputHigh - InputLow = UOMMgt.QtyRndPrecision() then begin
             TempMemoizedResult.DeleteAll();
             exit(InputLow);
         end;
-        InputMid := Round((InputLow + InputHigh) / 2, UOMMgt.QtyRndPrecision);
+        InputMid := Round((InputLow + InputHigh) / 2, UOMMgt.QtyRndPrecision());
         if not CalcAvailability(BOMBuffer, InputMid, true) then
             exit(BinarySearchOptimal(BOMBuffer, InputLow, InputMid));
         exit(BinarySearchOptimal(BOMBuffer, InputMid, InputHigh));
@@ -744,12 +745,13 @@ codeunit 5870 "Calculate BOM Tree"
                 if TempMemoizedResult.Get(Input) then
                     exit(TempMemoizedResult.Output);
 
-            ResetUpdatedAvailability;
+            ResetUpdatedAvailability();
         end;
 
+        MaxTime := 0;
         ParentBOMBuffer := BOMBuffer;
         with BOMBuffer do begin
-            while (Next <> 0) and (ParentBOMBuffer.Indentation < Indentation) do
+            while (Next() <> 0) and (ParentBOMBuffer.Indentation < Indentation) do
                 if ParentBOMBuffer.Indentation + 1 = Indentation then begin
                     TempItemAvailByDate.SetRange("Item No.", "No.");
                     TempItemAvailByDate.SetRange(Date, "Needed by Date");
@@ -758,11 +760,11 @@ codeunit 5870 "Calculate BOM Tree"
                         TempItemAvailByDate.SetRange("Location Code", "Location Code");
                     TempItemAvailByDate.FindFirst();
                     if "Calculation Formula" = "Calculation Formula"::"Fixed Quantity" then begin
-                        ExpectedQty := Round("Qty. per Parent", UOMMgt.QtyRndPrecision);
+                        ExpectedQty := Round("Qty. per Parent", UOMMgt.QtyRndPrecision());
                         AvailQty := TempItemAvailByDate."Available Qty"
                     end
                     else begin
-                        ExpectedQty := Round("Qty. per Parent" * Input, UOMMgt.QtyRndPrecision);
+                        ExpectedQty := Round("Qty. per Parent" * Input, UOMMgt.QtyRndPrecision());
                         AvailQty := TempItemAvailByDate."Updated Available Qty";
                     end;
 
@@ -781,7 +783,7 @@ codeunit 5870 "Calculate BOM Tree"
                             ReduceAvailability("No.", "Variant Code", "Location Code", "Needed by Date", AvailQty, "Calculation Formula");
                         if not IsTest then begin
                             "Available Quantity" := AvailQty;
-                            Modify;
+                            Modify();
                         end;
                         if not CalcAvailability(BOMBuffer, ExpectedQty - AvailQty, IsTest) then begin
                             if MarkBottleneck then begin
@@ -822,19 +824,19 @@ codeunit 5870 "Calculate BOM Tree"
         with TempMemoizedResult do begin
             Input := NewInput;
             Output := NewOutput;
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure ResetUpdatedAvailability()
     begin
         with TempItemAvailByDate do begin
-            Reset;
+            Reset();
             if Find('-') then
                 repeat
                     if "Updated Available Qty" <> "Available Qty" then begin
                         "Updated Available Qty" := "Available Qty";
-                        Modify;
+                        Modify();
                     end;
                 until Next() = 0;
         end;
@@ -845,7 +847,7 @@ codeunit 5870 "Calculate BOM Tree"
         if BOMLineCalcFormula = BOMLineCalcFormula::"Fixed Quantity" then
             exit;
         with TempItemAvailByDate do begin
-            Reset;
+            Reset();
             SetRange("Item No.", ItemNo);
             SetRange("Variant Code", VariantCode);
             if LocationSpecific then
@@ -858,7 +860,7 @@ codeunit 5870 "Calculate BOM Tree"
                             "Updated Available Qty" := "Updated Available Qty" - Qty
                         else
                             "Updated Available Qty" := 0;
-                        Modify;
+                        Modify();
                     end;
                 until Next() = 0;
             SetRange("Item No.");
@@ -875,7 +877,7 @@ codeunit 5870 "Calculate BOM Tree"
     begin
         with BOMBuffer do begin
             CopyOfBOMBuffer.Copy(BOMBuffer);
-            Reset;
+            Reset();
             SetCurrentKey(Type, "No.", Indentation);
             SetFilter("Entry No.", '>=%1', "Entry No.");
             SetFilter("Calculation Formula", '<>%1', "Calculation Formula"::"Fixed Quantity");
@@ -894,7 +896,7 @@ codeunit 5870 "Calculate BOM Tree"
                         if FindFirst() then begin
                             "Available Quantity" += TempItemAvailByDate."Updated Available Qty";
                             "Unused Quantity" += TempItemAvailByDate."Updated Available Qty";
-                            Modify;
+                            Modify();
 
                             ReduceAvailability("No.", "Variant Code", "Location Code", "Needed by Date", TempItemAvailByDate."Updated Available Qty", BOMBuffer."Calculation Formula");
                         end;
@@ -903,14 +905,14 @@ codeunit 5870 "Calculate BOM Tree"
                     end;
                 until TempItemAvailByDate.Next() = 0;
             Copy(CopyOfBOMBuffer);
-            Find;
+            Find();
         end;
     end;
 
     local procedure MarkBottlenecks(var BOMBuffer: Record "BOM Buffer"; Input: Decimal)
     begin
         MarkBottleneck := true;
-        CalcAvailability(BOMBuffer, Input + UOMMgt.QtyRndPrecision, true);
+        CalcAvailability(BOMBuffer, Input + UOMMgt.QtyRndPrecision(), true);
         MarkBottleneck := false;
     end;
 
@@ -927,7 +929,7 @@ codeunit 5870 "Calculate BOM Tree"
         if Format(ParentItem."Safety Lead Time") <> '' then
             EndDate := DemandDate - (CalcDate(ParentItem."Safety Lead Time", DemandDate) - DemandDate)
         else
-            if MfgSetup.Get and (Format(MfgSetup."Default Safety Lead Time") <> '') then
+            if MfgSetup.Get() and (Format(MfgSetup."Default Safety Lead Time") <> '') then
                 EndDate := DemandDate - (CalcDate(MfgSetup."Default Safety Lead Time", DemandDate) - DemandDate);
 
         if Format(ParentItem."Lead Time Calculation") = '' then
@@ -963,7 +965,7 @@ codeunit 5870 "Calculate BOM Tree"
     begin
         OnBeforeCalcRoutingLineCosts(RoutingLine, LotSize, ScrapPct, ParentItem);
 
-        CalcStdCost.SetProperties(WorkDate, false, false, false, '', false);
+        CalcStdCost.SetProperties(WorkDate(), false, false, false, '', false);
         CalcStdCost.CalcRtngLineCost(
           RoutingLine, CostCalculationMgt.CalcQtyAdjdForBOMScrap(LotSize, ScrapPct), CapCost, SubcontractedCapCost, CapOverhead);
 

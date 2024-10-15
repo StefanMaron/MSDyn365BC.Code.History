@@ -42,7 +42,7 @@ page 1164 "User Task List Part"
                         HyperLink(HyperLinkUrl);
                     end;
                 }
-                field("Due DateTime"; "Due DateTime")
+                field("Due DateTime"; Rec."Due DateTime")
                 {
                     ApplicationArea = All;
                     StyleExpr = StyleTxt;
@@ -53,47 +53,47 @@ page 1164 "User Task List Part"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the priority of the task compared to other tasks. Enter any number.';
                 }
-                field("Percent Complete"; "Percent Complete")
+                field("Percent Complete"; Rec."Percent Complete")
                 {
                     ApplicationArea = All;
                     StyleExpr = StyleTxt;
                     ToolTip = 'Specifies how much of the task has been completed.';
                 }
-                field("Assigned To User Name"; "Assigned To User Name")
+                field("Assigned To User Name"; Rec."Assigned To User Name")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies who performs the task.';
                 }
-                field("Created DateTime"; "Created DateTime")
+                field("Created DateTime"; Rec."Created DateTime")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies when the task was created.';
                 }
-                field("User Task Group Assigned To"; "User Task Group Assigned To")
+                field("User Task Group Assigned To"; Rec."User Task Group Assigned To")
                 {
                     ApplicationArea = All;
                     Caption = 'User Task Group';
                     ToolTip = 'Specifies the group that the task belongs to.';
                 }
-                field("Completed DateTime"; "Completed DateTime")
+                field("Completed DateTime"; Rec."Completed DateTime")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies when the task was completed.';
                     Visible = false;
                 }
-                field("Start DateTime"; "Start DateTime")
+                field("Start DateTime"; Rec."Start DateTime")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies when the task was started.';
                     Visible = false;
                 }
-                field("Created By User Name"; "Created By User Name")
+                field("Created By User Name"; Rec."Created By User Name")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies who created the task.';
                     Visible = false;
                 }
-                field("Completed By User Name"; "Completed By User Name")
+                field("Completed By User Name"; Rec."Completed By User Name")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies who completed the task.';
@@ -109,18 +109,18 @@ page 1164 "User Task List Part"
 
     trigger OnAfterGetRecord()
     begin
-        StyleTxt := SetStyle;
+        StyleTxt := SetStyle();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        SetFilterBasedOnMode;
+        SetFilterBasedOnMode();
         exit(Find(Which));
     end;
 
     trigger OnNextRecord(Steps: Integer): Integer
     begin
-        SetFilterBasedOnMode;
+        SetFilterBasedOnMode();
         exit(Next(Steps));
     end;
 

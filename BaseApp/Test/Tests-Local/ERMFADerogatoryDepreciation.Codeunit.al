@@ -361,8 +361,8 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
         LibraryFixedAsset.CreateFixedAsset(FixedAsset);
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FixedAsset."No.", CreateDepreciationBook);
         FADepreciationBook.Validate("FA Posting Group", FAPostingGroup.Code);
-        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate);
-        FADepreciationBook.Validate("Depreciation Ending Date", WorkDate);
+        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate());
+        FADepreciationBook.Validate("Depreciation Ending Date", WorkDate());
         FADepreciationBook.Modify(true);
     end;
 
@@ -393,7 +393,7 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
         Clear(FixedAssetBookValue02);
         FixedAsset.SetRange("No.", FADepreciationBook."FA No.");
         FixedAssetBookValue02.SetTableView(FixedAsset);
-        FixedAssetBookValue02.SetMandatoryFields(FADepreciationBook."Depreciation Book Code", WorkDate, WorkDate);
+        FixedAssetBookValue02.SetMandatoryFields(FADepreciationBook."Depreciation Book Code", WorkDate(), WorkDate());
         FixedAssetBookValue02.SetTotalFields(GroupTotals, PrintDetails, false, false);  // Using FALSE for Budget Report and Reclassify.
         FixedAssetBookValue02.Run();
     end;
@@ -406,7 +406,7 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
         Clear(FixedAssetBookValue01);
         FixedAsset.SetRange("No.", FADepreciationBook."FA No.");
         FixedAssetBookValue01.SetTableView(FixedAsset);
-        FixedAssetBookValue01.SetMandatoryFields(FADepreciationBook."Depreciation Book Code", WorkDate, WorkDate);
+        FixedAssetBookValue01.SetMandatoryFields(FADepreciationBook."Depreciation Book Code", WorkDate(), WorkDate());
         FixedAssetBookValue01.SetTotalFields(GroupTotals, PrintDetails, false);  // Using FALSE for Budget Report.
         FixedAssetBookValue01.Run();
     end;
@@ -419,7 +419,7 @@ codeunit 144028 "ERM FA Derogatory Depreciation"
         Clear(FAProjValueDerogatory);
         FixedAsset.SetRange("No.", FADepreciationBook."FA No.");
         FAProjValueDerogatory.SetTableView(FixedAsset);
-        FAProjValueDerogatory.SetMandatoryFields(FADepreciationBook."Depreciation Book Code", WorkDate, WorkDate);
+        FAProjValueDerogatory.SetMandatoryFields(FADepreciationBook."Depreciation Book Code", WorkDate(), WorkDate());
         FAProjValueDerogatory.SetTotalFields(GroupTotals, PrintDetails);
         FAProjValueDerogatory.Run();
     end;

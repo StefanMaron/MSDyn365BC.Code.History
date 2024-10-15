@@ -45,8 +45,8 @@ page 1612 "Office Admin. Credentials"
 
                     trigger OnValidate()
                     begin
-                        if (PasswordText <> '') and (not EncryptionEnabled) then
-                            if Confirm(CryptographyManagement.GetEncryptionIsNotActivatedQst) then
+                        if (PasswordText <> '') and (not EncryptionEnabled()) then
+                            if Confirm(CryptographyManagement.GetEncryptionIsNotActivatedQst()) then
                                 PAGE.RunModal(PAGE::"Data Encryption Management");
                     end;
                 }
@@ -71,8 +71,8 @@ page 1612 "Office Admin. Credentials"
 
                     trigger OnValidate()
                     begin
-                        if (PasswordText <> '') and (not EncryptionEnabled) then
-                            if Confirm(CryptographyManagement.GetEncryptionIsNotActivatedQst) then
+                        if (PasswordText <> '') and (not EncryptionEnabled()) then
+                            if Confirm(CryptographyManagement.GetEncryptionIsNotActivatedQst()) then
                                 PAGE.RunModal(PAGE::"Data Encryption Management");
                     end;
                 }
@@ -131,7 +131,7 @@ page 1612 "Office Admin. Credentials"
                     if not Insert(true) then
                         Modify(true);
 
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
             }
         }
@@ -139,15 +139,15 @@ page 1612 "Office Admin. Credentials"
 
     trigger OnOpenPage()
     begin
-        ShowQuestion;
+        ShowQuestion();
         EmailHostedInO365 := true;
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if (CloseAction = ACTION::OK) or (CloseAction = ACTION::LookupOK) then begin
-            if not Get then
-                Insert;
+            if not Get() then
+                Insert();
             SavePassword(PasswordText);
         end;
     end;
@@ -174,11 +174,11 @@ page 1612 "Office Admin. Credentials"
 
         case Step of
             Step::Question:
-                ShowQuestion;
+                ShowQuestion();
             Step::O365Credential:
                 ShowO365Credential(Backwards);
             Step::OnPremCredential:
-                ShowOnPremCredential;
+                ShowOnPremCredential();
         end;
 
         CurrPage.Update(true);
@@ -186,7 +186,7 @@ page 1612 "Office Admin. Credentials"
 
     local procedure ShowQuestion()
     begin
-        ResetControls;
+        ResetControls();
 
         BackEnabled := false;
         QuestionVisible := true;
@@ -194,7 +194,7 @@ page 1612 "Office Admin. Credentials"
 
     local procedure ShowO365Credential(Backwards: Boolean)
     begin
-        ResetControls;
+        ResetControls();
 
         // Skip to the next window if we're not using O365.
         if not EmailHostedInO365 then begin
@@ -209,7 +209,7 @@ page 1612 "Office Admin. Credentials"
 
     local procedure ShowOnPremCredential()
     begin
-        ResetControls;
+        ResetControls();
 
         FinishEnabled := true;
         NextEnabled := false;

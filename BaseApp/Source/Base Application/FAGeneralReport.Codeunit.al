@@ -1,4 +1,4 @@
-codeunit 5626 "FA General Report"
+﻿codeunit 5626 "FA General Report"
 {
     Permissions = TableData "Fixed Asset" = rm;
 
@@ -7,6 +7,12 @@ codeunit 5626 "FA General Report"
     end;
 
     var
+        FADeprBook: Record "FA Depreciation Book";
+        FALedgEntry: Record "FA Ledger Entry";
+        DepreciationCalc: Codeunit "Depreciation Calculation";
+        UseCreditAmounts: Boolean;
+        UseDebitAmounts: Boolean;
+
         Text000: Label 'Posting Date Filter';
         Text001: Label 'You must specify the Starting Date and the Ending Date.';
         Text002: Label 'The Starting Date is later than the Ending Date.';
@@ -14,23 +20,18 @@ codeunit 5626 "FA General Report"
         Text004: Label 'You must specify the First Depreciation Date and the Last Depreciation Date.';
         Text005: Label 'The First Depreciation Date is later than the Last Depreciation Date.';
         Text006: Label 'Sorting fixed assets';
-        FADeprBook: Record "FA Depreciation Book";
-        FALedgEntry: Record "FA Ledger Entry";
-        DepreciationCalc: Codeunit "Depreciation Calculation";
-        UseCreditAmounts: Boolean;
-        UseDebitAmounts: Boolean;
 
     procedure GetLastDate(FANo: Code[20]; PostingType: Integer; EndingDate: Date; DeprBookCode: Code[10]; GLEntry: Boolean): Date
     var
         FirstLast: Text[1];
     begin
-        ClearAll;
+        ClearAll();
         if PostingType = 0 then
             exit(0D);
         if EndingDate = 0D then
             EndingDate := DMY2Date(31, 12, 9999);
         with FALedgEntry do begin
-            Reset;
+            Reset();
             if GLEntry then begin
                 SetCurrentKey(
                   "FA No.", "Depreciation Book Code", "FA Posting Category", "FA Posting Type", "Posting Date");
@@ -89,16 +90,16 @@ codeunit 5626 "FA General Report"
         case true of
             UseCreditAmounts:
                 begin
-                    ClearAll;
+                    ClearAll();
                     UseCreditAmounts := true;
                 end;
             UseDebitAmounts:
                 begin
-                    ClearAll;
+                    ClearAll();
                     UseDebitAmounts := true
                 end;
             else
-                ClearAll;
+                ClearAll();
         end;
         if PostingType = 0 then
             exit(0);
@@ -192,7 +193,7 @@ codeunit 5626 "FA General Report"
 
     procedure CalcGLPostedAmount(FANo: Code[20]; PostingType: Integer; Period: Option " ",Disposal,"Bal. Disposal"; StartingDate: Date; EndingDate: Date; DeprBookCode: Code[10]): Decimal
     begin
-        ClearAll;
+        ClearAll();
         if PostingType = 0 then
             exit(0);
         if EndingDate = 0D then
@@ -300,7 +301,7 @@ codeunit 5626 "FA General Report"
                     end;
             until FA.Next() = 0;
         Commit();
-        Window.Close;
+        Window.Close();
     end;
 
     [Scope('OnPrem')]

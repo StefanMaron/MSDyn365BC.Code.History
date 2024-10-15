@@ -5,7 +5,7 @@ codeunit 1107 "CA Jnl.-B. Post"
     trigger OnRun()
     begin
         CostJnlBatch.Copy(Rec);
-        Code;
+        Code();
         Rec := CostJnlBatch;
     end;
 
@@ -45,7 +45,7 @@ codeunit 1107 "CA Jnl.-B. Post"
                 Message(Text002);
 
             if not Find('=><') then begin
-                Reset;
+                Reset();
                 FilterGroup(2);
                 SetRange("Journal Template Name", "Journal Template Name");
                 FilterGroup(0);

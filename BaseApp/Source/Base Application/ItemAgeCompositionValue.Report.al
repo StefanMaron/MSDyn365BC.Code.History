@@ -16,7 +16,7 @@ report 5808 "Item Age Composition - Value"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(ItemTableCaptItemFilter; TableCaption + ': ' + ItemFilter)
@@ -122,14 +122,14 @@ report 5808 "Item Age Composition - Value"
                     if "Remaining Quantity" = 0 then
                         CurrReport.Skip();
                     PrintLine := true;
-                    CalcRemainingQty;
+                    CalcRemainingQty();
                     RemainingQty += TotalInvtQty;
 
                     if Item."Costing Method" = Item."Costing Method"::Average then begin
                         InvtValue[i] += AverageCost[i] * InvtQty[i];
                         InvtValueRTC[i] += AverageCost[i] * InvtQty[i];
                     end else begin
-                        CalcUnitCost;
+                        CalcUnitCost();
                         TotalInvtValue_Item += UnitCost * Abs(TotalInvtQty);
                         InvtValue[i] += UnitCost * Abs(InvtQty[i]);
 
@@ -263,7 +263,7 @@ report 5808 "Item Age Composition - Value"
         trigger OnOpenPage()
         begin
             if PeriodStartDate[5] = 0D then
-                PeriodStartDate[5] := CalcDate('<CM>', WorkDate);
+                PeriodStartDate[5] := CalcDate('<CM>', WorkDate());
             if Format(PeriodLength) = '' then
                 Evaluate(PeriodLength, '<1M>');
         end;
@@ -277,7 +277,7 @@ report 5808 "Item Age Composition - Value"
     var
         NegPeriodLength: DateFormula;
     begin
-        ItemFilter := Item.GetFilters;
+        ItemFilter := Item.GetFilters();
 
         PeriodStartDate[6] := DMY2Date(31, 12, 9999);
         Evaluate(NegPeriodLength, StrSubstNo('-%1', Format(PeriodLength)));
@@ -286,15 +286,14 @@ report 5808 "Item Age Composition - Value"
     end;
 
     var
-        Text002: Label 'Enter the ending date';
         ItemCostMgt: Codeunit ItemCostManagement;
+        PeriodLength: DateFormula;
         ItemFilter: Text;
         InvtValue: array[6] of Decimal;
         InvtValueRTC: array[6] of Decimal;
         InvtQty: array[6] of Decimal;
         UnitCost: Decimal;
         PeriodStartDate: array[6] of Date;
-        PeriodLength: DateFormula;
         i: Integer;
         TotalInvtValue_Item: Decimal;
         TotalInvtValueRTC: Decimal;
@@ -302,6 +301,8 @@ report 5808 "Item Age Composition - Value"
         PrintLine: Boolean;
         AverageCost: array[5] of Decimal;
         AverageCostACY: array[5] of Decimal;
+
+        Text002: Label 'Enter the ending date';
         ItemAgeCompositionValueCaptionLbl: Label 'Item Age Composition - Value';
         CurrReportPageNoCaptionLbl: Label 'Page';
         AfterCaptionLbl: Label 'After...';

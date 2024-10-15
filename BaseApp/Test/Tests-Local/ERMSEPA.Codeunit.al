@@ -203,7 +203,7 @@ codeunit 144059 "ERM SEPA"
         PaymentSlip.Lines.Application.Invoke;
         Commit();
         PaymentSlip.Print.Invoke;
-        PaymentSlip.Close;
+        PaymentSlip.Close();
     end;
 
     local procedure SetupForPaymentSlip(ReportID: Integer) PaymentClass: Text[30]

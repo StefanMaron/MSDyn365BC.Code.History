@@ -81,7 +81,7 @@ codeunit 144015 "ERM FR Feature Bugs"
         NormalDepreciationBookCode := CreateDepreciationBookAndModifyDerogatoryCalculation('');  // Blank Derogatory Calculation.
         FANo := CreateFAWithTaxFADepreciationBookAndGLIntegration(TaxDepreciationBookCode, NormalDepreciationBookCode);
         CreateAndPostGenJournalLine(
-          GenJournalLine, WorkDate, GenJournalLine."FA Posting Type"::"Acquisition Cost", FANo,
+          GenJournalLine, WorkDate(), GenJournalLine."FA Posting Type"::"Acquisition Cost", FANo,
           NormalDepreciationBookCode, 2 * AcquisitionCostAmount);
 
         // Exercise: Create and post FA GL Journal Type Depreciation and Derogatory.
@@ -113,7 +113,7 @@ codeunit 144015 "ERM FR Feature Bugs"
         NormalDepreciationBookCode := CreateDepreciationBookAndModifyDerogatoryCalculation('');  // Blank Derogatory Calculation.
         FANo := CreateFAWithTaxFADepreciationBookAndGLIntegration(TaxDepreciationBookCode, NormalDepreciationBookCode);
         CreateAndPostGenJournalLine(
-          GenJournalLine, WorkDate, GenJournalLine."FA Posting Type"::"Acquisition Cost", FANo,
+          GenJournalLine, WorkDate(), GenJournalLine."FA Posting Type"::"Acquisition Cost", FANo,
           NormalDepreciationBookCode, 2 * AcquisitionCostAmount);
         RunCalculateDepreciationReport(NormalDepreciationBookCode);  // Calculate Depreciation.
 
@@ -146,7 +146,7 @@ codeunit 144015 "ERM FR Feature Bugs"
         NormalDepreciationBookCode := CreateDepreciationBookAndModifyDerogatoryCalculation('');  // Blank Derogatory Calculation.
         FANo := CreateFAWithTaxFADepreciationBookAndGLIntegration(TaxDepreciationBookCode, NormalDepreciationBookCode);
         CreateAndPostGenJournalLine(
-          GenJournalLine, WorkDate, GenJournalLine."FA Posting Type"::"Acquisition Cost", FANo,
+          GenJournalLine, WorkDate(), GenJournalLine."FA Posting Type"::"Acquisition Cost", FANo,
           NormalDepreciationBookCode, 2 * AcquisitionCostAmount);
         RunCalculateDepreciationReport(NormalDepreciationBookCode);  // Calculate Depreciation.
 
@@ -154,10 +154,10 @@ codeunit 144015 "ERM FR Feature Bugs"
         CreatePostDepreciationAndDerogatoryFAJournal(FANo, NormalDepreciationBookCode, AcquisitionCostAmount, AcquisitionCostAmount);
 
         // Verify: Verify that Derogatory Entries are considered only in the TAX Depreciation Book.
-        VerifyFALedgerEntries(FANo, FALedgerEntry."FA Posting Type"::"Acquisition Cost", WorkDate, 2 * AcquisitionCostAmount);
-        VerifyFALedgerEntries(FANo, FALedgerEntry."FA Posting Type"::Derogatory, CalcDate('<1M>', WorkDate), -AcquisitionCostAmount);
+        VerifyFALedgerEntries(FANo, FALedgerEntry."FA Posting Type"::"Acquisition Cost", WorkDate(), 2 * AcquisitionCostAmount);
+        VerifyFALedgerEntries(FANo, FALedgerEntry."FA Posting Type"::Derogatory, CalcDate('<1M>', WorkDate()), -AcquisitionCostAmount);
         VerifyFALedgerEntries(
-          FANo, FALedgerEntry."FA Posting Type"::Depreciation, CalcDate('<1Y>', WorkDate), -AcquisitionCostAmount);
+          FANo, FALedgerEntry."FA Posting Type"::Depreciation, CalcDate('<1Y>', WorkDate()), -AcquisitionCostAmount);
     end;
 
     [Test]
@@ -208,7 +208,7 @@ codeunit 144015 "ERM FR Feature Bugs"
         NormalDepreciationBookCode := CreateDepreciationBookAndModifyDerogatoryCalculation('');  // Blank Derogatory Calculation.
         FANo := CreateFAWithTaxFADepreciationBookAndGLIntegration(TaxDepreciationBookCode, NormalDepreciationBookCode);
         CreateAndPostGenJournalLine(
-          GenJournalLine, WorkDate, GenJournalLine."FA Posting Type"::"Acquisition Cost", FANo,
+          GenJournalLine, WorkDate(), GenJournalLine."FA Posting Type"::"Acquisition Cost", FANo,
           NormalDepreciationBookCode, AcquisitionCostAmount);
         RunCalculateDepreciationReport(NormalDepreciationBookCode);  // Calculate Depreciation.
 
@@ -216,10 +216,10 @@ codeunit 144015 "ERM FR Feature Bugs"
         CreatePostDepreciationAndDerogatoryFAJournal(FANo, NormalDepreciationBookCode, AcquisitionCostAmount, 0);
 
         // Verify: Verify that after posting FA GL Journal there are entries with right FA Posting Date in FA Ledger Entries.
-        VerifyFALedgerEntries(FANo, FALedgerEntry."FA Posting Type"::"Acquisition Cost", WorkDate, AcquisitionCostAmount);
-        VerifyFALedgerEntries(FANo, FALedgerEntry."FA Posting Type"::Derogatory, CalcDate('<1M>', WorkDate), 0);
+        VerifyFALedgerEntries(FANo, FALedgerEntry."FA Posting Type"::"Acquisition Cost", WorkDate(), AcquisitionCostAmount);
+        VerifyFALedgerEntries(FANo, FALedgerEntry."FA Posting Type"::Derogatory, CalcDate('<1M>', WorkDate()), 0);
         VerifyFALedgerEntries(
-          FANo, FALedgerEntry."FA Posting Type"::Depreciation, CalcDate('<1Y>', WorkDate), -AcquisitionCostAmount);
+          FANo, FALedgerEntry."FA Posting Type"::Depreciation, CalcDate('<1Y>', WorkDate()), -AcquisitionCostAmount);
     end;
 
     [Test]
@@ -482,11 +482,11 @@ codeunit 144015 "ERM FR Feature Bugs"
     begin
         LibraryFixedAsset.CreateFADepreciationBook(FADepreciationBook, FANo, DepreciationBookCode);
         FADepreciationBook.Validate("Depreciation Book Code", DepreciationBookCode);
-        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate);
+        FADepreciationBook.Validate("Depreciation Starting Date", WorkDate());
 
         // Use random value for Depreciation Ending Date.
         FADepreciationBook.Validate(
-          "Depreciation Ending Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate));
+          "Depreciation Ending Date", CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate()));
         FADepreciationBook.Validate("FA Posting Group", FAPostingGroup);
         FADepreciationBook.Modify(true);
     end;
@@ -531,7 +531,7 @@ codeunit 144015 "ERM FR Feature Bugs"
           GenJournalLine."Account Type"::"Fixed Asset", FANo, Amount);
         GenJournalLine.Validate("FA Posting Type", FAPostingType);
         GenJournalLine.Validate("FA Posting Date", FAPostingDate);
-        GenJournalLine.Validate("Posting Date", WorkDate);
+        GenJournalLine.Validate("Posting Date", WorkDate());
         GenJournalLine.Validate("Depreciation Book Code", DepreciationBookCode);
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
         GenJournalLine.Validate("Bal. Account No.", CreateGLAccount);
@@ -621,10 +621,10 @@ codeunit 144015 "ERM FR Feature Bugs"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         CreateAndPostGenJournalLine(
-          GenJournalLine, CalcDate('<1Y>', WorkDate), GenJournalLine."FA Posting Type"::Depreciation, FANo,
+          GenJournalLine, CalcDate('<1Y>', WorkDate()), GenJournalLine."FA Posting Type"::Depreciation, FANo,
           DepreciationBookCode, -DepreciationAmount);
         CreateAndPostGenJournalLine(
-          GenJournalLine, CalcDate('<1M>', WorkDate), GenJournalLine."FA Posting Type"::Derogatory, FANo,
+          GenJournalLine, CalcDate('<1M>', WorkDate()), GenJournalLine."FA Posting Type"::Derogatory, FANo,
           DepreciationBookCode, -DerogatoryAmount);
     end;
 
@@ -751,7 +751,7 @@ codeunit 144015 "ERM FR Feature Bugs"
         repeat
             FALedgerEntry.TestField("FA Posting Date", FAPostingDate);
             FALedgerEntry.TestField(Amount, Amount);
-        until FALedgerEntry.Next = 0;
+        until FALedgerEntry.Next() = 0;
     end;
 
     local procedure VerifyItemLedgerEntry(ItemNo: Code[20]; Quantity: Decimal; LotNo: Code[20]; SourceNo: Code[20])
@@ -785,8 +785,8 @@ codeunit 144015 "ERM FR Feature Bugs"
     begin
         LibraryVariableStorage.Dequeue(DepreciationBookCode);
         CalculateDepreciation.DepreciationBook.SetValue(DepreciationBookCode);
-        CalculateDepreciation.FAPostingDate.SetValue(WorkDate);
-        CalculateDepreciation.PostingDate.SetValue(WorkDate);
+        CalculateDepreciation.FAPostingDate.SetValue(WorkDate());
+        CalculateDepreciation.PostingDate.SetValue(WorkDate());
         CalculateDepreciation.OK.Invoke;
     end;
 

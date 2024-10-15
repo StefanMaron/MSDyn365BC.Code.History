@@ -66,7 +66,7 @@ codeunit 144067 "UT COD Source Code"
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         GenJournalLine."Journal Template Name" := GenJournalBatch."Journal Template Name";
         GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
-        GenJournalLine."Posting Date" := WorkDate;
+        GenJournalLine."Posting Date" := WorkDate();
         GenJournalLine."Account No." := LibraryUTUtility.GetNewCode;
         GenJournalLine.Insert();
     end;

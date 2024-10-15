@@ -12,8 +12,8 @@ codeunit 104101 "UPG.FR"
     begin
         if not HybridDeployment.VerifyCanStartUpgrade(CompanyName()) then
             exit;
-         
-        UpgradeDetailedCVLedgerEntries;
+
+        UpgradeDetailedCVLedgerEntries();
     end;
 
     local procedure UpgradeDetailedCVLedgerEntries()
@@ -21,12 +21,12 @@ codeunit 104101 "UPG.FR"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
     begin
-        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetUpgradeDetailedCVLedgerEntriesTag) THEN
+        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetUpgradeDetailedCVLedgerEntriesTag()) THEN
             EXIT;
 
         CODEUNIT.RUN(CODEUNIT::"Update Dtld. CV Ledger Entries");
 
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetUpgradeDetailedCVLedgerEntriesTag);
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetUpgradeDetailedCVLedgerEntriesTag());
     end;
 }
 

@@ -30,8 +30,8 @@ table 50 "Accounting Period"
                     CheckPostingRangeInAccPeriod("Starting Date");
 
                 if "New Fiscal Year" then begin
-                    CheckOpenFiscalYears;
-                    if not InvtSetup.Get then
+                    CheckOpenFiscalYears();
+                    if not InvtSetup.Get() then
                         exit;
                     "Average Cost Calc. Type" := InvtSetup."Average Cost Calc. Type";
                     "Average Cost Period" := InvtSetup."Average Cost Period";
@@ -128,8 +128,6 @@ table 50 "Accounting Period"
     end;
 
     var
-        Text000: Label '<Month Text,10>', Locked = true;
-        MonthTxt: Label '<Month Text>', Locked = true;
         AccountingPeriod2: Record "Accounting Period";
         InvtSetup: Record "Inventory Setup";
         Text10800: Label 'To delete the fiscal year from %1 to %2, you must first modify the fields %3 and %4 in the %5 and %6 so that they are outside the fiscal year that is being deleted.';
@@ -145,6 +143,9 @@ table 50 "Accounting Period"
         Text10809: Label 'You must create a new fiscal year before you can close this fiscal period.';
         EndingDate: Date;
         NoOfOpenFiscalYears: Integer;
+
+        Text000: Label '<Month Text,10>', Locked = true;
+        MonthTxt: Label '<Month Text>', Locked = true;
 
     procedure UpdateAvgItems()
     var
@@ -268,15 +269,15 @@ table 50 "Accounting Period"
     procedure UpdateGLSetup(PeriodEndDate: Date)
     begin
         with GLSetup do begin
-            Get;
+            Get();
             CalcFields("Posting Allowed From");
             if "Allow Posting From" <= PeriodEndDate then begin
                 "Allow Posting From" := "Posting Allowed From";
-                Modify;
+                Modify();
             end;
             if ("Allow Posting To" <= PeriodEndDate) and ("Allow Posting To" <> 0D) then begin
                 "Allow Posting To" := CalcDate('<+1M-1D>', "Posting Allowed From");
-                Modify;
+                Modify();
             end;
         end;
     end;
@@ -289,11 +290,11 @@ table 50 "Accounting Period"
                 repeat
                     if "Allow Posting From" <= PeriodEndDate then begin
                         "Allow Posting From" := GLSetup."Posting Allowed From";
-                        Modify;
+                        Modify();
                     end;
                     if ("Allow Posting To" <= PeriodEndDate) and ("Allow Posting To" <> 0D) then begin
                         "Allow Posting To" := CalcDate('<+1M-1D>', GLSetup."Posting Allowed From");
-                        Modify;
+                        Modify();
                     end;
                 until Next() = 0;
         end
@@ -303,7 +304,7 @@ table 50 "Accounting Period"
     procedure CheckPostingRangeSetup(FYEndDate: Date): Boolean
     begin
         with GLSetup do begin
-            Get;
+            Get();
             if ("Allow Posting From" > FYEndDate) or ("Allow Posting To" > FYEndDate) then
                 exit(true);
         end;
@@ -337,7 +338,7 @@ table 50 "Accounting Period"
                       Text10800,
                       AccountingPeriod2."Starting Date", OldPostingAllowedTo,
                       GLSetup.FieldCaption("Allow Posting From"), GLSetup.FieldCaption("Allow Posting To"),
-                      GLSetup.TableCaption, UserSetup.TableCaption);
+                      GLSetup.TableCaption(), UserSetup.TableCaption());
     end;
 
     local procedure GetPostingAllowedToDate(ExcludePeriod: Date): Date

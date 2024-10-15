@@ -23,12 +23,12 @@ codeunit 3027 DotNet_StreamReader
 
     procedure Close()
     begin
-        DotNetStreamReader.Close;
+        DotNetStreamReader.Close();
     end;
 
     procedure Dispose()
     begin
-        DotNetStreamReader.Dispose;
+        DotNetStreamReader.Dispose();
     end;
 
     procedure EndOfStream(): Boolean
@@ -43,12 +43,12 @@ codeunit 3027 DotNet_StreamReader
 
     procedure ReadLine(): Text
     begin
-        exit(DotNetStreamReader.ReadLine);
+        exit(DotNetStreamReader.ReadLine());
     end;
 
     procedure ReadToEnd(): Text
     begin
-        exit(DotNetStreamReader.ReadToEnd);
+        exit(DotNetStreamReader.ReadToEnd());
     end;
 }
 

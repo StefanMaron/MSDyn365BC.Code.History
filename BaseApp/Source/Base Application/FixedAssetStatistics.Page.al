@@ -1,7 +1,7 @@
 page 5602 "Fixed Asset Statistics"
 {
     Caption = 'Fixed Asset Statistics';
-    DataCaptionExpression = Caption;
+    DataCaptionExpression = Caption();
     Editable = false;
     LinksAllowed = false;
     PageType = Card;
@@ -15,13 +15,13 @@ page 5602 "Fixed Asset Statistics"
             group(General)
             {
                 Caption = 'General';
-                field("Acquisition Date"; "Acquisition Date")
+                field("Acquisition Date"; Rec."Acquisition Date")
                 {
                     ApplicationArea = FixedAssets;
                     Caption = 'Acquisition Date';
                     ToolTip = 'Specifies the FA posting date of the first posted acquisition cost.';
                 }
-                field("G/L Acquisition Date"; "G/L Acquisition Date")
+                field("G/L Acquisition Date"; Rec."G/L Acquisition Date")
                 {
                     ApplicationArea = FixedAssets;
                     Caption = 'G/L Acquisition Date';
@@ -33,19 +33,19 @@ page 5602 "Fixed Asset Statistics"
                     Caption = 'Disposed Of';
                     ToolTip = 'Specifies whether the fixed asset has been disposed of.';
                 }
-                field("Disposal Date"; "Disposal Date")
+                field("Disposal Date"; Rec."Disposal Date")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the FA posting date of the first posted disposal amount.';
                     Visible = DisposalDateVisible;
                 }
-                field("Proceeds on Disposal"; "Proceeds on Disposal")
+                field("Proceeds on Disposal"; Rec."Proceeds on Disposal")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the total proceeds on disposal for the fixed asset.';
                     Visible = ProceedsOnDisposalVisible;
                 }
-                field("Gain/Loss"; "Gain/Loss")
+                field("Gain/Loss"; Rec."Gain/Loss")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the total gain (credit) or loss (debit) for the fixed asset.';
@@ -62,7 +62,7 @@ page 5602 "Fixed Asset Statistics"
 
                     trigger OnDrillDown()
                     begin
-                        ShowBookValueAfterDisposal;
+                        ShowBookValueAfterDisposal();
                     end;
                 }
                 fixed(Control1903895301)
@@ -71,49 +71,49 @@ page 5602 "Fixed Asset Statistics"
                     group("Last FA Posting Date")
                     {
                         Caption = 'Last FA Posting Date';
-                        field("Last Acquisition Cost Date"; "Last Acquisition Cost Date")
+                        field("Last Acquisition Cost Date"; Rec."Last Acquisition Cost Date")
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'Acquisition Cost';
                             ToolTip = 'Specifies the total percentage of acquisition cost that can be allocated when acquisition cost is posted.';
                         }
-                        field("Last Depreciation Date"; "Last Depreciation Date")
+                        field("Last Depreciation Date"; Rec."Last Depreciation Date")
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'Depreciation';
                             ToolTip = 'Specifies the FA posting date of the last posted depreciation.';
                         }
-                        field("Last Write-Down Date"; "Last Write-Down Date")
+                        field("Last Write-Down Date"; Rec."Last Write-Down Date")
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'Write-Down';
                             ToolTip = 'Specifies the FA posting date of the last posted write-down.';
                         }
-                        field("Last Appreciation Date"; "Last Appreciation Date")
+                        field("Last Appreciation Date"; Rec."Last Appreciation Date")
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'Appreciation';
                             ToolTip = 'Specifies the sum that applies to appreciations.';
                         }
-                        field("Last Custom 1 Date"; "Last Custom 1 Date")
+                        field("Last Custom 1 Date"; Rec."Last Custom 1 Date")
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'Custom 1';
                             ToolTip = 'Specifies the FA posting date of the last posted custom 1 entry.';
                         }
-                        field("Last Derogatory Date"; "Last Derogatory Date")
+                        field("Last Derogatory Date"; Rec."Last Derogatory Date")
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'Derogatory';
                             ToolTip = 'Specifies the FA posting date of the last posted derogatory depreciation.';
                         }
-                        field("Last Salvage Value Date"; "Last Salvage Value Date")
+                        field("Last Salvage Value Date"; Rec."Last Salvage Value Date")
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'Salvage Value';
                             ToolTip = 'Specifies if related salvage value entries are included in the batch job .';
                         }
-                        field("Last Custom 2 Date"; "Last Custom 2 Date")
+                        field("Last Custom 2 Date"; Rec."Last Custom 2 Date")
                         {
                             ApplicationArea = FixedAssets;
                             Caption = 'Custom 2';
@@ -123,7 +123,7 @@ page 5602 "Fixed Asset Statistics"
                     group(Amount)
                     {
                         Caption = 'Amount';
-                        field("Acquisition Cost"; "Acquisition Cost")
+                        field("Acquisition Cost"; Rec."Acquisition Cost")
                         {
                             ApplicationArea = FixedAssets;
                             ToolTip = 'Specifies the total acquisition cost for the fixed asset.';
@@ -133,7 +133,7 @@ page 5602 "Fixed Asset Statistics"
                             ApplicationArea = FixedAssets;
                             ToolTip = 'Specifies the total depreciation for the fixed asset.';
                         }
-                        field("Write-Down"; "Write-Down")
+                        field("Write-Down"; Rec."Write-Down")
                         {
                             ApplicationArea = FixedAssets;
                             ToolTip = 'Specifies the total LCY amount of write-down entries for the fixed asset.';
@@ -143,7 +143,7 @@ page 5602 "Fixed Asset Statistics"
                             ApplicationArea = FixedAssets;
                             ToolTip = 'Specifies the total appreciation for the fixed asset.';
                         }
-                        field("Custom 1"; "Custom 1")
+                        field("Custom 1"; Rec."Custom 1")
                         {
                             ApplicationArea = FixedAssets;
                             ToolTip = 'Specifies the total LCY amount for custom 1 entries for the fixed asset.';
@@ -153,12 +153,12 @@ page 5602 "Fixed Asset Statistics"
                             ApplicationArea = FixedAssets;
                             ToolTip = 'Specifies the total derogatory depreciation for the fixed asset.';
                         }
-                        field("Salvage Value"; "Salvage Value")
+                        field("Salvage Value"; Rec."Salvage Value")
                         {
                             ApplicationArea = FixedAssets;
                             ToolTip = 'Specifies the estimated residual value of a fixed asset when it can no longer be used.';
                         }
-                        field("Custom 2"; "Custom 2")
+                        field("Custom 2"; Rec."Custom 2")
                         {
                             ApplicationArea = FixedAssets;
                             ToolTip = 'Specifies the total LCY amount for custom 2 entries for the fixed asset.';
@@ -171,12 +171,12 @@ page 5602 "Fixed Asset Statistics"
                     group(Control3)
                     {
                         ShowCaption = false;
-                        field("Book Value"; "Book Value")
+                        field("Book Value"; Rec."Book Value")
                         {
                             ApplicationArea = FixedAssets;
                             ToolTip = 'Specifies the book value for the fixed asset.';
                         }
-                        field("Depreciable Basis"; "Depreciable Basis")
+                        field("Depreciable Basis"; Rec."Depreciable Basis")
                         {
                             ApplicationArea = FixedAssets;
                             ToolTip = 'Specifies the depreciable basis amount for the fixed asset.';
@@ -203,7 +203,7 @@ page 5602 "Fixed Asset Statistics"
         ProceedsOnDisposalVisible := Disposed;
         GainLossVisible := Disposed;
         DisposalDateVisible := Disposed;
-        CalcBookValue;
+        CalcBookValue();
     end;
 
     trigger OnInit()

@@ -76,7 +76,7 @@ table 1829 "Consolidation Account"
     var
         ApplicationSystemConstants: Codeunit "Application System Constants";
     begin
-        if StrPos(ApplicationSystemConstants.ApplicationVersion, CountryCode) = 1 then
+        if StrPos(ApplicationSystemConstants.ApplicationVersion(), CountryCode) = 1 then
             exit(true);
 
         exit(false);

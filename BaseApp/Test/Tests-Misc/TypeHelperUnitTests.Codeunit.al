@@ -511,7 +511,7 @@ codeunit 132590 "Type Helper Unit Tests"
     begin
         // [WHEN] NewLine is called
         // [THEN] A new line is returned
-        Assert.AreEqual(TypeHelper.CRLFSeparator, TypeHelper.NewLine, 'Function did not return new line');
+        Assert.AreEqual(TypeHelper.CRLFSeparator, TypeHelper.NewLine(), 'Function did not return new line');
     end;
 
     [Test]

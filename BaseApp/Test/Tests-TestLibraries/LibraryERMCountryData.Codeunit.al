@@ -97,7 +97,7 @@ codeunit 131305 "Library - ERM Country Data"
                 if InventoryPostingSetup."Inventory Account (Interim)" = '' then
                     InventoryPostingSetup.Validate("Inventory Account (Interim)", CreateGLAccount);
                 InventoryPostingSetup.Modify();
-            until InventoryPostingSetup.Next = 0;
+            until InventoryPostingSetup.Next() = 0;
     end;
 
     procedure UpdateGenJournalTemplate()
@@ -200,7 +200,7 @@ codeunit 131305 "Library - ERM Country Data"
                     FAPostingGroup.Validate("Losses Acc. on Disposal", CreateGLAccount);
                     FAPostingGroup.Modify(true);
                 end;
-            until FAPostingGroup.Next = 0;
+            until FAPostingGroup.Next() = 0;
     end;
 
     procedure UpdateLocalPostingSetup()
@@ -347,7 +347,7 @@ codeunit 131305 "Library - ERM Country Data"
             GenJournalBatch.SetRange("Journal Template Name", GenJournalTemplate.Name);
             if GenJournalBatch.Count = 0 then
                 GenJournalTemplate.Delete(true);
-        until GenJournalTemplate.Next = 0;
+        until GenJournalTemplate.Next() = 0;
     end;
 
     local procedure DisableAdjustForPmtDiscInGLSetup()

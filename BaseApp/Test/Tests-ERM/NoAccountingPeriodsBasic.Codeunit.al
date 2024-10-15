@@ -31,7 +31,7 @@ codeunit 134360 "No Accounting Periods: Basic"
         // [SCENARIO 222561] First day of the year is default starting period date when no periods defined
         Initialize();
         Assert.AreEqual(
-          CalcDate('<-CY>', WorkDate), AccountingPeriodMgt.GetPeriodStartingDate, WrongPeriodStartingDateErr);
+          CalcDate('<-CY>', WorkDate()), AccountingPeriodMgt.GetPeriodStartingDate, WrongPeriodStartingDateErr);
     end;
 
     [Test]
@@ -58,8 +58,8 @@ codeunit 134360 "No Accounting Periods: Basic"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 222561] Default accounting period starts on the 1st day of month
-        AccountingPeriodMgt.InitDefaultAccountingPeriod(AccountingPeriod, WorkDate);
-        Assert.AreEqual(CalcDate('<-CM>', WorkDate), AccountingPeriod."Starting Date", WrongValueErr);
+        AccountingPeriodMgt.InitDefaultAccountingPeriod(AccountingPeriod, WorkDate());
+        Assert.AreEqual(CalcDate('<-CM>', WorkDate()), AccountingPeriod."Starting Date", WrongValueErr);
         Assert.IsFalse(AccountingPeriod."New Fiscal Year", WrongValueErr);
     end;
 
@@ -73,8 +73,8 @@ codeunit 134360 "No Accounting Periods: Basic"
     begin
         // [FEATURE] [UT]
         // [SCENARIO 222561] Default start year accounting period starts on the 1st day of year and has average cost settings from Inventory setup
-        AccountingPeriodMgt.InitStartYearAccountingPeriod(AccountingPeriod, WorkDate);
-        Assert.AreEqual(CalcDate('<-CY>', WorkDate), AccountingPeriod."Starting Date", WrongValueErr);
+        AccountingPeriodMgt.InitStartYearAccountingPeriod(AccountingPeriod, WorkDate());
+        Assert.AreEqual(CalcDate('<-CY>', WorkDate()), AccountingPeriod."Starting Date", WrongValueErr);
         Assert.IsTrue(AccountingPeriod."New Fiscal Year", WrongValueErr);
         InventorySetup.Get();
         AccountingPeriod.TestField("Average Cost Calc. Type", InventorySetup."Average Cost Calc. Type");
@@ -93,7 +93,7 @@ codeunit 134360 "No Accounting Periods: Basic"
         // [SCENARIO 222561] Close Income Statement report generates error when no accounting periods
         Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
-        CloseIncomeStatement.InitializeRequestTest(WorkDate, GenJournalLine, GLAccount, false);
+        CloseIncomeStatement.InitializeRequestTest(WorkDate(), GenJournalLine, GLAccount, false);
         CloseIncomeStatement.UseRequestPage(false);
         asserterror CloseIncomeStatement.Run();
 
@@ -116,7 +116,7 @@ codeunit 134360 "No Accounting Periods: Basic"
         AnalysisView.DeleteAll();
         GLEntry.Init();
         GLEntry."G/L Account No." := LibraryERM.CreateGLAccountNo();
-        GLEntry."Posting Date" := WorkDate;
+        GLEntry."Posting Date" := WorkDate();
         GLEntry.Amount := LibraryRandom.RandDec(100, 2);
         GLEntry.Insert();
         DateComprRetainFields."Retain Document Type" := false;
@@ -125,7 +125,7 @@ codeunit 134360 "No Accounting Periods: Basic"
         DateComprRetainFields."Retain Business Unit Code" := false;
         DateComprRetainFields."Retain Quantity" := false;
         DateComprRetainFields."Retain Journal Template Name" := false;
-        DateCompressGeneralLedger.InitializeRequest(WorkDate, WorkDate, 0, '', DateComprRetainFields, '', false);
+        DateCompressGeneralLedger.InitializeRequest(WorkDate(), WorkDate(), 0, '', DateComprRetainFields, '', false);
         DateCompressGeneralLedger.UseRequestPage(false);
         asserterror DateCompressGeneralLedger.Run();
 
@@ -144,8 +144,8 @@ codeunit 134360 "No Accounting Periods: Basic"
         LibraryFiscalYear.CreateFiscalYear();
         Assert.RecordIsNotEmpty(AccountingPeriod);
         Assert.RecordCount(AccountingPeriod, 13);
-        VerifyAccountingPeriod(AccountingPeriod, CalcDate('<-CY>', WorkDate), true, false);
-        VerifyAccountingPeriod(AccountingPeriod, CalcDate('<-CY+1Y>', WorkDate), false, false);
+        VerifyAccountingPeriod(AccountingPeriod, CalcDate('<-CY>', WorkDate()), true, false);
+        VerifyAccountingPeriod(AccountingPeriod, CalcDate('<-CY+1Y>', WorkDate()), false, false);
     end;
 
     [Test]
@@ -218,13 +218,12 @@ codeunit 134360 "No Accounting Periods: Basic"
     procedure O365StatisticsGetCurrentPeriod()
     var
         AccountingPeriod: Record "Accounting Period";
-        O365SalesStatistics: Codeunit "O365 Sales Statistics";
     begin
         // [FEATURE] [UT] [Statistics]
         // [SCENARIO 222561] Accounting Period is initialized from start of the year in O365Statistics
         Initialize();
-        O365SalesStatistics.GetCurrentAccountingPeriod(AccountingPeriod);
-        AccountingPeriod.TestField("Starting Date", CalcDate('<-CY>', WorkDate));
+        GetCurrentAccountingPeriod(AccountingPeriod);
+        AccountingPeriod.TestField("Starting Date", CalcDate('<-CY>', WorkDate()));
     end;
 
     [Test]
@@ -233,20 +232,19 @@ codeunit 134360 "No Accounting Periods: Basic"
     var
         AccountingPeriod: Record "Accounting Period";
         AccountingPeriodStat: Record "Accounting Period";
-        O365SalesStatistics: Codeunit "O365 Sales Statistics";
     begin
         // [FEATURE] [UT] [Statistics]
         // [SCENARIO 222561] Accounting Period is initialized from existing accounting period in O365Statistics when we have filter after first run
         Initialize();
         AccountingPeriod.Init();
-        AccountingPeriod."Starting Date" := WorkDate;
+        AccountingPeriod."Starting Date" := WorkDate();
         AccountingPeriod."New Fiscal Year" := true;
         AccountingPeriod.Insert();
-        O365SalesStatistics.GetCurrentAccountingPeriod(AccountingPeriodStat);
+        GetCurrentAccountingPeriod(AccountingPeriodStat);
         Assert.IsTrue(AccountingPeriodStat.GetFilter("New Fiscal Year") <> '', '');
         AccountingPeriod."New Fiscal Year" := false;
         AccountingPeriod.Modify();
-        O365SalesStatistics.GetCurrentAccountingPeriod(AccountingPeriodStat);
+        GetCurrentAccountingPeriod(AccountingPeriodStat);
         AccountingPeriodStat.TestField("Starting Date", AccountingPeriod."Starting Date");
     end;
 
@@ -273,7 +271,7 @@ codeunit 134360 "No Accounting Periods: Basic"
         // [FEATURE] [UT]
         // [SCENARIO 222561] AccountingPeriodMgt.FindFiscalYear returns first date of the year of workdate when no accounting periods and no requested date specified
         Initialize();
-        Assert.AreEqual(CalcDate('<-CY>', WorkDate), AccountingPeriodMgt.FindFiscalYear(0D), '');
+        Assert.AreEqual(CalcDate('<-CY>', WorkDate()), AccountingPeriodMgt.FindFiscalYear(0D), '');
     end;
 
     [Test]
@@ -348,7 +346,7 @@ codeunit 134360 "No Accounting Periods: Basic"
         // [FEATURE] [UT]
         // [SCENARIO 222561] AccountingPeriodMgt.FindEndOfFiscalYear returns last date of the year of workdate when no accounting periods and no requested date specified
         Initialize();
-        Assert.AreEqual(CalcDate('<CY>', WorkDate), AccountingPeriodMgt.FindEndOfFiscalYear(0D), '');
+        Assert.AreEqual(CalcDate('<CY>', WorkDate()), AccountingPeriodMgt.FindEndOfFiscalYear(0D), '');
     end;
 
     [Test]
@@ -446,6 +444,32 @@ codeunit 134360 "No Accounting Periods: Basic"
         CreateFiscalYear.NoOfPeriods.SetValue(LibraryVariableStorage.DequeueInteger);
         CreateFiscalYear.PeriodLength.SetValue(LibraryVariableStorage.DequeueText);
         CreateFiscalYear.OK.Invoke;
+    end;
+
+    local procedure GetCurrentAccountingPeriod(var AccountingPeriod: Record "Accounting Period")
+    var
+        AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
+    begin
+        if IsEmptyAccountingPeriod() then begin
+            AccountingPeriod.Reset();
+            AccountingPeriodMgt.InitStartYearAccountingPeriod(AccountingPeriod, WorkDate());
+            exit;
+        end;
+
+        AccountingPeriod.SetRange("New Fiscal Year", true);
+        AccountingPeriod.SetFilter("Starting Date", '..%1', WorkDate());
+
+        if not AccountingPeriod.FindLast() then begin
+            AccountingPeriod.SetRange("New Fiscal Year");
+            if AccountingPeriod.FindFirst() then;
+        end;
+    end;
+
+    local procedure IsEmptyAccountingPeriod(): Boolean
+    var
+        AccountingPeriod: Record "Accounting Period";
+    begin
+        exit(AccountingPeriod.IsEmpty);
     end;
 }
 

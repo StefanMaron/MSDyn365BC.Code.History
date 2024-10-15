@@ -342,7 +342,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         PaymentSlip."Payment Journal Errors".First;
         PaymentSlip."Payment Journal Errors"."Error Text".AssertEquals(AmountMustBePositiveErr);
         Assert.IsFalse(PaymentSlip."Payment Journal Errors".Next, 'Just one error expected');
-        PaymentSlip.Close;
+        PaymentSlip.Close();
     end;
 
     [Test]
@@ -810,7 +810,7 @@ codeunit 144075 "SEPA.03 CT Unit Test"
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
     begin
         with GenJournalLine do begin
-            Init;
+            Init();
             Validate("Posting Date", Today);
             Validate("Document Type", DocumentType);
             Validate("Account Type", AccountType);

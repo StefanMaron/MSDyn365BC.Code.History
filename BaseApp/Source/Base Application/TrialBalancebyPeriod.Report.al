@@ -14,7 +14,7 @@ report 38 "Trial Balance by Period"
         {
             DataItemTableView = SORTING("No.");
             RequestFilterFields = "No.", "Income/Balance", "Account Type", "Global Dimension 1 Filter", "Global Dimension 2 Filter";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Text015___FORMAT_Indent_; StrSubstNo(IndentationLevelCap, SelectStr(Indent + 1, IndentTxt)))
@@ -271,7 +271,7 @@ report 38 "Trial Balance by Period"
                     MaxCount := 13;
 
                 for i := 2 to MaxCount do begin
-                    AccountingPeriod.Next;
+                    AccountingPeriod.Next();
 
                     StartDate[i] := AccountingPeriod."Starting Date";
                     EndDate[i] := AccPeriodEndDate(StartDate[i]);
@@ -316,7 +316,7 @@ report 38 "Trial Balance by Period"
 
                         trigger OnValidate()
                         begin
-                            CheckIndent;
+                            CheckIndent();
                         end;
                     }
                 }
@@ -334,7 +334,7 @@ report 38 "Trial Balance by Period"
 
     trigger OnPreReport()
     begin
-        GLFilter := "G/L Account".GetFilters;
+        GLFilter := "G/L Account".GetFilters();
     end;
 
     var
@@ -346,7 +346,6 @@ report 38 "Trial Balance by Period"
         PeriodStartingDate: Date;
         StartDate: array[20] of Date;
         EndDate: array[20] of Date;
-        GLFilter: Text;
         ColumnValuesAsText: array[13] of Text[30];
         RoundingText: Text[80];
         Header: array[13, 2] of Text[100];
@@ -373,6 +372,9 @@ report 38 "Trial Balance by Period"
         Trial_Balance_by_PeriodCaptionLbl: Label 'Trial Balance by Period';
         IndentTxt: Label 'None,0,1,2,3,4,5';
 
+    protected var
+        GLFilter: Text;
+
     local procedure AccPeriodEndDate(UseStartDate: Date): Date
     var
         AccountingPeriod2: Record "Accounting Period";
@@ -394,7 +396,7 @@ report 38 "Trial Balance by Period"
         RoundingFactor := "Analysis Rounding Factor".FromInteger(NewRoundingFactor);
         if NewIndent <> Indent::None then begin
             Indent := NewIndent;
-            CheckIndent;
+            CheckIndent();
         end;
     end;
 
@@ -408,10 +410,9 @@ report 38 "Trial Balance by Period"
                     MaxIndent := Format(GLIndent.Indentation);
             until GLIndent.Next() = 0;
 
-        if Format(Indent) > MaxIndent then begin
+        if Format(Indent) > MaxIndent then
             if Indent <> Indent::None then
                 Error(Text014, SelectStr(Indent + 1, IndentTxt), MaxIndent);
-        end;
     end;
 }
 

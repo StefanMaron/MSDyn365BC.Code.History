@@ -2,7 +2,7 @@ page 5776 "Warehouse Comment Sheet"
 {
     AutoSplitKey = true;
     Caption = 'Comment Sheet';
-    DataCaptionExpression = FormCaption;
+    DataCaptionExpression = FormCaption();
     DelayedInsert = true;
     LinksAllowed = false;
     MultipleNewLines = true;
@@ -42,7 +42,7 @@ page 5776 "Warehouse Comment Sheet"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        SetUpNewLine;
+        SetUpNewLine();
     end;
 }
 

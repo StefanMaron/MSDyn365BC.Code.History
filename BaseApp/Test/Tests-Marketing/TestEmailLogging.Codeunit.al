@@ -168,20 +168,20 @@ codeunit 139012 "Test Email Logging"
     begin
         Context := 'Test Context 1';
         EmailLoggingDispatcher.SetErrorContext(Context);
-        Assert.AreEqual(Context, EmailLoggingDispatcher.GetErrorContext, 'GetContext did not return what was in SetContext 1st time');
+        Assert.AreEqual(Context, EmailLoggingDispatcher.GetErrorContext(), 'GetContext did not return what was in SetContext 1st time');
 
         Context := 'Test Context 2';
         EmailLoggingDispatcher.SetErrorContext(Context);
-        Assert.AreEqual(Context, EmailLoggingDispatcher.GetErrorContext, 'GetContext did not return what was in SetContext 2nd time');
+        Assert.AreEqual(Context, EmailLoggingDispatcher.GetErrorContext(), 'GetContext did not return what was in SetContext 2nd time');
 
         Context := '';
         EmailLoggingDispatcher.SetErrorContext(Context);
         Assert.AreEqual(
-          Context, EmailLoggingDispatcher.GetErrorContext, 'GetContext did not return empty string what was in SetContext 3rd time');
+          Context, EmailLoggingDispatcher.GetErrorContext(), 'GetContext did not return empty string what was in SetContext 3rd time');
 
         Context := 'Test Context 3';
         EmailLoggingDispatcher.SetErrorContext(Context);
-        Assert.AreEqual(Context, EmailLoggingDispatcher.GetErrorContext, 'GetContext did not return what was in SetContext 4th time');
+        Assert.AreEqual(Context, EmailLoggingDispatcher.GetErrorContext(), 'GetContext did not return what was in SetContext 4th time');
     end;
 
     [Test]
@@ -232,7 +232,7 @@ codeunit 139012 "Test Email Logging"
         Assert.IsTrue(TempExchangeFolder."Unique ID".HasValue, 'UID BLOB not initialized');
         TempExchangeFolder.Insert();
         TempExchangeFolder.Get('path');
-        Assert.AreEqual(TempExchangeFolder.GetUniqueID, 'idid', 'UID BLOB not retreived');
+        Assert.AreEqual(TempExchangeFolder.GetUniqueID(), 'idid', 'UID BLOB not retreived');
     end;
 
     [Test]
@@ -340,7 +340,7 @@ codeunit 139012 "Test Email Logging"
         Commit();
 
         JobQueueEntry.Init();
-        JobQueueEntry.ID := CreateGuid;
+        JobQueueEntry.ID := CreateGuid();
 
         Assert.IsFalse(CODEUNIT.Run(Codeunit::"Email Logging Context Adapter", JobQueueEntry), 'Expected COD5065 OnRun to fail');
         Assert.AreNotEqual('', GetLastErrorText, 'Expected LASTERRORTEXT to be non-empty string');
@@ -367,7 +367,7 @@ codeunit 139012 "Test Email Logging"
         Commit();
 
         JobQueueEntry.Init();
-        JobQueueEntry.ID := CreateGuid;
+        JobQueueEntry.ID := CreateGuid();
 
         Assert.IsFalse(CODEUNIT.Run(Codeunit::"Email Logging Context Adapter", JobQueueEntry), 'Expected COD5065 OnRun to fail');
         Assert.AreNotEqual('', GetLastErrorText, 'Expected LASTERRORTEXT to be non-empty string');

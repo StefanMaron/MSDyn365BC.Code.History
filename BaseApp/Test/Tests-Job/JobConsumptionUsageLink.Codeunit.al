@@ -1364,7 +1364,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         repeat
             VerifyUsageLink(JobPlanningLine, JobLedgerEntry);
             VerifyJobPlanningLineDone(JobPlanningLine)
-        until JobPlanningLine.Next = 0;
+        until JobPlanningLine.Next() = 0;
 
         // Verify - the newly created line is linked to the ledger entry
         JobPlanningLine.SetRange(Description, JobJournalLine.Description);
@@ -1801,7 +1801,7 @@ codeunit 136303 "Job Consumption - Usage Link"
 
     local procedure Initialize()
     var
-#if not CLEAN19
+#if not CLEAN21
         PurchasePrice: Record "Purchase Price";
         SalesPrice: Record "Sales Price";
         SalesLineDiscount: Record "Sales Line Discount";
@@ -1815,7 +1815,7 @@ codeunit 136303 "Job Consumption - Usage Link"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Job Consumption - Usage Link");
 
-#if not CLEAN19
+#if not CLEAN21
         // Removing special prices, discounts
         PurchasePrice.DeleteAll(true);
         SalesPrice.DeleteAll(true);
@@ -2093,7 +2093,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         exit(JobPlanningLine.Count - LineCount)
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure ResourcePriceWhenWorkTypeCodeMatched()
@@ -2303,10 +2303,10 @@ codeunit 136303 "Job Consumption - Usage Link"
             JobPlanningLineRenameErr,
             JobPlanningLine2.FieldCaption("Job No."),
             JobPlanningLine2.FieldCaption("Job Task No."),
-            JobPlanningLine2.TableCaption));
+            JobPlanningLine2.TableCaption()));
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     local procedure CreateJobResourcePriceWithUnitPrice(JobTask: Record "Job Task"; JobResourcePriceType: Option; "Code": Code[20]; WorkTypeCode: Code[10]; UnitPrice: Decimal)
     var
         JobResourcePrice: Record "Job Resource Price";

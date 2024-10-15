@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138960 "BC O365 Email Test"
 {
     Subtype = Test;
@@ -228,7 +229,7 @@ codeunit 138960 "BC O365 Email Test"
         LibraryAzureKVMockMgmt.InitMockAzureKeyvaultSecretProvider;
         LibraryAzureKVMockMgmt.EnsureSecretNameIsAllowed('SmtpSetup');
 
-        EventSubscriberInvoicingApp.Clear;
+        EventSubscriberInvoicingApp.Clear();
 
         if IsInitialized then
             exit;
@@ -246,7 +247,7 @@ codeunit 138960 "BC O365 Email Test"
         BCO365Settings."Email settings".New;
         BCO365Settings."Email settings".Email.Value(Email);
         BCO365Settings."Email settings".RecipientType.SetValue(RecipientType);
-        BCO365Settings.Close;
+        BCO365Settings.Close();
     end;
 
     local procedure ModifyRecipient(OldEmail: Text[80]; OldRecipientType: Option; Email: Text[80])
@@ -256,7 +257,7 @@ codeunit 138960 "BC O365 Email Test"
         BCO365Settings.OpenEdit;
         BCO365Settings."Email settings".GotoKey(GetRecipientCode(OldEmail, OldRecipientType), OldRecipientType);
         BCO365Settings."Email settings".Email.Value(Email);
-        BCO365Settings.Close;
+        BCO365Settings.Close();
     end;
 
     local procedure DeleteRecipient(Email: Text[80]; RecipientType: Option)
@@ -297,4 +298,4 @@ codeunit 138960 "BC O365 Email Test"
         Reply := true;
     end;
 }
-
+#endif

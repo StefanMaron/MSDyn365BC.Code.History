@@ -105,7 +105,7 @@ table 7318 "Posted Whse. Receipt Header"
 
     trigger OnDelete()
     begin
-        DeleteRelatedLines;
+        DeleteRelatedLines();
     end;
 
     trigger OnInsert()
@@ -242,7 +242,7 @@ table 7318 "Posted Whse. Receipt Header"
                 end;
             until (NextSteps = 0) or (RealSteps = Steps);
             Rec := PostedWhseRcptHeader;
-            if not Find then;
+            if not Find() then;
         end;
         exit(RealSteps);
     end;

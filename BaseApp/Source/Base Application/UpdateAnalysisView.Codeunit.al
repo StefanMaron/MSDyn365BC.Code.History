@@ -11,21 +11,14 @@ codeunit 410 "Update Analysis View"
     trigger OnRun()
     begin
         if Code <> '' then begin
-            InitLastEntryNo;
+            InitLastEntryNo();
             LockTable();
-            Find;
+            Find();
             UpdateOne(Rec, 2, "Last Entry No." < LastGLEntryNo - 1000);
         end;
     end;
 
     var
-        Text005: Label 'Analysis View     #1############################\\';
-        Text006: Label 'Updating table    #2############################\';
-        Text007: Label 'Speed: (Entries/s)#4########\';
-        Text008: Label 'Average Speed     #5########';
-        Text009: Label '#6############### @3@@@@@@@@@@@@@@@@@@@@@@@@@@@@\\';
-        Text010: Label 'Summarizing';
-        Text011: Label 'Updating Database';
         AnalysisView: Record "Analysis View";
         GLSetup: Record "General Ledger Setup";
         GLEntry: Record "G/L Entry";
@@ -57,6 +50,14 @@ codeunit 410 "Update Analysis View"
         LastBudgetEntryNo: Integer;
         LastEntryNoIsInitialized: Boolean;
 
+        Text005: Label 'Analysis View     #1############################\\';
+        Text006: Label 'Updating table    #2############################\';
+        Text007: Label 'Speed: (Entries/s)#4########\';
+        Text008: Label 'Average Speed     #5########';
+        Text009: Label '#6############### @3@@@@@@@@@@@@@@@@@@@@@@@@@@@@\\';
+        Text010: Label 'Summarizing';
+        Text011: Label 'Updating Database';
+
     local procedure InitLastEntryNo()
     begin
         GLEntry.Reset();
@@ -81,7 +82,7 @@ codeunit 410 "Update Analysis View"
         if AnalysisView2.IsEmpty() then
             exit;
 
-        InitLastEntryNo;
+        InitLastEntryNo();
         OnAfterInitLastEntryNo(LastGLEntryNo);
 
         if DirectlyFromPosting then
@@ -98,9 +99,9 @@ codeunit 410 "Update Analysis View"
 
     procedure Update(var NewAnalysisView: Record "Analysis View"; Which: Option "Ledger Entries","Budget Entries",Both; ShowWindow: Boolean)
     begin
-        InitLastEntryNo;
+        InitLastEntryNo();
         NewAnalysisView.LockTable();
-        NewAnalysisView.Find;
+        NewAnalysisView.Find();
         UpdateOne(NewAnalysisView, Which, ShowWindow);
     end;
 
@@ -118,7 +119,7 @@ codeunit 410 "Update Analysis View"
         AnalysisView.TestField(Blocked, false);
         ShowProgressWindow := ShowWindow and GuiAllowed;
         if ShowProgressWindow then
-            InitWindow;
+            InitWindow();
 
         OnUpdateOneOnBeforeUpdateEntries(AnalysisView, Which, LastBudgetEntryNo);
 
@@ -127,7 +128,7 @@ codeunit 410 "Update Analysis View"
                 if LastGLEntryNo > AnalysisView."Last Entry No." then begin
                     if ShowProgressWindow then
                         UpdateWindowHeader(DATABASE::"Analysis View Entry", GLEntry."Entry No.");
-                    UpdateEntries;
+                    UpdateEntries();
                     AnalysisView."Last Entry No." := LastGLEntryNo;
                     Updated := true;
                 end;
@@ -136,7 +137,7 @@ codeunit 410 "Update Analysis View"
             CFForecastEntry.LockTable();
             if ShowProgressWindow then
                 UpdateWindowHeader(DATABASE::"Analysis View Entry", CFForecastEntry."Entry No.");
-            UpdateEntries;
+            UpdateEntries();
             Updated := true;
         end;
 
@@ -162,7 +163,7 @@ codeunit 410 "Update Analysis View"
         end;
 
         if ShowProgressWindow then
-            Window.Close;
+            Window.Close();
     end;
 
     local procedure UpdateEntries()
@@ -170,11 +171,11 @@ codeunit 410 "Update Analysis View"
         GLSetup.Get();
         FilterIsInitialized := false;
         if AnalysisView."Account Source" = AnalysisView."Account Source"::"G/L Account" then
-            UpdateEntriesForGLAccount
+            UpdateEntriesForGLAccount()
         else
-            UpdateEntriesForCFAccount;
+            UpdateEntriesForCFAccount();
 
-        FlushAnalysisViewEntry;
+        FlushAnalysisViewEntry();
     end;
 
     local procedure UpdateEntriesForGLAccount()
@@ -189,7 +190,7 @@ codeunit 410 "Update Analysis View"
             exit;
 
         if AnalysisView."Date Compression" = AnalysisView."Date Compression"::None then begin
-            UpdateEntriesForGLAccountDetailed;
+            UpdateEntriesForGLAccountDetailed();
             exit;
         end;
 
@@ -202,8 +203,8 @@ codeunit 410 "Update Analysis View"
         if AnalysisView."Business Unit Filter" <> '' then
             AnalysisViewGLQry.SetFilter(BusinessUnitCode, AnalysisView."Business Unit Filter");
 
-        AnalysisViewGLQry.Open;
-        while AnalysisViewGLQry.Read do begin
+        AnalysisViewGLQry.Open();
+        while AnalysisViewGLQry.Read() do begin
             if DimSetIDInFilter(AnalysisViewGLQry.DimensionSetID, AnalysisView) then
                 UpdateAnalysisViewEntry(
                   AnalysisViewGLQry.GLAccNo,
@@ -225,7 +226,7 @@ codeunit 410 "Update Analysis View"
             if ShowProgressWindow then
                 UpdateWindowCounter(EntryNo);
         end;
-        AnalysisViewGLQry.Close;
+        AnalysisViewGLQry.Close();
     end;
 
     local procedure UpdateEntriesForGLAccountDetailed()
@@ -330,10 +331,10 @@ codeunit 410 "Update Analysis View"
         until GLBudgetEntry.Next() = 0;
         if ShowProgressWindow then
             UpdateWindowCounter(GLBudgetEntry."Entry No.");
-        FlushAnalysisViewBudgetEntry;
+        FlushAnalysisViewBudgetEntry();
     end;
 
-    local procedure UpdateAnalysisViewEntry(AccNo: Code[20]; BusUnitCode: Code[20]; CashFlowForecastNo: Code[20]; DimValue1: Code[20]; DimValue2: Code[20]; DimValue3: Code[20]; DimValue4: Code[20]; PostingDate: Date; Amount: Decimal; DebitAmount: Decimal; CreditAmount: Decimal; AmountACY: Decimal; DebitAmountACY: Decimal; CreditAmountACY: Decimal; EntryNo: Integer)
+    procedure UpdateAnalysisViewEntry(AccNo: Code[20]; BusUnitCode: Code[20]; CashFlowForecastNo: Code[20]; DimValue1: Code[20]; DimValue2: Code[20]; DimValue3: Code[20]; DimValue4: Code[20]; PostingDate: Date; Amount: Decimal; DebitAmount: Decimal; CreditAmount: Decimal; AmountACY: Decimal; DebitAmountACY: Decimal; CreditAmountACY: Decimal; EntryNo: Integer)
     begin
         if PostingDate < AnalysisView."Starting Date" then begin
             PostingDate := AnalysisView."Starting Date" - 1;
@@ -358,7 +359,7 @@ codeunit 410 "Update Analysis View"
         TempAnalysisViewEntry."Dimension 4 Value Code" := DimValue4;
         TempAnalysisViewEntry."Entry No." := EntryNo;
 
-        if TempAnalysisViewEntry.Find then begin
+        if TempAnalysisViewEntry.Find() then begin
             TempAnalysisViewEntry.Amount += Amount;
             TempAnalysisViewEntry."Debit Amount" += DebitAmount;
             TempAnalysisViewEntry."Credit Amount" += CreditAmount;
@@ -377,7 +378,7 @@ codeunit 410 "Update Analysis View"
             NoOfEntries := NoOfEntries + 1;
         end;
         if NoOfEntries >= 10000 then
-            FlushAnalysisViewEntry;
+            FlushAnalysisViewEntry();
     end;
 
     local procedure UpdateAnalysisViewBudgetEntry(DimValue1: Code[20]; DimValue2: Code[20]; DimValue3: Code[20]; DimValue4: Code[20])
@@ -402,7 +403,7 @@ codeunit 410 "Update Analysis View"
 
         OnUpdateAnalysisViewBudgetEntryOnAfterTempAnalysisViewBudgetEntryAssignment(TempAnalysisViewBudgetEntry, AnalysisView, GLBudgetEntry, DimValue1, DimValue2, DimValue3, DimValue4);
 
-        if TempAnalysisViewBudgetEntry.Find then begin
+        if TempAnalysisViewBudgetEntry.Find() then begin
             TempAnalysisViewBudgetEntry.Amount := TempAnalysisViewBudgetEntry.Amount + GLBudgetEntry.Amount;
             TempAnalysisViewBudgetEntry.Modify();
         end else begin
@@ -411,7 +412,7 @@ codeunit 410 "Update Analysis View"
             NoOfEntries := NoOfEntries + 1;
         end;
         if NoOfEntries >= 10000 then
-            FlushAnalysisViewBudgetEntry;
+            FlushAnalysisViewBudgetEntry();
     end;
 
     procedure CalculatePeriodStart(PostingDate: Date; DateCompression: Integer): Date
@@ -435,9 +436,9 @@ codeunit 410 "Update Analysis View"
                     if PostingDate <> PrevPostingDate then begin
                         PrevPostingDate := PostingDate;
                         AccountingPeriod.SetRange("Starting Date", 0D, PostingDate);
-                        if AccountingPeriod.FindLast() then begin
+                        if AccountingPeriod.FindLast() then
                             PrevCalculatedPostingDate := AccountingPeriod."Starting Date"
-                        end else
+                        else
                             PrevCalculatedPostingDate := PostingDate;
                     end;
                     PostingDate := PrevCalculatedPostingDate;
@@ -494,7 +495,7 @@ codeunit 410 "Update Analysis View"
             Window.Update(6, Text010);
     end;
 
-    local procedure GetDimVal(DimCode: Code[20]; DimSetID: Integer): Code[20]
+    procedure GetDimVal(DimCode: Code[20]; DimSetID: Integer): Code[20]
     begin
         if TempDimSetEntry.Get(DimSetID, DimCode) then
             exit(TempDimSetEntry."Dimension Value Code");
@@ -520,7 +521,7 @@ codeunit 410 "Update Analysis View"
         Window.Update(6, Text010);
     end;
 
-    local procedure UpdateWindowCounter(EntryNo: Integer)
+    procedure UpdateWindowCounter(EntryNo: Integer)
     begin
         WinUpdateCounter := WinUpdateCounter + 1;
         WinTime2 := Time;
@@ -537,7 +538,7 @@ codeunit 410 "Update Analysis View"
         end;
     end;
 
-    local procedure UpdateWindowHeader(TableID: Integer; EntryNo: Integer)
+    procedure UpdateWindowHeader(TableID: Integer; EntryNo: Integer)
     var
         AllObj: Record AllObj;
     begin
@@ -571,13 +572,13 @@ codeunit 410 "Update Analysis View"
     local procedure IsValueIncludedInFilter(DimValue: Code[20]; DimFilter: Code[250]): Boolean
     begin
         with TempDimBuf do begin
-            Reset;
+            Reset();
             DeleteAll();
-            Init;
+            Init();
             "Dimension Value Code" := DimValue;
-            Insert;
+            Insert();
             SetFilter("Dimension Value Code", DimFilter);
-            exit(FindFirst);
+            exit(FindFirst());
         end;
     end;
 
@@ -589,7 +590,7 @@ codeunit 410 "Update Analysis View"
             TempDimEntryBuffer.DeleteAll();
             FilterIsInitialized := true;
             AnalysisViewFilter.SetRange("Analysis View Code", AnalysisView.Code);
-            FiltersExist := not AnalysisViewFilter.IsEmpty;
+            FiltersExist := not AnalysisViewFilter.IsEmpty();
         end;
         if not FiltersExist then
             exit(true);

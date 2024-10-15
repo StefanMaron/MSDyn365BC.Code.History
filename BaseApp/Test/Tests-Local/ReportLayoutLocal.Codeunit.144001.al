@@ -138,7 +138,7 @@ codeunit 144001 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure RHFRAccountSchedule(var FRAccountSchedule: TestRequestPage "FR Account Schedule")
     begin
-        FRAccountSchedule."FR Acc. Schedule Line".SetFilter("Date Filter", Format(WorkDate));
+        FRAccountSchedule."FR Acc. Schedule Line".SetFilter("Date Filter", Format(WorkDate()));
         FRAccountSchedule.SaveAsPdf(FomatFileName(FRAccountSchedule.Caption));
     end;
 
@@ -147,7 +147,7 @@ codeunit 144001 "Report Layout - Local"
     procedure RHGLCustLedgerReconciliation(var GLCustLedgerReconciliation: TestRequestPage "GL/Cust. Ledger Reconciliation")
     begin
         GLCustLedgerReconciliation.Customer.SetFilter("Date Filter",
-          StrSubstNo('%1..%2', CalcDate('<-1Y>', WorkDate), CalcDate('<+1Y>', WorkDate)));
+          StrSubstNo('%1..%2', CalcDate('<-1Y>', WorkDate()), CalcDate('<+1Y>', WorkDate())));
         GLCustLedgerReconciliation.SaveAsPdf(FomatFileName(GLCustLedgerReconciliation.Caption));
     end;
 
@@ -166,7 +166,7 @@ codeunit 144001 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure RHGLTrialBalance(var GLTrialBalance: TestRequestPage "G/L Trial Balance")
     begin
-        GLTrialBalance."G/L Account".SetFilter("Date Filter", Format(WorkDate));
+        GLTrialBalance."G/L Account".SetFilter("Date Filter", Format(WorkDate()));
         GLTrialBalance.SaveAsPdf(FomatFileName(GLTrialBalance.Caption));
     end;
 
@@ -174,8 +174,8 @@ codeunit 144001 "Report Layout - Local"
     [Scope('OnPrem')]
     procedure RHFixedAssetProfessionalTax(var FixedAssetProfessionalTax: TestRequestPage "Fixed Asset-Professional Tax")
     begin
-        FixedAssetProfessionalTax.StartingDate.SetValue(WorkDate);
-        FixedAssetProfessionalTax.EndDate.SetValue(CalcDate('<+10Y>', WorkDate));
+        FixedAssetProfessionalTax.StartingDate.SetValue(WorkDate());
+        FixedAssetProfessionalTax.EndDate.SetValue(CalcDate('<+10Y>', WorkDate()));
         FixedAssetProfessionalTax.SaveAsPdf(FomatFileName(FixedAssetProfessionalTax.Caption));
     end;
 
@@ -187,7 +187,7 @@ codeunit 144001 "Report Layout - Local"
         PeriodType: Option Date,Week,Month,Quarter,Year;
     begin
         VendorJournal.Date.SetFilter("Period Type", Format(PeriodType::Quarter));
-        VendorJournal.Date.SetFilter("Period Start", Format(LibraryFiscalYear.GetAccountingPeriodDate(WorkDate)));
+        VendorJournal.Date.SetFilter("Period Start", Format(LibraryFiscalYear.GetAccountingPeriodDate(WorkDate())));
         VendorJournal.SaveAsPdf(FomatFileName(VendorJournal.Caption));
     end;
 
@@ -199,7 +199,7 @@ codeunit 144001 "Report Layout - Local"
         PeriodType: Option Date,Week,Month,Quarter,Year;
     begin
         Journals.Date.SetFilter("Period Type", Format(PeriodType::Year));
-        Journals.Date.SetFilter("Period Start", Format(LibraryFiscalYear.GetAccountingPeriodDate(WorkDate)));
+        Journals.Date.SetFilter("Period Start", Format(LibraryFiscalYear.GetAccountingPeriodDate(WorkDate())));
         Journals.SaveAsPdf(FomatFileName(Journals.Caption));
     end;
 
@@ -210,7 +210,7 @@ codeunit 144001 "Report Layout - Local"
         PeriodType: Option Date,Week,Month,Quarter,Year;
     begin
         CustomerJournal.Date.SetFilter("Period Type", Format(PeriodType::Date));
-        CustomerJournal.Date.SetFilter("Period Start", Format(WorkDate));
+        CustomerJournal.Date.SetFilter("Period Start", Format(WorkDate()));
         CustomerJournal.SaveAsPdf(FomatFileName(CustomerJournal.Caption));
     end;
 }

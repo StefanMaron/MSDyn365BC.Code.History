@@ -1,4 +1,4 @@
-report 5606 "Fixed Asset - Book Value 02"
+﻿report 5606 "Fixed Asset - Book Value 02"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './FixedAssetBookValue02.rdlc';
@@ -14,7 +14,7 @@ report 5606 "Fixed Asset - Book Value 02"
             column(MainHeadLineText; MainHeadLineText)
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TodayFormatted; Format(Today, 0, 4))
@@ -828,7 +828,7 @@ report 5606 "Fixed Asset - Book Value 02"
             begin
                 if not FADeprBook.Get("No.", DeprBookCode) then
                     CurrReport.Skip();
-                if SkipRecord then
+                if SkipRecord() then
                     CurrReport.Skip();
 
                 NumberOfTypesForThiSFA := NumberOfTypes;
@@ -899,7 +899,7 @@ report 5606 "Fixed Asset - Book Value 02"
                             "No.", PostingType, Period2, StartingDate, EndingDate,
                             DeprBookCode, 0, 0, true, true);
 
-                    if GetPeriodDisposal then begin
+                    if GetPeriodDisposal() then begin
                         DisposalAmounts[i] := -(StartAmounts[i] + NetChangeAmounts[i]);
                         ReclassDisposalAmounts[i] := -(ReclassStartAmounts[i] + ReclassNetChangeAmounts[i]);
                     end else begin
@@ -922,17 +922,17 @@ report 5606 "Fixed Asset - Book Value 02"
                     BookValueAtStartingDate := BookValueAtStartingDate + StartAmounts[J];
                 end;
 
-                MakeGroupHeadLine;
-                UpdateTotals;
-                CreateGroupTotals;
+                MakeGroupHeadLine();
+                UpdateTotals();
+                CreateGroupTotals();
 
-                GetDeprBookInfo;
-                GetDerogDeprBookInfo;
+                GetDeprBookInfo();
+                GetDerogDeprBookInfo();
             end;
 
             trigger OnPostDataItem()
             begin
-                CreateTotals;
+                CreateTotals();
             end;
 
             trigger OnPreDataItem()
@@ -1044,7 +1044,7 @@ report 5606 "Fixed Asset - Book Value 02"
 
         trigger OnOpenPage()
         begin
-            GetDepreciationBookCode;
+            GetDepreciationBookCode();
         end;
     }
 
@@ -1062,28 +1062,20 @@ report 5606 "Fixed Asset - Book Value 02"
         if GroupTotals = GroupTotals::"FA Posting Group" then
             FAGenReport.SetFAPostingGroup("Fixed Asset", DeprBook.Code);
         FAGenReport.AppendFAPostingFilter("Fixed Asset", StartingDate, EndingDate);
-        FAFilter := "Fixed Asset".GetFilters;
+        FAFilter := "Fixed Asset".GetFilters();
         MainHeadLineText := Text000;
         if BudgetReport then
             MainHeadLineText := StrSubstNo('%1 %2', MainHeadLineText, Text001);
         DeprBookText :=
-          StrSubstNo('%1%2 %3', DeprBook.TableCaption, ':', DeprBookCode);
+          StrSubstNo('%1%2 %3', DeprBook.TableCaption(), ':', DeprBookCode);
         NumberOfTypes := 7;
-        MakeHeadLineText;
-        MakeGroupTotalText;
+        MakeHeadLineText();
+        MakeGroupTotalText();
         Period1 := Period1::"Before Starting Date";
         Period2 := Period2::"Net Change";
     end;
 
     var
-        Text000: Label 'Fixed Asset - Book Value 02';
-        Text001: Label '(Budget Report)';
-        Text002: Label 'Group Totals';
-        Text003: Label 'Reclassification';
-        Text004: Label 'Addition in Period';
-        Text005: Label 'Disposal in Period';
-        Text006: Label 'Group Total';
-        Text007: Label '%1 has been modified in fixed asset %2.';
         FASetup: Record "FA Setup";
         DeprBook: Record "Depreciation Book";
         FADeprBook: Record "FA Depreciation Book";
@@ -1146,10 +1138,19 @@ report 5606 "Fixed Asset - Book Value 02"
         DerogDeprBookInfo: array[5] of Text[30];
         PrintFASetup: Boolean;
         HasDerogatorySetup: Boolean;
-        Text10800: Label 'Increased in Period';
-        Text10801: Label 'Decreased in Period';
         DerogDeprBookInfo5: Decimal;
         DeprBookInfo5: Decimal;
+
+        Text000: Label 'Fixed Asset - Book Value 02';
+        Text001: Label '(Budget Report)';
+        Text002: Label 'Group Totals';
+        Text003: Label 'Reclassification';
+        Text004: Label 'Addition in Period';
+        Text005: Label 'Disposal in Period';
+        Text006: Label 'Group Total';
+        Text007: Label '%1 has been modified in fixed asset %2.';
+        Text10800: Label 'Increased in Period';
+        Text10801: Label 'Decreased in Period';
         PageCaptionLbl: Label 'Page';
         TotalCaptionLbl: Label 'Total';
 
@@ -1225,7 +1226,7 @@ report 5606 "Fixed Asset - Book Value 02"
             ReclassGroupNetChangeAmounts[J] := 0;
             ReclassGroupDisposalAmounts[J] := 0;
         end;
-        with "Fixed Asset" do begin
+        with "Fixed Asset" do
             case GroupTotals of
                 GroupTotals::"FA Class":
                     GroupHeadLine := "FA Class Code";
@@ -1248,7 +1249,6 @@ report 5606 "Fixed Asset - Book Value 02"
                 GroupTotals::"FA Posting Group":
                     GroupHeadLine := "FA Posting Group";
             end;
-        end;
         if GroupHeadLine = '' then
             GroupHeadLine := '*****';
 
@@ -1310,9 +1310,9 @@ report 5606 "Fixed Asset - Book Value 02"
     local procedure GetStartingDate(StartingDate: Date): Date
     begin
         if StartingDate <= 00000101D then
-            exit(0D)
-        else
-            exit(StartingDate - 1);
+            exit(0D);
+
+        exit(StartingDate - 1);
     end;
 
     local procedure ShowSection(Section: Option Body,GroupFooter,Footer; Type: Integer): Boolean
@@ -1322,24 +1322,24 @@ report 5606 "Fixed Asset - Book Value 02"
                 exit(
                   PrintDetails and
                   ((StartAmounts[Type] <> 0) or
-                  (NetChangeAmounts[Type] <> 0) or
-                  (DisposalAmounts[Type] <> 0) or
-                  (TotalEndingAmounts[Type] <> 0) or
-                  (ReclassStartAmounts[Type] <> 0) or
-                  (ReclassNetChangeAmounts[Type] <> 0) or
-                  (ReclassDisposalAmounts[Type] <> 0) or
-                  (ReclassTotalEndingAmounts[Type] <> 0)));
+                   (NetChangeAmounts[Type] <> 0) or
+                   (DisposalAmounts[Type] <> 0) or
+                   (TotalEndingAmounts[Type] <> 0) or
+                   (ReclassStartAmounts[Type] <> 0) or
+                   (ReclassNetChangeAmounts[Type] <> 0) or
+                   (ReclassDisposalAmounts[Type] <> 0) or
+                   (ReclassTotalEndingAmounts[Type] <> 0)));
             Section::GroupFooter:
                 exit(
                   (GroupTotals <> GroupTotals::" ") and
                   ((GroupStartAmounts[Type] <> 0) or
-                  (GroupNetChangeAmounts[Type] <> 0) or
-                  (GroupDisposalAmounts[Type] <> 0) or
-                  (TotalEndingAmounts[Type] <> 0) or
-                  (ReclassGroupStartAmounts[Type] <> 0) or
-                  (ReclassGroupNetChangeAmounts[Type] <> 0) or
-                  (ReclassGroupDisposalAmounts[Type] <> 0) or
-                  (ReclassTotalEndingAmounts[Type] <> 0)));
+                   (GroupNetChangeAmounts[Type] <> 0) or
+                   (GroupDisposalAmounts[Type] <> 0) or
+                   (TotalEndingAmounts[Type] <> 0) or
+                   (ReclassGroupStartAmounts[Type] <> 0) or
+                   (ReclassGroupNetChangeAmounts[Type] <> 0) or
+                   (ReclassGroupDisposalAmounts[Type] <> 0) or
+                   (ReclassTotalEndingAmounts[Type] <> 0)));
             Section::Footer:
                 exit(
                   (TotalStartAmounts[Type] <> 0) or

@@ -347,15 +347,9 @@ table 5621 "FA Journal Line"
     }
 
     trigger OnInsert()
-    var
-        FAJnlTemplate: Record "FA Journal Template";
-        FAJnlBatch: Record "FA Journal Batch";
     begin
         LockTable();
-        FAJnlTemplate.Get("Journal Template Name");
-        "Source Code" := FAJnlTemplate."Source Code";
-        FAJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-        "Reason Code" := FAJnlBatch."Reason Code";
+        FAJnlSetup.SetFAJnlTrailCodes(Rec);
 
         ValidateShortcutDimCode(1, "Shortcut Dimension 1 Code");
         ValidateShortcutDimCode(2, "Shortcut Dimension 2 Code");
@@ -367,6 +361,7 @@ table 5621 "FA Journal Line"
         FAJnlTemplate: Record "FA Journal Template";
         FAJnlBatch: Record "FA Journal Batch";
         FAJnlLine: Record "FA Journal Line";
+        FAJnlSetup: Record "FA Journal Setup";
         FADeprBook: Record "FA Depreciation Book";
         NoSeriesMgt: Codeunit NoSeriesManagement;
         DimMgt: Codeunit DimensionManagement;
@@ -412,7 +407,7 @@ table 5621 "FA Journal Line"
             "FA Posting Date" := LastFAJnlLine."FA Posting Date";
             "Document No." := LastFAJnlLine."Document No.";
         end else begin
-            "FA Posting Date" := WorkDate;
+            "FA Posting Date" := WorkDate();
             if FAJnlBatch."No. Series" <> '' then begin
                 Clear(NoSeriesMgt);
                 "Document No." := NoSeriesMgt.TryGetNextNo(FAJnlBatch."No. Series", "FA Posting Date");
@@ -546,6 +541,15 @@ table 5621 "FA Journal Line"
         OnAfterInitDefaultDimensionSources(Rec, DefaultDimSource);
     end;
 
+    procedure IsAcquisitionCost(): Boolean
+    var
+        AcquisitionCost: Boolean;
+    begin
+        AcquisitionCost := "FA Posting Type" = "FA Posting Type"::"Acquisition Cost";
+        OnAfterIsAcquisitionCost(Rec, AcquisitionCost);
+        exit(AcquisitionCost);
+    end;
+
 #if not CLEAN20
     local procedure CreateDefaultDimSourcesFromDimArray(var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; TableID: array[10] of Integer; No: array[10] of Code[20])
     var
@@ -642,6 +646,11 @@ table 5621 "FA Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateFAPostingType(var FAJournalLine: Record "FA Journal Line"; var IsHandled: Boolean; FieldNumber: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsAcquisitionCost(var FAJournalLine: Record "FA Journal Line"; var AcquisitionCost: Boolean);
     begin
     end;
 }

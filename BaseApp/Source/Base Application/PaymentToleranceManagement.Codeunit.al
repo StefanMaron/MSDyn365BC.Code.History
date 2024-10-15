@@ -158,29 +158,29 @@ codeunit 426 "Payment Tolerance Management"
 
     procedure PmtTolGenJnl(var NewGenJnlLine: Record "Gen. Journal Line") Result: Boolean
     var
-        GenJnlLine: Record "Gen. Journal Line" temporary;
+        TempGenJnlLine: Record "Gen. Journal Line" temporary;
     begin
-        GenJnlLine := NewGenJnlLine;
+        TempGenJnlLine := NewGenJnlLine;
 
-        if GenJnlLine."Check Printed" then
+        if TempGenJnlLine."Check Printed" then
             exit(true);
 
-        if GenJnlLine."Financial Void" then
+        if TempGenJnlLine."Financial Void" then
             exit(true);
 
-        if (GenJnlLine."Applies-to Doc. No." = '') and (GenJnlLine."Applies-to ID" = '') then
+        if (TempGenJnlLine."Applies-to Doc. No." = '') and (TempGenJnlLine."Applies-to ID" = '') then
             exit(true);
 
         case true of
-            (GenJnlLine."Account Type" = GenJnlLine."Account Type"::Customer) or
-          (GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::Customer):
-                exit(SalesPmtTolGenJnl(GenJnlLine));
-            (GenJnlLine."Account Type" = GenJnlLine."Account Type"::Vendor) or
-          (GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::Vendor):
-                exit(PurchPmtTolGenJnl(GenJnlLine));
+            (TempGenJnlLine."Account Type" = TempGenJnlLine."Account Type"::Customer) or
+          (TempGenJnlLine."Bal. Account Type" = TempGenJnlLine."Bal. Account Type"::Customer):
+                exit(SalesPmtTolGenJnl(TempGenJnlLine));
+            (TempGenJnlLine."Account Type" = TempGenJnlLine."Account Type"::Vendor) or
+          (TempGenJnlLine."Bal. Account Type" = TempGenJnlLine."Bal. Account Type"::Vendor):
+                exit(PurchPmtTolGenJnl(TempGenJnlLine));
         end;
 
-        OnAfterPmtTolGenJnl(GenJnlLine, SuppressCommit, Result);
+        OnAfterPmtTolGenJnl(TempGenJnlLine, SuppressCommit, Result);
     end;
 
     [Scope('OnPrem')]
@@ -531,7 +531,7 @@ codeunit 426 "Payment Tolerance Management"
     var
         CurrExchRate: Record "Currency Exchange Rate";
         AppliedCustLedgEntry: Record "Cust. Ledger Entry";
-        AppliedCustLedgEntryTemp: Record "Cust. Ledger Entry" temporary;
+        TempAppliedCustLedgerEntry: Record "Cust. Ledger Entry" temporary;
         CustLedgEntry2: Record "Cust. Ledger Entry";
         ApplnCurrencyCode: Code[10];
         ApplnDate: Date;
@@ -571,10 +571,10 @@ codeunit 426 "Payment Tolerance Management"
                 AppliedCustLedgEntry.SetRange(Positive);
                 AppliedCustLedgEntry.Find('-');
                 repeat
-                    OnCalcCustApplnAmountOnBeforeUpdateCustAmountsForApplication(AppliedCustLedgEntry, CustledgEntry, AppliedCustLedgEntryTemp);
-                    UpdateCustAmountsForApplication(AppliedCustLedgEntry, CustledgEntry, AppliedCustLedgEntryTemp);
+                    OnCalcCustApplnAmountOnBeforeUpdateCustAmountsForApplication(AppliedCustLedgEntry, CustledgEntry, TempAppliedCustLedgerEntry);
+                    UpdateCustAmountsForApplication(AppliedCustLedgEntry, CustledgEntry, TempAppliedCustLedgerEntry);
                     CheckCustPaymentAmountsForAppliesToID(
-                      CustledgEntry, AppliedCustLedgEntry, AppliedCustLedgEntryTemp, MaxPmtTolAmount, AvailableAmount, TempAmount,
+                      CustledgEntry, AppliedCustLedgEntry, TempAppliedCustLedgerEntry, MaxPmtTolAmount, AvailableAmount, TempAmount,
                       ApplnRoundingPrecision);
                 until AppliedCustLedgEntry.Next() = 0;
 
@@ -600,7 +600,7 @@ codeunit 426 "Payment Tolerance Management"
                     if Find('-') then
                         repeat
                             CalcFields("Remaining Amount");
-                            AppliedCustLedgEntryTemp := AppliedCustLedgEntry;
+                            TempAppliedCustLedgerEntry := AppliedCustLedgEntry;
                             if "Currency Code" <> ApplnCurrencyCode then begin
                                 "Remaining Amount" :=
                                   CurrExchRate.ExchangeAmtFCYToFCY(
@@ -650,10 +650,10 @@ codeunit 426 "Payment Tolerance Management"
                                 "Accepted Pmt. Disc. Tolerance" := true;
                                 if CustledgEntry."Currency Code" <> "Currency Code" then begin
                                     RemainingPmtDiscPossible := "Remaining Pmt. Disc. Possible";
-                                    "Remaining Pmt. Disc. Possible" := AppliedCustLedgEntryTemp."Remaining Pmt. Disc. Possible";
-                                    "Max. Payment Tolerance" := AppliedCustLedgEntryTemp."Max. Payment Tolerance";
+                                    "Remaining Pmt. Disc. Possible" := TempAppliedCustLedgerEntry."Remaining Pmt. Disc. Possible";
+                                    "Max. Payment Tolerance" := TempAppliedCustLedgerEntry."Max. Payment Tolerance";
                                 end;
-                                Modify;
+                                Modify();
                                 if CustledgEntry."Currency Code" <> "Currency Code" then
                                     "Remaining Pmt. Disc. Possible" := RemainingPmtDiscPossible;
                             end;
@@ -708,9 +708,9 @@ codeunit 426 "Payment Tolerance Management"
                 if AppliedCustLedgEntry.Find('-') then begin
                     GetApplicationRoundingPrecisionForAppliesToDoc(
                       AppliedCustLedgEntry."Currency Code", ApplnRoundingPrecision, AmountRoundingPrecision, ApplnCurrencyCode);
-                    UpdateCustAmountsForApplication(AppliedCustLedgEntry, CustledgEntry, AppliedCustLedgEntryTemp);
+                    UpdateCustAmountsForApplication(AppliedCustLedgEntry, CustledgEntry, TempAppliedCustLedgerEntry);
                     CheckCustPaymentAmountsForAppliesToDoc(
-                      CustledgEntry, AppliedCustLedgEntry, AppliedCustLedgEntryTemp, MaxPmtTolAmount, ApplnRoundingPrecision, PmtDiscAmount,
+                      CustledgEntry, AppliedCustLedgEntry, TempAppliedCustLedgerEntry, MaxPmtTolAmount, ApplnRoundingPrecision, PmtDiscAmount,
                       ApplnCurrencyCode);
                     MaxPmtTolAmount := Round(MaxPmtTolAmount, AmountRoundingPrecision);
                     PmtDiscAmount := Round(PmtDiscAmount, AmountRoundingPrecision);
@@ -725,7 +725,7 @@ codeunit 426 "Payment Tolerance Management"
     var
         CurrExchRate: Record "Currency Exchange Rate";
         AppliedVendLedgEntry: Record "Vendor Ledger Entry";
-        AppliedVendLedgEntryTemp: Record "Vendor Ledger Entry" temporary;
+        TempAppliedVendorLedgerEntry: Record "Vendor Ledger Entry" temporary;
         VendLedgEntry2: Record "Vendor Ledger Entry";
         ApplnCurrencyCode: Code[10];
         ApplnDate: Date;
@@ -763,10 +763,10 @@ codeunit 426 "Payment Tolerance Management"
                 AppliedVendLedgEntry.SetRange(Positive);
                 AppliedVendLedgEntry.Find('-');
                 repeat
-                    OnCalcVendApplnAmountOnBeforeUpdateVendAmountsForApplication(AppliedVendLedgEntry, VendledgEntry, AppliedVendLedgEntryTemp);
-                    UpdateVendAmountsForApplication(AppliedVendLedgEntry, VendledgEntry, AppliedVendLedgEntryTemp);
+                    OnCalcVendApplnAmountOnBeforeUpdateVendAmountsForApplication(AppliedVendLedgEntry, VendledgEntry, TempAppliedVendorLedgerEntry);
+                    UpdateVendAmountsForApplication(AppliedVendLedgEntry, VendledgEntry, TempAppliedVendorLedgerEntry);
                     CheckVendPaymentAmountsForAppliesToID(
-                      VendledgEntry, AppliedVendLedgEntry, AppliedVendLedgEntryTemp, MaxPmtTolAmount, AvailableAmount, TempAmount,
+                      VendledgEntry, AppliedVendLedgEntry, TempAppliedVendorLedgerEntry, MaxPmtTolAmount, AvailableAmount, TempAmount,
                       ApplnRoundingPrecision);
                 until AppliedVendLedgEntry.Next() = 0;
 
@@ -791,7 +791,7 @@ codeunit 426 "Payment Tolerance Management"
                     if Find('-') then
                         repeat
                             CalcFields("Remaining Amount");
-                            AppliedVendLedgEntryTemp := AppliedVendLedgEntry;
+                            TempAppliedVendorLedgerEntry := AppliedVendLedgEntry;
                             if "Currency Code" <> ApplnCurrencyCode then begin
                                 "Remaining Amount" :=
                                   CurrExchRate.ExchangeAmtFCYToFCY(
@@ -842,10 +842,10 @@ codeunit 426 "Payment Tolerance Management"
                                 "Accepted Pmt. Disc. Tolerance" := true;
                                 if VendledgEntry."Currency Code" <> "Currency Code" then begin
                                     RemainingPmtDiscPossible := "Remaining Pmt. Disc. Possible";
-                                    "Remaining Pmt. Disc. Possible" := AppliedVendLedgEntryTemp."Remaining Pmt. Disc. Possible";
-                                    "Max. Payment Tolerance" := AppliedVendLedgEntryTemp."Max. Payment Tolerance";
+                                    "Remaining Pmt. Disc. Possible" := TempAppliedVendorLedgerEntry."Remaining Pmt. Disc. Possible";
+                                    "Max. Payment Tolerance" := TempAppliedVendorLedgerEntry."Max. Payment Tolerance";
                                 end;
-                                Modify;
+                                Modify();
                                 if VendledgEntry."Currency Code" <> "Currency Code" then
                                     "Remaining Pmt. Disc. Possible" := RemainingPmtDiscPossible;
                             end;
@@ -900,8 +900,8 @@ codeunit 426 "Payment Tolerance Management"
                 if AppliedVendLedgEntry.Find('-') then begin
                     GetApplicationRoundingPrecisionForAppliesToDoc(
                       AppliedVendLedgEntry."Currency Code", ApplnRoundingPrecision, AmountRoundingPrecision, ApplnCurrencyCode);
-                    UpdateVendAmountsForApplication(AppliedVendLedgEntry, VendledgEntry, AppliedVendLedgEntryTemp);
-                    CheckVendPaymentAmountsForAppliesToDoc(VendledgEntry, AppliedVendLedgEntry, AppliedVendLedgEntryTemp, MaxPmtTolAmount,
+                    UpdateVendAmountsForApplication(AppliedVendLedgEntry, VendledgEntry, TempAppliedVendorLedgerEntry);
+                    CheckVendPaymentAmountsForAppliesToDoc(VendledgEntry, AppliedVendLedgEntry, TempAppliedVendorLedgerEntry, MaxPmtTolAmount,
                       ApplnRoundingPrecision, PmtDiscAmount);
                     PmtDiscAmount := Round(PmtDiscAmount, AmountRoundingPrecision);
                     MaxPmtTolAmount := Round(MaxPmtTolAmount, AmountRoundingPrecision);
@@ -1018,7 +1018,7 @@ codeunit 426 "Payment Tolerance Management"
         PmtDiscTolWarning.SetValues(PostingDate, No, DocNo, CurrencyCode, Amount, AppliedAmount, PmtDiscAmount);
         PmtDiscTolWarning.SetAccountName(GetAccountName(AccountType, No));
         PmtDiscTolWarning.LookupMode(true);
-        if ACTION::Yes = PmtDiscTolWarning.RunModal then begin
+        if ACTION::Yes = PmtDiscTolWarning.RunModal() then begin
             PmtDiscTolWarning.GetValues(ActionType);
             if ActionType = 2 then
                 RemainingAmountTest := true
@@ -1054,7 +1054,7 @@ codeunit 426 "Payment Tolerance Management"
         PmtTolWarning.SetValues(PostingDate, No, DocNo, CurrencyCode, Amount, AppliedAmount, 0);
         PmtTolWarning.SetAccountName(GetAccountName(AccountType, No));
         PmtTolWarning.LookupMode(true);
-        if ACTION::Yes = PmtTolWarning.RunModal then begin
+        if ACTION::Yes = PmtTolWarning.RunModal() then begin
             PmtTolWarning.GetValues(ActionType);
             if ActionType = 2 then
                 Amount := 0;
@@ -1066,7 +1066,7 @@ codeunit 426 "Payment Tolerance Management"
     local procedure PutCustPmtTolAmount(CustledgEntry: Record "Cust. Ledger Entry"; Amount: Decimal; AppliedAmount: Decimal; CustEntryApplID: Code[50])
     var
         AppliedCustLedgEntry: Record "Cust. Ledger Entry";
-        AppliedCustLedgEntryTemp: Record "Cust. Ledger Entry";
+        AppliedCustLedgerEntry2: Record "Cust. Ledger Entry";
         Currency: Record Currency;
         Number: Integer;
         AcceptedTolAmount: Decimal;
@@ -1111,7 +1111,7 @@ codeunit 426 "Payment Tolerance Management"
         if AppliedCustLedgEntry.FindSet(true, false) then
             repeat
                 AppliedCustLedgEntry.CalcFields("Remaining Amount");
-                AppliedCustLedgEntryTemp := AppliedCustLedgEntry;
+                AppliedCustLedgerEntry2 := AppliedCustLedgEntry;
                 if AppliedCustLedgEntry."Currency Code" = '' then begin
                     Currency.Init();
                     Currency.Code := '';
@@ -1136,8 +1136,8 @@ codeunit 426 "Payment Tolerance Management"
                     AcceptedEntryTolAmount := AcceptedTolAmount;
                     AppliedCustLedgEntry."Accepted Payment Tolerance" := AcceptedEntryTolAmount;
                 end;
-                AppliedCustLedgEntry."Max. Payment Tolerance" := AppliedCustLedgEntryTemp."Max. Payment Tolerance";
-                AppliedCustLedgEntry."Amount to Apply" := AppliedCustLedgEntryTemp."Remaining Amount";
+                AppliedCustLedgEntry."Max. Payment Tolerance" := AppliedCustLedgerEntry2."Max. Payment Tolerance";
+                AppliedCustLedgEntry."Amount to Apply" := AppliedCustLedgerEntry2."Remaining Amount";
                 AppliedCustLedgEntry.Modify();
                 Number := Number - 1;
             until AppliedCustLedgEntry.Next() = 0;
@@ -1149,7 +1149,7 @@ codeunit 426 "Payment Tolerance Management"
     local procedure PutVendPmtTolAmount(VendLedgEntry: Record "Vendor Ledger Entry"; Amount: Decimal; AppliedAmount: Decimal; VendEntryApplID: Code[50])
     var
         AppliedVendLedgEntry: Record "Vendor Ledger Entry";
-        AppliedVendLedgEntryTemp: Record "Vendor Ledger Entry";
+        AppliedVendorLedgerEntry2: Record "Vendor Ledger Entry";
         Currency: Record Currency;
         Number: Integer;
         AcceptedTolAmount: Decimal;
@@ -1194,7 +1194,7 @@ codeunit 426 "Payment Tolerance Management"
         if AppliedVendLedgEntry.FindSet(true, false) then
             repeat
                 AppliedVendLedgEntry.CalcFields("Remaining Amount");
-                AppliedVendLedgEntryTemp := AppliedVendLedgEntry;
+                AppliedVendorLedgerEntry2 := AppliedVendLedgEntry;
                 if AppliedVendLedgEntry."Currency Code" = '' then begin
                     Currency.Init();
                     Currency.Code := '';
@@ -1225,8 +1225,8 @@ codeunit 426 "Payment Tolerance Management"
                     AcceptedEntryTolAmount := AcceptedTolAmount;
                     AppliedVendLedgEntry."Accepted Payment Tolerance" := AcceptedEntryTolAmount;
                 end;
-                AppliedVendLedgEntry."Max. Payment Tolerance" := AppliedVendLedgEntryTemp."Max. Payment Tolerance";
-                AppliedVendLedgEntry."Amount to Apply" := AppliedVendLedgEntryTemp."Remaining Amount";
+                AppliedVendLedgEntry."Max. Payment Tolerance" := AppliedVendorLedgerEntry2."Max. Payment Tolerance";
+                AppliedVendLedgEntry."Amount to Apply" := AppliedVendorLedgerEntry2."Remaining Amount";
                 AppliedVendLedgEntry.Modify();
                 Number := Number - 1;
             until AppliedVendLedgEntry.Next() = 0;
@@ -1649,7 +1649,7 @@ codeunit 426 "Payment Tolerance Management"
     local procedure GetCustApplicationRoundingPrecisionForAppliesToID(var AppliedCustLedgEntry: Record "Cust. Ledger Entry"; var ApplnRoundingPrecision: Decimal; var AmountRoundingPrecision: Decimal; var ApplnInMultiCurrency: Boolean; ApplnCurrencyCode: Code[20])
     begin
         AppliedCustLedgEntry.SetFilter("Currency Code", '<>%1', ApplnCurrencyCode);
-        ApplnInMultiCurrency := not AppliedCustLedgEntry.IsEmpty;
+        ApplnInMultiCurrency := not AppliedCustLedgEntry.IsEmpty();
         AppliedCustLedgEntry.SetRange("Currency Code");
 
         GetAmountRoundingPrecision(ApplnRoundingPrecision, AmountRoundingPrecision, ApplnInMultiCurrency, ApplnCurrencyCode);
@@ -1658,7 +1658,7 @@ codeunit 426 "Payment Tolerance Management"
     local procedure GetVendApplicationRoundingPrecisionForAppliesToID(var AppliedVendLedgEntry: Record "Vendor Ledger Entry"; var ApplnRoundingPrecision: Decimal; var AmountRoundingPrecision: Decimal; var ApplnInMultiCurrency: Boolean; ApplnCurrencyCode: Code[20])
     begin
         AppliedVendLedgEntry.SetFilter("Currency Code", '<>%1', ApplnCurrencyCode);
-        ApplnInMultiCurrency := not AppliedVendLedgEntry.IsEmpty;
+        ApplnInMultiCurrency := not AppliedVendLedgEntry.IsEmpty();
         AppliedVendLedgEntry.SetRange("Currency Code");
 
         GetAmountRoundingPrecision(ApplnRoundingPrecision, AmountRoundingPrecision, ApplnInMultiCurrency, ApplnCurrencyCode);
@@ -2180,7 +2180,7 @@ codeunit 426 "Payment Tolerance Management"
                     then begin
                         if RemainingAmountTest then begin
                             "Accepted Pmt. Disc. Tolerance" := false;
-                            Modify;
+                            Modify();
                             if not SuppressCommit then
                                 Commit();
                             if NewCustLedgEntry."Currency Code" <> "Currency Code" then
@@ -2228,7 +2228,7 @@ codeunit 426 "Payment Tolerance Management"
                     then begin
                         if RemainingAmountTest then begin
                             "Accepted Pmt. Disc. Tolerance" := false;
-                            Modify;
+                            Modify();
                             if not SuppressCommit then
                                 Commit();
                             if NewVendLedgEntry."Currency Code" <> "Currency Code" then

@@ -63,7 +63,7 @@ codeunit 144016 "UT FR Feature Bugs"
         CountryRegionCode := CreateVATEntry;
 
         // Enqueue CountryRegion,Start Date and End Date.
-        EnqueueVariables(CountryRegionCode, WorkDate, WorkDate);
+        EnqueueVariables(CountryRegionCode, WorkDate(), WorkDate());
 
         // Exercise.
         asserterror REPORT.Run(REPORT::"EC Sales List - Services");
@@ -90,7 +90,7 @@ codeunit 144016 "UT FR Feature Bugs"
         VATEntry."Entry No." := VATEntry2."Entry No." + 1;
         VATEntry."Country/Region Code" := CountryRegion.Code;
         VATEntry.Type := VATEntry.Type::Sale;
-        VATEntry."Posting Date" := WorkDate;
+        VATEntry."Posting Date" := WorkDate();
         VATEntry.Insert();
         exit(CountryRegion.Code);
     end;
@@ -100,7 +100,7 @@ codeunit 144016 "UT FR Feature Bugs"
         StartDate: Date;
     begin
         // Calculate Start Date and End Date.
-        StartDate := DMY2Date(1, 12, Date2DMY(WorkDate, 3) - 1);
+        StartDate := DMY2Date(1, 12, Date2DMY(WorkDate(), 3) - 1);
         Calender.SetRange("Period Type", Calender."Period Type"::Month);
         Calender.SetRange("Period Start", StartDate);
         Calender.FindFirst();

@@ -1,11 +1,11 @@
+#if not CLEAN21
 codeunit 9800 "Log Table Permissions"
 {
     EventSubscriberInstance = Manual;
     SingleInstance = true;
-
-    trigger OnRun()
-    begin
-    end;
+    ObsoleteReason = 'Replaced by the codeunit Log Activity Permissions.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     var
         TempTablePermissionBuffer: Record "Table Permission Buffer" temporary;
@@ -18,14 +18,14 @@ codeunit 9800 "Log Table Permissions"
 
         TempTablePermissionBuffer.DeleteAll();
         if IsNull(EventReceiver) then
-            EventReceiver := EventReceiver.NavPermissionEventReceiver(SessionId);
+            EventReceiver := EventReceiver.NavPermissionEventReceiver(SessionId());
 
-        EventReceiver.RegisterForEvents;
+        EventReceiver.RegisterForEvents();
     end;
 
     procedure Stop(var TempTablePermissionBufferVar: Record "Table Permission Buffer" temporary)
     begin
-        EventReceiver.UnregisterEvents;
+        EventReceiver.UnregisterEvents();
         TempTablePermissionBufferVar.Copy(TempTablePermissionBuffer, true)
     end;
 
@@ -41,9 +41,9 @@ codeunit 9800 "Log Table Permissions"
         then
             exit;
 
-        if not TempTablePermissionBuffer.Get(SessionId, TypeOfObject, ObjectId) then begin
+        if not TempTablePermissionBuffer.Get(SessionId(), TypeOfObject, ObjectId) then begin
             TempTablePermissionBuffer.Init();
-            TempTablePermissionBuffer."Session ID" := SessionId;
+            TempTablePermissionBuffer."Session ID" := SessionId();
             TempTablePermissionBuffer."Object Type" := TypeOfObject;
             TempTablePermissionBuffer."Object ID" := ObjectId;
             TempTablePermissionBuffer."Read Permission" := TempTablePermissionBuffer."Read Permission"::" ";
@@ -126,3 +126,4 @@ codeunit 9800 "Log Table Permissions"
     end;
 }
 
+#endif

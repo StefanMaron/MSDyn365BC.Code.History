@@ -128,7 +128,7 @@ codeunit 134550 "ERM Cash Flow Simplifications"
         Assert.AreNotEqual(0, CashFlowForecastEntryCount, 'There are no Cash Flow Forecast Entries for the test.');
 
         // [THEN] No Cash Flow Forecast Entries with Cash Flow Date prior to workdate exist
-        CashFlowForecastEntry.SetFilter("Cash Flow Date", '<%1', WorkDate);
+        CashFlowForecastEntry.SetFilter("Cash Flow Date", '<%1', WorkDate());
         Assert.RecordIsEmpty(CashFlowForecastEntry);
 
         // [THEN] Cash Flow Forecast Entries with the overdue flag exist
@@ -146,7 +146,7 @@ codeunit 134550 "ERM Cash Flow Simplifications"
 
         // [THEN] Cash Flow Forecast Entries with Cash Flow Date prior to workdate do exist
         CashFlowForecastEntry.Reset();
-        CashFlowForecastEntry.SetFilter("Cash Flow Date", '<%1', WorkDate);
+        CashFlowForecastEntry.SetFilter("Cash Flow Date", '<%1', WorkDate());
         Assert.RecordIsNotEmpty(CashFlowForecastEntry);
 
         // [THEN] The number of cash flow forecast entries is the same as when "Move Overdue Cash Flow Dates to Work Date" was enabled
@@ -204,13 +204,13 @@ codeunit 134550 "ERM Cash Flow Simplifications"
         GLBudgetEntry: Record "G/L Budget Entry";
     begin
         with GLBudgetEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(GLBudgetEntry, FieldNo("Entry No."));
             "Budget Name" := BudgetName;
             "G/L Account No." := GLAccNo;
             Date := EntryDate;
             Amount := LibraryRandom.RandDec(100, 2);
-            Insert;
+            Insert();
         end;
     end;
 

@@ -14,7 +14,7 @@ page 7504 "Item Attribute Value List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Attribute Name"; "Attribute Name")
+                field("Attribute Name"; Rec."Attribute Name")
                 {
                     ApplicationArea = Basic, Suite;
                     AssistEdit = false;
@@ -79,11 +79,11 @@ page 7504 "Item Attribute Value List"
                         ItemAttribute.Get("Attribute ID");
                         if ItemAttribute.Type <> ItemAttribute.Type::Option then
                             if FindAttributeValueFromRecord(ItemAttributeValue, xRec) then
-                                if not ItemAttributeValue.HasBeenUsed then
+                                if not ItemAttributeValue.HasBeenUsed() then
                                     ItemAttributeValue.Delete();
                     end;
                 }
-                field("Unit of Measure"; "Unit of Measure")
+                field("Unit of Measure"; Rec."Unit of Measure")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the item or resource''s unit of measure, such as piece or hour.';
@@ -143,7 +143,7 @@ page 7504 "Item Attribute Value List"
         end;
 
         ItemAttribute.Get(AttributeToDeleteID);
-        ItemAttribute.RemoveUnusedArbitraryValues;
+        ItemAttribute.RemoveUnusedArbitraryValues();
     end;
 
     [IntegrationEvent(false, false)]

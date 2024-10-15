@@ -44,7 +44,7 @@ table 5409 "Prod. Order Routing Line"
                 GetProdOrderLine();
                 OnBeforeTerminationProcessesErr(IsHandled, Rec, xRec);
                 if not IsHandled then
-                    if (xRec."Next Operation No." = '') and ("Next Operation No." <> '') and NoTerminationProcessesExist then
+                    if (xRec."Next Operation No." = '') and ("Next Operation No." <> '') and NoTerminationProcessesExist() then
                         Error(NoTerminationProcessesErr);
 
                 SetRecalcStatus();
@@ -87,7 +87,7 @@ table 5409 "Prod. Order Routing Line"
                     if SubcontractingPurchOrderExist() then
                         Error(
                           Text007,
-                          FieldCaption("No."), PurchLine.TableCaption, Status, TableCaption, "Operation No.");
+                          FieldCaption("No."), PurchLine.TableCaption(), Status, TableCaption(), "Operation No.");
 
                 SetRecalcStatus();
 
@@ -99,13 +99,13 @@ table 5409 "Prod. Order Routing Line"
                         begin
                             WorkCenter.Get("No.");
                             WorkCenter.TestField(Blocked, false);
-                            WorkCenterTransferFields;
+                            WorkCenterTransferFields();
                         end;
                     Type::"Machine Center":
                         begin
                             MachineCenter.Get("No.");
                             MachineCenter.TestField(Blocked, false);
-                            MachineCtrTransferFields;
+                            MachineCtrTransferFields();
                         end;
                 end;
                 ModifyCapNeedEntries();
@@ -525,11 +525,9 @@ table 5409 "Prod. Order Routing Line"
             Caption = 'Critical Path';
             Editable = false;
         }
-        field(79; "Routing Status"; Option)
+        field(79; "Routing Status"; Enum "Prod. Order Routing Status")
         {
             Caption = 'Routing Status';
-            OptionCaption = ' ,Planned,In Progress,Finished';
-            OptionMembers = " ",Planned,"In Progress",Finished;
 
             trigger OnValidate()
             var
@@ -708,12 +706,12 @@ table 5409 "Prod. Order Routing Line"
             if not CapLedgEntry.IsEmpty() then
                 Error(
                   Text000,
-                  Status, TableCaption, "Operation No.", CapLedgEntry.TableCaption);
+                  Status, TableCaption(), "Operation No.", CapLedgEntry.TableCaption());
         end;
 
         CheckIfSubcontractingPurchOrderExist();
 
-        DeleteRelations;
+        DeleteRelations();
 
         UpdateComponentsBin(2); // from trigger = delete
     end;
@@ -960,7 +958,7 @@ table 5409 "Prod. Order Routing Line"
     local procedure MachineCtrTransferFields()
     begin
         WorkCenter.Get(MachineCenter."Work Center No.");
-        WorkCenterTransferFields;
+        WorkCenterTransferFields();
 
         Description := MachineCenter.Name;
         "Setup Time" := MachineCenter."Setup Time";
@@ -1123,13 +1121,11 @@ table 5409 "Prod. Order Routing Line"
                                 CalcProdOrder.CalculateRoutingFromActual(ProdOrderRoutingLine, Direction::Backward, true);
                             end;
                         WorkCenter."Simulation Type"::Critical:
-                            begin
-                                if (ProdOrderRoutingLine."Ending Date" > "Starting Date") or
-                                   ((ProdOrderRoutingLine."Ending Date" = "Starting Date") and
-                                    (ProdOrderRoutingLine."Ending Time" > "Starting Time"))
-                                then
-                                    Error(Text002);
-                            end;
+                            if (ProdOrderRoutingLine."Ending Date" > "Starting Date") or
+                                ((ProdOrderRoutingLine."Ending Date" = "Starting Date") and
+                                (ProdOrderRoutingLine."Ending Time" > "Starting Time"))
+                            then
+                                Error(Text002);
                     end;
                     ProdOrderRoutingLine.SetCurrentKey(Status, "Prod. Order No.", "Routing Reference No.",
                       "Routing No.", "Operation No.");
@@ -1180,13 +1176,11 @@ table 5409 "Prod. Order Routing Line"
                                 CalcProdOrder.CalculateRoutingFromActual(ProdOrderRoutingLine, Direction::Forward, true);
                             end;
                         WorkCenter."Simulation Type"::Critical:
-                            begin
-                                if (ProdOrderRoutingLine."Starting Date" < "Ending Date") or
-                                   ((ProdOrderRoutingLine."Starting Date" = "Ending Date") and
-                                    (ProdOrderRoutingLine."Starting Time" < "Ending Time"))
-                                then
-                                    Error(Text003);
-                            end;
+                            if (ProdOrderRoutingLine."Starting Date" < "Ending Date") or
+                                ((ProdOrderRoutingLine."Starting Date" = "Ending Date") and
+                                (ProdOrderRoutingLine."Starting Time" < "Ending Time"))
+                            then
+                                Error(Text003);
                     end;
                     ProdOrderRoutingLine.SetCurrentKey(Status, "Prod. Order No.", "Routing Reference No.",
                       "Routing No.", "Operation No.");
@@ -1202,7 +1196,7 @@ table 5409 "Prod. Order Routing Line"
                 CalcProdOrder.CalculateProdOrderDates(ProdOrderLine, true);
                 AdjustComponents(ProdOrderLine);
             until ProdOrderLine.Next() = 0;
-        CalcProdOrder.CalculateComponents;
+        CalcProdOrder.CalculateComponents();
     end;
 
     local procedure ModifyCapNeedEntries()
@@ -1262,7 +1256,7 @@ table 5409 "Prod. Order Routing Line"
         ErrorOnNext: Boolean;
         ErrorOnPrevious: Boolean;
     begin
-        if IsSerial then
+        if IsSerial() then
             SetPreviousAndNext()
         else begin
             TempDeletedProdOrderRoutingLine := Rec;
@@ -1404,7 +1398,7 @@ table 5409 "Prod. Order Routing Line"
         if SubcontractingPurchOrderExist() then
             Error(
               Text000,
-              Status, TableCaption, "Operation No.", PurchLine.TableCaption);
+              Status, TableCaption(), "Operation No.", PurchLine.TableCaption());
     end;
 
     procedure UpdateComponentsBin(FromTrigger: Option Insert,Modify,Delete)
@@ -1631,8 +1625,9 @@ table 5409 "Prod. Order Routing Line"
     local procedure OnBeforeCheckRoutingNoNotBlank(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; var IsHandled: Boolean)
     begin
     end;
+
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckIfSubcontractingPurchOrderExist(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; xProdOrderRoutingLine: Record "Prod. Order Routing Line"; var IsHandled : Boolean)
+    local procedure OnBeforeCheckIfSubcontractingPurchOrderExist(var ProdOrderRoutingLine: Record "Prod. Order Routing Line"; xProdOrderRoutingLine: Record "Prod. Order Routing Line"; var IsHandled: Boolean)
     begin
     end;
 

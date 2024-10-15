@@ -69,7 +69,7 @@ codeunit 138300 "RS Pack Content - Standard"
         // [SCENARIO] There are no Sales Invoices to post
         with SalesHeader do begin
             // [WHEN] Post all Invoices
-            Reset;
+            Reset();
             SetRange("Document Type", "Document Type"::Invoice);
             asserterror FindFirst();
             // [THEN] Error: 'There is no Sales Header within the filter.'
@@ -104,7 +104,7 @@ codeunit 138300 "RS Pack Content - Standard"
         // [SCENARIO] There are no Purchase Invoices to post
         with PurchHeader do begin
             // [WHEN] Post all Invoices
-            Reset;
+            Reset();
             SetRange("Document Type", "Document Type"::Invoice);
             asserterror FindFirst();
             // [THEN] Error: 'There is no Purchase Header within the filter.'
@@ -128,18 +128,18 @@ codeunit 138300 "RS Pack Content - Standard"
             repeat
                 VerifyContactCompany(CompanyNo, ContactBusinessRelation."Link to Table"::Customer, Customer."No.");
                 VerifyContactPerson(CompanyNo);
-            until Customer.Next = 0;
+            until Customer.Next() = 0;
 
         if Vendor.FindSet() then
             repeat
                 VerifyContactCompany(CompanyNo, ContactBusinessRelation."Link to Table"::Vendor, Vendor."No.");
                 VerifyContactPerson(CompanyNo);
-            until Vendor.Next = 0;
+            until Vendor.Next() = 0;
 
         if BankAccount.FindSet() then
             repeat
                 VerifyContactCompany(CompanyNo, ContactBusinessRelation."Link to Table"::"Bank Account", BankAccount."No.");
-            until BankAccount.Next = 0;
+            until BankAccount.Next() = 0;
     end;
 
     [Test]
@@ -331,6 +331,7 @@ codeunit 138300 "RS Pack Content - Standard"
         MediaResources.Get(O365HTMLTemplate."Media Resources Ref");
     end;
 
+#if not CLEAN21
     [Test]
     [Scope('OnPrem')]
     procedure O365CompanySocialNetworks()
@@ -341,6 +342,7 @@ codeunit 138300 "RS Pack Content - Standard"
         O365SocialNetwork.SetRange(URL, '');
         Assert.RecordCount(O365SocialNetwork, 7);
     end;
+#endif
 
     [Test]
     [Scope('OnPrem')]
@@ -369,28 +371,6 @@ codeunit 138300 "RS Pack Content - Standard"
         // [SCENARIO 215679] There should be BLUESIMPLE custom layouts defined for report layout selections
         VerifyReportLayoutSelection(REPORT::"Standard Sales - Quote", 'MS-1304-BLUESIMPLE');
         VerifyReportLayoutSelection(REPORT::"Standard Sales - Invoice", 'MS-1306-BLUESIMPLE');
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure CustomerTemplates()
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-    begin
-        // [SCENARIO 255439] There should be 2 customer templates
-        ConfigTemplateHeader.SetRange("Table ID", DATABASE::Customer);
-        Assert.RecordCount(ConfigTemplateHeader, 2);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure VendorTemplates()
-    var
-        ConfigTemplateHeader: Record "Config. Template Header";
-    begin
-        // [SCENARIO 255439] There should be 2 vendor templates
-        ConfigTemplateHeader.SetRange("Table ID", DATABASE::Vendor);
-        Assert.RecordCount(ConfigTemplateHeader, 2);
     end;
 
     local procedure VerifyReportLayoutSelection(ReportID: Integer; CustomReportLayoutCode: Code[20])

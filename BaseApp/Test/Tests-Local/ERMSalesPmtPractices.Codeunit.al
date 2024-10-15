@@ -452,10 +452,10 @@ codeunit 144565 "ERM Sales Pmt. Practices"
 
         // [GIVEN] Closed Customer Ledger Entry with "Amount (LCY)" = "A".
         // [GIVEN] Payment with "Posting Date" > "Due Date" of invoice.
-        MockCustLedgEntryWithAmt(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, StartingDate, WorkDate - 1, false);
+        MockCustLedgEntryWithAmt(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, StartingDate, WorkDate() - 1, false);
         CustLedgerEntry.CalcFields("Amount (LCY)");
         MockPaymentApplication(
-          CustLedgerEntry."Entry No.", WorkDate, -CustLedgerEntry."Amount (LCY)", -CustLedgerEntry."Amount (LCY)");
+          CustLedgerEntry."Entry No.", WorkDate(), -CustLedgerEntry."Amount (LCY)", -CustLedgerEntry."Amount (LCY)");
 
         // [GIVEN] Run "Payment Practices Reporting" report.
         LibraryReportValidation.SetFileName(LibraryUtility.GenerateGUID());
@@ -558,8 +558,8 @@ codeunit 144565 "ERM Sales Pmt. Practices"
 
     local procedure SetStartingEndingDates(var StartingDate: Date; var EndingDate: Date)
     begin
-        StartingDate := CalcDate('<-CM>', WorkDate);
-        EndingDate := CalcDate('<CM>', WorkDate);
+        StartingDate := CalcDate('<-CM>', WorkDate());
+        EndingDate := CalcDate('<CM>', WorkDate());
     end;
 
     local procedure CreateInvoicesOpenedAndPartlyPaid(PostingDate: Date; var UnpaidAmount: Decimal; var TotalInvoiceAmount: Decimal)
@@ -649,14 +649,14 @@ codeunit 144565 "ERM Sales Pmt. Practices"
     local procedure MockCustLedgEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; ExcludeFromPmtReporting: Boolean; DocType: Enum "Gen. Journal Document Type"; PostingDate: Date; DueDate: Date; IsOpen: Boolean)
     begin
         with CustLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(CustLedgerEntry, FieldNo("Entry No."));
             "Document Type" := DocType;
             "Posting Date" := PostingDate;
             "Customer No." := MockCustomer(ExcludeFromPmtReporting);
             "Due Date" := DueDate;
             Open := IsOpen;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -707,7 +707,7 @@ codeunit 144565 "ERM Sales Pmt. Practices"
         DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
     begin
         with DetailedCustLedgEntry do begin
-            Init;
+            Init();
             "Entry Type" := EntryType;
             "Entry No." := LibraryUtility.GetNewRecNo(DetailedCustLedgEntry, FieldNo("Entry No."));
             "Document Type" := DocType;
@@ -716,7 +716,7 @@ codeunit 144565 "ERM Sales Pmt. Practices"
             "Applied Cust. Ledger Entry No." := AppliedLedgEntryNo;
             "Amount (LCY)" := AppliedAmount;
             "Ledger Entry Amount" := EntryType = "Entry Type"::"Initial Entry";
-            Insert;
+            Insert();
             exit("Entry No.");
         end;
     end;

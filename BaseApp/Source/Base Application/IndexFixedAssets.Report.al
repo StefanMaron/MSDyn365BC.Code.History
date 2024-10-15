@@ -223,7 +223,7 @@ report 5690 "Index Fixed Assets"
               FAJnlLine.FieldCaption("Posting Date"),
               DeprBook.FieldCaption("Use Same FA+G/L Posting Dates"),
               false,
-              DeprBook.TableCaption,
+              DeprBook.TableCaption(),
               DeprBook.FieldCaption(Code),
               DeprBook.Code);
 
@@ -246,10 +246,6 @@ report 5690 "Index Fixed Assets"
     end;
 
     var
-        Text000: Label 'You must specify %1.';
-        Text001: Label 'FA Posting Date must not be a closing date.';
-        Text002: Label '%1 and %2 must be identical. %3 must be %4 in %5 %6 = %7.';
-        Text003: Label 'Indexing fixed asset   #1##########';
         GenJnlLine: Record "Gen. Journal Line";
         FASetup: Record "FA Setup";
         FAJnlLine: Record "FA Journal Line";
@@ -282,7 +278,12 @@ report 5690 "Index Fixed Assets"
         DerogDeprBook: Record "Depreciation Book";
         Text10800: Label 'You cannot index fixed assets in a derogatory depreciation book. Instead you must\index them in the depreciation book integrated with G/L.';
 
-    local procedure InsertGenJnlLine(FANo: Code[20]; IndexAmount: Decimal; PostingType: Enum "FA Journal Line FA Posting Type")
+        Text000: Label 'You must specify %1.';
+        Text001: Label 'FA Posting Date must not be a closing date.';
+        Text002: Label '%1 and %2 must be identical. %3 must be %4 in %5 %6 = %7.';
+        Text003: Label 'Indexing fixed asset   #1##########';
+
+    procedure InsertGenJnlLine(FANo: Code[20]; IndexAmount: Decimal; PostingType: Enum "FA Journal Line FA Posting Type")
     var
         FAInsertGLAcc: Codeunit "FA Insert G/L Account";
     begin
@@ -325,7 +326,7 @@ report 5690 "Index Fixed Assets"
         end;
     end;
 
-    local procedure InsertFAJnlLine(FANo: Code[20]; IndexAmount: Decimal; PostingType: Enum "FA Journal Line FA Posting Type")
+    procedure InsertFAJnlLine(FANo: Code[20]; IndexAmount: Decimal; PostingType: Enum "FA Journal Line FA Posting Type")
     begin
         if IndexAmount = 0 then
             exit;
@@ -340,7 +341,7 @@ report 5690 "Index Fixed Assets"
             FirstFAJnl := false;
         end;
         with FAJnlLine do begin
-            Init;
+            Init();
             "Line No." := 0;
             FAJnlSetup.SetFAJnlTrailCodes(FAJnlLine);
             "Posting Date" := PostingDate;

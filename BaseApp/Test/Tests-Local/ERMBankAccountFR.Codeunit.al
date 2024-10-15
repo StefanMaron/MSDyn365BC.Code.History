@@ -130,8 +130,8 @@ codeunit 144011 "ERM Bank Account FR"
         LibraryFRLocalization.CreatePaymentHeader(PaymentHeader);
         PaymentHeader.Validate("Payment Class", PaymentClass.Code);
         PaymentHeader.Validate("No. Series", PaymentClass."Header No. Series");
-        PaymentHeader.Validate("Posting Date", WorkDate);
-        PaymentHeader.Validate("Document Date", WorkDate);
+        PaymentHeader.Validate("Posting Date", WorkDate());
+        PaymentHeader.Validate("Document Date", WorkDate());
         PaymentHeader.Validate("RIB Checked", true);
         PaymentHeader.Modify(true);
     end;

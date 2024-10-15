@@ -21,7 +21,7 @@ codeunit 10821 "Export DEB DTI"
         LastDeclarationId: Integer;
     begin
         CompanyInfo.Get();
-        CheckMandatoryCompanyInfo;
+        CheckMandatoryCompanyInfo();
 
         CheckJnlLines(IntrastatJnlLine, ObligationLevel);
         InsertTempJnlLines(IntrastatJnlLine);
@@ -222,7 +222,7 @@ codeunit 10821 "Export DEB DTI"
         XMLDomMgt.AddGroupNode(XMLNode, 'Party');
         XMLDomMgt.AddAttribute(XMLNode, 'partyType', 'PSI');
         XMLDomMgt.AddAttribute(XMLNode, 'partyRole', 'sender');
-        XMLDomMgt.AddNode(XMLNode, 'partyId', CompanyInfo.GetPartyID);
+        XMLDomMgt.AddNode(XMLNode, 'partyId', CompanyInfo.GetPartyID());
         XMLDomMgt.AddLastNode(XMLNode, 'partyName', CompanyInfo.Name);
 
         XMLDomMgt.AddNode(XMLNode, 'softwareUsed', 'DynamicsNAV');
@@ -244,7 +244,7 @@ codeunit 10821 "Export DEB DTI"
         XMLDomMgt.AddGroupNode(XMLNode, 'Declaration');
         XMLDomMgt.AddNode(XMLNode, 'declarationId', FormatExtendNumberToXML(DeclarationId, 6));
         XMLDomMgt.AddNode(XMLNode, 'referencePeriod', GetReferencePeriod(IntrastatJnlBatch."Statistics Period"));
-        XMLDomMgt.AddNode(XMLNode, 'PSIId', CompanyInfo.GetPartyID);
+        XMLDomMgt.AddNode(XMLNode, 'PSIId', CompanyInfo.GetPartyID());
 
         XMLDomMgt.AddGroupNode(XMLNode, 'Function');
         XMLDomMgt.AddLastNode(XMLNode, 'functionCode', 'O');

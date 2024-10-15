@@ -16,7 +16,7 @@ report 7313 "Whse. Shipment Status"
             column(TodayFormatted; Format(Today, 0, 4))
             {
             }
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(WhseShipmentLineCaption; "Warehouse Shipment Line".TableCaption + ':' + WhseShipmentLine)
@@ -134,7 +134,7 @@ report 7313 "Whse. Shipment Status"
 
     trigger OnPreReport()
     begin
-        WhseShipmentLine := "Warehouse Shipment Line".GetFilters;
+        WhseShipmentLine := "Warehouse Shipment Line".GetFilters();
     end;
 
     var
@@ -146,7 +146,7 @@ report 7313 "Whse. Shipment Status"
     local procedure GetLocation(LocationCode: Code[10])
     begin
         if LocationCode = '' then
-            Location.Init
+            Location.Init()
         else
             if Location.Code <> LocationCode then
                 Location.Get(LocationCode);

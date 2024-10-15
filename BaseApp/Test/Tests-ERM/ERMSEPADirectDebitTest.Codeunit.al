@@ -38,13 +38,13 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         Initialize();
 
         // Setup
-        PostWorkdateSalesInvoiceSEPADirectDebit(Customer, WorkDate, WorkDate, Customer."Partner Type"::Company);
+        PostWorkdateSalesInvoiceSEPADirectDebit(Customer, WorkDate(), WorkDate, Customer."Partner Type"::Company);
         CreateSEPABankAccount(BankAccount);
 
         // Execute;
         asserterror
           RunCreateDirectDebitCollectionReport(
-            WorkDate - 10, WorkDate - 10, Customer."Partner Type"::Company, BankAccount."No.", false, false);
+            WorkDate() - 10, WorkDate() - 10, Customer."Partner Type"::Company, BankAccount."No.", false, false);
 
         // Verify
         Assert.ExpectedError(NoEntriesErr);
@@ -62,7 +62,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         Initialize();
 
         // Setup
-        PostedDocNo := PostWorkdateSalesInvoiceSEPADirectDebit(Customer, WorkDate, WorkDate, Customer."Partner Type"::Company);
+        PostedDocNo := PostWorkdateSalesInvoiceSEPADirectDebit(Customer, WorkDate(), WorkDate, Customer."Partner Type"::Company);
         CreateSEPABankAccount(BankAccount);
 
         // Execute;
@@ -254,7 +254,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         Initialize();
 
         // Pre-Setup
-        PostWorkdateSalesInvoiceSEPADirectDebit(Customer, WorkDate, WorkDate, Customer."Partner Type"::Company);
+        PostWorkdateSalesInvoiceSEPADirectDebit(Customer, WorkDate(), WorkDate, Customer."Partner Type"::Company);
         CreateSEPABankAccount(BankAcc);
         RunCreateDirectDebitCollectionReport(
           WorkDate - 5, WorkDate + 5, Customer."Partner Type"::Company, BankAcc."No.", false, false);
@@ -263,10 +263,10 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         DirectDebitCollection.SetRange("Partner Type", Customer."Partner Type"::Company);
         DirectDebitCollection.SetRange("To Bank Account No.", BankAcc."No.");
         DirectDebitCollection.FindLast();
-        DirectDebitCollection.CloseCollection;
+        DirectDebitCollection.CloseCollection();
 
         // Exercise
-        asserterror DirectDebitCollection.Export;
+        asserterror DirectDebitCollection.Export();
 
         // Verify
         Assert.ExpectedError(
@@ -310,7 +310,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         DirectDebitCollectionEntry.Insert();
 
         // Exercise
-        asserterror DirectDebitCollection.Export;
+        asserterror DirectDebitCollection.Export();
 
         // Verify
         Assert.ExpectedError(
@@ -457,9 +457,9 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         Initialize();
 
         // [GIVEN] Posted Sales Invoice with random Currency for Customer.
-        Currency.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2)));
+        Currency.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), LibraryRandom.RandDec(10, 2), LibraryRandom.RandDec(10, 2)));
         PostedDocNo :=
-          PostWorkdateSalesInvoiceSEPADirectDebitWithCurrency(Customer, WorkDate, WorkDate, Customer."Partner Type"::Company, Currency.Code);
+          PostWorkdateSalesInvoiceSEPADirectDebitWithCurrency(Customer, WorkDate(), WorkDate, Customer."Partner Type"::Company, Currency.Code);
         CreateSEPABankAccount(BankAccount);
 
         // [WHEN] Report "Create Direct Debit Collection" is run for Customer.
@@ -726,7 +726,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         CreateCustomerWithBankAccount(Customer, CustomerBankAccount, PaymentMethod.Code, Customer."Partner Type"::Company);
         LibrarySales.CreateCustomerMandate(
           SEPADirectDebitMandate, CustomerBankAccount."Customer No.", CustomerBankAccount.Code,
-          CalcDate('<-1Y>', LibraryERM.MinDate(WorkDate, Today())), CalcDate('<1Y>', LibraryERM.MaxDate(WorkDate, Today())));
+          CalcDate('<-1Y>', LibraryERM.MinDate(WorkDate(), Today())), CalcDate('<1Y>', LibraryERM.MaxDate(WorkDate(), Today())));
     end;
 
     local procedure CreateDirectDebitPaymentMethod(var PaymentMethod: Record "Payment Method")
@@ -881,7 +881,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         ExportFile.Create(ServerFileName);
         ExportFile.CreateOutStream(OutStream);
         XMLPORT.Export(XMLPORT::"SEPA DD pain.008.001.02", OutStream, DirectDebitCollectionEntry);
-        ExportFile.Close;
+        ExportFile.Close();
     end;
 
     local procedure FindDDCollectionEntry(var DirectDebitCollectionEntry: Record "Direct Debit Collection Entry"; PostedDocumentNo: Code[20])
@@ -957,7 +957,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.SetRange("Document No.", DocumentNo);
         CustLedgerEntry.SetRange("Direct Debit Mandate ID", SEPADirectDebitMandate.ID);
-        Assert.AreEqual(MandateIsFound, not CustLedgerEntry.IsEmpty, StrSubstNo(EntryCountErr, CustLedgerEntry.TableCaption));
+        Assert.AreEqual(MandateIsFound, not CustLedgerEntry.IsEmpty, StrSubstNo(EntryCountErr, CustLedgerEntry.TableCaption()));
     end;
 
     local procedure VerifyDirectDebitCollectionEntryCount(DocNo: Code[20]; ExpectedCount: Integer)
@@ -966,7 +966,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
     begin
         DirectDebitCollectionEntry.SetRange("Applies-to Entry Document No.", DocNo);
         Assert.AreEqual(ExpectedCount, DirectDebitCollectionEntry.Count,
-          StrSubstNo(EntryCountErr, DirectDebitCollectionEntry.TableCaption));
+          StrSubstNo(EntryCountErr, DirectDebitCollectionEntry.TableCaption()));
     end;
 
     local procedure VerifyTwoSalesInvoiceValidMandate(CustomerNo1: Code[20]; PostedDocNo1: Code[20]; CustomerNo2: Code[20]; PostedDocNo2: Code[20])

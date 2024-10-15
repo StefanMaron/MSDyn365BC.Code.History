@@ -4,7 +4,6 @@ page 5335 "Integration Table Mapping List"
     Caption = 'Integration Table Mappings';
     InsertAllowed = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Synchronization,Mapping,Uncoupling,Coupling';
     SourceTable = "Integration Table Mapping";
     SourceTableView = WHERE("Delete After Synchronization" = CONST(false));
     UsageCategory = Lists;
@@ -41,8 +40,9 @@ page 5335 "Integration Table Mapping List"
                         FilterPageBuilder.AddTable(TableCaptionValue, "Table ID");
                         if TableFilter <> '' then
                             FilterPageBuilder.SetView(TableCaptionValue, TableFilter);
-                        if FilterPageBuilder.RunModal then begin
+                        if FilterPageBuilder.RunModal() then begin
                             TableFilter := FilterPageBuilder.GetView(TableCaptionValue, false);
+                            CheckBidirectionalSalesOrderTableFilter(TableFilter);
                             SetTableFilter(TableFilter);
                         end;
                     end;
@@ -101,51 +101,52 @@ page 5335 "Integration Table Mapping List"
                         if IntegrationTableFilter <> '' then
                             FilterPageBuilder.SetView(IntegrationTableCaptionValue, IntegrationTableFilter);
                         Commit();
-                        if FilterPageBuilder.RunModal then begin
+                        if FilterPageBuilder.RunModal() then begin
                             IntegrationTableFilter := FilterPageBuilder.GetView(IntegrationTableCaptionValue, false);
                             Session.LogMessage('0000EG5', StrSubstNo(UserEditedIntegrationTableFilterTxt, Name), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryTok);
+                            CheckBidirectionalSalesOrderIntegrationTableFilter(IntegrationTableFilter);
                             SuggestToIncludeEntitiesWithNullCompany(IntegrationTableFilter);
                             SetIntegrationTableFilter(IntegrationTableFilter);
                         end;
                     end;
                 }
-                field("Table Config Template Code"; "Table Config Template Code")
+                field("Table Config Template Code"; Rec."Table Config Template Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a configuration template to use when creating new records in the Dynamics 365 business table (specified by the Table ID field) during synchronization.';
                 }
-                field("Int. Tbl. Config Template Code"; "Int. Tbl. Config Template Code")
+                field("Int. Tbl. Config Template Code"; Rec."Int. Tbl. Config Template Code")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a configuration template to use for creating new records in the external database table, such as Dynamics 365 Sales.';
                 }
-                field("Synch. Only Coupled Records"; "Synch. Only Coupled Records")
+                field("Synch. Only Coupled Records"; Rec."Synch. Only Coupled Records")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies how to handle uncoupled records in Dynamics 365 Sales entities and Dynamics 365 tables when synchronization is performed by an integration synchronization job.';
                 }
-                field("Int. Tbl. Caption Prefix"; "Int. Tbl. Caption Prefix")
+                field("Int. Tbl. Caption Prefix"; Rec."Int. Tbl. Caption Prefix")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies text that appears before the caption of the integration table wherever the caption is used.';
                     Visible = false;
                 }
-                field("Synch. Modified On Filter"; "Synch. Modified On Filter")
+                field("Synch. Modified On Filter"; Rec."Synch. Modified On Filter")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a date/time filter that uses the date on which records were modified to determine which records to synchronize from Dataverse. The filter is based on the Modified On field on the integration table records.';
                 }
-                field("Synch. Int. Tbl. Mod. On Fltr."; "Synch. Int. Tbl. Mod. On Fltr.")
+                field("Synch. Int. Tbl. Mod. On Fltr."; Rec."Synch. Int. Tbl. Mod. On Fltr.")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies a date/time filter that uses the date on which records were modified to determine which records to synchronize to Dataverse. The filter is based on the SystemModifiedAt field on the Business Central table records.';
                 }
-                field("Deletion-Conflict Resolution"; "Deletion-Conflict Resolution")
+                field("Deletion-Conflict Resolution"; Rec."Deletion-Conflict Resolution")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the action to take when a coupled record is deleted in one of the connected applications.';
                 }
-                field("Update-Conflict Resolution"; "Update-Conflict Resolution")
+                field("Update-Conflict Resolution"; Rec."Update-Conflict Resolution")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the action to take when a coupled record is updated in both of the connected applications.';
@@ -164,9 +165,6 @@ page 5335 "Integration Table Mapping List"
                 Caption = 'Fields';
                 Enabled = HasRecords;
                 Image = Relationship;
-                Promoted = true;
-                PromotedCategory = Category5;
-                PromotedIsBig = true;
                 RunObject = Page "Integration Field Mapping List";
                 RunPageLink = "Integration Table Mapping Name" = FIELD(Name);
                 RunPageMode = View;
@@ -175,9 +173,6 @@ page 5335 "Integration Table Mapping List"
             action(ResetConfiguration)
             {
                 ApplicationArea = Suite;
-                Promoted = true;
-                PromotedIsBig = true;
-                PromotedCategory = Category5;
                 Caption = 'Use Default Synchronization Setup';
                 Image = ResetStatus;
                 ToolTip = 'Resets the integration table mappings and synchronization jobs to the default values for a connection with Dataverse. All current mappings are deleted.', Comment = 'Dataverse is the name of a Microsoft Service and should not be translated.';
@@ -204,9 +199,6 @@ page 5335 "Integration Table Mapping List"
                 Caption = 'Job Queue Entry';
                 Enabled = HasRecords;
                 Image = JobListSetup;
-                Promoted = true;
-                PromotedIsBig = true;
-                PromotedCategory = Category5;
                 ToolTip = 'View or edit the job queue entry for this integration table mapping.';
 
                 trigger OnAction()
@@ -220,9 +212,6 @@ page 5335 "Integration Table Mapping List"
                 Caption = 'Integration Synch. Job Log';
                 Enabled = HasRecords;
                 Image = Log;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ToolTip = 'View the status of the individual synchronization jobs that have been run for the Dynamics 365 Sales integration. This includes synchronization jobs that have been run from the job queue and manual synchronization jobs that were performed on records from the Business Central client.';
 
                 trigger OnAction()
@@ -239,9 +228,6 @@ page 5335 "Integration Table Mapping List"
                 Caption = 'Synchronize Modified Records';
                 Enabled = HasRecords AND ("Parent Name" = '');
                 Image = Refresh;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ToolTip = 'Synchronize records that have been modified since the last time they were synchronized.';
 
                 trigger OnAction()
@@ -265,8 +251,6 @@ page 5335 "Integration Table Mapping List"
                 Caption = 'Run Full Synchronization';
                 Enabled = HasRecords AND ("Parent Name" = '');
                 Image = RefreshLines;
-                Promoted = true;
-                PromotedCategory = Category4;
                 ToolTip = 'Start a job for full synchronization between records in Business Central and Dataverse entities for each of the selected integration table mappings.';
 
                 trigger OnAction()
@@ -293,7 +277,6 @@ page 5335 "Integration Table Mapping List"
                 Caption = 'Run Unconditional Full Synchronization';
                 Enabled = HasRecords AND ("Parent Name" = '') AND (Direction <> Direction::Bidirectional);
                 Image = RefreshLines;
-                Promoted = false;
                 ToolTip = 'Start the full synchronization job for all records of this type in Business Central and Dataverse. This includes records that have already been synchronized.';
 
                 trigger OnAction()
@@ -321,9 +304,6 @@ page 5335 "Integration Table Mapping List"
                 Enabled = HasRecords;
                 Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
                 Image = Log;
-                Promoted = true;
-                PromotedCategory = Category6;
-                PromotedIsBig = true;
                 ToolTip = 'View the status of jobs for uncoupling records in a Dynamics 365 Sales integration. The jobs were run either from the job queue, or manually, in Business Central.';
 
                 trigger OnAction()
@@ -341,9 +321,6 @@ page 5335 "Integration Table Mapping List"
                 Enabled = HasRecords;
                 Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
                 Image = Log;
-                Promoted = true;
-                PromotedCategory = Category7;
-                PromotedIsBig = true;
                 ToolTip = 'View the status of jobs for match-based coupling of records in a Dynamics 365 Sales integration.';
 
                 trigger OnAction()
@@ -361,8 +338,6 @@ page 5335 "Integration Table Mapping List"
                 Enabled = HasRecords AND ("Parent Name" = '');
                 Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
                 Image = UnLinkAccount;
-                Promoted = true;
-                PromotedCategory = Category6;
                 ToolTip = 'Delete couplings between the selected Business Central record types and Dynamics 365 Sales entities.';
 
                 trigger OnAction()
@@ -417,11 +392,9 @@ page 5335 "Integration Table Mapping List"
             {
                 ApplicationArea = Suite;
                 Caption = 'Match-Based Coupling';
-                Enabled = HasRecords AND ("Parent Name" = '');
+                Enabled = HasRecords AND ("Parent Name" = '') and (((Rec.Name = 'SALESORDER-ORDER') and (not BidirectionalSalesOrderIntegrationEnabled)) or (Rec.Name <> 'SALESORDER-ORDER'));
                 Visible = CRMIntegrationEnabled or CDSIntegrationEnabled;
                 Image = LinkAccount;
-                Promoted = true;
-                PromotedCategory = Category7;
                 ToolTip = 'Make couplings between the selected Business Central record type and Dynamics 365 Sales entities based on matching criteria.';
 
                 trigger OnAction()
@@ -446,25 +419,85 @@ page 5335 "Integration Table Mapping List"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Synchronization', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref("View Integration Synch. Job Log_Promoted"; "View Integration Synch. Job Log")
+                {
+                }
+                actionref(SynchronizeNow_Promoted; SynchronizeNow)
+                {
+                }
+                actionref(SynchronizeAll_Promoted; SynchronizeAll)
+                {
+                }
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Mapping', Comment = 'Generated from the PromotedActionCategories property index 4.';
+
+                actionref(JobQueueEntry_Promoted; JobQueueEntry)
+                {
+                }
+                actionref(ResetConfiguration_Promoted; ResetConfiguration)
+                {
+                }
+                actionref(FieldMapping_Promoted; FieldMapping)
+                {
+                }
+            }
+            group(Category_Category6)
+            {
+                Caption = 'Uncoupling', Comment = 'Generated from the PromotedActionCategories property index 5.';
+
+                actionref("View Integration Uncouple Job Log_Promoted"; "View Integration Uncouple Job Log")
+                {
+                }
+                actionref(RemoveCoupling_Promoted; RemoveCoupling)
+                {
+                }
+            }
+            group(Category_Category7)
+            {
+                Caption = 'Coupling', Comment = 'Generated from the PromotedActionCategories property index 6.';
+
+                actionref("View Integration Coupling Job Log_Promoted"; "View Integration Coupling Job Log")
+                {
+                }
+                actionref(MatchBasedCoupling_Promoted; MatchBasedCoupling)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     begin
         IntegrationTableCaptionValue := ObjectTranslation.TranslateObject(ObjectTranslation."Object Type"::Table, "Integration Table ID");
         TableCaptionValue := ObjectTranslation.TranslateObject(ObjectTranslation."Object Type"::Table, "Table ID");
-        IntegrationFieldCaptionValue := GetFieldCaption;
-        IntegrationFieldTypeValue := GetFieldType;
+        IntegrationFieldCaptionValue := GetFieldCaption();
+        IntegrationFieldTypeValue := GetFieldType();
 
-        TableFilter := GetTableFilter;
-        IntegrationTableFilter := GetIntegrationTableFilter;
+        TableFilter := GetTableFilter();
+        IntegrationTableFilter := GetIntegrationTableFilter();
 
-        HasRecords := not IsEmpty;
+        HasRecords := not IsEmpty();
     end;
 
     trigger OnInit()
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
     begin
         SetCRMIntegrationEnabledState();
         SetCDSIntegrationEnabledState();
+        BidirectionalSalesOrderIntegrationEnabled := CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled();
     end;
 
     var
@@ -494,6 +527,9 @@ page 5335 "Integration Table Mapping List"
         HasRecords: Boolean;
         CRMIntegrationEnabled: Boolean;
         CDSIntegrationEnabled: Boolean;
+        BidirectionalSalesOrderTableFilterErr: Label 'Bidirectional Sales Order Integration can only synchronize released Business Central sales orders.';
+        BidirectionalSalesOrderIntegrationTableFilterErr: Label 'Bidirectional Sales Order Integration can only synchronize submitted Dynamics 365 Sales sales orders.';
+        BidirectionalSalesOrderIntegrationEnabled: Boolean;
 
     local procedure GetFieldCaption(): Text
     var
@@ -534,6 +570,40 @@ page 5335 "Integration Table Mapping List"
         JQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId());
         if JQueueEntry.FindFirst() then
             Page.Run(Page::"Job Queue Entries", JQueueEntry);
+    end;
+
+    local procedure CheckBidirectionalSalesOrderTableFilter(SelectedFilter: Text)
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        SalesHeader: Record "Sales Header";
+        StatusFilter: Text;
+        TypeFilter: Text;
+    begin
+        if Rec."Table ID" = Database::"Sales Header" then
+            if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then begin
+                SalesHeader.SetView(SelectedFilter);
+                StatusFilter := SalesHeader.GetFilter(Status);
+                if StatusFilter <> Format(SalesHeader.Status::Released) then
+                    Error(BidirectionalSalesOrderTableFilterErr);
+                TypeFilter := SalesHeader.GetFilter("Document Type");
+                if TypeFilter <> Format(SalesHeader."Document Type"::Order) then
+                    Error(BidirectionalSalesOrderTableFilterErr);
+            end;
+    end;
+
+    local procedure CheckBidirectionalSalesOrderIntegrationTableFilter(SelectedFilter: Text)
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        CRMSalesorder: Record "CRM Salesorder";
+        StatusFilter: Text;
+    begin
+        if Rec."Integration Table ID" = Database::"CRM Salesorder" then
+            if CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() then begin
+                CRMSalesorder.SetView(SelectedFilter);
+                StatusFilter := CRMSalesorder.GetFilter(StateCode);
+                if StatusFilter <> Format(CRMSalesorder.StateCode::Submitted) then
+                    Error(BidirectionalSalesOrderIntegrationTableFilterErr);
+            end;
     end;
 }
 

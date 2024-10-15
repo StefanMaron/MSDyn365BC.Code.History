@@ -1,4 +1,4 @@
-﻿codeunit 1235 "XML Buffer Writer"
+codeunit 1235 "XML Buffer Writer"
 {
 
     trigger OnRun()
@@ -23,26 +23,26 @@
     procedure InitializeXMLBufferFrom(var XMLBuffer: Record "XML Buffer"; StreamOrServerFile: Variant)
     begin
         OnlyGenerateStructure := false;
-        InitializeXMLReaderSettings;
+        InitializeXMLReaderSettings();
         CreateXMLReaderFrom(StreamOrServerFile);
-        ReadXmlReader;
+        ReadXmlReader();
         ParseXML(XMLBuffer);
     end;
 
     procedure InitializeXMLBufferFromStream(var XMLBuffer: Record "XML Buffer"; XmlStream: InStream)
     begin
         OnlyGenerateStructure := false;
-        InitializeXMLReaderSettings;
+        InitializeXMLReaderSettings();
         CreateXMLReaderFromInStream(XmlStream);
-        ReadXmlReader;
+        ReadXmlReader();
         ParseXML(XMLBuffer);
     end;
 
     procedure InitializeXMLBufferFromText(var XMLBuffer: Record "XML Buffer"; XmlText: Text)
     begin
-        InitializeXMLReaderSettings;
+        InitializeXMLReaderSettings();
         CreateXmlReaderFromXmlText(XmlText);
-        ReadXmlReader;
+        ReadXmlReader();
         ParseXML(XMLBuffer);
     end;
 
@@ -50,9 +50,9 @@
     procedure GenerateStructureFromPath(var XMLBuffer: Record "XML Buffer"; Path: Text)
     begin
         OnlyGenerateStructure := true;
-        InitializeXMLReaderSettings;
+        InitializeXMLReaderSettings();
         CreateXMLReaderFromPath(Path);
-        if ReadXmlReader then
+        if ReadXmlReader() then
             ParseXML(XMLBuffer)
         else
             GetJsonStructure.GenerateStructure(Path, XMLBuffer);
@@ -60,9 +60,9 @@
 
     procedure GenerateStructure(var XMLBuffer: Record "XML Buffer"; OutStream: OutStream)
     begin
-        InitializeXMLReaderSettings;
+        InitializeXMLReaderSettings();
         CreateXMLReaderFromOutStream(OutStream);
-        ReadXmlReader;
+        ReadXmlReader();
         ParseXML(XMLBuffer);
     end;
 
@@ -106,10 +106,10 @@
 
     local procedure InitializeXMLReaderSettings()
     begin
-        XmlUrlResolver := XmlUrlResolver.XmlUrlResolver;
+        XmlUrlResolver := XmlUrlResolver.XmlUrlResolver();
         XmlUrlResolver.Credentials := NetCredentialCache.DefaultNetworkCredentials;
 
-        XmlReaderSettings := XmlReaderSettings.XmlReaderSettings;
+        XmlReaderSettings := XmlReaderSettings.XmlReaderSettings();
         XmlReaderSettings.DtdProcessing := XmlDtdProcessing.Ignore;
         XmlReaderSettings.XmlResolver := XmlUrlResolver;
     end;
@@ -123,7 +123,7 @@
         ParentXMLBuffer.Init();
         ParseXMLIteratively(XMLBuffer, ParentXMLBuffer);
 
-        XmlReader.Close;
+        XmlReader.Close();
         XMLBuffer.Reset();
         XMLBuffer.SetRange("Import ID", XMLBuffer."Import ID");
         XMLBuffer.FindFirst();
@@ -141,7 +141,7 @@
             if IsParentElement(Depth) then
                 exit;
             ParseCurrentXmlNode(XMLBuffer, ParentXMLBuffer, LastInsertedXMLBufferElement, ElementNumber, Depth, ProcessingInstructionNumber);
-        until not XmlReader.Read;
+        until not XmlReader.Read();
     end;
 
     local procedure ParseCurrentXmlNode(var XMLBuffer: Record "XML Buffer"; ParentXMLBuffer: Record "XML Buffer"; var LastInsertedXMLBufferElement: Record "XML Buffer"; var ElementNumber: Integer; Depth: Integer; var ProcessingInstructionNumber: Integer)
@@ -199,18 +199,18 @@
         InsertXmlElement(XMLBuffer, ParentXMLBuffer, ElementNumber);
         InsertedXMLBufferElement := XMLBuffer;
 
-        if XmlReader.MoveToFirstAttribute then
+        if XmlReader.MoveToFirstAttribute() then
             repeat
                 AttributeNumber += 1;
                 InsertXmlAttribute(XMLBuffer, InsertedXMLBufferElement, AttributeNumber);
-            until not XmlReader.MoveToNextAttribute;
+            until not XmlReader.MoveToNextAttribute();
     end;
 
     local procedure InsertXmlElement(var XMLBuffer: Record "XML Buffer"; ParentXMLBuffer: Record "XML Buffer"; ElementNumber: Integer)
     begin
         with XMLBuffer do begin
             if OnlyGenerateStructure then begin
-                Reset;
+                Reset();
                 SetRange("Parent Entry No.", ParentXMLBuffer."Entry No.");
                 SetRange(Type, Type::Element);
                 SetRange(Name, XmlReader.Name);
@@ -226,7 +226,7 @@
     begin
         with XMLBuffer do begin
             if OnlyGenerateStructure then begin
-                Reset;
+                Reset();
                 SetRange("Parent Entry No.", ParentXMLBuffer."Entry No.");
                 SetRange(Type, Type::Attribute);
                 SetRange(Name, XmlReader.Name);
@@ -243,7 +243,7 @@
     begin
         with XMLBuffer do begin
             if OnlyGenerateStructure then begin
-                Reset;
+                Reset();
                 SetRange("Parent Entry No.", ParentXMLBuffer."Entry No.");
                 SetRange(Type, Type::"Processing Instruction");
                 SetRange(Name, XmlReader.Name);
@@ -355,12 +355,12 @@
         SplitXmlElementName(ElementNameAndNamespace, ElementName, ElementNamespace);
 
         if IsNullGuid(ParentXMLBuffer."Import ID") then
-            ParentXMLBuffer."Import ID" := CreateGuid;
+            ParentXMLBuffer."Import ID" := CreateGuid();
 
         with XMLBuffer do begin
-            Reset;
+            Reset();
             if FindLast() then;
-            Init;
+            Init();
             "Entry No." += 1;
             "Parent Entry No." := ParentXMLBuffer."Entry No.";
             Path := CopyStr(StrSubstNo('%1/%2', ParentXMLBuffer.Path, ElementNameAndNamespace), 1, MaxStrLen(Path));
@@ -373,16 +373,16 @@
             "Import ID" := ParentXMLBuffer."Import ID";
 
             OnInsertElementOnBeforeInsertXMLBuffer(XMLBuffer, ParentXMLBuffer, ElementNumber, ElementDepth, ElementNameAndNamespace, ElementValue);
-            Insert;
+            Insert();
         end;
     end;
 
     procedure InsertProcessingInstruction(var XMLBuffer: Record "XML Buffer"; ParentXMLBuffer: Record "XML Buffer"; NodeNumber: Integer; NodeDepth: Integer; InstructionName: Text; InstructionValue: Text)
     begin
         with XMLBuffer do begin
-            Reset;
+            Reset();
             if FindLast() then;
-            Init;
+            Init();
             "Entry No." += 1;
             "Parent Entry No." := ParentXMLBuffer."Entry No.";
             Path := CopyStr(ParentXMLBuffer.Path + '/processing-instruction(''' + InstructionName + ''')', 1, MaxStrLen(Path));
@@ -393,7 +393,7 @@
             Type := Type::"Processing Instruction";
             "Import ID" := ParentXMLBuffer."Import ID";
 
-            Insert;
+            Insert();
         end;
     end;
 
@@ -414,7 +414,7 @@
     [TryFunction]
     local procedure ReadXmlReader()
     begin
-        XmlReader.Read
+        XmlReader.Read();
     end;
 
     local procedure CanPassValue(Name: Text; Value: Text): Boolean

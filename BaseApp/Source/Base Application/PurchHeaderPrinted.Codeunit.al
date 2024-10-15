@@ -5,10 +5,10 @@ codeunit 317 "Purch.Header-Printed"
     trigger OnRun()
     begin
         OnBeforeOnRun(Rec, SuppressCommit);
-        Find;
+        Find();
         "No. Printed" := "No. Printed" + 1;
         OnBeforeModify(Rec);
-        Modify;
+        Modify();
         if not SuppressCommit then
             Commit();
     end;

@@ -81,7 +81,7 @@ codeunit 144071 "UT PAG ABBREV"
           ResourceCapacity.MatrixForm.Field9.Caption,
           ResourceCapacity.MatrixForm.Field10.Caption, ResourceCapacity.MatrixForm.Field11.Caption,
           ResourceCapacity.MatrixForm.Field12.Caption);
-        ResourceCapacity.Close;
+        ResourceCapacity.Close();
     end;
 
     [Test]
@@ -116,7 +116,7 @@ codeunit 144071 "UT PAG ABBREV"
           ResGroupCapacity.MatrixForm.Field9.Caption,
           ResGroupCapacity.MatrixForm.Field10.Caption, ResGroupCapacity.MatrixForm.Field11.Caption,
           ResGroupCapacity.MatrixForm.Field12.Caption);
-        ResGroupCapacity.Close;
+        ResGroupCapacity.Close();
     end;
 
     [Test]
@@ -140,7 +140,7 @@ codeunit 144071 "UT PAG ABBREV"
 
         // Exercise: Open Show Matrix.
         ResourceAllocatedPerJob.ShowMatrix.Invoke;
-        ResourceAllocatedPerJob.Close;
+        ResourceAllocatedPerJob.Close();
 
         // Verify: Verify Column Captions on Resource Allocated per Job Matrix Page on Page Handler ResourceAllocPerJobMatrixPageHandler.
     end;
@@ -168,7 +168,7 @@ codeunit 144071 "UT PAG ABBREV"
 
         // Exercise: Open Show Matrix.
         ToDos.ShowMatrix.Invoke;
-        ToDos.Close;
+        ToDos.Close();
 
         // Verify: Verify Column Captions on To-Dos Matrix Page on Page Handler ToDosMatrixPageHandler.
     end;
@@ -194,7 +194,7 @@ codeunit 144071 "UT PAG ABBREV"
 
         // Exercise: Open Show Matrix.
         ResGrAllocatedPerJob.ShowMatrix.Invoke;
-        ResGrAllocatedPerJob.Close;
+        ResGrAllocatedPerJob.Close();
 
         // Verify: Verify Column Captions on Res. Gr. Allocated per Job Matrix Page on Page Handler ResGrpAllocPerJobMatrixPageHandler.
     end;
@@ -222,7 +222,7 @@ codeunit 144071 "UT PAG ABBREV"
 
         // Exercise: Open Show Matrix.
         Opportunities.ShowMatrix.Invoke;
-        Opportunities.Close;
+        Opportunities.Close();
 
         // Verify: Verify Column Captions on Opportunities Matrix Page on Page Handler OpportunitiesMatrixPageHandler.
     end;
@@ -250,7 +250,7 @@ codeunit 144071 "UT PAG ABBREV"
 
         // Exercise: Open Show Matrix.
         AbsenceOverviewByPeriods.ShowMatrix.Invoke;
-        AbsenceOverviewByPeriods.Close;
+        AbsenceOverviewByPeriods.Close();
 
         // Verify: Verify Column Captions on Absence Overview by Periods Matrix Page on Page Handler AbsOverviewByPeriodMatrixPageHandler.
     end;
@@ -326,7 +326,7 @@ codeunit 144071 "UT PAG ABBREV"
 
         // Exercise: Open Show Matrix.
         ResAllocPerServiceOrder.ShowMatrix.Invoke;
-        ResAllocPerServiceOrder.Close;
+        ResAllocPerServiceOrder.Close();
 
         // Verify: Verify Column Captions on Res. Alloc. per Service Order Matrix Page on Page Handler ResAllPerServiceMatrixPageHandler.
     end;
@@ -352,7 +352,7 @@ codeunit 144071 "UT PAG ABBREV"
 
         // Exercise: Open Show Matrix.
         ResGrAllocPerServOrder.ShowMatrix.Invoke;
-        ResGrAllocPerServOrder.Close;
+        ResGrAllocPerServOrder.Close();
 
         // Verify: Verify Column Captions on Res. Gr. Alloc. per Service Order Matrix Page on Page Handler ResGrpAllPerServMatrixPageHandler.
     end;
@@ -377,7 +377,7 @@ codeunit 144071 "UT PAG ABBREV"
 
         // Exercise: Open Show Matrix.
         WorkCenterCalendar.ShowMatrix.Invoke;
-        WorkCenterCalendar.Close;
+        WorkCenterCalendar.Close();
 
         // Verify: Verify Column Captions on Work Center Calendar Matrix Page on Page Handler WorkCenterCalendarMatrixPage.
     end;
@@ -402,7 +402,7 @@ codeunit 144071 "UT PAG ABBREV"
 
         // Exercise: Open Show Matrix.
         MachineCenterCalendar.ShowMatrix.Invoke;
-        MachineCenterCalendar.Close;
+        MachineCenterCalendar.Close();
 
         // Verify: Verify Column Captions on Work Center Calendar Matrix Page on Page Handler MachineCenterCalendarMatrixPage.
     end;
@@ -427,7 +427,7 @@ codeunit 144071 "UT PAG ABBREV"
 
         // Exercise: Open Show Matrix.
         WorkCtrGroupCalendar.ShowMatrix.Invoke;
-        WorkCtrGroupCalendar.Close;
+        WorkCtrGroupCalendar.Close();
 
         // Verify: Verify Column Captions on Work Ctr Group Calendar Matrix Page on Page Handler WorkCtrGrpCalendarMatrixPageHandler.
     end;
@@ -460,7 +460,7 @@ codeunit 144071 "UT PAG ABBREV"
         VerifyCaptionJulToDec(
           ProductionForecast.Matrix.Field7.Caption, ProductionForecast.Matrix.Field8.Caption, ProductionForecast.Matrix.Field9.Caption,
           ProductionForecast.Matrix.Field10.Caption, ProductionForecast.Matrix.Field11.Caption, ProductionForecast.Matrix.Field12.Caption);
-        ProductionForecast.Close;
+        ProductionForecast.Close();
     end;
 #endif
 
@@ -596,9 +596,9 @@ codeunit 144071 "UT PAG ABBREV"
         ToDo."No." := LibraryUTUtility.GetNewCode;
         ToDo.Type := ToDo.Type::Meeting;
         ToDo.Priority := ToDo.Priority::Normal;
-        ToDo.Date := WorkDate;
+        ToDo.Date := WorkDate();
         ToDo."Start Time" := Time;
-        ToDo."Ending Date" := WorkDate;
+        ToDo."Ending Date" := WorkDate();
         ToDo."Ending Time" := Time;
         ToDo.Insert();
         exit(ToDo."No.");
@@ -683,7 +683,7 @@ codeunit 144071 "UT PAG ABBREV"
         MachineCenterCalendar.Trap;
         MachineCenterCard."&Calendar".Invoke;
         MachineCenterCalendar.PeriodType.SetValue(PeriodType::Month);
-        MachineCenterCard.Close;
+        MachineCenterCard.Close();
     end;
 
     local procedure OpenResAllocPerServiceOrderPage(var ResAllocPerServiceOrder: TestPage "Res. Alloc. per Service Order"; No: Code[20])
@@ -696,7 +696,7 @@ codeunit 144071 "UT PAG ABBREV"
         ResAllocPerServiceOrder.Trap;
         ResourceCard."Resource Allocated per Service &Order".Invoke;
         ResAllocPerServiceOrder.PeriodType.SetValue(PeriodType::Month);
-        ResourceCard.Close;
+        ResourceCard.Close();
     end;
 
     local procedure OpenResGrAllocatedPerJobPage(var ResGrAllocatedPerJob: TestPage "Res. Gr. Allocated per Job"; No: Code[20])
@@ -709,7 +709,7 @@ codeunit 144071 "UT PAG ABBREV"
         ResGrAllocatedPerJob.Trap;
         ResourceGroups."Res. Group All&ocated per Job".Invoke;
         ResGrAllocatedPerJob.PeriodType.SetValue(PeriodType::Month);
-        ResourceGroups.Close;
+        ResourceGroups.Close();
     end;
 
     local procedure OpenResGrAllocPerServOrderPage(var ResGrAllocPerServOrder: TestPage "Res. Gr. Alloc. per Serv Order"; No: Code[20])
@@ -722,7 +722,7 @@ codeunit 144071 "UT PAG ABBREV"
         ResGrAllocPerServOrder.Trap;
         ResourceGroups."Res. Group Allocated per Service &Order".Invoke;
         ResGrAllocPerServOrder.PeriodType.SetValue(PeriodType::Month);
-        ResourceGroups.Close;
+        ResourceGroups.Close();
     end;
 
     local procedure OpenResourceAllocatedPerJobPage(var ResourceAllocatedPerJob: TestPage "Resource Allocated per Job"; No: Code[20])
@@ -735,7 +735,7 @@ codeunit 144071 "UT PAG ABBREV"
         ResourceAllocatedPerJob.Trap;
         ResourceCard."Resource &Allocated per Job".Invoke;
         ResourceAllocatedPerJob.PeriodType.SetValue(PeriodType::Month);
-        ResourceCard.Close;
+        ResourceCard.Close();
     end;
 
     local procedure OpenResourceAllocation(DocumentNo: Code[20]; ResourceNo: Code[20])
@@ -748,7 +748,7 @@ codeunit 144071 "UT PAG ABBREV"
         ResourceAllocations.FILTER.SetFilter("Document No.", DocumentNo);
         ResourceAllocations.FILTER.SetFilter("Resource No.", ResourceNo);
         ResourceAllocations.ResourceAvailability.Invoke;
-        ResourceAllocations.Close;
+        ResourceAllocations.Close();
     end;
 
     local procedure OpenResourceAllocationResGroupAvailability(DocumentNo: Code[20]; ResourceGroupNo: Code[20])
@@ -761,7 +761,7 @@ codeunit 144071 "UT PAG ABBREV"
         ResourceAllocations.FILTER.SetFilter("Document Type", Format(ServiceOrderAllocation."Document Type"::Order));
         ResourceAllocations.FILTER.SetFilter("Document No.", DocumentNo);
         ResourceAllocations.ResGroupAvailability.Invoke;
-        ResourceAllocations.Close;
+        ResourceAllocations.Close();
     end;
 
     local procedure OpenWorkCenterCalendarPage(var WorkCenterCalendar: TestPage "Work Center Calendar"; No: Code[20])
@@ -774,7 +774,7 @@ codeunit 144071 "UT PAG ABBREV"
         WorkCenterCalendar.Trap;
         WorkCenterCard."&Calendar".Invoke;
         WorkCenterCalendar.PeriodType.SetValue(PeriodType::Month);
-        WorkCenterCard.Close;
+        WorkCenterCard.Close();
     end;
 
     local procedure OpenWorkCenterGroupPage(var WorkCtrGroupCalendar: TestPage "Work Ctr. Group Calendar"; "Code": Code[20])

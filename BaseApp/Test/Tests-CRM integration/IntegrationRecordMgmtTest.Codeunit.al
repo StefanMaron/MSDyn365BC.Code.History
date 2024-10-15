@@ -26,7 +26,7 @@ codeunit 139167 "Integration Record Mgmt. Test"
         Initialize();
 
         // Setup customer, integration record but no crm integration record
-        IntegrationTableUid := CreateGuid;
+        IntegrationTableUid := CreateGuid();
         LibrarySales.CreateCustomer(Customer);
 
         // Execute
@@ -50,7 +50,7 @@ codeunit 139167 "Integration Record Mgmt. Test"
         Initialize();
 
         // Setup customer, integration record but no crm integration record
-        IntegrationTableUid := CreateGuid;
+        IntegrationTableUid := CreateGuid();
         LibrarySales.CreateCustomer(Customer);
 
         // Execute

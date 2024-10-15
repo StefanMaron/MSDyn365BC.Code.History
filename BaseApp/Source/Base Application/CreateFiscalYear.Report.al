@@ -66,7 +66,7 @@ report 93 "Create Fiscal Year"
         AccountingPeriod."Starting Date" := FiscalYearStartDate;
         AccountingPeriod.TestField("Starting Date");
         // check number of open fiscal years
-        AccountingPeriod.CheckOpenFiscalYears;
+        AccountingPeriod.CheckOpenFiscalYears();
 
         AccountingPeriod.SetRange(Closed, false);
         if AccountingPeriod.Find('-') then begin
@@ -110,22 +110,25 @@ report 93 "Create Fiscal Year"
         end;
 
         AccountingPeriod.Get(FiscalYearStartDate2);
-        AccountingPeriod.UpdateAvgItems;
+        AccountingPeriod.UpdateAvgItems();
     end;
 
     var
-        CreateAndCloseQst: Label 'The new fiscal year begins before an existing fiscal year, so the new year will be closed automatically.\\Do you want to create and close the fiscal year?';
-        CreateQst: Label 'After you create the new fiscal year, you cannot change its starting date.\\Do you want to create the fiscal year?';
         AccountingPeriod: Record "Accounting Period";
         InvtSetup: Record "Inventory Setup";
-        NoOfPeriods: Integer;
         PeriodLength: DateFormula;
-        FiscalYearStartDate: Date;
+        NoOfPeriods: Integer;
         FiscalYearStartDate2: Date;
         FirstPeriodStartDate: Date;
         FirstPeriodLocked: Boolean;
         i: Integer;
         HideDialog: Boolean;
+
+        CreateAndCloseQst: Label 'The new fiscal year begins before an existing fiscal year, so the new year will be closed automatically.\\Do you want to create and close the fiscal year?';
+        CreateQst: Label 'After you create the new fiscal year, you cannot change its starting date.\\Do you want to create the fiscal year?';
+
+    protected var
+        FiscalYearStartDate: Date;
 
     procedure InitializeRequest(NewNoOfPeriods: Integer; NewPeriodLength: DateFormula; StartingDate: Date)
     begin

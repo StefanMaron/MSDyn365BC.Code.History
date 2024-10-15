@@ -9,7 +9,7 @@ codeunit 9022 "Pmt. Rec. Journals Launcher"
         if BankAccReconciliation.Count = 1 then
             OpenJournal(BankAccReconciliation)
         else
-            OpenList;
+            OpenList();
     end;
 
     var
@@ -17,7 +17,7 @@ codeunit 9022 "Pmt. Rec. Journals Launcher"
 
     local procedure OpenList()
     begin
-        if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Phone then
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Phone then
             PAGE.Run(PAGE::"Pmt. Rec. Journals Overview")
         else
             PAGE.Run(PAGE::"Pmt. Reconciliation Journals");
@@ -32,7 +32,7 @@ codeunit 9022 "Pmt. Rec. Journals Launcher"
         BankAccReconciliationLine.SetRange("Statement Type", BankAccReconciliation."Statement Type");
         BankAccReconciliationLine.SetRange("Statement No.", BankAccReconciliation."Statement No.");
 
-        if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::Phone then
+        if ClientTypeManagement.GetCurrentClientType() = CLIENTTYPE::Phone then
             PAGE.Run(PAGE::"Pmt. Recon. Journal Overview", BankAccReconciliationLine)
         else
             PAGE.Run(PAGE::"Payment Reconciliation Journal", BankAccReconciliationLine);

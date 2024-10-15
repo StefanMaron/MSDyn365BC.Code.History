@@ -81,7 +81,7 @@ codeunit 144077 "SEPA.02 DD Functional Test"
 
         // Verify.
         VerifyPaymentLines(PaymentHeader, Customer);
-        PaymentHeader.Find;
+        PaymentHeader.Find();
         PaymentHeader.TestField("Partner Type", SEPAPartnerType::Company);
         PaymentLine.SetRange("No.", PaymentHeader."No.");
         PaymentLine.SetRange("Account Type", PaymentLine."Account Type"::Customer);
@@ -556,7 +556,7 @@ codeunit 144077 "SEPA.02 DD Functional Test"
             CreateSEPABankAccount(BankAccount);
             Validate("Account No.", BankAccount."No.");
             Validate("Partner Type", SEPAPartnerType);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -604,7 +604,7 @@ codeunit 144077 "SEPA.02 DD Functional Test"
         File.Create(ExportedFilePath);
         File.CreateOutStream(OutStr);
         XMLPORT.Export(XMLPORT::"SEPA DD pain.008.001.02", OutStr, DirectDebitCollectionEntry);
-        File.Close;
+        File.Close();
     end;
 
     local procedure CreateCustomerBankAccount(var CustomerBankAccount: Record "Customer Bank Account"; CustomerNo: Code[20])
@@ -648,12 +648,12 @@ codeunit 144077 "SEPA.02 DD Functional Test"
     local procedure CreateDirectDebitMandate(var SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate"; CustomerNo: Code[20]; CustomerBankAccountCode: Code[20])
     begin
         with SEPADirectDebitMandate do begin
-            Init;
+            Init();
             "Customer No." := CustomerNo;
             "Customer Bank Account Code" := CustomerBankAccountCode;
-            "Valid From" := WorkDate;
+            "Valid From" := WorkDate();
             "Valid To" := WorkDate + LibraryRandom.RandIntInRange(300, 600);
-            "Date of Signature" := WorkDate;
+            "Date of Signature" := WorkDate();
             "Expected Number of Debits" := LibraryRandom.RandInt(10);
             Insert(true);
         end;
@@ -827,7 +827,7 @@ codeunit 144077 "SEPA.02 DD Functional Test"
                 PaymentLine.TestField("Bank Account Code", SEPADirectDebitMandate."Customer Bank Account Code")
             else
                 PaymentLine.TestField("Bank Account Code", Customer."Preferred Bank Account Code");
-        until CustLedgerEntry.Next = 0;
+        until CustLedgerEntry.Next() = 0;
     end;
 
     local procedure VerifySEPAMandate(SEPADirectDebitMandateID: Text[35]; ExpCounter: Integer)
@@ -860,7 +860,7 @@ codeunit 144077 "SEPA.02 DD Functional Test"
     [Scope('OnPrem')]
     procedure SuggestCustPaymentsReqPageHandler(var SuggestCustomerPayments: TestRequestPage "Suggest Customer Payments")
     begin
-        SuggestCustomerPayments.LastPaymentDate.SetValue(WorkDate);
+        SuggestCustomerPayments.LastPaymentDate.SetValue(WorkDate());
         SuggestCustomerPayments.OK.Invoke;
     end;
 }

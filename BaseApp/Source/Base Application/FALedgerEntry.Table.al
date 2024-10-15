@@ -593,7 +593,16 @@ table 5601 "FA Ledger Entry"
 
     procedure ShowDimensions()
     begin
-        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption, "Entry No."));
+        DimMgt.ShowDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', TableCaption(), "Entry No."));
+    end;
+
+    procedure IsAcquisitionCost(): Boolean
+    var
+        AcquisitionCost: Boolean;
+    begin
+        AcquisitionCost := "FA Posting Type" = "FA Posting Type"::"Acquisition Cost";
+        OnAfterIsAcquisitionCost(Rec, AcquisitionCost);
+        exit(AcquisitionCost);
     end;
 
     [IntegrationEvent(false, false)]
@@ -608,6 +617,11 @@ table 5601 "FA Ledger Entry"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterMoveToFAJnlLine(var FAJournalLine: Record "FA Journal Line"; FALedgerEntry: Record "FA Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterIsAcquisitionCost(var FALedgerEntry: Record "FA Ledger Entry"; var AcquisitionCost: Boolean);
     begin
     end;
 }

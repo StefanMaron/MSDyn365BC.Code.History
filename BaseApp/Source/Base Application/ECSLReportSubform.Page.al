@@ -13,32 +13,32 @@ page 322 "ECSL Report Subform"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Line No."; "Line No.")
+                field("Line No."; Rec."Line No.")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the unique identifier for the line.';
                 }
-                field("Report No."; "Report No.")
+                field("Report No."; Rec."Report No.")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the unique identifier for the report.';
                 }
-                field("Country Code"; "Country Code")
+                field("Country Code"; Rec."Country Code")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies country code of the customer used for the line calculation.';
                 }
-                field("Customer VAT Reg. No."; "Customer VAT Reg. No.")
+                field("Customer VAT Reg. No."; Rec."Customer VAT Reg. No.")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies VAT Registration Number of the customer.';
                 }
-                field("Total Value Of Supplies"; "Total Value Of Supplies")
+                field("Total Value Of Supplies"; Rec."Total Value Of Supplies")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the total amount of the sold supplies.';
                 }
-                field("Transaction Indicator"; "Transaction Indicator")
+                field("Transaction Indicator"; Rec."Transaction Indicator")
                 {
                     ApplicationArea = BasicEU;
                     ToolTip = 'Specifies the transaction number.';

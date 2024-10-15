@@ -137,7 +137,7 @@ codeunit 144057 "UT Remittance"
 
         // Verify: Verify Debit Amount on Page.
         CashReceiptJournal."Debit Amount".AssertEquals(GenJournalLine."Debit Amount");
-        CashReceiptJournal.Close;
+        CashReceiptJournal.Close();
     end;
 
     local procedure Initialize()

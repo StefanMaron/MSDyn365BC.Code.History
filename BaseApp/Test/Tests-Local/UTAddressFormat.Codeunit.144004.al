@@ -53,7 +53,7 @@ codeunit 144004 "UT Address Format"
 
         // Verify: Verify Country Region Code on Customer Card Page.
         CustomerCard."Country/Region Code".AssertEquals(Customer."Country/Region Code");
-        CustomerCard.Close;
+        CustomerCard.Close();
     end;
 
     [Test]
@@ -77,7 +77,7 @@ codeunit 144004 "UT Address Format"
 
         // Verify: Verify Country Region Code on Vendor Card Page.
         VendorCard."Country/Region Code".AssertEquals(Vendor."Country/Region Code");
-        VendorCard.Close;
+        VendorCard.Close();
     end;
 
     [Test]
@@ -101,7 +101,7 @@ codeunit 144004 "UT Address Format"
 
         // Verify: Verify Country Region Code on Contact Card Page.
         ContactCard."Country/Region Code".AssertEquals(Contact."Country/Region Code");
-        ContactCard.Close;
+        ContactCard.Close();
     end;
 
     [Test]

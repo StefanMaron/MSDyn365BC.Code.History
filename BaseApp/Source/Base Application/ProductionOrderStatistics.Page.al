@@ -342,7 +342,7 @@ page 99000816 "Production Order Statistics"
         CalcTotal(StdCost, StdCost[6]);
         CalcTotal(ExpCost, ExpCost[6]);
         CalcTotal(ActCost, ActCost[6]);
-        CalcVariance;
+        CalcVariance();
         TimeExpendedPct := CalcIndicatorPct(ExpCapNeed, ActTimeUsed);
     end;
 

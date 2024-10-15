@@ -307,7 +307,7 @@ codeunit 144049 "ERM Payment Management"
         PaymentSlipApplication(PaymentSlip);  // Calculate Amount after payment discount.
 
         // Verify: Verify Applied Amount on Applied Vendor Ledger Entry, Verification done by ApplyVendorEntriesModalPageHandler.
-        PaymentSlip.Close;
+        PaymentSlip.Close();
     end;
 
     [Test]
@@ -378,7 +378,7 @@ codeunit 144049 "ERM Payment Management"
         PaymentSlipApplication(PaymentSlip);  // Calculate Amount after payment discount.
 
         // Verify: Verify Applied Amount on Applied Customer Ledger Entry, Verification done by ApplyCustomerEntriesModalPageHandler.
-        PaymentSlip.Close;
+        PaymentSlip.Close();
     end;
 
     [Test]
@@ -566,7 +566,7 @@ codeunit 144049 "ERM Payment Management"
         PaymentSlipApplication(PaymentSlip);  // Calculate Amount after payment discount.
 
         // Verify: Verify Applied Amount on Applied Customer Ledger Entry, Verification done in ApplyCustomerEntriesModalPageHandler.
-        PaymentSlip.Close;
+        PaymentSlip.Close();
     end;
 
     [Test]
@@ -585,7 +585,7 @@ codeunit 144049 "ERM Payment Management"
         ApplyPaymentSlip(Format(PaymentSlip."Payment Class"));
 
         // Verify: Verify UnApplied Amount on Applied Customer Ledger Entry, Verification done in ApplyCustomerEntriesModalPageHandler.
-        PaymentSlip.Close;
+        PaymentSlip.Close();
     end;
 
     [Test]
@@ -610,7 +610,7 @@ codeunit 144049 "ERM Payment Management"
         CustLedgerEntry.SetRange("Document Type", CustLedgerEntry."Document Type"::Invoice);
         CustLedgerEntry.FindFirst();
         CustLedgerEntry.TestField("Applies-to ID", '');
-        PaymentSlip.Close;
+        PaymentSlip.Close();
     end;
 
     [Test]
@@ -626,14 +626,14 @@ codeunit 144049 "ERM Payment Management"
         // Verify that whether a proper Due Date is suggested for manually generated payments for Customer.
         // Setup & Exercise: Create and Post Sales Invoice, Create Payment Class, Setup and Create Payment Slip.
         Initialize();
-        DueDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate);
+        DueDate := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate());
         CustomerNo := CreateCustomer('');  // Using blank currency.
         CreatePaymentSlipAndSuggestCustomerPayment(CustomerNo, CustomerNo, DueDate, SummarizePer::Customer);
 
         // Verify: Verify Due Date on Payment Line.
         PaymentLine.SetRange("Account No.", CustomerNo);
         PaymentLine.FindFirst();
-        PaymentLine.TestField("Due Date", WorkDate);
+        PaymentLine.TestField("Due Date", WorkDate());
     end;
 
     [Test]
@@ -1283,7 +1283,7 @@ codeunit 144049 "ERM Payment Management"
 
         // [THEN] An error is thrown: "A dimension used in <payment line> has caused an error. Select a Dimension Value Code..."
         Assert.ExpectedErrorCode('TestWrapped:Dialog');
-        Assert.ExpectedError(StrSubstNo(CheckDimValuePostingLineErr, PmtHeaderNo, PaymentLine.TableCaption,
+        Assert.ExpectedError(StrSubstNo(CheckDimValuePostingLineErr, PmtHeaderNo, PaymentLine.TableCaption(),
             LineNo, Dimension.Code, Vendor."No."));
     end;
 
@@ -1361,9 +1361,9 @@ codeunit 144049 "ERM Payment Management"
         // [GIVEN] Gen. Jnl. Lines "G1", "G2" and associated Customer Ledger Entries "CLE1", "CLE2".
         with GenJournalLine do begin
             CreateAndPostGeneralJournal(
-              GenJournalLine, "Account Type"::Customer, Customer[1]."No.", "Document Type"::Invoice, LibraryRandom.RandDec(10, 2), WorkDate);
+              GenJournalLine, "Account Type"::Customer, Customer[1]."No.", "Document Type"::Invoice, LibraryRandom.RandDec(10, 2), WorkDate());
             CreateAndPostGeneralJournal(
-              GenJournalLine, "Account Type"::Customer, Customer[2]."No.", "Document Type"::Invoice, LibraryRandom.RandDec(10, 2), WorkDate);
+              GenJournalLine, "Account Type"::Customer, Customer[2]."No.", "Document Type"::Invoice, LibraryRandom.RandDec(10, 2), WorkDate());
         end;
 
         // [GIVEN] Payment class with No. Series.
@@ -1423,9 +1423,9 @@ codeunit 144049 "ERM Payment Management"
         // [GIVEN] Gen. Jnl. Lines "G1", "G2" and associated Customer Ledger Entries "CLE1", "CLE2".
         with GenJournalLine do begin
             CreateAndPostGeneralJournal(
-              GenJournalLine, "Account Type"::Customer, Customer[1]."No.", "Document Type"::Invoice, LibraryRandom.RandDec(10, 2), WorkDate);
+              GenJournalLine, "Account Type"::Customer, Customer[1]."No.", "Document Type"::Invoice, LibraryRandom.RandDec(10, 2), WorkDate());
             CreateAndPostGeneralJournal(
-              GenJournalLine, "Account Type"::Customer, Customer[2]."No.", "Document Type"::Invoice, LibraryRandom.RandDec(10, 2), WorkDate);
+              GenJournalLine, "Account Type"::Customer, Customer[2]."No.", "Document Type"::Invoice, LibraryRandom.RandDec(10, 2), WorkDate());
         end;
 
         // [GIVEN] Payment class with No. Series.
@@ -1485,9 +1485,9 @@ codeunit 144049 "ERM Payment Management"
         // [GIVEN] Gen. Jnl. Lines "G1", "G2" and associated Customer Ledger Entries "CLE1", "CLE2".
         with GenJournalLine do begin
             CreateAndPostGeneralJournal(
-              GenJournalLine, "Account Type"::Customer, Customer[1]."No.", "Document Type"::Invoice, LibraryRandom.RandDec(10, 2), WorkDate);
+              GenJournalLine, "Account Type"::Customer, Customer[1]."No.", "Document Type"::Invoice, LibraryRandom.RandDec(10, 2), WorkDate());
             CreateAndPostGeneralJournal(
-              GenJournalLine, "Account Type"::Customer, Customer[2]."No.", "Document Type"::Invoice, LibraryRandom.RandDec(10, 2), WorkDate);
+              GenJournalLine, "Account Type"::Customer, Customer[2]."No.", "Document Type"::Invoice, LibraryRandom.RandDec(10, 2), WorkDate());
         end;
 
         // [GIVEN] Payment class with No. Series.
@@ -1547,9 +1547,9 @@ codeunit 144049 "ERM Payment Management"
         // [GIVEN] Gen. Jnl. Lines "G1", "G2" and associated Vendor Ledger Entries "VLE1", "VLE2".
         with GenJournalLine do begin
             CreateAndPostGeneralJournal(
-              GenJournalLine, "Account Type"::Vendor, Vendor[1]."No.", "Document Type"::Invoice, -LibraryRandom.RandDec(10, 2), WorkDate);
+              GenJournalLine, "Account Type"::Vendor, Vendor[1]."No.", "Document Type"::Invoice, -LibraryRandom.RandDec(10, 2), WorkDate());
             CreateAndPostGeneralJournal(
-              GenJournalLine, "Account Type"::Vendor, Vendor[2]."No.", "Document Type"::Invoice, -LibraryRandom.RandDec(10, 2), WorkDate);
+              GenJournalLine, "Account Type"::Vendor, Vendor[2]."No.", "Document Type"::Invoice, -LibraryRandom.RandDec(10, 2), WorkDate());
         end;
 
         // [GIVEN] Payment class with No. Series.
@@ -1609,9 +1609,9 @@ codeunit 144049 "ERM Payment Management"
         // [GIVEN] Gen. Jnl. Lines "G1", "G2" and associated Vendor Ledger Entries "VLE1", "VLE2".
         with GenJournalLine do begin
             CreateAndPostGeneralJournal(
-              GenJournalLine, "Account Type"::Vendor, Vendor[1]."No.", "Document Type"::Invoice, -LibraryRandom.RandDec(10, 2), WorkDate);
+              GenJournalLine, "Account Type"::Vendor, Vendor[1]."No.", "Document Type"::Invoice, -LibraryRandom.RandDec(10, 2), WorkDate());
             CreateAndPostGeneralJournal(
-              GenJournalLine, "Account Type"::Vendor, Vendor[2]."No.", "Document Type"::Invoice, -LibraryRandom.RandDec(10, 2), WorkDate);
+              GenJournalLine, "Account Type"::Vendor, Vendor[2]."No.", "Document Type"::Invoice, -LibraryRandom.RandDec(10, 2), WorkDate());
         end;
 
         // [GIVEN] Payment class with No. Series.
@@ -1671,9 +1671,9 @@ codeunit 144049 "ERM Payment Management"
         // [GIVEN] Gen. Jnl. Lines "G1", "G2".
         with GenJournalLine do begin
             CreateAndPostGeneralJournal(
-              GenJournalLine, "Account Type"::Vendor, Vendor[1]."No.", "Document Type"::Invoice, -LibraryRandom.RandDec(10, 2), WorkDate);
+              GenJournalLine, "Account Type"::Vendor, Vendor[1]."No.", "Document Type"::Invoice, -LibraryRandom.RandDec(10, 2), WorkDate());
             CreateAndPostGeneralJournal(
-              GenJournalLine, "Account Type"::Vendor, Vendor[2]."No.", "Document Type"::Invoice, -LibraryRandom.RandDec(10, 2), WorkDate);
+              GenJournalLine, "Account Type"::Vendor, Vendor[2]."No.", "Document Type"::Invoice, -LibraryRandom.RandDec(10, 2), WorkDate());
         end;
 
         // [GIVEN] Payment class with No. Series.
@@ -1732,7 +1732,7 @@ codeunit 144049 "ERM Payment Management"
         LibraryERM.CreateCurrency(Currency);
         Currency.Validate("Realized Gains Acc.", LibraryERM.CreateGLAccountNo());
         Currency.Modify(true);
-        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate, 1, LibraryRandom.RandDecInDecimalRange(5, 10, 2));
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), 1, LibraryRandom.RandDecInDecimalRange(5, 10, 2));
 
         // [GIVEN] Department dimension is mandatory for G/L account "X"
         LibraryDimension.CreateDimension(Dimension);
@@ -1787,7 +1787,7 @@ codeunit 144049 "ERM Payment Management"
         PaymentSlip.FILTER.SetFilter("Payment Class", PaymentClass);
         LibraryVariableStorage.Enqueue(EnqueueOpt::Application);
         PaymentSlip.Lines.Application.Invoke;  // Invokes ApplyVendorEntriesModalPageHandler and ApplyCustomerEntriesModalPageHandler.
-        PaymentSlip.Close;
+        PaymentSlip.Close();
     end;
 
     local procedure CalcPaymentTermDiscount(PaymentTermsCode: Code[10]; CalcPmtDiscOnCrMemos: Boolean; Amount: Decimal): Decimal
@@ -2044,7 +2044,7 @@ codeunit 144049 "ERM Payment Management"
         Customer.Get(CreateCustomer(''));  // Using blank for Currency.
         DiscountAmount := CalcPaymentTermDiscount(Customer."Payment Terms Code", false, Amount);  // Using False for Calc. Pmt. Disc. on Cr. Memos field.
         CreateAndPostGeneralJournal(
-          GenJournalLine, GenJournalLine."Account Type"::Customer, Customer."No.", GenJournalLine."Document Type"::Invoice, Amount, WorkDate);
+          GenJournalLine, GenJournalLine."Account Type"::Customer, Customer."No.", GenJournalLine."Document Type"::Invoice, Amount, WorkDate());
         CreatePaymentStatus(PaymentStatus, CreatePaymentClass(PaymentClass.Suggestions::Customer), PaymentClassNameTxt, false);  // Using False for Payment In Progress
         LibraryVariableStorage.Enqueue(PaymentStatus."Payment Class");  // Enqueue value for PaymentClassListModalPageHandler.
         LibraryFRLocalization.CreatePaymentHeader(PaymentHeader);
@@ -2467,12 +2467,12 @@ codeunit 144049 "ERM Payment Management"
     var
         RateFactorX: Decimal;
     begin
-        PostingDate := WorkDate - 1;
+        PostingDate := WorkDate() - 1;
         LibraryERM.CreateCurrency(Currency);
         RateFactorX := LibraryRandom.RandDecInDecimalRange(1, 5, 2);
         RateFactorY := LibraryRandom.RandDecInDecimalRange(6, 10, 2);
         LibraryERM.CreateExchangeRate(Currency.Code, PostingDate, RateFactorX, RateFactorX);
-        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate, RateFactorY, RateFactorY);
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), RateFactorY, RateFactorY);
     end;
 
     local procedure CreatePaymentSlipWithCurrency(var PaymentHeader: Record "Payment Header"; Vendor: Record Vendor; Currency: Record Currency)
@@ -2568,7 +2568,7 @@ codeunit 144049 "ERM Payment Management"
     [Scope('OnPrem')]
     procedure PaymentSlipPageCloseHandler(var PaymentSlip: TestPage "Payment Slip")
     begin
-        PaymentSlip.Close;
+        PaymentSlip.Close();
     end;
 
     local procedure PaymentSlipApplication(PaymentSlip: TestPage "Payment Slip")
@@ -2583,9 +2583,9 @@ codeunit 144049 "ERM Payment Management"
         PaymentClass: Record "Payment Class";
         PaymentStatus: Record "Payment Status";
     begin
-        CreateAndPostGeneralJournal(GenJournalLine, AccountType, AccountNo, GenJournalLine."Document Type"::Invoice, Amount, WorkDate);
+        CreateAndPostGeneralJournal(GenJournalLine, AccountType, AccountNo, GenJournalLine."Document Type"::Invoice, Amount, WorkDate());
         CreateAndPostGeneralJournal(
-          GenJournalLine, AccountType, AccountNo, GenJournalLine."Document Type"::"Credit Memo", -Amount / 2, WorkDate);  // Required less amount to invoice.
+          GenJournalLine, AccountType, AccountNo, GenJournalLine."Document Type"::"Credit Memo", -Amount / 2, WorkDate());  // Required less amount to invoice.
         PaymentClass.Get(CreatePaymentClass(Suggestions));
         CreatePaymentStatus(PaymentStatus, PaymentClass.Code, PaymentClassNameTxt, false);  // Using False for Payment In Progress.
         exit(PaymentClass.Code);
@@ -2706,7 +2706,7 @@ codeunit 144049 "ERM Payment Management"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         CreateAndPostGeneralJournal(GenJournalLine, AccountType, AccountNo, GenJournalLine."Document Type"::Invoice, Amount, DueDate);
-        CreateAndPostGeneralJournal(GenJournalLine, AccountType, AccountNo2, GenJournalLine."Document Type"::Invoice, Amount, WorkDate);
+        CreateAndPostGeneralJournal(GenJournalLine, AccountType, AccountNo2, GenJournalLine."Document Type"::Invoice, Amount, WorkDate());
         PaymentClassCode := CreatePaymentSlipBySuggest(Suggestion);
     end;
 
@@ -2771,7 +2771,7 @@ codeunit 144049 "ERM Payment Management"
         BankAccountLedgerEntry.FindSet();
         repeat
             BankAmount += BankAccountLedgerEntry."Debit Amount";
-        until BankAccountLedgerEntry.Next = 0;
+        until BankAccountLedgerEntry.Next() = 0;
         Assert.AreEqual(Abs(PaymentHeader."Amount (LCY)"), BankAmount, UnexpectedErr);
         Assert.AreEqual(BankAccountLedgerEntry.Count, NoOfRecord, UnexpectedErr);
     end;
@@ -2786,7 +2786,7 @@ codeunit 144049 "ERM Payment Management"
         GLEntry.FindSet();
         repeat
             GLAmount += GLEntry."Debit Amount";
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
         Assert.AreEqual(Abs(PaymentHeader."Amount (LCY)"), GLAmount, UnexpectedErr);
         Assert.AreEqual(GLEntry.Count, NoOfRecord, UnexpectedErr);
     end;
@@ -2854,7 +2854,7 @@ codeunit 144049 "ERM Payment Management"
             SetRange("Payment Class", PaymentClassCode);
             FindFirst();
             Validate("Account No.", LibraryERM.CreateBankAccountNo);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -2955,7 +2955,7 @@ codeunit 144049 "ERM Payment Management"
         with PaymentStep do begin
             SetRange("Payment Class", PaymentClassCode);
             FindLast();
-            SetRecFilter;
+            SetRecFilter();
         end;
 
         with PaymentHeader do begin
@@ -3004,7 +3004,7 @@ codeunit 144049 "ERM Payment Management"
         FindVATEntry(VATEntryInvoice, PurchInvHeaderNo);
         VATEntryInvoice.TestField("Remaining Unrealized Amount", 0);
         VATEntryInvoice.TestField("Remaining Unrealized Base", 0);
-        VATEntryInvoice.Next;
+        VATEntryInvoice.Next();
         VATEntryInvoice.TestField("Remaining Unrealized Amount", 0);
         VATEntryInvoice.TestField("Remaining Unrealized Base", 0);
 
@@ -3130,7 +3130,7 @@ codeunit 144049 "ERM Payment Management"
     begin
         LibraryVariableStorage.Dequeue(No);
         GLCustLedgerReconciliation.Customer.SetFilter("No.", No);
-        GLCustLedgerReconciliation.Customer.SetFilter("Date Filter", Format(WorkDate));
+        GLCustLedgerReconciliation.Customer.SetFilter("Date Filter", Format(WorkDate()));
         GLCustLedgerReconciliation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -3142,7 +3142,7 @@ codeunit 144049 "ERM Payment Management"
     begin
         LibraryVariableStorage.Dequeue(No);
         GLVendLedgerReconciliation.Vendor.SetFilter("No.", No);
-        GLVendLedgerReconciliation.Vendor.SetFilter("Date Filter", Format(WorkDate));
+        GLVendLedgerReconciliation.Vendor.SetFilter("Date Filter", Format(WorkDate()));
         GLVendLedgerReconciliation.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 
@@ -3156,7 +3156,7 @@ codeunit 144049 "ERM Payment Management"
         LibraryVariableStorage.Dequeue(No);
         LibraryVariableStorage.Dequeue(CurrencyFilter);
         SuggestCustomerPayments.Customer.SetFilter("No.", No);
-        SuggestCustomerPayments.LastPaymentDate.SetValue(CalcDate('<1M>', WorkDate));  // Required month end date.
+        SuggestCustomerPayments.LastPaymentDate.SetValue(CalcDate('<1M>', WorkDate()));  // Required month end date.
         SuggestCustomerPayments.CurrencyFilter.SetValue(CurrencyFilter);
         SuggestCustomerPayments.OK.Invoke;
     end;
@@ -3170,7 +3170,7 @@ codeunit 144049 "ERM Payment Management"
     begin
         LibraryVariableStorage.Dequeue(No);
         LibraryVariableStorage.Dequeue(SummarizePer);
-        SuggestCustomerPayments.LastPaymentDate.SetValue(WorkDate);
+        SuggestCustomerPayments.LastPaymentDate.SetValue(WorkDate());
         SuggestCustomerPayments.SummarizePer.SetValue(SummarizePer);
         SuggestCustomerPayments.Customer.SetFilter("No.", No);
         SuggestCustomerPayments.OK.Invoke;
@@ -3186,7 +3186,7 @@ codeunit 144049 "ERM Payment Management"
         LibraryVariableStorage.Dequeue(No);
         LibraryVariableStorage.Dequeue(CurrencyFilter);
         SuggestVendorPaymentsFR.Vendor.SetFilter("No.", No);
-        SuggestVendorPaymentsFR.LastPaymentDate.SetValue(CalcDate('<1M>', WorkDate));  // Required month end date.
+        SuggestVendorPaymentsFR.LastPaymentDate.SetValue(CalcDate('<1M>', WorkDate()));  // Required month end date.
         SuggestVendorPaymentsFR.CurrencyFilter.SetValue(CurrencyFilter);
         SuggestVendorPaymentsFR.OK.Invoke;
     end;
@@ -3221,7 +3221,7 @@ codeunit 144049 "ERM Payment Management"
     begin
         LibraryVariableStorage.Dequeue(No);
         LibraryVariableStorage.Dequeue(SummarizePer);
-        SuggestVendorPaymentsFR.LastPaymentDate.SetValue(WorkDate);
+        SuggestVendorPaymentsFR.LastPaymentDate.SetValue(WorkDate());
         SuggestVendorPaymentsFR.SummarizePer.SetValue(SummarizePer);
         SuggestVendorPaymentsFR.Vendor.SetFilter("No.", No);
         SuggestVendorPaymentsFR.OK.Invoke;

@@ -63,7 +63,7 @@ codeunit 144041 "UT PAG Number To Text"
         CheckPreview.AmountText.AssertEquals(AmountInText[1]);
 
         // Teardown.
-        CheckPreview.Close;
+        CheckPreview.Close();
     end;
 
     local procedure CreateCustomer(): Code[20]

@@ -288,7 +288,7 @@ codeunit 144076 "SEPA.03 CT Functional Test"
 
         LibraryPurchase.CreateVendor(Vendor);
         with VendorBankAccount do begin
-            Init;
+            Init();
             Validate(Code, BankAccount.Name);
             Validate("Vendor No.", Vendor."No.");
             Insert(true);
@@ -330,7 +330,7 @@ codeunit 144076 "SEPA.03 CT Functional Test"
         File.Create(ExportedFilePath);
         File.CreateOutStream(OutStr);
         XMLPORT.Export(XMLPORT::"SEPA CT pain.001.001.03", OutStr, GenJnlLine);
-        File.Close;
+        File.Close();
     end;
 
     local procedure FindSEPACTPaymentFormat(): Code[20]

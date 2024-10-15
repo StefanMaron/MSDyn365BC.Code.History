@@ -16,7 +16,7 @@ page 940 "Blanket Assembly Order"
             group(General)
             {
                 Caption = 'General';
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Assembly;
                     AssistEdit = true;
@@ -28,13 +28,21 @@ page 940 "Blanket Assembly Order"
                             CurrPage.Update();
                     end;
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = IsAsmToOrderEditable;
                     Importance = Promoted;
                     TableRelation = Item."No." WHERE("Assembly BOM" = CONST(true));
                     ToolTip = 'Specifies the number of the item that is being assembled with the assembly order.';
+
+                    trigger OnValidate()
+                    var
+                        Item: Record "Item";
+                    begin
+                        if "Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(true, "Item No.");
+                    end;
                 }
                 field(Description; Description)
                 {
@@ -51,44 +59,44 @@ page 940 "Blanket Assembly Order"
                         Importance = Promoted;
                         ToolTip = 'Specifies how many units of the assembly item that you expect to assemble with the assembly order.';
                     }
-                    field("Unit of Measure Code"; "Unit of Measure Code")
+                    field("Unit of Measure Code"; Rec."Unit of Measure Code")
                     {
                         ApplicationArea = Assembly;
                         Editable = IsAsmToOrderEditable;
                         ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                     }
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Assembly;
                     Importance = Promoted;
                     ToolTip = 'Specifies the date on which the assembly order is posted.';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Assembly;
                     Editable = IsAsmToOrderEditable;
                     Importance = Promoted;
                     ToolTip = 'Specifies the date when the assembled item is due to be available for use.';
                 }
-                field("Starting Date"; "Starting Date")
+                field("Starting Date"; Rec."Starting Date")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the date when the assembly order is expected to start.';
                 }
-                field("Ending Date"; "Ending Date")
+                field("Ending Date"; Rec."Ending Date")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the date when the assembly order is expected to finish.';
                 }
-                field("Assemble to Order"; "Assemble to Order")
+                field("Assemble to Order"; Rec."Assemble to Order")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies if the assembly order is linked to a sales order, which indicates that the item is assembled to order.';
 
                     trigger OnDrillDown()
                     begin
-                        ShowAsmToOrder;
+                        ShowAsmToOrder();
                     end;
                 }
                 field(Status; Status)
@@ -107,50 +115,59 @@ page 940 "Blanket Assembly Order"
             group(Posting)
             {
                 Caption = 'Posting';
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     Editable = IsAsmToOrderEditable;
                     Importance = Promoted;
                     ToolTip = 'Specifies the variant of the item on the line.';
+                    ShowMandatory = VariantCodeMandatory;
+
+                    trigger OnValidate()
+                    var
+                        Item: Record "Item";
+                    begin
+                        if "Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(true, "Item No.");
+                    end;
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     Editable = IsAsmToOrderEditable;
                     Importance = Promoted;
                     ToolTip = 'Specifies the location to which you want to post output of the assembly item.';
                 }
-                field("Bin Code"; "Bin Code")
+                field("Bin Code"; Rec."Bin Code")
                 {
                     ApplicationArea = Warehouse;
                     Editable = IsAsmToOrderEditable;
                     ToolTip = 'Specifies the bin the assembly item is posted to as output and from where it is taken to storage or shipped if it is assembled to a sales order.';
                 }
-                field("Unit Cost"; "Unit Cost")
+                field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Assembly;
                     Editable = IsUnitCostEditable;
                     ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
                 }
-                field("Cost Amount"; "Cost Amount")
+                field("Cost Amount"; Rec."Cost Amount")
                 {
                     ApplicationArea = Assembly;
                     Editable = IsUnitCostEditable;
                     ToolTip = 'Specifies the total unit cost of the assembly order.';
                 }
-                field("Assigned User ID"; "Assigned User ID")
+                field("Assigned User ID"; Rec."Assigned User ID")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the ID of the user who is responsible for the document.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Assembly;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -202,7 +219,7 @@ page 940 "Blanket Assembly Order"
 
                 trigger OnAction()
                 begin
-                    ShowStatistics;
+                    ShowStatistics();
                 end;
             }
             action(Dimensions)
@@ -229,7 +246,7 @@ page 940 "Blanket Assembly Order"
 
                 trigger OnAction()
                 begin
-                    ShowAssemblyList;
+                    ShowAssemblyList();
                 end;
             }
             action(Comments)
@@ -260,7 +277,7 @@ page 940 "Blanket Assembly Order"
 
                     trigger OnAction()
                     begin
-                        UpdateUnitCost;
+                        UpdateUnitCost();
                     end;
                 }
                 action("Refresh Lines")
@@ -272,7 +289,7 @@ page 940 "Blanket Assembly Order"
 
                     trigger OnAction()
                     begin
-                        RefreshBOM;
+                        RefreshBOM();
                         CurrPage.Update();
                     end;
                 }
@@ -285,7 +302,7 @@ page 940 "Blanket Assembly Order"
 
                     trigger OnAction()
                     begin
-                        ShowAvailability;
+                        ShowAvailability();
                     end;
                 }
                 action("Refresh availability warnings")
@@ -304,9 +321,13 @@ page 940 "Blanket Assembly Order"
     }
 
     trigger OnAfterGetRecord()
+    var
+        Item: Record Item;
     begin
-        IsUnitCostEditable := not IsStandardCostItem;
-        IsAsmToOrderEditable := not IsAsmToOrder;
+        IsUnitCostEditable := not IsStandardCostItem();
+        IsAsmToOrderEditable := not IsAsmToOrder();
+        if "Variant Code" = '' then
+            VariantCodeMandatory := Item.IsVariantMandatory(true, "Item No.");
     end;
 
     trigger OnOpenPage()
@@ -314,8 +335,11 @@ page 940 "Blanket Assembly Order"
         IsUnitCostEditable := true;
         IsAsmToOrderEditable := true;
 
-        UpdateWarningOnLines;
+        UpdateWarningOnLines();
     end;
+
+    var
+        VariantCodeMandatory: Boolean;
 
     protected var
         [InDataSet]

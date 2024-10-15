@@ -14,7 +14,7 @@ page 9217 "ResGrp. All. per Serv.  Matrix"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     Editable = false;
@@ -458,7 +458,7 @@ page 9217 "ResGrp. All. per Serv.  Matrix"
             {
                 Caption = '&Prices';
                 Image = Price;
-#if not CLEAN19
+#if not CLEAN21
                 action(Costs)
                 {
                     ApplicationArea = Service;
@@ -511,8 +511,6 @@ page 9217 "ResGrp. All. per Serv.  Matrix"
                     ApplicationArea = Jobs;
                     Caption = 'Sales Prices';
                     Image = Price;
-                    Promoted = true;
-                    PromotedCategory = Category4;
                     Visible = ExtendedPriceEnabled;
                     ToolTip = 'View or edit prices for the resource group.';
 
@@ -542,11 +540,22 @@ page 9217 "ResGrp. All. per Serv.  Matrix"
                 }
             }
         }
+        area(Promoted)
+        {
+            group(Category_Category4)
+            {
+                Caption = 'Category 4';
+
+                actionref(SalesPriceLists_Promoted; SalesPriceLists)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     begin
-        MatrixOnAfterGetRecord;
+        MatrixOnAfterGetRecord();
     end;
 
     trigger OnInit()
@@ -700,7 +709,7 @@ page 9217 "ResGrp. All. per Serv.  Matrix"
                 MatrixCellData[I] := '';
         end;
 
-        SetVisible;
+        SetVisible();
     end;
 
     local procedure MatrixOnDrillDown(Column: Integer)

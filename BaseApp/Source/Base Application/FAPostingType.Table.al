@@ -70,7 +70,7 @@ table 5644 "FA Posting Type"
             "FA Entry" := true;
             "FA Posting Type No." := FADeprBook.FieldNo(Derogatory);
             "FA Posting Type Name" := FADeprBook.FieldCaption(Derogatory);
-            Insert;
+            Insert();
         end else begin
             SetCurrentKey("Entry No.");
             Find('-');
@@ -79,94 +79,94 @@ table 5644 "FA Posting Type"
                     if ("FA Posting Type No." <> FADeprBook.FieldNo("Acquisition Cost")) or
                        ("FA Posting Type Name" <> FADeprBook.FieldCaption("Acquisition Cost"))
                     then begin
-                        Delete;
+                        Delete();
                         InsertRec(1, FADeprBook.FieldNo("Acquisition Cost"), FADeprBook.FieldCaption("Acquisition Cost"));
                     end;
                 if "Entry No." = 2 then
                     if ("FA Posting Type No." <> FADeprBook.FieldNo(Depreciation)) or
                        ("FA Posting Type Name" <> FADeprBook.FieldCaption(Depreciation))
                     then begin
-                        Delete;
+                        Delete();
                         InsertRec(2, FADeprBook.FieldNo(Depreciation), FADeprBook.FieldCaption(Depreciation));
                     end;
                 if "Entry No." = 3 then
                     if ("FA Posting Type No." <> FADeprBook.FieldNo("Write-Down")) or
                        ("FA Posting Type Name" <> FADeprBook.FieldCaption("Write-Down"))
                     then begin
-                        Delete;
+                        Delete();
                         InsertRec(3, FADeprBook.FieldNo("Write-Down"), FADeprBook.FieldCaption("Write-Down"));
                     end;
                 if "Entry No." = 4 then
                     if ("FA Posting Type No." <> FADeprBook.FieldNo(Appreciation)) or
                        ("FA Posting Type Name" <> FADeprBook.FieldCaption(Appreciation))
                     then begin
-                        Delete;
+                        Delete();
                         InsertRec(4, FADeprBook.FieldNo(Appreciation), FADeprBook.FieldCaption(Appreciation));
                     end;
                 if "Entry No." = 5 then
                     if ("FA Posting Type No." <> FADeprBook.FieldNo("Custom 1")) or
                        ("FA Posting Type Name" <> FADeprBook.FieldCaption("Custom 1"))
                     then begin
-                        Delete;
+                        Delete();
                         InsertRec(5, FADeprBook.FieldNo("Custom 1"), FADeprBook.FieldCaption("Custom 1"));
                     end;
                 if "Entry No." = 6 then
                     if ("FA Posting Type No." <> FADeprBook.FieldNo("Custom 2")) or
                        ("FA Posting Type Name" <> FADeprBook.FieldCaption("Custom 2"))
                     then begin
-                        Delete;
+                        Delete();
                         InsertRec(6, FADeprBook.FieldNo("Custom 2"), FADeprBook.FieldCaption("Custom 2"));
                     end;
                 if "Entry No." = 7 then
                     if ("FA Posting Type No." <> FADeprBook.FieldNo("Proceeds on Disposal")) or
                        ("FA Posting Type Name" <> FADeprBook.FieldCaption("Proceeds on Disposal"))
                     then begin
-                        Delete;
+                        Delete();
                         InsertRec(7, FADeprBook.FieldNo("Proceeds on Disposal"), FADeprBook.FieldCaption("Proceeds on Disposal"));
                     end;
                 if "Entry No." = 8 then
                     if ("FA Posting Type No." <> FADeprBook.FieldNo("Gain/Loss")) or
                        ("FA Posting Type Name" <> FADeprBook.FieldCaption("Gain/Loss"))
                     then begin
-                        Delete;
+                        Delete();
                         InsertRec(8, FADeprBook.FieldNo("Gain/Loss"), FADeprBook.FieldCaption("Gain/Loss"));
                     end;
                 if "Entry No." = 9 then
                     if ("FA Posting Type No." <> FADeprBook.FieldNo("Book Value")) or
                        ("FA Posting Type Name" <> FADeprBook.FieldCaption("Book Value"))
                     then begin
-                        Delete;
+                        Delete();
                         InsertRec(9, FADeprBook.FieldNo("Book Value"), FADeprBook.FieldCaption("Book Value"));
                     end;
                 if "Entry No." = 10 then
                     if ("FA Posting Type No." <> FADeprBook.FieldNo("Depreciable Basis")) or
                        ("FA Posting Type Name" <> FADeprBook.FieldCaption("Depreciable Basis"))
                     then begin
-                        Delete;
+                        Delete();
                         InsertRec(10, FADeprBook.FieldNo("Depreciable Basis"), FADeprBook.FieldCaption("Depreciable Basis"));
                     end;
                 if "Entry No." = 11 then
                     if ("FA Posting Type No." <> FADeprBook.FieldNo("Salvage Value")) or
                        ("FA Posting Type Name" <> FADeprBook.FieldCaption("Salvage Value"))
                     then begin
-                        Delete;
+                        Delete();
                         InsertRec(11, FADeprBook.FieldNo("Salvage Value"), FADeprBook.FieldCaption("Salvage Value"));
                     end;
                 if "Entry No." = 12 then
                     if ("FA Posting Type No." <> FADeprBook.FieldNo("Book Value on Disposal")) or
                        ("FA Posting Type Name" <> FADeprBook.FieldCaption("Book Value on Disposal"))
                     then begin
-                        Delete;
+                        Delete();
                         InsertRec(12, FADeprBook.FieldNo("Book Value on Disposal"), FADeprBook.FieldCaption("Book Value on Disposal"));
                     end;
                 if "Entry No." = 13 then
                     if ("FA Posting Type No." <> FADeprBook.FieldNo(Derogatory)) or
                        ("FA Posting Type Name" <> FADeprBook.FieldCaption(Derogatory))
                     then begin
-                        Delete;
+                        Delete();
                         "FA Posting Type No." := FADeprBook.FieldNo(Derogatory);
                         "FA Posting Type Name" := FADeprBook.FieldCaption(Derogatory);
-                        Insert;
+                        Insert();
                     end;
             until Next() = 0;
         end;
@@ -177,7 +177,7 @@ table 5644 "FA Posting Type"
         "Entry No." := EntryNo;
         "FA Posting Type No." := FAPostingTypeNo;
         "FA Posting Type Name" := CopyStr(FAPostingTypeName, 1, MaxStrLen("FA Posting Type Name"));
-        Insert;
+        Insert();
     end;
 }
 

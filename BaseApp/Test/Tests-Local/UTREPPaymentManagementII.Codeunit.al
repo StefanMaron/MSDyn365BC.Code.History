@@ -404,7 +404,7 @@ codeunit 144054 "UT REP Payment Management II"
     begin
         // Purpose of test is to validate error of Posting Date for Report 10862 (Suggest Vendor Payments FR).
         // Verify actual error: "Please enter the posting date."
-        RunMiscellaneousReportsAndVerifyError(WorkDate, REPORT::"Suggest Vendor Payments FR", DialogCap);
+        RunMiscellaneousReportsAndVerifyError(WorkDate(), REPORT::"Suggest Vendor Payments FR", DialogCap);
     end;
 
     [Test]
@@ -426,7 +426,7 @@ codeunit 144054 "UT REP Payment Management II"
     begin
         // Purpose of test is to validate error of Posting Date for Report 10864 (Suggest Customer Payments).
         // Verify actual error: "Please enter the posting date."
-        RunMiscellaneousReportsAndVerifyError(WorkDate, REPORT::"Suggest Customer Payments", DialogCap);
+        RunMiscellaneousReportsAndVerifyError(WorkDate(), REPORT::"Suggest Customer Payments", DialogCap);
     end;
 
     [Test]
@@ -515,7 +515,7 @@ codeunit 144054 "UT REP Payment Management II"
         // Verify: Verify duplicate class with new name.
         PaymentClass.FILTER.SetFilter(Code, CopyStr(PaymentClass.Code.Value, 1, 4));
         PaymentClass.Code.AssertEquals(CopyStr(PaymentClass.Code.Value, 1, 4));
-        PaymentClass.Close;
+        PaymentClass.Close();
     end;
 
     local procedure Initialize()

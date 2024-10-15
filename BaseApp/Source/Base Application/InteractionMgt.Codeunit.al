@@ -17,7 +17,7 @@ codeunit 5067 "Interaction Mgt."
         Notification.AddAction(OpenOpportunityTxt, CODEUNIT::"Interaction Mgt.", 'ShowCreatedOpportunity');
         Notification.Message(StrSubstNo(OpportunityCreatedFromIntLogEntryMsg, InteractionLogEntry."Opportunity No."));
         Notification.SetData('OpportunityNo', InteractionLogEntry."Opportunity No.");
-        Notification.Send;
+        Notification.Send();
     end;
 
     procedure ShowCreatedOpportunity(Notification: Notification)

@@ -8,7 +8,7 @@ page 9124 "Service Line FactBox"
     {
         area(content)
         {
-            field("No."; "No.")
+            field("No."; Rec."No.")
             {
                 ApplicationArea = Service;
                 Caption = 'Item No.';
@@ -30,7 +30,7 @@ page 9124 "Service Line FactBox"
 
                 trigger OnDrillDown()
                 begin
-                    ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByEvent);
+                    ItemAvailFormsMgt.ShowItemAvailFromServLine(Rec, ItemAvailFormsMgt.ByEvent());
                 end;
             }
             field("STRSUBSTNO('%1',ServInfoPaneMgt.CalcNoOfSubstitutions(Rec))"; StrSubstNo('%1', ServInfoPaneMgt.CalcNoOfSubstitutions(Rec)))

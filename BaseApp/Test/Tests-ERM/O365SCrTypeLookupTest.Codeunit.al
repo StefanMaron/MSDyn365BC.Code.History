@@ -82,7 +82,7 @@ codeunit 134650 "O365 S. Cr. Type Lookup Test"
 
             // [THEN] The Subtype is set to service
             SalesCreditMemo.SalesLines.FilteredTypeField.AssertEquals(TempOptionLookupBuffer."Option Caption");
-        until TempOptionLookupBuffer.Next = 0;
+        until TempOptionLookupBuffer.Next() = 0;
     end;
 
     [Test]
@@ -111,7 +111,7 @@ codeunit 134650 "O365 S. Cr. Type Lookup Test"
         // [WHEN] Setting the Subtype on the Sales Line to co
         SalesCreditMemo.SalesLines.FilteredTypeField.SetValue(CopyStr(SalesLine.FormatType, 1, 2));
         // [THEN] The Subtype is set to Comment
-        SalesCreditMemo.SalesLines.FilteredTypeField.AssertEquals(SalesLine.FormatType);
+        SalesCreditMemo.SalesLines.FilteredTypeField.AssertEquals(SalesLine.FormatType());
     end;
 
     [Test]
@@ -130,12 +130,12 @@ codeunit 134650 "O365 S. Cr. Type Lookup Test"
         // [WHEN] Setting the Subtype on the Sales Line to ' '
         SalesCreditMemo.SalesLines.FilteredTypeField.SetValue(' ');
         // [THEN] The Subtype is set to Blank
-        SalesCreditMemo.SalesLines.FilteredTypeField.AssertEquals(SalesLine.FormatType);
+        SalesCreditMemo.SalesLines.FilteredTypeField.AssertEquals(SalesLine.FormatType());
 
         // [WHEN] Setting the Subtype on the Sales Line to ''
         SalesCreditMemo.SalesLines.FilteredTypeField.SetValue('');
         // [THEN] The Subtype is set to Blank
-        SalesCreditMemo.SalesLines.FilteredTypeField.AssertEquals(SalesLine.FormatType);
+        SalesCreditMemo.SalesLines.FilteredTypeField.AssertEquals(SalesLine.FormatType());
     end;
 
     [Test]
@@ -218,7 +218,7 @@ codeunit 134650 "O365 S. Cr. Type Lookup Test"
         TempOptionLookupBuffer.FindSet();
         repeat
             OptionLookupList.GotoKey(TempOptionLookupBuffer."Option Caption");
-        until TempOptionLookupBuffer.Next = 0;
+        until TempOptionLookupBuffer.Next() = 0;
 
         OptionLookupList.GotoKey(LibraryVariableStorage.DequeueText);
         OptionLookupList.OK.Invoke;

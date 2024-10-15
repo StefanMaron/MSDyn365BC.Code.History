@@ -4,7 +4,6 @@ page 1638 "Booking Items"
     Editable = false;
     LinksAllowed = false;
     PageType = List;
-    PromotedActionCategories = 'New,Process,Report,Invoicing';
     SourceTable = "Booking Item";
     SourceTableTemporary = true;
 
@@ -67,8 +66,6 @@ page 1638 "Booking Items"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Create Invoice';
                 Image = NewSalesInvoice;
-                Promoted = true;
-                PromotedCategory = Category4;
                 Scope = Repeater;
                 ToolTip = 'Create a new sales invoice for the selected booking.';
 
@@ -78,7 +75,7 @@ page 1638 "Booking Items"
                     SalesHeader: Record "Sales Header";
                     CountCust: Integer;
                 begin
-                    if not ActionAllowed then
+                    if not ActionAllowed() then
                         exit;
 
                     GetSelectedRecords(TempBookingItem);
@@ -97,15 +94,13 @@ page 1638 "Booking Items"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Create Invoice for Customer';
                 Image = SuggestCustomerBill;
-                Promoted = true;
-                PromotedCategory = Category4;
                 ToolTip = 'Create a new sales invoice for all items booked by the customer on the selected booking.';
 
                 trigger OnAction()
                 var
                     SalesHeader: Record "Sales Header";
                 begin
-                    if not ActionAllowed then
+                    if not ActionAllowed() then
                         exit;
 
                     if InvoiceItemsForCustomer(Rec, SalesHeader) then
@@ -118,8 +113,6 @@ page 1638 "Booking Items"
                 Caption = 'Mark as Invoiced';
                 Gesture = None;
                 Image = ClearLog;
-                Promoted = true;
-                PromotedCategory = Category4;
                 Scope = Repeater;
                 ToolTip = 'Mark the bookings that you have selected as invoiced. This removes the bookings from this view.';
 
@@ -129,10 +122,10 @@ page 1638 "Booking Items"
                     TempBookingItem: Record "Booking Item" temporary;
                     InstructionMgt: Codeunit "Instruction Mgt.";
                 begin
-                    if not ActionAllowed then
+                    if not ActionAllowed() then
                         exit;
 
-                    if InstructionMgt.ShowConfirm(ConfirmMarkQst, InstructionMgt.MarkBookingAsInvoicedWarningCode) then begin
+                    if InstructionMgt.ShowConfirm(ConfirmMarkQst, InstructionMgt.MarkBookingAsInvoicedWarningCode()) then begin
                         GetSelectedRecords(TempBookingItem);
                         if TempBookingItem.FindSet() then
                             repeat
@@ -151,8 +144,6 @@ page 1638 "Booking Items"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Invoice All';
                 Image = NewSalesInvoice;
-                Promoted = true;
-                PromotedCategory = Category4;
                 ToolTip = 'Create a new sales invoice for all non-invoiced bookings.';
 
                 trigger OnAction()
@@ -161,7 +152,7 @@ page 1638 "Booking Items"
                     SalesHeader: Record "Sales Header";
                     CountCust: Integer;
                 begin
-                    if not ActionAllowed then
+                    if not ActionAllowed() then
                         exit;
 
                     TempBookingItem.Copy(Rec, true);
@@ -177,13 +168,37 @@ page 1638 "Booking Items"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Invoicing', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(Invoice_Promoted; Invoice)
+                {
+                }
+                actionref("Invoice Customer_Promoted"; "Invoice Customer")
+                {
+                }
+                actionref(MarkInvoiced_Promoted; MarkInvoiced)
+                {
+                }
+                actionref(InvoiceAll_Promoted; InvoiceAll)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     var
         OutlookSynchTypeConv: Codeunit "Outlook Synch. Type Conv";
     begin
-        StartDate := OutlookSynchTypeConv.UTC2LocalDT(GetStartDate);
+        StartDate := OutlookSynchTypeConv.UTC2LocalDT(GetStartDate());
         CustomerName := "Customer Name";
         if CustomerName = '' then
             CustomerName := NoCustomerSelectedTxt;
@@ -200,7 +215,7 @@ page 1638 "Booking Items"
 
     local procedure ActionAllowed() Allowed: Boolean
     begin
-        Allowed := CheckActionAllowed;
+        Allowed := CheckActionAllowed();
         if "Customer Name" = '' then begin
             Message(NoCustomerSelectedMsg);
             Allowed := false;
@@ -245,7 +260,7 @@ page 1638 "Booking Items"
     local procedure RemoveFromView(var TempBookingItem: Record "Booking Item" temporary)
     begin
         Get(TempBookingItem.SystemId);
-        Delete;
+        Delete();
     end;
 }
 

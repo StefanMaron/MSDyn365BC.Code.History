@@ -41,7 +41,7 @@ codeunit 144021 "UT REP Export General Ledger"
     begin
         // Purpose of the test is to verify error for Report - 10820 (Export G/L Entries to XML) with blank Ending Date.
         // Verify actual error: "You must enter an Ending Date."
-        ExportGLEntriesToXMLAndVerifyError(WorkDate, 0D);  // Ending Date as blank.
+        ExportGLEntriesToXMLAndVerifyError(WorkDate(), 0D);  // Ending Date as blank.
     end;
 
     [Test]
@@ -52,7 +52,7 @@ codeunit 144021 "UT REP Export General Ledger"
     begin
         // Purpose of the test is to verify error for Report - 10820 (Export G/L Entries to XML).
         // Verify actual error: "There are no entries to export within the defined filter. The file was not created."
-        ExportGLEntriesToXMLAndVerifyError(WorkDate, CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));  // Take random date.
+        ExportGLEntriesToXMLAndVerifyError(WorkDate(), CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Take random date.
     end;
 
     local procedure ExportGLEntriesToXMLAndVerifyError(StartingDate: Date; EndingDate: Date)

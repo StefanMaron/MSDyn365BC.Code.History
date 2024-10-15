@@ -67,7 +67,7 @@ table 1106 "Cost Allocation Source"
         }
         field(22; "Total Share"; Decimal)
         {
-            CalcFormula = Sum ("Cost Allocation Target".Share WHERE(ID = FIELD(ID)));
+            CalcFormula = Sum("Cost Allocation Target".Share WHERE(ID = FIELD(ID)));
             Caption = 'Total Share';
             Editable = false;
             FieldClass = FlowField;
@@ -135,19 +135,20 @@ table 1106 "Cost Allocation Source"
             ID := CostAccSetup."Last Allocation ID";
         end;
 
-        Modified;
+        Modified();
     end;
 
     trigger OnModify()
     begin
-        Modified;
+        Modified();
     end;
 
     var
-        Text000: Label 'To assign the allocation ID, the Last Allocation ID field must be defined in the Cost Accounting setup.';
-        Text003: Label 'You cannot define both cost center and cost object.';
         CostAccSetup: Record "Cost Accounting Setup";
         CostAllocationTarget: Record "Cost Allocation Target";
+
+        Text000: Label 'To assign the allocation ID, the Last Allocation ID field must be defined in the Cost Accounting setup.';
+        Text003: Label 'You cannot define both cost center and cost object.';
 
     local procedure Modified()
     begin

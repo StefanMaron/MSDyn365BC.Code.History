@@ -11,7 +11,7 @@ codeunit 115 "G/L Entry-Edit"
         BindSubscription(GLEntryEdit);
         GLEntry := Rec;
         GLEntry.LockTable();
-        GLEntry.Find;
+        GLEntry.Find();
         GLEntry.Description := Description;
         OnBeforeGLLedgEntryModify(GLEntry, Rec);
         GLEntry.TestField("Entry No.", "Entry No.");

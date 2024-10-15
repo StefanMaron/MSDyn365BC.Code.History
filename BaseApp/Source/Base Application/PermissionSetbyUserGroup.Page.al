@@ -6,7 +6,6 @@ page 9837 "Permission Set by User Group"
     LinksAllowed = false;
     ModifyAllowed = false;
     PageType = Worksheet;
-    PromotedActionCategories = 'New,Process,Report,Browse';
     SourceTable = "Aggregate Permission Set";
 
     layout
@@ -16,7 +15,7 @@ page 9837 "Permission Set by User Group"
             repeater(Group)
             {
                 Caption = 'Permission Set';
-                field("Role ID"; "Role ID")
+                field("Role ID"; Rec."Role ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Permission Set';
@@ -29,14 +28,14 @@ page 9837 "Permission Set by User Group"
                     Editable = false;
                     ToolTip = 'Specifies the name of the record.';
                 }
-                field("App ID"; "App ID")
+                field("App ID"; Rec."App ID")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Extension ID';
                     ToolTip = 'Specifies the unique identifier for the extension. A unique identifier will be generated if a value is not provided.';
                     Visible = false;
                 }
-                field("App Name"; "App Name")
+                field("App Name"; Rec."App Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Extension Name';
@@ -208,16 +207,13 @@ page 9837 "Permission Set by User Group"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Permissions';
                 Image = Permission;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 ToolTip = 'View or edit which feature objects that users need to access and set up the related permissions in permission sets that you can assign to the users of the database.';
 
                 trigger OnAction()
                 var
-                    PermissionPagesMgt: Codeunit "Permission Pages Mgt.";
+                    PermissionSetRelation: Codeunit "Permission Set Relation";
                 begin
-                    PermissionPagesMgt.ShowPermissions(Scope, "App ID", "Role ID", false);
+                    PermissionSetRelation.OpenPermissionSetPage(Rec.Name, Rec."Role ID", Rec."App ID", Rec.Scope);
                 end;
             }
         }
@@ -230,9 +226,6 @@ page 9837 "Permission Set by User Group"
                 Ellipsis = true;
                 Enabled = CanManageUsersOnTenant;
                 Image = Copy;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedOnly = true;
                 ToolTip = 'Create a copy of the selected permission set with a name that you specify.';
 
                 trigger OnAction()
@@ -251,14 +244,11 @@ page 9837 "Permission Set by User Group"
                 ApplicationArea = Basic, Suite;
                 Caption = 'All Columns Left';
                 Image = PreviousSet;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ToolTip = 'Jump to the left-most column.';
 
                 trigger OnAction()
                 begin
-                    PermissionPagesMgt.AllColumnsLeft;
+                    PermissionPagesMgt.AllColumnsLeft();
                 end;
             }
             action(ColumnLeft)
@@ -266,14 +256,11 @@ page 9837 "Permission Set by User Group"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Column Left';
                 Image = PreviousRecord;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ToolTip = 'Jump one column to the left.';
 
                 trigger OnAction()
                 begin
-                    PermissionPagesMgt.ColumnLeft;
+                    PermissionPagesMgt.ColumnLeft();
                 end;
             }
             action(ColumnRight)
@@ -281,14 +268,11 @@ page 9837 "Permission Set by User Group"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Column Right';
                 Image = NextRecord;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ToolTip = 'Jump one column to the right.';
 
                 trigger OnAction()
                 begin
-                    PermissionPagesMgt.ColumnRight;
+                    PermissionPagesMgt.ColumnRight();
                 end;
             }
             action(AllColumnsRight)
@@ -296,34 +280,66 @@ page 9837 "Permission Set by User Group"
                 ApplicationArea = Basic, Suite;
                 Caption = 'All Columns Right';
                 Image = NextSet;
-                Promoted = true;
-                PromotedCategory = Category4;
-                PromotedIsBig = true;
                 ToolTip = 'Jump to the right-most column.';
 
                 trigger OnAction()
                 begin
-                    PermissionPagesMgt.AllColumnsRight;
+                    PermissionPagesMgt.AllColumnsRight();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(Permissions_Promoted; Permissions)
+                {
+                }
+                actionref(CopyPermissionSet_Promoted; CopyPermissionSet)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Browse', Comment = 'Generated from the PromotedActionCategories property index 3.';
+
+                actionref(AllColumnsLeft_Promoted; AllColumnsLeft)
+                {
+                }
+                actionref(ColumnLeft_Promoted; ColumnLeft)
+                {
+                }
+                actionref(ColumnRight_Promoted; ColumnRight)
+                {
+                }
+                actionref(AllColumnsRight_Promoted; AllColumnsRight)
+                {
+                }
             }
         }
     }
 
     trigger OnAfterGetCurrRecord()
     begin
-        FindUserGroups;
+        FindUserGroups();
     end;
 
     trigger OnAfterGetRecord()
     begin
-        FindUserGroups;
+        FindUserGroups();
     end;
 
     trigger OnInit()
     var
         UserPermissions: Codeunit "User Permissions";
     begin
-        CanManageUsersOnTenant := UserPermissions.CanManageUsersOnTenant(UserSecurityId);
+        CanManageUsersOnTenant := UserPermissions.CanManageUsersOnTenant(UserSecurityId());
     end;
 
     trigger OnOpenPage()
@@ -355,9 +371,9 @@ page 9837 "Permission Set by User Group"
             repeat
                 i += 1;
                 if PermissionPagesMgt.IsInColumnsRange(i) then begin
-                    UserGroupCodeArr[i - PermissionPagesMgt.GetOffset] := UserGroup.Code;
-                    UserGroupHasPermissionSet[i - PermissionPagesMgt.GetOffset] := UserGroupHasPermission(Rec, UserGroup);
-                    AllGroupsHavePermission := AllGroupsHavePermission and UserGroupHasPermissionSet[i - PermissionPagesMgt.GetOffset];
+                    UserGroupCodeArr[i - PermissionPagesMgt.GetOffset()] := UserGroup.Code;
+                    UserGroupHasPermissionSet[i - PermissionPagesMgt.GetOffset()] := UserGroupHasPermission(Rec, UserGroup);
+                    AllGroupsHavePermission := AllGroupsHavePermission and UserGroupHasPermissionSet[i - PermissionPagesMgt.GetOffset()];
                 end else
                     if AllGroupsHavePermission then
                         AllGroupsHavePermission := UserGroupHasPermission(Rec, UserGroup);

@@ -152,7 +152,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
           FAJournalLine, FANo, NormalDeprBookCode, FAJournalLine."FA Posting Type"::"Acquisition Cost",
           LibraryRandom.RandDec(10000, 2));
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
-        RunCalculateDepreciationReport(FANo, NormalDeprBookCode, CalcDate('<1D>', WorkDate), false);
+        RunCalculateDepreciationReport(FANo, NormalDeprBookCode, CalcDate('<1D>', WorkDate()), false);
 
         // 3.Verify FA Journal Line with FA Posting Type: Deregatory;
         VerifyFAJournalLine(FANo);
@@ -170,17 +170,17 @@ codeunit 144002 "ERM Fixed Assets - Local"
         // Checks posting final Depreciation with Negative Deroagatory
 
         // 1. Setup
-        FANo := CreateFAWithBooks(NormalDeprBookCode, TaxDeprBookCode, CalcDate('<CY-1Y+1D>', WorkDate), CalcDate('<CY>', WorkDate));
+        FANo := CreateFAWithBooks(NormalDeprBookCode, TaxDeprBookCode, CalcDate('<CY-1Y+1D>', WorkDate()), CalcDate('<CY>', WorkDate()));
 
         // 2. Excercise
         // Certain values to get further necessary Derogatory
-        CreatePurchaseInvoiceAndPost(FANo, NormalDeprBookCode, 1, 1000, CalcDate('<CY-8M+1D>', WorkDate));
+        CreatePurchaseInvoiceAndPost(FANo, NormalDeprBookCode, 1, 1000, CalcDate('<CY-8M+1D>', WorkDate()));
         // Creates journal lines for 31/8/CurentYear and post
         RunCalculateDepreciationReportAndPostJournalLines(
-          FANo, NormalDeprBookCode, CalcDate('<CY-4M>', WorkDate), true);
+          FANo, NormalDeprBookCode, CalcDate('<CY-4M>', WorkDate()), true);
         // Creates journal lines for 31/12/CurentYear and post
         RunCalculateDepreciationReportAndPostJournalLines(
-          FANo, NormalDeprBookCode, CalcDate('<CY>', WorkDate), true);
+          FANo, NormalDeprBookCode, CalcDate('<CY>', WorkDate()), true);
 
         // 3. Verify
         VerifyFinalDepreciationWithNegativeDerogatory(FANo);
@@ -208,14 +208,14 @@ codeunit 144002 "ERM Fixed Assets - Local"
         CreateFAJournalLine(
           FAJournalLine, FANo, NormalDeprBookCode, FAJournalLine."FA Posting Type"::"Acquisition Cost", Amount);
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
-        RunCalculateDepreciationReport(FANo, NormalDeprBookCode, CalcDate('<CY>', WorkDate), false);
+        RunCalculateDepreciationReport(FANo, NormalDeprBookCode, CalcDate('<CY>', WorkDate()), false);
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
 
-        RunCalculateDepreciationReport(FANo, NormalDeprBookCode, CalcDate('<CY+3M>', WorkDate), false);
+        RunCalculateDepreciationReport(FANo, NormalDeprBookCode, CalcDate('<CY+3M>', WorkDate()), false);
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
 
         // Projected Value
-        RunFAProjValueDerogReport(NormalDeprBookCode, CalcDate('<CY>', WorkDate), CalcDate('<CY+365D>', WorkDate), 0D, false);
+        RunFAProjValueDerogReport(NormalDeprBookCode, CalcDate('<CY>', WorkDate()), CalcDate('<CY+365D>', WorkDate()), 0D, false);
 
         // 3.Verify derogatory value.
         LibraryReportDataset.LoadDataSetFile;
@@ -236,8 +236,8 @@ codeunit 144002 "ERM Fixed Assets - Local"
         // Checks posting for Calculation of Depreciation and Derogatory for Negative Book Value.
 
         // 1. Setup : Create Fixed Asset, Depreciation Books, FA Depreciation Book With FA Posting Group and Post Acquisition.
-        EndingDate := CalcDate('<CY>', WorkDate);
-        FANo := CreateFAWithBooks(NormalDeprBookCode, TaxDeprBookCode, CalcDate('<-CY>', WorkDate), EndingDate);
+        EndingDate := CalcDate('<CY>', WorkDate());
+        FANo := CreateFAWithBooks(NormalDeprBookCode, TaxDeprBookCode, CalcDate('<-CY>', WorkDate()), EndingDate);
         UpdateFADepreciationBook(FADepreciationBook, FANo, TaxDeprBookCode, EndingDate);
         CreatePurchaseInvoiceAndPost(
           FANo, NormalDeprBookCode,
@@ -278,7 +278,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
 
         // [GIVEN] The FA is depreciated via Calculate Depreciation report
-        RunCalculateDepreciationReport(FANo, NormalDeprBookCode, CalcDate('<CY>', WorkDate), false);
+        RunCalculateDepreciationReport(FANo, NormalDeprBookCode, CalcDate('<CY>', WorkDate()), false);
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
 
         FADepreciationBook.Get(FANo, TaxDeprBookCode);
@@ -333,7 +333,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
 
         // [GIVEN] The FA is depreciated via Calculate Depreciation report
-        RunCalculateDepreciationReport(FANo, NormalDeprBookCode, CalcDate('<CY>', WorkDate), true);
+        RunCalculateDepreciationReport(FANo, NormalDeprBookCode, CalcDate('<CY>', WorkDate()), true);
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
         GenJournalLine.SetRange("Account No.", FANo);
         GenJournalLine.FindFirst();
@@ -377,11 +377,11 @@ codeunit 144002 "ERM Fixed Assets - Local"
         // [GIVEN] An acquisition cost is posted via FA G/L journal line
         Amount := LibraryRandom.RandDec(10000, 2);
         CreatePostGenJnlLine(
-          GenJournalLine, WorkDate, GenJournalLine."FA Posting Type"::"Acquisition Cost",
+          GenJournalLine, WorkDate(), GenJournalLine."FA Posting Type"::"Acquisition Cost",
           FANo, NormalDeprBookCode, Amount);
 
         // [GIVEN] The FA is depreciated via Calculate Depreciation report
-        RunCalculateDepreciationReport(FANo, NormalDeprBookCode, CalcDate('<CY>', WorkDate), true);
+        RunCalculateDepreciationReport(FANo, NormalDeprBookCode, CalcDate('<CY>', WorkDate()), true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         FADepreciationBook.Get(FANo, TaxDeprBookCode);
@@ -392,7 +392,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         // [WHEN] An additional acquisition cost is posted via FA G/L journal line with "Depr. acquisition Cost" = Yes
         Amount2 := LibraryRandom.RandDec(10000, 2);
         CreateGenJournalLine(
-          GenJournalLine, WorkDate, GenJournalLine."FA Posting Type"::"Acquisition Cost", FANo, NormalDeprBookCode, Amount2);
+          GenJournalLine, WorkDate(), GenJournalLine."FA Posting Type"::"Acquisition Cost", FANo, NormalDeprBookCode, Amount2);
         GenJournalLine.Validate("Depr. Acquisition Cost", true);
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -432,7 +432,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
 
         // [GIVEN] The FA is depreciated via Calculate Depreciation report
-        RunCalculateDepreciationReport(FANo, NormalDeprBookCode, CalcDate('<CY>', WorkDate), false);
+        RunCalculateDepreciationReport(FANo, NormalDeprBookCode, CalcDate('<CY>', WorkDate()), false);
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
 
         FADepreciationBook.Get(FANo, TaxDeprBookCode);
@@ -482,12 +482,12 @@ codeunit 144002 "ERM Fixed Assets - Local"
 
         // [GIVEN] An acquisition cost is posted via FA G/L journal line
         CreateGenJournalLine(
-          GenJournalLine, WorkDate, GenJournalLine."FA Posting Type"::"Acquisition Cost", FANo, NormalDeprBookCode,
+          GenJournalLine, WorkDate(), GenJournalLine."FA Posting Type"::"Acquisition Cost", FANo, NormalDeprBookCode,
           LibraryRandom.RandDecInRange(10000, 1000000, 2));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [GIVEN] The FA is depreciated via Calculate Depreciation report
-        RunCalculateDepreciationReport(FANo, NormalDeprBookCode, CalcDate('<CY>', WorkDate), true);
+        RunCalculateDepreciationReport(FANo, NormalDeprBookCode, CalcDate('<CY>', WorkDate()), true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         FADepreciationBook.Get(FANo, TaxDeprBookCode);
@@ -498,7 +498,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
 
         // [GIVEN] An additional acquisition cost is posted via FA journal line with "Depr. acquisition Cost" = Yes and "Depr. until FA Posting Date" = Yes
         CreateGenJournalLine(
-          GenJournalLine, WorkDate, GenJournalLine."FA Posting Type"::"Acquisition Cost", FANo, NormalDeprBookCode,
+          GenJournalLine, WorkDate(), GenJournalLine."FA Posting Type"::"Acquisition Cost", FANo, NormalDeprBookCode,
           LibraryRandom.RandDecInRange(100, 10000, 2));
         GenJournalLine.Validate("Depr. until FA Posting Date", true);
         GenJournalLine.Validate("Depr. Acquisition Cost", true);
@@ -542,7 +542,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
 
         // [GIVEN] An acquisition cost is posted via FA G/L journal line
         CreateGenJournalLine(
-          GenJournalLine, WorkDate, GenJournalLine."FA Posting Type"::"Acquisition Cost", FANo, NormalDeprBookCode,
+          GenJournalLine, WorkDate(), GenJournalLine."FA Posting Type"::"Acquisition Cost", FANo, NormalDeprBookCode,
           LibraryRandom.RandDecInRange(10000, 1000000, 2));
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -553,7 +553,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         LastFALedgerEntryNo := FALedgerEntry."Entry No.";
 
         // [GIVEN] The FA is depreciated via Calculate Depreciation report
-        RunCalculateDepreciationReport(FANo, NormalDeprBookCode, CalcDate('<CY>', WorkDate), true);
+        RunCalculateDepreciationReport(FANo, NormalDeprBookCode, CalcDate('<CY>', WorkDate()), true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
         // [WHEN] The depreciation is reversed from company book
@@ -602,7 +602,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
 
         // [WHEN] Run "Fixed Asset - Projected Value (Derogatory)" report on "Normal" book with 10 years period.
         RunFAProjValueDerogReport(
-          NormalDeprBookCode, CalcDate('<CY>', WorkDate), CalcDate('<CY+' + Format(NoOfYearsNormal) + 'Y>', WorkDate), WorkDate, true);
+          NormalDeprBookCode, CalcDate('<CY>', WorkDate()), CalcDate('<CY+' + Format(NoOfYearsNormal) + 'Y>', WorkDate()), WorkDate(), true);
 
         // [THEN] Both books are projected to closed (Book Value = 0) at the end of projected period (10 years).
         VerifyFAProjectionBothBooksAreClosed;
@@ -633,7 +633,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
 
         // [WHEN] Run "Fixed Asset - Projected Value (Derogatory)" report on "Normal" book with 8 years.
         RunFAProjValueDerogReport(
-          NormalDeprBookCode, CalcDate('<CY>', WorkDate), CalcDate('<CY+' + Format(NoOfYearsTax) + 'Y>', WorkDate), WorkDate, true);
+          NormalDeprBookCode, CalcDate('<CY>', WorkDate()), CalcDate('<CY+' + Format(NoOfYearsTax) + 'Y>', WorkDate()), WorkDate(), true);
 
         // [THEN] "Tax" book is projected to closed (Book Value = 0), "Normal" book is open (Book Value <> 0) at the end of projected period (8 years).
         VerifyFAProjectionBothBooksOneClosed;
@@ -664,7 +664,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
 
         // [WHEN] Run "Fixed Asset - Projected Value (Derogatory)" report on "Normal" book with 5 years period.
         RunFAProjValueDerogReport(
-          NormalDeprBookCode, CalcDate('<CY>', WorkDate), CalcDate('<CY+' + Format(NoOfYearsTax - 3) + 'Y>', WorkDate), WorkDate, true);
+          NormalDeprBookCode, CalcDate('<CY>', WorkDate()), CalcDate('<CY+' + Format(NoOfYearsTax - 3) + 'Y>', WorkDate()), WorkDate(), true);
 
         // [THEN] Both books are projected to open (Book Value <> 0) at the end of projected period (5 years).
         VerifyFAProjectionBothBooksInTheMidOfPeriod;
@@ -695,7 +695,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
 
         // [WHEN] Run "Fixed Asset - Projected Value (Derogatory)" report on "Tax" book with 8 years period.
         RunFAProjValueDerogReport(
-          TaxDeprBookCode, CalcDate('<CY>', WorkDate), CalcDate('<CY+' + Format(NoOfYearsTax) + 'Y>', WorkDate), WorkDate, true);
+          TaxDeprBookCode, CalcDate('<CY>', WorkDate()), CalcDate('<CY+' + Format(NoOfYearsTax) + 'Y>', WorkDate()), WorkDate(), true);
 
         // [THEN] "Tax" book is projected to closed (Book Value = 0) at the end of projected period (8 years).
         VerifyFAProjectionTaxBookIsClosed;
@@ -726,7 +726,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
 
         // [WHEN] Run "Fixed Asset - Projected Value (Derogatory)" report on "Tax" book with 5 years period.
         RunFAProjValueDerogReport(
-          TaxDeprBookCode, CalcDate('<CY>', WorkDate), CalcDate('<CY+' + Format(NoOfYearsTax - 3) + 'Y>', WorkDate), WorkDate, true);
+          TaxDeprBookCode, CalcDate('<CY>', WorkDate()), CalcDate('<CY+' + Format(NoOfYearsTax - 3) + 'Y>', WorkDate()), WorkDate(), true);
 
         // [THEN] "Tax" book is projected to open (Book Value <> 0) at the end of projected period (5 years).
         VerifyFAProjectionTaxBookInTheMidOfPeriod;
@@ -767,12 +767,12 @@ codeunit 144002 "ERM Fixed Assets - Local"
         with FixedAsset do begin
             CreateFADeprBookWithDates(
               "No.", NormalDeprBookCode, "FA Posting Group",
-              CalcDate('<-CY>', WorkDate),
-              CalcDate('<' + Format(NoOfYearsNormal - 1) + 'Y+CY>', WorkDate));
+              CalcDate('<-CY>', WorkDate()),
+              CalcDate('<' + Format(NoOfYearsNormal - 1) + 'Y+CY>', WorkDate()));
             CreateFADeprBookWithDates(
               "No.", TaxDeprBookCode, "FA Posting Group",
-              CalcDate('<-CY>', WorkDate),
-              CalcDate('<' + Format(NoOfYearsTax - 1) + 'Y+CY>', WorkDate));
+              CalcDate('<-CY>', WorkDate()),
+              CalcDate('<' + Format(NoOfYearsTax - 1) + 'Y+CY>', WorkDate()));
         end;
         UpdateIntegrationInBook(NormalDeprBookCode, false);
 
@@ -781,11 +781,11 @@ codeunit 144002 "ERM Fixed Assets - Local"
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
 
         // Post first Depreciation = 360 Days
-        RunCalculateDepreciationReport(FixedAsset."No.", NormalDeprBookCode, CalcDate('<CY>', WorkDate), false);
+        RunCalculateDepreciationReport(FixedAsset."No.", NormalDeprBookCode, CalcDate('<CY>', WorkDate()), false);
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
 
         // Post second Depreciation = 90 Days
-        RunCalculateDepreciationReport(FixedAsset."No.", NormalDeprBookCode, CalcDate('<CY+3M>', WorkDate), false);
+        RunCalculateDepreciationReport(FixedAsset."No.", NormalDeprBookCode, CalcDate('<CY+3M>', WorkDate()), false);
         LibraryFixedAsset.PostFAJournalLine(FAJournalLine);
     end;
 
@@ -858,7 +858,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
         AcqCostAmount := LibraryRandom.RandIntInRange(10000, 50000);
         DerogAmount := AcqCostAmount / 3;
         CreatePostGenJnlLine(
-          GenJnlLine, WorkDate, GenJnlLine."FA Posting Type"::"Acquisition Cost",
+          GenJnlLine, WorkDate(), GenJnlLine."FA Posting Type"::"Acquisition Cost",
           FANo, DeprBookCode, AcqCostAmount);
         CreatePostGenJnlLine(
           GenJnlLine, CalcDerogatoryDate, GenJnlLine."FA Posting Type"::Derogatory,
@@ -885,7 +885,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
               GenJnlLine, GenJournalTemplate.Name, GenJournalBatch.Name, "Document Type"::" ", "Account Type"::"Fixed Asset", FANo, LineAmount);
             Validate("FA Posting Type", FAPostingType);
             Validate("FA Posting Date", FAPostingDate);
-            Validate("Posting Date", WorkDate);
+            Validate("Posting Date", WorkDate());
             Validate("Depreciation Book Code", DeprBookCode);
             Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
             Validate("Bal. Account No.", CreateGLAccount);
@@ -914,7 +914,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
     local procedure CreateFADeprBook(FANo: Code[20]; DeprBookCode: Code[10]; FAPostingGroup: Code[20])
     begin
         CreateFADeprBookWithDates(
-          FANo, DeprBookCode, FAPostingGroup, WorkDate, CalcDate('<' + Format(LibraryRandom.RandIntInRange(2, 5)) + 'Y>', WorkDate));
+          FANo, DeprBookCode, FAPostingGroup, WorkDate(), CalcDate('<' + Format(LibraryRandom.RandIntInRange(2, 5)) + 'Y>', WorkDate()));
     end;
 
     local procedure CreateFADeprBookWithDates(FANo: Code[20]; DeprBookCode: Code[10]; FAPostingGroup: Code[20]; StartingDate: Date; EndingDate: Date)
@@ -1071,7 +1071,7 @@ codeunit 144002 "ERM Fixed Assets - Local"
 
     local procedure CalcDerogatoryDate(): Date
     begin
-        exit(CalcDate('<1M>', WorkDate));
+        exit(CalcDate('<1M>', WorkDate()));
     end;
 
     local procedure CountExpectedAmount(FANo: Code[20]; TaxDeprBook: Code[20]; Amt: Decimal): Decimal

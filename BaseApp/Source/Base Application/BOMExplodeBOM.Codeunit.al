@@ -43,13 +43,10 @@ codeunit 51 "BOM-Explode BOM"
             ToBOMComp.Insert();
         until FromBOMComp.Next() = 0;
 
-        Delete;
+        Delete();
     end;
 
     var
-        Text000: Label 'A bill of materials cannot be a component of itself.';
-        Text001: Label 'Item %1 is not a BOM.';
-        Text002: Label 'There is not enough space to explode the BOM.';
         FromBOMComp: Record "BOM Component";
         ToBOMComp: Record "BOM Component";
         Item: Record Item;
@@ -58,6 +55,10 @@ codeunit 51 "BOM-Explode BOM"
         NextLineNo: Integer;
         NoOfBOMComp: Integer;
         QtyPerUnitOfMeasure: Decimal;
+
+        Text000: Label 'A bill of materials cannot be a component of itself.';
+        Text001: Label 'Item %1 is not a BOM.';
+        Text002: Label 'There is not enough space to explode the BOM.';
 
     [IntegrationEvent(false, false)]
     local procedure OnRunOnBeforeToBOMCompInsert(var ToBOMComp: Record "BOM Component"; FromBOMComp: Record "BOM Component")

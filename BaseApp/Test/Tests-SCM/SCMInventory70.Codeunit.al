@@ -186,7 +186,7 @@ codeunit 137060 "SCM Inventory 7.0"
         // Calculate inventory on Revaluation journal- calculate per ILE.
         Item.SetRange("No.", Item."No.");
         CreateRevaluationJournal(ItemJournalLine);
-        LibraryCosting.CalculateInventoryValue(ItemJournalLine, Item, WorkDate, LibraryUtility.GenerateGUID, 0, false, false, false, 0, false);
+        LibraryCosting.CalculateInventoryValue(ItemJournalLine, Item, WorkDate(), LibraryUtility.GenerateGUID, 0, false, false, false, 0, false);
 
         // Verify: verify that the dimensions entered above are there.
         VerifyDimensions(
@@ -218,7 +218,7 @@ codeunit 137060 "SCM Inventory 7.0"
         CreateRevaluationJournal(ItemJournalLine);
 
         // Exercise.
-        LibraryCosting.CalculateInventoryValue(ItemJournalLine, Item, WorkDate, LibraryUtility.GenerateGUID, 0, false, false, false, 0, false);
+        LibraryCosting.CalculateInventoryValue(ItemJournalLine, Item, WorkDate(), LibraryUtility.GenerateGUID, 0, false, false, false, 0, false);
 
         // Verify: verify dimension values are still the ones chosen on the Purchase Invoice line.
         VerifyDimensions(
@@ -249,7 +249,7 @@ codeunit 137060 "SCM Inventory 7.0"
         CreateRevaluationJournal(ItemJournalLine);
 
         // Exercise.
-        LibraryCosting.CalculateInventoryValue(ItemJournalLine, Item, WorkDate, LibraryUtility.GenerateGUID, 1, false, false, false, 0, false);
+        LibraryCosting.CalculateInventoryValue(ItemJournalLine, Item, WorkDate(), LibraryUtility.GenerateGUID, 1, false, false, false, 0, false);
 
         // Verify: verify dimension values are the ones chosen on the item.
         VerifyDimensions(
@@ -446,10 +446,10 @@ codeunit 137060 "SCM Inventory 7.0"
         // [THEN] Item Vendor is updated: "Vendor Item No." = "N1", "Lead Time Calculation" = "1D"
         Assert.AreEqual(
           VendorItemNo, ItemVendor."Vendor Item No.",
-          StrSubstNo(WrongFieldValueErr, ItemVendor.FieldCaption("Vendor Item No."), ItemVendor.TableCaption));
+          StrSubstNo(WrongFieldValueErr, ItemVendor.FieldCaption("Vendor Item No."), ItemVendor.TableCaption()));
         Assert.IsTrue(
           LeadTimeFormula = ItemVendor."Lead Time Calculation",
-          StrSubstNo(WrongFieldValueErr, ItemVendor.FieldCaption("Lead Time Calculation"), ItemVendor.TableCaption));
+          StrSubstNo(WrongFieldValueErr, ItemVendor.FieldCaption("Lead Time Calculation"), ItemVendor.TableCaption()));
     end;
 
     [Test]
@@ -545,10 +545,10 @@ codeunit 137060 "SCM Inventory 7.0"
         // [THEN] Vendor Item No. in Item Vendor = "N", Lead Time Calculation = "1D"
         Assert.AreEqual(
           ItemReference."Reference No.", ItemVendor."Vendor Item No.",
-          StrSubstNo(WrongFieldValueErr, ItemVendor.FieldCaption("Vendor Item No."), ItemVendor.TableCaption));
+          StrSubstNo(WrongFieldValueErr, ItemVendor.FieldCaption("Vendor Item No."), ItemVendor.TableCaption()));
         Assert.IsTrue(
           LeadTimeFormula = ItemVendor."Lead Time Calculation",
-          StrSubstNo(WrongFieldValueErr, ItemVendor.FieldCaption("Lead Time Calculation"), ItemVendor.TableCaption));
+          StrSubstNo(WrongFieldValueErr, ItemVendor.FieldCaption("Lead Time Calculation"), ItemVendor.TableCaption()));
     end;
 
     [Test]
@@ -874,7 +874,7 @@ codeunit 137060 "SCM Inventory 7.0"
         CreateItemReference(ItemReference, Item."No.", Item."Base Unit of Measure", Vendor."No.", '');
         // [GIVEN] Delete all item vendors
         ItemVendor.SetRange("Item No.", Item."No.");
-        ItemVendor.DeleteAll;
+        ItemVendor.DeleteAll();
 
         // [GIVEN] Create purchase order: vendor = "V", item = "I", unit of measure = "U1"
         CreatePurchaseOrder(PurchaseLine, Vendor."No.", Item."No.", '', '');
@@ -1162,27 +1162,27 @@ codeunit 137060 "SCM Inventory 7.0"
         LibraryInventory.CreateItemJournalLine(
           ItemJournalLine, ItemJournalBatch."Journal Template Name", ItemJournalBatch.Name, EntryType, ItemNo, Quantity);
         ItemJournalLine.Validate("Unit Cost", UnitCost);
-        ItemJournalLine.Validate("Posting Date", WorkDate);
+        ItemJournalLine.Validate("Posting Date", WorkDate());
         ItemJournalLine.Modify(true);
     end;
 
     local procedure MockItemVendor(var ItemVendor: Record "Item Vendor"; VendorNo: Code[20]; ItemNo: Code[20]; VariantCode: Code[10])
     begin
         with ItemVendor do begin
-            Init;
+            Init();
             "Vendor No." := VendorNo;
             "Item No." := ItemNo;
             "Variant Code" := VariantCode;
             Evaluate("Lead Time Calculation", StrSubstNo('<%1D>', LibraryRandom.RandInt(10)));
             "Vendor Item No." := LibraryUtility.GenerateGUID();
-            Insert;
+            Insert();
         end;
     end;
 
     local procedure CreateItemVendor(var ItemVendor: Record "Item Vendor"; VendorNo: Code[20]; ItemNo: Code[20])
     begin
         with ItemVendor do begin
-            Init;
+            Init();
             "Vendor No." := VendorNo;
             "Item No." := ItemNo;
             Insert(true);
@@ -1194,7 +1194,7 @@ codeunit 137060 "SCM Inventory 7.0"
         ItemTranslation: Record "Item Translation";
     begin
         with ItemTranslation do begin
-            Init;
+            Init();
             Validate("Item No.", ItemNo);
             Validate("Language Code", LanguageCode);
             Validate(Description, ItemNo + LanguageCode);
@@ -1527,7 +1527,7 @@ codeunit 137060 "SCM Inventory 7.0"
         TransferHeader: Record "Transfer Header";
     begin
         TransferHeader.Get(DocumentNo);
-        TransferHeader.Validate("Shipment Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));
+        TransferHeader.Validate("Shipment Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));
         TransferHeader.Modify(true);
     end;
 }
