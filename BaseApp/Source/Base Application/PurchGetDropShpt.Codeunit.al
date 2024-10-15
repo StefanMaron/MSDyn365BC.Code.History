@@ -78,7 +78,7 @@ codeunit 76 "Purch.-Get Drop Shpt."
                 repeat
                     CheckSalesLineQtyPerUnitOfMeasure();
                     IsHandled := false;
-                    OnCodeOnBeforeProcessPurchaseLine(SalesLine, IsHandled, PurchHeader);
+                    OnCodeOnBeforeProcessPurchaseLine(SalesLine, IsHandled, PurchHeader, NextLineNo);
                     if not IsHandled then begin
                         PurchLine.Init();
                         PurchLine."Document Type" := PurchLine."Document Type"::Order;
@@ -327,7 +327,7 @@ codeunit 76 "Purch.-Get Drop Shpt."
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCodeOnBeforeProcessPurchaseLine(SalesLine: Record "Sales Line"; var IsHandled: Boolean; PurchHeader: Record "Purchase Header")
+    local procedure OnCodeOnBeforeProcessPurchaseLine(SalesLine: Record "Sales Line"; var IsHandled: Boolean; PurchHeader: Record "Purchase Header"; var NextLineNo: Integer)
     begin
     end;
 }

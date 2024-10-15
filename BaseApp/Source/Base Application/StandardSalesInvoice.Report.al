@@ -663,19 +663,7 @@
                     else
                         LineDiscountPctText := StrSubstNo('%1%', -Round("Line Discount %", 0.1));
 
-                    VATAmountLine.Init();
-                    VATAmountLine."VAT Identifier" := "VAT Identifier";
-                    VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
-                    VATAmountLine."Tax Group Code" := "Tax Group Code";
-                    VATAmountLine."VAT %" := "VAT %";
-                    VATAmountLine."VAT Base" := Amount;
-                    VATAmountLine."Amount Including VAT" := "Amount Including VAT";
-                    VATAmountLine."Line Amount" := "Line Amount";
-                    if "Allow Invoice Disc." then
-                        VATAmountLine."Inv. Disc. Base Amount" := "Line Amount";
-                    VATAmountLine."Invoice Discount Amount" := "Inv. Discount Amount";
-                    VATAmountLine."VAT Clause Code" := "VAT Clause Code";
-                    VATAmountLine.InsertLine();
+                    InsertVATAmountLine(VATAmountLine, Line);
 
                     TransHeaderAmount += PrevLineAmount;
                     PrevLineAmount := "Line Amount";
@@ -1482,10 +1470,14 @@
     local procedure GetUOMText(UOMCode: Code[10]): Text[50]
     var
         UnitOfMeasure: Record "Unit of Measure";
+        UOMDescription: Text[50];
     begin
         if not UnitOfMeasure.Get(UOMCode) then
             exit(UOMCode);
-        exit(UnitOfMeasure.Description);
+
+        UOMDescription := UnitOfMeasure.Description;
+        OnAfterGetUOMText(UOMCode, UOMDescription);
+        exit(UOMDescription);
     end;
 
     local procedure CreateReportTotalLines()
@@ -1560,20 +1552,26 @@
     end;
 
     local procedure FillRightHeader()
+    var
+        IsHandled: Boolean;
     begin
-        RightHeader.DeleteAll();
+        IsHandled := false;
+        OnBeforeFillRightHeader(Header, SalespersonPurchaser, SalesPersonText, RightHeader, IsHandled);
+        if not IsHandled then begin
+            RightHeader.DeleteAll();
 
-        FillNameValueTable(RightHeader, EMailLbl, CompanyInfo."E-Mail");
-        FillNameValueTable(RightHeader, HomePageLbl, CompanyInfo."Home Page");
-        FillNameValueTable(RightHeader, CompanyInfoPhoneNoLbl, CompanyInfo."Phone No.");
-        FillNameValueTable(RightHeader, CompanyInfo.GetRegistrationNumberLbl(), CompanyInfo.GetRegistrationNumber());
-        FillNameValueTable(RightHeader, CompanyInfoBankNameLbl, CompanyBankAccount.Name);
-        FillNameValueTable(RightHeader, CompanyInfoGiroNoLbl, CompanyInfo."Giro No.");
-        FillNameValueTable(RightHeader, CompanyBankAccount.FieldCaption(IBAN), CompanyBankAccount.IBAN);
-        FillNameValueTable(RightHeader, CompanyBankAccount.FieldCaption("SWIFT Code"), CompanyBankAccount."SWIFT Code");
-        FillNameValueTable(RightHeader, Header.GetPaymentReferenceLbl(), Header.GetPaymentReference());
+            FillNameValueTable(RightHeader, EMailLbl, CompanyInfo."E-Mail");
+            FillNameValueTable(RightHeader, HomePageLbl, CompanyInfo."Home Page");
+            FillNameValueTable(RightHeader, CompanyInfoPhoneNoLbl, CompanyInfo."Phone No.");
+            FillNameValueTable(RightHeader, CompanyInfo.GetRegistrationNumberLbl(), CompanyInfo.GetRegistrationNumber());
+            FillNameValueTable(RightHeader, CompanyInfoBankNameLbl, CompanyBankAccount.Name);
+            FillNameValueTable(RightHeader, CompanyInfoGiroNoLbl, CompanyInfo."Giro No.");
+            FillNameValueTable(RightHeader, CompanyBankAccount.FieldCaption(IBAN), CompanyBankAccount.IBAN);
+            FillNameValueTable(RightHeader, CompanyBankAccount.FieldCaption("SWIFT Code"), CompanyBankAccount."SWIFT Code");
+            FillNameValueTable(RightHeader, Header.GetPaymentReferenceLbl(), Header.GetPaymentReference());
 
-        OnAfterFillRightHeader(RightHeader, Header);
+            OnAfterFillRightHeader(RightHeader, Header);
+        end;
     end;
 
     local procedure FillNameValueTable(var NameValueBuffer: Record "Name/Value Buffer"; Name: Text; Value: Text)
@@ -1608,6 +1606,8 @@
             FormatDocument.SetPaymentTerms(PaymentTerms, "Payment Terms Code", "Language Code");
             FormatDocument.SetPaymentMethod(PaymentMethod, "Payment Method Code", "Language Code");
             FormatDocument.SetShipmentMethod(ShipmentMethod, "Shipment Method Code", "Language Code");
+
+            OnAfterFormatDocumentFields(SalesInvoiceHeader);
         end;
     end;
 
@@ -1661,6 +1661,30 @@
         exit(true);
     end;
 
+    local procedure InsertVATAmountLine(var VATAmountLine2: Record "VAT Amount Line"; SalesInvoiceLine: Record "Sales Invoice Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeVATAmountLineInsertLine(VATAmountLine2, SalesInvoiceLine, IsHandled);
+        if IsHandled then
+            exit;
+
+        VATAmountLine2.Init();
+        VATAmountLine2."VAT Identifier" := SalesInvoiceLine."VAT Identifier";
+        VATAmountLine2."VAT Calculation Type" := SalesInvoiceLine."VAT Calculation Type";
+        VATAmountLine2."Tax Group Code" := SalesInvoiceLine."Tax Group Code";
+        VATAmountLine2."VAT %" := SalesInvoiceLine."VAT %";
+        VATAmountLine2."VAT Base" := SalesInvoiceLine.Amount;
+        VATAmountLine2."Amount Including VAT" := SalesInvoiceLine."Amount Including VAT";
+        VATAmountLine2."Line Amount" := SalesInvoiceLine."Line Amount";
+        if SalesInvoiceLine."Allow Invoice Disc." then
+            VATAmountLine2."Inv. Disc. Base Amount" := SalesInvoiceLine."Line Amount";
+        VATAmountLine2."Invoice Discount Amount" := SalesInvoiceLine."Inv. Discount Amount";
+        VATAmountLine2."VAT Clause Code" := SalesInvoiceLine."VAT Clause Code";
+        VATAmountLine2.InsertLine();
+    end;
+
     local procedure FormatLineValues(CurrLine: Record "Sales Invoice Line")
     var
         IsHandled: Boolean;
@@ -1673,6 +1697,26 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeFormatLineValues(SalesInvoiceLine: Record "Sales Invoice Line"; var FormattedQuantity: Text; var FormattedUnitPrice: Text; var FormattedVATPercentage: Text; var FormattedLineAmount: Text; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFormatDocumentFields(var SalesInvoiceHeader: Record "Sales Invoice Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVATAmountLineInsertLine(var VATAmountLine: Record "VAT Amount Line"; SalesInvoiceLine: Record "Sales Invoice Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFillRightHeader(var SalesInvoiceHeader: Record "Sales Invoice Header"; SalespersonPurchaser: Record "Salesperson/Purchaser"; var SalesPersonText: Text; var RightHeader: Record "Name/Value Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetUOMText(UOMCode: Code[10]; var UOMDescription: Text[50])
     begin
     end;
 }

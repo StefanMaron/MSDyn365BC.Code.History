@@ -351,8 +351,8 @@
             AutoFormatExpression = "Currency Code";
             AutoFormatType = 1;
             CalcFormula = Sum("Reminder Line"."Remaining Amount" WHERE("Reminder No." = FIELD("No."),
-                                                                        "Detailed Interest Rates Entry" = CONST(false),
-                                                                        "Line Type" = FILTER(<> "Not Due")));
+                                                                        "Line Type" = CONST("Reminder Line"),
+                                                                        "Detailed Interest Rates Entry" = CONST(false)));
             Caption = 'Remaining Amount';
             DecimalPlaces = 2 : 2;
             Editable = false;
@@ -796,7 +796,7 @@
             InsertEndTexts(ReminderHeader);
         end;
 
-        OnAfterUpdateLines(Rec);
+        OnAfterUpdateLines(Rec, UpdateAdditionalFee);
     end;
 
     local procedure InsertBeginTexts(var ReminderHeader: Record "Reminder Header")
@@ -1403,7 +1403,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterUpdateLines(var ReminderHeader: Record "Reminder Header")
+    local procedure OnAfterUpdateLines(var ReminderHeader: Record "Reminder Header"; UpdateAdditionalFee: Boolean)
     begin
     end;
 

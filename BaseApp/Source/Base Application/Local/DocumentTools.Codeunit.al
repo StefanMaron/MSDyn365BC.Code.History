@@ -233,5 +233,11 @@ codeunit 10601 DocumentTools
     local procedure OnBeforeIsNorgeSEPACT(GenJournalLine: Record "Gen. Journal Line"; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Exp. Pre-Mapping Gen. Jnl.", 'OnBeforeInsertPaymentExoprtData', '', false, false)]
+    local procedure  UpdatePaymentExportDataOnMappingGenJnl(var PaymentExportData: Record "Payment Export Data"; GenJournalLine: Record "Gen. Journal Line"; GeneralLedgerSetup: Record "General Ledger Setup")
+    begin 
+        PaymentExportData.KID := GenJournalLine.KID;
+    end;
 }
 

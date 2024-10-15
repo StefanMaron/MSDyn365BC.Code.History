@@ -61,6 +61,7 @@ codeunit 134378 "ERM Sales Order"
         YouMustDeleteExistingLinesErr: Label 'You must delete the existing sales lines before you can change %1.';
         RecreateSalesLinesMsg: Label 'the existing sales lines will be deleted and new sales lines based on the new information on the header will be created.';
         RoundingTo0Err: Label 'Rounding of the field';
+        CompletelyShippedErr: Label 'Completely Shipped should be yes';
 
     [Test]
     [Scope('OnPrem')]
@@ -4810,6 +4811,29 @@ codeunit 134378 "ERM Sales Order"
         LibrarySales.PostSalesDocument(SalesHeader, false, true);
 
         // [THEN] No error occurs, which means that distribution has been made correctly.
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure VerifyCompletelyShippedWhenSalesOrderAsShip()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [SCENARIO 449794] The "Completely Shipped" option is reported differently in Sales Order list respect to Sales Order card
+        Initialize();
+
+        // [GIVEN] Create sales order and post as ship
+        CreateSalesOrder(SalesHeader, SalesLine);
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [WHEN] Sales Order page is opened
+        SalesOrder.OpenEdit;
+        SalesOrder.GotoRecord(SalesHeader);
+
+        // [THEN] Verify completely shipped as yes
+        Assert.AreEqual(SalesOrder."Completely Shipped".Value, 'Yes', CompletelyShippedErr);
     end;
 
     local procedure Initialize()

@@ -36,42 +36,45 @@ codeunit 5057 "VendCont-Update"
         SalespersonCode: Code[20];
         IsHandled: Boolean;
     begin
-        with ContBusRel do begin
-            SetCurrentKey("Link to Table", "No.");
-            SetRange("Link to Table", "Link to Table"::Vendor);
-            SetRange("No.", Vend."No.");
-            if not FindFirst() then
-                exit;
-            if not Cont.Get("Contact No.") then begin
-                Delete();
-                Session.LogMessage('0000B36', VendContactUpdateTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', VendContactUpdateCategoryTxt);
-                exit;
-            end;
-            OldCont := Cont;
-        end;
-
-        ContNo := Cont."No.";
-        NoSeries := Cont."No. Series";
-        SalespersonCode := Cont."Salesperson Code";
-
-        OnBeforeTransferFieldsFromVendToCont(Cont, Vend);
-        Cont.Validate("E-Mail", Vend."E-Mail");
-        Cont.TransferFields(Vend);
-        OnAfterTransferFieldsFromVendToCont(Cont, Vend);
-
         IsHandled := false;
-        OnModifyOnBeforeAssignNo(Cont, IsHandled);
+        OnBeforeOnModify(Vend, ContBusRel, IsHandled);
         if not IsHandled then begin
-            Cont."No." := ContNo;
-            Cont."No. Series" := NoSeries;
+            with ContBusRel do begin
+                SetCurrentKey("Link to Table", "No.");
+                SetRange("Link to Table", "Link to Table"::Vendor);
+                SetRange("No.", Vend."No.");
+                if not FindFirst() then
+                    exit;
+                if not Cont.Get("Contact No.") then begin
+                    Delete();
+                    Session.LogMessage('0000B36', VendContactUpdateTelemetryMsg, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', VendContactUpdateCategoryTxt);
+                    exit;
+                end;
+                OldCont := Cont;
+            end;
+
+            ContNo := Cont."No.";
+            NoSeries := Cont."No. Series";
+            SalespersonCode := Cont."Salesperson Code";
+
+            OnBeforeTransferFieldsFromVendToCont(Cont, Vend);
+            Cont.Validate("E-Mail", Vend."E-Mail");
+            Cont.TransferFields(Vend);
+            OnAfterTransferFieldsFromVendToCont(Cont, Vend);
+
+            IsHandled := false;
+            OnModifyOnBeforeAssignNo(Cont, IsHandled);
+            if not IsHandled then begin
+                Cont."No." := ContNo;
+                Cont."No. Series" := NoSeries;
+            end;
+            Cont."Salesperson Code" := SalespersonCode;
+            Cont.Validate(Name);
+            Cont.DoModify(OldCont);
+            Cont.Modify(true);
+
+            Vend.Get(Vend."No.");
         end;
-        Cont."Salesperson Code" := SalespersonCode;
-        Cont.Validate(Name);
-        Cont.DoModify(OldCont);
-        Cont.Modify(true);
-
-        Vend.Get(Vend."No.");
-
         OnAfterOnModify(Cont, OldCont, Vend);
     end;
 
@@ -221,6 +224,11 @@ codeunit 5057 "VendCont-Update"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnDelete(Vendor: Record Vendor; var ContactBusinessRelation: Record "Contact Business Relation"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnModify(Vend: Record Vendor; var ContactBusinessRelation: Record "Contact Business Relation"; var IsHandled: Boolean)
     begin
     end;
 

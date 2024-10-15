@@ -24,11 +24,16 @@
     var
         ICPartner: Record "IC Partner";
         OutboxJnlTransaction: Record "IC Outbox Transaction";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
         ICTransactionNo: Integer;
     begin
         ICPartner.Get(TempGenJnlLine."IC Partner Code");
         if ICPartner."Inbox Type" = ICPartner."Inbox Type"::"No IC Transfer" then
             exit(0);
+
+        FeatureTelemetry.LogUptake('0000IJ4', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000IJV', ICMapping.GetFeatureTelemetryName(), 'Creating Outbox Journal Transaction');
 
         GLSetup.LockTable();
         GetGLSetup();
@@ -63,8 +68,12 @@
     procedure SendSalesDoc(var SalesHeader: Record "Sales Header"; Post: Boolean)
     var
         ICPartner: Record "IC Partner";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
         IsHandled: Boolean;
     begin
+        FeatureTelemetry.LogUptake('0000IJ5', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000IJW', ICMapping.GetFeatureTelemetryName(), 'Sending Sales Document');
         IsHandled := false;
         OnBeforeSendSalesDoc(SalesHeader, Post, IsHandled);
         if IsHandled then
@@ -98,8 +107,13 @@
     procedure SendPurchDoc(var PurchHeader: Record "Purchase Header"; Post: Boolean)
     var
         ICPartner: Record "IC Partner";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
         IsHandled: Boolean;
     begin
+        FeatureTelemetry.LogUptake('0000IJ6', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000IJX', ICMapping.GetFeatureTelemetryName(), 'Sending Purchase Document');
+
         IsHandled := false;
         OnBeforeSendPurchDoc(PurchHeader, Post, IsHandled);
         if IsHandled then
@@ -130,10 +144,15 @@
         SalesLine: Record "Sales Line";
         ICOutBoxSalesHeader: Record "IC Outbox Sales Header";
         ICOutBoxSalesLine: Record "IC Outbox Sales Line";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
         TransactionNo: Integer;
         LinesCreated: Boolean;
         IsHandled: Boolean;
     begin
+        FeatureTelemetry.LogUptake('0000IJ7', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000IJY', ICMapping.GetFeatureTelemetryName(), 'Creating Outbox Sales Document Transaction');
+
         IsHandled := false;
         OnBeforeCreateOutboxSalesDocTrans(SalesHeader, IsHandled);
         if IsHandled then
@@ -242,11 +261,16 @@
         ICDocDim: Record "IC Document Dimension";
         ItemReference: Record "Item Reference";
         Item: Record Item;
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
         TransactionNo: Integer;
         RoundingLineNo: Integer;
         IsCommentType: Boolean;
         IsHandled: Boolean;
     begin
+        FeatureTelemetry.LogUptake('0000IJ8', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000IJZ', ICMapping.GetFeatureTelemetryName(), 'Creating Outbox Sales Invoice Transaction');
+
         IsHandled := false;
         OnBeforeCreateOutboxSalesInvTrans(SalesInvHdr, IsHandled);
         if IsHandled then
@@ -359,11 +383,16 @@
         ICOutBoxSalesHeader: Record "IC Outbox Sales Header";
         ICOutBoxSalesLine: Record "IC Outbox Sales Line";
         ICDocDim: Record "IC Document Dimension";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
         TransactionNo: Integer;
         RoundingLineNo: Integer;
         IsCommentType: Boolean;
         IsHandled: Boolean;
     begin
+        FeatureTelemetry.LogUptake('0000IJ9', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000IK0', ICMapping.GetFeatureTelemetryName(), 'Creating Outbox Sales Credit Memo Transaction');
+
         IsHandled := false;
         OnBeforeCreateOutboxSalesCrMemoTrans(SalesCrMemoHdr, IsHandled);
         if IsHandled then
@@ -449,9 +478,14 @@
         PurchLine: Record "Purchase Line";
         ICOutBoxPurchHeader: Record "IC Outbox Purchase Header";
         ICOutBoxPurchLine: Record "IC Outbox Purchase Line";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
         TransactionNo: Integer;
         LinesCreated: Boolean;
     begin
+        FeatureTelemetry.LogUptake('0000IJA', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000IK1', ICMapping.GetFeatureTelemetryName(), 'Creating Outbox Purchase Document Transactions');
+
         OnBeforeCreateOutboxPurchDocTrans(PurchHeader, Rejection, Post);
 
         GLSetup.LockTable();
@@ -547,7 +581,13 @@
     end;
 
     procedure CreateOutboxJnlLine(TransactionNo: Integer; TransactionSource: Option "Rejected by Current Company"," Created by Current Company"; TempGenJnlLine: Record "Gen. Journal Line" temporary)
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
     begin
+        FeatureTelemetry.LogUptake('0000IJB', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000IK2', ICMapping.GetFeatureTelemetryName(), 'Creating Outbox Journal Line');
+
         GetGLSetup();
         with TempGenJnlLine do begin
             if (("Bal. Account Type" in
@@ -651,8 +691,13 @@
         TempInOutBoxJnlLineDim: Record "IC Inbox/Outbox Jnl. Line Dim." temporary;
         HandledInboxJnlLine: Record "Handled IC Inbox Jnl. Line";
         DimMgt: Codeunit DimensionManagement;
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
         IsHandled: Boolean;
     begin
+        FeatureTelemetry.LogUptake('0000IJC', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000IK3', ICMapping.GetFeatureTelemetryName(), 'Creating Journal Lines');
+
         IsHandled := false;
         OnBeforeCreateJournalLines(InboxTransaction, InboxJnlLine, TempGenJnlLine, GenJnlTemplate, IsHandled);
         if not IsHandled then begin
@@ -738,88 +783,106 @@
         ICDocDim2: Record "IC Document Dimension";
         HandledICInboxSalesHeader: Record "Handled IC Inbox Sales Header";
         HandledICInboxSalesLine: Record "Handled IC Inbox Sales Line";
-        DimensionSetIDArr: array[10] of Integer;
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
         IsHandled: Boolean;
     begin
+        FeatureTelemetry.LogUptake('0000IJD', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000IK4', ICMapping.GetFeatureTelemetryName(), 'Creating Sales Document');
+
         IsHandled := false;
         OnBeforeCreateSalesDocument(ICInboxSalesHeader, ReplacePostingDate, PostingDate, IsHandled);
         if IsHandled then
             exit;
 
-        with ICInboxSalesHeader do begin
-            SalesHeader.Init();
-            SalesHeader."No." := '';
-            SalesHeader."Document Type" := "Document Type";
-            OnCreateSalesDocumentOnBeforeSalesHeaderInsert(SalesHeader, ICInboxSalesHeader);
-            SalesHeader.Insert(true);
+        SalesHeader.Init();
+        SalesHeader."No." := '';
+        SalesHeader."Document Type" := ICInboxSalesHeader."Document Type";
+        OnCreateSalesDocumentOnBeforeSalesHeaderInsert(SalesHeader, ICInboxSalesHeader);
+        SalesHeader.Insert(true);
+
+        UpdateSalesHeader(SalesHeader, ICInboxSalesHeader, ReplacePostingDate, PostingDate, ICDocDim);
+
+        HandledICInboxSalesHeader.TransferFields(ICInboxSalesHeader);
+        HandledICInboxSalesHeader.Insert();
+        if ICDocDim.Find('-') then
+            DimMgt.MoveICDocDimtoICDocDim(
+                ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Sales Header", ICInboxSalesHeader."Transaction Source");
+
+        ICInboxSalesLine.SetRange("IC Transaction No.", ICInboxSalesHeader."IC Transaction No.");
+        ICInboxSalesLine.SetRange("IC Partner Code", ICInboxSalesHeader."IC Partner Code");
+        ICInboxSalesLine.SetRange("Transaction Source", ICInboxSalesHeader."Transaction Source");
+        OnCreateSalesDocumentOnAfterICInboxSalesLineSetFilters(ICInboxSalesLine, ICInboxSalesHeader);
+        if ICInboxSalesLine.Find('-') then
+            repeat
+                CreateSalesLines(SalesHeader, ICInboxSalesLine);
+                HandledICInboxSalesLine.TransferFields(ICInboxSalesLine);
+                OnBeforeHandledICInboxSalesLineInsert(HandledICInboxSalesLine, ICInboxSalesLine);
+                HandledICInboxSalesLine.Insert();
+                DimMgt.SetICDocDimFilters(
+                    ICDocDim, DATABASE::"IC Inbox Sales Line", ICInboxSalesLine."IC Transaction No.",
+                    ICInboxSalesLine."IC Partner Code", ICInboxSalesLine."Transaction Source", ICInboxSalesLine."Line No.");
+                if ICDocDim.Find('-') then
+                    DimMgt.MoveICDocDimtoICDocDim(
+                        ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Sales Line", ICInboxSalesLine."Transaction Source");
+            until ICInboxSalesLine.Next() = 0;
+
+        OnAfterCreateSalesDocument(SalesHeader, ICInboxSalesHeader, HandledICInboxSalesHeader);
+    end;
+
+    local procedure UpdateSalesHeader(var SalesHeader: Record "Sales Header"; ICInboxSalesHeader: Record "IC Inbox Sales Header"; ReplacePostingDate: Boolean; PostingDate: Date; var ICDocDim: Record "IC Document Dimension")
+    var
+        DimensionSetIDArr: array[10] of Integer;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdateSalesHeader(SalesHeader, ICInboxSalesHeader, ICDocDim, ReplacePostingDate, PostingDate);
+        if not IsHandled then begin
             SalesHeader.Validate("IC Direction", SalesHeader."IC Direction"::Incoming);
-            SalesHeader.Validate("Sell-to Customer No.", "Sell-to Customer No.");
-            if SalesHeader."Bill-to Customer No." <> "Bill-to Customer No." then
-                SalesHeader.Validate("Bill-to Customer No.", "Bill-to Customer No.");
-            SalesHeader."External Document No." := "No.";
-            SalesHeader."Ship-to Name" := "Ship-to Name";
-            SalesHeader."Ship-to Address" := "Ship-to Address";
-            SalesHeader."Ship-to Address 2" := "Ship-to Address 2";
-            SalesHeader."Ship-to City" := "Ship-to City";
-            SalesHeader."Ship-to Post Code" := "Ship-to Post Code";
-            SalesHeader."Ship-to County" := "Ship-to County";
-            SalesHeader."Ship-to Country/Region Code" := "Ship-to Country/Region Code";
+            SalesHeader.Validate("Sell-to Customer No.", ICInboxSalesHeader."Sell-to Customer No.");
+            if SalesHeader."Bill-to Customer No." <> ICInboxSalesHeader."Bill-to Customer No." then
+                SalesHeader.Validate("Bill-to Customer No.", ICInboxSalesHeader."Bill-to Customer No.");
+            SalesHeader."External Document No." := ICInboxSalesHeader."No.";
+            SalesHeader."Ship-to Name" := ICInboxSalesHeader."Ship-to Name";
+            SalesHeader."Ship-to Address" := ICInboxSalesHeader."Ship-to Address";
+            SalesHeader."Ship-to Address 2" := ICInboxSalesHeader."Ship-to Address 2";
+            SalesHeader."Ship-to City" := ICInboxSalesHeader."Ship-to City";
+            SalesHeader."Ship-to Post Code" := ICInboxSalesHeader."Ship-to Post Code";
+            SalesHeader."Ship-to County" := ICInboxSalesHeader."Ship-to County";
+            SalesHeader."Ship-to Country/Region Code" := ICInboxSalesHeader."Ship-to Country/Region Code";
             if ReplacePostingDate then
                 SalesHeader.Validate("Posting Date", PostingDate)
             else
-                SalesHeader.Validate("Posting Date", "Posting Date");
-            GetCurrency("Currency Code");
-            SalesHeader.Validate("Currency Code", "Currency Code");
-            SalesHeader.Validate("Document Date", "Document Date");
-            SalesHeader.Validate("Prices Including VAT", "Prices Including VAT");
+                SalesHeader.Validate("Posting Date", ICInboxSalesHeader."Posting Date");
+            GetCurrency(ICInboxSalesHeader."Currency Code");
+            SalesHeader.Validate("Currency Code", ICInboxSalesHeader."Currency Code");
+            SalesHeader.Validate("Document Date", ICInboxSalesHeader."Document Date");
+            SalesHeader.Validate("Prices Including VAT", ICInboxSalesHeader."Prices Including VAT");
             SalesHeader.Modify();
             OnCreateSalesDocumentOnAfterSalesHeaderFirstModify(SalesHeader);
-            SalesHeader.Validate("Due Date", "Due Date");
-            SalesHeader.Validate("Payment Discount %", "Payment Discount %");
-            SalesHeader.Validate("Pmt. Discount Date", "Pmt. Discount Date");
-            SalesHeader.Validate("Requested Delivery Date", "Requested Delivery Date");
-            SalesHeader.Validate("Promised Delivery Date", "Promised Delivery Date");
+            SalesHeader.Validate("Due Date", ICInboxSalesHeader."Due Date");
+            SalesHeader.Validate("Payment Discount %", ICInboxSalesHeader."Payment Discount %");
+            SalesHeader.Validate("Pmt. Discount Date", ICInboxSalesHeader."Pmt. Discount Date");
+            SalesHeader.Validate("Requested Delivery Date", ICInboxSalesHeader."Requested Delivery Date");
+            SalesHeader.Validate("Promised Delivery Date", ICInboxSalesHeader."Promised Delivery Date");
             SalesHeader."Shortcut Dimension 1 Code" := '';
             SalesHeader."Shortcut Dimension 2 Code" := '';
 
             OnCreateSalesDocumentOnBeforeSetICDocDimFilters(SalesHeader, ICInboxSalesHeader);
             DimMgt.SetICDocDimFilters(
-              ICDocDim, DATABASE::"IC Inbox Sales Header", "IC Transaction No.", "IC Partner Code", "Transaction Source", 0);
+                ICDocDim, DATABASE::"IC Inbox Sales Header", ICInboxSalesHeader."IC Transaction No.",
+                ICInboxSalesHeader."IC Partner Code", ICInboxSalesHeader."Transaction Source", 0);
 
             DimensionSetIDArr[1] := SalesHeader."Dimension Set ID";
             DimensionSetIDArr[2] := DimMgt.CreateDimSetIDFromICDocDim(ICDocDim);
             SalesHeader."Dimension Set ID" :=
-              DimMgt.GetCombinedDimensionSetID(
-                DimensionSetIDArr, SalesHeader."Shortcut Dimension 1 Code", SalesHeader."Shortcut Dimension 2 Code");
+                DimMgt.GetCombinedDimensionSetID(
+                    DimensionSetIDArr, SalesHeader."Shortcut Dimension 1 Code", SalesHeader."Shortcut Dimension 2 Code");
             DimMgt.UpdateGlobalDimFromDimSetID(
                 SalesHeader."Dimension Set ID", SalesHeader."Shortcut Dimension 1 Code", SalesHeader."Shortcut Dimension 2 Code");
             OnCreateSalesDocumentOnBeforeSalesHeaderModify(SalesHeader, ICInboxSalesHeader, ICDocDim);
             SalesHeader.Modify();
-
-            HandledICInboxSalesHeader.TransferFields(ICInboxSalesHeader);
-            HandledICInboxSalesHeader.Insert();
-            if ICDocDim.Find('-') then
-                DimMgt.MoveICDocDimtoICDocDim(ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Sales Header", "Transaction Source");
         end;
-
-        with ICInboxSalesLine do begin
-            SetRange("IC Transaction No.", ICInboxSalesHeader."IC Transaction No.");
-            SetRange("IC Partner Code", ICInboxSalesHeader."IC Partner Code");
-            SetRange("Transaction Source", ICInboxSalesHeader."Transaction Source");
-            if Find('-') then
-                repeat
-                    CreateSalesLines(SalesHeader, ICInboxSalesLine);
-                    HandledICInboxSalesLine.TransferFields(ICInboxSalesLine);
-                    OnBeforeHandledICInboxSalesLineInsert(HandledICInboxSalesLine, ICInboxSalesLine);
-                    HandledICInboxSalesLine.Insert();
-                    DimMgt.SetICDocDimFilters(
-                      ICDocDim, DATABASE::"IC Inbox Sales Line", "IC Transaction No.", "IC Partner Code", "Transaction Source", "Line No.");
-                    if ICDocDim.Find('-') then
-                        DimMgt.MoveICDocDimtoICDocDim(ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Sales Line", "Transaction Source");
-                until Next() = 0;
-        end;
-
-        OnAfterCreateSalesDocument(SalesHeader, ICInboxSalesHeader, HandledICInboxSalesHeader);
     end;
 
     procedure CreateSalesLines(SalesHeader: Record "Sales Header"; ICInboxSalesLine: Record "IC Inbox Sales Line")
@@ -827,63 +890,71 @@
         SalesLine: Record "Sales Line";
         ICDocDim: Record "IC Document Dimension";
         Currency: Record Currency;
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
         Precision: Decimal;
         DimensionSetIDArr: array[10] of Integer;
+        IsHandled: Boolean;
     begin
-        with ICInboxSalesLine do begin
+        FeatureTelemetry.LogUptake('0000IJE', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000IK5', ICMapping.GetFeatureTelemetryName(), 'Creating Sales Lines');
+
+        IsHandled := false;
+        OnBeforeCreateSalesLines(SalesHeader, ICInboxSalesLine, IsHandled);
+        if not IsHandled then begin
             SalesLine.Init();
             SalesLine.TransferFields(ICInboxSalesLine);
             SalesLine."Document Type" := SalesHeader."Document Type";
             SalesLine."Document No." := SalesHeader."No.";
-            SalesLine."Line No." := "Line No.";
+            SalesLine."Line No." := ICInboxSalesLine."Line No.";
 
             OnCreateSalesLinesOnBeforefterAssignTypeAndNo(SalesLine, ICInboxSalesLine);
-            case "IC Partner Ref. Type" of
-                "IC Partner Ref. Type"::"Common Item No.":
+            case ICInboxSalesLine."IC Partner Ref. Type" of
+                "IC Partner Reference Type"::"Common Item No.":
                     begin
                         SalesLine.Type := SalesLine.Type::Item;
-                        SalesLine."No." := GetItemFromCommonItem("IC Partner Reference");
+                        SalesLine."No." := GetItemFromCommonItem(ICInboxSalesLine."IC Partner Reference");
                         if SalesLine."No." <> '' then
                             SalesLine.Validate("No.", SalesLine."No.")
                         else
-                            SalesLine."No." := "IC Partner Reference";
+                            SalesLine."No." := ICInboxSalesLine."IC Partner Reference";
                     end;
-                "IC Partner Ref. Type"::"Cross reference":
+                "IC Partner Reference Type"::"Cross reference":
                     begin
                         SalesLine.Validate(Type, SalesLine.Type::Item);
-                        SalesLine.Validate("Item Reference No.", "IC Item Reference No.");
+                        SalesLine.Validate("Item Reference No.", ICInboxSalesLine."IC Item Reference No.");
                     end;
-                "IC Partner Ref. Type"::Item:
-                    begin
-                        SalesLine.Validate(Type, SalesLine.Type::Item);
-                        SalesLine."No." :=
-                            GetItemFromItemRef(
-                                "IC Partner Reference", "Item Reference Type"::Customer, SalesHeader."Sell-to Customer No.");
-                        if SalesLine."No." <> '' then
-                            SalesLine.Validate("No.", SalesLine."No.")
-                        else
-                            SalesLine."No." := "IC Partner Reference";
-                    end;
-                "IC Partner Ref. Type"::"Vendor Item No.":
+                "IC Partner Reference Type"::Item:
                     begin
                         SalesLine.Validate(Type, SalesLine.Type::Item);
                         SalesLine."No." :=
                             GetItemFromItemRef(
-                                "IC Item Reference No.", "Item Reference Type"::Customer, SalesHeader."Sell-to Customer No.");
+                                ICInboxSalesLine."IC Partner Reference", "Item Reference Type"::Customer, SalesHeader."Sell-to Customer No.");
                         if SalesLine."No." <> '' then
                             SalesLine.Validate("No.", SalesLine."No.")
                         else
-                            SalesLine."No." := CopyStr("IC Item Reference No.", 1, MaxStrLen(SalesLine."No."));
+                            SalesLine."No." := ICInboxSalesLine."IC Partner Reference";
                     end;
-                "IC Partner Ref. Type"::"G/L Account":
+                "IC Partner Reference Type"::"Vendor Item No.":
+                    begin
+                        SalesLine.Validate(Type, SalesLine.Type::Item);
+                        SalesLine."No." :=
+                            GetItemFromItemRef(
+                                ICInboxSalesLine."IC Item Reference No.", "Item Reference Type"::Customer, SalesHeader."Sell-to Customer No.");
+                        if SalesLine."No." <> '' then
+                            SalesLine.Validate("No.", SalesLine."No.")
+                        else
+                            SalesLine."No." := CopyStr(ICInboxSalesLine."IC Item Reference No.", 1, MaxStrLen(SalesLine."No."));
+                    end;
+                "IC Partner Reference Type"::"G/L Account":
                     begin
                         SalesLine.Validate(Type, SalesLine.Type::"G/L Account");
-                        SalesLine.Validate("No.", TranslateICGLAccount("IC Partner Reference"));
+                        SalesLine.Validate("No.", TranslateICGLAccount(ICInboxSalesLine."IC Partner Reference"));
                     end;
-                "IC Partner Ref. Type"::"Charge (Item)":
+                "IC Partner Reference Type"::"Charge (Item)":
                     begin
                         SalesLine.Type := SalesLine.Type::"Charge (Item)";
-                        SalesLine.Validate("No.", "IC Partner Reference");
+                        SalesLine.Validate("No.", ICInboxSalesLine."IC Partner Reference");
                     end;
                 else
                     OnCreateSalesLinesOnICPartnerRefTypeCaseElse(SalesLine, SalesHeader, ICInboxSalesLine);
@@ -892,9 +963,9 @@
             OnCreateSalesLinesOnAfterValidateNo(SalesLine, SalesHeader, ICInboxSalesLine);
 
             SalesLine."Currency Code" := SalesHeader."Currency Code";
-            SalesLine.Description := Description;
-            SalesLine."Description 2" := "Description 2";
-            if (SalesLine.Type <> SalesLine.Type::" ") and (Quantity <> 0) then begin
+            SalesLine.Description := ICInboxSalesLine.Description;
+            SalesLine."Description 2" := ICInboxSalesLine."Description 2";
+            if (SalesLine.Type <> SalesLine.Type::" ") and (ICInboxSalesLine.Quantity <> 0) then begin
                 if Currency.Get(SalesHeader."Currency Code") then
                     Precision := Currency."Unit-Amount Rounding Precision"
                 else begin
@@ -905,15 +976,22 @@
                         Precision := 0.01;
                 end;
                 ValidateQuantityFromICInboxSalesLine(SalesLine, ICInboxSalesLine);
-                SalesLine.Validate("Unit of Measure Code", "Unit of Measure Code");
-                if SalesHeader."Prices Including VAT" then
-                    SalesLine.Validate("Unit Price", Round("Amount Including VAT" / Quantity, Precision))
-                else
-                    SalesLine.Validate("Unit Price", "Unit Price");
-                SalesLine.Validate("Line Discount Amount", "Line Discount Amount");
-                SalesLine."Amount Including VAT" := "Amount Including VAT";
-                SalesLine."Line Discount %" := "Line Discount %";
-                SalesLine.UpdateAmounts();
+                IsHandled := false;
+                OnCreateSalesLinesOnBeforeValidateUnitOfMeasureCode(SalesLine, ICInboxSalesLine, IsHandled);
+                if not IsHandled then
+                    SalesLine.Validate("Unit of Measure Code", ICInboxSalesLine."Unit of Measure Code");
+                IsHandled := false;
+                OnCreateSalesLinesOnBeforeCalcPriceAndAmounts(SalesHeader, SalesLine, IsHandled);
+                if not IsHandled then begin
+                    if SalesHeader."Prices Including VAT" then
+                        SalesLine.Validate("Unit Price", Round(ICInboxSalesLine."Amount Including VAT" / ICInboxSalesLine.Quantity, Precision))
+                    else
+                        SalesLine.Validate("Unit Price", ICInboxSalesLine."Unit Price");
+                    SalesLine.Validate("Line Discount Amount", ICInboxSalesLine."Line Discount Amount");
+                    SalesLine."Amount Including VAT" := ICInboxSalesLine."Amount Including VAT";
+                    SalesLine."Line Discount %" := ICInboxSalesLine."Line Discount %";
+                    SalesLine.UpdateAmounts();
+                end;
                 ValidateSalesLineDeliveryDates(SalesLine, ICInboxSalesLine);
                 UpdateSalesLineICPartnerReference(SalesLine, SalesHeader, ICInboxSalesLine);
             end;
@@ -925,7 +1003,8 @@
                 SalesLine.AutoReserve();
 
             DimMgt.SetICDocDimFilters(
-              ICDocDim, DATABASE::"IC Inbox Sales Line", "IC Transaction No.", "IC Partner Code", "Transaction Source", "Line No.");
+              ICDocDim, DATABASE::"IC Inbox Sales Line", ICInboxSalesLine."IC Transaction No.",
+              ICInboxSalesLine."IC Partner Code", ICInboxSalesLine."Transaction Source", ICInboxSalesLine."Line No.");
             DimensionSetIDArr[1] := SalesLine."Dimension Set ID";
             DimensionSetIDArr[2] := DimMgt.CreateDimSetIDFromICDocDim(ICDocDim);
 
@@ -972,95 +1051,114 @@
         ICDocDim2: Record "IC Document Dimension";
         HandledICInboxPurchHeader: Record "Handled IC Inbox Purch. Header";
         HandledICInboxPurchLine: Record "Handled IC Inbox Purch. Line";
-        DimensionSetIDArr: array[10] of Integer;
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
         IsHandled: Boolean;
     begin
+        FeatureTelemetry.LogUptake('0000IJF', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000IK6', ICMapping.GetFeatureTelemetryName(), 'Creating Purchase Document');
+
         IsHandled := false;
         OnBeforeCreatePurchDocument(ICInboxPurchHeader, ReplacePostingDate, PostingDate, IsHandled, PurchHeader, HandledICInboxPurchHeader);
         if IsHandled then
             exit;
 
-        with ICInboxPurchHeader do begin
-            PurchHeader.Init();
-            PurchHeader."No." := '';
-            PurchHeader."Document Type" := "Document Type";
-            OnCreatePurchDocumentOnBeforePurchHeaderInsert(PurchHeader, ICInboxPurchHeader);
-            PurchHeader.Insert(true);
+        PurchHeader.Init();
+        PurchHeader."No." := '';
+        PurchHeader."Document Type" := ICInboxPurchHeader."Document Type";
+        OnCreatePurchDocumentOnBeforePurchHeaderInsert(PurchHeader, ICInboxPurchHeader);
+        PurchHeader.Insert(true);
+
+        UpdatePurchaseHeader(PurchHeader, ICInboxPurchHeader, ICDocDim, ReplacePostingDate, PostingDate);
+
+        HandledICInboxPurchHeader.TransferFields(ICInboxPurchHeader);
+        HandledICInboxPurchHeader.Insert();
+        if ICDocDim.Find('-') then
+            DimMgt.MoveICDocDimtoICDocDim(
+                ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Purch. Header", ICInboxPurchHeader."Transaction Source");
+
+        ICInboxPurchLine.SetRange("IC Transaction No.", ICInboxPurchHeader."IC Transaction No.");
+        ICInboxPurchLine.SetRange("IC Partner Code", ICInboxPurchHeader."IC Partner Code");
+        ICInboxPurchLine.SetRange("Transaction Source", ICInboxPurchHeader."Transaction Source");
+        OnCreatePurchDocumentOnAfterICInboxPurchLineSetFilters(ICInboxPurchLine, ICInboxPurchHeader);
+        if ICInboxPurchLine.Find('-') then
+            repeat
+                CreatePurchLines(PurchHeader, ICInboxPurchLine);
+                HandledICInboxPurchLine.TransferFields(ICInboxPurchLine);
+                OnCreatePurchDocumentOnBeforeHandledICInboxPurchLineInsert(ICInboxPurchLine, HandledICInboxPurchLine);
+                HandledICInboxPurchLine.Insert();
+
+                DimMgt.SetICDocDimFilters(
+                    ICDocDim, DATABASE::"IC Inbox Purchase Line", ICInboxPurchLine."IC Transaction No.",
+                    ICInboxPurchLine."IC Partner Code", ICInboxPurchLine."Transaction Source", ICInboxPurchLine."Line No.");
+                if ICDocDim.Find('-') then
+                    DimMgt.MoveICDocDimtoICDocDim(
+                        ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Purch. Line", ICInboxPurchLine."Transaction Source");
+            until ICInboxPurchLine.Next() = 0;
+
+        OnAfterCreatePurchDocument(PurchHeader, ICInboxPurchHeader, HandledICInboxPurchHeader);
+    end;
+
+    local procedure UpdatePurchaseHeader(var PurchHeader: Record "Purchase Header"; ICInboxPurchHeader: Record "IC Inbox Purchase Header"; var ICDocDim: Record "IC Document Dimension"; ReplacePostingDate: Boolean; PostingDate: Date)
+    var
+        DimensionSetIDArr: array[10] of Integer;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeUpdatePurchaseHeader(PurchHeader, ICInboxPurchHeader, ICDocDim, ReplacePostingDate, PostingDate);
+        if not IsHandled then begin
             PurchHeader.Validate("IC Direction", PurchHeader."IC Direction"::Incoming);
-            PurchHeader.Validate("Buy-from Vendor No.", "Buy-from Vendor No.");
-            if "Pay-to Vendor No." <> PurchHeader."Pay-to Vendor No." then
-                PurchHeader.Validate("Pay-to Vendor No.", "Pay-to Vendor No.");
-            case "Document Type" of
-                "Document Type"::Order, "Document Type"::"Return Order":
-                    PurchHeader."Vendor Order No." := "No.";
-                "Document Type"::Invoice:
-                    PurchHeader."Vendor Invoice No." := "No.";
-                "Document Type"::"Credit Memo":
-                    PurchHeader."Vendor Cr. Memo No." := "No.";
+            PurchHeader.Validate("Buy-from Vendor No.", ICInboxPurchHeader."Buy-from Vendor No.");
+            if ICInboxPurchHeader."Pay-to Vendor No." <> PurchHeader."Pay-to Vendor No." then
+                PurchHeader.Validate("Pay-to Vendor No.", ICInboxPurchHeader."Pay-to Vendor No.");
+            case ICInboxPurchHeader."Document Type" of
+                ICInboxPurchHeader."Document Type"::Order, ICInboxPurchHeader."Document Type"::"Return Order":
+                    PurchHeader."Vendor Order No." := ICInboxPurchHeader."No.";
+                ICInboxPurchHeader."Document Type"::Invoice:
+                    PurchHeader."Vendor Invoice No." := ICInboxPurchHeader."No.";
+                ICInboxPurchHeader."Document Type"::"Credit Memo":
+                    PurchHeader."Vendor Cr. Memo No." := ICInboxPurchHeader."No.";
             end;
-            PurchHeader."Your Reference" := "Your Reference";
-            PurchHeader."Ship-to Name" := "Ship-to Name";
-            PurchHeader."Ship-to Address" := "Ship-to Address";
-            PurchHeader."Ship-to Address 2" := "Ship-to Address 2";
-            PurchHeader."Ship-to City" := "Ship-to City";
-            PurchHeader."Ship-to Post Code" := "Ship-to Post Code";
-            PurchHeader."Ship-to County" := "Ship-to County";
-            PurchHeader."Ship-to Country/Region Code" := "Ship-to Country/Region Code";
-            PurchHeader."Vendor Order No." := "Vendor Order No.";
+            PurchHeader."Your Reference" := ICInboxPurchHeader."Your Reference";
+            PurchHeader."Ship-to Name" := ICInboxPurchHeader."Ship-to Name";
+            PurchHeader."Ship-to Address" := ICInboxPurchHeader."Ship-to Address";
+            PurchHeader."Ship-to Address 2" := ICInboxPurchHeader."Ship-to Address 2";
+            PurchHeader."Ship-to City" := ICInboxPurchHeader."Ship-to City";
+            PurchHeader."Ship-to Post Code" := ICInboxPurchHeader."Ship-to Post Code";
+            PurchHeader."Ship-to County" := ICInboxPurchHeader."Ship-to County";
+            PurchHeader."Ship-to Country/Region Code" := ICInboxPurchHeader."Ship-to Country/Region Code";
+            PurchHeader."Vendor Order No." := ICInboxPurchHeader."Vendor Order No.";
             if ReplacePostingDate then
                 PurchHeader.Validate("Posting Date", PostingDate)
             else
-                PurchHeader.Validate("Posting Date", "Posting Date");
-            GetCurrency("Currency Code");
-            PurchHeader.Validate("Currency Code", "Currency Code");
-            PurchHeader.Validate("Document Date", "Document Date");
-            PurchHeader.Validate("Requested Receipt Date", "Requested Receipt Date");
-            PurchHeader.Validate("Promised Receipt Date", "Promised Receipt Date");
-            PurchHeader.Validate("Prices Including VAT", "Prices Including VAT");
-            PurchHeader.Validate("Due Date", "Due Date");
-            PurchHeader.Validate("Payment Discount %", "Payment Discount %");
-            PurchHeader.Validate("Pmt. Discount Date", "Pmt. Discount Date");
+                PurchHeader.Validate("Posting Date", ICInboxPurchHeader."Posting Date");
+            GetCurrency(ICInboxPurchHeader."Currency Code");
+            PurchHeader.Validate("Currency Code", ICInboxPurchHeader."Currency Code");
+            PurchHeader.Validate("Document Date", ICInboxPurchHeader."Document Date");
+            PurchHeader.Validate("Requested Receipt Date", ICInboxPurchHeader."Requested Receipt Date");
+            PurchHeader.Validate("Promised Receipt Date", ICInboxPurchHeader."Promised Receipt Date");
+            PurchHeader.Validate("Prices Including VAT", ICInboxPurchHeader."Prices Including VAT");
+            PurchHeader.Validate("Due Date", ICInboxPurchHeader."Due Date");
+            PurchHeader.Validate("Payment Discount %", ICInboxPurchHeader."Payment Discount %");
+            PurchHeader.Validate("Pmt. Discount Date", ICInboxPurchHeader."Pmt. Discount Date");
             PurchHeader."Shortcut Dimension 1 Code" := '';
             PurchHeader."Shortcut Dimension 2 Code" := '';
 
             OnCreatePurchDocumentOnBeforeSetICDocDimFilters(PurchHeader, ICInboxPurchHeader);
             DimMgt.SetICDocDimFilters(
-              ICDocDim, DATABASE::"IC Inbox Purchase Header", "IC Transaction No.", "IC Partner Code", "Transaction Source", 0);
+                ICDocDim, DATABASE::"IC Inbox Purchase Header", ICInboxPurchHeader."IC Transaction No.",
+                ICInboxPurchHeader."IC Partner Code", ICInboxPurchHeader."Transaction Source", 0);
 
             DimensionSetIDArr[1] := PurchHeader."Dimension Set ID";
             DimensionSetIDArr[2] := DimMgt.CreateDimSetIDFromICDocDim(ICDocDim);
             PurchHeader."Dimension Set ID" :=
-              DimMgt.GetCombinedDimensionSetID(
+                DimMgt.GetCombinedDimensionSetID(
                 DimensionSetIDArr, PurchHeader."Shortcut Dimension 1 Code", PurchHeader."Shortcut Dimension 2 Code");
             DimMgt.UpdateGlobalDimFromDimSetID(
-              PurchHeader."Dimension Set ID", PurchHeader."Shortcut Dimension 1 Code", PurchHeader."Shortcut Dimension 2 Code");
+                PurchHeader."Dimension Set ID", PurchHeader."Shortcut Dimension 1 Code", PurchHeader."Shortcut Dimension 2 Code");
             OnCreatePurchDocumentOnBeforePurchHeaderModify(PurchHeader, ICInboxPurchHeader);
             PurchHeader.Modify();
-
-            HandledICInboxPurchHeader.TransferFields(ICInboxPurchHeader);
-            HandledICInboxPurchHeader.Insert();
-            if ICDocDim.Find('-') then
-                DimMgt.MoveICDocDimtoICDocDim(ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Purch. Header", "Transaction Source");
         end;
-
-        with ICInboxPurchLine do begin
-            SetRange("IC Transaction No.", ICInboxPurchHeader."IC Transaction No.");
-            SetRange("IC Partner Code", ICInboxPurchHeader."IC Partner Code");
-            SetRange("Transaction Source", ICInboxPurchHeader."Transaction Source");
-            if Find('-') then
-                repeat
-                    CreatePurchLines(PurchHeader, ICInboxPurchLine);
-                    HandledICInboxPurchLine.TransferFields(ICInboxPurchLine);
-                    OnCreatePurchDocumentOnBeforeHandledICInboxPurchLineInsert(ICInboxPurchLine, HandledICInboxPurchLine);
-                    HandledICInboxPurchLine.Insert();
-
-                    DimMgt.SetICDocDimFilters(
-                      ICDocDim, DATABASE::"IC Inbox Purchase Line", "IC Transaction No.", "IC Partner Code", "Transaction Source", "Line No.");
-                    if ICDocDim.Find('-') then
-                        DimMgt.MoveICDocDimtoICDocDim(ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Purch. Line", "Transaction Source");
-                until Next() = 0;
-        end;
-        OnAfterCreatePurchDocument(PurchHeader, ICInboxPurchHeader, HandledICInboxPurchHeader);
     end;
 
     procedure CreatePurchLines(PurchHeader: Record "Purchase Header"; ICInboxPurchLine: Record "IC Inbox Purchase Line")
@@ -1068,67 +1166,75 @@
         PurchLine: Record "Purchase Line";
         ICDocDim: Record "IC Document Dimension";
         Currency: Record Currency;
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
         Precision: Decimal;
         Precision2: Decimal;
         DimensionSetIDArr: array[10] of Integer;
+        IsHandled: Boolean;
     begin
-        with ICInboxPurchLine do begin
+        FeatureTelemetry.LogUptake('0000IJG', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000IK7', ICMapping.GetFeatureTelemetryName(), 'Creating Purchase Lines');
+
+        IsHandled := false;
+        OnBeforeCreatePurchLines(PurchHeader, ICInboxPurchLine, IsHandled);
+        if not IsHandled then begin
             PurchLine.Init();
             PurchLine.TransferFields(ICInboxPurchLine);
             OnCreatePurchLinesOnAfterTransferFields(PurchLine, ICInboxPurchLine);
 
             PurchLine."Document Type" := PurchHeader."Document Type";
             PurchLine."Document No." := PurchHeader."No.";
-            PurchLine."Line No." := "Line No.";
+            PurchLine."Line No." := ICInboxPurchLine."Line No.";
             PurchLine.Insert(true);
             PurchLine."Receipt No." := '';
             PurchLine."Return Shipment No." := '';
 
             OnCreatePurchLinesOnBeforeAssignTypeAndNo(PurchLine, ICInboxPurchLine);
-            case "IC Partner Ref. Type" of
-                "IC Partner Ref. Type"::"Common Item No.":
+            case ICInboxPurchLine."IC Partner Ref. Type" of
+                "IC Partner Reference Type"::"Common Item No.":
                     begin
                         PurchLine.Type := PurchLine.Type::Item;
-                        PurchLine."No." := GetItemFromCommonItem("IC Partner Reference");
+                        PurchLine."No." := GetItemFromCommonItem(ICInboxPurchLine."IC Partner Reference");
                         if PurchLine."No." <> '' then
                             PurchLine.Validate("No.", PurchLine."No.")
                         else
-                            PurchLine."No." := "IC Partner Reference";
+                            PurchLine."No." := ICInboxPurchLine."IC Partner Reference";
                     end;
-                "IC Partner Ref. Type"::Item:
+                "IC Partner Reference Type"::Item:
                     begin
                         PurchLine.Validate(Type, PurchLine.Type::Item);
                         PurchLine."No." :=
                             GetItemFromItemRef(
-                                "IC Partner Reference", "Item Reference Type"::Vendor, PurchHeader."Buy-from Vendor No.");
+                                ICInboxPurchLine."IC Partner Reference", "Item Reference Type"::Vendor, PurchHeader."Buy-from Vendor No.");
                         if PurchLine."No." <> '' then
                             PurchLine.Validate("No.", PurchLine."No.")
                         else
-                            PurchLine."No." := "IC Partner Reference";
+                            PurchLine."No." := ICInboxPurchLine."IC Partner Reference";
                     end;
-                "IC Partner Ref. Type"::"G/L Account":
+                "IC Partner Reference Type"::"G/L Account":
                     begin
                         PurchLine.Validate(Type, PurchLine.Type::"G/L Account");
-                        PurchLine.Validate("No.", TranslateICGLAccount("IC Partner Reference"));
+                        PurchLine.Validate("No.", TranslateICGLAccount(ICInboxPurchLine."IC Partner Reference"));
                     end;
-                "IC Partner Ref. Type"::"Charge (Item)":
+                "IC Partner Reference Type"::"Charge (Item)":
                     begin
                         PurchLine.Type := PurchLine.Type::"Charge (Item)";
-                        PurchLine.Validate("No.", "IC Partner Reference");
+                        PurchLine.Validate("No.", ICInboxPurchLine."IC Partner Reference");
                     end;
-                "IC Partner Ref. Type"::"Cross reference":
+                "IC Partner Reference Type"::"Cross reference":
                     begin
                         PurchLine.Validate(Type, PurchLine.Type::Item);
-                        PurchLine.Validate("Item Reference No.", "IC Item Reference No.");
+                        PurchLine.Validate("Item Reference No.", ICInboxPurchLine."IC Item Reference No.");
                     end;
                 else
                     OnCreatePurchLinesOnICPartnerRefTypeCaseElse(PurchLine, PurchHeader, ICInboxPurchLine);
             end;
             OnCreatePurchLinesOnAfterValidateNo(PurchLine, PurchHeader, ICInboxPurchLine);
             PurchLine."Currency Code" := PurchHeader."Currency Code";
-            PurchLine.Description := Description;
-            PurchLine."Description 2" := "Description 2";
-            if (PurchLine.Type <> PurchLine.Type::" ") and (Quantity <> 0) then begin
+            PurchLine.Description := ICInboxPurchLine.Description;
+            PurchLine."Description 2" := ICInboxPurchLine."Description 2";
+            if (PurchLine.Type <> PurchLine.Type::" ") and (ICInboxPurchLine.Quantity <> 0) then begin
                 if Currency.Get(PurchHeader."Currency Code") then begin
                     Precision := Currency."Unit-Amount Rounding Precision";
                     Precision2 := Currency."Amount Rounding Precision"
@@ -1143,23 +1249,27 @@
                     else
                         Precision2 := 0.01;
                 end;
-                PurchLine.Validate(Quantity, Quantity);
-                PurchLine.Validate("Unit of Measure Code", "Unit of Measure Code");
-                PurchLine.Validate("Direct Unit Cost", "Direct Unit Cost");
-                PurchLine.Validate("Line Discount Amount", "Line Discount Amount");
-                PurchLine."Amount Including VAT" := "Amount Including VAT";
-                PurchLine."VAT Base Amount" := Round("Amount Including VAT" / (1 + (PurchLine."VAT %" / 100)), Precision2);
-                if PurchHeader."Prices Including VAT" then
-                    PurchLine."Line Amount" := "Amount Including VAT"
-                else
-                    PurchLine."Line Amount" := "Line Amount";
-                PurchLine.Validate("Requested Receipt Date", "Requested Receipt Date");
-                PurchLine.Validate("Promised Receipt Date", "Promised Receipt Date");
-                PurchLine."Line Discount %" := "Line Discount %";
-                PurchLine."Receipt No." := "Receipt No.";
-                PurchLine."Receipt Line No." := "Receipt Line No.";
-                PurchLine."Return Shipment No." := "Return Shipment No.";
-                PurchLine."Return Shipment Line No." := "Return Shipment Line No.";
+                PurchLine.Validate(Quantity, ICInboxPurchLine.Quantity);
+                PurchLine.Validate("Unit of Measure Code", ICInboxPurchLine."Unit of Measure Code");
+                IsHandled := false;
+                OnCreatePurchLinesOnBeforeCalcPriceAndAmounts(PurchHeader, PurchLine, IsHandled);
+                if not IsHandled then begin
+                    PurchLine.Validate("Direct Unit Cost", ICInboxPurchLine."Direct Unit Cost");
+                    PurchLine.Validate("Line Discount Amount", ICInboxPurchLine."Line Discount Amount");
+                    PurchLine."Amount Including VAT" := ICInboxPurchLine."Amount Including VAT";
+                    PurchLine."VAT Base Amount" := Round(ICInboxPurchLine."Amount Including VAT" / (1 + (PurchLine."VAT %" / 100)), Precision2);
+                    if PurchHeader."Prices Including VAT" then
+                        PurchLine."Line Amount" := ICInboxPurchLine."Amount Including VAT"
+                    else
+                        PurchLine."Line Amount" := ICInboxPurchLine."Line Amount";
+                end;
+                PurchLine.Validate("Requested Receipt Date", ICInboxPurchLine."Requested Receipt Date");
+                PurchLine.Validate("Promised Receipt Date", ICInboxPurchLine."Promised Receipt Date");
+                PurchLine."Line Discount %" := ICInboxPurchLine."Line Discount %";
+                PurchLine."Receipt No." := ICInboxPurchLine."Receipt No.";
+                PurchLine."Receipt Line No." := ICInboxPurchLine."Receipt Line No.";
+                PurchLine."Return Shipment No." := ICInboxPurchLine."Return Shipment No.";
+                PurchLine."Return Shipment Line No." := ICInboxPurchLine."Return Shipment Line No.";
                 UpdatePurchLineICPartnerReference(PurchLine, PurchHeader, ICInboxPurchLine);
                 UpdatePurchLineReceiptShipment(PurchLine);
             end;
@@ -1169,7 +1279,8 @@
             OnCreatePurchLinesOnAfterAssignPurchLineFields(PurchLine, ICInboxPurchLine, PurchHeader);
 
             DimMgt.SetICDocDimFilters(
-              ICDocDim, DATABASE::"IC Inbox Purchase Line", "IC Transaction No.", "IC Partner Code", "Transaction Source", "Line No.");
+              ICDocDim, DATABASE::"IC Inbox Purchase Line", ICInboxPurchLine."IC Transaction No.",
+              ICInboxPurchLine."IC Partner Code", ICInboxPurchLine."Transaction Source", ICInboxPurchLine."Line No.");
             DimensionSetIDArr[1] := PurchLine."Dimension Set ID";
             DimensionSetIDArr[2] := DimMgt.CreateDimSetIDFromICDocDim(ICDocDim);
             PurchLine."Dimension Set ID" :=
@@ -1189,7 +1300,12 @@
     procedure CreateHandledInbox(InboxTransaction: Record "IC Inbox Transaction")
     var
         HandledInboxTransaction: Record "Handled IC Inbox Trans.";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
     begin
+        FeatureTelemetry.LogUptake('0000IJH', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000IK8', ICMapping.GetFeatureTelemetryName(), 'Creating Handled Inbox');
+
         HandledInboxTransaction.Init();
         HandledInboxTransaction."Transaction No." := InboxTransaction."Transaction No.";
         HandledInboxTransaction."IC Partner Code" := InboxTransaction."IC Partner Code";
@@ -1231,8 +1347,13 @@
         HandledInboxPurchLine: Record "Handled IC Inbox Purch. Line";
         InboxPurchLine: Record "IC Inbox Purchase Line";
         ICIOMgt: Codeunit ICInboxOutboxMgt;
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
         ConfirmManagement: Codeunit "Confirm Management";
     begin
+        FeatureTelemetry.LogUptake('0000IJI', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000IK9', ICMapping.GetFeatureTelemetryName(), 'Recreate Inbox Transaction');
+
         with HandledInboxTransaction do
             if not (Status in [Status::Accepted, Status::Cancelled]) then
                 Error(Text005, FieldCaption(Status), Status::Accepted, Status::Cancelled);
@@ -1386,8 +1507,13 @@
         HandledOutboxPurchLine: Record "Handled IC Outbox Purch. Line";
         OutboxPurchLine: Record "IC Outbox Purchase Line";
         ICIOMgt: Codeunit ICInboxOutboxMgt;
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
         ConfirmManagement: Codeunit "Confirm Management";
     begin
+        FeatureTelemetry.LogUptake('0000IJJ', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000IKA', ICMapping.GetFeatureTelemetryName(), 'Recreate Outbox Transaction');
+
         with HandledOutboxTransaction do
             if not (Status in [Status::"Sent to IC Partner", Status::Cancelled]) then
                 Error(Text005, FieldCaption(Status), Status::"Sent to IC Partner", Status::Cancelled);
@@ -1541,7 +1667,12 @@
         HndlInboxPurchLine: Record "Handled IC Inbox Purch. Line";
         ICJnlLineDim: Record "IC Inbox/Outbox Jnl. Line Dim.";
         ICJnlLineDim2: Record "IC Inbox/Outbox Jnl. Line Dim.";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
     begin
+        FeatureTelemetry.LogUptake('0000IJK', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000IKB', ICMapping.GetFeatureTelemetryName(), 'Forwarding to OutBox');
+
         with InboxTransaction do begin
             OutboxTransaction.Init();
             OutboxTransaction."Transaction No." := "Transaction No.";
@@ -1789,7 +1920,12 @@
         PartnerHandledICInboxTrans: Record "Handled IC Inbox Trans.";
         ICPartner: Record "IC Partner";
         ICSetup: Record "IC Setup";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
     begin
+        FeatureTelemetry.LogUptake('0000IJL', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000IKC', ICMapping.GetFeatureTelemetryName(), 'Outpux Transaction to Inbox');
+
         ICInboxTrans."Transaction No." := ICOutboxTrans."Transaction No.";
         ICInboxTrans."IC Partner Code" := FromICPartnerCode;
         ICInboxTrans."Transaction Source" := ICOutboxTrans."Transaction Source";
@@ -1847,7 +1983,12 @@
         ICSetup: Record "IC Setup";
         LocalICPartner: Record "IC Partner";
         PartnerICPartner: Record "IC Partner";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
     begin
+        FeatureTelemetry.LogUptake('0000IJM', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000IKD', ICMapping.GetFeatureTelemetryName(), 'Outbox Journal Line to Inbox');
+
         GetGLSetup();
         ICSetup.Get();
         ICInboxJnlLine."Transaction No." := ICInboxTrans."Transaction No.";
@@ -1913,8 +2054,13 @@
         ICSetup: Record "IC Setup";
         ICPartner: Record "IC Partner";
         Vendor: Record Vendor;
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
         IsHandled: Boolean;
     begin
+        FeatureTelemetry.LogUptake('0000IJN', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000IKE', ICMapping.GetFeatureTelemetryName(), 'Outbox Sales Header to Inbox');
+
         IsHandled := false;
         OnBeforeOutboxSalesHdrToInbox(ICInboxTrans, ICOutboxSalesHeader, ICInboxPurchHeader, ICPartner, IsHandled);
         if IsHandled then
@@ -1970,7 +2116,13 @@
     end;
 
     procedure OutboxSalesLineToInbox(var ICInboxTrans: Record "IC Inbox Transaction"; var ICOutboxSalesLine: Record "IC Outbox Sales Line"; var ICInboxPurchLine: Record "IC Inbox Purchase Line")
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
     begin
+        FeatureTelemetry.LogUptake('0000IJO', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000IKF', ICMapping.GetFeatureTelemetryName(), 'Outbox Sales Line to Inbox');
+
         with ICInboxPurchLine do begin
             "IC Transaction No." := ICInboxTrans."Transaction No.";
             "IC Partner Code" := ICInboxTrans."IC Partner Code";
@@ -2010,8 +2162,12 @@
         ICSetup: Record "IC Setup";
         ICPartner: Record "IC Partner";
         Customer: Record Customer;
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
         IsHandled: Boolean;
     begin
+        FeatureTelemetry.LogUptake('0000IJP', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000IKG', ICMapping.GetFeatureTelemetryName(), 'Outbox Purchase Header to Inbox');
 #if not CLEAN20
         GetCompanyInfo();
 #endif
@@ -2065,7 +2221,13 @@
     end;
 
     procedure OutboxPurchLineToInbox(var ICInboxTrans: Record "IC Inbox Transaction"; var ICOutboxPurchLine: Record "IC Outbox Purchase Line"; var ICInboxSalesLine: Record "IC Inbox Sales Line")
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
     begin
+        FeatureTelemetry.LogUptake('0000IJQ', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000IKH', ICMapping.GetFeatureTelemetryName(), 'Outbox Purchase Line to Inbox');
+
         with ICInboxSalesLine do begin
             "IC Transaction No." := ICInboxTrans."Transaction No.";
             "IC Partner Code" := ICInboxTrans."IC Partner Code";
@@ -2099,7 +2261,13 @@
     end;
 
     procedure OutboxJnlLineDimToInbox(var ICInboxJnlLine: Record "IC Inbox Jnl. Line"; var ICOutboxJnlLineDim: Record "IC Inbox/Outbox Jnl. Line Dim."; var ICInboxJnlLineDim: Record "IC Inbox/Outbox Jnl. Line Dim."; ICInboxTableID: Integer)
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
     begin
+        FeatureTelemetry.LogUptake('0000IJR', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000IKI', ICMapping.GetFeatureTelemetryName(), 'Outbox Journal Line Dimensions to Inbox');
+
         ICInboxJnlLineDim := ICOutboxJnlLineDim;
         ICInboxJnlLineDim."Table ID" := ICInboxTableID;
         ICInboxJnlLineDim."IC Partner Code" := ICInboxJnlLine."IC Partner Code";
@@ -2108,7 +2276,13 @@
     end;
 
     procedure OutboxDocDimToInbox(var ICOutboxDocDim: Record "IC Document Dimension"; var ICInboxDocDim: Record "IC Document Dimension"; InboxTableID: Integer; InboxICPartnerCode: Code[20]; InboxTransSource: Integer)
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
     begin
+        FeatureTelemetry.LogUptake('0000IJS', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000IKJ', ICMapping.GetFeatureTelemetryName(), 'Outbox Document Dimensions to Inbox');
+
         ICInboxDocDim := ICOutboxDocDim;
         ICInboxDocDim."Table ID" := InboxTableID;
         ICInboxDocDim."IC Partner Code" := InboxICPartnerCode;
@@ -2120,7 +2294,12 @@
     var
         InOutboxJnlLineDim: Record "IC Inbox/Outbox Jnl. Line Dim.";
         TempInOutboxJnlLineDim: Record "IC Inbox/Outbox Jnl. Line Dim." temporary;
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
     begin
+        FeatureTelemetry.LogUptake('0000IJT', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000IKK', ICMapping.GetFeatureTelemetryName(), 'Move IC Journal Dimension');
+
         InOutboxJnlLineDim.SetRange("Table ID", TableID);
         InOutboxJnlLineDim.SetRange("Transaction No.", TransactionNo);
         InOutboxJnlLineDim.SetRange("IC Partner Code", ICPartner);
@@ -2177,7 +2356,12 @@
         HandledICInOutJnlLineDim: Record "IC Inbox/Outbox Jnl. Line Dim.";
         ICCommentLine: Record "IC Comment Line";
         HandledICCommentLine: Record "IC Comment Line";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ICMapping: Codeunit "IC Mapping";
     begin
+        FeatureTelemetry.LogUptake('0000IJU', ICMapping.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Used);
+        FeatureTelemetry.LogUsage('0000IKL', ICMapping.GetFeatureTelemetryName(), 'Move Outbox Transaction to Handled Outbox');
+
         ICOutboxJnlLine.SetRange("Transaction No.", ICOutboxTrans."Transaction No.");
         if ICOutboxJnlLine.Find('-') then
             repeat
@@ -2496,14 +2680,18 @@
         PurchaseOrderLine: Record "Purchase Line";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
         OrderDocumentNo: Code[20];
+        IsHandled: Boolean;
     begin
         if FindReceiptLine(PurchRcptLine, PurchaseLine) then begin
             OrderDocumentNo := PurchaseLine."Receipt No.";
             PurchaseLine."Location Code" := PurchRcptLine."Location Code";
             PurchaseLine."Receipt No." := PurchRcptLine."Document No.";
             PurchaseLine."Receipt Line No." := PurchRcptLine."Line No.";
-            if PurchaseOrderLine.Get(PurchaseOrderLine."Document Type"::Order, OrderDocumentNo, PurchaseLine."Receipt Line No.") then
-                ItemTrackingMgt.CopyHandledItemTrkgToPurchLineWithLineQty(PurchaseOrderLine, PurchaseLine);
+            IsHandled := false;
+            OnUpdatePurchLineReceiptShipmentOnBeforeCopyHandledItemTrkgToPurchLine(PurchaseLine, IsHandled);
+            if not IsHandled then
+                if PurchaseOrderLine.Get(PurchaseOrderLine."Document Type"::Order, OrderDocumentNo, PurchaseLine."Receipt Line No.") then
+                    ItemTrackingMgt.CopyHandledItemTrkgToPurchLineWithLineQty(PurchaseOrderLine, PurchaseLine);
         end else begin
             PurchaseLine."Receipt No." := '';
             PurchaseLine."Receipt Line No." := 0;
@@ -2514,10 +2702,13 @@
             PurchaseLine."Location Code" := ReturnShptLine."Location Code";
             PurchaseLine."Return Shipment No." := ReturnShptLine."Document No.";
             PurchaseLine."Return Shipment Line No." := ReturnShptLine."Line No.";
-            if PurchaseOrderLine.Get(
-                 PurchaseOrderLine."Document Type"::"Return Order", OrderDocumentNo, PurchaseLine."Return Shipment Line No.")
-            then
-                ItemTrackingMgt.CopyHandledItemTrkgToInvLine(PurchaseOrderLine, PurchaseLine);
+            IsHandled := false;
+            OnUpdatePurchLineReceiptShipmentOnBeforeCopyHandledItemTrkgToInvLine(PurchaseLine, IsHandled);
+            if not IsHandled then
+                if PurchaseOrderLine.Get(
+                    PurchaseOrderLine."Document Type"::"Return Order", OrderDocumentNo, PurchaseLine."Return Shipment Line No.")
+                then
+                    ItemTrackingMgt.CopyHandledItemTrkgToInvLine(PurchaseOrderLine, PurchaseLine);
         end else begin
             PurchaseLine."Return Shipment No." := '';
             PurchaseLine."Return Shipment Line No." := 0;
@@ -3187,6 +3378,61 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnSendSalesDocOnbeforeTestSendICDocument(var SalesHeader: Record "Sales Header"; var IsHandled: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesLinesOnBeforeCalcPriceAndAmounts(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePurchLinesOnBeforeCalcPriceAndAmounts(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesLinesOnBeforeValidateUnitOfMeasureCode(var SalesLine: Record "Sales Line"; ICInboxSalesLine: Record "IC Inbox Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateSalesHeader(var SalesHeader: Record "Sales Header"; ICInboxSalesHeader: Record "IC Inbox Sales Header"; var ICDocDim: Record "IC Document Dimension"; ReplacePostingDate: Boolean; PostingDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdatePurchaseHeader(var PurchHeader: Record "Purchase Header"; ICInboxPurchHeader: Record "IC Inbox Purchase Header"; var ICDocDim: Record "IC Document Dimension"; ReplacePostingDate: Boolean; PostingDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateSalesDocumentOnAfterICInboxSalesLineSetFilters(var ICInboxSalesLine: Record "IC Inbox Sales Line"; ICInboxSalesHeader: Record "IC Inbox Sales Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreatePurchDocumentOnAfterICInboxPurchLineSetFilters(var ICInboxPurchLine: Record "IC Inbox Purchase Line"; ICInboxPurchHeader: Record "IC Inbox Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateSalesLines(SalesHeader: Record "Sales Header"; var ICInboxSalesLine: Record "IC Inbox Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreatePurchLines(PurchHeader: Record "Purchase Header"; var ICInboxPurchLine: Record "IC Inbox Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdatePurchLineReceiptShipmentOnBeforeCopyHandledItemTrkgToPurchLine(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnUpdatePurchLineReceiptShipmentOnBeforeCopyHandledItemTrkgToInvLine(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -39,6 +39,7 @@ codeunit 380 "Bank Acc. Recon. Test"
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         Total: Decimal;
+        DocNo: Text;
     begin
         SetOutstandingFilters(BankAccReconciliation, BankAccountLedgerEntry);
         BankAccountLedgerEntry.SetRange("Check Ledger Entries", 0);
@@ -49,17 +50,21 @@ codeunit 380 "Bank Acc. Recon. Test"
         if BankAccReconciliation."Statement Type" = BankAccReconciliation."Statement Type"::"Payment Application" then begin
             // When the BankAccReconciliation is created from the Payment Reconciliation Journal:
             // we subtract the "Applied Amount" to Bank Ledger Entries with no CLE, since those are no longer outstanding.
+            // These are the lines with "Account Type" "Bank Account", that are applied to some "Document No." (Lines of type Bank Account without Doc. No are bank to bank transfers, which are not outstanding)
             BankAccReconciliation.SetFiltersOnBankAccReconLineTable(BankAccReconciliation, BankAccReconciliationLine);
             BankAccReconciliationLine.SetRange("Account Type", BankAccReconciliationLine."Account Type"::"Bank Account");
             if BankAccReconciliationLine.FindSet() then
                 repeat
-                    // We will just subtract the "Applied Amount" if there is no Check Ledger Entry
-                    // associated to that BLE
-                    BankAccountLedgerEntry.Reset();
-                    BankAccountLedgerEntry.SetFilter("Document No.", BankAccReconciliationLine.GetAppliedToDocumentNo('|'));
-                    BankAccountLedgerEntry.SetRange("Check Ledger Entries", 0);
-                    if not BankAccountLedgerEntry.IsEmpty() then
-                        Total -= BankAccReconciliationLine."Applied Amount";
+                    DocNo := BankAccReconciliationLine.GetAppliedToDocumentNo('|');
+                    if DocNo <> '' then begin
+                        // We will just subtract the "Applied Amount" if there is no Check Ledger Entry
+                        // associated to that BLE
+                        BankAccountLedgerEntry.Reset();
+                        BankAccountLedgerEntry.SetFilter("Document No.", DocNo);
+                        BankAccountLedgerEntry.SetRange("Check Ledger Entries", 0);
+                        if not BankAccountLedgerEntry.IsEmpty() then
+                            Total -= BankAccReconciliationLine."Applied Amount";
+                    end;
                 until BankAccReconciliationLine.Next() = 0;
         end;
         exit(Total);
@@ -70,6 +75,7 @@ codeunit 380 "Bank Acc. Recon. Test"
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
         BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line";
         Total: Decimal;
+        DocNo: Text;
     begin
         SetOutstandingFilters(BankAccReconciliation, BankAccountLedgerEntry);
         BankAccountLedgerEntry.SetFilter("Check Ledger Entries", '<>0');
@@ -80,17 +86,21 @@ codeunit 380 "Bank Acc. Recon. Test"
         if BankAccReconciliation."Statement Type" = BankAccReconciliation."Statement Type"::"Payment Application" then begin
             // When the BankAccReconciliation is created from the Payment Reconciliation Journal:
             // we subtract the "Applied Amount" to Bank Ledger Entries with CLEs, since those are no longer outstanding.
+            // These are the lines with "Account Type" "Bank Account", that are applied to some "Document No." (Lines of type Bank Account without Doc. No are bank to bank transfers, which are not outstanding)
             BankAccReconciliation.SetFiltersOnBankAccReconLineTable(BankAccReconciliation, BankAccReconciliationLine);
             BankAccReconciliationLine.SetRange("Account Type", BankAccReconciliationLine."Account Type"::"Bank Account");
             if BankAccReconciliationLine.FindSet() then
                 repeat
-                    // We will just subtract the "Applied Amount" if there are Check Ledger Entry
-                    // associated to that BLE
-                    BankAccountLedgerEntry.Reset();
-                    BankAccountLedgerEntry.SetFilter("Document No.", BankAccReconciliationLine.GetAppliedToDocumentNo('|'));
-                    BankAccountLedgerEntry.SetFilter("Check Ledger Entries", '<>0');
-                    if not BankAccountLedgerEntry.IsEmpty() then
-                        Total -= BankAccReconciliationLine."Applied Amount";
+                    DocNo := BankAccReconciliationLine.GetAppliedToDocumentNo('|');
+                    if DocNo <> '' then begin
+                        // We will just subtract the "Applied Amount" if there are Check Ledger Entry
+                        // associated to that BLE
+                        BankAccountLedgerEntry.Reset();
+                        BankAccountLedgerEntry.SetFilter("Document No.", DocNo);
+                        BankAccountLedgerEntry.SetFilter("Check Ledger Entries", '<>0');
+                        if not BankAccountLedgerEntry.IsEmpty() then
+                            Total -= BankAccReconciliationLine."Applied Amount";
+                    end;
                 until BankAccReconciliationLine.Next() = 0;
         end;
         exit(Total);

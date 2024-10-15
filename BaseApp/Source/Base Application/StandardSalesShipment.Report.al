@@ -1014,7 +1014,14 @@ report 1308 "Standard Sales - Shipment"
     end;
 
     local procedure FillLeftHeader()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFillLeftHeader(IsHandled);
+        if IsHandled then
+            exit;
+
         LeftHeader.DeleteAll();
 
         FillNameValueTable(LeftHeader, Header.FieldCaption("Sell-to Customer No."), Header."Sell-to Customer No.");
@@ -1026,7 +1033,14 @@ report 1308 "Standard Sales - Shipment"
     end;
 
     local procedure FillRightHeader()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFillRightHeader(IsHandled);
+        if IsHandled then
+            exit;
+
         RightHeader.DeleteAll();
 
         FillNameValueTable(RightHeader, EMailLbl, CompanyInfo."E-Mail");
@@ -1070,6 +1084,8 @@ report 1308 "Standard Sales - Shipment"
             FormatDocument.SetSalesPerson(SalespersonPurchaser, "Salesperson Code", SalesPersonText);
             FormatDocument.SetShipmentMethod(ShipmentMethod, "Shipment Method Code", "Language Code");
         end;
+
+        OnAfterFormatDocumentFields(SalesShipmentHeader);
     end;
 
     local procedure GetJobTaskDescription(JobNo: Code[20]; JobTaskNo: Code[20]): Text[100]
@@ -1106,6 +1122,21 @@ report 1308 "Standard Sales - Shipment"
 
     [IntegrationEvent(true, FALSE)]
     local procedure OnAfterGetSalesHeader(SalesShipmentHeader: Record "Sales Shipment Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFillLeftHeader(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFillRightHeader(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFormatDocumentFields(var SalesShipmentHeader: Record "Sales Shipment Header")
     begin
     end;
 }

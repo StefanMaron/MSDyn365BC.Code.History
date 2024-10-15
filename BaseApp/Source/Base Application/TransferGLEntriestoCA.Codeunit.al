@@ -102,7 +102,7 @@ codeunit 1105 "Transfer GL Entries to CA"
 
         GLEntry.SetRange("Entry No.", FirstGLEntryNo, LastGLEntryNo);
         GLEntry.SetFilter("Posting Date", '%1..', CostAccSetup."Starting Date for G/L Transfer");
-
+        OnGetGLEntriesOnAfterSetGLEntryFilters(GLEntry, FirstGLEntryNo, LastGLEntryNo, CostAccSetup."Starting Date for G/L Transfer");
         if GLEntry.FindSet() then
             repeat
                 if BatchRun and ((GLEntry."Entry No." mod 100) = 0) then
@@ -324,6 +324,11 @@ codeunit 1105 "Transfer GL Entries to CA"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeRun(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetGLEntriesOnAfterSetGLEntryFilters(var GLEntry: Record "G/L Entry"; FirstGLEntryNo: Integer; LastGLEntryNo: Integer; StartingDate: Date)
     begin
     end;
 }

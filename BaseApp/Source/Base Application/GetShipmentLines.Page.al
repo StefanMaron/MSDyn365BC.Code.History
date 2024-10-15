@@ -250,7 +250,7 @@ page 5708 "Get Shipment Lines"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeOnQueryClosePage(CloseAction, Result, IsHandled);
+        OnBeforeOnQueryClosePage(CloseAction, Result, IsHandled, Rec);
         if IsHandled then
             exit;
 
@@ -328,7 +328,7 @@ page 5708 "Get Shipment Lines"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeOnQueryClosePage(CloseAction: Action; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeOnQueryClosePage(CloseAction: Action; var Result: Boolean; var IsHandled: Boolean; var SalesShipmentLine: Record "Sales Shipment Line")
     begin
     end;
 

@@ -1083,6 +1083,7 @@
 
     local procedure DeltaUpdateTotals()
     begin
+        OnBeforeDeltaUpdateTotals(rec, xRec);
         DocumentTotals.SalesDeltaUpdateTotals(Rec, xRec, TotalSalesLine, VATAmount, InvoiceDiscountAmount, InvoiceDiscountPct);
         if Rec."Line Amount" <> xRec."Line Amount" then
             Rec.SendLineInvoiceDiscountResetNotification();
@@ -1248,6 +1249,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetDefaultType(var SalesLine: Record "Sales Line"; var xSalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeDeltaUpdateTotals(var SalesLine: Record "Sales Line"; xSalesLine: Record "Sales Line");
     begin
     end;
 }

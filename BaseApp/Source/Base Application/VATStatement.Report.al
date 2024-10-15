@@ -425,7 +425,7 @@ report 12 "VAT Statement"
                 begin
                     VATEntry.Reset();
                     case VATDateType of
-                        VATDateType::"Document Date": 
+                        VATDateType::"Document Date":
                             SetVATEntryKeyAndRangesForDocumentDate(VATStmtLine2);
                         VATDateType::"Posting Date":
                             SetVATEntryKeyAndRangesForPostingDate(VATStmtLine2);
@@ -487,7 +487,7 @@ report 12 "VAT Statement"
                     VATStmtLine2.SetFilter("Row No.", VATStmtLine2."Row Totaling");
                     if VATStmtLine2.Find('-') then
                         repeat
-                            if not CalcLineTotalWithBase(VATStmtLine2, TotalAmount, TotalBase, Level) then begin
+                            if not CalcLineTotalWithNonDeductiblePart(VATStmtLine2, TotalAmount, TotalBase, TotalNDAmount, TotalNDBase, Level) then begin
                                 if Level > 1 then
                                     exit(false);
                                 for i := 1 to ArrayLen(RowNo) do
@@ -517,7 +517,7 @@ report 12 "VAT Statement"
             VATEntry.SetRange("Use Tax", VATStmtLine."Use Tax");
         end;
     end;
-    
+
     local procedure SetVATEntryKeyAndRangesForPostingDate(var VATStmtLine: Record "VAT Statement Line")
     begin
         if VATEntry.SetCurrentKey(Type, Closed, "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date") then begin
