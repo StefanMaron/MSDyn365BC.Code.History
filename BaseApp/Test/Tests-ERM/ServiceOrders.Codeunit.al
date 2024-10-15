@@ -4016,14 +4016,42 @@ codeunit 136101 "Service Orders"
             ServiceCommentLine, ServiceCommentLine."Table Name"::"Service Header",
             ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.", ServiceCommentLine.Type::General, ServiceLine."Line No.");
 
-        ServiceHeader.Validate("Customer No.", LibrarySales.CreateCustomerNo());
+        ServiceHeader.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo());
         // [SCENARIO 360476] No duplicate Comment Lines inserted
         Commit();
 
-        ServiceCommentLine.SetRange("Table Name", ServiceCommentLine."Table Name"::"Service Header");
-        ServiceCommentLine.SetRange("Table Subtype", ServiceHeader."Document Type");
-        ServiceCommentLine.SetRange("No.", ServiceHeader."No.");
-        Assert.RecordCount(ServiceCommentLine, 1);
+        VerifyCountServiceCommentLine(ServiceCommentLine."Table Name"::"Service Header",
+            ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.", 10000);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmMessageHandler')]
+    procedure RecreateServiceCommentLineForServiceLine()
+    var
+        ServiceHeader: Record "Service Header";
+        ServiceLine: Record "Service Line";
+        ServiceCommentLine: Record "Service Comment Line";
+    begin
+        // [FEATURE] [Service Comment Line] [UT]
+        // [SCENARIO 399071] The Service Comment Lines must be copied after Service Lines have been recreated if Service Line No. < 10000
+        Initialize();
+        LibraryService.CreateServiceHeader(ServiceHeader, "Service Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        CreateServiceLineSimple(ServiceLine, ServiceHeader, 5000);
+        LibraryService.CreateServiceCommentLine(
+            ServiceCommentLine, ServiceCommentLine."Table Name"::"Service Header",
+            ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.", ServiceCommentLine.Type::General, ServiceLine."Line No.");
+        LibraryService.CreateServiceCommentLine(
+            ServiceCommentLine, ServiceCommentLine."Table Name"::"Service Header",
+            ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.", ServiceCommentLine.Type::General, 0);
+
+        ServiceHeader.Validate("Bill-to Customer No.", LibrarySales.CreateCustomerNo());
+        Commit();
+
+        VerifyCountServiceCommentLine(ServiceCommentLine."Table Name"::"Service Header",
+            ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.", 10000);
+        VerifyCountServiceCommentLine(ServiceCommentLine."Table Name"::"Service Header",
+            ServiceHeader."Document Type".AsInteger(), ServiceHeader."No.", 0);
     end;
 
     [Test]
@@ -5696,6 +5724,15 @@ codeunit 136101 "Service Orders"
         ServiceMgtSetup.Modify(true);
     end;
 
+    local procedure CreateServiceLineSimple(var ServiceLine: Record "Service Line"; ServiceHeader: Record "Service Header"; LineNo: Integer)
+    begin
+        ServiceLine.Init();
+        ServiceLine.Validate("Document Type", ServiceHeader."Document Type");
+        ServiceLine.Validate("Document No.", ServiceHeader."No.");
+        ServiceLine.Validate("Line No.", LineNo);
+        ServiceLine.Insert(true);
+    end;
+
     local procedure VendorErrorMessageWhileCreatingServiceItem(DocumentType: Enum "Service Document Type"; Warranty: Boolean; ReplenishmentSystem: Enum "Replenishment System")
     var
         ServiceItemLine: Record "Service Item Line";
@@ -6367,6 +6404,17 @@ codeunit 136101 "Service Orders"
         SalesLineDiscount.Validate("Sales Type", SalesLineDiscount."Sales Type"::Customer);
         SalesLineDiscount.Validate("Sales Code", CustomerNo);
         SalesLineDiscount.Insert(true);
+    end;
+
+    local procedure VerifyCountServiceCommentLine(TableName: Enum "Service Comment Table Name"; TableSubtype: Option; No: Code[20]; TableLineNo: Integer)
+    var
+        ServiceCommentLine: Record "Service Comment Line";
+    begin
+        ServiceCommentLine.SetRange("Table Name", TableName);
+        ServiceCommentLine.SetRange("Table Subtype", TableSubtype);
+        ServiceCommentLine.SetRange("No.", No);
+        ServiceCommentLine.SetRange("Table Line No.", TableLineNo);
+        Assert.RecordCount(ServiceCommentLine, 1);
     end;
 
     [ConfirmHandler]

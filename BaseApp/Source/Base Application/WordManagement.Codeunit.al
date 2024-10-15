@@ -1,5 +1,9 @@
-﻿codeunit 5054 WordManagement
+﻿#if not CLEAN19
+codeunit 5054 WordManagement
 {
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Word DotNet libraries do not work in any of the supported clients. The functionality is replaced with Word Template Interactions codeunit.';
+    ObsoleteTag = '19.0';
 
     trigger OnRun()
     begin
@@ -1256,3 +1260,4 @@
 #endif
 }
 
+#endif

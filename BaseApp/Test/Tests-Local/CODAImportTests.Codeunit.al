@@ -17,7 +17,7 @@ codeunit 144015 "CODA Import Tests"
         NBLTxt: Label 'NBL', Locked = true;
 
     [Test]
-    [HandlerFunctions('RequestPageHandlerPostCODAStatementLines')]
+    [HandlerFunctions('RequestPageHandlerPostCODAStatementLines,CODAStatementLineRequestPageHandler')]
     [Scope('OnPrem')]
     procedure PostCODAStatement()
     var
@@ -47,7 +47,9 @@ codeunit 144015 "CODA Import Tests"
 
         LibraryVariableStorage.Clear;
         LibraryVariableStorage.Enqueue(false);
-        LibraryVariableStorage.Enqueue(false);
+        // TFS ID 397033: Stan can print processed CODA statement
+        // Handled by calling CODAStatementLineRequestPageHandler
+        LibraryVariableStorage.Enqueue(true);
 
         Commit();
 
@@ -893,6 +895,13 @@ codeunit 144015 "CODA Import Tests"
         ImportCODAStatement.Run;
 
         Commit();
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CODAStatementLineRequestPageHandler(var CODAStatementList: TestRequestPage "CODA Statement - List")
+    begin
+        CODAStatementList.Cancel.Invoke();
     end;
 }
 

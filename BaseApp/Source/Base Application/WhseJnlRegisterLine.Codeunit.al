@@ -281,13 +281,13 @@ codeunit 7301 "Whse. Jnl.-Register Line"
                     TestField("Expiration Date", ExistingExpDate)
             end;
 
-            OnBeforeInsertWhseEntry(WhseEntry);
+            OnBeforeInsertWhseEntry(WhseEntry, WhseJnlLine);
             Insert();
             InsertWhseReg("Entry No.");
             UpdateBinEmpty(WhseEntry);
         end;
 
-        OnAfterInsertWhseEntry(WhseEntry);
+        OnAfterInsertWhseEntry(WhseEntry, WhseJnlLine);
     end;
 
     local procedure UpdateBinEmpty(NewWarehouseEntry: Record "Warehouse Entry")
@@ -524,7 +524,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterInsertWhseEntry(var WarehouseEntry: Record "Warehouse Entry")
+    local procedure OnAfterInsertWhseEntry(var WarehouseEntry: Record "Warehouse Entry"; var WarehouseJournalLine: Record "Warehouse Journal Line")
     begin
     end;
 
@@ -544,7 +544,7 @@ codeunit 7301 "Whse. Jnl.-Register Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeInsertWhseEntry(var WarehouseEntry: Record "Warehouse Entry")
+    local procedure OnBeforeInsertWhseEntry(var WarehouseEntry: Record "Warehouse Entry"; WarehouseJournalLine: Record "Warehouse Journal Line")
     begin
     end;
 

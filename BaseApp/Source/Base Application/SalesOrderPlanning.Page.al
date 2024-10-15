@@ -505,6 +505,7 @@ page 99000883 "Sales Order Planning"
                 exit;
 
             CreateOrderFromSales.GetParameters(NewStatus, NewOrderType);
+            OnCreateProdOrderOnAfterGetParameters(Rec, NewStatus, NewOrderType);
             Clear(CreateOrderFromSales);
         end;
 
@@ -546,6 +547,11 @@ page 99000883 "Sales Order Planning"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateProdOrder(var SalesPlanningLine: Record "Sales Planning Line"; var NewStatus: Enum "Production Order Status"; var NewOrderType: Option ItemOrder,ProjectOrder; var ShowCreateOrderForm: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateProdOrderOnAfterGetParameters(var SalesPlanningLine: Record "Sales Planning Line"; var NewStatus: Enum "Production Order Status"; var NewOrderType: Enum "Create Production Order Type")
     begin
     end;
 

@@ -170,8 +170,14 @@ table 9 "Country/Region"
         TypeHelper: Codeunit "Type Helper";
         NumericErr: Label 'must contain numbers only';
 
-    procedure DetermineCountry(CountryCode: Code[10]): Boolean
+    procedure DetermineCountry(CountryCode: Code[10]) Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDetermineCountry(Rec, IsHandled, Result);
+        if IsHandled then 
+            exit(Result);
         if CountryCode = '' then
             exit(true);
 
@@ -282,5 +288,11 @@ table 9 "Country/Region"
         CustomAddressFormat.SetRange("Country/Region Code", Code);
         CustomAddressFormat.DeleteAll(true);
     end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDetermineCountry(var CountryRegion: Record "Country/Region"; var IsHandled: Boolean; var Result: Boolean)
+    begin
+    end;
+
 }
 

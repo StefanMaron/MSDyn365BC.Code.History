@@ -2,7 +2,7 @@
     "id":  "cb8f8fd2-7704-470a-bc12-40ff71ee6a30",
     "name":  "French language (Belgium)",
     "publisher":  "Microsoft",
-    "version":  "18.2.26217.26490",
+    "version":  "18.3.27240.27480",
     "dependencies":  [
 
                      ],
@@ -15,5 +15,5 @@
     "EULA":  "https://www.microsoft.com/en-us/download/details.aspx?id=56765",
     "help":  "https://go.microsoft.com/fwlink/?linkid=2115116",
     "url":  "https://www.microsoft.com/en-us/dynamics365/contact-us",
-    "application":  "18.2.0.0"
+    "application":  "18.3.0.0"
 }

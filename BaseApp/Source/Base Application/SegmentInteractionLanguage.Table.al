@@ -65,6 +65,11 @@ table 5104 "Segment Interaction Language"
                 SegLine.ModifyAll(Subject, Subject);
             end;
         }
+        field(7; "Word Template Code"; Code[30])
+        {
+            DataClassification = CustomerContent;
+            TableRelation = "Word Template".Code where("Table ID" = const(5106)); // Only Interaction Merge Data word templates are allowed
+        }
     }
 
     keys
@@ -86,14 +91,14 @@ table 5104 "Segment Interaction Language"
         Cont: Record Contact;
         SegInteractLanguage: Record "Segment Interaction Language";
     begin
-        SegHeader.Get("Segment No.");
-        if ("Segment Line No." = 0) and
-           ("Language Code" = SegHeader."Language Code (Default)")
+        SegHeader.Get(Rec."Segment No.");
+        if (Rec."Segment Line No." = 0) and
+           (Rec."Language Code" = SegHeader."Language Code (Default)")
         then begin
-            SegInteractLanguage.SetRange("Segment No.", "Segment No.");
+            SegInteractLanguage.SetRange("Segment No.", Rec."Segment No.");
             SegInteractLanguage.SetRange("Segment Line No.", 0);
-            SegInteractLanguage.SetFilter("Language Code", '<>%1', "Language Code");
-            if SegInteractLanguage.FindFirst then begin
+            SegInteractLanguage.SetFilter("Language Code", '<>%1', Rec."Language Code");
+            if SegInteractLanguage.FindFirst() then begin
                 SegHeader."Language Code (Default)" := SegInteractLanguage."Language Code";
                 SegHeader."Subject (Default)" := SegInteractLanguage.Subject;
             end else begin
@@ -104,9 +109,9 @@ table 5104 "Segment Interaction Language"
         end;
         SegHeader.CalcFields("Attachment No.");
 
-        if "Segment Line No." = 0 then begin
-            SegLine.SetRange("Segment No.", "Segment No.");
-            SegLine.SetRange("Attachment No.", "Attachment No.");
+        if Rec."Segment Line No." = 0 then begin
+            SegLine.SetRange("Segment No.", Rec."Segment No.");
+            SegLine.SetRange("Attachment No.", Rec."Attachment No.");
             if SegLine.Find('-') then
                 repeat
                     if Cont.Get(SegLine."Contact No.") then begin
@@ -116,24 +121,27 @@ table 5104 "Segment Interaction Language"
                             SegLine."Language Code" := Cont."Language Code";
                             SegLine.Subject := SegInteractLanguage.Subject;
                             SegLine."Attachment No." := SegInteractLanguage."Attachment No.";
+                            SegLine."Word Template Code" := SegInteractLanguage."Word Template Code";
                         end else begin
                             SegLine."Language Code" := SegHeader."Language Code (Default)";
                             SegLine.Subject := SegHeader."Subject (Default)";
                             SegLine."Attachment No." := SegHeader."Attachment No.";
+                            SegLine."Word Template Code" := SegHeader."Word Template Code";
                         end;
                         SegLine.Modify();
                     end;
                 until SegLine.Next() = 0;
         end else begin // UNIQUE Attachment
-            SegLine.Get("Segment No.", "Segment Line No.");
-            if SegLine."Attachment No." = "Attachment No." then begin
-                SegInteractLanguage.SetRange("Segment No.", "Segment No.");
-                SegInteractLanguage.SetRange("Segment Line No.", "Segment Line No.");
-                SegInteractLanguage.SetFilter("Language Code", '<>%1', "Language Code");
-                if SegInteractLanguage.FindFirst then begin
+            SegLine.Get("Segment No.", Rec."Segment Line No.");
+            if SegLine."Attachment No." = Rec."Attachment No." then begin
+                SegInteractLanguage.SetRange("Segment No.", Rec."Segment No.");
+                SegInteractLanguage.SetRange("Segment Line No.", Rec."Segment Line No.");
+                SegInteractLanguage.SetFilter("Language Code", '<>%1', Rec."Language Code");
+                if SegInteractLanguage.FindFirst() then begin
                     SegLine."Language Code" := SegInteractLanguage."Language Code";
                     SegLine.Subject := SegInteractLanguage.Subject;
                     SegLine."Attachment No." := SegInteractLanguage."Attachment No.";
+                    SegLine."Word Template Code" := SegInteractLanguage."Word Template Code";
                 end else
                     if SegLine."Interaction Template Code" = SegHeader."Interaction Template Code" then begin
                         Cont.Get(SegLine."Contact No.");
@@ -141,15 +149,18 @@ table 5104 "Segment Interaction Language"
                             SegLine."Language Code" := Cont."Language Code";
                             SegLine.Subject := SegInteractLanguage.Subject;
                             SegLine."Attachment No." := SegInteractLanguage."Attachment No.";
+                            SegLine."Word Template Code" := SegInteractLanguage."Word Template Code";
                         end else begin
                             SegLine."Language Code" := SegHeader."Language Code (Default)";
                             SegLine.Subject := SegHeader."Subject (Default)";
                             SegLine."Attachment No." := SegHeader."Attachment No.";
+                            SegLine."Word Template Code" := SegHeader."Word Template Code";
                         end;
                     end else begin
                         SegLine."Language Code" := '';
                         SegLine.Subject := '';
                         SegLine."Attachment No." := 0;
+                        SegLine."Word Template Code" := '';
                     end;
                 SegLine.Modify();
             end;
@@ -166,13 +177,13 @@ table 5104 "Segment Interaction Language"
         SegInteractLanguage: Record "Segment Interaction Language";
         FirstSegIntLanguage: Boolean;
     begin
-        if "Segment Line No." = 0 then begin
-            SegInteractLanguage.SetRange("Segment No.", "Segment No.");
+        if Rec."Segment Line No." = 0 then begin
+            SegInteractLanguage.SetRange("Segment No.", Rec."Segment No.");
             SegInteractLanguage.SetRange("Segment Line No.", 0);
-            FirstSegIntLanguage := not SegInteractLanguage.FindFirst;
+            FirstSegIntLanguage := not SegInteractLanguage.FindFirst();
 
-            SegLine.SetRange("Segment No.", "Segment No.");
-            SegHeader.Get("Segment No.");
+            SegLine.SetRange("Segment No.", Rec."Segment No.");
+            SegHeader.Get(Rec."Segment No.");
             SegLine.SetRange("Interaction Template Code", SegHeader."Interaction Template Code");
             if SegLine.Find('-') then
                 repeat
@@ -180,26 +191,29 @@ table 5104 "Segment Interaction Language"
                         if SegLine.AttachmentInherited or
                            (SegLine."Attachment No." = 0)
                         then begin
-                            SegLine."Language Code" := "Language Code";
-                            SegLine.Subject := Subject;
-                            SegLine."Attachment No." := "Attachment No.";
+                            SegLine."Language Code" := Rec."Language Code";
+                            SegLine.Subject := Rec.Subject;
+                            SegLine."Attachment No." := Rec."Attachment No.";
+                            SegLine."Word Template Code" := Rec."Word Template Code";
                             SegLine.Modify();
                         end
                     end else
                         if SegLine.AttachmentInherited or (SegLine."Attachment No." = 0) then
                             if Cont.Get(SegLine."Contact No.") then
                                 if Cont."Language Code" = "Language Code" then begin
-                                    SegLine."Language Code" := "Language Code";
-                                    SegLine.Subject := Subject;
-                                    SegLine."Attachment No." := "Attachment No.";
+                                    SegLine."Language Code" := Rec."Language Code";
+                                    SegLine.Subject := Rec.Subject;
+                                    SegLine."Attachment No." := Rec."Attachment No.";
+                                    SegLine."Word Template Code" := Rec."Word Template Code";
                                     SegLine.Modify();
                                 end;
                 until SegLine.Next() = 0;
         end else begin
-            SegLine.Get("Segment No.", "Segment Line No.");
-            SegLine."Language Code" := "Language Code";
-            SegLine.Subject := Subject;
-            SegLine."Attachment No." := "Attachment No.";
+            SegLine.Get("Segment No.", Rec."Segment Line No.");
+            SegLine."Language Code" := Rec."Language Code";
+            SegLine.Subject := Rec.Subject;
+            SegLine."Attachment No." := Rec."Attachment No.";
+            SegLine."Word Template Code" := Rec."Word Template Code";
             SegLine.Modify();
         end;
     end;
@@ -212,42 +226,45 @@ table 5104 "Segment Interaction Language"
     begin
         SegHeader.Get("Segment No.");
         SegHeader.CalcFields("Attachment No.");
-        if ("Segment Line No." = 0) and
+        if (Rec."Segment Line No." = 0) and
            (SegHeader."Language Code (Default)" = xRec."Language Code")
         then begin
-            SegHeader."Language Code (Default)" := "Language Code";
+            SegHeader."Language Code (Default)" := Rec."Language Code";
             SegHeader.Modify();
         end;
 
-        if "Segment Line No." = 0 then begin
-            SegLine.SetRange("Segment No.", "Segment No.");
-            SegLine.SetRange("Attachment No.", "Attachment No.");
+        if Rec."Segment Line No." = 0 then begin
+            SegLine.SetRange("Segment No.", Rec."Segment No.");
+            SegLine.SetRange("Attachment No.", Rec."Attachment No.");
             if SegLine.Find('-') then
                 repeat
                     SegLine."Language Code" := SegHeader."Language Code (Default)";
                     SegLine."Attachment No." := SegHeader."Attachment No.";
+                    SegLine."Word Template Code" := SegHeader."Word Template Code";
                     SegLine.Modify();
                 until SegLine.Next() = 0;
 
             SegLine.Reset();
-            SegLine.SetRange("Segment No.", "Segment No.");
+            SegLine.SetRange("Segment No.", Rec."Segment No.");
             SegLine.SetRange("Interaction Template Code", SegHeader."Interaction Template Code");
             if SegLine.Find('-') then
                 repeat
                     if SegLine.AttachmentInherited or (SegLine."Attachment No." = 0) then
                         if Cont.Get(SegLine."Contact No.") then
-                            if Cont."Language Code" = "Language Code" then begin
-                                SegLine."Language Code" := "Language Code";
-                                SegLine.Subject := Subject;
-                                SegLine."Attachment No." := "Attachment No.";
+                            if Cont."Language Code" = Rec."Language Code" then begin
+                                SegLine."Language Code" := Rec."Language Code";
+                                SegLine.Subject := Rec.Subject;
+                                SegLine."Attachment No." := Rec."Attachment No.";
+                                SegLine."Word Template Code" := Rec."Word Template Code";
                                 SegLine.Modify();
                             end;
                 until SegLine.Next() = 0;
         end else begin
-            SegLine.Get("Segment No.", "Segment Line No.");
+            SegLine.Get(Rec."Segment No.", Rec."Segment Line No.");
             if SegLine."Language Code" = xRec."Language Code" then begin
-                SegLine."Language Code" := "Language Code";
-                SegLine."Attachment No." := "Attachment No.";
+                SegLine."Language Code" := Rec."Language Code";
+                SegLine."Attachment No." := Rec."Attachment No.";
+                SegLine."Word Template Code" := Rec."Word Template Code";
                 SegLine.Modify();
             end;
         end;
@@ -266,7 +283,9 @@ table 5104 "Segment Interaction Language"
     var
         SegInteractLanguage: Record "Segment Interaction Language";
         Attachment: Record Attachment;
+#if not CLEAN17
         WordManagement: Codeunit WordManagement;
+#endif
         ClientTypeManagement: Codeunit "Client Type Management";
         NewAttachmentNo: Integer;
     begin

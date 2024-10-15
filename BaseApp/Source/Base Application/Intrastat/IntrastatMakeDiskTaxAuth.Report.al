@@ -77,7 +77,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                         Caption = 'Nihil declaration';
                         ToolTip = 'Specifies if you do not have any trade transactions with European Union (EU) countries/regions and want to send an empty declaration.';
                     }
-                    field(Counterparty; Counterparty)
+                    field(Counterparty; CounterpartyInfo)
                     {
                         ApplicationArea = Basic, Suite;
                         Caption = 'Counter party info';
@@ -176,7 +176,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
         EnterpriseNo: Text[30];
         ReportingDate: Date;
         Nihil: Boolean;
-        Counterparty: Boolean;
+        CounterpartyInfo: Boolean;
         NextLine: Integer;
         Dir: Text;
         EnterpriseNoNotValidErr: Label 'The enterprise number in Company Information is not valid.';
@@ -199,7 +199,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
             TempIntrastatJnlLine.SetRange("Transport Method", "Transport Method");
             TempIntrastatJnlLine.SetRange("Transaction Specification", "Transaction Specification");
             TempIntrastatJnlLine.SetRange(Area, Area);
-            if Counterparty and (Type = Type::Shipment) then begin
+            if CounterpartyInfo and (Type = Type::Shipment) then begin
                 TempIntrastatJnlLine.SetRange("Country/Region of Origin Code", "Country/Region of Origin Code");
                 TempIntrastatJnlLine.SetRange("Partner VAT ID", "Partner VAT ID");
             end;
@@ -236,6 +236,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
 
     local procedure CreateXMLDocument()
     begin
+        OnBeforeCreateXMLDocument(EnterpriseNo);
         // Create XML Document
         XMLDoc := XMLDoc.XmlDocument;
         Namespace := 'http://www.onegate.eu/2010-01-01';
@@ -337,7 +338,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                         StatisticalValue := "Statistical Value";
                     XMLDOMManagement.AddElement(ItemNode, 'Dim', Format(Round(StatisticalValue, 1), 0, 9), Namespace, DimNode);
                     XMLDOMManagement.AddAttribute(DimNode, 'prop', 'EXTXVAL');
-                    if Counterparty and (Type = Type::Shipment) then begin
+                    if CounterpartyInfo and (Type = Type::Shipment) then begin
                         XMLDOMManagement.AddElement(ItemNode, 'Dim', "Country/Region of Origin Code", Namespace, DimNode);
                         XMLDOMManagement.AddAttribute(DimNode, 'prop', 'EXCNTORI');
                         XMLDOMManagement.AddElement(ItemNode, 'Dim', "Partner VAT ID", Namespace, DimNode);
@@ -426,7 +427,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
         ClientFileName := NewClientFileName;
         ThirdPartyVatRegNo := NewThirdPartyVatRegNo;
         Nihil := NewNihil;
-        Counterparty := NewCounterparty;
+        CounterpartyInfo := NewCounterparty;
     end;
 
     local procedure PrepareReportNames(ExportType: Option Receipt,Shipment)
@@ -441,7 +442,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                     IntrastatFormName := 'EXF19E';
                 end;
             ExportType::Shipment:
-                if Counterparty then
+                if CounterpartyInfo then
                     if GLSetup."Simplified Intrastat Decl." then begin
                         IntrastatReportName := StandardReportTxt;
                         IntrastatFormName := StandardFormTxt;
@@ -458,6 +459,11 @@ report 593 "Intrastat - Make Disk Tax Auth"
                         IntrastatFormName := 'EXF29E';
                     end;
         end;
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateXMLDocument(var EnterpriseNo: Text[30])
+    begin
     end;
 }
 
