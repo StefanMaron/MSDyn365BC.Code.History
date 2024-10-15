@@ -327,6 +327,34 @@ codeunit 144022 "UT Intrastat SE"
         LibraryReportDataset.AssertCurrentRowValueEquals('IntrastatJnlLineLineNo', IntrastatJnlLine."Line No.");
     end;
 
+    [Test]
+    procedure TotalWeightRounding()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        FileManagement: Codeunit "File Management";
+        FileName: Text;
+    begin
+        // [FEATURE] [Export]
+        // [SCENARIO 411390] Total Weight is rounded up to the next integer
+        Initialize();
+        IntrastatJnlBatch.DeleteAll();
+
+        // [GIVEN] Intrastat journal line with "Total Weight" = 1.01
+        CreateIntrastatJournalLine(
+            IntrastatJnlLine, GetCountryCode(), GetTransactionType(), LibraryRandom.RandDec(100, 2),
+            LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2), GetTariffNo());
+        IntrastatJnlLine."Total Weight" := 1.01;
+        IntrastatJnlLine.Modify();
+
+        // [WHEN] Run report "Intrastat - Make Disk Tax Auth".
+        FileName := FileManagement.ServerTempFileName('txt');
+        RunIntrastatMakeDiskTaxAuth(IntrastatJnlLine, FileName);
+
+        // [THEN] Exported "Total Weight" = 2
+        VerifyExportedTotalWeight(FileName, 2);
+    end;
+
     local procedure Initialize()
     var
         IntrastatSetup: Record "Intrastat Setup";
@@ -383,6 +411,7 @@ codeunit 144022 "UT Intrastat SE"
     var
         CountryRegion: Record "Country/Region";
     begin
+        CountryRegion.SetFilter("Intrastat Code", '<>%1', '');
         CountryRegion.FindFirst;
         exit(CountryRegion.Code);
     end;
@@ -421,6 +450,44 @@ codeunit 144022 "UT Intrastat SE"
         IntrastatJournal.CurrentJnlBatchName.SetValue(CurrentJnlBatchName);
         IntrastatJournal.CreateFile.Invoke;  // Call IntrastatMakeDiskTaxAuthRequestPageHandler.
         IntrastatJournal.Close;
+    end;
+
+    local procedure RunIntrastatMakeDiskTaxAuth(IntrastatJnlLine: Record "Intrastat Jnl. Line"; FileName: Text)
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatMakeDiskTaxAuth: Report "Intrastat - Make Disk Tax Auth";
+    begin
+        IntrastatJnlBatch."Journal Template Name" := IntrastatJnlLine."Journal Template Name";
+        IntrastatJnlBatch.Name := IntrastatJnlLine."Journal Batch Name";
+        IntrastatJnlBatch.SetRecFilter();
+        IntrastatJnlLine.SetRange(Type, IntrastatJnlLine.Type);
+        Commit();
+        IntrastatMakeDiskTaxAuth.InitializeRequest(FileName);
+        IntrastatMakeDiskTaxAuth.SetTableView(IntrastatJnlBatch);
+        IntrastatMakeDiskTaxAuth.SetTableView(IntrastatJnlLine);
+        IntrastatMakeDiskTaxAuth.UseRequestPage(false);
+        IntrastatMakeDiskTaxAuth.Run();
+    end;
+
+    local procedure VerifyExportedTotalWeight(FileName: Text; ExpectedWeight: Decimal)
+    var
+        File: File;
+        InStream: InStream;
+        LineText: Text;
+        ActualWeight: Decimal;
+        i: Integer;
+    begin
+        File.Open(FileName);
+        File.CreateInStream(InStream);
+        InStream.ReadText(LineText);
+        File.Close();
+
+        for i := 1 to 4 do
+            LineText := CopyStr(LineText, StrPos(LineText, ';') + 1);
+        LineText := CopyStr(LineText, 1, StrPos(LineText, ';') - 1);
+
+        Assert.IsTrue(Evaluate(ActualWeight, LineText), 'Cannot evaluate text to decimal');
+        Assert.AreEqual(ExpectedWeight, ActualWeight, 'wrong total weight');
     end;
 
     [RequestPageHandler]

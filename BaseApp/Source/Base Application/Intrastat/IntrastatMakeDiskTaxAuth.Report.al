@@ -291,7 +291,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
               Format("Transaction Type", 1) + ';' +
               PadStr("Tariff No.", 8, '0') + ';' +
               Format(QuantityAmt, 0, '<Sign><Integer><Decimals>') + ';' +
-              Format(Round(TotalWeightAmt, 1), 0, '<Sign><Integer><Decimals>') + ';' +
+              Format(Round(TotalWeightAmt, 1, '>'), 0, '<Sign><Integer><Decimals>') + ';' +
               Format(StatisticalValueAmt, 0, '<Sign><Integer><Decimals>'));
         end;
     end;

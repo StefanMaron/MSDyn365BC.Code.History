@@ -2879,7 +2879,7 @@
         FirstLineShipped := true;
         with TempSalesLineBuf do begin
             // Sorting according to Sales Line Document No.,Line No.
-            SetCurrentKey("Document Type", "Document No.", "Line No.");
+            SetCurrentKey("Line No.");
             SalesLineCount := 0;
             if FindSet then
                 repeat
@@ -3256,8 +3256,7 @@
     begin
         FromSalesLine2 := TempSalesLineBuf;
         TempSalesLineBuf := FromSalesLine;
-        TempSalesLineBuf."Document No." := FromSalesLine2."Document No.";
-        TempSalesLineBuf."Shipment Line No." := FromSalesLine2."Shipment Line No.";
+        TempSalesLineBuf."Document No." := '';
         TempSalesLineBuf."Line No." := NextLineNo;
         OnAfterCopySalesLinesToBufferFields(TempSalesLineBuf, FromSalesLine2);
 
@@ -3734,7 +3733,7 @@
         Window.Update(1, FromLineCounter);
         with FromPurchLineBuf do begin
             // Sorting according to Purchase Line Document No.,Line No.
-            SetCurrentKey("Document Type", "Document No.", "Line No.");
+            SetCurrentKey("Line No.");
             if FindSet then begin
                 NextLineNo := GetLastToPurchLineNo(ToPurchHeader);
                 repeat
@@ -4122,8 +4121,7 @@
     begin
         FromPurchLine2 := TempPurchLineBuf;
         TempPurchLineBuf := FromPurchLine;
-        TempPurchLineBuf."Document No." := FromPurchLine2."Document No.";
-        TempPurchLineBuf."Receipt Line No." := FromPurchLine2."Receipt Line No.";
+        TempPurchLineBuf."Document No." := '';
         TempPurchLineBuf."Line No." := NextLineNo;
         OnAfterCopyPurchLinesToBufferFields(TempPurchLineBuf, FromPurchLine2);
 
