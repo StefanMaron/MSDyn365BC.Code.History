@@ -354,22 +354,22 @@ codeunit 5920 ServItemManagement
                 BOMComp.SetRange("No.", SalesLine."No.");
                 BOMComp.SetRange("Installed in Line No.", 0);
                 if BOMComp.FindSet() then
-                        repeat
-                            Clear(BOMComp2);
-                            BOMComp2.SetRange("Parent Item No.", SalesLine."BOM Item No.");
-                            BOMComp2.SetRange("Installed in Line No.", BOMComp."Line No.");
-                            NextLineNo := 0;
-                            if BOMComp2.FindSet() then
-                                repeat
-                                        for Index := 1 to Round(BOMComp2."Quantity per", 1) do begin
-                                            NextLineNo := NextLineNo + 10000;
-                                            InsertServiceItemComponent(ServItemComponent, BOMComp, BOMComp2, SalesHeader, SalesShipmentLine);
-                                            Clear(TempServiceItemComp);
-                                            TempServiceItemComp := ServItemComponent;
-                                            TempServiceItemComp.Insert();
-                                        end;
-                                until BOMComp2.Next() = 0;
-                        until BOMComp.Next() = 0;
+                    repeat
+                        Clear(BOMComp2);
+                        BOMComp2.SetRange("Parent Item No.", SalesLine."BOM Item No.");
+                        BOMComp2.SetRange("Installed in Line No.", BOMComp."Line No.");
+                        NextLineNo := 0;
+                        if BOMComp2.FindSet() then
+                            repeat
+                                for Index := 1 to Round(BOMComp2."Quantity per", 1) do begin
+                                    NextLineNo := NextLineNo + 10000;
+                                    InsertServiceItemComponent(ServItemComponent, BOMComp, BOMComp2, SalesHeader, SalesShipmentLine);
+                                    Clear(TempServiceItemComp);
+                                    TempServiceItemComp := ServItemComponent;
+                                    TempServiceItemComp.Insert();
+                                end;
+                            until BOMComp2.Next() = 0;
+                    until BOMComp.Next() = 0;
             end;
 
         OnCreateServItemOnSalesLineShptOnAfterAddServItemComponents(
@@ -490,6 +490,7 @@ codeunit 5920 ServItemManagement
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.SetFilter("Qty. to Ship", '<>0');
+        SalesLine.SetLoadFields("Document Type", "Document No.", "Line No.");
         if SalesLine.FindSet() then
             repeat
                 CopyReservationEntryLine(SalesLine);
@@ -603,7 +604,7 @@ codeunit 5920 ServItemManagement
             Message(Text005);
     end;
 
-    local procedure CopyReservationEntryLine(SalesLine: Record "Sales Line")
+    local procedure CopyReservationEntryLine(var SalesLine: Record "Sales Line")
     var
         ReservEntry: Record "Reservation Entry";
     begin
@@ -633,8 +634,10 @@ codeunit 5920 ServItemManagement
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.SetRange("Drop Shipment", true);
         PurchaseLine.SetFilter(Quantity, '<>0');
+        PurchaseLine.SetLoadFields(PurchaseLine."Sales Order No.", PurchaseLine."Sales Order Line No.");
         if PurchaseLine.FindSet() then
             repeat
+                SalesLine.SetLoadFields("Document Type", "Document No.", "Line No.");
                 if SalesLine.Get(SalesLine."Document Type"::Order, PurchaseLine."Sales Order No.", PurchaseLine."Sales Order Line No.") then
                     CopyReservationEntryLine(SalesLine);
             until PurchaseLine.Next() = 0;

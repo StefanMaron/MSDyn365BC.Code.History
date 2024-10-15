@@ -413,6 +413,7 @@ codeunit 1252 "Match Bank Rec. Lines"
         Score: Integer;
         Max: Integer;
     begin
+        RecordMatchMgt.SetRespectThresholdForNumbers(true);
         Score := RecordMatchMgt.CalculateStringNearness(BankAccReconciliationLine.Description, TextToMatch, 4, 100);
         Max := RecordMatchMgt.CalculateStringNearness(BankAccReconciliationLine."Related-Party Name", TextToMatch, 4, 100);
         if Max < Score then

@@ -304,6 +304,7 @@
             trigger OnValidate()
             begin
                 WMSManagement.CheckItemTrackingChange(Rec, xRec);
+                CheckSerialNoQty();
             end;
         }
         field(81; "New Lot No."; Code[50])
@@ -621,6 +622,8 @@
             JobPlanningLine."Remaining Qty.", JobPlanningLine."Remaining Qty. (Base)",
             JobPlanningLine."Quantity" - JobPlanningLine."Remaining Qty.",
             JobPlanningLine."Quantity (Base)" - JobPlanningLine."Remaining Qty. (Base)");
+
+        OnAfterInitFromJobPlanningLine(Rec, JobPlanningLine);
     end;
 
     procedure InitFromPurchLine(PurchLine: Record "Purchase Line")
@@ -852,7 +855,7 @@
         if SkipSerialNoQtyValidation then
             exit;
 
-        if "Serial No." = '' then
+        if ("Serial No." = '') and ("New Serial No." = '') then
             exit;
         if not ("Quantity (Base)" in [-1, 0, 1]) then
             Error(Text003, FieldCaption("Quantity (Base)"), FieldCaption("Serial No."));
@@ -1382,6 +1385,7 @@
             ReservationEntry.SetFilter("Qty. to Handle (Base)", '<>%1', 0);
             ReservationEntry.CalcSums("Qty. to Handle (Base)");
             HandleQtyBase := ReservationEntry."Qty. to Handle (Base)";
+
             if Abs(HandleQtyBase) > Abs(QtyToHandleBase) then begin
                 ReservationEntry.FindLast();
                 TrackingSpecification.TransferFields(ReservationEntry);
@@ -1392,8 +1396,10 @@
 
         if Invoice then begin
             ReservationEntry.SetFilter("Qty. to Invoice (Base)", '<>%1', 0);
-            ReservationEntry.CalcSums("Qty. to Invoice (Base)");
-            InvoiceQtyBase := ReservationEntry."Qty. to Invoice (Base)";
+            if ReservationEntry.FindSet() then
+                repeat
+                    InvoiceQtyBase += ReservationEntry."Qty. to Invoice (Base)";
+                until ReservationEntry.Next() = 0;
             if Abs(InvoiceQtyBase) > Abs(QtyToInvoiceBase) then begin
                 ReservationEntry.FindLast();
                 TrackingSpecification.TransferFields(ReservationEntry);
@@ -1566,8 +1572,14 @@
     begin
     end;
 #endif
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitFromJobJnlLine(var TrackingSpecification: Record "Tracking Specification"; JobJournalLine: Record "Job Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitFromJobPlanningLine(var TrackingSpecification: Record "Tracking Specification"; JobPlanningLine: Record "Job Planning Line")
     begin
     end;
 

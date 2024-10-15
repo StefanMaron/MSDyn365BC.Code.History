@@ -205,7 +205,10 @@ codeunit 1385 "Vendor Templ. Mgt."
         if not CanBeUpdatedFromTemplate(VendorTempl, IsHandled) then
             exit;
 
-        ApplyVendorTemplate(Vendor, VendorTempl, GetUpdateExistingValuesParam());
+        if not GetUpdateExistingValuesParam() then
+            exit;
+
+        ApplyVendorTemplate(Vendor, VendorTempl, true);
     end;
 
     procedure UpdateVendorsFromTemplate(var Vendor: Record Vendor)

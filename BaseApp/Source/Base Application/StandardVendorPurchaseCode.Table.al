@@ -73,6 +73,9 @@ table 175 "Standard Vendor Purchase Code"
         {
             Clustered = true;
         }
+        key(Key2; Code, "Currency Code")
+        {
+        }
     }
 
     fieldgroups
@@ -181,6 +184,7 @@ table 175 "Standard Vendor Purchase Code"
                 if StdPurchLine.InsertLine() then begin
                     PurchLine."Line No." := GetNextLineNo(PurchLine);
                     PurchLine.Insert(true);
+                    OnApplyStdCodesToPurchaseLinesOnAfterPurchLineInsert(PurchLine, PurchHeader);
                     InsertExtendedText(PurchLine, PurchHeader);
                 end;
             until StdPurchLine.Next() = 0;
@@ -296,6 +300,11 @@ table 175 "Standard Vendor Purchase Code"
 
     [IntegrationEvent(false, false)]
     local procedure OnApplyStdCodesToPurchaseLinesOnBeforeStdPurchLineFind(var StandardVendorPurchaseCode: Record "Standard Vendor Purchase Code"; var StandardPurchaseLine: Record "Standard Purchase Line"; var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header"; StandardPurchaseCode: Record "Standard Purchase Code")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyStdCodesToPurchaseLinesOnAfterPurchLineInsert(var PurchaseLine: Record "Purchase Line"; var PurchaseHeader: Record "Purchase Header")
     begin
     end;
 
