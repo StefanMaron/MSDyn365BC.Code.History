@@ -2603,6 +2603,7 @@ table 246 "Requisition Line"
     procedure TransferFromUnplannedDemand(var UnplannedDemand: Record "Unplanned Demand")
     begin
         Init;
+        "Journal Batch Name" := GetJnlBatchNameForOrderPlanning();
         "Line No." := "Line No." + 10000;
         "Planning Line Origin" := "Planning Line Origin"::"Order Planning";
 
@@ -3182,6 +3183,23 @@ table 246 "Requisition Line"
         if Subcontracting then
             StockkeepingUnit."Replenishment System" := StockkeepingUnit."Replenishment System"::"Prod. Order";
         Validate("Replenishment System", StockkeepingUnit."Replenishment System");
+    end;
+
+    procedure GetJnlBatchNameForOrderPlanning(): Code[10]
+    var
+        RequisitionLine: Record "Requisition Line";
+    begin
+        RequisitionLine.SetRange("Worksheet Template Name", '');
+        RequisitionLine.SetFilter("Journal Batch Name", '<>%1', '');
+        RequisitionLine.SetRange("User ID", UserId());
+        if RequisitionLine.FindFirst() then
+            exit(RequisitionLine."Journal Batch Name");
+
+        RequisitionLine.SetRange("User ID");
+        if RequisitionLine.FindLast() then
+            exit(IncStr(RequisitionLine."Journal Batch Name"));
+
+        exit('0');
     end;
 
     [IntegrationEvent(false, false)]

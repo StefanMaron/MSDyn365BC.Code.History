@@ -1498,6 +1498,9 @@ codeunit 31000 "Sales-Post Advances"
         else
             VATAmount := VATAmtToDeduct;
 
+        if SalesAdvanceLetterHeader."Post Advance VAT Option" = SalesAdvanceLetterHeader."Post Advance VAT Option"::Never then
+            exit;
+
         PostVATCorrectionToGL(SalesAdvanceLetterLine, SalesInvHeader, DocumentNo, LinkedEntryNo, BaseToDeductLCY, VATAmountLCYDif,
           BaseToDeductLCYDif, VATAmountLCY, VATAmtToDeduct, BaseToDeduct);
     end;

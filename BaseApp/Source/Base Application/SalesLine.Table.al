@@ -1430,10 +1430,10 @@ table 37 "Sales Line"
                 OnValidateVATProdPostingGroupOnBeforeUpdateUnitPrice(Rec, VATPostingSetup, IsHandled);
                 if not IsHandled then
                     if SalesHeader."Prices Including VAT" and (Type in [Type::Item, Type::Resource]) then
-                        "Unit Price" :=
+                        Validate("Unit Price",						
                             Round(
                                 "Unit Price" * (100 + "VAT %") / (100 + xRec."VAT %"),
-                                Currency."Unit-Amount Rounding Precision");
+                        Currency."Unit-Amount Rounding Precision"));
 
                 OnValidateVATProdPostingGroupOnBeforeUpdateAmounts(Rec, xRec, SalesHeader, Currency);
                 UpdateAmounts();

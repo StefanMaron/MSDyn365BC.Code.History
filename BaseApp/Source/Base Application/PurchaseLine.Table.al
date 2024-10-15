@@ -1427,10 +1427,10 @@ table 39 "Purchase Line"
                     end;
 
                 if PurchHeader."Prices Including VAT" and (Type = Type::Item) then
-                    "Direct Unit Cost" :=
+                    Validate("Direct Unit Cost",
                       Round(
                         "Direct Unit Cost" * (100 + "VAT %") / (100 + xRec."VAT %"),
-                        Currency."Unit-Amount Rounding Precision");
+                        Currency."Unit-Amount Rounding Precision"));
 
                 "VAT % (Non Deductible)" := GetVATDeduction; // NAVCZ
                 UpdateAmounts;
