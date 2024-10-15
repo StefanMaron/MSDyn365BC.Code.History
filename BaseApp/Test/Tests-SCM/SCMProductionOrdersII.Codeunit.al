@@ -1529,6 +1529,9 @@ codeunit 137072 "SCM Production Orders II"
         CreateSalesOrder(SalesHeader, SalesLine, ChildItem."No.", Quantity, '');
         LibrarySales.PostSalesDocument(SalesHeader, true, false);  // Post as Ship only.
 
+        // Set to calculate MPS
+        LibraryVariableStorage.Enqueue(false);
+
         // Exercise: Calculate Regenerative Plan with MRP - TRUE for Planning Worksheet through CalculatePlanPlanWkshRequestPageHandler.
         CalcRegenPlanForPlanningWorksheetPage(PlanningWorksheet, ChildItem."No.", ChildItem."No.", false);
 
@@ -1555,6 +1558,9 @@ codeunit 137072 "SCM Production Orders II"
         Initialize();
         CreateBomItemsWithReorderingPolicy(ParentItem, ChildItem);
         CreateSalesOrder(SalesHeader, SalesLine, ParentItem."No.", LibraryRandom.RandInt(10), '');
+
+        // Set to calculate MPS
+        LibraryVariableStorage.Enqueue(true);
 
         // Exercise: Carry Out Planning Worksheet as Firm Planned Production Order.
         CalcRegenPlanForPlanningWorksheetPage(PlanningWorksheet, ParentItem."No.", ChildItem."No.", true);
@@ -3998,6 +4004,102 @@ codeunit 137072 "SCM Production Orders II"
         WarehouseActivityLine.TestField("Expiration Date", ExpirationDate[2]);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler,CalculatePlanPlanWkshRequestPageHandler')]
+    procedure VerifyPlannedProdOrderForOptimizeLowLevelCodeCalculationWithCompLocationSortedBeforeSalesLocation()
+    var
+        LocationBlue: Record Location;
+        ManufacturingSetup: Record "Manufacturing Setup";
+        Level2Item, Level1Item, Level0Item : Record Item;
+        ProductionBOMHeader: Record "Production BOM Header";
+        RoutingHeader: Record "Routing Header";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseEmployee: Record "Warehouse Employee";
+        RequisitionLine: Record "Requisition Line";
+        PlanningWorksheet: TestPage "Planning Worksheet";
+        BOMLineType: Enum "Production BOM Line Type";
+    begin
+        // [SCENARIO 487326] Verify Planned Production Order for Optimize Low Level Code Calculation with Component Location sorted before Sales Location
+        Initialize();
+
+        // [GIVEN] Create Blue and Red Location
+        LibraryWarehouse.CreateLocationWithInventoryPostingSetup(LocationBlue);
+
+        // [GIVEN] Activate Optimize Low Level Code Calculation on Manufacturing Setup
+        ManufacturingSetup.Get();
+        ManufacturingSetup.Validate(ManufacturingSetup."Optimize low-level code calc.", true);
+        ManufacturingSetup.Validate("Current Production Forecast", '');
+        ManufacturingSetup.Validate("Components at Location", LocationBlue.Code);
+        ManufacturingSetup.Modify(true);
+
+        // [GIVEN] Set Mandatory Location on Inventory Setup
+        LibraryInventory.SetLocationMandatory(true);
+
+        // [GIVEN] Create Level 2 Item
+        LibraryInventory.CreateItem(Level2Item);
+        Level2Item.Validate("Reordering Policy", Level2Item."Reordering Policy"::"Lot-for-Lot");
+        Level2Item.Modify(true);
+
+        // [GIVEN] Create Level 1 Item
+        LibraryInventory.CreateItem(Level1Item);
+        CreateManufacturingItem(Level1Item, Level1Item."Reordering Policy"::Order, Level1Item."Replenishment System"::"Prod. Order");
+        Level1Item.Validate("Manufacturing Policy", Level1Item."Manufacturing Policy"::"Make-to-Order");
+        UpdateOrderTrackingPolicyOnItem(Level1Item, Level1Item."Order Tracking Policy"::"Tracking Only");
+
+        // [GIVEN] Create and Certify Production BOM
+        CreateCertifiedProductionBOM(ProductionBOMHeader, Level2Item);
+
+        // [GIVEN] Create and Certify Routing
+        CreateAndCertifiyRouting(RoutingHeader);
+
+        // [GIVEN] Update Production BOM and Routing on Item
+        UpdateProductionBomAndRoutingOnItem(Level1Item, ProductionBOMHeader."No.", RoutingHeader."No.");
+
+        // [GIVEN] Create Level 0 Item
+        LibraryInventory.CreateItem(Level0Item);
+        CreateManufacturingItem(Level0Item, Level0Item."Reordering Policy"::Order, Level0Item."Replenishment System"::"Prod. Order");
+        Level0Item.Validate("Manufacturing Policy", Level0Item."Manufacturing Policy"::"Make-to-Order");
+        Level0Item.Validate("Flushing Method", Level0Item."Flushing Method"::Backward);
+        UpdateOrderTrackingPolicyOnItem(Level0Item, Level0Item."Order Tracking Policy"::"Tracking Only");
+
+        // [GIVEN] Create and Certified Production BOM
+        CreateCertifiedProductionBOM(ProductionBOMHeader, Level1Item);
+
+        // [GIVEN] Create and Certify Routing        
+        CreateAndCertifiyRouting(RoutingHeader);
+
+        // [GIVEN] Update Production BOM and Routing on Item
+        UpdateProductionBomAndRoutingOnItem(Level0Item, ProductionBOMHeader."No.", RoutingHeader."No.");
+
+        // [GIVEN] Create Warehouse Employee for Blue and Red Location
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationBlue.Code, false);
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, LocationRed.Code, false);
+
+        // [GIVEN] Create Sales Order for Level 0 Item
+        CreateSalesOrder(SalesHeader, SalesLine, Level0Item."No.", LibraryRandom.RandInt(10), LocationRed.Code);
+
+        // Set to calculate MPS
+        LibraryVariableStorage.Enqueue(true);
+
+        // [GIVEN] Carry Out Planning Worksheet as Firm Planned Production Order.        
+        CalcRegenPlanForPlanningWorksheetPage(PlanningWorksheet, Level0Item."No.", Level1Item."No.", false);
+
+        // [GIVEN] Accept Action Message for Requisition Lines
+        AcceptActionMessage(RequisitionLine, Level0Item."No.");
+        AcceptActionMessage(RequisitionLine, Level1Item."No.");
+
+        // [WHEN] Run Carry Out Action Message - Plan.
+        RunRequisitionCarryOutReportProdOrder(RequisitionLine);
+
+        // [THEN] Verify Parent and Child items are carried out into one Firm Planned Production Order.
+        FilterFirmPlannedProductionOrder(ProductionOrder, Level0Item."No.");
+        FindProductionOrderLine(ProdOrderLine, Level0Item."No.");
+        ProductionOrder.TestField("No.", ProdOrderLine."Prod. Order No.");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5613,6 +5715,38 @@ codeunit 137072 "SCM Production Orders II"
         WarehouseActivityLine.FindFirst();
     end;
 
+    local procedure RunRequisitionCarryOutReportProdOrder(RequisitionLine: Record "Requisition Line")
+    var
+        CarryOutActionMsgPlan: Report "Carry Out Action Msg. - Plan.";
+        ProdOrderChoice: Enum "Planning Create Prod. Order";
+    begin
+        CarryOutActionMsgPlan.SetReqWkshLine(RequisitionLine);
+        CarryOutActionMsgPlan.InitializeRequest(ProdOrderChoice::"Firm Planned".AsInteger(), 0, 0, 0);
+        CarryOutActionMsgPlan.UseRequestPage(false);
+        CarryOutActionMsgPlan.RunModal();
+    end;
+
+    local procedure UpdateProductionBomAndRoutingOnItem(var Item: Record Item; ProductionBOMNo: Code[20]; RoutingNo: Code[20])
+    begin
+        Item.Validate("Replenishment System", Item."Replenishment System"::"Prod. Order");
+        Item.Validate("Production BOM No.", ProductionBOMNo);
+        Item.Validate("Routing No.", RoutingNo);
+        Item.Modify(true);
+    end;
+
+    local procedure CreateAndCertifiyRouting(var RoutingHeader: Record "Routing Header")
+    var
+        RoutingLine: Record "Routing Line";
+        WorkCenter: Record "Work Center";
+    begin
+        WorkCenter.FindFirst();
+        LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingHeader.Type::Serial);
+        LibraryManufacturing.CreateRoutingLine(
+          RoutingHeader, RoutingLine, '', Format(LibraryRandom.RandInt(10)), RoutingLine.Type::"Work Center", WorkCenter."No.");
+        RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
+        RoutingHeader.Modify(true);
+    end;
+
     [ModalPageHandler]
     procedure ProductionJournalModalPageHandler(var ProductionJournal: TestPage "Production Journal")
     begin
@@ -5671,6 +5805,7 @@ codeunit 137072 "SCM Production Orders II"
         ItemNo: Variant;
         ItemNo2: Variant;
     begin
+        CalculatePlanPlanWksh.MPS.SetValue(LibraryVariableStorage.DequeueBoolean());
         // Calculate Regenerative Plan on WORKDATE.
         LibraryVariableStorage.Dequeue(ItemNo);
         LibraryVariableStorage.Dequeue(ItemNo2);

@@ -57,7 +57,7 @@
                 Contact := Cust.Contact;
                 "Country/Region Code" := Cust."Country/Region Code";
                 "Language Code" := Cust."Language Code";
-                "Currency Code" := Cust."Currency Code";
+                Validate("Currency Code", Cust."Currency Code");
                 "Shortcut Dimension 1 Code" := Cust."Global Dimension 1 Code";
                 "Shortcut Dimension 2 Code" := Cust."Global Dimension 2 Code";
                 "VAT Registration No." := Cust."VAT Registration No.";
