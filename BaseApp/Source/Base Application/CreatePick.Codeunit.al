@@ -1,4 +1,4 @@
-codeunit 7312 "Create Pick"
+﻿codeunit 7312 "Create Pick"
 {
     Permissions = TableData "Whse. Item Tracking Line" = rimd;
 
@@ -1667,8 +1667,15 @@ codeunit 7312 "Create Pick"
         end;
     end;
 
-    local procedure UseForPick(FromBinContent: Record "Bin Content"): Boolean
+    local procedure UseForPick(FromBinContent: Record "Bin Content") IsForPick: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUseForPick(FromBinContent, IsForPick, IsHandled);
+        if IsHandled then
+            exit(IsForPick);
+
         with FromBinContent do begin
             if "Block Movement" in ["Block Movement"::Outbound, "Block Movement"::All] then
                 exit(false);
@@ -3463,6 +3470,11 @@ codeunit 7312 "Create Pick"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeTempWhseItemTrackingLineModifyOnAfterAssignRemQtyToPickBase(var TempWhseItemTrackingLine: Record "Whse. Item Tracking Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUseForPick(var FromBinContent: Record "Bin Content"; var IsForPick: Boolean; var IsHandled: Boolean)
     begin
     end;
 

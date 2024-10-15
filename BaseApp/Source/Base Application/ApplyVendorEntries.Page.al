@@ -1256,6 +1256,7 @@ page 233 "Apply Vendor Entries"
                 Rec := ApplyingVendLedgEntry;
                 ApplicationDate := VendEntryApplyPostedEntries.GetApplicationDate(Rec);
 
+                OnPostDirectApplicationBeforeSetValues(ApplicationDate);
                 GLSetup.Get();
                 if GLSetup."Use Workdate for Appl./Unappl." then begin
                     if ApplicationDate > WorkDate then
@@ -1276,6 +1277,7 @@ page 233 "Apply Vendor Entries"
                 end else
                     Error(Text019);
 
+                OnPostDirectApplicationBeforeApply();
                 if PreviewMode then
                     VendEntryApplyPostedEntries.PreviewApply(Rec, NewDocumentNo, NewApplicationDate, NewJnlTemplateName, NewJnlBatchName)
                 else
@@ -1292,8 +1294,15 @@ page 233 "Apply Vendor Entries"
             Error(Text003);
     end;
 
-    local procedure CheckActionPerformed(): Boolean
+    local procedure CheckActionPerformed() Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckActionPerformed(ActionPerformed, OK, CalcType, PostingDone, ApplyingVendLedgEntry, ApplnType, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if ActionPerformed then
             exit(false);
         if (not (CalcType = CalcType::Direct) and not OK and not PostingDone and
@@ -1391,6 +1400,11 @@ page 233 "Apply Vendor Entries"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckActionPerformed(ActionPerformed: Boolean; OK: Boolean; CalcType: Option Direct,GenJnlLine,PurchHeader; PostingDone: Boolean; ApplyingVendLedgEntry: Record "Vendor Ledger Entry" temporary; ApplnType: Option " ","Applies-to Doc. No.","Applies-to ID"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
     [IntegrationEvent(TRUE, false)]
     local procedure OnBeforeHandledChosenEntries(Type: Option Direct,GenJnlLine,PurchHeader; CurrentAmount: Decimal; CurrencyCode: Code[10]; PostingDate: Date; var AppliedVendLedgEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean)
     begin
@@ -1403,6 +1417,16 @@ page 233 "Apply Vendor Entries"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeSetApplyingVendLedgEntry(var ApplyingVendLedgEntry: Record "Vendor Ledger Entry"; GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDirectApplicationBeforeSetValues(var ApplicationDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDirectApplicationBeforeApply()
     begin
     end;
 }

@@ -153,11 +153,7 @@ report 698 "Get Sales Orders"
 
             if SpecOrder <> 1 then
                 Validate("Unit of Measure Code", SalesLine."Unit of Measure Code");
-            Validate(
-              Quantity,
-              Round(
-                SalesLine."Outstanding Quantity" * SalesLine."Qty. per Unit of Measure" / "Qty. per Unit of Measure",
-                UOMMgt.QtyRndPrecision));
+            ValidateRequisitionLineQuantity(ReqLine, SalesLine);
             "Sales Order No." := SalesLine."Document No.";
             "Sales Order Line No." := SalesLine."Line No.";
             "Sell-to Customer No." := SalesLine."Sell-to Customer No.";
@@ -190,6 +186,22 @@ report 698 "Get Sales Orders"
         end;
     end;
 
+    local procedure ValidateRequisitionLineQuantity(var RequisitionLine: Record "Requisition Line"; SalesLine: Record "Sales Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeValidateRequisitionLineQuantity(RequisitionLine, SalesLine, SpecOrder, IsHandled);
+        if IsHandled then
+            exit;
+
+        RequisitionLine.Validate(
+          Quantity,
+          Round(
+            SalesLine."Outstanding Quantity" * SalesLine."Qty. per Unit of Measure" / RequisitionLine."Qty. per Unit of Measure",
+            UOMMgt.QtyRndPrecision));
+    end;
+
     procedure InitializeRequest(NewRetrieveDimensionsFrom: Option)
     begin
         GetDim := NewRetrieveDimensionsFrom;
@@ -207,6 +219,11 @@ report 698 "Get Sales Orders"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeOnAfterGetRecord(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateRequisitionLineQuantity(var ReqLine: Record "Requisition Line"; SalesLine: Record "Sales Line"; SpecOrder: Integer; var IsHandled: Boolean)
     begin
     end;
 }

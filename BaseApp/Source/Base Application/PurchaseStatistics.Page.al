@@ -344,6 +344,8 @@ page 161 "Purchase Statistics"
         PurchPost.SumPurchLinesTemp(
           Rec, TempPurchLine, 0, TotalPurchLine, TotalPurchLineLCY, VATAmount, VATAmountText);
 
+        OnCalculateTotalsOnAfterPurchPostSumPurchLinesTemp(Rec, TempPurchLine, AllowVATDifference);
+
         FillNonDeductibleVATBuf(TempPurchLine, TempNonDeductVATAmountLineBuffer);
         ApplyNonDeductVATToTotals(TempNonDeductVATAmountLineBuffer);
         if TempNonDeductVATAmountLineBuffer."VAT Amount" <> 0 then
@@ -428,6 +430,11 @@ page 161 "Purchase Statistics"
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterUpdateHeaderInfo()
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnCalculateTotalsOnAfterPurchPostSumPurchLinesTemp(var PurchHeader: Record "Purchase Header"; var TempPurchLine: Record "Purchase Line"; var AllowVATDifference: Boolean)
     begin
     end;
 

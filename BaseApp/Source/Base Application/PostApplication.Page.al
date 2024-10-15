@@ -76,7 +76,14 @@ page 579 "Post Application"
         PostingDate: Date;
 
     procedure SetValues(NewJnlTemplName: Code[10]; NewJnlBatchName: Code[10]; NewDocNo: Code[20]; NewPostingDate: Date)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetValues(NewDocNo, NewPostingDate, IsHandled);
+        if IsHandled then
+            exit;
+
         SelectGenJnlLine."Journal Template Name" := NewJnlTemplName;
         SelectGenJnlLine."Journal Batch Name" := NewJnlBatchName;
         DocNo := NewDocNo;
@@ -85,10 +92,22 @@ page 579 "Post Application"
 
     procedure GetValues(var NewJnlTemplName: Code[10]; var NewJnlBatchName: Code[10]; var NewDocNo: Code[20]; var NewPostingDate: Date)
     begin
+        OnBeforeGetValues(NewDocNo, NewPostingDate);
+
         NewJnlTemplName := SelectGenJnlLine."Journal Template Name";
         NewJnlBatchName := SelectGenJnlLine."Journal Batch Name";
         NewDocNo := DocNo;
         NewPostingDate := PostingDate;
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeSetValues(var NewDocNo: Code[20]; var NewPostingDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeGetValues(var NewDocNo: Code[20]; var NewPostingDate: Date)
+    begin
     end;
 }
 

@@ -1329,6 +1329,7 @@ page 232 "Apply Customer Entries"
                 Rec := ApplyingCustLedgEntry;
                 ApplicationDate := CustEntryApplyPostedEntries.GetApplicationDate(Rec);
 
+                OnPostDirectApplicationBeforeSetValues(ApplicationDate);
                 GLSetup.Get();
                 if GLSetup."Use Workdate for Appl./Unappl." then begin
                     if ApplicationDate > WorkDate then
@@ -1349,6 +1350,7 @@ page 232 "Apply Customer Entries"
                 end else
                     Error(Text019);
 
+                OnPostDirectApplicationBeforeApply();
                 if PreviewMode then
                     CustEntryApplyPostedEntries.PreviewApply(Rec, NewDocumentNo, NewApplicationDate, NewJnlTemplateName, NewJnlBatchName)
                 else
@@ -1474,6 +1476,16 @@ page 232 "Apply Customer Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnSetCustApplIdAfterCheckAgainstApplnCurrency(var CustLedgerEntry: Record "Cust. Ledger Entry"; CalcType: Option; GenJnlLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDirectApplicationBeforeSetValues(var ApplicationDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostDirectApplicationBeforeApply()
     begin
     end;
 }

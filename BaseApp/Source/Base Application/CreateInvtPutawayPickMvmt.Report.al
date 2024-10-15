@@ -309,29 +309,31 @@ report 7323 "Create Invt Put-away/Pick/Mvmt"
         end;
     end;
 
-    local procedure CheckWhseRequest(WhseRequest: Record "Warehouse Request"): Boolean
+    local procedure CheckWhseRequest(var WhseRequest: Record "Warehouse Request") SkipRecord: Boolean
     var
         SalesHeader: Record "Sales Header";
         TransferHeader: Record "Transfer Header";
         GetSrcDocOutbound: Codeunit "Get Source Doc. Outbound";
     begin
         if WhseRequest."Document Status" <> WhseRequest."Document Status"::Released then
-            exit(true);
-        if (WhseRequest.Type = WhseRequest.Type::Outbound) and
-           (WhseRequest."Shipping Advice" = WhseRequest."Shipping Advice"::Complete)
-        then
-            case WhseRequest."Source Type" of
-                DATABASE::"Sales Line":
-                    if WhseRequest."Source Subtype" = WhseRequest."Source Subtype"::"1" then begin
-                        SalesHeader.Get(SalesHeader."Document Type"::Order, WhseRequest."Source No.");
-                        exit(GetSrcDocOutbound.CheckSalesHeader(SalesHeader, ShowError));
-                    end;
-                DATABASE::"Transfer Line":
-                    begin
-                        TransferHeader.Get(WhseRequest."Source No.");
-                        exit(GetSrcDocOutbound.CheckTransferHeader(TransferHeader, ShowError));
-                    end;
-            end;
+            SkipRecord := true
+        else
+            if (WhseRequest.Type = WhseRequest.Type::Outbound) and
+                (WhseRequest."Shipping Advice" = WhseRequest."Shipping Advice"::Complete)
+            then
+                case WhseRequest."Source Type" of
+                    DATABASE::"Sales Line":
+                        if WhseRequest."Source Subtype" = WhseRequest."Source Subtype"::"1" then begin
+                            SalesHeader.Get(SalesHeader."Document Type"::Order, WhseRequest."Source No.");
+                            SkipRecord := GetSrcDocOutbound.CheckSalesHeader(SalesHeader, ShowError);
+                        end;
+                    DATABASE::"Transfer Line":
+                        begin
+                            TransferHeader.Get(WhseRequest."Source No.");
+                            SkipRecord := GetSrcDocOutbound.CheckTransferHeader(TransferHeader, ShowError);
+                        end;
+                end;
+        OnAfterCheckWhseRequest(WhseRequest, SkipRecord);
     end;
 
     procedure InitializeRequest(NewCreateInvtPutAway: Boolean; NewCreateInvtPick: Boolean; NewCreateInvtMovement: Boolean; NewPrintDocument: Boolean; NewShowError: Boolean)
@@ -366,6 +368,11 @@ report 7323 "Create Invt Put-away/Pick/Mvmt"
     begin
         MovementsCreated := MovementCounter;
         TotalMovementsToBeCreated := TotalMovementCounter;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckWhseRequest(var WarehouseRequest: Record "Warehouse Request"; var SkipRecord: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

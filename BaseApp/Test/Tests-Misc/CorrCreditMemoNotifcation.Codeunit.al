@@ -13,6 +13,7 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
         LibraryERM: Codeunit "Library - ERM";
         LibrarySales: Codeunit "Library - Sales";
         LibraryPurchase: Codeunit "Library - Purchase";
+        LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         InvoicePartiallyPaidMsg: Label 'Invoice %1 is partially paid or credited. The corrective credit memo may not be fully closed by the invoice.', Comment = '%1 - invoice no.';
@@ -349,6 +350,74 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
         NotificationLifecycleMgt.RecallAllNotifications;
     end;
 
+    [Test]
+    [HandlerFunctions('CreateSalesNotificationHandler,RecallNotificationHandler')]
+    [Scope('OnPrem')]
+    procedure CreditMemoOnPartiallyCreditedSalesInvoiceCardCreate()
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ReasonCode: Record "Reason Code";
+        PostedSalesInvoice: TestPage "Posted Sales Invoice";
+        SalesCreditMemo: TestPage "Sales Credit Memo";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        ExpectedNotificationMsg: Text;
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 364099] When invoice already has a corrective credit memo for partial quantity creating a second corrective credit memo for remaining quantity is possible
+        Initialize();
+
+        // [GIVEN] posted Invoice '101033', with quantity = 10
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        ModifyQuantityForSalesHeader(SalesHeader, LibraryRandom.RandIntInRange(10, 20));
+
+        // [GIVEN] Posted sales invoice
+        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+
+        // [GIVEN] Invoke CreateCreditMemoCopyDocument for posted sales invoice
+        CorrectPostedSalesInvoice.CreateCreditMemoCopyDocument(SalesInvoiceHeader, SalesHeader);
+
+        // [GIVEN] Credit Memo has a reason code
+        LibraryERM.CreateReasonCode(ReasonCode);
+        SalesHeader.Validate("Reason Code", ReasonCode.Code);
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Quantity on Corrective credit memo equals 1
+        ModifyQuantityForSalesHeader(SalesHeader, LibraryRandom.RandIntInRange(1, 9));
+
+        // [GIVEN] First corrective credit memo was posted
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Open "Posted Sales Invoice" page for original Invoice
+        PostedSalesInvoice.OpenView();
+        PostedSalesInvoice.FILTER.SetFilter("No.", SalesInvoiceHeader."No.");
+
+        // [GIVEN] Run "Create Corrective Credit Memo" action again
+        SalesCreditMemo.Trap();
+        PostedSalesInvoice.CreateCreditMemo.Invoke();
+
+        // [WHEN] Pick 'Create' action in Notification: "Invoice is partially paid or credited. |Show Entries|Skip|Create|"
+        ExpectedNotificationMsg := StrSubstNo(InvoicePartiallyPaidMsg, SalesInvoiceHeader."No.");
+        Assert.ExpectedMessage(ExpectedNotificationMsg, LibraryVariableStorage.DequeueText); // from CreateNotificationHandler
+        Assert.AreEqual(Format(SalesInvoiceHeader."No."), LibraryVariableStorage.DequeueText, 'notification No.');
+
+        // [THEN] Credit Memo is created. Credit memo page is open, where "Applies-to Doc. No." is '101033'
+        SalesCreditMemo."Applies-to Doc. No.".AssertEquals(SalesInvoiceHeader."No.");
+
+        // [THEN] First line on the Credit Memo contains 'Invoice 101033'
+        Assert.ExpectedMessage(SalesInvoiceHeader."No.", SalesCreditMemo.SalesLines.Description.Value);
+        SalesCreditMemo.Close();
+
+        // [THEN] Notification is recalled
+        Assert.AreEqual(SalesInvoiceHeader."No.", LibraryVariableStorage.DequeueText, 'recall No.'); // from RecallNotificationHandler
+
+        // Clean-up open pages and notifications
+        PostedSalesInvoice.Close();
+        LibraryVariableStorage.AssertEmpty();
+        NotificationLifecycleMgt.RecallAllNotifications();
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(Codeunit::"Corr. Credit Memo Notifcation");
@@ -416,6 +485,18 @@ codeunit 135302 "Corr. Credit Memo Notifcation"
     begin
         LibrarySales.CreateSalesInvoice(SalesHeader);
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
+    end;
+
+    local procedure ModifyQuantityForSalesHeader(SalesHeader: Record "Sales Header"; NewQuantity: Integer)
+    var
+        SalesLine: Record "Sales Line";
+    begin
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetFilter(Quantity, '<>0');
+        SalesLine.FindFirst();
+        SalesLine.Validate(Quantity, NewQuantity);
+        SalesLine.Modify(true);
     end;
 
     [ModalPageHandler]

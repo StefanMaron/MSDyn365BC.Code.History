@@ -700,31 +700,41 @@ table 79 "Company Information"
           "Allow Blank Payment Info.");
     end;
 
-    procedure GetRegistrationNumber(): Text
+    procedure GetRegistrationNumber() Result: Text
     begin
-        exit("Enterprise No.");
+        Result := "Enterprise No.";
+        OnAfterGetRegistrationNumber(Result);
     end;
 
-    procedure GetRegistrationNumberLbl(): Text
+    procedure GetRegistrationNumberLbl() Result: Text
     begin
-        exit(FieldCaption("Enterprise No."));
+        Result := FieldCaption("Enterprise No.");
+        OnAfterGetRegistrationNumberLbl(Result);
     end;
 
-    procedure GetVATRegistrationNumber(): Text
+    procedure GetVATRegistrationNumber() Result: Text
     var
         CountryRegion: Record "Country/Region";
     begin
         if CountryRegion.DetermineCountry("Country/Region Code") then
             exit("Enterprise No.");
-        exit("VAT Registration No.");
+        Result := "VAT Registration No.";
+        OnAfterGetVATRegistrationNumber(Result);
     end;
 
-    procedure GetVATRegistrationNumberLbl(): Text
+    procedure GetVATRegistrationNumberLbl() Result: Text
     var
         CountryRegion: Record "Country/Region";
+        IsHandled: Boolean;
     begin
         if Name = '' then // Is the record loaded?
             Get;
+
+        IsHandled := false;
+        OnBeforeGetVATRegistrationNumberLbl(Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if CountryRegion.DetermineCountry("Country/Region Code") then begin
             if "Enterprise No." = '' then
                 exit('');
@@ -892,6 +902,26 @@ table 79 "Company Information"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeIBANError(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGetRegistrationNumber(var Result: Text)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGetRegistrationNumberLbl(var Result: Text)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterGetVATRegistrationNumber(var Result: Text)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeGetVATRegistrationNumberLbl(var Result: Text; var IsHandled: Boolean)
     begin
     end;
 }

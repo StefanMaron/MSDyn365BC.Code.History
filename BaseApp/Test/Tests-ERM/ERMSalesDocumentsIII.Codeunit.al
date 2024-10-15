@@ -71,6 +71,7 @@ codeunit 134387 "ERM Sales Documents III"
         UnitPriceChangedMsg: Label 'The unit price for %1 %2 that was copied from the posted document has been changed.';
         ConfirmZeroQuantityPostingMsg: Label 'One or more document lines with a value in the No. field do not have a quantity specified. \Do you want to continue?';
         CannotAllowInvDiscountErr: Label 'The value of the Allow Invoice Disc. field is not valid when the VAT Calculation Type field is set to "Full VAT".';
+        PostingPreviewNoTok: Label '***', Locked = true;
 
     [Test]
     [Scope('OnPrem')]
@@ -3741,6 +3742,45 @@ codeunit 134387 "ERM Sales Documents III"
     end;
 
     [Test]
+    [HandlerFunctions('PostAndSendConfirmationModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure PostAndSendSalesInvoiceWithPreviewTokenInPostingNo()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        LibraryReportSelection: Codeunit "Library - Report Selection";
+        SalesInvoice: TestPage "Sales Invoice";
+    begin
+        // [FEATURE] [Invoice] [Email] [Post] [Send] [Job Queue]
+        // [SCENARIO 271849] Stan can Post and Send sales invoice which has the 'Posting No.' set to ***
+        Initialize;
+
+        // [GIVEN] "Post with Job Queue" is FALSE in sales setup
+        LibrarySales.SetPostWithJobQueue(false);
+        BindSubscription(LibraryReportSelection);
+
+        // [GIVEN] Sales invoice with *** in 'Posting No.' ready to post
+        CreateSalesDocumentWithGL(SalesHeader, SalesHeader."Document Type"::Invoice);
+        SalesHeader."Posting No." := PostingPreviewNoTok;
+        SalesHeader.Modify();
+
+        // [WHEN] Push "Post and Send" on sales invoice card page
+        SalesHeader.SetRecFilter;
+        SalesInvoice.OpenEdit;
+        SalesInvoice.GotoRecord(SalesHeader);
+        SalesInvoice.PostAndSend.Invoke;
+
+        // [THEN] Stan can find posted invoice
+        SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        Assert.RecordIsNotEmpty(SalesInvoiceHeader);
+
+        // [THEN] Sales invoice is deleted
+        SalesHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        Assert.RecordIsEmpty(SalesHeader);
+        Assert.AreNotEqual(SalesHeader."No.", PostingPreviewNoTok, '*** entry created.');
+    end;
+
+    [Test]
     [Scope('OnPrem')]
     procedure SalesInvoiceChangePricesInclVATRefreshesPage()
     var
@@ -3790,6 +3830,48 @@ codeunit 134387 "ERM Sales Documents III"
         Assert.AreEqual(DocumentTotals.GetTotalLineAmountWithVATAndCurrencyCaption(SalesHeader."Currency Code", true),
           SalesOrderPage.SalesLines."TotalSalesLine.""Line Amount""".Caption,
           'The caption for SalesOrderPage.SalesLines.Control35 is incorrect');
+    end;
+
+    [Test]
+    [HandlerFunctions('PostOrderWithChoiceStrMenuHandler')]
+    [Scope('OnPrem')]
+    procedure PostSalesOrderWithPreviewTokenInPostingAndShippingNo()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        LibraryReportSelection: Codeunit "Library - Report Selection";
+        SalesOrder: TestPage "Sales Order";
+    begin
+        // [FEATURE] [Invoice] [Email] [Post] [Send] [Job Queue]
+        // [SCENARIO 271849] Stan can Post and Send sales order which has the 'Posting No.' and 'Shipping No.' set to ***
+        Initialize;
+
+        // [GIVEN] "Post with Job Queue" is FALSE in sales setup
+        LibrarySales.SetPostWithJobQueue(false);
+        BindSubscription(LibraryReportSelection);
+
+        // [GIVEN] Sales invoice with *** in 'Posting No.' ready to post
+        CreateSalesDocumentWithGL(SalesHeader, SalesHeader."Document Type"::Order);
+        SalesHeader."Posting No." := PostingPreviewNoTok;
+        SalesHeader."Shipping No." := PostingPreviewNoTok;
+        SalesHeader.Modify();
+
+        // [WHEN] Push "Post and Send" on sales invoice card page
+        SalesHeader.SetRecFilter;
+        SalesOrder.OpenEdit;
+        SalesOrder.GotoRecord(SalesHeader);
+
+        LibraryVariableStorage.Enqueue(3); // Select Ship and Invocie in menu
+        SalesOrder.Post.Invoke;
+
+        // [THEN] Stan can find posted invoice
+        SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        Assert.RecordIsNotEmpty(SalesInvoiceHeader);
+
+        // [THEN] Sales invoice is deleted
+        SalesHeader.SetRange("Sell-to Customer No.", SalesHeader."Sell-to Customer No.");
+        Assert.RecordIsEmpty(SalesHeader);
+        Assert.AreNotEqual(SalesHeader."No.", PostingPreviewNoTok, '*** entry created.');
     end;
 
     [Test]

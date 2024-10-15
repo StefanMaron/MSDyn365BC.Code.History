@@ -10,12 +10,17 @@ codeunit 9997 "Upgrade Tag Def - Country"
     begin
         // Country
         PerCompanyUpgradeTags.Add(GetUpdateCountyNameTag);
-
+        PerCompanyUpgradeTags.Add(GetCopyInvNoToPmtRefTag());
     end;
 
     procedure GetUpdateCountyNameTag(): Code[250]
     begin
         exit('MS-BE-299774-UpdateCountyName-20190211');
+    end;
+
+    procedure GetCopyInvNoToPmtRefTag(): Code[250]
+    begin
+        exit('MS-BE-362612-CopyInvNoToPmtRef-20200715');
     end;
 
 }

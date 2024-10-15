@@ -27,6 +27,7 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
+        NoSeriesNumbersPrefix: Code[3];
         ErrorValidationErr: Label 'Error must be same.';
         StatusErr: Label 'Status must be equal to ''Open''  in %1: %2=%3, %4=%5. Current value is ''Released''.';
         StringLengthExceededErr: Label 'StringLengthExceeded';
@@ -1125,8 +1126,8 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Check that Error raised on Validate of Vendor No. on Payment Journal Line when payment date on Vendor refund is earlier than on Credit Memo Date.
-        PostPaymentWithEarlierDateToVendor(GenJournalLine."Document Type"::"Credit Memo",
-          GenJournalLine."Document Type"::Refund);
+        PostPaymentWithEarlierDateToVendor(
+            GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::Refund);
     end;
 
     [Test]
@@ -1532,11 +1533,287 @@ codeunit 134383 "ERM Sales/Purch Status Error"
           StrSubstNo('%1 must not be called', ItemGETTok));
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostPurchaseReturnOrderAfterFixedNoSeriesInPurchaseSetup()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        ReturnShipmentHeader: Record "Return Shipment Header";
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        // [FEATURE] [No. Series] [Purchase] [Return Order]
+        // [SCENARIO 363508] Stan can post Purchase Return Order with blank posting no. series fields when he updated no. series in purchase setup
+        Initialize();
+        ResetPostingNoSeriesOnPurchaseSetup();
+
+        LibraryPurchase.CreatePurchaseReturnOrder(PurchaseHeader);
+        Commit();
+
+        asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        Assert.ExpectedError(PurchaseHeader.FieldCaption("Return Shipment No. Series"));
+
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Posted Return Shpt. Nos.", CreateNoSeriesCode());
+        PurchasesPayablesSetup.Modify();
+        Commit();
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        ReturnShipmentHeader.SetRange("No.", GetLastNoUsedFromNoSeries(PurchasesPayablesSetup."Posted Return Shpt. Nos."));
+        Assert.RecordCount(ReturnShipmentHeader, 1);
+
+        GenJournalTemplate.Get(PurchasesPayablesSetup."Journal Templ. Purch. Cr. Memo");
+        PurchCrMemoHdr.SetRange("No.", GetLastNoUsedFromNoSeries(GenJournalTemplate."Posting No. Series"));
+        Assert.RecordCount(PurchCrMemoHdr, 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostPurchaseOrderAfterFixedNoSeriesInPurchaseSetup()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchRcptHeader: Record "Purch. Rcpt. Header";
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        // [FEATURE] [No. Series] [Purchase] [Order]
+        // [SCENARIO 363508] Stan can post Purchase Order with blank posting no. series fields when he updated no. series in purchase setup
+        Initialize();
+        ResetPostingNoSeriesOnPurchaseSetup();
+
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
+        Commit();
+
+        asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        Assert.ExpectedError(PurchaseHeader.FieldCaption("Receiving No. Series"));
+
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Posted Receipt Nos.", CreateNoSeriesCode());
+        PurchasesPayablesSetup.Modify();
+        Commit();
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        PurchRcptHeader.SetRange("No.", GetLastNoUsedFromNoSeries(PurchasesPayablesSetup."Posted Receipt Nos."));
+        Assert.RecordCount(PurchRcptHeader, 1);
+
+        GenJournalTemplate.Get(PurchasesPayablesSetup."Journal Templ. Purch. Invoice");
+        PurchInvHeader.SetRange("No.", GetLastNoUsedFromNoSeries(GenJournalTemplate."Posting No. Series"));
+        Assert.RecordCount(PurchInvHeader, 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostPurchaseInvoiceAfterFixedNoSeriesInPurchaseSetup()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        // [FEATURE] [No. Series] [Purchase] [Invoice]
+        // [SCENARIO 363508] Stan can post Purchase Invoice with blank posting no. series fields when he updated no. series in purchase setup
+        Initialize();
+        ResetPostingNoSeriesOnPurchaseSetup();
+
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+        Commit();
+
+        asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        Assert.ExpectedError(PurchaseHeader.FieldCaption("Receiving No. Series"));
+
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Posted Receipt Nos.", CreateNoSeriesCode());
+        PurchasesPayablesSetup.Modify();
+        Commit();
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        GenJournalTemplate.Get(PurchasesPayablesSetup."Journal Templ. Purch. Invoice");
+        PurchInvHeader.SetRange("No.", GetLastNoUsedFromNoSeries(GenJournalTemplate."Posting No. Series"));
+        Assert.RecordCount(PurchInvHeader, 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostPurchaseCreditMemoAfterFixedNoSeriesInPurchaseSetup()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        // [FEATURE] [No. Series] [Purchase] [Credit Memo]
+        // [SCENARIO 363508] Stan can post Purchase Credit Memo with blank posting no. series fields when he updated no. series in purchase setup
+        Initialize();
+        ResetPostingNoSeriesOnPurchaseSetup();
+
+        LibraryPurchase.CreatePurchaseReturnOrder(PurchaseHeader);
+        Commit();
+
+        asserterror LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        Assert.ExpectedError(PurchaseHeader.FieldCaption("Return Shipment No. Series"));
+
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Posted Return Shpt. Nos.", CreateNoSeriesCode());
+        PurchasesPayablesSetup.Modify();
+        Commit();
+
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        GenJournalTemplate.Get(PurchasesPayablesSetup."Journal Templ. Purch. Cr. Memo");
+        PurchCrMemoHdr.SetRange("No.", GetLastNoUsedFromNoSeries(GenJournalTemplate."Posting No. Series"));
+        Assert.RecordCount(PurchCrMemoHdr, 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostSalesReturnOrderAfterFixedNoSeriesInSalesSetup()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        ReturnReceiptHeader: Record "Return Receipt Header";
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        // [FEATURE] [No. Series] [Sales] [Return Order]
+        // [SCENARIO 363508] Stan can post Sales Return Order with blank posting no. series fields when he updated no. series in sales setup
+        Initialize();
+        ResetPostingNoSeriesOnSalesSetup();
+
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Return Order", LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(10, 20));
+        Commit();
+
+        asserterror PostSalesDocument(SalesHeader, true, true);
+        Assert.ExpectedError(SalesHeader.FieldCaption("Return Receipt No. Series"));
+
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Posted Return Receipt Nos.", CreateNoSeriesCode());
+        SalesReceivablesSetup.Modify();
+        Commit();
+
+        PostSalesDocument(SalesHeader, true, true);
+
+        ReturnReceiptHeader.SetRange("No.", GetLastNoUsedFromNoSeries(SalesReceivablesSetup."Posted Return Receipt Nos."));
+        Assert.RecordCount(ReturnReceiptHeader, 1);
+
+        GenJournalTemplate.Get(SalesReceivablesSetup."Journal Templ. Sales Invoice");
+        SalesCrMemoHeader.SetRange("No.", GetLastNoUsedFromNoSeries(GenJournalTemplate."Posting No. Series"));
+        Assert.RecordCount(SalesCrMemoHeader, 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostSalesOrderAfterFixedNoSeriesInSalesSetup()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        // [FEATURE] [No. Series] [Sales] [Order]
+        // [SCENARIO 363508] Stan can post Sales Order with blank posting no. series fields when he updated no. series in sales setup
+        Initialize();
+        ResetPostingNoSeriesOnSalesSetup();
+
+        LibrarySales.CreateSalesOrder(SalesHeader);
+        Commit();
+
+        asserterror PostSalesDocument(SalesHeader, true, true);
+        Assert.ExpectedError(SalesHeader.FieldCaption("Shipping No. Series"));
+
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Posted Shipment Nos.", CreateNoSeriesCode());
+        SalesReceivablesSetup.Modify();
+        Commit();
+
+        PostSalesDocument(SalesHeader, true, true);
+
+        SalesShipmentHeader.SetRange("No.", GetLastNoUsedFromNoSeries(SalesReceivablesSetup."Posted Shipment Nos."));
+        Assert.RecordCount(SalesShipmentHeader, 1);
+
+        GenJournalTemplate.Get(SalesReceivablesSetup."Journal Templ. Sales Invoice");
+        SalesInvoiceHeader.SetRange("No.", GetLastNoUsedFromNoSeries(GenJournalTemplate."Posting No. Series"));
+        Assert.RecordCount(SalesInvoiceHeader, 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostSalesInvoiceAfterFixedNoSeriesInSalesSetup()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        // [FEATURE] [No. Series] [Sales] [Invoice]
+        // [SCENARIO 363508] Stan can post Sales Invoice with blank posting no. series fields when he updated no. series in sales setup
+        Initialize();
+        ResetPostingNoSeriesOnSalesSetup();
+
+        LibrarySales.CreateSalesInvoice(SalesHeader);
+        Commit();
+
+        asserterror PostSalesDocument(SalesHeader, true, true);
+        Assert.ExpectedError(SalesHeader.FieldCaption("Shipping No. Series"));
+
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Posted Shipment Nos.", CreateNoSeriesCode());
+        SalesReceivablesSetup.Modify();
+        Commit();
+
+        PostSalesDocument(SalesHeader, true, true);
+
+        GenJournalTemplate.Get(SalesReceivablesSetup."Journal Templ. Sales Invoice");
+        SalesInvoiceHeader.SetRange("No.", GetLastNoUsedFromNoSeries(GenJournalTemplate."Posting No. Series"));
+        Assert.RecordCount(SalesInvoiceHeader, 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostSalesCreditMemoAfterFixedNoSeriesInSalesSetup()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        SalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        // [FEATURE] [No. Series] [Sales] [Credit Memo]
+        // [SCENARIO 363508] Stan can post Sales Credit Memo with blank posting no. series fields when he updated no. series in sales setup
+        Initialize();
+        ResetPostingNoSeriesOnSalesSetup();
+
+        LibrarySales.CreateSalesCreditMemo(SalesHeader);
+        Commit();
+
+        asserterror PostSalesDocument(SalesHeader, true, true);
+        Assert.ExpectedError(SalesHeader.FieldCaption("Return Receipt No. Series"));
+
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Posted Return Receipt Nos.", CreateNoSeriesCode());
+        SalesReceivablesSetup.Modify();
+        Commit();
+
+        PostSalesDocument(SalesHeader, true, true);
+
+        GenJournalTemplate.Get(SalesReceivablesSetup."Journal Templ. Sales Invoice");
+        SalesCrMemoHeader.SetRange("No.", GetLastNoUsedFromNoSeries(GenJournalTemplate."Posting No. Series"));
+        Assert.RecordCount(SalesCrMemoHeader, 1);
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        NoSeriesNumbersPrefix := IncStr(NoSeriesNumbersPrefix);
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Sales/Purch Status Error");
         LibraryVariableStorage.Clear;
         LibrarySetupStorage.Restore;
@@ -1553,8 +1830,11 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         LibraryERMCountryData.UpdateVATPostingSetup;
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
-        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
+        LibrarySetupStorage.SavePurchasesSetup();
+        LibrarySetupStorage.SaveSalesSetup();
         IsInitialized := true;
+        NoSeriesNumbersPrefix := '001';
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Sales/Purch Status Error");
     end;
@@ -1781,11 +2061,11 @@ codeunit 134383 "ERM Sales/Purch Status Error"
         GLAccount: Record "G/L Account";
     begin
         with GLAccount do begin
-          // TFS ID: 307158
-          if "Gen. Posting Type" = "Gen. Posting Type"::Purchase then
-            Get(LibraryERM.CreateGLAccountWithPurchSetup)
-          else
-            Get(LibraryERM.CreateGLAccountWithSalesSetup);
+            // TFS ID: 307158
+            if "Gen. Posting Type" = "Gen. Posting Type"::Purchase then
+                Get(LibraryERM.CreateGLAccountWithPurchSetup)
+            else
+                Get(LibraryERM.CreateGLAccountWithSalesSetup);
             Validate("Gen. Posting Type", GenPostingType);
             Validate("Income/Balance", "Income/Balance"::"Income Statement");
             Validate("Gen. Bus. Posting Group", GenBusPostingGroup);
@@ -1840,6 +2120,73 @@ codeunit 134383 "ERM Sales/Purch Status Error"
     begin
         Item.Get(ItemNo);
         exit(Item."Unit Cost");
+    end;
+
+    local procedure CreateNoSeriesCode(): Code[20]
+    var
+        NoSeriesLine: Record "No. Series Line";
+        NoSeriesCode: Code[20];
+    begin
+        NoSeriesCode := LibraryERM.CreateNoSeriesCode();
+        NoSeriesLine.SetRange("Series Code", NoSeriesCode);
+        NoSeriesLine.FindFirst();
+        NoSeriesLine."Starting No." := StrSubstNo('%1-000000', NoSeriesNumbersPrefix);
+        NoSeriesLine."Ending No." := StrSubstNo('%1-999999', NoSeriesNumbersPrefix);
+        NoSeriesLine.Modify();
+        exit(NoSeriesCode);
+    end;
+
+    local procedure GetLastNoUsedFromNoSeries(NoSeriesCode: Code[20]): Code[20]
+    var
+        NoSeriesLine: Record "No. Series Line";
+    begin
+        NoSeriesLine.SetRange("Series Code", NoSeriesCode);
+        NoSeriesLine.FindFirst();
+        exit(NoSeriesLine."Last No. Used");
+    end;
+
+    local procedure PostSalesDocument(var SalesHeader: Record "Sales Header"; NewShipReceive: Boolean; NewInvoice: Boolean)
+    var
+        SalesPost: Codeunit "Sales-Post";
+    begin
+        SalesHeader.Validate(Ship, NewShipReceive);
+        SalesHeader.Validate(Receive, NewShipReceive);
+        SalesHeader.Validate(Invoice, NewInvoice);
+        SalesPost.Run(SalesHeader)
+    end;
+
+    local procedure ResetPostingNoSeriesOnPurchaseSetup()
+    var
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+    begin
+        with PurchasesPayablesSetup do begin
+            Get();
+            "Posted Invoice Nos." := '';
+            "Posted Receipt Nos." := '';
+            "Posted Return Shpt. Nos." := '';
+            "Posted Credit Memo Nos." := '';
+            "Return Shipment on Credit Memo" := true;
+            "Receipt on Invoice" := true;
+            Modify();
+        end;
+        Commit();
+    end;
+
+    local procedure ResetPostingNoSeriesOnSalesSetup()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+    begin
+        with SalesReceivablesSetup do begin
+            Get();
+            "Posted Invoice Nos." := '';
+            "Posted Shipment Nos." := '';
+            "Posted Return Receipt Nos." := '';
+            "Posted Credit Memo Nos." := '';
+            "Return Receipt on Credit Memo" := true;
+            "Shipment on Invoice" := true;
+            Modify();
+        end;
+        Commit();
     end;
 
     local procedure RunSalesDocumentTestReport(DocumentType: Option; DocumentNo: Code[20])

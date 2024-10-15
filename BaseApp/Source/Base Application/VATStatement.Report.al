@@ -1,4 +1,4 @@
-report 12 "VAT Statement"
+﻿report 12 "VAT Statement"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './VATStatement.rdlc';
@@ -364,6 +364,7 @@ report 12 "VAT Statement"
                                 Amount2 := Amount;
                             end;
                     end;
+                    OnCalcLineTotalOnBeforeCalcTotalAmountVATEntryTotaling(VATStmtLine2, VATEntry, Amount);
                     CalcTotalAmount(VATStmtLine2, TotalAmount, NetAmountLCY);
                 end;
             VATStmtLine2.Type::"Row Totaling":
@@ -475,6 +476,11 @@ report 12 "VAT Statement"
         if PeriodSelection = PeriodSelection::"Before and Within Period" then
             exit(0D);
         exit(StartDate);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcLineTotalOnBeforeCalcTotalAmountVATEntryTotaling(VATStmtLine: Record "VAT Statement Line"; var VATEntry: Record "VAT Entry"; var Amount: Decimal)
+    begin
     end;
 }
 

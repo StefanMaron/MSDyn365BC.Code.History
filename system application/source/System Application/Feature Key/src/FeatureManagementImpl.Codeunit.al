@@ -4,15 +4,15 @@
 // ------------------------------------------------------------------------------------------------
 
 /// <summary>
-/// provides functionality for feature management
+/// Provides functionality for feature management.
 /// </summary>
 codeunit 2610 "Feature Management Impl."
 {
     Access = Internal;
 
     /// <summary>
-    /// Gets the url to let users try out a feature
-    /// <param name=FeatureKey>The feature key for the feature to try</param>
+    /// Gets the URL to let users try out a feature.
+    /// <param name="FeatureKey">The feature key for the feature to try.</param>
     /// </summary>
     procedure GetFeatureKeyUrlForWeb(FeatureKey: Text[50]): Text
     var

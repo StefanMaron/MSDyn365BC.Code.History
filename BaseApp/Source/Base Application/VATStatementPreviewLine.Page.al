@@ -1,4 +1,4 @@
-page 475 "VAT Statement Preview Line"
+﻿page 475 "VAT Statement Preview Line"
 {
     Caption = 'Lines';
     Editable = false;
@@ -76,6 +76,7 @@ page 475 "VAT Statement Preview Line"
                                         GLEntry.SetFilter("Document Type", '<>%1', "Document Type"::"Credit Memo")
                                     else
                                         GLEntry.SetRange("Document Type", "Document Type");
+                                    OnColumnValueDrillDownOnBeforeRunGeneralLedgerEntries(VATEntry, GLEntry, Rec);
                                     PAGE.Run(PAGE::"General Ledger Entries", GLEntry);
                                 end;
                             Type::"VAT Entry Totaling":
@@ -105,7 +106,7 @@ page 475 "VAT Statement Preview Line"
                                         Selection::"Open and Closed":
                                             VATEntry.SetRange(Closed);
                                     end;
-                                    OnBeforeOpenPageVATEntryTotaling(VATEntry, Rec);
+                                    OnBeforeOpenPageVATEntryTotaling(VATEntry, Rec, GLEntry);
                                     PAGE.Run(PAGE::"VAT Entries", VATEntry);
                                 end;
                             Type::"Row Totaling",
@@ -187,6 +188,8 @@ page 475 "VAT Statement Preview Line"
         UseAmtsInAddCurr := NewUseAmtsInAddCurr;
         VATStatement.InitializeRequest(VATStmtName, Rec, Selection, PeriodSelection, false, UseAmtsInAddCurr);
         CurrPage.Update;
+
+        OnAfterUpdateForm();
     end;
 
     local procedure ApplyDateFilter(var ManualVATCorrection: Record "Manual VAT Correction")
@@ -254,7 +257,17 @@ page 475 "VAT Statement Preview Line"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforeOpenPageVATEntryTotaling(var VATEntry: Record "VAT Entry"; var VATStatementLine: Record "VAT Statement Line")
+    local procedure OnBeforeOpenPageVATEntryTotaling(var VATEntry: Record "VAT Entry"; var VATStatementLine: Record "VAT Statement Line"; var GLEntry: Record "G/L Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnColumnValueDrillDownOnBeforeRunGeneralLedgerEntries(var VATEntry: Record "VAT Entry"; var GLEntry: Record "G/L Entry"; var VATStatementLine: Record "VAT Statement Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterUpdateForm()
     begin
     end;
 }

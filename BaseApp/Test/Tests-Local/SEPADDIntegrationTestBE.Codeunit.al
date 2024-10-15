@@ -163,6 +163,8 @@ codeunit 144009 "SEPA DD Integration Test - BE"
         DirectDebitCollectionEntry: Record "Direct Debit Collection Entry";
         CompanyInformation: Record "Company Information";
     begin
+        // [SCENARIO] SEPA DD xml export
+        // [SCENARIO 362887] Xml <Cdtr> node (2.19) doesn't include <BICOrBEI> field
         // Setup
         LibraryBEHelper.InitializeCompanyInformation;
         CompanyInformation.Get();
@@ -210,6 +212,12 @@ codeunit 144009 "SEPA DD Integration Test - BE"
         LibraryXMLRead.VerifyAttributeValueInSubtree('DrctDbtTxInf', 'InstdAmt', 'Ccy', 'EUR');
         LibraryXMLRead.VerifyNodeValueInSubtree('CdtrAcct', 'IBAN', BankAccount.IBAN);
         LibraryXMLRead.VerifyNodeValueInSubtree('FinInstnId', 'BIC', BankAccount."SWIFT Code");
+
+        // TFS 362887: <Cdtr> tag should not contain <BICOrBEI>
+        LibraryXMLRead.VerifyNodeValueInSubtree('Cdtr', 'Nm', CompanyInformation.Name);
+        LibraryXMLRead.VerifyNodeAbsenceInSubtree('Cdtr', 'Id');
+        LibraryXMLRead.VerifyNodeAbsenceInSubtree('Cdtr', 'OrgId');
+        LibraryXMLRead.VerifyNodeAbsenceInSubtree('Cdtr', 'BICOrBEI');
     end;
 
     [Test]

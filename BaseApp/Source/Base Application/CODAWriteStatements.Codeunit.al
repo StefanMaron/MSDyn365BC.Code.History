@@ -289,8 +289,11 @@
                     Validate("Account No.", GenJnlLine."Account No.");
                 "Applies-to ID" := GenJnlLine."Applies-to ID";
                 Validate("Unapplied Amount", "Unapplied Amount" - Amount);
-                Modify(true);
+            end else begin
+                Validate("Applies-to ID", GenJnlLine."Applies-to ID");
+                Validate("Unapplied Amount");
             end;
+            Modify(true);
             GenJnlLine.Get('', '', 0);
             GenJnlLine.Delete();
         end

@@ -140,7 +140,9 @@ codeunit 900 "Assembly-Post"
                 PostedAssemblyHeader."Order No." := "No.";
                 PostedAssemblyHeader."Source Code" := SourceCode;
                 PostedAssemblyHeader."User ID" := UserId;
+                OnPostOnBeforePostedAssemblyHeaderInsert(AssemblyHeader, PostedAssemblyHeader);
                 PostedAssemblyHeader.Insert();
+                OnPostOnAfterPostedAssemblyHeaderInsert(AssemblyHeader, PostedAssemblyHeader);
 
                 AssemblySetup.Get();
                 if AssemblySetup."Copy Comments when Posting" then begin
@@ -482,6 +484,7 @@ codeunit 900 "Assembly-Post"
                 AssemblyHeader, "Posting No. Series",
                 QtyToOutput, QtyToOutputBase,
                 ItemJnlPostLine, WhseJnlRegisterLine, "Posting No.", false, 0);
+            OnPostHeaderOnAfterPostItemOutput(AssemblyHeader, QtyToOutput, QtyToOutputBase);
 
             // modify the header
             "Assembled Quantity" := "Assembled Quantity" + QtyToOutput;
@@ -721,7 +724,13 @@ codeunit 900 "Assembly-Post"
         TempWhseJnlLine2: Record "Warehouse Journal Line" temporary;
         TempTrackingSpecification: Record "Tracking Specification" temporary;
         ItemTrackingMgt: Codeunit "Item Tracking Management";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePostWhseJnlLine(AssemblyHeader, ItemJnlLine, ItemJnlPostLine, WhseJnlRegisterLine, Location, SourceCode, IsHandled);
+        if IsHandled then
+            exit;
+
         GetLocation(ItemJnlLine."Location Code", Location);
         if not Location."Bin Mandatory" then
             exit;
@@ -1543,6 +1552,11 @@ codeunit 900 "Assembly-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforePostWhseJnlLine(AssemblyHeader: Record "Assembly Header"; ItemJnlLine: Record "Item Journal Line"; var ItemJnlPostLine: Codeunit "Item Jnl.-Post Line"; var WhseJnlRegisterLine: Codeunit "Whse. Jnl.-Register Line"; Location: Record Location; SourceCode: Code[10]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforePostedAssemblyLineInsert(var PostedAssemblyLine: Record "Posted Assembly Line"; AssemblyLine: Record "Assembly Line")
     begin
     end;
@@ -1553,7 +1567,22 @@ codeunit 900 "Assembly-Post"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostHeaderOnAfterPostItemOutput(var AssemblyHeader: Record "Assembly Header"; var HeaderQty: Decimal; var HeaderQtyBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostOnAfterPostedAssemblyHeaderInsert(AssemblyHeader: Record "Assembly Header"; var PostedAssemblyHeader: Record "Posted Assembly Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnPostOnAfterCopyComments(AssemblyHeader: Record "Assembly Header"; PostedAssemblyHeader: Record "Posted Assembly Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostOnBeforePostedAssemblyHeaderInsert(AssemblyHeader: Record "Assembly Header"; var PostedAssemblyHeader: Record "Posted Assembly Header")
     begin
     end;
 

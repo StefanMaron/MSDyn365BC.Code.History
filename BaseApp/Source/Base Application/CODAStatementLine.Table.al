@@ -322,6 +322,13 @@ table 2000041 "CODA Statement Line"
         field(49; "Applies-to ID"; Code[50])
         {
             Caption = 'Applies-to ID';
+            trigger OnValidate()
+            begin
+                if ("Applies-to ID" <> xRec."Applies-to ID") and ("Applies-to ID" = '') then begin
+                    Validate("Statement Amount", Amount + "Statement Amount");
+                    Validate(Amount, 0);
+                end;
+            end;
         }
         field(50; "Journal Template Name"; Code[10])
         {
@@ -420,15 +427,17 @@ table 2000041 "CODA Statement Line"
             Validate(Amount, 0);
             "Unapplied Amount" := "Statement Amount"
         end else
-            if "System-Created Entry" = false then begin
+            if "System-Created Entry" = false then
                 // set Application status to Partly applied if no application ledger entry is selected
-                if "Applies-to ID" = '' then
-                    "Application Status" := "Application Status"::"Partly applied"
-                else
+                if "Applies-to ID" = '' then begin
+                    "Application Status" := "Application Status"::"Partly applied";
+                    "Unapplied Amount" := "Statement Amount";
+                end else begin
                     "Application Status" := "Application Status"::Applied;
-                Validate(Amount, "Statement Amount");
-                "Unapplied Amount" := 0
-            end;
+                    Validate(Amount, "Statement Amount");
+                    Validate("Statement Amount", 0);
+                    "Unapplied Amount" := 0
+                end;
 
         // Lines with global info and details
         if Type = Type::Global then begin

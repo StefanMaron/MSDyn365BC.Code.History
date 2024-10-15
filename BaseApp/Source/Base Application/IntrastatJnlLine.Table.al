@@ -282,19 +282,13 @@ table 263 "Intrastat Jnl. Line"
     trigger OnModify()
     begin
         IntrastatJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-        if xRec.Type = Type::Receipt then
-            IntrastatJnlBatch.TestField("System 19 reported", false)
-        else
-            IntrastatJnlBatch.TestField("System 29 reported", false);
+        CheckBatchIsNotReported(IntrastatJnlBatch);
     end;
 
     trigger OnRename()
     begin
         IntrastatJnlBatch.Get(xRec."Journal Template Name", xRec."Journal Batch Name");
-        if Type = Type::Receipt then
-            IntrastatJnlBatch.TestField("System 19 reported", false)
-        else
-            IntrastatJnlBatch.TestField("System 29 reported", false);
+        CheckBatchIsNotReported(IntrastatJnlBatch);
     end;
 
     var
@@ -305,7 +299,14 @@ table 263 "Intrastat Jnl. Line"
         Text11300: Label 'Please enter a conversion factor for tariffno. %1.', Comment = '%1 = Tariff No';
 
     local procedure GetItemDescription()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetItemDescription(IsHandled);
+        if IsHandled then
+            exit;
+
         if "Tariff No." <> '' then begin
             TariffNumber.Get("Tariff No.");
             "Item Description" := TariffNumber.Description;
@@ -339,6 +340,31 @@ table 263 "Intrastat Jnl. Line"
         end;
 
         exit((("Journal Batch Name" <> '') and ("Journal Template Name" = '')) or (BatchFilter <> ''));
+    end;
+
+    local procedure CheckBatchIsNotReported(IntrastatJnlBatch: Record "Intrastat Jnl. Batch")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckBatchIsNotReported(xRec, IntrastatJnlBatch, IsHandled);
+        if IsHandled then
+            exit;
+
+        if xRec.Type = Type::Receipt then
+            IntrastatJnlBatch.TestField("System 19 reported", false)
+        else
+            IntrastatJnlBatch.TestField("System 29 reported", false);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeCheckBatchIsNotReported(xIntrastatJnlLine: Record "Intrastat Jnl. Line"; IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeGetItemDescription(var IsHandled: Boolean)
+    begin
     end;
 }
 

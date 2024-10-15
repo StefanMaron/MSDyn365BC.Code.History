@@ -8,6 +8,14 @@ codeunit 452 "Report Distribution Management"
 
     var
         HideDialog: Boolean;
+        SalesDocTypeTxt: Label 'Sales';
+        PurchaseDocTypeTxt: Label 'Purchase';
+        ServiceDocTypeTxt: Label 'Service';
+        ShipmentDocTypeTxt: Label 'Shipment';
+        JobQuoteDocTypeTxt: Label 'Job Quote';
+        ReturnReceiptDocTypeTxt: Label 'Receipt';
+        IssuedReminderDocTypeTxt: Label 'Issued Reminder';
+        IssuedFinChargeMemoDocTypeTxt: Label 'Issued Finance Charge Memo';
 
     [Scope('OnPrem')]
     procedure VANDocumentReport(HeaderDoc: Variant; TempDocumentSendingProfile: Record "Document Sending Profile" temporary)
@@ -55,39 +63,55 @@ codeunit 452 "Report Distribution Management"
         HideDialog := NewHideDialog;
     end;
 
-    local procedure GetDocumentType(DocumentVariant: Variant) DocumentTypeText: Text[50]
+    procedure GetFullDocumentTypeText(DocumentVariant: Variant) DocumentTypeText: Text[50]
     var
-        DummySalesHeader: Record "Sales Header";
-        DummyServiceHeader: Record "Service Header";
-        DummyPurchaseHeader: Record "Purchase Header";
+        SalesHeader: Record "Sales Header";
+        PurchaseHeader: Record "Purchase Header";
+        ServiceHeader: Record "Service Header";
         TranslationHelper: Codeunit "Translation Helper";
         DocumentRecordRef: RecordRef;
     begin
+        if DocumentVariant.IsRecord then
+            DocumentRecordRef.GetTable(DocumentVariant)
+        else
+            if DocumentVariant.IsRecordRef then
+                DocumentRecordRef := DocumentVariant;
+
         TranslationHelper.SetGlobalLanguageByCode(GetDocumentLanguageCode(DocumentVariant));
 
-        DocumentRecordRef.GetTable(DocumentVariant);
         case DocumentRecordRef.Number of
             DATABASE::"Sales Invoice Header":
-                DocumentTypeText := Format(DummySalesHeader."Document Type"::Invoice);
+                DocumentTypeText := StrSubstNo('%1 %2', SalesDocTypeTxt, Format(SalesHeader."Document Type"::Invoice));
             DATABASE::"Sales Cr.Memo Header":
-                DocumentTypeText := Format(DummySalesHeader."Document Type"::"Credit Memo");
+                DocumentTypeText := StrSubstNo('%1 %2', SalesDocTypeTxt, Format(SalesHeader."Document Type"::"Credit Memo"));
+            Database::"Sales Shipment Header":
+                DocumentTypeText := StrSubstNo('%1 %2', SalesDocTypeTxt, ShipmentDocTypeTxt);
             DATABASE::"Service Invoice Header":
-                DocumentTypeText := Format(DummyServiceHeader."Document Type"::Invoice);
+                DocumentTypeText := StrSubstNo('%1 %2', ServiceDocTypeTxt, Format(ServiceHeader."Document Type"::Invoice));
             DATABASE::"Service Cr.Memo Header":
-                DocumentTypeText := Format(DummyServiceHeader."Document Type"::"Credit Memo");
-            DATABASE::"Purchase Header":
-                DocumentTypeText := Format(DummyPurchaseHeader."Document Type"::Order);
-            DATABASE::"Service Header":
-                begin
-                    DummyServiceHeader := DocumentVariant;
-                    if DummyServiceHeader."Document Type" = DummyServiceHeader."Document Type"::Quote then
-                        DocumentTypeText := Format(DummyServiceHeader."Document Type"::Quote);
-                end;
+                DocumentTypeText := StrSubstNo('%1 %2', ServiceDocTypeTxt, Format(ServiceHeader."Document Type"::"Credit Memo"));
+            DATABASE::Job:
+                DocumentTypeText := JobQuoteDocTypeTxt;
+            Database::"Return Receipt Header":
+                DocumentTypeText := StrSubstNo('%1 %2', SalesDocTypeTxt, ReturnReceiptDocTypeTxt);
+            Database::"Issued Reminder Header":
+                DocumentTypeText := IssuedReminderDocTypeTxt;
+            Database::"Issued Fin. Charge Memo Header":
+                DocumentTypeText := IssuedFinChargeMemoDocTypeTxt;
             DATABASE::"Sales Header":
                 begin
-                    DummySalesHeader := DocumentVariant;
-                    if DummySalesHeader."Document Type" = DummySalesHeader."Document Type"::Quote then
-                        DocumentTypeText := Format(DummySalesHeader."Document Type"::Quote);
+                    DocumentRecordRef.SetTable(SalesHeader);
+                    DocumentTypeText := StrSubstNo('%1 %2', SalesDocTypeTxt, Format(SalesHeader."Document Type"));
+                end;
+            DATABASE::"Purchase Header":
+                begin
+                    DocumentRecordRef.SetTable(PurchaseHeader);
+                    DocumentTypeText := StrSubstNo('%1 %2', PurchaseDocTypeTxt, Format(PurchaseHeader."Document Type"));
+                end;
+            DATABASE::"Service Header":
+                begin
+                    DocumentRecordRef.SetTable(ServiceHeader);
+                    DocumentTypeText := StrSubstNo('%1 %2', ServiceDocTypeTxt, Format(ServiceHeader."Document Type"));
                 end;
         end;
 
@@ -278,7 +302,7 @@ codeunit 452 "Report Distribution Management"
           SendToEmailAddress,
           XMLPath,
           ClientFileName,
-          GetDocumentType(DocumentVariant),
+          GetFullDocumentTypeText(DocumentVariant),
           DocumentSendingProfile."Send To"::"Electronic Document",
           ServerEmailBodyFilePath, ReportUsage);
     end;
@@ -312,7 +336,7 @@ codeunit 452 "Report Distribution Management"
           SendToEmailAddress,
           XMLPath,
           ClientFileName,
-          GetDocumentType(DocumentVariant),
+          GetFullDocumentTypeText(DocumentVariant),
           DocumentSendingProfile."Send To"::"Electronic Document",
           ServerEmailBodyFilePath, ReportUsage);
     end;

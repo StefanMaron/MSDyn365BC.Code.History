@@ -140,23 +140,6 @@ xmlport 1010 "SEPA DD pain.008.001.02"
                         {
                             XmlName = 'Nm';
                         }
-                        textelement(cdrid)
-                        {
-                            XmlName = 'Id';
-                            textelement(cdrorgid)
-                            {
-                                XmlName = 'OrgId';
-                                fieldelement(BICOrBEI; PaymentExportDataGroup."Sender Bank BIC")
-                                {
-                                }
-                            }
-
-                            trigger OnBeforePassVariable()
-                            begin
-                                if PaymentExportDataGroup."Sender Bank BIC" = '' then
-                                    currXMLport.Skip;
-                            end;
-                        }
                     }
                     textelement(CdtrAcct)
                     {
