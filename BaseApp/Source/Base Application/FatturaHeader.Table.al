@@ -134,6 +134,14 @@ table 12203 "Fattura Header"
             Caption = 'Appl. Fattura Tender Code';
             TableRelation = "Fattura Project Info".Code WHERE(Type = FILTER(Tender));
         }
+        field(74; "External Document No."; Code[35])
+        {
+            Caption = 'External Document No.';
+        }
+        field(75; "Self-Billing Document"; Boolean)
+        {
+            Caption = 'Self-Billing Document';
+        }
     }
 
     keys

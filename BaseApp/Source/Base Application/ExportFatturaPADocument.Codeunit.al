@@ -627,13 +627,20 @@ codeunit 12179 "Export FatturaPA Document"
     end;
 
     local procedure PopulateApplicationData(TempFatturaHeader: Record "Fattura Header" temporary)
+    var
+        AppliedDocNo: Code[35];
     begin
-        if TempFatturaHeader."Applied Doc. No." = '' then
+        if TempFatturaHeader."Self-Billing Document" then
+            AppliedDocNo := TempFatturaHeader."External Document No."
+        else
+            AppliedDocNo := TempFatturaHeader."Applied Doc. No.";
+
+        if AppliedDocNo = '' then
             exit;
 
         with TempXMLBuffer do begin
             AddGroupElement('DatiFattureCollegate');
-            AddNonEmptyElement('IdDocumento', TempFatturaHeader."Applied Doc. No.");
+            AddNonEmptyElement('IdDocumento', AppliedDocNo);
             AddNonEmptyElement('Data', FormatDate(TempFatturaHeader."Applied Posting Date"));
             AddNonEmptyElement('CodiceCUP', TempFatturaHeader."Appl. Fattura Project Code");
             AddNonEmptyElement('CodiceCIG', TempFatturaHeader."Appl. Fattura Tender Code");

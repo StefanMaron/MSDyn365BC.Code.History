@@ -73,8 +73,10 @@ codeunit 144001 "IT - Non Ded. VAT"
         PurchaseHeader: Record "Purchase Header";
         PurchLine: Record "Purchase Line";
         VATPostingSetup: Record "VAT Posting Setup";
+        GLEntry: Record "G/L Entry";
         DocumentNo: Code[20];
         NonDeductGLAccountNo: Code[20];
+        FAAccountNo: Code[20];
         LineAmount: Decimal;
         TotalAmount: Decimal;
         OldDeductiblePercent: Decimal;
@@ -91,7 +93,16 @@ codeunit 144001 "IT - Non Ded. VAT"
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
 
         // [THEN] G/L Entry posted with G/L Account No. = "X" and Non Deductible VAT Amount = "Y"
-        VerifyGLAccountBalance(DocumentNo, GetAcquisitionAccFromPurchLine(PurchLine), TotalAmount);
+        FAAccountNo := GetAcquisitionAccFromPurchLine(PurchLine);
+        VerifyGLAccountBalance(DocumentNo, FAAccountNo, TotalAmount);
+
+        // [THEN] There are 2 G/L Entries with linked Fixed Asset Ledger entries (TFS 409121)
+        GLEntry.SetRange("G/L Account No.", FAAccountNo);
+        Assert.RecordCount(GLEntry, 2);
+        GLEntry.FindFirst();
+        VerifyGLEntryFAEntryLinedPair(GLEntry);
+        GLEntry.Next();
+        VerifyGLEntryFAEntryLinedPair(GLEntry);
 
         // Tear Down.
         VATPostingSetup.Validate("Deductible %", OldDeductiblePercent);
@@ -939,6 +950,17 @@ codeunit 144001 "IT - Non Ded. VAT"
             Assert.RecordCount(GLEntry, 2)
         else
             Assert.RecordCount(GLEntry, 4);
+    end;
+
+    local procedure VerifyGLEntryFAEntryLinedPair(GLEntry: Record "G/L Entry")
+    var
+        FALedgerEntry: Record "FA Ledger Entry";
+    begin
+        GLEntry.TestField("FA Entry Type");
+        GLEntry.TestField("FA Entry No.");
+        FALedgerEntry.Get(GLEntry."FA Entry No.");
+        FALedgerEntry.TestField("G/L Entry No.", GLEntry."Entry No.");
+        FALedgerEntry.TestField(Amount, GLEntry.Amount);
     end;
 }
 

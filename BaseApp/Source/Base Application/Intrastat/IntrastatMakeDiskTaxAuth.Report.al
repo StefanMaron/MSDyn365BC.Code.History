@@ -21,7 +21,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 begin
                     TotalLines := TotalLines + 1;
                     if IntrastatSetup."Use Advanced Checklist" then
-                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Make Disk Tax Auth", true)
+                        IntraJnlManagement.ValidateReportWithAdvancedChecklist("Intrastat Jnl. Line", Report::"Intrastat - Make Disk Tax Auth", false)
                     else begin
                         TestField("Country/Region Code");
                         TestField("Partner VAT ID");
@@ -134,6 +134,12 @@ report 593 "Intrastat - Make Disk Tax Auth"
                 trigger OnPreDataItem()
                 begin
                     TotalAmount := 0;
+                end;
+
+                trigger OnPostDataItem()
+                begin
+                    if IntrastatSetup."Use Advanced Checklist" then
+                        IntraJnlManagement.CheckForJournalBatchError("Intrastat Jnl. Line", true);
                 end;
             }
             dataitem("Intra - form Buffer"; "Intra - form Buffer")

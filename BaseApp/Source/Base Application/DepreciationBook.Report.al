@@ -1138,14 +1138,14 @@ report 12119 "Depreciation Book"
         Total[3] := DisposalAmounts[1] + DisposalAmounts[3] + DisposalAmounts[4];
         Total[4] := TotalEndingAmounts[1] + TotalEndingAmounts[3] + TotalEndingAmounts[4];
         Total[5] := StartingAccumulated;
-        Total[6] := DisposalAmounts[2] + DisposalAmounts[5] + DisposalAmounts[6];
+        Total[6] := DisposalAmounts[2] + DisposalAmounts[5] + DisposalAmounts[6] - ReclassAmount[5];
         Total[7] := BasicDepreciationPerc;
         Total[8] := NetChangeAmounts[2];
         Total[9] := AntAccDepreciationPerc;
         Total[10] := AntAccDepreciation;
         Total[11] := BasicDepreciationPerc + AntAccDepreciationPerc;
         Total[12] := NetChangeAmounts[2] + AntAccDepreciation;
-        Total[13] := TotalEndingAmounts[2] + TotalEndingAmounts[5] + TotalEndingAmounts[6];
+        Total[13] := TotalEndingAmounts[2] + TotalEndingAmounts[5] + TotalEndingAmounts[6] - ReclassAmount[5];
         Total[14] := BookValueAtEndingDate;
     end;
 
