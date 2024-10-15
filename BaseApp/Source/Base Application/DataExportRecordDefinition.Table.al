@@ -35,6 +35,7 @@ table 11003 "Data Export Record Definition"
             Caption = 'Export Path';
             ObsoleteReason = 'This field is obsolete after refactoring.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(5; "DTD File Name"; Text[50])
         {

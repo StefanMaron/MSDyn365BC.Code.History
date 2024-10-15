@@ -4,6 +4,7 @@ report 11511 "Item Copy"
     ProcessingOnly = true;
     ObsoleteState = Pending;
     ObsoleteReason = 'Replaced by Copy Item page';
+    ObsoleteTag = '15.3';
 
     dataset
     {

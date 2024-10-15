@@ -48,6 +48,7 @@ table 5330 "CRM Connection Setup"
             Editable = false;
             ObsoleteState = Removed;
             ObsoleteReason = 'Moved this field to Table 5328 - CRM Synch Status as this field is getting updated by job queue and it is blocking the record. ';
+            ObsoleteTag = '15.0';
         }
         field(59; "Restore Connection"; Boolean)
         {
@@ -911,7 +912,7 @@ table 5330 "CRM Connection Setup"
         CRMConnectionSetup."Is User Mapping Required" := false;
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem','15.1')]
     procedure RefreshDataFromCRM()
     var
         TempCRMConnectionSetup: Record "CRM Connection Setup" temporary;

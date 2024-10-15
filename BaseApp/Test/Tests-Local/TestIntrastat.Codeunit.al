@@ -20,6 +20,7 @@ codeunit 134153 "Test Intrastat"
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         ReportedMustBeNoErr: Label 'Reported must be equal to ''No''  in Intrastat Jnl. Batch';
         TransactionTypeMustHaveValueErr: Label 'Transaction Type must have a value in Intrastat Jnl. Line';
@@ -34,7 +35,7 @@ codeunit 134153 "Test Intrastat"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         Filename: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
@@ -64,7 +65,7 @@ codeunit 134153 "Test Intrastat"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         Filename: Text;
     begin
-        Initialize;
+        Initialize();
 
         // Setup
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
@@ -92,7 +93,7 @@ codeunit 134153 "Test Intrastat"
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         DACHReportSelections: Record "DACH Report Selections";
     begin
-        Initialize;
+        Initialize();
         DACHReportSelections.SetRange(Usage, DACHReportSelections.Usage::"Intrastat Form");
         DACHReportSelections.SetRange("Report ID", REPORT::"Intrastat - Form DE");
         DACHReportSelections.DeleteAll;
@@ -135,7 +136,7 @@ codeunit 134153 "Test Intrastat"
     begin
         // [SCENARIO 362690] Intrastat Journal Line Amount = Item."Unit Price" after Sales Order posting with Quantity = 1
         // [FEATURE] [Sales] [Order]
-        Initialize;
+        Initialize();
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
 
         // [GIVEN] Item with "Unit Price" = "X"
@@ -162,7 +163,7 @@ codeunit 134153 "Test Intrastat"
     begin
         // [SCENARIO 362690] Intrastat Journal Line Amount = Item."Unit Price" after Sales Return Order posting with Quantity = 1
         // [FEATURE] [Sales] [Return Order]
-        Initialize;
+        Initialize();
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
 
         // [GIVEN] Item with "Unit Price" = "X"
@@ -189,7 +190,7 @@ codeunit 134153 "Test Intrastat"
     begin
         // [SCENARIO 362690] Intrastat Journal Line Amount = Item."Last Direct Cost" after Purchase Order posting with Quantity = 1
         // [FEATURE] [Purchase] [Order]
-        Initialize;
+        Initialize();
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
 
         // [GIVEN] Item with "Last Direct Cost" = "X"
@@ -216,7 +217,7 @@ codeunit 134153 "Test Intrastat"
     begin
         // [SCENARIO 362690] Intrastat Journal Line Amount = Item."Last Direct Cost" after Purchase Return Order posting with Quantity = 1
         // [FEATURE] [Purchase] [Return Order]
-        Initialize;
+        Initialize();
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
 
         // [GIVEN] Item with "Last Direct Cost" = "X"
@@ -240,7 +241,7 @@ codeunit 134153 "Test Intrastat"
     begin
         // [FEATURE] [UI] [UT]
         // [SCENARIO 331036] Statistical Value is editable on Intrastat Journal page
-        Initialize;
+        Initialize();
         RunIntrastatJournal(IntrastatJournal);
         Assert.IsTrue(IntrastatJournal."Statistical Value".Editable, '');
     end;
@@ -255,7 +256,7 @@ codeunit 134153 "Test Intrastat"
     begin
         // [FEATURE] [Report] [Export]
         // [SCENARIO 331036] 'Intrastat - Make Disk Tax Auth' report with Amount = 0 and given Statistical Value
-        Initialize;
+        Initialize();
 
         // [GIVEN] Intrastat Journal Line has blank Item No., Amount = 0 and Statistical Value = 100, all mandatory fields are filled in.
         CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
@@ -284,21 +285,27 @@ codeunit 134153 "Test Intrastat"
     var
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
     begin
-        LibraryVariableStorage.Clear;
-        LibraryReportDataset.Reset;
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Test Intrastat");
+
+        LibraryVariableStorage.Clear();
+        LibraryReportDataset.Reset();
         IntrastatJnlTemplate.DeleteAll(true);
 
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGeneralLedgerSetup;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        SetIntrastatCodeOnCountryRegion;
-        SetTariffNoOnItems;
-        SetDACHReportSelection;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Test Intrastat");
+
+        LibraryERMCountryData.UpdateGeneralLedgerSetup();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        SetIntrastatCodeOnCountryRegion();
+        SetTariffNoOnItems();
+        SetDACHReportSelection();
 
         IsInitialized := true;
-        Commit;
+        Commit();
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Test Intrastat");
     end;
 
     local procedure CreateIntrastatJournalTemplateAndBatch(var IntrastatJnlBatch: Record "Intrastat Jnl. Batch"; PostingDate: Date)

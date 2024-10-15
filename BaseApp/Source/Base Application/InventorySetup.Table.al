@@ -248,6 +248,7 @@ table 313 "Inventory Setup"
             ObsoleteReason = 'Merged to W1';
             ObsoleteState = Pending;
             TableRelation = "No. Series";
+            ObsoleteTag = '15.0';
         }
         field(5005352; "Posted Phys. Inv. Order Nos."; Code[20])
         {
@@ -255,6 +256,7 @@ table 313 "Inventory Setup"
             ObsoleteReason = 'Merged to W1';
             ObsoleteState = Pending;
             TableRelation = "No. Series";
+            ObsoleteTag = '15.0';
         }
     }
 

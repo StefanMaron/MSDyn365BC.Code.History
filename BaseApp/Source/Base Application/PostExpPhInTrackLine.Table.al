@@ -3,6 +3,7 @@ table 5005362 "Post. Exp. Ph. In. Track. Line"
     Caption = 'Post. Exp. Ph. In. Track. Line';
     ObsoleteReason = 'Merged to W1';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.0';
 
     fields
     {

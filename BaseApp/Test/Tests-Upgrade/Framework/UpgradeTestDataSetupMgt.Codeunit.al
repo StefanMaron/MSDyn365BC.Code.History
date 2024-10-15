@@ -1,4 +1,4 @@
-codeunit 128000 "Upgrade Test Data Setup Mgt."
+codeunit 132800 "Upgrade Test Data Setup Mgt."
 {
     [IntegrationEvent(false, false)]
     procedure OnSetupDataPerCompany()

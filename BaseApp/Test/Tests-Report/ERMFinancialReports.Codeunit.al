@@ -24,6 +24,7 @@ codeunit 134982 "ERM Financial Reports"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryTextFileValidation: Codeunit "Library - Text File Validation";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         FileManagement: Codeunit "File Management";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
@@ -64,7 +65,7 @@ codeunit 134982 "ERM Financial Reports"
         // Validate Detail Trial Balance Report when setting a date range or date filter.
 
         // Setup: Create and post General Journal Lines.
-        Initialize;
+        Initialize();
         LibraryERM.CreateGLAccount(GLAccount);
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", 1);
@@ -1219,23 +1220,29 @@ codeunit 134982 "ERM Financial Reports"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryReportValidation: Codeunit "Library - Report Validation";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Financial Reports");
+
         // Lazy Setup.
-        LibrarySetupStorage.Restore;
-        LibraryVariableStorage.Clear;
+        LibrarySetupStorage.Restore();
+        LibraryVariableStorage.Clear();
 
         LibraryReportValidation.DeleteObjectOptions(CurrentSaveValuesId);
 
         if IsInitialized then
             exit;
 
-        LibraryERMCountryData.UpdateGenJournalTemplate;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateLocalData;
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM Financial Reports");
+
+        LibraryERMCountryData.UpdateGenJournalTemplate();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateLocalData();
         IsInitialized := true;
         Commit;
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Company Information");
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM Financial Reports");
     end;
 
     local procedure CreateAndPostGenLine(var GenJournalLine: Record "Gen. Journal Line")

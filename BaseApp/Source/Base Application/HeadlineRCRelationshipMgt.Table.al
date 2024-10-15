@@ -3,6 +3,7 @@ table 1444 "Headline RC Relationship Mgt."
     Caption = 'Headline RC Relationship Mgt.';
     ObsoleteState = Removed;
     ObsoleteReason = 'Replaced with "RC Headlines User Data" table';
+    ObsoleteTag = '15.0';
 
     fields
     {

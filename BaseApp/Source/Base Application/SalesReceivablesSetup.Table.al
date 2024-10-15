@@ -207,6 +207,7 @@ table 311 "Sales & Receivables Setup"
             Caption = 'Archive Quotes and Orders';
             ObsoleteReason = 'Replaced by new fields Archive Quotes and Archive Orders';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(38; "Post with Job Queue"; Boolean)
         {
@@ -354,6 +355,7 @@ table 311 "Sales & Receivables Setup"
             ObsoleteState = Pending;
             OptionCaption = 'Manual,Automatic,Always Ask';
             OptionMembers = Manual,Automatic,"Always Ask";
+            ObsoleteTag = '15.0';
         }
         field(171; "Insert Std. Lines on Quotes"; Boolean)
         {
@@ -361,6 +363,7 @@ table 311 "Sales & Receivables Setup"
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Not needed after refactoring';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(172; "Insert Std. Lines on Orders"; Boolean)
         {
@@ -368,6 +371,7 @@ table 311 "Sales & Receivables Setup"
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Not needed after refactoring';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(173; "Insert Std. Lines on Invoices"; Boolean)
         {
@@ -375,6 +379,7 @@ table 311 "Sales & Receivables Setup"
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Not needed after refactoring';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(174; "Insert Std. Lines on Cr. Memos"; Boolean)
         {
@@ -382,6 +387,7 @@ table 311 "Sales & Receivables Setup"
             DataClassification = SystemMetadata;
             ObsoleteReason = 'Not needed after refactoring';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(200; "Quote Validity Calculation"; DateFormula)
         {
@@ -476,12 +482,14 @@ table 311 "Sales & Receivables Setup"
             Caption = 'Block ship. when neg. invent.';
             ObsoleteReason = 'Replaced by W1 feature';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(5005130; "Arch. Orders and Ret. Orders"; Boolean)
         {
             Caption = 'Arch. Orders and Ret. Orders';
             ObsoleteReason = 'Merged to W1';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(5005132; "Archiving Sales Quote"; Option)
         {
@@ -490,12 +498,14 @@ table 311 "Sales & Receivables Setup"
             ObsoleteState = Pending;
             OptionCaption = 'Never,Question,Always';
             OptionMembers = Never,Question,Always;
+            ObsoleteTag = '15.0';
         }
         field(5005133; "Archiving Blanket Sales Order"; Boolean)
         {
             Caption = 'Archiving Blanket Sales Order';
             ObsoleteReason = 'Merged to W1';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
         field(5005134; "Batch Archiving Sales Quote"; Boolean)
         {
@@ -504,6 +514,7 @@ table 311 "Sales & Receivables Setup"
             InitValue = false;
             ObsoleteReason = 'Merged to W1';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
     }
 

@@ -96,7 +96,7 @@ table 336 "Tracking Specification"
                     WMSManagement.CheckItemTrackingChange(Rec, xRec);
                     if not SkipSerialNoQtyValidation then
                         CheckSerialNoQty;
-                    InitExpirationDate;
+                    InitExpirationDate();
                 end;
             end;
         }
@@ -718,7 +718,14 @@ table 336 "Tracking Specification"
     end;
 
     local procedure CheckSerialNoQty()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckSerialNoQty(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if "Serial No." = '' then
             exit;
         if not ("Quantity (Base)" in [-1, 0, 1]) then
@@ -816,6 +823,8 @@ table 336 "Tracking Specification"
             "New Expiration Date" := "Expiration Date";
             "Warranty Date" := ItemTrackingMgt.ExistingWarrantyDate("Item No.", "Variant Code", "Lot No.", "Serial No.", EntriesExist);
         end;
+
+        OnAfterInitExpirationDate(Rec);
     end;
 
     procedure IsReclass(): Boolean
@@ -1229,6 +1238,16 @@ table 336 "Tracking Specification"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterInitExpirationDate(var TrackingSpecification: Record "Tracking Specification")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromEntrySummary(var TrackingSpecification: Record "Tracking Specification"; EntrySummary: Record "Entry Summary")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterCopyTrackingFromItemLedgEntry(var TrackingSpecification: Record "Tracking Specification"; ItemLedgerEntry: Record "Item Ledger Entry")
     begin
     end;
@@ -1255,6 +1274,11 @@ table 336 "Tracking Specification"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateApplFromItemEntry(var TrackingSpecification: Record "Tracking Specification"; ItemLedgerEntry: Record "Item Ledger Entry"; IsReclassification: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckSerialNoQty(var TrackingSpecification: Record "Tracking Specification"; var IsHandled: Boolean)
     begin
     end;
 

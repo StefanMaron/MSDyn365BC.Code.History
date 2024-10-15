@@ -248,8 +248,8 @@ report 321 "Vendor - Balance to Date"
                 SetRange("Date Filter", 0D, MaxDate);
                 CalcFields("Net Change (LCY)", "Net Change");
 
-                if (PrintAmountInLCY and ("Net Change (LCY)" = 0) or
-                    (not PrintAmountInLCY) and ("Net Change" = 0)) and
+                if ("Net Change (LCY)" = 0) and
+                   ("Net Change" = 0) and
                    (not ShowEntriesWithZeroBalance)
                 then
                     CurrReport.Skip;

@@ -14,6 +14,7 @@ codeunit 142061 "ERM Batch Reports DACH"
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
 
     [Test]
@@ -27,7 +28,7 @@ codeunit 142061 "ERM Batch Reports DACH"
     begin
         // [FEATURE] [Fixed Asset] [VAT] [Sales] [G/L Entry - VAT Entry Link]
         // [SCENARIO 202344] VATEntry."G/L Account No." = FAPostingGroup."Sales Acc. on Disp. (Loss)" when post fixed asset sales invoice with "Depr. until FA Posting Date" = TRUE
-        Initialize;
+        Initialize();
 
         // [GIVEN] Fixed Asset "FA" with "Sales Acc. on Disp. (Loss)" = "DispLossGLAcc", "Disposal Calculation Method" = "Gross", "VAT on Net Disposal Entries" = TRUE
         FANo := CreateFAWithBook;
@@ -47,13 +48,17 @@ codeunit 142061 "ERM Batch Reports DACH"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibraryVariableStorage.Clear;
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Batch Reports DACH");
+
+        LibraryVariableStorage.Clear();
         if IsInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM Batch Reports DACH");
         IsInitialized := true;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
-        Commit;
+        Commit();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM Batch Reports DACH");
     end;
 
     local procedure CreateFAWithBook(): Code[20]

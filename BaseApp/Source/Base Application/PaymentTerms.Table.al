@@ -44,6 +44,7 @@ table 3 "Payment Terms"
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
     }
 

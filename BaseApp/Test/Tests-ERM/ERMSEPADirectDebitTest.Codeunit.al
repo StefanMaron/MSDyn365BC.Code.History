@@ -18,6 +18,7 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryXMLRead: Codeunit "Library - XML Read";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         ServerFileName: Text;
         IsInitialized: Boolean;
         NoEntriesErr: Label 'No entries have been created.', Comment = '%1=Field;%2=Table;%3=Field;%4=Table';
@@ -487,15 +488,21 @@ codeunit 134406 "ERM SEPA Direct Debit Test"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM SEPA Direct Debit Test");
+
         LibraryVariableStorage.Clear;
         Found := true;
 
         if IsInitialized then
             exit;
 
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM SEPA Direct Debit Test");
+
         LibraryERMCountryData.CreateVATData;
         Commit;
         IsInitialized := true;
+
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM SEPA Direct Debit Test");
     end;
 
     local procedure CreateCustomerWithBankAccount(var Customer: Record Customer; var CustomerBankAccount: Record "Customer Bank Account"; PaymentMethodCode: Code[10]; PartnerType: Option)

@@ -3,6 +3,7 @@ table 7822 "MS-QBO Invoice"
     Caption = 'MS-QBO Invoice';
     ObsoleteReason = 'replacing burntIn Extension tables with V2 Extension';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.0';
 
     fields
     {

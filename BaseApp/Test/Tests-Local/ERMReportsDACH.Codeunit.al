@@ -63,6 +63,7 @@ codeunit 142062 "ERM Reports DACH"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IsInitialized: Boolean;
         RowNotFound: Label 'There is no dataset row corresponding to Element Name %1 with value %2', Comment = '%1=Field Caption;%2=Field Value';
         ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
@@ -75,7 +76,7 @@ codeunit 142062 "ERM Reports DACH"
         SetupInformation: Option "G/L Setup - Company Data - Consolidation","Posting Groups","Posting Matrix","VAT Setup","Source Code - Reason Code","Check Number Series";
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         RunGLSetupInformation(SetupInformation::"G/L Setup - Company Data - Consolidation");
@@ -92,7 +93,7 @@ codeunit 142062 "ERM Reports DACH"
         SetupInformation: Option "G/L Setup - Company Data - Consolidation","Posting Groups","Posting Matrix","VAT Setup","Source Code - Reason Code","Check Number Series";
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         RunGLSetupInformation(SetupInformation::"Posting Groups");
@@ -113,7 +114,7 @@ codeunit 142062 "ERM Reports DACH"
         SetupInformation: Option "G/L Setup - Company Data - Consolidation","Posting Groups","Posting Matrix","VAT Setup","Source Code - Reason Code","Check Number Series";
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         RunGLSetupInformation(SetupInformation::"Posting Matrix");
@@ -133,7 +134,7 @@ codeunit 142062 "ERM Reports DACH"
         SetupInformation: Option "G/L Setup - Company Data - Consolidation","Posting Groups","Posting Matrix","VAT Setup","Source Code - Reason Code","Check Number Series";
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         RunGLSetupInformation(SetupInformation::"VAT Setup");
@@ -153,7 +154,7 @@ codeunit 142062 "ERM Reports DACH"
         SetupInformation: Option "G/L Setup - Company Data - Consolidation","Posting Groups","Posting Matrix","VAT Setup","Source Code - Reason Code";
     begin
         // Setup.
-        Initialize;
+        Initialize();
 
         // Exercise.
         RunGLSetupInformation(SetupInformation::"Source Code - Reason Code");
@@ -172,7 +173,7 @@ codeunit 142062 "ERM Reports DACH"
         GenJournalLine: Record "Gen. Journal Line";
     begin
         // Setup: Create General Journal Line.
-        Initialize;
+        Initialize();
         CreateGeneralJournalLine(GenJournalLine);
 
         // Exercise.
@@ -196,7 +197,7 @@ codeunit 142062 "ERM Reports DACH"
     begin
         // [FEATURE] [SCM] [Inventory Value]
         // [SCENARIO 379976] Inventory Value Report should correct illustrate expected cost and total cost after posting item journal line and purchase receipt.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post Item Journal Line, "Cost Amount (Expected)" = 0, "Cost Amount (Actual)" = "X".
         CreateItem(Item);
@@ -228,7 +229,7 @@ codeunit 142062 "ERM Reports DACH"
     begin
         // [FEATURE] [SCM] [Inventory Value]
         // [SCENARIO 379976] Inventory Value Report should correct illustrate expected cost and total cost after posting item journal line and purchase receipt for diffrent inventory posting groups.
-        Initialize;
+        Initialize();
 
         // [GIVEN] Create and post Item Journal Line for first item, "Cost Amount (Expected)" = 0, "Cost Amount (Actual)" = "X".
         CreateItemWithInventoryPostingGroup(Item[1]);
@@ -270,7 +271,7 @@ codeunit 142062 "ERM Reports DACH"
         // [FEATURE] [SCM] [Inventory Value]
         // [SCENARIO 379976] Inventory valuation report should include cost amount posted on status date and skip amount on later date
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with unit cost = "X"
         CreateItem(Item);
@@ -301,7 +302,7 @@ codeunit 142062 "ERM Reports DACH"
         // [FEATURE] [SCM] [Inventory Value]
         // [SCENARIO 379976] Inventory valuation report should include cost amount posted on status date and skip amount on later date when puchase document is partially invoiced on different dates
 
-        Initialize;
+        Initialize();
 
         // [GIVEN] Item "I" with unit cost = 100
         CreateItem(Item);
@@ -341,7 +342,7 @@ codeunit 142062 "ERM Reports DACH"
         Item: Record Item;
     begin
         // Setup: Create and post Item Journal Line.
-        Initialize;
+        Initialize();
         LibraryInventory.CreateItem(Item);
         CreateAndPostItemJournalLine(ItemJournalLine, Item."No.");
 
@@ -364,7 +365,7 @@ codeunit 142062 "ERM Reports DACH"
         "Layout": Option Standard,"FCY Amounts","Posting Info";
     begin
         // Setup: Create Vendor. Create and post Payment Journal line.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CreateAndPostPaymentJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::Payment, Vendor."No.", LibraryRandom.RandDec(10, 2), '');
@@ -388,7 +389,7 @@ codeunit 142062 "ERM Reports DACH"
         "Layout": Option Standard,"FCY Amounts","Posting Info";
     begin
         // Setup: Create Vendor. Create Currency with Exchange rate. Create and post Payment Journal line.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CreateCurrencyWithExchangeRate(CurrencyExchangeRate);
         CreateAndPostPaymentJournalLine(
@@ -414,7 +415,7 @@ codeunit 142062 "ERM Reports DACH"
         "Layout": Option Standard,"FCY Amounts","Posting Info";
     begin
         // Setup: Create Vendor. Create and post Invoice and Payment for the Vendor. Apply Invoice to the Payment.
-        Initialize;
+        Initialize();
         LibraryPurchase.CreateVendor(Vendor);
         CreateAndPostPaymentJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, Vendor."No.", -LibraryRandom.RandDec(10, 2), '');
@@ -444,7 +445,7 @@ codeunit 142062 "ERM Reports DACH"
         VendorNo: Code[20];
     begin
         // Setup: Create Vendor and create and post Multiple invoice and payment for the Vendor. Apply Invoice to the Payment.
-        Initialize;
+        Initialize();
         VendorNo := CreateVendorWithPmtTerms;
 
         for Counter := 1 to LibraryRandom.RandIntInRange(2, 4) do begin
@@ -479,7 +480,7 @@ codeunit 142062 "ERM Reports DACH"
         // Test and verify Applies To Doc No. On Vendor Payments List report after applying two Invoice to Payment of Vendor ledger entry.
 
         // Setup: Create Vendor,Create and post invoice and payment then apply invoice to the Payment.
-        Initialize;
+        Initialize();
         CreateAndPostMultipleVendorInvoices(GenJournalLine, DocumentNo, Amount);
         CreateAndPostPaymentJournalLine(
           GenJournalLine2, GenJournalLine2."Document Type"::Payment, GenJournalLine."Account No.", -(Amount + GenJournalLine.Amount), '');
@@ -508,7 +509,7 @@ codeunit 142062 "ERM Reports DACH"
     begin
         // [FEATURE] [Vendor Payments List]
         // [SCENARIO 380010] "Total Vendor" has correct amount value (pmt1 + pmt2) in case of two payments when first is applied to two invoices and second is open
-        Initialize;
+        Initialize();
         VendorNo := LibraryPurchase.CreateVendorNo;
 
         // [GIVEN] Two vendor Invoices: "Inv1" with Amount = "X1", "Inv2" with Amount = "X2"
@@ -536,14 +537,19 @@ codeunit 142062 "ERM Reports DACH"
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        LibraryVariableStorage.Clear;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
-        LibraryERMCountryData.UpdateAccountInVendorPostingGroups;
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"ERM Reports DACH");
+
+        LibraryVariableStorage.Clear();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryERMCountryData.UpdateAccountInVendorPostingGroups();
         if IsInitialized then
             exit;
-        NoSeriesSetup;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"ERM Reports DACH");
+        NoSeriesSetup();
         IsInitialized := true;
-        Commit;
+        Commit();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"ERM Reports DACH");
     end;
 
     local procedure NoSeriesSetup()

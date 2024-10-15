@@ -50,8 +50,8 @@ report 99001025 "Refresh Production Order"
                     Modify;
                 end;
 
-                ProdOrderLine.LockTable;
-                OnBeforeCalcProdOrder("Production Order");
+                ProdOrderLine.LockTable();
+                OnBeforeCalcProdOrder("Production Order", Direction);
                 CheckReservationExist;
 
                 if CalcLines then begin
@@ -366,7 +366,7 @@ report 99001025 "Refresh Production Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCalcProdOrder(var ProductionOrder: Record "Production Order")
+    local procedure OnBeforeCalcProdOrder(var ProductionOrder: Record "Production Order"; Direction: Option Forward,Backward)
     begin
     end;
 

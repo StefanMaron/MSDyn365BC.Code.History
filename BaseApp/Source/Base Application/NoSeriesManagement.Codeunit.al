@@ -284,12 +284,14 @@ codeunit 396 NoSeriesManagement
     procedure SetNoSeriesLineFilter(var NoSeriesLine: Record "No. Series Line"; NoSeriesCode: Code[20]; StartDate: Date)
     begin
         if StartDate = 0D then
-            StartDate := WorkDate;
-        NoSeriesLine.Reset;
+            StartDate := WorkDate();
+
+        NoSeriesLine.Reset();
         NoSeriesLine.SetCurrentKey("Series Code", "Starting Date");
         NoSeriesLine.SetRange("Series Code", NoSeriesCode);
         NoSeriesLine.SetRange("Starting Date", 0D, StartDate);
-        if NoSeriesLine.FindLast then begin
+        OnNoSeriesLineFilterOnBeforeFindLast(NoSeriesLine);
+        if NoSeriesLine.FindLast() then begin
             NoSeriesLine.SetRange("Starting Date", NoSeriesLine."Starting Date");
             NoSeriesLine.SetRange(Open, true);
         end;
@@ -480,6 +482,11 @@ codeunit 396 NoSeriesManagement
             if "Sequence Name" <> '' then
                 if NUMBERSEQUENCE.Exists("Sequence Name") then
                     NUMBERSEQUENCE.Delete("Sequence Name");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnNoSeriesLineFilterOnBeforeFindLast(var NoSeriesLine: Record "No. Series Line")
+    begin
     end;
 }
 

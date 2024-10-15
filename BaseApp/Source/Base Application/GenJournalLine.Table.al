@@ -171,8 +171,8 @@
                 ValidateApplyRequirements(Rec);
 
                 if JobTaskIsSet then begin
-                    CreateTempJobJnlLine;
-                    UpdatePricesFromJobJnlLine;
+                    CreateTempJobJnlLine();
+                    UpdatePricesFromJobJnlLine();
                 end;
 
                 if "Deferral Code" <> '' then
@@ -887,8 +887,8 @@
                 UpdateSalesPurchLCY;
 
                 if JobTaskIsSet then begin
-                    CreateTempJobJnlLine;
-                    UpdatePricesFromJobJnlLine;
+                    CreateTempJobJnlLine();
+                    UpdatePricesFromJobJnlLine();
                 end;
 
                 if "Deferral Code" <> '' then
@@ -1638,8 +1638,8 @@
                 Validate("VAT Prod. Posting Group");
 
                 if JobTaskIsSet then begin
-                    CreateTempJobJnlLine;
-                    UpdatePricesFromJobJnlLine;
+                    CreateTempJobJnlLine();
+                    UpdatePricesFromJobJnlLine();
                 end
             end;
         }
@@ -1680,8 +1680,8 @@
                 Validate("VAT %");
 
                 if JobTaskIsSet then begin
-                    CreateTempJobJnlLine;
-                    UpdatePricesFromJobJnlLine;
+                    CreateTempJobJnlLine();
+                    UpdatePricesFromJobJnlLine();
                 end
             end;
         }
@@ -2055,6 +2055,7 @@
             Caption = 'Credit Card No.';
             ObsoleteReason = 'This field is not needed and it is not used anymore.';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(1001; "Job Task No."; Code[20])
         {
@@ -2087,9 +2088,9 @@
                 end;
 
                 if JobTaskIsSet then begin
-                    CreateTempJobJnlLine;
+                    CreateTempJobJnlLine();
                     CopyDimensionsFromJobTaskLine;
-                    UpdatePricesFromJobJnlLine;
+                    UpdatePricesFromJobJnlLine();
                 end;
             end;
         }
@@ -2118,8 +2119,8 @@
                 if JobTaskIsSet then begin
                     if "Job Planning Line No." <> 0 then
                         Validate("Job Planning Line No.");
-                    CreateTempJobJnlLine;
-                    UpdatePricesFromJobJnlLine;
+                    CreateTempJobJnlLine();
+                    UpdatePricesFromJobJnlLine();
                 end;
             end;
         }
@@ -2139,9 +2140,9 @@
             trigger OnValidate()
             begin
                 if JobTaskIsSet then begin
-                    CreateTempJobJnlLine;
+                    CreateTempJobJnlLine();
                     TempJobJnlLine.Validate("Line Discount %", "Job Line Discount %");
-                    UpdatePricesFromJobJnlLine;
+                    UpdatePricesFromJobJnlLine();
                 end;
             end;
         }
@@ -2154,9 +2155,9 @@
             trigger OnValidate()
             begin
                 if JobTaskIsSet then begin
-                    CreateTempJobJnlLine;
+                    CreateTempJobJnlLine();
                     TempJobJnlLine.Validate("Line Discount Amount (LCY)", "Job Line Disc. Amount (LCY)");
-                    UpdatePricesFromJobJnlLine;
+                    UpdatePricesFromJobJnlLine();
                 end;
             end;
         }
@@ -2188,9 +2189,9 @@
             trigger OnValidate()
             begin
                 if JobTaskIsSet then begin
-                    CreateTempJobJnlLine;
+                    CreateTempJobJnlLine();
                     TempJobJnlLine.Validate("Unit Price", "Job Unit Price");
-                    UpdatePricesFromJobJnlLine;
+                    UpdatePricesFromJobJnlLine();
                 end;
             end;
         }
@@ -2228,9 +2229,9 @@
             trigger OnValidate()
             begin
                 if JobTaskIsSet then begin
-                    CreateTempJobJnlLine;
+                    CreateTempJobJnlLine();
                     TempJobJnlLine.Validate("Line Discount Amount", "Job Line Discount Amount");
-                    UpdatePricesFromJobJnlLine;
+                    UpdatePricesFromJobJnlLine();
                 end;
             end;
         }
@@ -2244,9 +2245,9 @@
             trigger OnValidate()
             begin
                 if JobTaskIsSet then begin
-                    CreateTempJobJnlLine;
+                    CreateTempJobJnlLine();
                     TempJobJnlLine.Validate("Line Amount", "Job Line Amount");
-                    UpdatePricesFromJobJnlLine;
+                    UpdatePricesFromJobJnlLine();
                 end;
             end;
         }
@@ -2267,9 +2268,9 @@
             trigger OnValidate()
             begin
                 if JobTaskIsSet then begin
-                    CreateTempJobJnlLine;
+                    CreateTempJobJnlLine();
                     TempJobJnlLine.Validate("Line Amount (LCY)", "Job Line Amount (LCY)");
-                    UpdatePricesFromJobJnlLine;
+                    UpdatePricesFromJobJnlLine();
                 end;
             end;
         }
@@ -2285,8 +2286,8 @@
             begin
                 if ("Job Currency Code" <> xRec."Job Currency Code") or ("Job Currency Code" <> '') then
                     if JobTaskIsSet then begin
-                        CreateTempJobJnlLine;
-                        UpdatePricesFromJobJnlLine;
+                        CreateTempJobJnlLine();
+                        UpdatePricesFromJobJnlLine();
                     end;
             end;
         }
@@ -2407,7 +2408,7 @@
                     TestField("Account Type", "Account Type"::"G/L Account");
 
                 DeferralUtilities.DeferralCodeOnValidate("Deferral Code", DeferralDocType::"G/L", "Journal Template Name", "Journal Batch Name",
-                  0, '', "Line No.", GetDeferralAmount, "Posting Date", Description, "Currency Code");
+                  0, '', "Line No.", GetDeferralAmount(), "Posting Date", Description, "Currency Code");
             end;
         }
         field(1701; "Deferral Line No."; Integer)
@@ -2618,6 +2619,7 @@
             Caption = 'Id';
             ObsoleteState = Pending;
             ObsoleteReason = 'This functionality will be replaced by the systemID field';
+            ObsoleteTag = '15.0';
         }
         field(8001; "Account Id"; Guid)
         {
@@ -3510,8 +3512,8 @@
         end;
 
         if JobTaskIsSet then begin
-            CreateTempJobJnlLine;
-            UpdatePricesFromJobJnlLine;
+            CreateTempJobJnlLine();
+            UpdatePricesFromJobJnlLine();
         end;
     end;
 
@@ -5531,11 +5533,19 @@
     end;
 
     procedure GetDeferralAmount() DeferralAmount: Decimal
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetDeferralAmount(Rec, DeferralAmount, IsHandled);
+        if IsHandled then
+            exit;
+
         if "VAT Base Amount" <> 0 then
             DeferralAmount := "VAT Base Amount"
         else
             DeferralAmount := Amount;
+
         OnAfterGetDeferralAmount(Rec, DeferralAmount);
     end;
 
@@ -5547,7 +5557,7 @@
         exit(
           DeferralUtilities.OpenLineScheduleEdit(
             "Deferral Code", GetDeferralDocType, "Journal Template Name", "Journal Batch Name", 0, '', "Line No.",
-            GetDeferralAmount, PostingDate, Description, CurrencyCode));
+            GetDeferralAmount(), PostingDate, Description, CurrencyCode));
     end;
 
     procedure GetDeferralDocType(): Integer
@@ -7027,13 +7037,18 @@
     begin
     end;
 
-    [Obsolete('Function scope will be changed to OnPrem')]
+    [Obsolete('Function scope will be changed to OnPrem', '15.1')]
     procedure ShowDeferralSchedule()
     begin
         if "Account Type" = "Account Type"::"Fixed Asset" then
             Error(AccTypeNotSupportedErr);
 
         ShowDeferrals("Posting Date", "Currency Code");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDeferralAmount(var GenJournalLine: Record "Gen. Journal Line"; DeferralAmount: Decimal; var IsHandled: Boolean)
+    begin
     end;
 }
 

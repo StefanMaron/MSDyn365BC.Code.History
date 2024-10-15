@@ -395,6 +395,7 @@ table 242 "Source Code Setup"
             ObsoleteReason = 'Merged to W1';
             ObsoleteState = Pending;
             TableRelation = "Source Code";
+            ObsoleteTag = '15.0';
         }
     }
 

@@ -30,6 +30,7 @@ table 257 "VAT Statement Name"
             Caption = 'Sales VAT Adv. Notification';
             ObsoleteReason = 'Moved to Elster extension, new field Sales VAT Adv. Notif.';
             ObsoleteState = Pending;
+            ObsoleteTag = '15.0';
         }
     }
 

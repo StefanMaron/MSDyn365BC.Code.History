@@ -3,6 +3,7 @@ table 11013 "Electronic VAT Decl. Setup"
     Caption = 'Electronic VAT Decl. Setup';
     ObsoleteReason = 'Moved to Elster extension, new table Elec. VAT Decl. Setup.';
     ObsoleteState = Pending;
+    ObsoleteTag = '15.0';
 
     fields
     {

@@ -17,6 +17,7 @@ codeunit 142081 "Test Intrastat DACH"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
+        LibraryTestInitialize: Codeunit "Library - Test Initialize";
         IntrastatJnlLinesEUVendorCountErr: Label 'The only Intrastat Line with EU vendor should be created';
         IntrastatJnlLinesNonEUVendorCountErr: Label 'Intrastat Line with non-EU vendor should not be created';
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -34,7 +35,7 @@ codeunit 142081 "Test Intrastat DACH"
         ItemNoY: Code[20];
     begin
         // [SCENARIO 122961] Run GetEntries from Intrastat Journal and get the only line with EU Vendor
-        Initialize;
+        Initialize();
         SetIntrastatCodeOnCountryRegion(TempCompanyInfo);
 
         PostingDate := CalcDate('<3M>', WorkDate);
@@ -64,7 +65,7 @@ codeunit 142081 "Test Intrastat DACH"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 235022] You cannot create Place Of Dispatcher with blank Code.
-        Initialize;
+        Initialize();
 
         PlaceOfDispatchers.OpenNew;
         asserterror PlaceOfDispatchers.Code.SetValue('');
@@ -80,7 +81,7 @@ codeunit 142081 "Test Intrastat DACH"
     begin
         // [FEATURE] [UI]
         // [SCENARIO 235022] You cannot create Place Of Receiver with blank Code.
-        Initialize;
+        Initialize();
 
         PlaceOfReceivers.OpenNew;
         asserterror PlaceOfReceivers.Code.SetValue('');
@@ -90,10 +91,15 @@ codeunit 142081 "Test Intrastat DACH"
 
     local procedure Initialize()
     begin
+        LibraryTestInitialize.OnTestInitialize(Codeunit::"Test Intrastat DACH");
+
         if IsInitialized then
             exit;
         IsInitialized := true;
-        LibraryERMCountryData.UpdateGeneralPostingSetup;
+
+        LibraryTestInitialize.OnBeforeTestSuiteInitialize(Codeunit::"Test Intrastat DACH");
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
+        LibraryTestInitialize.OnAfterTestSuiteInitialize(Codeunit::"Test Intrastat DACH");
     end;
 
     local procedure CreateAndPostPurchInvoice(VendorNo: Code[20]; PostingDate: Date; var ItemNo: Code[20])

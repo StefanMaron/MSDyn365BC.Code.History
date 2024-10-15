@@ -489,6 +489,7 @@ table 115 "Sales Cr.Memo Line"
             ObsoleteState = Removed;
             TableRelation = "Product Group".Code WHERE("Item Category Code" = FIELD("Item Category Code"));
             ValidateTableRelation = false;
+            ObsoleteTag = '15.0';
         }
         field(5811; "Appl.-from Item Entry"; Integer)
         {
@@ -525,12 +526,14 @@ table 115 "Sales Cr.Memo Line"
             Caption = 'Order No. (Old)';
             ObsoleteReason = 'Merged to W1';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
         field(5005397; "Order Line No. (Old)"; Integer)
         {
             Caption = 'Order Line No. (Old)';
             ObsoleteReason = 'Merged to W1';
             ObsoleteState = Removed;
+            ObsoleteTag = '15.0';
         }
     }
 
