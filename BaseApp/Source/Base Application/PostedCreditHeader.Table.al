@@ -52,7 +52,7 @@ table 31057 "Posted Credit Header"
         field(46; "Company County"; Text[30])
         {
             Caption = 'Company County';
-            CaptionClass = '5,1,' + "Company Country/Region Code";
+            CaptionClass = '5,12,' + "Company Country/Region Code";
         }
         field(47; "Company Country/Region Code"; Code[10])
         {

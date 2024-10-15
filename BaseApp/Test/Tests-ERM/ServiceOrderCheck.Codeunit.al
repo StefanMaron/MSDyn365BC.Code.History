@@ -36,6 +36,7 @@ codeunit 136114 "Service Order Check"
         TestFieldCodeErr: Label 'TestField';
         ReleasedStatusErr: Label 'Release Status must be equal to ''%1''  in Service Header: Document Type=%2, No.=%3. Current value is ''%4''.', Comment = '%1 - Status, %2 - Document Type, %3 - Document No., %4 - Expected Status';
         ServiceLinesChangeMsg: Label 'You have changed %1 on the %2, but it has not been changed on the existing service lines.\You must update the existing service lines manually.';
+        ServiceItemLineErr: Label 'Service Item Line must exist.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1498,6 +1499,42 @@ codeunit 136114 "Service Order Check"
         Assert.ExpectedError('not setup');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('LoanerConfirmHandler')]
+    procedure LoanerNotBlankOnServiceItemLineWithoutReceiveOnLoanerCard()
+    var
+        Loaner: Record Loaner;
+        Loaner1: Record Loaner;
+        ServiceHeader: Record "Service Header";
+        ServiceItemLine: Record "Service Item Line";
+        ServiceItem: Record "Service Item";
+        ServLoanerManagement: Codeunit ServLoanerManagement;
+    begin
+        // [SCENARIO 485993] Service order field validations
+        Initialize();
+
+        // [GIVEN] Create two loaners.
+        LibraryService.CreateLoaner(Loaner);
+        LibraryService.CreateLoaner(Loaner1);
+
+        // [GIVEN] Create a Service Order.
+        CreateServiceOrder(ServiceHeader, ServiceItem, ServiceItemLine);
+
+        // [GIVEN] Open Service Order Subform Page and assign Loaner No. value.
+        OpenServiceOrderSubformAndAssignLoanerNo(ServiceItemLine, Loaner);
+
+        // [VERIFY] Verify that the Loaner number is not blank in the Service Item Line.
+        VerifyLoanerExistsOnServiceItemLine(ServiceHeader, Loaner);
+
+        // [GIVEN] Received the loaner and no error occurred.
+        ServiceItemLine.Get(ServiceItemLine."Document Type", ServiceItemLine."Document No.", ServiceItemLine."Line No.");
+        ServLoanerManagement.ReceiveLoaner(ServiceItemLine);
+
+        // [VERIFY] Verify that after receiving on the Loaner Page, Loaner No. Blank is on the Service Item Line.
+        VerifyBlankLoanerNo(ServiceItemLine);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2308,6 +2345,26 @@ codeunit 136114 "Service Order Check"
             ExpectedAmt := Round(ExpectedAmt * "Line Discount %" / 100, Precision);
             TestField("Line Discount Amount", ExpectedAmt);
         end;
+    end;
+
+    local procedure OpenServiceOrderSubformAndAssignLoanerNo(ServiceItemLine: Record "Service Item Line"; Loaner: Record Loaner)
+    var
+        ServiceOrderSubform: TestPage "Service Order Subform";
+    begin
+        ServiceOrderSubform.OpenEdit();
+        ServiceOrderSubform.GoToRecord(ServiceItemLine);
+        ServiceOrderSubform."Loaner No.".SetValue(Loaner."No.");
+        ServiceOrderSubform.Close();
+    end;
+
+    local procedure VerifyLoanerExistsOnServiceItemLine(ServiceHeader: Record "Service Header"; Loaner: Record Loaner)
+    var
+        ServiceItemLine: Record "Service Item Line";
+    begin
+        ServiceItemLine.SetRange("Document Type", ServiceItemLine."Document Type"::Order);
+        ServiceItemLine.SetRange("Document No.", ServiceHeader."No.");
+        ServiceItemLine.SetRange("Loaner No.", Loaner."No.");
+        Assert.IsTrue(ServiceItemLine.FindFirst(), ServiceItemLineErr);
     end;
 
     [ConfirmHandler]

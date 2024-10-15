@@ -953,9 +953,14 @@ codeunit 1521 "Workflow Response Handling"
     local procedure ShowMessage(WorkflowStepInstance: Record "Workflow Step Instance")
     var
         WorkflowStepArgument: Record "Workflow Step Argument";
+        SuppressMessage: Boolean;
     begin
         WorkflowStepArgument.Get(WorkflowStepInstance.Argument);
-        Message(StrSubstNo(ShowMessagePlaceholderMsg, WorkflowStepArgument.Message));
+
+        SuppressMessage := false;
+        OnShowMessageOnBeforeShowMessage(WorkflowStepArgument, SuppressMessage);
+        if not SuppressMessage then
+            Message(StrSubstNo(ShowMessagePlaceholderMsg, WorkflowStepArgument.Message));
     end;
 
     local procedure RestrictRecordUsage(Variant: Variant; WorkflowStepInstance: Record "Workflow Step Instance")
@@ -1377,6 +1382,11 @@ codeunit 1521 "Workflow Response Handling"
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckHasRequiredArguments(WorkflowStep: Record "Workflow Step"; WorkflowStepArgument: Record "Workflow Step Argument"; var HasRequiredArgument: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShowMessageOnBeforeShowMessage(WorkflowStepArgument: Record "Workflow Step Argument"; var SuppressMessage:Boolean);
     begin
     end;
 }

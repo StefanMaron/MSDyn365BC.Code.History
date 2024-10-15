@@ -258,7 +258,7 @@ codeunit 5991 "Sales Warehouse Mgt."
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Warehouse Source Filter", 'OnSetFiltersOnSourceTables', '', false, false)]
-    local procedure OnSetFiltersOnSourceTables(var WarehouseSourceFilter: Record "Warehouse Source Filter"; var GetSourceDocuments: Report "Get Source Documents")
+    local procedure OnSetFiltersOnSourceTables(var WarehouseSourceFilter: Record "Warehouse Source Filter"; var GetSourceDocuments: Report "Get Source Documents"; var WarehouseRequest: Record "Warehouse Request")
     var
         SalesHeader: Record "Sales Header";
         SalesLine: Record "Sales Line";
@@ -274,6 +274,7 @@ codeunit 5991 "Sales Warehouse Mgt."
         SalesLine.SetFilter("Shipping Agent Code", WarehouseSourceFilter."Shipping Agent Code Filter");
         SalesLine.SetFilter("Shipping Agent Service Code", WarehouseSourceFilter."Shipping Agent Service Filter");
 
+        OnSetFiltersOnSourceTablesOnBeforeSetSalesTableView(WarehouseSourceFilter, WarehouseRequest, SalesHeader, SalesLine);
         GetSourceDocuments.SetTableView(SalesHeader);
         GetSourceDocuments.SetTableView(SalesLine);
     end;
@@ -324,12 +325,17 @@ codeunit 5991 "Sales Warehouse Mgt."
         exit(true);
     end;
 
-    local procedure CreateShptLineFromSalesLine(WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SalesLine: Record "Sales Line"; WhseShptLineQty: Decimal; WhseShptLineQtyBase: Decimal; AssembleToOrder: Boolean): Boolean
+    local procedure CreateShptLineFromSalesLine(WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SalesLine: Record "Sales Line"; WhseShptLineQty: Decimal; WhseShptLineQtyBase: Decimal; AssembleToOrder: Boolean) Result: Boolean
     var
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
         SalesHeader: Record "Sales Header";
         IsHandled, Return : Boolean;
     begin
+        IsHandled := false;
+        OnCreateShptLineFromSalesLineOnBeforeGetSalesHeader(WarehouseShipmentHeader, SalesLine, WhseShptLineQty, WhseShptLineQtyBase, AssembleToOrder, IsHandled, Result);
+        if IsHandled then
+            exit(Result);
+
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
 
         with WarehouseShipmentLine do begin
@@ -557,6 +563,16 @@ codeunit 5991 "Sales Warehouse Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckIfSalesLine2ReceiptLine(var SalesLine: Record "Sales Line"; var ReturnValue: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateShptLineFromSalesLineOnBeforeGetSalesHeader(WarehouseShipmentHeader: Record "Warehouse Shipment Header"; SalesLine: Record "Sales Line"; WhseShptLineQty: Decimal; WhseShptLineQtyBase: Decimal; AssembleToOrder: Boolean; var IsHandled: Boolean; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetFiltersOnSourceTablesOnBeforeSetSalesTableView(var WarehouseSourceFilter: Record "Warehouse Source Filter"; var WarehouseRequest: Record "Warehouse Request"; var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
     begin
     end;
 }

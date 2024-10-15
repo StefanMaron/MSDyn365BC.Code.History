@@ -370,7 +370,7 @@ table 112 "Sales Invoice Header"
         }
         field(86; "Bill-to County"; Text[30])
         {
-            CaptionClass = '5,1,' + "Bill-to Country/Region Code";
+            CaptionClass = '5,3,' + "Bill-to Country/Region Code";
             Caption = 'Bill-to County';
         }
         field(87; "Bill-to Country/Region Code"; Code[10])
@@ -386,7 +386,7 @@ table 112 "Sales Invoice Header"
         }
         field(89; "Sell-to County"; Text[30])
         {
-            CaptionClass = '5,1,' + "Sell-to Country/Region Code";
+            CaptionClass = '5,2,' + "Sell-to Country/Region Code";
             Caption = 'Sell-to County';
         }
         field(90; "Sell-to Country/Region Code"; Code[10])
@@ -402,7 +402,7 @@ table 112 "Sales Invoice Header"
         }
         field(92; "Ship-to County"; Text[30])
         {
-            CaptionClass = '5,1,' + "Ship-to Country/Region Code";
+            CaptionClass = '5,4,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
         }
         field(93; "Ship-to Country/Region Code"; Code[10])
@@ -1387,6 +1387,7 @@ table 112 "Sales Invoice Header"
         TypeHelper: Codeunit "Type Helper";
         InStream: InStream;
     begin
+        OnBeforeGetWorkDescription(Rec);
         TempBlob.FromRecord(Rec, FieldNo("Work Description"));
         TempBlob.CreateInStream(InStream, TEXTENCODING::UTF8);
         exit(TypeHelper.TryReadAsTextWithSepAndFieldErrMsg(InStream, TypeHelper.LFSeparator(), FieldName("Work Description")));
@@ -1544,6 +1545,11 @@ table 112 "Sales Invoice Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnPostedSalesInvoiceFullyOpen(var SalesInvoiceHeader: Record "Sales Invoice Header"; var FullyOpen: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetWorkDescription(var SalesInvoiceHeader: Record "Sales Invoice Header")
     begin
     end;
 }

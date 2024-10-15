@@ -38,7 +38,13 @@ table 1306 "User Preference"
     procedure DisableInstruction(InstrCode: Code[50])
     var
         UserPreference: Record "User Preference";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDisableInstruction(InstrCode, IsHandled);
+        if IsHandled then
+            exit;
+
         if not UserPreference.Get(UserId, InstrCode) then begin
             UserPreference.Init();
             UserPreference."User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
@@ -50,7 +56,13 @@ table 1306 "User Preference"
     procedure EnableInstruction(InstrCode: Code[50])
     var
         UserPreference: Record "User Preference";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeEnableInstruction(InstrCode, IsHandled);
+        if IsHandled then
+            exit;
+
         if UserPreference.Get(UserId, InstrCode) then
             UserPreference.Delete();
     end;
@@ -69,6 +81,16 @@ table 1306 "User Preference"
     begin
         "User Selection".CreateOutStream(OutStream);
         OutStream.WriteText(Format(Variant));
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDisableInstruction(InstrCode: Code[50]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeEnableInstruction(InstrCode: Code[50]; var IsHandled: Boolean)
+    begin
     end;
 }
 

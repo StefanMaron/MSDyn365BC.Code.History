@@ -269,6 +269,8 @@ table 840 "Cash Flow Forecast"
 
     procedure CalcAmount(): Decimal
     begin
+        OnBeforeCalcAmount(Rec);
+
         CalcFields("Amount (LCY)");
         exit("Amount (LCY)");
     end;
@@ -369,6 +371,11 @@ table 840 "Cash Flow Forecast"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalculateAllAmounts(FromDate: Date; ToDate: Date; var TotalAmount: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcAmount(var CashFlowForecast: Record "Cash Flow Forecast")
     begin
     end;
 }

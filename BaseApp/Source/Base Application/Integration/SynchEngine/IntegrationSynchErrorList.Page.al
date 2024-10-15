@@ -46,8 +46,20 @@ page 5339 "Integration Synch. Error List"
                     Width = 100;
 
                     trigger OnDrillDown()
+                    var
+                        TypeHelper: Codeunit "Type Helper";
+                        CallStackInStream: InStream;
+                        SyncErrorInfo: ErrorInfo;
                     begin
-                        Message(ErrorMessage);
+                        SyncErrorInfo.Message := ErrorMessage;
+                        Rec.CalcFields("Exception Detail");
+                        if Rec."Exception Detail".HasValue() then begin
+                            Rec."Exception Detail".CreateInStream(CallStackInStream, TEXTENCODING::Windows);
+                            SyncErrorInfo.CustomDimensions.Add('Call Stack', TypeHelper.ReadAsTextWithSeparator(CallStackInStream, TypeHelper.LFSeparator()));
+                        end else
+                            SyncErrorInfo.CustomDimensions.Add('Call Stack', NoCallStackMsg);
+
+                        Error(SyncErrorInfo);
                     end;
                 }
                 field(HelpLink; HelpLink)
@@ -262,9 +274,15 @@ page 5339 "Integration Synch. Error List"
             {
                 Caption = 'Process';
 
+#if not CLEAN24
                 actionref(DataIntegrationExceptionDetails_Promoted; DataIntegrationExceptionDetails)
                 {
+                    Visible = false;
+                    ObsoleteReason = 'This action is not promoted.';
+                    ObsoleteState = Pending;
+                    ObsoleteTag = '24.0';
                 }
+#endif
                 actionref(Delete0days_Promoted; Delete0days)
                 {
                 }

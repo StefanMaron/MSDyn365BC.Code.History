@@ -5,6 +5,7 @@
 namespace Microsoft.Integration.SyncEngine;
 
 using System.Reflection;
+using Microsoft.Integration.Dataverse;
 
 page 5338 "Integration Synch. Job List"
 {
@@ -137,6 +138,22 @@ page 5338 "Integration Synch. Job List"
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the number of records that were skipped during the integration synchronization job.';
+
+                    trigger OnDrillDown()
+                    var
+                        IntegrationTableMapping: Record "Integration Table Mapping";
+                        CRMIntegrationRecord: Record "CRM Integration Record";
+                        CRMSkippedRecords: Page "CRM Skipped Records";
+                    begin
+                        if IntegrationTableMapping.Get(Rec."Integration Table Mapping Name") then begin
+                            CRMIntegrationRecord.SetRange("Table ID", IntegrationTableMapping."Table ID");
+                            CRMIntegrationRecord.SetRange(Skipped, true);
+                            if CRMIntegrationRecord.FindFirst() then begin
+                                CRMSkippedRecords.SetRecords(CRMIntegrationRecord);
+                                CRMSkippedRecords.Run();
+                            end;
+                        end;
+                    end;
                 }
                 field("Synch. Direction"; Rec."Synch. Direction")
                 {

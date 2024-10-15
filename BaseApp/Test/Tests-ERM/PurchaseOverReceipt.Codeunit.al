@@ -23,10 +23,10 @@ codeunit 134851 "Purchase Over Receipt"
         OverReceiptFeatureIsEnabled: Boolean;
         IsInitialized: Boolean;
         QuantityAfterOverReceiptErr: Label 'Quantity is wrong after over receipt.';
-        OverReceiptNotificationTxt: Label 'An over-receipt quantity is recorded on purchase order %1.';
+        OverReceiptNotificationTxt: Label 'An over-receipt quantity is recorded on purchase order %1.', Comment = '%1: Purchase order number';
         QtyToReceiveOverReceiptErr: Label 'Validation error for Field: Qty. to Receive,  Message = ''You cannot enter more than 10 in the Over-Receipt Quantity field.''';
         WarehouseRcvRequiredErr: Label 'Warehouse Receive is required for this line. The entered information may be disregarded by warehouse activities.';
-        CheckOverReceiptAllowedForWhseReceiptLineErr: Label 'Source Document must be equal to ''%1''  in Warehouse Receipt Line: No.=%2, Line No.=%3. Current value is ''%4''.';
+        CheckOverReceiptAllowedForWhseReceiptLineErr: Label 'Source Document must be equal to ''%1''  in Warehouse Receipt Line: No.=%2, Line No.=%3. Current value is ''%4''.', Comment = '%1: Expected Source Document; %2: Warehouse Receipt No.; %3: Warehouse Receipt Line No.; %4: Actual Source Document';
 
     [Test]
     [Scope('OnPrem')]
@@ -440,7 +440,7 @@ codeunit 134851 "Purchase Over Receipt"
         // [WHEN] Invoke click on the "Default" field of over-receipt code (first record)
         OverReceiptCodes.OpenEdit();
         OverReceiptCodes.First();
-        OverReceiptCodeTxt := OverReceiptCodes.Code.Value;
+        OverReceiptCodeTxt := CopyStr(OverReceiptCodes.Code.Value, 1, MaxStrLen(OverReceiptCodeTxt));
         OverReceiptCodes.Default.SetValue(true);
         OverReceiptCodes.Next();
 
@@ -450,7 +450,7 @@ codeunit 134851 "Purchase Over Receipt"
 
         // [WHEN] Invoke click on the "Default" field of over-receipt code (last record)
         OverReceiptCodes.Last();
-        OverReceiptCodeTxt := OverReceiptCodes.Code.Value;
+        OverReceiptCodeTxt := CopyStr(OverReceiptCodes.Code.Value, 1, MaxStrLen(OverReceiptCodeTxt));
         OverReceiptCodes.Default.SetValue(true);
         OverReceiptCodes.Previous();
 
@@ -534,7 +534,6 @@ codeunit 134851 "Purchase Over Receipt"
         PurchaseLine.Modify(true);
 
         // [WHEN] Open purchase order page
-        PurchaseHeader.Find();
         PurchaseOrder.OpenEdit();
         PurchaseOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
 
@@ -618,7 +617,6 @@ codeunit 134851 "Purchase Over Receipt"
 
         // [GIVEN] Released purchase order with purchase line, quantity = 10
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine);
-        PurchaseHeader.Find();
         PurchaseOrder.OpenEdit();
         PurchaseOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
         PurchaseOrder.PurchLines."Quantity".AssertEquals(10);
@@ -646,10 +644,10 @@ codeunit 134851 "Purchase Over Receipt"
     [Scope('OnPrem')]
     procedure QuantityDoesNotUpdatesWhenOverReceiptQuantityHasWrongValue_WarehouseReceipt()
     var
-        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
         WarehouseSetup: Record "Warehouse Setup";
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
         WarehouseReceipt: TestPage "Warehouse Receipt";
     begin
         // [SCENARIO 357686] Over receipt quantity increase every time when you insert a value
@@ -662,7 +660,6 @@ codeunit 134851 "Purchase Over Receipt"
 
         // [GIVEN] Warehouse receipt with warehouse receipt line, quantity = 10
         CreateWarehouseReceipt(WarehouseReceiptHeader, WarehouseReceiptLine);
-        WarehouseReceiptHeader.Find();
         WarehouseReceipt.OpenEdit();
         WarehouseReceipt.Filter.SetFilter("No.", WarehouseReceiptHeader."No.");
         WarehouseReceipt.WhseReceiptLines."Quantity".AssertEquals(10);
@@ -690,9 +687,9 @@ codeunit 134851 "Purchase Over Receipt"
     [Scope('OnPrem')]
     procedure ValidateOverReceiptQuantityOnWhseReceiptLineForSRO()
     var
-        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
     begin
         // [FEATURE] [UT] [Sales Return Order]
         // [SCENARIO 362553] Setting "Over-Receipt Quantity" on Warehouse Receipt Line raises error for Sales Return Order
@@ -744,7 +741,6 @@ codeunit 134851 "Purchase Over Receipt"
         Qty := PurchaseLine.Quantity;
 
         // [GIVEN] Open purchase order page
-        PurchaseHeader.Find();
         PurchaseOrder.OpenEdit();
         PurchaseOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
 
@@ -787,7 +783,6 @@ codeunit 134851 "Purchase Over Receipt"
         Qty := PurchaseLine.Quantity;
 
         // [GIVEN] Open purchase order page
-        PurchaseHeader.Find();
         PurchaseOrder.OpenEdit();
         PurchaseOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
 
@@ -831,7 +826,6 @@ codeunit 134851 "Purchase Over Receipt"
         Qty := PurchaseLine.Quantity;
 
         // [GIVEN] Open purchase order page
-        PurchaseHeader.Find();
         PurchaseOrder.OpenEdit();
         PurchaseOrder.Filter.SetFilter("No.", PurchaseHeader."No.");
 
@@ -880,7 +874,6 @@ codeunit 134851 "Purchase Over Receipt"
         Qty := WarehouseReceiptLine.Quantity;
 
         // [GIVEN] Open Warehouse Receipt page
-        WarehouseReceiptHeader.Find();
         WarehouseReceipt.OpenEdit();
         WarehouseReceipt.Filter.SetFilter("No.", WarehouseReceiptHeader."No.");
 
@@ -1362,7 +1355,6 @@ codeunit 134851 "Purchase Over Receipt"
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
         PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
-        LibraryWarehouse: Codeunit "Library - Warehouse";
     begin
         // [SCENARIO 388925] Make code UI independent
         Initialize();
@@ -1439,10 +1431,10 @@ codeunit 134851 "Purchase Over Receipt"
     [Scope('OnPrem')]
     procedure ValidateOverReceiptQtyZero_WarehouseActivityLine()
     var
-        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
         WarehouseSetup: Record "Warehouse Setup";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
     begin
         // [FEATURE] Over-receipt functionality for Inventory Put-away
         // [SCENARIO 360050] Setting Over-Receipt Quantity on Warehouse Activity Line correctly modifies the Quantity
@@ -1475,9 +1467,9 @@ codeunit 134851 "Purchase Over Receipt"
     [Scope('OnPrem')]
     procedure ValidateOverReceiptQtyValid_WarehouseActivityLine()
     var
-        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
     begin
         // [FEATURE] Over-receipt functionality for Inventory Put-away
         // [SCENARIO 360050] Setting Over-Receipt Quantity on Warehouse Activity Line correctly modifies the Quantity
@@ -1519,9 +1511,9 @@ codeunit 134851 "Purchase Over Receipt"
     [Scope('OnPrem')]
     procedure ValidateOverReceiptQtyTooLarge_WarehouseActivityLine()
     var
-        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
     begin
         // [FEATURE] Over-receipt functionality for Inventory Put-away
         // [SCENARIO 360050] Setting Over-Receipt Quantity on Warehouse Activity Line raises an error if its value is larger than the max value allowed by the default Over-Receipt Code
@@ -1553,9 +1545,9 @@ codeunit 134851 "Purchase Over Receipt"
     [Scope('OnPrem')]
     procedure ValidateOverReceiptQtyValidWithCustomCode_WarehouseActivityLine()
     var
-        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
     begin
         // [FEATURE] Over-receipt functionality for Inventory Put-away
         // [SCENARIO 360050] Setting Over-Receipt Quantity on Warehouse Activity Line correctly modifies the Quantity
@@ -1588,9 +1580,9 @@ codeunit 134851 "Purchase Over Receipt"
     [Scope('OnPrem')]
     procedure ValidateOverReceiptCodeEmpty_WarehouseActivityLine()
     var
-        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
     begin
         // [FEATURE] Over-receipt functionality for Inventory Put-away
         // [SCENARIO 360050] Setting Over-Receipt Quantity on Warehouse Activity Line correctly modifies the Quantity
@@ -1629,9 +1621,9 @@ codeunit 134851 "Purchase Over Receipt"
     [Scope('OnPrem')]
     procedure ValidateOverReceiptQtyWrongSourceDocument1_WarehouseActivityLine()
     var
-        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
     begin
         // [FEATURE] Over-receipt functionality for Inventory Put-away
         // [SCENARIO 360050] Setting Over-Receipt Quantity on Warehouse Activity Line raises an error if the source document is a Sales Return Order
@@ -1656,9 +1648,9 @@ codeunit 134851 "Purchase Over Receipt"
     [Scope('OnPrem')]
     procedure ValidateOverReceiptQtyWrongSourceDocument2_WarehouseActivityLine()
     var
-        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
     begin
         // [FEATURE] Over-receipt functionality for Inventory Put-away
         // [SCENARIO 360050] Setting Over-Receipt Quantity on Warehouse Activity Line raises an error if the source document is an Inbound Transfer Order
@@ -1683,9 +1675,9 @@ codeunit 134851 "Purchase Over Receipt"
     [Scope('OnPrem')]
     procedure ValidateOverReceiptQtyWrongSourceDocument3_WarehouseActivityLine()
     var
-        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
     begin
         // [FEATURE] Over-receipt functionality for Inventory Put-away
         // [SCENARIO 360050] Setting Over-Receipt Quantity on Warehouse Activity Line raises an error if the source document is an Outbound Transfer Order
@@ -1711,12 +1703,10 @@ codeunit 134851 "Purchase Over Receipt"
     procedure ValidateOverReceiptQtyWithApprovalNeeded_WarehouseActivityLine()
     var
         OverReceiptCode: Record "Over-Receipt Code";
-        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
-        LibraryWarehouse: Codeunit "Library - Warehouse";
-        OverReceiptApprovalStatus: Enum "Over-Receipt Approval Status";
         PurchaseLine: Record "Purchase Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
     begin
         // [FEATURE] Over-receipt functionality for Inventory Put-away
         // [SCENARIO 360050] Setting Over-Receipt Quantity on Warehouse Activity Line raises an error if the document has not been approved yet, when the Over-Receipt code requires approval
@@ -1750,12 +1740,11 @@ codeunit 134851 "Purchase Over Receipt"
     procedure ValidateOverReceiptQtyWithApprovalNeeded2_WarehouseActivityLine()
     var
         OverReceiptCode: Record "Over-Receipt Code";
-        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
-        LibraryWarehouse: Codeunit "Library - Warehouse";
-        OverReceiptApprovalStatus: Enum "Over-Receipt Approval Status";
         PurchaseLine: Record "Purchase Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
+        OverReceiptApprovalStatus: Enum "Over-Receipt Approval Status";
     begin
         // [FEATURE] Over-receipt functionality for Inventory Put-away
         // [SCENARIO 360050] Setting Over-Receipt Quantity on Warehouse Activity Line raises an error if the document has not been approved yet, when the Over-Receipt code requires approval
@@ -1763,7 +1752,6 @@ codeunit 134851 "Purchase Over Receipt"
 
         // [GIVEN] "Over Receipt" feature is enabled
         PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
-        //BindSubscription(PurchaseOverReceipt); // Needed?
 
         // [GIVEN] Create Warehouse Activity Line with Over-Receipt Code requiring approval, Qty = 10
         CreateWarehouseActivity(PurchaseLine, WarehouseActivityHeader, WarehouseActivityLine);
@@ -1791,7 +1779,6 @@ codeunit 134851 "Purchase Over Receipt"
     [Scope('OnPrem')]
     procedure OverReceiptCodeCorrectlyPropagatesFromSourcePurchaseLineToWarehouseActivityLine()
     var
-        //WarehouseSetup: Record "Warehouse Setup";
         WarehouseActivityHeader: Record "Warehouse Activity Header";
         WarehouseActivityLine: Record "Warehouse Activity Line";
         PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
@@ -1800,7 +1787,6 @@ codeunit 134851 "Purchase Over Receipt"
         // [FEATURE] Over-receipt functionality for Inventory Put-away
         // [SCENARIO 360050] The Over-Receipt Code that was set in a Purchase Line needs to appear in the corresponding new Warehouse Activity Line
         Initialize();
-        //LibraryWarehouse.NoSeriesSetup(WarehouseSetup);
 
         // [GIVEN] "Over Receipt" feature is enabled
         PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
@@ -1819,7 +1805,6 @@ codeunit 134851 "Purchase Over Receipt"
     [Scope('OnPrem')]
     procedure OverReceiptCodeCorrectlyPropagatesFromSourcePurchaseLineToWarehouseReceipt()
     var
-        //WarehouseSetup: Record "Warehouse Setup";
         WarehouseReceiptHeader: Record "Warehouse Receipt Header";
         WarehouseReceiptLine: Record "Warehouse Receipt Line";
         PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
@@ -1828,7 +1813,6 @@ codeunit 134851 "Purchase Over Receipt"
         // [FEATURE] Over-receipt functionality for Warehouse Receipt 
         // [SCENARIO 360050] The Over-Receipt Code that was set in a Purchase Line needs to appear in the corresponding new Warehouse Receipt
         Initialize();
-        //LibraryWarehouse.NoSeriesSetup(WarehouseSetup);
 
         // [GIVEN] "Over Receipt" feature is enabled
         PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
@@ -1839,6 +1823,47 @@ codeunit 134851 "Purchase Over Receipt"
 
         // [THEN] Both lines have the same Over-Receipt Code
         Assert.AreEqual(WarehouseReceiptLine."Over-Receipt Code", OverReceiptCode, 'The Over-Receipt Codes are not equal in source Purchase Line and new Warehouse Receipt.');
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure OverReceiptQtyOnSplitInventoryPutawayLine()
+    var
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        PurchaseLine: Record "Purchase Line";
+        PurchaseOverReceipt: Codeunit "Purchase Over Receipt";
+        OverReceiptCode: Code[20];
+        Qty: Decimal;
+    begin
+        // [SCENARIO 485104] Over-Receipt Quantity is properly synchronized to the purchase line on editing the over-receipt quantity on the split inventory put-away line.
+        Initialize();
+
+        // [GIVEN] Create purchase order for 100 pcs, release, create inventory put-away.
+        PurchaseOverReceipt.SetOverReceiptFeatureEnabled(true);
+        OverReceiptCode := CreateOverReceiptCode(true);
+        CreateWarehouseActivityWithOverReceiptCode(WarehouseActivityHeader, WarehouseActivityLine, OverReceiptCode);
+
+        // [GIVEN] Split the put-away line into two - for 80 pcs and 20 pcs.
+        Qty := WarehouseActivityLine.Quantity;
+        WarehouseActivityLine.Validate("Qty. to Handle", Qty * 0.8);
+        WarehouseActivityLine.Modify(true);
+        WarehouseActivityLine.SplitLine(WarehouseActivityLine);
+
+        // [WHEN] Set "Over-Receipt Quantity" = 5 pcs on the first put-away line and 3 pcs on the second line.
+        WarehouseActivityLine.Validate("Over-Receipt Quantity", 0.05 * Qty);
+        WarehouseActivityLine.Modify(true);
+        WarehouseActivityLine.Next();
+        WarehouseActivityLine.TestField("Qty. to Handle", Qty * 0.2);
+        WarehouseActivityLine.Validate("Over-Receipt Quantity", 0.03 * Qty);
+        WarehouseActivityLine.Modify(true);
+
+        // [THEN] The "Over-Receipt Quantity" on the purchase line is updated to 8 pcs.
+        PurchaseLine.Get(WarehouseActivityLine."Source Subtype", WarehouseActivityLine."Source No.", WarehouseActivityLine."Source Line No.");
+        PurchaseLine.TestField("Over-Receipt Quantity", 0.08 * Qty);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure Initialize()
@@ -1900,9 +1925,8 @@ codeunit 134851 "Purchase Over Receipt"
     var
         i: Integer;
     begin
-        for i := 1 to 3 do begin
+        for i := 1 to 3 do
             CreateOverReceiptCode();
-        end;
     end;
 
     local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")

@@ -412,8 +412,8 @@ codeunit 5330 "CRM Integration Management"
         if RecordCounter[NoOf::Total] = 1 then begin
             RecRef.SetTable(CRMIntegrationRecord);
             LocalTableId := CRMIntegrationRecord."Table ID";
-            GetIntegrationTableMapping(IntegrationTableMapping, LocalTableId);
             CRMIntegrationRecord.FindRecordId(RecId);
+            GetIntegrationTableMapping(IntegrationTableMapping, RecId);
             SourceRecRef.Get(RecId);
             SelectedDirection :=
               GetSelectedSingleSyncDirection(IntegrationTableMapping, SourceRecRef, CRMIntegrationRecord."CRM ID", Unused)
@@ -429,7 +429,7 @@ codeunit 5330 "CRM Integration Management"
             CRMIntegrationRecord.FindRecordId(RecId);
             LocalTableId := CRMIntegrationRecord."Table ID";
             if not MappingDictionary.ContainsKey(LocalTableId) then begin
-                GetIntegrationTableMapping(IntegrationTableMapping, LocalTableId);
+                GetIntegrationTableMapping(IntegrationTableMapping, RecId);
                 MappingDictionary.Add(LocalTableId, IntegrationTableMapping.Name);
             end;
             MappingName := MappingDictionary.Get(LocalTableId);
@@ -498,7 +498,7 @@ codeunit 5330 "CRM Integration Management"
         LocalIdList: List of [Guid];
         CRMIdList: List of [Guid];
     begin
-        GetIntegrationTableMapping(IntegrationTableMapping, LocalRecordRef.Number());
+        GetIntegrationTableMapping(IntegrationTableMapping, LocalRecordRef.RecordId());
 
         if RecordCounter[NoOf::Total] = 1 then
             if GetCoupledCRMID(LocalRecordRef.RecordId(), CRMID) then
@@ -557,7 +557,7 @@ codeunit 5330 "CRM Integration Management"
         CRMOptionIds: List of [Integer];
         LocalIds: List of [Guid];
     begin
-        GetIntegrationTableMapping(IntegrationTableMapping, RecRef.Number());
+        GetIntegrationTableMapping(IntegrationTableMapping, RecRef.RecordId());
 
         if RecordCounter[NoOf::Total] = 1 then
             if not GetMappedCRMOptionId(RecRef.RecordId(), CRMOptionId) then begin
@@ -771,10 +771,10 @@ codeunit 5330 "CRM Integration Management"
         if GetRecordRef(RecVariant, RecRef) = 0 then
             exit;
 
-        GetIntegrationTableMapping(IntegrationTableMapping, RecRef.Number());
+        GetIntegrationTableMapping(IntegrationTableMapping, RecRef.RecordId());
         repeat
             RecordCounter[NoOf::Total] += 1;
-            CRMOptionMapping.SetRange("Record ID", RecRef.RecordId);
+            CRMOptionMapping.SetRange("Record ID", RecRef.RecordId());
             if not CRMOptionMapping.IsEmpty() then
                 RecordCounter[NoOf::Skipped] += 1
             else
@@ -809,7 +809,7 @@ codeunit 5330 "CRM Integration Management"
                 RecordCounter[NoOf::Total] += 1;
                 LocalRecordRef.Open(IntegrationTableMapping."Table ID");
                 LocalRecordRef.GetBySystemId(LocalId);
-                CRMOptionMapping.SetRange("Record ID", LocalRecordRef.RecordId);
+                CRMOptionMapping.SetRange("Record ID", LocalRecordRef.RecordId());
                 if not CRMOptionMapping.IsEmpty() then
                     RecordCounter[NoOf::Skipped] += 1
                 else
@@ -1062,7 +1062,7 @@ codeunit 5330 "CRM Integration Management"
         RecordCounter: array[4] of Integer;
     begin
         RecordCounter[NoOf::Total] := 1;
-        GetIntegrationTableMapping(IntegrationTableMapping, RecordID.TableNo);
+        GetIntegrationTableMapping(IntegrationTableMapping, RecordID);
         if EnqueueSyncJob(IntegrationTableMapping, RecordID, CRMID, Direction) then
             RecordCounter[NoOf::Scheduled] += 1
         else
@@ -1294,7 +1294,7 @@ codeunit 5330 "CRM Integration Management"
     var
         CRMOptionMapping: Record "CRM Option Mapping";
     begin
-        CRMOptionMapping.SetRange("Record ID", RecRef.RecordId);
+        CRMOptionMapping.SetRange("Record ID", RecRef.RecordId());
         if not CRMOptionMapping.FindFirst() then
             exit(false);
         exit(CRMOptionMapping.Delete());
@@ -1554,6 +1554,15 @@ codeunit 5330 "CRM Integration Management"
         exit(IntegrationTableMapping.FindFirst());
     end;
 
+    procedure GetIntegrationTableMapping(var IntegrationTableMapping: Record "Integration Table Mapping"; RecId: RecordId)
+    var
+        TableId: Integer;
+    begin
+        TableId := RecId.TableNo();
+        OnBeforeGetIntegrationTableMappingWithRecordId(IntegrationTableMapping, RecId, TableId);
+        GetIntegrationTableMapping(IntegrationTableMapping, TableId);
+    end;
+
     procedure GetIntegrationTableMapping(var IntegrationTableMapping: Record "Integration Table Mapping"; TableID: Integer)
     begin
         OnBeforeGetIntegrationTableMapping(IntegrationTableMapping, TableId);
@@ -1576,7 +1585,7 @@ codeunit 5330 "CRM Integration Management"
     begin
         OnBeforeGetIntegrationTableMappingFromCRMRecord(IntegrationTableMapping, RecRef);
         if RecRef.Number <> Database::"CRM Account" then begin
-            GetIntegrationTableMapping(IntegrationTableMapping, RecRef.Number);
+            GetIntegrationTableMapping(IntegrationTableMapping, RecRef.RecordId());
             exit;
         end;
 
@@ -1591,6 +1600,8 @@ codeunit 5330 "CRM Integration Management"
         else
             if CustomerTypeCode = Format(CRMAccount.CustomerTypeCode::Vendor) then
                 IntegrationTableMapping.SetRange("Table ID", Database::Vendor);
+
+        OnAfterGetIntegrationTableMappingFromCRMRecordBeforeFindRecord(IntegrationTableMapping, RecRef);
         if not IntegrationTableMapping.FindFirst() then
             Error(IntegrationTableMappingNotFoundErr, IntegrationTableMapping.TableCaption(), GetTableCaption(RecRef.Number));
     end;
@@ -1676,7 +1687,7 @@ codeunit 5330 "CRM Integration Management"
         AddIntegrationTableMapping(IntegrationTableMapping);
         Commit();
         if CRMSetupDefaults.CreateJobQueueEntry(IntegrationTableMapping) then begin
-            JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId);
+            JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId());
             if JobQueueEntry.FindFirst() then
                 exit(JobQueueEntry.ID);
         end;
@@ -2313,10 +2324,10 @@ codeunit 5330 "CRM Integration Management"
         Contact: Record Contact;
         SalespersonPurchaser: Record "Salesperson/Purchaser";
         Opportunity: Record Opportunity;
-        CRMAccount: Record "CRM Account";
-        CRMContact: Record "CRM Contact";
-        CRMSystemUser: Record "CRM Systemuser";
-        CRMOpportunity: Record "CRM Opportunity";
+        TempCRMAccount: Record "CRM Account" temporary;
+        TempCRMContact: Record "CRM Contact" temporary;
+        TempCRMSystemUser: Record "CRM Systemuser" temporary;
+        TempCRMOpportunity: Record "CRM Opportunity" temporary;
     begin
         case IntegrationTableMapping."Table ID" of
             Database::Customer:
@@ -2324,40 +2335,40 @@ codeunit 5330 "CRM Integration Management"
                     if IntegrationTableMapping."Integration Table ID" <> Database::"CRM Account" then
                         exit;
 
-                    AddFieldMapping(IntegrationTableMapping, Customer.FieldNo("No."), CRMAccount.FieldNo(AccountNumber), IntegrationFieldMapping.Direction::ToIntegrationTable, false);
-                    AddFieldMapping(IntegrationTableMapping, Customer.FieldNo("Mobile Phone No."), CRMAccount.FieldNo(Telephone2), IntegrationFieldMapping.Direction::Bidirectional, false);
+                    AddFieldMapping(IntegrationTableMapping, Customer.FieldNo("No."), TempCRMAccount.FieldNo(AccountNumber), IntegrationFieldMapping.Direction::ToIntegrationTable, false);
+                    AddFieldMapping(IntegrationTableMapping, Customer.FieldNo("Mobile Phone No."), TempCRMAccount.FieldNo(Telephone2), IntegrationFieldMapping.Direction::Bidirectional, false);
                 end;
             Database::Vendor:
                 begin
                     if IntegrationTableMapping."Integration Table ID" <> Database::"CRM Account" then
                         exit;
 
-                    AddFieldMapping(IntegrationTableMapping, Vendor.FieldNo("No."), CRMAccount.FieldNo(AccountNumber), IntegrationFieldMapping.Direction::ToIntegrationTable, false);
-                    AddFieldMapping(IntegrationTableMapping, Vendor.FieldNo("Mobile Phone No."), CRMAccount.FieldNo(Telephone2), IntegrationFieldMapping.Direction::Bidirectional, false);
+                    AddFieldMapping(IntegrationTableMapping, Vendor.FieldNo("No."), TempCRMAccount.FieldNo(AccountNumber), IntegrationFieldMapping.Direction::ToIntegrationTable, false);
+                    AddFieldMapping(IntegrationTableMapping, Vendor.FieldNo("Mobile Phone No."), TempCRMAccount.FieldNo(Telephone2), IntegrationFieldMapping.Direction::Bidirectional, false);
                 end;
             Database::Contact:
                 begin
                     if IntegrationTableMapping."Integration Table ID" <> Database::"CRM Contact" then
                         exit;
 
-                    AddFieldMapping(IntegrationTableMapping, Contact.FieldNo("Salutation Code"), CRMContact.FieldNo(Salutation), IntegrationFieldMapping.Direction::Bidirectional, false);
+                    AddFieldMapping(IntegrationTableMapping, Contact.FieldNo("Salutation Code"), TempCRMContact.FieldNo(Salutation), IntegrationFieldMapping.Direction::Bidirectional, false);
                 end;
             Database::"Salesperson/Purchaser":
                 begin
                     if IntegrationTableMapping."Integration Table ID" <> Database::"CRM Systemuser" then
                         exit;
 
-                    AddFieldMapping(IntegrationTableMapping, SalespersonPurchaser.FieldNo("Job Title"), CRMSystemUser.FieldNo(JobTitle), IntegrationFieldMapping.Direction::Bidirectional, false);
-                    AddFieldMapping(IntegrationTableMapping, SalespersonPurchaser.FieldNo("E-Mail 2"), CRMSystemUser.FieldNo(PersonalEMailAddress), IntegrationFieldMapping.Direction::Bidirectional, false);
+                    AddFieldMapping(IntegrationTableMapping, SalespersonPurchaser.FieldNo("Job Title"), TempCRMSystemUser.FieldNo(JobTitle), IntegrationFieldMapping.Direction::Bidirectional, false);
+                    AddFieldMapping(IntegrationTableMapping, SalespersonPurchaser.FieldNo("E-Mail 2"), TempCRMSystemUser.FieldNo(PersonalEMailAddress), IntegrationFieldMapping.Direction::Bidirectional, false);
                 end;
             Database::Opportunity:
                 begin
                     if IntegrationTableMapping."Integration Table ID" <> Database::"CRM Opportunity" then
                         exit;
 
-                    AddFieldMapping(IntegrationTableMapping, Opportunity.FieldNo("Date Closed"), CRMOpportunity.FieldNo(ActualCloseDate), IntegrationFieldMapping.Direction::ToIntegrationTable, false);
-                    AddFieldMapping(IntegrationTableMapping, Opportunity.FieldNo("Probability %"), CRMOpportunity.FieldNo(CloseProbability), IntegrationFieldMapping.Direction::ToIntegrationTable, false);
-                    AddFieldMapping(IntegrationTableMapping, Opportunity.FieldNo("Calcd. Current Value (LCY)"), CRMOpportunity.FieldNo(ActualValue), IntegrationFieldMapping.Direction::ToIntegrationTable, false);
+                    AddFieldMapping(IntegrationTableMapping, Opportunity.FieldNo("Date Closed"), TempCRMOpportunity.FieldNo(ActualCloseDate), IntegrationFieldMapping.Direction::ToIntegrationTable, false);
+                    AddFieldMapping(IntegrationTableMapping, Opportunity.FieldNo("Probability %"), TempCRMOpportunity.FieldNo(CloseProbability), IntegrationFieldMapping.Direction::ToIntegrationTable, false);
+                    AddFieldMapping(IntegrationTableMapping, Opportunity.FieldNo("Calcd. Current Value (LCY)"), TempCRMOpportunity.FieldNo(ActualValue), IntegrationFieldMapping.Direction::ToIntegrationTable, false);
                 end;
         end;
     end;
@@ -3179,7 +3190,7 @@ codeunit 5330 "CRM Integration Management"
         SuccessDateTime: DateTime;
     begin
         RecordRef.GetTable(RecVariant);
-        if CRMIntegrationRecord.FindByRecordID(RecordRef.RecordId) then begin
+        if CRMIntegrationRecord.FindByRecordID(RecordRef.RecordId()) then begin
             if CRMIntegrationRecord.Skipped then
                 exit(SendSkippedSyncNotification(CRMIntegrationRecord."Integration ID"));
 
@@ -3334,7 +3345,7 @@ codeunit 5330 "CRM Integration Management"
         CRMIntegrationRecord: Record "CRM Integration Record";
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
-        GetIntegrationTableMapping(IntegrationTableMapping, RecId.TableNo);
+        GetIntegrationTableMapping(IntegrationTableMapping, RecId);
         CRMIntegrationRecord.FindByRecordID(RecId);
         IntegrationTableMapping.ShowLog(CRMIntegrationRecord.GetLatestJobIDFilter());
     end;
@@ -3344,7 +3355,7 @@ codeunit 5330 "CRM Integration Management"
         CRMOptionMapping: Record "CRM Option Mapping";
         IntegrationTableMapping: Record "Integration Table Mapping";
     begin
-        GetIntegrationTableMapping(IntegrationTableMapping, RecId.TableNo);
+        GetIntegrationTableMapping(IntegrationTableMapping, RecId);
         CRMOptionMapping.SetRange("Record ID", RecId);
         if CRMOptionMapping.FindFirst() then
             IntegrationTableMapping.ShowLog(CRMOptionMapping.GetLatestJobIDFilter())
@@ -4253,6 +4264,16 @@ codeunit 5330 "CRM Integration Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnGetIntegrationTableMappingFromCRMIDOnBeforeFindTableID(var IntegrationTableMapping: Record "Integration Table Mapping"; TableID: Integer; CRMID: Guid; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetIntegrationTableMappingWithRecordId(var IntegrationTableMapping: Record "Integration Table Mapping"; BCRecordId: RecordId; var TableID: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetIntegrationTableMappingFromCRMRecordBeforeFindRecord(var IntegrationTableMapping: Record "Integration Table Mapping"; RecRef: RecordRef)
     begin
     end;
 }

@@ -16,6 +16,7 @@ report 415 "Archived Purchase Quote"
     DefaultLayout = RDLC;
     RDLCLayout = './Purchases/Archive/ArchivedPurchaseQuote.rdlc';
     Caption = 'Archived Purchase Quote';
+    WordMergeDataItem = "Purchase Header Archive";
 
     dataset
     {

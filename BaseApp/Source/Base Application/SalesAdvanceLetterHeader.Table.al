@@ -161,7 +161,7 @@ table 31000 "Sales Advance Letter Header"
         field(86; "Bill-to County"; Text[30])
         {
             Caption = 'Bill-to County';
-            CaptionClass = '5,1,' + "Bill-to Country/Region Code";
+            CaptionClass = '5,3,' + "Bill-to Country/Region Code";
         }
         field(87; "Bill-to Country/Region Code"; Code[10])
         {

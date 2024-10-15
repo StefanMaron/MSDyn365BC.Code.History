@@ -1400,6 +1400,52 @@ codeunit 136602 "ERM RS Create Journal Lines"
         Assert.ExpectedError(BlockedErr);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure BillToPayBlankOnSameDocumentNoWithoutBalAccount()
+    var
+        Vendor: Record Vendor;
+        GLAccount: array[2] of Record "G/L Account";
+        GenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        // [SCENARIO 479195] Bill-to/Pay-to No. and Country/Region Code fields are incorrectly filled in the VAT Entries if we include a Vendor line in the Journal 
+        // together with other lines with VAT involved using the same Document No.
+        Initialize();
+
+        // [GIVEN] Create Vendor
+        LibraryPurchase.CreateVendor(Vendor);
+
+        // [GIVEN] Create two G/l Account
+        CreateAndUpdateGLAccount(GLAccount[1], GLAccount[1]."Gen. Posting Type"::Purchase);
+        LibraryERM.CreateGLAccount(GLAccount[2]);
+
+        // [GIVEN] Create Gen. Journal Template and Batch
+        CreateBatchAndUpdateTemplate(GenJournalBatch, GenJournalTemplate.Type::General);
+
+        // [GIVEN] Create Gen. Journal Line for two GL and no Bal. Account No.
+        CreateGeneralJournal(GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"G/L Account", GLAccount[1]."No.", LibraryRandom.RandDec(10, 2));
+        CreateGeneralJournal(GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"G/L Account", GLAccount[2]."No.", -GenJournalLine.Amount);
+
+        // [GIVEN] Create Gen. Journal Line for two GL and no Bal. Account No.
+        CreateGeneralJournal(GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"G/L Account", GLAccount[1]."No.", LibraryRandom.RandDec(10, 2));
+        CreateGeneralJournal(GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"G/L Account", GLAccount[2]."No.", -GenJournalLine.Amount);
+
+        // [GIVEN] Create entry for vendor and Bal.Account No. is blank.
+        CreateGeneralJournal(GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::Vendor, Vendor."No.", LibraryRandom.RandDec(10, 2));
+        CreateGeneralJournal(GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"G/L Account", GLAccount[2]."No.", -GenJournalLine.Amount);
+
+        // [WHEN] Post General Journal Lines.
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [VERIFY] Verify VAT Entry has blank "Bill-to/Pay-to No.".
+        VerifyVATEntries(GenJournalLine."Document No.", '');
+
+        // [THEN] Tear Down: Delete earlier created General Journal Template.
+        DeleteGeneralJournalTemplate(GenJournalBatch."Journal Template Name");
+    end;
+
     local procedure AttachDimensionOnJournalLine(GenJournalLine: Record "Gen. Journal Line")
     var
         Dimension: Record Dimension;
@@ -1906,6 +1952,73 @@ codeunit 136602 "ERM RS Create Journal Lines"
         StandardItemJournalLine.SetRange("Journal Template Name", JournalTemplateName);
         StandardItemJournalLine.SetRange("Standard Journal Code", StandardJournalCode);
         StandardItemJournalLine.FindSet();
+    end;
+
+    local procedure CreateAndUpdateGLAccount(var GLAccount: Record "G/L Account"; GenPostingType: Enum "General Posting Type")
+    begin
+        LibraryERM.CreateGLAccount(GLAccount);
+        UpdateGLAccount(GLAccount, GenPostingType);
+    end;
+
+    local procedure UpdateGLAccount(var GLAccount: Record "G/L Account"; GenPostingType: Enum "General Posting Type")
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+    begin
+        LibraryERM.FindGeneralPostingSetup(GeneralPostingSetup);
+        FindVATSetupWithZeroVATPct(VATPostingSetup);
+        GLAccount.Validate("Gen. Posting Type", GenPostingType);
+        GLAccount.Validate("Gen. Bus. Posting Group", GeneralPostingSetup."Gen. Bus. Posting Group");
+        GLAccount.Validate("Gen. Prod. Posting Group", GeneralPostingSetup."Gen. Prod. Posting Group");
+        GLAccount.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
+        GLAccount.Validate("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
+        GLAccount.Modify(true);
+    end;
+
+    local procedure FindVATSetupWithZeroVATPct(var VATPostingSetup: Record "VAT Posting Setup")
+    begin
+        VATPostingSetup.SetRange("Unrealized VAT Type", VATPostingSetup."Unrealized VAT Type"::" ");
+        VATPostingSetup.SetFilter("VAT Bus. Posting Group", '<>''''');
+        VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>''''');
+        VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
+        VATPostingSetup.SetRange("VAT %", 0);  // Taking Zero VAT Percent to Create a VAT Entry Without Amount. Value important for Test.
+        VATPostingSetup.FindFirst();
+    end;
+
+    local procedure CreateBatchAndUpdateTemplate(var GenJournalBatch: Record "Gen. Journal Batch"; Type: Enum "Gen. Journal Template Type")
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        LibraryERM.CreateGenJournalTemplate(GenJournalTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
+        GenJournalTemplate.Validate(Type, Type);
+        GenJournalTemplate.Modify(true);
+    end;
+
+    local procedure CreateGeneralJournal(var GenJournalLine: Record "Gen. Journal Line"; GenJournalBatch: Record "Gen. Journal Batch"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; Amount: Decimal)
+    begin
+        LibraryERM.CreateGeneralJnlLine(
+          GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
+          AccountType, AccountNo, Amount);
+        GenJournalLine.Validate("Document No.", GenJournalBatch."Journal Template Name");
+        GenJournalLine.Modify(true);
+    end;
+
+    local procedure VerifyVATEntries(DocumentNo: Code[20]; BilltoPaytoNo: Code[20])
+    var
+        VATEntry: Record "VAT Entry";
+    begin
+        VATEntry.SetRange("Document No.", DocumentNo);
+        VATEntry.FindFirst();
+        VATEntry.TestField("Bill-to/Pay-to No.", BilltoPaytoNo);
+    end;
+
+    local procedure DeleteGeneralJournalTemplate(Name: Code[10])
+    var
+        GenJournalTemplate: Record "Gen. Journal Template";
+    begin
+        GenJournalTemplate.Get(Name);
+        GenJournalTemplate.Delete(true);
     end;
 
     [ConfirmHandler]

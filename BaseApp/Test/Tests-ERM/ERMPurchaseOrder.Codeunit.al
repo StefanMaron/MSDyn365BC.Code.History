@@ -7832,6 +7832,40 @@
         asserterror PurchaseOrder.PurchLines."Job Line Type".Value(Format(PurchaseLine."Job Line Type".AsInteger()));
     end;
 
+    [Test]
+    [HandlerFunctions('StandardPurchaseOrderRequestPageHandler')]
+    procedure VerifyPrintPurchaseOrderAfterPostPrepaymentInvoiceAndUpdatePrepaymentPercent()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        // [SCENARIO 479326] Verify Print Purchase Order after Post Prepayment Invoice and update Prepayment Percent
+        Initialize();
+
+        // [GIVEN] Create the Purchase Order
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine, CreateItem);
+
+        // [GIVEN] Set Prepayment Percent on Purchase Header
+        PurchaseHeader.Validate("Prepayment %", 20);
+        PurchaseHeader."Prepayment Due Date" := CalcDate('<+1M>', WorkDate());
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Post Prepayment
+        LibraryPurchase.PostPurchasePrepaymentInvoice(PurchaseHeader);
+
+        // [GIVEN] Reopen Purchase Order
+        LibraryPurchase.ReopenPurchaseDocument(PurchaseHeader);
+
+        // [WHEN] Update Prepayment Percent on Purchase Header
+        PurchaseHeader.Validate("Prepayment %", 30);
+        PurchaseHeader.Modify(true);
+
+        // [THEN] Verify Print Purchase Order
+        PurchaseHeader.SetRange("No.", PurchaseHeader."No.");
+        Commit();
+        Report.Run(Report::"Standard Purchase - Order", true, false, PurchaseHeader);
+    end;
+
     local procedure Initialize()
     var
         PurchaseHeader: Record "Purchase Header";
@@ -11500,6 +11534,12 @@
     procedure PurchaseDocumentTestRequestPageHandler(var PurchaseDocumentTest: TestRequestPage "Purchase Document - Test")
     begin
         // Close handler
+    end;
+
+    [RequestPageHandler]
+    procedure StandardPurchaseOrderRequestPageHandler(var StandardPurchaseOrder: TestRequestPage "Standard Purchase - Order")
+    begin
+        StandardPurchaseOrder.Preview().Invoke();
     end;
 
     [ModalPageHandler]

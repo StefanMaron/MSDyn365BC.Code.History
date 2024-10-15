@@ -1132,7 +1132,7 @@ page 49 "Purchase Quote"
                     Ellipsis = true;
                     Enabled = Rec."No." <> '';
                     Image = CopyDocument;
-                    ToolTip = 'Copy document lines and header information from another sales document to this document. You can copy a posted sales invoice into a new sales invoice to quickly create a similar document.';
+                    ToolTip = 'Copy document lines and header information from another purchase document to this document. You can copy a posted purchase invoice into a new purchase invoice to quickly create a similar document.';
 
                     trigger OnAction()
                     begin
@@ -1517,7 +1517,6 @@ page 49 "Purchase Quote"
         ChangeExchangeRate: Page "Change Exchange Rate";
         StatusStyleTxt: Text;
         HasIncomingDocument: Boolean;
-        DocNoVisible: Boolean;
         OpenApprovalEntriesExistForCurrUser: Boolean;
         IsPowerAutomatePrivacyNoticeApproved: Boolean;
         OpenApprovalEntriesExist: Boolean;
@@ -1537,6 +1536,7 @@ page 49 "Purchase Quote"
     protected var
         ShipToOptions: Option "Default (Company Address)",Location,"Custom Address";
         PayToOptions: Option "Default (Vendor)","Another Vendor","Custom Address";
+        DocNoVisible: Boolean;
 
     protected procedure ActivateFields()
     begin

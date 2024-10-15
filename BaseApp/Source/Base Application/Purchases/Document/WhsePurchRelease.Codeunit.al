@@ -21,8 +21,12 @@ codeunit 5772 "Whse.-Purch. Release"
         PurchaseLine: Record "Purchase Line";
         WhseType: Enum "Warehouse Request Type";
         OldWhseType: Enum "Warehouse Request Type";
+        IsHandled: Boolean;
     begin
-        OnBeforeRelease(PurchaseHeader);
+        IsHandled := false;
+        OnBeforeRelease(PurchaseHeader, IsHandled);
+        if IsHandled then
+            exit;
 
         case PurchaseHeader."Document Type" of
             PurchaseHeader."Document Type"::Order:
@@ -191,7 +195,7 @@ codeunit 5772 "Whse.-Purch. Release"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeRelease(var PurchaseHeader: Record "Purchase Header")
+    local procedure OnBeforeRelease(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 

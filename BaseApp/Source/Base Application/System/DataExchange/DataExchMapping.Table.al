@@ -91,7 +91,13 @@ table 1224 "Data Exch. Mapping"
     trigger OnDelete()
     var
         DataExchFieldGrouping: Record "Data Exch. Field Grouping";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeOnDelete(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         DataExchFieldMapping.SetRange("Data Exch. Def Code", "Data Exch. Def Code");
         DataExchFieldMapping.SetRange("Table ID", "Table ID");
         DataExchFieldMapping.SetRange("Data Exch. Line Def Code", "Data Exch. Line Def Code");
@@ -213,5 +219,10 @@ table 1224 "Data Exch. Mapping"
         end;
 
         exit(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeOnDelete(var DataExchMapping: Record "Data Exch. Mapping"; var IsHandled: Boolean)
+    begin
     end;
 }

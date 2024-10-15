@@ -6,6 +6,7 @@ using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Journal;
 using Microsoft.Finance.GeneralLedger.Posting;
 using Microsoft.Finance.GeneralLedger.Setup;
+using Microsoft.Finance.VAT.Calculation;
 using Microsoft.Foundation.AuditCodes;
 using Microsoft.Foundation.NoSeries;
 using Microsoft.Sales.Customer;
@@ -29,8 +30,12 @@ codeunit 395 "FinChrgMemo-Issue"
         ReminderFinChargeEntry: Record "Reminder/Fin. Charge Entry";
         FinChrgCommentLine: Record "Fin. Charge Comment Line";
         CurrencyExchangeRate: Record "Currency Exchange Rate";
+        IsHandled: Boolean;
     begin
-        OnBeforeIssueFinChargeMemo(FinChrgMemoHeader);
+        IsHandled := false;
+        OnBeforeIssueFinChargeMemo(FinChrgMemoHeader, ReplacePostingDate, PostingDate, IsHandled, IssuedFinChrgMemoHeader);
+        if IsHandled then
+            exit;
 
         with FinChrgMemoHeader do begin
             UpdateFinanceChargeRounding(FinChrgMemoHeader);
@@ -227,7 +232,6 @@ codeunit 395 "FinChrgMemo-Issue"
         DimMgt: Codeunit DimensionManagement;
         NoSeriesMgt: Codeunit NoSeriesManagement;
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
-        ErrorMessageMgt: Codeunit "Error Message Management";
         DocNo: Code[20];
         NextEntryNo: Integer;
         ReplacePostingDate: Boolean;
@@ -245,7 +249,6 @@ codeunit 395 "FinChrgMemo-Issue"
         Text002: Label 'The combination of dimensions used in %1 %2 is blocked. %3';
         Text003: Label 'A dimension in %1 %2 has caused an error. %3';
         MissingJournalFieldErr: Label 'Please enter a %1 when posting Additional Fees or Interest.', Comment = '%1 - field caption';
-        VATDateNotAllowedErr: Label '%1 is not within your range of allowed posting dates.', Comment = '%1 - VAT Date field caption';
 
     procedure Set(var NewFinChrgMemoHeader: Record "Finance Charge Memo Header"; NewReplacePostingDate: Boolean; NewPostingDate: Date)
     begin
@@ -478,27 +481,13 @@ codeunit 395 "FinChrgMemo-Issue"
         CustLedgerEntry2.ModifyAll("Closing Interest Calculated", true);
     end;
 
-    local procedure CheckVATDate(var FinChrgMemoHeader: Record "Finance Charge Memo Header")
-    var
-        GenJnlCheckLine: Codeunit "Gen. Jnl.-Check Line";
-        ForwardLinkMgt: Codeunit "Forward Link Mgt.";
-        SetupRecID: RecordID;
+    local procedure CheckVATDate(var FinChrgMemoHeader2: Record "Finance Charge Memo Header")
     begin
         // ensure VAT Date is filled in
-        If FinChrgMemoHeader."VAT Reporting Date" = 0D then begin
-            FinChrgMemoHeader."VAT Reporting Date" := GLSetup.GetVATDate(FinChrgMemoHeader."Posting Date", FinChrgMemoHeader."Document Date");
-            FinChrgMemoHeader.Modify();
+        if FinChrgMemoHeader2."VAT Reporting Date" = 0D then begin
+            FinChrgMemoHeader2."VAT Reporting Date" := GLSetup.GetVATDate(FinChrgMemoHeader2."Posting Date", FinChrgMemoHeader2."Document Date");
+            FinChrgMemoHeader2.Modify();
         end;
-
-        // check whether VAT Date is within allowed VAT Periods
-        GenJnlCheckLine.CheckVATDateAllowed(FinChrgMemoHeader."VAT Reporting Date");
-
-        // check whether VAT Date is within Allowed period defined in Gen. Ledger Setup
-        if GenJnlCheckLine.IsDateNotAllowed(FinChrgMemoHeader."VAT Reporting Date", SetupRecID, '') then
-            ErrorMessageMgt.LogContextFieldError(
-              FinChrgMemoHeader.FieldNo("VAT Reporting Date"), StrSubstNo(VATDateNotAllowedErr, FinChrgMemoHeader.FieldCaption("VAT Reporting Date")),
-              SetupRecID, ErrorMessageMgt.GetFieldNo(SetupRecID.TableNo, GLSetup.FieldName("Allow Posting From")),
-              ForwardLinkMgt.GetHelpCodeForAllowedPostingDate());
     end;
 
     [IntegrationEvent(false, false)]
@@ -527,7 +516,7 @@ codeunit 395 "FinChrgMemo-Issue"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeIssueFinChargeMemo(var FinChargeMemoHeader: Record "Finance Charge Memo Header")
+    local procedure OnBeforeIssueFinChargeMemo(var FinChargeMemoHeader: Record "Finance Charge Memo Header"; var ReplacePostingDate: Boolean; var PostingDate: Date; var IsHandled: Boolean; IssuedFinChargeMemoHeader: Record "Issued Fin. Charge Memo Header")
     begin
     end;
 

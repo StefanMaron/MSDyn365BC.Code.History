@@ -357,7 +357,7 @@ table 114 "Sales Cr.Memo Header"
         }
         field(86; "Bill-to County"; Text[30])
         {
-            CaptionClass = '5,1,' + "Bill-to Country/Region Code";
+            CaptionClass = '5,3,' + "Bill-to Country/Region Code";
             Caption = 'Bill-to County';
         }
         field(87; "Bill-to Country/Region Code"; Code[10])
@@ -373,7 +373,7 @@ table 114 "Sales Cr.Memo Header"
         }
         field(89; "Sell-to County"; Text[30])
         {
-            CaptionClass = '5,1,' + "Sell-to Country/Region Code";
+            CaptionClass = '5,2,' + "Sell-to Country/Region Code";
             Caption = 'Sell-to County';
         }
         field(90; "Sell-to Country/Region Code"; Code[10])
@@ -389,7 +389,7 @@ table 114 "Sales Cr.Memo Header"
         }
         field(92; "Ship-to County"; Text[30])
         {
-            CaptionClass = '5,1,' + "Ship-to Country/Region Code";
+            CaptionClass = '5,4,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
         }
         field(93; "Ship-to Country/Region Code"; Code[10])
@@ -957,7 +957,7 @@ table 114 "Sales Cr.Memo Header"
         PostSalesDelete: Codeunit "PostSales-Delete";
     begin
         PostSalesDelete.IsDocumentDeletionAllowed("Posting Date");
-        TestField("No. Printed");
+        CheckNoPrinted();
         LockTable();
         PostSalesDelete.DeleteSalesCrMemoLines(Rec);
 
@@ -1038,6 +1038,18 @@ table 114 "Sales Cr.Memo Header"
 
         DocumentSendingProfile.TrySendToPrinter(
           DummyReportSelections.Usage::"S.Cr.Memo".AsInteger(), Rec, FieldNo("Bill-to Customer No."), ShowRequestPage);
+    end;
+
+    procedure CheckNoPrinted()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckNoPrinted(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        Rec.TestField("No. Printed");
     end;
 
     procedure EmailRecords(ShowRequestPage: Boolean)
@@ -1295,6 +1307,11 @@ table 114 "Sales Cr.Memo Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeDoPrintToDocumentAttachment(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; ShowNotificationAction: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckNoPrinted(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var IsHandled: Boolean)
     begin
     end;
 }

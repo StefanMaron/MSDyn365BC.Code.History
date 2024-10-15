@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -294,6 +294,7 @@ codeunit 7201 "CDS Integration Impl."
         SuccessfulJITProvisioningTelemetryMsg: Label 'Service principal successfully provisioned for tenant.', Locked = true;
         ConnectionStringEmptyTxt: Label 'Connection string is is empty.', Locked = true;
         VTEnableAppTxt: Label 'Enable virtual tables app.', Locked = true;
+        PPEnableAppTxt: Label 'Enable power pages for virtual tables apps.', Locked = true;
         VTConfigureNonProdTxt: Label 'Configure virtual tables in non-production.', Locked = true;
         VTEmptyTenantIdTxt: Label 'Tetant Id is empty.', Locked = true;
         VTEmptyAadUserIdTxt: Label 'User Id is empty.', Locked = true;
@@ -814,6 +815,7 @@ codeunit 7201 "CDS Integration Impl."
         AssignVirtualTablesIntegrationRole(CrmHelper, CDSConnectionSetup."User Name");
 
         EnableVirtualTablesApp();
+        EnablePowerPagesApps();
         Commit(); // for at an plugin in Dataverse can connect to BC with the VT app while saving VT config by the below procedure
         ConfigureVirtualTables(TempAdminCDSConnectionSetup, ConfigId);
     end;
@@ -832,6 +834,36 @@ codeunit 7201 "CDS Integration Impl."
         Validate := EnvironmentInfo.IsSaaSInfrastructure();
         if not Validate then
             Validate := IdentityManagement.IsUserNamePasswordAuthentication();
+        if Validate then
+            AADApplication.Validate(State, AADApplication.State::Enabled)
+        else
+            AADApplication.State := AADApplication.State::Enabled;
+        AADApplication.Modify();
+    end;
+
+    local procedure EnablePowerPagesApps()
+    var
+        AADApplication: Record "AAD Application";
+        AADApplicationSetup: Codeunit "AAD Application Setup";
+        IdentityManagement: Codeunit "Identity Management";
+        AppId: Guid;
+        Validate: Boolean;
+    begin
+        Validate := EnvironmentInfo.IsSaaSInfrastructure();
+        if not Validate then
+            Validate := IdentityManagement.IsUserNamePasswordAuthentication();
+           
+        Session.LogMessage('0000LHI', PPEnableAppTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+        AppId := AADApplicationSetup.GetPowerPagesAuthenticatedAppId();
+        AADApplication.Get(AppId);
+        if Validate then
+            AADApplication.Validate(State, AADApplication.State::Enabled)
+        else
+            AADApplication.State := AADApplication.State::Enabled;
+        AADApplication.Modify();
+
+        AppId := AADApplicationSetup.GetPowerPagesAnonymousAppId();
+        AADApplication.Get(AppId);
         if Validate then
             AADApplication.Validate(State, AADApplication.State::Enabled)
         else
@@ -4639,13 +4671,22 @@ codeunit 7201 "CDS Integration Impl."
 
     internal procedure MultipleCompaniesConnected(): Boolean
     var
+        CDSCompanyCount: Integer;
+    begin
+        if not TryCDSCompanyCount(CDSCompanyCount) then
+            exit(false);
+
+        exit(CDSCompanyCount > 1);
+    end;
+
+    [TryFunction]
+    local procedure TryCDSCompanyCount(var CompanyCount: Integer)
+    var
         CDSCompany: Record "CDS Company";
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
     begin
         if (CRMIntegrationManagement.IsCDSIntegrationEnabled() or CRMIntegrationManagement.IsCRMIntegrationEnabled()) then
-            exit(CDSCompany.Count() > 1)
-        else
-            exit(false);
+            CompanyCount := CDSCompany.Count();
     end;
 
     internal procedure GetBusinessEventsSupported(): Boolean

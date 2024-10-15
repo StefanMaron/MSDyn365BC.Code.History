@@ -808,6 +808,7 @@ table 7001 "Price List Line"
         "Asset ID" := PriceAsset."Asset ID";
         Description := PriceAsset.Description;
         "Unit of Measure Code" := PriceAsset."Unit of Measure Code";
+        "Unit of Measure Code Lookup" := PriceAsset."Unit of Measure Code";
         "Variant Code" := PriceAsset."Variant Code";
         "Work Type Code" := PriceAsset."Work Type Code";
 

@@ -28,7 +28,7 @@ codeunit 5406 "Output Jnl.-Expl. Route"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeOnRun(Rec, IsHandled);
+        OnBeforeOnRun(Rec, IsHandled, LastItemJnlLine);
         if IsHandled then
             exit;
 
@@ -229,7 +229,7 @@ codeunit 5406 "Output Jnl.-Expl. Route"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeOnRun(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
+    local procedure OnBeforeOnRun(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean; var LastItemJournalLine: Record "Item Journal Line")
     begin
     end;
 

@@ -1,6 +1,9 @@
 {
   "folders": [
     {
+      "path": "./reviewglentries/Test/_Exclude_Review_General_Ledger_Entries_Tests"
+    },
+    {
       "path": "./AuditFileExport/Test/Audit File Export Tests"
     },
     {
@@ -19,7 +22,13 @@
       "path": "./DataArchive/test/Data Archive Tests"
     },
     {
+      "path": "./BankAccRecWithAI/Test/Bank Account Reconciliation With AI Tests"
+    },
+    {
       "path": "./AdvancedLocalizationPackForCzech/Test/Advanced Localization Pack for Czech Tests"
+    },
+    {
+      "path": "./EU3PartyTradePurchase/test/EU 3-Party Trade Purchase Tests"
     },
     {
       "path": "./BankingDocumentsLocalizationForCzech/Test/Banking Documents Localization for Czech Tests"
@@ -212,9 +221,6 @@
     },
     {
       "path": "./paypalpaymentsstandard/test/PayPal Payments Standard Tests"
-    },
-    {
-      "path": "./ReviewGLEntries/Test/_Exclude_Review_General_Ledger_Entries_Tests"
     },
     {
       "path": "./CashDeskLocalizationForCzech/Test/Cash Desk Localization for Czech Tests"

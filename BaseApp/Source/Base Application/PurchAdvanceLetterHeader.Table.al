@@ -164,7 +164,7 @@ table 31020 "Purch. Advance Letter Header"
         field(86; "Pay-to County"; Text[30])
         {
             Caption = 'Pay-to County';
-            CaptionClass = '5,1,' + "Pay-to Country/Region Code";
+            CaptionClass = '5,6,' + "Pay-to Country/Region Code";
         }
         field(87; "Pay-to Country/Region Code"; Code[10])
         {

@@ -758,7 +758,13 @@ table 38 "Purchase Header"
             trigger OnValidate()
             var
                 StandardCodesMgt: Codeunit "Standard Codes Mgt.";
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateCurrencyCode(Rec, xRec, CurrFieldNo, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if not (CurrFieldNo in [0, FieldNo("Posting Date")]) or ("Currency Code" <> xRec."Currency Code") then
                     TestStatusOpen();
 
@@ -1394,7 +1400,7 @@ table 38 "Purchase Header"
         }
         field(86; "Pay-to County"; Text[30])
         {
-            CaptionClass = '5,1,' + "Pay-to Country/Region Code";
+            CaptionClass = '5,6,' + "Pay-to Country/Region Code";
             Caption = 'Pay-to County';
 
             trigger OnValidate()
@@ -1447,7 +1453,7 @@ table 38 "Purchase Header"
         }
         field(89; "Buy-from County"; Text[30])
         {
-            CaptionClass = '5,1,' + "Buy-from Country/Region Code";
+            CaptionClass = '5,5,' + "Buy-from Country/Region Code";
             Caption = 'Buy-from County';
 
             trigger OnValidate()
@@ -1504,7 +1510,7 @@ table 38 "Purchase Header"
         }
         field(92; "Ship-to County"; Text[30])
         {
-            CaptionClass = '5,1,' + "Ship-to Country/Region Code";
+            CaptionClass = '5,4,' + "Ship-to Country/Region Code";
             Caption = 'Ship-to County';
         }
         field(93; "Ship-to Country/Region Code"; Code[10])
@@ -4747,7 +4753,13 @@ table 38 "Purchase Header"
     local procedure CheckDropShipmentLineExists()
     var
         SalesShipmentLine: Record "Sales Shipment Line";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckDropShipmentLineExists(SalesShipmentLine, IsHandled);
+        if IsHandled then
+            exit;
+
         SalesShipmentLine.SetRange("Purchase Order No.", "No.");
         SalesShipmentLine.SetRange("Drop Shipment", true);
         if not SalesShipmentLine.IsEmpty() then
@@ -4767,15 +4779,13 @@ table 38 "Purchase Header"
     procedure IsApprovedForPosting() Approved: Boolean
     var
         PrepaymentMgt: Codeunit "Prepayment Mgt.";
-        ConfirmManagement: Codeunit "Confirm Management";
     begin
         if ApprovalsMgmt.PrePostApprovalCheckPurch(Rec) then begin
-            if PrepaymentMgt.TestPurchasePrepayment(Rec) then
-                Error(PrepaymentInvoicesNotPaidErr, "Document Type", "No.");
+            TestPurchasePrepayment();
             Approved := true;
-            if PrepaymentMgt.TestPurchasePayment(Rec) then
-                if not ConfirmManagement.GetResponseOrDefault(StrSubstNo(Text054, "Document Type", "No."), true) then
-                    Approved := false;
+            if "Document Type" = "Document Type"::Order then
+                if PrepaymentMgt.TestPurchasePayment(Rec) then
+                    Error(Text054, "Document Type", "No.");
             OnAfterIsApprovedForPosting(Rec, Approved);
         end;
     end;
@@ -4792,8 +4802,7 @@ table 38 "Purchase Header"
         PrepaymentMgt: Codeunit "Prepayment Mgt.";
     begin
         if ApprovalsMgmt.PrePostApprovalCheckPurch(Rec) then begin
-            if PrepaymentMgt.TestPurchasePrepayment(Rec) then
-                Error(PrepaymentInvoicesNotPaidErr, "Document Type", "No.");
+            TestPurchasePrepayment();
             if PrepaymentMgt.TestPurchasePayment(Rec) then
                 Error(Text054, "Document Type", "No.");
         end;
@@ -6767,6 +6776,14 @@ table 38 "Purchase Header"
         end;
     end;
 
+    procedure TestPurchasePrepayment()
+    var
+        PrepaymentMgt: Codeunit "Prepayment Mgt.";
+    begin
+        if PrepaymentMgt.TestPurchasePrepayment(Rec) then
+            Error(PrepaymentInvoicesNotPaidErr, Rec."Document Type", Rec."No.");
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterInitDefaultDimensionSources(var PurchaseHeader: Record "Purchase Header"; var DefaultDimSource: List of [Dictionary of [Integer, Code[20]]]; FieldNo: Integer)
     begin
@@ -8035,6 +8052,16 @@ table 38 "Purchase Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeConfirmCloseUnposted(var PurchaseHeader: Record "Purchase Header"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateCurrencyCode(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckDropShipmentLineExists(var SalesShipmentLine: Record "Sales Shipment Line"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -1112,6 +1112,7 @@ table 37 "Sales Line"
             trigger OnValidate()
             var
                 ItemLedgEntry: Record "Item Ledger Entry";
+                IsHandled: Boolean;
             begin
                 if "Appl.-to Item Entry" <> 0 then begin
                     AddOnIntegrMgt.CheckReceiptOrderStatus(Rec);
@@ -1128,8 +1129,12 @@ table 37 "Sales Line"
                     Validate("Unit Cost (LCY)", CalcUnitCost(ItemLedgEntry));
 
                     "Location Code" := ItemLedgEntry."Location Code";
-                    if not ItemLedgEntry.Open then
-                        Message(Text042, "Appl.-to Item Entry");
+
+                    IsHandled := false;
+                    OnApplToItemEntryValidateOnBeforeMessage(Rec, CurrFieldNo, IsHandled);
+                    if not IsHandled then
+                        if not ItemLedgEntry.Open then
+                            Message(Text042, "Appl.-to Item Entry");
                 end;
             end;
         }
@@ -2347,7 +2352,7 @@ table 37 "Sales Line"
         }
         field(2678; "Allocation Account No."; Code[20])
         {
-            Caption = 'Allocation Account No.';
+            Caption = 'Posting Allocation Account No.';
             DataClassification = CustomerContent;
             TableRelation = "Allocation Account";
         }
@@ -5732,7 +5737,6 @@ table 37 "Sales Line"
     local procedure GetFAPostingGroup()
     var
         LocalGLAcc: Record "G/L Account";
-        FASetup: Record "FA Setup";
         FAPostingGr: Record "FA Posting Group";
         FADeprBook: Record "FA Depreciation Book";
         ShouldExit: Boolean;
@@ -5747,11 +5751,7 @@ table 37 "Sales Line"
             exit;
 
         if "Depreciation Book Code" = '' then begin
-            FASetup.Get();
-            "Depreciation Book Code" := FASetup."Default Depr. Book";
-            if not FADeprBook.Get("No.", "Depreciation Book Code") then
-                "Depreciation Book Code" := '';
-
+            "Depreciation Book Code" := GetFADeprBook("No.");
             ShouldExit := "Depreciation Book Code" = '';
             OnGetGetFAPostingGroupOnBeforeExit(Rec, ShouldExit);
             if ShouldExit then
@@ -8867,7 +8867,7 @@ table 37 "Sales Line"
         end;
     end;
 
-    internal procedure AttachToInventoryItemLine(var SelectedSalesLine: Record "Sales Line")
+    procedure AttachToInventoryItemLine(var SelectedSalesLine: Record "Sales Line")
     var
         InvtItemSalesLine: Record "Sales Line";
         TempSalesLine: Record "Sales Line" temporary;
@@ -9033,6 +9033,35 @@ table 37 "Sales Line"
         end;
 
         exit(Result);
+    end;
+
+    local procedure GetFADeprBook(FANo: Code[20]) DepreciationBookCode: Code[10]
+    var
+        FASetup: Record "FA Setup";
+        FADeprBook: Record "FA Depreciation Book";
+        DefaultFADeprBook: Record "FA Depreciation Book";
+        SetFADeprBook: Record "FA Depreciation Book";
+    begin
+        FASetup.Get();
+
+        DefaultFADeprBook.SetRange("FA No.", FANo);
+        DefaultFADeprBook.SetRange("Default FA Depreciation Book", true);
+
+        SetFADeprBook.SetRange("FA No.", FANo);
+
+        case true of
+            SetFADeprBook.Count = 1:
+                begin
+                    SetFADeprBook.FindFirst();
+                    DepreciationBookCode := SetFADeprBook."Depreciation Book Code";
+                end;
+            DefaultFADeprBook.FindFirst():
+                DepreciationBookCode := DefaultFADeprBook."Depreciation Book Code";
+            FADeprBook.Get("No.", FASetup."Default Depr. Book"):
+                DepreciationBookCode := FASetup."Default Depr. Book"
+            else
+                DepreciationBookCode := '';
+        end;
     end;
 
     [IntegrationEvent(false, false)]
@@ -10886,6 +10915,11 @@ table 37 "Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateBinCodeOnBeforeTestFields(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplToItemEntryValidateOnBeforeMessage(var SalesLine: Record "Sales Line"; CurrFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }
