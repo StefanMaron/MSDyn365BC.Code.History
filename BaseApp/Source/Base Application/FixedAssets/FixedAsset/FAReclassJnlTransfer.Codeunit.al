@@ -30,34 +30,32 @@ codeunit 5644 "FA Reclass. Jnl.-Transfer"
         if IsHandled then
             exit;
 
-        with FAReclassJnlLine do begin
-            FAReclassJnlTempl.Get("Journal Template Name");
+        FAReclassJnlTempl.Get(FAReclassJnlLine."Journal Template Name");
 
-            if not Confirm(Text000, false) then
-                exit;
+        if not Confirm(Text000, false) then
+            exit;
 
-            JnlBatchName2 := "Journal Batch Name";
+        JnlBatchName2 := FAReclassJnlLine."Journal Batch Name";
 
-            CODEUNIT.Run(CODEUNIT::"FA Reclass. Transfer Batch", FAReclassJnlLine);
+        CODEUNIT.Run(CODEUNIT::"FA Reclass. Transfer Batch", FAReclassJnlLine);
 
-            if "Line No." = 0 then
-                Message(Text001)
+        if FAReclassJnlLine."Line No." = 0 then
+            Message(Text001)
+        else
+            if JnlBatchName2 = FAReclassJnlLine."Journal Batch Name" then
+                Message(Text002)
             else
-                if JnlBatchName2 = "Journal Batch Name" then
-                    Message(Text002)
-                else
-                    Message(
-                      Text003,
-                      "Journal Batch Name");
+                Message(
+                  Text003,
+                  FAReclassJnlLine."Journal Batch Name");
 
-            if not Find('=><') or (JnlBatchName2 <> "Journal Batch Name") then begin
-                Reset();
-                FilterGroup := 2;
-                SetRange("Journal Template Name", "Journal Template Name");
-                SetRange("Journal Batch Name", "Journal Batch Name");
-                FilterGroup := 0;
-                "Line No." := 1;
-            end;
+        if not FAReclassJnlLine.Find('=><') or (JnlBatchName2 <> FAReclassJnlLine."Journal Batch Name") then begin
+            FAReclassJnlLine.Reset();
+            FAReclassJnlLine.FilterGroup := 2;
+            FAReclassJnlLine.SetRange("Journal Template Name", FAReclassJnlLine."Journal Template Name");
+            FAReclassJnlLine.SetRange("Journal Batch Name", FAReclassJnlLine."Journal Batch Name");
+            FAReclassJnlLine.FilterGroup := 0;
+            FAReclassJnlLine."Line No." := 1;
         end;
     end;
 

@@ -118,7 +118,7 @@ page 5708 "Get Shipment Lines"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job.';
+                    ToolTip = 'Specifies the number of the related project.';
                     Visible = false;
                 }
                 field("Shipment Date"; Rec."Shipment Date")

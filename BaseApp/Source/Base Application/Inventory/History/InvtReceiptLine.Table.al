@@ -15,6 +15,7 @@ using Microsoft.Warehouse.Structure;
 table 5853 "Invt. Receipt Line"
 {
     Caption = 'Invt. Receipt Line';
+    DataClassification = CustomerContent;
 
     fields
     {

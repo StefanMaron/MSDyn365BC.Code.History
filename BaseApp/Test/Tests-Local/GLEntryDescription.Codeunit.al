@@ -126,7 +126,7 @@ codeunit 141042 "G/L Entry Description"
         GLAccount: Record "G/L Account";
         SalesHeader: Record "Sales Header";
     begin
-        GLAccount.Get(CreateGLAccount);
+        GLAccount.Get(CreateGLAccount());
         LibrarySales.CreateSalesHeader(
           SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer(GLAccount."VAT Bus. Posting Group"));
         CreateSalesLine(SalesHeader, GLAccount."No.", Description);
@@ -139,7 +139,7 @@ codeunit 141042 "G/L Entry Description"
         GLAccount: Record "G/L Account";
         PurchaseHeader: Record "Purchase Header";
     begin
-        GLAccount.Get(CreateGLAccount);
+        GLAccount.Get(CreateGLAccount());
         LibraryPurchase.CreatePurchHeader(
           PurchaseHeader, PurchaseHeader."Document Type"::Invoice, CreateVendor(GLAccount."VAT Bus. Posting Group"));
         CreatePurchaseLine(PurchaseHeader, GLAccount."No.", Description);

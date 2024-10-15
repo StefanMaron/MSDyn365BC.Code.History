@@ -354,7 +354,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
         Customer: Record Customer;
         SalesHeader: Record "Sales Header";
         ReminderHeader: Record "Reminder Header";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeriesBatch: Codeunit "No. Series - Batch";
         Counter: Integer;
         PostedInvoiceNo: Code[20];
         ReminderNo: Code[20];
@@ -366,7 +366,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
         // Create Multiple Sales Invoices using Random and Post them.
         for Counter := 1 to 1 + LibraryRandom.RandInt(5) do begin
             CreateSalesInvoice(SalesHeader, Customer."No.", Customer."Reminder Terms Code");
-            PostedInvoiceNo := NoSeriesManagement.GetNextNo(SalesHeader."Posting No. Series", WorkDate(), false);
+            PostedInvoiceNo := NoSeriesBatch.GetNextNo(SalesHeader."Posting No. Series");
             LibrarySales.PostSalesDocument(SalesHeader, true, true);
         end;
 
@@ -643,6 +643,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
     procedure ReminderWhenOneInvoiceGraceExpiredOneInvoiceGraceNotExpired()
     var
         ReminderTerms: Record "Reminder Terms";
+        ReminderLevel: Record "Reminder Level";
         ReminderLine: Record "Reminder Line";
         CustomerNo: Code[20];
         ReminderNo: Code[20];
@@ -657,6 +658,16 @@ codeunit 134376 "ERM Reminders - Grace Period"
         LibraryERM.CreateReminderTerms(ReminderTerms);
         AddFeePerLine := LibraryRandom.RandDecInRange(2, 4, 2);
         CreateReminderLevelWithText(ReminderTerms.Code, 10, 0, AddFeePerLine, RemainingAmount4Txt);
+
+        // [GIVEN] Reminder Levels have a description text.
+        ReminderLevel.SetRange("Reminder Terms Code", ReminderTerms.Code);
+        if not ReminderLevel.IsEmpty() then begin
+            ReminderLevel.FindSet();
+            repeat
+                ReminderLevel."Add. Fee per Line Description" := ReminderTerms.Code;
+                ReminderLevel.Modify(true);
+            until ReminderLevel.Next() = 0;
+        end;
 
         // [GIVEN] Customer with given Reminder Terms.
         // [GIVEN] Posted Sales Invoice "I1" with "Due Date" = 01-09-2021 and Amount = "A1". Grace Period expires after 11-09-2021.
@@ -696,6 +707,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
     procedure ReminderWhenTwoInvoicesGraceExpired()
     var
         ReminderTerms: Record "Reminder Terms";
+        ReminderLevel: Record "Reminder Level";
         ReminderLine: Record "Reminder Line";
         CustomerNo: Code[20];
         ReminderNo: Code[20];
@@ -710,6 +722,16 @@ codeunit 134376 "ERM Reminders - Grace Period"
         LibraryERM.CreateReminderTerms(ReminderTerms);
         AddFeePerLine := LibraryRandom.RandDecInRange(2, 4, 2);
         CreateReminderLevelWithText(ReminderTerms.Code, 10, 0, AddFeePerLine, RemainingAmount4Txt);
+
+        // [GIVEN] Reminder Levels have a description text.
+        ReminderLevel.SetRange("Reminder Terms Code", ReminderTerms.Code);
+        if not ReminderLevel.IsEmpty() then begin
+            ReminderLevel.FindSet();
+            repeat
+                ReminderLevel."Add. Fee per Line Description" := ReminderTerms.Code;
+                ReminderLevel.Modify(true);
+            until ReminderLevel.Next() = 0;
+        end;
 
         // [GIVEN] Customer with given Reminder Terms.
         // [GIVEN] Posted Sales Invoice "I1" with "Due Date" = 01-09-2021 and Amount = "A1". Grace Period expires after 11-09-2021.
@@ -744,11 +766,21 @@ codeunit 134376 "ERM Reminders - Grace Period"
 
     local procedure Initialize()
     var
-        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        FeatureKey: Record "Feature Key";
+        FeatureKeyUpdateStatus: Record "Feature Data Update Status";
+        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Reminders - Grace Period");
+        if FeatureKey.Get('ReminderTermsCommunicationTexts') then begin
+            FeatureKey.Enabled := FeatureKey.Enabled::None;
+            FeatureKey.Modify();
+        end;
+        if FeatureKeyUpdateStatus.Get('ReminderTermsCommunicationTexts', CompanyName()) then begin
+            FeatureKeyUpdateStatus."Feature Status" := FeatureKeyUpdateStatus."Feature Status"::Disabled;
+            FeatureKeyUpdateStatus.Modify();
+        end;
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"ERM Reminders - Grace Period");
@@ -847,7 +879,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDec(10, 2));
         SalesLine.Modify(true);
         exit(LibrarySales.PostSalesDocument(SalesHeader, true, true));
@@ -857,7 +889,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
     begin
         // Create a New Customer and update Reminder Terms.
         LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Reminder Terms Code", CreateReminderTerms);
+        Customer.Validate("Reminder Terms Code", CreateReminderTerms());
         Customer.Modify(true);
     end;
 
@@ -911,7 +943,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
 
         // Suggest Reminder Lines with Options: Overdue Entries Only,Include Entries On Hold.
         ReminderMake.SuggestLines(ReminderHeader, CustLedgerEntry, OverdueEntriesOnly, false, CustLedgEntryLineFeeOn);
-        ReminderMake.Code;
+        ReminderMake.Code();
         ReminderNo := ReminderHeader."No.";
     end;
 
@@ -1008,7 +1040,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
         // Create Sales Line with Random Quantity. Update Unit Price and Quantity to Ship on Sales Line.
         ReminderTerms.Get(ReminderTermsCode);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader,
-          SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2));
+          SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2));
         SalesLine.Validate("Unit Price", ReminderTerms."Minimum Amount (LCY)");
         SalesLine.Validate("Qty. to Ship", 0);  // Qty to Ship must be zero in Sales Credit Memo.
         SalesLine.Modify(true);
@@ -1026,7 +1058,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
         ReminderTerms.Get(ReminderTermsCode);
         for Counter := 1 to 1 + LibraryRandom.RandInt(5) do begin
             LibrarySales.CreateSalesLine(SalesLine, SalesHeader,
-              SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandDec(10, 2));
+              SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(10, 2));
             SalesLine.Validate("Unit Price", 10 + LibraryRandom.RandDec(10, 2) * ReminderTerms."Minimum Amount (LCY)");
             SalesLine.Modify(true);
         end;
@@ -1157,7 +1189,7 @@ codeunit 134376 "ERM Reminders - Grace Period"
         SalesInvoiceHeader.Get(DocumentNo);
         SalesInvoiceHeader.CalcFields("Amount Including VAT");
         Assert.AreNearlyEqual(
-          SalesInvoiceHeader."Amount Including VAT", ReminderLine."Original Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY,
+          SalesInvoiceHeader."Amount Including VAT", ReminderLine."Original Amount", LibraryERM.GetInvoiceRoundingPrecisionLCY(),
           StrSubstNo(AmountErr, ReminderLine.FieldCaption("Original Amount"),
             SalesInvoiceHeader."Amount Including VAT", ReminderLine.TableCaption()));
     end;

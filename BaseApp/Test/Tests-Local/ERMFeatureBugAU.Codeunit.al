@@ -40,7 +40,7 @@ codeunit 144004 "ERM Feature Bug AU"
 
         // Setup.
         UpdateGeneralLedgerSetup(GeneralLedgerSetup, false, true, false);  // False for Enable GST, Round Amount for WHT Calc and True for Enable WHT.
-        CurrencyCode := CreateCurrencyWithExchangeRate;
+        CurrencyCode := CreateCurrencyWithExchangeRate();
         OldAdditionalReportingCurrency := UpdateAdditionalReportingCurrencyOnGLSetup(CurrencyCode);
         CreateWHTPostingSetup(WHTPostingSetup);
         CreatePurchaseOrder(PurchaseLine, CurrencyCode);
@@ -75,12 +75,12 @@ codeunit 144004 "ERM Feature Bug AU"
 
         // Setup.
         UpdateGeneralLedgerSetup(GeneralLedgerSetup, false, true, false);  // False for Enable GST, Round Amount for WHT Calc and True for Enable WHT.
-        CurrencyCode := CreateCurrencyWithExchangeRate;
+        CurrencyCode := CreateCurrencyWithExchangeRate();
         OldAdditionalReportingCurrency := UpdateAdditionalReportingCurrencyOnGLSetup(CurrencyCode);
         CreateGenJnlLineAfterPostPurchaseOrder(GenJournalLine, CurrencyCode);
 
         // Exercise.
-        CheckPreview.OpenView;
+        CheckPreview.OpenView();
 
         // Verify.
         CheckPreview.FILTER.SetFilter("Document No.", GenJournalLine."Document No.");
@@ -107,7 +107,7 @@ codeunit 144004 "ERM Feature Bug AU"
 
         // Setup.
         UpdateGeneralLedgerSetup(GeneralLedgerSetup, false, true, false);  // False for Enable GST, Round Amount for WHT Calc and True for Enable WHT.
-        CurrencyCode := CreateCurrencyWithExchangeRate;
+        CurrencyCode := CreateCurrencyWithExchangeRate();
         OldAdditionalReportingCurrency := UpdateAdditionalReportingCurrencyOnGLSetup(CurrencyCode);
         CreateGenJnlLineAfterPostPurchaseOrder(GenJournalLine, CurrencyCode);
 
@@ -181,7 +181,7 @@ codeunit 144004 "ERM Feature Bug AU"
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandInt(10));
 
         // [GIVEN] Posted Sales Order and it's Sales Line using VAT Posting Setup.
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
@@ -193,14 +193,14 @@ codeunit 144004 "ERM Feature Bug AU"
 
         // [WHEN] Report "Calc. and Post VAT Settlement" is run.
         LibraryVariableStorage.Enqueue(SalesHeader."No.");
-        LibraryVariableStorage.Enqueue(LibraryERM.CreateGLAccountNoWithDirectPosting);
+        LibraryVariableStorage.Enqueue(LibraryERM.CreateGLAccountNoWithDirectPosting());
         LibraryVariableStorage.Enqueue(VATPostingSetup."VAT Bus. Posting Group");
         LibraryVariableStorage.Enqueue(VATPostingSetup."VAT Prod. Posting Group");
         Commit();
         REPORT.Run(REPORT::"Calc. and Post VAT Settlement", true);
 
         // [THEN] Resulting dataset has VATAmount equal to Sales Line VAT Amount.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('VATAmount', -(SalesLine."Amount Including VAT" - SalesLine.Amount));
     end;
 
@@ -220,7 +220,7 @@ codeunit 144004 "ERM Feature Bug AU"
         LibraryERM.CreateVATPostingSetupWithAccounts(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 0);
 
         // [GIVEN] Posted Sales Order and it's Sales Line using VAT Posting Setup.
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(
@@ -232,14 +232,14 @@ codeunit 144004 "ERM Feature Bug AU"
 
         // [WHEN] Report "Calc. and Post VAT Settlement" is run.
         LibraryVariableStorage.Enqueue(SalesHeader."No.");
-        LibraryVariableStorage.Enqueue(LibraryERM.CreateGLAccountNoWithDirectPosting);
+        LibraryVariableStorage.Enqueue(LibraryERM.CreateGLAccountNoWithDirectPosting());
         LibraryVariableStorage.Enqueue(VATPostingSetup."VAT Bus. Posting Group");
         LibraryVariableStorage.Enqueue(VATPostingSetup."VAT Prod. Posting Group");
         Commit();
         REPORT.Run(REPORT::"Calc. and Post VAT Settlement", true);
 
         // [THEN] Resulting dataset has GenJnlLineVATBaseAmount equal to Sales Line Amount and GenJnlLineVATAmount equal to "0".
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('GenJnlLineVATBaseAmount', SalesLine.Amount);
         LibraryReportDataset.AssertElementWithValueExists('GenJnlLineVATAmount', 0);
     end;
@@ -273,7 +273,7 @@ codeunit 144004 "ERM Feature Bug AU"
           VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", 7);
 
         // [GIVEN] Create Sales Invoice with new customer and set Price Including VAT true
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         SalesHeader.Validate("Prices Including VAT", true);
         SalesHeader.Modify(true);
@@ -326,7 +326,7 @@ codeunit 144004 "ERM Feature Bug AU"
     begin
         LibraryERM.CreateCurrency(Currency);
         LibraryERM.SetCurrencyGainLossAccounts(Currency);
-        Currency.Validate("Invoice Rounding Precision", LibraryERM.GetInvoiceRoundingPrecisionLCY);
+        Currency.Validate("Invoice Rounding Precision", LibraryERM.GetInvoiceRoundingPrecisionLCY());
         Currency.Validate("Residual Gains Account", Currency."Realized Gains Acc.");
         Currency.Validate("Residual Losses Account", Currency."Realized Losses Acc.");
         Currency.Modify(true);
@@ -430,7 +430,7 @@ codeunit 144004 "ERM Feature Bug AU"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandDec(10, 2));
+          LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandDec(10, 2));
 
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(1000, 2));
         PurchaseLine.Validate("WHT Business Posting Group", WHTPostingSetup."WHT Business Posting Group");
@@ -491,7 +491,7 @@ codeunit 144004 "ERM Feature Bug AU"
     begin
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.FindFirst();
-        Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualMsg);
+        Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), AmountMustBeEqualMsg);
     end;
 
     [RequestPageHandler]
@@ -502,11 +502,11 @@ codeunit 144004 "ERM Feature Bug AU"
         CalcandPostVATSettlement.EndDateReq.SetValue(WorkDate());
         CalcandPostVATSettlement.PostingDt.SetValue(WorkDate());
         CalcandPostVATSettlement.VATDt.SetValue(WorkDate());
-        CalcandPostVATSettlement.DocumentNo.SetValue(LibraryVariableStorage.DequeueText);
-        CalcandPostVATSettlement.SettlementAcc.SetValue(LibraryVariableStorage.DequeueText);
-        CalcandPostVATSettlement."VAT Posting Setup".SetFilter("VAT Bus. Posting Group", LibraryVariableStorage.DequeueText);
-        CalcandPostVATSettlement."VAT Posting Setup".SetFilter("VAT Prod. Posting Group", LibraryVariableStorage.DequeueText);
-        CalcandPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        CalcandPostVATSettlement.DocumentNo.SetValue(LibraryVariableStorage.DequeueText());
+        CalcandPostVATSettlement.SettlementAcc.SetValue(LibraryVariableStorage.DequeueText());
+        CalcandPostVATSettlement."VAT Posting Setup".SetFilter("VAT Bus. Posting Group", LibraryVariableStorage.DequeueText());
+        CalcandPostVATSettlement."VAT Posting Setup".SetFilter("VAT Prod. Posting Group", LibraryVariableStorage.DequeueText());
+        CalcandPostVATSettlement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

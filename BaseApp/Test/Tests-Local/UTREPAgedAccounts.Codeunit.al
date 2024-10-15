@@ -40,10 +40,10 @@ codeunit 141075 "UT REP Aged Accounts"
         Initialize();
         Amount :=
           CreateVendLedgEntriesAndRunAgedAccPayBackDatingRpt(
-            CreateCurrency, true, Vendor.Blocked::All, UseAgingDate::"Posting Date", UseCurrency::"Document Currency", 0);  // Value 0 used for Date Expression and True for Print Entry Details.
+            CreateCurrency(), true, Vendor.Blocked::All, UseAgingDate::"Posting Date", UseCurrency::"Document Currency", 0);  // Value 0 used for Date Expression and True for Print Entry Details.
 
         // Verify.
-        VerifyValuesOnAgedAccountsBackdatingReport(GetLCYCodeFromGeneralLedgerSetup, Amount);
+        VerifyValuesOnAgedAccountsBackdatingReport(GetLCYCodeFromGeneralLedgerSetup(), Amount);
     end;
 
     [Test]
@@ -60,7 +60,7 @@ codeunit 141075 "UT REP Aged Accounts"
         // [SCENARIO] validate Vendor - OnAfterGetRecord Trigger of Report - 17117 with Use Aging Date Due Date and Use Currency LCY.
         Initialize();
         OnAfterGetRecVendAgedAccPayBackDating(
-          CreateCurrency, GetLCYCodeFromGeneralLedgerSetup, true, Vendor.Blocked::" ", UseAgingDate::"Due Date", UseCurrency::LCY, 0);  // True for Print Entry Details and 0 used for Date Expression.
+          CreateCurrency(), GetLCYCodeFromGeneralLedgerSetup(), true, Vendor.Blocked::" ", UseAgingDate::"Due Date", UseCurrency::LCY, 0);  // True for Print Entry Details and 0 used for Date Expression.
     end;
 
     [Test]
@@ -77,7 +77,7 @@ codeunit 141075 "UT REP Aged Accounts"
         // [FEATURE] [Purchase]
         // [SCENARIO] validate Vendor - OnAfterGetRecord Trigger of Report - 17117 with Currency Code.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         OnAfterGetRecVendAgedAccPayBackDating(
           CurrencyCode, CurrencyCode, false, Vendor.Blocked::Payment, UseAgingDate::"Document Date", UseCurrency::"Vendor Currency",
           LibraryRandom.RandInt(5));  // False for Print Entry Details and Random value for Date Expression.
@@ -97,7 +97,7 @@ codeunit 141075 "UT REP Aged Accounts"
         // [SCENARIO] validate Vendor Ledger Entry - OnAfterGetRecord Trigger of Report - 17117 without Currency Code.
         Initialize();
         OnAfterGetRecVendAgedAccPayBackDating(
-          '', GetLCYCodeFromGeneralLedgerSetup, false, Vendor.Blocked::Payment, UseAgingDate::"Document Date", UseCurrency::"Vendor Currency",
+          '', GetLCYCodeFromGeneralLedgerSetup(), false, Vendor.Blocked::Payment, UseAgingDate::"Document Date", UseCurrency::"Vendor Currency",
           LibraryRandom.RandInt(5));  // Blank used for Currency Code, False for Print Entry Details and Random value for Date Expression.
     end;
 
@@ -128,10 +128,10 @@ codeunit 141075 "UT REP Aged Accounts"
         Initialize();
         Amount :=
           CreateCustLedgEntriesAndRunAgedAccRecBackDatingRpt(
-            CreateCurrency, true, Customer.Blocked::All, UseAgingDate::"Posting Date", UseCurrency::"Document Currency", 0, 0);  // Value 0 used for Date Expression and Credit Limit LCY, True for Print Entry Details.
+            CreateCurrency(), true, Customer.Blocked::All, UseAgingDate::"Posting Date", UseCurrency::"Document Currency", 0, 0);  // Value 0 used for Date Expression and Credit Limit LCY, True for Print Entry Details.
 
         // Verify.
-        VerifyValuesOnAgedAccountsBackdatingReport(GetLCYCodeFromGeneralLedgerSetup, Amount);
+        VerifyValuesOnAgedAccountsBackdatingReport(GetLCYCodeFromGeneralLedgerSetup(), Amount);
     end;
 
     [Test]
@@ -148,7 +148,7 @@ codeunit 141075 "UT REP Aged Accounts"
         // [SCENARIO] validate Customer - OnAfterGetRecord Trigger of Report - 17116 with Use Aging Date Due Date and Use Currency LCY.
         Initialize();
         OnAfterGetRecCustAgedAccRecBackDating(
-          CreateCurrency, GetLCYCodeFromGeneralLedgerSetup, true, Customer.Blocked::" ", UseAgingDate::"Due Date", UseCurrency::LCY, 0);  // Value 0 used for Date Expression, True for Print Entry Details.
+          CreateCurrency(), GetLCYCodeFromGeneralLedgerSetup(), true, Customer.Blocked::" ", UseAgingDate::"Due Date", UseCurrency::LCY, 0);  // Value 0 used for Date Expression, True for Print Entry Details.
     end;
 
     [Test]
@@ -165,7 +165,7 @@ codeunit 141075 "UT REP Aged Accounts"
         // [FEATURE] [Sales]
         // [SCENARIO] validate Customer - OnAfterGetRecord Trigger of Report - 17116 with Currency Code.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         OnAfterGetRecCustAgedAccRecBackDating(
           CurrencyCode, CurrencyCode, false, Customer.Blocked::Ship, UseAgingDate::"Document Date", UseCurrency::"Customer Currency",
           LibraryRandom.RandInt(5));  // Random value used for Date Expression, False for Print Entry Details.
@@ -185,7 +185,7 @@ codeunit 141075 "UT REP Aged Accounts"
         // [SCENARIO] validate Customer - OnAfterGetRecord Trigger of Report - 17116 without Currency Code.
         Initialize();
         OnAfterGetRecCustAgedAccRecBackDating(
-          '', GetLCYCodeFromGeneralLedgerSetup, false, Customer.Blocked::Invoice, UseAgingDate::"Document Date",
+          '', GetLCYCodeFromGeneralLedgerSetup(), false, Customer.Blocked::Invoice, UseAgingDate::"Document Date",
           UseCurrency::"Customer Currency", LibraryRandom.RandInt(5));  // Blank for Currency Code, Random value used for Date Expression, False for Print Entry Details.
     end;
 
@@ -215,7 +215,7 @@ codeunit 141075 "UT REP Aged Accounts"
 
         // [WHEN] Report "Aged Acc. Rec. (BackDating)" is being printed to PDF
         CreateCustLedgEntriesAndRunAgedAccRecBackDatingRpt(
-          CreateCurrency, true, Customer.Blocked::All, UseAgingDate::"Posting Date", UseCurrency::"Document Currency", 0, 0);
+          CreateCurrency(), true, Customer.Blocked::All, UseAgingDate::"Posting Date", UseCurrency::"Document Currency", 0, 0);
         // [THEN] No RDLC rendering errors
     end;
 
@@ -235,7 +235,7 @@ codeunit 141075 "UT REP Aged Accounts"
 
         // [WHEN] Report "Aged Acc. Rec. (BackDating)" is being printed to PDF
         CreateVendLedgEntriesAndRunAgedAccPayBackDatingRpt(
-          CreateCurrency, true, Vendor.Blocked::All, UseAgingDate::"Posting Date", UseCurrency::"Document Currency", 0);  // Value 0 used for Date Expression and True for Print Entry Details.
+          CreateCurrency(), true, Vendor.Blocked::All, UseAgingDate::"Posting Date", UseCurrency::"Document Currency", 0);  // Value 0 used for Date Expression and True for Print Entry Details.
 
         // [THEN] No RDLC rendering errors
     end;
@@ -247,8 +247,6 @@ codeunit 141075 "UT REP Aged Accounts"
     var
         Customer: Record Customer;
         GenJournalLine: Record "Gen. Journal Line";
-        AgingBy: Option "Due Date","Posting Date","Document Date";
-        HeadingType: Option "Date Interval","Number of Days";
         PeriodLength: DateFormula;
         i: Integer;
     begin
@@ -280,8 +278,6 @@ codeunit 141075 "UT REP Aged Accounts"
     var
         Vendor: Record Vendor;
         GenJournalLine: Record "Gen. Journal Line";
-        AgingBy: Option "Due Date","Posting Date","Document Date";
-        HeadingType: Option "Date Interval","Number of Days";
         PeriodLength: DateFormula;
         i: Integer;
     begin
@@ -315,7 +311,7 @@ codeunit 141075 "UT REP Aged Accounts"
     var
         Currency: Record Currency;
     begin
-        Currency.Code := LibraryUTUtility.GetNewCode10;
+        Currency.Code := LibraryUTUtility.GetNewCode10();
         Currency.Insert();
         CreateCurrencyExchangeRate(Currency.Code);
         exit(Currency.Code);
@@ -336,7 +332,7 @@ codeunit 141075 "UT REP Aged Accounts"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Blocked := Blocked;
         Customer."Currency Code" := CurrencyCode;
         Customer."Net Change (LCY)" := LibraryRandom.RandDecInRange(10, 50, 2);
@@ -422,7 +418,7 @@ codeunit 141075 "UT REP Aged Accounts"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Blocked := Blocked;
         Vendor."Currency Code" := CurrencyCode;
         Vendor.Insert();
@@ -475,7 +471,7 @@ codeunit 141075 "UT REP Aged Accounts"
         LibraryJournals.CreateGenJournalLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Invoice,
           AccountType, AccountNo, GenJournalLine."Bal. Account Type"::"G/L Account",
-          LibraryERM.CreateGLAccountNo, Amount);
+          LibraryERM.CreateGLAccountNo(), Amount);
         GenJournalLine.Validate("Shortcut Dimension 1 Code", DimensionValue[1].Code);
         GenJournalLine.Validate("Shortcut Dimension 2 Code", DimensionValue[2].Code);
         GenJournalLine.Modify(true);
@@ -522,7 +518,7 @@ codeunit 141075 "UT REP Aged Accounts"
 
     local procedure VerifyValuesOnAgedAccountsBackdatingReport(CurrencyCode: Code[10]; EntryAmount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(CurrencyCodeCap, CurrencyCode);
         LibraryReportDataset.AssertElementWithValueExists(EntryAmountCap, EntryAmount);
     end;
@@ -547,7 +543,7 @@ codeunit 141075 "UT REP Aged Accounts"
         AgedAccPayBackDating.PrintTotalsPerCurrency.SetValue(true);
         AgedAccPayBackDating.PrintAccountDetails.SetValue(true);
         AgedAccPayBackDating.PrintEntryDetails.SetValue(PrintEntryDetails);
-        AgedAccPayBackDating.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AgedAccPayBackDating.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -570,7 +566,7 @@ codeunit 141075 "UT REP Aged Accounts"
         AgedAccRecBackDating.PrintTotalsPerCurrency.SetValue(true);
         AgedAccRecBackDating.PrintAccountDetails.SetValue(true);
         AgedAccRecBackDating.PrintEntryDetails.SetValue(PrintEntryDetails);
-        AgedAccRecBackDating.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AgedAccRecBackDating.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]

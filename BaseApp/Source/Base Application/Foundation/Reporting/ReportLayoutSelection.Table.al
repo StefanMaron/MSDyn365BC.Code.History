@@ -11,6 +11,7 @@ table 9651 "Report Layout Selection"
 {
     Caption = 'Report Layout Selection';
     DataPerCompany = false;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -82,13 +83,13 @@ table 9651 "Report Layout Selection"
         }
         field(7; "Report Layout Description"; Text[250])
         {
-            CalcFormula = Lookup("Custom Report Layout".Description where(Code = field("Custom Report Layout Code")));
+            CalcFormula = lookup("Custom Report Layout".Description where(Code = field("Custom Report Layout Code")));
             Caption = 'Report Layout Description';
             FieldClass = FlowField;
         }
         field(8; "Report Caption"; Text[80])
         {
-            CalcFormula = Lookup("Report Metadata".Caption where(ID = field("Report ID")));
+            CalcFormula = lookup("Report Metadata".Caption where(ID = field("Report ID")));
             Caption = 'Report Caption';
             Editable = false;
             FieldClass = FlowField;

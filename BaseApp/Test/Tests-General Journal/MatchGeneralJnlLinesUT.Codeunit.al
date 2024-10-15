@@ -971,7 +971,7 @@ codeunit 134250 "Match General Jnl Lines UT"
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Match General Jnl Lines UT");
-        CloseExistingEntries;
+        CloseExistingEntries();
     end;
 
     local procedure InsertCustLedgerEntry(var CustLedgerEntry: Record "Cust. Ledger Entry"; CustomerNo: Code[20]; Amount: Decimal)
@@ -985,7 +985,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         CustLedgerEntry."Entry No." := LastEntryNo + 1;
         CustLedgerEntry."Posting Date" := WorkDate();
         CustLedgerEntry."Customer No." := CustomerNo;
-        CustLedgerEntry."Document No." := CopyStr(CreateGuid, 1, 20);
+        CustLedgerEntry."Document No." := CopyStr(CreateGuid(), 1, 20);
         CustLedgerEntry.Open := true;
         CustLedgerEntry.Insert();
         CustLedgerEntry.CalcFields("Remaining Amount");
@@ -1002,7 +1002,7 @@ codeunit 134250 "Match General Jnl Lines UT"
         VendorLedgerEntry."Entry No." := LastEntryNo + 1;
         VendorLedgerEntry."Posting Date" := WorkDate();
         VendorLedgerEntry."Vendor No." := VendorNo;
-        VendorLedgerEntry."Document No." := CopyStr(CreateGuid, 1, 20);
+        VendorLedgerEntry."Document No." := CopyStr(CreateGuid(), 1, 20);
         VendorLedgerEntry.Open := true;
         VendorLedgerEntry.Insert();
         VendorLedgerEntry.CalcFields("Remaining Amount");
@@ -1065,7 +1065,7 @@ codeunit 134250 "Match General Jnl Lines UT"
     local procedure InsertGenJnlBatch(var GenJnlBatch: Record "Gen. Journal Batch")
     begin
         GenJnlBatch.Init();
-        GenJnlBatch."Journal Template Name" := InsertGenJnlTemplate;
+        GenJnlBatch."Journal Template Name" := InsertGenJnlTemplate();
         GenJnlBatch.Name :=
           LibraryUtility.GenerateRandomCode(GenJnlBatch.FieldNo(Name), DATABASE::"Gen. Journal Batch");
         GenJnlBatch.Insert();
@@ -1086,9 +1086,9 @@ codeunit 134250 "Match General Jnl Lines UT"
     begin
         Customer.Init();
         Customer."No." := LibraryUtility.GenerateRandomCode(Customer.FieldNo("No."), DATABASE::Customer);
-        Customer.Name := CopyStr(CreateGuid, 1, 50);
-        Customer."Payment Terms Code" := InsertPaymentTerms;
-        Customer."Payment Method Code" := InsertPaymentMethod;
+        Customer.Name := CopyStr(CreateGuid(), 1, 50);
+        Customer."Payment Terms Code" := InsertPaymentTerms();
+        Customer."Payment Method Code" := InsertPaymentMethod();
         Customer.Insert();
     end;
 
@@ -1096,9 +1096,9 @@ codeunit 134250 "Match General Jnl Lines UT"
     begin
         Vendor.Init();
         Vendor."No." := LibraryUtility.GenerateRandomCode(Vendor.FieldNo("No."), DATABASE::Vendor);
-        Vendor.Name := CopyStr(CreateGuid, 1, 50);
-        Vendor."Payment Terms Code" := InsertPaymentTerms;
-        Vendor."Payment Method Code" := InsertPaymentMethod;
+        Vendor.Name := CopyStr(CreateGuid(), 1, 50);
+        Vendor."Payment Terms Code" := InsertPaymentTerms();
+        Vendor."Payment Method Code" := InsertPaymentMethod();
         Vendor.Insert();
     end;
 
@@ -1132,7 +1132,7 @@ codeunit 134250 "Match General Jnl Lines UT"
 
             Init();
             "Line No." := LastLineNo + 1;
-            "Mapping Text" := CopyStr(CreateGuid, 1, 50);
+            "Mapping Text" := CopyStr(CreateGuid(), 1, 50);
             "Debit Acc. No." := DebitAccNo;
             "Credit Acc. No." := CreditAccNo;
             "Bal. Source Type" := SourceType;

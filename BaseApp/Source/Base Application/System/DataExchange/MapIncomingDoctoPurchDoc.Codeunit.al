@@ -64,41 +64,39 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
     begin
         CurrRecordNo := -1;
 
-        with IntermediateDataImport do begin
-            SetRange("Data Exch. No.", DataExch."Entry No.");
-            SetRange("Table ID", DATABASE::"Purchase Header");
-            SetRange("Parent Record No.", 0);
-            SetCurrentKey("Record No.");
+        IntermediateDataImport.SetRange("Data Exch. No.", DataExch."Entry No.");
+        IntermediateDataImport.SetRange("Table ID", DATABASE::"Purchase Header");
+        IntermediateDataImport.SetRange("Parent Record No.", 0);
+        IntermediateDataImport.SetCurrentKey("Record No.");
 
-            if not FindSet() then
-                exit;
+        if not IntermediateDataImport.FindSet() then
+            exit;
 
-            repeat
-                if CurrRecordNo <> "Record No." then begin // new record
-                    if CurrRecordNo <> -1 then begin// if not start of loop then add lines - for current record
-                        RecRef.Modify(true);
-                        ProcessLines(PurchaseHeader, DataExch, CurrRecordNo);
-                        RecRef.Close();
-                    end;
-
-                    CurrRecordNo := "Record No.";
-                    RecRef.Open(DATABASE::"Purchase Header");
-                    CreateNewPurchHdr(RecRef, DataExch, CurrRecordNo);
-                    RecRef.SetTable(PurchaseHeader);
+        repeat
+            if CurrRecordNo <> IntermediateDataImport."Record No." then begin
+                // new record
+                if CurrRecordNo <> -1 then begin// if not start of loop then add lines - for current record
+                    RecRef.Modify(true);
+                    ProcessLines(PurchaseHeader, DataExch, CurrRecordNo);
+                    RecRef.Close();
                 end;
 
-                if not "Validate Only" then
-                    if not IsFieldProcessed(TempProcessedHdrFldId, "Field ID") then
-                        if Value <> '' then
-                            ProcessField(TempProcessedHdrFldId, RecRef, "Field ID", Value);
-            until Next() = 0;
-
-            // process the last rec in DB
-            if CurrRecordNo <> -1 then begin
-                RecRef.Modify(true);
-                ProcessLines(PurchaseHeader, DataExch, CurrRecordNo);
-                RecRef.Close();
+                CurrRecordNo := IntermediateDataImport."Record No.";
+                RecRef.Open(DATABASE::"Purchase Header");
+                CreateNewPurchHdr(RecRef, DataExch, CurrRecordNo);
+                RecRef.SetTable(PurchaseHeader);
             end;
+
+            if not IntermediateDataImport."Validate Only" then
+                if not IsFieldProcessed(TempProcessedHdrFldId, IntermediateDataImport."Field ID") then
+                    if IntermediateDataImport.Value <> '' then
+                        ProcessField(TempProcessedHdrFldId, RecRef, IntermediateDataImport."Field ID", IntermediateDataImport.Value);
+        until IntermediateDataImport.Next() = 0;
+        // process the last rec in DB
+        if CurrRecordNo <> -1 then begin
+            RecRef.Modify(true);
+            ProcessLines(PurchaseHeader, DataExch, CurrRecordNo);
+            RecRef.Close();
         end;
     end;
 
@@ -110,36 +108,35 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
     begin
         CurrRecordNo := -1;
 
-        with IntermediateDataImport do begin
-            SetRange("Data Exch. No.", DataExch."Entry No.");
-            SetRange("Table ID", DATABASE::"Purchase Line");
-            SetRange("Parent Record No.", ParentRecordNo);
-            SetCurrentKey("Record No.");
+        IntermediateDataImport.SetRange("Data Exch. No.", DataExch."Entry No.");
+        IntermediateDataImport.SetRange("Table ID", DATABASE::"Purchase Line");
+        IntermediateDataImport.SetRange("Parent Record No.", ParentRecordNo);
+        IntermediateDataImport.SetCurrentKey("Record No.");
 
-            if not FindSet() then begin
-                OnProcessLinesIntermediateDataImportNotFound(DataExch, PurchaseHeader);
-                exit;
+        if not IntermediateDataImport.FindSet() then begin
+            OnProcessLinesIntermediateDataImportNotFound(DataExch, PurchaseHeader);
+            exit;
+        end;
+
+        repeat
+            if CurrRecordNo <> IntermediateDataImport."Record No." then begin
+                // new record
+                if CurrRecordNo <> -1 then
+                    // if not start of loop then save current rec
+                    RecRef.Modify(true);
+
+                CurrRecordNo := IntermediateDataImport."Record No.";
+                CreateNewPurchLine(PurchaseHeader, RecRef, DataExch."Entry No.", ParentRecordNo, CurrRecordNo);
             end;
 
-            repeat
-                if CurrRecordNo <> "Record No." then begin // new record
-                    if CurrRecordNo <> -1 then // if not start of loop then save current rec
-                        RecRef.Modify(true);
-
-                    CurrRecordNo := "Record No.";
-                    CreateNewPurchLine(PurchaseHeader, RecRef, DataExch."Entry No.", ParentRecordNo, CurrRecordNo);
-                end;
-
-                if not "Validate Only" then
-                    if not IsFieldProcessed(TempProcessedLineFldId, "Field ID") then
-                        if Value <> '' then
-                            ProcessField(TempProcessedLineFldId, RecRef, "Field ID", Value);
-            until Next() = 0;
-
-            // Save the last rec
-            if CurrRecordNo <> -1 then
-                RecRef.Modify(true);
-        end;
+            if not IntermediateDataImport."Validate Only" then
+                if not IsFieldProcessed(TempProcessedLineFldId, IntermediateDataImport."Field ID") then
+                    if IntermediateDataImport.Value <> '' then
+                        ProcessField(TempProcessedLineFldId, RecRef, IntermediateDataImport."Field ID", IntermediateDataImport.Value);
+        until IntermediateDataImport.Next() = 0;
+        // Save the last rec
+        if CurrRecordNo <> -1 then
+            RecRef.Modify(true);
 
         OnAfterProcessLines(PurchaseHeader, DataExch, ParentRecordNo);
     end;
@@ -155,34 +152,32 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
         InvoiceDiscountAmount: Decimal;
         InvDiscBaseAmount: Decimal;
     begin
-        with IntermediateDataImport do begin
-            SetRange("Data Exch. No.", DataExch."Entry No.");
-            SetRange("Table ID", DATABASE::"Purchase Header");
-            SetRange("Field ID", PurchaseHeader.FieldNo("Invoice Discount Value"));
-            SetRange("Parent Record No.", 0);
-            SetFilter(Value, '<>%1', '');
+        IntermediateDataImport.SetRange("Data Exch. No.", DataExch."Entry No.");
+        IntermediateDataImport.SetRange("Table ID", DATABASE::"Purchase Header");
+        IntermediateDataImport.SetRange("Field ID", PurchaseHeader.FieldNo("Invoice Discount Value"));
+        IntermediateDataImport.SetRange("Parent Record No.", 0);
+        IntermediateDataImport.SetFilter(Value, '<>%1', '');
 
-            if not FindSet() then
-                exit;
+        if not IntermediateDataImport.FindSet() then
+            exit;
 
-            repeat
-                Evaluate(InvoiceDiscountAmount, Value, 9);
+        repeat
+            Evaluate(InvoiceDiscountAmount, IntermediateDataImport.Value, 9);
 
-                if InvoiceDiscountAmount > 0 then begin
-                    GetRelatedPurchaseHeader(PurchaseHeader, "Record No.");
-                    PurchLine.SetRange("Document No.", PurchaseHeader."No.");
-                    PurchLine.SetRange("Document Type", PurchaseHeader."Document Type");
-                    PurchLine.CalcVATAmountLines(0, PurchaseHeader, PurchLine, TempVATAmountLine);
-                    InvDiscBaseAmount := TempVATAmountLine.GetTotalInvDiscBaseAmount(false, PurchaseHeader."Currency Code");
+            if InvoiceDiscountAmount > 0 then begin
+                GetRelatedPurchaseHeader(PurchaseHeader, IntermediateDataImport."Record No.");
+                PurchLine.SetRange("Document No.", PurchaseHeader."No.");
+                PurchLine.SetRange("Document Type", PurchaseHeader."Document Type");
+                PurchLine.CalcVATAmountLines(0, PurchaseHeader, PurchLine, TempVATAmountLine);
+                InvDiscBaseAmount := TempVATAmountLine.GetTotalInvDiscBaseAmount(false, PurchaseHeader."Currency Code");
 
-                    if PurchCalcDiscByType.InvoiceDiscIsAllowed(PurchaseHeader."Invoice Disc. Code") and (InvDiscBaseAmount <> 0) then
-                        PurchCalcDiscByType.ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, PurchaseHeader)
-                    else
-                        LogMessage(DataExch."Entry No.", PurchaseHeader, PurchaseHeader.FieldNo("No."),
-                          ErrorMessage."Message Type"::Warning, StrSubstNo(UnableToApplyDiscountErr, InvoiceDiscountAmount));
-                end;
-            until Next() = 0;
-        end;
+                if PurchCalcDiscByType.InvoiceDiscIsAllowed(PurchaseHeader."Invoice Disc. Code") and (InvDiscBaseAmount <> 0) then
+                    PurchCalcDiscByType.ApplyInvDiscBasedOnAmt(InvoiceDiscountAmount, PurchaseHeader)
+                else
+                    LogMessage(DataExch."Entry No.", PurchaseHeader, PurchaseHeader.FieldNo("No."),
+                      ErrorMessage."Message Type"::Warning, StrSubstNo(UnableToApplyDiscountErr, InvoiceDiscountAmount));
+            end;
+        until IntermediateDataImport.Next() = 0;
     end;
 
     local procedure ApplyInvoiceCharges(DataExch: Record "Data Exch.")
@@ -193,23 +188,21 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
         InvoiceChargeAmount: Decimal;
         InvoiceChargeReason: Text[100];
     begin
-        with IntermediateDataImport do begin
-            SetRange("Data Exch. No.", DataExch."Entry No.");
-            SetRange("Table ID", DATABASE::"Item Charge Assignment (Purch)");
-            SetRange("Field ID", ItemChargeAssignmentPurch.FieldNo("Amount to Assign"));
-            SetRange("Parent Record No.", 0);
-            SetFilter(Value, '<>%1', '');
+        IntermediateDataImport.SetRange("Data Exch. No.", DataExch."Entry No.");
+        IntermediateDataImport.SetRange("Table ID", DATABASE::"Item Charge Assignment (Purch)");
+        IntermediateDataImport.SetRange("Field ID", ItemChargeAssignmentPurch.FieldNo("Amount to Assign"));
+        IntermediateDataImport.SetRange("Parent Record No.", 0);
+        IntermediateDataImport.SetFilter(Value, '<>%1', '');
 
-            if not FindSet() then
-                exit;
+        if not IntermediateDataImport.FindSet() then
+            exit;
 
-            repeat
-                Evaluate(InvoiceChargeAmount, Value, 9);
-                InvoiceChargeReason := GetInvoiceChargeReason(IntermediateDataImport);
-                GetRelatedPurchaseHeader(PurchaseHeader, "Record No.");
-                CreateInvoiceChargePurchaseLine(DataExch."Entry No.", "Record No.", PurchaseHeader, InvoiceChargeReason, InvoiceChargeAmount);
-            until Next() = 0;
-        end;
+        repeat
+            Evaluate(InvoiceChargeAmount, IntermediateDataImport.Value, 9);
+            InvoiceChargeReason := GetInvoiceChargeReason(IntermediateDataImport);
+            GetRelatedPurchaseHeader(PurchaseHeader, IntermediateDataImport."Record No.");
+            CreateInvoiceChargePurchaseLine(DataExch."Entry No.", IntermediateDataImport."Record No.", PurchaseHeader, InvoiceChargeReason, InvoiceChargeAmount);
+        until IntermediateDataImport.Next() = 0;
     end;
 
     local procedure VerifyTotals(DataExch: Record "Data Exch.")
@@ -226,52 +219,48 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
         PrepaidAmount: Decimal;
         ProcessingMsg: Text[250];
     begin
-        with IntermediateDataImport do begin
-            SetRange("Data Exch. No.", DataExch."Entry No.");
-            SetRange("Table ID", DATABASE::"Purchase Header");
-            SetRange("Field ID", PurchaseHeader.FieldNo("Amount Including VAT"));
-            SetRange("Parent Record No.", 0);
-            SetFilter(Value, '<>%1', '');
+        IntermediateDataImport.SetRange("Data Exch. No.", DataExch."Entry No.");
+        IntermediateDataImport.SetRange("Table ID", DATABASE::"Purchase Header");
+        IntermediateDataImport.SetRange("Field ID", PurchaseHeader.FieldNo("Amount Including VAT"));
+        IntermediateDataImport.SetRange("Parent Record No.", 0);
+        IntermediateDataImport.SetFilter(Value, '<>%1', '');
 
-            if not FindSet() then
-                exit;
+        if not IntermediateDataImport.FindSet() then
+            exit;
 
-            repeat
-                PrepaidAmount := GetPrepaidAmount(DataExch, "Record No.");
-                Evaluate(AmountIncludingVATFromFile, Value, 9);
-                GetRelatedPurchaseHeader(PurchaseHeader, "Record No.");
+        repeat
+            PrepaidAmount := GetPrepaidAmount(DataExch, IntermediateDataImport."Record No.");
+            Evaluate(AmountIncludingVATFromFile, IntermediateDataImport.Value, 9);
+            GetRelatedPurchaseHeader(PurchaseHeader, IntermediateDataImport."Record No.");
 
-                VerifyLineVATs(DataExch, PurchaseHeader, "Record No.");
+            VerifyLineVATs(DataExch, PurchaseHeader, IntermediateDataImport."Record No.");
+            // prepare variables needed for calculation of totals
+            VATAmount := 0;
+            TempTotalPurchaseLine.Init();
+            CurrentPurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+            CurrentPurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+            // calculate totals and compare them with values from the incoming document
+            IncomingDocument.Get(DataExch."Incoming Entry No.");
+            if CurrentPurchaseLine.FindFirst() then begin
+                DocumentTotals.PurchaseCalculateTotalsWithInvoiceRounding(CurrentPurchaseLine, VATAmount, TempTotalPurchaseLine);
 
-                // prepare variables needed for calculation of totals
-                VATAmount := 0;
-                TempTotalPurchaseLine.Init();
-                CurrentPurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
-                CurrentPurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
-
-                // calculate totals and compare them with values from the incoming document
-                IncomingDocument.Get(DataExch."Incoming Entry No.");
-                if CurrentPurchaseLine.FindFirst() then begin
-                    DocumentTotals.PurchaseCalculateTotalsWithInvoiceRounding(CurrentPurchaseLine, VATAmount, TempTotalPurchaseLine);
-
-                    if AmountIncludingVATFromFile <> TempTotalPurchaseLine."Amount Including VAT" then begin
-                        ProcessingMsg := StrSubstNo(TotalsMismatchErr, TempTotalPurchaseLine."Amount Including VAT", AmountIncludingVATFromFile);
-                        if PrepaidAmount <> 0 then
-                            ProcessingMsg :=
-                              StrSubstNo(TotalsMismatchWithHintErr, TempTotalPurchaseLine."Amount Including VAT",
-                                AmountIncludingVATFromFile, PrepaidAmount);
-                        if IncomingDocument."Created Doc. Error Msg. Type" = IncomingDocument."Created Doc. Error Msg. Type"::Error then begin
-                            ProcessingMsg :=
-                              StrSubstNo(TotalsMismatchDocNotCreatedErr, TempTotalPurchaseLine."Amount Including VAT", AmountIncludingVATFromFile);
-                            LogMessage(DataExch."Entry No.", IncomingDocument, IncomingDocument.FieldNo("Entry No."),
-                              ErrorMessage."Message Type"::Error, ProcessingMsg);
-                        end else
-                            LogMessage(DataExch."Entry No.", PurchaseHeader, PurchaseHeader.FieldNo("No."),
-                              ErrorMessage."Message Type"::Warning, ProcessingMsg);
-                    end;
+                if AmountIncludingVATFromFile <> TempTotalPurchaseLine."Amount Including VAT" then begin
+                    ProcessingMsg := StrSubstNo(TotalsMismatchErr, TempTotalPurchaseLine."Amount Including VAT", AmountIncludingVATFromFile);
+                    if PrepaidAmount <> 0 then
+                        ProcessingMsg :=
+                          StrSubstNo(TotalsMismatchWithHintErr, TempTotalPurchaseLine."Amount Including VAT",
+                            AmountIncludingVATFromFile, PrepaidAmount);
+                    if IncomingDocument."Created Doc. Error Msg. Type" = IncomingDocument."Created Doc. Error Msg. Type"::Error then begin
+                        ProcessingMsg :=
+                          StrSubstNo(TotalsMismatchDocNotCreatedErr, TempTotalPurchaseLine."Amount Including VAT", AmountIncludingVATFromFile);
+                        LogMessage(DataExch."Entry No.", IncomingDocument, IncomingDocument.FieldNo("Entry No."),
+                          ErrorMessage."Message Type"::Error, ProcessingMsg);
+                    end else
+                        LogMessage(DataExch."Entry No.", PurchaseHeader, PurchaseHeader.FieldNo("No."),
+                          ErrorMessage."Message Type"::Warning, ProcessingMsg);
                 end;
-            until Next() = 0;
-        end;
+            end;
+        until IntermediateDataImport.Next() = 0;
     end;
 
     local procedure VerifyLineVATs(DataExch: Record "Data Exch."; PurchaseHeader: Record "Purchase Header"; ParentRecordNo: Integer)
@@ -281,26 +270,24 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
         ErrorMessage: Record "Error Message";
         VATPctFromFile: Decimal;
     begin
-        with IntermediateDataImport do begin
-            SetRange("Data Exch. No.", DataExch."Entry No.");
-            SetRange("Table ID", DATABASE::"Purchase Line");
-            SetRange("Field ID", PurchaseLine.FieldNo("VAT %"));
-            SetRange("Parent Record No.", ParentRecordNo);
-            SetFilter(Value, '<>%1', '');
-            SetCurrentKey("Record No.");
+        IntermediateDataImport.SetRange("Data Exch. No.", DataExch."Entry No.");
+        IntermediateDataImport.SetRange("Table ID", DATABASE::"Purchase Line");
+        IntermediateDataImport.SetRange("Field ID", PurchaseLine.FieldNo("VAT %"));
+        IntermediateDataImport.SetRange("Parent Record No.", ParentRecordNo);
+        IntermediateDataImport.SetFilter(Value, '<>%1', '');
+        IntermediateDataImport.SetCurrentKey("Record No.");
 
-            if not FindSet() then
-                exit;
+        if not IntermediateDataImport.FindSet() then
+            exit;
 
-            repeat
-                Evaluate(VATPctFromFile, Value, 9);
-                GetRelatedPurchaseLine(PurchaseLine, ComposeKeyForCreatedPurchLine(ParentRecordNo, "Record No."));
-                if VATPctFromFile <> PurchaseLine."VAT %" then
-                    LogMessage(DataExch."Entry No.", PurchaseHeader, PurchaseHeader.FieldNo("No."), ErrorMessage."Message Type"::Warning,
-                      StrSubstNo(VATMismatchErr, PurchaseLine.Type, PurchaseLine."No.", PurchaseLine."Line No.",
-                        PurchaseLine.FieldCaption("VAT %"), PurchaseLine."VAT %", VATPctFromFile));
-            until Next() = 0;
-        end;
+        repeat
+            Evaluate(VATPctFromFile, IntermediateDataImport.Value, 9);
+            GetRelatedPurchaseLine(PurchaseLine, ComposeKeyForCreatedPurchLine(ParentRecordNo, IntermediateDataImport."Record No."));
+            if VATPctFromFile <> PurchaseLine."VAT %" then
+                LogMessage(DataExch."Entry No.", PurchaseHeader, PurchaseHeader.FieldNo("No."), ErrorMessage."Message Type"::Warning,
+                  StrSubstNo(VATMismatchErr, PurchaseLine.Type, PurchaseLine."No.", PurchaseLine."Line No.",
+                    PurchaseLine.FieldCaption("VAT %"), PurchaseLine."VAT %", VATPctFromFile));
+        until IntermediateDataImport.Next() = 0;
     end;
 
     local procedure SetFieldValue(var FieldRef: FieldRef; Value: Text[250])
@@ -329,52 +316,44 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
         TempProcessedHdrFldId.Reset();
         TempProcessedHdrFldId.DeleteAll();
 
-        with IntermediateDataImport do begin
-            SetRange("Data Exch. No.", DataExch."Entry No.");
-            SetRange("Table ID", DATABASE::"Purchase Header");
-            SetRange("Record No.", RecordNo);
+        IntermediateDataImport.SetRange("Data Exch. No.", DataExch."Entry No.");
+        IntermediateDataImport.SetRange("Table ID", DATABASE::"Purchase Header");
+        IntermediateDataImport.SetRange("Record No.", RecordNo);
+        // Set PK and insert
+        FldNo := PurchaseHeader.FieldNo("Document Type");
+        ProcessField(TempProcessedHdrFldId, RecRef, FldNo,
+          GetValueFromIntermediate(IntermediateDataImport, RecRef, FldNo, PurchaseHeader.FieldCaption("Document Type")));
+        OnCreateNewPurchHdrOnBeforeRecRefInsert(RecRef, IntermediateDataImport);
+        RecRef.Insert(true);
+        // Vendor No.
+        FldNo := PurchaseHeader.FieldNo("Buy-from Vendor No.");
+        ProcessField(TempProcessedHdrFldId, RecRef, FldNo,
+          GetValueFromIntermediate(IntermediateDataImport, RecRef, FldNo, PurchaseHeader.FieldCaption("Buy-from Vendor No.")));
+        // Buy-from Vendor Name
+        FldNo := PurchaseHeader.FieldNo("Buy-from Vendor Name");
+        if TryGetValueFromIntermediate(IntermediateDataImport, RecRef, FldNo, PurchaseHeader.FieldCaption("Buy-from Vendor Name"), IntermediateDataImport.Value) then
+            ProcessFieldNoValidate(TempProcessedHdrFldId, RecRef, FldNo,
+              GetValueFromIntermediate(IntermediateDataImport, RecRef, FldNo, PurchaseHeader.FieldCaption("Buy-from Vendor Name")));
 
-            // Set PK and insert
-            FldNo := PurchaseHeader.FieldNo("Document Type");
-            ProcessField(TempProcessedHdrFldId, RecRef, FldNo,
-              GetValueFromIntermediate(IntermediateDataImport, RecRef, FldNo, PurchaseHeader.FieldCaption("Document Type")));
-            OnCreateNewPurchHdrOnBeforeRecRefInsert(RecRef, IntermediateDataImport);
-            RecRef.Insert(true);
-
-            // Vendor No.
-            FldNo := PurchaseHeader.FieldNo("Buy-from Vendor No.");
-            ProcessField(TempProcessedHdrFldId, RecRef, FldNo,
-              GetValueFromIntermediate(IntermediateDataImport, RecRef, FldNo, PurchaseHeader.FieldCaption("Buy-from Vendor No.")));
-
-            // Buy-from Vendor Name
-            FldNo := PurchaseHeader.FieldNo("Buy-from Vendor Name");
-            if TryGetValueFromIntermediate(IntermediateDataImport, RecRef, FldNo, PurchaseHeader.FieldCaption("Buy-from Vendor Name"), Value) then
+        RecRef.Modify(true);
+        SetHeaderConfirmGeneratorFields(IntermediateDataImport, RecRef);
+        // Pay-to Name
+        FldNo := PurchaseHeader.FieldNo("Pay-to Name");
+        if TryGetValueFromIntermediate(IntermediateDataImport, RecRef, FldNo, PurchaseHeader.FieldCaption("Pay-to Name"), IntermediateDataImport.Value) then
+            if not IsFieldProcessed(TempProcessedHdrFldId, FldNo) then
                 ProcessFieldNoValidate(TempProcessedHdrFldId, RecRef, FldNo,
-                  GetValueFromIntermediate(IntermediateDataImport, RecRef, FldNo, PurchaseHeader.FieldCaption("Buy-from Vendor Name")));
+                  GetValueFromIntermediate(IntermediateDataImport, RecRef, FldNo, PurchaseHeader.FieldCaption("Pay-to Name")));
+        // Currency
+        FldNo := PurchaseHeader.FieldNo("Currency Code");
+        ProcessField(TempProcessedHdrFldId, RecRef, FldNo,
+          GetValueFromIntermediate(IntermediateDataImport, RecRef, FldNo, PurchaseHeader.FieldCaption("Currency Code")));
+        // Incoming Doc Entry No
+        FldNo := PurchaseHeader.FieldNo("Incoming Document Entry No.");
+        ProcessField(TempProcessedHdrFldId, RecRef, FldNo, Format(DataExch."Incoming Entry No."));
 
-            RecRef.Modify(true);
-            SetHeaderConfirmGeneratorFields(IntermediateDataImport, RecRef);
+        RecRef.Modify(true);
 
-            // Pay-to Name
-            FldNo := PurchaseHeader.FieldNo("Pay-to Name");
-            if TryGetValueFromIntermediate(IntermediateDataImport, RecRef, FldNo, PurchaseHeader.FieldCaption("Pay-to Name"), Value) then
-                if not IsFieldProcessed(TempProcessedHdrFldId, FldNo) then
-                    ProcessFieldNoValidate(TempProcessedHdrFldId, RecRef, FldNo,
-                      GetValueFromIntermediate(IntermediateDataImport, RecRef, FldNo, PurchaseHeader.FieldCaption("Pay-to Name")));
-
-            // Currency
-            FldNo := PurchaseHeader.FieldNo("Currency Code");
-            ProcessField(TempProcessedHdrFldId, RecRef, FldNo,
-              GetValueFromIntermediate(IntermediateDataImport, RecRef, FldNo, PurchaseHeader.FieldCaption("Currency Code")));
-
-            // Incoming Doc Entry No
-            FldNo := PurchaseHeader.FieldNo("Incoming Document Entry No.");
-            ProcessField(TempProcessedHdrFldId, RecRef, FldNo, Format(DataExch."Incoming Entry No."));
-
-            RecRef.Modify(true);
-
-            CorrelateCreatedDocumentWithRecordNo(RecRef, RecordNo);
-        end;
+        CorrelateCreatedDocumentWithRecordNo(RecRef, RecordNo);
     end;
 
     local procedure SetHeaderConfirmGeneratorFields(var IntermediateDataImport: Record "Intermediate Data Import"; var RecRef: RecordRef)
@@ -462,41 +441,35 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
         FldNo: Integer;
         Type: Option;
     begin
-        with IntermediateDataImport do begin
-            SetRange("Data Exch. No.", DataExchNo);
-            SetRange("Table ID", DATABASE::"Purchase Line");
-            SetRange("Parent Record No.", ParentRecNo);
-            SetRange("Record No.", RecordNo);
+        IntermediateDataImport.SetRange("Data Exch. No.", DataExchNo);
+        IntermediateDataImport.SetRange("Table ID", DATABASE::"Purchase Line");
+        IntermediateDataImport.SetRange("Parent Record No.", ParentRecNo);
+        IntermediateDataImport.SetRange("Record No.", RecordNo);
+        // Type
+        FldNo := PurchaseLine.FieldNo(Type);
+        Evaluate(Type, GetValueFromIntermediate(IntermediateDataImport, RecRef, FldNo, PurchaseLine.FieldCaption(Type)));
+        ProcessField(TempProcessedLineFldId, RecRef, FldNo, Format(Type));
 
-            // Type
-            FldNo := PurchaseLine.FieldNo(Type);
-            Evaluate(Type, GetValueFromIntermediate(IntermediateDataImport, RecRef, FldNo, PurchaseLine.FieldCaption(Type)));
-            ProcessField(TempProcessedLineFldId, RecRef, FldNo, Format(Type));
-
-            if Type <> 0 then begin
-                // No.
-                FldNo := PurchaseLine.FieldNo("No.");
-                ProcessField(TempProcessedLineFldId, RecRef, FldNo,
-                  GetValueFromIntermediate(IntermediateDataImport, RecRef, FldNo, PurchaseLine.FieldCaption("No.")));
-
-                // Quantity
-                FldNo := PurchaseLine.FieldNo(Quantity);
-                ProcessField(TempProcessedLineFldId, RecRef, FldNo,
-                  GetValueFromIntermediate(IntermediateDataImport, RecRef, FldNo, PurchaseLine.FieldCaption(Quantity)));
-
-                // UOM
-                FldNo := PurchaseLine.FieldNo("Unit of Measure Code");
-                if TryGetValueFromIntermediate(IntermediateDataImport, RecRef, FldNo, PurchaseLine.FieldCaption("Unit of Measure Code"), Value) then
-                    ProcessField(TempProcessedLineFldId, RecRef, FldNo, Value);
-
-                // Direct Unit Cost
-                FldNo := PurchaseLine.FieldNo("Direct Unit Cost");
-                ProcessField(TempProcessedLineFldId, RecRef, FldNo,
-                  GetValueFromIntermediate(IntermediateDataImport, RecRef, FldNo, PurchaseLine.FieldCaption("Direct Unit Cost")));
-            end;
-
-            RecRef.Modify(true);
+        if Type <> 0 then begin
+            // No.
+            FldNo := PurchaseLine.FieldNo("No.");
+            ProcessField(TempProcessedLineFldId, RecRef, FldNo,
+              GetValueFromIntermediate(IntermediateDataImport, RecRef, FldNo, PurchaseLine.FieldCaption("No.")));
+            // Quantity
+            FldNo := PurchaseLine.FieldNo(Quantity);
+            ProcessField(TempProcessedLineFldId, RecRef, FldNo,
+              GetValueFromIntermediate(IntermediateDataImport, RecRef, FldNo, PurchaseLine.FieldCaption(Quantity)));
+            // UOM
+            FldNo := PurchaseLine.FieldNo("Unit of Measure Code");
+            if TryGetValueFromIntermediate(IntermediateDataImport, RecRef, FldNo, PurchaseLine.FieldCaption("Unit of Measure Code"), IntermediateDataImport.Value) then
+                ProcessField(TempProcessedLineFldId, RecRef, FldNo, IntermediateDataImport.Value);
+            // Direct Unit Cost
+            FldNo := PurchaseLine.FieldNo("Direct Unit Cost");
+            ProcessField(TempProcessedLineFldId, RecRef, FldNo,
+              GetValueFromIntermediate(IntermediateDataImport, RecRef, FldNo, PurchaseLine.FieldCaption("Direct Unit Cost")));
         end;
+
+        RecRef.Modify(true);
     end;
 
     procedure GetValueFromIntermediate(var IntermediateDataImport: Record "Intermediate Data Import"; RecRef: RecordRef; FieldID: Integer; FieldName: Text): Text[250]
@@ -611,15 +584,13 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
         Amount: Decimal;
     begin
         Amount := 0;
-        with IntermediateDataImport do begin
-            SetRange("Data Exch. No.", DataExch."Entry No.");
-            SetRange("Table ID", DATABASE::"Prepayment Inv. Line Buffer");
-            SetRange("Field ID", PrepaymentInvLineBuffer.FieldNo(Amount));
-            SetRange("Record No.", RecordNo);
+        IntermediateDataImport.SetRange("Data Exch. No.", DataExch."Entry No.");
+        IntermediateDataImport.SetRange("Table ID", DATABASE::"Prepayment Inv. Line Buffer");
+        IntermediateDataImport.SetRange("Field ID", PrepaymentInvLineBuffer.FieldNo(Amount));
+        IntermediateDataImport.SetRange("Record No.", RecordNo);
 
-            if FindFirst() then
-                Evaluate(Amount, Value, 9);
-        end;
+        if IntermediateDataImport.FindFirst() then
+            Evaluate(Amount, IntermediateDataImport.Value, 9);
         exit(Amount);
     end;
 
@@ -630,23 +601,21 @@ codeunit 1218 "Map Incoming Doc to Purch Doc"
         PlaceholderPurchaseLine: Record "Purchase Line";
         ErrorMessage: Record "Error Message";
     begin
-        with IntermediateDataImport2 do begin
-            SetRange("Data Exch. No.", IntermediateDataImport."Data Exch. No.");
-            SetRange("Table ID", DATABASE::"Item Charge");
-            SetRange("Field ID", ItemCharge.FieldNo(Description));
-            SetRange("Record No.", IntermediateDataImport."Record No.");
-            SetRange("Parent Record No.", 0);
-            SetFilter(Value, '<>%1', '');
+        IntermediateDataImport2.SetRange("Data Exch. No.", IntermediateDataImport."Data Exch. No.");
+        IntermediateDataImport2.SetRange("Table ID", DATABASE::"Item Charge");
+        IntermediateDataImport2.SetRange("Field ID", ItemCharge.FieldNo(Description));
+        IntermediateDataImport2.SetRange("Record No.", IntermediateDataImport."Record No.");
+        IntermediateDataImport2.SetRange("Parent Record No.", 0);
+        IntermediateDataImport2.SetFilter(Value, '<>%1', '');
 
-            if FindFirst() then
-                exit(CopyStr(Value, 1, MaxStrLen(PlaceholderPurchaseLine.Description)));
-            LogMessage(
-              IntermediateDataImport."Data Exch. No.",
-              PlaceholderPurchaseLine,
-              PlaceholderPurchaseLine.FieldNo(Description),
-              ErrorMessage."Message Type"::Error,
-              InvoiceChargeHasNoReasonErr);
-        end;
+        if IntermediateDataImport2.FindFirst() then
+            exit(CopyStr(IntermediateDataImport2.Value, 1, MaxStrLen(PlaceholderPurchaseLine.Description)));
+        LogMessage(
+          IntermediateDataImport."Data Exch. No.",
+          PlaceholderPurchaseLine,
+          PlaceholderPurchaseLine.FieldNo(Description),
+          ErrorMessage."Message Type"::Error,
+          InvoiceChargeHasNoReasonErr);
     end;
 
     local procedure LogMessage(EntryNo: Integer; RelatedRec: Variant; FieldNo: Integer; MessageType: Option; ProcessingMessage: Text)

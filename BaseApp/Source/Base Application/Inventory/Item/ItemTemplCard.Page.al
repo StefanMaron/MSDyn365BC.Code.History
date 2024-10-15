@@ -46,6 +46,11 @@ page 1384 "Item Templ. Card"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that the item cannot be entered on sales documents, except return orders and credit memos, and journals.';
                 }
+                field("Service Blocked"; Rec."Service Blocked")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies that the item cannot be entered on service items, service contracts and service documents, except credit memos.';
+                }
                 field("Purchasing Blocked"; Rec."Purchasing Blocked")
                 {
                     ApplicationArea = Basic, Suite;
@@ -72,7 +77,7 @@ page 1384 "Item Templ. Card"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a code for the manufacturer of the catalog item.';
-                    Visible = False;
+                    Visible = false;
                 }
                 field("Service Item Group"; Rec."Service Item Group")
                 {

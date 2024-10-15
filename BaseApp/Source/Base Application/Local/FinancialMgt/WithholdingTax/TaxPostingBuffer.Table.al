@@ -7,6 +7,7 @@ namespace Microsoft.Finance.WithholdingTax;
 table 28070 "Tax Posting Buffer"
 {
     Caption = 'Tax Posting Buffer';
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -34,6 +34,7 @@ table 28078 "Purch. Tax Cr. Memo Line"
     Caption = 'Purch. Tax Cr. Memo Line';
     DrillDownPageID = "Posted Purchase Cr. Memo Lines";
     LookupPageID = "Posted Purchase Cr. Memo Lines";
+    DataClassification = CustomerContent;
 
     fields
     {

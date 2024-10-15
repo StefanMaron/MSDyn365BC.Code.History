@@ -42,7 +42,9 @@ page 1288 "Payment-to-Entry Match"
                     Caption = 'Amount Incl. Tolerance Matched:';
                     ToolTip = 'Specifies how many entries must match the amount, including payment tolerance, before a payment is automatically applied to the open entry.';
                 }
+#pragma warning disable AA0100
                 field("BankAccReconciliationLine.GetAppliedEntryAccountName(""Applies-to Entry No."")"; BankAccReconciliationLine.GetAppliedEntryAccountName(Rec."Applies-to Entry No."))
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'No. of Open Entries for';

@@ -92,6 +92,8 @@ codeunit 99000836 "Transfer Line-Reserve"
           Description, ExpectedReceiptDate, ShipmentDate, 0);
 
         FromTrackingSpecification."Source Type" := 0;
+
+        OnAfterCreateReservation(TransferLine);
     end;
 
     procedure CreateReservationSetFrom(TrackingSpecification: Record "Tracking Specification")
@@ -1004,6 +1006,11 @@ codeunit 99000836 "Transfer Line-Reserve"
 
     [IntegrationEvent(false, false)]
     local procedure OnTransferWhseShipmentToItemJnlLineOnAfterCalcWarehouseQtyBase(var WhseShptHeader: Record "Warehouse Shipment Header"; var WhseShptLine: Record "Warehouse Shipment Line"; var OldReservEntry: Record "Reservation Entry"; var WhseItemTrackingSetup: Record "Item Tracking Setup"; var QtyToHandleBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateReservation(var TransferLine: Record "Transfer Line")
     begin
     end;
 }

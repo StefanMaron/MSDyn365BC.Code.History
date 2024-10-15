@@ -7,6 +7,7 @@ table 5416 "Prod. Order Comp. Cmt Line"
     Caption = 'Prod. Order Comp. Cmt Line';
     DrillDownPageID = "Prod. Order BOM Cmt List";
     LookupPageID = "Prod. Order BOM Cmt List";
+    DataClassification = CustomerContent;
 
     fields
     {

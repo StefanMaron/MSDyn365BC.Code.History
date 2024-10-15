@@ -42,10 +42,10 @@ codeunit 139099 "Test ApplicationArea Country"
     var
         ExperienceTierSetup: Record "Experience Tier Setup";
     begin
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
         ExperienceTierSetup.DeleteAll(true);
         LibrarySetupStorage.Restore();
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
 
         if IsInitialized then
             exit;

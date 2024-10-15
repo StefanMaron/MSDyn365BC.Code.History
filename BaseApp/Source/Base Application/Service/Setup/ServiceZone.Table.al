@@ -4,6 +4,7 @@ table 5957 "Service Zone"
 {
     Caption = 'Service Zone';
     LookupPageID = "Service Zones";
+    DataClassification = CustomerContent;
 
     fields
     {

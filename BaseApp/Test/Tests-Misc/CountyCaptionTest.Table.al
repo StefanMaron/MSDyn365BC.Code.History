@@ -1,13 +1,12 @@
 table 134449 "County Caption Test"
 {
-    DataClassification = ToBeClassified;
+    DataClassification = CustomerContent;
     ReplicateData = false;
-    
+
     fields
     {
         field(1; "Entry No."; Integer)
         {
-            DataClassification = ToBeClassified;
         }
         field(9; County; Text[30])
         {

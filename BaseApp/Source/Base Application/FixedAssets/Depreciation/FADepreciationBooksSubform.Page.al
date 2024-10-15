@@ -99,7 +99,9 @@ page 5666 "FA Depreciation Books Subform"
                     ToolTip = 'Specifies the starting date for the user-defined depreciation table if you have entered a code in the Depreciation Table Code field.';
                     Visible = false;
                 }
+#pragma warning disable AA0100
                 field("""Disposal Date"" > 0D"; Rec."Disposal Date" > 0D)
+#pragma warning restore AA0100
                 {
                     ApplicationArea = FixedAssets;
                     Caption = 'Disposed Of';
@@ -290,8 +292,6 @@ page 5666 "FA Depreciation Books Subform"
                     ApplicationArea = FixedAssets;
                     Caption = 'Statistics';
                     Image = Statistics;
-                    Promoted = true;
-                    PromotedCategory = Process;
                     ShortCutKey = 'F7';
                     ToolTip = 'View detailed historical information about the fixed asset.';
 

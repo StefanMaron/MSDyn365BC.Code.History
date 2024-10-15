@@ -681,15 +681,6 @@ codeunit 10 "Type Helper"
         exit(i3);
     end;
 
-#if not CLEAN17
-    [Obsolete('Format() now supports formatting GUIDs into different standards, see https://go.microsoft.com/fwlink/?linkid=2206175', '17.0')]
-    procedure GetGuidAsString(GuidValue: Guid): Text[36]
-    begin
-        // Converts guid to string
-        // Example: Converts {21EC2020-3AEA-4069-A2DD-08002B30309D} to 21ec2020-3aea-4069-a2dd-08002b30309d
-        exit(LowerCase(Format(GuidValue, 0, 4)));
-    end;
-#endif
     procedure GetMaxNumberOfParametersInSQLQuery(): Integer
     begin
         exit(2100);
@@ -929,7 +920,7 @@ codeunit 10 "Type Helper"
 
     procedure IsDigit(ch: Char): Boolean
     begin
-        exit((ch >= '0') AND (ch <= '9'));
+        exit((ch >= '0') and (ch <= '9'));
     end;
 
     procedure IsUpper(ch: Char): Boolean

@@ -1341,7 +1341,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!Annual_Information_Return_of_Creditable_Income_Taxes_Withheld__Expanded__Income_Payments_Exempt_from_Withholding_TaxCaption.Value</Value>
+                                  <Value>=Fields!DataItem1500006.Value</Value>
                                   <Style>
                                     <FontSize>8pt</FontSize>
                                     <FontWeight>Bold</FontWeight>

@@ -163,7 +163,7 @@ codeunit 144003 "BAS Calculation"
         CreateBasXmlFieldId(XmlFieldId, BasFieldNo, 1);
 
         for I := 1 to 2 do
-            CreateBasXmlFieldSetup(CreateBasXmlFieldSetupName, XmlFieldId, BasFieldNo, 1);
+            CreateBasXmlFieldSetup(CreateBasXmlFieldSetupName(), XmlFieldId, BasFieldNo, 1);
 
         VerifyBasXmlSetup(XmlFieldId, BasFieldNo);
     end;
@@ -178,7 +178,7 @@ codeunit 144003 "BAS Calculation"
     begin
         InitializeBasXmlSetup(XmlFieldId, BasFieldNo);
 
-        SetupName := CreateBasXmlFieldSetupName;
+        SetupName := CreateBasXmlFieldSetupName();
         CreateBasXmlFieldSetup(SetupName, XmlFieldId, BasFieldNo, 1);
         asserterror CreateBasXmlFieldSetup(SetupName, XmlFieldId, BasFieldNo, 1);
 
@@ -208,7 +208,7 @@ codeunit 144003 "BAS Calculation"
         LibraryVariableStorage.Enqueue(BASSetupNameCode);
 
         // [WHEN] Run BAS Setup Preview action
-        BASSetupPage.Preview.Invoke;
+        BASSetupPage.Preview.Invoke();
 
         // [THEN] BAS Setup Preview page is opened for BASSetupName = "X"
         // verification is done in BASSetupPreviewPageHandler
@@ -235,7 +235,7 @@ codeunit 144003 "BAS Calculation"
         RunBASSetupPage(BASSetupPage, BASSetupNameCode, BASCalculationSheet.A1, BASCalculationSheet."BAS Version");
 
         // [WHEN] Run BAS Setup Preview action
-        asserterror BASSetupPage.Preview.Invoke;
+        asserterror BASSetupPage.Preview.Invoke();
 
         // [THEN] Error raised 'You cannot preview a Consolidated BAS Calculation Sheet'
         Assert.ExpectedError(
@@ -265,7 +265,7 @@ codeunit 144003 "BAS Calculation"
         LibraryVariableStorage.Enqueue(BASSetupNameCode);
 
         // [WHEN] Run BAS Setup Preview action
-        BASSetupPage.Preview.Invoke;
+        BASSetupPage.Preview.Invoke();
 
         // [THEN] BAS Setup Preview page is opened for BASSetupName = "X"
         // verification is done in BASSetupPreviewPageHandler
@@ -294,7 +294,7 @@ codeunit 144003 "BAS Calculation"
         LibraryVariableStorage.Enqueue(BASSetupNameCode);
 
         // [WHEN] Run BAS Setup Preview action
-        BASSetupPage.Preview.Invoke;
+        BASSetupPage.Preview.Invoke();
 
         // [THEN] BAS Setup Preview page is opened for BASSetupName = "X"
         // verification is done in BASSetupPreviewPageHandler
@@ -316,7 +316,7 @@ codeunit 144003 "BAS Calculation"
         // [GIVEN] Australian GST is enabled in General Ledger Setup
         CreateBASCalcSheetWithGSTSetup(VATPostingSetup, BASCalculationSheet, true);
         // [GIVEN] General Journal batch with Intercompany template
-        SetupIntercompanyGenJournalBatch;
+        SetupIntercompanyGenJournalBatch();
 
         // [GIVEN] Posted VAT entry "V"
         CreateMockVATEntry(VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
@@ -328,13 +328,13 @@ codeunit 144003 "BAS Calculation"
           VATPostingSetup."VAT Prod. Posting Group");
 
         // [WHEN] Run "Calculate GST Settlement" with "Post", "Intercompany" and "IC Partner" options
-        PostedBalance := RunCalculateGSTSettlement(BASCalculationSheet, true, true, CreateICPartnerCode);
+        PostedBalance := RunCalculateGSTSettlement(BASCalculationSheet, true, true, CreateICPartnerCode());
 
         // [THEN] Posted entries are balanced
         VerifyVATEntryByVATPostingSetup(PostedBalance, VATPostingSetup);
 
         Cleanup(BASCalculationSheet, '', '');
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     local procedure Initialize()
@@ -467,32 +467,26 @@ codeunit 144003 "BAS Calculation"
     var
         GLEntry: Record "G/L Entry";
     begin
-        with GLEntry do begin
-            Init();
-            Validate("Entry No.", FindNextGLEntryNo);
-            Validate("G/L Account No.", AccountNo);
-            Validate("Posting Date", WorkDate());
-            Validate(Amount, Amt);
-
-            Insert(true);
-        end;
+        GLEntry.Init();
+        GLEntry.Validate("Entry No.", FindNextGLEntryNo());
+        GLEntry.Validate("G/L Account No.", AccountNo);
+        GLEntry.Validate("Posting Date", WorkDate());
+        GLEntry.Validate(Amount, Amt);
+        GLEntry.Insert(true);
     end;
 
     local procedure CreateMockVATEntry(VATBusPostingGroupCode: Code[20]; VATProdPostingGroupCode: Code[20])
     var
         VATEntry: Record "VAT Entry";
     begin
-        with VATEntry do begin
-            Validate("Entry No.", FindNextVATEntryNo);
-            Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
-            Validate("VAT Prod. Posting Group", VATProdPostingGroupCode);
-            Validate(Type, Type::Sale);
-            Validate(Base, LibraryRandom.RandInt(10000));
-            Validate(Amount, LibraryRandom.RandInt(10000));
-            Validate("Posting Date", WorkDate());
-
-            Insert(true);
-        end;
+        VATEntry.Validate("Entry No.", FindNextVATEntryNo());
+        VATEntry.Validate("VAT Bus. Posting Group", VATBusPostingGroupCode);
+        VATEntry.Validate("VAT Prod. Posting Group", VATProdPostingGroupCode);
+        VATEntry.Validate(Type, VATEntry.Type::Sale);
+        VATEntry.Validate(Base, LibraryRandom.RandInt(10000));
+        VATEntry.Validate(Amount, LibraryRandom.RandInt(10000));
+        VATEntry.Validate("Posting Date", WorkDate());
+        VATEntry.Insert(true);
     end;
 
     local procedure CreateMockBASCalcSheetEntry(var BASCalculationSheet: Record "BAS Calculation Sheet"; BASCalcSheetFieldNo: Integer; GLAccNo: Code[20])
@@ -780,7 +774,7 @@ codeunit 144003 "BAS Calculation"
 
     local procedure RunBASSetupPage(var BASSetupPage: TestPage "BAS Setup"; BASSetupNameCode: Code[20]; A1: Code[11]; BASVersion: Integer)
     begin
-        BASSetupPage.OpenView;
+        BASSetupPage.OpenView();
         BASSetupPage.CurrentBASSetupNameCtrl.SetValue(BASSetupNameCode);
         BASSetupPage.BASIdNoCtrl.SetValue(A1);
         BASSetupPage.BASVersionNoCtrl.SetValue(BASVersion);
@@ -964,9 +958,9 @@ codeunit 144003 "BAS Calculation"
             PostDate.SetValue(WorkDate());
             DocNo.SetValue(DocumentNo);
 
-            Post.SetValue(LibraryVariableStorage.DequeueBoolean);
-            InterCompany.SetValue(LibraryVariableStorage.DequeueBoolean);
-            ICPartnerCode.SetValue(LibraryVariableStorage.DequeueText);
+            Post.SetValue(LibraryVariableStorage.DequeueBoolean());
+            InterCompany.SetValue(LibraryVariableStorage.DequeueBoolean());
+            ICPartnerCode.SetValue(LibraryVariableStorage.DequeueText());
 
             SaveAsXml(
               TemporaryPath + '\' + Format(BasSetupName) + LabelsFileTxt + '.xml',
@@ -984,7 +978,7 @@ codeunit 144003 "BAS Calculation"
     [Scope('OnPrem')]
     procedure BASSetupPreviewPageHandler(var BASSetupPreview: TestPage "BAS Setup Preview")
     begin
-        BASSetupPreview.Name.AssertEquals(LibraryVariableStorage.DequeueText);
+        BASSetupPreview.Name.AssertEquals(LibraryVariableStorage.DequeueText());
     end;
 
     [ConfirmHandler]

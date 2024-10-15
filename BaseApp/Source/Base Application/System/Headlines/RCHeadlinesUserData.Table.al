@@ -4,7 +4,8 @@ table 1458 "RC Headlines User Data"
 {
     Caption = 'Role Center Headlines User Data';
     ReplicateData = false;
-    
+    DataClassification = CustomerContent;
+
     fields
     {
         field(1; "User ID"; Guid)

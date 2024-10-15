@@ -7,7 +7,6 @@ namespace Microsoft.Inventory.MarketingText;
 using Microsoft.Inventory.Item;
 using Microsoft.Inventory.Item.Attribute;
 using System.Text;
-using System.Environment.Configuration;
 
 codeunit 5825 "Marketing Text"
 {
@@ -53,26 +52,9 @@ codeunit 5825 "Marketing Text"
 
     procedure IsMarketingTextVisible(): Boolean
     var
-        FeatureKey: Record "Feature Key";
         EntityText: Record "Entity Text";
     begin
-        if not FeatureKey.Get('EntityText') then begin
-            Session.LogMessage('0000JVD', TelemetryMissingFeatureKeyTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryLbl);
-            exit(EntityText.ReadPermission());
-        end;
-
-        if FeatureKey.Get('EntityText') and (FeatureKey.Enabled <> FeatureKey.Enabled::"All Users") then begin
-            Session.LogMessage('0000JVN', TelemetryFeatureKeyDisabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryLbl);
-            exit(false);
-        end;
-
-        if FeatureKey.Enabled = FeatureKey.Enabled::"All Users" then begin
-            Session.LogMessage('0000JVE', TelemetryFeatureKeyEnabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryLbl);
-            exit(EntityText.ReadPermission());
-        end;
-
-        Session.LogMessage('0000JVF', TelemetryFeatureKeyDisabledTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', TelemetryCategoryLbl);
-        exit(false);
+        exit(EntityText.ReadPermission());
     end;
 
     internal procedure GetItemRecordFactCount(var Facts: Dictionary of [Text, Text]): Integer
@@ -225,9 +207,6 @@ codeunit 5825 "Marketing Text"
         NoItemDescriptionErr: Label 'Please provide a description for the item.';
         NotEnoughInfoErr: Label 'There''s not enough information to draft a text. You can provide more by setting an item category and item attributes.';
         TelemetryCategoryLbl: Label 'Marketing Text', Locked = true;
-        TelemetryMissingFeatureKeyTxt: Label 'Feature key is not defined, Entity Text is enabled.', Locked = true;
-        TelemetryFeatureKeyEnabledTxt: Label 'Feature key is enabled, Entity Text is enabled.', Locked = true;
-        TelemetryFeatureKeyDisabledTxt: Label 'Feature key is disabled, Entity Text is disabled.', Locked = true;
         TelemetrySystemIdNotFoundTxt: Label 'Entity Text was requested for an item that does not exist', Locked = true;
         TelemetryEntityCannotSuggestTxt: Label 'Entity Text generation was attempted with feature disabled or incorrectly configured.', Locked = true;
         TelemetryTriggerActionNotSupportedTxt: Label 'Entity Text was requested with an action that is not supported: %1', Locked = true;

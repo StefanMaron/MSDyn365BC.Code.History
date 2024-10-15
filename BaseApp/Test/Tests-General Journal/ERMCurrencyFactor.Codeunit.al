@@ -81,7 +81,7 @@ codeunit 134077 "ERM Currency Factor"
 
         // Setup: Create Currency, Customer, General Journal Batch and General Journal Lines with Random Amount.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         CustomerNo := CreateCustomer(CurrencyCode);
         AmountLCY :=
           CreateGeneralJournalLines(
@@ -111,7 +111,7 @@ codeunit 134077 "ERM Currency Factor"
 
         // Setup: Create Currency, Vendor, General Journal Batch and General Journal Lines with Random Amount.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         VendorNo := CreateVendor(CurrencyCode);
         AmountLCY :=
           CreateGeneralJournalLines(
@@ -146,10 +146,10 @@ codeunit 134077 "ERM Currency Factor"
         LibraryERM.CreateRecurringBatchName(GenJournalBatch, GenJournalTemplate.Name);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Customer, CreateCustomer(CreateCurrency), LibraryRandom.RandDec(100, 2));
+          GenJournalLine."Account Type"::Customer, CreateCustomer(CreateCurrency()), LibraryRandom.RandDec(100, 2));
 
         // Exercise: Calculate the Currency Factor for validation.
-        CurrencyExchangeRate.Get(GenJournalLine."Currency Code", LibraryERM.FindEarliestDateForExhRate);
+        CurrencyExchangeRate.Get(GenJournalLine."Currency Code", LibraryERM.FindEarliestDateForExhRate());
         CurrencyFactor := CurrencyExchangeRate."Exchange Rate Amount" / CurrencyExchangeRate."Relational Exch. Rate Amount";
 
         // Verify: Validate 'Currency factor' and 'Amount(LCY)' on Recurring General Journal.
@@ -172,7 +172,7 @@ codeunit 134077 "ERM Currency Factor"
 
         // Setup: Create a Currency,post an Invoice for new Customer and create a payment in General Journal taking Random values for Amount.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
         CurrencyExchangeRate.FindFirst();
         CurrencyFactor := CurrencyExchangeRate."Exchange Rate Amount" / CurrencyExchangeRate."Relational Exch. Rate Amount";
@@ -187,9 +187,9 @@ codeunit 134077 "ERM Currency Factor"
           LibraryRandom.RandDec(100, 2));
 
         // Exercise: Open Apply Customer Entries page from General Journal and Set Applies to ID through page handler.
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
         GeneralJournal.FILTER.SetFilter("Document No.", GenJournalLine."Document No.");
-        GeneralJournal."Apply Entries".Invoke;
+        GeneralJournal."Apply Entries".Invoke();
 
         // Verify: Validate 'Currency factor' and 'Amount(LCY)' on General Journal.
         VerifyCurrencyFactorAmountLCY(GenJournalLine, CurrencyFactor);
@@ -301,13 +301,13 @@ codeunit 134077 "ERM Currency Factor"
         SalesLine: Record "Sales Line";
         Counter: Integer;
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer(CreateCurrency));
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CreateCustomer(CreateCurrency()));
 
         // Create multiple Sales Lines. Make sure that No. of Lines always greater than 1 to better Testability.
         for Counter := 1 to 1 + LibraryRandom.RandInt(8) do begin
             // Required Random Value for Quantity and "Unit Price" field value is not important.
             LibrarySales.CreateSalesLine(
-              SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+              SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
             SalesLine.Validate("Unit Price", LibraryRandom.RandInt(100));
             SalesLine.Modify(true);
         end;
@@ -357,8 +357,8 @@ codeunit 134077 "ERM Currency Factor"
 
         CreateGeneralJournalLine(
           GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"G/L Account",
-          LibraryERM.CreateGLAccountWithSalesSetup, CurrencyCode,
-          LibraryUtility.GenerateRandomFraction - GenJournalLine.Amount);
+          LibraryERM.CreateGLAccountWithSalesSetup(), CurrencyCode,
+          LibraryUtility.GenerateRandomFraction() - GenJournalLine.Amount);
     end;
 
     local procedure CreateGeneralJournalBatch(var GenJournalBatch: Record "Gen. Journal Batch")
@@ -415,7 +415,7 @@ codeunit 134077 "ERM Currency Factor"
     [Scope('OnPrem')]
     procedure ApplyCustEntryPageHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
     end;
 }
 

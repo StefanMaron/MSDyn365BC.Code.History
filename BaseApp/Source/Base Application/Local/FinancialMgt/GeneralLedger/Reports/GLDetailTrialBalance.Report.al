@@ -306,14 +306,12 @@ report 28163 "G/L Detail Trial Balance"
             trigger OnAfterGetRecord()
             begin
                 GLAccount2.Copy("G/L Account");
-                with GLAccount2 do begin
-                    if "Income/Balance" = 0 then
-                        SetRange("Date Filter", PreviousStartDate, PreviousEndDate)
-                    else
-                        SetRange("Date Filter", 0D, PreviousEndDate);
-                    CalcFields("Debit Amount", "Credit Amount");
-                    Solde := "Debit Amount" - "Credit Amount";
-                end;
+                if GLAccount2."Income/Balance" = 0 then
+                    GLAccount2.SetRange("Date Filter", PreviousStartDate, PreviousEndDate)
+                else
+                    GLAccount2.SetRange("Date Filter", 0D, PreviousEndDate);
+                GLAccount2.CalcFields("Debit Amount", "Credit Amount");
+                Solde := GLAccount2."Debit Amount" - GLAccount2."Credit Amount";
                 if "Income/Balance" = 0 then
                     SetRange("Date Filter", StartDate, EndDate)
                 else
@@ -323,7 +321,7 @@ report 28163 "G/L Detail Trial Balance"
                     CurrReport.Skip();
 
                 ShowBodyGLAccount := ((GLAccount2."Debit Amount" = "Debit Amount") and (GLAccount2."Credit Amount" = "Credit Amount"))
-                  or ("Account Type" <> 0);
+                  or ("Account Type" <> "Account Type"::Posting);
             end;
 
             trigger OnPreDataItem()

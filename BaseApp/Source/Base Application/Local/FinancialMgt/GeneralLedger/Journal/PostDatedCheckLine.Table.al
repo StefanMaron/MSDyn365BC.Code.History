@@ -20,6 +20,7 @@ table 28090 "Post Dated Check Line"
 {
     Caption = 'Post Dated Check Line';
     LookupPageID = "Post Dated Checks List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -593,40 +594,38 @@ table 28090 "Post Dated Check Line"
     [Scope('OnPrem')]
     procedure SetGenJnlLine(var PostDatedCheck: Record "Post Dated Check Line")
     begin
-        with PostDatedCheck do begin
-            GenJnlLine."Line No." := "Line Number";
-            GenJnlLine."Journal Batch Name" := 'Postdated';
-            if "Account Type" = "Account Type"::Customer then
-                GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer
+        GenJnlLine."Line No." := PostDatedCheck."Line Number";
+        GenJnlLine."Journal Batch Name" := 'Postdated';
+        if PostDatedCheck."Account Type" = PostDatedCheck."Account Type"::Customer then
+            GenJnlLine."Account Type" := GenJnlLine."Account Type"::Customer
+        else
+            if PostDatedCheck."Account Type" = PostDatedCheck."Account Type"::Vendor then
+                GenJnlLine."Account Type" := GenJnlLine."Account Type"::Vendor
             else
-                if "Account Type" = "Account Type"::Vendor then
-                    GenJnlLine."Account Type" := GenJnlLine."Account Type"::Vendor
-                else
-                    if "Account Type" = "Account Type"::"G/L Account" then
-                        GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
-            GenJnlLine."Account No." := "Account No.";
-            GenJnlLine."Document No." := "Document No.";
-            GenJnlLine."Posting Date" := "Check Date";
-            GenJnlLine.Amount := Amount;
-            GenJnlLine."Document No." := "Document No.";
-            GenJnlLine.Description := Description;
-            if "Currency Code" = '' then
-                GenJnlLine."Amount (LCY)" := Amount
-            else
-                GenJnlLine."Amount (LCY)" := Round(
-                    CurrExchRate.ExchangeAmtFCYToLCY(
-                      "Date Received", "Currency Code",
-                      Amount, "Currency Factor"));
-            GenJnlLine."Currency Code" := "Currency Code";
-            GenJnlLine."Applies-to Doc. Type" := "Applies-to Doc. Type";
-            GenJnlLine."Applies-to Doc. No." := "Applies-to Doc. No.";
-            GenJnlLine."Applies-to ID" := "Applies-to ID";
-            GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment;
-            GenJnlLine."Post Dated Check" := true;
-            GenJnlLine."Check No." := "Check No.";
-            GenJnlLine."Bal. Account Type" := GenJnlLine."Bal. Account Type"::"Bank Account";
-            GenJnlLine."Bal. Account No." := "Bank Account";
-        end;
+                if PostDatedCheck."Account Type" = PostDatedCheck."Account Type"::"G/L Account" then
+                    GenJnlLine."Account Type" := GenJnlLine."Account Type"::"G/L Account";
+        GenJnlLine."Account No." := PostDatedCheck."Account No.";
+        GenJnlLine."Document No." := PostDatedCheck."Document No.";
+        GenJnlLine."Posting Date" := PostDatedCheck."Check Date";
+        GenJnlLine.Amount := PostDatedCheck.Amount;
+        GenJnlLine."Document No." := PostDatedCheck."Document No.";
+        GenJnlLine.Description := PostDatedCheck.Description;
+        if PostDatedCheck."Currency Code" = '' then
+            GenJnlLine."Amount (LCY)" := PostDatedCheck.Amount
+        else
+            GenJnlLine."Amount (LCY)" := Round(
+                CurrExchRate.ExchangeAmtFCYToLCY(
+                  PostDatedCheck."Date Received", PostDatedCheck."Currency Code",
+                  PostDatedCheck.Amount, PostDatedCheck."Currency Factor"));
+        GenJnlLine."Currency Code" := PostDatedCheck."Currency Code";
+        GenJnlLine."Applies-to Doc. Type" := PostDatedCheck."Applies-to Doc. Type";
+        GenJnlLine."Applies-to Doc. No." := PostDatedCheck."Applies-to Doc. No.";
+        GenJnlLine."Applies-to ID" := PostDatedCheck."Applies-to ID";
+        GenJnlLine."Document Type" := GenJnlLine."Document Type"::Payment;
+        GenJnlLine."Post Dated Check" := true;
+        GenJnlLine."Check No." := PostDatedCheck."Check No.";
+        GenJnlLine."Bal. Account Type" := GenJnlLine."Bal. Account Type"::"Bank Account";
+        GenJnlLine."Bal. Account No." := PostDatedCheck."Bank Account";
     end;
 
     [Scope('OnPrem')]

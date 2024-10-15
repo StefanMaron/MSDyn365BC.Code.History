@@ -37,6 +37,7 @@ table 28076 "Purch. Tax Inv. Line"
     Caption = 'Purch. Tax Inv. Line';
     DrillDownPageID = "Posted Purchase Invoice Lines";
     LookupPageID = "Posted Purchase Invoice Lines";
+    DataClassification = CustomerContent;
 
     fields
     {

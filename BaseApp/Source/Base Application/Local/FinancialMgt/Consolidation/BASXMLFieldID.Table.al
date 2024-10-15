@@ -9,6 +9,7 @@ using System.Reflection;
 table 11602 "BAS XML Field ID"
 {
     Caption = 'BAS XML Field ID';
+    DataClassification = CustomerContent;
 
     fields
     {

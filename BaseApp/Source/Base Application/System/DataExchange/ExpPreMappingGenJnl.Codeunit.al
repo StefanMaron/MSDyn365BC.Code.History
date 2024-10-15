@@ -59,72 +59,71 @@ codeunit 1273 "Exp. Pre-Mapping Gen. Jnl."
             Vendor.Get(GenJnlLine."Account No.");
         end;
 
-        with PaymentExportData do begin
-            BankAccount.Get(GenJnlLine."Bal. Account No.");
-            BankAccount.GetBankExportImportSetup(BankExportImportSetup);
-            SetPreserveNonLatinCharacters(BankExportImportSetup."Preserve Non-Latin Characters");
+        BankAccount.Get(GenJnlLine."Bal. Account No.");
+        BankAccount.GetBankExportImportSetup(BankExportImportSetup);
+        PaymentExportData.SetPreserveNonLatinCharacters(BankExportImportSetup."Preserve Non-Latin Characters");
 
-            Init();
-            "Data Exch Entry No." := DataExchEntryNo;
-            "Sender Bank Account Code" := GenJnlLine."Bal. Account No.";
-            BankAccount.Get("Sender Bank Account Code");
-            "Sender Bank Account No." := CopyStr(BankAccount.GetBankAccountNo(), 1, MaxStrLen("Sender Bank Account No."));
+        PaymentExportData.Init();
+        PaymentExportData."Data Exch Entry No." := DataExchEntryNo;
+        PaymentExportData."Sender Bank Account Code" := GenJnlLine."Bal. Account No.";
+        BankAccount.Get(PaymentExportData."Sender Bank Account Code");
+        PaymentExportData."Sender Bank Account No." := CopyStr(BankAccount.GetBankAccountNo(), 1, MaxStrLen(PaymentExportData."Sender Bank Account No."));
+        PaymentExportData."Sender Reg. No." := CopyStr(BankAccount.GetBankAccountNo(), 1, MaxStrLen(PaymentExportData."Sender Reg. No."));
 
-            if IsEmployee then begin
-                "Recipient Name" := CopyStr(Employee.FullName(), 1, MaxStrLen("Recipient Name"));
-                "Recipient Address" := Employee.Address;
-                "Recipient City" := CopyStr(Employee.City, 1, 35);
-                "Recipient County" := Employee.County;
-                "Recipient Post Code" := Employee."Post Code";
-                "Recipient Country/Region Code" := Employee."Country/Region Code";
-                "Recipient Email Address" := Employee."E-Mail";
-                if Employee.GetBankAccountNo() = '' then
-                    Error(EmployeeMustHaveBankAccountNoErr, Employee.FullName());
-                "Recipient Bank Acc. No." := CopyStr(Employee.GetBankAccountNo(), 1, MaxStrLen("Recipient Bank Acc. No."));
-                "Recipient Reg. No." := Employee."Bank Branch No.";
-                "Recipient Acc. No." := Employee."Bank Account No.";
-                Amount := GenJnlLine.Amount;
-                "Currency Code" := GeneralLedgerSetup.GetCurrencyCode(GenJnlLine."Currency Code");
-            end else begin
-                if VendorBankAccount.Get(GenJnlLine."Account No.", GenJnlLine."Recipient Bank Account") then begin
-                    Amount := GenJnlLine.Amount;
-                    "Currency Code" := GeneralLedgerSetup.GetCurrencyCode(GenJnlLine."Currency Code");
-                    "Recipient Bank Acc. No." :=
-                      CopyStr(VendorBankAccount.GetBankAccountNo(), 1, MaxStrLen("Recipient Bank Acc. No."));
-                    "Recipient Reg. No." := VendorBankAccount."Bank Branch No.";
-                    "Recipient Acc. No." := VendorBankAccount."Bank Account No.";
-                    "Recipient Bank Country/Region" := VendorBankAccount."Country/Region Code";
-                    "Recipient Bank Name" := CopyStr(VendorBankAccount.Name, 1, 35);
-                    "Recipient Bank Address" := CopyStr(VendorBankAccount.Address, 1, 35);
-                    "Recipient Bank City" := CopyStr(VendorBankAccount."Post Code" + VendorBankAccount.City, 1, 35);
-                    "Recipient Bank BIC" := VendorBankAccount."SWIFT Code";
-                end else
-                    if GenJnlLine."Creditor No." <> '' then begin
-                        Amount := GenJnlLine."Amount (LCY)";
-                        "Currency Code" := GeneralLedgerSetup."LCY Code";
-                    end;
+        if IsEmployee then begin
+            PaymentExportData."Recipient Name" := CopyStr(Employee.FullName(), 1, MaxStrLen(PaymentExportData."Recipient Name"));
+            PaymentExportData."Recipient Address" := Employee.Address;
+            PaymentExportData."Recipient City" := CopyStr(Employee.City, 1, 35);
+            PaymentExportData."Recipient County" := Employee.County;
+            PaymentExportData."Recipient Post Code" := Employee."Post Code";
+            PaymentExportData."Recipient Country/Region Code" := Employee."Country/Region Code";
+            PaymentExportData."Recipient Email Address" := Employee."E-Mail";
+            if Employee.GetBankAccountNo() = '' then
+                Error(EmployeeMustHaveBankAccountNoErr, Employee.FullName());
+            PaymentExportData."Recipient Bank Acc. No." := CopyStr(Employee.GetBankAccountNo(), 1, MaxStrLen(PaymentExportData."Recipient Bank Acc. No."));
+            PaymentExportData."Recipient Reg. No." := Employee."Bank Branch No.";
+            PaymentExportData."Recipient Acc. No." := Employee."Bank Account No.";
+            PaymentExportData.Amount := GenJnlLine.Amount;
+            PaymentExportData."Currency Code" := GeneralLedgerSetup.GetCurrencyCode(GenJnlLine."Currency Code");
+        end else begin
+            if VendorBankAccount.Get(GenJnlLine."Account No.", GenJnlLine."Recipient Bank Account") then begin
+                PaymentExportData.Amount := GenJnlLine.Amount;
+                PaymentExportData."Currency Code" := GeneralLedgerSetup.GetCurrencyCode(GenJnlLine."Currency Code");
+                PaymentExportData."Recipient Bank Acc. No." :=
+                  CopyStr(VendorBankAccount.GetBankAccountNo(), 1, MaxStrLen(PaymentExportData."Recipient Bank Acc. No."));
+                PaymentExportData."Recipient Reg. No." := VendorBankAccount."Bank Branch No.";
+                PaymentExportData."Recipient Acc. No." := VendorBankAccount."Bank Account No.";
+                PaymentExportData."Recipient Bank Country/Region" := VendorBankAccount."Country/Region Code";
+                PaymentExportData."Recipient Bank Name" := CopyStr(VendorBankAccount.Name, 1, 35);
+                PaymentExportData."Recipient Bank Address" := CopyStr(VendorBankAccount.Address, 1, 35);
+                PaymentExportData."Recipient Bank City" := CopyStr(VendorBankAccount."Post Code" + VendorBankAccount.City, 1, 35);
+                PaymentExportData."Recipient Bank BIC" := VendorBankAccount."SWIFT Code";
+            end else
+                if GenJnlLine."Creditor No." <> '' then begin
+                    PaymentExportData.Amount := GenJnlLine."Amount (LCY)";
+                    PaymentExportData."Currency Code" := GeneralLedgerSetup."LCY Code";
+                end;
 
-                "Recipient Name" := CopyStr(Vendor.Name, 1, 35);
-                "Recipient Address" := CopyStr(Vendor.Address, 1, 35);
-                "Recipient City" := CopyStr(Vendor."Post Code" + ' ' + Vendor.City, 1, 35);
-            end;
-
-            "Transfer Date" := GenJnlLine."Posting Date";
-            "Message to Recipient 1" := CopyStr(GenJnlLine."Message to Recipient", 1, 35);
-            "Message to Recipient 2" := CopyStr(GenJnlLine."Message to Recipient", 36, 70);
-            "Document No." := GenJnlLine."Document No.";
-            "Applies-to Ext. Doc. No." := GenJnlLine."Applies-to Ext. Doc. No.";
-            "Short Advice" := GenJnlLine."Applies-to Ext. Doc. No.";
-            "Line No." := LineNo;
-            "Payment Reference" := GenJnlLine."Payment Reference";
-            if PaymentMethod.Get(GenJnlLine."Payment Method Code") then
-                "Data Exch. Line Def Code" := PaymentMethod."Pmt. Export Line Definition";
-            "Recipient Creditor No." := GenJnlLine."Creditor No.";
-
-            OnBeforeInsertPaymentExoprtData(PaymentExportData, GenJnlLine, GeneralLedgerSetup);
-
-            Insert(true);
+            PaymentExportData."Recipient Name" := CopyStr(Vendor.Name, 1, 35);
+            PaymentExportData."Recipient Address" := CopyStr(Vendor.Address, 1, 35);
+            PaymentExportData."Recipient City" := CopyStr(Vendor."Post Code" + ' ' + Vendor.City, 1, 35);
         end;
+
+        PaymentExportData."Transfer Date" := GenJnlLine."Posting Date";
+        PaymentExportData."Message to Recipient 1" := CopyStr(GenJnlLine."Message to Recipient", 1, 35);
+        PaymentExportData."Message to Recipient 2" := CopyStr(GenJnlLine."Message to Recipient", 36, 70);
+        PaymentExportData."Document No." := GenJnlLine."Document No.";
+        PaymentExportData."Applies-to Ext. Doc. No." := GenJnlLine."Applies-to Ext. Doc. No.";
+        PaymentExportData."Short Advice" := GenJnlLine."Applies-to Ext. Doc. No.";
+        PaymentExportData."Line No." := LineNo;
+        PaymentExportData."Payment Reference" := GenJnlLine."Payment Reference";
+        if PaymentMethod.Get(GenJnlLine."Payment Method Code") then
+            PaymentExportData."Data Exch. Line Def Code" := PaymentMethod."Pmt. Export Line Definition";
+        PaymentExportData."Recipient Creditor No." := GenJnlLine."Creditor No.";
+
+        OnBeforeInsertPaymentExoprtData(PaymentExportData, GenJnlLine, GeneralLedgerSetup);
+
+        PaymentExportData.Insert(true);
     end;
 
     [IntegrationEvent(false, false)]

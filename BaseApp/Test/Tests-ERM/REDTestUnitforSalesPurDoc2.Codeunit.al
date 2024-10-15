@@ -13,7 +13,6 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         LibraryRandom: Codeunit "Library - Random";
         LibraryInventory: Codeunit "Library - Inventory";
         LibrarySales: Codeunit "Library - Sales";
-        DeferralUtilities: Codeunit "Deferral Utilities";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryPurchase: Codeunit "Library - Purchase";
@@ -26,6 +25,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         SalesDocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order",Shipment,"Posted Invoice","Posted Credit Memo","Posted Return Receipt";
         PurchDocType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order",Shipment,"Posted Invoice","Posted Credit Memo","Posted Return Receipt";
         isInitialized: Boolean;
+        AllowPostedDocumentDeletionDate: Date;
         DialogTok: Label 'Dialog';
         DateOutOfBoundErr: Label 'The deferral schedule falls outside the accounting periods that have been set up for the company.';
         NoOfPeriodsErr: Label 'No. of Periods must not be %1 in Deferral Header', Comment = '%1 - No of periods';
@@ -49,7 +49,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         // [SCENARIO 127736] When a Posted Credit Memo is deleted, the deferrals are also deleted
         // Setup
         Initialize();
-        PostingDate := SetDateDay(15, WorkDate());
+        PostingDate := SetDateDay(15, CalcDate('<-1M>', AllowPostedDocumentDeletionDate));
         LibrarySales.SetAllowDocumentDeletionBeforeDate(PostingDate + 1);
 
         // [GIVEN] User has assigned a default deferral code to an Item
@@ -93,7 +93,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         // [FEATURE] [Sales]
         // [SCENARIO 127736] When a Posted Invoice is deleted, the deferrals are also deleted
         Initialize();
-        PostingDate := SetDateDay(1, WorkDate());
+        PostingDate := SetDateDay(1, CalcDate('<- 1M>', AllowPostedDocumentDeletionDate));
         LibrarySales.SetAllowDocumentDeletionBeforeDate(PostingDate + 1);
 
         // [GIVEN] User has assigned a default deferral code to an Item
@@ -138,18 +138,18 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         // [GIVEN] User has created a Sales Document with one line item for GL Account
         CreateSalesDocWithLine(SalesHeader, SalesLine,
           SalesHeader."Document Type"::Invoice, SalesLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithSalesSetup, SetDateDay(1, WorkDate()));
+          LibraryERM.CreateGLAccountWithSalesSetup(), SetDateDay(1, WorkDate()));
         DeferralTemplateCode := LibraryERM.CreateDeferralTemplateCode(CalcMethod::"Straight-Line", StartDate::"Posting Date", 2);
 
         // [THEN] Deferral Code can be entered for GL Account
         SalesLine.Validate("Deferral Code", DeferralTemplateCode);
         SalesLine.Modify(true);
-        LibraryVariableStorage.Enqueue(SalesLine.GetDeferralAmount);
+        LibraryVariableStorage.Enqueue(SalesLine.GetDeferralAmount());
 
         // [THEN] Deferral Schedule can be opened for GL Account
-        SalesInvoice.OpenEdit;
+        SalesInvoice.OpenEdit();
         SalesInvoice.GotoRecord(SalesHeader);
-        SalesInvoice.SalesLines.DeferralSchedule.Invoke;
+        SalesInvoice.SalesLines.DeferralSchedule.Invoke();
         SalesInvoice.Close();
     end;
 
@@ -170,7 +170,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         // [SCENARIO 127772] When a Posted Credit Memo is deleted, the deferrals are also deleted
         // Setup
         Initialize();
-        PostingDate := SetDateDay(15, WorkDate());
+        PostingDate := SetDateDay(15, CalcDate('<- 1M>', AllowPostedDocumentDeletionDate));
         LibraryPurchase.SetAllowDocumentDeletionBeforeDate(PostingDate + 1);
 
         // [GIVEN] User has assigned a default deferral code to an Item
@@ -212,7 +212,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         // [FEATURE] [Purchase]
         // [SCENARIO 127772] When a Posted Invoice is deleted, the deferrals are also deleted
         Initialize();
-        PostingDate := SetDateDay(1, WorkDate());
+        PostingDate := SetDateDay(1, CalcDate('<- 1M>', AllowPostedDocumentDeletionDate));
         LibraryPurchase.SetAllowDocumentDeletionBeforeDate(PostingDate + 1);
 
         // [GIVEN] User has assigned a default deferral code to an Item
@@ -269,7 +269,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         VerifyDeferralSchedule(
           "Deferral Document Type"::Sales,
           SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.",
-          DeferralTemplateCode, SetDateDay(1, WorkDate()), SalesLine.GetDeferralAmount, 3);
+          DeferralTemplateCode, SetDateDay(1, WorkDate()), SalesLine.GetDeferralAmount(), 3);
     end;
 
     [Test]
@@ -302,7 +302,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         // [THEN] The deferrals are not updated
         VerifyDeferralSchedule("Deferral Document Type"::Sales,
           SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.",
-          DeferralTemplateCode, SetDateDay(25, WorkDate()), SalesLine.GetDeferralAmount, 3);
+          DeferralTemplateCode, SetDateDay(25, WorkDate()), SalesLine.GetDeferralAmount(), 3);
     end;
 
     [Test]
@@ -328,7 +328,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         VerifyDeferralSchedule(
           "Deferral Document Type"::Purchase,
           PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.",
-          DeferralTemplateCode, SetDateDay(1, WorkDate()), PurchaseLine.GetDeferralAmount, 2);
+          DeferralTemplateCode, SetDateDay(1, WorkDate()), PurchaseLine.GetDeferralAmount(), 2);
     end;
 
     [Test]
@@ -353,7 +353,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         // [THEN] The deferrals are not updated with the new date
         VerifyDeferralSchedule("Deferral Document Type"::Purchase,
           PurchaseLine."Document Type".AsInteger(), PurchaseLine."Document No.", PurchaseLine."Line No.",
-          DeferralTemplateCode, SetDateDay(28, WorkDate()), PurchaseLine.GetDeferralAmount, 2);
+          DeferralTemplateCode, SetDateDay(28, WorkDate()), PurchaseLine.GetDeferralAmount(), 2);
     end;
 
     [Test]
@@ -369,9 +369,9 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         // [FEATURE] [Sales]
         Initialize();
 
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", CreateGLAccountWithDeferralCode, LibraryRandom.RandInt(100));
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", CreateGLAccountWithDeferralCode(), LibraryRandom.RandInt(100));
         SalesLine.Validate("Unit Price", LibraryRandom.RandInt(100));
         SalesLine.Modify(true);
 
@@ -398,9 +398,9 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         // [FEATURE] [Purchases]
         Initialize();
 
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", CreateGLAccountWithDeferralCode, LibraryRandom.RandInt(100));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", CreateGLAccountWithDeferralCode(), LibraryRandom.RandInt(100));
 
         AccountingPeriod.FindFirst();
         LibraryVariableStorage.Enqueue(
@@ -504,7 +504,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         OpenSalesDeferralSchedule(SalesLine, SalesHeader);
 
         // [THEN] Error occured on closing Deferral Schedule
-        Assert.ExpectedMessage(StrSubstNo(NoOfPeriodsErr, NoOfPeriods + Offset), LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(StrSubstNo(NoOfPeriodsErr, NoOfPeriods + Offset), LibraryVariableStorage.DequeueText());
     end;
 
     [Test]
@@ -530,7 +530,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         OpenPurchaseDeferralSchedule(PurchaseLine, PurchaseHeader);
 
         // [THEN] Error occured on closing Deferral Schedule
-        Assert.ExpectedMessage(StrSubstNo(NoOfPeriodsErr, NoOfPeriods + Offset), LibraryVariableStorage.DequeueText);
+        Assert.ExpectedMessage(StrSubstNo(NoOfPeriodsErr, NoOfPeriods + Offset), LibraryVariableStorage.DequeueText());
     end;
 
     [Test]
@@ -764,7 +764,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         // [GIVEN] Purchase Invoice with Currency Factor = 57.31123
         ExchRate := 57.31123;
         CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 100 / ExchRate, 100 / ExchRate);
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("Posting Date", LibraryRandom.RandDateFromInRange(CalcDate('<CM>', WorkDate()), 5, 10));
         PurchaseHeader.Validate("Currency Code", CurrencyCode);
         PurchaseHeader.Validate("Posting Description", '0123456789');
@@ -796,7 +796,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
           PurchaseHeader."Posting Description", PurchaseLine.Description,
           '2100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
           Round(666.66 * ExchRate / 100),
-          Round(2000 * ExchRate / 100), Round(3000 * ExchRate / 100) - LibraryERM.GetAmountRoundingPrecision, 1);
+          Round(2000 * ExchRate / 100), Round(3000 * ExchRate / 100) - LibraryERM.GetAmountRoundingPrecision(), 1);
     end;
 
     [Test]
@@ -824,7 +824,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         // [GIVEN] Sales Invoice with Currency Factor = 57.31123
         ExchRate := 57.31123;
         CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), 100 / ExchRate, 100 / ExchRate);
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("Posting Date", LibraryRandom.RandDateFromInRange(CalcDate('<CM>', WorkDate()), 5, 10));
         SalesHeader.Validate("Currency Code", CurrencyCode);
         SalesHeader.Validate("Posting Description", '0123456789');
@@ -856,7 +856,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
           SalesHeader."Posting Description", SalesLine.Description,
           '2100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000',
           Round(666.66 * ExchRate / 100),
-          Round(2000 * ExchRate / 100), Round(3000 * ExchRate / 100) - LibraryERM.GetAmountRoundingPrecision, -1);
+          Round(2000 * ExchRate / 100), Round(3000 * ExchRate / 100) - LibraryERM.GetAmountRoundingPrecision(), -1);
     end;
 
     [Test]
@@ -885,9 +885,9 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
 
         // [GIVEN] Purchase Invoice with two lines of G/L Account "GL1" and "GL2" and amounts = 100 and 200 respectively on 15.01.18
         // [GIVEN] Amount to Defer = (100 + 200) * 30% = 90
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
-        CreatePurchLineWithGLAccount(PurchaseLine, PurchaseHeader, LibraryERM.CreateGLAccountWithPurchSetup, DeferralTemplateCode);
-        CreatePurchLineWithGLAccount(PurchaseLine, PurchaseHeader, LibraryERM.CreateGLAccountWithPurchSetup, DeferralTemplateCode);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+        CreatePurchLineWithGLAccount(PurchaseLine, PurchaseHeader, LibraryERM.CreateGLAccountWithPurchSetup(), DeferralTemplateCode);
+        CreatePurchLineWithGLAccount(PurchaseLine, PurchaseHeader, LibraryERM.CreateGLAccountWithPurchSetup(), DeferralTemplateCode);
         PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
         PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
         PurchaseLine.FindSet();
@@ -935,9 +935,9 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
 
         // [GIVEN] Sales Invoice with two lines of G/L Account "GL1" and "GL2" and amounts = 100 and 200 respectively on 15.01.18
         // [GIVEN] Amount to Defer = (100 + 200) * 30% = 90
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
-        CreateSalesLineWithGLAccount(SalesLine, SalesHeader, LibraryERM.CreateGLAccountWithSalesSetup, DeferralTemplateCode);
-        CreateSalesLineWithGLAccount(SalesLine, SalesHeader, LibraryERM.CreateGLAccountWithSalesSetup, DeferralTemplateCode);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+        CreateSalesLineWithGLAccount(SalesLine, SalesHeader, LibraryERM.CreateGLAccountWithSalesSetup(), DeferralTemplateCode);
+        CreateSalesLineWithGLAccount(SalesLine, SalesHeader, LibraryERM.CreateGLAccountWithSalesSetup(), DeferralTemplateCode);
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.FindSet();
@@ -988,7 +988,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         // [GIVEN] Purchase invoice with Currency Factor = 0.125001734184240
         ExchRate := 0.12500173418424;
         CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchRate, ExchRate);
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("Currency Code", CurrencyCode);
         PurchaseHeader.Modify(true);
 
@@ -1049,7 +1049,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         // [GIVEN] Sales invoice with Currency Factor = 0.125001734184240
         ExchRate := 0.12500173418424;
         CurrencyCode := LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), ExchRate, ExchRate);
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("Currency Code", CurrencyCode);
         SalesHeader.Modify(true);
 
@@ -1097,7 +1097,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         Initialize();
 
         // [GIVEN] Sales Document with Currency Code blank and Posting Date not equal to WORKDATE
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("Posting Date", WorkDate() - 1);
         SalesHeader.Modify();
 
@@ -1111,7 +1111,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
 
         // [GIVEN] Sales Line with Deferral code, and Currency Code not blank
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, LibraryRandom.RandInt(10));
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), LibraryRandom.RandInt(10));
         SalesLine."Deferral Code" := DeferralTemplate."Deferral Code";
         SalesLine."Currency Code" := Currency.Code;
 
@@ -1148,7 +1148,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
           DeferralTemplate."Start Date"::"Posting Date", LibraryRandom.RandIntInRange(3, 10));
 
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup,
+          SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(),
           LibraryRandom.RandIntInRange(5, 10));
         SalesLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
         SalesLine.Validate("Deferral Code", DeferralTemplate."Deferral Code");
@@ -1157,13 +1157,13 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         DeferralHeader.Get(
           DeferralHeader."Deferral Doc. Type"::Sales, '', '', SalesHeader."Document Type", SalesHeader."No.", SalesLine."Line No.");
 
-        DeferralHeader.Validate("Start Date", WorkDate + 1);
+        DeferralHeader.Validate("Start Date", WorkDate() + 1);
         DeferralHeader.Modify(true);
 
         FindDeferralLine(DeferralLine, SalesLine);
 
         DeferralLine.Delete(true);
-        DeferralLine."Posting Date" := WorkDate + 1;
+        DeferralLine."Posting Date" := WorkDate() + 1;
         DeferralLine.Insert(true);
 
         SalesLine.Validate(Quantity, SalesLine.Quantity + 1);
@@ -1172,13 +1172,13 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         DeferralHeader.Get(
           DeferralHeader."Deferral Doc. Type"::Sales, '', '', SalesHeader."Document Type", SalesHeader."No.", SalesLine."Line No.");
 
-        DeferralHeader.TestField("Start Date", WorkDate + 1);
+        DeferralHeader.TestField("Start Date", WorkDate() + 1);
 
         Clear(DeferralLine);
         DeferralLine.Reset();
         FindDeferralLine(DeferralLine, SalesLine);
 
-        DeferralLine.TestField("Posting Date", WorkDate + 1);
+        DeferralLine.TestField("Posting Date", WorkDate() + 1);
     end;
 
     [Test]
@@ -1269,8 +1269,10 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
 
     local procedure Initialize()
     var
+        AccountingPeriod: Record "Accounting Period";
         LibraryApplicationArea: Codeunit "Library - Application Area";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        AccountingPeriodMgt: Codeunit "Accounting Period Mgt.";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"RED Test Unit for SalesPurDoc2");
         LibraryVariableStorage.Clear();
@@ -1287,6 +1289,10 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         LibraryERMCountryData.UpdateSalesReceivablesSetup();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
+        AllowPostedDocumentDeletionDate := LibraryERM.GetDeletionBlockedAfterDate();
+        AccountingPeriodMgt.InitDefaultAccountingPeriod(AccountingPeriod, CalcDate('<-1M>', AllowPostedDocumentDeletionDate));
+        if AccountingPeriod.Insert() then;
+
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
         isInitialized := true;
@@ -1328,7 +1334,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         GLAccount: Record "G/L Account";
         DeferralTemplateCode: Code[10];
     begin
-        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
 
         DeferralTemplateCode :=
           LibraryERM.CreateDeferralTemplateCode(
@@ -1346,7 +1352,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         GLAccount: Record "G/L Account";
         DeferralTemplateCode: Code[10];
     begin
-        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
 
         DeferralTemplateCode :=
           LibraryERM.CreateDeferralTemplateCode(
@@ -1366,7 +1372,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
-        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
         LibraryERM.CreateVATProductPostingGroup(VATProductPostingGroup);
         CreateVATPostingSetup(VATBusPostGrCode, VATProductPostingGroup.Code, VATPct);
         GLAccount.Validate("VAT Bus. Posting Group", VATBusPostGrCode);
@@ -1376,7 +1382,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
 
     local procedure CreateSalesDocWithLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; SalesLineType: Enum "Sales Line Type"; No: Code[20]; PostingDate: Date)
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer());
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLineType, No, 2);
@@ -1394,7 +1400,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     var
         Item: Record Item;
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("Posting Date", PostingDate);
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchLineType, No, 2);
@@ -1414,7 +1420,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
 
     local procedure CreatePurchDocWithLineRevCharge(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; PurchLineType: Enum "Purchase Line Type"; No: Code[20]; PostingDate: Date)
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("Posting Date", PostingDate);
         PurchaseHeader.Modify(true);
 
@@ -1426,7 +1432,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
 
     local procedure CreateSalesDocWithLineRevCharge(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; SalesLineType: Enum "Sales Line Type"; No: Code[20]; PostingDate: Date)
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer());
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Modify(true);
 
@@ -1518,8 +1524,8 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusPostGr, VATProdPostGr);
         VATPostingSetup."VAT Identifier" := VATProdPostGr;
         VATPostingSetup.Validate("VAT %", VATPct);
-        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo);
-        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Purchase VAT Account", LibraryERM.CreateGLAccountNo());
+        VATPostingSetup.Validate("Sales VAT Account", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Modify(true);
     end;
 
@@ -1634,7 +1640,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
         GLAccount.Get(GLAccNo);
         VATPostingSetup.Get(VATBusPostGrCode, GLAccount."VAT Prod. Posting Group");
         VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
-        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo);
+        VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
         VATPostingSetup.Modify(true);
     end;
 
@@ -1686,7 +1692,7 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     procedure DeferralScheduleHandler(var DeferralSchedule: TestPage "Deferral Schedule")
     begin
         // Modal Page Handler.
-        DeferralSchedule."Amount to Defer".AssertEquals(LibraryVariableStorage.DequeueDecimal);
+        DeferralSchedule."Amount to Defer".AssertEquals(LibraryVariableStorage.DequeueDecimal());
     end;
 
     [ConfirmHandler]
@@ -1714,24 +1720,24 @@ codeunit 134806 "RED Test Unit for SalesPurDoc2"
     [Scope('OnPrem')]
     procedure DeferralScheduleModalPageHandler(var DeferralSchedule: TestPage "Deferral Schedule")
     begin
-        DeferralSchedule."Start Date".SetValue(LibraryVariableStorage.DequeueDate);
-        DeferralSchedule.CalculateSchedule.Invoke;
-        DeferralSchedule.OK.Invoke;
+        DeferralSchedule."Start Date".SetValue(LibraryVariableStorage.DequeueDate());
+        DeferralSchedule.CalculateSchedule.Invoke();
+        DeferralSchedule.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure DeferralScheduleModalPageHandlerOK(var DeferralSchedule: TestPage "Deferral Schedule")
     begin
-        DeferralSchedule.OK.Invoke;
+        DeferralSchedule.OK().Invoke();
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure DeferralScheduleUpdateNoOfPeriodslModalPageHandler(var DeferralSchedule: TestPage "Deferral Schedule")
     begin
-        DeferralSchedule."No. of Periods".SetValue(LibraryVariableStorage.DequeueInteger);
-        DeferralSchedule.OK.Invoke;
+        DeferralSchedule."No. of Periods".SetValue(LibraryVariableStorage.DequeueInteger());
+        DeferralSchedule.OK().Invoke();
     end;
 
     local procedure VerifyPostedDeferralScheduleDoesNotExist(DeferralDocType: Enum "Deferral Document Type"; DocType: Integer; DocNo: Code[20]; LineNo: Integer)

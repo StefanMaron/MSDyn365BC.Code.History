@@ -8,6 +8,7 @@ table 11607 "BAS XML Field Setup Name"
 {
     Caption = 'BAS XML Field Setup Name';
     LookupPageID = "BAS XML Field Setup Names";
+    DataClassification = CustomerContent;
 
     fields
     {

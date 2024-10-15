@@ -3,6 +3,7 @@ namespace Microsoft.CRM.Outlook;
 table 5320 "Exchange Folder"
 {
     Caption = 'Exchange Folder';
+    DataClassification = CustomerContent;
 
     fields
     {

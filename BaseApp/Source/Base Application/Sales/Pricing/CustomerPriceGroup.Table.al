@@ -15,6 +15,7 @@ table 6 "Customer Price Group"
 {
     Caption = 'Customer Price Group';
     LookupPageID = "Customer Price Groups";
+    DataClassification = CustomerContent;
 
     fields
     {

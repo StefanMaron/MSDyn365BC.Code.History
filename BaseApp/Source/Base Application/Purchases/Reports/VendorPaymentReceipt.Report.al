@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Purchases.Reports;
+namespace Microsoft.Purchases.Reports;
 
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -252,7 +252,6 @@ report 411 "Vendor - Payment Receipt"
 
                         trigger OnAfterGetRecord()
                         var
-                            DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
                         begin
                             if VendLedgEntry2."Entry No." = "Vendor Ledger Entry"."Entry No." then
                                 CurrReport.Skip();
@@ -363,7 +362,6 @@ report 411 "Vendor - Payment Receipt"
         CompanyInfo: Record "Company Information";
         GLSetup: Record "General Ledger Setup";
         Vend: Record Vendor;
-        CurrExchRate: Record "Currency Exchange Rate";
         Currency: Record Currency;
         FormatAddr: Codeunit "Format Address";
         ReportTitle: Text[30];
@@ -377,7 +375,6 @@ report 411 "Vendor - Payment Receipt"
         PmtDiscPmtCurr: Decimal;
         Text003: Label 'Payment Receipt';
         Text004: Label 'Payment Voucher';
-        Text005: Label 'Page %1';
         Text006: Label 'Payment Discount Given';
         Text007: Label 'Payment Discount Received';
         PmtTolPmtCurr: Decimal;

@@ -31,17 +31,15 @@ codeunit 5521 "Make Supply Orders (Yes/No)"
         if IsHandled then
             exit;
 
-        with ReqLine do begin
-            if not BlockForm then
-                if not (PAGE.RunModal(PAGE::"Make Supply Orders", MfgUserTempl) = ACTION::LookupOK) then
-                    exit;
+        if not BlockForm then
+            if not (PAGE.RunModal(PAGE::"Make Supply Orders", MfgUserTempl) = ACTION::LookupOK) then
+                exit;
 
-            ReqLine2.Copy(ReqLine);
-            ReqLine2.FilterGroup(2);
-            CopyFilters(ReqLine2);
+        ReqLine2.Copy(ReqLine);
+        ReqLine2.FilterGroup(2);
+        ReqLine.CopyFilters(ReqLine2);
 
-            RunCarryOutActionMsgPlan();
-        end;
+        RunCarryOutActionMsgPlan();
     end;
 
     local procedure RunCarryOutActionMsgPlan()

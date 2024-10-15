@@ -104,7 +104,7 @@
             LibraryRandom.RandDecInRange(1000, 10000, 2), VendorNo);  // Random - Direct unit cost.
         WHTPostingSetup.Get(PurchaseLine."WHT Business Posting Group", PurchaseLine."WHT Product Posting Group");
         WHTAmount := CalculateWHTAmount(DocumentNo, WHTPostingSetup."WHT %");
-        PurchaseInvoiceStatistics.Trap;
+        PurchaseInvoiceStatistics.Trap();
 
         // Exercise.
         OpenStatisticsOnPostedPurchaseInvoicePage(PostedPurchaseInvoice, DocumentNo);
@@ -148,7 +148,7 @@
         CreateAndPostGenJournalLineWithAppliesToDocNo(
           PurchaseLine."Buy-from Vendor No.", GenJournalLine."Document Type"::Payment, GenJournalLine."Applies-to Doc. Type"::Invoice,
           DocumentNo, '', -FindVendorLedgerEntryAmount(VendorLedgerEntry."Document Type"::Invoice, DocumentNo));  // Blank Currency Code.
-        PurchaseInvoiceStatistics.Trap;
+        PurchaseInvoiceStatistics.Trap();
 
         // Exercise.
         OpenStatisticsOnPostedPurchaseInvoicePage(PostedPurchaseInvoice, DocumentNo);
@@ -185,7 +185,7 @@
           CreateAndPostPurchaseOrder(
             PurchaseLine, VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group",
             LibraryRandom.RandDecInRange(1, 5, 2), VendorNo);  // Amount should be less than WHT Minimum Invoice Amount.
-        PurchaseInvoiceStatistics.Trap;
+        PurchaseInvoiceStatistics.Trap();
 
         // Exercise.
         OpenStatisticsOnPostedPurchaseInvoicePage(PostedPurchaseInvoice, DocumentNo);
@@ -227,7 +227,7 @@
         CreateAndPostGenJournalLineWithAppliesToDocNo(
           PurchaseLine."Buy-from Vendor No.", GenJournalLine."Document Type"::Payment, GenJournalLine."Applies-to Doc. Type"::Invoice,
           DocumentNo, '', -FindVendorLedgerEntryAmount(VendorLedgerEntry."Document Type"::Invoice, DocumentNo));  // Blank Currency Code.
-        PurchaseInvoiceStatistics.Trap;
+        PurchaseInvoiceStatistics.Trap();
 
         // Exercise.
         OpenStatisticsOnPostedPurchaseInvoicePage(PostedPurchaseInvoice, DocumentNo);
@@ -276,7 +276,7 @@
         CreateAndPostGenJournalLineWithAppliesToDocNo(
           PurchaseLine."Buy-from Vendor No.", GenJournalLine."Document Type"::Payment, GenJournalLine."Applies-to Doc. Type"::Invoice,
           DocumentNo, '', -FindVendorLedgerEntryAmount(VendorLedgerEntry."Document Type"::Invoice, DocumentNo));  // Blank Currency Code.
-        PurchaseInvoiceStatistics.Trap;
+        PurchaseInvoiceStatistics.Trap();
 
         // Exercise.
         OpenStatisticsOnPostedPurchaseInvoicePage(PostedPurchaseInvoice, DocumentNo);
@@ -316,14 +316,14 @@
         OldGSTProdPostingGroup := UpdateGLSetupAndPurchasesPayablesSetup(VATPostingSetup);
         CreatePurchaseOrderWithMultipleLines(
           PurchaseLine, PurchaseLine.Type::Item, CreateItem(VATPostingSetup."VAT Prod. Posting Group"),
-          VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group", CreateCurrency, '',
+          VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group", CreateCurrency(), '',
           LibraryRandom.RandDecInRange(100, 1000, 2), VendorNo);  // Blank ABN and Random - Direct Unit Cost.
         FindWHTPostingSetup(WHTPostingSetup, PurchaseLine."WHT Business Posting Group", PurchaseLine."WHT Product Posting Group");
         DocumentNo := PostPurchaseDocument(PurchaseLine."Document Type"::Order, PurchaseLine."Document No.");
         CreateAndPostGenJournalLineWithAppliesToDocNo(
           PurchaseLine."Buy-from Vendor No.", GenJournalLine."Document Type"::Payment, GenJournalLine."Applies-to Doc. Type"::Invoice,
           DocumentNo, PurchaseLine."Currency Code", -FindVendorLedgerEntryAmount(VendorLedgerEntry."Document Type"::Invoice, DocumentNo));
-        PurchaseInvoiceStatistics.Trap;
+        PurchaseInvoiceStatistics.Trap();
 
         // Exercise.
         OpenStatisticsOnPostedPurchaseInvoicePage(PostedPurchaseInvoice, DocumentNo);
@@ -371,7 +371,7 @@
           PurchaseLine."Buy-from Vendor No.", GenJournalLine."Document Type"::Payment, GenJournalLine."Applies-to Doc. Type"::Invoice,
           DocumentNo, '', -FindVendorLedgerEntryAmount(VendorLedgerEntry."Document Type"::Invoice, DocumentNo) / 2);  // Blank Currency Code and Partial payment.
         WHTAmount := CalculateWHTAmount(DocumentNo, WHTPostingSetup."WHT %") / 2;  // WHT Amount half of Invoiced Amount.
-        PurchaseInvoiceStatistics.Trap;
+        PurchaseInvoiceStatistics.Trap();
 
         // Exercise.
         OpenStatisticsOnPostedPurchaseInvoicePage(PostedPurchaseInvoice, DocumentNo);
@@ -426,7 +426,7 @@
           DocumentNo, '', AppliedAmount);  // Blank Currency Code.
         TotalWHTAmount := CalculateWHTAmount(DocumentNo, WHTPostingSetup."WHT %");
         PaidWHTAmount := AppliedAmount * WHTPostingSetup."WHT %" / 100;
-        PurchaseInvoiceStatistics.Trap;
+        PurchaseInvoiceStatistics.Trap();
 
         // Exercise.
         OpenStatisticsOnPostedPurchaseInvoicePage(PostedPurchaseInvoice, DocumentNo);
@@ -478,7 +478,7 @@
         CreateAndPostGenJournalLineWithAppliesToDocNo(
           PurchaseLine."Buy-from Vendor No.", GenJournalLine."Document Type"::Payment, GenJournalLine."Applies-to Doc. Type"::Invoice,
           DocumentNo, '', -FindVendorLedgerEntryAmount(VendorLedgerEntry."Document Type"::Invoice, DocumentNo));  // Blank Currency Code.
-        PurchaseInvoiceStatistics.Trap;
+        PurchaseInvoiceStatistics.Trap();
 
         // Exercise.
         OpenStatisticsOnPostedPurchaseInvoicePage(PostedPurchaseInvoice, DocumentNo);
@@ -528,7 +528,7 @@
           DocumentNo, PurchaseLine."Currency Code", -FindVendorLedgerEntryAmount(VendorLedgerEntry."Document Type"::Invoice, DocumentNo));
         DocumentNo := CreateAndPostCrMemoWithAdjAppliesTo(PurchaseLine, DocumentNo);
         WHTAmount := CalculatePurchCrMemoHdrWHTAmount(DocumentNo, WHTPostingSetup."WHT %");
-        PurchCreditMemoStatistics.Trap;
+        PurchCreditMemoStatistics.Trap();
 
         // Exercise.
         OpenStatisticsOnPostedPurchaseCreditMemoPage(PostedPurchaseCreditMemo, DocumentNo);
@@ -582,7 +582,7 @@
           DocumentNo, PurchaseLine."Currency Code", -FindVendorLedgerEntryAmount(
             VendorLedgerEntry."Document Type"::"Credit Memo", DocumentNo));
         WHTAmount := CalculatePurchCrMemoHdrWHTAmount(DocumentNo, WHTPostingSetup."WHT %");
-        PurchCreditMemoStatistics.Trap;
+        PurchCreditMemoStatistics.Trap();
 
         // Exercise.
         OpenStatisticsOnPostedPurchaseCreditMemoPage(PostedPurchaseCreditMemo, DocumentNo);
@@ -626,7 +626,7 @@
         DocumentNo := PostPurchaseDocument(PurchaseLine."Document Type"::Order, PurchaseLine."Document No.");
         DocumentNo := CreateAndPostPurchCrMemoWithCopyDoc(PurchaseLine."Buy-from Vendor No.", DocumentNo);
         WHTAmount := CalculatePurchCrMemoHdrWHTAmount(DocumentNo, WHTPostingSetup."WHT %");
-        PurchCreditMemoStatistics.Trap;
+        PurchCreditMemoStatistics.Trap();
 
         // Exercise.
         OpenStatisticsOnPostedPurchaseCreditMemoPage(PostedPurchaseCreditMemo, DocumentNo);
@@ -675,7 +675,7 @@
           PurchaseLine."Buy-from Vendor No.", GenJournalLine."Document Type"::Payment, GenJournalLine."Applies-to Doc. Type"::Invoice,
           DocumentNo, '', -FindVendorLedgerEntryAmount(VendorLedgerEntry."Document Type"::Invoice, DocumentNo));  // Blank Currency Code.
         WHTAmount := CalculateWHTAmount(DocumentNo, WHTPostingSetup."WHT %");
-        PurchaseInvoiceStatistics.Trap;
+        PurchaseInvoiceStatistics.Trap();
 
         // Exercise.
         OpenStatisticsOnPostedPurchaseInvoicePage(PostedPurchaseInvoice, DocumentNo);
@@ -723,7 +723,7 @@
         CreateAndPostGenJournalLineWithAppliesToDocNo(
           PurchaseLine."Buy-from Vendor No.", GenJournalLine."Document Type"::Payment, GenJournalLine."Applies-to Doc. Type"::Invoice,
           DocumentNo, '', -FindVendorLedgerEntryAmount(VendorLedgerEntry."Document Type"::Invoice, DocumentNo));  // Blank Currency.
-        PurchaseInvoiceStatistics.Trap;
+        PurchaseInvoiceStatistics.Trap();
 
         // Exercise.
         OpenStatisticsOnPostedPurchaseInvoicePage(PostedPurchaseInvoice, DocumentNo);
@@ -731,7 +731,7 @@
         // [THEN] Verify Purchase Invoice Statistics Page and WHT Entry not exists as Vendor have ABN.
         VerifyPurchaseInvoiceStatisticsPage(PurchaseInvoiceStatistics, 0, 0);  // Remaining WHT Prepaid Amount and Paid WHT Prepaid Amount - 0.
         FilterOnWHTEntry(WHTEntry, WHTEntry."Document Type"::Payment, PurchaseLine."Buy-from Vendor No.");
-        Assert.IsFalse(WHTEntry.FindFirst, StrSubstNo(ValueMustNotExistMsg, WHTEntry.TableCaption()));
+        Assert.IsFalse(WHTEntry.FindFirst(), StrSubstNo(ValueMustNotExistMsg, WHTEntry.TableCaption()));
         PostedPurchaseInvoice.Close();
 
         // Tear Down.
@@ -774,7 +774,7 @@
         CreateAndPostGenJournalLineWithAppliesToDocNo(
           PurchaseLine."Buy-from Vendor No.", GenJournalLine."Document Type"::Payment, GenJournalLine."Applies-to Doc. Type"::Invoice,
           DocumentNo, '', -FindVendorLedgerEntryAmount(VendorLedgerEntry."Document Type"::Invoice, DocumentNo));  // Blank Currency Code.
-        PurchaseInvoiceStatistics.Trap;
+        PurchaseInvoiceStatistics.Trap();
 
         // Exercise.
         OpenStatisticsOnPostedPurchaseInvoicePage(PostedPurchaseInvoice, DocumentNo);
@@ -782,7 +782,7 @@
         // [THEN] Verify Purchase Invoice Statistics Page and WHT Entry not created ABN Vendor is used.
         VerifyPurchaseInvoiceStatisticsPage(PurchaseInvoiceStatistics, CalculateWHTAmount(DocumentNo, WHTPostingSetup."WHT %"), 0);  // Paid WHT Prepaid Amount - 0.
         FilterOnWHTEntry(WHTEntry, WHTEntry."Document Type"::Payment, PurchaseLine."Buy-from Vendor No.");
-        Assert.IsFalse(WHTEntry.FindFirst, StrSubstNo(ValueMustNotExistMsg, WHTEntry.TableCaption()));
+        Assert.IsFalse(WHTEntry.FindFirst(), StrSubstNo(ValueMustNotExistMsg, WHTEntry.TableCaption()));
         PostedPurchaseInvoice.Close();
 
         // Tear Down.
@@ -825,7 +825,7 @@
         CreateAndPostGenJournalLineWithAppliesToDocNo(
           PurchaseLine."Buy-from Vendor No.", GenJournalLine."Document Type"::Payment, GenJournalLine."Applies-to Doc. Type"::Invoice,
           DocumentNo, '', -FindVendorLedgerEntryAmount(VendorLedgerEntry."Document Type"::Invoice, DocumentNo));  // Blank Currency Code.
-        PurchaseInvoiceStatistics.Trap;
+        PurchaseInvoiceStatistics.Trap();
 
         // Exercise.
         OpenStatisticsOnPostedPurchaseInvoicePage(PostedPurchaseInvoice, DocumentNo);
@@ -891,7 +891,7 @@
         CreateAndPostGenJournalLineWithAppliesToDocNo(
           PurchaseLine."Buy-from Vendor No.", GenJournalLine."Document Type"::Payment, GenJournalLine."Applies-to Doc. Type"::Invoice,
           DocumentNo, '', -FindVendorLedgerEntryAmount(VendorLedgerEntry."Document Type"::Invoice, DocumentNo));  // Blank Currency Code.
-        PurchaseInvoiceStatistics.Trap;
+        PurchaseInvoiceStatistics.Trap();
 
         // Exercise.
         OpenStatisticsOnPostedPurchaseInvoicePage(PostedPurchaseInvoice, DocumentNo);
@@ -977,7 +977,7 @@
         CreateAndPostGenJournalLineWithAppliesToDocNo(
           PurchaseLine."Buy-from Vendor No.", GenJournalLine."Document Type"::Payment, GenJournalLine."Applies-to Doc. Type"::Invoice,
           DocumentNo, '', -FindVendorLedgerEntryAmount(VendorLedgerEntry."Document Type"::Invoice, DocumentNo));  // Blank Currency Code.
-        PurchaseInvoiceStatistics.Trap;
+        PurchaseInvoiceStatistics.Trap();
 
         // Exercise.
         OpenStatisticsOnPostedPurchaseInvoicePage(PostedPurchaseInvoice, DocumentNo);
@@ -1525,7 +1525,7 @@
         VerifyPurchaseUnrealizedWHTAmount(PostedInvoiceNo, PurchaseLine, WHTPostingSetup);
 
         CreatePaymentReconciliationLine(
-          BankAccReconciliation, BankAccReconciliationLine, Vendor."No.", -PurchaseLine.Amount);
+          BankAccReconciliation, BankAccReconciliationLine, -PurchaseLine.Amount);
 
         PaymentReconciliationJournal.Trap();
         BankAccReconciliation.OpenWorksheet(BankAccReconciliation);
@@ -1585,7 +1585,7 @@
         WHTRevenueTypesPage.New();
         // [THEN] if code is left empty, we have validation error
         Assert.AreEqual(1, WHTRevenueTypesPage.ValidationErrorCount(), ValueMustBeSameMsg);
-        
+
         WHTRevenueTypesPage.Close();
 
         // [WHEN] adding new entry in page
@@ -1807,7 +1807,7 @@
         exit(PurchInvHeader.Amount * WHTPct / 100);
     end;
 
-    local procedure CreatePaymentReconciliationLine(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; VendorNo: Code[20]; StmtAmount: Decimal)
+    local procedure CreatePaymentReconciliationLine(var BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; StmtAmount: Decimal)
     var
         BankAccount: Record "Bank Account";
     begin
@@ -2001,11 +2001,11 @@
             LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
             LibraryERM.CreateGeneralJnlLine(
               GenJournalLine, GenJournalTemplate.Name, GenJournalBatch.Name, "Document Type"::Invoice,
-              "Account Type"::Vendor, CreateLocalVendor, -10);
+              "Account Type"::Vendor, CreateLocalVendor(), -10);
             Validate("Posting Date", WorkDate());
-            Validate("Currency Code", CreateCurrencyWithTwoExchangeRates);
+            Validate("Currency Code", CreateCurrencyWithTwoExchangeRates());
             Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting);
+            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNoWithDirectPosting());
             Validate("WHT Business Posting Group", WHTPostingSetup."WHT Business Posting Group");
             Validate("WHT Product Posting Group", WHTPostingSetup."WHT Product Posting Group");
             Modify(true);
@@ -2018,7 +2018,7 @@
             LibraryERM.CreateGeneralJnlLine(
               GenJournalLine, InvoiceGenJournalLine."Journal Template Name", InvoiceGenJournalLine."Journal Batch Name",
               "Document Type"::Payment, "Account Type"::Vendor, InvoiceGenJournalLine."Account No.", -InvoiceGenJournalLine.Amount);
-            Validate("Posting Date", WorkDate + 10);
+            Validate("Posting Date", WorkDate() + 10);
             Validate("Currency Code", InvoiceGenJournalLine."Currency Code");
             Validate("Currency Factor", 1 / 120);
             Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
@@ -2037,9 +2037,9 @@
     begin
         LibraryERM.CreateCurrency(Currency);
         LibraryERM.CreateExchangeRate(Currency.Code, WorkDate(), 80, 80);
-        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate + 10, 100, 100);
-        Currency.Validate("Realized Gains Acc.", LibraryERM.CreateGLAccountNo);
-        Currency.Validate("Realized Losses Acc.", LibraryERM.CreateGLAccountNo);
+        LibraryERM.CreateExchangeRate(Currency.Code, WorkDate() + 10, 100, 100);
+        Currency.Validate("Realized Gains Acc.", LibraryERM.CreateGLAccountNo());
+        Currency.Validate("Realized Losses Acc.", LibraryERM.CreateGLAccountNo());
         Currency.Modify(true);
         exit(Currency.Code);
     end;
@@ -2091,16 +2091,16 @@
 
     local procedure OpenStatisticsOnPostedPurchaseInvoicePage(var PostedPurchaseInvoice: TestPage "Posted Purchase Invoice"; No: Code[20])
     begin
-        PostedPurchaseInvoice.OpenEdit;
+        PostedPurchaseInvoice.OpenEdit();
         PostedPurchaseInvoice.FILTER.SetFilter("No.", No);
-        PostedPurchaseInvoice.Statistics.Invoke;  // Open Statistics Page.
+        PostedPurchaseInvoice.Statistics.Invoke();  // Open Statistics Page.
     end;
 
     local procedure OpenStatisticsOnPostedPurchaseCreditMemoPage(var PostedPurchaseCreditMemo: TestPage "Posted Purchase Credit Memo"; No: Code[20])
     begin
-        PostedPurchaseCreditMemo.OpenEdit;
+        PostedPurchaseCreditMemo.OpenEdit();
         PostedPurchaseCreditMemo.FILTER.SetFilter("No.", No);
-        PostedPurchaseCreditMemo.Statistics.Invoke;  // Open Statistics Page.
+        PostedPurchaseCreditMemo.Statistics.Invoke();  // Open Statistics Page.
     end;
 
     local procedure PostPurchaseDocument(DocumentType: Enum "Purchase Document Type"; DocumentNo: Code[20]): Code[20]
@@ -2217,8 +2217,8 @@
     begin
         FilterOnWHTEntry(WHTEntry, WHTEntry."Document Type"::Payment, BillToPayToNo);
         WHTEntry.FindFirst();
-        Assert.AreNearlyEqual(Amount, WHTEntry.Amount, LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
-        Assert.AreNearlyEqual(Base, WHTEntry.Base, LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
+        Assert.AreNearlyEqual(Amount, WHTEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), ValueMustBeSameMsg);
+        Assert.AreNearlyEqual(Base, WHTEntry.Base, LibraryERM.GetAmountRoundingPrecision(), ValueMustBeSameMsg);
     end;
 
     local procedure VerifyWHTEntry(DocumentType: Enum "Gen. Journal Document Type"; BillToPayToNo: Code[20];
@@ -2229,8 +2229,8 @@
     begin
         FilterOnWHTEntry(WHTEntry, DocumentType, BillToPayToNo);
         WHTEntry.FindFirst();
-        Assert.AreNearlyEqual(Amount, WHTEntry.Amount, LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
-        Assert.AreNearlyEqual(UnrealizedAmount, WHTEntry."Unrealized Amount", LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
+        Assert.AreNearlyEqual(Amount, WHTEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), ValueMustBeSameMsg);
+        Assert.AreNearlyEqual(UnrealizedAmount, WHTEntry."Unrealized Amount", LibraryERM.GetAmountRoundingPrecision(), ValueMustBeSameMsg);
     end;
 
     local procedure VerifyPurchCreditMemoStatisticsPageAndWHTEntry(PurchCreditMemoStatistics: TestPage "Purch. Credit Memo Statistics"; PostedPurchaseCreditMemo: TestPage "Posted Purchase Credit Memo"; DocumentType: Enum "Gen. Journal Document Type"; BuyFromVendorNo: Code[20];
@@ -2253,22 +2253,22 @@
     begin
         Assert.AreNearlyEqual(
           RemWHTPrepaidAmount, PurchaseInvoiceStatistics."Rem. WHT Prepaid Amount (LCY)".AsDecimal(),
-          LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
+          LibraryERM.GetAmountRoundingPrecision(), ValueMustBeSameMsg);
         Assert.AreNearlyEqual(
           PaidWHTPrepaidAmount, PurchaseInvoiceStatistics."Paid WHT Prepaid Amount (LCY)".AsDecimal(),
-          LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
-        PurchaseInvoiceStatistics.OK.Invoke();
+          LibraryERM.GetAmountRoundingPrecision(), ValueMustBeSameMsg);
+        PurchaseInvoiceStatistics.OK().Invoke();
     end;
 
     local procedure VerifyPurchCreditMemoStatisticsPage(PurchCreditMemoStatistics: TestPage "Purch. Credit Memo Statistics"; RemWHTPrepaidAmount: Decimal; PaidWHTPrepaidAmount: Decimal)
     begin
         Assert.AreNearlyEqual(
           RemWHTPrepaidAmount, PurchCreditMemoStatistics."Rem. WHT Prepaid Amount (LCY)".AsDecimal(),
-          LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
+          LibraryERM.GetAmountRoundingPrecision(), ValueMustBeSameMsg);
         Assert.AreNearlyEqual(
           PaidWHTPrepaidAmount, PurchCreditMemoStatistics."Paid WHT Prepaid Amount (LCY)".AsDecimal(),
-          LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
-        PurchCreditMemoStatistics.OK.Invoke();
+          LibraryERM.GetAmountRoundingPrecision(), ValueMustBeSameMsg);
+        PurchCreditMemoStatistics.OK().Invoke();
     end;
 
     local procedure VerifyPurchaseInvoiceWHTEntry(DocumentType: Enum "Gen. Journal Document Type"; BillToPayToNo: Code[20]; RemainingUnrealizedAmount: Decimal; UnrealizedAmountLCY: Decimal)
@@ -2278,12 +2278,12 @@
         FilterOnWHTEntry(WHTEntry, DocumentType, BillToPayToNo);
         WHTEntry.FindFirst();
         Assert.AreNearlyEqual(
-          RemainingUnrealizedAmount, WHTEntry."Remaining Unrealized Amount", LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
+          RemainingUnrealizedAmount, WHTEntry."Remaining Unrealized Amount", LibraryERM.GetAmountRoundingPrecision(), ValueMustBeSameMsg);
         Assert.AreNearlyEqual(
-          UnrealizedAmountLCY, WHTEntry."Unrealized Amount (LCY)", LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
+          UnrealizedAmountLCY, WHTEntry."Unrealized Amount (LCY)", LibraryERM.GetAmountRoundingPrecision(), ValueMustBeSameMsg);
     end;
 
-    local procedure VerifyGSTPurchaseEntry(DocumentNo: Code[20]; DocumentLineType: Option)
+    local procedure VerifyGSTPurchaseEntry(DocumentNo: Code[20]; DocumentLineType: Enum "Purchase Document Type")
     var
         GSTPurchaseEntry: Record "GST Purchase Entry";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
@@ -2319,7 +2319,7 @@
         DetailedVendorLedgEntry.SetRange("Vendor No.", PurchInvHeader."Buy-from Vendor No.");
         DetailedVendorLedgEntry.FindFirst();
         Amount := PurchInvHeader.Amount * PurchInvHeader."Payment Discount %" / 100;
-        Assert.AreNearlyEqual(Amount, DetailedVendorLedgEntry.Amount, LibraryERM.GetAmountRoundingPrecision, ValueMustBeSameMsg);
+        Assert.AreNearlyEqual(Amount, DetailedVendorLedgEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), ValueMustBeSameMsg);
     end;
 
     local procedure VerifyPurchaseInvoiceStatisticsWHTAndGSTEntries(PurchaseInvoiceStatistics: TestPage "Purchase Invoice Statistics"; PostedPurchaseInvoice: TestPage "Posted Purchase Invoice"; DocumentNo: Code[20]; WHTAmount: Decimal; VendorNo: Code[20])
@@ -2455,8 +2455,6 @@
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ModalPageHandlerForWHTRevenueType(var WHTRevenueTypes: TestPage "WHT Revenue Types")
-    var
-        WhenDescription: Variant;
     begin
         WHTRevenueTypes.First();
         WHTRevenueTypes.OK().Invoke();

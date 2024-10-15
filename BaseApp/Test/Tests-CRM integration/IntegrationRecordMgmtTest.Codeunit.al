@@ -64,8 +64,8 @@ codeunit 139167 "Integration Record Mgmt. Test"
 
     local procedure Initialize()
     begin
-        LibraryCRMIntegration.ResetEnvironment;
-        LibraryCRMIntegration.ConfigureCRM;
+        LibraryCRMIntegration.ResetEnvironment();
+        LibraryCRMIntegration.ConfigureCRM();
     end;
 }
 

@@ -2,12 +2,18 @@ namespace Microsoft.Sales.Receivables;
 
 using Microsoft.Finance.Consolidation;
 using Microsoft.Sales.Document;
+using Microsoft.Sales.History;
 
 codeunit 103 "Cust. Entry-Edit"
 {
     Permissions = TableData "Cust. Ledger Entry" = m,
-                  TableData "Detailed Cust. Ledg. Entry" = m;
+                  TableData "Detailed Cust. Ledg. Entry" = m,
+                  tabledata "Sales Invoice Header" = m;
+
     TableNo = "Cust. Ledger Entry";
+
+    var
+        CalledFromSalesInvEdit: Boolean;
 
     trigger OnRun()
     var
@@ -50,10 +56,13 @@ codeunit 103 "Cust. Entry-Edit"
         end;
         CustLedgEntry.Description := Rec.Description;
         CustLedgEntry.Validate("Exported to Payment File", Rec."Exported to Payment File");
+        CustLedgEntry.Validate("Promised Pay Date", Rec."Promised Pay Date");
+        CustLedgEntry.Validate("Dispute Status", Rec."Dispute Status");
         OnBeforeCustLedgEntryModify(CustLedgEntry, Rec);
         CustLedgEntry.TestField("Entry No.", Rec."Entry No.");
         CustLedgEntry.Modify();
         OnRunOnAfterCustLedgEntryModify(Rec, CustLedgEntry);
+        UpdateSalesInvoiceHeader(CustLedgEntry);
         Rec := CustLedgEntry;
     end;
 
@@ -63,18 +72,44 @@ codeunit 103 "Cust. Entry-Edit"
         NotIdenticalErr: Label '%1 and %2 must be identical or %1 must be Blank.', Comment = '%1 and %2 = document nos.';
         BASManagement: Codeunit "BAS Management";
 
-    procedure SetOnHold(var CustLedgEntry: Record "Cust. Ledger Entry"; NewOnHold: Code[3])
+    procedure SetOnHold(var OnHoldCustLedgEntry: Record "Cust. Ledger Entry"; NewOnHold: Code[3])
     var
         LedgEntryTrackChanges: Codeunit "Ledg. Entry-Track Changes";
         xOnHold: Code[3];
     begin
         BindSubscription(LedgEntryTrackChanges);
 
-        xOnHold := CustLedgEntry."On Hold";
-        CustLedgEntry."On Hold" := NewOnHold;
-        if xOnHold <> CustLedgEntry."On Hold" then
-            CustLedgEntry.Modify();
+        xOnHold := OnHoldCustLedgEntry."On Hold";
+        OnHoldCustLedgEntry."On Hold" := NewOnHold;
+        if xOnHold <> OnHoldCustLedgEntry."On Hold" then
+            OnHoldCustLedgEntry.Modify();
     end;
+
+    procedure SetCalledFromSalesInvoice(CalledFromSalesInvEditSet: Boolean)
+    begin
+        CalledFromSalesInvEdit := CalledFromSalesInvEditSet;
+    end;
+
+    local procedure UpdateSalesInvoiceHeader(UpdateSalesInvoiceCustLedgEntry: Record "Cust. Ledger Entry")
+    var
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+    begin
+        if CalledFromSalesInvEdit then
+            exit;
+        if UpdateSalesInvoiceCustLedgEntry."Document Type" <> UpdateSalesInvoiceCustLedgEntry."Document Type"::Invoice then
+            exit;
+        if not SalesInvoiceHeader.get(UpdateSalesInvoiceCustLedgEntry."Document No.") then
+            exit;
+
+        SalesInvoiceHeader.validate("Payment Method Code", UpdateSalesInvoiceCustLedgEntry."Payment Method Code");
+        SalesInvoiceHeader.Validate("Payment Reference", UpdateSalesInvoiceCustLedgEntry."Payment Reference");
+        SalesInvoiceHeader.Validate("Posting Description", UpdateSalesInvoiceCustLedgEntry.Description);
+        SalesInvoiceHeader.validate("Dispute Status", UpdateSalesInvoiceCustLedgEntry."Dispute Status");
+        SalesInvoiceHeader.Validate("Promised Pay Date", UpdateSalesInvoiceCustLedgEntry."Promised Pay Date");
+        SalesInvoiceHeader.validate("Due Date", UpdateSalesInvoiceCustLedgEntry."Due Date");
+        SalesInvoiceHeader.Modify(true);
+    end;
+
 
     local procedure LogFieldChanged(CurrCustLedgerEntry: Record "Cust. Ledger Entry"; NewCustLedgerEntry: Record "Cust. Ledger Entry"): Boolean
     var
@@ -102,49 +137,48 @@ codeunit 103 "Cust. Entry-Edit"
         ApplyCustEntries: Page "Apply Customer Entries";
     begin
         Clear(ApplyCustEntries);
-        with CurrentSalesHeader do begin
-            CalcFields(Amount);
-            CustLedgEntry.Reset();
-            CustLedgEntry.SetCurrentKey("Customer No.", Positive, "Applies-to Doc. Type", "Applies-to Doc. No.", "Due Date");
-            CustLedgEntry.SetRange("Customer No.", "Bill-to Customer No.");
-            if "Applies-to Doc. No." <> '' then begin
-                CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
-                CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
+        CurrentSalesHeader.CalcFields(Amount);
+        CustLedgEntry.Reset();
+        CustLedgEntry.SetCurrentKey("Customer No.", Positive, "Applies-to Doc. Type", "Applies-to Doc. No.", "Due Date");
+        CustLedgEntry.SetRange("Customer No.", CurrentSalesHeader."Bill-to Customer No.");
+        if CurrentSalesHeader."Applies-to Doc. No." <> '' then begin
+            CustLedgEntry.SetRange("Document Type", CurrentSalesHeader."Applies-to Doc. Type");
+            CustLedgEntry.SetRange("Document No.", CurrentSalesHeader."Applies-to Doc. No.");
+            if CustLedgEntry.FindFirst() then;
+            CustLedgEntry.SetRange("Document Type");
+            CustLedgEntry.SetRange("Document No.");
+        end else
+            if CurrentSalesHeader."Applies-to Doc. Type" <> CurrentSalesHeader."Applies-to Doc. Type"::" " then begin
+                CustLedgEntry.SetRange("Document Type", CurrentSalesHeader."Applies-to Doc. Type");
                 if CustLedgEntry.FindFirst() then;
                 CustLedgEntry.SetRange("Document Type");
-                CustLedgEntry.SetRange("Document No.");
             end else
-                if "Applies-to Doc. Type" <> "Applies-to Doc. Type"::" " then begin
-                    CustLedgEntry.SetRange("Document Type", "Applies-to Doc. Type");
+                if CurrentSalesHeader.Amount <> 0 then begin
+                    CustLedgEntry.SetRange(Positive, CurrentSalesHeader.Amount < 0);
                     if CustLedgEntry.FindFirst() then;
-                    CustLedgEntry.SetRange("Document Type");
-                end else
-                    if Amount <> 0 then begin
-                        CustLedgEntry.SetRange(Positive, Amount < 0);
-                        if CustLedgEntry.FindFirst() then;
-                        CustLedgEntry.SetRange(Positive);
-                        CustLedgEntry.SetFilter("Document Type", '<>%1', CustLedgEntry."Document Type"::Payment);
-                    end;
+                    CustLedgEntry.SetRange(Positive);
+                    CustLedgEntry.SetFilter("Document Type", '<>%1', CustLedgEntry."Document Type"::Payment);
+                end;
 
-            ApplyCustEntries.SetSales(CurrentSalesHeader, CustLedgEntry, FieldNo("Applies-to Doc. No."));
-            ApplyCustEntries.LookupMode(true);
-            if ApplyCustEntries.RunModal() = ACTION::LookupOK then begin
-                ApplyCustEntries.GetCustLedgEntry(CustLedgEntry);
-                "Adjustment Applies-to" := CustLedgEntry."Document No.";
-                if ("Applies-to Doc. No." <> "Adjustment Applies-to") and
-                   ("Applies-to Doc. No." <> '')
-                then
-                    Error(
-                      NotIdenticalErr,
-                      FieldName("Applies-to Doc. No."), FieldName("Adjustment Applies-to"));
-                "Applies-to Doc. Type" := CustLedgEntry."Document Type";
-                "BAS Adjustment" := BASManagement.CheckBASPeriod("Document Date", CustLedgEntry."Document Date");
+        ApplyCustEntries.SetSales(CurrentSalesHeader, CustLedgEntry, CurrentSalesHeader.FieldNo("Applies-to Doc. No."));
+        ApplyCustEntries.LookupMode(true);
+        if ApplyCustEntries.RunModal() = ACTION::LookupOK then begin
+            ApplyCustEntries.GetCustLedgEntry(CustLedgEntry);
+            CurrentSalesHeader."Adjustment Applies-to" := CustLedgEntry."Document No.";
+            if (CurrentSalesHeader."Applies-to Doc. No." <> CurrentSalesHeader."Adjustment Applies-to") and
+               (CurrentSalesHeader."Applies-to Doc. No." <> '')
+            then
+                Error(
+                  NotIdenticalErr,
+                  CurrentSalesHeader.FieldName("Applies-to Doc. No."), CurrentSalesHeader.FieldName("Adjustment Applies-to"));
+            CurrentSalesHeader."Applies-to Doc. Type" := CustLedgEntry."Document Type";
+            CurrentSalesHeader."BAS Adjustment" := BASManagement.CheckBASPeriod(CurrentSalesHeader."Document Date", CustLedgEntry."Document Date");
 
-                if "Applies-to Doc. No." = '' then
-                    CustLedgEntry."Amount to Apply" := 0;
-                OnBeforeModifyCustLedgEntry(CurrentSalesHeader, CustLedgEntry);
-                CustLedgEntry.Modify();
-            end;
+            if CurrentSalesHeader."Applies-to Doc. No." = '' then
+                CustLedgEntry."Amount to Apply" := 0;
+
+            OnBeforeModifyCustLedgEntry(CurrentSalesHeader, CustLedgEntry);    
+            CustLedgEntry.Modify();
         end;
         Clear(ApplyCustEntries);
     end;

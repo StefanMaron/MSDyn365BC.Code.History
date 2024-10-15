@@ -139,7 +139,7 @@ codeunit 134333 "ERM Purchase Prepayments"
         PurchaseHeader.CalcFields("Amount Including VAT");
 
         // Prepare data to post credit memo.
-        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryPurchase.GegVendorLedgerEntryUniqueExternalDocNo);
+        PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryPurchase.GegVendorLedgerEntryUniqueExternalDocNo());
         PurchaseHeader.Modify(true);
 
         // 2. Exercise - Post the credit memo
@@ -252,7 +252,7 @@ codeunit 134333 "ERM Purchase Prepayments"
 
         Initialize();
 
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         VATPostingSetup.SetRange("VAT Bus. Posting Group", PurchaseHeader."VAT Bus. Posting Group");
         VATPostingSetup.SetRange("VAT Prod. Posting Group", '');
         if not VATPostingSetup.FindFirst() then
@@ -322,7 +322,7 @@ codeunit 134333 "ERM Purchase Prepayments"
     begin
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountNoWithDirectPosting, LibraryRandom.RandInt(10));
+          LibraryERM.CreateGLAccountNoWithDirectPosting(), LibraryRandom.RandInt(10));
         PurchaseLine."Prepmt. Line Amount" := PrepmtLineAmount;
         PurchaseLine."Prepmt. Amt. Inv." := PrepmtAmtInv;
         PurchaseLine.Modify();

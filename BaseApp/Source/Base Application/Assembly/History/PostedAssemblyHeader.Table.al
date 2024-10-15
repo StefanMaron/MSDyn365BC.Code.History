@@ -19,6 +19,7 @@ table 910 "Posted Assembly Header"
 {
     Caption = 'Posted Assembly Header';
     LookupPageID = "Posted Assembly Orders";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -261,19 +262,16 @@ table 910 "Posted Assembly Header"
         ReportSelections: Record "Report Selections";
         PostedAssemblyHeader: Record "Posted Assembly Header";
     begin
-        with PostedAssemblyHeader do begin
-            Copy(Rec);
-            ReportSelections.PrintWithDialogForCust(
-              ReportSelections.Usage::"P.Asm.Order", PostedAssemblyHeader, ShowRequestForm, 0);
-        end;
+        PostedAssemblyHeader.Copy(Rec);
+        ReportSelections.PrintWithDialogForCust(ReportSelections.Usage::"P.Asm.Order", PostedAssemblyHeader, ShowRequestForm, 0);
     end;
 
     procedure Navigate()
     var
-        Navigate: Page Navigate;
+        NavigatePage: Page Navigate;
     begin
-        Navigate.SetDoc("Posting Date", "No.");
-        Navigate.Run();
+        NavigatePage.SetDoc("Posting Date", "No.");
+        NavigatePage.Run();
     end;
 
     procedure ShowItemTrackingLines()

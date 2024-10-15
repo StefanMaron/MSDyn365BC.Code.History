@@ -52,11 +52,11 @@ codeunit 104010 "Upg Set Country App Areas"
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
     begin
-        IF UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetGLBankAccountNoTag()) THEN
-            EXIT;
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetGLBankAccountNoTag()) then
+            exit;
 
         BankAccountPostingGroup.SETFILTER("G/L Bank Account No.", '<>%1', '');
-        if BankAccountPostingGroup.FINDSET(TRUE) then
+        if BankAccountPostingGroup.FINDSET(true) then
             repeat
                 BankAccountPostingGroup."G/L Account No." := BankAccountPostingGroup."G/L Bank Account No.";
                 BankAccountPostingGroup.Modify();

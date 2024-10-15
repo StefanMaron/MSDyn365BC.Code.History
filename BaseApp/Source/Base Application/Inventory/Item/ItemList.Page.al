@@ -421,16 +421,6 @@ page 31 "Item List"
             {
                 ApplicationArea = Basic, Suite;
             }
-#if not CLEAN21
-            part("Power BI Report FactBox"; "Power BI Report FactBox")
-            {
-                ApplicationArea = Basic, Suite;
-                Visible = false;
-                ObsoleteReason = 'Use the part PowerBIEmbeddedReportPart instead';
-                ObsoleteState = Pending;
-                ObsoleteTag = '21.0';
-            }
-#endif
             systempart(Control1900383207; Links)
             {
                 ApplicationArea = RecordLinks;
@@ -481,7 +471,7 @@ page 31 "Item List"
                         RunObject = Page "Item Ledger Entries";
                         RunPageLink = "Item No." = field("No.");
                         RunPageView = sorting("Item No.")
-                                      order(Descending);
+                                      order(descending);
                         Scope = Repeater;
                         ShortCutKey = 'Ctrl+F7';
                         ToolTip = 'View the history of transactions that have been posted for the selected record.';
@@ -549,7 +539,7 @@ page 31 "Item List"
             group(PricesandDiscounts)
             {
                 Caption = 'Sales Prices & Discounts';
-#if not CLEAN21
+#if not CLEAN23
                 action(Prices_Prices)
                 {
                     ApplicationArea = Basic, Suite;
@@ -657,7 +647,7 @@ page 31 "Item List"
             group(PurchPricesandDiscounts)
             {
                 Caption = 'Purchase Prices & Discounts';
-#if not CLEAN21
+#if not CLEAN23
                 action("Set Special Prices")
                 {
                     ApplicationArea = Suite;
@@ -794,7 +784,7 @@ page 31 "Item List"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Send A&pproval Request';
-                    Enabled = (NOT OpenApprovalEntriesExist) AND EnabledApprovalWorkflowsExist AND CanRequestApprovalForFlow;
+                    Enabled = (not OpenApprovalEntriesExist) and EnabledApprovalWorkflowsExist and CanRequestApprovalForFlow;
                     Image = SendApprovalRequest;
                     ToolTip = 'Request approval to change the record.';
 
@@ -810,7 +800,7 @@ page 31 "Item List"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Cancel Approval Re&quest';
-                    Enabled = CanCancelApprovalForRecord OR CanCancelApprovalForFlow;
+                    Enabled = CanCancelApprovalForRecord or CanCancelApprovalForFlow;
                     Image = CancelApprovalRequest;
                     ToolTip = 'Cancel the approval request.';
 
@@ -831,7 +821,7 @@ page 31 "Item List"
                 {
                     ApplicationArea = Suite;
                     Caption = 'Create Approval Workflow';
-                    Enabled = NOT EnabledApprovalWorkflowsExist;
+                    Enabled = not EnabledApprovalWorkflowsExist;
                     Image = CreateWorkflow;
                     ToolTip = 'Set up an approval workflow for creating or changing items, by going through a few pages that will guide you.';
 
@@ -1060,32 +1050,6 @@ page 31 "Item List"
                     ItemTemplMgt.UpdateItemsFromTemplate(Item);
                 end;
             }
-#if not CLEAN21
-            group(Display)
-            {
-                Caption = 'Display';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Use the Personalization mode to hide and show this factbox.';
-                ObsoleteTag = '21.0';
-                action(ReportFactBoxVisibility)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Show/Hide Power BI Reports';
-                    Image = "Report";
-                    ToolTip = 'Select if the Power BI FactBox is visible or not.';
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Use the Personalization mode to hide and show this factbox.';
-                    ObsoleteTag = '21.0';
-                    trigger OnAction()
-                    begin
-                        // save visibility value into the table
-                        CurrPage."Power BI Report FactBox".PAGE.SetFactBoxVisibility(PowerBIVisible);
-                    end;
-                }
-            }
-#endif
         }
         area(reporting)
         {
@@ -1232,7 +1196,7 @@ page 31 "Item List"
                     RunObject = Report "Item Substitutions";
                     ToolTip = 'View or edit any substitute items that are set up to be traded instead of the item in case it is not available.';
                 }
-#if not CLEAN21
+#if not CLEAN23
                 action("Price List")
                 {
                     ApplicationArea = Basic, Suite;
@@ -2053,7 +2017,7 @@ page 31 "Item List"
             {
                 Caption = 'S&ales';
                 Image = Sales;
-#if not CLEAN21
+#if not CLEAN23
                 action(Sales_Prices)
                 {
                     ApplicationArea = Suite;
@@ -2133,7 +2097,7 @@ page 31 "Item List"
                     RunPageView = sorting("Item No.");
                     ToolTip = 'View the list of vendors who can supply the item, and at which lead time.';
                 }
-#if not CLEAN21
+#if not CLEAN23
                 action(Prices)
                 {
                     ApplicationArea = Advanced;
@@ -2319,47 +2283,11 @@ page 31 "Item List"
                 actionref(CopyItem_Promoted; CopyItem)
                 {
                 }
-#if not CLEAN21
-                actionref("Item Journal_Promoted"; "Item Journal")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
-#if not CLEAN21
-                actionref("Item Reclassification Journal_Promoted"; "Item Reclassification Journal")
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category7)
             {
                 Caption = 'Request Approval', Comment = 'Generated from the PromotedActionCategories property index 6.';
 
-#if not CLEAN21
-                actionref(SendApprovalRequest_Promoted; SendApprovalRequest)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
-#if not CLEAN21
-                actionref(CancelApprovalRequest_Promoted; CancelApprovalRequest)
-                {
-                    Visible = false;
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Action is being demoted based on overall low usage.';
-                    ObsoleteTag = '21.0';
-                }
-#endif
             }
             group(Category_Category4)
             {
@@ -2438,7 +2366,7 @@ page 31 "Item List"
             {
                 Caption = 'Prices & Discounts', Comment = 'Generated from the PromotedActionCategories property index 5.';
 
-#if not CLEAN21
+#if not CLEAN23
                 actionref(Prices_Prices_Promoted; Prices_Prices)
                 {
                     ObsoleteState = Pending;
@@ -2452,7 +2380,7 @@ page 31 "Item List"
                 actionref(PurchPriceLists_Promoted; PurchPriceLists)
                 {
                 }
-#if not CLEAN21
+#if not CLEAN23
                 actionref(PricesDiscountsOverview_Promoted; PricesDiscountsOverview)
                 {
                     ObsoleteState = Pending;
@@ -2460,7 +2388,7 @@ page 31 "Item List"
                     ObsoleteTag = '17.0';
                 }
 #endif
-#if not CLEAN21
+#if not CLEAN23
                 actionref(Prices_LineDiscounts_Promoted; Prices_LineDiscounts)
                 {
                     ObsoleteState = Pending;
@@ -2468,7 +2396,7 @@ page 31 "Item List"
                     ObsoleteTag = '17.0';
                 }
 #endif
-#if not CLEAN21
+#if not CLEAN23
                 actionref(PurchPricesDiscountsOverview_Promoted; PurchPricesDiscountsOverview)
                 {
                     ObsoleteState = Pending;
@@ -2482,7 +2410,7 @@ page 31 "Item List"
                 actionref(PurchPriceListsDiscounts_Promoted; PurchPriceListsDiscounts)
                 {
                 }
-#if not CLEAN21
+#if not CLEAN23
                 actionref("Set Special Prices_Promoted"; "Set Special Prices")
                 {
                     ObsoleteState = Pending;
@@ -2490,7 +2418,7 @@ page 31 "Item List"
                     ObsoleteTag = '17.0';
                 }
 #endif
-#if not CLEAN21
+#if not CLEAN23
                 actionref("Sales Price Worksheet_Promoted"; "Sales Price Worksheet")
                 {
                     Visible = false;
@@ -2499,7 +2427,7 @@ page 31 "Item List"
                     ObsoleteTag = '17.0';
                 }
 #endif
-#if not CLEAN21
+#if not CLEAN23
                 actionref("Set Special Discounts_Promoted"; "Set Special Discounts")
                 {
                     ObsoleteState = Pending;
@@ -2534,7 +2462,7 @@ page 31 "Item List"
             group(Category_Report)
             {
                 Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
-#if not CLEAN21
+#if not CLEAN23
                 actionref("Price List_Promoted"; "Price List")
                 {
                     ObsoleteState = Pending;
@@ -2603,10 +2531,6 @@ page 31 "Item List"
 
         SetWorkflowManagementEnabledState();
 
-#if not CLEAN21
-        // Contextual Power BI FactBox: send data to filter the report in the FactBox
-        CurrPage."Power BI Report FactBox".PAGE.SetCurrentListSelection(Rec."No.", false, PowerBIVisible);
-#endif
         CurrPage.SetSelectionFilter(FilteredItem);
         CurrPage.PowerBIEmbeddedReportPart.PAGE.SetFilterToMultipleValues(FilteredItem, FilteredItem.FieldNo("No."));
     end;
@@ -2632,10 +2556,6 @@ page 31 "Item List"
 
     trigger OnInit()
     begin
-#if not CLEAN21
-        PowerBIVisible := false;
-        CurrPage."Power BI Report FactBox".PAGE.InitFactBox(CurrPage.ObjectId(false), CurrPage.Caption, PowerBIVisible);
-#endif
         CurrPage.PowerBIEmbeddedReportPart.PAGE.InitPageRatio(PowerBIServiceMgt.GetFactboxRatio());
         CurrPage.PowerBIEmbeddedReportPart.PAGE.SetPageContext(CurrPage.ObjectId(false));
     end;
@@ -2705,15 +2625,17 @@ page 31 "Item List"
         RunOnPickItem: Boolean;
         IsNonInventoriable: Boolean;
         IsInventoriable: Boolean;
-#if not CLEAN21
-        PowerBIVisible: Boolean;
-#endif
-
 
     procedure SelectActiveItems(): Text
     var
         Item: Record Item;
     begin
+        exit(SelectInItemList(Item));
+    end;
+
+    procedure SelectActiveItemsForService(var Item: Record Item): Text
+    begin
+        Item.SetRange("Service Blocked", false);
         exit(SelectInItemList(Item));
     end;
 
@@ -2830,7 +2752,7 @@ page 31 "Item List"
             until TempItemFilteredFromPickItem.Next() = 0;
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     local procedure ShowLineDiscounts()
     var

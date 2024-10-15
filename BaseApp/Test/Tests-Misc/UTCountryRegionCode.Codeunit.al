@@ -302,17 +302,17 @@ codeunit 134995 "UT Country/Region Code"
     begin
         // [FEATURE] [Post Code]
         // [SCENARIO 235201] If there are two cities in different countries with the same "Post Code", then when set Customer's "Post Code" and GUI is not allowed, City must be blank
-        CountryCode[1] := LibraryUTUtility.GetNewCode10;
-        CountryCode[2] := LibraryUTUtility.GetNewCode10;
+        CountryCode[1] := LibraryUTUtility.GetNewCode10();
+        CountryCode[2] := LibraryUTUtility.GetNewCode10();
 
         InitTwoCountries(CountryCode);
-        PostCode := LibraryUTUtility.GetNewCode10;
-        InitPostCode(CountryCode[2], 'A' + LibraryUTUtility.GetNewCode10, PostCode);
-        CityName := 'Z' + LibraryUTUtility.GetNewCode;
+        PostCode := LibraryUTUtility.GetNewCode10();
+        InitPostCode(CountryCode[2], 'A' + LibraryUTUtility.GetNewCode10(), PostCode);
+        CityName := 'Z' + LibraryUTUtility.GetNewCode();
         InitPostCode(CountryCode[1], CityName, PostCode);
 
         Customer.Init();
-        Customer.Validate(Name, LibraryUTUtility.GetNewCode);
+        Customer.Validate(Name, LibraryUTUtility.GetNewCode());
         Customer.Validate("Country/Region Code", CountryCode[1]);
         Customer.Insert(true);
 
@@ -339,13 +339,13 @@ codeunit 134995 "UT Country/Region Code"
         CountryCode[2] := 'A';
         InitTwoCountries(CountryCode);
 
-        CityName := LibraryUTUtility.GetNewCode;
-        InitPostCode(CountryCode[2], CityName, LibraryUTUtility.GetNewCode10);
-        PostCode := LibraryUTUtility.GetNewCode10;
+        CityName := LibraryUTUtility.GetNewCode();
+        InitPostCode(CountryCode[2], CityName, LibraryUTUtility.GetNewCode10());
+        PostCode := LibraryUTUtility.GetNewCode10();
         InitPostCode(CountryCode[1], CityName, PostCode);
 
         Customer.Init();
-        Customer.Validate(Name, LibraryUTUtility.GetNewCode);
+        Customer.Validate(Name, LibraryUTUtility.GetNewCode());
         Customer.Validate("Country/Region Code", CountryCode[1]);
         Customer.Insert(true);
 
@@ -377,7 +377,7 @@ codeunit 134995 "UT Country/Region Code"
         InitCountry(CountryCode);
 
         // [GIVEN] Two Post Code setups, with 2 different City Names, "City1" and "City2"
-        InitPostCode(CountryCode, 'A-' + LibraryUtility.GenerateGUID, PostCode);
+        InitPostCode(CountryCode, 'A-' + LibraryUtility.GenerateGUID(), PostCode);
         CityName := 'Z-' + LibraryUtility.GenerateGUID();
         InitPostCode(CountryCode, CityName, PostCode);
 
@@ -387,7 +387,7 @@ codeunit 134995 "UT Country/Region Code"
         // [WHEN] Create a new Ship-to Address for this Customer via Ship-to Address page
         ShipToAddressPage.OpenNew();
         ShipToAddressPage.FILTER.SetFilter("Customer No.", Customer."No.");
-        ShipToAddressPage.New;
+        ShipToAddressPage.New();
 
         // [THEN] Ship-to Address City = Customer.City
         ShipToAddressPage.City.AssertEquals(Customer.City);
@@ -422,7 +422,7 @@ codeunit 134995 "UT Country/Region Code"
         // [WHEN] Create a new Ship-to Address for this Customer via Ship-to Address page
         ShipToAddressPage.OpenNew();
         ShipToAddressPage.FILTER.SetFilter("Customer No.", Customer."No.");
-        ShipToAddressPage.New;
+        ShipToAddressPage.New();
 
         // [THEN] Ship-to Address Post Code = Customer."Post Code"
         ShipToAddressPage."Post Code".AssertEquals(Customer."Post Code");
@@ -442,9 +442,9 @@ codeunit 134995 "UT Country/Region Code"
 
         ShiptoAddress.OpenNew();
         ShiptoAddress."Country/Region Code".Value := CountryWithoutCounty.Code;
-        Assert.IsFalse(ShiptoAddress.County.Visible, 'County field should not be visible');
+        Assert.IsFalse(ShiptoAddress.County.Visible(), 'County field should not be visible');
         ShiptoAddress."Country/Region Code".Value := CountryWithCounty.Code;
-        Assert.IsTrue(ShiptoAddress.County.Visible, 'County field should be visible');
+        Assert.IsTrue(ShiptoAddress.County.Visible(), 'County field should be visible');
     end;
 
     local procedure CheckFieldsAreBlankAfterValidation(TableNo: Integer; City: Integer; PostCode: Integer; County: Integer; CountryRegionCode: Integer)
@@ -457,7 +457,7 @@ codeunit 134995 "UT Country/Region Code"
         NewCode: Code[20];
     begin
         // Setup: Assign PostCode,City,County and Country/Region Code.
-        NewCode := LibraryUTUtility.GetNewCode;
+        NewCode := LibraryUTUtility.GetNewCode();
         RecRef.Open(TableNo);
         CityFieldRef := RecRef.Field(City);
         CityFieldRef.Value := NewCode;
@@ -466,7 +466,7 @@ codeunit 134995 "UT Country/Region Code"
         CountyFieldRef := RecRef.Field(County);
         CountyFieldRef.Value := NewCode;
         CountryRegionFieldRef := RecRef.Field(CountryRegionCode);
-        CountryRegionFieldRef.Value := LibraryUTUtility.GetNewCode10;
+        CountryRegionFieldRef.Value := LibraryUTUtility.GetNewCode10();
         RecRef.Insert();
 
         // Exercise: Validate Country/Region Code as blank.
@@ -487,14 +487,14 @@ codeunit 134995 "UT Country/Region Code"
         NewCode: Code[20];
     begin
         // Setup: Assign PostCode,City and Country/Region Code.
-        NewCode := LibraryUTUtility.GetNewCode;
+        NewCode := LibraryUTUtility.GetNewCode();
         RecRef.Open(TableNo);
         CityFieldRef := RecRef.Field(City);
         CityFieldRef.Value := NewCode;
         PostCodeFieldRef := RecRef.Field(PostCode);
         PostCodeFieldRef.Value := NewCode;
         CountryRegionFieldRef := RecRef.Field(CountryRegionCode);
-        CountryRegionFieldRef.Value := LibraryUTUtility.GetNewCode10;
+        CountryRegionFieldRef.Value := LibraryUTUtility.GetNewCode10();
         RecRef.Insert();
 
         // Exercise: Validate Country/Region Code as blank.

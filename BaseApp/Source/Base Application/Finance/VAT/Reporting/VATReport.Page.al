@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -41,7 +41,7 @@ page 740 "VAT Report"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Version';
-                    Editable = NOT ReturnPeriodEnabled;
+                    Editable = not ReturnPeriodEnabled;
                     NotBlank = true;
                     ToolTip = 'Specifies version of the report.';
 

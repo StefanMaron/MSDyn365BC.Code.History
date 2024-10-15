@@ -1,4 +1,4 @@
-#if not CLEAN21
+#if not CLEAN23
 namespace Microsoft.Projects.Resources.Pricing;
 
 using Microsoft.Projects.Resources.Resource;
@@ -13,29 +13,27 @@ codeunit 220 "Resource-Find Cost"
     trigger OnRun()
     begin
         ResCost.Copy(Rec);
-        with ResCost do begin
-            ResCost2 := ResCost;
+        ResCost2 := ResCost;
 
-            FindResUnitCost(ResCost);
+        FindResUnitCost(ResCost);
 
-            case "Cost Type" of
-                "Cost Type"::Fixed:
-                    ;
-                "Cost Type"::"% Extra":
-                    begin
-                        ResCost2."Work Type Code" := '';
-                        FindResUnitCost(ResCost2);
-                        "Direct Unit Cost" := ResCost2."Direct Unit Cost" * (1 + "Direct Unit Cost" / 100);
-                        "Unit Cost" := ResCost2."Unit Cost" * (1 + "Unit Cost" / 100);
-                    end;
-                "Cost Type"::"LCY Extra":
-                    begin
-                        ResCost2."Work Type Code" := '';
-                        FindResUnitCost(ResCost2);
-                        "Direct Unit Cost" := ResCost2."Direct Unit Cost" + "Direct Unit Cost";
-                        "Unit Cost" := ResCost2."Unit Cost" + "Unit Cost";
-                    end;
-            end;
+        case ResCost."Cost Type" of
+            ResCost."Cost Type"::Fixed:
+                ;
+            ResCost."Cost Type"::"% Extra":
+                begin
+                    ResCost2."Work Type Code" := '';
+                    FindResUnitCost(ResCost2);
+                    ResCost."Direct Unit Cost" := ResCost2."Direct Unit Cost" * (1 + ResCost."Direct Unit Cost" / 100);
+                    ResCost."Unit Cost" := ResCost2."Unit Cost" * (1 + ResCost."Unit Cost" / 100);
+                end;
+            ResCost."Cost Type"::"LCY Extra":
+                begin
+                    ResCost2."Work Type Code" := '';
+                    FindResUnitCost(ResCost2);
+                    ResCost."Direct Unit Cost" := ResCost2."Direct Unit Cost" + ResCost."Direct Unit Cost";
+                    ResCost."Unit Cost" := ResCost2."Unit Cost" + ResCost."Unit Cost";
+                end;
         end;
         Rec := ResCost;
     end;
@@ -54,19 +52,17 @@ codeunit 220 "Resource-Find Cost"
         if IsHandled then
             exit;
 
-        with NearestResCost do begin
-            if Get(Type::Resource, Code, "Work Type Code") then
-                exit;
-            Res.Get(Code);
-            if Get(Type::"Group(Resource)", Res."Resource Group No.", "Work Type Code") then
-                exit;
-            if Get(Type::All, '', "Work Type Code") then
-                exit;
-            Init();
-            Code := Res."No.";
-            "Direct Unit Cost" := Res."Direct Unit Cost";
-            "Unit Cost" := Res."Unit Cost";
-        end;
+        if NearestResCost.Get(NearestResCost.Type::Resource, NearestResCost.Code, NearestResCost."Work Type Code") then
+            exit;
+        Res.Get(NearestResCost.Code);
+        if NearestResCost.Get(NearestResCost.Type::"Group(Resource)", Res."Resource Group No.", NearestResCost."Work Type Code") then
+            exit;
+        if NearestResCost.Get(NearestResCost.Type::All, '', NearestResCost."Work Type Code") then
+            exit;
+        NearestResCost.Init();
+        NearestResCost.Code := Res."No.";
+        NearestResCost."Direct Unit Cost" := Res."Direct Unit Cost";
+        NearestResCost."Unit Cost" := Res."Unit Cost";
 
         OnAfterFindResUnitCost(NearestResCost, Res);
     end;

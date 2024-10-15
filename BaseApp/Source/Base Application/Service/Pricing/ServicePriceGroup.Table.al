@@ -4,6 +4,7 @@ table 6080 "Service Price Group"
 {
     Caption = 'Service Price Group';
     LookupPageID = "Service Price Groups";
+    DataClassification = CustomerContent;
 
     fields
     {

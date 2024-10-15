@@ -22,7 +22,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
         if IsInitialized then
             exit;
 
-        EnableGST;
+        EnableGST();
         IsInitialized := true;
         Commit();
     end;
@@ -790,7 +790,7 @@ codeunit 145401 "WHT Purch.Pmt Disc. Jnl ApplTo"
             repeat
                 TotalRealizedBase += Base;
                 TotalRealizedAmount += Amount;
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 

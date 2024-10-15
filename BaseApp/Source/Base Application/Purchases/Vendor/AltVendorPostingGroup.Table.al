@@ -4,6 +4,7 @@ table 961 "Alt. Vendor Posting Group"
 {
     Caption = 'Alternative Vendor Posting Group';
     ReplicateData = true;
+    DataClassification = CustomerContent;
 
     fields
     {

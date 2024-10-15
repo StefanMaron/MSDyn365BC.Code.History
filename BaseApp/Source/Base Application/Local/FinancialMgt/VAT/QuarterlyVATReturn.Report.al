@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -211,7 +211,6 @@ report 16629 "Quarterly VAT Return"
         CompanyInfo: Record "Company Information";
         FormatAddr: Codeunit "Format Address";
         CompanyAddr: array[8] of Text[100];
-        Text005: Label 'Page %1';
         AmtPurchases: Decimal;
         VATEntry: Record "VAT Entry";
         Text004Lbl: Label 'Value Added Tax Declaration';

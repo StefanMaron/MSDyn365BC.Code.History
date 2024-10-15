@@ -221,48 +221,46 @@ report 492 "Copy Purchase Document"
 
         CopyDocMgt.CopyPurchDoc(FromDocType, FromDocNo, PurchHeader);
 
-        with PurchHeader do begin
-            if ReplacePostDate or ReplaceDocDate then begin
-                if ReplacePostDate then
-                    Validate("Posting Date", PostingDate);
-                if ReplaceDocDate then
-                    Validate("Document Date", PostingDate);
-                Modify();
+        if ReplacePostDate or ReplaceDocDate then begin
+            if ReplacePostDate then
+                PurchHeader.Validate("Posting Date", PostingDate);
+            if ReplaceDocDate then
+                PurchHeader.Validate("Document Date", PostingDate);
+            PurchHeader.Modify();
+        end;
+        GLSetup.Get();
+        if (PurchHeader."Document Type" = PurchHeader."Document Type"::"Credit Memo") and
+           (GLSetup.GSTEnabled(FromPurchHeader."Document Date"))
+        then begin
+            case FromDocType of
+                FromDocType::Quote, FromDocType::"Blanket Order", FromDocType::Order,
+                FromDocType::Invoice, FromDocType::"Credit Memo", FromDocType::"Return Order":
+                    begin
+                        PurchHeader."Adjustment Applies-to" := FromPurchHeader."No.";
+                        PurchHeader."BAS Adjustment" := BASManagement.CheckBASPeriod(PurchHeader."Document Date", FromPurchHeader."Document Date");
+                    end;
+                FromDocType::"Posted Receipt":
+                    begin
+                        PurchHeader."Adjustment Applies-to" := FromPurchRcptHeader."No.";
+                        PurchHeader."BAS Adjustment" := BASManagement.CheckBASPeriod(PurchHeader."Document Date", FromPurchRcptHeader."Document Date");
+                    end;
+                FromDocType::"Posted Invoice":
+                    begin
+                        PurchHeader."Adjustment Applies-to" := FromPurchInvHeader."No.";
+                        PurchHeader."BAS Adjustment" := BASManagement.CheckBASPeriod(PurchHeader."Document Date", FromPurchInvHeader."Document Date");
+                    end;
+                FromDocType::"Posted Credit Memo":
+                    begin
+                        PurchHeader."Adjustment Applies-to" := FromPurchCrMemoHeader."No.";
+                        PurchHeader."BAS Adjustment" := BASManagement.CheckBASPeriod(PurchHeader."Document Date", FromPurchCrMemoHeader."Document Date");
+                    end;
+                FromDocType::"Posted Return Shipment":
+                    begin
+                        PurchHeader."Adjustment Applies-to" := FromReturnShptHeader."No.";
+                        PurchHeader."BAS Adjustment" := BASManagement.CheckBASPeriod(PurchHeader."Document Date", FromReturnShptHeader."Document Date");
+                    end;
             end;
-            GLSetup.Get();
-            if ("Document Type" = "Document Type"::"Credit Memo") and
-               (GLSetup.GSTEnabled(FromPurchHeader."Document Date"))
-            then begin
-                case FromDocType of
-                    FromDocType::Quote, FromDocType::"Blanket Order", FromDocType::Order,
-                    FromDocType::Invoice, FromDocType::"Credit Memo", FromDocType::"Return Order":
-                        begin
-                            "Adjustment Applies-to" := FromPurchHeader."No.";
-                            "BAS Adjustment" := BASManagement.CheckBASPeriod("Document Date", FromPurchHeader."Document Date");
-                        end;
-                    FromDocType::"Posted Receipt":
-                        begin
-                            "Adjustment Applies-to" := FromPurchRcptHeader."No.";
-                            "BAS Adjustment" := BASManagement.CheckBASPeriod("Document Date", FromPurchRcptHeader."Document Date");
-                        end;
-                    FromDocType::"Posted Invoice":
-                        begin
-                            "Adjustment Applies-to" := FromPurchInvHeader."No.";
-                            "BAS Adjustment" := BASManagement.CheckBASPeriod("Document Date", FromPurchInvHeader."Document Date");
-                        end;
-                    FromDocType::"Posted Credit Memo":
-                        begin
-                            "Adjustment Applies-to" := FromPurchCrMemoHeader."No.";
-                            "BAS Adjustment" := BASManagement.CheckBASPeriod("Document Date", FromPurchCrMemoHeader."Document Date");
-                        end;
-                    FromDocType::"Posted Return Shipment":
-                        begin
-                            "Adjustment Applies-to" := FromReturnShptHeader."No.";
-                            "BAS Adjustment" := BASManagement.CheckBASPeriod("Document Date", FromReturnShptHeader."Document Date");
-                        end;
-                end;
-                Modify();
-            end;
+            PurchHeader.Modify();
         end;
         OnAfterOnPreReport(FromDocType, FromDocNo, PurchHeader);
     end;

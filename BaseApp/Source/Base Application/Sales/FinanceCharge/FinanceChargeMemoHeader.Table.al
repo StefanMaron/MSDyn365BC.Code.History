@@ -26,6 +26,7 @@ table 302 "Finance Charge Memo Header"
     DataCaptionFields = "No.", Name;
     DrillDownPageID = "Finance Charge Memo List";
     LookupPageID = "Finance Charge Memo List";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -36,7 +37,7 @@ table 302 "Finance Charge Memo Header"
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    NoSeriesMgt.TestManual(GetNoSeriesCode());
+                    NoSeries.TestManual(GetNoSeriesCode());
                     "No. Series" := '';
                 end;
                 "Posting Description" := StrSubstNo(Text000, "No.");
@@ -375,20 +376,18 @@ table 302 "Finance Charge Memo Header"
 
             trigger OnLookup()
             begin
-                with FinChrgMemoHeader do begin
-                    FinChrgMemoHeader := Rec;
-                    TestNoSeries();
-                    if NoSeriesMgt.LookupSeries(GetIssuingNoSeriesCode(), "Issuing No. Series") then
-                        Validate("Issuing No. Series");
-                    Rec := FinChrgMemoHeader;
-                end;
+                FinChrgMemoHeader := Rec;
+                FinChrgMemoHeader.TestNoSeries();
+                if NoSeries.LookupRelatedNoSeries(GetIssuingNoSeriesCode(), FinChrgMemoHeader."Issuing No. Series") then
+                    FinChrgMemoHeader.Validate("Issuing No. Series");
+                Rec := FinChrgMemoHeader;
             end;
 
             trigger OnValidate()
             begin
                 if "Issuing No. Series" <> '' then begin
                     TestNoSeries();
-                    NoSeriesMgt.TestSeries(GetIssuingNoSeriesCode(), "Issuing No. Series");
+                    NoSeries.TestAreRelated(GetIssuingNoSeriesCode(), "Issuing No. Series");
                 end;
                 TestField("Issuing No.", '');
             end;
@@ -490,11 +489,28 @@ table 302 "Finance Charge Memo Header"
     end;
 
     trigger OnInsert()
+#if not CLEAN24
+    var
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif    
     begin
         SalesSetup.GetRecordOnce();
         if "No." = '' then begin
             TestNoSeries();
-            NoSeriesMgt.InitSeries(GetNoSeriesCode(), xRec."No. Series", "Posting Date", "No.", "No. Series");
+            "No. Series" := GetNoSeriesCode();
+#if not CLEAN24
+            NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries("No. Series", xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
+            if not IsHandled then begin
+#endif
+            if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                "No. Series" := xRec."No. Series";
+            "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", GetNoSeriesCode(), "Posting Date", "No.");
+            end;
+#endif
+
         end;
         "Posting Description" := StrSubstNo(Text000, "No.");
         if ("No. Series" <> '') and
@@ -502,7 +518,14 @@ table 302 "Finance Charge Memo Header"
         then
             "Issuing No. Series" := "No. Series"
         else
+#if CLEAN24
+            if NoSeries.IsAutomatic(GetIssuingNoSeriesCode()) then
+                "Issuing No. Series" := GetIssuingNoSeriesCode();
+#else
+#pragma warning disable AL0432
             NoSeriesMgt.SetDefaultSeries("Issuing No. Series", GetIssuingNoSeriesCode());
+#pragma warning restore AL0432
+#endif
 
         if "Posting Date" = 0D then
             "Posting Date" := WorkDate();
@@ -533,7 +556,7 @@ table 302 "Finance Charge Memo Header"
         CurrExchRate: Record "Currency Exchange Rate";
         GLSetup: Record "General Ledger Setup";
         AutoFormat: Codeunit "Auto Format";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
         TransferExtendedText: Codeunit "Transfer Extended Text";
         FinChrgMemoIssue: Codeunit "FinChrgMemo-Issue";
         DimMgt: Codeunit DimensionManagement;
@@ -553,15 +576,12 @@ table 302 "Finance Charge Memo Header"
 
     procedure AssistEdit(OldFinChrgMemoHeader: Record "Finance Charge Memo Header"): Boolean
     begin
-        with FinChrgMemoHeader do begin
-            FinChrgMemoHeader := Rec;
-            TestNoSeries();
-            if NoSeriesMgt.SelectSeries(SalesSetup."Fin. Chrg. Memo Nos.", OldFinChrgMemoHeader."No. Series", "No. Series") then begin
-                TestNoSeries();
-                NoSeriesMgt.SetSeries("No.");
-                Rec := FinChrgMemoHeader;
-                exit(true);
-            end;
+        FinChrgMemoHeader := Rec;
+        FinChrgMemoHeader.TestNoSeries();
+        if NoSeries.LookupRelatedNoSeries(SalesSetup."Fin. Chrg. Memo Nos.", OldFinChrgMemoHeader."No. Series", FinChrgMemoHeader."No. Series") then begin
+            FinChrgMemoHeader."No." := NoSeries.GetNextNo(FinChrgMemoHeader."No. Series");
+            Rec := FinChrgMemoHeader;
+            exit(true);
         end;
     end;
 
@@ -593,7 +613,17 @@ table 302 "Finance Charge Memo Header"
         NoSeriesCode := SalesSetup."Fin. Chrg. Memo Nos.";
 
         OnAfterGetNoSeriesCode(Rec, SalesSetup, NoSeriesCode);
-        exit(NoSeriesMgt.GetNoSeriesWithCheck(NoSeriesCode, SelectNoSeriesAllowed, "No. Series"));
+        if not SelectNoSeriesAllowed then
+            exit(NoSeriesCode);
+
+        if NoSeries.IsAutomatic(NoSeriesCode) then
+            exit(NoSeriesCode);
+
+        if NoSeries.HasRelatedSeries(NoSeriesCode) then
+            if NoSeries.LookupRelatedNoSeries(NoSeriesCode, "No. Series") then
+                exit("No. Series");
+
+        exit(NoSeriesCode);
     end;
 
     local procedure InitVATDate()
@@ -860,10 +890,8 @@ table 302 "Finance Charge Memo Header"
         FinChrgMemoHeader: Record "Finance Charge Memo Header";
         ReportSelection: Record "Report Selections";
     begin
-        with FinChrgMemoHeader do begin
-            Copy(Rec);
-            ReportSelection.PrintForCust(ReportSelection.Usage::"F.C.Test", FinChrgMemoHeader, FieldNo("Customer No."));
-        end;
+        FinChrgMemoHeader.Copy(Rec);
+        ReportSelection.PrintForCust(ReportSelection.Usage::"F.C.Test", FinChrgMemoHeader, FinChrgMemoHeader.FieldNo("Customer No."));
     end;
 
     local procedure PrintConfirmation()
@@ -963,33 +991,30 @@ table 302 "Finance Charge Memo Header"
 
         if FinanceChargeRoundingAmount <> 0 then begin
             CustPostingGr.Get(FinanceChargeHeader."Customer Posting Group");
-            with FinChrgMemoLine do begin
-                Init();
-                Validate(Type, Type::"G/L Account");
-                "System-Created Entry" := true;
-                Validate("No.", CustPostingGr.GetInvRoundingAccount());
-                Validate(
-                  Amount,
-                  Round(
-                    FinanceChargeRoundingAmount / (1 + ("VAT %" / 100)),
-                    Currency."Amount Rounding Precision"));
-                "VAT Amount" := FinanceChargeRoundingAmount - Amount;
-                "Line Type" := "Line Type"::Rounding;
-                OnFinanceChargeRoundingOnBeforeInsertFinanceMemoHeader(FinanceChargeHeader, FinChrgMemoLine);
-                Insert();
-            end;
+            FinChrgMemoLine.Init();
+            FinChrgMemoLine.Validate(Type, FinChrgMemoLine.Type::"G/L Account");
+            FinChrgMemoLine."System-Created Entry" := true;
+            FinChrgMemoLine.Validate("No.", CustPostingGr.GetInvRoundingAccount());
+            FinChrgMemoLine.Validate(
+              Amount,
+              Round(
+                FinanceChargeRoundingAmount / (1 + (FinChrgMemoLine."VAT %" / 100)),
+                Currency."Amount Rounding Precision"));
+            FinChrgMemoLine."VAT Amount" := FinanceChargeRoundingAmount - FinChrgMemoLine.Amount;
+            FinChrgMemoLine."Line Type" := FinChrgMemoLine."Line Type"::Rounding;
+            OnFinanceChargeRoundingOnBeforeInsertFinanceMemoHeader(FinanceChargeHeader, FinChrgMemoLine);
+            FinChrgMemoLine.Insert();
         end;
     end;
 
     local procedure GetCurrency(FinanceChargeHeader: Record "Finance Charge Memo Header")
     begin
-        with FinanceChargeHeader do
-            if "Currency Code" = '' then
-                Currency.InitRoundingPrecision()
-            else begin
-                Currency.Get("Currency Code");
-                Currency.TestField("Amount Rounding Precision");
-            end;
+        if FinanceChargeHeader."Currency Code" = '' then
+            Currency.InitRoundingPrecision()
+        else begin
+            Currency.Get(FinanceChargeHeader."Currency Code");
+            Currency.TestField("Amount Rounding Precision");
+        end;
     end;
 
     procedure UpdateFinanceChargeRounding(FinanceChargeHeader: Record "Finance Charge Memo Header")

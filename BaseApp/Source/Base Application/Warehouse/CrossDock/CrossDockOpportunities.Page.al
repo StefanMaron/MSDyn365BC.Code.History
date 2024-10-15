@@ -142,7 +142,9 @@ page 5783 "Cross-Dock Opportunities"
                     ToolTip = 'Specifies the number of units of the item on the line reserved for the related source document line.';
                     Visible = false;
                 }
+#pragma warning disable AA0100
                 field("""Qty. Needed (Base)"" - ""Qty. to Cross-Dock (Base)"""; Rec."Qty. Needed (Base)" - Rec."Qty. to Cross-Dock (Base)")
+#pragma warning restore AA0100
                 {
                     ApplicationArea = Warehouse;
                     Caption = 'Rem. Qty. to Cross-Dock (Base)';
@@ -215,7 +217,9 @@ page 5783 "Cross-Dock Opportunities"
                     group("Total Rem. Qty. to Cross-Dock (Base)")
                     {
                         Caption = 'Total Rem. Qty. to Cross-Dock (Base)';
+#pragma warning disable AA0100
                         field("""Total Qty. Needed (Base)"" - ""Qty. Cross-Docked (Base)"""; Rec."Total Qty. Needed (Base)" - Rec."Qty. Cross-Docked (Base)")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Warehouse;
                             Caption = 'Total Rem. Qty. to Cross-Dock (Base)';

@@ -81,7 +81,7 @@ report 5988 "Contr. Serv. Orders - Test"
             dataitem("Service Contract Line"; "Service Contract Line")
             {
                 DataItemLink = "Contract Type" = field("Contract Type"), "Contract No." = field("Contract No.");
-                DataItemTableView = sorting("Contract Type", "Contract No.", "Line No.") ORDER(Ascending) where("Service Period" = filter(<> ''));
+                DataItemTableView = sorting("Contract Type", "Contract No.", "Line No.") order(ascending) where("Service Period" = filter(<> ''));
                 column(Service_Contract_Line__Serial_No__; "Serial No.")
                 {
                 }

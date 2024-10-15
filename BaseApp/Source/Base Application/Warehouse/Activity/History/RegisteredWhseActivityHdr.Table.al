@@ -12,6 +12,7 @@ table 5772 "Registered Whse. Activity Hdr."
     Caption = 'Registered Whse. Activity Hdr.';
     LookupPageID = "Registered Whse. Activity List";
     Permissions = TableData "Registered Whse. Activity Line" = rimd;
+    DataClassification = CustomerContent;
 
     fields
     {

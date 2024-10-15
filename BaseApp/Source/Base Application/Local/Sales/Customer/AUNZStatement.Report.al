@@ -1,4 +1,4 @@
-﻿// ------------------------------------------------------------------------------------------------
+// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -823,7 +823,6 @@ report 17110 "AU/NZ Statement"
         TempCustLedgerEntry3: Record "Cust. Ledger Entry" temporary;
         TempCustLedgerEntry4: Record "Cust. Ledger Entry" temporary;
         AgingAmount: array[4] of Decimal;
-        CustLedEntry: Record "Cust. Ledger Entry";
         Text1500009: Label 'Days overdue:';
         Text1500010: Label 'Days old:';
         STATEMENTCaptionLbl: Label 'STATEMENT';
@@ -851,20 +850,18 @@ report 17110 "AU/NZ Statement"
         InvoiceHeader: Record "Sales Invoice Header";
         PaymentTerms: Record "Payment Terms";
     begin
-        with CustLedgerEntry do begin
-            if ("Document No." = '') or ("Document Type" <> "Document Type"::Invoice) then
-                exit('');
+        if (CustLedgerEntry."Document No." = '') or (CustLedgerEntry."Document Type" <> CustLedgerEntry."Document Type"::Invoice) then
+            exit('');
 
-            if InvoiceHeader.ReadPermission then
-                if InvoiceHeader.Get("Document No.") then
-                    if PaymentTerms.Get(InvoiceHeader."Payment Terms Code") then begin
-                        if PaymentTerms.Description <> '' then
-                            exit(PaymentTerms.Description);
+        if InvoiceHeader.ReadPermission then
+            if InvoiceHeader.Get(CustLedgerEntry."Document No.") then
+                if PaymentTerms.Get(InvoiceHeader."Payment Terms Code") then begin
+                    if PaymentTerms.Description <> '' then
+                        exit(PaymentTerms.Description);
 
-                        exit(InvoiceHeader."Payment Terms Code");
-                    end else
-                        exit(InvoiceHeader."Payment Terms Code");
-        end;
+                    exit(InvoiceHeader."Payment Terms Code");
+                end else
+                    exit(InvoiceHeader."Payment Terms Code");
 
         if Customer."Payment Terms Code" <> '' then
             if PaymentTerms.Get(Customer."Payment Terms Code") then begin

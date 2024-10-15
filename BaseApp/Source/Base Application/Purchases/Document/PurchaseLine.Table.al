@@ -69,6 +69,7 @@ table 39 "Purchase Line"
     DrillDownPageID = "Purchase Lines";
     LookupPageID = "Purchase Lines";
     Permissions = TableData "Purchase Line" = m;
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -432,7 +433,7 @@ table 39 "Purchase Line"
 
             trigger OnValidate()
             var
-                CustomCalendarChange: Array[2] of Record "Customized Calendar Change";
+                CustomCalendarChange: array[2] of Record "Customized Calendar Change";
                 IsHandled: Boolean;
             begin
                 if not TrackingBlocked then begin
@@ -494,7 +495,7 @@ table 39 "Purchase Line"
                     Type::Item:
                         ValidateItemDescription();
                     else begin
-                        ReturnValue := FindRecordMgt.FindNoByDescription(Type, Description, true);
+                        ReturnValue := FindRecordMgt.FindNoByDescription(Type.AsInteger(), Description, true);
                         if ReturnValue <> '' then begin
                             CurrFieldNo := FieldNo("No.");
                             Validate("No.", CopyStr(ReturnValue, 1, MaxStrLen("No.")));
@@ -535,7 +536,7 @@ table 39 "Purchase Line"
             begin
                 IsHandled := false;
                 OnBeforeValidateQuantity(Rec, xRec, CurrFieldNo, IsHandled);
-                If IsHandled then
+                if IsHandled then
                     exit;
 
                 TestStatusOpen();
@@ -602,7 +603,7 @@ table 39 "Purchase Line"
                     if IsCreditDocType() then
                         InitQtyToShip()
                     else begin
-                        IsHandled := FALSE;
+                        IsHandled := false;
                         OnValidateQuantityOnBeforeInitQtyToReceive(Rec, CurrFieldNo, IsHandled);
                         if not IsHandled then
                             InitQtyToReceive();
@@ -672,7 +673,6 @@ table 39 "Purchase Line"
 
             trigger OnValidate()
             var
-                CannotInvoiceErrorInfo: ErrorInfo;
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
@@ -689,13 +689,8 @@ table 39 "Purchase Line"
                     if ("Qty. per Unit of Measure" <> 0) and not IsSubcontractingCreditMemo() then
                         ValidateQuantityInvIsBalanced();
                 end;
-                if ("Qty. to Invoice" * Quantity < 0) or (Abs("Qty. to Invoice") > Abs(MaxQtyToInvoice())) then begin
-                    CannotInvoiceErrorInfo.Title := QtyInvoiceNotValidTitleLbl;
-                    CannotInvoiceErrorInfo.Message := StrSubstNo(Text006, MaxQtyToInvoice());
-                    CannotInvoiceErrorInfo.RecordId := Rec.RecordId;
-                    CannotInvoiceErrorInfo.AddAction(StrSubstNo(QtyInvoiceActionLbl, MaxQtyToInvoice()), Codeunit::"Purchase Line - Price", 'SetPurchaseQtyInvoice');
-                    Error(CannotInvoiceErrorInfo);
-                end;
+                if ("Qty. to Invoice" * Quantity < 0) or (Abs("Qty. to Invoice") > Abs(MaxQtyToInvoice())) then
+                    Error(CannotInvoiceErrorInfo());
 
                 if ("Qty. to Invoice (Base)" * "Quantity (Base)" < 0) or (Abs("Qty. to Invoice (Base)") > Abs(MaxQtyToInvoiceBase())) then
                     Error(
@@ -718,7 +713,6 @@ table 39 "Purchase Line"
 
             trigger OnValidate()
             var
-                CannotReceiveErrorInfo: ErrorInfo;
                 IsHandled: Boolean;
                 ShouldCheckLocationRequireReceive: Boolean;
             begin
@@ -751,13 +745,9 @@ table 39 "Purchase Line"
                         if ((("Qty. to Receive" < 0) xor (Quantity < 0)) and (Quantity <> 0) and ("Qty. to Receive" <> 0)) or
                            (Abs("Qty. to Receive") > Abs("Outstanding Quantity")) or
                            (((Quantity < 0) xor ("Outstanding Quantity" < 0)) and (Quantity <> 0) and ("Outstanding Quantity" <> 0))
-                        then begin
-                            CannotReceiveErrorInfo.Title := QtyReceiveNotValidTitleLbl;
-                            CannotReceiveErrorInfo.Message := StrSubstNo(Text008, "Outstanding Quantity");
-                            CannotReceiveErrorInfo.RecordId := Rec.RecordId;
-                            CannotReceiveErrorInfo.AddAction(StrSubstNo(QtyReceiveActionLbl, "Outstanding Quantity"), Codeunit::"Purchase Line - Price", 'SetPurchaseReceiveQty');
-                            Error(CannotReceiveErrorInfo);
-                        end;
+                        then
+                            Error(CannotReceiveErrorInfo());
+
                         if ((("Qty. to Receive (Base)" < 0) xor ("Quantity (Base)" < 0)) and ("Quantity (Base)" <> 0) and ("Qty. to Receive (Base)" <> 0)) or
                            (Abs("Qty. to Receive (Base)") > Abs("Outstanding Qty. (Base)")) or
                            ((("Quantity (Base)" < 0) xor ("Outstanding Qty. (Base)" < 0)) and ("Quantity (Base)" <> 0) and ("Outstanding Qty. (Base)" <> 0))
@@ -782,8 +772,13 @@ table 39 "Purchase Line"
             Caption = 'Direct Unit Cost';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
-                Validate("Line Discount %");
+                IsHandled := false;
+                OnValidateDirectUnitCostOnBeforeValidateLineDiscPct(Rec, IsHandled);
+                if not IsHandled then
+                    Validate("Line Discount %");
             end;
         }
         field(23; "Unit Cost (LCY)"; Decimal)
@@ -1089,7 +1084,7 @@ table 39 "Purchase Line"
         }
         field(45; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             TableRelation = Job;
 
             trigger OnValidate()
@@ -1700,7 +1695,7 @@ table 39 "Purchase Line"
 
                 IsHandled := false;
                 OnValidateLineAmountBeforeValidateLineDiscountAmount(Rec, Currency, IsHandled);
-                If not IsHandled then
+                if not IsHandled then
                     Validate("Line Discount Amount", MaxLineAmount - "Line Amount");
             end;
         }
@@ -1823,13 +1818,13 @@ table 39 "Purchase Line"
                 TestField("Line Amount");
                 if "Prepmt. Line Amount" < "Prepmt. Amt. Inv." then
                     FieldError("Prepmt. Line Amount", StrSubstNo(Text038, "Prepmt. Amt. Inv."));
-                if UpdateGSTAmounts then
-                    if PrepmtLineAmtExclFullGST > LineAmountExclFullGST then
+                if UpdateGSTAmounts() then
+                    if PrepmtLineAmtExclFullGST() > LineAmountExclFullGST() then
                         FieldError("Prepmt. Line Amount", StrSubstNo(Text039, "Line Amount" - "Inv. Discount Amount"))
                     else
                         if "Prepmt. Line Amount" > "Line Amount" then
                             FieldError("Prepmt. Line Amount", StrSubstNo(Text039, "Line Amount"));
-                Validate("Prepayment %", PrepmtLineAmtExclFullGST * 100 / LineAmountExclFullGST);
+                Validate("Prepayment %", PrepmtLineAmtExclFullGST() * 100 / LineAmountExclFullGST());
             end;
         }
         field(111; "Prepmt. Amt. Inv."; Decimal)
@@ -2085,7 +2080,7 @@ table 39 "Purchase Line"
         }
         field(1001; "Job Task No."; Code[20])
         {
-            Caption = 'Job Task No.';
+            Caption = 'Project Task No.';
             TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
 
             trigger OnValidate()
@@ -2126,7 +2121,7 @@ table 39 "Purchase Line"
         field(1002; "Job Line Type"; Enum "Job Line Type")
         {
             AccessByPermission = TableData Job = R;
-            Caption = 'Job Line Type';
+            Caption = 'Project Line Type';
 
             trigger OnValidate()
             var
@@ -2150,7 +2145,7 @@ table 39 "Purchase Line"
         {
             AccessByPermission = TableData Job = R;
             BlankZero = true;
-            Caption = 'Job Unit Price';
+            Caption = 'Project Unit Price';
 
             trigger OnValidate()
             var
@@ -2176,7 +2171,7 @@ table 39 "Purchase Line"
         {
             AccessByPermission = TableData Job = R;
             BlankZero = true;
-            Caption = 'Job Total Price';
+            Caption = 'Project Total Price';
             Editable = false;
         }
         field(1005; "Job Line Amount"; Decimal)
@@ -2185,7 +2180,7 @@ table 39 "Purchase Line"
             AutoFormatExpression = "Job Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            Caption = 'Job Line Amount';
+            Caption = 'Project Line Amount';
 
             trigger OnValidate()
             var
@@ -2212,7 +2207,7 @@ table 39 "Purchase Line"
             AutoFormatExpression = "Job Currency Code";
             AutoFormatType = 1;
             BlankZero = true;
-            Caption = 'Job Line Discount Amount';
+            Caption = 'Project Line Discount Amount';
 
             trigger OnValidate()
             var
@@ -2238,7 +2233,7 @@ table 39 "Purchase Line"
         {
             AccessByPermission = TableData Job = R;
             BlankZero = true;
-            Caption = 'Job Line Discount %';
+            Caption = 'Project Line Discount %';
             DecimalPlaces = 0 : 5;
             MaxValue = 100;
             MinValue = 0;
@@ -2267,7 +2262,7 @@ table 39 "Purchase Line"
         {
             AccessByPermission = TableData Job = R;
             BlankZero = true;
-            Caption = 'Job Unit Price (LCY)';
+            Caption = 'Project Unit Price (LCY)';
             Editable = false;
 
             trigger OnValidate()
@@ -2294,7 +2289,7 @@ table 39 "Purchase Line"
         {
             AccessByPermission = TableData Job = R;
             BlankZero = true;
-            Caption = 'Job Total Price (LCY)';
+            Caption = 'Project Total Price (LCY)';
             Editable = false;
         }
         field(1010; "Job Line Amount (LCY)"; Decimal)
@@ -2302,7 +2297,7 @@ table 39 "Purchase Line"
             AccessByPermission = TableData Job = R;
             AutoFormatType = 1;
             BlankZero = true;
-            Caption = 'Job Line Amount (LCY)';
+            Caption = 'Project Line Amount (LCY)';
             Editable = false;
 
             trigger OnValidate()
@@ -2330,7 +2325,7 @@ table 39 "Purchase Line"
             AccessByPermission = TableData Job = R;
             AutoFormatType = 1;
             BlankZero = true;
-            Caption = 'Job Line Disc. Amount (LCY)';
+            Caption = 'Project Line Disc. Amount (LCY)';
             Editable = false;
 
             trigger OnValidate()
@@ -2356,17 +2351,17 @@ table 39 "Purchase Line"
         field(1012; "Job Currency Factor"; Decimal)
         {
             BlankZero = true;
-            Caption = 'Job Currency Factor';
+            Caption = 'Project Currency Factor';
         }
         field(1013; "Job Currency Code"; Code[20])
         {
-            Caption = 'Job Currency Code';
+            Caption = 'Project Currency Code';
         }
         field(1019; "Job Planning Line No."; Integer)
         {
             AccessByPermission = TableData Job = R;
             BlankZero = true;
-            Caption = 'Job Planning Line No.';
+            Caption = 'Project Planning Line No.';
 
             trigger OnLookup()
             var
@@ -2433,7 +2428,7 @@ table 39 "Purchase Line"
         field(1030; "Job Remaining Qty."; Decimal)
         {
             AccessByPermission = TableData Job = R;
-            Caption = 'Job Remaining Qty.';
+            Caption = 'Project Remaining Qty.';
             DecimalPlaces = 0 : 5;
 
             trigger OnValidate()
@@ -2459,7 +2454,7 @@ table 39 "Purchase Line"
         }
         field(1031; "Job Remaining Qty. (Base)"; Decimal)
         {
-            Caption = 'Job Remaining Qty. (Base)';
+            Caption = 'Project Remaining Qty. (Base)';
         }
         field(1700; "Deferral Code"; Code[10])
         {
@@ -2568,7 +2563,7 @@ table 39 "Purchase Line"
                             if IsCreditDocType() then
                                 SendBlockedItemVariantNotification()
                             else
-                                Error(ItemVariantPurchasingBlockedErr, ItemVariant.Code, ItemVariant."Item No.", ItemVariant.FieldCaption("Purchasing Blocked"));
+                                Error(PurchasingBlockedErr, ItemVariant.TableCaption(), StrSubstNo(ItemVariantPrimaryKeyLbl, ItemVariant."Item No.", ItemVariant.Code), ItemVariant.FieldCaption("Purchasing Blocked"));
                     end;
                 end;
                 TestStatusOpen();
@@ -3040,7 +3035,7 @@ table 39 "Purchase Line"
             begin
                 IsHandled := false;
                 OnBeforeValidatePurchasingCode(Rec, IsHandled);
-                If IsHandled then
+                if IsHandled then
                     exit;
 
                 if PurchasingCode.Get("Purchasing Code") then begin
@@ -3156,7 +3151,7 @@ table 39 "Purchase Line"
 
             trigger OnValidate()
             var
-                CustomCalendarChange: Array[2] of Record "Customized Calendar Change";
+                CustomCalendarChange: array[2] of Record "Customized Calendar Change";
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
@@ -3192,7 +3187,7 @@ table 39 "Purchase Line"
             begin
                 IsHandled := false;
                 OnBeforeValidatePromisedReceiptDate(Rec, CurrFieldNo, IsHandled, xRec);
-                If IsHandled then
+                if IsHandled then
                     exit;
 
                 if CurrFieldNo <> 0 then
@@ -3248,7 +3243,7 @@ table 39 "Purchase Line"
 
             trigger OnValidate()
             var
-                CustomCalendarChange: Array[2] of Record "Customized Calendar Change";
+                CustomCalendarChange: array[2] of Record "Customized Calendar Change";
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
@@ -3288,7 +3283,7 @@ table 39 "Purchase Line"
 
             trigger OnValidate()
             var
-                CustomCalendarChange: Array[2] of Record "Customized Calendar Change";
+                CustomCalendarChange: array[2] of Record "Customized Calendar Change";
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
@@ -3833,9 +3828,7 @@ table 39 "Purchase Line"
         }
         key(Key4; "Document Type", "Pay-to Vendor No.", "Currency Code", "Document No.")
         {
-#pragma warning disable AS0038
             IncludedFields = "Outstanding Amount", "Amt. Rcd. Not Invoiced", "Outstanding Amount (LCY)", "Amt. Rcd. Not Invoiced (LCY)", "Prepmt. Amount Inv. (LCY)", "Prepmt. VAT Amount Inv. (LCY)";
-#pragma warning RESTORE AS0038
         }
         key(Key7; "Document Type", "Blanket Order No.", "Blanket Order Line No.")
         {
@@ -4078,8 +4071,10 @@ table 39 "Purchase Line"
         Text039: Label 'cannot be more than %1.';
         QtyInvoiceNotValidTitleLbl: Label 'Qty. to Invoice isn''t valid';
         QtyInvoiceActionLbl: Label 'Set value to %1', Comment = '%1 - Qty. to Invoice';
+        QtyInvoiceActionDescriptionLbl: Label 'Corrects %1 to %2', Comment = '%1 - Qty. to Invoice field caption, %2 - Quantity';
         QtyReceiveNotValidTitleLbl: Label 'Qty. to Receive isn''t valid';
         QtyReceiveActionLbl: Label 'Set value to %1', comment = '%1=Qty. to Receive';
+        QtyReceiveActionDescriptionLbl: Label 'Corrects %1 to %2', Comment = '%1 - Qty. to Receive field caption, %2 - Quantity';
         ItemChargeAssignmentErr: Label 'You can only assign Item Charges for Line Types of Charge (Item).';
         Text99000000: Label 'You cannot change %1 when the purchase order is associated to a production order.';
         PurchHeader: Record "Purchase Header";
@@ -4208,8 +4203,8 @@ table 39 "Purchase Line"
         CannotFindDescErr: Label 'Cannot find %1 with Description %2.\\Make sure to use the correct type.', Comment = '%1 = Type caption %2 = Description';
         CommentLbl: Label 'Comment';
         LineDiscountPctErr: Label 'The value in the Line Discount % field must be between 0 and 100.';
-        ItemPurchasingBlockedErr: Label 'You cannot purchase Item %1 because the %2 check box is selected on the Item card.', Comment = '%1 - Item No., %2 - Blocked Field Caption';
-        ItemVariantPurchasingBlockedErr: Label 'You cannot purchase Item Variant %1, Item %2 because the %3 check box is selected on the Item Variant card.', Comment = '%1 - Variant Code, %2 = Item No., %3 - Blocked Field Caption';
+        PurchasingBlockedErr: Label 'You cannot purchase %1 %2 because the %3 check box is selected on the %1 card.', Comment = '%1 - Table Caption (item/variant), %2 - Item No./Variant Code, %3 - Field Caption';
+        ItemVariantPrimaryKeyLbl: Label '%1, %2', Comment = '%1 - Item No., %2 - Variant Code', Locked = true;
         CannotChangePrepaidServiceChargeErr: Label 'You cannot change the line because it will affect service charges that are already invoiced as part of a prepayment.';
         LineInvoiceDiscountAmountResetTok: Label 'The value in the Inv. Discount Amount field in %1 has been cleared.', Comment = '%1 - Record ID';
         BlockedItemNotificationMsg: Label 'Item %1 is blocked, but it is allowed on this type of document.', Comment = '%1 is Item No.';
@@ -4232,7 +4227,7 @@ table 39 "Purchase Line"
     begin
         IsHandled := false;
         OnBeforeInitOutstanding(Rec, IsHandled);
-        If IsHandled then
+        if IsHandled then
             exit;
 
         if IsCreditDocType() then begin
@@ -4640,7 +4635,7 @@ table 39 "Purchase Line"
                 if IsCreditDocType() then
                     SendBlockedItemNotification()
                 else
-                    Error(ItemPurchasingBlockedErr, Item."No.", Item.FieldCaption("Purchasing Blocked"));
+                    Error(PurchasingBlockedErr, Item.TableCaption(), Item."No.", Item.FieldCaption("Purchasing Blocked"));
             if Item.Type = Item.Type::Inventory then begin
                 Item.TestField("Inventory Posting Group");
                 "Posting Group" := Item."Inventory Posting Group";
@@ -4712,7 +4707,7 @@ table 39 "Purchase Line"
         "Unit Price (LCY)" := Item."Unit Price";
     end;
 
-    local procedure UpdateOrderDateFromRequestedReceiptDate(CustomCalendarChange: Array[2] of Record "Customized Calendar Change")
+    local procedure UpdateOrderDateFromRequestedReceiptDate(CustomCalendarChange: array[2] of Record "Customized Calendar Change")
     var
         IsHandled: Boolean;
     begin
@@ -4725,7 +4720,7 @@ table 39 "Purchase Line"
           CalendarMgmt.CalcDateBOC2(AdjustDateFormula("Lead Time Calculation"), "Requested Receipt Date", CustomCalendarChange, true));
     end;
 
-    local procedure UpdatePlannedReceiptDateFromOrderDate(CustomCalendarChange: Array[2] of Record "Customized Calendar Change")
+    local procedure UpdatePlannedReceiptDateFromOrderDate(CustomCalendarChange: array[2] of Record "Customized Calendar Change")
     var
         IsHandled: Boolean;
     begin
@@ -4738,7 +4733,7 @@ table 39 "Purchase Line"
             CalendarMgmt.CalcDateBOC(AdjustDateFormula("Lead Time Calculation"), "Order Date", CustomCalendarChange, true);
     end;
 
-    local procedure UpdateOrderDateFromPlannedReceiptDate(CustomCalendarChange: Array[2] of Record "Customized Calendar Change")
+    local procedure UpdateOrderDateFromPlannedReceiptDate(CustomCalendarChange: array[2] of Record "Customized Calendar Change")
     var
         IsHandled: Boolean;
     begin
@@ -4839,7 +4834,7 @@ table 39 "Purchase Line"
                     Currency.Get(PurchHeader."Currency Code");
                     Currency.TestField("Amount Rounding Precision");
                 end;
-                CurrencyFactor := CalcCurrencyFactorACY;
+                CurrencyFactor := CalcCurrencyFactorACY();
             end
             else
                 Clear(PurchHeader);
@@ -5566,7 +5561,7 @@ table 39 "Purchase Line"
         UpdateSalesCost();
     end;
 
-    local procedure UpdateSalesCost()
+    procedure UpdateSalesCost()
     var
         SalesOrderLine: Record "Sales Line";
         IsHandled: Boolean;
@@ -5577,17 +5572,13 @@ table 39 "Purchase Line"
             exit;
 
         case true of
-            "Sales Order Line No." <> 0:
-                // Drop Shipment
+            "Sales Order Line No." <> 0: // Drop Shipment
                 SalesOrderLine.Get(SalesOrderLine."Document Type"::Order, "Sales Order No.", "Sales Order Line No.");
-            "Special Order Sales Line No." <> 0:
-                // Special Order
-                begin
-                    if not
-                       SalesOrderLine.Get(SalesOrderLine."Document Type"::Order, "Special Order Sales No.", "Special Order Sales Line No.")
-                    then
-                        exit;
-                end;
+            "Special Order Sales Line No." <> 0: // Special Order
+                if not
+                    SalesOrderLine.Get(SalesOrderLine."Document Type"::Order, "Special Order Sales No.", "Special Order Sales Line No.")
+                then
+                    exit;
             else
                 exit;
         end;
@@ -5742,7 +5733,7 @@ table 39 "Purchase Line"
         OnAfterSelectMultipleItems(Rec);
     end;
 
-    local procedure AddItems(SelectionFilter: Text)
+    procedure AddItems(SelectionFilter: Text)
     var
         Item: Record Item;
         PurchLine: Record "Purchase Line";
@@ -6124,7 +6115,7 @@ table 39 "Purchase Line"
         "Qty. Rounding Precision (Base)" := UOMMgt.GetQtyRoundingPrecision(Item, Item."Base Unit of Measure");
     end;
 
-    local procedure ValidatePlannedReceiptDateWithCustomCalendarChange(CustomCalendarChange: Array[2] of Record "Customized Calendar Change")
+    local procedure ValidatePlannedReceiptDateWithCustomCalendarChange(CustomCalendarChange: array[2] of Record "Customized Calendar Change")
     var
         IsHandled: Boolean;
     begin
@@ -6610,232 +6601,230 @@ table 39 "Purchase Line"
         if IsHandled then
             exit(LineWasModified);
 
-        with PurchLine do begin
-            SetRange("Document Type", PurchHeader."Document Type");
-            SetRange("Document No.", PurchHeader."No.");
-            SetLoadFieldsForInvDiscoundCalculation(PurchLine);
-            OnUpdateVATOnLinesOnAfterSetFilters(PurchLine, PurchHeader);
-            LockTable();
-            if FindSet() then
-                repeat
-                    if not ZeroAmountLine(QtyType) then begin
-                        FullGST :=
-                          ("Prepayment Line" or ("Prepmt. Line Amount" <> 0)) and
-                          GLSetup.CheckFullGSTonPrepayment("VAT Bus. Posting Group", "VAT Prod. Posting Group");
-                        OnUpdateVATOnLinesOnBeforeProcessPurchLine(PurchLine, PurchHeader, VATAmountLine, QtyType);
-                        DeferralAmount := GetDeferralAmount();
-                        VATAmountLine.Get("VAT Identifier", "VAT Calculation Type", "Tax Group Code", "Use Tax", "Line Amount" >= 0, FullGST);
-                        if VATAmountLine.Modified or (PurchHeader."Vendor Exchange Rate (ACY)" <> 0) then begin
-                            if not TempVATAmountLineRemainder.Get(
-                                 "VAT Identifier", "VAT Calculation Type", "Tax Group Code", "Use Tax", "Line Amount" >= 0, FullGST)
-                            then begin
-                                TempVATAmountLineRemainder := VATAmountLine;
-                                TempVATAmountLineRemainder.Init();
-                                TempVATAmountLineRemainder.Insert();
-                            end;
+        PurchLine.SetRange("Document Type", PurchHeader."Document Type");
+        PurchLine.SetRange("Document No.", PurchHeader."No.");
+        SetLoadFieldsForInvDiscoundCalculation(PurchLine);
+        OnUpdateVATOnLinesOnAfterSetFilters(PurchLine, PurchHeader);
+        PurchLine.LockTable();
+        if PurchLine.FindSet() then
+            repeat
+                if not PurchLine.ZeroAmountLine(QtyType) then begin
+                    FullGST :=
+                      (PurchLine."Prepayment Line" or (PurchLine."Prepmt. Line Amount" <> 0)) and
+                      GLSetup.CheckFullGSTonPrepayment(PurchLine."VAT Bus. Posting Group", PurchLine."VAT Prod. Posting Group");
+                    OnUpdateVATOnLinesOnBeforeProcessPurchLine(PurchLine, PurchHeader, VATAmountLine, QtyType);
+                    DeferralAmount := PurchLine.GetDeferralAmount();
+                    VATAmountLine.Get(PurchLine."VAT Identifier", PurchLine."VAT Calculation Type", PurchLine."Tax Group Code", PurchLine."Use Tax", PurchLine."Line Amount" >= 0, FullGST);
+                    if VATAmountLine.Modified or (PurchHeader."Vendor Exchange Rate (ACY)" <> 0) then begin
+                        if not TempVATAmountLineRemainder.Get(
+                             PurchLine."VAT Identifier", PurchLine."VAT Calculation Type", PurchLine."Tax Group Code", PurchLine."Use Tax", PurchLine."Line Amount" >= 0, FullGST)
+                        then begin
+                            TempVATAmountLineRemainder := VATAmountLine;
+                            TempVATAmountLineRemainder.Init();
+                            TempVATAmountLineRemainder.Insert();
+                        end;
 
-                            if QtyType = QtyType::General then begin
-                                LineAmountToInvoice := "Line Amount";
-                                LineAmountToInvoiceACY := "Amount (ACY)";
-                            end else begin
-                                LineAmountToInvoice :=
-                                  Round("Line Amount" * "Qty. to Invoice" / Quantity, Currency."Amount Rounding Precision");
-                                LineAmountToInvoiceACY :=
-                                  Round("Amount (ACY)" * "Qty. to Invoice" / Quantity, Currency."Amount Rounding Precision");
-                            end;
+                        if QtyType = QtyType::General then begin
+                            LineAmountToInvoice := PurchLine."Line Amount";
+                            LineAmountToInvoiceACY := PurchLine."Amount (ACY)";
+                        end else begin
+                            LineAmountToInvoice :=
+                              Round(PurchLine."Line Amount" * PurchLine."Qty. to Invoice" / PurchLine.Quantity, Currency."Amount Rounding Precision");
+                            LineAmountToInvoiceACY :=
+                              Round(PurchLine."Amount (ACY)" * PurchLine."Qty. to Invoice" / PurchLine.Quantity, Currency."Amount Rounding Precision");
+                        end;
 
-                            if "Allow Invoice Disc." then begin
-                                if (VATAmountLine."Inv. Disc. Base Amount" = 0) or (LineAmountToInvoice = 0) then
-                                    InvDiscAmount := 0
-                                else begin
-                                    if QtyType = QtyType::General then begin
-                                        LineAmountToInvoice := "Line Amount";
-                                        LineAmountToInvoiceACY := "Amount (ACY)";
-                                    end else begin
-                                        LineAmountToInvoice :=
-                                          Round("Line Amount" * "Qty. to Invoice" / Quantity, Currency."Amount Rounding Precision");
-                                        LineAmountToInvoiceACY :=
-                                          Round("Amount (ACY)" * "Qty. to Invoice" / Quantity, Currency."Amount Rounding Precision");
-                                    end;
-                                    LineAmountToInvoiceDiscounted :=
-                                      VATAmountLine."Invoice Discount Amount" * LineAmountToInvoice /
-                                      VATAmountLine."Inv. Disc. Base Amount";
-                                    TempVATAmountLineRemainder."Invoice Discount Amount" :=
-                                      TempVATAmountLineRemainder."Invoice Discount Amount" + LineAmountToInvoiceDiscounted;
-                                    InvDiscAmount :=
-                                      Round(
-                                        TempVATAmountLineRemainder."Invoice Discount Amount", Currency."Amount Rounding Precision");
-                                    TempVATAmountLineRemainder."Invoice Discount Amount" :=
-                                      TempVATAmountLineRemainder."Invoice Discount Amount" - InvDiscAmount;
-                                end;
+                        if PurchLine."Allow Invoice Disc." then begin
+                            if (VATAmountLine."Inv. Disc. Base Amount" = 0) or (LineAmountToInvoice = 0) then
+                                InvDiscAmount := 0
+                            else begin
                                 if QtyType = QtyType::General then begin
-                                    "Inv. Discount Amount" := InvDiscAmount;
-                                    CalcInvDiscToInvoice();
-                                    if "Inv. Disc. Amount to Invoice" <> 0 then
-                                        if FullGST then
-                                            UpdateAmounts();
-                                end else
-                                    "Inv. Disc. Amount to Invoice" := InvDiscAmount;
-                            end else
-                                InvDiscAmount := 0;
-
-                            OnUpdateVATOnLinesOnBeforeCalculateAmounts(PurchLine, PurchHeader);
+                                    LineAmountToInvoice := PurchLine."Line Amount";
+                                    LineAmountToInvoiceACY := PurchLine."Amount (ACY)";
+                                end else begin
+                                    LineAmountToInvoice :=
+                                      Round(PurchLine."Line Amount" * PurchLine."Qty. to Invoice" / PurchLine.Quantity, Currency."Amount Rounding Precision");
+                                    LineAmountToInvoiceACY :=
+                                      Round(PurchLine."Amount (ACY)" * PurchLine."Qty. to Invoice" / PurchLine.Quantity, Currency."Amount Rounding Precision");
+                                end;
+                                LineAmountToInvoiceDiscounted :=
+                                  VATAmountLine."Invoice Discount Amount" * LineAmountToInvoice /
+                                  VATAmountLine."Inv. Disc. Base Amount";
+                                TempVATAmountLineRemainder."Invoice Discount Amount" :=
+                                  TempVATAmountLineRemainder."Invoice Discount Amount" + LineAmountToInvoiceDiscounted;
+                                InvDiscAmount :=
+                                  Round(
+                                    TempVATAmountLineRemainder."Invoice Discount Amount", Currency."Amount Rounding Precision");
+                                TempVATAmountLineRemainder."Invoice Discount Amount" :=
+                                  TempVATAmountLineRemainder."Invoice Discount Amount" - InvDiscAmount;
+                            end;
                             if QtyType = QtyType::General then begin
-                                if PurchHeader."Prices Including VAT" then begin
-                                    if (VATAmountLine.CalcLineAmount() = 0) or ("Line Amount" = 0) then begin
-                                        VATAmount := 0;
-                                        NonDedVATAmount := 0;
-                                        NewAmountIncludingVAT := 0;
-                                    end else begin
-                                        VATAmount :=
-                                          TempVATAmountLineRemainder."VAT Amount" +
-                                          VATAmountLine."VAT Amount" * CalcLineAmount() / VATAmountLine.CalcLineAmount();
-                                        NonDedVATAmount :=
-                                            NonDeductibleVAT.GetNonDedVATAmountFromVATAmountLine(TempVATAmountLineRemainder, VATAmountLine, Currency, CalcLineAmount(), VATAmountLine.CalcLineAmount());
-                                        NewAmountIncludingVAT :=
-                                          TempVATAmountLineRemainder."Amount Including VAT" +
-                                          VATAmountLine."Amount Including VAT" * CalcLineAmount() / VATAmountLine.CalcLineAmount();
-                                    end;
-                                    NewAmount :=
-                                      Round(NewAmountIncludingVAT, Currency."Amount Rounding Precision") -
-                                      Round(VATAmount, Currency."Amount Rounding Precision");
+                                PurchLine."Inv. Discount Amount" := InvDiscAmount;
+                                PurchLine.CalcInvDiscToInvoice();
+                                if PurchLine."Inv. Disc. Amount to Invoice" <> 0 then
+                                    if FullGST then
+                                        PurchLine.UpdateAmounts();
+                            end else
+                                PurchLine."Inv. Disc. Amount to Invoice" := InvDiscAmount;
+                        end else
+                            InvDiscAmount := 0;
+
+                        OnUpdateVATOnLinesOnBeforeCalculateAmounts(PurchLine, PurchHeader);
+                        if QtyType = QtyType::General then begin
+                            if PurchHeader."Prices Including VAT" then begin
+                                if (VATAmountLine.CalcLineAmount() = 0) or (PurchLine."Line Amount" = 0) then begin
+                                    VATAmount := 0;
+                                    NonDedVATAmount := 0;
+                                    NewAmountIncludingVAT := 0;
+                                end else begin
+                                    VATAmount :=
+                                      TempVATAmountLineRemainder."VAT Amount" +
+                                      VATAmountLine."VAT Amount" * PurchLine.CalcLineAmount() / VATAmountLine.CalcLineAmount();
+                                    NonDedVATAmount :=
+                                        NonDeductibleVAT.GetNonDedVATAmountFromVATAmountLine(TempVATAmountLineRemainder, VATAmountLine, Currency, PurchLine.CalcLineAmount(), VATAmountLine.CalcLineAmount());
+                                    NewAmountIncludingVAT :=
+                                      TempVATAmountLineRemainder."Amount Including VAT" +
+                                      VATAmountLine."Amount Including VAT" * PurchLine.CalcLineAmount() / VATAmountLine.CalcLineAmount();
+                                end;
+                                NewAmount :=
+                                  Round(NewAmountIncludingVAT, Currency."Amount Rounding Precision") -
+                                  Round(VATAmount, Currency."Amount Rounding Precision");
+                                NewVATBaseAmount :=
+                                  Round(
+                                    NewAmount * (1 - PurchHeader."VAT Base Discount %" / 100),
+                                    Currency."Amount Rounding Precision");
+                            end else begin
+                                if PurchLine."VAT Calculation Type" = PurchLine."VAT Calculation Type"::"Full VAT" then begin
+                                    VATAmount := PurchLine.CalcLineAmount();
+                                    if ((GLSetup."Additional Reporting Currency" <> '') and
+                                        (PurchHeader."Currency Code" = GLSetup."Additional Reporting Currency") and
+                                        (PurchHeader."Vendor Exchange Rate (ACY)" = 0))
+                                    then
+                                        VATAmountACY := TempVATAmountLineRemainder."VAT Amount (ACY)" +
+                                          Round(VATAmount, Currency."Amount Rounding Precision")
+                                    else
+                                        VATAmountACY :=
+                                          TempVATAmountLineRemainder."VAT Amount (ACY)" +
+                                          Round(
+                                            CurrExchRate.ExchangeAmtLCYToFCY(
+                                              UseDate, GLSetup."Additional Reporting Currency",
+                                              Round(
+                                                CurrExchRate.ExchangeAmtFCYToLCY(
+                                                  UseDate, PurchHeader."Currency Code", VATAmount,
+                                                  PurchHeader."Currency Factor"), Currency."Amount Rounding Precision"), CurrencyFactor),
+                                            AddCurrency."Amount Rounding Precision");
+                                    NewAmount := 0;
+                                    NewAmountACY := 0;
+                                    NewVATBaseAmount := 0;
+                                    NewVATBaseAmountACY := 0;
+                                end else begin
+                                    NewAmount := PurchLine.CalcLineAmount();
+                                    NewAmountACY := PurchLine."Amount (ACY)";
                                     NewVATBaseAmount :=
                                       Round(
                                         NewAmount * (1 - PurchHeader."VAT Base Discount %" / 100),
                                         Currency."Amount Rounding Precision");
-                                end else begin
-                                    if "VAT Calculation Type" = "VAT Calculation Type"::"Full VAT" then begin
-                                        VATAmount := CalcLineAmount();
-                                        if ((GLSetup."Additional Reporting Currency" <> '') and
-                                            (PurchHeader."Currency Code" = GLSetup."Additional Reporting Currency") and
-                                            (PurchHeader."Vendor Exchange Rate (ACY)" = 0))
-                                        then
-                                            VATAmountACY := TempVATAmountLineRemainder."VAT Amount (ACY)" +
-                                              Round(VATAmount, Currency."Amount Rounding Precision")
-                                        else
-                                            VATAmountACY :=
-                                              TempVATAmountLineRemainder."VAT Amount (ACY)" +
-                                              Round(
-                                                CurrExchRate.ExchangeAmtLCYToFCY(
-                                                  UseDate, GLSetup."Additional Reporting Currency",
-                                                  Round(
-                                                    CurrExchRate.ExchangeAmtFCYToLCY(
-                                                      UseDate, PurchHeader."Currency Code", VATAmount,
-                                                      PurchHeader."Currency Factor"), Currency."Amount Rounding Precision"), CurrencyFactor),
-                                                AddCurrency."Amount Rounding Precision");
-                                        NewAmount := 0;
-                                        NewAmountACY := 0;
-                                        NewVATBaseAmount := 0;
-                                        NewVATBaseAmountACY := 0;
-                                    end else begin
-                                        NewAmount := CalcLineAmount();
-                                        NewAmountACY := "Amount (ACY)";
-                                        NewVATBaseAmount :=
-                                          Round(
-                                            NewAmount * (1 - PurchHeader."VAT Base Discount %" / 100),
-                                            Currency."Amount Rounding Precision");
-                                        NewVATBaseAmountACY :=
-                                          Round(
-                                            NewAmountACY * (1 - PurchHeader."VAT Base Discount %" / 100),
-                                            AddCurrency."Amount Rounding Precision");
-                                        IsHandled := false;
-                                        OnUpdateVATOnLinesOnBeforeCalcNotFullVATAmount(Rec, PurchHeader, Currency, VATAmountLine, TempVATAmountLineRemainder, NewVATBaseAmount, VATAmount, IsHandled);
-                                        if not IsHandled then
-                                            if VATAmountLine."VAT Base" = 0 then begin
-                                                VATAmount := 0;
-                                                NonDedVATAmount := 0;
-                                            end else begin
-                                                VATAmount :=
-                                                  TempVATAmountLineRemainder."VAT Amount" +
-                                                  VATAmountLine."VAT Amount" * NewAmount / VATAmountLine."VAT Base";
-                                                NonDedVATAmount :=
-                                                    NonDeductibleVAT.GetNonDedVATAmountFromVATAmountLine(TempVATAmountLineRemainder, VATAmountLine, Currency, NewAmount, VATAmountLine."VAT Base");
-                                            end;
+                                    NewVATBaseAmountACY :=
+                                      Round(
+                                        NewAmountACY * (1 - PurchHeader."VAT Base Discount %" / 100),
+                                        AddCurrency."Amount Rounding Precision");
+                                    IsHandled := false;
+                                    OnUpdateVATOnLinesOnBeforeCalcNotFullVATAmount(Rec, PurchHeader, Currency, VATAmountLine, TempVATAmountLineRemainder, NewVATBaseAmount, VATAmount, IsHandled);
+                                    if not IsHandled then
+                                        if VATAmountLine."VAT Base" = 0 then begin
+                                            VATAmount := 0;
+                                            NonDedVATAmount := 0;
+                                        end else begin
+                                            VATAmount :=
+                                              TempVATAmountLineRemainder."VAT Amount" +
+                                              VATAmountLine."VAT Amount" * NewAmount / VATAmountLine."VAT Base";
+                                            NonDedVATAmount :=
+                                                NonDeductibleVAT.GetNonDedVATAmountFromVATAmountLine(TempVATAmountLineRemainder, VATAmountLine, Currency, NewAmount, VATAmountLine."VAT Base");
+                                        end;
 
-                                        if VATAmountLine."VAT Base (ACY)" = 0 then
-                                            VATAmountACY := 0
-                                        else
-                                            VATAmountACY :=
-                                              TempVATAmountLineRemainder."VAT Amount (ACY)" +
-                                              VATAmountLine."VAT Amount (ACY)" * NewAmountACY / VATAmountLine."VAT Base (ACY)";
-                                    end;
-                                    NewAmountIncludingVAT := NewAmount + Round(VATAmount, Currency."Amount Rounding Precision");
-                                    NewAmountIncludingVATACY := NewAmountACY + Round(VATAmountACY, AddCurrency."Amount Rounding Precision");
+                                    if VATAmountLine."VAT Base (ACY)" = 0 then
+                                        VATAmountACY := 0
+                                    else
+                                        VATAmountACY :=
+                                          TempVATAmountLineRemainder."VAT Amount (ACY)" +
+                                          VATAmountLine."VAT Amount (ACY)" * NewAmountACY / VATAmountLine."VAT Base (ACY)";
                                 end;
-                                OnUpdateVATOnLinesOnAfterCalculateNewAmount(
-                                    Rec, PurchHeader, VATAmountLine, TempVATAmountLineRemainder, NewAmountIncludingVAT, VATAmount,
-                                    NewAmount, NewVATBaseAmount, PurchLine);
+                                NewAmountIncludingVAT := NewAmount + Round(VATAmount, Currency."Amount Rounding Precision");
+                                NewAmountIncludingVATACY := NewAmountACY + Round(VATAmountACY, AddCurrency."Amount Rounding Precision");
+                            end;
+                            OnUpdateVATOnLinesOnAfterCalculateNewAmount(
+                                Rec, PurchHeader, VATAmountLine, TempVATAmountLineRemainder, NewAmountIncludingVAT, VATAmount,
+                                NewAmount, NewVATBaseAmount, PurchLine);
+                        end else begin
+                            if VATAmountLine.CalcLineAmount() = 0 then begin
+                                VATDifference := 0;
+                                VATDifferenceACY := 0;
                             end else begin
-                                if VATAmountLine.CalcLineAmount() = 0 then begin
-                                    VATDifference := 0;
-                                    VATDifferenceACY := 0;
-                                end else begin
-                                    VATDifference :=
-                                      TempVATAmountLineRemainder."VAT Difference" +
-                                      VATAmountLine."VAT Difference" * (LineAmountToInvoice - InvDiscAmount) / VATAmountLine.CalcLineAmount();
-                                    VATDifferenceACY :=
-                                      TempVATAmountLineRemainder."VAT Difference (ACY)" +
-                                      VATAmountLine."VAT Difference (ACY)" * (LineAmountToInvoice - InvDiscAmount) / VATAmountLine.CalcLineAmount();
-                                end;
-                                if LineAmountToInvoice = 0 then begin
-                                    "VAT Difference" := 0;
-                                    "VAT Difference (ACY)" := 0;
-                                    NonDedVATAmount := 0;
-                                    NonDeductibleVAT.InitNonDeductibleVATDiff(Rec);
-                                end else begin
-                                    "VAT Difference" := Round(VATDifference, Currency."Amount Rounding Precision");
-                                    "VAT Difference (ACY)" := Round(VATDifferenceACY, Currency."Amount Rounding Precision");
-                                    NonDedVATAmount :=
-                                        NonDeductibleVAT.GetNonDedVATAmountFromVATAmountLine(
-                                            TempVATAmountLineRemainder, VATAmountLine, Currency, LineAmountToInvoice - InvDiscAmount, VATAmountLine.CalcLineAmount());
-                                    NonDeductibleVAT.SetNonDedVATAmountDiffInPurchLine(
-                                        PurchLine, TempVATAmountLineRemainder, NonDedVATDifference, VATAmountLine, Currency,
-                                        LineAmountToInvoice - InvDiscAmount, VATAmountLine.CalcLineAmount());
-                                end;
-                                OnUpdateVATOnLinesOnAfterCalculateVATDifference(
-                                    Rec, PurchHeader, VATAmountLine, TempVATAmountLineRemainder, QtyType, PurchLine, LineAmountToInvoice, InvDiscAmount);
+                                VATDifference :=
+                                  TempVATAmountLineRemainder."VAT Difference" +
+                                  VATAmountLine."VAT Difference" * (LineAmountToInvoice - InvDiscAmount) / VATAmountLine.CalcLineAmount();
+                                VATDifferenceACY :=
+                                  TempVATAmountLineRemainder."VAT Difference (ACY)" +
+                                  VATAmountLine."VAT Difference (ACY)" * (LineAmountToInvoice - InvDiscAmount) / VATAmountLine.CalcLineAmount();
                             end;
-                            OnUpdateVATOnLinesOnAfterCalculateAmounts(PurchLine, PurchHeader);
-
-                            if QtyType = QtyType::General then begin
-                                if not "Prepayment Line" then
-                                    UpdatePrepmtAmounts();
-                                UpdateBaseAmounts(NewAmount, Round(NewAmountIncludingVAT, Currency."Amount Rounding Precision"), NewVATBaseAmount);
-                                "Amount Including VAT (ACY)" := Round(NewAmountIncludingVATACY, AddCurrency."Amount Rounding Precision");
-                                "VAT Base (ACY)" := NewVATBaseAmountACY;
-                                "Amount (ACY)" := NewAmountACY;
-                                NonDeductibleVAT.SetNonDedVATAmountInPurchLine(PurchLine, NonDedVATAmount);
-                                OnUpdateVATOnLinesOnAfterUpdateBaseAmounts(PurchHeader, PurchLine, TempVATAmountLineRemainder, VATAmountLine, Currency);
+                            if LineAmountToInvoice = 0 then begin
+                                PurchLine."VAT Difference" := 0;
+                                PurchLine."VAT Difference (ACY)" := 0;
+                                NonDedVATAmount := 0;
+                                NonDeductibleVAT.InitNonDeductibleVATDiff(Rec);
+                            end else begin
+                                PurchLine."VAT Difference" := Round(VATDifference, Currency."Amount Rounding Precision");
+                                PurchLine."VAT Difference (ACY)" := Round(VATDifferenceACY, Currency."Amount Rounding Precision");
+                                NonDedVATAmount :=
+                                    NonDeductibleVAT.GetNonDedVATAmountFromVATAmountLine(
+                                        TempVATAmountLineRemainder, VATAmountLine, Currency, LineAmountToInvoice - InvDiscAmount, VATAmountLine.CalcLineAmount());
+                                NonDeductibleVAT.SetNonDedVATAmountDiffInPurchLine(
+                                    PurchLine, TempVATAmountLineRemainder, NonDedVATDifference, VATAmountLine, Currency,
+                                    LineAmountToInvoice - InvDiscAmount, VATAmountLine.CalcLineAmount());
                             end;
-                            OnUpdateVATOnLinesOnBeforeInitOutstanding(Rec, QtyType);
-                            InitOutstanding();
-                            if not ((Type = Type::"Charge (Item)") and ("Quantity Invoiced" <> "Qty. Assigned")) then begin
-                                SetUpdateFromVAT(true);
-                                UpdateUnitCost();
-                            end;
-                            if Type = Type::"Charge (Item)" then
-                                UpdateItemChargeAssgnt();
-                            Modify();
-                            LineWasModified := true;
-
-                            if ("Deferral Code" <> '') and (DeferralAmount <> GetDeferralAmount()) then
-                                UpdateDeferralAmounts();
-
-                            TempVATAmountLineRemainder."Amount Including VAT" :=
-                              NewAmountIncludingVAT - Round(NewAmountIncludingVAT, Currency."Amount Rounding Precision");
-                            TempVATAmountLineRemainder."VAT Amount" := VATAmount - NewAmountIncludingVAT + NewAmount;
-                            TempVATAmountLineRemainder."VAT Difference" := VATDifference - "VAT Difference";
-                            TempVATAmountLineRemainder."Amount Including VAT (ACY)" :=
-                              NewAmountIncludingVATACY - Round(NewAmountIncludingVATACY, AddCurrency."Amount Rounding Precision");
-                            TempVATAmountLineRemainder."VAT Amount (ACY)" := VATAmountACY - NewAmountIncludingVATACY + NewAmountACY;
-                            TempVATAmountLineRemainder."VAT Difference (ACY)" := VATDifferenceACY - "VAT Difference (ACY)";
-                            OnUpdateVATOnLinesOnBeforeTempVATAmountLineRemainderModify(Rec, TempVATAmountLineRemainder, VATAmount, NewVATBaseAmount, PurchLine);
-                            TempVATAmountLineRemainder.Modify();
+                            OnUpdateVATOnLinesOnAfterCalculateVATDifference(
+                                Rec, PurchHeader, VATAmountLine, TempVATAmountLineRemainder, QtyType, PurchLine, LineAmountToInvoice, InvDiscAmount);
                         end;
+                        OnUpdateVATOnLinesOnAfterCalculateAmounts(PurchLine, PurchHeader);
+
+                        if QtyType = QtyType::General then begin
+                            if not PurchLine."Prepayment Line" then
+                                PurchLine.UpdatePrepmtAmounts();
+                            PurchLine.UpdateBaseAmounts(NewAmount, Round(NewAmountIncludingVAT, Currency."Amount Rounding Precision"), NewVATBaseAmount);
+                            PurchLine."Amount Including VAT (ACY)" := Round(NewAmountIncludingVATACY, AddCurrency."Amount Rounding Precision");
+                            PurchLine."VAT Base (ACY)" := NewVATBaseAmountACY;
+                            PurchLine."Amount (ACY)" := NewAmountACY;
+                            NonDeductibleVAT.SetNonDedVATAmountInPurchLine(PurchLine, NonDedVATAmount);
+                            OnUpdateVATOnLinesOnAfterUpdateBaseAmounts(PurchHeader, PurchLine, TempVATAmountLineRemainder, VATAmountLine, Currency);
+                        end;
+                        OnUpdateVATOnLinesOnBeforeInitOutstanding(Rec, QtyType);
+                        PurchLine.InitOutstanding();
+                        if not ((PurchLine.Type = PurchLine.Type::"Charge (Item)") and (PurchLine."Quantity Invoiced" <> PurchLine."Qty. Assigned")) then begin
+                            PurchLine.SetUpdateFromVAT(true);
+                            PurchLine.UpdateUnitCost();
+                        end;
+                        if PurchLine.Type = PurchLine.Type::"Charge (Item)" then
+                            PurchLine.UpdateItemChargeAssgnt();
+                        PurchLine.Modify();
+                        LineWasModified := true;
+
+                        if (PurchLine."Deferral Code" <> '') and (DeferralAmount <> PurchLine.GetDeferralAmount()) then
+                            PurchLine.UpdateDeferralAmounts();
+
+                        TempVATAmountLineRemainder."Amount Including VAT" :=
+                          NewAmountIncludingVAT - Round(NewAmountIncludingVAT, Currency."Amount Rounding Precision");
+                        TempVATAmountLineRemainder."VAT Amount" := VATAmount - NewAmountIncludingVAT + NewAmount;
+                        TempVATAmountLineRemainder."VAT Difference" := VATDifference - PurchLine."VAT Difference";
+                        TempVATAmountLineRemainder."Amount Including VAT (ACY)" :=
+                          NewAmountIncludingVATACY - Round(NewAmountIncludingVATACY, AddCurrency."Amount Rounding Precision");
+                        TempVATAmountLineRemainder."VAT Amount (ACY)" := VATAmountACY - NewAmountIncludingVATACY + NewAmountACY;
+                        TempVATAmountLineRemainder."VAT Difference (ACY)" := VATDifferenceACY - PurchLine."VAT Difference (ACY)";
+                        OnUpdateVATOnLinesOnBeforeTempVATAmountLineRemainderModify(Rec, TempVATAmountLineRemainder, VATAmount, NewVATBaseAmount, PurchLine);
+                        TempVATAmountLineRemainder.Modify();
                     end;
-                until Next() = 0;
-            PurchLine.SetLoadFields();
-        end;
+                end;
+            until PurchLine.Next() = 0;
+        PurchLine.SetLoadFields();
 
         OnAfterUpdateVATOnLines(PurchHeader, PurchLine, VATAmountLine, QtyType);
     end;
@@ -6885,312 +6874,309 @@ table 39 "Purchase Line"
 
         VATAmountLine.DeleteAll();
 
-        with PurchLine do begin
-            SetRange("Document Type", PurchHeader."Document Type");
-            SetRange("Document No.", PurchHeader."No.");
-            SetLoadFieldsForInvDiscoundCalculation(PurchLine);
-            OnCalcVATAmountLinesOnAfterSetFilters(PurchLine, PurchHeader);
-            if FindSet() then
-                repeat
-                    if not ZeroAmountLine(QtyType) then begin
-                        OnCalcVATAmountLinesOnBeforeProcessPurchLine(PurchLine, PurchHeader, VATAmountLine, QtyType);
-                        if (Type = Type::"G/L Account") and not "Prepayment Line" then
-                            RoundingLineInserted := (("No." = GetVPGInvRoundAcc(PurchHeader)) and "System-Created Entry") or RoundingLineInserted;
-                        if "VAT Calculation Type" in
-                           ["VAT Calculation Type"::"Reverse Charge VAT", "VAT Calculation Type"::"Sales Tax"]
-                        then
-                            "VAT %" := 0;
-                        FullGST :=
-                          ("Prepayment Line" or ("Prepmt. Line Amount" <> 0)) and
-                          GLSetup.CheckFullGSTonPrepayment("VAT Bus. Posting Group", "VAT Prod. Posting Group");
-                        if not VATAmountLine.Get(
-                             "VAT Identifier", "VAT Calculation Type", "Tax Group Code", "Use Tax", "Line Amount" >= 0, FullGST)
-                        then begin
-                            VATAmountLine.InsertNewLine(
-                              "VAT Identifier", "VAT Calculation Type", "Tax Group Code", "Use Tax", "VAT %", "Line Amount" >= 0, false, FullGST, "Non-Deductible VAT %");
-                            OnCalcVATAmountLinesAfterVATAmountLineInsertNewLine(PurchLine, VATAmountLine);
-                        end;
-                        case QtyType of
-                            QtyType::General:
-                                begin
-                                    VATAmountLine.Quantity += "Quantity (Base)";
-                                    NonDeductibleVAT.AddNonDedAmountsOfPurchLineToVATAmountLine(VATAmountLine, TempVATAmountLineRemainder, PurchLine, Currency, 1, 1);
-                                    OnCalcVATAmountLinesOnBeforeVATAmountLineSumLine(Rec, VATAmountLine, QtyType, PurchLine);
-                                    VATAmountLine.SumLine(
-                                      "Line Amount", "Inv. Discount Amount", "VAT Difference", "Allow Invoice Disc.", "Prepayment Line");
-                                    if PurchHeader."Currency Code" = GLSetup."Additional Reporting Currency" then
-                                        VATAmountLine."Amount (ACY)" := Amount
-                                    else
-                                        VATAmountLine."Amount (ACY)" := VATAmountLine."Amount (ACY)" +
-                                          Round(
-                                            CurrExchRate.ExchangeAmtLCYToFCY(
-                                              UseDate, GLSetup."Additional Reporting Currency",
-                                              Round(CurrExchRate.ExchangeAmtFCYToLCY(
-                                                UseDate, PurchHeader."Currency Code", Amount,
-                                                PurchHeader."Currency Factor"), Currency."Amount Rounding Precision"), CurrencyFactor),
-                                            AddCurrency."Amount Rounding Precision");
-                                    VATAmountLine."VAT Base (ACY)" := VATAmountLine."Amount (ACY)";
-                                    VATAmountLine."VAT Difference (ACY)" += "VAT Difference (ACY)";
-                                    VATAmountLine.Modify();
-                                end;
-                            QtyType::Invoicing:
-                                begin
-                                    IsHandled := false;
-                                    OnCalcVATAmountLinesOnBeforeAssignQuantities(PurchHeader, PurchLine, VATAmountLine, QtyToHandle, IsHandled);
-                                    if not IsHandled then
-                                        case true of
-                                            ("Document Type" in ["Document Type"::Order, "Document Type"::Invoice]) and
-                                        (not PurchHeader.Receive) and PurchHeader.Invoice and (not "Prepayment Line"):
-                                                if "Receipt No." = '' then begin
-                                                    QtyToHandle := GetAbsMin("Qty. to Invoice", "Qty. Rcd. Not Invoiced");
-                                                    VATAmountLine.Quantity += GetAbsMin("Qty. to Invoice (Base)", "Qty. Rcd. Not Invoiced (Base)");
-                                                end else begin
-                                                    QtyToHandle := "Qty. to Invoice";
-                                                    VATAmountLine.Quantity += "Qty. to Invoice (Base)";
-                                                end;
-                                            IsCreditDocType() and (not PurchHeader.Ship) and PurchHeader.Invoice:
-                                                if "Return Shipment No." = '' then begin
-                                                    QtyToHandle := GetAbsMin("Qty. to Invoice", "Return Qty. Shipped Not Invd.");
-                                                    VATAmountLine.Quantity += GetAbsMin("Qty. to Invoice (Base)", "Ret. Qty. Shpd Not Invd.(Base)");
-                                                end else begin
-                                                    QtyToHandle := "Qty. to Invoice";
-                                                    VATAmountLine.Quantity += "Qty. to Invoice (Base)";
-                                                end;
-                                            else begin
-                                                QtyToHandle := "Qty. to Invoice";
-                                                VATAmountLine.Quantity += "Qty. to Invoice (Base)";
-                                            end;
-                                        end;
-                                    OnCalcVATAmountLinesOnQtyTypeInvoicingOnBeforeCalcAmtToHandle(PurchLine, PurchHeader, QtyToHandle, VATAmountLine);
-                                    AmtToHandle := GetLineAmountToHandleInclPrepmt(QtyToHandle);
-                                    NonDeductibleVAT.AddNonDedAmountsOfPurchLineToVATAmountLine(VATAmountLine, TempVATAmountLineRemainder, PurchLine, Currency, QtyToHandle, Quantity);
-                                    OnCalcVATAmountLinesOnBeforeVATAmountLineSumLine(Rec, VATAmountLine, QtyType, PurchLine);
-                                    if PurchHeader."Invoice Discount Calculation" <> PurchHeader."Invoice Discount Calculation"::Amount then
-                                        VATAmountLine.SumLine(
-                                          AmtToHandle, Round("Inv. Discount Amount" * QtyToHandle / Quantity, Currency."Amount Rounding Precision"),
-                                          "VAT Difference", "Allow Invoice Disc.", "Prepayment Line")
-                                    else
-                                        VATAmountLine.SumLine(
-                                          AmtToHandle, "Inv. Disc. Amount to Invoice", "VAT Difference", "Allow Invoice Disc.", "Prepayment Line");
-                                    if PurchHeader."Currency Code" = GLSetup."Additional Reporting Currency" then
-                                        VATAmountLine."Amount (ACY)" := Amount
-                                    else
-                                        VATAmountLine."Amount (ACY)" := VATAmountLine."Amount (ACY)" +
-                                          Round(
-                                            CurrExchRate.ExchangeAmtLCYToFCY(
-                                              UseDate, GLSetup."Additional Reporting Currency",
-                                              Round(CurrExchRate.ExchangeAmtFCYToLCY(
-                                                  UseDate, PurchHeader."Currency Code", Round(Amount * QtyToHandle / Quantity,
-                                                    Currency."Amount Rounding Precision"),
-                                                  PurchHeader."Currency Factor"), Currency."Amount Rounding Precision"), CurrencyFactor),
-                                            AddCurrency."Amount Rounding Precision");
-                                    VATAmountLine."VAT Base (ACY)" := VATAmountLine."Amount (ACY)";
-                                    VATAmountLine."VAT Difference (ACY)" += "VAT Difference (ACY)";
-                                    VATAmountLine.Modify();
-                                end;
-                            QtyType::Shipping:
-                                begin
-                                    if IsCreditDocType() then begin
-                                        QtyToHandle := "Return Qty. to Ship";
-                                        VATAmountLine.Quantity += "Return Qty. to Ship (Base)";
-                                    end else begin
-                                        QtyToHandle := "Qty. to Receive";
-                                        VATAmountLine.Quantity += "Qty. to Receive (Base)";
-                                    end;
-                                    AmtToHandle := GetLineAmountToHandleInclPrepmt(QtyToHandle);
-                                    OnCalcVATAmountLinesOnBeforeVATAmountLineSumLine(Rec, VATAmountLine, QtyType, PurchLine);
-                                    VATAmountLine.SumLine(
-                                      AmtToHandle, Round("Inv. Discount Amount" * QtyToHandle / Quantity, Currency."Amount Rounding Precision"),
-                                      "VAT Difference", "Allow Invoice Disc.", "Prepayment Line");
-                                    if PurchHeader."Currency Code" = GLSetup."Additional Reporting Currency" then
-                                        VATAmountLine."Amount (ACY)" := Amount
-                                    else
-                                        VATAmountLine."Amount (ACY)" := VATAmountLine."Amount (ACY)" +
-                                          Round(
-                                            CurrExchRate.ExchangeAmtLCYToFCY(
-                                              UseDate, GLSetup."Additional Reporting Currency",
-                                              Round(
-                                                CurrExchRate.ExchangeAmtFCYToLCY(
-                                                  UseDate, PurchHeader."Currency Code",
-                                                  Round(Amount * QtyToHandle / Quantity, Currency."Amount Rounding Precision"),
-                                                  PurchHeader."Currency Factor"),
-                                                Currency."Amount Rounding Precision"),
-                                              CurrencyFactor),
-                                            AddCurrency."Amount Rounding Precision");
-                                    VATAmountLine."VAT Base (ACY)" := VATAmountLine."Amount (ACY)";
-                                    VATAmountLine."VAT Difference (ACY)" += "VAT Difference (ACY)";
-                                    VATAmountLine.Modify();
-                                end;
-                        end;
-                        TotalVATAmount += "Amount Including VAT" - Amount;
-                        TotalVATAmountACY += "Amount Including VAT (ACY)" - "Amount (ACY)";
-                        OnCalcVATAmountLinesOnAfterCalcLineTotals(VATAmountLine, PurchHeader, PurchLine, Currency, QtyType, TotalVATAmount);
+        PurchLine.SetRange("Document Type", PurchHeader."Document Type");
+        PurchLine.SetRange("Document No.", PurchHeader."No.");
+        SetLoadFieldsForInvDiscoundCalculation(PurchLine);
+        OnCalcVATAmountLinesOnAfterSetFilters(PurchLine, PurchHeader);
+        if PurchLine.FindSet() then
+            repeat
+                if not PurchLine.ZeroAmountLine(QtyType) then begin
+                    OnCalcVATAmountLinesOnBeforeProcessPurchLine(PurchLine, PurchHeader, VATAmountLine, QtyType);
+                    if (PurchLine.Type = PurchLine.Type::"G/L Account") and not PurchLine."Prepayment Line" then
+                        RoundingLineInserted := ((PurchLine."No." = PurchLine.GetVPGInvRoundAcc(PurchHeader)) and PurchLine."System-Created Entry") or RoundingLineInserted;
+                    if PurchLine."VAT Calculation Type" in
+                       [PurchLine."VAT Calculation Type"::"Reverse Charge VAT", PurchLine."VAT Calculation Type"::"Sales Tax"]
+                    then
+                        PurchLine."VAT %" := 0;
+                    FullGST :=
+                      (PurchLine."Prepayment Line" or (PurchLine."Prepmt. Line Amount" <> 0)) and
+                      GLSetup.CheckFullGSTonPrepayment(PurchLine."VAT Bus. Posting Group", PurchLine."VAT Prod. Posting Group");
+                    if not VATAmountLine.Get(
+                         PurchLine."VAT Identifier", PurchLine."VAT Calculation Type", PurchLine."Tax Group Code", PurchLine."Use Tax", PurchLine."Line Amount" >= 0, FullGST)
+                    then begin
+                        VATAmountLine.InsertNewLine(
+                          PurchLine."VAT Identifier", PurchLine."VAT Calculation Type", PurchLine."Tax Group Code", PurchLine."Use Tax", PurchLine."VAT %", PurchLine."Line Amount" >= 0, false, FullGST, PurchLine."Non-Deductible VAT %");
+                        OnCalcVATAmountLinesAfterVATAmountLineInsertNewLine(PurchLine, VATAmountLine);
                     end;
-                until Next() = 0;
-            PurchLine.SetLoadFields();
-        end;
+                    case QtyType of
+                        QtyType::General:
+                            begin
+                                VATAmountLine.Quantity += PurchLine."Quantity (Base)";
+                                NonDeductibleVAT.AddNonDedAmountsOfPurchLineToVATAmountLine(VATAmountLine, TempVATAmountLineRemainder, PurchLine, Currency, 1, 1);
+                                OnCalcVATAmountLinesOnBeforeVATAmountLineSumLine(Rec, VATAmountLine, QtyType, PurchLine);
+                                VATAmountLine.SumLine(
+                                  PurchLine."Line Amount", PurchLine."Inv. Discount Amount", PurchLine."VAT Difference", PurchLine."Allow Invoice Disc.", PurchLine."Prepayment Line");
+                                if PurchHeader."Currency Code" = GLSetup."Additional Reporting Currency" then
+                                    VATAmountLine."Amount (ACY)" := PurchLine.Amount
+                                else
+                                    VATAmountLine."Amount (ACY)" := VATAmountLine."Amount (ACY)" +
+                                      Round(
+                                        CurrExchRate.ExchangeAmtLCYToFCY(
+                                          UseDate, GLSetup."Additional Reporting Currency",
+                                          Round(CurrExchRate.ExchangeAmtFCYToLCY(
+                                            UseDate, PurchHeader."Currency Code", PurchLine.Amount,
+                                            PurchHeader."Currency Factor"), Currency."Amount Rounding Precision"), CurrencyFactor),
+                                        AddCurrency."Amount Rounding Precision");
+                                VATAmountLine."VAT Base (ACY)" := VATAmountLine."Amount (ACY)";
+                                VATAmountLine."VAT Difference (ACY)" += PurchLine."VAT Difference (ACY)";
+                                VATAmountLine.Modify();
+                            end;
+                        QtyType::Invoicing:
+                            begin
+                                IsHandled := false;
+                                OnCalcVATAmountLinesOnBeforeAssignQuantities(PurchHeader, PurchLine, VATAmountLine, QtyToHandle, IsHandled);
+                                if not IsHandled then
+                                    case true of
+                                        (PurchLine."Document Type" in [PurchLine."Document Type"::Order, PurchLine."Document Type"::Invoice]) and
+                                    (not PurchHeader.Receive) and PurchHeader.Invoice and (not PurchLine."Prepayment Line"):
+                                            if PurchLine."Receipt No." = '' then begin
+                                                QtyToHandle := PurchLine.GetAbsMin(PurchLine."Qty. to Invoice", PurchLine."Qty. Rcd. Not Invoiced");
+                                                VATAmountLine.Quantity += PurchLine.GetAbsMin(PurchLine."Qty. to Invoice (Base)", PurchLine."Qty. Rcd. Not Invoiced (Base)");
+                                            end else begin
+                                                QtyToHandle := PurchLine."Qty. to Invoice";
+                                                VATAmountLine.Quantity += PurchLine."Qty. to Invoice (Base)";
+                                            end;
+                                        PurchLine.IsCreditDocType() and (not PurchHeader.Ship) and PurchHeader.Invoice:
+                                            if PurchLine."Return Shipment No." = '' then begin
+                                                QtyToHandle := PurchLine.GetAbsMin(PurchLine."Qty. to Invoice", PurchLine."Return Qty. Shipped Not Invd.");
+                                                VATAmountLine.Quantity += PurchLine.GetAbsMin(PurchLine."Qty. to Invoice (Base)", PurchLine."Ret. Qty. Shpd Not Invd.(Base)");
+                                            end else begin
+                                                QtyToHandle := PurchLine."Qty. to Invoice";
+                                                VATAmountLine.Quantity += PurchLine."Qty. to Invoice (Base)";
+                                            end;
+                                        else begin
+                                            QtyToHandle := PurchLine."Qty. to Invoice";
+                                            VATAmountLine.Quantity += PurchLine."Qty. to Invoice (Base)";
+                                        end;
+                                    end;
+                                OnCalcVATAmountLinesOnQtyTypeInvoicingOnBeforeCalcAmtToHandle(PurchLine, PurchHeader, QtyToHandle, VATAmountLine);
+                                AmtToHandle := PurchLine.GetLineAmountToHandleInclPrepmt(QtyToHandle);
+                                NonDeductibleVAT.AddNonDedAmountsOfPurchLineToVATAmountLine(VATAmountLine, TempVATAmountLineRemainder, PurchLine, Currency, QtyToHandle, PurchLine.Quantity);
+                                OnCalcVATAmountLinesOnBeforeVATAmountLineSumLine(Rec, VATAmountLine, QtyType, PurchLine);
+                                if PurchHeader."Invoice Discount Calculation" <> PurchHeader."Invoice Discount Calculation"::Amount then
+                                    VATAmountLine.SumLine(
+                                      AmtToHandle, Round(PurchLine."Inv. Discount Amount" * QtyToHandle / PurchLine.Quantity, Currency."Amount Rounding Precision"),
+                                      PurchLine."VAT Difference", PurchLine."Allow Invoice Disc.", PurchLine."Prepayment Line")
+                                else
+                                    VATAmountLine.SumLine(
+                                      AmtToHandle, PurchLine."Inv. Disc. Amount to Invoice", PurchLine."VAT Difference", PurchLine."Allow Invoice Disc.", PurchLine."Prepayment Line");
+                                if PurchHeader."Currency Code" = GLSetup."Additional Reporting Currency" then
+                                    VATAmountLine."Amount (ACY)" := PurchLine.Amount
+                                else
+                                    VATAmountLine."Amount (ACY)" := VATAmountLine."Amount (ACY)" +
+                                      Round(
+                                        CurrExchRate.ExchangeAmtLCYToFCY(
+                                          UseDate, GLSetup."Additional Reporting Currency",
+                                          Round(CurrExchRate.ExchangeAmtFCYToLCY(
+                                              UseDate, PurchHeader."Currency Code", Round(PurchLine.Amount * QtyToHandle / PurchLine.Quantity,
+                                                Currency."Amount Rounding Precision"),
+                                              PurchHeader."Currency Factor"), Currency."Amount Rounding Precision"), CurrencyFactor),
+                                        AddCurrency."Amount Rounding Precision");
+                                VATAmountLine."VAT Base (ACY)" := VATAmountLine."Amount (ACY)";
+                                VATAmountLine."VAT Difference (ACY)" += PurchLine."VAT Difference (ACY)";
+                                VATAmountLine.Modify();
+                            end;
+                        QtyType::Shipping:
+                            begin
+                                if PurchLine.IsCreditDocType() then begin
+                                    QtyToHandle := PurchLine."Return Qty. to Ship";
+                                    VATAmountLine.Quantity += PurchLine."Return Qty. to Ship (Base)";
+                                end else begin
+                                    QtyToHandle := PurchLine."Qty. to Receive";
+                                    VATAmountLine.Quantity += PurchLine."Qty. to Receive (Base)";
+                                end;
+                                AmtToHandle := PurchLine.GetLineAmountToHandleInclPrepmt(QtyToHandle);
+                                OnCalcVATAmountLinesOnBeforeVATAmountLineSumLine(Rec, VATAmountLine, QtyType, PurchLine);
+                                VATAmountLine.SumLine(
+                                  AmtToHandle, Round(PurchLine."Inv. Discount Amount" * QtyToHandle / PurchLine.Quantity, Currency."Amount Rounding Precision"),
+                                  PurchLine."VAT Difference", PurchLine."Allow Invoice Disc.", PurchLine."Prepayment Line");
+                                if PurchHeader."Currency Code" = GLSetup."Additional Reporting Currency" then
+                                    VATAmountLine."Amount (ACY)" := PurchLine.Amount
+                                else
+                                    VATAmountLine."Amount (ACY)" := VATAmountLine."Amount (ACY)" +
+                                      Round(
+                                        CurrExchRate.ExchangeAmtLCYToFCY(
+                                          UseDate, GLSetup."Additional Reporting Currency",
+                                          Round(
+                                            CurrExchRate.ExchangeAmtFCYToLCY(
+                                              UseDate, PurchHeader."Currency Code",
+                                              Round(PurchLine.Amount * QtyToHandle / PurchLine.Quantity, Currency."Amount Rounding Precision"),
+                                              PurchHeader."Currency Factor"),
+                                            Currency."Amount Rounding Precision"),
+                                          CurrencyFactor),
+                                        AddCurrency."Amount Rounding Precision");
+                                VATAmountLine."VAT Base (ACY)" := VATAmountLine."Amount (ACY)";
+                                VATAmountLine."VAT Difference (ACY)" += PurchLine."VAT Difference (ACY)";
+                                VATAmountLine.Modify();
+                            end;
+                    end;
+                    TotalVATAmount += PurchLine."Amount Including VAT" - PurchLine.Amount;
+                    TotalVATAmountACY += PurchLine."Amount Including VAT (ACY)" - PurchLine."Amount (ACY)";
+                    OnCalcVATAmountLinesOnAfterCalcLineTotals(VATAmountLine, PurchHeader, PurchLine, Currency, QtyType, TotalVATAmount);
+                end;
+            until PurchLine.Next() = 0;
+        PurchLine.SetLoadFields();
 
         OnCalcVATAmountLinesOnBeforeVATAmountLineUpdateLines(PurchLine, VATAmountLine, TotalVATAmount);
 
-        with VATAmountLine do
-            if FindSet() then
-                repeat
-                    if (PrevVatAmountLine."VAT Identifier" <> "VAT Identifier") or
-                       (PrevVatAmountLine."VAT Calculation Type" <> "VAT Calculation Type") or
-                       (PrevVatAmountLine."Tax Group Code" <> "Tax Group Code") or
-                       (PrevVatAmountLine."Use Tax" <> "Use Tax")
-                    then
-                        PrevVatAmountLine.Init();
-                    if PurchHeader."Prices Including VAT" then begin
-                        case "VAT Calculation Type" of
-                            "VAT Calculation Type"::"Normal VAT",
-                            "VAT Calculation Type"::"Reverse Charge VAT":
-                                begin
-                                    if "Full GST on Prepayment" and "Includes Prepayment" then begin
-                                        "VAT Amount" := "VAT Difference" +
-                                          Round(
-                                            PrevVatAmountLine."VAT Amount" +
-                                            "VAT Base" * "VAT %" / 100 * (1 - PurchHeader."VAT Base Discount %" / 100),
-                                            Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
-                                        "Amount Including VAT" := "Line Amount";
-                                    end else begin
-                                        "VAT Base" :=
-                                          Round(
-                                            ("Line Amount" - "Invoice Discount Amount") / (1 + "VAT %" / 100),
-                                            Currency."Amount Rounding Precision") - "VAT Difference";
-                                        "VAT Amount" :=
-                                          "VAT Difference" +
-                                          Round(
-                                            PrevVatAmountLine."VAT Amount" +
-                                            ("Line Amount" - "Invoice Discount Amount" - "VAT Base" - "VAT Difference") *
-                                            (1 - PurchHeader."VAT Base Discount %" / 100),
-                                            Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
-                                        "Amount Including VAT" := "VAT Base" + "VAT Amount";
-                                    end;
-                                    if Positive then
-                                        PrevVatAmountLine.Init
-                                    else begin
+        if VATAmountLine.FindSet() then
+            repeat
+                if (PrevVatAmountLine."VAT Identifier" <> VATAmountLine."VAT Identifier") or
+                   (PrevVatAmountLine."VAT Calculation Type" <> VATAmountLine."VAT Calculation Type") or
+                   (PrevVatAmountLine."Tax Group Code" <> VATAmountLine."Tax Group Code") or
+                   (PrevVatAmountLine."Use Tax" <> VATAmountLine."Use Tax")
+                then
+                    PrevVatAmountLine.Init();
+                if PurchHeader."Prices Including VAT" then begin
+                    case VATAmountLine."VAT Calculation Type" of
+                        VATAmountLine."VAT Calculation Type"::"Normal VAT",
+                        VATAmountLine."VAT Calculation Type"::"Reverse Charge VAT":
+                            begin
+                                if VATAmountLine."Full GST on Prepayment" and VATAmountLine."Includes Prepayment" then begin
+                                    VATAmountLine."VAT Amount" := VATAmountLine."VAT Difference" +
+                                      Round(
+                                        PrevVatAmountLine."VAT Amount" +
+                                        VATAmountLine."VAT Base" * VATAmountLine."VAT %" / 100 * (1 - PurchHeader."VAT Base Discount %" / 100),
+                                        Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
+                                    VATAmountLine."Amount Including VAT" := VATAmountLine."Line Amount";
+                                end else begin
+                                    VATAmountLine."VAT Base" :=
+                                      Round(
+                                        (VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount") / (1 + VATAmountLine."VAT %" / 100),
+                                        Currency."Amount Rounding Precision") - VATAmountLine."VAT Difference";
+                                    VATAmountLine."VAT Amount" :=
+                                      VATAmountLine."VAT Difference" +
+                                      Round(
+                                        PrevVatAmountLine."VAT Amount" +
+                                        (VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount" - VATAmountLine."VAT Base" - VATAmountLine."VAT Difference") *
+                                        (1 - PurchHeader."VAT Base Discount %" / 100),
+                                        Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
+                                    VATAmountLine."Amount Including VAT" := VATAmountLine."VAT Base" + VATAmountLine."VAT Amount";
+                                end;
+                                if VATAmountLine.Positive then
+                                    PrevVatAmountLine.Init()
+                                else begin
+                                    PrevVatAmountLine := VATAmountLine;
+                                    PrevVatAmountLine."VAT Amount" :=
+                                      (VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount" - VATAmountLine."VAT Base" - VATAmountLine."VAT Difference") *
+                                      (1 - PurchHeader."VAT Base Discount %" / 100);
+                                    PrevVatAmountLine."VAT Amount" :=
+                                      PrevVatAmountLine."VAT Amount" -
+                                      Round(PrevVatAmountLine."VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
+                                    PrevVatAmountLine."VAT Amount (ACY)" :=
+                                      PrevVatAmountLine."VAT Amount (ACY)" -
+                                      Round(PrevVatAmountLine."VAT Amount (ACY)", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
+                                    if VATAmountLine."Full GST on Prepayment" then
+                                        CalcFullGSTValues(VATAmountLine, PurchLine, PurchHeader."Prices Including VAT");
+                                end;
+                            end;
+                        VATAmountLine."VAT Calculation Type"::"Full VAT":
+                            begin
+                                VATAmountLine."VAT Base" := 0;
+                                VATAmountLine."VAT Amount" := VATAmountLine."VAT Difference" + VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount";
+                                VATAmountLine."Amount Including VAT" := VATAmountLine."VAT Amount";
+                            end;
+                        VATAmountLine."VAT Calculation Type"::"Sales Tax":
+                            begin
+                                VATAmountLine."Amount Including VAT" := VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount";
+                                if VATAmountLine."Use Tax" then
+                                    VATAmountLine."VAT Base" := VATAmountLine."Amount Including VAT"
+                                else
+                                    VATAmountLine."VAT Base" :=
+                                      Round(
+                                        SalesTaxCalculate.ReverseCalculateTax(
+                                          PurchHeader."Tax Area Code", VATAmountLine."Tax Group Code", PurchHeader."Tax Liable",
+                                          PurchHeader."Posting Date", VATAmountLine."Amount Including VAT", VATAmountLine.Quantity, PurchHeader."Currency Factor"),
+                                        Currency."Amount Rounding Precision");
+                                VATAmountLine."VAT Amount" := VATAmountLine."VAT Difference" + VATAmountLine."Amount Including VAT" - VATAmountLine."VAT Base";
+                                if VATAmountLine."VAT Base" = 0 then
+                                    VATAmountLine."VAT %" := 0
+                                else
+                                    VATAmountLine."VAT %" := Round(100 * VATAmountLine."VAT Amount" / VATAmountLine."VAT Base", 0.00001);
+                            end;
+                    end;
+                end else
+                    case VATAmountLine."VAT Calculation Type" of
+                        VATAmountLine."VAT Calculation Type"::"Normal VAT",
+                        VATAmountLine."VAT Calculation Type"::"Reverse Charge VAT":
+                            begin
+                                if not (VATAmountLine."Full GST on Prepayment" and VATAmountLine."Includes Prepayment") then
+                                    VATAmountLine."VAT Base" := VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount";
+                                VATAmountLine."VAT Amount" :=
+                                  VATAmountLine."VAT Difference" +
+                                  Round(
+                                    PrevVatAmountLine."VAT Amount" +
+                                    VATAmountLine."VAT Base" * VATAmountLine."VAT %" / 100 * (1 - PurchHeader."VAT Base Discount %" / 100),
+                                    Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
+                                VATAmountLine."VAT Base (ACY)" :=
+                                  Round(
+                                    VATAmountLine."Amount (ACY)" * (1 - PurchHeader."VAT Base Discount %" / 100),
+                                    Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
+                                VATAmountLine."VAT Amount (ACY)" :=
+                                  VATAmountLine."VAT Difference (ACY)" +
+                                  Round(
+                                    PrevVatAmountLine."VAT Amount (ACY)" +
+                                    VATAmountLine."VAT Base (ACY)" * VATAmountLine."VAT %" / 100 * (1 - PurchHeader."VAT Base Discount %" / 100),
+                                    Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
+                                VATAmountLine."Amount Including VAT" := VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount" + VATAmountLine."VAT Amount";
+                                VATAmountLine."Amount Including VAT (ACY)" := VATAmountLine."Amount (ACY)" + VATAmountLine."VAT Amount (ACY)";
+                                NonDeductibleVAT.UpdateNonDeductibleAmountsWithDiffInVATAmountLine(VATAmountLine, Currency);
+                                if VATAmountLine.Positive then
+                                    PrevVatAmountLine.Init()
+                                else begin
+                                    if not VATAmountLine."Includes Prepayment" then begin
                                         PrevVatAmountLine := VATAmountLine;
                                         PrevVatAmountLine."VAT Amount" :=
-                                          ("Line Amount" - "Invoice Discount Amount" - "VAT Base" - "VAT Difference") *
-                                          (1 - PurchHeader."VAT Base Discount %" / 100);
+                                          VATAmountLine."VAT Base" * VATAmountLine."VAT %" / 100 * (1 - PurchHeader."VAT Base Discount %" / 100);
                                         PrevVatAmountLine."VAT Amount" :=
                                           PrevVatAmountLine."VAT Amount" -
                                           Round(PrevVatAmountLine."VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
                                         PrevVatAmountLine."VAT Amount (ACY)" :=
-                                          PrevVatAmountLine."VAT Amount (ACY)" -
-                                          Round(PrevVatAmountLine."VAT Amount (ACY)", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
-                                        if "Full GST on Prepayment" then
-                                            CalcFullGSTValues(VATAmountLine, PurchLine, PurchHeader."Prices Including VAT");
-                                    end;
-                                end;
-                            "VAT Calculation Type"::"Full VAT":
-                                begin
-                                    "VAT Base" := 0;
-                                    "VAT Amount" := "VAT Difference" + "Line Amount" - "Invoice Discount Amount";
-                                    "Amount Including VAT" := "VAT Amount";
-                                end;
-                            "VAT Calculation Type"::"Sales Tax":
-                                begin
-                                    "Amount Including VAT" := "Line Amount" - "Invoice Discount Amount";
-                                    if "Use Tax" then
-                                        "VAT Base" := "Amount Including VAT"
-                                    else
-                                        "VAT Base" :=
                                           Round(
-                                            SalesTaxCalculate.ReverseCalculateTax(
-                                              PurchHeader."Tax Area Code", "Tax Group Code", PurchHeader."Tax Liable",
-                                              PurchHeader."Posting Date", "Amount Including VAT", Quantity, PurchHeader."Currency Factor"),
-                                            Currency."Amount Rounding Precision");
-                                    "VAT Amount" := "VAT Difference" + "Amount Including VAT" - "VAT Base";
-                                    if "VAT Base" = 0 then
-                                        "VAT %" := 0
-                                    else
-                                        "VAT %" := Round(100 * "VAT Amount" / "VAT Base", 0.00001);
-                                end;
-                        end;
-                    end else
-                        case "VAT Calculation Type" of
-                            "VAT Calculation Type"::"Normal VAT",
-                            "VAT Calculation Type"::"Reverse Charge VAT":
-                                begin
-                                    if not ("Full GST on Prepayment" and "Includes Prepayment") then
-                                        "VAT Base" := "Line Amount" - "Invoice Discount Amount";
-                                    "VAT Amount" :=
-                                      "VAT Difference" +
-                                      Round(
-                                        PrevVatAmountLine."VAT Amount" +
-                                        "VAT Base" * "VAT %" / 100 * (1 - PurchHeader."VAT Base Discount %" / 100),
-                                        Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
-                                    "VAT Base (ACY)" :=
-                                      Round(
-                                        "Amount (ACY)" * (1 - PurchHeader."VAT Base Discount %" / 100),
-                                        Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
-                                    "VAT Amount (ACY)" :=
-                                      "VAT Difference (ACY)" +
-                                      Round(
-                                        PrevVatAmountLine."VAT Amount (ACY)" +
-                                        "VAT Base (ACY)" * "VAT %" / 100 * (1 - PurchHeader."VAT Base Discount %" / 100),
-                                        Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
-                                    "Amount Including VAT" := "Line Amount" - "Invoice Discount Amount" + "VAT Amount";
-                                    "Amount Including VAT (ACY)" := "Amount (ACY)" + "VAT Amount (ACY)";
-                                    NonDeductibleVAT.UpdateNonDeductibleAmountsWithDiffInVATAmountLine(VATAmountLine, Currency);
-                                    if Positive then
-                                        PrevVatAmountLine.Init
-                                    else begin
-                                        if not "Includes Prepayment" then begin
-                                            PrevVatAmountLine := VATAmountLine;
-                                            PrevVatAmountLine."VAT Amount" :=
-                                              "VAT Base" * "VAT %" / 100 * (1 - PurchHeader."VAT Base Discount %" / 100);
-                                            PrevVatAmountLine."VAT Amount" :=
-                                              PrevVatAmountLine."VAT Amount" -
-                                              Round(PrevVatAmountLine."VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
-                                            PrevVatAmountLine."VAT Amount (ACY)" :=
-                                              Round(
-                                                CurrExchRate.ExchangeAmtLCYToFCY(
-                                                  UseDate, GLSetup."Additional Reporting Currency",
-                                                  Round(CurrExchRate.ExchangeAmtFCYToLCY(
-                                                      UseDate, PurchHeader."Currency Code", PrevVatAmountLine."VAT Amount",
-                                                      PurchHeader."Currency Factor"), Currency."Amount Rounding Precision"), CurrencyFactor),
-                                                AddCurrency."Amount Rounding Precision");
-                                        end;
-                                        if "Full GST on Prepayment" then
-                                            CalcFullGSTValues(VATAmountLine, PurchLine, PurchHeader."Prices Including VAT");
+                                            CurrExchRate.ExchangeAmtLCYToFCY(
+                                              UseDate, GLSetup."Additional Reporting Currency",
+                                              Round(CurrExchRate.ExchangeAmtFCYToLCY(
+                                                  UseDate, PurchHeader."Currency Code", PrevVatAmountLine."VAT Amount",
+                                                  PurchHeader."Currency Factor"), Currency."Amount Rounding Precision"), CurrencyFactor),
+                                            AddCurrency."Amount Rounding Precision");
                                     end;
+                                    if VATAmountLine."Full GST on Prepayment" then
+                                        CalcFullGSTValues(VATAmountLine, PurchLine, PurchHeader."Prices Including VAT");
                                 end;
-                            "VAT Calculation Type"::"Full VAT":
-                                begin
-                                    "VAT Base" := 0;
-                                    "VAT Amount" := "VAT Difference" + "Line Amount" - "Invoice Discount Amount";
-                                    "Amount Including VAT" := "VAT Amount";
-                                end;
-                            "VAT Calculation Type"::"Sales Tax":
-                                begin
-                                    "VAT Base" := "Line Amount" - "Invoice Discount Amount";
-                                    if "Use Tax" then
-                                        "VAT Amount" := 0
-                                    else
-                                        "VAT Amount" :=
-                                          SalesTaxCalculate.CalculateTax(
-                                            PurchHeader."Tax Area Code", "Tax Group Code", PurchHeader."Tax Liable",
-                                            PurchHeader."Posting Date", "VAT Base", Quantity, PurchHeader."Currency Factor");
-                                    if "VAT Base" = 0 then
-                                        "VAT %" := 0
-                                    else
-                                        "VAT %" := Round(100 * "VAT Amount" / "VAT Base", 0.00001);
-                                    "VAT Amount" :=
-                                      "VAT Difference" +
-                                      Round("VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
-                                    "Amount Including VAT" := "VAT Base" + "VAT Amount";
-                                end;
-                        end;
+                            end;
+                        VATAmountLine."VAT Calculation Type"::"Full VAT":
+                            begin
+                                VATAmountLine."VAT Base" := 0;
+                                VATAmountLine."VAT Amount" := VATAmountLine."VAT Difference" + VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount";
+                                VATAmountLine."Amount Including VAT" := VATAmountLine."VAT Amount";
+                            end;
+                        VATAmountLine."VAT Calculation Type"::"Sales Tax":
+                            begin
+                                VATAmountLine."VAT Base" := VATAmountLine."Line Amount" - VATAmountLine."Invoice Discount Amount";
+                                if VATAmountLine."Use Tax" then
+                                    VATAmountLine."VAT Amount" := 0
+                                else
+                                    VATAmountLine."VAT Amount" :=
+                                      SalesTaxCalculate.CalculateTax(
+                                        PurchHeader."Tax Area Code", VATAmountLine."Tax Group Code", PurchHeader."Tax Liable",
+                                        PurchHeader."Posting Date", VATAmountLine."VAT Base", VATAmountLine.Quantity, PurchHeader."Currency Factor");
+                                if VATAmountLine."VAT Base" = 0 then
+                                    VATAmountLine."VAT %" := 0
+                                else
+                                    VATAmountLine."VAT %" := Round(100 * VATAmountLine."VAT Amount" / VATAmountLine."VAT Base", 0.00001);
+                                VATAmountLine."VAT Amount" :=
+                                  VATAmountLine."VAT Difference" +
+                                  Round(VATAmountLine."VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
+                                VATAmountLine."Amount Including VAT" := VATAmountLine."VAT Base" + VATAmountLine."VAT Amount";
+                            end;
+                    end;
 
-                    if RoundingLineInserted then
-                        TotalVATAmount := TotalVATAmount - "VAT Amount";
-                    "Calculated VAT Amount" := "VAT Amount" - "VAT Difference";
-                    "Calculated VAT Amount (ACY)" := "VAT Amount (ACY)" - "VAT Difference (ACY)";
-                    Modify();
-                until Next() = 0;
+                if RoundingLineInserted then
+                    TotalVATAmount := TotalVATAmount - VATAmountLine."VAT Amount";
+                VATAmountLine."Calculated VAT Amount" := VATAmountLine."VAT Amount" - VATAmountLine."VAT Difference";
+                VATAmountLine."Calculated VAT Amount (ACY)" := VATAmountLine."VAT Amount (ACY)" - VATAmountLine."VAT Difference (ACY)";
+                VATAmountLine.Modify();
+            until VATAmountLine.Next() = 0;
 
         ShouldProcessRounding := RoundingLineInserted and (TotalVATAmount <> 0);
         OnCalcVATAmountLinesOnAfterCalcShouldProcessRounding(PurchLine, VATAmountLine, TotalVATAmount, Currency, ShouldProcessRounding);
@@ -7327,7 +7313,7 @@ table 39 "Purchase Line"
                     (Location2."Require Receive" or Location2."Require Put-away"))
                 then begin
                     if WhseValidateSourceLine.WhseLinesExist(
-                         Database::"Purchase Line", "Document Type", "Document No.", "Line No.", 0, Quantity)
+                         Database::"Purchase Line", "Document Type".AsInteger(), "Document No.", "Line No.", 0, Quantity)
                     then
                         ShowDialog := ShowDialog::Error
                     else
@@ -7349,7 +7335,7 @@ table 39 "Purchase Line"
                     (Location2."Require Shipment" or Location2."Require Pick"))
                 then begin
                     if WhseValidateSourceLine.WhseLinesExist(
-                         Database::"Purchase Line", "Document Type", "Document No.", "Line No.", 0, Quantity)
+                         Database::"Purchase Line", "Document Type".AsInteger(), "Document No.", "Line No.", 0, Quantity)
                     then
                         ShowDialog := ShowDialog::Error
                     else
@@ -7558,7 +7544,7 @@ table 39 "Purchase Line"
             then
                 exit(CopyStr(FoundNo, 1, MaxStrLen("No.")))
         end else
-            exit(FindRecordManagement.FindNoFromTypedValue(Type, "No.", not "System-Created Entry"));
+            exit(FindRecordManagement.FindNoFromTypedValue(Type.AsInteger(), "No.", not "System-Created Entry"));
 
         exit(SourceNo);
     end;
@@ -7727,7 +7713,7 @@ table 39 "Purchase Line"
     var
         JobTaskSet: Boolean;
     begin
-        JobTaskSet := ("Job No." <> '') AND ("Job Task No." <> '') AND (Type IN [Type::"G/L Account", Type::Item]);
+        JobTaskSet := ("Job No." <> '') and ("Job Task No." <> '') and (Type in [Type::"G/L Account", Type::Item]);
         OnBeforeJobTaskIsSet(Rec, JobTaskSet);
         exit(JobTaskSet);
     end;
@@ -8028,7 +8014,7 @@ table 39 "Purchase Line"
     begin
         TestField("Document No.");
         TestField("Line No.");
-        PurchCommentLine.ShowComments("Document Type", "Document No.", "Line No.");
+        PurchCommentLine.ShowComments("Document Type".AsInteger(), "Document No.", "Line No.");
     end;
 
     procedure SetDefaultQuantity()
@@ -8198,7 +8184,7 @@ table 39 "Purchase Line"
         SetFilter("Outstanding Qty. (Base)", '<>0');
         SetFilter("Unit of Measure Code", Item.GetFilter("Unit of Measure Filter"));
 
-        OnAfterFilterLinesWithItemToPlan(Rec, Item, DocumentType);
+        OnAfterFilterLinesWithItemToPlan(Rec, Item, DocumentType.AsInteger());
     end;
 
     procedure FindLinesWithItemToPlan(var Item: Record Item; DocumentType: Enum "Purchase Document Type"): Boolean
@@ -8440,7 +8426,7 @@ table 39 "Purchase Line"
                 BaseAmount := "Line Amount";
             PrepmtLineAmount :=
               Round(BaseAmount * "Prepayment %" / 100, Currency."Amount Rounding Precision") +
-              FullGSTAmount;
+              FullGSTAmount();
         end else
             PrepmtLineAmount := 0;
         exit(true);
@@ -8487,7 +8473,7 @@ table 39 "Purchase Line"
 
         PrepmtLineAmt := "Prepmt. Line Amount";
         if PurchHeader."Prices Including VAT" then begin
-            VATAmount := FullGSTAmount;
+            VATAmount := FullGSTAmount();
             if VATAmount > PrepmtLineAmt then
                 exit(0);
             PrepmtLineAmt := Round(PrepmtLineAmt - VATAmount, Currency."Amount Rounding Precision");
@@ -8507,51 +8493,49 @@ table 39 "Purchase Line"
     var
         RecPurchLine: Record "Purchase Line";
     begin
-        with VATAmountLine do begin
-            "VAT Base" := 0;
-            "VAT Amount" := 0;
-            "Inv. Discount Amount" := 0;
-            RecPurchLine.Reset();
-            RecPurchLine.SetFilter("Document No.", PurchLine."Document No.");
-            RecPurchLine.SetFilter(Type, '<>%1', PurchLine.Type::" ");
-            RecPurchLine.SetFilter("VAT Identifier", '%1', "VAT Identifier");
-            if RecPurchLine.FindSet() then begin
-                repeat
-                    if PriceIncludingVAT then begin
-                        VATBase :=
-                          Round(
-                            ((RecPurchLine."Line Amount" - RecPurchLine."Inv. Discount Amount") /
-                             (1 + RecPurchLine."Prepayment VAT %" / 100) - RecPurchLine."VAT Difference"), Currency."Amount Rounding Precision");
-                        VATAmt :=
-                          "VAT Difference" +
-                          (RecPurchLine."Line Amount" - RecPurchLine."Inv. Discount Amount" - VATBase - "VAT Difference") *
-                          (1 - PurchHeader."VAT Base Discount %" / 100);
-                        "VAT Base" := "VAT Base" + VATBase * (RecPurchLine."Qty. to Invoice" / RecPurchLine.Quantity);
-                        "VAT Amount" := "VAT Amount" + VATAmt * (RecPurchLine."Qty. to Invoice" / RecPurchLine.Quantity);
-                        "Invoice Discount Amount" := "Invoice Discount Amount" + ("Inv. Discount Amount" * RecPurchLine."Prepayment %" / 100);
-                    end else begin
-                        VATBase :=
-                          Round(
-                            (RecPurchLine."Line Amount" - RecPurchLine."Inv. Discount Amount") *
-                            (RecPurchLine."Qty. to Invoice" / RecPurchLine.Quantity),
-                            Currency."Amount Rounding Precision");
-                        "VAT Base" := "VAT Base" + VATBase;
-                        "VAT Amount" := "VAT Amount" + (VATBase * RecPurchLine."Prepayment VAT %" / 100);
-                        "Invoice Discount Amount" :=
-                          "Invoice Discount Amount" + RecPurchLine."Inv. Discount Amount" * RecPurchLine."Prepayment %" / 100;
-                    end;
-                until RecPurchLine.Next() = 0;
-                "VAT Base" := -1 * Round("VAT Base", Currency."Amount Rounding Precision");
-                "VAT Amount" := -1 * Round("VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
-                "Invoice Discount Amount" := -1 * Round("Invoice Discount Amount", Currency."Amount Rounding Precision");
-                if PriceIncludingVAT then
-                    "Amount Including VAT" := Round("Line Amount", Currency."Amount Rounding Precision")
-                else begin
-                    if not Positive then
-                        "Amount Including VAT" := "Line Amount" - PurchLine."Inv. Discount Amount" + "VAT Amount"
-                    else
-                        "Amount Including VAT" := "VAT Base" - PurchLine."Inv. Discount Amount" + "VAT Amount";
+        VATAmountLine."VAT Base" := 0;
+        VATAmountLine."VAT Amount" := 0;
+        "Inv. Discount Amount" := 0;
+        RecPurchLine.Reset();
+        RecPurchLine.SetFilter("Document No.", PurchLine."Document No.");
+        RecPurchLine.SetFilter(Type, '<>%1', PurchLine.Type::" ");
+        RecPurchLine.SetFilter("VAT Identifier", '%1', VATAmountLine."VAT Identifier");
+        if RecPurchLine.FindSet() then begin
+            repeat
+                if PriceIncludingVAT then begin
+                    VATBase :=
+                      Round(
+                        ((RecPurchLine."Line Amount" - RecPurchLine."Inv. Discount Amount") /
+                         (1 + RecPurchLine."Prepayment VAT %" / 100) - RecPurchLine."VAT Difference"), Currency."Amount Rounding Precision");
+                    VATAmt :=
+                      VATAmountLine."VAT Difference" +
+                      (RecPurchLine."Line Amount" - RecPurchLine."Inv. Discount Amount" - VATBase - VATAmountLine."VAT Difference") *
+                      (1 - PurchHeader."VAT Base Discount %" / 100);
+                    VATAmountLine."VAT Base" := VATAmountLine."VAT Base" + VATBase * (RecPurchLine."Qty. to Invoice" / RecPurchLine.Quantity);
+                    VATAmountLine."VAT Amount" := VATAmountLine."VAT Amount" + VATAmt * (RecPurchLine."Qty. to Invoice" / RecPurchLine.Quantity);
+                    VATAmountLine."Invoice Discount Amount" := VATAmountLine."Invoice Discount Amount" + ("Inv. Discount Amount" * RecPurchLine."Prepayment %" / 100);
+                end else begin
+                    VATBase :=
+                      Round(
+                        (RecPurchLine."Line Amount" - RecPurchLine."Inv. Discount Amount") *
+                        (RecPurchLine."Qty. to Invoice" / RecPurchLine.Quantity),
+                        Currency."Amount Rounding Precision");
+                    VATAmountLine."VAT Base" := VATAmountLine."VAT Base" + VATBase;
+                    VATAmountLine."VAT Amount" := VATAmountLine."VAT Amount" + (VATBase * RecPurchLine."Prepayment VAT %" / 100);
+                    VATAmountLine."Invoice Discount Amount" :=
+                      VATAmountLine."Invoice Discount Amount" + RecPurchLine."Inv. Discount Amount" * RecPurchLine."Prepayment %" / 100;
                 end;
+            until RecPurchLine.Next() = 0;
+            VATAmountLine."VAT Base" := -1 * Round(VATAmountLine."VAT Base", Currency."Amount Rounding Precision");
+            VATAmountLine."VAT Amount" := -1 * Round(VATAmountLine."VAT Amount", Currency."Amount Rounding Precision", Currency.VATRoundingDirection());
+            VATAmountLine."Invoice Discount Amount" := -1 * Round(VATAmountLine."Invoice Discount Amount", Currency."Amount Rounding Precision");
+            if PriceIncludingVAT then
+                VATAmountLine."Amount Including VAT" := Round(VATAmountLine."Line Amount", Currency."Amount Rounding Precision")
+            else begin
+                if not VATAmountLine.Positive then
+                    VATAmountLine."Amount Including VAT" := VATAmountLine."Line Amount" - PurchLine."Inv. Discount Amount" + VATAmountLine."VAT Amount"
+                else
+                    VATAmountLine."Amount Including VAT" := VATAmountLine."VAT Base" - PurchLine."Inv. Discount Amount" + VATAmountLine."VAT Amount";
             end;
         end;
     end;
@@ -8961,7 +8945,6 @@ table 39 "Purchase Line"
                 GetDeferralAmount(), PostingDate, Description, CurrencyCode));
     end;
 
-    [Scope('OnPrem')]
     procedure InitDeferralCode()
     var
         Item: Record Item;
@@ -9111,7 +9094,7 @@ table 39 "Purchase Line"
     begin
         IsHandled := false;
         OnBeforeFormatType(Rec, FormattedType, IsHandled);
-        If IsHandled then
+        if IsHandled then
             exit(FormattedType);
 
         if Type = Type::" " then
@@ -9488,7 +9471,7 @@ table 39 "Purchase Line"
     begin
         GetGLSetup();
         PurchHeader := PurchHeaderToCalc;
-        CurrencyFactor := CalcCurrencyFactorACY;
+        CurrencyFactor := CalcCurrencyFactorACY();
         "VAT Base (ACY)" :=
           Round(
             CurrExchRate.ExchangeAmtLCYToFCY(
@@ -9777,6 +9760,34 @@ table 39 "Purchase Line"
         exit(Result);
     end;
 
+    local procedure CannotInvoiceErrorInfo(): ErrorInfo
+    var
+        ErrorMesageManagement: Codeunit "Error Message Management";
+    begin
+        exit(ErrorMesageManagement.BuildActionableErrorInfo(
+            QtyInvoiceNotValidTitleLbl,
+            StrSubstNo(Text006, MaxQtyToInvoice()),
+            Rec.RecordId,
+            StrSubstNo(QtyInvoiceActionLbl, MaxQtyToInvoice()),
+            Codeunit::"Purchase Line - Price",
+            'SetPurchaseQtyInvoice',
+            StrSubstNo(QtyInvoiceActionDescriptionLbl, Rec.FieldCaption("Qty. to Invoice"), Rec.Quantity)));
+    end;
+
+    local procedure CannotReceiveErrorInfo(): ErrorInfo
+    var
+        ErrorMesageManagement: Codeunit "Error Message Management";
+    begin
+        exit(ErrorMesageManagement.BuildActionableErrorInfo(
+            QtyReceiveNotValidTitleLbl,
+            StrSubstNo(Text008, "Outstanding Quantity"),
+            Rec.RecordId,
+            StrSubstNo(QtyReceiveActionLbl, "Outstanding Quantity"),
+            Codeunit::"Purchase Line - Price",
+            'SetPurchaseReceiveQty',
+            StrSubstNo(QtyReceiveActionDescriptionLbl, Rec.FieldCaption("Qty. to Receive"), Rec.Quantity)));
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcPrepaymentLineAmount(var PurchaseLine: Record "Purchase Line"; Currency: Record Currency; var IsHandled: Boolean)
     begin
@@ -9966,17 +9977,17 @@ table 39 "Purchase Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateOrderDateFromPlannedReceiptDate(var PurchaseLine: Record "Purchase Line"; CustomCalendarChange: Array[2] of Record "Customized Calendar Change"; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateOrderDateFromPlannedReceiptDate(var PurchaseLine: Record "Purchase Line"; CustomCalendarChange: array[2] of Record "Customized Calendar Change"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdatePlannedReceiptDateFromOrderDate(var PurchaseLine: Record "Purchase Line"; CustomCalendarChange: Array[2] of Record "Customized Calendar Change"; var IsHandled: Boolean)
+    local procedure OnBeforeUpdatePlannedReceiptDateFromOrderDate(var PurchaseLine: Record "Purchase Line"; CustomCalendarChange: array[2] of Record "Customized Calendar Change"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateOrderDateFromRequestedReceiptDate(var PurchaseLine: Record "Purchase Line"; CustomCalendarChange: Array[2] of Record "Customized Calendar Change"; var IsHandled: Boolean)
+    local procedure OnBeforeUpdateOrderDateFromRequestedReceiptDate(var PurchaseLine: Record "Purchase Line"; CustomCalendarChange: array[2] of Record "Customized Calendar Change"; var IsHandled: Boolean)
     begin
     end;
 
@@ -11614,10 +11625,12 @@ table 39 "Purchase Line"
     begin
     end;
 
+#pragma warning disable AS0077
     [IntegrationEvent(true, false)]
-    local procedure OnValidateNoOnBeforeJobTaskIsSet(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; TempPurchaseLine: Record "Purchase Line" temporary; IsHandled: Boolean)
+    local procedure OnValidateNoOnBeforeJobTaskIsSet(PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; xPurchaseLine: Record "Purchase Line"; TempPurchaseLine: Record "Purchase Line" temporary; var IsHandled: Boolean)
     begin
     end;
+#pragma warning restore AS0077
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateVariantCodeBeforeCheckBlocked(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
@@ -11656,6 +11669,11 @@ table 39 "Purchase Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnCopyFromItemOnAfterGetItemTranslation(var PurchaseLine: Record "Purchase Line"; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateDirectUnitCostOnBeforeValidateLineDiscPct(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 

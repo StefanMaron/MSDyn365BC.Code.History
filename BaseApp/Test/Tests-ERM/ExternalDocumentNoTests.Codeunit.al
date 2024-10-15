@@ -39,7 +39,7 @@ codeunit 134345 "External Document No. Tests"
 
         Initialize();
         VendNo := LibraryPurchase.CreateVendorNo();
-        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
+        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength());
         EntryNo := MockVendorLedgerEntry(VendNo, WorkDate(), ExtDocNo, false);
         MockVendorLedgerEntry(VendNo, WorkDate(), ExtDocNo, true);
         VendorMgt.SetFilterForExternalDocNo(
@@ -65,7 +65,7 @@ codeunit 134345 "External Document No. Tests"
 
         // [GIVEN] Vendor Ledger Entry with Reversed enabled, "External Document No." = "X" and "Document Date" = 01.01.2019
         VendNo := LibraryPurchase.CreateVendorNo();
-        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
+        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength());
         MockVendorLedgerEntry(VendNo, WorkDate(), ExtDocNo, true);
 
         // [GIVEN] General Journal Line with "External Document No." = "X" and "Document Date" = 01.01.2020
@@ -77,7 +77,7 @@ codeunit 134345 "External Document No. Tests"
         REPORT.Run(REPORT::"General Journal - Test", true, false, GenJournalLine);
 
         // [THEN] No error "Purchase Invoice X already exists." prints
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueNotExist(
           'ErrorTextNumber', StrSubstNo(PurchInvExistsInRepErr, UpperCase(ExtDocNo)));
     end;
@@ -98,7 +98,7 @@ codeunit 134345 "External Document No. Tests"
 
         // [GIVEN] Vendor Ledger Entry with Reversed enabled, "External Document No." = "X" and "Document Date" = 01.01.2019
         VendNo := LibraryPurchase.CreateVendorNo();
-        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
+        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength());
         MockVendorLedgerEntry(VendNo, WorkDate(), ExtDocNo, true);
 
         // [GIVEN] General Journal Line with "External Document No." = "X" and "Document Date" = 01.01.2020
@@ -110,7 +110,7 @@ codeunit 134345 "External Document No. Tests"
         RunVendorPrepaymentJnl(GenJournalLine);
 
         // [THEN] No error "Purchase Invoice X already exists." prints
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueNotExist(
           'ErrorText_Number_', StrSubstNo(PurchInvExistsInRepErr, UpperCase(ExtDocNo)));
     end;
@@ -132,7 +132,7 @@ codeunit 134345 "External Document No. Tests"
 
         // [GIVEN] Vendor Ledger Entry with Reversed enabled and "External Document No." = "X" and "Document Date" = 01.01.2019
         CreatePrepmtVendor(VendNo, LineGLAccountNo);
-        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
+        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength());
         MockVendorLedgerEntry(VendNo, WorkDate(), ExtDocNo, true);
 
         // [GIVEN] Purchase Invoice with "External Document No." = "X" and "Document Date" = 01.01.2020
@@ -144,7 +144,7 @@ codeunit 134345 "External Document No. Tests"
         REPORT.Run(REPORT::"Purchase Document - Test", true, false, PurchaseHeader);
 
         // [THEN] No error "Purchase Invoice X already exists." prints
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueNotExist(
           'ErrorText_Number_', StrSubstNo(PurchInvAlreadyExistErr, UpperCase(ExtDocNo)));
     end;
@@ -166,7 +166,7 @@ codeunit 134345 "External Document No. Tests"
 
         // [GIVEN] Vendor Ledger Entry with Reversed enabled and "External Document No." = "X" and "Document Date" = 01.01.2019
         CreatePrepmtVendor(VendNo, LineGLAccountNo);
-        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength);
+        ExtDocNo := LibraryUtility.GenerateRandomText(GetExtDocNoLength());
         MockVendorLedgerEntry(VendNo, WorkDate(), ExtDocNo, true);
 
         // [GIVEN] Purchase Prepayment Order with "External Document No." = "X" and "Document Date" = 01.01.2020
@@ -179,7 +179,7 @@ codeunit 134345 "External Document No. Tests"
         REPORT.Run(REPORT::"Purchase Prepmt. Doc. - Test", true, false, PurchaseHeader);
 
         // [THEN] No error "Purchase Invoice X already exists." prints
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueNotExist(
           'ErrorText_Number_', StrSubstNo(PurchInvAlreadyExistErr, UpperCase(ExtDocNo)));
     end;
@@ -249,7 +249,7 @@ codeunit 134345 "External Document No. Tests"
         GenJournalLine.Validate("External Document No.",
           CopyStr(ExtDocNo, 1, MaxStrLen(GenJournalLine."External Document No.")));
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
-        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         GenJournalLine.Modify(true);
     end;
 
@@ -289,28 +289,28 @@ codeunit 134345 "External Document No. Tests"
     [Scope('OnPrem')]
     procedure GeneralJournalTestRequestPageHandler(var GeneralJournalTest: TestRequestPage "General Journal - Test")
     begin
-        GeneralJournalTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        GeneralJournalTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure VendorPrepaymentJnlRequestPageHandler(var VendorPrepaymentJnl: TestRequestPage "Vendor Pre-Payment Journal")
     begin
-        VendorPrepaymentJnl.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendorPrepaymentJnl.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PurchDocumentTestRequestPageHandler(var PurchaseDocumentTest: TestRequestPage "Purchase Document - Test")
     begin
-        PurchaseDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseDocumentTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
     [Scope('OnPrem')]
     procedure PurchDocumentPrepmtTestRequestPageHandler(var PurchasePrepmtDocTest: TestRequestPage "Purchase Prepmt. Doc. - Test")
     begin
-        PurchasePrepmtDocTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchasePrepmtDocTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

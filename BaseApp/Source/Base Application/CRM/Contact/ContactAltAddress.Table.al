@@ -7,6 +7,7 @@ table 5051 "Contact Alt. Address"
 {
     Caption = 'Contact Alt. Address';
     DataCaptionFields = "Contact No.", "Code", "Company Name";
+    DataClassification = CustomerContent;
     LookupPageID = "Contact Alt. Address List";
     Permissions = TableData Contact = rm,
                   TableData "Contact Alt. Addr. Date Range" = rd;
@@ -80,9 +81,6 @@ table 5051 "Contact Alt. Address"
                 IsHandled: Boolean;
             begin
                 IsHandled := false;
-#if not CLEAN21
-                OnBeforeValidatePostPode(Rec, IsHandled);
-#endif
                 OnBeforeValidatePostCode(Rec, PostCode, CurrFieldNo, IsHandled);
                 if not IsHandled then
                     PostCode.ValidatePostCode(City, "Post Code", County, "Country/Region Code", (CurrFieldNo <> 0) and GuiAllowed);
@@ -138,11 +136,24 @@ table 5051 "Contact Alt. Address"
                 SetSearchEmail();
             end;
         }
+#if not CLEAN24
         field(18; "Home Page"; Text[80])
         {
             Caption = 'Home Page';
             ExtendedDatatype = URL;
+            ObsoleteReason = 'Field length will be increased to 255.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '24.0';
         }
+#else
+#pragma warning disable AS0086
+        field(18; "Home Page"; Text[255])
+        {
+            Caption = 'Home Page';
+            ExtendedDatatype = URL;
+        }
+#pragma warning restore AS0086
+#endif
         field(19; "Fax No."; Text[30])
         {
             Caption = 'Fax No.';
@@ -234,14 +245,6 @@ table 5051 "Contact Alt. Address"
         PostCode.LookupPostCode(Rec.City, Rec."Post Code", Rec.County, Rec."Country/Region Code");
         OnAfterLookupPostCode(Rec, CalledFromField, PostCode);
     end;
-
-#if not CLEAN21
-    [Obsolete('Replaced by event OnBeforeValidatePostCode()', '21.0')]
-    [IntegrationEvent(false, false)]
-    local procedure OnBeforeValidatePostPode(var ContactAltAddress: Record "Contact Alt. Address"; var IsHandled: Boolean)
-    begin
-    end;
-#endif
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterLookupPostCode(var ContactAltAddress: Record "Contact Alt. Address"; FieldNo: Integer; var PostCode: Record "Post Code")

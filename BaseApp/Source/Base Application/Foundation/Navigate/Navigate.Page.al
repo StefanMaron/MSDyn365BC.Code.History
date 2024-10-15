@@ -891,21 +891,21 @@ page 344 Navigate
             GSTPurchEntry.SetCurrentKey("Document No.", "Posting Date");
             GSTPurchEntry.SetFilter("Document No.", DocNoFilter);
             GSTPurchEntry.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, Database::"GST Purchase Entry", 0, GSTPurchEntry.TableCaption(), GSTPurchEntry.Count);
+            InsertIntoDocEntry(Rec, Database::"GST Purchase Entry", GSTPurchEntry.TableCaption(), GSTPurchEntry.Count);
         end;
         if GSTSalesEntry.ReadPermission() then begin
             GSTSalesEntry.Reset();
             GSTSalesEntry.SetCurrentKey("Document No.", "Posting Date");
             GSTSalesEntry.SetFilter("Document No.", DocNoFilter);
             GSTSalesEntry.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, Database::"GST Sales Entry", 0, GSTSalesEntry.TableCaption(), GSTSalesEntry.Count);
+            InsertIntoDocEntry(Rec, Database::"GST Sales Entry", GSTSalesEntry.TableCaption(), GSTSalesEntry.Count);
         end;
         if WHTEntry.ReadPermission() then begin
             WHTEntry.Reset();
             WHTEntry.SetCurrentKey("Document No.", "Posting Date");
             WHTEntry.SetFilter("Document No.", DocNoFilter);
             WHTEntry.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, Database::"WHT Entry", 0, WHTEntry.TableCaption(), WHTEntry.Count);
+            InsertIntoDocEntry(Rec, Database::"WHT Entry", WHTEntry.TableCaption(), WHTEntry.Count);
         end;
 
         OnAfterNavigateFindRecords(Rec, DocNoFilter, PostingDateFilter, NewSourceRecVar, ExtDocNo, HideDialog);
@@ -2313,13 +2313,6 @@ page 344 Navigate
         Window.Close();
     end;
 
-    [Obsolete('Replaced by SetTracking with ItemTrackingSetup parameter.', '18.0')]
-    procedure SetTracking(SerialNo: Code[50]; LotNo: Code[50])
-    begin
-        NewItemTrackingSetup."Serial No." := SerialNo;
-        NewItemTrackingSetup."Lot No." := LotNo;
-    end;
-
     procedure SetTracking(ItemTrackingSetup: Record "Item Tracking Setup")
     begin
         NewItemTrackingSetup := ItemTrackingSetup;
@@ -2503,14 +2496,6 @@ page 344 Navigate
     local procedure OnAfterFindPurchRcptHeader(var DocumentEntry: Record "Document Entry"; var PurchRcptHeader: Record "Purch. Rcpt. Header"; DocNoFilter: Text; PostingDateFilter: Text)
     begin
     end;
-
-#if not CLEAN21
-    [Obsolete('No. of documents is not checked anymore', '21.0')]
-    [IntegrationEvent(true, false)]
-    local procedure OnAfterGetDocumentCount(var DocCount: Integer)
-    begin
-    end;
-#endif    
 
     [IntegrationEvent(true, false)]
     local procedure OnAfterNavigateFindExtRecords(var DocumentEntry: Record "Document Entry"; ContactType: Enum "Navigate Contact Type"; ContactNo: Code[250]; ExtDocNo: Code[250]; var FoundRecords: Boolean)

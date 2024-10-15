@@ -4,6 +4,7 @@ table 1798 "Data Migration Parameters"
 {
     Caption = 'Data Migration Parameters';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

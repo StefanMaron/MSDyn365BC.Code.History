@@ -186,7 +186,7 @@ page 305 "Reservation Worksheet"
                 Caption = 'Get Demand';
                 Image = GetSourceDoc;
                 Ellipsis = true;
-                ToolTip = 'Get demand lines from sales orders, production and assembly orders, service orders, and job usage.';
+                ToolTip = 'Get demand lines from sales orders, production and assembly orders, service orders, and project usage.';
 
                 trigger OnAction();
                 begin

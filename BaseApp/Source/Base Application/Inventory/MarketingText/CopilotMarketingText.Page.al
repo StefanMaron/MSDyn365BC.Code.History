@@ -99,7 +99,6 @@ page 5836 "Copilot Marketing Text"
             systemaction(Generate)
             {
                 Tooltip = 'Generate a suggestion based on the input prompt';
-                Caption = 'Generate';
                 trigger OnAction()
                 begin
                     SetSelectedFacts();
@@ -109,7 +108,6 @@ page 5836 "Copilot Marketing Text"
             systemaction(Regenerate)
             {
                 Tooltip = 'Regenerate a suggestion based on the input prompt';
-                Caption = 'Regenerate';
                 trigger OnAction()
                 begin
                     GenerateText(CopilotRevisingTxt);
@@ -118,7 +116,6 @@ page 5836 "Copilot Marketing Text"
             systemaction(Cancel)
             {
                 ToolTip = 'Discards all suggestions and dismisses the dialog';
-                Caption = 'Discard';
             }
             systemaction(Ok)
             {

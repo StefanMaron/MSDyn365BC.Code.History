@@ -291,7 +291,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
 
         // 2. Exercise: Post Purchase Credit Memo.
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
-        ExecuteUIHandler;
+        ExecuteUIHandler();
 
         // 3. Verify: Verify Currency flow in Vendor Ledger Entry.
         VerifyLedgerPurchaseCreditMemo(PurchaseHeader."No.", CurrencyExchangeRate."Currency Code");
@@ -379,7 +379,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         // Detailed Vendor Ledger Entry created with Correct Amount.
 
         // 1. Setup: Create and Post General Journal Line for Vendor, make Currency with Exchange Rate and modify.
-        Initialize;
+        Initialize();
         BindSubscription(ERMUpdateCurrencyPurchase);
         VendorNo := CreateVendorUpdateCurrency(CurrencyExchangeRate);
         CreateAndPostGenJournalLine(GenJournalLine, VendorNo, CurrencyExchangeRate);
@@ -428,14 +428,14 @@ codeunit 134086 "ERM Update Currency - Purchase"
         LibraryPurchase.CreateVendor(Vendor);
         LibraryERM.FindGLAccount(GLAccount);
         LibraryERM.FindCurrency(Currency);
-        PurchaseQuotePage.OpenEdit;
-        PurchaseQuotePage.New;
+        PurchaseQuotePage.OpenEdit();
+        PurchaseQuotePage.New();
         PurchaseQuotePage."Buy-from Vendor Name".Value(Vendor."No.");
         PurchaseQuotePage.PurchLines.Type.Value(Format(PurchaseLine.Type::"G/L Account"));
         PurchaseQuotePage.PurchLines."No.".Value(GLAccount."No.");
         PurchaseQuotePage.PurchLines.Quantity.Value(Format(LibraryRandom.RandInt(5)));
         PurchaseQuotePage."Currency Code".Value(Currency.Code);
-        DocumentNo := PurchaseQuotePage."No.".Value;
+        DocumentNo := PurchaseQuotePage."No.".Value();
         PurchaseQuotePage.Close();
 
         VerifyCurrencyInPurchaseLine(PurchaseLine."Document Type"::Quote, DocumentNo, GLAccount."No.", Currency.Code);
@@ -456,14 +456,14 @@ codeunit 134086 "ERM Update Currency - Purchase"
         LibraryPurchase.CreateVendor(Vendor);
         LibraryERM.FindGLAccount(GLAccount);
         LibraryERM.FindCurrency(Currency);
-        PurchaseOrderPage.OpenEdit;
-        PurchaseOrderPage.New;
+        PurchaseOrderPage.OpenEdit();
+        PurchaseOrderPage.New();
         PurchaseOrderPage."Buy-from Vendor Name".Value(Vendor."No.");
         PurchaseOrderPage.PurchLines.Type.Value(Format(PurchaseLine.Type::"G/L Account"));
         PurchaseOrderPage.PurchLines."No.".Value(GLAccount."No.");
         PurchaseOrderPage.PurchLines.Quantity.Value(Format(LibraryRandom.RandInt(5)));
         PurchaseOrderPage."Currency Code".Value(Currency.Code);
-        DocumentNo := PurchaseOrderPage."No.".Value;
+        DocumentNo := PurchaseOrderPage."No.".Value();
         PurchaseOrderPage.Close();
 
         VerifyCurrencyInPurchaseLine(PurchaseLine."Document Type"::Order, DocumentNo, GLAccount."No.", Currency.Code);
@@ -484,14 +484,14 @@ codeunit 134086 "ERM Update Currency - Purchase"
         LibraryPurchase.CreateVendor(Vendor);
         LibraryERM.FindGLAccount(GLAccount);
         LibraryERM.FindCurrency(Currency);
-        PurchaseInvoicePage.OpenEdit;
-        PurchaseInvoicePage.New;
+        PurchaseInvoicePage.OpenEdit();
+        PurchaseInvoicePage.New();
         PurchaseInvoicePage."Buy-from Vendor Name".Value(Vendor.Name);
         PurchaseInvoicePage.PurchLines.Type.Value(Format(PurchaseLine.Type::"G/L Account"));
         PurchaseInvoicePage.PurchLines."No.".Value(GLAccount."No.");
         PurchaseInvoicePage.PurchLines.Quantity.Value(Format(LibraryRandom.RandInt(5)));
         PurchaseInvoicePage."Currency Code".Value(Currency.Code);
-        DocumentNo := PurchaseInvoicePage."No.".Value;
+        DocumentNo := PurchaseInvoicePage."No.".Value();
         PurchaseInvoicePage.Close();
 
         VerifyCurrencyInPurchaseLine(PurchaseLine."Document Type"::Invoice, DocumentNo, GLAccount."No.", Currency.Code);
@@ -512,14 +512,14 @@ codeunit 134086 "ERM Update Currency - Purchase"
         LibraryPurchase.CreateVendor(Vendor);
         LibraryERM.FindGLAccount(GLAccount);
         LibraryERM.FindCurrency(Currency);
-        PurchaseCrMemoPage.OpenEdit;
-        PurchaseCrMemoPage.New;
+        PurchaseCrMemoPage.OpenEdit();
+        PurchaseCrMemoPage.New();
         PurchaseCrMemoPage."Buy-from Vendor Name".SetValue(Vendor.Name);
         PurchaseCrMemoPage.PurchLines.Type.Value(Format(PurchaseLine.Type::"G/L Account"));
         PurchaseCrMemoPage.PurchLines."No.".Value(GLAccount."No.");
         PurchaseCrMemoPage.PurchLines.Quantity.Value(Format(LibraryRandom.RandInt(5)));
         PurchaseCrMemoPage."Currency Code".Value(Currency.Code);
-        DocumentNo := PurchaseCrMemoPage."No.".Value;
+        DocumentNo := PurchaseCrMemoPage."No.".Value();
         PurchaseCrMemoPage.Close();
 
         VerifyCurrencyInPurchaseLine(PurchaseLine."Document Type"::"Credit Memo", DocumentNo, GLAccount."No.", Currency.Code);
@@ -540,14 +540,14 @@ codeunit 134086 "ERM Update Currency - Purchase"
         LibraryPurchase.CreateVendor(Vendor);
         LibraryERM.FindGLAccount(GLAccount);
         LibraryERM.FindCurrency(Currency);
-        BlanketPurchOrderPage.OpenEdit;
-        BlanketPurchOrderPage.New;
+        BlanketPurchOrderPage.OpenEdit();
+        BlanketPurchOrderPage.New();
         BlanketPurchOrderPage."Buy-from Vendor Name".Value(Vendor."No.");
         BlanketPurchOrderPage.PurchLines.Type.Value(Format(PurchaseLine.Type::"G/L Account"));
         BlanketPurchOrderPage.PurchLines."No.".Value(GLAccount."No.");
         BlanketPurchOrderPage.PurchLines.Quantity.Value(Format(LibraryRandom.RandInt(5)));
         BlanketPurchOrderPage."Currency Code".Value(Currency.Code);
-        DocumentNo := BlanketPurchOrderPage."No.".Value;
+        DocumentNo := BlanketPurchOrderPage."No.".Value();
         BlanketPurchOrderPage.Close();
 
         VerifyCurrencyInPurchaseLine(PurchaseLine."Document Type"::"Blanket Order", DocumentNo, GLAccount."No.", Currency.Code);
@@ -568,14 +568,14 @@ codeunit 134086 "ERM Update Currency - Purchase"
         LibraryPurchase.CreateVendor(Vendor);
         LibraryERM.FindGLAccount(GLAccount);
         LibraryERM.FindCurrency(Currency);
-        PurchReturnOrderPage.OpenEdit;
-        PurchReturnOrderPage.New;
+        PurchReturnOrderPage.OpenEdit();
+        PurchReturnOrderPage.New();
         PurchReturnOrderPage."Buy-from Vendor Name".Value(Vendor."No.");
         PurchReturnOrderPage.PurchLines.Type.Value(Format(PurchaseLine.Type::"G/L Account"));
         PurchReturnOrderPage.PurchLines."No.".Value(GLAccount."No.");
         PurchReturnOrderPage.PurchLines.Quantity.Value(Format(LibraryRandom.RandInt(5)));
         PurchReturnOrderPage."Currency Code".Value(Currency.Code);
-        DocumentNo := PurchReturnOrderPage."No.".Value;
+        DocumentNo := PurchReturnOrderPage."No.".Value();
         PurchReturnOrderPage.Close();
 
         VerifyCurrencyInPurchaseLine(PurchaseLine."Document Type"::"Return Order", DocumentNo, GLAccount."No.", Currency.Code);
@@ -645,8 +645,8 @@ codeunit 134086 "ERM Update Currency - Purchase"
         GenJournalLine.Validate("Applies-to Doc. No.", PostedDocumentNo);
 
         // [THEN] Confirm message appeared: "The Currency Code will be changed from C2 to C1".
-        Assert.ExpectedMessage(ExpectedMsg, LibraryVariableStorage.DequeueText);
-        LibraryVariableStorage.AssertEmpty;
+        Assert.ExpectedMessage(ExpectedMsg, LibraryVariableStorage.DequeueText());
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -689,8 +689,8 @@ codeunit 134086 "ERM Update Currency - Purchase"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         // Lazy Setup.
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId);
-        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId);
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyVendorAddressNotificationId());
+        PurchaseHeader.DontNotifyCurrentUserAgain(PurchaseHeader.GetModifyPayToVendorAddressNotificationId());
         LibrarySetupStorage.Restore();
         if isInitialized then
             exit;
@@ -770,7 +770,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         for Counter := 2 to 2 + LibraryRandom.RandInt(9) do
             // Required Random Value for Quantity field.
             LibraryPurchase.CreatePurchaseLine(
-              PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem, LibraryRandom.RandInt(100));
+              PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateItem(), LibraryRandom.RandInt(100));
     end;
 
     local procedure CreateCurrencyWithExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate")
@@ -779,7 +779,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
     begin
         LibraryERM.CreateCurrency(Currency);
         LibraryERM.SetCurrencyGainLossAccounts(Currency);
-        CreateExchangeRate(CurrencyExchangeRate, Currency.Code, NormalDate(LibraryFiscalYear.GetInitialPostingDate));
+        CreateExchangeRate(CurrencyExchangeRate, Currency.Code, NormalDate(LibraryFiscalYear.GetInitialPostingDate()));
     end;
 
     local procedure CreateExchangeRate(var CurrencyExchangeRate: Record "Currency Exchange Rate"; CurrencyCode: Code[10]; StartingDate: Date)
@@ -864,7 +864,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         GenJournalLine.Validate(
           "Document No.", LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Document No."), DATABASE::"Gen. Journal Line"));
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
-        GenJournalLine.Validate("Bal. Account No.", FindGLAccount);
+        GenJournalLine.Validate("Bal. Account No.", FindGLAccount());
         GenJournalLine.Validate("External Document No.", GenJournalLine."Document No.");
         GenJournalLine.Modify(true);
     end;
@@ -931,7 +931,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
         SuggestVendorPayments.SetTableView(Vendor);
         // Required Random Value for "Document No." field value is not important.
         SuggestVendorPayments.InitializeRequest(
-          WorkDate, false, 0, false, WorkDate(), VendorNo, true, "Gen. Journal Account Type"::"Bank Account", BankAccountNo, BankPmtType);
+          WorkDate(), false, 0, false, WorkDate(), VendorNo, true, "Gen. Journal Account Type"::"Bank Account", BankAccountNo, BankPmtType);
         SuggestVendorPayments.UseRequestPage(false);
         Commit();
         SuggestVendorPayments.Run();
@@ -997,7 +997,7 @@ codeunit 134086 "ERM Update Currency - Purchase"
     var
         PurchOrder: TestPage "Purchase Order";
     begin
-        PurchOrder.OpenEdit;
+        PurchOrder.OpenEdit();
         PurchOrder.GotoRecord(PurchHeader);
         PurchOrder."Buy-from Vendor Name".SetValue(CreateVendorUpdateCurrency(CurrencyExchangeRate));
         PurchOrder.Close();

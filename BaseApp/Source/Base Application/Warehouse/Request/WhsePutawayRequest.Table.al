@@ -10,6 +10,7 @@ table 7324 "Whse. Put-away Request"
 {
     Caption = 'Whse. Put-away Request';
     LookupPageID = "Put-away Selection";
+    DataClassification = CustomerContent;
 
     fields
     {

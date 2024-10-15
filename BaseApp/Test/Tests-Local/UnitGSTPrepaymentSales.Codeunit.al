@@ -469,9 +469,9 @@ codeunit 144002 "Unit GST Prepayment-Sales"
     begin
         // Assign global variable for page handler.
         PrepaymentAmount := SalesLine."Line Amount" * SalesLine."Prepayment %" / 100;
-        PrepaymentAmount := Round(PrepaymentAmount, LibraryERM.GetAmountRoundingPrecision);
+        PrepaymentAmount := Round(PrepaymentAmount, LibraryERM.GetAmountRoundingPrecision());
         PrepaymentVATAmount := SalesLine.Amount * SalesLine."Prepayment VAT %" / 100;
-        PrepaymentVATAmount := Round(PrepaymentVATAmount, LibraryERM.GetAmountRoundingPrecision);
+        PrepaymentVATAmount := Round(PrepaymentVATAmount, LibraryERM.GetAmountRoundingPrecision());
         PrepaymentTotalAmount := PrepaymentVATAmount + PrepaymentAmount;
     end;
 
@@ -479,9 +479,9 @@ codeunit 144002 "Unit GST Prepayment-Sales"
     begin
         // Assign global variable for page handler.
         PrepaymentVATAmount := SalesLine.Amount * SalesLine."Prepayment VAT %" / 100;
-        PrepaymentVATAmount := Round(PrepaymentVATAmount, LibraryERM.GetAmountRoundingPrecision);
+        PrepaymentVATAmount := Round(PrepaymentVATAmount, LibraryERM.GetAmountRoundingPrecision());
         PrepaymentTotalAmount := SalesLine.Amount * SalesLine."Prepayment %" / 100;
-        PrepaymentTotalAmount := Round(PrepaymentTotalAmount, LibraryERM.GetAmountRoundingPrecision);
+        PrepaymentTotalAmount := Round(PrepaymentTotalAmount, LibraryERM.GetAmountRoundingPrecision());
         PrepaymentAmount := PrepaymentVATAmount + PrepaymentTotalAmount;
     end;
 
@@ -490,9 +490,9 @@ codeunit 144002 "Unit GST Prepayment-Sales"
     begin
         // Assign global variable for page handler.
         PrepaymentAmount := PurchaseLine."Line Amount" * PurchaseLine."Prepayment %" / 100;
-        PrepaymentAmount := Round(PrepaymentAmount, LibraryERM.GetAmountRoundingPrecision);
+        PrepaymentAmount := Round(PrepaymentAmount, LibraryERM.GetAmountRoundingPrecision());
         PrepaymentVATAmount := PurchaseLine.Amount * PurchaseLine."Prepayment VAT %" / 100;
-        PrepaymentVATAmount := Round(PrepaymentVATAmount, LibraryERM.GetAmountRoundingPrecision);
+        PrepaymentVATAmount := Round(PrepaymentVATAmount, LibraryERM.GetAmountRoundingPrecision());
         PrepaymentTotalAmount := PrepaymentVATAmount + PrepaymentAmount;
     end;
 
@@ -501,9 +501,9 @@ codeunit 144002 "Unit GST Prepayment-Sales"
     begin
         // Assign global variable for page handler.
         PrepaymentVATAmount := PurchaseLine.Amount * PurchaseLine."Prepayment VAT %" / 100;
-        PrepaymentVATAmount := Round(PrepaymentVATAmount, LibraryERM.GetAmountRoundingPrecision);
+        PrepaymentVATAmount := Round(PrepaymentVATAmount, LibraryERM.GetAmountRoundingPrecision());
         PrepaymentTotalAmount := PurchaseLine.Amount * PurchaseLine."Prepayment %" / 100;
-        PrepaymentTotalAmount := Round(PrepaymentTotalAmount, LibraryERM.GetAmountRoundingPrecision);
+        PrepaymentTotalAmount := Round(PrepaymentTotalAmount, LibraryERM.GetAmountRoundingPrecision());
         PrepaymentAmount := PrepaymentVATAmount + PrepaymentTotalAmount;
     end;
 
@@ -748,18 +748,18 @@ codeunit 144002 "Unit GST Prepayment-Sales"
     var
         SalesOrder: TestPage "Sales Order";
     begin
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", No);
-        SalesOrder.Statistics.Invoke;
+        SalesOrder.Statistics.Invoke();
     end;
 
     local procedure OpenPurchaseOrderStatistics(No: Code[20])
     var
         PurchaseOrder: TestPage "Purchase Order";
     begin
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", No);
-        PurchaseOrder.Statistics.Invoke;
+        PurchaseOrder.Statistics.Invoke();
     end;
 
     local procedure PurchaseLineVATPctDifferentFromPrepmtAccVATPct(VATPostingSetup: Record "VAT Posting Setup"; VATPostingSetup2: Record "VAT Posting Setup")
@@ -946,27 +946,27 @@ codeunit 144002 "Unit GST Prepayment-Sales"
 
     local procedure VerifySalesLinePrepaymentLineAmtExclVAT(SalesLine: Record "Sales Line")
     begin
-        Assert.AreNearlyEqual(PrepaymentAmount, SalesLine."Prepmt. Line Amount", LibraryERM.GetAmountRoundingPrecision,
+        Assert.AreNearlyEqual(PrepaymentAmount, SalesLine."Prepmt. Line Amount", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValidationError, SalesLine.FieldCaption("Prepmt. Line Amount"), PrepaymentAmount, SalesLine.TableCaption()));
     end;
 
     local procedure VerifySalesLinePrepaymentLineAmtInclVAT(SalesLine: Record "Sales Line")
     begin
         Assert.AreNearlyEqual(
-          PrepaymentTotalAmount + PrepaymentVATAmount, SalesLine."Prepmt. Line Amount", LibraryERM.GetAmountRoundingPrecision,
+          PrepaymentTotalAmount + PrepaymentVATAmount, SalesLine."Prepmt. Line Amount", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValidationError, SalesLine.FieldCaption("Prepmt. Line Amount"), PrepaymentAmount, SalesLine.TableCaption()));
     end;
 
     local procedure VerifyPurchaseLinePrepaymentLineAmtInclVAT(PurchaseLine: Record "Purchase Line")
     begin
         Assert.AreNearlyEqual(
-          PrepaymentTotalAmount + PrepaymentVATAmount, PurchaseLine."Prepmt. Line Amount", LibraryERM.GetAmountRoundingPrecision,
+          PrepaymentTotalAmount + PrepaymentVATAmount, PurchaseLine."Prepmt. Line Amount", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValidationError, PurchaseLine.FieldCaption("Prepmt. Line Amount"), PrepaymentAmount, PurchaseLine.TableCaption()));
     end;
 
     local procedure VerifyPurchaseLinePrepaymentLineAmtExclVAT(PurchaseLine: Record "Purchase Line")
     begin
-        Assert.AreNearlyEqual(PrepaymentAmount, PurchaseLine."Prepmt. Line Amount", LibraryERM.GetAmountRoundingPrecision,
+        Assert.AreNearlyEqual(PrepaymentAmount, PurchaseLine."Prepmt. Line Amount", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(ValidationError, PurchaseLine.FieldCaption("Prepmt. Line Amount"), PrepaymentAmount, PurchaseLine.TableCaption()));
     end;
 

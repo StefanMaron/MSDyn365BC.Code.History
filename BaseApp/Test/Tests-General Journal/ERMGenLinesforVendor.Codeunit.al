@@ -175,7 +175,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
 
         // Verify: Verify Applies to ID field Not Blank after Set Applied to ID in Vendor Ledger Entry.
         VendorLedgerEntry.SetFilter("Applies-to ID", '<>''''');
-        Assert.IsTrue(VendorLedgerEntry.FindFirst, 'Applies to ID field must not be blank.');
+        Assert.IsTrue(VendorLedgerEntry.FindFirst(), 'Applies to ID field must not be blank.');
     end;
 
     [Test]
@@ -329,7 +329,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         LibraryJournals.CreateGenJournalLine2(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Account Type"::"G/L Account",
-          CreateGLAccountNoPurchase, "Gen. Journal document Type"::" ", '', LibraryRandom.RandDec(100, 2));
+          CreateGLAccountNoPurchase(), "Gen. Journal document Type"::" ", '', LibraryRandom.RandDec(100, 2));
         GenJournalLine.Validate("Bill-to/Pay-to No.", '');
         GenJournalLine.Modify();
         DocumentNo := GenJournalLine."Document No.";
@@ -338,7 +338,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         LibraryJournals.CreateGenJournalLine2(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Account Type"::Customer,
-          LibrarySales.CreateCustomerNo, "Gen. Journal document Type"::" ", '', -GenJournalLine.Amount);
+          LibrarySales.CreateCustomerNo(), "Gen. Journal document Type"::" ", '', -GenJournalLine.Amount);
         GenJournalLine.Validate("Document No.", DocumentNo);
         GenJournalLine.Modify();
 
@@ -366,7 +366,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         LibraryJournals.CreateGenJournalLine2(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Account Type"::"G/L Account",
-          CreateGLAccountNoSales, "Gen. Journal document Type"::" ", '', -LibraryRandom.RandDec(100, 2));
+          CreateGLAccountNoSales(), "Gen. Journal document Type"::" ", '', -LibraryRandom.RandDec(100, 2));
         GenJournalLine.Validate("Bill-to/Pay-to No.", '');
         GenJournalLine.Modify();
         DocumentNo := GenJournalLine."Document No.";
@@ -375,7 +375,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         LibraryJournals.CreateGenJournalLine2(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Account Type"::Vendor,
-          LibraryPurchase.CreateVendorNo, "Gen. Journal document Type"::" ", '', -GenJournalLine.Amount);
+          LibraryPurchase.CreateVendorNo(), "Gen. Journal document Type"::" ", '', -GenJournalLine.Amount);
         GenJournalLine.Validate("Document No.", DocumentNo);
         GenJournalLine.Modify();
 
@@ -439,7 +439,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         // [GIVEN] Gen. Journal Line 40000 for G/L Account "GL02" with Amount = 200
         for I := 1 to ArrayLen(GLAccount) do begin
             CreateGeneralJournalLine(
-                GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, -LibraryRandom.RandDec(10, 2));
+                GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), -LibraryRandom.RandDec(10, 2));
             CreateGeneralJournalLine(
                 GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"G/L Account", GLAccount[I]."No.", -GenJournalLine.Amount);
         end;
@@ -481,7 +481,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         // [GIVEN] Gen. Journal Line 40000 for G/L Account "GL02" with Amount = 200
         for I := 1 to ArrayLen(GLAccount) do begin
             CreateGeneralJournalLine(
-                GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, -LibraryRandom.RandDec(10, 2));
+                GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), -LibraryRandom.RandDec(10, 2));
             CreateGeneralJournalLine(
                 GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"G/L Account", GLAccount[I]."No.", -GenJournalLine.Amount);
         end;
@@ -522,13 +522,13 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         // [GIVEN] Gen. Journal Line 30000 for G/L Account "GL02" with Amount = 200
         // [GIVEN] Gen. Journal Line 40000 for Customer "CU02" with Amount = -200
         CreateGeneralJournalLine(
-            GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, -LibraryRandom.RandDec(10, 2));
+            GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), -LibraryRandom.RandDec(10, 2));
         CreateGeneralJournalLine(
             GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"G/L Account", GLAccount[1]."No.", -GenJournalLine.Amount);
         CreateGeneralJournalLine(
             GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::"G/L Account", GLAccount[2]."No.", LibraryRandom.RandDec(10, 2));
         CreateGeneralJournalLine(
-            GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo, -GenJournalLine.Amount);
+            GenJournalLine, GenJournalBatch, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(), -GenJournalLine.Amount);
 
         // [WHEN] Post Gen. Journal Batch
         asserterror LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -624,7 +624,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         GenJournalBatch.Validate("Copy VAT Setup to Jnl. Lines", true);
-        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        GenJournalBatch.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         GenJournalBatch.Modify(true);
     end;
 
@@ -692,7 +692,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         LibraryERM.FindGenJournalTemplate(GenJournalTemplate);
         LibraryERM.CreateGenJournalBatch(GenJournalBatch, GenJournalTemplate.Name);
         LibraryERM.CreateGeneralJnlLineWithBalAcc(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
+          GenJournalLine."Document Type"::" ", GenJournalLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
           BalAccountType, BalAccountNo, LibraryRandom.RandInt(3000));
     end;
 
@@ -747,7 +747,7 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
         DocumentNo := LibraryUtility.GenerateGUID();
         CreateGeneralJournalBatch(GenJournalBatch);
         CustomerNo := LibrarySales.CreateCustomerNo();
-        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup;
+        GLAccountNo := LibraryERM.CreateGLAccountWithSalesSetup();
 
         for Index := 1 to NoOfLines do begin
             LibraryJournals.CreateGenJournalLine(
@@ -770,10 +770,10 @@ codeunit 134048 "ERM Gen. Lines for Vendor"
             GenJournalLine.Modify(true);
         end;
 
-        CodeCoverageMgt.StopApplicationCoverage;
-        CodeCoverageMgt.StartApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
+        CodeCoverageMgt.StartApplicationCoverage();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
-        CodeCoverageMgt.StopApplicationCoverage;
+        CodeCoverageMgt.StopApplicationCoverage();
 
         exit(
           CodeCoverageMgt.GetNoOfHitsCoverageForObject(

@@ -8,6 +8,7 @@ table 28040 "WHT Business Posting Group"
 {
     Caption = 'WHT Business Posting Group';
     LookupPageID = "WHT Business Posting Group";
+    DataClassification = CustomerContent;
 
     fields
     {

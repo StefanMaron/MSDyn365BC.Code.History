@@ -178,8 +178,8 @@ codeunit 139452 "O365 Vendor Permission Test"
 
         // [GIVEN] A user with O365 Basic and Vendor Edit permissions
         Initialize();
-        LibraryLowerPermissions.SetVendorEdit;
-        ExcludedTables := ExcludedTables.List;
+        LibraryLowerPermissions.SetVendorEdit();
+        ExcludedTables := ExcludedTables.List();
         InsertTablesExcludedFromVendorCreate(ExcludedTables);
 
         // [THEN] The user can insert/delete Vendors
@@ -207,14 +207,14 @@ codeunit 139452 "O365 Vendor Permission Test"
 
         RecordRefWithAllRelations.Open(DATABASE::Vendor);
         LibraryPermissionsVerify.CreateRecWithRelatedFields(RecordRefWithAllRelations);
-        ExcludedTables := ExcludedTables.List;
+        ExcludedTables := ExcludedTables.List();
         InsertTablesExcludedFromVendorView(ExcludedTables);
 
-        LibraryLowerPermissions.SetVendorView;
+        LibraryLowerPermissions.SetVendorView();
         RecordRef.Open(DATABASE::Vendor);
 
         // [THEN] The user can read from the record and related tables
-        LibraryLowerPermissions.SetVendorView;
+        LibraryLowerPermissions.SetVendorView();
         LibraryPermissionsVerify.CheckReadAccessToRelatedTables(ExcludedTables, RecordRef);
     end;
 

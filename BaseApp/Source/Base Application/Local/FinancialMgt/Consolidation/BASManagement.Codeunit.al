@@ -83,50 +83,48 @@ codeunit 11601 "BAS Management"
         if BASFileName = '' then
             Error(Text1450000);
 
-        with BASCalcSheet1 do begin
-            LoadXMLFile(BASFileName);
-            LoadXMLNodesInTempTable;
+        LoadXMLFile(BASFileName);
+        LoadXMLNodesInTempTable();
 
-            GLSetup.Get();
-            GLSetup.TestField("BAS GST Division Factor");
+        GLSetup.Get();
+        GLSetup.TestField("BAS GST Division Factor");
 
-            Init();
-            A1 := ReadXMLNodeValues(FieldNo(A1));
-            BASCalcSheet.LockTable();
-            BASCalcSheet.SetRange(A1, A1);
-            if BASCalcSheet.FindLast() then begin
-                if not Confirm(Text1450002, false) then
-                    exit;
-                "BAS Version" := BASCalcSheet."BAS Version" + 1;
-            end else
-                "BAS Version" := 1;
-
-            A2 := ReadXMLNodeValues(FieldNo(A2));
-            A2a := ReadXMLNodeValues(FieldNo(A2a));
-            CompanyInfo.Get();
-            TestField(A2, CompanyInfo.ABN);
-            if A2a <> '' then
-                TestField(A2a, CompanyInfo."ABN Division Part No.");
-
-            Evaluate(A3, ReadXMLNodeValues(FieldNo(A3)));
-            Evaluate(A4, ReadXMLNodeValues(FieldNo(A4)));
-            Evaluate(A5, ReadXMLNodeValues(FieldNo(A5)));
-            Evaluate(A6, ReadXMLNodeValues(FieldNo(A6)));
-            Evaluate(F1, ReadXMLNodeValues(FieldNo(F1)));
-            Evaluate(T2, ReadXMLNodeValues(FieldNo(T2)));
-            "BAS GST Division Factor" := GLSetup."BAS GST Division Factor";
-            "File Name" := CopyStr(FileManagement.GetFileName(BASFileName), 1, MaxStrLen("File Name"));
-            "User Id" := UserId;
-            "BAS Setup Name" := Text1450029;
-            FileManagement.IsAllowedPath(BASFileName, false);
-            if not FILE.Exists(BASFileName) then
+        BASCalcSheet1.Init();
+        BASCalcSheet1.A1 := ReadXMLNodeValues(BASCalcSheet1.FieldNo(A1));
+        BASCalcSheet.LockTable();
+        BASCalcSheet.SetRange(A1, BASCalcSheet1.A1);
+        if BASCalcSheet.FindLast() then begin
+            if not Confirm(Text1450002, false) then
                 exit;
-            BASFile.Open(BASFileName);
-            BASFile.CreateInStream(FileInStream);
-            "BAS Template XML File".CreateOutStream(BlobOutStream);
-            CopyStream(BlobOutStream, FileInStream);
-            Insert();
-        end;
+            BASCalcSheet1."BAS Version" := BASCalcSheet."BAS Version" + 1;
+        end else
+            BASCalcSheet1."BAS Version" := 1;
+
+        BASCalcSheet1.A2 := ReadXMLNodeValues(BASCalcSheet1.FieldNo(A2));
+        BASCalcSheet1.A2a := ReadXMLNodeValues(BASCalcSheet1.FieldNo(A2a));
+        CompanyInfo.Get();
+        BASCalcSheet1.TestField(A2, CompanyInfo.ABN);
+        if BASCalcSheet1.A2a <> '' then
+            BASCalcSheet1.TestField(A2a, CompanyInfo."ABN Division Part No.");
+
+        Evaluate(BASCalcSheet1.A3, ReadXMLNodeValues(BASCalcSheet1.FieldNo(A3)));
+        Evaluate(BASCalcSheet1.A4, ReadXMLNodeValues(BASCalcSheet1.FieldNo(A4)));
+        Evaluate(BASCalcSheet1.A5, ReadXMLNodeValues(BASCalcSheet1.FieldNo(A5)));
+        Evaluate(BASCalcSheet1.A6, ReadXMLNodeValues(BASCalcSheet1.FieldNo(A6)));
+        Evaluate(BASCalcSheet1.F1, ReadXMLNodeValues(BASCalcSheet1.FieldNo(F1)));
+        Evaluate(BASCalcSheet1.T2, ReadXMLNodeValues(BASCalcSheet1.FieldNo(T2)));
+        BASCalcSheet1."BAS GST Division Factor" := GLSetup."BAS GST Division Factor";
+        BASCalcSheet1."File Name" := CopyStr(FileManagement.GetFileName(BASFileName), 1, MaxStrLen(BASCalcSheet1."File Name"));
+        BASCalcSheet1."User Id" := UserId;
+        BASCalcSheet1."BAS Setup Name" := Text1450029;
+        FileManagement.IsAllowedPath(BASFileName, false);
+        if not FILE.Exists(BASFileName) then
+            exit;
+        BASFile.Open(BASFileName);
+        BASFile.CreateInStream(FileInStream);
+        BASCalcSheet1."BAS Template XML File".CreateOutStream(BlobOutStream);
+        CopyStream(BlobOutStream, FileInStream);
+        BASCalcSheet1.Insert();
     end;
 
     [Scope('OnPrem')]
@@ -136,129 +134,127 @@ codeunit 11601 "BAS Management"
         ToFile: Text;
         BASFileName: Text;
     begin
-        with BASCalcSheet2 do begin
-            ToFile := "File Name";
+        ToFile := BASCalcSheet2."File Name";
 
-            BASFileName := SaveBASTemplateToServerFile(A1, "BAS Version");
-            if BASFileName = '' then
-                Error(Text1450003);
-            if Exported then
-                if not Confirm(Text1450004, false) then
-                    exit;
-            GLSetup.Get();
-            if GLSetup."BAS Group Company" then
-                TestField(Consolidated, true);
-            if GLSetup."BAS Group Company" then
-                TestField("Group Consolidated", true);
+        BASFileName := SaveBASTemplateToServerFile(BASCalcSheet2.A1, BASCalcSheet2."BAS Version");
+        if BASFileName = '' then
+            Error(Text1450003);
+        if BASCalcSheet2.Exported then
+            if not Confirm(Text1450004, false) then
+                exit;
+        GLSetup.Get();
+        if GLSetup."BAS Group Company" then
+            BASCalcSheet2.TestField(Consolidated, true);
+        if GLSetup."BAS Group Company" then
+            BASCalcSheet2.TestField("Group Consolidated", true);
 
-            CheckBASCalcSheetExported(A1, "BAS Version");
+        CheckBASCalcSheetExported(BASCalcSheet2.A1, BASCalcSheet2."BAS Version");
 
-            if not Updated then
-                Error(Text1450006);
+        if not BASCalcSheet2.Updated then
+            Error(Text1450006);
 
-            LoadXMLFile(BASFileName);
-            LoadXMLNodesInTempTable;
+        LoadXMLFile(BASFileName);
+        LoadXMLNodesInTempTable();
 
-            TestField(A1, ReadXMLNodeValues(FieldNo(A1)));
+        BASCalcSheet2.TestField(A1, ReadXMLNodeValues(BASCalcSheet2.FieldNo(A1)));
 
-            UpdateXMLNodeValues(FieldNo(T2), Format(Abs(T2)));
-            UpdateXMLNodeValues(FieldNo(T3), Format(Abs(T3)));
-            UpdateXMLNodeValues(FieldNo(F2), Format(Abs(F2)));
-            UpdateXMLNodeValues(FieldNo(T4), T4);
-            UpdateXMLNodeValues(FieldNo(F1), Format(Abs(F1)));
-            UpdateXMLNodeValues(FieldNo(F4), F4);
-            UpdateXMLNodeValues(FieldNo(G22), Format(Abs(G22)));
-            UpdateXMLNodeValues(FieldNo(G24), G24);
-            UpdateXMLNodeValues(FieldNo("1H"), Format(Abs("1H")));
-            UpdateXMLNodeValues(FieldNo(T8), Format(Abs(T8)));
-            UpdateXMLNodeValues(FieldNo(T9), Format(Abs(T9)));
-            UpdateXMLNodeValues(FieldNo("1A"), Format(Abs("1A")));
-            UpdateXMLNodeValues(FieldNo("1C"), Format(Abs("1C")));
-            UpdateXMLNodeValues(FieldNo("1E"), Format(Abs("1E")));
-            UpdateXMLNodeValues(FieldNo("4"), Format(Abs("4")));
-            UpdateXMLNodeValues(FieldNo("1B"), Format(Abs("1B")));
-            UpdateXMLNodeValues(FieldNo("1D"), Format(Abs("1D")));
-            UpdateXMLNodeValues(FieldNo("1F"), Format(Abs("1F")));
-            UpdateXMLNodeValues(FieldNo("1G"), Format(Abs("1G")));
-            UpdateXMLNodeValues(FieldNo("5B"), Format(Abs("5B")));
-            UpdateXMLNodeValues(FieldNo("6B"), Format(Abs("6B")));
-            UpdateXMLNodeValues(FieldNo("7C"), Format(Abs("7C")));
-            UpdateXMLNodeValues(FieldNo("7D"), Format(Abs("7D")));
-            UpdateXMLNodeValues(FieldNo(G1), Format(Abs(G1)));
-            UpdateXMLNodeValues(FieldNo(G2), Format(Abs(G2)));
-            UpdateXMLNodeValues(FieldNo(G3), Format(Abs(G3)));
-            UpdateXMLNodeValues(FieldNo(G4), Format(Abs(G4)));
-            UpdateXMLNodeValues(FieldNo(G7), Format(Abs(G7)));
-            UpdateXMLNodeValues(FieldNo(W1), Format(Abs(W1)));
-            UpdateXMLNodeValues(FieldNo(W2), Format(Abs(W2)));
-            UpdateXMLNodeValues(FieldNo(T1), Format(Abs(T1)));
-            UpdateXMLNodeValues(FieldNo(G10), Format(Abs(G10)));
-            UpdateXMLNodeValues(FieldNo(G11), Format(Abs(G11)));
-            UpdateXMLNodeValues(FieldNo(G13), Format(Abs(G13)));
-            UpdateXMLNodeValues(FieldNo(G14), Format(Abs(G14)));
-            UpdateXMLNodeValues(FieldNo(G15), Format(Abs(G15)));
-            UpdateXMLNodeValues(FieldNo(G18), Format(Abs(G18)));
-            UpdateXMLNodeValues(FieldNo(W3), Format(Abs(W3)));
-            UpdateXMLNodeValues(FieldNo(W4), Format(Abs(W4)));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo(T2), Format(Abs(BASCalcSheet2.T2)));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo(T3), Format(Abs(BASCalcSheet2.T3)));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo(F2), Format(Abs(BASCalcSheet2.F2)));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo(T4), BASCalcSheet2.T4);
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo(F1), Format(Abs(BASCalcSheet2.F1)));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo(F4), BASCalcSheet2.F4);
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo(G22), Format(Abs(BASCalcSheet2.G22)));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo(G24), BASCalcSheet2.G24);
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo("1H"), Format(Abs(BASCalcSheet2."1H")));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo(T8), Format(Abs(BASCalcSheet2.T8)));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo(T9), Format(Abs(BASCalcSheet2.T9)));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo("1A"), Format(Abs(BASCalcSheet2."1A")));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo("1C"), Format(Abs(BASCalcSheet2."1C")));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo("1E"), Format(Abs(BASCalcSheet2."1E")));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo("4"), Format(Abs(BASCalcSheet2."4")));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo("1B"), Format(Abs(BASCalcSheet2."1B")));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo("1D"), Format(Abs(BASCalcSheet2."1D")));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo("1F"), Format(Abs(BASCalcSheet2."1F")));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo("1G"), Format(Abs(BASCalcSheet2."1G")));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo("5B"), Format(Abs(BASCalcSheet2."5B")));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo("6B"), Format(Abs(BASCalcSheet2."6B")));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo("7C"), Format(Abs(BASCalcSheet2."7C")));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo("7D"), Format(Abs(BASCalcSheet2."7D")));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo(G1), Format(Abs(BASCalcSheet2.G1)));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo(G2), Format(Abs(BASCalcSheet2.G2)));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo(G3), Format(Abs(BASCalcSheet2.G3)));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo(G4), Format(Abs(BASCalcSheet2.G4)));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo(G7), Format(Abs(BASCalcSheet2.G7)));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo(W1), Format(Abs(BASCalcSheet2.W1)));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo(W2), Format(Abs(BASCalcSheet2.W2)));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo(T1), Format(Abs(BASCalcSheet2.T1)));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo(G10), Format(Abs(BASCalcSheet2.G10)));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo(G11), Format(Abs(BASCalcSheet2.G11)));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo(G13), Format(Abs(BASCalcSheet2.G13)));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo(G14), Format(Abs(BASCalcSheet2.G14)));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo(G15), Format(Abs(BASCalcSheet2.G15)));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo(G18), Format(Abs(BASCalcSheet2.G18)));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo(W3), Format(Abs(BASCalcSheet2.W3)));
+        UpdateXMLNodeValues(BASCalcSheet2.FieldNo(W4), Format(Abs(BASCalcSheet2.W4)));
 
-            "User Id" := UserId;
-            "Date of Export" := Today;
-            "Time of Export" := Time;
-            Exported := true;
-            Modify();
+        BASCalcSheet2."User Id" := UserId;
+        BASCalcSheet2."Date of Export" := Today;
+        BASCalcSheet2."Time of Export" := Time;
+        BASCalcSheet2.Exported := true;
+        BASCalcSheet2.Modify();
 
-            if "Group Consolidated" then begin
-                BASBusUnits.FindSet();
-                repeat
-                    BASCalcSheetSubsid.ChangeCompany(BASBusUnits."Company Name");
-                    if not BASCalcSheetSubsid.Get(BASBusUnits."Document No.", BASBusUnits."BAS Version") then
-                        Error(Text1450007, BASBusUnits."Document No.", BASBusUnits."BAS Version", BASBusUnits."Company Name");
-                    BASCalcSheetSubsid.Exported := true;
-                    BASCalcSheetSubsid.Modify();
-                until BASBusUnits.Next() = 0;
-            end;
+        if BASCalcSheet2."Group Consolidated" then begin
+            BASBusUnits.FindSet();
+            repeat
+                BASCalcSheetSubsid.ChangeCompany(BASBusUnits."Company Name");
+                if not BASCalcSheetSubsid.Get(BASBusUnits."Document No.", BASBusUnits."BAS Version") then
+                    Error(Text1450007, BASBusUnits."Document No.", BASBusUnits."BAS Version", BASBusUnits."Company Name");
+                BASCalcSheetSubsid.Exported := true;
+                BASCalcSheetSubsid.Modify();
+            until BASBusUnits.Next() = 0;
+        end;
 
-            BASCalcEntry.Reset();
-            if GLSetup."BAS Group Company" then begin
-                BASCalcEntry.SetCurrentKey("Consol. BAS Doc. No.", "Consol. Version No.");
-                BASCalcEntry.SetRange("Consol. BAS Doc. No.", A1);
-                BASCalcEntry.SetRange("Consol. Version No.", "BAS Version");
-            end else begin
-                BASCalcEntry.SetRange("Company Name", CompanyName);
-                BASCalcEntry.SetRange("BAS Document No.", A1);
-                BASCalcEntry.SetRange("BAS Version", "BAS Version");
-            end;
+        BASCalcEntry.Reset();
+        if GLSetup."BAS Group Company" then begin
+            BASCalcEntry.SetCurrentKey("Consol. BAS Doc. No.", "Consol. Version No.");
+            BASCalcEntry.SetRange("Consol. BAS Doc. No.", BASCalcSheet2.A1);
+            BASCalcEntry.SetRange("Consol. Version No.", BASCalcSheet2."BAS Version");
+        end else begin
+            BASCalcEntry.SetRange("Company Name", CompanyName);
+            BASCalcEntry.SetRange("BAS Document No.", BASCalcSheet2.A1);
+            BASCalcEntry.SetRange("BAS Version", BASCalcSheet2."BAS Version");
+        end;
 
-            if BASCalcEntry.FindSet() then begin
-                Window.Open(Text1450008 + Text1450009 + Text1450010);
-                repeat
-                    GLEntry.ChangeCompany(BASCalcEntry."Company Name");
-                    VATEntry.ChangeCompany(BASCalcEntry."Company Name");
-                    Window.Update(1, BASCalcEntry."Company Name");
-                    case BASCalcEntry.Type of
-                        BASCalcEntry.Type::"G/L Entry":
-                            begin
-                                GLEntry.Get(BASCalcEntry."Entry No.");
-                                Window.Update(2, StrSubstNo('%1: %2', BASCalcEntry.Type, GLEntry."Entry No."));
-                                GLEntry."BAS Doc. No." := BASCalcEntry."BAS Document No.";
-                                GLEntry."BAS Version" := BASCalcEntry."BAS Version";
-                                GLEntry."Consol. BAS Doc. No." := BASCalcEntry."Consol. BAS Doc. No.";
-                                GLEntry."Consol. Version No." := BASCalcEntry."Consol. Version No.";
-                                GLEntry.Modify();
-                            end;
-                        BASCalcEntry.Type::"GST Entry":
-                            begin
-                                VATEntry.Get(BASCalcEntry."Entry No.");
-                                Window.Update(2, StrSubstNo('%1: %2', BASCalcEntry.Type, VATEntry."Entry No."));
-                                VATEntry."BAS Doc. No." := BASCalcEntry."BAS Document No.";
-                                VATEntry."BAS Version" := BASCalcEntry."BAS Version";
-                                VATEntry."Consol. BAS Doc. No." := BASCalcEntry."Consol. BAS Doc. No.";
-                                VATEntry."Consol. Version No." := BASCalcEntry."Consol. Version No.";
-                                VATEntry.Modify();
-                            end;
-                    end;
-                until BASCalcEntry.Next() = 0;
-            end;
+        if BASCalcEntry.FindSet() then begin
+            Window.Open(Text1450008 + Text1450009 + Text1450010);
+            repeat
+                GLEntry.ChangeCompany(BASCalcEntry."Company Name");
+                VATEntry.ChangeCompany(BASCalcEntry."Company Name");
+                Window.Update(1, BASCalcEntry."Company Name");
+                case BASCalcEntry.Type of
+                    BASCalcEntry.Type::"G/L Entry":
+                        begin
+                            GLEntry.Get(BASCalcEntry."Entry No.");
+                            Window.Update(2, StrSubstNo('%1: %2', BASCalcEntry.Type, GLEntry."Entry No."));
+                            GLEntry."BAS Doc. No." := BASCalcEntry."BAS Document No.";
+                            GLEntry."BAS Version" := BASCalcEntry."BAS Version";
+                            GLEntry."Consol. BAS Doc. No." := BASCalcEntry."Consol. BAS Doc. No.";
+                            GLEntry."Consol. Version No." := BASCalcEntry."Consol. Version No.";
+                            GLEntry.Modify();
+                        end;
+                    BASCalcEntry.Type::"GST Entry":
+                        begin
+                            VATEntry.Get(BASCalcEntry."Entry No.");
+                            Window.Update(2, StrSubstNo('%1: %2', BASCalcEntry.Type, VATEntry."Entry No."));
+                            VATEntry."BAS Doc. No." := BASCalcEntry."BAS Document No.";
+                            VATEntry."BAS Version" := BASCalcEntry."BAS Version";
+                            VATEntry."Consol. BAS Doc. No." := BASCalcEntry."Consol. BAS Doc. No.";
+                            VATEntry."Consol. Version No." := BASCalcEntry."Consol. Version No.";
+                            VATEntry.Modify();
+                        end;
+                end;
+            until BASCalcEntry.Next() = 0;
         end;
         DownloadBASToClient(XMLDocument, ToFile);
     end;
@@ -274,52 +270,50 @@ codeunit 11601 "BAS Management"
         GLSetup.Get();
         CheckBASCalcSheetExported(VATReportHeader."BAS ID No.", VATReportHeader."BAS Version No.");
         LoadXMLFile(BASFileName);
-        LoadXMLNodesInTempTable;
+        LoadXMLNodesInTempTable();
 
         VATReportHeader.TestField("BAS ID No.", ReadXMLNodeValuesLabelNo('A1'));
-        with VATStatementReportLine do begin
-            SetRange("VAT Report Config. Code", VATReportHeader."VAT Report Config. Code");
-            SetRange("VAT Report No.", VATReportHeader."No.");
-            FindVATReportLineBoxNo(VATStatementReportLine, 'T2');
-            FindVATReportLineBoxNo(VATStatementReportLine, 'T3');
-            FindVATReportLineBoxNo(VATStatementReportLine, 'F2');
-            FindVATReportLineBoxNo(VATStatementReportLine, 'T4');
-            FindVATReportLineBoxNo(VATStatementReportLine, 'F1');
-            FindVATReportLineBoxNo(VATStatementReportLine, 'F4');
-            FindVATReportLineBoxNo(VATStatementReportLine, 'G22');
-            FindVATReportLineBoxNo(VATStatementReportLine, 'G24');
-            FindVATReportLineBoxNo(VATStatementReportLine, '1H');
-            FindVATReportLineBoxNo(VATStatementReportLine, 'T8');
-            FindVATReportLineBoxNo(VATStatementReportLine, 'T9');
-            FindVATReportLineBoxNo(VATStatementReportLine, '1A');
-            FindVATReportLineBoxNo(VATStatementReportLine, '1C');
-            FindVATReportLineBoxNo(VATStatementReportLine, '1E');
-            FindVATReportLineBoxNo(VATStatementReportLine, '4');
-            FindVATReportLineBoxNo(VATStatementReportLine, '1B');
-            FindVATReportLineBoxNo(VATStatementReportLine, '1D');
-            FindVATReportLineBoxNo(VATStatementReportLine, '1F');
-            FindVATReportLineBoxNo(VATStatementReportLine, '1G');
-            FindVATReportLineBoxNo(VATStatementReportLine, '5B');
-            FindVATReportLineBoxNo(VATStatementReportLine, '6B');
-            FindVATReportLineBoxNo(VATStatementReportLine, '7C');
-            FindVATReportLineBoxNo(VATStatementReportLine, '7D');
-            FindVATReportLineBoxNo(VATStatementReportLine, 'G1');
-            FindVATReportLineBoxNo(VATStatementReportLine, 'G2');
-            FindVATReportLineBoxNo(VATStatementReportLine, 'G3');
-            FindVATReportLineBoxNo(VATStatementReportLine, 'G4');
-            FindVATReportLineBoxNo(VATStatementReportLine, 'G7');
-            FindVATReportLineBoxNo(VATStatementReportLine, 'W1');
-            FindVATReportLineBoxNo(VATStatementReportLine, 'W2');
-            FindVATReportLineBoxNo(VATStatementReportLine, 'T1');
-            FindVATReportLineBoxNo(VATStatementReportLine, 'G10');
-            FindVATReportLineBoxNo(VATStatementReportLine, 'G11');
-            FindVATReportLineBoxNo(VATStatementReportLine, 'G13');
-            FindVATReportLineBoxNo(VATStatementReportLine, 'G14');
-            FindVATReportLineBoxNo(VATStatementReportLine, 'G15');
-            FindVATReportLineBoxNo(VATStatementReportLine, 'G18');
-            FindVATReportLineBoxNo(VATStatementReportLine, 'W3');
-            FindVATReportLineBoxNo(VATStatementReportLine, 'W4');
-        end;
+        VATStatementReportLine.SetRange("VAT Report Config. Code", VATReportHeader."VAT Report Config. Code");
+        VATStatementReportLine.SetRange("VAT Report No.", VATReportHeader."No.");
+        FindVATReportLineBoxNo(VATStatementReportLine, 'T2');
+        FindVATReportLineBoxNo(VATStatementReportLine, 'T3');
+        FindVATReportLineBoxNo(VATStatementReportLine, 'F2');
+        FindVATReportLineBoxNo(VATStatementReportLine, 'T4');
+        FindVATReportLineBoxNo(VATStatementReportLine, 'F1');
+        FindVATReportLineBoxNo(VATStatementReportLine, 'F4');
+        FindVATReportLineBoxNo(VATStatementReportLine, 'G22');
+        FindVATReportLineBoxNo(VATStatementReportLine, 'G24');
+        FindVATReportLineBoxNo(VATStatementReportLine, '1H');
+        FindVATReportLineBoxNo(VATStatementReportLine, 'T8');
+        FindVATReportLineBoxNo(VATStatementReportLine, 'T9');
+        FindVATReportLineBoxNo(VATStatementReportLine, '1A');
+        FindVATReportLineBoxNo(VATStatementReportLine, '1C');
+        FindVATReportLineBoxNo(VATStatementReportLine, '1E');
+        FindVATReportLineBoxNo(VATStatementReportLine, '4');
+        FindVATReportLineBoxNo(VATStatementReportLine, '1B');
+        FindVATReportLineBoxNo(VATStatementReportLine, '1D');
+        FindVATReportLineBoxNo(VATStatementReportLine, '1F');
+        FindVATReportLineBoxNo(VATStatementReportLine, '1G');
+        FindVATReportLineBoxNo(VATStatementReportLine, '5B');
+        FindVATReportLineBoxNo(VATStatementReportLine, '6B');
+        FindVATReportLineBoxNo(VATStatementReportLine, '7C');
+        FindVATReportLineBoxNo(VATStatementReportLine, '7D');
+        FindVATReportLineBoxNo(VATStatementReportLine, 'G1');
+        FindVATReportLineBoxNo(VATStatementReportLine, 'G2');
+        FindVATReportLineBoxNo(VATStatementReportLine, 'G3');
+        FindVATReportLineBoxNo(VATStatementReportLine, 'G4');
+        FindVATReportLineBoxNo(VATStatementReportLine, 'G7');
+        FindVATReportLineBoxNo(VATStatementReportLine, 'W1');
+        FindVATReportLineBoxNo(VATStatementReportLine, 'W2');
+        FindVATReportLineBoxNo(VATStatementReportLine, 'T1');
+        FindVATReportLineBoxNo(VATStatementReportLine, 'G10');
+        FindVATReportLineBoxNo(VATStatementReportLine, 'G11');
+        FindVATReportLineBoxNo(VATStatementReportLine, 'G13');
+        FindVATReportLineBoxNo(VATStatementReportLine, 'G14');
+        FindVATReportLineBoxNo(VATStatementReportLine, 'G15');
+        FindVATReportLineBoxNo(VATStatementReportLine, 'G18');
+        FindVATReportLineBoxNo(VATStatementReportLine, 'W3');
+        FindVATReportLineBoxNo(VATStatementReportLine, 'W4');
 
         DownloadBASToClient(XMLDocument, VATReportHeader."No." + '.xml');
         VATReportHeader.Status := VATReportHeader.Status::Submitted;
@@ -331,14 +325,12 @@ codeunit 11601 "BAS Management"
     var
         VATStatementReportPeriodSelection: Enum "VAT Statement Report Period Selection";
     begin
-        with BASCalcSheet3 do begin
-            if Exported then
-                Error(Text1450027);
-            Clear(BASUpdate);
-            BASUpdate.InitializeRequest(
-                BASCalcSheet3, true, "VAT Statement Report Selection"::Open, VATStatementReportPeriodSelection::"Before and Within Period", false);
-            BASUpdate.RunModal();
-        end;
+        if BASCalcSheet3.Exported then
+            Error(Text1450027);
+        Clear(BASUpdate);
+        BASUpdate.InitializeRequest(
+            BASCalcSheet3, true, "VAT Statement Report Selection"::Open, VATStatementReportPeriodSelection::"Before and Within Period", false);
+        BASUpdate.RunModal();
     end;
 
     [Scope('OnPrem')]
@@ -364,96 +356,94 @@ codeunit 11601 "BAS Management"
             exit;
 
         BASCalcScheduleList.GetRecord(BASCalcSheetConsol);
-        with TempBASCalcSheet do begin
-            Init();
-            A1 := BASCalcSheetConsol.A1;
-            "BAS Version" := BASCalcSheetConsol."BAS Version";
-            repeat
-                BASBusUnits.TestField("Document No.");
-                BASBusUnits.TestField("BAS Version");
-                BASCalcSheetSubsid.ChangeCompany(BASBusUnits."Company Name");
-                if not BASCalcSheetSubsid.Get(BASBusUnits."Document No.", BASBusUnits."BAS Version") then
-                    Error(
-                      Text1450022,
-                      BASBusUnits."Document No.",
-                      BASBusUnits."BAS Version",
-                      BASBusUnits."Company Name");
-                if not BASCalcSheetSubsid.Updated then
-                    Error(
-                      Text1450023,
-                      BASBusUnits."Document No.",
-                      BASBusUnits."BAS Version",
-                      BASBusUnits."Company Name");
-                GLSetupSubsid.ChangeCompany(BASBusUnits."Company Name");
-                GLSetupSubsid.Get();
-                if GLSetupSubsid."BAS GST Division Factor" <> GLSetup."BAS GST Division Factor" then
-                    Error(
-                      Text1450024,
-                      BASBusUnits."Company Name",
-                      CompanyName);
+        TempBASCalcSheet.Init();
+        TempBASCalcSheet.A1 := BASCalcSheetConsol.A1;
+        TempBASCalcSheet."BAS Version" := BASCalcSheetConsol."BAS Version";
+        repeat
+            BASBusUnits.TestField("Document No.");
+            BASBusUnits.TestField("BAS Version");
+            BASCalcSheetSubsid.ChangeCompany(BASBusUnits."Company Name");
+            if not BASCalcSheetSubsid.Get(BASBusUnits."Document No.", BASBusUnits."BAS Version") then
+                Error(
+                  Text1450022,
+                  BASBusUnits."Document No.",
+                  BASBusUnits."BAS Version",
+                  BASBusUnits."Company Name");
+            if not BASCalcSheetSubsid.Updated then
+                Error(
+                  Text1450023,
+                  BASBusUnits."Document No.",
+                  BASBusUnits."BAS Version",
+                  BASBusUnits."Company Name");
+            GLSetupSubsid.ChangeCompany(BASBusUnits."Company Name");
+            GLSetupSubsid.Get();
+            if GLSetupSubsid."BAS GST Division Factor" <> GLSetup."BAS GST Division Factor" then
+                Error(
+                  Text1450024,
+                  BASBusUnits."Company Name",
+                  CompanyName);
 
-                T3 += BASCalcSheetSubsid.T3;
-                T8 += BASCalcSheetSubsid.T8;
-                T9 += BASCalcSheetSubsid.T9;
-                F2 += BASCalcSheetSubsid.F2;
-                G22 += BASCalcSheetSubsid.G22;
-                "1H" += BASCalcSheetSubsid."1H";
-                "1A" += BASCalcSheetSubsid."1A";
-                "1C" += BASCalcSheetSubsid."1C";
-                "1E" += BASCalcSheetSubsid."1E";
-                "4" += BASCalcSheetSubsid."4";
-                "1B" += BASCalcSheetSubsid."1B";
-                "1D" += BASCalcSheetSubsid."1D";
-                "1F" += BASCalcSheetSubsid."1F";
-                "1G" += BASCalcSheetSubsid."1G";
-                "5B" += BASCalcSheetSubsid."5B";
-                "6B" += BASCalcSheetSubsid."6B";
-                "7C" += BASCalcSheetSubsid."7C";
-                "7D" += BASCalcSheetSubsid."7D";
-                G1 += BASCalcSheetSubsid.G1;
-                G2 += BASCalcSheetSubsid.G2;
-                G3 += BASCalcSheetSubsid.G3;
-                G4 += BASCalcSheetSubsid.G4;
-                G7 += BASCalcSheetSubsid.G7;
-                W1 += BASCalcSheetSubsid.W1;
-                W2 += BASCalcSheetSubsid.W2;
-                T1 += BASCalcSheetSubsid.T1;
-                G10 += BASCalcSheetSubsid.G10;
-                G11 += BASCalcSheetSubsid.G11;
-                G13 += BASCalcSheetSubsid.G13;
-                G14 += BASCalcSheetSubsid.G14;
-                G15 += BASCalcSheetSubsid.G15;
-                G18 += BASCalcSheetSubsid.G18;
-                W3 += BASCalcSheetSubsid.W3;
-                W4 += BASCalcSheetSubsid.W4;
+            TempBASCalcSheet.T3 += BASCalcSheetSubsid.T3;
+            TempBASCalcSheet.T8 += BASCalcSheetSubsid.T8;
+            TempBASCalcSheet.T9 += BASCalcSheetSubsid.T9;
+            TempBASCalcSheet.F2 += BASCalcSheetSubsid.F2;
+            TempBASCalcSheet.G22 += BASCalcSheetSubsid.G22;
+            TempBASCalcSheet."1H" += BASCalcSheetSubsid."1H";
+            TempBASCalcSheet."1A" += BASCalcSheetSubsid."1A";
+            TempBASCalcSheet."1C" += BASCalcSheetSubsid."1C";
+            TempBASCalcSheet."1E" += BASCalcSheetSubsid."1E";
+            TempBASCalcSheet."4" += BASCalcSheetSubsid."4";
+            TempBASCalcSheet."1B" += BASCalcSheetSubsid."1B";
+            TempBASCalcSheet."1D" += BASCalcSheetSubsid."1D";
+            TempBASCalcSheet."1F" += BASCalcSheetSubsid."1F";
+            TempBASCalcSheet."1G" += BASCalcSheetSubsid."1G";
+            TempBASCalcSheet."5B" += BASCalcSheetSubsid."5B";
+            TempBASCalcSheet."6B" += BASCalcSheetSubsid."6B";
+            TempBASCalcSheet."7C" += BASCalcSheetSubsid."7C";
+            TempBASCalcSheet."7D" += BASCalcSheetSubsid."7D";
+            TempBASCalcSheet.G1 += BASCalcSheetSubsid.G1;
+            TempBASCalcSheet.G2 += BASCalcSheetSubsid.G2;
+            TempBASCalcSheet.G3 += BASCalcSheetSubsid.G3;
+            TempBASCalcSheet.G4 += BASCalcSheetSubsid.G4;
+            TempBASCalcSheet.G7 += BASCalcSheetSubsid.G7;
+            TempBASCalcSheet.W1 += BASCalcSheetSubsid.W1;
+            TempBASCalcSheet.W2 += BASCalcSheetSubsid.W2;
+            TempBASCalcSheet.T1 += BASCalcSheetSubsid.T1;
+            TempBASCalcSheet.G10 += BASCalcSheetSubsid.G10;
+            TempBASCalcSheet.G11 += BASCalcSheetSubsid.G11;
+            TempBASCalcSheet.G13 += BASCalcSheetSubsid.G13;
+            TempBASCalcSheet.G14 += BASCalcSheetSubsid.G14;
+            TempBASCalcSheet.G15 += BASCalcSheetSubsid.G15;
+            TempBASCalcSheet.G18 += BASCalcSheetSubsid.G18;
+            TempBASCalcSheet.W3 += BASCalcSheetSubsid.W3;
+            TempBASCalcSheet.W4 += BASCalcSheetSubsid.W4;
 
-                if BASCalcSheetSubsid.Consolidated then
-                    Error(Text1450011, BASBusUnits."Company Name");
-                BASCalcSheetSubsid.Consolidated := true;
-                BASCalcSheetSubsid.Modify();
-
-                BASCalcEntry.Reset();
-                BASCalcEntry.SetRange("Company Name", BASBusUnits."Company Name");
-                BASCalcEntry.SetRange("BAS Document No.", BASCalcSheetSubsid.A1);
-                BASCalcEntry.SetRange("BAS Version", BASCalcSheetSubsid."BAS Version");
-                if not BASCalcEntry.IsEmpty() then begin
-                    BASCalcEntry.ModifyAll("Consol. BAS Doc. No.", A1);
-                    BASCalcEntry.ModifyAll("Consol. Version No.", "BAS Version");
-                end;
-            until BASBusUnits.Next() = 0;
+            if BASCalcSheetSubsid.Consolidated then
+                Error(Text1450011, BASBusUnits."Company Name");
+            BASCalcSheetSubsid.Consolidated := true;
+            BASCalcSheetSubsid.Modify();
 
             BASCalcEntry.Reset();
-            BASCalcEntry.SetRange("Company Name", CompanyName);
-            BASCalcEntry.SetRange("BAS Document No.", A1);
-            BASCalcEntry.SetRange("BAS Version", "BAS Version");
+            BASCalcEntry.SetRange("Company Name", BASBusUnits."Company Name");
+            BASCalcEntry.SetRange("BAS Document No.", BASCalcSheetSubsid.A1);
+            BASCalcEntry.SetRange("BAS Version", BASCalcSheetSubsid."BAS Version");
             if not BASCalcEntry.IsEmpty() then begin
-                BASCalcEntry.ModifyAll("Consol. BAS Doc. No.", A1);
-                BASCalcEntry.ModifyAll("Consol. Version No.", "BAS Version");
+                BASCalcEntry.ModifyAll("Consol. BAS Doc. No.", TempBASCalcSheet.A1);
+                BASCalcEntry.ModifyAll("Consol. Version No.", TempBASCalcSheet."BAS Version");
             end;
+        until BASBusUnits.Next() = 0;
 
-            UpdateConsolBASCalculationSheet(TempBASCalcSheet, BASCalcSheetConsol);
-            Message(Text1450025, A1, "BAS Version");
+        BASCalcEntry.Reset();
+        BASCalcEntry.SetRange("Company Name", CompanyName);
+        BASCalcEntry.SetRange("BAS Document No.", TempBASCalcSheet.A1);
+        BASCalcEntry.SetRange("BAS Version", TempBASCalcSheet."BAS Version");
+        if not BASCalcEntry.IsEmpty() then begin
+            BASCalcEntry.ModifyAll("Consol. BAS Doc. No.", TempBASCalcSheet.A1);
+            BASCalcEntry.ModifyAll("Consol. Version No.", TempBASCalcSheet."BAS Version");
         end;
+
+        UpdateConsolBASCalculationSheet(TempBASCalcSheet, BASCalcSheetConsol);
+        Message(Text1450025, TempBASCalcSheet.A1, TempBASCalcSheet."BAS Version");
     end;
 
     local procedure UpdateXMLNodeValues(FieldNumber: Integer; Amount: Text[100])
@@ -635,24 +625,22 @@ codeunit 11601 "BAS Management"
     var
         PurchSetup: Record "Purchases & Payables Setup";
     begin
-        with GenJnlLine do begin
-            GLSetup.Get();
-            if GLSetup.GSTEnabled("Document Date") then begin
-                PurchSetup.Get();
-                if not AdjmtSet then begin
-                    Adjustment := true;
-                    AdjmtSet := Adjustment;
-                end;
-                if not BASAdjmtSet then begin
-                    "BAS Adjustment" := CheckBASPeriod("Document Date", VendLedgEntry."Document Date");
-                    BASAdjmtSet := "BAS Adjustment";
-                end;
-                "Adjmt. Entry No." := VendLedgEntry."Entry No.";
-                if not Modify() then begin
-                    VendLedgEntry."Pre Adjmt. Reason Code" := VendLedgEntry."Reason Code";
-                    VendLedgEntry."Reason Code" := PurchSetup."Payment Discount Reason Code";
-                    VendLedgEntry.Modify();
-                end;
+        GLSetup.Get();
+        if GLSetup.GSTEnabled(GenJnlLine."Document Date") then begin
+            PurchSetup.Get();
+            if not AdjmtSet then begin
+                GenJnlLine.Adjustment := true;
+                AdjmtSet := GenJnlLine.Adjustment;
+            end;
+            if not BASAdjmtSet then begin
+                GenJnlLine."BAS Adjustment" := CheckBASPeriod(GenJnlLine."Document Date", VendLedgEntry."Document Date");
+                BASAdjmtSet := GenJnlLine."BAS Adjustment";
+            end;
+            GenJnlLine."Adjmt. Entry No." := VendLedgEntry."Entry No.";
+            if not GenJnlLine.Modify() then begin
+                VendLedgEntry."Pre Adjmt. Reason Code" := VendLedgEntry."Reason Code";
+                VendLedgEntry."Reason Code" := PurchSetup."Payment Discount Reason Code";
+                VendLedgEntry.Modify();
             end;
         end;
     end;
@@ -662,25 +650,23 @@ codeunit 11601 "BAS Management"
     var
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        with GenJnlLine do begin
-            GLSetup.Get();
-            if GLSetup.GSTEnabled("Document Date") then begin
-                SalesSetup.Get();
-                SalesSetup.TestField("Payment Discount Reason Code");
-                if not AdjmtSet then begin
-                    Adjustment := true;
-                    AdjmtSet := Adjustment;
-                end;
-                if not BASAdjmtSet then begin
-                    "BAS Adjustment" := CheckBASPeriod("Document Date", CustLedgEntry."Document Date");
-                    BASAdjmtSet := "BAS Adjustment";
-                end;
-                "Adjmt. Entry No." := CustLedgEntry."Entry No.";
-                if not Modify() then;
-                CustLedgEntry."Pre Adjmt. Reason Code" := CustLedgEntry."Reason Code";
-                CustLedgEntry."Reason Code" := SalesSetup."Payment Discount Reason Code";
-                CustLedgEntry.Modify();
+        GLSetup.Get();
+        if GLSetup.GSTEnabled(GenJnlLine."Document Date") then begin
+            SalesSetup.Get();
+            SalesSetup.TestField("Payment Discount Reason Code");
+            if not AdjmtSet then begin
+                GenJnlLine.Adjustment := true;
+                AdjmtSet := GenJnlLine.Adjustment;
             end;
+            if not BASAdjmtSet then begin
+                GenJnlLine."BAS Adjustment" := CheckBASPeriod(GenJnlLine."Document Date", CustLedgEntry."Document Date");
+                BASAdjmtSet := GenJnlLine."BAS Adjustment";
+            end;
+            GenJnlLine."Adjmt. Entry No." := CustLedgEntry."Entry No.";
+            if not GenJnlLine.Modify() then;
+            CustLedgEntry."Pre Adjmt. Reason Code" := CustLedgEntry."Reason Code";
+            CustLedgEntry."Reason Code" := SalesSetup."Payment Discount Reason Code";
+            CustLedgEntry.Modify();
         end;
     end;
 
@@ -737,28 +723,26 @@ codeunit 11601 "BAS Management"
     [Scope('OnPrem')]
     procedure CheckBASFieldID(FieldID: Integer; DisplayErrorMessage: Boolean): Boolean
     begin
-        with BASCalcSheet do begin
-            if not (FieldID in [
-                                FieldNo("1A") .. FieldNo("1E"),
-                                FieldNo("4"),
-                                FieldNo("1B") .. FieldNo("1G"),
-                                FieldNo("5B"),
-                                FieldNo("6B"),
-                                FieldNo(G1) .. FieldNo(G4),
-                                FieldNo(G7),
-                                FieldNo(W1) .. FieldNo(T1),
-                                FieldNo(G10) .. FieldNo(G11),
-                                FieldNo(G13) .. FieldNo(G15),
-                                FieldNo(G18),
-                                FieldNo(W3) .. FieldNo(W4),
-                                FieldNo("7C"),
-                                FieldNo("7D")])
-            then
-                if DisplayErrorMessage then
-                    Error(Text1450026, FieldID);
+        if not (FieldID in [
+                    BASCalcSheet.FieldNo("1A") .. BASCalcSheet.FieldNo("1E"),
+                    BASCalcSheet.FieldNo("4"),
+                    BASCalcSheet.FieldNo("1B") .. BASCalcSheet.FieldNo("1G"),
+                    BASCalcSheet.FieldNo("5B"),
+                    BASCalcSheet.FieldNo("6B"),
+                    BASCalcSheet.FieldNo(G1) .. BASCalcSheet.FieldNo(G4),
+                    BASCalcSheet.FieldNo(G7),
+                    BASCalcSheet.FieldNo(W1) .. BASCalcSheet.FieldNo(T1),
+                    BASCalcSheet.FieldNo(G10) .. BASCalcSheet.FieldNo(G11),
+                    BASCalcSheet.FieldNo(G13) .. BASCalcSheet.FieldNo(G15),
+                    BASCalcSheet.FieldNo(G18),
+                    BASCalcSheet.FieldNo(W3) .. BASCalcSheet.FieldNo(W4),
+                    BASCalcSheet.FieldNo("7C"),
+                    BASCalcSheet.FieldNo("7D")])
+then
+            if DisplayErrorMessage then
+                Error(Text1450026, FieldID);
 
-            exit(true);
-        end;
+        exit(true);
     end;
 
     [Scope('OnPrem')]
@@ -842,46 +826,44 @@ codeunit 11601 "BAS Management"
     local procedure UpdateConsolBASCalculationSheet(SourceBASCalculationSheet: Record "BAS Calculation Sheet"; var ConsolidatedBASCalculationSheet: Record "BAS Calculation Sheet")
     begin
         ConsolidatedBASCalculationSheet.Get(SourceBASCalculationSheet.A1, SourceBASCalculationSheet."BAS Version");
-        with ConsolidatedBASCalculationSheet do begin
-            T3 := SourceBASCalculationSheet.T3;
-            T8 := SourceBASCalculationSheet.T8;
-            T9 := SourceBASCalculationSheet.T9;
-            F2 := SourceBASCalculationSheet.F2;
-            G22 := SourceBASCalculationSheet.G22;
-            "1H" := SourceBASCalculationSheet."1H";
-            "1A" := SourceBASCalculationSheet."1A";
-            "1C" := SourceBASCalculationSheet."1C";
-            "1E" := SourceBASCalculationSheet."1E";
-            "4" := SourceBASCalculationSheet."4";
-            "1B" := SourceBASCalculationSheet."1B";
-            "1D" := SourceBASCalculationSheet."1D";
-            "1F" := SourceBASCalculationSheet."1F";
-            "1G" := SourceBASCalculationSheet."1G";
-            "5B" := SourceBASCalculationSheet."5B";
-            "6B" := SourceBASCalculationSheet."6B";
-            "7C" := SourceBASCalculationSheet."7C";
-            "7D" := SourceBASCalculationSheet."7D";
-            G1 := SourceBASCalculationSheet.G1;
-            G2 := SourceBASCalculationSheet.G2;
-            G3 := SourceBASCalculationSheet.G3;
-            G4 := SourceBASCalculationSheet.G4;
-            G7 := SourceBASCalculationSheet.G7;
-            W1 := SourceBASCalculationSheet.W1;
-            W2 := SourceBASCalculationSheet.W2;
-            T1 := SourceBASCalculationSheet.T1;
-            G10 := SourceBASCalculationSheet.G10;
-            G11 := SourceBASCalculationSheet.G11;
-            G13 := SourceBASCalculationSheet.G13;
-            G14 := SourceBASCalculationSheet.G14;
-            G15 := SourceBASCalculationSheet.G15;
-            G18 := SourceBASCalculationSheet.G18;
-            W3 := SourceBASCalculationSheet.W3;
-            W4 := SourceBASCalculationSheet.W4;
-            Updated := true;
-            Consolidated := true;
-            "Group Consolidated" := true;
-            Modify();
-        end;
+        ConsolidatedBASCalculationSheet.T3 := SourceBASCalculationSheet.T3;
+        ConsolidatedBASCalculationSheet.T8 := SourceBASCalculationSheet.T8;
+        ConsolidatedBASCalculationSheet.T9 := SourceBASCalculationSheet.T9;
+        ConsolidatedBASCalculationSheet.F2 := SourceBASCalculationSheet.F2;
+        ConsolidatedBASCalculationSheet.G22 := SourceBASCalculationSheet.G22;
+        ConsolidatedBASCalculationSheet."1H" := SourceBASCalculationSheet."1H";
+        ConsolidatedBASCalculationSheet."1A" := SourceBASCalculationSheet."1A";
+        ConsolidatedBASCalculationSheet."1C" := SourceBASCalculationSheet."1C";
+        ConsolidatedBASCalculationSheet."1E" := SourceBASCalculationSheet."1E";
+        ConsolidatedBASCalculationSheet."4" := SourceBASCalculationSheet."4";
+        ConsolidatedBASCalculationSheet."1B" := SourceBASCalculationSheet."1B";
+        ConsolidatedBASCalculationSheet."1D" := SourceBASCalculationSheet."1D";
+        ConsolidatedBASCalculationSheet."1F" := SourceBASCalculationSheet."1F";
+        ConsolidatedBASCalculationSheet."1G" := SourceBASCalculationSheet."1G";
+        ConsolidatedBASCalculationSheet."5B" := SourceBASCalculationSheet."5B";
+        ConsolidatedBASCalculationSheet."6B" := SourceBASCalculationSheet."6B";
+        ConsolidatedBASCalculationSheet."7C" := SourceBASCalculationSheet."7C";
+        ConsolidatedBASCalculationSheet."7D" := SourceBASCalculationSheet."7D";
+        ConsolidatedBASCalculationSheet.G1 := SourceBASCalculationSheet.G1;
+        ConsolidatedBASCalculationSheet.G2 := SourceBASCalculationSheet.G2;
+        ConsolidatedBASCalculationSheet.G3 := SourceBASCalculationSheet.G3;
+        ConsolidatedBASCalculationSheet.G4 := SourceBASCalculationSheet.G4;
+        ConsolidatedBASCalculationSheet.G7 := SourceBASCalculationSheet.G7;
+        ConsolidatedBASCalculationSheet.W1 := SourceBASCalculationSheet.W1;
+        ConsolidatedBASCalculationSheet.W2 := SourceBASCalculationSheet.W2;
+        ConsolidatedBASCalculationSheet.T1 := SourceBASCalculationSheet.T1;
+        ConsolidatedBASCalculationSheet.G10 := SourceBASCalculationSheet.G10;
+        ConsolidatedBASCalculationSheet.G11 := SourceBASCalculationSheet.G11;
+        ConsolidatedBASCalculationSheet.G13 := SourceBASCalculationSheet.G13;
+        ConsolidatedBASCalculationSheet.G14 := SourceBASCalculationSheet.G14;
+        ConsolidatedBASCalculationSheet.G15 := SourceBASCalculationSheet.G15;
+        ConsolidatedBASCalculationSheet.G18 := SourceBASCalculationSheet.G18;
+        ConsolidatedBASCalculationSheet.W3 := SourceBASCalculationSheet.W3;
+        ConsolidatedBASCalculationSheet.W4 := SourceBASCalculationSheet.W4;
+        ConsolidatedBASCalculationSheet.Updated := true;
+        ConsolidatedBASCalculationSheet.Consolidated := true;
+        ConsolidatedBASCalculationSheet."Group Consolidated" := true;
+        ConsolidatedBASCalculationSheet.Modify();
     end;
 
     local procedure FindVATReportLineBoxNo(var VATStatementReportLine: Record "VAT Statement Report Line"; BoxNo: Text[30])

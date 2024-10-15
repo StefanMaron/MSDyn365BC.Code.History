@@ -118,7 +118,7 @@ page 1102 "Cost Allocation Sources"
                     Caption = '&Corresponding Cost Types';
                     Image = CompareCost;
                     RunObject = Page "Chart of Cost Types";
-                    RunPageLink = "No." = field(FILTER("Cost Type Range"));
+                    RunPageLink = "No." = field(filter("Cost Type Range"));
                     ToolTip = 'View the related G/L accounts in the Chart of Cost Types window.';
                 }
             }

@@ -120,7 +120,7 @@ codeunit 136118 "Service Posting - Dimensions"
         // 1. Setup: Create Customer, Service Item group, Service Item, Create Default Dimension for Service Item Group and Service Item.
         Initialize();
         LibrarySales.CreateCustomer(Customer);
-        ServiceItemGroupCode := CreateServiceItemGroup;
+        ServiceItemGroupCode := CreateServiceItemGroup();
 
         LibraryDimension.FindDimension(Dimension);
         LibraryDimension.CreateDefaultDimension(
@@ -158,7 +158,7 @@ codeunit 136118 "Service Posting - Dimensions"
         CustomerNo := CreateCustomerWithDefGlobalDimensions(ShortcutDimCode);
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CustomerNo);
         // [GIVEN] Create Service Item
-        ServiceItemNo := CreateServiceItem(CustomerNo, CreateServiceItemGroup);
+        ServiceItemNo := CreateServiceItem(CustomerNo, CreateServiceItemGroup());
 
         // [WHEN] Create Service Item Line
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItemNo);
@@ -1608,7 +1608,7 @@ codeunit 136118 "Service Posting - Dimensions"
         // 1. Setup: Create Customer, Create Default Dimension for Customer, Create Service Header, Service Item Line and Service Line.
         CreateServiceHeaderWithDim(ServiceHeader, DefaultDimension, ValuePosting);
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, '');
-        CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo, ServiceItemLine."Line No.");
+        CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, LibraryInventory.CreateItemNo(), ServiceItemLine."Line No.");
 
         // 2. Exercise: Post Service Order as Ship and Invoice.
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
@@ -2252,7 +2252,7 @@ codeunit 136118 "Service Posting - Dimensions"
         Initialize();
         LibrarySales.CreateCustomer(Customer);
         CreateStandardServiceCodeDim(StandardServiceCode);
-        ServiceItemGroupCode := CreateServiceItemGroup;
+        ServiceItemGroupCode := CreateServiceItemGroup();
         LibraryVariableStorage.Enqueue(ServiceItemGroupCode);
         LibraryVariableStorage.Enqueue(StandardServiceCode.Code);
 
@@ -2296,7 +2296,7 @@ codeunit 136118 "Service Posting - Dimensions"
         CreateStandardServiceLineDim(StandardServiceCode.Code, StandardServiceLine.Type::Item, Item."No.", Dimension.Code);
         Dimension.Next();
         LibraryDimension.CreateDefaultDimensionItem(DefaultDimension, Item."No.", Dimension.Code, FindDimensionValue(Dimension.Code));
-        ServiceItemGroupCode := CreateServiceItemGroup;
+        ServiceItemGroupCode := CreateServiceItemGroup();
         LibraryVariableStorage.Enqueue(ServiceItemGroupCode);
         LibraryVariableStorage.Enqueue(StandardServiceCode.Code);
 
@@ -2361,7 +2361,7 @@ codeunit 136118 "Service Posting - Dimensions"
 
         // [GIVEN] Default Dimension "A1" for Customer, "A2" for Item, "A3" for Service Item
         CustomerNo := LibrarySales.CreateCustomerNo();
-        ServiceItemNo := CreateServiceItem(CustomerNo, CreateServiceItemGroup);
+        ServiceItemNo := CreateServiceItem(CustomerNo, CreateServiceItemGroup());
         ItemNo := LibraryInventory.CreateItemNo();
         CreateDefDimWithNewDimValue(Dimension.Code, DATABASE::Customer, CustomerNo);
         CreateDefDimWithNewDimValue(Dimension.Code, DATABASE::Item, ItemNo);
@@ -2462,7 +2462,7 @@ codeunit 136118 "Service Posting - Dimensions"
 
         // [GIVEN] Default Dimension "A1" for Customer, "A2" for Item, "A3" for Service Item
         CustomerNo := LibrarySales.CreateCustomerNo();
-        ServiceItemNo := CreateServiceItem(CustomerNo, CreateServiceItemGroup);
+        ServiceItemNo := CreateServiceItem(CustomerNo, CreateServiceItemGroup());
         ItemNo := LibraryInventory.CreateItemNo();
         CreateDefDimWithNewDimValue(Dimension.Code, DATABASE::Customer, CustomerNo);
         ExpectedDimValueCode := CreateDefDimWithNewDimValue(Dimension.Code, DATABASE::Item, ItemNo);
@@ -2499,7 +2499,7 @@ codeunit 136118 "Service Posting - Dimensions"
         // [GIVEN] Service Order and Service Item Line with dimension "X"
         LibraryDimension.CreateDimension(Dimension);
         CustomerNo := LibrarySales.CreateCustomerNo();
-        ServiceItemNo := CreateServiceItem(CustomerNo, CreateServiceItemGroup);
+        ServiceItemNo := CreateServiceItem(CustomerNo, CreateServiceItemGroup());
         CreateDefDimWithNewDimValue(Dimension.Code, DATABASE::"Service Item", ServiceItemNo);
         LibraryService.CreateServiceHeader(
           ServiceHeader, ServiceHeader."Document Type"::Order, CustomerNo);
@@ -2508,7 +2508,7 @@ codeunit 136118 "Service Posting - Dimensions"
 
         // [THEN] Create Service Line related to Service Item Line
         CreateServiceLineWithServItemLineNo(
-          ServiceLine, ServiceHeader, LibraryInventory.CreateItemNo, ServiceItemLine."Line No.");
+          ServiceLine, ServiceHeader, LibraryInventory.CreateItemNo(), ServiceItemLine."Line No.");
 
         // [WHEN] Service Line has dimension "X"
         ServiceLine.TestField("Dimension Set ID", ServiceItemLine."Dimension Set ID");
@@ -2532,7 +2532,7 @@ codeunit 136118 "Service Posting - Dimensions"
 
         // [GIVEN] Enabled "Invoice Rounding" in "Sales & Receivables Setup"
         // [GIVEN] "Invoice Rounding Precision" = 1
-        InitRoundingSetup;
+        InitRoundingSetup();
 
         // [GIVEN] Customer posting group "CPG" with Invoice Rounding G/L Account = "A"
         // [GIVEN] New Dimension Value "DV" added to "A"
@@ -2544,9 +2544,9 @@ codeunit 136118 "Service Posting - Dimensions"
         CreateServiceOrderWithItemLine(ServiceHeader, Customer."No.");
 
         // [WHEN] Open service order's statistics page
-        ServiceOrder.OpenEdit;
+        ServiceOrder.OpenEdit();
         ServiceOrder.GotoRecord(ServiceHeader);
-        ServiceOrder.Statistics.Invoke;
+        ServiceOrder.Statistics.Invoke();
         ServiceOrder.Close();
 
         // [THEN] Dimension Set Tree Node for "DV" has not been created
@@ -2573,7 +2573,7 @@ codeunit 136118 "Service Posting - Dimensions"
 
         // [GIVEN] Enabled "Invoice Rounding" in "Sales & Receivables Setup"
         // [GIVEN] "Invoice Rounding Precision" = 1
-        InitRoundingSetup;
+        InitRoundingSetup();
 
         // [GIVEN] Customer posting group with Invoice Rounding G/L Account = "A"
         // [GIVEN] Customer with posting group and dimension "DEPARTMENT" - "ADM"
@@ -2648,7 +2648,7 @@ codeunit 136118 "Service Posting - Dimensions"
         UnexpectedDimValueCode := CreateDefDimWithNewDimValue(Dimension[2].Code, DATABASE::Customer, CustomerNo);
 
         // [GIVEN] Service order for customer "C".
-        ServiceItemNo := CreateServiceItem(CustomerNo, CreateServiceItemGroup);
+        ServiceItemNo := CreateServiceItem(CustomerNo, CreateServiceItemGroup());
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, CustomerNo);
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItemNo);
 
@@ -2669,7 +2669,6 @@ codeunit 136118 "Service Posting - Dimensions"
     procedure VerifyDimensionsAreNotReInitializedIfDefaultDimensionDoesntExist()
     var
         Customer: Record Customer;
-        Item: Record Item;
         Location: Record Location;
         ServiceHeader: Record "Service Header";
         ServiceLine: Record "Service Line";
@@ -2685,7 +2684,7 @@ codeunit 136118 "Service Posting - Dimensions"
         CreateCustomerWithDefaultGlobalDimValue(Customer, DimensionValue);
 
         // [GIVEN] Create Service Item        
-        ServiceItemNo := CreateServiceItem(Customer."No.", CreateServiceItemGroup);
+        ServiceItemNo := CreateServiceItem(Customer."No.", CreateServiceItemGroup());
 
         // [GIVEN] Create Location without Default Dimension
         LibraryWarehouse.CreateLocation(Location);
@@ -2766,7 +2765,7 @@ codeunit 136118 "Service Posting - Dimensions"
         LibraryManufacturing.CreateWorkCenter(WorkCenter);
 
         LibraryManufacturing.CreateRoutingHeader(RoutingHeader, RoutingType);
-        LibraryManufacturing.CreateRoutingLineSetup(RoutingLine, RoutingHeader, WorkCenter."No.", LibraryUtility.GenerateGUID, 0, 0);
+        LibraryManufacturing.CreateRoutingLineSetup(RoutingLine, RoutingHeader, WorkCenter."No.", LibraryUtility.GenerateGUID(), 0, 0);
 
         RoutingHeader.Validate(Status, RoutingHeader.Status::Certified);
         RoutingHeader.Modify(true);
@@ -2926,7 +2925,7 @@ codeunit 136118 "Service Posting - Dimensions"
         LibrarySales.CreateCustomer(Customer);
         LibraryDimension.FindDimension(Dimension);
         LibraryDimension.CreateDefaultDimensionResource(
-          DefaultDimension, CreateResource, Dimension.Code, FindDimensionValue(Dimension.Code));
+          DefaultDimension, CreateResource(), Dimension.Code, FindDimensionValue(Dimension.Code));
 
         // 2. Exercise: Create Service Header, Service Item Line and Service Line of Type Resource.
         CreateServiceOrder(ServiceLine, ServiceLine.Type::Resource, DefaultDimension."No.", Customer."No.", QtyToConsume);
@@ -2970,7 +2969,7 @@ codeunit 136118 "Service Posting - Dimensions"
         ResourceNo: Code[20];
     begin
         DimensionValue.Next();
-        ServiceItemGroupCode := CreateServiceItemGroup;
+        ServiceItemGroupCode := CreateServiceItemGroup();
         LibraryDimension.CreateDefaultDimension(
           DefaultDimension, DATABASE::"Service Item Group", ServiceItemGroupCode, DimensionCode, DimensionValue.Code);
 
@@ -2984,7 +2983,7 @@ codeunit 136118 "Service Posting - Dimensions"
         LibraryDimension.CreateDefaultDimensionItem(DefaultDimension, Item."No.", DimensionCode, DimensionValue.Code);
 
         DimensionValue.Next();
-        ResourceNo := CreateResource;
+        ResourceNo := CreateResource();
         LibraryDimension.CreateDefaultDimensionResource(DefaultDimension, ResourceNo, DimensionCode, DimensionValue.Code);
 
         DimensionValue.Next();
@@ -3087,7 +3086,7 @@ codeunit 136118 "Service Posting - Dimensions"
         // Create Service Header, Service Item Line, Service Line of Type Item, Resource, G/L Account.
         Initialize();
         LibrarySales.CreateCustomer(Customer);
-        ResourceNo := CreateResource;
+        ResourceNo := CreateResource();
         LibraryDimension.FindDimension(Dimension);
         LibraryDimension.CreateDefaultDimensionResource(DefaultDimension, ResourceNo, Dimension.Code, FindDimensionValue(Dimension.Code));
         ModifyDefaultDimension(DefaultDimension, ValuePosting);
@@ -3132,7 +3131,7 @@ codeunit 136118 "Service Posting - Dimensions"
         LibrarySales.CreateCustomer(Customer);
 
         // 2. Exercise: Create Service Header, Service Item Line and Service Line of Type Resource.
-        CreateServiceOrder(ServiceLine, ServiceLine.Type::Resource, CreateResource, Customer."No.", QtyToConsume);
+        CreateServiceOrder(ServiceLine, ServiceLine.Type::Resource, CreateResource(), Customer."No.", QtyToConsume);
     end;
 
     local procedure CreateServiceOrderWithDim(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; Consume: Boolean)
@@ -3164,7 +3163,7 @@ codeunit 136118 "Service Posting - Dimensions"
         Dimension.Next();
         LibraryDimension.CreateDefaultDimensionItem(DefaultDimension, Item."No.", Dimension.Code, FindDimensionValue(Dimension.Code));
 
-        ResourceNo := CreateResource;
+        ResourceNo := CreateResource();
         LibraryDimension.CreateDefaultDimensionResource(DefaultDimension, ResourceNo, Dimension.Code, FindDimensionValue(Dimension.Code));
 
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Order, Customer."No.");
@@ -3214,9 +3213,9 @@ codeunit 136118 "Service Posting - Dimensions"
         LibraryService.CreateServiceHeader(
           ServiceHeader, ServiceHeader."Document Type"::Order, CustNo);
         LibraryService.CreateServiceItemLine(
-          ServiceItemLine, ServiceHeader, CreateServiceItem(CustNo, CreateServiceItemGroup));
+          ServiceItemLine, ServiceHeader, CreateServiceItem(CustNo, CreateServiceItemGroup()));
         CreateServiceLineWithServItemLineNo(
-          ServiceLine, ServiceHeader, LibraryInventory.CreateItemNo, ServiceItemLine."Line No.");
+          ServiceLine, ServiceHeader, LibraryInventory.CreateItemNo(), ServiceItemLine."Line No.");
         ServiceLine.Validate(Quantity, LibraryRandom.RandInt(10));
         ServiceLine.Validate("Unit Price", LibraryRandom.RandDecInRange(100, 200, 2));
         ServiceLine.Modify(true);
@@ -3245,7 +3244,7 @@ codeunit 136118 "Service Posting - Dimensions"
         CreateStandardServiceLineDim(StandardServiceCode.Code, StandardServiceLine.Type::Item, Item."No.", Dimension.Code);
 
         Dimension.Next();
-        CreateStandardServiceLineDim(StandardServiceCode.Code, StandardServiceLine.Type::Resource, CreateResource, Dimension.Code);
+        CreateStandardServiceLineDim(StandardServiceCode.Code, StandardServiceLine.Type::Resource, CreateResource(), Dimension.Code);
 
         CreateServiceCost(ServiceCost);
         Dimension.Next();
@@ -3386,7 +3385,7 @@ codeunit 136118 "Service Posting - Dimensions"
         LibraryDimension.FindDimension(Dimension);
         LibraryDimension.CreateDefaultDimensionItem(DefaultDimension, Item."No.", Dimension.Code, FindDimensionValue(Dimension.Code));
 
-        ResourceNo := CreateResource;
+        ResourceNo := CreateResource();
         LibraryDimension.CreateDefaultDimensionResource(DefaultDimension, ResourceNo, Dimension.Code, FindDimensionValue(Dimension.Code));
 
         CreateGLAccount(GLAccount);
@@ -3398,7 +3397,7 @@ codeunit 136118 "Service Posting - Dimensions"
 
     local procedure CreateGLAccount(var GLAccount: Record "G/L Account")
     begin
-        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup);
+        GLAccount.Get(LibraryERM.CreateGLAccountWithSalesSetup());
         GLAccount.Validate("Direct Posting", true);
         GLAccount.Modify(true);
     end;
@@ -3408,7 +3407,7 @@ codeunit 136118 "Service Posting - Dimensions"
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
         CustomerPostingGroup.Get(CustomerPostingGroupCode);
-        CustomerPostingGroup.Validate("Invoice Rounding Account", LibraryERM.CreateGLAccountWithSalesSetup);
+        CustomerPostingGroup.Validate("Invoice Rounding Account", LibraryERM.CreateGLAccountWithSalesSetup());
         CustomerPostingGroup.Modify(true);
 
         exit(CustomerPostingGroup."Invoice Rounding Account");
@@ -3449,7 +3448,7 @@ codeunit 136118 "Service Posting - Dimensions"
 
     local procedure CreateResource(): Code[20]
     begin
-        exit(LibraryResource.CreateResourceNo);
+        exit(LibraryResource.CreateResourceNo());
     end;
 
     local procedure CreateServiceItem(CustomerNo: Code[20]; ServiceItemGroupCode: Code[10]): Code[20]
@@ -3812,7 +3811,7 @@ codeunit 136118 "Service Posting - Dimensions"
     begin
         FindServiceLine(ServiceLine);
         repeat
-            ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
+            ServiceLine.Validate("Qty. to Consume", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction());
             ServiceLine.Modify(true);
         until ServiceLine.Next() = 0;
     end;
@@ -3821,7 +3820,7 @@ codeunit 136118 "Service Posting - Dimensions"
     begin
         FindServiceLine(ServiceLine);
         repeat
-            ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction);
+            ServiceLine.Validate("Qty. to Ship", ServiceLine.Quantity * LibraryUtility.GenerateRandomFraction());
             ServiceLine.Modify(true);
         until ServiceLine.Next() = 0;
     end;
@@ -3830,7 +3829,7 @@ codeunit 136118 "Service Posting - Dimensions"
     begin
         FindServiceLine(ServiceLine);
         repeat
-            ServiceLine.Validate("Qty. to Invoice", ServiceLine."Quantity Shipped" * LibraryUtility.GenerateRandomFraction);
+            ServiceLine.Validate("Qty. to Invoice", ServiceLine."Quantity Shipped" * LibraryUtility.GenerateRandomFraction());
             ServiceLine.Modify(true);
         until ServiceLine.Next() = 0;
     end;
@@ -4327,7 +4326,7 @@ codeunit 136118 "Service Posting - Dimensions"
             SetRange("Service Order No.", ServiceOrderNo);
             FindSet();
             Assert.AreEqual(DimSetID, "Dimension Set ID", DimensionSetIDErr);
-            Next;
+            Next();
             Assert.AreEqual(DimSetID, "Dimension Set ID", DimensionSetIDErr);
         end;
     end;
@@ -4409,8 +4408,8 @@ codeunit 136118 "Service Posting - Dimensions"
     begin
         LibraryService.CreateStandardServiceItemGr(
           StandardServiceItemGrCode,
-          CopyStr(LibraryVariableStorage.DequeueText, 1, 10),
-          CopyStr(LibraryVariableStorage.DequeueText, 1, 10));
+          CopyStr(LibraryVariableStorage.DequeueText(), 1, 10),
+          CopyStr(LibraryVariableStorage.DequeueText(), 1, 10));
         StandardServItemGrCodes.SetRecord(StandardServiceItemGrCode);
         StandardServItemGrCodes.SetTableView(StandardServiceItemGrCode);
         Response := ACTION::LookupOK;
@@ -4423,17 +4422,17 @@ codeunit 136118 "Service Posting - Dimensions"
         DimensionSetEntry: Record "Dimension Set Entry";
         ItemJournalLine: Record "Item Journal Line";
     begin
-        ItemJournalLine.SetRange("Item No.", LibraryVariableStorage.DequeueText);
+        ItemJournalLine.SetRange("Item No.", LibraryVariableStorage.DequeueText());
         ItemJournalLine.FindFirst();
         LibraryDimension.FindDimensionSetEntry(DimensionSetEntry, ItemJournalLine."Dimension Set ID");
-        DimensionSetEntry.TestField("Dimension Value Code", LibraryVariableStorage.DequeueText);
+        DimensionSetEntry.TestField("Dimension Value Code", LibraryVariableStorage.DequeueText());
     end;
 
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure ServiceOrderStatisticsMPH(var ServiceOrderStatistics: TestPage "Service Order Statistics")
     begin
-        ServiceOrderStatistics.OK.Invoke;
+        ServiceOrderStatistics.OK().Invoke();
     end;
 }
 

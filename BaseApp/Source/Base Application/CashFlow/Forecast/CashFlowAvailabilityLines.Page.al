@@ -166,8 +166,8 @@ page 866 "Cash Flow Availability Lines"
                     ApplicationArea = Jobs;
                     AutoFormatExpression = FormatStr();
                     AutoFormatType = 11;
-                    Caption = 'Job';
-                    ToolTip = 'Specifies amounts related to jobs.';
+                    Caption = 'Project';
+                    ToolTip = 'Specifies amounts related to projects.';
 
                     trigger OnDrillDown()
                     begin
@@ -194,7 +194,7 @@ page 866 "Cash Flow Availability Lines"
                     AutoFormatType = 11;
                     Caption = 'Total';
                     Style = Strong;
-                    StyleExpr = TRUE;
+                    StyleExpr = true;
                     ToolTip = 'Specifies total amounts.';
 
                     trigger OnDrillDown()

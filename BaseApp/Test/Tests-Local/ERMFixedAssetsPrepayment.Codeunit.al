@@ -30,7 +30,7 @@ codeunit 145400 "ERM Fixed Assets Prepayment"
         // [SCENARIO] GL Entry after Posting Prepayment invoice with Type Fixed Asset in Purchase Order.
 
         // [GIVEN] Create Purchase Order and update Purchase Prepayment Account.
-        FixedAssetNo := FindFixedAsset;
+        FixedAssetNo := FindFixedAsset();
         LibraryPurchase.CreateVendor(Vendor);
         UpdatePurchasePrepaymentAccount(FixedAssetNo, Vendor);
         CreatePurchaseOrder(PurchaseHeader, PurchaseLine, FixedAssetNo, Vendor."No.");

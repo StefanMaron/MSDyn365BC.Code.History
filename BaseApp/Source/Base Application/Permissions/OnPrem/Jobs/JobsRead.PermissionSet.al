@@ -7,8 +7,9 @@ using Microsoft.Pricing.PriceList;
 using Microsoft.Pricing.Asset;
 using Microsoft.Pricing.Source;
 using Microsoft.Pricing.Worksheet;
+using Microsoft.Projects.Project.Archive;
 using Microsoft.Projects.Project.Job;
-#if not CLEAN21
+#if not CLEAN23
 using Microsoft.Projects.Project.Pricing;
 #endif
 using Microsoft.Projects.Project.Ledger;
@@ -19,25 +20,29 @@ permissionset 1087 "Jobs - Read"
 {
     Access = Public;
     Assignable = false;
-    Caption = 'Read jobs and entries';
+    Caption = 'Read projects and entries';
 
     Permissions = tabledata "Comment Line" = R,
+                  tabledata "Comment Line Archive" = R,
                   tabledata "Default Dimension" = R,
                   tabledata "Dtld. Price Calculation Setup" = R,
                   tabledata "Duplicate Price Line" = R,
                   tabledata Job = R,
-#if not CLEAN21
+                  tabledata "Job Archive" = R,
+#if not CLEAN23
                   tabledata "Job G/L Account Price" = R,
                   tabledata "Job Item Price" = R,
 #endif
                   tabledata "Job Ledger Entry" = R,
                   tabledata "Job Planning Line - Calendar" = R,
                   tabledata "Job Planning Line" = R,
+                  tabledata "Job Planning Line Archive" = R,
                   tabledata "Job Planning Line Invoice" = R,
-#if not CLEAN21
+#if not CLEAN23
                   tabledata "Job Resource Price" = R,
 #endif
                   tabledata "Job Task" = R,
+                  tabledata "Job Task Archive" = R,
                   tabledata "Job Usage Link" = R,
                   tabledata "Job WIP Entry" = R,
                   tabledata "Job WIP G/L Entry" = R,

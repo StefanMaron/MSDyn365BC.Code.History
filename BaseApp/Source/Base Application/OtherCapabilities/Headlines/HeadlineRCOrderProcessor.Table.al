@@ -7,6 +7,7 @@ table 1441 "Headline RC Order Processor"
     ObsoleteReason = 'Replaced with "RC Headlines User Data" table';
     ObsoleteTag = '15.0';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

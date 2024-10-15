@@ -24,37 +24,49 @@ page 303 "Vendor Entry Statistics"
                     group(Date)
                     {
                         Caption = 'Date';
+#pragma warning disable AA0100
                         field("VendLedgEntry[1].""Posting Date"""; VendLedgEntry[1]."Posting Date")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Payment';
                             ToolTip = 'Specifies the amount that relates to payments.';
                         }
+#pragma warning disable AA0100
                         field("VendLedgEntry[2].""Posting Date"""; VendLedgEntry[2]."Posting Date")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Invoice';
                             ToolTip = 'Specifies the amount that relates to invoices.';
                         }
+#pragma warning disable AA0100
                         field("VendLedgEntry[3].""Posting Date"""; VendLedgEntry[3]."Posting Date")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Credit Memo';
                             ToolTip = 'Specifies the amount that relates to credit memos.';
                         }
+#pragma warning disable AA0100
                         field("VendLedgEntry[5].""Posting Date"""; VendLedgEntry[5]."Posting Date")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Suite;
                             Caption = 'Reminder';
                             ToolTip = 'Specifies the amount that relates to reminders.';
                         }
+#pragma warning disable AA0100
                         field("VendLedgEntry[4].""Posting Date"""; VendLedgEntry[4]."Posting Date")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Suite;
                             Caption = 'Finance Charge Memo';
                             ToolTip = 'Specifies the amount that relates to finance charge memos.';
                         }
+#pragma warning disable AA0100
                         field("VendLedgEntry[6].""Posting Date"""; VendLedgEntry[6]."Posting Date")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Refund';
@@ -64,37 +76,49 @@ page 303 "Vendor Entry Statistics"
                     group("Document No.")
                     {
                         Caption = 'Document No.';
+#pragma warning disable AA0100
                         field("VendLedgEntry[1].""Document No."""; VendLedgEntry[1]."Document No.")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Document No.';
                             ToolTip = 'Specifies the number of the document that the statistic is based on.';
                         }
+#pragma warning disable AA0100
                         field("VendLedgEntry[2].""Document No."""; VendLedgEntry[2]."Document No.")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Document No.';
                             ToolTip = 'Specifies the number of the document that the statistic is based on.';
                         }
+#pragma warning disable AA0100
                         field("VendLedgEntry[3].""Document No."""; VendLedgEntry[3]."Document No.")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Document No.';
                             ToolTip = 'Specifies the number of the document that the statistic is based on.';
                         }
+#pragma warning disable AA0100
                         field("VendLedgEntry[5].""Document No."""; VendLedgEntry[5]."Document No.")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Document No.';
                             ToolTip = 'Specifies the number of the document that the statistic is based on.';
                         }
+#pragma warning disable AA0100
                         field("VendLedgEntry[4].""Document No."""; VendLedgEntry[4]."Document No.")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Document No.';
                             ToolTip = 'Specifies the number of the document that the statistic is based on.';
                         }
+#pragma warning disable AA0100
                         field("VendLedgEntry[6].""Document No."""; VendLedgEntry[6]."Document No.")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             Caption = 'Document No.';
@@ -104,37 +128,49 @@ page 303 "Vendor Entry Statistics"
                     group("Currency Code")
                     {
                         Caption = 'Currency Code';
+#pragma warning disable AA0100
                         field("VendLedgEntry[1].""Currency Code"""; VendLedgEntry[1]."Currency Code")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Suite;
                             Caption = 'Currency Code';
                             ToolTip = 'Specifies the code for the currency that amounts are shown in.';
                         }
+#pragma warning disable AA0100
                         field("VendLedgEntry[2].""Currency Code"""; VendLedgEntry[2]."Currency Code")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Suite;
                             Caption = 'Currency Code';
                             ToolTip = 'Specifies the code for the currency that amounts are shown in.';
                         }
+#pragma warning disable AA0100
                         field("VendLedgEntry[3].""Currency Code"""; VendLedgEntry[3]."Currency Code")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Suite;
                             Caption = 'Currency Code';
                             ToolTip = 'Specifies the code for the currency that amounts are shown in.';
                         }
+#pragma warning disable AA0100
                         field("VendLedgEntry[5].""Currency Code"""; VendLedgEntry[5]."Currency Code")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Suite;
                             Caption = 'Currency Code';
                             ToolTip = 'Specifies the code for the currency that amounts are shown in.';
                         }
+#pragma warning disable AA0100
                         field("VendLedgEntry[4].""Currency Code"""; VendLedgEntry[4]."Currency Code")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Suite;
                             Caption = 'Currency Code';
                             ToolTip = 'Specifies the code for the currency that amounts are shown in.';
                         }
+#pragma warning disable AA0100
                         field("VendLedgEntry[6].""Currency Code"""; VendLedgEntry[6]."Currency Code")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Suite;
                             Caption = 'Currency Code';
@@ -196,7 +232,9 @@ page 303 "Vendor Entry Statistics"
                     group("Remaining Amount")
                     {
                         Caption = 'Remaining Amount';
+#pragma warning disable AA0100
                         field("VendLedgEntry[1].""Remaining Amount"""; VendLedgEntry[1]."Remaining Amount")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatExpression = VendLedgEntry[1]."Currency Code";
@@ -204,7 +242,9 @@ page 303 "Vendor Entry Statistics"
                             Caption = 'Remaining Amount';
                             ToolTip = 'Specifies the net remaining amount of all the lines in the vendor entry.';
                         }
+#pragma warning disable AA0100
                         field("-VendLedgEntry[2].""Remaining Amount"""; -VendLedgEntry[2]."Remaining Amount")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatExpression = VendLedgEntry[2]."Currency Code";
@@ -212,7 +252,9 @@ page 303 "Vendor Entry Statistics"
                             Caption = 'Remaining Amount';
                             ToolTip = 'Specifies the net remaining amount of all the lines in the vendor entry.';
                         }
+#pragma warning disable AA0100
                         field("VendLedgEntry[3].""Remaining Amount"""; VendLedgEntry[3]."Remaining Amount")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatExpression = VendLedgEntry[3]."Currency Code";
@@ -220,7 +262,9 @@ page 303 "Vendor Entry Statistics"
                             Caption = 'Remaining Amount';
                             ToolTip = 'Specifies the net remaining amount of all the lines in the vendor entry.';
                         }
+#pragma warning disable AA0100
                         field("-VendLedgEntry[5].""Remaining Amount"""; -VendLedgEntry[5]."Remaining Amount")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatExpression = VendLedgEntry[5]."Currency Code";
@@ -228,7 +272,9 @@ page 303 "Vendor Entry Statistics"
                             Caption = 'Remaining Amount';
                             ToolTip = 'Specifies the net remaining amount of all the lines in the vendor entry.';
                         }
+#pragma warning disable AA0100
                         field("-VendLedgEntry[4].""Remaining Amount"""; -VendLedgEntry[4]."Remaining Amount")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatExpression = VendLedgEntry[4]."Currency Code";
@@ -236,7 +282,9 @@ page 303 "Vendor Entry Statistics"
                             Caption = 'Remaining Amount';
                             ToolTip = 'Specifies the net remaining amount of all the lines in the vendor entry.';
                         }
+#pragma warning disable AA0100
                         field("VendLedgEntry[6].""Remaining Amount"""; VendLedgEntry[6]."Remaining Amount")
+#pragma warning restore AA0100
                         {
                             ApplicationArea = Basic, Suite;
                             AutoFormatExpression = VendLedgEntry[6]."Currency Code";

@@ -7,6 +7,7 @@ table 1052 "Reminder Terms Translation"
     Caption = 'Reminder Terms Translation';
     DrillDownPageID = "Reminder Terms Translation";
     LookupPageID = "Reminder Terms Translation";
+    DataClassification = CustomerContent;
 
     fields
     {

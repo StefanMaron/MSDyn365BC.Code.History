@@ -22,18 +22,18 @@ codeunit 132910 "System Information Test"
         // [FEATURE] [Error]
         // [SCENARIO] When error occurs some error fields are visible
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
 
         // [GIVEN] An error occurred
         asserterror Error(ErrorOccurredErr);
 
         // [WHEN] The page is opened
-        SystemInformationTestPage.OpenView;
+        SystemInformationTestPage.OpenView();
 
         // [THEN] Error fields are visible
-        Assert.IsTrue(SystemInformationTestPage.ErrorCallStack.Visible, 'Expected Error Callstack to be visible');
-        Assert.IsTrue(SystemInformationTestPage.ErrorText.Visible, 'Expected Error Text to be visible');
-        Assert.IsTrue(SystemInformationTestPage.ErrorCode.Visible, 'Expected Error Code to be visible');
+        Assert.IsTrue(SystemInformationTestPage.ErrorCallStack.Visible(), 'Expected Error Callstack to be visible');
+        Assert.IsTrue(SystemInformationTestPage.ErrorText.Visible(), 'Expected Error Text to be visible');
+        Assert.IsTrue(SystemInformationTestPage.ErrorCode.Visible(), 'Expected Error Code to be visible');
 
         SystemInformationTestPage.Close();
     end;
@@ -47,13 +47,13 @@ codeunit 132910 "System Information Test"
         // [FEATURE] [Error]
         // [SCENARIO] When error occurs the error text field contains the error text
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
 
         // [GIVEN] An error occurred
         asserterror Error(ErrorOccurredErr);
 
         // [WHEN] The page is opened
-        SystemInformationTestPage.OpenView;
+        SystemInformationTestPage.OpenView();
 
         // [THEN] Error text field contains the error text
         Assert.AreEqual(ErrorOccurredErr, SystemInformationTestPage.ErrorText.Value, 'Invalid error text.');
@@ -70,14 +70,14 @@ codeunit 132910 "System Information Test"
         // [FEATURE] [Error]
         // [SCENARIO] When multiple errors occur the error text field contains the latest error text
 
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
 
         // [GIVEN] Multiple errors occurred
         asserterror Error(ErrorOccurredErr);
         asserterror Error(ErrorTwoOccurredErr);
 
         // [WHEN] The page is opened
-        SystemInformationTestPage.OpenView;
+        SystemInformationTestPage.OpenView();
 
         // [THEN]  Error text field contains the latest error text
         Assert.AreEqual(ErrorTwoOccurredErr, SystemInformationTestPage.ErrorText.Value, 'Invalid error text.');
@@ -93,18 +93,18 @@ codeunit 132910 "System Information Test"
     begin
         // [FEATURE] [Error]
         // [SCENARIO] When no error occurs mo error fields are visible
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
 
         // [GIVEN] No error occurred
         ClearLastError();
 
         // [WHEN] The page is opened
-        SystemInformationTestPage.OpenView;
+        SystemInformationTestPage.OpenView();
 
         // [THEN] No error fields are visible
-        Assert.IsFalse(SystemInformationTestPage.ErrorCallStack.Visible, 'Expected Error Callstack to not be visible');
-        Assert.IsFalse(SystemInformationTestPage.ErrorText.Visible, 'Expected Error Text to not be visible');
-        Assert.IsFalse(SystemInformationTestPage.ErrorCode.Visible, 'Expected Error Code to not be visible');
+        Assert.IsFalse(SystemInformationTestPage.ErrorCallStack.Visible(), 'Expected Error Callstack to not be visible');
+        Assert.IsFalse(SystemInformationTestPage.ErrorText.Visible(), 'Expected Error Text to not be visible');
+        Assert.IsFalse(SystemInformationTestPage.ErrorCode.Visible(), 'Expected Error Code to not be visible');
 
         SystemInformationTestPage.Close();
     end;

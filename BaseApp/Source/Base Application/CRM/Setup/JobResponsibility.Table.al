@@ -6,6 +6,7 @@ table 5066 "Job Responsibility"
 {
     Caption = 'Job Responsibility';
     DataCaptionFields = "Code", Description;
+    DataClassification = CustomerContent;
     LookupPageID = "Job Responsibilities";
 
     fields
@@ -21,7 +22,7 @@ table 5066 "Job Responsibility"
         }
         field(3; "No. of Contacts"; Integer)
         {
-            CalcFormula = Count("Contact Job Responsibility" where("Job Responsibility Code" = field(Code)));
+            CalcFormula = count("Contact Job Responsibility" where("Job Responsibility Code" = field(Code)));
             Caption = 'No. of Contacts';
             Editable = false;
             FieldClass = FlowField;

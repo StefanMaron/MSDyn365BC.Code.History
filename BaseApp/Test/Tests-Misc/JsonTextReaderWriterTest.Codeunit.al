@@ -21,7 +21,7 @@ codeunit 139211 "Json Text Reader/Writer Test"
         Json: Text;
     begin
         // [SCENARIO] Write Json and verify read Json
-        LibraryLowerPermissions.SetO365Basic;
+        LibraryLowerPermissions.SetO365Basic();
 
         // [GIVEN] https://en.wikipedia.org/wiki/JSON
 
@@ -37,26 +37,26 @@ codeunit 139211 "Json Text Reader/Writer Test"
             WriteStringProperty('city', 'New York');
             WriteStringProperty('state', 'NY');
             WriteStringProperty('postalCode', '10021-3100');
-            WriteEndObject;
+            WriteEndObject();
             WriteStartArray('phoneNumbers');
             WriteStartObject('');
             WriteStringProperty('type', 'home');
             WriteStringProperty('number', '212 555-1234');
-            WriteEndObject;
+            WriteEndObject();
             WriteStartObject('');
             WriteStringProperty('type', 'office');
             WriteStringProperty('number', '646 555-4567');
-            WriteEndObject;
+            WriteEndObject();
             WriteStartObject('');
             WriteStringProperty('type', 'mobile');
             WriteStringProperty('number', '123 456-7890');
-            WriteEndObject;
-            WriteEndArray;
+            WriteEndObject();
+            WriteEndArray();
             WriteStartArray('children');
-            WriteEndArray;
+            WriteEndArray();
             WriteNullProperty('spouce');
-            WriteEndObject;
-            Json := GetJSonAsText;
+            WriteEndObject();
+            Json := GetJSonAsText();
         end;
 
         // [WHEN] Reading Json back into Json Buffer
@@ -82,7 +82,7 @@ codeunit 139211 "Json Text Reader/Writer Test"
             SetRange(Value, PropertyName);
             FindFirst();
             Reset();
-            Next;
+            Next();
             case true of
                 PropertyValue.IsText:
                     begin

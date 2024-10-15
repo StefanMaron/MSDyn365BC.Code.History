@@ -42,7 +42,6 @@ page 6502 "Item Tracking Codes"
                 {
                     ApplicationArea = ItemTracking;
                     ToolTip = 'Specifies that when handling an outbound unit, always specify which existing package number to handle.';
-                    Visible = PackageTrackingVisible;
                 }
             }
         }
@@ -67,17 +66,6 @@ page 6502 "Item Tracking Codes"
 
     trigger OnOpenPage()
     begin
-        SetPackageTrackingVisibility();
-    end;
-
-    var
-        PackageTrackingVisible: Boolean;
-
-    local procedure SetPackageTrackingVisibility()
-    var
-        PackageMgt: Codeunit "Package Management";
-    begin
-        PackageTrackingVisible := PackageMgt.IsEnabled();
     end;
 }
 

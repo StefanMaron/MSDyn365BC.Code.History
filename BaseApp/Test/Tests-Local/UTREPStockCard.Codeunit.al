@@ -156,7 +156,7 @@ codeunit 141070 "UT REP Stock Card"
     var
         Item: Record Item;
     begin
-        Item."No." := LibraryUTUtility.GetNewCode;
+        Item."No." := LibraryUTUtility.GetNewCode();
         Item."Costing Method" := CostingMethod;
         Item.Insert();
         exit(Item."No.");
@@ -181,8 +181,8 @@ codeunit 141070 "UT REP Stock Card"
     begin
         ItemLedgerEntry.FindLast();
         CreateItemLedgerEntry(
-          ItemLedgerEntry, CreateItem(CostingMethod), CreateLocation, ItemLedgerEntry."Entry No." + 1, LibraryRandom.RandDec(10, 2),
-          WorkDate);  // Using random for Quantity and WORKDATE for Posting Date.
+          ItemLedgerEntry, CreateItem(CostingMethod), CreateLocation(), ItemLedgerEntry."Entry No." + 1, LibraryRandom.RandDec(10, 2),
+          WorkDate());  // Using random for Quantity and WORKDATE for Posting Date.
         CreateItemLedgerEntry(
           ItemLedgerEntry2, ItemLedgerEntry."Item No.", ItemLedgerEntry."Location Code", ItemLedgerEntry."Entry No." + 1,
           -ItemLedgerEntry.Quantity, CalcDate('<' + Format(-LibraryRandom.RandInt(5)) + 'M>', WorkDate()));  // As required by the test case using earlier date than WORKDATE as Posting Date.
@@ -202,7 +202,7 @@ codeunit 141070 "UT REP Stock Card"
     var
         Location: Record Location;
     begin
-        Location.Code := LibraryUTUtility.GetNewCode10;
+        Location.Code := LibraryUTUtility.GetNewCode10();
         Location.Insert();
         exit(Location.Code);
     end;
@@ -231,7 +231,7 @@ codeunit 141070 "UT REP Stock Card"
         REPORT.Run(REPORT::"Stock Card");
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(Caption, ExpectedValue);
         LibraryReportDataset.AssertElementWithValueExists(OpeningStockCap, ExpectedValue2);
         LibraryReportDataset.AssertElementWithValueExists(OpeningStockAmountCap, ExpectedValue3);
@@ -251,7 +251,7 @@ codeunit 141070 "UT REP Stock Card"
         StockCard.GroupTotals.SetValue(GroupTotals);
         StockCard."Item Ledger Entry".SetFilter("Item No.", ItemNo);
         StockCard."Item Ledger Entry".SetFilter("Posting Date", Format(PostingDate));
-        StockCard.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StockCard.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

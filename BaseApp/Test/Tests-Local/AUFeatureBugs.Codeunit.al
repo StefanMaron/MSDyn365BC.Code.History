@@ -62,10 +62,10 @@ codeunit 145403 "AU Feature Bugs"
         // [SCENARIO] reversed GST Purchase Entry gets created.
 
         // [GIVEN] Create and Post General Journal Line, Reverse them and Check GST Purchase Entry.
-        DocumentNo := CreateAndPostGeneralJournalLine;
+        DocumentNo := CreateAndPostGeneralJournalLine();
 
         // Exercise: Reverse Posted Entry.
-        ReverseEntry;
+        ReverseEntry();
 
         // [THEN] Verify that reversed GST Purchase Entry gets created.
         VerifyGSTPurchaseEntry(DocumentNo);
@@ -131,9 +131,7 @@ codeunit 145403 "AU Feature Bugs"
         WHTPostingSetup: Record "WHT Posting Setup";
         VATPostingSetup: Record "VAT Posting Setup";
         DimensionValue: Record "Dimension Value";
-        DimensionSetID: Integer;
         ShortcutDimCode: Code[20];
-        ShortcutDimValueCode: Code[20];
         VendorNo: Code[20];
         Amount: Decimal;
     begin
@@ -146,7 +144,7 @@ codeunit 145403 "AU Feature Bugs"
 
         // [THEN] Create General journal Batch and Create Dimension Code.
         PrepareGeneralJournal(GenJournalBatch);
-        ShortcutDimCode := FindShortcutDimension;
+        ShortcutDimCode := FindShortcutDimension();
         CreateDimensionValue(DimensionValue, ShortcutDimCode);
 
         // [GIVEN] Create the general journal line
@@ -196,7 +194,7 @@ codeunit 145403 "AU Feature Bugs"
         REPORT.Run(REPORT::Budget);
 
         // [VERIFY] Verify the Budget Amount on xml will be same.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists('TotalBudgetAmount', BudgetAmount);
     end;
 
@@ -478,7 +476,7 @@ codeunit 145403 "AU Feature Bugs"
         LibraryVariableStorage.Dequeue(No);
         Budget."G/L Account".SetFilter("No.", No);
         Budget.StartingDate.SetValue(Format(WorkDate()));
-        Budget.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        Budget.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

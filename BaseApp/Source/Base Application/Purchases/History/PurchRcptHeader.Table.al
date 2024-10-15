@@ -38,6 +38,7 @@ table 120 "Purch. Rcpt. Header"
     DataCaptionFields = "No.", "Buy-from Vendor Name";
     DrillDownPageID = "Posted Purchase Receipts";
     LookupPageID = "Posted Purchase Receipts";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -616,11 +617,9 @@ table 120 "Purch. Rcpt. Header"
         if IsHandled then
             exit;
 
-        with PurchRcptHeader do begin
-            Copy(Rec);
-            ReportSelection.PrintWithDialogForVend(
-              ReportSelection.Usage::"P.Receipt", PurchRcptHeader, ShowRequestForm, FieldNo("Buy-from Vendor No."));
-        end;
+        PurchRcptHeader.Copy(Rec);
+        ReportSelection.PrintWithDialogForVend(
+          ReportSelection.Usage::"P.Receipt", PurchRcptHeader, ShowRequestForm, PurchRcptHeader.FieldNo("Buy-from Vendor No."));
     end;
 
     procedure Navigate()

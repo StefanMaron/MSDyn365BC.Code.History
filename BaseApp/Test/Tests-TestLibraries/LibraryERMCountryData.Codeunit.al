@@ -9,7 +9,6 @@ codeunit 131305 "Library - ERM Country Data"
 
     var
         LibraryERM: Codeunit "Library - ERM";
-        LibraryInventory: Codeunit "Library - Inventory";
 
     [Scope('OnPrem')]
     procedure InitializeCountry()
@@ -19,7 +18,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure CreateVATData()
     begin
-        CreateVATSetup;
+        CreateVATSetup();
     end;
 
     procedure GetVATCalculationType(): Enum "Tax Calculation Type"
@@ -51,7 +50,6 @@ codeunit 131305 "Library - ERM Country Data"
     procedure SetupReportSelections()
     var
         DummyReportSelections: Record "Report Selections";
-        LibraryERM: Codeunit "Library - ERM";
     begin
         LibraryERM.SetupReportSelection(DummyReportSelections.Usage::"S.Quote", REPORT::"Standard Sales - Quote");
         LibraryERM.SetupReportSelection(DummyReportSelections.Usage::"S.Invoice", REPORT::"Standard Sales - Invoice");
@@ -87,7 +85,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateGeneralPostingSetup()
     begin
-        UpdateAccountsInGeneralPostingSetup;
+        UpdateAccountsInGeneralPostingSetup();
     end;
 
     procedure UpdateInventoryPostingSetup()
@@ -102,7 +100,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateGeneralLedgerSetup()
     begin
-        DisableWHTAndGSTInGeneralLedgerSetup;
+        DisableWHTAndGSTInGeneralLedgerSetup();
     end;
 
     procedure UpdatePrepaymentAccounts()
@@ -113,12 +111,12 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdatePurchasesPayablesSetup()
     begin
-        UpdatePurchaseReceivableSetupData;
+        UpdatePurchaseReceivableSetupData();
     end;
 
     procedure UpdateSalesReceivablesSetup()
     begin
-        UpdateSalesReceivableSetupData;
+        UpdateSalesReceivableSetupData();
     end;
 
     procedure UpdateGenProdPostingGroup()
@@ -172,7 +170,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateVATPostingSetup()
     begin
-        UpdateZeroVATPercentInVATPostingSetup;
+        UpdateZeroVATPercentInVATPostingSetup();
     end;
 
     procedure DisableActivateChequeNoOnGeneralLedgerSetup()
@@ -187,7 +185,7 @@ codeunit 131305 "Library - ERM Country Data"
 
     procedure UpdateLocalPostingSetup()
     begin
-        UpdateZeroWHTPercentInWHTPostingSetup;
+        UpdateZeroWHTPercentInWHTPostingSetup();
     end;
 
     procedure UpdateLocalData()
@@ -253,7 +251,6 @@ codeunit 131305 "Library - ERM Country Data"
     procedure CompanyInfoSetVATRegistrationNo()
     var
         CompanyInformation: Record "Company Information";
-        LibraryERM: Codeunit "Library - ERM";
     begin
         CompanyInformation.Get();
         CompanyInformation."VAT Registration No." := LibraryERM.GenerateVATRegistrationNo(CompanyInformation."Country/Region Code");
@@ -267,7 +264,7 @@ codeunit 131305 "Library - ERM Country Data"
         if BankAccountLedgerEntries.Amount.Visible() then
             EntryRemainingAmount := BankAccountLedgerEntries.Amount.AsDecimal()
         else
-            if BankAccountLedgerEntries."Credit Amount".AsDecimal <> 0 then
+            if BankAccountLedgerEntries."Credit Amount".AsDecimal() <> 0 then
                 EntryRemainingAmount := -BankAccountLedgerEntries."Credit Amount".AsDecimal()
             else
                 EntryRemainingAmount := BankAccountLedgerEntries."Debit Amount".AsDecimal();
@@ -280,8 +277,6 @@ codeunit 131305 "Library - ERM Country Data"
 
     local procedure CreateVATSetup()
     var
-        VATBusPostingGroup: Record "VAT Business Posting Group";
-        VATProdPostingGroup: Record "VAT Product Posting Group";
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
@@ -290,10 +285,10 @@ codeunit 131305 "Library - ERM Country Data"
             VATPostingSetup.SetFilter("VAT Prod. Posting Group", '<>%1', '');
             VATPostingSetup.SetRange("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Normal VAT");
             VATPostingSetup.SetFilter("VAT %", '>0');
-            if VATPostingSetup.Count > 1 then begin
+            if VATPostingSetup.Count() > 1 then begin
                 VATPostingSetup.FindFirst();
                 VATPostingSetup.Validate("VAT Calculation Type", VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT");
-                VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo);
+                VATPostingSetup.Validate("Reverse Chrg. VAT Acc.", LibraryERM.CreateGLAccountNo());
                 VATPostingSetup.Modify(true);
             end;
         end;
@@ -316,36 +311,33 @@ codeunit 131305 "Library - ERM Country Data"
     var
         NormalGeneralPostingSetup: Record "General Posting Setup";
         GeneralPostingSetup: Record "General Posting Setup";
-        GLAccount: Record "G/L Account";
     begin
         LibraryERM.FindGeneralPostingSetupInvtFull(NormalGeneralPostingSetup);
-        with GeneralPostingSetup do
-            if FindSet() then
-                repeat
-                    if "Sales Pmt. Disc. Credit Acc." = '' then
-                        "Sales Pmt. Disc. Credit Acc." := NormalGeneralPostingSetup."Sales Pmt. Disc. Credit Acc.";  // Using assignment to avoid error.
-                    if GeneralPostingSetup."Purch. Pmt. Disc. Debit Acc." = '' then
-                        "Purch. Pmt. Disc. Debit Acc." := NormalGeneralPostingSetup."Purch. Pmt. Disc. Debit Acc.";  // Using assignment to avoid error.
-                    if "Sales Account" = '' then
-                        Validate("Sales Account", NormalGeneralPostingSetup."Sales Account");
-                    if "Inventory Adjmt. Account" = '' then
-                        Validate("Inventory Adjmt. Account", NormalGeneralPostingSetup."Inventory Adjmt. Account");
-                    if "Direct Cost Applied Account" = '' then
-                        Validate("Direct Cost Applied Account", NormalGeneralPostingSetup."Direct Cost Applied Account");
-                    if "Overhead Applied Account" = '' then
-                        Validate("Overhead Applied Account", NormalGeneralPostingSetup."Overhead Applied Account");
-                    if "Purch. Prepayments Account" = '' then
-                        Validate("Purch. Prepayments Account", NormalGeneralPostingSetup."Purch. Prepayments Account");
-                    if "Sales Prepayments Account" = '' then
-                        Validate("Sales Prepayments Account", NormalGeneralPostingSetup."Sales Prepayments Account");
-                    Modify(true);
-                until Next = 0;
+        if GeneralPostingSetup.FindSet() then
+            repeat
+                if GeneralPostingSetup."Sales Pmt. Disc. Credit Acc." = '' then
+                    GeneralPostingSetup."Sales Pmt. Disc. Credit Acc." := NormalGeneralPostingSetup."Sales Pmt. Disc. Credit Acc.";
+                if GeneralPostingSetup."Purch. Pmt. Disc. Debit Acc." = '' then
+                    GeneralPostingSetup."Purch. Pmt. Disc. Debit Acc." := NormalGeneralPostingSetup."Purch. Pmt. Disc. Debit Acc.";
+                if GeneralPostingSetup."Sales Account" = '' then
+                    GeneralPostingSetup.Validate("Sales Account", NormalGeneralPostingSetup."Sales Account");
+                if GeneralPostingSetup."Inventory Adjmt. Account" = '' then
+                    GeneralPostingSetup.Validate("Inventory Adjmt. Account", NormalGeneralPostingSetup."Inventory Adjmt. Account");
+                if GeneralPostingSetup."Direct Cost Applied Account" = '' then
+                    GeneralPostingSetup.Validate("Direct Cost Applied Account", NormalGeneralPostingSetup."Direct Cost Applied Account");
+                if GeneralPostingSetup."Overhead Applied Account" = '' then
+                    GeneralPostingSetup.Validate("Overhead Applied Account", NormalGeneralPostingSetup."Overhead Applied Account");
+                if GeneralPostingSetup."Purch. Prepayments Account" = '' then
+                    GeneralPostingSetup.Validate("Purch. Prepayments Account", NormalGeneralPostingSetup."Purch. Prepayments Account");
+                if GeneralPostingSetup."Sales Prepayments Account" = '' then
+                    GeneralPostingSetup.Validate("Sales Prepayments Account", NormalGeneralPostingSetup."Sales Prepayments Account");
+                GeneralPostingSetup.Modify(true);
+            until GeneralPostingSetup.Next() = 0;
     end;
 
     local procedure UpdateZeroVATPercentInVATPostingSetup()
     var
         VATPostingSetup: Record "VAT Posting Setup";
-        GLAccount: Record "G/L Account";
     begin
         VATPostingSetup.SetRange("VAT Bus. Posting Group", '');
         VATPostingSetup.FindSet();

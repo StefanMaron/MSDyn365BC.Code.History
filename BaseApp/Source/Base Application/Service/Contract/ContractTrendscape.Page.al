@@ -23,7 +23,7 @@ page 6060 "Contract Trendscape"
                 {
                     ApplicationArea = Service;
                     Caption = 'Contract No.';
-                    ToolTip = 'Specifies billable profits for the job task that are related to items, expressed in the local currency.';
+                    ToolTip = 'Specifies billable profits for the project task that are related to items, expressed in the local currency.';
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin

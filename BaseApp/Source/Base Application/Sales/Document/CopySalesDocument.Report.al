@@ -232,47 +232,45 @@ report 292 "Copy Sales Document"
 
         CopyDocMgt.CopySalesDoc(FromDocType, FromDocNo, SalesHeader);
 
-        with SalesHeader do begin
-            if ReplacePostDate or ReplaceDocDate then begin
-                if ReplacePostDate then
-                    Validate("Posting Date", PostingDate);
-                if ReplaceDocDate then
-                    Validate("Document Date", PostingDate);
-                Modify();
+        if ReplacePostDate or ReplaceDocDate then begin
+            if ReplacePostDate then
+                SalesHeader.Validate("Posting Date", PostingDate);
+            if ReplaceDocDate then
+                SalesHeader.Validate("Document Date", PostingDate);
+            SalesHeader.Modify();
+        end;
+        GLSetup.Get();
+        if (SalesHeader."Document Type" in [SalesHeader."Document Type"::"Credit Memo", SalesHeader."Document Type"::"Return Order"]) and
+           GLSetup.GSTEnabled(FromSalesHeader."Document Date")
+        then begin
+            case FromDocType of
+                FromDocType::Quote, FromDocType::"Blanket Order", FromDocType::Order, FromDocType::Invoice, FromDocType::"Credit Memo", FromDocType::"Return Order":
+                    begin
+                        SalesHeader."Adjustment Applies-to" := FromSalesHeader."No.";
+                        SalesHeader."BAS Adjustment" := BASManagement.CheckBASPeriod(SalesHeader."Document Date", FromSalesHeader."Document Date");
+                    end;
+                FromDocType::"Posted Shipment":
+                    begin
+                        SalesHeader."Adjustment Applies-to" := FromSalesShptHeader."No.";
+                        SalesHeader."BAS Adjustment" := BASManagement.CheckBASPeriod(SalesHeader."Document Date", FromSalesShptHeader."Document Date");
+                    end;
+                FromDocType::"Posted Invoice":
+                    begin
+                        SalesHeader."Adjustment Applies-to" := FromSalesInvHeader."No.";
+                        SalesHeader."BAS Adjustment" := BASManagement.CheckBASPeriod(SalesHeader."Document Date", FromSalesInvHeader."Document Date");
+                    end;
+                FromDocType::"Posted Credit Memo":
+                    begin
+                        SalesHeader."Adjustment Applies-to" := FromSalesCrMemoHeader."No.";
+                        SalesHeader."BAS Adjustment" := BASManagement.CheckBASPeriod(SalesHeader."Document Date", FromSalesCrMemoHeader."Document Date");
+                    end;
+                FromDocType::"Posted Return Receipt":
+                    begin
+                        SalesHeader."Adjustment Applies-to" := FromReturnRcptHeader."No.";
+                        SalesHeader."BAS Adjustment" := BASManagement.CheckBASPeriod(SalesHeader."Document Date", FromReturnRcptHeader."Document Date");
+                    end;
             end;
-            GLSetup.Get();
-            if ("Document Type" in ["Document Type"::"Credit Memo", "Document Type"::"Return Order"]) and
-               GLSetup.GSTEnabled(FromSalesHeader."Document Date")
-            then begin
-                case FromDocType of
-                    FromDocType::Quote, FromDocType::"Blanket Order", FromDocType::Order, FromDocType::Invoice, FromDocType::"Credit Memo", FromDocType::"Return Order":
-                        begin
-                            "Adjustment Applies-to" := FromSalesHeader."No.";
-                            "BAS Adjustment" := BASManagement.CheckBASPeriod("Document Date", FromSalesHeader."Document Date");
-                        end;
-                    FromDocType::"Posted Shipment":
-                        begin
-                            "Adjustment Applies-to" := FromSalesShptHeader."No.";
-                            "BAS Adjustment" := BASManagement.CheckBASPeriod("Document Date", FromSalesShptHeader."Document Date");
-                        end;
-                    FromDocType::"Posted Invoice":
-                        begin
-                            "Adjustment Applies-to" := FromSalesInvHeader."No.";
-                            "BAS Adjustment" := BASManagement.CheckBASPeriod("Document Date", FromSalesInvHeader."Document Date");
-                        end;
-                    FromDocType::"Posted Credit Memo":
-                        begin
-                            "Adjustment Applies-to" := FromSalesCrMemoHeader."No.";
-                            "BAS Adjustment" := BASManagement.CheckBASPeriod("Document Date", FromSalesCrMemoHeader."Document Date");
-                        end;
-                    FromDocType::"Posted Return Receipt":
-                        begin
-                            "Adjustment Applies-to" := FromReturnRcptHeader."No.";
-                            "BAS Adjustment" := BASManagement.CheckBASPeriod("Document Date", FromReturnRcptHeader."Document Date");
-                        end;
-                end;
-                Modify();
-            end;
+            SalesHeader.Modify();
         end;
     end;
 

@@ -5,6 +5,7 @@ table 7825 "MS-QBO Synchronization Error"
     ObsoleteState = Removed;
     ObsoleteTag = '18.0';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -53,11 +53,11 @@ codeunit 141079 "VAT On Document Statistics I"
           UpdateInvRoundingPrecisionOnGeneralLedgerSetup(LibraryRandom.RandDecInDecimalRange(0.02, 0.1, 2));  // Random value required for Invoice Rounding Precision.
         CreatePurchaseOrderWithSetup(PurchaseLine);
         EnqueueValuesForHandler(PurchaseLine.Amount * PurchaseLine."VAT %" / 100, PurchaseLine."Amount Including VAT");  // Enqueue values for PurchaseOrderStatisticsModalPageHandler and VATAmountLinesModalPageHandler.
-        PurchaseOrder.OpenEdit;
+        PurchaseOrder.OpenEdit();
         PurchaseOrder.FILTER.SetFilter("No.", PurchaseLine."Document No.");
 
         // Exercise.
-        PurchaseOrder.Statistics.Invoke;  // Opens PurchaseOrderStatisticsModalPageHandler.
+        PurchaseOrder.Statistics.Invoke();  // Opens PurchaseOrderStatisticsModalPageHandler.
 
         // Verify: Verification is done in PurchaseOrderStatisticsModalPageHandler and VATAmountLinesModalPageHandler.
 
@@ -83,11 +83,11 @@ codeunit 141079 "VAT On Document Statistics I"
           UpdateInvRoundingPrecisionOnGeneralLedgerSetup(LibraryRandom.RandDecInDecimalRange(0.02, 0.1, 2));  // Random value required for Invoice Rounding Precision.
         CreateSalesOrderWithSetup(SalesLine, 0);  // Value 0 required for Prepayment Percent.
         EnqueueValuesForHandler(SalesLine.Amount * SalesLine."VAT %" / 100, SalesLine."Amount Including VAT");  // Enqueue values for SalesOrderStatisticsModalPageHandler and VATAmountLinesModalPageHandler.
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", SalesLine."Document No.");
 
         // Exercise.
-        SalesOrder.Statistics.Invoke;  // Opens SalesOrderStatisticsModalPageHandler.
+        SalesOrder.Statistics.Invoke();  // Opens SalesOrderStatisticsModalPageHandler.
 
         // Verify: Verification is done in SalesOrderStatisticsModalPageHandler and VATAmountLinesModalPageHandler.
 
@@ -118,11 +118,11 @@ codeunit 141079 "VAT On Document Statistics I"
         EnqueueValuesForHandler(
           (SalesLine.Amount + SalesLine2.Amount) * SalesLine."VAT %" / 100,
           SalesLine."Amount Including VAT" + SalesLine2."Amount Including VAT");  // Enqueue values for SalesOrderStatisticsModalPageHandler and VATAmountLinesModalPageHandler.
-        SalesOrder.OpenEdit;
+        SalesOrder.OpenEdit();
         SalesOrder.FILTER.SetFilter("No.", SalesHeader."No.");
 
         // Exercise.
-        SalesOrder.Statistics.Invoke;  // Opens SalesOrderStatisticsModalPageHandler.
+        SalesOrder.Statistics.Invoke();  // Opens SalesOrderStatisticsModalPageHandler.
 
         // Verify: Verification is done in SalesOrderStatisticsModalPageHandler and VATAmountLinesModalPageHandler.
 
@@ -284,9 +284,9 @@ codeunit 141079 "VAT On Document Statistics I"
     begin
         LibraryVariableStorage.Dequeue(VATAmount);
         Assert.AreNearlyEqual(
-          PurchaseOrderStatistics."VATAmount[1]".AsDEcimal, VATAmount, LibraryERM.GetAmountRoundingPrecision,
+          PurchaseOrderStatistics."VATAmount[1]".AsDecimal(), VATAmount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, PurchaseOrderStatistics."VATAmount[1]".Caption, VATAmount, PurchaseOrderStatistics.Caption));
-        PurchaseOrderStatistics.NoOfVATLines_General.DrillDown;  // Opens VATAmountLinesModalPageHandler.
+        PurchaseOrderStatistics.NoOfVATLines_General.DrillDown();  // Opens VATAmountLinesModalPageHandler.
     end;
 
     [ModalPageHandler]
@@ -297,9 +297,9 @@ codeunit 141079 "VAT On Document Statistics I"
     begin
         LibraryVariableStorage.Dequeue(VATAmount);
         Assert.AreNearlyEqual(
-          SalesOrderStatistics.VATAmount.AsDEcimal, VATAmount, LibraryERM.GetAmountRoundingPrecision,
+          SalesOrderStatistics.VATAmount.AsDecimal(), VATAmount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, SalesOrderStatistics.VATAmount.Caption, VATAmount, SalesOrderStatistics.Caption));
-        SalesOrderStatistics.NoOfVATLines_General.DrillDown;  // Opens VATAmountLinesModalPageHandler.
+        SalesOrderStatistics.NoOfVATLines_General.DrillDown();  // Opens VATAmountLinesModalPageHandler.
     end;
 
     [ModalPageHandler]
@@ -313,10 +313,10 @@ codeunit 141079 "VAT On Document Statistics I"
         LibraryVariableStorage.Dequeue(AmountIncludingVAT);
         VATAmountLines.FILTER.SetFilter("VAT %", '<>0');  // Filter not equal to zero required for VAT Amount line with VAT.
         Assert.AreNearlyEqual(
-          VATAmountLines."VAT Amount".AsDEcimal, VATAmount, LibraryERM.GetAmountRoundingPrecision,
+          VATAmountLines."VAT Amount".AsDecimal(), VATAmount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(VATAmountLines."VAT Amount".Caption, VATAmount, VATAmountLines.Caption));
         Assert.AreNearlyEqual(
-          VATAmountLines."Amount Including VAT".AsDEcimal, AmountIncludingVAT, LibraryERM.GetAmountRoundingPrecision,
+          VATAmountLines."Amount Including VAT".AsDecimal(), AmountIncludingVAT, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(VATAmountLines."Amount Including VAT".Caption, AmountIncludingVAT, VATAmountLines.Caption));
     end;
 }

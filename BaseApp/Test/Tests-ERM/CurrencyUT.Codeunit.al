@@ -87,10 +87,10 @@ codeunit 134275 "Currency UT"
         Currency.Insert();
 
         // [GIVEN] Open Country/Region list page, where both "ISO Code" and "ISO Numeric Code" are editable
-        Currencies.OpenEdit;
+        Currencies.OpenEdit();
         Currencies.FILTER.SetFilter(Code, 'A');
-        Assert.IsTrue(Currencies."ISO Code".Editable, 'ISO Code.EDITABLE');
-        Assert.IsTrue(Currencies."ISO Numeric Code".Editable, 'ISO Numeric Code.EDITABLE');
+        Assert.IsTrue(Currencies."ISO Code".Editable(), 'ISO Code.EDITABLE');
+        Assert.IsTrue(Currencies."ISO Numeric Code".Editable(), 'ISO Numeric Code.EDITABLE');
         // [WHEN] set "ISO Code" is 'ZZ', "ISO Numeric Code" is '999' on the page
         Currencies."ISO Code".SetValue('ZZZ');
         Currencies."ISO Numeric Code".SetValue('999');
@@ -120,10 +120,10 @@ codeunit 134275 "Currency UT"
         Currency.Insert();
 
         // [GIVEN] Open Country/Region list page, where both "ISO Code" and "ISO Numeric Code" are editable
-        CurrencyCard.OpenEdit;
+        CurrencyCard.OpenEdit();
         CurrencyCard.FILTER.SetFilter(Code, 'B');
-        Assert.IsTrue(CurrencyCard."ISO Code".Editable, 'ISO Code.EDITABLE');
-        Assert.IsTrue(CurrencyCard."ISO Numeric Code".Editable, 'ISO Numeric Code.EDITABLE');
+        Assert.IsTrue(CurrencyCard."ISO Code".Editable(), 'ISO Code.EDITABLE');
+        Assert.IsTrue(CurrencyCard."ISO Numeric Code".Editable(), 'ISO Numeric Code.EDITABLE');
         // [WHEN] set "ISO Code" is 'ZZ', "ISO Numeric Code" is '999' on the page
         CurrencyCard."ISO Code".SetValue('ZZZ');
         CurrencyCard."ISO Numeric Code".SetValue('999');

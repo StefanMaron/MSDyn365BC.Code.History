@@ -8,6 +8,7 @@ table 258 "Transaction Type"
 {
     Caption = 'Transaction Type';
     LookupPageID = "Transaction Types";
+    DataClassification = CustomerContent;
 
     fields
     {

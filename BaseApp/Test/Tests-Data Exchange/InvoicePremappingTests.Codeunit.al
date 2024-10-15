@@ -2351,7 +2351,7 @@ codeunit 139157 "Invoice Premapping Tests"
         Currency: Record Currency;
         OCRDataCorrection: TestPage "OCR Data Correction";
     begin
-        OCRDataCorrection.OpenEdit;
+        OCRDataCorrection.OpenEdit();
         OCRDataCorrection.GotoRecord(IncomingDocument);
         OCRDataCorrection."Vendor Bank Branch No.".SetValue(LibraryUtility.GenerateGUID());
         OCRDataCorrection."Vendor Bank Account No.".SetValue(LibraryUtility.GenerateGUID());
@@ -2367,7 +2367,7 @@ codeunit 139157 "Invoice Premapping Tests"
         OCRDataCorrection."Amount Excl. VAT".SetValue(LibraryRandom.RandDec(1000, 2));
         OCRDataCorrection."Amount Incl. VAT".SetValue(LibraryRandom.RandDec(1000, 2));
         OCRDataCorrection."VAT Amount".SetValue(LibraryRandom.RandDec(1000, 2));
-        OCRDataCorrection.OK.Invoke;
+        OCRDataCorrection.OK().Invoke();
     end;
 
     local procedure VerifyNoErrorMessages(EntryNo: Integer; TableNo: Integer; FieldNo: Integer)
@@ -2391,12 +2391,12 @@ codeunit 139157 "Invoice Premapping Tests"
         IncomingDocument.Get(DataExch."Incoming Entry No.");
         ErrorMessage.SetRange("Context Record ID", IncomingDocument.RecordId);
         ErrorMessage.SetFilter("Message", ExpectedError);
-        Assert.IsTrue(ErrorMessage.FindFirst, StrSubstNo(ExpectedErrorMsgNotFoundErr, ExpectedError, ErrorMessage.TableCaption()));
-        ErrorMessages.Trap;
+        Assert.IsTrue(ErrorMessage.FindFirst(), StrSubstNo(ExpectedErrorMsgNotFoundErr, ExpectedError, ErrorMessage.TableCaption()));
+        ErrorMessages.Trap();
         ErrorMessage.SetContext(IncomingDocument);
         ErrorMessage.ShowErrorMessages(false);
         ErrorMessages.FindFirstField(Description, ExpectedError);
-        ErrorMessages.Source.DrillDown;
+        ErrorMessages.Source.DrillDown();
         ErrorMessages.Close();
     end;
 

@@ -25,11 +25,11 @@ codeunit 141044 "APAC - Page & Controls"
         SalesTaxInvoiceHeader."No." := LibraryUtility.GenerateGUID();
         SalesTaxInvoiceHeader.Insert();
 
-        PostedSalesTaxInvoices.OpenView;
+        PostedSalesTaxInvoices.OpenView();
         PostedSalesTaxInvoices.FILTER.SetFilter("No.", SalesTaxInvoiceHeader."No.");
 
-        PostedSalesTaxInvoice.Trap;
-        PostedSalesTaxInvoices.Edit.Invoke;
+        PostedSalesTaxInvoice.Trap();
+        PostedSalesTaxInvoices.Edit().Invoke();
 
         PostedSalesTaxInvoice."No.".AssertEquals(SalesTaxInvoiceHeader."No.");
 
@@ -51,11 +51,11 @@ codeunit 141044 "APAC - Page & Controls"
         SalesTaxCrMemoHeader."No." := LibraryUtility.GenerateGUID();
         SalesTaxCrMemoHeader.Insert();
 
-        PostedSalesTaxCrMemos.OpenView;
+        PostedSalesTaxCrMemos.OpenView();
         PostedSalesTaxCrMemos.FILTER.SetFilter("No.", SalesTaxCrMemoHeader."No.");
 
-        PostedSalesTaxCreditMemo.Trap;
-        PostedSalesTaxCrMemos.Edit.Invoke;
+        PostedSalesTaxCreditMemo.Trap();
+        PostedSalesTaxCrMemos.Edit().Invoke();
 
         PostedSalesTaxCreditMemo."No.".AssertEquals(SalesTaxCrMemoHeader."No.");
 
@@ -77,11 +77,11 @@ codeunit 141044 "APAC - Page & Controls"
         PurchTaxInvHeader."No." := LibraryUtility.GenerateGUID();
         PurchTaxInvHeader.Insert();
 
-        PostedPurchTaxInvoices.OpenView;
+        PostedPurchTaxInvoices.OpenView();
         PostedPurchTaxInvoices.FILTER.SetFilter("No.", PurchTaxInvHeader."No.");
 
-        PostedPurchaseTaxInvoice.Trap;
-        PostedPurchTaxInvoices.Edit.Invoke;
+        PostedPurchaseTaxInvoice.Trap();
+        PostedPurchTaxInvoices.Edit().Invoke();
 
         PostedPurchaseTaxInvoice."No.".AssertEquals(PurchTaxInvHeader."No.");
 
@@ -103,11 +103,11 @@ codeunit 141044 "APAC - Page & Controls"
         PurchTaxCrMemoHdr."No." := LibraryUtility.GenerateGUID();
         PurchTaxCrMemoHdr.Insert();
 
-        PostedPurchTaxCrMemos.OpenView;
+        PostedPurchTaxCrMemos.OpenView();
         PostedPurchTaxCrMemos.FILTER.SetFilter("No.", PurchTaxCrMemoHdr."No.");
 
-        PostedPurchTaxCreditMemo.Trap;
-        PostedPurchTaxCrMemos.Edit.Invoke;
+        PostedPurchTaxCreditMemo.Trap();
+        PostedPurchTaxCrMemos.Edit().Invoke();
 
         PostedPurchTaxCreditMemo."No.".AssertEquals(PurchTaxCrMemoHdr."No.");
 

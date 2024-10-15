@@ -7,6 +7,7 @@ table 1295 "Posted Payment Recon. Hdr"
     Caption = 'Posted Payment Recon. Hdr';
     DataCaptionFields = "Bank Account No.", "Statement No.";
     LookupPageID = "Bank Acc. Reconciliation List";
+    DataClassification = CustomerContent;
 
     fields
     {

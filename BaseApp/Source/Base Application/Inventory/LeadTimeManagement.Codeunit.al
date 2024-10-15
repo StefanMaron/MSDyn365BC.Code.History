@@ -96,7 +96,7 @@ codeunit 5404 "Lead-Time Management"
 
     procedure PlannedEndingDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; DueDate: Date; VendorNo: Code[20]; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly) Result: Date
     var
-        CustomCalendarChange: Array[2] of Record "Customized Calendar Change";
+        CustomCalendarChange: array[2] of Record "Customized Calendar Change";
         TransferRoute: Record "Transfer Route";
         PlannedReceiptDate: Date;
         DateFormula: DateFormula;
@@ -114,12 +114,10 @@ codeunit 5404 "Lead-Time Management"
 
         if RefOrderType = RefOrderType::Transfer then begin
             Evaluate(DateFormula, WhseInBoundHandlingTime(LocationCode));
-            with TransferRoute do begin
-                GetTransferRoute(
-                  TempSKU."Transfer-from Code", LocationCode, "In-Transit Code", "Shipping Agent Code", "Shipping Agent Service Code");
-                CalcPlanReceiptDateBackward(
-                  PlannedReceiptDate, DueDate, DateFormula, LocationCode, "Shipping Agent Code", "Shipping Agent Service Code");
-            end;
+            TransferRoute.GetTransferRoute(
+              TempSKU."Transfer-from Code", LocationCode, TransferRoute."In-Transit Code", TransferRoute."Shipping Agent Code", TransferRoute."Shipping Agent Service Code");
+            TransferRoute.CalcPlanReceiptDateBackward(
+              PlannedReceiptDate, DueDate, DateFormula, LocationCode, TransferRoute."Shipping Agent Code", TransferRoute."Shipping Agent Service Code");
             exit(PlannedReceiptDate);
         end;
         OnPlannedEndingDateOnBeforeFormatDateFormula(TempSKU, RefOrderType, ItemNo, DueDate);
@@ -136,7 +134,7 @@ codeunit 5404 "Lead-Time Management"
 
     procedure PlannedStartingDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; VendorNo: Code[20]; LeadTime: Code[20]; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly; EndingDate: Date) Result: Date
     var
-        CustomCalendarChange: Array[2] of Record "Customized Calendar Change";
+        CustomCalendarChange: array[2] of Record "Customized Calendar Change";
         TransferRoute: Record "Transfer Route";
         PlannedShipmentDate: Date;
         ShippingTime: DateFormula;
@@ -151,15 +149,13 @@ codeunit 5404 "Lead-Time Management"
             if RefOrderType = RefOrderType::Transfer then begin
                 GetPlanningParameters.AtSKU(TempSKU, ItemNo, VariantCode, LocationCode);
 
-                with TransferRoute do begin
-                    GetTransferRoute(
-                      TempSKU."Transfer-from Code", LocationCode, "In-Transit Code", "Shipping Agent Code", "Shipping Agent Service Code");
-                    GetShippingTime(
-                      TempSKU."Transfer-from Code", LocationCode, "Shipping Agent Code", "Shipping Agent Service Code", ShippingTime);
-                    CalcPlanShipmentDateBackward(
-                      PlannedShipmentDate, EndingDate, ShippingTime,
-                      TempSKU."Transfer-from Code", "Shipping Agent Code", "Shipping Agent Service Code");
-                end;
+                TransferRoute.GetTransferRoute(
+                  TempSKU."Transfer-from Code", LocationCode, TransferRoute."In-Transit Code", TransferRoute."Shipping Agent Code", TransferRoute."Shipping Agent Service Code");
+                TransferRoute.GetShippingTime(
+                  TempSKU."Transfer-from Code", LocationCode, TransferRoute."Shipping Agent Code", TransferRoute."Shipping Agent Service Code", ShippingTime);
+                TransferRoute.CalcPlanShipmentDateBackward(
+                  PlannedShipmentDate, EndingDate, ShippingTime,
+                  TempSKU."Transfer-from Code", TransferRoute."Shipping Agent Code", TransferRoute."Shipping Agent Service Code");
                 exit(PlannedShipmentDate);
             end;
             if DateFormulaIsEmpty(LeadTime) then
@@ -178,7 +174,7 @@ codeunit 5404 "Lead-Time Management"
 
     procedure PlannedEndingDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; VendorNo: Code[20]; LeadTime: Code[20]; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly; StartingDate: Date) Result: Date
     var
-        CustomCalendarChange: Array[2] of Record "Customized Calendar Change";
+        CustomCalendarChange: array[2] of Record "Customized Calendar Change";
         TransferRoute: Record "Transfer Route";
         PlannedReceiptDate: Date;
         ShippingTime: DateFormula;
@@ -194,14 +190,12 @@ codeunit 5404 "Lead-Time Management"
         if RefOrderType = RefOrderType::Transfer then begin
             GetPlanningParameters.AtSKU(TempSKU, ItemNo, VariantCode, LocationCode);
 
-            with TransferRoute do begin
-                GetTransferRoute(
-                  TempSKU."Transfer-from Code", LocationCode, "In-Transit Code", "Shipping Agent Code", "Shipping Agent Service Code");
-                GetShippingTime(
-                  TempSKU."Transfer-from Code", LocationCode, "Shipping Agent Code", "Shipping Agent Service Code", ShippingTime);
-                CalcPlannedReceiptDateForward(
-                  StartingDate, PlannedReceiptDate, ShippingTime, LocationCode, "Shipping Agent Code", "Shipping Agent Service Code");
-            end;
+            TransferRoute.GetTransferRoute(
+              TempSKU."Transfer-from Code", LocationCode, TransferRoute."In-Transit Code", TransferRoute."Shipping Agent Code", TransferRoute."Shipping Agent Service Code");
+            TransferRoute.GetShippingTime(
+              TempSKU."Transfer-from Code", LocationCode, TransferRoute."Shipping Agent Code", TransferRoute."Shipping Agent Service Code", ShippingTime);
+            TransferRoute.CalcPlannedReceiptDateForward(
+              StartingDate, PlannedReceiptDate, ShippingTime, LocationCode, TransferRoute."Shipping Agent Code", TransferRoute."Shipping Agent Service Code");
             exit(PlannedReceiptDate);
         end;
         if DateFormulaIsEmpty(LeadTime) then
@@ -218,7 +212,7 @@ codeunit 5404 "Lead-Time Management"
 
     procedure PlannedDueDate(ItemNo: Code[20]; LocationCode: Code[10]; VariantCode: Code[10]; EndingDate: Date; VendorNo: Code[20]; RefOrderType: Option " ",Purchase,"Prod. Order",Transfer,Assembly) Result: Date
     var
-        CustomCalendarChange: Array[2] of Record "Customized Calendar Change";
+        CustomCalendarChange: array[2] of Record "Customized Calendar Change";
         TransferRoute: Record "Transfer Route";
         ReceiptDate: Date;
         DateFormula: DateFormula;
@@ -338,7 +332,7 @@ codeunit 5404 "Lead-Time Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPlannedStartingDate(LeadTime: Code[20]; EndingDate: Date; CustomCalendarChange: Array[2] of Record "Customized Calendar Change"; CheckBothCalendars: Boolean; var Result: Date)
+    local procedure OnAfterPlannedStartingDate(LeadTime: Code[20]; EndingDate: Date; CustomCalendarChange: array[2] of Record "Customized Calendar Change"; CheckBothCalendars: Boolean; var Result: Date)
     begin
     end;
 

@@ -18,7 +18,7 @@ report 99001014 "Update Unit Cost"
             dataitem("Prod. Order Line"; "Prod. Order Line")
             {
                 DataItemLink = Status = field(Status), "Prod. Order No." = field("No.");
-                DataItemTableView = sorting(Status, "Prod. Order No.", "Planning Level Code") order(Descending);
+                DataItemTableView = sorting(Status, "Prod. Order No.", "Planning Level Code") order(descending);
 
                 trigger OnAfterGetRecord()
                 var

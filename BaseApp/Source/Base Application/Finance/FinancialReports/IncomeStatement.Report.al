@@ -240,7 +240,7 @@ report 28025 "Income Statement"
                 Precision := GetDecimalPrecision();
 
                 PageGroupNo := NextPageGroupNo;
-                ShowAccType := "G/L Account"."Account Type";
+                ShowAccType := "G/L Account"."Account Type".AsInteger();
                 if "G/L Account"."New Page" then
                     NextPageGroupNo := PageGroupNo + 1;
                 if PageGroupNo = NextPageGroupNo then

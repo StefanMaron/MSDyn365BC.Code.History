@@ -24,11 +24,9 @@ codeunit 131331 "Library - Cash Flow"
 
     procedure FindCashFlowAnalysisView(var AnalysisView: Record "Analysis View")
     begin
-        with AnalysisView do begin
-            Reset();
-            SetRange("Account Source", "Account Source"::"Cash Flow Account");
-            FindFirst();
-        end
+        AnalysisView.Reset();
+        AnalysisView.SetRange("Account Source", AnalysisView."Account Source"::"Cash Flow Account");
+        AnalysisView.FindFirst();
     end;
 
     procedure CreateJournalLine(var CFWorksheetLine: Record "Cash Flow Worksheet Line"; CFNo: Code[20]; CFAccountNo: Code[20])
@@ -147,8 +145,8 @@ codeunit 131331 "Library - Cash Flow"
         LibraryERM.ClearGenJournalLines(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLineWithBalAcc(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
-          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
+          GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
+          GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo(),
           LibraryRandom.RandDecInRange(100, 200, 2));
         GenJournalLine."Due Date" := GenJournalLine."Posting Date" - 1;
         GenJournalLine.Modify();

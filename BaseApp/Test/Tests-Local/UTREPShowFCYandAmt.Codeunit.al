@@ -87,7 +87,7 @@ codeunit 141061 "UT REP Show FCY and Amt"
     var
         Currency: Record Currency;
     begin
-        Currency.Code := LibraryUTUtility.GetNewCode10;
+        Currency.Code := LibraryUTUtility.GetNewCode10();
         Currency.Insert();
         exit(Currency.Code);
     end;
@@ -96,7 +96,7 @@ codeunit 141061 "UT REP Show FCY and Amt"
     var
         CurrencyExchangeRate: Record "Currency Exchange Rate";
     begin
-        CurrencyExchangeRate."Currency Code" := CreateCurrency;
+        CurrencyExchangeRate."Currency Code" := CreateCurrency();
         CurrencyExchangeRate."Exchange Rate Amount" := LibraryRandom.RandDec(10, 2);
         CurrencyExchangeRate."Relational Exch. Rate Amount" := LibraryRandom.RandDec(10, 2);
         CurrencyExchangeRate.Insert();
@@ -109,7 +109,7 @@ codeunit 141061 "UT REP Show FCY and Amt"
         CheckAmountText: array[2] of Text[80];
     begin
         // Calculation from number to text.
-        SalesLine.InitTextVariable;
+        SalesLine.InitTextVariable();
         SalesLine.FormatNoText(CheckAmountText, Amount, CurrencyCode);
         exit(CheckAmountText[1]);
     end;
@@ -120,7 +120,7 @@ codeunit 141061 "UT REP Show FCY and Amt"
         CheckAmountText: array[2] of Text[80];
     begin
         // Calculation from number to text.
-        SalesLine.InitTextVariableTH;
+        SalesLine.InitTextVariableTH();
         SalesLine.FormatNoTextTH(CheckAmountText, Amount, CurrencyCode);
         exit(CheckAmountText[1]);
     end;
@@ -129,8 +129,8 @@ codeunit 141061 "UT REP Show FCY and Amt"
     var
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
     begin
-        PurchCrMemoHdr."No." := LibraryUTUtility.GetNewCode;
-        PurchCrMemoHdr."Currency Code" := CreateCurrencyExchangeRate;
+        PurchCrMemoHdr."No." := LibraryUTUtility.GetNewCode();
+        PurchCrMemoHdr."Currency Code" := CreateCurrencyExchangeRate();
         PurchCrMemoHdr."Posting Date" := WorkDate();
         PurchCrMemoHdr."Currency Factor" := LibraryRandom.RandDec(10, 2);
         PurchCrMemoHdr.Insert();
@@ -144,8 +144,8 @@ codeunit 141061 "UT REP Show FCY and Amt"
     var
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
-        PurchInvHeader."No." := LibraryUTUtility.GetNewCode;
-        PurchInvHeader."Currency Code" := CreateCurrencyExchangeRate;
+        PurchInvHeader."No." := LibraryUTUtility.GetNewCode();
+        PurchInvHeader."Currency Code" := CreateCurrencyExchangeRate();
         PurchInvHeader."Posting Date" := WorkDate();
         PurchInvHeader."Currency Factor" := LibraryRandom.RandDec(10, 2);
         PurchInvHeader.Insert();
@@ -159,8 +159,8 @@ codeunit 141061 "UT REP Show FCY and Amt"
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
-        SalesCrMemoHeader."No." := LibraryUTUtility.GetNewCode;
-        SalesCrMemoHeader."Currency Code" := CreateCurrencyExchangeRate;
+        SalesCrMemoHeader."No." := LibraryUTUtility.GetNewCode();
+        SalesCrMemoHeader."Currency Code" := CreateCurrencyExchangeRate();
         SalesCrMemoHeader."Posting Date" := WorkDate();
         SalesCrMemoHeader."Currency Factor" := LibraryRandom.RandDec(10, 2);
         SalesCrMemoHeader.Insert();
@@ -174,8 +174,8 @@ codeunit 141061 "UT REP Show FCY and Amt"
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
-        SalesInvoiceHeader."No." := LibraryUTUtility.GetNewCode;
-        SalesInvoiceHeader."Currency Code" := CreateCurrencyExchangeRate;
+        SalesInvoiceHeader."No." := LibraryUTUtility.GetNewCode();
+        SalesInvoiceHeader."Currency Code" := CreateCurrencyExchangeRate();
         SalesInvoiceHeader."Posting Date" := WorkDate();
         SalesInvoiceHeader."Currency Factor" := LibraryRandom.RandDec(10, 2);
         SalesInvoiceHeader.Insert();
@@ -209,7 +209,7 @@ codeunit 141061 "UT REP Show FCY and Amt"
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
         PurchInvHeader.Get(PurchInvLine."Document No.");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(PurchInvLineAmountCap, PurchInvLine.Amount);
         LibraryReportDataset.AssertElementWithValueExists(PurchInvLineAmtInclVATCap, PurchInvLine."Amount Including VAT");
         VerifyValuesOnPostedPurchaseDocument(
@@ -222,7 +222,7 @@ codeunit 141061 "UT REP Show FCY and Amt"
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
     begin
         PurchCrMemoHdr.Get(PurchCrMemoLine."Document No.");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(PurchCrMemoLineAmountCap, PurchCrMemoLine.Amount);
         LibraryReportDataset.AssertElementWithValueExists(PurchCrMemoLineAmtInclVATCap, PurchCrMemoLine."Amount Including VAT");
         VerifyValuesOnPostedPurchaseDocument(
@@ -235,7 +235,7 @@ codeunit 141061 "UT REP Show FCY and Amt"
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
         SalesInvoiceHeader.Get(SalesInvoiceLine."Document No.");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(SalesInvLineAmountCap, SalesInvoiceLine.Amount);
         LibraryReportDataset.AssertElementWithValueExists(SalesInvLineAmtIncludVATCap, SalesInvoiceLine."Amount Including VAT");
         LibraryReportDataset.AssertElementWithValueExists(
@@ -251,7 +251,7 @@ codeunit 141061 "UT REP Show FCY and Amt"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
         SalesCrMemoHeader.Get(SalesCrMemoLine."Document No.");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(SalesCrMemoLineAmtCap, SalesCrMemoLine.Amount);
         LibraryReportDataset.AssertElementWithValueExists(SalesCrMemoLineAmtInclVatCap, SalesCrMemoLine."Amount Including VAT");
         LibraryReportDataset.AssertElementWithValueExists(
@@ -274,7 +274,7 @@ codeunit 141061 "UT REP Show FCY and Amt"
         PurchaseInvoice.ShowTotalInWords.SetValue(true);
         PurchaseInvoice.ShowLCYForFCY.SetValue(true);
         PurchaseInvoice.ShowTHAmountInWords.SetValue(true);
-        PurchaseInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -288,7 +288,7 @@ codeunit 141061 "UT REP Show FCY and Amt"
         PurchaseCreditMemo.ShowTotalInWords.SetValue(true);
         PurchaseCreditMemo.ShowLCYForFCY.SetValue(true);
         PurchaseCreditMemo.ShowTHAmountInWords.SetValue(true);
-        PurchaseCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchaseCreditMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

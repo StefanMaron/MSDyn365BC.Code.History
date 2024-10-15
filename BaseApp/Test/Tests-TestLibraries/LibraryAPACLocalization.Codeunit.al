@@ -112,10 +112,10 @@ codeunit 140001 "Library - APAC Localization"
         WHTPostingSetup.Validate("WHT Minimum Invoice Amount", 0);
         WHTPostingSetup.Validate("WHT %", LibraryRandom.RandDec(100, 2));
         WHTPostingSetup.Validate("Realized WHT Type", WHTPostingSetup."Realized WHT Type"::Payment);
-        WHTPostingSetup.Validate("Payable WHT Account Code", LibraryERM.CreateGLAccountNo);
+        WHTPostingSetup.Validate("Payable WHT Account Code", LibraryERM.CreateGLAccountNo());
         WHTPostingSetup.Validate("Bal. Payable Account Type", WHTPostingSetup."Bal. Payable Account Type"::"G/L Account");
-        WHTPostingSetup.Validate("Bal. Payable Account No.", LibraryERM.CreateGLAccountNo);
-        WHTPostingSetup.Validate("Purch. WHT Adj. Account No.", LibraryERM.CreateGLAccountNo);
+        WHTPostingSetup.Validate("Bal. Payable Account No.", LibraryERM.CreateGLAccountNo());
+        WHTPostingSetup.Validate("Purch. WHT Adj. Account No.", LibraryERM.CreateGLAccountNo());
         WHTPostingSetup.Validate("Revenue Type", WHTRevenueTypes.Code);
         WHTPostingSetup.Modify(true);
     end;

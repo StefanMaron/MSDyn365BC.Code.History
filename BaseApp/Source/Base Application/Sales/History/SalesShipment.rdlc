@@ -4276,7 +4276,7 @@ End Function
         </Field>
         <Field Name="CompanyAddr8">
           <DataField>CompanyAddr8</DataField>
-        </Field>          
+        </Field>
         <Field Name="ShipmentDate_SalesShptHeader">
           <DataField>ShipmentDate_SalesShptHeader</DataField>
         </Field>

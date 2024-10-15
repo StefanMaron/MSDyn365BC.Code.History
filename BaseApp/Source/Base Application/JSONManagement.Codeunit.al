@@ -134,7 +134,7 @@ codeunit 5459 "JSON Management"
         Clear(value);
         if JObject.TryGetValue(propertyName, JToken) then begin
             JProperty := JObject.Property(propertyName);
-            value := JProperty.Value;
+            value := JProperty.Value();
             exit(true);
         end;
     end;
@@ -290,7 +290,7 @@ codeunit 5459 "JSON Management"
         Clear(JArray);
         if JObject.TryGetValue(propertyName, JToken) then begin
             JProperty := JObject.Property(propertyName);
-            JArray := JProperty.Value;
+            JArray := JProperty.Value();
             exit(true);
         end;
         exit(false);
@@ -316,7 +316,7 @@ codeunit 5459 "JSON Management"
         Clear(JSubObject);
         if JObject.TryGetValue(propertyName, JToken) then begin
             JProperty := JObject.Property(propertyName);
-            JSubObject := JProperty.Value;
+            JSubObject := JProperty.Value();
             exit(true);
         end;
         exit(false);
@@ -352,7 +352,7 @@ codeunit 5459 "JSON Management"
     begin
         Clear(value);
         JValue := JToken;
-        value := JValue.Value;
+        value := JValue.Value();
     end;
 
     [Scope('OnPrem')]
@@ -468,7 +468,7 @@ codeunit 5459 "JSON Management"
         JProperty := JObject.Property(propertyName);
         if not IsNull(JProperty) then begin
             OldProperty := JObject.Property(propertyName);
-            oldValue := OldProperty.Value;
+            oldValue := OldProperty.Value();
             JProperty.Replace(JProperty.JProperty(propertyName, value));
             exit(Format(oldValue) <> Format(value));
         end;

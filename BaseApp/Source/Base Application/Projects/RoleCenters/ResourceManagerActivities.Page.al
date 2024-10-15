@@ -22,19 +22,19 @@ page 9067 "Resource Manager Activities"
                 {
                     ApplicationArea = Jobs;
                     DrillDownPageID = "Resource List";
-                    ToolTip = 'Specifies the number of available resources that are displayed in the Job Cue on the Role Center. The documents are filtered by today''s date.';
+                    ToolTip = 'Specifies the number of available resources that are displayed in the Project Cue on the Role Center. The documents are filtered by today''s date.';
                 }
                 field("Jobs w/o Resource"; Rec."Jobs w/o Resource")
                 {
                     ApplicationArea = Jobs;
                     DrillDownPageID = "Job List";
-                    ToolTip = 'Specifies the number of jobs without an assigned resource that are displayed in the Job Cue on the Role Center. The documents are filtered by today''s date.';
+                    ToolTip = 'Specifies the number of projects without an assigned resource that are displayed in the Project Cue on the Role Center. The documents are filtered by today''s date.';
                 }
                 field("Unassigned Resource Groups"; Rec."Unassigned Resource Groups")
                 {
                     ApplicationArea = Jobs;
                     DrillDownPageID = "Resource Groups";
-                    ToolTip = 'Specifies the number of unassigned resource groups that are displayed in the Job Cue on the Role Center. The documents are filtered by today''s date.';
+                    ToolTip = 'Specifies the number of unassigned resource groups that are displayed in the Project Cue on the Role Center. The documents are filtered by today''s date.';
                 }
 
                 actions

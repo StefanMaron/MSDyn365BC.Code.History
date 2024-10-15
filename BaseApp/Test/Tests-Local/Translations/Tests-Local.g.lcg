@@ -140,15 +140,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit BAS Managament - NamedType CannotEditFieldErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1624885305 - NamedType 395429574" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The BAS calculation sheet cannot be exported.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit BAS Managament - NamedType ExportedBASCalcSheetErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2231402954 - NamedType 2854469367" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Wrong filter value]]></Val>
@@ -581,24 +572,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM GST Reports - NamedType GSTEntriesPageValuesErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2622383499 - NamedType 2126545242" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[VendLedgEntryEndDtAmtLCY]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM IC Purchase Details - NamedType AmtLcy)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2622383499 - NamedType 342894238" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[AgedVendLedgEnt2RemAmtLCY]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM IC Purchase Details - NamedType RemainingAmtLcy)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2622383499 - NamedType 67431746" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The %1 %2 with %3 %4 is required for %5 %6.]]></Val>
@@ -615,15 +588,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM IC Purchase Details - NamedType UnexpectedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2622383499 - NamedType 2799266233" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[No_Vendor]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM IC Purchase Details - NamedType VendorNoCap)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2622383499 - NamedType 2926542344" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -1074,33 +1038,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Sales Price With Cost Plus - NamedType UnitPriceMustBeSameMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3382378424 - NamedType 762284302" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[There are one or more errors. For details, see the journal error FactBox.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Intrastat - NamedType AdvChecklistErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3382378424 - NamedType 3228010162" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Intrastat file was not created]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Intrastat - NamedType FileNotCreatedErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3382378424 - NamedType 3744254637" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Reported must be equal to 'No'  in Intrastat Jnl. Batch]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test Intrastat - NamedType ReportedMustBeNoErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2683223466 - NamedType 3747872931" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

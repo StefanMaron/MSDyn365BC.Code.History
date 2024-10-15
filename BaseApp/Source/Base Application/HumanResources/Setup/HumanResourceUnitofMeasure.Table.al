@@ -8,6 +8,7 @@ table 5220 "Human Resource Unit of Measure"
     DataCaptionFields = "Code";
     DrillDownPageID = "Human Res. Units of Measure";
     LookupPageID = "Human Res. Units of Measure";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -94,12 +94,12 @@ page 959 "Time Sheet Archive"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number for the job that is associated with the time sheet line.';
+                    ToolTip = 'Specifies the number for the project that is associated with the time sheet line.';
                 }
                 field("Job Task No."; Rec."Job Task No.")
                 {
                     ApplicationArea = Jobs;
-                    ToolTip = 'Specifies the number of the related job task.';
+                    ToolTip = 'Specifies the number of the related project task.';
                 }
                 field(Description; Rec.Description)
                 {

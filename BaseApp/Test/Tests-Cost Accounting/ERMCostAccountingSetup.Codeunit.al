@@ -135,8 +135,8 @@ codeunit 134810 "ERM Cost Accounting Setup"
         Initialize();
 
         // Setup:
-        PrevCCDimensionCode := CostCenterDimension;
-        PrevCODimensionCOde := CostObjectDimension;
+        PrevCCDimensionCode := CostCenterDimension();
+        PrevCODimensionCOde := CostObjectDimension();
 
         // Exercise:
         Commit();
@@ -305,7 +305,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         CostAccountMgt: Codeunit "Cost Account Mgt";
     begin
         Initialize();
-        LibraryCostAccounting.VerifyCostTypeIntegrity;
+        LibraryCostAccounting.VerifyCostTypeIntegrity();
 
         // Setup:
         CostType.SetFilter("G/L Account Range", '<>%1', '');
@@ -316,13 +316,13 @@ codeunit 134810 "ERM Cost Accounting Setup"
         CostType.Delete(true);
 
         // Exercise:
-        CostAccountMgt.GetCostTypesFromChartOfAccount;
+        CostAccountMgt.GetCostTypesFromChartOfAccount();
 
         // Verify:
         Clear(CostType);
         LibraryCostAccounting.GetAllCostTypes(CostType);
         ValidateGLAccountIsIncomeStmt(CostType);
-        LibraryCostAccounting.VerifyCostTypeIntegrity;
+        LibraryCostAccounting.VerifyCostTypeIntegrity();
     end;
 
     [Test]
@@ -369,7 +369,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         LibraryDimension.CreateDimensionValue(DimensionValue, CostAccountingSetup."Cost Object Dimension");
 
         // Exercise:
-        CostAccountMgt.CreateCostObjects;
+        CostAccountMgt.CreateCostObjects();
 
         // Verify:
         Assert.IsTrue(CostObject.Get(DimensionValue.Code), StrSubstNo(CostObjectNotFoundError, DimensionValue.Code));
@@ -392,7 +392,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         GLAccount.Modify(true);
 
         // Exercise:
-        CostAccountMgt.LinkCostTypesToGLAccountsYN;
+        CostAccountMgt.LinkCostTypesToGLAccountsYN();
 
         // Verify:
         GLAccount.Get(CostType."G/L Account Range");
@@ -432,7 +432,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
     begin
         // Add a new Cost Center Dimension Value with line type 'Begin-Total' and check that no Cost Center is created (Alignment = Automic)
 
-        CostCenterNo := AlignCostCenters(AlignmentTypeAutomatic, DimensionValueTypeBeginTotal);
+        CostCenterNo := AlignCostCenters(AlignmentTypeAutomatic(), DimensionValueTypeBeginTotal());
 
         // Verify:
         Assert.IsFalse(CostCenter.Get(CostCenterNo), CostCenterError);
@@ -447,7 +447,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
     begin
         // Add a new Cost Object Dimension Value with line type 'Begin-Total' and check that no Cost Object is created (Alignment = Automic)
 
-        CostObjectNo := AlignCostObjects(AlignmentTypeAutomatic, DimensionValueTypeBeginTotal);
+        CostObjectNo := AlignCostObjects(AlignmentTypeAutomatic(), DimensionValueTypeBeginTotal());
 
         // Verify:
         Assert.IsFalse(CostObject.Get(CostObjectNo), CostObjectError);
@@ -462,7 +462,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
     begin
         // Add a new Cost Center Dimension Value with line type 'End-Total' and check that no Cost Center is created (Alignment = Automic)
 
-        CostCenterNo := AlignCostCenters(AlignmentTypeAutomatic, DimensionValueTypeEndTotal);
+        CostCenterNo := AlignCostCenters(AlignmentTypeAutomatic(), DimensionValueTypeEndTotal());
 
         // Verify:
         Assert.IsFalse(CostCenter.Get(CostCenterNo), CostCenterError);
@@ -477,7 +477,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
     begin
         // Add a new Cost Object Dimension Value with line type 'End-Total' and check that no Cost Object is created (Alignment = Automic)
 
-        CostObjectNo := AlignCostObjects(AlignmentTypeAutomatic, DimensionValueTypeEndTotal);
+        CostObjectNo := AlignCostObjects(AlignmentTypeAutomatic(), DimensionValueTypeEndTotal());
 
         // Verify:
         Assert.IsFalse(CostObject.Get(CostObjectNo), CostObjectError);
@@ -497,7 +497,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         Initialize();
 
         // Setup:
-        LibraryCostAccounting.SetAlignment(AlignGLAccountFieldNo, AlignmentTypeAutomatic);
+        LibraryCostAccounting.SetAlignment(AlignGLAccountFieldNo(), AlignmentTypeAutomatic());
 
         // Excercise:
         LibraryCostAccounting.CreateIncomeStmtGLAccount(GLAccount);
@@ -518,7 +518,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         // Change Align Cost Centers to "Automatic" and verify that when adding a new dimension value to Cost Centers Dimension
         // a Cost Center is also created
 
-        CostCenterNo := AlignCostCenters(AlignmentTypeAutomatic, DimensionValueTypeStandard);
+        CostCenterNo := AlignCostCenters(AlignmentTypeAutomatic(), DimensionValueTypeStandard());
 
         // Verify:
         Assert.IsTrue(CostCenter.Get(CostCenterNo), StrSubstNo(CostCenterNotFoundError, CostCenterNo));
@@ -535,7 +535,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         // Change Align Cost Centers to "Automatic" and verify that when adding a new dimension value to Cost Objects Dimension
         // a Cost Object is also created
 
-        CostObjectNo := AlignCostObjects(AlignmentTypeAutomatic, DimensionValueTypeStandard);
+        CostObjectNo := AlignCostObjects(AlignmentTypeAutomatic(), DimensionValueTypeStandard());
 
         // Verify:
         Assert.IsTrue(CostObject.Get(CostObjectNo), StrSubstNo(CostCenterNotFoundError, CostObjectNo));
@@ -554,7 +554,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         Initialize();
 
         // Setup:
-        LibraryCostAccounting.SetAlignment(AlignGLAccountFieldNo, AlignmentTypeNoAlignment);
+        LibraryCostAccounting.SetAlignment(AlignGLAccountFieldNo(), AlignmentTypeNoAlignment());
 
         // Excercise:
         LibraryCostAccounting.CreateIncomeStmtGLAccount(GLAccount);
@@ -573,7 +573,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         // Change Align Cost Centers to "No Alignment" and verify that when adding a new dimension value to Cost Centers Dimension
         // no Cost Center is added to the Chart of Cost Centers.
 
-        CostCenterNo := AlignCostCenters(AlignmentTypeNoAlignment, DimensionValueTypeStandard);
+        CostCenterNo := AlignCostCenters(AlignmentTypeNoAlignment(), DimensionValueTypeStandard());
 
         // Verify:
         Assert.IsFalse(CostCenter.Get(CostCenterNo), CostCenterError);
@@ -589,7 +589,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         // Change Align Cost Objects to "No Alignment" and verify that when adding a new dimension value to Cost Objects Dimension
         // no Cost Object is added to the Chart of Cost Objects.
 
-        CostObjectNo := AlignCostObjects(AlignmentTypeNoAlignment, DimensionValueTypeStandard);
+        CostObjectNo := AlignCostObjects(AlignmentTypeNoAlignment(), DimensionValueTypeStandard());
 
         // Verify:
         Assert.IsFalse(CostObject.Get(CostObjectNo), CostObjectError);
@@ -609,7 +609,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         Initialize();
 
         // Setup:
-        LibraryCostAccounting.SetAlignment(AlignGLAccountFieldNo, AlignmentTypePrompt);
+        LibraryCostAccounting.SetAlignment(AlignGLAccountFieldNo(), AlignmentTypePrompt());
 
         // Excercise:
         LibraryCostAccounting.CreateIncomeStmtGLAccount(GLAccount);
@@ -633,7 +633,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         Initialize();
 
         // Setup:
-        LibraryCostAccounting.SetAlignment(AlignGLAccountFieldNo, AlignmentTypePrompt);
+        LibraryCostAccounting.SetAlignment(AlignGLAccountFieldNo(), AlignmentTypePrompt());
 
         // Excercise:
         LibraryCostAccounting.CreateIncomeStmtGLAccount(GLAccount);
@@ -653,7 +653,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         // Change Align Cost Centers to "Prompt" and verify that when adding a new dimension value to Cost Centers Dimension
         // a Cost Center is also created if the user selects "Yes" in the confirmation message
 
-        CostCenterNo := AlignCostCenters(AlignmentTypePrompt, DimensionValueTypeStandard);
+        CostCenterNo := AlignCostCenters(AlignmentTypePrompt(), DimensionValueTypeStandard());
 
         // Verify:
         Assert.IsTrue(CostCenter.Get(CostCenterNo), StrSubstNo(CostCenterNotFoundError, CostCenterNo));
@@ -670,7 +670,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         // Change Align Cost Centers to "Prompt" and verify that when adding a new dimension value to Cost Centers Dimension
         // no Cost Center is created if the user selects "No" in the confirmation message
 
-        CostCenterNo := AlignCostCenters(AlignmentTypePrompt, DimensionValueTypeStandard);
+        CostCenterNo := AlignCostCenters(AlignmentTypePrompt(), DimensionValueTypeStandard());
 
         // Verify:
         Assert.IsFalse(CostCenter.Get(CostCenterNo), CostCenterError);
@@ -687,7 +687,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         // Change Align Cost Objects to "Prompt" and verify that when adding a new dimension value to Cost Objects Dimension
         // a Cost Object is also created if the user selects "Yes" in the confirmation message
 
-        CostObjectNo := AlignCostObjects(AlignmentTypePrompt, DimensionValueTypeStandard);
+        CostObjectNo := AlignCostObjects(AlignmentTypePrompt(), DimensionValueTypeStandard());
 
         // Verify:
         Assert.IsTrue(CostObject.Get(CostObjectNo), StrSubstNo(CostCenterNotFoundError, CostObjectNo));
@@ -704,7 +704,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         // Change Align Cost Objects to "Prompt" and verify that when adding a new dimension value to Cost Objects Dimension
         // no Cost Object is created if the user selects "No" in the confirmation message
 
-        CostObjectNo := AlignCostObjects(AlignmentTypePrompt, DimensionValueTypeStandard);
+        CostObjectNo := AlignCostObjects(AlignmentTypePrompt(), DimensionValueTypeStandard());
 
         // Verify:
         Assert.IsFalse(CostObject.Get(CostObjectNo), CostObjectError);
@@ -727,7 +727,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         UpdateAlignedDimension(CostAccountingSetup.FieldNo("Cost Center Dimension"));
 
         // Excercise:
-        CostCenterNo := AlignCostCenters(AlignmentTypeAutomatic, DimensionValueTypeStandard);
+        CostCenterNo := AlignCostCenters(AlignmentTypeAutomatic(), DimensionValueTypeStandard());
 
         // Verify:
         Assert.IsTrue(CostCenter.Get(CostCenterNo), StrSubstNo(CostCenterNotFoundError, CostCenterNo));
@@ -750,7 +750,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         UpdateAlignedDimension(CostAccountingSetup.FieldNo("Cost Object Dimension"));
 
         // Excercise:
-        CostObjectNo := AlignCostObjects(AlignmentTypeAutomatic, DimensionValueTypeStandard);
+        CostObjectNo := AlignCostObjects(AlignmentTypeAutomatic(), DimensionValueTypeStandard());
 
         // Verify:
         Assert.IsTrue(CostObject.Get(CostObjectNo), StrSubstNo(CostObjectNotFoundError, CostObjectNo));
@@ -766,7 +766,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         CostTypeNo: Code[20];
     begin
         Initialize();
-        LibraryCostAccounting.VerifyCostTypeIntegrity;
+        LibraryCostAccounting.VerifyCostTypeIntegrity();
 
         // Setup:
         LibraryCostAccounting.CreateIncomeStmtGLAccount(GLAccount);
@@ -779,17 +779,17 @@ codeunit 134810 "ERM Cost Accounting Setup"
         CostType.Delete(true);
 
         // Exercise:
-        CostAccountMgt.GetCostTypesFromChartOfAccount;
+        CostAccountMgt.GetCostTypesFromChartOfAccount();
 
         // Verify:
         ValidateGLAccountCostTypeRef(CostTypeNo);
-        LibraryCostAccounting.VerifyCostTypeIntegrity;
+        LibraryCostAccounting.VerifyCostTypeIntegrity();
     end;
 
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Cost Accounting Setup");
-        LibraryCostAccounting.InitializeCASetup;
+        LibraryCostAccounting.InitializeCASetup();
     end;
 
     [Normal]
@@ -811,7 +811,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         LibraryCostAccounting.SetAlignment(CostAccountingSetup.FieldNo("Align Cost Center Dimension"), AlignCostCenters);
 
         // Excercise:
-        CreateDimensionValue(DimensionValue, CostCenterDimension, LineType);
+        CreateDimensionValue(DimensionValue, CostCenterDimension(), LineType);
         exit(DimensionValue.Code);
     end;
 
@@ -826,7 +826,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         LibraryCostAccounting.SetAlignment(CostAccountingSetup.FieldNo("Align Cost Object Dimension"), AlignCostObjects);
 
         // Excercise:
-        CreateDimensionValue(DimensionValue, CostObjectDimension, LineType);
+        CreateDimensionValue(DimensionValue, CostObjectDimension(), LineType);
         exit(DimensionValue.Code);
     end;
 
@@ -998,7 +998,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         UpdateCCAndCOReqPage.CostObjectDimension.SetValue(NewCODimensionCode);
 
         // Exercise:
-        UpdateCCAndCOReqPage.Cancel.Invoke;
+        UpdateCCAndCOReqPage.Cancel().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1007,7 +1007,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
     begin
         UpdateCCAndCOReqPage.CostCenterDimension.SetValue('');
 
-        UpdateCCAndCOReqPage.OK.Invoke;
+        UpdateCCAndCOReqPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1016,7 +1016,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
     begin
         UpdateCCAndCOReqPage.CostObjectDimension.SetValue('');
 
-        UpdateCCAndCOReqPage.OK.Invoke;
+        UpdateCCAndCOReqPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1027,7 +1027,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
         UpdateCCAndCOReqPage.CostCenterDimension.SetValue(CostCenterDim);
         UpdateCCAndCOReqPage.CostObjectDimension.SetValue(CostObjectDim);
 
-        UpdateCCAndCOReqPage.OK.Invoke;
+        UpdateCCAndCOReqPage.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1036,7 +1036,7 @@ codeunit 134810 "ERM Cost Accounting Setup"
     begin
         UpdateCCAndCOReqPage.CostCenterDimension.SetValue(UpdateCCAndCOReqPage.CostObjectDimension.Value);
 
-        UpdateCCAndCOReqPage.OK.Invoke;
+        UpdateCCAndCOReqPage.OK().Invoke();
     end;
 
     [Normal]

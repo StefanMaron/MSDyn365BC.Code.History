@@ -3,6 +3,7 @@ namespace Microsoft.Inventory.Tracking;
 table 359 "Reservation Worksheet Log"
 {
     Caption = 'Reservation Worksheet Log';
+    DataClassification = CustomerContent;
 
     fields
     {

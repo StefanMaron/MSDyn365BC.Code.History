@@ -16,54 +16,48 @@ codeunit 5607 "FA Automatic Entry"
 
     procedure AdjustFALedgEntry(var FALedgEntry: Record "FA Ledger Entry")
     begin
-        with FALedgEntry do begin
-            FA.Get("FA No.");
-            if not FA."Budgeted Asset" then
-                Quantity := 0;
-            "Bal. Account Type" := "Bal. Account Type"::"G/L Account";
-            "Bal. Account No." := '';
-            "VAT Amount" := 0;
-            "Gen. Posting Type" := "Gen. Posting Type"::" ";
-            "Gen. Bus. Posting Group" := '';
-            "Gen. Prod. Posting Group" := '';
-            "VAT Bus. Posting Group" := '';
-            "VAT Prod. Posting Group" := '';
-            "Reclassification Entry" := false;
-            "Index Entry" := false;
-        end;
+        FA.Get(FALedgEntry."FA No.");
+        if not FA."Budgeted Asset" then
+            FALedgEntry.Quantity := 0;
+        FALedgEntry."Bal. Account Type" := FALedgEntry."Bal. Account Type"::"G/L Account";
+        FALedgEntry."Bal. Account No." := '';
+        FALedgEntry."VAT Amount" := 0;
+        FALedgEntry."Gen. Posting Type" := FALedgEntry."Gen. Posting Type"::" ";
+        FALedgEntry."Gen. Bus. Posting Group" := '';
+        FALedgEntry."Gen. Prod. Posting Group" := '';
+        FALedgEntry."VAT Bus. Posting Group" := '';
+        FALedgEntry."VAT Prod. Posting Group" := '';
+        FALedgEntry."Reclassification Entry" := false;
+        FALedgEntry."Index Entry" := false;
     end;
 
     procedure AdjustMaintenanceLedgEntry(var MaintenanceLedgEntry: Record "Maintenance Ledger Entry")
     begin
-        with MaintenanceLedgEntry do begin
-            FA.Get("FA No.");
-            if not FA."Budgeted Asset" then
-                Quantity := 0;
-            "Bal. Account Type" := "Bal. Account Type"::"G/L Account";
-            "Bal. Account No." := '';
-            "VAT Amount" := 0;
-            "Gen. Posting Type" := "Gen. Posting Type"::" ";
-            "Gen. Bus. Posting Group" := '';
-            "Gen. Prod. Posting Group" := '';
-            "VAT Bus. Posting Group" := '';
-            "VAT Prod. Posting Group" := '';
-            "Index Entry" := false;
-        end;
+        FA.Get(MaintenanceLedgEntry."FA No.");
+        if not FA."Budgeted Asset" then
+            MaintenanceLedgEntry.Quantity := 0;
+        MaintenanceLedgEntry."Bal. Account Type" := MaintenanceLedgEntry."Bal. Account Type"::"G/L Account";
+        MaintenanceLedgEntry."Bal. Account No." := '';
+        MaintenanceLedgEntry."VAT Amount" := 0;
+        MaintenanceLedgEntry."Gen. Posting Type" := MaintenanceLedgEntry."Gen. Posting Type"::" ";
+        MaintenanceLedgEntry."Gen. Bus. Posting Group" := '';
+        MaintenanceLedgEntry."Gen. Prod. Posting Group" := '';
+        MaintenanceLedgEntry."VAT Bus. Posting Group" := '';
+        MaintenanceLedgEntry."VAT Prod. Posting Group" := '';
+        MaintenanceLedgEntry."Index Entry" := false;
     end;
 
     procedure AdjustGLEntry(var GLEntry: Record "G/L Entry")
     begin
-        with GLEntry do begin
-            Quantity := 0;
-            "Bal. Account Type" := "Bal. Account Type"::"G/L Account";
-            "Bal. Account No." := '';
-            "VAT Amount" := 0;
-            "Gen. Posting Type" := "Gen. Posting Type"::" ";
-            "Gen. Bus. Posting Group" := '';
-            "Gen. Prod. Posting Group" := '';
-            "VAT Bus. Posting Group" := '';
-            "VAT Prod. Posting Group" := '';
-        end;
+        GLEntry.Quantity := 0;
+        GLEntry."Bal. Account Type" := GLEntry."Bal. Account Type"::"G/L Account";
+        GLEntry."Bal. Account No." := '';
+        GLEntry."VAT Amount" := 0;
+        GLEntry."Gen. Posting Type" := GLEntry."Gen. Posting Type"::" ";
+        GLEntry."Gen. Bus. Posting Group" := '';
+        GLEntry."Gen. Prod. Posting Group" := '';
+        GLEntry."VAT Bus. Posting Group" := '';
+        GLEntry."VAT Prod. Posting Group" := '';
     end;
 }
 

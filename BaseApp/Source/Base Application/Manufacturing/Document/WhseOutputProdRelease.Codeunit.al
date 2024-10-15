@@ -25,17 +25,15 @@ codeunit 7325 "Whse.-Output Prod. Release"
 
         OnBeforeRelease(ProdHeader);
         LocationCode2 := '';
-        with ProdHeader do begin
-            ProdOrderLine.SetCurrentKey(Status, "Prod. Order No.");
-            ProdOrderLine.SetRange(Status, Status);
-            ProdOrderLine.SetRange("Prod. Order No.", "No.");
-            if ProdOrderLine.Find('-') then
-                repeat
-                    if ProdOrderLine."Location Code" <> LocationCode2 then
-                        CreateWhseRqst(ProdOrderLine, ProdHeader);
-                    LocationCode2 := ProdOrderLine."Location Code";
-                until ProdOrderLine.Next() = 0;
-        end;
+        ProdOrderLine.SetCurrentKey(Status, "Prod. Order No.");
+        ProdOrderLine.SetRange(Status, ProdHeader.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProdHeader."No.");
+        if ProdOrderLine.Find('-') then
+            repeat
+                if ProdOrderLine."Location Code" <> LocationCode2 then
+                    CreateWhseRqst(ProdOrderLine, ProdHeader);
+                LocationCode2 := ProdOrderLine."Location Code";
+            until ProdOrderLine.Next() = 0;
         exit(WhseRqstCreated);
     end;
 
@@ -59,7 +57,7 @@ codeunit 7325 "Whse.-Output Prod. Release"
         WhseRqst."Location Code" := ProdOrderLine."Location Code";
         WhseRqst."Source Type" := Database::"Prod. Order Line";
         WhseRqst."Source No." := ProdOrderLine."Prod. Order No.";
-        WhseRqst."Source Subtype" := ProdOrderLine.Status;
+        WhseRqst."Source Subtype" := ProdOrderLine.Status.AsInteger();
         WhseRqst."Source Document" := WhseRqst."Source Document"::"Prod. Output";
         WhseRqst."Document Status" := WhseRqst."Document Status"::Released;
         WhseRqst."Completely Handled" := ProdOrderCompletelyHandled(ProdOrder, ProdOrderLine."Location Code");
@@ -78,28 +76,26 @@ codeunit 7325 "Whse.-Output Prod. Release"
         ProdOrderLine2: Record "Prod. Order Line";
         KeepWhseRqst: Boolean;
     begin
-        with ProdOrderLine do begin
-            KeepWhseRqst := false;
-            GetLocation(ProdOrderLine2."Location Code");
-            if (Location."Prod. Output Whse. Handling" = Location."Prod. Output Whse. Handling"::"Inventory Put-away") and (not Location."Directed Put-away and Pick") then begin
-                ProdOrderLine2.Reset();
-                ProdOrderLine2.SetRange(Status, Status);
-                ProdOrderLine2.SetRange("Prod. Order No.", "Prod. Order No.");
-                ProdOrderLine2.SetRange("Location Code", "Location Code");
-                if ProdOrderLine2.Find('-') then
-                    repeat
-                        if ((ProdOrderLine2.Status <> Status) or
-                            (ProdOrderLine2."Prod. Order No." <> "Prod. Order No.") or
-                            (ProdOrderLine2."Line No." <> "Line No.")) and
-                           (ProdOrderLine2."Remaining Quantity" <> 0)
-                        then
-                            KeepWhseRqst := true;
-                    until (ProdOrderLine2.Next() = 0) or KeepWhseRqst;
-            end;
-
-            if not KeepWhseRqst then
-                DeleteWhseRqst(ProdOrderLine, false);
+        KeepWhseRqst := false;
+        GetLocation(ProdOrderLine2."Location Code");
+        if (Location."Prod. Output Whse. Handling" = Location."Prod. Output Whse. Handling"::"Inventory Put-away") and (not Location."Directed Put-away and Pick") then begin
+            ProdOrderLine2.Reset();
+            ProdOrderLine2.SetRange(Status, ProdOrderLine.Status);
+            ProdOrderLine2.SetRange("Prod. Order No.", ProdOrderLine."Prod. Order No.");
+            ProdOrderLine2.SetRange("Location Code", ProdOrderLine."Location Code");
+            if ProdOrderLine2.Find('-') then
+                repeat
+                    if ((ProdOrderLine2.Status <> ProdOrderLine.Status) or
+                        (ProdOrderLine2."Prod. Order No." <> ProdOrderLine."Prod. Order No.") or
+                        (ProdOrderLine2."Line No." <> ProdOrderLine."Line No.")) and
+                       (ProdOrderLine2."Remaining Quantity" <> 0)
+                    then
+                        KeepWhseRqst := true;
+                until (ProdOrderLine2.Next() = 0) or KeepWhseRqst;
         end;
+
+        if not KeepWhseRqst then
+            DeleteWhseRqst(ProdOrderLine, false);
 
         OnAfterDeleteLine(ProdOrderLine, KeepWhseRqst);
     end;
@@ -108,27 +104,23 @@ codeunit 7325 "Whse.-Output Prod. Release"
     var
         WarehouseRequest: Record "Warehouse Request";
     begin
-        with ProdOrderLine do begin
-            WarehouseRequest.SetRange(Type, WarehouseRequest.Type::Inbound);
-            WarehouseRequest.SetRange("Source Type", Database::"Prod. Order Line");
-            WarehouseRequest.SetRange("Source No.", "Prod. Order No.");
-            if not DeleteAllWhseRqst then begin
-                WarehouseRequest.SetRange("Source Subtype", Status);
-                WarehouseRequest.SetRange("Location Code", "Location Code");
-            end;
-            WarehouseRequest.DeleteAll(true);
+        WarehouseRequest.SetRange(Type, WarehouseRequest.Type::Inbound);
+        WarehouseRequest.SetRange("Source Type", Database::"Prod. Order Line");
+        WarehouseRequest.SetRange("Source No.", ProdOrderLine."Prod. Order No.");
+        if not DeleteAllWhseRqst then begin
+            WarehouseRequest.SetRange("Source Subtype", ProdOrderLine.Status);
+            WarehouseRequest.SetRange("Location Code", ProdOrderLine."Location Code");
         end;
+        WarehouseRequest.DeleteAll(true);
     end;
 
     procedure FinishedDelete(var ProdHeader: Record "Production Order")
     begin
-        with ProdHeader do begin
-            ProdOrderLine.SetCurrentKey(Status, "Prod. Order No.");
-            ProdOrderLine.SetRange(Status, Status);
-            ProdOrderLine.SetRange("Prod. Order No.", "No.");
-            if ProdOrderLine.Find('-') then
-                DeleteWhseRqst(ProdOrderLine, true);
-        end;
+        ProdOrderLine.SetCurrentKey(Status, "Prod. Order No.");
+        ProdOrderLine.SetRange(Status, ProdHeader.Status);
+        ProdOrderLine.SetRange("Prod. Order No.", ProdHeader."No.");
+        if ProdOrderLine.Find('-') then
+            DeleteWhseRqst(ProdOrderLine, true);
     end;
 
     local procedure ProdOrderCompletelyHandled(ProdOrder: Record "Production Order"; LocationCode: Code[10]): Boolean
@@ -156,28 +148,26 @@ codeunit 7325 "Whse.-Output Prod. Release"
         ProdOrderLine2: Record "Prod. Order Line";
     begin
         WhseRqstCreated := true;
-        with ProductionOrder do begin
-            ProdOrderLine2.SetCurrentKey(Status, "Prod. Order No.");
-            ProdOrderLine2.SetRange(Status, Status);
-            ProdOrderLine2.SetRange("Prod. Order No.", "No.");
-            if ProdOrderLine2.Find('-') then
-                repeat
-                    GetLocation(ProdOrderLine2."Location Code");
-                    if Location.Code <> '' then
-                        if Location."Prod. Output Whse. Handling" <> Location."Prod. Output Whse. Handling"::"Inventory Put-away" then
-                            WhseRqstCreated := false
-                        else
-                            if not WhseRqst.Get(
-                                 WhseRqst.Type::Inbound,
-                                 ProdOrderLine2."Location Code",
-                                 Database::"Prod. Order Line",
-                                 ProdOrderLine2.Status,
-                                 ProdOrderLine2."Prod. Order No.")
-                            then
-                                WhseRqstCreated := false;
-                    OnAfterCheckWhseRqstProdOrderLine(ProdOrderLine2, WhseRqst, WhseRqstCreated);
-                until (ProdOrderLine2.Next() = 0) or not WhseRqstCreated;
-        end;
+        ProdOrderLine2.SetCurrentKey(Status, "Prod. Order No.");
+        ProdOrderLine2.SetRange(Status, ProductionOrder.Status);
+        ProdOrderLine2.SetRange("Prod. Order No.", ProductionOrder."No.");
+        if ProdOrderLine2.Find('-') then
+            repeat
+                GetLocation(ProdOrderLine2."Location Code");
+                if Location.Code <> '' then
+                    if Location."Prod. Output Whse. Handling" <> Location."Prod. Output Whse. Handling"::"Inventory Put-away" then
+                        WhseRqstCreated := false
+                    else
+                        if not WhseRqst.Get(
+                             WhseRqst.Type::Inbound,
+                             ProdOrderLine2."Location Code",
+                             Database::"Prod. Order Line",
+                             ProdOrderLine2.Status,
+                             ProdOrderLine2."Prod. Order No.")
+                        then
+                            WhseRqstCreated := false;
+                OnAfterCheckWhseRqstProdOrderLine(ProdOrderLine2, WhseRqst, WhseRqstCreated);
+            until (ProdOrderLine2.Next() = 0) or not WhseRqstCreated;
         exit(WhseRqstCreated);
     end;
 

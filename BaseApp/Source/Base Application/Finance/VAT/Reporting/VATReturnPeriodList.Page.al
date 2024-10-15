@@ -1,4 +1,4 @@
-// ------------------------------------------------------------------------------------------------
+﻿// ------------------------------------------------------------------------------------------------
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License. See License.txt in the project root for license information.
 // ------------------------------------------------------------------------------------------------
@@ -92,7 +92,7 @@ page 737 "VAT Return Period List"
                 Caption = 'Get VAT Return Periods';
                 Image = GetLines;
                 ToolTip = 'Load the VAT return periods that are set up in the system.';
-                Visible = NOT IsEditable;
+                Visible = not IsEditable;
 
                 trigger OnAction()
                 var

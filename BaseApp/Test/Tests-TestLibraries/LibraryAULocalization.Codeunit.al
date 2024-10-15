@@ -10,15 +10,13 @@ codeunit 143000 "Library - AU Localization"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        with GLSetup do begin
-            Get();
-            Validate("Enable GST (Australia)", EnableGST);
-            Validate("Full GST on Prepayment", FullGSTOnPrepayment);
-            Validate("GST Report", EnableGST);
-            if EnableGST then
-                Validate("Adjustment Mandatory", false);
-            Modify(true);
-        end;
+        GLSetup.Get();
+        GLSetup.Validate("Enable GST (Australia)", EnableGST);
+        GLSetup.Validate("Full GST on Prepayment", FullGSTOnPrepayment);
+        GLSetup.Validate("GST Report", EnableGST);
+        if EnableGST then
+            GLSetup.Validate("Adjustment Mandatory", false);
+        GLSetup.Modify(true);
     end;
 }
 

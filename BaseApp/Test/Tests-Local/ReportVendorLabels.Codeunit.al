@@ -29,7 +29,7 @@ codeunit 141045 "Report Vendor - Labels"
 
         // [GIVEN] Create Vendor with Address ID and Enqueue values for VendorLevelRequestPageHandler.
         Initialize();
-        VendorNo := CreateVendorWithAddressID;
+        VendorNo := CreateVendorWithAddressID();
         LibraryVariableStorage.Enqueue(StrSubstNo(NoTxt, VendorNo, VendorNo));
         Commit();  // Commit is required as Commit is explicitly using on Vendor - OnAfterGetRecord Trigger of Report ID - 310 Vendor - Labels.
 
@@ -37,7 +37,7 @@ codeunit 141045 "Report Vendor - Labels"
         REPORT.Run(REPORT::"Vendor - Labels");  // Opens VendorLevelRequestPageHandler.
 
         // [THEN] Verify Vendor Bar Code on generated XML of Report - Vendor - Labels.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyVendorBarCodeOnVendorLabel(VendorNo, 1, VendorBarCodeCap);  // Hardcode Value 1 required for Known Column Number.
     end;
 
@@ -53,8 +53,8 @@ codeunit 141045 "Report Vendor - Labels"
 
         // [GIVEN] Create Vendor with Address ID and Enqueue values for VendorLevelRequestPageHandler.
         Initialize();
-        VendorNo := CreateVendorWithAddressID;
-        VendorNo2 := CreateVendorWithAddressID;
+        VendorNo := CreateVendorWithAddressID();
+        VendorNo2 := CreateVendorWithAddressID();
         LibraryVariableStorage.Enqueue(StrSubstNo(NoTxt, VendorNo, VendorNo2));
         Commit();  // Commit is required as Commit is explicitly using on Vendor - OnAfterGetRecord Trigger of Report ID - 310 Vendor - Labels.
 
@@ -62,7 +62,7 @@ codeunit 141045 "Report Vendor - Labels"
         REPORT.Run(REPORT::"Vendor - Labels");  // Opens VendorLevelRequestPageHandler.
 
         // [THEN] Verify Vendor Bar Code on generated XML of Report - Vendor - Labels.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         VerifyVendorBarCodeOnVendorLabel(VendorNo, 1, VendorBarCodeCap);  // Hardcode Value 1 required for Known Column Number.
         VerifyVendorBarCodeOnVendorLabel(VendorNo2, 2, VendorBarCode2Cap);  // Hardcode Value 2 required for Known Column Number.
     end;
@@ -88,7 +88,7 @@ codeunit 141045 "Report Vendor - Labels"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Insert();
         CreateAddressID(Vendor."No.");
         exit(Vendor."No.");
@@ -115,7 +115,7 @@ codeunit 141045 "Report Vendor - Labels"
         LibraryVariableStorage.Dequeue(No);
         VendoLabels.Format.SetValue(Format::"48 x 105 mm (2 columns - Bar Code)");
         VendoLabels.Vendor.SetFilter("No.", No);
-        VendoLabels.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VendoLabels.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

@@ -31,7 +31,7 @@ report 5971 "Service Contract-Detail"
             }
             dataitem(PageLoop; "Integer")
             {
-                DataItemTableView = sorting(Number) ORDER(Descending) where(Number = const(1));
+                DataItemTableView = sorting(Number) order(descending) where(Number = const(1));
                 column(CustAddr6; CustAddr[6])
                 {
                 }
@@ -223,7 +223,7 @@ report 5971 "Service Contract-Detail"
                     dataitem("Service Comment Line"; "Service Comment Line")
                     {
                         DataItemLink = "Table Subtype" = field("Contract Type"), "Table Line No." = field("Line No."), "No." = field("Contract No.");
-                        DataItemTableView = sorting("Table Name", "Table Subtype", "No.", Type, "Table Line No.", "Line No.") ORDER(Ascending) where("Table Name" = filter("Service Contract"));
+                        DataItemTableView = sorting("Table Name", "Table Subtype", "No.", Type, "Table Line No.", "Line No.") order(ascending) where("Table Name" = filter("Service Contract"));
                         column(Date_ServeCmntLine; Format(Date))
                         {
                         }
@@ -278,7 +278,7 @@ report 5971 "Service Contract-Detail"
             dataitem(ServcommentLine2; "Service Comment Line")
             {
                 DataItemLink = "Table Subtype" = field("Contract Type"), "No." = field("Contract No.");
-                DataItemTableView = sorting("Table Name", "Table Subtype", "No.", Type, "Table Line No.", "Line No.") ORDER(Ascending) where("Table Name" = filter("Service Contract"), "Table Line No." = filter(0));
+                DataItemTableView = sorting("Table Name", "Table Subtype", "No.", Type, "Table Line No.", "Line No.") order(ascending) where("Table Name" = filter("Service Contract"), "Table Line No." = filter(0));
                 column(Date_ServcmntLine2; Format(Date))
                 {
                 }

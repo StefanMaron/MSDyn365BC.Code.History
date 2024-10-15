@@ -1,4 +1,4 @@
-﻿namespace Microsoft.Finance.GeneralLedger.Reports;
+namespace Microsoft.Finance.GeneralLedger.Reports;
 
 using Microsoft.Finance.GeneralLedger.Account;
 using Microsoft.Finance.GeneralLedger.Setup;
@@ -240,7 +240,6 @@ report 10 "Closing Trial Balance"
         AccountingPeriod: Record "Accounting Period";
         GLSetup: Record "General Ledger Setup";
         ReportMgmnt: Codeunit "Report Management APAC";
-        RoundingText: Text[50];
         Rounding: Option " ",Tens,Hundreds,Thousands,"Hundred Thousands",Millions;
         FiscalYearStartDate: Date;
         FiscalYearEndDate: Date;
@@ -255,7 +254,6 @@ report 10 "Closing Trial Balance"
 
         Text000: Label 'Enter the starting date for the fiscal year.';
         Text001: Label 'Period: %1';
-        Text002: Label 'All amounts are in %1';
         RepIncSimulationEntriesLbl: Label 'This report includes simulation entries.';
         ClosingTrialBalCaptionLbl: Label 'Closing Trial Balance';
         PageCaptionLbl: Label 'Page';

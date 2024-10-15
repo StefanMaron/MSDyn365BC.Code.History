@@ -8,6 +8,7 @@ table 11601 "BAS Calculation Sheet"
 {
     Caption = 'BAS Calculation Sheet';
     LookupPageID = "BAS Calc. Schedule List";
+    DataClassification = CustomerContent;
 
     fields
     {

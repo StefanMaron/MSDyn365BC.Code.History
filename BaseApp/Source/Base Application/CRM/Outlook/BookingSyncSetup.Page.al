@@ -89,7 +89,7 @@ page 6702 "Booking Sync. Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether to synchronize Bookings customers.';
-                    Visible = NOT GraphSyncEnabled;
+                    Visible = not GraphSyncEnabled;
                 }
                 field("Customer Templ. Code"; Rec."Customer Templ. Code")
                 {
@@ -158,7 +158,7 @@ page 6702 "Booking Sync. Setup"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Set Sync. User';
-                    Enabled = NOT IsSyncUser;
+                    Enabled = not IsSyncUser;
                     Image = User;
                     ToolTip = 'Set the synchronization user to be you.';
 

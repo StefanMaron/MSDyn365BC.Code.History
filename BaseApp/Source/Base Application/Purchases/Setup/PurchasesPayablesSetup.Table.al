@@ -30,6 +30,7 @@ table 312 "Purchases & Payables Setup"
     Caption = 'Purchases & Payables Setup';
     DrillDownPageID = "Purchases & Payables Setup";
     LookupPageID = "Purchases & Payables Setup";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -518,7 +519,7 @@ table 312 "Purchases & Payables Setup"
                     Validate("Default Price List Code", PriceListHeader.Code);
                 end;
             end;
-#if not CLEAN21
+#if not CLEAN23
 
             trigger OnValidate()
             var

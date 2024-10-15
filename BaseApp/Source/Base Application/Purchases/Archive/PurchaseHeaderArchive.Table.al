@@ -5,6 +5,7 @@ using Microsoft.Bank.Payment;
 using Microsoft.CRM.Campaign;
 using Microsoft.CRM.Contact;
 using Microsoft.CRM.Team;
+using Microsoft.EServices.EDocument;
 using Microsoft.Finance.Currency;
 using Microsoft.Finance.Deferral;
 using Microsoft.Finance.Dimension;
@@ -39,6 +40,7 @@ table 5109 "Purchase Header Archive"
     DataCaptionFields = "No.", "Buy-from Vendor Name", "Version No.";
     DrillDownPageID = "Purchase List Archive";
     LookupPageID = "Purchase List Archive";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -632,6 +634,11 @@ table 5109 "Purchase Header Archive"
                                                            "No." = field("Purchase Quote No."));
             ValidateTableRelation = false;
         }
+        field(165; "Incoming Document Entry No."; Integer)
+        {
+            Caption = 'Incoming Document Entry No.';
+            TableRelation = "Incoming Document";
+        }
         field(179; "VAT Reporting Date"; Date)
         {
             Caption = 'VAT Date';
@@ -833,6 +840,9 @@ table 5109 "Purchase Header Archive"
         {
         }
         key(Key3; "Document Type", "Pay-to Vendor No.")
+        {
+        }
+        key(Key4; "Incoming Document Entry No.")
         {
         }
     }

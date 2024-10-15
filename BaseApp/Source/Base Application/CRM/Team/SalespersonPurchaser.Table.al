@@ -18,6 +18,7 @@ table 13 "Salesperson/Purchaser"
 {
     Caption = 'Salesperson/Purchaser';
     DataCaptionFields = "Code", Name;
+    DataClassification = CustomerContent;
     LookupPageID = "Salespersons/Purchasers";
 
     fields
@@ -246,7 +247,7 @@ table 13 "Salesperson/Purchaser"
         field(5068; "Avg. Estimated Value (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Average("Opportunity Entry"."Estimated Value (LCY)" where("Salesperson Code" = field(Code),
+            CalcFormula = average("Opportunity Entry"."Estimated Value (LCY)" where("Salesperson Code" = field(Code),
                                                                                      Active = const(true),
                                                                                      "Estimated Close Date" = field("Date Filter"),
                                                                                      "Action Taken" = field("Action Taken Filter"),
@@ -261,7 +262,7 @@ table 13 "Salesperson/Purchaser"
         field(5069; "Avg.Calcd. Current Value (LCY)"; Decimal)
         {
             AutoFormatType = 1;
-            CalcFormula = Average("Opportunity Entry"."Calcd. Current Value (LCY)" where("Salesperson Code" = field(Code),
+            CalcFormula = average("Opportunity Entry"."Calcd. Current Value (LCY)" where("Salesperson Code" = field(Code),
                                                                                           Active = const(true),
                                                                                           "Estimated Close Date" = field("Date Filter"),
                                                                                           "Action Taken" = field("Action Taken Filter"),

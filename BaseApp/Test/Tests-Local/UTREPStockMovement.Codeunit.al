@@ -132,7 +132,7 @@ codeunit 141072 "UT REP Stock Movement"
     var
         Item: Record Item;
     begin
-        Item."No." := LibraryUTUtility.GetNewCode;
+        Item."No." := LibraryUTUtility.GetNewCode();
         Item."Date Filter" := DateFilter;
         Item.Insert();
         exit(Item."No.");
@@ -147,8 +147,8 @@ codeunit 141072 "UT REP Stock Movement"
         ItemLedgerEntry."Item No." := ItemNo;
         ItemLedgerEntry."Posting Date" := PostingDate;
         ItemLedgerEntry."Entry Type" := EntryType;
-        ItemLedgerEntry."Location Code" := LibraryUTUtility.GetNewCode10;
-        ItemLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
+        ItemLedgerEntry."Location Code" := LibraryUTUtility.GetNewCode10();
+        ItemLedgerEntry."Document No." := LibraryUTUtility.GetNewCode();
         ItemLedgerEntry.Quantity := Quantity;
         ItemLedgerEntry.Insert();
     end;
@@ -175,7 +175,7 @@ codeunit 141072 "UT REP Stock Movement"
         REPORT.Run(REPORT::"Stock Movement");
 
         // Verify.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(ItemNoCap, ItemLedgerEntry."Item No.");
         LibraryReportDataset.AssertElementWithValueExists(DocumentNoCap, ItemLedgerEntry."Document No.");
         LibraryReportDataset.AssertElementWithValueExists(EntryTypeCap, Format(ItemLedgerEntry."Entry Type"));
@@ -198,7 +198,7 @@ codeunit 141072 "UT REP Stock Movement"
         LibraryVariableStorage.Dequeue(DateFilter);
         StockMovement.Item.SetFilter("No.", No);
         StockMovement.Item.SetFilter("Date Filter", Format(DateFilter));
-        StockMovement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        StockMovement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

@@ -11,6 +11,7 @@ table 6635 "Return Reason"
     Caption = 'Return Reason';
     DrillDownPageID = "Return Reasons";
     LookupPageID = "Return Reasons";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -100,7 +100,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         DeferralDocType: Enum "Deferral Document Type";
         LastDocType: Enum "Gen. Journal Document Type";
         AddCurrencyCode: Code[10];
-        GLSourceCode: Code[10];
+        JournalsSourceCodesList: List of [Code[10]];
         LastDocNo: Code[20];
         FiscalYearStartDate: Date;
         CurrencyDate: Date;
@@ -137,7 +137,6 @@ codeunit 12 "Gen. Jnl.-Post Line"
         GLSetupRead: Boolean;
         PreviewMode: Boolean;
         GLEntryInconsistent: Boolean;
-        TempWHTEntry: Record "WHT Entry";
         WHTEntry: Record "WHT Entry";
         NextWHTEntryNo: Integer;
         CurrFactor: Decimal;
@@ -206,78 +205,76 @@ codeunit 12 "Gen. Jnl.-Post Line"
         if IsPosted then
             exit;
 
-        GetGLSourceCode();
+        GetJournalsSourceCode();
 
-        with GenJnlLine do begin
-            if EmptyLine() then begin
-                InitLastDocDate(GenJnlLine);
-                exit;
-            end;
+        if GenJnlLine.EmptyLine() then begin
+            InitLastDocDate(GenJnlLine);
+            exit;
+        end;
 
-            if "VAT Reporting Date" = 0D then begin
-                GLSetup.Get();
-                if ("Document Date" = 0D) and (GLSetup."VAT Reporting Date" = GLSetup."VAT Reporting Date"::"Document Date") then
-                    "VAT Reporting Date" := "Posting Date"
-                else
-                    "VAT Reporting Date" := GLSetup.GetVATDate("Posting Date", "Document Date");
-            end;
-
-            CheckGenJnlLine(GenJnlLine, CheckLine);
-
-            AmountRoundingPrecision := InitAmounts(GenJnlLine);
-
-            if "Bill-to/Pay-to No." = '' then
-                case true of
-                    "Account Type" in ["Account Type"::Customer, "Account Type"::Vendor]:
-                        "Bill-to/Pay-to No." := "Account No.";
-                    "Bal. Account Type" in ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor]:
-                        "Bill-to/Pay-to No." := "Bal. Account No.";
-                end;
-            if "Document Date" = 0D then
-                "Document Date" := "Posting Date";
-            if "Due Date" = 0D then
-                "Due Date" := "Posting Date";
-
-            FindJobLineSign(GenJnlLine);
-
-            OnBeforeStartOrContinuePosting(GenJnlLine, LastDocType.AsInteger(), LastDocNo, LastDate, NextEntryNo);
-
-            if NextEntryNo = 0 then
-                StartPosting(GenJnlLine)
+        if GenJnlLine."VAT Reporting Date" = 0D then begin
+            GLSetup.Get();
+            if (GenJnlLine."Document Date" = 0D) and (GLSetup."VAT Reporting Date" = GLSetup."VAT Reporting Date"::"Document Date") then
+                GenJnlLine."VAT Reporting Date" := GenJnlLine."Posting Date"
             else
-                ContinuePosting(GenJnlLine);
+                GenJnlLine."VAT Reporting Date" := GLSetup.GetVATDate(GenJnlLine."Posting Date", GenJnlLine."Document Date");
+        end;
 
-            OnCodeOnAfterStartOrContinuePosting(GenJnlLine, LastDocType, LastDocNo, LastDate, NextEntryNo);
+        CheckGenJnlLine(GenJnlLine, CheckLine);
 
-            if "Account No." <> '' then begin
-                if ("Bal. Account No." <> '') and
-                   (not "System-Created Entry") and
-                   ("Account Type" in
-                    ["Account Type"::Customer,
-                     "Account Type"::Vendor,
-                     "Account Type"::"Fixed Asset"])
-                then begin
-                    CODEUNIT.Run(CODEUNIT::"Exchange Acc. G/L Journal Line", GenJnlLine);
-                    OnCodeOnAfterRunExhangeAccGLJournalLine(GenJnlLine, Balancing, NextEntryNo);
-                    Balancing := true;
-                end;
+        AmountRoundingPrecision := InitAmounts(GenJnlLine);
 
-                PostGenJnlLine(GenJnlLine, Balancing);
+        if GenJnlLine."Bill-to/Pay-to No." = '' then
+            case true of
+                GenJnlLine."Account Type" in [GenJnlLine."Account Type"::Customer, GenJnlLine."Account Type"::Vendor]:
+                    GenJnlLine."Bill-to/Pay-to No." := GenJnlLine."Account No.";
+                GenJnlLine."Bal. Account Type" in [GenJnlLine."Bal. Account Type"::Customer, GenJnlLine."Bal. Account Type"::Vendor]:
+                    GenJnlLine."Bill-to/Pay-to No." := GenJnlLine."Bal. Account No.";
             end;
+        if GenJnlLine."Document Date" = 0D then
+            GenJnlLine."Document Date" := GenJnlLine."Posting Date";
+        if GenJnlLine."Due Date" = 0D then
+            GenJnlLine."Due Date" := GenJnlLine."Posting Date";
 
-            if "Bal. Account No." <> '' then begin
+        FindJobLineSign(GenJnlLine);
+
+        OnBeforeStartOrContinuePosting(GenJnlLine, LastDocType.AsInteger(), LastDocNo, LastDate, NextEntryNo);
+
+        if NextEntryNo = 0 then
+            StartPosting(GenJnlLine)
+        else
+            ContinuePosting(GenJnlLine);
+
+        OnCodeOnAfterStartOrContinuePosting(GenJnlLine, LastDocType, LastDocNo, LastDate, NextEntryNo);
+
+        if GenJnlLine."Account No." <> '' then begin
+            if (GenJnlLine."Bal. Account No." <> '') and
+               (not GenJnlLine."System-Created Entry") and
+               (GenJnlLine."Account Type" in
+                [GenJnlLine."Account Type"::Customer,
+                 GenJnlLine."Account Type"::Vendor,
+                 GenJnlLine."Account Type"::"Fixed Asset"])
+            then begin
                 CODEUNIT.Run(CODEUNIT::"Exchange Acc. G/L Journal Line", GenJnlLine);
                 OnCodeOnAfterRunExhangeAccGLJournalLine(GenJnlLine, Balancing, NextEntryNo);
-                PostGenJnlLine(GenJnlLine, not Balancing);
+                Balancing := true;
             end;
 
-            CheckPostUnrealizedVAT(GenJnlLine, true);
-
-            CreateDeferralScheduleFromGL(GenJnlLine, Balancing);
-
-            OnCodeOnBeforeFinishPosting(GenJnlLine, Balancing, FirstEntryNo);
-            IsTransactionConsistent := FinishPosting(GenJnlLine);
+            PostGenJnlLine(GenJnlLine, Balancing);
         end;
+
+        if GenJnlLine."Bal. Account No." <> '' then begin
+            CODEUNIT.Run(CODEUNIT::"Exchange Acc. G/L Journal Line", GenJnlLine);
+            OnCodeOnAfterRunExhangeAccGLJournalLine(GenJnlLine, Balancing, NextEntryNo);
+            PostGenJnlLine(GenJnlLine, not Balancing);
+        end;
+
+        CheckPostUnrealizedVAT(GenJnlLine, true);
+
+        CreateDeferralScheduleFromGL(GenJnlLine, Balancing);
+
+        OnCodeOnBeforeFinishPosting(GenJnlLine, Balancing, FirstEntryNo);
+        IsTransactionConsistent := FinishPosting(GenJnlLine);
 
         OnAfterGLFinishPosting(
             GlobalGLEntry, GenJnlLine, IsTransactionConsistent, FirstTransactionNo, GLReg, TempGLEntryBuf,
@@ -324,23 +321,22 @@ codeunit 12 "Gen. Jnl.-Post Line"
     begin
         OnBeforePostGenJnlLine(GenJnlLine, Balancing);
 
-        with GenJnlLine do
-            case "Account Type" of
-                "Account Type"::"G/L Account":
-                    PostGLAcc(GenJnlLine, Balancing);
-                "Account Type"::Customer:
-                    PostCust(GenJnlLine, Balancing);
-                "Account Type"::Vendor:
-                    PostVend(GenJnlLine, Balancing);
-                "Account Type"::Employee:
-                    PostEmployee(GenJnlLine);
-                "Account Type"::"Bank Account":
-                    PostBankAcc(GenJnlLine, Balancing);
-                "Account Type"::"Fixed Asset":
-                    PostFixedAsset(GenJnlLine);
-                "Account Type"::"IC Partner":
-                    PostICPartner(GenJnlLine);
-            end;
+        case GenJnlLine."Account Type" of
+            GenJnlLine."Account Type"::"G/L Account":
+                PostGLAcc(GenJnlLine, Balancing);
+            GenJnlLine."Account Type"::Customer:
+                PostCust(GenJnlLine, Balancing);
+            GenJnlLine."Account Type"::Vendor:
+                PostVend(GenJnlLine, Balancing);
+            GenJnlLine."Account Type"::Employee:
+                PostEmployee(GenJnlLine);
+            GenJnlLine."Account Type"::"Bank Account":
+                PostBankAcc(GenJnlLine, Balancing);
+            GenJnlLine."Account Type"::"Fixed Asset":
+                PostFixedAsset(GenJnlLine);
+            GenJnlLine."Account Type"::"IC Partner":
+                PostICPartner(GenJnlLine);
+        end;
 
         OnAfterPostGenJnlLine(GenJnlLine, Balancing);
     end;
@@ -355,47 +351,43 @@ codeunit 12 "Gen. Jnl.-Post Line"
         if IsHandled then
             exit(Currency."Amount Rounding Precision");
 
-        with GenJnlLine do begin
-            if "Currency Code" = '' then begin
-                Currency.InitRoundingPrecision();
-                "Amount (LCY)" := Amount;
-                "VAT Amount (LCY)" := "VAT Amount";
-                "VAT Base Amount (LCY)" := "VAT Base Amount";
-            end else begin
-                Currency.Get("Currency Code");
-                Currency.TestField("Amount Rounding Precision");
-                if not "System-Created Entry" then begin
-                    "Source Currency Code" := "Currency Code";
-                    "Source Currency Amount" := Amount;
-                    "Source Curr. VAT Base Amount" := "VAT Base Amount";
-                    "Source Curr. VAT Amount" := "VAT Amount";
-                end;
+        if GenJnlLine."Currency Code" = '' then begin
+            Currency.InitRoundingPrecision();
+            GenJnlLine."Amount (LCY)" := GenJnlLine.Amount;
+            GenJnlLine."VAT Amount (LCY)" := GenJnlLine."VAT Amount";
+            GenJnlLine."VAT Base Amount (LCY)" := GenJnlLine."VAT Base Amount";
+        end else begin
+            Currency.Get(GenJnlLine."Currency Code");
+            Currency.TestField("Amount Rounding Precision");
+            if not GenJnlLine."System-Created Entry" then begin
+                GenJnlLine."Source Currency Code" := GenJnlLine."Currency Code";
+                GenJnlLine."Source Currency Amount" := GenJnlLine.Amount;
+                GenJnlLine."Source Curr. VAT Base Amount" := GenJnlLine."VAT Base Amount";
+                GenJnlLine."Source Curr. VAT Amount" := GenJnlLine."VAT Amount";
             end;
-            if "Additional-Currency Posting" = "Additional-Currency Posting"::None then begin
-                IsHandled := false;
-                OnInitAmountsOnAddCurrencyPostingNone(GenJnlLine, IsHandled);
-                if not IsHandled then begin
-                    if Amount <> Round(Amount, Currency."Amount Rounding Precision") then
-                        FieldError(
-                          Amount,
-                          StrSubstNo(NeedsRoundingErr, Amount));
-                    if "Amount (LCY)" <> Round("Amount (LCY)") then
-                        FieldError(
-                          "Amount (LCY)",
-                          StrSubstNo(NeedsRoundingErr, "Amount (LCY)"));
-                end;
-            end;
-            exit(Currency."Amount Rounding Precision");
         end;
+        if GenJnlLine."Additional-Currency Posting" = GenJnlLine."Additional-Currency Posting"::None then begin
+            IsHandled := false;
+            OnInitAmountsOnAddCurrencyPostingNone(GenJnlLine, IsHandled);
+            if not IsHandled then begin
+                if GenJnlLine.Amount <> Round(GenJnlLine.Amount, Currency."Amount Rounding Precision") then
+                    GenJnlLine.FieldError(
+                      GenJnlLine.Amount,
+                      StrSubstNo(NeedsRoundingErr, GenJnlLine.Amount));
+                if GenJnlLine."Amount (LCY)" <> Round(GenJnlLine."Amount (LCY)") then
+                    GenJnlLine.FieldError(
+                      GenJnlLine."Amount (LCY)",
+                      StrSubstNo(NeedsRoundingErr, GenJnlLine."Amount (LCY)"));
+            end;
+        end;
+        exit(Currency."Amount Rounding Precision");
     end;
 
     procedure InitLastDocDate(GenJnlLine: Record "Gen. Journal Line")
     begin
-        with GenJnlLine do begin
-            LastDocType := "Document Type";
-            LastDocNo := "Document No.";
-            LastDate := "Posting Date";
-        end;
+        LastDocType := GenJnlLine."Document Type";
+        LastDocNo := GenJnlLine."Document No.";
+        LastDate := GenJnlLine."Posting Date";
 
         OnAfterInitLastDocDate(GenJnlLine);
     end;
@@ -424,177 +416,176 @@ codeunit 12 "Gen. Jnl.-Post Line"
             exit;
 
         LCYCurrency.InitRoundingPrecision();
-        with GenJnlLine do
-            if (("Gen. Posting Type" <> "Gen. Posting Type"::" ") and
-                ("Gen. Posting Type" <> "Gen. Posting Type"::Settlement) and
-                GLSetup.GSTEnabled("Document Date")) or
-               (("Gen. Posting Type" <> "Gen. Posting Type"::" ") and
-                (not GLSetup.GSTEnabled("Document Date")))
-            then begin
-                VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
-                VATPostingSetup.TestField(Blocked, false);
-                IsHandled := false;
-                OnInitVATOnBeforeVATPostingSetupCheck(GenJnlLine, GLEntry, VATPostingSetup, IsHandled);
-                if not IsHandled then
-                    TestField("VAT Calculation Type", VATPostingSetup."VAT Calculation Type");
-                case "VAT Posting" of
-                    "VAT Posting"::"Automatic VAT Entry":
-                        begin
-                            GLEntry.CopyPostingGroupsFromGenJnlLine(GenJnlLine);
-                            case "VAT Calculation Type" of
-                                "VAT Calculation Type"::"Normal VAT":
-                                    begin
-                                        IsHandled := false;
-                                        OnInitVATOnVATCalculationTypeNormal(GenJnlLine, IsHandled, GLEntry, VATPostingSetup);
-                                        if not IsHandled then
-                                            if ("VAT Difference" <> 0) or ("VAT Difference (ACY)" <> 0) then begin
-                                                GLEntry.Amount := "VAT Base Amount (LCY)";
-                                                GLEntry."VAT Amount" := "Amount (LCY)" - GLEntry.Amount;
-                                                if "VAT Base (ACY)" = 0 then
-                                                    GLEntry."Additional-Currency Amount" := "Source Curr. VAT Base Amount"
-                                                else
-                                                    GLEntry."Additional-Currency Amount" := "VAT Base (ACY)";
-                                                if "VAT Base (ACY)" <> 0 then
-                                                    AddCurrGLEntryVATAmt := "Amount Including VAT (ACY)" - "VAT Base (ACY)"
-                                                else begin
-                                                    if "Source Currency Code" = AddCurrencyCode then
-                                                        AddCurrGLEntryVATAmt := "Source Curr. VAT Amount"
-                                                    else
-                                                        AddCurrGLEntryVATAmt := CalcLCYToAddCurr(GLEntry."VAT Amount");
-                                                end;
-                                            end else begin
-                                                GLEntry."VAT Amount" :=
-                                                  Round(
-                                                    "Amount (LCY)" * VATPostingSetup."VAT %" / (100 + VATPostingSetup."VAT %"),
-                                                    LCYCurrency."Amount Rounding Precision", LCYCurrency.VATRoundingDirection());
-                                                GLEntry.Amount := "Amount (LCY)" - GLEntry."VAT Amount";
-                                                if "VAT Base (ACY)" = 0 then
-                                                    GLEntry."Additional-Currency Amount" :=
-                                                      Round(
-                                                        "Source Currency Amount" / (1 + VATPostingSetup."VAT %" / 100),
-                                                        AddCurrency."Amount Rounding Precision")
-                                                else
-                                                    GLEntry."Additional-Currency Amount" := "VAT Base (ACY)";
-                                                if "VAT Base (ACY)" <> 0 then
-                                                    AddCurrGLEntryVATAmt := "Amount Including VAT (ACY)" - "VAT Base (ACY)"
-                                                else begin
-                                                    if "Source Currency Code" = AddCurrencyCode then
-                                                        AddCurrGLEntryVATAmt :=
-                                                          Round(
-                                                            "Source Currency Amount" * VATPostingSetup."VAT %" / (100 + VATPostingSetup."VAT %"),
-                                                            AddCurrency."Amount Rounding Precision", AddCurrency.VATRoundingDirection())
-                                                    else
-                                                        AddCurrGLEntryVATAmt := CalcLCYToAddCurr(GLEntry."VAT Amount");
-                                                    GLEntry."Additional-Currency Amount" := "Source Currency Amount" - AddCurrGLEntryVATAmt;
-                                                end;
-                                            end;
-                                    end;
-                                "VAT Calculation Type"::"Reverse Charge VAT":
-                                    case "Gen. Posting Type" of
-                                        "Gen. Posting Type"::Purchase:
-                                            if "VAT Difference" <> 0 then begin
-                                                GLEntry."VAT Amount" := "VAT Amount (LCY)";
-                                                if "Source Currency Code" = AddCurrencyCode then
-                                                    AddCurrGLEntryVATAmt := "Source Curr. VAT Amount"
+        if ((GenJnlLine."Gen. Posting Type" <> GenJnlLine."Gen. Posting Type"::" ") and
+            (GenJnlLine."Gen. Posting Type" <> GenJnlLine."Gen. Posting Type"::Settlement) and
+            GLSetup.GSTEnabled(GenJnlLine."Document Date")) or
+            ((GenJnlLine."Gen. Posting Type" <> GenJnlLine."Gen. Posting Type"::" ") and
+            (not GLSetup.GSTEnabled(GenJnlLine."Document Date")))
+        then begin
+            VATPostingSetup.Get(GenJnlLine."VAT Bus. Posting Group", GenJnlLine."VAT Prod. Posting Group");
+            VATPostingSetup.TestField(Blocked, false);
+            IsHandled := false;
+            OnInitVATOnBeforeVATPostingSetupCheck(GenJnlLine, GLEntry, VATPostingSetup, IsHandled);
+            if not IsHandled then
+                GenJnlLine.TestField("VAT Calculation Type", VATPostingSetup."VAT Calculation Type");
+            case GenJnlLine."VAT Posting" of
+                GenJnlLine."VAT Posting"::"Automatic VAT Entry":
+                    begin
+                        GLEntry.CopyPostingGroupsFromGenJnlLine(GenJnlLine);
+                        case GenJnlLine."VAT Calculation Type" of
+                            GenJnlLine."VAT Calculation Type"::"Normal VAT":
+                                begin
+                                    IsHandled := false;
+                                    OnInitVATOnVATCalculationTypeNormal(GenJnlLine, IsHandled, GLEntry, VATPostingSetup);
+                                    if not IsHandled then
+                                        if (GenJnlLine."VAT Difference" <> 0) or (GenJnlLine."VAT Difference (ACY)" <> 0) then begin
+                                            GLEntry.Amount := GenJnlLine."VAT Base Amount (LCY)";
+                                            GLEntry."VAT Amount" := GenJnlLine."Amount (LCY)" - GLEntry.Amount;
+                                            if GenJnlLine."VAT Base (ACY)" = 0 then
+                                                GLEntry."Additional-Currency Amount" := GenJnlLine."Source Curr. VAT Base Amount"
+                                            else
+                                                GLEntry."Additional-Currency Amount" := GenJnlLine."VAT Base (ACY)";
+                                            if GenJnlLine."VAT Base (ACY)" <> 0 then
+                                                AddCurrGLEntryVATAmt := GenJnlLine."Amount Including VAT (ACY)" - GenJnlLine."VAT Base (ACY)"
+                                            else begin
+                                                if GenJnlLine."Source Currency Code" = AddCurrencyCode then
+                                                    AddCurrGLEntryVATAmt := GenJnlLine."Source Curr. VAT Amount"
                                                 else
                                                     AddCurrGLEntryVATAmt := CalcLCYToAddCurr(GLEntry."VAT Amount");
-                                            end else begin
-                                                GLEntry."VAT Amount" :=
+                                            end;
+                                        end else begin
+                                            GLEntry."VAT Amount" :=
+                                              Round(
+                                                GenJnlLine."Amount (LCY)" * VATPostingSetup."VAT %" / (100 + VATPostingSetup."VAT %"),
+                                                LCYCurrency."Amount Rounding Precision", LCYCurrency.VATRoundingDirection());
+                                            GLEntry.Amount := GenJnlLine."Amount (LCY)" - GLEntry."VAT Amount";
+                                            if GenJnlLine."VAT Base (ACY)" = 0 then
+                                                GLEntry."Additional-Currency Amount" :=
                                                   Round(
-                                                    GLEntry.Amount * VATPostingSetup."VAT %" / 100,
-                                                    LCYCurrency."Amount Rounding Precision", LCYCurrency.VATRoundingDirection());
-                                                if "Source Currency Code" = AddCurrencyCode then
+                                                    GenJnlLine."Source Currency Amount" / (1 + VATPostingSetup."VAT %" / 100),
+                                                    AddCurrency."Amount Rounding Precision")
+                                            else
+                                                GLEntry."Additional-Currency Amount" := GenJnlLine."VAT Base (ACY)";
+                                            if GenJnlLine."VAT Base (ACY)" <> 0 then
+                                                AddCurrGLEntryVATAmt := GenJnlLine."Amount Including VAT (ACY)" - GenJnlLine."VAT Base (ACY)"
+                                            else begin
+                                                if GenJnlLine."Source Currency Code" = AddCurrencyCode then
                                                     AddCurrGLEntryVATAmt :=
                                                       Round(
-                                                        GLEntry."Additional-Currency Amount" * VATPostingSetup."VAT %" / 100,
+                                                        GenJnlLine."Source Currency Amount" * VATPostingSetup."VAT %" / (100 + VATPostingSetup."VAT %"),
                                                         AddCurrency."Amount Rounding Precision", AddCurrency.VATRoundingDirection())
                                                 else
                                                     AddCurrGLEntryVATAmt := CalcLCYToAddCurr(GLEntry."VAT Amount");
+                                                GLEntry."Additional-Currency Amount" := GenJnlLine."Source Currency Amount" - AddCurrGLEntryVATAmt;
                                             end;
-                                        "Gen. Posting Type"::Sale:
-                                            begin
-                                                GLEntry."VAT Amount" := 0;
-                                                AddCurrGLEntryVATAmt := 0;
-                                            end;
-                                    end;
-                                "VAT Calculation Type"::"Full VAT":
-                                    begin
-                                        IsHandled := false;
-                                        OnInitVATOnBeforeTestFullVATAccount(GenJnlLine, GLEntry, VATPostingSetup, IsHandled);
-                                        if not IsHandled then
-                                            case "Gen. Posting Type" of
-                                                "Gen. Posting Type"::Sale:
-                                                    TestField("Account No.", VATPostingSetup.GetSalesAccount(false));
-                                                "Gen. Posting Type"::Purchase:
-                                                    TestField("Account No.", VATPostingSetup.GetPurchAccount(false));
-                                            end;
-                                        GLEntry.Amount := 0;
-                                        GLEntry."Additional-Currency Amount" := 0;
-                                        GLEntry."VAT Amount" := "Amount (LCY)";
-                                        if "Source Currency Code" = AddCurrencyCode then
-                                            AddCurrGLEntryVATAmt := "Source Currency Amount"
-                                        else
-                                            AddCurrGLEntryVATAmt := CalcLCYToAddCurr("Amount (LCY)");
-                                    end;
-                                "VAT Calculation Type"::"Sales Tax":
-                                    begin
-                                        if ("Gen. Posting Type" = "Gen. Posting Type"::Purchase) and
-                                           "Use Tax"
-                                        then begin
+                                        end;
+                                end;
+                            GenJnlLine."VAT Calculation Type"::"Reverse Charge VAT":
+                                case GenJnlLine."Gen. Posting Type" of
+                                    GenJnlLine."Gen. Posting Type"::Purchase:
+                                        if GenJnlLine."VAT Difference" <> 0 then begin
+                                            GLEntry."VAT Amount" := GenJnlLine."VAT Amount (LCY)";
+                                            if GenJnlLine."Source Currency Code" = AddCurrencyCode then
+                                                AddCurrGLEntryVATAmt := GenJnlLine."Source Curr. VAT Amount"
+                                            else
+                                                AddCurrGLEntryVATAmt := CalcLCYToAddCurr(GLEntry."VAT Amount");
+                                        end else begin
                                             GLEntry."VAT Amount" :=
                                               Round(
-                                                SalesTaxCalculate.CalculateTax(
-                                                  "Tax Area Code", "Tax Group Code", "Tax Liable",
-                                                  "Posting Date", "Amount (LCY)", Quantity, 0));
-                                            OnAfterSalesTaxCalculateCalculateTax(GenJnlLine, GLEntry, LCYCurrency);
-                                            GLEntry.Amount := "Amount (LCY)";
-                                        end else begin
-                                            GLEntry.Amount :=
-                                              Round(
-                                                SalesTaxCalculate.ReverseCalculateTax(
-                                                  "Tax Area Code", "Tax Group Code", "Tax Liable",
-                                                  "Posting Date", "Amount (LCY)", Quantity, 0));
-                                            OnAfterSalesTaxCalculateReverseCalculateTax(GenJnlLine, GLEntry, LCYCurrency);
-                                            GLEntry."VAT Amount" := "Amount (LCY)" - GLEntry.Amount;
+                                                GLEntry.Amount * VATPostingSetup."VAT %" / 100,
+                                                LCYCurrency."Amount Rounding Precision", LCYCurrency.VATRoundingDirection());
+                                            if GenJnlLine."Source Currency Code" = AddCurrencyCode then
+                                                AddCurrGLEntryVATAmt :=
+                                                  Round(
+                                                    GLEntry."Additional-Currency Amount" * VATPostingSetup."VAT %" / 100,
+                                                    AddCurrency."Amount Rounding Precision", AddCurrency.VATRoundingDirection())
+                                            else
+                                                AddCurrGLEntryVATAmt := CalcLCYToAddCurr(GLEntry."VAT Amount");
                                         end;
-                                        GLEntry."Additional-Currency Amount" := "Source Currency Amount";
-                                        if "Source Currency Code" = AddCurrencyCode then
-                                            AddCurrGLEntryVATAmt := "Source Curr. VAT Amount"
-                                        else
-                                            AddCurrGLEntryVATAmt := CalcLCYToAddCurr(GLEntry."VAT Amount");
+                                    GenJnlLine."Gen. Posting Type"::Sale:
+                                        begin
+                                            GLEntry."VAT Amount" := 0;
+                                            AddCurrGLEntryVATAmt := 0;
+                                        end;
+                                end;
+                            GenJnlLine."VAT Calculation Type"::"Full VAT":
+                                begin
+                                    IsHandled := false;
+                                    OnInitVATOnBeforeTestFullVATAccount(GenJnlLine, GLEntry, VATPostingSetup, IsHandled);
+                                    if not IsHandled then
+                                        case GenJnlLine."Gen. Posting Type" of
+                                            GenJnlLine."Gen. Posting Type"::Sale:
+                                                GenJnlLine.TestField("Account No.", VATPostingSetup.GetSalesAccount(false));
+                                            GenJnlLine."Gen. Posting Type"::Purchase:
+                                                GenJnlLine.TestField("Account No.", VATPostingSetup.GetPurchAccount(false));
+                                        end;
+                                    GLEntry.Amount := 0;
+                                    GLEntry."Additional-Currency Amount" := 0;
+                                    GLEntry."VAT Amount" := GenJnlLine."Amount (LCY)";
+                                    if GenJnlLine."Source Currency Code" = AddCurrencyCode then
+                                        AddCurrGLEntryVATAmt := GenJnlLine."Source Currency Amount"
+                                    else
+                                        AddCurrGLEntryVATAmt := CalcLCYToAddCurr(GenJnlLine."Amount (LCY)");
+                                end;
+                            GenJnlLine."VAT Calculation Type"::"Sales Tax":
+                                begin
+                                    if (GenJnlLine."Gen. Posting Type" = GenJnlLine."Gen. Posting Type"::Purchase) and
+                                       GenJnlLine."Use Tax"
+                                    then begin
+                                        GLEntry."VAT Amount" :=
+                                          Round(
+                                            SalesTaxCalculate.CalculateTax(
+                                              GenJnlLine."Tax Area Code", GenJnlLine."Tax Group Code", GenJnlLine."Tax Liable",
+                                              GenJnlLine."Posting Date", GenJnlLine."Amount (LCY)", GenJnlLine.Quantity, 0));
+                                        OnAfterSalesTaxCalculateCalculateTax(GenJnlLine, GLEntry, LCYCurrency);
+                                        GLEntry.Amount := GenJnlLine."Amount (LCY)";
+                                    end else begin
+                                        GLEntry.Amount :=
+                                          Round(
+                                            SalesTaxCalculate.ReverseCalculateTax(
+                                              GenJnlLine."Tax Area Code", GenJnlLine."Tax Group Code", GenJnlLine."Tax Liable",
+                                              GenJnlLine."Posting Date", GenJnlLine."Amount (LCY)", GenJnlLine.Quantity, 0));
+                                        OnAfterSalesTaxCalculateReverseCalculateTax(GenJnlLine, GLEntry, LCYCurrency);
+                                        GLEntry."VAT Amount" := GenJnlLine."Amount (LCY)" - GLEntry.Amount;
                                     end;
-                            end;
+                                    GLEntry."Additional-Currency Amount" := GenJnlLine."Source Currency Amount";
+                                    if GenJnlLine."Source Currency Code" = AddCurrencyCode then
+                                        AddCurrGLEntryVATAmt := GenJnlLine."Source Curr. VAT Amount"
+                                    else
+                                        AddCurrGLEntryVATAmt := CalcLCYToAddCurr(GLEntry."VAT Amount");
+                                end;
                         end;
-                    "VAT Posting"::"Manual VAT Entry":
-                        if "Gen. Posting Type" <> "Gen. Posting Type"::Settlement then begin
-                            GLEntry.CopyPostingGroupsFromGenJnlLine(GenJnlLine);
-                            GLEntry."VAT Amount" := "VAT Amount (LCY)";
-                            if ("Vendor Exchange Rate (ACY)" <> 0) or
-                               (("Vendor Exchange Rate (ACY)" = 1) and
-                                ("Source Currency Code" <> AddCurrencyCode))
-                            then begin
-                                GLEntry."Additional-Currency Amount" :=
-                                  "VAT Base (ACY)" + "Line Discount Amt. (ACY)" + "Inv. Discount Amt. (ACY)";
-                                AddCurrGLEntryVATAmt := "Amount Including VAT (ACY)" - "VAT Base (ACY)";
-                            end else begin
-                                if "Source Currency Code" = AddCurrencyCode then
-                                    AddCurrGLEntryVATAmt := "Source Curr. VAT Amount"
-                                else
-                                    AddCurrGLEntryVATAmt := CalcLCYToAddCurr("VAT Amount (LCY)");
-                            end;
+                    end;
+                GenJnlLine."VAT Posting"::"Manual VAT Entry":
+                    if GenJnlLine."Gen. Posting Type" <> GenJnlLine."Gen. Posting Type"::Settlement then begin
+                        GLEntry.CopyPostingGroupsFromGenJnlLine(GenJnlLine);
+                        GLEntry."VAT Amount" := GenJnlLine."VAT Amount (LCY)";
+                        if (GenJnlLine."Vendor Exchange Rate (ACY)" <> 0) or
+                           ((GenJnlLine."Vendor Exchange Rate (ACY)" = 1) and
+                            (GenJnlLine."Source Currency Code" <> AddCurrencyCode))
+                        then begin
+                            GLEntry."Additional-Currency Amount" :=
+                              GenJnlLine."VAT Base (ACY)" + GenJnlLine."Line Discount Amt. (ACY)" + GenJnlLine."Inv. Discount Amt. (ACY)";
+                            AddCurrGLEntryVATAmt := GenJnlLine."Amount Including VAT (ACY)" - GenJnlLine."VAT Base (ACY)";
+                        end else begin
+                            if GenJnlLine."Source Currency Code" = AddCurrencyCode then
+                                AddCurrGLEntryVATAmt := GenJnlLine."Source Curr. VAT Amount"
+                            else
+                                AddCurrGLEntryVATAmt := CalcLCYToAddCurr(GenJnlLine."VAT Amount (LCY)");
                         end;
-                end;
-                if ("Account Type" = "Account Type"::"G/L Account") and
-                   ("Account No." in [VATPostingSetup."Sales VAT Account",
-                                      VATPostingSetup."Purchase VAT Account"])
-                then
-                    "BAS Adjustment" := false;
-
-                UseVendExchRate := "VAT Base (ACY)" <> 0;
+                    end;
             end;
+            if (GenJnlLine."Account Type" = GenJnlLine."Account Type"::"G/L Account") and
+               (GenJnlLine."Account No." in [VATPostingSetup."Sales VAT Account",
+                                  VATPostingSetup."Purchase VAT Account"])
+            then
+                GenJnlLine."BAS Adjustment" := false;
+
+            UseVendExchRate := GenJnlLine."VAT Base (ACY)" <> 0;
+        end;
 
         GLEntry."Additional-Currency Amount" :=
-          GLCalcAddCurrency(GLEntry.Amount, GLEntry."Additional-Currency Amount", GLEntry."Additional-Currency Amount", true, GenJnlLine, UseVendExchRate);
+          GLCalcAddCurrency(GLEntry.Amount, GLEntry."Additional-Currency Amount", GLEntry."Additional-Currency Amount", true, GenJnlLine);
         NonDeductibleVAT.CopyNonDedVATAmountFromGenJnlLineToGLEntry(GLEntry, GenJnlLine);
 
         OnAfterInitVAT(GenJnlLine, GLEntry, VATPostingSetup, AddCurrGLEntryVATAmt);
@@ -617,76 +608,76 @@ codeunit 12 "Gen. Jnl.-Post Line"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforePostVAT(GenJnlLine, GLEntry, VATPostingSetup, IsHandled, AddCurrGLEntryVATAmt, NextConnectionNo);
+        OnBeforePostVAT(GenJnlLine, GLEntry, VATPostingSetup, IsHandled, AddCurrGLEntryVATAmt, NextConnectionNo, TaxDetail);
         if IsHandled then
             exit;
 
-        with GenJnlLine do
-            // Post VAT
-            // VAT for VAT entry
-            case "VAT Calculation Type" of
-                "VAT Calculation Type"::"Normal VAT",
-                "VAT Calculation Type"::"Reverse Charge VAT",
-                "VAT Calculation Type"::"Full VAT":
-                    begin
-                        if "VAT Posting" = "VAT Posting"::"Automatic VAT Entry" then
-                            "VAT Base Amount (LCY)" := GLEntry.Amount;
-                        if "Gen. Posting Type" = "Gen. Posting Type"::Settlement then
-                            AddCurrGLEntryVATAmt := "Source Curr. VAT Amount";
+        case GenJnlLine."VAT Calculation Type" of
+            GenJnlLine."VAT Calculation Type"::"Normal VAT",
+            GenJnlLine."VAT Calculation Type"::"Reverse Charge VAT",
+            GenJnlLine."VAT Calculation Type"::"Full VAT":
+                begin
+                    if GenJnlLine."VAT Posting" = GenJnlLine."VAT Posting"::"Automatic VAT Entry" then
+                        GenJnlLine."VAT Base Amount (LCY)" := GLEntry.Amount;
+                    if GenJnlLine."Gen. Posting Type" = GenJnlLine."Gen. Posting Type"::Settlement then
+                        AddCurrGLEntryVATAmt := GenJnlLine."Source Curr. VAT Amount";
+                    InsertVAT(
+                      GenJnlLine, VATPostingSetup,
+                      GLEntry.Amount, GLEntry."VAT Amount", GenJnlLine."VAT Base Amount (LCY)", GenJnlLine."Source Currency Code",
+                      GLEntry."Additional-Currency Amount", AddCurrGLEntryVATAmt, GenJnlLine."Source Curr. VAT Base Amount");
+                    NextConnectionNo := NextConnectionNo + 1;
+                end;
+            GenJnlLine."VAT Calculation Type"::"Sales Tax":
+                begin
+                    case GenJnlLine."VAT Posting" of
+                        GenJnlLine."VAT Posting"::"Automatic VAT Entry":
+                            SalesTaxBaseAmount := GLEntry.Amount;
+                        GenJnlLine."VAT Posting"::"Manual VAT Entry":
+                            SalesTaxBaseAmount := GenJnlLine."VAT Base Amount (LCY)";
+                    end;
+                    if (GenJnlLine."VAT Posting" = GenJnlLine."VAT Posting"::"Manual VAT Entry") and
+                       (GenJnlLine."Gen. Posting Type" = GenJnlLine."Gen. Posting Type"::Settlement)
+                    then
                         InsertVAT(
                           GenJnlLine, VATPostingSetup,
-                          GLEntry.Amount, GLEntry."VAT Amount", "VAT Base Amount (LCY)", "Source Currency Code",
-                          GLEntry."Additional-Currency Amount", AddCurrGLEntryVATAmt, "Source Curr. VAT Base Amount");
-                        NextConnectionNo := NextConnectionNo + 1;
-                    end;
-                "VAT Calculation Type"::"Sales Tax":
-                    begin
-                        case "VAT Posting" of
-                            "VAT Posting"::"Automatic VAT Entry":
-                                SalesTaxBaseAmount := GLEntry.Amount;
-                            "VAT Posting"::"Manual VAT Entry":
-                                SalesTaxBaseAmount := "VAT Base Amount (LCY)";
-                        end;
-                        if ("VAT Posting" = "VAT Posting"::"Manual VAT Entry") and
-                           ("Gen. Posting Type" = "Gen. Posting Type"::Settlement)
-                        then
-                            InsertVAT(
-                              GenJnlLine, VATPostingSetup,
-                              GLEntry.Amount, GLEntry."VAT Amount", "VAT Base Amount (LCY)", "Source Currency Code",
-                              "Source Curr. VAT Base Amount", "Source Curr. VAT Amount", "Source Curr. VAT Base Amount")
-                        else begin
-                            Clear(SalesTaxCalculate);
-                            SalesTaxCalculate.InitSalesTaxLines(
-                              "Tax Area Code", "Tax Group Code", "Tax Liable",
-                              SalesTaxBaseAmount, Quantity, "Posting Date", GLEntry."VAT Amount");
-                            OnAfterSalesTaxCalculateInitSalesTaxLines(GenJnlLine, GLEntry, SalesTaxBaseAmount);
-                            SrcCurrVATAmount := 0;
-                            SrcCurrSalesTaxBaseAmount := CalcLCYToAddCurr(SalesTaxBaseAmount);
-                            RemSrcCurrVATAmount := AddCurrGLEntryVATAmt;
-                            TaxDetailFound := false;
-                            while SalesTaxCalculate.GetSalesTaxLine(TaxDetail2, VATAmount, VATBase) do begin
-                                RemSrcCurrVATAmount := RemSrcCurrVATAmount - SrcCurrVATAmount;
-                                if TaxDetailFound then
-                                    InsertVAT(
-                                      GenJnlLine, VATPostingSetup,
-                                      SalesTaxBaseAmount, VATAmount2, VATBase2, "Source Currency Code",
-                                      SrcCurrSalesTaxBaseAmount, SrcCurrVATAmount, SrcCurrVATBase);
-                                TaxDetailFound := true;
-                                TaxDetail := TaxDetail2;
-                                VATAmount2 := VATAmount;
-                                VATBase2 := VATBase;
-                                SrcCurrVATAmount := CalcLCYToAddCurr(VATAmount);
-                                SrcCurrVATBase := CalcLCYToAddCurr(VATBase);
-                            end;
+                          GLEntry.Amount, GLEntry."VAT Amount", GenJnlLine."VAT Base Amount (LCY)", GenJnlLine."Source Currency Code",
+                          GenJnlLine."Source Curr. VAT Base Amount", GenJnlLine."Source Curr. VAT Amount", GenJnlLine."Source Curr. VAT Base Amount")
+                    else begin
+                        Clear(SalesTaxCalculate);
+                        SalesTaxCalculate.InitSalesTaxLines(
+                          GenJnlLine."Tax Area Code", GenJnlLine."Tax Group Code", GenJnlLine."Tax Liable",
+                          SalesTaxBaseAmount, GenJnlLine.Quantity, GenJnlLine."Posting Date", GLEntry."VAT Amount");
+                        OnAfterSalesTaxCalculateInitSalesTaxLines(GenJnlLine, GLEntry, SalesTaxBaseAmount);
+                        SrcCurrVATAmount := 0;
+                        SrcCurrVATBase := 0;
+                        SrcCurrSalesTaxBaseAmount := CalcLCYToAddCurr(SalesTaxBaseAmount);
+                        RemSrcCurrVATAmount := AddCurrGLEntryVATAmt;
+                        VATAmount2 := 0;
+                        VATBase2 := 0;
+                        TaxDetailFound := false;
+                        while SalesTaxCalculate.GetSalesTaxLine(TaxDetail2, VATAmount, VATBase) do begin
+                            RemSrcCurrVATAmount := RemSrcCurrVATAmount - SrcCurrVATAmount;
                             if TaxDetailFound then
                                 InsertVAT(
                                   GenJnlLine, VATPostingSetup,
-                                  SalesTaxBaseAmount, VATAmount2, VATBase2, "Source Currency Code",
-                                  SrcCurrSalesTaxBaseAmount, RemSrcCurrVATAmount, SrcCurrVATBase);
-                            InsertSummarizedVAT(GenJnlLine);
+                                  SalesTaxBaseAmount, VATAmount2, VATBase2, GenJnlLine."Source Currency Code",
+                                  SrcCurrSalesTaxBaseAmount, SrcCurrVATAmount, SrcCurrVATBase);
+                            TaxDetailFound := true;
+                            TaxDetail := TaxDetail2;
+                            VATAmount2 := VATAmount;
+                            VATBase2 := VATBase;
+                            SrcCurrVATAmount := CalcLCYToAddCurr(VATAmount);
+                            SrcCurrVATBase := CalcLCYToAddCurr(VATBase);
                         end;
+                        if TaxDetailFound then
+                            InsertVAT(
+                              GenJnlLine, VATPostingSetup,
+                              SalesTaxBaseAmount, VATAmount2, VATBase2, GenJnlLine."Source Currency Code",
+                              SrcCurrSalesTaxBaseAmount, RemSrcCurrVATAmount, SrcCurrVATBase);
+                        InsertSummarizedVAT(GenJnlLine);
                     end;
-            end;
+                end;
+        end;
 
         OnAfterPostVAT(GenJnlLine, GLEntry, VATPostingSetup, TaxDetail, NextConnectionNo, AddCurrGLEntryVATAmt, AddCurrencyCode, UseCurrFactorOnly);
     end;
@@ -712,165 +703,163 @@ codeunit 12 "Gen. Jnl.-Post Line"
         if IsHandled then
             exit;
 
-        with GenJnlLine do begin
-            // Post VAT
-            // VAT for VAT entry
-            if GLSetup.CheckFullGSTonPrepayment("VAT Bus. Posting Group", "VAT Prod. Posting Group") then
-                if (GLEntryVATAmount = 0) and (GLEntryBaseAmount = 0) then begin
-                    VATEntry."Entry No." := 0;
-                    exit;
-                end;
-            InsertGSTReport(NextVATEntryNo, GenJnlLine);
-            VATEntry.Init();
-            VATEntry.CopyFromGenJnlLine(GenJnlLine);
-            VATEntry."Entry No." := NextVATEntryNo;
-            VATEntry."EU Service" := VATPostingSetup."EU Service";
-            VATEntry."Transaction No." := NextTransactionNo;
-            VATEntry."Sales Tax Connection No." := NextConnectionNo;
-            VATEntry.SetVATDateFromGenJnlLine(GenJnlLine);
-            VATEntry."Sett. Unrealized Amount" := "VAT Amount";
-            VATEntry."Sett. Unrealized Base" := "VAT Base Amount";
-            VATEntry."Sett. Unrealised Amount (FCY)" := "Source Curr. VAT Amount";
-            VATEntry."Sett. Unrealised Base (FCY)" := "Source Curr. VAT Base Amount";
-            VATEntry.Adjustment := Adjustment;
-            SetBASFields(VATEntry, "BAS Doc. No.", "BAS Version", "BAS Adjustment");
-            OnInsertVATOnAfterAssignVATEntryFields(GenJnlLine, VATEntry, CurrExchRate);
-            "BAS Adjustment" := false;
+        // Post VAT
+        // VAT for VAT entry
+        if GLSetup.CheckFullGSTonPrepayment(GenJnlLine."VAT Bus. Posting Group", GenJnlLine."VAT Prod. Posting Group") then
+            if (GLEntryVATAmount = 0) and (GLEntryBaseAmount = 0) then begin
+                VATEntry."Entry No." := 0;
+                exit;
+            end;
+        InsertGSTReport(NextVATEntryNo, GenJnlLine);
+        VATEntry.Init();
+        VATEntry.CopyFromGenJnlLine(GenJnlLine);
+        VATEntry."Entry No." := NextVATEntryNo;
+        VATEntry."EU Service" := VATPostingSetup."EU Service";
+        VATEntry."Transaction No." := NextTransactionNo;
+        VATEntry."Sales Tax Connection No." := NextConnectionNo;
+        VATEntry.SetVATDateFromGenJnlLine(GenJnlLine);
+        VATEntry."Sett. Unrealized Amount" := GenJnlLine."VAT Amount";
+        VATEntry."Sett. Unrealized Base" := GenJnlLine."VAT Base Amount";
+        VATEntry."Sett. Unrealised Amount (FCY)" := GenJnlLine."Source Curr. VAT Amount";
+        VATEntry."Sett. Unrealised Base (FCY)" := GenJnlLine."Source Curr. VAT Base Amount";
+        VATEntry.Adjustment := GenJnlLine.Adjustment;
+        SetBASFields(VATEntry, GenJnlLine."BAS Doc. No.", GenJnlLine."BAS Version", GenJnlLine."BAS Adjustment");
+        OnInsertVATOnAfterAssignVATEntryFields(GenJnlLine, VATEntry, CurrExchRate);
+        GenJnlLine."BAS Adjustment" := false;
 
-            if "VAT Difference" = 0 then
-                VATDifferenceLCY := 0
+        if GenJnlLine."VAT Difference" = 0 then
+            VATDifferenceLCY := 0
+        else
+            if GenJnlLine."Currency Code" = '' then
+                VATDifferenceLCY := GenJnlLine."VAT Difference"
             else
-                if "Currency Code" = '' then
-                    VATDifferenceLCY := "VAT Difference"
-                else
-                    VATDifferenceLCY :=
-                      Round(
-                        CurrExchRate.ExchangeAmtFCYToLCY(
-                          "Posting Date", "Currency Code", "VAT Difference",
-                          CurrExchRate.ExchangeRate("Posting Date", "Currency Code")));
+                VATDifferenceLCY :=
+                  Round(
+                    CurrExchRate.ExchangeAmtFCYToLCY(
+                      GenJnlLine."Posting Date", GenJnlLine."Currency Code", GenJnlLine."VAT Difference",
+                      CurrExchRate.ExchangeRate(GenJnlLine."Posting Date", GenJnlLine."Currency Code")));
 
-            OnInsertVATOnAfterCalcVATDifferenceLCY(GenJnlLine, VATEntry, VATDifferenceLCY, CurrExchRate);
+        OnInsertVATOnAfterCalcVATDifferenceLCY(GenJnlLine, VATEntry, VATDifferenceLCY, CurrExchRate);
 
-            if "VAT Calculation Type" = "VAT Calculation Type"::"Sales Tax" then
-                UpdateVATEntryTaxDetails(GenJnlLine, VATEntry, TaxDetail, TaxJurisdiction);
+        if GenJnlLine."VAT Calculation Type" = GenJnlLine."VAT Calculation Type"::"Sales Tax" then
+            UpdateVATEntryTaxDetails(GenJnlLine, VATEntry, TaxDetail, TaxJurisdiction);
 
-            if ("Vendor Exchange Rate (ACY)" <> 0) or
-               (("Vendor Exchange Rate (ACY)" = 1) and
-                ("Source Currency Code" <> AddCurrencyCode))
-            then
-                SrcCurrGLEntryBaseAmt := "VAT Base (ACY)";
+        if (GenJnlLine."Vendor Exchange Rate (ACY)" <> 0) or
+           ((GenJnlLine."Vendor Exchange Rate (ACY)" = 1) and
+            (GenJnlLine."Source Currency Code" <> AddCurrencyCode))
+        then
+            SrcCurrGLEntryBaseAmt := GenJnlLine."VAT Base (ACY)";
 
-            if AddCurrencyCode <> '' then
-                if AddCurrencyCode <> SrcCurrCode then begin
-                    if "VAT Base (ACY)" = 0 then begin
-                        SrcCurrGLEntryAmt := ExchangeAmtLCYToFCY2(GLEntryAmount);
-                        SrcCurrGLEntryVATAmt := ExchangeAmtLCYToFCY2(GLEntryVATAmount);
-                        SrcCurrGLEntryBaseAmt := ExchangeAmtLCYToFCY2(GLEntryBaseAmount);
-                        SrcCurrVATDifference := ExchangeAmtLCYToFCY2(VATDifferenceLCY);
-                    end else begin
-                        SrcCurrGLEntryAmt := "VAT Base (ACY)";
-                        SrcCurrGLEntryVATAmt := "Amount Including VAT (ACY)" - "VAT Base (ACY)";
-                        SrcCurrGLEntryBaseAmt := "VAT Base (ACY)";
-                        SrcCurrVATDifference := "VAT Difference (ACY)";
-                    end;
-                    NonDedVATDiffACY := ExchangeAmtLCYToFCY2("Non-Deductible VAT Diff.");
+        if AddCurrencyCode <> '' then
+            if AddCurrencyCode <> SrcCurrCode then begin
+                if GenJnlLine."VAT Base (ACY)" = 0 then begin
+                    SrcCurrGLEntryAmt := ExchangeAmtLCYToFCY2(GLEntryAmount);
+                    SrcCurrGLEntryVATAmt := ExchangeAmtLCYToFCY2(GLEntryVATAmount);
+                    SrcCurrGLEntryBaseAmt := ExchangeAmtLCYToFCY2(GLEntryBaseAmount);
+                    SrcCurrVATDifference := ExchangeAmtLCYToFCY2(VATDifferenceLCY);
                 end else begin
-                    SrcCurrVATDifference := "VAT Difference";
-                    NonDedVATDiffACY := "Non-Deductible VAT Diff.";
+                    SrcCurrGLEntryAmt := GenJnlLine."VAT Base (ACY)";
+                    SrcCurrGLEntryVATAmt := GenJnlLine."Amount Including VAT (ACY)" - GenJnlLine."VAT Base (ACY)";
+                    SrcCurrGLEntryBaseAmt := GenJnlLine."VAT Base (ACY)";
+                    SrcCurrVATDifference := GenJnlLine."VAT Difference (ACY)";
                 end;
-
-            UnrealizedVAT := SetUnrealizedVAT(GenJnlLine, VATPostingSetup, TaxJurisdiction);
-
-            // VAT for VAT entry
-            if "Gen. Posting Type" <> "Gen. Posting Type"::" " then begin
-                case "VAT Posting" of
-                    "VAT Posting"::"Automatic VAT Entry":
-                        begin
-                            VATAmount := GLEntryVATAmount;
-                            VATBase := GLEntryBaseAmount;
-                            SrcCurrVATAmount := SrcCurrGLEntryVATAmt;
-                            SrcCurrVATBase := SrcCurrGLEntryBaseAmt;
-                            NonDeductibleVAT.AdjustVATAmountsFromGenJnlLine(
-                                VATAmount, VATBase, SrcCurrVATAmount, SrcCurrVATBase, GenJnlLine);
-                        end;
-                    "VAT Posting"::"Manual VAT Entry":
-                        begin
-                            if "Gen. Posting Type" = "Gen. Posting Type"::Settlement then begin
-                                VATAmount := GLEntryAmount;
-                                SrcCurrVATAmount := SrcCurrGLEntryVATAmt;
-                                VATEntry.Closed := true;
-                            end else begin
-                                VATAmount := GLEntryVATAmount;
-                                SrcCurrVATAmount := SrcCurrGLEntryVATAmt;
-                            end;
-                            VATBase := GLEntryBaseAmount;
-                            SrcCurrVATBase := SrcCurrGLEntryBaseAmt;
-                            if "Gen. Posting Type" <> "Gen. Posting Type"::Settlement then
-                                NonDeductibleVAT.AdjustVATAmountsFromGenJnlLine(
-                                    VATAmount, VATBase, SrcCurrVATAmount, SrcCurrVATBase, GenJnlLine);
-                        end;
-                end;
-
-                OnInsertVATOnAfterSetVATAmounts(GenJnlLine, VATEntry, GLEntryAmount, GLEntryVATAmount, VATAmount, GLEntryBaseAmount, VATBase, SrcCurrGLEntryAmt, SrcCurrGLEntryVATAmt, SrcCurrVATAmount, SrcCurrGLEntryBaseAmt, SrcCurrVATBase);
-
-                if UnrealizedVAT then begin
-                    VATEntry.Amount := 0;
-                    VATEntry.Base := 0;
-                    VATEntry."Unrealized Amount" := VATAmount;
-                    VATEntry."Unrealized Base" := VATBase;
-                    VATEntry."Remaining Unrealized Amount" := VATEntry."Unrealized Amount";
-                    VATEntry."Remaining Unrealized Base" := VATEntry."Unrealized Base";
-                end else begin
-                    VATEntry.Amount := VATAmount;
-                    VATEntry.Base := VATBase;
-                    VATEntry."Unrealized Amount" := 0;
-                    VATEntry."Unrealized Base" := 0;
-                    VATEntry."Remaining Unrealized Amount" := 0;
-                    VATEntry."Remaining Unrealized Base" := 0;
-                end;
-                NonDeductibleVAT.SetNonDedVATInVATEntry(VATEntry, "Non-Deductible VAT Base LCY", "Non-Deductible VAT Amount LCY", "Non-Deductible VAT Base ACY", "Non-Deductible VAT Amount ACY", "Non-Deductible VAT Diff.", NonDedVATDiffACY);
-
-                if AddCurrencyCode = '' then begin
-                    VATEntry."Additional-Currency Base" := 0;
-                    VATEntry."Additional-Currency Amount" := 0;
-                    VATEntry."Add.-Currency Unrealized Amt." := 0;
-                    VATEntry."Add.-Currency Unrealized Base" := 0;
-                    NonDeductibleVAT.ClearNonDedVATACYInVATEntry(VATEntry);
-                end else
-                    if UnrealizedVAT then begin
-                        VATEntry."Additional-Currency Base" := 0;
-                        VATEntry."Additional-Currency Amount" := 0;
-                        VATEntry."Add.-Currency Unrealized Base" := SrcCurrVATBase;
-                        VATEntry."Add.-Currency Unrealized Amt." := SrcCurrVATAmount;
-                    end else begin
-                        VATEntry."Additional-Currency Base" := SrcCurrVATBase;
-                        VATEntry."Additional-Currency Amount" := SrcCurrVATAmount;
-                        VATEntry."Add.-Currency Unrealized Base" := 0;
-                        VATEntry."Add.-Currency Unrealized Amt." := 0;
-                    end;
-                VATEntry."Add.-Curr. Rem. Unreal. Amount" := VATEntry."Add.-Currency Unrealized Amt.";
-                VATEntry."Add.-Curr. Rem. Unreal. Base" := VATEntry."Add.-Currency Unrealized Base";
-                VATEntry."VAT Difference" := VATDifferenceLCY;
-                VATEntry."Add.-Curr. VAT Difference" := SrcCurrVATDifference;
-                if "System-Created Entry" then
-                    VATEntry."Base Before Pmt. Disc." := "VAT Base Before Pmt. Disc."
-                else
-                    VATEntry."Base Before Pmt. Disc." := GLEntryAmount;
-
-                OnBeforeInsertVATEntry(VATEntry, GenJnlLine, NextVATEntryNo, TempGLEntryVATEntryLink, TempGLEntryBuf, GLReg);
-                VATEntry.Insert(true);
-                TempGLEntryVATEntryLink.InsertLinkSelf(TempGLEntryBuf."Entry No.", VATEntry."Entry No.");
-                NextVATEntryNo := NextVATEntryNo + 1;
-                OnAfterInsertVATEntry(GenJnlLine, VATEntry, TempGLEntryBuf."Entry No.", NextVATEntryNo, TempGLEntryVATEntryLink);
+                NonDedVATDiffACY := ExchangeAmtLCYToFCY2(GenJnlLine."Non-Deductible VAT Diff.");
+            end else begin
+                SrcCurrVATDifference := GenJnlLine."VAT Difference";
+                NonDedVATDiffACY := GenJnlLine."Non-Deductible VAT Diff.";
             end;
 
-            // VAT for G/L entry/entries
-            VATPostingParameters.InsertRecord(
-                GenJnlLine, VATPostingSetup, GLEntryVATAmount, SrcCurrGLEntryVATAmt, SrcCurrCode, UnrealizedVAT, VATAmount, SrcCurrVATAmount, GenJnlLine."Non-Deductible VAT Amount LCY", "Non-Deductible VAT Amount ACY");
-            InsertVATForGLEntry(
-                GenJnlLine, VATPostingSetup, TaxJurisdiction,
-                VATPostingParameters);
+        UnrealizedVAT := SetUnrealizedVAT(GenJnlLine, VATPostingSetup, TaxJurisdiction);
+
+        // VAT for VAT entry
+        if GenJnlLine."Gen. Posting Type" <> GenJnlLine."Gen. Posting Type"::" " then begin
+            case GenJnlLine."VAT Posting" of
+                GenJnlLine."VAT Posting"::"Automatic VAT Entry":
+                    begin
+                        VATAmount := GLEntryVATAmount;
+                        VATBase := GLEntryBaseAmount;
+                        SrcCurrVATAmount := SrcCurrGLEntryVATAmt;
+                        SrcCurrVATBase := SrcCurrGLEntryBaseAmt;
+                        NonDeductibleVAT.AdjustVATAmountsFromGenJnlLine(
+                            VATAmount, VATBase, SrcCurrVATAmount, SrcCurrVATBase, GenJnlLine);
+                    end;
+                GenJnlLine."VAT Posting"::"Manual VAT Entry":
+                    begin
+                        if GenJnlLine."Gen. Posting Type" = GenJnlLine."Gen. Posting Type"::Settlement then begin
+                            VATAmount := GLEntryAmount;
+                            SrcCurrVATAmount := SrcCurrGLEntryVATAmt;
+                            VATEntry.Closed := true;
+                        end else begin
+                            VATAmount := GLEntryVATAmount;
+                            SrcCurrVATAmount := SrcCurrGLEntryVATAmt;
+                        end;
+                        VATBase := GLEntryBaseAmount;
+                        SrcCurrVATBase := SrcCurrGLEntryBaseAmt;
+                        if GenJnlLine."Gen. Posting Type" <> GenJnlLine."Gen. Posting Type"::Settlement then
+                            NonDeductibleVAT.AdjustVATAmountsFromGenJnlLine(
+                                VATAmount, VATBase, SrcCurrVATAmount, SrcCurrVATBase, GenJnlLine);
+                    end;
+            end;
+
+            OnInsertVATOnAfterSetVATAmounts(GenJnlLine, VATEntry, GLEntryAmount, GLEntryVATAmount, VATAmount, GLEntryBaseAmount, VATBase, SrcCurrGLEntryAmt, SrcCurrGLEntryVATAmt, SrcCurrVATAmount, SrcCurrGLEntryBaseAmt, SrcCurrVATBase);
+
+            if UnrealizedVAT then begin
+                VATEntry.Amount := 0;
+                VATEntry.Base := 0;
+                VATEntry."Unrealized Amount" := VATAmount;
+                VATEntry."Unrealized Base" := VATBase;
+                VATEntry."Remaining Unrealized Amount" := VATEntry."Unrealized Amount";
+                VATEntry."Remaining Unrealized Base" := VATEntry."Unrealized Base";
+            end else begin
+                VATEntry.Amount := VATAmount;
+                VATEntry.Base := VATBase;
+                VATEntry."Unrealized Amount" := 0;
+                VATEntry."Unrealized Base" := 0;
+                VATEntry."Remaining Unrealized Amount" := 0;
+                VATEntry."Remaining Unrealized Base" := 0;
+            end;
+            NonDeductibleVAT.SetNonDedVATInVATEntry(VATEntry, GenJnlLine."Non-Deductible VAT Base LCY", GenJnlLine."Non-Deductible VAT Amount LCY", GenJnlLine."Non-Deductible VAT Base ACY", GenJnlLine."Non-Deductible VAT Amount ACY", GenJnlLine."Non-Deductible VAT Diff.", NonDedVATDiffACY);
+
+            if AddCurrencyCode = '' then begin
+                VATEntry."Additional-Currency Base" := 0;
+                VATEntry."Additional-Currency Amount" := 0;
+                VATEntry."Add.-Currency Unrealized Amt." := 0;
+                VATEntry."Add.-Currency Unrealized Base" := 0;
+                NonDeductibleVAT.ClearNonDedVATACYInVATEntry(VATEntry);
+            end else
+                if UnrealizedVAT then begin
+                    VATEntry."Additional-Currency Base" := 0;
+                    VATEntry."Additional-Currency Amount" := 0;
+                    VATEntry."Add.-Currency Unrealized Base" := SrcCurrVATBase;
+                    VATEntry."Add.-Currency Unrealized Amt." := SrcCurrVATAmount;
+                end else begin
+                    VATEntry."Additional-Currency Base" := SrcCurrVATBase;
+                    VATEntry."Additional-Currency Amount" := SrcCurrVATAmount;
+                    VATEntry."Add.-Currency Unrealized Base" := 0;
+                    VATEntry."Add.-Currency Unrealized Amt." := 0;
+                end;
+            VATEntry."Add.-Curr. Rem. Unreal. Amount" := VATEntry."Add.-Currency Unrealized Amt.";
+            VATEntry."Add.-Curr. Rem. Unreal. Base" := VATEntry."Add.-Currency Unrealized Base";
+            VATEntry."VAT Difference" := VATDifferenceLCY;
+            VATEntry."Add.-Curr. VAT Difference" := SrcCurrVATDifference;
+            if GenJnlLine."System-Created Entry" then
+                VATEntry."Base Before Pmt. Disc." := GenJnlLine."VAT Base Before Pmt. Disc."
+            else
+                VATEntry."Base Before Pmt. Disc." := GLEntryAmount;
+
+            OnBeforeInsertVATEntry(VATEntry, GenJnlLine, NextVATEntryNo, TempGLEntryVATEntryLink, TempGLEntryBuf, GLReg);
+            VATEntry.Insert(true);
+            TempGLEntryVATEntryLink.InsertLinkSelf(TempGLEntryBuf."Entry No.", VATEntry."Entry No.");
+            NextVATEntryNo := NextVATEntryNo + 1;
+            OnAfterInsertVATEntry(GenJnlLine, VATEntry, TempGLEntryBuf."Entry No.", NextVATEntryNo, TempGLEntryVATEntryLink);
         end;
+
+        // VAT for G/L entry/entries
+        VATPostingParameters.InsertRecord(
+            GenJnlLine, VATPostingSetup, GLEntryVATAmount, SrcCurrGLEntryVATAmt, SrcCurrCode, UnrealizedVAT, VATAmount, SrcCurrVATAmount, GenJnlLine."Non-Deductible VAT Amount LCY", GenJnlLine."Non-Deductible VAT Amount ACY");
+        InsertVATForGLEntry(
+            GenJnlLine, VATPostingSetup, TaxJurisdiction,
+            VATPostingParameters);
 
         OnAfterInsertVAT(
           GenJnlLine, VATEntry, UnrealizedVAT, AddCurrencyCode, VATPostingSetup, GLEntryAmount, GLEntryVATAmount, GLEntryBaseAmount,
@@ -911,50 +900,48 @@ codeunit 12 "Gen. Jnl.-Post Line"
         if IsHandled then
             exit;
 
-        with GenJnlLine do begin
-            GLEntryVATAmountNotEmpty := (VATPostingParameters."Full VAT Amount" <> 0) or (NonDeductibleVAT.GetNonDeductibleVATAmount(GenJnlLine) <> 0);
-            OnInsertVATOnBeforeVATForGLEntry(GenJnlLine, GLEntryVATAmountNotEmpty);
-            if GLEntryVATAmountNotEmpty or
-               ((VATPostingParameters."Full VAT Amount ACY" <> 0) and (VATPostingParameters."Source Currency Code" = AddCurrencyCode))
-            then
-                case "Gen. Posting Type" of
-                    "Gen. Posting Type"::Purchase:
-                        case VATPostingSetup."VAT Calculation Type" of
-                            VATPostingSetup."VAT Calculation Type"::"Normal VAT",
-                            VATPostingSetup."VAT Calculation Type"::"Full VAT":
-                                CreateNormalVATGLEntries(GenJnlLine, VATPostingSetup, VATPostingParameters);
-                            VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT":
-                                CreateReverseChargeVATGLEntries(GenJnlLine, VATPostingSetup, VATPostingParameters);
-                            VATPostingSetup."VAT Calculation Type"::"Sales Tax":
-                                if "Use Tax" then begin
-                                    InitGLEntryVAT(GenJnlLine, TaxJurisdiction.GetPurchAccount(VATPostingParameters."Unrealized VAT"), '',
-                                      VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true);
-                                    InitGLEntryVAT(GenJnlLine, TaxJurisdiction.GetRevChargeAccount(VATPostingParameters."Unrealized VAT"), '',
-                                      -VATPostingParameters."Full VAT Amount", -VATPostingParameters."Full VAT Amount ACY", true);
-                                end else
-                                    InitGLEntryVAT(GenJnlLine, TaxJurisdiction.GetPurchAccount(VATPostingParameters."Unrealized VAT"), '',
-                                      VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true);
-                        end;
-                    "Gen. Posting Type"::Sale:
-                        case VATPostingSetup."VAT Calculation Type" of
-                            VATPostingSetup."VAT Calculation Type"::"Normal VAT",
-                            VATPostingSetup."VAT Calculation Type"::"Full VAT":
-                                begin
-                                    UseVendExchRate := false;
-                                    CreateGLEntry(GenJnlLine, VATPostingSetup.GetSalesAccount(VATPostingParameters."Unrealized VAT"),
-                                        VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true);
-                                end;
-                            VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT":
-                                ;
-                            VATPostingSetup."VAT Calculation Type"::"Sales Tax":
-                                begin
-                                    UseVendExchRate := false;
-                                    InitGLEntryVAT(GenJnlLine, TaxJurisdiction.GetSalesAccount(VATPostingParameters."Unrealized VAT"), '',
-                                        VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true);
-                                end;
-                        end;
-                end;
-        end;
+        GLEntryVATAmountNotEmpty := (VATPostingParameters."Full VAT Amount" <> 0) or (NonDeductibleVAT.GetNonDeductibleVATAmount(GenJnlLine) <> 0);
+        OnInsertVATOnBeforeVATForGLEntry(GenJnlLine, GLEntryVATAmountNotEmpty);
+        if GLEntryVATAmountNotEmpty or
+           ((VATPostingParameters."Full VAT Amount ACY" <> 0) and (VATPostingParameters."Source Currency Code" = AddCurrencyCode))
+        then
+            case GenJnlLine."Gen. Posting Type" of
+                GenJnlLine."Gen. Posting Type"::Purchase:
+                    case VATPostingSetup."VAT Calculation Type" of
+                        VATPostingSetup."VAT Calculation Type"::"Normal VAT",
+                        VATPostingSetup."VAT Calculation Type"::"Full VAT":
+                            CreateNormalVATGLEntries(GenJnlLine, VATPostingSetup, VATPostingParameters);
+                        VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT":
+                            CreateReverseChargeVATGLEntries(GenJnlLine, VATPostingSetup, VATPostingParameters);
+                        VATPostingSetup."VAT Calculation Type"::"Sales Tax":
+                            if GenJnlLine."Use Tax" then begin
+                                InitGLEntryVAT(GenJnlLine, TaxJurisdiction.GetPurchAccount(VATPostingParameters."Unrealized VAT"), '',
+                                  VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true);
+                                InitGLEntryVAT(GenJnlLine, TaxJurisdiction.GetRevChargeAccount(VATPostingParameters."Unrealized VAT"), '',
+                                  -VATPostingParameters."Full VAT Amount", -VATPostingParameters."Full VAT Amount ACY", true);
+                            end else
+                                InitGLEntryVAT(GenJnlLine, TaxJurisdiction.GetPurchAccount(VATPostingParameters."Unrealized VAT"), '',
+                                  VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true);
+                    end;
+                GenJnlLine."Gen. Posting Type"::Sale:
+                    case VATPostingSetup."VAT Calculation Type" of
+                        VATPostingSetup."VAT Calculation Type"::"Normal VAT",
+                        VATPostingSetup."VAT Calculation Type"::"Full VAT":
+                            begin
+                                UseVendExchRate := false;
+                                CreateGLEntry(GenJnlLine, VATPostingSetup.GetSalesAccount(VATPostingParameters."Unrealized VAT"),
+                                    VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true);
+                            end;
+                        VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT":
+                            ;
+                        VATPostingSetup."VAT Calculation Type"::"Sales Tax":
+                            begin
+                                UseVendExchRate := false;
+                                InitGLEntryVAT(GenJnlLine, TaxJurisdiction.GetSalesAccount(VATPostingParameters."Unrealized VAT"), '',
+                                    VATPostingParameters."Full VAT Amount", VATPostingParameters."Full VAT Amount ACY", true);
+                            end;
+                    end;
+            end;
     end;
 
     local procedure CreateNormalVATGLEntries(GenJnlLine: Record "Gen. Journal Line"; VATPostingSetup: Record "VAT Posting Setup"; VATPostingParameters: Record "VAT Posting Parameters")
@@ -1120,45 +1107,42 @@ codeunit 12 "Gen. Jnl.-Post Line"
     begin
         IsHandled := false;
         OnBeforePostGLAcc(GenJnlLine, GLEntry, GLEntryNo, IsHandled, TempGLEntryBuf);
-        if not IsHandled then
-            with GenJnlLine do begin
-                GLAcc.Get("Account No.");
-                // G/L entry
-                CalcGLAccWHT(GenJnlLine, WHTPostingSetup, WHTAmountLCY, WHTAmount);
-                // G/L entry
-                InitGLEntry(GenJnlLine, GLEntry,
-                  "Account No.", "Amount (LCY)" + WHTAmountLCY,
-                  "Source Currency Amount" + WHTAmountLCY, true, "System-Created Entry");
-                OnPostGLAccOnAfterInitGLEntry(GenJnlLine, GLEntry);
-                CheckGLAccDirectPosting(GenJnlLine, GLAcc);
-                CheckDescriptionForGL(GLAcc, Description);
-                GLEntry."Gen. Posting Type" := "Gen. Posting Type";
-                GLEntry."Bal. Account Type" := "Bal. Account Type";
-                GLEntry."Bal. Account No." := "Bal. Account No.";
-                GLEntry."No. Series" := "Posting No. Series";
-                GLEntry."Journal Templ. Name" := "Journal Template Name";
-                if "Additional-Currency Posting" =
-                   "Additional-Currency Posting"::"Additional-Currency Amount Only"
-                then begin
-                    GLEntry."Additional-Currency Amount" := Amount;
-                    GLEntry.Amount := 0;
-                end;
-                // Store Entry No. to global variable for return:
-                GLEntryNo := GLEntry."Entry No.";
-                InitVAT(GenJnlLine, GLEntry, VATPostingSetup);
-                IsHandled := false;
-                OnPostGLAccOnBeforeInsertGLEntry(GenJnlLine, GLEntry, IsHandled, Balancing);
-                if not IsHandled then
-                    InsertGLEntry(GenJnlLine, GLEntry, true);
-                IsHandled := false;
-                OnPostGLAccOnBeforePostJob(GenJnlLine, GLEntry, IsHandled, Balancing);
-                if not IsHandled then
-                    PostJob(GenJnlLine, GLEntry);
-                PostVAT(GenJnlLine, GLEntry, VATPostingSetup);
-                PostGLAccWHT(GenJnlLine, WHTPostingSetup, WHTAmountLCY);
-                OnPostGLAccOnBeforeDeferralPosting(GenJnlLine);
-                DeferralPosting("Deferral Code", "Source Code", "Account No.", GenJnlLine, Balancing);
+        if not IsHandled then begin
+            GLAcc.Get(GenJnlLine."Account No.");
+            CalcGLAccWHT(GenJnlLine, WHTPostingSetup, WHTAmountLCY, WHTAmount);
+            InitGLEntry(GenJnlLine, GLEntry,
+              GenJnlLine."Account No.", GenJnlLine."Amount (LCY)" + WHTAmountLCY,
+              GenJnlLine."Source Currency Amount" + WHTAmountLCY, true, GenJnlLine."System-Created Entry");
+            OnPostGLAccOnAfterInitGLEntry(GenJnlLine, GLEntry);
+            CheckGLAccDirectPosting(GenJnlLine, GLAcc);
+            CheckDescriptionForGL(GLAcc, GenJnlLine.Description);
+            GLEntry."Gen. Posting Type" := GenJnlLine."Gen. Posting Type";
+            GLEntry."Bal. Account Type" := GenJnlLine."Bal. Account Type";
+            GLEntry."Bal. Account No." := GenJnlLine."Bal. Account No.";
+            GLEntry."No. Series" := GenJnlLine."Posting No. Series";
+            GLEntry."Journal Templ. Name" := GenJnlLine."Journal Template Name";
+            if GenJnlLine."Additional-Currency Posting" =
+               GenJnlLine."Additional-Currency Posting"::"Additional-Currency Amount Only"
+            then begin
+                GLEntry."Additional-Currency Amount" := GenJnlLine.Amount;
+                GLEntry.Amount := 0;
             end;
+            // Store Entry No. to global variable for return:
+            GLEntryNo := GLEntry."Entry No.";
+            InitVAT(GenJnlLine, GLEntry, VATPostingSetup);
+            IsHandled := false;
+            OnPostGLAccOnBeforeInsertGLEntry(GenJnlLine, GLEntry, IsHandled, Balancing);
+            if not IsHandled then
+                InsertGLEntry(GenJnlLine, GLEntry, true);
+            IsHandled := false;
+            OnPostGLAccOnBeforePostJob(GenJnlLine, GLEntry, IsHandled, Balancing);
+            if not IsHandled then
+                PostJob(GenJnlLine, GLEntry);
+            PostVAT(GenJnlLine, GLEntry, VATPostingSetup);
+            PostGLAccWHT(GenJnlLine, WHTPostingSetup, WHTAmountLCY);
+            OnPostGLAccOnBeforeDeferralPosting(GenJnlLine);
+            DeferralPosting(GenJnlLine."Deferral Code", GenJnlLine."Source Code", GenJnlLine."Account No.", GenJnlLine, Balancing);
+        end;
 
         OnMoveGenJournalLine(GenJnlLine, GLEntry.RecordId);
         OnAfterPostGLAcc(GenJnlLine, TempGLEntryBuf, NextEntryNo, NextTransactionNo, Balancing, GLEntry, VATPostingSetup);
@@ -1175,7 +1159,6 @@ codeunit 12 "Gen. Jnl.-Post Line"
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         SalesSetup: Record "Sales & Receivables Setup";
         WHTPostingSetup: Record "WHT Posting Setup";
-        CustLedgerEntryNo: Integer;
         WHTAmount: Decimal;
         WHTAmountLCY: Decimal;
         ReceivablesAccount: Code[20];
@@ -1247,7 +1230,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
             OnPostCustOnAfterAssignCurrencyFactors(CVLedgEntryBuf, GenJournalLine);
 
             // Check the document no.
-            if GenJournalLine."Recurring Method" = "Gen. Journal Recurring Method"::" " then begin
+            if GenJournalLine."Recurring Method" = GenJournalLine."Recurring Method"::" " then begin
                 ShouldCheckDocNo := IsNotPayment(GenJournalLine."Document Type");
                 OnPostCustOnAfterCalcShouldCheckDocNo(GenJournalLine, ShouldCheckDocNo);
                 if ShouldCheckDocNo then begin
@@ -1378,7 +1361,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         OnPostVendOnAfterAssignCurrencyFactors(CVLedgEntryBuf, GenJournalLine);
 
         // Check the document no.
-        if GenJournalLine."Recurring Method" = "Gen. Journal Recurring Method"::" " then
+        if GenJournalLine."Recurring Method" = GenJournalLine."Recurring Method"::" " then
             if IsNotPayment(GenJournalLine."Document Type") then begin
                 GenJnlCheckLine.CheckPurchDocNoIsNotUsed(GenJournalLine);
                 OnBeforeCheckPurchExtDocNo(GenJournalLine, VendLedgEntry, CVLedgEntryBuf, CheckExtDocNoHandled);
@@ -1430,52 +1413,59 @@ codeunit 12 "Gen. Jnl.-Post Line"
         DtldEmplLedgEntry: Record "Detailed Employee Ledger Entry";
         DtldLedgEntryInserted: Boolean;
     begin
-        with GenJnlLine do begin
-            Employee.Get("Account No.");
-            Employee.CheckBlockedEmployeeOnJnls(true);
+        Employee.Get(GenJnlLine."Account No.");
+        Employee.CheckBlockedEmployeeOnJnls(true);
 
-            if "Posting Group" = '' then begin
-                Employee.TestField("Employee Posting Group");
-                "Posting Group" := Employee."Employee Posting Group";
-            end;
-            EmployeePostingGr.Get("Posting Group");
-
-            DtldEmplLedgEntry.LockTable();
-            EmployeeLedgerEntry.LockTable();
-
-            InitEmployeeLedgerEntry(GenJnlLine, EmployeeLedgerEntry);
-
-            TempDtldCVLedgEntryBuf.DeleteAll();
-            TempDtldCVLedgEntryBuf.Init();
-            TempDtldCVLedgEntryBuf.CopyFromGenJnlLine(GenJnlLine);
-            TempDtldCVLedgEntryBuf."CV Ledger Entry No." := EmployeeLedgerEntry."Entry No.";
-            CVLedgEntryBuf.CopyFromEmplLedgEntry(EmployeeLedgerEntry);
-            TempDtldCVLedgEntryBuf.InsertDtldCVLedgEntry(TempDtldCVLedgEntryBuf, CVLedgEntryBuf, true);
-            CVLedgEntryBuf.Open := CVLedgEntryBuf."Remaining Amount" <> 0;
-            CVLedgEntryBuf.Positive := CVLedgEntryBuf."Remaining Amount" > 0;
-
-            // Post application
-            ApplyEmplLedgEntry(CVLedgEntryBuf, TempDtldCVLedgEntryBuf, GenJnlLine, Employee);
-
-            // Post employee entry
-            EmployeeLedgerEntry.CopyFromCVLedgEntryBuffer(CVLedgEntryBuf);
-            EmployeeLedgerEntry."Amount to Apply" := 0;
-            EmployeeLedgerEntry."Applies-to Doc. No." := '';
-            EmployeeLedgerEntry."Applies-to ID" := '';
-            OnPostEmployeeOnBeforeEmployeeLedgerEntryInsert(GenJnlLine, EmployeeLedgerEntry, GLReg);
-            EmployeeLedgerEntry.Insert(true);
-
-            EmployeeLedgerEntry.CopyLinks(GenJnlLine);
-
-            // Post detailed employee entries
-            DtldLedgEntryInserted := PostDtldEmplLedgEntries(GenJnlLine, TempDtldCVLedgEntryBuf, EmployeePostingGr, true);
-            OnPostEmployeeOnAfterPostDtldEmplLedgEntries(GenJnlLine, EmployeeLedgerEntry, DtldLedgEntryInserted);
-
-            // Posting GL Entry
-            if DtldLedgEntryInserted then
-                if IsTempGLEntryBufEmpty() then
-                    DtldEmplLedgEntry.SetZeroTransNo(NextTransactionNo);
+        if GenJnlLine."Posting Group" = '' then begin
+            Employee.TestField("Employee Posting Group");
+            GenJnlLine."Posting Group" := Employee."Employee Posting Group";
         end;
+        EmployeePostingGr.Get(GenJnlLine."Posting Group");
+
+        DtldEmplLedgEntry.LockTable();
+        EmployeeLedgerEntry.LockTable();
+
+        InitEmployeeLedgerEntry(GenJnlLine, EmployeeLedgerEntry);
+
+        TempDtldCVLedgEntryBuf.DeleteAll();
+        TempDtldCVLedgEntryBuf.Init();
+        TempDtldCVLedgEntryBuf.CopyFromGenJnlLine(GenJnlLine);
+        TempDtldCVLedgEntryBuf."CV Ledger Entry No." := EmployeeLedgerEntry."Entry No.";
+        CVLedgEntryBuf.CopyFromEmplLedgEntry(EmployeeLedgerEntry);
+        TempDtldCVLedgEntryBuf.InsertDtldCVLedgEntry(TempDtldCVLedgEntryBuf, CVLedgEntryBuf, true);
+        CVLedgEntryBuf.Open := CVLedgEntryBuf."Remaining Amount" <> 0;
+        CVLedgEntryBuf.Positive := CVLedgEntryBuf."Remaining Amount" > 0;
+        OnPostEmployeeOnAfterCopyCVLedgEntryBuf(CVLedgEntryBuf, GenJnlLine);
+
+        if GenJnlLine."Currency Code" <> '' then begin
+            GenJnlLine.TestField("Currency Factor");
+            CVLedgEntryBuf."Adjusted Currency Factor" := GenJnlLine."Currency Factor"
+        end else
+            CVLedgEntryBuf."Adjusted Currency Factor" := 1;
+        CVLedgEntryBuf."Original Currency Factor" := CVLedgEntryBuf."Adjusted Currency Factor";
+        OnPostEmployeeOnAfterAssignCurrencyFactors(CVLedgEntryBuf, GenJnlLine);
+
+        // Post application
+        ApplyEmplLedgEntry(CVLedgEntryBuf, TempDtldCVLedgEntryBuf, GenJnlLine, Employee);
+
+        // Post employee entry
+        EmployeeLedgerEntry.CopyFromCVLedgEntryBuffer(CVLedgEntryBuf);
+        EmployeeLedgerEntry."Amount to Apply" := 0;
+        EmployeeLedgerEntry."Applies-to Doc. No." := '';
+        EmployeeLedgerEntry."Applies-to ID" := '';
+        OnPostEmployeeOnBeforeEmployeeLedgerEntryInsert(GenJnlLine, EmployeeLedgerEntry, GLReg);
+        EmployeeLedgerEntry.Insert(true);
+
+        EmployeeLedgerEntry.CopyLinks(GenJnlLine);
+
+        // Post detailed employee entries
+        DtldLedgEntryInserted := PostDtldEmplLedgEntries(GenJnlLine, TempDtldCVLedgEntryBuf, EmployeePostingGr, true);
+        OnPostEmployeeOnAfterPostDtldEmplLedgEntries(GenJnlLine, EmployeeLedgerEntry, DtldLedgEntryInserted);
+
+        // Posting GL Entry
+        if DtldLedgEntryInserted then
+            if IsTempGLEntryBufEmpty() then
+                DtldEmplLedgEntry.SetZeroTransNo(NextTransactionNo);
         OnMoveGenJournalLine(GenJnlLine, EmployeeLedgerEntry.RecordId);
     end;
 
@@ -1496,132 +1486,133 @@ codeunit 12 "Gen. Jnl.-Post Line"
         if IsHandled then
             exit;
 
-        with GenJnlLine do begin
-            BankAcc.Get("Account No.");
-            BankAcc.TestField(Blocked, false);
-            if "Currency Code" = '' then
+        BankAcc.Get(GenJnlLine."Account No.");
+        BankAcc.TestField(Blocked, false);
+        IsHandled := false;
+        OnPostBankAccOnBeforeCheckCurrencyCode(GenJnlLine, BankAcc, IsHandled);
+        if not IsHandled then
+            if GenJnlLine."Currency Code" = '' then
                 BankAcc.TestField("Currency Code", '')
             else
                 if BankAcc."Currency Code" <> '' then
-                    TestField("Currency Code", BankAcc."Currency Code");
+                    GenJnlLine.TestField("Currency Code", BankAcc."Currency Code");
 
-            BankAcc.TestField("Bank Acc. Posting Group");
-            BankAccPostingGr.Get(BankAcc."Bank Acc. Posting Group");
+        BankAcc.TestField("Bank Acc. Posting Group");
+        BankAccPostingGr.Get(BankAcc."Bank Acc. Posting Group");
 
-            BankAccLedgEntry.LockTable();
+        BankAccLedgEntry.LockTable();
 
-            OnPostBankAccOnBeforeInitBankAccLedgEntry(GenJnlLine, CurrencyFactor, NextEntryNo, NextTransactionNo, BankAccPostingGr);
+        OnPostBankAccOnBeforeInitBankAccLedgEntry(GenJnlLine, CurrencyFactor, NextEntryNo, NextTransactionNo, BankAccPostingGr);
 
-            InitBankAccLedgEntry(GenJnlLine, BankAccLedgEntry);
+        InitBankAccLedgEntry(GenJnlLine, BankAccLedgEntry);
 
-            BankAccLedgEntry."Bank Acc. Posting Group" := BankAcc."Bank Acc. Posting Group";
-            BankAccLedgEntry."Currency Code" := BankAcc."Currency Code";
-            CalcBankAccWHT(GenJnlLine, WHTPostingSetup, WHTAmountLCY, WHTAmount);
-            if BankAcc."Currency Code" <> '' then
-                BankAccLedgEntry.Amount := Amount + WHTAmount
-            else
-                BankAccLedgEntry.Amount := "Amount (LCY)" + WHTAmountLCY;
-            BankAccLedgEntry."Amount (LCY)" := "Amount (LCY)" + WHTAmountLCY;
-            BankAccLedgEntry."User ID" := UserId();
-            if BankAccLedgEntry.Amount <> 0 then begin
-                BankAccLedgEntry.Open := true;
-                BankAccLedgEntry."Remaining Amount" := BankAccLedgEntry.Amount;
-            end;
-            BankAccLedgEntry.Positive := BankAccLedgEntry.Amount > 0;
-            BankAccLedgEntry.UpdateDebitCredit(Correction);
-            OnPostBankAccOnBeforeBankAccLedgEntryInsert(BankAccLedgEntry, GenJnlLine, BankAcc, TempGLEntryBuf, NextTransactionNo, GLReg);
-            BankAccLedgEntry.Insert(true);
-            OnPostBankAccOnAfterBankAccLedgEntryInsert(BankAccLedgEntry, GenJnlLine, BankAcc);
-
-            BankAccLedgEntry.CopyLinks(GenJnlLine);
-
-            if ((Amount <= 0) and ("Bank Payment Type" = "Bank Payment Type"::"Computer Check") and "Check Printed") or
-               ((Amount < 0) and ("Bank Payment Type" = "Bank Payment Type"::"Manual Check"))
-            then begin
-                if BankAcc."Currency Code" <> "Currency Code" then
-                    Error(BankPaymentTypeMustNotBeFilledErr);
-                case "Bank Payment Type" of
-                    "Bank Payment Type"::"Computer Check":
-                        begin
-                            TestField("Check Printed", true);
-                            CheckLedgEntry.LockTable();
-                            CheckLedgEntry.Reset();
-                            CheckLedgEntry.SetCurrentKey("Bank Account No.", "Entry Status", "Check No.");
-                            CheckLedgEntry.SetRange("Bank Account No.", "Account No.");
-                            CheckLedgEntry.SetRange("Entry Status", CheckLedgEntry."Entry Status"::Printed);
-                            CheckLedgEntry.SetRange("Check No.", "Document No.");
-                            if CheckLedgEntry.FindSet() then
-                                repeat
-                                    CheckLedgEntry2 := CheckLedgEntry;
-                                    CheckLedgEntry2."Entry Status" := CheckLedgEntry2."Entry Status"::Posted;
-                                    CheckLedgEntry2."Bank Account Ledger Entry No." := BankAccLedgEntry."Entry No.";
-                                    OnPostBankAccOnBeforeCheckLedgEntry2Modify(CheckLedgEntry, BankAccLedgEntry, CheckLedgEntry2);
-                                    CheckLedgEntry2.Modify();
-                                until CheckLedgEntry.Next() = 0;
-                        end;
-                    "Bank Payment Type"::"Manual Check":
-                        begin
-                            if "Document No." = '' then
-                                Error(DocNoMustBeEnteredErr, "Bank Payment Type");
-                            CheckLedgEntry.Reset();
-                            if NextCheckEntryNo = 0 then begin
-                                CheckLedgEntry.LockTable();
-                                if CheckLedgEntry.FindLast() then
-                                    NextCheckEntryNo := CheckLedgEntry."Entry No." + 1
-                                else
-                                    NextCheckEntryNo := 1;
-                            end;
-
-                            CheckLedgEntry.SetRange("Bank Account No.", "Account No.");
-                            CheckLedgEntry.SetFilter(
-                              "Entry Status", '%1|%2|%3',
-                              CheckLedgEntry."Entry Status"::Printed,
-                              CheckLedgEntry."Entry Status"::Posted,
-                              CheckLedgEntry."Entry Status"::"Financially Voided");
-                            CheckLedgEntry.SetRange("Check No.", "Document No.");
-                            if not CheckLedgEntry.IsEmpty() then
-                                Error(CheckAlreadyExistsErr, "Document No.");
-
-                            InitCheckLedgEntry(BankAccLedgEntry, CheckLedgEntry);
-                            CheckLedgEntry."Bank Payment Type" := CheckLedgEntry."Bank Payment Type"::"Manual Check";
-
-                            GenJnlLine1.Reset();
-                            GenJnlLine1.Copy(GenJnlLine);
-                            if GLSetup."Enable WHT" then
-                                if not "Skip WHT" then
-                                    CheckLedgEntry."WHT Amount" := Abs(-WHTManagement.WHTAmountJournal(GenJnlLine1, false));
-                            CheckLedgEntry."Interest Amount" := "Interest Amount";
-                            if BankAcc."Currency Code" <> '' then
-                                CheckLedgEntry.Amount := -Amount - CheckLedgEntry."WHT Amount"
-                            else begin
-                                if WHTAmountLCY <> 0 then
-                                    CheckLedgEntry."WHT Amount" := WHTAmountLCY;
-                                CheckLedgEntry.Amount := -"Amount (LCY)" - CheckLedgEntry."WHT Amount";
-                            end;
-                            OnPostBankAccOnBeforeCheckLedgEntryInsert(CheckLedgEntry, BankAccLedgEntry, GenJnlLine, BankAcc);
-                            CheckLedgEntry.Insert(true);
-                            OnPostBankAccOnAfterCheckLedgEntryInsert(CheckLedgEntry, BankAccLedgEntry, GenJnlLine, BankAcc);
-                            NextCheckEntryNo := NextCheckEntryNo + 1;
-                        end;
-                end;
-            end;
-
-            IsHandled := false;
-            OnPostBankAccOnCheckingBankAccPostingGrGLAccountNo(GenJnlLine, BankAccPostingGr, IsHandled);
-            if not IsHandled then
-                BankAccPostingGr.TestField("G/L Account No.");
-
-            IsHandled := false;
-            OnPostBankAccOnBeforeCreateGLEntryBalAcc(GenJnlLine, BankAccPostingGr, BankAcc, NextEntryNo, IsHandled);
-            if not IsHandled then
-                CreateGLEntryBalAcc(
-                    GenJnlLine, BankAccPostingGr."G/L Account No.",
-                    "Amount (LCY)" + WHTAmountLCY, "Source Currency Amount" + WHTAmount,
-                    "Bal. Account Type", "Bal. Account No.");
-
-            PostBankAccWHT(GenJnlLine, WHTPostingSetup, WHTAmountLCY);
-            DeferralPosting("Deferral Code", "Source Code", BankAccPostingGr."G/L Account No.", GenJnlLine, Balancing);
+        BankAccLedgEntry."Bank Acc. Posting Group" := BankAcc."Bank Acc. Posting Group";
+        BankAccLedgEntry."Currency Code" := BankAcc."Currency Code";
+        CalcBankAccWHT(GenJnlLine, WHTPostingSetup, WHTAmountLCY, WHTAmount);
+        if BankAcc."Currency Code" <> '' then
+            BankAccLedgEntry.Amount := GenJnlLine.Amount + WHTAmount
+        else
+            BankAccLedgEntry.Amount := GenJnlLine."Amount (LCY)" + WHTAmountLCY;
+        BankAccLedgEntry."Amount (LCY)" := GenJnlLine."Amount (LCY)" + WHTAmountLCY;
+        BankAccLedgEntry."User ID" := UserId();
+        if BankAccLedgEntry.Amount <> 0 then begin
+            BankAccLedgEntry.Open := true;
+            BankAccLedgEntry."Remaining Amount" := BankAccLedgEntry.Amount;
         end;
+        BankAccLedgEntry.Positive := BankAccLedgEntry.Amount > 0;
+        BankAccLedgEntry.UpdateDebitCredit(GenJnlLine.Correction);
+        OnPostBankAccOnBeforeBankAccLedgEntryInsert(BankAccLedgEntry, GenJnlLine, BankAcc, TempGLEntryBuf, NextTransactionNo, GLReg);
+        BankAccLedgEntry.Insert(true);
+        OnPostBankAccOnAfterBankAccLedgEntryInsert(BankAccLedgEntry, GenJnlLine, BankAcc);
+
+        BankAccLedgEntry.CopyLinks(GenJnlLine);
+
+        if ((GenJnlLine.Amount <= 0) and (GenJnlLine."Bank Payment Type" = GenJnlLine."Bank Payment Type"::"Computer Check") and GenJnlLine."Check Printed") or
+           ((GenJnlLine.Amount < 0) and (GenJnlLine."Bank Payment Type" = GenJnlLine."Bank Payment Type"::"Manual Check"))
+        then begin
+            if BankAcc."Currency Code" <> GenJnlLine."Currency Code" then
+                Error(BankPaymentTypeMustNotBeFilledErr);
+            case GenJnlLine."Bank Payment Type" of
+                GenJnlLine."Bank Payment Type"::"Computer Check":
+                    begin
+                        GenJnlLine.TestField("Check Printed", true);
+                        CheckLedgEntry.LockTable();
+                        CheckLedgEntry.Reset();
+                        CheckLedgEntry.SetCurrentKey("Bank Account No.", "Entry Status", "Check No.");
+                        CheckLedgEntry.SetRange("Bank Account No.", GenJnlLine."Account No.");
+                        CheckLedgEntry.SetRange("Entry Status", CheckLedgEntry."Entry Status"::Printed);
+                        CheckLedgEntry.SetRange("Check No.", GenJnlLine."Document No.");
+                        if CheckLedgEntry.FindSet() then
+                            repeat
+                                CheckLedgEntry2 := CheckLedgEntry;
+                                CheckLedgEntry2."Entry Status" := CheckLedgEntry2."Entry Status"::Posted;
+                                CheckLedgEntry2."Bank Account Ledger Entry No." := BankAccLedgEntry."Entry No.";
+                                OnPostBankAccOnBeforeCheckLedgEntry2Modify(CheckLedgEntry, BankAccLedgEntry, CheckLedgEntry2);
+                                CheckLedgEntry2.Modify();
+                            until CheckLedgEntry.Next() = 0;
+                    end;
+                GenJnlLine."Bank Payment Type"::"Manual Check":
+                    begin
+                        if GenJnlLine."Document No." = '' then
+                            Error(DocNoMustBeEnteredErr, GenJnlLine."Bank Payment Type");
+                        CheckLedgEntry.Reset();
+                        if NextCheckEntryNo = 0 then begin
+                            CheckLedgEntry.LockTable();
+                            if CheckLedgEntry.FindLast() then
+                                NextCheckEntryNo := CheckLedgEntry."Entry No." + 1
+                            else
+                                NextCheckEntryNo := 1;
+                        end;
+
+                        CheckLedgEntry.SetRange("Bank Account No.", GenJnlLine."Account No.");
+                        CheckLedgEntry.SetFilter(
+                          "Entry Status", '%1|%2|%3',
+                          CheckLedgEntry."Entry Status"::Printed,
+                          CheckLedgEntry."Entry Status"::Posted,
+                          CheckLedgEntry."Entry Status"::"Financially Voided");
+                        CheckLedgEntry.SetRange("Check No.", GenJnlLine."Document No.");
+                        if not CheckLedgEntry.IsEmpty() then
+                            Error(CheckAlreadyExistsErr, GenJnlLine."Document No.");
+
+                        InitCheckLedgEntry(BankAccLedgEntry, CheckLedgEntry);
+                        CheckLedgEntry."Bank Payment Type" := CheckLedgEntry."Bank Payment Type"::"Manual Check";
+
+                        GenJnlLine1.Reset();
+                        GenJnlLine1.Copy(GenJnlLine);
+                        if GLSetup."Enable WHT" then
+                            if not GenJnlLine."Skip WHT" then
+                                CheckLedgEntry."WHT Amount" := Abs(-WHTManagement.WHTAmountJournal(GenJnlLine1, false));
+                        CheckLedgEntry."Interest Amount" := GenJnlLine."Interest Amount";
+                        if BankAcc."Currency Code" <> '' then
+                            CheckLedgEntry.Amount := -GenJnlLine.Amount - CheckLedgEntry."WHT Amount"
+                        else begin
+                            if WHTAmountLCY <> 0 then
+                                CheckLedgEntry."WHT Amount" := WHTAmountLCY;
+                            CheckLedgEntry.Amount := -GenJnlLine."Amount (LCY)" - CheckLedgEntry."WHT Amount";
+                        end;
+                        OnPostBankAccOnBeforeCheckLedgEntryInsert(CheckLedgEntry, BankAccLedgEntry, GenJnlLine, BankAcc);
+                        CheckLedgEntry.Insert(true);
+                        OnPostBankAccOnAfterCheckLedgEntryInsert(CheckLedgEntry, BankAccLedgEntry, GenJnlLine, BankAcc);
+                        NextCheckEntryNo := NextCheckEntryNo + 1;
+                    end;
+            end;
+        end;
+
+        IsHandled := false;
+        OnPostBankAccOnCheckingBankAccPostingGrGLAccountNo(GenJnlLine, BankAccPostingGr, IsHandled);
+        if not IsHandled then
+            BankAccPostingGr.TestField("G/L Account No.");
+
+        IsHandled := false;
+        OnPostBankAccOnBeforeCreateGLEntryBalAcc(GenJnlLine, BankAccPostingGr, BankAcc, NextEntryNo, IsHandled);
+        if not IsHandled then
+            CreateGLEntryBalAcc(
+              GenJnlLine, BankAccPostingGr."G/L Account No.",
+              GenJnlLine."Amount (LCY)" + WHTAmountLCY, GenJnlLine."Source Currency Amount" + WHTAmount,
+              GenJnlLine."Bal. Account Type", GenJnlLine."Bal. Account No.");
+
+        PostBankAccWHT(GenJnlLine, WHTPostingSetup, WHTAmountLCY);
+        DeferralPosting(GenJnlLine."Deferral Code", GenJnlLine."Source Code", BankAccPostingGr."G/L Account No.", GenJnlLine, Balancing);
         OnMoveGenJournalLine(GenJnlLine, BankAccLedgEntry.RecordId);
 
         OnAfterPostBankAcc(GenJnlLine, Balancing, TempGLEntryBuf, NextEntryNo, NextTransactionNo);
@@ -1647,65 +1638,63 @@ codeunit 12 "Gen. Jnl.-Post Line"
         IsHandled := false;
         OnBeforePostFixedAsset(GenJnlLine, IsHandled);
         if not IsHandled then begin
-            with GenJnlLine do begin
-                InitGLEntry(GenJnlLine, GLEntry, '', "Amount (LCY)", "Source Currency Amount", true, "System-Created Entry");
-                GLEntry."Gen. Posting Type" := "Gen. Posting Type";
-                GLEntry."Bal. Account Type" := "Bal. Account Type";
-                GLEntry."Bal. Account No." := "Bal. Account No.";
-                InitVAT(GenJnlLine, GLEntry, VATPostingSetup);
-                GLEntry2 := GLEntry;
-                FAJnlPostLine.GenJnlPostLine(
-                    GenJnlLine, GLEntry2.Amount, GLEntry2."VAT Amount", NextTransactionNo, NextEntryNo, GLReg."No.");
-                ShortcutDim1Code := "Shortcut Dimension 1 Code";
-                ShortcutDim2Code := "Shortcut Dimension 2 Code";
-                DimensionSetID := "Dimension Set ID";
-                Correction2 := Correction;
-                OnPostFixedAssetOnAfterSaveGenJnlLineValues(GenJnlLine);
-            end;
-            with TempFAGLPostBuf do
-                if FAJnlPostLine.FindFirstGLAcc(TempFAGLPostBuf) then
-                    repeat
-                        GenJnlLine."Shortcut Dimension 1 Code" := "Global Dimension 1 Code";
-                        GenJnlLine."Shortcut Dimension 2 Code" := "Global Dimension 2 Code";
-                        GenJnlLine."Dimension Set ID" := "Dimension Set ID";
-                        GenJnlLine.Correction := Correction;
+            InitGLEntry(GenJnlLine, GLEntry, '', GenJnlLine."Amount (LCY)", GenJnlLine."Source Currency Amount", true, GenJnlLine."System-Created Entry");
+            GLEntry."Gen. Posting Type" := GenJnlLine."Gen. Posting Type";
+            GLEntry."Bal. Account Type" := GenJnlLine."Bal. Account Type";
+            GLEntry."Bal. Account No." := GenJnlLine."Bal. Account No.";
+            InitVAT(GenJnlLine, GLEntry, VATPostingSetup);
+            GLEntry2 := GLEntry;
+            FAJnlPostLine.GenJnlPostLine(
+                GenJnlLine, GLEntry2.Amount, GLEntry2."VAT Amount", NextTransactionNo, NextEntryNo, GLReg."No.");
+            ShortcutDim1Code := GenJnlLine."Shortcut Dimension 1 Code";
+            ShortcutDim2Code := GenJnlLine."Shortcut Dimension 2 Code";
+            DimensionSetID := GenJnlLine."Dimension Set ID";
+            Correction2 := GenJnlLine.Correction;
+            OnPostFixedAssetOnAfterSaveGenJnlLineValues(GenJnlLine);
+            VATEntryGLEntryNo := 0;
+            if FAJnlPostLine.FindFirstGLAcc(TempFAGLPostBuf) then
+                repeat
+                    GenJnlLine."Shortcut Dimension 1 Code" := TempFAGLPostBuf."Global Dimension 1 Code";
+                    GenJnlLine."Shortcut Dimension 2 Code" := TempFAGLPostBuf."Global Dimension 2 Code";
+                    GenJnlLine."Dimension Set ID" := TempFAGLPostBuf."Dimension Set ID";
+                    GenJnlLine.Correction := TempFAGLPostBuf.Correction;
 
-                        OnPostFixedAssetOnBeforeInitGLEntryFromTempFAGLPostBuf(GenJnlLine, TempFAGLPostBuf);
-                        FADimAlreadyChecked := "FA Posting Group" <> '';
-                        CheckDimValueForDisposal(GenJnlLine, "Account No.");
-                        if "Original General Journal Line" then
-                            InitGLEntry(GenJnlLine, GLEntry, "Account No.", Amount, GLEntry2."Additional-Currency Amount", true, true)
-                        else begin
-                            CheckNonAddCurrCodeOccurred('');
-                            InitGLEntry(GenJnlLine, GLEntry, "Account No.", Amount, 0, false, true);
-                        end;
-                        FADimAlreadyChecked := false;
-                        GLEntry.CopyPostingGroupsFromGLEntry(GLEntry2);
-                        GLEntry."VAT Amount" := GLEntry2."VAT Amount";
-                        GLEntry."Bal. Account Type" := GLEntry2."Bal. Account Type";
-                        GLEntry."Bal. Account No." := GLEntry2."Bal. Account No.";
-                        GLEntry."FA Entry Type" := "FA Entry Type";
-                        GLEntry."FA Entry No." := "FA Entry No.";
-                        if "Net Disposal" then
-                            NetDisposalNo := NetDisposalNo + 1
-                        else
-                            NetDisposalNo := 0;
-                        if "Automatic Entry" and not "Net Disposal" then
-                            FAAutomaticEntry.AdjustGLEntry(GLEntry);
-                        if NetDisposalNo > 1 then
-                            GLEntry."VAT Amount" := 0;
-                        if "FA Posting Group" <> '' then begin
-                            FAGLPostBuf := TempFAGLPostBuf;
-                            FAGLPostBuf."Entry No." := NextEntryNo;
-                            FAGLPostBuf.Insert();
-                        end;
-                        IsHandled := false;
-                        OnPostFixedAssetOnBeforeInsertGLEntry(GenJnlLine, GLEntry, IsHandled, TempFAGLPostBuf, GLEntry2, NextEntryNo);
-                        if not IsHandled then
-                            InsertGLEntry(GenJnlLine, GLEntry, true);
-                        if (VATEntryGLEntryNo = 0) and (GLEntry."Gen. Posting Type" <> GLEntry."Gen. Posting Type"::" ") then
-                            VATEntryGLEntryNo := GLEntry."Entry No.";
-                    until FAJnlPostLine.GetNextGLAcc(TempFAGLPostBuf) = 0;
+                    OnPostFixedAssetOnBeforeInitGLEntryFromTempFAGLPostBuf(GenJnlLine, TempFAGLPostBuf);
+                    FADimAlreadyChecked := TempFAGLPostBuf."FA Posting Group" <> '';
+                    CheckDimValueForDisposal(GenJnlLine, TempFAGLPostBuf."Account No.");
+                    if TempFAGLPostBuf."Original General Journal Line" then
+                        InitGLEntry(GenJnlLine, GLEntry, TempFAGLPostBuf."Account No.", TempFAGLPostBuf.Amount, GLEntry2."Additional-Currency Amount", true, true)
+                    else begin
+                        CheckNonAddCurrCodeOccurred('');
+                        InitGLEntry(GenJnlLine, GLEntry, TempFAGLPostBuf."Account No.", TempFAGLPostBuf.Amount, 0, false, true);
+                    end;
+                    FADimAlreadyChecked := false;
+                    GLEntry.CopyPostingGroupsFromGLEntry(GLEntry2);
+                    GLEntry."VAT Amount" := GLEntry2."VAT Amount";
+                    GLEntry."Bal. Account Type" := GLEntry2."Bal. Account Type";
+                    GLEntry."Bal. Account No." := GLEntry2."Bal. Account No.";
+                    GLEntry."FA Entry Type" := TempFAGLPostBuf."FA Entry Type";
+                    GLEntry."FA Entry No." := TempFAGLPostBuf."FA Entry No.";
+                    if TempFAGLPostBuf."Net Disposal" then
+                        NetDisposalNo := NetDisposalNo + 1
+                    else
+                        NetDisposalNo := 0;
+                    if TempFAGLPostBuf."Automatic Entry" and not TempFAGLPostBuf."Net Disposal" then
+                        FAAutomaticEntry.AdjustGLEntry(GLEntry);
+                    if NetDisposalNo > 1 then
+                        GLEntry."VAT Amount" := 0;
+                    if TempFAGLPostBuf."FA Posting Group" <> '' then begin
+                        FAGLPostBuf := TempFAGLPostBuf;
+                        FAGLPostBuf."Entry No." := NextEntryNo;
+                        FAGLPostBuf.Insert();
+                    end;
+                    IsHandled := false;
+                    OnPostFixedAssetOnBeforeInsertGLEntry(GenJnlLine, GLEntry, IsHandled, TempFAGLPostBuf, GLEntry2, NextEntryNo);
+                    if not IsHandled then
+                        InsertGLEntry(GenJnlLine, GLEntry, true);
+                    if (VATEntryGLEntryNo = 0) and (GLEntry."Gen. Posting Type" <> GLEntry."Gen. Posting Type"::" ") then
+                        VATEntryGLEntryNo := GLEntry."Entry No.";
+                until FAJnlPostLine.GetNextGLAcc(TempFAGLPostBuf) = 0;
             GenJnlLine."Shortcut Dimension 1 Code" := ShortcutDim1Code;
             GenJnlLine."Shortcut Dimension 2 Code" := ShortcutDim2Code;
             OnPostFixedAssetOnAfterSetGenJnlLineShortcutDimCodes(GenJnlLine);
@@ -1741,33 +1730,31 @@ codeunit 12 "Gen. Jnl.-Post Line"
         if IsHandled then
             exit;
 
-        with GenJnlLine do begin
-            if "Account No." <> ICPartner.Code then
-                ICPartner.Get("Account No.");
-            if not IsReversal then begin
-                if ("Document Type" = "Document Type"::"Credit Memo") xor (Amount > 0) then begin
-                    ICPartner.TestField("Receivables Account");
-                    AccountNo := ICPartner."Receivables Account";
-                end else begin
-                    ICPartner.TestField("Payables Account");
-                    AccountNo := ICPartner."Payables Account";
-                end;
-            end else
-                if Amount < 0 then begin
-                    ICPartner.TestField("Receivables Account");
-                    AccountNo := ICPartner."Receivables Account";
-                end else begin
-                    ICPartner.TestField("Payables Account");
-                    AccountNo := ICPartner."Payables Account";
-                end;
+        if GenJnlLine."Account No." <> ICPartner.Code then
+            ICPartner.Get(GenJnlLine."Account No.");
+        if not IsReversal then begin
+            if (GenJnlLine."Document Type" = GenJnlLine."Document Type"::"Credit Memo") xor (GenJnlLine.Amount > 0) then begin
+                ICPartner.TestField("Receivables Account");
+                AccountNo := ICPartner."Receivables Account";
+            end else begin
+                ICPartner.TestField("Payables Account");
+                AccountNo := ICPartner."Payables Account";
+            end;
+        end else
+            if GenJnlLine.Amount < 0 then begin
+                ICPartner.TestField("Receivables Account");
+                AccountNo := ICPartner."Receivables Account";
+            end else begin
+                ICPartner.TestField("Payables Account");
+                AccountNo := ICPartner."Payables Account";
+            end;
 
-            IsHandled := false;
-            OnPostICPartnerOnBeforeCreateGLEntryBalAcc(GenJnlLine, NextEntryNo, IsHandled);
-            if not IsHandled then
-                CreateGLEntryBalAcc(
-                  GenJnlLine, AccountNo, "Amount (LCY)", "Source Currency Amount",
-                  "Bal. Account Type", "Bal. Account No.");
-        end;
+        IsHandled := false;
+        OnPostICPartnerOnBeforeCreateGLEntryBalAcc(GenJnlLine, NextEntryNo, IsHandled);
+        if not IsHandled then
+            CreateGLEntryBalAcc(
+              GenJnlLine, AccountNo, GenJnlLine."Amount (LCY)", GenJnlLine."Source Currency Amount",
+              GenJnlLine."Bal. Account Type", GenJnlLine."Bal. Account No.");
     end;
 
     local procedure FindJobLineSign(GenJnlLine: Record "Gen. Journal Line")
@@ -1799,64 +1786,64 @@ codeunit 12 "Gen. Jnl.-Post Line"
     begin
         OnBeforeStartPosting(GenJnlLine);
 
-        with GenJnlLine do begin
-            InitNextEntryNo();
-            FirstTransactionNo := NextTransactionNo;
+        InitNextEntryNo();
+        FirstTransactionNo := NextTransactionNo;
 
-            InitLastDocDate(GenJnlLine);
-            CurrentBalance := 0;
+        InitLastDocDate(GenJnlLine);
+        CurrentBalance := 0;
 
-            FiscalYearStartDate := AccountingPeriodMgt.GetPeriodStartingDate();
+        FiscalYearStartDate := AccountingPeriodMgt.GetPeriodStartingDate();
 
-            GetGLSetup();
+        GetGLSetup();
 
-            if not GenJnlTemplate.Get("Journal Template Name") then
-                GenJnlTemplate.Init();
+        if not GenJnlTemplate.Get(GenJnlLine."Journal Template Name") then
+            GenJnlTemplate.Init();
 
-            OnStartPostingOnBeforeSetNextVatEntryNo(VATEntry);
-            VATEntry.LockTable();
-            if VATEntry.FindLast() then
-                NextVATEntryNo := VATEntry."Entry No." + 1
-            else
-                NextVATEntryNo := 1;
-            OnStartPostingOnAfterSetNextVatEntryNo(VATEntry, NextVATEntryNo);
+        OnStartPostingOnBeforeSetNextVatEntryNo(VATEntry);
+        VATEntry.LockTable();
+        if VATEntry.FindLast() then
+            NextVATEntryNo := VATEntry."Entry No." + 1
+        else
+            NextVATEntryNo := 1;
+        OnStartPostingOnAfterSetNextVatEntryNo(VATEntry, NextVATEntryNo);
 
-            NextConnectionNo := 1;
-            FirstNewVATEntryNo := NextVATEntryNo;
+        NextConnectionNo := 1;
+        FirstNewVATEntryNo := NextVATEntryNo;
 
-            WHTEntry.LockTable();
-            if WHTEntry.FindLast() then
-                NextWHTEntryNo := WHTEntry."Entry No." + 1
-            else
-                NextWHTEntryNo := 1;
-            if not GLSetup."Enable WHT" then
-                NextWHTEntryNo := 0;
+        WHTEntry.LockTable();
+        if WHTEntry.FindLast() then
+            NextWHTEntryNo := WHTEntry."Entry No." + 1
+        else
+            NextWHTEntryNo := 1;
+        if not GLSetup."Enable WHT" then
+            NextWHTEntryNo := 0;
 
-            GLReg.LockTable();
-            if GLReg.FindLast() then
-                GLReg."No." := GLReg."No." + 1
-            else
-                GLReg."No." := 1;
-            GLReg.Init();
-            GLReg."From Entry No." := NextEntryNo;
-            GLReg."From VAT Entry No." := NextVATEntryNo;
-            GLReg."From WHT Entry No." := NextWHTEntryNo;
-            GLReg."Creation Date" := Today();
-            GLReg."Creation Time" := Time();
-            GLReg."Source Code" := "Source Code";
-            GLReg."Journal Templ. Name" := GenJnlTemplate.Name;
-            GLReg."Journal Batch Name" := "Journal Batch Name";
-            GLReg."User ID" := CopyStr(UserId(), 1, MaxStrLen(GLReg."User ID"));
-            IsGLRegInserted := false;
+        GLReg.LockTable();
+        if GLReg.FindLast() then
+            GLReg."No." := GLReg."No." + 1
+        else
+            GLReg."No." := 1;
+        GLReg.Init();
+        GLReg."From Entry No." := NextEntryNo;
+        GLReg."From VAT Entry No." := NextVATEntryNo;
+        GLReg."From WHT Entry No." := NextWHTEntryNo;
+#if not CLEAN24   
+        GLReg."Creation Date" := Today();
+        GLReg."Creation Time" := Time();
+#endif
+        GLReg."Source Code" := GenJnlLine."Source Code";
+        GLReg."Journal Templ. Name" := GenJnlTemplate.Name;
+        GLReg."Journal Batch Name" := GenJnlLine."Journal Batch Name";
+        GLReg."User ID" := CopyStr(UserId(), 1, MaxStrLen(GLReg."User ID"));
+        IsGLRegInserted := false;
 
-            OnAfterInitGLRegister(GLReg, GenJnlLine);
+        OnAfterInitGLRegister(GLReg, GenJnlLine);
 
-            GetCurrencyExchRate(GenJnlLine);
-            TempGLEntryBuf.DeleteAll();
-            TempGLEntryPreview.DeleteAll();
-            CalculateCurrentBalance(
-              "Account No.", "Bal. Account No.", IncludeVATAmount(), "Amount (LCY)", "VAT Amount");
-        end;
+        GetCurrencyExchRate(GenJnlLine);
+        TempGLEntryBuf.DeleteAll();
+        TempGLEntryPreview.DeleteAll();
+        CalculateCurrentBalance(
+          GenJnlLine."Account No.", GenJnlLine."Bal. Account No.", GenJnlLine.IncludeVATAmount(), GenJnlLine."Amount (LCY)", GenJnlLine."VAT Amount");
 
         OnAfterStartPosting(GenJnlLine);
     end;
@@ -1893,20 +1880,19 @@ codeunit 12 "Gen. Jnl.-Post Line"
         LastDocTypeOption: Option;
         NewTransaction: Boolean;
     begin
-        with GenJnlLine do begin
-            NewTransaction :=
-              (LastDocType <> "Document Type") or (LastDocNo <> "Document No.") or
-              (LastDate <> "Posting Date") or ((CurrentBalance = 0) and (TotalAddCurrAmount = 0)) and not "System-Created Entry";
-            LastDocTypeOption := LastDocType.AsInteger();
-            OnNextTransactionNoNeeded(GenJnlLine, LastDocTypeOption, LastDocNo, LastDate, CurrentBalance, TotalAddCurrAmount, NewTransaction);
-            LastDocType := "Gen. Journal Document Type".FromInteger(LastDocTypeOption);
-            exit(NewTransaction);
-        end;
+        NewTransaction :=
+            (LastDocType <> GenJnlLine."Document Type") or (LastDocNo <> GenJnlLine."Document No.") or
+            (LastDate <> GenJnlLine."Posting Date") or ((CurrentBalance = 0) and (TotalAddCurrAmount = 0)) and not GenJnlLine."System-Created Entry";
+        LastDocTypeOption := LastDocType.AsInteger();
+        OnNextTransactionNoNeeded(GenJnlLine, LastDocTypeOption, LastDocNo, LastDate, CurrentBalance, TotalAddCurrAmount, NewTransaction);
+        LastDocType := "Gen. Journal Document Type".FromInteger(LastDocTypeOption);
+        exit(NewTransaction);
     end;
 
     procedure FinishPosting(GenJournalLine: Record "Gen. Journal Line") IsTransactionConsistent: Boolean
     var
         CostAccountingSetup: Record "Cost Accounting Setup";
+        GLAccountSourceCurrency: Record "G/L Account Source Currency";
         TransferGlEntriesToCA: Codeunit "Transfer GL Entries to CA";
         IsTransactionConsistentExternal: Boolean;
     begin
@@ -1935,6 +1921,13 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 GlobalGLEntry."Prior-Year Entry" := GlobalGLEntry."Posting Date" < FiscalYearStartDate;
                 OnBeforeInsertGlobalGLEntry(GlobalGLEntry, GenJournalLine, GLReg);
                 GlobalGLEntry.Insert(true);
+                if GlobalGLEntry."Source Currency Code" <> '' then
+                    if not GLAccountSourceCurrency.Get(GlobalGLEntry."G/L Account No.", GlobalGLEntry."Source Currency Code") then begin
+                        GLAccountSourceCurrency.Init();
+                        GLAccountSourceCurrency."G/L Account No." := GlobalGLEntry."G/L Account No.";
+                        GLAccountSourceCurrency."Currency Code" := GlobalGLEntry."Source Currency Code";
+                        GLAccountSourceCurrency.Insert();
+                    end;
                 OnAfterInsertGlobalGLEntry(GlobalGLEntry, TempGLEntryBuf, NextEntryNo, GenJournalLine);
                 GlobalGLEntry.CopyLinks(GenJournalLine);
             until TempGLEntryBuf.Next() = 0;
@@ -2002,7 +1995,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     begin
         IsHandled := false;
         OnBeforeInitGLEntry(GenJnlLine, GLAccNo, SystemCreatedEntry, Amount, AmountAddCurr, FADimAlreadyChecked, IsHandled, GLEntry, UseAmountAddCurr, NextEntryNo, NextTransactionNo);
-        If not IsHandled then begin
+        if not IsHandled then begin
             if GLAccNo <> '' then begin
                 GLAcc.Get(GLAccNo);
 
@@ -2034,8 +2027,10 @@ codeunit 12 "Gen. Jnl.-Post Line"
             GLEntry."System-Created Entry" := SystemCreatedEntry;
             GLEntry.Amount := Amount;
             GLEntry."Additional-Currency Amount" :=
-              GLCalcAddCurrency(Amount, AmountAddCurr, GLEntry."Additional-Currency Amount", UseAmountAddCurr, GenJnlLine, UseVendExchRate);
+                GLCalcAddCurrency(Amount, AmountAddCurr, GLEntry."Additional-Currency Amount", UseAmountAddCurr, GenJnlLine);
             UseVendExchRate := false;
+            GLEntry."Source Currency Code" := GenJnlLine."Source Currency Code";
+            GLEntry."Source Currency Amount" := GenJnlLine."Source Currency Amount";
         end;
 
         OnAfterInitGLEntry(GLEntry, GenJnlLine, Amount, AmountAddCurr, UseAmountAddCurr, CurrencyFactor, GLReg);
@@ -2091,22 +2086,20 @@ codeunit 12 "Gen. Jnl.-Post Line"
         IsHandled := false;
         OnBeforeInsertGlEntry(GenJnlLine, GLEntry, IsHandled);
         if not IsHandled then begin
-            with GLEntry do begin
-                TestField("G/L Account No.");
+            GLEntry.TestField("G/L Account No.");
 
-                IsHandled := false;
-                OnInsertGLEntryOnBeforeCheckAmountRounding(GLEntry, IsHandled, GenJnlLine);
-                if not IsHandled then
-                    if Amount <> Round(Amount) then
-                        FieldError(Amount, StrSubstNo(NeedsRoundingErr, Amount));
+            IsHandled := false;
+            OnInsertGLEntryOnBeforeCheckAmountRounding(GLEntry, IsHandled, GenJnlLine);
+            if not IsHandled then
+                if GLEntry.Amount <> Round(GLEntry.Amount) then
+                    GLEntry.FieldError(GLEntry.Amount, StrSubstNo(NeedsRoundingErr, GLEntry.Amount));
 
-                OnInsertGLEntryOnBeforeUpdateCheckAmounts(GLSetup, GLEntry, BalanceCheckAmount, BalanceCheckAmount2, BalanceCheckAddCurrAmount, BalanceCheckAddCurrAmount2);
-                UpdateCheckAmounts(
-                  "Posting Date", Amount, "Additional-Currency Amount",
-                  BalanceCheckAmount, BalanceCheckAmount2, BalanceCheckAddCurrAmount, BalanceCheckAddCurrAmount2);
+            OnInsertGLEntryOnBeforeUpdateCheckAmounts(GLSetup, GLEntry, BalanceCheckAmount, BalanceCheckAmount2, BalanceCheckAddCurrAmount, BalanceCheckAddCurrAmount2);
+            UpdateCheckAmounts(
+              GLEntry."Posting Date", GLEntry.Amount, GLEntry."Additional-Currency Amount",
+              BalanceCheckAmount, BalanceCheckAmount2, BalanceCheckAddCurrAmount, BalanceCheckAddCurrAmount2);
 
-                UpdateDebitCredit(GenJnlLine.Correction);
-            end;
+            GLEntry.UpdateDebitCredit(GenJnlLine.Correction);
 
             OnInsertGLEntryOnBeforeAssignTempGLEntryBuf(GLEntry, GenJnlLine, GLReg);
 
@@ -2161,6 +2154,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     var
         GLEntry: Record "G/L Entry";
     begin
+        SetPostingDimensions(GenJnlLine, AccNo);
         InitGLEntry(GenJnlLine, GLEntry, AccNo, Amount, 0, UseAmountAddCurr, true);
         OnBeforeCreateGLEntryGainLossInsertGLEntry(GenJnlLine, GLEntry);
         InsertGLEntry(GenJnlLine, GLEntry, true);
@@ -2210,15 +2204,15 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
     local procedure CreateDeferralScheduleFromGL(var GenJournalLine: Record "Gen. Journal Line"; IsBalancing: Boolean)
     begin
-        with GenJournalLine do
-            if ("Account No." <> '') and ("Deferral Code" <> '') then
-                if (("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor]) and ("Source Code" = GLSourceCode)) or
-                   ("Account Type" in ["Account Type"::"G/L Account", "Account Type"::"Bank Account"])
-                then begin
-                    if not IsBalancing then
-                        CODEUNIT.Run(CODEUNIT::"Exchange Acc. G/L Journal Line", GenJournalLine);
-                    DeferralUtilities.CreateScheduleFromGL(GenJournalLine, FirstEntryNo);
-                end;
+        if (GenJournalLine."Account No." <> '') and (GenJournalLine."Deferral Code" <> '') then
+            if ((GenJournalLine."Account Type" in [GenJournalLine."Account Type"::Customer, GenJournalLine."Account Type"::Vendor])
+                and (JournalsSourceCodesList.Contains(GenJournalLine."Source Code"))) or
+               (GenJournalLine."Account Type" in [GenJournalLine."Account Type"::"G/L Account", GenJournalLine."Account Type"::"Bank Account"])
+            then begin
+                if not IsBalancing then
+                    CODEUNIT.Run(CODEUNIT::"Exchange Acc. G/L Journal Line", GenJournalLine);
+                DeferralUtilities.CreateScheduleFromGL(GenJournalLine, FirstEntryNo);
+            end;
     end;
 
     local procedure UpdateCheckAmounts(PostingDate: Date; Amount: Decimal; AddCurrAmount: Decimal; var BalanceCheckAmount: Decimal; var BalanceCheckAmount2: Decimal; var BalanceCheckAddCurrAmount: Decimal; var BalanceCheckAddCurrAmount2: Decimal)
@@ -2260,34 +2254,33 @@ codeunit 12 "Gen. Jnl.-Post Line"
         PaymentDiscountDateWithGracePeriod: Date;
         IsHandled: Boolean;
     begin
-        IsHandled := FALSE;
+        IsHandled := false;
         OnBeforeCalcPmtDiscPossible(GenJnlLine, CVLedgEntryBuf, IsHandled, AmountRoundingPrecision);
         if IsHandled then
             exit;
 
-        with GenJnlLine do
-            if "Amount (LCY)" <> 0 then begin
-                PaymentDiscountDateWithGracePeriod := CVLedgEntryBuf."Pmt. Discount Date";
-                GLSetup.GetRecordOnce();
-                if PaymentDiscountDateWithGracePeriod <> 0D then
-                    PaymentDiscountDateWithGracePeriod :=
-                      CalcDate(GLSetup."Payment Discount Grace Period", PaymentDiscountDateWithGracePeriod);
-                if (PaymentDiscountDateWithGracePeriod >= CVLedgEntryBuf."Posting Date") or
-                   (PaymentDiscountDateWithGracePeriod = 0D)
-                then begin
-                    if GLSetup."Pmt. Disc. Excl. VAT" then begin
-                        if "Sales/Purch. (LCY)" = 0 then
-                            CVLedgEntryBuf."Original Pmt. Disc. Possible" := ("Amount (LCY)" + TotalVATAmountOnJnlLines(GenJnlLine)) * Amount / "Amount (LCY)"
-                        else
-                            CVLedgEntryBuf."Original Pmt. Disc. Possible" := "Sales/Purch. (LCY)" * Amount / "Amount (LCY)"
-                    end else
-                        CVLedgEntryBuf."Original Pmt. Disc. Possible" := Amount;
-                    OnCalcPmtDiscPossibleOnBeforeOriginalPmtDiscPossible(GenJnlLine, CVLedgEntryBuf, AmountRoundingPrecision);
-                    CVLedgEntryBuf."Original Pmt. Disc. Possible" :=
-                        Round(CVLedgEntryBuf."Original Pmt. Disc. Possible" * "Payment Discount %" / 100, AmountRoundingPrecision);
-                end;
-                CVLedgEntryBuf."Remaining Pmt. Disc. Possible" := CVLedgEntryBuf."Original Pmt. Disc. Possible";
+        if GenJnlLine."Amount (LCY)" <> 0 then begin
+            PaymentDiscountDateWithGracePeriod := CVLedgEntryBuf."Pmt. Discount Date";
+            GLSetup.GetRecordOnce();
+            if PaymentDiscountDateWithGracePeriod <> 0D then
+                PaymentDiscountDateWithGracePeriod :=
+                  CalcDate(GLSetup."Payment Discount Grace Period", PaymentDiscountDateWithGracePeriod);
+            if (PaymentDiscountDateWithGracePeriod >= CVLedgEntryBuf."Posting Date") or
+               (PaymentDiscountDateWithGracePeriod = 0D)
+            then begin
+                if GLSetup."Pmt. Disc. Excl. VAT" then begin
+                    if GenJnlLine."Sales/Purch. (LCY)" = 0 then
+                        CVLedgEntryBuf."Original Pmt. Disc. Possible" := (GenJnlLine."Amount (LCY)" + TotalVATAmountOnJnlLines(GenJnlLine)) * GenJnlLine.Amount / GenJnlLine."Amount (LCY)"
+                    else
+                        CVLedgEntryBuf."Original Pmt. Disc. Possible" := GenJnlLine."Sales/Purch. (LCY)" * GenJnlLine.Amount / GenJnlLine."Amount (LCY)"
+                end else
+                    CVLedgEntryBuf."Original Pmt. Disc. Possible" := GenJnlLine.Amount;
+                OnCalcPmtDiscPossibleOnBeforeOriginalPmtDiscPossible(GenJnlLine, CVLedgEntryBuf, AmountRoundingPrecision);
+                CVLedgEntryBuf."Original Pmt. Disc. Possible" :=
+                    Round(CVLedgEntryBuf."Original Pmt. Disc. Possible" * GenJnlLine."Payment Discount %" / 100, AmountRoundingPrecision);
             end;
+            CVLedgEntryBuf."Remaining Pmt. Disc. Possible" := CVLedgEntryBuf."Original Pmt. Disc. Possible";
+        end;
 
         OnAfterCalcPmtDiscPossible(GenJnlLine, CVLedgEntryBuf);
     end;
@@ -2301,20 +2294,19 @@ codeunit 12 "Gen. Jnl.-Post Line"
         if IsHandled then
             exit;
 
-        with GenJnlLine do
-            if "Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"] then begin
-                if PmtDiscountDate <> 0D then
-                    PmtDiscToleranceDate := CalcDate(GLSetup."Payment Discount Grace Period", PmtDiscountDate)
-                else
-                    PmtDiscToleranceDate := PmtDiscountDate;
+        if GenJnlLine."Document Type" in [GenJnlLine."Document Type"::Invoice, GenJnlLine."Document Type"::"Credit Memo"] then begin
+            if PmtDiscountDate <> 0D then
+                PmtDiscToleranceDate := CalcDate(GLSetup."Payment Discount Grace Period", PmtDiscountDate)
+            else
+                PmtDiscToleranceDate := PmtDiscountDate;
 
-                case "Account Type" of
-                    "Account Type"::Customer:
-                        PaymentToleranceMgt.CalcMaxPmtTolerance("Document Type", "Currency Code", Amount, "Amount (LCY)", 1, MaxPaymentTolerance);
-                    "Account Type"::Vendor:
-                        PaymentToleranceMgt.CalcMaxPmtTolerance("Document Type", "Currency Code", Amount, "Amount (LCY)", -1, MaxPaymentTolerance);
-                end;
+            case GenJnlLine."Account Type" of
+                GenJnlLine."Account Type"::Customer:
+                    PaymentToleranceMgt.CalcMaxPmtTolerance(GenJnlLine."Document Type", GenJnlLine."Currency Code", GenJnlLine.Amount, GenJnlLine."Amount (LCY)", 1, MaxPaymentTolerance);
+                GenJnlLine."Account Type"::Vendor:
+                    PaymentToleranceMgt.CalcMaxPmtTolerance(GenJnlLine."Document Type", GenJnlLine."Currency Code", GenJnlLine.Amount, GenJnlLine."Amount (LCY)", -1, MaxPaymentTolerance);
             end;
+        end;
     end;
 
     local procedure CalcPmtTolerance(var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var OldCVLedgEntryBuf2: Record "CV Ledger Entry Buffer"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; GenJnlLine: Record "Gen. Journal Line"; var PmtTolAmtToBeApplied: Decimal; NextTransactionNo: Integer; FirstNewVATEntryNo: Integer)
@@ -2471,6 +2463,10 @@ codeunit 12 "Gen. Jnl.-Post Line"
             PmtDiscFactorAddCurr := PmtDiscAddCurr2 / OriginalAmountAddCurr
         else
             PmtDiscFactorAddCurr := 0;
+
+        NonDedTotalVATAmount := 0;
+        NonDedTotalVATAmountACY := 0;
+
         VATEntry2.Reset();
         VATEntry2.SetCurrentKey("Transaction No.");
         VATEntry2.SetRange("Transaction No.", OldCVLedgEntryBuf."Transaction No.");
@@ -2551,7 +2547,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                         DtldCVLedgEntryBuf2.CopyFromCVLedgEntryBuf(NewCVLedgEntryBuf);
                         // The total payment discount in currency is posted on the entry made in
                         // the function CalcPmtDisc.
-                        DtldCVLedgEntryBuf2."User ID" := UserId();
+                        DtldCVLedgEntryBuf2."User ID" := CopyStr(UserId(), 1, MaxStrLen(DtldCVLedgEntryBuf2."User ID"));
                         DtldCVLedgEntryBuf2."Additional-Currency Amount" := -VATBaseAddCurr;
                         OnCalcPmtDiscIfAdjVATCopyFields(DtldCVLedgEntryBuf2, OldCVLedgEntryBuf, GenJnlLine);
                         DtldCVLedgEntryBuf2.CopyPostingGroupsFromVATEntry(VATEntry2);
@@ -2993,7 +2989,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                     AppliedAmount := -OldCVLedgEntryBuf2."Amount to Apply"
             end else
                 AppliedAmount := -OldCVLedgEntryBuf2."Remaining Amount";
-        end else begin
+        end else
             if OldCVLedgEntryBuf2."Amount to Apply" <> 0 then
                 if (PaymentToleranceMgt.CheckCalcPmtDisc(NewCVLedgEntryBuf, OldCVLedgEntryBuf2, ApplnRoundingPrecision, false, false) and
                     (Abs(OldCVLedgEntryBuf2."Amount to Apply") >=
@@ -3011,7 +3007,6 @@ codeunit 12 "Gen. Jnl.-Post Line"
                     AppliedAmount := ABSMin(NewCVLedgEntryBuf."Remaining Amount", -OldCVLedgEntryBuf2."Amount to Apply")
             else
                 AppliedAmount := ABSMin(NewCVLedgEntryBuf."Remaining Amount", -OldCVLedgEntryBuf2."Remaining Amount");
-        end;
 
         if (Abs(OldCVLedgEntryBuf2."Remaining Amount" - OldCVLedgEntryBuf2."Amount to Apply") < ApplnRoundingPrecision) and
            (ApplnRoundingPrecision <> 0) and
@@ -3048,6 +3043,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     var
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry";
+        DtldEmplLedgEntry: Record "Detailed Employee Ledger Entry";
         UnRealizedGainLossLCY: Decimal;
         IsHandled: Boolean;
     begin
@@ -3061,16 +3057,23 @@ codeunit 12 "Gen. Jnl.-Post Line"
             exit;
 
         // Calculate Unrealized GainLoss
-        if GenJnlLine."Account Type" = GenJnlLine."Account Type"::Customer then
-            UnRealizedGainLossLCY :=
-              Round(
-                DtldCustLedgEntry.GetUnrealizedGainLossAmount(CVLedgEntryBuf."Entry No.") *
-                Abs(AppliedAmount / RemainingAmountBeforeAppln))
-        else
-            UnRealizedGainLossLCY :=
-              Round(
-                DtldVendLedgEntry.GetUnrealizedGainLossAmount(CVLedgEntryBuf."Entry No.") *
-                Abs(AppliedAmount / RemainingAmountBeforeAppln));
+        case GenJnlLine."Account Type" of
+            GenJnlLine."Account Type"::Customer:
+                UnRealizedGainLossLCY :=
+                    Round(
+                        DtldCustLedgEntry.GetUnrealizedGainLossAmount(CVLedgEntryBuf."Entry No.") *
+                        Abs(AppliedAmount / RemainingAmountBeforeAppln));
+            GenJnlLine."Account Type"::Employee:
+                UnRealizedGainLossLCY :=
+                    Round(
+                        DtldEmplLedgEntry.GetUnrealizedGainLossAmount(CVLedgEntryBuf."Entry No.") *
+                        Abs(AppliedAmount / RemainingAmountBeforeAppln));
+            else
+                UnRealizedGainLossLCY :=
+                    Round(
+                        DtldVendLedgEntry.GetUnrealizedGainLossAmount(CVLedgEntryBuf."Entry No.") *
+                        Abs(AppliedAmount / RemainingAmountBeforeAppln));
+        end;
 
         if UnRealizedGainLossLCY <> 0 then
             if UnRealizedGainLossLCY < 0 then
@@ -3257,22 +3260,20 @@ codeunit 12 "Gen. Jnl.-Post Line"
         if IsHandled then
             exit;
 
-        with DtldCustLedgEntry do begin
-            Init();
-            TransferFields(DtldCVLedgEntryBuf);
-            "Entry No." := Offset + DtldCVLedgEntryBuf."Entry No.";
-            "Journal Batch Name" := GenJnlLine."Journal Batch Name";
-            "Reason Code" := GenJnlLine."Reason Code";
-            "Source Code" := GenJnlLine."Source Code";
-            "Transaction No." := NextTransactionNo;
-            "Document Date" := GenJnlLine."Document Date";
-            CustLedgerEntry2.Get(DtldCVLedgEntryBuf."CV Ledger Entry No.");
-            "Posting Group" := CustLedgerEntry2."Customer Posting Group";
-            UpdateDebitCredit(GenJnlLine.Correction);
-            OnBeforeInsertDtldCustLedgEntry(DtldCustLedgEntry, GenJnlLine, DtldCVLedgEntryBuf, GLReg);
-            Insert(true);
-            OnAfterInsertDtldCustLedgEntry(DtldCustLedgEntry, GenJnlLine, DtldCVLedgEntryBuf, Offset);
-        end;
+        DtldCustLedgEntry.Init();
+        DtldCustLedgEntry.TransferFields(DtldCVLedgEntryBuf);
+        DtldCustLedgEntry."Entry No." := Offset + DtldCVLedgEntryBuf."Entry No.";
+        DtldCustLedgEntry."Journal Batch Name" := GenJnlLine."Journal Batch Name";
+        DtldCustLedgEntry."Reason Code" := GenJnlLine."Reason Code";
+        DtldCustLedgEntry."Source Code" := GenJnlLine."Source Code";
+        DtldCustLedgEntry."Transaction No." := NextTransactionNo;
+        DtldCustLedgEntry."Document Date" := GenJnlLine."Document Date";
+        CustLedgerEntry2.Get(DtldCVLedgEntryBuf."CV Ledger Entry No.");
+        DtldCustLedgEntry."Posting Group" := CustLedgerEntry2."Customer Posting Group";
+        DtldCustLedgEntry.UpdateDebitCredit(GenJnlLine.Correction);
+        OnBeforeInsertDtldCustLedgEntry(DtldCustLedgEntry, GenJnlLine, DtldCVLedgEntryBuf, GLReg);
+        DtldCustLedgEntry.Insert(true);
+        OnAfterInsertDtldCustLedgEntry(DtldCustLedgEntry, GenJnlLine, DtldCVLedgEntryBuf, Offset);
     end;
 
     local procedure InsertDtldVendLedgEntry(GenJnlLine: Record "Gen. Journal Line"; DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; Offset: Integer)
@@ -3285,38 +3286,34 @@ codeunit 12 "Gen. Jnl.-Post Line"
         if IsHandled then
             exit;
 
-        with DtldVendLedgEntry do begin
-            Init();
-            TransferFields(DtldCVLedgEntryBuf);
-            "Entry No." := Offset + DtldCVLedgEntryBuf."Entry No.";
-            "Journal Batch Name" := GenJnlLine."Journal Batch Name";
-            "Reason Code" := GenJnlLine."Reason Code";
-            "Source Code" := GenJnlLine."Source Code";
-            "Transaction No." := NextTransactionNo;
-            "Document Date" := GenJnlLine."Document Date";
-            VendorLedgerEntry2.Get(DtldCVLedgEntryBuf."CV Ledger Entry No.");
-            "Posting Group" := VendorLedgerEntry2."Vendor Posting Group";
-            UpdateDebitCredit(GenJnlLine.Correction);
-            OnBeforeInsertDtldVendLedgEntry(DtldVendLedgEntry, GenJnlLine, DtldCVLedgEntryBuf, GLReg);
-            Insert(true);
-            OnAfterInsertDtldVendLedgEntry(DtldVendLedgEntry, GenJnlLine, DtldCVLedgEntryBuf, Offset);
-        end;
+        DtldVendLedgEntry.Init();
+        DtldVendLedgEntry.TransferFields(DtldCVLedgEntryBuf);
+        DtldVendLedgEntry."Entry No." := Offset + DtldCVLedgEntryBuf."Entry No.";
+        DtldVendLedgEntry."Journal Batch Name" := GenJnlLine."Journal Batch Name";
+        DtldVendLedgEntry."Reason Code" := GenJnlLine."Reason Code";
+        DtldVendLedgEntry."Source Code" := GenJnlLine."Source Code";
+        DtldVendLedgEntry."Transaction No." := NextTransactionNo;
+        DtldVendLedgEntry."Document Date" := GenJnlLine."Document Date";
+        VendorLedgerEntry2.Get(DtldCVLedgEntryBuf."CV Ledger Entry No.");
+        DtldVendLedgEntry."Posting Group" := VendorLedgerEntry2."Vendor Posting Group";
+        DtldVendLedgEntry.UpdateDebitCredit(GenJnlLine.Correction);
+        OnBeforeInsertDtldVendLedgEntry(DtldVendLedgEntry, GenJnlLine, DtldCVLedgEntryBuf, GLReg);
+        DtldVendLedgEntry.Insert(true);
+        OnAfterInsertDtldVendLedgEntry(DtldVendLedgEntry, GenJnlLine, DtldCVLedgEntryBuf, Offset);
     end;
 
     local procedure InsertDtldEmplLedgEntry(GenJnlLine: Record "Gen. Journal Line"; DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; var DtldEmplLedgEntry: Record "Detailed Employee Ledger Entry"; Offset: Integer)
     begin
-        with DtldEmplLedgEntry do begin
-            Init();
-            TransferFields(DtldCVLedgEntryBuf);
-            "Entry No." := Offset + DtldCVLedgEntryBuf."Entry No.";
-            "Journal Batch Name" := GenJnlLine."Journal Batch Name";
-            "Reason Code" := GenJnlLine."Reason Code";
-            "Source Code" := GenJnlLine."Source Code";
-            "Transaction No." := NextTransactionNo;
-            UpdateDebitCredit(GenJnlLine.Correction);
-            OnBeforeInsertDtldEmplLedgEntry(DtldEmplLedgEntry, GenJnlLine, DtldCVLedgEntryBuf);
-            Insert(true);
-        end;
+        DtldEmplLedgEntry.Init();
+        DtldEmplLedgEntry.TransferFields(DtldCVLedgEntryBuf);
+        DtldEmplLedgEntry."Entry No." := Offset + DtldCVLedgEntryBuf."Entry No.";
+        DtldEmplLedgEntry."Journal Batch Name" := GenJnlLine."Journal Batch Name";
+        DtldEmplLedgEntry."Reason Code" := GenJnlLine."Reason Code";
+        DtldEmplLedgEntry."Source Code" := GenJnlLine."Source Code";
+        DtldEmplLedgEntry."Transaction No." := NextTransactionNo;
+        DtldEmplLedgEntry.UpdateDebitCredit(GenJnlLine.Correction);
+        OnBeforeInsertDtldEmplLedgEntry(DtldEmplLedgEntry, GenJnlLine, DtldCVLedgEntryBuf);
+        DtldEmplLedgEntry.Insert(true);
     end;
 
     procedure ApplyCustLedgEntry(var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; GenJnlLine: Record "Gen. Journal Line"; Cust: Record Customer)
@@ -3666,74 +3663,71 @@ codeunit 12 "Gen. Jnl.-Post Line"
         GenJnlLine := GenJnlLinePostApply;
         CustLedgEntry.TransferFields(CustLedgEntryPostApply);
         OnCustPostApplyCustLedgEntryOnAfterCustLedgEntryTransferFields(CustLedgEntry, GenJnlLine);
-        with GenJnlLine do begin
-            "Source Currency Code" := CustLedgEntryPostApply."Currency Code";
-            "Applies-to ID" := CustLedgEntryPostApply."Applies-to ID";
+        GenJnlLine."Source Currency Code" := CustLedgEntryPostApply."Currency Code";
+        GenJnlLine."Applies-to ID" := CustLedgEntryPostApply."Applies-to ID";
 
-            OnCustPostApplyCustLedgEntryOnBeforeRunCheck(GenJnlLine, CustLedgEntryPostApply, CustLedgEntry);
-            GenJnlCheckLine.RunCheck(GenJnlLine);
+        OnCustPostApplyCustLedgEntryOnBeforeRunCheck(GenJnlLine, CustLedgEntryPostApply, CustLedgEntry);
+        GenJnlCheckLine.RunCheck(GenJnlLine);
 
-            if NextEntryNo = 0 then
-                StartPosting(GenJnlLine)
-            else
-                ContinuePosting(GenJnlLine);
+        if NextEntryNo = 0 then
+            StartPosting(GenJnlLine)
+        else
+            ContinuePosting(GenJnlLine);
 
-            Cust.Get(CustLedgEntry."Customer No.");
-            Cust.CheckBlockedCustOnJnls(Cust, "Document Type", true);
+        Cust.Get(CustLedgEntry."Customer No.");
+        Cust.CheckBlockedCustOnJnls(Cust, GenJnlLine."Document Type", true);
 
-            OnCustPostApplyCustLedgEntryOnBeforeCheckPostingGroup(GenJnlLine, Cust);
+        OnCustPostApplyCustLedgEntryOnBeforeCheckPostingGroup(GenJnlLine, Cust);
 
-            if "Posting Group" = '' then begin
-                Cust.TestField("Customer Posting Group");
-                "Posting Group" := Cust."Customer Posting Group";
-            end;
-            CustPostingGr.Get("Posting Group");
-            GetCustomerReceivablesAccount(GenJnlLine, CustPostingGr);
-
-            DtldCustLedgEntry.LockTable();
-            CustLedgEntry.LockTable();
-
-            // Post the application
-            CustLedgEntry.CalcFields(
-              Amount, "Amount (LCY)", "Remaining Amount", "Remaining Amt. (LCY)",
-              "Original Amount", "Original Amt. (LCY)");
-            OnCustPostApplyCustLedgEntryOnBeforeCopyFromCustLedgEntry(GenJnlLine, CVLedgEntryBuf, CustLedgEntry);
-            CVLedgEntryBuf.CopyFromCustLedgEntry(CustLedgEntry);
-            OnCustPostApplyCustLedgEntryOnBeforeApplyCustLedgEntry(CustLedgEntry);
-            ApplyCustLedgEntry(CVLedgEntryBuf, TempDtldCVLedgEntryBuf, GenJnlLine, Cust);
-            OnCustPostApplyCustLedgEntryOnAfterApplyCustLedgEntry(GenJnlLine, TempDtldCVLedgEntryBuf);
-            CustLedgEntry.CopyFromCVLedgEntryBuffer(CVLedgEntryBuf);
-            CustLedgEntry."Applies-to ID" := '';
-            OnCustPostApplyCustLedgEntryOnBeforeModifyCustLedgEntry(CustLedgEntry, CVLedgEntryBuf);	    
-            CustLedgEntry.Modify();
-
-            SourceCodeSetup.Get();
-            if "Source Code" = SourceCodeSetup."Sales Entry Application" then begin
-                CustLedgEntry.Reset();
-                CustLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
-                if "Account Type" = "Account Type"::Customer then begin
-                    CustLedgEntry.SetRange("Customer No.", "Account No.");
-                    if CustLedgEntry.FindFirst() then
-                        CustLedgEntry.ModifyAll("Applies-to ID", '');
-                end;
-            end;
-
-            // Post the Dtld customer entry
-            OnCustPostApplyCustLedgEntryOnBeforePostDtldCustLedgEntries(CustLedgEntry);
-            DtldLedgEntryInserted := PostDtldCustLedgEntries(GenJnlLine, TempDtldCVLedgEntryBuf, CustPostingGr, false);
-
-            CheckPostUnrealizedVAT(GenJnlLine, true);
-
-            if DtldLedgEntryInserted then
-                if IsTempGLEntryBufEmpty() then
-                    DtldCustLedgEntry.SetZeroTransNo(NextTransactionNo);
-
-            OnCustPostApplyCustLedgEntryOnBeforeFinishPosting(GenJnlLine, CustLedgEntry);
-
-            FinishPosting(GenJnlLine);
-
-            OnAfterCustPostApplyCustLedgEntry(GenJnlLine, GLReg, CustLedgEntry);
+        if GenJnlLine."Posting Group" = '' then begin
+            Cust.TestField("Customer Posting Group");
+            GenJnlLine."Posting Group" := Cust."Customer Posting Group";
         end;
+        CustPostingGr.Get(GenJnlLine."Posting Group");
+        GetCustomerReceivablesAccount(GenJnlLine, CustPostingGr);
+
+        DtldCustLedgEntry.LockTable();
+        CustLedgEntry.LockTable();
+
+        // Post the application
+        CustLedgEntry.CalcFields(
+          Amount, "Amount (LCY)", "Remaining Amount", "Remaining Amt. (LCY)",
+          "Original Amount", "Original Amt. (LCY)");
+        OnCustPostApplyCustLedgEntryOnBeforeCopyFromCustLedgEntry(GenJnlLine, CVLedgEntryBuf, CustLedgEntry);
+        CVLedgEntryBuf.CopyFromCustLedgEntry(CustLedgEntry);
+        OnCustPostApplyCustLedgEntryOnBeforeApplyCustLedgEntry(CustLedgEntry);
+        ApplyCustLedgEntry(CVLedgEntryBuf, TempDtldCVLedgEntryBuf, GenJnlLine, Cust);
+        OnCustPostApplyCustLedgEntryOnAfterApplyCustLedgEntry(GenJnlLine, TempDtldCVLedgEntryBuf);
+        CustLedgEntry.CopyFromCVLedgEntryBuffer(CVLedgEntryBuf);
+        CustLedgEntry."Applies-to ID" := '';
+        OnCustPostApplyCustLedgEntryOnBeforeModifyCustLedgEntry(CustLedgEntry, CVLedgEntryBuf);
+        CustLedgEntry.Modify();
+
+        SourceCodeSetup.Get();
+        if GenJnlLine."Source Code" = SourceCodeSetup."Sales Entry Application" then begin
+            CustLedgEntry.Reset();
+            CustLedgEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
+            if GenJnlLine."Account Type" = GenJnlLine."Account Type"::Customer then begin
+                CustLedgEntry.SetRange("Customer No.", GenJnlLine."Account No.");
+                if CustLedgEntry.FindFirst() then
+                    CustLedgEntry.ModifyAll("Applies-to ID", '');
+            end;
+        end;
+        // Post the Dtld customer entry
+        OnCustPostApplyCustLedgEntryOnBeforePostDtldCustLedgEntries(CustLedgEntry);
+        DtldLedgEntryInserted := PostDtldCustLedgEntries(GenJnlLine, TempDtldCVLedgEntryBuf, CustPostingGr, false);
+
+        CheckPostUnrealizedVAT(GenJnlLine, true);
+
+        if DtldLedgEntryInserted then
+            if IsTempGLEntryBufEmpty() then
+                DtldCustLedgEntry.SetZeroTransNo(NextTransactionNo);
+
+        OnCustPostApplyCustLedgEntryOnBeforeFinishPosting(GenJnlLine, CustLedgEntry);
+
+        FinishPosting(GenJnlLine);
+
+        OnAfterCustPostApplyCustLedgEntry(GenJnlLine, GLReg, CustLedgEntry);
     end;
 
     local procedure PrepareTempCustLedgEntry(var GenJnlLine: Record "Gen. Journal Line"; var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var TempOldCustLedgEntry: Record "Cust. Ledger Entry" temporary; Cust: Record Customer; var ApplyingDate: Date): Boolean
@@ -3792,7 +3786,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         end else begin
             // Find the first old entry (Invoice) which the new entry (Payment) should apply to
             OldCustLedgEntry.Reset();
-            OldCustLedgEntry.SetLoadFields("Posting Date", "Currency Code");
+            OldCustLedgEntry.SetLoadFields("Posting Date", "Currency Code", "Applies-to ID");
             OldCustLedgEntry.SetCurrentKey("Customer No.", "Applies-to ID", Open, Positive, "Due Date");
             TempOldCustLedgEntry.SetCurrentKey("Customer No.", "Applies-to ID", Open, Positive, "Due Date");
             OldCustLedgEntry.SetRange("Customer No.", NewCVLedgEntryBuf."CV No.");
@@ -3810,7 +3804,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
             if SalesSetup."Appln. between Currencies" = SalesSetup."Appln. between Currencies"::None then
                 OldCustLedgEntry.SetRange("Currency Code", NewCVLedgEntryBuf."Currency Code");
             OnPrepareTempCustLedgEntryOnAfterSetFiltersByAppliesToId(OldCustLedgEntry, GenJnlLine, NewCVLedgEntryBuf, Cust);
-            if OldCustLedgEntry.FindSet(false, false) then
+            if OldCustLedgEntry.FindSet(false) then
                 repeat
                     OnPrepareTempCustLedgEntryOnBeforeCheckAgainstApplnCurrency(GenJnlLine, NewCVLedgEntryBuf, OldCustLedgEntry);
                     if GenJnlApply.CheckAgainstApplnCurrency(
@@ -3960,77 +3954,75 @@ codeunit 12 "Gen. Jnl.-Post Line"
         if IsHandled then
             exit(AccountNo);
 
-        with DtldCVLedgEntryBuf do begin
-            AmountCondition := IsDebitAmount(DtldCVLedgEntryBuf, Unapply);
-            case "Entry Type" of
-                "Entry Type"::"Initial Entry":
-                    ;
-                "Entry Type"::Application:
-                    ;
-                "Entry Type"::"Unrealized Loss",
-                "Entry Type"::"Unrealized Gain",
-                "Entry Type"::"Realized Loss",
-                "Entry Type"::"Realized Gain":
-                    begin
-                        GetCurrency(Currency, "Currency Code");
-                        CheckNonAddCurrCodeOccurred(Currency.Code);
-                        exit(Currency.GetGainLossAccount(DtldCVLedgEntryBuf));
-                    end;
-                "Entry Type"::"Payment Discount":
-                    exit(CustPostingGr.GetPmtDiscountAccount(AmountCondition));
-                "Entry Type"::"Payment Discount (VAT Excl.)":
-                    begin
-                        TestField("Gen. Prod. Posting Group");
-                        GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
-                        exit(GenPostingSetup.GetSalesPmtDiscountAccount(AmountCondition));
-                    end;
-                "Entry Type"::"Appln. Rounding":
-                    exit(CustPostingGr.GetApplRoundingAccount(AmountCondition));
-                "Entry Type"::"Correction of Remaining Amount":
-                    exit(CustPostingGr.GetRoundingAccount(AmountCondition));
-                "Entry Type"::"Payment Discount Tolerance":
-                    case GLSetup."Pmt. Disc. Tolerance Posting" of
-                        GLSetup."Pmt. Disc. Tolerance Posting"::"Payment Tolerance Accounts":
-                            exit(CustPostingGr.GetPmtToleranceAccount(AmountCondition));
-                        GLSetup."Pmt. Disc. Tolerance Posting"::"Payment Discount Accounts":
-                            exit(CustPostingGr.GetPmtDiscountAccount(AmountCondition));
-                    end;
-                "Entry Type"::"Payment Tolerance":
+        AmountCondition := IsDebitAmount(DtldCVLedgEntryBuf, Unapply);
+        case DtldCVLedgEntryBuf."Entry Type" of
+            DtldCVLedgEntryBuf."Entry Type"::"Initial Entry":
+                ;
+            DtldCVLedgEntryBuf."Entry Type"::Application:
+                ;
+            DtldCVLedgEntryBuf."Entry Type"::"Unrealized Loss",
+            DtldCVLedgEntryBuf."Entry Type"::"Unrealized Gain",
+            DtldCVLedgEntryBuf."Entry Type"::"Realized Loss",
+            DtldCVLedgEntryBuf."Entry Type"::"Realized Gain":
+                begin
+                    GetCurrency(Currency, DtldCVLedgEntryBuf."Currency Code");
+                    CheckNonAddCurrCodeOccurred(Currency.Code);
+                    exit(Currency.GetGainLossAccount(DtldCVLedgEntryBuf));
+                end;
+            DtldCVLedgEntryBuf."Entry Type"::"Payment Discount":
+                exit(CustPostingGr.GetPmtDiscountAccount(AmountCondition));
+            DtldCVLedgEntryBuf."Entry Type"::"Payment Discount (VAT Excl.)":
+                begin
+                    DtldCVLedgEntryBuf.TestField("Gen. Prod. Posting Group");
+                    GenPostingSetup.Get(DtldCVLedgEntryBuf."Gen. Bus. Posting Group", DtldCVLedgEntryBuf."Gen. Prod. Posting Group");
+                    exit(GenPostingSetup.GetSalesPmtDiscountAccount(AmountCondition));
+                end;
+            DtldCVLedgEntryBuf."Entry Type"::"Appln. Rounding":
+                exit(CustPostingGr.GetApplRoundingAccount(AmountCondition));
+            DtldCVLedgEntryBuf."Entry Type"::"Correction of Remaining Amount":
+                exit(CustPostingGr.GetRoundingAccount(AmountCondition));
+            DtldCVLedgEntryBuf."Entry Type"::"Payment Discount Tolerance":
+                case GLSetup."Pmt. Disc. Tolerance Posting" of
+                    GLSetup."Pmt. Disc. Tolerance Posting"::"Payment Tolerance Accounts":
+                        exit(CustPostingGr.GetPmtToleranceAccount(AmountCondition));
+                    GLSetup."Pmt. Disc. Tolerance Posting"::"Payment Discount Accounts":
+                        exit(CustPostingGr.GetPmtDiscountAccount(AmountCondition));
+                end;
+            DtldCVLedgEntryBuf."Entry Type"::"Payment Tolerance":
+                case GLSetup."Payment Tolerance Posting" of
+                    GLSetup."Payment Tolerance Posting"::"Payment Tolerance Accounts":
+                        exit(CustPostingGr.GetPmtToleranceAccount(AmountCondition));
+                    GLSetup."Payment Tolerance Posting"::"Payment Discount Accounts":
+                        exit(CustPostingGr.GetPmtDiscountAccount(AmountCondition));
+                end;
+            DtldCVLedgEntryBuf."Entry Type"::"Payment Tolerance (VAT Excl.)":
+                begin
+                    DtldCVLedgEntryBuf.TestField("Gen. Prod. Posting Group");
+                    GenPostingSetup.Get(DtldCVLedgEntryBuf."Gen. Bus. Posting Group", DtldCVLedgEntryBuf."Gen. Prod. Posting Group");
                     case GLSetup."Payment Tolerance Posting" of
                         GLSetup."Payment Tolerance Posting"::"Payment Tolerance Accounts":
-                            exit(CustPostingGr.GetPmtToleranceAccount(AmountCondition));
+                            exit(GenPostingSetup.GetSalesPmtToleranceAccount(AmountCondition));
                         GLSetup."Payment Tolerance Posting"::"Payment Discount Accounts":
-                            exit(CustPostingGr.GetPmtDiscountAccount(AmountCondition));
+                            exit(GenPostingSetup.GetSalesPmtDiscountAccount(AmountCondition));
                     end;
-                "Entry Type"::"Payment Tolerance (VAT Excl.)":
-                    begin
-                        TestField("Gen. Prod. Posting Group");
-                        GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
-                        case GLSetup."Payment Tolerance Posting" of
-                            GLSetup."Payment Tolerance Posting"::"Payment Tolerance Accounts":
-                                exit(GenPostingSetup.GetSalesPmtToleranceAccount(AmountCondition));
-                            GLSetup."Payment Tolerance Posting"::"Payment Discount Accounts":
-                                exit(GenPostingSetup.GetSalesPmtDiscountAccount(AmountCondition));
-                        end;
+                end;
+            DtldCVLedgEntryBuf."Entry Type"::"Payment Discount Tolerance (VAT Excl.)":
+                begin
+                    GenPostingSetup.Get(DtldCVLedgEntryBuf."Gen. Bus. Posting Group", DtldCVLedgEntryBuf."Gen. Prod. Posting Group");
+                    case GLSetup."Pmt. Disc. Tolerance Posting" of
+                        GLSetup."Pmt. Disc. Tolerance Posting"::"Payment Tolerance Accounts":
+                            exit(GenPostingSetup.GetSalesPmtToleranceAccount(AmountCondition));
+                        GLSetup."Pmt. Disc. Tolerance Posting"::"Payment Discount Accounts":
+                            exit(GenPostingSetup.GetSalesPmtDiscountAccount(AmountCondition));
                     end;
-                "Entry Type"::"Payment Discount Tolerance (VAT Excl.)":
-                    begin
-                        GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
-                        case GLSetup."Pmt. Disc. Tolerance Posting" of
-                            GLSetup."Pmt. Disc. Tolerance Posting"::"Payment Tolerance Accounts":
-                                exit(GenPostingSetup.GetSalesPmtToleranceAccount(AmountCondition));
-                            GLSetup."Pmt. Disc. Tolerance Posting"::"Payment Discount Accounts":
-                                exit(GenPostingSetup.GetSalesPmtDiscountAccount(AmountCondition));
-                        end;
-                    end;
-                "Entry Type"::"Payment Discount (VAT Adjustment)",
-              "Entry Type"::"Payment Tolerance (VAT Adjustment)",
-              "Entry Type"::"Payment Discount Tolerance (VAT Adjustment)":
-                    if Unapply then
-                        PostDtldCustVATAdjustment(GenJnlLine, DtldCVLedgEntryBuf, OriginalTransactionNo);
-                else
-                    FieldError("Entry Type");
-            end;
+                end;
+            DtldCVLedgEntryBuf."Entry Type"::"Payment Discount (VAT Adjustment)",
+          DtldCVLedgEntryBuf."Entry Type"::"Payment Tolerance (VAT Adjustment)",
+          DtldCVLedgEntryBuf."Entry Type"::"Payment Discount Tolerance (VAT Adjustment)":
+                if Unapply then
+                    PostDtldCustVATAdjustment(GenJnlLine, DtldCVLedgEntryBuf, OriginalTransactionNo);
+            else
+                DtldCVLedgEntryBuf.FieldError("Entry Type");
         end;
     end;
 
@@ -4416,6 +4408,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         TempOldEmplLedgEntry: Record "Employee Ledger Entry" temporary;
         Completed: Boolean;
         AppliedAmount: Decimal;
+        NewRemainingAmtBeforeAppln: Decimal;
         ApplyingDate: Date;
         PmtTolAmtToBeApplied: Decimal;
         AllApplied: Boolean;
@@ -4432,6 +4425,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
             exit;
 
         PmtTolAmtToBeApplied := 0;
+        NewRemainingAmtBeforeAppln := NewCVLedgEntryBuf."Remaining Amount";
         NewCVLedgEntryBuf2 := NewCVLedgEntryBuf;
 
         ApplyingDate := GenJnlLine."Posting Date";
@@ -4472,6 +4466,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
           "Entry Type",
           DtldCVLedgEntryBuf."Entry Type"::Application);
         DtldCVLedgEntryBuf.CalcSums("Amount (LCY)", Amount);
+
+        CalcCurrencyUnrealizedGainLoss(
+          NewCVLedgEntryBuf, DtldCVLedgEntryBuf, GenJnlLine, DtldCVLedgEntryBuf.Amount, NewRemainingAmtBeforeAppln);
+
+        CalcAmtLCYAdjustment(NewCVLedgEntryBuf, DtldCVLedgEntryBuf, GenJnlLine);
 
         NewCVLedgEntryBuf."Applies-to ID" := '';
         NewCVLedgEntryBuf."Amount to Apply" := 0;
@@ -4523,67 +4522,64 @@ codeunit 12 "Gen. Jnl.-Post Line"
         GenJnlLine := GenJnlLinePostApply;
         VendLedgEntry.TransferFields(VendLedgEntryPostApply);
         OnVendPostApplyVendLedgEntryOnAfterVendLedgEntryTransferFields(VendLedgEntry, GenJnlLine);
-        with GenJnlLine do begin
-            "Source Currency Code" := VendLedgEntryPostApply."Currency Code";
-            "Applies-to ID" := VendLedgEntryPostApply."Applies-to ID";
+        GenJnlLine."Source Currency Code" := VendLedgEntryPostApply."Currency Code";
+        GenJnlLine."Applies-to ID" := VendLedgEntryPostApply."Applies-to ID";
 
-            GenJnlCheckLine.RunCheck(GenJnlLine);
+        GenJnlCheckLine.RunCheck(GenJnlLine);
 
-            if NextEntryNo = 0 then
-                StartPosting(GenJnlLine)
-            else
-                ContinuePosting(GenJnlLine);
+        if NextEntryNo = 0 then
+            StartPosting(GenJnlLine)
+        else
+            ContinuePosting(GenJnlLine);
 
-            Vend.Get(VendLedgEntry."Vendor No.");
-            Vend.CheckBlockedVendOnJnls(Vend, "Document Type", true);
+        Vend.Get(VendLedgEntry."Vendor No.");
+        Vend.CheckBlockedVendOnJnls(Vend, GenJnlLine."Document Type", true);
 
-            OnVendPostApplyVendLedgEntryOnBeforeCheckPostingGroup(GenJnlLine, Vend);
-            if "Posting Group" = '' then begin
-                Vend.TestField("Vendor Posting Group");
-                "Posting Group" := Vend."Vendor Posting Group";
-            end;
-            GetVendorPostingGroup(GenJnlLine, VendPostingGr);
-            VendPostingGr.GetPayablesAccount();
-
-            DtldVendLedgEntry.LockTable();
-            VendLedgEntry.LockTable();
-
-            // Post the application
-            VendLedgEntry.CalcFields(
-              Amount, "Amount (LCY)", "Remaining Amount", "Remaining Amt. (LCY)",
-              "Original Amount", "Original Amt. (LCY)");
-            OnVendPostApplyVendLedgEntryOnBeforeCopyFromVendLedgEntry(GenJnlLine, CVLedgEntryBuf, VendLedgEntry);
-            CVLedgEntryBuf.CopyFromVendLedgEntry(VendLedgEntry);
-            ApplyVendLedgEntry(CVLedgEntryBuf, TempDtldCVLedgEntryBuf, GenJnlLine, Vend);
-            OnVendPostApplyVendLedgEntryOnAfterApplyVendLedgEntry(GenJnlLine, TempDtldCVLedgEntryBuf);
-            VendLedgEntry.CopyFromCVLedgEntryBuffer(CVLedgEntryBuf);
-            VendLedgEntry."Applies-to ID" := '';
-            VendLedgEntry."EFT Amount Transferred" := 0;
-            VendLedgEntry.Modify(true);
-
-            SourceCodeSetup.Get();
-            if "Source Code" = SourceCodeSetup."Purchase Entry Application" then begin
-                VendLedgEntry.Reset();
-                VendLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
-                VendLedgEntry.SetRange("Vendor No.", "Account No.");
-                VendLedgEntry.ModifyAll("Applies-to ID", '');
-            end;
-
-            // Post Dtld vendor entry
-            OnVendPostApplyVendLedgEntryOnBeforePostDtldVendLedgEntries(VendLedgEntry);
-            DtldLedgEntryInserted := PostDtldVendLedgEntries(GenJnlLine, TempDtldCVLedgEntryBuf, VendPostingGr, false);
-
-            CheckPostUnrealizedVAT(GenJnlLine, true);
-
-            if DtldLedgEntryInserted then
-                if IsTempGLEntryBufEmpty() then
-                    DtldVendLedgEntry.SetZeroTransNo(NextTransactionNo);
-
-            OnVendPostApplyVendLedgEntryOnBeforeFinishPosting(GenJnlLine, VendLedgEntry);
-
-            FinishPosting(GenJnlLine);
-            OnAfterVendPostApplyVendLedgEntry(GenJnlLine, GLReg);
+        OnVendPostApplyVendLedgEntryOnBeforeCheckPostingGroup(GenJnlLine, Vend);
+        if GenJnlLine."Posting Group" = '' then begin
+            Vend.TestField("Vendor Posting Group");
+            GenJnlLine."Posting Group" := Vend."Vendor Posting Group";
         end;
+        GetVendorPostingGroup(GenJnlLine, VendPostingGr);
+        VendPostingGr.GetPayablesAccount();
+
+        DtldVendLedgEntry.LockTable();
+        VendLedgEntry.LockTable();
+
+        // Post the application
+        VendLedgEntry.CalcFields(
+          Amount, "Amount (LCY)", "Remaining Amount", "Remaining Amt. (LCY)",
+          "Original Amount", "Original Amt. (LCY)");
+        OnVendPostApplyVendLedgEntryOnBeforeCopyFromVendLedgEntry(GenJnlLine, CVLedgEntryBuf, VendLedgEntry);
+        CVLedgEntryBuf.CopyFromVendLedgEntry(VendLedgEntry);
+        ApplyVendLedgEntry(CVLedgEntryBuf, TempDtldCVLedgEntryBuf, GenJnlLine, Vend);
+        OnVendPostApplyVendLedgEntryOnAfterApplyVendLedgEntry(GenJnlLine, TempDtldCVLedgEntryBuf);
+        VendLedgEntry.CopyFromCVLedgEntryBuffer(CVLedgEntryBuf);
+        VendLedgEntry."Applies-to ID" := '';
+        VendLedgEntry."EFT Amount Transferred" := 0;
+        VendLedgEntry.Modify(true);
+
+        SourceCodeSetup.Get();
+        if GenJnlLine."Source Code" = SourceCodeSetup."Purchase Entry Application" then begin
+            VendLedgEntry.Reset();
+            VendLedgEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
+            VendLedgEntry.SetRange("Vendor No.", GenJnlLine."Account No.");
+            VendLedgEntry.ModifyAll("Applies-to ID", '');
+        end;
+        // Post Dtld vendor entry
+        OnVendPostApplyVendLedgEntryOnBeforePostDtldVendLedgEntries(VendLedgEntry);
+        DtldLedgEntryInserted := PostDtldVendLedgEntries(GenJnlLine, TempDtldCVLedgEntryBuf, VendPostingGr, false);
+
+        CheckPostUnrealizedVAT(GenJnlLine, true);
+
+        if DtldLedgEntryInserted then
+            if IsTempGLEntryBufEmpty() then
+                DtldVendLedgEntry.SetZeroTransNo(NextTransactionNo);
+
+        OnVendPostApplyVendLedgEntryOnBeforeFinishPosting(GenJnlLine, VendLedgEntry);
+
+        FinishPosting(GenJnlLine);
+        OnAfterVendPostApplyVendLedgEntry(GenJnlLine, GLReg);
     end;
 
     procedure EmplPostApplyEmplLedgEntry(var GenJnlLinePostApply: Record "Gen. Journal Line"; var EmplLedgEntryPostApply: Record "Employee Ledger Entry")
@@ -4605,50 +4601,48 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
         GenJnlLine := GenJnlLinePostApply;
         EmplLedgEntry.TransferFields(EmplLedgEntryPostApply);
-        with GenJnlLine do begin
-            "Source Currency Code" := EmplLedgEntryPostApply."Currency Code";
-            "Applies-to ID" := EmplLedgEntryPostApply."Applies-to ID";
+        GenJnlLine."Source Currency Code" := EmplLedgEntryPostApply."Currency Code";
+        GenJnlLine."Applies-to ID" := EmplLedgEntryPostApply."Applies-to ID";
 
-            GenJnlCheckLine.RunCheck(GenJnlLine);
+        GenJnlCheckLine.RunCheck(GenJnlLine);
 
-            if NextEntryNo = 0 then
-                StartPosting(GenJnlLine)
-            else
-                ContinuePosting(GenJnlLine);
+        if NextEntryNo = 0 then
+            StartPosting(GenJnlLine)
+        else
+            ContinuePosting(GenJnlLine);
 
-            Empl.Get(EmplLedgEntry."Employee No.");
+        Empl.Get(EmplLedgEntry."Employee No.");
 
-            if "Posting Group" = '' then begin
-                Empl.TestField("Employee Posting Group");
-                "Posting Group" := Empl."Employee Posting Group";
-            end;
-            EmplPostingGr.Get("Posting Group");
-            EmplPostingGr.GetPayablesAccount();
-
-            DtldEmplLedgEntry.LockTable();
-            EmplLedgEntry.LockTable();
-
-            // Post the application
-            EmplLedgEntry.CalcFields(
-              Amount, "Amount (LCY)", "Remaining Amount", "Remaining Amt. (LCY)",
-              "Original Amount", "Original Amt. (LCY)");
-            CVLedgEntryBuf.CopyFromEmplLedgEntry(EmplLedgEntry);
-            ApplyEmplLedgEntry(
-              CVLedgEntryBuf, TempDtldCVLedgEntryBuf, GenJnlLine, Empl);
-            EmplLedgEntry.CopyFromCVLedgEntryBuffer(CVLedgEntryBuf);
-            EmplLedgEntry.Modify(true);
-
-            // Post Dtld vendor entry
-            DtldLedgEntryInserted := PostDtldEmplLedgEntries(GenJnlLine, TempDtldCVLedgEntryBuf, EmplPostingGr, false);
-
-            CheckPostUnrealizedVAT(GenJnlLine, true);
-
-            if DtldLedgEntryInserted then
-                if IsTempGLEntryBufEmpty() then
-                    DtldEmplLedgEntry.SetZeroTransNo(NextTransactionNo);
-
-            FinishPosting(GenJnlLine);
+        if GenJnlLine."Posting Group" = '' then begin
+            Empl.TestField("Employee Posting Group");
+            GenJnlLine."Posting Group" := Empl."Employee Posting Group";
         end;
+        EmplPostingGr.Get(GenJnlLine."Posting Group");
+        EmplPostingGr.GetPayablesAccount();
+
+        DtldEmplLedgEntry.LockTable();
+        EmplLedgEntry.LockTable();
+
+        // Post the application
+        EmplLedgEntry.CalcFields(
+          Amount, "Amount (LCY)", "Remaining Amount", "Remaining Amt. (LCY)",
+          "Original Amount", "Original Amt. (LCY)");
+        CVLedgEntryBuf.CopyFromEmplLedgEntry(EmplLedgEntry);
+        ApplyEmplLedgEntry(
+          CVLedgEntryBuf, TempDtldCVLedgEntryBuf, GenJnlLine, Empl);
+        EmplLedgEntry.CopyFromCVLedgEntryBuffer(CVLedgEntryBuf);
+        EmplLedgEntry.Modify(true);
+
+        // Post Dtld vendor entry
+        DtldLedgEntryInserted := PostDtldEmplLedgEntries(GenJnlLine, TempDtldCVLedgEntryBuf, EmplPostingGr, false);
+
+        CheckPostUnrealizedVAT(GenJnlLine, true);
+
+        if DtldLedgEntryInserted then
+            if IsTempGLEntryBufEmpty() then
+                DtldEmplLedgEntry.SetZeroTransNo(NextTransactionNo);
+
+        FinishPosting(GenJnlLine);
     end;
 
     local procedure PrepareTempVendLedgEntry(var GenJnlLine: Record "Gen. Journal Line"; var NewCVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var TempOldVendLedgEntry: Record "Vendor Ledger Entry" temporary; Vend: Record Vendor; var ApplyingDate: Date): Boolean
@@ -4688,7 +4682,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         end else begin
             // Find the first old entry (Invoice) which the new entry (Payment) should apply to
             OldVendLedgEntry.Reset();
-            OldVendLedgEntry.SetLoadFields("Posting Date", "Currency Code");
+            OldVendLedgEntry.SetLoadFields("Posting Date", "Currency Code", "Applies-to ID");
             OldVendLedgEntry.SetCurrentKey("Vendor No.", "Applies-to ID", Open, Positive, "Due Date");
             TempOldVendLedgEntry.SetCurrentKey("Vendor No.", "Applies-to ID", Open, Positive, "Due Date");
             OldVendLedgEntry.SetRange("Vendor No.", NewCVLedgEntryBuf."CV No.");
@@ -4706,7 +4700,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
             if PurchSetup."Appln. between Currencies" = PurchSetup."Appln. between Currencies"::None then
                 OldVendLedgEntry.SetRange("Currency Code", NewCVLedgEntryBuf."Currency Code");
             OnPrepareTempVendLedgEntryOnAfterSetFiltersBlankAppliesToDocNo(OldVendLedgEntry, GenJnlLine, NewCVLedgEntryBuf);
-            if OldVendLedgEntry.FindSet(false, false) then
+            if OldVendLedgEntry.FindSet(false) then
                 repeat
                     OnPrepareTempVendLedgEntryOnBeforeCheckAgainstApplnCurrency(GenJnlLine, NewCVLedgEntryBuf, OldVendLedgEntry);
                     if GenJnlApply.CheckAgainstApplnCurrency(
@@ -4786,9 +4780,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
             if Employee."Application Method" = Employee."Application Method"::"Apply to Oldest" then
                 OldEmplLedgEntry.SetFilter("Posting Date", '..%1', GenJnlLine."Posting Date");
 
-            OldEmplLedgEntry.SetRange("Currency Code", NewCVLedgEntryBuf."Currency Code");
             OnPrepareTempEmplLedgEntryOnAfterSetFiltersByAppliesToId(OldEmplLedgEntry, GenJnlLine, NewCVLedgEntryBuf, Employee);
-            if OldEmplLedgEntry.FindSet(false, false) then
+            if OldEmplLedgEntry.FindSet(false) then
                 repeat
                     if (OldEmplLedgEntry."Posting Date" > ApplyingDate) and (OldEmplLedgEntry."Applies-to ID" <> '') then
                         ApplyingDate := OldEmplLedgEntry."Posting Date";
@@ -4805,6 +4798,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 TempOldEmplLedgEntry.Find('-');
                 repeat
                     TempOldEmplLedgEntry.CalcFields("Remaining Amount");
+                    TempOldEmplLedgEntry.RecalculateAmounts(
+                      TempOldEmplLedgEntry."Currency Code", NewCVLedgEntryBuf."Currency Code", NewCVLedgEntryBuf."Posting Date");
                     OnPrepareTempEmplLedgEntryOnBeforeUpdateRemainingAmount(TempOldEmplLedgEntry, NewCVLedgEntryBuf);
                     RemainingAmount += TempOldEmplLedgEntry."Remaining Amount";
                 until TempOldEmplLedgEntry.Next() = 0;
@@ -4921,75 +4916,131 @@ codeunit 12 "Gen. Jnl.-Post Line"
         if IsHandled then
             exit;
 
-        with DtldCVLedgEntryBuf do begin
-            AmountCondition := IsDebitAmount(DtldCVLedgEntryBuf, Unapply);
-            case "Entry Type" of
-                "Entry Type"::"Initial Entry":
-                    ;
-                "Entry Type"::Application:
-                    ;
-                "Entry Type"::"Unrealized Loss",
-                "Entry Type"::"Unrealized Gain",
-                "Entry Type"::"Realized Loss",
-                "Entry Type"::"Realized Gain":
-                    begin
-                        GetCurrency(Currency, "Currency Code");
-                        CheckNonAddCurrCodeOccurred(Currency.Code);
-                        exit(Currency.GetGainLossAccount(DtldCVLedgEntryBuf));
-                    end;
-                "Entry Type"::"Payment Discount":
-                    exit(VendPostingGr.GetPmtDiscountAccount(AmountCondition));
-                "Entry Type"::"Payment Discount (VAT Excl.)":
-                    begin
-                        GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
-                        exit(GenPostingSetup.GetPurchPmtDiscountAccount(AmountCondition));
-                    end;
-                "Entry Type"::"Appln. Rounding":
-                    exit(VendPostingGr.GetApplRoundingAccount(AmountCondition));
-                "Entry Type"::"Correction of Remaining Amount":
-                    exit(VendPostingGr.GetRoundingAccount(AmountCondition));
-                "Entry Type"::"Payment Discount Tolerance":
-                    case GLSetup."Pmt. Disc. Tolerance Posting" of
-                        GLSetup."Pmt. Disc. Tolerance Posting"::"Payment Tolerance Accounts":
-                            exit(VendPostingGr.GetPmtToleranceAccount(AmountCondition));
-                        GLSetup."Pmt. Disc. Tolerance Posting"::"Payment Discount Accounts":
-                            exit(VendPostingGr.GetPmtDiscountAccount(AmountCondition));
-                    end;
-                "Entry Type"::"Payment Tolerance":
+        AmountCondition := IsDebitAmount(DtldCVLedgEntryBuf, Unapply);
+        case DtldCVLedgEntryBuf."Entry Type" of
+            DtldCVLedgEntryBuf."Entry Type"::"Initial Entry":
+                ;
+            DtldCVLedgEntryBuf."Entry Type"::Application:
+                ;
+            DtldCVLedgEntryBuf."Entry Type"::"Unrealized Loss",
+            DtldCVLedgEntryBuf."Entry Type"::"Unrealized Gain",
+            DtldCVLedgEntryBuf."Entry Type"::"Realized Loss",
+            DtldCVLedgEntryBuf."Entry Type"::"Realized Gain":
+                begin
+                    GetCurrency(Currency, DtldCVLedgEntryBuf."Currency Code");
+                    CheckNonAddCurrCodeOccurred(Currency.Code);
+                    exit(Currency.GetGainLossAccount(DtldCVLedgEntryBuf));
+                end;
+            DtldCVLedgEntryBuf."Entry Type"::"Payment Discount":
+                exit(VendPostingGr.GetPmtDiscountAccount(AmountCondition));
+            DtldCVLedgEntryBuf."Entry Type"::"Payment Discount (VAT Excl.)":
+                begin
+                    GenPostingSetup.Get(DtldCVLedgEntryBuf."Gen. Bus. Posting Group", DtldCVLedgEntryBuf."Gen. Prod. Posting Group");
+                    exit(GenPostingSetup.GetPurchPmtDiscountAccount(AmountCondition));
+                end;
+            DtldCVLedgEntryBuf."Entry Type"::"Appln. Rounding":
+                exit(VendPostingGr.GetApplRoundingAccount(AmountCondition));
+            DtldCVLedgEntryBuf."Entry Type"::"Correction of Remaining Amount":
+                exit(VendPostingGr.GetRoundingAccount(AmountCondition));
+            DtldCVLedgEntryBuf."Entry Type"::"Payment Discount Tolerance":
+                case GLSetup."Pmt. Disc. Tolerance Posting" of
+                    GLSetup."Pmt. Disc. Tolerance Posting"::"Payment Tolerance Accounts":
+                        exit(VendPostingGr.GetPmtToleranceAccount(AmountCondition));
+                    GLSetup."Pmt. Disc. Tolerance Posting"::"Payment Discount Accounts":
+                        exit(VendPostingGr.GetPmtDiscountAccount(AmountCondition));
+                end;
+            DtldCVLedgEntryBuf."Entry Type"::"Payment Tolerance":
+                case GLSetup."Payment Tolerance Posting" of
+                    GLSetup."Payment Tolerance Posting"::"Payment Tolerance Accounts":
+                        exit(VendPostingGr.GetPmtToleranceAccount(AmountCondition));
+                    GLSetup."Payment Tolerance Posting"::"Payment Discount Accounts":
+                        exit(VendPostingGr.GetPmtDiscountAccount(AmountCondition));
+                end;
+            DtldCVLedgEntryBuf."Entry Type"::"Payment Tolerance (VAT Excl.)":
+                begin
+                    GenPostingSetup.Get(DtldCVLedgEntryBuf."Gen. Bus. Posting Group", DtldCVLedgEntryBuf."Gen. Prod. Posting Group");
                     case GLSetup."Payment Tolerance Posting" of
                         GLSetup."Payment Tolerance Posting"::"Payment Tolerance Accounts":
-                            exit(VendPostingGr.GetPmtToleranceAccount(AmountCondition));
+                            exit(GenPostingSetup.GetPurchPmtToleranceAccount(AmountCondition));
                         GLSetup."Payment Tolerance Posting"::"Payment Discount Accounts":
-                            exit(VendPostingGr.GetPmtDiscountAccount(AmountCondition));
+                            exit(GenPostingSetup.GetPurchPmtDiscountAccount(AmountCondition));
                     end;
-                "Entry Type"::"Payment Tolerance (VAT Excl.)":
-                    begin
-                        GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
-                        case GLSetup."Payment Tolerance Posting" of
-                            GLSetup."Payment Tolerance Posting"::"Payment Tolerance Accounts":
-                                exit(GenPostingSetup.GetPurchPmtToleranceAccount(AmountCondition));
-                            GLSetup."Payment Tolerance Posting"::"Payment Discount Accounts":
-                                exit(GenPostingSetup.GetPurchPmtDiscountAccount(AmountCondition));
-                        end;
+                end;
+            DtldCVLedgEntryBuf."Entry Type"::"Payment Discount Tolerance (VAT Excl.)":
+                begin
+                    GenPostingSetup.Get(DtldCVLedgEntryBuf."Gen. Bus. Posting Group", DtldCVLedgEntryBuf."Gen. Prod. Posting Group");
+                    case GLSetup."Pmt. Disc. Tolerance Posting" of
+                        GLSetup."Pmt. Disc. Tolerance Posting"::"Payment Tolerance Accounts":
+                            exit(GenPostingSetup.GetPurchPmtToleranceAccount(AmountCondition));
+                        GLSetup."Pmt. Disc. Tolerance Posting"::"Payment Discount Accounts":
+                            exit(GenPostingSetup.GetPurchPmtDiscountAccount(AmountCondition));
                     end;
-                "Entry Type"::"Payment Discount Tolerance (VAT Excl.)":
-                    begin
-                        GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
-                        case GLSetup."Pmt. Disc. Tolerance Posting" of
-                            GLSetup."Pmt. Disc. Tolerance Posting"::"Payment Tolerance Accounts":
-                                exit(GenPostingSetup.GetPurchPmtToleranceAccount(AmountCondition));
-                            GLSetup."Pmt. Disc. Tolerance Posting"::"Payment Discount Accounts":
-                                exit(GenPostingSetup.GetPurchPmtDiscountAccount(AmountCondition));
-                        end;
-                    end;
-                "Entry Type"::"Payment Discount (VAT Adjustment)",
-              "Entry Type"::"Payment Tolerance (VAT Adjustment)",
-              "Entry Type"::"Payment Discount Tolerance (VAT Adjustment)":
-                    if Unapply then
-                        PostDtldVendVATAdjustment(GenJnlLine, DtldCVLedgEntryBuf, OriginalTransactionNo);
-                else
-                    FieldError("Entry Type");
-            end;
+                end;
+            DtldCVLedgEntryBuf."Entry Type"::"Payment Discount (VAT Adjustment)",
+          DtldCVLedgEntryBuf."Entry Type"::"Payment Tolerance (VAT Adjustment)",
+          DtldCVLedgEntryBuf."Entry Type"::"Payment Discount Tolerance (VAT Adjustment)":
+                if Unapply then
+                    PostDtldVendVATAdjustment(GenJnlLine, DtldCVLedgEntryBuf, OriginalTransactionNo);
+            else
+                DtldCVLedgEntryBuf.FieldError("Entry Type");
+        end;
+    end;
+
+    local procedure PostDtldEmplLedgEntry(GenJournalLine: Record "Gen. Journal Line"; DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; EmplPostingGr: Record "Employee Posting Group"; var AdjAmount: array[4] of Decimal)
+    var
+        AccNo: Code[20];
+    begin
+        AccNo := GetDtldEmplLedgEntryAccNo(GenJournalLine, DetailedCVLedgEntryBuffer, EmplPostingGr, 0, false);
+        PostDtldCVLedgEntry(GenJournalLine, DetailedCVLedgEntryBuffer, AccNo, AdjAmount, false);
+    end;
+
+    local procedure PostDtldEmplLedgEntryUnapply(GenJournalLine: Record "Gen. Journal Line"; DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; EmplPostingGr: Record "Employee Posting Group"; OriginalTransactionNo: Integer)
+    var
+        AccNo: Code[20];
+        AdjAmount: array[4] of Decimal;
+    begin
+        if (DetailedCVLedgEntryBuffer."Amount (LCY)" = 0) and
+           ((AddCurrencyCode = '') or (DetailedCVLedgEntryBuffer."Additional-Currency Amount" = 0))
+        then
+            exit;
+
+        AccNo := GetDtldEmplLedgEntryAccNo(GenJournalLine, DetailedCVLedgEntryBuffer, EmplPostingGr, OriginalTransactionNo, true);
+        DetailedCVLedgEntryBuffer."Gen. Posting Type" := DetailedCVLedgEntryBuffer."Gen. Posting Type"::Purchase;
+        PostDtldCVLedgEntry(GenJournalLine, DetailedCVLedgEntryBuffer, AccNo, AdjAmount, true);
+    end;
+
+    local procedure GetDtldEmplLedgEntryAccNo(GenJnlLine: Record "Gen. Journal Line"; DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer"; EmplPostingGr: Record "Employee Posting Group"; OriginalTransactionNo: Integer; Unapply: Boolean) AccountNo: Code[20]
+    var
+        Currency: Record Currency;
+        AmountCondition: Boolean;
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeGetDtldEmplLedgEntryAccNo(GenJnlLine, DtldCVLedgEntryBuf, EmplPostingGr, OriginalTransactionNo, Unapply, AccountNo, IsHandled);
+        if IsHandled then
+            exit;
+
+        AmountCondition := IsDebitAmount(DtldCVLedgEntryBuf, Unapply);
+        case DtldCVLedgEntryBuf."Entry Type" of
+            DtldCVLedgEntryBuf."Entry Type"::"Initial Entry":
+                ;
+            DtldCVLedgEntryBuf."Entry Type"::Application:
+                ;
+            DtldCVLedgEntryBuf."Entry Type"::"Unrealized Loss",
+            DtldCVLedgEntryBuf."Entry Type"::"Unrealized Gain",
+            DtldCVLedgEntryBuf."Entry Type"::"Realized Loss",
+            DtldCVLedgEntryBuf."Entry Type"::"Realized Gain":
+                begin
+                    GetCurrency(Currency, DtldCVLedgEntryBuf."Currency Code");
+                    CheckNonAddCurrCodeOccurred(Currency.Code);
+                    exit(Currency.GetGainLossAccount(DtldCVLedgEntryBuf));
+                end;
+            DtldCVLedgEntryBuf."Entry Type"::"Appln. Rounding":
+                exit(EmplPostingGr.GetApplRoundingAccount(AmountCondition));
+            DtldCVLedgEntryBuf."Entry Type"::"Correction of Remaining Amount":
+                exit(EmplPostingGr.GetRoundingAccount(AmountCondition));
+            else
+                DtldCVLedgEntryBuf.FieldError("Entry Type");
         end;
     end;
 
@@ -5017,7 +5068,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     var
         TempDimPostingBuffer: Record "Dimension Posting Buffer" temporary;
         DtldEmplLedgEntry: Record "Detailed Employee Ledger Entry";
-        DummyAdjAmount: array[4] of Decimal;
+        AdjAmount: array[4] of Decimal;
         DtldEmplLedgEntryNoOffset: Integer;
         SaveEntryNo: Integer;
         IsHandled: Boolean;
@@ -5042,14 +5093,20 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 OnPostDtldEmplLedgEntriesOnBeforeUpdateTotalAmounts(GenJnlLine, DtldCVLedgEntryBuf, DtldEmplLedgEntry, IsHandled);
                 if not IsHandled then
                     UpdateTotalAmounts(TempDimPostingBuffer, GenJnlLine."Dimension Set ID", DtldCVLedgEntryBuf);
+                IsHandled := false;
                 OnPostDtldEmplLedgEntriesOnAfterUpdateTotalAmounts(GenJnlLine, DtldCVLedgEntryBuf, DtldEmplLedgEntry);
+                if not IsHandled then
+                    if (DtldCVLedgEntryBuf."Amount (LCY)" <> 0) or
+                       ((AddCurrencyCode <> '') and (DtldCVLedgEntryBuf."Additional-Currency Amount" <> 0))
+                    then
+                        PostDtldEmplLedgEntry(GenJnlLine, DtldCVLedgEntryBuf, EmplPostingGr, AdjAmount);
             until DtldCVLedgEntryBuf.Next() = 0;
         end;
 
         OnPostDtldEmplLedgEntriesOnBeforeCreateGLEntriesForTotalAmounts(EmplPostingGr, DtldCVLedgEntryBuf);
 
         CreateGLEntriesForTotalAmounts(
-          GenJnlLine, TempDimPostingBuffer, DummyAdjAmount, SaveEntryNo, EmplPostingGr.GetPayablesAccount(), LedgEntryInserted);
+          GenJnlLine, TempDimPostingBuffer, AdjAmount, SaveEntryNo, EmplPostingGr.GetPayablesAccount(), LedgEntryInserted);
 
         OnPostDtldEmplLedgEntriesOnAfterCreateGLEntriesForTotalAmounts(TempGLEntryBuf, GlobalGLEntry, NextTransactionNo);
 
@@ -5066,65 +5123,64 @@ codeunit 12 "Gen. Jnl.-Post Line"
         if IsHandled then
             exit;
 
-        with DetailedCVLedgEntryBuffer do
-            case "Entry Type" of
-                "Entry Type"::"Initial Entry":
-                    ;
-                "Entry Type"::Application:
-                    if MultiplePostingGroups then
-                        CreateGLEntry(GenJournalLine, AccNo, "Amount (LCY)", 0, "Currency Code" = AddCurrencyCode);
-                "Entry Type"::"Unrealized Loss",
-                "Entry Type"::"Unrealized Gain",
-                "Entry Type"::"Realized Loss",
-                "Entry Type"::"Realized Gain":
-                    begin
-                        IsHandled := false;
-                        OnPostDtldCVLedgEntryOnBeforeCreateGLEntryGainLoss(GenJournalLine, DetailedCVLedgEntryBuffer, Unapply, AccNo, IsHandled);
-                        if not IsHandled then
-                            CreateGLEntryGainLoss(GenJournalLine, AccNo, -"Amount (LCY)", "Currency Code" = AddCurrencyCode);
-                        if not Unapply then
-                            CollectAdjustment(AdjAmount, -"Amount (LCY)", 0);
-                    end;
-                "Entry Type"::"Payment Discount",
-                "Entry Type"::"Payment Tolerance",
-                "Entry Type"::"Payment Discount Tolerance":
-                    begin
-                        PostDtldCVLedgEntryCreateGLEntryPmtDiscTol(GenJournalLine, DetailedCVLedgEntryBuffer, AccNo, Unapply);
-                        if not Unapply then
-                            CollectAdjustment(AdjAmount, -"Amount (LCY)", -"Additional-Currency Amount");
-                    end;
-                "Entry Type"::"Payment Discount (VAT Excl.)",
-                "Entry Type"::"Payment Tolerance (VAT Excl.)",
-                "Entry Type"::"Payment Discount Tolerance (VAT Excl.)":
-                    begin
-                        if not Unapply then
-                            CreateGLEntryVATCollectAdj(
-                              GenJournalLine, AccNo, -"Amount (LCY)", -"Additional-Currency Amount", -"VAT Amount (LCY)", DetailedCVLedgEntryBuffer,
-                              AdjAmount)
-                        else
-                            CreateGLEntryVAT(
-                              GenJournalLine, AccNo, -"Amount (LCY)", -"Additional-Currency Amount", -"VAT Amount (LCY)", DetailedCVLedgEntryBuffer);
-                        OnPostDtldCVLedgEntryOnAfterCreateGLEntryPmtDiscTolVATExcl(DetailedCVLedgEntryBuffer, TempGLEntryBuf);
-                    end;
-                "Entry Type"::"Appln. Rounding":
-                    if "Amount (LCY)" <> 0 then begin
-                        CreateGLEntry(GenJournalLine, AccNo, -"Amount (LCY)", -"Additional-Currency Amount", true);
-                        if not Unapply then
-                            CollectAdjustment(AdjAmount, -"Amount (LCY)", -"Additional-Currency Amount");
-                    end;
-                "Entry Type"::"Correction of Remaining Amount":
-                    if "Amount (LCY)" <> 0 then begin
-                        CreateGLEntry(GenJournalLine, AccNo, -"Amount (LCY)", 0, false);
-                        if not Unapply then
-                            CollectAdjustment(AdjAmount, -"Amount (LCY)", 0);
-                    end;
-                "Entry Type"::"Payment Discount (VAT Adjustment)",
-                "Entry Type"::"Payment Tolerance (VAT Adjustment)",
-                "Entry Type"::"Payment Discount Tolerance (VAT Adjustment)":
-                    ;
-                else
-                    FieldError("Entry Type");
-            end;
+        case DetailedCVLedgEntryBuffer."Entry Type" of
+            DetailedCVLedgEntryBuffer."Entry Type"::"Initial Entry":
+                ;
+            DetailedCVLedgEntryBuffer."Entry Type"::Application:
+                if MultiplePostingGroups then
+                    CreateGLEntry(GenJournalLine, AccNo, DetailedCVLedgEntryBuffer."Amount (LCY)", 0, DetailedCVLedgEntryBuffer."Currency Code" = AddCurrencyCode);
+            DetailedCVLedgEntryBuffer."Entry Type"::"Unrealized Loss",
+            DetailedCVLedgEntryBuffer."Entry Type"::"Unrealized Gain",
+            DetailedCVLedgEntryBuffer."Entry Type"::"Realized Loss",
+            DetailedCVLedgEntryBuffer."Entry Type"::"Realized Gain":
+                begin
+                    IsHandled := false;
+                    OnPostDtldCVLedgEntryOnBeforeCreateGLEntryGainLoss(GenJournalLine, DetailedCVLedgEntryBuffer, Unapply, AccNo, IsHandled);
+                    if not IsHandled then
+                        CreateGLEntryGainLoss(GenJournalLine, AccNo, -DetailedCVLedgEntryBuffer."Amount (LCY)", DetailedCVLedgEntryBuffer."Currency Code" = AddCurrencyCode);
+                    if not Unapply then
+                        CollectAdjustment(AdjAmount, -DetailedCVLedgEntryBuffer."Amount (LCY)", 0);
+                end;
+            DetailedCVLedgEntryBuffer."Entry Type"::"Payment Discount",
+            DetailedCVLedgEntryBuffer."Entry Type"::"Payment Tolerance",
+            DetailedCVLedgEntryBuffer."Entry Type"::"Payment Discount Tolerance":
+                begin
+                    PostDtldCVLedgEntryCreateGLEntryPmtDiscTol(GenJournalLine, DetailedCVLedgEntryBuffer, AccNo, Unapply);
+                    if not Unapply then
+                        CollectAdjustment(AdjAmount, -DetailedCVLedgEntryBuffer."Amount (LCY)", -DetailedCVLedgEntryBuffer."Additional-Currency Amount");
+                end;
+            DetailedCVLedgEntryBuffer."Entry Type"::"Payment Discount (VAT Excl.)",
+            DetailedCVLedgEntryBuffer."Entry Type"::"Payment Tolerance (VAT Excl.)",
+            DetailedCVLedgEntryBuffer."Entry Type"::"Payment Discount Tolerance (VAT Excl.)":
+                begin
+                    if not Unapply then
+                        CreateGLEntryVATCollectAdj(
+                          GenJournalLine, AccNo, -DetailedCVLedgEntryBuffer."Amount (LCY)", -DetailedCVLedgEntryBuffer."Additional-Currency Amount", -DetailedCVLedgEntryBuffer."VAT Amount (LCY)", DetailedCVLedgEntryBuffer,
+                          AdjAmount)
+                    else
+                        CreateGLEntryVAT(
+                          GenJournalLine, AccNo, -DetailedCVLedgEntryBuffer."Amount (LCY)", -DetailedCVLedgEntryBuffer."Additional-Currency Amount", -DetailedCVLedgEntryBuffer."VAT Amount (LCY)", DetailedCVLedgEntryBuffer);
+                    OnPostDtldCVLedgEntryOnAfterCreateGLEntryPmtDiscTolVATExcl(DetailedCVLedgEntryBuffer, TempGLEntryBuf);
+                end;
+            DetailedCVLedgEntryBuffer."Entry Type"::"Appln. Rounding":
+                if DetailedCVLedgEntryBuffer."Amount (LCY)" <> 0 then begin
+                    CreateGLEntry(GenJournalLine, AccNo, -DetailedCVLedgEntryBuffer."Amount (LCY)", -DetailedCVLedgEntryBuffer."Additional-Currency Amount", true);
+                    if not Unapply then
+                        CollectAdjustment(AdjAmount, -DetailedCVLedgEntryBuffer."Amount (LCY)", -DetailedCVLedgEntryBuffer."Additional-Currency Amount");
+                end;
+            DetailedCVLedgEntryBuffer."Entry Type"::"Correction of Remaining Amount":
+                if DetailedCVLedgEntryBuffer."Amount (LCY)" <> 0 then begin
+                    CreateGLEntry(GenJournalLine, AccNo, -DetailedCVLedgEntryBuffer."Amount (LCY)", 0, false);
+                    if not Unapply then
+                        CollectAdjustment(AdjAmount, -DetailedCVLedgEntryBuffer."Amount (LCY)", 0);
+                end;
+            DetailedCVLedgEntryBuffer."Entry Type"::"Payment Discount (VAT Adjustment)",
+                DetailedCVLedgEntryBuffer."Entry Type"::"Payment Tolerance (VAT Adjustment)",
+                DetailedCVLedgEntryBuffer."Entry Type"::"Payment Discount Tolerance (VAT Adjustment)":
+                ;
+            else
+                DetailedCVLedgEntryBuffer.FieldError(DetailedCVLedgEntryBuffer."Entry Type");
+        end;
 
         OnAfterPostDtldCVLedgEntry(GenJournalLine, DetailedCVLedgEntryBuffer, Unapply, AccNo, AdjAmount, NextEntryNo);
     end;
@@ -5147,29 +5203,27 @@ codeunit 12 "Gen. Jnl.-Post Line"
         VATPostingSetup: Record "VAT Posting Setup";
         TaxJurisdiction: Record "Tax Jurisdiction";
     begin
-        with DtldCVLedgEntryBuf do begin
-            FindVATEntry(VATEntry, OriginalTransactionNo);
-            OnPostDtldCustVATAdjustmentOnAfterFindVATEntry(GenJnlLine, DtldCVLedgEntryBuf);
+        DtldCVLedgEntryBuf.FindVATEntry(VATEntry, OriginalTransactionNo);
+        OnPostDtldCustVATAdjustmentOnAfterFindVATEntry(GenJnlLine, DtldCVLedgEntryBuf);
 
-            case VATPostingSetup."VAT Calculation Type" of
-                VATPostingSetup."VAT Calculation Type"::"Normal VAT",
-                VATPostingSetup."VAT Calculation Type"::"Full VAT":
-                    begin
-                        VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
-                        VATPostingSetup.TestField("VAT Calculation Type", VATEntry."VAT Calculation Type");
-                        CreateGLEntry(
-                          GenJnlLine, VATPostingSetup.GetSalesAccount(false), -"Amount (LCY)", -"Additional-Currency Amount", false);
-                    end;
-                VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT":
-                    ;
-                VATPostingSetup."VAT Calculation Type"::"Sales Tax":
-                    begin
-                        TestField("Tax Jurisdiction Code");
-                        TaxJurisdiction.Get("Tax Jurisdiction Code");
-                        CreateGLEntry(
-                          GenJnlLine, TaxJurisdiction.GetPurchAccount(false), -"Amount (LCY)", -"Additional-Currency Amount", false);
-                    end;
-            end;
+        case VATPostingSetup."VAT Calculation Type" of
+            VATPostingSetup."VAT Calculation Type"::"Normal VAT",
+            VATPostingSetup."VAT Calculation Type"::"Full VAT":
+                begin
+                    VATPostingSetup.Get(DtldCVLedgEntryBuf."VAT Bus. Posting Group", DtldCVLedgEntryBuf."VAT Prod. Posting Group");
+                    VATPostingSetup.TestField("VAT Calculation Type", VATEntry."VAT Calculation Type");
+                    CreateGLEntry(
+                      GenJnlLine, VATPostingSetup.GetSalesAccount(false), -DtldCVLedgEntryBuf."Amount (LCY)", -DtldCVLedgEntryBuf."Additional-Currency Amount", false);
+                end;
+            VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT":
+                ;
+            VATPostingSetup."VAT Calculation Type"::"Sales Tax":
+                begin
+                    DtldCVLedgEntryBuf.TestField("Tax Jurisdiction Code");
+                    TaxJurisdiction.Get(DtldCVLedgEntryBuf."Tax Jurisdiction Code");
+                    CreateGLEntry(
+                      GenJnlLine, TaxJurisdiction.GetPurchAccount(false), -DtldCVLedgEntryBuf."Amount (LCY)", -DtldCVLedgEntryBuf."Additional-Currency Amount", false);
+                end;
         end;
         OnAfterPostDtldCustVATAdjustment(GenJnlLine, DtldCVLedgEntryBuf);
     end;
@@ -5180,51 +5234,49 @@ codeunit 12 "Gen. Jnl.-Post Line"
         TaxJurisdiction: Record "Tax Jurisdiction";
         IsHandled: Boolean;
     begin
-        with DtldCVLedgEntryBuf do begin
-            FindVATEntry(VATEntry, OriginalTransactionNo);
-            OnPostDtldVendVATAdjustmentOnAfterFindVATEntry(DtldCVLedgEntryBuf, VATEntry);
+        DtldCVLedgEntryBuf.FindVATEntry(VATEntry, OriginalTransactionNo);
+        OnPostDtldVendVATAdjustmentOnAfterFindVATEntry(DtldCVLedgEntryBuf, VATEntry);
 
-            case VATPostingSetup."VAT Calculation Type" of
-                VATPostingSetup."VAT Calculation Type"::"Normal VAT",
-                VATPostingSetup."VAT Calculation Type"::"Full VAT":
-                    begin
-                        VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
-                        VATPostingSetup.TestField("VAT Calculation Type", VATEntry."VAT Calculation Type");
-                        IsHandled := false;
-                        OnPostDtldVendVATAdjustmentOnBeforeCreateGLEntryForNormalOrFullVAT(DtldCVLedgEntryBuf, VATEntry, GenJnlLine, IsHandled);
-                        if not IsHandled then
-                            CreateGLEntry(
-                              GenJnlLine, VATPostingSetup.GetPurchAccount(false), -"Amount (LCY)", -"Additional-Currency Amount", false);
+        case VATPostingSetup."VAT Calculation Type" of
+            VATPostingSetup."VAT Calculation Type"::"Normal VAT",
+            VATPostingSetup."VAT Calculation Type"::"Full VAT":
+                begin
+                    VATPostingSetup.Get(DtldCVLedgEntryBuf."VAT Bus. Posting Group", DtldCVLedgEntryBuf."VAT Prod. Posting Group");
+                    VATPostingSetup.TestField("VAT Calculation Type", VATEntry."VAT Calculation Type");
+                    IsHandled := false;
+                    OnPostDtldVendVATAdjustmentOnBeforeCreateGLEntryForNormalOrFullVAT(DtldCVLedgEntryBuf, VATEntry, GenJnlLine, IsHandled);
+                    if not IsHandled then
+                        CreateGLEntry(
+                          GenJnlLine, VATPostingSetup.GetPurchAccount(false), -DtldCVLedgEntryBuf."Amount (LCY)", -DtldCVLedgEntryBuf."Additional-Currency Amount", false);
+                end;
+            VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT":
+                begin
+                    VATPostingSetup.Get(DtldCVLedgEntryBuf."VAT Bus. Posting Group", DtldCVLedgEntryBuf."VAT Prod. Posting Group");
+                    VATPostingSetup.TestField("VAT Calculation Type", VATEntry."VAT Calculation Type");
+                    IsHandled := false;
+                    OnPostDtldVendVATAdjustmentOnBeforeCreateGLEntryReverseChargeVATInPostDtldVendVATAdjustment(DtldCVLedgEntryBuf, VATEntry, GenJnlLine, IsHandled);
+                    if not IsHandled then begin
+                        CreateGLEntry(
+                          GenJnlLine, VATPostingSetup.GetPurchAccount(false), -DtldCVLedgEntryBuf."Amount (LCY)", -DtldCVLedgEntryBuf."Additional-Currency Amount", false);
+                        CreateGLEntry(
+                          GenJnlLine, VATPostingSetup.GetRevChargeAccount(false), DtldCVLedgEntryBuf."Amount (LCY)", DtldCVLedgEntryBuf."Additional-Currency Amount", false);
                     end;
-                VATPostingSetup."VAT Calculation Type"::"Reverse Charge VAT":
-                    begin
-                        VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
-                        VATPostingSetup.TestField("VAT Calculation Type", VATEntry."VAT Calculation Type");
-                        IsHandled := false;
-                        OnPostDtldVendVATAdjustmentOnBeforeCreateGLEntryReverseChargeVATInPostDtldVendVATAdjustment(DtldCVLedgEntryBuf, VATEntry, GenJnlLine, IsHandled);
-                        if not IsHandled then begin
+                end;
+            VATPostingSetup."VAT Calculation Type"::"Sales Tax":
+                begin
+                    TaxJurisdiction.Get(DtldCVLedgEntryBuf."Tax Jurisdiction Code");
+                    IsHandled := false;
+                    OnPostDtldVendVATAdjustmentOnBeforeCreateGLEntrySalesTaxInPostDtldVendVATAdjustment(DtldCVLedgEntryBuf, VATEntry, GenJnlLine, IsHandled);
+                    if not isHandled then
+                        if DtldCVLedgEntryBuf."Use Tax" then begin
                             CreateGLEntry(
-                              GenJnlLine, VATPostingSetup.GetPurchAccount(false), -"Amount (LCY)", -"Additional-Currency Amount", false);
+                            GenJnlLine, TaxJurisdiction.GetPurchAccount(false), -DtldCVLedgEntryBuf."Amount (LCY)", -DtldCVLedgEntryBuf."Additional-Currency Amount", false);
                             CreateGLEntry(
-                              GenJnlLine, VATPostingSetup.GetRevChargeAccount(false), "Amount (LCY)", "Additional-Currency Amount", false);
-                        end;
-                    end;
-                VATPostingSetup."VAT Calculation Type"::"Sales Tax":
-                    begin
-                        TaxJurisdiction.Get("Tax Jurisdiction Code");
-                        IsHandled := false;
-                        OnPostDtldVendVATAdjustmentOnBeforeCreateGLEntrySalesTaxInPostDtldVendVATAdjustment(DtldCVLedgEntryBuf, VATEntry, GenJnlLine, IsHandled);
-                        if not isHandled then
-                            if "Use Tax" then begin
-                                CreateGLEntry(
-                                GenJnlLine, TaxJurisdiction.GetPurchAccount(false), -"Amount (LCY)", -"Additional-Currency Amount", false);
-                                CreateGLEntry(
-                                GenJnlLine, TaxJurisdiction.GetRevChargeAccount(false), "Amount (LCY)", "Additional-Currency Amount", false);
-                            end else
-                                CreateGLEntry(
-                                GenJnlLine, TaxJurisdiction.GetPurchAccount(false), -"Amount (LCY)", -"Additional-Currency Amount", false);
-                    end;
-            end;
+                            GenJnlLine, TaxJurisdiction.GetRevChargeAccount(false), DtldCVLedgEntryBuf."Amount (LCY)", DtldCVLedgEntryBuf."Additional-Currency Amount", false);
+                        end else
+                            CreateGLEntry(
+                            GenJnlLine, TaxJurisdiction.GetPurchAccount(false), -DtldCVLedgEntryBuf."Amount (LCY)", -DtldCVLedgEntryBuf."Additional-Currency Amount", false);
+                end;
         end;
         OnAfterPostDtldVendVATAdjustment(GenJnlLine, VATPostingSetup, DtldCVLedgEntryBuf, VATEntry);
     end;
@@ -5296,13 +5348,13 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 IsHandled := false;
                 OnVendUnrealizedVATOnBeforeGetUnrealizedVATPart(GenJnlLine, VendLedgEntry2, PaidAmount, TotalUnrealVATAmountFirst, TotalUnrealVATAmountLast, SettledAmount, VATEntry2, VATPart, IsHandled);
                 if not IsHandled then
-	                VATPart :=
-	                  VATEntry2.GetUnrealizedVATPart(
-	                    Round(SettledAmount / VendLedgEntry2.GetAdjustedCurrencyFactor()),
-	                    PaidAmount,
-	                    VendLedgEntry2."Amount (LCY)" - WHTAmount,
-	                    TotalUnrealVATAmountFirst,
-	                    TotalUnrealVATAmountLast);
+                    VATPart :=
+                      VATEntry2.GetUnrealizedVATPart(
+                        Round(SettledAmount / VendLedgEntry2.GetAdjustedCurrencyFactor()),
+                        PaidAmount,
+                        VendLedgEntry2."Amount (LCY)" - WHTAmount,
+                        TotalUnrealVATAmountFirst,
+                        TotalUnrealVATAmountLast);
 
                 OnVendUnrealizedVATOnAfterVATPartCalculation(
                   GenJnlLine, VendLedgEntry2, PaidAmount, TotalUnrealVATAmountFirst, TotalUnrealVATAmountLast, SettledAmount, VATEntry2);
@@ -5354,9 +5406,9 @@ codeunit 12 "Gen. Jnl.-Post Line"
                     if not IsHandled then
                         if VATEntry2."VAT Calculation Type" = VATEntry2."VAT Calculation Type"::"Reverse Charge VAT" then begin
                             InitGLEntryVAT(
-                            GenJnlLine, PurchReverseUnrealAccount, PurchReverseAccount, VATAmount, VATAmountAddCurr, false);
+                                GenJnlLine, PurchReverseUnrealAccount, PurchReverseAccount, VATAmount, VATAmountAddCurr, false);
                             GLEntryNo :=
-                            InitGLEntryVATCopy(GenJnlLine, PurchReverseAccount, PurchReverseUnrealAccount, -VATAmount, -VATAmountAddCurr, VATEntry2);
+                                InitGLEntryVATCopy(GenJnlLine, PurchReverseAccount, PurchReverseUnrealAccount, -VATAmount, -VATAmountAddCurr, VATEntry2);
                         end;
 
                     OnVendUnrealizedVATOnBeforePostUnrealVATEntry(GenJnlLine, VATEntry2, VATAmount, VATBase, VATAmountAddCurr, VATBaseAddCurr, GLEntryNo, VATPart);
@@ -6043,6 +6095,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer";
         CurrencyLCY: Record Currency;
         TempDimensionPostingBuffer: Record "Dimension Posting Buffer" temporary;
+        AdjAmount: array[4] of Decimal;
         NextDtldLedgEntryNo: Integer;
         IsHandled: Boolean;
     begin
@@ -6098,8 +6151,20 @@ codeunit 12 "Gen. Jnl.-Post Line"
             CurrencyLCY.InitRoundingPrecision();
             IsHandled := false;
             OnUnapplyEmplLedgEntryOnBeforeUpdateTotalAmounts(GenJournalLineToPost, DetailedCVLedgEntryBuffer, IsHandled);
-            if not IsHandled then
+            if not IsHandled then begin
                 UpdateTotalAmounts(TempDimensionPostingBuffer, GenJournalLineToPost."Dimension Set ID", DetailedCVLedgEntryBuffer);
+
+                if not (DetailedCVLedgEntryBuffer."Entry Type" in [
+                                                            DetailedCVLedgEntryBuffer."Entry Type"::"Initial Entry",
+                                                            DetailedCVLedgEntryBuffer."Entry Type"::Application])
+                then
+                    CollectAdjustment(AdjAmount,
+                      -DetailedCVLedgEntryBuffer."Amount (LCY)", -DetailedCVLedgEntryBuffer."Additional-Currency Amount");
+            end;
+
+            PostDtldEmplLedgEntryUnapply(
+                GenJournalLineToPost, DetailedCVLedgEntryBuffer, EmployeePostingGroup, DetailedEmployeeLedgerEntry2."Transaction No.");
+
             DetailedEmployeeLedgerEntry2.Unapplied := true;
             DetailedEmployeeLedgerEntry2."Unapplied by Entry No." := NewDetailedEmployeeLedgerEntry."Entry No.";
             DetailedEmployeeLedgerEntry2.Modify();
@@ -6164,17 +6229,15 @@ codeunit 12 "Gen. Jnl.-Post Line"
           CreateGLEntryFromVATEntry(
             GenJnlLine, GetPostingAccountNo(VATPostingSetup, VATEntry, false), -VATEntry.Amount, -AmountAddCurr, VATEntry);
 
-        with VATEntry2 do begin
-            Get(VATEntry."Unrealized VAT Entry No.");
-            "Remaining Unrealized Amount" := "Remaining Unrealized Amount" - NewVATEntry.Amount;
-            "Remaining Unrealized Base" := "Remaining Unrealized Base" - NewVATEntry.Base;
-            "Add.-Curr. Rem. Unreal. Amount" :=
-              "Add.-Curr. Rem. Unreal. Amount" - NewVATEntry."Additional-Currency Amount";
-            "Add.-Curr. Rem. Unreal. Base" :=
-              "Add.-Curr. Rem. Unreal. Base" - NewVATEntry."Additional-Currency Base";
-            OnPostUnrealVATByUnapplyOnBeforeVATEntryModify(GenJnlLine, VATPostingSetup, VATEntry, NewVATEntry, VATEntry2, GLEntryNoFromVAT);
-            Modify();
-        end;
+        VATEntry2.Get(VATEntry."Unrealized VAT Entry No.");
+        VATEntry2."Remaining Unrealized Amount" := VATEntry2."Remaining Unrealized Amount" - NewVATEntry.Amount;
+        VATEntry2."Remaining Unrealized Base" := VATEntry2."Remaining Unrealized Base" - NewVATEntry.Base;
+        VATEntry2."Add.-Curr. Rem. Unreal. Amount" :=
+          VATEntry2."Add.-Curr. Rem. Unreal. Amount" - NewVATEntry."Additional-Currency Amount";
+        VATEntry2."Add.-Curr. Rem. Unreal. Base" :=
+          VATEntry2."Add.-Curr. Rem. Unreal. Base" - NewVATEntry."Additional-Currency Base";
+        OnPostUnrealVATByUnapplyOnBeforeVATEntryModify(GenJnlLine, VATPostingSetup, VATEntry, NewVATEntry, VATEntry2, GLEntryNoFromVAT);
+        VATEntry2.Modify();
 
         OnAfterPostUnrealVATByUnapply(GenJnlLine, VATPostingSetup, VATEntry, NewVATEntry);
 
@@ -6194,9 +6257,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         OnAfterPostPmtDiscountVATByUnapply(GenJnlLine, VATEntry);
     end;
 
-    local procedure PostUnapply(GenJnlLine: Record "Gen. Journal Line"; var VATEntry: Record "VAT Entry"; VATEntryType: Enum "General Posting Type"; BilltoPaytoNo: Code[20];
-                                                                                                                            TransactionNo: Integer;
-                                                                                                                            UnapplyVATEntries: Boolean; var TempVATEntry: Record "VAT Entry" temporary)
+    local procedure PostUnapply(GenJnlLine: Record "Gen. Journal Line"; var VATEntry: Record "VAT Entry"; VATEntryType: Enum "General Posting Type"; BilltoPaytoNo: Code[20]; TransactionNo: Integer; UnapplyVATEntries: Boolean; var TempVATEntry: Record "VAT Entry" temporary)
     var
         VATPostingSetup: Record "VAT Posting Setup";
         VATEntry2: Record "VAT Entry";
@@ -6289,45 +6350,42 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
     local procedure CalcVATAmountFromVATEntry(AmountLCY: Decimal; var VATEntry: Record "VAT Entry"; CurrencyLCY: Record Currency) VATAmountLCY: Decimal
     begin
-        with VATEntry do
-            if (AmountLCY = Base) or (Base = 0) then begin
-                VATAmountLCY := Amount;
-                Delete();
-            end else begin
-                VATAmountLCY :=
-                  Round(
-                    Amount * AmountLCY / Base,
-                    CurrencyLCY."Amount Rounding Precision",
-                    CurrencyLCY.VATRoundingDirection());
-                Base := Base - AmountLCY;
-                Amount := Amount - VATAmountLCY;
-                Modify();
-            end;
+        if (AmountLCY = VATEntry.Base) or (VATEntry.Base = 0) then begin
+            VATAmountLCY := VATEntry.Amount;
+            VATEntry.Delete();
+        end else begin
+            VATAmountLCY :=
+              Round(
+                VATEntry.Amount * AmountLCY / VATEntry.Base,
+                CurrencyLCY."Amount Rounding Precision",
+                CurrencyLCY.VATRoundingDirection());
+            VATEntry.Base := VATEntry.Base - AmountLCY;
+            VATEntry.Amount := VATEntry.Amount - VATAmountLCY;
+            VATEntry.Modify();
+        end;
     end;
 
     local procedure InsertDtldCustLedgEntryUnapply(GenJnlLine: Record "Gen. Journal Line"; var NewDtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var OldDtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; var NextDtldLedgEntryNo: Integer; var CustomerPostingGroup: Record "Customer Posting Group")
     begin
         NewDtldCustLedgEntry := OldDtldCustLedgEntry;
-        with NewDtldCustLedgEntry do begin
-            "Entry No." := NextDtldLedgEntryNo;
-            "Posting Date" := GenJnlLine."Posting Date";
-            "Transaction No." := NextTransactionNo;
-            "Application No." := 0;
-            Amount := -OldDtldCustLedgEntry.Amount;
-            "Amount (LCY)" := -OldDtldCustLedgEntry."Amount (LCY)";
-            "Debit Amount" := -OldDtldCustLedgEntry."Debit Amount";
-            "Credit Amount" := -OldDtldCustLedgEntry."Credit Amount";
-            "Debit Amount (LCY)" := -OldDtldCustLedgEntry."Debit Amount (LCY)";
-            "Credit Amount (LCY)" := -OldDtldCustLedgEntry."Credit Amount (LCY)";
-            Unapplied := true;
-            "Unapplied by Entry No." := OldDtldCustLedgEntry."Entry No.";
-            "Document No." := GenJnlLine."Document No.";
-            "Source Code" := GenJnlLine."Source Code";
-            "User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
-            "Posting Group" := OldDtldCustLedgEntry."Posting Group";
-            OnBeforeInsertDtldCustLedgEntryUnapply(NewDtldCustLedgEntry, GenJnlLine, OldDtldCustLedgEntry, GLReg);
-            Insert(true);
-        end;
+        NewDtldCustLedgEntry."Entry No." := NextDtldLedgEntryNo;
+        NewDtldCustLedgEntry."Posting Date" := GenJnlLine."Posting Date";
+        NewDtldCustLedgEntry."Transaction No." := NextTransactionNo;
+        NewDtldCustLedgEntry."Application No." := 0;
+        NewDtldCustLedgEntry.Amount := -OldDtldCustLedgEntry.Amount;
+        NewDtldCustLedgEntry."Amount (LCY)" := -OldDtldCustLedgEntry."Amount (LCY)";
+        NewDtldCustLedgEntry."Debit Amount" := -OldDtldCustLedgEntry."Debit Amount";
+        NewDtldCustLedgEntry."Credit Amount" := -OldDtldCustLedgEntry."Credit Amount";
+        NewDtldCustLedgEntry."Debit Amount (LCY)" := -OldDtldCustLedgEntry."Debit Amount (LCY)";
+        NewDtldCustLedgEntry."Credit Amount (LCY)" := -OldDtldCustLedgEntry."Credit Amount (LCY)";
+        NewDtldCustLedgEntry.Unapplied := true;
+        NewDtldCustLedgEntry."Unapplied by Entry No." := OldDtldCustLedgEntry."Entry No.";
+        NewDtldCustLedgEntry."Document No." := GenJnlLine."Document No.";
+        NewDtldCustLedgEntry."Source Code" := GenJnlLine."Source Code";
+        NewDtldCustLedgEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(NewDtldCustLedgEntry."User ID"));
+        NewDtldCustLedgEntry."Posting Group" := OldDtldCustLedgEntry."Posting Group";
+        OnBeforeInsertDtldCustLedgEntryUnapply(NewDtldCustLedgEntry, GenJnlLine, OldDtldCustLedgEntry, GLReg);
+        NewDtldCustLedgEntry.Insert(true);
         NextDtldLedgEntryNo := NextDtldLedgEntryNo + 1;
 
         OnAfterInsertDtldCustLedgEntryUnapply(CustomerPostingGroup, OldDtldCustLedgEntry, GenJnlLine, NewDtldCustLedgEntry);
@@ -6336,26 +6394,24 @@ codeunit 12 "Gen. Jnl.-Post Line"
     local procedure InsertDtldVendLedgEntryUnapply(GenJnlLine: Record "Gen. Journal Line"; var NewDtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; OldDtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; var NextDtldLedgEntryNo: Integer)
     begin
         NewDtldVendLedgEntry := OldDtldVendLedgEntry;
-        with NewDtldVendLedgEntry do begin
-            "Entry No." := NextDtldLedgEntryNo;
-            "Posting Date" := GenJnlLine."Posting Date";
-            "Transaction No." := NextTransactionNo;
-            "Application No." := 0;
-            Amount := -OldDtldVendLedgEntry.Amount;
-            "Amount (LCY)" := -OldDtldVendLedgEntry."Amount (LCY)";
-            "Debit Amount" := -OldDtldVendLedgEntry."Debit Amount";
-            "Credit Amount" := -OldDtldVendLedgEntry."Credit Amount";
-            "Debit Amount (LCY)" := -OldDtldVendLedgEntry."Debit Amount (LCY)";
-            "Credit Amount (LCY)" := -OldDtldVendLedgEntry."Credit Amount (LCY)";
-            Unapplied := true;
-            "Unapplied by Entry No." := OldDtldVendLedgEntry."Entry No.";
-            "Document No." := GenJnlLine."Document No.";
-            "Source Code" := GenJnlLine."Source Code";
-            "User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
-            "Posting Group" := OldDtldVendLedgEntry."Posting Group";
-            OnBeforeInsertDtldVendLedgEntryUnapply(NewDtldVendLedgEntry, GenJnlLine, OldDtldVendLedgEntry, GLReg);
-            Insert(true);
-        end;
+        NewDtldVendLedgEntry."Entry No." := NextDtldLedgEntryNo;
+        NewDtldVendLedgEntry."Posting Date" := GenJnlLine."Posting Date";
+        NewDtldVendLedgEntry."Transaction No." := NextTransactionNo;
+        NewDtldVendLedgEntry."Application No." := 0;
+        NewDtldVendLedgEntry.Amount := -OldDtldVendLedgEntry.Amount;
+        NewDtldVendLedgEntry."Amount (LCY)" := -OldDtldVendLedgEntry."Amount (LCY)";
+        NewDtldVendLedgEntry."Debit Amount" := -OldDtldVendLedgEntry."Debit Amount";
+        NewDtldVendLedgEntry."Credit Amount" := -OldDtldVendLedgEntry."Credit Amount";
+        NewDtldVendLedgEntry."Debit Amount (LCY)" := -OldDtldVendLedgEntry."Debit Amount (LCY)";
+        NewDtldVendLedgEntry."Credit Amount (LCY)" := -OldDtldVendLedgEntry."Credit Amount (LCY)";
+        NewDtldVendLedgEntry.Unapplied := true;
+        NewDtldVendLedgEntry."Unapplied by Entry No." := OldDtldVendLedgEntry."Entry No.";
+        NewDtldVendLedgEntry."Document No." := GenJnlLine."Document No.";
+        NewDtldVendLedgEntry."Source Code" := GenJnlLine."Source Code";
+        NewDtldVendLedgEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(NewDtldVendLedgEntry."User ID"));
+        NewDtldVendLedgEntry."Posting Group" := OldDtldVendLedgEntry."Posting Group";
+        OnBeforeInsertDtldVendLedgEntryUnapply(NewDtldVendLedgEntry, GenJnlLine, OldDtldVendLedgEntry, GLReg);
+        NewDtldVendLedgEntry.Insert(true);
         NextDtldLedgEntryNo := NextDtldLedgEntryNo + 1;
         OnAfterInsertDtldVendLedgEntryUnapply(OldDtldVendLedgEntry, GenJnlLine, NewDtldVendLedgEntry);
     end;
@@ -6363,47 +6419,43 @@ codeunit 12 "Gen. Jnl.-Post Line"
     local procedure InsertDtldEmplLedgEntryUnapply(GenJnlLine: Record "Gen. Journal Line"; var NewDtldEmplLedgEntry: Record "Detailed Employee Ledger Entry"; OldDtldEmplLedgEntry: Record "Detailed Employee Ledger Entry"; var NextDtldLedgEntryNo: Integer)
     begin
         NewDtldEmplLedgEntry := OldDtldEmplLedgEntry;
-        with NewDtldEmplLedgEntry do begin
-            "Entry No." := NextDtldLedgEntryNo;
-            "Posting Date" := GenJnlLine."Posting Date";
-            "Transaction No." := NextTransactionNo;
-            "Application No." := 0;
-            Amount := -OldDtldEmplLedgEntry.Amount;
-            "Amount (LCY)" := -OldDtldEmplLedgEntry."Amount (LCY)";
-            "Debit Amount" := -OldDtldEmplLedgEntry."Debit Amount";
-            "Credit Amount" := -OldDtldEmplLedgEntry."Credit Amount";
-            "Debit Amount (LCY)" := -OldDtldEmplLedgEntry."Debit Amount (LCY)";
-            "Credit Amount (LCY)" := -OldDtldEmplLedgEntry."Credit Amount (LCY)";
-            Unapplied := true;
-            "Unapplied by Entry No." := OldDtldEmplLedgEntry."Entry No.";
-            "Document No." := GenJnlLine."Document No.";
-            "Source Code" := GenJnlLine."Source Code";
-            "User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
-            OnBeforeInsertDtldEmplLedgEntryUnapply(NewDtldEmplLedgEntry, GenJnlLine, OldDtldEmplLedgEntry);
-            Insert(true);
-        end;
+        NewDtldEmplLedgEntry."Entry No." := NextDtldLedgEntryNo;
+        NewDtldEmplLedgEntry."Posting Date" := GenJnlLine."Posting Date";
+        NewDtldEmplLedgEntry."Transaction No." := NextTransactionNo;
+        NewDtldEmplLedgEntry."Application No." := 0;
+        NewDtldEmplLedgEntry.Amount := -OldDtldEmplLedgEntry.Amount;
+        NewDtldEmplLedgEntry."Amount (LCY)" := -OldDtldEmplLedgEntry."Amount (LCY)";
+        NewDtldEmplLedgEntry."Debit Amount" := -OldDtldEmplLedgEntry."Debit Amount";
+        NewDtldEmplLedgEntry."Credit Amount" := -OldDtldEmplLedgEntry."Credit Amount";
+        NewDtldEmplLedgEntry."Debit Amount (LCY)" := -OldDtldEmplLedgEntry."Debit Amount (LCY)";
+        NewDtldEmplLedgEntry."Credit Amount (LCY)" := -OldDtldEmplLedgEntry."Credit Amount (LCY)";
+        NewDtldEmplLedgEntry.Unapplied := true;
+        NewDtldEmplLedgEntry."Unapplied by Entry No." := OldDtldEmplLedgEntry."Entry No.";
+        NewDtldEmplLedgEntry."Document No." := GenJnlLine."Document No.";
+        NewDtldEmplLedgEntry."Source Code" := GenJnlLine."Source Code";
+        NewDtldEmplLedgEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(NewDtldEmplLedgEntry."User ID"));
+        OnBeforeInsertDtldEmplLedgEntryUnapply(NewDtldEmplLedgEntry, GenJnlLine, OldDtldEmplLedgEntry);
+        NewDtldEmplLedgEntry.Insert(true);
         NextDtldLedgEntryNo := NextDtldLedgEntryNo + 1;
     end;
 
     local procedure InsertTempVATEntry(GenJnlLine: Record "Gen. Journal Line"; VATEntry: Record "VAT Entry"; var TempVATEntryNo: Integer; var TempVATEntry: Record "VAT Entry" temporary)
     begin
         TempVATEntry := VATEntry;
-        with TempVATEntry do begin
-            "Entry No." := TempVATEntryNo;
-            TempVATEntryNo := TempVATEntryNo + 1;
-            "Closed by Entry No." := 0;
-            Closed := false;
-            CopyAmountsFromVATEntry(VATEntry, true);
-            "Posting Date" := GenJnlLine."Posting Date";
-            "Document Date" := GenJnlLine."Document Date";
-            "VAT Reporting Date" := GenJnlLine."VAT Reporting Date";
-            "Document No." := GenJnlLine."Document No.";
-            "User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
-            "Transaction No." := NextTransactionNo;
-            "G/L Acc. No." := '';
-            OnInsertTempVATEntryOnBeforeInsert(TempVATEntry, GenJnlLine, VATEntry);
-            Insert();
-        end;
+        TempVATEntry."Entry No." := TempVATEntryNo;
+        TempVATEntryNo := TempVATEntryNo + 1;
+        TempVATEntry."Closed by Entry No." := 0;
+        TempVATEntry.Closed := false;
+        TempVATEntry.CopyAmountsFromVATEntry(VATEntry, true);
+        TempVATEntry."Posting Date" := GenJnlLine."Posting Date";
+        TempVATEntry."Document Date" := GenJnlLine."Document Date";
+        TempVATEntry."VAT Reporting Date" := GenJnlLine."VAT Reporting Date";
+        TempVATEntry."Document No." := GenJnlLine."Document No.";
+        TempVATEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(TempVATEntry."User ID"));
+        TempVATEntry."Transaction No." := NextTransactionNo;
+        TempVATEntry."G/L Acc. No." := '';
+        OnInsertTempVATEntryOnBeforeInsert(TempVATEntry, GenJnlLine, VATEntry);
+        TempVATEntry.Insert();
     end;
 
     local procedure SetGLAccountNoInVATEntries();
@@ -6598,6 +6650,8 @@ codeunit 12 "Gen. Jnl.-Post Line"
             EmplLedgEntry."Closed at Date" := 0D;
             EmplLedgEntry."Closed by Amount" := 0;
             EmplLedgEntry."Closed by Amount (LCY)" := 0;
+            EmplLedgEntry."Closed by Currency Code" := '';
+            EmplLedgEntry."Closed by Currency Amount" := 0;
         end;
 
         OnBeforeEmplLedgEntryModify(EmplLedgEntry, DtldEmplLedgEntry);
@@ -6609,30 +6663,27 @@ codeunit 12 "Gen. Jnl.-Post Line"
         CustLedgEntry: Record "Cust. Ledger Entry";
         CVLedgEntryBuf2: Record "CV Ledger Entry Buffer";
     begin
-        with CVLedgEntryBuf do begin
-            if CustLedgEntry.Get("Closed by Entry No.") then begin
+        if CustLedgEntry.Get(CVLedgEntryBuf."Closed by Entry No.") then begin
+            CVLedgEntryBuf2.TransferFields(CustLedgEntry);
+            UpdateCalcInterest(CVLedgEntryBuf, CVLedgEntryBuf2);
+        end;
+        CustLedgEntry.SetCurrentKey("Closed by Entry No.");
+        CustLedgEntry.SetRange("Closed by Entry No.", CVLedgEntryBuf."Entry No.");
+        OnUpdateCalcInterestOnAfterCustLedgEntrySetFilters(CustLedgEntry, CVLedgEntryBuf);
+        if CustLedgEntry.FindSet() then
+            repeat
                 CVLedgEntryBuf2.TransferFields(CustLedgEntry);
                 UpdateCalcInterest(CVLedgEntryBuf, CVLedgEntryBuf2);
-            end;
-            CustLedgEntry.SetCurrentKey("Closed by Entry No.");
-            CustLedgEntry.SetRange("Closed by Entry No.", "Entry No.");
-            OnUpdateCalcInterestOnAfterCustLedgEntrySetFilters(CustLedgEntry, CVLedgEntryBuf);
-            if CustLedgEntry.FindSet() then
-                repeat
-                    CVLedgEntryBuf2.TransferFields(CustLedgEntry);
-                    UpdateCalcInterest(CVLedgEntryBuf, CVLedgEntryBuf2);
-                until CustLedgEntry.Next() = 0;
-        end;
+            until CustLedgEntry.Next() = 0;
     end;
 
     local procedure UpdateCalcInterest(var CVLedgEntryBuf: Record "CV Ledger Entry Buffer"; var CVLedgEntryBuf2: Record "CV Ledger Entry Buffer")
     begin
-        with CVLedgEntryBuf do
-            if "Due Date" < CVLedgEntryBuf2."Document Date" then
-                "Calculate Interest" := true;
+        if CVLedgEntryBuf."Due Date" < CVLedgEntryBuf2."Document Date" then
+            CVLedgEntryBuf."Calculate Interest" := true;
     end;
 
-    procedure GLCalcAddCurrency(Amount: Decimal; AddCurrAmount: Decimal; OldAddCurrAmount: Decimal; UseAddCurrAmount: Boolean; GenJnlLine: Record "Gen. Journal Line"; var UseVendExchRateCheck: Boolean) Result: Decimal
+    procedure GLCalcAddCurrency(Amount: Decimal; AddCurrAmount: Decimal; OldAddCurrAmount: Decimal; UseAddCurrAmount: Boolean; GenJnlLine: Record "Gen. Journal Line") Result: Decimal
     var
         PurchSetup: Record "Purchases & Payables Setup";
         IsHandled: Boolean;
@@ -6644,7 +6695,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                 exit(AddCurrAmount);
 
             PurchSetup.Get();
-            if PurchSetup."Enable Vendor GST Amount (ACY)" and UseVendExchRateCheck then
+            if PurchSetup."Enable Vendor GST Amount (ACY)" and UseVendExchRate then
                 exit(AddCurrAmount);
 
             IsHandled := false;
@@ -6785,13 +6836,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
     var
         GenJnlLine2: Record "Gen. Journal Line";
     begin
-        with GenJnlLine2 do begin
-            SetRange("Source Code", GenJnlLine."Source Code");
-            SetRange("Document No.", GenJnlLine."Document No.");
-            SetRange("Posting Date", GenJnlLine."Posting Date");
-            CalcSums("VAT Amount (LCY)", "Bal. VAT Amount (LCY)");
-            TotalVATAmount := "VAT Amount (LCY)" - "Bal. VAT Amount (LCY)";
-        end;
+        GenJnlLine2.SetRange("Source Code", GenJnlLine."Source Code");
+        GenJnlLine2.SetRange("Document No.", GenJnlLine."Document No.");
+        GenJnlLine2.SetRange("Posting Date", GenJnlLine."Posting Date");
+        GenJnlLine2.CalcSums(GenJnlLine2."VAT Amount (LCY)", GenJnlLine2."Bal. VAT Amount (LCY)");
+        TotalVATAmount := GenJnlLine2."VAT Amount (LCY)" - GenJnlLine2."Bal. VAT Amount (LCY)";
         exit(TotalVATAmount);
     end;
 
@@ -7052,12 +7101,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
     procedure GetCurrency(var Currency: Record Currency; CurrencyCode: Code[10])
     begin
-        if Currency.Code <> CurrencyCode then begin
+        if Currency.Code <> CurrencyCode then
             if CurrencyCode = '' then
                 Clear(Currency)
             else
                 Currency.Get(CurrencyCode);
-        end;
     end;
 
     procedure CollectAdjustment(var AdjAmount: array[4] of Decimal; Amount: Decimal; AmountAddCurr: Decimal)
@@ -7069,7 +7117,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         AdjAmount[Offset + 1] += AmountAddCurr;
     end;
 
-    procedure HandleDtldAdjustment(GenJnlLine: Record "Gen. Journal Line"; var GLEntry: Record "G/L Entry"; AdjAmount: array[4] of Decimal; TotalAmountLCY: Decimal; TotalAmountAddCurr: Decimal; GLAccNo: Code[20])
+    local procedure HandleDtldAdjustment(GenJnlLine: Record "Gen. Journal Line"; var GLEntry: Record "G/L Entry"; AdjAmount: array[4] of Decimal; TotalAmountLCY: Decimal; TotalAmountAddCurr: Decimal; GLAccNo: Code[20])
     var
         IsHandled: Boolean;
     begin
@@ -7208,19 +7256,17 @@ codeunit 12 "Gen. Jnl.-Post Line"
         if IsHandled then
             exit;
 
-        with TempDimPostingBuffer do begin
-            SetRange("Dimension Set ID", DimSetID);
-            if FindFirst() then begin
-                Amount += DtldCVLedgEntryBuf."Amount (LCY)";
-                "Amount (ACY)" += DtldCVLedgEntryBuf."Additional-Currency Amount";
-                Modify();
-            end else begin
-                Init();
-                "Dimension Set ID" := DimSetID;
-                Amount := DtldCVLedgEntryBuf."Amount (LCY)";
-                "Amount (ACY)" := DtldCVLedgEntryBuf."Additional-Currency Amount";
-                Insert();
-            end;
+        TempDimPostingBuffer.SetRange(TempDimPostingBuffer."Dimension Set ID", DimSetID);
+        if TempDimPostingBuffer.FindFirst() then begin
+            TempDimPostingBuffer.Amount += DtldCVLedgEntryBuf."Amount (LCY)";
+            TempDimPostingBuffer."Amount (ACY)" += DtldCVLedgEntryBuf."Additional-Currency Amount";
+            TempDimPostingBuffer.Modify();
+        end else begin
+            TempDimPostingBuffer.Init();
+            TempDimPostingBuffer."Dimension Set ID" := DimSetID;
+            TempDimPostingBuffer.Amount := DtldCVLedgEntryBuf."Amount (LCY)";
+            TempDimPostingBuffer."Amount (ACY)" := DtldCVLedgEntryBuf."Additional-Currency Amount";
+            TempDimPostingBuffer.Insert();
         end;
         OnAfterUpdateTotalAmounts(TempDimPostingBuffer, DtldCVLedgEntryBuf);
     end;
@@ -7235,22 +7281,20 @@ codeunit 12 "Gen. Jnl.-Post Line"
         if IsHandled then
             exit;
 
-        with TempDimPostingBuffer do begin
-            SetRange("Dimension Set ID");
-            if FindSet() then
-                repeat
-                    if (Amount <> 0) or
-                       ("Amount (ACY)" <> 0) and (GLSetup."Additional Reporting Currency" <> '')
-                    then begin
-                        IsHandled := false;
-                        OnCreateGLEntriesForTotalAmountsUnapplyOnBeforeUpdateGenJnlLineDim(IsHandled);
-                        if not IsHandled then
-                            DimMgt.UpdateGenJnlLineDim(GenJnlLine, "Dimension Set ID");
-                        OnCreateGLEntriesForTotalAmountsUnapplyOnBeforeCreateGLEntryV19(GenJnlLine, TempDimPostingBuffer, GLAccNo);
-                        CreateGLEntry(GenJnlLine, GLAccNo, Amount, "Amount (ACY)", true);
-                    end;
-                until Next() = 0;
-        end;
+        TempDimPostingBuffer.SetRange(TempDimPostingBuffer."Dimension Set ID");
+        if TempDimPostingBuffer.FindSet() then
+            repeat
+                if (TempDimPostingBuffer.Amount <> 0) or
+                   (TempDimPostingBuffer."Amount (ACY)" <> 0) and (GLSetup."Additional Reporting Currency" <> '')
+                then begin
+                    IsHandled := false;
+                    OnCreateGLEntriesForTotalAmountsUnapplyOnBeforeUpdateGenJnlLineDim(IsHandled);
+                    if not IsHandled then
+                        DimMgt.UpdateGenJnlLineDim(GenJnlLine, TempDimPostingBuffer."Dimension Set ID");
+                    OnCreateGLEntriesForTotalAmountsUnapplyOnBeforeCreateGLEntryV19(GenJnlLine, TempDimPostingBuffer, GLAccNo);
+                    CreateGLEntry(GenJnlLine, GLAccNo, TempDimPostingBuffer.Amount, TempDimPostingBuffer."Amount (ACY)", true);
+                end;
+            until TempDimPostingBuffer.Next() = 0;
     end;
 
     local procedure CreateGLEntriesForTotalAmounts(GenJnlLine: Record "Gen. Journal Line"; var TempDimPostingBuffer: Record "Dimension Posting Buffer" temporary; AdjAmountBuf: array[4] of Decimal; SavedEntryNo: Integer; GLAccNo: Code[20]; LedgEntryInserted: Boolean)
@@ -7266,21 +7310,19 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
         GLEntryInserted := false;
 
-        with TempDimPostingBuffer do begin
-            Reset();
-            if FindSet() then
-                repeat
-                    if (Amount <> 0) or ("Amount (ACY)" <> 0) and (AddCurrencyCode <> '') then begin
-                        IsHandled := false;
-                        OnCreateGLEntriesForTotalAmountsOnBeforeUpdateGenJnlLineDim(IsHandled);
-                        if not IsHandled then
-                            DimMgt.UpdateGenJnlLineDim(GenJnlLine, "Dimension Set ID");
-                        OnBeforeCreateGLEntryForTotalAmountsForDimPostBuf(GenJnlLine, TempDimPostingBuffer, GLAccNo);
-                        CreateGLEntryForTotalAmounts(GenJnlLine, Amount, "Amount (ACY)", AdjAmountBuf, SavedEntryNo, GLAccNo);
-                        GLEntryInserted := true;
-                    end;
-                until Next() = 0;
-        end;
+        TempDimPostingBuffer.Reset();
+        if TempDimPostingBuffer.FindSet() then
+            repeat
+                if (TempDimPostingBuffer.Amount <> 0) or (TempDimPostingBuffer."Amount (ACY)" <> 0) and (AddCurrencyCode <> '') then begin
+                    IsHandled := false;
+                    OnCreateGLEntriesForTotalAmountsOnBeforeUpdateGenJnlLineDim(IsHandled);
+                    if not IsHandled then
+                        DimMgt.UpdateGenJnlLineDim(GenJnlLine, TempDimPostingBuffer."Dimension Set ID");
+                    OnBeforeCreateGLEntryForTotalAmountsForDimPostBuf(GenJnlLine, TempDimPostingBuffer, GLAccNo);
+                    CreateGLEntryForTotalAmounts(GenJnlLine, TempDimPostingBuffer.Amount, TempDimPostingBuffer."Amount (ACY)", AdjAmountBuf, SavedEntryNo, GLAccNo);
+                    GLEntryInserted := true;
+                end;
+            until TempDimPostingBuffer.Next() = 0;
 
         if not GLEntryInserted and LedgEntryInserted then
             CreateGLEntryForTotalAmounts(GenJnlLine, 0, 0, AdjAmountBuf, SavedEntryNo, GLAccNo);
@@ -7454,56 +7496,56 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
             case GenJnlLine3."Bal. Account Type" of
                 GenJnlLine3."Bal. Account Type"::"Bank Account":
-                    with GenJnlLine3 do begin
+                    begin
                         BankAccLedgEntry.LockTable();
-                        if BankAcc."No." <> "Bal. Account No." then
-                            BankAcc.Get("Bal. Account No.");
+                        if BankAcc."No." <> GenJnlLine3."Bal. Account No." then
+                            BankAcc.Get(GenJnlLine3."Bal. Account No.");
                         BankAcc.TestField(Blocked, false);
-                        if "Currency Code" = '' then
+                        if GenJnlLine3."Currency Code" = '' then
                             BankAcc.TestField("Currency Code", '')
                         else
                             if BankAcc."Currency Code" <> '' then
-                                TestField("Currency Code", BankAcc."Currency Code");
+                                GenJnlLine3.TestField(GenJnlLine3."Currency Code", BankAcc."Currency Code");
 
                         BankAcc.TestField("Bank Acc. Posting Group");
                         BankAccPostingGr.Get(BankAcc."Bank Acc. Posting Group");
 
                         BankAccLedgEntry.Init();
-                        BankAccLedgEntry."Bank Account No." := "Bal. Account No.";
-                        BankAccLedgEntry."Posting Date" := "Posting Date";
-                        BankAccLedgEntry."Document Date" := "Document Date";
-                        BankAccLedgEntry."Document Type" := "Document Type";
-                        BankAccLedgEntry."Document No." := "Document No.";
-                        BankAccLedgEntry."External Document No." := "External Document No.";
-                        BankAccLedgEntry.Description := Description;
+                        BankAccLedgEntry."Bank Account No." := GenJnlLine3."Bal. Account No.";
+                        BankAccLedgEntry."Posting Date" := GenJnlLine3."Posting Date";
+                        BankAccLedgEntry."Document Date" := GenJnlLine3."Document Date";
+                        BankAccLedgEntry."Document Type" := GenJnlLine3."Document Type";
+                        BankAccLedgEntry."Document No." := GenJnlLine3."Document No.";
+                        BankAccLedgEntry."External Document No." := GenJnlLine3."External Document No.";
+                        BankAccLedgEntry.Description := GenJnlLine3.Description;
                         BankAccLedgEntry."Bank Acc. Posting Group" := BankAcc."Bank Acc. Posting Group";
-                        BankAccLedgEntry."Global Dimension 1 Code" := "Shortcut Dimension 1 Code";
-                        BankAccLedgEntry."Global Dimension 2 Code" := "Shortcut Dimension 2 Code";
-                        BankAccLedgEntry."Dimension Set ID" := "Dimension Set ID";
-                        BankAccLedgEntry."Our Contact Code" := "Salespers./Purch. Code";
-                        BankAccLedgEntry."Source Code" := "Source Code";
-                        BankAccLedgEntry."Journal Batch Name" := "Journal Batch Name";
-                        BankAccLedgEntry."Reason Code" := "Reason Code";
+                        BankAccLedgEntry."Global Dimension 1 Code" := GenJnlLine3."Shortcut Dimension 1 Code";
+                        BankAccLedgEntry."Global Dimension 2 Code" := GenJnlLine3."Shortcut Dimension 2 Code";
+                        BankAccLedgEntry."Dimension Set ID" := GenJnlLine3."Dimension Set ID";
+                        BankAccLedgEntry."Our Contact Code" := GenJnlLine3."Salespers./Purch. Code";
+                        BankAccLedgEntry."Source Code" := GenJnlLine3."Source Code";
+                        BankAccLedgEntry."Journal Batch Name" := GenJnlLine3."Journal Batch Name";
+                        BankAccLedgEntry."Reason Code" := GenJnlLine3."Reason Code";
                         BankAccLedgEntry."Entry No." := NextEntryNo;
                         BankAccLedgEntry."Transaction No." := NextTransactionNo;
                         BankAccLedgEntry."Currency Code" := BankAcc."Currency Code";
                         if BankAcc."Currency Code" <> '' then
-                            BankAccLedgEntry.Amount := Amount
+                            BankAccLedgEntry.Amount := GenJnlLine3.Amount
                         else
-                            BankAccLedgEntry.Amount := "Amount (LCY)";
-                        BankAccLedgEntry."Amount (LCY)" := "Amount (LCY)";
+                            BankAccLedgEntry.Amount := GenJnlLine3."Amount (LCY)";
+                        BankAccLedgEntry."Amount (LCY)" := GenJnlLine3."Amount (LCY)";
                         BankAccLedgEntry."User ID" := UserId;
                         if BankAccLedgEntry.Amount <> 0 then begin
                             BankAccLedgEntry.Open := true;
                             BankAccLedgEntry."Remaining Amount" := BankAccLedgEntry.Amount;
                         end;
                         BankAccLedgEntry.Positive := BankAccLedgEntry.Amount > 0;
-                        BankAccLedgEntry."Bal. Account Type" := "Bal. Account Type";
-                        BankAccLedgEntry."Bal. Account No." := "Bal. Account No.";
-                        if (Amount > 0) and (not Correction) or
-                           ("Amount (LCY)" > 0) and (not Correction) or
-                           (Amount < 0) and Correction or
-                           ("Amount (LCY)" < 0) and Correction
+                        BankAccLedgEntry."Bal. Account Type" := GenJnlLine3."Bal. Account Type";
+                        BankAccLedgEntry."Bal. Account No." := GenJnlLine3."Bal. Account No.";
+                        if (GenJnlLine3.Amount > 0) and (not GenJnlLine3.Correction) or
+                           (GenJnlLine3."Amount (LCY)" > 0) and (not GenJnlLine3.Correction) or
+                           (GenJnlLine3.Amount < 0) and GenJnlLine3.Correction or
+                           (GenJnlLine3."Amount (LCY)" < 0) and GenJnlLine3.Correction
                         then begin
                             BankAccLedgEntry."Debit Amount" := BankAccLedgEntry.Amount;
                             BankAccLedgEntry."Credit Amount" := 0;
@@ -7517,21 +7559,21 @@ codeunit 12 "Gen. Jnl.-Post Line"
                         end;
                         BankAccLedgEntry.Insert();
 
-                        if ((Amount <= 0) and ("Bank Payment Type" = "Bank Payment Type"::"Computer Check") and "Check Printed") or
-                           ((Amount < 0) and ("Bank Payment Type" = "Bank Payment Type"::"Manual Check"))
+                        if ((GenJnlLine3.Amount <= 0) and (GenJnlLine3."Bank Payment Type" = GenJnlLine3."Bank Payment Type"::"Computer Check") and GenJnlLine3."Check Printed") or
+                           ((GenJnlLine3.Amount < 0) and (GenJnlLine3."Bank Payment Type" = GenJnlLine3."Bank Payment Type"::"Manual Check"))
                         then begin
-                            if BankAcc."Currency Code" <> "Currency Code" then
+                            if BankAcc."Currency Code" <> GenJnlLine3."Currency Code" then
                                 Error(BankPaymentTypeMustNotBeFilledErr);
-                            case "Bank Payment Type" of
-                                "Bank Payment Type"::"Computer Check":
+                            case GenJnlLine3."Bank Payment Type" of
+                                GenJnlLine3."Bank Payment Type"::"Computer Check":
                                     begin
-                                        TestField("Check Printed", true);
+                                        GenJnlLine3.TestField(GenJnlLine3."Check Printed", true);
                                         CheckLedgEntry.LockTable();
                                         CheckLedgEntry.Reset();
                                         CheckLedgEntry.SetCurrentKey("Bank Account No.", "Entry Status", "Check No.");
-                                        CheckLedgEntry.SetRange("Bank Account No.", "Account No.");
+                                        CheckLedgEntry.SetRange("Bank Account No.", GenJnlLine3."Account No.");
                                         CheckLedgEntry.SetRange("Entry Status", CheckLedgEntry."Entry Status"::Printed);
-                                        CheckLedgEntry.SetRange("Check No.", "Document No.");
+                                        CheckLedgEntry.SetRange("Check No.", GenJnlLine3."Document No.");
                                         if CheckLedgEntry.Find('-') then
                                             repeat
                                                 CheckLedgEntry2 := CheckLedgEntry;
@@ -7540,10 +7582,10 @@ codeunit 12 "Gen. Jnl.-Post Line"
                                                 CheckLedgEntry2.Modify();
                                             until CheckLedgEntry.Next() = 0;
                                     end;
-                                "Bank Payment Type"::"Manual Check":
+                                GenJnlLine3."Bank Payment Type"::"Manual Check":
                                     begin
-                                        if "Document No." = '' then
-                                            Error(DocNoMustBeEnteredErr, "Bank Payment Type");
+                                        if GenJnlLine3."Document No." = '' then
+                                            Error(DocNoMustBeEnteredErr, GenJnlLine3."Bank Payment Type");
                                         CheckLedgEntry.Reset();
                                         if NextCheckEntryNo = 0 then begin
                                             CheckLedgEntry.LockTable();
@@ -7554,15 +7596,15 @@ codeunit 12 "Gen. Jnl.-Post Line"
                                         end;
 
                                         CheckLedgEntry.SetCurrentKey("Bank Account No.", "Entry Status", "Check No.");
-                                        CheckLedgEntry.SetRange("Bank Account No.", "Account No.");
+                                        CheckLedgEntry.SetRange("Bank Account No.", GenJnlLine3."Account No.");
                                         CheckLedgEntry.SetFilter(
                                           "Entry Status", '%1|%2|%3',
                                           CheckLedgEntry."Entry Status"::Printed,
                                           CheckLedgEntry."Entry Status"::Posted,
                                           CheckLedgEntry."Entry Status"::"Financially Voided");
-                                        CheckLedgEntry.SetRange("Check No.", "Document No.");
+                                        CheckLedgEntry.SetRange("Check No.", GenJnlLine3."Document No.");
                                         if CheckLedgEntry.Find('-') then
-                                            Error(CheckAlreadyExistsErr, "Document No.");
+                                            Error(CheckAlreadyExistsErr, GenJnlLine3."Document No.");
 
                                         CheckLedgEntry.Init();
                                         CheckLedgEntry."Entry No." := NextCheckEntryNo;
@@ -7573,7 +7615,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
                                         CheckLedgEntry."Document No." := BankAccLedgEntry."Document No.";
                                         CheckLedgEntry."External Document No." := BankAccLedgEntry."External Document No.";
                                         CheckLedgEntry.Description := BankAccLedgEntry.Description;
-                                        CheckLedgEntry."Bank Payment Type" := "Bank Payment Type";
+                                        CheckLedgEntry."Bank Payment Type" := GenJnlLine3."Bank Payment Type";
                                         CheckLedgEntry."Bal. Account Type" := BankAccLedgEntry."Bal. Account Type";
                                         CheckLedgEntry."Bal. Account No." := BankAccLedgEntry."Bal. Account No.";
                                         CheckLedgEntry."Entry Status" := CheckLedgEntry."Entry Status"::Posted;
@@ -7587,11 +7629,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
                                         if GLSetup."Enable WHT" then
                                             if not GenJnlLine."Skip WHT" then
                                                 CheckLedgEntry."WHT Amount" := -WHTManagement.WHTAmountJournal(GenJnlLine1, false);
-                                        CheckLedgEntry."Interest Amount" := "Interest Amount";
+                                        CheckLedgEntry."Interest Amount" := GenJnlLine3."Interest Amount";
                                         if BankAcc."Currency Code" <> '' then
-                                            CheckLedgEntry.Amount := -Amount - CheckLedgEntry."WHT Amount"
+                                            CheckLedgEntry.Amount := -GenJnlLine3.Amount - CheckLedgEntry."WHT Amount"
                                         else
-                                            CheckLedgEntry.Amount := -"Amount (LCY)" - CheckLedgEntry."WHT Amount";
+                                            CheckLedgEntry.Amount := -GenJnlLine3."Amount (LCY)" - CheckLedgEntry."WHT Amount";
                                         CheckLedgEntry.Insert();
                                         NextCheckEntryNo := NextCheckEntryNo + 1;
                                     end;
@@ -7600,7 +7642,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
                         BankAccPostingGr.TestField("G/L Account No.");
                         InitGLEntry(GenJnlLine, GLEntry,
-                          BankAccPostingGr."G/L Account No.", "Amount (LCY)", "Source Currency Amount", true, true);
+                          BankAccPostingGr."G/L Account No.", GenJnlLine3."Amount (LCY)", GenJnlLine3."Source Currency Amount", true, true);
                     end;
                 GenJnlLine3."Bal. Account Type"::"G/L Account":
                     InitGLEntry(GenJnlLine, GLEntry,
@@ -7634,68 +7676,66 @@ codeunit 12 "Gen. Jnl.-Post Line"
     begin
         if not GLSetup."GST Report" then
             exit;
-        with GenJnlLine2 do begin
-            if "System-Created Entry" then
-                exit;
-            if "Gen. Posting Type" = "Gen. Posting Type"::Sale then begin
-                if GSTSaleReport.FindLast() then
-                    EntryNo := GSTSaleReport."Entry No." + 1
+        if GenJnlLine2."System-Created Entry" then
+            exit;
+        if GenJnlLine2."Gen. Posting Type" = GenJnlLine2."Gen. Posting Type"::Sale then begin
+            if GSTSaleReport.FindLast() then
+                EntryNo := GSTSaleReport."Entry No." + 1
+            else
+                EntryNo := 1;
+
+            GSTSaleReport.Init();
+            GSTSaleReport."Entry No." := EntryNo;
+            GSTSaleReport."GST Entry No." := VATEntryNo;
+            GSTSaleReport."Posting Date" := GenJnlLine2."Posting Date";
+            if GenJnlLine2."Document Type" = GenJnlLine2."Document Type"::Invoice then
+                GSTSaleReport."Document Type" := GSTSaleReport."Document Type"::Invoice;
+            if GenJnlLine2."Document Type" = GenJnlLine2."Document Type"::"Credit Memo" then
+                GSTSaleReport."Document Type" := GSTSaleReport."Document Type"::"Credit Memo";
+            if GenJnlLine2."Document Type" = GenJnlLine2."Document Type"::Payment then
+                GSTSaleReport."Document Type" := GSTSaleReport."Document Type"::Payment;
+
+            GSTSaleReport."Document No." := GenJnlLine2."Document No.";
+            GSTSaleReport."Document Line No." := GenJnlLine2."Line No.";
+            GSTSaleReport."Document Line Type" := GSTSaleReport."Document Line Type"::"G/L Account";
+            GSTSaleReport."Document Line Description" := Text28000;
+            GSTSaleReport."GST Entry Type" := GSTSaleReport."GST Entry Type"::Sale;
+            GSTSaleReport."GST Base" := GenJnlLine2."VAT Base Amount (LCY)";
+            GSTSaleReport.Amount := GenJnlLine2."VAT Amount (LCY)";
+            GSTSaleReport."VAT Calculation Type" := GenJnlLine2."VAT Calculation Type";
+            GSTSaleReport."VAT Bus. Posting Group" := GenJnlLine2."VAT Bus. Posting Group";
+            GSTSaleReport."VAT Prod. Posting Group" := GenJnlLine2."VAT Prod. Posting Group";
+            GSTSaleReport.Insert();
+        end else
+            if GenJnlLine2."Gen. Posting Type" = GenJnlLine2."Gen. Posting Type"::Purchase then begin
+                if GSTPurchReport.FindLast() then
+                    EntryNo := GSTPurchReport."Entry No." + 1
                 else
                     EntryNo := 1;
 
-                GSTSaleReport.Init();
-                GSTSaleReport."Entry No." := EntryNo;
-                GSTSaleReport."GST Entry No." := VATEntryNo;
-                GSTSaleReport."Posting Date" := "Posting Date";
-                if "Document Type" = "Document Type"::Invoice then
-                    GSTSaleReport."Document Type" := GSTSaleReport."Document Type"::Invoice;
-                if "Document Type" = "Document Type"::"Credit Memo" then
-                    GSTSaleReport."Document Type" := GSTSaleReport."Document Type"::"Credit Memo";
-                if "Document Type" = "Document Type"::Payment then
-                    GSTSaleReport."Document Type" := GSTSaleReport."Document Type"::Payment;
+                GSTPurchReport.Init();
+                GSTPurchReport."Entry No." := EntryNo;
+                GSTPurchReport."GST Entry No." := VATEntryNo;
+                GSTPurchReport."Posting Date" := GenJnlLine2."Posting Date";
+                if GenJnlLine2."Document Type" = GenJnlLine2."Document Type"::Invoice then
+                    GSTPurchReport."Document Type" := GSTPurchReport."Document Type"::Invoice;
+                if GenJnlLine2."Document Type" = GenJnlLine2."Document Type"::"Credit Memo" then
+                    GSTPurchReport."Document Type" := GSTPurchReport."Document Type"::"Credit Memo";
+                if GenJnlLine2."Document Type" = GenJnlLine2."Document Type"::Payment then
+                    GSTPurchReport."Document Type" := GSTPurchReport."Document Type"::Payment;
 
-                GSTSaleReport."Document No." := "Document No.";
-                GSTSaleReport."Document Line No." := "Line No.";
-                GSTSaleReport."Document Line Type" := GSTSaleReport."Document Line Type"::"G/L Account";
-                GSTSaleReport."Document Line Description" := Text28000;
-                GSTSaleReport."GST Entry Type" := GSTSaleReport."GST Entry Type"::Sale;
-                GSTSaleReport."GST Base" := "VAT Base Amount (LCY)";
-                GSTSaleReport.Amount := "VAT Amount (LCY)";
-                GSTSaleReport."VAT Calculation Type" := "VAT Calculation Type";
-                GSTSaleReport."VAT Bus. Posting Group" := "VAT Bus. Posting Group";
-                GSTSaleReport."VAT Prod. Posting Group" := "VAT Prod. Posting Group";
-                GSTSaleReport.Insert();
-            end else
-                if "Gen. Posting Type" = "Gen. Posting Type"::Purchase then begin
-                    if GSTPurchReport.FindLast() then
-                        EntryNo := GSTPurchReport."Entry No." + 1
-                    else
-                        EntryNo := 1;
-
-                    GSTPurchReport.Init();
-                    GSTPurchReport."Entry No." := EntryNo;
-                    GSTPurchReport."GST Entry No." := VATEntryNo;
-                    GSTPurchReport."Posting Date" := "Posting Date";
-                    if "Document Type" = "Document Type"::Invoice then
-                        GSTPurchReport."Document Type" := GSTPurchReport."Document Type"::Invoice;
-                    if "Document Type" = "Document Type"::"Credit Memo" then
-                        GSTPurchReport."Document Type" := GSTPurchReport."Document Type"::"Credit Memo";
-                    if "Document Type" = "Document Type"::Payment then
-                        GSTPurchReport."Document Type" := GSTPurchReport."Document Type"::Payment;
-
-                    GSTPurchReport."Document No." := "Document No.";
-                    GSTPurchReport."Document Line No." := "Line No.";
-                    GSTPurchReport."Document Line Type" := GSTPurchReport."Document Line Type"::"G/L Account";
-                    GSTPurchReport."Document Line Description" := Text28000;
-                    GSTPurchReport."GST Entry Type" := GSTPurchReport."GST Entry Type"::Purchase;
-                    GSTPurchReport."GST Base" := "VAT Base Amount (LCY)";
-                    GSTPurchReport.Amount := "VAT Amount (LCY)";
-                    GSTPurchReport."VAT Calculation Type" := "VAT Calculation Type";
-                    GSTPurchReport."VAT Bus. Posting Group" := "VAT Bus. Posting Group";
-                    GSTPurchReport."VAT Prod. Posting Group" := "VAT Prod. Posting Group";
-                    GSTPurchReport.Insert();
-                end;
-        end;
+                GSTPurchReport."Document No." := GenJnlLine2."Document No.";
+                GSTPurchReport."Document Line No." := GenJnlLine2."Line No.";
+                GSTPurchReport."Document Line Type" := GSTPurchReport."Document Line Type"::"G/L Account";
+                GSTPurchReport."Document Line Description" := Text28000;
+                GSTPurchReport."GST Entry Type" := GSTPurchReport."GST Entry Type"::Purchase;
+                GSTPurchReport."GST Base" := GenJnlLine2."VAT Base Amount (LCY)";
+                GSTPurchReport.Amount := GenJnlLine2."VAT Amount (LCY)";
+                GSTPurchReport."VAT Calculation Type" := GenJnlLine2."VAT Calculation Type";
+                GSTPurchReport."VAT Bus. Posting Group" := GenJnlLine2."VAT Bus. Posting Group";
+                GSTPurchReport."VAT Prod. Posting Group" := GenJnlLine2."VAT Prod. Posting Group";
+                GSTPurchReport.Insert();
+            end;
     end;
 
     [Scope('OnPrem')]
@@ -7710,104 +7750,98 @@ codeunit 12 "Gen. Jnl.-Post Line"
     var
         BankAcc: Record "Bank Account";
         BankAccLedgEntry: Record "Bank Account Ledger Entry";
-        CheckLedgEntry: Record "Check Ledger Entry";
-        CheckLedgEntry2: Record "Check Ledger Entry";
         BankAccPostingGr: Record "Bank Account Posting Group";
         WHTPostingSetup: Record "WHT Posting Setup";
         WHTAmountLCY: Decimal;
         WHTAmount: Decimal;
     begin
-        with GenJnlLineWHT do begin
-            WHTPostingSetup.Get("WHT Business Posting Group", "WHT Product Posting Group");
-            if "Bal. Account Type" = "Bal. Account Type"::"Bank Account" then begin
-                "Line No." += 10000;
-                BankAcc.Get("Bal. Account No.");
-                BankAccPostingGr.Get(BankAcc."Bank Acc. Posting Group");
-            end;
-            WHTPostingSetup.TestField("Prepaid WHT Account Code");
-            CreateGLEntry(
-              GenJnlLineWHT, WHTPostingSetup."Prepaid WHT Account Code", -GenJnlLine.Amount, -GenJnlLine.Amount, true);
-            CreateGLEntry(
-              GenJnlLineWHT, BankAccPostingGr."G/L Account No.", GenJnlLine.Amount, GenJnlLine.Amount, true);
-
-            BankAccLedgEntry.LockTable();
-            if BankAcc."No." <> "Bal. Account No." then
-                BankAcc.Get("Bal. Account No.");
-            BankAcc.TestField(Blocked, false);
-            if "Currency Code" = '' then
-                BankAcc.TestField("Currency Code", '')
-            else
-                if BankAcc."Currency Code" <> '' then
-                    TestField("Currency Code", BankAcc."Currency Code");
-
-            BankAcc.TestField("Bank Acc. Posting Group");
+        WHTPostingSetup.Get(GenJnlLineWHT."WHT Business Posting Group", GenJnlLineWHT."WHT Product Posting Group");
+        if GenJnlLineWHT."Bal. Account Type" = GenJnlLineWHT."Bal. Account Type"::"Bank Account" then begin
+            GenJnlLineWHT."Line No." += 10000;
+            BankAcc.Get(GenJnlLineWHT."Bal. Account No.");
             BankAccPostingGr.Get(BankAcc."Bank Acc. Posting Group");
-
-            BankAccLedgEntry.Init();
-            BankAccLedgEntry."Bank Account No." := "Bal. Account No.";
-            BankAccLedgEntry."Posting Date" := "Posting Date";
-            BankAccLedgEntry."Document Date" := "Document Date";
-            BankAccLedgEntry."Document Type" := "Document Type";
-            BankAccLedgEntry."Document No." := "Document No.";
-            BankAccLedgEntry."External Document No." := "External Document No.";
-            BankAccLedgEntry.Description := Description;
-            BankAccLedgEntry."Bank Acc. Posting Group" := BankAcc."Bank Acc. Posting Group";
-            BankAccLedgEntry."Global Dimension 1 Code" := "Shortcut Dimension 1 Code";
-            BankAccLedgEntry."Global Dimension 2 Code" := "Shortcut Dimension 2 Code";
-            BankAccLedgEntry."Our Contact Code" := "Salespers./Purch. Code";
-            BankAccLedgEntry."Source Code" := "Source Code";
-            BankAccLedgEntry."Journal Batch Name" := "Journal Batch Name";
-            BankAccLedgEntry."Reason Code" := "Reason Code";
-            BankAccLedgEntry."Entry No." := NextEntryNo;
-            BankAccLedgEntry."Transaction No." := NextTransactionNo;
-            BankAccLedgEntry."Currency Code" := BankAcc."Currency Code";
-
-            CalcBankAccWHT2(GenJnlLine, WHTPostingSetup, WHTAmountLCY, WHTAmount);
-
-            if BankAcc."Currency Code" <> '' then
-                BankAccLedgEntry.Amount := Amount
-            else
-                BankAccLedgEntry.Amount := "Amount (LCY)" + WHTAmountLCY;
-            BankAccLedgEntry."Amount (LCY)" := "Amount (LCY)" + WHTAmountLCY;
-            BankAccLedgEntry."User ID" := UserId;
-            if BankAccLedgEntry.Amount <> 0 then begin
-                BankAccLedgEntry.Open := true;
-                BankAccLedgEntry."Remaining Amount" := BankAccLedgEntry.Amount;
-            end;
-            BankAccLedgEntry.Positive := BankAccLedgEntry.Amount > 0;
-            BankAccLedgEntry."Bal. Account Type" := "Bal. Account Type";
-            BankAccLedgEntry."Bal. Account No." := "Bal. Account No.";
-            if (Amount > 0) and (not Correction) or
-               ("Amount (LCY)" > 0) and (not Correction) or
-               (Amount < 0) and Correction or
-               ("Amount (LCY)" < 0) and Correction
-            then begin
-                BankAccLedgEntry."Debit Amount" := BankAccLedgEntry.Amount;
-                BankAccLedgEntry."Credit Amount" := 0;
-                BankAccLedgEntry."Debit Amount (LCY)" := BankAccLedgEntry."Amount (LCY)";
-                BankAccLedgEntry."Credit Amount (LCY)" := 0;
-            end else begin
-                BankAccLedgEntry."Debit Amount" := 0;
-                BankAccLedgEntry."Credit Amount" := -BankAccLedgEntry.Amount;
-                BankAccLedgEntry."Debit Amount (LCY)" := 0;
-                BankAccLedgEntry."Credit Amount (LCY)" := -BankAccLedgEntry."Amount (LCY)";
-            end;
-            BankAccLedgEntry.Insert();
         end;
+        WHTPostingSetup.TestField("Prepaid WHT Account Code");
+        CreateGLEntry(
+          GenJnlLineWHT, WHTPostingSetup."Prepaid WHT Account Code", -GenJnlLine.Amount, -GenJnlLine.Amount, true);
+        CreateGLEntry(
+          GenJnlLineWHT, BankAccPostingGr."G/L Account No.", GenJnlLine.Amount, GenJnlLine.Amount, true);
+
+        BankAccLedgEntry.LockTable();
+        if BankAcc."No." <> GenJnlLineWHT."Bal. Account No." then
+            BankAcc.Get(GenJnlLineWHT."Bal. Account No.");
+        BankAcc.TestField(Blocked, false);
+        if GenJnlLineWHT."Currency Code" = '' then
+            BankAcc.TestField("Currency Code", '')
+        else
+            if BankAcc."Currency Code" <> '' then
+                GenJnlLineWHT.TestField(GenJnlLineWHT."Currency Code", BankAcc."Currency Code");
+
+        BankAcc.TestField("Bank Acc. Posting Group");
+        BankAccPostingGr.Get(BankAcc."Bank Acc. Posting Group");
+
+        BankAccLedgEntry.Init();
+        BankAccLedgEntry."Bank Account No." := GenJnlLineWHT."Bal. Account No.";
+        BankAccLedgEntry."Posting Date" := GenJnlLineWHT."Posting Date";
+        BankAccLedgEntry."Document Date" := GenJnlLineWHT."Document Date";
+        BankAccLedgEntry."Document Type" := GenJnlLineWHT."Document Type";
+        BankAccLedgEntry."Document No." := GenJnlLineWHT."Document No.";
+        BankAccLedgEntry."External Document No." := GenJnlLineWHT."External Document No.";
+        BankAccLedgEntry.Description := GenJnlLineWHT.Description;
+        BankAccLedgEntry."Bank Acc. Posting Group" := BankAcc."Bank Acc. Posting Group";
+        BankAccLedgEntry."Global Dimension 1 Code" := GenJnlLineWHT."Shortcut Dimension 1 Code";
+        BankAccLedgEntry."Global Dimension 2 Code" := GenJnlLineWHT."Shortcut Dimension 2 Code";
+        BankAccLedgEntry."Our Contact Code" := GenJnlLineWHT."Salespers./Purch. Code";
+        BankAccLedgEntry."Source Code" := GenJnlLineWHT."Source Code";
+        BankAccLedgEntry."Journal Batch Name" := GenJnlLineWHT."Journal Batch Name";
+        BankAccLedgEntry."Reason Code" := GenJnlLineWHT."Reason Code";
+        BankAccLedgEntry."Entry No." := NextEntryNo;
+        BankAccLedgEntry."Transaction No." := NextTransactionNo;
+        BankAccLedgEntry."Currency Code" := BankAcc."Currency Code";
+
+        CalcBankAccWHT2(GenJnlLine, WHTPostingSetup, WHTAmountLCY, WHTAmount);
+
+        if BankAcc."Currency Code" <> '' then
+            BankAccLedgEntry.Amount := GenJnlLineWHT.Amount
+        else
+            BankAccLedgEntry.Amount := GenJnlLineWHT."Amount (LCY)" + WHTAmountLCY;
+        BankAccLedgEntry."Amount (LCY)" := GenJnlLineWHT."Amount (LCY)" + WHTAmountLCY;
+        BankAccLedgEntry."User ID" := UserId;
+        if BankAccLedgEntry.Amount <> 0 then begin
+            BankAccLedgEntry.Open := true;
+            BankAccLedgEntry."Remaining Amount" := BankAccLedgEntry.Amount;
+        end;
+        BankAccLedgEntry.Positive := BankAccLedgEntry.Amount > 0;
+        BankAccLedgEntry."Bal. Account Type" := GenJnlLineWHT."Bal. Account Type";
+        BankAccLedgEntry."Bal. Account No." := GenJnlLineWHT."Bal. Account No.";
+        if (GenJnlLineWHT.Amount > 0) and (not GenJnlLineWHT.Correction) or
+           (GenJnlLineWHT."Amount (LCY)" > 0) and (not GenJnlLineWHT.Correction) or
+           (GenJnlLineWHT.Amount < 0) and GenJnlLineWHT.Correction or
+           (GenJnlLineWHT."Amount (LCY)" < 0) and GenJnlLineWHT.Correction
+        then begin
+            BankAccLedgEntry."Debit Amount" := BankAccLedgEntry.Amount;
+            BankAccLedgEntry."Credit Amount" := 0;
+            BankAccLedgEntry."Debit Amount (LCY)" := BankAccLedgEntry."Amount (LCY)";
+            BankAccLedgEntry."Credit Amount (LCY)" := 0;
+        end else begin
+            BankAccLedgEntry."Debit Amount" := 0;
+            BankAccLedgEntry."Credit Amount" := -BankAccLedgEntry.Amount;
+            BankAccLedgEntry."Debit Amount (LCY)" := 0;
+            BankAccLedgEntry."Credit Amount (LCY)" := -BankAccLedgEntry."Amount (LCY)";
+        end;
+        BankAccLedgEntry.Insert();
     end;
 
     local procedure IsAboveWHTMinInvoiceAmount(GenJnlLine: Record "Gen. Journal Line"): Boolean
     var
         WHTPostingSetup: Record "WHT Posting Setup";
     begin
-        with GenJnlLine do begin
-            if not ("Document Type" in ["Document Type"::Invoice, "Document Type"::"Credit Memo"]) then
-                exit(true);
+        if not (GenJnlLine."Document Type" in [GenJnlLine."Document Type"::Invoice, GenJnlLine."Document Type"::"Credit Memo"]) then
+            exit(true);
 
-            if WHTPostingSetup.Get("WHT Business Posting Group", "WHT Product Posting Group") then
-                exit(Abs(Amount) >= WHTPostingSetup."WHT Minimum Invoice Amount");
-            exit(false);
-        end;
+        if WHTPostingSetup.Get(GenJnlLine."WHT Business Posting Group", GenJnlLine."WHT Product Posting Group") then
+            exit(Abs(GenJnlLine.Amount) >= WHTPostingSetup."WHT Minimum Invoice Amount");
+        exit(false);
     end;
 
     [Scope('OnPrem')]
@@ -7818,145 +7852,141 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
     local procedure CalcDtldCVLedgEntryAmount(GenJnlLine: Record "Gen. Journal Line"; WHTPercent: Decimal): Decimal
     begin
-        with GenJnlLine do begin
-            if "WHT Absorb Base" <> 0 then
-                exit(ExchangeAmtLCYToFCY2(-Round("WHT Absorb Base" * WHTPercent / 100)));
-            exit(ExchangeAmtLCYToFCY2(Round(Amount * WHTPercent / 100)));
-        end;
+        if GenJnlLine."WHT Absorb Base" <> 0 then
+            exit(ExchangeAmtLCYToFCY2(-Round(GenJnlLine."WHT Absorb Base" * WHTPercent / 100)));
+        exit(ExchangeAmtLCYToFCY2(Round(GenJnlLine.Amount * WHTPercent / 100)));
     end;
 
     [Scope('OnPrem')]
     procedure CalcGLAccWHT(GenJnlLine: Record "Gen. Journal Line"; var WHTPostingSetup: Record "WHT Posting Setup"; var WHTAmountLCY: Decimal; var WHTAmount: Decimal)
     begin
-        with GenJnlLine do begin
-            WHTAmountLCY := 0;
-            if GLSetup."Enable WHT" then
-                if not "Skip WHT" then
-                    if ("Applies-to ID" = '') and ("Applies-to Doc. No." = '') then begin
-                        if ("Document Type" = "Document Type"::Payment) or
-                           ("Document Type" = "Document Type"::Refund)
+        WHTAmountLCY := 0;
+        if GLSetup."Enable WHT" then
+            if not GenJnlLine."Skip WHT" then
+                if (GenJnlLine."Applies-to ID" = '') and (GenJnlLine."Applies-to Doc. No." = '') then begin
+                    if (GenJnlLine."Document Type" = GenJnlLine."Document Type"::Payment) or
+                       (GenJnlLine."Document Type" = GenJnlLine."Document Type"::Refund)
+                    then
+                        if WHTPostingSetup.Get(
+                             GenJnlLine."WHT Business Posting Group",
+                             GenJnlLine."WHT Product Posting Group")
                         then
-                            if WHTPostingSetup.Get(
-                                 "WHT Business Posting Group",
-                                 "WHT Product Posting Group")
-                            then
-                                if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then
-                                    if IsCustAcc(GenJnlLine) then begin
-                                        if "WHT Absorb Base" <> 0 then
+                            if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then
+                                if IsCustAcc(GenJnlLine) then begin
+                                    if GenJnlLine."WHT Absorb Base" <> 0 then
+                                        WHTAmountLCY :=
+                                          -Abs(Round(GenJnlLine."WHT Absorb Base" * WHTPostingSetup."WHT %" / 100))
+                                    else
+                                        WHTAmountLCY :=
+                                          -Abs(Round(GenJnlLine.Amount * WHTPostingSetup."WHT %" / 100));
+                                    if GenJnlLine."Document Type" = GenJnlLine."Document Type"::Refund then
+                                        WHTAmountLCY := Abs(WHTAmountLCY);
+                                end else
+                                    if IsVendAcc(GenJnlLine) then begin
+                                        if GenJnlLine."WHT Absorb Base" <> 0 then
                                             WHTAmountLCY :=
-                                              -Abs(Round("WHT Absorb Base" * WHTPostingSetup."WHT %" / 100))
+                                              Abs(Round(GenJnlLine."WHT Absorb Base" * WHTPostingSetup."WHT %" / 100))
                                         else
                                             WHTAmountLCY :=
-                                              -Abs(Round(Amount * WHTPostingSetup."WHT %" / 100));
-                                        if "Document Type" = "Document Type"::Refund then
-                                            WHTAmountLCY := Abs(WHTAmountLCY);
-                                    end else
-                                        if IsVendAcc(GenJnlLine) then begin
-                                            if "WHT Absorb Base" <> 0 then
-                                                WHTAmountLCY :=
-                                                  Abs(Round("WHT Absorb Base" * WHTPostingSetup."WHT %" / 100))
-                                            else
-                                                WHTAmountLCY :=
-                                                  Abs(Round(Amount * WHTPostingSetup."WHT %" / 100));
+                                              Abs(Round(GenJnlLine.Amount * WHTPostingSetup."WHT %" / 100));
 
-                                            if "Document Type" = "Document Type"::Refund then
-                                                WHTAmountLCY := -Abs(WHTAmountLCY);
-                                        end;
-                    end else
-                        if ("Applies-to ID" <> '') or ("Applies-to Doc. No." <> '') then begin
-                            GenJnlLine1.Reset();
-                            GenJnlLine1.Copy(GenJnlLine);
-                            if "Applies-to Doc. No." <> '' then
-                                GenJnlLine1.SetRange("Applies-to Doc. No.", "Applies-to Doc. No.")
-                            else
-                                GenJnlLine1.SetRange("Applies-to ID", "Applies-to ID");
-
-                            GenJnlLine1.SetRange("Account Type", "Account Type"::Vendor);
-                            if ("Account Type" = "Account Type"::Vendor) or
-                               ("Bal. Account Type" = "Bal. Account Type"::Vendor) or
-                               GenJnlLine1.FindFirst
-                            then begin
-                                CurrFactor := GenJnlLine1."Currency Factor";
-                                if GenJnlLine1."Interest Amount" <> 0 then
-                                    GenJnlLine1.Validate(Amount, GenJnlLine1.Amount - GenJnlLine1."Interest Amount");
-
-                                if ("Document Type" = "Document Type"::Payment) or
-                                   ("Document Type" = "Document Type"::Refund)
-                                then
-                                    if WHTPostingSetup.Get(
-                                         "WHT Business Posting Group",
-                                         "WHT Product Posting Group")
-                                    then begin
-                                        if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then begin
-                                            if GenJnlLine1.FindFirst() then
-                                                WHTManagement.CheckApplicationGenPurchWHT(GenJnlLine1);
-                                            WHTAmountLCY :=
-                                              CurrExchRate.ExchangeAmtFCYToLCY(
-                                                "Document Date",
-                                                "Currency Code",
-                                                Abs(
-                                                  WHTManagement.CalcVendExtraWHTForEarliest(GenJnlLine1)), CurrFactor);
-                                        end;
-
-                                        if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment) and
-                                           (not GLSetup."Manual Sales WHT Calc.")
-                                        then
-                                            WHTAmountLCY :=
-                                              CurrExchRate.ExchangeAmtFCYToLCY(
-                                                "Document Date",
-                                                "Currency Code",
-                                                Abs(
-                                                  WHTManagement.WHTAmountJournal(GenJnlLine1, true)), CurrFactor);
+                                        if GenJnlLine."Document Type" = GenJnlLine."Document Type"::Refund then
+                                            WHTAmountLCY := -Abs(WHTAmountLCY);
                                     end;
-                                if "Document Type" = "Document Type"::Refund then
-                                    WHTAmountLCY := -Abs(WHTAmountLCY);
-                            end;
+                end else
+                    if (GenJnlLine."Applies-to ID" <> '') or (GenJnlLine."Applies-to Doc. No." <> '') then begin
+                        GenJnlLine1.Reset();
+                        GenJnlLine1.Copy(GenJnlLine);
+                        if GenJnlLine."Applies-to Doc. No." <> '' then
+                            GenJnlLine1.SetRange("Applies-to Doc. No.", GenJnlLine."Applies-to Doc. No.")
+                        else
+                            GenJnlLine1.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
 
-                            if IsCustAcc(GenJnlLine) and not GLSetup."Enable GST (Australia)" then begin
-                                CurrFactor :=
-                                  CurrExchRate.ExchangeRate(
-                                    GenJnlLine1."Document Date", "Currency Code");
-                                if "Bal. Account Type" = "Bal. Account Type"::Customer then
-                                    GenJnlLine1.Validate(Amount, -GenJnlLine1.Amount);
+                        GenJnlLine1.SetRange("Account Type", GenJnlLine."Account Type"::Vendor);
+                        if (GenJnlLine."Account Type" = GenJnlLine."Account Type"::Vendor) or
+                           (GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::Vendor) or
+                           GenJnlLine1.FindFirst()
+                        then begin
+                            CurrFactor := GenJnlLine1."Currency Factor";
+                            if GenJnlLine1."Interest Amount" <> 0 then
+                                GenJnlLine1.Validate(Amount, GenJnlLine1.Amount - GenJnlLine1."Interest Amount");
 
-                                if IsPaymentOrRefund(GenJnlLine) then
-                                    if WHTPostingSetup.Get("WHT Business Posting Group", "WHT Product Posting Group") then begin
-                                        if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest) then begin
-                                            if GenJnlLine1.FindFirst() then
-                                                WHTManagement.CheckApplicationGenSalesWHT(GenJnlLine1);
-                                            WHTAmountLCY :=
-                                              -CurrExchRate.ExchangeAmtFCYToLCY(
-                                                "Document Date",
-                                                "Currency Code",
-                                                Abs(
-                                                  WHTManagement.CalcCustExtraWHTForEarliest(GenJnlLine)), CurrFactor);
-                                        end;
-
-                                        if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment) and
-                                           (not GLSetup."Manual Sales WHT Calc.")
-                                        then
-                                            WHTAmountLCY :=
-                                              -CurrExchRate.ExchangeAmtFCYToLCY(
-                                                GenJnlLine1."Document Date",
-                                                GenJnlLine1."Currency Code",
-                                                Abs(
-                                                  WHTManagement.ApplyCustCalcWHT(GenJnlLine1)), CurrFactor);
+                            if (GenJnlLine."Document Type" = GenJnlLine."Document Type"::Payment) or
+                               (GenJnlLine."Document Type" = GenJnlLine."Document Type"::Refund)
+                            then
+                                if WHTPostingSetup.Get(
+                                     GenJnlLine."WHT Business Posting Group",
+                                     GenJnlLine."WHT Product Posting Group")
+                                then begin
+                                    if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then begin
+                                        if GenJnlLine1.FindFirst() then
+                                            WHTManagement.CheckApplicationGenPurchWHT(GenJnlLine1);
+                                        WHTAmountLCY :=
+                                          CurrExchRate.ExchangeAmtFCYToLCY(
+                                            GenJnlLine."Document Date",
+                                            GenJnlLine."Currency Code",
+                                            Abs(
+                                              WHTManagement.CalcVendExtraWHTForEarliest(GenJnlLine1)), CurrFactor);
                                     end;
 
-                                if "Document Type" = "Document Type"::Refund then
-                                    WHTAmountLCY := -Abs(WHTAmountLCY);
-                            end;
-                            WHTAmountLCY := Round(WHTAmountLCY);
+                                    if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment) and
+                                       (not GLSetup."Manual Sales WHT Calc.")
+                                    then
+                                        WHTAmountLCY :=
+                                          CurrExchRate.ExchangeAmtFCYToLCY(
+                                            GenJnlLine."Document Date",
+                                            GenJnlLine."Currency Code",
+                                            Abs(
+                                              WHTManagement.WHTAmountJournal(GenJnlLine1, true)), CurrFactor);
+                                end;
+                            if GenJnlLine."Document Type" = GenJnlLine."Document Type"::Refund then
+                                WHTAmountLCY := -Abs(WHTAmountLCY);
                         end;
 
-            if WHTPostingSetup.Get("WHT Business Posting Group",
-                 "WHT Product Posting Group")
-            then
-                if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then begin
-                    if Abs(Amount) < WHTPostingSetup."WHT Minimum Invoice Amount" then
-                        WHTAmountLCY := 0;
-                end;
-        end;
+                        if IsCustAcc(GenJnlLine) and not GLSetup."Enable GST (Australia)" then begin
+                            CurrFactor :=
+                              CurrExchRate.ExchangeRate(
+                                GenJnlLine1."Document Date", GenJnlLine."Currency Code");
+                            if GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::Customer then
+                                GenJnlLine1.Validate(Amount, -GenJnlLine1.Amount);
+
+                            if IsPaymentOrRefund(GenJnlLine) then
+                                if WHTPostingSetup.Get(GenJnlLine."WHT Business Posting Group", GenJnlLine."WHT Product Posting Group") then begin
+                                    if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest) then begin
+                                        if GenJnlLine1.FindFirst() then
+                                            WHTManagement.CheckApplicationGenSalesWHT(GenJnlLine1);
+                                        WHTAmountLCY :=
+                                          -CurrExchRate.ExchangeAmtFCYToLCY(
+                                            GenJnlLine."Document Date",
+                                            GenJnlLine."Currency Code",
+                                            Abs(
+                                              WHTManagement.CalcCustExtraWHTForEarliest(GenJnlLine)), CurrFactor);
+                                    end;
+
+                                    if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment) and
+                                       (not GLSetup."Manual Sales WHT Calc.")
+                                    then
+                                        WHTAmountLCY :=
+                                          -CurrExchRate.ExchangeAmtFCYToLCY(
+                                            GenJnlLine1."Document Date",
+                                            GenJnlLine1."Currency Code",
+                                            Abs(
+                                              WHTManagement.ApplyCustCalcWHT(GenJnlLine1)), CurrFactor);
+                                end;
+
+                            if GenJnlLine."Document Type" = GenJnlLine."Document Type"::Refund then
+                                WHTAmountLCY := -Abs(WHTAmountLCY);
+                        end;
+                        WHTAmountLCY := Round(WHTAmountLCY);
+                    end;
+
+        if WHTPostingSetup.Get(GenJnlLine."WHT Business Posting Group",
+             GenJnlLine."WHT Product Posting Group")
+        then
+            if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then begin
+                if Abs(GenJnlLine.Amount) < WHTPostingSetup."WHT Minimum Invoice Amount" then
+                    WHTAmountLCY := 0;
+            end;
     end;
 
     [Scope('OnPrem')]
@@ -7965,20 +7995,18 @@ codeunit 12 "Gen. Jnl.-Post Line"
         if WHTAmountLCY = 0 then
             exit;
 
-        with GenJnlLine do begin
-            if "Document Type" = "Document Type"::Invoice then
-                exit;
+        if GenJnlLine."Document Type" = GenJnlLine."Document Type"::Invoice then
+            exit;
 
-            case true of
-                IsVendAcc(GenJnlLine):
-                    if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then
-                        CreateGLEntry(
-                          GenJnlLine, WHTPostingSetup."Payable WHT Account Code", -WHTAmountLCY, -WHTAmountLCY, true);
-                IsCustAcc(GenJnlLine):
-                    if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then
-                        CreateGLEntry(
-                          GenJnlLine, WHTPostingSetup."Prepaid WHT Account Code", -WHTAmountLCY, -WHTAmountLCY, true);
-            end;
+        case true of
+            IsVendAcc(GenJnlLine):
+                if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then
+                    CreateGLEntry(
+                      GenJnlLine, WHTPostingSetup."Payable WHT Account Code", -WHTAmountLCY, -WHTAmountLCY, true);
+            IsCustAcc(GenJnlLine):
+                if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then
+                    CreateGLEntry(
+                      GenJnlLine, WHTPostingSetup."Prepaid WHT Account Code", -WHTAmountLCY, -WHTAmountLCY, true);
         end;
     end;
 
@@ -7987,82 +8015,80 @@ codeunit 12 "Gen. Jnl.-Post Line"
     var
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        with GenJnlLine do begin
-            WHTAmountLCY := 0;
-            SourceCodeSetup.Get();
-            if ProcessSourceCode("Source Code", SourceCodeSetup) then begin
-                GenJnlLine1.Reset();
-                GenJnlLine1.Copy(GenJnlLine);
-                if GLSetup."Enable WHT" then
-                    if not GenJnlLine1."Skip WHT" then
-                        if (GenJnlLine1."Applies-to Doc. No." = '') and
-                           (GenJnlLine1."Applies-to ID" = '')
-                        then begin
-                            if (((GenJnlLine1."Document Type" = GenJnlLine1."Document Type"::Invoice) or
-                                 (GenJnlLine1."Document Type" = GenJnlLine1."Document Type"::"Credit Memo")) and
-                                ((GenJnlLine1."Account Type" = GenJnlLine1."Account Type"::"G/L Account") or
-                                 (GenJnlLine1."Bal. Account Type" = GenJnlLine1."Bal. Account Type"::"G/L Account")))
-                            then
-                                if WHTPostingSetup.Get(GenJnlLine1."WHT Business Posting Group", GenJnlLine1."WHT Product Posting Group") then
-                                    if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Invoice) or
-                                       (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest)
-                                    then begin
-                                        if GenJnlLine1."WHT Absorb Base" <> 0 then
-                                            WHTAmountLCY := -Round(GenJnlLine1."WHT Absorb Base" * WHTPostingSetup."WHT %" / 100)
-                                        else
-                                            WHTAmountLCY := Round(GenJnlLine1.Amount * WHTPostingSetup."WHT %" / 100);
-                                        WHTAmount := WHTAmountLCY;
-                                    end;
-                        end else
-                            if (((GenJnlLine1."Document Type" = GenJnlLine1."Document Type"::Invoice) or
-                                 (GenJnlLine1."Document Type" = GenJnlLine1."Document Type"::"Credit Memo")) and
-                                ((GenJnlLine1."Account Type" = GenJnlLine1."Account Type"::"G/L Account") or
-                                 (GenJnlLine1."Bal. Account Type" = GenJnlLine1."Bal. Account Type"::"G/L Account")))
-                            then
-                                if WHTPostingSetup.Get(GenJnlLine1."WHT Business Posting Group", GenJnlLine1."WHT Product Posting Group") then begin
-                                    if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest) then begin
-                                        GenJnlLine1.Reset();
-                                        GenJnlLine1.Copy(GenJnlLine);
-                                        if GenJnlLine1.FindFirst() then
-                                            WHTManagement.CheckApplicationGenSalesWHT(GenJnlLine1);
-                                        WHTAmountLCY := Round(WHTManagement.CalcCustExtraWHTForEarliest(GenJnlLine1));
-                                        WHTAmount := WHTAmountLCY;
-                                    end;
-
-                                    if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Invoice) then begin
-                                        GenJnlLine1.Reset();
-                                        GenJnlLine1.Copy(GenJnlLine);
-                                        if GenJnlLine1.FindFirst() then
-                                            WHTManagement.CheckApplicationGenSalesWHT(GenJnlLine1);
-                                        if GenJnlLine1."WHT Absorb Base" <> 0 then
-                                            WHTAmountLCY := -Round(GenJnlLine1."WHT Absorb Base" * WHTPostingSetup."WHT %" / 100)
-                                        else
-                                            WHTAmountLCY := Round(GenJnlLine1.Amount * WHTPostingSetup."WHT %" / 100);
-                                        WHTAmount := WHTAmountLCY;
-                                    end;
+        WHTAmountLCY := 0;
+        SourceCodeSetup.Get();
+        if ProcessSourceCode(GenJnlLine."Source Code", SourceCodeSetup) then begin
+            GenJnlLine1.Reset();
+            GenJnlLine1.Copy(GenJnlLine);
+            if GLSetup."Enable WHT" then
+                if not GenJnlLine1."Skip WHT" then
+                    if (GenJnlLine1."Applies-to Doc. No." = '') and
+                       (GenJnlLine1."Applies-to ID" = '')
+                    then begin
+                        if (((GenJnlLine1."Document Type" = GenJnlLine1."Document Type"::Invoice) or
+                             (GenJnlLine1."Document Type" = GenJnlLine1."Document Type"::"Credit Memo")) and
+                            ((GenJnlLine1."Account Type" = GenJnlLine1."Account Type"::"G/L Account") or
+                             (GenJnlLine1."Bal. Account Type" = GenJnlLine1."Bal. Account Type"::"G/L Account")))
+                        then
+                            if WHTPostingSetup.Get(GenJnlLine1."WHT Business Posting Group", GenJnlLine1."WHT Product Posting Group") then
+                                if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Invoice) or
+                                   (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest)
+                                then begin
+                                    if GenJnlLine1."WHT Absorb Base" <> 0 then
+                                        WHTAmountLCY := -Round(GenJnlLine1."WHT Absorb Base" * WHTPostingSetup."WHT %" / 100)
+                                    else
+                                        WHTAmountLCY := Round(GenJnlLine1.Amount * WHTPostingSetup."WHT %" / 100);
+                                    WHTAmount := WHTAmountLCY;
+                                end;
+                    end else
+                        if (((GenJnlLine1."Document Type" = GenJnlLine1."Document Type"::Invoice) or
+                             (GenJnlLine1."Document Type" = GenJnlLine1."Document Type"::"Credit Memo")) and
+                            ((GenJnlLine1."Account Type" = GenJnlLine1."Account Type"::"G/L Account") or
+                             (GenJnlLine1."Bal. Account Type" = GenJnlLine1."Bal. Account Type"::"G/L Account")))
+                        then
+                            if WHTPostingSetup.Get(GenJnlLine1."WHT Business Posting Group", GenJnlLine1."WHT Product Posting Group") then begin
+                                if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest) then begin
+                                    GenJnlLine1.Reset();
+                                    GenJnlLine1.Copy(GenJnlLine);
+                                    if GenJnlLine1.FindFirst() then
+                                        WHTManagement.CheckApplicationGenSalesWHT(GenJnlLine1);
+                                    WHTAmountLCY := Round(WHTManagement.CalcCustExtraWHTForEarliest(GenJnlLine1));
+                                    WHTAmount := WHTAmountLCY;
                                 end;
 
-                if GenJnlLine1."Document Type" = GenJnlLine1."Document Type"::Invoice then begin
-                    if "Currency Code" <> '' then
-                        WHTAmountLCY :=
-                          Abs(Round(
-                              CurrExchRate.ExchangeAmtFCYToLCY(
-                                "Posting Date", "Currency Code", WHTAmountLCY,
-                                CurrExchRate.ExchangeRate("Posting Date", "Currency Code"))))
-                    else
-                        WHTAmountLCY := Abs(WHTAmountLCY);
-                    WHTAmount := Abs(WHTAmount);
-                end else begin
-                    if "Currency Code" <> '' then
-                        WHTAmountLCY :=
-                          -Abs(Round(
-                              CurrExchRate.ExchangeAmtFCYToLCY(
-                                "Posting Date", "Currency Code", WHTAmountLCY,
-                                CurrExchRate.ExchangeRate("Posting Date", "Currency Code"))))
-                    else
-                        WHTAmountLCY := -Abs(WHTAmountLCY);
-                    WHTAmount := -Abs(WHTAmount);
-                end;
+                                if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Invoice) then begin
+                                    GenJnlLine1.Reset();
+                                    GenJnlLine1.Copy(GenJnlLine);
+                                    if GenJnlLine1.FindFirst() then
+                                        WHTManagement.CheckApplicationGenSalesWHT(GenJnlLine1);
+                                    if GenJnlLine1."WHT Absorb Base" <> 0 then
+                                        WHTAmountLCY := -Round(GenJnlLine1."WHT Absorb Base" * WHTPostingSetup."WHT %" / 100)
+                                    else
+                                        WHTAmountLCY := Round(GenJnlLine1.Amount * WHTPostingSetup."WHT %" / 100);
+                                    WHTAmount := WHTAmountLCY;
+                                end;
+                            end;
+
+            if GenJnlLine1."Document Type" = GenJnlLine1."Document Type"::Invoice then begin
+                if GenJnlLine."Currency Code" <> '' then
+                    WHTAmountLCY :=
+                      Abs(Round(
+                          CurrExchRate.ExchangeAmtFCYToLCY(
+                            GenJnlLine."Posting Date", GenJnlLine."Currency Code", WHTAmountLCY,
+                            CurrExchRate.ExchangeRate(GenJnlLine."Posting Date", GenJnlLine."Currency Code"))))
+                else
+                    WHTAmountLCY := Abs(WHTAmountLCY);
+                WHTAmount := Abs(WHTAmount);
+            end else begin
+                if GenJnlLine."Currency Code" <> '' then
+                    WHTAmountLCY :=
+                      -Abs(Round(
+                          CurrExchRate.ExchangeAmtFCYToLCY(
+                            GenJnlLine."Posting Date", GenJnlLine."Currency Code", WHTAmountLCY,
+                            CurrExchRate.ExchangeRate(GenJnlLine."Posting Date", GenJnlLine."Currency Code"))))
+                else
+                    WHTAmountLCY := -Abs(WHTAmountLCY);
+                WHTAmount := -Abs(WHTAmount);
             end;
         end;
     end;
@@ -8073,218 +8099,216 @@ codeunit 12 "Gen. Jnl.-Post Line"
         TempGenJnlTemp: Record "Gen. Journal Template";
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        with GenJnlLine do begin
-            if WHTAmountLCY <> 0 then
-                if ((GenJnlLine1."Document Type" = GenJnlLine1."Document Type"::Invoice) or
-                    (GenJnlLine1."Document Type" = GenJnlLine1."Document Type"::"Credit Memo"))
-                then
-                    if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Invoice) or
-                       (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest)
-                    then begin
-                        WHTPostingSetup.TestField("Prepaid WHT Account Code");
-                        CreateGLEntry(
-                          GenJnlLine, WHTPostingSetup."Prepaid WHT Account Code", WHTAmountLCY, WHTAmountLCY, true);
-                    end;
+        if WHTAmountLCY <> 0 then
+            if ((GenJnlLine1."Document Type" = GenJnlLine1."Document Type"::Invoice) or
+                (GenJnlLine1."Document Type" = GenJnlLine1."Document Type"::"Credit Memo"))
+            then
+                if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Invoice) or
+                   (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest)
+                then begin
+                    WHTPostingSetup.TestField("Prepaid WHT Account Code");
+                    CreateGLEntry(
+                      GenJnlLine, WHTPostingSetup."Prepaid WHT Account Code", WHTAmountLCY, WHTAmountLCY, true);
+                end;
 
-            SourceCodeSetup.Get();
-            if "Source Code" <> SourceCodeSetup."Financially Voided Check" then begin
-                GenJnlLine1.Reset();
-                GenJnlLine1.Copy(GenJnlLine);
-                if GLSetup."Enable WHT" and (not GLSetup."Enable GST (Australia)") then
-                    if IsAboveWHTMinInvoiceAmount(GenJnlLine) then begin
-                        if not "Skip WHT" then begin
-                            if ("Applies-to Doc. No." <> '') or ("Applies-to ID" <> '') then begin
-                                KeepWHTEntryNo := NextWHTEntryNo;
-                                case "Document Type" of
-                                    "Document Type"::Payment:
-                                        if GLSetup."Manual Sales WHT Calc." then begin
-                                            if "WHT Payment" then
-                                                NextWHTEntryNo := WHTManagement.ApplyManualCustInvoiceWHT(CustLedgEntry, GenJnlLine1);
-                                        end else
-                                            if WHTPostingSetup.Get(
-                                                 "WHT Business Posting Group",
-                                                 "WHT Product Posting Group")
-                                            then begin
-                                                if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment then begin
-                                                    NextWHTEntryNo := WHTManagement.ApplyCustInvoiceWHT(CustLedgEntry, GenJnlLine1);
-                                                    if NextWHTEntryNo <> -1 then
-                                                        HadWHTEntryNo := true
-                                                    else
-                                                        NextWHTEntryNo := KeepWHTEntryNo;
-                                                end;
+        SourceCodeSetup.Get();
+        if GenJnlLine."Source Code" <> SourceCodeSetup."Financially Voided Check" then begin
+            GenJnlLine1.Reset();
+            GenJnlLine1.Copy(GenJnlLine);
+            if GLSetup."Enable WHT" and (not GLSetup."Enable GST (Australia)") then
+                if IsAboveWHTMinInvoiceAmount(GenJnlLine) then begin
+                    if not GenJnlLine."Skip WHT" then begin
+                        if (GenJnlLine."Applies-to Doc. No." <> '') or (GenJnlLine."Applies-to ID" <> '') then begin
+                            KeepWHTEntryNo := NextWHTEntryNo;
+                            case GenJnlLine."Document Type" of
+                                GenJnlLine."Document Type"::Payment:
+                                    if GLSetup."Manual Sales WHT Calc." then begin
+                                        if GenJnlLine."WHT Payment" then
+                                            NextWHTEntryNo := WHTManagement.ApplyManualCustInvoiceWHT(CustLedgEntry, GenJnlLine1);
+                                    end else
+                                        if WHTPostingSetup.Get(
+                                             GenJnlLine."WHT Business Posting Group",
+                                             GenJnlLine."WHT Product Posting Group")
+                                        then begin
+                                            if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment then begin
+                                                NextWHTEntryNo := WHTManagement.ApplyCustInvoiceWHT(CustLedgEntry, GenJnlLine1);
+                                                if NextWHTEntryNo <> -1 then
+                                                    HadWHTEntryNo := true
+                                                else
+                                                    NextWHTEntryNo := KeepWHTEntryNo;
+                                            end;
 
-                                                if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then begin
-                                                    NextWHTEntryNo := WHTManagement.InsertCustJournalWHT(GenJnlLine);
-                                                    if WHTEntry.Get(NextWHTEntryNo - 1) then begin
-                                                        WHTEntry."Transaction No." := NextTransactionNo;
-                                                        WHTEntry.Modify();
-                                                    end;
+                                            if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then begin
+                                                NextWHTEntryNo := WHTManagement.InsertCustJournalWHT(GenJnlLine);
+                                                if WHTEntry.Get(NextWHTEntryNo - 1) then begin
+                                                    WHTEntry."Transaction No." := NextTransactionNo;
+                                                    WHTEntry.Modify();
                                                 end;
                                             end;
-                                    "Document Type"::Invoice:
-                                        begin
-                                            if ProcessSourceCode("Source Code", SourceCodeSetup) then
-                                                if WHTPostingSetup.Get("WHT Business Posting Group", "WHT Product Posting Group") then
-                                                    if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Invoice) or
-                                                       (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest)
-                                                    then begin
-                                                        GenJnlLine2.Reset();
-                                                        GenJnlLine2.Copy(GenJnlLine);
-                                                        GenJnlLine2.Amount := Abs(GenJnlLine2.Amount);
-                                                        GenJnlLine2."WHT Absorb Base" := Abs(GenJnlLine2."WHT Absorb Base");
-                                                        NextWHTEntryNo := WHTManagement.InsertCustJournalWHT(GenJnlLine2);
-                                                        if WHTEntry.Get(NextWHTEntryNo - 1) then begin
-                                                            WHTEntry."Transaction No." := NextTransactionNo;
-                                                            WHTEntry.Modify();
-                                                        end;
-                                                    end;
-                                            if SourceCodeSetup.Sales = "Source Code" then
-                                                UpdateWHTEntryTransaction("Document No.");
                                         end;
-                                    "Document Type"::"Credit Memo":
-                                        begin
-                                            if ProcessSourceCode("Source Code", SourceCodeSetup) then
-                                                if WHTPostingSetup.Get("WHT Business Posting Group", "WHT Product Posting Group") then
-                                                    if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Invoice) or
-                                                       (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest)
-                                                    then begin
-                                                        GenJnlLine2.Reset();
-                                                        GenJnlLine2.Copy(GenJnlLine);
-                                                        GenJnlLine2.Amount := Abs(GenJnlLine2.Amount);
-                                                        GenJnlLine2."WHT Absorb Base" := Abs(GenJnlLine2."WHT Absorb Base");
-                                                        NextWHTEntryNo := WHTManagement.InsertCustJournalWHT(GenJnlLine2);
-                                                        if WHTEntry.Get(NextWHTEntryNo - 1) then begin
-                                                            WHTEntry."Transaction No." := NextTransactionNo;
-                                                            WHTEntry.Modify();
-                                                        end;
-                                                    end;
-
-                                            if SourceCodeSetup.Sales = "Source Code" then
-                                                UpdateWHTEntryTransaction("Document No.");
-                                        end;
-                                    "Document Type"::Refund:
-                                        if GLSetup."Manual Sales WHT Calc." then begin
-                                            if "WHT Payment" then
-                                                NextWHTEntryNo := WHTManagement.ApplyManualCustInvoiceWHT(CustLedgEntry, GenJnlLine1);
-                                        end else
-                                            if WHTPostingSetup.Get("WHT Business Posting Group", "WHT Product Posting Group") then begin
-                                                if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment then begin
-                                                    NextWHTEntryNo := WHTManagement.ApplyCustInvoiceWHT(CustLedgEntry, GenJnlLine1);
-                                                    if NextWHTEntryNo <> -1 then
-                                                        HadWHTEntryNo := true
-                                                    else
-                                                        NextWHTEntryNo := KeepWHTEntryNo;
-                                                end;
-
-                                                if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then begin
-                                                    NextWHTEntryNo := WHTManagement.InsertCustJournalWHT(GenJnlLine);
-                                                    if WHTEntry.Get(NextWHTEntryNo - 1) then begin
-                                                        WHTEntry."Transaction No." := NextTransactionNo;
-                                                        WHTEntry.Modify();
-                                                    end;
-                                                end;
-                                            end;
-                                end;
-                                TempGenJnlTemp.SetRange(Type, TempGenJnlTemp.Type::Sales);
-                                if TempGenJnlTemp.FindFirst() then
-                                    if "Journal Template Name" = TempGenJnlTemp.Name then begin
-                                        WHTEntry.Reset();
-                                        WHTEntry.SetRange("Document Type", WHTEntry."Document Type"::Payment);
-                                        WHTEntry.SetRange("Document No.", "Document No.");
-                                        WHTEntry.SetRange("Bill-to/Pay-to No.", "Account No.");
-                                        WHTEntry.SetFilter("Remaining Unrealized Amount", '<>0');
-                                        if WHTEntry.Find('-') then
-                                            repeat
-                                                WHTPostingSetup.Get(WHTEntry."WHT Bus. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                                WHTPostingSetup.TestField("Prepaid WHT Account Code");
-                                                CreateGLEntry(
-                                                  GenJnlLine, WHTPostingSetup."Prepaid WHT Account Code", -WHTEntry."Amount (LCY)", "Source Currency Amount", true);
-                                            until WHTEntry.Next() = 0;
-                                    end;
-                            end else
-                                KeepWHTEntryNo := NextWHTEntryNo;
-                            case "Document Type" of
-                                "Document Type"::Invoice:
+                                GenJnlLine."Document Type"::Invoice:
                                     begin
-                                        if ProcessSourceCode("Source Code", SourceCodeSetup) then begin
-                                            GenJnlLine2.Reset();
-                                            GenJnlLine2.Copy(GenJnlLine);
-                                            GenJnlLine2.Amount := -Abs(GenJnlLine2.Amount);
-                                            GenJnlLine2."WHT Absorb Base" := -Abs(GenJnlLine2."WHT Absorb Base");
-                                            NextWHTEntryNo := WHTManagement.InsertCustJournalWHT(GenJnlLine2);
-                                        end;
-                                        UpdateWHTEntryTransaction("Document No.");
-                                    end;
-                                "Document Type"::"Credit Memo":
-                                    begin
-                                        if ProcessSourceCode("Source Code", SourceCodeSetup) then begin
-                                            GenJnlLine2.Reset();
-                                            GenJnlLine2.Copy(GenJnlLine);
-                                            GenJnlLine2.Amount := Abs(GenJnlLine2.Amount);
-                                            GenJnlLine2."WHT Absorb Base" := Abs(GenJnlLine2."WHT Absorb Base");
-                                            NextWHTEntryNo := WHTManagement.InsertCustJournalWHT(GenJnlLine2);
-                                        end;
-                                        UpdateWHTEntryTransaction("Document No.");
-                                    end;
-                                "Document Type"::Payment:
-                                    if WHTPostingSetup.Get("WHT Business Posting Group", "WHT Product Posting Group") then
-                                        if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then begin
-                                            GenJnlLine2.Reset();
-                                            GenJnlLine2.Copy(GenJnlLine);
-                                            GenJnlLine2.Amount := -Abs(GenJnlLine2.Amount);
-                                            GenJnlLine2."WHT Absorb Base" := -Abs(GenJnlLine2."WHT Absorb Base");
-                                            NextWHTEntryNo := WHTManagement.InsertCustJournalWHT(GenJnlLine2);
-                                            if WHTEntry.Get(NextWHTEntryNo - 1) then begin
-                                                WHTEntry."Transaction No." := NextTransactionNo;
-                                                WHTEntry.Modify();
-                                            end;
-                                        end else
-                                            if GLSetup."Manual Sales WHT Calc." then
-                                                if "WHT Payment" then begin
+                                        if ProcessSourceCode(GenJnlLine."Source Code", SourceCodeSetup) then
+                                            if WHTPostingSetup.Get(GenJnlLine."WHT Business Posting Group", GenJnlLine."WHT Product Posting Group") then
+                                                if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Invoice) or
+                                                   (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest)
+                                                then begin
                                                     GenJnlLine2.Reset();
                                                     GenJnlLine2.Copy(GenJnlLine);
-                                                    GenJnlLine2.Amount := -Abs(GenJnlLine2.Amount);
-                                                    GenJnlLine2."WHT Absorb Base" := -Abs(GenJnlLine2."WHT Absorb Base");
+                                                    GenJnlLine2.Amount := Abs(GenJnlLine2.Amount);
+                                                    GenJnlLine2."WHT Absorb Base" := Abs(GenJnlLine2."WHT Absorb Base");
                                                     NextWHTEntryNo := WHTManagement.InsertCustJournalWHT(GenJnlLine2);
-                                                    InsertWHTPaymentGL(GenJnlLine2, GenJnlLine, CustLedgEntry."Entry No.");
                                                     if WHTEntry.Get(NextWHTEntryNo - 1) then begin
                                                         WHTEntry."Transaction No." := NextTransactionNo;
                                                         WHTEntry.Modify();
                                                     end;
                                                 end;
-                                "Document Type"::Refund:
-                                    if WHTPostingSetup.Get("WHT Business Posting Group", "WHT Product Posting Group") then
-                                        if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then begin
-                                            GenJnlLine2.Reset();
-                                            GenJnlLine2.Copy(GenJnlLine);
-                                            GenJnlLine2.Amount := -Abs(GenJnlLine2.Amount);
-                                            GenJnlLine2."WHT Absorb Base" := -Abs(GenJnlLine2."WHT Absorb Base");
-                                            NextWHTEntryNo := WHTManagement.InsertCustJournalWHT(GenJnlLine2);
-                                            if WHTEntry.Get(NextWHTEntryNo - 1) then begin
-                                                WHTEntry."Transaction No." := NextTransactionNo;
-                                                WHTEntry.Modify();
+                                        if SourceCodeSetup.Sales = GenJnlLine."Source Code" then
+                                            UpdateWHTEntryTransaction(GenJnlLine."Document No.");
+                                    end;
+                                GenJnlLine."Document Type"::"Credit Memo":
+                                    begin
+                                        if ProcessSourceCode(GenJnlLine."Source Code", SourceCodeSetup) then
+                                            if WHTPostingSetup.Get(GenJnlLine."WHT Business Posting Group", GenJnlLine."WHT Product Posting Group") then
+                                                if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Invoice) or
+                                                   (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest)
+                                                then begin
+                                                    GenJnlLine2.Reset();
+                                                    GenJnlLine2.Copy(GenJnlLine);
+                                                    GenJnlLine2.Amount := Abs(GenJnlLine2.Amount);
+                                                    GenJnlLine2."WHT Absorb Base" := Abs(GenJnlLine2."WHT Absorb Base");
+                                                    NextWHTEntryNo := WHTManagement.InsertCustJournalWHT(GenJnlLine2);
+                                                    if WHTEntry.Get(NextWHTEntryNo - 1) then begin
+                                                        WHTEntry."Transaction No." := NextTransactionNo;
+                                                        WHTEntry.Modify();
+                                                    end;
+                                                end;
+
+                                        if SourceCodeSetup.Sales = GenJnlLine."Source Code" then
+                                            UpdateWHTEntryTransaction(GenJnlLine."Document No.");
+                                    end;
+                                GenJnlLine."Document Type"::Refund:
+                                    if GLSetup."Manual Sales WHT Calc." then begin
+                                        if GenJnlLine."WHT Payment" then
+                                            NextWHTEntryNo := WHTManagement.ApplyManualCustInvoiceWHT(CustLedgEntry, GenJnlLine1);
+                                    end else
+                                        if WHTPostingSetup.Get(GenJnlLine."WHT Business Posting Group", GenJnlLine."WHT Product Posting Group") then begin
+                                            if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment then begin
+                                                NextWHTEntryNo := WHTManagement.ApplyCustInvoiceWHT(CustLedgEntry, GenJnlLine1);
+                                                if NextWHTEntryNo <> -1 then
+                                                    HadWHTEntryNo := true
+                                                else
+                                                    NextWHTEntryNo := KeepWHTEntryNo;
+                                            end;
+
+                                            if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then begin
+                                                NextWHTEntryNo := WHTManagement.InsertCustJournalWHT(GenJnlLine);
+                                                if WHTEntry.Get(NextWHTEntryNo - 1) then begin
+                                                    WHTEntry."Transaction No." := NextTransactionNo;
+                                                    WHTEntry.Modify();
+                                                end;
                                             end;
                                         end;
                             end;
-                        end
-                    end;
-                if NextWHTEntryNo = 0 then
-                    NextWHTEntryNo := KeepWHTEntryNo;
-
-                PostCustWHTTaxInv(GenJnlLine, CustLedgEntry);
-
-                OnPostCustWHTOnAfterPostCustWHTTaxInv(GenJnlLine, CustLedgEntry);
-
-                if "Applies-to ID" <> '' then begin
-                    CustLedgEntry.Reset();
-                    CustLedgEntry.SetCurrentKey("Customer No.", "Applies-to ID", Open, Positive, "Due Date");
-                    if "Account Type" = "Account Type"::Customer then
-                        CustLedgEntry.SetRange("Customer No.", "Account No.");
-                    CustLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
-                    CustLedgEntry.SetRange("Amount to Apply", 0);
-                    if CustLedgEntry.FindFirst() then
-                        CustLedgEntry.ModifyAll("Applies-to ID", '');
+                            TempGenJnlTemp.SetRange(Type, TempGenJnlTemp.Type::Sales);
+                            if TempGenJnlTemp.FindFirst() then
+                                if GenJnlLine."Journal Template Name" = TempGenJnlTemp.Name then begin
+                                    WHTEntry.Reset();
+                                    WHTEntry.SetRange("Document Type", WHTEntry."Document Type"::Payment);
+                                    WHTEntry.SetRange("Document No.", GenJnlLine."Document No.");
+                                    WHTEntry.SetRange("Bill-to/Pay-to No.", GenJnlLine."Account No.");
+                                    WHTEntry.SetFilter("Remaining Unrealized Amount", '<>0');
+                                    if WHTEntry.Find('-') then
+                                        repeat
+                                            WHTPostingSetup.Get(WHTEntry."WHT Bus. Posting Group", WHTEntry."WHT Prod. Posting Group");
+                                            WHTPostingSetup.TestField("Prepaid WHT Account Code");
+                                            CreateGLEntry(
+                                              GenJnlLine, WHTPostingSetup."Prepaid WHT Account Code", -WHTEntry."Amount (LCY)", GenJnlLine."Source Currency Amount", true);
+                                        until WHTEntry.Next() = 0;
+                                end;
+                        end else
+                            KeepWHTEntryNo := NextWHTEntryNo;
+                        case GenJnlLine."Document Type" of
+                            GenJnlLine."Document Type"::Invoice:
+                                begin
+                                    if ProcessSourceCode(GenJnlLine."Source Code", SourceCodeSetup) then begin
+                                        GenJnlLine2.Reset();
+                                        GenJnlLine2.Copy(GenJnlLine);
+                                        GenJnlLine2.Amount := -Abs(GenJnlLine2.Amount);
+                                        GenJnlLine2."WHT Absorb Base" := -Abs(GenJnlLine2."WHT Absorb Base");
+                                        NextWHTEntryNo := WHTManagement.InsertCustJournalWHT(GenJnlLine2);
+                                    end;
+                                    UpdateWHTEntryTransaction(GenJnlLine."Document No.");
+                                end;
+                            GenJnlLine."Document Type"::"Credit Memo":
+                                begin
+                                    if ProcessSourceCode(GenJnlLine."Source Code", SourceCodeSetup) then begin
+                                        GenJnlLine2.Reset();
+                                        GenJnlLine2.Copy(GenJnlLine);
+                                        GenJnlLine2.Amount := Abs(GenJnlLine2.Amount);
+                                        GenJnlLine2."WHT Absorb Base" := Abs(GenJnlLine2."WHT Absorb Base");
+                                        NextWHTEntryNo := WHTManagement.InsertCustJournalWHT(GenJnlLine2);
+                                    end;
+                                    UpdateWHTEntryTransaction(GenJnlLine."Document No.");
+                                end;
+                            GenJnlLine."Document Type"::Payment:
+                                if WHTPostingSetup.Get(GenJnlLine."WHT Business Posting Group", GenJnlLine."WHT Product Posting Group") then
+                                    if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then begin
+                                        GenJnlLine2.Reset();
+                                        GenJnlLine2.Copy(GenJnlLine);
+                                        GenJnlLine2.Amount := -Abs(GenJnlLine2.Amount);
+                                        GenJnlLine2."WHT Absorb Base" := -Abs(GenJnlLine2."WHT Absorb Base");
+                                        NextWHTEntryNo := WHTManagement.InsertCustJournalWHT(GenJnlLine2);
+                                        if WHTEntry.Get(NextWHTEntryNo - 1) then begin
+                                            WHTEntry."Transaction No." := NextTransactionNo;
+                                            WHTEntry.Modify();
+                                        end;
+                                    end else
+                                        if GLSetup."Manual Sales WHT Calc." then
+                                            if GenJnlLine."WHT Payment" then begin
+                                                GenJnlLine2.Reset();
+                                                GenJnlLine2.Copy(GenJnlLine);
+                                                GenJnlLine2.Amount := -Abs(GenJnlLine2.Amount);
+                                                GenJnlLine2."WHT Absorb Base" := -Abs(GenJnlLine2."WHT Absorb Base");
+                                                NextWHTEntryNo := WHTManagement.InsertCustJournalWHT(GenJnlLine2);
+                                                InsertWHTPaymentGL(GenJnlLine2, GenJnlLine, CustLedgEntry."Entry No.");
+                                                if WHTEntry.Get(NextWHTEntryNo - 1) then begin
+                                                    WHTEntry."Transaction No." := NextTransactionNo;
+                                                    WHTEntry.Modify();
+                                                end;
+                                            end;
+                            GenJnlLine."Document Type"::Refund:
+                                if WHTPostingSetup.Get(GenJnlLine."WHT Business Posting Group", GenJnlLine."WHT Product Posting Group") then
+                                    if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then begin
+                                        GenJnlLine2.Reset();
+                                        GenJnlLine2.Copy(GenJnlLine);
+                                        GenJnlLine2.Amount := -Abs(GenJnlLine2.Amount);
+                                        GenJnlLine2."WHT Absorb Base" := -Abs(GenJnlLine2."WHT Absorb Base");
+                                        NextWHTEntryNo := WHTManagement.InsertCustJournalWHT(GenJnlLine2);
+                                        if WHTEntry.Get(NextWHTEntryNo - 1) then begin
+                                            WHTEntry."Transaction No." := NextTransactionNo;
+                                            WHTEntry.Modify();
+                                        end;
+                                    end;
+                        end;
+                    end
                 end;
+            if NextWHTEntryNo = 0 then
+                NextWHTEntryNo := KeepWHTEntryNo;
+
+            PostCustWHTTaxInv(GenJnlLine, CustLedgEntry);
+
+            OnPostCustWHTOnAfterPostCustWHTTaxInv(GenJnlLine, CustLedgEntry);
+
+            if GenJnlLine."Applies-to ID" <> '' then begin
+                CustLedgEntry.Reset();
+                CustLedgEntry.SetCurrentKey("Customer No.", "Applies-to ID", Open, Positive, "Due Date");
+                if GenJnlLine."Account Type" = GenJnlLine."Account Type"::Customer then
+                    CustLedgEntry.SetRange("Customer No.", GenJnlLine."Account No.");
+                CustLedgEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
+                CustLedgEntry.SetRange("Amount to Apply", 0);
+                if CustLedgEntry.FindFirst() then
+                    CustLedgEntry.ModifyAll("Applies-to ID", '');
             end;
         end;
     end;
@@ -8322,90 +8346,88 @@ codeunit 12 "Gen. Jnl.-Post Line"
     var
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        with GenJnlLine do begin
-            WHTAmountLCY := 0;
-            SourceCodeSetup.Get();
-            if ProcessSourceCode("Source Code", SourceCodeSetup) then begin
-                GenJnlLine1.Reset();
-                GenJnlLine1.Copy(GenJnlLine);
-                if GLSetup."Enable WHT" then
-                    if not GenJnlLine1."Skip WHT" then
-                        if (GenJnlLine1."Applies-to Doc. No." = '') and
-                           (GenJnlLine1."Applies-to ID" = '')
-                        then begin
-                            if (((GenJnlLine1."Document Type" = GenJnlLine1."Document Type"::Invoice) or
-                                 (GenJnlLine1."Document Type" = GenJnlLine1."Document Type"::"Credit Memo")) and
-                                ((GenJnlLine1."Account Type" = GenJnlLine1."Account Type"::"G/L Account") or
-                                 (GenJnlLine1."Bal. Account Type" = GenJnlLine1."Bal. Account Type"::"G/L Account")))
-                            then
-                                if WHTPostingSetup.Get(GenJnlLine1."WHT Business Posting Group", GenJnlLine1."WHT Product Posting Group") then
-                                    if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Invoice) or
-                                       (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest)
-                                    then begin
-                                        if GenJnlLine1."WHT Absorb Base" <> 0 then
-                                            WHTAmountLCY :=
-                                              -Round(
-                                                CurrExchRate.ExchangeAmtFCYToLCY(
-                                                  "Posting Date", "Currency Code",
-                                                  Round(GenJnlLine1."WHT Absorb Base" * WHTPostingSetup."WHT %" / 100), "Currency Factor"))
-                                        else
-                                            WHTAmountLCY :=
-                                              Round(
-                                                CurrExchRate.ExchangeAmtFCYToLCY(
-                                                  "Posting Date", "Currency Code",
-                                                  Round(GenJnlLine1.Amount * WHTPostingSetup."WHT %" / 100), "Currency Factor"));
-                                        WHTAmount := CalcDtldCVLedgEntryAmount(GenJnlLine, WHTPostingSetup."WHT %");
-                                    end;
-                        end else
-                            if (((GenJnlLine1."Document Type" = GenJnlLine1."Document Type"::Invoice) or
-                                 (GenJnlLine1."Document Type" = GenJnlLine1."Document Type"::"Credit Memo")) and
-                                ((GenJnlLine1."Account Type" = GenJnlLine1."Account Type"::"G/L Account") or
-                                 (GenJnlLine1."Bal. Account Type" = GenJnlLine1."Bal. Account Type"::"G/L Account")))
-                            then
-                                if WHTPostingSetup.Get(GenJnlLine1."WHT Business Posting Group", GenJnlLine1."WHT Product Posting Group") then begin
-                                    if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then begin
-                                        GenJnlLine1.Reset();
-                                        GenJnlLine1.Copy(GenJnlLine);
-                                        if GenJnlLine1.FindFirst() then
-                                            WHTManagement.CheckApplicationGenPurchWHT(GenJnlLine1);
-                                        WHTAmountLCY := Round(WHTManagement.CalcVendExtraWHTForEarliest(GenJnlLine1));
-                                        WHTAmount := WHTAmountLCY;
-                                    end;
-
-                                    if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Invoice then begin
-                                        GenJnlLine1.Reset();
-                                        GenJnlLine1.Copy(GenJnlLine);
-                                        if GenJnlLine1.FindFirst() then
-                                            WHTManagement.CheckApplicationGenPurchWHT(GenJnlLine1);
-                                        if GenJnlLine1."WHT Absorb Base" <> 0 then
-                                            WHTAmountLCY :=
-                                              -Round(
-                                                CurrExchRate.ExchangeAmtFCYToLCY(
-                                                  "Posting Date", "Currency Code",
-                                                  Round(GenJnlLine1."WHT Absorb Base" * WHTPostingSetup."WHT %" / 100), "Currency Factor"))
-                                        else
-                                            WHTAmountLCY :=
-                                              Round(
-                                                CurrExchRate.ExchangeAmtFCYToLCY(
-                                                  "Posting Date", "Currency Code",
-                                                  Round(GenJnlLine1.Amount * WHTPostingSetup."WHT %" / 100), "Currency Factor"));
-                                        WHTAmount := CalcDtldCVLedgEntryAmount(GenJnlLine, WHTPostingSetup."WHT %");
-                                    end;
+        WHTAmountLCY := 0;
+        SourceCodeSetup.Get();
+        if ProcessSourceCode(GenJnlLine."Source Code", SourceCodeSetup) then begin
+            GenJnlLine1.Reset();
+            GenJnlLine1.Copy(GenJnlLine);
+            if GLSetup."Enable WHT" then
+                if not GenJnlLine1."Skip WHT" then
+                    if (GenJnlLine1."Applies-to Doc. No." = '') and
+                       (GenJnlLine1."Applies-to ID" = '')
+                    then begin
+                        if (((GenJnlLine1."Document Type" = GenJnlLine1."Document Type"::Invoice) or
+                             (GenJnlLine1."Document Type" = GenJnlLine1."Document Type"::"Credit Memo")) and
+                            ((GenJnlLine1."Account Type" = GenJnlLine1."Account Type"::"G/L Account") or
+                             (GenJnlLine1."Bal. Account Type" = GenJnlLine1."Bal. Account Type"::"G/L Account")))
+                        then
+                            if WHTPostingSetup.Get(GenJnlLine1."WHT Business Posting Group", GenJnlLine1."WHT Product Posting Group") then
+                                if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Invoice) or
+                                   (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest)
+                                then begin
+                                    if GenJnlLine1."WHT Absorb Base" <> 0 then
+                                        WHTAmountLCY :=
+                                          -Round(
+                                            CurrExchRate.ExchangeAmtFCYToLCY(
+                                              GenJnlLine."Posting Date", GenJnlLine."Currency Code",
+                                              Round(GenJnlLine1."WHT Absorb Base" * WHTPostingSetup."WHT %" / 100), GenJnlLine."Currency Factor"))
+                                    else
+                                        WHTAmountLCY :=
+                                          Round(
+                                            CurrExchRate.ExchangeAmtFCYToLCY(
+                                              GenJnlLine."Posting Date", GenJnlLine."Currency Code",
+                                              Round(GenJnlLine1.Amount * WHTPostingSetup."WHT %" / 100), GenJnlLine."Currency Factor"));
+                                    WHTAmount := CalcDtldCVLedgEntryAmount(GenJnlLine, WHTPostingSetup."WHT %");
                                 end;
-                if GenJnlLine1."Document Type" = GenJnlLine1."Document Type"::Invoice then begin
-                    WHTAmountLCY := -Abs(WHTAmountLCY);
-                    WHTAmount := -Abs(WHTAmount);
-                end else begin
-                    WHTAmountLCY := Abs(WHTAmountLCY);
-                    WHTAmount := Abs(WHTAmount);
-                end;
-            end;
+                    end else
+                        if (((GenJnlLine1."Document Type" = GenJnlLine1."Document Type"::Invoice) or
+                             (GenJnlLine1."Document Type" = GenJnlLine1."Document Type"::"Credit Memo")) and
+                            ((GenJnlLine1."Account Type" = GenJnlLine1."Account Type"::"G/L Account") or
+                             (GenJnlLine1."Bal. Account Type" = GenJnlLine1."Bal. Account Type"::"G/L Account")))
+                        then
+                            if WHTPostingSetup.Get(GenJnlLine1."WHT Business Posting Group", GenJnlLine1."WHT Product Posting Group") then begin
+                                if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then begin
+                                    GenJnlLine1.Reset();
+                                    GenJnlLine1.Copy(GenJnlLine);
+                                    if GenJnlLine1.FindFirst() then
+                                        WHTManagement.CheckApplicationGenPurchWHT(GenJnlLine1);
+                                    WHTAmountLCY := Round(WHTManagement.CalcVendExtraWHTForEarliest(GenJnlLine1));
+                                    WHTAmount := WHTAmountLCY;
+                                end;
 
-            if WHTPostingSetup.Get("WHT Business Posting Group", "WHT Product Posting Group") then
-                if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then
-                    if Amount < WHTPostingSetup."WHT Minimum Invoice Amount" then
-                        WHTAmountLCY := 0;
+                                if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Invoice then begin
+                                    GenJnlLine1.Reset();
+                                    GenJnlLine1.Copy(GenJnlLine);
+                                    if GenJnlLine1.FindFirst() then
+                                        WHTManagement.CheckApplicationGenPurchWHT(GenJnlLine1);
+                                    if GenJnlLine1."WHT Absorb Base" <> 0 then
+                                        WHTAmountLCY :=
+                                          -Round(
+                                            CurrExchRate.ExchangeAmtFCYToLCY(
+                                              GenJnlLine."Posting Date", GenJnlLine."Currency Code",
+                                              Round(GenJnlLine1."WHT Absorb Base" * WHTPostingSetup."WHT %" / 100), GenJnlLine."Currency Factor"))
+                                    else
+                                        WHTAmountLCY :=
+                                          Round(
+                                            CurrExchRate.ExchangeAmtFCYToLCY(
+                                              GenJnlLine."Posting Date", GenJnlLine."Currency Code",
+                                              Round(GenJnlLine1.Amount * WHTPostingSetup."WHT %" / 100), GenJnlLine."Currency Factor"));
+                                    WHTAmount := CalcDtldCVLedgEntryAmount(GenJnlLine, WHTPostingSetup."WHT %");
+                                end;
+                            end;
+            if GenJnlLine1."Document Type" = GenJnlLine1."Document Type"::Invoice then begin
+                WHTAmountLCY := -Abs(WHTAmountLCY);
+                WHTAmount := -Abs(WHTAmount);
+            end else begin
+                WHTAmountLCY := Abs(WHTAmountLCY);
+                WHTAmount := Abs(WHTAmount);
+            end;
         end;
+
+        if WHTPostingSetup.Get(GenJnlLine."WHT Business Posting Group", GenJnlLine."WHT Product Posting Group") then
+            if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then
+                if GenJnlLine.Amount < WHTPostingSetup."WHT Minimum Invoice Amount" then
+                    WHTAmountLCY := 0;
     end;
 
     [Scope('OnPrem')]
@@ -8414,51 +8436,72 @@ codeunit 12 "Gen. Jnl.-Post Line"
         TempGenJnlTemp: Record "Gen. Journal Template";
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        with GenJnlLine do begin
-            if WHTAmountLCY <> 0 then
-                if (GenJnlLine1."Document Type" = GenJnlLine1."Document Type"::Invoice) or
-                   (GenJnlLine1."Document Type" = GenJnlLine1."Document Type"::"Credit Memo")
+        if WHTAmountLCY <> 0 then
+            if (GenJnlLine1."Document Type" = GenJnlLine1."Document Type"::Invoice) or
+               (GenJnlLine1."Document Type" = GenJnlLine1."Document Type"::"Credit Memo")
+            then
+                if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Invoice) or
+                   (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest)
                 then
-                    if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Invoice) or
-                       (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest)
-                    then
-                        CreateGLEntry(
-                          GenJnlLine, WHTPostingSetup."Payable WHT Account Code", WHTAmountLCY, WHTAmountLCY, true);
+                    CreateGLEntry(
+                      GenJnlLine, WHTPostingSetup."Payable WHT Account Code", WHTAmountLCY, WHTAmountLCY, true);
 
-            SourceCodeSetup.Get();
-            if "Source Code" <> SourceCodeSetup."Financially Voided Check" then begin
-                GenJnlLine1.Reset();
-                if GLSetup."Enable WHT" then
-                    if IsAboveWHTMinInvoiceAmount(GenJnlLine) then begin
-                        if ("Applies-to Doc. No." <> '') or ("Applies-to ID" <> '') then begin
-                            GenJnlLine1.Copy(GenJnlLine);
-                            if GenJnlLine1."Interest Amount" <> 0 then
-                                GenJnlLine1.Validate(Amount, GenJnlLine1.Amount - GenJnlLine1."Interest Amount");
-                            if not "Skip WHT" then begin
-                                KeepWHTEntryNo := NextWHTEntryNo;
-                                case "Document Type" of
-                                    "Document Type"::"Credit Memo":
-                                        begin
-                                            if ProcessSourceCode("Source Code", SourceCodeSetup) then
-                                                if WHTPostingSetup.Get("WHT Business Posting Group", "WHT Product Posting Group") then
-                                                    if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Invoice) or
-                                                       (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest)
-                                                    then begin
-                                                        GenJnlLine2.Reset();
-                                                        GenJnlLine2.Copy(GenJnlLine);
-                                                        GenJnlLine2.Amount := -Abs(GenJnlLine2.Amount);
-                                                        GenJnlLine2."WHT Absorb Base" := -Abs(GenJnlLine2."WHT Absorb Base");
-                                                        NextWHTEntryNo := WHTManagement.InsertVendJournalWHT(GenJnlLine2);
-                                                        if WHTEntry.Get(NextWHTEntryNo - 1) then begin
-                                                            WHTEntry."Transaction No." := NextTransactionNo;
-                                                            WHTEntry.Modify();
-                                                        end;
+        SourceCodeSetup.Get();
+        if GenJnlLine."Source Code" <> SourceCodeSetup."Financially Voided Check" then begin
+            GenJnlLine1.Reset();
+            if GLSetup."Enable WHT" then
+                if IsAboveWHTMinInvoiceAmount(GenJnlLine) then begin
+                    if (GenJnlLine."Applies-to Doc. No." <> '') or (GenJnlLine."Applies-to ID" <> '') then begin
+                        GenJnlLine1.Copy(GenJnlLine);
+                        if GenJnlLine1."Interest Amount" <> 0 then
+                            GenJnlLine1.Validate(Amount, GenJnlLine1.Amount - GenJnlLine1."Interest Amount");
+                        if not GenJnlLine."Skip WHT" then begin
+                            KeepWHTEntryNo := NextWHTEntryNo;
+                            case GenJnlLine."Document Type" of
+                                GenJnlLine."Document Type"::"Credit Memo":
+                                    begin
+                                        if ProcessSourceCode(GenJnlLine."Source Code", SourceCodeSetup) then
+                                            if WHTPostingSetup.Get(GenJnlLine."WHT Business Posting Group", GenJnlLine."WHT Product Posting Group") then
+                                                if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Invoice) or
+                                                   (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest)
+                                                then begin
+                                                    GenJnlLine2.Reset();
+                                                    GenJnlLine2.Copy(GenJnlLine);
+                                                    GenJnlLine2.Amount := -Abs(GenJnlLine2.Amount);
+                                                    GenJnlLine2."WHT Absorb Base" := -Abs(GenJnlLine2."WHT Absorb Base");
+                                                    NextWHTEntryNo := WHTManagement.InsertVendJournalWHT(GenJnlLine2);
+                                                    if WHTEntry.Get(NextWHTEntryNo - 1) then begin
+                                                        WHTEntry."Transaction No." := NextTransactionNo;
+                                                        WHTEntry.Modify();
                                                     end;
-                                            if SourceCodeSetup.Purchases = "Source Code" then
-                                                UpdateWHTEntryTransaction("Document No.");
+                                                end;
+                                        if SourceCodeSetup.Purchases = GenJnlLine."Source Code" then
+                                            UpdateWHTEntryTransaction(GenJnlLine."Document No.");
+                                    end;
+                                GenJnlLine."Document Type"::Payment:
+                                    if WHTPostingSetup.Get(GenJnlLine."WHT Business Posting Group", GenJnlLine."WHT Product Posting Group") then begin
+                                        if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment then begin
+                                            NextWHTEntryNo := WHTManagement.ApplyVendInvoiceWHT(VendLedgEntry, GenJnlLine1);
+                                            if NextWHTEntryNo <> -1 then
+                                                HadWHTEntryNo := true
+                                            else
+                                                NextWHTEntryNo := KeepWHTEntryNo;
                                         end;
-                                    "Document Type"::Payment:
-                                        if WHTPostingSetup.Get("WHT Business Posting Group", "WHT Product Posting Group") then begin
+                                        if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then begin
+                                            NextWHTEntryNo := WHTManagement.InsertVendJournalWHT(GenJnlLine);
+                                            if WHTEntry.Get(NextWHTEntryNo - 1) then begin
+                                                WHTEntry."Transaction No." := NextTransactionNo;
+                                                WHTEntry.Modify();
+                                            end;
+                                        end;
+                                    end;
+                                GenJnlLine."Document Type"::Refund:
+                                    if GLSetup."Manual Sales WHT Calc." then begin
+                                        if GenJnlLine."WHT Payment" then
+                                            NextWHTEntryNo := WHTManagement.ProcessManualReceipt(
+                                                GenJnlLine1, VendLedgEntry."Transaction No.", VendLedgEntry."Entry No.", 0);
+                                    end else
+                                        if WHTPostingSetup.Get(GenJnlLine."WHT Business Posting Group", GenJnlLine."WHT Product Posting Group") then begin
                                             if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment then begin
                                                 NextWHTEntryNo := WHTManagement.ApplyVendInvoiceWHT(VendLedgEntry, GenJnlLine1);
                                                 if NextWHTEntryNo <> -1 then
@@ -8474,108 +8517,85 @@ codeunit 12 "Gen. Jnl.-Post Line"
                                                 end;
                                             end;
                                         end;
-                                    "Document Type"::Refund:
-                                        if GLSetup."Manual Sales WHT Calc." then begin
-                                            if "WHT Payment" then
-                                                NextWHTEntryNo := WHTManagement.ProcessManualReceipt(
-                                                    GenJnlLine1, VendLedgEntry."Transaction No.", VendLedgEntry."Entry No.", 0);
-                                        end else
-                                            if WHTPostingSetup.Get("WHT Business Posting Group", "WHT Product Posting Group") then begin
-                                                if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment then begin
-                                                    NextWHTEntryNo := WHTManagement.ApplyVendInvoiceWHT(VendLedgEntry, GenJnlLine1);
-                                                    if NextWHTEntryNo <> -1 then
-                                                        HadWHTEntryNo := true
-                                                    else
-                                                        NextWHTEntryNo := KeepWHTEntryNo;
-                                                end;
-                                                if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then begin
-                                                    NextWHTEntryNo := WHTManagement.InsertVendJournalWHT(GenJnlLine);
+                                GenJnlLine."Document Type"::Invoice:
+                                    begin
+                                        if ProcessSourceCode(GenJnlLine."Source Code", SourceCodeSetup) then
+                                            if WHTPostingSetup.Get(GenJnlLine."WHT Business Posting Group", GenJnlLine."WHT Product Posting Group") then
+                                                if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Invoice) or
+                                                   (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest)
+                                                then begin
+                                                    GenJnlLine2.Reset();
+                                                    GenJnlLine2.Copy(GenJnlLine);
+                                                    GenJnlLine2.Amount := -Abs(GenJnlLine2.Amount);
+                                                    GenJnlLine2."WHT Absorb Base" := -Abs(GenJnlLine2."WHT Absorb Base");
+                                                    NextWHTEntryNo := WHTManagement.InsertVendJournalWHT(GenJnlLine2);
                                                     if WHTEntry.Get(NextWHTEntryNo - 1) then begin
                                                         WHTEntry."Transaction No." := NextTransactionNo;
                                                         WHTEntry.Modify();
                                                     end;
                                                 end;
-                                            end;
-                                    "Document Type"::Invoice:
-                                        begin
-                                            if ProcessSourceCode("Source Code", SourceCodeSetup) then
-                                                if WHTPostingSetup.Get("WHT Business Posting Group", "WHT Product Posting Group") then
-                                                    if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Invoice) or
-                                                       (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest)
-                                                    then begin
-                                                        GenJnlLine2.Reset();
-                                                        GenJnlLine2.Copy(GenJnlLine);
-                                                        GenJnlLine2.Amount := -Abs(GenJnlLine2.Amount);
-                                                        GenJnlLine2."WHT Absorb Base" := -Abs(GenJnlLine2."WHT Absorb Base");
-                                                        NextWHTEntryNo := WHTManagement.InsertVendJournalWHT(GenJnlLine2);
-                                                        if WHTEntry.Get(NextWHTEntryNo - 1) then begin
-                                                            WHTEntry."Transaction No." := NextTransactionNo;
-                                                            WHTEntry.Modify();
-                                                        end;
-                                                    end;
-                                            if SourceCodeSetup.Purchases = "Source Code" then
-                                                UpdateWHTEntryTransaction("Document No.");
-                                        end;
-                                end;
-                            end;
-
-                            TempGenJnlTemp.SetRange(Type, TempGenJnlTemp.Type::Purchases);
-                            if TempGenJnlTemp.FindFirst() then
-                                if "Journal Template Name" = TempGenJnlTemp.Name then begin
-                                    WHTEntry.Reset();
-                                    WHTEntry.SetRange("Document Type", WHTEntry."Document Type"::Payment);
-                                    WHTEntry.SetRange("Document No.", "Document No.");
-                                    WHTEntry.SetRange("Bill-to/Pay-to No.", "Account No.");
-                                    if WHTEntry.Find('-') then
-                                        repeat
-                                            WHTPostingSetup.Get(WHTEntry."WHT Bus. Posting Group", WHTEntry."WHT Prod. Posting Group");
-                                            WHTPostingSetup.TestField("Payable WHT Account Code");
-                                            CreateGLEntry(
-                                              GenJnlLine, WHTPostingSetup."Payable WHT Account Code", -WHTEntry."Amount (LCY)", "Source Currency Amount", true);
-                                        until WHTEntry.Next() = 0;
-                                end;
-                        end else begin
-                            KeepWHTEntryNo := NextWHTEntryNo;
-                            case "Document Type" of
-                                "Document Type"::Invoice,
-                                "Document Type"::"Credit Memo":
-                                    begin
-                                        if ProcessSourceCode("Source Code", SourceCodeSetup) then begin
-                                            GenJnlLine2.Reset();
-                                            GenJnlLine2.Copy(GenJnlLine);
-                                            GenJnlLine2."WHT Absorb Base" := -Abs(GenJnlLine2."WHT Absorb Base");
-                                            NextWHTEntryNo := WHTManagement.InsertVendJournalWHT(GenJnlLine2);
-                                        end;
-                                        UpdateWHTEntryTransaction("Document No.");
+                                        if SourceCodeSetup.Purchases = GenJnlLine."Source Code" then
+                                            UpdateWHTEntryTransaction(GenJnlLine."Document No.");
                                     end;
-                                "Document Type"::Payment,
-                              "Document Type"::Refund:
-                                    if WHTPostingSetup.Get("WHT Business Posting Group", "WHT Product Posting Group") then
-                                        if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then begin
-                                            NextWHTEntryNo := WHTManagement.InsertVendJournalWHT(GenJnlLine);
-                                            if WHTEntry.Get(NextWHTEntryNo - 1) then begin
-                                                WHTEntry."Transaction No." := NextTransactionNo;
-                                                WHTEntry.Modify();
-                                            end;
-                                        end;
-                                "Document Type"::" ":
-                                    NextWHTEntryNo := KeepWHTEntryNo;
                             end;
                         end;
-                        if NextWHTEntryNo = 0 then
-                            NextWHTEntryNo := KeepWHTEntryNo;
 
-                        PostVendWHTTaxInv(GenJnlLine, VendLedgEntry);
+                        TempGenJnlTemp.SetRange(Type, TempGenJnlTemp.Type::Purchases);
+                        if TempGenJnlTemp.FindFirst() then
+                            if GenJnlLine."Journal Template Name" = TempGenJnlTemp.Name then begin
+                                WHTEntry.Reset();
+                                WHTEntry.SetRange("Document Type", WHTEntry."Document Type"::Payment);
+                                WHTEntry.SetRange("Document No.", GenJnlLine."Document No.");
+                                WHTEntry.SetRange("Bill-to/Pay-to No.", GenJnlLine."Account No.");
+                                if WHTEntry.Find('-') then
+                                    repeat
+                                        WHTPostingSetup.Get(WHTEntry."WHT Bus. Posting Group", WHTEntry."WHT Prod. Posting Group");
+                                        WHTPostingSetup.TestField("Payable WHT Account Code");
+                                        CreateGLEntry(
+                                          GenJnlLine, WHTPostingSetup."Payable WHT Account Code", -WHTEntry."Amount (LCY)", GenJnlLine."Source Currency Amount", true);
+                                    until WHTEntry.Next() = 0;
+                            end;
+                    end else begin
+                        KeepWHTEntryNo := NextWHTEntryNo;
+                        case GenJnlLine."Document Type" of
+                            GenJnlLine."Document Type"::Invoice,
+                            GenJnlLine."Document Type"::"Credit Memo":
+                                begin
+                                    if ProcessSourceCode(GenJnlLine."Source Code", SourceCodeSetup) then begin
+                                        GenJnlLine2.Reset();
+                                        GenJnlLine2.Copy(GenJnlLine);
+                                        GenJnlLine2."WHT Absorb Base" := -Abs(GenJnlLine2."WHT Absorb Base");
+                                        NextWHTEntryNo := WHTManagement.InsertVendJournalWHT(GenJnlLine2);
+                                    end;
+                                    UpdateWHTEntryTransaction(GenJnlLine."Document No.");
+                                end;
+                            GenJnlLine."Document Type"::Payment,
+                          GenJnlLine."Document Type"::Refund:
+                                if WHTPostingSetup.Get(GenJnlLine."WHT Business Posting Group", GenJnlLine."WHT Product Posting Group") then
+                                    if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then begin
+                                        NextWHTEntryNo := WHTManagement.InsertVendJournalWHT(GenJnlLine);
+                                        if WHTEntry.Get(NextWHTEntryNo - 1) then begin
+                                            WHTEntry."Transaction No." := NextTransactionNo;
+                                            WHTEntry.Modify();
+                                        end;
+                                    end;
+                            GenJnlLine."Document Type"::" ":
+                                NextWHTEntryNo := KeepWHTEntryNo;
+                        end;
                     end;
+                    if NextWHTEntryNo = 0 then
+                        NextWHTEntryNo := KeepWHTEntryNo;
 
-                if "Applies-to ID" <> '' then begin
-                    VendLedgEntry.Reset();
-                    VendLedgEntry.SetCurrentKey("Vendor No.", "Applies-to ID", Open, Positive, "Due Date");
-                    VendLedgEntry.SetRange("Vendor No.", "Account No.");
-                    VendLedgEntry.SetRange("Applies-to ID", "Applies-to ID");
-                    VendLedgEntry.SetRange("Amount to Apply", 0);
-                    VendLedgEntry.ModifyAll("Applies-to ID", '');
+                    PostVendWHTTaxInv(GenJnlLine, VendLedgEntry);
                 end;
+
+            if GenJnlLine."Applies-to ID" <> '' then begin
+                VendLedgEntry.Reset();
+                VendLedgEntry.SetCurrentKey("Vendor No.", "Applies-to ID", Open, Positive, "Due Date");
+                VendLedgEntry.SetRange("Vendor No.", GenJnlLine."Account No.");
+                VendLedgEntry.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
+                VendLedgEntry.SetRange("Amount to Apply", 0);
+                VendLedgEntry.ModifyAll("Applies-to ID", '');
             end;
         end;
     end;
@@ -8615,151 +8635,149 @@ codeunit 12 "Gen. Jnl.-Post Line"
     var
         CheckLedgEntry: Record "Check Ledger Entry";
     begin
-        with GenJnlLine do begin
-            WHTAmountLCY := 0;
-            if not GLSetup."Enable WHT" or "Skip WHT" then
-                exit;
+        WHTAmountLCY := 0;
+        if not GLSetup."Enable WHT" or GenJnlLine."Skip WHT" then
+            exit;
 
-            if ("Applies-to ID" = '') and ("Applies-to Doc. No." = '') then begin
-                if ("Document Type" = "Document Type"::Payment) or ("Document Type" = "Document Type"::Refund) then
-                    if WHTPostingSetup.Get("WHT Business Posting Group", "WHT Product Posting Group") then begin
-                        if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then
-                            if IsCustAcc(GenJnlLine) then begin
-                                if "WHT Absorb Base" <> 0 then
-                                    WHTAmountLCY := -Abs(Round("WHT Absorb Base" * WHTPostingSetup."WHT %" / 100))
+        if (GenJnlLine."Applies-to ID" = '') and (GenJnlLine."Applies-to Doc. No." = '') then begin
+            if (GenJnlLine."Document Type" = GenJnlLine."Document Type"::Payment) or (GenJnlLine."Document Type" = GenJnlLine."Document Type"::Refund) then
+                if WHTPostingSetup.Get(GenJnlLine."WHT Business Posting Group", GenJnlLine."WHT Product Posting Group") then begin
+                    if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then
+                        if IsCustAcc(GenJnlLine) then begin
+                            if GenJnlLine."WHT Absorb Base" <> 0 then
+                                WHTAmountLCY := -Abs(Round(GenJnlLine."WHT Absorb Base" * WHTPostingSetup."WHT %" / 100))
+                            else
+                                WHTAmountLCY := -Abs(Round(GenJnlLine.Amount * WHTPostingSetup."WHT %" / 100));
+                            if GenJnlLine."Document Type" = GenJnlLine."Document Type"::Refund then
+                                WHTAmountLCY := Abs(WHTAmountLCY);
+                        end else
+                            if IsVendAcc(GenJnlLine) then begin
+                                if GenJnlLine."WHT Absorb Base" <> 0 then
+                                    WHTAmountLCY := Abs(Round(GenJnlLine."WHT Absorb Base" * WHTPostingSetup."WHT %" / 100))
                                 else
-                                    WHTAmountLCY := -Abs(Round(Amount * WHTPostingSetup."WHT %" / 100));
-                                if "Document Type" = "Document Type"::Refund then
-                                    WHTAmountLCY := Abs(WHTAmountLCY);
-                            end else
-                                if IsVendAcc(GenJnlLine) then begin
-                                    if "WHT Absorb Base" <> 0 then
-                                        WHTAmountLCY := Abs(Round("WHT Absorb Base" * WHTPostingSetup."WHT %" / 100))
-                                    else
-                                        WHTAmountLCY := Abs(Round(Amount * WHTPostingSetup."WHT %" / 100));
-                                    if "Document Type" = "Document Type"::Refund then
-                                        WHTAmountLCY := -Abs(WHTAmountLCY);
-                                end;
-                        if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment) and (not "Financial Void") then
-                            Error(Text016, WHTPostingSetup."Realized WHT Type");
-                    end;
-                if ("Currency Code" <> '') and (CurrFactor <> 0) then
-                    if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment) and
-                       (not GLSetup."Manual Sales WHT Calc.")
+                                    WHTAmountLCY := Abs(Round(GenJnlLine.Amount * WHTPostingSetup."WHT %" / 100));
+                                if GenJnlLine."Document Type" = GenJnlLine."Document Type"::Refund then
+                                    WHTAmountLCY := -Abs(WHTAmountLCY);
+                            end;
+                    if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment) and (not GenJnlLine."Financial Void") then
+                        Error(Text016, WHTPostingSetup."Realized WHT Type");
+                end;
+            if (GenJnlLine."Currency Code" <> '') and (CurrFactor <> 0) then
+                if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment) and
+                   (not GLSetup."Manual Sales WHT Calc.")
+                then
+                    WHTAmountLCY :=
+                      CurrExchRate.ExchangeAmtFCYToLCY(
+                        GenJnlLine."Document Date", GenJnlLine."Currency Code",
+                        Abs(WHTManagement.WHTAmountJournal(GenJnlLine, true)), CurrFactor);
+        end else
+            if (GenJnlLine."Applies-to ID" <> '') or (GenJnlLine."Applies-to Doc. No." <> '') then begin
+                GenJnlLine1.Reset();
+                GenJnlLine1.Copy(GenJnlLine);
+                if GenJnlLine."Applies-to Doc. No." <> '' then
+                    GenJnlLine1.SetRange("Applies-to Doc. No.", GenJnlLine."Applies-to Doc. No.")
+                else
+                    GenJnlLine1.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
+
+                GenJnlLine1.SetRange("Account Type", GenJnlLine."Account Type"::Vendor);
+                if (GenJnlLine."Account Type" = GenJnlLine."Account Type"::Vendor) or
+                   (GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::Vendor) or
+                   GenJnlLine1.FindFirst()
+                then begin
+                    CurrFactor :=
+                      CurrExchRate.ExchangeRate(
+                        GenJnlLine."Document Date", GenJnlLine."Currency Code");
+                    if GenJnlLine1."Interest Amount" <> 0 then
+                        GenJnlLine1.Validate(Amount, GenJnlLine1.Amount - GenJnlLine1."Interest Amount");
+
+                    if (GenJnlLine1."Document Type" = GenJnlLine1."Document Type"::Payment) or
+                       (GenJnlLine1."Document Type" = GenJnlLine1."Document Type"::Refund)
                     then
-                        WHTAmountLCY :=
-                          CurrExchRate.ExchangeAmtFCYToLCY(
-                            "Document Date", "Currency Code",
-                            Abs(WHTManagement.WHTAmountJournal(GenJnlLine, true)), CurrFactor);
-            end else
-                if ("Applies-to ID" <> '') or ("Applies-to Doc. No." <> '') then begin
-                    GenJnlLine1.Reset();
-                    GenJnlLine1.Copy(GenJnlLine);
-                    if "Applies-to Doc. No." <> '' then
-                        GenJnlLine1.SetRange("Applies-to Doc. No.", "Applies-to Doc. No.")
-                    else
-                        GenJnlLine1.SetRange("Applies-to ID", "Applies-to ID");
+                        if WHTPostingSetup.Get(
+                             GenJnlLine1."WHT Business Posting Group",
+                             GenJnlLine1."WHT Product Posting Group")
+                        then begin
+                            if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then begin
+                                if GenJnlLine1.FindFirst() then
+                                    WHTManagement.CheckApplicationGenPurchWHT(GenJnlLine1);
+                                WHTAmountLCY :=
+                                  CurrExchRate.ExchangeAmtFCYToLCY(
+                                    GenJnlLine."Document Date", GenJnlLine."Currency Code",
+                                    Abs(WHTManagement.CalcVendExtraWHTForEarliest(GenJnlLine1)), CurrFactor);
+                            end;
 
-                    GenJnlLine1.SetRange("Account Type", "Account Type"::Vendor);
-                    if ("Account Type" = "Account Type"::Vendor) or
-                       ("Bal. Account Type" = "Bal. Account Type"::Vendor) or
-                       GenJnlLine1.FindFirst
-                    then begin
-                        CurrFactor :=
-                          CurrExchRate.ExchangeRate(
-                            "Document Date", "Currency Code");
-                        if GenJnlLine1."Interest Amount" <> 0 then
-                            GenJnlLine1.Validate(Amount, GenJnlLine1.Amount - GenJnlLine1."Interest Amount");
-
-                        if (GenJnlLine1."Document Type" = GenJnlLine1."Document Type"::Payment) or
-                           (GenJnlLine1."Document Type" = GenJnlLine1."Document Type"::Refund)
-                        then
-                            if WHTPostingSetup.Get(
-                                 GenJnlLine1."WHT Business Posting Group",
-                                 GenJnlLine1."WHT Product Posting Group")
+                            if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment) and
+                               (not GLSetup."Manual Sales WHT Calc.")
                             then begin
-                                if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then begin
-                                    if GenJnlLine1.FindFirst() then
-                                        WHTManagement.CheckApplicationGenPurchWHT(GenJnlLine1);
-                                    WHTAmountLCY :=
-                                      CurrExchRate.ExchangeAmtFCYToLCY(
-                                        "Document Date", "Currency Code",
-                                        Abs(WHTManagement.CalcVendExtraWHTForEarliest(GenJnlLine1)), CurrFactor);
-                                end;
+                                WHTAmount := Abs(WHTManagement.WHTAmountJournal(GenJnlLine1, true));
+                                WHTAmountLCY :=
+                                  CurrExchRate.ExchangeAmtFCYToLCY(
+                                    GenJnlLine1."Document Date",
+                                    GenJnlLine1."Currency Code",
+                                    WHTAmount, CurrFactor);
+                            end;
+                        end;
 
-                                if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment) and
-                                   (not GLSetup."Manual Sales WHT Calc.")
-                                then begin
-                                    WHTAmount := Abs(WHTManagement.WHTAmountJournal(GenJnlLine1, true));
-                                    WHTAmountLCY :=
-                                      CurrExchRate.ExchangeAmtFCYToLCY(
-                                        GenJnlLine1."Document Date",
-                                        GenJnlLine1."Currency Code",
-                                        WHTAmount, CurrFactor);
-                                end;
+                    if GenJnlLine."Document Type" = GenJnlLine."Document Type"::Refund then
+                        WHTAmountLCY := -Abs(WHTAmountLCY);
+                end;
+
+                if IsCustAcc(GenJnlLine) and not GLSetup."Enable GST (Australia)" then begin
+                    CurrFactor :=
+                      CurrExchRate.ExchangeRate(
+                        GenJnlLine1."Document Date", GenJnlLine."Currency Code");
+                    if GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::Customer then
+                        GenJnlLine1.Validate(Amount, -GenJnlLine1.Amount);
+
+                    if IsPaymentOrRefund(GenJnlLine1) then
+                        if WHTPostingSetup.Get(GenJnlLine1."WHT Business Posting Group", GenJnlLine1."WHT Product Posting Group") then begin
+                            if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then begin
+                                if GenJnlLine1.FindFirst() then
+                                    WHTManagement.CheckApplicationGenSalesWHT(GenJnlLine1);
+                                WHTAmountLCY :=
+                                  -CurrExchRate.ExchangeAmtFCYToLCY(
+                                    GenJnlLine1."Document Date", GenJnlLine1."Currency Code",
+                                    Abs(WHTManagement.CalcCustExtraWHTForEarliest(GenJnlLine1)), CurrFactor);
                             end;
 
-                        if "Document Type" = "Document Type"::Refund then
-                            WHTAmountLCY := -Abs(WHTAmountLCY);
-                    end;
-
-                    if IsCustAcc(GenJnlLine) and not GLSetup."Enable GST (Australia)" then begin
-                        CurrFactor :=
-                          CurrExchRate.ExchangeRate(
-                            GenJnlLine1."Document Date", "Currency Code");
-                        if "Bal. Account Type" = "Bal. Account Type"::Customer then
-                            GenJnlLine1.Validate(Amount, -GenJnlLine1.Amount);
-
-                        if IsPaymentOrRefund(GenJnlLine1) then
-                            if WHTPostingSetup.Get(GenJnlLine1."WHT Business Posting Group", GenJnlLine1."WHT Product Posting Group") then begin
-                                if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then begin
-                                    if GenJnlLine1.FindFirst() then
-                                        WHTManagement.CheckApplicationGenSalesWHT(GenJnlLine1);
-                                    WHTAmountLCY :=
-                                      -CurrExchRate.ExchangeAmtFCYToLCY(
-                                        GenJnlLine1."Document Date", GenJnlLine1."Currency Code",
-                                        Abs(WHTManagement.CalcCustExtraWHTForEarliest(GenJnlLine1)), CurrFactor);
-                                end;
-
-                                if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment) and
-                                   (not GLSetup."Manual Sales WHT Calc.")
-                                then begin
-                                    WHTAmount := -Abs(WHTManagement.ApplyCustCalcWHT(GenJnlLine1));
-                                    WHTAmountLCY :=
-                                      -CurrExchRate.ExchangeAmtFCYToLCY(
-                                        GenJnlLine1."Document Date",
-                                        GenJnlLine1."Currency Code",
-                                        Abs(WHTAmount), CurrFactor);
-                                end;
+                            if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment) and
+                               (not GLSetup."Manual Sales WHT Calc.")
+                            then begin
+                                WHTAmount := -Abs(WHTManagement.ApplyCustCalcWHT(GenJnlLine1));
+                                WHTAmountLCY :=
+                                  -CurrExchRate.ExchangeAmtFCYToLCY(
+                                    GenJnlLine1."Document Date",
+                                    GenJnlLine1."Currency Code",
+                                    Abs(WHTAmount), CurrFactor);
                             end;
+                        end;
 
-                        if "Document Type" = "Document Type"::Refund then
-                            WHTAmountLCY := Abs(WHTAmountLCY);
-                    end;
-                    WHTAmountLCY := Round(WHTAmountLCY);
+                    if GenJnlLine."Document Type" = GenJnlLine."Document Type"::Refund then
+                        WHTAmountLCY := Abs(WHTAmountLCY);
+                end;
+                WHTAmountLCY := Round(WHTAmountLCY);
 
-                    if GLSetup."Round Amount for WHT Calc" then
-                        WHTAmountLCY := WHTManagement.RoundWHTAmount(WHTAmountLCY);
-                end else
-                    if "Bank Payment Type" =
-                       "Bank Payment Type"::"Computer Check"
-                    then begin
-                        TestField("Check Printed", true);
-                        CheckLedgEntry.LockTable();
-                        CheckLedgEntry.Reset();
-                        CheckLedgEntry.SetCurrentKey("Bank Account No.", "Entry Status", "Check No.");
-                        CheckLedgEntry.SetRange("Bank Account No.", "Account No.");
-                        CheckLedgEntry.SetRange("Entry Status", CheckLedgEntry."Entry Status"::Printed);
-                        CheckLedgEntry.SetRange("Check No.", "Document No.");
-                        if CheckLedgEntry.Find('-') then
-                            WHTAmountLCY := Abs(CheckLedgEntry."WHT Amount")
-                    end;
+                if GLSetup."Round Amount for WHT Calc" then
+                    WHTAmountLCY := WHTManagement.RoundWHTAmount(WHTAmountLCY);
+            end else
+                if GenJnlLine."Bank Payment Type" =
+                   GenJnlLine."Bank Payment Type"::"Computer Check"
+                then begin
+                    GenJnlLine.TestField("Check Printed", true);
+                    CheckLedgEntry.LockTable();
+                    CheckLedgEntry.Reset();
+                    CheckLedgEntry.SetCurrentKey("Bank Account No.", "Entry Status", "Check No.");
+                    CheckLedgEntry.SetRange("Bank Account No.", GenJnlLine."Account No.");
+                    CheckLedgEntry.SetRange("Entry Status", CheckLedgEntry."Entry Status"::Printed);
+                    CheckLedgEntry.SetRange("Check No.", GenJnlLine."Document No.");
+                    if CheckLedgEntry.Find('-') then
+                        WHTAmountLCY := Abs(CheckLedgEntry."WHT Amount")
+                end;
 
-            if WHTPostingSetup.Get("WHT Business Posting Group", "WHT Product Posting Group") then
-                if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then
-                    if Abs(Amount) < WHTPostingSetup."WHT Minimum Invoice Amount" then
-                        WHTAmountLCY := 0;
-        end;
+        if WHTPostingSetup.Get(GenJnlLine."WHT Business Posting Group", GenJnlLine."WHT Product Posting Group") then
+            if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then
+                if Abs(GenJnlLine.Amount) < WHTPostingSetup."WHT Minimum Invoice Amount" then
+                    WHTAmountLCY := 0;
     end;
 
     [Scope('OnPrem')]
@@ -8768,139 +8786,137 @@ codeunit 12 "Gen. Jnl.-Post Line"
         CheckLedgEntry: Record "Check Ledger Entry";
     begin
         WHTAmountLCY := 0;
-        with GenJnlLine do begin
-            if not GLSetup."Enable WHT" or "Skip WHT" then
-                exit;
+        if not GLSetup."Enable WHT" or GenJnlLine."Skip WHT" then
+            exit;
 
-            if ("Applies-to ID" = '') and ("Applies-to Doc. No." = '') then begin
-                if IsPaymentOrRefund(GenJnlLine) then
-                    if WHTPostingSetup.Get("WHT Business Posting Group", "WHT Product Posting Group") then
-                        if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then
-                            if IsCustAcc(GenJnlLine) then begin
-                                if "WHT Absorb Base" <> 0 then
-                                    WHTAmountLCY := -Abs(Round("WHT Absorb Base" * WHTPostingSetup."WHT %" / 100))
+        if (GenJnlLine."Applies-to ID" = '') and (GenJnlLine."Applies-to Doc. No." = '') then begin
+            if IsPaymentOrRefund(GenJnlLine) then
+                if WHTPostingSetup.Get(GenJnlLine."WHT Business Posting Group", GenJnlLine."WHT Product Posting Group") then
+                    if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then
+                        if IsCustAcc(GenJnlLine) then begin
+                            if GenJnlLine."WHT Absorb Base" <> 0 then
+                                WHTAmountLCY := -Abs(Round(GenJnlLine."WHT Absorb Base" * WHTPostingSetup."WHT %" / 100))
+                            else
+                                WHTAmountLCY := -Abs(Round(GenJnlLine.Amount * WHTPostingSetup."WHT %" / 100));
+                            if GenJnlLine."Document Type" = GenJnlLine."Document Type"::Refund then
+                                WHTAmountLCY := Abs(WHTAmountLCY);
+                        end else
+                            if IsVendAcc(GenJnlLine) then begin
+                                if GenJnlLine."WHT Absorb Base" <> 0 then
+                                    WHTAmountLCY :=
+                                      Abs(Round(GenJnlLine."WHT Absorb Base" * WHTPostingSetup."WHT %" / 100))
                                 else
-                                    WHTAmountLCY := -Abs(Round(Amount * WHTPostingSetup."WHT %" / 100));
-                                if "Document Type" = "Document Type"::Refund then
-                                    WHTAmountLCY := Abs(WHTAmountLCY);
-                            end else
-                                if IsVendAcc(GenJnlLine) then begin
-                                    if "WHT Absorb Base" <> 0 then
-                                        WHTAmountLCY :=
-                                          Abs(Round("WHT Absorb Base" * WHTPostingSetup."WHT %" / 100))
-                                    else
-                                        WHTAmountLCY :=
-                                          Abs(Round(Amount * WHTPostingSetup."WHT %" / 100));
-                                    if "Document Type" = "Document Type"::Refund then
-                                        WHTAmountLCY := -Abs(WHTAmountLCY);
-                                end;
-                if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment) and
-                   (not GLSetup."Manual Sales WHT Calc.")
-                then
-                    WHTAmountLCY :=
-                      CurrExchRate.ExchangeAmtFCYToLCY(
-                        GenJnlLine1."Document Date",
-                        GenJnlLine1."Currency Code",
-                        Abs(
-                          WHTManagement.WHTAmountJournal(GenJnlLine1, true)), CurrFactor);
+                                    WHTAmountLCY :=
+                                      Abs(Round(GenJnlLine.Amount * WHTPostingSetup."WHT %" / 100));
+                                if GenJnlLine."Document Type" = GenJnlLine."Document Type"::Refund then
+                                    WHTAmountLCY := -Abs(WHTAmountLCY);
+                            end;
+            if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment) and
+               (not GLSetup."Manual Sales WHT Calc.")
+            then
+                WHTAmountLCY :=
+                  CurrExchRate.ExchangeAmtFCYToLCY(
+                    GenJnlLine1."Document Date",
+                    GenJnlLine1."Currency Code",
+                    Abs(
+                      WHTManagement.WHTAmountJournal(GenJnlLine1, true)), CurrFactor);
+        end else
+            if (GenJnlLine."Applies-to ID" <> '') or (GenJnlLine."Applies-to Doc. No." <> '') then begin
+                GenJnlLine1.Reset();
+                GenJnlLine1.Copy(GenJnlLine);
+                if GenJnlLine."Applies-to Doc. No." <> '' then
+                    GenJnlLine1.SetRange("Applies-to Doc. No.", GenJnlLine."Applies-to Doc. No.")
+                else
+                    GenJnlLine1.SetRange("Applies-to ID", GenJnlLine."Applies-to ID");
+
+                GenJnlLine1.SetRange("Account Type", GenJnlLine."Account Type"::Vendor);
+                if (GenJnlLine."Account Type" = GenJnlLine."Account Type"::Vendor) or (GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::Vendor) or
+                   GenJnlLine1.FindFirst()
+                then begin
+                    CurrFactor :=
+                      CurrExchRate.ExchangeRate(
+                        GenJnlLine."Document Date", GenJnlLine."Currency Code");
+                    if GenJnlLine1."Interest Amount" <> 0 then
+                        GenJnlLine1.Validate(Amount, GenJnlLine1.Amount - GenJnlLine1."Interest Amount");
+
+                    if IsPaymentOrRefund(GenJnlLine1) then
+                        if WHTPostingSetup.Get(GenJnlLine1."WHT Business Posting Group", GenJnlLine1."WHT Product Posting Group") then begin
+                            if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then begin
+                                if GenJnlLine1.FindFirst() then
+                                    WHTManagement.CheckApplicationGenPurchWHT(GenJnlLine1);
+                                WHTAmountLCY :=
+                                  CurrExchRate.ExchangeAmtFCYToLCY(
+                                    GenJnlLine."Document Date", GenJnlLine."Currency Code",
+                                    Abs(
+                                      WHTManagement.CalcVendExtraWHTForEarliest(GenJnlLine1)), CurrFactor);
+                            end;
+
+                            if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment) and
+                               (not GLSetup."Manual Sales WHT Calc.")
+                            then
+                                WHTAmountLCY :=
+                                  CurrExchRate.ExchangeAmtFCYToLCY(
+                                    GenJnlLine1."Document Date",
+                                    GenJnlLine1."Currency Code",
+                                    Abs(
+                                      WHTManagement.WHTAmountJournal(GenJnlLine1, true)), CurrFactor);
+                        end;
+
+                    if GenJnlLine."Document Type" = GenJnlLine."Document Type"::Refund then
+                        WHTAmountLCY := -Abs(WHTAmountLCY);
+                end;
+
+                if IsCustAcc(GenJnlLine) and not GLSetup."Enable GST (Australia)" then begin
+                    CurrFactor :=
+                      CurrExchRate.ExchangeRate(
+                        GenJnlLine1."Document Date", GenJnlLine."Currency Code");
+                    if GenJnlLine."Bal. Account Type" = GenJnlLine."Bal. Account Type"::Customer then
+                        GenJnlLine1.Validate(Amount, -GenJnlLine1.Amount);
+
+                    if IsPaymentOrRefund(GenJnlLine1) then
+                        if WHTPostingSetup.Get(GenJnlLine1."WHT Business Posting Group", GenJnlLine1."WHT Product Posting Group") then begin
+                            if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest) then begin
+                                if GenJnlLine1.FindFirst() then
+                                    WHTManagement.CheckApplicationGenSalesWHT(GenJnlLine1);
+                                WHTAmountLCY :=
+                                  -CurrExchRate.ExchangeAmtFCYToLCY(
+                                    GenJnlLine1."Document Date",
+                                    GenJnlLine1."Currency Code",
+                                    Abs(
+                                      WHTManagement.CalcCustExtraWHTForEarliest(GenJnlLine1)), CurrFactor);
+                            end;
+
+                            if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment) and
+                               (not GLSetup."Manual Sales WHT Calc.")
+                            then
+                                WHTAmountLCY :=
+                                  -CurrExchRate.ExchangeAmtFCYToLCY(
+                                    GenJnlLine1."Document Date",
+                                    GenJnlLine1."Currency Code",
+                                    Abs(WHTManagement.ApplyCustCalcWHT(GenJnlLine1)), CurrFactor);
+                        end;
+
+                    if GenJnlLine."Document Type" = GenJnlLine."Document Type"::Refund then
+                        WHTAmountLCY := Abs(WHTAmountLCY);
+                end;
+                WHTAmountLCY := Round(WHTAmountLCY);
+
+                if GLSetup."Round Amount for WHT Calc" then
+                    WHTAmountLCY := WHTManagement.RoundWHTAmount(WHTAmountLCY);
             end else
-                if ("Applies-to ID" <> '') or ("Applies-to Doc. No." <> '') then begin
-                    GenJnlLine1.Reset();
-                    GenJnlLine1.Copy(GenJnlLine);
-                    if "Applies-to Doc. No." <> '' then
-                        GenJnlLine1.SetRange("Applies-to Doc. No.", "Applies-to Doc. No.")
-                    else
-                        GenJnlLine1.SetRange("Applies-to ID", "Applies-to ID");
-
-                    GenJnlLine1.SetRange("Account Type", "Account Type"::Vendor);
-                    if ("Account Type" = "Account Type"::Vendor) or ("Bal. Account Type" = "Bal. Account Type"::Vendor) or
-                       GenJnlLine1.FindFirst
-                    then begin
-                        CurrFactor :=
-                          CurrExchRate.ExchangeRate(
-                            "Document Date", "Currency Code");
-                        if GenJnlLine1."Interest Amount" <> 0 then
-                            GenJnlLine1.Validate(Amount, GenJnlLine1.Amount - GenJnlLine1."Interest Amount");
-
-                        if IsPaymentOrRefund(GenJnlLine1) then
-                            if WHTPostingSetup.Get(GenJnlLine1."WHT Business Posting Group", GenJnlLine1."WHT Product Posting Group") then begin
-                                if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then begin
-                                    if GenJnlLine1.FindFirst() then
-                                        WHTManagement.CheckApplicationGenPurchWHT(GenJnlLine1);
-                                    WHTAmountLCY :=
-                                      CurrExchRate.ExchangeAmtFCYToLCY(
-                                        "Document Date", "Currency Code",
-                                        Abs(
-                                          WHTManagement.CalcVendExtraWHTForEarliest(GenJnlLine1)), CurrFactor);
-                                end;
-
-                                if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment) and
-                                   (not GLSetup."Manual Sales WHT Calc.")
-                                then
-                                    WHTAmountLCY :=
-                                      CurrExchRate.ExchangeAmtFCYToLCY(
-                                        GenJnlLine1."Document Date",
-                                        GenJnlLine1."Currency Code",
-                                        Abs(
-                                          WHTManagement.WHTAmountJournal(GenJnlLine1, true)), CurrFactor);
-                            end;
-
-                        if "Document Type" = "Document Type"::Refund then
-                            WHTAmountLCY := -Abs(WHTAmountLCY);
-                    end;
-
-                    if IsCustAcc(GenJnlLine) and not GLSetup."Enable GST (Australia)" then begin
-                        CurrFactor :=
-                          CurrExchRate.ExchangeRate(
-                            GenJnlLine1."Document Date", "Currency Code");
-                        if "Bal. Account Type" = "Bal. Account Type"::Customer then
-                            GenJnlLine1.Validate(Amount, -GenJnlLine1.Amount);
-
-                        if IsPaymentOrRefund(GenJnlLine1) then
-                            if WHTPostingSetup.Get(GenJnlLine1."WHT Business Posting Group", GenJnlLine1."WHT Product Posting Group") then begin
-                                if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest) then begin
-                                    if GenJnlLine1.FindFirst() then
-                                        WHTManagement.CheckApplicationGenSalesWHT(GenJnlLine1);
-                                    WHTAmountLCY :=
-                                      -CurrExchRate.ExchangeAmtFCYToLCY(
-                                        GenJnlLine1."Document Date",
-                                        GenJnlLine1."Currency Code",
-                                        Abs(
-                                          WHTManagement.CalcCustExtraWHTForEarliest(GenJnlLine1)), CurrFactor);
-                                end;
-
-                                if (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment) and
-                                   (not GLSetup."Manual Sales WHT Calc.")
-                                then
-                                    WHTAmountLCY :=
-                                      -CurrExchRate.ExchangeAmtFCYToLCY(
-                                        GenJnlLine1."Document Date",
-                                        GenJnlLine1."Currency Code",
-                                        Abs(WHTManagement.ApplyCustCalcWHT(GenJnlLine1)), CurrFactor);
-                            end;
-
-                        if "Document Type" = "Document Type"::Refund then
-                            WHTAmountLCY := Abs(WHTAmountLCY);
-                    end;
-                    WHTAmountLCY := Round(WHTAmountLCY);
-
-                    if GLSetup."Round Amount for WHT Calc" then
-                        WHTAmountLCY := WHTManagement.RoundWHTAmount(WHTAmountLCY);
-                end else
-                    if "Bank Payment Type" =
-                       "Bank Payment Type"::"Computer Check"
-                    then begin
-                        TestField("Check Printed", true);
-                        CheckLedgEntry.LockTable();
-                        CheckLedgEntry.Reset();
-                        CheckLedgEntry.SetCurrentKey("Bank Account No.", "Entry Status", "Check No.");
-                        CheckLedgEntry.SetRange("Bank Account No.", "Account No.");
-                        CheckLedgEntry.SetRange("Entry Status", CheckLedgEntry."Entry Status"::Printed);
-                        CheckLedgEntry.SetRange("Check No.", "Document No.");
-                        if CheckLedgEntry.Find('-') then
-                            WHTAmountLCY := Abs(CheckLedgEntry."WHT Amount")
-                    end;
-        end;
+                if GenJnlLine."Bank Payment Type" =
+                   GenJnlLine."Bank Payment Type"::"Computer Check"
+                then begin
+                    GenJnlLine.TestField(GenJnlLine."Check Printed", true);
+                    CheckLedgEntry.LockTable();
+                    CheckLedgEntry.Reset();
+                    CheckLedgEntry.SetCurrentKey("Bank Account No.", "Entry Status", "Check No.");
+                    CheckLedgEntry.SetRange("Bank Account No.", GenJnlLine."Account No.");
+                    CheckLedgEntry.SetRange("Entry Status", CheckLedgEntry."Entry Status"::Printed);
+                    CheckLedgEntry.SetRange("Check No.", GenJnlLine."Document No.");
+                    if CheckLedgEntry.Find('-') then
+                        WHTAmountLCY := Abs(CheckLedgEntry."WHT Amount")
+                end;
     end;
 
     [Scope('OnPrem')]
@@ -8909,24 +8925,22 @@ codeunit 12 "Gen. Jnl.-Post Line"
         if WHTAmountLCY = 0 then
             exit;
 
-        with GenJnlLine do begin
-            case true of
-                IsVendAcc(GenJnlLine):
-                    if ((WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest) or
-                        (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment)) and
-                       (("Applies-to Doc. No." = '') and ("Applies-to ID" = ''))
-                    then begin
-                        WHTPostingSetup.TestField("Payable WHT Account Code");
-                        CreateGLEntry(
-                          GenJnlLine, WHTPostingSetup."Payable WHT Account Code", -WHTAmountLCY, -WHTAmountLCY, true);
-                    end;
-                IsCustAcc(GenJnlLine):
-                    if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then begin
-                        WHTPostingSetup.TestField("Prepaid WHT Account Code");
-                        CreateGLEntry(
-                          GenJnlLine, WHTPostingSetup."Prepaid WHT Account Code", -WHTAmountLCY, -WHTAmountLCY, true);
-                    end;
-            end;
+        case true of
+            IsVendAcc(GenJnlLine):
+                if ((WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest) or
+                    (WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Payment)) and
+                   ((GenJnlLine."Applies-to Doc. No." = '') and (GenJnlLine."Applies-to ID" = ''))
+                then begin
+                    WHTPostingSetup.TestField("Payable WHT Account Code");
+                    CreateGLEntry(
+                      GenJnlLine, WHTPostingSetup."Payable WHT Account Code", -WHTAmountLCY, -WHTAmountLCY, true);
+                end;
+            IsCustAcc(GenJnlLine):
+                if WHTPostingSetup."Realized WHT Type" = WHTPostingSetup."Realized WHT Type"::Earliest then begin
+                    WHTPostingSetup.TestField("Prepaid WHT Account Code");
+                    CreateGLEntry(
+                      GenJnlLine, WHTPostingSetup."Prepaid WHT Account Code", -WHTAmountLCY, -WHTAmountLCY, true);
+                end;
         end;
     end;
 
@@ -8964,22 +8978,19 @@ codeunit 12 "Gen. Jnl.-Post Line"
     [Scope('OnPrem')]
     procedure IsCustAcc(GenJnlLine: Record "Gen. Journal Line"): Boolean
     begin
-        with GenJnlLine do
-            exit(("Account Type" = "Account Type"::Customer) or ("Bal. Account Type" = "Account Type"::Customer));
+        exit((GenJnlLine."Account Type" = GenJnlLine."Account Type"::Customer) or (GenJnlLine."Bal. Account Type" = GenJnlLine."Account Type"::Customer));
     end;
 
     [Scope('OnPrem')]
     procedure IsVendAcc(GenJnlLine: Record "Gen. Journal Line"): Boolean
     begin
-        with GenJnlLine do
-            exit(("Account Type" = "Account Type"::Vendor) or ("Bal. Account Type" = "Account Type"::Vendor));
+        exit((GenJnlLine."Account Type" = GenJnlLine."Account Type"::Vendor) or (GenJnlLine."Bal. Account Type" = GenJnlLine."Account Type"::Vendor));
     end;
 
     [Scope('OnPrem')]
     procedure IsPaymentOrRefund(GenJnlLine: Record "Gen. Journal Line"): Boolean
     begin
-        with GenJnlLine do
-            exit("Document Type" in ["Document Type"::Payment, "Document Type"::Refund]);
+        exit(GenJnlLine."Document Type" in [GenJnlLine."Document Type"::Payment, GenJnlLine."Document Type"::Refund]);
     end;
 
     [Scope('OnPrem')]
@@ -9064,16 +9075,14 @@ codeunit 12 "Gen. Jnl.-Post Line"
     var
         WHTEntry: Record "WHT Entry";
     begin
-        with WHTEntry do begin
-            Reset();
-            SetCurrentKey("Document No.");
-            SetRange("Document No.", DocNo);
-            SetFilter("Applies-to Entry No.", '%1', 0);
-            if FindSet() then
-                repeat
-                    WHTAmount := WHTAmount + "Unrealized Amount (LCY)";
-                until Next() = 0;
-        end;
+        WHTEntry.Reset();
+        WHTEntry.SetCurrentKey(WHTEntry."Document No.");
+        WHTEntry.SetRange(WHTEntry."Document No.", DocNo);
+        WHTEntry.SetFilter(WHTEntry."Applies-to Entry No.", '%1', 0);
+        if WHTEntry.FindSet() then
+            repeat
+                WHTAmount := WHTAmount + WHTEntry."Unrealized Amount (LCY)";
+            until WHTEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -9094,20 +9103,19 @@ codeunit 12 "Gen. Jnl.-Post Line"
     begin
         if VATEntry.Base = 0 then
             exit;
-        with TempGenJnlLine do begin
-            Init();
-            "Line No." := GenJnlLine."Line No.";
-            "Posting Date" := GenJnlLine."Posting Date";
-            "Document Type" := GenJnlLine."Document Type";
-            "Document No." := GenJnlLine."Document No.";
-            "VAT Base Amount (LCY)" := VATEntry.Base;
-            "VAT Amount (LCY)" := VATEntry.Amount;
-            "VAT Calculation Type" := VATEntry."VAT Calculation Type";
-            "VAT Bus. Posting Group" := VATEntry."VAT Bus. Posting Group";
-            "VAT Prod. Posting Group" := VATEntry."VAT Prod. Posting Group";
-            "Gen. Posting Type" := VATEntry.Type;
-            InsertGSTReport(NextVATEntryNo, TempGenJnlLine);
-        end;
+
+        TempGenJnlLine.Init();
+        TempGenJnlLine."Line No." := GenJnlLine."Line No.";
+        TempGenJnlLine."Posting Date" := GenJnlLine."Posting Date";
+        TempGenJnlLine."Document Type" := GenJnlLine."Document Type";
+        TempGenJnlLine."Document No." := GenJnlLine."Document No.";
+        TempGenJnlLine."VAT Base Amount (LCY)" := VATEntry.Base;
+        TempGenJnlLine."VAT Amount (LCY)" := VATEntry.Amount;
+        TempGenJnlLine."VAT Calculation Type" := VATEntry."VAT Calculation Type";
+        TempGenJnlLine."VAT Bus. Posting Group" := VATEntry."VAT Bus. Posting Group";
+        TempGenJnlLine."VAT Prod. Posting Group" := VATEntry."VAT Prod. Posting Group";
+        TempGenJnlLine."Gen. Posting Type" := VATEntry.Type;
+        InsertGSTReport(NextVATEntryNo, TempGenJnlLine);
     end;
 
     local procedure CreateVendGLEntriesForTotalAmounts(GenJnlLine: Record "Gen. Journal Line"; var TempDimPostingBuffer: Record "Dimension Posting Buffer"; VendPostingGr: Record "Vendor Posting Group"; AdjAmountBuf: array[4] of Decimal; SavedEntryNo: Integer; LedgEntryInserted: Boolean)
@@ -9115,27 +9123,25 @@ codeunit 12 "Gen. Jnl.-Post Line"
         GLEntry: Record "G/L Entry";
         DimMgt: Codeunit DimensionManagement;
     begin
-        with TempDimPostingBuffer do begin
-            Reset();
-            if FindSet() then
-                repeat
-                    if LedgEntryInserted or (Amount <> 0) or ("Amount (ACY)" <> 0) and (AddCurrencyCode <> '') then begin
-                        UseVendExchRate := GenJnlLine."Amount Including VAT (ACY)" <> 0;
-                        DimMgt.UpdateGenJnlLineDim(GenJnlLine, "Dimension Set ID");
-                        HandleDtldAdjustment(
-                          GenJnlLine, GLEntry, AdjAmountBuf, Amount, "Amount (ACY)", VendPostingGr.GetPayablesAccount);
-                        if (GenJnlLine."Gen. Posting Type" = GenJnlLine."Gen. Posting Type"::Settlement) and
-                           GLSetup.GSTEnabled(GenJnlLine."Document Date")
-                        then
-                            GLEntry."Gen. Posting Type" := GLEntry."Gen. Posting Type"::Settlement;
-                        GLEntry."Bal. Account Type" := GenJnlLine."Bal. Account Type";
-                        GLEntry."Bal. Account No." := GenJnlLine."Bal. Account No.";
-                        UpdateGLEntryNo(GLEntry."Entry No.", SavedEntryNo);
-                        InsertGLEntry(GenJnlLine, GLEntry, true);
-                        LedgEntryInserted := false;
-                    end;
-                until Next() = 0;
-        end;
+        TempDimPostingBuffer.Reset();
+        if TempDimPostingBuffer.FindSet() then
+            repeat
+                if LedgEntryInserted or (TempDimPostingBuffer.Amount <> 0) or (TempDimPostingBuffer."Amount (ACY)" <> 0) and (AddCurrencyCode <> '') then begin
+                    UseVendExchRate := GenJnlLine."Amount Including VAT (ACY)" <> 0;
+                    DimMgt.UpdateGenJnlLineDim(GenJnlLine, TempDimPostingBuffer."Dimension Set ID");
+                    HandleDtldAdjustment(
+                      GenJnlLine, GLEntry, AdjAmountBuf, TempDimPostingBuffer.Amount, TempDimPostingBuffer."Amount (ACY)", VendPostingGr.GetPayablesAccount());
+                    if (GenJnlLine."Gen. Posting Type" = GenJnlLine."Gen. Posting Type"::Settlement) and
+                       GLSetup.GSTEnabled(GenJnlLine."Document Date")
+                    then
+                        GLEntry."Gen. Posting Type" := GLEntry."Gen. Posting Type"::Settlement;
+                    GLEntry."Bal. Account Type" := GenJnlLine."Bal. Account Type";
+                    GLEntry."Bal. Account No." := GenJnlLine."Bal. Account No.";
+                    UpdateGLEntryNo(GLEntry."Entry No.", SavedEntryNo);
+                    InsertGLEntry(GenJnlLine, GLEntry, true);
+                    LedgEntryInserted := false;
+                end;
+            until TempDimPostingBuffer.Next() = 0;
 
         if GenJnlLine."Interest Amount (LCY)" <> 0 then begin
             VendPostingGr.TestField("Interest Account");
@@ -9148,17 +9154,17 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
     procedure SetAddCurrForUnapplication(var DtldCVLedgEntryBuf: Record "Detailed CV Ledg. Entry Buffer")
     begin
-        with DtldCVLedgEntryBuf do
-            if not ("Entry Type" in ["Entry Type"::Application, "Entry Type"::"Unrealized Loss",
-                                     "Entry Type"::"Unrealized Gain", "Entry Type"::"Realized Loss",
-                                     "Entry Type"::"Realized Gain", "Entry Type"::"Correction of Remaining Amount"])
+        if not (DtldCVLedgEntryBuf."Entry Type" in
+                [DtldCVLedgEntryBuf."Entry Type"::Application, DtldCVLedgEntryBuf."Entry Type"::"Unrealized Loss",
+                 DtldCVLedgEntryBuf."Entry Type"::"Unrealized Gain", DtldCVLedgEntryBuf."Entry Type"::"Realized Loss",
+                 DtldCVLedgEntryBuf."Entry Type"::"Realized Gain", DtldCVLedgEntryBuf."Entry Type"::"Correction of Remaining Amount"])
+        then
+            if (DtldCVLedgEntryBuf."Entry Type" = DtldCVLedgEntryBuf."Entry Type"::"Appln. Rounding") or
+               ((AddCurrencyCode <> '') and (AddCurrencyCode = DtldCVLedgEntryBuf."Currency Code"))
             then
-                if ("Entry Type" = "Entry Type"::"Appln. Rounding") or
-                   ((AddCurrencyCode <> '') and (AddCurrencyCode = "Currency Code"))
-                then
-                    "Additional-Currency Amount" := Amount
-                else
-                    "Additional-Currency Amount" := CalcAddCurrForUnapplication("Posting Date", "Amount (LCY)");
+                DtldCVLedgEntryBuf."Additional-Currency Amount" := DtldCVLedgEntryBuf.Amount
+            else
+                DtldCVLedgEntryBuf."Additional-Currency Amount" := CalcAddCurrForUnapplication(DtldCVLedgEntryBuf."Posting Date", DtldCVLedgEntryBuf."Amount (LCY)");
     end;
 
     procedure CheckCustMultiplePostingGroups(var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"): Boolean
@@ -9174,7 +9180,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         PostingGroup := '';
         DetailedCVLedgEntryBuffer.Reset();
         DetailedCVLedgEntryBuffer.SetRange("Entry Type", DetailedCVLedgEntryBuffer."Entry Type"::Application);
-        if DetailedCVLedgEntryBuffer.FindSet then
+        if DetailedCVLedgEntryBuffer.FindSet() then
             repeat
                 CustLedgerEntry.Get(DetailedCVLedgEntryBuffer."CV Ledger Entry No.");
                 if (PostingGroup <> '') and (PostingGroup <> CustLedgerEntry."Customer Posting Group") then
@@ -9257,126 +9263,124 @@ codeunit 12 "Gen. Jnl.-Post Line"
         if IsHandled then
             exit;
 
-        with GenJournalLine do begin
-            if "Source Type" in ["Source Type"::Vendor, "Source Type"::Customer] then
-                // Purchasing and Sales, respectively
-                // We can create these types directly from the GL window, need to make sure we don't already have a deferral schedule
-                // created for this GL Trx before handing it off to sales/purchasing subsystem
-                if "Source Code" <> GLSourceCode then begin
-                    PostDeferralPostBuffer(GenJournalLine);
-                    exit;
-                end;
-
-            if DeferralHeader.Get(DeferralDocType::"G/L", "Journal Template Name", "Journal Batch Name", 0, '', "Line No.") then begin
-                EmptyDeferralLine := false;
-                // Get the range of detail records for this schedule
-                DeferralUtilities.FilterDeferralLines(
-                  DeferralLine, DeferralDocType::"G/L".AsInteger(), "Journal Template Name", "Journal Batch Name", 0, '', "Line No.");
-                if DeferralLine.FindSet() then
-                    repeat
-                        if DeferralLine.Amount = 0 then
-                            EmptyDeferralLine := true;
-                    until (DeferralLine.Next() = 0) or EmptyDeferralLine;
-                if EmptyDeferralLine then
-                    Error(ZeroDeferralAmtErr, "Line No.", "Deferral Code");
-                DeferralHeader."Amount to Defer (LCY)" :=
-                    Round(CurrExchRate.ExchangeAmtFCYToLCY("Posting Date", "Currency Code", DeferralHeader."Amount to Defer", "Currency Factor"));
-                DeferralHeader.Modify();
-                DeferralUtilities.RoundDeferralAmount(
-                    DeferralHeader, "Currency Code", "Currency Factor", "Posting Date", AmtToDefer, AmtToDeferACY);
+        if GenJournalLine."Source Type" in [GenJournalLine."Source Type"::Vendor, GenJournalLine."Source Type"::Customer] then
+            // Purchasing and Sales, respectively
+            // We can create these types directly from the GL window, need to make sure we don't already have a deferral schedule
+            // created for this GL Trx before handing it off to sales/purchasing subsystem
+            if not JournalsSourceCodesList.Contains(GenJournalLine."Source Code") then begin
+                PostDeferralPostBuffer(GenJournalLine);
+                exit;
             end;
 
-            DeferralTemplate.Get("Deferral Code");
-            DeferralTemplate.TestField("Deferral Account");
-            DeferralTemplate.TestField("Deferral %");
-
-            // Get the Deferral Header table so we know the amount to defer...
-            // Assume straight GL posting
-            if DeferralHeader.Get(DeferralDocType::"G/L", "Journal Template Name", "Journal Batch Name", 0, '', "Line No.") then
-                // Get the range of detail records for this schedule
-                DeferralUtilities.FilterDeferralLines(
-                  DeferralLine, DeferralDocType::"G/L".AsInteger(), "Journal Template Name", "Journal Batch Name", 0, '', "Line No.")
-            else
-                Error(NoDeferralScheduleErr, "Line No.", "Deferral Code");
-
-            DeferralSourceCode := GetGeneralDeferralSourceCode();
-            InitGLEntry(
-              GenJournalLine, GLEntry, AccountNo,
-              -DeferralHeader."Amount to Defer (LCY)", -DeferralHeader."Amount to Defer", true, true);
-            GLEntry.Description := SetDeferralDescription(GenJournalLine, DeferralLine, AccountNo);
-            GLEntry."Source Code" := DeferralSourceCode;
-            OnPostDeferralOnBeforeInsertGLEntryForGLAccount(GenJournalLine, DeferralLine, GLEntry);
-            InsertGLEntry(GenJournalLine, GLEntry, true);
-
-            InitGLEntry(
-              GenJournalLine, GLEntry, DeferralTemplate."Deferral Account",
-              DeferralHeader."Amount to Defer (LCY)", DeferralHeader."Amount to Defer", true, true);
-            GLEntry.Description := SetDeferralDescription(GenJournalLine, DeferralLine, DeferralTemplate."Deferral Account");
-            GLEntry."Source Code" := DeferralSourceCode;
-            OnPostDeferralOnBeforeInsertGLEntryForDeferralAccount(GenJournalLine, DeferralLine, GLEntry);
-            InsertGLEntry(GenJournalLine, GLEntry, true);
-
-            if VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then
-                NonDeductibleVATPct := NonDeductibleVAT.GetNonDeductibleVATPct("VAT Bus. Posting Group", "VAT Prod. Posting Group", DeferralDocType);
-            DeferralPostingBuffer.InitFromDeferralLine(DeferralLine);
-            DeferralPostingBuffer."Posting Date" := GenJournalLine."Posting Date";
-            DeferralPostingBuffer."G/L Account" := DeferralTemplate."Deferral Account";
-            DeferralPostingBuffer."Deferral Account" := AccountNo;
-            DeferralPostingBuffer.Description := SetDeferralDescriptionFromDeferralLine(DeferralLine, DeferralTemplate."Deferral Account");
-            DeferralPostingBuffer."Amount (LCY)" := DeferralHeader."Amount to Defer (LCY)";
-            DeferralPostingBuffer.Amount := DeferralHeader."Amount to Defer";
-            InsertDeferralNonDeductibleVATGLEntries(
-                NonDeductibleVATPct, DeferralPostingBuffer, VATPostingSetup, GenJournalLine, DeferralTemplate,
-                VATAmountRounding, PositiveNDVATAmountRounding, NegativeNDVATAmountRounding);
-            VATAmountRounding := 0;
-            PositiveNDVATAmountRounding := 0;
-            NegativeNDVATAmountRounding := 0;
-
-            // Here we want to get the Deferral Details table range and loop through them...
+        if DeferralHeader.Get(DeferralDocType::"G/L", GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", 0, '', GenJournalLine."Line No.") then begin
+            EmptyDeferralLine := false;
+            // Get the range of detail records for this schedule
+            DeferralUtilities.FilterDeferralLines(
+              DeferralLine, DeferralDocType::"G/L".AsInteger(), GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", 0, '', GenJournalLine."Line No.");
             if DeferralLine.FindSet() then
                 repeat
-                    TempDeferralLine := DeferralLine;
-                    TempDeferralLine.Insert();
-                until DeferralLine.Next() = 0;
-            if TempDeferralLine.FindSet() then begin
-                PeriodicCount := 1;
-                repeat
-                    PerPostDate := TempDeferralLine."Posting Date";
-                    CheckDeferralPostingDate(DeferralUtilities, PerPostDate);
-
-                    InitGLEntry(
-                      GenJournalLine, GLEntry, AccountNo,
-                      TempDeferralLine."Amount (LCY)", TempDeferralLine.Amount, true, true);
-                    GLEntry."Posting Date" := PerPostDate;
-                    GLEntry.Description := SetDeferralDescriptionFromDeferralLine(TempDeferralLine, AccountNo);
-                    GLEntry."Source Code" := DeferralSourceCode;
-                    OnPostDeferralOnBeforeInsertGLEntryDeferralLineForGLAccount(GenJournalLine, TempDeferralLine, GLEntry);
-                    InsertGLEntry(GenJournalLine, GLEntry, true);
-
-                    InitGLEntry(
-                      GenJournalLine, GLEntry, DeferralTemplate."Deferral Account",
-                      -TempDeferralLine."Amount (LCY)", -TempDeferralLine.Amount, true, true);
-                    GLEntry."Posting Date" := PerPostDate;
-                    GLEntry.Description := SetDeferralDescriptionFromDeferralLine(TempDeferralLine, DeferralTemplate."Deferral Account");
-                    GLEntry."Source Code" := DeferralSourceCode;
-                    OnPostDeferralOnBeforeInsertGLEntryDeferralLineForDeferralAccount(GenJournalLine, TempDeferralLine, GLEntry);
-                    InsertGLEntry(GenJournalLine, GLEntry, true);
-
-                    DeferralPostingBuffer.InitFromDeferralLine(TempDeferralLine);
-                    DeferralPostingBuffer."G/L Account" := AccountNo;
-                    DeferralPostingBuffer."Deferral Account" := DeferralTemplate."Deferral Account";
-                    DeferralPostingBuffer.Description := SetDeferralDescriptionFromDeferralLine(TempDeferralLine, DeferralTemplate."Deferral Account");
-                    InsertDeferralNonDeductibleVATGLEntries(
-                        NonDeductibleVATPct, DeferralPostingBuffer, VATPostingSetup, GenJournalLine, DeferralTemplate,
-                        VATAmountRounding, PositiveNDVATAmountRounding, NegativeNDVATAmountRounding);
-
-                    PeriodicCount := PeriodicCount + 1;
-                    OnPostDeferralOnAfterInsertGLEntry(GenJournalLine, TempDeferralLine);
-                until TempDeferralLine.Next() = 0;
-                OnPostDeferralOnAfterTempDeferralLineLoopCompleted(GenJournalLine, TempDeferralLine, DeferralTemplate, DeferralHeader);
-            end else
-                Error(NoDeferralScheduleErr, "Line No.", "Deferral Code");
+                    if DeferralLine.Amount = 0 then
+                        EmptyDeferralLine := true;
+                until (DeferralLine.Next() = 0) or EmptyDeferralLine;
+            if EmptyDeferralLine then
+                Error(ZeroDeferralAmtErr, GenJournalLine."Line No.", GenJournalLine."Deferral Code");
+            DeferralHeader."Amount to Defer (LCY)" :=
+                Round(CurrExchRate.ExchangeAmtFCYToLCY(GenJournalLine."Posting Date", GenJournalLine."Currency Code", DeferralHeader."Amount to Defer", GenJournalLine."Currency Factor"));
+            DeferralHeader.Modify();
+            DeferralUtilities.RoundDeferralAmount(
+                DeferralHeader, GenJournalLine."Currency Code", GenJournalLine."Currency Factor", GenJournalLine."Posting Date", AmtToDefer, AmtToDeferACY);
         end;
+
+        DeferralTemplate.Get(GenJournalLine."Deferral Code");
+        DeferralTemplate.TestField("Deferral Account");
+        DeferralTemplate.TestField("Deferral %");
+
+        // Get the Deferral Header table so we know the amount to defer...
+        // Assume straight GL posting
+        if DeferralHeader.Get(DeferralDocType::"G/L", GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", 0, '', GenJournalLine."Line No.") then
+            // Get the range of detail records for this schedule
+            DeferralUtilities.FilterDeferralLines(
+                  DeferralLine, DeferralDocType::"G/L".AsInteger(), GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", 0, '', GenJournalLine."Line No.")
+        else
+            Error(NoDeferralScheduleErr, GenJournalLine."Line No.", GenJournalLine."Deferral Code");
+
+        DeferralSourceCode := GetGeneralDeferralSourceCode();
+        InitGLEntry(
+          GenJournalLine, GLEntry, AccountNo,
+          -DeferralHeader."Amount to Defer (LCY)", -DeferralHeader."Amount to Defer", true, true);
+        GLEntry.Description := SetDeferralDescription(GenJournalLine, DeferralLine, AccountNo);
+        GLEntry."Source Code" := DeferralSourceCode;
+        OnPostDeferralOnBeforeInsertGLEntryForGLAccount(GenJournalLine, DeferralLine, GLEntry);
+        InsertGLEntry(GenJournalLine, GLEntry, true);
+
+        InitGLEntry(
+          GenJournalLine, GLEntry, DeferralTemplate."Deferral Account",
+          DeferralHeader."Amount to Defer (LCY)", DeferralHeader."Amount to Defer", true, true);
+        GLEntry.Description := SetDeferralDescription(GenJournalLine, DeferralLine, DeferralTemplate."Deferral Account");
+        GLEntry."Source Code" := DeferralSourceCode;
+        OnPostDeferralOnBeforeInsertGLEntryForDeferralAccount(GenJournalLine, DeferralLine, GLEntry);
+        InsertGLEntry(GenJournalLine, GLEntry, true);
+
+        if VATPostingSetup.Get(GenJournalLine."VAT Bus. Posting Group", GenJournalLine."VAT Prod. Posting Group") then
+            NonDeductibleVATPct := NonDeductibleVAT.GetNonDeductibleVATPct(GenJournalLine."VAT Bus. Posting Group", GenJournalLine."VAT Prod. Posting Group", DeferralDocType);
+        DeferralPostingBuffer.InitFromDeferralLine(DeferralLine);
+        DeferralPostingBuffer."Posting Date" := GenJournalLine."Posting Date";
+        DeferralPostingBuffer."G/L Account" := DeferralTemplate."Deferral Account";
+        DeferralPostingBuffer."Deferral Account" := AccountNo;
+        DeferralPostingBuffer.Description := SetDeferralDescriptionFromDeferralLine(DeferralLine, DeferralTemplate."Deferral Account");
+        DeferralPostingBuffer."Amount (LCY)" := DeferralHeader."Amount to Defer (LCY)";
+        DeferralPostingBuffer.Amount := DeferralHeader."Amount to Defer";
+        InsertDeferralNonDeductibleVATGLEntries(
+            NonDeductibleVATPct, DeferralPostingBuffer, VATPostingSetup, GenJournalLine, DeferralTemplate,
+            VATAmountRounding, PositiveNDVATAmountRounding, NegativeNDVATAmountRounding);
+        VATAmountRounding := 0;
+        PositiveNDVATAmountRounding := 0;
+        NegativeNDVATAmountRounding := 0;
+
+        // Here we want to get the Deferral Details table range and loop through them...
+        if DeferralLine.FindSet() then
+            repeat
+                TempDeferralLine := DeferralLine;
+                TempDeferralLine.Insert();
+            until DeferralLine.Next() = 0;
+        if TempDeferralLine.FindSet() then begin
+            PeriodicCount := 1;
+            repeat
+                PerPostDate := TempDeferralLine."Posting Date";
+                CheckDeferralPostingDate(DeferralUtilities, PerPostDate);
+
+                InitGLEntry(
+                  GenJournalLine, GLEntry, AccountNo,
+                  TempDeferralLine."Amount (LCY)", TempDeferralLine.Amount, true, true);
+                GLEntry."Posting Date" := PerPostDate;
+                GLEntry.Description := SetDeferralDescriptionFromDeferralLine(TempDeferralLine, AccountNo);
+                GLEntry."Source Code" := DeferralSourceCode;
+                OnPostDeferralOnBeforeInsertGLEntryDeferralLineForGLAccount(GenJournalLine, TempDeferralLine, GLEntry);
+                InsertGLEntry(GenJournalLine, GLEntry, true);
+
+                InitGLEntry(
+                  GenJournalLine, GLEntry, DeferralTemplate."Deferral Account",
+                  -TempDeferralLine."Amount (LCY)", -TempDeferralLine.Amount, true, true);
+                GLEntry."Posting Date" := PerPostDate;
+                GLEntry.Description := SetDeferralDescriptionFromDeferralLine(TempDeferralLine, DeferralTemplate."Deferral Account");
+                GLEntry."Source Code" := DeferralSourceCode;
+                OnPostDeferralOnBeforeInsertGLEntryDeferralLineForDeferralAccount(GenJournalLine, TempDeferralLine, GLEntry);
+                InsertGLEntry(GenJournalLine, GLEntry, true);
+
+                DeferralPostingBuffer.InitFromDeferralLine(TempDeferralLine);
+                DeferralPostingBuffer."G/L Account" := AccountNo;
+                DeferralPostingBuffer."Deferral Account" := DeferralTemplate."Deferral Account";
+                DeferralPostingBuffer.Description := SetDeferralDescriptionFromDeferralLine(TempDeferralLine, DeferralTemplate."Deferral Account");
+                InsertDeferralNonDeductibleVATGLEntries(
+                    NonDeductibleVATPct, DeferralPostingBuffer, VATPostingSetup, GenJournalLine, DeferralTemplate,
+                    VATAmountRounding, PositiveNDVATAmountRounding, NegativeNDVATAmountRounding);
+
+                PeriodicCount := PeriodicCount + 1;
+                OnPostDeferralOnAfterInsertGLEntry(GenJournalLine, TempDeferralLine);
+            until TempDeferralLine.Next() = 0;
+            OnPostDeferralOnAfterTempDeferralLineLoopCompleted(GenJournalLine, TempDeferralLine, DeferralTemplate, DeferralHeader);
+        end else
+            Error(NoDeferralScheduleErr, GenJournalLine."Line No.", GenJournalLine."Deferral Code");
 
         OnAfterPostDeferral(GenJournalLine, TempGLEntryBuf, AccountNo);
     end;
@@ -9410,64 +9414,62 @@ codeunit 12 "Gen. Jnl.-Post Line"
     begin
         IsHandled := false;
         OnBeforePostDeferralPostBuffer(GenJournalLine, IsHandled);
-        if not IsHandled then
-            with GenJournalLine do begin
-                if "Source Type" = "Source Type"::Customer then begin
-                    DeferralDocType := DeferralDocType::Sales;
-                    DeferralSourceCode := GetSalesDeferralSourceCode();
-                end else begin
-                    DeferralDocType := DeferralDocType::Purchase;
-                    DeferralSourceCode := GetPurchaseDeferralSourceCode();
-                end;
-                DeferralPostingBuffer.SetRange("Deferral Doc. Type", DeferralDocType);
-                DeferralPostingBuffer.SetRange("Document No.", "Document No.");
-                DeferralPostingBuffer.SetRange("Deferral Line No.", "Deferral Line No.");
-                OnPostDeferralPostBufferOnAfterSetFilters(DeferralPostingBuffer, GenJournalLine);
-                VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
-                NonDeductibleVATPct := NonDeductibleVAT.GetNonDeductibleVATPct("VAT Bus. Posting Group", "VAT Prod. Posting Group", DeferralDocType);
-                if DeferralPostingBuffer.FindSet() then begin
-                    DeferralTemplate.Get(DeferralPostingBuffer."Deferral Code");
-                    repeat
-                        OnPostDeferralPostBufferOnAfterFindDeferalPostingBuffer(GenJournalLine, DeferralPostingBuffer, NonDeductibleVATPct);
-                        PostDate := DeferralPostingBuffer."Posting Date";
-                        IsHandled := false;
-                        OnPostDeferralPostBufferOnAfterSetPostDate(DeferralPostingBuffer, IsHandled);
-                        if not IsHandled then
-                            if DeferralUtilities.IsDateNotAllowed(PostDate) then
-                                Error(InvalidPostingDateErr, PostDate);
-
-                        // When no sales/purch amount is entered, the offset was already posted
-                        if (DeferralPostingBuffer."Sales/Purch Amount" <> 0) or (DeferralPostingBuffer."Sales/Purch Amount (LCY)" <> 0) then begin
-                            InitGLEntry(
-                                GenJournalLine, GLEntry, DeferralPostingBuffer."G/L Account",
-                                DeferralPostingBuffer."Sales/Purch Amount (LCY)", DeferralPostingBuffer."Sales/Purch Amount", true, true);
-                            GLEntry."Posting Date" := PostDate;
-                            GLEntry.Description := SetDeferralDescriptionFromDeferralPostingBuffer(DeferralPostingBuffer, DeferralPostingBuffer."G/L Account");
-                            GLEntry.CopyFromDeferralPostBuffer(DeferralPostingBuffer);
-                            GLEntry."Source Code" := DeferralSourceCode;
-                            OnPostDeferralPostBufferOnBeforeInsertGLEntryForGLAccount(GenJournalLine, DeferralPostingBuffer, GLEntry);
-                            InsertGLEntry(GenJournalLine, GLEntry, true);
-                        end;
-
-                        if DeferralPostingBuffer.Amount <> 0 then begin
-                            InitGLEntry(
-                                GenJournalLine, GLEntry, DeferralPostingBuffer."Deferral Account",
-                                -DeferralPostingBuffer."Amount (LCY)", -DeferralPostingBuffer.Amount, true, true);
-                            GLEntry."Posting Date" := PostDate;
-                            GLEntry.Description := SetDeferralDescriptionFromDeferralPostingBuffer(DeferralPostingBuffer, DeferralPostingBuffer."Deferral Account");
-                            GLEntry."Source Code" := DeferralSourceCode;
-                            OnPostDeferralPostBufferOnBeforeInsertGLEntryForDeferralAccount(GenJournalLine, DeferralPostingBuffer, GLEntry);
-                            InsertGLEntry(GenJournalLine, GLEntry, true);
-                            OnPostDeferralPostBufferOnAfterInsertGLEntry(GenJournalLine, DeferralPostingBuffer);
-                        end;
-                        InsertDeferralNonDeductibleVATGLEntries(
-                            NonDeductibleVATPct, DeferralPostingBuffer, VATPostingSetup, GenJournalLine, DeferralTemplate,
-                            VATAmountRounding, PositiveNDVATAmountRounding, NegativeNDVATAmountRounding);
-                    until DeferralPostingBuffer.Next() = 0;
-                    OnPostDeferralPosBufferOnBeforeDeleteDeferralPostBuffer(GenJournalLine, DeferralPostingBuffer);
-                    DeferralPostingBuffer.DeleteAll();
-                end;
+        if not IsHandled then begin
+            if GenJournalLine."Source Type" = GenJournalLine."Source Type"::Customer then begin
+                DeferralDocType := DeferralDocType::Sales;
+                DeferralSourceCode := GetSalesDeferralSourceCode();
+            end else begin
+                DeferralDocType := DeferralDocType::Purchase;
+                DeferralSourceCode := GetPurchaseDeferralSourceCode();
             end;
+            DeferralPostingBuffer.SetRange("Deferral Doc. Type", DeferralDocType);
+            DeferralPostingBuffer.SetRange("Document No.", GenJournalLine."Document No.");
+            DeferralPostingBuffer.SetRange("Deferral Line No.", GenJournalLine."Deferral Line No.");
+            OnPostDeferralPostBufferOnAfterSetFilters(DeferralPostingBuffer, GenJournalLine);
+            VATPostingSetup.Get(GenJournalLine."VAT Bus. Posting Group", GenJournalLine."VAT Prod. Posting Group");
+            NonDeductibleVATPct := NonDeductibleVAT.GetNonDeductibleVATPct(GenJournalLine."VAT Bus. Posting Group", GenJournalLine."VAT Prod. Posting Group", DeferralDocType);
+            if DeferralPostingBuffer.FindSet() then begin
+                DeferralTemplate.Get(DeferralPostingBuffer."Deferral Code");
+                repeat
+                    OnPostDeferralPostBufferOnAfterFindDeferalPostingBuffer(GenJournalLine, DeferralPostingBuffer, NonDeductibleVATPct);
+                    PostDate := DeferralPostingBuffer."Posting Date";
+                    IsHandled := false;
+                    OnPostDeferralPostBufferOnAfterSetPostDate(DeferralPostingBuffer, IsHandled);
+                    if not IsHandled then
+                        if DeferralUtilities.IsDateNotAllowed(PostDate) then
+                            Error(InvalidPostingDateErr, PostDate);
+                    // When no sales/purch amount is entered, the offset was already posted
+                    if (DeferralPostingBuffer."Sales/Purch Amount" <> 0) or (DeferralPostingBuffer."Sales/Purch Amount (LCY)" <> 0) then begin
+                        InitGLEntry(
+                            GenJournalLine, GLEntry, DeferralPostingBuffer."G/L Account",
+                            DeferralPostingBuffer."Sales/Purch Amount (LCY)", DeferralPostingBuffer."Sales/Purch Amount", true, true);
+                        GLEntry."Posting Date" := PostDate;
+                        GLEntry.Description := SetDeferralDescriptionFromDeferralPostingBuffer(DeferralPostingBuffer, DeferralPostingBuffer."G/L Account");
+                        GLEntry.CopyFromDeferralPostBuffer(DeferralPostingBuffer);
+                        GLEntry."Source Code" := DeferralSourceCode;
+                        OnPostDeferralPostBufferOnBeforeInsertGLEntryForGLAccount(GenJournalLine, DeferralPostingBuffer, GLEntry);
+                        InsertGLEntry(GenJournalLine, GLEntry, true);
+                    end;
+
+                    if DeferralPostingBuffer.Amount <> 0 then begin
+                        InitGLEntry(
+                            GenJournalLine, GLEntry, DeferralPostingBuffer."Deferral Account",
+                            -DeferralPostingBuffer."Amount (LCY)", -DeferralPostingBuffer.Amount, true, true);
+                        GLEntry."Posting Date" := PostDate;
+                        GLEntry.Description := SetDeferralDescriptionFromDeferralPostingBuffer(DeferralPostingBuffer, DeferralPostingBuffer."Deferral Account");
+                        GLEntry."Source Code" := DeferralSourceCode;
+                        OnPostDeferralPostBufferOnBeforeInsertGLEntryForDeferralAccount(GenJournalLine, DeferralPostingBuffer, GLEntry);
+                        InsertGLEntry(GenJournalLine, GLEntry, true);
+                        OnPostDeferralPostBufferOnAfterInsertGLEntry(GenJournalLine, DeferralPostingBuffer);
+                    end;
+                    InsertDeferralNonDeductibleVATGLEntries(
+                        NonDeductibleVATPct, DeferralPostingBuffer, VATPostingSetup, GenJournalLine, DeferralTemplate,
+                        VATAmountRounding, PositiveNDVATAmountRounding, NegativeNDVATAmountRounding);
+                until DeferralPostingBuffer.Next() = 0;
+                OnPostDeferralPosBufferOnBeforeDeleteDeferralPostBuffer(GenJournalLine, DeferralPostingBuffer);
+                DeferralPostingBuffer.DeleteAll();
+            end;
+        end;
 
         OnAfterPostDeferralPostBuffer(GenJournalLine);
     end;
@@ -9477,10 +9479,9 @@ codeunit 12 "Gen. Jnl.-Post Line"
         DeferralUtilities: Codeunit "Deferral Utilities";
     begin
         // Removing deferral schedule after all deferrals for this line have been posted successfully
-        with GenJournalLine do
-            DeferralUtilities.DeferralCodeOnDelete(
-              "Deferral Document Type"::"G/L".AsInteger(),
-              "Journal Template Name", "Journal Batch Name", 0, '', "Line No.");
+        DeferralUtilities.DeferralCodeOnDelete(
+            Enum::"Deferral Document Type"::"G/L".AsInteger(),
+            GenJournalLine."Journal Template Name", GenJournalLine."Journal Batch Name", 0, '', GenJournalLine."Line No.");
     end;
 
     local procedure InsertDeferralNonDeductibleVATGLEntries(NonDeductibleVATPct: Decimal; DeferralPostingBuffer: Record "Deferral Posting Buffer"; VATPostingSetup: Record "VAT Posting Setup"; GenJournalLine: Record "Gen. Journal Line"; DeferralTemplate: Record "Deferral Template"; var VATAmountRounding: Decimal; var PositiveNDVATAmountRounding: Decimal; var NegativeNDVATAmountRounding: Decimal)
@@ -9539,12 +9540,16 @@ codeunit 12 "Gen. Jnl.-Post Line"
         InsertGLEntry(GenJournalLine, GLEntry, true);
     end;
 
-    local procedure GetGLSourceCode()
+    local procedure GetJournalsSourceCode()
     var
         SourceCodeSetup: Record "Source Code Setup";
     begin
         SourceCodeSetup.Get();
-        GLSourceCode := SourceCodeSetup."General Journal";
+        JournalsSourceCodesList.Add(SourceCodeSetup."General Journal");
+        JournalsSourceCodesList.Add(SourceCodeSetup."Purchase Journal");
+        JournalsSourceCodesList.Add(SourceCodeSetup."Sales Journal");
+
+        OnAfterGetJournalsSourceCode(JournalsSourceCodesList);
     end;
 
     local procedure GetGeneralDeferralSourceCode(): Code[10]
@@ -9574,7 +9579,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
         exit(SourceCodeSetupLoc."Purchase Deferral");
     end;
 
-    procedure DeferralPosting(DeferralCode: Code[10]; SourceCode: Code[10]; AccountNo: Code[20]; var GenJournalLine: Record "Gen. Journal Line"; Balancing: Boolean)
+    local procedure DeferralPosting(DeferralCode: Code[10]; SourceCode: Code[10]; AccountNo: Code[20]; var GenJournalLine: Record "Gen. Journal Line"; Balancing: Boolean)
     var
         FeatureTelemetry: Codeunit "Feature Telemetry";
         IsHandled: Boolean;
@@ -9586,7 +9591,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
         if DeferralCode <> '' then begin
             // Sales and purchasing could have negative amounts, so check for them first...
-            if (SourceCode <> GLSourceCode) and
+            if (not JournalsSourceCodesList.Contains(SourceCode)) and
              (GenJournalLine."Account Type" in [GenJournalLine."Account Type"::Customer, GenJournalLine."Account Type"::Vendor])
             then
                 PostDeferralPostBuffer(GenJournalLine)
@@ -9653,6 +9658,31 @@ codeunit 12 "Gen. Jnl.-Post Line"
         exit(DeferralDescription);
     end;
 
+    local procedure SetPostingDimensions(var GenJnlLine: Record "Gen. Journal Line"; AccNo: Code[20])
+    var
+        DimMgt: Codeunit DimensionManagement;
+        DefaultDimSource: List of [Dictionary of [Integer, Code[20]]];
+        GenJournalAccountType: Enum "Gen. Journal Account Type";
+    begin
+        case GLSetup."App. Dimension Posting" of
+            GLSetup."App. Dimension Posting"::"No Dimensions":
+                begin
+                    GenJnlLine."Shortcut Dimension 1 Code" := '';
+                    GenJnlLine."Shortcut Dimension 2 Code" := '';
+                    GenJnlLine."Dimension Set ID" := 0;
+                end;
+            GLSetup."App. Dimension Posting"::"G/L Account Dimensions":
+                begin
+                    DimMgt.AddDimSource(
+                        DefaultDimSource, DimMgt.TypeToTableID1(GenJournalAccountType::"G/L Account".AsInteger()), AccNo, true);
+                    GenJnlLine.Validate("Dimension Set ID",
+                        DimMgt.GetRecDefaultDimID(
+                            GenJnlLine, 0, DefaultDimSource, GenJnlLine."Source Code",
+                            GenJnlLine."Shortcut Dimension 1 Code", GenJnlLine."Shortcut Dimension 2 Code", 0, 0));
+                end;
+        end;
+    end;
+
     local procedure GetPostingAccountNo(VATPostingSetup: Record "VAT Posting Setup"; VATEntry: Record "VAT Entry"; UnrealizedVAT: Boolean): Code[20]
     var
         TaxJurisdiction: Record "Tax Jurisdiction";
@@ -9686,22 +9716,22 @@ codeunit 12 "Gen. Jnl.-Post Line"
         VATAmountCondition: Boolean;
         EntryAmount: Decimal;
     begin
-        with DtldCVLedgEntryBuf do begin
-            VATAmountCondition :=
-              "Entry Type" in ["Entry Type"::"Payment Discount (VAT Excl.)", "Entry Type"::"Payment Tolerance (VAT Excl.)",
-                               "Entry Type"::"Payment Discount Tolerance (VAT Excl.)"];
-            if VATAmountCondition then begin
-                VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group");
-                VATAmountCondition := VATPostingSetup."VAT Calculation Type" = VATPostingSetup."VAT Calculation Type"::"Full VAT";
-            end;
-            if VATAmountCondition then
-                EntryAmount := "VAT Amount (LCY)"
-            else
-                EntryAmount := "Amount (LCY)";
-            if Unapply then
-                exit(EntryAmount > 0);
-            exit(EntryAmount <= 0);
+        VATAmountCondition :=
+            DtldCVLedgEntryBuf."Entry Type" in
+                [DtldCVLedgEntryBuf."Entry Type"::"Payment Discount (VAT Excl.)",
+                 DtldCVLedgEntryBuf."Entry Type"::"Payment Tolerance (VAT Excl.)",
+                 DtldCVLedgEntryBuf."Entry Type"::"Payment Discount Tolerance (VAT Excl.)"];
+        if VATAmountCondition then begin
+            VATPostingSetup.Get(DtldCVLedgEntryBuf."VAT Bus. Posting Group", DtldCVLedgEntryBuf."VAT Prod. Posting Group");
+            VATAmountCondition := VATPostingSetup."VAT Calculation Type" = VATPostingSetup."VAT Calculation Type"::"Full VAT";
         end;
+        if VATAmountCondition then
+            EntryAmount := DtldCVLedgEntryBuf."VAT Amount (LCY)"
+        else
+            EntryAmount := DtldCVLedgEntryBuf."Amount (LCY)";
+        if Unapply then
+            exit(EntryAmount > 0);
+        exit(EntryAmount <= 0);
     end;
 
     local procedure GetVendorPostingGroup(GenJournalLine: Record "Gen. Journal Line"; var VendorPostingGroup: Record "Vendor Posting Group")
@@ -9835,7 +9865,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnBeforePostVAT(var GenJnlLine: Record "Gen. Journal Line"; var GLEntry: Record "G/L Entry"; VATPostingSetup: Record "VAT Posting Setup"; var IsHandled: Boolean; var AddCurrGLEntryVATAmt: Decimal; var NextConnectionNo: Integer)
+    local procedure OnBeforePostVAT(var GenJnlLine: Record "Gen. Journal Line"; var GLEntry: Record "G/L Entry"; VATPostingSetup: Record "VAT Posting Setup"; var IsHandled: Boolean; var AddCurrGLEntryVATAmt: Decimal; var NextConnectionNo: Integer; var TaxDetail: Record "Tax Detail")
     begin
     end;
 
@@ -10277,7 +10307,7 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     [IntegrationEvent(true, false)]
-    local procedure OnAfterPostVAT(GenJnlLine: Record "Gen. Journal Line"; var GLEntry: Record "G/L Entry"; VATPostingSetup: Record "VAT Posting Setup"; TaxDetail: Record "Tax Detail"; var NextConnectionNo: Integer; var AddCurrGLEntryVATAmt: Decimal; AddCurrencyCode: Code[10]; UseCurrFactorOnly: Boolean)
+    local procedure OnAfterPostVAT(GenJnlLine: Record "Gen. Journal Line"; var GLEntry: Record "G/L Entry"; VATPostingSetup: Record "VAT Posting Setup"; var TaxDetail: Record "Tax Detail"; var NextConnectionNo: Integer; var AddCurrGLEntryVATAmt: Decimal; AddCurrencyCode: Code[10]; UseCurrFactorOnly: Boolean)
     begin
     end;
 
@@ -10333,6 +10363,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
 
     [IntegrationEvent(true, false)]
     local procedure OnBeforeGetDtldVendLedgEntryAccNo(var GenJournalLine: Record "Gen. Journal Line"; var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; var VendorPostingGroup: Record "Vendor Posting Group"; OriginalTransactionNo: Integer; Unapply: Boolean; var VATEntry: Record "VAT Entry"; var AccountNo: code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetDtldEmplLedgEntryAccNo(var GenJournalLine: Record "Gen. Journal Line"; var DetailedCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; var EmployeePostingGroup: Record "Employee Posting Group"; OriginalTransactionNo: Integer; Unapply: Boolean; var AccountNo: code[20]; var IsHandled: Boolean)
     begin
     end;
 
@@ -10901,6 +10936,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnPostEmployeeOnAfterCopyCVLedgEntryBuf(var CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer"; GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnPostVendOnBeforeInitVendLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; var VendLedgEntry: Record "Vendor Ledger Entry"; var CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer"; var DtldCVLedgEntryBuffer: Record "Detailed CV Ledg. Entry Buffer"; var VendPostingGr: Record "Vendor Posting Group")
     begin
@@ -11421,6 +11461,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnPostEmployeeOnAfterAssignCurrencyFactors(var CVLedgerEntryBuffer: Record "CV Ledger Entry Buffer"; GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
     [IntegrationEvent(true, false)]
     local procedure OnInitAmountsOnAddCurrencyPostingNone(var GenJournalLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
     begin
@@ -11817,6 +11862,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     [IntegrationEvent(true, false)]
+    local procedure OnAfterGetJournalsSourceCode(var JournalsSourceCodesList: List of [Code[10]])
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
     local procedure OnCreateGLEntriesForTotalAmountsOnBeforeUpdateGenJnlLineDim(var IsHandled: Boolean)
     begin
     end;
@@ -11927,6 +11977,11 @@ codeunit 12 "Gen. Jnl.-Post Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnPostBankAccOnBeforeCheckCurrencyCode(var GenJournalLine: Record "Gen. Journal Line"; BankAccount: Record "Bank Account"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateNormalVATGLEntries(GenJournalLine: Record "Gen. Journal Line"; var VATPostingSetup: Record "VAT Posting Setup")
     begin
     end;
@@ -11936,3 +11991,4 @@ codeunit 12 "Gen. Jnl.-Post Line"
     begin
     end;
 }
+

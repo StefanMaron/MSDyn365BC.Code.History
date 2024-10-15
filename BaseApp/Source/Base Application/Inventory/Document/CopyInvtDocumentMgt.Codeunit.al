@@ -65,186 +65,184 @@ codeunit 5857 "Copy Invt. Document Mgt."
         LinesNotCopied: Integer;
         LinesSkipApplies: Integer;
     begin
-        with ToInvtDocHeader do begin
-            if not CreateToHeader then begin
-                TestField(Status, Status::Open);
-                if FromDocNo = '' then
-                    Error(MissingDocumentNoErr);
-                Find();
-            end;
-            TransferOldExtLines.ClearLineNumbers();
-            GlobalFromDocType := FromDocType;
-            case FromDocType of
-                InvtDocType::Receipt,
-                InvtDocType::Shipment:
-                    begin
-                        FromInvtDocHeader.Get(FromDocType, FromDocNo);
-                        if (FromInvtDocHeader."Document Type" = "Document Type") and
-                           (FromInvtDocHeader."No." = "No.")
-                        then
-                            Error(CannotCopyToItselfErr, "Document Type", "No.");
+        if not CreateToHeader then begin
+            ToInvtDocHeader.TestField(Status, ToInvtDocHeader.Status::Open);
+            if FromDocNo = '' then
+                Error(MissingDocumentNoErr);
+            ToInvtDocHeader.Find();
+        end;
+        TransferOldExtLines.ClearLineNumbers();
+        GlobalFromDocType := FromDocType;
+        case FromDocType of
+            InvtDocType::Receipt,
+            InvtDocType::Shipment:
+                begin
+                    FromInvtDocHeader.Get(FromDocType, FromDocNo);
+                    if (FromInvtDocHeader."Document Type" = ToInvtDocHeader."Document Type") and
+                       (FromInvtDocHeader."No." = ToInvtDocHeader."No.")
+                    then
+                        Error(CannotCopyToItselfErr, ToInvtDocHeader."Document Type", ToInvtDocHeader."No.");
 
-                        FromInvtDocLine.SetRange("Document Type", FromInvtDocHeader."Document Type");
-                        FromInvtDocLine.SetRange("Document No.", FromInvtDocHeader."No.");
-                        if FromInvtDocLine.Find('-') then
-                            repeat
-                                if FromInvtDocLine.Quantity > 0 then begin
-                                    ToInvtDocLine."Item No." := FromInvtDocLine."Item No.";
-                                    ToInvtDocLine."Variant Code" := FromInvtDocLine."Variant Code";
-                                    ToInvtDocLine."Location Code" := FromInvtDocLine."Location Code";
-                                    ToInvtDocLine."Bin Code" := FromInvtDocLine."Bin Code";
-                                    ToInvtDocLine."Unit of Measure Code" := FromInvtDocLine."Unit of Measure Code";
-                                    ToInvtDocLine."Qty. per Unit of Measure" := FromInvtDocLine."Qty. per Unit of Measure";
-                                    ToInvtDocLine."Qty. Rounding Precision" := FromInvtDocLine."Qty. Rounding Precision";
-                                    ToInvtDocLine."Qty. Rounding Precision (Base)" := FromInvtDocLine."Qty. Rounding Precision (Base)";
-                                    ToInvtDocLine.Quantity := FromInvtDocLine.Quantity;
-                                    CheckItemAvailable(ToInvtDocHeader, ToInvtDocLine);
-                                end;
-                            until FromInvtDocLine.Next() = 0;
-                        if not IncludeHeader and not RecalculateLines then
-                            FromInvtDocHeader.TestField("Gen. Bus. Posting Group", "Gen. Bus. Posting Group");
-                    end;
-                InvtDocType::"Posted Receipt":
-                    begin
-                        FromInvtRcptHeader.Get(FromDocNo);
-                        FromInvtRcptLine.SetRange("Document No.", FromInvtRcptHeader."No.");
-                        if FromInvtRcptLine.Find('-') then
-                            repeat
-                                if FromInvtRcptLine.Quantity > 0 then begin
-                                    ToInvtDocLine."Item No." := FromInvtRcptLine."Item No.";
-                                    ToInvtDocLine."Variant Code" := FromInvtRcptLine."Variant Code";
-                                    ToInvtDocLine."Location Code" := FromInvtRcptLine."Location Code";
-                                    ToInvtDocLine."Bin Code" := FromInvtRcptLine."Bin Code";
-                                    ToInvtDocLine."Unit of Measure Code" := FromInvtRcptLine."Unit of Measure Code";
-                                    ToInvtDocLine."Qty. per Unit of Measure" := FromInvtRcptLine."Qty. per Unit of Measure";
-                                    ToInvtDocLine."Qty. Rounding Precision" := FromInvtRcptLine."Qty. Rounding Precision";
-                                    ToInvtDocLine."Qty. Rounding Precision (Base)" := FromInvtRcptLine."Qty. Rounding Precision (Base)";
-                                    ToInvtDocLine.Quantity := FromInvtRcptLine.Quantity;
-                                    CheckItemAvailable(ToInvtDocHeader, ToInvtDocLine);
-                                end;
-                            until FromInvtRcptLine.Next() = 0;
-                        if not IncludeHeader and not RecalculateLines then
-                            FromInvtRcptHeader.TestField("Gen. Bus. Posting Group", "Gen. Bus. Posting Group");
-                    end;
-                InvtDocType::"Posted Shipment":
-                    begin
-                        FromInvtShptHeader.Get(FromDocNo);
-                        FromInvtShptLine.SetRange("Document No.", FromInvtShptHeader."No.");
-                        if FromInvtShptLine.Find('-') then
-                            repeat
-                                if FromInvtShptLine.Quantity > 0 then begin
-                                    ToInvtDocLine."Item No." := FromInvtShptLine."Item No.";
-                                    ToInvtDocLine."Variant Code" := FromInvtShptLine."Variant Code";
-                                    ToInvtDocLine."Location Code" := FromInvtShptLine."Location Code";
-                                    ToInvtDocLine."Bin Code" := FromInvtShptLine."Bin Code";
-                                    ToInvtDocLine."Unit of Measure Code" := FromInvtShptLine."Unit of Measure Code";
-                                    ToInvtDocLine."Qty. per Unit of Measure" := FromInvtShptLine."Qty. per Unit of Measure";
-                                    ToInvtDocLine."Qty. Rounding Precision" := FromInvtShptLine."Qty. Rounding Precision";
-                                    ToInvtDocLine."Qty. Rounding Precision (Base)" := FromInvtShptLine."Qty. Rounding Precision (Base)";
-                                    ToInvtDocLine.Quantity := FromInvtShptLine.Quantity;
-                                    CheckItemAvailable(ToInvtDocHeader, ToInvtDocLine);
-                                end;
-                            until FromInvtShptLine.Next() = 0;
-                        if not IncludeHeader and not RecalculateLines then
-                            FromInvtShptHeader.TestField("Gen. Bus. Posting Group", "Gen. Bus. Posting Group");
-                    end;
-            end;
-
-            ToInvtDocLine.LockTable();
-
-            if CreateToHeader then begin
-                Insert(true);
-                ToInvtDocLine.SetRange("Document Type", "Document Type");
-                ToInvtDocLine.SetRange("Document No.", "No.");
-            end else begin
-                ToInvtDocLine.SetRange("Document Type", "Document Type");
-                ToInvtDocLine.SetRange("Document No.", "No.");
-                if IncludeHeader then
-                    if ToInvtDocLine.FindFirst() then begin
-                        Commit();
-                        if not Confirm(LinesWillBeDeletedQst, true, "Document Type", "No.") then
-                            exit;
-                        ToInvtDocLine.DeleteAll(true);
-                    end;
-            end;
-
-            if ToInvtDocLine.FindLast() then
-                NextLineNo := ToInvtDocLine."Line No."
-            else
-                NextLineNo := 0;
-
-            if IncludeHeader then begin
-                OldInvtDocHeader := ToInvtDocHeader;
-                case FromDocType of
-                    InvtDocType::Receipt,
-                    InvtDocType::Shipment:
-                        begin
-                            TransferFields(FromInvtDocHeader, false);
-                            if OldInvtDocHeader."Posting Date" = 0D then
-                                "Posting Date" := WorkDate()
-                            else
-                                "Posting Date" := OldInvtDocHeader."Posting Date";
-                        end;
-                    InvtDocType::"Posted Receipt":
-                        TransferFields(FromInvtRcptHeader, false);
-                    InvtDocType::"Posted Shipment":
-                        TransferFields(FromInvtShptHeader, false);
+                    FromInvtDocLine.SetRange("Document Type", FromInvtDocHeader."Document Type");
+                    FromInvtDocLine.SetRange("Document No.", FromInvtDocHeader."No.");
+                    if FromInvtDocLine.Find('-') then
+                        repeat
+                            if FromInvtDocLine.Quantity > 0 then begin
+                                ToInvtDocLine."Item No." := FromInvtDocLine."Item No.";
+                                ToInvtDocLine."Variant Code" := FromInvtDocLine."Variant Code";
+                                ToInvtDocLine."Location Code" := FromInvtDocLine."Location Code";
+                                ToInvtDocLine."Bin Code" := FromInvtDocLine."Bin Code";
+                                ToInvtDocLine."Unit of Measure Code" := FromInvtDocLine."Unit of Measure Code";
+                                ToInvtDocLine."Qty. per Unit of Measure" := FromInvtDocLine."Qty. per Unit of Measure";
+                                ToInvtDocLine."Qty. Rounding Precision" := FromInvtDocLine."Qty. Rounding Precision";
+                                ToInvtDocLine."Qty. Rounding Precision (Base)" := FromInvtDocLine."Qty. Rounding Precision (Base)";
+                                ToInvtDocLine.Quantity := FromInvtDocLine.Quantity;
+                                CheckItemAvailable(ToInvtDocHeader, ToInvtDocLine);
+                            end;
+                        until FromInvtDocLine.Next() = 0;
+                    if not IncludeHeader and not RecalculateLines then
+                        FromInvtDocHeader.TestField("Gen. Bus. Posting Group", ToInvtDocHeader."Gen. Bus. Posting Group");
                 end;
-                Status := Status::Open;
-                "No. Series" := OldInvtDocHeader."No. Series";
-                "Posting Description" := OldInvtDocHeader."Posting Description";
-                "Posting No." := OldInvtDocHeader."Posting No.";
-                "Posting No. Series" := OldInvtDocHeader."Posting No. Series";
-                "No. Printed" := 0;
-                if IsCorrection then
-                    Correction := IsCorrection;
+            InvtDocType::"Posted Receipt":
+                begin
+                    FromInvtRcptHeader.Get(FromDocNo);
+                    FromInvtRcptLine.SetRange("Document No.", FromInvtRcptHeader."No.");
+                    if FromInvtRcptLine.Find('-') then
+                        repeat
+                            if FromInvtRcptLine.Quantity > 0 then begin
+                                ToInvtDocLine."Item No." := FromInvtRcptLine."Item No.";
+                                ToInvtDocLine."Variant Code" := FromInvtRcptLine."Variant Code";
+                                ToInvtDocLine."Location Code" := FromInvtRcptLine."Location Code";
+                                ToInvtDocLine."Bin Code" := FromInvtRcptLine."Bin Code";
+                                ToInvtDocLine."Unit of Measure Code" := FromInvtRcptLine."Unit of Measure Code";
+                                ToInvtDocLine."Qty. per Unit of Measure" := FromInvtRcptLine."Qty. per Unit of Measure";
+                                ToInvtDocLine."Qty. Rounding Precision" := FromInvtRcptLine."Qty. Rounding Precision";
+                                ToInvtDocLine."Qty. Rounding Precision (Base)" := FromInvtRcptLine."Qty. Rounding Precision (Base)";
+                                ToInvtDocLine.Quantity := FromInvtRcptLine.Quantity;
+                                CheckItemAvailable(ToInvtDocHeader, ToInvtDocLine);
+                            end;
+                        until FromInvtRcptLine.Next() = 0;
+                    if not IncludeHeader and not RecalculateLines then
+                        FromInvtRcptHeader.TestField("Gen. Bus. Posting Group", ToInvtDocHeader."Gen. Bus. Posting Group");
+                end;
+            InvtDocType::"Posted Shipment":
+                begin
+                    FromInvtShptHeader.Get(FromDocNo);
+                    FromInvtShptLine.SetRange("Document No.", FromInvtShptHeader."No.");
+                    if FromInvtShptLine.Find('-') then
+                        repeat
+                            if FromInvtShptLine.Quantity > 0 then begin
+                                ToInvtDocLine."Item No." := FromInvtShptLine."Item No.";
+                                ToInvtDocLine."Variant Code" := FromInvtShptLine."Variant Code";
+                                ToInvtDocLine."Location Code" := FromInvtShptLine."Location Code";
+                                ToInvtDocLine."Bin Code" := FromInvtShptLine."Bin Code";
+                                ToInvtDocLine."Unit of Measure Code" := FromInvtShptLine."Unit of Measure Code";
+                                ToInvtDocLine."Qty. per Unit of Measure" := FromInvtShptLine."Qty. per Unit of Measure";
+                                ToInvtDocLine."Qty. Rounding Precision" := FromInvtShptLine."Qty. Rounding Precision";
+                                ToInvtDocLine."Qty. Rounding Precision (Base)" := FromInvtShptLine."Qty. Rounding Precision (Base)";
+                                ToInvtDocLine.Quantity := FromInvtShptLine.Quantity;
+                                CheckItemAvailable(ToInvtDocHeader, ToInvtDocLine);
+                            end;
+                        until FromInvtShptLine.Next() = 0;
+                    if not IncludeHeader and not RecalculateLines then
+                        FromInvtShptHeader.TestField("Gen. Bus. Posting Group", ToInvtDocHeader."Gen. Bus. Posting Group");
+                end;
+        end;
 
-                if CreateToHeader then
-                    Modify(true)
-                else
-                    Modify();
-            end;
+        ToInvtDocLine.LockTable();
 
-            LinesNotCopied := 0;
-            LinesSkipApplies := 0;
+        if CreateToHeader then begin
+            ToInvtDocHeader.Insert(true);
+            ToInvtDocLine.SetRange("Document Type", ToInvtDocHeader."Document Type");
+            ToInvtDocLine.SetRange("Document No.", ToInvtDocHeader."No.");
+        end else begin
+            ToInvtDocLine.SetRange("Document Type", ToInvtDocHeader."Document Type");
+            ToInvtDocLine.SetRange("Document No.", ToInvtDocHeader."No.");
+            if IncludeHeader then
+                if ToInvtDocLine.FindFirst() then begin
+                    Commit();
+                    if not Confirm(LinesWillBeDeletedQst, true, ToInvtDocHeader."Document Type", ToInvtDocHeader."No.") then
+                        exit;
+                    ToInvtDocLine.DeleteAll(true);
+                end;
+        end;
+
+        if ToInvtDocLine.FindLast() then
+            NextLineNo := ToInvtDocLine."Line No."
+        else
+            NextLineNo := 0;
+
+        if IncludeHeader then begin
+            OldInvtDocHeader := ToInvtDocHeader;
             case FromDocType of
                 InvtDocType::Receipt,
                 InvtDocType::Shipment:
                     begin
-                        FromInvtDocLine.Reset();
-                        FromInvtDocLine.SetRange("Document Type", FromInvtDocHeader."Document Type");
-                        FromInvtDocLine.SetRange("Document No.", FromInvtDocHeader."No.");
-                        if FromInvtDocLine.Find('-') then
-                            repeat
-                                CopyInvtDocLine(ToInvtDocHeader, ToInvtDocLine, FromInvtDocHeader, FromInvtDocLine, NextLineNo, LinesNotCopied, LinesSkipApplies);
-                            until FromInvtDocLine.Next() = 0;
+                        ToInvtDocHeader.TransferFields(FromInvtDocHeader, false);
+                        if OldInvtDocHeader."Posting Date" = 0D then
+                            ToInvtDocHeader."Posting Date" := WorkDate()
+                        else
+                            ToInvtDocHeader."Posting Date" := OldInvtDocHeader."Posting Date";
                     end;
                 InvtDocType::"Posted Receipt":
-                    begin
-                        FromInvtDocHeader.TransferFields(FromInvtRcptHeader);
-                        FromInvtRcptLine.Reset();
-                        FromInvtRcptLine.SetRange("Document No.", FromInvtRcptHeader."No.");
-                        if FromInvtRcptLine.Find('-') then
-                            repeat
-                                FromInvtDocLine.TransferFields(FromInvtRcptLine);
-                                CopyInvtDocLine(
-                                  ToInvtDocHeader, ToInvtDocLine, FromInvtDocHeader, FromInvtDocLine,
-                                  NextLineNo, LinesNotCopied, LinesSkipApplies);
-                            until FromInvtRcptLine.Next() = 0;
-                    end;
+                    ToInvtDocHeader.TransferFields(FromInvtRcptHeader, false);
                 InvtDocType::"Posted Shipment":
-                    begin
-                        FromInvtDocHeader.TransferFields(FromInvtShptHeader);
-                        FromInvtDocHeader."Document Type" := FromInvtDocHeader."Document Type"::Shipment;
-                        FromInvtShptLine.Reset();
-                        FromInvtShptLine.SetRange("Document No.", FromInvtShptHeader."No.");
-                        if FromInvtShptLine.Find('-') then
-                            repeat
-                                FromInvtDocLine.TransferFields(FromInvtShptLine);
-                                CopyInvtDocLine(ToInvtDocHeader, ToInvtDocLine, FromInvtDocHeader, FromInvtDocLine, NextLineNo, LinesNotCopied, LinesSkipApplies);
-                            until FromInvtShptLine.Next() = 0;
-                    end;
+                    ToInvtDocHeader.TransferFields(FromInvtShptHeader, false);
             end;
+            ToInvtDocHeader.Status := ToInvtDocHeader.Status::Open;
+            ToInvtDocHeader."No. Series" := OldInvtDocHeader."No. Series";
+            ToInvtDocHeader."Posting Description" := OldInvtDocHeader."Posting Description";
+            ToInvtDocHeader."Posting No." := OldInvtDocHeader."Posting No.";
+            ToInvtDocHeader."Posting No. Series" := OldInvtDocHeader."Posting No. Series";
+            ToInvtDocHeader."No. Printed" := 0;
+            if IsCorrection then
+                ToInvtDocHeader.Correction := IsCorrection;
+
+            if CreateToHeader then
+                ToInvtDocHeader.Modify(true)
+            else
+                ToInvtDocHeader.Modify();
+        end;
+
+        LinesNotCopied := 0;
+        LinesSkipApplies := 0;
+        case FromDocType of
+            InvtDocType::Receipt,
+            InvtDocType::Shipment:
+                begin
+                    FromInvtDocLine.Reset();
+                    FromInvtDocLine.SetRange("Document Type", FromInvtDocHeader."Document Type");
+                    FromInvtDocLine.SetRange("Document No.", FromInvtDocHeader."No.");
+                    if FromInvtDocLine.Find('-') then
+                        repeat
+                            CopyInvtDocLine(ToInvtDocHeader, ToInvtDocLine, FromInvtDocHeader, FromInvtDocLine, NextLineNo, LinesNotCopied, LinesSkipApplies);
+                        until FromInvtDocLine.Next() = 0;
+                end;
+            InvtDocType::"Posted Receipt":
+                begin
+                    FromInvtDocHeader.TransferFields(FromInvtRcptHeader);
+                    FromInvtRcptLine.Reset();
+                    FromInvtRcptLine.SetRange("Document No.", FromInvtRcptHeader."No.");
+                    if FromInvtRcptLine.Find('-') then
+                        repeat
+                            FromInvtDocLine.TransferFields(FromInvtRcptLine);
+                            CopyInvtDocLine(
+                              ToInvtDocHeader, ToInvtDocLine, FromInvtDocHeader, FromInvtDocLine,
+                              NextLineNo, LinesNotCopied, LinesSkipApplies);
+                        until FromInvtRcptLine.Next() = 0;
+                end;
+            InvtDocType::"Posted Shipment":
+                begin
+                    FromInvtDocHeader.TransferFields(FromInvtShptHeader);
+                    FromInvtDocHeader."Document Type" := FromInvtDocHeader."Document Type"::Shipment;
+                    FromInvtShptLine.Reset();
+                    FromInvtShptLine.SetRange("Document No.", FromInvtShptHeader."No.");
+                    if FromInvtShptLine.Find('-') then
+                        repeat
+                            FromInvtDocLine.TransferFields(FromInvtShptLine);
+                            CopyInvtDocLine(ToInvtDocHeader, ToInvtDocLine, FromInvtDocHeader, FromInvtDocLine, NextLineNo, LinesNotCopied, LinesSkipApplies);
+                        until FromInvtShptLine.Next() = 0;
+                end;
         end;
 
         if LinesNotCopied > 0 then

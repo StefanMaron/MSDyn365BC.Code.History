@@ -11,6 +11,7 @@ using System.Telemetry;
 table 11603 "BAS Business Unit"
 {
     Caption = 'BAS Business Unit';
+    DataClassification = CustomerContent;
 
     fields
     {

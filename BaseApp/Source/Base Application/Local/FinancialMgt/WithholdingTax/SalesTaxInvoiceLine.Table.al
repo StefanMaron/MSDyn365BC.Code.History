@@ -36,6 +36,7 @@ using System.Reflection;
 table 28072 "Sales Tax Invoice Line"
 {
     Caption = 'Sales Tax Invoice Line';
+    DataClassification = CustomerContent;
 
     fields
     {

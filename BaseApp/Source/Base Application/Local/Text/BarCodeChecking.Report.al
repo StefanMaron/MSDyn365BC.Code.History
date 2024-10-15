@@ -245,8 +245,8 @@ report 28000 "BarCode Checking"
             CodeFieldRef := RecordRef.Field(CodeFieldNo);
             NameFieldRef := RecordRef.Field(NameFieldNo);
             RecTableName := RecordRef.Caption;
-            RecCode := CodeFieldRef.Value;
-            RecName := NameFieldRef.Value;
+            RecCode := CodeFieldRef.Value();
+            RecName := NameFieldRef.Value();
         end;
         RecordRef.Close();
     end;

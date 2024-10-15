@@ -14,6 +14,7 @@ table 11604 "BAS Calc. Sheet Entry"
     DataPerCompany = false;
     DrillDownPageID = "BAS Calc. Sheet Entries";
     LookupPageID = "BAS Calc. Sheet Entries";
+    DataClassification = CustomerContent;
 
     fields
     {

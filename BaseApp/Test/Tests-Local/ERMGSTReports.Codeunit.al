@@ -250,7 +250,7 @@ codeunit 141006 "ERM GST Reports"
         // [GIVEN] Posted Sales Invoice through the General Journal
         CreateAndPostGeneralJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, LibraryRandom.RandDec(100, 2),
-          GenJournalLine."Account Type"::Customer, CreateCustomer, GenJournalLine."Bal. Gen. Posting Type"::Sale);
+          GenJournalLine."Account Type"::Customer, CreateCustomer(), GenJournalLine."Bal. Gen. Posting Type"::Sale);
         // [WHEN] Open GST Sales Entries page
         // GST Sales Entries page is opened in verification
 
@@ -274,7 +274,7 @@ codeunit 141006 "ERM GST Reports"
         // [GIVEN] Posted Sales Credit Memo through the General Journal
         CreateAndPostGeneralJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo", -LibraryRandom.RandDec(100, 2),
-          GenJournalLine."Account Type"::Customer, CreateCustomer, GenJournalLine."Bal. Gen. Posting Type"::Sale);
+          GenJournalLine."Account Type"::Customer, CreateCustomer(), GenJournalLine."Bal. Gen. Posting Type"::Sale);
         // [WHEN] Open GST Sales Entries page
         // GST Sales Entries page is opened in verification
 
@@ -298,7 +298,7 @@ codeunit 141006 "ERM GST Reports"
         // [GIVEN] Posted Purchase Invoice through the General Journal
         CreateAndPostGeneralJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::Invoice, -LibraryRandom.RandDec(100, 2),
-          GenJournalLine."Account Type"::Vendor, CreateVendor, GenJournalLine."Bal. Gen. Posting Type"::Purchase);
+          GenJournalLine."Account Type"::Vendor, CreateVendor(), GenJournalLine."Bal. Gen. Posting Type"::Purchase);
         // [WHEN] Open GST Purchase Entries page
         // GST Purchase Entries page is opened in verification
 
@@ -322,7 +322,7 @@ codeunit 141006 "ERM GST Reports"
         // [GIVEN] Posted Purchase Credit Memo through the General Journal
         CreateAndPostGeneralJournalLine(
           GenJournalLine, GenJournalLine."Document Type"::"Credit Memo", LibraryRandom.RandDec(100, 2),
-          GenJournalLine."Account Type"::Vendor, CreateVendor, GenJournalLine."Bal. Gen. Posting Type"::Purchase);
+          GenJournalLine."Account Type"::Vendor, CreateVendor(), GenJournalLine."Bal. Gen. Posting Type"::Purchase);
         // [WHEN] Open GST Purchase Entries page
         // GST Purchase Entries page is opened in verification
 
@@ -336,7 +336,7 @@ codeunit 141006 "ERM GST Reports"
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
-        UpdateGeneralLedgerSetup;
+        UpdateGeneralLedgerSetup();
     end;
 
     local procedure CreateAndPostPurchaseDocument(var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; PostingDate: Date): Code[20]
@@ -355,7 +355,7 @@ codeunit 141006 "ERM GST Reports"
     var
         SalesHeader: Record "Sales Header";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CreateCustomer());
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Modify(true);
         CreateSalesLine(SalesLine, SalesHeader);
@@ -372,7 +372,7 @@ codeunit 141006 "ERM GST Reports"
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, DocumentType,
           AccountType, AccountNo, Amount);
         GenJournalLine.Validate("Bal. Account Type", GenJournalLine."Bal. Account Type"::"G/L Account");
-        GenJournalLine.Validate("Bal. Account No.", CreateGLAccount);
+        GenJournalLine.Validate("Bal. Account No.", CreateGLAccount());
         GenJournalLine.Validate("Bal. Gen. Posting Type", BalGenPostingType);
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -393,7 +393,7 @@ codeunit 141006 "ERM GST Reports"
     var
         SalesHeader: Record "Sales Header";
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer());
         ModifyPrepmtPctOnSalesHeader(SalesHeader);
         CreateSalesLine(SalesLine, SalesHeader);
         exit(LibrarySales.PostSalesPrepaymentInvoice(SalesHeader));
@@ -443,7 +443,7 @@ codeunit 141006 "ERM GST Reports"
 
     local procedure CreatePurchaseHeader(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, CreateVendor());
         PurchaseHeader.Validate("Vendor Cr. Memo No.", LibraryUtility.GenerateGUID());
         PurchaseHeader.Modify(true);
     end;
@@ -508,8 +508,8 @@ codeunit 141006 "ERM GST Reports"
         GeneralPostingSetup: Record "General Posting Setup";
     begin
         GeneralPostingSetup.Get(GenBusPostingGroup, GenProdPostingGroup);
-        GeneralPostingSetup."Sales Prepayments Account" := CreateGLAccount;
-        GeneralPostingSetup."Purch. Prepayments Account" := CreateGLAccount;
+        GeneralPostingSetup."Sales Prepayments Account" := CreateGLAccount();
+        GeneralPostingSetup."Purch. Prepayments Account" := CreateGLAccount();
         GeneralPostingSetup.Modify(true);
     end;
 
@@ -521,13 +521,13 @@ codeunit 141006 "ERM GST Reports"
         GSTPurchaseEntry.SetRange("Document No.", DocumentNo);
         GSTPurchaseEntry.FindFirst();
 
-        GSTPurchaseEntries.OpenEdit;
+        GSTPurchaseEntries.OpenEdit();
         GSTPurchaseEntries.GotoRecord(GSTPurchaseEntry);
-        Assert.AreEqual(Amount, GSTPurchaseEntries."GST Base".AsDEcimal, GSTEntriesPageValuesErr);
-        Assert.AreEqual(VATAmount, GSTPurchaseEntries.Amount.AsDEcimal, GSTEntriesPageValuesErr);
-        Assert.AreEqual(Amount + VATAmount, GSTPurchaseEntries.GSTTotalAmount.AsDEcimal, GSTEntriesPageValuesErr);
-        Assert.AreEqual(VATAmount / Amount * 100, GSTPurchaseEntries.GSTPercentage.AsDEcimal, GSTEntriesPageValuesErr);
-        Assert.AreNearlyEqual(VATAmount / Amount * 100, GSTPurchaseEntries.GSTPercentage.AsDEcimal, 0.01, GSTEntriesPageValuesErr);
+        Assert.AreEqual(Amount, GSTPurchaseEntries."GST Base".AsDecimal(), GSTEntriesPageValuesErr);
+        Assert.AreEqual(VATAmount, GSTPurchaseEntries.Amount.AsDecimal(), GSTEntriesPageValuesErr);
+        Assert.AreEqual(Amount + VATAmount, GSTPurchaseEntries.GSTTotalAmount.AsDecimal(), GSTEntriesPageValuesErr);
+        Assert.AreEqual(VATAmount / Amount * 100, GSTPurchaseEntries.GSTPercentage.AsDecimal(), GSTEntriesPageValuesErr);
+        Assert.AreNearlyEqual(VATAmount / Amount * 100, GSTPurchaseEntries.GSTPercentage.AsDecimal(), 0.01, GSTEntriesPageValuesErr);
     end;
 
     local procedure VerifyGSTSalesEntriesPageValues(DocumentNo: Code[20]; Amount: Decimal; VATAmount: Decimal)
@@ -538,13 +538,13 @@ codeunit 141006 "ERM GST Reports"
         GSTSalesEntry.SetRange("Document No.", DocumentNo);
         GSTSalesEntry.FindFirst();
 
-        GSTSalesEntries.OpenEdit;
+        GSTSalesEntries.OpenEdit();
         GSTSalesEntries.GotoRecord(GSTSalesEntry);
-        Assert.AreEqual(Amount, GSTSalesEntries."GST Base".AsDEcimal, GSTEntriesPageValuesErr);
-        Assert.AreEqual(VATAmount, GSTSalesEntries.Amount.AsDEcimal, GSTEntriesPageValuesErr);
-        Assert.AreEqual(Amount + VATAmount, GSTSalesEntries.GSTTotalAmount.AsDEcimal, GSTEntriesPageValuesErr);
-        Assert.AreEqual(VATAmount / Amount * 100, GSTSalesEntries.GSTPercentage.AsDEcimal, GSTEntriesPageValuesErr);
-        Assert.AreNearlyEqual(VATAmount / Amount * 100, GSTSalesEntries.GSTPercentage.AsDEcimal, 0.01, GSTEntriesPageValuesErr);
+        Assert.AreEqual(Amount, GSTSalesEntries."GST Base".AsDecimal(), GSTEntriesPageValuesErr);
+        Assert.AreEqual(VATAmount, GSTSalesEntries.Amount.AsDecimal(), GSTEntriesPageValuesErr);
+        Assert.AreEqual(Amount + VATAmount, GSTSalesEntries.GSTTotalAmount.AsDecimal(), GSTEntriesPageValuesErr);
+        Assert.AreEqual(VATAmount / Amount * 100, GSTSalesEntries.GSTPercentage.AsDecimal(), GSTEntriesPageValuesErr);
+        Assert.AreNearlyEqual(VATAmount / Amount * 100, GSTSalesEntries.GSTPercentage.AsDecimal(), 0.01, GSTEntriesPageValuesErr);
     end;
 }
 

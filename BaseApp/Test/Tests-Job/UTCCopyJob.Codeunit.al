@@ -22,7 +22,7 @@ codeunit 136361 "UT C Copy Job"
         LibraryERM: Codeunit "Library - ERM";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         IsInitialized: Boolean;
-        JobWithManualNoNotCreatedErr: Label 'Job with manual number is not created.';
+        JobWithManualNoNotCreatedErr: Label 'Project with manual number is not created.';
         TestFieldValueErr: Label '%1 must be equal to %2.', Comment = '%1 - field caption, %2 - field value';
         UnitCostMustMatchErr: Label 'Unit Cost must match.';
         TotalCostMustMatchErr: Label 'Total Cost must match.';
@@ -172,7 +172,7 @@ codeunit 136361 "UT C Copy Job"
         SetUp(SourceJob, SourceJobTask, SourceJobPlanningLine);
 
         NewDescription := LibraryUtility.GenerateGUID();
-        NewCustNo := CreateCustomer;
+        NewCustNo := CreateCustomer();
         SourceJob.Validate(Status, SourceJob.Status::Planning);
         SourceJob.Modify();
 
@@ -375,11 +375,11 @@ codeunit 136361 "UT C Copy Job"
         UpdateJobTaskDimensionValue(
           SourceJob."No.",
           JobTask."Job Task No.",
-          CopyStr(LibraryVariableStorage.DequeueText, 1, 20));
+          CopyStr(LibraryVariableStorage.DequeueText(), 1, 20));
         DeleteJobTaskDimension(
           SourceJob."No.",
           JobTask."Job Task No.",
-          CopyStr(LibraryVariableStorage.DequeueText, 1, 20));
+          CopyStr(LibraryVariableStorage.DequeueText(), 1, 20));
 
         // [WHEN] Copy Job With Dimensions
         TargetJobNo := LibraryUtility.GenerateGUID();
@@ -425,7 +425,7 @@ codeunit 136361 "UT C Copy Job"
         VerifyJobPlanningLineLedgerEntryFields(Job[2]."No.", JobTask."Job Task No.");
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     [Test]
     [Scope('OnPrem')]
     procedure CopyJobWithPriceDiffCurrency()
@@ -433,7 +433,6 @@ codeunit 136361 "UT C Copy Job"
         SourceJob: Record Job;
         SourceJobTask: Record "Job Task";
         SourceJobPlanningLine: array[3] of Record "Job Planning Line";
-        TargetJobTask: Record "Job Task";
         JobGLAccountPrice: array[2] of Record "Job G/L Account Price";
         JobItemPrice: array[2] of Record "Job Item Price";
         JobResourcePrice: array[2] of Record "Job Resource Price";
@@ -492,7 +491,6 @@ codeunit 136361 "UT C Copy Job"
         SourceJob: Record Job;
         SourceJobTask: Record "Job Task";
         SourceJobPlanningLine: array[3] of Record "Job Planning Line";
-        TargetJobTask: Record "Job Task";
         PriceListHeader: array[4] of Record "Price List Header";
         PriceListLine: array[7] of Record "Price List Line";
         Currency: Record Currency;
@@ -630,7 +628,6 @@ codeunit 136361 "UT C Copy Job"
         ResourceGroup: Record "Resource Group";
         SourceJob: Record Job;
         SourceJobTask: Record "Job Task";
-        SourceJobPlanningLine: Record "Job Planning Line";
         PriceListHeader: Record "Price List Header";
         PriceListLine: array[2] of Record "Price List Line";
         WorkType: Record "Work Type";
@@ -681,10 +678,8 @@ codeunit 136361 "UT C Copy Job"
     var
         SourceJob: Record Job;
         SourceJobTask: Record "Job Task";
-        SourceJobPlanningLine: Record "Job Planning Line";
         TargetJob: Record Job;
         TargetJobTask: Record "Job Task";
-        TargetJobPlanningLine: Record "Job Planning Line";
         CopyJob: Codeunit "Copy Job";
     begin
         // [SCENARIO 472435] Job prices get copied although the "Copy Job" action is used with the parameter "Copy Job Prices" = false
@@ -780,7 +775,7 @@ codeunit 136361 "UT C Copy Job"
         SourceJobPlanningLine.Modify();
     end;
 
-    local procedure UpdateJobTaskLines(JobNo: Code[20]; JobTaskType: Option)
+    local procedure UpdateJobTaskLines(JobNo: Code[20]; JobTaskType: Enum "Job Task Type")
     var
         JobWIPMethod: Record "Job WIP Method";
         JobTask: Record "Job Task";
@@ -795,7 +790,7 @@ codeunit 136361 "UT C Copy Job"
                 "WIP-Total" := "WIP-Total"::Total;
                 "WIP Method" := JobWIPMethod.Code;
                 Modify();
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -816,7 +811,7 @@ codeunit 136361 "UT C Copy Job"
         JobPlanningLine.Modify();
     end;
 
-#if not CLEAN21
+#if not CLEAN23
     local procedure CreateJobGLAccPrice(var JobGLAccountPrice: Record "Job G/L Account Price"; JobNo: Code[20]; GLAccountNo: Code[20]; CurrencyCode: Code[20])
     begin
         LibraryJob.CreateJobGLAccountPrice(

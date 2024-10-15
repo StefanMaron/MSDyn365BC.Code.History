@@ -35,6 +35,7 @@ table 28077 "Purch. Tax Cr. Memo Hdr."
     Caption = 'Purch. Tax Cr. Memo Hdr.';
     DataCaptionFields = "No.", "Buy-from Vendor Name";
     LookupPageID = "Posted Purch. Tax Cr. Memos";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -563,15 +564,43 @@ table 28077 "Purch. Tax Cr. Memo Hdr."
     end;
 
     trigger OnInsert()
+    var
+        NoSeries: Codeunit "No. Series";
+#if not CLEAN24
+        NoSeriesMgt: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
+#endif
     begin
         PurchSetup.Get();
         if "No." = '' then begin
             if TaxInvoiceManagement.CheckTaxableNoSeries("Buy-from Vendor No.", 0) then begin
                 PurchSetup.TestField("Posted Non Tax Credit Memo Nos");
-                NoSeriesMgt.InitSeries(PurchSetup."Posted Non Tax Credit Memo Nos", xRec."No. Series", "Posting Date", "No.", "No. Series");
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries(PurchSetup."Posted Non Tax Credit Memo Nos", xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
+                if not IsHandled then begin
+#endif
+                    "No. Series" := PurchSetup."Posted Non Tax Credit Memo Nos";
+                    if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                        "No. Series" := xRec."No. Series";
+                    "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
+#if not CLEAN24
+                    NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", PurchSetup."Posted Non Tax Credit Memo Nos", "Posting Date", "No.");
+                end;
+#endif
             end else begin
                 TestNoSeries();
-                NoSeriesMgt.InitSeries(GetNoSeriesCode(), xRec."No. Series", "Posting Date", "No.", "No. Series");
+                "No. Series" := GetNoSeriesCode();
+#if not CLEAN24
+                NoSeriesMgt.RaiseObsoleteOnBeforeInitSeries("No. Series", xRec."No. Series", "Posting Date", "No.", "No. Series", IsHandled);
+                if not IsHandled then begin
+#endif
+                    if NoSeries.AreRelated("No. Series", xRec."No. Series") then
+                        "No. Series" := xRec."No. Series";
+                    "No." := NoSeries.GetNextNo("No. Series", "Posting Date");
+#if not CLEAN24
+                    NoSeriesMgt.RaiseObsoleteOnAfterInitSeries("No. Series", GetNoSeriesCode(), "Posting Date", "No.");
+                end;
+#endif
             end;
         end;
     end;
@@ -580,7 +609,6 @@ table 28077 "Purch. Tax Cr. Memo Hdr."
         PurchTaxCrMemoHeader: Record "Purch. Tax Cr. Memo Hdr.";
         PurchTaxCrMemoLine: Record "Purch. Tax Cr. Memo Line";
         PurchSetup: Record "Purchases & Payables Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         TaxInvoiceManagement: Codeunit TaxInvoiceManagement;
 
     [Scope('OnPrem')]
@@ -588,15 +616,13 @@ table 28077 "Purch. Tax Cr. Memo Hdr."
     var
         ReportSelection: Record "Report Selections";
     begin
-        with PurchTaxCrMemoHeader do begin
-            Copy(Rec);
-            ReportSelection.SetRange(Usage, ReportSelection.Usage::"P.TaxCreditMemo");
-            ReportSelection.SetFilter("Report ID", '<>0');
-            ReportSelection.Find('-');
-            repeat
-                REPORT.RunModal(ReportSelection."Report ID", ShowRequestForm, false, PurchTaxCrMemoHeader);
-            until ReportSelection.Next() = 0;
-        end;
+        PurchTaxCrMemoHeader.Copy(Rec);
+        ReportSelection.SetRange(Usage, ReportSelection.Usage::"P.TaxCreditMemo");
+        ReportSelection.SetFilter("Report ID", '<>0');
+        ReportSelection.Find('-');
+        repeat
+            REPORT.RunModal(ReportSelection."Report ID", ShowRequestForm, false, PurchTaxCrMemoHeader);
+        until ReportSelection.Next() = 0;
     end;
 
     [Scope('OnPrem')]

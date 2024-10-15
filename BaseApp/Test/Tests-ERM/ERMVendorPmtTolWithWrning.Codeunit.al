@@ -41,7 +41,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
 
         // Check Payment Tolerance on various entries after Post General Lines with more Amount and Same Posting Date with Currency.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         OverPmtWithDiscount(CurrencyCode, CurrencyCode);
     end;
 
@@ -53,7 +53,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
 
         // Check Payment Tolerance on various entries after Post General Lines with more Amount and Same Posting Date with New Currency.
         Initialize();
-        OverPmtWithDiscount(CreateCurrency, CreateCurrency);
+        OverPmtWithDiscount(CreateCurrency(), CreateCurrency());
     end;
 
     local procedure OverPmtWithDiscount(CurrencyCode1: Code[10]; CurrencyCode2: Code[10])
@@ -99,7 +99,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
 
         // Check Payment Tolerance on various entries after Post General Lines with more Amount and Same Posting Date with Currency.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         EqualPmtWithDiscount(CurrencyCode, CurrencyCode);
     end;
 
@@ -111,7 +111,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
 
         // Check Payment Tolerance on various entries after Post General Lines with more Amount and Same Posting Date with New Currency.
         Initialize();
-        EqualPmtWithDiscount(CreateCurrency, CreateCurrency);
+        EqualPmtWithDiscount(CreateCurrency(), CreateCurrency());
     end;
 
     local procedure EqualPmtWithDiscount(CurrencyCode1: Code[10]; CurrencyCode2: Code[10])
@@ -154,7 +154,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
 
         // Check Payment Tolerance on various entries after Post General Lines with Less Amount and After Posting Date with Currency.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         LessPmtWithTolerance(CurrencyCode, CurrencyCode);
     end;
 
@@ -167,7 +167,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
 
         // Check Payment Tolerance on various entries after Post General Lines with Less Amount and After Posting Date with New Currency.
         Initialize();
-        LessPmtWithTolerance(CreateCurrency, CreateCurrency);
+        LessPmtWithTolerance(CreateCurrency(), CreateCurrency());
     end;
 
     local procedure LessPmtWithTolerance(CurrencyCode1: Code[10]; CurrencyCode2: Code[10])
@@ -216,7 +216,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
 
         // Check Payment Tolerance on various entries after Post General Lines with Less Amount and Less Posting Date with Currency.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         UnderAmtBfrDiscDate(CurrencyCode, CurrencyCode);
     end;
 
@@ -229,7 +229,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
 
         // Check Payment Tolerance on various entries after Post General Lines with Less Amount and Less Posting Date with New Currency.
         Initialize();
-        UnderAmtBfrDiscDate(CreateCurrency, CreateCurrency);
+        UnderAmtBfrDiscDate(CreateCurrency(), CreateCurrency());
     end;
 
     local procedure UnderAmtBfrDiscDate(CurrencyCode1: Code[10]; CurrencyCode2: Code[10])
@@ -272,7 +272,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
 
         // Check Payment Tolerance on various entries after Post General Lines with Less Amount and After Posting Date with Currency.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         OverWithoutTolerance(CurrencyCode, CurrencyCode);
     end;
 
@@ -285,7 +285,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
 
         // Check Payment Tolerance on various entries after Post General Lines with Less Amount and After Posting Date with New Currency.
         Initialize();
-        OverWithoutTolerance(CreateCurrency, CreateCurrency);
+        OverWithoutTolerance(CreateCurrency(), CreateCurrency());
     end;
 
     local procedure OverWithoutTolerance(CurrencyCode1: Code[10]; CurrencyCode2: Code[10])
@@ -331,7 +331,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
 
         // Check Payment Tolerance on various entries after Post General Lines with Same Amount and After Posting Date with Currency.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         EqualWithoutDiscount(CurrencyCode, CurrencyCode);
     end;
 
@@ -343,7 +343,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
 
         // Check Payment Tolerance on various entries after Post General Lines with Same Amount and After Posting Date with New Currency.
         Initialize();
-        EqualWithoutDiscount(CreateCurrency, CreateCurrency);
+        EqualWithoutDiscount(CreateCurrency(), CreateCurrency());
     end;
 
     local procedure EqualWithoutDiscount(CurrencyCode1: Code[10]; CurrencyCode2: Code[10])
@@ -387,7 +387,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
 
         // Check Payment Tolerance on various entries after Post General Lines with Less Amount and Over Posting Date with Currency.
         Initialize();
-        CurrencyCode := CreateCurrency;
+        CurrencyCode := CreateCurrency();
         LessPmtWithoutDiscount(CurrencyCode, CurrencyCode);
     end;
 
@@ -400,7 +400,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
 
         // Check Payment Tolerance on various entries after Post General Lines with Less Amount and Over Posting Date with New Currency.
         Initialize();
-        LessPmtWithoutDiscount(CreateCurrency, CreateCurrency);
+        LessPmtWithoutDiscount(CreateCurrency(), CreateCurrency());
     end;
 
     local procedure LessPmtWithoutDiscount(CurrencyCode1: Code[10]; CurrencyCode2: Code[10])
@@ -437,10 +437,10 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         // Exercise: Apply Invoice Document No. with Payment Gen. Journal Line and Post it.
         DocumentNo :=
           PostApplicationJnlLine(GenJournalLine, CurrencyCode2, GenJnlDocumentType2,
-            Amount2, CalcDate('<' + LibraryPmtDiscSetup.GetPmtDiscGracePeriod + '>', CalcDate('<1M>', CalcDueDate)));
+            Amount2, CalcDate('<' + LibraryPmtDiscSetup.GetPmtDiscGracePeriod() + '>', CalcDate('<1M>', CalcDueDate())));
 
         // Verify: Verify Vendor Ledger Entry, Detailed Vendor Ledger Entry.
-        VerifyVendorLedgerEntry(GenJnlDocumentType, GenJournalLine."Document No.", (Amount * GetDiscountPercent / 100));
+        VerifyVendorLedgerEntry(GenJnlDocumentType, GenJournalLine."Document No.", (Amount * GetDiscountPercent() / 100));
         VerifyDetldVendorLedgerEntry(
           GenJnlDocumentType2, DetailedVendorLedgEntry."Entry Type"::Application, DocumentNo, -GetAmountFCY(CurrencyCode2, Amount));
     end;
@@ -458,7 +458,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         CreateAndPostJnlLine(GenJournalLine, CurrencyCode, GenJnlDocumentType, Amount);
 
         // Exercise: Apply Document with Gen. Journal Line and Post it.
-        DocumentNo := PostApplicationJnlLine(GenJournalLine, CurrencyCode2, GenJnlDocumentType2, Amount2, CalcDueDate);
+        DocumentNo := PostApplicationJnlLine(GenJournalLine, CurrencyCode2, GenJnlDocumentType2, Amount2, CalcDueDate());
 
         // Verify: Verify Vendor Ledger Entry, Detailed Vendor Ledger Entry and G/L Entry.
         PmtDiscount := GetAmountFCY(CurrencyCode2, GetDiscountAmount(Amount));
@@ -479,7 +479,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         CreateAndPostJnlLine(GenJournalLine, CurrencyCode, GenJnlDocumentType, Amount);
 
         // Exercise: Apply Invoice/Credit Memo Document No. with Payment/Refund Gen. Journal Line and Post it.
-        DocumentNo := PostApplicationJnlLine(GenJournalLine, CurrencyCode2, GenJnlDocumentType2, Amount2, CalcDate('<-1D>', CalcDueDate));
+        DocumentNo := PostApplicationJnlLine(GenJournalLine, CurrencyCode2, GenJnlDocumentType2, Amount2, CalcDate('<-1D>', CalcDueDate()));
 
         // Verify: Verify Vendor Ledger Entry, Detailed Vendor Ledger Entry.
         PmtTolAmount := GetAmountFCY(CurrencyCode2, Amount2 + (Amount - GetDiscountAmount(Amount)));
@@ -500,11 +500,11 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         CreateAndPostJnlLine(GenJournalLine, CurrencyCode, GenJnlDocumentType, Amount);
 
         // Exercise: Apply Credit Memo Document No. with Refund Gen. Journal Line and Post it.
-        DocumentNo := PostApplicationJnlLine(GenJournalLine, CurrencyCode2, GenJnlDocumentType2, Amount2, CalcDate('<1D>', CalcDueDate));
+        DocumentNo := PostApplicationJnlLine(GenJournalLine, CurrencyCode2, GenJnlDocumentType2, Amount2, CalcDate('<1D>', CalcDueDate()));
 
         // Verify: Verify Vendor Ledger Entry and Detailed Vendor Ledger Entry.
         PmtDiscount := GetAmountFCY(CurrencyCode2, GetDiscountAmount(Amount));
-        VerifyVendorLedgerEntry(GenJnlDocumentType, GenJournalLine."Document No.", Amount * GetDiscountPercent / 100);
+        VerifyVendorLedgerEntry(GenJnlDocumentType, GenJournalLine."Document No.", Amount * GetDiscountPercent() / 100);
         VerifyDetldVendorLedgerEntry(
           GenJnlDocumentType2, DetailedVendorLedgEntry."Entry Type"::"Payment Discount Tolerance", DocumentNo, -PmtDiscount);
     end;
@@ -521,7 +521,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         CreateAndPostJnlLine(GenJournalLine, CurrencyCode, GenJnlDocumentType, Amount);
 
         // Exercise: Apply Document with Gen. Journal Line and Post it.
-        DocumentNo := PostApplicationJnlLine(GenJournalLine, CurrencyCode2, GenJnlDocumentType2, Amount2, CalcDate('<1D>', CalcDueDate));
+        DocumentNo := PostApplicationJnlLine(GenJournalLine, CurrencyCode2, GenJnlDocumentType2, Amount2, CalcDate('<1D>', CalcDueDate()));
 
         // Verify: Verify Vendor Ledger Entry, Detailed Vendor Ledger Entry and G/L Entry.
         PmtTolAmount := GetAmountFCY(CurrencyCode2, Amount2 + (Amount - GetDiscountAmount(Amount)));
@@ -535,7 +535,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
     begin
         // Setup: Modify General Ledger Setup and Post Gen. Journal Lines for Invoice and Payment with Random Amount and
         // attached currency and Post them.
-        CreateDocumentLine(GenJournalLine, GenJnlDocumentType, CreateVendor, Amount, CurrencyCode, WorkDate());
+        CreateDocumentLine(GenJournalLine, GenJnlDocumentType, CreateVendor(), Amount, CurrencyCode, WorkDate());
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -915,7 +915,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         // lower seed value to 500.
         GeneralLedgerSetup.Get();
         Amount := 500 * LibraryRandom.RandInt(5);
-        Amount2 := Amount - (GeneralLedgerSetup."Max. Payment Tolerance Amount" + (Amount * GetDiscountPercent / 100));
+        Amount2 := Amount - (GeneralLedgerSetup."Max. Payment Tolerance Amount" + (Amount * GetDiscountPercent() / 100));
     end;
 
     local procedure ComputeAmountForABSMaxValue(var Amount: Decimal; var Amount2: Decimal)
@@ -936,7 +936,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
     begin
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Validate("Application Method", Vendor."Application Method"::Manual);
-        Vendor.Validate("Payment Terms Code", GetPaymentTerms);
+        Vendor.Validate("Payment Terms Code", GetPaymentTerms());
         Vendor.Modify(true);
 
         UpdateVendorPostingGroup(Vendor."Vendor Posting Group");
@@ -981,7 +981,6 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
         GenJournalBatch: Record "Gen. Journal Batch";
         GenJnlAccType: Enum "Gen. Journal Account Type";
         BalGLAccountNo: Code[20];
-        Amount: Decimal;
         i: Integer;
     begin
         BalGLAccountNo := LibraryERM.CreateGLAccountNo();
@@ -996,7 +995,7 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
     var
         PaymentTerms: Record "Payment Terms";
     begin
-        PaymentTerms.Get(GetPaymentTerms);
+        PaymentTerms.Get(GetPaymentTerms());
         exit(CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()));
     end;
 
@@ -1013,13 +1012,13 @@ codeunit 134016 "ERM Vendor Pmt Tol With Wrning"
     var
         PaymentTerms: Record "Payment Terms";
     begin
-        PaymentTerms.Get(GetPaymentTerms);
+        PaymentTerms.Get(GetPaymentTerms());
         exit(PaymentTerms."Discount %");
     end;
 
     local procedure GetDiscountAmount(Amount: Decimal): Decimal
     begin
-        exit(Amount * GetDiscountPercent / 100);
+        exit(Amount * GetDiscountPercent() / 100);
     end;
 
     local procedure GetPaymentTerms(): Code[10]

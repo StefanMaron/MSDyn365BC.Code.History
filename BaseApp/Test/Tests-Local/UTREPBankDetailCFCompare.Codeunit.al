@@ -75,7 +75,7 @@ codeunit 141071 "UT REP Bank Detail CF Compare"
     var
         BankAccount: Record "Bank Account";
     begin
-        BankAccount."No." := LibraryUTUtility.GetNewCode;
+        BankAccount."No." := LibraryUTUtility.GetNewCode();
         BankAccount."Date Filter" := WorkDate();
         BankAccount.Insert();
         exit(BankAccount."No.");
@@ -83,7 +83,7 @@ codeunit 141071 "UT REP Bank Detail CF Compare"
 
     local procedure CreateBankAccountLedgerEntry(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
     begin
-        BankAccountLedgerEntry."Bank Account No." := CreateBankAccount;
+        BankAccountLedgerEntry."Bank Account No." := CreateBankAccount();
         BankAccountLedgerEntry."Posting Date" := WorkDate();
         BankAccountLedgerEntry.Amount := LibraryRandom.RandDec(100, 2);
         BankAccountLedgerEntry."Amount (LCY)" := BankAccountLedgerEntry.Amount;
@@ -110,7 +110,7 @@ codeunit 141071 "UT REP Bank Detail CF Compare"
 
     local procedure VerifyXMLValuesOnBankDetailCashflowCompare(AmountCaption: Text; AmountLCYCaption: Text; ExpectedValue: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(AmountCaption, ExpectedValue);
         LibraryReportDataset.AssertElementWithValueExists(AmountLCYCaption, ExpectedValue);
     end;
@@ -132,7 +132,7 @@ codeunit 141071 "UT REP Bank Detail CF Compare"
         BankDetailCashflowCompare.CompareEndDate.SetValue(CompareEndDate);
         BankDetailCashflowCompare."Bank Account".SetFilter("No.", No);
         BankDetailCashflowCompare."Bank Account".SetFilter("Date Filter", Format(DateFilter));
-        BankDetailCashflowCompare.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        BankDetailCashflowCompare.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

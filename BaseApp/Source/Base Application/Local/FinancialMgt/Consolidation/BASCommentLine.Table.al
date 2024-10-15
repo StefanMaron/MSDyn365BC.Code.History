@@ -7,6 +7,7 @@ namespace Microsoft.Finance.Consolidation;
 table 11605 "BAS Comment Line"
 {
     Caption = 'BAS Comment Line';
+    DataClassification = CustomerContent;
 
     fields
     {

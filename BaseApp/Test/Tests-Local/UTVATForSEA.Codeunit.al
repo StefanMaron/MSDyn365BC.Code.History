@@ -44,7 +44,7 @@ codeunit 141036 "UT VAT For SEA"
 
         // Setup.
         Initialize();
-        PurchTaxInvHeader.Get(CreatePurchTaxInvHeader);
+        PurchTaxInvHeader.Get(CreatePurchTaxInvHeader());
 
         // Exercise.
         RunMiscellaneousReport(PurchTaxInvHeader."No.", true, false, REPORT::"Purch. - Tax Invoice");  // Opens PurchTaxInvoiceRequestPageHandler. ShowInternalInformation as True and ShowTHAmountInWords as False.
@@ -113,7 +113,7 @@ codeunit 141036 "UT VAT For SEA"
         // Setup: Update Sales & Receivables Setup. Create Sales Tax Invoice Header.
         Initialize();
         UpdateSalesReceivablesSetup(SalesReceivablesSetup."Logo Position on Documents"::"No Logo");
-        SalesTaxInvoiceHeader.Get(CreateSalesTaxInvHeader);
+        SalesTaxInvoiceHeader.Get(CreateSalesTaxInvHeader());
 
         // Exercise.
         RunMiscellaneousReport(SalesTaxInvoiceHeader."No.", false, false, REPORT::"Sales - Tax Invoice");  // Opens SalesTaxInvoiceRequestPageHandler. ShowInternalInformation and ShowTHAmountInWords as False.
@@ -151,7 +151,7 @@ codeunit 141036 "UT VAT For SEA"
         CreateSalesTaxInvoice(SalesTaxInvoiceHeader);
         SalesTaxInvoiceLine.Get(SalesTaxInvoiceHeader."No.", 0);
         SalesTaxInvoiceLine."Amount Including VAT" := LibraryRandom.RandDec(10, 2);
-        SalesTaxInvoiceLine."VAT Identifier" := LibraryUTUtility.GetNewCode10;
+        SalesTaxInvoiceLine."VAT Identifier" := LibraryUTUtility.GetNewCode10();
         SalesTaxInvoiceLine.Modify();
 
         // [WHEN] Run report Sales - Tax Invoice
@@ -220,7 +220,7 @@ codeunit 141036 "UT VAT For SEA"
 
         // Setup: Create Purchase Credit Memo.
         Initialize();
-        PurchTaxCrMemoHdr.Get(CreatePurchTaxCrMemoHeader);
+        PurchTaxCrMemoHdr.Get(CreatePurchTaxCrMemoHeader());
 
         // Exercise.
         RunMiscellaneousReport(PurchTaxCrMemoHdr."No.", true, false, REPORT::"Purch. - Tax Cr. Memo");  // Opens PurchTaxCrMemoRequestPageHandler. ShowInternalInformation as True and ShowTHAmountInWords as False.
@@ -289,7 +289,7 @@ codeunit 141036 "UT VAT For SEA"
 
         // Setup: Update Sales & Receivables Setup. Create Sales Tax Cr. Memo Header.
         UpdateSalesReceivablesSetup(SalesReceivablesSetup."Logo Position on Documents"::"No Logo");
-        SalesTaxCrMemoHeader.Get(CreateSalesTaxCrMemoHeader);
+        SalesTaxCrMemoHeader.Get(CreateSalesTaxCrMemoHeader());
 
         // Exercise.
         RunMiscellaneousReport(SalesTaxCrMemoHeader."No.", false, false, REPORT::"Sales - Tax Cr. Memo");  // Opens SalesTaxCrMemoRequestPageHandler. ShowInternalInformation and ShowTHAmountInWords as False.
@@ -519,16 +519,16 @@ codeunit 141036 "UT VAT For SEA"
     var
         PurchTaxCrMemoHdr: Record "Purch. Tax Cr. Memo Hdr.";
     begin
-        PurchTaxCrMemoHdr.Get(CreatePurchTaxCrMemoHeader);
-        PurchTaxCrMemoHdr."Responsibility Center" := CreateResponsibilityCenter;
-        PurchTaxCrMemoHdr."Purchaser Code" := CreateSalesPersonPurchaser;
-        PurchTaxCrMemoHdr."Your Reference" := LibraryUTUtility.GetNewCode;
-        PurchTaxCrMemoHdr."Currency Code" := CreateCurrency;
-        PurchTaxCrMemoHdr."Return Order No." := LibraryUTUtility.GetNewCode;
-        PurchTaxCrMemoHdr."Dimension Set ID" := CreateDimensionSetEntry;
-        PurchTaxCrMemoHdr."VAT Registration No." := LibraryUTUtility.GetNewCode;
-        PurchTaxCrMemoHdr."Payment Terms Code" := CreatePaymentTerms;
-        PurchTaxCrMemoHdr."Shipment Method Code" := CreateShipmentMethod;
+        PurchTaxCrMemoHdr.Get(CreatePurchTaxCrMemoHeader());
+        PurchTaxCrMemoHdr."Responsibility Center" := CreateResponsibilityCenter();
+        PurchTaxCrMemoHdr."Purchaser Code" := CreateSalesPersonPurchaser();
+        PurchTaxCrMemoHdr."Your Reference" := LibraryUTUtility.GetNewCode();
+        PurchTaxCrMemoHdr."Currency Code" := CreateCurrency();
+        PurchTaxCrMemoHdr."Return Order No." := LibraryUTUtility.GetNewCode();
+        PurchTaxCrMemoHdr."Dimension Set ID" := CreateDimensionSetEntry();
+        PurchTaxCrMemoHdr."VAT Registration No." := LibraryUTUtility.GetNewCode();
+        PurchTaxCrMemoHdr."Payment Terms Code" := CreatePaymentTerms();
+        PurchTaxCrMemoHdr."Shipment Method Code" := CreateShipmentMethod();
         PurchTaxCrMemoHdr."Currency Factor" := LibraryRandom.RandDec(10, 2);
         PurchTaxCrMemoHdr.Modify();
         exit(PurchTaxCrMemoHdr."No.");
@@ -538,16 +538,16 @@ codeunit 141036 "UT VAT For SEA"
     var
         PurchTaxInvHeader: Record "Purch. Tax Inv. Header";
     begin
-        PurchTaxInvHeader.Get(CreatePurchTaxInvHeader);
-        PurchTaxInvHeader."Order No." := LibraryUTUtility.GetNewCode;
-        PurchTaxInvHeader."Responsibility Center" := CreateResponsibilityCenter;
-        PurchTaxInvHeader."Purchaser Code" := CreateSalesPersonPurchaser;
-        PurchTaxInvHeader."Your Reference" := LibraryUTUtility.GetNewCode;
-        PurchTaxInvHeader."Currency Code" := CreateCurrency;
-        PurchTaxInvHeader."Dimension Set ID" := CreateDimensionSetEntry;
-        PurchTaxInvHeader."VAT Registration No." := LibraryUTUtility.GetNewCode;
-        PurchTaxInvHeader."Payment Terms Code" := CreatePaymentTerms;
-        PurchTaxInvHeader."Shipment Method Code" := CreateShipmentMethod;
+        PurchTaxInvHeader.Get(CreatePurchTaxInvHeader());
+        PurchTaxInvHeader."Order No." := LibraryUTUtility.GetNewCode();
+        PurchTaxInvHeader."Responsibility Center" := CreateResponsibilityCenter();
+        PurchTaxInvHeader."Purchaser Code" := CreateSalesPersonPurchaser();
+        PurchTaxInvHeader."Your Reference" := LibraryUTUtility.GetNewCode();
+        PurchTaxInvHeader."Currency Code" := CreateCurrency();
+        PurchTaxInvHeader."Dimension Set ID" := CreateDimensionSetEntry();
+        PurchTaxInvHeader."VAT Registration No." := LibraryUTUtility.GetNewCode();
+        PurchTaxInvHeader."Payment Terms Code" := CreatePaymentTerms();
+        PurchTaxInvHeader."Shipment Method Code" := CreateShipmentMethod();
         PurchTaxInvHeader."Currency Factor" := LibraryRandom.RandDec(10, 2);
         PurchTaxInvHeader.Modify();
         exit(PurchTaxInvHeader."No.");
@@ -557,18 +557,18 @@ codeunit 141036 "UT VAT For SEA"
     var
         SalesTaxCrMemoHeader: Record "Sales Tax Cr.Memo Header";
     begin
-        SalesTaxCrMemoHeader.Get(CreateSalesTaxCrMemoHeader);
-        SalesTaxCrMemoHeader."Return Order No." := LibraryUTUtility.GetNewCode;
-        SalesTaxCrMemoHeader."Responsibility Center" := CreateResponsibilityCenter;
-        SalesTaxCrMemoHeader."Your Reference" := LibraryUTUtility.GetNewCode;
-        SalesTaxCrMemoHeader."Currency Code" := CreateCurrency;
-        SalesTaxCrMemoHeader."Salesperson Code" := CreateSalesPersonPurchaser;
+        SalesTaxCrMemoHeader.Get(CreateSalesTaxCrMemoHeader());
+        SalesTaxCrMemoHeader."Return Order No." := LibraryUTUtility.GetNewCode();
+        SalesTaxCrMemoHeader."Responsibility Center" := CreateResponsibilityCenter();
+        SalesTaxCrMemoHeader."Your Reference" := LibraryUTUtility.GetNewCode();
+        SalesTaxCrMemoHeader."Currency Code" := CreateCurrency();
+        SalesTaxCrMemoHeader."Salesperson Code" := CreateSalesPersonPurchaser();
         SalesTaxCrMemoHeader."Applies-to Doc. Type" := SalesTaxCrMemoHeader."Applies-to Doc. Type"::Invoice;
-        SalesTaxCrMemoHeader."Applies-to Doc. No." := LibraryUTUtility.GetNewCode;
-        SalesTaxCrMemoHeader."Dimension Set ID" := CreateDimensionSetEntry;
-        SalesTaxCrMemoHeader."VAT Registration No." := LibraryUTUtility.GetNewCode;
-        SalesTaxCrMemoHeader."Payment Terms Code" := CreatePaymentTerms;
-        SalesTaxCrMemoHeader."Shipment Method Code" := CreateShipmentMethod;
+        SalesTaxCrMemoHeader."Applies-to Doc. No." := LibraryUTUtility.GetNewCode();
+        SalesTaxCrMemoHeader."Dimension Set ID" := CreateDimensionSetEntry();
+        SalesTaxCrMemoHeader."VAT Registration No." := LibraryUTUtility.GetNewCode();
+        SalesTaxCrMemoHeader."Payment Terms Code" := CreatePaymentTerms();
+        SalesTaxCrMemoHeader."Shipment Method Code" := CreateShipmentMethod();
         SalesTaxCrMemoHeader."Currency Factor" := LibraryRandom.RandDec(10, 2);
         SalesTaxCrMemoHeader.Modify();
         exit(SalesTaxCrMemoHeader."No.");
@@ -578,16 +578,16 @@ codeunit 141036 "UT VAT For SEA"
     var
         SalesTaxInvoiceHeader: Record "Sales Tax Invoice Header";
     begin
-        SalesTaxInvoiceHeader.Get(CreateSalesTaxInvHeader);
-        SalesTaxInvoiceHeader."Order No." := LibraryUTUtility.GetNewCode;
-        SalesTaxInvoiceHeader."Responsibility Center" := CreateResponsibilityCenter;
-        SalesTaxInvoiceHeader."Your Reference" := LibraryUTUtility.GetNewCode;
-        SalesTaxInvoiceHeader."Currency Code" := CreateCurrency;
-        SalesTaxInvoiceHeader."Salesperson Code" := CreateSalesPersonPurchaser;
-        SalesTaxInvoiceHeader."Dimension Set ID" := CreateDimensionSetEntry;
-        SalesTaxInvoiceHeader."VAT Registration No." := LibraryUTUtility.GetNewCode;
-        SalesTaxInvoiceHeader."Payment Terms Code" := CreatePaymentTerms;
-        SalesTaxInvoiceHeader."Shipment Method Code" := CreateShipmentMethod;
+        SalesTaxInvoiceHeader.Get(CreateSalesTaxInvHeader());
+        SalesTaxInvoiceHeader."Order No." := LibraryUTUtility.GetNewCode();
+        SalesTaxInvoiceHeader."Responsibility Center" := CreateResponsibilityCenter();
+        SalesTaxInvoiceHeader."Your Reference" := LibraryUTUtility.GetNewCode();
+        SalesTaxInvoiceHeader."Currency Code" := CreateCurrency();
+        SalesTaxInvoiceHeader."Salesperson Code" := CreateSalesPersonPurchaser();
+        SalesTaxInvoiceHeader."Dimension Set ID" := CreateDimensionSetEntry();
+        SalesTaxInvoiceHeader."VAT Registration No." := LibraryUTUtility.GetNewCode();
+        SalesTaxInvoiceHeader."Payment Terms Code" := CreatePaymentTerms();
+        SalesTaxInvoiceHeader."Shipment Method Code" := CreateShipmentMethod();
         SalesTaxInvoiceHeader."Currency Factor" := LibraryRandom.RandDec(10, 2);
         SalesTaxInvoiceHeader.Modify();
         exit(SalesTaxInvoiceHeader."No.");
@@ -597,7 +597,7 @@ codeunit 141036 "UT VAT For SEA"
     var
         Currency: Record Currency;
     begin
-        Currency.Code := LibraryUTUtility.GetNewCode10;
+        Currency.Code := LibraryUTUtility.GetNewCode10();
         Currency.Insert();
         CreateCurrencyExchangeRate(Currency.Code);
         exit(Currency.Code);
@@ -617,7 +617,7 @@ codeunit 141036 "UT VAT For SEA"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Insert();
         exit(Customer."No.");
     end;
@@ -627,7 +627,7 @@ codeunit 141036 "UT VAT For SEA"
         DimensionSetEntry: Record "Dimension Set Entry";
     begin
         DimensionSetEntry."Dimension Set ID" := LibraryRandom.RandInt(10);
-        DimensionSetEntry."Dimension Code" := LibraryUTUtility.GetNewCode;
+        DimensionSetEntry."Dimension Code" := LibraryUTUtility.GetNewCode();
         DimensionSetEntry.Insert();
         exit(DimensionSetEntry."Dimension Set ID");
     end;
@@ -636,7 +636,7 @@ codeunit 141036 "UT VAT For SEA"
     var
         PaymentTerms: Record "Payment Terms";
     begin
-        PaymentTerms.Code := LibraryUTUtility.GetNewCode10;
+        PaymentTerms.Code := LibraryUTUtility.GetNewCode10();
         PaymentTerms.Insert();
         exit(PaymentTerms.Code);
     end;
@@ -645,7 +645,7 @@ codeunit 141036 "UT VAT For SEA"
     var
         PurchTaxCrMemoLine: Record "Purch. Tax Cr. Memo Line";
     begin
-        PurchTaxCrMemoHdr.Get(CreateAndUpdatePurchTaxCrMemoHeader);
+        PurchTaxCrMemoHdr.Get(CreateAndUpdatePurchTaxCrMemoHeader());
         PurchTaxCrMemoLine."Document No." := PurchTaxCrMemoHdr."No.";
         PurchTaxCrMemoLine.Quantity := LibraryRandom.RandDec(10, 2);
         PurchTaxCrMemoLine.Type := PurchTaxCrMemoLine.Type::"G/L Account";
@@ -658,8 +658,8 @@ codeunit 141036 "UT VAT For SEA"
     var
         PurchTaxCrMemoHdr: Record "Purch. Tax Cr. Memo Hdr.";
     begin
-        PurchTaxCrMemoHdr."No." := LibraryUTUtility.GetNewCode;
-        PurchTaxCrMemoHdr."Buy-from Vendor No." := CreateVendor;
+        PurchTaxCrMemoHdr."No." := LibraryUTUtility.GetNewCode();
+        PurchTaxCrMemoHdr."Buy-from Vendor No." := CreateVendor();
         PurchTaxCrMemoHdr."No. Printed" := LibraryRandom.RandInt(10);
         PurchTaxCrMemoHdr.Insert();
         exit(PurchTaxCrMemoHdr."No.");
@@ -669,7 +669,7 @@ codeunit 141036 "UT VAT For SEA"
     var
         PurchTaxInvHeader: Record "Purch. Tax Inv. Header";
     begin
-        PurchTaxInvHeader."No." := LibraryUTUtility.GetNewCode;
+        PurchTaxInvHeader."No." := LibraryUTUtility.GetNewCode();
         PurchTaxInvHeader.Insert();
         exit(PurchTaxInvHeader."No.");
     end;
@@ -678,7 +678,7 @@ codeunit 141036 "UT VAT For SEA"
     var
         PurchTaxInvLine: Record "Purch. Tax Inv. Line";
     begin
-        PurchTaxInvHeader.Get(CreateAndUpdatePurchTaxInvHeader);
+        PurchTaxInvHeader.Get(CreateAndUpdatePurchTaxInvHeader());
         PurchTaxInvLine."Document No." := PurchTaxInvHeader."No.";
         PurchTaxInvLine.Quantity := LibraryRandom.RandDec(10, 2);
         PurchTaxInvLine.Type := PurchTaxInvLine.Type::"G/L Account";
@@ -691,7 +691,7 @@ codeunit 141036 "UT VAT For SEA"
     var
         SalesTaxCrMemoLine: Record "Sales Tax Cr.Memo Line";
     begin
-        SalesTaxCrMemoHeader.Get(CreateAndUpdateSalesTaxCrMemoHeader);
+        SalesTaxCrMemoHeader.Get(CreateAndUpdateSalesTaxCrMemoHeader());
         SalesTaxCrMemoLine."Document No." := SalesTaxCrMemoHeader."No.";
         SalesTaxCrMemoLine.Quantity := LibraryRandom.RandDec(10, 2);
         SalesTaxCrMemoLine."Document No." := SalesTaxCrMemoHeader."No.";
@@ -704,8 +704,8 @@ codeunit 141036 "UT VAT For SEA"
     var
         SalesTaxCrMemoHeader: Record "Sales Tax Cr.Memo Header";
     begin
-        SalesTaxCrMemoHeader."No." := LibraryUTUtility.GetNewCode;
-        SalesTaxCrMemoHeader."Bill-to Customer No." := CreateCustomer;
+        SalesTaxCrMemoHeader."No." := LibraryUTUtility.GetNewCode();
+        SalesTaxCrMemoHeader."Bill-to Customer No." := CreateCustomer();
         SalesTaxCrMemoHeader.Insert();
         exit(SalesTaxCrMemoHeader."No.");
     end;
@@ -714,7 +714,7 @@ codeunit 141036 "UT VAT For SEA"
     var
         SalesTaxInvoiceLine: Record "Sales Tax Invoice Line";
     begin
-        SalesTaxInvoiceHeader.Get(CreateAndUpdateSalesTaxInvHeader);
+        SalesTaxInvoiceHeader.Get(CreateAndUpdateSalesTaxInvHeader());
         SalesTaxInvoiceLine."Document No." := SalesTaxInvoiceHeader."No.";
         SalesTaxInvoiceLine.Quantity := LibraryRandom.RandDec(10, 2);
         SalesTaxInvoiceLine."Document No." := SalesTaxInvoiceHeader."No.";
@@ -727,8 +727,8 @@ codeunit 141036 "UT VAT For SEA"
     var
         SalesTaxInvoiceHeader: Record "Sales Tax Invoice Header";
     begin
-        SalesTaxInvoiceHeader."No." := LibraryUTUtility.GetNewCode;
-        SalesTaxInvoiceHeader."Bill-to Customer No." := CreateCustomer;
+        SalesTaxInvoiceHeader."No." := LibraryUTUtility.GetNewCode();
+        SalesTaxInvoiceHeader."Bill-to Customer No." := CreateCustomer();
         SalesTaxInvoiceHeader.Insert();
         exit(SalesTaxInvoiceHeader."No.");
     end;
@@ -737,7 +737,7 @@ codeunit 141036 "UT VAT For SEA"
     var
         ResponsibilityCenter: Record "Responsibility Center";
     begin
-        ResponsibilityCenter.Code := LibraryUTUtility.GetNewCode10;
+        ResponsibilityCenter.Code := LibraryUTUtility.GetNewCode10();
         ResponsibilityCenter.Insert();
         exit(ResponsibilityCenter.Code);
     end;
@@ -746,7 +746,7 @@ codeunit 141036 "UT VAT For SEA"
     var
         SalespersonPurchaser: Record "Salesperson/Purchaser";
     begin
-        SalespersonPurchaser.Code := LibraryUTUtility.GetNewCode10;
+        SalespersonPurchaser.Code := LibraryUTUtility.GetNewCode10();
         SalespersonPurchaser.Insert();
         exit(SalespersonPurchaser.Code);
     end;
@@ -755,7 +755,7 @@ codeunit 141036 "UT VAT For SEA"
     var
         ShipmentMethod: Record "Shipment Method";
     begin
-        ShipmentMethod.Code := LibraryUTUtility.GetNewCode10;
+        ShipmentMethod.Code := LibraryUTUtility.GetNewCode10();
         ShipmentMethod.Insert();
         exit(ShipmentMethod.Code);
     end;
@@ -764,7 +764,7 @@ codeunit 141036 "UT VAT For SEA"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Insert();
         exit(Vendor."No.");
     end;
@@ -873,7 +873,7 @@ codeunit 141036 "UT VAT For SEA"
         PurchaseLine: Record "Purchase Line";
         AmountLangB: array[2] of Text[80];
     begin
-        PurchaseLine.InitTextVariableTH;
+        PurchaseLine.InitTextVariableTH();
         PurchaseLine.FormatNoTextTH(AmountLangB, AmountIncludingVAT, CurrencyCode);
         exit(AmountLangB[1]);
     end;
@@ -883,7 +883,7 @@ codeunit 141036 "UT VAT For SEA"
         SalesLine: Record "Sales Line";
         AmountLangB: array[2] of Text[80];
     begin
-        SalesLine.InitTextVariableTH;
+        SalesLine.InitTextVariableTH();
         SalesLine.FormatNoTextTH(AmountLangB, AmountIncludingVAT, CurrencyCode);
         exit(AmountLangB[1]);
     end;
@@ -907,7 +907,7 @@ codeunit 141036 "UT VAT For SEA"
 
     local procedure VerifyXMLValuesForMiscellaneousReport(Caption: Text; Caption2: Text; Caption3: Text; Value: Variant; Value2: Variant; Value3: Variant)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(Caption, Value);
         LibraryReportDataset.AssertElementWithValueExists(Caption2, Value2);
         LibraryReportDataset.AssertElementWithValueExists(Caption3, Value3);
@@ -927,7 +927,7 @@ codeunit 141036 "UT VAT For SEA"
         PurchTaxCrMemo."Purch. Tax Cr. Memo Hdr.".SetFilter("No.", No);
         PurchTaxCrMemo.ShowInternalInformation.SetValue(ShowInternalInformation);
         PurchTaxCrMemo.ShowTHAmountInWords.SetValue(ShowTHAmountInWords);
-        PurchTaxCrMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchTaxCrMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -944,7 +944,7 @@ codeunit 141036 "UT VAT For SEA"
         PurchTaxInvoice."Purch. Tax Inv. Header".SetFilter("No.", No);
         PurchTaxInvoice.ShowInternalInformation.SetValue(ShowInternalInformation);
         PurchTaxInvoice.ShowTHAmountInWords.SetValue(ShowTHAmountInWords);
-        PurchTaxInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchTaxInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -961,7 +961,7 @@ codeunit 141036 "UT VAT For SEA"
         SalesTaxCrMemo."Sales Tax Cr.Memo Header".SetFilter("No.", No);
         SalesTaxCrMemo.ShowInternalInformation.SetValue(ShowInternalInformation);
         SalesTaxCrMemo.ShowTHAmountInWords.SetValue(ShowTHAmountInWords);
-        SalesTaxCrMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesTaxCrMemo.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -978,7 +978,7 @@ codeunit 141036 "UT VAT For SEA"
         SalesTaxInvoice."Sales Tax Invoice Header".SetFilter("No.", No);
         SalesTaxInvoice.ShowInternalInformation.SetValue(ShowInternalInformation);
         SalesTaxInvoice.ShowTHAmountInWords.SetValue(ShowTHAmountInWords);
-        SalesTaxInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        SalesTaxInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

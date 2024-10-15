@@ -34,14 +34,14 @@ codeunit 134823 "ERM Cost Accounting - Pages II"
         Initialize();
 
         LibraryLowerPermissions.SetO365Setup();
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.AddCostAccountingEdit();
         LibraryCostAccounting.CreateCostTypeNoGLRange(CostType);
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         // [WHEN] Modify Type of Cost Type and invoke Indent Cost Type Action on Chart Of Cost Type Page.
         UpdateCostType(CostType, Type::"End-Total", '');
-        ChartOfCostTypePage.OpenEdit;
-        asserterror ChartOfCostTypePage.IndentCostType.Invoke;
+        ChartOfCostTypePage.OpenEdit();
+        asserterror ChartOfCostTypePage.IndentCostType.Invoke();
 
         // [THEN] To check error is diplayed when there is no corresponding 'Begin-Total' type Cost Type for every 'End-Total' type Cost Type.
         Assert.ExpectedError(StrSubstNo(IndentBeginEndError, CostType."No."));
@@ -67,8 +67,8 @@ codeunit 134823 "ERM Cost Accounting - Pages II"
         Initialize();
 
         LibraryLowerPermissions.SetO365Setup();
-        LibraryLowerPermissions.AddCostAccountingSetup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.AddCostAccountingSetup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
         for i := 1 to 4 do
             LibraryCostAccounting.CreateCostType(CostType[i]);
 
@@ -77,10 +77,10 @@ codeunit 134823 "ERM Cost Accounting - Pages II"
         UpdateCostType(CostType[3], Type::"Cost Type", '');
         UpdateCostType(CostType[4], Type::"End-Total", '');
 
-        LibraryLowerPermissions.SetCostAccountingEdit;
+        LibraryLowerPermissions.SetCostAccountingEdit();
         // [WHEN] To open Chart of Cost Type Page and invoke Indent Cost Type Action.
-        ChartOfCostTypePage.OpenEdit;
-        ChartOfCostTypePage.IndentCostType.Invoke;
+        ChartOfCostTypePage.OpenEdit();
+        ChartOfCostTypePage.IndentCostType.Invoke();
 
         // [THEN] To verify the indentation of created Cost Type after invoking Indent Cost Type Action.
         for i := 1 to 4 do
@@ -105,8 +105,8 @@ codeunit 134823 "ERM Cost Accounting - Pages II"
         Initialize();
 
         LibraryLowerPermissions.SetO365Setup();
-        LibraryLowerPermissions.AddCostAccountingSetup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.AddCostAccountingSetup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
 
         // [GIVEN] Dimension codes "X" and "Y" with values "X1" and "Y1"
         CreateDimensionsForFilteringTest(Dimension, DimensionValue);
@@ -116,12 +116,12 @@ codeunit 134823 "ERM Cost Accounting - Pages II"
         CreateOpenCostCenterCard(CostCenterCard);
 
         // [WHEN] Invoke "Dimension Values" action on "Cost Center Card" page
-        DimValList.Trap;
-        CostCenterCard.PageDimensionValues.Invoke;
+        DimValList.Trap();
+        CostCenterCard.PageDimensionValues.Invoke();
 
         // [THEN] Only dimension value "X1" shown on "Dimension Values" page
         DimValList.Code.AssertEquals(DimensionValue[1].Code);
-        Assert.IsFalse(DimValList.Next, '');
+        Assert.IsFalse(DimValList.Next(), '');
     end;
 
     [Test]
@@ -139,8 +139,8 @@ codeunit 134823 "ERM Cost Accounting - Pages II"
         Initialize();
 
         LibraryLowerPermissions.SetO365Setup();
-        LibraryLowerPermissions.AddCostAccountingSetup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.AddCostAccountingSetup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
 
         // [GIVEN] Dimension codes "X" and "Y" with values "X1" and "Y1"
         CreateDimensionsForFilteringTest(Dimension, DimensionValue);
@@ -150,12 +150,12 @@ codeunit 134823 "ERM Cost Accounting - Pages II"
         CreateOpenCostCenterChart(CostCenterChart);
 
         // [WHEN] Invoke "Dimension Values" action on "Chart of Cost Centers" page
-        DimValList.Trap;
-        CostCenterChart.PageDimensionValues.Invoke;
+        DimValList.Trap();
+        CostCenterChart.PageDimensionValues.Invoke();
 
         // [THEN] Only dimension value "X1" shown on "Dimension Values" page
         DimValList.Code.AssertEquals(DimensionValue[1].Code);
-        Assert.IsFalse(DimValList.Next, '');
+        Assert.IsFalse(DimValList.Next(), '');
     end;
 
     [Test]
@@ -173,8 +173,8 @@ codeunit 134823 "ERM Cost Accounting - Pages II"
         Initialize();
 
         LibraryLowerPermissions.SetO365Setup();
-        LibraryLowerPermissions.AddCostAccountingSetup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.AddCostAccountingSetup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
 
         // [GIVEN] Dimension codes "X" and "Y" with values "X1" and "Y1"
         CreateDimensionsForFilteringTest(Dimension, DimensionValue);
@@ -184,12 +184,12 @@ codeunit 134823 "ERM Cost Accounting - Pages II"
         CreateOpenCostObjectCard(CostObjectCard);
 
         // [WHEN] Invoke "Dimension Values" action on "Cost Object Card" page
-        DimValList.Trap;
-        CostObjectCard.PageDimensionValues.Invoke;
+        DimValList.Trap();
+        CostObjectCard.PageDimensionValues.Invoke();
 
         // [THEN] Only dimension value "X1" shown on "Dimension Values" page
         DimValList.Code.AssertEquals(DimensionValue[1].Code);
-        Assert.IsFalse(DimValList.Next, '');
+        Assert.IsFalse(DimValList.Next(), '');
     end;
 
     [Test]
@@ -207,8 +207,8 @@ codeunit 134823 "ERM Cost Accounting - Pages II"
         Initialize();
 
         LibraryLowerPermissions.SetO365Setup();
-        LibraryLowerPermissions.AddCostAccountingSetup;
-        LibraryLowerPermissions.AddCostAccountingEdit;
+        LibraryLowerPermissions.AddCostAccountingSetup();
+        LibraryLowerPermissions.AddCostAccountingEdit();
 
         // [GIVEN] Dimension codes "X" and "Y" with values "X1" and "Y1"
         CreateDimensionsForFilteringTest(Dimension, DimensionValue);
@@ -218,12 +218,12 @@ codeunit 134823 "ERM Cost Accounting - Pages II"
         CreateOpenCostObjectChart(CostObjectChart);
 
         // [WHEN] Invoke "Dimension Values" action on "Chart of Cost Objects" page
-        DimValList.Trap;
-        CostObjectChart.PageDimensionValues.Invoke;
+        DimValList.Trap();
+        CostObjectChart.PageDimensionValues.Invoke();
 
         // [THEN] Only dimension value "X1" shown on "Dimension Values" page
         DimValList.Code.AssertEquals(DimensionValue[1].Code);
-        Assert.IsFalse(DimValList.Next, '');
+        Assert.IsFalse(DimValList.Next(), '');
     end;
 
     local procedure Initialize()
@@ -261,18 +261,17 @@ codeunit 134823 "ERM Cost Accounting - Pages II"
     local procedure VerifyIndentationOfChartofCostType(ActualCostType: Record "Cost Type")
     var
         CostType: Record "Cost Type";
-        Type: Option "Cost Type",Heading,Total,"Begin-Total","End-Total";
     begin
         CostType.SetFilter("No.", '%1', ActualCostType."No.");
         if CostType.FindFirst() then
             case ActualCostType.Type of
-                Type::"Cost Type":
+                ActualCostType.Type::"Cost Type":
                     Assert.AreEqual(CostType.Indentation, 1, IndentationError);
-                Type::Heading:
+                ActualCostType.Type::Heading:
                     Assert.AreEqual(CostType.Indentation, 0, IndentationError);
-                Type::"Begin-Total":
+                ActualCostType.Type::"Begin-Total":
                     Assert.AreEqual(CostType.Indentation, 0, IndentationError);
-                Type::"End-Total":
+                ActualCostType.Type::"End-Total":
                     Assert.AreEqual(CostType.Indentation, 0, IndentationError);
             end;
     end;
@@ -303,7 +302,7 @@ codeunit 134823 "ERM Cost Accounting - Pages II"
         CostCenter: Record "Cost Center";
     begin
         LibraryCostAccounting.CreateCostCenter(CostCenter);
-        CostCenterCard.OpenEdit;
+        CostCenterCard.OpenEdit();
         CostCenterCard.GotoRecord(CostCenter);
     end;
 
@@ -312,7 +311,7 @@ codeunit 134823 "ERM Cost Accounting - Pages II"
         CostCenter: Record "Cost Center";
     begin
         LibraryCostAccounting.CreateCostCenter(CostCenter);
-        CostCenterChart.OpenEdit;
+        CostCenterChart.OpenEdit();
         CostCenterChart.GotoRecord(CostCenter);
     end;
 
@@ -321,7 +320,7 @@ codeunit 134823 "ERM Cost Accounting - Pages II"
         CostObject: Record "Cost Object";
     begin
         LibraryCostAccounting.CreateCostObject(CostObject);
-        CostObjectCard.OpenEdit;
+        CostObjectCard.OpenEdit();
         CostObjectCard.GotoRecord(CostObject);
     end;
 
@@ -330,7 +329,7 @@ codeunit 134823 "ERM Cost Accounting - Pages II"
         CostObject: Record "Cost Object";
     begin
         LibraryCostAccounting.CreateCostObject(CostObject);
-        CostObjectChart.OpenEdit;
+        CostObjectChart.OpenEdit();
         CostObjectChart.GotoRecord(CostObject);
     end;
 }

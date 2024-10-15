@@ -599,6 +599,12 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
         JobPurchLine.SetRange("VAT Prod. Posting Group", InvoicePostingBuffer."VAT Prod. Posting Group");
         JobPurchLine.SetRange("Dimension Set ID", InvoicePostingBuffer."Dimension Set ID");
 
+        if InvoicePostingBuffer."Fixed Asset Line No." <> 0 then begin
+            PurchSetup.Get();
+            if PurchSetup."Copy Line Descr. to G/L Entry" then
+                JobPurchLine.SetRange("Line No.", InvoicePostingBuffer."Fixed Asset Line No.");
+        end;
+
         PurchPostInvoiceEvents.RunOnAfterSetJobLineFilters(JobPurchLine, InvoicePostingBuffer);
     end;
 
@@ -658,54 +664,52 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
         TempInvoicePostingBufferGST.SetRange("Deferral Code", InvoicePostingBuffer."Deferral Code");
         if TempInvoicePostingBufferGST.FindSet() then
             repeat
-                with TempInvoicePostingBufferGST do begin
-                    GSTPurchEntry.Init();
-                    GSTPurchEntry."Entry No." := EntryNo;
-                    GSTPurchEntry."GST Entry No." := VATEntryNo;
-                    GSTPurchEntry."Posting Date" := PurchHeader."Posting Date";
-                    case PurchHeader."Document Type" of
-                        PurchHeader."Document Type"::Order,
-                        PurchHeader."Document Type"::Invoice:
-                            begin
-                                GSTPurchEntry."Document Type" := GSTPurchEntry."Document Type"::Invoice;
-                                GSTPurchEntry."Document No." := InvoicePostingParameters."Document No.";
-                                if PurchLine3.Get(PurchHeader."Document Type", PurchHeader."No.", "Fixed Asset Line No.") then begin
-                                    GSTPurchEntry."Document Line Code" := PurchLine3."No.";
-                                    GSTPurchEntry."Document Line Description" := PurchLine3.Description;
-                                end else
-                                    if PurchInvLine3.Get(InvoicePostingParameters."Document No.", "Fixed Asset Line No.") then begin
-                                        GSTPurchEntry."Document Line Code" := PurchInvLine3."No.";
-                                        GSTPurchEntry."Document Line Description" := PurchInvLine3.Description;
-                                    end;
-                            end;
-                        PurchHeader."Document Type"::"Return Order",
-                        PurchHeader."Document Type"::"Credit Memo":
-                            begin
-                                GSTPurchEntry."Document Type" := GSTPurchEntry."Document Type"::"Credit Memo";
-                                GSTPurchEntry."Document No." := InvoicePostingParameters."Document No.";
-                                if PurchLine3.Get(PurchHeader."Document Type", PurchHeader."No.", "Fixed Asset Line No.") then begin
-                                    GSTPurchEntry."Document Line Code" := PurchLine3."No.";
-                                    GSTPurchEntry."Document Line Description" := PurchLine3.Description;
-                                end else
-                                    if PurchCrMemoLine3.Get(InvoicePostingParameters."Document No.", "Fixed Asset Line No.") then begin
-                                        GSTPurchEntry."Document Line Code" := PurchCrMemoLine3."No.";
-                                        GSTPurchEntry."Document Line Description" := PurchCrMemoLine3.Description;
-                                    end;
-                            end;
-                    end;
-                    GSTPurchEntry."Document Line No." := "Fixed Asset Line No.";
-                    GSTPurchEntry."Document Line Type" := Type;
-                    GSTPurchEntry."Vendor No." := PurchHeader."Buy-from Vendor No.";
-                    GSTPurchEntry."Vendor Name" := PurchHeader."Buy-from Vendor Name";
-                    GSTPurchEntry."GST Entry Type" := GSTPurchEntry."GST Entry Type"::Purchase;
-                    GSTPurchEntry."GST Base" := "VAT Base Amount";
-                    GSTPurchEntry.Amount := "VAT Amount";
-                    GSTPurchEntry."VAT Calculation Type" := "VAT Calculation Type";
-                    GSTPurchEntry."VAT Bus. Posting Group" := "VAT Bus. Posting Group";
-                    GSTPurchEntry."VAT Prod. Posting Group" := "VAT Prod. Posting Group";
-                    GSTPurchEntry.Insert();
-                    EntryNo += 1;
+                GSTPurchEntry.Init();
+                GSTPurchEntry."Entry No." := EntryNo;
+                GSTPurchEntry."GST Entry No." := VATEntryNo;
+                GSTPurchEntry."Posting Date" := PurchHeader."Posting Date";
+                case PurchHeader."Document Type" of
+                    PurchHeader."Document Type"::Order,
+                    PurchHeader."Document Type"::Invoice:
+                        begin
+                            GSTPurchEntry."Document Type" := GSTPurchEntry."Document Type"::Invoice;
+                            GSTPurchEntry."Document No." := InvoicePostingParameters."Document No.";
+                            if PurchLine3.Get(PurchHeader."Document Type", PurchHeader."No.", TempInvoicePostingBufferGST."Fixed Asset Line No.") then begin
+                                GSTPurchEntry."Document Line Code" := PurchLine3."No.";
+                                GSTPurchEntry."Document Line Description" := PurchLine3.Description;
+                            end else
+                                if PurchInvLine3.Get(InvoicePostingParameters."Document No.", TempInvoicePostingBufferGST."Fixed Asset Line No.") then begin
+                                    GSTPurchEntry."Document Line Code" := PurchInvLine3."No.";
+                                    GSTPurchEntry."Document Line Description" := PurchInvLine3.Description;
+                                end;
+                        end;
+                    PurchHeader."Document Type"::"Return Order",
+                    PurchHeader."Document Type"::"Credit Memo":
+                        begin
+                            GSTPurchEntry."Document Type" := GSTPurchEntry."Document Type"::"Credit Memo";
+                            GSTPurchEntry."Document No." := InvoicePostingParameters."Document No.";
+                            if PurchLine3.Get(PurchHeader."Document Type", PurchHeader."No.", TempInvoicePostingBufferGST."Fixed Asset Line No.") then begin
+                                GSTPurchEntry."Document Line Code" := PurchLine3."No.";
+                                GSTPurchEntry."Document Line Description" := PurchLine3.Description;
+                            end else
+                                if PurchCrMemoLine3.Get(InvoicePostingParameters."Document No.", TempInvoicePostingBufferGST."Fixed Asset Line No.") then begin
+                                    GSTPurchEntry."Document Line Code" := PurchCrMemoLine3."No.";
+                                    GSTPurchEntry."Document Line Description" := PurchCrMemoLine3.Description;
+                                end;
+                        end;
                 end;
+                GSTPurchEntry."Document Line No." := TempInvoicePostingBufferGST."Fixed Asset Line No.";
+                GSTPurchEntry."Document Line Type" := TempInvoicePostingBufferGST.Type;
+                GSTPurchEntry."Vendor No." := PurchHeader."Buy-from Vendor No.";
+                GSTPurchEntry."Vendor Name" := PurchHeader."Buy-from Vendor Name";
+                GSTPurchEntry."GST Entry Type" := GSTPurchEntry."GST Entry Type"::Purchase;
+                GSTPurchEntry."GST Base" := TempInvoicePostingBufferGST."VAT Base Amount";
+                GSTPurchEntry.Amount := TempInvoicePostingBufferGST."VAT Amount";
+                GSTPurchEntry."VAT Calculation Type" := TempInvoicePostingBufferGST."VAT Calculation Type";
+                GSTPurchEntry."VAT Bus. Posting Group" := TempInvoicePostingBufferGST."VAT Bus. Posting Group";
+                GSTPurchEntry."VAT Prod. Posting Group" := TempInvoicePostingBufferGST."VAT Prod. Posting Group";
+                GSTPurchEntry.Insert();
+                EntryNo += 1;
             until TempInvoicePostingBufferGST.Next() = 0;
     end;
 
@@ -717,154 +721,154 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
         if not GLSetup."GST Report" then
             exit;
 
-        with PurchLine do begin
-            Currency.Initialize(PurchHeader."Currency Code", true);
-            GenPostingSetup.Get("Gen. Bus. Posting Group", "Gen. Prod. Posting Group");
-            Clear(InvoicePostingBuffer);
-            if "Qty. to Invoice" <> 0 then begin
-                InvoicePostingBuffer.Type := Type;
-                InvoicePostingBuffer."Fixed Asset Line No." := "Line No.";
-                if (Type = Type::"G/L Account") or (Type = Type::"Fixed Asset") then begin
-                    InvoicePostingBuffer."Entry Description" := Description;
-                    InvoicePostingBuffer."G/L Account" := "No.";
+        Currency.Initialize(PurchHeader."Currency Code", true);
+        GenPostingSetup.Get(PurchLine."Gen. Bus. Posting Group", PurchLine."Gen. Prod. Posting Group");
+        Clear(InvoicePostingBuffer);
+        if PurchLine."Qty. to Invoice" <> 0 then begin
+            InvoicePostingBuffer.Type := PurchLine.Type;
+            InvoicePostingBuffer."Fixed Asset Line No." := PurchLine."Line No.";
+            if (PurchLine.Type = PurchLine.Type::"G/L Account") or (PurchLine.Type = PurchLine.Type::"Fixed Asset") then begin
+                InvoicePostingBuffer."Entry Description" := PurchLine.Description;
+                InvoicePostingBuffer."G/L Account" := PurchLine."No.";
+            end else begin
+                if PurchLine."Document Type" in [PurchLine."Document Type"::"Return Order", PurchLine."Document Type"::"Credit Memo"] then begin
+                    GenPostingSetup.TestField("Purch. Credit Memo Account");
+                    InvoicePostingBuffer."G/L Account" := GenPostingSetup."Purch. Credit Memo Account";
                 end else begin
-                    if "Document Type" in ["Document Type"::"Return Order", "Document Type"::"Credit Memo"] then begin
-                        GenPostingSetup.TestField("Purch. Credit Memo Account");
-                        InvoicePostingBuffer."G/L Account" := GenPostingSetup."Purch. Credit Memo Account";
-                    end else begin
-                        GenPostingSetup.TestField("Purch. Account");
-                        InvoicePostingBuffer."G/L Account" := GenPostingSetup."Purch. Account";
-                    end;
-                    InvoicePostingBuffer."Entry Description" := PurchHeader."Posting Description";
+                    GenPostingSetup.TestField("Purch. Account");
+                    InvoicePostingBuffer."G/L Account" := GenPostingSetup."Purch. Account";
                 end;
-                InvoicePostingBuffer."System-Created Entry" := true;
-                InvoicePostingBuffer."Gen. Bus. Posting Group" := "Gen. Bus. Posting Group";
-                InvoicePostingBuffer."Gen. Prod. Posting Group" := "Gen. Prod. Posting Group";
-                InvoicePostingBuffer."VAT Bus. Posting Group" := "VAT Bus. Posting Group";
-                InvoicePostingBuffer."VAT Prod. Posting Group" := "VAT Prod. Posting Group";
-                InvoicePostingBuffer."VAT Calculation Type" := "VAT Calculation Type";
-                InvoicePostingBuffer."Global Dimension 1 Code" := "Shortcut Dimension 1 Code";
-                InvoicePostingBuffer."Global Dimension 2 Code" := "Shortcut Dimension 2 Code";
-                InvoicePostingBuffer."Job No." := "Job No.";
-                InvoicePostingBuffer.Amount := Amount;
-                InvoicePostingBuffer."VAT Base Amount" := Amount;
-                if "Prepayment Line" then begin
-                    InvoicePostingBuffer.Amount := Round("Line Amount", Currency."Amount Rounding Precision");
-                    InvoicePostingBuffer."VAT Base Amount" := Round("VAT Base Amount", Currency."Amount Rounding Precision");
-                end;
-                InvoicePostingBuffer."Amount (ACY)" := PurchLineACY.Amount;
-                InvoicePostingBuffer."VAT Base Amount (ACY)" := PurchLineACY.Amount;
-                InvoicePostingBuffer."VAT Difference" := "VAT Difference";
-                InvoicePostingBuffer."VAT %" := "VAT %";
-                InvoicePostingBuffer.Adjustment := PurchHeader.Adjustment;
-                InvoicePostingBuffer."Deferral Code" := "Deferral Code";
-                InvoicePostingBuffer."BAS Adjustment" := PurchHeader."BAS Adjustment";
-                InvoicePostingBuffer."Adjustment Applies-to" := PurchHeader."Adjustment Applies-to";
-                InvoicePostingBuffer."VAT Base (ACY)" := "VAT Base (ACY)";
-                InvoicePostingBuffer."VAT Difference (ACY)" := "VAT Difference (ACY)";
-                InvoicePostingBuffer."Amount Including VAT (ACY)" := "Amount Including VAT (ACY)";
-
-                if Type = Type::"Fixed Asset" then begin
-                    InvoicePostingBuffer."FA Posting Date" := "FA Posting Date";
-                    InvoicePostingBuffer."FA Posting Type" := "FA Posting Type";
-                    InvoicePostingBuffer."Depreciation Book Code" := "Depreciation Book Code";
-                    InvoicePostingBuffer."Salvage Value" := "Salvage Value";
-                    InvoicePostingBuffer."Depr. until FA Posting Date" := "Depr. until FA Posting Date";
-                    InvoicePostingBuffer."Depr. Acquisition Cost" := "Depr. Acquisition Cost";
-                    InvoicePostingBuffer."Maintenance Code" := "Maintenance Code";
-                    InvoicePostingBuffer."Insurance No." := "Insurance No.";
-                    InvoicePostingBuffer."Budgeted FA No." := "Budgeted FA No.";
-                    InvoicePostingBuffer."Duplicate in Depreciation Book" := "Duplicate in Depreciation Book";
-                    InvoicePostingBuffer."Use Duplication List" := "Use Duplication List";
-                end;
-                case "VAT Calculation Type" of
-                    "VAT Calculation Type"::"Normal VAT", "VAT Calculation Type"::"Full VAT":
-                        if GLSetup.CheckFullGSTonPrepayment("VAT Bus. Posting Group", "VAT Prod. Posting Group")
-                           and PurchHeader."Prices Including VAT" and ("Prepayment %" <> 0) and not "Prepayment Line"
-                        then begin
-                            if "Amount Including VAT" < Amount then begin
-                                InvoicePostingBuffer."VAT Amount" := Round("Amount Including VAT" -
-                                    InvoicePostingBuffer."VAT Base Amount", Currency."Amount Rounding Precision");
-                                InvoicePostingBuffer."VAT Amount" := InvoicePostingBuffer."VAT Amount" -
-                                  (InvoicePostingBuffer."VAT Amount" * (PurchHeader."VAT Base Discount %" / 100));
-                                InvoicePostingBuffer."VAT Amount (ACY)" := -Round(InvoicePostingBuffer."VAT Base Amount" * "VAT %" / 100
-                                    , Currency."Amount Rounding Precision");
-                                InvoicePostingBuffer."VAT Amount(ACY)" := -Round(InvoicePostingBuffer."VAT Base Amount" * "VAT %" / 100
-                                    , Currency."Amount Rounding Precision");
-                            end;
-                            if "Amount Including VAT" > Amount then begin
-                                InvoicePostingBuffer."VAT Amount" := Round("Amount Including VAT" -
-                                    InvoicePostingBuffer."VAT Base Amount", Currency."Amount Rounding Precision");
-                                InvoicePostingBuffer."VAT Amount" := InvoicePostingBuffer."VAT Amount" -
-                                  (InvoicePostingBuffer."VAT Amount" * (PurchHeader."VAT Base Discount %" / 100));
-                                InvoicePostingBuffer."VAT Amount (ACY)" := Round(InvoicePostingBuffer."VAT Base Amount" * "VAT %" / 100
-                                    , Currency."Amount Rounding Precision");
-                                InvoicePostingBuffer."VAT Amount(ACY)" := Round(InvoicePostingBuffer."VAT Base Amount" * "VAT %" / 100
-                                    , Currency."Amount Rounding Precision");
-                            end;
-                        end else begin
-                            InvoicePostingBuffer."VAT Amount" := "Amount Including VAT" - Amount;
-                            InvoicePostingBuffer."VAT Amount (ACY)" :=
-                              PurchLineACY."Amount Including VAT (ACY)" - PurchLineACY.Amount;
-                            InvoicePostingBuffer."VAT Amount(ACY)" := "Amount Including VAT (ACY)" - "VAT Base (ACY)";
-                        end;
-                    "VAT Calculation Type"::"Reverse Charge VAT":
-                        ; // Reverse Charge VAT is calculated later, based on totals
-                    "VAT Calculation Type"::"Sales Tax":
-                        begin
-                            if not "Use Tax" then begin  // Use Tax is calculated later, based on totals
-                                InvoicePostingBuffer."VAT Amount" := "Amount Including VAT" - Amount;
-                                InvoicePostingBuffer."VAT Amount (ACY)" :=
-                                  PurchLineACY."Amount Including VAT" - PurchLineACY.Amount;
-                                InvoicePostingBuffer."VAT Amount(ACY)" := "Amount Including VAT (ACY)" - "VAT Base (ACY)";
-                            end;
-                            InvoicePostingBuffer."Tax Area Code" := "Tax Area Code";
-                            InvoicePostingBuffer."Tax Liable" := "Tax Liable";
-                            InvoicePostingBuffer."Tax Group Code" := "Tax Group Code";
-                            InvoicePostingBuffer."Use Tax" := "Use Tax";
-                            InvoicePostingBuffer.Quantity := "Qty. to Invoice (Base)";
-                        end;
-                end;
-                case PurchSetup."Discount Posting" of
-                    PurchSetup."Discount Posting"::"Invoice Discounts":
-                        begin
-                            InvoicePostingBuffer.Amount := InvoicePostingBuffer.Amount + "Inv. Discount Amount";
-                            InvoicePostingBuffer."Amount (ACY)" :=
-                              InvoicePostingBuffer."Amount (ACY)" + PurchLineACY."Inv. Discount Amount";
-                            if ("Inv. Discount Amount" <> 0) or
-                               (PurchLineACY."Inv. Discount Amount" <> 0)
-                            then
-                                GenPostingSetup.TestField("Purch. Inv. Disc. Account");
-                        end;
-                    PurchSetup."Discount Posting"::"Line Discounts":
-                        begin
-                            InvoicePostingBuffer.Amount := InvoicePostingBuffer.Amount + "Line Discount Amount";
-                            InvoicePostingBuffer."Amount (ACY)" :=
-                              InvoicePostingBuffer."Amount (ACY)" + PurchLineACY."Line Discount Amount";
-                            if ("Line Discount Amount" <> 0) or
-                               (PurchLineACY."Line Discount Amount" <> 0)
-                            then
-                                GenPostingSetup.TestField("Purch. Line Disc. Account");
-                        end;
-                    PurchSetup."Discount Posting"::"All Discounts":
-                        begin
-                            InvoicePostingBuffer.Amount :=
-                              InvoicePostingBuffer.Amount + "Line Discount Amount" + "Inv. Discount Amount";
-                            InvoicePostingBuffer."Amount (ACY)" :=
-                              InvoicePostingBuffer."Amount (ACY)" +
-                              PurchLineACY."Line Discount Amount" + PurchLineACY."Inv. Discount Amount";
-                            if ("Line Discount Amount" <> 0) or
-                               (PurchLineACY."Line Discount Amount" <> 0)
-                            then
-                                GenPostingSetup.TestField("Purch. Line Disc. Account");
-                            if ("Inv. Discount Amount" <> 0) or
-                               (PurchLineACY."Inv. Discount Amount" <> 0)
-                            then
-                                GenPostingSetup.TestField("Purch. Inv. Disc. Account");
-                        end;
-                end;
-                UpdateInvoicePostingBufferGST(PurchLine, InvoicePostingBuffer);
+                InvoicePostingBuffer."Entry Description" := PurchHeader."Posting Description";
             end;
+            InvoicePostingBuffer."System-Created Entry" := true;
+            InvoicePostingBuffer."Gen. Bus. Posting Group" := PurchLine."Gen. Bus. Posting Group";
+            InvoicePostingBuffer."Gen. Prod. Posting Group" := PurchLine."Gen. Prod. Posting Group";
+            InvoicePostingBuffer."VAT Bus. Posting Group" := PurchLine."VAT Bus. Posting Group";
+            InvoicePostingBuffer."VAT Prod. Posting Group" := PurchLine."VAT Prod. Posting Group";
+            InvoicePostingBuffer."VAT Calculation Type" := PurchLine."VAT Calculation Type";
+            InvoicePostingBuffer."Global Dimension 1 Code" := PurchLine."Shortcut Dimension 1 Code";
+            InvoicePostingBuffer."Global Dimension 2 Code" := PurchLine."Shortcut Dimension 2 Code";
+            InvoicePostingBuffer."Job No." := PurchLine."Job No.";
+            InvoicePostingBuffer.Amount := PurchLine.Amount;
+            InvoicePostingBuffer."VAT Base Amount" := PurchLine.Amount;
+            if PurchLine."Prepayment Line" then begin
+                InvoicePostingBuffer.Amount := Round(PurchLine."Line Amount", Currency."Amount Rounding Precision");
+                InvoicePostingBuffer."VAT Base Amount" := Round(PurchLine."VAT Base Amount", Currency."Amount Rounding Precision");
+            end;
+            InvoicePostingBuffer."Amount (ACY)" := PurchLineACY.Amount;
+            InvoicePostingBuffer."VAT Base Amount (ACY)" := PurchLineACY.Amount;
+            InvoicePostingBuffer."VAT Difference" := PurchLine."VAT Difference";
+            InvoicePostingBuffer."VAT %" := PurchLine."VAT %";
+            InvoicePostingBuffer.Adjustment := PurchHeader.Adjustment;
+            InvoicePostingBuffer."Deferral Code" := PurchLine."Deferral Code";
+            InvoicePostingBuffer."BAS Adjustment" := PurchHeader."BAS Adjustment";
+            InvoicePostingBuffer."Adjustment Applies-to" := PurchHeader."Adjustment Applies-to";
+            InvoicePostingBuffer."VAT Base (ACY)" := PurchLine."VAT Base (ACY)";
+            InvoicePostingBuffer."VAT Difference (ACY)" := PurchLine."VAT Difference (ACY)";
+            InvoicePostingBuffer."Amount Including VAT (ACY)" := PurchLine."Amount Including VAT (ACY)";
+
+            if PurchLine.Type = PurchLine.Type::"Fixed Asset" then begin
+                InvoicePostingBuffer."FA Posting Date" := PurchLine."FA Posting Date";
+                InvoicePostingBuffer."FA Posting Type" := PurchLine."FA Posting Type";
+                InvoicePostingBuffer."Depreciation Book Code" := PurchLine."Depreciation Book Code";
+                InvoicePostingBuffer."Salvage Value" := PurchLine."Salvage Value";
+                InvoicePostingBuffer."Depr. until FA Posting Date" := PurchLine."Depr. until FA Posting Date";
+                InvoicePostingBuffer."Depr. Acquisition Cost" := PurchLine."Depr. Acquisition Cost";
+                InvoicePostingBuffer."Maintenance Code" := PurchLine."Maintenance Code";
+                InvoicePostingBuffer."Insurance No." := PurchLine."Insurance No.";
+                InvoicePostingBuffer."Budgeted FA No." := PurchLine."Budgeted FA No.";
+                InvoicePostingBuffer."Duplicate in Depreciation Book" := PurchLine."Duplicate in Depreciation Book";
+                InvoicePostingBuffer."Use Duplication List" := PurchLine."Use Duplication List";
+            end;
+            case PurchLine."VAT Calculation Type" of
+                PurchLine."VAT Calculation Type"::"Normal VAT", PurchLine."VAT Calculation Type"::"Full VAT":
+                    if GLSetup.CheckFullGSTonPrepayment(PurchLine."VAT Bus. Posting Group", PurchLine."VAT Prod. Posting Group")
+                       and PurchHeader."Prices Including VAT" and (PurchLine."Prepayment %" <> 0) and not PurchLine."Prepayment Line"
+                    then begin
+                        if PurchLine."Amount Including VAT" < PurchLine.Amount then begin
+                            InvoicePostingBuffer."VAT Amount" := Round(PurchLine."Amount Including VAT" -
+                                InvoicePostingBuffer."VAT Base Amount", Currency."Amount Rounding Precision");
+                            InvoicePostingBuffer."VAT Amount" := InvoicePostingBuffer."VAT Amount" -
+                              (InvoicePostingBuffer."VAT Amount" * (PurchHeader."VAT Base Discount %" / 100));
+                            InvoicePostingBuffer."VAT Amount (ACY)" := -Round(InvoicePostingBuffer."VAT Base Amount" * PurchLine."VAT %" / 100
+                                , Currency."Amount Rounding Precision");
+                            InvoicePostingBuffer."VAT Amount(ACY)" := -Round(InvoicePostingBuffer."VAT Base Amount" * PurchLine."VAT %" / 100
+                                , Currency."Amount Rounding Precision");
+                        end;
+                        if PurchLine."Amount Including VAT" > PurchLine.Amount then begin
+                            InvoicePostingBuffer."VAT Amount" := Round(PurchLine."Amount Including VAT" -
+                                InvoicePostingBuffer."VAT Base Amount", Currency."Amount Rounding Precision");
+                            InvoicePostingBuffer."VAT Amount" := InvoicePostingBuffer."VAT Amount" -
+                              (InvoicePostingBuffer."VAT Amount" * (PurchHeader."VAT Base Discount %" / 100));
+                            InvoicePostingBuffer."VAT Amount (ACY)" := Round(InvoicePostingBuffer."VAT Base Amount" * PurchLine."VAT %" / 100
+                                , Currency."Amount Rounding Precision");
+                            InvoicePostingBuffer."VAT Amount(ACY)" := Round(InvoicePostingBuffer."VAT Base Amount" * PurchLine."VAT %" / 100
+                                , Currency."Amount Rounding Precision");
+                        end;
+                    end else begin
+                        InvoicePostingBuffer."VAT Amount" := PurchLine."Amount Including VAT" - PurchLine.Amount;
+                        InvoicePostingBuffer."VAT Amount (ACY)" :=
+                          PurchLineACY."Amount Including VAT (ACY)" - PurchLineACY.Amount;
+                        InvoicePostingBuffer."VAT Amount(ACY)" := PurchLine."Amount Including VAT (ACY)" - PurchLine."VAT Base (ACY)";
+                    end;
+                PurchLine."VAT Calculation Type"::"Reverse Charge VAT":
+                    ;
+                // Reverse Charge VAT is calculated later, based on totals
+                PurchLine."VAT Calculation Type"::"Sales Tax":
+                    begin
+                        if not PurchLine."Use Tax" then begin
+                            // Use Tax is calculated later, based on totals
+                            InvoicePostingBuffer."VAT Amount" := PurchLine."Amount Including VAT" - PurchLine.Amount;
+                            InvoicePostingBuffer."VAT Amount (ACY)" :=
+                              PurchLineACY."Amount Including VAT" - PurchLineACY.Amount;
+                            InvoicePostingBuffer."VAT Amount(ACY)" := PurchLine."Amount Including VAT (ACY)" - PurchLine."VAT Base (ACY)";
+                        end;
+                        InvoicePostingBuffer."Tax Area Code" := PurchLine."Tax Area Code";
+                        InvoicePostingBuffer."Tax Liable" := PurchLine."Tax Liable";
+                        InvoicePostingBuffer."Tax Group Code" := PurchLine."Tax Group Code";
+                        InvoicePostingBuffer."Use Tax" := PurchLine."Use Tax";
+                        InvoicePostingBuffer.Quantity := PurchLine."Qty. to Invoice (Base)";
+                    end;
+            end;
+            case PurchSetup."Discount Posting" of
+                PurchSetup."Discount Posting"::"Invoice Discounts":
+                    begin
+                        InvoicePostingBuffer.Amount := InvoicePostingBuffer.Amount + PurchLine."Inv. Discount Amount";
+                        InvoicePostingBuffer."Amount (ACY)" :=
+                          InvoicePostingBuffer."Amount (ACY)" + PurchLineACY."Inv. Discount Amount";
+                        if (PurchLine."Inv. Discount Amount" <> 0) or
+                           (PurchLineACY."Inv. Discount Amount" <> 0)
+                        then
+                            GenPostingSetup.TestField("Purch. Inv. Disc. Account");
+                    end;
+                PurchSetup."Discount Posting"::"Line Discounts":
+                    begin
+                        InvoicePostingBuffer.Amount := InvoicePostingBuffer.Amount + PurchLine."Line Discount Amount";
+                        InvoicePostingBuffer."Amount (ACY)" :=
+                          InvoicePostingBuffer."Amount (ACY)" + PurchLineACY."Line Discount Amount";
+                        if (PurchLine."Line Discount Amount" <> 0) or
+                           (PurchLineACY."Line Discount Amount" <> 0)
+                        then
+                            GenPostingSetup.TestField("Purch. Line Disc. Account");
+                    end;
+                PurchSetup."Discount Posting"::"All Discounts":
+                    begin
+                        InvoicePostingBuffer.Amount :=
+                          InvoicePostingBuffer.Amount + PurchLine."Line Discount Amount" + PurchLine."Inv. Discount Amount";
+                        InvoicePostingBuffer."Amount (ACY)" :=
+                          InvoicePostingBuffer."Amount (ACY)" +
+                          PurchLineACY."Line Discount Amount" + PurchLineACY."Inv. Discount Amount";
+                        if (PurchLine."Line Discount Amount" <> 0) or
+                           (PurchLineACY."Line Discount Amount" <> 0)
+                        then
+                            GenPostingSetup.TestField("Purch. Line Disc. Account");
+                        if (PurchLine."Inv. Discount Amount" <> 0) or
+                           (PurchLineACY."Inv. Discount Amount" <> 0)
+                        then
+                            GenPostingSetup.TestField("Purch. Inv. Disc. Account");
+                    end;
+            end;
+            UpdateInvoicePostingBufferGST(PurchLine, InvoicePostingBuffer);
         end;
     end;
 

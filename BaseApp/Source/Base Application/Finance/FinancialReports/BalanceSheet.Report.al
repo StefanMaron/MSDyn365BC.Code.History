@@ -185,7 +185,7 @@ report 28024 "Balance Sheet"
                     CurrReport.Skip();
                 ConvertAmountToText();
                 PageGroupNo := NextPageGroupNo;
-                ShowAccType := "G/L Account"."Account Type";
+                ShowAccType := "G/L Account"."Account Type".AsInteger();
                 if "G/L Account"."New Page" then
                     NextPageGroupNo := PageGroupNo + 1;
                 if PageGroupNo = NextPageGroupNo then

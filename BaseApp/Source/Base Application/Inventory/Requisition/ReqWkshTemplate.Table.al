@@ -8,6 +8,7 @@ table 244 "Req. Wksh. Template"
     Caption = 'Req. Wksh. Template';
     LookupPageID = "Req. Worksheet Template List";
     ReplicateData = true;
+    DataClassification = CustomerContent;
 
     fields
     {

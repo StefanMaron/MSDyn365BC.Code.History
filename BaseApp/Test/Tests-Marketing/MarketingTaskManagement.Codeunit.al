@@ -32,9 +32,6 @@ codeunit 136203 "Marketing Task Management"
         ContactNo: Code[20];
         AllDayEvent2: Boolean;
         Recurring: Boolean;
-        AppointmentValueWrongErr: Label 'Wrong Appointment Value';
-        AttendeeNotAddedErr: Label 'Attendee was not added';
-        InviationSentNotSetErr: Label 'Invitation Sent is not set';
         WrongSalespersonCodeErr: Label 'Wrong Salesperson Code';
         CannotDeleteSalespersonDueToActiveOpportunitiesErr: Label 'You cannot delete the salesperson/purchaser with code %1 because it has open opportunities.';
         MeetingSaaSNotSupportedErr: Label 'You cannot create a task of type Meeting because you''re not using an on-premises deployment.';
@@ -61,7 +58,7 @@ codeunit 136203 "Marketing Task Management"
         Commit();
 
         // Set global variable for Form Handler.
-        InitializeGlobalVariable;
+        InitializeGlobalVariable();
         TeamCode := Team.Code;
 
         // 2. Exercise: Create Task for Team.
@@ -89,7 +86,7 @@ codeunit 136203 "Marketing Task Management"
         CreateTeamWithSalesperson(Team, SalespersonPurchaser);
 
         // Set global variable for Form Handler.
-        InitializeGlobalVariable;
+        InitializeGlobalVariable();
         TeamCode := Team.Code;
 
         // 2. Exercise: Create Task for Team and attach Contact to Created Task.
@@ -123,7 +120,7 @@ codeunit 136203 "Marketing Task Management"
         CreateTeamWithSalesperson(Team, SalespersonPurchaser);
 
         // Set global variable for Form Handler.
-        InitializeGlobalVariable;
+        InitializeGlobalVariable();
         TeamCode := Team.Code;
         TempTask.CreateTaskFromTask(Task);
         Contact.FindFirst();
@@ -140,16 +137,16 @@ codeunit 136203 "Marketing Task Management"
         // 3. Verify: Verify Task deleted attach on Team, Contact and Salespeople.
         Task.Reset();
         Task.SetRange("Team Code", Team.Code);
-        Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption(), Task."No."));
+        Assert.IsFalse(Task.FindFirst(), StrSubstNo(TaskExistErr, Task.TableCaption(), Task."No."));
 
         Task.Reset();
         Task.SetRange("Contact No.", Contact."No.");
         Task.SetRange("Team Code", Team.Code);
-        Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption(), Task."No."));
+        Assert.IsFalse(Task.FindFirst(), StrSubstNo(TaskExistErr, Task.TableCaption(), Task."No."));
 
         Task.Reset();
         Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
-        Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption(), Task."No."));
+        Assert.IsFalse(Task.FindFirst(), StrSubstNo(TaskExistErr, Task.TableCaption(), Task."No."));
     end;
 
     [Test]
@@ -195,7 +192,7 @@ codeunit 136203 "Marketing Task Management"
         CreateSegmentLine(SegmentHeader."No.");
 
         // Set global variable for Form Handler.
-        InitializeGlobalVariable;
+        InitializeGlobalVariable();
         TaskType2 := Type;
         SegmentNo := SegmentHeader."No.";
         SalespersonCode2 := SalespersonPurchaser.Code;
@@ -259,7 +256,7 @@ codeunit 136203 "Marketing Task Management"
         CreateSegmentLine(SegmentHeader."No.");
 
         // Set global variable for Form Handler.
-        InitializeGlobalVariable;
+        InitializeGlobalVariable();
         TeamCode := Team.Code;
         SegmentNo := SegmentHeader."No.";
         TaskType2 := Type;
@@ -301,7 +298,7 @@ codeunit 136203 "Marketing Task Management"
         CreateSegmentLine(SegmentHeader."No.");
 
         // Set global variable for Form Handler.
-        InitializeGlobalVariable;
+        InitializeGlobalVariable();
         TeamCode := Team.Code;
         SegmentNo := SegmentHeader."No.";
         TaskType2 := Task.Type::Meeting;
@@ -333,7 +330,7 @@ codeunit 136203 "Marketing Task Management"
         CreateSegmentLine(SegmentHeader."No.");
 
         // Set global variable for Form Handler.
-        InitializeGlobalVariable;
+        InitializeGlobalVariable();
         TeamCode := Team.Code;
         SegmentNo := SegmentHeader."No.";
         TaskType2 := Task.Type::Meeting;
@@ -395,7 +392,7 @@ codeunit 136203 "Marketing Task Management"
         CreateActivityStep(Activity.Code, ActivityStep.Type::Meeting, ActivityStep.Priority::High, DateFormula3);
 
         // Set global variable for Form Handler.
-        InitializeGlobalVariable;
+        InitializeGlobalVariable();
         ActivityCode := Activity.Code;
         SalespersonCode2 := SalespersonPurchaser.Code;
         TeamCode := Team.Code;
@@ -462,7 +459,7 @@ codeunit 136203 "Marketing Task Management"
         CreateSalespersonWithEmail(SalespersonPurchaser);
 
         // Set global variable for Form Handler.
-        InitializeGlobalVariable;
+        InitializeGlobalVariable();
         SalespersonCode2 := SalespersonPurchaser.Code;
         TaskType2 := Type;
         AllDayEvent2 := AllDayEvent;
@@ -496,7 +493,7 @@ codeunit 136203 "Marketing Task Management"
         CreateSalespersonWithEmail(SalespersonPurchaser);
 
         // Set global variable for Form Handler.
-        InitializeGlobalVariable;
+        InitializeGlobalVariable();
         SalespersonCode2 := SalespersonPurchaser.Code;
         Recurring := true;
 
@@ -535,7 +532,7 @@ codeunit 136203 "Marketing Task Management"
         CreateSalespersonWithEmail(SalespersonPurchaser);
 
         // Set global variable for Form Handler.
-        InitializeGlobalVariable;
+        InitializeGlobalVariable();
         SalespersonCode2 := SalespersonPurchaser.Code;
         Recurring := true;
 
@@ -575,7 +572,7 @@ codeunit 136203 "Marketing Task Management"
         CreateSalespersonWithEmail(SalespersonPurchaser);
 
         // Set global variable for Form Handler.
-        InitializeGlobalVariable;
+        InitializeGlobalVariable();
         SalespersonCode2 := SalespersonPurchaser.Code;
         Recurring := true;
 
@@ -594,7 +591,7 @@ codeunit 136203 "Marketing Task Management"
         Task.TestField(Status, Task.Status::Completed);
 
         FindClosedTask(Task, SalespersonPurchaser.Code, false);
-        Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption(), Task."No."));
+        Assert.IsFalse(Task.FindFirst(), StrSubstNo(TaskExistErr, Task.TableCaption(), Task."No."));
     end;
 
     [Test]
@@ -614,7 +611,7 @@ codeunit 136203 "Marketing Task Management"
         CreateSalespersonWithEmail(SalespersonPurchaser);
 
         // Set global variable for Form Handler.
-        InitializeGlobalVariable;
+        InitializeGlobalVariable();
         SalespersonCode2 := SalespersonPurchaser.Code;
         Recurring := true;
 
@@ -633,7 +630,7 @@ codeunit 136203 "Marketing Task Management"
         Task.TestField(Status, Task.Status::Completed);
 
         FindCanceledTask(Task, SalespersonPurchaser.Code, false);
-        Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption(), Task."No."));
+        Assert.IsFalse(Task.FindFirst(), StrSubstNo(TaskExistErr, Task.TableCaption(), Task."No."));
     end;
 
     [Test]
@@ -686,7 +683,7 @@ codeunit 136203 "Marketing Task Management"
         CreateSalespersonWithEmail(SalespersonPurchaser);
 
         // Set global variable for Form Handler.
-        InitializeGlobalVariable;
+        InitializeGlobalVariable();
         SalespersonCode2 := SalespersonPurchaser.Code;
         TaskType2 := Type;
         AllDayEvent2 := AllDayEvent;
@@ -758,7 +755,7 @@ codeunit 136203 "Marketing Task Management"
     begin
         // 1. Setup: Create Team, Salespeople with E-Mail address and attach Salespeople to Team.
         CreateTeamWithSalesperson(Team, SalespersonPurchaser);
-        InitializeGlobalVariable;
+        InitializeGlobalVariable();
         SalespersonCode2 := SalespersonPurchaser.Code;
         CreateSalespersonWithEmail(SalespersonPurchaser);
 
@@ -773,7 +770,7 @@ codeunit 136203 "Marketing Task Management"
         Task.SetRange("Team Code", Team.Code);
         Task.SetRange("System To-do Type", Task."System To-do Type"::Team);
         Task.FindFirst();
-        Task.SetRunFromForm;
+        Task.SetRunFromForm();
         Task.Validate("Salesperson Code", SalespersonPurchaser.Code);
         Task.Modify(true);
 
@@ -785,7 +782,7 @@ codeunit 136203 "Marketing Task Management"
         Task.Reset();
         Task.SetRange("Team Code", Team.Code);
         Task.SetRange("System To-do Type", Task."System To-do Type"::Team);
-        Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption(), Task."No."));
+        Assert.IsFalse(Task.FindFirst(), StrSubstNo(TaskExistErr, Task.TableCaption(), Task."No."));
     end;
 
     [Test]
@@ -869,19 +866,19 @@ codeunit 136203 "Marketing Task Management"
 
         // [GIVEN] Task of Phone Call type with SalesPerson Code = "SPC"
         CreateSalespersonWithEmail(SalespersonPurchaser);
-        InitializeGlobalVariable;
+        InitializeGlobalVariable();
         SalespersonCode2 := SalespersonPurchaser.Code;
         CreatePhoneCallTask(Task, SalespersonPurchaser.Code);
 
         // [GIVEN] Task Card page opened
-        TaskCard.OpenEdit;
+        TaskCard.OpenEdit();
         TaskCard.GotoRecord(Task);
 
         // [WHEN] Make Phone Call action is called
-        TaskCard.MakePhoneCall.Invoke;
+        TaskCard.MakePhoneCall.Invoke();
 
         // [THEN] Make Phone Call page is opened and SalesPerson Code = "SPC"
-        Assert.AreEqual(SalespersonPurchaser.Code, LibraryVariableStorage.DequeueText, WrongSalespersonCodeErr);
+        Assert.AreEqual(SalespersonPurchaser.Code, LibraryVariableStorage.DequeueText(), WrongSalespersonCodeErr);
     end;
 
     [Test]
@@ -899,19 +896,19 @@ codeunit 136203 "Marketing Task Management"
 
         // [GIVEN] Task of Phone Call type with SalesPerson Code = "SPC"
         CreateSalespersonWithEmail(SalespersonPurchaser);
-        InitializeGlobalVariable;
+        InitializeGlobalVariable();
         SalespersonCode2 := SalespersonPurchaser.Code;
         CreatePhoneCallTask(Task, SalespersonPurchaser.Code);
 
         // [GIVEN] Task List page is opened and focused on created Task
-        TaskList.OpenEdit;
+        TaskList.OpenEdit();
         TaskList.GotoRecord(Task);
 
         // [WHEN] Make Phone Call action is called
-        TaskList.MakePhoneCall.Invoke;
+        TaskList.MakePhoneCall.Invoke();
 
         // [THEN] Make Phone Call page is opened and SalesPerson Code = "SPC"
-        Assert.AreEqual(SalespersonPurchaser.Code, LibraryVariableStorage.DequeueText, WrongSalespersonCodeErr);
+        Assert.AreEqual(SalespersonPurchaser.Code, LibraryVariableStorage.DequeueText(), WrongSalespersonCodeErr);
     end;
 
     [Test]
@@ -929,19 +926,19 @@ codeunit 136203 "Marketing Task Management"
 
         // [GIVEN] Task of Phone Call type with SalesPerson Code = "SPC"
         CreateSalespersonWithEmail(SalespersonPurchaser);
-        InitializeGlobalVariable;
+        InitializeGlobalVariable();
         SalespersonCode2 := SalespersonPurchaser.Code;
         CreatePhoneCallTask(Task, SalespersonPurchaser.Code);
 
         // [GIVEN] Task Card page opened
-        TaskCard.OpenEdit;
+        TaskCard.OpenEdit();
         TaskCard.GotoRecord(Task);
 
         // [WHEN] Status is set to Complete
         TaskCard.Status.SetValue(Task.Status::Completed);
 
         // [THEN] Make Phone Call page is opened and SalesPerson Code = "SPC"
-        Assert.AreEqual(SalespersonPurchaser.Code, LibraryVariableStorage.DequeueText, WrongSalespersonCodeErr);
+        Assert.AreEqual(SalespersonPurchaser.Code, LibraryVariableStorage.DequeueText(), WrongSalespersonCodeErr);
     end;
 
     [Test]
@@ -981,15 +978,15 @@ codeunit 136203 "Marketing Task Management"
         Task.Modify();
 
         // [WHEN] Task Card is open for viewing of this Task
-        TaskCardPage.OpenView;
+        TaskCardPage.OpenView();
         TaskCardPage.GotoRecord(Task);
 
         // [THEN] Contact Name value is visible and equals Contact.Name
-        Assert.IsFalse(TaskCardPage."Contact Name".HideValue, 'Contact Name value is hidden for Task.Type = Meeting');
+        Assert.IsFalse(TaskCardPage."Contact Name".HideValue(), 'Contact Name value is hidden for Task.Type = Meeting');
         TaskCardPage."Contact Name".AssertEquals(Contact.Name);
 
         // [THEN] Contact Company Name value is visible and equals Contact."Company Name"
-        Assert.IsFalse(TaskCardPage."Contact Company Name".HideValue, 'Contact Company Name value is hidden for Task.Type = Meeting');
+        Assert.IsFalse(TaskCardPage."Contact Company Name".HideValue(), 'Contact Company Name value is hidden for Task.Type = Meeting');
         TaskCardPage."Contact Company Name".AssertEquals(Contact."Company Name");
     end;
 
@@ -1010,7 +1007,7 @@ codeunit 136203 "Marketing Task Management"
         LibraryMarketing.CreateCompanyContactTask(Task, Task.Type::Meeting.AsInteger());
 
         // [GIVEN] Task Card page opened
-        TaskCard.OpenEdit;
+        TaskCard.OpenEdit();
         TaskCard.FILTER.SetFilter("No.", Task."No.");
 
         // [WHEN] Task Status is set to Complete
@@ -1282,7 +1279,6 @@ codeunit 136203 "Marketing Task Management"
     procedure MeetingTaskTypeSaaSNotAllowed()
     var
         Todo: Record "To-do";
-        SalespersonPurchaser: Record "Salesperson/Purchaser";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
     begin
         // [SCEANRIO 435531] Task with Type = Meeting should be allowed in SaaS
@@ -1308,7 +1304,7 @@ codeunit 136203 "Marketing Task Management"
         if IsInitialized then
             exit;
 
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
 
         IsInitialized := true;
         Commit();
@@ -1359,7 +1355,7 @@ codeunit 136203 "Marketing Task Management"
         LibraryMarketing.CreateTeam(Team);
 
         // Set global variable for Form Handler.
-        InitializeGlobalVariable;
+        InitializeGlobalVariable();
         TaskType2 := Type;
         AllDayEvent2 := AllDayEvent;
         SalespersonCode2 := SalespersonPurchaser.Code;
@@ -1369,7 +1365,7 @@ codeunit 136203 "Marketing Task Management"
 
         Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
         Task.FindFirst();
-        Task.SetRunFromForm;
+        Task.SetRunFromForm();
         Task.Validate("Team Code", Team.Code);
         Task.Modify(true);
 
@@ -1384,7 +1380,7 @@ codeunit 136203 "Marketing Task Management"
             Task.FindFirst();
             Task.TestField("Team Code", Team.Code);
         end else
-            Assert.IsFalse(Task.FindFirst, StrSubstNo(TaskExistErr, Task.TableCaption(), Task."No."));
+            Assert.IsFalse(Task.FindFirst(), StrSubstNo(TaskExistErr, Task.TableCaption(), Task."No."));
     end;
 
     local procedure InitializeGlobalVariable()
@@ -1424,7 +1420,7 @@ codeunit 136203 "Marketing Task Management"
     begin
         Task.CreateTaskFromTask(Task);
         Task.Validate(Type, Task.Type::"Phone Call");
-        Task.Validate("Contact No.", LibraryMarketing.CreateCompanyContactNo);
+        Task.Validate("Contact No.", LibraryMarketing.CreateCompanyContactNo());
         Task.Validate("Salesperson Code", SalesPersonCode);
         Task.Modify();
     end;
@@ -1443,7 +1439,7 @@ codeunit 136203 "Marketing Task Management"
     local procedure CreateSalespersonWithEmail(var SalespersonPurchaser: Record "Salesperson/Purchaser")
     begin
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
-        SalespersonPurchaser.Validate("E-Mail", LibraryUtility.GenerateRandomEmail);
+        SalespersonPurchaser.Validate("E-Mail", LibraryUtility.GenerateRandomEmail());
         SalespersonPurchaser.Modify(true);
         Commit();
     end;
@@ -1459,7 +1455,7 @@ codeunit 136203 "Marketing Task Management"
     local procedure CreateSalespersonWithOpportunity(var SalespersonPurchaser: Record "Salesperson/Purchaser"; var Opportunity: Record Opportunity)
     begin
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
-        LibraryMarketing.CreateOpportunity(Opportunity, LibraryMarketing.CreateCompanyContactNo);
+        LibraryMarketing.CreateOpportunity(Opportunity, LibraryMarketing.CreateCompanyContactNo());
         Opportunity.Validate("Salesperson Code", SalespersonPurchaser.Code);
         Opportunity.Modify(true);
     end;
@@ -1495,7 +1491,7 @@ codeunit 136203 "Marketing Task Management"
         Initialize();
         LibraryMarketing.CreateTeam(Team);
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
-        SalespersonPurchaser.Validate("E-Mail", LibraryUtility.GenerateRandomEmail);
+        SalespersonPurchaser.Validate("E-Mail", LibraryUtility.GenerateRandomEmail());
         SalespersonPurchaser.Modify(true);
         LibraryMarketing.CreateTeamSalesperson(TeamSalesperson, Team.Code, SalespersonPurchaser.Code);
         Commit();
@@ -1518,7 +1514,7 @@ codeunit 136203 "Marketing Task Management"
     local procedure FinishStepTaskWizard(var TempTask: Record "To-do" temporary)
     begin
         TempTask.Modify();
-        TempTask.CheckStatus;
+        TempTask.CheckStatus();
         TempTask.FinishWizard(false);
     end;
 
@@ -1767,8 +1763,8 @@ codeunit 136203 "Marketing Task Management"
         TempTask.Validate("Team Code", TeamCode);
         TempTask.Validate("Team Meeting Organizer", SalespersonCode2);
         TempTask.Modify();
-        TempTask.CheckAssignActivityStatus;
-        TempTask.FinishAssignActivity;
+        TempTask.CheckAssignActivityStatus();
+        TempTask.FinishAssignActivity();
     end;
 
     [ModalPageHandler]
@@ -1835,7 +1831,7 @@ codeunit 136203 "Marketing Task Management"
         MakePhoneCall.Date.AssertEquals(Today);
         MakePhoneCall."Time of Interaction".SetValue(Time);
         MakePhoneCall.Date.SetValue(Today - 1);
-        LibraryVariableStorage.Enqueue(MakePhoneCall."Time of Interaction".AsTime);
+        LibraryVariableStorage.Enqueue(MakePhoneCall."Time of Interaction".AsTime());
         LibraryVariableStorage.Enqueue(Today - 1);
 
         MakePhoneCall.Next.Invoke(); // step 2

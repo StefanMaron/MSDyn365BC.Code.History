@@ -20,18 +20,16 @@ codeunit 1799 "Import Config. Package File"
         Rec.SetRecFilter();
         if not CODEUNIT.Run(CODEUNIT::"Import Config. Package Files", Rec) then begin
             AssistedCompanySetupStatus.Get(CompanyName);
-            with JobQueueEntry do begin
-                Init();
-                ID := AssistedCompanySetupStatus."Task ID";
-                "User ID" := CopyStr(UserId(), 1, MaxStrLen("User ID"));
-                "Object Type to Run" := "Object Type to Run"::Codeunit;
-                "Object ID to Run" := CODEUNIT::"Import Config. Package Files";
-                Status := Status::Error;
-                "Error Message" := GetLastErrorText;
-                Description := DescriptionTxt;
-                InsertLogEntry(JobQueueLogEntry);
-                FinalizeLogEntry(JobQueueLogEntry);
-            end;
+            JobQueueEntry.Init();
+            JobQueueEntry.ID := AssistedCompanySetupStatus."Task ID";
+            JobQueueEntry."User ID" := CopyStr(UserId(), 1, MaxStrLen(JobQueueEntry."User ID"));
+            JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
+            JobQueueEntry."Object ID to Run" := CODEUNIT::"Import Config. Package Files";
+            JobQueueEntry.Status := JobQueueEntry.Status::Error;
+            JobQueueEntry."Error Message" := GetLastErrorText;
+            JobQueueEntry.Description := DescriptionTxt;
+            JobQueueEntry.InsertLogEntry(JobQueueLogEntry);
+            JobQueueEntry.FinalizeLogEntry(JobQueueLogEntry);
             Commit();
             Error(GetLastErrorText);
         end;

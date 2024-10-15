@@ -169,7 +169,7 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
                 field("Job No."; Rec."Job No.")
                 {
                     ApplicationArea = SalesReturnOrder;
-                    ToolTip = 'Specifies the number of the related job.';
+                    ToolTip = 'Specifies the number of the related project.';
                     Visible = false;
                 }
                 field("Blanket Order No."; Rec."Blanket Order No.")
@@ -369,17 +369,15 @@ page 5851 "Get Post.Doc - S.ShptLn Sbfrm"
         if IsHandled then
             exit(ReturnValue);
 
-        with SalesShptLine2 do begin
-            QtyNotReturned := 0;
-            if RevQtyFilter and (Type = Type::" ") then
-                exit("Attached to Line No." = 0);
-            if Type <> Type::Item then
-                exit(true);
-            CalcShippedSaleNotReturned(QtyNotReturned, RevUnitCostLCY, FillExactCostReverse);
-            if not RevQtyFilter then
-                exit(true);
-            exit(QtyNotReturned > 0);
-        end;
+        QtyNotReturned := 0;
+        if RevQtyFilter and (SalesShptLine2.Type = SalesShptLine2.Type::" ") then
+            exit(SalesShptLine2."Attached to Line No." = 0);
+        if SalesShptLine2.Type <> SalesShptLine2.Type::Item then
+            exit(true);
+        SalesShptLine2.CalcShippedSaleNotReturned(QtyNotReturned, RevUnitCostLCY, FillExactCostReverse);
+        if not RevQtyFilter then
+            exit(true);
+        exit(QtyNotReturned > 0);
     end;
 
     local procedure GetQtyReturned(): Decimal

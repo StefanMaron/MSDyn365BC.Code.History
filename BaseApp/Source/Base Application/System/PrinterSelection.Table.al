@@ -9,6 +9,7 @@ table 78 "Printer Selection"
     Caption = 'Printer Selection';
     DataPerCompany = false;
     LookupPageID = "Printer Selections";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -38,7 +39,7 @@ table 78 "Printer Selection"
         }
         field(4; "Report Caption"; Text[250])
         {
-            CalcFormula = Lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
+            CalcFormula = lookup(AllObjWithCaption."Object Caption" where("Object Type" = const(Report),
                                                                            "Object ID" = field("Report ID")));
             Caption = 'Report Caption';
             Editable = false;

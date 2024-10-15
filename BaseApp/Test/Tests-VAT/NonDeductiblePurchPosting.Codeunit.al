@@ -139,7 +139,6 @@ codeunit 134283 "Non-Deductible Purch. Posting"
         PurchPost: Codeunit "Purch.-Post";
         TotalVATAmount: Decimal;
         VATIdentifier: Code[20];
-        DocNo: Code[20];
     begin
         // [SCENARIO 456471] Combine VAT amount line from two purchase lines (first has Non-Deductible VAT, second is not) has correct Non-Deductible VAT Base and Non-Deductible VAT Amount
 
@@ -183,15 +182,6 @@ codeunit 134283 "Non-Deductible Purch. Posting"
         LineGLAccount: Record "G/L Account";
         PurchHeader: Record "Purchase Header";
         PurchLine: Record "Purchase Line";
-        VATPostingSetup: Record "VAT Posting Setup";
-        VATEntry: Record "VAT Entry";
-        GLEntry: Record "G/L Entry";
-        GeneralPostingSetup: Record "General Posting Setup";
-        GeneralPostingType: Enum "General Posting Type";
-        NonDeductibleVATPct: Decimal;
-        NonDeductibleVATBase: Decimal;
-        NonDeductibleVATAmount: Decimal;
-        DocNo: Code[20];
     begin
         // [SCENARIO 456471] Stan cannot create purchase order with prepayment and Non-Deductible VAT
 
@@ -315,7 +305,7 @@ codeunit 134283 "Non-Deductible Purch. Posting"
         Assert.AreEqual(VATEntry."Non-Deductible VAT Amount", GLEntry."Non-Deductible VAT Amount", AmountMustBeEqualErr);
         Assert.AreEqual(VATEntry."Non-Deductible VAT Amount", GLEntry."VAT Amount", AmountMustBeEqualErr);
     end;
-    
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

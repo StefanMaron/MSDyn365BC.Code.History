@@ -104,7 +104,7 @@ codeunit 5770 "Whse.-Service Release"
             WarehouseRequest."Location Code" := ServiceLine."Location Code";
             WarehouseRequest."Destination Type" := WarehouseRequest."Destination Type"::Customer;
             WarehouseRequest."Destination No." := ServiceHeader."Bill-to Customer No.";
-            WarehouseRequest."External Document No." := '';
+            WarehouseRequest."External Document No." := ServiceHeader."External Document No.";
             WarehouseRequest."Shipment Date" := ServiceLine.GetShipmentDate();
             WarehouseRequest."Shipment Method Code" := ServiceHeader."Shipment Method Code";
             WarehouseRequest."Shipping Agent Code" := ServiceHeader."Shipping Agent Code";
@@ -119,14 +119,19 @@ codeunit 5770 "Whse.-Service Release"
     var
         ServiceLineWithItem: Record "Service Line";
     begin
-        with ServiceLineWithItem do begin
-            SetRange("Document Type", ServiceLine."Document Type");
-            SetRange("Document No.", ServiceLine."Document No.");
-            SetRange("Location Code", ServiceLine."Location Code");
-            SetRange(Type, Type::Item);
-            SetRange("Completely Shipped", false);
-            exit(IsEmpty);
-        end;
+        ServiceLineWithItem.SetRange("Document Type", ServiceLine."Document Type");
+        ServiceLineWithItem.SetRange("Document No.", ServiceLine."Document No.");
+        ServiceLineWithItem.SetRange("Location Code", ServiceLine."Location Code");
+        ServiceLineWithItem.SetRange(Type, ServiceLineWithItem.Type::Item);
+        ServiceLineWithItem.SetRange("Completely Shipped", false);
+        exit(ServiceLineWithItem.IsEmpty);
+    end;
+
+    procedure UpdateExternalDocNoForReleasedOrder(ServiceHeader: Record "Service Header")
+    begin
+        SetWhseRqstFiltersByStatus(ServiceHeader, WarehouseRequest, ServiceHeader."Release Status"::"Released to Ship");
+        if not WarehouseRequest.IsEmpty() then
+            WarehouseRequest.ModifyAll("External Document No.", ServiceHeader."External Document No.");
     end;
 
     local procedure SetWhseRqstFiltersByStatus(ServiceHeader: Record "Service Header"; var WarehouseRequest: Record "Warehouse Request"; Status: Enum "Service Doc. Release Status")

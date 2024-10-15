@@ -68,11 +68,11 @@ codeunit 141020 "ERM Miscellaneous Features"
 
         // [GIVEN] Create Payment Method with Bank Account without Bank Account Posting Group. Create Purchase Order with that Payment method Code.
         Initialize();
-        CreatePaymentMethod(PaymentMethod, PaymentMethod."Bal. Account Type"::"Bank Account", CreateBankAccount);
+        CreatePaymentMethod(PaymentMethod, PaymentMethod."Bal. Account Type"::"Bank Account", CreateBankAccount());
         LibraryPurchase.CreateVendor(Vendor);
         CreatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Order, Vendor."No.",
-          PaymentMethod.Code, PurchaseLine.Type::"G/L Account", CreateGLAccount);
+          PaymentMethod.Code, PurchaseLine.Type::"G/L Account", CreateGLAccount());
 
         // [WHEN] Post Purchase Order.
         asserterror PostPurchaseDocument(PurchaseLine."Document Type", PurchaseLine."Document No.");
@@ -94,12 +94,12 @@ codeunit 141020 "ERM Miscellaneous Features"
 
         // [GIVEN] Create Payment Method with G/L Account without Direct Posting. Create Purchase Invoice with that Payment method Code.
         Initialize();
-        CreatePaymentMethod(PaymentMethod, PaymentMethod."Bal. Account Type"::"G/L Account", CreateGLAccount);
+        CreatePaymentMethod(PaymentMethod, PaymentMethod."Bal. Account Type"::"G/L Account", CreateGLAccount());
         UpdateGLAccountDirectPosting(PaymentMethod."Bal. Account No.", false);  // Direct Posting - FALSE.
         LibraryPurchase.CreateVendor(Vendor);
         CreatePurchaseDocument(
           PurchaseLine, PurchaseLine."Document Type"::Invoice, Vendor."No.",
-          PaymentMethod.Code, PurchaseLine.Type::"G/L Account", CreateGLAccount);
+          PaymentMethod.Code, PurchaseLine.Type::"G/L Account", CreateGLAccount());
 
         // [WHEN] Post Purchase Invoice.
         asserterror PostPurchaseDocument(PurchaseLine."Document Type", PurchaseLine."Document No.");
@@ -240,7 +240,7 @@ codeunit 141020 "ERM Miscellaneous Features"
 
         // [GIVEN] Find G/L Account of Account Type Posting.
         Initialize();
-        FilePath := TemporaryPath + LibraryUtility.GenerateGUID + '.xml';
+        FilePath := TemporaryPath + LibraryUtility.GenerateGUID() + '.xml';
         GLAccount.SetRange("Account Type", GLAccount."Account Type"::Posting);
         GLAccount.FindFirst();
         Commit();  // Commit required.
@@ -275,16 +275,16 @@ codeunit 141020 "ERM Miscellaneous Features"
         CreateGenJournalBatch(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo, LibraryRandom.RandDec(100, 2));
+          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), LibraryRandom.RandDec(100, 2));
 
         // [GIVEN] Open payment journal page with created line
         Commit();
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         PaymentJournal.GotoRecord(GenJournalLine);
 
         // [WHEN] Print Remittance Advance is being hit
-        PaymentJournal.PrintRemittanceAdvance.Invoke;
+        PaymentJournal.PrintRemittanceAdvance.Invoke();
 
         // [THEN] Report Remittance Advice - Journal opened
         // Verified by having RemittanceAdviceJournalRequestPageHandler
@@ -321,7 +321,7 @@ codeunit 141020 "ERM Miscellaneous Features"
         VendorLedgerEntries.RemittanceAdvance.Invoke();
 
         // [THEN] Report Remittance Advice - Entries run (saved by OnAfterSaveReportAsPDF)
-        NameValueBuffer.Get(SessionId);
+        NameValueBuffer.Get(SessionId());
         Assert.IsTrue(FILE.Exists(NameValueBuffer.Value), '');
         UnbindSubscription(ERMMiscellaneousFeatures);
     end;
@@ -347,7 +347,7 @@ codeunit 141020 "ERM Miscellaneous Features"
         CreateGenJournalBatch(GenJournalBatch);
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::Payment,
-          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo, LibraryRandom.RandDec(100, 2));
+          GenJournalLine."Account Type"::Vendor, LibraryPurchase.CreateVendorNo(), LibraryRandom.RandDec(100, 2));
 
         // [GIVEN] Report Selection for V.Remittance is empty
         ReportSelections.SetRange(Usage, ReportSelections.Usage::"V.Remittance");
@@ -355,12 +355,12 @@ codeunit 141020 "ERM Miscellaneous Features"
 
         // [GIVEN] Open payment journal page with created line
         Commit();
-        PaymentJournal.OpenEdit;
+        PaymentJournal.OpenEdit();
         PaymentJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
         PaymentJournal.GotoRecord(GenJournalLine);
 
         // [WHEN] Print Remittance Advance is being hit
-        PaymentJournal.PrintRemittanceAdvance.Invoke;
+        PaymentJournal.PrintRemittanceAdvance.Invoke();
 
         // [THEN] Report Remittance Advice - Journal opened
         // Verified by having RemittanceAdviceJournalRequestPageHandler
@@ -377,7 +377,7 @@ codeunit 141020 "ERM Miscellaneous Features"
         ServiceLine: Record "Service Line";
     begin
         LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::"Credit Memo", CustomerNo);
-        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", CreateGLAccount);
+        LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::"G/L Account", CreateGLAccount());
         ServiceLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));
         ServiceLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
         ServiceLine.Modify(true);
@@ -536,7 +536,7 @@ codeunit 141020 "ERM Miscellaneous Features"
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.FindFirst();
-        Assert.AreNearlyEqual(GLEntry.Amount, Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustEqualMsg);
+        Assert.AreNearlyEqual(GLEntry.Amount, Amount, LibraryERM.GetAmountRoundingPrecision(), AmountMustEqualMsg);
     end;
 
     [RequestPageHandler]
@@ -549,7 +549,7 @@ codeunit 141020 "ERM Miscellaneous Features"
         ExportConsolidation.ClientFileNameControl.SetValue(FilePath);
         ExportConsolidation.StartDate.SetValue(WorkDate());
         ExportConsolidation.EndDate.SetValue(WorkDate());
-        ExportConsolidation.OK.Invoke;
+        ExportConsolidation.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -575,7 +575,7 @@ codeunit 141020 "ERM Miscellaneous Features"
         SelectSendingOptions."E-Mail".SetValue(DocumentSendingProfile."E-Mail"::No);
         SelectSendingOptions.Disk.SetValue(DocumentSendingProfile.Disk::PDF);
         SelectSendingOptions."Electronic Document".SetValue(DocumentSendingProfile."Electronic Document"::No);
-        SelectSendingOptions.OK.Invoke();
+        SelectSendingOptions.OK().Invoke();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"File Management", 'OnBeforeDownloadHandler', '', false, false)]
@@ -584,7 +584,7 @@ codeunit 141020 "ERM Miscellaneous Features"
         NameValueBuffer: Record "Name/Value Buffer";
     begin
         NameValueBuffer.Init();
-        NameValueBuffer.ID := SessionId;
+        NameValueBuffer.ID := SessionId();
         NameValueBuffer.Value := FromFileName;
         NameValueBuffer.Insert(true);
         IsHandled := true;
@@ -603,7 +603,7 @@ codeunit 141020 "ERM Miscellaneous Features"
             FileManagement.BLOBExportToServerFile(TempBlob, FileName);
 
             NameValueBuffer.Init();
-            NameValueBuffer.ID := SessionId;
+            NameValueBuffer.ID := SessionId();
             NameValueBuffer.Value := FileName;
             NameValueBuffer.Insert(true);
         end;

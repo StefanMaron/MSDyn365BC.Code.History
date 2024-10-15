@@ -23,7 +23,7 @@ page 6401 "Flow Selector"
             grid(Control10)
             {
                 ShowCaption = false;
-                Visible = IsUserReadyForFlow AND NOT IsErrorMessageVisible;
+                Visible = IsUserReadyForFlow and not IsErrorMessageVisible;
                 field(EnvironmentNameText; EnvironmentNameText)
                 {
                     ApplicationArea = Basic, Suite;
@@ -33,8 +33,8 @@ page 6401 "Flow Selector"
             group(Control3)
             {
                 ShowCaption = false;
-                Visible = IsUserReadyForFlow AND NOT IsErrorMessageVisible;
-                usercontrol(FlowAddin; "Microsoft.Dynamics.Nav.Client.FlowIntegration")
+                Visible = IsUserReadyForFlow and not IsErrorMessageVisible;
+                usercontrol(FlowAddin; FlowIntegration)
                 {
                     ApplicationArea = Basic, Suite;
 
@@ -79,35 +79,13 @@ page 6401 "Flow Selector"
     {
         area(processing)
         {
-#if not CLEAN21
-            action(FlowEntries)
-            {
-                ApplicationArea = Basic, Suite;
-                Caption = 'Flow Entries';
-                Image = Flow;
-                ToolTip = 'View and configure Power Automate flow entries.';
-                Visible = false;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
-                ObsoleteTag = '21.0';
-
-                trigger OnAction()
-                var
-                    WorkflowWebhookEntry: Record "Workflow Webhook Entry";
-                begin
-                    WorkflowWebhookEntry.SetDefaultFilter(WorkflowWebhookEntry);
-                    PAGE.Run(PAGE::"Workflow Webhook Entries", WorkflowWebhookEntry);
-                end;
-
-            }
-#endif
             action(OpenMyFlows)
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Open Power Automate';
                 Image = Flow;
                 ToolTip = 'View and configure flows on the Power Automate website.';
-                Visible = NOT IsPPE;
+                Visible = not IsPPE;
 
                 trigger OnAction()
                 begin
@@ -120,7 +98,7 @@ page 6401 "Flow Selector"
                 Caption = 'Select Environment';
                 Image = CheckList;
                 ToolTip = 'Select your Power Automate environment.';
-                Visible = NOT IsPPE;
+                Visible = not IsPPE;
 
                 trigger OnAction()
                 var
@@ -157,7 +135,7 @@ page 6401 "Flow Selector"
                 Image = Setup;
                 RunObject = Page "Content Pack Setup Wizard";
                 ToolTip = 'Show information for connecting to Power BI content packs.';
-                Visible = NOT IsPPE;
+                Visible = not IsPPE;
             }
         }
         area(Promoted)
@@ -165,14 +143,6 @@ page 6401 "Flow Selector"
             group(Category_Process)
             {
                 Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
-#if not CLEAN21
-                actionref(FlowEntries_Promoted; FlowEntries)
-                {
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'This action has been moved to the tab dedicated to Power Automate';
-                    ObsoleteTag = '21.0';
-                }
-#endif
                 actionref(OpenMyFlows_Promoted; OpenMyFlows)
                 {
                 }

@@ -10,6 +10,7 @@ table 225 "Post Code"
 {
     Caption = 'Post Code';
     LookupPageID = "Post Codes";
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -134,12 +135,6 @@ table 225 "Post Code"
             if not GuiAllowed then
                 exit;
 
-#if not CLEAN21
-            IsHandled := false;
-            OnBeforeValidateCity(CityTxt, PostCode, CountyTxt, CountryCode, UseDialog, IsHandled);
-            if IsHandled then
-                exit;
-#endif
             if CityTxt <> '' then begin
                 SearchCity := CityTxt;
                 PostCodeRec.SetCurrentKey("Search City");
@@ -358,13 +353,6 @@ table 225 "Post Code"
     begin
     end;
 
-#if not CLEAN21
-    [Obsolete('Replaced by OnBeforeValidateCityProcedure', '21.0')]
-    [IntegrationEvent(true, false)]
-    local procedure OnBeforeValidateCity(var CityTxt: Text[30]; var PostCode: Code[20]; var CountyTxt: Text[30]; var CountryCode: Code[10]; UseDialog: Boolean; var IsHandled: Boolean)
-    begin
-    end;
-#endif
     [IntegrationEvent(true, false)]
     local procedure OnBeforeValidateCityProcedure(var CityTxt: Text[30]; var PostCode: Code[20]; var CountyTxt: Text[30]; var CountryCode: Code[10]; UseDialog: Boolean; var IsHandled: Boolean)
     begin

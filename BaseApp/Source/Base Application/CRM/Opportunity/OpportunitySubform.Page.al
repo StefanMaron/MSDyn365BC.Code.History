@@ -8,7 +8,7 @@ page 5125 "Opportunity Subform"
     PageType = ListPart;
     SourceTable = "Opportunity Entry";
     SourceTableView = sorting("Opportunity No.")
-                      order(Descending);
+                      order(descending);
 
     layout
     {

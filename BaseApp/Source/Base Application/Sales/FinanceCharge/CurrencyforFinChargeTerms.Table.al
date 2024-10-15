@@ -8,6 +8,7 @@ table 328 "Currency for Fin. Charge Terms"
     DataCaptionFields = "Fin. Charge Terms Code";
     DrillDownPageID = "Currencies for Fin. Chrg Terms";
     LookupPageID = "Currencies for Fin. Chrg Terms";
+    DataClassification = CustomerContent;
 
     fields
     {

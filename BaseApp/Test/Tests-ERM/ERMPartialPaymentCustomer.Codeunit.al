@@ -128,7 +128,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
 
         // Verify: Verify Remaining Amount using Delta Assert.
-        DeltaAssert.Assert;
+        DeltaAssert.Assert();
     end;
 
     [Test]
@@ -240,7 +240,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         LibraryERM.PostCustLedgerApplication(CustLedgerEntry);
 
         // Verify: Payment/Refund Line Remaining Amount.
-        DeltaAssert.Assert;
+        DeltaAssert.Assert();
     end;
 
     [Test]
@@ -578,7 +578,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         NumberOfLines := 1 + LibraryRandom.RandInt(5);  // Use Random Number to generate more than one line.
         SelectGenJournalBatch(GenJournalBatch);
         CreateDocumentLine(
-          GenJournalLine, GenJournalBatch, NumberOfLines, DocumentType, CreateCustomer, LibraryRandom.RandDec(100, 2) * AmountSign);
+          GenJournalLine, GenJournalBatch, NumberOfLines, DocumentType, CreateCustomer(), LibraryRandom.RandDec(100, 2) * AmountSign);
         CreateDocumentLine(GenJournalLine, GenJournalBatch, 1, DocumentType2, GenJournalLine."Account No.", -GenJournalLine.Amount);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -601,7 +601,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         // Setup: Set CreditWarnings to No Warning on Sales Receivable Setup.
         // Create and Post General Journal Line with Document Type as Invoice.
         Initialize();
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::Invoice);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -625,7 +625,7 @@ codeunit 134002 "ERM Partial Payment Customer"
         // Setup: Set CreditWarnings to No Warning on Sales Receivable Setup.
         // Create and Post General Journal Line with Document Type as Credit Memo.
         Initialize();
-        LibrarySales.SetCreditWarningsToNoWarnings;
+        LibrarySales.SetCreditWarningsToNoWarnings();
         CreateGeneralJournalLine(GenJournalLine, GenJournalLine."Document Type"::"Credit Memo");
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -728,10 +728,10 @@ codeunit 134002 "ERM Partial Payment Customer"
         GenJournalLine2.Validate("Bal. Account No.", GenJournalLine."Bal. Account No.");
         GenJournalLine2.Modify(true);
 
-        GeneralJournal.OpenEdit;
+        GeneralJournal.OpenEdit();
         GeneralJournal.CurrentJnlBatchName.SetValue(GenJournalBatch.Name);
-        GeneralJournal."Apply Entries".Invoke;  // Apply Entries.
-        GeneralJournal.Post.Invoke;  // Post General Journal.
+        GeneralJournal."Apply Entries".Invoke();  // Apply Entries.
+        GeneralJournal.Post.Invoke();  // Post General Journal.
     end;
 
     local procedure ApplyPaymentToCustomer(CustomerNo: Code[20]; NumberOfLines: Integer; DocumentType: Enum "Gen. Journal Document Type"; DocumentType2: Enum "Gen. Journal Document Type")
@@ -803,7 +803,7 @@ codeunit 134002 "ERM Partial Payment Customer"
     begin
         // Select Journal Batch Name and Template Name.
         SelectGenJournalBatch(GenJournalBatch);
-        CreateGenJnlLine(GenJournalLine, GenJournalBatch, DocumentType, InvoiceAmount, CreateCustomer, IncStr(GenJournalLine."Document No."));
+        CreateGenJnlLine(GenJournalLine, GenJournalBatch, DocumentType, InvoiceAmount, CreateCustomer(), IncStr(GenJournalLine."Document No."));
         DocumentNo := GenJournalLine."Document No.";
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         CreateGenJnlLine(
@@ -858,7 +858,7 @@ codeunit 134002 "ERM Partial Payment Customer"
 
         // Value of Document No. is not important.
         GenJournalLine.Validate("Document No.", GenJournalLine."Journal Batch Name" + Format(GenJournalLine."Line No."));
-        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+        GenJournalLine.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
         GenJournalLine.Modify(true);
     end;
 
@@ -941,7 +941,7 @@ codeunit 134002 "ERM Partial Payment Customer"
     begin
         // Create multiple General Journal Lines for Invoice/Credit Memo and single for Payment/Refund.
         SelectGenJournalBatch(GenJournalBatch);
-        CreateDocumentLine(GenJournalLine, GenJournalBatch, NoOfLines, DocumentType, CreateCustomer, Amount);
+        CreateDocumentLine(GenJournalLine, GenJournalBatch, NoOfLines, DocumentType, CreateCustomer(), Amount);
         CreateDocumentLine(GenJournalLine, GenJournalBatch, 1, DocumentType2, GenJournalLine."Account No.", Amount2);
         SaveGenJnlLineInTempTable(TempGenJournalLine, GenJournalLine);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
@@ -1064,8 +1064,8 @@ codeunit 134002 "ERM Partial Payment Customer"
     [Scope('OnPrem')]
     procedure ApplyCustomerEntriesHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1073,8 +1073,8 @@ codeunit 134002 "ERM Partial Payment Customer"
     procedure ApplyCustomerEntriesWithCustomAmountHandler(var ApplyCustomerEntries: TestPage "Apply Customer Entries")
     begin
         ApplyCustomerEntries."Set Applies-to ID".Invoke();
-        ApplyCustomerEntries."Amount to Apply".SetValue(LibraryVariableStorage.DequeueDecimal);
-        ApplyCustomerEntries.OK.Invoke();
+        ApplyCustomerEntries."Amount to Apply".SetValue(LibraryVariableStorage.DequeueDecimal());
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [ConfirmHandler]

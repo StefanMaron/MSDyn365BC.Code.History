@@ -18,7 +18,7 @@ page 1160 "Sales Documents"
     PageType = ListPart;
     SourceTable = "Cust. Ledger Entry";
     SourceTableView = sorting("Entry No.")
-                      order(Descending);
+                      order(descending);
 
     layout
     {

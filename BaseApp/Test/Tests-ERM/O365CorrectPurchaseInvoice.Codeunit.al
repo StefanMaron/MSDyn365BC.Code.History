@@ -91,11 +91,11 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         CheckSomethingIsPosted(Item, Vendor);
 
         // EXERCISE
-        PostedPurchaseInvoices.OpenView;
+        PostedPurchaseInvoices.OpenView();
         PostedPurchaseInvoices.GotoRecord(PurchInvHeader);
         LibraryVariableStorage.Enqueue(true); // for the confirm handler
-        PurchaseInvoice.Trap;
-        PostedPurchaseInvoices.CorrectInvoice.Invoke;
+        PurchaseInvoice.Trap();
+        PostedPurchaseInvoices.CorrectInvoice.Invoke();
         PurchaseInvoice.Close();
 
         // VERIFY
@@ -119,11 +119,11 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         CheckSomethingIsPosted(Item, Vendor);
 
         // EXERCISE
-        PostedPurchaseInvoice.OpenView;
+        PostedPurchaseInvoice.OpenView();
         PostedPurchaseInvoice.GotoRecord(PurchInvHeader);
         LibraryVariableStorage.Enqueue(true); // for the confirm handler
-        PurchaseInvoice.Trap;
-        PostedPurchaseInvoice.CorrectInvoice.Invoke;
+        PurchaseInvoice.Trap();
+        PostedPurchaseInvoice.CorrectInvoice.Invoke();
         PurchaseInvoice.Close();
 
         // VERIFY
@@ -187,12 +187,12 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         CheckSomethingIsPosted(Item, Vendor);
 
         // EXERCISE
-        PostedPurchaseInvoices.OpenView;
+        PostedPurchaseInvoices.OpenView();
         PostedPurchaseInvoices.GotoRecord(PurchInvHeader);
         LibraryVariableStorage.Enqueue(true); // for the cancel confirm handler
         LibraryVariableStorage.Enqueue(true); // for the open credit memo confirm handler
-        PostedPurchaseCreditMemo.Trap;
-        PostedPurchaseInvoices.CancelInvoice.Invoke;
+        PostedPurchaseCreditMemo.Trap();
+        PostedPurchaseInvoices.CancelInvoice.Invoke();
         PostedPurchaseCreditMemo.Close();
 
         // VERIFY
@@ -216,12 +216,12 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         CheckSomethingIsPosted(Item, Vendor);
 
         // EXERCISE
-        PostedPurchaseInvoice.OpenView;
+        PostedPurchaseInvoice.OpenView();
         PostedPurchaseInvoice.GotoRecord(PurchInvHeader);
         LibraryVariableStorage.Enqueue(true); // for the cancel confirm handler
         LibraryVariableStorage.Enqueue(true); // for the open credit memo confirm handler
-        PostedPurchaseCreditMemo.Trap;
-        PostedPurchaseInvoice.CancelInvoice.Invoke;
+        PostedPurchaseCreditMemo.Trap();
+        PostedPurchaseInvoice.CancelInvoice.Invoke();
         PostedPurchaseCreditMemo.Close();
 
         // VERIFY
@@ -250,7 +250,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         Assert.AreEqual(1, LastItemLedgEntry."Remaining Quantity", '');
 
         // EXERCISE
-        TurnOffExactCostReversing;
+        TurnOffExactCostReversing();
         CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchHeaderCorrection);
 
         // VERIFY: The correction must use Exact Cost reversing
@@ -260,7 +260,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
           'The quantity on the receipt item ledger should appear as returned');
 
         LastItemLedgEntry.SetRange("Applies-to Entry", LastItemLedgEntry."Entry No.");
-        Assert.IsTrue(LastItemLedgEntry.FindFirst, '');
+        Assert.IsTrue(LastItemLedgEntry.FindFirst(), '');
 
         CheckEverythingIsReverted(Item, Vend, GLEntry);
     end;
@@ -348,12 +348,12 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Item.Type::Inventory, Vendor, 1, 1, PurchInvHeader);
         CheckSomethingIsPosted(Item, Vendor);
 
-        PurchaseCreditMemo.Trap;
+        PurchaseCreditMemo.Trap();
 
         // EXERCISE
-        PostedPurchaseInvoices.OpenView;
+        PostedPurchaseInvoices.OpenView();
         PostedPurchaseInvoices.GotoRecord(PurchInvHeader);
-        PostedPurchaseInvoices.CreateCreditMemo.Invoke;
+        PostedPurchaseInvoices.CreateCreditMemo.Invoke();
 
         PurchaseCreditMemo.Close();
 
@@ -1289,13 +1289,13 @@ codeunit 138025 "O365 Correct Purchase Invoice"
     begin
         // [FEATURE] [UT] [UI] [Purchase] [Invoice]
         // [SCENARIO] "Correct" and "Cancel" actions are visible on "Posted Purchase Invoice" page when foundation setup is disabled
-        LibraryApplicationArea.DisableApplicationAreaSetup;
+        LibraryApplicationArea.DisableApplicationAreaSetup();
 
-        PostedPurchaseInvoice.OpenView;
-        Assert.IsTrue(PostedPurchaseInvoice.Cancelled.Visible, 'Cancelled.Visible');
-        Assert.IsTrue(PostedPurchaseInvoice.CorrectInvoice.Visible, 'action Correct.Visible');
-        Assert.IsTrue(PostedPurchaseInvoice.CancelInvoice.Visible, 'action Cancel.Visible');
-        Assert.IsFalse(PostedPurchaseInvoice.ShowCreditMemo.Visible, 'action ShowCreditMemo.Visible');
+        PostedPurchaseInvoice.OpenView();
+        Assert.IsTrue(PostedPurchaseInvoice.Cancelled.Visible(), 'Cancelled.Visible');
+        Assert.IsTrue(PostedPurchaseInvoice.CorrectInvoice.Visible(), 'action Correct.Visible');
+        Assert.IsTrue(PostedPurchaseInvoice.CancelInvoice.Visible(), 'action Cancel.Visible');
+        Assert.IsFalse(PostedPurchaseInvoice.ShowCreditMemo.Visible(), 'action ShowCreditMemo.Visible');
     end;
 
     [Test]
@@ -1317,10 +1317,10 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PostedPurchaseInvoice.Trap();
         Page.Run(Page::"Posted Purchase Invoice", PurchInvHeader);
         // [THEN] Actions CorrectInvoice and CancelInvoice are invisible, action ShowCreditMemo is visible
-        Assert.IsTrue(PostedPurchaseInvoice.Cancelled.Visible, 'Cancelled.Visible');
-        Assert.IsFalse(PostedPurchaseInvoice.CorrectInvoice.Visible, 'action Correct.Visible');
-        Assert.IsFalse(PostedPurchaseInvoice.CancelInvoice.Visible, 'action Cancel.Visible');
-        Assert.IsTrue(PostedPurchaseInvoice.ShowCreditMemo.Visible, 'action ShowCreditMemo.Visible');
+        Assert.IsTrue(PostedPurchaseInvoice.Cancelled.Visible(), 'Cancelled.Visible');
+        Assert.IsFalse(PostedPurchaseInvoice.CorrectInvoice.Visible(), 'action Correct.Visible');
+        Assert.IsFalse(PostedPurchaseInvoice.CancelInvoice.Visible(), 'action Cancel.Visible');
+        Assert.IsTrue(PostedPurchaseInvoice.ShowCreditMemo.Visible(), 'action ShowCreditMemo.Visible');
     end;
 
     [Test]
@@ -1342,10 +1342,10 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PostedPurchaseInvoices.OpenView();
         PostedPurchaseInvoices.GoToRecord(PurchInvHeader);
         // [THEN] Actions CorrectInvoice and CancelInvoice are invisible, action ShowCreditMemo is visible
-        Assert.IsTrue(PostedPurchaseInvoices.Cancelled.Visible, 'Cancelled.Visible');
-        Assert.IsFalse(PostedPurchaseInvoices.CorrectInvoice.Visible, 'action Correct.Visible');
-        Assert.IsFalse(PostedPurchaseInvoices.CancelInvoice.Visible, 'action Cancel.Visible');
-        Assert.IsTrue(PostedPurchaseInvoices.ShowCreditMemo.Visible, 'action ShowCreditMemo.Visible');
+        Assert.IsTrue(PostedPurchaseInvoices.Cancelled.Visible(), 'Cancelled.Visible');
+        Assert.IsFalse(PostedPurchaseInvoices.CorrectInvoice.Visible(), 'action Correct.Visible');
+        Assert.IsFalse(PostedPurchaseInvoices.CancelInvoice.Visible(), 'action Cancel.Visible');
+        Assert.IsTrue(PostedPurchaseInvoices.ShowCreditMemo.Visible(), 'action ShowCreditMemo.Visible');
     end;
 
     [Test]
@@ -1369,13 +1369,13 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         CreateAndPostPurchaseOrderForNewItemAndVendor(Item, Item.Type::Inventory, Vendor, 1, 1, PurchInvHeader);
         CheckSomethingIsPosted(Item, Vendor);
 
-        PostedPurchaseInvoice.OpenEdit;
+        PostedPurchaseInvoice.OpenEdit();
         PostedPurchaseInvoice.GotoRecord(PurchInvHeader);
-        PostedPurchaseInvoice.CancelInvoice.Invoke;
+        PostedPurchaseInvoice.CancelInvoice.Invoke();
 
         CheckEverythingIsReverted(Item, Vendor, GLEntry);
 
-        LibraryVariableStorage.AssertEmpty;
+        LibraryVariableStorage.AssertEmpty();
     end;
 
     [Test]
@@ -1416,7 +1416,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PurchInvHeader: Record "Purch. Inv. Header";
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
         CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
-        NoSeriesManagement: Codeunit NoSeriesManagement;
+        NoSeries: Codeunit "No. Series";
     begin
         // [SCENARIO] Cancel posted purchase invoice with empty "Default Cancel Reason Code" in Purchase Setup
         Initialize();
@@ -1431,12 +1431,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         asserterror CorrectPostedPurchInvoice.CancelPostedInvoice(PurchInvHeader);
         // [THEN] Cancel failed due to testfield of "Reason Code" in the credit memo
         PurchasesPayablesSetup.Get();
-        Assert.ExpectedError(
-          StrSubstNo(
-            ReasonCodeErr,
-            NoSeriesManagement.GetNextNo(
-              PurchasesPayablesSetup."Credit Memo Nos.",
-              PurchInvHeader."Posting Date", false)));
+        Assert.ExpectedError(StrSubstNo(ReasonCodeErr, NoSeries.PeekNextNo(PurchasesPayablesSetup."Credit Memo Nos.", PurchInvHeader."Posting Date")));
     end;
 
     [Test]
@@ -1494,7 +1489,6 @@ codeunit 138025 "O365 Correct Purchase Invoice"
     [Scope('OnPrem')]
     procedure TestCorrectPostedPurchaseInvoice2LinesOneZeroUnitCost()
     var
-        Vendor: Record Vendor;
         Item1: Record Item;
         Item2: Record Item;
         PurchaseHeader: Record "Purchase Header";
@@ -1545,7 +1539,6 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PostedPurchaseInvoicePage: TestPage "Posted Purchase Invoice";
         PurchaseOrderPage: TestPage "Purchase Order";
         InvoiceNo: Code[20];
-        ShipmentNo: Code[20];
     begin
         // [FEATURE] [Correct] [Credit Memo] [Receipt] [UI]
         // [SCENARIO 365667] System opens purchase order when Stan corrects invoice posted from that purchase order
@@ -1588,7 +1581,6 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PostedPurchaseInvoicePage: TestPage "Posted Purchase Invoice";
         PurchaseOrderPage: TestPage "Purchase Order";
         InvoiceNo: Code[20];
-        ShipmentNo: Code[20];
     begin
         // [FEATURE] [Correct] [Credit Memo] [Shipment] [UI]
         // [SCENARIO 365667] System opens purchase order when Stan corrects invoice posted via "get shipment lines" and all shipments relate to that single order
@@ -1617,7 +1609,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
             PurchaseLineOrder[1]."Quantity Received", PurchaseLineOrder[1]."Quantity Invoiced", PurchaseLineOrder[1]."Quantity Received");
         VerifyPurchaseReceiptLine(
             PurchaseLineOrder[2],
-             PurchaseLineOrder[2]."Quantity Received", PurchaseLineOrder[2]."Quantity Invoiced", PurchaseLineOrder[1]."Quantity Received");
+             PurchaseLineOrder[2]."Quantity Received", PurchaseLineOrder[2]."Quantity Invoiced", PurchaseLineOrder[2]."Quantity Received");
 
         CreatePurchaseInvoiceFromReceipt(PurchaseHeaderInvoice, PurchaseLineInvoice, PurchaseHeaderOrder."Buy-from Vendor No.", PurchaseLineOrder);
 
@@ -1653,7 +1645,6 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PostedPurchaseInvoicePage: TestPage "Posted Purchase Invoice";
         PurchaseOrderPage: TestPage "Purchase Order";
         InvoiceNo: Code[20];
-        ShipmentNo: Code[20];
     begin
         // [FEATURE] [Correct] [Credit Memo] [Shipment] [UI]
         // [SCENARIO 365667] System warns that it can't open a particular purchase order when Stan corrects invoice posted via "get shipment lines" and shipments relate to different single orders
@@ -1680,7 +1671,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
             PurchaseLineOrder[1]."Quantity Received", PurchaseLineOrder[1]."Quantity Invoiced", PurchaseLineOrder[1]."Quantity Received");
         VerifyPurchaseReceiptLine(
             PurchaseLineOrder[2],
-             PurchaseLineOrder[2]."Quantity Received", PurchaseLineOrder[2]."Quantity Invoiced", PurchaseLineOrder[1]."Quantity Received");
+             PurchaseLineOrder[2]."Quantity Received", PurchaseLineOrder[2]."Quantity Invoiced", PurchaseLineOrder[2]."Quantity Received");
 
         CreatePurchaseInvoiceFromReceipt(PurchaseHeaderInvoice, PurchaseLineInvoice, PurchaseHeaderOrder[1]."Buy-from Vendor No.", PurchaseLineOrder);
 
@@ -1724,7 +1715,6 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PurchInvHeader: Record "Purch. Inv. Header";
         PostedPurchaseInvoice: TestPage "Posted Purchase Invoice";
         InvoiceNo: Code[20];
-        ShipmentNo: Code[20];
     begin
         // [FEATURE] [Correct] [Credit Memo] [Shipment] [UI]
         // [SCENARIO 365667] System warns that purchase order deleted when Stan corrects invoice posted from that fully invoices and deleted purchase order. Invoice is cancelled only.
@@ -1779,15 +1769,15 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         ClearTable(DATABASE::"Production BOM Line");
         ClearTable(DATABASE::Resource);
 
-        if not LibraryFiscalYear.AccountingPeriodsExists then
+        if not LibraryFiscalYear.AccountingPeriodsExists() then
             LibraryFiscalYear.CreateFiscalYear();
 
         LibraryERMCountryData.CreateVATData();
 
-        SetNoSeries;
+        SetGlobalNoSeriesInSetups();
         PurchasesPayablesSetup.Get();
         if PurchasesPayablesSetup."Order Nos." = '' then
-            PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
+            PurchasesPayablesSetup.Validate("Order Nos.", LibraryUtility.GetGlobalNoSeriesCode());
         PurchasesPayablesSetup.Validate("Ext. Doc. No. Mandatory", false);
         LibraryERM.CreateReasonCode(ReasonCode);
         PurchasesPayablesSetup.Validate("Default Cancel Reason Code", ReasonCode.Code);
@@ -1799,6 +1789,34 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Correct Purchase Invoice");
+    end;
+
+    local procedure SetGlobalNoSeriesInSetups()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        MarketingSetup: Record "Marketing Setup";
+    begin
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Credit Memo Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup."Posted Credit Memo Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup."Invoice Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup."Order Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup."Customer Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        SalesReceivablesSetup.Modify();
+
+        MarketingSetup.Get();
+        MarketingSetup."Contact Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        MarketingSetup.Modify();
+
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup."Ext. Doc. No. Mandatory" := false;
+        PurchasesPayablesSetup."Credit Memo Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        PurchasesPayablesSetup."Posted Credit Memo Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        PurchasesPayablesSetup."Invoice Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        PurchasesPayablesSetup."Order Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        PurchasesPayablesSetup."Vendor Nos." := LibraryUtility.GetGlobalNoSeriesCode();
+        PurchasesPayablesSetup.Modify();
     end;
 
     local procedure VerifyCorrectionFailsOnBlockedGLAcc(GLAcc: Record "G/L Account"; PayToVendor: Record Vendor; PurchInvHeader: Record "Purch. Inv. Header")
@@ -2031,7 +2049,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         PaymentMethod.SetFilter("Bal. Account No.", '<>%1', '');
         if not PaymentMethod.FindFirst() then begin
             LibraryERM.CreatePaymentMethod(PaymentMethod);
-            PaymentMethod.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo);
+            PaymentMethod.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
             PaymentMethod.Modify(true);
         end;
 
@@ -2126,28 +2144,6 @@ codeunit 138025 "O365 Correct Purchase Invoice"
         Assert.IsTrue(PurchaseHeader.IsEmpty, 'The Credit Memo should not have been created');
     end;
 
-    local procedure SetNoSeries()
-    var
-        NoSeriesLine: Record "No. Series Line";
-        LastMaxNo: Code[20];
-    begin
-        with NoSeriesLine do
-            if Find('-') then
-                repeat
-                    if LastMaxNo < "Last No. Used" then
-                        LastMaxNo := "Last No. Used";
-                until Next = 0;
-
-        with NoSeriesLine do
-            if Find('-') then
-                repeat
-                    "Last No. Used" := LastMaxNo;
-                    "Ending No." := '';
-                    "Warning No." := '';
-                    Modify(true);
-                until Next = 0;
-    end;
-
     local procedure GetPurchaseInvoiceHeaderAndCheckCancelled(var PurchInvHeader: Record "Purch. Inv. Header"; InvoiceNo: Code[20]; ExpectedCancelled: Boolean)
     begin
         PurchInvHeader.Get(InvoiceNo);
@@ -2208,7 +2204,7 @@ codeunit 138025 "O365 Correct Purchase Invoice"
             DATABASE::Resource:
                 Resource.DeleteAll();
         end;
-        LibraryLowerPermissions.SetO365Full;
+        LibraryLowerPermissions.SetO365Full();
     end;
 }
 

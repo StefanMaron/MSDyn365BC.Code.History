@@ -113,7 +113,7 @@ codeunit 141041 "UT AUNZ Statement Report"
         REPORT.Run(REPORT::"AU/NZ Statement");  // Opens handler - PrintLCYTrueAUNZStatementRequestPageHandler or PeriodCalculationTrueAUNZStatementRequestPageHandler.
 
         // [THEN] Verify Caption - Phone Number, Giro Number, Account Number and Company Information - Phone Number, Giro Number on generated XML of Report - AU/NZ Statement.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(PhoneNoCap, PhoneNo);
         LibraryReportDataset.AssertElementWithValueExists(GiroNoCap, GiroNo);
         LibraryReportDataset.AssertElementWithValueExists(AccountNoCap, AccountNo);
@@ -354,7 +354,7 @@ codeunit 141041 "UT AUNZ Statement Report"
         CustLedgerEntry: Record "Cust. Ledger Entry";
     begin
         // [SCENARIO] validate GetTermsString function of Report ID - 17110 AU/NZ Statement.
-        GetTermsStringDocumentTypeDescriptionAUNZStatement(CustLedgerEntry."Document Type"::Invoice, LibraryUTUtility.GetNewCode);  // Payment Term Description.
+        GetTermsStringDocumentTypeDescriptionAUNZStatement(CustLedgerEntry."Document Type"::Invoice, LibraryUTUtility.GetNewCode());  // Payment Term Description.
     end;
 
     local procedure GetTermsStringDocumentTypeDescriptionAUNZStatement(DocumentType: Enum "Gen. Journal Document Type"; Description: Code[20])
@@ -386,7 +386,7 @@ codeunit 141041 "UT AUNZ Statement Report"
     procedure GetTermsStringWithoutPaymentTermsCodeAUNZStatement()
     begin
         // [SCENARIO] validate GetTermsString function of Report ID - 17110 AU/NZ Statement.
-        GetTermsStringPaymentTermsCodeAUNZStatement(LibraryUTUtility.GetNewCode10);  // Payment Term Code.
+        GetTermsStringPaymentTermsCodeAUNZStatement(LibraryUTUtility.GetNewCode10());  // Payment Term Code.
     end;
 
     local procedure GetTermsStringPaymentTermsCodeAUNZStatement(PaymentTermsCode: Code[10])
@@ -412,7 +412,7 @@ codeunit 141041 "UT AUNZ Statement Report"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Insert();
         exit(Customer."No.");
     end;
@@ -424,8 +424,8 @@ codeunit 141041 "UT AUNZ Statement Report"
         CustLedgerEntry2.FindLast();
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Document Type" := DocumentType;
-        CustLedgerEntry."Document No." := LibraryUTUtility.GetNewCode;
-        CustLedgerEntry."Customer No." := CreateCustomer;
+        CustLedgerEntry."Document No." := LibraryUTUtility.GetNewCode();
+        CustLedgerEntry."Customer No." := CreateCustomer();
         CustLedgerEntry."Posting Date" := WorkDate();
         CustLedgerEntry.Insert();
         CreateDetailedCustomerLedgerEntry(CustLedgerEntry."Customer No.", CustLedgerEntry."Entry No.");
@@ -450,7 +450,7 @@ codeunit 141041 "UT AUNZ Statement Report"
     var
         PaymentTerms: Record "Payment Terms";
     begin
-        PaymentTerms.Code := LibraryUTUtility.GetNewCode10;
+        PaymentTerms.Code := LibraryUTUtility.GetNewCode10();
         PaymentTerms.Description := Description;
         PaymentTerms.Insert();
         exit(PaymentTerms.Code);
@@ -510,13 +510,13 @@ codeunit 141041 "UT AUNZ Statement Report"
         AUNZStatement.Customer.SetFilter(
           "Date Filter", StrSubstNo(DateFilterTxt, Format(WorkDate()),
             CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate())));  // Random - Value for To Date.
-        AUNZStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AUNZStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     local procedure VerifyCustLedgerEntryRemainingAmtOnReportAUNZStatement(CustLedgerEntry: Record "Cust. Ledger Entry"; PrintLCY: Boolean)
     begin
         CustLedgerEntry.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(CustLedgerEntryNumberCap, CustLedgerEntry."Entry No.");
         LibraryReportDataset.AssertElementWithValueExists(CustLedgerEntryCustomerNoCap, CustLedgerEntry."Customer No.");
         LibraryReportDataset.AssertElementWithValueExists(
@@ -534,7 +534,7 @@ codeunit 141041 "UT AUNZ Statement Report"
     begin
         CustLedgEntry.SetRange("Customer No.", CustomerNo);
         CustLedgEntry.FindFirst();
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(
           DebitBalanceCap, FindCustomerLedgerEntryAmount(CustLedgEntry.Amount, PrintLCY));
         LibraryReportDataset.AssertElementWithValueExists(

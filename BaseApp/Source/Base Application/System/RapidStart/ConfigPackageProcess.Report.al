@@ -12,7 +12,7 @@ report 8621 "Config. Package - Process"
     {
         dataitem("Config. Package Table"; "Config. Package Table")
         {
-            DataItemTableView = sorting("Package Code", "Table ID") order(Ascending);
+            DataItemTableView = sorting("Package Code", "Table ID") order(ascending);
 
             trigger OnAfterGetRecord()
             var
@@ -81,7 +81,7 @@ report 8621 "Config. Package - Process"
         ConfigPackageData.SetRange("Package Code", ConfigPackageTable."Package Code");
         ConfigPackageData.SetRange("Table ID", ConfigPackageTable."Table ID");
         ConfigPackageData.SetRange("Field ID", FieldId);
-        exit(ConfigPackageData.FindSet(true, false));
+        exit(ConfigPackageData.FindSet(true));
     end;
 
     [IntegrationEvent(false, false)]

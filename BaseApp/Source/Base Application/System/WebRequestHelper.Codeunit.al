@@ -12,6 +12,7 @@ codeunit 1299 "Web Request Helper"
 
     var
         ConnectionErr: Label 'Connection to the remote service could not be established.\\';
+        InvalidEncodingErr: Label 'The text encoding is not specified or is not valid.';
         InvalidUriErr: Label 'The URI is not valid.';
         NonSecureUriErr: Label 'The URI is not secure.';
         ProcessingWindowMsg: Label 'Please wait while the server is processing your request.\This may take several minutes.';
@@ -173,18 +174,16 @@ codeunit 1299 "Web Request Helper"
         HttpContentType := HttpContentType.ContentType(HttpContentTypeHeader);
 
         if IsNull(HttpContentType.CharSet()) then
-            exit(false);
+            Error(InvalidEncodingErr);
+
         if HttpContentType.CharSet() = '' then
-            exit(false);
+            Error(InvalidEncodingErr);
 
         case HttpContentType.CharSet() of
             'utf-8':
-                begin
-                    EncodingToUse := TextEncoding::UTF8;
-                    exit(true);
-                end;
+                EncodingToUse := TextEncoding::UTF8;
             else
-                exit(false);
+                Error(InvalidEncodingErr);
         end;
     end;
 

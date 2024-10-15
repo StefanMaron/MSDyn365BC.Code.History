@@ -71,7 +71,7 @@ codeunit 1639 "Office Line Generation"
 
             PreText := SanitizeText(Match.Groups.Item(1).Value, 3);
             PostText := SanitizeText(Match.Groups.Item(5).Value, 3);
-            QuantityText := Match.Groups.Item(4).Value;
+            QuantityText := Match.Groups.Item(4).Value();
 
             FoundPre := FindItemFromText(PreItemNo, PreText, SanitizedBody, ' ', true);
             AlreadyFound := ItemAlreadyFound(TempOfficeSuggestedLineItem, PreItemNo);
@@ -571,7 +571,7 @@ codeunit 1639 "Office Line Generation"
         PluralizationService := PluralizationService.CreateService(CultureInfo.CultureInfo('en'));
         WordMatches := Regex.Matches(Sanitized, '\b(\w+)\b');
         foreach Match in WordMatches do begin
-            Word := Match.Groups.Item(1).Value;
+            Word := Match.Groups.Item(1).Value();
             if PluralizationService.IsPlural(Word) then
                 Sanitized := Regex.Replace(Sanitized, Word, PluralizationService.Singularize(Word));
         end;

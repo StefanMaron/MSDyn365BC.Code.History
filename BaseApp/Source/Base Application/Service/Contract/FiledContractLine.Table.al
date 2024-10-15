@@ -9,6 +9,7 @@ table 5971 "Filed Contract Line"
 {
     Caption = 'Filed Contract Line';
     LookupPageID = "Filed Service Contract Lines";
+    DataClassification = CustomerContent;
 
     fields
     {

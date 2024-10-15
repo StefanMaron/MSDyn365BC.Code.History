@@ -103,7 +103,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         GSTPurchaseEntry.FindFirst();
         Assert.AreNearlyEqual(
           PurchaseLine."Amount Including VAT" - PurchaseLine.Amount, GSTPurchaseEntry.Amount,
-          LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualMsg);
+          LibraryERM.GetAmountRoundingPrecision(), AmountMustBeEqualMsg);
     end;
 
     [Test]
@@ -298,7 +298,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         REPORT.Run(REPORT::"Purchase Prepmt. Doc. - Test");  // Opens PurchasePrepmtDocTestRequestPageHandler.
 
         // [THEN] Verify values on report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(PurchaseLineNoCap, PurchaseLine."No.");
         LibraryReportDataset.AssertElementWithValueExists(PurchaseLineQuantityCap, PurchaseLine.Quantity);
         LibraryReportDataset.AssertElementWithValueExists(PurchaseLinePrepaymentCap, PurchaseLine."Prepayment %");
@@ -332,7 +332,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         VATAmount := PurchInvLine."Amount Including VAT" - PurchInvLine.Amount;
         Assert.AreNearlyEqual(
           PurchaseLine."Amount Including VAT" - PurchaseLine.Amount, VATAmount,
-          LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualMsg);
+          LibraryERM.GetAmountRoundingPrecision(), AmountMustBeEqualMsg);
     end;
 
     [Test]
@@ -349,11 +349,11 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         Initialize();
 
         // [GIVEN] Sales invoice with "Document Date" = '01.01.2020', "Posting Date" = '02.02.2021', WORKDATE = '03.03.2022'
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         SalesHeader."Document Date" := LibraryRandom.RandDate(LibraryRandom.RandIntInRange(5, 10));
         SalesHeader.Modify();
         LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(5, 10));
+          SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(5, 10));
 
         // [WHEN] Post sales invoice
         DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
@@ -379,11 +379,11 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         Initialize();
 
         // [GIVEN] Purchase invoice with "Document Date" = '01.01.2020', "Posting Date" = '02.02.2021', WORKDATE = '03.03.2022'
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         PurchaseHeader."Document Date" := LibraryRandom.RandDate(LibraryRandom.RandIntInRange(5, 10));
         PurchaseHeader.Modify();
         LibraryPurchase.CreatePurchaseLine(
-          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo, LibraryRandom.RandIntInRange(5, 10));
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo(), LibraryRandom.RandIntInRange(5, 10));
 
         // [WHEN] Post purchase invoice
         DocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
@@ -479,7 +479,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // [GIVEN] Sales Invoice "SI" with GLAccount in the Sales Line.
         CreateSalesDocWithLine(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice,
-          SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, WorkDate());
+          SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), WorkDate());
 
         // [GIVEN] Deferral Template "DF" is applied for "SI" Sales Line.
         UpdateSalesLineWithDeferral(SalesHeader, LibraryRandom.RandIntInRange(3, 10));
@@ -570,7 +570,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // [GIVEN] Purchase Invoice "PI" with Item in the Purchase Line.
         CreatePurchDocWithLine(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice,
-          PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, WorkDate());
+          PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), WorkDate());
 
         // [GIVEN] Deferral Template "DF" is applied for "PI" Purchase Line.
         UpdatePurchaseLineWithDeferral(PurchaseHeader, LibraryRandom.RandIntInRange(3, 10));
@@ -688,7 +688,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // [GIVEN] Sales Invoice with G/L Account in the Sales Line.
         CreateSalesDocWithLine(
           SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice,
-          SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup, WorkDate());
+          SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), WorkDate());
 
         // [GIVEN] Set Sales Line Description
         SalesLine.Validate(Description, LibraryUtility.GenerateRandomXMLText(10));
@@ -721,7 +721,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // [GIVEN] Purchase Invoice with G/L Account in the Purchase Line.
         CreatePurchDocWithLine(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Invoice,
-          PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, WorkDate());
+          PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), WorkDate());
 
         // [GIVEN] Set Purchase Line Description
         PurchaseLine.Validate(Description, LibraryUtility.GenerateRandomXMLText(10));
@@ -754,7 +754,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // [GIVEN] Service Invoice with G/L Account in the Service Line.
         CreateServiceDocWithLine(
           ServiceHeader, ServiceLine, ServiceHeader."Document Type"::Invoice,
-          ServiceLine.Type::"G/L Account", CreateGLAccountNo, WorkDate());
+          ServiceLine.Type::"G/L Account", CreateGLAccountNo(), WorkDate());
 
         // [GIVEN] Set Service Line Description
         ServiceLine.Validate(Description, LibraryUtility.GenerateRandomXMLText(10));
@@ -783,17 +783,17 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         Initialize();
 
         // [GIVEN] Cust. Ledger Entry with "Due Date" = "06-02-2018"
-        ExpectedDueDate := MockCustLedgerEntryWithDueDate;
+        ExpectedDueDate := MockCustLedgerEntryWithDueDate();
         Commit();
 
         // [WHEN] Invoke report "AU/NZ Statement"
         REPORT.Run(REPORT::"AU/NZ Statement");
 
         // [THEN] Due Date has been printed
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.GetNextRow;
-        LibraryReportDataset.GetNextRow;
-        LibraryReportDataset.GetNextRow;
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.GetNextRow();
+        LibraryReportDataset.GetNextRow();
         LibraryReportDataset.AssertCurrentRowValueEquals('FORMAT_DueDate_', Format(ExpectedDueDate));
     end;
 
@@ -814,7 +814,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         UpdateGeneralLedgerSetupGSTReport();
 
         // [GIVEN] Currency.
-        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates;
+        CurrencyCode := LibraryERM.CreateCurrencyWithRandomExchRates();
 
         // [GIVEN] "Enable Vendor GST Amount (ACY)" set to TRUE in Purchases & Payables Setup.
         PurchasesPayablesSetup.Get();
@@ -827,7 +827,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         // [GIVEN] Purchase Order with "Vendor Exchange Rate (ACY)" = 10 and Purchase Line with "Quanitity" = 2, "Direct Unit Cost" = 15.
         CreatePurchDocWithLine(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order,
-          PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup, WorkDate());
+          PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), WorkDate());
         PurchaseHeader."Vendor Exchange Rate (ACY)" := LibraryRandom.RandInt(10);
         PurchaseHeader.Modify();
 
@@ -1053,7 +1053,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
         LibraryPurchase.CreatePurchaseLine(
           PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account",
-          LibraryERM.CreateGLAccountWithPurchSetup, LibraryRandom.RandInt(100));
+          LibraryERM.CreateGLAccountWithPurchSetup(), LibraryRandom.RandInt(100));
         PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDec(100, 2));
         PurchaseLine.Modify(true);
         LibraryVariableStorage.Enqueue(StrSubstNo(LinesNotUpdatedMsg, PurchaseHeader.FieldCaption("Posting Date")));
@@ -1078,7 +1078,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         LibraryApplicationArea: Codeunit "Library - Application Area";
     begin
         LibraryVariableStorage.Clear();
-        DeleteObjectOptionsIfNeeded;
+        DeleteObjectOptionsIfNeeded();
         LibrarySetupStorage.Restore();
 
         if IsInitialized then
@@ -1150,9 +1150,9 @@ codeunit 141008 "ERM - Miscellaneous APAC"
           GenJournalLine, GenJournalTemplate.Type::"Cash Receipts", GenJournalLine."Account Type"::Customer,
           SalesLine."Sell-to Customer No.", -(SalesLine."Amount Including VAT" + PaymentToleranceAmount));  // Value required to invoke Payment Tolerance Warning.
         Commit();  // COMMIT is required for the test case.
-        CashReceiptJournal.OpenEdit;
+        CashReceiptJournal.OpenEdit();
         CashReceiptJournal.CurrentJnlBatchName.SetValue(GenJournalLine."Journal Batch Name");
-        CashReceiptJournal."Apply Entries".Invoke;  // Opens ApplyCustomerEntriesModalPageHandler.
+        CashReceiptJournal."Apply Entries".Invoke();  // Opens ApplyCustomerEntriesModalPageHandler.
         CashReceiptJournal.Close();
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
         exit(GenJournalLine."Document No.");
@@ -1322,7 +1322,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
 
     local procedure CreateSalesDocWithLine(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; SalesLineType: Enum "Sales Line Type"; No: Code[20]; PostingDate: Date)
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo());
         SalesHeader.Validate("Posting Date", PostingDate);
         SalesHeader.Modify(true);
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLineType, No, 1);
@@ -1332,7 +1332,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
 
     local procedure CreatePurchDocWithLine(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; DocumentType: Enum "Purchase Document Type"; PurchLineType: Enum "Purchase Line Type"; No: Code[20]; PostingDate: Date)
     begin
-        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo());
         PurchaseHeader.Validate("Posting Date", PostingDate);
         PurchaseHeader.Modify(true);
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchLineType, No, 1);
@@ -1342,7 +1342,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
 
     local procedure CreateServiceDocWithLine(var ServiceHeader: Record "Service Header"; var ServiceLine: Record "Service Line"; DocumentType: Enum "Service Document Type"; ServiceLineType: Enum "Service Line Type"; No: Code[20]; PostingDate: Date)
     begin
-        LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, LibrarySales.CreateCustomerNo);
+        LibraryService.CreateServiceHeader(ServiceHeader, DocumentType, LibrarySales.CreateCustomerNo());
         ServiceHeader.Validate("Posting Date", PostingDate);
         ServiceHeader.Modify(true);
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLineType, No);
@@ -1545,7 +1545,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         GLEntry.SetRange("Source Code", SourceCode);
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.FindFirst();
-        Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualMsg);
+        Assert.AreNearlyEqual(Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), AmountMustBeEqualMsg);
     end;
 
     local procedure VerifyGSTSalesEntry(DocumentNo: Code[20]; Amount: Decimal)
@@ -1554,7 +1554,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
     begin
         GSTSalesEntry.SetRange("Document No.", DocumentNo);
         GSTSalesEntry.FindFirst();
-        Assert.AreNearlyEqual(Amount, GSTSalesEntry.Amount, LibraryERM.GetAmountRoundingPrecision, AmountMustBeEqualMsg);
+        Assert.AreNearlyEqual(Amount, GSTSalesEntry.Amount, LibraryERM.GetAmountRoundingPrecision(), AmountMustBeEqualMsg);
     end;
 
     local procedure VerifyGSTEntryFromVATEntry(DocumentNo: Code[20])
@@ -1617,7 +1617,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
             FindSet();
             repeat
                 TestField(Description, ExpectedDescription);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1645,7 +1645,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
             FindSet();
             repeat
                 TestField(Description, ExpectedDescription);
-            until Next = 0;
+            until Next() = 0;
         end;
     end;
 
@@ -1669,7 +1669,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
     [Scope('OnPrem')]
     procedure PostAndReconcilePageHandler(var PostPmtsAndRecBankAcc: TestPage "Post Pmts and Rec. Bank Acc.")
     begin
-        PostPmtsAndRecBankAcc.OK.Invoke();
+        PostPmtsAndRecBankAcc.OK().Invoke();
     end;
 
     [ConfirmHandler]
@@ -1687,8 +1687,8 @@ codeunit 141008 "ERM - Miscellaneous APAC"
     begin
         LibraryVariableStorage.Dequeue(MaxPaymentTolerance);
         ApplyCustomerEntries."Max. Payment Tolerance".SetValue(MaxPaymentTolerance);
-        ApplyCustomerEntries."Set Applies-to ID".Invoke;
-        ApplyCustomerEntries.OK.Invoke;
+        ApplyCustomerEntries."Set Applies-to ID".Invoke();
+        ApplyCustomerEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1699,8 +1699,8 @@ codeunit 141008 "ERM - Miscellaneous APAC"
     begin
         LibraryVariableStorage.Dequeue(MaxPaymentTolerance);
         ApplyVendorEntries."Max. Payment Tolerance".SetValue(MaxPaymentTolerance);
-        ApplyVendorEntries.ActionSetAppliesToID.Invoke;
-        ApplyVendorEntries.OK.Invoke;
+        ApplyVendorEntries.ActionSetAppliesToID.Invoke();
+        ApplyVendorEntries.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1708,7 +1708,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
     procedure DimensionSelectionMultipleModalPageHandler(var DimensionSelectionMultiple: TestPage "Dimension Selection-Multiple")
     begin
         DimensionSelectionMultiple.Selected.SetValue(true);
-        DimensionSelectionMultiple.OK.Invoke;
+        DimensionSelectionMultiple.OK().Invoke();
     end;
 
     [ModalPageHandler]
@@ -1739,8 +1739,8 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         CloseIncomeStatement.GenJournalBatch.SetValue(GenJournalBatch);
         CloseIncomeStatement.DocumentNo.SetValue(DocumentNo);
         CloseIncomeStatement.RetainedEarningsAcc.SetValue(RetainedEarningsAccount);
-        CloseIncomeStatement.Dimensions.AssistEdit;
-        CloseIncomeStatement.OK.Invoke;
+        CloseIncomeStatement.Dimensions.AssistEdit();
+        CloseIncomeStatement.OK().Invoke();
     end;
 
     [RequestPageHandler]
@@ -1755,7 +1755,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         LibraryVariableStorage.Dequeue(BuyFromVendorNo);
         PurchasePrepmtDocTest."Purchase Header".SetFilter("No.", No);
         PurchasePrepmtDocTest."Purchase Header".SetFilter("Buy-from Vendor No.", BuyFromVendorNo);
-        PurchasePrepmtDocTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchasePrepmtDocTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]
@@ -1799,7 +1799,7 @@ codeunit 141008 "ERM - Miscellaneous APAC"
         AUNZStatement.Customer.SetFilter(
           "Date Filter",
           StrSubstNo('%1..%2', Format(WorkDate()), LibraryRandom.RandDateFrom(WorkDate(), LibraryRandom.RandIntInRange(10, 100))));
-        AUNZStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        AUNZStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

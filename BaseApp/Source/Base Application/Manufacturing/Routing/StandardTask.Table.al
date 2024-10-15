@@ -5,6 +5,7 @@ table 99000778 "Standard Task"
     Caption = 'Standard Task';
     DataCaptionFields = "Code", Description;
     LookupPageID = "Standard Tasks";
+    DataClassification = CustomerContent;
 
     fields
     {

@@ -10,6 +10,7 @@ using System.Environment.Configuration;
 table 5392 "CRM Annotation Coupling"
 {
     Caption = 'CRM Annotation Coupling';
+    DataClassification = CustomerContent;
 
     fields
     {
@@ -175,7 +176,7 @@ table 5392 "CRM Annotation Coupling"
             LeftPart := CopyStr(NoteLine, 1, IndexOfSpan - 1);
             RightPart := CopyStr(NoteLine, IndexOfSpan);
             IndexOfSpanEnding := RightPart.IndexOf('>');
-            If IndexOfSpanEnding = 0 then
+            if IndexOfSpanEnding = 0 then
                 exit;
             if IndexOfSpanEnding = StrLen(RightPart) then
                 RightPart := ''

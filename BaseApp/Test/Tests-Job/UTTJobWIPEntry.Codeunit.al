@@ -31,14 +31,14 @@ codeunit 136356 "UT T Job WIP Entry"
     procedure TestFunctionDeleteForJob()
     begin
         Initialize();
-        SetUp;
+        SetUp();
 
         // Validate that the Job WIP Entry gets deleted.
         JobWIPEntry.DeleteEntriesForJob(Job);
         JobWIPEntry.SetRange("Job No.", Job."No.");
-        Assert.IsFalse(JobWIPEntry.FindFirst, 'Job WIP Entry was not deleted.');
+        Assert.IsFalse(JobWIPEntry.FindFirst(), 'Job WIP Entry was not deleted.');
 
-        TearDown;
+        TearDown();
     end;
 
     [Test]
@@ -154,7 +154,7 @@ codeunit 136356 "UT T Job WIP Entry"
         LibraryJob.CreateJob(Job);
         Job.Validate("WIP Method", JobWIPMethod.Code);
         Job.Modify(true);
-        JobCard.OpenEdit;
+        JobCard.OpenEdit();
         JobCard.GotoRecord(Job);
         JobCard.Status.SetValue(JobStatus);
         JobCard.Close();
@@ -220,7 +220,7 @@ codeunit 136356 "UT T Job WIP Entry"
     [Scope('OnPrem')]
     procedure ConfirmHandlerMultipleResponses(Question: Text[1024]; var Reply: Boolean)
     begin
-        Reply := LibraryVariableStorage.DequeueBoolean;
+        Reply := LibraryVariableStorage.DequeueBoolean();
     end;
 }
 

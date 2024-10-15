@@ -28,7 +28,7 @@ codeunit 141074 "UT REP Transaction Detail"
     begin
         // [SCENARIO] validate G/L Entry - OnAfterGetRecord Trigger of Report - 17109 with Source Type Customer and Document Type Invoice.
         OnAfterGetRecordGLEntry(
-          GLEntry."Source Type"::Customer, CreateCustomer, GLEntry."Document Type"::Invoice, CreateSalesInvoiceHeader);
+          GLEntry."Source Type"::Customer, CreateCustomer(), GLEntry."Document Type"::Invoice, CreateSalesInvoiceHeader());
     end;
 
     [Test]
@@ -41,7 +41,7 @@ codeunit 141074 "UT REP Transaction Detail"
     begin
         // [SCENARIO] validate G/L Entry - OnAfterGetRecord Trigger of Report - 17109 with Source Type Customer and Document Type Credit Memo.
         OnAfterGetRecordGLEntry(
-          GLEntry."Source Type"::Customer, CreateCustomer, GLEntry."Document Type"::"Credit Memo", CreateSalesCrMemoHeader);
+          GLEntry."Source Type"::Customer, CreateCustomer(), GLEntry."Document Type"::"Credit Memo", CreateSalesCrMemoHeader());
     end;
 
     [Test]
@@ -54,7 +54,7 @@ codeunit 141074 "UT REP Transaction Detail"
     begin
         // [SCENARIO] validate G/L Entry - OnAfterGetRecord Trigger of Report - 17109 with Source Type Customer and Document Type Finance Charge Memo.
         OnAfterGetRecordGLEntry(
-          GLEntry."Source Type"::Customer, CreateCustomer, GLEntry."Document Type"::"Finance Charge Memo", CreateFinanceMemoHeader);
+          GLEntry."Source Type"::Customer, CreateCustomer(), GLEntry."Document Type"::"Finance Charge Memo", CreateFinanceMemoHeader());
     end;
 
     [Test]
@@ -66,7 +66,7 @@ codeunit 141074 "UT REP Transaction Detail"
         GLEntry: Record "G/L Entry";
     begin
         // [SCENARIO] validate G/L Entry - OnAfterGetRecord Trigger of Report - 17109 with Source Type Customer and Document Type Reminder.
-        OnAfterGetRecordGLEntry(GLEntry."Source Type"::Customer, CreateCustomer, GLEntry."Document Type"::Reminder, CreateReminderHeader);
+        OnAfterGetRecordGLEntry(GLEntry."Source Type"::Customer, CreateCustomer(), GLEntry."Document Type"::Reminder, CreateReminderHeader());
     end;
 
     [Test]
@@ -78,7 +78,7 @@ codeunit 141074 "UT REP Transaction Detail"
         GLEntry: Record "G/L Entry";
     begin
         // [SCENARIO] validate G/L Entry - OnAfterGetRecord Trigger of Report - 17109 with Source Type Vendor and Document Type Invoice.
-        OnAfterGetRecordGLEntry(GLEntry."Source Type"::Vendor, CreateVendor, GLEntry."Document Type"::Invoice, CreatePurchInvoiceHeader);
+        OnAfterGetRecordGLEntry(GLEntry."Source Type"::Vendor, CreateVendor(), GLEntry."Document Type"::Invoice, CreatePurchInvoiceHeader());
     end;
 
     [Test]
@@ -91,7 +91,7 @@ codeunit 141074 "UT REP Transaction Detail"
     begin
         // [SCENARIO] validate G/L Entry - OnAfterGetRecord Trigger of Report - 17109 with Source Type Vendor and Document Type Credit Memo.
         OnAfterGetRecordGLEntry(
-          GLEntry."Source Type"::Vendor, CreateVendor, GLEntry."Document Type"::"Credit Memo", CreatePurchCrMemoHeader);
+          GLEntry."Source Type"::Vendor, CreateVendor(), GLEntry."Document Type"::"Credit Memo", CreatePurchCrMemoHeader());
     end;
 
     [Test]
@@ -103,7 +103,7 @@ codeunit 141074 "UT REP Transaction Detail"
         GLEntry: Record "G/L Entry";
     begin
         // [SCENARIO] validate G/L Entry - OnAfterGetRecord Trigger of Report - 17109 with Source Type Bank Account.
-        OnAfterGetRecordGLEntry(GLEntry."Source Type"::"Bank Account", CreateBankAccount, GLEntry."Document Type"::" ", '');  // Using Blank for Document Type and Document No.
+        OnAfterGetRecordGLEntry(GLEntry."Source Type"::"Bank Account", CreateBankAccount(), GLEntry."Document Type"::" ", '');  // Using Blank for Document Type and Document No.
     end;
 
     [Test]
@@ -116,7 +116,7 @@ codeunit 141074 "UT REP Transaction Detail"
     begin
         // [SCENARIO] validate G/L Entry - OnAfterGetRecord Trigger of Report - 17109 with Source Type Fixed Asset and Document Type Invoice.
         OnAfterGetRecordGLEntry(
-          GLEntry."Source Type"::"Fixed Asset", CreateFixedAsset, GLEntry."Document Type"::Invoice, CreatePurchInvoiceHeader);
+          GLEntry."Source Type"::"Fixed Asset", CreateFixedAsset(), GLEntry."Document Type"::Invoice, CreatePurchInvoiceHeader());
     end;
 
     [Test]
@@ -129,7 +129,7 @@ codeunit 141074 "UT REP Transaction Detail"
     begin
         // [SCENARIO] validate G/L Entry - OnAfterGetRecord Trigger of Report - 17109 with Source Type Fixed Asset and Document Type Credit Memo.
         OnAfterGetRecordGLEntry(
-          GLEntry."Source Type"::"Fixed Asset", CreateFixedAsset, GLEntry."Document Type"::"Credit Memo", CreatePurchCrMemoHeader);
+          GLEntry."Source Type"::"Fixed Asset", CreateFixedAsset(), GLEntry."Document Type"::"Credit Memo", CreatePurchCrMemoHeader());
     end;
 
     local procedure OnAfterGetRecordGLEntry(SourceType: Enum "Gen. Journal Source Type"; SourceNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
@@ -157,8 +157,8 @@ codeunit 141074 "UT REP Transaction Detail"
         // Setup and Exercise.
         Initialize();
         CreateGLEntryAndRunTransactionDetailReport(
-          GLEntry, ClosingDate(WorkDate()), GLEntry."Source Type"::Customer, CreateCustomer, GLEntry."Document Type"::Invoice,
-          CreateSalesInvoiceHeader, false);  // Using False for ShowAmountsInAddReportingCurrency.
+          GLEntry, ClosingDate(WorkDate()), GLEntry."Source Type"::Customer, CreateCustomer(), GLEntry."Document Type"::Invoice,
+          CreateSalesInvoiceHeader(), false);  // Using False for ShowAmountsInAddReportingCurrency.
 
         // Verify.
         VerifyAmountsOnTransactionDetailReport(0, 0, GLEntry."Additional-Currency Amount");  // Using 0 for Amount and VAT Amount.
@@ -177,8 +177,8 @@ codeunit 141074 "UT REP Transaction Detail"
         // Setup and Exercise.
         Initialize();
         CreateGLEntryAndRunTransactionDetailReport(
-          GLEntry, ClosingDate(WorkDate()), GLEntry."Source Type"::Customer, CreateCustomer, GLEntry."Document Type"::Invoice,
-          CreateSalesInvoiceHeader, true);  // Using True for ShowAmountsInAddReportingCurrency.
+          GLEntry, ClosingDate(WorkDate()), GLEntry."Source Type"::Customer, CreateCustomer(), GLEntry."Document Type"::Invoice,
+          CreateSalesInvoiceHeader(), true);  // Using True for ShowAmountsInAddReportingCurrency.
 
         // Verify.
         VerifyAmountsOnTransactionDetailReport(GLEntry.Amount, GLEntry."VAT Amount", 0);  // Using 0 for Additional Currency Amount.
@@ -193,7 +193,7 @@ codeunit 141074 "UT REP Transaction Detail"
     var
         BankAccount: Record "Bank Account";
     begin
-        BankAccount."No." := LibraryUTUtility.GetNewCode;
+        BankAccount."No." := LibraryUTUtility.GetNewCode();
         BankAccount.Insert();
         exit(BankAccount."No.");
     end;
@@ -202,7 +202,7 @@ codeunit 141074 "UT REP Transaction Detail"
     var
         Customer: Record Customer;
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
         Customer.Insert();
         exit(Customer."No.");
     end;
@@ -211,7 +211,7 @@ codeunit 141074 "UT REP Transaction Detail"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount."No." := LibraryUTUtility.GetNewCode;
+        GLAccount."No." := LibraryUTUtility.GetNewCode();
         GLAccount.Insert();
         exit(GLAccount."No.");
     end;
@@ -222,7 +222,7 @@ codeunit 141074 "UT REP Transaction Detail"
     begin
         GLEntry2.FindLast();
         GLEntry."Entry No." := GLEntry2."Entry No." + 1;
-        GLEntry."G/L Account No." := CreateGLAccount;
+        GLEntry."G/L Account No." := CreateGLAccount();
         GLEntry.Amount := LibraryRandom.RandDec(100, 2);
         GLEntry."VAT Amount" := LibraryRandom.RandDec(100, 2);
         GLEntry."Additional-Currency Amount" := LibraryRandom.RandDec(100, 2);
@@ -251,7 +251,7 @@ codeunit 141074 "UT REP Transaction Detail"
     var
         FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
     begin
-        FinanceChargeMemoHeader."No." := LibraryUTUtility.GetNewCode;
+        FinanceChargeMemoHeader."No." := LibraryUTUtility.GetNewCode();
         FinanceChargeMemoHeader.Insert();
         exit(FinanceChargeMemoHeader."No.");
     end;
@@ -260,7 +260,7 @@ codeunit 141074 "UT REP Transaction Detail"
     var
         FixedAsset: Record "Fixed Asset";
     begin
-        FixedAsset."No." := LibraryUTUtility.GetNewCode;
+        FixedAsset."No." := LibraryUTUtility.GetNewCode();
         FixedAsset.Insert();
         exit(FixedAsset."No.");
     end;
@@ -269,7 +269,7 @@ codeunit 141074 "UT REP Transaction Detail"
     var
         PurchCrMemoHdr: Record "Purch. Cr. Memo Hdr.";
     begin
-        PurchCrMemoHdr."No." := LibraryUTUtility.GetNewCode;
+        PurchCrMemoHdr."No." := LibraryUTUtility.GetNewCode();
         PurchCrMemoHdr.Insert();
         exit(PurchCrMemoHdr."No.");
     end;
@@ -278,7 +278,7 @@ codeunit 141074 "UT REP Transaction Detail"
     var
         PurchInvHeader: Record "Purch. Inv. Header";
     begin
-        PurchInvHeader."No." := LibraryUTUtility.GetNewCode;
+        PurchInvHeader."No." := LibraryUTUtility.GetNewCode();
         PurchInvHeader.Insert();
         exit(PurchInvHeader."No.");
     end;
@@ -287,7 +287,7 @@ codeunit 141074 "UT REP Transaction Detail"
     var
         ReminderHeader: Record "Reminder Header";
     begin
-        ReminderHeader."No." := LibraryUTUtility.GetNewCode;
+        ReminderHeader."No." := LibraryUTUtility.GetNewCode();
         ReminderHeader.Insert();
         exit(ReminderHeader."No.");
     end;
@@ -296,7 +296,7 @@ codeunit 141074 "UT REP Transaction Detail"
     var
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
     begin
-        SalesCrMemoHeader."No." := LibraryUTUtility.GetNewCode;
+        SalesCrMemoHeader."No." := LibraryUTUtility.GetNewCode();
         SalesCrMemoHeader.Insert();
         exit(SalesCrMemoHeader."No.");
     end;
@@ -305,7 +305,7 @@ codeunit 141074 "UT REP Transaction Detail"
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
     begin
-        SalesInvoiceHeader."No." := LibraryUTUtility.GetNewCode;
+        SalesInvoiceHeader."No." := LibraryUTUtility.GetNewCode();
         SalesInvoiceHeader.Insert();
         exit(SalesInvoiceHeader."No.");
     end;
@@ -314,14 +314,14 @@ codeunit 141074 "UT REP Transaction Detail"
     var
         Vendor: Record Vendor;
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
         Vendor.Insert();
         exit(Vendor."No.");
     end;
 
     local procedure VerifyAmountsOnTransactionDetailReport(Amount: Decimal; VATAmount: Decimal; AdditionalCurrencyAmount: Decimal)
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(AmountCap, Amount);
         LibraryReportDataset.AssertElementWithValueExists(VATAmountCap, VATAmount);
         LibraryReportDataset.AssertElementWithValueExists(AdditionalCurrencyAmountCap, AdditionalCurrencyAmount);
@@ -339,7 +339,7 @@ codeunit 141074 "UT REP Transaction Detail"
         TransactionDetailReport."G/L Account".SetFilter("No.", No);
         TransactionDetailReport."G/L Account".SetFilter("Date Filter", StrSubstNo(DateFilterTxt, WorkDate(), ClosingDate(WorkDate())));
         TransactionDetailReport.ShowAmountsInAddReportingCurrency.SetValue(ShowAmountsInAddReportingCurrency);
-        TransactionDetailReport.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        TransactionDetailReport.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

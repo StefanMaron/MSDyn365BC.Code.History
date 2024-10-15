@@ -5,6 +5,7 @@ using Microsoft.Finance.GeneralLedger.Journal;
 table 5466 "API Entities Setup"
 {
     Caption = 'API Entities Setup';
+    DataClassification = CustomerContent;
 
     fields
     {

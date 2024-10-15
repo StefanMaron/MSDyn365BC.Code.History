@@ -104,7 +104,7 @@ codeunit 141026 "ERM GST On Prepayments"
         // [GIVEN] Create Sales Prepayment Percentage. Post Prepayment Invoice and apply Payment. Post Sales Order and create Payment.
         Initialize();
         CreateGeneralPostingSetup(GeneralPostingSetup);
-        CustomerPriceGroupCode := CreateCustomerPriceGroup;
+        CustomerPriceGroupCode := CreateCustomerPriceGroup();
         SalesPrepaymentInvoiceWithSalesType(
           CreateCustomer(CustomerPriceGroupCode, GeneralPostingSetup."Gen. Bus. Posting Group", 0), CustomerPriceGroupCode,
           CreateItem(GeneralPostingSetup."Gen. Prod. Posting Group"), SalesPrepaymentPct."Sales Type"::"Customer Price Group");  // Using 0 for Prepayment%.
@@ -237,7 +237,7 @@ codeunit 141026 "ERM GST On Prepayments"
         REPORT.Run(REPORT::"Purchase Prepmt. Doc. - Test");
 
         // [THEN] Verify Purchase Prepayment Doc. Test Report.
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(PurchaseLineAmountCap, PurchaseLine."Line Amount");
         LibraryReportDataset.AssertElementWithValueExists(PurchaseLinePrepmtAmountCap, PurchaseLine."Prepmt. Line Amount");
         LibraryReportDataset.AssertElementWithValueExists(VATIdentifierCap, PurchaseLine."VAT Identifier");
@@ -520,12 +520,12 @@ codeunit 141026 "ERM GST On Prepayments"
         SalesInvoiceHeader.Get(GenJournalLine."Applies-to Doc. No.");
         SalesInvoiceLine.CalcVATAmountLines(SalesInvoiceHeader, VATAmountLine);
         Assert.AreNearlyEqual(
-          -SalesLine."Line Amount" * SalesLine."VAT %" / 100, VATAmountLine."VAT Amount", LibraryERM.GetAmountRoundingPrecision,
+          -SalesLine."Line Amount" * SalesLine."VAT %" / 100, VATAmountLine."VAT Amount", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(
             AmountErr, VATAmountLine.FieldCaption("VAT Amount"), -SalesLine."Line Amount" * SalesLine."VAT %" / 100,
             VATAmountLine.TableCaption()));
         Assert.AreNearlyEqual(
-          -SalesLine."Line Amount", VATAmountLine."VAT Base", LibraryERM.GetAmountRoundingPrecision, StrSubstNo(
+          -SalesLine."Line Amount", VATAmountLine."VAT Base", LibraryERM.GetAmountRoundingPrecision(), StrSubstNo(
             AmountErr, VATAmountLine.FieldCaption("VAT Amount"), -SalesLine."Line Amount", VATAmountLine.TableCaption()));
 
         // Tear Down.
@@ -836,7 +836,6 @@ codeunit 141026 "ERM GST On Prepayments"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
         GeneralPostingSetup: Record "General Posting Setup";
-        GenJournalLine: Record "Gen. Journal Line";
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         PurchInvHeader: Record "Purch. Inv. Header";
@@ -905,12 +904,12 @@ codeunit 141026 "ERM GST On Prepayments"
         // [THEN] VAT Base and VAT Amount on VAT Amount Line.
         SalesInvoiceLine.CalcVATAmountLines(SalesInvoiceHeader, VATAmountLine);
         Assert.AreNearlyEqual(
-          -SalesLine."Line Amount" * SalesLine."VAT %" / 100, VATAmountLine."VAT Amount", LibraryERM.GetAmountRoundingPrecision,
+          -SalesLine."Line Amount" * SalesLine."VAT %" / 100, VATAmountLine."VAT Amount", LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(
             AmountErr, VATAmountLine.FieldCaption("VAT Amount"), -SalesLine."Line Amount" * SalesLine."VAT %" / 100,
             VATAmountLine.TableCaption()));
         Assert.AreNearlyEqual(
-          -SalesLine."Line Amount", VATAmountLine."VAT Base", LibraryERM.GetAmountRoundingPrecision, StrSubstNo(
+          -SalesLine."Line Amount", VATAmountLine."VAT Base", LibraryERM.GetAmountRoundingPrecision(), StrSubstNo(
             AmountErr, VATAmountLine.FieldCaption("VAT Amount"), -SalesLine."Line Amount", VATAmountLine.TableCaption()));
 
         // Tear Down.
@@ -1487,7 +1486,7 @@ codeunit 141026 "ERM GST On Prepayments"
         GLEntry.SetRange("G/L Account No.", GLAccountNo);
         GLEntry.FindFirst();
         Assert.AreNearlyEqual(
-          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision,
+          Amount, GLEntry.Amount, LibraryERM.GetAmountRoundingPrecision(),
           StrSubstNo(AmountErr, GLEntry.FieldCaption(Amount), Amount, GLEntry.TableCaption()));
     end;
 
@@ -1525,7 +1524,7 @@ codeunit 141026 "ERM GST On Prepayments"
     begin
         LibraryVariableStorage.Dequeue(No);
         PurchasePrepmtDocTest."Purchase Header".SetFilter("No.", No);
-        PurchasePrepmtDocTest.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        PurchasePrepmtDocTest.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [ConfirmHandler]

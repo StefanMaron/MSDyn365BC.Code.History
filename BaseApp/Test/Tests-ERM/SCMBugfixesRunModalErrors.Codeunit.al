@@ -241,8 +241,8 @@ codeunit 137041 "SCM Bugfixes Run Modal Errors"
     begin
         // Setup.
         Initialize();
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
         UpdateSalesReceivablesSetup(TempSalesReceivablesSetup, SalesReceivablesSetup."Credit Warnings"::"No Warning", true);
         CreateItemWithInventory(Item, LibraryRandom.RandInt(10));  // Inventory value important for test.
         CreateCustomerWithCreditLimit(Customer, 0);
@@ -282,8 +282,8 @@ codeunit 137041 "SCM Bugfixes Run Modal Errors"
     begin
         // Check for Credit Limit Warning for Old and New customer with different Credit Limit with Shipping details.
         Initialize();
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId);
-        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId);
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyBillToCustomerAddressNotificationId());
+        SalesHeader.DontNotifyCurrentUserAgain(SalesHeader.GetModifyCustomerAddressNotificationId());
         SalesOrderSellToCustomerNo(SalesReceivablesSetup."Credit Warnings"::"Both Warnings", true);
         NotificationLifecycleMgt.RecallAllNotifications();
     end;
@@ -428,7 +428,7 @@ codeunit 137041 "SCM Bugfixes Run Modal Errors"
 
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
-        ItemJournalSetup;
+        ItemJournalSetup();
 
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
@@ -441,7 +441,7 @@ codeunit 137041 "SCM Bugfixes Run Modal Errors"
     begin
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::Item);
         LibraryInventory.SelectItemJournalBatchName(ItemJournalBatch, ItemJournalTemplate.Type::Item, ItemJournalTemplate.Name);
-        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch.Modify(true);
     end;
 

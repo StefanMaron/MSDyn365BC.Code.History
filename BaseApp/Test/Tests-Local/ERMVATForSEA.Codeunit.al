@@ -238,7 +238,7 @@ codeunit 141037 "ERM VAT For SEA"
 
         // [GIVEN] Create and post Purchase Credit Memo and partially post Gen. Journal Line.
         Initialize();
-        UpdatePurchasesPayableSetup;
+        UpdatePurchasesPayableSetup();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         CreateGeneralPostingSetup(GeneralPostingSetup, VATPostingSetup);
         CreateWHTPostingSetup(WHTPostingSetup, GeneralPostingSetup);
@@ -301,7 +301,7 @@ codeunit 141037 "ERM VAT For SEA"
         // [VERIFY] Post and Verify the WHT Entry created successfully
         PostPurchaseInvoiceAndVerifyWHTEntry(
         VendorNo, VendorNo, CreateGLAccount(GeneralPostingSetup."Gen. Prod. Posting Group", WHTPostingSetup."WHT Product Posting Group"),
-          PurchaseLine."Document Type"::Invoice, WHTPostingSetup."WHT %", VATPostingSetup."VAT %");
+          PurchaseLine."Document Type"::Invoice, WHTPostingSetup."WHT %");
     end;
 
     [Test]
@@ -314,7 +314,6 @@ codeunit 141037 "ERM VAT For SEA"
         WHTPostingSetup: Record "WHT Posting Setup";
         VendorNo: Code[20];
         GLAccountNo: Code[20];
-        ErrTxt: Text;
     begin
         // [SCENARIO] No Error message is displayed when a Purchase Invoice with WHT calculation is posted - AU
         Initialize();
@@ -347,7 +346,7 @@ codeunit 141037 "ERM VAT For SEA"
     local procedure Initialize()
     begin
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
-        UpdateGeneralLedgerSetup;
+        UpdateGeneralLedgerSetup();
     end;
 
     local procedure CreateAndPostGeneralJournalLine(AccountNo: Code[20]; AppliesToDocNo: Code[20]; Amount: Decimal; AccountType: Enum "Gen. Journal Account Type"; DocumentType: Enum "Gen. Journal Document Type"; AppliesToDocType: Enum "Gen. Journal Document Type"; Type: Enum "Gen. Journal Template Type"): Code[20]
@@ -564,7 +563,7 @@ codeunit 141037 "ERM VAT For SEA"
         Amount: Decimal;
     begin
         // Create and post Purchase Document.
-        UpdatePurchasesPayableSetup;
+        UpdatePurchasesPayableSetup();
         CreateAndPostPurchaseDocument(PurchaseLine, DocumentType, PurchaseLine.Type::"G/L Account", BuyFromVendorNo, No, PayToVendorNo);
         Amount := PurchaseLine."Amount Including VAT" - (PurchaseLine.Amount * WHTPct / 100);  // Calculate Amount excluding WHT Amount.
 
@@ -582,17 +581,15 @@ codeunit 141037 "ERM VAT For SEA"
         VerifyGLEntry(GenJournalLine."Document Type"::Payment, DocumentNo, -Amount);
     end;
 
-    local procedure PostPurchaseInvoiceAndVerifyWHTEntry(BuyFromVendorNo: Code[20]; PayToVendorNo: Code[20]; No: Code[20]; DocumentType: Enum "Purchase Document Type"; WHTPct: Decimal; VATPct: Decimal)
+    local procedure PostPurchaseInvoiceAndVerifyWHTEntry(BuyFromVendorNo: Code[20]; PayToVendorNo: Code[20]; No: Code[20]; DocumentType: Enum "Purchase Document Type"; WHTPct: Decimal)
     var
         GenJournalLine: Record "Gen. Journal Line";
-        GenJournalTemplate: Record "Gen. Journal Template";
         PurchaseLine: Record "Purchase Line";
-        DocumentNo: Code[20];
         Amount: Decimal;
         WHTAmount: Decimal;
     begin
         // Create and post Purchase Document.
-        UpdatePurchasesPayableSetup;
+        UpdatePurchasesPayableSetup();
         CreateAndPostPurchaseDocument(PurchaseLine, DocumentType, PurchaseLine.Type::"G/L Account", BuyFromVendorNo, No, PayToVendorNo);
         WHTAmount := PurchaseLine.Amount * WHTPct / 100;
         Amount := PurchaseLine."Amount Including VAT" - WHTAmount;  // Calculate Amount excluding WHT Amount.
@@ -687,7 +684,7 @@ codeunit 141037 "ERM VAT For SEA"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         PurchasesPayablesSetup.Get();
-        PurchasesPayablesSetup.Validate("WHT Certificate No. Series", LibraryERM.CreateNoSeriesCode);
+        PurchasesPayablesSetup.Validate("WHT Certificate No. Series", LibraryERM.CreateNoSeriesCode());
         PurchasesPayablesSetup.Modify(true);
     end;
 
@@ -696,8 +693,8 @@ codeunit 141037 "ERM VAT For SEA"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         SalesReceivablesSetup.Get();
-        SalesReceivablesSetup.Validate("Posted Tax Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesReceivablesSetup.Validate("Posted Tax Credit Memo Nos", LibraryUtility.GetGlobalNoSeriesCode);
+        SalesReceivablesSetup.Validate("Posted Tax Invoice Nos.", LibraryUtility.GetGlobalNoSeriesCode());
+        SalesReceivablesSetup.Validate("Posted Tax Credit Memo Nos", LibraryUtility.GetGlobalNoSeriesCode());
         SalesReceivablesSetup.Modify(true);
     end;
 
@@ -708,7 +705,7 @@ codeunit 141037 "ERM VAT For SEA"
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetRange("Document No.", DocumentNo);
         GLEntry.FindFirst();
-        Assert.AreNearlyEqual(GLEntry.Amount, Amount, LibraryERM.GetAmountRoundingPrecision, ValueMatchMsg);
+        Assert.AreNearlyEqual(GLEntry.Amount, Amount, LibraryERM.GetAmountRoundingPrecision(), ValueMatchMsg);
     end;
 
     local procedure VerifyVATEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; Amount: Decimal; Base: Decimal)
@@ -718,8 +715,8 @@ codeunit 141037 "ERM VAT For SEA"
         VATEntry.SetRange("Document Type", DocumentType);
         VATEntry.SetRange("Document No.", DocumentNo);
         VATEntry.FindFirst();
-        Assert.AreNearlyEqual(VATEntry.Amount, Amount, LibraryERM.GetAmountRoundingPrecision, ValueMatchMsg);
-        Assert.AreNearlyEqual(VATEntry.Base, Base, LibraryERM.GetAmountRoundingPrecision, ValueMatchMsg);
+        Assert.AreNearlyEqual(VATEntry.Amount, Amount, LibraryERM.GetAmountRoundingPrecision(), ValueMatchMsg);
+        Assert.AreNearlyEqual(VATEntry.Base, Base, LibraryERM.GetAmountRoundingPrecision(), ValueMatchMsg);
     end;
 
     local procedure VerifyWHTEntry(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20]; Amount: Decimal; Base: Decimal)
@@ -729,8 +726,8 @@ codeunit 141037 "ERM VAT For SEA"
         WHTEntry.SetRange("Document Type", DocumentType);
         WHTEntry.SetRange("Document No.", DocumentNo);
         WHTEntry.FindFirst();
-        Assert.AreNearlyEqual(WHTEntry.Amount, Amount, LibraryERM.GetAmountRoundingPrecision, ValueMatchMsg);
-        Assert.AreNearlyEqual(WHTEntry.Base, Base, LibraryERM.GetAmountRoundingPrecision, ValueMatchMsg);
+        Assert.AreNearlyEqual(WHTEntry.Amount, Amount, LibraryERM.GetAmountRoundingPrecision(), ValueMatchMsg);
+        Assert.AreNearlyEqual(WHTEntry.Base, Base, LibraryERM.GetAmountRoundingPrecision(), ValueMatchMsg);
     end;
 
     local procedure UpdateWHTCertificateNoSerOnPurchSetup()

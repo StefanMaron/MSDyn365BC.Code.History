@@ -8,6 +8,7 @@ table 11606 "BAS Setup Name"
 {
     Caption = 'BAS Setup Name';
     LookupPageID = "BAS Setup Names";
+    DataClassification = CustomerContent;
 
     fields
     {

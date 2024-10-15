@@ -28,8 +28,6 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         isInitialized: Boolean;
         CloseFiscalYearQst: Label 'Do you want to close the fiscal year?';
         ApplErr: Label 'If the item carries serial or lot numbers, then you must use the Applies-from Entry field in the Item Tracking Lines window.';
-        CalculatePer: Option "Item Ledger Entry",Item;
-        CalculationBase: Option " ","Last Direct Unit Cost","Standard Cost - Assembly List","Standard Cost - Manufacturing";
         ValueEntriesWerePostedTxt: Label 'value entries have been posted to the general ledger.';
 
     local procedure Initialize()
@@ -80,7 +78,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         // Setup. Make item, post receive and invoice purchase.
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::FIFO, 0);
         LibraryPatterns.POSTPurchaseOrder(PurchaseHeader, Item, '', '', LibraryRandom.RandDec(10, 2),
-          WorkDate, LibraryRandom.RandDec(100, 2), true, false);
+          WorkDate(), LibraryRandom.RandDec(100, 2), true, false);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
 
         LibraryCosting.AdjustCostItemEntries(Item."No.", '');
@@ -334,7 +332,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         // Setup: Create item with avg costing method and SKUs in three different locations
         LibraryInventory.UpdateAverageCostSettings(
           InventorySetup."Average Cost Calc. Type"::"Item & Location & Variant", InventorySetup."Average Cost Period"::Day);
-        LibraryInventory.SetAutomaticCostAdjmtAlways;
+        LibraryInventory.SetAutomaticCostAdjmtAlways();
 
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Average, LibraryRandom.RandDec(10, 2));
         // Create SKUs for the item. These calls also create locations with no warehousing functionality
@@ -434,7 +432,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
 
         // Revaluate the parent item and run the Adjust Cost - Item entries job
         LibraryPatterns.MAKERevaluationJournalLine(ItemJournalBatch, ParentItem,
-          WorkDate, CalculatePer::Item, false, false, true, CalculationBase::" ");
+          WorkDate(), "Inventory Value Calc. Per"::Item, false, false, true, "Inventory Value Calc. Base"::" ");
         ItemJournalLine.SetRange("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.SetRange("Journal Batch Name", ItemJournalBatch.Name);
         ItemJournalLine.FindFirst();
@@ -683,7 +681,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
     begin
         LibraryCosting.AdjustCostItemEntries(ItemNo, '');
         Item.Get(ItemNo);
-        Assert.AreNearlyEqual(ExpectedUnitCost, Item."Unit Cost", LibraryERM.GetUnitAmountRoundingPrecision, '');
+        Assert.AreNearlyEqual(ExpectedUnitCost, Item."Unit Cost", LibraryERM.GetUnitAmountRoundingPrecision(), '');
     end;
 
     [Test]
@@ -700,7 +698,7 @@ codeunit 137616 "SCM Costing Rollup Sev 4"
         // Setup: make item, setup inventory setup, post item journals
         LibraryPatterns.MAKEItemSimple(Item, Item."Costing Method"::Average, 0);
 
-        LibraryInventory.SetAutomaticCostAdjmtNever;
+        LibraryInventory.SetAutomaticCostAdjmtNever();
         LibraryInventory.SetAverageCostSetup(InventorySetup."Average Cost Calc. Type"::Item, InventorySetup."Average Cost Period"::Month);
 
         UnitCost := LibraryRandom.RandDecInRange(1, 100, 2);

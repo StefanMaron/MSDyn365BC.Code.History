@@ -65,7 +65,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize();
         CreatePurchaseInvoice(PurchaseHeader);
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, CreatePmtLineAsyncRespWorkflowStepInstance,
-          WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocAsyncCode);
+          WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocAsyncCode());
         AddCreatePmtLineArgumentToStep(CreatePmtLineAsyncRespWorkflowStepInstance);
         WorkflowStepArgument.Get(CreatePmtLineAsyncRespWorkflowStepInstance.Argument);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
@@ -77,7 +77,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         WorkflowMgt.ExecuteResponses(PurchInvHeader, PurchInvHeader, FirstWorkflowStepInstance);
 
         JobQueueEntry.SetRange("Record ID to Process", WorkflowStepArgument.RecordId);
-        Assert.IsTrue(JobQueueEntry.FindFirst, 'There should be a job queue entry created');
+        Assert.IsTrue(JobQueueEntry.FindFirst(), 'There should be a job queue entry created');
 
         JobQueueEntry.SetStatus(JobQueueEntry.Status::Ready);
 
@@ -85,7 +85,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // Verify.
         GenJournalLine.SetRange("Applies-to Doc. No.", PurchInvHeader."No.");
-        Assert.IsTrue(GenJournalLine.FindFirst, 'There should be a general journal line created');
+        Assert.IsTrue(GenJournalLine.FindFirst(), 'There should be a general journal line created');
     end;
 
     [Test]
@@ -108,7 +108,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize();
         CreatePurchaseInvoice(PurchaseHeader);
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, CreatePmtLineRespWorkflowStepInstance,
-          WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocCode);
+          WorkflowResponseHandling.CreatePmtLineForPostedPurchaseDocCode());
         AddCreatePmtLineArgumentToStep(CreatePmtLineRespWorkflowStepInstance);
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
         LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, false);
@@ -120,7 +120,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // Verify
         GenJournalLine.SetRange("Applies-to Doc. No.", PurchInvHeader."No.");
-        Assert.IsTrue(GenJournalLine.FindFirst, 'There should be a general journal line created');
+        Assert.IsTrue(GenJournalLine.FindFirst(), 'There should be a general journal line created');
     end;
 
     [Test]
@@ -143,7 +143,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize();
         CreatePurchaseInvoice(PurchaseHeader);
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, PostDocumentAsyncRespWorkflowStepInstance,
-          WorkflowResponseHandling.PostDocumentAsyncCode);
+          WorkflowResponseHandling.PostDocumentAsyncCode());
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
 
         // Excercise
@@ -151,7 +151,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // Verify
         JobQueueEntry.SetRange("Record ID to Process", PurchaseHeader.RecordId);
-        Assert.IsTrue(JobQueueEntry.FindFirst, 'There should be a job queue entry created');
+        Assert.IsTrue(JobQueueEntry.FindFirst(), 'There should be a job queue entry created');
     end;
 
     [Test]
@@ -174,7 +174,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize();
         CreateSalesInvoice(SalesHeader);
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, PostDocumentAsyncRespWorkflowStepInstance,
-          WorkflowResponseHandling.PostDocumentAsyncCode);
+          WorkflowResponseHandling.PostDocumentAsyncCode());
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
         // Excercise
@@ -182,7 +182,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // Verify
         JobQueueEntry.SetRange("Record ID to Process", SalesHeader.RecordId);
-        Assert.IsTrue(JobQueueEntry.FindFirst, 'There should be a job queue entry created');
+        Assert.IsTrue(JobQueueEntry.FindFirst(), 'There should be a job queue entry created');
     end;
 
     [Test]
@@ -203,7 +203,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // Setup
         Initialize();
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, PostDocumentAsyncRespWorkflowStepInstance,
-          WorkflowResponseHandling.PostDocumentAsyncCode);
+          WorkflowResponseHandling.PostDocumentAsyncCode());
 
         LibraryInventory.CreateItem(Item);
 
@@ -239,13 +239,13 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, VendorNo);
 
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item,
-          LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
 
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
 
         // Setup - Create the workflow
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, PostDocRespWorkflowStepInstance,
-          WorkflowResponseHandling.PostDocumentCode);
+          WorkflowResponseHandling.PostDocumentCode());
 
         // Exercise
         WorkflowMgt.ExecuteResponses(PurchaseHeader, PurchaseHeader, FirstWorkflowStepInstance);
@@ -289,13 +289,13 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
 
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item,
-          LibraryInventory.CreateItemNo, LibraryRandom.RandInt(100));
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(100));
 
         LibrarySales.ReleaseSalesDocument(SalesHeader);
 
         // Setup - Create the workflow
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, PostDocRespWorkflowStepInstance,
-          WorkflowResponseHandling.PostDocumentCode);
+          WorkflowResponseHandling.PostDocumentCode());
 
         // Exercise
         WorkflowMgt.ExecuteResponses(SalesHeader, SalesHeader, FirstWorkflowStepInstance);
@@ -330,7 +330,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // Setup
         Initialize();
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, PostDocRespWorkflowStepInstance,
-          WorkflowResponseHandling.PostDocumentCode);
+          WorkflowResponseHandling.PostDocumentCode());
 
         LibraryInventory.CreateItem(Item);
 
@@ -358,7 +358,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize();
         CreatePurchaseInvoice(PurchaseHeader);
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ReleaseDocRespWorkflowStepInstance,
-          WorkflowResponseHandling.ReleaseDocumentCode);
+          WorkflowResponseHandling.ReleaseDocumentCode());
 
         // Excercise
         WorkflowMgt.ExecuteResponses(PurchaseHeader, PurchaseHeader, FirstWorkflowStepInstance);
@@ -392,14 +392,14 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize();
         CreateOrFindUserSetup(UserSetup, UserId);
         SetUnlimitedPurchaseApprovalLimit(UserSetup);
-        CreateMockPurchaseApprovalWorkflow;
+        CreateMockPurchaseApprovalWorkflow();
         CreatePurchaseInvoice(PurchaseHeader);
         CreateApprovalEntryForPurchaseDoc(ApprovalEntry, PurchaseHeader);
         ApprovalEntry.Status := ApprovalEntry.Status::Created;
         ApprovalEntry.Modify();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ReleaseDocRespWorkflowStepInstance,
-          WorkflowResponseHandling.ReleaseDocumentCode);
+          WorkflowResponseHandling.ReleaseDocumentCode());
 
         // Excercise
         asserterror WorkflowMgt.ExecuteResponses(PurchaseHeader, PurchaseHeader, FirstWorkflowStepInstance);
@@ -427,7 +427,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize();
         CreateSalesInvoice(SalesHeader);
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ReleaseDocRespWorkflowStepInstance,
-          WorkflowResponseHandling.ReleaseDocumentCode);
+          WorkflowResponseHandling.ReleaseDocumentCode());
 
         // Excercise
         WorkflowMgt.ExecuteResponses(SalesHeader, SalesHeader, FirstWorkflowStepInstance);
@@ -461,14 +461,14 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize();
         CreateOrFindUserSetup(UserSetup, UserId);
         SetUnlimitedSalesApprovalLimit(UserSetup);
-        CreateMockSalesApprovalWorkflow;
+        CreateMockSalesApprovalWorkflow();
         CreateSalesInvoice(SalesHeader);
         CreateApprovalEntryForSalesDoc(ApprovalEntry, SalesHeader);
         ApprovalEntry.Status := ApprovalEntry.Status::Created;
         ApprovalEntry.Modify();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ReleaseDocRespWorkflowStepInstance,
-          WorkflowResponseHandling.ReleaseDocumentCode);
+          WorkflowResponseHandling.ReleaseDocumentCode());
 
         // Excercise
         asserterror WorkflowMgt.ExecuteResponses(SalesHeader, SalesHeader, FirstWorkflowStepInstance);
@@ -499,7 +499,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         CreatePurchaseInvoice(PurchaseHeader);
         CreateApprovalEntryForPurchaseDoc(ApprovalEntry, PurchaseHeader);
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ReleaseDocRespWorkflowStepInstance,
-          WorkflowResponseHandling.ReleaseDocumentCode);
+          WorkflowResponseHandling.ReleaseDocumentCode());
 
         // Excercise
         WorkflowMgt.ExecuteResponses(ApprovalEntry, ApprovalEntry, FirstWorkflowStepInstance);
@@ -530,7 +530,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         CreateSalesInvoice(SalesHeader);
         CreateApprovalEntryForSalesDoc(ApprovalEntry, SalesHeader);
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ReleaseDocRespWorkflowStepInstance,
-          WorkflowResponseHandling.ReleaseDocumentCode);
+          WorkflowResponseHandling.ReleaseDocumentCode());
 
         // Excercise
         WorkflowMgt.ExecuteResponses(ApprovalEntry, ApprovalEntry, FirstWorkflowStepInstance);
@@ -557,7 +557,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // Setup
         Initialize();
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ReleaseDocRespWorkflowStepInstance,
-          WorkflowResponseHandling.ReleaseDocumentCode);
+          WorkflowResponseHandling.ReleaseDocumentCode());
 
         LibraryInventory.CreateItem(Item);
 
@@ -589,7 +589,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // Excercise
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, OpenDocRespWorkflowStepInstance,
-          WorkflowResponseHandling.OpenDocumentCode);
+          WorkflowResponseHandling.OpenDocumentCode());
 
         WorkflowMgt.ExecuteResponses(PurchaseHeader, PurchaseHeader, FirstWorkflowStepInstance);
 
@@ -619,7 +619,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         SalesHeader.Modify();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, OpenDocRespWorkflowStepInstance,
-          WorkflowResponseHandling.OpenDocumentCode);
+          WorkflowResponseHandling.OpenDocumentCode());
 
         // Excercise
         WorkflowMgt.ExecuteResponses(SalesHeader, SalesHeader, FirstWorkflowStepInstance);
@@ -653,7 +653,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         CreateApprovalEntryForPurchaseDoc(ApprovalEntry, PurchaseHeader);
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, OpenDocRespWorkflowStepInstance,
-          WorkflowResponseHandling.OpenDocumentCode);
+          WorkflowResponseHandling.OpenDocumentCode());
 
         // Excercise
         WorkflowMgt.ExecuteResponses(ApprovalEntry, ApprovalEntry, FirstWorkflowStepInstance);
@@ -687,7 +687,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         CreateApprovalEntryForSalesDoc(ApprovalEntry, SalesHeader);
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, OpenDocRespWorkflowStepInstance,
-          WorkflowResponseHandling.OpenDocumentCode);
+          WorkflowResponseHandling.OpenDocumentCode());
 
         // Excercise
         WorkflowMgt.ExecuteResponses(ApprovalEntry, ApprovalEntry, FirstWorkflowStepInstance);
@@ -715,7 +715,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, OpenDocRespWorkflowStepInstance,
-          WorkflowResponseHandling.OpenDocumentCode);
+          WorkflowResponseHandling.OpenDocumentCode());
 
         LibraryInventory.CreateItem(Item);
 
@@ -750,13 +750,13 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         CommentTxt := CopyStr(LibraryUtility.GenerateRandomText(20), 1, 20);
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, GetCommentRespWorkflowStepInstance,
-          WorkflowResponseHandling.GetApprovalCommentCode);
+          WorkflowResponseHandling.GetApprovalCommentCode());
 
         // Excercise
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
         WorkflowMgt.ExecuteResponses(PurchaseHeader, PurchaseHeader, FirstWorkflowStepInstance);
         ApprovalComments.Comment.Value(CommentTxt);
-        ApprovalComments.OK.Invoke;
+        ApprovalComments.OK().Invoke();
 
         // Verify
         VerifyApprovalCommentLineForPurchInv(PurchaseHeader, CommentTxt);
@@ -787,13 +787,13 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         CommentTxt := CopyStr(LibraryUtility.GenerateRandomText(20), 1, 20);
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, GetCommentRespWorkflowStepInstance,
-          WorkflowResponseHandling.GetApprovalCommentCode);
+          WorkflowResponseHandling.GetApprovalCommentCode());
 
         // Excercise
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
         WorkflowMgt.ExecuteResponses(SalesHeader, SalesHeader, FirstWorkflowStepInstance);
         ApprovalComments.Comment.Value(CommentTxt);
-        ApprovalComments.OK.Invoke;
+        ApprovalComments.OK().Invoke();
 
         // Verify
         VerifyApprovalCommentLineForSalesInv(SalesHeader, CommentTxt);
@@ -826,13 +826,13 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         CreateApprovalEntryForPurchaseDoc(ApprovalEntry, PurchaseHeader);
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, GetCommentRespWorkflowStepInstance,
-          WorkflowResponseHandling.GetApprovalCommentCode);
+          WorkflowResponseHandling.GetApprovalCommentCode());
 
         // Excercise
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
         WorkflowMgt.ExecuteResponses(ApprovalEntry, ApprovalEntry, FirstWorkflowStepInstance);
         ApprovalComments.Comment.Value(CommentTxt);
-        ApprovalComments.OK.Invoke;
+        ApprovalComments.OK().Invoke();
 
         // Verify
         VerifyApprovalCommentLineForPurchInv(PurchaseHeader, CommentTxt);
@@ -859,15 +859,15 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, GetCommentRespWorkflowStepInstance,
-          WorkflowResponseHandling.GetApprovalCommentCode);
+          WorkflowResponseHandling.GetApprovalCommentCode());
         CommentTxt := CopyStr(LibraryUtility.GenerateRandomText(20), 1, 20);
         LibraryInventory.CreateItem(Item);
 
         // Exercise.
-        ApprovalComments.Trap;
+        ApprovalComments.Trap();
         WorkflowMgt.ExecuteResponses(Item, Item, FirstWorkflowStepInstance);
         ApprovalComments.Comment.Value(CommentTxt);
-        ApprovalComments.OK.Invoke;
+        ApprovalComments.OK().Invoke();
 
         // Verify.
         VerifyApprovalCommentLineForItem(Item, CommentTxt);
@@ -892,9 +892,9 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, SetDocStatusRespWorkflowStepInstance,
-          WorkflowResponseHandling.SetStatusToPendingApprovalCode);
+          WorkflowResponseHandling.SetStatusToPendingApprovalCode());
 
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
 
         // Exercise
         WorkflowMgt.ExecuteResponses(SalesHeader, SalesHeader, FirstWorkflowStepInstance);
@@ -923,7 +923,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, SetDocStatusRespWorkflowStepInstance,
-          WorkflowResponseHandling.SetStatusToPendingApprovalCode);
+          WorkflowResponseHandling.SetStatusToPendingApprovalCode());
 
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, '');
 
@@ -969,7 +969,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // Setup - Create workflow response chain for testing
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, CreateApprReqRespWorkflowStepInstance,
-          WorkflowResponseHandling.CreateApprovalRequestsCode);
+          WorkflowResponseHandling.CreateApprovalRequestsCode());
 
         // Setup - Create step argument, select the approver type and update the step instance
         Evaluate(DueDateFormula, '<+1M>');
@@ -1035,7 +1035,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // Setup - Create workflow response chain for testing
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, CreateApprReqRespWorkflowStepInstance,
-          WorkflowResponseHandling.CreateApprovalRequestsCode);
+          WorkflowResponseHandling.CreateApprovalRequestsCode());
 
         // Setup - Create step argument, select the approver type and update the step instance
         Evaluate(DueDateFormula, '<+1M>');
@@ -1092,7 +1092,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // Setup - Create workflow response chain for testing
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, CreateApprReqRespWorkflowStepInstance,
-          WorkflowResponseHandling.CreateApprovalRequestsCode);
+          WorkflowResponseHandling.CreateApprovalRequestsCode());
 
         // Setup - Create step argument, select the approver type and update the step instance
         Evaluate(DueDateFormula, '<+1M>');
@@ -1149,7 +1149,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // Setup - Create workflow response chain for testing
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, CreateApprReqRespWorkflowStepInstance,
-          WorkflowResponseHandling.CreateApprovalRequestsCode);
+          WorkflowResponseHandling.CreateApprovalRequestsCode());
 
         // Setup - Create step argument, select the approver type and update the step instance
         Evaluate(DueDateFormula, '<+1M>');
@@ -1207,7 +1207,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // Setup - Create workflow response chain for testing
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, CreateApprReqRespWorkflowStepInstance,
-          WorkflowResponseHandling.CreateApprovalRequestsCode);
+          WorkflowResponseHandling.CreateApprovalRequestsCode());
 
         // Setup - Create step argument, select the approver type and update the step instance
         Evaluate(DueDateFormula, '<+1M>');
@@ -1268,7 +1268,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // Setup - Create workflow response chain for testing
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, CreateApprReqRespWorkflowStepInstance,
-          WorkflowResponseHandling.CreateApprovalRequestsCode);
+          WorkflowResponseHandling.CreateApprovalRequestsCode());
 
         // Setup - Create step argument, select the approver type and update the step instance
         Evaluate(DueDateFormula, '<+1M>');
@@ -1324,7 +1324,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // [WHEN] Send Approval Request
         CreateWorkflowStepInstanceWithTwoResponses(
-          FirstWorkflowStepInstance, CreateApprReqRespWorkflowStepInstance, WorkflowResponseHandling.CreateApprovalRequestsCode);
+          FirstWorkflowStepInstance, CreateApprReqRespWorkflowStepInstance, WorkflowResponseHandling.CreateApprovalRequestsCode());
         Evaluate(DueDateFormula, '<+1M>');
         CreateApprovalArgument(
           CreateApprReqRespWorkflowStepInstance, WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser",
@@ -1381,7 +1381,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // Setup - Create workflow response chain for testing
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, CreateApprReqRespWorkflowStepInstance,
-          WorkflowResponseHandling.CreateApprovalRequestsCode);
+          WorkflowResponseHandling.CreateApprovalRequestsCode());
 
         // Setup - Create step argument, select the approver type and update the step instance
         Evaluate(DueDateFormula, '<+1M>');
@@ -1447,7 +1447,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // Setup - Create workflow response chain for testing
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, CreateApprReqRespWorkflowStepInstance,
-          WorkflowResponseHandling.CreateApprovalRequestsCode);
+          WorkflowResponseHandling.CreateApprovalRequestsCode());
 
         // Setup - Create step argument, select the approver type and update the step instance
         Evaluate(DueDateFormula, '<+1M>');
@@ -1504,7 +1504,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // Setup - Create workflow response chain for testing
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, CreateApprReqRespWorkflowStepInstance,
-          WorkflowResponseHandling.CreateApprovalRequestsCode);
+          WorkflowResponseHandling.CreateApprovalRequestsCode());
 
         // Setup - Create step argument, select the approver type and update the step instance
         Evaluate(DueDateFormula, '<+1M>');
@@ -1564,7 +1564,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // Setup - Create workflow response chain for testing
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, CreateApprReqRespWorkflowStepInstance,
-          WorkflowResponseHandling.CreateApprovalRequestsCode);
+          WorkflowResponseHandling.CreateApprovalRequestsCode());
 
         // Setup - Create step argument, select the approver type and update the step instance
         Evaluate(DueDateFormula, '<+1M>');
@@ -1625,7 +1625,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // Setup - Create workflow response chain for testing
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, CreateApprReqRespWorkflowStepInstance,
-          WorkflowResponseHandling.CreateApprovalRequestsCode);
+          WorkflowResponseHandling.CreateApprovalRequestsCode());
 
         // Setup - Create step argument, select the approver type and update the step instance
         Evaluate(DueDateFormula, '<+1M>');
@@ -1681,7 +1681,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // [WHEN] Send Approval Request
         CreateWorkflowStepInstanceWithTwoResponses(
-          FirstWorkflowStepInstance, CreateApprReqRespWorkflowStepInstance, WorkflowResponseHandling.CreateApprovalRequestsCode);
+          FirstWorkflowStepInstance, CreateApprReqRespWorkflowStepInstance, WorkflowResponseHandling.CreateApprovalRequestsCode());
         Evaluate(DueDateFormula, '<+1M>');
         CreateApprovalArgument(
           CreateApprReqRespWorkflowStepInstance, WorkflowStepArgument."Approver Type"::"Salesperson/Purchaser",
@@ -1739,7 +1739,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // Setup - Create workflow response chain for testing
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, CreateApprReqRespWorkflowStepInstance,
-          WorkflowResponseHandling.CreateApprovalRequestsCode);
+          WorkflowResponseHandling.CreateApprovalRequestsCode());
 
         // Setup - Create step argument, select the approver type and update the step instance
         Evaluate(DueDateFormula, '<+1M>');
@@ -1801,7 +1801,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // Setup - Create workflow response chain for testing
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, CreateApprReqRespWorkflowStepInstance,
-          WorkflowResponseHandling.CreateApprovalRequestsCode);
+          WorkflowResponseHandling.CreateApprovalRequestsCode());
 
         // Setup - Create step argument, select the approver type and update the step instance
         Evaluate(DueDateFormula, '<+1M>');
@@ -1839,7 +1839,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         LibraryWorkflow.CreateWorkflowStepArgument(WorkflowStepArgument, WorkflowStepArgument.Type::Response,
           '', '', '', WorkflowStepArgument."Approver Type"::Approver, true);
         WorkflowStepArgument.Validate("Approver Limit Type", WorkflowStepArgument."Approver Limit Type"::"Approver Chain");
-        WorkflowStepArgument.Validate("Response Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode);
+        WorkflowStepArgument.Validate("Response Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode());
         WorkflowStepArgument.Modify(true);
 
         // Excercise
@@ -1873,7 +1873,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         LibraryWorkflow.CreateWorkflowStepArgument(WorkflowStepArgument, WorkflowStepArgument.Type::Response,
           '', '', '', WorkflowStepArgument."Approver Type"::"Workflow User Group", true);
         WorkflowStepArgument.Validate("Workflow User Group Code", WorkflowUserGroup.Code);
-        WorkflowStepArgument.Validate("Response Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode);
+        WorkflowStepArgument.Validate("Response Function Name", WorkflowResponseHandling.CreateApprovalRequestsCode());
         WorkflowStepArgument.Modify(true);
 
         // Excercise
@@ -1889,7 +1889,6 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
     procedure CreateApprReqRespDescForNotifySenderTest()
     var
         WorkflowStepArgument: Record "Workflow Step Argument";
-        WorkflowUserGroup: Record "Workflow User Group";
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
         Description: Text;
     begin
@@ -1945,7 +1944,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // Setup - Create workflow response chain for testing
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, CreateApprReqRespWorkflowStepInstance,
-          WorkflowResponseHandling.CreateApprovalRequestsCode);
+          WorkflowResponseHandling.CreateApprovalRequestsCode());
 
         // Setup - Create step argument, select the approver type and update the step instance
         Evaluate(DueDateFormula, '<+1M>');
@@ -1992,7 +1991,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // Setup - Create workflow response chain for testing
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, CreateApprReqRespWorkflowStepInstance,
-          WorkflowResponseHandling.CreateApprovalRequestsCode);
+          WorkflowResponseHandling.CreateApprovalRequestsCode());
 
         // Setup - Create step argument, select the approver type and update the step instance
         Evaluate(DueDateFormula, '<+1M>');
@@ -2039,7 +2038,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // Setup - Create workflow response chain for testing
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, CreateApprReqRespWorkflowStepInstance,
-          WorkflowResponseHandling.CreateApprovalRequestsCode);
+          WorkflowResponseHandling.CreateApprovalRequestsCode());
 
         // Setup - Create Change Record
         CreateWorkflowCustomerRecordChange(Customer, Customer.FieldNo("Credit Limit (LCY)"),
@@ -2095,7 +2094,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // Verify - approval requests.
         GetApprovalEntriesForInv(ApprovalEntry, DATABASE::"Purchase Header", PurchaseHeader."No.");
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
-        Assert.IsTrue(ApprovalEntry.FindFirst, 'There should be at least one open approval entry.');
+        Assert.IsTrue(ApprovalEntry.FindFirst(), 'There should be at least one open approval entry.');
         VerifyApprovalEntryIsOpen(ApprovalEntry);
         VerifyApprovalEntrySenderID(ApprovalEntry, UserSetup."User ID");
         VerifyApprovalEntryApproverID(ApprovalEntry, Approver1UserSetup."User ID");
@@ -2127,7 +2126,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // Setup - Cleanup
         Initialize();
 
-        CreateOrFindCurrentUserSetup;
+        CreateOrFindCurrentUserSetup();
 
         // Setup - WorkflowUserGroups and usersetups
         CreateThreeUserSetupWithSequentialWorkflowUserGroup(WorkflowUserGroup, UserSetup1,
@@ -2148,7 +2147,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Assert.RecordCount(ApprovalEntry, 3);
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
         Assert.RecordCount(ApprovalEntry, 1);
-        Assert.IsTrue(ApprovalEntry.FindFirst, 'There should be at least one open approval entry.');
+        Assert.IsTrue(ApprovalEntry.FindFirst(), 'There should be at least one open approval entry.');
         VerifyApprovalEntryIsOpen(ApprovalEntry);
         VerifyApprovalEntrySenderID(ApprovalEntry, UserId);
         VerifyApprovalEntryApproverID(ApprovalEntry, UserSetup1."User ID");
@@ -2177,7 +2176,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // Setup - Cleanup
         Initialize();
 
-        CreateOrFindCurrentUserSetup;
+        CreateOrFindCurrentUserSetup();
 
         // Setup - WorkflowUserGroups and usersetups
         CreateThreeUserSetupWithFlatWorkflowUserGroup(WorkflowUserGroup, UserSetup1,
@@ -2198,7 +2197,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Assert.RecordCount(ApprovalEntry, 3);
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
         Assert.RecordCount(ApprovalEntry, 3);
-        Assert.IsTrue(ApprovalEntry.FindFirst, 'There should be at least one open approval entry.');
+        Assert.IsTrue(ApprovalEntry.FindFirst(), 'There should be at least one open approval entry.');
         VerifyApprovalEntryIsOpen(ApprovalEntry);
         VerifyApprovalEntrySenderID(ApprovalEntry, UserId);
         VerifyApprovalEntryApproverID(ApprovalEntry, UserSetup1."User ID");
@@ -2239,7 +2238,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // Setup - Create workflow response chain for testing
         CreateWorkflowStepInstanceWithSendForApprovalResponse(FirstWorkflowStepInstance, SendForApprovalWorkflowStepInstance);
         CreateResponseStepAfterGivenStepWithNotification(SendForApprovalWorkflowStepInstance, CancelAllWorkflowStepInstance,
-          WorkflowResponseHandling.CancelAllApprovalRequestsCode);
+          WorkflowResponseHandling.CancelAllApprovalRequestsCode());
 
         // Excercise
         WorkflowMgt.ExecuteResponses(PurchaseHeader, PurchaseHeader, FirstWorkflowStepInstance);
@@ -2288,7 +2287,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // Setup - Create workflow response chain for testing
         CreateWorkflowStepInstanceWithSendForApprovalResponse(FirstWorkflowStepInstance, SendForApprovalWorkflowStepInstance);
         CreateResponseStepAfterGivenStepWithNotification(SendForApprovalWorkflowStepInstance, RejectAllWorkflowStepInstance,
-          WorkflowResponseHandling.RejectAllApprovalRequestsCode);
+          WorkflowResponseHandling.RejectAllApprovalRequestsCode());
 
         // Excercise
         WorkflowMgt.ExecuteResponses(PurchaseHeader, PurchaseHeader, FirstWorkflowStepInstance);
@@ -2341,7 +2340,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // Verify - approval requests.
         GetApprovalEntriesForInv(ApprovalEntry, DATABASE::"Sales Header", SalesHeader."No.");
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
-        Assert.IsTrue(ApprovalEntry.FindFirst, 'There should be at least one open approval entry.');
+        Assert.IsTrue(ApprovalEntry.FindFirst(), 'There should be at least one open approval entry.');
         VerifyApprovalEntryIsOpen(ApprovalEntry);
         VerifyApprovalEntrySenderID(ApprovalEntry, UserSetup."User ID");
         VerifyApprovalEntryApproverID(ApprovalEntry, Approver1UserSetup."User ID");
@@ -2385,7 +2384,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // Setup - Create workflow response chain for testing
         CreateWorkflowStepInstanceWithSendForApprovalResponse(FirstWorkflowStepInstance, SendForApprovalWorkflowStepInstance);
         CreateResponseStepAfterGivenStepWithNotification(SendForApprovalWorkflowStepInstance, CancelAllWorkflowStepInstance,
-          WorkflowResponseHandling.CancelAllApprovalRequestsCode);
+          WorkflowResponseHandling.CancelAllApprovalRequestsCode());
 
         // Excercise
         WorkflowMgt.ExecuteResponses(SalesHeader, SalesHeader, FirstWorkflowStepInstance);
@@ -2434,7 +2433,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // Setup - Create workflow response chain for testing
         CreateWorkflowStepInstanceWithSendForApprovalResponse(FirstWorkflowStepInstance, SendForApprovalWorkflowStepInstance);
         CreateResponseStepAfterGivenStepWithNotification(SendForApprovalWorkflowStepInstance, RejectAllWorkflowStepInstance,
-          WorkflowResponseHandling.RejectAllApprovalRequestsCode);
+          WorkflowResponseHandling.RejectAllApprovalRequestsCode());
 
         // Excercise
         WorkflowMgt.ExecuteResponses(SalesHeader, SalesHeader, FirstWorkflowStepInstance);
@@ -2484,7 +2483,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // Setup - Create workflow response chain for testing
         CreateWorkflowStepInstanceWithSendForApprovalResponse(FirstWorkflowStepInstance, SendForApprovalWorkflowStepInstance);
         CreateResponseStepAfterGivenStepWithNotification(SendForApprovalWorkflowStepInstance, SendOverdueWorkflowStepInstance,
-          WorkflowResponseHandling.CreateOverdueNotificationCode);
+          WorkflowResponseHandling.CreateOverdueNotificationCode());
 
         // Excercise
         WorkflowMgt.ExecuteResponses(PurchaseHeader, PurchaseHeader, FirstWorkflowStepInstance);
@@ -2492,7 +2491,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // Verify - approval requests.
         GetApprovalEntriesForInv(ApprovalEntry, DATABASE::"Purchase Header", PurchaseHeader."No.");
         ApprovalEntry.SetRange(Status, ApprovalEntry.Status::Open);
-        Assert.IsTrue(ApprovalEntry.FindFirst, 'Unexpected number of open approval entries found');
+        Assert.IsTrue(ApprovalEntry.FindFirst(), 'Unexpected number of open approval entries found');
         VerifyApprovalEntryIsOpen(ApprovalEntry);
         VerifyApprovalEntrySenderID(ApprovalEntry, UserSetup."User ID");
         VerifyApprovalEntryApproverID(ApprovalEntry, Approver1UserSetup."User ID");
@@ -2527,7 +2526,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // Setup - Cleanup
         Initialize();
 
-        CreateOrFindCurrentUserSetup;
+        CreateOrFindCurrentUserSetup();
 
         // Setup - WorkflowUserGroups and usersetups
         CreateThreeUserSetupWithSequentialWorkflowUserGroup(WorkflowUserGroup, UserSetup1,
@@ -2538,7 +2537,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // Setup - Create workflow response chain for testing
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, CreateApprReqRespWorkflowStepInstance,
-          WorkflowResponseHandling.CreateApprovalRequestsCode);
+          WorkflowResponseHandling.CreateApprovalRequestsCode());
 
         // Setup - Create step argument, select the approver type and update the step instance
         Evaluate(DueDateFormula, '<+1M>');
@@ -2594,7 +2593,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // Setup - Cleanup
         Initialize();
 
-        CreateOrFindCurrentUserSetup;
+        CreateOrFindCurrentUserSetup();
 
         // Setup - WorkflowUserGroups and usersetups
         CreateThreeUserSetupWithFlatWorkflowUserGroup(WorkflowUserGroup, UserSetup1,
@@ -2605,7 +2604,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // Setup - Create workflow response chain for testing
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, CreateApprReqRespWorkflowStepInstance,
-          WorkflowResponseHandling.CreateApprovalRequestsCode);
+          WorkflowResponseHandling.CreateApprovalRequestsCode());
 
         // Setup - Create step argument, select the approver type and update the step instance
         Evaluate(DueDateFormula, '<+1M>');
@@ -2660,7 +2659,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // Setup - Cleanup
         Initialize();
 
-        CreateOrFindCurrentUserSetup;
+        CreateOrFindCurrentUserSetup();
 
         // Setup - WorkflowUserGroups and usersetups
         CreateThreeUserSetupWithSequentialWorkflowUserGroup(WorkflowUserGroup, UserSetup1,
@@ -2671,7 +2670,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
 
         // Setup - Create workflow response chain for testing
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, CreateApprReqRespWorkflowStepInstance,
-          WorkflowResponseHandling.CreateApprovalRequestsCode);
+          WorkflowResponseHandling.CreateApprovalRequestsCode());
 
         // Setup - Create step argument, select the approver type and update the step instance
         Evaluate(DueDateFormula, '<+1M>');
@@ -2719,7 +2718,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize();
         CreateSalesInvoice(SalesHeader);
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, CheckCreditLimitWorkflowStepInstance,
-          WorkflowResponseHandling.CheckCustomerCreditLimitCode);
+          WorkflowResponseHandling.CheckCustomerCreditLimitCode());
 
         // Excercise
         WorkflowMgt.ExecuteResponses(SalesHeader, SalesHeader, FirstWorkflowStepInstance);
@@ -2728,7 +2727,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         WorkflowStepInstanceArchive.SetRange(ID, CheckCreditLimitWorkflowStepInstance.ID);
         WorkflowStepInstanceArchive.SetRange("Workflow Code", CheckCreditLimitWorkflowStepInstance."Workflow Code");
         WorkflowStepInstanceArchive.SetRange("Workflow Step ID", CheckCreditLimitWorkflowStepInstance."Workflow Step ID");
-        Assert.IsTrue(WorkflowStepInstanceArchive.FindFirst, 'The response was not executed and the workflow was not compledted.');
+        Assert.IsTrue(WorkflowStepInstanceArchive.FindFirst(), 'The response was not executed and the workflow was not compledted.');
     end;
 
     [Test]
@@ -2768,7 +2767,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         WorkflowStepInstanceArchive.SetRange(ID, ShowMessageWorkflowStepInstance.ID);
         WorkflowStepInstanceArchive.SetRange("Workflow Code", ShowMessageWorkflowStepInstance."Workflow Code");
         WorkflowStepInstanceArchive.SetRange("Workflow Step ID", ShowMessageWorkflowStepInstance."Workflow Step ID");
-        Assert.IsTrue(WorkflowStepInstanceArchive.FindFirst, 'The response was not executed and the workflow was not compledted.');
+        Assert.IsTrue(WorkflowStepInstanceArchive.FindFirst(), 'The response was not executed and the workflow was not compledted.');
     end;
 
     [Test]
@@ -2792,10 +2791,10 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // Setup.
         Initialize();
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, RestrictEntityUsageWorkflowStepInstance,
-          WorkflowResponseHandling.RestrictRecordUsageCode);
+          WorkflowResponseHandling.RestrictRecordUsageCode());
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice,
-          Customer."No.", LibraryInventory.CreateItemNo, 10, '', WorkDate());
+          Customer."No.", LibraryInventory.CreateItemNo(), 10, '', WorkDate());
 
         // Exercise.
         WorkflowMgt.ExecuteResponses(Customer, Customer, FirstWorkflowStepInstance);
@@ -2833,18 +2832,18 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, RestrictEntityUsageWorkflowStepInstance,
-          WorkflowResponseHandling.RestrictRecordUsageCode);
+          WorkflowResponseHandling.RestrictRecordUsageCode());
 
         LibrarySales.CreateCustomer(Customer);
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice,
-          Customer."No.", LibraryInventory.CreateItemNo, LibraryRandom.RandDec(1000, 2), '', WorkDate());
+          Customer."No.", LibraryInventory.CreateItemNo(), LibraryRandom.RandDec(1000, 2), '', WorkDate());
         WorkflowMgt.ExecuteResponses(Customer, Customer, FirstWorkflowStepInstance);
         Commit();
         asserterror LibrarySales.PostSalesDocument(SalesHeader, true, true);
         Assert.ExpectedError(StrSubstNo(RecordRestrictedErr, Format(Customer.RecordId, 0, 1)));
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, RemoveRestrictionWorkflowStepInstance,
-          WorkflowResponseHandling.AllowRecordUsageCode);
+          WorkflowResponseHandling.AllowRecordUsageCode());
 
         // Exercise.
         WorkflowMgt.ExecuteResponses(Customer, Customer, FirstWorkflowStepInstance);
@@ -2876,7 +2875,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // Setup.
         Initialize();
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, RestrictEntityUsageWorkflowStepInstance,
-          WorkflowResponseHandling.RestrictRecordUsageCode);
+          WorkflowResponseHandling.RestrictRecordUsageCode());
         LibrarySales.CreateCustomer(Customer);
         LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, GenJournalLine."Document Type"::Payment,
           GenJournalLine."Account Type"::Customer, Customer."No.", -LibraryRandom.RandDec(1000, 2));
@@ -2916,7 +2915,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, RestrictEntityUsageWorkflowStepInstance,
-          WorkflowResponseHandling.RestrictRecordUsageCode);
+          WorkflowResponseHandling.RestrictRecordUsageCode());
 
         LibrarySales.CreateCustomer(Customer);
         LibraryJournals.CreateGenJournalLineWithBatch(GenJournalLine, GenJournalLine."Document Type"::Payment,
@@ -2928,7 +2927,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Assert.ExpectedError(StrSubstNo(RecordRestrictedErr, Format(Customer.RecordId, 0, 1)));
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, RemoveRestrictionWorkflowStepInstance,
-          WorkflowResponseHandling.AllowRecordUsageCode);
+          WorkflowResponseHandling.AllowRecordUsageCode());
 
         // Exercise.
         WorkflowMgt.ExecuteResponses(Customer, Customer, FirstWorkflowStepInstance);
@@ -2960,10 +2959,10 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         // Setup.
         Initialize();
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, RestrictEntityUsageWorkflowStepInstance,
-          WorkflowResponseHandling.RestrictRecordUsageCode);
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryPurchase.SelectPmtJnlTemplate);
+          WorkflowResponseHandling.RestrictRecordUsageCode());
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryPurchase.SelectPmtJnlTemplate());
         LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
           -LibraryRandom.RandDec(1000, 2));
 
         // Exercise.
@@ -3002,12 +3001,12 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, RestrictEntityUsageWorkflowStepInstance,
-          WorkflowResponseHandling.RestrictRecordUsageCode);
+          WorkflowResponseHandling.RestrictRecordUsageCode());
 
         LibrarySales.CreateCustomer(Customer);
-        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryPurchase.SelectPmtJnlTemplate);
+        LibraryERM.CreateGenJournalBatch(GenJournalBatch, LibraryPurchase.SelectPmtJnlTemplate());
         LibraryERM.CreateGeneralJnlLine(GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo,
+          GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer, LibrarySales.CreateCustomerNo(),
           -LibraryRandom.RandDec(1000, 2));
 
         WorkflowMgt.ExecuteResponses(GenJournalLine, GenJournalLine, FirstWorkflowStepInstance);
@@ -3016,7 +3015,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Assert.ExpectedError(StrSubstNo(RecordRestrictedErr, Format(GenJournalLine.RecordId, 0, 1)));
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, RemoveRestrictionWorkflowStepInstance,
-          WorkflowResponseHandling.AllowRecordUsageCode);
+          WorkflowResponseHandling.AllowRecordUsageCode());
 
         // Exercise.
         WorkflowMgt.ExecuteResponses(GenJournalLine, GenJournalLine, FirstWorkflowStepInstance);
@@ -3051,7 +3050,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, RevertFieldValueWorkflowStepInstance,
-          WorkflowResponseHandling.RevertValueForFieldCode);
+          WorkflowResponseHandling.RevertValueForFieldCode());
 
         AddFieldNoArgumentToStep(RevertFieldValueWorkflowStepInstance, DATABASE::Customer, 20);
 
@@ -3099,7 +3098,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, RevertFieldValueWorkflowStepInstance,
-          WorkflowResponseHandling.RevertValueForFieldCode);
+          WorkflowResponseHandling.RevertValueForFieldCode());
 
         AddFieldNoArgumentToStep(RevertFieldValueWorkflowStepInstance, DATABASE::Customer, 20);
 
@@ -3134,7 +3133,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, RevertFieldValueWorkflowStepInstance,
-          WorkflowResponseHandling.RevertValueForFieldCode);
+          WorkflowResponseHandling.RevertValueForFieldCode());
 
         AddFieldNoArgumentToStep(RevertFieldValueWorkflowStepInstance, DATABASE::Customer, -1);
 
@@ -3177,7 +3176,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ApplyNewValuesWorkflowStepInstance,
-          WorkflowResponseHandling.ApplyNewValuesCode);
+          WorkflowResponseHandling.ApplyNewValuesCode());
 
         LibrarySales.CreateCustomer(Customer);
         OldValue := LibraryRandom.RandDec(100, 2);
@@ -3224,7 +3223,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ApplyNewValuesWorkflowStepInstance,
-          WorkflowResponseHandling.ApplyNewValuesCode);
+          WorkflowResponseHandling.ApplyNewValuesCode());
 
         LibrarySales.CreateCustomer(Customer);
         OldValue := LibraryRandom.RandDec(100, 2);
@@ -3268,7 +3267,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ApplyNewValuesWorkflowStepInstance,
-          WorkflowResponseHandling.ApplyNewValuesCode);
+          WorkflowResponseHandling.ApplyNewValuesCode());
 
         LibraryPurchase.CreateVendor(Vendor);
         OldValue := LibraryRandom.RandDec(100, 2);
@@ -3319,7 +3318,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ApplyNewValuesWorkflowStepInstance,
-          WorkflowResponseHandling.ApplyNewValuesCode);
+          WorkflowResponseHandling.ApplyNewValuesCode());
 
         LibrarySales.CreateCustomer(Customer);
         OldValue := LibraryRandom.RandDec(100, 2);
@@ -3368,7 +3367,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ApplyNewValuesWorkflowStepInstance,
-          WorkflowResponseHandling.ApplyNewValuesCode);
+          WorkflowResponseHandling.ApplyNewValuesCode());
 
         AddFieldNoArgumentToStep(ApplyNewValuesWorkflowStepInstance, 18, 20);
 
@@ -3415,7 +3414,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ApplyNewValuesWorkflowStepInstance,
-          WorkflowResponseHandling.ApplyNewValuesCode);
+          WorkflowResponseHandling.ApplyNewValuesCode());
 
         LibrarySales.CreateCustomer(Customer);
         OldValue := false;
@@ -3463,7 +3462,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ApplyNewValuesWorkflowStepInstance,
-          WorkflowResponseHandling.ApplyNewValuesCode);
+          WorkflowResponseHandling.ApplyNewValuesCode());
 
         LibrarySales.CreateCustomer(Customer);
         OldValue := Customer.Blocked::Invoice;
@@ -3511,7 +3510,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, ApplyNewValuesWorkflowStepInstance,
-          WorkflowResponseHandling.ApplyNewValuesCode);
+          WorkflowResponseHandling.ApplyNewValuesCode());
 
         LibrarySales.CreateCustomer(Customer);
         OldValue := CalcDate('<-1D>', WorkDate());
@@ -3560,7 +3559,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Initialize();
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, RevertFieldValueWorkflowStepInstance,
-          WorkflowResponseHandling.RevertValueForFieldCode);
+          WorkflowResponseHandling.RevertValueForFieldCode());
         AddFieldNoArgumentToStep(RevertFieldValueWorkflowStepInstance, DATABASE::Customer, Customer.FieldNo("Combine Shipments"));
 
         OldValue := false;
@@ -3664,7 +3663,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         WorkflowRecordChange.DeleteAll(true);
 
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, DiscardNewValuesWorkflowStepInstance,
-          WorkflowResponseHandling.DiscardNewValuesCode);
+          WorkflowResponseHandling.DiscardNewValuesCode());
 
         LibrarySales.CreateCustomer(Customer);
 
@@ -3726,13 +3725,13 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"Workflow Respo. Lib. Tests");
-        LibraryWorkflow.DeleteAllExistingWorkflows;
+        LibraryWorkflow.DeleteAllExistingWorkflows();
         UserSetup.DeleteAll();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdatePurchasesPayablesSetup();
 
-        WorkflowResponseHandling.CreateResponsesLibrary;
+        WorkflowResponseHandling.CreateResponsesLibrary();
         if IsInitialized then
             exit;
 
@@ -3748,7 +3747,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
     begin
         LibraryWorkflow.CreateWorkflow(Workflow);
-        LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode);
+        LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnSendPurchaseDocForApprovalCode());
         Workflow.Enabled := true;
         Workflow.Modify();
     end;
@@ -3759,7 +3758,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
     begin
         LibraryWorkflow.CreateWorkflow(Workflow);
-        LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode);
+        LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode());
         Workflow.Enabled := true;
         Workflow.Modify();
     end;
@@ -3782,7 +3781,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         SalesLine: Record "Sales Line";
     begin
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine,
-          SalesHeader."Document Type"::Invoice, '', LibraryInventory.CreateItemNo, 3, '', 0D);
+          SalesHeader."Document Type"::Invoice, '', LibraryInventory.CreateItemNo(), 3, '', 0D);
     end;
 
     local procedure CreateApprovalEntryForPurchaseDoc(var ApprovalEntry: Record "Approval Entry"; PurchaseHeader: Record "Purchase Header")
@@ -3820,7 +3819,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         Workflow.Modify();
 
         CreateResponseWorkflowStepInstance(FirstWorkflowStepInstance, Workflow.Code,
-          CreateGuid, WorkflowResponseHandling.DoNothingCode, 1, 0, FirstWorkflowStepInstance.Status::Completed);
+          CreateGuid(), WorkflowResponseHandling.DoNothingCode(), 1, 0, FirstWorkflowStepInstance.Status::Completed);
 
         CreateResponseWorkflowStepInstance(SecondWorkflowStepInstance, Workflow.Code,
           FirstWorkflowStepInstance.ID, SecondResponseCode, 2, 1, SecondWorkflowStepInstance.Status::Active);
@@ -3832,11 +3831,11 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
     begin
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, CreateApprovalReqWorkflowStepInstance,
-          WorkflowResponseHandling.CreateApprovalRequestsCode);
+          WorkflowResponseHandling.CreateApprovalRequestsCode());
         AddNotificationArgumentToStep(CreateApprovalReqWorkflowStepInstance, '');
 
         CreateResponseStepAfterGivenStepWithNotification(CreateApprovalReqWorkflowStepInstance, SendForApprovalWorkflowStepInstance,
-          WorkflowResponseHandling.SendApprovalRequestForApprovalCode);
+          WorkflowResponseHandling.SendApprovalRequestForApprovalCode());
     end;
 
     local procedure CreateWorkflowStepInstanceWithSendForApprovalToUserGroupResponse(var FirstWorkflowStepInstance: Record "Workflow Step Instance"; var SendForApprovalWorkflowStepInstance: Record "Workflow Step Instance"; WorkflowUserGroupCode: Code[20])
@@ -3845,11 +3844,11 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
     begin
         CreateWorkflowStepInstanceWithTwoResponses(FirstWorkflowStepInstance, CreateApprovalReqWorkflowStepInstance,
-          WorkflowResponseHandling.CreateApprovalRequestsCode);
+          WorkflowResponseHandling.CreateApprovalRequestsCode());
         AddWorkflowUserGroupArgumentToStep(CreateApprovalReqWorkflowStepInstance, WorkflowUserGroupCode);
 
         CreateResponseStepAfterGivenStepWithNotification(CreateApprovalReqWorkflowStepInstance, SendForApprovalWorkflowStepInstance,
-          WorkflowResponseHandling.SendApprovalRequestForApprovalCode);
+          WorkflowResponseHandling.SendApprovalRequestForApprovalCode());
     end;
 
     local procedure CreateResponseWorkflowStepInstance(var WorkflowStepInstance: Record "Workflow Step Instance"; WorkflowCode: Code[20]; WorkflowInstanceId: Guid; FunctionCode: Code[128]; StepId: Integer; PreviousStepId: Integer; Status: Option)
@@ -4333,7 +4332,7 @@ codeunit 134310 "Workflow Respo. Lib. Tests"
         WorkflowResponseHandling: Codeunit "Workflow Response Handling";
     begin
         CreateWorkflowStepInstanceWithTwoResponses(WorkflowStepInstance, DiscardNewValuesWorkflowStepInstance,
-          WorkflowResponseHandling.DiscardNewValuesCode);
+          WorkflowResponseHandling.DiscardNewValuesCode());
 
         LibrarySales.CreateCustomer(Customer);
 

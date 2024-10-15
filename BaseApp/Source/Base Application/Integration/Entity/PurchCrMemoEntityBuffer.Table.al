@@ -20,6 +20,7 @@ table 5508 "Purch. Cr. Memo Entity Buffer"
 {
     Caption = 'Purch. Cr. Memo Entity Buffer';
     ReplicateData = false;
+    DataClassification = CustomerContent;
 
     fields
     {

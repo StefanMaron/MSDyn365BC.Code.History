@@ -26,6 +26,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         Bin: Record Bin;
         Assert: Codeunit Assert;
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
+        NotificationLifecycleMgt: Codeunit "Notification Lifecycle Mgt.";
         LibraryAssembly: Codeunit "Library - Assembly";
         ErrBinMandatory1: Label 'must be set up with Bin Mandatory ';
         ErrBinMandatory2: Label 'Bin Mandatory must have a value in Location';
@@ -74,7 +75,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
 
         LibraryERMCountryData.UpdateGeneralPostingSetup();
 
-        LibraryPatterns.SETNoSeries;
+        LibraryPatterns.SetNoSeries();
         Initialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Whse.-Asm. To Stock");
@@ -161,6 +162,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
           BOMComponent, AsmItem."No.", BOMComponent.Type::Item, CompItem."No.", 1, CompItem."Base Unit of Measure");
         LibraryAssembly.CreateAssemblyHeader(AsmHeader, WorkDate2, AsmItem."No.", '', Quantity, '');
         Commit(); // committing as subsequent errors might roll back bin content creation
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     local procedure AddItemToInventory(Item: Record Item; Location: Record Location; BinCode: Code[20]; Quantity: Decimal)
@@ -367,7 +369,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         AsmHeader.Quantity := -1;
         // no bin content exists- bin code should always be blank
         asserterror AsmHeader.Validate("Bin Code", Bin1);
-        Assert.AssertNothingInsideFilter;
+        Assert.AssertNothingInsideFilter();
 
         // ** positive test
         // add a non-default bin content
@@ -379,7 +381,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         // ** negative test
         // error expected for non-existing bin
         asserterror AsmHeader.Validate("Bin Code", 'BIN100');
-        Assert.AssertRecordNotFound;
+        Assert.AssertRecordNotFound();
 
         // ** positive test
         AsmHeader.Validate("Bin Code", Bin3); // no errors expected
@@ -495,7 +497,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         // ** negative test
         // error expected for non-existing bin
         asserterror AsmLine.Validate("Bin Code", 'BIN100');
-        Assert.AssertRecordNotFound;
+        Assert.AssertRecordNotFound();
 
         // ** positive test
         AsmLine.Validate("Bin Code", Bin3); // no errors expected
@@ -524,7 +526,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmUpdateLocationOnLines,AvailabilityWindowHandler')]
+    [HandlerFunctions('ConfirmUpdateLocationOnLines')]
     [Scope('OnPrem')]
     procedure UT5121()
     begin
@@ -538,10 +540,10 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         AsmHeader.Validate("Quantity to Assemble", 1); // change qty to 1 for partial posting
         AsmHeader.Modify(true);
         LibraryAssembly.PostAssemblyHeader(AsmHeader, '');
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure UT5122()
     var
@@ -584,10 +586,11 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         // REOPEN SETS STATUS TO Open
         LibraryAssembly.ReopenAO(AsmHeader);
         Assert.AreEqual(AsmHeader.Status::Open, AsmHeader.Status, 'Wrong status set');
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmChangeOfAsmItemNo,AvailabilityWindowHandler')]
+    [HandlerFunctions('ConfirmChangeOfAsmItemNo')]
     [Scope('OnPrem')]
     procedure UT5123()
     var
@@ -631,10 +634,10 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         AsmHeader.Modify(true);
         LibraryAssembly.ReleaseAO(AsmHeader);
         AsmHeader.Delete(true); // no errors expected
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure UT5124()
     begin
@@ -664,10 +667,10 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         Assert.IsTrue(StrPos(GetLastErrorText, ErrStatusMustBeOpen) > 0,
           'Expected: ' + ErrStatusMustBeOpen + ' Actual: ' + GetLastErrorText);
         ClearLastError();
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler')]
     [Scope('OnPrem')]
     procedure UT5131()
     var
@@ -817,10 +820,12 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
           WhseRequest.Get(WhseRequest.Type::Outbound, Location.Code, DATABASE::"Assembly Line",
             AsmHeader."Document Type", AsmHeader."No."),
           'Whse. Request should be empty for ' + Location.Code);
+
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('MessageNothingToCreate,AvailabilityWindowHandler')]
+    [HandlerFunctions('MessageNothingToCreate')]
     [Scope('OnPrem')]
     procedure UT5132()
     var
@@ -850,7 +855,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         AsmLine.Get(AsmHeader."Document Type", AsmHeader."No.", 10000);
         AsmLine.Validate("Location Code", Location.Code);
         AsmLine.Modify(true);
-        LibraryAssembly.ReleaseAO(AsmHeader);        
+        LibraryAssembly.ReleaseAO(AsmHeader);
         CreateInvtPickMvmt(false, true); // create movement
         Assert.AreEqual(CountOfWhseActivityLines, WhseActivityLine.Count, 'Count should be the same as before');
 
@@ -858,7 +863,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         MockAsmOrderWithComp(AsmHeader, AsmItem, CompItem, 1);
         MockLocation(Location, true, true, false, false); // Require Pick location
         AddItemToInventory(CompItem, Location, Bin1, 10);
-        LibraryAssembly.ReopenAO(AsmHeader);        
+        LibraryAssembly.ReopenAO(AsmHeader);
         AsmLine.Get(AsmHeader."Document Type", AsmHeader."No.", 10000);
         AsmLine.Validate("Location Code", Location.Code);
         AsmLine.Validate("Bin Code", Bin1);
@@ -868,10 +873,11 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         CountOfWhseActivityLines := WhseActivityLine.Count();
         CreateInvtPickMvmt(true, false); // create pick
         Assert.AreEqual(CountOfWhseActivityLines, WhseActivityLine.Count, 'Count should be the same as before');
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('MessageInvtMovementCreated,AvailabilityWindowHandler')]
+    [HandlerFunctions('MessageInvtMovementCreated')]
     [Scope('OnPrem')]
     procedure UT5133A()
     var
@@ -895,10 +901,11 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         CountOfWhseActivityLines := WhseActivityLine.Count();
         CreateInvtPickMvmt(false, true); // create movement
         Assert.AreEqual(CountOfWhseActivityLines + 2, WhseActivityLine.Count, 'Count should be the more than before by 2');
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('MessageNothingToCreate,AvailabilityWindowHandler')]
+    [HandlerFunctions('MessageNothingToCreate')]
     [Scope('OnPrem')]
     procedure UT5133B()
     var
@@ -923,10 +930,11 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         CreateInvtPickMvmt(false, true); // create movement
         Assert.AreEqual(CountOfWhseActivityLines, WhseActivityLine.Count, 'Count should be the same as before.');
         // no invt movement created
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
-    [HandlerFunctions('UT5134HandlePickCreatedMsg,AvailabilityWindowHandler')]
+    [HandlerFunctions('UT5134HandlePickCreatedMsg')]
     [Scope('OnPrem')]
     procedure UT5134()
     var
@@ -967,6 +975,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         CountOfWhseActivityLines := WhseActivityLine.Count();
         LibraryAssembly.CreateWhsePick(AsmHeader, '', 0, false, false, false); // create pick
         Assert.AreEqual(CountOfWhseActivityLines + 2, WhseActivityLine.Count, 'Count should be the more than before by 2'); // Take & Place
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [MessageHandler]
@@ -978,7 +987,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
     end;
 
     [Test]
-    [HandlerFunctions('FormSourceDocuments,MessageNothingToHandle,AvailabilityWindowHandler')]
+    [HandlerFunctions('FormSourceDocuments,MessageNothingToHandle')]
     [Scope('OnPrem')]
     procedure UTInvtPickFromPage()
     var
@@ -1016,6 +1025,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         // create inventory pick from the inventory pick page
         LibraryWarehouse.GetSourceDocInventoryPick(WarehouseActivityHeader); // throws Nothing to Handle message
         Assert.AreEqual(0, WhseActivityLine.Count, 'Count should be zero as no pick should have been created');
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [ConfirmHandler]
@@ -1072,32 +1082,25 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         WarehouseRequest.SetRange("Source No.", AsmHeader."No.");
         WarehouseRequest.FindFirst();
 
-        SourceDocuments.First;
+        SourceDocuments.First();
         if (SourceDocuments."Source Document".AsInteger() <> WarehouseRequest."Source Document".AsInteger()) or
            (SourceDocuments."Source No.".Value <> WarehouseRequest."Source No.")
         then begin
             RecordReached := false;
             while not RecordReached do begin
-                Assert.IsTrue(SourceDocuments.Next, '');
-                if (SourceDocuments."Source Document".AsInteger = WarehouseRequest."Source Document".AsInteger()) and
+                Assert.IsTrue(SourceDocuments.Next(), '');
+                if (SourceDocuments."Source Document".AsInteger() = WarehouseRequest."Source Document".AsInteger()) and
                    (SourceDocuments."Source No.".Value = WarehouseRequest."Source No.")
                 then
                     RecordReached := true;
             end;
         end;
 
-        SourceDocuments.OK.Invoke;
-    end;
-
-    [ModalPageHandler]
-    [Scope('OnPrem')]
-    procedure AvailabilityWindowHandler(var AsmAvailability: TestPage "Assembly Availability")
-    begin
-        AsmAvailability.Yes.Invoke;
+        SourceDocuments.OK().Invoke();
     end;
 
     [Test]
-    [HandlerFunctions('AvailabilityWindowHandler,ConfirmUpdateLocationOnLines,MessageInvtMovementCreated')]
+    [HandlerFunctions('ConfirmUpdateLocationOnLines,MessageInvtMovementCreated')]
     [Scope('OnPrem')]
     procedure VSTF278221()
     begin
@@ -1122,6 +1125,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         Assert.IsTrue(
           StrPos(GetLastErrorText, StrSubstNo(ErrWhseHandlingReqd, AsmHeader."No.", 10000)) > 0,
           StrSubstNo(MessageExpectedActual, StrSubstNo(ErrWhseHandlingReqd, AsmHeader."No.", 10000), GetLastErrorText));
+        NotificationLifecycleMgt.RecallAllNotifications();
     end;
 
     [Test]
@@ -1212,7 +1216,7 @@ codeunit 137913 "SCM Whse.-Asm. To Stock"
         AsmLine.Type := AsmLine.Type::Item;
         AsmLine."No." := ParentItem."No.";
         AsmLine.Insert();
-        AsmLine.ExplodeAssemblyList;
+        AsmLine.ExplodeAssemblyList();
 
         // VERIFY : Asm line has To asm bin filled in for item and blank for resource
         AsmLine.SetRange("Document Type", AsmHeader."Document Type");

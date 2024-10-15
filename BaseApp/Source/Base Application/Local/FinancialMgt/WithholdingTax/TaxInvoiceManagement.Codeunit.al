@@ -49,6 +49,10 @@ codeunit 28070 TaxInvoiceManagement
         Text053: Label 'Tax Invoice(s) posted successfully.';
         Text054: Label 'Tax Invoice(s) posted and printed successfully.';
         Text055: Label 'Tax Invoice(s) already posted.';
+        CannotAssignNewOnDateErr: Label 'You cannot assign new numbers from the number series %1 on %2.', Comment = '%1=No. Series Code,%2=Date';
+        CannotAssignNewErr: Label 'You cannot assign new numbers from the number series %1.', Comment = '%1=No. Series Code';
+        CannotAssignNewBeforeDateErr: Label 'You cannot assign new numbers from the number series %1 on a date before %2.', Comment = '%1=No. Series Code,%2=Date';
+        CannotAssignGreaterErr: Label 'You cannot assign numbers greater than %1 from the number series %2.', Comment = '%1=Last No.,%2=No. Series Code';
         SalesTaxInvoiceHeader: Record "Sales Tax Invoice Header";
         PurchTaxInvoiceHeader: Record "Purch. Tax Inv. Header";
         SalesTaxCrMemoHeader: Record "Sales Tax Cr.Memo Header";
@@ -56,7 +60,6 @@ codeunit 28070 TaxInvoiceManagement
         PurchSetup: Record "Purchases & Payables Setup";
         SalesSetup: Record "Sales & Receivables Setup";
         GLSetup: Record "General Ledger Setup";
-        NoSeriesMgt: Codeunit NoSeriesManagement;
         TempVendLedgEntry: Record "Vendor Ledger Entry";
         TempVendLedgEntry1: Record "Vendor Ledger Entry";
         TempCustLedgEntry: Record "Cust. Ledger Entry";
@@ -74,6 +77,7 @@ codeunit 28070 TaxInvoiceManagement
         WHTUsed1: Boolean;
         InvNo: Code[20];
         LastTaxInvoice: Code[20];
+        WarningNoSeriesCode: Code[20];
 
     [Scope('OnPrem')]
     procedure ApplyVendInvoiceWHT(var VendLedgerEntry: Record "Vendor Ledger Entry"; var GenJnlLine: Record "Gen. Journal Line")
@@ -210,9 +214,9 @@ codeunit 28070 TaxInvoiceManagement
                     PurchTaxInvHeader.Delete();
                     PurchSetup.Get();
                     if CheckTaxableNoSeries(VendLedgerEntry."Vendor No.", 0) then
-                        NoSeriesMgt.ReverseGetNextNo(PurchSetup."Posted Non Tax Invoice Nos.", PurchTaxInvHeader."Posting Date", true)
+                        ReverseGetNextNo(PurchSetup."Posted Non Tax Invoice Nos.", PurchTaxInvHeader."Posting Date")
                     else
-                        NoSeriesMgt.ReverseGetNextNo(PurchSetup."Posted Tax Invoice Nos.", PurchTaxInvHeader."Posting Date", true);
+                        ReverseGetNextNo(PurchSetup."Posted Tax Invoice Nos.", PurchTaxInvHeader."Posting Date");
                 end;
         end;
         PurchTaxInvHeader.SetRange("Posting Description", GenJnlLine."Document No.");
@@ -404,9 +408,9 @@ codeunit 28070 TaxInvoiceManagement
                     SalesTaxInvHeader.Delete();
                     SalesSetup.Get();
                     if CheckTaxableNoSeries(CustLedgerEntry."Customer No.", 1) then
-                        NoSeriesMgt.ReverseGetNextNo(SalesSetup."Posted Non Tax Invoice Nos.", SalesTaxInvHeader."Posting Date", true)
+                        ReverseGetNextNo(SalesSetup."Posted Non Tax Invoice Nos.", SalesTaxInvHeader."Posting Date")
                     else
-                        NoSeriesMgt.ReverseGetNextNo(SalesSetup."Posted Tax Invoice Nos.", SalesTaxInvHeader."Posting Date", true);
+                        ReverseGetNextNo(SalesSetup."Posted Tax Invoice Nos.", SalesTaxInvHeader."Posting Date");
                 end;
         end;
         SalesTaxInvHeader.SetRange("Posting Description", GenJnlLine."Document No.");
@@ -504,9 +508,9 @@ codeunit 28070 TaxInvoiceManagement
                     PurchTaxCrMemoHeader.Delete();
                     PurchSetup.Get();
                     if CheckTaxableNoSeries(VendLedgerEntry."Vendor No.", 0) then
-                        NoSeriesMgt.ReverseGetNextNo(PurchSetup."Posted Non Tax Credit Memo Nos", PurchTaxCrMemoHeader."Posting Date", true)
+                        ReverseGetNextNo(PurchSetup."Posted Non Tax Credit Memo Nos", PurchTaxCrMemoHeader."Posting Date")
                     else
-                        NoSeriesMgt.ReverseGetNextNo(PurchSetup."Posted Tax Credit Memo Nos", PurchTaxCrMemoHeader."Posting Date", true);
+                        ReverseGetNextNo(PurchSetup."Posted Tax Credit Memo Nos", PurchTaxCrMemoHeader."Posting Date");
                 end;
         end;
         PurchTaxCrMemoHeader.SetRange("Posting Description", GenJnlLine."Document No.");
@@ -611,9 +615,9 @@ codeunit 28070 TaxInvoiceManagement
                     SalesTaxCrMemoHeader.Delete();
                     SalesSetup.Get();
                     if CheckTaxableNoSeries(CustLedgerEntry."Customer No.", 1) then
-                        NoSeriesMgt.ReverseGetNextNo(SalesSetup."Posted Non Tax Credit Memo Nos", SalesTaxCrMemoHeader."Posting Date", true)
+                        ReverseGetNextNo(SalesSetup."Posted Non Tax Credit Memo Nos", SalesTaxCrMemoHeader."Posting Date")
                     else
-                        NoSeriesMgt.ReverseGetNextNo(SalesSetup."Posted Tax Credit Memo Nos", SalesTaxCrMemoHeader."Posting Date", true);
+                        ReverseGetNextNo(SalesSetup."Posted Tax Credit Memo Nos", SalesTaxCrMemoHeader."Posting Date");
                 end;
         end;
         SalesTaxCrMemoHeader.SetRange("Posting Description", GenJnlLine."Document No.");
@@ -660,9 +664,9 @@ codeunit 28070 TaxInvoiceManagement
             SalesTaxInvHeader.Delete();
             SalesSetup.Get();
             if CheckTaxableNoSeries(SalesInvHeader."Sell-to Customer No.", 1) then
-                NoSeriesMgt.ReverseGetNextNo(SalesSetup."Posted Non Tax Invoice Nos.", SalesTaxInvHeader."Posting Date", true)
+                ReverseGetNextNo(SalesSetup."Posted Non Tax Invoice Nos.", SalesTaxInvHeader."Posting Date")
             else
-                NoSeriesMgt.ReverseGetNextNo(SalesSetup."Posted Tax Invoice Nos.", SalesTaxInvHeader."Posting Date", true);
+                ReverseGetNextNo(SalesSetup."Posted Tax Invoice Nos.", SalesTaxInvHeader."Posting Date");
         end else begin
             BuildTaxPostBuffer(SalesTaxInvHeader."No.", SalesTaxInvHeader."Posting Description", 1);
             SalesInvHeader2."Printed Tax Document" := true;
@@ -709,9 +713,9 @@ codeunit 28070 TaxInvoiceManagement
             PurchTaxInvHeader.Delete();
             PurchSetup.Get();
             if CheckTaxableNoSeries(PurchInvHeader."Buy-from Vendor No.", 0) then
-                NoSeriesMgt.ReverseGetNextNo(PurchSetup."Posted Non Tax Invoice Nos.", PurchTaxInvHeader."Posting Date", true)
+                ReverseGetNextNo(PurchSetup."Posted Non Tax Invoice Nos.", PurchTaxInvHeader."Posting Date")
             else
-                NoSeriesMgt.ReverseGetNextNo(PurchSetup."Posted Tax Invoice Nos.", PurchTaxInvHeader."Posting Date", true);
+                ReverseGetNextNo(PurchSetup."Posted Tax Invoice Nos.", PurchTaxInvHeader."Posting Date");
         end else begin
             BuildTaxPostBuffer(PurchTaxInvHeader."No.", PurchTaxInvHeader."Posting Description", 0);
             PurchInvHeader2."Printed Tax Document" := true;
@@ -758,9 +762,9 @@ codeunit 28070 TaxInvoiceManagement
             SalesTaxCrMemoHeader.Delete();
             SalesSetup.Get();
             if CheckTaxableNoSeries(SalesCrMemoHeader."Sell-to Customer No.", 1) then
-                NoSeriesMgt.ReverseGetNextNo(SalesSetup."Posted Non Tax Credit Memo Nos", SalesTaxCrMemoHeader."Posting Date", true)
+                ReverseGetNextNo(SalesSetup."Posted Non Tax Credit Memo Nos", SalesTaxCrMemoHeader."Posting Date")
             else
-                NoSeriesMgt.ReverseGetNextNo(SalesSetup."Posted Tax Credit Memo Nos", SalesTaxCrMemoHeader."Posting Date", true);
+                ReverseGetNextNo(SalesSetup."Posted Tax Credit Memo Nos", SalesTaxCrMemoHeader."Posting Date");
         end else begin
             BuildTaxPostBuffer(SalesTaxCrMemoHeader."No.", SalesTaxCrMemoHeader."Posting Description", 3);
             SalesCrMemoHeader2."Printed Tax Document" := true;
@@ -805,9 +809,9 @@ codeunit 28070 TaxInvoiceManagement
             PurchTaxCrMemoHeader.Delete();
             PurchSetup.Get();
             if CheckTaxableNoSeries(PurchCrMemoHeader."Buy-from Vendor No.", 0) then
-                NoSeriesMgt.ReverseGetNextNo(PurchSetup."Posted Non Tax Credit Memo Nos", PurchTaxCrMemoHeader."Posting Date", true)
+                ReverseGetNextNo(PurchSetup."Posted Non Tax Credit Memo Nos", PurchTaxCrMemoHeader."Posting Date")
             else
-                NoSeriesMgt.ReverseGetNextNo(PurchSetup."Posted Tax Credit Memo Nos", PurchTaxCrMemoHeader."Posting Date", true);
+                ReverseGetNextNo(PurchSetup."Posted Tax Credit Memo Nos", PurchTaxCrMemoHeader."Posting Date");
         end else begin
             BuildTaxPostBuffer(PurchTaxCrMemoHeader."No.", PurchTaxCrMemoHeader."Posting Description", 2);
             PurchCrMemoHeader2."Printed Tax Document" := true;
@@ -1714,9 +1718,9 @@ codeunit 28070 TaxInvoiceManagement
                 SalesTaxInvHeader.Delete();
                 SalesSetup.Get();
                 if CheckTaxableNoSeries(SalesInvHeader."Sell-to Customer No.", 1) then
-                    NoSeriesMgt.ReverseGetNextNo(SalesSetup."Posted Non Tax Invoice Nos.", SalesTaxInvHeader."Posting Date", true)
+                    ReverseGetNextNo(SalesSetup."Posted Non Tax Invoice Nos.", SalesTaxInvHeader."Posting Date")
                 else
-                    NoSeriesMgt.ReverseGetNextNo(SalesSetup."Posted Tax Invoice Nos.", SalesTaxInvHeader."Posting Date", true);
+                    ReverseGetNextNo(SalesSetup."Posted Tax Invoice Nos.", SalesTaxInvHeader."Posting Date");
             end;
             if Print then begin
                 SalesTaxInvHeader2.Reset();
@@ -1795,7 +1799,7 @@ codeunit 28070 TaxInvoiceManagement
                         if ReportSelection.Find('-') then
                             repeat
                                 if ScheduleInJobQueue then
-                                    BatchPostingPrintMgt.SchedulePrintJobQueueEntry(PurchTaxInvoiceHeader, ReportSelection."Report ID", GLSetup."Report Output Type")
+                                    BatchPostingPrintMgt.SchedulePrintJobQueueEntry(PurchTaxInvoiceHeader, ReportSelection."Report ID", GLSetup."Report Output Type".AsInteger())
                                 else
                                     REPORT.Run(ReportSelection."Report ID", PurchSetup."Print Dialog", false, PurchTaxInvoiceHeader);
                             until ReportSelection.Next() = 0;
@@ -1818,7 +1822,7 @@ codeunit 28070 TaxInvoiceManagement
                         if ReportSelection.Find('-') then
                             repeat
                                 if ScheduleInJobQueue then
-                                    BatchPostingPrintMgt.SchedulePrintJobQueueEntry(SalesTaxInvoiceHeader, ReportSelection."Report ID", GLSetup."Report Output Type")
+                                    BatchPostingPrintMgt.SchedulePrintJobQueueEntry(SalesTaxInvoiceHeader, ReportSelection."Report ID", GLSetup."Report Output Type".AsInteger())
                                 else
                                     REPORT.Run(ReportSelection."Report ID", SalesSetup."Print Dialog", false, SalesTaxInvoiceHeader);
                             until ReportSelection.Next() = 0;
@@ -1841,7 +1845,7 @@ codeunit 28070 TaxInvoiceManagement
                         if ReportSelection.Find('-') then
                             repeat
                                 if ScheduleInJobQueue then
-                                    BatchPostingPrintMgt.SchedulePrintJobQueueEntry(PurchTaxCrMemoHeader, ReportSelection."Report ID", GLSetup."Report Output Type")
+                                    BatchPostingPrintMgt.SchedulePrintJobQueueEntry(PurchTaxCrMemoHeader, ReportSelection."Report ID", GLSetup."Report Output Type".AsInteger())
                                 else
                                     REPORT.Run(ReportSelection."Report ID", PurchSetup."Print Dialog", false, PurchTaxCrMemoHeader);
                             until ReportSelection.Next() = 0;
@@ -1864,7 +1868,7 @@ codeunit 28070 TaxInvoiceManagement
                         if ReportSelection.Find('-') then
                             repeat
                                 if ScheduleInJobQueue then
-                                    BatchPostingPrintMgt.SchedulePrintJobQueueEntry(SalesTaxCrMemoHeader, ReportSelection."Report ID", GLSetup."Report Output Type")
+                                    BatchPostingPrintMgt.SchedulePrintJobQueueEntry(SalesTaxCrMemoHeader, ReportSelection."Report ID", GLSetup."Report Output Type".AsInteger())
                                 else
                                     REPORT.Run(ReportSelection."Report ID", SalesSetup."Print Dialog", false, SalesTaxCrMemoHeader);
                             until ReportSelection.Next() = 0;
@@ -1911,6 +1915,48 @@ codeunit 28070 TaxInvoiceManagement
                         exit(CustomerPostingGroup."Non-Taxable");
                 end;
         end;
+    end;
+
+    local procedure ReverseGetNextNo(NoSeriesCode: Code[20]; SeriesDate: Date): Code[20]
+    var
+        NoSeriesLine: Record "No. Series Line";
+        NoSeries: Record "No. Series";
+        NoSeriesCodeunit: Codeunit "No. Series";
+        NoSeriesSetup: Codeunit "No. Series - Setup";
+    begin
+        if SeriesDate = 0D then
+            SeriesDate := WorkDate();
+
+        NoSeriesLine.LockTable();
+        NoSeries.Get(NoSeriesCode);
+        if not NoSeriesCodeunit.GetNoSeriesLine(NoSeriesLine, NoSeriesCode, SeriesDate, false) then begin
+            NoSeriesLine.SetRange("Starting Date");
+            if NoSeriesLine.Find('-') then
+                Error(CannotAssignNewOnDateErr, NoSeriesCode, SeriesDate);
+            Error(CannotAssignNewErr, NoSeriesCode);
+        end;
+        NoSeriesLine.TestField(Implementation, "No. Series Implementation"::Normal);
+
+        if NoSeries."Date Order" and (SeriesDate < NoSeriesLine."Last Date Used") then
+            Error(CannotAssignNewBeforeDateErr, NoSeries.Code, NoSeriesLine."Last Date Used");
+        NoSeriesLine."Last Date Used" := SeriesDate;
+        if NoSeriesLine."Last No. Used" = '' then begin
+            NoSeriesLine.TestField("Starting No.");
+            NoSeriesLine."Last No. Used" := NoSeriesLine."Starting No.";
+        end else
+            NoSeriesSetup.IncrementNoText(NoSeriesLine."Last No. Used", -NoSeriesLine."Increment-by No.");
+
+        if (NoSeriesLine."Ending No." <> '') and (NoSeriesLine."Last No. Used" > NoSeriesLine."Ending No.") then
+            Error(CannotAssignGreaterErr, NoSeriesLine."Ending No.", NoSeriesCode);
+
+        if (NoSeriesLine."Ending No." <> '') and (NoSeriesLine."Warning No." <> '') and (NoSeriesLine."Last No. Used" >= NoSeriesLine."Warning No.") and (NoSeriesCode <> WarningNoSeriesCode) then begin
+            WarningNoSeriesCode := NoSeriesCode;
+            Message(CannotAssignGreaterErr, NoSeriesLine."Ending No.", NoSeriesCode);
+        end;
+        NoSeriesLine.Validate(Open);
+
+        NoSeriesLine.Modify();
+        exit(NoSeriesLine."Last No. Used");
     end;
 }
 

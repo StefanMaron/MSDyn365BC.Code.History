@@ -9,6 +9,7 @@ using Microsoft.Finance.GeneralLedger.Ledger;
 table 1113 "Cost Object"
 {
     Caption = 'Cost Object';
+    DataClassification = CustomerContent;
     LookupPageID = "Chart of Cost Objects";
 
     fields
@@ -46,7 +47,7 @@ table 1113 "Cost Object"
         {
             BlankZero = true;
             CalcFormula = sum("Cost Entry".Amount where("Cost Object Code" = field(Code),
-                                                         "Cost Object Code" = field(FILTER(Totaling)),
+                                                         "Cost Object Code" = field(filter(Totaling)),
                                                          "Cost Type No." = field("Cost Type Filter"),
                                                          "Posting Date" = field("Date Filter")));
             Caption = 'Net Change';
@@ -57,9 +58,9 @@ table 1113 "Cost Object"
         {
             BlankZero = true;
             CalcFormula = sum("Cost Entry".Amount where("Cost Object Code" = field(Code),
-                                                         "Cost Object Code" = field(FILTER(Totaling)),
+                                                         "Cost Object Code" = field(filter(Totaling)),
                                                          "Cost Type No." = field("Cost Type Filter"),
-                                                         "Posting Date" = field(UPPERLIMIT("Date Filter"))));
+                                                         "Posting Date" = field(upperlimit("Date Filter"))));
             Caption = 'Balance at Date';
             Editable = false;
             FieldClass = FlowField;

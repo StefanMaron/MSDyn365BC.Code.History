@@ -232,9 +232,9 @@ codeunit 141073 "UT Input and Output VAT Report"
 
     local procedure CreateCustomer(var Customer: Record Customer)
     begin
-        Customer."No." := LibraryUTUtility.GetNewCode;
-        Customer.Address := LibraryUTUtility.GetNewCode;
-        Customer."VAT Registration No." := LibraryUTUtility.GetNewCode;
+        Customer."No." := LibraryUTUtility.GetNewCode();
+        Customer.Address := LibraryUTUtility.GetNewCode();
+        Customer."VAT Registration No." := LibraryUTUtility.GetNewCode();
         Customer.Insert();
     end;
 
@@ -269,9 +269,9 @@ codeunit 141073 "UT Input and Output VAT Report"
 
     local procedure CreateVendor(var Vendor: Record Vendor)
     begin
-        Vendor."No." := LibraryUTUtility.GetNewCode;
-        Vendor.Address := LibraryUTUtility.GetNewCode;
-        Vendor."VAT Registration No." := LibraryUTUtility.GetNewCode;
+        Vendor."No." := LibraryUTUtility.GetNewCode();
+        Vendor.Address := LibraryUTUtility.GetNewCode();
+        Vendor."VAT Registration No." := LibraryUTUtility.GetNewCode();
         Vendor.Insert();
     end;
 
@@ -286,7 +286,7 @@ codeunit 141073 "UT Input and Output VAT Report"
 
     local procedure VerifyXMLValuesOnVATReport(VATEntry: Record "VAT Entry"; Address: Code[20]; VATRegistrationNo: Code[20]; AmountCaption: Text[20]; BaseCaption: Text[20])
     begin
-        LibraryReportDataset.LoadDataSetFile;
+        LibraryReportDataset.LoadDataSetFile();
         LibraryReportDataset.AssertElementWithValueExists(BillToPayToNoCap, VATEntry."Bill-to/Pay-to No.");
         LibraryReportDataset.AssertElementWithValueExists(TINCap, VATRegistrationNo);
         LibraryReportDataset.AssertElementWithValueExists(AddressCap, Address);
@@ -302,7 +302,7 @@ codeunit 141073 "UT Input and Output VAT Report"
     begin
         LibraryVariableStorage.Dequeue(BillToPayToNo);
         VATReportCustomer."VAT Entry".SetFilter("Bill-to/Pay-to No.", BillToPayToNo);
-        VATReportCustomer.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATReportCustomer.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 
     [RequestPageHandler]
@@ -313,7 +313,7 @@ codeunit 141073 "UT Input and Output VAT Report"
     begin
         LibraryVariableStorage.Dequeue(BillToPayToNo);
         VATReportVendor."VAT Entry".SetFilter("Bill-to/Pay-to No.", BillToPayToNo);
-        VATReportVendor.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+        VATReportVendor.SaveAsXml(LibraryReportDataset.GetParametersFileName(), LibraryReportDataset.GetFileName());
     end;
 }
 

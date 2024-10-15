@@ -158,15 +158,6 @@
       <Cmt Name="Dev"><![CDATA[%1 - Expected error message]D;]A;(LookupHint=Codeunit ERM Gen. Jnl. Error Handling - NamedType ExpectedErrorTxt)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 3814745315 - NamedType 2140495481" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 %2]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - field name, %2 - error message]D;]A;(LookupHint=Codeunit ERM Gen. Jnl. Error Handling - NamedType FieldErrorErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 3814745315 - NamedType 1666248406" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[%1 must not be %2]]></Val>
@@ -183,24 +174,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Gen. Jnl. Error Handling - NamedType OutOfBalanceFilterTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3814745315 - NamedType 1873694584" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must have the same sign as %2]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - field name, %2 - field name]D;]A;(LookupHint=Codeunit ERM Gen. Jnl. Error Handling - NamedType SameSignErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3814745315 - NamedType 1337974801" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[%1 must not be empty.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[%1 - field caption]D;]A;(LookupHint=Codeunit ERM Gen. Jnl. Error Handling - NamedType TestFieldEmptyValueErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3814745315 - NamedType 2126021569" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -518,13 +491,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Create Journal Lines - NamedType BlockedErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1230493293 - NamedType 559277968" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1230493293 - NamedType 1860561083" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Account No. in journal line is incorrect.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Create Journal Lines - NamedType IncorrectAccountNoErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Create Journal Lines - NamedType IncorrectAccountNoError)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1230493293 - NamedType 3074671870" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -536,13 +509,13 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Create Journal Lines - NamedType LineNoErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 1230493293 - NamedType 986774230" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+  <Item ItemId=";Codeunit 1230493293 - NamedType 2552452377" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Number of Lines must be equal.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Create Journal Lines - NamedType NumberOfLinesErr)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM RS Create Journal Lines - NamedType NumberOfLinesError)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 619305359 - NamedType 3869127802" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -626,6 +599,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit General Journal Batch Approval - NamedType GenJournalBatchIsNotBalancedMsg)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 396517504 - NamedType 3441384473" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Imposed restriction]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit General Journal Batch Approval - NamedType ImposedRestrictionLbl)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 396517504 - NamedType 1637744580" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[There is no approval comment for this approval entry.]]></Val>
@@ -671,15 +653,6 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit General Journal Batch Approval - NamedType UnexpectedNoOfWorkflowStepInstancesErr)]]></Cmt>
     </Cmts>
   </Item>
-  <Item ItemId=";Codeunit 2575515122 - NamedType 2394459992" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[The approval comment for this approval entry was not deleted.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit General Journal Line Approval - NamedType ApprovalCommentWasNotDeletedErr)]]></Cmt>
-    </Cmts>
-  </Item>
   <Item ItemId=";Codeunit 2575515122 - NamedType 4134082808" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Payment Export Format]]></Val>
@@ -687,6 +660,15 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit General Journal Line Approval - NamedType HasErrorsErr)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2575515122 - NamedType 3441384473" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Imposed restriction]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit General Journal Line Approval - NamedType ImposedRestrictionLbl)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 2575515122 - NamedType 2804027364" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -768,15 +750,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit General Journal Line Approval - NamedType UnexpectedNoOfApprovalEntriesErr)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 2575515122 - NamedType 1808904797" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Unexpected number of workflow step instances found.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit General Journal Line Approval - NamedType UnexpectedNoOfWorkflowStepInstancesErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 682591466 - NamedType 2571027736" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
@@ -957,15 +930,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WFWH General Journal Line - NamedType PreventDeleteRecordWithOpenApprovalEntryForSenderMsg)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 1838465985 - NamedType 1808904797" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Unexpected number of workflow step instances found.]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit WFWH General Journal Line - NamedType UnexpectedNoOfWorkflowStepInstancesErr)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 1838465985 - NamedType 3437842493" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

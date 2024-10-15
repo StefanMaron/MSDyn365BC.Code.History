@@ -204,7 +204,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
 
         // [GIVEN] 2 of 3 records are modified by the integration system user
         CRMConnectionSetup.FindFirst();
-        CRMSystemuser.Get(CRMConnectionSetup.GetIntegrationUserID);
+        CRMSystemuser.Get(CRMConnectionSetup.GetIntegrationUserID());
         TestIntegrationTable.FindSet();
         TestIntegrationTable.ModifiedBy := CRMSystemuser.SystemUserId;
         TestIntegrationTable.Modify();
@@ -236,7 +236,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         Initialize();
 
         // [GIVEN] A mapping allowing synch only for coupled records (the default setting)
-        ResetDefaultCRMSetupConfiguration;
+        ResetDefaultCRMSetupConfiguration();
 
         // [GIVEN] A CRM source with two records, one coupled and one not coupled
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
@@ -538,7 +538,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         CreatedRecordID: RecordID;
     begin
         // Setup
-        ResetDefaultCRMSetupConfiguration;
+        ResetDefaultCRMSetupConfiguration();
         IntegrationTableMapping.SetRange("Table ID", DATABASE::Customer);
         IntegrationTableMapping.FindFirst();
         IntegrationTableMapping.Direction := IntegrationTableMapping.Direction::FromIntegrationTable;
@@ -556,7 +556,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         CODEUNIT.Run(CODEUNIT::"Integration Synch. Job Runner", JobQueueEntry);
 
         // Validate
-        Assert.IsTrue(IntegrationSynchJob.FindSet, 'Expected job log entries');
+        Assert.IsTrue(IntegrationSynchJob.FindSet(), 'Expected job log entries');
         repeat
             IntegrationSynchJobErrors.SetRange("Integration Synch. Job ID", IntegrationSynchJob.ID);
             if IntegrationSynchJobErrors.FindFirst() then
@@ -592,7 +592,7 @@ codeunit 139169 "CRM Synch. Job Scenarios"
         Initialize();
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
-        ResetDefaultCRMSetupConfiguration;
+        ResetDefaultCRMSetupConfiguration();
 
         // [GIVEN] CRM Connection is broken
         CRMSystemuser.DeleteAll();

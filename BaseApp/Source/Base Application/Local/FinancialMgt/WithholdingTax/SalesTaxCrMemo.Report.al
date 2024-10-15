@@ -668,8 +668,8 @@ report 28074 "Sales - Tax Cr. Memo"
 
             trigger OnAfterGetRecord()
             begin
-                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                CurrReport.FormatRegion := Language.GetFormatRegionOrDefault("Format Region");
+                CurrReport.Language := LanguageMgt.GetLanguageIdOrDefault("Language Code");
+                CurrReport.FormatRegion := LanguageMgt.GetFormatRegionOrDefault("Format Region");
 
                 if RespCenter.Get("Responsibility Center") then begin
                     FormatAddr.RespCenter(CompanyAddr, RespCenter);
@@ -859,7 +859,7 @@ report 28074 "Sales - Tax Cr. Memo"
         TempVATAmountLine: Record "VAT Amount Line" temporary;
         DimSetEntry1: Record "Dimension Set Entry";
         DimSetEntry2: Record "Dimension Set Entry";
-        Language: Codeunit Language;
+        LanguageMgt: Codeunit Language;
         SalestaxCrMemoCountPrinted: Codeunit "Sales Tax Cr.Memo-Printed";
         FormatAddr: Codeunit "Format Address";
         SegManagement: Codeunit SegManagement;

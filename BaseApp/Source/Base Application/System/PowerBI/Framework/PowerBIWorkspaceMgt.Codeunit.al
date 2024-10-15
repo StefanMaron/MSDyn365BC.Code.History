@@ -147,13 +147,4 @@ codeunit 6319 "Power BI Workspace Mgt."
                 Session.LogMessage('0000F2D', FailedToInsertReportTelemetryMsg, Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', PowerBIServiceMgt.GetPowerBiTelemetryCategory());
         end;
     end;
-
-#if not CLEAN21
-    [Scope('OnPrem')]
-    [IntegrationEvent(false, false)]
-    [Obsolete('Events to override the Power BI integration behavior are no longer supported.', '21.0')]
-    procedure OnGetReportsAndWorkspaces(var TempPowerBISelectionElement: Record "Power BI Selection Element" temporary; EnglishContext: Text[30])
-    begin
-    end;
-#endif
 }

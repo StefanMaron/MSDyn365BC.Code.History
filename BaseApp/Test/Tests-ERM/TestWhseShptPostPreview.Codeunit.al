@@ -15,7 +15,6 @@ codeunit 134782 "Test Whse. Shpt. Post Preview"
         LibraryRandom: Codeunit "Library - Random";
         LibraryUtility: Codeunit "Library - Utility";
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
-        LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryWarehouse: Codeunit "Library - Warehouse";
         LibrarySales: Codeunit "Library - Sales";
         IsInitialized: Boolean;
@@ -55,12 +54,12 @@ codeunit 134782 "Test Whse. Shpt. Post Preview"
         Commit();
 
         // [WHEN] Preview is invoked
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror WhsePostShipmentYesNo.Preview(WarehouseShipmentLine);
         Assert.AreEqual('', GetLastErrorText, WrongPostPreviewErr + GetLastErrorText);
 
         // [THEN] Preview creates the entries that will be created when the Shipment is posted
-        GLPostingPreview.First;
+        GLPostingPreview.First();
         VerifyGLPostingPreviewLine(GLPostingPreview, GLEntry.TableCaption(), 2);
 
         GLPostingPreview.Next();
@@ -74,7 +73,7 @@ codeunit 134782 "Test Whse. Shpt. Post Preview"
 
         GLPostingPreview.Next();
         VerifyGLPostingPreviewLine(GLPostingPreview, ValueEntry.TableCaption(), 1);
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK().Invoke();
     end;
 
     [Test]
@@ -84,7 +83,6 @@ codeunit 134782 "Test Whse. Shpt. Post Preview"
     var
         SalesHeader: Record "Sales Header";
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
-        Item: Record Item;
         Location: Record Location;
         Bin: Record Bin;
         GLEntry: Record "G/L Entry";
@@ -122,12 +120,12 @@ codeunit 134782 "Test Whse. Shpt. Post Preview"
         Commit();
 
         // [WHEN] Preview is invoked
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror WhsePostShipmentYesNo.Preview(WarehouseShipmentLine);
         Assert.AreEqual('', GetLastErrorText, WrongPostPreviewErr + GetLastErrorText);
 
         // [THEN] Preview creates the entries that will be created when the Shipment is posted
-        GLPostingPreview.First;
+        GLPostingPreview.First();
         VerifyGLPostingPreviewLine(GLPostingPreview, GLEntry.TableCaption(), 2);
 
         GLPostingPreview.Next();
@@ -144,7 +142,7 @@ codeunit 134782 "Test Whse. Shpt. Post Preview"
 
         GLPostingPreview.Next();
         VerifyGLPostingPreviewLine(GLPostingPreview, WarehouseEntry.TableCaption(), 1);
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK().Invoke();
     end;
 
     [Test]
@@ -154,7 +152,6 @@ codeunit 134782 "Test Whse. Shpt. Post Preview"
         TransferHeader: Record "Transfer Header";
         TransferLine: Record "Transfer Line";
         WarehouseShipmentLine: Record "Warehouse Shipment Line";
-        Item: Record Item;
         FromLocation: Record Location;
         ToLocation: Record Location;
         ItemLedgerEntry: Record "Item Ledger Entry";
@@ -181,17 +178,17 @@ codeunit 134782 "Test Whse. Shpt. Post Preview"
         Commit();
 
         // [WHEN] Preview is invoked
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror WhsePostShipmentYesNo.Preview(WarehouseShipmentLine);
         Assert.AreEqual('', GetLastErrorText, WrongPostPreviewErr + GetLastErrorText);
 
         // [THEN] Preview creates the entries that will be created when the Shipment is posted
-        GLPostingPreview.First;
+        GLPostingPreview.First();
         VerifyGLPostingPreviewLine(GLPostingPreview, ItemLedgerEntry.TableCaption(), 2);
 
         GLPostingPreview.Next();
         VerifyGLPostingPreviewLine(GLPostingPreview, ValueEntry.TableCaption(), 2);
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK().Invoke();
     end;
 
     [Test]
@@ -241,7 +238,7 @@ codeunit 134782 "Test Whse. Shpt. Post Preview"
         Commit();
 
         // [WHEN] Run posting preview for the warehouse shipment.
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror WhsePostShipmentYesNo.Preview(WarehouseShipmentLine);
         Assert.AreEqual('', GetLastErrorText, WrongPostPreviewErr + GetLastErrorText);
 
@@ -290,14 +287,13 @@ codeunit 134782 "Test Whse. Shpt. Post Preview"
 
     local procedure CreateSalesDocumentWithItem(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; DocumentType: Enum "Sales Document Type"; ItemNo: Code[20])
     begin
-        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo);
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, ItemNo, LibraryRandom.RandInt(10));
     end;
 
     local procedure CreateSalesDocumentWithLineLocation(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; LocationCode: Code[10]; BinCode: Code[10])
     var
         SalesLine: Record "Sales Line";
-        UserSetup: Record "User Setup";
         ItemJournalLine: Record "Item Journal Line";
         Item: Record Item;
     begin
@@ -345,7 +341,7 @@ codeunit 134782 "Test Whse. Shpt. Post Preview"
     local procedure VerifyGLPostingPreviewLine(GLPostingPreview: TestPage "G/L Posting Preview"; TableName: Text; ExpectedEntryCount: Integer)
     begin
         Assert.AreEqual(TableName, GLPostingPreview."Table Name".Value, StrSubstNo('A record for Table Name %1 was not found.', TableName));
-        Assert.AreEqual(ExpectedEntryCount, GLPostingPreview."No. of Records".AsInteger,
+        Assert.AreEqual(ExpectedEntryCount, GLPostingPreview."No. of Records".AsInteger(),
           StrSubstNo('Table Name %1 Unexpected number of records.', TableName));
     end;
 

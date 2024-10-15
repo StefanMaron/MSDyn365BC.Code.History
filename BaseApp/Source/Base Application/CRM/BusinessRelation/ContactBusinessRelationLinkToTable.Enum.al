@@ -1,6 +1,8 @@
 namespace Microsoft.CRM.BusinessRelation;
 
+#pragma warning disable AL0659
 enum 5057 "Contact Business Relation Link To Table" implements "Contact Business Relation Link"
+#pragma warning restore AL0659
 {
     Extensible = true;
     AssignmentCompatibility = true;

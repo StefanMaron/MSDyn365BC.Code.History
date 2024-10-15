@@ -12,7 +12,7 @@ page 9845 "Event Recorder"
     SourceTable = "Recorded Event Buffer";
     SourceTableTemporary = true;
     SourceTableView = sorting("Call Order")
-                      order(Ascending);
+                      order(ascending);
     UsageCategory = Lists;
 
     layout
@@ -130,7 +130,7 @@ page 9845 "Event Recorder"
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Start';
-                    Enabled = NOT EventLoggingRunning;
+                    Enabled = not EventLoggingRunning;
                     Image = Start;
                     ToolTip = 'Start recording UI activities to generate the list of events that are called. The new recording will erase any events that have previously been recorded.';
 

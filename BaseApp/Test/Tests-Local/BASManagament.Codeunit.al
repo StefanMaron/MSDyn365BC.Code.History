@@ -17,7 +17,6 @@ codeunit 145301 "BAS Managament"
         BASCalcSheetGroupConsolidatedErr: Label 'The BAS calculation sheet was not group consolidated.';
         BASCalcSheetConsolidatedSumErr: Label 'The consolidation sum of the BAS calculation sheet is wrong.';
         VarStorage: Codeunit "Library - Variable Storage";
-        ExportedBASCalcSheetErr: Label 'The BAS calculation sheet cannot be exported.';
         CannotEditFieldErr: Label 'You cannot edit this field. Use the import function.';
 
     [Test]

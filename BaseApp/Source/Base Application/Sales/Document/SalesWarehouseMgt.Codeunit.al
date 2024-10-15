@@ -137,21 +137,19 @@ codeunit 5991 "Sales Warehouse Mgt."
 
         NewRecordRef.GetTable(NewSalesLine);
         OldRecordRef.GetTable(OldSalesLine);
-        with NewSalesLine do begin
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo(Type));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("No."));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Variant Code"));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Location Code"));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Unit of Measure Code"));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Drop Shipment"));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Purchase Order No."));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Purch. Order Line No."));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Job No."));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo(Quantity));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Qty. to Ship"));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Qty. to Assemble to Order"));
-            WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, FieldNo("Shipment Date"));
-        end;
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewSalesLine.FieldNo(Type));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewSalesLine.FieldNo("No."));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewSalesLine.FieldNo("Variant Code"));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewSalesLine.FieldNo("Location Code"));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewSalesLine.FieldNo("Unit of Measure Code"));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewSalesLine.FieldNo("Drop Shipment"));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewSalesLine.FieldNo("Purchase Order No."));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewSalesLine.FieldNo("Purch. Order Line No."));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewSalesLine.FieldNo("Job No."));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewSalesLine.FieldNo(Quantity));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewSalesLine.FieldNo("Qty. to Ship"));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewSalesLine.FieldNo("Qty. to Assemble to Order"));
+        WhseValidateSourceLine.VerifyFieldNotChanged(NewRecordRef, OldRecordRef, NewSalesLine.FieldNo("Shipment Date"));
 
         OnAfterSalesLineVerifyChange(NewRecordRef, OldRecordRef);
 #if not CLEAN23
@@ -236,20 +234,18 @@ codeunit 5991 "Sales Warehouse Mgt."
         if IsHandled then
             exit;
 
-        with NewSalesHeader do begin
-            if "Shipping Advice" = OldSalesHeader."Shipping Advice" then
-                exit;
+        if NewSalesHeader."Shipping Advice" = OldSalesHeader."Shipping Advice" then
+            exit;
 
-            SalesLine.Reset();
-            SalesLine.SetRange("Document Type", OldSalesHeader."Document Type");
-            SalesLine.SetRange("Document No.", OldSalesHeader."No.");
-            if SalesLine.FindSet() then
-                repeat
-                    WhseValidateSourceHeader.ChangeWarehouseLines(
-                        DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", 0,
-                        "Shipping Advice");
-                until SalesLine.Next() = 0;
-        end;
+        SalesLine.Reset();
+        SalesLine.SetRange("Document Type", OldSalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", OldSalesHeader."No.");
+        if SalesLine.FindSet() then
+            repeat
+                WhseValidateSourceHeader.ChangeWarehouseLines(
+                    DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", 0,
+                    NewSalesHeader."Shipping Advice");
+            until SalesLine.Next() = 0;
     end;
 
     [IntegrationEvent(false, false)]
@@ -338,51 +334,49 @@ codeunit 5991 "Sales Warehouse Mgt."
 
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
 
-        with WarehouseShipmentLine do begin
-            InitNewLine(WarehouseShipmentHeader."No.");
-            SetSource(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
-            SalesLine.TestField("Unit of Measure Code");
-            SetItemData(
-              SalesLine."No.", SalesLine.Description, SalesLine."Description 2", SalesLine."Location Code",
-              SalesLine."Variant Code", SalesLine."Unit of Measure Code", SalesLine."Qty. per Unit of Measure",
-              SalesLine."Qty. Rounding Precision", SalesLine."Qty. Rounding Precision (Base)");
+        WarehouseShipmentLine.InitNewLine(WarehouseShipmentHeader."No.");
+        WarehouseShipmentLine.SetSource(DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.");
+        SalesLine.TestField("Unit of Measure Code");
+        WarehouseShipmentLine.SetItemData(
+          SalesLine."No.", SalesLine.Description, SalesLine."Description 2", SalesLine."Location Code",
+          SalesLine."Variant Code", SalesLine."Unit of Measure Code", SalesLine."Qty. per Unit of Measure",
+          SalesLine."Qty. Rounding Precision", SalesLine."Qty. Rounding Precision (Base)");
 #if not CLEAN23
-            WhseCreateSourceDocument.RunOnAfterInitNewWhseShptLine(WarehouseShipmentLine, WarehouseShipmentHeader, SalesLine, AssembleToOrder);
+        WhseCreateSourceDocument.RunOnAfterInitNewWhseShptLine(WarehouseShipmentLine, WarehouseShipmentHeader, SalesLine, AssembleToOrder);
 #endif
-            IsHandled := false;
-            Return := false;
-            OnAfterInitNewWhseShptLine(WarehouseShipmentLine, WarehouseShipmentHeader, SalesLine, AssembleToOrder, WhseShptLineQty, WhseShptLineQtyBase, IsHandled, Return);
-            if IsHandled then
-                exit(Return);
-            WhseCreateSourceDocument.SetQtysOnShptLine(WarehouseShipmentLine, WhseShptLineQty, WhseShptLineQtyBase);
-            "Assemble to Order" := AssembleToOrder;
-            if SalesLine."Document Type" = SalesLine."Document Type"::Order then
-                "Due Date" := SalesLine."Planned Shipment Date";
-            if SalesLine."Document Type" = SalesLine."Document Type"::"Return Order" then
-                "Due Date" := WorkDate();
-            if WarehouseShipmentHeader."Shipment Date" = 0D then
-                "Shipment Date" := SalesLine."Shipment Date"
-            else
-                "Shipment Date" := WarehouseShipmentHeader."Shipment Date";
-            "Destination Type" := "Destination Type"::Customer;
-            "Destination No." := SalesLine."Sell-to Customer No.";
-            "Shipping Advice" := SalesHeader."Shipping Advice";
-            if "Location Code" = WarehouseShipmentHeader."Location Code" then
-                "Bin Code" := WarehouseShipmentHeader."Bin Code";
-            if "Bin Code" = '' then
-                "Bin Code" := SalesLine."Bin Code";
-            WhseCreateSourceDocument.UpdateShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader);
+        IsHandled := false;
+        Return := false;
+        OnAfterInitNewWhseShptLine(WarehouseShipmentLine, WarehouseShipmentHeader, SalesLine, AssembleToOrder, WhseShptLineQty, WhseShptLineQtyBase, IsHandled, Return);
+        if IsHandled then
+            exit(Return);
+        WhseCreateSourceDocument.SetQtysOnShptLine(WarehouseShipmentLine, WhseShptLineQty, WhseShptLineQtyBase);
+        WarehouseShipmentLine."Assemble to Order" := AssembleToOrder;
+        if SalesLine."Document Type" = SalesLine."Document Type"::Order then
+            WarehouseShipmentLine."Due Date" := SalesLine."Planned Shipment Date";
+        if SalesLine."Document Type" = SalesLine."Document Type"::"Return Order" then
+            WarehouseShipmentLine."Due Date" := WorkDate();
+        if WarehouseShipmentHeader."Shipment Date" = 0D then
+            WarehouseShipmentLine."Shipment Date" := SalesLine."Shipment Date"
+        else
+            WarehouseShipmentLine."Shipment Date" := WarehouseShipmentHeader."Shipment Date";
+        WarehouseShipmentLine."Destination Type" := WarehouseShipmentLine."Destination Type"::Customer;
+        WarehouseShipmentLine."Destination No." := SalesLine."Sell-to Customer No.";
+        WarehouseShipmentLine."Shipping Advice" := SalesHeader."Shipping Advice";
+        if WarehouseShipmentLine."Location Code" = WarehouseShipmentHeader."Location Code" then
+            WarehouseShipmentLine."Bin Code" := WarehouseShipmentHeader."Bin Code";
+        if WarehouseShipmentLine."Bin Code" = '' then
+            WarehouseShipmentLine."Bin Code" := SalesLine."Bin Code";
+        WhseCreateSourceDocument.UpdateShipmentLine(WarehouseShipmentLine, WarehouseShipmentHeader);
 #if not CLEAN23
-            WhseCreateSourceDocument.RunOnBeforeCreateShptLineFromSalesLine(WarehouseShipmentLine, WarehouseShipmentHeader, SalesLine, SalesHeader);
+        WhseCreateSourceDocument.RunOnBeforeCreateShptLineFromSalesLine(WarehouseShipmentLine, WarehouseShipmentHeader, SalesLine, SalesHeader);
 #endif
-            OnBeforeCreateShptLineFromSalesLine(WarehouseShipmentLine, WarehouseShipmentHeader, SalesLine, SalesHeader);
-            WhseCreateSourceDocument.CreateShipmentLine(WarehouseShipmentLine);
+        OnBeforeCreateShptLineFromSalesLine(WarehouseShipmentLine, WarehouseShipmentHeader, SalesLine, SalesHeader);
+        WhseCreateSourceDocument.CreateShipmentLine(WarehouseShipmentLine);
 #if not CLEAN23
-            WhseCreateSourceDocument.RunOnAfterCreateShptLineFromSalesLine(WarehouseShipmentLine, WarehouseShipmentHeader, SalesLine, SalesHeader);
+        WhseCreateSourceDocument.RunOnAfterCreateShptLineFromSalesLine(WarehouseShipmentLine, WarehouseShipmentHeader, SalesLine, SalesHeader);
 #endif
-            OnAfterCreateShptLineFromSalesLine(WarehouseShipmentLine, WarehouseShipmentHeader, SalesLine, SalesHeader);
-            exit(not HasErrorOccured());
-        end;
+        OnAfterCreateShptLineFromSalesLine(WarehouseShipmentLine, WarehouseShipmentHeader, SalesLine, SalesHeader);
+        exit(not WarehouseShipmentLine.HasErrorOccured());
     end;
 
     procedure SalesLine2ReceiptLine(WarehouseReceiptHeader: Record "Warehouse Receipt Header"; SalesLine: Record "Sales Line"): Boolean
@@ -493,12 +487,10 @@ codeunit 5991 "Sales Warehouse Mgt."
         if SalesLine.IsNonInventoriableItem() then
             exit(false);
 
-        with WarehouseReceiptLine do begin
-            WhseManagement.SetSourceFilterForWhseRcptLine(
-              WarehouseReceiptLine, DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", false);
-            CalcSums("Qty. Outstanding (Base)");
-            exit(Abs(SalesLine."Outstanding Qty. (Base)") > Abs("Qty. Outstanding (Base)"));
-        end;
+        WhseManagement.SetSourceFilterForWhseRcptLine(
+          WarehouseReceiptLine, DATABASE::"Sales Line", SalesLine."Document Type".AsInteger(), SalesLine."Document No.", SalesLine."Line No.", false);
+        WarehouseReceiptLine.CalcSums("Qty. Outstanding (Base)");
+        exit(Abs(SalesLine."Outstanding Qty. (Base)") > Abs(WarehouseReceiptLine."Qty. Outstanding (Base)"));
     end;
 
     [IntegrationEvent(false, false)]

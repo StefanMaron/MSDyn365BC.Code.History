@@ -196,10 +196,9 @@ codeunit 1800 "Assisted Company Setup"
         ActiveSession: Record "Active Session";
         AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
     begin
-        with AssistedCompanySetupStatus do
-            if Get(NewCompanyName) then
-                if "Company Setup Session ID" <> 0 then
-                    exit(ActiveSession.Get("Server Instance ID", "Company Setup Session ID"));
+        if AssistedCompanySetupStatus.Get(NewCompanyName) then
+            if AssistedCompanySetupStatus."Company Setup Session ID" <> 0 then
+                exit(ActiveSession.Get(AssistedCompanySetupStatus."Server Instance ID", AssistedCompanySetupStatus."Company Setup Session ID"));
     end;
 
     procedure WaitForPackageImportToComplete()
@@ -277,24 +276,22 @@ codeunit 1800 "Assisted Company Setup"
         TaskID: Guid;
         ImportSessionID: Integer;
     begin
-        with AssistedCompanySetupStatus do begin
-            LockTable();
-            Get(Name);
-            OnBeforeScheduleTask(DoNotScheduleTask, TaskID, ImportSessionID);
-            if DoNotScheduleTask then
-                "Task ID" := TaskID
-            else begin
-                Commit();
-                "Task ID" := CreateGuid();
-                ImportSessionID := 0;
-                StartSession(ImportSessionID, CODEUNIT::"Import Config. Package File", "Company Name", ConfigurationPackageFile);
-            end;
-            "Company Setup Session ID" := ImportSessionID;
-            if "Company Setup Session ID" = 0 then
-                Clear("Task ID");
-            Modify();
+        AssistedCompanySetupStatus.LockTable();
+        AssistedCompanySetupStatus.Get(Name);
+        OnBeforeScheduleTask(DoNotScheduleTask, TaskID, ImportSessionID);
+        if DoNotScheduleTask then
+            AssistedCompanySetupStatus."Task ID" := TaskID
+        else begin
             Commit();
+            AssistedCompanySetupStatus."Task ID" := CreateGuid();
+            ImportSessionID := 0;
+            StartSession(ImportSessionID, CODEUNIT::"Import Config. Package File", AssistedCompanySetupStatus."Company Name", ConfigurationPackageFile);
         end;
+        AssistedCompanySetupStatus."Company Setup Session ID" := ImportSessionID;
+        if AssistedCompanySetupStatus."Company Setup Session ID" = 0 then
+            Clear(AssistedCompanySetupStatus."Task ID");
+        AssistedCompanySetupStatus.Modify();
+        Commit();
     end;
 
     local procedure SetApplicationArea(NewCompanyName: Text[30])
@@ -411,7 +408,7 @@ codeunit 1800 "Assisted Company Setup"
     var
         AssistedCompanySetupStatus: Record "Assisted Company Setup Status";
     begin
-        IF AssistedCompanySetupStatus.Get(CompanyName) then
+        if AssistedCompanySetupStatus.Get(CompanyName) then
             exit(AssistedCompanySetupStatus.Enabled);
         exit(false);
     end;

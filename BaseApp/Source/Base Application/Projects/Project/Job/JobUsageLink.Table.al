@@ -9,18 +9,19 @@ using Microsoft.Projects.Project.Planning;
 
 table 1020 "Job Usage Link"
 {
-    Caption = 'Job Usage Link';
+    Caption = 'Project Usage Link';
+    DataClassification = CustomerContent;
 
     fields
     {
         field(1; "Job No."; Code[20])
         {
-            Caption = 'Job No.';
+            Caption = 'Project No.';
             TableRelation = Job;
         }
         field(2; "Job Task No."; Code[20])
         {
-            Caption = 'Job Task No.';
+            Caption = 'Project Task No.';
             TableRelation = "Job Task"."Job Task No." where("Job No." = field("Job No."));
         }
         field(3; "Line No."; Integer)
@@ -33,6 +34,11 @@ table 1020 "Job Usage Link"
         {
             Caption = 'Entry No.';
         }
+        field(5; "External Id"; Guid)
+        {
+            DataClassification = SystemMetadata;
+            Caption = 'External Id';
+        }
     }
 
     keys
@@ -40,6 +46,9 @@ table 1020 "Job Usage Link"
         key(Key1; "Job No.", "Job Task No.", "Line No.", "Entry No.")
         {
             Clustered = true;
+        }
+        key(Key2; "External Id")
+        {
         }
     }
 
