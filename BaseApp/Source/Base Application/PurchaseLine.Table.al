@@ -2721,7 +2721,6 @@
             var
                 CustomCalendarChange: Array[2] of Record "Customized Calendar Change";
             begin
-                TestStatusOpen;
                 if (CurrFieldNo <> 0) and
                    ("Promised Receipt Date" <> 0D)
                 then
@@ -2763,7 +2762,6 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
                 LeadTimeMgt.CheckLeadTimeIsNotNegative("Lead Time Calculation");
 
                 if "Requested Receipt Date" <> 0D then
@@ -2779,7 +2777,6 @@
 
             trigger OnValidate()
             begin
-                TestStatusOpen;
                 if ("Promised Receipt Date" <> 0D) or
                    ("Requested Receipt Date" <> 0D)
                 then
@@ -2797,7 +2794,6 @@
             var
                 CustomCalendarChange: Array[2] of Record "Customized Calendar Change";
             begin
-                TestStatusOpen;
                 if "Promised Receipt Date" <> 0D then begin
                     if "Planned Receipt Date" <> 0D then begin
                         CustomCalendarChange[1].SetSource(CalChange."Source Type"::Location, "Location Code", '', '');
@@ -2830,7 +2826,6 @@
             var
                 CustomCalendarChange: Array[2] of Record "Customized Calendar Change";
             begin
-                TestStatusOpen;
                 if (CurrFieldNo <> 0) and
                    ("Document Type" = "Document Type"::Order) and
                    ("Order Date" < WorkDate) and
@@ -5709,11 +5704,14 @@
 
             OnValidateCrossReferenceNoOnBeforeAssignNo(Rec, ReturnedItemCrossReference);
 
-            Validate("No.", ReturnedItemCrossReference."Item No.");
+            if "No." <> ReturnedItemCrossReference."Item No." then
+                Validate("No.", ReturnedItemCrossReference."Item No.");
             SetVendorItemNo;
             if ReturnedItemCrossReference."Variant Code" <> '' then
                 Validate("Variant Code", ReturnedItemCrossReference."Variant Code");
-            if ReturnedItemCrossReference."Unit of Measure" <> '' then
+            if (ReturnedItemCrossReference."Unit of Measure" <> '') and
+               ("Unit of Measure Code" <> ReturnedItemCrossReference."Unit of Measure")
+            then
                 Validate("Unit of Measure Code", ReturnedItemCrossReference."Unit of Measure");
             UpdateDirectUnitCost(FieldNo("Cross-Reference No."));
         end;

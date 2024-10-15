@@ -382,7 +382,7 @@ report 12461 "VAT Ledger Export XML"
         XMLAddComplexElement(FileTxt);
         XMLAddAttribute(XMLCurrNode, FileIDTxt, FileID);
         XMLAddAttribute(XMLCurrNode, VersProgTxt, '1.0');
-        XMLAddAttribute(XMLCurrNode, VersFormTxt, '5.05');
+        XMLAddAttribute(XMLCurrNode, VersFormTxt, LocalReportMgt.GetVATLedgerFormatVersion());
         XMLCurrNode := XMLNewChild;
     end;
 

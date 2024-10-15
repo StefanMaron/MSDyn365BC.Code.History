@@ -46,6 +46,7 @@ codeunit 229 "Document-Print"
         ReportSelections: Record "Report Selections";
         SalesInvHeader: Record "Sales Invoice Header";
         DocPrintBuffer: Record "Document Print Buffer";
+        ReportDistributionMgt: Codeunit "Report Distribution Management";
     begin
         with SalesInvHeader do begin
             Copy(SalesInvoiceHeader);
@@ -56,8 +57,8 @@ codeunit 229 "Document-Print"
             Commit;
             if SendAsEmail then
                 ReportSelections.SendEmailToCust(
-                  GetSalesInvoiceDocTypeUsage(SalesInvHeader), SalesInvHeader, "No.", GetDefaultEmailDocumentName,
-                  ShowRequestForm, "Bill-to Customer No.")
+                  GetSalesInvoiceDocTypeUsage(SalesInvHeader), SalesInvHeader, "No.",
+                  ReportDistributionMgt.GetFullDocumentTypeText(SalesInvHeader), ShowRequestForm, "Bill-to Customer No.")
             else
                 ReportSelections.PrintWithDocPrintOption(
                   GetSalesInvoiceDocTypeUsage(SalesInvHeader), SalesInvHeader, FieldNo("Bill-to Customer No."),

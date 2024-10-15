@@ -5832,7 +5832,9 @@
             if ReturnedItemCrossReference."Variant Code" <> '' then
                 Validate("Variant Code", ReturnedItemCrossReference."Variant Code");
 
-            if ReturnedItemCrossReference."Unit of Measure" <> '' then
+            if (ReturnedItemCrossReference."Unit of Measure" <> '') and
+               ("Unit of Measure Code" <> ReturnedItemCrossReference."Unit of Measure")
+            then
                 Validate("Unit of Measure Code", ReturnedItemCrossReference."Unit of Measure");
         end;
 
