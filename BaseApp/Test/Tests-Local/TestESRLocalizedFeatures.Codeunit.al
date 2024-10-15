@@ -19,6 +19,7 @@ codeunit 144061 "Test ESR Localized Features"
         LibraryUtility: Codeunit "Library - Utility";
         LibraryJournals: Codeunit "Library - Journals";
         IsInitialized: Boolean;
+        PaymentRefNoErr: Label 'Payment Reference No. should be be %1.', Comment = '%1 - Expected Payment Reference no.';
 
     [Test]
     [Scope('OnPrem')]
@@ -156,6 +157,35 @@ codeunit 144061 "Test ESR Localized Features"
         VendorLedgerEntry.TestField("Reference No.", PurchaseHeader."Reference No.");
     end;
 
+    [Test]
+    procedure PostVendorPaymentPaymentReference()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        GenJournalLine: Record "Gen. Journal Line";
+        InvoiceNo: Code[20];
+        ExpectedValue: Code[50];
+    begin
+        // [SCENARIO 441116] To validate if payment reference number is getting populated on Payment Journal line when updated applies-to doc. no.
+        Init();
+
+        // [GIVEN] Posted purchase invoice with ESR Reference No.
+        InvoiceNo := PostPurchaseInvoiceWithPaymentReference(PurchaseHeader);
+
+        // [GIVEN] Payment journal line with vendor payment applied to the invoice using Applies-To ID
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, InvoiceNo);
+        VendorLedgerEntry.CalcFields("Remaining Amount");
+
+        // [WHEN] Vendor payment Journal line is created manually and applies-to doc. no. is updated.
+        CreateVendorPayment(
+            GenJournalLine, PurchaseHeader."Buy-from Vendor No.", PurchaseHeader."Bank Code",
+            -VendorLedgerEntry."Remaining Amount", PurchaseHeader."Reference No.", '', LibraryUtility.GenerateGUID());
+
+        // [THEN] Payment reference no. is also updated from vendord ledger entry.
+        ExpectedValue := LibraryVariableStorage.DequeueText();
+        Assert.AreEqual(ExpectedValue, GenJournalLine."Payment Reference", StrSubstNo(PaymentRefNoErr, ExpectedValue));
+    end;
+
     local procedure Init()
     begin
         LibraryVariableStorage.Clear();
@@ -217,6 +247,19 @@ codeunit 144061 "Test ESR Localized Features"
             GenJournalLine.Validate("Applies-to ID", AppliesToID);
         GenJournalLine.Validate("Reference No.", ReferenceNo);
         GenJournalLine.Modify(true);
+    end;
+
+    local procedure PostPurchaseInvoiceWithPaymentReference(var PurchaseHeader: Record "Purchase Header"): Code[20]
+    begin
+        LibraryPurchase.CreatePurchaseInvoice(PurchaseHeader);
+        PurchaseHeader.CalcFields("Amount Including VAT");
+        PurchaseHeader.Validate("Bank Code", CreateESRVendorBankAccount(PurchaseHeader."Buy-from Vendor No."));
+        PurchaseHeader.Validate("Reference No.", '000000000000000000000000058');
+        LibraryVariableStorage.Enqueue(PurchaseHeader."Payment Reference");
+        PurchaseHeader.Validate("ESR Amount", PurchaseHeader."Amount Including VAT");
+        PurchaseHeader.Validate("Payment Reference", LibraryRandom.RandText(50));
+        PurchaseHeader.Modify(true);
+        exit(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
     end;
 }
 

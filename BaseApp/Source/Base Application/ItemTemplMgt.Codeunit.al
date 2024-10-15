@@ -1,4 +1,4 @@
-codeunit 1336 "Item Templ. Mgt."
+﻿codeunit 1336 "Item Templ. Mgt."
 {
     trigger OnRun()
     begin
@@ -30,6 +30,7 @@ codeunit 1336 "Item Templ. Mgt."
 
         ApplyItemTemplate(Item, ItemTempl, true);
 
+        OnAfterCreateItemFromTemplate(Item, ItemTempl);
         exit(true);
     end;
 
@@ -166,14 +167,24 @@ codeunit 1336 "Item Templ. Mgt."
     var
         IsHandled: Boolean;
     begin
+        IsHandled := false;
         OnInsertItemFromTemplate(Item, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        Result := CreateItemFromTemplate(Item, IsHandled);
     end;
 
     procedure TemplatesAreNotEmpty() Result: Boolean
     var
         IsHandled: Boolean;
     begin
+        IsHandled := false;
         OnTemplatesAreNotEmpty(Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        Result := ItemTemplatesAreNotEmpty(IsHandled);
     end;
 
     procedure IsEnabled() Result: Boolean
@@ -189,7 +200,12 @@ codeunit 1336 "Item Templ. Mgt."
     var
         IsHandled: Boolean;
     begin
+        IsHandled := false;
         OnUpdateItemFromTemplate(Item, IsHandled);
+        if IsHandled then
+            exit;
+
+        UpdateFromTemplate(Item, IsHandled);
     end;
 
     local procedure UpdateFromTemplate(var Item: Record Item; var IsHandled: Boolean)
@@ -211,7 +227,12 @@ codeunit 1336 "Item Templ. Mgt."
     var
         IsHandled: Boolean;
     begin
+        IsHandled := false;
         OnUpdateItemsFromTemplate(Item, IsHandled);
+        if IsHandled then
+            exit;
+
+        UpdateMultipleFromTemplate(Item, IsHandled);
     end;
 
     local procedure UpdateMultipleFromTemplate(var Item: Record Item; var IsHandled: Boolean)
@@ -246,7 +267,12 @@ codeunit 1336 "Item Templ. Mgt."
     var
         IsHandled: Boolean;
     begin
+        IsHandled := false;
         OnSaveAsTemplate(Item, IsHandled);
+        if IsHandled then
+            exit;
+
+        CreateTemplateFromItem(Item, IsHandled);
     end;
 
     procedure CreateTemplateFromItem(Item: Record Item; var IsHandled: Boolean)
@@ -314,7 +340,12 @@ codeunit 1336 "Item Templ. Mgt."
     var
         IsHandled: Boolean;
     begin
+        IsHandled := false;
         OnShowTemplates(IsHandled);
+        if IsHandled then
+            exit;
+
+        ShowItemTemplList(IsHandled);
     end;
 
     local procedure ShowItemTemplList(var IsHandled: Boolean)
@@ -326,7 +357,13 @@ codeunit 1336 "Item Templ. Mgt."
     local procedure InitItemNo(var Item: Record Item; ItemTempl: Record "Item Templ.")
     var
         NoSeriesManagement: Codeunit NoSeriesManagement;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeInitItemNo(Item, ItemTempl, IsHandled);
+        if IsHandled then
+            exit;
+
         if ItemTempl."No. Series" = '' then
             exit;
 
@@ -501,60 +538,6 @@ codeunit 1336 "Item Templ. Mgt."
     begin
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Templ. Mgt.", 'OnInsertItemFromTemplate', '', false, false)]
-    local procedure OnInsertItemFromTemplateHandler(var Item: Record Item; var Result: Boolean; var IsHandled: Boolean)
-    begin
-        if IsHandled then
-            exit;
-
-        Result := CreateItemFromTemplate(Item, IsHandled);
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Templ. Mgt.", 'OnTemplatesAreNotEmpty', '', false, false)]
-    local procedure OnTemplatesAreNotEmptyHandler(var Result: Boolean; var IsHandled: Boolean)
-    begin
-        if IsHandled then
-            exit;
-
-        Result := ItemTemplatesAreNotEmpty(IsHandled);
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Templ. Mgt.", 'OnUpdateItemFromTemplate', '', false, false)]
-    local procedure OnUpdateItemFromTemplateHandler(var Item: Record Item; var IsHandled: Boolean)
-    begin
-        if IsHandled then
-            exit;
-
-        UpdateFromTemplate(Item, IsHandled);
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Templ. Mgt.", 'OnUpdateItemsFromTemplate', '', false, false)]
-    local procedure OnUpdateItemsFromTemplateHandler(var Item: Record Item; var IsHandled: Boolean)
-    begin
-        if IsHandled then
-            exit;
-
-        UpdateMultipleFromTemplate(Item, IsHandled);
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Templ. Mgt.", 'OnSaveAsTemplate', '', false, false)]
-    local procedure OnSaveAsTemplateHandler(Item: Record Item; var IsHandled: Boolean)
-    begin
-        if IsHandled then
-            exit;
-
-        CreateTemplateFromItem(Item, IsHandled);
-    end;
-
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Item Templ. Mgt.", 'OnShowTemplates', '', false, false)]
-    local procedure OnShowTemplatesHandler(var IsHandled: Boolean)
-    begin
-        if IsHandled then
-            exit;
-
-        ShowItemTemplList(IsHandled);
-    end;
-
     [IntegrationEvent(false, false)]
     local procedure OnInsertTemplateFromItemOnBeforeItemTemplInsert(var ItemTempl: Record "Item Templ."; Item: Record Item)
     begin
@@ -587,5 +570,15 @@ codeunit 1336 "Item Templ. Mgt."
             FldRef := RecRef.Field(Item.FieldNo("No. Series"));
             FldRef.Value := Item."No. Series";
         end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeInitItemNo(var Item: Record Item; ItemTempl: Record "Item Templ."; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCreateItemFromTemplate(var Item: Record Item; ItemTempl: Record "Item Templ.");
+    begin
     end;
 }

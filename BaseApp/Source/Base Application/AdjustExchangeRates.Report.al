@@ -22,7 +22,7 @@ report 595 "Adjust Exchange Rates"
         dataitem("Integer"; "Integer")
         {
             DataItemTableView = SORTING(Number) WHERE(Number = CONST(1));
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(IntegerNumber; Number)
@@ -105,7 +105,7 @@ report 595 "Adjust Exchange Rates"
                             GroupTotal: Boolean;
                         begin
                             BankAccount.Copy("Bank Account");
-                            if BankAccount.Next = 1 then begin
+                            if BankAccount.Next() = 1 then begin
                                 if BankAccount."Bank Acc. Posting Group" <> "Bank Account"."Bank Acc. Posting Group" then
                                     GroupTotal := true;
                             end else
@@ -186,7 +186,7 @@ report 595 "Adjust Exchange Rates"
 
                 trigger OnPreDataItem()
                 begin
-                    CheckPostingDate;
+                    CheckPostingDate();
                     if not AdjCustVendBank then
                         CurrReport.Break();
 
@@ -547,7 +547,7 @@ report 595 "Adjust Exchange Rates"
 
                     if Type in [Type::Sale, Type::Purchase] then begin
                         NewVATEntry := "VAT Entry";
-                        AdjustVATRate;
+                        AdjustVATRate();
                         AdjVATEntriesCounter := AdjVATEntriesCounter + 1;
                         Window.Update(1, AdjVATEntriesCounter);
                     end;
@@ -647,7 +647,7 @@ report 595 "Adjust Exchange Rates"
                                 AdjustVATEntries(VATEntry.Type::Purchase, true);
                                 AdjustPurchTax(true);
                                 AdjustVATEntries(VATEntry.Type::Sale, false);
-                                AdjustSalesTax;
+                                AdjustSalesTax();
                             until TaxJurisdiction.Next() = 0;
                         VATEntry.SetRange("Tax Jurisdiction Code");
                     end;
@@ -788,7 +788,7 @@ report 595 "Adjust Exchange Rates"
 
                             trigger OnValidate()
                             begin
-                                UpdateControls;
+                                UpdateControls();
                             end;
                         }
                         field(ValPerEnd; ValuationPeriodEndDate)
@@ -800,7 +800,7 @@ report 595 "Adjust Exchange Rates"
 
                             trigger OnValidate()
                             begin
-                                UpdateControls;
+                                UpdateControls();
                             end;
                         }
                         field(DueDateLimit; DueDateTo)
@@ -831,7 +831,7 @@ report 595 "Adjust Exchange Rates"
 
                         trigger OnValidate()
                         begin
-                            CheckPostingDate;
+                            CheckPostingDate();
                         end;
                     }
                     field(DocumentNo; PostingDocNo)
@@ -839,6 +839,45 @@ report 595 "Adjust Exchange Rates"
                         ApplicationArea = Basic, Suite;
                         Caption = 'Document No.';
                         ToolTip = 'Specifies the document number that will appear on the general ledger entries that are created by the batch job.';
+                        Visible = not IsJournalTemplNameVisible;
+                    }
+                    field(JournalTemplateName; GenJnlLineReq."Journal Template Name")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Journal Template Name';
+                        TableRelation = "Gen. Journal Template";
+                        ToolTip = 'Specifies the name of the journal template that is used for the posting.';
+                        Visible = IsJournalTemplNameVisible;
+
+                        trigger OnValidate()
+                        begin
+                            GenJnlLineReq."Journal Batch Name" := '';
+                        end;
+                    }
+                    field(JournalBatchName; GenJnlLineReq."Journal Batch Name")
+                    {
+                        ApplicationArea = Basic, Suite;
+                        Caption = 'Journal Batch Name';
+                        Lookup = true;
+                        ToolTip = 'Specifies the name of the journal batch that is used for the posting.';
+                        Visible = IsJournalTemplNameVisible;
+
+                        trigger OnLookup(var Text: Text): Boolean
+                        var
+                            GenJnlManagement: Codeunit GenJnlManagement;
+                        begin
+                            GenJnlManagement.SetJnlBatchName(GenJnlLineReq);
+                            if GenJnlLineReq."Journal Batch Name" <> '' then
+                                GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
+                        end;
+
+                        trigger OnValidate()
+                        begin
+                            if GenJnlLineReq."Journal Batch Name" <> '' then begin
+                                GenJnlLineReq.TestField("Journal Template Name");
+                                GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
+                            end;
+                        end;
                     }
                     field(AdjCustomers; AdjustCustomer)
                     {
@@ -901,7 +940,8 @@ report 595 "Adjust Exchange Rates"
                 PostingDescription := Text016Txt;
             if not (AdjCustVendBank or AdjGLAcc) then
                 AdjCustVendBank := true;
-
+            GLSetup.Get();
+            IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
             UpdateControls();
         end;
     }
@@ -969,12 +1009,24 @@ report 595 "Adjust Exchange Rates"
         AdjCustVendBank :=
           AdjustCustomer or AdjustVendor or AdjustBank;
 
-        if PostSettlement then
+        GLSetup.Get();
+        if PostSettlement then begin
             if not Confirm(Text1140000Qst, false) then
                 Error(Text005Err);
-
-        if PostSettlement and (PostingDocNo = '') then
-            Error(Text000Err);
+            if GLSetup."Journal Templ. Name Mandatory" then begin
+                if GenJnlLineReq."Journal Template Name" = '' then
+                    Error(PleaseEnterErr, GenJnlLineReq.FieldCaption("Journal Template Name"));
+                if GenJnlLineReq."Journal Batch Name" = '' then
+                    Error(PleaseEnterErr, GenJnlLineReq.FieldCaption("Journal Batch Name"));
+                Clear(NoSeriesMgt);
+                Clear(PostingDocNo);
+                GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
+                GenJnlBatch.TestField("No. Series");
+                PostingDocNo := NoSeriesMgt.GetNextNo(GenJnlBatch."No. Series", PostingDate, true);
+            end else
+                if PostingDocNo = '' then
+                    Error(Text000Err);
+        end;
         if not AdjCustVendBank and AdjGLAcc then
             if not Confirm(Text001Txt + Text004Txt, false) then
                 Error(Text005Err);
@@ -984,16 +1036,14 @@ report 595 "Adjust Exchange Rates"
         if ExchRateAdjReg.FindLast() then
             ExchRateAdjReg.Init();
 
-        GLSetup.Get();
-
         if AdjGLAcc then begin
             GLSetup.TestField("Additional Reporting Currency");
 
             Currency3.Get(GLSetup."Additional Reporting Currency");
-            "G/L Account".Get(Currency3.GetRealizedGLGainsAccount);
+            "G/L Account".Get(Currency3.GetRealizedGLGainsAccount());
             "G/L Account".TestField("Exchange Rate Adjustment", "G/L Account"."Exchange Rate Adjustment"::"No Adjustment");
 
-            "G/L Account".Get(Currency3.GetRealizedGLLossesAccount);
+            "G/L Account".Get(Currency3.GetRealizedGLLossesAccount());
             "G/L Account".TestField("Exchange Rate Adjustment", "G/L Account"."Exchange Rate Adjustment"::"No Adjustment");
 
             with VATPostingSetup2 do
@@ -1019,17 +1069,17 @@ report 595 "Adjust Exchange Rates"
                 if Find('-') then
                     repeat
                         CheckExchRateAdjustment(
-                          "Tax Account (Purchases)", TableCaption, FieldCaption("Tax Account (Purchases)"));
+                          "Tax Account (Purchases)", TableCaption(), FieldCaption("Tax Account (Purchases)"));
                         CheckExchRateAdjustment(
-                          "Reverse Charge (Purchases)", TableCaption, FieldCaption("Reverse Charge (Purchases)"));
+                          "Reverse Charge (Purchases)", TableCaption(), FieldCaption("Reverse Charge (Purchases)"));
                         CheckExchRateAdjustment(
-                          "Unreal. Tax Acc. (Purchases)", TableCaption, FieldCaption("Unreal. Tax Acc. (Purchases)"));
+                          "Unreal. Tax Acc. (Purchases)", TableCaption(), FieldCaption("Unreal. Tax Acc. (Purchases)"));
                         CheckExchRateAdjustment(
-                          "Unreal. Rev. Charge (Purch.)", TableCaption, FieldCaption("Unreal. Rev. Charge (Purch.)"));
+                          "Unreal. Rev. Charge (Purch.)", TableCaption(), FieldCaption("Unreal. Rev. Charge (Purch.)"));
                         CheckExchRateAdjustment(
-                          "Tax Account (Sales)", TableCaption, FieldCaption("Tax Account (Sales)"));
+                          "Tax Account (Sales)", TableCaption(), FieldCaption("Tax Account (Sales)"));
                         CheckExchRateAdjustment(
-                          "Unreal. Tax Acc. (Sales)", TableCaption, FieldCaption("Unreal. Tax Acc. (Sales)"));
+                          "Unreal. Tax Acc. (Sales)", TableCaption(), FieldCaption("Unreal. Tax Acc. (Sales)"));
                     until Next() = 0;
 
             AddCurrCurrencyFactor :=
@@ -1044,23 +1094,6 @@ report 595 "Adjust Exchange Rates"
     end;
 
     var
-        Text000Err: Label 'Document No. must be entered.';
-        Text001Txt: Label 'Do you want to adjust general ledger entries for currency fluctuations without adjusting customer, vendor and bank ledger entries? This may result in incorrect currency adjustments to payables, receivables and bank accounts.\\ ';
-        Text004Txt: Label 'Do you wish to continue?';
-        Text005Err: Label 'The adjustment of exchange rates has been canceled.';
-        Text006Txt: Label 'Adjusting exchange rates...\\';
-        Text007Txt: Label 'Bank Account    @1@@@@@@@@@@@@@\\';
-        Text008Txt: Label 'Customer        @2@@@@@@@@@@@@@\';
-        Text009Txt: Label 'Vendor          @3@@@@@@@@@@@@@\';
-        Text010Txt: Label 'Adjustment      #4#############';
-        Text011Err: Label 'No currencies have been found.';
-        Text012Txt: Label 'Adjusting VAT Entries...\\';
-        Text013Txt: Label 'VAT Entry    @1@@@@@@@@@@@@@';
-        Text014Txt: Label 'Adjusting general ledger...\\';
-        Text015Txt: Label 'G/L Account    @1@@@@@@@@@@@@@';
-        Text016Txt: Label 'Adjmt. of %1 %2, Ex.Rate Adjust.', Comment = '%1 = Currency Code, %2= Adjust Amount';
-        Text017Err: Label '%1 on %2 %3 must be %4. When this %2 is used in %5, the exchange rate adjustment is defined in the %6 field in the %7. %2 %3 is used in the %8 field in the %5. ';
-        Text1140000Qst: Label 'Do you want to calculate and post the adjustment?';
         DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry";
         TempDtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry" temporary;
         TempDtldCustLedgEntrySums: Record "Detailed Cust. Ledg. Entry" temporary;
@@ -1089,11 +1122,14 @@ report 595 "Adjust Exchange Rates"
         TempCustLedgerEntry: Record "Cust. Ledger Entry" temporary;
         VendorLedgerEntry: Record "Vendor Ledger Entry";
         TempVendorLedgerEntry: Record "Vendor Ledger Entry" temporary;
+        GenJnlLineReq: Record "Gen. Journal Line";
+        GenJnlBatch: Record "Gen. Journal Batch";
         CurrencyCH1: Record Currency;
         NewVATEntry: Record "VAT Entry";
         NewVATEntry4No: Record "VAT Entry";
         VATEntryLink: Record "G/L Entry - VAT Entry Link";
         GLEntry: Record "G/L Entry";
+        NoSeriesMgt: Codeunit NoSeriesManagement;
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         UpdateAnalysisView: Codeunit "Update Analysis View";
         DimMgt: Codeunit DimensionManagement;
@@ -1136,6 +1172,7 @@ report 595 "Adjust Exchange Rates"
         OK: Boolean;
         AdjCustVendBank: Boolean;
         AdjGLAcc: Boolean;
+        IsJournalTemplNameVisible: Boolean;
         AddCurrCurrencyFactor: Decimal;
         VATEntryNoTotal: Decimal;
         VATEntryNo: Decimal;
@@ -1154,13 +1191,38 @@ report 595 "Adjust Exchange Rates"
         AdjustBank: Boolean;
         PostSettlement: Boolean;
         ValuationMethod: Option Standard,"Lowest Value","BilMoG (Germany)";
-        Text11000: Label 'Valuation Reference Date: ';
         TxtReferenceDate: Text[50];
-        Text11001: Label 'Short term liabilities until must not be before Valuation Reference Date.';
         [InDataSet]
         DueDateLimitEnable: Boolean;
         [InDataSet]
         ValPerEndEnable: Boolean;
+        CurrAdjAmount2: Decimal;
+        VATExchAdjust: Boolean;
+        AdjVATEntriesCounter: Integer;
+        FirstVATEntry: Integer;
+        Customer_Document_type: Integer;
+        Vendor_Document_type: Integer;
+        CorrRevChargeEntryNo: Integer;
+        NextVATEntryNo: Integer;
+
+        Text000Err: Label 'Document No. must be entered.';
+        Text001Txt: Label 'Do you want to adjust general ledger entries for currency fluctuations without adjusting customer, vendor and bank ledger entries? This may result in incorrect currency adjustments to payables, receivables and bank accounts.\\ ';
+        Text004Txt: Label 'Do you wish to continue?';
+        Text005Err: Label 'The adjustment of exchange rates has been canceled.';
+        Text006Txt: Label 'Adjusting exchange rates...\\';
+        Text007Txt: Label 'Bank Account    @1@@@@@@@@@@@@@\\';
+        Text008Txt: Label 'Customer        @2@@@@@@@@@@@@@\';
+        Text009Txt: Label 'Vendor          @3@@@@@@@@@@@@@\';
+        Text010Txt: Label 'Adjustment      #4#############';
+        Text011Err: Label 'No currencies have been found.';
+        Text012Txt: Label 'Adjusting VAT Entries...\\';
+        Text013Txt: Label 'VAT Entry    @1@@@@@@@@@@@@@';
+        Text014Txt: Label 'Adjusting general ledger...\\';
+        Text015Txt: Label 'G/L Account    @1@@@@@@@@@@@@@';
+        Text016Txt: Label 'Adjmt. of %1 %2, Ex.Rate Adjust.', Comment = '%1 = Currency Code, %2= Adjust Amount';
+        Text017Err: Label '%1 on %2 %3 must be %4. When this %2 is used in %5, the exchange rate adjustment is defined in the %6 field in the %7. %2 %3 is used in the %8 field in the %5. ';
+        PleaseEnterErr: Label 'Please enter a %1.', Comment = '%1 - field caption';
+        Text1140000Qst: Label 'Do you want to calculate and post the adjustment?';
         PageCaptionLbl: Label 'Page';
         AdjustExchRatesCaptionLbl: Label 'Adjust Exchange Rates';
         ValuationMethodCaptionLbl: Label 'Valuation Method';
@@ -1171,20 +1233,14 @@ report 595 "Adjust Exchange Rates"
         CustomerNoCaptionLbl: Label 'Customer No.';
         VendorLedgerEntriesCaptionLbl: Label 'Vendor Ledger Entries';
         VendorNoCaptionLbl: Label 'Vendor No.';
-        CurrAdjAmount2: Decimal;
         Text92000Txt: Label 'VAT exch. adjustment Doc. ';
         Text92001Txt: Label 'Adjust VAT rate...\\';
         Text92002TXt: Label 'Adjusted entries  #1#####';
-        VATExchAdjust: Boolean;
-        AdjVATEntriesCounter: Integer;
         Text1150000Txt: Label 'You want to adjust the VAT exchange rate. Please check whether the VAT exchange rates are correct. They cannot be corrected anymore.\\ ';
-        FirstVATEntry: Integer;
         Text1150001Err: Label 'Job cancelled.';
-        Customer_Document_type: Integer;
-        Vendor_Document_type: Integer;
-        CorrRevChargeEntryNo: Integer;
         VATEntriesCaptionLbl: Label 'VAT Entries';
-        NextVATEntryNo: Integer;
+        Text11000: Label 'Valuation Reference Date: ';
+        Text11001: Label 'Short term liabilities until must not be before Valuation Reference Date.';
 
     local procedure PostAdjmt(GLAccNo: Code[20]; PostingAmount: Decimal; AdjBase2: Decimal; CurrencyCode2: Code[10]; var DimSetEntry: Record "Dimension Set Entry"; PostingDate2: Date; ICCode: Code[20]) TransactionNo: Integer
     var
@@ -1206,6 +1262,8 @@ report 595 "Adjust Exchange Rates"
         if CurrencyCode2 = GLSetup."Additional Reporting Currency" then
             GenJnlLine."Source Currency Amount" := 0;
         GenJnlLine."Source Code" := SourceCodeSetup."Exchange Rate Adjmt.";
+        GenJnlLine."Journal Template Name" := GenJnlLineReq."Journal Template Name";
+        GenJnlLine."Journal Batch Name" := GenJnlLineReq."Journal Batch Name";
         GenJnlLine."System-Created Entry" := true;
 
         if PostSettlement then
@@ -1230,6 +1288,8 @@ report 595 "Adjust Exchange Rates"
             GenJnlLine."Source Currency Amount" := 0;
         GenJnlLine."Source Code" := SourceCodeSetup."Exchange Rate Adjmt.";
         GenJnlLine."System-Created Entry" := true;
+        GenJnlLine."Journal Template Name" := GenJnlLineReq."Journal Template Name";
+        GenJnlLine."Journal Batch Name" := GenJnlLineReq."Journal Batch Name";
         if PostSettlement then begin
             GetJnlLineDefDim(GenJnlLine, TempDimSetEntry);
             CopyDimSetEntryToDimBuf(TempDimSetEntry, TempDimBuf);
@@ -1794,6 +1854,8 @@ report 595 "Adjust Exchange Rates"
             end;
             GenJnlLine."System-Created Entry" := true;
             GenJnlLine."Source Code" := SourceCodeSetup."Exchange Rate Adjmt.";
+            GenJnlLine."Journal Template Name" := GenJnlBatch."Journal Template Name";
+            GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
             if PostSettlement then begin
                 GetJnlLineDefDim(GenJnlLine, TempDimSetEntry);
                 PostGenJnlLine(GenJnlLine, TempDimSetEntry);
@@ -1814,9 +1876,9 @@ report 595 "Adjust Exchange Rates"
 
         if GLAmtTotal <> 0 then begin
             if GLAmtTotal < 0 then
-                GenJnlLine."Account No." := Currency3.GetRealizedGLLossesAccount
+                GenJnlLine."Account No." := Currency3.GetRealizedGLLossesAccount()
             else
-                GenJnlLine."Account No." := Currency3.GetRealizedGLGainsAccount;
+                GenJnlLine."Account No." := Currency3.GetRealizedGLGainsAccount();
             GenJnlLine.Description :=
                 StrSubstNo(
                 PostingDescription,
@@ -1826,6 +1888,8 @@ report 595 "Adjust Exchange Rates"
             GenJnlLine."Currency Code" := '';
             GenJnlLine.Amount := -GLAmtTotal;
             GenJnlLine."Amount (LCY)" := -GLAmtTotal;
+            GenJnlLine."Journal Template Name" := GenJnlBatch."Journal Template Name";
+            GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
             if PostSettlement then begin
                 GetJnlLineDefDim(GenJnlLine, TempDimSetEntry);
                 PostGenJnlLine(GenJnlLine, TempDimSetEntry);
@@ -1833,9 +1897,9 @@ report 595 "Adjust Exchange Rates"
         end;
         if GLAddCurrAmtTotal <> 0 then begin
             if GLAddCurrAmtTotal < 0 then
-                GenJnlLine."Account No." := Currency3.GetRealizedGLLossesAccount
+                GenJnlLine."Account No." := Currency3.GetRealizedGLLossesAccount()
             else
-                GenJnlLine."Account No." := Currency3.GetRealizedGLGainsAccount;
+                GenJnlLine."Account No." := Currency3.GetRealizedGLGainsAccount();
             GenJnlLine.Description :=
                 StrSubstNo(
                 PostingDescription, '',
@@ -1844,6 +1908,8 @@ report 595 "Adjust Exchange Rates"
             GenJnlLine."Currency Code" := GLSetup."Additional Reporting Currency";
             GenJnlLine.Amount := -GLAddCurrAmtTotal;
             GenJnlLine."Amount (LCY)" := 0;
+            GenJnlLine."Journal Template Name" := GenJnlBatch."Journal Template Name";
+            GenJnlLine."Journal Batch Name" := GenJnlBatch.Name;
             if PostSettlement then begin
                 GetJnlLineDefDim(GenJnlLine, TempDimSetEntry);
                 PostGenJnlLine(GenJnlLine, TempDimSetEntry);
@@ -1878,10 +1944,10 @@ report 595 "Adjust Exchange Rates"
             GLAcc."Exchange Rate Adjustment" := GLAcc."Exchange Rate Adjustment"::"No Adjustment";
             Error(
               Text017Err,
-              GLAcc.FieldCaption("Exchange Rate Adjustment"), GLAcc.TableCaption,
+              GLAcc.FieldCaption("Exchange Rate Adjustment"), GLAcc.TableCaption(),
               GLAcc."No.", GLAcc."Exchange Rate Adjustment",
               SetupTableName, GLSetup.FieldCaption("VAT Exchange Rate Adjustment"),
-              GLSetup.TableCaption, SetupFieldName);
+              GLSetup.TableCaption(), SetupFieldName);
         end;
     end;
 
@@ -1970,7 +2036,7 @@ report 595 "Adjust Exchange Rates"
         GenJnlPostLine.Run(GenJnlLine);
         OnPostGenJnlLineOnAfterGenJnlPostLineRun(GenJnlLine, GenJnlPostLine);
 
-        exit(GenJnlPostLine.GetNextTransactionNo);
+        exit(GenJnlPostLine.GetNextTransactionNo());
     end;
 
     local procedure GetGlobalDimVal(GlobalDimCode: Code[20]; var DimSetEntry: Record "Dimension Set Entry"): Code[20]
@@ -2139,14 +2205,14 @@ report 595 "Adjust Exchange Rates"
                             TempDtldCustLedgEntry."Amount (LCY)" := -OldAdjAmount;
                             TempDtldCustLedgEntry."Entry Type" := TempDtldCustLedgEntry."Entry Type"::"Unrealized Gain";
                             HandleCustDebitCredit(Correction, TempDtldCustLedgEntry."Amount (LCY)");
-                            InsertTempDtldCustomerLedgerEntry;
+                            InsertTempDtldCustomerLedgerEntry();
                             NewEntryNo := NewEntryNo + 1;
                             AdjExchRateBufIndex :=
                                 AdjExchRateBufferUpdate(
                                     CustLedgerEntry."Currency Code", CustLedgerEntry."Customer Posting Group",
                                     0, 0, -OldAdjAmount, -OldAdjAmount, 0, DimEntryNo, PostingDate2, Customer."IC Partner Code");
                             TempDtldCustLedgEntry."Transaction No." := AdjExchRateBufIndex;
-                            ModifyTempDtldCustomerLedgerEntry;
+                            ModifyTempDtldCustomerLedgerEntry();
                             Adjust := false;
                         end;
                 end;
@@ -2469,6 +2535,8 @@ report 595 "Adjust Exchange Rates"
     begin
         InitializeRequest(
             GenJournalLine."Posting Date", GenJournalLine."Posting Date", Text016Txt, GenJournalLine."Posting Date");
+        GenJnlLineReq."Journal Template Name" := GenJournalLine."Journal Template Name";
+        GenJnlLineReq."Journal Batch Name" := GenJournalLine."Journal Batch Name";
         PostingDocNo := GenJournalLine."Document No.";
         HideUI := true;
         GLSetup.Get();
@@ -2557,7 +2625,7 @@ report 595 "Adjust Exchange Rates"
     local procedure SetUnrealizedGainLossFilterCust(var DtldCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; EntryNo: Integer)
     begin
         with DtldCustLedgEntry do begin
-            Reset;
+            Reset();
             SetCurrentKey("Cust. Ledger Entry No.", "Entry Type");
             SetRange("Cust. Ledger Entry No.", EntryNo);
             SetRange("Entry Type", "Entry Type"::"Unrealized Loss", "Entry Type"::"Unrealized Gain");
@@ -2567,7 +2635,7 @@ report 595 "Adjust Exchange Rates"
     local procedure SetUnrealizedGainLossFilterVend(var DtldVendLedgEntry: Record "Detailed Vendor Ledg. Entry"; EntryNo: Integer)
     begin
         with DtldVendLedgEntry do begin
-            Reset;
+            Reset();
             SetCurrentKey("Vendor Ledger Entry No.", "Entry Type");
             SetRange("Vendor Ledger Entry No.", EntryNo);
             SetRange("Entry Type", "Entry Type"::"Unrealized Loss", "Entry Type"::"Unrealized Gain");

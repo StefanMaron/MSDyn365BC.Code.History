@@ -26,6 +26,7 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         PostingNoSeriesMustBeEmptyErr: Label 'Posting No. Series must be equal to ''''';
         OutOfBalanceErr: Label 'is out of balance';
         ConfirmManualCheckTxt: Label 'A balancing account is not specified for one or more lines. If you print checks without specifying balancing accounts you will not be able to void the checks, if needed. Do you want to continue?';
+        WrongDocNoErr: Label 'Document should be other than old document no. : %1', Comment = '%1 - Document no.';
 
     [Test]
     [Scope('OnPrem')]
@@ -1530,6 +1531,48 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SuggestBalDocumentNoSequentialNosBelowLastLine()
+    var
+        GenJournalBatch: Record "Gen. Journal Batch";
+        GenJournalLine: Record "Gen. Journal Line";
+        LastGenJournalLine: Record "Gen. Journal Line";
+        GenJnlMgmt: Codeunit GenJnlManagement;
+        RecRef: RecordRef;
+        BalDocNo: Code[20];
+        BalAmt: Decimal;
+        BalAmt2: Decimal;
+        ShowBal1: Boolean;
+        ShowBal2: Boolean;
+    begin
+        // [SCENARIO 441143] Suggest balancing Amount Function should not use the old document no. if total balance of last lines is zero.
+        Initialize();
+
+        // [GIVEN] "Suggest balancing amount" is True on Journal Template
+        CreateGeneralJournalBatchSuggestBalAmount(GenJournalBatch, true);
+
+        // [GIVEN] Create Gen. Jnl. Line 1 
+        CreateSimpleGenJnlLine(
+          GenJournalLine, GenJournalBatch, LibraryRandom.RandDec(100, 2),
+          LibraryUtility.GenerateGUID());
+        LastGenJournalLine := GenJournalLine;
+
+        // [GIVEN] Create Gen. Jnl. Line 2 which will balance it with the previouse Journal line
+        InitializeGenJournalLine(GenJournalLine, LastGenJournalLine, GenJournalBatch);
+        LastGenJournalLine := GenJournalLine;
+        LastGenJournalLine."Account No." := LibraryUtility.GenerateGUID();
+
+        // [WHEN] 3rd Gen. Jnl. Line is created 
+        InitializeGenJournalLine(GenJournalLine, LastGenJournalLine, GenJournalBatch);
+
+        // [WHEN] It should have new document no.
+        Assert.AreNotEqual(
+            LastGenJournalLine."Document No.",
+            GenJournalLine."Document No.",
+            StrSubstNo(WrongDocNoErr, LastGenJournalLine."Document No."));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2124,6 +2167,24 @@ codeunit 134226 "ERM TestMultipleGenJnlLines"
     begin
         GenJournalLine.TestField("Document No.", DocumentNo);
         GenJournalLine.TestField(Amount, GLAmount);
+    end;
+
+    local procedure InitializeGenJournalLine(
+        var GenJournalLine: Record "Gen. Journal Line";
+        LastGenJournalLine: Record "Gen. Journal Line";
+        GenJournalBatch: Record "Gen. Journal Batch")
+    var
+        RecRef: RecordRef;
+    begin
+        GenJournalLine.Init();
+        GenJournalLine.Validate("Journal Template Name", GenJournalBatch."Journal Template Name");
+        GenJournalLine.Validate("Journal Batch Name", GenJournalBatch.Name);
+        GenJournalLine."Line No." := 0;
+        RecRef.GetTable(GenJournalLine);
+        GenJournalLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, GenJournalLine.FieldNo("Line No.")));
+
+        GenJournalLine.SetUpNewLine(LastGenJournalLine, LastGenJournalLine."Balance (LCY)", true);
+        GenJournalLine.Insert(true);
     end;
 
     [ConfirmHandler]

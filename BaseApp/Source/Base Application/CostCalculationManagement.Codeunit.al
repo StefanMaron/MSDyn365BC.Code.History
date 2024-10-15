@@ -4,13 +4,7 @@ codeunit 5836 "Cost Calculation Management"
                   TableData "Prod. Order Capacity Need" = r,
                   TableData "Value Entry" = r;
 
-    trigger OnRun()
-    begin
-    end;
-
-    var
-        UOMMgt: Codeunit "Unit of Measure Management";
-        ExpOvhdCost: Decimal;
+    SingleInstance = true;
 
     procedure ResourceCostPerUnit(No: Code[20]; var DirUnitCost: Decimal; var IndirCostPct: Decimal; var OvhdRate: Decimal; var UnitCost: Decimal)
     var
@@ -145,6 +139,7 @@ codeunit 5836 "Cost Calculation Management"
         ExpCapDirCostRtng: Decimal;
         ExpSubDirCostRtng: Decimal;
         ExpCapOvhdCostRtng: Decimal;
+        ExpOvhdCost: Decimal;
     begin
         with ProdOrderLine do begin
             ProdOrderComp.SetCurrentKey(Status, "Prod. Order No.", "Prod. Order Line No.");
@@ -528,6 +523,7 @@ codeunit 5836 "Cost Calculation Management"
     procedure CalcCostTime(MfgItemQtyBase: Decimal; SetupTime: Decimal; SetupTimeUOMCode: Code[10]; RunTime: Decimal; RunTimeUOMCode: Code[10]; RtngLotSize: Decimal; ScrapFactorPctAccum: Decimal; FixedScrapQtyAccum: Decimal; WorkCenterNo: Code[20]; UnitCostCalculation: Option Time,Unit; CostInclSetup: Boolean; ConcurrentCapacities: Decimal) CostTime: Decimal
     var
         CalendarMgt: Codeunit "Shop Calendar Management";
+        UOMMgt: Codeunit "Unit of Measure Management";
         RunTimePer: Decimal;
     begin
         if ConcurrentCapacities = 0 then
@@ -710,6 +706,7 @@ codeunit 5836 "Cost Calculation Management"
     local procedure CalcSalesLineShptAdjCostLCY(SalesLine: Record "Sales Line"; QtyType: Option General,Invoicing; var TotalAdjCostLCY: Decimal; var PostedQtyBase: Decimal; var RemQtyToCalcBase: Decimal)
     var
         SalesShptLine: Record "Sales Shipment Line";
+        UOMMgt: Codeunit "Unit of Measure Management";
         QtyShippedNotInvcdBase: Decimal;
         AdjCostLCY: Decimal;
     begin
@@ -770,6 +767,7 @@ codeunit 5836 "Cost Calculation Management"
     local procedure CalcSalesLineRcptAdjCostLCY(SalesLine: Record "Sales Line"; QtyType: Option General,Invoicing; var TotalAdjCostLCY: Decimal; var PostedQtyBase: Decimal; var RemQtyToCalcBase: Decimal)
     var
         ReturnRcptLine: Record "Return Receipt Line";
+        UOMMgt: Codeunit "Unit of Measure Management";
         RtrnQtyRcvdNotInvcdBase: Decimal;
         AdjCostLCY: Decimal;
     begin
@@ -1146,6 +1144,7 @@ codeunit 5836 "Cost Calculation Management"
     local procedure CalcServLineShptAdjCostLCY(ServLine: Record "Service Line"; QtyType: Option General,Invoicing,Shipping,Consuming; var TotalAdjCostLCY: Decimal; var PostedQtyBase: Decimal; var RemQtyToCalcBase: Decimal)
     var
         ServShptLine: Record "Service Shipment Line";
+        UOMMgt: Codeunit "Unit of Measure Management";
         QtyShippedNotInvcdBase: Decimal;
         AdjCostLCY: Decimal;
     begin

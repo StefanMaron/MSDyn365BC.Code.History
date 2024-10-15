@@ -53,6 +53,16 @@ codeunit 113 "Vend. Entry-Edit"
         DtaSetup: Record "DTA Setup";
         DtaMgt: Codeunit DtaMgt;
 
+    procedure SetOnHold(var VendorLedgerEntry: Record "Vendor Ledger Entry"; NewOnHold: Code[3])
+    var
+        xOnHold: Code[3];
+    begin
+        xOnHold := VendorLedgerEntry."On Hold";
+        VendorLedgerEntry."On Hold" := NewOnHold;
+        if xOnHold <> VendorLedgerEntry."On Hold" then
+            VendorLedgerEntry.Modify();
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeVendLedgEntryModify(var VendLedgEntry: Record "Vendor Ledger Entry"; FromVendLedgEntry: Record "Vendor Ledger Entry")
     begin

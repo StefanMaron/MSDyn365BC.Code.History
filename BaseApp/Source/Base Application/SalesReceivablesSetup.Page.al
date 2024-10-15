@@ -191,6 +191,7 @@
                     ApplicationArea = Advanced;
                     Importance = Additional;
                     ToolTip = 'Specifies if multiple posting groups can be used for the same customer in sales documents.';
+                    Visible = false;
                 }
                 field("Ignore Updated Addresses"; "Ignore Updated Addresses")
                 {

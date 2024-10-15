@@ -3041,7 +3041,7 @@
         DontShowAgainActionTxt: Label 'Don''t show again.';
         SetDimFiltersActionTxt: Label 'Set dimension filters.';
         SetDimFiltersMessageTxt: Label 'Dimension filters are not set for one or more lines that use the BD Balance by Dimension or RBD Reversing Balance by Dimension options. Do you want to set the filters?';
-        SpecialSymbolsTok: Label '=|&''@()<>', Locked = true;
+        SpecialSymbolsTok: Label '=|&@()<>', Locked = true;
 
     protected var
         Currency: Record Currency;
@@ -3151,16 +3151,16 @@
                     "Document Type" := "Document Type"::Payment;
                 end;
             else begin
-                    "Account Type" := LastGenJnlLine."Account Type";
-                    "Document Type" := LastGenJnlLine."Document Type";
-                end;
+                "Account Type" := LastGenJnlLine."Account Type";
+                "Document Type" := LastGenJnlLine."Document Type";
+            end;
         end;
         "Source Code" := GenJnlTemplate."Source Code";
         "Reason Code" := GenJnlBatch."Reason Code";
         "Posting No. Series" := GenJnlBatch."Posting No. Series";
 
         IsHandled := false;
-        OnSetUpNewLineOnBeforeSetBalAccount(GenJnlLine, LastGenJnlLine, Balance, IsHandled, GenJnlTemplate, GenJnlBatch, BottomLine, Rec);
+        OnSetUpNewLineOnBeforeSetBalAccount(GenJnlLine, LastGenJnlLine, Balance, IsHandled, GenJnlTemplate, GenJnlBatch, BottomLine, Rec, CurrFieldNo);
         if not IsHandled then begin
             "Bal. Account Type" := GenJnlBatch."Bal. Account Type";
             if ("Account Type" in ["Account Type"::Customer, "Account Type"::Vendor, "Account Type"::"Fixed Asset"]) and
@@ -3534,9 +3534,9 @@
                     "Source No." := "Bal. Account No.";
                 end;
             else begin
-                    "Source Type" := "Source Type"::" ";
-                    "Source No." := '';
-                end;
+                "Source Type" := "Source Type"::" ";
+                "Source No." := '';
+            end;
         end;
 
         OnAfterUpdateSource(Rec, CurrFieldNo);
@@ -3683,6 +3683,9 @@
             GetAccTypeAndNo(xRec, AccType, AccNo)
         else
             GetAccTypeAndNo(Rec, AccType, AccNo);
+
+        "Payment Reference" := '';
+
         case AccType of
             AccType::Customer:
                 if xRec."Applies-to ID" <> '' then begin
@@ -4533,7 +4536,7 @@
         else
             TempJobJnlLine.Validate("Posting Date", xRec."Posting Date");
         TempJobJnlLine.Validate(Type, TempJobJnlLine.Type::"G/L Account");
-        
+
         "Job Currency Factor" := 0;
         if "Job Currency Code" <> '' then begin
             if "Posting Date" = 0D then
@@ -4859,7 +4862,7 @@
     begin
         UpdateDocumentTypeAndAppliesTo(DocType, DocNo);
 
-        if ("Applies-to Doc. Type" = "Applies-to Doc. Type"::Invoice) and
+        if("Applies-to Doc. Type" = "Applies-to Doc. Type"::Invoice) and
            ("Document Type" = "Document Type"::Payment)
         then
             "Applies-to Ext. Doc. No." := ExtDocNo;
@@ -5229,6 +5232,7 @@
                         OnSetJournalLineFieldsFromApplicationOnAfterFindFirstCustLedgEntryWithAppliesToID(Rec, CustLedgEntry);
                         CustLedgEntry.SetRange("Exported to Payment File", true);
                         "Exported to Payment File" := CustLedgEntry.FindFirst();
+                        "Payment Reference" := CustLedgEntry."Payment Reference";
                     end
                 end else
                     if "Applies-to Doc. No." <> '' then
@@ -5236,6 +5240,7 @@
                             OnSetJournalLineFieldsFromApplicationOnAfterFindFirstCustLedgEntryWithAppliesToDocNo(Rec, CustLedgEntry);
                             "Exported to Payment File" := CustLedgEntry."Exported to Payment File";
                             "Applies-to Ext. Doc. No." := CustLedgEntry."External Document No.";
+                            "Payment Reference" := CustLedgEntry."Payment Reference";
                         end;
             AccType::Vendor:
                 if "Applies-to ID" <> '' then begin
@@ -5243,6 +5248,7 @@
                         OnSetJournalLineFieldsFromApplicationOnAfterFindFirstVendLedgEntryWithAppliesToID(Rec, VendLedgEntry);
                         VendLedgEntry.SetRange("Exported to Payment File", true);
                         "Exported to Payment File" := VendLedgEntry.FindFirst();
+                        "Payment Reference" := VendLedgEntry."Payment Reference";
                     end
                 end else
                     if "Applies-to Doc. No." <> '' then
@@ -5250,6 +5256,7 @@
                             OnSetJournalLineFieldsFromApplicationOnAfterFindFirstVendLedgEntryWithAppliesToDocNo(Rec, VendLedgEntry);
                             "Exported to Payment File" := VendLedgEntry."Exported to Payment File";
                             "Applies-to Ext. Doc. No." := VendLedgEntry."External Document No.";
+                            "Payment Reference" := VendLedgEntry."Payment Reference";
                         end;
             AccType::Employee:
                 if "Applies-to ID" <> '' then begin
@@ -5257,11 +5264,14 @@
                         OnSetJournalLineFieldsFromApplicationOnAfterFindFirstEmplLedgEntryWithAppliesToID(Rec, EmplLedgEntry);
                         EmplLedgEntry.SetRange("Exported to Payment File", true);
                         "Exported to Payment File" := EmplLedgEntry.FindFirst();
+                        "Payment Reference" := EmplLedgEntry."Payment Reference";
                     end
                 end else
                     if "Applies-to Doc. No." <> '' then
-                        if FindFirstEmplLedgEntryWithAppliesToDocNo(AccNo, "Applies-to Doc. No.") then
+                        if FindFirstEmplLedgEntryWithAppliesToDocNo(AccNo, "Applies-to Doc. No.") then begin
                             "Exported to Payment File" := EmplLedgEntry."Exported to Payment File";
+                            "Payment Reference" := EmplLedgEntry."Payment Reference";
+                        end;
         end;
 
         OnAfterSetJournalLineFieldsFromApplication(Rec, AccType, AccNo, xRec);
@@ -6380,6 +6390,9 @@
             GenJournalLine.SetRange("Bal. Account No.", '');
             if GenJournalLine.FindFirst() then begin
                 GenJournalLine.CalcSums(Amount);
+                if GenJournalLine.Amount = 0 then
+                    exit;
+
                 "Document No." := GenJournalLine."Document No.";
                 "Posting Date" := GenJournalLine."Posting Date";
                 Validate(Amount, -GenJournalLine.Amount);
@@ -7833,7 +7846,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnSetUpNewLineOnBeforeSetBalAccount(var GenJournalLine: Record "Gen. Journal Line"; LastGenJournalLine: Record "Gen. Journal Line"; var Balance: Decimal; var IsHandled: Boolean; GenJnlTemplate: Record "Gen. Journal Template"; GenJnlBatch: Record "Gen. Journal Batch"; BottomLine: Boolean; var Rec: Record "Gen. Journal Line")
+    local procedure OnSetUpNewLineOnBeforeSetBalAccount(var GenJournalLine: Record "Gen. Journal Line"; LastGenJournalLine: Record "Gen. Journal Line"; var Balance: Decimal; var IsHandled: Boolean; GenJnlTemplate: Record "Gen. Journal Template"; GenJnlBatch: Record "Gen. Journal Batch"; BottomLine: Boolean; var Rec: Record "Gen. Journal Line"; CurrentFieldNo: Integer)
     begin
     end;
 

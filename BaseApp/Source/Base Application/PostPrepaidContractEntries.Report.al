@@ -104,6 +104,7 @@
                   Text003Txt +
                   '@2@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@');
 
+                GLSetup.GetRecordOnce();
                 if not GLSetup."Journal Templ. Name Mandatory" then begin
                     ServMgtSetup.Get();
                     ServMgtSetup.TestField("Prepaid Posting Document Nos.");
@@ -165,6 +166,8 @@
                             GenJnlManagement: Codeunit GenJnlManagement;
                         begin
                             GenJnlManagement.SetJnlBatchName(GenJnlLineReq);
+                            if GenJnlLineReq."Journal Batch Name" <> '' then
+                                GenJnlBatch.Get(GenJnlLineReq."Journal Template Name", GenJnlLineReq."Journal Batch Name");
                         end;
 
                         trigger OnValidate()
@@ -189,6 +192,12 @@
         actions
         {
         }
+
+        trigger OnOpenPage()
+        begin
+            GLSetup.GetRecordOnce();
+            IsJournalTemplNameVisible := GLSetup."Journal Templ. Name Mandatory";
+        end;
     }
 
     labels
@@ -210,7 +219,7 @@
     trigger OnPreReport()
     begin
         if PostPrepaidContracts = PostPrepaidContracts::"Post Prepaid Transactions" then begin
-            GLSetup.Get();
+            GLSetup.GetRecordOnce();
             if not GLSetup."Journal Templ. Name Mandatory" then
                 exit;
 
@@ -272,6 +281,7 @@
         if not TempServLedgEntry.FindSet() then
             exit;
 
+        GLSetup.GetRecordOnce();
         if not GLSetup."Journal Templ. Name Mandatory" then
             DocNo := NoSeriesMgt.GetNextNo(ServMgtSetup."Prepaid Posting Document Nos.", WorkDate(), true);
 

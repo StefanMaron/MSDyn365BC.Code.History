@@ -58,7 +58,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
         DocLineNo: Integer;
         PostedWhseRcptLineFound: Boolean;
     begin
-        OnBeforeCode(PurchRcptLine);
+        OnBeforeCode(PurchRcptLine, UndoPostingMgt);
 
         with PurchRcptLine do begin
             CheckPurchRcptLines(PurchRcptLine, Window);
@@ -110,7 +110,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
 
                 OnBeforePurchRcptLineModify(PurchRcptLine, TempWhseJnlLine);
                 Modify;
-                OnAfterPurchRcptLineModify(PurchRcptLine, TempWhseJnlLine, DocLineNo);
+                OnAfterPurchRcptLineModify(PurchRcptLine, TempWhseJnlLine, DocLineNo, UndoPostingMgt);
 
                 if not JobItem then
                     JobItem := (Type = Type::Item) and ("Job No." <> '');
@@ -121,7 +121,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
             WhseUndoQty.PostTempWhseJnlLine(TempWhseJnlLine);
         end;
 
-        OnAfterCode(PurchRcptLine);
+        OnAfterCode(PurchRcptLine, UndoPostingMgt);
     end;
 
     local procedure CheckPurchRcptLines(var PurchRcptLine: Record "Purch. Rcpt. Line"; var Window: Dialog)
@@ -524,7 +524,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCode(var PurchRcptLine: Record "Purch. Rcpt. Line")
+    local procedure OnAfterCode(var PurchRcptLine: Record "Purch. Rcpt. Line"; var UndoPostingManagement: Codeunit "Undo Posting Management")
     begin
     end;
 
@@ -544,7 +544,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterPurchRcptLineModify(var PurchRcptLine: Record "Purch. Rcpt. Line"; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; DocLineNo: Integer)
+    local procedure OnAfterPurchRcptLineModify(var PurchRcptLine: Record "Purch. Rcpt. Line"; var TempWhseJnlLine: Record "Warehouse Journal Line" temporary; DocLineNo: Integer; var UndoPostingManagement: Codeunit "Undo Posting Management")
     begin
     end;
 
@@ -564,7 +564,7 @@ codeunit 5813 "Undo Purchase Receipt Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCode(var PurchRcptLine: Record "Purch. Rcpt. Line")
+    local procedure OnBeforeCode(var PurchRcptLine: Record "Purch. Rcpt. Line"; var UndoPostingManagement: Codeunit "Undo Posting Management")
     begin
     end;
 
