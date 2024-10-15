@@ -1786,6 +1786,11 @@ page 51 "Purchase Invoice"
         CalculateCurrentShippingAndPayToOption();
     end;
 
+    trigger OnInsertRecord(BelowxRec: Boolean): Boolean
+    begin
+        CurrPage.Update(false);
+    end;
+
     trigger OnOpenPage()
     var
         PurchaseHeader: Record "Purchase Header";

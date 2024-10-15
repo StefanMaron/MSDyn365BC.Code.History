@@ -511,7 +511,7 @@
                         then
                             FieldError(Quantity, StrSubstNo(Text004, FieldCaption("Quantity Received")));
                         if ("Quantity (Base)" * "Qty. Received (Base)" < 0) or
-                        ((Abs("Quantity (Base)") < Abs(CalcQtyReceivedBaseFromPostedReceipt())) and ("Receipt No." = ''))
+                        ((Abs("Quantity (Base)") < Abs("Qty. Received (Base)")) and ("Receipt No." = ''))
                         then
                             FieldError("Quantity (Base)", StrSubstNo(Text004, FieldCaption("Qty. Received (Base)")));
                     end;
@@ -4578,16 +4578,17 @@
             exit;
 
         TestField("Document No.");
-        if ("Document Type" <> PurchHeader."Document Type") or ("Document No." <> PurchHeader."No.") then begin
-            PurchHeader.Get("Document Type", "Document No.");
-            if PurchHeader."Currency Code" = '' then
-                Currency.InitRoundingPrecision()
-            else begin
-                PurchHeader.TestField("Currency Factor");
-                Currency.Get(PurchHeader."Currency Code");
-                Currency.TestField("Amount Rounding Precision");
-            end;
-        end;
+        if ("Document Type" <> PurchHeader."Document Type") or ("Document No." <> PurchHeader."No.") then
+            if PurchHeader.Get(Rec."Document Type", Rec."Document No.") then
+                if PurchHeader."Currency Code" = '' then
+                    Currency.InitRoundingPrecision()
+                else begin
+                    PurchHeader.TestField("Currency Factor");
+                    Currency.Get(PurchHeader."Currency Code");
+                    Currency.TestField("Amount Rounding Precision");
+                end
+            else
+                Clear(PurchHeader);
 
         OnAfterGetPurchHeader(Rec, PurchHeader, Currency);
         OutPurchHeader := PurchHeader;
@@ -7695,7 +7696,7 @@
         if IsHandled then
             exit;
 
-        if Type = Type::Item then begin
+        if (Type = Type::Item) and IsInventoriableItem() then begin
             DialogText := Text033;
             if "Quantity (Base)" <> 0 then
                 case "Document Type" of
@@ -8733,28 +8734,6 @@
             end;
             LookupStateMgr.ClearSavedRecord();
         end;
-    end;
-
-    local procedure CalcQtyReceivedBaseFromPostedReceipt(): Decimal
-    var
-        PurchRcptLine: Record "Purch. Rcpt. Line";
-        QtyReceived: Decimal;
-    begin
-        if Rec."Qty. Received (Base)" = 0 then
-            exit(0);
-
-        PurchRcptLine.SetRange("Order No.", Rec."Document No.");
-        PurchRcptLine.SetRange("Order Line No.", Rec."Line No.");
-        if PurchRcptLine.IsEmpty() then
-            exit(Rec."Qty. Received (Base)");
-
-        PurchRcptLine.FindSet();
-        repeat
-            QtyReceived += PurchRcptLine."Quantity";
-        until PurchRcptLine.Next() = 0;
-
-        Rec."Qty. Received (Base)" := CalcBaseQty(QtyReceived, FieldCaption("Quantity Received"), FieldCaption("Qty. Received (Base)"));
-        exit(Rec."Qty. Received (Base)");
     end;
 
 #if not CLEAN20
