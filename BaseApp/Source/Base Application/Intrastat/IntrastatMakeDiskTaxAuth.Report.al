@@ -381,10 +381,11 @@ report 593 "Intrastat - Make Disk Tax Auth"
         end else
             IntrastatJnlLine."Unit of Measure" := '';
 
+        CountryFormat := Format(IntrastatJnlLine."Country/Region of Origin Code", 2);
         if IntrastatJnlLine.Type = IntrastatJnlLine.Type::Receipt then
-            CountryFormat := Format(IntrastatJnlLine."Country/Region of Origin Code", 2) + Format(IntrastatJnlLine."Country/Region Code", 2) + '  '
+            CountryFormat += Format(IntrastatJnlLine."Country/Region Code", 2) + '  '
         else
-            CountryFormat := '    ' + Format(IntrastatJnlLine."Country/Region Code", 2);
+            CountryFormat += '  ' + Format(IntrastatJnlLine."Country/Region Code", 2);
 
         LineNo := IncStr(LineNo);
         IntrastatJnlLine."Total Weight" := IntraJnlManagement.RoundTotalWeight(IntrastatJnlLine."Total Weight");
@@ -401,7 +402,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
     begin
         IntrastatFileWriter.WriteLine(
             Format('NIM' + LineNo +
-            PadStr(IntrastatJnlLine."Tariff No.", 8, '0') + Format(IntrastatJnlLine."Transaction Type", 2) +
+            PadStr(DelChr(IntrastatJnlLine."Tariff No."), 8, '0') + Format(IntrastatJnlLine."Transaction Type", 2) +
             CountryFormat + Format(IntrastatJnlLine."Transport Method", 1) +
             DecimalNumeralZeroFormat(Round(IntrastatJnlLine."Statistical Value", 1, '>'), 10) +
             Format(IntrastatJnlLine."Internal Ref. No.", 15) + 'WT ' + 'KGM' +
@@ -415,7 +416,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
     begin
         IntrastatFileWriter.WriteLine(
             Format('NIM' + LineNo +
-            PadStr(IntrastatJnlLine."Tariff No.", 8, '0') + Format(IntrastatJnlLine."Transaction Type", 2) +
+            PadStr(DelChr(IntrastatJnlLine."Tariff No."), 8, '0') + Format(IntrastatJnlLine."Transaction Type", 2) +
             CountryFormat + Format(IntrastatJnlLine."Transport Method", 1) +
             DecimalNumeralZeroFormat(Round(IntrastatJnlLine."Statistical Value", 1, '>'), 10) +
             Format(IntrastatJnlLine."Internal Ref. No.", 15) + 'WT ' + 'KGM' +
