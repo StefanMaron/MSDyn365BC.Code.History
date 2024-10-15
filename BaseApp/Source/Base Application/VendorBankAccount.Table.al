@@ -395,7 +395,7 @@ table 288 "Vendor Bank Account"
             exit(DelChr("ESR Account No.", '=', '-'));
 
         if ("Giro Account No." <> '') and ("Payment Form" = "Payment Form"::"Post Payment Domestic") then
-            exit("Giro Account No.");
+            exit(DelChr("Giro Account No.", '=', '-'));
 
         if ("Clearing No." <> '') and ("Payment Form" = "Payment Form"::"Bank Payment Domestic") then
             exit("Clearing No.");

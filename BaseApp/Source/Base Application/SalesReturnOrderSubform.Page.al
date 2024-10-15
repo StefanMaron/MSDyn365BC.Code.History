@@ -231,6 +231,8 @@
                     begin
                         QuantityOnAfterValidate();
                         DeltaUpdateTotals();
+                        if SalesSetup."Calc. Inv. Discount" and (Quantity = 0) then
+                            CurrPage.Update(false);
                     end;
                 }
                 field("Reserved Quantity"; ReverseReservedQtySign)
