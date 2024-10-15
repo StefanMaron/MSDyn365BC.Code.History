@@ -436,6 +436,12 @@
                     ApplicationArea = BasicMX;
                     ToolTip = 'Specifies the tax ID number that is assigned by state tax authorities to every person or corporation.';
                 }
+                field("Registration Number"; Rec."Registration Number")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Importance = Additional;
+                    ToolTip = 'Specifies the registration number of the customer. You can enter a maximum of 20 characters, both numbers and letters.';
+                }
                 group(PostingDetails)
                 {
                     Caption = 'Posting Details';
