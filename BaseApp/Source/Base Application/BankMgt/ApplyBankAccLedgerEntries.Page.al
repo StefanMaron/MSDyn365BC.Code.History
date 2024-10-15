@@ -248,7 +248,13 @@ page 381 "Apply Bank Acc. Ledger Entries"
     procedure GetSelectedRecords(var TempBankAccountLedgerEntry: Record "Bank Account Ledger Entry" temporary)
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetSelectedRecords(Rec, TempBankAccountLedgerEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         CurrPage.SetSelectionFilter(BankAccountLedgerEntry);
         if BankAccountLedgerEntry.FindSet() then
             repeat
@@ -406,6 +412,11 @@ page 381 "Apply Bank Acc. Ledger Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterApplyControledFilters(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetSelectedRecords(var BankAccountLedgerEntry: Record "Bank Account Ledger Entry"; var TempBankAccountLedgerEntry: Record "Bank Account Ledger Entry" temporary; var IsHandled: Boolean)
     begin
     end;
 }

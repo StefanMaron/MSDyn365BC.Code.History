@@ -158,6 +158,7 @@ codeunit 5705 "TransferOrder-Post Receipt"
             end;
 
             "Last Receipt No." := TransRcptHeader."No.";
+            OnRunWithCheckOnBeforeModifyTransferHeader(TransHeader);
             Modify();
 
             TransLine.SetRange(Quantity);
@@ -981,6 +982,11 @@ codeunit 5705 "TransferOrder-Post Receipt"
 
     [IntegrationEvent(false, false)]
     local procedure OnInsertTransRcptLineOnBeforeUpdateSubcontractPurchOrderLine(var TransferReceiptHeader: Record "Transfer Receipt Header"; var TransRcptLine: Record "Transfer Receipt Line"; var TransLine: Record "Transfer Line"; var IsHandled: Boolean)
+    begin
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnRunWithCheckOnBeforeModifyTransferHeader(var TransferHeader: Record "Transfer Header");
     begin
     end;
 }

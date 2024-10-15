@@ -176,6 +176,7 @@ report 12101 "Withholding Taxes"
                         ModifyAll(Paid, true)
                     end;
                     PrevTaxCode := "Tax Code";
+                    FirstRecord := false;
                 end;
 
                 trigger OnPreDataItem()
@@ -188,7 +189,7 @@ report 12101 "Withholding Taxes"
 
             trigger OnAfterGetRecord()
             begin
-                if PrevTaxCode = "Tax Code" then
+                if (PrevTaxCode = "Tax Code") and (not FirstRecord) then
                     CurrReport.Skip();
                 if PrevTaxCode <> "Tax Code" then begin
                     TotalAmount := 0;
@@ -223,6 +224,7 @@ report 12101 "Withholding Taxes"
                 end;
 
                 Clear(WithholdingTaxPayment);
+                FirstRecord := true;
             end;
         }
     }
@@ -298,6 +300,7 @@ report 12101 "Withholding Taxes"
         EntryNo: Integer;
         FinalPrinting: Boolean;
         PrintDetails: Boolean;
+        FirstRecord: Boolean;
         PayableAmount: Decimal;
         TotalAmount: Decimal;
         BaseExclAmount: Decimal;

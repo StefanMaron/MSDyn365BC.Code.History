@@ -2704,9 +2704,17 @@ page 42 "Sales Order"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     var
         InstructionMgt: Codeunit "Instruction Mgt.";
+        IsHandled: Boolean;
+        Result: Boolean;
+        DoShowReleaseNotification: Boolean;
     begin
-        OnBeforeQueryClosePage(DocumentIsScheduledForPosting);
-        if not DocumentIsScheduledForPosting and ShowReleaseNotification() then
+        IsHandled := false;
+        DoShowReleaseNotification := ShowReleaseNotification();
+        OnBeforeQueryClosePage(DocumentIsScheduledForPosting, Rec, CloseAction, DoShowReleaseNotification, DocumentIsPosted, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        if not DocumentIsScheduledForPosting and DoShowReleaseNotification then
             if not InstructionMgt.ShowConfirmUnreleased() then
                 exit(false);
         OnQueryClosePageOnBeforeConfirmCloseUnposted(DocumentIsPosted);
@@ -3116,7 +3124,7 @@ page 42 "Sales Order"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeQueryClosePage(var DocumentIsScheduledForPosting: Boolean)
+    local procedure OnBeforeQueryClosePage(var DocumentIsScheduledForPosting: Boolean; var SalesHeader: Record "Sales Header"; CloseAction: Action; ShowReleaseNotification: Boolean; DocumentIsPosted: Boolean; var Result: Boolean; var IsHandled: Boolean)
     begin
     end;
 

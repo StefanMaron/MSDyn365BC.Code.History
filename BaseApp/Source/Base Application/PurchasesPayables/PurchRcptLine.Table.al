@@ -936,12 +936,19 @@ table 121 "Purch. Rcpt. Line"
                 PurchLine.UpdatePrePaymentAmounts();
                 if PurchOrderLine.Quantity = 0 then
                     PurchLine.Validate("Inv. Discount Amount", 0)
-                else
-                    PurchLine.Validate(
-                      "Inv. Discount Amount",
-                      Round(
-                        PurchOrderLine."Inv. Discount Amount" * PurchLine.Quantity / PurchOrderLine.Quantity,
-                        Currency."Amount Rounding Precision"));
+                else begin
+                    if not PurchLine."Allow Invoice Disc." then
+                        if PurchLine."VAT Calculation Type" <> PurchLine."VAT Calculation Type"::"Full VAT" then
+                            PurchLine."Allow Invoice Disc." := PurchOrderLine."Allow Invoice Disc.";
+                    if PurchLine."Allow Invoice Disc." then
+                        PurchLine.Validate(
+                          "Inv. Discount Amount",
+                          Round(
+                            PurchOrderLine."Inv. Discount Amount" * PurchLine.Quantity / PurchOrderLine.Quantity,
+                            Currency."Amount Rounding Precision"))
+                    else
+                        PurchLine.Validate("Inv. Discount Amount", 0);
+                end;
             end;
 
             PurchLine."Attached to Line No." :=

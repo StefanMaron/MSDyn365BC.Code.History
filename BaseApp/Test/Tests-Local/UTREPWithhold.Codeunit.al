@@ -95,7 +95,7 @@ codeunit 144093 "UT REP Withhold"
         // Setup: Create Contributions and Withholding Tax.
         Initialize();
         CreateContributions(Contributions, ContributionCode."Contribution Type"::INPS);
-        CreateWithholdingTax(WithholdingTax, Contributions."Vendor No.");
+        CreateWithholdingTax(WithholdingTax, Contributions."Vendor No.", true);
         EnqueueVendorNoAndDates(WithholdingTax."Vendor No.", WithholdingTax."Payment Date", WithholdingTax."Related Date");  // Enqueue values for handler - CompensationDetailsRequestPageHandler.
 
         // Exercise.
@@ -140,7 +140,7 @@ codeunit 144093 "UT REP Withhold"
 
         // Setup: Create Withholding Tax and Vendor.
         Initialize();
-        CreateWithholdingTax(WithholdingTax, CreateVendor('', '', false));  // Blank Country/Region Code, VAT Registration No. and Individual Person mark FALSE.
+        CreateWithholdingTax(WithholdingTax, CreateVendor('', '', false), true);  // Blank Country/Region Code, VAT Registration No. and Individual Person mark FALSE.
 
         // Exercise.
         RunReportWithholdingTaxes;  // Opens handler - WithholdingTaxesRequestPageHandler.
@@ -164,7 +164,7 @@ codeunit 144093 "UT REP Withhold"
 
         // [GIVEN] Withholding Tax and Vendor ("Name" = "A", "Name 2" = "B", Address = "C", "Individual Person" = No).
         Initialize();
-        CreateWithholdingTax(WithholdingTax, CreateVendor('', '', false));  // Blank Country/Region Code, VAT Registration No. and Individual Person mark FALSE.
+        CreateWithholdingTax(WithholdingTax, CreateVendor('', '', false), true);  // Blank Country/Region Code, VAT Registration No. and Individual Person mark FALSE.
 
         // [WHEN] Run report "Certifications"
         RunReportCertifications(WithholdingTax."Vendor No.");  // Opens handler - CertificationsRequestPageHandler.
@@ -192,7 +192,7 @@ codeunit 144093 "UT REP Withhold"
 
         // [GIVEN] Withholding Tax and Vendor ("Name" = "A", "Name 2" = "B", Address = "C", "Individual Person" = Yes, "First Name" = "D", "Last Name" = "E", "Residence Address" = "F").
         Initialize();
-        CreateWithholdingTax(WithholdingTax, CreateVendor('', '', true));  // Blank Country/Region Code, VAT Registration No. and Individual Person mark TRUE.
+        CreateWithholdingTax(WithholdingTax, CreateVendor('', '', true), true);  // Blank Country/Region Code, VAT Registration No. and Individual Person mark TRUE.
 
         // [WHEN] Run report "Certifications"
         RunReportCertifications(WithholdingTax."Vendor No.");  // Opens handler - CertificationsRequestPageHandler.
@@ -411,7 +411,7 @@ codeunit 144093 "UT REP Withhold"
 
         // [GIVEN] Withholding Tax and Contributions for Vendor with "Name" = "A", "Name 2" = "B", Address = "C", "Individual Person" = No
         Initialize();
-        CreateWithholdingTax(WithholdingTax, CreateVendor('', '', false));  // Blank Country/Region Code, VAT Registration No. and Individual Person mark FALSE.
+        CreateWithholdingTax(WithholdingTax, CreateVendor('', '', false), true);  // Blank Country/Region Code, VAT Registration No. and Individual Person mark FALSE.
         CreateContributions(Contributions, ContributionCode."Contribution Type"::INAIL);
 
         // [WHEN] Run report "Certifications"
@@ -450,6 +450,30 @@ codeunit 144093 "UT REP Withhold"
             Assert.IsTrue("INPS Paid", StrSubstNo(IncorrectValueErr, FieldCaption("INPS Paid")));
             Assert.IsTrue("INAIL Paid", StrSubstNo(IncorrectValueErr, FieldCaption("INAIL Paid")));
         end;
+    end;
+
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler,WithholdingTaxesRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure WithholdingTaxesReport_EmptyTaxCode()
+    var
+        WithholdingTax: Record "Withholding Tax";
+    begin
+        // [SCENARIO 485149] Withholding taxes report works for Withhold Tax with empty Tax Code
+        Initialize();
+
+        // [GIVEN] Create Withholding Tax with empty Tax Code for Vendor "XXX"
+        CreateWithholdingTax(WithholdingTax, CreateVendor('', '', false), false);
+
+        // [WHEN] Run report "Withholding Taxes"
+        RunReportWithholdingTaxes();
+        // UI Handled by WithholdingTaxesRequestPageHandler.
+
+        // [THEN] Withholding Tax for Vendor = "XXX" is shown in report
+        VerifyValuesOnReport(
+          VendNoCap, TotalAmountCap, WithholdingTaxAmtWithholdingTaxCap,
+          WithholdingTax."Vendor No.", WithholdingTax."Total Amount", WithholdingTax."Withholding Tax Amount");
     end;
 
     local procedure Initialize()
@@ -534,7 +558,7 @@ codeunit 144093 "UT REP Withhold"
         WithholdingTax: Record "Withholding Tax";
     begin
         Vendor.Get(CreateVendor(VATRegistrationNo, CountryRegionCode, IndivisualPerson));
-        CreateWithholdingTax(WithholdingTax, Vendor."No.");
+        CreateWithholdingTax(WithholdingTax, Vendor."No.", true);
         EnqueueVendorNoAndDates(WithholdingTax."Vendor No.", WorkDate(), WorkDate());  // Enqueue Value for WithholdingTaxTestRequestPageHandler.
     end;
 
@@ -549,7 +573,7 @@ codeunit 144093 "UT REP Withhold"
         end;
     end;
 
-    local procedure CreateWithholdingTax(var WithholdingTax: Record "Withholding Tax"; VendorNo: Code[20])
+    local procedure CreateWithholdingTax(var WithholdingTax: Record "Withholding Tax"; VendorNo: Code[20]; FillInTaxCode: Boolean)
     var
         WithholdingTax2: Record "Withholding Tax";
     begin
@@ -567,7 +591,8 @@ codeunit 144093 "UT REP Withhold"
         WithholdingTax.Year := Date2DMY(WorkDate(), 3);  // 3 returns year.
         WithholdingTax."Withholding Tax Code" := CreateWithholdCode;
         WithholdingTax."Withholding Tax Amount" := WithholdingTax."Total Amount";
-        WithholdingTax."Tax Code" := Format(LibraryRandom.RandIntInRange(1000, 9999));  // Using range for taking 4 character of Tax Code.
+        if FillInTaxCode then
+            WithholdingTax."Tax Code" := Format(LibraryRandom.RandIntInRange(1000, 9999));  // Using range for taking 4 character of Tax Code.
         WithholdingTax.Insert();
     end;
 

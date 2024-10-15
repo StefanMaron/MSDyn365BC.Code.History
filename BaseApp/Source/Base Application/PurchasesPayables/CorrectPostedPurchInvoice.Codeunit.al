@@ -105,10 +105,14 @@
             end else begin
                 PurchaseHeader.SetRange("Applies-to Doc. No.", PurchInvHeader."No.");
                 if PurchaseHeader.FindFirst() then begin
-                    if Confirm(StrSubstNo(PostingCreditMemoFailedOpenCMQst, GetLastErrorText)) then
-                        OnBeforeShowPurchaseCreditMemo(PurchaseHeader, IsHandled);
-                    if not IsHandled then
-                        PAGE.Run(PAGE::"Purchase Credit Memo", PurchaseHeader);
+                    IsHandled := false;
+                    OnCreateCreditMemoOnBeforeConfirmPostingCreditMemoFailedOpen(PurchaseHeader, IsHandled);
+                    if not IsHandled then begin
+                        if Confirm(StrSubstNo(PostingCreditMemoFailedOpenCMQst, GetLastErrorText)) then
+                            OnBeforeShowPurchaseCreditMemo(PurchaseHeader, IsHandled);
+                        if not IsHandled then
+                            PAGE.Run(PAGE::"Purchase Credit Memo", PurchaseHeader);
+                    end;
                 end else
                     Error(CreatingCreditMemoFailedNothingCreatedErr, GetLastErrorText);
             end;
@@ -904,6 +908,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowPurchaseCreditMemo(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateCreditMemoOnBeforeConfirmPostingCreditMemoFailedOpen(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean);
     begin
     end;
 }

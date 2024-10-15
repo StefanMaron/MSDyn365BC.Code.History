@@ -285,13 +285,8 @@ page 12111 "Show Computed Withh. Contrib."
                 else
                     GenJnlLine.Validate(Amount, -"Withholding Tax Amount");
 
-                if (GenJnlLine2."Applies-to Doc. No." = '') and (GenJnlLine2."Bal. Account No." = '') then begin
-                    GenJnlLine.Validate("Account Type", GenJnlLine."Account Type"::"G/L Account");
-                    GenJnlLine.Validate("Account No.", "Withholding Account");
-                end else begin
-                    GenJnlLine.Validate("Bal. Account Type", GenJnlLine."Bal. Account Type"::"G/L Account");
-                    GenJnlLine.Validate("Bal. Account No.", "Withholding Account");
-                end;
+                GenJnlLine."Bal. Account Type" := GenJnlLine."Bal. Account Type"::"G/L Account";
+                GenJnlLine.Validate("Bal. Account No.", "Withholding Account");
 
                 if "Payment Line-Withholding" = 0 then begin
                     GenJnlLine.Insert();
