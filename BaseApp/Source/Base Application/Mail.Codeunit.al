@@ -208,7 +208,7 @@ codeunit 397 Mail
         AddAddressToCollection('AuthEmail', GetAuthenticationEmailFromUserTable, TempNameValueBuffer);
         if not EnvironmentInfo.IsSaaS then
             AddAddressToCollection('AD', GetActiveDirectoryMailFromUser, TempNameValueBuffer);
-        AddAddressToCollection('SMTPSetup', GetBasicAuthAddressFromSMTPSetup, TempNameValueBuffer);
+        AddAddressToCollection('SMTPSetup', GetAddressFromSMTPSetup, TempNameValueBuffer);
     end;
 
     local procedure AddAddressToCollection(EmailKey: Text; EmailAddress: Text; var TempNameValueBuffer: Record "Name/Value Buffer" temporary): Boolean
@@ -241,7 +241,7 @@ codeunit 397 Mail
         exit(true);
     end;
 
-    local procedure GetBasicAuthAddressFromSMTPSetup(): Text
+    local procedure GetAddressFromSMTPSetup(): Text
     var
         SMTPMailSetup: Record "SMTP Mail Setup";
         MailManagement: Codeunit "Mail Management";
@@ -249,7 +249,7 @@ codeunit 397 Mail
         with SMTPMailSetup do begin
             if not FindFirst then
                 exit;
-            if Authentication = Authentication::Basic then
+            if Authentication in [Authentication::Basic, Authentication::OAuth2] then
                 if "User ID" <> '' then
                     if MailManagement.CheckValidEmailAddress(GetSender) then
                         exit(GetSender);
