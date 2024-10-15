@@ -3549,6 +3549,7 @@
                           <GroupExpression>=Fields!Intrastat_Jnl__Line_Area.Value</GroupExpression>
                           <GroupExpression>=Fields!Intrastat_Jnl__Line__Transaction_Specification_.Value</GroupExpression>
                           <GroupExpression>=Fields!Intrastat_Jnl__Line_Country_Region_of_Origin_Code.Value</GroupExpression>
+                          <GroupExpression>=Fields!Intrastat_Jnl_Line_Partner_VAT_ID.Value</GroupExpression>
                         </GroupExpressions>
                       </Group>
                       <TablixMembers>

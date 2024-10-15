@@ -153,7 +153,7 @@ codeunit 134153 "Test Intrastat"
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
 
         // [THEN] Intrastat Journal Line Amount = "X"
-        VerifyIntrastatJnlLine(IntrastatJnlBatch, Item."No.", 1, Round(Item."Unit Price", 1));
+        VerifyIntrastatJnlLine(IntrastatJnlBatch, Item."No.", 1, Item."Unit Price");
     end;
 
     [Test]
@@ -180,7 +180,7 @@ codeunit 134153 "Test Intrastat"
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
 
         // [THEN] Intrastat Journal Line Amount = "X"
-        VerifyIntrastatJnlLine(IntrastatJnlBatch, Item."No.", 1, Round(Item."Unit Price", 1));
+        VerifyIntrastatJnlLine(IntrastatJnlBatch, Item."No.", 1, Item."Unit Price");
     end;
 
     [Test]
@@ -207,7 +207,7 @@ codeunit 134153 "Test Intrastat"
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
 
         // [THEN] Intrastat Journal Line Amount = "X"
-        VerifyIntrastatJnlLine(IntrastatJnlBatch, Item."No.", 1, Round(Item."Last Direct Cost", 1));
+        VerifyIntrastatJnlLine(IntrastatJnlBatch, Item."No.", 1, Item."Last Direct Cost");
     end;
 
     [Test]
@@ -234,7 +234,7 @@ codeunit 134153 "Test Intrastat"
         RunGetItemLedgerEntriesToCreateJnlLines(IntrastatJnlBatch);
 
         // [THEN] Intrastat Journal Line Amount = "X"
-        VerifyIntrastatJnlLine(IntrastatJnlBatch, Item."No.", 1, Round(Item."Last Direct Cost", 1));
+        VerifyIntrastatJnlLine(IntrastatJnlBatch, Item."No.", 1, Item."Last Direct Cost");
     end;
 
     [Test]
