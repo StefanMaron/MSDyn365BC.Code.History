@@ -100,6 +100,7 @@
         TempSalesLines: Record "Sales Line" temporary;
         TempOriginalSalesLine: Record "Sales Line" temporary;
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
+        DocumentTotals: Codeunit "Document Totals";
         Window: Dialog;
         GenJnlLineDocNo: Code[20];
         GenJnlLineExtDocNo: Code[35];
@@ -123,6 +124,10 @@
         SalesSetup.Get();
         TempGlobalPrepmtInvLineBufGST.DeleteAll();
         with SalesHeader do begin
+
+            if (SalesSetup."Calc. Inv. Discount" and (Status = Status::Open)) then
+                DocumentTotals.SalesRedistributeInvoiceDiscountAmountsOnDocument(SalesHeader);
+
             CheckPrepmtDoc(SalesHeader, DocumentType);
 
             UpdateDocNos(SalesHeader, DocumentType, GenJnlLineDocNo, PostingNoSeriesCode, ModifyHeader);
@@ -1842,6 +1847,7 @@
     local procedure InsertSalesInvLine(SalesInvHeader: Record "Sales Invoice Header"; LineNo: Integer; PrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; SalesHeader: Record "Sales Header")
     var
         SalesInvLine: Record "Sales Invoice Line";
+        VATPostingSetup: Record "VAT Posting Setup";
         SalesLine2: Record "Sales Line";
         Currency: Record Currency;
     begin
@@ -1873,6 +1879,8 @@
             SalesInvLine."VAT Bus. Posting Group" := "VAT Bus. Posting Group";
             SalesInvLine."VAT Prod. Posting Group" := "VAT Prod. Posting Group";
             SalesInvLine."VAT %" := "VAT %";
+            IF VATPostingSetup.GET("VAT Bus. Posting Group", "VAT Prod. Posting Group") THEN
+                SalesInvLine."VAT Clause Code" := VATPostingSetup."VAT Clause Code";
             SalesInvLine.Amount := Amount;
             SalesInvLine."VAT Difference" := "VAT Difference";
             SalesInvLine."Amount Including VAT" := "Amount Incl. VAT";
@@ -1936,6 +1944,7 @@
     local procedure InsertSalesCrMemoLine(SalesCrMemoHeader: Record "Sales Cr.Memo Header"; LineNo: Integer; PrepmtInvLineBuffer: Record "Prepayment Inv. Line Buffer"; SalesHeader: Record "Sales Header")
     var
         SalesCrMemoLine: Record "Sales Cr.Memo Line";
+        VATPostingSetup: Record "VAT Posting Setup";
     begin
         with PrepmtInvLineBuffer do begin
             SalesCrMemoLine.Init();
@@ -1963,6 +1972,8 @@
             SalesCrMemoLine."VAT Bus. Posting Group" := "VAT Bus. Posting Group";
             SalesCrMemoLine."VAT Prod. Posting Group" := "VAT Prod. Posting Group";
             SalesCrMemoLine."VAT %" := "VAT %";
+            IF VATPostingSetup.GET("VAT Bus. Posting Group", "VAT Prod. Posting Group") THEN
+                SalesCrMemoLine."VAT Clause Code" := VATPostingSetup."VAT Clause Code";
             SalesCrMemoLine.Amount := Amount;
             SalesCrMemoLine."VAT Difference" := "VAT Difference";
             SalesCrMemoLine."Amount Including VAT" := "Amount Incl. VAT";

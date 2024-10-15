@@ -1560,6 +1560,64 @@ codeunit 134101 "ERM Prepayment II"
         VerifyGLEntry(InvoiceNo, Currency."Realized Losses Acc.", -AmountLCYPrepmt + AmountLCYInvoice);
     end;
 
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CalculateInvoiceDisAutomaticWith100PctPrepayment()
+    var
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        Customer: Record Customer;
+        CustInvoiceDisc: Record "Cust. Invoice Disc.";
+        LineGLAccount: Record "G/L Account";
+        SalesHeader: Record "Sales Header";
+        Salesline: Record "Sales Line";
+        GeneralPostingSetup: Record "General Posting Setup";
+        SalesLineType: Enum "Sales Line Type";
+        PrepmtGLAccountNo: Code[20];
+        ItemNo: Code[20];
+        CustomerNo: Code[20];
+        CalcInvDiscountValues: Boolean;
+    begin
+        // Initialize
+        Initialize();
+        SalesReceivablesSetup.Get();
+        CalcInvDiscountValues := SalesReceivablesSetup."Calc. Inv. Discount";
+        SalesReceivablesSetup."Calc. Inv. Discount" := true;
+        SalesReceivablesSetup.Modify();
+
+        // [FEATURE] [Sales] [Invocie Discount]
+        // [SCENARIO 453057] Given a Sales order for a customer with automatic invoice calclulation set up.
+        PrepmtGLAccountNo := LibrarySales.CreatePrepaymentVATSetup(LineGLAccount, VATCalculationType);
+        CustomerNo :=
+          LibrarySales.CreateCustomerWithBusPostingGroups(
+            LineGLAccount."Gen. Bus. Posting Group", LineGLAccount."VAT Bus. Posting Group");
+        ItemNo := CreateItemWithPostingSetup(LineGLAccount);
+        CreateSalesDocument(
+          SalesHeader, SalesLine, CustomerNo, SalesLine.Type::Item, ItemNo, 100, ''); // Full prepayment
+        GeneralPostingSetup.get(Salesline."Gen. Bus. Posting Group", Salesline."Gen. Prod. Posting Group");
+        GeneralPostingSetup."Sales Inv. Disc. Account" := GeneralPostingSetup."Sales Account";
+        GeneralPostingSetup.Modify();
+        Customer.get(CustomerNo);
+        If not CustInvoiceDisc.Get(Customer."Invoice Disc. Code", Customer."Currency Code") then begin
+            CustInvoiceDisc.Code := Customer."No.";
+            CustInvoiceDisc."Currency Code" := Customer."Currency Code";
+            CustInvoiceDisc.Insert();
+        end;
+        CustInvoiceDisc."Discount %" := 10; // Value is not important
+        CustInvoiceDisc.Modify();
+
+        // When Post the prepayment order 
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // Then Sales order should be posted 
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // Restore
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Calc. Inv. Discount" := CalcInvDiscountValues;
+        SalesReceivablesSetup.Modify();
+    end;
+
     [Test]
     [Scope('OnPrem')]
     procedure ReleaseSalesOrderWithNotPostedPrepayment()

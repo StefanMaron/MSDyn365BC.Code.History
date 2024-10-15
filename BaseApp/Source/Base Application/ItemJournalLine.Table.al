@@ -541,7 +541,7 @@
         field(23; "Salespers./Purch. Code"; Code[20])
         {
             Caption = 'Salespers./Purch. Code';
-            TableRelation = "Salesperson/Purchaser";
+            TableRelation = "Salesperson/Purchaser" where(Blocked = const(false));
 
             trigger OnValidate()
             begin
@@ -2047,7 +2047,8 @@
                 if IsHandled then
                     exit;
 
-                TestField(Type, Type::"Machine Center");
+                if not (Type in [Type::"Work Center", Type::"Machine Center"]) then
+                    Error(ScrapCodeTypeErr);
             end;
         }
         field(5898; "Work Center Group Code"; Code[10])
@@ -2316,6 +2317,7 @@
         BlockedErr: Label 'You cannot choose item number %1 because the Blocked check box is selected on its item card.', Comment = '%1 - Item No.';
         SerialNoRequiredErr: Label 'You must assign a serial number for item %1.', Comment = '%1 - Item No.';
         LotNoRequiredErr: Label 'You must assign a lot number for item %1.', Comment = '%1 - Item No.';
+        ScrapCodeTypeErr: Label 'When using Scrap Code, Type must be Work Center or Machine Center.';
 
     protected var
         ItemJnlLine: Record "Item Journal Line";

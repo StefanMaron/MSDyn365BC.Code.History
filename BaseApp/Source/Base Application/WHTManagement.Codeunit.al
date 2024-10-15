@@ -30,8 +30,8 @@ codeunit 28040 WHTManagement
         WHTRevenueType: Code[10];
         GenBusPostGrp: Code[20];
         GenProdPostGrp: Code[20];
-        Dim1: Code[10];
-        Dim2: Code[10];
+        Dim1: Code[20];
+        Dim2: Code[20];
         SourceCode: Code[10];
         ReasonCode: Code[10];
         ActualVendorNo: Code[20];
