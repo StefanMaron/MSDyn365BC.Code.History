@@ -573,7 +573,7 @@ codeunit 137154 "SCM Warehouse Management II"
             LibraryVariableStorage.Enqueue(ReservationMode::"Verify Reserve Line");  // Enqueue for ReservationPageHandler.
             LibraryVariableStorage.Enqueue(PurchaseLine.Quantity);  // Enqueue for ReservationPageHandler.
             LibraryVariableStorage.Enqueue(PurchaseLine.Quantity / 2);
-            LibraryVariableStorage.Enqueue(PurchaseLine.Quantity / 2);
+            LibraryVariableStorage.Enqueue(0);
             SalesLine.ShowReservation();
         end;
     end;
