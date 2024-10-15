@@ -1,7 +1,7 @@
 page 11763 "Registr. Country/Region Routes"
 {
     ApplicationArea = Basic, Suite;
-    Caption = 'Registration Country/Region';
+    Caption = 'Registration Country/Region Routes (Obsolete)';
     DelayedInsert = true;
     PageType = List;
     SourceTable = "Registr. Country/Region Route";

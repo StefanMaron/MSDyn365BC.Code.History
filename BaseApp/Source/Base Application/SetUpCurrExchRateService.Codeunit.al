@@ -27,7 +27,7 @@ codeunit 1242 "Set Up Curr Exch Rate Service"
         DummyDataExchColumnDef: Record "Data Exch. Column Def";
         DummyCurrExchRate: Record "Currency Exchange Rate";
         ECB_EXCH_RATESTxt: Label 'ECB-EXCHANGE-RATES', Locked = true;
-        CNB_EXCH_RATESTxt: Label 'CNB-EXCHANGE-RATES', Comment = 'Czech National Bank Currency Exchange Rate Code';
+        CNB_EXCH_RATESTxt: Label 'CNB-EXCHANGE-RATES', Comment = 'Czech National Bank Currency Exchange Rate Code', Locked = true;
         ECB_EXCH_RATESDescTxt: Label 'European Central Bank Currency Exchange Rates Setup';
         CNB_EXCH_RATESDescTxt: Label 'Czech National Bank Currency Exchange Rates';
         ECB_URLTxt: Label 'http://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml', Locked = true;

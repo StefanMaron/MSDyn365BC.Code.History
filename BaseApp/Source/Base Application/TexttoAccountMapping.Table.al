@@ -166,7 +166,7 @@ table 1251 "Text-to-Account Mapping"
             if TextToAccMapping.FindFirst then
                 Copy(TextToAccMapping)
             else begin
-                TextToAccMapping.Reset;
+                TextToAccMapping.Reset();
                 TextToAccMapping.SetRange("Text-to-Account Mapping Code", ''); // NAVCZ
                 if TextToAccMapping.FindLast then
                     LastLineNo := TextToAccMapping."Line No.";
@@ -207,7 +207,7 @@ table 1251 "Text-to-Account Mapping"
             if TextToAccMapping.FindFirst then
                 Copy(TextToAccMapping)
             else begin
-                TextToAccMapping.Reset;
+                TextToAccMapping.Reset();
                 TextToAccMapping.FilterTextToAccountMapping(BankAccReconciliationLine); // NAVCZ
                 if TextToAccMapping.FindLast then
                     LastLineNo := TextToAccMapping."Line No.";
@@ -227,11 +227,15 @@ table 1251 "Text-to-Account Mapping"
                 // NAVCZ
 
                 SetSourceTypeFromReconcLine(BankAccReconciliationLine);
-                if "Bal. Source Type" <> "Bal. Source Type"::"G/L Account" then
-                    "Bal. Source No." := BankAccReconciliationLine."Account No."
-                else begin
-                    "Debit Acc. No." := BankAccReconciliationLine."Account No.";
-                    "Credit Acc. No." := BankAccReconciliationLine."Account No.";
+                case "Bal. Source Type" of
+                    "Bal. Source Type"::Customer,
+                    "Bal. Source Type"::Vendor:
+                        "Bal. Source No." := BankAccReconciliationLine."Account No.";
+                    "Bal. Source Type"::"G/L Account":
+                        begin
+                            "Debit Acc. No." := BankAccReconciliationLine."Account No.";
+                            "Credit Acc. No." := BankAccReconciliationLine."Account No.";
+                        end;
                 end;
 
                 // NAVCZ
@@ -246,7 +250,7 @@ table 1251 "Text-to-Account Mapping"
 
             Reset;
 
-            Commit;
+            Commit();
         end;
 
         SetRange("Text-to-Account Mapping Code", BankAccReconciliationLine.GetTextToAccountMappingCode); // NAVCZ
@@ -306,6 +310,8 @@ table 1251 "Text-to-Account Mapping"
                 "Bal. Source Type" := "Bal. Source Type"::Customer;
             BankAccReconciliationLine."Account Type"::Vendor:
                 "Bal. Source Type" := "Bal. Source Type"::Vendor;
+            BankAccReconciliationLine."Account Type"::"Bank Account":
+                "Bal. Source Type" := "Bal. Source Type"::"Bank Account";
         end;
     end;
 
@@ -449,7 +455,7 @@ table 1251 "Text-to-Account Mapping"
         if SearchExactMapping(TextToAccountMapping, LineDescription, VendorNo) then
             exit(1);
 
-        TextToAccountMapping.Reset;
+        TextToAccountMapping.Reset();
         TextToAccountMapping.SetRange("Vendor No.", VendorNo);
         if not TextToAccountMapping.FindSet then
             exit(ResultCount);
@@ -460,11 +466,11 @@ table 1251 "Text-to-Account Mapping"
             else
                 if StrPos(UpperCase(LineDescription), UpperCase(TextToAccountMapping."Mapping Text")) > 0 then begin
                     TempTextToAccountMapping.Copy(TextToAccountMapping);
-                    TempTextToAccountMapping.Insert;
+                    TempTextToAccountMapping.Insert();
                 end;
         until TextToAccountMapping.Next = 0;
 
-        ResultCount := TempTextToAccountMapping.Count;
+        ResultCount := TempTextToAccountMapping.Count();
         if ResultCount = 0 then
             if TempDefaultTextToAccountMapping."Line No." <> 0 then begin
                 TextToAccountMapping.Copy(TempDefaultTextToAccountMapping);
@@ -481,7 +487,7 @@ table 1251 "Text-to-Account Mapping"
 
     local procedure SearchExactMapping(var TextToAccountMapping: Record "Text-to-Account Mapping"; LineDescription: Text; VendorNo: Code[20]): Boolean
     begin
-        TextToAccountMapping.Reset;
+        TextToAccountMapping.Reset();
         TextToAccountMapping.SetRange("Vendor No.", VendorNo);
         TextToAccountMapping.SetFilter("Mapping Text", '%1', '@' + DelChr(LineDescription, '=', FilterInvalidCharTxt));
         exit(TextToAccountMapping.FindFirst);

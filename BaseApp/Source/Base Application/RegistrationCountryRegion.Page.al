@@ -1,6 +1,6 @@
 page 11762 "Registration Country/Region"
 {
-    Caption = 'Registration Country/Region';
+    Caption = 'Registration Country/Region (Obsolete)';
     DataCaptionFields = "Account No.";
     DelayedInsert = true;
     PageType = List;

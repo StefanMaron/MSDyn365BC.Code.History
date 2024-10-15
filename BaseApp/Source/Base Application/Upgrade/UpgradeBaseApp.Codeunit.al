@@ -15,7 +15,6 @@ codeunit 104000 "Upgrade - BaseApp"
         ExcelTemplateAgedAccountsReceivableTxt: Label 'ExcelTemplateAgedAccountsReceivable', Locked = true;
         ExcelTemplateAgedAccountsPayableTxt: Label 'ExcelTemplateAgedAccountsPayable', Locked = true;
         ExcelTemplateCompanyInformationTxt: Label 'ExcelTemplateViewCompanyInformation', Locked = true;
-        InvoicingShouldNotBeUpgradedErr: Label 'Invoicing tenant should not be upgraded.', Locked = true;
 
     trigger OnUpgradePerDatabase()
     begin
@@ -25,7 +24,6 @@ codeunit 104000 "Upgrade - BaseApp"
 
     trigger OnUpgradePerCompany()
     begin
-        DoNotUpgradeIfInvoicing();
         UpdateDefaultDimensionsReferencedIds();
         UpdateGenJournalBatchReferencedIds();
         UpdateItems();
@@ -43,14 +41,6 @@ codeunit 104000 "Upgrade - BaseApp"
         UpgradeAPIs();
     end;
 
-    local procedure DoNotUpgradeIfInvoicing()
-    var
-        O365SalesInitialSetup: Record "O365 Sales Initial Setup";
-    begin
-        IF (O365SalesInitialSetup.GET AND O365SalesInitialSetup."Is initialized") THEN
-            Error(InvoicingShouldNotBeUpgradedErr);
-    end;
-
     local procedure UpdateDefaultDimensionsReferencedIds()
     var
         DefaultDimension: Record "Default Dimension";
@@ -63,7 +53,6 @@ codeunit 104000 "Upgrade - BaseApp"
         IF DefaultDimension.FINDSET THEN
             REPEAT
                 DefaultDimension.UpdateReferencedIds;
-                IF DefaultDimension.MODIFY THEN;
             UNTIL DefaultDimension.NEXT = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetDefaultDimensionAPIUpgradeTag());

@@ -430,6 +430,12 @@ codeunit 11795 "User Setup Adv. Management"
             Item.Init();
     end;
 
+    procedure CheckCompleteJob()
+    begin
+        GetUserSetup();
+        UserSetup.TestField("Allow Complete Job");
+    end;
+
     [EventSubscriber(ObjectType::Table, 7311, 'OnCheckWhseJournalTemplateUserRestrictions', '', false, false)]
     [Scope('OnPrem')]
     procedure CheckWhseJournalTemplateUserRestrictions(JournalTemplateName: Code[10])
@@ -557,6 +563,14 @@ codeunit 11795 "User Setup Adv. Management"
                             IsHandled := true;
                         end;
                 end;
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::Job, 'OnBeforeChangeJobCompletionStatus', '', false, false)]
+    local procedure CheckCompleteJobOnBeforeChangeJobCompletionStatus(var Job: Record Job; var xJob: Record Job; var IsHandled: Boolean)
+    begin
+        if IsCheckAllowed() then
+            CheckCompleteJob();
+        IsHandled := false;
     end;
 }
 

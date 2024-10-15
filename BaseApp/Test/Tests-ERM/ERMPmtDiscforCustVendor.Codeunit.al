@@ -44,7 +44,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
 
         // Modify Setup.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, GeneralLedgerSetup."Unrealized VAT");
 
@@ -76,7 +76,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
 
         // Modify Setup.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, GeneralLedgerSetup."Unrealized VAT");
 
@@ -113,7 +113,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
 
         // Setup: Modify Setup.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, GeneralLedgerSetup."Unrealized VAT");
 
@@ -154,7 +154,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
 
         // Setup: Modify Setup.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, true);
 
@@ -188,7 +188,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         // check Unpplied and Remaining Amount on Detailed Customer Ledger Entry.
 
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, GeneralLedgerSetup."Unrealized VAT");
 
@@ -216,7 +216,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         // check Unpplied and Remaining Amount on Detailed Customer Ledger Entry.
 
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, GeneralLedgerSetup."Unrealized VAT");
 
@@ -252,7 +252,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
 
         // Setup: Modify Setup.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, true);
 
@@ -428,7 +428,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
 
         // Setup: Modify Setup.
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, true);
 
@@ -648,7 +648,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         // [FEATURE] [Sales]
         // [SCENARIO 375774] System creates several reversal VATEntries for Payment Discount Adj. in case of unapply multiple docs in one transaction
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         OldUnrealizedVATType := ModifyVATPostingSetupUnrealizedType(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::" ");
         OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, GeneralLedgerSetup."Unrealized VAT");
@@ -664,7 +664,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         PreparePaymentLine(GenJournalLine, GenJournalLine."Account Type"::Customer, CustomerNo);
         CreatePostTwoPaymentsWithoutBalAcc(GenJournalLine, InvoiceDocNo, PaymentAmt);
         SalesInvoiceLine.SetFilter("Document No.", '%1|%2', InvoiceDocNo[1], InvoiceDocNo[2]);
-        NoOfVATEntries := SalesInvoiceLine.Count;
+        NoOfVATEntries := SalesInvoiceLine.Count();
 
         // [WHEN] Unapply last customer payment
         UnapplyCustLedgerEntry(GenJournalLine."Document Type"::Payment, GenJournalLine."Document No.");
@@ -707,7 +707,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         // [FEATURE] [Purchases]
         // [SCENARIO 375774] System creates several reversal VATEntries for Payment Discount Adj. in case of unapply multiple docs in one transaction
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         OldUnrealizedVATType := ModifyVATPostingSetupUnrealizedType(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::" ");
         OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, GeneralLedgerSetup."Unrealized VAT");
@@ -723,7 +723,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         PreparePaymentLine(GenJournalLine, GenJournalLine."Account Type"::Vendor, VendorNo);
         CreatePostTwoPaymentsWithoutBalAcc(GenJournalLine, InvoiceDocNo, PaymentAmt);
         PurchInvLine.SetFilter("Document No.", '%1|%2', InvoiceDocNo[1], InvoiceDocNo[2]);
-        NoOfVATEntries := PurchInvLine.Count;
+        NoOfVATEntries := PurchInvLine.Count();
 
         // [WHEN] Unapply last vendor payment
         UnapplyVendLedgerEntry(GenJournalLine."Document Type"::Payment, GenJournalLine."Document No.");
@@ -764,7 +764,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         // [FEATURE] [Purchases]
         // [SCENARIO 375874] GLEntry."Gen. Posting Type" = Purchase for "Purch. Pmt. Disc. Credit Acc." after unapply vendor payment with discount
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         OldUnrealizedVATType := ModifyVATPostingSetupUnrealizedType(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::" ");
         OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, GeneralLedgerSetup."Unrealized VAT");
@@ -808,7 +808,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         // [FEATURE] [Sales]
         // [SCENARIO 375874] GLEntry."Gen. Posting Type" = Sale for "Sales Pmt. Disc. Debit Acc." after unapply customer payment with discount
         Initialize;
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryERM.FindVATPostingSetup(VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT");
         OldUnrealizedVATType := ModifyVATPostingSetupUnrealizedType(VATPostingSetup, VATPostingSetup."Unrealized VAT Type"::" ");
         OldAdjustforPaymentDiscount := ModifySetup(VATPostingSetup, true, GeneralLedgerSetup."Unrealized VAT");
@@ -949,7 +949,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         // [GIVEN] "Pmt. Discount Date" = January 6th in invoice
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
 
-        ExpectedPmtDiscDate := CalcDate(PaymentTerms."Discount Date Calculation", SalesHeader."Posting Date");
+        ExpectedPmtDiscDate := CalcDate(PaymentTerms."Discount Date Calculation", WorkDate());
         SalesHeader.Validate("Payment Terms Code", PaymentTerms.Code);
         SalesHeader.TestField("Pmt. Discount Date", ExpectedPmtDiscDate);
 
@@ -1006,7 +1006,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         // [GIVEN] "Pmt. Discount Date" = January 6th in invoice
         LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
 
-        ExpectedPmtDiscDate := CalcDate(PaymentTerms."Discount Date Calculation", PurchaseHeader."Posting Date");
+        ExpectedPmtDiscDate := CalcDate(PaymentTerms."Discount Date Calculation", WorkDate());
         PurchaseHeader.Validate("Payment Terms Code", PaymentTerms.Code);
         PurchaseHeader.TestField("Pmt. Discount Date", ExpectedPmtDiscDate);
 
@@ -1032,6 +1032,116 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, DocumentNo);
         VendorLedgerEntry.TestField("Original Pmt. Disc. Possible", -ExpectedDiscountAmount);
         VendorLedgerEntry.TestField("Remaining Pmt. Disc. Possible", -ExpectedDiscountAmount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesPmtDiscountDateWithGracePeriodPostingDateExceedsPeriod()
+    var
+        PaymentTerms: Record "Payment Terms";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        CustLedgerEntry: Record "Cust. Ledger Entry";
+        GracePeriod: DateFormula;
+        ExpectedPmtDiscDate: Date;
+        DocumentDate: Date;
+        PostingDate: Date;
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCENARIO 351131] "Original Pmt. Disc. Possible" is not calculated in Customer Ledger Entry when "Posting Date" exceeds "Payment Discount Period" + "Grace Period"
+        Initialize();
+
+        // [GIVEN] Payment Terms "X" with "Discount %" = 10, "Due Date Calculation" = 10 days, "Pmt. Discount Date Calculation" = 5 days
+        LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
+
+        // [GIVEN] "Payment Discount Grace Period" = 3D in General Ledger Setup
+        Evaluate(GracePeriod, '<' + Format(LibraryRandom.RandIntInRange(3, 10)) + 'D>');
+        LibraryPmtDiscSetup.SetPmtDiscGracePeriod(GracePeriod);
+
+        // [GIVEN] Sales Invoice with "Document Date" = January 1st and "Posting Date" = January 12th
+        // [GIVEN] Payment Terms "X" specified in invoice
+        // [GIVEN] "Pmt. Discount Date" = January 6th in invoice
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
+
+        ExpectedPmtDiscDate := CalcDate(PaymentTerms."Discount Date Calculation", WorkDate());
+        SalesHeader.Validate("Payment Terms Code", PaymentTerms.Code);
+        SalesHeader.TestField("Pmt. Discount Date", ExpectedPmtDiscDate);
+
+        DocumentDate := WorkDate();
+        PostingDate := CalcDate(PaymentTerms."Discount Date Calculation", DocumentDate);
+        PostingDate := CalcDate(GracePeriod, PostingDate) + 1;
+        SalesHeader.Validate("Posting Date", PostingDate);
+        SalesHeader.Validate("Document Date", DocumentDate);
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Amount = 1000 in invoice
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(100, 200));
+        SalesLine.Modify(true);
+
+        // [WHEN] Post invoice
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] "Original Pmt. Disc. Possible" = 0 and "Remaining Pmt. Disc. Possible" = 0 in posted Customer Ledger Entry as the discount period is exceeded.
+        LibraryERM.FindCustomerLedgerEntry(CustLedgerEntry, CustLedgerEntry."Document Type"::Invoice, DocumentNo);
+        CustLedgerEntry.TestField("Original Pmt. Disc. Possible", 0);
+        CustLedgerEntry.TestField("Remaining Pmt. Disc. Possible", 0);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PurchPmtDiscountDateWithGracePeriodPostingDateExceedsPeriod()
+    var
+        PaymentTerms: Record "Payment Terms";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        GracePeriod: DateFormula;
+        ExpectedPmtDiscDate: Date;
+        DocumentDate: Date;
+        PostingDate: Date;
+        DocumentNo: Code[20];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCENARIO 351131] "Original Pmt. Disc. Possible" is not calculated in Vendor Ledger Entry when "Posting Date" exceeds "Payment Discount Period" + "Grace Period"
+        Initialize();
+
+        // [GIVEN] Payment Terms "X" with "Discount %" = 10, "Due Date Calculation" = 10 days, "Pmt. Discount Date Calculation" = 5 days
+        LibraryERM.CreatePaymentTermsDiscount(PaymentTerms, false);
+        // [GIVEN] "Payment Discount Grace Period" = 3D in General Ledger Setup
+        Evaluate(GracePeriod, '<' + Format(LibraryRandom.RandIntInRange(3, 10)) + 'D>');
+        LibraryPmtDiscSetup.SetPmtDiscGracePeriod(GracePeriod);
+
+        // [GIVEN] Sales Invoice with "Document Date" = January 1st and "Posting Date" = January 12th
+        // [GIVEN] Payment Terms "X" specified in invoice
+        // [GIVEN] "Pmt. Discount Date" = January 6th in invoice
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, LibraryPurchase.CreateVendorNo());
+
+        ExpectedPmtDiscDate := CalcDate(PaymentTerms."Discount Date Calculation", WorkDate());
+        PurchaseHeader.Validate("Payment Terms Code", PaymentTerms.Code);
+        PurchaseHeader.TestField("Pmt. Discount Date", ExpectedPmtDiscDate);
+
+        DocumentDate := WorkDate();
+        PostingDate := CalcDate(PaymentTerms."Discount Date Calculation", DocumentDate);
+        PostingDate := CalcDate(GracePeriod, PostingDate) + 1;
+        PurchaseHeader.Validate("Posting Date", PostingDate);
+        PurchaseHeader.Validate("Document Date", DocumentDate);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Amount = 1000 in invoice
+        LibraryPurchase.CreatePurchaseLine(
+          PurchaseLine, PurchaseHeader, PurchaseLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithPurchSetup(), 1);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandIntInRange(100, 200));
+        PurchaseLine.Modify(true);
+
+        // [WHEN] Post invoice
+        DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] "Original Pmt. Disc. Possible" = 0 and "Remaining Pmt. Disc. Possible" = 0 in posted Vendor Ledger Entry as the discount period is exceeded.
+        LibraryERM.FindVendorLedgerEntry(VendorLedgerEntry, VendorLedgerEntry."Document Type"::Invoice, DocumentNo);
+        VendorLedgerEntry.TestField("Original Pmt. Disc. Possible", 0);
+        VendorLedgerEntry.TestField("Remaining Pmt. Disc. Possible", 0);
     end;
 
     local procedure Initialize()
@@ -1061,7 +1171,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         FindUpdateGeneralPostingSetupAccounts();
 
         isInitialized := true;
-        Commit;
+        Commit();
 
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
@@ -1116,7 +1226,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         CrMemoNo: Code[20];
         Amount: Decimal;
     begin
-        CustomerNo := CreateCustomerWithPaymentTerms;
+        CustomerNo := CreateCustomerWithPaymentTerms();
         Amount := LibraryRandom.RandDec(100, 2);
 
         CreatePostPairedInvoiceAndCrMemo(GenJnlLine."Account Type"::Customer, CustomerNo, Amount, InvNo, CrMemoNo);
@@ -1141,7 +1251,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         CrMemoNo: Code[20];
         Amount: Decimal;
     begin
-        VendorNo := CreateVendorWithPaymentTerms;
+        VendorNo := CreateVendorWithPaymentTerms();
         Amount := LibraryRandom.RandDec(100, 2);
 
         CreatePostPairedInvoiceAndCrMemo(GenJnlLine."Account Type"::Vendor, VendorNo, -Amount, InvNo, CrMemoNo);
@@ -1372,7 +1482,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
     var
         GenJnlLine: Record "Gen. Journal Line";
     begin
-        GenJnlLine.Init;
+        GenJnlLine.Init();
         GenJnlLine."Journal Template Name" := JnlTemplName;
         GenJnlLine."Journal Batch Name" := JnlBatchName;
         LibraryERM.PostGeneralJnlLine(GenJnlLine);
@@ -1809,7 +1919,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         VATPostingSetup: Record "VAT Posting Setup";
     begin
         VATPostingSetup.SetRange("VAT Bus. Posting Group", VATBusPostingGroupCode);
-        VATPostingSetup.DeleteAll;
+        VATPostingSetup.DeleteAll();
     end;
 
     local procedure SalesInvoiceWithPaymentDisc(var DocumentNo: Code[20]; CurrencyCode: Code[10]) PmtDiscAmount: Decimal
@@ -1837,7 +1947,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
     var
         CashReceiptJournal: TestPage "Cash Receipt Journal";
     begin
-        Commit;  // Commit is require for opening Cash Receipt Journal Page.
+        Commit();  // Commit is require for opening Cash Receipt Journal Page.
         CashReceiptJournal.OpenEdit;
         CashReceiptJournal.CurrentJnlBatchName.SetValue := JournalBatchName;
         CashReceiptJournal.FILTER.SetFilter("Document Type", JournalBatchName);
@@ -1848,7 +1958,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
     var
         PurchaseJournal: TestPage "Purchase Journal";
     begin
-        Commit;  // Commit is require for opening Cash Receipt Journal Page.
+        Commit();  // Commit is require for opening Cash Receipt Journal Page.
         PurchaseJournal.OpenEdit;
         PurchaseJournal.CurrentJnlBatchName.SetValue := JournalBatchName;
         PurchaseJournal.FILTER.SetFilter("Document Type", JournalBatchName);
@@ -2034,7 +2144,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         Customer: Record Customer;
         CustomerPostingGroup: Record "Customer Posting Group";
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         Customer.Get(SourceNo);
         CustomerPostingGroup.Get(Customer."Customer Posting Group");
         VerifyUnappliedGLEntries(
@@ -2048,7 +2158,7 @@ codeunit 134088 "ERM Pmt Disc for Cust/Vendor"
         Vendor: Record Vendor;
         VendorPostingGroup: Record "Vendor Posting Group";
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         Vendor.Get(SourceNo);
         VendorPostingGroup.Get(Vendor."Vendor Posting Group");
         VerifyUnappliedGLEntries(

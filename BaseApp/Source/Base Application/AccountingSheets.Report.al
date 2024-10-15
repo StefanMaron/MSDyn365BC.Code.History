@@ -788,8 +788,6 @@ report 11770 "Accounting Sheets"
 
     requestpage
     {
-        SaveValues = true;
-
         layout
         {
             area(content)

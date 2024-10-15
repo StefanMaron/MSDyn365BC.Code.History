@@ -31,10 +31,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         StandardStatementReportOutputType: Option Print,Preview,Word,PDF,Email,XML;
         ConfirmStartJobQueueQst: Label 'Do you want to set the job queue entry up to run immediately?';
         UnexpectedConfirmationErr: Label 'Unxpected confimation.';
-        StatementTitleDocxTxt: Label 'Statement for %1_%2 as of %3.docx';
+        StatementTitleDocxTxt: Label 'Statement for %1 as of %2.docx';
         StatementTitlePdfTxt: Label 'Statement for %1 as of %2.pdf';
         StatementTitleHtmlTxt: Label 'Statement for %1 as of %2.html';
-        StatementTitlePrintDocxTxt: Label 'Statement for %1 as of %2.docx';
         IgnoringFailureSendingEmailErr: Label 'A call to MailKit.Net.Smtp.SmtpClient.Connect failed with this message: No connection could be made because the target machine actively refused';
         MoreErrorsOnErrorMessagesPageErr: Label '%1 contains more errors than expected.';
         LessErrorsOnErrorMessagesPageErr: Label '%1 contains less errors than expected.';
@@ -2401,7 +2400,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         BindSubscription(LibraryTempNVBufferHandler);
         RunBackgroundReportFromCard(GetSingleCustomerFilter(Customer), StandardStatementReportOutputType::Print, false);
 
-        LibraryTempNVBufferHandler.AssertEntry(GetStatementTitlePrintDocx);
+        LibraryTempNVBufferHandler.AssertEntry(GetStatementTitleDocx(Customer));
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
         AssertReportInboxCountWord(1);
@@ -2464,7 +2463,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         BindSubscription(LibraryTempNVBufferHandler);
         RunBackgroundReportFromCard(GetSingleCustomerFilter(Customer), StandardStatementReportOutputType::Print, false);
 
-        LibraryTempNVBufferHandler.AssertEntry(GetStatementTitlePrintDocx);
+        LibraryTempNVBufferHandler.AssertEntry(GetStatementTitleDocx(Customer));
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
         AssertReportInboxCountWord(1);
@@ -2489,17 +2488,19 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
         PrepareCustomerWithEntries(Customer[1], '', GetStandardStatementReportID);
         PrepareCustomerWithEntries(Customer[2], '', GetStandardStatementReportID);
-        Commit;
+        Commit();
 
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
         BindSubscription(LibraryTempNVBufferHandler);
-        RunBackgroundReportFromCard(GetTwoCustomersFilter(Customer), StandardStatementReportOutputType::Print, false);
+        RunBackgroundReportFromCard(GetTwoCustomersFilter(Customer), StandardStatementReportOutputType::Word, false);
 
-        LibraryTempNVBufferHandler.AssertEntry(GetStatementTitlePrintDocx);
+        LibraryTempNVBufferHandler.AssertEntry(GetStatementTitleDocx(Customer[1]));
+        LibraryTempNVBufferHandler.AssertEntry(GetStatementTitleDocx(Customer[2]));
+
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
-        AssertReportInboxCountWord(1);
+        AssertReportInboxCountZip(1);
 
         Customer[1].Find;
         Customer[1].TestField("Last Statement No.", 1);
@@ -2528,9 +2529,9 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         LibraryTempNVBufferHandler.DeactivateDefaultSubscriber;
         LibraryTempNVBufferHandler.ActivateBackgroundCaseSubscriber;
         BindSubscription(LibraryTempNVBufferHandler);
-        RunBackgroundReportFromCard(GetTwoCustomersFilter(Customer), StandardStatementReportOutputType::Print, false);
+        RunBackgroundReportFromCard(GetTwoCustomersFilter(Customer), StandardStatementReportOutputType::Word, false);
 
-        LibraryTempNVBufferHandler.AssertEntry(GetStatementTitlePrintDocx);
+        LibraryTempNVBufferHandler.AssertEntry(GetStatementTitleDocx(Customer[2]));
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
         AssertReportInboxCountWord(1);
@@ -2564,7 +2565,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
         BindSubscription(LibraryTempNVBufferHandler);
         RunBackgroundReportFromCard(GetTwoCustomersFilter(Customer), StandardStatementReportOutputType::Print, false);
 
-        LibraryTempNVBufferHandler.AssertEntry(GetStatementTitlePrintDocx);
+        LibraryTempNVBufferHandler.AssertEntry(GetStatementTitleDocx(Customer[1]));
         LibraryTempNVBufferHandler.AssertQueueEmpty;
 
         AssertReportInboxCountWord(1);
@@ -2917,7 +2918,7 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
 
     local procedure GetStatementTitleDocx(Customer: Record Customer): Text
     begin
-        exit(StrSubstNo(StatementTitleDocxTxt, Customer.Name, GetReportCaption(GetStandardStatementReportID), Format(WorkDate, 0, 9)));
+        exit(StrSubstNo(StatementTitleDocxTxt, Customer.Name, Format(WorkDate, 0, 9)));
     end;
 
     local procedure GetStatementTitlePdf(Customer: Record Customer): Text
@@ -2928,19 +2929,6 @@ codeunit 134422 "Rep. Selections - Std. Stmt."
     local procedure GetStatementTitleHtml(Customer: Record Customer): Text
     begin
         exit(StrSubstNo(StatementTitleHtmlTxt, Customer.Name, Format(WorkDate, 0, 9)));
-    end;
-
-    local procedure GetStatementTitlePrintDocx(): Text
-    begin
-        exit(StrSubstNo(StatementTitlePrintDocxTxt, GetReportCaption(GetStandardStatementReportID), Format(WorkDate, 0, 9)));
-    end;
-
-    local procedure GetReportCaption(ReportID: Integer): Text
-    var
-        AllObjWithCaption: Record AllObjWithCaption;
-    begin
-        AllObjWithCaption.Get(AllObjWithCaption."Object Type"::Report, ReportID);
-        exit(AllObjWithCaption."Object Caption")
     end;
 
     local procedure InsertCustomReportSelectionCustomer(var CustomReportSelection: Record "Custom Report Selection"; CustomerNo: Code[20]; ReportID: Integer; UseForEmailAttachment: Boolean; UseForEmailBody: Boolean; EmailBodyLayoutCode: Code[20]; SendToAddress: Text[200]; ReportUsage: Option)

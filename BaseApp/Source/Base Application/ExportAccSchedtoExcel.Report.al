@@ -159,10 +159,8 @@ report 29 "Export Acc. Sched. to Excel"
                     TempExcelBuffer.UpdateBookExcel(ServerFileName, SheetName, false);
                     TempExcelBuffer.WriteSheet('', CompanyName, UserId);
                     TempExcelBuffer.CloseBook;
-                    if not TestMode then begin
-                        FileMgt.DownloadToFile(ServerFileName, ClientFileName);
-                        TempExcelBuffer.OpenExcelWithName(ClientFileName);
-                    end;
+                    if not TestMode then
+                        TempExcelBuffer.DownloadAndOpenExcel();
                 end else begin
                     TempExcelBuffer.CreateBook(ServerFileName, AccSchedName.Name);
                     TempExcelBuffer.WriteSheet(AccSchedName.Description, CompanyName, UserId);
@@ -326,7 +324,7 @@ report 29 "Export Acc. Sched. to Excel"
             ServerFileName := FileMgt.UploadFileSilent(FileName);
         if ServerFileName = '' then
             exit(false);
-        ClientFileName := FileName;
+        ClientFileName := FileMgt.GetFileName(FileName);
 
         SheetName := TempExcelBuffer.SelectSheetsName(ServerFileName);
         if SheetName = '' then

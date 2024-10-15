@@ -968,7 +968,7 @@
             <Height>2.53804cm</Height>
             <Width>18cm</Width>
             <Visibility>
-              <Hidden>=Fields!SkipEntiesDetail.Value</Hidden>
+              <Hidden>=Fields!SkipEntriesDetail.Value</Hidden>
             </Visibility>
             <Style />
           </Tablix>
@@ -1410,7 +1410,7 @@
             <Width>15.54081cm</Width>
             <ZIndex>1</ZIndex>
             <Visibility>
-              <Hidden>=not Fields!SkipEntiesDetail.Value</Hidden>
+              <Hidden>=iif(Fields!SkipEntriesDetail.Value, false, true)</Hidden>
             </Visibility>
             <Style />
           </Tablix>
@@ -1628,8 +1628,8 @@ End Function
   <DataSets>
     <DataSet Name="DataSet_Result">
       <Fields>
-        <Field Name="SkipEntiesDetail">
-          <DataField>SkipEntiesDetail</DataField>
+        <Field Name="SkipEntriesDetail">
+          <DataField>SkipEntriesDetail</DataField>
         </Field>
         <Field Name="COMPANYNAME">
           <DataField>COMPANYNAME</DataField>

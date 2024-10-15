@@ -844,7 +844,7 @@ table 11709 "Payment Order Line"
                                     "Due Date" := PurchAdvLetterHeader."Advance Due Date";
                                 "Original Due Date" := PurchAdvLetterHeader."Advance Due Date";
                                 if "Amount to Pay" = 0 then begin
-                                    RemAmount := PurchAdvLetterHeader.GetRemAmount - Abs(PurchAdvLetterHeader."Amount on Payment Order (LCY)");
+                                    RemAmount := PurchAdvLetterHeader.GetRemAmount();
                                     if "Payment Order Currency Code" = PurchAdvLetterHeader."Currency Code" then begin
                                         "Amount(Pay.Order Curr.) to Pay" := RemAmount;
                                         Validate("Amount(Pay.Order Curr.) to Pay");
@@ -942,7 +942,7 @@ table 11709 "Payment Order Line"
                                     "Due Date" := PurchAdvLetterLine."Advance Due Date";
                                 "Original Due Date" := PurchAdvLetterLine."Advance Due Date";
                                 if "Amount to Pay" = 0 then begin
-                                    RemAmount := PurchAdvLetterLine."Amount To Link" - Abs(PurchAdvLetterLine."Amount on Payment Order (LCY)");
+                                    RemAmount := PurchAdvLetterLine."Amount To Link";
                                     if "Payment Order Currency Code" = PurchAdvLetterHeader."Currency Code" then begin
                                         "Amount(Pay.Order Curr.) to Pay" := RemAmount;
                                         Validate("Amount(Pay.Order Curr.) to Pay");
@@ -982,7 +982,7 @@ table 11709 "Payment Order Line"
         }
         field(192; "Third Party Bank Account"; Boolean)
         {
-            CalcFormula = Lookup ("Vendor Bank Account"."Third Party Bank Account" WHERE("Vendor No." = FIELD("No."),
+            CalcFormula = Lookup("Vendor Bank Account"."Third Party Bank Account" WHERE("Vendor No." = FIELD("No."),
                                                                                          Code = FIELD("Cust./Vendor Bank Account Code")));
             Caption = 'Third Party Bank Account';
             Editable = false;
