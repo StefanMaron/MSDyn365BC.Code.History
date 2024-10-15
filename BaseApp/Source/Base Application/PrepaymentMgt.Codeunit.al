@@ -158,13 +158,27 @@ codeunit 441 "Prepayment Mgt."
     end;
 
     procedure TestSalesOrderLineForGetShptLines(SalesLine: Record "Sales Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestSalesOrderLineForGetShptLines(SalesLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if SalesLine."Prepmt. Amt. Inv." <> SalesLine."Prepmt. Line Amount" then
             Error(PrepaymentInvoicesNotPaidErr);
     end;
 
     procedure TestPurchaseOrderLineForGetRcptLines(PurchaseLine: Record "Purchase Line")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeTestPurchaseOrderLineForGetRcptLines(PurchaseLine, IsHandled);
+        if IsHandled then
+            exit;
+
         if PurchaseLine."Prepmt. Amt. Inv." <> PurchaseLine."Prepmt. Line Amount" then
             Error(PrepaymentInvoicesNotPaidErr);
     end;
@@ -341,6 +355,16 @@ codeunit 441 "Prepayment Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSalesPrepaymentPct(var SalesLine: Record "Sales Line"; Date: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestSalesOrderLineForGetShptLines(SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeTestPurchaseOrderLineForGetRcptLines(PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
     begin
     end;
 }

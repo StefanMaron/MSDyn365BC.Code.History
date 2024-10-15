@@ -1510,7 +1510,7 @@ table 5080 "To-do"
 
         if (EndingDate < DMY2Date(1, 1, 1900)) or (EndingDate > DMY2Date(31, 12, 2999)) then
             Error(Text006, DMY2Date(1, 1, 1900), DMY2Date(31, 12, 2999));
-        if not "All Day Event" and IsMeetingOrPhoneCall(Rec.Type) then
+        if not "All Day Event" then
             Duration := CreateDateTime(EndingDate, EndingTime) - CreateDateTime(Date, "Start Time")
         else
             Duration := CreateDateTime(EndingDate + 1, 0T) - CreateDateTime(Date, 0T);
