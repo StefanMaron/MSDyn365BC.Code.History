@@ -1482,6 +1482,11 @@ page 54 "Purchase Order Subform"
         CheckSendLineInvoiceDiscountResetNotification();
     end;
 
+    procedure ForceTotalsCalculation()
+    begin
+        DocumentTotals.PurchaseDocTotalsNotUpToDate();
+    end;
+
     local procedure CheckSendLineInvoiceDiscountResetNotification()
     var
         IsHandled: Boolean;

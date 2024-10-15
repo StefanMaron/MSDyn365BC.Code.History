@@ -11,6 +11,7 @@ codeunit 138070 "O365 Alt. Ship Addr. S. Ord."
     var
         LibraryRandom: Codeunit "Library - Random";
         LibrarySales: Codeunit "Library - Sales";
+        LibraryMarketing: Codeunit "Library - Marketing";
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         Assert: Codeunit Assert;
         IsInitialized: Boolean;
@@ -62,11 +63,12 @@ codeunit 138070 "O365 Alt. Ship Addr. S. Ord."
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Order,
           Customer."No.", '', LibraryRandom.RandInt(10), '', 0D);
 
-        LibrarySales.CreateCustomerWithAddress(ArgCustomer);
+        CreateCustomerWithPersonContact(ArgCustomer);
+        LibrarySales.CreateCustomerAddress(ArgCustomer);
 
         // Excercise - Open the Sales Order that has empty address fields and set the address fields
         SalesOrder.OpenEdit;
-        SalesOrder.GotoRecord(SalesHeader);
+        SalesOrder.Filter.SetFilter("No.", SalesHeader."No.");
         CopySalesOrderSellToAddressFromCustomer(SalesOrder, ArgCustomer);
 
         // Verify - Verify that the sell-to address field values are copied to the ship-to address fields
@@ -273,6 +275,20 @@ codeunit 138070 "O365 Alt. Ship Addr. S. Ord."
         IsInitialized := true;
         Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"O365 Alt. Ship Addr. S. Ord.");
+    end;
+
+    local procedure CreateCustomerWithPersonContact(var Customer: Record Customer)
+    var
+        Contact: Record Contact;
+        CompanyContact: Record Contact;
+    begin
+        LibraryMarketing.CreateContactWithCustomer(CompanyContact, Customer);
+        LibraryMarketing.CreatePersonContact(Contact);
+        Contact.Validate("Company No.", CompanyContact."No.");
+        Contact.Modify(true);
+
+        Customer.Validate("Primary Contact No.", Contact."No.");
+        Customer.Modify(true);
     end;
 
     local procedure CopySalesOrderSellToAddressFromCustomer(var SalesOrder: TestPage "Sales Order"; Customer: Record Customer)
