@@ -691,7 +691,7 @@ codeunit 144021 "IT - CU 2015 Unit Test"
 
         // [GIVEN] User clicks on "Base - Excluded amount" drilldown
         LibraryVariableStorage.Enqueue(WithholdingTax."Base - Excluded Amount" + LibraryRandom.RandDec(100, 2));
-        LibraryVariableStorage.Enqueue(WithholdingTax."Non-Taxable Income Type"::"7");
+        LibraryVariableStorage.Enqueue(WithholdingTax."Non-Taxable Income Type"::"6");
         WithholdingTaxCard."Base - Excluded Amount".DrillDown();
 
         // [WHEN] Withholding tax lines page opens Line is entered with a non-taxable income type and amount = X + 100
@@ -742,43 +742,6 @@ codeunit 144021 "IT - CU 2015 Unit Test"
         // Cleanup
         WithholdingTaxCard.Close();
     end;
-
-#if not CLEAN19
-    [Test]
-    [Scope('OnPrem')]
-    procedure WithholdingTaxCardChangeNonTaxableIncomeTypeClearsLines()
-    var
-        WithholdingTax: Record "Withholding Tax";
-        WithholdingTaxLine: Record "Withholding Tax Line";
-        WithholdingTaxCard: TestPage "Withholding Tax Card";
-    begin
-        // [FEATURE] [UI]
-        // [SCENARIO 350177] Setting Non-taxable income type from empty to non-empty clears associated Withholding Tax Lines
-        Initialize();
-
-        // [GIVEN] Withholding tax entry with Non-taxable income type empty
-        WithholdingTax.Get(
-          CreateWithholdingTaxWithAU001006AndContributionEntry(
-            CreateVendor(), ConstReason::A, 0, WorkDate, WorkDate, WithholdingTax."Non-Taxable Income Type"::" "));
-
-        // [GIVEN] Withholding line was created for this entry
-        CreateWithholdingTaxLine(WithholdingTaxLine, WithholdingTax."Entry No.", 10000, LibraryRandom.RandDec(100, 2), 0);
-
-        // [GIVEN] Withholding Tax card page was open
-        WithholdingTaxCard.OpenEdit();
-        WithholdingTaxCard.Filter.SetFilter("Entry No.", Format(WithholdingTax."Entry No."));
-
-        // [WHEN] User changes value of Non-taxable income type
-        WithholdingTaxCard."Non-Taxable Income Type".SetValue(WithholdingTax."Non-Taxable Income Type"::"6");
-
-        // [THEN] Withholding tax lines are cleared for this entry
-        WithholdingTaxLine.SetRange("Withholding Tax Entry No.", WithholdingTax."Entry No.");
-        Assert.RecordIsEmpty(WithholdingTaxLine);
-
-        // Cleanup
-        WithholdingTaxCard.Close();
-    end;
-#endif
 
     [Test]
     procedure ExceptionalEventFieldNotMandatory()

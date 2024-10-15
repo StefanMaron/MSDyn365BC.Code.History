@@ -560,6 +560,27 @@ codeunit 131000 "Library - Utility"
             StrSubstNo('%1@%2.%3', GenerateRandomXMLText(10), GenerateRandomXMLText(10), GenerateRandomXMLText(3)));
     end;
 
+    procedure GenerateRandomPhoneNo(): Text[20]
+    var
+        PlusSign: Text[1];
+        OpenBracket: Text[1];
+        CloseBracket: Text[1];
+        Delimiter: Text[1];
+    begin
+        // +123 (456) 1234-1234
+        // 123 456 12341234
+        if LibraryRandom.RandInt(100) > 50 then begin
+            PlusSign := '+';
+            OpenBracket := '(';
+            CloseBracket := ')';
+            Delimiter := '-';
+        end;
+        exit(
+            PlusSign + GenerateRandomNumericText(3) + ' ' +
+            OpenBracket + GenerateRandomNumericText(3) + CloseBracket + ' ' +
+            GenerateRandomNumericText(4) + Delimiter + GenerateRandomNumericText(4));
+    end;
+
     procedure GenerateRandomFraction(): Decimal
     begin
         exit(LibraryRandom.RandInt(99) / 100);  // Generate any fraction between 0.01 to .99.

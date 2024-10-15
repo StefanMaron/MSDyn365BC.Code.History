@@ -2341,8 +2341,8 @@ codeunit 144060 "ERM Intrastat"
         LibrarySpesometro.VerifyValue(TextFile, CopyStr(IntrastatJnlLine."Transaction Type", 1, 1), 1, GetLineOffset(0) + 56, 1, 0);
         LibrarySpesometro.VerifyValue(TextFile, CopyStr(IntrastatJnlLine."Transaction Type", 2, 1), 1, GetLineOffset(0) + 104, 1, 0);
 
-        // [THEN] Code of the country of origin is exported blanked
-        LibrarySpesometro.VerifyValue(TextFile, ' ', 1, GetLineOffset(0) + 105, 2, 0);
+        // [THEN] Code of the country of origin is exported (TFS 425369)
+        LibrarySpesometro.VerifyValue(TextFile, IntrastatJnlLine."Country/Region of Origin Code", 1, GetLineOffset(0) + 105, 2, 0);
 
         LibraryVariableStorage.AssertEmpty();
     END;
