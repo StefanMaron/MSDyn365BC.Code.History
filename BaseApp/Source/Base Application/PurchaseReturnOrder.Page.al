@@ -1117,6 +1117,8 @@ page 6640 "Purchase Return Order"
                     begin
                         CopyDocument();
                         if Get("Document Type", "No.") then;
+                        CurrPage.PurchLines.Page.ForceTotalsCalculation();
+                        CurrPage.Update();
                     end;
                 }
                 action("Move Negative Lines")
