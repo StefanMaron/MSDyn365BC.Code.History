@@ -9,7 +9,9 @@ codeunit 10765 "Sales Invoice Header - Edit"
     begin
         SalesInvoiceHeader := Rec;
         SalesInvoiceHeader.LockTable();
-        SalesInvoiceHeader.Find;
+        SalesInvoiceHeader.Find();
+        SalesInvoiceHeader."Operation Description" := "Operation Description";
+        SalesInvoiceHeader."Operation Description 2" := "Operation Description 2";
         SalesInvoiceHeader."Special Scheme Code" := "Special Scheme Code";
         SalesInvoiceHeader."Invoice Type" := "Invoice Type";
         SalesInvoiceHeader."ID Type" := "ID Type";

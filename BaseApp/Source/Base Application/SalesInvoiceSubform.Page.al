@@ -791,6 +791,7 @@ page 47 "Sales Invoice Subform"
                     }
                     action(GetPrice)
                     {
+                        AccessByPermission = TableData "Sales Price Access" = R;
                         ApplicationArea = Basic, Suite;
                         Caption = 'Get &Price';
                         Ellipsis = true;
@@ -805,6 +806,7 @@ page 47 "Sales Invoice Subform"
                     }
                     action(GetLineDiscount)
                     {
+                        AccessByPermission = TableData "Sales Discount Access" = R;
                         ApplicationArea = Basic, Suite;
                         Caption = 'Get Li&ne Discount';
                         Ellipsis = true;
@@ -1161,7 +1163,7 @@ page 47 "Sales Invoice Subform"
         IsBlankNumber: Boolean;
         IsCommentLine: Boolean;
         SuppressTotals: Boolean;
-		[InDataSet]
+        [InDataSet]
         ItemReferenceVisible: Boolean;
         LocationCodeVisible: Boolean;
         UnitofMeasureCodeIsChangeable: Boolean;

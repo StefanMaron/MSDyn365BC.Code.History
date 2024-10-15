@@ -442,7 +442,14 @@ report 7000082 "Settle Docs. in Posted PO"
 
     [Scope('OnPrem')]
     procedure CalcBankAccount(BankAcc2: Code[20]; Amount2: Decimal; EntryNo: Integer)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcBankAccount(BankAcc2, Amount2, EntryNo, BankAccPostBuffer, IsHandled);
+        if IsHandled then
+            exit;
+
         if BankAccPostBuffer.Get(BankAcc2, '', EntryNo) then begin
             BankAccPostBuffer.Amount := BankAccPostBuffer.Amount + Amount2;
             BankAccPostBuffer.Modify();
@@ -489,6 +496,11 @@ report 7000082 "Settle Docs. in Posted PO"
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcBankAccount(BankAcc2: Code[20]; Amount2: Decimal; EntryNo: Integer; var BgPoPostBuffer: Record "BG/PO Post. Buffer"; var IsHandled: Boolean)
+    begin
+    end;
+	
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGenJournalLineInsert(var PostedCarteraDoc: Record "Posted Cartera Doc."; var GenJournalLine: Record "Gen. Journal Line"; var VATPostingSetup: Record "VAT Posting Setup"; var VendorLedgerEntry: Record "Vendor Ledger Entry"; var PostedPaymentOrder: Record "Posted Payment Order"; var BankAccount: Record "Bank Account")
     begin

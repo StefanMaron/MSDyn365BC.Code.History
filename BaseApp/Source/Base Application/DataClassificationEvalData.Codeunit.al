@@ -1,4 +1,4 @@
-codeunit 1751 "Data Classification Eval. Data"
+﻿codeunit 1751 "Data Classification Eval. Data"
 {
     procedure CreateEvaluationData()
     var
@@ -14,17 +14,13 @@ codeunit 1751 "Data Classification Eval. Data"
         if not Company."Evaluation Company" then
             exit;
 
-        Field.SetFilter(DataClassification, StrSubstNo('%1|%2|%3',
+        Field.SetFilter(DataClassification, '%1|%2|%3',
             Field.DataClassification::CustomerContent,
             Field.DataClassification::EndUserIdentifiableInformation,
-            Field.DataClassification::EndUserPseudonymousIdentifiers));
+            Field.DataClassification::EndUserPseudonymousIdentifiers);
         Field.SetFilter(ObsoleteState, '<>%1', Field.ObsoleteState::Removed);
-        // exclude system fields
-        Field.SetFilter("No.", '<>%1&<>%2&<>%3',
-            Field.FieldNo(SystemId),
-            Field.FieldNo(SystemCreatedBy),
-            Field.FieldNo(SystemModifiedBy));
-        if Field.FindSet then
+
+        if Field.FindSet() then
             repeat
                 DataSensitivity."Company Name" := CompanyName;
                 DataSensitivity."Table No" := Field.TableNo;
@@ -52,10 +48,9 @@ codeunit 1751 "Data Classification Eval. Data"
         DataClassEvalDataCountry.ClassifyCountrySpecificTables;
 
         // All EUII and EUPI Fields are set to Personal
-        DataSensitivity.SetFilter("Data Classification",
-          StrSubstNo('%1|%2',
+        DataSensitivity.SetFilter("Data Classification", '%1|%2',
             DataSensitivity."Data Classification"::EndUserIdentifiableInformation,
-            DataSensitivity."Data Classification"::EndUserPseudonymousIdentifiers));
+            DataSensitivity."Data Classification"::EndUserPseudonymousIdentifiers);
         DataSensitivity.ModifyAll("Data Sensitivity", DataSensitivity."Data Sensitivity"::Personal);
 
         TableMetadata.SetRange(ObsoleteState, TableMetadata.ObsoleteState::Removed);
@@ -397,6 +392,7 @@ codeunit 1751 "Data Classification Eval. Data"
         SetTableFieldsToNormal(DATABASE::"Requisition Wksh. Name");
         SetTableFieldsToNormal(DATABASE::"Intrastat Setup");
         SetTableFieldsToNormal(DATABASE::"VAT Reg. No. Srv Config");
+        SetTableFieldsToNormal(DATABASE::"VAT Reg. No. Srv. Template");
         SetTableFieldsToNormal(DATABASE::"Gen. Business Posting Group");
         SetTableFieldsToNormal(DATABASE::"Gen. Product Posting Group");
         SetTableFieldsToNormal(DATABASE::"General Posting Setup");
@@ -3408,9 +3404,9 @@ codeunit 1751 "Data Classification Eval. Data"
 
     local procedure ClassifyEmailOutbox()
     begin
-        SetFieldToPersonal(8888, 8); // Description / Email subject
-        SetFieldToPersonal(8888, 9); // Error Message
+        SetFieldToPersonal(8888, 6); // Description / Email subject
         SetFieldToPersonal(8888, 13); // Send from
+        SetFieldToPersonal(8888, 14); // Error Message
     end;
 
     local procedure ClassifySentEmail()
@@ -4415,6 +4411,7 @@ codeunit 1751 "Data Classification Eval. Data"
     local procedure ClassifyVATRegistrationLog()
     var
         DummyVATRegistrationLog: Record "VAT Registration Log";
+        DummyVATRegistrationLogDetails: Record "VAT Registration Log Details";
         TableNo: Integer;
     begin
         TableNo := DATABASE::"VAT Registration Log";
@@ -4427,6 +4424,12 @@ codeunit 1751 "Data Classification Eval. Data"
         SetFieldToPersonal(TableNo, DummyVATRegistrationLog.FieldNo("User ID"));
         SetFieldToPersonal(TableNo, DummyVATRegistrationLog.FieldNo("Country/Region Code"));
         SetFieldToPersonal(TableNo, DummyVATRegistrationLog.FieldNo("VAT Registration No."));
+
+        TableNo := Database::"VAT Registration Log Details";
+        SetTableFieldsToNormal(TableNo);
+        SetFieldToPersonal(TableNo, DummyVATRegistrationLogDetails.FieldNo(Requested));
+        SetFieldToPersonal(TableNo, DummyVATRegistrationLogDetails.FieldNo(Response));
+        SetFieldToPersonal(TableNo, DummyVATRegistrationLogDetails.FieldNo("Current Value"));
     end;
 
     local procedure ClassifyRequisitionLine()

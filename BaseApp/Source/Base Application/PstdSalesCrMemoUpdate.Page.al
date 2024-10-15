@@ -63,6 +63,23 @@ page 1354 "Pstd. Sales Cr. Memo - Update"
             group("Invoice Details")
             {
                 Caption = 'Invoice Details';
+                field(OperationDescription; OperationDescription)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Operation Description';
+                    Editable = true;
+                    MultiLine = true;
+                    ToolTip = 'Specifies the Operation Description.';
+
+                    trigger OnValidate()
+                    var
+                        SIIManagement: Codeunit "SII Management";
+                    begin
+                        SIIManagement.SplitOperationDescription(OperationDescription, "Operation Description", "Operation Description 2");
+                        Validate("Operation Description");
+                        Validate("Operation Description 2");
+                    end;
+                }
                 field("Special Scheme Code"; "Special Scheme Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -90,8 +107,11 @@ page 1354 "Pstd. Sales Cr. Memo - Update"
     }
 
     trigger OnOpenPage()
+    var
+        SIIManagement: Codeunit "SII Management";
     begin
         xSalesCrMemoHeader := Rec;
+        SIIManagement.CombineOperationDescription("Operation Description", "Operation Description 2", OperationDescription);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -103,6 +123,7 @@ page 1354 "Pstd. Sales Cr. Memo - Update"
 
     var
         xSalesCrMemoHeader: Record "Sales Cr.Memo Header";
+        OperationDescription: Text[500];
 
     local procedure RecordChanged() IsChanged: Boolean
     begin
@@ -110,6 +131,8 @@ page 1354 "Pstd. Sales Cr. Memo - Update"
           ("Shipping Agent Code" <> xSalesCrMemoHeader."Shipping Agent Code") or
           ("Shipping Agent Service Code" <> xSalesCrMemoHeader."Shipping Agent Service Code") or
           ("Package Tracking No." <> xSalesCrMemoHeader."Package Tracking No.") or
+          ("Operation Description" <> xSalesCrMemoHeader."Operation Description") or
+          ("Operation Description 2" <> xSalesCrMemoHeader."Operation Description 2") or
           ("Special Scheme Code" <> xSalesCrMemoHeader."Special Scheme Code") or
           ("Cr. Memo Type" <> xSalesCrMemoHeader."Cr. Memo Type") or
           ("Correction Type" <> xSalesCrMemoHeader."Correction Type");

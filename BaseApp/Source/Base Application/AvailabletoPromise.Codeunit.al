@@ -24,7 +24,7 @@ codeunit 5790 "Available to Promise"
         IsHandled := false;
         OnBeforeQtyAvailableToPromise(Item, AvailabilityDate, GrossRequirement, ScheduledReceipt, PeriodType, LookaheadDateFormula, AvailableToPromise, IsHandled);
         If IsHandled then
-            exit;
+            exit(AvailableToPromise);
 
         ScheduledReceipt := CalcScheduledReceipt(Item);
         GrossRequirement := CalcGrossRequirement(Item);

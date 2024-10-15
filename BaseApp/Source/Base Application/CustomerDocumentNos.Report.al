@@ -3,6 +3,9 @@ report 128 "Customer Document Nos."
     DefaultLayout = RDLC;
     RDLCLayout = './CustomerDocumentNos.rdlc';
     Caption = 'Customer Document Nos.';
+    ObsoleteState = Pending;
+    ObsoleteReason = 'Infrequently used report.';
+    ObsoleteTag = '18.0';
 
     dataset
     {

@@ -9,10 +9,12 @@ codeunit 1405 "Purch. Inv. Header - Edit"
     begin
         PurchInvHeader := Rec;
         PurchInvHeader.LockTable();
-        PurchInvHeader.Find;
+        PurchInvHeader.Find();
         PurchInvHeader."Payment Reference" := "Payment Reference";
         PurchInvHeader."Creditor No." := "Creditor No.";
         PurchInvHeader."Ship-to Code" := "Ship-to Code";
+        PurchInvHeader."Operation Description" := "Operation Description";
+        PurchInvHeader."Operation Description 2" := "Operation Description 2";
         PurchInvHeader."Special Scheme Code" := "Special Scheme Code";
         PurchInvHeader."Invoice Type" := "Invoice Type";
         PurchInvHeader."ID Type" := "ID Type";

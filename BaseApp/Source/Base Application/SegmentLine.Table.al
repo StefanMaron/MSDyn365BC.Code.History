@@ -192,21 +192,7 @@ table 5077 "Segment Line"
                     "Campaign Target" := InteractTmpl."Campaign Target";
                     "Campaign Response" := InteractTmpl."Campaign Response";
 
-                    case true of
-                        SegHeader."Ignore Contact Corres. Type" and
-                      (SegHeader."Correspondence Type (Default)" <> SegHeader."Correspondence Type (Default)"::" "):
-                            "Correspondence Type" := SegHeader."Correspondence Type (Default)";
-                        InteractTmpl."Ignore Contact Corres. Type" or
-                      ((InteractTmpl."Ignore Contact Corres. Type" = false) and
-                       (Cont."Correspondence Type" = Cont."Correspondence Type"::" ") and
-                       (InteractTmpl."Correspondence Type (Default)" <> InteractTmpl."Correspondence Type (Default)"::" ")):
-                            "Correspondence Type" := InteractTmpl."Correspondence Type (Default)";
-                        else
-                            if Cont."Correspondence Type" <> Cont."Correspondence Type"::" " then
-                                "Correspondence Type" := Cont."Correspondence Type"
-                            else
-                                "Correspondence Type" := xRec."Correspondence Type";
-                    end;
+                    SetCorrespondenceType();
                     if SegHeader."Campaign No." <> '' then
                         "Campaign No." := SegHeader."Campaign No."
                     else
@@ -1437,6 +1423,32 @@ table 5077 "Segment Line"
             until InterLogEntryCommentLine.Next = 0;
     end;
 
+    local procedure SetCorrespondenceType()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeSetCorrespondenceType(Rec, xRec, IsHandled);
+        if IsHandled then
+            exit;
+
+        case true of
+            SegHeader."Ignore Contact Corres. Type" and
+            (SegHeader."Correspondence Type (Default)" <> SegHeader."Correspondence Type (Default)"::" "):
+                "Correspondence Type" := SegHeader."Correspondence Type (Default)";
+            InteractTmpl."Ignore Contact Corres. Type" or
+            ((InteractTmpl."Ignore Contact Corres. Type" = false) and
+            (Cont."Correspondence Type" = Cont."Correspondence Type"::" ") and
+            (InteractTmpl."Correspondence Type (Default)" <> InteractTmpl."Correspondence Type (Default)"::" ")):
+                "Correspondence Type" := InteractTmpl."Correspondence Type (Default)";
+            else
+                if Cont."Correspondence Type" <> Cont."Correspondence Type"::" " then
+                    "Correspondence Type" := Cont."Correspondence Type"
+                else
+                    "Correspondence Type" := xRec."Correspondence Type";
+        end;
+    end;
+
     procedure IsHTMLAttachment(): Boolean
     begin
         if not TempAttachment.Find then
@@ -1574,6 +1586,11 @@ table 5077 "Segment Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSendCreateOpportunityNotification(var SegmentLine: Record "Segment Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetCorrespondenceType(var SegmentLine: Record "Segment Line"; var xSegmentLine: Record "Segment Line"; var IsHandled: Boolean)
     begin
     end;
 

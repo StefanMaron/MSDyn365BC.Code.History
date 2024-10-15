@@ -182,16 +182,21 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
         PriceSourceList.Add(SourceType::Vendor, PurchaseHeader."Buy-from Vendor No.");
         PriceSourceList.Add(SourceType::Contact, PurchaseHeader."Buy-from Contact No.");
         PriceSourceList.Add(SourceType::Campaign, PurchaseHeader."Campaign No.");
+
+        OnAfterAddSources(PurchaseHeader, PurchaseLine, CurrPriceType, PriceSourceList);
     end;
 
     local procedure GetDocumentDate() DocumentDate: Date;
     begin
-        if PurchaseHeader."Document Type" in [PurchaseHeader."Document Type"::Invoice, PurchaseHeader."Document Type"::"Credit Memo"] then
+        if PurchaseHeader."Document Type" in
+            [PurchaseHeader."Document Type"::Invoice, PurchaseHeader."Document Type"::"Credit Memo"]
+        then
             DocumentDate := PurchaseHeader."Posting Date"
         else
             DocumentDate := PurchaseHeader."Order Date";
         if DocumentDate = 0D then
             DocumentDate := WorkDate();
+        OnAfterGetDocumentDate(DocumentDate, PurchaseHeader, PurchaseLine);
     end;
 
     procedure SetPrice(AmountType: enum "Price Amount Type"; PriceListLine: Record "Price List Line")
@@ -200,7 +205,7 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
             PurchaseLine."Line Discount %" := PriceListLine."Line Discount %"
         else
             if PurchaseLine.Type in [PurchaseLine.Type::Item, PurchaseLine.Type::Resource] then begin
-                PurchaseLine."Direct Unit Cost" := PriceListLine."Unit Cost";
+                PurchaseLine."Direct Unit Cost" := PriceListLine."Direct Unit Cost";
                 PurchaseLine."Allow Invoice Disc." := PriceListLine."Allow Invoice Disc.";
                 if PriceListLine.IsRealLine() then
                     DiscountIsAllowed := PriceListLine."Allow Line Disc.";
@@ -224,8 +229,20 @@ codeunit 7021 "Purchase Line - Price" implements "Line With Price"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterAddSources(
+        PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line";
+        PriceType: Enum "Price Type"; var PriceSourceList: Codeunit "Price Source List")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterFillBuffer(
         var PriceCalculationBuffer: Record "Price Calculation Buffer"; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetDocumentDate(var DocumentDate: Date; PurchaseHeader: Record "Purchase Header"; PurchaseLine: Record "Purchase Line")
     begin
     end;
 

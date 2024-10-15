@@ -136,7 +136,6 @@ page 9062 "User Security Activities"
             cuegroup("Monitored Fields Changes")
             {
                 Caption = 'Monitor Fields Changes';
-                Visible = false;
 
                 field(MonitorEntriesNotifications; MonitorEntriesNotifications)
                 {

@@ -107,6 +107,10 @@ table 474 "Job Queue Log Entry"
             DataClassification = SystemMetadata;
             TableRelation = "Error Message Register".ID;
         }
+        field(21; "XML"; Blob)
+        {
+            Caption = 'XML';
+        }
     }
 
     keys

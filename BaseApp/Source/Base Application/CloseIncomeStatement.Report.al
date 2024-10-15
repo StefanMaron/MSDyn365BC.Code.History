@@ -359,6 +359,7 @@ report 94 "Close Income Statement"
     trigger OnPostReport()
     var
         UpdateAnalysisView: Codeunit "Update Analysis View";
+        IsHandled: Boolean;
     begin
         InsBalLines;
 
@@ -368,6 +369,11 @@ report 94 "Close Income Statement"
         Window.Close;
         Window.Open(
           Text1100100);
+
+        IsHandled := false;
+        OnPostReportOnBeforeGenJnlLinePost(GenJnlLine, IsHandled);
+        if IsHandled then
+            exit;
 
         NoOfRecords := GenJnlLine.Count();
         Window.Update(1, LineCount);
@@ -712,6 +718,7 @@ report 94 "Close Income Statement"
                 end else
                     GenJnlLine.Validate(Amount, -BalLineBuffer.Amount);
                 GenJnlLine."System-Created Entry" := true;
+                OnInsBalLinesOnBeforeGenJnlLineInsert(GenJnlLine, BalLineBuffer);
                 GenJnlLine.Insert();
             until BalLineBuffer.Next = 0;
     end;
@@ -752,6 +759,16 @@ report 94 "Close Income Statement"
 
     [IntegrationEvent(false, false)]
     local procedure OnPreReportOnBeforeCheckDimPostingRules(var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPostReportOnBeforeGenJnlLinePost(var GenJnlLine: Record "Gen. Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnInsBalLinesOnBeforeGenJnlLineInsert(var GenJnlLine: Record "Gen. Journal Line"; var BalLineBuffer: Record "Inc. Stmt. Clos. Buffer" temporary)
     begin
     end;
 }

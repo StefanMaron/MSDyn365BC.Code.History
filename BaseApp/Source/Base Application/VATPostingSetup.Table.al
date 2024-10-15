@@ -489,15 +489,22 @@ table 325 "VAT Posting Setup"
     end;
 
     [Scope('OnPrem')]
-    procedure IsNoTaxable(): Boolean
+    procedure IsNoTaxable() NoTaxable: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeIsNoTaxable(Rec, NoTaxable, IsHandled);
+        if IsHandled then
+            exit(NoTaxable);
+
         if "VAT Calculation Type" = "VAT Calculation Type"::"No Taxable VAT" then
             exit(true);
         exit(
           ("VAT Calculation Type" = "VAT Calculation Type"::"Normal VAT") and
           ("No Taxable Type" <> "No Taxable Type"::" "));
     end;
-    
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetPurchAccount(var VATPostingSetup: Record "VAT Posting Setup"; Unrealized: Boolean; var PurchVATAccountNo: Code[20]; var IsHandled: Boolean)
     begin
@@ -505,6 +512,11 @@ table 325 "VAT Posting Setup"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeGetSalesAccount(var VATPostingSetup: Record "VAT Posting Setup"; Unrealized: Boolean; var SalesVATAccountNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeIsNoTaxable(var VATPostingSetup: Record "VAT Posting Setup"; var NoTaxable: Boolean; var IsHandled: Boolean)
     begin
     end;
 }

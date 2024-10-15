@@ -39,6 +39,23 @@ page 10765 "Posted Sales Invoice - Update"
             group("Invoice Details")
             {
                 Caption = 'Invoice Details';
+                field(OperationDescription; OperationDescription)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Operation Description';
+                    Editable = true;
+                    MultiLine = true;
+                    ToolTip = 'Specifies the Operation Description.';
+
+                    trigger OnValidate()
+                    var
+                        SIIManagement: Codeunit "SII Management";
+                    begin
+                        SIIManagement.SplitOperationDescription(OperationDescription, "Operation Description", "Operation Description 2");
+                        Validate("Operation Description");
+                        Validate("Operation Description 2");
+                    end;
+                }
                 field("Special Scheme Code"; "Special Scheme Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -78,8 +95,11 @@ page 10765 "Posted Sales Invoice - Update"
     }
 
     trigger OnOpenPage()
+    var
+        SIIManagement: Codeunit "SII Management";
     begin
         xSalesInvoiceHeader := Rec;
+        SIIManagement.CombineOperationDescription("Operation Description", "Operation Description 2", OperationDescription);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -91,10 +111,13 @@ page 10765 "Posted Sales Invoice - Update"
 
     var
         xSalesInvoiceHeader: Record "Sales Invoice Header";
+        OperationDescription: Text[500];
 
     local procedure RecordChanged() RecordIsChanged: Boolean
     begin
         RecordIsChanged :=
+          ("Operation Description" <> xSalesInvoiceHeader."Operation Description") or
+          ("Operation Description 2" <> xSalesInvoiceHeader."Operation Description 2") or
           ("Special Scheme Code" <> xSalesInvoiceHeader."Special Scheme Code") or
           ("Invoice Type" <> xSalesInvoiceHeader."Invoice Type") or
           ("ID Type" <> xSalesInvoiceHeader."ID Type") or

@@ -516,15 +516,7 @@ table 5802 "Value Entry"
             SetCurrentKey("Item No.", "Valuation Date", "Location Code", "Variant Code");
             SetRange("Item No.", ValueEntry."Item No.");
             SetRange("Valuation Date", FromDate, ToDate);
-            if (AccountingPeriod."Average Cost Calc. Type" =
-                AccountingPeriod."Average Cost Calc. Type"::"Item & Location & Variant") or
-               (Item."Costing Method" <> Item."Costing Method"::Average)
-            then begin
-                SetRange("Location Code", ValueEntry."Location Code");
-                SetRange("Variant Code", ValueEntry."Variant Code");
-            end else
-                if CostCalcIsChanged then
-                    QtyFactor := ValueEntry.CalcQtyFactor(FromDate, ToDate);
+            CheckApplyLocationVariantFilters(AccountingPeriod, ValueEntry, Item, CostCalcIsChanged, QtyFactor, FromDate, ToDate);
 
             CalcSums(
               "Item Ledger Entry Quantity", "Invoiced Quantity",
@@ -548,6 +540,26 @@ table 5802 "Value Entry"
             if FromDate <> 0D then
                 ToDate := CalcDate('<-1D>', FromDate);
         until FromDate = 0D;
+    end;
+
+    local procedure CheckApplyLocationVariantFilters(AccountingPeriod: Record "Accounting Period"; var ValueEntry: Record "Value Entry"; Item: Record Item; CostCalcIsChanged: Boolean; var QtyFactor: Decimal; FromDate: Date; ToDate: Date)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckApplyLocationVariantFilters(Rec, AccountingPeriod, ValueEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        if (AccountingPeriod."Average Cost Calc. Type" =
+            AccountingPeriod."Average Cost Calc. Type"::"Item & Location & Variant") or
+           (Item."Costing Method" <> Item."Costing Method"::Average)
+        then begin
+            SetRange("Location Code", ValueEntry."Location Code");
+            SetRange("Variant Code", ValueEntry."Variant Code");
+        end else
+            if CostCalcIsChanged then
+                QtyFactor := ValueEntry.CalcQtyFactor(FromDate, ToDate);
     end;
 
     procedure CalcItemLedgEntryCost(ItemLedgEntryNo: Integer; Expected: Boolean)
@@ -730,6 +742,11 @@ table 5802 "Value Entry"
         then
             exit(true);
         exit(false);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckApplyLocationVariantFilters(var RecValueEntry: Record "Value Entry"; AccountingPeriod: Record "Accounting Period"; ValueEntry: Record "Value Entry"; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

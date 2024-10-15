@@ -1,4 +1,4 @@
-table 5080 "To-do"
+﻿table 5080 "To-do"
 {
     Caption = 'Task';
     DataCaptionFields = "No.", Description;
@@ -30,7 +30,14 @@ table 5080 "To-do"
             TableRelation = Team;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateTeamCode(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if ("Team Code" <> xRec."Team Code") and
                    ("No." <> '') and
                    IsCalledFromForm()
@@ -71,7 +78,14 @@ table 5080 "To-do"
             TableRelation = "Salesperson/Purchaser";
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateSalespersonCode(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if (xRec."Salesperson Code" <> "Salesperson Code") and
                    ("No." <> '') and
                    IsCalledFromForm()
@@ -104,10 +118,7 @@ table 5080 "To-do"
                                 end else
                                     "Salesperson Code" := xRec."Salesperson Code"
                             else
-                                if Confirm(StrSubstNo(Text032, "No.", "Salesperson Code")) then
-                                    ReassignTeamTaskToSalesperson()
-                                else
-                                    "Salesperson Code" := xRec."Salesperson Code"
+                                ConfirmReassignmentOpenedNotMeetingToDo();
                     end
                 end
             end;
@@ -125,7 +136,13 @@ table 5080 "To-do"
             trigger OnValidate()
             var
                 TempAttendee: Record Attendee temporary;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateContactNo(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if Cont.Get("Contact No.") then
                     "Contact Company No." := Cont."Company No."
                 else
@@ -206,7 +223,13 @@ table 5080 "To-do"
             trigger OnValidate()
             var
                 OldEndDate: Date;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateType(Rec, xRec, IsHandled);
+                if IsHandled then
+                    exit;
+
                 if "No." <> '' then begin
                     if ((xRec.Type = Type::Meeting) and (Type <> Type::Meeting)) or
                        ((xRec.Type <> Type::Meeting) and (Type = Type::Meeting))
@@ -1175,7 +1198,13 @@ table 5080 "To-do"
     procedure DeleteAttendeeTask(Attendee: Record Attendee)
     var
         Task: Record "To-do";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeDeleteAttendeeTask(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if FindAttendeeTask(Task, Attendee) then
             Task.Delete();
     end;
@@ -1471,7 +1500,14 @@ table 5080 "To-do"
     end;
 
     procedure SetDuration(EndingDate: Date; EndingTime: Time)
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSetDuration(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         if (EndingDate < DMY2Date(1, 1, 1900)) or (EndingDate > DMY2Date(31, 12, 2999)) then
             Error(Text006, DMY2Date(1, 1, 1900), DMY2Date(31, 12, 2999));
         if not "All Day Event" and (Type = Type::Meeting) then
@@ -1483,7 +1519,14 @@ table 5080 "To-do"
     end;
 
     procedure GetEndDateTime()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeGetEndDateTime(Rec, CurrFieldNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if (Type <> Type::Meeting) or "All Day Event" then
             if "Start Time" <> 0T then
                 TempEndDateTime := CreateDateTime(Date - 1, "Start Time") + Duration
@@ -1506,7 +1549,13 @@ table 5080 "To-do"
     var
         Task2: Record "To-do";
         TempTask: Record "To-do" temporary;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeUpdateAttendeeTasks(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         Task2.SetCurrentKey("Organizer To-do No.", "System To-do Type");
         Task2.SetRange("Organizer To-do No.", OldTaskNo);
         if "Team Code" = '' then
@@ -1834,7 +1883,13 @@ table 5080 "To-do"
         AttendeeLineNo: Integer;
         SendInvitation: Boolean;
         TeamCode: Code[10];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeChangeTeam(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         Modify;
         TeamSalespersonOld.SetRange("Team Code", xRec."Team Code");
         TeamSalesperson.SetRange("Team Code", "Team Code");
@@ -1921,6 +1976,21 @@ table 5080 "To-do"
                 until TeamSalesperson.Next = 0
         end;
         Modify(true)
+    end;
+
+    local procedure ConfirmReassignmentOpenedNotMeetingToDo()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeConfirmReassignmentOpenedNotMeetingToDo(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
+        if Confirm(StrSubstNo(Text032, "No.", "Salesperson Code")) then
+            ReassignTeamTaskToSalesperson()
+        else
+            "Salesperson Code" := xRec."Salesperson Code"
     end;
 
     local procedure ReassignTeamTaskToSalesperson()
@@ -2158,6 +2228,12 @@ table 5080 "To-do"
         GetEndDateTime;
 
         Insert;
+        RunCreateTaskPage();
+    end;
+
+    local procedure RunCreateTaskPage()
+    begin
+        OnBeforeRunCreateTaskPage(Rec);
         if PAGE.RunModal(PAGE::"Create Task", Rec) = ACTION::OK then;
     end;
 
@@ -2874,7 +2950,22 @@ table 5080 "To-do"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeChangeTeam(var Task: Record "To-do"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmReassignmentOpenedNotMeetingToDo(var ToTask: Record "To-do"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateSubTask(Attendee: Record Attendee; Task: Record "To-do"; var TaskNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeGetEndDateTime(var ToTask: Record "To-do"; CallingFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 
@@ -2890,6 +2981,16 @@ table 5080 "To-do"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeReassignTeamTaskToSalesperson(var Task: Record "To-do"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunCreateTaskPage(var Task: Record "To-do")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetDuration(var Task: Record "To-do"; var IsHandled: Boolean)
     begin
     end;
 
@@ -2911,6 +3012,36 @@ table 5080 "To-do"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateTaskFromInteractLogEntryOnBeforeStartWizard(var Task: Record "To-do"; InteractionLogEntry: Record "Interaction Log Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeUpdateAttendeeTasks(var Task: Record "To-do"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateTeamCode(var Task: Record "To-do"; xTask: Record "To-do"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateSalespersonCode(var Task: Record "To-do"; xTask: Record "To-do"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateContactNo(var Task: Record "To-do"; xTask: Record "To-do"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateType(var Task: Record "To-do"; xTask: Record "To-do"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteAttendeeTask(var Task: Record "To-do"; var IsHandled: Boolean)
     begin
     end;
 }

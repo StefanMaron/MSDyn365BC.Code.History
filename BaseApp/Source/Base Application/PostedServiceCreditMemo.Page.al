@@ -318,11 +318,13 @@ page 5972 "Posted Service Credit Memo"
                     field("Special Scheme Code"; "Special Scheme Code")
                     {
                         ApplicationArea = Basic, Suite;
+                        Editable = false;
                         ToolTip = 'Specifies the Special Scheme Code.';
                     }
                     field("Cr. Memo Type"; "Cr. Memo Type")
                     {
                         ApplicationArea = Basic, Suite;
+                        Editable = false;
                         ToolTip = 'Specifies the Credit Memo Type.';
                     }
                 }
@@ -583,6 +585,26 @@ page 5972 "Posted Service Credit Memo"
                 trigger OnAction()
                 begin
                     ShowActivityLog;
+                end;
+            }
+            action("Update Document")
+            {
+                ApplicationArea = Service;
+                Caption = 'Update Document';
+                Image = Edit;
+                Promoted = true;
+                PromotedCategory = Process;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                ToolTip = 'Add new information that is relevant to the document. You can only edit a few fields because the document has already been posted.';
+
+                trigger OnAction()
+                var
+                    PostedServCrMemoUpdate: Page "Posted Serv. Cr. Memo - Update";
+                begin
+                    PostedServCrMemoUpdate.LookupMode := true;
+                    PostedServCrMemoUpdate.SetRec(Rec);
+                    PostedServCrMemoUpdate.RunModal();
                 end;
             }
         }

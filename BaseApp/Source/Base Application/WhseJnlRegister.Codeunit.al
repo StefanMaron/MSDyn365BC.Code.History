@@ -1,4 +1,4 @@
-codeunit 7303 "Whse. Jnl.-Register"
+﻿codeunit 7303 "Whse. Jnl.-Register"
 {
     TableNo = "Warehouse Journal Line";
 
@@ -20,18 +20,20 @@ codeunit 7303 "Whse. Jnl.-Register"
         Text005: Label 'Do you want to register and post the journal lines?';
 
     local procedure "Code"()
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCode(WhseJnlLine, IsHandled);
+        if IsHandled then
+            exit;
+
         with WhseJnlLine do begin
             WhseJnlTemplate.Get("Journal Template Name");
             WhseJnlTemplate.TestField("Force Registering Report", false);
 
-            if ItemTrackingReclass("Journal Template Name", "Journal Batch Name", "Location Code", 0) then begin
-                if not Confirm(Text005, false) then
-                    exit
-            end else begin
-                if not Confirm(Text001, false) then
-                    exit;
-            end;
+            if not ConfirmRegisterLines(WhseJnlLine) then
+                exit;
 
             TempJnlBatchName := "Journal Batch Name";
 
@@ -58,6 +60,37 @@ codeunit 7303 "Whse. Jnl.-Register"
                 "Line No." := 10000;
             end;
         end;
+    end;
+
+    local procedure ConfirmRegisterLines(WhseJnlLine: Record "Warehouse Journal Line") Result: Boolean
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeConfirmRegisterLines(WhseJnlLine, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
+        with WhseJnlLine do
+            if ItemTrackingReclass("Journal Template Name", "Journal Batch Name", "Location Code", 0) then begin
+                if not Confirm(Text005, false) then
+                    exit(false)
+            end else begin
+                if not Confirm(Text001, false) then
+                    exit(false);
+            end;
+
+        exit(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCode(var WhseJnlLine: Record "Warehouse Journal Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeConfirmRegisterLines(var WhseJnlLine: Record "Warehouse Journal Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
     end;
 }
 

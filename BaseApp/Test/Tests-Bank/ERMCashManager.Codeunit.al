@@ -60,6 +60,7 @@ codeunit 134500 "ERM Cash Manager"
     procedure ChangeCurrencyOnBankAccount()
     var
         BankAccount: Record "Bank Account";
+        GeneralLederSetup: Record "General Ledger Setup";
         Currency: Record Currency;
         Currency2: Record Currency;
     begin
@@ -71,15 +72,42 @@ codeunit 134500 "ERM Cash Manager"
         LibraryERM.FindCurrency(Currency);
         CreateBankAccountWithCurrency(BankAccount, Currency.Code);
         CreatePostCustomerGenJnlLine(BankAccount."No.");
-
+        GeneralLederSetup.get();
         // 2.Exercise: Change Currency on Bank Account.
-        Currency2.SetFilter(Code, '<>%1', Currency.Code);
+        Currency2.SetFilter(Code, '<>%1&<>%2', Currency.Code, GeneralLederSetup."LCY Code");
         asserterror BankAccount.Validate("Currency Code", FindCurrency(Currency2));
 
         // 3.Verification: Error occurs while changing Currency Code on Bank Account.
         Assert.AreNotEqual(
           0, StrPos(GetLastErrorText, BankAccount."No."),
           StrSubstNo(CurrencyErrorErr, BankAccount.FieldCaption(Balance), BankAccount.TableCaption));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure ChangeCurrencyOnBankAccountFromBlankToLCY()
+    var
+        BankAccount: Record "Bank Account";
+        GeneralLederSetup: Record "General Ledger Setup";
+        Currency: Record Currency;
+    begin
+        // Test if Application allows changing the Currency Code in the Bank Account Card
+        // if balance in the Bank Account is not equal to zero.
+
+        // 1.Setup: Create Bank Account with Currency. Create and Post General Journal.
+        Initialize;
+        LibraryERM.FindCurrency(Currency);
+        GeneralLederSetup.get();
+        GeneralLederSetup.validate("LCY Code", Currency.Code);
+        GeneralLederSetup.Modify();
+        CreateBankAccountWithCurrency(BankAccount, '');
+        CreatePostCustomerGenJnlLine(BankAccount."No.");
+
+        // 2.Exercise: Change Currency on Bank Account To LCY.
+        BankAccount.Validate("Currency Code", GeneralLederSetup."LCY Code");
+
+        // 3.Verification: Error occurs while changing Currency Code on Bank Account.
+        Assert.AreEqual(GeneralLederSetup."LCY Code", BankAccount."Currency Code", '');
     end;
 
     [Test]

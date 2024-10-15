@@ -324,7 +324,13 @@ codeunit 99000787 "Create Prod. Order Lines"
         SKU: Record "Stockkeeping Unit";
         MultiLevelStructureCreated: Boolean;
         IncreasePlanningLevel: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckMultiLevelStructure(ProdOrder, Direction, IsHandled);
+        if IsHandled then
+            exit;
+
         ProdOrderComp.SetCurrentKey(Status, "Prod. Order No.", "Prod. Order Line No.", "Item Low-Level Code");
         ProdOrderComp.SetRange(Status, ProdOrder.Status);
         ProdOrderComp.SetRange("Prod. Order No.", ProdOrder."No.");
@@ -601,6 +607,11 @@ codeunit 99000787 "Create Prod. Order Lines"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateProdOrderLine(var ProdOrderLine: Record "Prod. Order Line"; Direction: Option Forward,Backward; LetDueDateDecrease: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckMultiLevelStructure(ProductionOrder: Record "Production Order"; Direction: Option Forward,Backward; var IsHandled: Boolean)
     begin
     end;
 

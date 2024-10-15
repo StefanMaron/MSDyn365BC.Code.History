@@ -51,6 +51,23 @@ page 1351 "Posted Purch. Invoice - Update"
                     Editable = true;
                     ToolTip = 'Specifies the number of the vendor.';
                 }
+                field(OperationDescription; OperationDescription)
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Operation Description';
+                    Editable = true;
+                    MultiLine = true;
+                    ToolTip = 'Specifies the Operation Description.';
+
+                    trigger OnValidate()
+                    var
+                        SIIManagement: Codeunit "SII Management";
+                    begin
+                        SIIManagement.SplitOperationDescription(OperationDescription, "Operation Description", "Operation Description 2");
+                        Validate("Operation Description");
+                        Validate("Operation Description 2");
+                    end;
+                }
                 field("Special Scheme Code"; "Special Scheme Code")
                 {
                     ApplicationArea = Basic, Suite;
@@ -101,8 +118,11 @@ page 1351 "Posted Purch. Invoice - Update"
     }
 
     trigger OnOpenPage()
+    var
+        SIIManagement: Codeunit "SII Management";
     begin
         xPurchInvHeader := Rec;
+        SIIManagement.CombineOperationDescription("Operation Description", "Operation Description 2", OperationDescription);
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
@@ -114,6 +134,7 @@ page 1351 "Posted Purch. Invoice - Update"
 
     var
         xPurchInvHeader: Record "Purch. Inv. Header";
+        OperationDescription: Text[500];
 
     local procedure RecordChanged() IsChanged: Boolean
     begin
@@ -121,6 +142,8 @@ page 1351 "Posted Purch. Invoice - Update"
           ("Payment Reference" <> xPurchInvHeader."Payment Reference") or
           ("Creditor No." <> xPurchInvHeader."Creditor No.") or
           ("Ship-to Code" <> xPurchInvHeader."Ship-to Code") or
+          ("Operation Description" <> xPurchInvHeader."Operation Description") or
+          ("Operation Description 2" <> xPurchInvHeader."Operation Description 2") or
           ("Special Scheme Code" <> xPurchInvHeader."Special Scheme Code") or
           ("Invoice Type" <> xPurchInvHeader."Invoice Type") or
           ("ID Type" <> xPurchInvHeader."ID Type") or

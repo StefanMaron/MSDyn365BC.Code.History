@@ -1,4 +1,4 @@
-table 83 "Item Journal Line"
+﻿table 83 "Item Journal Line"
 {
     Caption = 'Item Journal Line';
     DrillDownPageID = "Item Journal Lines";
@@ -2515,7 +2515,13 @@ table 83 "Item Journal Line"
     var
         ItemJournalTemplate: Record "Item Journal Template";
         SourceCode: Code[10];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforePickDimension(Rec, IsHandled);
+        if IsHandled then
+            exit;
+
         SourceCode := "Source Code";
         if SourceCode = '' then
             if ItemJournalTemplate.Get("Journal Template Name") then
@@ -2727,6 +2733,8 @@ table 83 "Item Journal Line"
         "Variant Code" := ItemLedgEntry2."Variant Code";
         "Applies-to Entry" := ItemLedgEntry2."Entry No.";
         CopyDim(ItemLedgEntry2."Dimension Set ID");
+
+        OnAfterInitRevalJnlLine(Rec, ItemLedgEntry2);
     end;
 
     procedure CopyDocumentFields(DocType: Enum "Item Ledger Document Type"; DocNo: Code[20]; ExtDocNo: Text[35]; SourceCode: Code[10]; NoSeriesCode: Code[20])
@@ -3210,6 +3218,8 @@ table 83 "Item Journal Line"
         else
             if Location.Code <> LocationCode then
                 Location.Get(LocationCode);
+
+        OnAfterGetLocation(Location, LocationCode);
     end;
 
     local procedure GetBin(LocationCode: Code[10]; BinCode: Code[20])
@@ -4077,6 +4087,21 @@ table 83 "Item Journal Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterIsDefaultBin(Location: Record Location; var Result: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetLocation(var Location: Record Location; LocationCode: Code[10])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterInitRevalJnlLine(var ItemJournalLine: Record "Item Journal Line"; ItemLedgEntry2: Record "Item Ledger Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePickDimension(var ItemJournalLine: Record "Item Journal Line"; var IsHandled: Boolean)
     begin
     end;
 }

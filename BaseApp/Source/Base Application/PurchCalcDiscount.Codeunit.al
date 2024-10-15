@@ -95,6 +95,7 @@ codeunit 70 "Purch.-Calc.Discount"
               PurchHeader."Invoice Disc. Code", PurchHeader."Currency Code", CurrencyDate, ChargeBase, VendInvDiscFound);
 
             if VendInvDiscFound and (VendInvDisc."Service Charge" <> 0) then begin
+                OnCalculateInvoiceDiscountOnBeforeCurrencyInitialize(VendPostingGr);
                 Currency.Initialize(PurchHeader."Currency Code");
                 if not UpdateHeader then
                     PurchLine2.SetPurchHeader(PurchHeader);
@@ -334,6 +335,11 @@ codeunit 70 "Purch.-Calc.Discount"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCalcPurchaseDiscount(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalculateInvoiceDiscountOnBeforeCurrencyInitialize(var VendorPostingGroup: record "Vendor Posting Group")
     begin
     end;
 }

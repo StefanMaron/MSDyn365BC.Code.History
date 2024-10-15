@@ -1,4 +1,4 @@
-codeunit 7010 "Purch. Price Calc. Mgt."
+﻿codeunit 7010 "Purch. Price Calc. Mgt."
 {
     ObsoleteState = Pending;
     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
@@ -72,6 +72,7 @@ codeunit 7010 "Purch. Price Calc. Mgt."
                         ResCost.Init();
                         ResCost.Code := "No.";
                         ResCost."Work Type Code" := '';
+                        OnFindPurchLinePriceOnBeforeRunResourceFindCost(ResCost);
                         CODEUNIT.Run(CODEUNIT::"Resource-Find Cost", ResCost);
                         ConvertPriceLCYToFCY("Currency Code", ResCost."Unit Cost");
                         "Direct Unit Cost" :=
@@ -1090,6 +1091,11 @@ codeunit 7010 "Purch. Price Calc. Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnFindPurchLineDiscOnAfterSetFilters(var FromPurchLineDisc: Record "Purchase Line Discount");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnFindPurchLinePriceOnBeforeRunResourceFindCost(var ResCost: record "Resource cost");
     begin
     end;
 

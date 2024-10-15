@@ -321,7 +321,13 @@ report 10748 "Vendor - Overdue Payments"
                     end;
 
                     trigger OnPreDataItem()
+                    var
+                        IsHandled: Boolean;
                     begin
+                        IsHandled := false;
+                        OnBeforeVendorLedgerEntryOnPreDataItem("Vendor Ledger Entry", Vendor, StartDate, EndDate, ShowPayments, IsHandled);
+                        if IsHandled then
+                            CurrReport.Skip();
                         DaysOverdue := 0;
                     end;
                 }
@@ -707,6 +713,11 @@ report 10748 "Vendor - Overdue Payments"
         TempDetailedVendorLedgEntry."Entry No." := EntryNo;
         TempDetailedVendorLedgEntry."Posting Date" := DocumentDate;
         if TempDetailedVendorLedgEntry.Insert() then;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVendorLedgerEntryOnPreDataItem(var VendorLedgerEntry: Record "Vendor Ledger Entry"; var Vendor: Record Vendor; var InitDate: Date; var EndDate: Date; var ShowPayments: Option Overdue,"Legally Overdue",All; var IsHandled: Boolean)
+    begin
     end;
 }
 

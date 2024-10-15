@@ -677,6 +677,7 @@ table 110 "Sales Shipment Header"
 
     procedure StartTrackingSite()
     begin
+        OnBeforeStartTrackingSite(Rec);
         HyperLink(GetTrackingInternetAddr());
     end;
 
@@ -775,6 +776,11 @@ table 110 "Sales Shipment Header"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePrintRecords(var SalesShipmentHeader: Record "Sales Shipment Header"; ShowDialog: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeStartTrackingSite(var SalesShipmentHeader: Record "Sales Shipment Header")
     begin
     end;
 

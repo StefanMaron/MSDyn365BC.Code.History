@@ -399,7 +399,7 @@ report 10710 "Make 349 Declaration"
                                                     Txt :=
                                                       '2' + '349' + FiscalYear + PadStr(VatRegNo, 9, ' ') + PadStr('', 58, ' ') +
                                                       CustVendVatRegNo +
-                                                      PadStr(ConvertStr(UpperCase(Customer2.Name), 'ÁÀÉÈÍÌÓÒÚÙÑÜÇ()"&´', 'AAEEIIOOUUÐUÃ     '), 40, ' ') +
+                                                      PadStr(UpperCase(Customer2.Name), 40, ' ') +
                                                       'S' + PadStr('', 13, ' ') + CustVendWarning349."Original Declaration FY" +
                                                       CustVendWarning349."Original Declaration Period" + TextAmount2 + TextAmount +
                                                       PadStr('', 322, ' ');
@@ -412,7 +412,7 @@ report 10710 "Make 349 Declaration"
                                                         Txt :=
                                                           '2' + '349' + FiscalYear + PadStr(VatRegNo, 9, ' ') + PadStr('', 58, ' ') +
                                                           CustVendVatRegNo +
-                                                          PadStr(ConvertStr(UpperCase(Customer2.Name), 'ÁÀÉÈÍÌÓÒÚÙÑÜÇ()"&´', 'AAEEIIOOUUÐUÃ     '), 40, ' ') +
+                                                          PadStr(UpperCase(Customer2.Name), 40, ' ') +
                                                           'T' + PadStr('', 13, ' ') + CustVendWarning349."Original Declaration FY" +
                                                           CustVendWarning349."Original Declaration Period" + TextAmount2 + TextAmount +
                                                           PadStr('', 322, ' ');
@@ -426,7 +426,7 @@ report 10710 "Make 349 Declaration"
                                                                 Txt :=
                                                                   '2' + '349' + FiscalYear + PadStr(VatRegNo, 9, ' ') + PadStr('', 58, ' ') +
                                                                   CustVendVatRegNo +
-                                                                  PadStr(ConvertStr(UpperCase(Customer2.Name), 'ÁÀÉÈÍÌÓÒÚÙÑÜÇ()"&´', 'AAEEIIOOUUÐUÃ     '), 40, ' ') +
+                                                                  PadStr(UpperCase(Customer2.Name), 40, ' ') +
                                                                   OperationCode[i] + PadStr('', 13, ' ') + CustVendWarning349."Original Declaration FY" +
                                                                   CustVendWarning349."Original Declaration Period" + TextAmount2 + TextAmount +
                                                                   PadStr('', 322, ' ');
@@ -465,7 +465,7 @@ report 10710 "Make 349 Declaration"
                                     Txt :=
                                       '2' + '349' + FiscalYear + PadStr(VatRegNo, 9, ' ') + PadStr('', 58, ' ') +
                                       CustVendVatRegNo +
-                                      PadStr(ConvertStr(UpperCase(Customer2.Name), 'ÁÀÉÈÍÌÓÒÚÙÑÜÇ()"&´', 'AAEEIIOOUUÐUÃ     '), 40, ' ') +
+                                      PadStr(UpperCase(Customer2.Name), 40, ' ') +
                                       OperationCode[i] + ConvertStr(TextAmount, ' ', '0') + PadStr('', 354, ' ');
                                     NoOperations := NoOperations + 1;
                                     TotalAmtShip := TotalAmtShip + Amount[i];
@@ -480,7 +480,7 @@ report 10710 "Make 349 Declaration"
                                 Txt :=
                                   '2' + '349' + FiscalYear + PadStr(VatRegNo, 9, ' ') + PadStr('', 58, ' ') +
                                   CustVendVatRegNo +
-                                  PadStr(ConvertStr(UpperCase(Customer2.Name), 'ÁÀÉÈÍÌÓÒÚÙÑÜÇ()"&´', 'AAEEIIOOUUÐUÃ     '), 40, ' ') +
+                                  PadStr(UpperCase(Customer2.Name), 40, ' ') +
                                   'T' + ConvertStr(TextAmount, ' ', '0') + PadStr('', 354, ' ');
                                 NoOperations := NoOperations + 1;
                                 TotalAmtShip := TotalAmtShip + AmountOpTri;
@@ -494,7 +494,7 @@ report 10710 "Make 349 Declaration"
                                 Txt :=
                                   '2' + '349' + FiscalYear + PadStr(VatRegNo, 9, ' ') + PadStr('', 58, ' ') +
                                   CustVendVatRegNo +
-                                  PadStr(ConvertStr(UpperCase(Customer2.Name), 'ÁÀÉÈÍÌÓÒÚÙÑÜÇ()"&´', 'AAEEIIOOUUÐUÃ     '), 40, ' ') +
+                                  PadStr(UpperCase(Customer2.Name), 40, ' ') +
                                   'S' + ConvertStr(TextAmount, ' ', '0') + PadStr('', 354, ' ');
                                 NoOperations := NoOperations + 1;
                                 TotalAmtShip := TotalAmtShip + AmountEUService;
@@ -507,7 +507,7 @@ report 10710 "Make 349 Declaration"
                                 Txt :=
                                   '2' + '349' + FiscalYear + PadStr(VatRegNo, 9, ' ') + PadStr('', 58, ' ') +
                                   CustVendVatRegNo +
-                                  PadStr(ConvertStr(UpperCase(Customer2.Name), 'ÁÀÉÈÍÌÓÒÚÙÑÜÇ()"&´', 'AAEEIIOOUUÐUÃ     '), 40, ' ') +
+                                  PadStr(UpperCase(Customer2.Name), 40, ' ') +
                                   'E' + PadStr('', 13, ' ') + CustVendWarning349."Original Declaration FY" +
                                   CustVendWarning349."Original Declaration Period" + TextAmount2 + TextAmount +
                                   PadStr('', 322, ' ');
@@ -732,7 +732,7 @@ report 10710 "Make 349 Declaration"
                                                     Txt :=
                                                       '2' + '349' + FiscalYear + PadStr(VatRegNo, 9, ' ') + PadStr('', 58, ' ') +
                                                       CustVendVatRegNo +
-                                                      PadStr(ConvertStr(UpperCase(Vendor2.Name), 'ÁÀÉÈÍÌÓÒÚÙÑÜÇ()"&´', 'AAEEIIOOUUÐUÃ     '), 40, ' ') +
+                                                      PadStr(UpperCase(Vendor2.Name), 40, ' ') +
                                                       'I' + PadStr('', 13, ' ') + CustVendWarning349."Original Declaration FY" +
                                                       CustVendWarning349."Original Declaration Period" + TextAmount2 + TextAmount +
                                                       PadStr('', 322, ' ');
@@ -745,7 +745,7 @@ report 10710 "Make 349 Declaration"
                                                         Txt :=
                                                           '2' + '349' + FiscalYear + PadStr(VatRegNo, 9, ' ') + PadStr('', 58, ' ') +
                                                           CustVendVatRegNo +
-                                                          PadStr(ConvertStr(UpperCase(Vendor2.Name), 'ÁÀÉÈÍÌÓÒÚÙÑÜÇ()"&´', 'AAEEIIOOUUÐUÃ     '), 40, ' ') +
+                                                          PadStr(UpperCase(Vendor2.Name), 40, ' ') +
                                                           'T' + PadStr('', 13, ' ') + CustVendWarning349."Original Declaration FY" +
                                                           CustVendWarning349."Original Declaration Period" + TextAmount2 + TextAmount +
                                                           PadStr('', 322, ' ');
@@ -756,7 +756,7 @@ report 10710 "Make 349 Declaration"
                                                         Txt :=
                                                           '2' + '349' + FiscalYear + PadStr(VatRegNo, 9, ' ') + PadStr('', 58, ' ') +
                                                           CustVendVatRegNo +
-                                                          PadStr(ConvertStr(UpperCase(Vendor2.Name), 'ÁÀÉÈÍÌÓÒÚÙÑÜÇ()"&´', 'AAEEIIOOUUÐUÃ     '), 40, ' ') +
+                                                          PadStr(UpperCase(Vendor2.Name), 40, ' ') +
                                                           'A' + PadStr('', 13, ' ') + CustVendWarning349."Original Declaration FY" +
                                                           CustVendWarning349."Original Declaration Period" + TextAmount2 + TextAmount +
                                                           PadStr('', 322, ' ');
@@ -792,7 +792,7 @@ report 10710 "Make 349 Declaration"
                                 Txt :=
                                   '2' + '349' + FiscalYear + PadStr(VatRegNo, 9, ' ') + PadStr('', 58, ' ') +
                                   CustVendVatRegNo +
-                                  PadStr(ConvertStr(UpperCase(Vendor2.Name), 'ÁÀÉÈÍÌÓÒÚÙÑÜÇ()"&´', 'AAEEIIOOUUÐUÃ     '), 40, ' ') +
+                                  PadStr(UpperCase(Vendor2.Name), 40, ' ') +
                                   'A' + ConvertStr(TextAmount, ' ', '0') + PadStr('', 354, ' ');
                                 NoOperations := NoOperations + 1;
                                 TotalAmtReciv := TotalAmtReciv + NormalAmount;
@@ -806,7 +806,7 @@ report 10710 "Make 349 Declaration"
                                 Txt :=
                                   '2' + '349' + FiscalYear + PadStr(VatRegNo, 9, ' ') + PadStr('', 58, ' ') +
                                   CustVendVatRegNo +
-                                  PadStr(ConvertStr(UpperCase(Vendor2.Name), 'ÁÀÉÈÍÌÓÒÚÙÑÜÇ()"&´', 'AAEEIIOOUUÐUÃ     '), 40, ' ') +
+                                  PadStr(UpperCase(Vendor2.Name), 40, ' ') +
                                   'T' + ConvertStr(TextAmount, ' ', '0') + PadStr('', 354, ' ');
                                 NoOperations := NoOperations + 1;
                                 TotalAmtReciv := TotalAmtReciv + AmountOpTri;
@@ -821,7 +821,7 @@ report 10710 "Make 349 Declaration"
                             Txt :=
                               '2' + '349' + FiscalYear + PadStr(VatRegNo, 9, ' ') + PadStr('', 58, ' ') +
                               CustVendVatRegNo +
-                              PadStr(ConvertStr(UpperCase(Vendor2.Name), 'ÁÀÉÈÍÌÓÒÚÙÑÜÇ()"&´', 'AAEEIIOOUUÐUÃ     '), 40, ' ') +
+                              PadStr(UpperCase(Vendor2.Name), 40, ' ') +
                               'I' + ConvertStr(TextAmount, ' ', '0') + PadStr('', 354, ' ');
                             NoOperations := NoOperations + 1;
                             TotalAmtReciv := TotalAmtReciv + AmountEUService;
@@ -833,7 +833,7 @@ report 10710 "Make 349 Declaration"
                             Txt :=
                               '2' + '349' + FiscalYear + PadStr(VatRegNo, 9, ' ') + PadStr('', 58, ' ') +
                               CustVendVatRegNo +
-                              PadStr(ConvertStr(UpperCase(Vendor2.Name), 'ÁÀÉÈÍÌÓÒÚÙÑÜÇ()"&´', 'AAEEIIOOUUÐUÃ     '), 40, ' ') +
+                              PadStr(UpperCase(Vendor2.Name), 40, ' ') +
                               'E' + PadStr('', 13, ' ') + CustVendWarning349."Original Declaration FY" +
                               CustVendWarning349."Original Declaration Period" + TextAmount +
                               PadStr('', 322, ' ');
@@ -1041,9 +1041,9 @@ report 10710 "Make 349 Declaration"
         if (TextOpAmount <> PadStr('', 15, '0')) or (TextCorreAmount <> PadStr('', 15, '0')) then begin
             Txt :=
               '1' + '349' + FiscalYear + PadStr(VatRegNo, 9, ' ') +
-              PadStr(ConvertStr(UpperCase(CompanyInfo.Name), 'ÁÀÉÈÍÌÓÒÚÙÑÜÇ()"&´', 'AAEEIIOOUUÐUÃ     '), 40, ' ') + DeclarationMT +
+              PadStr(UpperCase(CompanyInfo.Name), 40, ' ') + DeclarationMT +
               ConvertStr(Format(ContactTelephone, 9), ' ', '0') +
-              PadStr(ConvertStr(UpperCase(ContactName), 'ÁÀÉÈÍÌÓÒÚÙÑÜÇ()"&´', 'AAEEIIOOUUÐUÃ     '), 40, ' ') +
+              PadStr(UpperCase(ContactName), 40, ' ') +
               DeclarationNum +
               '  ' + PadStr('', 13, '0') + GetPeriodAsText +
               ConvertStr(Format(NoOperations, 9), ' ', '0') + ConvertStr(TextOpAmount, ' ', '0') +
@@ -1053,6 +1053,7 @@ report 10710 "Make 349 Declaration"
             OutFile.Seek(0);
             OutStr.WriteText(Txt);
             OutFile.Close;
+            ConvertFileEncoding(FileName, Iso88591Lbl);
         end else begin
             OutFile.Close;
             Erase(FileName);
@@ -1069,6 +1070,42 @@ report 10710 "Make 349 Declaration"
             if not Download(FileName, Text1100006, '', Text1100017, ToFile) then
                 exit;
         Message(Text1100010, ToFile);
+    end;
+
+    local procedure ConvertFileEncoding(FileName: Text; NewEncodingCode: Text)
+    var
+        DotNetEncoding: Codeunit DotNet_Encoding;
+        DotNetStreamWriter: Codeunit DotNet_StreamWriter;
+        OriginalEncoding: DotNet Encoding;
+        NewEncoding: DotNet Encoding;
+        InStr: InStream;
+        FileHandle: File;
+        FileContents: Text;
+    begin
+        OriginalEncoding := OriginalEncoding.GetEncoding(Utf8Lbl);
+        NewEncoding := NewEncoding.GetEncoding(NewEncodingCode);
+        DotNetEncoding.SetEncoding(NewEncoding);
+
+        if not FILE.Exists(FileName) then
+            exit;
+
+        FileHandle.Open(FileName, TextEncoding::UTF8);
+        FileHandle.CreateInStream(InStr);
+
+        InStr.Read(FileContents);
+        FileHandle.Close();
+
+        IF not Erase(FileName) then
+            exit;
+        OutFile.Create(FileName);
+        OutFile.CreateOutStream(OutStr);
+
+        DotNetStreamWriter.StreamWriter(OutStr, DotNetEncoding);
+        DotNetStreamWriter.Write(
+            NewEncoding.GetString(
+                NewEncoding.Convert(OriginalEncoding, NewEncoding, OriginalEncoding.GetBytes(FileContents))));
+        DotNetStreamWriter.Close();
+        OutFile.Close();
     end;
 
     trigger OnPreReport()
@@ -1105,9 +1142,9 @@ report 10710 "Make 349 Declaration"
             if not Confirm(Text1100014, false) then
                 Error(Text1100011);
 
-            OutFile.Create(FileName);
+            OutFile.Create(FileName, TextEncoding::UTF8);
         end else
-            OutFile.Create(FileName);
+            OutFile.Create(FileName, TextEncoding::UTF8);
         OutFile.CreateOutStream(OutStr);
         if ColumnGPPG = '' then
             Message(Text1100005)
@@ -1207,6 +1244,8 @@ report 10710 "Make 349 Declaration"
         LocationDiffCountryCode: Boolean;
         Text1100016: Label 'Default';
         Text1100017: Label 'Txt Files|*.txt|All Files|*.*''';
+        Iso88591Lbl: Label 'ISO-8859-1';
+        Utf8Lbl: Label 'Utf-8';
         OutStr: OutStream;
         PeriodFreqChange: Boolean;
         PeriodChangeText: Text[1];

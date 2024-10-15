@@ -24,6 +24,7 @@ codeunit 136201 "Marketing Contacts"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         ActiveDirectoryMockEvents: Codeunit "Active Directory Mock Events";
         LibraryTemplates: Codeunit "Library - Templates";
+        LibraryHumanResource: Codeunit "Library - Human Resource";
         IsInitialized: Boolean;
         RelationErrorServiceTier: Label '%1 must have a value in %2: Primary Key=. It cannot be zero or empty.';
         ValidationError: Label '%1: %2 must exist.';
@@ -2651,7 +2652,7 @@ codeunit 136201 "Marketing Contacts"
         SalesQuoteEmailDialogForContactInternal();
     end;
 
-    // [Test]
+    [Test]
     [HandlerFunctions('ContactListModalPageHandler,ConfirmHandlerTrue,CustomerTempModalFormHandler,EmailEditorHandler,CloseEmailEditorHandler')]
     [Scope('OnPrem')]
     procedure SalesQuoteEmailDialogForContact()
@@ -4478,6 +4479,157 @@ codeunit 136201 "Marketing Contacts"
         Contact.TestField("Mobile Phone No.", BankAccount."Mobile Phone No.");
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure LastModifiedDateTimeValidatedCorrectlyInCustomerTableWhenTheNameOfRelatedContactChanged()
+    var
+        ContactCompany: Record Contact;
+        Customer: Record Customer;
+        ContactBusinessRelation: Record "Contact Business Relation";
+        ContactCard: TestPage "Contact Card";
+        LastModifiedDateTime: DateTime;
+    begin
+        // [SCENARIO 371001] "Last Modified Date Time" in table Customer updated when the Name in related Contact was changed
+        Initialize();
+
+        // [GIVEN] Created Contact with type Company and Customer related to it
+        LibraryMarketing.CreateCompanyContact(ContactCompany);
+        LibrarySales.CreateCustomer(Customer);
+        LibraryMarketing.CreateBusinessRelationBetweenContactAndCustomer(ContactBusinessRelation, ContactCompany."No.", Customer."No.");
+
+        // [GIVEN] Update "Last Modified Date Time" and "Last Date Modified"
+        Customer."Last Modified Date Time" := CreateDateTime(WorkDate - 1, 0T);
+        Customer."Last Date Modified" := WorkDate - 1;
+        Customer.Modify();
+
+        // [GIVEN] Memorize of the "Last Modified Date Time"
+        LastModifiedDateTime := Customer."Last Modified Date Time";
+
+        // [WHEN] Change the Name of Contact usin ContactCard
+        ContactCard.OpenEdit();
+        ContactCard.FILTER.SetFilter("No.", ContactCompany."No.");
+        ContactCard.First();
+        ContactCard.Name.SetValue(LibraryRandom.RandText(20));
+        ContactCard.Close();
+        Customer.Get(Customer."No.");
+
+        // [THEN] The "Last Modified Date Time" and "Last Date Modified" were changed
+        Assert.AreNotEqual(Customer."Last Modified Date Time", LastModifiedDateTime, '');
+        Assert.AreNotEqual(Customer."Last Date Modified", DT2Date(LastModifiedDateTime), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LastModifiedDateTimeValidatedCorrectlyInVendorTableWhenTheNameOfRelatedContactChanged()
+    var
+        ContactCompany: Record Contact;
+        Vendor: Record Vendor;
+        ContactCard: TestPage "Contact Card";
+        LastModifiedDateTime: DateTime;
+    begin
+        // [SCENARIO 371001] "Last Modified Date Time" in table Vendor updated when the Name in related Contact was changed
+        Initialize();
+
+        // [GIVEN] Created Contact with type Company and Vendor related to it
+        LibraryMarketing.CreateCompanyContact(ContactCompany);
+        LibraryPurchase.CreateVendor(Vendor);
+        CreateBusinessRelationBetweenContactAndVendor(ContactCompany."No.", Vendor."No.");
+
+        // [GIVEN] Update "Last Modified Date Time" and "Last Date Modified"
+        Vendor."Last Modified Date Time" := CreateDateTime(WorkDate - 1, 0T);
+        Vendor."Last Date Modified" := WorkDate - 1;
+        Vendor.Modify();
+
+        // [GIVEN] Memorize of the "Last Modified Date Time"
+        LastModifiedDateTime := Vendor."Last Modified Date Time";
+
+        // [WHEN] Change the Name of Contact usin ContactCard
+        ContactCard.OpenEdit();
+        ContactCard.FILTER.SetFilter("No.", ContactCompany."No.");
+        ContactCard.First();
+        ContactCard.Name.SetValue(LibraryRandom.RandText(20));
+        ContactCard.Close();
+        Vendor.Get(Vendor."No.");
+
+        // [THEN] The "Last Modified Date Time" and "Last Date Modified" were changed
+        Assert.AreNotEqual(Vendor."Last Modified Date Time", LastModifiedDateTime, '');
+        Assert.AreNotEqual(Vendor."Last Date Modified", DT2Date(LastModifiedDateTime), '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LastModifiedDateTimeValidatedCorrectlyInBankAccountTableWhenTheNameOfRelatedContactChanged()
+    var
+        ContactCompany: Record Contact;
+        BankAccount: Record "Bank Account";
+        ContactCard: TestPage "Contact Card";
+        LastModifiedDate: Date;
+    begin
+        // [SCENARIO 371001] "Last Modified Date Time" in table Bank Account updated when the Name in related Contact was changed
+        Initialize();
+
+        // [GIVEN] Created Contact with type Company and Bank Account related to it
+        LibraryMarketing.CreateCompanyContact(ContactCompany);
+        LibraryERM.CreateBankAccount(BankAccount);
+        CreateBusinessRelationBetweenContactAndBankAccount(ContactCompany."No.", BankAccount."No.");
+
+        // [GIVEN] Update "Last Modified Date Time" and "Last Date Modified"
+        BankAccount."Last Date Modified" := WorkDate - 1;
+        BankAccount.Modify();
+
+        // [GIVEN] Memorize of the "Last Modified Date Time"
+        LastModifiedDate := BankAccount."Last Date Modified";
+
+        // [WHEN] Change the Name of Contact usin ContactCard
+        ContactCard.OpenEdit();
+        ContactCard.FILTER.SetFilter("No.", ContactCompany."No.");
+        ContactCard.First();
+        ContactCard.Name.SetValue(LibraryRandom.RandText(20));
+        ContactCard.Close();
+        BankAccount.Get(BankAccount."No.");
+
+        // [THEN] The "Last Date Modified" was changed
+        Assert.AreNotEqual(BankAccount."Last Date Modified", LastModifiedDate, '');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure LastModifiedDateTimeValidatedCorrectlyInEmployeeTableWhenTheNameOfRelatedContactChanged()
+    var
+        ContactCompany: Record Contact;
+        Employee: Record Employee;
+        ContactCard: TestPage "Contact Card";
+        LastModifiedDateTime: DateTime;
+    begin
+        // [SCENARIO 371001] "Last Modified Date Time" in table Employee updated when the Name in related Contact was changed
+        Initialize();
+
+        // [GIVEN] Created Contact with type Company and Employee related to it
+        LibraryMarketing.CreateCompanyContact(ContactCompany);
+        LibraryHumanResource.CreateEmployee(Employee);
+        CreateBusinessRelationBetweenContactAndEmployee(ContactCompany."No.", Employee."No.");
+
+        // [GIVEN] Update "Last Modified Date Time" and "Last Date Modified"
+        Employee."Last Modified Date Time" := CreateDateTime(WorkDate - 1, 0T);
+        Employee."Last Date Modified" := WorkDate - 1;
+        Employee.Modify();
+
+        // [GIVEN] Memorize of the "Last Modified Date Time"
+        LastModifiedDateTime := Employee."Last Modified Date Time";
+
+        // [WHEN] Change the Name of Contact usin ContactCard
+        ContactCard.OpenEdit();
+        ContactCard.FILTER.SetFilter("No.", ContactCompany."No.");
+        ContactCard.First();
+        ContactCard.Name.SetValue(LibraryRandom.RandText(20));
+        ContactCard.Close();
+        Employee.Get(Employee."No.");
+
+        // [THEN] The "Last Modified Date Time" and "Last Date Modified" were changed
+        Assert.AreNotEqual(Employee."Last Modified Date Time", LastModifiedDateTime, '');
+        Assert.AreNotEqual(Employee."Last Date Modified", DT2Date(LastModifiedDateTime), '');
+    end;
+
     local procedure Initialize()
     var
         MarketingSetup: Record "Marketing Setup";
@@ -5204,6 +5356,42 @@ codeunit 136201 "Marketing Contacts"
         LibraryReportDataset.AssertElementWithValueExists('ContactAddress4', Contact.City + ', ' + Contact."Post Code");
         LibraryReportDataset.AssertElementWithValueExists('ContactAddress5', Contact.County);
         LibraryReportDataset.AssertElementWithValueExists('ContactAddress6', CountryRegion.Name);
+    end;
+
+    local procedure CreateBusinessRelationBetweenContactAndVendor(ContactNo: Code[20]; VendorNo: Code[20])
+    var
+        BusinessRelation: Record "Business Relation";
+        ContactBusinessRelation: Record "Contact Business Relation";
+    begin
+        LibraryMarketing.CreateBusinessRelation(BusinessRelation);
+        LibraryMarketing.CreateContactBusinessRelation(ContactBusinessRelation, ContactNo, BusinessRelation.Code);
+        ContactBusinessRelation."Link to Table" := ContactBusinessRelation."Link to Table"::Vendor;
+        ContactBusinessRelation."No." := VendorNo;
+        ContactBusinessRelation.Modify(true);
+    end;
+
+    local procedure CreateBusinessRelationBetweenContactAndBankAccount(ContactNo: Code[20]; BankAccountNo: Code[20])
+    var
+        BusinessRelation: Record "Business Relation";
+        ContactBusinessRelation: Record "Contact Business Relation";
+    begin
+        LibraryMarketing.CreateBusinessRelation(BusinessRelation);
+        LibraryMarketing.CreateContactBusinessRelation(ContactBusinessRelation, ContactNo, BusinessRelation.Code);
+        ContactBusinessRelation."Link to Table" := ContactBusinessRelation."Link to Table"::"Bank Account";
+        ContactBusinessRelation."No." := BankAccountNo;
+        ContactBusinessRelation.Modify(true);
+    end;
+
+    local procedure CreateBusinessRelationBetweenContactAndEmployee(ContactNo: Code[20]; EmployeeNo: Code[20])
+    var
+        BusinessRelation: Record "Business Relation";
+        ContactBusinessRelation: Record "Contact Business Relation";
+    begin
+        LibraryMarketing.CreateBusinessRelation(BusinessRelation);
+        LibraryMarketing.CreateContactBusinessRelation(ContactBusinessRelation, ContactNo, BusinessRelation.Code);
+        ContactBusinessRelation."Link to Table" := ContactBusinessRelation."Link to Table"::Employee;
+        ContactBusinessRelation."No." := EmployeeNo;
+        ContactBusinessRelation.Modify(true);
     end;
 
     [ModalPageHandler]

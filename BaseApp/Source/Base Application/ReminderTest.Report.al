@@ -350,6 +350,8 @@ report 122 "Reminder - Test"
                                     VATAmountLine.InsertLine;
                                 end;
 
+                            ReminderInterestAmount := 0;
+
                             case Type of
                                 Type::"G/L Account":
                                     "Remaining Amount" := Amount;

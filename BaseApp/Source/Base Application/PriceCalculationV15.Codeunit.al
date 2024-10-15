@@ -476,7 +476,7 @@ codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
                             ResourceCost."Work Type Code" := '';
                             CODEUNIT.Run(CODEUNIT::"Resource-Find Cost", ResourceCost);
                             PriceListLine."Unit Cost" := ResourceCost."Unit Cost";
-                            PriceListLine."Unit Price" := ResourceCost."Direct Unit Cost";
+                            PriceListLine."Direct Unit Cost" := ResourceCost."Direct Unit Cost";
                         end;
                 end;
         end;
