@@ -905,6 +905,53 @@ codeunit 137007 "SCM Inventory Costing"
         Assert.RecordIsNotEmpty(GLEntry);
     end;
 
+    [Test]
+    [HandlerFunctions('CalcInvValueRequestPagetHandler')]
+    [Scope('OnPrem')]
+    procedure CalcInventoryValueCalculatePerItemAvalability()
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        CalculateInventoryValue: Report "Calculate Inventory Value";
+    begin
+        // [FEATURE] [Calculate Inventory Value] [UI]
+        // [SCENARIO 358527] 'Update Standard Cost' option is enabled when 'Calculate Per' = Item Ledger Entry in Calculate Inventory Value report
+        Initialize;
+        InitItemJournalLine(ItemJournalLine);
+
+        LibraryVariableStorage.Enqueue(CalculatePerValues::Item);
+        CalculateInventoryValue.SetItemJnlLine(ItemJournalLine);
+        Commit;
+        CalculateInventoryValue.Run;
+
+        Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, 'Update Standard Cost should be enabled');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, '');
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
+    [Test]
+    [HandlerFunctions('CalcInvValueRequestPagetHandler')]
+    [Scope('OnPrem')]
+    procedure CalcInventoryValueCalculatePerItemLedgerEntryAvalability()
+    var
+        ItemJournalLine: Record "Item Journal Line";
+        CalculateInventoryValue: Report "Calculate Inventory Value";
+    begin
+        // [FEATURE] [Calculate Inventory Value] [UI]
+        // [SCENARIO 358527] 'Update Standard Cost' option is enabled when 'Calculate Per' = Item Ledger Entry in Calculate Inventory Value report
+        Initialize;
+
+        InitItemJournalLine(ItemJournalLine);
+
+        LibraryVariableStorage.Enqueue(CalculatePerValues::"Item Ledger Entry");
+        CalculateInventoryValue.SetItemJnlLine(ItemJournalLine);
+        Commit;
+        CalculateInventoryValue.Run;
+
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, 'Update Standard Cost should be disabled');
+        Assert.IsFalse(LibraryVariableStorage.DequeueBoolean, '');
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1269,6 +1316,15 @@ codeunit 137007 "SCM Inventory Costing"
         ItemJournalLine.Validate("Unit Cost (Revalued)", CostAmount);
         ItemJournalLine.Modify();
         LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+    end;
+
+    local procedure InitItemJournalLine(var ItemJournalLine: Record "Item Journal Line")
+    var
+        ItemJournalBatch: Record "Item Journal Batch";
+    begin
+        SelectItemJournalBatch(ItemJournalBatch);
+        ItemJournalLine."Journal Template Name" := ItemJournalBatch."Journal Template Name";
+        ItemJournalLine."Journal Batch Name" := ItemJournalBatch.Name;
     end;
 
     local procedure MockItemWithManufacturingCosts(var Item: Record Item; ReplenishmentSystem: Option)
@@ -1752,6 +1808,15 @@ codeunit 137007 "SCM Inventory Costing"
             "No.".AssertEquals(ItemNo);
         end;
         Assert.IsFalse(BOMStructure.Next, BOMStructureErr);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure CalcInvValueRequestPagetHandler(var CalculateInventoryValue: TestRequestPage "Calculate Inventory Value")
+    begin
+        CalculateInventoryValue.CalculatePer.SetValue(LibraryVariableStorage.DequeueInteger);
+        LibraryVariableStorage.Enqueue(CalculateInventoryValue.UpdStdCost.Enabled);
+        LibraryVariableStorage.Enqueue(CalculateInventoryValue.UpdStdCost.AsBoolean);
     end;
 }
 

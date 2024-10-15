@@ -73,9 +73,10 @@ codeunit 5341 "CRM Int. Table. Subscriber"
             CRMConnectionSetup.Get();
             if CRMConnectionSetup."Is Enabled" or CDSIntegrationImpl.IsIntegrationEnabled() then begin
                 ConnectionID := Format(CreateGuid());
-                if CDSIntegrationImpl.IsIntegrationEnabled() then
-                    CDSIntegrationImpl.RegisterConnection(ConnectionID)
-                else
+                if CDSIntegrationImpl.IsIntegrationEnabled() then begin
+                    CDSIntegrationImpl.RegisterConnection(ConnectionID);
+                    SetDefaultTableConnection(TABLECONNECTIONTYPE::CRM, ConnectionID, false)
+                end else
                     CRMConnectionSetup.RegisterConnectionWithName(ConnectionID);
                 RecRef.Open(IntegrationTableMapping."Integration Table ID");
                 IntegrationTableMapping.SetIntRecordRefFilter(RecRef);

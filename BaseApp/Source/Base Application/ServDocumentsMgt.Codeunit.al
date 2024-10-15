@@ -1,4 +1,4 @@
-codeunit 5988 "Serv-Documents Mgt."
+﻿codeunit 5988 "Serv-Documents Mgt."
 {
     Permissions = TableData "Invoice Post. Buffer" = imd,
                   TableData "Service Header" = imd,
@@ -554,6 +554,7 @@ codeunit 5988 "Serv-Documents Mgt."
                     repeat
                         ServLine.Copy(PServLine);
                         ServLine."Posting Date" := "Posting Date";
+                        OnPrepareDocumentOnPServLineLoopOnBeforeServLineInsert(ServLine);
                         ServLine.Insert(); // temptable
                     until PServLine.Next() = 0;
                 ServLinesPassed := false;
@@ -1166,12 +1167,7 @@ codeunit 5988 "Serv-Documents Mgt."
            (CurrentServLine."Shipment No." = '') and
            (CurrentServLine."Document Type" <> CurrentServLine."Document Type"::Order)
         then begin
-            ServLedgEntry.Reset();
-            ServLedgEntry.SetCurrentKey("Service Contract No.");
-            ServLedgEntry.SetRange("Service Contract No.", CurrentServLine."Contract No.");
-            ServLedgEntry.SetRange("Service Order No.", '');
-            ServLedgEntry.SetRange(Open, true);
-            ServLedgEntry.SetFilter("Entry No.", '<%1', ServLedgEntryNo);
+            SetServiceLedgerEntryFilters(ServLedgEntry, CurrentServLine."Contract No.");
             if not ServLedgEntry.IsEmpty and (ServHeader."Contract No." <> '') then
                 Error(Text041, ServLedgEntry.FieldCaption(Open), CurrentServLine."Contract No.");
         end;
@@ -1323,6 +1319,9 @@ codeunit 5988 "Serv-Documents Mgt."
                         if ServDocType = DATABASE::"Service Header" then
                             TestField("Shipment No.");
                     end;
+
+                    if (Type = Type::Item) and ("No." <> '') then
+                        TestField("Unit of Measure Code");
 
                     if "Qty. per Unit of Measure" = 0 then
                         "Qty. per Unit of Measure" := 1;
@@ -2041,6 +2040,18 @@ codeunit 5988 "Serv-Documents Mgt."
         ServPostingJnlsMgt.PostResJnlLineShip(TempServLine, DocNo, '');
     end;
 
+    local procedure SetServiceLedgerEntryFilters(var ServLedgEntry: Record "Service Ledger Entry"; ServiceContractNo: Code[20])
+    begin
+        ServLedgEntry.Reset();
+        ServLedgEntry.SetCurrentKey("Service Contract No.");
+        ServLedgEntry.SetRange("Service Contract No.", ServiceContractNo);
+        ServLedgEntry.SetRange("Service Order No.", '');
+        ServLedgEntry.SetRange(Open, true);
+        ServLedgEntry.SetFilter("Entry No.", '<%1', ServLedgEntryNo);
+
+        OnAfterSetServiceLedgerEntryFilters(ServLedgEntry);
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckCertificateOfSupplyStatus(ServShptHeader: Record "Service Shipment Header"; ServShptLine: Record "Service Shipment Line")
     begin
@@ -2294,6 +2305,16 @@ codeunit 5988 "Serv-Documents Mgt."
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateShptLinesOnInvOnAfterServiceShptLineModify(ServiceLine: Record "Service Line"; ServiceInvoiceHeader: Record "Service Invoice Header"; ServiceShipmentHeader: Record "Service Shipment Header"; ServiceShipmentLine: Record "Service Shipment Line"; TempTrackingSpecification: Record "Tracking Specification" temporary; TrackingSpecificationExists: Boolean; QtyToBeInvoiced: Decimal; QtyToBeInvoicedBase: Decimal; QtyToBeConsumed: Decimal; QtyToBeConsumedBase: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnPrepareDocumentOnPServLineLoopOnBeforeServLineInsert(var ServLine: Record "Service Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetServiceLedgerEntryFilters(var ServLedgEntry: Record "Service Ledger Entry")
     begin
     end;
 }

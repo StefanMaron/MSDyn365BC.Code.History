@@ -132,7 +132,7 @@ page 5934 "Service Invoice Subform"
                 field("Tax Group Code"; "Tax Group Code")
                 {
                     ApplicationArea = SalesTax;
-                    ShowMandatory = true;
+                    ShowMandatory = "Tax Area Code" <> '';
                     ToolTip = 'Specifies the tax group that is used to calculate and post sales tax.';
                 }
                 field("Line Discount %"; "Line Discount %")
@@ -180,6 +180,12 @@ page 5934 "Service Invoice Subform"
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the service item number linked to this service line.';
+                    Visible = false;
+                }
+                field("Service Item Serial No."; "Service Item Serial No.")
+                {
+                    ApplicationArea = Service;
+                    ToolTip = 'Specifies the serial number of the service item to which this service line is linked.';
                     Visible = false;
                 }
                 field("Appl.-to Service Entry"; "Appl.-to Service Entry")

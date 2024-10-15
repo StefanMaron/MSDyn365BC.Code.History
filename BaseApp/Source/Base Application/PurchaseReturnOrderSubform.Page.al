@@ -266,7 +266,7 @@ page 6641 "Purchase Return Order Subform"
                 field("Tax Group Code"; "Tax Group Code")
                 {
                     ApplicationArea = SalesTax;
-                    ShowMandatory = true;
+                    ShowMandatory = "Tax Area Code" <> '';
                     ToolTip = 'Specifies the tax group that is used to calculate and post sales tax.';
 
                     trigger OnValidate()
