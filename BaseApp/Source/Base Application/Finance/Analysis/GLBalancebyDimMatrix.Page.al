@@ -646,6 +646,10 @@ page 9233 "G/L Balance by Dim. Matrix"
     trigger OnFindRecord(Which: Text): Boolean
     begin
         FindNext := false;
+        if AnalysisByDimParameters."Line Dim Option" = AnalysisByDimParameters."Line Dim Option"::"G/L Account" then begin
+            FindNext := true;
+            exit(Rec.Find(Which));
+        end;
         exit(FindRec(AnalysisByDimParameters."Line Dim Option", Rec, Which));
     end;
 
@@ -813,18 +817,12 @@ page 9233 "G/L Balance by Dim. Matrix"
         BusUnit: Record "Business Unit";
         Period: Record Date;
         DimVal: Record "Dimension Value";
-        DimensionCodeBuffer: Record "Dimension Code Buffer";
         PeriodPageMgt: Codeunit PeriodPageManagement;
     begin
         OnBeforeFindRec(DimOption, DimVal);
         case DimOption of
             DimOption::"G/L Account":
                 begin
-                    if (DimCodeBuf.Code <> '') or (not (DimensionCodeBuffer.Get(DimCodeBuf.Code))) then begin
-                        FindNext := true;
-                        exit(DimCodeBuf.Find(Which));
-                    end;
-                    DimCodeBuf.DeleteAll();
                     GLAcc."No." := DimCodeBuf.Code;
                     if AnalysisByDimParameters."Account Filter" <> '' then
                         GLAcc.SetFilter("No.", AnalysisByDimParameters."Account Filter");
@@ -901,8 +899,11 @@ page 9233 "G/L Balance by Dim. Matrix"
                     if AnalysisByDimParameters."Account Filter" <> '' then
                         GLAcc.SetFilter("No.", AnalysisByDimParameters."Account Filter");
                     ResultSteps := GLAcc.Next(Steps);
-                    if ResultSteps <> 0 then
+                    if ResultSteps <> 0 then begin
                         CopyGLAccToBuf(GLAcc, DimCodeBuf);
+                        if not DimCodeBuf.Get(GLAcc."No.") then
+                            DimCodeBuf.Insert();
+                    end;
                 end;
             DimOption::Period:
                 begin
@@ -957,7 +958,6 @@ page 9233 "G/L Balance by Dim. Matrix"
             Totaling := TheGLAcc.Totaling;
             Indentation := TheGLAcc.Indentation;
             "Show in Bold" := TheGLAcc."Account Type" <> TheGLAcc."Account Type"::Posting;
-            Insert();
         end;
     end;
 
@@ -1515,6 +1515,7 @@ page 9233 "G/L Balance by Dim. Matrix"
                     if GLAccount.FindSet() then
                         repeat
                             CopyGLAccToBuf(GLAccount, DimCodeBuf);
+                            DimCodeBuf.Insert();
                         until GLAccount.Next() = 0;
                 end;
         end;

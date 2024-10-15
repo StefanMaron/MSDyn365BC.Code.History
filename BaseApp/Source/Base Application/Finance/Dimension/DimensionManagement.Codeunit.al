@@ -544,13 +544,18 @@ codeunit 408 DimensionManagement
     local procedure CheckDimValueComb(Dim1: Code[20]; Dim1Value: Code[20]; Dim2: Code[20]; Dim2Value: Code[20]): Boolean
     var
         DimValueCombination: Record "Dimension Value Combination";
+        IsHandled: Boolean;
     begin
         OnBeforeCheckDimValueComb(DimValueCombination);
 
         if DimValueCombination.Get(Dim1, Dim1Value, Dim2, Dim2Value) then begin
-            LogError(
-              DimValueCombination.RecordId, 0, StrSubstNo(Text001, Dim1, Dim1Value, Dim2, Dim2Value), '');
-            exit(false);
+            IsHandled := false;
+            OnCheckDimValueCombOnBeforeLogError(Dim1, Dim1Value, Dim2, Dim2Value, IsHandled);
+            if not IsHandled then begin
+                LogError(
+                  DimValueCombination.RecordId, 0, StrSubstNo(Text001, Dim1, Dim1Value, Dim2, Dim2Value), '');
+                exit(false);
+            end;
         end;
         exit(true);
     end;
@@ -1443,12 +1448,15 @@ codeunit 408 DimensionManagement
         if not IsHandled then begin
             if (DimCode <> '') and (DimValCode <> '') then
                 if DimVal.Get(DimCode, DimValCode) then begin
-                    if DimVal.Blocked then begin
-                        LogError(
-                          DimVal.RecordId, DimVal.FieldNo(Blocked),
-                          StrSubstNo(DimValueBlockedErr, DimVal.TableCaption(), DimCode, DimValCode), '');
-                        exit(false);
-                    end;
+                    IsHandled := false;
+                    OnCheckDimValueOnBeforeCheckDimValBlocked(DimCode, DimValCode, Result, IsHandled, DimVal);
+                    if not IsHandled then
+                        if DimVal.Blocked then begin
+                            LogError(
+                              DimVal.RecordId, DimVal.FieldNo(Blocked),
+                              StrSubstNo(DimValueBlockedErr, DimVal.TableCaption(), DimCode, DimValCode), '');
+                            exit(false);
+                        end;
                     if not CheckDimValueAllowed(DimVal) then
                         exit(false);
                 end else begin
@@ -3231,6 +3239,16 @@ codeunit 408 DimensionManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCopyJobTaskDimToJobTaskDim(JobNo: Code[20]; JobTaskNo: Code[20]; NewJobNo: Code[20]; NewJobTaskNo: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckDimValueCombOnBeforeLogError(Dim1: Code[20]; Dim1Value: Code[20]; Dim2: Code[20]; Dim2Value: Code[20]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckDimValueOnBeforeCheckDimValBlocked(DimCode: Code[20]; DimValCode: Code[20]; var Result: Boolean; var IsHandled: Boolean; var DimensionValue: Record "Dimension Value")
     begin
     end;
 }

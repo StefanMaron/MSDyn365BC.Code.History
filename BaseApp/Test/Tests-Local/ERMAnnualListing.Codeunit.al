@@ -52,6 +52,7 @@ codeunit 144005 "ERM Annual Listing"
         TurnOverSumCapTxt: Label 'TurnOverSum';
         VATAmountSumCapTxt: Label 'VATAmountSum';
         ClientListingTxt: Label '//ClientListing';
+        VATRegistrationNoErr: Label 'VAT Registration must be equal';
 
     [Test]
     [HandlerFunctions('VatAnnualListingDiskRequestPageHandler')]
@@ -692,6 +693,8 @@ codeunit 144005 "ERM Annual Listing"
         // [GIVEN] Create a Customer with "Enterprise No."
         LibraryBEHelper.CreateDomesticCustomer(Customer[1]);
         LibraryBEHelper.CreateDomesticCustomer(Customer[2]);
+        Customer[2]."VAT Liable" := false;
+        Customer[2].Modify();
 
         // [GIVEN] Posted Invoice for Customer.
         CreateAndPostSalesDocumentInPeriod(Customer[1]."No.", SalesHeader."Document Type"::Invoice, WorkDate());
@@ -713,7 +716,7 @@ codeunit 144005 "ERM Annual Listing"
     [Scope('OnPrem')]
     procedure ZeroVATAmountNotPrintInAnnualListingReport()
     var
-        Customer: array[2] of  Record Customer;
+        Customer: array[2] of Record Customer;
         SalesHeader: Record "Sales Header";
         IncludeCountry: Option All,Specific;
     begin
@@ -723,9 +726,12 @@ codeunit 144005 "ERM Annual Listing"
         // [GIVEN] Create a Customer with "Enterprise No."
         LibraryBEHelper.CreateDomesticCustomer(Customer[1]);
         LibraryBEHelper.CreateDomesticCustomer(Customer[2]);
+        Customer[2].Validate("VAT Liable", false);
+        Customer[2].Validate("Enterprise No.", LibraryBEHelper.CreateMOD97CompliantCode());
+        Customer[2].Modify();
 
         // [GIVEN] Posted Invoice for Customer.
-        CreateAndPostSalesDocumentInPeriod(Customer[1]."No.", SalesHeader."Document Type"::Invoice,  WorkDate());
+        CreateAndPostSalesDocumentInPeriod(Customer[1]."No.", SalesHeader."Document Type"::Invoice, WorkDate());
         CreateAndPostSalesDocumentWithZeroVAT(Customer[2]."No.", SalesHeader."Document Type"::Invoice, WorkDate());
 
         // [WHEN] Run report Annual Listing.
@@ -733,8 +739,100 @@ codeunit 144005 "ERM Annual Listing"
           false, Date2DMY(WorkDate(), 3), 0.01, IncludeCountry::Specific, Customer[1]."Country/Region Code");
 
         // [THEN] The customer "A" is printed and customer "B" is not printed
-       LibraryReportDataset.LoadDataSetFile();
-       LibraryReportDataset.SearchForElementByValue('BufferVATRegistrationNo', Customer[2]."Enterprise No.");
+        LibraryReportDataset.LoadDataSetFile();
+        asserterror Assert.IsTrue(LibraryReportDataset.SearchForElementByValue('BufferVATRegistrationNo', Customer[2]."Enterprise No."), VATRegistrationNoErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('VatAnnualListingDiskRequestPageHandler')]
+    procedure CheckTotalInXmlHeaderWhenZeroVATAmountEntryExist()
+    var
+        Customer: array[2] of Record Customer;
+        SalesHeader: Record "Sales Header";
+        VATEntry: Record "VAT Entry";
+        FileName: Text;
+    begin
+        // [SCENARIO 496524] Check Total and VAT Amount in xml header will be correct if Cutsomer have zero vat amount exist
+        Initialize();
+
+        // [GIVEN] Create a Customer with "Enterprise No."
+        LibraryBEHelper.CreateDomesticCustomer(Customer[1]);
+        LibraryBEHelper.CreateDomesticCustomer(Customer[2]);
+        Customer[2]."VAT Liable" := false;
+        Customer[2].Modify();
+
+        // [GIVEN] Posted Invoice for Customer.
+        CreateAndPostSalesDocumentWithVAT(Customer[1]."No.", SalesHeader."Document Type"::Invoice, WorkDate());
+        CreateAndPostSalesDocumentWithZeroVAT(Customer[2]."No.", SalesHeader."Document Type"::Invoice, WorkDate());
+
+        // [WHEN] Print "Annual Listing - Disk" report
+        ExportAnnualListingDisk(
+          Date2DMY(WorkDate(), 3), '', IncludeCountry::All, Customer[1]."Country/Region Code", 0, FileName,
+          StrSubstNo('%1|%2', Customer[1]."No.", Customer[2]."No."));
+
+        // [VERIFY] VAT Base and VAT Amount will be correct in xml after posting zero vat entry
+        VATEntry.SetRange("Bill-to/Pay-to No.", Customer[1]."No.");
+        VATEntry.SetRange("Document Type", VATEntry."Document Type"::Invoice);
+        VATEntry.FindFirst();
+        VerifyAnnualListingDiskReportAmounts(FileName, DelStr(Customer[1]."Enterprise No.", 1, 3), -VATEntry.Base, -VATEntry.Amount);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
+    [Test]
+    [HandlerFunctions('VatAnnualListingDiskRequestPageHandler')]
+    procedure ZeroVATAmountPrintInAnnualListingDiskReportWhen()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        FileName: Text;
+    begin
+        // [SCENARIO 496533] VAT Annual Listing and VAT Annual Listing - Disk does display VAT Liable customers with 0 VAT
+        Initialize();
+
+        // [GIVEN] Create a Customer with "Enterprise No."
+        LibraryBEHelper.CreateDomesticCustomer(Customer);
+        Customer.Validate("VAT Liable", true);
+        Customer.Modify();
+
+        // [GIVEN] Posted Invoice for Customer.
+        CreateAndPostSalesDocumentWithZeroVAT(Customer."No.", SalesHeader."Document Type"::Invoice, WorkDate());
+
+        // [WHEN] Print "Annual Listing - Disk" report and update VAT Liable as true
+        ExportAnnualListingDisk(Date2DMY(WorkDate(), 3), '', IncludeCountry::All, Customer."Country/Region Code", 0, FileName, Customer."No.");
+
+        // [THEN] The customer "A" is printed and customer "B" is not printed
+        LibraryXPathXMLReader.Initialize(FileName, 'http://www.minfin.fgov.be/ClientListingConsignment');
+        LibraryXPathXMLReader.VerifyNodeCountByXPath('//Client', 1);
+        LibraryXPathXMLReader.VerifyNodeValue(CompanyVATNumberCapTxt, DelStr(Customer."Enterprise No.", 1, 3));
+    end;
+
+    [Test]
+    [HandlerFunctions('VATAnnualListingRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure ZeroVATAmountPrintInAnnualListingReportForVATLiable()
+    var
+        Customer: Record Customer;
+        SalesHeader: Record "Sales Header";
+        IncludeCountry: Option All,Specific;
+    begin
+        // [SCENARIO 496533] VAT Annual Listing and VAT Annual Listing - Disk does display VAT Liable customers with 0 VAT
+        Initialize();
+
+        // [GIVEN] Create a Customer with "Enterprise No." and update VAT Liable as true
+        LibraryBEHelper.CreateDomesticCustomer(Customer);
+        Customer.Validate("VAT Liable", true);
+        Customer.Validate("Enterprise No.", LibraryBEHelper.CreateMOD97CompliantCode());
+        Customer.Modify();
+
+        // [GIVEN] Posted Invoice for Customer.
+        CreateAndPostSalesDocumentWithZeroVAT(Customer."No.", SalesHeader."Document Type"::Invoice, CalcDate('<+CY+5Y>', WorkDate()));
+
+        // [WHEN] Run report Annual Listing.
+        ExportAnnualListing(true, Date2DMY(CalcDate('<+CY+5Y>', WorkDate()), 3), 0.01, IncludeCountry::Specific, Customer."Country/Region Code");
+
+        // [THEN] The customer "A" is printed and customer "B" is not printed
+        VerifyAnnualListingReportData(Customer."No.", Customer."Country/Region Code" + ' ' + Customer."Enterprise No.");
     end;
 
     local procedure Initialize()
@@ -1021,6 +1119,23 @@ codeunit 144005 "ERM Annual Listing"
         LibraryERM.CreateVATPostingSetup(VATPostingSetup, VATBusinessPostingGroup, VATProductPostingGroup.Code);
         VATPostingSetup.Validate("VAT %", 0);
         VATPostingSetup.Modify(true);
+    end;
+
+    local procedure CreateAndPostSalesDocumentWithVAT(CustomerNo: Code[20]; DocumentType: Enum "Sales Document Type"; DocDate: Date)
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, DocumentType, CustomerNo);
+        with SalesHeader do begin
+            Validate("Order Date", DocDate);
+            Validate("Posting Date", DocDate);
+            Validate("Shipment Date", DocDate);
+            Modify(true);
+        end;
+        LibrarySales.CreateSalesLine(
+          SalesLine, SalesHeader, SalesLine.Type::Item, CreateItem, LibraryRandom.RandDecInRange(12, 14, 2));
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
     end;
 
     [MessageHandler]

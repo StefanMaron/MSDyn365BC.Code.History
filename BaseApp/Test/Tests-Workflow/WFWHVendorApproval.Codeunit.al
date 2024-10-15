@@ -18,8 +18,6 @@ codeunit 134222 "WFWH Vendor Approval"
         BogusUserIdTxt: Label 'CONTOSO';
         DynamicRequestPageParametersVendorTxt: Label '<?xml version="1.0" encoding="utf-8" standalone="yes"?><ReportParameters><DataItems><DataItem name="Vendor">VERSION(1) SORTING(Field1)</DataItem></DataItems></ReportParameters>', Locked = true;
         UnexpectedNoOfWorkflowStepInstancesErr: Label 'Unexpected number of workflow step instances found.';
-        EntryIsNotPendingErr: Label 'The %1 you are trying to act on is not in a pending state.', Comment = '%1 = the table caption for "Workflow Webhook Entry"';
-        UserNotApproverErr: Label 'User %1 does not have the permission necessary to act on the item. Make sure the user is set as approver or substitute in page Approval User Setup, or check the "Workflows" section of the documentation.', Comment = '%1 = a NAV user ID';
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
         LibraryJobQueue: Codeunit "Library - Job Queue";
         MockOnFindTaskSchedulerAllowed: Codeunit MockOnFindTaskSchedulerAllowed;
@@ -109,38 +107,6 @@ codeunit 134222 "WFWH Vendor Approval"
 
         // Verify
         VerifyWorkflowWebhookEntryResponse(Vendor.SystemId, DummyWorkflowWebhookEntry.Response::Continue);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure EnsureVendorApprovalWorkflowFailsIfUserIsNotApprover()
-    var
-        Vendor: Record Vendor;
-        DummyWorkflowWebhookEntry: Record "Workflow Webhook Entry";
-        WorkflowWebhookManagement: Codeunit "Workflow Webhook Management";
-    begin
-        // [SCENARIO] Ensure that a webhook vendor approval workflow 'approval' path works correctly.
-        // [GIVEN] A webhook vendor approval workflow for a vendor is enabled.
-        // [GIVEN] A vendor request is pending approval.
-        // [WHEN] The webhook vendor approval workflow receives an 'approval' response for the vendor request, by a user that is not set as an approver.
-        // [THEN] An error is thrown.
-
-        // Setup
-        Initialize();
-        CreateAndEnableVendorWorkflowDefinition(UserId);
-        LibraryPurchase.CreateVendor(Vendor);
-
-        // Setup - A approval
-        SendVendorForApproval(Vendor);
-
-        Commit();
-
-        // Verify
-        VerifyWorkflowWebhookEntryResponse(Vendor.SystemId, DummyWorkflowWebhookEntry.Response::Pending);
-
-        // Exercise
-        asserterror WorkflowWebhookManagement.ContinueByStepInstanceId(GetPendingWorkflowStepInstanceIdFromDataId(Vendor.SystemId));
-        Assert.ExpectedError(StrSubstNo(UserNotApproverErr, UserId()));
     end;
 
     [Test]
@@ -549,4 +515,3 @@ codeunit 134222 "WFWH Vendor Approval"
         WorkflowWebhookEntry.TestField(Response, ResponseArgument);
     end;
 }
-

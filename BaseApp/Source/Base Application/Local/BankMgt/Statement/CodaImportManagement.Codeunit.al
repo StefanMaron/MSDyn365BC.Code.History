@@ -191,6 +191,9 @@ codeunit 2000040 "Coda Import Management"
             Evaluate(CODAStatementNo, CopyStr(Data, 3, 3));
         end;
         CodedBankStmtSrcLine := CodBankStmtSrcLine;
+
+        OnAfterCheckOldBalance(CodedBankStmtSrcLine);
+
         exit(true);
     end;
 
@@ -541,6 +544,11 @@ codeunit 2000040 "Coda Import Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckCodaHeader(var CodaStatementSourceLine: Record "CODA Statement Source Line"; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]    
+    local procedure OnAfterCheckOldBalance(var CodaStatementSourceLine: Record "CODA Statement Source Line")
     begin
     end;
 }

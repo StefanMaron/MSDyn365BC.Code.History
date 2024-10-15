@@ -29,7 +29,7 @@ report 188 "Create Reminders"
                     Result := false;
                     IsHandled := false;
                     OnAfterGetRecordCustomerOnBeforeMakeReminder(
-                        Customer, CustLedgEntry, ReminderHeaderReq, OverdueEntriesOnly, IncludeEntriesOnHold, CustLedgEntryLineFeeOn, Result, IsHandled);
+                        Customer, CustLedgEntry, ReminderHeaderReq, OverdueEntriesOnly, IncludeEntriesOnHold, CustLedgEntryLineFeeOn, Result, IsHandled, MakeReminder);
                     if not IsHandled then
                         MakeReminder.Code();
                     Mark := false;
@@ -42,7 +42,7 @@ report 188 "Create Reminders"
                     Result := false;
                     IsHandled := false;
                     OnAfterGetRecordCustomerOnBeforeMakeReminder(
-                        Customer, CustLedgEntry, ReminderHeaderReq, OverdueEntriesOnly, IncludeEntriesOnHold, CustLedgEntryLineFeeOn, Result, IsHandled);
+                        Customer, CustLedgEntry, ReminderHeaderReq, OverdueEntriesOnly, IncludeEntriesOnHold, CustLedgEntryLineFeeOn, Result, IsHandled, MakeReminder);
                     if IsHandled then
                         Mark(Result)
                     else
@@ -299,7 +299,7 @@ report 188 "Create Reminders"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterGetRecordCustomerOnBeforeMakeReminder(Customer: Record Customer; var CustLedgEntry: Record "Cust. Ledger Entry"; ReminderHeaderReq: Record "Reminder Header"; OverdueEntriesOnly: Boolean; IncludeEntriesOnHold: Boolean; var CustLedgEntryLineFeeOn: Record "Cust. Ledger Entry"; var Result: Boolean; var IsHandled: Boolean)
+    local procedure OnAfterGetRecordCustomerOnBeforeMakeReminder(Customer: Record Customer; var CustLedgEntry: Record "Cust. Ledger Entry"; ReminderHeaderReq: Record "Reminder Header"; OverdueEntriesOnly: Boolean; IncludeEntriesOnHold: Boolean; var CustLedgEntryLineFeeOn: Record "Cust. Ledger Entry"; var Result: Boolean; var IsHandled: Boolean; var ReminderMake: Codeunit "Reminder-Make")
     begin
     end;
 

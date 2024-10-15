@@ -93,7 +93,13 @@ table 233 "Item Journal Batch"
             Caption = 'Item Tracking on Lines';
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidateItemTrackingOnLines(Rec, IsHandled);
+                if IsHandled then
+                    exit;
                 ItemJnlTemplate.Get("Journal Template Name");
                 ItemJnlTemplate.TestField(Type, ItemJnlTemplate.Type::Item);
                 ItemJnlTemplate.TestField(Recurring, false);
@@ -163,6 +169,11 @@ table 233 "Item Journal Batch"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetupNewBatch(var ItemJournalBatch: Record "Item Journal Batch"; var ItemJournalTemplate: Record "Item Journal Template"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidateItemTrackingOnLines(var ItemJournalBatch: Record "Item Journal Batch"; var IsHandled: Boolean)
     begin
     end;
 }

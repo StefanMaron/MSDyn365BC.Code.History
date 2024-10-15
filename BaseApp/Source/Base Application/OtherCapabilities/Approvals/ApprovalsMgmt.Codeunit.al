@@ -2451,6 +2451,8 @@ codeunit 1535 "Approvals Mgmt."
         NoOfSelected: Integer;
         NoOfSkipped: Integer;
     begin
+        OnBeforeSendJournalLinesApprovalRequests(GenJournalLine);
+
         NoOfSelected := GenJournalLine.Count();
 
         if NoOfSelected = 1 then begin
@@ -3079,6 +3081,11 @@ codeunit 1535 "Approvals Mgmt."
 
     [IntegrationEvent(false, false)]
     local procedure OnFindApprovalEntryForCurrUserOnAfterApprovalEntrySetFilters(var ApprovalEntry: Record "Approval Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSendJournalLinesApprovalRequests(var GenJournalLine: Record "Gen. Journal Line")
     begin
     end;
 }

@@ -418,7 +418,7 @@ table 38 "Purchase Header"
                 if IsHandled then
                     exit;
 
-                CheckShipToCodeChange(Rec);
+                CheckShipToCodeChange(Rec, xRec);
 
                 if "Ship-to Code" <> '' then begin
                     ShipToAddr.Get("Sell-to Customer No.", "Ship-to Code");
@@ -3826,7 +3826,7 @@ table 38 "Purchase Header"
                 exit(false);
             if (xRec."Pay-to Vendor No." <> '') and (xRec."Pay-to Vendor No." <> Rec."Pay-to Vendor No.") then
                 exit(false);
-            if (Rec."Location Code" = '') and (xRec."Location Code" <> '') then
+            if (Rec."Location Code" = '') and (xRec."Location Code" <> '') and (CurrFieldNo = Rec.FieldNo("Location Code")) then
                 exit(true);
             if (xRec."Location Code" <> Rec."Location Code") and ((CurrFieldNo = Rec.FieldNo("Location Code"))
                 or ((Rec."Sell-to Customer No." <> '') and (xRec."Sell-to Customer No." <> Rec."Sell-to Customer No."))) then
@@ -4027,12 +4027,12 @@ table 38 "Purchase Header"
                 PurchLine.TestField("Return Shipment No.", '');
     end;
 
-    local procedure CheckShipToCodeChange(PurchHeader: Record "Purchase Header")
+    local procedure CheckShipToCodeChange(PurchHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header")
     var
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeCheckShipToCodeChange(PurchHeader, IsHandled);
+        OnBeforeCheckShipToCodeChange(PurchHeader, IsHandled, xPurchaseHeader);
         if IsHandled then
             exit;
 
@@ -4626,7 +4626,7 @@ table 38 "Purchase Header"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeSendToPosting(Rec, IsSuccess, IsHandled);
+        OnBeforeSendToPosting(Rec, IsSuccess, IsHandled, PostingCodeunitID);
         if IsHandled then
             exit(IsSuccess);
 
@@ -6858,7 +6858,7 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckShipToCodeChange(PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    local procedure OnBeforeCheckShipToCodeChange(PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean; xPurchaseHeader: Record "Purchase Header")
     begin
     end;
 
@@ -7078,7 +7078,7 @@ table 38 "Purchase Header"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSendToPosting(var PurchaseHeader: Record "Purchase Header"; var IsSuccess: Boolean; var IsHandled: Boolean)
+    local procedure OnBeforeSendToPosting(var PurchaseHeader: Record "Purchase Header"; var IsSuccess: Boolean; var IsHandled: Boolean; PostingCodeunitID: Integer)
     begin
     end;
 

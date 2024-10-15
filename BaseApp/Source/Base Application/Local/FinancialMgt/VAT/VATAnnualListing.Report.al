@@ -434,7 +434,7 @@ report 11308 "VAT Annual Listing"
 
     local procedure IsCustVATAmountNotZero(): Boolean
     begin
-        exit(WAmount <> 0);
+        exit(WBase <> 0);
     end;
 }
 

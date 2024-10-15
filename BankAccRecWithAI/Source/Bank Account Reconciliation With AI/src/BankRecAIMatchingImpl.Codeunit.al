@@ -186,7 +186,7 @@ codeunit 7250 "Bank Rec. AI Matching Impl."
     begin
         // this is because we are using GPT4 which has a 32K token limit
         // on top of that, we are setting aside a number of tokens for the response in MaxTokens())
-        exit(22000);
+        exit(18000);
     end;
 
     procedure MaxTokens(): Integer
@@ -341,7 +341,7 @@ codeunit 7250 "Bank Rec. AI Matching Impl."
 
         FirstOpenParenthesisPos := StrPos(CompletionAnswerTxt, '(');
         FirstClosedParenthesisPos := StrPos(CompletionAnswerTxt, ')');
-        while FirstOpenParenthesisPos > 0 do begin
+        while (FirstOpenParenthesisPos > 0) and (FirstClosedParenthesisPos > FirstOpenParenthesisPos) do begin
             MatchedLedgerEntryNoTxt := '';
             MatchedStatementLineNoTxt := '';
             MatchTripleTxt := CopyStr(CompletionAnswerTxt, FirstOpenParenthesisPos + 1, FirstClosedParenthesisPos - FirstOpenParenthesisPos - 1);

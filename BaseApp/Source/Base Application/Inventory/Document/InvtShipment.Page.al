@@ -164,6 +164,7 @@ page 6564 "Invt. Shipment"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Dimensions';
                     Image = Dimensions;
+                    ShortCutKey = 'Alt+D';
                     ToolTip = 'View or edit dimensions, such as area, project, or department.';
 
                     trigger OnAction()

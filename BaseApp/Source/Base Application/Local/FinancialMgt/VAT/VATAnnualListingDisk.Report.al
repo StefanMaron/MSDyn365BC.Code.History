@@ -126,7 +126,7 @@ report 11309 "VAT Annual Listing - Disk"
 
                 trigger OnPostDataItem()
                 begin
-                    if IsCustBalanceGreaterThanMinimum or IsCreditMemoWithAppliedInvoice then begin
+                    if (IsCustBalanceGreaterThanMinimum() and IsCustVATAmountNotZero()) or IsCreditMemoWithAppliedInvoice then begin
                         WTotBase2 := WTotBase2 + Buffer.Base;
                         WTotAmount2 := WTotAmount2 + Buffer.Amount;
                     end;
@@ -509,7 +509,7 @@ report 11309 "VAT Annual Listing - Disk"
 
     local procedure IsCustVATAmountNotZero(): Boolean
     begin
-        exit(WAmount <> 0);
+        exit(WBase <> 0);
     end;
 }
 
