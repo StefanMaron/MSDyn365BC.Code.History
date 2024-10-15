@@ -1,4 +1,4 @@
-page 5800 "Item Charges"
+﻿page 5800 "Item Charges"
 {
     AdditionalSearchTerms = 'fee transportation freight handling landed cost';
     ApplicationArea = ItemCharges;
@@ -44,6 +44,11 @@ page 5800 "Item Charges"
                 {
                     ApplicationArea = ItemCharges;
                     ToolTip = 'Specifies text to search for when you do not know the number of the item charge.';
+                }
+                field("SAT Classification Code"; Rec."SAT Classification Code")
+                {
+                    ApplicationArea = ItemCharges, BasicMX;
+                    ToolTip = 'Specifies the classification code required for reporting to the Mexican tax authorities (SAT)';
                 }
             }
         }

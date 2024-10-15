@@ -54,12 +54,20 @@
     procedure GetSATItemClassification(Type: Option " ","G/L Account",Item,Resource,"Fixed Asset","Charge (Item)"; ItemNumber: Code[20]): Code[10]
     var
         Item: Record Item;
+        FixedAsset: Record "Fixed Asset";
+        ItemCharge: Record "Item Charge";
     begin
         case Type of
             Type::Item:
                 if Item.Get(ItemNumber) then
                     exit(Item."SAT Item Classification");
-            Type::Resource, Type::"Fixed Asset":
+            Type::"Fixed Asset":
+                if FixedAsset.Get(ItemNumber) then
+                    exit(FixedAsset."SAT Classification Code");
+            Type::"Charge (Item)":
+                if ItemCharge.Get(ItemNumber) then
+                    exit(ItemCharge."SAT Classification Code");
+            Type::Resource:
                 exit('01010101'); // Does not exist in the catalog
         end;
         exit('');

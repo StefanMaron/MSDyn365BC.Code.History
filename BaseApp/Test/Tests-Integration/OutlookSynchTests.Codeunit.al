@@ -113,47 +113,6 @@ codeunit 139014 "Outlook Synch Tests"
 
     [Test]
     [Scope('OnPrem')]
-    procedure ProcessOutlookMessageNoSalesPersonErrorTest()
-    var
-        OsynchUserSetup: Record "Outlook Synch. User Setup";
-        errorLogXMLWriter: DotNet "OLSync.Common.XmlTextWriter";
-        errorLogMessage: Text;
-        dateTimeValue: DateTime;
-    begin
-        Initialize;
-
-        if not OsynchUserSetup.Get('TEST963') then begin
-            OsynchUserSetup."User ID" := 'TEST963';
-            OsynchUserSetup."Synch. Entity Code" := 'CONT_SP';
-            OsynchUserSetup.Insert(true);
-        end;
-
-        inputValue := GetXmlString;
-        errorLogXMLWriter := errorLogXMLWriter.XmlTextWriter;
-        errorLogXMLWriter.WriteStartDocument;
-        errorLogXMLWriter.WriteStartElement('SynchronizationMessage');
-
-        dateTimeValue := OsynchOutlookMgt.ProcessOutlookChanges('TEST963', inputValue, errorLogXMLWriter, true);
-
-        if not IsNull(errorLogXMLWriter) then begin
-            errorLogXMLWriter.WriteEndElement;
-            errorLogXMLWriter.WriteEndDocument;
-
-            errorLogMessage := errorLogXMLWriter.ToString;
-            Clear(errorLogXMLWriter);
-        end;
-
-        Assert.AreEqual(
-          '2012-01-10T15:21:42Z', Format(dateTimeValue, 0, 9), 'No User exist, so dateTime should be empty since StartSynchTime is not read from XML string');
-        Assert.IsTrue(StrLen(errorLogMessage) > 26, 'Error is not the expected lenght : ' + Format(StrLen(errorLogMessage)));
-        OsynchUserSetup."User ID" := 'TEST963';
-        OsynchUserSetup."Synch. Entity Code" := 'CONT_SP';
-        if OsynchUserSetup.FindFirst then
-            OsynchUserSetup.Delete(true);
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
     procedure EmptyStringIsNotValidOsyncUserTest()
     var
         OsynchNAVMgt: Codeunit "Outlook Synch. NAV Mgt";

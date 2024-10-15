@@ -562,7 +562,7 @@
                     TotalPaymentDiscOnVAT += -("Line Amount" - "Inv. Discount Amount" - "Amount Including VAT");
                     OnLineOnAfterGetRecordOnAfterCalcTotals(Header, Line, TotalAmount, TotalAmountVAT, TotalAmountInclVAT);
 
-                    FormatDocument.SetSalesLine(Line, FormattedQuantity, FormattedUnitPrice, FormattedVATPct, FormattedLineAmount);
+                    FormatLineValues(Line);
 
                     if FirstLineHasBeenOutput then
                         Clear(DummyCompanyInfo.Picture);
@@ -1219,6 +1219,16 @@
     begin
     end;
 
+    local procedure FormatLineValues(CurrLine: Record "Sales Line")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeFormatLineValues(CurrLine, FormattedQuantity, FormattedUnitPrice, FormattedVATPct, FormattedLineAmount, IsHandled);
+        if not IsHandled then
+            FormatDocument.SetSalesLine(CurrLine, FormattedQuantity, FormattedUnitPrice, FormattedVATPct, FormattedLineAmount);
+    end;
+    
     [IntegrationEvent(false, false)]
     local procedure OnHeaderOnAfterGetRecordOnAfterUpdateVATOnLines(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATAmountLine: Record "VAT Amount Line")
     begin
@@ -1226,6 +1236,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnLineOnAfterGetRecordOnAfterCalcTotals(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; var VATBaseAmount: Decimal; var VATAmount: Decimal; var TotalAmountInclVAT: Decimal)
+    begin
+    end;
+    
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFormatLineValues(SalesLine: Record "Sales Line"; var FormattedQuantity: Text; var FormattedUnitPrice: Text; var FormattedVATPercentage: Text; var FormattedLineAmount: Text; var IsHandled: Boolean)
     begin
     end;
 }
