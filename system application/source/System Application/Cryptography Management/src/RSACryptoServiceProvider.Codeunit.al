@@ -90,4 +90,17 @@ codeunit 1445 RSACryptoServiceProvider
     begin
         RSACryptoServiceProviderImpl.Decrypt(XmlString, EncryptedTextInStream, OaepPadding, DecryptedTextOutStream);
     end;
+
+    /// <summary>  
+    /// The CreateRSAKeyPair procedure is a function that generates a public and private RSA key pair.  
+    /// </summary>  
+    /// <param name="PublicKeyInXml">This is an output parameter that returns the public key in XML format.</param>  
+    /// <param name="PrivateKeyInXml">This is an output parameter that returns the private key in XML format.</param>  
+    /// <returns>  
+    /// This function does not return a value. The output is via the two parameters PublicKeyInXml and PrivateKeyInXml.  
+    /// </returns>  
+    procedure CreateRSAKeyPair(var PublicKeyInXml: Text; var PrivateKeyInXml: Text)
+    begin
+        RSACryptoServiceProviderImpl.CreateRSAKeyPair(PublicKeyInXml, PrivateKeyInXml);
+    end;
 }

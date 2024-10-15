@@ -1154,7 +1154,7 @@ codeunit 137079 "SCM Production Order III"
     end;
 
     [Test]
-    [HandlerFunctions('ConfirmHandlerTRUE')]
+    [HandlerFunctions('ConfirmHandler')]
     [Scope('OnPrem')]
     procedure WhsePickAfterRefreshProductionOrderForAlreadyPickedItem()
     var

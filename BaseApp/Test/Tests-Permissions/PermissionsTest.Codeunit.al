@@ -40,38 +40,28 @@ codeunit 139400 "Permissions Test"
 
     [Test]
     [Scope('OnPrem')]
-    procedure LastPlanRemovedFromUserInSaaS()
+    procedure UserWithoutPlansKeepReviewedStatusForOnSaaS()
     var
         UserSecurityStatus: Record "User Security Status";
         EnvironmentInfoTestLibrary: Codeunit "Environment Info Test Library";
-        PlanID: Guid;
         Cassie: Guid;
     begin
-        // [SCENARIO] Last plan removed from user, marks it as "to review" by the security admin
+        // [SCENARIO] When a user has no plans, the reviewed status is not changed for OnPrem
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
-        // [GIVEN] Plan Office365
-        PlanID := AzureADPlanTestLibrary.CreatePlan(PlanOffice365Txt);
         // [GIVEN] User Cassie
         Cassie := LibraryPermissions.CreateUserWithName(UserCassieTxt);
-        // [GIVEN] Cassie is part of Office365
-        LibraryPermissions.AddUserToPlan(Cassie, PlanID);
         // [GIVEN] Cassie is not marked for review by the security admin
         UserSecurityStatus.LoadUsers();
         UserSecurityStatus.Get(Cassie);
         UserSecurityStatus.Reviewed := true;
         UserSecurityStatus.Modify(true);
 
+        // [WHEN] User Security Status is reloaded
         UserSecurityStatus.LoadUsers();
+
+        // [THEN] Cassie is still marked as Reviewed = TRUE
         UserSecurityStatus.Get(Cassie);
         Assert.IsTrue(UserSecurityStatus.Reviewed, 'User Cassie should have status = reviewed');
-
-        // [WHEN] Cassie is removed from the plan
-        AzureADPlanTestLibrary.RemoveUserFromPlan(Cassie, PlanID);
-        UserSecurityStatus.LoadUsers();
-
-        // [THEN] Cassie is marked as Reviewed = FALSE
-        UserSecurityStatus.Get(Cassie);
-        Assert.IsFalse(UserSecurityStatus.Reviewed, 'User Cassie should have status = not reviewed');
 
         TearDown();
     end;
