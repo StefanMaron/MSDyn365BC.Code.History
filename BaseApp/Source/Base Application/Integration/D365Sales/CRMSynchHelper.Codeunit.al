@@ -374,6 +374,7 @@ codeunit 5342 "CRM Synch. Helper"
 
         FindCurrencyCRMIntegrationRecord(CRMIntegrationRecord, CurrencyCode);
         CRMPricelevel.Reset();
+        CRMPricelevel.SetRange(Name, CopyStr(StrSubstNo(CurrencyPriceListNameTxt, CurrencyCode), 1, MaxStrLen(CRMPricelevel.Name)));
         CRMPricelevel.SetRange(TransactionCurrencyId, CRMIntegrationRecord."CRM ID");
         exit(FindCachedCRMPriceLevel(CRMPricelevel));
     end;

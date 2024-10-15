@@ -274,6 +274,7 @@ table 330 "Currency Exchange Rate"
             TestField("Relational Adjmt Exch Rate Amt");
             "Exchange Rate Amount" := "Adjustment Exch. Rate Amount";
             "Relational Exch. Rate Amount" := "Relational Adjmt Exch Rate Amt";
+            OnExchangeRateOnAfterSetRelationalExchRateAmount(Rec);
         end;
         RelExchangeRateAmt := "Relational Exch. Rate Amount";
         ExchangeRateAmt := "Exchange Rate Amount";
@@ -290,6 +291,7 @@ table 330 "Currency Exchange Rate"
                 TestField("Relational Adjmt Exch Rate Amt");
                 "Exchange Rate Amount" := "Adjustment Exch. Rate Amount";
                 "Relational Exch. Rate Amount" := "Relational Adjmt Exch Rate Amt";
+                OnExchangeRateOnAfterSetRelationalExchRateAmount(Rec);
             end;
             CurrencyFactor := (ExchangeRateAmt * "Exchange Rate Amount") / (RelExchangeRateAmt * "Relational Exch. Rate Amount");
         end;
@@ -713,6 +715,11 @@ table 330 "Currency Exchange Rate"
 
     [IntegrationEvent(false, false)]
     local procedure OnFindCurrencyOnAfterCurrencyExchRate2SetFilters(var CurrencyExchRate2: Record "Currency Exchange Rate"; CurrencyCode: Code[10]; Date: Date; var CurrencyExchangeRate: Record "Currency Exchange Rate")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnExchangeRateOnAfterSetRelationalExchRateAmount(var CurrencyExchangeRate: Record "Currency Exchange Rate")
     begin
     end;
 }

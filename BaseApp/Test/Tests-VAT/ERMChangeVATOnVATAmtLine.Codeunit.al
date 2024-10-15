@@ -20,11 +20,13 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         LibrarySetupStorage: Codeunit "Library - Setup Storage";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryUtility: Codeunit "Library - Utility";
+        LibraryInventory: Codeunit "Library - Inventory";
         IsInitialized: Boolean;
         ErrorWithCurrency: Label '%1 for %2 must not exceed %3 = %4.', Comment = '%1=Field Caption;%2=Field Value;%3=Field Caption;%4=Field Value;';
         ErrorWithoutCurrency: Label '%1 must not exceed %2 = %3.', Comment = '%1=Field Caption;%2=Field Caption;%3=Field Value;';
         DefaultVATAmountLineTxt: Label 'VAT Amount';
         PercentVATAmountTxt: Label '%1% VAT';
+        VATDiffErr: Label 'VAT Difference doesn''t match';
 
     [Test]
     [Scope('OnPrem')]
@@ -399,6 +401,33 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         Assert.ExpectedMessage(DefaultVATAmountLineTxt, VATAmountLine.VATAmountText());
     end;
 
+    [Test]
+    [HandlerFunctions('ServiceStatisticsHandler2')]
+    [Scope('OnPrem')]
+    procedure VATAmountLineVATdifferenceUpdatedWhenTwoVATLines()
+    var
+        ServiceHeader: Record "Service Header";
+        MaxVATDiffAmt: Decimal;
+    begin
+        // [SCENARIO 496157] VAT Difference updated correctly when two different VAT Amount Lines on Service Statistics page
+        Initialize();
+
+        // [GIVEN] General Ledger Setup and Sales & Receivables Setup for VAT Difference = 0.05
+        MaxVATDiffAmt := EnableVATDiffAmount(true);
+        LibraryVariableStorage.Enqueue(MaxVATDiffAmt);
+
+        // [GIVEN] Create Service Invoice with two Items and different VAT Prod. Posting Group
+        CreateServiceInvoiceWithServiceLines(ServiceHeader);
+        LibraryVariableStorage.Enqueue(ServiceHeader."No.");
+
+        // [GIVEN] Open "Service Statistics"
+        // [WHEN] Change "VAT Amount" to 10.02 on "VAT Amount Lines" tab and Refresh the page
+        PAGE.RunModal(PAGE::"Service Statistics", ServiceHeader);
+
+        // [THEN] Service Invoice Statistics General tab "VAT Amount" = 10.02
+        // Verify is done in  ServiceStatisticsHandler VAT Difference updated correctly
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -682,6 +711,59 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         GLEntry.TestField(Amount, Amount);
     end;
 
+    local procedure CreateServiceInvoiceWithServiceLines(var ServiceHeader: Record "Service Header")
+    var
+        Item: array[2] of Record Item;
+        ServiceLine: array[2] of Record "Service Line";
+        Customer: Record Customer;
+    begin
+        Customer.Get(CreateCustomer());
+        CreateTwoItemsWithDiffVATProdPostGroup(Item, Customer."VAT Bus. Posting Group");
+
+        LibraryService.CreateServiceHeader(ServiceHeader, ServiceHeader."Document Type"::Invoice, Customer."No.");
+
+        LibraryService.CreateServiceLineWithQuantity(ServiceLine[1], ServiceHeader, ServiceLine[1].Type::Item, Item[1]."No.", LibraryRandom.RandInt(10));
+        LibraryService.CreateServiceLineWithQuantity(ServiceLine[2], ServiceHeader, ServiceLine[2].Type::Item, Item[2]."No.", LibraryRandom.RandInt(10));
+    end;
+
+    local procedure CreateTwoItemsWithDiffVATProdPostGroup(var Item: array[2] of Record Item; VATBusPostingGroup: Code[20])
+    var
+        VATPostingSetup: array[2] of Record "VAT Posting Setup";
+    begin
+        CreateVATPostingSetup(VATPostingSetup, VATBusPostingGroup);
+
+        LibraryInventory.CreateItem(Item[1]);
+        Item[1].Validate("VAT Prod. Posting Group", VATPostingSetup[1]."VAT Prod. Posting Group");
+        Item[1].Validate("Unit Price", 100 + LibraryRandom.RandInt(100));
+        Item[1].Validate("Last Direct Cost", Item[1]."Unit Price");
+        Item[1].Modify(true);
+
+        LibraryInventory.CreateItem(Item[2]);
+        Item[2].Validate("VAT Prod. Posting Group", VATPostingSetup[2]."VAT Prod. Posting Group");
+        Item[2].Validate("Unit Price", 200 + LibraryRandom.RandInt(100));
+        Item[2].Validate("Last Direct Cost", Item[2]."Unit Price");
+        Item[2].Modify(true);
+    end;
+
+    local procedure CreateVATPostingSetup(var VATPostingSetup: array[2] of Record "VAT Posting Setup"; VATBusPostingGroup: Code[20])
+    var
+        VATProdPostingGroup: array[2] of Record "VAT Product Posting Group";
+    begin
+        LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup[1]);
+        LibraryERM.CreateVATProductPostingGroup(VATProdPostingGroup[2]);
+
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup[1], VATBusPostingGroup, VATProdPostingGroup[1].Code);
+        VATPostingSetup[1].Validate("VAT Identifier", VATPostingSetup[1]."VAT Prod. Posting Group");
+        VATPostingSetup[1].Validate("VAT %", 10);
+
+        VATPostingSetup[1].Modify();
+
+        LibraryERM.CreateVATPostingSetup(VATPostingSetup[2], VATBusPostingGroup, VATProdPostingGroup[2].Code);
+        VATPostingSetup[2].Validate("VAT Identifier", VATPostingSetup[2]."VAT Prod. Posting Group");
+        VATPostingSetup[2].Validate("VAT %", 20);
+        VATPostingSetup[2].Modify();
+    end;
+
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure SalesOrderStatisticsHandler(var SalesOrderStatistics: TestPage "Sales Order Statistics")
@@ -744,6 +826,24 @@ codeunit 134028 "ERM Change VAT On VAT Amt Line"
         ServiceHeader.Get(ServiceHeader."Document Type"::Invoice, LibraryVariableStorage.DequeueText);
         ServiceStatistics.GotoRecord(ServiceHeader); // Refresh
         ServiceStatistics."VAT Amount_General".AssertEquals(ServiceStatistics.SubForm."VAT Amount".AsDEcimal);
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ServiceStatisticsHandler2(var ServiceStatistics: TestPage "Service Statistics")
+    var
+        ServiceHeader: Record "Service Header";
+        VATDiff: Decimal;
+        VATAmountBefore: Decimal;
+        VATAmountAfter: Decimal;
+    begin
+        VATDiff := LibraryVariableStorage.DequeueDecimal();
+        VATAmountBefore := ServiceStatistics.SubForm."VAT Amount".AsDecimal();
+        ServiceStatistics.SubForm."VAT Amount".SetValue(ServiceStatistics.SubForm."VAT Amount".AsDecimal() + VATDiff);
+        ServiceHeader.Get(ServiceHeader."Document Type"::Invoice, LibraryVariableStorage.DequeueText());
+        ServiceStatistics.GotoRecord(ServiceHeader);
+        VATAmountAfter := ServiceStatistics.SubForm."VAT Amount".AsDecimal();
+        Assert.AreEqual(VATDiff, VATAmountAfter - VATAmountBefore, VATDiffErr);
     end;
 }
 

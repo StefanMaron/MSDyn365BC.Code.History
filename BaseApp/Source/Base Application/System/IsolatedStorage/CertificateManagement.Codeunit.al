@@ -301,4 +301,16 @@ codeunit 1259 "Certificate Management"
         DotNetX509Certificate2.PrivateKey(DotNetAsymmetricAlgorithm);
         SignatureKey.FromXmlString(DotNetAsymmetricAlgorithm.ToXmlString(true));
     end;
+
+    [NonDebuggable]
+    procedure GetPublicKeyAsBase64String(FullCertificateBase64: Text; Password: Text): Text
+    var
+        DotNetX509Certificate2: Codeunit DotNet_X509Certificate2;
+        X509Certificate2: DotNet X509Certificate2;
+        Dotnet_Convert: DotNet Convert;
+    begin
+        ConvertCertToDotNetFromBase64(FullCertificateBase64, Password, DotNetX509Certificate2);
+        DotNetX509Certificate2.GetX509Certificate2(X509Certificate2);
+        exit(Dotnet_Convert.ToBase64String(X509Certificate2.GetRawCertData()));
+    end;
 }
