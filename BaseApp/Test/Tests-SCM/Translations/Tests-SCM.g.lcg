@@ -3256,7 +3256,7 @@
   </Item>
   <Item ItemId=";Codeunit 744086877 - NamedType 3277578691" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You have changed the Posting Date on the sales order, which might affect the prices and discounts on the sales order lines. You should review the lines and manually update prices and discounts if needed.]]></Val>
+      <Val><![CDATA[You have changed the Posting Date on the sales header, which might affect the prices and discounts on the sales lines. You should review the lines and manually update prices and discounts if needed.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -9448,7 +9448,7 @@
   </Item>
   <Item ItemId=";Codeunit 3152970314 - NamedType 3343812767" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You have changed the Order Date on the sales order, which might affect the prices and discounts on the sales order lines. You should review the lines and manually update prices and discounts if needed.]]></Val>
+      <Val><![CDATA[You have changed the Order Date on the sales header, which might affect the prices and discounts on the sales lines. You should review the lines and manually update prices and discounts if needed.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -14101,7 +14101,7 @@
   </Item>
   <Item ItemId=";Codeunit 2380721185 - NamedType 3583295391" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[You have changed the Order Date on the sales order, which might affect the prices and discounts on the sales order lines. You should review the lines and manually update prices and discounts if needed.]]></Val>
+      <Val><![CDATA[You have changed the Order Date on the sales header, which might affect the prices and discounts on the sales lines. You should review the lines and manually update prices and discounts if needed.]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>

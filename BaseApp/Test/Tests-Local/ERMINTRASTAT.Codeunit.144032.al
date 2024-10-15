@@ -598,6 +598,58 @@ codeunit 144032 "ERM INTRASTAT"
     end;
 
     [Test]
+    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure GroupEntriesMultipleBatchesReport()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine1: Record "Sales Line";
+        SalesLine2: Record "Sales Line";
+        SalesLine3: Record "Sales Line";
+        IntrastatJnlLine1: Record "Intrastat Jnl. Line";
+        IntrastatJnlLine2: Record "Intrastat Jnl. Line";
+    begin
+        // [SCENARIO 444061] Check Get Item Ledger Entries report with "Group Entries" option summarized Quantity and Amount on Intrastat Journal when another Intrastat Batch has lines
+        Initialize();
+
+        // [GIVEN] Sales shipment is posted for Item "X" with Quantity = 10 and Quantity = 50 on 01 january
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
+        LibrarySales.CreateSalesLine(
+          SalesLine1, SalesHeader, SalesLine1.Type::Item, CreateItemWithUnitPrice, 10);
+        LibrarySales.CreateSalesLine(
+          SalesLine2, SalesHeader, SalesLine2.Type::Item, SalesLine1."No.", 50);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [GIVEN] Sales shipment is posted with 2 lines for Item "X" :  Quantity = 30 on 01 february
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, CreateCustomer);
+        SalesHeader.Validate("Posting Date", WorkDate + 1);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(
+          SalesLine3, SalesHeader, SalesLine3.Type::Item, SalesLine1."No.", 30);
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [WHEN] Run Get Item Ledger Entries report on 01 february for Item "X" with "Group Entries" = No
+        RunGetItemLedgerEntriesReport(IntrastatJnlLine1, WorkDate + 1, false);
+
+        // [GIVEN] Intrastat Journal Lines created on 01 january for Item "X" with "Group Entries" = Yes
+        RunGetItemLedgerEntriesReport(IntrastatJnlLine2, WorkDate(), true);
+
+        // [THEN] Intrastat Journal Line in the second batch for Item "X" has Quantity = 60.
+        IntrastatJnlLine2.SetRange("Journal Batch Name", IntrastatJnlLine2."Journal Batch Name");
+        IntrastatJnlLine2.FindFirst();
+        IntrastatJnlLine2.TestField(Quantity, 60);
+        IntrastatJnlLine2.TestField(Amount, Round(SalesLine1.Amount, 1) + Round(SalesLine2.Amount, 1));
+
+        // [THEN] Intrastat Journal Line in the first batch for Item "X" has Quantity = 30.
+        IntrastatJnlLine1.Reset();
+        IntrastatJnlLine1.SetRange("Journal Batch Name", IntrastatJnlLine1."Journal Batch Name");
+        IntrastatJnlLine1.SetRange("Item No.", SalesLine3."No.");
+        IntrastatJnlLine1.FindFirst();
+        IntrastatJnlLine1.TestField(Quantity, 30);
+        IntrastatJnlLine1.TestField(Amount, Round(SalesLine3.Amount, 1));
+    end;
+
+    [Test]
     [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,ExportDEBDTIRequestPageHandler,MessageHandler')]
     procedure ExportDEBDTIObligationLevel1WhenTransactionSpecification_11_19()
     var

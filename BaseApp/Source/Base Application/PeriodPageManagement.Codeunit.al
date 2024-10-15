@@ -17,7 +17,13 @@
     var
         Found: Boolean;
         UseAccountingPeriod: Boolean;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeFindDate(SearchString, Calendar, PeriodType, Found, IsHandled);
+        if IsHandled then
+            exit(Found);
+
         Calendar.SetRange("Period Type", PeriodType);
         Calendar."Period Type" := PeriodType.AsInteger();
         if Calendar."Period Start" = 0D then
@@ -25,23 +31,26 @@
         if SearchString in ['', '=><'] then
             SearchString := '=<>';
         UseAccountingPeriod := PeriodType = PeriodType::"Accounting Period";
-        OnFindDateOnAfterCalcUseAccountingPeriod(Calendar, PeriodType, AccountingPeriod, UseAccountingPeriod);
-        if UseAccountingPeriod then begin
-            AccountingPeriod.SetRange("Starting Date");
-            if AccountingPeriod.IsEmpty() then begin
-                AccountingPeriodMgt.InitDefaultAccountingPeriod(AccountingPeriod, GetCalendarPeriodMinDate(Calendar));
-                Found := true;
+        IsHandled := false;
+        OnFindDateOnAfterCalcUseAccountingPeriod(Calendar, PeriodType, AccountingPeriod, UseAccountingPeriod, Found, IsHandled);
+        if not IsHandled then
+            if UseAccountingPeriod then begin
+                AccountingPeriod.SetRange("Starting Date");
+                if AccountingPeriod.IsEmpty() then begin
+                    AccountingPeriodMgt.InitDefaultAccountingPeriod(AccountingPeriod, GetCalendarPeriodMinDate(Calendar));
+                    Found := true;
+                end else begin
+                    SetAccountingPeriodFilter(Calendar);
+                    Found := AccountingPeriod.Find(SearchString);
+                end;
+                if Found then
+                    CopyAccountingPeriod(Calendar);
             end else begin
-                SetAccountingPeriodFilter(Calendar);
-                Found := AccountingPeriod.Find(SearchString);
+                Found := Calendar.Find(SearchString);
+                if Found then
+                    Calendar."Period End" := NormalDate(Calendar."Period End");
             end;
-            if Found then
-                CopyAccountingPeriod(Calendar);
-        end else begin
-            Found := Calendar.Find(SearchString);
-            if Found then
-                Calendar."Period End" := NormalDate(Calendar."Period End");
-        end;
+
         exit(Found);
     end;
 
@@ -260,12 +269,17 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnFindDateOnAfterCalcUseAccountingPeriod(var Calendar: Record Date; PeriodType: Enum "Analysis Period Type"; var AccountingPeriod: Record "Accounting Period"; var UseAccountingPeriod: Boolean)
+    local procedure OnFindDateOnAfterCalcUseAccountingPeriod(var Calendar: Record Date; PeriodType: Enum "Analysis Period Type"; var AccountingPeriod: Record "Accounting Period"; var UseAccountingPeriod: Boolean; var Found: Boolean; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnNextDateOnAfterCalcUseAccountingPeriod(var Calendar: Record Date; PeriodType: Enum "Analysis Period Type"; var AccountingPeriod: Record "Accounting Period"; var UseAccountingPeriod: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindDate(SearchString: Text[3]; var Calendar: Record Date; PeriodType: Enum "Analysis Period Type"; var Found: Boolean; var IsHandled: Boolean)
     begin
     end;
 }
