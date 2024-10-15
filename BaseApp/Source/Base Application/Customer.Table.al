@@ -1216,8 +1216,10 @@
 
                     CheckCustomerContactRelation(Cont);
 
-                    if Cont.Type = Cont.Type::Person then
+                    if Cont.Type = Cont.Type::Person then begin
                         Contact := Cont.Name;
+                        exit;
+                    end;
 
                     if Cont.Image.HasValue then
                         CopyContactPicture(Cont);

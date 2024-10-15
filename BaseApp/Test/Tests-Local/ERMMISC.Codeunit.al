@@ -169,54 +169,6 @@
     end;
 
     [Test]
-    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,CreateIntrastatDeclDiskReqPageHandler')]
-    [Scope('OnPrem')]
-    procedure IntrastatMakeDiskWorksFromJnlLinesWithFilters()
-    var
-        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
-        IntrastatJnlLine: Record "Intrastat Jnl. Line";
-        ERMMISC: Codeunit "ERM MISC";
-        IntrastatJournal: TestPage "Intrastat Journal";
-        Amount: array[2] of Decimal;
-        ItemFilter: Code[20];
-        Filename: Text[250];
-    begin
-        // [SCENARIO 211360] Intrastat Declaration Disk function exports Journal Lines with filters applied.
-        Initialize();
-        BindSubscription(ERMMISC);
-
-        // [GIVEN] Intrastat Journal "IntJ" batch with template.
-        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
-
-        // [GIVEN] "Item1" and "Item2" with tariffs has been purchased.
-        CreatePurchasedItemsWithTariff(Amount, ItemFilter);
-
-        // [GIVEN] "IntJ" is populated with entries for "Item1" and "Item2"
-        RunGetItemLedgerEntriesToCreateJnlLinesWithFutureDates(IntrastatJnlBatch);
-        SetMandatoryFieldsOnJnlLines(
-          IntrastatJnlLine, IntrastatJnlBatch, FindOrCreateIntrastatTransportMethod,
-          FindOrCreateIntrastatTransactionType, FindOrCreateIntrastatEntryExitPoint);
-
-        PrepareFileNameStorageForSubscriber(Filename);
-        LibraryVariableStorage.Enqueue(false);
-
-        // [GIVEN] A filter applied on "IntJ" lines to show only "Item1".
-        // [WHEN] Create Intrastat Declaration File is invoked.
-        IntrastatJournal.OpenEdit;
-        IntrastatJournal.GotoRecord(IntrastatJnlLine);
-        IntrastatJournal.FILTER.SetFilter("Item No.", ItemFilter);
-        IntrastatJournal.CreateDeclFile.Invoke;
-
-        // [THEN] Intrastat File is created and contains only "Item1" data.
-        Assert.IsTrue(
-          LibraryTextFileValidation.DoesFileContainValue(Filename, Format(Amount[1], 9, 2)),
-          'The file must contain first item amount.');
-        Assert.IsFalse(
-          LibraryTextFileValidation.DoesFileContainValue(Filename, Format(Amount[2], 9, 2)),
-          'The file must not contain the second item amount');
-    end;
-
-    [Test]
     [HandlerFunctions('WhereUsedHandler')]
     [Scope('OnPrem')]
     procedure GLAccWhereUsedBankAccountPostingGroup()
@@ -1262,6 +1214,80 @@
         VerifyTransactionAndPatnerIDInDeclarationFile(Filename, '', '', '  ', 'X', '-');
     end;
 
+    [Test]
+    [HandlerFunctions('CreateIntrastatDeclDiskReqPageHandler')]
+    procedure CreateDeclReport2022ExportsTransactionSpecificationForReceiptsCounterparty()
+    var
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        Filename: Text;
+    begin
+        // [FEATURE] [Intrastat] [Create Intrastat Decl. Disk] [Receipt] [Counterparty]
+        // [SCENARIO 396535] Report 11413 "Create Intrastat Decl. Disk" exports "Transaction Specification"
+        // [SCENARIO 396535] for receipts (counterparty = true) in case of Export Format 2022
+        Initialize();
+        EnableAdvancedChecklist();
+
+        // [GIVEN] Receipt intrastat journal line with typed "Transaction Specification"
+        PrepareIntrastatJournalLine(IntrastatJnlLine, IntrastatJnlLine.Type::Receipt);
+        IntrastatJnlLine.TestField("Transaction Specification");
+
+        // [WHEN] Run "Create Intrastat Decl. Disk" report (counterparty = true, Export Format = 2022)
+        Filename := FileManagement.ServerTempFileName('txt');
+        RunIntrastatMakeDiskTaxAuth2022(Filename, true);
+
+        // [THEN] "Transaction Specification" is exported
+        VerifyTransactionAndPatnerIDInDeclarationFile(
+            Filename, IntrastatJnlLine."Transaction Specification", PadStr('', 17, ' '), '  ', ' ', '+');
+    end;
+
+    [Test]
+    [HandlerFunctions('GetItemLedgerEntriesRequestPageHandler,CreateIntrastatDeclDiskReqPageHandler')]
+    [Scope('OnPrem')]
+    procedure IntrastatMakeDiskWorksFromJnlLinesWithFilters()
+    var
+        IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
+        IntrastatJnlLine: Record "Intrastat Jnl. Line";
+        ERMMISC: Codeunit "ERM MISC";
+        IntrastatJournal: TestPage "Intrastat Journal";
+        Amount: array[2] of Decimal;
+        ItemFilter: Code[20];
+        Filename: Text[250];
+    begin
+        // [SCENARIO 211360] Intrastat Declaration Disk function exports Journal Lines with filters applied.
+        Initialize();
+        BindSubscription(ERMMISC);
+
+        // [GIVEN] Intrastat Journal "IntJ" batch with template.
+        CreateIntrastatJournalTemplateAndBatch(IntrastatJnlBatch, WorkDate);
+
+        // [GIVEN] "Item1" and "Item2" with tariffs has been purchased.
+        CreatePurchasedItemsWithTariff(Amount, ItemFilter);
+
+        // [GIVEN] "IntJ" is populated with entries for "Item1" and "Item2"
+        RunGetItemLedgerEntriesToCreateJnlLinesWithFutureDates(IntrastatJnlBatch);
+        SetMandatoryFieldsOnJnlLines(
+          IntrastatJnlLine, IntrastatJnlBatch, FindOrCreateIntrastatTransportMethod,
+          FindOrCreateIntrastatTransactionType, FindOrCreateIntrastatEntryExitPoint);
+
+        PrepareFileNameStorageForSubscriber(Filename);
+        LibraryVariableStorage.Enqueue(false);
+
+        // [GIVEN] A filter applied on "IntJ" lines to show only "Item1".
+        // [WHEN] Create Intrastat Declaration File is invoked.
+        IntrastatJournal.OpenEdit;
+        IntrastatJournal.GotoRecord(IntrastatJnlLine);
+        IntrastatJournal.FILTER.SetFilter("Item No.", ItemFilter);
+        IntrastatJournal.CreateDeclFile.Invoke;
+
+        // [THEN] Intrastat File is created and contains only "Item1" data.
+        Assert.IsTrue(
+          LibraryTextFileValidation.DoesFileContainValue(Filename, Format(Amount[1], 9, 2)),
+          'The file must contain first item amount.');
+        Assert.IsFalse(
+          LibraryTextFileValidation.DoesFileContainValue(Filename, Format(Amount[2], 9, 2)),
+          'The file must not contain the second item amount');
+    end;
+
     local procedure Initialize()
     var
         IntrastatJnlTemplate: Record "Intrastat Jnl. Template";
@@ -1856,6 +1882,17 @@
         Commit();
         LibraryVariableStorage.Enqueue(Counterparty);
         CreateIntrastatDeclDisk.InitializeRequest(Filename);
+        CreateIntrastatDeclDisk.Run();
+    end;
+
+    local procedure RunIntrastatMakeDiskTaxAuth2022(Filename: Text; Counterparty: Boolean)
+    var
+        CreateIntrastatDeclDisk: Report "Create Intrastat Decl. Disk";
+        ExportFormat: Enum "Intrastat Export Format";
+    begin
+        Commit();
+        LibraryVariableStorage.Enqueue(Counterparty);
+        CreateIntrastatDeclDisk.InitializeRequestWithExportFormat(Filename, ExportFormat::"2022");
         CreateIntrastatDeclDisk.Run();
     end;
 

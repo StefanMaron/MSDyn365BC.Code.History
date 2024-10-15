@@ -2360,6 +2360,18 @@
         Assert.ExpectedError(IntrastatJnlBatch.FieldName(Reported));
     end;
 
+    [Test]
+    procedure TotalWeightRounding()
+    var
+        IntraJnlManagement: Codeunit IntraJnlManagement;
+    begin
+        // [FEATURE] [Intrastat] [Export] [UT]
+        // [SCENARIO 390312] Total Weight is rounded to integer
+        Assert.AreEqual(1, IntraJnlManagement.RoundTotalWeight(1), '');
+        Assert.AreEqual(1, IntraJnlManagement.RoundTotalWeight(1.123), '');
+        Assert.AreEqual(2, IntraJnlManagement.RoundTotalWeight(1.789), '');
+    end;
+
     local procedure Initialize()
     var
         IntrastatJnlBatch: Record "Intrastat Jnl. Batch";
