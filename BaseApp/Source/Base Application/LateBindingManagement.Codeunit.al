@@ -15,7 +15,6 @@
         TempReservEntryOrderTrackingSurplus: Record "Reservation Entry" temporary;
         ReservMgt: Codeunit "Reservation Management";
         LastEntryNo: Integer;
-        Text001: Label 'Not enough free supply available for reallocation.';
 
     local procedure CleanUpVariables()
     begin
@@ -182,7 +181,7 @@
         TotalAvailable := TempSupplyReservEntry."Quantity (Base)";
 
         if TotalAvailable < QtyToReshuffle then
-            Error(Text001);
+            exit(QtyToReshuffle);
 
         if SupplyReservEntry."Quantity (Base)" > QtyToReshuffle then
             QtyToReshuffleThisLine := QtyToReshuffle
