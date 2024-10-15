@@ -76,6 +76,7 @@
         SkipLbl: Label 'Skip';
         CreateCreditMemoLbl: Label 'Create credit memo anyway';
         ShowEntriesLbl: Label 'Show applied entries';
+        WMSLocationCancelCorrectErr: Label 'You cannot cancel or correct this posted sales invoice because Warehouse Receive is required for Line No. = %1.', Comment = '%1 - line number';
 
     procedure CancelPostedInvoice(var SalesInvoiceHeader: Record "Sales Invoice Header"): Boolean
     begin
@@ -387,6 +388,7 @@
                     TestGenPostingSetup(SalesInvoiceLine);
                     TestCustomerPostingGroup(SalesInvoiceLine, SalesInvoiceHeader."Customer Posting Group");
                     TestVATPostingSetup(SalesInvoiceLine);
+                    TestWMSLocation(SalesInvoiceLine);
 
                     if not DimensionManagement.CheckDimIDComb(SalesInvoiceLine."Dimension Set ID") then
                         ErrorHelperLine(ErrorType::DimCombErr, SalesInvoiceLine);
@@ -866,6 +868,24 @@
         SalesLine.Modify();
 
         OnAfterUpdateSalesOrderLineInvoicedQuantity(SalesLine, CancelledQuantity, CancelledQtyBase);
+    end;
+
+    local procedure TestWMSLocation(SalesInvoiceLine: Record "Sales Invoice Line")
+    var
+        Item: Record Item;
+        Location: Record Location;
+    begin
+        if SalesInvoiceLine.Type <> SalesInvoiceLine.Type::Item then
+            exit;
+        if not Item.Get(SalesInvoiceLine."No.") then
+            exit;
+        if not Item.IsInventoriableType() then
+            exit;
+        if not Location.Get(SalesInvoiceLine."Location Code") then
+            exit;
+
+        if Location."Directed Put-away and Pick" then
+            Error(WMSLocationCancelCorrectErr, SalesInvoiceLine."Line No.");
     end;
 
     [IntegrationEvent(false, false)]

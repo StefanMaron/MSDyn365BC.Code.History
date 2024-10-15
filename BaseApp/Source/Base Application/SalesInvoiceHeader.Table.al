@@ -1104,7 +1104,14 @@ table 112 "Sales Invoice Header"
 
     [Scope('OnPrem')]
     procedure CheckCorrectedDocumentExist(CustNo: Code[20]; CorrInvNo: Code[20])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckCorrectedDocumentExist(CustNo, CorrInvNo, IsHandled);
+        if IsHandled then
+            exit;
+
         SetRange("Bill-to Customer No.", CustNo);
         SetRange("No.", CorrInvNo);
         if not FindFirst then
@@ -1263,6 +1270,11 @@ table 112 "Sales Invoice Header"
     procedure GetDefaultEmailDocumentName(): Text[150]
     begin
         exit(DocTxt);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckCorrectedDocumentExist(CustNo: Code[20]; CorrInvNo: Code[20]; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

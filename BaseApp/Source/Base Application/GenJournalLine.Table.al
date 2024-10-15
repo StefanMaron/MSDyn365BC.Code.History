@@ -3402,8 +3402,10 @@
 
     procedure CheckDocNoBasedOnNoSeries(LastDocNo: Code[20]; NoSeriesCode: Code[20]; var NoSeriesMgtInstance: Codeunit NoSeriesManagement)
     var
-        DocNo: Code[20];
+        NoSeries: Record "No. Series";
+        NoSeriesLine: Record "No. Series Line";
         IsHandled: Boolean;
+        DoDocumentNoTest: Boolean;
     begin
         IsHandled := false;
         OnBeforeCheckDocNoBasedOnNoSeries(Rec, LastDocNo, NoSeriesCode, NoSeriesMgtInstance, IsHandled);
@@ -3414,12 +3416,17 @@
             exit;
 
         if (LastDocNo = '') or ("Document No." <> LastDocNo) then begin
-            DocNo := NoSeriesMgtInstance.GetNextNo(NoSeriesCode, "Posting Date", false);
-            if not "Exported to Payment File" then
-                if "Document No." <> DocNo then begin
-                    NoSeriesMgtInstance.TestManualWithDocumentNo(NoSeriesCode, "Document No.");  // allow use of manual document numbers.
-                    NoSeriesMgtInstance.ClearNoSeriesLine();
-                end;
+            DoDocumentNoTest := "Document No." <> NoSeriesMgtInstance.GetNextNo(NoSeriesCode, "Posting Date", false);
+            if not DoDocumentNoTest then begin
+                if NoSeries.Get(NoSeriesCode) then;
+                if (NoSeriesMgtInstance.FindNoSeriesLine(NoSeriesLine, NoSeriesCode, "Posting Date")) then
+                    DoDocumentNoTest := not NoSeries."Manual Nos." and not NoSeriesMgtInstance.IsCurrentNoSeriesLine(NoSeriesLine);
+            end;
+
+            if DoDocumentNoTest and not "Exported to Payment File" then begin
+                NoSeriesMgtInstance.TestManualWithDocumentNo(NoSeriesCode, "Document No.");  // allow use of manual document numbers.
+                NoSeriesMgtInstance.ClearNoSeriesLine();
+            end;
         end;
     end;
 
@@ -4773,7 +4780,7 @@
     procedure GetCustLedgerEntry()
     begin
         if ("Account Type" = "Account Type"::Customer) and ("Account No." = '') and
-           ("Applies-to Doc. No." <> '') and (Amount = 0)
+           ("Applies-to Doc. No." <> '')
         then begin
             CustLedgEntry.Reset();
             CustLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
@@ -4784,34 +4791,36 @@
             Validate("Account No.", CustLedgEntry."Customer No.");
             OnGetCustLedgerEntryOnAfterAssignCustomerNo(Rec, CustLedgEntry);
 
-            CustLedgEntry.CalcFields("Remaining Amount");
+            if Amount = 0 then begin
+                CustLedgEntry.CalcFields("Remaining Amount");
 
-            if "Posting Date" <= CustLedgEntry."Pmt. Discount Date" then
-                Amount := -(CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible")
-            else
-                Amount := -CustLedgEntry."Remaining Amount";
+                if "Posting Date" <= CustLedgEntry."Pmt. Discount Date" then
+                    Amount := -(CustLedgEntry."Remaining Amount" - CustLedgEntry."Remaining Pmt. Disc. Possible")
+                else
+                    Amount := -CustLedgEntry."Remaining Amount";
 
-            if "Currency Code" <> CustLedgEntry."Currency Code" then
-                UpdateCurrencyCode(CustLedgEntry."Currency Code");
+                if "Currency Code" <> CustLedgEntry."Currency Code" then
+                    UpdateCurrencyCode(CustLedgEntry."Currency Code");
 
-            SetAppliesToFields(
-              CustLedgEntry."Document Type", CustLedgEntry."Document No.", CustLedgEntry."External Document No.");
+                SetAppliesToFields(
+                  CustLedgEntry."Document Type", CustLedgEntry."Document No.", CustLedgEntry."External Document No.");
 
-            GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-            if GenJnlBatch."Bal. Account No." <> '' then begin
-                "Bal. Account Type" := GenJnlBatch."Bal. Account Type";
-                Validate("Bal. Account No.", GenJnlBatch."Bal. Account No.");
-            end else
-                Validate(Amount);
+                GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
+                if GenJnlBatch."Bal. Account No." <> '' then begin
+                    "Bal. Account Type" := GenJnlBatch."Bal. Account Type";
+                    Validate("Bal. Account No.", GenJnlBatch."Bal. Account No.");
+                end else
+                    Validate(Amount);
 
-            OnAfterGetCustLedgerEntry(Rec, CustLedgEntry);
+                OnAfterGetCustLedgerEntry(Rec, CustLedgEntry);
+            end;
         end;
     end;
 
     procedure GetVendLedgerEntry()
     begin
         if ("Account Type" = "Account Type"::Vendor) and ("Account No." = '') and
-           ("Applies-to Doc. No." <> '') and (Amount = 0)
+           ("Applies-to Doc. No." <> '')
         then begin
             VendLedgEntry.Reset();
             VendLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
@@ -4822,34 +4831,36 @@
             Validate("Account No.", VendLedgEntry."Vendor No.");
             OnGetVendLedgerEntryOnAfterAssignVendorNo(Rec, VendLedgEntry);
 
-            VendLedgEntry.CalcFields("Remaining Amount");
+            if Amount = 0 then begin
+                VendLedgEntry.CalcFields("Remaining Amount");
 
-            if "Posting Date" <= VendLedgEntry."Pmt. Discount Date" then
-                Amount := -(VendLedgEntry."Remaining Amount" - VendLedgEntry."Remaining Pmt. Disc. Possible")
-            else
-                Amount := -VendLedgEntry."Remaining Amount";
+                if "Posting Date" <= VendLedgEntry."Pmt. Discount Date" then
+                    Amount := -(VendLedgEntry."Remaining Amount" - VendLedgEntry."Remaining Pmt. Disc. Possible")
+                else
+                    Amount := -VendLedgEntry."Remaining Amount";
 
-            if "Currency Code" <> VendLedgEntry."Currency Code" then
-                UpdateCurrencyCode(VendLedgEntry."Currency Code");
+                if "Currency Code" <> VendLedgEntry."Currency Code" then
+                    UpdateCurrencyCode(VendLedgEntry."Currency Code");
 
-            SetAppliesToFields(
-              VendLedgEntry."Document Type", VendLedgEntry."Document No.", VendLedgEntry."External Document No.");
+                SetAppliesToFields(
+                  VendLedgEntry."Document Type", VendLedgEntry."Document No.", VendLedgEntry."External Document No.");
 
-            GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-            if GenJnlBatch."Bal. Account No." <> '' then begin
-                "Bal. Account Type" := GenJnlBatch."Bal. Account Type";
-                Validate("Bal. Account No.", GenJnlBatch."Bal. Account No.");
-            end else
-                Validate(Amount);
+                GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
+                if GenJnlBatch."Bal. Account No." <> '' then begin
+                    "Bal. Account Type" := GenJnlBatch."Bal. Account Type";
+                    Validate("Bal. Account No.", GenJnlBatch."Bal. Account No.");
+                end else
+                    Validate(Amount);
 
-            OnAfterGetVendLedgerEntry(Rec, VendLedgEntry);
+                OnAfterGetVendLedgerEntry(Rec, VendLedgEntry);
+            end;
         end;
     end;
 
     procedure GetEmplLedgerEntry()
     begin
         if ("Account Type" = "Account Type"::Employee) and ("Account No." = '') and
-           ("Applies-to Doc. No." <> '') and (Amount = 0)
+           ("Applies-to Doc. No." <> '')
         then begin
             EmplLedgEntry.Reset();
             EmplLedgEntry.SetRange("Document No.", "Applies-to Doc. No.");
@@ -4858,20 +4869,21 @@
                 Error(NotExistErr, "Applies-to Doc. No.");
 
             Validate("Account No.", EmplLedgEntry."Employee No.");
-            EmplLedgEntry.CalcFields("Remaining Amount");
+            if Amount = 0 then begin
+                EmplLedgEntry.CalcFields("Remaining Amount");
 
-            Amount := -EmplLedgEntry."Remaining Amount";
+                Amount := -EmplLedgEntry."Remaining Amount";
 
-            SetAppliesToFields(EmplLedgEntry."Document Type", EmplLedgEntry."Document No.", '');
+                SetAppliesToFields(EmplLedgEntry."Document Type", EmplLedgEntry."Document No.", '');
 
-            GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
-            if GenJnlBatch."Bal. Account No." <> '' then begin
-                "Bal. Account Type" := GenJnlBatch."Bal. Account Type";
-                Validate("Bal. Account No.", GenJnlBatch."Bal. Account No.");
-            end else
-                Validate(Amount);
-
-            OnAfterGetEmplLedgerEntry(Rec, EmplLedgEntry);
+                GenJnlBatch.Get("Journal Template Name", "Journal Batch Name");
+                if GenJnlBatch."Bal. Account No." <> '' then begin
+                    "Bal. Account Type" := GenJnlBatch."Bal. Account Type";
+                    Validate("Bal. Account No.", GenJnlBatch."Bal. Account No.");
+                end else
+                    Validate(Amount);
+                OnAfterGetEmplLedgerEntry(Rec, EmplLedgEntry);
+            end;
         end;
     end;
 
@@ -5706,7 +5718,7 @@
         "Source Type" := "Source Type"::Customer;
         "Source No." := CustLedgerEntry."Customer No.";
 
-        OnAfterCopyGenJnlLineFromCustLedgEntry(CustLedgEntry, Rec);
+        OnAfterCopyGenJnlLineFromCustLedgEntry(CustLedgerEntry, Rec);
     end;
 
     procedure CopyFromGenJnlAllocation(GenJnlAlloc: Record "Gen. Jnl. Allocation")

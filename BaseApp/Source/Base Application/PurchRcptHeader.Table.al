@@ -492,6 +492,10 @@
             Caption = 'Inbound Whse. Handling Time';
             Editable = false;
         }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+        }
         field(10702; "Generate AutoInvoices"; Boolean)
         {
             Caption = 'Generate AutoInvoices';
@@ -580,7 +584,7 @@
     begin
         NavigatePage.SetDoc("Posting Date", "No.");
         NavigatePage.SetRec(Rec);
-        NavigatePage.Run;
+        NavigatePage.Run();
     end;
 
     procedure ShowDimensions()

@@ -810,7 +810,7 @@ codeunit 104000 "Upgrade - BaseApp"
 
         if CRMIntegrationRecord.FindSet() then
             repeat
-                CRMIntegrationManagement.SetCoupledFlag(CRMIntegrationRecord, true)
+                CRMIntegrationManagement.SetCoupledFlag(CRMIntegrationRecord, true, false)
             until CRMIntegrationRecord.Next() = 0;
 
         UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetSetCoupledFlagsUpgradeTag());

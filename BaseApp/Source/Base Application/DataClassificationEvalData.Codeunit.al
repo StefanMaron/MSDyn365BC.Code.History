@@ -315,6 +315,7 @@ codeunit 1751 "Data Classification Eval. Data"
         ClassifyEmailRecipient();
         ClassifyEmailMessageAttachment();
         ClassifyEmailRelatedAttachments();
+        ClassifyEmailLookup();
         ClassifyPostedGenJournalLine();
         ClassifyWordTemplate();
         ClassifyBatchProcessingSessionMap();
@@ -3979,6 +3980,13 @@ codeunit 1751 "Data Classification Eval. Data"
     begin
         SetFieldToPersonal(8889, 6); // Description / Email subject
         SetFieldToPersonal(8889, 13); // Send from
+    end;
+
+    local procedure ClassifyEmailLookup()
+    begin
+        SetFieldToPersonal(8944, 1); // Name;
+        SetFieldToPersonal(8944, 2); // Email;
+        SetFieldToPersonal(8944, 3); // Company;
     end;
 
     local procedure ClassifyEmailMessage()

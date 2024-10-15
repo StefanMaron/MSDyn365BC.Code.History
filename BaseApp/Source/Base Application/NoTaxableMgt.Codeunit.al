@@ -781,7 +781,7 @@ codeunit 10740 "No Taxable Mgt."
         exit(false);
     end;
 
-    local procedure CopyPurchInvoiceLineToTempPurchInvoiceLine(var TempPurchInvLine: Record "Purch. Inv. Line" temporary; PurchInvLine: Record "Purch. Inv. Line")
+    local procedure CopyPurchInvoiceLineToTempPurchInvoiceLine(var TempPurchInvLine: Record "Purch. Inv. Line" temporary; var PurchInvLine: Record "Purch. Inv. Line")
     begin
         TempPurchInvLine.Reset();
         TempPurchInvLine.DeleteAll();
@@ -823,7 +823,7 @@ codeunit 10740 "No Taxable Mgt."
         exit(false);
     end;
 
-    local procedure CopyPurchCrMemoLineToTempPurchCrMemoLine(var TempPurchCrMemoLine: Record "Purch. Cr. Memo Line" temporary; PurchCrMemoLine: Record "Purch. Cr. Memo Line")
+    local procedure CopyPurchCrMemoLineToTempPurchCrMemoLine(var TempPurchCrMemoLine: Record "Purch. Cr. Memo Line" temporary; var PurchCrMemoLine: Record "Purch. Cr. Memo Line")
     begin
         TempPurchCrMemoLine.Reset();
         TempPurchCrMemoLine.DeleteAll();

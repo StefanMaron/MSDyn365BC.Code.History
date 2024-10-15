@@ -56,10 +56,6 @@
                     trigger OnValidate()
                     begin
                         SelltoCustomerNoOnAfterValidate(Rec, xRec);
-
-                        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-                            SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec);
-
                         CurrPage.Update();
                     end;
 
@@ -372,8 +368,7 @@
 
                     trigger OnValidate()
                     begin
-                        CurrPage.SaveRecord;
-                        SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec);
+                        CurrPage.Update();
                     end;
                 }
                 field("Prices Including VAT"; "Prices Including VAT")
@@ -393,9 +388,6 @@
 
                     trigger OnValidate()
                     begin
-                        if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-                            SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec);
-
                         CurrPage.Update();
                     end;
                 }
@@ -787,11 +779,7 @@
                                     if "Bill-to Customer No." <> xRec."Bill-to Customer No." then
                                         SetRange("Bill-to Customer No.");
 
-                                CurrPage.SaveRecord;
-                                if ApplicationAreaMgmtFacade.IsFoundationEnabled then
-                                    SalesCalcDiscountByType.ApplyDefaultInvoiceDiscount(0, Rec);
-
-                                CurrPage.Update(false);
+                                CurrPage.Update();
                             end;
                         }
                         field("Bill-to Address"; "Bill-to Address")
@@ -1182,6 +1170,7 @@
                             exit;
 
                         OpenSalesOrderStatistics();
+                        CurrPage.SalesLines.Page.ForceTotalsCalculation();
                     end;
                 }
                 action(Customer)

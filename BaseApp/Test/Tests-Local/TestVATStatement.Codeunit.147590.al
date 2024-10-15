@@ -31,6 +31,7 @@ codeunit 147590 "Test VAT Statement"
         TotalAmtTok: Label 'TotalAmt';
         TotalVATAmtTok: Label 'TotalVATAmt';
         TotalBaseTok: Label 'TotalBase';
+        TotalECAmtTok: Label 'TotalECAmt';
 
     [Test]
     [HandlerFunctions('TemplateSelectionModalPageHandler')]
@@ -1292,6 +1293,54 @@ codeunit 147590 "Test VAT Statement"
         VerifyVATStatementLineForRow(0, PurchaseHeader1.Amount + PurchaseHeader2.Amount, '4');
     end;
 
+    [Test]
+    [HandlerFunctions('VATStatementRequestPageHandlerDefault')]
+    [Scope('OnPrem')]
+    procedure TestVATStatementTwoColumnsTemplateVATAmountECAmount()
+    var
+        VATPostingSetup: Record "VAT Posting Setup";
+        VATStatementName: Record "VAT Statement Name";
+        VATStatementLine: Record "VAT Statement Line";
+        Amount: Decimal;
+        BaseAmount: Decimal;
+        ECAmount: Decimal;
+    begin
+        // [FEATURE] [Report]
+        // [SCENARIO 415480] Check Columns VAT Amount and EC Amount in VAT Statement when Normal VAT is involved, Template Type = Two Columns, Amount type = Amount
+        Initialize();
+
+        // [GIVEN] VAT Posting Setup with "VAT %" = 16, "EC %" = 5
+        CreateVATPostingSetup(VATPostingSetup);
+        // [GIVEN] Prepare invoice amount with VAT Amount = 160 and EC Amount = 50
+        BaseAmount := 1000 * LibraryRandom.RandInt(5);
+        Amount := Round(VATPostingSetup."VAT %" * BaseAmount / 100, GLSetup."Amount Rounding Precision");
+        ECAmount := Round(VATPostingSetup."EC %" * BaseAmount / 100, GLSetup."Amount Rounding Precision");
+
+        // [GIVEN] VAT statement with Two Columns Report
+        CreateVATStatementNameWithTemplateType(VATStatementName, VATStatementName."Template Type"::"Two Columns Report");
+        // [GIVEN] VAT Statement line with Type = "EC Entry Totaling", "Amount Type" = Amount
+        CreateVATStatementLineECTotalling(VATStatementLine, VATStatementName, '1',
+          VATPostingSetup, VATStatementLine."Gen. Posting Type"::Purchase, VATStatementLine."Amount Type"::Amount, '');
+
+        // [GIVEN] Create and post purchase invoice for full amount 1210 (1000 + 160 + 50)
+        CreateAndPostGeneralJournalLineToBalAccount(
+            "Gen. Journal Account Type"::Vendor,
+            LibraryPurchase.CreateVendorNo(),
+            LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, "General Posting Type"::Purchase),
+            -(Amount + BaseAmount + ECAmount));
+        Commit();
+
+        // [WHEN] Run VAT Statement report
+        RunVatStatementReportAndLoad(VATStatementLine, VATStatementName);
+
+        // [THEN] Value of Total VAT Amount = 160
+        LibraryReportDataset.AssertElementWithValueExists(TotalVATAmtTok, Amount);
+        // [THEN] Value of Total EC Amount = 50
+        LibraryReportDataset.AssertElementWithValueExists(TotalECAmtTok, ECAmount);
+        // [THEN] Value of Total Base = 0
+        LibraryReportDataset.AssertElementWithValueExists(TotalBaseTok, 0);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -1832,6 +1881,16 @@ codeunit 147590 "Test VAT Statement"
         REPORT.Run(REPORT::"VAT Statement", true, false, VATStatementLine);
     end;
 
+    local procedure RunVatStatementReportAndLoad(VATStatementLine: Record "VAT Statement Line"; VATStatementName: Record "VAT Statement Name")
+    var
+        RequestPageXML: Text;
+    begin
+        VATStatementLine.SetRange("Statement Template Name", VATStatementName."Statement Template Name");
+        VATStatementLine.SetRange("Statement Name", VATStatementName.Name);
+        RequestPageXML := Report.RunRequestPage(Report::"VAT Statement");
+        LibraryReportDataset.RunReportAndLoad(Report::"VAT Statement", VATStatementLine, RequestPageXML);
+    end;
+
     local procedure VerifyVATStatementLineForRow(TotalAmount: Decimal; TotalBase: Decimal; RowNo: Variant)
     begin
         LibraryReportDataset.SetRange('RowNo_VATStatementLine', RowNo);
@@ -1963,6 +2022,12 @@ codeunit 147590 "Test VAT Statement"
         VATStatement.PeriodSelection.SetValue(0); // Before and Within Period
         VATStatement.ShowAmtInAddCurr.SetValue(false);
         VATStatement.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure VATStatementRequestPageHandlerDefault(var VATStatement: TestRequestPage "VAT Statement")
+    begin
     end;
 }
 

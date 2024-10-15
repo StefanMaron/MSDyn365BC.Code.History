@@ -103,6 +103,8 @@ report 5881 "Make Phys. Invt. Recording"
         DifferentOrdersMsg: Label '%1 different orders has been created.', Comment = '%1 = counter';
         PhysInvtRecordHeader: Record "Phys. Invt. Record Header";
         PhysInvtRecordLine: Record "Phys. Invt. Record Line";
+
+    protected var
         NextLineNo: Integer;
         HeaderCount: Integer;
         OnlyLinesNotInRecordings: Boolean;

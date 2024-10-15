@@ -1353,6 +1353,8 @@ codeunit 5342 "CRM Synch. Helper"
         KeyRef: KeyRef;
         FieldRef: FieldRef;
     begin
+        if RecID.TableNo() = 0 then
+            exit;
         Found := RecordRef.Get(RecID);
         KeyRef := RecordRef.KeyIndex(1);
         FieldRef := KeyRef.FieldIndex(1);

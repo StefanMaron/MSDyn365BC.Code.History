@@ -4739,6 +4739,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test VAT Statement - NamedType TotalBaseTok)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2971784732 - NamedType 3864001592" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[TotalECAmt]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Test VAT Statement - NamedType TotalECAmtTok)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 2971784732 - NamedType 4253164571" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[TotalVATAmt]]></Val>

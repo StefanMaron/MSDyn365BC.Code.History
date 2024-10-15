@@ -896,11 +896,23 @@ table 122 "Purch. Inv. Header"
 
     [Scope('OnPrem')]
     procedure CheckCorrectedDocumentExist(VendNo: Code[20]; CorrInvNo: Code[20])
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckCorrectedDocumentExist(VendNo, CorrInvNo, IsHandled);
+        if IsHandled then
+            exit;
+
         SetRange("Pay-to Vendor No.", VendNo);
         SetRange("No.", CorrInvNo);
         if not FindFirst then
             Error(CorrInvDoesNotExistErr, CorrInvNo);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckCorrectedDocumentExist(VendNo: Code[20]; CorrInvNo: Code[20]; var IsHandled: Boolean)
+    begin
     end;
 
     [IntegrationEvent(false, false)]

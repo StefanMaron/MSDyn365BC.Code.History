@@ -17,6 +17,9 @@ codeunit 144075 "ERM No Taxable VAT"
         LibrarySales: Codeunit "Library - Sales";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
         LibraryRandom: Codeunit "Library - Random";
+        LibraryUtility: Codeunit "Library - Utility";
+        LibrarySetupStorage: Codeunit "Library - Setup Storage";
+        IsInitialized: Boolean;
         NotEqualToTxt: Label '<>%1.';
         VATBufferAmountCap: Label 'VATBuffer2_Amount';
         VATBufferBaseAmountCap: Label 'VATBuffer2_Base_VATBuffer2_Amount';
@@ -187,9 +190,185 @@ codeunit 144075 "ERM No Taxable VAT"
         VerifyNoXmlValuesOnReport(DocumentNo, PurchaseLineGLAccount."Buy-from Vendor No.", PurchaseLineGLAccount.Amount);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure NoTaxableEntryCreatesIndividuallyForEachPurchInvoice()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        NoTaxableEntry: Record "No Taxable Entry";
+        PurchSetup: Record "Purchases & Payables Setup";
+        NoTaxableEntryCount: Integer;
+        DocNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Invoice]
+        // [SCENARIO 420328] No Taxable Entry creates individually for each posted purchase invoice
+
+        Initialize();
+
+        // [GIVEN] Post first purchase invoice with No Taxable VAT
+        FindVATPostingSetupWithNoTaxableVAT(VATPostingSetup);
+        CreatePurchaseDocument(PurchaseHeader, VATPostingSetup, PurchaseHeader."Document Type"::Invoice, LibraryRandom.RandDec(10, 2));
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        NoTaxableEntryCount := NoTaxableEntry.Count();
+
+        // [GIVEN] Set a new No. Series code to the "Posted Invoice Nos." in Purchase Setup to start numeration from the "001" document
+        PurchSetup.Get();
+        PurchSetup.Validate("Posted Invoice Nos.", CreateNoSeriesCodeWithIntegers());
+        PurchSetup.Modify(true);
+
+        // [GIVEN] Create second purchase invoice with No Taxable VAT. Amount in the line is "X"
+        CreatePurchaseDocument(PurchaseHeader, VATPostingSetup, PurchaseHeader."Document Type"::Invoice, LibraryRandom.RandDec(10, 2));
+        LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
+
+        // [WHEN] Post second purchase invoice
+        DocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Only one additional No Taxable Entry creates with Base = "X"
+        Assert.RecordCount(NoTaxableEntry, NoTaxableEntryCount + 1);
+        NoTaxableEntry.SetRange("Document No.", DocNo);
+        NoTaxableEntry.FindLast();
+        NoTaxableEntry.TestField(Base, PurchaseLine.Amount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NoTaxableEntryCreatesIndividuallyForEachPurchCrMemo()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        NoTaxableEntry: Record "No Taxable Entry";
+        PurchSetup: Record "Purchases & Payables Setup";
+        NoTaxableEntryCount: Integer;
+        DocNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Credit Memo]
+        // [SCENARIO 420328] No Taxable Entry creates individually for each posted purchase credit memo
+
+        Initialize();
+
+        // [GIVEN] Post first purchase credit memo with No Taxable VAT
+        FindVATPostingSetupWithNoTaxableVAT(VATPostingSetup);
+        CreatePurchaseDocument(PurchaseHeader, VATPostingSetup, PurchaseHeader."Document Type"::"Credit Memo", LibraryRandom.RandDec(10, 2));
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        NoTaxableEntryCount := NoTaxableEntry.Count();
+
+        // [GIVEN] Set a new No. Series code to the "Posted Credit Memo Nos." in Purchase Setup to start numeration from the "001" document
+        PurchSetup.Get();
+        PurchSetup.Validate("Posted Credit Memo Nos.", CreateNoSeriesCodeWithIntegers());
+        PurchSetup.Modify(true);
+
+        // [GIVEN] Create second purchase credit memo with No Taxable VAT. Amount in the line is "X"
+        CreatePurchaseDocument(PurchaseHeader, VATPostingSetup, PurchaseHeader."Document Type"::"Credit Memo", LibraryRandom.RandDec(10, 2));
+        LibraryPurchase.FindFirstPurchLine(PurchaseLine, PurchaseHeader);
+
+        // [WHEN] Post second purchase credit memo
+        DocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Only one additional No Taxable Entry creates with Base = "X"
+        Assert.RecordCount(NoTaxableEntry, NoTaxableEntryCount + 1);
+        NoTaxableEntry.SetRange("Document No.", DocNo);
+        NoTaxableEntry.FindLast();
+        NoTaxableEntry.TestField(Base, -PurchaseLine.Amount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NoTaxableEntryCreatesIndividuallyForEachSalesInvoice()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        NoTaxableEntry: Record "No Taxable Entry";
+        SalesSetup: Record "Sales & Receivables Setup";
+        NoTaxableEntryCount: Integer;
+        DocNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Invoice]
+        // [SCENARIO 420328] No Taxable Entry creates individually for each posted sales invoice
+
+        Initialize();
+
+        // [GIVEN] Post first sales invoice with No Taxable VAT
+        FindVATPostingSetupWithNoTaxableVAT(VATPostingSetup);
+        CreateSalesDocument(SalesHeader, VATPostingSetup, SalesHeader."Document Type"::Invoice, LibraryRandom.RandDec(10, 2));
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        NoTaxableEntryCount := NoTaxableEntry.Count();
+
+        // [GIVEN] Set a new No. Series code to the "Posted Invoice Nos." in Sales Setup to start numeration from the "001" document
+        SalesSetup.Get();
+        SalesSetup.Validate("Posted Invoice Nos.", CreateNoSeriesCodeWithIntegers());
+        SalesSetup.Modify(true);
+
+        // [GIVEN] Create second sales invoice with No Taxable VAT. Amount in the line is "X"
+        CreateSalesDocument(SalesHeader, VATPostingSetup, SalesHeader."Document Type"::Invoice, LibraryRandom.RandDec(10, 2));
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+
+        // [WHEN] Post second sales invoice
+        DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Only one additional No Taxable Entry creates with Base = "X"
+        Assert.RecordCount(NoTaxableEntry, NoTaxableEntryCount + 1);
+        NoTaxableEntry.SetRange("Document No.", DocNo);
+        NoTaxableEntry.FindLast();
+        NoTaxableEntry.TestField(Base, -SalesLine.Amount);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure NoTaxableEntryCreatesIndividuallyForEachSalesCrMemo()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        VATPostingSetup: Record "VAT Posting Setup";
+        NoTaxableEntry: Record "No Taxable Entry";
+        SalesSetup: Record "Sales & Receivables Setup";
+        NoTaxableEntryCount: Integer;
+        DocNo: Code[20];
+    begin
+        // [FEATURE] [Sales] [Credit Memo]
+        // [SCENARIO 420328] No Taxable Entry creates individually for each posted sales credit memo
+
+        Initialize();
+
+        // [GIVEN] Post first sales credit memo with No Taxable VAT
+        FindVATPostingSetupWithNoTaxableVAT(VATPostingSetup);
+        CreateSalesDocument(SalesHeader, VATPostingSetup, SalesHeader."Document Type"::"Credit Memo", LibraryRandom.RandDec(10, 2));
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        NoTaxableEntryCount := NoTaxableEntry.Count();
+
+        // [GIVEN] Set a new No. Series code to the "Posted Credit Memo Nos." in Sales Setup to start numeration from the "001" document
+        SalesSetup.Get();
+        SalesSetup.Validate("Posted Credit Memo Nos.", CreateNoSeriesCodeWithIntegers());
+        SalesSetup.Modify(true);
+
+        // [GIVEN] Create second sales credit memo with No Taxable VAT. Amount in the line is "X"
+        CreateSalesDocument(SalesHeader, VATPostingSetup, SalesHeader."Document Type"::"Credit Memo", LibraryRandom.RandDec(10, 2));
+        LibrarySales.FindFirstSalesLine(SalesLine, SalesHeader);
+
+        // [WHEN] Post second sales credit memo
+        DocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+
+        // [THEN] Only one additional No Taxable Entry creates with Base = "X"
+        Assert.RecordCount(NoTaxableEntry, NoTaxableEntryCount + 1);
+        NoTaxableEntry.SetRange("Document No.", DocNo);
+        NoTaxableEntry.FindLast();
+        NoTaxableEntry.TestField(Base, SalesLine.Amount);
+    end;
+
     local procedure Initialize()
     begin
-        LibraryVariableStorage.Clear;
+        LibraryVariableStorage.Clear();
+        LibrarySetupStorage.Restore();
+        if IsInitialized then
+            exit;
+
+        LibrarySetupStorage.SavePurchasesSetup();
+        LibrarySetupStorage.SaveSalesSetup();
+        Commit();
+        IsInitialized := true;
     end;
 
     local procedure CreateGLAccountWithNoTaxableVAT(): Code[20]
@@ -407,6 +586,16 @@ codeunit 144075 "ERM No Taxable VAT"
         CreatePurchaseLine(
           PurchLineGLAccount, PurchaseHeader, PurchLineGLAccount.Type::"G/L Account", GLAccNo, LibraryRandom.RandDec(10, 2));  // Random value used for Quantity.
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);  // Post as Ship and Invoice.
+    end;
+
+    local procedure CreateNoSeriesCodeWithIntegers(): Code[20]
+    var
+        NoSeries: Record "No. Series";
+        NoSeriesLine: Record "No. Series Line";
+    begin
+        LibraryUtility.CreateNoSeries(NoSeries, true, true, false);
+        LibraryUtility.CreateNoSeriesLine(NoSeriesLine, NoSeries.Code, '001', '999');
+        exit(NoSeries.Code);
     end;
 
     local procedure VerifyNoVATEntryExist(DocumentNo: Code[20])

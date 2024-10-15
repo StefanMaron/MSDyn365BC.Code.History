@@ -113,6 +113,7 @@ codeunit 1381 "Customer Templ. Mgt."
         CustomerRecRef.SetTable(Customer);
         if CustomerTempl."Invoice Disc. Code" <> '' then
             Customer."Invoice Disc. Code" := CustomerTempl."Invoice Disc. Code";
+        Customer.Validate("Payment Method Code", CustomerTempl."Payment Method Code");
         if CustomerTempl."Payment Days Code" <> '' then
             Customer."Payment Days Code" := CustomerTempl."Payment Days Code";		
         if CustomerTempl."Non-Paymt. Periods Code" <> '' then
@@ -369,8 +370,9 @@ codeunit 1381 "Customer Templ. Mgt."
     begin
         FieldExclusionList.Add(CustomerTempl.FieldNo("Invoice Disc. Code"));
         FieldExclusionList.Add(CustomerTempl.FieldNo("No. Series"));
-		FieldExclusionList.Add(CustomerTempl.FieldNo("Payment Days Code"));
-		FieldExclusionList.Add(CustomerTempl.FieldNo("Non-Paymt. Periods Code"));
+        FieldExclusionList.Add(CustomerTempl.FieldNo("Payment Method Code"));
+	FieldExclusionList.Add(CustomerTempl.FieldNo("Payment Days Code"));
+	FieldExclusionList.Add(CustomerTempl.FieldNo("Non-Paymt. Periods Code"));
 
         OnAfterFillFieldExclusionList(FieldExclusionList);
     end;

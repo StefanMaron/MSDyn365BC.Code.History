@@ -95,9 +95,9 @@ page 95 "Sales Quote Subform"
 #endif
                 field("Item Reference No."; "Item Reference No.")
                 {
+                    AccessByPermission = tabledata "Item Reference" = R;
                     ApplicationArea = Suite, ItemReferences;
                     ToolTip = 'Specifies the referenced item number.';
-                    Visible = ItemReferenceVisible;
 
                     trigger OnLookup(var Text: Text): Boolean
                     var
@@ -1095,7 +1095,9 @@ page 95 "Sales Quote Subform"
         SetOpenPage();
 
         SetDimensionsVisibility();
+#if not CLEAN19
         SetItemReferenceVisibility();
+#endif
     end;
 
     var
@@ -1130,10 +1132,13 @@ page 95 "Sales Quote Subform"
         InvoiceDiscountPct: Decimal;
         InvDiscAmountEditable: Boolean;
         IsBlankNumber: Boolean;
+        [InDataSet]
         IsCommentLine: Boolean;
         SuppressTotals: Boolean;
+#if not CLEAN19
         [InDataSet]
         ItemReferenceVisible: Boolean;
+#endif
         UnitofMeasureCodeIsChangeable: Boolean;
         ItemChargeStyleExpression: Text;
         VATAmount: Decimal;
@@ -1378,12 +1383,12 @@ page 95 "Sales Quote Subform"
         OnAfterSetDimensionsVisibility();
     end;
 
+#if not CLEAN19
     local procedure SetItemReferenceVisibility()
-    var
-        ItemReferenceMgt: Codeunit "Item Reference Management";
     begin
-        ItemReferenceVisible := ItemReferenceMgt.IsEnabled();
+        ItemReferenceVisible := true;
     end;
+#endif
 
     local procedure ValidateShortcutDimension(DimIndex: Integer)
     var
