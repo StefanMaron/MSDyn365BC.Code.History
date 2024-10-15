@@ -247,7 +247,7 @@ page 5530 "Item Availability by Event"
                     Editable = false;
                     Style = Strong;
                     StyleExpr = Emphasize;
-                    ToolTip = 'Specifies how the how the item will develop over time according to supply and demand events.';
+                    ToolTip = 'Specifies the quantity of the item that is reserved from requirement.';
                 }
                 field("Scheduled Receipt"; Rec."Scheduled Receipt")
                 {
@@ -263,7 +263,7 @@ page 5530 "Item Availability by Event"
                     Editable = false;
                     Style = Strong;
                     StyleExpr = Emphasize;
-                    ToolTip = 'Specifies how the how the item will develop over time according to supply and demand events.';
+                    ToolTip = 'Specifies the quantity of the item that is reserved from receipt.';
                 }
                 field("Remaining Quantity (Base)"; Rec."Remaining Quantity (Base)")
                 {
