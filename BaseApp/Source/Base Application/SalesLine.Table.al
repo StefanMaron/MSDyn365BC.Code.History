@@ -4404,8 +4404,7 @@
                 FieldError("Prepmt. Line Amount", StrSubstNo(Text049, "Prepmt. Amt. Inv."));
             end;
             if "Prepmt. Line Amount" <> 0 then begin
-                RemLineAmountToInvoice :=
-                  Round("Line Amount" * (Quantity - "Quantity Invoiced") / Quantity, Currency."Amount Rounding Precision");
+                RemLineAmountToInvoice := GetLineAmountToHandleInclPrepmt(Quantity - "Quantity Invoiced");
                 if RemLineAmountToInvoice < ("Prepmt. Line Amount" - "Prepmt Amt Deducted") then
                     FieldError("Prepmt. Line Amount", StrSubstNo(Text045, RemLineAmountToInvoice + "Prepmt Amt Deducted"));
             end;
