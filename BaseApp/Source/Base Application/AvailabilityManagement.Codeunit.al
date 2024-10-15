@@ -292,6 +292,13 @@ codeunit 99000889 AvailabilityManagement
                                     FeasibleDate := GetExpectedReceiptDateFromSpecialOrder(SourceSalesLine);
                                     FeasibleDateFound := true;
                                 end;
+
+                        if not FeasibleDateFound then
+                            if "Required Quantity" = 0 then begin
+                                FeasibleDate := "Original Shipment Date";
+                                FeasibleDateFound := true;
+                            end;
+
                         if not FeasibleDateFound then
                             FeasibleDate := AvailToPromise.EarliestAvailabilityDate(
                                 Item, Quantity, NeededDate, Quantity, "Original Shipment Date", AvailQty,

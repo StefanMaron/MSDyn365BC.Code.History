@@ -107,6 +107,7 @@ codeunit 9998 "Upgrade Tag Definitions"
         PerCompanyUpgradeTags.Add(GetDataExchOCRVendorNoTag());
         PerCompanyUpgradeTags.Add(GetConfigFieldMapUpgradeTag());
         PerCompanyUpgradeTags.Add(GetItemCrossReferenceInPEPPOLUpgradeTag());
+        PerCompanyUpgradeTags.Add(GetUseCustomLookupUpgradeTag());
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Upgrade Tag", 'OnGetPerDatabaseUpgradeTags', '', false, false)]
@@ -897,6 +898,11 @@ codeunit 9998 "Upgrade Tag Definitions"
     internal procedure GetItemCrossReferenceInPEPPOLUpgradeTag(): Code[250]
     begin
         exit('MS-422103-GetItemCrossReferenceInPEPPOLUpgradeTag-20220114');
+    end;
+
+    internal procedure GetUseCustomLookupUpgradeTag(): Code[250]
+    begin
+        exit('MS-426799-GetUseCustomLookupUpgradeTag-20220406');
     end;
 }
 

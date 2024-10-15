@@ -301,6 +301,9 @@ codeunit 1402 "Cancel Posted Purch. Cr. Memo"
         if IsHandled then
             exit;
 
+        if PurchCrMemoLine."VAT Calculation Type" = PurchCrMemoLine."VAT Calculation Type"::"Sales Tax" then
+            exit;
+
         with GenPostingSetup do begin
             Get(PurchCrMemoLine."Gen. Bus. Posting Group", PurchCrMemoLine."Gen. Prod. Posting Group");
             TestField("Purch. Account");

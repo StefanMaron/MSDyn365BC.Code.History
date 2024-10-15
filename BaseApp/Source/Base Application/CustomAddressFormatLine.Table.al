@@ -29,6 +29,8 @@ table 726 "Custom Address Format Line"
 
             trigger OnValidate()
             begin
+                if CurrFieldNo <> 0 then
+                    CheckFieldId();
                 if Field.Get(DATABASE::"Company Information", "Field ID") then
                     "Field Name" := Field.FieldName
                 else
@@ -71,6 +73,7 @@ table 726 "Custom Address Format Line"
     var
         "Field": Record "Field";
         LimitExceededErr: Label 'You cannot create more than three Custom Address Format Lines.';
+        CompositeFieldErr: Label 'Only the City, Post Code, and County fields can be used.';
 
     procedure MoveLine(MoveBy: Integer)
     var
@@ -125,6 +128,20 @@ table 726 "Custom Address Format Line"
         CustomAddressFormatLine.SetRange("Line No.", "Line No.");
         if CustomAddressFormatLine.Count > 2 then
             Error(LimitExceededErr);
+    end;
+
+    local procedure CheckFieldId()
+    var
+        CompanyInformation: Record "Company Information";
+        CustomAddressFormat: Record "Custom Address Format";
+    begin
+        CustomAddressFormat.Get("Country/Region Code", "Line No.");
+        if CustomAddressFormat."Field ID" = 0 then
+            if not ("Field ID" in [CompanyInformation.FieldNo(City),
+                CompanyInformation.FieldNo("Post Code"),
+                CompanyInformation.FieldNo(County)])
+            then
+                Error(CompositeFieldErr);
     end;
 }
 
