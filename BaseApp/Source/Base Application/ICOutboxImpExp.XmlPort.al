@@ -214,6 +214,9 @@ xmlport 12 "IC Outbox Imp/Exp"
                         fieldattribute(PromDelivDate; ICOutBoxSalesHdr."Promised Delivery Date")
                         {
                         }
+                        fieldattribute(OrderNo; ICOutBoxSalesHdr."Order No.")
+                        {
+                        }
                         textelement(ICDocDimensions)
                         {
                             tableelement(icsalesdocdim; "IC Document Dimension")
@@ -314,6 +317,12 @@ xmlport 12 "IC Outbox Imp/Exp"
                                 {
                                 }
                                 fieldattribute(PromDelivDate; ICOutBoxSalesLine."Promised Delivery Date")
+                                {
+                                }
+                                fieldattribute(ShipmentNo; ICOutBoxSalesLine."Shipment No.")
+                                {
+                                }
+                                fieldattribute(ShipmentLineNo; ICOutBoxSalesLine."Shipment Line No.")
                                 {
                                 }
                                 textelement(LineDimensions)

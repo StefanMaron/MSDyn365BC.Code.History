@@ -3955,6 +3955,50 @@ codeunit 134341 "UT Page Actions & Controls"
         LoggedSegment.FindFirst();
     end;
 
+    [Test]
+    [HandlerFunctions('VATStatementTemplateListModalPageHandler')]
+    [Scope('OnPrem')]
+    procedure DateFilterCopyToVATEntriesFromVATStatementPreview()
+    var
+        VATStatementName: Record "VAT Statement Name";
+        VATStatementLine: Record "VAT Statement Line";
+        VATStatementPreview: TestPage "VAT Statement Preview";
+        VATStatement: TestPage "VAT Statement";
+        VATEntries: TestPage "VAT Entries";
+    begin
+        // [FEATURE] [UI] [VAT Statement]
+        // [SCENARIO 353780] 'VAT Entries' opened from VAT Statement Preview respect the Date Filter in VAT Statement
+        // [GIVEN] "VAT Statement Name" and "VAT Statement Line" with Type = "VAT Entry Totaling"
+        LibraryERM.CreateVATStatementNameWithTemplate(VATStatementName);
+        LibraryERM.CreateVATStatementLine(VATStatementLine, VATStatementName."Statement Template Name", VATStatementName.Name);
+        VATStatementLine.Validate(Type, VATStatementLine.Type::"VAT Entry Totaling");
+	    VATStatementLine.Validate("Amount Type", VATStatementLine."Amount Type"::Amount);
+        VATStatementLine.Modify(true);
+        LibraryVariableStorage.Enqueue(VATStatementName."Statement Template Name");
+
+        // [GIVEN] Open page "VAT Statement Preview" for created line
+        VATStatement.OpenEdit();
+        VATStatement.Filter.SetFilter("Statement Template Name", VATStatementLine."Statement Template Name");
+        VATStatement.Filter.SetFilter("Statement Name", VATStatementLine."Statement Name");
+        VATStatement.First();
+        VATStatementPreview.Trap();
+        VATStatement."P&review".Invoke();
+
+        // [GIVEN] Set date filter to "Date" and Period Selection = "Within Period"
+        VATStatementPreview.PeriodSelection.SetValue('Within Period');
+        VATStatementPreview.DateFilter.SetValue(WorkDate);
+        VATEntries.Trap();
+
+        // [WHEN] DrillDown to ColumnValue
+        VATStatementPreview.VATStatementLineSubForm.ColumnValue.Drilldown();
+
+        // [THEN] Page "VAT Entries" was opened with filter to "Posting Date" = Date
+        Assert.AreEqual(VATEntries.FILTER.GetFilter("Posting Date"), Format(WorkDate), '');
+        VATEntries.Close();
+        VATStatement.Close();
+        VATStatementPreview.Close();
+    end;
+
     local procedure CreatePostCodeFields(var City: Text[30]; var "Code": Code[20]; var County: Text[30]; var CountryCode: Code[10])
     var
         PostCode: Record "Post Code";
@@ -4803,6 +4847,14 @@ codeunit 134341 "UT Page Actions & Controls"
     procedure LogSegmentHandler(var LogSegment: TestRequestPage "Log Segment")
     begin
         LogSegment.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure VATStatementTemplateListModalPageHandler(var VATStatementTemplateList: TestPage "VAT Statement Template List")
+    begin
+        VATStatementTemplateList.Filter.SetFilter(Name, LibraryVariableStorage.DequeueText);
+        VATStatementTemplateList.OK.Invoke;
     end;
 }
 

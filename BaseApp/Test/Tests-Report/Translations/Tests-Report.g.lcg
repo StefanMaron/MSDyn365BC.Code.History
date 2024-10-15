@@ -916,7 +916,7 @@
   </Item>
   <Item ItemId=";Codeunit 3196030910 - NamedType 623369263" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Statement for %1_%2 as of %3.docx]]></Val>
+      <Val><![CDATA[Statement for %1 as of %2.docx]]></Val>
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
@@ -939,15 +939,6 @@
     <Disp Icon="Str" Expand="true" />
     <Cmts>
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Rep. Selections - Std. Stmt. - NamedType StatementTitleHtmlTxt)]]></Cmt>
-    </Cmts>
-  </Item>
-  <Item ItemId=";Codeunit 3196030910 - NamedType 1205962448" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
-    <Str Cat="Text" CP="DOS">
-      <Val><![CDATA[Statement for %1 as of %2.docx]]></Val>
-    </Str>
-    <Disp Icon="Str" Expand="true" />
-    <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit Rep. Selections - Std. Stmt. - NamedType StatementTitlePrintDocxTxt)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3196030910 - NamedType 3495513796" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

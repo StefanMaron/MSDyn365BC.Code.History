@@ -58,6 +58,7 @@ page 610 "IC General Journal"
                 {
                     ApplicationArea = Intercompany;
                     ToolTip = 'Specifies the number of the related document.';
+                    ShowMandatory = true;
                 }
                 field("External Document No."; "External Document No.")
                 {

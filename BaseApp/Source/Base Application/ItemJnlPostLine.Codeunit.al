@@ -37,6 +37,7 @@ codeunit 22 "Item Jnl.-Post Line"
         Text022: Label 'You cannot apply %1 to %2 on the same item %3 on Production Order %4.';
         Text100: Label 'Fatal error when retrieving Tracking Specification.';
         Text99000000: Label 'must not be filled out when reservations exist';
+        CannotUnapplyItemLedgEntryErr: Label 'You cannot proceed with the posting as it will result in negative inventory for item %1. \Item ledger entry %2 cannot be left unapplied.', Comment = '%1 - Item no., %2 - Item ledger entry no.';
         GLSetup: Record "General Ledger Setup";
         Currency: Record Currency;
         InvtSetup: Record "Inventory Setup";
@@ -1347,6 +1348,7 @@ codeunit 22 "Item Jnl.-Post Line"
                     ItemCostMgt.UpdateUnitCost(Item, "Location Code", "Variant Code", LastDirectCost, 0, true, true, false, 0);
                 end;
             end;
+        OnAfterUpdateUnitCost(ValueEntry, LastDirectCost, ItemJnlLine);
     end;
 
     procedure UnApply(ItemApplnEntry: Record "Item Application Entry")
@@ -2243,6 +2245,8 @@ codeunit 22 "Item Jnl.-Post Line"
             if CalledFromAdjustment and not PostToGL then
                 exit;
 
+            OnBeforePostInventoryToGL(ValueEntry);
+
             InventoryPostingToGL.SetRunOnlyCheck(true, not PostToGL, false);
             PostInvtBuffer(ValueEntry);
 
@@ -2262,6 +2266,8 @@ codeunit 22 "Item Jnl.-Post Line"
                     SetValueEntry(ValueEntry, 0, 0, false);
                 end;
         end;
+
+        OnAfterPostInventoryToGL(ValueEntry);
     end;
 
     local procedure SetValueEntry(var ValueEntry: Record "Value Entry"; CostAmtActual: Decimal; CostAmtActACY: Decimal; ExpectedCost: Boolean)
@@ -5231,7 +5237,8 @@ codeunit 22 "Item Jnl.-Post Line"
             FindSet;
             repeat
                 ItemLedgEntryApplied.Get("Entry No.");
-                ItemLedgEntryApplied.VerifyOnInventory;
+                ItemLedgEntryApplied.VerifyOnInventory(
+                    StrSubstNo(CannotUnapplyItemLedgEntryErr, ItemLedgEntryApplied."Item No.", ItemLedgEntryApplied."Entry No."));
             until Next = 0;
         end;
     end;
@@ -5538,6 +5545,11 @@ codeunit 22 "Item Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterUpdateAdjmtProp(var ValueEntry: Record "Value Entry"; OriginalPostingDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterUpdateUnitCost(ValueEntry: Record "Value Entry"; LastDirectCost: Decimal; ItemJournalLine: Record "Item Journal Line")
     begin
     end;
 
@@ -5931,6 +5943,16 @@ codeunit 22 "Item Jnl.-Post Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdateUnitCostOnBeforeCalculateLastDirectCost(var TotalAmount: Decimal; ItemJournalLine: Record "Item Journal Line"; ValueEntry: Record "Value Entry"; Item: Record Item; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforePostInventoryToGL(var ValueEntry: Record "Value Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterPostInventoryToGL(var ValueEntry: Record "Value Entry")
     begin
     end;
 

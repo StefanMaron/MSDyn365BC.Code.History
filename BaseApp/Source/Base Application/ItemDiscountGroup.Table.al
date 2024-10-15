@@ -30,14 +30,4 @@ table 341 "Item Discount Group"
         {
         }
     }
-
-    trigger OnDelete()
-    var
-        SalesLineDiscount: Record "Sales Line Discount";
-    begin
-        SalesLineDiscount.SetRange(Type, SalesLineDiscount.Type::"Item Disc. Group");
-        SalesLineDiscount.SetRange(Code, Code);
-        SalesLineDiscount.DeleteAll(true);
-    end;
 }
-

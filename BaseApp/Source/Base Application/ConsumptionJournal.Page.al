@@ -85,6 +85,7 @@ page 99000846 "Consumption Journal"
                 {
                     ApplicationArea = Manufacturing;
                     ToolTip = 'Specifies a document number for the journal line.';
+                    ShowMandatory = true;
                 }
                 field("Item No."; "Item No.")
                 {

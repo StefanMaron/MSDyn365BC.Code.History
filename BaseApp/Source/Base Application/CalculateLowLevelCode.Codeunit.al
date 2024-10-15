@@ -184,6 +184,7 @@ codeunit 99000793 "Calculate Low-Level Code"
                 if EntityPresent or (not IgnoreMissingItemsOrBOMs) then
                     SetRecursiveLevelsOnBOM(CompBOM, CompItem."Low-Level Code" + 1, IgnoreMissingItemsOrBOMs);
             end;
+            OnSetRecursiveLevelsOnItemOnBeforeCompItemModify(CompItem, IgnoreMissingItemsOrBOMs);
             CompItem.Modify();
         end;
     end;
@@ -228,6 +229,11 @@ codeunit 99000793 "Calculate Low-Level Code"
 
     [IntegrationEvent(false, false)]
     local procedure OnCalcLevelsForProdBOM(var Item: Record Item; No: Code[20]; Level: Integer; LevelDepth: Integer; var TotalLevels: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSetRecursiveLevelsOnItemOnBeforeCompItemModify(var CompItem: Record Item; IgnoreMissingItemsOrBOMs: Boolean)
     begin
     end;
 }

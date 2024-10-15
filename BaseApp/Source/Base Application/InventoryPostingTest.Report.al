@@ -716,6 +716,8 @@ report 702 "Inventory Posting - Test"
                                 TotalCostAm5 := TotalCostAm5 + CostAmount;
                             end;
                     end;
+
+                    OnAfterCheckItemJnLLine("Item Journal Line", Item, ErrorCounter, ErrorText);
                 end;
 
                 trigger OnPreDataItem()
@@ -743,6 +745,11 @@ report 702 "Inventory Posting - Test"
 
             trigger OnPreDataItem()
             begin
+                if "Item Journal Line".GetFilter("Journal Template Name") <> '' then
+                    SetFilter("Journal Template Name", "Item Journal Line".GetFilter("Journal Template Name"));
+                if "Item Journal Line".GetFilter("Journal Batch Name") <> '' then
+                    SetFilter(Name, "Item Journal Line".GetFilter("Journal Batch Name"));
+
                 for i := 1 to ArrayLen(EntryTypeDescription) do begin
                     "Item Journal Line"."Entry Type" := i - 1;
                     EntryTypeDescription[i] := Format("Item Journal Line"."Entry Type");
@@ -926,6 +933,11 @@ report 702 "Inventory Posting - Test"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterCheckDimension(ItemJournalLine: Record "Item Journal Line"; ItemJnlTemplate: Record "Item Journal Template"; QtyError: Boolean);
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckItemJnLLine(ItemJournalLine: Record "Item Journal Line"; Item: Record Item; var ErrorCounter: Integer; var ErrorText: array[30] of Text[250])
     begin
     end;
 

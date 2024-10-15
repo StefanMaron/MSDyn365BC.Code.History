@@ -296,26 +296,24 @@ codeunit 1180 "Data Privacy Mgmt"
         CurrentTableID: Integer;
     begin
         repeat
-            if CurrentTableID <> TableRelationsMetadata."Table ID" then begin
-                CurrentTableID := TableRelationsMetadata."Table ID";
-                if TableMetadata.Get(CurrentTableID) and (TableMetadata.ObsoleteState <> TableMetadata.ObsoleteState::Removed) then begin
-                    ConfigProgressBar.Update(TableRelationsMetadata.TableName);
+            if TableMetadata.Get(TableRelationsMetadata."Table ID") and (TableMetadata.ObsoleteState <> TableMetadata.ObsoleteState::Removed) then begin
+                ConfigProgressBar.Update(TableRelationsMetadata.TableName);
 
-                    FilterCreated := CreatePackageFilter(ConfigPackage.Code,
-                        TableRelationsMetadata."Table ID", TableRelationsMetadata."Field No.", EntityNo);
+                FilterCreated := CreatePackageFilter(ConfigPackage.Code,
+                    TableRelationsMetadata."Table ID", TableRelationsMetadata."Field No.", EntityNo);
 
-                    if FilterCreated then begin
+                if FilterCreated then begin
+                    if CurrentTableID <> TableRelationsMetadata."Table ID" then begin
+                        CurrentTableID := TableRelationsMetadata."Table ID";
                         CreatePackageTable(ConfigPackage.Code, TableRelationsMetadata."Table ID");
-
                         CreatePackageFieldsForPrimaryKeys(ConfigPackage.Code, TableRelationsMetadata."Table ID", ProcessingOrder);
-
-                        CreatePackageFieldsForDataSensitiveFields(ConfigPackage.Code,
-                        TableRelationsMetadata."Table ID", DataSensitivityOption, ProcessingOrder);
-
-                        ProcessingOrder += 1;
-                        CreatePackageField(ConfigPackage.Code, TableRelationsMetadata."Table ID",
-                        TableRelationsMetadata."Field No.", ProcessingOrder);
+                        CreatePackageFieldsForDataSensitiveFields(
+                            ConfigPackage.Code, TableRelationsMetadata."Table ID", DataSensitivityOption, ProcessingOrder);
                     end;
+
+                    ProcessingOrder += 1;
+                    CreatePackageField(
+                        ConfigPackage.Code, TableRelationsMetadata."Table ID", TableRelationsMetadata."Field No.", ProcessingOrder);
                 end;
             end;
         until TableRelationsMetadata.Next = 0;
@@ -350,6 +348,7 @@ codeunit 1180 "Data Privacy Mgmt"
         ConfigPackageTable.Init();
         ConfigPackageTable."Package Code" := PackageCode;
         ConfigPackageTable.Validate("Table ID", TableId);
+        ConfigPackageTable."Cross-Column Filter" := true;
         if not ConfigPackageTable.Insert(FireInsertTrigger) then;
     end;
 

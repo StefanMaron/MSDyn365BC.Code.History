@@ -955,6 +955,13 @@ table 5340 "CRM Systemuser"
             ExternalName = 'sharepointemailaddress';
             ExternalType = 'String';
         }
+        field(120; ApplicationId; Guid)
+        {
+            Caption = 'Application ID';
+            Description = 'The identifier for the application. This is used to access data in another application.';
+            ExternalName = 'applicationid';
+            ExternalType = 'Uniqueidentifier';
+        }
     }
 
     keys
