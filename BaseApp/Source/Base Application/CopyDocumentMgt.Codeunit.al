@@ -1038,6 +1038,11 @@
     local procedure CopyPurchHeaderFromPostedInvoice(FromPurchInvHeader: Record "Purch. Inv. Header"; var ToPurchHeader: Record "Purchase Header"; var OldPurchHeader: Record "Purchase Header")
     begin
         ToPurchHeader.Validate("Buy-from Vendor No.", FromPurchInvHeader."Buy-from Vendor No.");
+
+        FromPurchInvHeader.CalcFields("Amount Including VAT", Amount);
+        ToPurchHeader.Validate("Doc. Amount Incl. VAT", FromPurchInvHeader."Amount Including VAT");
+        ToPurchHeader.Validate("Doc. Amount VAT", FromPurchInvHeader."Amount Including VAT" - FromPurchInvHeader.Amount);
+
         ToPurchHeader.TransferFields(FromPurchInvHeader, false);
         OnAfterCopyPostedPurchInvoice(ToPurchHeader, OldPurchHeader, FromPurchInvHeader);
     end;
@@ -1466,7 +1471,7 @@
                 ToSalesLine."VAT Identifier" := VATPostingSetup."VAT Identifier";
                 ToSalesLine."VAT Clause Code" := VATPostingSetup."VAT Clause Code";
             end;
-            
+
             ToSalesLine.UpdateWithWarehouseShip;
             if (ToSalesLine.Type = ToSalesLine.Type::Item) and (ToSalesLine."No." <> '') then begin
                 GetItem(ToSalesLine."No.");

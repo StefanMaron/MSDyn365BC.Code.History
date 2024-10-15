@@ -177,7 +177,7 @@ report 11405 "Submit Elec. Tax Declaration"
                         ServiceCertificateFileName :=
                           FileManagement.BLOBImportWithFilter(
                             ServiceCertificateTempBlob, ImportFileTxt, '',
-                            'DER Files (*.der)|*.der|CER Files (*.cer)|*.cer|CRT Files (*.crt)|*.crt', '.crt,.cer,.der');
+                            'DER Files (*.der)|*.der|CER Files (*.cer)|*.cer|CRT Files (*.crt)|*.crt|PEM Files (*.pem)|*.pem', '.crt,.cer,.der,.pem');
                     end;
                 }
             }

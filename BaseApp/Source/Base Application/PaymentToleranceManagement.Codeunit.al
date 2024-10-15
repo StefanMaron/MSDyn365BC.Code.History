@@ -1492,6 +1492,7 @@
         AppliedVendLedgEntry: Record "Vendor Ledger Entry";
         ExchAccGLJnlLine: Codeunit "Exchange Acc. G/L Journal Line";
         AppliedAmount: Decimal;
+        OriginalAppliedAmount: Decimal;
         ApplyingAmount: Decimal;
         AmounttoApply: Decimal;
         PmtDiscAmount: Decimal;
@@ -1560,6 +1561,8 @@
               MaxPmtTolAmount, CBGStatementLineApplID, ApplnRoundingPrecision);
         end;
 
+        OriginalAppliedAmount := AppliedAmount;
+
         if GLSetup."Pmt. Disc. Tolerance Warning" then begin
             case CBGStatementLine."Account Type" of
                 CBGStatementLine."Account Type"::Customer:
@@ -1593,7 +1596,7 @@
                     if GLSetup."Payment Tolerance Warning" then begin
                         if CallPmtTolWarning(
                              CBGStatementLine.Date, CBGStatementLine."Account No.", UseDocumentNo,
-                             CBGStatement.Currency, AppliedAmount, ApplyingAmount, RefAccountType::Customer)
+                             CBGStatement.Currency, ApplyingAmount, OriginalAppliedAmount, RefAccountType::Customer)
                         then begin
                             PutCustPmtTolAmount(NewCustLedgEntry, AppliedAmount, ApplyingAmount, CBGStatementLineApplID);
                         end else
@@ -1604,7 +1607,7 @@
                     if GLSetup."Payment Tolerance Warning" then begin
                         if CallPmtTolWarning(
                              CBGStatementLine.Date, CBGStatementLine."Account No.", UseDocumentNo,
-                             CBGStatement.Currency, AppliedAmount, ApplyingAmount, RefAccountType::Vendor)
+                             CBGStatement.Currency, ApplyingAmount, OriginalAppliedAmount, RefAccountType::Vendor)
                         then begin
                             if (AppliedAmount <> 0) and (ApplyingAmount <> 0) then
                                 PutVendPmtTolAmount(NewVendLedgEntry, AppliedAmount, ApplyingAmount, CBGStatementLineApplID)

@@ -53,6 +53,8 @@ codeunit 137405 "SCM Item Tracking"
         FieldNotFoundErr: Label 'The field with ID';
         FieldNotFoundCodeErr: Label 'TestFieldNotFound';
         BeforeExpirationDateShortErr: Label 'Expiration Date is before the posting date';
+        CannotChangeItemWhseEntriesExistErr: Label 'You cannot change %1 because there are one or more warehouse entries for this item.', Comment = '%1: Changed field name';
+        CannotChangeITWhseEntriesExistErr: Label 'You cannot change %1 because there are one or more warehouse entries for item %2.', Comment = '%1: Changed field name; %2: Item No.';
 
     [Test]
     [HandlerFunctions('ItemTrackingLinesHandler,EnterQuantityToCreateHandler')]
@@ -2383,6 +2385,170 @@ codeunit 137405 "SCM Item Tracking"
         TempTrackingSpecification.TestField("Variant Code", ItemVariant.Code);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure CannotSelectNewItemTrackingCodeWithEnabledLotWhseTrkg()
+    var
+        ItemTrackingCodeWithoutWhse: Record "Item Tracking Code";
+        ItemTrackingCodeWithWhse: Record "Item Tracking Code";
+        Item: Record Item;
+    begin
+        // [FEATURE] [Warehouse Item Tracking] [Item] [UT]
+        // [SCENARIO 368394] A user cannot change item tracking code on item when warehouse entries exist for the item and "Lot Warehouse Tracking" setting changes.
+        Initialize();
+
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCodeWithoutWhse, false, true);
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCodeWithWhse, false, true);
+        ItemTrackingCodeWithWhse.Validate("Lot Warehouse Tracking", true);
+        ItemTrackingCodeWithWhse.Modify(true);
+
+        LibraryInventory.CreateTrackedItem(Item, '', '', ItemTrackingCodeWithoutWhse.Code);
+        MockWarehouseEntry(Item."No.");
+
+        asserterror Item.Validate("Item Tracking Code", ItemTrackingCodeWithWhse.Code);
+
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(CannotChangeItemWhseEntriesExistErr, Item.FieldCaption("Item Tracking Code")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CannotSelectNewItemTrackingCodeWithDisabledSNWhseTrkg()
+    var
+        ItemTrackingCodeWithoutWhse: Record "Item Tracking Code";
+        ItemTrackingCodeWithWhse: Record "Item Tracking Code";
+        Item: Record Item;
+    begin
+        // [FEATURE] [Warehouse Item Tracking] [Item] [UT]
+        // [SCENARIO 368394] A user cannot change item tracking code on item when warehouse entries exist for the item and "SN Warehouse Tracking" setting changes.
+        Initialize();
+
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCodeWithoutWhse, true, false);
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCodeWithWhse, true, false);
+        ItemTrackingCodeWithWhse.Validate("SN Warehouse Tracking", true);
+        ItemTrackingCodeWithWhse.Modify(true);
+
+        LibraryInventory.CreateTrackedItem(Item, '', '', ItemTrackingCodeWithWhse.Code);
+        MockWarehouseEntry(Item."No.");
+
+        asserterror Item.Validate("Item Tracking Code", ItemTrackingCodeWithoutWhse.Code);
+
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(StrSubstNo(CannotChangeItemWhseEntriesExistErr, Item.FieldCaption("Item Tracking Code")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CanSelectNewItemTrackingCodeWhenNoWhseEntriesExist()
+    var
+        ItemTrackingCodeWithoutWhse: Record "Item Tracking Code";
+        ItemTrackingCodeWithWhse: Record "Item Tracking Code";
+        Item: Record Item;
+    begin
+        // [FEATURE] [Warehouse Item Tracking] [Item] [UT]
+        // [SCENARIO 368394] A user can change item tracking code on item when warehouse entries do not exist.
+        Initialize();
+
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCodeWithoutWhse, false, true);
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCodeWithWhse, false, true);
+        ItemTrackingCodeWithWhse.Validate("Lot Warehouse Tracking", true);
+        ItemTrackingCodeWithWhse.Modify(true);
+
+        LibraryInventory.CreateTrackedItem(Item, '', '', ItemTrackingCodeWithoutWhse.Code);
+
+        Item.Validate("Item Tracking Code", ItemTrackingCodeWithWhse.Code);
+
+        Item.TestField("Item Tracking Code", ItemTrackingCodeWithWhse.Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CanSelectNewItemTrackingCodeWithSameWhseSettings()
+    var
+        ItemTrackingCode: array[2] of Record "Item Tracking Code";
+        Item: Record Item;
+    begin
+        // [FEATURE] [Warehouse Item Tracking] [Item] [UT]
+        // [SCENARIO 368394] A user can change item tracking code on item when warehouse entries exist for the item and "Lot Warehouse Tracking" setting does not change.
+        Initialize();
+
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode[1], false, true);
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode[2], false, true);
+
+        LibraryInventory.CreateTrackedItem(Item, '', '', ItemTrackingCode[1].Code);
+        MockWarehouseEntry(Item."No.");
+
+        Item.Validate("Item Tracking Code", ItemTrackingCode[2].Code);
+
+        Item.TestField("Item Tracking Code", ItemTrackingCode[2].Code);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CannotEnableLotWhseTrackingWhenItemWithWhseEntriesExists()
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+        Item: Record Item;
+    begin
+        // [FEATURE] [Warehouse Item Tracking] [Item] [UT]
+        // [SCENARIO 368394] A user cannot enable "Lot Warehouse Tracking" on item tracking code when there are items with warehouse entries.
+        Initialize();
+
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
+
+        LibraryInventory.CreateTrackedItem(Item, '', '', ItemTrackingCode.Code);
+        MockWarehouseEntry(Item."No.");
+
+        asserterror ItemTrackingCode.Validate("Lot Warehouse Tracking", true);
+
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(
+          StrSubstNo(CannotChangeITWhseEntriesExistErr, ItemTrackingCode.FieldCaption("Lot Warehouse Tracking"), Item."No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CannotEnableSNWhseTrackingWhenItemWithWhseEntriesExists()
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+        Item: Record Item;
+    begin
+        // [FEATURE] [Warehouse Item Tracking] [Item] [UT]
+        // [SCENARIO 368394] A user cannot enable "SN Warehouse Tracking" on item tracking code when there are items with warehouse entries.
+        Initialize();
+
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, true, false);
+
+        LibraryInventory.CreateTrackedItem(Item, '', '', ItemTrackingCode.Code);
+        MockWarehouseEntry(Item."No.");
+
+        asserterror ItemTrackingCode.Validate("SN Warehouse Tracking", true);
+
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(
+          StrSubstNo(CannotChangeITWhseEntriesExistErr, ItemTrackingCode.FieldCaption("SN Warehouse Tracking"), Item."No."));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CanEnableLotWhseTrackingWhenNoWhseEntriesExist()
+    var
+        ItemTrackingCode: Record "Item Tracking Code";
+        Item: Record Item;
+    begin
+        // [FEATURE] [Warehouse Item Tracking] [Item] [UT]
+        // [SCENARIO 368394] A user can enable "Lot Warehouse Tracking" on item tracking code when there aren't items with warehouse entries.
+        Initialize();
+
+        LibraryItemTracking.CreateItemTrackingCode(ItemTrackingCode, false, true);
+
+        LibraryInventory.CreateTrackedItem(Item, '', '', ItemTrackingCode.Code);
+
+        ItemTrackingCode.Validate("Lot Warehouse Tracking", true);
+
+        ItemTrackingCode.TestField("Lot Warehouse Tracking", true);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3349,6 +3515,19 @@ codeunit 137405 "SCM Item Tracking"
         ReservationEntry."Qty. to Invoice (Base)" := Qty;
         ReservationEntry."Expected Receipt Date" := WorkDate;
         ReservationEntry.Insert();
+    end;
+
+    local procedure MockWarehouseEntry(ItemNo: Code[20])
+    var
+        WarehouseEntry: Record "Warehouse Entry";
+    begin
+        with WarehouseEntry do begin
+            Init();
+            "Entry No." := LibraryUtility.GetNewRecNo(WarehouseEntry, FieldNo("Entry No."));
+            "Item No." := ItemNo;
+            "Qty. (Base)" := LibraryRandom.RandInt(10);
+            Insert();
+        end;
     end;
 
     local procedure PostSalesOrderPartialShip(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")

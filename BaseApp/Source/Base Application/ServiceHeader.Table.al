@@ -1193,16 +1193,17 @@
                 PaymentMethod: Record "Payment Method";
                 SEPADirectDebitMandate: Record "SEPA Direct Debit Mandate";
             begin
-                if PaymentMethod.Get("Payment Method Code") then begin
-                    "Bal. Account Type" := PaymentMethod."Bal. Account Type";
-                    "Bal. Account No." := PaymentMethod."Bal. Account No.";
-                    if PaymentMethod."Direct Debit" then begin
-                        "Direct Debit Mandate ID" := SEPADirectDebitMandate.GetDefaultMandate("Bill-to Customer No.", "Due Date");
-                        if "Payment Terms Code" = '' then
-                            "Payment Terms Code" := PaymentMethod."Direct Debit Pmt. Terms Code";
-                    end else
-                        "Direct Debit Mandate ID" := '';
-                end;
+                PaymentMethod.Init();
+                if "Payment Method Code" <> '' then
+                    PaymentMethod.Get("Payment Method Code");
+                if PaymentMethod."Direct Debit" then begin
+                    "Direct Debit Mandate ID" := SEPADirectDebitMandate.GetDefaultMandate("Bill-to Customer No.", "Due Date");
+                    if "Payment Terms Code" = '' then
+                        "Payment Terms Code" := PaymentMethod."Direct Debit Pmt. Terms Code";
+                end else
+                    "Direct Debit Mandate ID" := '';
+                "Bal. Account Type" := PaymentMethod."Bal. Account Type";
+                "Bal. Account No." := PaymentMethod."Bal. Account No.";
                 if "Bal. Account No." <> '' then begin
                     TestField("Applies-to Doc. No.", '');
                     TestField("Applies-to ID", '');
