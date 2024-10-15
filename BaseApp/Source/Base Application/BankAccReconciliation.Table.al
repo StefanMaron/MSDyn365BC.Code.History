@@ -280,6 +280,10 @@
             Caption = 'Copy VAT Setup to Jnl. Line';
             InitValue = true;
         }
+        field(51; "Allow Duplicated Transactions"; Boolean)
+        {
+            Caption = 'Allow Duplicated Transactions';
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';
