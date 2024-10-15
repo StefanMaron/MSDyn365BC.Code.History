@@ -893,6 +893,8 @@ table 121 "Purch. Rcpt. Line"
             if not ExtTextLine then begin
                 IsHandled := false;
                 OnInsertInvLineFromRcptLineOnBeforeValidateQuantity(Rec, PurchLine, IsHandled);
+                if PurchLine."Deferral Code" <> '' then
+                    PurchLine.Validate("Deferral Code");
                 if not IsHandled then
                     PurchLine.Validate(Quantity, Quantity - "Quantity Invoiced");
                 CalcBaseQuantities(PurchLine, "Quantity (Base)" / Quantity);

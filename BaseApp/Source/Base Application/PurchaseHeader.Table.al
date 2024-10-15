@@ -2441,6 +2441,8 @@
         Text029: Label 'Deleting this document will cause a gap in the number series for return shipments. An empty return shipment %1 will be created to fill this gap in the number series.\\Do you want to continue?', Comment = '%1 = Document No.';
         Text032: Label 'You have modified %1.\\Do you want to update the lines?', Comment = 'You have modified Currency Factor.\\Do you want to update the lines?';
         PurchSetup: Record "Purchases & Payables Setup";
+        DifferentDatesQst: Label 'Posting Date %1 is different from Work Date %2.\\Do you want to continue?', Comment = '%1 - Posting Date, %2 - work date';
+        DifferentDatesErr: Label 'Posting Date %1 is different from Work Date %2.\\Batch posting cannot be used.', Comment = '%1 - Posting Date, %2 - work date';
         GLSetup: Record "General Ledger Setup";
         GLAcc: Record "G/L Account";
         PurchLine: Record "Purchase Line";
@@ -3712,9 +3714,6 @@
 
     [Scope('OnPrem')]
     procedure TestPostingDate(BatchPost: Boolean)
-    var
-        Text1041000: Label '%1 %2 is different from Work Date %3.\\';
-        Text1041001: Label 'Do you want to continue?';
     begin
         PurchSetup.Get();
         if not PurchSetup."Posting Date Check on Posting" then
@@ -3723,12 +3722,8 @@
             exit;
         if "Posting Date" <> WorkDate then begin
             if BatchPost then
-                Error('');
-            if not Confirm(
-                 Text1041000 +
-                 Text1041001,
-                 false, FieldCaption("Posting Date"), "Posting Date", WorkDate)
-            then
+                Error(DifferentDatesErr, "Posting Date", WorkDate());
+            if not Confirm(DifferentDatesQst, false, "Posting Date", WorkDate()) then
                 Error('');
         end;
     end;

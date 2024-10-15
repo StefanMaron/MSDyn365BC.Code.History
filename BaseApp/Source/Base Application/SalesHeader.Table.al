@@ -3025,7 +3025,8 @@
         PrepaymentInvoicesNotPaidErr: Label 'You cannot post the document of type %1 with the number %2 before all related prepayment invoices are posted.', Comment = 'You cannot post the document of type Order with the number 1001 before all related prepayment invoices are posted.';
         StatisticsInsuffucientPermissionsErr: Label 'You don''t have permission to view statistics.';
         Text072: Label 'There are unpaid prepayment invoices related to the document of type %1 with the number %2.';
-        Text1041000: Label '%1 %2 is different from Work Date %3.\\Do you want to continue?';
+        DifferentDatesQst: Label 'Posting Date %1 is different from Work Date %2.\\Do you want to continue?', Comment = '%1 - Posting Date, %2 - work date';
+        DifferentDatesErr: Label 'Posting Date %1 is different from Work Date %2.\\Batch posting cannot be used.', Comment = '%1 - Posting Date, %2 - work date';
         DeferralLineQst: Label 'Do you want to update the deferral schedules for the lines?';
         SynchronizingMsg: Label 'Synchronizing ...\ from: Sales Header with %1\ to: Assembly Header with %2.';
         ShippingAdviceErr: Label 'This document cannot be shipped completely. Change the value in the Shipping Advice field to Partial.';
@@ -4273,13 +4274,12 @@
         SalesSetup.Get();
         if not SalesSetup."Posting Date Check on Posting" then
             exit;
-        if ("Posting Date" <> WorkDate) and GuiAllowed then begin
+        if not GuiAllowed then
+            exit;
+        if "Posting Date" <> WorkDate() then begin
             if BatchPost then
-                Error('');
-            if not Confirm(
-                 Text1041000,
-                 false, FieldCaption("Posting Date"), "Posting Date", WorkDate)
-            then
+                Error(DifferentDatesErr, "Posting Date", WorkDate());
+            if not Confirm(DifferentDatesQst, false, "Posting Date", WorkDate()) then
                 Error('');
         end;
     end;
