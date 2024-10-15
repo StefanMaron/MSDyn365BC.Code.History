@@ -61,7 +61,7 @@ table 685 "Payment Period"
         DescriptionTemplateTxt: Label '%1 to %2 days.', Comment = '%1,%2 - number of days';
         DescriptionTemplateEndlessTxt: Label 'More than %1 days.', Comment = '%1 - number of days';
 
-    internal procedure SetupDefaults()
+    procedure SetupDefaults()
     var
         EnvironmentInformation: Codeunit "Environment Information";
         IsHandled: Boolean;
