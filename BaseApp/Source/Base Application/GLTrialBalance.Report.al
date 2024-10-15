@@ -91,14 +91,10 @@ report 10803 "G/L Trial Balance"
             trigger OnAfterGetRecord()
             begin
                 GLAccount2.Copy("G/L Account");
-                with GLAccount2 do
-                    if "Income/Balance" = 0 then begin
-                        SetRange("Date Filter", PreviousStartDate, PreviousEndDate);
-                        CalcFields("Debit Amount", "Credit Amount");
-                    end else begin
-                        SetRange("Date Filter", 0D, PreviousEndDate);
-                        CalcFields("Debit Amount", "Credit Amount");
-                    end;
+                with GLAccount2 do begin
+                    SetRange("Date Filter", 0D, PreviousEndDate);
+                    CalcFields("Debit Amount", "Credit Amount");
+                end;
                 if not ImprNonMvt and
                    (GLAccount2."Debit Amount" = 0) and
                    ("Debit Amount" = 0) and

@@ -1,4 +1,4 @@
-codeunit 144036 "UT REP Legal Report"
+﻿codeunit 144036 "UT REP Legal Report"
 {
     // // [FEATURE] [Report]
     //       1. Verify the Bank Account No, Debit Amount and Credit Amount after running report Bank Account Trial Balance with Balance.
@@ -102,6 +102,7 @@ codeunit 144036 "UT REP Legal Report"
         LibraryTestInitialize: Codeunit "Library - Test Initialize";
         LibraryReportDataset: Codeunit "Library - Report Dataset";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        LibraryReportValidation: Codeunit "Library - Report Validation";
         LibraryRandom: Codeunit "Library - Random";
         FileManagement: Codeunit "File Management";
         BankAccountCreditAmountLCYCap: Label 'Bank_Account__Credit_Amount__LCY__';
@@ -1525,6 +1526,75 @@ codeunit 144036 "UT REP Legal Report"
         // [THEN] No RDLC rendering errors
     end;
 
+    [Test]
+    [HandlerFunctions('BankAccountTrialBalanceExcelRequestPageHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure BankAccountTrialBalanceExcel()
+    var
+        BankAccount: Record "Bank Account";
+        FoundValue: Boolean;
+    begin
+        // [FEATURE] [Bank Account] [Excel]
+        // [SCENARIO 398626] Bank Account Trial Balance report exported in Excel
+        Initialize();
+
+        // [GIVEN] Bank Account has entries with Debit Amount = 300 and Credit Amount = 100 on workdate
+        CreateBankAccountWithDimension(BankAccount);
+        CreateBankAccountLedgerEntry(BankAccount."No.", WorkDate);
+
+        // [WHEN] Run Bank Account Trial Balance on workdate
+        RunTrialBalanceReport(BankAccount."No.", Format(WorkDate), false, '', REPORT::"Bank Account Trial Balance");  // PrintBankAccountsWithoutBalance FALSE.
+
+        // [THEN] Debit Amount = 300, Credit Amount = 100, Debit End Balance = 200, Credit End Balance = 0
+        LibraryReportValidation.OpenExcelFile;
+        BankAccount.CalcFields("Debit Amount (LCY)", "Credit Amount (LCY)");
+        Assert.AreEqual(
+          Format(BankAccount."Debit Amount (LCY)"), LibraryReportValidation.GetValueAt(FoundValue, 11, 7), '');
+        Assert.AreEqual(
+          Format(BankAccount."Credit Amount (LCY)"), LibraryReportValidation.GetValueAt(FoundValue, 11, 8), '');
+        Assert.AreEqual(
+          Format(BankAccount."Debit Amount (LCY)" - BankAccount."Credit Amount (LCY)"),
+          LibraryReportValidation.GetValueAt(FoundValue, 11, 9), '');
+        Assert.AreEqual(
+          '', LibraryReportValidation.GetValueAt(FoundValue, 11, 10), '');
+    end;
+    
+    [Test]
+    [HandlerFunctions('GLTrialBalanceRequestPageHandler')]
+    [TransactionModel(TransactionModel::AutoRollback)]
+    [Scope('OnPrem')]
+    procedure GLTrialBalRepShowsCorrectBeginningBalanceOfIncomeStatementGLAcc()
+    var
+        GLAccount: Record "G/L Account";
+        DebitAmount: Decimal;
+        CreditAmount: Decimal;
+    begin
+        // [SCENARIO 402709] "G/L Trial Balance" report shows correct beginning balance of the income statement G/L account
+
+        Initialize();
+
+        // [GIVEN] G/L account with "Income/Balance" = "Income Statement"
+        CreateGLAccount(GLAccount);
+        GLAccount.Validate("Income/Balance", GLAccount."Income/Balance"::"Income Statement");
+        GLAccount.Modify(true);
+
+        // [GIVEN] G/L account has debit balance of "X" and credit balance of "Y" in year 2020
+        DebitAmount := LibraryRandom.RandDec(100, 2);
+        CreditAmount := LibraryRandom.RandDec(100, 2);
+        CreateGLEntryCustom(GLAccount."No.", CalcDate('<-1Y>', WorkDate()), DebitAmount, CreditAmount);
+
+        // [WHEN] Run "G/L Trial Balance" report for year 2021
+        RunGLTrialBalanceReport(GLAccount."No.", Format(WorkDate()), false);
+
+        // [THEN] Exported beginning debit balance is "X" - "Y"
+        // [THEN] Exported beginning credit balance is "Y" - "X"
+        LibraryReportDataset.LoadDataSetFile;
+        VerifyReportCapAndValue(
+          GLAccountNoCap, GLAccount."No.", 'GLAcc2CreditAmtDebitAmt', CreditAmount - DebitAmount,
+          'GLAcc2DebitAmtCreditAmt', DebitAmount - CreditAmount);
+    end;
+
     local procedure Initialize()
     var
         PageDataPersonalization: Record "Page Data Personalization";
@@ -1554,8 +1624,8 @@ codeunit 144036 "UT REP Legal Report"
         BankAccountLedgerEntry."Source Code" := CreateSourceCode;
         BankAccountLedgerEntry.Amount := LibraryRandom.RandDec(100, 2);
         BankAccountLedgerEntry."Posting Date" := PostingDate;
-        BankAccountLedgerEntry."Debit Amount (LCY)" := LibraryRandom.RandDec(10, 2);
-        BankAccountLedgerEntry."Credit Amount (LCY)" := LibraryRandom.RandDec(10, 2);
+        BankAccountLedgerEntry."Debit Amount (LCY)" := LibraryRandom.RandDecInRange(200, 300, 2);
+        BankAccountLedgerEntry."Credit Amount (LCY)" := LibraryRandom.RandDecInRange(100, 200, 2);
         BankAccountLedgerEntry.Open := true;
         BankAccountLedgerEntry.Insert();
     end;
@@ -1695,6 +1765,11 @@ codeunit 144036 "UT REP Legal Report"
     end;
 
     local procedure CreateGLEntryWithAmounts(GLAccountNo: Code[20]; DebitAmount: Decimal; CreditAmount: Decimal): Integer
+    begin
+        exit(CreateGLEntryCustom(GLAccountNo, WorkDate(), DebitAmount, CreditAmount));
+    end;
+
+    local procedure CreateGLEntryCustom(GLAccountNo: Code[20]; PostingDate: Date; DebitAmount: Decimal; CreditAmount: Decimal): Integer
     var
         GLEntry: Record "G/L Entry";
         GLEntry2: Record "G/L Entry";
@@ -1708,9 +1783,9 @@ codeunit 144036 "UT REP Legal Report"
         GLEntry.Amount := LibraryRandom.RandDec(10, 2);
         GLEntry."Debit Amount" := DebitAmount;
         GLEntry."Credit Amount" := CreditAmount;
-        GLEntry."Posting Date" := WorkDate;
+        GLEntry."Posting Date" := PostingDate;
         GLEntry.Insert();
-        exit(GLEntry."Entry No.")
+        exit(GLEntry."Entry No.");
     end;
 
     local procedure CreateSourceCode(): Code[10]
@@ -1869,6 +1944,26 @@ codeunit 144036 "UT REP Legal Report"
         BankAccountTrialBalance."Bank Account".SetFilter("Global Dimension 1 Code", GlobalDimensionCode);
         BankAccountTrialBalance.PrintBanksWithoutBalance.SetValue(PrintBanksWithoutBalance);
         BankAccountTrialBalance.SaveAsPdf(FileManagement.ServerTempFileName('.pdf'));
+    end;
+
+    [RequestPageHandler]
+    [Scope('OnPrem')]
+    procedure BankAccountTrialBalanceExcelRequestPageHandler(var BankAccountTrialBalance: TestRequestPage "Bank Account Trial Balance")
+    var
+        No: Variant;
+        DateFilter: Variant;
+        GlobalDimensionCode: Variant;
+        PrintBanksWithoutBalance: Variant;
+    begin
+        LibraryVariableStorage.Dequeue(No);
+        LibraryVariableStorage.Dequeue(DateFilter);
+        LibraryVariableStorage.Dequeue(PrintBanksWithoutBalance);
+        LibraryVariableStorage.Dequeue(GlobalDimensionCode);
+        BankAccountTrialBalance."Bank Account".SetFilter("No.", No);
+        BankAccountTrialBalance."Bank Account".SetFilter("Date Filter", DateFilter);
+        BankAccountTrialBalance."Bank Account".SetFilter("Global Dimension 1 Code", GlobalDimensionCode);
+        BankAccountTrialBalance.PrintBanksWithoutBalance.SetValue(PrintBanksWithoutBalance);
+        BankAccountTrialBalance.SaveAsExcel(LibraryReportValidation.GetFileName);
     end;
 
     [RequestPageHandler]
