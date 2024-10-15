@@ -40,7 +40,7 @@ page 6250 "Data Sync Status"
 
     var
         GenJournalLine: Record "Gen. Journal Line";
-        GPBatchTxt: Label 'GP', Locked = true;
+        GPBatchTxt: Label 'GP*', Locked = true;
         CustomerBatchTxt: Label 'GPCUST', Locked = true;
         VendorBatchTxt: Label 'GPVEND', Locked = true;
         JnlTemplateNameTxt: Label 'GENERAL', Locked = true;
@@ -50,8 +50,8 @@ page 6250 "Data Sync Status"
     begin
         GenJournalLine.Reset;
         GenJournalLine.SetRange("Journal Template Name", JnlTemplateNameTxt);
-        GenJournalLine.SetRange("Journal Batch Name", JournalBatchName);
-        if GenJournalLine.FindFirst then
+        GenJournalLine.SetFilter("Journal Batch Name", JournalBatchName);
+        if GenJournalLine.FindSet() then
             REPORT.Run(REPORT::"Auto Posting Errors", false, false, GenJournalLine);
     end;
 
@@ -59,8 +59,8 @@ page 6250 "Data Sync Status"
     var
         DataMigrationStatus: Record "Data Migration Status";
     begin
-        DataMigrationStatus.Reset;
-        if DataMigrationStatus.FindFirst then begin
+        DataMigrationStatus.Reset();
+        if DataMigrationStatus.FindFirst() then begin
             PostingErrors(GPBatchTxt);
             PostingErrors(VendorBatchTxt);
             PostingErrors(CustomerBatchTxt);

@@ -133,18 +133,18 @@ codeunit 137025 "SCM Purchase Correct Invoice"
 
         LibraryCosting.AdjustCostItemEntries('', '');
 
-        InvtPeriod.Init;
+        InvtPeriod.Init();
         InvtPeriod."Ending Date" := CalcDate('<+1D>', WorkDate);
         InvtPeriod.Closed := true;
-        InvtPeriod.Insert;
-        Commit;
+        InvtPeriod.Insert();
+        Commit();
 
         GLEntry.FindLast;
 
         // EXERCISE
         asserterror CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchaseHeaderTmp);
-        InvtPeriod.Delete;
-        Commit;
+        InvtPeriod.Delete();
+        Commit();
 
         CheckNothingIsCreated(Vend, GLEntry);
     end;
@@ -182,7 +182,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         PurchGetReceipt.SetPurchHeader(PurchaseHeader);
         PurchGetReceipt.CreateInvLines(PurchRcptLine);
         PurchInvHeader.Get(LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true));
-        Commit;
+        Commit();
 
         GLEntry.FindLast;
 
@@ -320,7 +320,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         PostApplyUnapplyCreditMemoToInvoice(PurchInvHeader);
         PurchCrMemoHdr.SetRange("Pay-to Vendor No.", PurchInvHeader."Pay-to Vendor No.");
         PurchCrMemoHdr.FindLast;
-        Commit;
+        Commit();
         LibraryLowerPermissions.SetPurchDocsPost;
 
         // [WHEN] Cancel Posted Invoice "A"
@@ -363,7 +363,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
           PurchInvHeader."Vendor Posting Group", PurchInvHeader."Gen. Bus. Posting Group");
         ExpectedAmount := GetAmountInclVATOfPurchInvLine(PurchInvHeader);
         LibraryLowerPermissions.SetPurchDocsPost;
-        Commit;
+        Commit();
 
         // [WHEN] Correct Posted Invoice "A" with new Invoice "B"
         CorrectPostedPurchInvoice.CancelPostedInvoiceStartNewInvoice(PurchInvHeader, PurchHeader);
@@ -399,7 +399,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
           PurchInvHeader."Vendor Posting Group", PurchInvHeader."Gen. Bus. Posting Group");
         PurchInvHeader.CalcFields("Amount Including VAT");
         LibraryLowerPermissions.SetPurchDocsPost;
-        Commit;
+        Commit();
 
         // [WHEN] Cancel Posted Invoice "A" with Corrective Credit Memo "B"
         CorrectPostedPurchInvoice.CancelPostedInvoice(PurchInvHeader);
@@ -668,7 +668,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         CreateAndPostPurchaseInvForNewItemAndVendor(Item, Vend, 1, 1, PurchInvHeader);
 
         // [GIVEN] Next no. in no. series "Credit Memo Nos." of Purchase Setup is "X1"
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         ExpectedCrMemoNo := LibraryUtility.GetNextNoFromNoSeries(PurchasesPayablesSetup."Credit Memo Nos.", WorkDate);
 
         // [WHEN] Create Corrective Credit Memo for Purchase Invoice "A"
@@ -823,26 +823,27 @@ codeunit 137025 "SCM Purchase Correct Invoice"
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Purchase Correct Invoice");
-        LibrarySetupStorage.Restore;
+        LibrarySetupStorage.Restore();
         if IsInitialized then
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"SCM Purchase Correct Invoice");
 
         IsInitialized := true;
 
-        LibrarySmallBusiness.SetNoSeries;
-        LibraryERMCountryData.CreateVATData;
-        LibraryERMCountryData.UpdatePurchasesPayablesSetup;
-        LibraryERMCountryData.CreateGeneralPostingSetupData;
+        LibrarySmallBusiness.SetNoSeries();
+        LibraryERMCountryData.CreateVATData();
+        LibraryERMCountryData.UpdatePurchasesPayablesSetup();
+        LibraryERMCountryData.CreateGeneralPostingSetupData();
+        LibraryERMCountryData.UpdateGeneralPostingSetup();
 
-        PurchasesSetup.Get;
+        PurchasesSetup.Get();
         PurchasesSetup."Ext. Doc. No. Mandatory" := false;
-        PurchasesSetup.Modify;
+        PurchasesSetup.Modify();
 
-        LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
-        LibrarySetupStorage.Save(DATABASE::"Purchases & Payables Setup");
+        LibrarySetupStorage.SaveGeneralLedgerSetup();
+        LibrarySetupStorage.SavePurchasesSetup();
 
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Purchase Correct Invoice");
     end;
 
@@ -850,7 +851,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
     begin
         LibraryInventory.CreateItem(Item);
         Item."Last Direct Cost" := UnitCost;
-        Item.Modify;
+        Item.Modify();
     end;
 
     local procedure CreateTrackedItem(): Code[20]
@@ -959,10 +960,10 @@ codeunit 137025 "SCM Purchase Correct Invoice"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Exact Cost Reversing Mandatory", false);
         PurchasesPayablesSetup.Modify(true);
-        Commit;
+        Commit();
     end;
 
     local procedure SetInvoiceRounding()
@@ -975,7 +976,7 @@ codeunit 137025 "SCM Purchase Correct Invoice"
     var
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         PurchasesPayablesSetup.Validate("Credit Memo Nos.", NoSeriesCode);
         PurchasesPayablesSetup.Modify(true);
     end;

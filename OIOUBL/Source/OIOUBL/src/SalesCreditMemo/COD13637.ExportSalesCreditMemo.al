@@ -13,14 +13,14 @@ codeunit 13637 "OIOUBL-Export Sales Cr. Memo"
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
         RecordRef: RecordRef;
     begin
-        RecordRef.GET(RecordID);
-        RecordRef.SETTABLE(SalesCrMemoHeader);
+        RecordRef.Get(RecordID);
+        RecordRef.SetTable(SalesCrMemoHeader);
 
         ServerFilePath := CreateXML(SalesCrMemoHeader);
-        MODIFY();
+        Modify();
 
-        SalesCrMemoHeader."OIOUBL-Electronic Credit Memo Created" := TRUE;
-        SalesCrMemoHeader.MODIFY();
+        SalesCrMemoHeader."OIOUBL-Electronic Credit Memo Created" := true;
+        SalesCrMemoHeader.Modify();
     end;
 
     var
@@ -39,6 +39,7 @@ codeunit 13637 "OIOUBL-Export Sales Cr. Memo"
     var
         SalesCrMemoHeader2: Record "Sales Cr.Memo Header";
         RecordExportBuffer: Record "Record Export Buffer";
+        ElectronicDocumentFormat: Record "Electronic Document Format";
         RBMgt: Codeunit "File Management";
         OIOUBLManagement: Codeunit "OIOUBL-Management";
         EnvironmentInfo: Codeunit "Environment Information";
@@ -55,7 +56,7 @@ codeunit 13637 "OIOUBL-Export Sales Cr. Memo"
         OIOUBLManagement.UpdateRecordExportBuffer(
             SalesCrMemoHeader.RecordId(),
             CopyStr(FromFile, 1, MaxStrLen(RecordExportBuffer.ServerFilePath)),
-            StrSubstNo('%1.xml', SalesCrMemoHeader."No."));
+            ElectronicDocumentFormat.GetAttachmentFileName(SalesCrMemoHeader."No.", 'Credit Memo', 'xml'));
 
         OIOUBLManagement.ExportXMLFile(SalesCrMemoHeader."No.", FromFile, SalesSetup."OIOUBL-Cr. Memo Path");
 

@@ -47,6 +47,8 @@ codeunit 134900 "ERM Batch Job"
         NotPaidPrepaymentErr: Label 'There are unpaid prepayment invoices related to the document of type Order with the number %1.';
         NotPaidPurchPrepaymentErr: Label 'There are unpaid prepayment invoices that are related to the document of type Order with the number %1.';
         TestPageIsNotOpenErr: Label 'The TestPage is not open.';
+        DefaultSalesCategoryCodeLbl: Label 'SALESBCKGR';
+        DefaultPurchCategoryCodeLbl: Label 'PURCHBCKGR';
 
     [Test]
     [Scope('OnPrem')]
@@ -454,42 +456,50 @@ codeunit 134900 "ERM Batch Job"
     [Scope('OnPrem')]
     procedure BatchPostSalesOrderReplaceDate()
     var
-        Customer: Record Customer;
+        Customer: array[2] of Record Customer;
         Item: Record Item;
-        SalesHeader: Record "Sales Header";
+        SalesHeader: array[2] of Record "Sales Header";
         SalesLine: Record "Sales Line";
         SalesInvoiceHeader: Record "Sales Invoice Header";
         LibraryJobQueue: Codeunit "Library - Job Queue";
         PostingDate: Date;
+        Index: Integer;
     begin
         // [FEATURE] [Batch Post] [Order] [Sales]
-        // [SCENARIO] Create and post a Sales Order using Batch Post Sales Order and check dates on posted Sales Invoice.
+        // [SCENARIO 334500] Create and post two Sales Orders using Batch Post Sales Order and check dates on posted Sales Invoices.
 
         // 1. Setup: Find Item and Create Customer.
         Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
-        LibrarySales.CreateCustomer(Customer);
         LibraryInventory.CreateItem(Item);
 
         // 2. Exercise: Create Sales Order, release and Post Batch Post Sales.
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, Customer."No.");
-        // Use Random Quantity because value is not important.
-        LibrarySales.CreateSalesLine(
-          SalesLine, SalesHeader, SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
-        LibrarySales.ReleaseSalesDocument(SalesHeader);
-        Commit;
+        for Index := 1 to ArrayLen(SalesHeader) do begin
+            LibrarySales.CreateCustomer(Customer[Index]);
+            LibrarySales.CreateSalesHeader(SalesHeader[Index], SalesHeader[Index]."Document Type"::Order, Customer[Index]."No.");
+            // Use Random Quantity because value is not important.
+            LibrarySales.CreateSalesLine(
+            SalesLine, SalesHeader[Index], SalesLine.Type::Item, Item."No.", LibraryRandom.RandDec(10, 2));
+            LibrarySales.ReleaseSalesDocument(SalesHeader[Index]);
+            Commit;
+        end;
 
         PostingDate :=
           CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate);  // Use Random because value is not important.
         SalesPostBatch(SalesHeader, PostingDate);
-        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader.RecordId);
+
+        for Index := 1 to ArrayLen(SalesHeader) do
+            LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader[Index].RecordId);
 
         // 3. Verify: Verify Sales Invoice have correct Posting Date and Document Date.
-        SalesInvoiceHeader.SetRange("Order No.", SalesHeader."No.");
-        SalesInvoiceHeader.FindFirst;
-        SalesInvoiceHeader.TestField("Posting Date", PostingDate);
-        SalesInvoiceHeader.TestField("Document Date", PostingDate);
+        for Index := 1 to ArrayLen(SalesHeader) do begin
+            SalesInvoiceHeader.SetRange("Sell-to Customer No.", SalesHeader[Index]."Sell-to Customer No.");
+            SalesInvoiceHeader.FindFirst;
+            SalesInvoiceHeader.TestField("Posting Date", PostingDate);
+            SalesInvoiceHeader.TestField("Document Date", PostingDate);
+        end;
     end;
 
     [Test]
@@ -509,6 +519,7 @@ codeunit 134900 "ERM Batch Job"
 
         // Setup.
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         CreatePurchaseDocument(PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
@@ -562,6 +573,7 @@ codeunit 134900 "ERM Batch Job"
         PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
 
         // [WHEN] Run Batch Post Purchase Order with Receive and Invoice.
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         RunBatchPostPurchaseOrders(PurchaseLine."Document No.", true, true, PostingDate, false, false, false);
@@ -581,19 +593,25 @@ codeunit 134900 "ERM Batch Job"
     procedure BatchPostPurchOrderRepPostDate()
     var
         PurchInvHeader: Record "Purch. Inv. Header";
-        DocumentNo: Code[20];
+        PurchaseHeader: array[2] of Record "Purchase Header";
         PostingDate: Date;
+        Index: Integer;
     begin
         // [FEATURE] [Batch Post] [Order] [Replace Posting Date] [Purchase]
         // [SCENARIO] Check Batch Post Purchase Order Report with Replace Posting Date Option.
 
         // Create Purchase Order and Run Batch Post Purchase Order Report with Replace Posting Date TRUE.
-        Initialize;
-        DocumentNo := SetupBatchPostPurchaseOrders(PostingDate, true, false);
+        Initialize();
+        PostingDate := LibraryRandom.RandDate(5) + 1;
+        SetupBatchPostPurchaseOrders(PurchaseHeader, PostingDate, true, false);
 
         // [THEN] Verify Posting Date on Posted Purchase Invoice Header.
-        PurchInvHeader.Get(DocumentNo);
-        PurchInvHeader.TestField("Posting Date", PostingDate);
+        for Index := 1 to ArrayLen(PurchaseHeader) do begin
+            PurchInvHeader.SetRange("Buy-from Vendor No.", PurchaseHeader[Index]."Buy-from Vendor No.");
+            PurchInvHeader.FindFirst();
+            PurchInvHeader.TestField("Posting Date", PostingDate);
+            PurchInvHeader.TestField("Document Date", WorkDate());
+        end;
     end;
 
     [Test]
@@ -602,19 +620,25 @@ codeunit 134900 "ERM Batch Job"
     procedure BatchPostPurchOrdeRepDocDate()
     var
         PurchInvHeader: Record "Purch. Inv. Header";
-        DocumentNo: Code[20];
+        PurchaseHeader: array[2] of Record "Purchase Header";
         PostingDate: Date;
+        Index: Integer;
     begin
         // [FEATURE] [Batch Post] [Order] [Replace Posting Date] [Purchase]
         // [SCENARIO] Check Batch Post Purchase Order Report with Replace Document Date Option.
 
         // Create Purchase Order and Run Batch Post Purchase Order Report with Replace Document Date TRUE.
-        Initialize;
-        DocumentNo := SetupBatchPostPurchaseOrders(PostingDate, false, true);
+        Initialize();
+        PostingDate := LibraryRandom.RandDate(5) + 1;
+        SetupBatchPostPurchaseOrders(PurchaseHeader, PostingDate, false, true);
 
         // [THEN] Verify Document Date on Posted Purchase Invoice Header.
-        PurchInvHeader.Get(DocumentNo);
-        PurchInvHeader.TestField("Document Date", PostingDate);
+        for Index := 1 to ArrayLen(PurchaseHeader) do begin
+            PurchInvHeader.SetRange("Buy-from Vendor No.", PurchaseHeader[Index]."Buy-from Vendor No.");
+            PurchInvHeader.FindFirst();
+            PurchInvHeader.TestField("Posting Date", WorkDate());
+            PurchInvHeader.TestField("Document Date", PostingDate);
+        end;
     end;
 
     [Test]
@@ -635,6 +659,7 @@ codeunit 134900 "ERM Batch Job"
 
         // [GIVEN] Create and Post Purchase Order with Invoice Discount Option.
         Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         SetupInvoiceDiscount(VendorInvoiceDisc);
@@ -989,6 +1014,7 @@ codeunit 134900 "ERM Batch Job"
 
         // [GIVEN] Create Sales Return Order.
         Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order");
@@ -1018,6 +1044,7 @@ codeunit 134900 "ERM Batch Job"
 
         // [GIVEN] Create Sales Return Order.
         Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
         CreateSalesDocument(SalesHeader, SalesLine, SalesHeader."Document Type"::"Return Order");
@@ -2263,6 +2290,87 @@ codeunit 134900 "ERM Batch Job"
           WarehouseActivityLine."Item No.", -WarehouseActivityLine.Quantity);
     end;
 
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure BatchPostSalesOrdersWithEmptyCategoryCode()
+    var
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+        i: Integer;
+        JobQueueEntryId: List of [Guid];
+    begin
+        // [FEATURE] [Batch Post] [Order] [Sales]
+        // [SCENARIO] Job queue category code filled in job queue entry in the case of empty sales setup
+        Initialize;
+        LibrarySales.SetPostWithJobQueue(true);
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+
+        // [GIVEN] Sales Orders
+        for i := 1 to ArrayLen(SalesHeader) do
+            CreateSalesDocument(SalesHeader[i], SalesLine, SalesHeader[1]."Document Type"::Order);
+
+        // [GIVEN] "Job Queue Category Code" is empty in sales and receivables setup
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup.Validate("Job Queue Category Code", '');
+        SalesReceivablesSetup.Modify(true);
+
+        // [WHEN] Post Sales Orders with Batch Post as Ship and Invoice.
+        SalesPostBatchShipInvoice(SalesHeader);
+        for i := 1 to ArrayLen(SalesHeader) do
+            JobQueueEntryId.Add(GetJobQueueEntryId(SalesHeader[i].RecordId));
+        for i := 1 to ArrayLen(SalesHeader) do
+            LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(SalesHeader[i].RecordId);
+
+        // [THEN] Job Queue Category Code filled in job queue log entry
+        // [THEN] 'SALESBCKGR' Job Category Code exists
+        VerifySalesJobQueueCategoryCode(JobQueueEntryId);
+    end;
+
+    [Test]
+    [HandlerFunctions('MessageHandler')]
+    [Scope('OnPrem')]
+    procedure BatchPostPurchaseOrdersWithEmptyCategoryCode()
+    var
+        //PurchaseHeader: List of [v: Record "purc" temporary;];
+        PurchaseHeader: array[2] of Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchasesPayablesSetup: Record "Purchases & Payables Setup";
+        LibraryJobQueue: Codeunit "Library - Job Queue";
+        i: Integer;
+        JobQueueEntryId: List of [Guid];
+    begin
+        // [FEATURE] [Batch Post] [Order] [Purchase]
+        // [SCENARIO] Job queue category code filled in job queue entry in the case of empty purchase setup
+        Initialize;
+        LibraryPurchase.SetPostWithJobQueue(true);
+        BindSubscription(LibraryJobQueue);
+        LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
+
+        // [GIVEN] Purchase Orders
+        for i := 1 to ArrayLen(PurchaseHeader) do
+            CreatePurchaseDocument(PurchaseHeader[i], PurchaseLine, PurchaseHeader[i]."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+
+        // [GIVEN] "Job Queue Category Code" is empty in purchases and payables setup
+        PurchasesPayablesSetup.Get();
+        PurchasesPayablesSetup.Validate("Job Queue Category Code", '');
+        PurchasesPayablesSetup.Modify(true);
+
+        // [WHEN] Run Batch Post Purchase Order
+        RunBatchPostPurchaseOrders(PurchaseHeader[1]."No." + '|' + PurchaseHeader[2]."No.", true, true, 0D, false, false, false);
+        for i := 1 to ArrayLen(PurchaseHeader) do
+            JobQueueEntryId.Add(GetJobQueueEntryId(PurchaseHeader[i].RecordId));
+        for i := 1 to ArrayLen(PurchaseHeader) do
+            LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(PurchaseHeader[i].RecordId);
+
+        // [THEN] Job Queue Category Code filled in job queue log entry
+        // [THEN] 'PURCHBCKGR' Job Category Code exists
+        VerifyPurchaseJobQueueCategoryCode(JobQueueEntryId);
+    end;
+
     local procedure Initialize()
     var
         WarehouseEmployee: Record "Warehouse Employee";
@@ -3340,14 +3448,14 @@ codeunit 134900 "ERM Batch Job"
         GenPostingSetup.DeleteAll;
     end;
 
-    local procedure RunBatchPostPurchaseOrders(No: Code[20]; Receive: Boolean; Invoice: Boolean; PostingDate: Date; ReplacePostingDate: Boolean; ReplaceDocDate: Boolean; CalcInvDiscount: Boolean)
+    local procedure RunBatchPostPurchaseOrders(DocNoFilter: Text; Receive: Boolean; Invoice: Boolean; PostingDate: Date; ReplacePostingDate: Boolean; ReplaceDocDate: Boolean; CalcInvDiscount: Boolean)
     var
-        PurchaseHeader: Record "Purchase Header";
+        PurchaseHeaderToPost: Record "Purchase Header";
         BatchPostPurchaseOrders: Report "Batch Post Purchase Orders";
     begin
         Commit;
-        PurchaseHeader.SetRange("No.", No);
-        BatchPostPurchaseOrders.SetTableView(PurchaseHeader);
+        PurchaseHeaderToPost.SetFilter("No.", DocNoFilter);
+        BatchPostPurchaseOrders.SetTableView(PurchaseHeaderToPost);
         BatchPostPurchaseOrders.InitializeRequest(Receive, Invoice, PostingDate, ReplacePostingDate, ReplaceDocDate, CalcInvDiscount);
         BatchPostPurchaseOrders.UseRequestPage(false);
         BatchPostPurchaseOrders.Run;
@@ -3441,15 +3549,29 @@ codeunit 134900 "ERM Batch Job"
         VendorInvoiceDisc.Modify(true);
     end;
 
-    local procedure SalesPostBatch(SalesHeader: Record "Sales Header"; PostingDate: Date)
+    local procedure SalesPostBatch(var SalesHeader: array[2] of Record "Sales Header"; PostingDate: Date)
     var
+        SalesHeaderToPost: Record "Sales Header";
         BatchPostSalesOrders: Report "Batch Post Sales Orders";
     begin
-        SalesHeader.SetRange("Document Type", SalesHeader."Document Type");
-        SalesHeader.SetRange("No.", SalesHeader."No.");
-        BatchPostSalesOrders.SetTableView(SalesHeader);
+        SalesHeaderToPost.SetRange("Document Type", SalesHeaderToPost."Document Type"::Order);
+        SalesHeaderToPost.SetFilter("No.", '%1|%2', SalesHeader[1]."No.", SalesHeader[2]."No.");
+        BatchPostSalesOrders.SetTableView(SalesHeaderToPost);
         BatchPostSalesOrders.UseRequestPage(false);
         BatchPostSalesOrders.InitializeRequest(true, true, PostingDate, true, true, false);
+        BatchPostSalesOrders.Run;
+    end;
+
+    local procedure SalesPostBatchShipInvoice(var SalesHeader: array[2] of Record "Sales Header")
+    var
+        SalesHeaderToPost: Record "Sales Header";
+        BatchPostSalesOrders: Report "Batch Post Sales Orders";
+    begin
+        SalesHeaderToPost.SetRange("Document Type", SalesHeaderToPost."Document Type"::Order);
+        SalesHeaderToPost.SetFilter("No.", '%1|%2', SalesHeader[1]."No.", SalesHeader[2]."No.");
+        BatchPostSalesOrders.SetTableView(SalesHeaderToPost);
+        BatchPostSalesOrders.UseRequestPage(false);
+        BatchPostSalesOrders.InitializeRequest(true, true, 0D, false, false, false);
         BatchPostSalesOrders.Run;
     end;
 
@@ -3471,23 +3593,32 @@ codeunit 134900 "ERM Batch Job"
         SalesLine.FindFirst;
     end;
 
-    local procedure SetupBatchPostPurchaseOrders(var PostingDate: Date; ReplacePostingDate: Boolean; ReplaceDocumentDate: Boolean) DocumentNo: Code[20]
+    local procedure SetupBatchPostPurchaseOrders(var PurchaseHeader: array[2] of Record "Purchase Header"; PostingDate: Date; ReplacePostingDate: Boolean; ReplaceDocumentDate: Boolean)
     var
         PurchaseLine: Record "Purchase Line";
-        PurchaseHeader: Record "Purchase Header";
         LibraryFiscalYear: Codeunit "Library - Fiscal Year";
         LibraryJobQueue: Codeunit "Library - Job Queue";
+        Index: Integer;
     begin
         // Setup: Create and Post Purchase Order.
-        DocumentNo := CreateAndGetPurchaseDocumentNo(PurchaseLine, LibraryPurchase.CreateVendorNo);
-        PostingDate := LibraryFiscalYear.GetFirstPostingDate(true);
-        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
-
-        // Exercise.
+        LibraryPurchase.SetPostWithJobQueue(true);
         BindSubscription(LibraryJobQueue);
         LibraryJobQueue.SetDoNotHandleCodeunitJobQueueEnqueueEvent(true);
-        RunBatchPostPurchaseOrders(PurchaseLine."Document No.", true, true, PostingDate, ReplacePostingDate, ReplaceDocumentDate, false);
-        LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(PurchaseHeader.RecordId);
+
+        for Index := 1 to ArrayLen(PurchaseHeader) do begin
+            Clear(PurchaseLine);
+            CreateAndGetPurchaseDocumentNo(PurchaseLine, LibraryPurchase.CreateVendorNo);
+            PurchaseHeader[Index].Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+
+            // Exercise.
+        end;
+
+        RunBatchPostPurchaseOrders(
+            StrSubstNo('%1|%2', PurchaseHeader[1]."No.", PurchaseHeader[2]."No."),
+            true, true, PostingDate, ReplacePostingDate, ReplaceDocumentDate, false);
+
+        for Index := 1 to ArrayLen(PurchaseHeader) do
+            LibraryJobQueue.FindAndRunJobQueueEntryByRecordId(PurchaseHeader[Index].RecordId);
     end;
 
     local procedure SuggestFinChargeMemoLine(FinanceChargeMemoHeaderNo: Code[20])
@@ -3878,6 +4009,45 @@ codeunit 134900 "ERM Batch Job"
         ItemLedgerEntry.SetRange("Item No.", ItemNo);
         ItemLedgerEntry.SetRange(Quantity, Qty);
         Assert.RecordIsNotEmpty(ItemLedgerEntry);
+    end;
+
+    local procedure GetJobQueueEntryId(RecordIdToProcess: RecordId): Guid
+    var
+        JobQueueEntry: Record "Job Queue Entry";
+    begin
+        JobQueueEntry.SetRange("Record ID to Process", RecordIdToProcess);
+        JobQueueEntry.FindFirst();
+        exit(JobQueueEntry.ID);
+    end;
+
+    local procedure VerifySalesJobQueueCategoryCode(JobQueueEntryId: List of [Guid])
+    var
+        JobQueueCategory: Record "Job Queue Category";
+        JobQueueLogEntry: Record "Job Queue Log Entry";
+        i: Integer;
+    begin
+        JobQueueCategory.Get(DefaultSalesCategoryCodeLbl);
+
+        for i := 1 to JobQueueEntryId.Count do begin
+            JobQueueLogEntry.SetRange(ID, JobQueueEntryId.Get(i));
+            JobQueueLogEntry.FindFirst();
+            Assert.AreEqual(JobQueueLogEntry."Job Queue Category Code", JobQueueCategory.Code, 'Wrong job queue category code');
+        end;
+    end;
+
+    local procedure VerifyPurchaseJobQueueCategoryCode(JobQueueEntryId: List of [Guid])
+    var
+        JobQueueCategory: Record "Job Queue Category";
+        JobQueueLogEntry: Record "Job Queue Log Entry";
+        i: Integer;
+    begin
+        JobQueueCategory.Get(DefaultPurchCategoryCodeLbl);
+
+        for i := 1 to JobQueueEntryId.Count do begin
+            JobQueueLogEntry.SetRange(ID, JobQueueEntryId.Get(i));
+            JobQueueLogEntry.FindFirst();
+            Assert.AreEqual(JobQueueLogEntry."Job Queue Category Code", JobQueueCategory.Code, 'Wrong job queue category code');
+        end;
     end;
 
     [RequestPageHandler]

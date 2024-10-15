@@ -39,6 +39,7 @@ codeunit 13644 "OIOUBL-Export Service Cr.Memo"
     var
         ServiceCrMemoHeader2: Record "Service Cr.Memo Header";
         RecordExportBuffer: Record "Record Export Buffer";
+        ElectronicDocumentFormat: Record "Electronic Document Format";
         RBMgt: Codeunit "File Management";
         OIOUBLManagement: Codeunit "OIOUBL-Management";
         EnvironmentInfo: Codeunit "Environment Information";
@@ -55,7 +56,7 @@ codeunit 13644 "OIOUBL-Export Service Cr.Memo"
         OIOUBLManagement.UpdateRecordExportBuffer(
             ServiceCrMemoHeader.RecordId(),
             CopyStr(FromFile, 1, MaxStrLen(RecordExportBuffer.ServerFilePath)),
-            StrSubstNo('%1.xml', ServiceCrMemoHeader."No."));
+            ElectronicDocumentFormat.GetAttachmentFileName(ServiceCrMemoHeader."No.", 'Credit Memo', 'xml'));
 
         OIOUBLManagement.ExportXMLFile(ServiceCrMemoHeader."No.", FromFile, ServiceSetup."OIOUBL-Service Cr. Memo Path");
 

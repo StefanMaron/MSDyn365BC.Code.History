@@ -18,6 +18,7 @@ codeunit 5334 "CRM Setup Defaults"
         CRMProductName: Codeunit "CRM Product Name";
         AutoCreateSalesOrdersTxt: Label 'Automatically create sales orders from sales orders that are submitted in %1.', Comment = '%1 = CRM product name';
         AutoProcessQuotesTxt: Label 'Automatically process sales quotes from sales quotes that are activated in %1.', Comment = '%1 = CRM product name';
+        IntegrationTableMappingLbl: Label 'CRM INTEG', Locked = true;
 
     procedure ResetConfiguration(CRMConnectionSetup: Record "CRM Connection Setup")
     var
@@ -1543,6 +1544,7 @@ codeunit 5334 "CRM Setup Defaults"
             "Run in User Session" := false;
             "Notify On Success" := false;
             "Maximum No. of Attempts to Run" := 2;
+            "Job Queue Category Code" := IntegrationTableMappingLbl;
             Status := Status::Ready;
             "Rerun Delay (sec.)" := 30;
             Description :=
@@ -1853,7 +1855,7 @@ codeunit 5334 "CRM Setup Defaults"
     begin
         FilterBuilder.AddTable(Caption, TableID);
         FilterBuilder.SetView(Caption, View);
-        exit(FilterBuilder.GetView(Caption, true));
+        exit(FilterBuilder.GetView(Caption, false));
     end;
 
     procedure GetPrioritizedMappingList(var NameValueBuffer: Record "Name/Value Buffer")

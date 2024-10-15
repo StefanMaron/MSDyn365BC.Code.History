@@ -12,14 +12,14 @@ codeunit 13636 "OIOUBL-Export Sales Invoice"
         SalesInvoiceHeader: Record "Sales Invoice Header";
         RecordRef: RecordRef;
     begin
-        RecordRef.GET(RecordID);
-        RecordRef.SETTABLE(SalesInvoiceHeader);
+        RecordRef.Get(RecordID);
+        RecordRef.SetTable(SalesInvoiceHeader);
 
         ServerFilePath := CreateXML(SalesInvoiceHeader);
-        MODIFY();
+        Modify();
 
-        SalesInvoiceHeader."OIOUBL-Electronic Invoice Created" := TRUE;
-        SalesInvoiceHeader.MODIFY();
+        SalesInvoiceHeader."OIOUBL-Electronic Invoice Created" := true;
+        SalesInvoiceHeader.Modify();
     end;
 
     var
@@ -39,6 +39,7 @@ codeunit 13636 "OIOUBL-Export Sales Invoice"
     var
         SalesInvHeader2: Record "Sales Invoice Header";
         RecordExportBuffer: Record "Record Export Buffer";
+        ElectronicDocumentFormat: Record "Electronic Document Format";
         RBMgt: Codeunit "File Management";
         OIOUBLManagement: Codeunit "OIOUBL-Management";
         EnvironmentInfo: Codeunit "Environment Information";
@@ -55,7 +56,7 @@ codeunit 13636 "OIOUBL-Export Sales Invoice"
         OIOUBLManagement.UpdateRecordExportBuffer(
             SalesInvoiceHeader.RecordId(),
             CopyStr(FromFile, 1, MaxStrLen(RecordExportBuffer.ServerFilePath)),
-            StrSubstNo('%1.xml', SalesInvoiceHeader."No."));
+            ElectronicDocumentFormat.GetAttachmentFileName(SalesInvoiceHeader."No.", 'Invoice', 'xml'));
 
         OIOUBLManagement.ExportXMLFile(SalesInvoiceHeader."No.", FromFile, SalesSetup."OIOUBL-Invoice Path");
 

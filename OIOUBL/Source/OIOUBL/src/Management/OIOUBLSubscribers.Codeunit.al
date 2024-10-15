@@ -1,7 +1,13 @@
 codeunit 13622 "OIOUBL-Subscribers"
 {
+    [Obsolete('Replaced by subscriber ExportCustomerDocumentsOnBeforeSendToDisk.')]
     [EventSubscriber(ObjectType::Table, Database::"Document Sending Profile", 'OnBeforeSend', '', false, false)]
     procedure ExportCustomerDocumentOnBeforeSend(VAR Sender: Record "Document Sending Profile"; ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; ToCust: Code[20]; DocName: Text[150]; CustomerFieldNo: Integer; DocumentNoFieldNo: Integer; VAR IsHandled: Boolean)
+    begin
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Document Sending Profile", 'OnBeforeSendToDisk', '', false, false)]
+    local procedure ExportCustomerDocumentsOnBeforeSendToDisk(var Sender: Record "Document Sending Profile"; ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; DocName: Text; ToCust: Code[20]; var IsHandled: Boolean)
     var
         SalesInvoiceHeader: Record "Sales Invoice Header";
         SalesCrMemoHeader: Record "Sales Cr.Memo Header";
@@ -80,6 +86,7 @@ codeunit 13622 "OIOUBL-Subscribers"
                 exit;
         end;
 
+        Commit();
         IsHandled := true;
     end;
 
@@ -101,6 +108,7 @@ codeunit 13622 "OIOUBL-Subscribers"
             RecordExportBuffer."OIOUBL-User ID" := CopyStr(UserId(), 1, MaxStrLen(RecordExportBuffer."OIOUBL-User ID"));
             RecordExportBuffer.Insert();
         until RecRef.Next() = 0;
+        Commit();
     end;
 
     [EventSubscriber(ObjectType::Table, Database::"Document Sending Profile", 'OnAfterSendCustomerRecords', '', false, false)]

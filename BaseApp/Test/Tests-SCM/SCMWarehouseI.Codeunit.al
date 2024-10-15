@@ -1956,6 +1956,72 @@ codeunit 137047 "SCM Warehouse I"
         Assert.IsTrue(LibraryVariableStorage.DequeueBoolean, WrongMessageTextErr);
     end;
 
+    [Test]
+    [HandlerFunctions('ItemTrackingLinesPageHandler')]
+    [Scope('OnPrem')]
+    procedure OrderToOrderReservFromInventoryNotDeletedOnRegisterPick()
+    var
+        Location: Record Location;
+        Item: Record Item;
+        RequisitionLine: Record "Requisition Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseActivityHeader: Record "Warehouse Activity Header";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+    begin
+        // [FEATURE] [Reservation] [Item Tracking] [Pick] [Binding] [Sales]
+        // [SCENARIO 337082] Registering of warehouse pick for sales order is not interrupted when the item being picked is order-to-order reserved from inventory.
+        Initialize;
+
+        // [GIVEN] Location set up for required shipment and pick.
+        // [GIVEN] Lot-tracked item with reordering policy = "Order".
+        CreateShipPickLocation(Location);
+        CreateLotTrackedItemWithOrderReorderingPolicy(Item);
+
+        // [GIVEN] Sales order for 50 PCS.
+        CreateSalesOrder(SalesHeader, SalesLine, Item."No.", LibraryRandom.RandIntInRange(50, 100), Location.Code);
+
+        // [GIVEN] Calculate plan on requisition worksheet.
+        // [GIVEN] Set item tracking on the requisition line.
+        // [GIVEN] Carry out action in order to create a supplying purchase order for the sales order.
+        // [GIVEN] An order-to-order binding is now established between the sales and the purchase.
+        LibraryPlanning.CalcRequisitionPlanForReqWkshAndGetLines(RequisitionLine, Item, WorkDate, WorkDate);
+        LibraryVariableStorage.Enqueue(LibraryUtility.GenerateGUID);
+        LibraryVariableStorage.Enqueue(RequisitionLine.Quantity);
+        RequisitionLine.OpenItemTrackingLines;
+        LibraryPlanning.CarryOutReqWksh(RequisitionLine, WorkDate, WorkDate, WorkDate, WorkDate, '');
+
+        // [GIVEN] Post the newly created purchase order.
+        PurchaseLine.SetRange(Type, PurchaseLine.Type::Item);
+        PurchaseLine.SetRange("No.", Item."No.");
+        PurchaseLine.FindFirst;
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
+
+        // [GIVEN] Create a warehouse shipment and a warehouse pick from the sales order.
+        CreateWhsePickFromSalesOrder(SalesHeader);
+        FindWarehouseActivityLine(
+          WarehouseActivityLine, DATABASE::"Sales Line", SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        WarehouseActivityHeader.Get(WarehouseActivityLine."Activity Type", WarehouseActivityLine."No.");
+
+        // [WHEN] Post the warehouse pick.
+        LibraryWarehouse.RegisterWhseActivity(WarehouseActivityHeader);
+
+        // [THEN] 50 PCS have been picked without any confirmation message.
+        VerifyPickedQuantity(Item."No.", SalesLine.Quantity);
+
+        // [THEN] The warehouse shipment can be successfully posted.
+        WarehouseShipmentHeader.Get(
+          LibraryWarehouse.FindWhseShipmentNoBySourceDoc(
+            DATABASE::"Sales Line", SalesHeader."Document Type", SalesHeader."No."));
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        LibraryVariableStorage.AssertEmpty;
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

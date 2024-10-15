@@ -766,7 +766,7 @@ codeunit 136109 "Service Posting - Consumption"
     end;
 
     [Test]
-    [HandlerFunctions('UpdateItemResourceHandler,PostAsShipAndConsumeHandler,ConfirmMessageHandler,ShipmentMultipleLinesHandler')]
+    [HandlerFunctions('UpdateItemResourceHandler,ConfirmMessageHandler,ShipmentMultipleLinesHandler')]
     [Scope('OnPrem')]
     procedure UndoConsumptionMultipleLines()
     begin
@@ -2019,6 +2019,18 @@ codeunit 136109 "Service Posting - Consumption"
         until ServiceLine.Next = 0;
     end;
 
+    local procedure InsertTempServiceLine(var TempServiceLine: Record "Service Line" temporary; Type: Option; No: Code[20])
+    var
+        ServiceLine: Record "Service Line";
+    begin
+        ServiceLine.SetRange("No.", No);
+        ServiceLine.SetRange(Type, Type);
+        ServiceLine.FindFirst();
+        TempServiceLine.Init();
+        TempServiceLine := ServiceLine;
+        TempServiceLine.Insert();
+    end;
+
     local procedure InventorySetupCostPosting()
     begin
         LibraryInventory.SetAutomaticCostPosting(true);
@@ -2726,20 +2738,26 @@ codeunit 136109 "Service Posting - Consumption"
     procedure UpdateItemResourceHandler(var ServiceLines: TestPage "Service Lines")
     var
         Item: Record Item;
-        ServiceLine: Record "Service Line";
         Resource: Record Resource;
+        ServHeader: Record "Service Header";
+        TempServiceLine: Record "Service Line" temporary;
     begin
         LibraryInventory.CreateItem(Item);
         Item.Validate("Unit Cost", LibraryRandom.RandDecInRange(1, 100, 2));
         Item.Modify(true);
         LibraryResource.CreateResourceNew(Resource);
         Quantity := LibraryRandom.RandDec(100, 2);  // Assign random Quantity to global variable Quantity.
-        CreateLineForDifferentTypes(ServiceLines, ServiceLine.Type::Item, Item."No.", Quantity);
-        ServiceLines.Next;
-        CreateLineForDifferentTypes(ServiceLines, ServiceLine.Type::Resource, Resource."No.", Quantity);
+        CreateLineForDifferentTypes(ServiceLines, TempServiceLine.Type::Item, Item."No.", Quantity);
+        ServiceLines.Next();
+        CreateLineForDifferentTypes(ServiceLines, TempServiceLine.Type::Resource, Resource."No.", Quantity);
+        ServiceLines.Next();
 
         // Post the service Order as Ship and Consume.
-        ServiceLines.Post.Invoke;
+        InsertTempServiceLine(TempServiceLine, TempServiceLine.Type::Item, Item."No.");
+        InsertTempServiceLine(TempServiceLine, TempServiceLine.Type::Resource, Resource."No.");
+
+        ServHeader.Get(TempServiceLine."Document Type", TempServiceLine."Document No.");
+        LibraryService.PostServiceOrderWithPassedLines(ServHeader, TempServiceLine, true, true, false);
     end;
 
     [ModalPageHandler]

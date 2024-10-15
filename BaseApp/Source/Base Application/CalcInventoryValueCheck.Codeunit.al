@@ -58,6 +58,7 @@ codeunit 5899 "Calc. Inventory Value-Check"
                     if ShowDialog then
                         Window.Update(1, "No.");
 
+                    OnBeforeFindOpenOutboundEntry(Item2, PostingDate);
                     if FindOpenOutboundEntry(Item2) then
                         if not TestMode then
                             Error(Text018, "No.");
@@ -110,6 +111,8 @@ codeunit 5899 "Calc. Inventory Value-Check"
             SetRange("Costing Method", "Costing Method"::Average);
             FilterGroup(0);
 
+            OnCheckCalculatePerOnAfterSetFilters(Item2, Item, PostingDate);
+
             if FindFirst then
                 case CalculatePer of
                     CalculatePer::"Item Ledger Entry":
@@ -149,6 +152,8 @@ codeunit 5899 "Calc. Inventory Value-Check"
                         end;
                 end;
         end;
+
+        OnAfterCheckCalculatePer(Item);
     end;
 
     local procedure FindOpenOutboundEntry(var Item: Record Item): Boolean
@@ -193,7 +198,22 @@ codeunit 5899 "Calc. Inventory Value-Check"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCheckCalculatePer(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckAdjusted(Item: Record Item; var IsAdjusted: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeFindOpenOutboundEntry(Item: Record Item; PostingDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCheckCalculatePerOnAfterSetFilters(var Item2: Record Item; var Item: Record Item; PostingDate: Date)
     begin
     end;
 }

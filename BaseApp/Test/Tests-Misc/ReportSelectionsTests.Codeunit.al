@@ -34,6 +34,7 @@ codeunit 134421 "Report Selections Tests"
         DocumentNoTok: Label 'DocumentNo';
         ReportIDMustHaveValueErr: Label 'Report ID must have a value';
         NoOutputErr: Label 'No data exists for the specified report filters.';
+        EmailAddressErr: Label 'Destination email address does not match expected address.';
 
     [Test]
     [HandlerFunctions('StandardSalesInvoiceRequestPageHandler')]
@@ -1009,6 +1010,44 @@ codeunit 134421 "Report Selections Tests"
         // [THEN] Error is shown than "newtest@" is not a valid email address
         Assert.ExpectedErrorCode('Dialog');
         Assert.ExpectedError('The email address "newtest@" is not valid.');
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure PostedSalesInvoiceEmailHasMorePriorityThanCustomerEmail()
+    var
+        ReportSelections: Record "Report Selections";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesHeader: Record "Sales Header";
+        Customer: Record Customer;
+        FileManagement: Codeunit "File Management";
+        FileName: Text[250];
+        EmailAddress: Text[80];
+    begin
+        // [SCENARIO 338446] E-mail address specified in posted Sales Invoice has more priority than customer's e-mail address.
+        Initialize;
+
+        // [GIVEN] Posted Sales Invoice "A" with the "Sell-to Email" = "a@a.com"
+        // [GIVEN] Customer's email address = "b@b.com"
+        CreateSalesInvoice(SalesHeader);
+        Customer.Get(SalesHeader."Bill-to Customer No.");
+        Customer.Validate("E-Mail", LibraryUtility.GenerateRandomEmail);
+        Customer.Modify(true);
+
+        SalesHeader.Validate("Sell-to E-Mail", LibraryUtility.GenerateRandomEmail);
+        SalesHeader.Modify(true);
+        PostSalesInvoice(SalesHeader, SalesInvoiceHeader);
+
+        FileName := Format(FileManagement.ServerTempFileName('.html'), 250);
+        SetupReportSelections(true, true);
+
+        // [GIVEN] When send sales invoice by e-mail
+        SalesInvoiceHeader.SetRecFilter;
+        ReportSelections.GetEmailBody(
+          FileName, ReportSelections.Usage::"S.Invoice", SalesInvoiceHeader, SalesInvoiceHeader."Bill-to Customer No.", EmailAddress);
+
+        // [THEN] The "a@a.com" address is used as target email address
+        Assert.AreEqual(SalesHeader."Sell-to E-Mail", EmailAddress, EmailAddressErr);
     end;
 
     local procedure Initialize()

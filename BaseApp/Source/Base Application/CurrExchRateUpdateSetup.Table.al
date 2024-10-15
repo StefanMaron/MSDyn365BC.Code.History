@@ -245,21 +245,13 @@ table 1650 "Curr. Exch. Rate Update Setup"
     end;
 
     local procedure LogTelemetryWhenServiceEnabled()
-    var
-        ServiceURL: Text;
     begin
-        GetWebServiceURL(ServiceURL);
         SendTraceTag('00008AE', TelemetryCategoryTok, VERBOSITY::Normal, ExchRateServiceEnabledTxt, DATACLASSIFICATION::SystemMetadata);
-        SendTraceTag('00008AF', TelemetryCategoryTok, VERBOSITY::Normal, ServiceURL, DATACLASSIFICATION::SystemMetadata);
     end;
 
     local procedure LogTelemetryWhenServiceDisabled()
-    var
-        ServiceURL: Text;
     begin
-        GetWebServiceURL(ServiceURL);
         SendTraceTag('00008AG', TelemetryCategoryTok, VERBOSITY::Normal, ExchRateServiceDisabledTxt, DATACLASSIFICATION::SystemMetadata);
-        SendTraceTag('00008AH', TelemetryCategoryTok, VERBOSITY::Normal, ServiceURL, DATACLASSIFICATION::SystemMetadata);
     end;
 
     local procedure LogTelemetryWhenServiceCreated()

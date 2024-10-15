@@ -241,9 +241,13 @@ codeunit 13646 "OIOUBL-Management"
         TempBlob: Codeunit "Temp Blob";
         ZipInStream: InStream;
     begin
-        FileManagement.BLOBImportFromServerFile(TempBlob, ServerZipFilePath);
-        TempBlob.CreateInStream(ZipInStream);
-        DownloadFromStream(ZipInStream, ZipArchiveSaveDialogTxt, ClientZipFolder, ZipArchiveFilterTxt, ClientZipFileName);
+        if FileManagement.IsLocalFileSystemAccessible() then
+            FileManagement.CopyServerFile(ServerZipFilePath, StrSubstNo('%1\%2', ClientZipFolder, ClientZipFileName), true)
+        else begin
+            FileManagement.BLOBImportFromServerFile(TempBlob, ServerZipFilePath);
+            TempBlob.CreateInStream(ZipInStream);
+            DownloadFromStream(ZipInStream, ZipArchiveSaveDialogTxt, ClientZipFolder, ZipArchiveFilterTxt, ClientZipFileName);
+        end;
     end;
 
     [IntegrationEvent(true, false)]

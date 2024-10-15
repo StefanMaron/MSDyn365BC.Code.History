@@ -39,6 +39,7 @@ codeunit 13643 "OIOUBL-Export Service Invoice"
     var
         ServInvHeader2: Record "Service Invoice Header";
         RecordExportBuffer: Record "Record Export Buffer";
+        ElectronicDocumentFormat: Record "Electronic Document Format";
         RBMgt: Codeunit "File Management";
         OIOUBLManagement: Codeunit "OIOUBL-Management";
         EnvironmentInfo: Codeunit "Environment Information";
@@ -55,7 +56,7 @@ codeunit 13643 "OIOUBL-Export Service Invoice"
         OIOUBLManagement.UpdateRecordExportBuffer(
             ServiceInvoiceHeader.RecordId(),
             CopyStr(FromFile, 1, MaxStrLen(RecordExportBuffer.ServerFilePath)),
-            StrSubstNo('%1.xml', ServiceInvoiceHeader."No."));
+            ElectronicDocumentFormat.GetAttachmentFileName(ServiceInvoiceHeader."No.", 'Invoice', 'xml'));
 
         OIOUBLManagement.ExportXMLFile(ServiceInvoiceHeader."No.", FromFile, ServiceMgtSetup."OIOUBL-Service Invoice Path");
 

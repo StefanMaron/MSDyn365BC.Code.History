@@ -29,7 +29,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table FIKExtension - Field Code - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Table FIKExtension - Field Code - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Table 766343727 - Field 4243077746 - Property 2879900210" ItemType=";Table - Field" PsrId="63" InstFlg="true" Leaf="true">
@@ -38,7 +38,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Table FIKExtension - Field IsUpgraded - Property Caption)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Table FIKExtension - Field IsUpgraded - Property Caption)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3470095905 - NamedType 306597383" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
