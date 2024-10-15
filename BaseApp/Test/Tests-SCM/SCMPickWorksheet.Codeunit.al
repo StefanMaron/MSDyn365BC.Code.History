@@ -11,6 +11,7 @@ codeunit 137015 "SCM Pick Worksheet"
 
     var
         ErrorDifferentQty: Label 'Quantity on pick worksheet line different from expected.';
+        LibraryAssembly: Codeunit "Library - Assembly";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryPurchase: Codeunit "Library - Purchase";
         LibrarySales: Codeunit "Library - Sales";
@@ -1090,6 +1091,72 @@ codeunit 137015 "SCM Pick Worksheet"
         // [THEN] AvailableQtyToPick returns 2 (quantity on blocked bin is not included) - it should not be 2 + 3 = 5
         WhseWorksheetLine.TestField("Item No.", WarehouseJournalLine."Item No.");
         Assert.AreEqual(Qty[1], AvailableQtyToPick, AvailableQtyToPickMsg);
+    end;
+
+    [Test]
+    procedure NonInventoryItemsAreExcluded()
+    var
+        AssemblyItem: Record Item;
+        InventoryItem: Record Item;
+        NonInventoryItem: Record Item;
+        Location: Record Location;
+        BOMComponent: Record "BOM Component";
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        ATOLink: Record "Assemble-to-Order Link";
+        AssemblyLine: Record "Assembly Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WhsePickRequest: Record "Whse. Pick Request";
+        WhseWorksheetLine: Record "Whse. Worksheet Line";
+    begin
+        // [SCENARIO] When creating warehouse worksheet lines from warehouse pick requests, then non-inventory items
+        // are ignored.
+
+        // [GIVEN] an assemble-to-order item with an assembly BOM containing an inventory & non-inventory item.
+        LibraryInventory.CreateItem(AssemblyItem);
+        AssemblyItem.Validate("Replenishment System", AssemblyItem."Replenishment System"::Assembly);
+        AssemblyItem.Validate("Assembly Policy", AssemblyItem."Assembly Policy"::"Assemble-to-Order");
+        AssemblyItem.Modify(true);
+
+        LibraryInventory.CreateItem(InventoryItem);
+
+        LibraryInventory.CreateNonInventoryTypeItem(NonInventoryItem);
+
+        LibraryAssembly.CreateAssemblyListComponent(
+            "BOM Component Type"::Item, InventoryItem."No.", AssemblyItem."No.", '',
+            BOMComponent."Resource Usage Type", 1, true);
+
+        LibraryAssembly.CreateAssemblyListComponent(
+        "BOM Component Type"::Item, NonInventoryItem."No.", AssemblyItem."No.", '',
+        BOMComponent."Resource Usage Type", 1, true);
+
+        // [GIVEN] A location requiring pick & shipment.
+        LibraryWarehouse.CreateLocationWMS(Location, false, false, true, false, true);
+
+        CreateAndPostItemJournalLine(InventoryItem."No.", 1, Location.Code, '');
+
+        // [WHEN] Creating a sales order containing the assembly item.
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        SalesHeader.Validate("Shipment Date", CalcDate('<+1W>', WorkDate()));
+        SalesHeader.Validate("Location Code", Location.Code);
+        SalesHeader.Modify(true);
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::Item, AssemblyItem."No.", 1);
+
+        // [THEN] An assembly order is automatically created.
+        Assert.IsTrue(ATOLink.AsmExistsForSalesLine(SalesLine), 'Expected Assemble-to-Order link to be created');
+
+        // [GIVEN] A warehouse shipment for the sales order.
+        CreateWarehouseShipmentFromSalesOrder(WarehouseShipmentHeader, SalesHeader);
+
+        // [WHEN] Creating work sheet lines via pick request.
+        FindWhsePickRequestByWhseShipmentHeader(WhsePickRequest, WarehouseShipmentHeader."No.");
+        CreateWhseWorksheetLineFromWhsePickRequest(WhseWorksheetLine, WhsePickRequest);
+
+        // [THEN] Only a worksheet line for the inventory item is created.
+        Assert.AreEqual(1, WhseWorksheetLine.Count(), 'Expected only one worksheet line to be created.');
+        WhseWorksheetLine.TestField("Item No.", InventoryItem."No.");
+        WhseWorksheetLine.TestField("Location Code", Location.Code);
+        WhseWorksheetLine.TestField("Qty. (Base)", 1);
     end;
 
     local procedure Initialize()

@@ -497,22 +497,24 @@ codeunit 5817 "Undo Posting Management"
                 exit;
 
             repeat
-                OnCheckItemLedgEntriesOnBeforeCheckTempItemLedgEntry(TempItemLedgEntry);
-                if Positive then begin
-                    if ("Job No." = '') and
-                       not (("Order Type" = "Order Type"::Assembly) and
-                            PostedATOLink.Get(PostedATOLink."Assembly Document Type"::Assembly, "Document No."))
-                    then
-                        if InvoicedEntry then
-                            TestField("Remaining Quantity", Quantity - "Invoiced Quantity")
-                        else
-                            TestField("Remaining Quantity", Quantity);
-                end else
-                    if "Entry Type" <> "Entry Type"::Transfer then
-                        if InvoicedEntry then
-                            TestField("Shipped Qty. Not Returned", Quantity - "Invoiced Quantity")
-                        else
-                            TestField("Shipped Qty. Not Returned", Quantity);
+                IsHandled := false;
+                OnCheckItemLedgEntriesOnBeforeCheckTempItemLedgEntry(TempItemLedgEntry, IsHandled);
+                if not IsHandled then
+                    if Positive then begin
+                        if ("Job No." = '') and
+                        not (("Order Type" = "Order Type"::Assembly) and
+                                PostedATOLink.Get(PostedATOLink."Assembly Document Type"::Assembly, "Document No."))
+                        then
+                            if InvoicedEntry then
+                                TestField("Remaining Quantity", Quantity - "Invoiced Quantity")
+                            else
+                                TestField("Remaining Quantity", Quantity);
+                    end else
+                        if "Entry Type" <> "Entry Type"::Transfer then
+                            if InvoicedEntry then
+                                TestField("Shipped Qty. Not Returned", Quantity - "Invoiced Quantity")
+                            else
+                                TestField("Shipped Qty. Not Returned", Quantity);
 
                 CalcFields("Reserved Quantity");
                 TestField("Reserved Quantity", 0);
@@ -1301,7 +1303,7 @@ codeunit 5817 "Undo Posting Management"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnCheckItemLedgEntriesOnBeforeCheckTempItemLedgEntry(var TempItemLedgEntry: Record "Item Ledger Entry" temporary)
+    local procedure OnCheckItemLedgEntriesOnBeforeCheckTempItemLedgEntry(var TempItemLedgEntry: Record "Item Ledger Entry" temporary; var IsHandled: Boolean)
     begin
     end;
 

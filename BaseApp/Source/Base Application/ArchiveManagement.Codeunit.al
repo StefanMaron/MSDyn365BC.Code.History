@@ -1,5 +1,13 @@
 codeunit 5063 ArchiveManagement
 {
+    Permissions = tableData "Purch. Comment Line" = r,
+                  tableData "Purchase Header Archive" = ri,
+                  tableData "Purchase Line Archive" = ri,
+                  tableData "Purch. Comment Line Archive" = ri,
+                  tabledata "Sales Comment Line" = r,
+                  tabledata "Sales Header Archive" = ri,
+                  tabledata "Sales Line Archive" = ri,
+                  tabledata "Sales Comment Line Archive" = ri;
 
     trigger OnRun()
     begin

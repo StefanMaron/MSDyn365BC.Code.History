@@ -333,8 +333,12 @@ page 1270 "OCR Service Setup"
     end;
 
     trigger OnOpenPage()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        OCRServiceMgt: Codeunit "OCR Service Mgt.";
     begin
         Reset();
+        FeatureTelemetry.LogUptake('0000IMM', OCRServiceMgt.GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::Discovered);
         if not Get() then begin
             Init();
             Insert(true);

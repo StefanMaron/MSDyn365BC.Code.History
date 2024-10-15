@@ -17,8 +17,10 @@ pageextension 3997 "Reten. Pol. Setup Lines Ext." extends "Retention Policy Setu
         }
     }
 
-    var
+    protected var
         IsDocumentArchiveTable: Boolean;
+
+    var
         RecIsLocked: Boolean;
 
     internal procedure SetIsDocumentArchiveTable(TableId: Integer)

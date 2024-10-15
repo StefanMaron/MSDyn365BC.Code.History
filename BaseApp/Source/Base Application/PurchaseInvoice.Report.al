@@ -730,28 +730,28 @@ report 406 "Purchase - Invoice"
                         column(RemitToAddressCaption; RemitToAddressCaptionLbl)
                         {
                         }
-                        column(RemitToAddress_Name; RemitToAddress[1])
+                        column(RemitToAddress_Name; RemitAddressBuffer.Name)
                         {
                         }
-                        column(RemitToAddress_Name2; RemitToAddress[2])
+                        column(RemitToAddress_Name2; RemitAddressBuffer.Address)
                         {
                         }
-                        column(RemitToAddress_Contact; RemitToAddress[3])
+                        column(RemitToAddress_Contact; RemitAddressBuffer."Address 2")
                         {
                         }
-                        column(RemitToAddress_Address; RemitToAddress[4])
+                        column(RemitToAddress_Address; RemitAddressBuffer.City)
                         {
                         }
-                        column(RemitToAddress_Address2; RemitToAddress[5])
+                        column(RemitToAddress_Address2; RemitAddressBuffer.County)
                         {
                         }
-                        column(RemitToAddress_City; RemitToAddress[6])
+                        column(RemitToAddress_City; RemitAddressBuffer."Post Code")
                         {
                         }
-                        column(RemitToAddress_PostCode; RemitToAddress[7])
+                        column(RemitToAddress_PostCode; RemitAddressBuffer."Country/Region Code")
                         {
                         }
-                        column(RemitToAddress_County; RemitToAddress[8])
+                        column(RemitToAddress_County; RemitAddressBuffer.Contact)
                         {
                         }
                     }
@@ -906,13 +906,13 @@ report 406 "Purchase - Invoice"
         CurrExchRate: Record "Currency Exchange Rate";
         BuyFromContact: Record Contact;
         PayToContact: Record Contact;
+        RemitAddressBuffer: Record "Remit Address Buffer";
         Language: Codeunit Language;
         FormatAddr: Codeunit "Format Address";
         FormatDocument: Codeunit "Format Document";
         SegManagement: Codeunit SegManagement;
         VendAddr: array[8] of Text[100];
         ShipToAddr: array[8] of Text[100];
-        RemitToAddress: array[8] of Text[100];
         CompanyAddr: array[8] of Text[100];
         PurchaserText: Text[50];
         VATNoText: Text[80];
@@ -1033,7 +1033,7 @@ report 406 "Purchase - Invoice"
         FormatAddr.GetCompanyAddr(PurchInvHeader."Responsibility Center", RespCenter, CompanyInfo, CompanyAddr);
         FormatAddr.PurchInvPayTo(VendAddr, PurchInvHeader);
         FormatAddr.PurchInvShipTo(ShipToAddr, PurchInvHeader);
-        FormatAddr.PurchInvRemitTo(RemitToAddress, PurchInvHeader);
+        FormatAddr.PurchInvRemitTo(RemitAddressBuffer, PurchInvHeader);
     end;
 
     local procedure FormatDocumentFields(PurchInvHeader: Record "Purch. Inv. Header")

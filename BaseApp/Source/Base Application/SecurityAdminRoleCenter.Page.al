@@ -66,17 +66,6 @@ page 9024 "Security Admin Role Center"
                 ObsoleteTag = '20.0';
             }
 #endif
-#if not CLEAN21
-            part("Power BI Report Spinner Part"; "Power BI Report Spinner Part")
-            {
-                AccessByPermission = TableData "Power BI User Configuration" = I;
-                ApplicationArea = Basic, Suite;
-                ObsoleteState = Pending;
-                ObsoleteReason = 'Replaced by PowerBIEmbeddedReportPart';
-                Visible = false;
-                ObsoleteTag = '21.0';
-            }
-#endif
             part(PowerBIEmbeddedReportPart; "Power BI Embedded Report Part")
             {
                 AccessByPermission = TableData "Power BI User Configuration" = I;
@@ -92,6 +81,17 @@ page 9024 "Security Admin Role Center"
                 AccessByPermission = TableData "Report Inbox" = R;
                 ApplicationArea = Basic, Suite;
             }
+#if not CLEAN21
+            part("Power BI Report Spinner Part"; "Power BI Report Spinner Part")
+            {
+                AccessByPermission = TableData "Power BI User Configuration" = I;
+                ApplicationArea = Basic, Suite;
+                ObsoleteState = Pending;
+                ObsoleteReason = 'Replaced by PowerBIEmbeddedReportPart';
+                Visible = false;
+                ObsoleteTag = '21.0';
+            }
+#endif
             systempart(MyNotes; MyNotes)
             {
                 ApplicationArea = Basic, Suite;

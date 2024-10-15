@@ -132,7 +132,7 @@ codeunit 6501 "Item Tracking Data Collection"
 
             TempTrackingSpecification.Validate("Quantity (Base)", NewQtyOnLine);
 
-            OnAfterAssistEditTrackingNo(TempTrackingSpecification, TempGlobalEntrySummary, CurrentSignFactor, MaxQuantity);
+            OnAfterAssistEditTrackingNo(TempTrackingSpecification, TempGlobalEntrySummary, CurrentSignFactor, MaxQuantity, TempGlobalReservEntry, LookupMode);
         end;
     end;
 
@@ -642,11 +642,11 @@ codeunit 6501 "Item Tracking Data Collection"
                 if (TempTrackingSpecification."Lot No." = '') or (not CurrItemTrackingCode."Lot Specific Tracking") then
                     exit(true);
             else begin
-                    IsHandled := false;
-                    OnTrackingAvailableOnLookupModeElseCase(TempTrackingSpecification, CurrItemTrackingCode, LookupMode, IsHandled);
-                    if IsHandled then
-                        exit(true);
-                end;
+                IsHandled := false;
+                OnTrackingAvailableOnLookupModeElseCase(TempTrackingSpecification, CurrItemTrackingCode, LookupMode, IsHandled);
+                if IsHandled then
+                    exit(true);
+            end;
         end;
 
         if not (PartialGlobalDataSetExists or FullGlobalDataSetExists) then
@@ -661,6 +661,25 @@ codeunit 6501 "Item Tracking Data Collection"
         TempGlobalEntrySummary.CalcSums("Total Available Quantity");
         if CheckJobInPurchLine(TempTrackingSpecification) then
             exit(TempGlobalEntrySummary.FindFirst());
+        exit(TempGlobalEntrySummary."Total Available Quantity" >= 0);
+    end;
+
+    procedure CheckAvailableTrackingQuantity(var TempTrackingSpecification: Record "Tracking Specification" temporary): Boolean
+    var
+        ItemTrackingSetup: Record "Item Tracking Setup";
+    begin
+        RetrieveLookupData(TempTrackingSpecification, false);
+
+        ItemTrackingSetup.CopyTrackingFromItemTrackingCodeSpecificTracking(CurrItemTrackingCode);
+        ItemTrackingSetup.CopyTrackingFromTrackingSpec(TempTrackingSpecification);
+
+        TempGlobalEntrySummary.Reset();
+        TempGlobalEntrySummary.SetTrackingKey();
+        TempGlobalEntrySummary.SetTrackingFilterFromItemTrackingSetupIfRequired(ItemTrackingSetup);
+        if TempGlobalEntrySummary.IsEmpty() then
+            exit(false);
+
+        TempGlobalEntrySummary.CalcSums("Total Available Quantity");
         exit(TempGlobalEntrySummary."Total Available Quantity" >= 0);
     end;
 
@@ -1349,7 +1368,7 @@ codeunit 6501 "Item Tracking Data Collection"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterAssistEditTrackingNo(var TrackingSpecification: Record "Tracking Specification"; var TempGlobalEntrySummary: Record "Entry Summary" temporary; CurrentSignFactor: Integer; MaxQuantity: Decimal)
+    local procedure OnAfterAssistEditTrackingNo(var TrackingSpecification: Record "Tracking Specification"; var TempGlobalEntrySummary: Record "Entry Summary" temporary; CurrentSignFactor: Integer; MaxQuantity: Decimal; var TempGlobalReservationEntry: Record "Reservation Entry" temporary; LookupMode: Enum "Item Tracking Type")
     begin
     end;
 

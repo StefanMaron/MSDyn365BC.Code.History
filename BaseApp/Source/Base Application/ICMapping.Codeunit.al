@@ -8,7 +8,10 @@ codeunit 428 "IC Mapping"
     procedure MapAccounts(ICGLAcc: Record "IC G/L Account")
     var
         GLAcc: Record "G/L Account";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
+        FeatureTelemetry.LogUptake('0000IIS', GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Set up");
+
         GLAcc.SetRange("No.", ICGLAcc."No.");
         if GlAcc.FindFirst() and (ICGLAcc."Account Type" = GLAcc."Account Type") then begin
             ICGLAcc."Map-to G/L Acc. No." := GLAcc."No.";
@@ -21,7 +24,11 @@ codeunit 428 "IC Mapping"
         Dimension: Record Dimension;
         DimensionValue: Record "Dimension Value";
         ICDimensionValue: Record "IC Dimension Value";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
+        FeatureTelemetry.LogUptake('0000IIT', GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Set up");
+        FeatureTelemetry.LogUsage('0000IIV', GetFeatureTelemetryName(), 'Map Incoming IC Dimensions');
+
         Dimension.SetRange(Code, ICDimension.Code);
         if Dimension.FindFirst() then begin
             ICDimension."Map-to Dimension Code" := Dimension.Code;
@@ -50,7 +57,11 @@ codeunit 428 "IC Mapping"
         ICDimension: Record "IC Dimension";
         ICDimensionValue: Record "IC Dimension Value";
         DimensionValue: Record "Dimension Value";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
+        FeatureTelemetry.LogUptake('0000IIU', GetFeatureTelemetryName(), Enum::"Feature Uptake Status"::"Set up");
+        FeatureTelemetry.LogUsage('0000IIW', GetFeatureTelemetryName(), 'Map Outgoing IC Dimensions');
+
         ICDimension.SetRange(Code, Dimension.Code);
         if ICDimension.FindFirst() then begin
             Dimension."Map-to IC Dimension Code" := ICDimension.Code;
@@ -72,6 +83,11 @@ codeunit 428 "IC Mapping"
                     until DimensionValue.Next() = 0;
             end;
         end;
+    end;
+
+    procedure GetFeatureTelemetryName(): Text
+    begin
+        exit('Intercompany');
     end;
 }
 
