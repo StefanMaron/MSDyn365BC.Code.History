@@ -254,7 +254,7 @@ page 193 "Incoming Doc. Attach. FactBox"
         exit(false);
     end;
 
-    [IntegrationEvent(false, false)]
+    [IntegrationEvent(true, false)]
     local procedure OnAfterLoadDataFromRecord(var MainRecordRef: RecordRef)
     begin
     end;

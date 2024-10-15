@@ -2549,9 +2549,11 @@ codeunit 134551 "ERM Cash Flow Filling I"
         NewDate := CalcDate('<1D>', OldDate);
         CFHelper.CreateJobPlanningLine(Job, JobPlanningLine."Line Type"::Billable, JobPlanningLine);
         JobPlanningLine.Validate("Planning Date", NewDate);
+        JobPlanningLine."Planning Due Date" := 0D;
         JobPlanningLine.Modify(true);
         CFHelper.CreateJobPlanningLine(Job, JobPlanningLine."Line Type"::"Both Budget and Billable", JobPlanningLine);
         JobPlanningLine.Validate("Planning Date", NewDate);
+        JobPlanningLine."Planning Due Date" := 0D;
         JobPlanningLine.Modify(true);
     end;
 }

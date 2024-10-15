@@ -931,6 +931,8 @@
         SetRange("Statement Type", BankAccRecon."Statement Type");
         SetRange("Bank Account No.", BankAccRecon."Bank Account No.");
         SetRange("Statement No.", BankAccRecon."Statement No.");
+
+        OnAfterFilterBankRecLines(Rec, BankAccRecon);
     end;
 
     procedure LinesExist(BankAccRecon: Record "Bank Acc. Reconciliation"): Boolean
@@ -1301,6 +1303,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetUpNewLine(var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; xBankAccReconciliationLine: Record "Bank Acc. Reconciliation Line");
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterBankRecLines(var Rec: Record "Bank Acc. Reconciliation Line"; BankAccRecon: Record "Bank Acc. Reconciliation")
     begin
     end;
 

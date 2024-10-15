@@ -572,6 +572,7 @@
         UseInterestRate: Decimal;
         CumAmount: Decimal;
         IsHandled: Boolean;
+        ShouldSkipCalcFinChrg: Boolean;
     begin
         IsHandled := false;
         OnBeforeCalcFinChrg(Rec, ReminderHeader, IsHandled);
@@ -591,7 +592,9 @@
         ExtraReminderLine.SetRange("Entry No.", "Entry No.");
         ExtraReminderLine.DeleteAll();
         CustLedgEntry.Get("Entry No.");
-        if (CustLedgEntry."On Hold" <> '') or ("Due Date" >= ReminderHeader."Document Date") then
+        ShouldSkipCalcFinChrg := (CustLedgEntry."On Hold" <> '') or ("Due Date" >= ReminderHeader."Document Date");
+        OnCalcFinChrgOnAfterCalcShouldSkipCalcFinChrg(Rec, ReminderHeader, CustLedgEntry, ShouldSkipCalcFinChrg);
+        if ShouldSkipCalcFinChrg then
             exit;
 
         ReminderLevel.SetRange("Reminder Terms Code", ReminderHeader."Reminder Terms Code");
@@ -1015,6 +1018,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateEntryNo(var ReminderLine: Record "Reminder Line"; var xReminderLine: Record "Reminder Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCalcFinChrgOnAfterCalcShouldSkipCalcFinChrg(var ReminderLine: Record "Reminder Line"; var ReminderHeader: Record "Reminder Header"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var ShouldSkipCalcFinChrg: Boolean)
     begin
     end;
 

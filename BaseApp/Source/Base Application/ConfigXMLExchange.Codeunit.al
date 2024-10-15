@@ -310,6 +310,7 @@ codeunit 8614 "Config. XML Exchange"
             ConfigPackageField.SetRange("Table ID", ConfigPackageTable."Table ID");
             ConfigPackageField.SetRange("Include Field", true);
             ConfigPackageField.SetRange(Dimension, false);
+            OnCreateRecordNodesOnNotFoundOnAfterConfigPackageFieldSetFilters(ConfigPackageTable, ConfigPackageField);
             if ConfigPackageField.FindSet then
                 repeat
                     FieldRef := RecRef.Field(ConfigPackageField."Field ID");
@@ -1542,6 +1543,11 @@ codeunit 8614 "Config. XML Exchange"
 
     [IntegrationEvent(false, false)]
     local procedure OnCreateRecordNodesOnAfterRecordProcessed(ConfigPackageTable: Record "Config. Package Table"; var ConfigPackageField: Record "Config. Package Field"; var RecRef: RecordRef; var PackageXML: DotNet XmlDocument; var RecordNode: DotNet XmlNode; var FieldNode: DotNet XmlNode; ExcelMode: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateRecordNodesOnNotFoundOnAfterConfigPackageFieldSetFilters(ConfigPackageTable: Record "Config. Package Table"; var ConfigPackageField: Record "Config. Package Field")
     begin
     end;
 

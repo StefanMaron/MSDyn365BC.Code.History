@@ -212,6 +212,7 @@ table 290 "VAT Amount Line"
             exit(false);
 
         Validate(Positive, "Line Amount" >= 0);
+        OnInsertLineOnAfterValidatePositive(Rec);
         VATAmountLine := Rec;
         if Find then begin
             "Line Amount" += VATAmountLine."Line Amount";
@@ -495,7 +496,7 @@ table 290 "VAT Amount Line"
         "VAT Difference" := 0;
         Modified := true;
 
-        OnAfterCalcVATFields(Rec, NewPricesIncludingVAT, NewVATBaseDiscPct);
+        OnAfterCalcVATFields(Rec, NewPricesIncludingVAT, NewVATBaseDiscPct, Currency);
     end;
 
     local procedure CalcValueLCY(Value: Decimal; PostingDate: Date; CurrencyCode: Code[10]; CurrencyFactor: Decimal): Decimal
@@ -872,6 +873,11 @@ table 290 "VAT Amount Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnInsertLineOnAfterValidatePositive(var VATAmountLine: Record "VAT Amount Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnInsertLineOnBeforeInsert(var VATAmountLine: Record "VAT Amount Line"; var FromVATAmountLine: Record "VAT Amount Line")
     begin
     end;
@@ -897,7 +903,7 @@ table 290 "VAT Amount Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterCalcVATFields(var VATAmountLine: Record "VAT Amount Line"; NewPricesIncludingVAT: Boolean; NewVATBaseDiscPct: Decimal)
+    local procedure OnAfterCalcVATFields(var VATAmountLine: Record "VAT Amount Line"; NewPricesIncludingVAT: Boolean; NewVATBaseDiscPct: Decimal; Currency: Record Currency)
     begin
     end;
 }
