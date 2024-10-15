@@ -317,6 +317,7 @@
             AdjustmentDate, AdjustmentDate, '', AdjustmentDate, 'DocumentNo', true, false);
         ExchRateAdjustment.SetValuationMethod(RefValuationMethod::"BilMoG (Germany)", 0D, AdjustmentDate);
         ExchRateAdjustment.UseRequestPage(false);
+        ExchRateAdjustment.SetHideUI(true);
         ExchRateAdjustment.Run();
     end;
 

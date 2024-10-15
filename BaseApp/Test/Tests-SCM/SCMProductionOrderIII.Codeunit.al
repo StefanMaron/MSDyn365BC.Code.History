@@ -5068,6 +5068,76 @@ codeunit 137079 "SCM Production Order III"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    procedure RoundingInCostAmountAfterPostingSubcontractingPOWithUoM()
+    var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+        Item: Record Item;
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
+        WorkCenter: Record "Work Center";
+        ProductionOrder: Record "Production Order";
+        ProdOrderLine: Record "Prod. Order Line";
+        RequisitionLine: Record "Requisition Line";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        ReservationEntry: Record "Reservation Entry";
+        ValueEntry: Record "Value Entry";
+        LotNos: array[20] of Code[50];
+        i: Integer;
+    begin
+        // [FEATURE] [Subcontracting] [Costing] [Rounding] [Unit of Measure]
+        // [SCENARIO 468372] Correct rounding in Cost Amount (Actual) after posting subcontracting purchase order with alternate unit of measure.
+        Initialize();
+
+        // [GIVEN] Set "Unit-Amount Rounding Precision" = 3 decimal digits (it is 5 digits in standard environment).
+        GeneralLedgerSetup.Get();
+        GeneralLedgerSetup."Unit-Amount Rounding Precision" := 0.001;
+        GeneralLedgerSetup.Modify();
+
+        // [GIVEN] Lot-tracked item with base unit of measure "KG" and alternate unit of measure "PC" = 0.10273 "KG".
+        LibraryItemTracking.CreateLotItem(Item);
+        LibraryInventory.CreateItemUnitOfMeasureCode(ItemUnitOfMeasure, Item."No.", 0.10273);
+
+        // [GIVEN] Add subcontracting routing to the item.
+        CreateRoutingAndUpdateItemSubc(Item, WorkCenter, true);
+
+        // [GIVEN] Create and refresh production order for 410.92 "KG".
+        // [GIVEN] Add 20 lots, each for 20.546 "KG".
+        LibraryManufacturing.CreateProductionOrder(
+          ProductionOrder, ProductionOrder.Status::Released, ProductionOrder."Source Type"::Item, Item."No.", 410.92);
+        LibraryManufacturing.RefreshProdOrder(ProductionOrder, false, true, true, true, false);
+        FindProdOrderLine(ProdOrderLine, ProductionOrder.Status, ProductionOrder."No.");
+        for i := 1 to ArrayLen(LotNos) do begin
+            LotNos[i] := LibraryUtility.GenerateGUID();
+            LibraryItemTracking.CreateProdOrderItemTracking(ReservationEntry, ProdOrderLine, '', LotNos[i], 20.546);
+        end;
+
+        // [GIVEN] Calculate subcontracting and create purchase order for subcontractor.
+        // [GIVEN] Change unit of measure to "PC" on the purchase line, quantity = 4000 "PC". Set "Direct Unit Cost" = 6.
+        CalculateSubcontractOrder(WorkCenter);
+        AcceptActionMessage(RequisitionLine, Item."No.");
+        LibraryPlanning.CarryOutAMSubcontractWksh(RequisitionLine);
+        FindPurchaseOrderLine(PurchaseLine, Item."No.");
+        PurchaseLine.Validate(Quantity, 4000);
+        PurchaseLine.Validate("Unit of Measure Code", ItemUnitOfMeasure.Code);
+        PurchaseLine.Validate("Direct Unit Cost", 6);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Assign vendor invoice no.
+        PurchaseHeader.Get(PurchaseLine."Document Type", PurchaseLine."Document No.");
+        PurchaseHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID();
+        PurchaseHeader.Modify();
+
+        // [WHEN] Receive and invoice the purchase order.
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [THEN] Posted cost amount = 4000 * 6 = 24000.00 sharp.
+        ValueEntry.SetRange(Type, ValueEntry.Type::"Work Center");
+        ValueEntry.SetRange("No.", WorkCenter."No.");
+        ValueEntry.CalcSums("Cost Amount (Actual)");
+        ValueEntry.TestField("Cost Amount (Actual)", 24000);
+    end;
+
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"SCM Production Order III");

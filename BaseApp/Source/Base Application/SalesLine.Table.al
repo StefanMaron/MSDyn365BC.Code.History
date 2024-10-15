@@ -7644,6 +7644,8 @@
     end;
 
     procedure ValidateLineDiscountPercent(DropInvoiceDiscountAmount: Boolean)
+    var
+        InvDiscountAmount: Decimal;
     begin
         TestJobPlanningLine();
         TestStatusOpen();
@@ -7653,13 +7655,26 @@
             Round(Quantity * "Unit Price", Currency."Amount Rounding Precision") *
             "Line Discount %" / 100, Currency."Amount Rounding Precision");
         if DropInvoiceDiscountAmount then begin
+            InvDiscountAmount := "Inv. Discount Amount";
             "Inv. Discount Amount" := 0;
             "Inv. Disc. Amount to Invoice" := 0;
+            if InvDiscountAmount <> 0 then
+                ReduceInvoiceDiscValueOnHeader(InvDiscountAmount);
         end;
         OnValidateLineDiscountPercentOnBeforeUpdateAmounts(Rec, CurrFieldNo);
         UpdateAmounts();
 
         OnAfterValidateLineDiscountPercent(Rec, CurrFieldNo);
+    end;
+
+    local procedure ReduceInvoiceDiscValueOnHeader(InvDiscountAmount: Decimal)
+    begin
+        if IsNullGuid(SalesHeader.SystemId) then
+            exit;
+        if SalesHeader."Invoice Discount Value" = 0 then
+            exit;
+        SalesHeader."Invoice Discount Value" -= InvDiscountAmount;
+        SalesHeader.Modify(true);
     end;
 
     local procedure ValidateVATProdPostingGroup()

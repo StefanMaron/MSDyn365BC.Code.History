@@ -102,7 +102,7 @@ table 729 "Copy Item Buffer"
         }
         field(24; "BOM Components"; Boolean)
         {
-            Caption = 'BOM Components';
+            Caption = 'Assembly BOM Components';
             DataClassification = SystemMetadata;
         }
         field(25; "Item Vendors"; Boolean)
