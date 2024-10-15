@@ -7,6 +7,7 @@ table 471 "Job Queue Category"
     DrillDownPageID = "Job Queue Category List";
     LookupPageID = "Job Queue Category List";
     Permissions = TableData "Job Queue Category" = rimd;
+    InherentPermissions = rimx;
     DataClassification = CustomerContent;
 
     fields
@@ -19,6 +20,18 @@ table 471 "Job Queue Category"
         field(2; Description; Text[30])
         {
             Caption = 'Description';
+        }
+        field(3; "Recovery Task Id"; Guid)
+        {
+            Caption = 'Recovery Task Id';
+            Editable = false;
+            DataClassification = SystemMetadata;
+        }
+        field(4; "Recovery Task Start Time"; DateTime)
+        {
+            Caption = 'Recovery Task Start Time';
+            Editable = false;
+            DataClassification = SystemMetadata;
         }
     }
 

@@ -282,6 +282,7 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
             CorrectHeaderField(EntryNo, DATABASE::"Purchase Header", PurchaseHeader.FieldNo("Vendor Order No."), RecordNo,
               IncomingDocument."Order No.");
         end;
+        OnAfterCorrectHeaderData(EntryNo, RecordNo, DataExch, IncomingDocument);
     end;
 
     local procedure CorrectHeaderField(EntryNo: Integer; TableID: Integer; FieldID: Integer; RecordNo: Integer; IncomingDocumentValue: Variant)
@@ -290,10 +291,33 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
         ExistingValue: Text;
         CorrectedValue: Text[250];
     begin
+        if CheckDataExchMappingNotExist(EntryNo, TableID, FieldID) then
+            exit;
+
         ExistingValue := IntermediateDataImport.GetEntryValue(EntryNo, TableID, FieldID, 0, RecordNo);
         CorrectedValue := CopyStr(Format(IncomingDocumentValue, 0, 9), 1, MaxStrLen(CorrectedValue));
         if CorrectedValue <> ExistingValue then
             IntermediateDataImport.InsertOrUpdateEntry(EntryNo, TableID, FieldID, 0, RecordNo, CorrectedValue);
+    end;
+
+    local procedure CheckDataExchMappingNotExist(EntryNo: Integer; TableID: Integer; FieldID: Integer): Boolean
+    var
+        DataExch: Record "Data Exch.";
+        DataExchMapping: Record "Data Exch. Mapping";
+        DataExchFieldMapping: Record "Data Exch. Field Mapping";
+    begin
+        DataExch.Get(EntryNo);
+        DataExchMapping.SetRange("Data Exch. Def Code", DataExch."Data Exch. Def Code");
+        DataExchMapping.SetRange("Data Exch. Line Def Code", DataExch."Data Exch. Line Def Code");
+        if DataExchMapping.FindSet() then
+            repeat
+                DataExchFieldMapping.SetRange("Data Exch. Def Code", DataExch."Data Exch. Def Code");
+                DataExchFieldMapping.SetRange("Data Exch. Line Def Code", DataExch."Data Exch. Line Def Code");
+                DataExchFieldMapping.SetRange("Target Table ID", TableID);
+                DataExchFieldMapping.SetRange("Target Field ID", FieldID);
+                if DataExchFieldMapping.IsEmpty() then
+                    exit(true);
+            until DataExchMapping.Next() = 0;
     end;
 
     local procedure CorrectCurrencyCode(EntryNo: Integer; TableID: Integer; FieldID: Integer; RecordNo: Integer; IncomingDocumentValue: Variant)
@@ -1403,6 +1427,11 @@ codeunit 1217 "Pre-map Incoming Purch. Doc"
             exit(BlockedAllVendorNo);
 
         exit('');
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCorrectHeaderData(EntryNo: Integer; RecordNo: Integer; DataExch: Record "Data Exch."; var IncomingDocument: Record "Incoming Document")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

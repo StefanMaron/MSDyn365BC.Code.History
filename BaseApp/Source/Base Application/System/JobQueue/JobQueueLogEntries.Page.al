@@ -217,12 +217,6 @@ page 674 "Job Queue Log Entries"
             }
         }
     }
-    trigger OnOpenPage()
-    var
-        JobQueueManagement: Codeunit "Job Queue Management";
-    begin
-        JobQueueManagement.FindStaleJobsAndSetError();
-    end;
 
     var
         JobQueueEntryRunningQst: Label 'This job queue entry may be still running. If you set the status to Error, it may keep running in the background. Are you sure you want to set the status to Error?';
