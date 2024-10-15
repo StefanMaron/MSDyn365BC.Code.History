@@ -620,7 +620,7 @@ page 9251 "Dimension Combinations Matrix"
 
         if not DimComb.Get(Dim1Code, Dim2Code) then
             if not DimComb.Get(Dim2Code, Dim1Code) then begin
-                DimComb.Init;
+                DimComb.Init();
                 DimComb."Dimension 1 Code" := Dim1Code;
                 DimComb."Dimension 2 Code" := Dim2Code;
                 CombRestriction := CombRestriction::" ";

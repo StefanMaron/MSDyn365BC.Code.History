@@ -23,7 +23,7 @@ table 18 Customer
             trigger OnValidate()
             begin
                 if "No." <> xRec."No." then begin
-                    SalesSetup.Get;
+                    SalesSetup.Get();
                     NoSeriesMgt.TestManual(SalesSetup."Customer Nos.");
                     "No. Series" := '';
                 end;
@@ -759,10 +759,6 @@ table 18 Customer
             CaptionClass = '5,1,' + "Country/Region Code";
             Caption = 'County';
         }
-        field(95; "Use GLN in Electronic Document"; Boolean)
-        {
-            Caption = 'Use GLN in Electronic Documents';
-        }
         field(97; "Debit Amount"; Decimal)
         {
             AutoFormatExpression = "Currency Code";
@@ -936,13 +932,11 @@ table 18 Customer
             Editable = false;
             FieldClass = FlowField;
         }
-        field(115; Reserve; Option)
+        field(115; Reserve; Enum "Reserve Method")
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
             Caption = 'Reserve';
             InitValue = Optional;
-            OptionCaption = 'Never,Optional,Always';
-            OptionMembers = Never,Optional,Always;
         }
         field(116; "Block Payment Tolerance"; Boolean)
         {
@@ -999,7 +993,7 @@ table 18 Customer
                     if CustLedgEntry.FindLast then
                         Error(Text012, FieldCaption("IC Partner Code"), TableCaption);
 
-                    CustLedgEntry.Reset;
+                    CustLedgEntry.Reset();
                     CustLedgEntry.SetCurrentKey("Customer No.", "Posting Date");
                     CustLedgEntry.SetRange("Customer No.", "No.");
                     AccountingPeriod.SetRange(Closed, false);
@@ -1016,12 +1010,12 @@ table 18 Customer
                     if (ICPartner."Customer No." <> '') and (ICPartner."Customer No." <> "No.") then
                         Error(Text010, FieldCaption("IC Partner Code"), "IC Partner Code", TableCaption, ICPartner."Customer No.");
                     ICPartner."Customer No." := "No.";
-                    ICPartner.Modify;
+                    ICPartner.Modify();
                 end;
 
                 if (xRec."IC Partner Code" <> "IC Partner Code") and ICPartner.Get(xRec."IC Partner Code") then begin
                     ICPartner."Customer No." := '';
-                    ICPartner.Modify;
+                    ICPartner.Modify();
                 end;
             end;
         }
@@ -1225,12 +1219,10 @@ table 18 Customer
             Caption = 'Responsibility Center';
             TableRelation = "Responsibility Center";
         }
-        field(5750; "Shipping Advice"; Option)
+        field(5750; "Shipping Advice"; Enum "Sales Header Shipping Advice")
         {
             AccessByPermission = TableData "Sales Shipment Header" = R;
             Caption = 'Shipping Advice';
-            OptionCaption = 'Partial,Complete';
-            OptionMembers = Partial,Complete;
         }
         field(5790; "Shipping Time"; DateFormula)
         {
@@ -1309,6 +1301,18 @@ table 18 Customer
             Caption = 'Outstanding Serv.Invoices(LCY)';
             Editable = false;
             FieldClass = FlowField;
+        }
+        field(7000; "Price Calculation Method"; Enum "Price Calculation Method")
+        {
+            Caption = 'Price Calculation Method';
+
+            trigger OnValidate()
+            var
+                PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+                PriceType: Enum "Price Type";
+            begin
+                PriceCalculationMgt.VerifyMethodImplemented("Price Calculation Method", PriceType::Sale);
+            end;
         }
         field(7001; "Allow Line Disc."; Boolean)
         {
@@ -1667,26 +1671,26 @@ table 18 Customer
 
         CommentLine.SetRange("Table Name", CommentLine."Table Name"::Customer);
         CommentLine.SetRange("No.", "No.");
-        CommentLine.DeleteAll;
+        CommentLine.DeleteAll();
 
         CustBankAcc.SetRange("Customer No.", "No.");
-        CustBankAcc.DeleteAll;
+        CustBankAcc.DeleteAll();
 
         ShipToAddr.SetRange("Customer No.", "No.");
-        ShipToAddr.DeleteAll;
+        ShipToAddr.DeleteAll();
 
         SalesPrice.SetRange("Sales Type", SalesPrice."Sales Type"::Customer);
         SalesPrice.SetRange("Sales Code", "No.");
-        SalesPrice.DeleteAll;
+        SalesPrice.DeleteAll();
 
         SalesLineDisc.SetRange("Sales Type", SalesLineDisc."Sales Type"::Customer);
         SalesLineDisc.SetRange("Sales Code", "No.");
-        SalesLineDisc.DeleteAll;
+        SalesLineDisc.DeleteAll();
 
         SalesPrepmtPct.SetCurrentKey("Sales Type", "Sales Code");
         SalesPrepmtPct.SetRange("Sales Type", SalesPrepmtPct."Sales Type"::Customer);
         SalesPrepmtPct.SetRange("Sales Code", "No.");
-        SalesPrepmtPct.DeleteAll;
+        SalesPrepmtPct.DeleteAll();
 
         StdCustSalesCode.SetRange("Customer No.", "No.");
         StdCustSalesCode.DeleteAll(true);
@@ -1694,11 +1698,11 @@ table 18 Customer
         ItemCrossReference.SetCurrentKey("Cross-Reference Type", "Cross-Reference Type No.");
         ItemCrossReference.SetRange("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::Customer);
         ItemCrossReference.SetRange("Cross-Reference Type No.", "No.");
-        ItemCrossReference.DeleteAll;
+        ItemCrossReference.DeleteAll();
 
         if not SocialListeningSearchTopic.IsEmpty then begin
             SocialListeningSearchTopic.FindSearchTopic(SocialListeningSearchTopic."Source Type"::Customer, "No.");
-            SocialListeningSearchTopic.DeleteAll;
+            SocialListeningSearchTopic.DeleteAll();
         end;
 
         SalesOrderLine.SetCurrentKey("Document Type", "Bill-to Customer No.");
@@ -1726,26 +1730,6 @@ table 18 Customer
             until CampaignTargetGr.Next = 0;
         end;
 
-        ServContract.SetFilter(Status, '<>%1', ServContract.Status::Canceled);
-        ServContract.SetRange("Customer No.", "No.");
-        if not ServContract.IsEmpty then
-            Error(
-              Text007,
-              TableCaption, "No.");
-
-        ServContract.SetRange(Status);
-        ServContract.ModifyAll("Customer No.", '');
-
-        ServContract.SetFilter(Status, '<>%1', ServContract.Status::Canceled);
-        ServContract.SetRange("Bill-to Customer No.", "No.");
-        if not ServContract.IsEmpty then
-            Error(
-              Text007,
-              TableCaption, "No.");
-
-        ServContract.SetRange(Status);
-        ServContract.ModifyAll("Bill-to Customer No.", '');
-
         ServHeader.SetCurrentKey("Customer No.", "Order Date");
         ServHeader.SetRange("Customer No.", "No.");
         if ServHeader.FindFirst then
@@ -1763,10 +1747,10 @@ table 18 Customer
 
         CustomReportSelection.SetRange("Source Type", DATABASE::Customer);
         CustomReportSelection.SetRange("Source No.", "No.");
-        CustomReportSelection.DeleteAll;
+        CustomReportSelection.DeleteAll();
 
         MyCustomer.SetRange("Customer No.", "No.");
-        MyCustomer.DeleteAll;
+        MyCustomer.DeleteAll();
         VATRegistrationLogMgt.DeleteCustomerLog(Rec);
 
         DimMgt.DeleteDefaultDim(DATABASE::Customer, "No.");
@@ -1785,7 +1769,7 @@ table 18 Customer
 
 
         if "No." = '' then begin
-            SalesSetup.Get;
+            SalesSetup.Get();
             SalesSetup.TestField("Customer Nos.");
             NoSeriesMgt.InitSeries(SalesSetup."Customer Nos.", xRec."No. Series", 0D, "No.", "No. Series");
         end;
@@ -1869,7 +1853,6 @@ table 18 Customer
         Text004: Label 'post';
         Text005: Label 'create';
         Text006: Label 'You cannot %1 this type of document when Customer %2 is blocked with type %3';
-        Text007: Label 'You cannot delete %1 %2 because there is at least one not cancelled Service Contract for this customer.';
         Text008: Label 'Deleting the %1 %2 will cause the %3 to be deleted for the associated Service Items. Do you want to continue?';
         Text009: Label 'Cannot delete customer.';
         Text010: Label 'The %1 %2 has been assigned to %3 %4.\The same %1 cannot be entered on more than one %3. Enter another code.';
@@ -1900,7 +1883,7 @@ table 18 Customer
     begin
         with Cust do begin
             Cust := Rec;
-            SalesSetup.Get;
+            SalesSetup.Get();
             SalesSetup.TestField("Customer Nos.");
             if NoSeriesMgt.SelectSeries(SalesSetup."Customer Nos.", OldCust."No. Series", "No. Series") then begin
                 NoSeriesMgt.SetSeries("No.");
@@ -1924,7 +1907,7 @@ table 18 Customer
             DimMgt.SaveDefaultDim(DATABASE::Customer, "No.", FieldNumber, ShortcutDimCode);
             Modify;
         end;
-	
+
         OnAfterValidateShortcutDimCode(Rec, xRec, FieldNumber, ShortcutDimCode);
     end;
 
@@ -1951,7 +1934,7 @@ table 18 Customer
                 UpdateContFromCust.InsertNewContact(Rec, false);
                 ContBusRel.FindFirst;
             end;
-            Commit;
+            Commit();
 
             Cont.FilterGroup(2);
             Cont.SetRange("Company No.", ContBusRel."Contact No.");
@@ -2068,6 +2051,28 @@ table 18 Customer
             MapMgt.MakeSelection(DATABASE::Customer, GetPosition)
         else
             Message(Text014);
+    end;
+
+    procedure GetPriceCalculationMethod() Method: Enum "Price Calculation Method";
+    begin
+        if "Price Calculation Method" <> Method::" " then
+            Method := "Price Calculation Method"
+        else begin
+            Method := GetCustomerPriceGroupPriceCalcMethod();
+            if Method = Method::" " then begin
+                SalesSetup.Get();
+                Method := SalesSetup."Price Calculation Method";
+            end;
+        end;
+    end;
+
+    local procedure GetCustomerPriceGroupPriceCalcMethod(): Enum "Price Calculation Method";
+    var
+        CustomerPriceGroup: Record "Customer Price Group";
+    begin
+        if "Customer Price Group" <> '' then
+            if CustomerPriceGroup.Get("Customer Price Group") then
+                exit(CustomerPriceGroup."Price Calculation Method");
     end;
 
     procedure GetTotalAmountLCY() TotalAmountLCY: Decimal
@@ -2253,7 +2258,7 @@ table 18 Customer
         SalesHeader.SetRange("Sell-to Customer No.", "No.");
         SalesHeader.SetDefaultPaymentServices;
         SalesHeader.Insert(true);
-        Commit;
+        Commit();
         PAGE.Run(PAGE::"Sales Invoice", SalesHeader)
     end;
 
@@ -2265,7 +2270,7 @@ table 18 Customer
         SalesHeader.SetRange("Sell-to Customer No.", "No.");
         SalesHeader.SetDefaultPaymentServices;
         SalesHeader.Insert(true);
-        Commit;
+        Commit();
         PAGE.Run(PAGE::"Sales Order", SalesHeader)
     end;
 
@@ -2276,7 +2281,7 @@ table 18 Customer
         SalesHeader."Document Type" := SalesHeader."Document Type"::"Credit Memo";
         SalesHeader.SetRange("Sell-to Customer No.", "No.");
         SalesHeader.Insert(true);
-        Commit;
+        Commit();
         PAGE.Run(PAGE::"Sales Credit Memo", SalesHeader)
     end;
 
@@ -2287,7 +2292,7 @@ table 18 Customer
         SalesHeader."Document Type" := SalesHeader."Document Type"::Quote;
         SalesHeader.SetRange("Sell-to Customer No.", "No.");
         SalesHeader.Insert(true);
-        Commit;
+        Commit();
         PAGE.Run(PAGE::"Sales Quote", SalesHeader)
     end;
 
@@ -2443,7 +2448,7 @@ table 18 Customer
                     end
                 else
                     exit('');
-            Customer.Reset;
+            Customer.Reset();
             NoFiltersApplied := true;
         end;
 
@@ -2476,7 +2481,7 @@ table 18 Customer
         if Treshold = 0 then
             exit;
 
-        Customer.Reset;
+        Customer.Reset();
         Customer.Ascending(false); // most likely to search for newest customers
         Customer.SetRange(Blocked, Customer.Blocked::" ");
         OnMarkCustomersWithSimilarNameOnBeforeCustomerFindSet(Customer);
@@ -2511,7 +2516,7 @@ table 18 Customer
                 Customer.Modify(true);
             end;
 
-        Commit;
+        Commit();
         if not ShowCustomerCard then
             exit(Customer."No.");
         Customer.SetRange("No.", Customer."No.");
@@ -2801,7 +2806,7 @@ table 18 Customer
         Customer.SetRange("E-Mail");
         LocalContact.SetRange("E-Mail", Email);
         if LocalContact.FindSet then begin
-            MarketingSetup.Get;
+            MarketingSetup.Get();
             repeat
                 if ContactBusinessRelation.Get(LocalContact."No.", MarketingSetup."Bus. Rel. Code for Customers") then begin
                     Customer.Get(ContactBusinessRelation."No.");

@@ -44,9 +44,9 @@ table 7600 "Base Calendar"
         if not CustomizedCalendarChange.IsEmpty then
             Error(Text001, Code);
 
-        BaseCalendarLine.Reset;
+        BaseCalendarLine.Reset();
         BaseCalendarLine.SetRange("Base Calendar Code", Code);
-        BaseCalendarLine.DeleteAll;
+        BaseCalendarLine.DeleteAll();
     end;
 
     var

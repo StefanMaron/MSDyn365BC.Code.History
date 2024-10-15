@@ -41,6 +41,13 @@ table 5330 "CRM Connection Setup"
         {
             Caption = 'User Password Key';
             DataClassification = EndUserPseudonymousIdentifiers;
+
+            trigger OnValidate()
+            begin
+                if not IsTemporary() then
+                    if "User Password Key" <> xRec."User Password Key" then
+                        xRec.DeletePassword();
+            end;
         }
         field(5; "Last Update Invoice Entry No."; Integer)
         {
@@ -307,6 +314,21 @@ table 5330 "CRM Connection Setup"
     {
     }
 
+    trigger OnModify()
+    begin
+        if IsTemporary() then
+            exit;
+        if "User Password Key" <> xRec."User Password Key" then
+            xRec.DeletePassword();
+    end;
+
+    trigger OnDelete()
+    begin
+        if IsTemporary() then
+            exit;
+        DeletePassword();
+    end;
+
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         CantRegisterDisabledConnectionErr: Label 'A disabled connection cannot be registered.';
@@ -339,7 +361,71 @@ table 5330 "CRM Connection Setup"
         UserHasNoRolesErr: Label 'User %1 has no user roles assigned on server %2.', Comment = '%1 user name, %2 - server address';
         BCIntegrationAdministratorRoleIdTxt: Label '{8c8d4f51-a72b-e511-80d9-3863bb349780}', Locked = true;
         BCIntegrationUserRoleIdTxt: Label '{6f960e32-a72b-e511-80d9-3863bb349780}', Locked = true;
+        CDSConnectionMustBeEnabledErr: Label 'You must enable the connection to Common Data Service before you can set up the connection to %1.\\Open the page %2 to enable the connection to Common Data Service.', Comment = '%1 = CRM product name, %2 = Common Data Service Connection Setup page caption.';
+        DeploySucceedMsg: Label 'The solution, user roles, and entities have been deployed.';
+        DeployFailedMsg: Label 'The deployment of the solution, user roles, and entities failed.';
         IsolatedStorageManagement: Codeunit "Isolated Storage Management";
+        TempUserPassword: Text;
+
+    [Scope('OnPrem')]
+    procedure EnsureCDSConnectionIsEnabled();
+    var
+        CDSConnectionSetup: Record "CDS Connection Setup";
+        CDSConnectionSetupPage: Page "CDS Connection Setup";
+    begin
+        if Get() then
+            if "Is Enabled" then
+                exit;
+
+        if CDSConnectionSetup.Get() then
+            if CDSConnectionSetup."Is Enabled" then
+                exit;
+
+        Error(CDSConnectionMustBeEnabledErr, CRMProductName.SHORT(), CDSConnectionSetupPage.Caption());
+    end;
+
+    [Scope('OnPrem')]
+    procedure LoadConnectionStringElementsFromCDSConnectionSetup();
+    var
+        CDSConnectionSetup: Record "CDS Connection Setup";
+        CDSConnectionSetupPage: Page "CDS Connection Setup";
+    begin
+        if Get() then
+            if "Is Enabled" then
+                exit;
+
+        if CDSConnectionSetup.Get() then
+            if CDSConnectionSetup."Is Enabled" then begin
+                "Server Address" := CDSConnectionSetup."Server Address";
+                "User Name" := CDSConnectionSetup."User Name";
+                "User Password Key" := CDSConnectionSetup."User Password Key";
+                "Authentication Type" := CDSConnectionSetup."Authentication Type";
+                if not Modify() then
+                    Insert();
+                exit;
+            end;
+
+        Error(CDSConnectionMustBeEnabledErr, CRMProductName.SHORT(), CDSConnectionSetupPage.Caption());
+    end;
+
+    [Scope('OnPrem')]
+    procedure DeployCRMSolution(ForceRedeploy: Boolean);
+    var
+        DummyCRMConnectionSetup: Record "CRM Connection Setup";
+        AdminEmail: Text;
+        AdminPassword: Text;
+    begin
+        if not ForceRedeploy and CRMIntegrationManagement.IsCRMSolutionInstalled() then
+            exit;
+
+        DummyCRMConnectionSetup.EnsureCDSConnectionIsEnabled();
+        if not PromptForCredentials(AdminEmail, AdminPassword) then
+            exit;
+        if CRMIntegrationManagement.ImportCRMSolution("Server Address", "User Name", AdminEmail, AdminPassword, "Proxy Version") then
+            Message(DeploySucceedMsg)
+        else
+            Message(DeployFailedMsg);
+    end;
 
     procedure CountCRMJobQueueEntries(var ActiveJobs: Integer; var TotalJobs: Integer)
     var
@@ -353,10 +439,10 @@ table 5330 "CRM Connection Setup"
                 JobQueueEntry.SetFilter("Object ID to Run", GetJobQueueEntriesObjectIDToRunFilter)
             else
                 JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"Integration Synch. Job Runner");
-            TotalJobs := JobQueueEntry.Count;
+            TotalJobs := JobQueueEntry.Count();
 
             JobQueueEntry.SetFilter(Status, '%1|%2', JobQueueEntry.Status::Ready, JobQueueEntry.Status::"In Process");
-            ActiveJobs := JobQueueEntry.Count;
+            ActiveJobs := JobQueueEntry.Count();
         end;
     end;
 
@@ -369,10 +455,28 @@ table 5330 "CRM Connection Setup"
     [Scope('OnPrem')]
     procedure SetPassword(PasswordText: Text)
     begin
+        if IsTemporary() then begin
+            TempUserPassword := PasswordText;
+            exit;
+        end;
         if IsNullGuid("User Password Key") then
             "User Password Key" := CreateGuid;
 
         IsolatedStorageManagement.Set("User Password Key", PasswordText, DATASCOPE::Company);
+    end;
+
+    [Scope('OnPrem')]
+    procedure DeletePassword()
+    begin
+        if IsTemporary() then begin
+            Clear(TempUserPassword);
+            exit;
+        end;
+
+        if IsNullGuid("User Password Key") then
+            exit;
+
+        IsolatedStorageManagement.Delete(Format("User Password Key"), DATASCOPE::Company);
     end;
 
     procedure UpdateAllConnectionRegistrations()
@@ -508,10 +612,12 @@ table 5330 "CRM Connection Setup"
     end;
 
     [Scope('OnPrem')]
-    local procedure GetPassword(): Text
+    procedure GetPassword(): Text
     var
         Value: Text;
     begin
+        if IsTemporary() then
+            exit(TempUserPassword);
         if not IsNullGuid("User Password Key") then
             IsolatedStorageManagement.Get("User Password Key", DATASCOPE::Company, Value);
         exit(Value);
@@ -521,7 +627,7 @@ table 5330 "CRM Connection Setup"
     begin
         if User.Get(DATABASE.UserSecurityId) then
             exit(true);
-        User.Reset;
+        User.Reset();
         User.SetRange("Windows Security ID", Sid);
         exit(User.FindFirst);
     end;
@@ -615,7 +721,7 @@ table 5330 "CRM Connection Setup"
         if CRMRole.FindSet then
             repeat
                 TempCRMRole.TransferFields(CRMRole);
-                TempCRMRole.Insert;
+                TempCRMRole.Insert();
                 if LowerCase(Format(TempCRMRole.RoleId)) = BCIntegrationAdministratorRoleIdTxt then begin
                     BCIntegrationAdminRoleDeployed := true;
                     BCIntAdminCRMRoleName := TempCRMRole.Name;
@@ -758,6 +864,7 @@ table 5330 "CRM Connection Setup"
             VerifyTestConnection;
             RegisterUserConnection;
             VerifyBaseCurrencyMatchesLCY;
+            InstallIntegrationSolution();
             EnableIntegrationTables;
             if "Disable Reason" <> '' then
                 CRMIntegrationManagement.ClearConnectionDisableReason(Rec);
@@ -774,9 +881,23 @@ table 5330 "CRM Connection Setup"
         end;
     end;
 
+    local procedure InstallIntegrationSolution()
+    var
+        AdminEmail: Text;
+        AdminPassword: Text;
+    begin
+        if CRMIntegrationManagement.IsCRMSolutionInstalled() then
+            exit;
+
+        if not PromptForCredentials(AdminEmail, AdminPassword) then
+            exit;
+
+        CRMIntegrationManagement.ImportCRMSolution(
+            "Server Address", "User Name", AdminEmail, AdminPassword, "Proxy Version");
+    end;
+
     local procedure EnableIntegrationTables()
     var
-        IntegrationTableMapping: Record "Integration Table Mapping";
         IntegrationRecord: Record "Integration Record";
         IntegrationManagement: Codeunit "Integration Management";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
@@ -784,12 +905,9 @@ table 5330 "CRM Connection Setup"
         if IntegrationRecord.IsEmpty then
             IntegrationManagement.SetupIntegrationTables;
         IntegrationManagement.SetConnectorIsEnabledForSession(true);
-        if IntegrationTableMapping.IsEmpty then begin
-            Modify; // Job Queue to read "Is Enabled"
-            Commit;
-            CRMSetupDefaults.ResetConfiguration(Rec);
-        end else
-            UpdateCRMJobQueueEntriesStatus;
+        Modify; // Job Queue to read "Is Enabled"
+        Commit();
+        CRMSetupDefaults.ResetConfiguration(Rec);
     end;
 
     procedure EnableCRMConnectionFromWizard()
@@ -818,7 +936,7 @@ table 5330 "CRM Connection Setup"
         if "Restore Connection" then begin
             "Restore Connection" := false;
             Modify;
-            Commit;
+            Commit();
             if TestConnection then
                 Validate("Is Enabled", true);
             Modify;
@@ -828,7 +946,7 @@ table 5330 "CRM Connection Setup"
     procedure SetCRMSOPEnabled()
     begin
         TestField("Is CRM Solution Installed", true);
-        SetCRMSOPEnabledWithCredentials('', CreateGuid, true);
+        SetCRMSOPEnabledWithCredentials('', '', true);
     end;
 
     procedure SetCRMSOPDisabled()
@@ -838,22 +956,20 @@ table 5330 "CRM Connection Setup"
         CRMSalesorder.SetRange(StateCode, CRMSalesorder.StateCode::Submitted);
         if not CRMSalesorder.IsEmpty then
             Error(CannotDisableSalesOrderIntErr);
-        SetCRMSOPEnabledWithCredentials('', CreateGuid, false);
+        SetCRMSOPEnabledWithCredentials('', '', false);
         Validate("Auto Create Sales Orders", false);
     end;
 
     [Scope('OnPrem')]
-    procedure SetCRMSOPEnabledWithCredentials(AdminEmail: Text[250]; AdminPassKey: Guid; SOPIntegrationEnable: Boolean)
+    procedure SetCRMSOPEnabledWithCredentials(AdminEmail: Text[250]; AdminPassword: Text; SOPIntegrationEnable: Boolean)
     var
         CRMOrganization: Record "CRM Organization";
         TempCRMConnectionSetup: Record "CRM Connection Setup" temporary;
         ConnectionName: Text;
-        Value: Text;
     begin
         CreateTempAdminConnection(TempCRMConnectionSetup);
-        if (AdminEmail <> '') and (not IsNullGuid(AdminPassKey)) then begin
-            IsolatedStorageManagement.Get(AdminPassKey, DATASCOPE::Company, Value);
-            TempCRMConnectionSetup.SetPassword(Value);
+        if (AdminEmail <> '') and (AdminPassword <> '') then begin
+            TempCRMConnectionSetup.SetPassword(AdminPassword);
             TempCRMConnectionSetup.Validate("User Name", AdminEmail);
         end;
         ConnectionName := Format(CreateGuid);
@@ -904,7 +1020,7 @@ table 5330 "CRM Connection Setup"
 
     local procedure CreateTempNoDelegateConnection(var CRMConnectionSetup: Record "CRM Connection Setup")
     begin
-        CRMConnectionSetup.Init;
+        CRMConnectionSetup.Init();
         CalcFields("Server Connection String");
         CRMConnectionSetup.TransferFields(Rec);
         CRMConnectionSetup."Primary Key" := CopyStr('TEMP' + "Primary Key", 1, MaxStrLen(CRMConnectionSetup."Primary Key"));
@@ -974,7 +1090,7 @@ table 5330 "CRM Connection Setup"
     begin
         CRMOrganization.FindFirst;
         CRMTransactioncurrency.Get(CRMOrganization.BaseCurrencyId);
-        GLSetup.Get;
+        GLSetup.Get();
         if DelChr(CRMTransactioncurrency.ISOCurrencyCode) <> DelChr(GLSetup."LCY Code") then
             Error(LCYMustMatchBaseCurrencyErr, GLSetup."LCY Code", CRMTransactioncurrency.ISOCurrencyCode);
     end;
@@ -1013,7 +1129,7 @@ table 5330 "CRM Connection Setup"
         TempNameValueBuffer.FindSet;
 
         CurrentMappingIndex := 0;
-        MappingCount := TempNameValueBuffer.Count;
+        MappingCount := TempNameValueBuffer.Count();
         ProgressWindow.Open(ProcessDialogMapTitleMsg, CurrentMappingIndex);
         repeat
             CurrentMappingIndex := CurrentMappingIndex + 1;
@@ -1023,6 +1139,30 @@ table 5330 "CRM Connection Setup"
         until TempNameValueBuffer.Next = 0;
         ProgressWindow.Close;
     end;
+
+    procedure PromptForCredentials(var AdminEmail: Text; var AdminPassword: Text): Boolean
+    var
+        TempOfficeAdminCredentials: Record "Office Admin. Credentials" temporary;
+    begin
+        if TempOfficeAdminCredentials.IsEmpty then begin
+            TempOfficeAdminCredentials.Init();
+            TempOfficeAdminCredentials.Insert(true);
+            Commit();
+            if PAGE.RunModal(PAGE::"Dynamics CRM Admin Credentials", TempOfficeAdminCredentials) <> ACTION::LookupOK then
+                exit(false);
+        end;
+        if (not TempOfficeAdminCredentials.FindFirst) or
+           (TempOfficeAdminCredentials.Email = '') or (TempOfficeAdminCredentials.Password = '')
+        then begin
+            TempOfficeAdminCredentials.DeleteAll(true);
+            exit(false);
+        end;
+
+        AdminEmail := TempOfficeAdminCredentials.Email;
+        AdminPassword := TempOfficeAdminCredentials.Password;
+        exit(true);
+    end;
+
 
     local procedure ShowError(ActivityDescription: Text[128]; ErrorMessage: Text)
     var
@@ -1130,6 +1270,7 @@ table 5330 "CRM Connection Setup"
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         JobQueueEntry: Record "Job Queue Entry";
+        CDSIntegrationImpl: Codeunit "CDS Integration Impl.";
         NewStatus: Option;
         JobQueueEntryCodeunitFilter: Text;
     begin
@@ -1139,6 +1280,8 @@ table 5330 "CRM Connection Setup"
             NewStatus := JobQueueEntry.Status::"On Hold";
         IntegrationTableMapping.SetRange("Synch. Codeunit ID", CODEUNIT::"CRM Integration Table Synch.");
         IntegrationTableMapping.SetRange("Delete After Synchronization", false);
+        if CDSIntegrationImpl.IsIntegrationEnabled() then
+            IntegrationTableMapping.SetFilter("Table ID", StrSubstNo('<>%1&<>%2&<>%3&<>%4&<>%5', Database::Currency, Database::"Salesperson/Purchaser", Database::Contact, Database::Customer, Database::Vendor));
         if IntegrationTableMapping.FindSet then
             repeat
                 JobQueueEntry.SetRange("Record ID to Process", IntegrationTableMapping.RecordId);

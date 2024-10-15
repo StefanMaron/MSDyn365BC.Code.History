@@ -30,7 +30,7 @@ codeunit 741 "VAT Report Release/Reopen"
             exit;
 
         VATReportHeader.Status := VATReportHeader.Status::Released;
-        VATReportHeader.Modify;
+        VATReportHeader.Modify();
     end;
 
     procedure Reopen(var VATReportHeader: Record "VAT Report Header")
@@ -38,7 +38,7 @@ codeunit 741 "VAT Report Release/Reopen"
         VATReportHeader.CheckIfCanBeReopened(VATReportHeader);
 
         VATReportHeader.Status := VATReportHeader.Status::Open;
-        VATReportHeader.Modify;
+        VATReportHeader.Modify();
     end;
 
     procedure Submit(var VATReportHeader: Record "VAT Report Header")
@@ -48,7 +48,7 @@ codeunit 741 "VAT Report Release/Reopen"
         VATReportHeader.CheckIfCanBeSubmitted;
 
         VATReportHeader.Status := VATReportHeader.Status::Submitted;
-        VATReportHeader.Modify;
+        VATReportHeader.Modify();
 
         UpdateLinesToCorrect(VATReportHeader."No.");
 
@@ -72,13 +72,13 @@ codeunit 741 "VAT Report Release/Reopen"
             CorrVATReportLine.SetRange("Line Type", CorrVATReportLine."Line Type"::Correction);
             if CorrVATReportLine.FindSet then
                 repeat
-                    VATReportLine.Reset;
+                    VATReportLine.Reset();
                     VATReportLine.SetRange("VAT Report to Correct", VATReportHeader."Original Report No.");
                     VATReportLine.SetRange("Related Line No.", CorrVATReportLine."Related Line No.");
                     VATReportLine.SetRange("Able to Correct Line", true);
                     VATReportLine.ModifyAll("Able to Correct Line", false, false);
 
-                    VATReportLine.Reset;
+                    VATReportLine.Reset();
                     VATReportLine.SetRange("VAT Report No.", VATReportHeader."Original Report No.");
                     VATReportLine.SetRange("Line No.", CorrVATReportLine."Related Line No.");
                     VATReportLine.SetRange("Able to Correct Line", true);

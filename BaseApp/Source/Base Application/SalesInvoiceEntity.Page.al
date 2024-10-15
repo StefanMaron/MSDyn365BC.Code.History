@@ -521,7 +521,7 @@ page 5475 "Sales Invoice Entity"
         Clear(BillingPostalAddressJSONText);
         Clear(InvoiceDiscountAmount);
         Clear(DiscountAmountSet);
-        TempFieldBuffer.DeleteAll;
+        TempFieldBuffer.DeleteAll();
     end;
 
     local procedure RegisterFieldSet(FieldNo: Integer)
@@ -536,7 +536,7 @@ page 5475 "Sales Invoice Entity"
         TempFieldBuffer.Order := LastOrderNo;
         TempFieldBuffer."Table ID" := DATABASE::"Sales Invoice Entity Aggregate";
         TempFieldBuffer."Field ID" := FieldNo;
-        TempFieldBuffer.Insert;
+        TempFieldBuffer.Insert();
     end;
 
     local procedure CheckCustomerSpecified()
@@ -582,10 +582,10 @@ page 5475 "Sales Invoice Entity"
     begin
         UpdateCustomer := "Sell-to Customer No." = '';
         if not UpdateCustomer then begin
-            TempFieldBuffer.Reset;
+            TempFieldBuffer.Reset();
             TempFieldBuffer.SetRange("Field ID", FieldNo("Customer Id"));
             UpdateCustomer := not TempFieldBuffer.FindFirst;
-            TempFieldBuffer.Reset;
+            TempFieldBuffer.Reset();
         end;
 
         if UpdateCustomer then begin
@@ -655,8 +655,8 @@ page 5475 "Sales Invoice Entity"
         if not (DueDateSet or DocumentDateSet) then
             exit;
 
-        TempFieldBuffer.Reset;
-        TempFieldBuffer.DeleteAll;
+        TempFieldBuffer.Reset();
+        TempFieldBuffer.DeleteAll();
 
         if DocumentDateSet then begin
             "Document Date" := DocumentDateVar;
@@ -802,7 +802,7 @@ page 5475 "Sales Invoice Entity"
         CheckSendToEmailAddress(SalesInvoiceHeader."No.");
         GraphIntBusinessProfile.SyncFromGraphSynchronously;
 
-        JobQueueEntry.Init;
+        JobQueueEntry.Init();
         JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
         JobQueueEntry."Object ID to Run" := CODEUNIT::"O365 Sales Cancel Invoice";
         JobQueueEntry."Maximum No. of Attempts to Run" := 3;
@@ -857,7 +857,7 @@ page 5475 "Sales Invoice Entity"
     begin
         GetDraftInvoice(SalesHeader);
         PostInvoice(SalesHeader, SalesInvoiceHeader);
-        Commit;
+        Commit();
         SendPostedInvoice(SalesInvoiceHeader);
         SetActionResponse(ActionContext, SalesInvoiceAggregator.GetSalesInvoiceHeaderId(SalesInvoiceHeader));
     end;

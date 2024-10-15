@@ -418,9 +418,9 @@ table 740 "VAT Report Header"
     begin
         TestField(Status, Status::Open);
         VATReportLine.SetRange("VAT Report No.", "No.");
-        VATReportLine.DeleteAll;
+        VATReportLine.DeleteAll();
         VATReportLineRelation.SetRange("VAT Report No.", "No.");
-        VATReportLineRelation.DeleteAll;
+        VATReportLineRelation.DeleteAll();
         RemoveECSLLinesAndRelation;
     end;
 
@@ -460,7 +460,7 @@ table 740 "VAT Report Header"
 
     procedure GetNoSeriesCode(): Code[20]
     begin
-        VATReportSetup.Get;
+        VATReportSetup.Get();
         VATReportSetup.TestField("No. Series");
         exit(VATReportSetup."No. Series");
     end;
@@ -485,7 +485,7 @@ table 740 "VAT Report Header"
 
     procedure CheckEditingAllowed()
     begin
-        VATReportSetup.Get;
+        VATReportSetup.Get();
         if (not VATReportSetup."Modify Submitted Reports") and (Status <> Status::Open) then
             Error(Text002, Format(Status));
     end;
@@ -530,7 +530,7 @@ table 740 "VAT Report Header"
         case VATReportHeader.Status of
             VATReportHeader.Status::Submitted:
                 begin
-                    VATReportSetup.Get;
+                    VATReportSetup.Get();
                     if not VATReportSetup."Modify Submitted Reports" then
                         Error(Text007, VATReportSetup.TableCaption);
                 end
@@ -612,7 +612,7 @@ table 740 "VAT Report Header"
     var
         VATReportLine: Record "VAT Report Line";
     begin
-        VATReportLine.Reset;
+        VATReportLine.Reset();
         VATReportLine.SetRange("VAT Report No.", "No.");
         exit(not VATReportLine.IsEmpty);
     end;
@@ -624,8 +624,8 @@ table 740 "VAT Report Header"
         CountryRegion: Record "Country/Region";
         VATReportSetup: Record "VAT Report Setup";
     begin
-        CompanyInfo.Get;
-        VATReportSetup.Get;
+        CompanyInfo.Get();
+        VATReportSetup.Get();
         CompanyInfo.TestField("Country/Region Code");
 
         CountryRegion.Get(CompanyInfo."Country/Region Code");

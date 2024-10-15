@@ -90,7 +90,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
         // Setup : Update Sales and Manufacturing Setup.Create Items, Production BOM,Routing and update Item.
         // Create Planned Production Order.Update and Refresh it.
         Initialize;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         CapReqPlanningSetup(TempSalesReceivablesSetup, TempManufacturingSetup, ProductionOrder);
 
         // Exercise: Change Efficiency on Machine Center and Work Center,
@@ -122,7 +122,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
         // Setup : Update Sales and Manufacturing Setup.Create Items, Production BOM,Routing and update Item.
         // Create Planned Production Order.Update and Refresh it.
         Initialize;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         CapReqPlanningSetup(TempSalesReceivablesSetup, TempManufacturingSetup, ProductionOrder);
 
         // Exercise: Change Efficiency to decimal value on Machine Center and Work Center,
@@ -155,7 +155,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
         // Setup : Update Sales and Manufacturing Setup.Create Items, Production BOM,Routing and update Item.
         // Create Planned Production Order.Update and Refresh it.
         Initialize;
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         CapReqPlanningSetup(TempSalesReceivablesSetup, TempManufacturingSetup, ProductionOrder);
 
         // Exercise: Change Efficiency to Zero on Machine Center and Work Center,
@@ -262,14 +262,14 @@ codeunit 137042 "SCM Capacity Req. Planning"
         LibraryERMCountryData.CreateVATData;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Capacity Req. Planning");
     end;
 
     [Normal]
     local procedure UpdateSalesReceivablesSetup(var BaseSalesReceivablesSetup: Record "Sales & Receivables Setup")
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         BaseSalesReceivablesSetup := SalesReceivablesSetup;
         BaseSalesReceivablesSetup.Insert(true);
 
@@ -282,7 +282,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
     [Normal]
     local procedure UpdateManufacturingSetup(var BaseManufacturingSetup: Record "Manufacturing Setup")
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         BaseManufacturingSetup := ManufacturingSetup;
         BaseManufacturingSetup.Insert(true);
 
@@ -294,7 +294,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
 
     local procedure RestoreSalesReceivablesSetup(TempSalesReceivablesSetup: Record "Sales & Receivables Setup" temporary)
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup.Validate("Credit Warnings", TempSalesReceivablesSetup."Credit Warnings");
         SalesReceivablesSetup.Validate("Stockout Warning", TempSalesReceivablesSetup."Stockout Warning");
         SalesReceivablesSetup.Modify(true);
@@ -302,7 +302,7 @@ codeunit 137042 "SCM Capacity Req. Planning"
 
     local procedure RestoreManufacturingSetup(TempManufacturingSetup: Record "Manufacturing Setup" temporary)
     begin
-        ManufacturingSetup.Get;
+        ManufacturingSetup.Get();
         ManufacturingSetup.Validate("Normal Starting Time", TempManufacturingSetup."Normal Starting Time");
         ManufacturingSetup.Validate("Normal Ending Time", TempManufacturingSetup."Normal Ending Time");
         ManufacturingSetup.Modify(true);

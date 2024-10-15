@@ -32,7 +32,7 @@ table 5996 "Standard Service Code"
                     Currency2.InitRoundingPrecision;
 
                 if Currency."Amount Rounding Precision" <> Currency2."Amount Rounding Precision" then begin
-                    StdServiceLine.Reset;
+                    StdServiceLine.Reset();
                     StdServiceLine.SetRange("Standard Service Code", Code);
                     StdServiceLine.SetRange(Type, StdServiceLine.Type::"G/L Account");
                     StdServiceLine.SetFilter("Amount Excl. VAT", '<>%1', 0);
@@ -46,7 +46,7 @@ table 5996 "Standard Service Code"
                         repeat
                             StdServiceLine."Amount Excl. VAT" :=
                               Round(StdServiceLine."Amount Excl. VAT", Currency."Amount Rounding Precision");
-                            StdServiceLine.Modify;
+                            StdServiceLine.Modify();
                         until StdServiceLine.Next = 0;
                     end;
                 end;
@@ -69,21 +69,21 @@ table 5996 "Standard Service Code"
 
     trigger OnDelete()
     begin
-        StdServiceLine.Reset;
+        StdServiceLine.Reset();
         StdServiceLine.SetRange("Standard Service Code", Code);
         StdServiceLine.DeleteAll(true);
 
-        StdServItemGroup.Reset;
+        StdServItemGroup.Reset();
         StdServItemGroup.SetRange(Code, Code);
-        StdServItemGroup.DeleteAll;
+        StdServItemGroup.DeleteAll();
     end;
 
     trigger OnInsert()
     begin
         if not StdServItemGroup.Get('', Code) then begin
-            StdServItemGroup.Init;
+            StdServItemGroup.Init();
             StdServItemGroup.Code := Code;
-            StdServItemGroup.Insert;
+            StdServItemGroup.Insert();
         end;
     end;
 
@@ -109,7 +109,7 @@ table 5996 "Standard Service Code"
         ServiceHeader.TestField("Document Type");
 
         Clear(StdServItemGrCodesForm);
-        StdServItemGrCode.Reset;
+        StdServItemGrCode.Reset();
         StdServItemGrCodesForm.SetRecord(StdServItemGrCode);
         StdServItemGrCodesForm.SetTableView(StdServItemGrCode);
         StdServItemGrCodesForm.LookupMode := true;
@@ -135,11 +135,11 @@ table 5996 "Standard Service Code"
                 Factor := 1
             else
                 Factor := 0;
-            ServLine.LockTable;
-            StdServLine.LockTable;
+            ServLine.LockTable();
+            StdServLine.LockTable();
             if StdServLine.Find('-') then
                 repeat
-                    ServLine.Init;
+                    ServLine.Init();
                     ServLine."Line No." := 0;
                     ServLine.Validate(Type, StdServLine.Type);
                     if StdServLine.Type = StdServLine.Type::" " then begin
@@ -173,7 +173,7 @@ table 5996 "Standard Service Code"
         end;
     end;
 
-    local procedure InsertExtendedText(ServLine: Record "Service Line")
+    procedure InsertExtendedText(ServLine: Record "Service Line")
     var
         TransferExtendedText: Codeunit "Transfer Extended Text";
     begin

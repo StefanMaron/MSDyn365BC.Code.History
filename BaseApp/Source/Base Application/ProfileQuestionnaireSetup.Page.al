@@ -22,7 +22,7 @@ page 5110 "Profile Questionnaire Setup"
                 trigger OnLookup(var Text: Text): Boolean
                 begin
                     CurrPage.SaveRecord;
-                    Commit;
+                    Commit();
                     if PAGE.RunModal(0, ProfileQuestnHeader) = ACTION::LookupOK then begin
                         ProfileQuestnHeader.Get(ProfileQuestnHeader.Code);
                         CurrentQuestionsChecklistCode := ProfileQuestnHeader.Code;

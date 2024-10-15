@@ -46,7 +46,6 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaSetup.Validate("Company Name", CompanyName);
         ApplicationAreaSetup.Validate(Basic, true);
         ApplicationAreaSetup.Validate("Basic EU", true);
-        ApplicationAreaSetup.Validate("Basic DE", true);
         ApplicationAreaSetup.Validate(VAT, true);
         ApplicationAreaSetup.Validate(Suite, true);
         ApplicationAreaSetup.Insert(true);
@@ -61,7 +60,6 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaSetup.Validate("Profile ID", AllProfile."Profile ID");
         ApplicationAreaSetup.Validate(Basic, true);
         ApplicationAreaSetup.Validate("Basic EU", true);
-        ApplicationAreaSetup.Validate("Basic DE", true);
         ApplicationAreaSetup.Validate(VAT, true);
         ApplicationAreaSetup.Validate(Suite, true);
         ApplicationAreaSetup.Insert(true);
@@ -72,7 +70,6 @@ codeunit 131102 "Library - Application Area"
         ApplicationAreaSetup."User ID" := UserId;
         ApplicationAreaSetup.Validate(Basic, true);
         ApplicationAreaSetup.Validate("Basic EU", true);
-        ApplicationAreaSetup.Validate("Basic DE", true);
         ApplicationAreaSetup.Validate(VAT, true);
         ApplicationAreaSetup.Validate(Suite, true);
         ApplicationAreaSetup.Insert(true);

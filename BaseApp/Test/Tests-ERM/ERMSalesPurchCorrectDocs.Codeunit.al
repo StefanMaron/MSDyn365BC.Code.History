@@ -18,8 +18,11 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         LibraryPurchase: Codeunit "Library - Purchase";
         LibraryInventory: Codeunit "Library - Inventory";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
+        LibraryUtility: Codeunit "Library - Utility";
         IsInitialized: Boolean;
         COGSAccountEmptyErr: Label 'COGS Account must have a value in General Posting Setup: Gen. Bus. Posting Group=%1, Gen. Prod. Posting Group=%2. It cannot be zero or empty.';
+        QtyErr: Label '%1 is wrong';
+        CancelQtyErr: Label '%1 is wrong after cancel';
         CannotCancelSalesInvInventoryPeriodClosedErr: Label 'You cannot cancel this posted sales invoice because the posting inventory period is already closed.';
         CannotCancelPurchInvInventoryPeriodClosedErr: Label 'You cannot cancel this posted purchase invoice because the posting inventory period is already closed.';
 
@@ -256,6 +259,282 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
 
     [Test]
     [Scope('OnPrem')]
+    procedure CancelMadeFromOrderSalesInvoiceWithOrder()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        PstdDocNo: Code[20];
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        // [FEATURE] [Sales]
+        // [SCANARIO] Partially ship and invoice order, then cancel posted invoice
+        Initialize();
+
+        // [GIVEN] Order, "Quantity" = 9, "Qty. to Ship" = 7, "Qty. to Invoice" = 5
+        CreateSalesOrder(SalesHeader, SalesLine);
+        // [GIVEN] Posted invoice
+        PstdDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        SalesInvoiceHeader.Get(PstdDocNo);
+        SalesLine.Find();
+        Assert.AreEqual(4, SalesLine."Qty. to Invoice", StrSubstNo(QtyErr, SalesLine.FieldName("Quantity Invoiced")));
+        Assert.AreEqual(5, SalesLine."Quantity Invoiced", StrSubstNo(QtyErr, SalesLine.FieldName("Quantity Invoiced")));
+        Assert.AreEqual(2, SalesLine."Qty. Shipped Not Invoiced", StrSubstNo(QtyErr, SalesLine.FieldName("Qty. Shipped Not Invoiced")));
+        // [WHEN] Cancel posted invoice
+        CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
+        // [THEN] "Qty. to Invoice" = 9, "Quantity Invoiced" = 0, "Qty. Shipped Not Invoiced" = 2
+        SalesLine.Find();
+        Assert.AreEqual(9, SalesLine."Qty. to Invoice", StrSubstNo(CancelQtyErr, SalesLine.FieldName("Quantity Invoiced")));
+        Assert.AreEqual(0, SalesLine."Quantity Invoiced", StrSubstNo(CancelQtyErr, SalesLine.FieldName("Quantity Invoiced")));
+        Assert.AreEqual(2, SalesLine."Qty. Shipped Not Invoiced", StrSubstNo(CancelQtyErr, SalesLine.FieldName("Qty. Shipped Not Invoiced")));
+    end;
+
+    [Test]
+    [HandlerFunctions('GetShipmentLinesHandler')]
+    [Scope('OnPrem')]
+    procedure CancelMadeFromShipmentSalesInvoiceWithOrder()
+    var
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        PstdDocNo: Code[20];
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+    begin
+        // [FEATURE] [Sales]
+        // [SCANARIO] Partially ship order, create invoice from shipment lines, post it, then cancel posted invoice
+        Initialize();
+
+        // [GIVEN] Order, "Quantity" = 9, "Qty. to Ship" = 7
+        CreateSalesOrder(SalesHeader[1], SalesLine[1]);
+        // [GIVEN] Posted shipment
+        LibrarySales.PostSalesDocument(SalesHeader[1], true, false);
+        // [GIVEN] Posted invoice from shipment
+        CreateSalesInvoiceFromShipment(SalesHeader[2], SalesLine[2], SalesHeader[1]."Sell-to Customer No.");
+        PstdDocNo := LibrarySales.PostSalesDocument(SalesHeader[2], true, true);
+        SalesLine[1].Find();
+        Assert.AreEqual(2, SalesLine[1]."Qty. to Invoice", StrSubstNo(QtyErr, SalesLine[1].FieldName("Quantity Invoiced")));
+        Assert.AreEqual(7, SalesLine[1]."Quantity Invoiced", StrSubstNo(QtyErr, SalesLine[1].FieldName("Quantity Invoiced")));
+        Assert.AreEqual(0, SalesLine[1]."Qty. Shipped Not Invoiced", StrSubstNo(QtyErr, SalesLine[1].FieldName("Qty. Shipped Not Invoiced")));
+        // [WHEN] Cancel posted invoice
+        SalesInvoiceHeader.Get(PstdDocNo);
+        CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
+        // [THEN] "Qty. to Invoice" = 9, "Quantity Invoiced" = 0, "Qty. Shipped Not Invoiced" = 0
+        SalesLine[1].Find();
+        Assert.AreEqual(9, SalesLine[1]."Qty. to Invoice", StrSubstNo(CancelQtyErr, SalesLine[1].FieldName("Quantity Invoiced")));
+        Assert.AreEqual(0, SalesLine[1]."Quantity Invoiced", StrSubstNo(CancelQtyErr, SalesLine[1].FieldName("Quantity Invoiced")));
+        Assert.AreEqual(0, SalesLine[1]."Qty. Shipped Not Invoiced", StrSubstNo(CancelQtyErr, SalesLine[1].FieldName("Qty. Shipped Not Invoiced")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CancelMadeFromOrderPurchaseInvoiceWithOrder()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PstdDocNo: Code[20];
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+    begin
+        // [FEATURE] [Purchase]
+        // [SCANARIO] Partially receive and invoice order, then cancel posted invoice
+        Initialize();
+
+        // [GIVEN] Order, "Quantity" = 9, "Qty. to Receive" = 7, "Qty. to Invoice" = 5
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine);
+        // [GIVEN] Posted invoice
+        PstdDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        PurchInvHeader.Get(PstdDocNo);
+        PurchaseLine.Find();
+        Assert.AreEqual(4, PurchaseLine."Qty. to Invoice", StrSubstNo(QtyErr, PurchaseLine.FieldName("Qty. to Invoice")));
+        Assert.AreEqual(5, PurchaseLine."Quantity Invoiced", StrSubstNo(QtyErr, PurchaseLine.FieldName("Quantity Invoiced")));
+        Assert.AreEqual(2, PurchaseLine."Qty. Rcd. Not Invoiced", StrSubstNo(QtyErr, PurchaseLine.FieldName("Qty. Rcd. Not Invoiced")));
+        // [WHEN] Cancel posted invoice
+        CorrectPostedPurchInvoice.CancelPostedInvoice(PurchInvHeader);
+        // [THEN] "Qty. to Invoice" = 9, "Quantity Invoiced" = 0, "Qty. Rcd. Not Invoiced" = 7
+        PurchaseLine.Find();
+        Assert.AreEqual(9, PurchaseLine."Qty. to Invoice", StrSubstNo(CancelQtyErr, PurchaseLine.FieldName("Qty. to Invoice")));
+        Assert.AreEqual(0, PurchaseLine."Quantity Invoiced", StrSubstNo(CancelQtyErr, PurchaseLine.FieldName("Quantity Invoiced")));
+        Assert.AreEqual(2, PurchaseLine."Qty. Rcd. Not Invoiced", StrSubstNo(CancelQtyErr, PurchaseLine.FieldName("Qty. Rcd. Not Invoiced")));
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure UndoShipmentAfterCancelMadeFromOrderSalesInvoiceWithOrder()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        RevertedSalesShipmentLine: Record "Sales Shipment Line";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        PstdDocNo: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCANARIO] Partially ship and invoice order, then cancel posted invoice and undo shipment
+        Initialize();
+
+        // [GIVEN] Order, "Quantity" = 9, "Qty. to Ship" = 7, "Qty. to Invoice" = 5
+        CreateSalesOrder(SalesHeader, SalesLine);
+        // [GIVEN] Posted invoice
+        PstdDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        SalesInvoiceHeader.Get(PstdDocNo);
+        // [GIVEN] Cancel posted invoice
+        CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
+        // [WHEN] Undo shipment
+        SalesShipmentLine.SetRange("Order No.", SalesHeader."No.");
+        SalesShipmentLine.FindLast();
+        LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
+        // [THEN] "Qty. to Invoice" = 9, "Qty. to Ship" = 9, "Quantity Invoiced" = 0, "Quantity Shipped" = 0, "Qty. Shipped Not Invoiced" = 0
+        SalesLine.Find();
+        VerifySalesOrderLineQuantitiesAfterUndoShipment(SalesLine, 9);
+        // [THEN] Opposite shipment line inserted
+        RevertedSalesShipmentLine.SetRange("Order No.", SalesHeader."No.");
+        RevertedSalesShipmentLine.FindLast();
+        VerifyRevertedShipmentLine(SalesShipmentLine, RevertedSalesShipmentLine);
+        // [THEN] Revert Item Ledger Entry is created, Quantity = 2
+        VerifyRevertedItemLedgerEntry(Database::"Sales Shipment Line", RevertedSalesShipmentLine."Document No.", RevertedSalesShipmentLine."Line No.", 2);
+
+        // [THEN] Post full document and verify after Undo
+        SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
+        PostAndVerifySalesDocumentAfterUndo(SalesHeader);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('GetShipmentLinesHandler,ConfirmHandlerYes')]
+    procedure UndoShipmentAfterCancelMadeFromShipmentSalesInvoiceWithOrder()
+    var
+        SalesHeader: array[2] of Record "Sales Header";
+        SalesLine: array[2] of Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        RevertedSalesShipmentLine: Record "Sales Shipment Line";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        PstdDocNo: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCANARIO] Fully ship and invoice order, then cancel posted invoice and undo shipment
+        Initialize();
+
+        CreateSalesOrder(SalesHeader[1], SalesLine[1]);
+        SalesLine[1].Validate("Qty. to Ship", 9);
+        SalesLine[1].Modify();
+        // [GIVEN] Posted shipment
+        LibrarySales.PostSalesDocument(SalesHeader[1], true, false);
+        // [GIVEN] Posted invoice from shipment
+        CreateSalesInvoiceFromShipment(SalesHeader[2], SalesLine[2], SalesHeader[1]."Sell-to Customer No.");
+        PstdDocNo := LibrarySales.PostSalesDocument(SalesHeader[2], true, true);
+        // [GIVEN] Cancelled posted invoice
+        SalesInvoiceHeader.Get(PstdDocNo);
+        CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
+        // [WHEN] Undo shipment
+        SalesShipmentLine.SetRange("Order No.", SalesHeader[1]."No.");
+        SalesShipmentLine.FindFirst();
+        LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
+        // [THEN] "Qty. to Invoice" = 9, "Qty. to Ship" = 9, "Quantity Invoiced" = 0, "Quantity Shipped" = 0, "Qty. Shipped Not Invoiced" = 0
+        SalesLine[1].Find();
+        VerifySalesOrderLineQuantitiesAfterUndoShipment(SalesLine[1], 9);
+        // [THEN] Opposite shipment line inserted
+        RevertedSalesShipmentLine.SetRange("Order No.", SalesHeader[1]."No.");
+        RevertedSalesShipmentLine.FindLast();
+        VerifyRevertedShipmentLine(SalesShipmentLine, RevertedSalesShipmentLine);
+        // [THEN] No item ledger entry is created
+        ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Sales Shipment");
+        ItemLedgerEntry.SetRange("Document No.", RevertedSalesShipmentLine."Document No.");
+        ItemLedgerEntry.SetRange("Document Line No.", RevertedSalesShipmentLine."Line No.");
+        Assert.RecordCount(ItemLedgerEntry, 0);
+
+        // [THEN] Post full document and verify after Undo
+        SalesHeader[1].Get(SalesHeader[1]."Document Type", SalesHeader[1]."No.");
+        PostAndVerifySalesDocumentAfterUndo(SalesHeader[1]);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure UndoReceiveAfterCancelMadeFromOrderPurchaseInvoiceWithOrder()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        RevertedPurchRcptLine: Record "Purch. Rcpt. Line";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+        PstdDocNo: Code[20];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCANARIO] Partially receive and invoice order, then cancel posted invoice
+        Initialize();
+
+        // [GIVEN] Order, "Quantity" = 9, "Qty. to Receive" = 7, "Qty. to Invoice" = 5
+        CreatePurchaseOrder(PurchaseHeader, PurchaseLine);
+        // [GIVEN] Posted invoice
+        PstdDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        PurchInvHeader.Get(PstdDocNo);
+        // [GIVEN] Cancelled posted invoice
+        CorrectPostedPurchInvoice.CancelPostedInvoice(PurchInvHeader);
+        // [WHEN] Undo receive
+        PurchRcptLine.SetRange("Order No.", PurchaseHeader."No.");
+        PurchRcptLine.FindLast();
+        LibraryPurchase.UndoPurchaseReceiptLine(PurchRcptLine);
+        // [THEN] "Qty. to Invoice" = 9, "Qty. to Receive" = 9, "Quantity Invoiced" = 0, "Quantity Received" = 0, "Qty. Received Not Invoiced" = 0
+        PurchaseLine.Find();
+        VerifyPurchaseOrderLineQuantitiesAfterUndoReceive(PurchaseLine, 9);
+        // [THEN] Opposite receive line inserted
+        RevertedPurchRcptLine.SetRange("Order No.", PurchaseHeader."No.");
+        RevertedPurchRcptLine.FindLast();
+        VerifyRevertedReceiptLine(PurchRcptLine, RevertedPurchRcptLine);
+        // [THEN] Revert Item Ledger Entry is created, Quantity = 2
+        VerifyRevertedItemLedgerEntry(Database::"Purch. Rcpt. Line", RevertedPurchRcptLine."Document No.", RevertedPurchRcptLine."Line No.", -2);
+
+        // [THEN] Post full document and verify after Undo
+        PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+        PostAndVerifyPurchaseDocumentAfterUndo(PurchaseHeader);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerYes,ItemTrackingLinesPageHandler')]
+    procedure ItemTrackingUndoReceiveAfterCancelMadeFromOrderPurchaseInvoiceWithOrder()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        RevertedPurchRcptLine: Record "Purch. Rcpt. Line";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+        PstdDocNo: Code[20];
+    begin
+        // [FEATURE] [Purchase]
+        // [SCANARIO] Partially receive and invoice order, then cancel posted invoice
+        Initialize();
+
+        // [GIVEN] Order, "Quantity" = 9, "Qty. to Receive" = 7, "Qty. to Invoice" = 5
+        CreatePurchaseOrderWithTrackedItem(PurchaseHeader, PurchaseLine);
+        // [GIVEN] Posted invoice
+        PstdDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        PurchInvHeader.Get(PstdDocNo);
+        // [GIVEN] Cancelled posted invoice
+        CorrectPostedPurchInvoice.CancelPostedInvoice(PurchInvHeader);
+        // [WHEN] Undo receive
+        PurchRcptLine.SetRange("Order No.", PurchaseHeader."No.");
+        PurchRcptLine.FindLast();
+        LibraryPurchase.UndoPurchaseReceiptLine(PurchRcptLine);
+        // [THEN] "Qty. to Invoice" = 9, "Qty. to Receive" = 9, "Quantity Invoiced" = 0, "Quantity Received" = 0, "Qty. Received Not Invoiced" = 0
+        PurchaseLine.Find();
+        VerifyPurchaseOrderLineQuantitiesAfterUndoReceive(PurchaseLine, 9);
+        // [THEN] Opposite receive line inserted
+        RevertedPurchRcptLine.SetRange("Order No.", PurchaseHeader."No.");
+        RevertedPurchRcptLine.FindLast();
+        VerifyRevertedReceiptLine(PurchRcptLine, RevertedPurchRcptLine);
+        // [THEN] Revert Item Ledger Entry is created, Quantity = 2
+        VerifyRevertedItemLedgerEntry(Database::"Purch. Rcpt. Line", RevertedPurchRcptLine."Document No.", RevertedPurchRcptLine."Line No.", -2);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
     procedure CorrectSalesInvoiceWithGLAccountWithoutSalesAccountInGenPostingSetup()
     var
         GeneralPostingSetup: Record "General Posting Setup";
@@ -358,6 +637,144 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         CorrectPostedPurchInvoice.TestCorrectInvoiceIsAllowed(PurchInvHeader, true);
 
         RestoreGenPostingSetup(GeneralPostingSetup);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure CancelPurchaseInvoiceWithResource()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchCrMemoLine: Record "Purch. Cr. Memo Line";
+        CancelledDocument: Record "Cancelled Document";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+        DocNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Resource]
+        // [SCENARIO 343833] Cancel posted purchase invoice with resource line
+        Initialize();
+
+        // [GIVEN] Posted purchase invoice with resource
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Resource, '', LibraryRandom.RandInt(10));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(100));
+        PurchaseLine.Modify(true);
+        DocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+
+        // [WHEN] Cancel posted purchase invoice with resource line
+        PurchInvHeader.Get(DocNo);
+        CorrectPostedPurchInvoice.TestCorrectInvoiceIsAllowed(PurchInvHeader, true);
+        CorrectPostedPurchInvoice.CancelPostedInvoice(PurchInvHeader);
+
+        // [THEN] Posted purchase invoice cancelled via credit memo with resource line
+        CancelledDocument.FindPurchCancelledInvoice(PurchInvHeader."No.");
+        PurchCrMemoLine.SetRange("Document No.", CancelledDocument."Cancelled By Doc. No.");
+        PurchCrMemoLine.SetRange(Type, PurchCrMemoLine.Type::Resource);
+        PurchCrMemoLine.SetRange("No.", PurchaseLine."No.");
+        Assert.RecordCount(PurchCrMemoLine, 1);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure UndoReceiveAfterCancelPurchaseInvoiceWithResource()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        PurchInvHeader: Record "Purch. Inv. Header";
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        RevertedPurchRcptLine: Record "Purch. Rcpt. Line";
+        CorrectPostedPurchInvoice: Codeunit "Correct Posted Purch. Invoice";
+        PstdDocNo: Code[20];
+    begin
+        // [FEATURE] [Purchase] [Resource]
+        // [SCANARIO 344832] Partially receive and invoice order, then cancel posted invoice and undo receive with resource
+        Initialize();
+
+        // [GIVEN] Order with resource, "Quantity" = 9, "Qty. to Receive" = 7, "Qty. to Invoice" = 5
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Resource, '', 9);
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandInt(100));
+        PurchaseLine.Validate("Qty. to Receive", 7);
+        PurchaseLine.Validate("Qty. to Invoice", 5);
+        PurchaseLine.Modify(true);
+
+        // [GIVEN] Posted invoice
+        PstdDocNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        PurchInvHeader.Get(PstdDocNo);
+
+        // [GIVEN] Cancelled posted invoice
+        CorrectPostedPurchInvoice.CancelPostedInvoice(PurchInvHeader);
+
+        // [WHEN] Undo receive
+        PurchRcptLine.SetRange("Order No.", PurchaseHeader."No.");
+        PurchRcptLine.FindLast();
+        LibraryPurchase.UndoPurchaseReceiptLine(PurchRcptLine);
+
+        // [THEN] "Qty. to Invoice" = 9, "Qty. to Receive" = 9, "Quantity Invoiced" = 0, "Quantity Received" = 0, "Qty. Received Not Invoiced" = 0
+        PurchaseLine.Find();
+        VerifyPurchaseOrderLineQuantitiesAfterUndoReceive(PurchaseLine, 9);
+
+        // [THEN] Opposite receive line inserted
+        RevertedPurchRcptLine.SetRange("Order No.", PurchaseHeader."No.");
+        RevertedPurchRcptLine.FindLast();
+        VerifyRevertedReceiptLine(PurchRcptLine, RevertedPurchRcptLine);
+
+        // [THEN] Post full document and verify after Undo
+        PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+        PostAndVerifyPurchaseDocumentAfterUndoWithResource(PurchaseHeader);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ConfirmHandlerYes')]
+    procedure UndoShipmentAfterCancelSalesInvoiceWithGLAccount()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesInvoiceHeader: Record "Sales Invoice Header";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        RevertedSalesShipmentLine: Record "Sales Shipment Line";
+        CorrectPostedSalesInvoice: Codeunit "Correct Posted Sales Invoice";
+        PstdDocNo: Code[20];
+    begin
+        // [FEATURE] [Sales]
+        // [SCANARIO 344832] Partially ship and invoice order, then cancel posted invoice and undo shipment with g/l account
+        Initialize();
+
+        // [GIVEN] Order, "Quantity" = 9, "Qty. to Ship" = 7, "Qty. to Invoice" = 5
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Order, LibrarySales.CreateCustomerNo());
+        LibrarySales.CreateSalesLine(SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 9);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandInt(100));
+        SalesLine.Validate("Qty. to Ship", 7);
+        SalesLine.Validate("Qty. to Invoice", 5);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Posted invoice
+        PstdDocNo := LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        SalesInvoiceHeader.Get(PstdDocNo);
+
+        // [GIVEN] Cancelled posted invoice
+        CorrectPostedSalesInvoice.CancelPostedInvoice(SalesInvoiceHeader);
+
+        // [WHEN] Undo shipment
+        SalesShipmentLine.SetRange("Order No.", SalesHeader."No.");
+        SalesShipmentLine.FindLast();
+        LibrarySales.UndoSalesShipmentLine(SalesShipmentLine);
+
+        // [THEN] "Qty. to Invoice" = 9, "Qty. to Ship" = 9, "Quantity Invoiced" = 0, "Quantity Shipped" = 0, "Qty. Shipped Not Invoiced" = 0
+        SalesLine.Find();
+        VerifySalesOrderLineQuantitiesAfterUndoShipment(SalesLine, 9);
+
+        // [THEN] Opposite shipment line inserted
+        RevertedSalesShipmentLine.SetRange("Order No.", SalesHeader."No.");
+        RevertedSalesShipmentLine.FindLast();
+        VerifyRevertedShipmentLine(SalesShipmentLine, RevertedSalesShipmentLine);
+
+        // [THEN] Post full document and verify after Undo
+        SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
+        PostAndVerifySalesDocumentAfterUndoWithGLAccount(SalesHeader);
     end;
 
     [Test]
@@ -900,6 +1317,48 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         GeneralPostingSetup.Modify();
     end;
 
+    local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line")
+    begin
+        LibrarySales.CreateSalesOrder(SalesHeader);
+        GetSalesLine(SalesLine, SalesHeader);
+        SalesLine.Validate(Quantity, 9);
+        SalesLine.Validate("Qty. to Ship", 7);
+        SalesLine.Validate("Qty. to Invoice", 5);
+        SalesLine.Modify(true);
+    end;
+
+    local procedure CreatePurchaseOrder(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
+    begin
+        LibraryPurchase.CreatePurchaseOrder(PurchaseHeader);
+        GetPurchaseLine(PurchaseLine, PurchaseHeader);
+        PurchaseLine.Validate(Quantity, 9);
+        PurchaseLine.Validate("Qty. to Receive", 7);
+        PurchaseLine.Validate("Qty. to Invoice", 5);
+        PurchaseLine.Modify(true);
+    end;
+
+    local procedure CreatePurchaseOrderWithTrackedItem(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line")
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Order, LibraryPurchase.CreateVendorNo);
+        LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, CreateTrackedItem(), LibraryRandom.RandInt(100));
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(1, 100, 2));
+        PurchaseLine.Validate(Quantity, 9);
+        PurchaseLine.Validate("Qty. to Receive", 7);
+        PurchaseLine.Validate("Qty. to Invoice", 5);
+        PurchaseLine.Modify(true);
+        PurchaseLine.OpenItemTrackingLines();
+    end;
+
+    local procedure CreateTrackedItem(): Code[20]
+    var
+        Item: Record Item;
+        ItemTrackingCode: Record "Item Tracking Code";
+    begin
+        LibraryInventory.CreateItemTrackingCode(ItemTrackingCode);
+        LibraryInventory.CreateTrackedItem(Item, '', '', ItemTrackingCode.Code);
+        exit(Item."No.");
+    end;
+
     local procedure CreateSalesHeaderWithItemAndChargeItem(var SalesHeader: Record "Sales Header")
     var
         SalesLineItem: Record "Sales Line";
@@ -958,6 +1417,28 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         ItemChargeAssignmentPurch.Insert(true);
     end;
 
+    local procedure GetSalesLine(var SalesLine: Record "Sales Line"; SalesHeader: Record "Sales Header")
+    begin
+        SalesLine.SetRange("Document Type", SalesHeader."Document Type");
+        SalesLine.SetRange("Document No.", SalesHeader."No.");
+        SalesLine.FindFirst();
+    end;
+
+    local procedure GetPurchaseLine(var PurchaseLine: Record "Purchase Line"; PurchaseHeader: Record "Purchase Header")
+    begin
+        PurchaseLine.SetRange("Document Type", PurchaseHeader."Document Type");
+        PurchaseLine.SetRange("Document No.", PurchaseHeader."No.");
+        PurchaseLine.FindFirst();
+    end;
+
+    local procedure CreateSalesInvoiceFromShipment(var SalesHeader: Record "Sales Header"; var SalesLine: Record "Sales Line"; CustomerNo: code[20])
+    begin
+        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, CustomerNo);
+        SalesLine."Document Type" := SalesHeader."Document Type";
+        SalesLine."Document No." := SalesHeader."No.";
+        LibrarySales.GetShipmentLines(SalesLine);
+    end;
+
     local procedure CreateInventoryPeriod(EndingDate: Date; IsClosed: Boolean)
     var
         InventoryPeriod: Record "Inventory Period";
@@ -966,6 +1447,160 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         InventoryPeriod."Ending Date" := EndingDate;
         InventoryPeriod.Closed := IsClosed;
         InventoryPeriod.Insert(true);
+    end;
+
+    local procedure VerifySalesOrderLineQuantitiesAfterUndoShipment(SalesLine: Record "Sales Line"; Qty: Decimal)
+    begin
+        Assert.AreEqual(Qty, SalesLine."Qty. to Invoice", StrSubstNo(CancelQtyErr, SalesLine.FieldName("Qty. to Invoice")));
+        Assert.AreEqual(Qty, SalesLine."Qty. to Ship", StrSubstNo(CancelQtyErr, SalesLine.FieldName("Qty. to Ship")));
+        Assert.AreEqual(0, SalesLine."Quantity Invoiced", StrSubstNo(CancelQtyErr, SalesLine.FieldName("Quantity Invoiced")));
+        Assert.AreEqual(0, SalesLine."Quantity Shipped", StrSubstNo(CancelQtyErr, SalesLine.FieldName("Quantity Shipped")));
+        Assert.AreEqual(0, SalesLine."Qty. Shipped Not Invoiced", StrSubstNo(CancelQtyErr, SalesLine.FieldName("Qty. Shipped Not Invoiced")));
+    end;
+
+    local procedure VerifyRevertedShipmentLine(SalesShipmentLine: Record "Sales Shipment Line"; RevertedSalesShipmentLine: Record "Sales Shipment Line")
+    begin
+        Assert.AreNotEqual(SalesShipmentLine."Line No.", RevertedSalesShipmentLine."Line No.", 'Shipment line should be reverted.');
+        Assert.IsTrue(SalesShipmentLine.Quantity = RevertedSalesShipmentLine.Quantity * (-1), 'Shipment line should be reverted.');
+    end;
+
+    local procedure VerifyRevertedItemLedgerEntry(TableId: Integer; DocNo: Code[20]; DocLineNo: Integer; RevertedQuantity: Decimal)
+    var
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        case TableId of
+            Database::"Sales Shipment Line":
+                ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Sales Shipment");
+            Database::"Purch. Rcpt. Line":
+                ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Purchase Receipt");
+        end;
+        ItemLedgerEntry.SetRange("Document No.", DocNo);
+        ItemLedgerEntry.SetRange("Document Line No.", DocLineNo);
+        ItemLedgerEntry.FindFirst();
+        Assert.RecordCount(ItemLedgerEntry, 1);
+        Assert.AreEqual(ItemLedgerEntry.Quantity, RevertedQuantity, 'Item ledger entry quantity is incorrect.');
+        Assert.AreEqual(ItemLedgerEntry.Quantity, ItemLedgerEntry."Invoiced Quantity", 'Item ledger entry invoiced quantity is incorrect.');
+        Assert.IsTrue(ItemLedgerEntry."Completely Invoiced", 'Item ledger entry completely invoiced is incorrect.');
+    end;
+
+    local procedure VerifyPurchaseOrderLineQuantitiesAfterUndoReceive(PurchaseLine: Record "Purchase Line"; Qty: Decimal)
+    begin
+        Assert.AreEqual(Qty, PurchaseLine."Qty. to Invoice", StrSubstNo(CancelQtyErr, PurchaseLine.FieldName("Qty. to Invoice")));
+        Assert.AreEqual(Qty, PurchaseLine."Qty. to Receive", StrSubstNo(CancelQtyErr, PurchaseLine.FieldName("Qty. to Receive")));
+        Assert.AreEqual(0, PurchaseLine."Quantity Invoiced", StrSubstNo(CancelQtyErr, PurchaseLine.FieldName("Quantity Invoiced")));
+        Assert.AreEqual(0, PurchaseLine."Quantity Received", StrSubstNo(CancelQtyErr, PurchaseLine.FieldName("Quantity Received")));
+        Assert.AreEqual(0, PurchaseLine."Qty. Rcd. Not Invoiced", StrSubstNo(CancelQtyErr, PurchaseLine.FieldName("Qty. Rcd. Not Invoiced")));
+    end;
+
+    local procedure VerifyRevertedReceiptLine(PurchRcptLine: Record "Purch. Rcpt. Line"; RevertedPurchRcptLine: Record "Purch. Rcpt. Line")
+    begin
+        Assert.AreNotEqual(PurchRcptLine."Line No.", RevertedPurchRcptLine."Line No.", 'Receipt line should be reverted.');
+        Assert.IsTrue(PurchRcptLine.Quantity = RevertedPurchRcptLine.Quantity * (-1), 'Receipt line should be reverted.');
+    end;
+
+    local procedure PostAndVerifySalesDocumentAfterUndo(var SalesHeader: Record "Sales Header")
+    var
+        SalesShipmentLine: Record "Sales Shipment Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        asserterror SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
+        Assert.ExpectedError('The Sales Header does not exist.');
+
+        SalesShipmentLine.SetRange("Order No.", SalesHeader."No.");
+        SalesShipmentLine.FindLast();
+        ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Sales Shipment");
+        ItemLedgerEntry.SetRange("Document No.", SalesShipmentLine."Document No.");
+        ItemLedgerEntry.SetRange("Document Line No.", SalesShipmentLine."Line No.");
+        ItemLedgerEntry.FindFirst();
+        Assert.RecordCount(ItemLedgerEntry, 1);
+        Assert.AreEqual(ItemLedgerEntry.Quantity, -9, 'Item ledger entry quantity is wrong after full post.');
+    end;
+
+    local procedure PostAndVerifyPurchaseDocumentAfterUndo(var PurchaseHeader: Record "Purchase Header")
+    var
+        PurchRcptLine: Record "Purch. Rcpt. Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+        PurchaseLine: Record "Purchase Line";
+    begin
+        PurchaseHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID();
+        PurchaseHeader.Modify();
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        asserterror PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+        Assert.ExpectedError('The Purchase Header does not exist.');
+
+        PurchRcptLine.SetRange("Order No.", PurchaseHeader."No.");
+        PurchRcptLine.FindLast();
+        ItemLedgerEntry.SetRange("Document Type", ItemLedgerEntry."Document Type"::"Purchase Receipt");
+        ItemLedgerEntry.SetRange("Document No.", PurchRcptLine."Document No.");
+        ItemLedgerEntry.SetRange("Document Line No.", PurchRcptLine."Line No.");
+        ItemLedgerEntry.FindFirst();
+        Assert.RecordCount(ItemLedgerEntry, 1);
+        Assert.AreEqual(ItemLedgerEntry.Quantity, 9, 'Item ledger entry quantity is wrong after full post.');
+    end;
+
+    local procedure PostAndVerifyPurchaseDocumentAfterUndoWithResource(var PurchaseHeader: Record "Purchase Header")
+    var
+        PurchInvLine: Record "Purch. Inv. Line";
+        PurchaseLine: Record "Purchase Line";
+        ResLedgerEntry: Record "Res. Ledger Entry";
+    begin
+        PurchaseHeader."Vendor Invoice No." := LibraryUtility.GenerateGUID();
+        PurchaseHeader.Modify();
+        LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, true);
+        asserterror PurchaseHeader.Get(PurchaseHeader."Document Type", PurchaseHeader."No.");
+        Assert.ExpectedError('The Purchase Header does not exist.');
+
+        PurchInvLine.SetRange("Order No.", PurchaseHeader."No.");
+        PurchInvLine.FindLast();
+
+        ResLedgerEntry.SetRange("Entry Type", ResLedgerEntry."Entry Type"::Purchase);
+        ResLedgerEntry.SetRange("Document No.", PurchInvLine."Document No.");
+        ResLedgerEntry.SetRange("Resource No.", PurchInvLine."No.");
+        ResLedgerEntry.FindFirst();
+        Assert.RecordCount(ResLedgerEntry, 1);
+        Assert.AreEqual(ResLedgerEntry.Quantity, 9, 'Resource ledger entry quantity is wrong after full post.');
+    end;
+
+    local procedure PostAndVerifySalesDocumentAfterUndoWithGLAccount(var SalesHeader: Record "Sales Header")
+    var
+        SalesShipmentLine: Record "Sales Shipment Line";
+        ItemLedgerEntry: Record "Item Ledger Entry";
+    begin
+        LibrarySales.PostSalesDocument(SalesHeader, true, true);
+        asserterror SalesHeader.Get(SalesHeader."Document Type", SalesHeader."No.");
+        Assert.ExpectedError('The Sales Header does not exist.');
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure GetShipmentLinesHandler(var GetShipmentLines: TestPage "Get Shipment Lines")
+    begin
+        GetShipmentLines.OK().Invoke();
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmHandlerYes(Question: Text[1024]; var Reply: Boolean)
+    begin
+        Reply := true;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ItemTrackingLinesPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
+    begin
+        ItemTrackingLines.New;
+        ItemTrackingLines."Lot No.".SetValue(LibraryUtility.GenerateGUID);
+        ItemTrackingLines."Quantity (Base)".SetValue(5);
+        ItemTrackingLines."Qty. to Handle (Base)".SetValue(5);
+        ItemTrackingLines."Qty. to Invoice (Base)".SetValue(5);
+        ItemTrackingLines.New;
+        ItemTrackingLines."Lot No.".SetValue(LibraryUtility.GenerateGUID);
+        ItemTrackingLines."Quantity (Base)".SetValue(4);
+        ItemTrackingLines."Qty. to Handle (Base)".SetValue(2);
+        ItemTrackingLines."Qty. to Invoice (Base)".SetValue(0);
+        ItemTrackingLines.OK.Invoke;
     end;
 }
 

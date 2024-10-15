@@ -230,12 +230,10 @@ table 5848 "Cost Share Buffer"
             Caption = 'Posting Date';
             DataClassification = SystemMetadata;
         }
-        field(90; "Order Type"; Option)
+        field(90; "Order Type"; Enum "Inventory Order Type")
         {
             Caption = 'Order Type';
             DataClassification = SystemMetadata;
-            OptionCaption = ' ,Production,Transfer,Service,Assembly';
-            OptionMembers = " ",Production,Transfer,Service,Assembly;
         }
         field(91; "Order No."; Code[20])
         {

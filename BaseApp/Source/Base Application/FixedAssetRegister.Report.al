@@ -136,7 +136,7 @@ report 5603 "Fixed Asset Register"
                         "FA No." := "Canceled from FA No.";
                     end;
                     if not FA.Get("FA No.") then
-                        FA.Init;
+                        FA.Init();
                     FATotalAmount := FATotalAmount + Amount;
                 end;
 

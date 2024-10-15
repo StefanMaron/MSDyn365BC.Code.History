@@ -252,7 +252,7 @@ report 11002 "G/L Total-Balance"
         StartDate := "G/L Account".GetRangeMin("Date Filter");
         EndDate := "G/L Account".GetRangeMax("Date Filter");
 
-        AccountingPeriod.Reset;
+        AccountingPeriod.Reset();
         AccountingPeriod.SetRange("New Fiscal Year", true);
         AccountingPeriod."Starting Date" := StartDate;
         AccountingPeriod.Find('=<');
@@ -262,7 +262,7 @@ report 11002 "G/L Total-Balance"
 
         YearText := Format(YearStartDate) + '..' + Format(EndDate);
 
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.TestField("LCY Code");
         HeaderText := StrSubstNo(Text1140021, GLSetup."LCY Code");
     end;

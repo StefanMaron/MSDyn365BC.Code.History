@@ -450,222 +450,6 @@ codeunit 134485 "ERM Dimension Shortcuts"
         PurchaseQuoteArchive.Close;
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure SalesOrderArchiveSubformDimShortcutVisibility()
-    var
-        SalesOrderArchiveSubform: TestPage "Sales Order Archive Subform";
-    begin
-        // [GIVEN] [SCENARIO 344011] Sales Order Archive Subform line dimensions shortcuts displayed properly
-        Initialize;
-
-        // [GIVEN] Set up all 8 dimensions in General Ledger Setup
-        SetGLSetupAllDimensions;
-
-        // [WHEN] Open page "Sales Order Archive Subform"
-        SalesOrderArchiveSubform.OpenNew;
-
-        // [THEN] Defined Dimension Shortcuts are visible
-        AssertVisibility(1, SalesOrderArchiveSubform."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(2, SalesOrderArchiveSubform."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(3, SalesOrderArchiveSubform.ShortcutDimCode3.Visible);
-        AssertVisibility(4, SalesOrderArchiveSubform.ShortcutDimCode4.Visible);
-        AssertVisibility(5, SalesOrderArchiveSubform.ShortcutDimCode5.Visible);
-        AssertVisibility(6, SalesOrderArchiveSubform.ShortcutDimCode6.Visible);
-        AssertVisibility(7, SalesOrderArchiveSubform.ShortcutDimCode7.Visible);
-        AssertVisibility(8, SalesOrderArchiveSubform.ShortcutDimCode8.Visible);
-        SalesOrderArchiveSubform.Close;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PurchOrderArchiveSubformDimShortcutVisibility()
-    var
-        PurchaseOrderArchiveSubform: TestPage "Purchase Order Archive Subform";
-    begin
-        // [GIVEN] [SCENARIO 344011] Purchase Order Archive Subform line dimensions shortcuts displayed properly
-        Initialize;
-
-        // [GIVEN] Set up all 8 dimensions in General Ledger Setup
-        SetGLSetupAllDimensions;
-
-        // [WHEN] Open page "Purchase Order Archive Subform"
-        PurchaseOrderArchiveSubform.OpenNew;
-
-        // [THEN] Defined Dimension Shortcuts are visible
-        AssertVisibility(1, PurchaseOrderArchiveSubform."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(2, PurchaseOrderArchiveSubform."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(3, PurchaseOrderArchiveSubform.ShortcutDimCode3.Visible);
-        AssertVisibility(4, PurchaseOrderArchiveSubform.ShortcutDimCode4.Visible);
-        AssertVisibility(5, PurchaseOrderArchiveSubform.ShortcutDimCode5.Visible);
-        AssertVisibility(6, PurchaseOrderArchiveSubform.ShortcutDimCode6.Visible);
-        AssertVisibility(7, PurchaseOrderArchiveSubform.ShortcutDimCode7.Visible);
-        AssertVisibility(8, PurchaseOrderArchiveSubform.ShortcutDimCode8.Visible);
-        PurchaseOrderArchiveSubform.Close;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure SalesQuoteArchiveSubformDimShortcutVisibility()
-    var
-        SalesQuoteArchiveSubform: TestPage "Sales Quote Archive Subform";
-    begin
-        // [GIVEN] [SCENARIO 344011] Sales Quote Archive Subform line dimensions shortcuts displayed properly
-        Initialize;
-
-        // [GIVEN] Set up all 8 dimensions in General Ledger Setup
-        SetGLSetupAllDimensions;
-
-        // [WHEN] Open page "Sales Quote Archive Subform"
-        SalesQuoteArchiveSubform.OpenNew;
-
-        // [THEN] Defined Dimension Shortcuts are visible
-        AssertVisibility(1, SalesQuoteArchiveSubform."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(2, SalesQuoteArchiveSubform."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(3, SalesQuoteArchiveSubform.ShortcutDimCode3.Visible);
-        AssertVisibility(4, SalesQuoteArchiveSubform.ShortcutDimCode4.Visible);
-        AssertVisibility(5, SalesQuoteArchiveSubform.ShortcutDimCode5.Visible);
-        AssertVisibility(6, SalesQuoteArchiveSubform.ShortcutDimCode6.Visible);
-        AssertVisibility(7, SalesQuoteArchiveSubform.ShortcutDimCode7.Visible);
-        AssertVisibility(8, SalesQuoteArchiveSubform.ShortcutDimCode8.Visible);
-        SalesQuoteArchiveSubform.Close;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PurchQuoteArchiveSubformDimShortcutVisibility()
-    var
-        PurchaseQuoteArchiveSubform: TestPage "Purchase Quote Archive Subform";
-    begin
-        // [GIVEN] [SCENARIO 344011] Purchase Quote Archive Subform line dimensions shortcuts displayed properly
-        Initialize;
-
-        // [GIVEN] Set up all 8 dimensions in General Ledger Setup
-        SetGLSetupAllDimensions;
-
-        // [WHEN] Open page "Purchase Quote Archive Subform"
-        PurchaseQuoteArchiveSubform.OpenNew;
-
-        // [THEN] Defined Dimension Shortcuts are visible
-        AssertVisibility(1, PurchaseQuoteArchiveSubform."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(2, PurchaseQuoteArchiveSubform."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(3, PurchaseQuoteArchiveSubform.ShortcutDimCode3.Visible);
-        AssertVisibility(4, PurchaseQuoteArchiveSubform.ShortcutDimCode4.Visible);
-        AssertVisibility(5, PurchaseQuoteArchiveSubform.ShortcutDimCode5.Visible);
-        AssertVisibility(6, PurchaseQuoteArchiveSubform.ShortcutDimCode6.Visible);
-        AssertVisibility(7, PurchaseQuoteArchiveSubform.ShortcutDimCode7.Visible);
-        AssertVisibility(8, PurchaseQuoteArchiveSubform.ShortcutDimCode8.Visible);
-        PurchaseQuoteArchiveSubform.Close;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure BlanketSalesOrderArchiveSubformDimShortcutVisibility()
-    var
-        BlanketSalesOrderArchSub: TestPage "Blanket Sales Order Arch. Sub.";
-    begin
-        // [GIVEN] [SCENARIO 344011] Blanket Sales Order Arch. Sub. line dimensions shortcuts displayed properly
-        Initialize;
-
-        // [GIVEN] Set up all 8 dimensions in General Ledger Setup
-        SetGLSetupAllDimensions;
-
-        // [WHEN] Open page "Blanket Sales Order Arch. Sub."
-        BlanketSalesOrderArchSub.OpenNew;
-
-        // [THEN] Defined Dimension Shortcuts are visible
-        AssertVisibility(1, BlanketSalesOrderArchSub."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(2, BlanketSalesOrderArchSub."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(3, BlanketSalesOrderArchSub.ShortcutDimCode3.Visible);
-        AssertVisibility(4, BlanketSalesOrderArchSub.ShortcutDimCode4.Visible);
-        AssertVisibility(5, BlanketSalesOrderArchSub.ShortcutDimCode5.Visible);
-        AssertVisibility(6, BlanketSalesOrderArchSub.ShortcutDimCode6.Visible);
-        AssertVisibility(7, BlanketSalesOrderArchSub.ShortcutDimCode7.Visible);
-        AssertVisibility(8, BlanketSalesOrderArchSub.ShortcutDimCode8.Visible);
-        BlanketSalesOrderArchSub.Close;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure BlanketPurchOrderArchiveSubformDimShortcutVisibility()
-    var
-        BlanketPurchOrderArchSub: TestPage "Blanket Purch. Order Arch.Sub.";
-    begin
-        // [GIVEN] [SCENARIO 344011] Blanket Purch. Order Arch.Sub. line dimensions shortcuts displayed properly
-        Initialize;
-
-        // [GIVEN] Set up all 8 dimensions in General Ledger Setup
-        SetGLSetupAllDimensions;
-
-        // [WHEN] Open page "Blanket Purch. Order Arch.Sub."
-        BlanketPurchOrderArchSub.OpenNew;
-
-        // [THEN] Defined Dimension Shortcuts are visible
-        AssertVisibility(1, BlanketPurchOrderArchSub."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(2, BlanketPurchOrderArchSub."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(3, BlanketPurchOrderArchSub.ShortcutDimCode3.Visible);
-        AssertVisibility(4, BlanketPurchOrderArchSub.ShortcutDimCode4.Visible);
-        AssertVisibility(5, BlanketPurchOrderArchSub.ShortcutDimCode5.Visible);
-        AssertVisibility(6, BlanketPurchOrderArchSub.ShortcutDimCode6.Visible);
-        AssertVisibility(7, BlanketPurchOrderArchSub.ShortcutDimCode7.Visible);
-        AssertVisibility(8, BlanketPurchOrderArchSub.ShortcutDimCode8.Visible);
-        BlanketPurchOrderArchSub.Close;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure SalesReturnOrderArchiveSubformDimShortcutVisibility()
-    var
-        SalesReturnOrderArcSubform: TestPage "Sales Return Order Arc Subform";
-    begin
-        // [GIVEN] [SCENARIO 344011] Sales Return Order Arc Subform line dimensions shortcuts displayed properly
-        Initialize;
-
-        // [GIVEN] Set up all 8 dimensions in General Ledger Setup
-        SetGLSetupAllDimensions;
-
-        // [WHEN] Open page "Sales Return Order Arc Subform"
-        SalesReturnOrderArcSubform.OpenNew;
-
-        // [THEN] Defined Dimension Shortcuts are visible
-        AssertVisibility(1, SalesReturnOrderArcSubform."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(2, SalesReturnOrderArcSubform."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(3, SalesReturnOrderArcSubform.ShortcutDimCode3.Visible);
-        AssertVisibility(4, SalesReturnOrderArcSubform.ShortcutDimCode4.Visible);
-        AssertVisibility(5, SalesReturnOrderArcSubform.ShortcutDimCode5.Visible);
-        AssertVisibility(6, SalesReturnOrderArcSubform.ShortcutDimCode6.Visible);
-        AssertVisibility(7, SalesReturnOrderArcSubform.ShortcutDimCode7.Visible);
-        AssertVisibility(8, SalesReturnOrderArcSubform.ShortcutDimCode8.Visible);
-        SalesReturnOrderArcSubform.Close;
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure PurchReturnOrderArchiveSubformDimShortcutVisibility()
-    var
-        PurchReturnOrderArcSubform: TestPage "Purch Return Order Arc Subform";
-    begin
-        // [GIVEN] [SCENARIO 344011] Purch Return Order Arc Subform line dimensions shortcuts displayed properly
-        Initialize;
-
-        // [GIVEN] Set up all 8 dimensions in General Ledger Setup
-        SetGLSetupAllDimensions;
-
-        // [WHEN] Open page "Purch Return Order Arc Subform"
-        PurchReturnOrderArcSubform.OpenNew;
-
-        // [THEN] Defined Dimension Shortcuts are visible
-        AssertVisibility(1, PurchReturnOrderArcSubform."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(2, PurchReturnOrderArcSubform."Shortcut Dimension 1 Code".Visible);
-        AssertVisibility(3, PurchReturnOrderArcSubform.ShortcutDimCode3.Visible);
-        AssertVisibility(4, PurchReturnOrderArcSubform.ShortcutDimCode4.Visible);
-        AssertVisibility(5, PurchReturnOrderArcSubform.ShortcutDimCode5.Visible);
-        AssertVisibility(6, PurchReturnOrderArcSubform.ShortcutDimCode6.Visible);
-        AssertVisibility(7, PurchReturnOrderArcSubform.ShortcutDimCode7.Visible);
-        AssertVisibility(8, PurchReturnOrderArcSubform.ShortcutDimCode8.Visible);
-        PurchReturnOrderArcSubform.Close;
-    end;
-
     local procedure Initialize()
     begin
         LibraryTestInitialize.OnTestInitialize(CODEUNIT::"ERM Dimension Shortcuts");
@@ -677,7 +461,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
 
         IsInitialized := true;
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
-        Commit;
+        Commit();
 
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Dimension Shortcuts");
     end;
@@ -688,7 +472,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         GLSetup: Record "General Ledger Setup";
         DimIndex: Integer;
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         for DimIndex := 1 to 6 do
             if DimShortcuts[DimIndex] then begin
                 LibraryDimension.CreateDimension(Dimension);
@@ -708,7 +492,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
                 end;
             end;
 
-        GLSetup.Modify;
+        GLSetup.Modify();
     end;
 
     local procedure AssertVisibility(DimNo: Integer; ShortcutVisible: Boolean)
@@ -716,7 +500,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         GLSetup: Record "General Ledger Setup";
         UseSetupShortcut: Boolean;
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         case DimNo of
             1:
                 UseSetupShortcut := GLSetup."Shortcut Dimension 1 Code" <> '';
@@ -745,14 +529,14 @@ codeunit 134485 "ERM Dimension Shortcuts"
     var
         GLSetup: Record "General Ledger Setup";
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.Validate("Shortcut Dimension 3 Code", '');
         GLSetup.Validate("Shortcut Dimension 4 Code", '');
         GLSetup.Validate("Shortcut Dimension 5 Code", '');
         GLSetup.Validate("Shortcut Dimension 6 Code", '');
         GLSetup.Validate("Shortcut Dimension 7 Code", '');
         GLSetup.Validate("Shortcut Dimension 8 Code", '');
-        GLSetup.Modify;
+        GLSetup.Modify();
     end;
 
     local procedure SetGLSetupAllDimensions()
@@ -760,7 +544,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         GLSetup: Record "General Ledger Setup";
         Dimension: Record Dimension;
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         LibraryDimension.CreateDimension(Dimension);
         GLSetup.Validate("Shortcut Dimension 3 Code", Dimension.Code);
         LibraryDimension.CreateDimension(Dimension);
@@ -773,7 +557,7 @@ codeunit 134485 "ERM Dimension Shortcuts"
         GLSetup.Validate("Shortcut Dimension 7 Code", Dimension.Code);
         LibraryDimension.CreateDimension(Dimension);
         GLSetup.Validate("Shortcut Dimension 8 Code", Dimension.Code);
-        GLSetup.Modify;
+        GLSetup.Modify();
     end;
 
     [ConfirmHandler]

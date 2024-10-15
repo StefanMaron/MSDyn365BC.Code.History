@@ -108,7 +108,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         CreateAndPostSalesOrder(SalesLine, Item."No.", ItemJournalLine.Quantity / 2, WorkDate, CreateCustomer);  // Post partial Quantity.
 
         // Exercise.
-        Commit;
+        Commit();
         RunItemAgeCompositionValueReport(Item."No.");
 
         // Verify: Verify Item Age Composition Report.
@@ -223,7 +223,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         LibraryVariableStorage.Enqueue('');  // Blank for File name.
 
         // Exercise.
-        Commit;
+        Commit();
         asserterror RunStatusReport('');  // Use blank for Item No.
 
         // Verify.
@@ -248,7 +248,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         DocumentNo := PostPurchaseOrder(PurchaseLine, true, false);
 
         // Enqueue values for StatusRequestPageHandler.
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(WorkDate);
         LibraryVariableStorage.Enqueue(PurchaseLine."No.");
 
@@ -278,7 +278,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         CreateItemVendorWithVendorItemNo(ItemVendor, PurchasePrice."Vendor No.", Item."No.");
 
         // Exercise.
-        Commit;
+        Commit();
         RunItemVendorReport(Item."No.");
 
         // Verify: Verify Item No. and Vendor Item No. on Item Vendor Catalog report.
@@ -315,7 +315,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         CreateItemVendorWithVendorItemNo(ItemVendor, VendorNo[1], Item."No.");
 
         // [WHEN] Run "Item Vendor/Catalog" report
-        Commit;
+        Commit();
         RunItemVendorReport(Item."No.");
 
         // [THEN] Verify row with "Vendor1" have "Lead Time Calculation" = 5D and "Vendor Item No." = "XXX"
@@ -347,7 +347,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         EnqueueValuesForItemDimensionTotalReport(ItemAnalysisView."Analysis Area", '', AnalysisColumnTemplate.Name, '');
 
         // Exercise.
-        Commit;
+        Commit();
         asserterror REPORT.Run(REPORT::"Item Dimensions - Total", true, false, ItemAnalysisView);
 
         // Verify.
@@ -371,7 +371,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         EnqueueValuesForItemDimensionTotalReport(ItemAnalysisView."Analysis Area", ItemAnalysisView.Code, '', '');
 
         // Exercise.
-        Commit;
+        Commit();
         asserterror REPORT.Run(REPORT::"Item Dimensions - Total", true, false, ItemAnalysisView);
 
         // Verify.
@@ -399,7 +399,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         EnqueueValuesForItemDimensionTotalReport(ItemAnalysisView."Analysis Area", ItemAnalysisView.Code, AnalysisColumnTemplate.Name, '');
 
         // Exercise.
-        Commit;
+        Commit();
         asserterror REPORT.Run(REPORT::"Item Dimensions - Total", true, false, ItemAnalysisView);
 
         // Verify.
@@ -431,7 +431,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
           DefaultDimension, ItemAnalysisView."Analysis Area"::Sales, AnalysisColumn."Value Type"::"Cost Amount");
 
         // Exercise.
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Item Dimensions - Total", true, false, ItemAnalysisView);
 
         // Verify: Verify Quantity and Cost Amount(Actual) on Item Dimension Total report.
@@ -463,7 +463,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
           DefaultDimension, ItemAnalysisView."Analysis Area"::Inventory, AnalysisColumn."Value Type"::"Cost Amount");
 
         // Exercise.
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Item Dimensions - Total", true, false, ItemAnalysisView);
 
         // Verify: Verify Quantity and Cost Amount(Actual) on Item Dimension Total report.
@@ -497,7 +497,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
           DefaultDimension, ItemAnalysisView."Analysis Area"::Purchase, AnalysisColumn."Value Type"::"Cost Amount");
 
         // Exercise.
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Item Dimensions - Total", true, false, ItemAnalysisView);
 
         // Verify: Verify Quantity and Cost Amount(Actual) on Item Dimension Total report.
@@ -529,7 +529,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
 
         // Exercise.
-        Commit;
+        Commit();
         RunCostSharesBreakdownReport(Item."No.", PrintCostShare::Sale, false);
 
         // Verify: Verify Quantity and Material Direct Cost Applied in the report.
@@ -556,7 +556,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         ItemLedgerEntry.CalcFields("Cost Amount (Actual)");
 
         // Exercise.
-        Commit;
+        Commit();
         RunCostSharesBreakdownReport(Item."No.", PrintCostShare::Inventory, false);
 
         // Verify: Verify Quantity and Material Direct Cost Applied in the report.
@@ -596,7 +596,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         FindItemLedgerEntry(ItemLedgerEntry, Item2."No.", ItemLedgerEntry."Entry Type"::Output);
 
         // Exercise.
-        Commit;
+        Commit();
         RunCostSharesBreakdownReport(Item2."No.", PrintCostShare::"WIP Inventory", false);
 
         // Verify: Verify Quantity and Material Direct Cost Applied in the report.
@@ -633,7 +633,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
           Round(ItemLedgerEntry.Quantity * (AdjustedAmount / ItemJournalLine.Quantity), LibraryERM.GetAmountRoundingPrecision);
 
         // Exercise.
-        Commit;
+        Commit();
         RunCostSharesBreakdownReport(Item."No.", PrintCostShare::Sale, true);
 
         // Verify: Verify Quantity and Material Direct Cost Applied in the report.
@@ -657,7 +657,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         SetupItemBudgetWithAnalysisArea(ItemBudgetEntry, ItemBudgetEntry."Analysis Area"::Sales, ValueType::"Sales Amount", 0D, false);  // FALSE for Amount Whole in 1000s only.
 
         // Exercise: Run Item Budget report.
-        Commit;
+        Commit();
         asserterror RunItemBudgetReport(ItemBudgetEntry."Item No.");
 
         // Verify: Verify error for blank Starting Date.
@@ -680,7 +680,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
           ItemBudgetEntry, ItemBudgetEntry."Analysis Area"::Purchase, ValueType::"Cost Amount", WorkDate, false);  // FALSE for Amount Whole in 1000s only.
 
         // Exercise: Run Item Budget report.
-        Commit;
+        Commit();
         RunItemBudgetReport(ItemBudgetEntry."Item No.");
 
         // Verify: Verify Cost Amount on Item Budget report.
@@ -702,7 +702,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         SetupItemBudgetWithAnalysisArea(ItemBudgetEntry, ItemBudgetEntry."Analysis Area"::Sales, ValueType::"Sales Amount", WorkDate, false);  // FALSE for Amount Whole in 1000s only.
 
         // Exercise: Run Item Budget report.
-        Commit;
+        Commit();
         RunItemBudgetReport(ItemBudgetEntry."Item No.");
 
         // Verify: Verify Sales Amount on Item Budget report.
@@ -724,7 +724,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         SetupItemBudgetWithAnalysisArea(ItemBudgetEntry, ItemBudgetEntry."Analysis Area"::Sales, ValueType::"Sales Amount", WorkDate, true);  // TRUE for Amount Whole in 1000s only.
 
         // Exercise: Run Item Budget report.
-        Commit;
+        Commit();
         RunItemBudgetReport(ItemBudgetEntry."Item No.");
 
         // Verify: Verify Sales Amount on Item Budget report.
@@ -762,7 +762,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         EnqueueValuesForItemDimensionDetailReport(ItemAnalysisView."Analysis Area"::Sales, ItemAnalysisViewCode, '');
 
         // Exercise: Run Item Dimension Detail report.
-        Commit;
+        Commit();
         asserterror REPORT.Run(REPORT::"Item Dimensions - Detail", true, false);
 
         // Verify.
@@ -790,7 +790,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         SetupDimDetailReportWithAnalysisArea(DefaultDimension, ItemAnalysisView."Analysis Area"::Sales);
 
         // Exercise: Run Item Dimension Detail report.
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Item Dimensions - Detail", true, false);
 
         // Verify: Verify Quantity and Cost Amount(Actual) on Item Dimension Total report.
@@ -820,7 +820,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         SetupDimDetailReportWithAnalysisArea(DefaultDimension, ItemAnalysisView."Analysis Area"::Inventory);
 
         // Exercise: Run Item Dimension Detail report.
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Item Dimensions - Detail", true, false);
 
         // Verify: Verify Quantity and Cost Amount(Actual) on Item Dimension Total report.
@@ -852,7 +852,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         SetupDimDetailReportWithAnalysisArea(DefaultDimension, ItemAnalysisView."Analysis Area"::Purchase);
 
         // Exercise: Run Item Dimension Detail report.
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Item Dimensions - Detail", true, false);
 
         // Verify: Verify Quantity on Item Dimension Total report.
@@ -944,7 +944,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
           ShowError::None);  // Take 0D for blank Date Filter.
 
         // Exercise.
-        Commit;
+        Commit();
         asserterror REPORT.Run(REPORT::"Analysis Report", true, false);
 
         // Verify.
@@ -980,7 +980,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
           RowRefNo);
 
         // Exercise.
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Analysis Report", true, false);
 
         // Verify: Verify Quantity and Cost Amount on Analysis report.
@@ -1017,7 +1017,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
           RowRefNo);
 
         // Exercise.
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Analysis Report", true, false);
 
         // Verify: Verify Quantity and Sales Amount on Analysis report.
@@ -1054,7 +1054,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
           RowRefNo);
 
         // Exercise.
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Analysis Report", true, false);
 
         // Verify: Verify Quantity and Cost Amount on Analysis report.
@@ -1093,7 +1093,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         UpdateAnalysisColumn(ItemAnalysisView."Analysis Area"::Inventory, AnalysisColumnTemplateName);
 
         // Exercise.
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Analysis Report", true, false);
 
         // Verify: Verify report for Show error as Division By Zero.
@@ -1127,7 +1127,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
           Item."No.", RowRefNo);  // Take 31/12/9999 as per report design.
 
         // Exercise.
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Analysis Report", true, false);
 
         // Verify: Verify report for Show error as Period error.
@@ -1207,7 +1207,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         DocumentNo := CreateAndPostSalesReturnOrderByGetPostedDocToReverse(SalesLine."Sell-to Customer No.");
 
         // Exercise: Run Cost Shares Breakdown Report.
-        Commit;
+        Commit();
         RunCostSharesBreakdownReport(Item."No.", PrintCostShare::Inventory, true);
 
         // Verify: Verify Quantity and Material Direct Cost Applied in the report.
@@ -1246,7 +1246,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         CreateAndPostItemJournal(ItemJournalLine[3], Item."No.", ItemJournalLine[3]."Entry Type"::Sale, 3 * Qty, UnitCost); // Sale 3 times Quantity to make debt inventory.
 
         // Exercise: Run Cost Shares Breakdown Report.
-        Commit;
+        Commit();
         RunCostSharesBreakdownReport(Item."No.", PrintCostShare::Inventory, true);
 
         // Verify: Verify Quantity and Material Direct Cost Applied in the report.
@@ -2032,7 +2032,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         UpdateInventorySetupCostPosting;
 
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Reports - IV");
     end;
 
@@ -2087,7 +2087,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         ItemAverageCost: Decimal;
         AverageCostACY: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ItemCostManagement.CalculateAverageCost(Item, ItemAverageCost, AverageCostACY);  // Average Cost ACY calculated in Item Cost Management.
         ItemAverageCost := Round(ItemAverageCost, GeneralLedgerSetup."Unit-Amount Rounding Precision");
         exit(ItemAverageCost);
@@ -2095,7 +2095,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
 
     local procedure CreateAnalysisReportName(var AnalysisReportName: Record "Analysis Report Name"; AnalysisArea: Option)
     begin
-        AnalysisReportName.Init;
+        AnalysisReportName.Init();
         AnalysisReportName.Validate("Analysis Area", AnalysisArea);
         AnalysisReportName.Validate(
           Name, LibraryUtility.GenerateRandomCode(AnalysisReportName.FieldNo(Name), DATABASE::"Analysis Report Name"));
@@ -2593,7 +2593,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         CreateAndModifyPurchaseOrder(PurchaseLine, Item."No.", Bin."Location Code", Bin.Code);
         PostPurchaseOrder(PurchaseLine, true, true);
 
-        Commit;
+        Commit();
         Item.SetRange("No.", Item."No.");
         LibraryVariableStorage.Enqueue(true);
         REPORT.Run(REPORT::"Inventory Cost and Price List", true, false, Item);
@@ -2602,7 +2602,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
     local procedure MockItemWithLongNo(var Item: Record Item)
     begin
         Item."No." := LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID;
-        Item.Insert;
+        Item.Insert();
     end;
 
     local procedure CreateAndPostProductionJournal(ProductionOrder: Record "Production Order")
@@ -2623,7 +2623,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
     begin
         AnalysisReportName."Analysis Area" := AnalysisArea;
         AnalysisReportName.Name := LibraryUtility.GenerateGUID;
-        AnalysisReportName.Insert;
+        AnalysisReportName.Insert();
     end;
 
     local procedure MockItemAnalysisViewBudgEntry(var ItemAnalysisViewBudgEntry: Record "Item Analysis View Budg. Entry"; ItemAnalysisView: Record "Item Analysis View"; ItemNo: Code[20]; DimensionValueCode: Code[20])
@@ -2685,7 +2685,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
     var
         ItemJournalLine: Record "Item Journal Line";
     begin
-        ItemJournalLine.Init;
+        ItemJournalLine.Init();
         ItemJournalLine.Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
         ItemJournalLine.Validate("Journal Batch Name", ItemJournalBatch.Name);
         LibraryInventory.CalculateInventoryForSingleItem(ItemJournalLine, ItemNo, WorkDate, true, false);
@@ -2710,7 +2710,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
         Clear(ImplementStandardCostChange);
         ImplementStandardCostChange.SetStdCostWksh(StdCostWorksheetName);
         ImplementStandardCostChange.UseRequestPage(true);
-        Commit;
+        Commit();
         ImplementStandardCostChange.Run;
     end;
 
@@ -2756,7 +2756,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
     begin
         PostValueEntryToGL.SetRange("Item No.", ItemNo);
         PostValueEntryToGL.SetRange("Posting Date", WorkDate);
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Post Inventory Cost to G/L", true, false, PostValueEntryToGL);
     end;
 
@@ -3134,7 +3134,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
     var
         InventorySetup: Record "Inventory Setup";
     begin
-        InventorySetup.Get;
+        InventorySetup.Get();
         InventorySetup.Validate("Automatic Cost Posting", false);
         InventorySetup.Modify(true);
     end;
@@ -3382,7 +3382,7 @@ codeunit 137351 "SCM Inventory Reports - IV"
     [Scope('OnPrem')]
     procedure EditAnalysisReportRequestPageHandler(var InventoryAnalysisReport: TestPage "Inventory Analysis Report")
     begin
-        Commit;  // Due to limitation in Page testability Commit is required for this Test case.
+        Commit();  // Due to limitation in Page testability Commit is required for this Test case.
         InventoryAnalysisReport.ShowMatrix.Invoke;  // Show Matrix page Handled by InventoryAnalysisMatrixRequestPageHandler.
     end;
 

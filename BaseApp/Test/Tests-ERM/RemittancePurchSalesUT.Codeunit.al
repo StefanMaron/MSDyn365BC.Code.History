@@ -245,10 +245,10 @@ codeunit 133772 "Remittance Purch & Sales UT"
         GenJournalTemplate: Record "Gen. Journal Template";
     begin
         GenJournalTemplate.Name := LibraryUTUtility.GetNewCode10;
-        GenJournalTemplate.Insert;
+        GenJournalTemplate.Insert();
         GenJournalBatch."Journal Template Name" := GenJournalTemplate.Name;
         GenJournalBatch.Name := LibraryUTUtility.GetNewCode10;
-        GenJournalBatch.Insert;
+        GenJournalBatch.Insert();
     end;
 
     local procedure CreateGLEntry(var GLEntry: Record "G/L Entry")
@@ -260,7 +260,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
         GLEntry."G/L Account No." := LibraryUTUtility.GetNewCode;
         GLEntry."Document No." := LibraryUTUtility.GetNewCode;
         GLEntry."Transaction No." := SelectGLEntryTransactionNo;
-        GLEntry.Insert;
+        GLEntry.Insert();
     end;
 
     local procedure CreateVendor(): Code[20]
@@ -268,7 +268,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
         Vendor: Record Vendor;
     begin
         Vendor."No." := LibraryUTUtility.GetNewCode;
-        Vendor.Insert;
+        Vendor.Insert();
         LibraryVariableStorage.Enqueue(Vendor."No.");  // Enqueue value for Request Page handler - RemittanceAdviceJournalRequestPageHandler or RemittanceAdviceEntriesRequestPageHandler.
         exit(Vendor."No.");
     end;
@@ -279,7 +279,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
         VendorLedgerEntry."Remaining Pmt. Disc. Possible" := LibraryRandom.RandDec(10, 2); // Using Random value less than Amount.
         VendorLedgerEntry."Pmt. Disc. Rcd.(LCY)" := LibraryRandom.RandDec(10, 2);
         VendorLedgerEntry."Pmt. Discount Date" := WorkDate;
-        VendorLedgerEntry.Modify;
+        VendorLedgerEntry.Modify();
 
         LibraryVariableStorage.Enqueue(VendorLedgerEntry."Vendor No.");
         LibraryVariableStorage.Enqueue(PrintVendLedgerDetails);
@@ -305,7 +305,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
         GLEntry: Record "G/L Entry";
     begin
         CreateGLEntry(GLEntry);
-        VendorLedgerEntry.Init;
+        VendorLedgerEntry.Init();
         VendorLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
         VendorLedgerEntry."Vendor No." := VendorNo;
         VendorLedgerEntry."Posting Date" := WorkDate;
@@ -316,7 +316,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
         VendorLedgerEntry."Transaction No." := GLEntry."Transaction No.";
         VendorLedgerEntry.Open := true;
         VendorLedgerEntry."Closed by Entry No." := VendorLedgerEntry."Entry No.";
-        VendorLedgerEntry.Insert;
+        VendorLedgerEntry.Insert();
     end;
 
     local procedure CreateVendorLedgerEntryWithCurrency(var VendorLedgerEntry: Record "Vendor Ledger Entry"; AppliesToID: Code[50]; VendorNo: Code[20]; AmountToApply: Decimal; DocumentType: Option; CurrencyCode: Code[10])
@@ -324,7 +324,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
         CreateVendorLedgerEntryWithGLEntry(VendorLedgerEntry, AppliesToID, VendorNo, AmountToApply, DocumentType);
         VendorLedgerEntry."Currency Code" := CurrencyCode;
         VendorLedgerEntry.Validate("Original Amount", AmountToApply);
-        VendorLedgerEntry.Modify;
+        VendorLedgerEntry.Modify();
     end;
 
     local procedure CreateAndUpdateDetailedVendorLedgerEntry(VendorLedgerEntry: Record "Vendor Ledger Entry"; EntryType: Option)
@@ -336,7 +336,7 @@ codeunit 133772 "Remittance Purch & Sales UT"
         DetailedVendorLedgEntry."Document Type" := DetailedVendorLedgEntry."Document Type"::Invoice;
         DetailedVendorLedgEntry."Vendor No." := VendorLedgerEntry."Vendor No.";
         DetailedVendorLedgEntry."Entry Type" := EntryType;
-        DetailedVendorLedgEntry.Modify;
+        DetailedVendorLedgEntry.Modify();
     end;
 
     local procedure SelectGLEntryTransactionNo(): Integer

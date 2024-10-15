@@ -227,7 +227,7 @@ report 11004 "Vendor Total-Balance"
 
                 if AdjustAmounts then begin
                     AdjPeriodAmount := 0;
-                    DetailedVendorLedgEntry.Reset;
+                    DetailedVendorLedgEntry.Reset();
                     DetailedVendorLedgEntry.SetCurrentKey("Vendor No.", "Posting Date", "Entry Type", "Currency Code");
                     DetailedVendorLedgEntry.SetRange("Vendor No.", "No.");
                     DetailedVendorLedgEntry.SetRange("Posting Date", StartDate, EndDate);
@@ -235,7 +235,7 @@ report 11004 "Vendor Total-Balance"
                       DetailedVendorLedgEntry."Entry Type"::"Realized Gain");
                     if DetailedVendorLedgEntry.FindSet then
                         repeat
-                            DetailedVendorLedgEntry2.Reset;
+                            DetailedVendorLedgEntry2.Reset();
                             DetailedVendorLedgEntry2.SetCurrentKey("Vendor Ledger Entry No.", "Entry Type", "Posting Date");
                             DetailedVendorLedgEntry2.SetRange("Vendor Ledger Entry No.", DetailedVendorLedgEntry."Vendor Ledger Entry No.");
                             DetailedVendorLedgEntry2.SetRange("Entry Type", DetailedVendorLedgEntry2."Entry Type"::"Initial Entry");
@@ -256,7 +256,7 @@ report 11004 "Vendor Total-Balance"
                                     if VendorLedgEntry2."Document Type" = VendorLedgEntry2."Document Type"::Payment then
                                         AdjPeriodAmount := GetAdjAmount(VendorLedgEntry2."Entry No.");
                                 end else begin
-                                    VendorLedgEntry2.Reset;
+                                    VendorLedgEntry2.Reset();
                                     VendorLedgEntry2.SetCurrentKey("Closed by Entry No.");
                                     VendorLedgEntry2.SetRange("Closed by Entry No.", VendorLedgEntry."Entry No.");
                                     VendorLedgEntry2.SetRange("Document Type", VendorLedgEntry2."Document Type"::Payment);
@@ -290,7 +290,7 @@ report 11004 "Vendor Total-Balance"
 
                 if AdjustAmounts then begin
                     AdjYearAmount := 0;
-                    DetailedVendorLedgEntry.Reset;
+                    DetailedVendorLedgEntry.Reset();
                     DetailedVendorLedgEntry.SetCurrentKey("Vendor No.", "Posting Date", "Entry Type", "Currency Code");
                     DetailedVendorLedgEntry.SetRange("Vendor No.", "No.");
                     DetailedVendorLedgEntry.SetRange("Posting Date", YearStartDate, EndDate);
@@ -298,7 +298,7 @@ report 11004 "Vendor Total-Balance"
                       DetailedVendorLedgEntry."Entry Type"::"Realized Gain");
                     if DetailedVendorLedgEntry.FindSet then
                         repeat
-                            DetailedVendorLedgEntry2.Reset;
+                            DetailedVendorLedgEntry2.Reset();
                             DetailedVendorLedgEntry2.SetCurrentKey("Vendor Ledger Entry No.", "Entry Type", "Posting Date");
                             DetailedVendorLedgEntry2.SetRange("Vendor Ledger Entry No.", DetailedVendorLedgEntry."Vendor Ledger Entry No.");
                             DetailedVendorLedgEntry2.SetRange("Entry Type", DetailedVendorLedgEntry2."Entry Type"::"Initial Entry");
@@ -319,7 +319,7 @@ report 11004 "Vendor Total-Balance"
                                     if VendorLedgEntry2."Document Type" = VendorLedgEntry2."Document Type"::Payment then
                                         AdjYearAmount := GetAdjAmount(VendorLedgEntry2."Entry No.");
                                 end else begin
-                                    VendorLedgEntry2.Reset;
+                                    VendorLedgEntry2.Reset();
                                     VendorLedgEntry2.SetCurrentKey("Closed by Entry No.");
                                     VendorLedgEntry2.SetRange("Closed by Entry No.", VendorLedgEntry."Entry No.");
                                     VendorLedgEntry2.SetRange("Document Type", VendorLedgEntry2."Document Type"::Payment);
@@ -402,7 +402,7 @@ report 11004 "Vendor Total-Balance"
         StartDate := Vendor.GetRangeMin("Date Filter");
         EndDate := Vendor.GetRangeMax("Date Filter");
 
-        AccountingPeriod.Reset;
+        AccountingPeriod.Reset();
         AccountingPeriod.SetRange("New Fiscal Year", true);
         AccountingPeriod."Starting Date" := StartDate;
         AccountingPeriod.Find('=<');
@@ -412,7 +412,7 @@ report 11004 "Vendor Total-Balance"
 
         YearText := Format(YearStartDate) + '..' + Format(EndDate);
 
-        GLSetup.Get;
+        GLSetup.Get();
         GLSetup.TestField("LCY Code");
         HeaderText := StrSubstNo(Text1140021, GLSetup."LCY Code");
 
@@ -477,7 +477,7 @@ report 11004 "Vendor Total-Balance"
         AdjAmount: Decimal;
     begin
         AdjAmount := 0;
-        DetailedVendorLedgEntry2.Reset;
+        DetailedVendorLedgEntry2.Reset();
         DetailedVendorLedgEntry2.SetRange("Vendor Ledger Entry No.", VendorLedgEntryEntryNo);
         DetailedVendorLedgEntry2.SetRange("Entry Type", DetailedVendorLedgEntry2."Entry Type"::"Initial Entry");
         DetailedVendorLedgEntry2.SetRange("Document Type", DetailedVendorLedgEntry2."Document Type"::Payment);

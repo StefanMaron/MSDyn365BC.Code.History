@@ -148,10 +148,10 @@ report 122 "Reminder - Test"
                     begin
                         if Number = 1 then begin
                             if not DimSetEntry.FindSet then
-                                CurrReport.Break;
+                                CurrReport.Break();
                         end else
                             if not Continue then
-                                CurrReport.Break;
+                                CurrReport.Break();
 
                         Clear(DimText);
                         repeat
@@ -172,7 +172,7 @@ report 122 "Reminder - Test"
                     trigger OnPreDataItem()
                     begin
                         if not ShowDim then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         DimSetEntry.SetRange("Dimension Set ID", "Reminder Header"."Dimension Set ID");
                     end;
                 }
@@ -349,7 +349,7 @@ report 122 "Reminder - Test"
                     trigger OnAfterGetRecord()
                     begin
                         if not "Detailed Interest Rates Entry" then begin
-                            VATAmountLine.Init;
+                            VATAmountLine.Init();
                             VATAmountLine."VAT Identifier" := "VAT Identifier";
                             VATAmountLine."VAT Calculation Type" := "VAT Calculation Type";
                             VATAmountLine."Tax Group Code" := "Tax Group Code";
@@ -405,7 +405,7 @@ report 122 "Reminder - Test"
                                 Continue := "No. of Reminders" = 0;
                             until ((Next(-1) = 0) or not Continue);
 
-                        VATAmountLine.DeleteAll;
+                        VATAmountLine.DeleteAll();
                         Clear(ReminderInterestAmount);
                     end;
                 }
@@ -539,7 +539,7 @@ report 122 "Reminder - Test"
                     trigger OnPreDataItem()
                     begin
                         if TotalVATAmount = 0 then
-                            CurrReport.Break;
+                            CurrReport.Break();
                         SetRange(Number, 1, VATAmountLine.Count);
                         Clear(VALVATBase);
                         Clear(VALVATAmount);
@@ -613,7 +613,7 @@ report 122 "Reminder - Test"
                            ("Reminder Header"."Currency Code" = '') or
                            (VATAmountLine.GetTotalVATAmount = 0)
                         then
-                            CurrReport.Break;
+                            CurrReport.Break();
 
                         SetRange(Number, 1, VATAmountLine.Count);
                         Clear(VALVATBaseLCY);
@@ -659,7 +659,7 @@ report 122 "Reminder - Test"
                             Cust.TableCaption, "Customer No."));
                 end;
 
-                GLSetup.Get;
+                GLSetup.Get();
 
                 if "Posting Date" = 0D then
                     AddError(StrSubstNo(Text000, FieldCaption("Posting Date")))
@@ -771,7 +771,7 @@ report 122 "Reminder - Test"
 
     trigger OnInitReport()
     begin
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     trigger OnPreReport()

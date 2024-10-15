@@ -28,7 +28,7 @@ report 741 "VAT Report Suggest Lines"
                 trigger OnPreDataItem()
                 begin
                     if VATReportHeader."Trade Type" = VATReportHeader."Trade Type"::Purchases then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetFilters(VATEntrySales);
 
@@ -52,7 +52,7 @@ report 741 "VAT Report Suggest Lines"
                 trigger OnPreDataItem()
                 begin
                     if VATReportHeader."Trade Type" = VATReportHeader."Trade Type"::Sales then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     SetFilters(VATEntryPurchases);
 
@@ -70,7 +70,7 @@ report 741 "VAT Report Suggest Lines"
                 VATReportLine.SetRange("Line Type", VATReportLine."Line Type"::New);
                 if VATReportLine.Count > 0 then begin
                     if not Confirm(Text003, true) then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     VATReportLine.DeleteAll(true);
                 end;
@@ -95,11 +95,11 @@ report 741 "VAT Report Suggest Lines"
 
                 NextLineNo := 0;
 
-                TempVATReportLine.DeleteAll;
-                TempVATReportLine.Reset;
-                TempVATReportLineRelation.DeleteAll;
-                TempVATReportLineRelation.Reset;
-                TransBuffer.DeleteAll;
+                TempVATReportLine.DeleteAll();
+                TempVATReportLine.Reset();
+                TempVATReportLineRelation.DeleteAll();
+                TempVATReportLineRelation.Reset();
+                TransBuffer.DeleteAll();
 
                 Window.Open(Text001 + Text002);
             end;
@@ -157,13 +157,13 @@ report 741 "VAT Report Suggest Lines"
             TempVATReportLine.Base += VATReportLine.Base;
             TempVATReportLine.Amount += VATReportLine.Amount;
             UpdateNumberOfSupplies(TempVATReportLine, VATEntry."Transaction No.");
-            TempVATReportLine.Modify;
+            TempVATReportLine.Modify();
         end else begin
             NextLineNo += 10000;
             TempVATReportLine := VATReportLine;
             TempVATReportLine."Line No." := NextLineNo;
             UpdateNumberOfSupplies(TempVATReportLine, VATEntry."Transaction No.");
-            TempVATReportLine.Insert;
+            TempVATReportLine.Insert();
         end;
         with TempVATReportLineRelation do begin
             Init;
@@ -180,7 +180,7 @@ report 741 "VAT Report Suggest Lines"
     var
         VATReportLineRelation: Record "VAT Report Line Relation";
     begin
-        TempVATReportLine.Reset;
+        TempVATReportLine.Reset();
         if TempVATReportLine.FindSet then
             repeat
                 VATReportLine := TempVATReportLine;
@@ -194,7 +194,7 @@ report 741 "VAT Report Suggest Lines"
                     repeat
                         VATReportLineRelation := TempVATReportLineRelation;
                         VATReportLineRelation."VAT Report Line No." := VATReportLine."Line No.";
-                        VATReportLineRelation.Insert;
+                        VATReportLineRelation.Insert();
                     until TempVATReportLineRelation.Next = 0;
             until TempVATReportLine.Next = 0;
     end;
@@ -209,7 +209,7 @@ report 741 "VAT Report Suggest Lines"
     begin
         CancelOutOfScopeLines;
 
-        TempVATReportLine.Reset;
+        TempVATReportLine.Reset();
         if TempVATReportLine.FindSet then
             repeat
                 SkipLine := false;
@@ -233,7 +233,7 @@ report 741 "VAT Report Suggest Lines"
                             repeat
                                 VATReportLineRelation := TempVATReportLineRelation;
                                 VATReportLineRelation."VAT Report Line No." := VATReportLine."Line No.";
-                                VATReportLineRelation.Insert;
+                                VATReportLineRelation.Insert();
                             until TempVATReportLineRelation.Next = 0;
                     end else
                         if HaveDifferentRelations(VATReportLine2, TempVATReportLine) then
@@ -252,7 +252,7 @@ report 741 "VAT Report Suggest Lines"
         VATReportLineRelation: Record "VAT Report Line Relation";
         SkipLine: Boolean;
     begin
-        ExistingVATReportLine.Reset;
+        ExistingVATReportLine.Reset();
         ExistingVATReportLine.SetRange("VAT Report to Correct", VATReportHeader."Original Report No.");
         ExistingVATReportLine.SetRange("Able to Correct Line", true);
         if ExistingVATReportLine.FindSet then begin
@@ -275,7 +275,7 @@ report 741 "VAT Report Suggest Lines"
                             CancelVATReportLine.Base := 0;
                             CancelVATReportLine.Amount := 0;
 
-                            EmptyVATReportLineRelation.DeleteAll;
+                            EmptyVATReportLineRelation.DeleteAll();
                             ExistingVATReportLine.InsertCorrLine(
                               VATReportHeader, ExistingVATReportLine, CancelVATReportLine, EmptyVATReportLineRelation);
                         end;
@@ -309,7 +309,7 @@ report 741 "VAT Report Suggest Lines"
             else
                 VATReportLine."Number of Supplies" += 1;
             TransBuffer.Number := TransactionNo;
-            TransBuffer.Insert;
+            TransBuffer.Insert();
         end;
     end;
 
@@ -408,7 +408,7 @@ report 741 "VAT Report Suggest Lines"
 
     local procedure GetKeyInReport(VATReportLineToFind: Record "VAT Report Line"; var ExistingVATReportLine: Record "VAT Report Line"; VATReportNo: Code[20]; InOriginalReport: Boolean): Boolean
     begin
-        ExistingVATReportLine.Reset;
+        ExistingVATReportLine.Reset();
         ExistingVATReportLine.SetRange("VAT Registration No.", VATReportLineToFind."VAT Registration No.");
         ExistingVATReportLine.SetRange("Country/Region Code", VATReportLineToFind."Country/Region Code");
         ExistingVATReportLine.SetRange("Registration No.", VATReportLineToFind."Registration No.");

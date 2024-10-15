@@ -241,25 +241,25 @@ table 11004 "Data Export Record Source"
         DataExportTableRelation: Record "Data Export Table Relation";
         DataExportRecordField: Record "Data Export Record Field";
     begin
-        DataExportRecordField.Reset;
+        DataExportRecordField.Reset();
         DataExportRecordField.SetRange("Data Export Code", "Data Export Code");
         DataExportRecordField.SetRange("Data Exp. Rec. Type Code", "Data Exp. Rec. Type Code");
         DataExportRecordField.SetRange("Source Line No.", "Line No.");
-        DataExportRecordField.DeleteAll;
+        DataExportRecordField.DeleteAll();
 
         if "Relation To Line No." <> 0 then begin
-            DataExportTableRelation.Reset;
+            DataExportTableRelation.Reset();
             DataExportTableRelation.SetRange("Data Export Code", "Data Export Code");
             DataExportTableRelation.SetRange("Data Exp. Rec. Type Code", "Data Exp. Rec. Type Code");
             DataExportTableRelation.SetRange("To Table No.", "Table No.");
             if DataExportTableRelation.FindSet then
                 repeat
                     if not DoesExistDuplicateSourceLine then
-                        DataExportTableRelation.Delete;
+                        DataExportTableRelation.Delete();
                 until DataExportTableRelation.Next = 0;
         end;
 
-        DataExportRecordSource.Reset;
+        DataExportRecordSource.Reset();
         DataExportRecordSource.SetRange("Data Export Code", "Data Export Code");
         DataExportRecordSource.SetRange("Data Exp. Rec. Type Code", "Data Exp. Rec. Type Code");
         DataExportRecordSource.SetRange("Relation To Line No.", "Line No.");
@@ -293,7 +293,7 @@ table 11004 "Data Export Record Source"
 
     local procedure ApplyDataExportRecordSourceFilter(var DataExportRecordSource: Record "Data Export Record Source"; FieldId: Integer)
     begin
-        DataExportRecordSource.Reset;
+        DataExportRecordSource.Reset();
         DataExportRecordSource.SetRange("Data Export Code", "Data Export Code");
         DataExportRecordSource.SetRange("Data Exp. Rec. Type Code", "Data Exp. Rec. Type Code");
         DataExportRecordSource.SetFilter("Line No.", '<>%1', "Line No.");
@@ -414,7 +414,7 @@ table 11004 "Data Export Record Source"
     var
         DataExportRecordSource: Record "Data Export Record Source";
     begin
-        DataExportRecordSource.Reset;
+        DataExportRecordSource.Reset();
         DataExportRecordSource.SetRange("Data Export Code", "Data Export Code");
         DataExportRecordSource.SetRange("Data Exp. Rec. Type Code", "Data Exp. Rec. Type Code");
         DataExportRecordSource.SetFilter("Line No.", '<>%1', "Line No.");

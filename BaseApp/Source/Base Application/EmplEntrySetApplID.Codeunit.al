@@ -14,7 +14,7 @@ codeunit 112 "Empl. Entry-SetAppl.ID"
         TempEmplLedgEntry: Record "Employee Ledger Entry" temporary;
         EmplLedgEntryToUpdate: Record "Employee Ledger Entry";
     begin
-        EmplLedgEntry.LockTable;
+        EmplLedgEntry.LockTable();
         if EmplLedgEntry.FindSet then begin
             // Make Applies-to ID
             if EmplLedgEntry."Applies-to ID" <> '' then
@@ -29,7 +29,7 @@ codeunit 112 "Empl. Entry-SetAppl.ID"
             end;
             repeat
                 TempEmplLedgEntry := EmplLedgEntry;
-                TempEmplLedgEntry.Insert;
+                TempEmplLedgEntry.Insert();
             until EmplLedgEntry.Next = 0;
         end;
 
@@ -52,7 +52,7 @@ codeunit 112 "Empl. Entry-SetAppl.ID"
 
                 if EmplLedgEntryToUpdate."Entry No." = ApplyingEmplLedgEntry."Entry No." then
                     EmplLedgEntryToUpdate."Applying Entry" := ApplyingEmplLedgEntry."Applying Entry";
-                EmplLedgEntryToUpdate.Modify;
+                EmplLedgEntryToUpdate.Modify();
             until TempEmplLedgEntry.Next = 0;
     end;
 }

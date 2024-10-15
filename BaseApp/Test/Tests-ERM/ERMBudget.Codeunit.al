@@ -47,9 +47,6 @@ codeunit 134922 "ERM Budget"
         FourthBudgetDimensionDefaultCaptionTxt: Label 'Budget Dimension 4 Code';
         SubstringNotFoundErr: Label 'Expected substring was not found';
         AnalysisViewBudgetEntryExistsErr: Label 'You cannot change the amount on this G/L budget entry because one or more related analysis view budget entries exist.\\You must make the change on the related entry in the G/L Budget window.';
-        DimValueBlockedErr: Label 'Dimension Value %1 - %2 is blocked.', Comment = '%1 = Dim Code, %2 = Dim Value';
-        DimValueMustNotBeErr: Label 'Dimension Value Type for Dimension Value %1 - %2 must not be %3.', Comment = '%1 = Dim Code, %2 = Dim Value, %3 = Dimension Value Type value';
-        DimValueMissingErr: Label 'Dimension Value for %1 is missing.', Comment = '%1 = Dim Code';
 
     [Test]
     [Scope('OnPrem')]
@@ -909,7 +906,7 @@ codeunit 134922 "ERM Budget"
         // [GIVEN] "Department Code" = "SALES", "Project Code" = "VW"
         Initialize;
         LibraryLowerPermissions.SetO365Full;
-        GLSetup.Get;
+        GLSetup.Get();
         LibraryDimension.CreateDimensionValue(FirstDimValue, GLSetup."Global Dimension 1 Code");
         LibraryDimension.CreateDimensionValue(SecondDimValue, GLSetup."Global Dimension 2 Code");
 
@@ -969,7 +966,7 @@ codeunit 134922 "ERM Budget"
         // [GIVEN] Record of Budget
         LibraryERM.CreateGLBudgetName(GLBudgetName);
         LibraryERM.CreateGLBudgetEntry(GLBudgetEntry, WorkDate, LibraryERM.CreateGLAccountNo, GLBudgetName.Name);
-        Commit;
+        Commit();
 
         // [WHEN] Open request page of report "Export Budget to Excel"
         REPORT.Run(REPORT::"Export Budget to Excel", true, false, GLBudgetEntry);
@@ -993,17 +990,17 @@ codeunit 134922 "ERM Budget"
 
         ItemBudgetName."Analysis Area" := ItemBudgetName."Analysis Area"::Sales;
         ItemBudgetName.Name := LibraryUTUtility.GetNewCode10;
-        ItemBudgetName.Insert;
+        ItemBudgetName.Insert();
 
         ItemBudgetEntry."Entry No." := LibraryUtility.GetNewRecNo(ItemBudgetEntry, ItemBudgetEntry.FieldNo("Entry No."));
         ItemBudgetEntry."Analysis Area" := ItemBudgetName."Analysis Area";
         ItemBudgetEntry."Budget Name" := ItemBudgetName.Name;
-        ItemBudgetEntry.Insert;
+        ItemBudgetEntry.Insert();
 
         ItemAnalysisViewBudgEntry."Analysis Area" := ItemBudgetEntry."Analysis Area";
         ItemAnalysisViewBudgEntry."Budget Name" := ItemBudgetName.Name;
         ItemAnalysisViewBudgEntry."Entry No." := ItemBudgetEntry."Entry No.";
-        ItemAnalysisViewBudgEntry.Insert;
+        ItemAnalysisViewBudgEntry.Insert();
 
         ItemBudgetEntry.Delete(true);
 
@@ -1036,7 +1033,7 @@ codeunit 134922 "ERM Budget"
         CODEUNIT.Run(CODEUNIT::"Update Item Analysis View", ItemAnalysisViewPurchase);
 
         // [THEN] Item Analysis View Budg. Entry contains 2 records for newly created Item Budget Entries
-        ItemAnalysisViewBudgEntry.Init;
+        ItemAnalysisViewBudgEntry.Init();
         ItemAnalysisViewBudgEntry.SetRange("Item No.", ItemNo);
         Assert.RecordCount(ItemAnalysisViewBudgEntry, 2);
     end;
@@ -1054,18 +1051,18 @@ codeunit 134922 "ERM Budget"
         Initialize;
         LibraryLowerPermissions.SetFinancialReporting;
 
-        GLBudgetName.Init;
+        GLBudgetName.Init();
         GLBudgetName.Name := LibraryUTUtility.GetNewCode10;
-        GLBudgetName.Insert;
+        GLBudgetName.Insert();
 
         GLBudgetEntry."Entry No." := LibraryUtility.GetNewRecNo(GLBudgetEntry, GLBudgetEntry.FieldNo("Entry No."));
         GLBudgetEntry."Budget Name" := GLBudgetName.Name;
-        GLBudgetEntry.Insert;
+        GLBudgetEntry.Insert();
 
-        AnalysisViewBudgetEntry.Init;
+        AnalysisViewBudgetEntry.Init();
         AnalysisViewBudgetEntry."Budget Name" := GLBudgetName.Name;
         AnalysisViewBudgetEntry."Entry No." := GLBudgetEntry."Entry No.";
-        AnalysisViewBudgetEntry.Insert;
+        AnalysisViewBudgetEntry.Insert();
 
         GLBudgetEntry.Delete(true);
 
@@ -1101,7 +1098,7 @@ codeunit 134922 "ERM Budget"
         LibraryERM.CreateGLAccount(GLAccount);
 
         // [GIVEN] Dimension "DEPARTMENT" with "Dimension Code" = ADM
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.CreateDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
         LibraryDimension.CreateSelectedDimension(
           SelectedDimension, 3, REPORT::"Export Budget to Excel", '', DimensionValue."Dimension Code");
@@ -1114,7 +1111,7 @@ codeunit 134922 "ERM Budget"
         GLBudgetEntry.SetRange("Budget Name", GLBudgetName.Name);
         GLBudgetEntry.SetRange("Global Dimension 1 Code", DimensionValue.Code);
         LibraryLowerPermissions.SetFinancialReporting;
-        Commit;
+        Commit();
 
         // [WHEN] Export Budget "X" to Excel with "Column Dimensions" = "ADM" and "Department Code" filter = "ADM"
         RunExportBudgetToExcelWithRequestPage(GLBudgetEntry, FileName);
@@ -1146,7 +1143,7 @@ codeunit 134922 "ERM Budget"
             LibraryReportValidation.VerifyCellValueByRef('A', i + 200, 1, DimensionValue.Code);
         until DimensionValue.Next = 0;
 
-        SelectedDimension.Delete;
+        SelectedDimension.Delete();
     end;
 
     [Test]
@@ -1178,7 +1175,7 @@ codeunit 134922 "ERM Budget"
         LibraryERM.CreateGLAccount(GLAccount);
 
         // [GIVEN] Dimensions "DEPARTMENT" with codes "ADM" and "PROD"
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         LibraryDimension.CreateDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
         LibraryDimension.CreateDimensionValue(DimensionValue2, GeneralLedgerSetup."Global Dimension 1 Code");
         LibraryVariableStorage.Enqueue(DimensionValue."Dimension Code"); // for ExportBudgetToExcelWithDimRequestPageHandler
@@ -1188,7 +1185,7 @@ codeunit 134922 "ERM Budget"
         GLBudgetEntry.SetRange("Budget Name", GLBudgetName.Name);
         GLBudgetEntry.SetFilter("Global Dimension 1 Code", '%1|%2', DimensionValue.Code, DimensionValue2.Code);
         LibraryLowerPermissions.SetFinancialReporting;
-        Commit;
+        Commit();
 
         // [WHEN] Export Budget "X" to Excel with "Column Dimensions" = "ADM" and "Department Code" filter = "ADM|PROD"
         RunExportBudgetToExcelWithRequestPage(GLBudgetEntry, FileName);
@@ -1207,7 +1204,7 @@ codeunit 134922 "ERM Budget"
         LibraryReportValidation.VerifyCellValueByRef('A', i + 200, 1, DimensionValue.Code);
         LibraryReportValidation.VerifyCellValueByRef('A', i + 201, 1, DimensionValue2.Code);
 
-        SelectedDimension.Delete;
+        SelectedDimension.Delete();
     end;
 
     [Test]
@@ -1256,7 +1253,7 @@ codeunit 134922 "ERM Budget"
         SetBudgetDimensionFiltersOnGLBudgetEntry(
           GLBudgetEntry, DimensionValue[1].Code, DimensionValue[2].Code, DimensionValue[3].Code, DimensionValue[4].Code);
         LibraryLowerPermissions.SetFinancialReporting;
-        Commit;
+        Commit();
 
         // [WHEN] Export Budget "X" to Excel with "Column Dimensions" = "D1;D2;D3;D4" and "Budget Filters" = "DV1","DV2","DV3","DV4"
         RunExportBudgetToExcelWithRequestPage(GLBudgetEntry, FileName);
@@ -1281,7 +1278,7 @@ codeunit 134922 "ERM Budget"
         LibraryReportValidation.VerifyCellValueByRef('A', i + 203, 1, DimensionValue[4].Code);
 
         for i := 1 to ArrayLen(SelectedDimension) do
-            SelectedDimension[i].Delete;
+            SelectedDimension[i].Delete();
     end;
 
     [Test]
@@ -1346,7 +1343,7 @@ codeunit 134922 "ERM Budget"
           StrSubstNo('%1|%2', DimensionValue[1, 3].Code, DimensionValue[2, 3].Code),
           StrSubstNo('%1|%2', DimensionValue[1, 4].Code, DimensionValue[2, 4].Code));
         LibraryLowerPermissions.SetFinancialReporting;
-        Commit;
+        Commit();
 
         // [WHEN] Export Budget "X" to Excel with "Column Dimensions" = "D1;D2;D3;D4;D5" and "Budget Filters" = "DV11|DV12","DV21|DV22","DV31|DV32","DV41|DV42"
         RunExportBudgetToExcelWithRequestPage(GLBudgetEntry, FileName);
@@ -1354,7 +1351,7 @@ codeunit 134922 "ERM Budget"
         // [THEN] Dimension Codes "D1", "D2", "D3" and "D4" exported Excel file as Columns
         // [THEN] Dimension Code "D5" without any value is not exported
         LibraryReportValidation.OpenExcelFile;
-        Commit;
+        Commit();
         RowNo := 8;
         VerifyDimCaptionInCellValue('C', RowNo, SelectedDimension[1]."Dimension Code");
         VerifyDimCaptionInCellValue('D', RowNo, SelectedDimension[2]."Dimension Code");
@@ -1382,7 +1379,7 @@ codeunit 134922 "ERM Budget"
             end;
 
         for i := 1 to ArrayLen(SelectedDimension) do
-            SelectedDimension[i].Delete;
+            SelectedDimension[i].Delete();
     end;
 
     [Test]
@@ -1854,7 +1851,9 @@ codeunit 134922 "ERM Budget"
         LibraryDimension.CreateDimension(Dimension);
 
         // [GIVEN] Sales Budget "X" with "Budget Dimension 1 Code" = "ABC"
-        CreateItemBudgetWithDimensionCode(ItemBudgetName, Dimension.Code, ItemBudgetName."Analysis Area"::Sales);
+        LibraryERM.CreateItemBudgetName(ItemBudgetName, ItemBudgetName."Analysis Area"::Sales);
+        ItemBudgetName.Validate("Budget Dimension 1 Code", Dimension.Code);
+        ItemBudgetName.Modify(true);
 
         // [GIVEN] Opened page "Sales Budgets" with Budget "X"
         BudgetNamesSales.OpenEdit;
@@ -1893,7 +1892,9 @@ codeunit 134922 "ERM Budget"
         LibraryDimension.CreateDimension(Dimension);
 
         // [GIVEN] Purchase Budget "X" with "Budget Dimension 1 Code" = "ABC"
-        CreateItemBudgetWithDimensionCode(ItemBudgetName, Dimension.Code, ItemBudgetName."Analysis Area"::Purchase);
+        LibraryERM.CreateItemBudgetName(ItemBudgetName, ItemBudgetName."Analysis Area"::Purchase);
+        ItemBudgetName.Validate("Budget Dimension 1 Code", Dimension.Code);
+        ItemBudgetName.Modify(true);
 
         // [GIVEN] Opened page "Purchase Budgets" with Budget "X"
         BudgetNamesPurchase.OpenEdit;
@@ -1945,7 +1946,7 @@ codeunit 134922 "ERM Budget"
         // [GIVEN] Budget exported to Excel File
         LibraryReportValidation.SetFileName(GLBudgetName.Name);
         FileName := LibraryReportValidation.GetFileName;
-        Commit;
+        Commit();
         ExportBudgetWithDimensionFiltersToExcel(GLBudgetName, DimensionValue, FileName);
 
         // [GIVEN] Budget Entry's Amount "100" modified to "150"
@@ -2039,7 +2040,7 @@ codeunit 134922 "ERM Budget"
         SetupDimensionExportToExcel(DimensionValue);
         LibraryReportValidation.SetFileName(GLBudgetName.Name);
         FileName := LibraryReportValidation.GetFileName;
-        Commit;
+        Commit();
         GLBudgetEntry[1].SetRange("Budget Name", GLBudgetName.Name);
         RunExportBudgetToExcelWithRequestPage(GLBudgetEntry[1], FileName);
 
@@ -2059,175 +2060,6 @@ codeunit 134922 "ERM Budget"
               EntryAmount[i], GLBudgetEntry[i]."Dimension Set ID");
     end;
 
-    [Test]
-    [Scope('OnPrem')]
-    procedure GLBudgetEntryBlockedDimensionValueError()
-    var
-        GLBudgetName: Record "G/L Budget Name";
-        GLBudgetEntry: Record "G/L Budget Entry";
-        DimensionValue: Record "Dimension Value";
-    begin
-        // [FEATURE] [G/L Budget Entries] [Dimension]
-        // [SCENARIO 343318] Blocked dimension values can't be added to G/L Budget Entries
-        Initialize();
-
-        // [GIVEN] Dimension "D" with blocked Dimension Value "DVBLOCK"
-        LibraryDimension.CreateDimWithDimValue(DimensionValue);
-        DimensionValue.Validate(Blocked, true);
-        DimensionValue.Modify(true);
-
-        // [GIVEN] G/L Budget Entry with Budget Dimension "D"
-        CreateGLBudgetWithDimensionCode(GLBudgetName, DimensionValue."Dimension Code");
-        LibraryERM.CreateGLBudgetEntry(GLBudgetEntry, WorkDate(), LibraryERM.CreateGLAccountNo(), GLBudgetName.Name);
-
-        // [WHEN] Budget Dimension "D" set to "DVBLOCK" on G/L Budget Entry
-        asserterror GLBudgetEntry.Validate("Budget Dimension 1 Code", DimensionValue.Code);
-
-        // [THEN] An error occurs that the dimension value is blocked
-        Assert.ExpectedError(StrSubstNo(DimValueBlockedErr, DimensionValue."Dimension Code", DimensionValue.Code));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure GLBudgetEntryIncorrectDimensionValueTypeError()
-    var
-        GLBudgetName: Record "G/L Budget Name";
-        GLBudgetEntry: Record "G/L Budget Entry";
-        DimensionValue: Record "Dimension Value";
-    begin
-        // [FEATURE] [G/L Budget Entries] [Dimension]
-        // [SCENARIO 343318] Non-standard dimension values can't be added to G/L Budget Entries
-        Initialize();
-
-        // [GIVEN] Dimension "D" with Dimension Value "DVHEAD" of type "Heading"
-        LibraryDimension.CreateDimWithDimValue(DimensionValue);
-        DimensionValue.Validate("Dimension Value Type", DimensionValue."Dimension Value Type"::Heading);
-        DimensionValue.Modify(true);
-
-        // [GIVEN] G/L Budget Entry with Budget Dimension "D"
-        CreateGLBudgetWithDimensionCode(GLBudgetName, DimensionValue."Dimension Code");
-        LibraryERM.CreateGLBudgetEntry(GLBudgetEntry, WorkDate(), LibraryERM.CreateGLAccountNo(), GLBudgetName.Name);
-
-        // [WHEN] Budget Dimension "D" set to "DVHEAD" on G/L Budget Entry
-        asserterror GLBudgetEntry.Validate("Budget Dimension 1 Code", DimensionValue.Code);
-
-        // [THEN] An error occurs that the dimension value type must not be "Heading"
-        Assert.ExpectedError(
-          StrSubstNo(DimValueMustNotBeErr, DimensionValue."Dimension Code", DimensionValue.Code, DimensionValue."Dimension Value Type"));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure GLBudgetEntryMissingDimensionValueError()
-    var
-        GLBudgetName: Record "G/L Budget Name";
-        GLBudgetEntry: Record "G/L Budget Entry";
-        Dimension: Record Dimension;
-    begin
-        // [FEATURE] [G/L Budget Entries] [Dimension]
-        // [SCENARIO 343318] Missing dimension values can't be added to G/L Budget Entries
-        Initialize();
-
-        // [GIVEN] Dimension "D" without Dimension Values
-        LibraryDimension.CreateDimension(Dimension);
-
-        // [GIVEN] G/L Budget Entry with Budget Dimension "D"
-        CreateGLBudgetWithDimensionCode(GLBudgetName, Dimension.Code);
-        LibraryERM.CreateGLBudgetEntry(GLBudgetEntry, WorkDate, LibraryERM.CreateGLAccountNo(), GLBudgetName.Name);
-
-        // [WHEN] Budget Dimension "D" set to a missing value on G/L Budget Entry
-        asserterror GLBudgetEntry.Validate("Budget Dimension 1 Code", LibraryUtility.GenerateGUID());
-
-        // [THEN] An error occurs that the dimension value for "D" is missing
-        Assert.ExpectedError(StrSubstNo(DimValueMissingErr, Dimension.Code));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ItemBudgetEntryBlockedDimensionValueError()
-    var
-        ItemBudgetName: Record "Item Budget Name";
-        ItemBudgetEntry: Record "Item Budget Entry";
-        DimensionValue: Record "Dimension Value";
-    begin
-        // [FEATURE] [Item Budget] [Dimension]
-        // [SCENARIO 343318] Blocked dimension values can't be added to Item Budget Entries
-        Initialize();
-
-        // [GIVEN] Dimension "D" with blocked Dimension Value "DVBLOCK"
-        LibraryDimension.CreateDimWithDimValue(DimensionValue);
-        DimensionValue.Validate(Blocked, true);
-        DimensionValue.Modify(true);
-
-        // [GIVEN] Item Budget Entry with Budget Dimension "D"
-        CreateItemBudgetWithDimensionCode(ItemBudgetName, DimensionValue."Dimension Code", ItemBudgetName."Analysis Area"::Sales);
-        LibraryInventory.CreateItemBudgetEntry(
-          ItemBudgetEntry, ItemBudgetEntry."Analysis Area"::Sales, ItemBudgetName.Name, WorkDate(), LibraryInventory.CreateItemNo());
-
-        // [WHEN] Budget Dimension "D" set to "DVBLOCK" on Item Budget Entry
-        asserterror ItemBudgetEntry.Validate("Budget Dimension 1 Code", DimensionValue.Code);
-
-        // [THEN] An error occurs that the dimension value is blocked
-        Assert.ExpectedError(StrSubstNo(DimValueBlockedErr, DimensionValue."Dimension Code", DimensionValue.Code));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ItemBudgetEntryIncorrectDimensionValueTypeError()
-    var
-        ItemBudgetName: Record "Item Budget Name";
-        ItemBudgetEntry: Record "Item Budget Entry";
-        DimensionValue: Record "Dimension Value";
-    begin
-        // [FEATURE] [Item Budget] [Dimension]
-        // [SCENARIO 343318] Non-standard dimension values can't be added to Item Budget Entries
-        Initialize();
-
-        // [GIVEN] Dimension "D" with Dimension Value "DVHEAD" of type "Heading"
-        LibraryDimension.CreateDimWithDimValue(DimensionValue);
-        DimensionValue.Validate("Dimension Value Type", DimensionValue."Dimension Value Type"::Heading);
-        DimensionValue.Modify(true);
-
-        // [GIVEN] Item Budget Entry with Budget Dimension "D"
-        CreateItemBudgetWithDimensionCode(ItemBudgetName, DimensionValue."Dimension Code", ItemBudgetName."Analysis Area"::Sales);
-        LibraryInventory.CreateItemBudgetEntry(
-          ItemBudgetEntry, ItemBudgetEntry."Analysis Area"::Sales, ItemBudgetName.Name, WorkDate(), LibraryInventory.CreateItemNo());
-
-        // [WHEN] Budget Dimension "D" set to "DVHEAD" on Item Budget Entry
-        asserterror ItemBudgetEntry.Validate("Budget Dimension 1 Code", DimensionValue.Code);
-
-        // [THEN] An error occurs that the dimension value type must not be "Heading"
-        Assert.ExpectedError(
-          StrSubstNo(DimValueMustNotBeErr, DimensionValue."Dimension Code", DimensionValue.Code, DimensionValue."Dimension Value Type"));
-    end;
-
-    [Test]
-    [Scope('OnPrem')]
-    procedure ItemBudgetEntryMissingDimensionValueError()
-    var
-        ItemBudgetName: Record "Item Budget Name";
-        ItemBudgetEntry: Record "Item Budget Entry";
-        Dimension: Record Dimension;
-    begin
-        // [FEATURE] [Item Budget] [Dimension]
-        // [SCENARIO 343318] Missing dimension values can't be added to Item Budget Entries
-        Initialize();
-
-        // [GIVEN] Dimension "D" without Dimension Values
-        LibraryDimension.CreateDimension(Dimension);
-
-        // [GIVEN] Item Budget Entry with Budget Dimension "D"
-        CreateItemBudgetWithDimensionCode(ItemBudgetName, Dimension.Code, ItemBudgetName."Analysis Area"::Sales);
-        LibraryInventory.CreateItemBudgetEntry(
-          ItemBudgetEntry, ItemBudgetEntry."Analysis Area"::Sales, ItemBudgetName.Name, WorkDate(), LibraryInventory.CreateItemNo());
-
-        // [WHEN] Budget Dimension "D" set to a missing value on Item Budget Entry
-        asserterror ItemBudgetEntry.Validate("Budget Dimension 1 Code", LibraryUtility.GenerateGUID());
-
-        // [THEN] An error occurs that the dimension value for "D" is missing
-        Assert.ExpectedError(StrSubstNo(DimValueMissingErr, Dimension.Code));
-    end;
-
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -2244,7 +2076,7 @@ codeunit 134922 "ERM Budget"
         LibraryApplicationArea.EnableFoundationSetup;
 
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure AssignLineAndColumnValues(NewLineValue: Text[50]; NewColumnValue: Text[50]; NewLineDimension: Text[50]; NewColumnDimension: Text[50]; NewViewBy: Text[50]; NewDateFilter: Date)
@@ -2262,7 +2094,7 @@ codeunit 134922 "ERM Budget"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         ColumnDimension := GeneralLedgerSetup."Global Dimension 1 Code";
     end;
 
@@ -2286,7 +2118,7 @@ codeunit 134922 "ERM Budget"
         SelectedDimension.Validate("Object Type", 3);
         SelectedDimension.Validate("Object ID", REPORT::"Export Budget to Excel");
         SelectedDimension.Validate("Analysis View Code", '');
-        SelectedDimension.DeleteAll;
+        SelectedDimension.DeleteAll();
     end;
 
     local procedure CreateAndUpdateAnalysisView(var AnalysisView: Record "Analysis View"; GLAccountNo: Code[20])
@@ -2373,20 +2205,15 @@ codeunit 134922 "ERM Budget"
     var
         Dimension: Record Dimension;
     begin
-        LibraryDimension.FindDimension(Dimension);
-        CreateGLBudgetWithDimensionCode(GLBudgetName, Dimension.Code);
-    end;
-
-    local procedure CreateGLBudgetWithDimensionCode(var GLBudgetName: Record "G/L Budget Name"; DimensionCode: Code[20])
-    begin
         LibraryERM.CreateGLBudgetName(GLBudgetName);
-        GLBudgetName.Validate("Budget Dimension 1 Code", DimensionCode);
+        LibraryDimension.FindDimension(Dimension);
+        GLBudgetName.Validate("Budget Dimension 1 Code", Dimension.Code);
         GLBudgetName.Modify(true);
     end;
 
     local procedure CreateBusinessUnit(var BusinessUnit: Record "Business Unit")
     begin
-        BusinessUnit.Init;
+        BusinessUnit.Init();
         BusinessUnit.Validate(Code, LibraryUtility.GenerateRandomCode20(BusinessUnit.FieldNo(Code), DATABASE::"Business Unit"));
         BusinessUnit.Insert(true);
     end;
@@ -2394,7 +2221,7 @@ codeunit 134922 "ERM Budget"
     local procedure UpdateAnalysisView(var AnalysisView: Record "Analysis View"; FirstChangedGLBudgetEntryNo: Integer)
     begin
         AnalysisView."Last Budget Entry No." := FirstChangedGLBudgetEntryNo - 1;
-        AnalysisView.Modify;
+        AnalysisView.Modify();
         CODEUNIT.Run(CODEUNIT::"Update Analysis View", AnalysisView);
         AnalysisView.Get(AnalysisView.Code);
     end;
@@ -2424,7 +2251,7 @@ codeunit 134922 "ERM Budget"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         FindDimensionValue(DimensionValue, GeneralLedgerSetup."Global Dimension 1 Code");
     end;
 
@@ -2689,7 +2516,7 @@ codeunit 134922 "ERM Budget"
         ItemBudgetName: Record "Item Budget Name";
         ItemNo: Code[20];
     begin
-        ItemBudgetName.DeleteAll;
+        ItemBudgetName.DeleteAll();
         ItemNo := LibraryInventory.CreateItem(Item);
         LibraryVariableStorage.Clear;
         LibraryVariableStorage.Enqueue(ItemNo);
@@ -2706,13 +2533,6 @@ codeunit 134922 "ERM Budget"
             Insert(true);
             CreateItemBudgetEntry(Name, ItemNo, BudgetAmount, AnalysisArea);
         end;
-    end;
-
-    local procedure CreateItemBudgetWithDimensionCode(var ItemBudgetName: Record "Item Budget Name"; DimensionCode: Code[20]; AnalysisArea: Option)
-    begin
-        LibraryERM.CreateItemBudgetName(ItemBudgetName, AnalysisArea);
-        ItemBudgetName.Validate("Budget Dimension 1 Code", DimensionCode);
-        ItemBudgetName.Modify(true);
     end;
 
     local procedure CreateItemBudgetEntry(BudgetName: Code[10]; ItemNo: Code[20]; BudgetAmount: Decimal; AnalysisArea: Option Sales,Purchase)
@@ -2735,7 +2555,7 @@ codeunit 134922 "ERM Budget"
     var
         GLBudgetName: Record "G/L Budget Name";
     begin
-        GLBudgetEntry.Init;
+        GLBudgetEntry.Init();
         GLBudgetEntry."Entry No." :=
           LibraryUtility.GetNewRecNo(GLBudgetEntry, GLBudgetEntry.FieldNo("Entry No."));
         LibraryERM.CreateGLBudgetName(GLBudgetName);
@@ -2771,7 +2591,7 @@ codeunit 134922 "ERM Budget"
         ItemBudgetEntry."Analysis Area" := AnalysisArea;
         ItemBudgetEntry.Date := WorkDate;
         ItemBudgetEntry."Item No." := ItemNo;
-        ItemBudgetEntry.Insert;
+        ItemBudgetEntry.Insert();
     end;
 
     local procedure CreateGLBudgetEntryOnPageFromMatrixForm(var Budget: TestPage Budget; var GLBudgetEntries: TestPage "G/L Budget Entries"; BudgetAmount: Decimal)
@@ -2846,7 +2666,7 @@ codeunit 134922 "ERM Budget"
         PrepareFilterPeriod(StartDate, EndDate);
         LibraryERM.CreateGLAccount(GLAccount);
         GLAccount."Income/Balance" := GLAccount."Income/Balance"::"Income Statement";
-        GLAccount.Modify;
+        GLAccount.Modify();
         CreateGLBudgetEntry(GLBudgetName.Name, GLAccount."No.", LibraryRandom.RandDec(100, 2));
         OpenGLBudgetPageWithViewByMonth(Budget, GLBudgetName.Name, StrSubstNo('%1..%2', StartDate, EndDate));
         Budget.GLAccFilter.SetValue(GLAccount."No.");

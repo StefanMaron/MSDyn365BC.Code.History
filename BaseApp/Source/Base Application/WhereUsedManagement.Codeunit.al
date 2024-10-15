@@ -40,7 +40,7 @@ codeunit 99000770 "Where-Used Management"
 
     procedure WhereUsedFromItem(Item: Record Item; CalcDate: Date; NewMultiLevel: Boolean)
     begin
-        WhereUsedList.DeleteAll;
+        WhereUsedList.DeleteAll();
         NextWhereUsedEntryNo := 1;
         MultiLevel := NewMultiLevel;
 
@@ -49,7 +49,7 @@ codeunit 99000770 "Where-Used Management"
 
     procedure WhereUsedFromProdBOM(ProdBOM: Record "Production BOM Header"; CalcDate: Date; NewMultiLevel: Boolean)
     begin
-        WhereUsedList.DeleteAll;
+        WhereUsedList.DeleteAll();
         NextWhereUsedEntryNo := 1;
         MultiLevel := NewMultiLevel;
 
@@ -84,7 +84,7 @@ codeunit 99000770 "Where-Used Management"
                           VersionMgt.GetBOMVersion(ItemAssembly."Production BOM No.", CalcDate, false)));
                     WhereUsedList."Version Code" := VersionMgt.GetBOMVersion(No, CalcDate, true);
                     OnBeforeWhereUsedListInsert(WhereUsedList, ItemAssembly, CalcDate, Quantity);
-                    WhereUsedList.Insert;
+                    WhereUsedList.Insert();
                     NextWhereUsedEntryNo := NextWhereUsedEntryNo + 1;
                     if MultiLevel then
                         BuildWhereUsedList(

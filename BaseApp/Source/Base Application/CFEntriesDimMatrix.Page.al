@@ -1,4 +1,4 @@
-﻿page 863 "CF Entries Dim. Matrix"
+page 863 "CF Entries Dim. Matrix"
 {
     Caption = 'CF Forcst. Entries Dim. Overv. M.';
     DataCaptionExpression = GetCaption;
@@ -659,7 +659,7 @@
     begin
         if not DimSetEntry.Get("Dimension Set ID", DimensionMatrix.Code)
         then begin
-            DimSetEntry.Init;
+            DimSetEntry.Init();
             DimSetEntry."Dimension Code" := DimensionMatrix.Code;
         end;
         MATRIX_CellData[MATRIX_CurrentColumnOrdinal] := Format(DimSetEntry."Dimension Value Code");
@@ -696,11 +696,11 @@
     procedure SetTempCFForecastEntry(var NewCFForecastEntry: Record "Cash Flow Forecast Entry")
     begin
         RunOnTempRec := true;
-        TempCFForecastEntry.DeleteAll;
+        TempCFForecastEntry.DeleteAll();
         if NewCFForecastEntry.Find('-') then
             repeat
                 TempCFForecastEntry := NewCFForecastEntry;
-                TempCFForecastEntry.Insert;
+                TempCFForecastEntry.Insert();
             until NewCFForecastEntry.Next = 0;
     end;
 

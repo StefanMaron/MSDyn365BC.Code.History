@@ -1,4 +1,4 @@
-﻿page 920 "Posted Assembly Order"
+page 920 "Posted Assembly Order"
 {
     Caption = 'Posted Assembly Order';
     Editable = true;

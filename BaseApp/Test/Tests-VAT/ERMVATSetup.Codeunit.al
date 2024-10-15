@@ -530,7 +530,7 @@ codeunit 134047 "ERM VAT Setup"
 
         // Exercise: Copy VAT Posting Setup with all fields.
         FindVATPostingSetup;
-        Commit;
+        Commit();
         CopyVATPostingSetup(VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group");  // Use CopyAllFieldHandler here.
 
         // Verify: Check VAT Posting Setup with copied Setup.
@@ -556,7 +556,7 @@ codeunit 134047 "ERM VAT Setup"
 
         // Exercise: Copy VAT Posting Setup with selected fields.
         FindVATPostingSetup;
-        Commit;
+        Commit();
         CopyVATPostingSetup(VATPostingSetup."VAT Bus. Posting Group", VATPostingSetup."VAT Prod. Posting Group");    // Use CopySelectedFieldHandler here.
 
         // Verify: Check VAT Posting Setup with copied Setup.
@@ -856,8 +856,8 @@ codeunit 134047 "ERM VAT Setup"
         // Cleanup
         VATRegistrationLogMgt.DeleteCustomerLog(Customer[1]);
         VATRegistrationLogMgt.DeleteCustomerLog(Customer[2]);
-        Customer[1].Delete;
-        Customer[2].Delete;
+        Customer[1].Delete();
+        Customer[2].Delete();
     end;
 
     [Test]
@@ -891,8 +891,8 @@ codeunit 134047 "ERM VAT Setup"
         // Cleanup
         VATRegistrationLogMgt.DeleteVendorLog(Vendor[1]);
         VATRegistrationLogMgt.DeleteVendorLog(Vendor[2]);
-        Vendor[1].Delete;
-        Vendor[2].Delete;
+        Vendor[1].Delete();
+        Vendor[2].Delete();
     end;
 
     [Test]
@@ -926,8 +926,8 @@ codeunit 134047 "ERM VAT Setup"
         // Cleanup
         VATRegistrationLogMgt.DeleteContactLog(Contact[1]);
         VATRegistrationLogMgt.DeleteContactLog(Contact[2]);
-        Contact[1].Delete;
-        Contact[2].Delete;
+        Contact[1].Delete();
+        Contact[2].Delete();
     end;
 
     local procedure Initialize()
@@ -950,7 +950,7 @@ codeunit 134047 "ERM VAT Setup"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Scope('OnPrem')]
@@ -959,8 +959,8 @@ codeunit 134047 "ERM VAT Setup"
         VATRegNoSrvConfig: Record "VAT Reg. No. Srv Config";
     begin
         if not VATRegNoSrvConfig.FindFirst then begin
-            VATRegNoSrvConfig.Init;
-            VATRegNoSrvConfig.Insert;
+            VATRegNoSrvConfig.Init();
+            VATRegNoSrvConfig.Insert();
         end;
         VATRegNoSrvConfig.Enabled := Status;
         VATRegNoSrvConfig.Modify(true);
@@ -1164,7 +1164,7 @@ codeunit 134047 "ERM VAT Setup"
 
     local procedure ModifyCompanyInformation(var CompanyInformation: Record "Company Information"; CountryRegionCode: Code[10]) OldCountryCode: Code[10]
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         OldCountryCode := CompanyInformation."Country/Region Code";
         CompanyInformation.Validate("Country/Region Code", CountryRegionCode);
         CompanyInformation.Modify(true);
@@ -1231,7 +1231,7 @@ codeunit 134047 "ERM VAT Setup"
         VATPostingSetupCard.OpenEdit;
         VATPostingSetupCard.FILTER.SetFilter("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         VATPostingSetupCard.FILTER.SetFilter("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
-        Commit;
+        Commit();
         VATPostingSetupCard.Copy.Invoke;
     end;
 
@@ -1240,7 +1240,7 @@ codeunit 134047 "ERM VAT Setup"
         GenPostingSetupCard.OpenEdit;
         GenPostingSetupCard.FILTER.SetFilter("Gen. Bus. Posting Group", GenPostingSetup."Gen. Bus. Posting Group");
         GenPostingSetupCard.FILTER.SetFilter("Gen. Prod. Posting Group", GenPostingSetup."Gen. Prod. Posting Group");
-        Commit;
+        Commit();
         GenPostingSetupCard.Copy.Invoke;
     end;
 

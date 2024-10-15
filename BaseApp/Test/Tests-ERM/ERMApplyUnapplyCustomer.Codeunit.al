@@ -1385,7 +1385,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     end;
 
     [Test]
-    [HandlerFunctions('UnapplyCustomerEntriesModalPageHandler,ConfirmHandler,MessageHandler,AdjustExchangeRatesReportHandler')]
+    [HandlerFunctions('UnapplyCustomerEntriesModalPageHandler,ConfirmHandler,MessageHandler')]
     [Scope('OnPrem')]
     procedure UnapplyEntryWithLaterAdjustedExchRate()
     var
@@ -1470,7 +1470,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
         LibrarySetupStorage.Save(DATABASE::"General Ledger Setup");
         LibrarySetupStorage.Save(DATABASE::"Source Code Setup");
 
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Apply Unapply Customer");
     end;
 
@@ -1844,7 +1844,7 @@ codeunit 134006 "ERM Apply Unapply Customer"
     var
         SourceCodeSetup: Record "Source Code Setup";
     begin
-        SourceCodeSetup.Get;
+        SourceCodeSetup.Get();
         SourceCodeSetup.Validate("Unapplied Sales Entry Appln.", UnappliedSalesEntryAppln);
         SourceCodeSetup.Modify(true);
     end;
@@ -2525,13 +2525,6 @@ codeunit 134006 "ERM Apply Unapply Customer"
           0, PageControlValue, ApplyCustomerEntries.ControlBalance.Caption);
 
         ApplyCustomerEntries.OK.Invoke;
-    end;
-
-    [ReportHandler]
-    [Scope('OnPrem')]
-    procedure AdjustExchangeRatesReportHandler(var AdjustExchangeRates: Report "Adjust Exchange Rates")
-    begin
-        AdjustExchangeRates.SaveAsExcel(TemporaryPath + '.xlsx')
     end;
 
     [PageHandler]

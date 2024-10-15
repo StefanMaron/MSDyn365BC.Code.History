@@ -34,8 +34,8 @@ codeunit 1331 "Trial Balance Cache Mgt."
         // If the number of trial balance cached is <> array length means that
         // something went wrong. Reset if thats the case
         if TrialBalanceCache.Count <> ArrayLen(DescriptionsArr) then begin
-            TrialBalanceCache.DeleteAll;
-            TrialBalanceCacheInfo.DeleteAll;
+            TrialBalanceCache.DeleteAll();
+            TrialBalanceCacheInfo.DeleteAll();
             exit(false);
         end;
 
@@ -64,7 +64,7 @@ codeunit 1331 "Trial Balance Cache Mgt."
         CaptionsSaved: Boolean;
         CacheFound: Boolean;
     begin
-        TrialBalanceCache.LockTable;
+        TrialBalanceCache.LockTable();
 
         CacheFound := TrialBalanceCache.FindSet;
 
@@ -82,12 +82,12 @@ codeunit 1331 "Trial Balance Cache Mgt."
                     TrialBalanceCache."Period 2 Caption" := CopyStr(PeriodCaptionTxt[2], 1, MaxStrLen(TrialBalanceCache."Period 2 Caption"));
                     CaptionsSaved := true;
                 end;
-                TrialBalanceCache.Modify;
+                TrialBalanceCache.Modify();
                 Index := Index + 1;
             until TrialBalanceCache.Next = 0
         else
             for Index := 1 to ArrayLen(DescriptionsArr) do begin
-                TrialBalanceCache.Init;
+                TrialBalanceCache.Init();
                 TrialBalanceCache."Entry No." := Index;
                 TrialBalanceCache.Description := DescriptionsArr[Index];
                 TrialBalanceCache."Period 1 Amount" := ValuesArr[Index, 1];
@@ -97,16 +97,16 @@ codeunit 1331 "Trial Balance Cache Mgt."
                     TrialBalanceCache."Period 2 Caption" := CopyStr(PeriodCaptionTxt[2], 1, MaxStrLen(TrialBalanceCache."Period 2 Caption"));
                     CaptionsSaved := true;
                 end;
-                TrialBalanceCache.Insert;
+                TrialBalanceCache.Insert();
             end;
 
         if TrialBalanceCacheInfo.Get then begin
             TrialBalanceCacheInfo."Last Modified Date/Time" := CurrentDateTime;
-            TrialBalanceCacheInfo.Modify;
+            TrialBalanceCacheInfo.Modify();
         end else begin
-            TrialBalanceCacheInfo.Init;
+            TrialBalanceCacheInfo.Init();
             TrialBalanceCacheInfo."Last Modified Date/Time" := CurrentDateTime;
-            TrialBalanceCacheInfo.Insert;
+            TrialBalanceCacheInfo.Insert();
         end
     end;
 

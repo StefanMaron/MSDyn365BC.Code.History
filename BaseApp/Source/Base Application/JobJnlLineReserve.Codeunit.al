@@ -14,28 +14,11 @@ codeunit 99000844 "Job Jnl. Line-Reserve"
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
         DeleteItemTracking: Boolean;
 
-    local procedure FilterReservFor(var FilterReservEntry: Record "Reservation Entry"; JobJnlLine: Record "Job Journal Line")
-    begin
-        FilterReservEntry.SetSourceFilter(
-          DATABASE::"Job Journal Line", JobJnlLine."Entry Type", JobJnlLine."Journal Template Name", JobJnlLine."Line No.", false);
-        FilterReservEntry.SetSourceFilter(JobJnlLine."Journal Batch Name", 0);
-    end;
-
     local procedure FindReservEntry(JobJnlLine: Record "Job Journal Line"; var ReservEntry: Record "Reservation Entry"): Boolean
     begin
-        ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, false);
-        FilterReservFor(ReservEntry, JobJnlLine);
+        ReservEntry.InitSortingAndFilters(false);
+        JobJnlLine.SetReservationFilters(ReservEntry);
         exit(ReservEntry.Find('+'));
-    end;
-
-    local procedure ReservEntryExist(JobJnlLine: Record "Job Journal Line"): Boolean
-    var
-        ReservEntry: Record "Reservation Entry";
-    begin
-        ReservEngineMgt.InitFilterAndSortingLookupFor(ReservEntry, false);
-        FilterReservFor(ReservEntry, JobJnlLine);
-        ReservEntry.ClearTrackingFilter;
-        exit(not ReservEntry.IsEmpty);
     end;
 
     procedure VerifyChange(var NewJobJnlLine: Record "Job Journal Line"; var OldJobJnlLine: Record "Job Journal Line")
@@ -120,11 +103,11 @@ codeunit 99000844 "Job Jnl. Line-Reserve"
                (not TempReservEntry.IsEmpty)
             then begin
                 if PointerChanged then begin
-                    ReservMgt.SetJobJnlLine(OldJobJnlLine);
+                    ReservMgt.SetReservSource(OldJobJnlLine);
                     ReservMgt.DeleteReservEntries(true, 0);
-                    ReservMgt.SetJobJnlLine(NewJobJnlLine);
+                    ReservMgt.SetReservSource(NewJobJnlLine);
                 end else begin
-                    ReservMgt.SetJobJnlLine(NewJobJnlLine);
+                    ReservMgt.SetReservSource(NewJobJnlLine);
                     ReservMgt.DeleteReservEntries(true, 0);
                 end;
                 ReservMgt.AutoTrack(NewJobJnlLine."Quantity (Base)");
@@ -143,7 +126,7 @@ codeunit 99000844 "Job Jnl. Line-Reserve"
             if "Line No." = 0 then
                 if not JobJnlLine.Get("Journal Template Name", "Journal Batch Name", "Line No.") then
                     exit;
-            ReservMgt.SetJobJnlLine(NewJobJnlLine);
+            ReservMgt.SetReservSource(NewJobJnlLine);
             if "Qty. per Unit of Measure" <> OldJobJnlLine."Qty. per Unit of Measure" then
                 ReservMgt.ModifyUnitOfMeasure;
             if "Quantity (Base)" * OldJobJnlLine."Quantity (Base)" < 0 then
@@ -171,10 +154,10 @@ codeunit 99000844 "Job Jnl. Line-Reserve"
     procedure DeleteLineConfirm(var JobJnlLine: Record "Job Journal Line"): Boolean
     begin
         with JobJnlLine do begin
-            if not ReservEntryExist(JobJnlLine) then
+            if not ReservEntryExist then
                 exit(true);
 
-            ReservMgt.SetJobJnlLine(JobJnlLine);
+            ReservMgt.SetReservSource(JobJnlLine);
             if ReservMgt.DeleteItemTrackingConfirm then
                 DeleteItemTracking := true;
         end;
@@ -186,7 +169,7 @@ codeunit 99000844 "Job Jnl. Line-Reserve"
     begin
         with JobJnlLine do
             if Type = Type::Item then begin
-                ReservMgt.SetJobJnlLine(JobJnlLine);
+                ReservMgt.SetReservSource(JobJnlLine);
                 if DeleteItemTracking then
                     ReservMgt.SetItemTrackingHandling(1); // Allow Deletion
                 ReservMgt.DeleteReservEntries(true, 0);
@@ -233,6 +216,32 @@ codeunit 99000844 "Job Jnl. Line-Reserve"
             until (ReservEngineMgt.NEXTRecord(OldReservEntry) = 0) or (TransferQty = 0);
 
         exit(TransferQty);
+    end;
+
+    local procedure MatchThisTable(TableID: Integer): Boolean
+    begin
+        exit(TableID = 210); // DATABASE::"Job Journal Line"
+    end;
+
+    local procedure GetSourceValue(ReservEntry: Record "Reservation Entry"; var SourceRecRef: RecordRef; ReturnOption: Option "Net Qty. (Base)","Gross Qty. (Base)"): Decimal
+    var
+        JobJnlLine: Record "Job Journal Line";
+    begin
+        JobJnlLine.Get(ReservEntry."Source ID", ReservEntry."Source Batch Name", ReservEntry."Source Ref. No.");
+        SourceRecRef.GetTable(JobJnlLine);
+        case ReturnOption of
+            ReturnOption::"Net Qty. (Base)":
+                exit(JobJnlLine."Quantity (Base)");
+            ReturnOption::"Gross Qty. (Base)":
+                exit(JobJnlLine."Quantity (Base)");
+        end;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reservation Management", 'OnGetSourceRecordValue', '', false, false)]
+    local procedure OnGetSourceRecordValue(var ReservEntry: Record "Reservation Entry"; ReturnOption: Option; var ReturnQty: Decimal; var SourceRecRef: RecordRef)
+    begin
+        if MatchThisTable(ReservEntry."Source Type") then
+            ReturnQty := GetSourceValue(ReservEntry, SourceRecRef, ReturnOption);
     end;
 
     [IntegrationEvent(false, false)]

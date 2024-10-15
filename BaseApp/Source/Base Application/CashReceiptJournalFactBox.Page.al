@@ -202,7 +202,7 @@ page 35516 "Cash Receipt Journal FactBox"
         PMTDiscount: Decimal;
         AcceptedPaymentTol: Decimal;
         Text001: Label 'Remaining after Payment';
-        Text002: Label '<Precision,2:2><Standard Format,0>';
+        Text002: Label '<Precision,2:2><Standard Format,0>', Locked = true;
         PaymentAmt: Decimal;
         PostingDate: Date;
         DueDate: Date;
@@ -271,9 +271,9 @@ page 35516 "Cash Receipt Journal FactBox"
         PmtDiscDate := 0D;
         CustPaymtTerm := '';
 
-        CustLedgEntry.Reset;
+        CustLedgEntry.Reset();
         CustLedgEntry.SetCurrentKey("Document No.");
-        Cust.Init;
+        Cust.Init();
 
         case true of
             "Applies-to ID" <> '':

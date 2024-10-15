@@ -7,11 +7,9 @@ table 5107 "Sales Header Archive"
 
     fields
     {
-        field(1; "Document Type"; Option)
+        field(1; "Document Type"; Enum "Sales Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = 'Quote,Order,Invoice,Credit Memo,Blanket Order,Return Order';
-            OptionMembers = Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order";
         }
         field(2; "Sell-to Customer No."; Code[20])
         {
@@ -218,11 +216,9 @@ table 5107 "Sales Header Archive"
         {
             Caption = 'On Hold';
         }
-        field(52; "Applies-to Doc. Type"; Option)
+        field(52; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(53; "Applies-to Doc. No."; Code[20])
         {
@@ -422,11 +418,9 @@ table 5107 "Sales Header Archive"
             Caption = 'Ship-to Country/Region Code';
             TableRelation = "Country/Region";
         }
-        field(94; "Bal. Account Type"; Option)
+        field(94; "Bal. Account Type"; enum "Payment Balance Account Type")
         {
             Caption = 'Bal. Account Type';
-            OptionCaption = 'G/L Account,Bank Account';
-            OptionMembers = "G/L Account","Bank Account";
         }
         field(97; "Exit Point"; Code[10])
         {
@@ -499,11 +493,9 @@ table 5107 "Sales Header Archive"
             Caption = 'VAT Bus. Posting Group';
             TableRelation = "VAT Business Posting Group";
         }
-        field(117; Reserve; Option)
+        field(117; Reserve; Enum "Reserve Method")
         {
             Caption = 'Reserve';
-            OptionCaption = 'Never,Optional,Always';
-            OptionMembers = Never,Optional,Always;
         }
         field(118; "Applies-to ID"; Code[50])
         {
@@ -878,13 +870,13 @@ table 5107 "Sales Header Archive"
                 CatalogItemMgt.DelNonStockSalesArch(SalesLineArchive);
             until SalesLineArchive.Next = 0;
         SalesLineArchive.SetRange(Nonstock);
-        SalesLineArchive.DeleteAll;
+        SalesLineArchive.DeleteAll();
 
         SalesCommentLineArch.SetRange("Document Type", "Document Type");
         SalesCommentLineArch.SetRange("No.", "No.");
         SalesCommentLineArch.SetRange("Doc. No. Occurrence", "Doc. No. Occurrence");
         SalesCommentLineArch.SetRange("Version No.", "Version No.");
-        SalesCommentLineArch.DeleteAll;
+        SalesCommentLineArch.DeleteAll();
 
         DeferralHeaderArchive.SetRange("Deferral Doc. Type", DeferralUtilities.GetSalesDeferralDocType);
         DeferralHeaderArchive.SetRange("Document Type", "Document Type");

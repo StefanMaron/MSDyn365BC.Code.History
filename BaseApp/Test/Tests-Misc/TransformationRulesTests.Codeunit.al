@@ -117,7 +117,7 @@ codeunit 134274 "Transformation Rules Tests"
     begin
         Iniatialize;
 
-        TransformationRule.Init;
+        TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::Substring);
         TransformationRule.Validate("Starting Text", '(');
         TransformationRule.Validate("Ending Text", ')');
@@ -138,7 +138,7 @@ codeunit 134274 "Transformation Rules Tests"
     begin
         Iniatialize;
 
-        TransformationRule.Init;
+        TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::Substring);
         TransformationRule.Validate("Starting Text", '1 British Pound = ');
         TransformationRule.Validate("Ending Text", ''' ''');
@@ -159,7 +159,7 @@ codeunit 134274 "Transformation Rules Tests"
     begin
         Iniatialize;
 
-        TransformationRule.Init;
+        TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::Substring);
         TransformationRule.Validate("Starting Text", '1 British Pound = ');
         TransformationRule.Validate(Length, 6);
@@ -180,7 +180,7 @@ codeunit 134274 "Transformation Rules Tests"
     begin
         Iniatialize;
 
-        TransformationRule.Init;
+        TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::Substring);
         TransformationRule.Validate("Start Position", 19);
         TransformationRule.Validate("Ending Text", ''' ''');
@@ -201,7 +201,7 @@ codeunit 134274 "Transformation Rules Tests"
     begin
         Iniatialize;
 
-        TransformationRule.Init;
+        TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::Substring);
         TransformationRule.Validate("Starting Text", '1 British Pound = ');
         TransformationRule.Validate("Ending Text", 'Non Existing VALUE');
@@ -222,7 +222,7 @@ codeunit 134274 "Transformation Rules Tests"
     begin
         Iniatialize;
 
-        TransformationRule.Init;
+        TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::Substring);
         TransformationRule.Validate("Ending Text", ''' = ''');
 
@@ -242,7 +242,7 @@ codeunit 134274 "Transformation Rules Tests"
     begin
         Iniatialize;
 
-        TransformationRule.Init;
+        TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::Substring);
         TransformationRule.Validate("Start Position", 19);
 
@@ -260,7 +260,7 @@ codeunit 134274 "Transformation Rules Tests"
     begin
         Iniatialize;
 
-        TransformationRule.Init;
+        TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::Substring);
         TransformationRule.Validate("Start Position", 19);
 
@@ -288,7 +288,7 @@ codeunit 134274 "Transformation Rules Tests"
     begin
         Iniatialize;
 
-        TransformationRule.Init;
+        TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::Substring);
         TransformationRule.Validate("Starting Text", 'dfadsfad');
         TransformationRule.Validate("Ending Text", ''' ''');
@@ -309,7 +309,7 @@ codeunit 134274 "Transformation Rules Tests"
     begin
         Iniatialize;
 
-        TransformationRule.Init;
+        TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::Substring);
         TransformationRule.Validate("Starting Text", '1 British Pound = ');
         TransformationRule.Validate("Ending Text", '''dfadfa''');
@@ -330,7 +330,7 @@ codeunit 134274 "Transformation Rules Tests"
     begin
         Iniatialize;
 
-        TransformationRule.Init;
+        TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::Substring);
         TransformationRule.Validate("Starting Text", '(');
         TransformationRule.Validate("Ending Text", ')');
@@ -351,7 +351,7 @@ codeunit 134274 "Transformation Rules Tests"
     begin
         Iniatialize;
 
-        TransformationRule.Init;
+        TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::Substring);
         TransformationRule.Validate("Starting Text", '(');
         TransformationRule.Validate("Ending Text", ')');
@@ -376,12 +376,12 @@ codeunit 134274 "Transformation Rules Tests"
     begin
         Iniatialize;
 
-        TransformationRule.Init;
+        TransformationRule.Init();
         TransformationRule.Validate(Code, REPLACEATxt);
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::Replace);
         TransformationRule.Validate("Find Value", 'a');
         TransformationRule.Validate("Replace Value", 'b');
-        TransformationRule.Insert;
+        TransformationRule.Insert();
 
         InputText := FindReplaceTxt;
         ResultText := TransformationRule.TransformText(InputText);
@@ -413,12 +413,12 @@ codeunit 134274 "Transformation Rules Tests"
     begin
         Iniatialize;
 
-        TransformationRule.Init;
+        TransformationRule.Init();
         TransformationRule.Validate(Code, REMOVE_CURR_SYMBOLSTxt);
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::"Regular Expression - Replace");
         TransformationRule.Validate("Find Value", '(\p{Sc}\s?)?(\d+\.?((?<=\.)\d+)?)(?(1)|\s?\p{Sc})?');
         TransformationRule.Validate("Replace Value", '$2');
-        TransformationRule.Insert;
+        TransformationRule.Insert();
 
         InputText := '$17.43  $2 16.33  0.98  0.43   43   12$  12$';
         ResultText := TransformationRule.TransformText(InputText);
@@ -439,13 +439,13 @@ codeunit 134274 "Transformation Rules Tests"
         Iniatialize;
 
         Rule2Name := 'Rule 2';
-        TransformationRule2.Init;
+        TransformationRule2.Init();
         TransformationRule2.Validate(Code, Rule2Name);
         TransformationRule2.Validate("Transformation Type", TransformationRule."Transformation Type"::Replace);
         TransformationRule2.Validate("Find Value", 'abc');
         TransformationRule2.Insert(true);
 
-        TransformationRule.Init;
+        TransformationRule.Init();
         TransformationRule.Validate(Code, 'Rule 1');
         TransformationRule.Validate(
           "Transformation Type", TransformationRule."Transformation Type"::"Remove Non-Alphanumeric Characters");
@@ -471,12 +471,12 @@ codeunit 134274 "Transformation Rules Tests"
         Iniatialize;
 
         Rule2Name := 'Second Rule';
-        TransformationRule2.Init;
+        TransformationRule2.Init();
         TransformationRule2.Validate(Code, Rule2Name);
         TransformationRule2.Validate("Transformation Type", TransformationRule."Transformation Type"::Uppercase);
         TransformationRule2.Insert(true);
 
-        TransformationRule.Init;
+        TransformationRule.Init();
         TransformationRule.Validate(Code, 'First Rule');
         TransformationRule.Validate(
           "Transformation Type", TransformationRule."Transformation Type"::"Remove Non-Alphanumeric Characters");
@@ -502,7 +502,7 @@ codeunit 134274 "Transformation Rules Tests"
     begin
         Iniatialize;
 
-        TransformationRule.Init;
+        TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::"Regular Expression - Match");
         TransformationRule.Validate("Find Value", 'abc(\d+)d');
 
@@ -522,7 +522,7 @@ codeunit 134274 "Transformation Rules Tests"
     begin
         Iniatialize;
 
-        TransformationRule.Init;
+        TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::"Regular Expression - Match");
         TransformationRule.Validate("Find Value", '\D+(?<digit>\d+)\D+(?<digit>\d+)?');
 
@@ -542,7 +542,7 @@ codeunit 134274 "Transformation Rules Tests"
     begin
         Iniatialize;
 
-        TransformationRule.Init;
+        TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::"Regular Expression - Match");
         TransformationRule.Validate("Find Value", '\D+(?<digit>\d+)\D+(?<digit>\d+)?');
 
@@ -669,7 +669,7 @@ codeunit 134274 "Transformation Rules Tests"
         Iniatialize;
 
         // [GIVEN] Transformation rule of "Date Formatting" type.
-        TransformationRule.Init;
+        TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::"Date Formatting");
         TransformationRule.Validate("Data Format", 'yyyyMMddHHmm');
 
@@ -699,7 +699,7 @@ codeunit 134274 "Transformation Rules Tests"
         Iniatialize;
 
         // [GIVEN] Transformation rule of "Date Formatting" type.
-        TransformationRule.Init;
+        TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::"Date Formatting");
         TransformationRule.Validate("Data Format", 'yyyyMMddHHmm');
 
@@ -729,7 +729,7 @@ codeunit 134274 "Transformation Rules Tests"
         Iniatialize;
 
         // [GIVEN] Transformation rule of "Date and Time Formatting" type.
-        TransformationRule.Init;
+        TransformationRule.Init();
         TransformationRule.Validate("Transformation Type", TransformationRule."Transformation Type"::"Date and Time Formatting");
         TransformationRule.Validate("Data Format", 'yyyyMMddHHmmss');
 
@@ -803,7 +803,7 @@ codeunit 134274 "Transformation Rules Tests"
 
         // [GIVEN] New record of "Transformation Rule" with Type = "Replace"
         InitTransformationRule(TransformationRule, TransformationRule."Transformation Type"::Replace);
-        TransformationRule.Insert;
+        TransformationRule.Insert();
 
         // [WHEN] Inserting record
         asserterror TransformationRule.Modify(true);
@@ -846,7 +846,7 @@ codeunit 134274 "Transformation Rules Tests"
 
         // [GIVEN] New record of "Transformation Rule" with Type = "Regular Expression - Replace"
         InitTransformationRule(TransformationRule, TransformationRule."Transformation Type"::"Regular Expression - Replace");
-        TransformationRule.Insert;
+        TransformationRule.Insert();
 
         // [WHEN] Inserting record
         asserterror TransformationRule.Modify(true);
@@ -889,7 +889,7 @@ codeunit 134274 "Transformation Rules Tests"
 
         // [GIVEN] New record of "Transformation Rule" with Type = "Regular Expression - Match"
         InitTransformationRule(TransformationRule, TransformationRule."Transformation Type"::"Regular Expression - Match");
-        TransformationRule.Insert;
+        TransformationRule.Insert();
 
         // [WHEN] Inserting record
         asserterror TransformationRule.Modify(true);
@@ -914,7 +914,7 @@ codeunit 134274 "Transformation Rules Tests"
         BindSubscription(TransformationRulesTests);
         // [GIVEN] New record of "Transformation Rule" with Type = Custom
         InitTransformationRule(TransformationRule, TransformationRule."Transformation Type"::Custom);
-        TransformationRule.Insert;
+        TransformationRule.Insert();
 
         // [WHEN] Data Format "XXX" is being specified
         DataFormat := LibraryUtility.GenerateRandomText(MaxStrLen(TransformationRule."Data Format"));
@@ -942,7 +942,7 @@ codeunit 134274 "Transformation Rules Tests"
         BindSubscription(TransformationRulesTests);
         // [GIVEN] New record of "Transformation Rule" with Type = Custom
         InitTransformationRule(TransformationRule, TransformationRule."Transformation Type"::Custom);
-        TransformationRule.Insert;
+        TransformationRule.Insert();
 
         // [WHEN] Data Format "XXX" is being specified on Transformation Rule Card page
         DataFormat := LibraryUtility.GenerateRandomText(MaxStrLen(TransformationRule."Data Format"));
@@ -960,7 +960,7 @@ codeunit 134274 "Transformation Rules Tests"
     var
         TransformationRule: Record "Transformation Rule";
     begin
-        TransformationRule.DeleteAll;
+        TransformationRule.DeleteAll();
         TransformationRule.CreateDefaultTransformations;
     end;
 
@@ -971,7 +971,7 @@ codeunit 134274 "Transformation Rules Tests"
 
     local procedure InitTransformationRule(var TransformationRule: Record "Transformation Rule"; TransformationType: Option)
     begin
-        TransformationRule.Init;
+        TransformationRule.Init();
         TransformationRule.Code := LibraryUtility.GenerateRandomCode(TransformationRule.FieldNo(Code), DATABASE::"Transformation Rule");
         TransformationRule."Transformation Type" := TransformationType;
     end;

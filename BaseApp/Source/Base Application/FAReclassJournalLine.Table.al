@@ -32,7 +32,7 @@ table 5624 "FA Reclass. Journal Line"
                 FA.TestField(Inactive, false);
                 Description := FA.Description;
                 if "Depreciation Book Code" = '' then begin
-                    FASetup.Get;
+                    FASetup.Get();
                     "Depreciation Book Code" := FASetup."Default Depr. Book";
                 end;
             end;
@@ -150,7 +150,7 @@ table 5624 "FA Reclass. Journal Line"
 
     trigger OnInsert()
     begin
-        LockTable;
+        LockTable();
         FAReclassJnlTempl.Get("Journal Template Name");
         FAReclassJnlBatch.Get("Journal Template Name", "Journal Batch Name");
     end;

@@ -93,7 +93,7 @@ codeunit 134761 "Test Custom Reports"
         Assert.IsFalse(CustomReportSelection.FindFirst, 'Vendor.OnDelete failed to remove CustomReportSelection');
 
         Clear(CustomReportSelection);
-        CustomReportLayout.DeleteAll;
+        CustomReportLayout.DeleteAll();
     end;
 
     [Test]
@@ -120,7 +120,7 @@ codeunit 134761 "Test Custom Reports"
         Assert.IsFalse(CustomReportSelection.FindFirst, 'Customer.OnDelete failed to remove CustomReportSelection');
 
         Clear(CustomReportSelection);
-        CustomReportLayout.DeleteAll;
+        CustomReportLayout.DeleteAll();
     end;
 
     [Test]
@@ -137,7 +137,7 @@ codeunit 134761 "Test Custom Reports"
 
         CreateCustomReportLayout(REPORT::"Standard Sales - Invoice", CustomReportLayout.Type::Word, 'Customer Report Customer 2');
         LibraryVariableStorage.Enqueue(CustomReportLayout.Code);
-        Commit;
+        Commit();
 
         CustomerCard.Trap;
         PAGE.Run(PAGE::"Customer Card", CustomerFullMod);
@@ -148,7 +148,7 @@ codeunit 134761 "Test Custom Reports"
         CustomerFullMod.SetRange("No.", CustomerFullMod."No.");
         CustomerFullMod.DeleteAll(true);
         Clear(CustomReportSelection);
-        CustomReportLayout.DeleteAll;
+        CustomReportLayout.DeleteAll();
     end;
 
     [Test]
@@ -582,9 +582,9 @@ codeunit 134761 "Test Custom Reports"
         CustomerLocal.Copy(CustomerFullMod);
         ErrorMessages.Trap;
         CustomerLocal.SetRecFilter;
-        asserterror RunStatementReportWithStandardSelection(CustomerLocal,CustomLayoutReporting,TemporaryPath,true,true);
+        asserterror RunStatementReportWithStandardSelection(CustomerLocal, CustomLayoutReporting, TemporaryPath, true, true);
 
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.First,TargetEmailErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, TargetEmailErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
     end;
 
@@ -892,7 +892,7 @@ codeunit 134761 "Test Custom Reports"
         // [WHEN] Lines with different Usage options are added to Customer Report Selection Page:
         // [WHEN] 1 Quote, 1 Invoice, 1 Order, 2 Credit Memo, 1 Customer Statement
         // [THEN] Customer Report Selection table contains all records entered with correct Usage values
-        CustomReportSelection.Reset;
+        CustomReportSelection.Reset();
         CustomReportSelection.SetRange("Source Type", DATABASE::Customer);
         CustomReportSelection.SetRange("Source No.", Customer."No.");
         CountReportSelectionEntriesByUsage(CustomReportSelection, CustomReportSelection.Usage::"S.Quote", 1);
@@ -920,7 +920,7 @@ codeunit 134761 "Test Custom Reports"
 
         // [WHEN] Lines with different Usage options are added to Customer Report Selection Page: Quote, Invoice and Credit Memo
         // [THEN] Customer Report Selection table contains all records entered with correct Usage values
-        CustomReportSelection.Reset;
+        CustomReportSelection.Reset();
         CustomReportSelection.SetRange("Source Type", DATABASE::Customer);
         CustomReportSelection.SetRange("Source No.", Customer."No.");
         CountReportSelectionEntriesByUsage(CustomReportSelection, CustomReportSelection.Usage::"S.Quote", 1);
@@ -1284,7 +1284,7 @@ codeunit 134761 "Test Custom Reports"
         CreateTwoCustomerLedgerEntries(Customer."No.", LineAmount, LibraryRandom.RandDec(99, 2));
 
         // [WHEN] Statement Report executed for "CUS" with BeginDate = 01/02/2017, EndDate = 22/02/2017, Aging Band by Due Date.
-        Commit;
+        Commit();
         SaveStatementAsXML(Customer, 0, CalcDate('<CD-1M>', GetDate), GetDate);
         LibraryReportDataset.LoadDataSetFile;
 
@@ -1319,7 +1319,7 @@ codeunit 134761 "Test Custom Reports"
         CreateTwoCustomerLedgerEntries(Customer."No.", LineAmount[1], LineAmount[2]);
 
         // [WHEN] Statement Report executed for "CUS" with BeginDate = 01/03/2017, EndDate = 22/03/2017, Aging Band by Due Date.
-        Commit;
+        Commit();
         SaveStatementAsXML(Customer, 0, CalcDate('<-CM+1M>', GetDate), CalcDate('<CM+1M>', GetDate));
         LibraryReportDataset.LoadDataSetFile;
 
@@ -1361,7 +1361,7 @@ codeunit 134761 "Test Custom Reports"
         CreateTwoCustomerLedgerEntries(Customer."No.", LineAmount[1], LineAmount[2]);
 
         // [WHEN] Statement Report executed for "CUS" with BeginDate = 01/02/2017, EndDate = 28/02/2017, Aging Band by Posting Date.
-        Commit;
+        Commit();
         SaveStatementAsXML(Customer, 1, CalcDate('<-CM>', GetDate), GetDate);
         LibraryReportDataset.LoadDataSetFile;
 
@@ -1395,7 +1395,7 @@ codeunit 134761 "Test Custom Reports"
         asserterror RunCustomerStatement(Customer, CustomLayoutReporting, TemporaryPath, false, true, WorkDate);
 
         // [THEN] An error has been thrown: "No data was returned for the report using the selected data filters."
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.First,NoOutputErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, NoOutputErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
 
         // Tear Down
@@ -1425,7 +1425,7 @@ codeunit 134761 "Test Custom Reports"
         asserterror RunCustomerStatement(Customer, CustomLayoutReporting, TemporaryPath, false, true, WorkDate);
 
         // [THEN] An error has been thrown: "No data was returned for the report using the selected data filters."
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.First,NoOutputErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, NoOutputErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
 
         // Tear Down
@@ -1509,8 +1509,8 @@ codeunit 134761 "Test Custom Reports"
         asserterror RunCustomerStatement(Customer, CustomLayoutReporting, TemporaryPath, false, true, 0D);
 
         // [THEN] An error has been thrown: "Start Date must have a value."
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.First,BlankStartDateErr);
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.Next,NoOutputErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, BlankStartDateErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.Next, NoOutputErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
 
         // Tear Down
@@ -1540,8 +1540,8 @@ codeunit 134761 "Test Custom Reports"
         asserterror RunCustomerStatement(Customer, CustomLayoutReporting, TemporaryPath, false, true, 0D);
 
         // [THEN] An error has been thrown: "Start Date must have a value."
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.First,BlankStartDateErr);
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.Next,NoOutputErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, BlankStartDateErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.Next, NoOutputErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
 
         // Tear Down
@@ -1573,9 +1573,9 @@ codeunit 134761 "Test Custom Reports"
         Customer.SetRecFilter;
         LibraryVariableStorage.Enqueue(WorkDate);
         ErrorMessages.Trap;
-        asserterror RunCustomerStatement(Customer,CustomLayoutReporting,TemporaryPath,false,true,0D);
+        asserterror RunCustomerStatement(Customer, CustomLayoutReporting, TemporaryPath, false, true, 0D);
 
-        AssertErrorMessageOnPage(ErrorMessages,ErrorMessages.First,BlankStartDateErr);
+        AssertErrorMessageOnPage(ErrorMessages, ErrorMessages.First, BlankStartDateErr);
         AssertNoMoreErrorMessageOnPage(ErrorMessages);
 
         // [THEN] There is no error (blanked "Start Date" doesn't stop packet reporting) and PDF file has been created
@@ -1596,7 +1596,7 @@ codeunit 134761 "Test Custom Reports"
         // [SCENARIO 270795] User is unable to insert a line into the "Custom Report Selection" table with a blank "Report ID".
         Initialize();
 
-        CustomReportSelection.Init;
+        CustomReportSelection.Init();
         CustomReportSelection.Validate("Report ID", 0);
         asserterror CustomReportSelection.Insert(true);
         Assert.ExpectedError(ReportIDMustHaveValueErr);
@@ -1612,7 +1612,7 @@ codeunit 134761 "Test Custom Reports"
         // [SCENARIO 270795] User is unable to change "Report ID" to blank in the "Custom Report Selection" table.
         Initialize();
 
-        CustomReportSelection.Init;
+        CustomReportSelection.Init();
         CustomReportSelection.Validate("Report ID", LibraryRandom.RandIntInRange(20, 30));
         CustomReportSelection.Insert(true);
 
@@ -1639,7 +1639,7 @@ codeunit 134761 "Test Custom Reports"
 
         LayoutCode := CustomReportLayout.InitBuiltInLayout(ReportId[1], CustomReportLayout.Type::Word);
 
-        CustomReportSelection.Init;
+        CustomReportSelection.Init();
         CustomReportSelection.Validate("Report ID", ReportId[1]);
         CustomReportSelection.Validate("Use for Email Body", true);
         CustomReportSelection.Validate("Custom Report Layout Code", LayoutCode);
@@ -1672,7 +1672,7 @@ codeunit 134761 "Test Custom Reports"
         Initialize();
 
         // [GIVEN] Sales Line with Type = <blank>
-        SalesLine.Init;
+        SalesLine.Init();
         SalesLine.Type := SalesLine.Type::" ";
 
         // [WHEN] SetSalesInvoiceLine in Format Document
@@ -1697,7 +1697,7 @@ codeunit 134761 "Test Custom Reports"
         Initialize();
 
         // [GIVEN] Sales Invoice Line with Type = <blank>
-        SalesInvoiceLine.Init;
+        SalesInvoiceLine.Init();
         SalesInvoiceLine.Type := SalesInvoiceLine.Type::" ";
 
         // [WHEN] SetSalesInvoiceLine in Format Document
@@ -1722,7 +1722,7 @@ codeunit 134761 "Test Custom Reports"
         Initialize();
 
         // [GIVEN] Sales Cr. Memo Line with Type = <blank>
-        SalesCrMemoLine.Init;
+        SalesCrMemoLine.Init();
         SalesCrMemoLine.Type := SalesCrMemoLine.Type::" ";
 
         // [WHEN] SetSalesCrMemoLine in Format Document
@@ -1745,7 +1745,7 @@ codeunit 134761 "Test Custom Reports"
         Initialize();
 
         // [GIVEN] Purchase Line with Type = <blank>
-        PurchaseLine.Init;
+        PurchaseLine.Init();
         PurchaseLine.Type := PurchaseLine.Type::" ";
 
         // [WHEN] SetPurchaseLine in Format Document
@@ -1870,6 +1870,9 @@ codeunit 134761 "Test Custom Reports"
 
         PurchaseLine.Type := PurchaseLine.Type::Item;
         Assert.IsTrue(PurchaseLine.HasTypeToFillMandatoryFields, '');
+
+        PurchaseLine.Type := PurchaseLine.Type::Resource;
+        Assert.IsTrue(PurchaseLine.HasTypeToFillMandatoryFields, '');
     end;
 
     [Test]
@@ -1896,6 +1899,9 @@ codeunit 134761 "Test Custom Reports"
         Assert.IsTrue(PurchInvLine.HasTypeToFillMandatoryFields, '');
 
         PurchInvLine.Type := PurchInvLine.Type::Item;
+        Assert.IsTrue(PurchInvLine.HasTypeToFillMandatoryFields, '');
+
+        PurchInvLine.Type := PurchInvLine.Type::Resource;
         Assert.IsTrue(PurchInvLine.HasTypeToFillMandatoryFields, '');
     end;
 
@@ -1924,6 +1930,9 @@ codeunit 134761 "Test Custom Reports"
 
         PurchCrMemoLine.Type := PurchCrMemoLine.Type::Item;
         Assert.IsTrue(PurchCrMemoLine.HasTypeToFillMandatoryFields, '');
+
+        PurchCrMemoLine.Type := PurchCrMemoLine.Type::Resource;
+        Assert.IsTrue(PurchCrMemoLine.HasTypeToFillMandatoryFields, '');
     end;
 
     [Test]
@@ -1949,7 +1958,7 @@ codeunit 134761 "Test Custom Reports"
         for i := 1 to ArrayLen(CustomerNo) do begin
             LibrarySales.CreateCustomer(Customer);
             TempCustomer := Customer;
-            TempCustomer.Insert;
+            TempCustomer.Insert();
             CustomerNo[i] := Customer."No.";
         end;
         CreateCustomReportLayout(REPORT::"Standard Statement", CustomReportLayout.Type::RDLC, 'Standard Statement');
@@ -1963,7 +1972,7 @@ codeunit 134761 "Test Custom Reports"
               DATABASE::Customer, TempCustomer."No.", CustomReportSelection.Usage::"C.Statement", REPORT::"Standard Statement",
               CustomReportLayout.Code);
         until TempCustomer.Next = 0;
-        TempCustomer.Reset;
+        TempCustomer.Reset();
         RecRef.GetTable(TempCustomer);
         FieldRef := RecRef.Field(Customer.FieldNo("No."));
 
@@ -2003,7 +2012,7 @@ codeunit 134761 "Test Custom Reports"
         for i := 1 to ArrayLen(VendorNo) do begin
             LibraryPurchase.CreateVendor(Vendor);
             TempVendor := Vendor;
-            TempVendor.Insert;
+            TempVendor.Insert();
             VendorNo[i] := Vendor."No.";
         end;
 
@@ -2018,7 +2027,7 @@ codeunit 134761 "Test Custom Reports"
               DATABASE::Vendor, TempVendor."No.", CustomReportSelection.Usage::"P.Invoice", REPORT::"Purchase - Invoice",
               CustomReportLayout.Code);
         until TempVendor.Next = 0;
-        TempVendor.Reset;
+        TempVendor.Reset();
         RecRef.GetTable(TempVendor);
         FieldRef := RecRef.Field(Vendor.FieldNo("No."));
 
@@ -2052,18 +2061,18 @@ codeunit 134761 "Test Custom Reports"
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibrarySales.SetInvoiceRounding(false);
 
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation."Allow Blank Payment Info." := true;
         CompanyInformation.Modify(false);
 
-        SMTPMailSetup.DeleteAll;
-        SMTPMailSetup.Init;
-        SMTPMailSetup.Insert;
+        SMTPMailSetup.DeleteAll();
+        SMTPMailSetup.Init();
+        SMTPMailSetup.Insert();
 
         // Clean out existing data and set up new
-        ReportLayoutSelection.DeleteAll;
-        CustomReportSelection.DeleteAll;
-        CustomReportLayout.DeleteAll;
+        ReportLayoutSelection.DeleteAll();
+        CustomReportSelection.DeleteAll();
+        CustomReportLayout.DeleteAll();
 
         InitReportSelections();
 
@@ -2101,7 +2110,7 @@ codeunit 134761 "Test Custom Reports"
           DATABASE::Customer, CustomerFullMod."No.", CustomReportSelection.Usage::"C.Statement", REPORT::"Standard Statement",
           CustomReportLayout.Code);
         CustomReportSelection."Send To Email" := 'test@contoso.com';
-        CustomReportSelection.Modify;
+        CustomReportSelection.Modify();
 
         Clear(CustomReportSelection);
         CreateCustomReportLayout(REPORT::Statement, CustomReportLayout.Type::RDLC, StatementModTxt);
@@ -2166,7 +2175,7 @@ codeunit 134761 "Test Custom Reports"
         LibrarySales.PostSalesDocument(CreditMemoSalesHeaderNoMod, false, true);
         LibrarySales.PostSalesDocument(CreditMemoSalesHeaderNoModEmail, false, true);
 
-        Commit;
+        Commit();
 
         IsInitialized := true;
     end;
@@ -2175,15 +2184,15 @@ codeunit 134761 "Test Custom Reports"
     var
         ReportSelections: Record "Report Selections";
     begin
-        ReportSelections.DeleteAll;
+        ReportSelections.DeleteAll();
         LibraryERM.SetupReportSelection(ReportSelectionsUsage::"C.Statement", REPORT::"Standard Statement");
 
-        ReportSelections.Init;
+        ReportSelections.Init();
         ReportSelections.Usage := ReportSelectionsUsage::"C.Statement";
         ReportSelections.Sequence := '2';
         ReportSelections."Report ID" := REPORT::Statement;
         ReportSelections."Report Caption" := 'Statement';
-        ReportSelections.Insert;
+        ReportSelections.Insert();
     end;
 
     local procedure AddNextCustomerReportSelection(var CustomerReportSelections: TestPage "Customer Report Selections"; Usage: Option; ReportId: Integer)
@@ -2202,12 +2211,12 @@ codeunit 134761 "Test Custom Reports"
 
     local procedure CreateCustomReportLayout(ReportID: Integer; LayoutType: Option RDLC,Word; Description: Text[80])
     begin
-        CustomReportLayout.Init;
+        CustomReportLayout.Init();
         CustomReportLayout.InitBuiltInLayout(ReportID, LayoutType);
         CustomReportLayout.SetFilter(Code, StrSubstNo('%1-*', ReportID));
         CustomReportLayout.FindLast;
         CustomReportLayout.Description := Description;
-        CustomReportLayout.Modify;
+        CustomReportLayout.Modify();
     end;
 
     local procedure CreateSalesRecord(var SalesHeader: Record "Sales Header"; Type: Integer; Customer: Record Customer)
@@ -2322,14 +2331,14 @@ codeunit 134761 "Test Custom Reports"
 
     local procedure AssignCustomLayoutToCustomer(SourceType: Integer; SourceNo: Code[20]; Usage: Option; ReportID: Integer; CustomReportLayoutCode: Code[20])
     begin
-        CustomReportSelection.Init;
+        CustomReportSelection.Init();
         CustomReportSelection."Source Type" := SourceType;
         CustomReportSelection."Source No." := SourceNo;
         CustomReportSelection.Usage := Usage;
         CustomReportSelection."Report ID" := ReportID;
         CustomReportSelection."Custom Report Layout Code" := CustomReportLayoutCode;
-        CustomReportSelection.Insert;
-        Commit;
+        CustomReportSelection.Insert();
+        Commit();
     end;
 
     local procedure SetStandardStatementSelection()
@@ -2341,7 +2350,7 @@ codeunit 134761 "Test Custom Reports"
 
         ReportSelections.Get(ReportSelectionsUsage::Reminder, '1');
         ReportSelections.Rename(ReportSelectionsUsage::"C.Statement", '1');
-        Commit;
+        Commit();
     end;
 
     local procedure SetStatementSelection()
@@ -2353,7 +2362,7 @@ codeunit 134761 "Test Custom Reports"
 
         ReportSelections.Get(ReportSelectionsUsage::Reminder, '2');
         ReportSelections.Rename(ReportSelectionsUsage::"C.Statement", '2');
-        Commit;
+        Commit();
     end;
 
     local procedure SetAllSelectionUsages(ReportSelectionUsage: Integer)
@@ -2451,7 +2460,7 @@ codeunit 134761 "Test Custom Reports"
 
         // Customer table is still active, so we need to commit before running the statement report to allow request
         // page handlers to work as expected.
-        Commit;
+        Commit();
         LibraryVariableStorage.Enqueue(StartDate);
         RunCustStatement(CustomLayoutReporting, Customer, UseSameIterator);
     end;
@@ -2507,9 +2516,9 @@ codeunit 134761 "Test Custom Reports"
         exit(TempReportSelections."Report ID");
     end;
 
-    local procedure AssertErrorMessageOnPage(var ErrorMessages: TestPage "Error Messages";HasRecord: Boolean;ExpectedErrorMessage: Text)
+    local procedure AssertErrorMessageOnPage(var ErrorMessages: TestPage "Error Messages"; HasRecord: Boolean; ExpectedErrorMessage: Text)
     begin
-        Assert.IsTrue(HasRecord,'Error Messages page does not have record');
+        Assert.IsTrue(HasRecord, 'Error Messages page does not have record');
         Assert.ExpectedMessage(ExpectedErrorMessage, ErrorMessages.Description.Value);
     end;
 

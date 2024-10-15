@@ -87,7 +87,7 @@ report 11008 "Export VIES Report"
 
     trigger OnInitReport()
     begin
-        VATReportSetup.Get;
+        VATReportSetup.Get();
     end;
 
     var
@@ -106,12 +106,12 @@ report 11008 "Export VIES Report"
     [Scope('OnPrem')]
     procedure GetBuffer(var TempDataExportBuffer2: Record "Data Export Buffer" temporary)
     begin
-        TempDataExportBuffer2.DeleteAll;
-        TempDataExportBuffer2.Reset;
+        TempDataExportBuffer2.DeleteAll();
+        TempDataExportBuffer2.Reset();
         if TempDataExportBuffer.FindSet then
             repeat
                 TempDataExportBuffer2 := TempDataExportBuffer;
-                TempDataExportBuffer2.Insert;
+                TempDataExportBuffer2.Insert();
             until TempDataExportBuffer.Next = 0;
     end;
 
@@ -128,7 +128,7 @@ report 11008 "Export VIES Report"
           PadStr(VATReportHeader."Post Code", 5, ' ') +
           PadStr(VATReportHeader.City, 25, ' ') +
           PadStr('', 5);
-        TempDataExportBuffer.Insert;
+        TempDataExportBuffer.Insert();
         NextLineNo := NextLineNo + 1;
     end;
 
@@ -150,7 +150,7 @@ report 11008 "Export VIES Report"
           GetNotice(VATReportHeader) +
           GetRevocation(VATReportHeader) +
           PadStr('', 71);
-        TempDataExportBuffer.Insert;
+        TempDataExportBuffer.Insert();
         NextLineNo := NextLineNo + 1;
     end;
 
@@ -169,7 +169,7 @@ report 11008 "Export VIES Report"
             GetZeroBaseNewLineCount(VATReportHeader."No.") +
             GetCancellationLineCountCorrection(VATReportHeader."No."), 5) +
           PadStr('', 85);
-        TempDataExportBuffer.Insert;
+        TempDataExportBuffer.Insert();
         NextLineNo := NextLineNo + 1;
     end;
 

@@ -8,6 +8,7 @@ codeunit 44 ReportManagement
 
     var
         NotSupportedErr: Label 'The value is not supported.';
+        NoWritePermissionsErr: Label 'Unable to set the default printer. You need the Write permission for the Printer Selection table.';
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reporting Triggers", 'GetPrinterName', '', false, false)]
     local procedure GetPrinterName(ReportID: Integer; var PrinterName: Text[250])
@@ -24,6 +25,41 @@ codeunit 44 ReportManagement
         PrinterName := PrinterSelection."Printer Name";
 
         OnAfterGetPrinterName(ReportID, PrinterName, PrinterSelection);
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Printer Setup", 'OnSetAsDefaultPrinter', '', false, false)]
+    local procedure OnSetAsDefaultPrinterForCurrentUser(PrinterID: Text; UserID: Text; var IsHandled: Boolean)
+    var
+        PrinterSelection: Record "Printer Selection";
+    begin
+        if IsHandled then
+            exit;
+
+        Clear(PrinterSelection);
+        if not PrinterSelection.WritePermission then
+            Error(NoWritePermissionsErr);
+
+        if PrinterSelection.Get(UserID, 0) then begin
+            PrinterSelection."Printer Name" := CopyStr(PrinterID, 1, MaxStrLen((PrinterSelection."Printer Name")));
+            PrinterSelection.Modify(true);
+        end else begin
+            PrinterSelection.Validate("User ID", UserID);
+            PrinterSelection.Validate("Report ID", 0);
+            PrinterSelection."Printer Name" := CopyStr(PrinterID, 1, MaxStrLen((PrinterSelection."Printer Name")));
+            PrinterSelection.Insert(true);
+        end;
+
+        IsHandled := true;
+    end;
+
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Printer Setup", 'GetPrinterSelectionsPage', '', false, false)]
+    procedure GetPrinterSelectionsPage(var PageID: Integer; var IsHandled: Boolean)
+    begin
+        if IsHandled then
+            exit;
+        PageID := Page::"Printer Selections";
+        IsHandled := true;
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Reporting Triggers", 'GetPaperTrayForReport', '', false, false)]

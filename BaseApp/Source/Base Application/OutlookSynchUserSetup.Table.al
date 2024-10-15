@@ -74,7 +74,7 @@ table 5305 "Outlook Synch. User Setup"
 
                 CalcFields("No. of Elements");
                 if "No. of Elements" <> 0 then begin
-                    OSynchSetupDetail.Reset;
+                    OSynchSetupDetail.Reset();
                     OSynchSetupDetail.SetRange("User ID", "User ID");
                     OSynchSetupDetail.SetRange("Synch. Entity Code", "Synch. Entity Code");
                     if OSynchSetupDetail.Find('-') then
@@ -88,7 +88,7 @@ table 5305 "Outlook Synch. User Setup"
                         until OSynchSetupDetail.Next = 0;
                 end;
 
-                OSynchDependency.Reset;
+                OSynchDependency.Reset();
                 OSynchDependency.SetRange("Depend. Synch. Entity Code", "Synch. Entity Code");
                 if OSynchDependency.Find('-') then
                     repeat
@@ -153,14 +153,14 @@ table 5305 "Outlook Synch. User Setup"
         if not CheckSetupDetail(Rec) then
             Error('');
 
-        OSynchSetupDetail.Reset;
+        OSynchSetupDetail.Reset();
         OSynchSetupDetail.SetRange("User ID", "User ID");
         OSynchSetupDetail.SetRange("Synch. Entity Code", "Synch. Entity Code");
-        OSynchSetupDetail.DeleteAll;
+        OSynchSetupDetail.DeleteAll();
 
-        OSynchFilter.Reset;
+        OSynchFilter.Reset();
         OSynchFilter.SetRange("Record GUID", "Record GUID");
-        OSynchFilter.DeleteAll;
+        OSynchFilter.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -181,14 +181,14 @@ table 5305 "Outlook Synch. User Setup"
         "Synch. Direction" := "Synch. Direction"::Bidirectional;
         "Last Synch. Time" := 0DT;
 
-        OSynchSetupDetail.Reset;
+        OSynchSetupDetail.Reset();
         OSynchSetupDetail.SetRange("User ID", "User ID");
         OSynchSetupDetail.SetRange("Synch. Entity Code", xRec."Synch. Entity Code");
-        OSynchSetupDetail.DeleteAll;
+        OSynchSetupDetail.DeleteAll();
 
-        OSynchFilter.Reset;
+        OSynchFilter.Reset();
         OSynchFilter.SetRange("Record GUID", "Record GUID");
-        OSynchFilter.DeleteAll;
+        OSynchFilter.DeleteAll();
     end;
 
     var
@@ -205,7 +205,7 @@ table 5305 "Outlook Synch. User Setup"
     var
         OSynchDependency: Record "Outlook Synch. Dependency";
     begin
-        OSynchSetupDetail.Reset;
+        OSynchSetupDetail.Reset();
         OSynchSetupDetail.SetRange("User ID", OSynchUserSetup1."User ID");
         if OSynchSetupDetail.Find('-') then
             repeat
@@ -220,7 +220,7 @@ table 5305 "Outlook Synch. User Setup"
         OSynchSetupDetail.MarkedOnly(true);
         if OSynchSetupDetail.Count > 0 then begin
             if Confirm(Text002, false, OSynchUserSetup1."Synch. Entity Code") then begin
-                OSynchSetupDetail.DeleteAll;
+                OSynchSetupDetail.DeleteAll();
                 exit(true);
             end;
             exit(false);

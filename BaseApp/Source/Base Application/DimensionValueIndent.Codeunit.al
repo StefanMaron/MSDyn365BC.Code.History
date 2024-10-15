@@ -38,7 +38,7 @@ codeunit 409 "Dimension Value-Indent"
     begin
         Window.Open(Text004);
 
-        NoOfDimVals := DimVal.Count;
+        NoOfDimVals := DimVal.Count();
         if NoOfDimVals = 0 then
             NoOfDimVals := 1;
         with DimVal do

@@ -13,8 +13,8 @@ codeunit 1204 "Map Data Exch. To RapidStart"
     var
         DataExchLineDef: Record "Data Exch. Line Def";
     begin
-        TempDataExchRapidStartBuffer.Reset;
-        TempDataExchRapidStartBuffer.DeleteAll;
+        TempDataExchRapidStartBuffer.Reset();
+        TempDataExchRapidStartBuffer.DeleteAll();
 
         DataExchLineDef.SetRange("Data Exch. Def Code", DataExch."Data Exch. Def Code");
         DataExchLineDef.SetRange("Parent Code", '');
@@ -77,12 +77,12 @@ codeunit 1204 "Map Data Exch. To RapidStart"
 
         // Initialize new record
         Clear(NewConfigPackageRecord);
-        NewConfigPackageRecord.Init;
+        NewConfigPackageRecord.Init();
         NewConfigPackageRecord.Validate("Package Code", TargetRapidstartPackageCode);
         NewConfigPackageRecord.Validate("Table ID", DataExchFieldMapping."Target Table ID");
 
         // Get last used No.
-        PreviousConfigPackageRecord.Init;
+        PreviousConfigPackageRecord.Init();
         PreviousConfigPackageRecord.SetRange("Table ID", DataExchFieldMapping."Target Table ID");
         PreviousConfigPackageRecord.SetRange("Package Code", TargetRapidstartPackageCode);
         if PreviousConfigPackageRecord.FindLast then
@@ -96,13 +96,13 @@ codeunit 1204 "Map Data Exch. To RapidStart"
             NewConfigPackageRecord.Validate("Parent Record No.", TempDataExchRapidStartBuffer."RapidStart No.");
         end;
 
-        NewConfigPackageRecord.Insert;
+        NewConfigPackageRecord.Insert();
 
         // Update buffer with new line
-        TempDataExchRapidStartBuffer.Init;
+        TempDataExchRapidStartBuffer.Init();
         TempDataExchRapidStartBuffer."Node ID" := DataExchField."Node ID";
         TempDataExchRapidStartBuffer."RapidStart No." := NewConfigPackageRecord."No.";
-        TempDataExchRapidStartBuffer.Insert;
+        TempDataExchRapidStartBuffer.Insert();
     end;
 
     local procedure InsertDataValues(DataExchField: Record "Data Exch. Field"; DataExchLineDef: Record "Data Exch. Line Def"; TargetRapidstartPackageCode: Code[20]; ConfigPackageRecord: Record "Config. Package Record")
@@ -116,7 +116,7 @@ codeunit 1204 "Map Data Exch. To RapidStart"
         DataExchFieldMapping.Get(
           DataExchLineDef."Data Exch. Def Code", DataExchLineDef.Code, DATABASE::"Config. Package Data", DataExchField."Column No.");
 
-        ConfigPackageData.Init;
+        ConfigPackageData.Init();
         ConfigPackageData.Validate("Package Code", TargetRapidstartPackageCode);
         ConfigPackageData.Validate("Table ID", DataExchFieldMapping."Target Table ID");
         ConfigPackageData.Validate("No.", ConfigPackageRecord."No.");

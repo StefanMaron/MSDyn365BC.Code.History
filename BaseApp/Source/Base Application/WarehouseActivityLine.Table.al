@@ -170,7 +170,8 @@ table 5767 "Warehouse Activity Line"
             trigger OnValidate()
             begin
                 Validate("Qty. Outstanding", (Quantity - "Qty. Handled"));
-                "Qty. (Base)" := UOMMgt.CalcBaseQty(Quantity, "Qty. per Unit of Measure");
+                "Qty. (Base)" :=
+                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", Quantity, "Qty. per Unit of Measure");
             end;
         }
         field(21; "Qty. (Base)"; Decimal)
@@ -193,7 +194,8 @@ table 5767 "Warehouse Activity Line"
 
             trigger OnValidate()
             begin
-                "Qty. Outstanding (Base)" := UOMMgt.CalcBaseQty("Qty. Outstanding", "Qty. per Unit of Measure");
+                "Qty. Outstanding (Base)" :=
+                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. Outstanding", "Qty. per Unit of Measure");
                 Validate("Qty. to Handle", "Qty. Outstanding");
             end;
         }
@@ -240,7 +242,8 @@ table 5767 "Warehouse Activity Line"
                         CheckIncreaseCapacity(true);
 
                 if not UseBaseQty then begin
-                    "Qty. to Handle (Base)" := UOMMgt.CalcBaseQty("Qty. to Handle", "Qty. per Unit of Measure");
+                    "Qty. to Handle (Base)" :=
+                        UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. to Handle", "Qty. per Unit of Measure");
                     if "Qty. to Handle (Base)" > "Qty. Outstanding (Base)" then // rounding error- qty same, not base qty
                         "Qty. to Handle (Base)" := "Qty. Outstanding (Base)";
                 end;
@@ -280,7 +283,8 @@ table 5767 "Warehouse Activity Line"
 
             trigger OnValidate()
             begin
-                "Qty. Handled (Base)" := UOMMgt.CalcBaseQty("Qty. Handled", "Qty. per Unit of Measure");
+                "Qty. Handled (Base)" :=
+                    UOMMgt.CalcBaseQty("Item No.", "Variant Code", "Unit of Measure Code", "Qty. Handled", "Qty. per Unit of Measure");
             end;
         }
         field(29; "Qty. Handled (Base)"; Decimal)
@@ -289,24 +293,20 @@ table 5767 "Warehouse Activity Line"
             DecimalPlaces = 0 : 5;
             Editable = false;
         }
-        field(31; "Shipping Advice"; Option)
+        field(31; "Shipping Advice"; Enum "Sales Header Shipping Advice")
         {
             Caption = 'Shipping Advice';
             Editable = false;
             FieldClass = Normal;
-            OptionCaption = 'Partial,Complete';
-            OptionMembers = Partial,Complete;
         }
         field(34; "Due Date"; Date)
         {
             Caption = 'Due Date';
         }
-        field(39; "Destination Type"; Option)
+        field(39; "Destination Type"; enum "Warehouse Destination Type")
         {
             Caption = 'Destination Type';
             Editable = false;
-            OptionCaption = ' ,Customer,Vendor,Location,Item,Family,Sales Order';
-            OptionMembers = " ",Customer,Vendor,Location,Item,Family,"Sales Order";
         }
         field(40; "Destination No."; Code[20])
         {
@@ -367,9 +367,11 @@ table 5767 "Warehouse Activity Line"
             end;
 
             trigger OnValidate()
+            var
+                WhseItemTrackingSetup: Record "Item Tracking Setup";
             begin
                 if "Serial No." <> '' then begin
-                    ItemTrackingMgt.CheckWhseItemTrkgSetup("Item No.", SNRequired, LNRequired, true);
+                    ItemTrackingMgt.CheckWhseItemTrkgSetup("Item No.");
                     TestField("Qty. per Unit of Measure", 1);
 
                     if "Activity Type" in ["Activity Type"::Pick, "Activity Type"::"Invt. Pick"] then
@@ -377,7 +379,8 @@ table 5767 "Warehouse Activity Line"
 
                     CheckSNSpecificationExists;
 
-                    if SNRequired and LNRequired then
+                    ItemTrackingMgt.GetWhseItemTrkgSetup("Item No.", WhseItemTrackingSetup);
+                    if WhseItemTrackingSetup."Serial No. Required" and WhseItemTrackingSetup."Lot No. Required" then
                         FindLotNoBySerialNo;
                 end;
 
@@ -400,7 +403,7 @@ table 5767 "Warehouse Activity Line"
             trigger OnValidate()
             begin
                 if "Lot No." <> '' then begin
-                    ItemTrackingMgt.CheckWhseItemTrkgSetup("Item No.", SNRequired, LNRequired, true);
+                    ItemTrackingMgt.CheckWhseItemTrkgSetup("Item No.");
 
                     if "Activity Type" in ["Activity Type"::Pick, "Activity Type"::"Invt. Pick"] then
                         CheckReservedItemTrkg(1, "Lot No.");
@@ -472,7 +475,8 @@ table 5767 "Warehouse Activity Line"
                 BinCode: Code[20];
             begin
                 if "Action Type" = "Action Type"::Take then
-                    BinCode := WMSMgt.BinContentLookUp("Location Code", "Item No.", "Variant Code", "Zone Code", "Lot No.", "Serial No.", "Bin Code")
+                    BinCode :=
+                        WMSMgt.BinContentLookUp("Location Code", "Item No.", "Variant Code", "Zone Code", "Lot No.", "Serial No.", "Bin Code")
                 else
                     BinCode := WMSMgt.BinLookUp("Location Code", "Item No.", "Variant Code", "Zone Code");
 
@@ -824,8 +828,6 @@ table 5767 "Warehouse Activity Line"
         Text011: Label 'You cannot enter the %1 of the %2 as %3.';
         Text012: Label 'The %1 %2 exceeds the quantity available to pick %3 of the %4.\Do you still want to enter this %5?';
         Text013: Label 'All related Warehouse Activity Lines are deleted.';
-        SNRequired: Boolean;
-        LNRequired: Boolean;
         Text014: Label '%1 %2 has already been reserved for another document.';
         Text015: Label 'The total available quantity has already been applied.';
         Text017: Label '%1 %2 is not available in inventory, it has already been reserved for another document, or the quantity available is lower than the quantity to handle specified on the line.';
@@ -937,7 +939,7 @@ table 5767 "Warehouse Activity Line"
             if WhseActivLine2.Find('-') then
                 repeat
                     OnBeforeDeleteWhseActivLine2(WhseActivLine2, CalledFromHeader);
-                    WhseActivLine2.Delete; // to ensure correct item tracking update
+                    WhseActivLine2.Delete(); // to ensure correct item tracking update
                     WhseActivLine2.DeleteBinContent(WhseActivLine2."Action Type"::Place);
                     UpdateRelatedItemTrkg(WhseActivLine2);
                 until WhseActivLine2.Next = 0;
@@ -1158,8 +1160,8 @@ table 5767 "Warehouse Activity Line"
             LineSpacing := 5000;
         end;
 
-        NewWhseActivLine.Reset;
-        NewWhseActivLine.Init;
+        NewWhseActivLine.Reset();
+        NewWhseActivLine.Init();
         NewWhseActivLine := WhseActivLine;
         NewWhseActivLine."Line No." := NewWhseActivLine."Line No." + LineSpacing;
         NewWhseActivLine.Quantity :=
@@ -1189,7 +1191,7 @@ table 5767 "Warehouse Activity Line"
             end;
         end;
         OnBeforeInsertNewWhseActivLine(NewWhseActivLine, WhseActivLine);
-        NewWhseActivLine.Insert;
+        NewWhseActivLine.Insert();
 
         WhseActivLine.Quantity := WhseActivLine."Qty. to Handle" + WhseActivLine."Qty. Handled";
         WhseActivLine."Qty. (Base)" :=
@@ -1201,7 +1203,7 @@ table 5767 "Warehouse Activity Line"
               WhseActivLine."Item No.", WhseActivLine."Unit of Measure Code",
               WhseActivLine."Qty. to Handle", WhseActivLine.Cubage, WhseActivLine.Weight);
         OnBeforeModifyOldWhseActivLine(WhseActivLine);
-        WhseActivLine.Modify;
+        WhseActivLine.Modify();
 
         OnAfterSplitLines(WhseActivLine, NewWhseActivLine);
     end;
@@ -1218,8 +1220,7 @@ table 5767 "Warehouse Activity Line"
         WhseActivLine.SetRange("Whse. Document Type", "Whse. Document Type");
         WhseActivLine.SetRange("Whse. Document No.", "Whse. Document No.");
         WhseActivLine.SetRange("Whse. Document Line No.", "Whse. Document Line No.");
-        WhseActivLine.SetRange("Bin Code", "Bin Code");
-        WhseActivLine.SetRange("Lot No.", "Lot No.");
+        WhseActivLine.SetTrackingFilterFromWhseActivityLine(Rec);
         if "Original Breakbulk" then
             WhseActivLine.SetRange("Original Breakbulk", true)
         else
@@ -1231,7 +1232,7 @@ table 5767 "Warehouse Activity Line"
             WMSMgt.CalcCubageAndWeight(
               WhseActivLine."Item No.", WhseActivLine."Unit of Measure Code",
               WhseActivLine."Qty. to Handle", WhseActivLine.Cubage, WhseActivLine.Weight);
-            WhseActivLine.Modify;
+            WhseActivLine.Modify();
 
             WhseActivLine.SetRange("Action Type", WhseActivLine."Action Type"::Take);
             if "Original Breakbulk" then begin
@@ -1247,7 +1248,7 @@ table 5767 "Warehouse Activity Line"
                 WMSMgt.CalcCubageAndWeight(
                   WhseActivLine."Item No.", WhseActivLine."Unit of Measure Code",
                   WhseActivLine."Qty. to Handle", WhseActivLine.Cubage, WhseActivLine.Weight);
-                WhseActivLine.Modify;
+                WhseActivLine.Modify();
             end;
         end;
     end;
@@ -1384,8 +1385,8 @@ table 5767 "Warehouse Activity Line"
         else
             LineSpacing := 10000;
 
-        NewWhseActivLine.Reset;
-        NewWhseActivLine.Init;
+        NewWhseActivLine.Reset();
+        NewWhseActivLine.Init();
         NewWhseActivLine := WhseActivLine2;
         NewWhseActivLine."Line No." := NewWhseActivLine."Line No." + LineSpacing;
         GetLocation("Location Code");
@@ -1396,7 +1397,7 @@ table 5767 "Warehouse Activity Line"
         NewWhseActivLine."Action Type" := ActType;
         NewWhseActivLine.Validate("Qty. Handled", 0);
         OnCreateNewUOMLineOnBeforeNewWhseActivLineInsert(NewWhseActivLine, WhseActivLine);
-        NewWhseActivLine.Insert;
+        NewWhseActivLine.Insert();
 
         WhseActivLine."Qty. Outstanding" :=
           WhseActivLine."Qty. Outstanding" - WhseActivLine."Qty. to Handle";
@@ -1411,7 +1412,7 @@ table 5767 "Warehouse Activity Line"
             WMSMgt.CalcCubageAndWeight(
               WhseActivLine."Item No.", WhseActivLine."Unit of Measure Code",
               WhseActivLine."Qty. to Handle", WhseActivLine.Cubage, WhseActivLine.Weight);
-        WhseActivLine.Modify;
+        WhseActivLine.Modify();
     end;
 
     procedure UpdateRelatedItemTrkg(WhseActivLine: Record "Warehouse Activity Line")
@@ -1495,7 +1496,7 @@ table 5767 "Warehouse Activity Line"
                             WhseItemTrkgLine."Quantity (Base)" := WhseItemTrkgLine."Quantity Handled (Base)";
                             WhseItemTrkgLine."Qty. to Handle (Base)" := 0;
                             WhseItemTrkgLine."Qty. to Handle" := 0;
-                            WhseItemTrkgLine.Modify;
+                            WhseItemTrkgLine.Modify();
                         end
                     else
                         if (WhseActivLine."Activity Type" = WhseActivLine."Activity Type"::"Invt. Movement") and
@@ -1503,12 +1504,12 @@ table 5767 "Warehouse Activity Line"
                         then
                             WhseItemTrkgLine.Delete
                         else
-                            WhseItemTrkgLine.Modify;
+                            WhseItemTrkgLine.Modify();
                 until WhseItemTrkgLine.Next = 0;
         end;
     end;
 
-    procedure LookUpTrackingSummary(var WhseActivLine: Record "Warehouse Activity Line"; SearchForSupply: Boolean; SignFactor: Integer; TrackingType: Option SerialNo,LotNo)
+    procedure LookUpTrackingSummary(var WhseActivLine: Record "Warehouse Activity Line"; SearchForSupply: Boolean; SignFactor: Integer; TrackingType: Enum "Item Tracking Type")
     var
         TempTrackingSpecification: Record "Tracking Specification" temporary;
     begin
@@ -1533,14 +1534,14 @@ table 5767 "Warehouse Activity Line"
             OnLookUpTrackingSummaryOnAfterAssistEditTrackingNo(WhseActivLine, TempTrackingSpecification, TrackingType);
 
             case TrackingType of
-                TrackingType::SerialNo:
+                TrackingType::"Serial No.":
                     if TempTrackingSpecification."Serial No." <> '' then begin
                         Validate("Serial No.", TempTrackingSpecification."Serial No.");
                         Validate("Lot No.", TempTrackingSpecification."Lot No.");
                         Validate("Expiration Date", TempTrackingSpecification."Expiration Date");
                         Modify;
                     end;
-                TrackingType::LotNo:
+                TrackingType::"Lot No.":
                     if TempTrackingSpecification."Lot No." <> '' then begin
                         Validate("Lot No.", TempTrackingSpecification."Lot No.");
                         Validate("Expiration Date", TempTrackingSpecification."Expiration Date");
@@ -1552,7 +1553,7 @@ table 5767 "Warehouse Activity Line"
         OnAfterLookupTrackingSummary(WhseActivLine, TempTrackingSpecification, TrackingType);
     end;
 
-    procedure CheckReservedItemTrkg(CheckType: Option "Serial No.","Lot No."; ItemTrkgCode: Code[50])
+    procedure CheckReservedItemTrkg(CheckType: Enum "Item Tracking Type"; ItemTrkgCode: Code[50])
     var
         Item: Record Item;
         ReservEntry: Record "Reservation Entry";
@@ -1649,7 +1650,7 @@ table 5767 "Warehouse Activity Line"
                    (BinContent."Positive Adjmt. Qty. (Base)" = 0) and
                    (BinContent."Put-away Quantity (Base)" - "Qty. Outstanding (Base)" <= 0)
                 then
-                    BinContent.Delete;
+                    BinContent.Delete();
             end;
     end;
 
@@ -1668,7 +1669,7 @@ table 5767 "Warehouse Activity Line"
                 TempTrackingSpecification."Warranty Date" := "Warranty Date";
                 TempTrackingSpecification."Expiration Date" := "Expiration Date";
                 TempTrackingSpecification.Correction := true;
-                TempTrackingSpecification.Insert;
+                TempTrackingSpecification.Insert();
             end;
             ItemTrackingMgt.SetPick("Activity Type" = "Activity Type"::Pick);
             ItemTrackingMgt.SynchronizeWhseItemTracking(TempTrackingSpecification, '', Deletion);
@@ -1863,7 +1864,7 @@ table 5767 "Warehouse Activity Line"
     local procedure InitTrackingSpecFromWhseActivLine(var TrackingSpecification: Record "Tracking Specification"; WhseActivityLine: Record "Warehouse Activity Line")
     begin
         with WhseActivityLine do begin
-            TrackingSpecification.Init;
+            TrackingSpecification.Init();
             if "Source Type" = DATABASE::"Prod. Order Component" then
                 TrackingSpecification.SetSource(
                   "Source Type", "Source Subtype", "Source No.", "Source Subline No.", '', "Source Line No.")
@@ -1876,8 +1877,7 @@ table 5767 "Warehouse Activity Line"
             TrackingSpecification.Description := Description;
             TrackingSpecification."Variant Code" := "Variant Code";
             TrackingSpecification."Qty. per Unit of Measure" := "Qty. per Unit of Measure";
-            TrackingSpecification."Serial No." := "Serial No.";
-            TrackingSpecification."Lot No." := "Lot No.";
+            TrackingSpecification.CopyTrackingFromWhseActivityLine(WhseActivityLine);
             TrackingSpecification."Expiration Date" := "Expiration Date";
             TrackingSpecification."Bin Code" := "Bin Code";
             TrackingSpecification."Qty. to Handle (Base)" := "Qty. to Handle (Base)";
@@ -2030,8 +2030,7 @@ table 5767 "Warehouse Activity Line"
             SetRange("Source No.", WhseActivLine."Source No.");
             SetRange("Source Line No.", WhseActivLine."Source Line No.");
             SetRange("Source Subline No.", WhseActivLine."Source Subline No.");
-            SetRange("Serial No.", WhseActivLine."Serial No.");
-            SetRange("Lot No.", WhseActivLine."Lot No.");
+            SetTrackingFilterFromWhseActivityLine(WhseActivLine);
             if Find('-') then begin
                 WhseActivLine3.Copy(WhseActivLine2);
                 WhseActivLine3.SetRange("Action Type", WhseActivLine."Action Type");
@@ -2140,12 +2139,136 @@ table 5767 "Warehouse Activity Line"
         OnAfterCopyTrackingFromSpec(Rec, TrackingSpecification);
     end;
 
+    procedure CopyTrackingFromPostedWhseRcptLine(PostedWhseRcptLine: Record "Posted Whse. Receipt Line")
+    begin
+        "Serial No." := PostedWhseRcptLine."Serial No.";
+        "Lot No." := PostedWhseRcptLine."Lot No.";
+
+        OnAfterCopyTrackingFromPostedWhseRcptLine(Rec, PostedWhseRcptLine);
+    end;
+
+    procedure CopyTrackingFromWhseItemTrackingLine(WhseItemTrackingLine: Record "Whse. Item Tracking Line")
+    begin
+        "Serial No." := WhseItemTrackingLine."Serial No.";
+        "Lot No." := WhseItemTrackingLine."Lot No.";
+
+        OnAfterCopyTrackingFromWhseItemTrackingLine(Rec, WhseItemTrackingLine);
+    end;
+
     procedure SetTrackingFilter(SerialNo: Code[50]; LotNo: Code[50])
     begin
         SetRange("Serial No.", SerialNo);
         SetRange("Lot No.", LotNo);
 
         OnAfterSetTrackingFilter(Rec);
+    end;
+
+    procedure SetTrackingFilterFromBinContent(var BinContent: Record "Bin Content")
+    begin
+        SetFilter("Serial No.", BinContent.GetFilter("Serial No. Filter"));
+        SetFilter("Lot No.", BinContent.GetFilter("Lot No. Filter"));
+
+        OnAfterSetTrackingFilterFromBinContent(Rec, BinContent);
+    end;
+
+    procedure SetTrackingFilterFromBinContentBuffer(BinContentBuffer: Record "Bin Content Buffer")
+    begin
+        SetRange("Serial No.", BinContentBuffer."Serial No.");
+        SetRange("Lot No.", BinContentBuffer."Lot No.");
+    end;
+
+    procedure SetTrackingFilterFromReservEntry(ReservEntry: Record "Reservation Entry")
+    begin
+        SetRange("Serial No.", ReservEntry."Serial No.");
+        SetRange("Lot No.", ReservEntry."Lot No.");
+
+        OnAfterSetTrackingFilterFromReservEntry(Rec, ReservEntry);
+    end;
+
+    procedure SetTrackingFilterFromReservEntryIfRequired(ReservEntry: Record "Reservation Entry")
+    begin
+        if ReservEntry."Serial No." <> '' then
+            SetRange("Serial No.", ReservEntry."Serial No.");
+        if ReservEntry."Lot No." <> '' then
+            SetRange("Lot No.", ReservEntry."Lot No.");
+
+        OnAfterSetTrackingFilterFromReservEntryIfRequired(Rec, ReservEntry);
+    end;
+
+    procedure SetTrackingFilterFromWhseActivityLine(WhseActivityLine: Record "Warehouse Activity Line")
+    begin
+        SetRange("Serial No.", WhseActivityLine."Serial No.");
+        SetRange("Lot No.", WhseActivityLine."Lot No.");
+
+        OnAfterSetTrackingFilterFromWhseActivityLine(Rec, WhseActivityLine);
+    end;
+
+    procedure SetTrackingFilterFromWhseItemTrackingSetup(WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if WhseItemTrackingSetup."Serial No. Required" then
+            SetRange("Serial No.", WhseItemTrackingSetup."Serial No.")
+        else
+            SetFilter("Serial No.", '%1|%2', WhseItemTrackingSetup."Serial No.", '');
+        if WhseItemTrackingSetup."Lot No. Required" then
+            SetRange("Lot No.", WhseItemTrackingSetup."Lot No.")
+        else
+            SetFilter("Lot No.", '%1|%2', WhseItemTrackingSetup."Lot No.", '');
+    end;
+
+    procedure SetTrackingFilterToItemIfRequired(var Item: Record Item; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if "Lot No." <> '' then begin
+            if WhseItemTrackingSetup."Lot No. Required" then
+                Item.SetRange("Lot No. Filter", "Lot No.")
+            else
+                Item.SetFilter("Lot No. Filter", '%1|%2', "Lot No.", '')
+        end else
+            Item.SetRange("Lot No. Filter");
+        if "Serial No." <> '' then begin
+            if WhseItemTrackingSetup."Serial No. Required" then
+                Item.SetRange("Serial No. Filter", "Serial No.")
+            else
+                Item.SetFilter("Serial No. Filter", '%1|%2', "Serial No.", '');
+        end else
+            Item.SetRange("Serial No. Filter");
+    end;
+
+    procedure SetTrackingFilterToItemLedgEntryIfRequired(var ItemLedgEntry: Record "Item Ledger Entry"; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if "Serial No." <> '' then
+            if WhseItemTrackingSetup."Serial No. Required" then
+                ItemLedgEntry.SetRange("Serial No.", "Serial No.")
+            else
+                ItemLedgEntry.SetFilter("Serial No.", '%1|%2', "Serial No.", '');
+        if "Lot No." <> '' then
+            if WhseItemTrackingSetup."Lot No. Required" then
+                ItemLedgEntry.SetRange("Lot No.", "Lot No.")
+            else
+                ItemLedgEntry.SetFilter("Lot No.", '%1|%2', "Lot No.", '');
+    end;
+
+    procedure SetTrackingFilterToWhseEntryIfRequired(var WhseEntry: Record "Warehouse Entry"; WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if "Serial No." <> '' then
+            if WhseItemTrackingSetup."Serial No. Required" then
+                WhseEntry.SetRange("Serial No.", "Serial No.")
+            else
+                WhseEntry.SetFilter("Serial No.", '%1|%2', "Serial No.", '');
+        if "Lot No." <> '' then
+            if WhseItemTrackingSetup."Lot No. Required" then
+                WhseEntry.SetRange("Lot No.", "Lot No.")
+            else
+                WhseEntry.SetFilter("Lot No.", '%1|%2', "Lot No.", '');
+    end;
+
+    procedure TestTrackingIfRequired(WhseItemTrackingSetup: Record "Item Tracking Setup")
+    begin
+        if WhseItemTrackingSetup."Serial No. Required" then begin
+            TestField("Serial No.");
+            TestField("Qty. (Base)", 1);
+        end;
+        if WhseItemTrackingSetup."Lot No. Required" then
+            TestField("Lot No.");
     end;
 
     local procedure ReNumberAllLines(var NewWhseActivityLine: Record "Warehouse Activity Line"; OldLineNo: Integer; var NewLineNo: Integer)
@@ -2158,16 +2281,16 @@ table 5767 "Warehouse Activity Line"
             LineNo += 10000;
             TempWarehouseActivityLine := NewWhseActivityLine;
             TempWarehouseActivityLine."Line No." := LineNo;
-            TempWarehouseActivityLine.Insert;
+            TempWarehouseActivityLine.Insert();
             if NewWhseActivityLine."Line No." = OldLineNo then
                 NewLineNo := LineNo;
         until NewWhseActivityLine.Next = 0;
-        NewWhseActivityLine.DeleteAll;
+        NewWhseActivityLine.DeleteAll();
 
         TempWarehouseActivityLine.FindSet;
         repeat
             NewWhseActivityLine := TempWarehouseActivityLine;
-            NewWhseActivityLine.Insert;
+            NewWhseActivityLine.Insert();
         until TempWarehouseActivityLine.Next = 0;
     end;
 
@@ -2197,6 +2320,16 @@ table 5767 "Warehouse Activity Line"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromPostedWhseRcptLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; PostedWhseRcptLine: Record "Posted Whse. Receipt Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyTrackingFromWhseItemTrackingLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; WhseItemTrackingLine: Record "Whse. Item Tracking Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterDeleteQtyToHandle(var WarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
@@ -2207,12 +2340,32 @@ table 5767 "Warehouse Activity Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnAfterLookupTrackingSummary(var WarehouseActivityLine: Record "Warehouse Activity Line"; var TempTrackingSpecification: Record "Tracking Specification" temporary; TrackingType: Option SerialNo,LotNo)
+    local procedure OnAfterLookupTrackingSummary(var WarehouseActivityLine: Record "Warehouse Activity Line"; var TempTrackingSpecification: Record "Tracking Specification" temporary; TrackingType: Enum "Item Tracking Type")
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetTrackingFilter(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromBinContent(var WarehouseActivityLine: Record "Warehouse Activity Line"; var BinContent: Record "Bin Content")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromReservEntry(var WarehouseActivityLine: Record "Warehouse Activity Line"; ReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromReservEntryIfRequired(var WarehouseActivityLine: Record "Warehouse Activity Line"; ReservEntry: Record "Reservation Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetTrackingFilterFromWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; FromWarehouseActivityLine: Record "Warehouse Activity Line")
     begin
     end;
 
@@ -2267,7 +2420,7 @@ table 5767 "Warehouse Activity Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCheckReservedItemTrkg(var WarehouseActivityLine: Record "Warehouse Activity Line"; CheckType: Option "Serial No.","Lot No."; ItemTrkgCode: Code[50]; var IsHandled: Boolean)
+    local procedure OnBeforeCheckReservedItemTrkg(var WarehouseActivityLine: Record "Warehouse Activity Line"; CheckType: Enum "Item Tracking Type"; ItemTrkgCode: Code[50]; var IsHandled: Boolean)
     begin
     end;
 
@@ -2337,7 +2490,7 @@ table 5767 "Warehouse Activity Line"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnLookUpTrackingSummaryOnAfterAssistEditTrackingNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; var TrackingSpecification: Record "Tracking Specification"; TrackingType: Option SerialNo,LotNo)
+    local procedure OnLookUpTrackingSummaryOnAfterAssistEditTrackingNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; var TrackingSpecification: Record "Tracking Specification"; TrackingType: Enum "Item Tracking Type")
     begin
     end;
 

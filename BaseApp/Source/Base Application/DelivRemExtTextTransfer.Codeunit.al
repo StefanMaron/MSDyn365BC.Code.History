@@ -50,7 +50,7 @@ codeunit 5005272 "Deliv.-Rem. Ext. Text Transfer"
     var
         ForDeliveryReminderLine: Record "Delivery Reminder Line";
     begin
-        ForDeliveryReminderLine.Reset;
+        ForDeliveryReminderLine.Reset();
         ForDeliveryReminderLine.SetRange("Document No.", DeliveryReminderLine."Document No.");
         ForDeliveryReminderLine := DeliveryReminderLine;
         if ForDeliveryReminderLine.Find('>') then begin
@@ -64,20 +64,20 @@ codeunit 5005272 "Deliv.-Rem. Ext. Text Transfer"
 
         NextLineNo := DeliveryReminderLine."Line No." + LineSpacing;
 
-        TmpExtTextLine.Reset;
+        TmpExtTextLine.Reset();
         if TmpExtTextLine.Find('-') then begin
             repeat
-                ForDeliveryReminderLine.Init;
+                ForDeliveryReminderLine.Init();
                 ForDeliveryReminderLine."Document No." := DeliveryReminderLine."Document No.";
                 ForDeliveryReminderLine."Line No." := NextLineNo;
                 NextLineNo := NextLineNo + LineSpacing;
                 ForDeliveryReminderLine.Description := TmpExtTextLine.Text;
                 ForDeliveryReminderLine."Attached to Line No." := DeliveryReminderLine."Line No.";
-                ForDeliveryReminderLine.Insert;
+                ForDeliveryReminderLine.Insert();
             until TmpExtTextLine.Next = 0;
             MakeUpdateRequired := true;
         end;
-        TmpExtTextLine.DeleteAll;
+        TmpExtTextLine.DeleteAll();
     end;
 
     [Scope('OnPrem')]
@@ -90,7 +90,7 @@ codeunit 5005272 "Deliv.-Rem. Ext. Text Transfer"
         DeliveryReminderLine2 := DeliveryReminderLine;
         if DeliveryReminderLine2.Find('>') then begin
             repeat
-                DeliveryReminderLine2.Delete;
+                DeliveryReminderLine2.Delete();
             until DeliveryReminderLine2.Next = 0;
             exit(true);
         end;
@@ -129,10 +129,10 @@ codeunit 5005272 "Deliv.-Rem. Ext. Text Transfer"
         ExtTextLine.SetRange("Language Code", ExtTextHeader."Language Code");
         ExtTextLine.SetRange("Text No.", ExtTextHeader."Text No.");
         if ExtTextLine.Find('-') then begin
-            TmpExtTextLine.DeleteAll;
+            TmpExtTextLine.DeleteAll();
             repeat
                 TmpExtTextLine := ExtTextLine;
-                TmpExtTextLine.Insert;
+                TmpExtTextLine.Insert();
             until ExtTextLine.Next = 0;
             exit(true);
         end;

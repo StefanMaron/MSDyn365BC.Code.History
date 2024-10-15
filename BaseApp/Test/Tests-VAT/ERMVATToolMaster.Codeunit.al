@@ -39,7 +39,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         ERMVATToolHelper.ResetToolSetup;  // This resets setup table for the first test case after database is restored.
 
         isInitialized := true;
-        Commit;
+        Commit();
     end;
 
     [Test]
@@ -67,7 +67,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         CreateServPriceAdjDetail(ServPriceAdjustmentDetail);
 
         // SETUP: Update VAT Change Tool Setup table.
-        VATRateChangeSetup.Get;
+        VATRateChangeSetup.Get();
         VATRateChangeSetup.Validate("Update G/L Accounts", VATRateChangeSetup."Update G/L Accounts"::Both);
         VATRateChangeSetup.Validate("Update Items", VATRateChangeSetup."Update Items"::Both);
         VATRateChangeSetup.Validate("Update Resources", VATRateChangeSetup."Update Resources"::Both);
@@ -1095,7 +1095,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     var
         RecRef: RecordRef;
     begin
-        GenJnlLine.Init;
+        GenJnlLine.Init();
         GenJnlLine.Validate("Journal Template Name", GenJnlTemplateName);
         GenJnlLine.Validate("Journal Batch Name", GenJnlBatchName);
         RecRef.GetTable(GenJnlLine);
@@ -1138,7 +1138,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         TempRecRef.Open(DATABASE::"Gen. Product Posting Group", true);
 
         for I := 1 to Count do begin
-            GenProdPostGroup.Init;
+            GenProdPostGroup.Init();
             GenProdPostGroup.Validate(Code, LibraryUtility.GenerateRandomCode
               (GenProdPostGroup.FieldNo(Code), DATABASE::"Gen. Product Posting Group"));
             GenProdPostGroup.Validate("Auto Insert Default", AutoInsert);
@@ -1252,7 +1252,7 @@ codeunit 134050 "ERM VAT Tool - Master"
             LibraryJob.CreateJobJournalBatch(JobJnlTemplate.Name, JobJnlBatch);
         end;
         for I := 1 to Count do begin
-            JobJnlLine.Init;
+            JobJnlLine.Init();
             JobJnlLine.Validate("Journal Template Name", JobJnlBatch."Journal Template Name");
             JobJnlLine.Validate("Journal Batch Name", JobJnlBatch.Name);
             RecRef.GetTable(JobJnlLine);
@@ -1276,7 +1276,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         TempRecRef.Open(DATABASE::"Machine Center", true);
 
         for I := 1 to Count do begin
-            MachineCenter.Init;
+            MachineCenter.Init();
             MachineCenter.Validate("No.", LibraryUtility.GenerateRandomCode(MachineCenter.FieldNo("No."),
                 DATABASE::"Machine Center"));
             MachineCenter.Validate("Gen. Prod. Posting Group", GenProdPostingGroup);
@@ -1294,7 +1294,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     begin
         ERMVATToolHelper.GetGroupsBefore(VATProdPostingGroup, GenProdPostingGroup);
 
-        ReqLine.Init;
+        ReqLine.Init();
         ReqLine.Validate("Worksheet Template Name", ReqWkshName."Worksheet Template Name");
         ReqLine.Validate("Journal Batch Name", ReqWkshName.Name);
         RecRef.GetTable(ReqLine);
@@ -1327,7 +1327,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     begin
         ERMVATToolHelper.GetGroupsBefore(VATProdPostingGroup, GenProdPostingGroup);
 
-        Resource.Init;
+        Resource.Init();
         Resource.Validate("No.", LibraryUtility.GenerateRandomCode(Resource.FieldNo("No."),
             DATABASE::Resource));
         Resource.Validate("Gen. Prod. Posting Group", GenProdPostingGroup);
@@ -1383,7 +1383,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     begin
         ERMVATToolHelper.GetGroupsBefore(VATProdPostingGroup, GenProdPostingGroup);
         CreateServPriceAdjGroup(ServPriceAdjustmentGroup);
-        ServPriceAdjustmentDetail.Init;
+        ServPriceAdjustmentDetail.Init();
         ServPriceAdjustmentDetail.Validate("Serv. Price Adjmt. Gr. Code", ServPriceAdjustmentGroup.Code);
         ServPriceAdjustmentDetail.Validate("Gen. Prod. Posting Group", GenProdPostingGroup);
         ServPriceAdjustmentDetail.Insert(true);
@@ -1406,7 +1406,7 @@ codeunit 134050 "ERM VAT Tool - Master"
 
     local procedure CreateServPriceAdjGroup(var ServPriceAdjustmentGroup: Record "Service Price Adjustment Group")
     begin
-        ServPriceAdjustmentGroup.Init;
+        ServPriceAdjustmentGroup.Init();
         ServPriceAdjustmentGroup.Validate(Code, LibraryUtility.GenerateRandomCode(ServPriceAdjustmentGroup.FieldNo(Code),
             DATABASE::"Service Price Adjustment Group"));
         ServPriceAdjustmentGroup.Insert(true);
@@ -1430,7 +1430,7 @@ codeunit 134050 "ERM VAT Tool - Master"
             LibraryERM.CreateStandardGeneralJournal(StdGenJnl, GenJnlTemplate.Name);
         end;
         for I := 1 to Count do begin
-            StdGenJnlLine.Init;
+            StdGenJnlLine.Init();
             StdGenJnlLine.Validate("Journal Template Name", StdGenJnl."Journal Template Name");
             StdGenJnlLine.Validate("Standard Journal Code", StdGenJnl.Code);
             RecRef.GetTable(StdGenJnlLine);
@@ -1457,7 +1457,7 @@ codeunit 134050 "ERM VAT Tool - Master"
 
         FindStdItemJnl(StdItemJnl);
         for I := 1 to Count do begin
-            StdItemJnlLine.Init;
+            StdItemJnlLine.Init();
             StdItemJnlLine.Validate("Journal Template Name", StdItemJnl."Journal Template Name");
             StdItemJnlLine.Validate("Standard Journal Code", StdItemJnl.Code);
             RecRef.GetTable(StdItemJnlLine);
@@ -1481,7 +1481,7 @@ codeunit 134050 "ERM VAT Tool - Master"
         TempRecRef.Open(DATABASE::"Work Center", true);
 
         for I := 1 to Count do begin
-            WorkCenter.Init;
+            WorkCenter.Init();
             WorkCenter.Validate("No.", LibraryUtility.GenerateRandomCode(WorkCenter.FieldNo("No."),
                 DATABASE::"Work Center"));
             WorkCenter.Validate("Gen. Prod. Posting Group", GenProdPostingGroup);
@@ -1507,7 +1507,7 @@ codeunit 134050 "ERM VAT Tool - Master"
     begin
         if not StdItemJnl.FindFirst then begin
             LibraryInventory.FindItemJournalTemplate(ItemJnlTemplate);
-            StdItemJnl.Init;
+            StdItemJnl.Init();
             StdItemJnl.Validate("Journal Template Name", ItemJnlTemplate.Name);
             StdItemJnl.Validate(Code,
               LibraryUtility.GenerateRandomCode(StdItemJnl.FieldNo(Code), DATABASE::"Standard Item Journal"));

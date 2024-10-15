@@ -235,7 +235,7 @@ codeunit 136501 "UT Time Sheets Approval"
         // create employee
         LibraryHumanResource.CreateEmployee(Employee);
         Employee."Resource No." := TimeSheetHeader."Resource No.";
-        Employee.Modify;
+        Employee.Modify();
 
         // create time sheet line with type absence
         LibraryTimeSheet.CreateTimeSheetLine(
@@ -390,7 +390,7 @@ codeunit 136501 "UT Time Sheets Approval"
         // create current user id setup for approver
         LibraryTimeSheet.CreateUserSetup(UserSetup, true);
         IsInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure SubmitTimeSheet(TimeSheetNo: Code[20])
@@ -427,14 +427,14 @@ codeunit 136501 "UT Time Sheets Approval"
     begin
         LineNo := TimeSheetHeader.GetLastLineNo + 10000;
 
-        TimeSheetLine.Init;
+        TimeSheetLine.Init();
         TimeSheetLine."Time Sheet No." := TimeSheetHeader."No.";
         TimeSheetLine."Line No." := LineNo;
         TimeSheetLine.Type := TimeSheetLine.Type::Resource;
         TimeSheetLine.Description := CopyStr(Format(CreateGuid), 1, MaxStrLen(TimeSheetLine.Description));
         TimeSheetLine."Time Sheet Starting Date" := TimeSheetHeader."Starting Date";
         TimeSheetLine."Approver ID" := UserId;
-        TimeSheetLine.Insert;
+        TimeSheetLine.Insert();
 
         LibraryTimeSheet.CreateTimeSheetDetail(TimeSheetLine, TimeSheetHeader."Starting Date", 1);
     end;
@@ -446,7 +446,7 @@ codeunit 136501 "UT Time Sheets Approval"
     begin
         LineNo := TimeSheetHeader.GetLastLineNo + 10000;
 
-        TimeSheetLine.Init;
+        TimeSheetLine.Init();
         TimeSheetLine."Time Sheet No." := TimeSheetHeader."No.";
         TimeSheetLine."Line No." := LineNo;
         TimeSheetLine.Type := TimeSheetLine.Type::Job;
@@ -455,7 +455,7 @@ codeunit 136501 "UT Time Sheets Approval"
         TimeSheetLine.Description := CopyStr(Format(CreateGuid), 1, MaxStrLen(TimeSheetLine.Description));
         TimeSheetLine."Time Sheet Starting Date" := TimeSheetHeader."Starting Date";
         TimeSheetLine."Approver ID" := UserId;
-        TimeSheetLine.Insert;
+        TimeSheetLine.Insert();
 
         LibraryTimeSheet.CreateTimeSheetDetail(TimeSheetLine, TimeSheetHeader."Starting Date", 1);
     end;

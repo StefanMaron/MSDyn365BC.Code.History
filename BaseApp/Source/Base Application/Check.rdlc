@@ -19,12 +19,12 @@
             <TablixBody>
               <TablixColumns>
                 <TablixColumn>
-                  <Width>7.00787in</Width>
+                  <Width>17.79999cm</Width>
                 </TablixColumn>
               </TablixColumns>
               <TablixRows>
                 <TablixRow>
-                  <Height>1.6248in</Height>
+                  <Height>4.12699cm</Height>
                   <TablixCells>
                     <TablixCell>
                       <CellContents>
@@ -2672,18 +2672,18 @@
                               <TablixBody>
                                 <TablixColumns>
                                   <TablixColumn>
-                                    <Width>0.20492in</Width>
+                                    <Width>0.5205cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.20492in</Width>
+                                    <Width>0.5205cm</Width>
                                   </TablixColumn>
                                   <TablixColumn>
-                                    <Width>0.20492in</Width>
+                                    <Width>0.5205cm</Width>
                                   </TablixColumn>
                                 </TablixColumns>
                                 <TablixRows>
                                   <TablixRow>
-                                    <Height>0.31973in</Height>
+                                    <Height>0.81211cm</Height>
                                     <TablixCells>
                                       <TablixCell>
                                         <CellContents>
@@ -2794,7 +2794,6 @@ CStr(Last(Fields!VoidText.Value)), 3)</Hidden>
                                               <PaddingBottom>2pt</PaddingBottom>
                                             </Style>
                                           </Textbox>
-                                          <rd:Selected>true</rd:Selected>
                                         </CellContents>
                                       </TablixCell>
                                     </TablixCells>
@@ -2818,7 +2817,7 @@ CStr(Last(Fields!VoidText.Value)), 3)</Hidden>
                               </TablixRowHierarchy>
                               <Left>0.18175cm</Left>
                               <Height>0.81211cm</Height>
-                              <Width>1.56149cm</Width>
+                              <Width>1.5615cm</Width>
                               <ZIndex>1</ZIndex>
                               <Style />
                             </Tablix>
@@ -3161,8 +3160,9 @@ CStr(Last(Fields!VoidText.Value)), 3)</Hidden>
                         <TextRun>
                           <Value>=Code.GetData(3,3)</Value>
                           <Style>
+                            <FontFamily>IDAutomationMICR</FontFamily>
                             <FontSize>7pt</FontSize>
-                            <FontWeight>Bold</FontWeight>
+                            <FontWeight>Normal</FontWeight>
                           </Style>
                         </TextRun>
                       </TextRuns>
@@ -3175,6 +3175,9 @@ CStr(Last(Fields!VoidText.Value)), 3)</Hidden>
                   <Width>2.49812cm</Width>
                   <ZIndex>10</ZIndex>
                   <Style>
+                    <Border>
+                      <Style>None</Style>
+                    </Border>
                     <PaddingLeft>2pt</PaddingLeft>
                     <PaddingRight>2pt</PaddingRight>
                     <PaddingTop>2pt</PaddingTop>
@@ -3189,7 +3192,9 @@ CStr(Last(Fields!VoidText.Value)), 3)</Hidden>
                         <TextRun>
                           <Value>=Code.GetData(1,2)</Value>
                           <Style>
+                            <FontFamily>IDAutomationSec1B</FontFamily>
                             <FontSize>7pt</FontSize>
+                            <FontWeight>Normal</FontWeight>
                           </Style>
                         </TextRun>
                       </TextRuns>
@@ -3202,6 +3207,9 @@ CStr(Last(Fields!VoidText.Value)), 3)</Hidden>
                   <Width>13.1cm</Width>
                   <ZIndex>11</ZIndex>
                   <Style>
+                    <Border>
+                      <Style>None</Style>
+                    </Border>
                     <PaddingLeft>2pt</PaddingLeft>
                     <PaddingRight>2pt</PaddingRight>
                     <PaddingTop>2pt</PaddingTop>
@@ -3224,7 +3232,7 @@ CStr(Last(Fields!VoidText.Value)), 3)</Hidden>
                     </Paragraph>
                   </Paragraphs>
                   <Top>2.34381in</Top>
-                  <Left>0.79167in</Left>
+                  <Left>0.7851in</Left>
                   <Height>0.423cm</Height>
                   <Width>13.1cm</Width>
                   <ZIndex>12</ZIndex>
@@ -3270,7 +3278,9 @@ CStr(Last(Fields!VoidText.Value)), 3)</Hidden>
                         <TextRun>
                           <Value>=Code.GetData(4,3)</Value>
                           <Style>
+                            <FontFamily>IDAutomationSec1B</FontFamily>
                             <FontSize>7pt</FontSize>
+                            <FontWeight>Normal</FontWeight>
                           </Style>
                         </TextRun>
                       </TextRuns>
@@ -3278,11 +3288,14 @@ CStr(Last(Fields!VoidText.Value)), 3)</Hidden>
                     </Paragraph>
                   </Paragraphs>
                   <Top>2.51042in</Top>
-                  <Left>3.97917in</Left>
+                  <Left>3.14458in</Left>
                   <Height>0.423cm</Height>
-                  <Width>2.5cm</Width>
+                  <Width>4.61986cm</Width>
                   <ZIndex>14</ZIndex>
                   <Style>
+                    <Border>
+                      <Style>None</Style>
+                    </Border>
                     <PaddingLeft>2pt</PaddingLeft>
                     <PaddingRight>2pt</PaddingRight>
                     <PaddingTop>2pt</PaddingTop>
@@ -3298,7 +3311,9 @@ CStr(Last(Fields!VoidText.Value)), 3)</Hidden>
                         <TextRun>
                           <Value>="********" + Code.GetData(5,3)</Value>
                           <Style>
+                            <FontFamily>IDAutomationSec1B</FontFamily>
                             <FontSize>7pt</FontSize>
+                            <FontWeight>Normal</FontWeight>
                             <Format>N</Format>
                           </Style>
                         </TextRun>
@@ -3307,11 +3322,14 @@ CStr(Last(Fields!VoidText.Value)), 3)</Hidden>
                     </Paragraph>
                   </Paragraphs>
                   <Top>2.51042in</Top>
-                  <Left>5.94792in</Left>
+                  <Left>4.96342in</Left>
                   <Height>0.423cm</Height>
-                  <Width>2.49812cm</Width>
+                  <Width>4.99875cm</Width>
                   <ZIndex>15</ZIndex>
                   <Style>
+                    <Border>
+                      <Style>None</Style>
+                    </Border>
                     <PaddingLeft>2pt</PaddingLeft>
                     <PaddingRight>2pt</PaddingRight>
                     <PaddingTop>2pt</PaddingTop>
@@ -3454,7 +3472,6 @@ CStr(Last(Fields!VoidText.Value)), 3)</Hidden>
                 </Textbox>
               </ReportItems>
               <DataElementOutput>ContentsOnly</DataElementOutput>
-              <Top>0cm</Top>
               <Height>3.34364in</Height>
               <Width>17.60584cm</Width>
               <Visibility>

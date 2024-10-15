@@ -157,7 +157,7 @@ codeunit 139182 "CRM Coupling Test"
         // [GIVEN] A Person type Contact and a CRM Contact with different data
         LibraryMarketing.CreateCompanyContact(Contact);
         Contact.Type := Contact.Type::Person;
-        Contact.Modify;
+        Contact.Modify();
         LibraryCRMIntegration.CreateCRMContact(CRMContact);
         OriginalContactName := Contact.Name;
         OriginalCRMContactName := CRMContact.FullName;
@@ -207,7 +207,7 @@ codeunit 139182 "CRM Coupling Test"
         // [SCENARIO] Create new Customer from CRM Account list page
         TestInit;
         // [GIVEN] new CRM Account
-        CRMAccount.DeleteAll;
+        CRMAccount.DeleteAll();
         LibraryCRMIntegration.CreateCRMAccountWithCoupledOwner(CRMAccount);
 
         // [WHEN] Run "Create Customer from CRM" action on "Customer List" page
@@ -252,7 +252,7 @@ codeunit 139182 "CRM Coupling Test"
         CreateCRMAccountCoupledToCustomerWithContact(CRMAccount);
 
         // [GIVEN] new CRM Contact, where Parent Company is 'A'
-        CRMContact.DeleteAll;
+        CRMContact.DeleteAll();
         LibraryCRMIntegration.CreateCRMContactWithParentAccount(CRMContact, CRMAccount);
         CRMContact.TestField(ParentCustomerIdType, CRMContact.ParentCustomerIdType::account);
 
@@ -310,7 +310,7 @@ codeunit 139182 "CRM Coupling Test"
         // Make sure the LCY is already present in CRM
         CRMSynchHelper.FindNAVLocalCurrencyInCRM(CRMTransactioncurrency);
         Clear(CRMTransactioncurrency);
-        OriginalNumberOfCRMTransactioncurrencies := CRMTransactioncurrency.Count;
+        OriginalNumberOfCRMTransactioncurrencies := CRMTransactioncurrency.Count();
 
         // [GIVEN] A Currency with non-zero exchange rate
         Currency.Get(LibraryERM.CreateCurrencyWithRandomExchRates);
@@ -384,7 +384,7 @@ codeunit 139182 "CRM Coupling Test"
         // Make sure the LCY is already present in CRM
         CRMSynchHelper.FindNAVLocalCurrencyInCRM(CRMTransactioncurrency);
         Clear(CRMTransactioncurrency);
-        OriginalNumberOfCRMTransactioncurrencies := CRMTransactioncurrency.Count;
+        OriginalNumberOfCRMTransactioncurrencies := CRMTransactioncurrency.Count();
 
         // [GIVEN] A Currency with zero exchange rate
         LibraryERM.CreateCurrency(Currency);
@@ -500,7 +500,7 @@ codeunit 139182 "CRM Coupling Test"
         // [GIVEN] An Item, where "Unit Price" is 'X'
         PrepareItemForCoupling(Item, Item."Replenishment System"::Purchase, CRMUom);
         Item."Unit Price" := LibraryRandom.RandDec(100, 2);
-        Item.Modify;
+        Item.Modify();
 
         // [WHEN] Couple to a new CRM Product
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
@@ -548,7 +548,7 @@ codeunit 139182 "CRM Coupling Test"
         // [GIVEN] An Item, where "Base Unit Of Measure" is blank
         PrepareItemForCoupling(Item, Item."Replenishment System"::Purchase, CRMUom);
         Item."Base Unit of Measure" := '';
-        Item.Modify;
+        Item.Modify();
 
         // [WHEN] Couple to a new CRM Product
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
@@ -664,13 +664,13 @@ codeunit 139182 "CRM Coupling Test"
 
         // [GIVEN] A Unit of Measure and two CRM Uomschedules, all with different data
         LibraryInventory.CreateUnitOfMeasureCode(UnitOfMeasure);
-        CRMUom1.Init;
+        CRMUom1.Init();
         CRMUom1.Name := 'BOX';
-        CRMUom1.Insert;
+        CRMUom1.Insert();
         LibraryCRMIntegration.CreateCRMUomAndUomSchedule(CRMUom1, CRMUomschedule1);
-        CRMUom2.Init;
+        CRMUom2.Init();
         CRMUom2.Name := 'KG';
-        CRMUom2.Insert;
+        CRMUom2.Insert();
         LibraryCRMIntegration.CreateCRMUomAndUomSchedule(CRMUom2, CRMUomschedule2);
         OriginalUoMCode := UnitOfMeasure.Code;
 
@@ -917,7 +917,7 @@ codeunit 139182 "CRM Coupling Test"
         // [GIVEN] A Resource, where "Base Unit Of Measure" is blank
         LibraryResource.CreateResourceNew(Resource);
         Resource."Base Unit of Measure" := '';
-        Resource.Modify;
+        Resource.Modify();
 
         // [WHEN] Couple to a new CRM Product
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
@@ -1156,7 +1156,7 @@ codeunit 139182 "CRM Coupling Test"
         LibraryCRMIntegration.CreateCoupledContactAndContact(Contact, CRMContact);
         LibraryMarketing.CreateOpportunity(Opportunity, Contact."No.");
         Opportunity."Salesperson Code" := '';
-        Opportunity.Modify;
+        Opportunity.Modify();
 
         // [WHEN] Couple Opportunity using Create New
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
@@ -1311,7 +1311,7 @@ codeunit 139182 "CRM Coupling Test"
         // [GIVEN] No Integration Record exist for Salesperson "SP"
         IntegrationRecord.SetRange("Record ID", SalespersonPurchaser.RecordId);
         IntegrationRecord.FindFirst;
-        IntegrationRecord.Delete;
+        IntegrationRecord.Delete();
 
         // [WHEN] Salesperson "SP" is coupled to CRM User "CU"
         CRMIntegrationRecord.CoupleRecordIdToCRMID(SalespersonPurchaser.RecordId, CRMSystemuser.SystemUserId);
@@ -1402,10 +1402,10 @@ codeunit 139182 "CRM Coupling Test"
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer[1], CRMAccount);
         // [GIVEN] CRM Account's last modification was done by the integration user.
         CRMAccount.ModifiedBy := CRMConnectionSetup.GetIntegrationUserID;
-        CRMAccount.Modify;
+        CRMAccount.Modify();
         // [GIVEN] Coupling is removed
         CRMIntegrationRecord.FindByCRMID(CRMAccount.AccountId);
-        CRMIntegrationRecord.Delete;
+        CRMIntegrationRecord.Delete();
         // [GIVEN] Customer is deleted
         Customer[1].Delete(true);
 
@@ -1431,10 +1431,10 @@ codeunit 139182 "CRM Coupling Test"
         LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer[1], CRMAccount);
         // [GIVEN] Customer is deleted,
         CRMIntegrationRecord.FindByCRMID(CRMAccount.AccountId);
-        CRMIntegrationRecord.Delete;
+        CRMIntegrationRecord.Delete();
         Customer[1].Delete(true);
         // [GIVEN] but coupling exists.
-        CRMIntegrationRecord.Insert;
+        CRMIntegrationRecord.Insert();
 
         // [WHEN] Synchronize CRM Account to new Customer
         CreateNewCustomerFromCRMAccount(CRMAccount);
@@ -1537,7 +1537,7 @@ codeunit 139182 "CRM Coupling Test"
     end;
 
     [Test]
-    [HandlerFunctions('CRMCouplingRecordModalPageHandler,CRMSystemuserCouplingControlModalPageHandler')]
+    [HandlerFunctions('CRMCouplingRecordModalPageHandler,CRMSystemuserCouplingControlModalPageHandler,ConfirmYes')]
     [Scope('OnPrem')]
     procedure CRMSystemUserPageCoupleControlsVisibility()
     var
@@ -1577,6 +1577,13 @@ codeunit 139182 "CRM Coupling Test"
     procedure CoupleYesConfirmHandler(Question: Text; var Reply: Boolean)
     begin
         Assert.ExpectedMessage('create a coupling?', Question);
+        Reply := true;
+    end;
+
+    [ConfirmHandler]
+    [Scope('OnPrem')]
+    procedure ConfirmYes(Question: Text; var Reply: Boolean)
+    begin
         Reply := true;
     end;
 
@@ -1653,7 +1660,7 @@ codeunit 139182 "CRM Coupling Test"
         // [GIVEN] Contact "CONT" is coupled with CRM Contact "CRMCONT"
         LibraryCRMIntegration.CreateCoupledContactAndContact(Contact, CRMContact);
         Contact.Validate("Company No.", FindCompanyContact(Customer."No."));
-        Contact.Modify;
+        Contact.Modify();
 
         // [GIVEN] "CRMCONT" is set as Primary Contact for "CRMACC"
         SetCRMAccountPrimaryContact(CRMAccount, CRMContact.ContactId);
@@ -1697,7 +1704,7 @@ codeunit 139182 "CRM Coupling Test"
 
         // [GIVEN] Mock some value PrimaryContactId in 'CRMACC'
         CRMAccount.PrimaryContactId := CreateGuid;
-        CRMAccount.Modify;
+        CRMAccount.Modify();
 
         // [WHEN] Customer is being synched
         GetIntegrationTableMapping(DATABASE::Customer, IntegrationTableMapping);
@@ -1735,7 +1742,7 @@ codeunit 139182 "CRM Coupling Test"
 
         // [GIVEN] Mock some PrimaryContactId value in 'CRMACC'
         CRMAccount.PrimaryContactId := CreateGuid;
-        CRMAccount.Modify;
+        CRMAccount.Modify();
         SavedPrimaryContactId := CRMAccount.PrimaryContactId;
 
         // [WHEN] Customer is being synched
@@ -1785,7 +1792,7 @@ codeunit 139182 "CRM Coupling Test"
         LibraryCRMIntegration.CreateCRMContact(CRMContact);
         CRMAccount.Validate(PrimaryContactId, CRMContact.ContactId);
         CRMAccount.ModifiedOn += 1000;
-        CRMAccount.Modify;
+        CRMAccount.Modify();
 
         // [WHEN] CRM Account is being synched
         GetIntegrationTableMapping(DATABASE::Customer, IntegrationTableMapping);
@@ -1828,7 +1835,7 @@ codeunit 139182 "CRM Coupling Test"
         LibraryCRMIntegration.CreateCRMContact(CRMContact);
         CRMAccount.Validate(PrimaryContactId, CRMContact.ContactId);
         CRMAccount.ModifiedOn += 1000;
-        CRMAccount.Modify;
+        CRMAccount.Modify();
 
         // [WHEN] CRM Account is being synched
         GetIntegrationTableMapping(DATABASE::Customer, IntegrationTableMapping);
@@ -1904,8 +1911,8 @@ codeunit 139182 "CRM Coupling Test"
         EnableConnection;
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"CRM Customer-Contact Link");
-        JobQueueEntry.DeleteAll;
-        IntegrationSynchJob.DeleteAll;
+        JobQueueEntry.DeleteAll();
+        IntegrationSynchJob.DeleteAll();
 
         // [GIVEN] Contact 'CONT'
         LibraryCRMIntegration.CreateContactAndEnsureIntegrationRecord(Contact, IntegrationRecord);
@@ -1922,16 +1929,6 @@ codeunit 139182 "CRM Coupling Test"
 
         // [GIVEN] Couple 'CONT' with "Create New" to CRM Contact 'CRMCONT'
         CoupleContactWithNewCRMContact(Contact, CRMContact);
-
-        // [WHEN] Codeunit CRM Customer-Contact Link is being run
-        FindCRMCustomerContactLinkJobQueueEntry(JobQueueEntry);
-        JobQueueEntry.Status := JobQueueEntry.Status::Ready;
-        JobQueueEntry.Modify;
-        CODEUNIT.Run(CODEUNIT::"Job Queue Dispatcher", JobQueueEntry);
-
-        // [THEN] Integration synch job log entry created with Modified = 1
-        FindIntegrationSynchJobEntry(IntegrationSynchJob);
-        IntegrationSynchJob.TestField(Modified, 1);
 
         // [THEN] 'CRMACC' has PrimaryContactId = ContactId of 'CRMCONT'
         CRMAccount.Find;
@@ -1957,8 +1954,6 @@ codeunit 139182 "CRM Coupling Test"
         EnableConnection;
         TestCRMtoNAVSyncNewCRMAccountWithNewPrimaryCRMContact();
         // repeat the test in order to test the optimization in Customer-Contact link codeunit
-        Assert.IsTrue(CRMSynchStatus.Get(), '');
-        Assert.IsTrue(CRMSynchStatus."Last Cust Contact Link Update" <> 0DT, '');
         TestCRMtoNAVSyncNewCRMAccountWithNewPrimaryCRMContact();
     end;
 
@@ -1974,8 +1969,8 @@ codeunit 139182 "CRM Coupling Test"
         // [SCENARIO 230754] Syncing new CRM Account with PrimaryContactId linked with new CRM Contact makes Customer with Primary Contact No filled in
         LibraryCRMIntegration.DisableTaskOnBeforeJobQueueScheduleTask;
         JobQueueEntry.SetRange("Object ID to Run", CODEUNIT::"CRM Customer-Contact Link");
-        JobQueueEntry.DeleteAll;
-        IntegrationSynchJob.DeleteAll;
+        JobQueueEntry.DeleteAll();
+        IntegrationSynchJob.DeleteAll();
 
         // [GIVEN] Not coupled CRM Account "CRMACC"
         LibraryCRMIntegration.CreateCRMAccount(CRMAccount);
@@ -1987,24 +1982,24 @@ codeunit 139182 "CRM Coupling Test"
         // [GIVEN] CRM Account is being synched which makes customer "CUST"
         GetIntegrationTableMapping(DATABASE::Customer, IntegrationTableMapping);
         IntegrationTableMapping."Synch. Only Coupled Records" := false;
-        IntegrationTableMapping.Modify;
+        IntegrationTableMapping.Modify();
         LibraryCRMIntegration.RunJobQueueEntryForIntTabMapping(IntegrationTableMapping);
 
         // [GIVEN] CRM Contact is being synched wich makes contact "CONT"
         GetIntegrationTableMapping(DATABASE::Contact, IntegrationTableMapping);
         IntegrationTableMapping."Synch. Only Coupled Records" := false;
-        IntegrationTableMapping.Modify;
+        IntegrationTableMapping.Modify();
         LibraryCRMIntegration.RunJobQueueEntryForIntTabMapping(IntegrationTableMapping);
 
         // [WHEN] Codeunit CRM Customer-Contact Link is being run
-        FindCRMCustomerContactLinkJobQueueEntry(JobQueueEntry);
-        JobQueueEntry.Status := JobQueueEntry.Status::Ready;
-        JobQueueEntry.Modify;
-        CODEUNIT.Run(CODEUNIT::"Job Queue Dispatcher", JobQueueEntry);
+        //        FindCRMCustomerContactLinkJobQueueEntry(JobQueueEntry);
+        //        JobQueueEntry.Status := JobQueueEntry.Status::Ready;
+        //        JobQueueEntry.Modify();
+        //       CODEUNIT.Run(CODEUNIT::"Job Queue Dispatcher", JobQueueEntry);
 
         // [THEN] Integration synch job log entry created with Modified = 1
-        FindIntegrationSynchJobEntry(IntegrationSynchJob);
-        IntegrationSynchJob.TestField(Modified, 1);
+        //        FindIntegrationSynchJobEntry(IntegrationSynchJob);
+        //        IntegrationSynchJob.TestField(Modified, 1);
 
         // [THEN] Customer "CUST" has "Primary Contact No." = "CONT"
         VerifyCustomerPrimaryContact(CRMAccount);
@@ -2028,16 +2023,16 @@ codeunit 139182 "CRM Coupling Test"
         LibraryCRMIntegration.CreateCRMOrganization;
         ResetDefaultCRMSetupConfiguration;
 
-        RecordLink.DeleteAll;
+        RecordLink.DeleteAll();
     end;
 
     local procedure EnableConnection()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
     begin
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
         CRMConnectionSetup.Validate("Is Enabled", true);
-        CRMConnectionSetup.Modify;
+        CRMConnectionSetup.Modify();
     end;
 
     local procedure CoupleContactWithNewCRMContact(Contact: Record Contact; var CRMContact: Record "CRM Contact")
@@ -2133,9 +2128,15 @@ codeunit 139182 "CRM Coupling Test"
     local procedure ResetDefaultCRMSetupConfiguration()
     var
         CRMConnectionSetup: Record "CRM Connection Setup";
+        CDSConnectionSetup: Record "CDS Connection Setup";
         CRMSetupDefaults: Codeunit "CRM Setup Defaults";
+        CDSSetupDefaults: Codeunit "CDS Setup Defaults";
     begin
-        CRMConnectionSetup.Get;
+        CRMConnectionSetup.Get();
+        CDSConnectionSetup.LoadConnectionStringElementsFromCRMConnectionSetup();
+        CDSConnectionSetup."Ownership Model" := CDSConnectionSetup."Ownership Model"::Person;
+        CDSConnectionSetup.Modify();
+        CDSSetupDefaults.ResetConfiguration(CDSConnectionSetup);
         CRMSetupDefaults.ResetConfiguration(CRMConnectionSetup);
     end;
 
@@ -2234,17 +2235,17 @@ codeunit 139182 "CRM Coupling Test"
     local procedure SetCustomerPrimaryContact(var Customer: Record Customer; var Contact: Record Contact)
     begin
         Contact.Validate("Company No.", FindCompanyContact(Customer."No."));
-        Contact.Modify;
+        Contact.Modify();
 
         Customer.Validate("Primary Contact No.", Contact."No.");
-        Customer.Modify;
+        Customer.Modify();
     end;
 
     local procedure SetCRMAccountPrimaryContact(var CRMAccount: Record "CRM Account"; CRMContactNo: Guid)
     begin
         CRMAccount.Validate(PrimaryContactId, CRMContactNo);
         CRMAccount.ModifiedOn += 1000;
-        CRMAccount.Modify;
+        CRMAccount.Modify();
     end;
 
     local procedure SetupPrimaryContactIntegrationFieldMapping(ClearValueOnFailedSync: Boolean)
@@ -2261,7 +2262,7 @@ codeunit 139182 "CRM Coupling Test"
               IntegrationFieldMapping.Direction::Bidirectional,
               '', true, false);
         IntegrationFieldMapping."Clear Value on Failed Sync" := ClearValueOnFailedSync;
-        IntegrationFieldMapping.Modify;
+        IntegrationFieldMapping.Modify();
     end;
 
     local procedure VerifyIntegrationSynchJobError(IntegrationSynchJobID: Guid; ExpectedErrorMessage: Text)

@@ -1,4 +1,4 @@
-﻿page 5978 "Posted Service Invoice"
+page 5978 "Posted Service Invoice"
 {
     Caption = 'Posted Service Invoice';
     DeleteAllowed = false;
@@ -445,13 +445,13 @@
                     var
                         TempServDocLog: Record "Service Document Log" temporary;
                     begin
-                        TempServDocLog.Reset;
-                        TempServDocLog.DeleteAll;
+                        TempServDocLog.Reset();
+                        TempServDocLog.DeleteAll();
                         TempServDocLog.CopyServLog(TempServDocLog."Document Type"::"Posted Invoice", "No.");
                         TempServDocLog.CopyServLog(TempServDocLog."Document Type"::Order, "Order No.");
                         TempServDocLog.CopyServLog(TempServDocLog."Document Type"::Invoice, "Pre-Assigned No.");
 
-                        TempServDocLog.Reset;
+                        TempServDocLog.Reset();
                         TempServDocLog.SetCurrentKey("Change Date", "Change Time");
                         TempServDocLog.Ascending(false);
 

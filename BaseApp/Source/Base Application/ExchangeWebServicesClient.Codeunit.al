@@ -38,7 +38,7 @@ codeunit 5320 "Exchange Web Services Client"
         if ExchangeFolder."Unique ID".HasValue then begin
             ParentInfo := ParentInfo.FolderInfo(ExchangeFolder.GetUniqueID, ExchangeFolder.FullPath);
             ExchangeFolder.Cached := true;
-            ExchangeFolder.Modify;
+            ExchangeFolder.Modify();
         end;
 
         FoundAny := false;
@@ -91,7 +91,7 @@ codeunit 5320 "Exchange Web Services Client"
         if ExchangeFolder."Unique ID".HasValue then begin
             ParentInfo := ParentInfo.FolderInfo(ExchangeFolder.GetUniqueID, ExchangeFolder.FullPath);
             ExchangeFolder.Cached := true;
-            ExchangeFolder.Modify;
+            ExchangeFolder.Modify();
         end;
 
         FoundAny := false;
@@ -189,9 +189,9 @@ codeunit 5320 "Exchange Web Services Client"
             repeat
                 if not DestExchangeFolder.Get(TempExchangeFolder.FullPath) then begin
                     TempExchangeFolder.CalcFields("Unique ID");
-                    DestExchangeFolder.Init;
+                    DestExchangeFolder.Init();
                     DestExchangeFolder.TransferFields(TempExchangeFolder);
-                    DestExchangeFolder.Insert;
+                    DestExchangeFolder.Insert();
                 end;
             until TempExchangeFolder.Next = 0
         else

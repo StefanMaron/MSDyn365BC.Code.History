@@ -19,6 +19,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         LibraryJob: Codeunit "Library - Job";
         LibraryRandom: Codeunit "Library - Random";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
+        CopyFromToPriceListLine: Codeunit CopyFromToPriceListLine;
         Initialized: Boolean;
         UnitPriceErr: Label 'Unit Price is not correct, please refer setup in Job Resource Price.';
         ConfirmUsageWithBlankLineTypeQst: Label 'Usage will not be linked to the job planning line because the Line Type field is empty.\\Do you want to continue?';
@@ -382,7 +383,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         NewJobPlanningLine.Validate("Planning Date", CalcDate(DateForm, JobPlanningLine."Planning Date"));
         NewJobPlanningLine.Validate("Line No.", LibraryJob.GetNextLineNo(JobPlanningLine));
         NewJobPlanningLine.Insert(true);
-        LineCount := JobPlanningLine.Count;
+        LineCount := JobPlanningLine.Count();
 
         // Exercise
         LibraryJob.UseJobPlanningLineExplicit(JobPlanningLine, LibraryJob.UsageLineTypeBlank, 1, Source, JobJournalLine);
@@ -568,7 +569,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         NewJobPlanningLine.Validate("Planning Date", CalcDate(DateForm, JobPlanningLine."Planning Date"));
         NewJobPlanningLine.Validate("Line No.", LibraryJob.GetNextLineNo(JobPlanningLine));
         NewJobPlanningLine.Insert(true);
-        LineCount := JobPlanningLine.Count;
+        LineCount := JobPlanningLine.Count();
 
         // Exercise - use 1 to 99% of planning line
         LibraryJob.UseJobPlanningLineExplicit(
@@ -842,7 +843,7 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         // to make it more difficult
         CreateSimilarJobPlanningLines(JobPlanningLine);
-        LineCount := JobPlanningLine.Count;
+        LineCount := JobPlanningLine.Count();
 
         // Exercise
         LibraryJob.UseJobPlanningLine(JobPlanningLine, UsageLineType, 1, JobJournalLine);
@@ -1097,7 +1098,7 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         // to make it more difficult
         CreateSimilarJobPlanningLines(JobPlanningLine);
-        LineCount := JobPlanningLine.Count;
+        LineCount := JobPlanningLine.Count();
 
         // Exercise - use 1 - 99% of the planning line
         LibraryJob.UseJobPlanningLine(JobPlanningLine, UsageLineType, LibraryRandom.RandInt(99) / 100, JobJournalLine);
@@ -1260,7 +1261,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         JobPlanningLine.Modify(true);
 
         AssertNoDiscounts(JobPlanningLine);
-        LineCount := JobPlanningLine.Count;
+        LineCount := JobPlanningLine.Count();
 
         // Exercise - use three (random) times the planned quantity
         BeforeJobPlanningLine := JobPlanningLine;
@@ -1346,7 +1347,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         JobPlanningLine.Insert(true);
 
         AssertNoDiscounts(JobPlanningLine);
-        LineCount := JobPlanningLine.Count;
+        LineCount := JobPlanningLine.Count();
 
         // Exercise - use both planning lines and more at once
         LibraryJob.UseJobPlanningLine(JobPlanningLine, LibraryJob.UsageLineTypeSchedule, 3, JobJournalLine);
@@ -1636,7 +1637,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         AssertNoDiscounts(JobPlanningLine);
         BeforeJobPlanningLine := JobPlanningLine;
 
-        LineCount := JobPlanningLine.Count;
+        LineCount := JobPlanningLine.Count();
 
         // Exercise
         if (QtyToPost < 0) and (ConsumableType = LibraryJob.ItemType) then begin
@@ -1826,11 +1827,11 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         DummyJobsSetup."Allow Sched/Contract Lines Def" := false;
         DummyJobsSetup."Apply Usage Link by Default" := false;
-        DummyJobsSetup.Modify;
+        DummyJobsSetup.Modify();
 
         Initialized := true;
 
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Job Consumption - Usage Link");
     end;
 
@@ -1867,7 +1868,7 @@ codeunit 136303 "Job Consumption - Usage Link"
 
         // to make it more difficult
         CreateSimilarJobPlanningLines(JobPlanningLine);
-        LineCount := JobPlanningLine.Count;
+        LineCount := JobPlanningLine.Count();
 
         // Exercise
         if (QtyToPost < 0) and (ConsumableType = LibraryJob.ItemType) then begin
@@ -1993,7 +1994,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         JobPlanningLine.Validate("Location Code", LocationCodePlan);
         JobPlanningLine.Modify(true);
 
-        LineCount := JobPlanningLine.Count;
+        LineCount := JobPlanningLine.Count();
 
         // Exercise
         LibraryJob.CreateJobJournalLineForPlan(JobPlanningLine, LibraryJob.UsageLineTypeSchedule, 1, JobJournalLine);
@@ -2069,7 +2070,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         JobPlanningLine.Validate("Work Type Code", CreateWorkType(WorkTypeCodePlan));
         JobPlanningLine.Modify(true);
 
-        LineCount := JobPlanningLine.Count;
+        LineCount := JobPlanningLine.Count();
 
         // Exercise
         LibraryJob.CreateJobJournalLineForPlan(JobPlanningLine, LibraryJob.UsageLineTypeSchedule, 1, JobJournalLine);
@@ -2095,17 +2096,21 @@ codeunit 136303 "Job Consumption - Usage Link"
         JobTask: Record "Job Task";
         Resource: Record Resource;
         JobResourcePrice: Record "Job Resource Price";
+        PriceListLine: Record "Price List Line";
         WorkTypeCode: Code[10];
         UnitPrice: Decimal;
     begin
         // Test Unit Price is suggested correctly according to JobResourcePrice setup when WorkTypeCode matched. Cover scenario 359275.
         // Setup: Create a Job, Job Task and Resource with UOM.
         ResourcePriceSuggestedSetup(JobTask, Resource, WorkTypeCode);
+        JobResourcePrice.DeleteAll();
 
         // Create 2 Job Resource Price Lines.
         UnitPrice := LibraryRandom.RandDec(100, 2);
         CreateJobResourcePriceWithUnitPrice(JobTask, JobResourcePrice.Type::All, '', '', LibraryRandom.RandDec(100, 2)); // WorkTypeCode is blank
         CreateJobResourcePriceWithUnitPrice(JobTask, JobResourcePrice.Type::All, '', WorkTypeCode, UnitPrice);
+        PriceListLine.DeleteAll();
+        CopyFromToPriceListLine.CopyFrom(JobResourcePrice, PriceListLine);
 
         // Exercise: Create a Job Planning & Journal Line
         // Verify: Unit Price is suggested correctly according to JobResourcePrice setup when WorkTypeCode matched.
@@ -2123,6 +2128,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         Resource: Record Resource;
         Resource2: Record Resource;
         JobResourcePrice: Record "Job Resource Price";
+        PriceListLine: Record "Price List Line";
         WorkTypeCode: Code[10];
         WorkTypeCode2: Code[10];
         UnitPrice: Decimal;
@@ -2130,6 +2136,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         // Unit Price is suggested correctly according to JobResourcePrice setup when ResoureNo matched but WorkTypeCode not matched.
         // Setup: Create a Job, Job Task and Resource
         ResourcePriceSuggestedSetup(JobTask, Resource, WorkTypeCode);
+        JobResourcePrice.DeleteAll();
         CreateResourceWithWorkTypeCodeAndUOM(Resource2, WorkTypeCode2);
 
         // Create 1 Job Resource Price Lines
@@ -2141,6 +2148,8 @@ codeunit 136303 "Job Consumption - Usage Link"
         CreateJobResourcePriceWithUnitPrice(
           JobTask, JobResourcePrice.Type::"Group(Resource)", CreateResourceGroup(Resource2),
           WorkTypeCode2, LibraryRandom.RandDec(100, 2));
+        PriceListLine.DeleteAll();
+        CopyFromToPriceListLine.CopyFrom(JobResourcePrice, PriceListLine);
 
         // Exercise: Create a Job Planning & Journal Line
         // Verify: Unit Price is suggested correctly according to JobResourcePrice setup when ResoureNo matched but WorkTypeCode not matched.
@@ -2157,17 +2166,21 @@ codeunit 136303 "Job Consumption - Usage Link"
         JobTask: Record "Job Task";
         Resource: Record Resource;
         JobResourcePrice: Record "Job Resource Price";
+        PriceListLine: Record "Price List Line";
         WorkTypeCode: Code[10];
         UnitPrice: Decimal;
     begin
         // Test Unit Price is suggested correctly according to JobResourcePrice setup when Resource with Group No. and Work Type Code. Cover scenario PS42257 (TFS211740)
         // Setup: Create a Job, Job Task and Resource
         ResourcePriceSuggestedSetup(JobTask, Resource, WorkTypeCode);
+        JobResourcePrice.DeleteAll();
         CreateResourceGroup(Resource);
 
         // Create 1 Job Resource Price Lines.
         UnitPrice := LibraryRandom.RandDec(100, 2);
         CreateJobResourcePriceWithUnitPrice(JobTask, JobResourcePrice.Type::All, '', '', UnitPrice);
+        PriceListLine.DeleteAll();
+        CopyFromToPriceListLine.CopyFrom(JobResourcePrice, PriceListLine);
 
         // Exercise: Create a Job Planning & Journal Line
         // Verify: Unit Price is suggested correctly according to JobResourcePrice setup when Resource with Group No. and Work Type Code.
@@ -2266,7 +2279,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         JobUsageLink.SetRange("Job No.", Job2."No.");
         Assert.AreEqual(1, JobUsageLink.Count, 'Wrong number of Job Usage Links');
 
-        JobUsageLink.Reset;
+        JobUsageLink.Reset();
 
         JobTask2.Get(Job2."No.", JobTask2."Job Task No.");
         JobTask2.Rename(Job2."No.", LibraryUtility.GenerateGUID);
@@ -2422,7 +2435,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         if (VariantCode = '') or ItemVariant.Get(ItemNo, VariantCode) then
             exit(VariantCode);
 
-        ItemVariant.Init;
+        ItemVariant.Init();
         ItemVariant.Validate("Item No.", ItemNo);
         ItemVariant.Validate(Code, VariantCode);
         ItemVariant.Insert(true);
@@ -2436,7 +2449,7 @@ codeunit 136303 "Job Consumption - Usage Link"
         if WorkType.Get(WorkTypeCode) then
             exit(WorkTypeCode);
 
-        WorkType.Init;
+        WorkType.Init();
         WorkType.Validate(Code, WorkTypeCode);
         WorkType.Insert(true);
         exit(WorkTypeCode)
@@ -2444,30 +2457,30 @@ codeunit 136303 "Job Consumption - Usage Link"
 
     local procedure MockJobPlanningLine(var Job: Record Job; var JobTask: Record "Job Task"; var JobPlanningLine: Record "Job Planning Line"; JobTaskNo: Code[20]; JobPlanningLineNo: Integer)
     begin
-        Job.Init;
+        Job.Init();
         Job."No." := LibraryUtility.GenerateGUID;
-        Job.Insert;
+        Job.Insert();
 
-        JobTask.Init;
+        JobTask.Init();
         JobTask."Job No." := Job."No.";
         JobTask."Job Task No." := JobTaskNo;
-        JobTask.Insert;
+        JobTask.Insert();
 
-        JobPlanningLine.Init;
+        JobPlanningLine.Init();
         JobPlanningLine."Job No." := JobTask."Job No.";
         JobPlanningLine."Job Task No." := JobTask."Job Task No.";
         JobPlanningLine."Line No." := JobPlanningLineNo;
-        JobPlanningLine.Insert;
+        JobPlanningLine.Insert();
     end;
 
     local procedure MockJobUsageLink(var JobUsageLink: Record "Job Usage Link"; JobNo: Code[20]; JobTaskNo: Code[20]; LineNo: Integer)
     begin
-        JobUsageLink.Init;
+        JobUsageLink.Init();
         JobUsageLink."Job No." := JobNo;
         JobUsageLink."Job Task No." := JobTaskNo;
         JobUsageLink."Line No." := LineNo;
         JobUsageLink."Entry No." := LibraryRandom.RandInt(10);
-        JobUsageLink.Insert;
+        JobUsageLink.Insert();
     end;
 
     local procedure ResourcePriceSuggestedSetup(var JobTask: Record "Job Task"; var Resource: Record Resource; var WorkTypeCode: Code[10])
@@ -2640,7 +2653,7 @@ codeunit 136303 "Job Consumption - Usage Link"
     var
         SalesSetup: Record "Sales & Receivables Setup";
     begin
-        SalesSetup.Get;
+        SalesSetup.Get();
         SalesSetup.Validate("Customer Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         SalesSetup.Modify(true);
     end;

@@ -399,7 +399,7 @@ page 1157 "Client Detail Cash Flow Chart"
     begin
         if not Confirm(ConfirmRecalculationQst) then
             exit;
-        CashFlowSetup.Get;
+        CashFlowSetup.Get();
         CashFlowManagement.UpdateCashFlowForecast(CashFlowSetup."Azure AI Enabled");
         CurrPage.Update(false);
 

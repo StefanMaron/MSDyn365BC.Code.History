@@ -180,7 +180,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
 
         // SETUP: Change VAT Prod. Posting Group to new on one of the lines.
         GetServiceLine(ServiceHeader, ServiceLine);
-        LineCount := ServiceLine.Count;
+        LineCount := ServiceLine.Count();
         if First then
             ServiceLine.Next
         else
@@ -488,7 +488,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         CreateServiceOrder(ServiceHeader, 1);
         AddLineWithNextLineNo(ServiceHeader);
         GetServiceLine(ServiceHeader, ServiceLine);
-        LineCount := ServiceLine.Count;
+        LineCount := ServiceLine.Count();
 
         // SETUP: Ship
         ERMVATToolHelper.UpdateQtyToShipService(ServiceHeader);
@@ -550,7 +550,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         SetCheckboxStateOnPageIgnoreStatusOnServiceDocs(true);
 
         // [THEN] Field "Ignore Status on Service Docs." of "VAT Rate Change Setup" table is set to TRUE.
-        VATRateChangeSetup.Get;
+        VATRateChangeSetup.Get();
         VATRateChangeSetup.TestField("Ignore Status on Service Docs.", true);
     end;
 
@@ -571,7 +571,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         SetCheckboxStateOnPageIgnoreStatusOnServiceDocs(false);
 
         // [THEN] Field "Ignore Status on Service Docs." of "VAT Rate Change Setup" table is set to FALSE.
-        VATRateChangeSetup.Get;
+        VATRateChangeSetup.Get();
         VATRateChangeSetup.TestField("Ignore Status on Service Docs.", false);
     end;
 
@@ -670,7 +670,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         ERMVATToolHelper.ResetToolSetup;  // This resets setup table for the first test case after database is restored.
         LibraryERMCountryData.UpdateSalesReceivablesSetup;
         isInitialized := true;
-        Commit;
+        Commit();
     end;
 
     local procedure SetupToolService(FieldOption: Option; PerformConversion: Boolean; IgnoreStatus: Boolean)
@@ -1029,7 +1029,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
     local procedure SetTempTableService(TempRecRef: RecordRef; var TempServiceLn: Record "Service Line" temporary)
     begin
         // SETTABLE call required for each record of the temporary table.
-        TempRecRef.Reset;
+        TempRecRef.Reset();
         if TempRecRef.FindSet then begin
             TempServiceLn.SetView(TempRecRef.GetView);
             repeat
@@ -1052,9 +1052,9 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
     var
         VATRateChangeSetup: Record "VAT Rate Change Setup";
     begin
-        VATRateChangeSetup.Get;
+        VATRateChangeSetup.Get();
         VATRateChangeSetup."Ignore Status on Service Docs." := State;
-        VATRateChangeSetup.Modify;
+        VATRateChangeSetup.Modify();
     end;
 
     local procedure PrepareServInvoiceForShipment(var TempRecRef: RecordRef)
@@ -1074,7 +1074,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
 
         ServiceLine.SetRange("Document Type", ServiceHeader."Document Type");
         ServiceLine.SetFilter("Document No.", ServiceHeader."No.");
-        ServiceLine.DeleteAll;
+        ServiceLine.DeleteAll();
 
         ServiceLine.SetRange("Document Type", ServiceHeader2."Document Type");
         ServiceLine.SetFilter("Document No.", ServiceHeader2."No.");
@@ -1206,11 +1206,11 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         VATProdPostingGroupNew: Code[20];
         GenProdPostingGroupNew: Code[20];
     begin
-        VATRateChangeSetup.Get;
+        VATRateChangeSetup.Get();
         ERMVATToolHelper.GetGroupsBefore(VATProdPostingGroupOld, GenProdPostingGroupOld);
         ERMVATToolHelper.GetGroupsAfter(VATProdPostingGroupNew, GenProdPostingGroupNew, TempRecRef.Number);
 
-        ServiceLn.Reset;
+        ServiceLn.Reset();
         ServiceLn.SetFilter("VAT Prod. Posting Group", StrSubstNo('%1|%2', VATProdPostingGroupOld, VATProdPostingGroupNew));
         ServiceLn.SetFilter("Gen. Prod. Posting Group", StrSubstNo('%1|%2', GenProdPostingGroupOld, GenProdPostingGroupNew));
         ServiceLn.FindSet;
@@ -1218,7 +1218,7 @@ codeunit 134053 "ERM VAT Tool - Serv. Doc"
         // Compare Number of lines.
         Assert.AreEqual(TempRecRef.Count, ServiceLn.Count, StrSubstNo(ERMVATToolHelper.GetConversionErrorCount, ServiceLn.GetFilters));
 
-        TempRecRef.Reset;
+        TempRecRef.Reset();
         SetTempTableService(TempRecRef, TempServiceLn);
         TempServiceLn.FindSet;
 

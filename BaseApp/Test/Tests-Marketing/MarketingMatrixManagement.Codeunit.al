@@ -35,7 +35,7 @@ codeunit 136211 "Marketing Matrix Management"
 
         LibraryService.SetupServiceMgtNoSeries;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Marketing Matrix Management");
     end;
 
@@ -55,7 +55,7 @@ codeunit 136211 "Marketing Matrix Management"
         // 1. Setup: Create Salesperson and Task for Salesperson.
         Initialize;
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
-        Commit;
+        Commit();
 
         Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
         TempTask.CreateTaskFromTask(Task);
@@ -64,7 +64,7 @@ codeunit 136211 "Marketing Matrix Management"
         Tasks.OpenEdit;
         Tasks.TableOption.SetValue(TableOption::Salesperson);
         Tasks.FilterSalesPerson.SetValue(SalespersonPurchaser.Code);
-        Commit;
+        Commit();
         Tasks.ShowMatrix.Invoke;
 
         // 3. Verify: Verify value on Tasks Matrix performed on Tasks Matrix page handler.
@@ -89,7 +89,7 @@ codeunit 136211 "Marketing Matrix Management"
         // 1. Setup: Create Team and Task for Team.
         Initialize;
         LibraryMarketing.CreateTeam(Team);
-        Commit;
+        Commit();
 
         Task.SetRange("Team Code", Team.Code);
         TempTask.CreateTaskFromTask(Task);
@@ -98,7 +98,7 @@ codeunit 136211 "Marketing Matrix Management"
         Tasks.OpenEdit;
         Tasks.TableOption.SetValue(TableOption::Team);
         Tasks.FilterTeam.SetValue(Team.Code);
-        Commit;
+        Commit();
         Tasks.ShowMatrix.Invoke;
 
         // 3. Verify: Verify value on Tasks Matrix performed on Tasks Matrix page handler.
@@ -125,7 +125,7 @@ codeunit 136211 "Marketing Matrix Management"
         Initialize;
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
         CampaignNo := CreateCampaign(SalespersonPurchaser.Code);
-        Commit;
+        Commit();
 
         Task.SetRange("Campaign No.", CampaignNo);
         TempTask.CreateTaskFromTask(Task);
@@ -134,7 +134,7 @@ codeunit 136211 "Marketing Matrix Management"
         Tasks.OpenEdit;
         Tasks.TableOption.SetValue(TableOption::Campaign);
         Tasks.FilterCampaign.SetValue(CampaignNo);
-        Commit;
+        Commit();
         Tasks.ShowMatrix.Invoke;
 
         // 3. Verify: Verify value on Tasks Matrix performed on Tasks Matrix page handler.
@@ -159,7 +159,7 @@ codeunit 136211 "Marketing Matrix Management"
         // 1. Setup: Create Contact and Task for Contact.
         Initialize;
         LibraryMarketing.CreateCompanyContact(Contact);
-        Commit;
+        Commit();
 
         Task.SetRange("Contact No.", Contact."No.");
         TempTask.CreateTaskFromTask(Task);
@@ -168,7 +168,7 @@ codeunit 136211 "Marketing Matrix Management"
         Tasks.OpenEdit;
         Tasks.TableOption.SetValue(TableOption::Contact);
         Tasks.FilterContact.SetValue(Contact."No.");
-        Commit;
+        Commit();
         Tasks.ShowMatrix.Invoke;
 
         // 3. Verify: Verify value on Tasks Matrix performed on Tasks Matrix page handler.
@@ -194,7 +194,7 @@ codeunit 136211 "Marketing Matrix Management"
         // 1. Setup: Create Salesperson and Task for Salesperson.
         Initialize;
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
-        Commit;
+        Commit();
 
         Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
         TempTask.CreateTaskFromTask(Task);
@@ -205,7 +205,7 @@ codeunit 136211 "Marketing Matrix Management"
         Tasks.TableOption.SetValue(TableOption::Salesperson);
         Tasks.FilterSalesPerson.SetValue(SalespersonPurchaser.Code);
         Tasks.StatusFilter.SetValue(StatusFilter::"Not Started");
-        Commit;
+        Commit();
         Tasks.ShowMatrix.Invoke;
 
         // 3. Verify: Verify value on Tasks Matrix performed on Tasks Matrix page handler.
@@ -278,7 +278,7 @@ codeunit 136211 "Marketing Matrix Management"
         // 1. Setup: Create Salesperson, Task for Salesperson and Change the Status of to-do as per parameter.
         Initialize;
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
-        Commit;
+        Commit();
 
         Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
         TempTask.CreateTaskFromTask(Task);
@@ -291,7 +291,7 @@ codeunit 136211 "Marketing Matrix Management"
         Tasks.TableOption.SetValue(TableOption::Salesperson);
         Tasks.FilterSalesPerson.SetValue(SalespersonPurchaser.Code);
         Tasks.StatusFilter.SetValue(StatusFilter);
-        Commit;
+        Commit();
         Tasks.ShowMatrix.Invoke;
 
         // 3. Verify: Verify value on Tasks Matrix performed on Tasks Matrix page handler.
@@ -319,7 +319,7 @@ codeunit 136211 "Marketing Matrix Management"
         // 1. Setup: Create Salesperson, Task for Salesperson and Change the Status of to-do to Completed.
         Initialize;
         LibrarySales.CreateSalesperson(SalespersonPurchaser);
-        Commit;
+        Commit();
 
         Task.SetRange("Salesperson Code", SalespersonPurchaser.Code);
         TempTask.CreateTaskFromTask(Task);
@@ -333,7 +333,7 @@ codeunit 136211 "Marketing Matrix Management"
         Tasks.FilterSalesPerson.SetValue(SalespersonPurchaser.Code);
         Tasks.StatusFilter.SetValue(StatusFilter::Completed);
         Tasks.IncludeClosed.SetValue(true);
-        Commit;
+        Commit();
         Tasks.ShowMatrix.Invoke;
 
         // 3. Verify: Verify value on Tasks Matrix performed on Tasks Matrix page handler.
@@ -451,7 +451,7 @@ codeunit 136211 "Marketing Matrix Management"
         asserterror UpdateCampaignOnOpportunity(Opportunity, Campaign."No.");
         Assert.KnownFailure(StrSubstNo(OppCampaignNoErr, Campaign."No.", Opportunity."No."), 186663);
         Opportunity.UpdateOpportunity;
-        Commit;
+        Commit();
 
         // 2. Exercise: Run Show Matrix from Opportunities page with Show as Lines Campaign and Show as No of Opportunities.
         Opportunities.OpenEdit;
@@ -698,7 +698,7 @@ codeunit 136211 "Marketing Matrix Management"
         Opportunity.SetRange("Contact No.", ContactNo);
         Opportunity.FindFirst;
         Opportunity.CloseOpportunity;
-        Commit;
+        Commit();
 
         // 2. Exercise: Run Show Matrix from Opportunities page with Show as Lines Salesperson, Show as No of Opportunities and Status
         // filter as per parameter.
@@ -752,7 +752,7 @@ codeunit 136211 "Marketing Matrix Management"
 
         Opportunity.FindLast;
         Opportunity.UpdateOpportunity;
-        Commit;
+        Commit();
     end;
 
     local procedure CreateCampaign(SalespersonCode: Code[20]): Code[20]
@@ -851,7 +851,7 @@ codeunit 136211 "Marketing Matrix Management"
         OutputOption: Option "No. of To-dos","Contact No.";
         PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
     begin
-        Commit;
+        Commit();
         Tasks.OpenEdit;
         Tasks.OutputOption.SetValue(OutputOption::"Contact No.");
         Tasks.PeriodType.SetValue(PeriodType::Day);
@@ -908,9 +908,9 @@ codeunit 136211 "Marketing Matrix Management"
         CloseOpportunityCode: Record "Close Opportunity Code";
         ActionTaken: Option " ",Next,Previous,Updated,Jumped,Won,Lost;
     begin
-        TempOpportunityEntry.Init;
+        TempOpportunityEntry.Init();
         CloseOpportunity.GetRecord(TempOpportunityEntry);
-        TempOpportunityEntry.Insert;
+        TempOpportunityEntry.Insert();
         OpportunityClose(TempOpportunityEntry, FindCloseOpportunityCode(CloseOpportunityCode.Type::Lost), ActionTaken::Lost);
     end;
 
@@ -922,9 +922,9 @@ codeunit 136211 "Marketing Matrix Management"
         CloseOpportunityCode: Record "Close Opportunity Code";
         ActionTaken: Option " ",Next,Previous,Updated,Jumped,Won,Lost;
     begin
-        TempOpportunityEntry.Init;
+        TempOpportunityEntry.Init();
         CloseOpportunity.GetRecord(TempOpportunityEntry);
-        TempOpportunityEntry.Insert;
+        TempOpportunityEntry.Insert();
         OpportunityClose(TempOpportunityEntry, FindCloseOpportunityCode(CloseOpportunityCode.Type::Won), ActionTaken::Won);
     end;
 
@@ -934,9 +934,9 @@ codeunit 136211 "Marketing Matrix Management"
     var
         TempTask: Record "To-do" temporary;
     begin
-        TempTask.Init;
+        TempTask.Init();
         CreateTask.GetRecord(TempTask);
-        TempTask.Insert;
+        TempTask.Insert();
         TempTask.Validate(
           Description,
           CopyStr(
@@ -944,7 +944,7 @@ codeunit 136211 "Marketing Matrix Management"
             1, LibraryUtility.GetFieldLength(DATABASE::"To-do", TempTask.FieldNo(Description))));
         TempTask.Validate(Date, WorkDate);
 
-        TempTask.Modify;
+        TempTask.Modify();
         TempTask.CheckStatus;
         TempTask.FinishWizard(false);
     end;
@@ -955,9 +955,9 @@ codeunit 136211 "Marketing Matrix Management"
     var
         TempOpportunity: Record Opportunity temporary;
     begin
-        TempOpportunity.Init;
+        TempOpportunity.Init();
         CreateOpportunity.GetRecord(TempOpportunity);
-        TempOpportunity.Insert;
+        TempOpportunity.Insert();
         TempOpportunity.Validate(Description, TempOpportunity."Contact No.");
         TempOpportunity.Validate("Sales Cycle Code", SalesCycleCode);
 
@@ -971,16 +971,16 @@ codeunit 136211 "Marketing Matrix Management"
     var
         TempTask: Record "To-do" temporary;
     begin
-        TempTask.Init;
+        TempTask.Init();
         CreateTask.GetRecord(TempTask);
-        TempTask.Insert;
+        TempTask.Insert();
         TempTask.Validate(
           Description,
           CopyStr(
             LibraryUtility.GenerateRandomCode(TempTask.FieldNo(Description), DATABASE::"To-do"),
             1, LibraryUtility.GetFieldLength(DATABASE::"To-do", TempTask.FieldNo(Description))));
         TempTask.Validate(Date, WorkDate);
-        TempTask.Modify;
+        TempTask.Modify();
     end;
 
     [ModalPageHandler]
@@ -989,9 +989,9 @@ codeunit 136211 "Marketing Matrix Management"
     var
         TempOpportunityEntry: Record "Opportunity Entry" temporary;
     begin
-        TempOpportunityEntry.Init;
+        TempOpportunityEntry.Init();
         UpdateOpportunity.GetRecord(TempOpportunityEntry);
-        TempOpportunityEntry.Insert;
+        TempOpportunityEntry.Insert();
         TempOpportunityEntry.CreateStageList;
         TempOpportunityEntry.Validate("Action Type", TempOpportunityEntry."Action Type"::First);
         TempOpportunityEntry.Validate("Sales Cycle Stage", CurrentSalesCycleStage);
@@ -1000,7 +1000,7 @@ codeunit 136211 "Marketing Matrix Management"
         TempOpportunityEntry.Validate("Estimated Value (LCY)", LibraryRandom.RandDec(100, 2));
         TempOpportunityEntry.Validate("Chances of Success %", LibraryRandom.RandDec(99, 2));
         TempOpportunityEntry.Validate("Estimated Close Date", WorkDate);
-        TempOpportunityEntry.Modify;
+        TempOpportunityEntry.Modify();
 
         TempOpportunityEntry.CheckStatus2;
         TempOpportunityEntry.FinishWizard2;

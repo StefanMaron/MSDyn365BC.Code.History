@@ -68,7 +68,7 @@ table 11003 "Data Export Record Definition"
     var
         DataExportRecordSource: Record "Data Export Record Source";
     begin
-        DataExportRecordSource.Reset;
+        DataExportRecordSource.Reset();
         DataExportRecordSource.SetRange("Data Export Code", "Data Export Code");
         DataExportRecordSource.SetRange("Data Exp. Rec. Type Code", "Data Exp. Rec. Type Code");
         DataExportRecordSource.DeleteAll(true);
@@ -105,7 +105,7 @@ table 11003 "Data Export Record Definition"
     begin
         ErrorsFound := false;
 
-        DataExportRecordSource.Reset;
+        DataExportRecordSource.Reset();
         DataExportRecordSource.SetRange("Data Export Code", "Data Export Code");
         DataExportRecordSource.SetRange("Data Exp. Rec. Type Code", "Data Exp. Rec. Type Code");
         UpdateRecordSources(DataExportRecordSource);
@@ -132,7 +132,7 @@ table 11003 "Data Export Record Definition"
                 IsKey := true;
                 IsPrimary := true;
                 ShowMessage := true;
-                DataExportRecordField.Reset;
+                DataExportRecordField.Reset();
                 DataExportRecordField.SetRange("Data Export Code", "Data Export Code");
                 DataExportRecordField.SetRange("Data Exp. Rec. Type Code", "Data Exp. Rec. Type Code");
                 DataExportRecordField.SetRange("Table No.", DataExportRecordSource."Table No.");
@@ -141,7 +141,7 @@ table 11003 "Data Export Record Definition"
                     repeat
                         repeat
                             DataExportRecordField.CalcFields("Table Name", "Field Name");
-                            Field.Reset;
+                            Field.Reset();
                             Field.SetRange(TableNo, DataExportRecordField."Table No.");
                             Field.SetRange("No.", DataExportRecordField."Field No.");
                             Field.FindFirst;
@@ -183,16 +183,16 @@ table 11003 "Data Export Record Definition"
     var
         "Key": Record "Key";
     begin
-        KeyBuffer.DeleteAll;
-        Key.Reset;
+        KeyBuffer.DeleteAll();
+        Key.Reset();
         Key.SetRange(TableNo, TableNo);
         if Key.FindSet then
             repeat
-                KeyBuffer.Init;
+                KeyBuffer.Init();
                 KeyBuffer."Table No" := Key.TableNo;
                 KeyBuffer."Field No." := Key."No.";
                 KeyBuffer.Key := CopyStr(Key.Key, 1, 250);
-                KeyBuffer.Insert;
+                KeyBuffer.Insert();
             until Key.Next = 0;
     end;
 
@@ -250,7 +250,7 @@ table 11003 "Data Export Record Definition"
 
                 if UpdateFields(DataExportRecordSource) then
                     DataExportRecordSource."Date Filter Handling" := FindDateFilterHandling(DataExportRecordSource);
-                DataExportRecordSource.Modify;
+                DataExportRecordSource.Modify();
 
                 ParentLineNo[DataExportRecordSource.Indentation + 1] := DataExportRecordSource."Line No.";
             until DataExportRecordSource.Next = 0;
@@ -297,9 +297,9 @@ table 11003 "Data Export Record Definition"
                     NewDataExportRecordField := DataExportRecordField;
                     NewDataExportRecordField."Source Line No." := DataExportRecordSource."Line No.";
                     NewDataExportRecordField.Validate("Field No.");
-                    NewDataExportRecordField.Insert;
+                    NewDataExportRecordField.Insert();
                 until Next = 0;
-                DeleteAll;
+                DeleteAll();
                 Updated := true;
             end;
         end;

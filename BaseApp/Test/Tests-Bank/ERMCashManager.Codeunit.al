@@ -695,7 +695,7 @@ codeunit 134500 "ERM Cash Manager"
         LibrarySales.CreateCustomer(Customer);
         CreateGenJnlLinesWithDifferentCurrencies(CustomerPaymentGenJnlLine, BankAccount."No.",
           CustomerPaymentGenJnlLine."Account Type"::Customer, Customer."No.", CurrencyCode, BatchName, TemplateName);
-        Commit;
+        Commit();
 
         // 2. Print check - there should be an error since the currency of the bank and the gen. jnl line are not the same. (TFS 319808)
         LibraryVariableStorage.Enqueue(BankAccount."No.");
@@ -729,12 +729,12 @@ codeunit 134500 "ERM Cash Manager"
         CreateGenJnlLineWithBankPaymentType(
           GenJournalLine, BankAccount."No.", LibraryPurchase.CreateVendorNo, GenJournalLine."Bank Payment Type"::"Computer Check");
         GenJournalLine."Exported to Payment File" := true;
-        GenJournalLine.Modify;
+        GenJournalLine.Modify();
         CreateGenJnlBatchForBank(GenJournalBatch, BankAccount."No.");
         LibraryVariableStorage.Enqueue(BankAccount."No.");
         LibraryVariableStorage.Enqueue(BankAccount."Last Check No.");
         GenJournalLine.SetRange("Journal Template Name", GenJournalLine."Journal Template Name");
-        Commit;
+        Commit();
 
         // [WHEN] Run report "Check"
         asserterror REPORT.Run(REPORT::Check, true, false, GenJournalLine);
@@ -826,7 +826,7 @@ codeunit 134500 "ERM Cash Manager"
         LibraryERMCountryData.UpdateGeneralLedgerSetup;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Cash Manager");
     end;
 
@@ -1056,7 +1056,7 @@ codeunit 134500 "ERM Cash Manager"
     var
         CompanyInformation: Record "Company Information";
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         exit(CompanyInformation.IBAN);
     end;
 
@@ -1234,7 +1234,7 @@ codeunit 134500 "ERM Cash Manager"
         GLEntry.SetRange("Document No.", PurchInvHeader."No.");
         GLEntry.SetRange("Document Type", DocumentType);
         GLEntry.SetFilter("Bal. Account No.", BalAccountNo);
-        Commit;
+        Commit();
         GLEntry.FindLast;
     end;
 

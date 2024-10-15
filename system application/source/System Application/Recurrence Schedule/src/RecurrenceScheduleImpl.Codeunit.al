@@ -176,18 +176,18 @@ codeunit 4691 "Recurrence Schedule Impl."
     begin
         CASE RecurrenceSchedule.Weekday OF
             DayOfWeek::Day:
-                EXIT(FindDayInMonth(RecurrenceSchedule, LastOccurrence, RecurrenceSchedule."Ordinal Recurrence No.", DayOfWeek::Monday, DayOfWeek::Sunday));
+                EXIT(FindDayInMonth(LastOccurrence, RecurrenceSchedule."Ordinal Recurrence No.", DayOfWeek::Monday, DayOfWeek::Sunday));
             DayOfWeek::Weekday:
-                EXIT(FindDayInMonth(RecurrenceSchedule, LastOccurrence, RecurrenceSchedule."Ordinal Recurrence No.", DayOfWeek::Monday, DayOfWeek::Friday));
+                EXIT(FindDayInMonth(LastOccurrence, RecurrenceSchedule."Ordinal Recurrence No.", DayOfWeek::Monday, DayOfWeek::Friday));
             DayOfWeek::"Weekend day":
-                EXIT(FindDayInMonth(RecurrenceSchedule, LastOccurrence, RecurrenceSchedule."Ordinal Recurrence No.", DayOfWeek::Saturday, DayOfWeek::Sunday))
+                EXIT(FindDayInMonth(LastOccurrence, RecurrenceSchedule."Ordinal Recurrence No.", DayOfWeek::Saturday, DayOfWeek::Sunday))
             ELSE
-                EXIT(FindDayInMonth(RecurrenceSchedule, LastOccurrence, RecurrenceSchedule."Ordinal Recurrence No.",
+                EXIT(FindDayInMonth(LastOccurrence, RecurrenceSchedule."Ordinal Recurrence No.",
                     RecurrenceSchedule.Weekday, RecurrenceSchedule.Weekday))
         END;
     end;
 
-    local procedure FindDayInMonth(RecurrenceSchedule: Record "Recurrence Schedule"; CurrDate: Date; WhatToFind: Enum "Recurrence - Ordinal No."; StartWeekDay: Integer; EndWeekDay: Integer): Date
+    local procedure FindDayInMonth(CurrDate: Date; WhatToFind: Enum "Recurrence - Ordinal No."; StartWeekDay: Integer; EndWeekDay: Integer): Date
     var
         DatesInMonth: Record Date;
         RecurrenceOrdinalNo: Enum "Recurrence - Ordinal No.";

@@ -1317,7 +1317,7 @@ codeunit 137288 "SCM Inventory Costing III"
         LibraryERMCountryData.UpdatePurchasesPayablesSetup;
         LibraryInventory.NoSeriesSetup(InventorySetup);
         isInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"SCM Inventory Costing III");
     end;
 
@@ -1564,7 +1564,7 @@ codeunit 137288 "SCM Inventory Costing III"
         ReservationEntry.FindSet;
         repeat
             TempReservationEntry := ReservationEntry;
-            TempReservationEntry.Insert;
+            TempReservationEntry.Insert();
         until ReservationEntry.Next = 0;
     end;
 

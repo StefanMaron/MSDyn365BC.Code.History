@@ -45,7 +45,7 @@ codeunit 743 "VAT Report Export"
     begin
         VATReportHeader2.Copy(VATReportHeader);
         VATReportHeader2.SetRange("No.", VATReportHeader."No.");
-        Commit;
+        Commit();
         REPORT.Run(REPORT::"Export VIES Report", true, false, VATReportHeader2);
     end;
 }

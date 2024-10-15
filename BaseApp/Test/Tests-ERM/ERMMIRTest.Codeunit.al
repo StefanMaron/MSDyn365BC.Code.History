@@ -521,7 +521,7 @@ codeunit 134929 "ERM MIR Test"
         CreateCustomer(Customer);
         CreateReminderLevel(Customer."Reminder Terms Code");
         MockCustomerLedgerEntry(CustLedgerEntry, Customer."No.");
-        ReminderHeader.Init;
+        ReminderHeader.Init();
         ReminderHeader."Document Date" := WorkDate;
         ReminderMake.Set(Customer, CustLedgerEntry, ReminderHeader, false, false, CustLedgEntryLineFeeOn);  // Overdue Entries Only - False and  Include Entries On Hold - False.
 
@@ -1013,7 +1013,7 @@ codeunit 134929 "ERM MIR Test"
         LibrarySales.CreateCustomer(Customer);
         Customer."Reminder Terms Code" := CreateReminderTerms;
         Customer."Fin. Charge Terms Code" := CreateFinanceChargeTermsCode;
-        Customer.Modify;
+        Customer.Modify();
     end;
 
     local procedure CreateFinChargeTermWithGracePeriod(var FinanceChargeTerms: Record "Finance Charge Terms")
@@ -1049,11 +1049,11 @@ codeunit 134929 "ERM MIR Test"
     var
         GLAccount: Record "G/L Account";
     begin
-        GLAccount.Init;
+        GLAccount.Init();
         GLAccount."No." := LibraryUTUtility.GetNewCode;
         GLAccount."VAT Prod. Posting Group" := CreateVATProductPostingGroup;
         GLAccount."Gen. Prod. Posting Group" := CreateGeneralProductPostingGroup;
-        GLAccount.Insert;
+        GLAccount.Insert();
         exit(GLAccount."No.");
     end;
 
@@ -1061,10 +1061,10 @@ codeunit 134929 "ERM MIR Test"
     var
         GenProductPostingGroup: Record "Gen. Product Posting Group";
     begin
-        GenProductPostingGroup.Init;
+        GenProductPostingGroup.Init();
         GenProductPostingGroup.Code := LibraryUTUtility.GetNewCode10;
         GenProductPostingGroup."Def. VAT Prod. Posting Group" := CreateVATProductPostingGroup;
-        GenProductPostingGroup.Insert;
+        GenProductPostingGroup.Insert();
         exit(GenProductPostingGroup.Code);
     end;
 
@@ -1080,19 +1080,19 @@ codeunit 134929 "ERM MIR Test"
 
     local procedure CreateFinanceChargeTermsWithCalcMethod(var FinanceChargeTerms: Record "Finance Charge Terms"; InterestCalculationMethod: Option)
     begin
-        FinanceChargeTerms.Init;
+        FinanceChargeTerms.Init();
         FinanceChargeTerms.Code := LibraryUTUtility.GetNewCode10;
         FinanceChargeTerms."Interest Calculation Method" := InterestCalculationMethod;
         FinanceChargeTerms."Interest Rate" := LibraryRandom.RandInt(10);
         FinanceChargeTerms."Interest Period (Days)" := LibraryRandom.RandInt(10);
-        FinanceChargeTerms.Insert;
+        FinanceChargeTerms.Insert();
     end;
 
     local procedure CreateFinanceChargeMemo(var FinanceChargeMemoHeader: Record "Finance Charge Memo Header"; Customer: Record Customer; Type: Option; No: Code[20]; EntryNo: Integer): Code[20]
     var
         FinanceChargeMemoLine: Record "Finance Charge Memo Line";
     begin
-        FinanceChargeMemoHeader.Init;
+        FinanceChargeMemoHeader.Init();
         FinanceChargeMemoHeader."No." := LibraryUTUtility.GetNewCode;
         FinanceChargeMemoHeader."Document Date" := WorkDate;
         FinanceChargeMemoHeader."Customer No." := Customer."No.";
@@ -1101,16 +1101,16 @@ codeunit 134929 "ERM MIR Test"
         FinanceChargeMemoHeader."Fin. Charge Terms Code" := Customer."Fin. Charge Terms Code";
         FinanceChargeMemoHeader."Post Additional Fee" := true;
         FinanceChargeMemoHeader."Posting Description" := FinanceChargeMemoHeader."No.";
-        FinanceChargeMemoHeader.Insert;
+        FinanceChargeMemoHeader.Insert();
         FinanceChargeMemoLine."Finance Charge Memo No." := FinanceChargeMemoHeader."No.";
-        FinanceChargeMemoLine.Init;
+        FinanceChargeMemoLine.Init();
         FinanceChargeMemoLine.Type := Type;
         FinanceChargeMemoLine."No." := No;
         FinanceChargeMemoLine."VAT Prod. Posting Group" := CreateVATProductPostingGroup;
         FinanceChargeMemoLine.Amount := LibraryRandom.RandDec(10, 2);
         FinanceChargeMemoLine."Remaining Amount" := LibraryRandom.RandDec(10, 2);
         FinanceChargeMemoLine."Entry No." := EntryNo;
-        FinanceChargeMemoLine.Insert;
+        FinanceChargeMemoLine.Insert();
         exit(FinanceChargeMemoLine."No.");
     end;
 
@@ -1118,13 +1118,13 @@ codeunit 134929 "ERM MIR Test"
     var
         FinanceChargeTerms: Record "Finance Charge Terms";
     begin
-        FinanceChargeTerms.Init;
+        FinanceChargeTerms.Init();
         FinanceChargeTerms.Code := LibraryUTUtility.GetNewCode10;
         FinanceChargeTerms."Interest Period (Days)" := LibraryRandom.RandInt(10);
         FinanceChargeTerms."Additional Fee (LCY)" := LibraryRandom.RandDec(10, 2);
         FinanceChargeTerms."Interest Rate" := LibraryRandom.RandDec(10, 2);
         FinanceChargeTerms."Interest Calculation Method" := FinanceChargeTerms."Interest Calculation Method"::"Balance Due";
-        FinanceChargeTerms.Insert;
+        FinanceChargeTerms.Insert();
         exit(FinanceChargeTerms.Code);
     end;
 
@@ -1132,20 +1132,20 @@ codeunit 134929 "ERM MIR Test"
     var
         FinanceChargeMemoHeader: Record "Finance Charge Memo Header";
     begin
-        FinanceChargeMemoHeader.Init;
+        FinanceChargeMemoHeader.Init();
         FinanceChargeMemoHeader."No." := LibraryUTUtility.GetNewCode;
         FinanceChargeMemoHeader."Customer No." := LibraryUTUtility.GetNewCode;
         FinanceChargeMemoHeader."Document Date" := WorkDate;
         FinanceChargeMemoHeader."Customer Posting Group" := LibraryUTUtility.GetNewCode10;
         FinanceChargeMemoHeader."Fin. Charge Terms Code" := FinChargeTermsCode;
-        FinanceChargeMemoHeader.Insert;
+        FinanceChargeMemoHeader.Insert();
 
-        FinanceChargeMemoLine.Init;
+        FinanceChargeMemoLine.Init();
         FinanceChargeMemoLine."Finance Charge Memo No." := FinanceChargeMemoHeader."No.";
         FinanceChargeMemoLine.Type := FinanceChargeMemoLine.Type::"Customer Ledger Entry";
         FinanceChargeMemoLine."Entry No." := CreateDummyCustomerLedgerEntry;
         FinanceChargeMemoLine."Due Date" := FinanceChargeMemoHeader."Document Date";
-        FinanceChargeMemoLine.Insert;
+        FinanceChargeMemoLine.Insert();
     end;
 
     local procedure CreateDummyCustomerLedgerEntry(): Integer
@@ -1154,10 +1154,10 @@ codeunit 134929 "ERM MIR Test"
         CustLedgerEntry2: Record "Cust. Ledger Entry";
     begin
         CustLedgerEntry2.FindLast;
-        CustLedgerEntry.Init;
+        CustLedgerEntry.Init();
         CustLedgerEntry."Entry No." := CustLedgerEntry2."Entry No." + 1;
         CustLedgerEntry."Due Date" := WorkDate;
-        CustLedgerEntry.Insert;
+        CustLedgerEntry.Insert();
         exit(CustLedgerEntry."Entry No.");
     end;
 
@@ -1165,22 +1165,22 @@ codeunit 134929 "ERM MIR Test"
     var
         ReminderHeader: Record "Reminder Header";
     begin
-        ReminderHeader.Init;
+        ReminderHeader.Init();
         ReminderHeader."No." := LibraryUTUtility.GetNewCode;
         ReminderHeader."Customer No." := LibraryUTUtility.GetNewCode;
         ReminderHeader."Document Date" := WorkDate;
         ReminderHeader."Customer Posting Group" := LibraryUTUtility.GetNewCode10;
         ReminderHeader."Reminder Terms Code" := CreateReminderTerms;
         ReminderHeader."Fin. Charge Terms Code" := FinChargeTermsCode;
-        ReminderHeader.Insert;
+        ReminderHeader.Insert();
 
-        ReminderLine.Init;
+        ReminderLine.Init();
         ReminderLine."Reminder No." := ReminderHeader."No.";
         ReminderLine.Type := ReminderLine.Type::"Customer Ledger Entry";
         ReminderLine."Entry No." := CreateDummyCustomerLedgerEntry;
         ReminderLine."Due Date" := CalcDate('<-1D>', ReminderHeader."Document Date");  // Document Date greater than Due date required.
         ReminderLine."No. of Reminders" := 1;  // Number of Reminders 1 is required for first level.
-        ReminderLine.Insert;
+        ReminderLine.Insert();
         exit(ReminderHeader."Reminder Terms Code");
     end;
 
@@ -1188,7 +1188,7 @@ codeunit 134929 "ERM MIR Test"
     var
         ReminderLine: Record "Reminder Line";
     begin
-        ReminderHeader.Init;
+        ReminderHeader.Init();
         ReminderHeader."No." := LibraryUTUtility.GetNewCode;
         ReminderHeader."Document Date" := WorkDate;
         ReminderHeader."Customer No." := Customer."No.";
@@ -1197,8 +1197,8 @@ codeunit 134929 "ERM MIR Test"
         ReminderHeader."Post Additional Fee" := true;
         ReminderHeader."Posting Description" := ReminderHeader."No.";
         ReminderHeader."Reminder Terms Code" := CreateReminderTerms;
-        ReminderHeader.Insert;
-        ReminderLine.Init;
+        ReminderHeader.Insert();
+        ReminderLine.Init();
         ReminderLine."Reminder No." := ReminderHeader."No.";
         ReminderLine.Type := Type;
         ReminderLine."No." := No;
@@ -1206,7 +1206,7 @@ codeunit 134929 "ERM MIR Test"
         ReminderLine."Remaining Amount" := LibraryRandom.RandDec(10, 2);
         ReminderLine."VAT Prod. Posting Group" := CreateVATProductPostingGroup;
         ReminderLine."Entry No." := EntryNo;
-        ReminderLine.Insert;
+        ReminderLine.Insert();
         exit(ReminderLine."No.");
     end;
 
@@ -1214,20 +1214,20 @@ codeunit 134929 "ERM MIR Test"
     var
         ReminderLevel: Record "Reminder Level";
     begin
-        ReminderLevel.Init;
+        ReminderLevel.Init();
         ReminderLevel."Reminder Terms Code" := ReminderTermsCode;
         ReminderLevel."No." := 1;  // Reminder Level 1 is required for first level.
         ReminderLevel."Calculate Interest" := true;
-        ReminderLevel.Insert;
+        ReminderLevel.Insert();
     end;
 
     local procedure CreateReminderTerms(): Code[10]
     var
         ReminderTerms: Record "Reminder Terms";
     begin
-        ReminderTerms.Init;
+        ReminderTerms.Init();
         ReminderTerms.Code := LibraryUTUtility.GetNewCode10;
-        ReminderTerms.Insert;
+        ReminderTerms.Insert();
         exit(ReminderTerms.Code);
     end;
 
@@ -1235,9 +1235,9 @@ codeunit 134929 "ERM MIR Test"
     var
         VATProductPostingGroup: Record "VAT Product Posting Group";
     begin
-        VATProductPostingGroup.Init;
+        VATProductPostingGroup.Init();
         VATProductPostingGroup.Code := LibraryUTUtility.GetNewCode10;
-        VATProductPostingGroup.Insert;
+        VATProductPostingGroup.Insert();
         CreateVATPostingSetup('', VATProductPostingGroup.Code);  // VAT Business Posting Group - Blank.
         exit(VATProductPostingGroup.Code);
     end;
@@ -1246,10 +1246,10 @@ codeunit 134929 "ERM MIR Test"
     var
         VATPostingSetup: Record "VAT Posting Setup";
     begin
-        VATPostingSetup.Init;
+        VATPostingSetup.Init();
         VATPostingSetup."VAT Bus. Posting Group" := VATBusPostingGroup;
         VATPostingSetup."VAT Prod. Posting Group" := VATProdPostingGroup;
-        VATPostingSetup.Insert;
+        VATPostingSetup.Insert();
     end;
 
     local procedure FindFinChargeMemoMIRLine(var FinanceChargeMemoLine: Record "Finance Charge Memo Line"; MemoNo: Code[20]; InterestRate: Decimal): Boolean
@@ -1358,7 +1358,7 @@ codeunit 134929 "ERM MIR Test"
         CreateCustomer(Customer);
         UpdateFinanceChargeTermsDescription(FinanceChargeTerms, Customer."Fin. Charge Terms Code", Description);
         MockCustomerLedgerEntry(CustLedgerEntry, Customer."No.");
-        FinanceChargeMemoHeader.Init;
+        FinanceChargeMemoHeader.Init();
         FinanceChargeMemoHeader."Document Date" := WorkDate;
         FinChrgMemoMake.Set(Customer, CustLedgerEntry, FinanceChargeMemoHeader);
 
@@ -1383,7 +1383,7 @@ codeunit 134929 "ERM MIR Test"
         CustLedgerEntry.Open := true;
         CustLedgerEntry.Positive := true;
         CustLedgerEntry.Description := LibraryUTUtility.GetNewCode;
-        CustLedgerEntry.Insert;
+        CustLedgerEntry.Insert();
         MockDetailedCustomerLedgerEntry(CustLedgerEntry."Entry No.");
     end;
 
@@ -1393,7 +1393,7 @@ codeunit 134929 "ERM MIR Test"
         DetailedCustLedgEntry2: Record "Detailed Cust. Ledg. Entry";
     begin
         DetailedCustLedgEntry2.FindLast;
-        DetailedCustLedgEntry.Init;
+        DetailedCustLedgEntry.Init();
         DetailedCustLedgEntry."Entry No." := DetailedCustLedgEntry2."Entry No." + 1;
         DetailedCustLedgEntry."Cust. Ledger Entry No." := CustLedgerEntryNo;
         DetailedCustLedgEntry.Amount := LibraryRandom.RandDec(10, 2);
@@ -1462,7 +1462,7 @@ codeunit 134929 "ERM MIR Test"
         FinanceChargeTerms.Get(FinChargeTermsCode);
         FinanceChargeTerms.Description := Description;
         FinanceChargeTerms."Line Description" := Description;
-        FinanceChargeTerms.Modify;
+        FinanceChargeTerms.Modify();
     end;
 
     local procedure VerifyFinanceChargeMemoLine(CustLedgerEntry: Record "Cust. Ledger Entry"; Description: Text[100]; LineDescription: Text[100]; InterestRate: Decimal)
@@ -1471,7 +1471,7 @@ codeunit 134929 "ERM MIR Test"
         GeneralLedgerSetup: Record "General Ledger Setup";
         Amount: Decimal;
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         CustLedgerEntry.CalcFields("Remaining Amount");
         Amount := CustLedgerEntry."Remaining Amount" * InterestRate / 100;
         FinanceChargeMemoLine.SetRange("Entry No.", CustLedgerEntry."Entry No.");
@@ -1520,7 +1520,7 @@ codeunit 134929 "ERM MIR Test"
         DueDateOnFinChrgLines: Date;
         InterestAmount: Decimal;
     begin
-        GLSetup.Get;
+        GLSetup.Get();
         SalesInvoiceHeader.Get(SalesInvoiceNo);
         CustLedgerEntry.SetRange("Document No.", SalesInvoiceNo);
         CustLedgerEntry.FindFirst;

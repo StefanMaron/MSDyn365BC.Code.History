@@ -13,7 +13,7 @@ codeunit 5781 "Whse. Validate Source Header"
             if "Shipping Advice" = OldSalesHeader."Shipping Advice" then
                 exit;
 
-            SalesLine.Reset;
+            SalesLine.Reset();
             SalesLine.SetRange("Document Type", OldSalesHeader."Document Type");
             SalesLine.SetRange("Document No.", OldSalesHeader."No.");
             if SalesLine.FindSet then
@@ -37,7 +37,7 @@ codeunit 5781 "Whse. Validate Source Header"
             if "Shipping Advice" = OldServiceHeader."Shipping Advice" then
                 exit;
 
-            ServiceLine.Reset;
+            ServiceLine.Reset();
             ServiceLine.SetRange("Document Type", OldServiceHeader."Document Type");
             ServiceLine.SetRange("Document No.", OldServiceHeader."No.");
             if ServiceLine.Find('-') then
@@ -61,7 +61,7 @@ codeunit 5781 "Whse. Validate Source Header"
             if "Shipping Advice" = OldTransHeader."Shipping Advice" then
                 exit;
 
-            TransLine.Reset;
+            TransLine.Reset();
             TransLine.SetRange("Document No.", OldTransHeader."No.");
             if TransLine.Find('-') then
                 repeat
@@ -82,17 +82,17 @@ codeunit 5781 "Whse. Validate Source Header"
         WhseShptLine: Record "Warehouse Shipment Line";
         WhseWkshLine: Record "Whse. Worksheet Line";
     begin
-        WhseShptLine.Reset;
+        WhseShptLine.Reset();
         WhseShptLine.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceLineNo, false);
         if not WhseShptLine.IsEmpty then
             WhseShptLine.ModifyAll("Shipping Advice", ShipAdvice);
 
-        WhseActivLine.Reset;
+        WhseActivLine.Reset();
         WhseActivLine.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceLineNo, SourceSublineNo, false);
         if not WhseActivLine.IsEmpty then
             WhseActivLine.ModifyAll("Shipping Advice", ShipAdvice);
 
-        WhseWkshLine.Reset;
+        WhseWkshLine.Reset();
         WhseWkshLine.SetSourceFilter(SourceType, SourceSubType, SourceNo, SourceLineNo, false);
         if not WhseWkshLine.IsEmpty then
             WhseWkshLine.ModifyAll("Shipping Advice", ShipAdvice);

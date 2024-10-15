@@ -1,4 +1,4 @@
-﻿page 9808 "User Permission Sets"
+page 9808 "User Permission Sets"
 {
     Caption = 'User Permission Sets';
     DelayedInsert = true;

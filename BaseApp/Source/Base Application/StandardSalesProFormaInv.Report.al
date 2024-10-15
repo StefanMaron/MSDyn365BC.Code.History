@@ -309,7 +309,7 @@ report 1302 "Standard Sales - Pro Forma Inv"
 
     trigger OnInitReport()
     begin
-        CompanyInformation.Get;
+        CompanyInformation.Get();
         CompanyInformation.CalcFields(Picture);
     end;
 
@@ -374,7 +374,7 @@ report 1302 "Standard Sales - Pro Forma Inv"
             FormatAddress.SalesHeaderBillTo(CustomerAddress, SalesHeader);
 
             if "Currency Code" = '' then begin
-                GeneralLedgerSetup.Get;
+                GeneralLedgerSetup.Get();
                 GeneralLedgerSetup.TestField("LCY Code");
                 CurrencyCode := GeneralLedgerSetup."LCY Code";
                 Currency.InitRoundingPrecision;

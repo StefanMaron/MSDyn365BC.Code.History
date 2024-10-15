@@ -491,7 +491,7 @@ table 1226 "Payment Export Data"
             TempPaymentExportRemittanceText.Text := NewText
         else
             TempPaymentExportRemittanceText.Text := CopyStr(ConvertToASCII(NewText), 1, MaxStrLen(TempPaymentExportRemittanceText.Text));
-        TempPaymentExportRemittanceText.Insert;
+        TempPaymentExportRemittanceText.Insert();
     end;
 
     procedure GetRemittanceTexts(var PaymentExportRemittanceText: Record "Payment Export Remittance Text")
@@ -499,7 +499,7 @@ table 1226 "Payment Export Data"
         if TempPaymentExportRemittanceText.FindSet then
             repeat
                 PaymentExportRemittanceText := TempPaymentExportRemittanceText;
-                PaymentExportRemittanceText.Insert;
+                PaymentExportRemittanceText.Insert();
             until TempPaymentExportRemittanceText.Next = 0;
     end;
 
@@ -552,7 +552,7 @@ table 1226 "Payment Export Data"
         PreserveNonLatinCharacters := false;
         for i := 1 to RecRef.FieldCount do begin
             FieldRef := RecRef.FieldIndex(i);
-            if (Format(FieldRef.Class) = 'Normal') and (Format(FieldRef.Type) in ['Text', 'Code']) then
+            if (FieldRef.Class = FieldClass::Normal) and (FieldRef.Type in [FieldType::Text, FieldType::Code]) then
                 FieldRef.Value := CopyStr(StringConversionManagement.WindowsToASCII(Format(FieldRef.Value)), 1, FieldRef.Length);
         end;
     end;
@@ -650,10 +650,10 @@ table 1226 "Payment Export Data"
     begin
         RecRef.GetTable(Rec);
         FieldRef := RecRef.Field(FieldID);
-        case Format(FieldRef.Type) of
-            'Text', 'Code', 'Date':
+        case FieldRef.Type of
+            FieldType::Text, FieldType::Code, FieldType::Date:
                 BlankValue := '';
-            'Decimal', 'Integer':
+            FieldType::Decimal, FieldType::Integer:
                 BlankValue := '0';
         end;
         exit(Format(FieldRef.Value) = BlankValue);

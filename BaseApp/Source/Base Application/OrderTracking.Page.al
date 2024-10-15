@@ -1,7 +1,7 @@
 page 99000822 "Order Tracking"
 {
     Caption = 'Order Tracking';
-    DataCaptionExpression = TrackingMgt.GetCaption;
+    DataCaptionExpression = OrderTrackingMgt.GetCaption;
     PageType = Worksheet;
     SourceTable = "Order Tracking Entry";
 
@@ -54,7 +54,7 @@ page 99000822 "Order Tracking"
                         if not IsPlanning then
                             Message(Text001)
                         else
-                            Transparency.DrillDownUntrackedQty(TrackingMgt.GetCaption);
+                            PlanningTransparency.DrillDownUntrackedQty(OrderTrackingMgt.GetCaption);
                     end;
                 }
             }
@@ -77,7 +77,7 @@ page 99000822 "Order Tracking"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookupName;
+                        LookupName();
                     end;
                 }
                 field("Demanded by"; "Demanded by")
@@ -88,7 +88,7 @@ page 99000822 "Order Tracking"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookupLine
+                        LookupLine();
                     end;
                 }
                 field("Supplied by"; "Supplied by")
@@ -99,7 +99,7 @@ page 99000822 "Order Tracking"
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookupLine;
+                        LookupLine();
                     end;
                 }
                 field(Warning; Warning)
@@ -173,7 +173,7 @@ page 99000822 "Order Tracking"
 
                 trigger OnAction()
                 begin
-                    Transparency.DrillDownUntrackedQty(TrackingMgt.GetCaption);
+                    PlanningTransparency.DrillDownUntrackedQty(OrderTrackingMgt.GetCaption);
                 end;
             }
             action(Show)
@@ -187,7 +187,7 @@ page 99000822 "Order Tracking"
 
                 trigger OnAction()
                 begin
-                    LookupName;
+                    LookupName();
                 end;
             }
         }
@@ -195,12 +195,12 @@ page 99000822 "Order Tracking"
 
     trigger OnAfterGetRecord()
     begin
-        SuppliedbyOnFormat;
+        SuppliedbyOnFormat();
     end;
 
     trigger OnFindRecord(Which: Text): Boolean
     begin
-        exit(TrackingMgt.FindRecord(Which, Rec));
+        exit(OrderTrackingMgt.FindRecord(Which, Rec));
     end;
 
     trigger OnInit()
@@ -210,26 +210,26 @@ page 99000822 "Order Tracking"
 
     trigger OnNextRecord(Steps: Integer): Integer
     begin
-        exit(TrackingMgt.GetNextRecord(Steps, Rec));
+        exit(OrderTrackingMgt.GetNextRecord(Steps, Rec));
     end;
 
     trigger OnOpenPage()
     begin
         if not Item.Get(CurrItemNo) then
             Clear(Item);
-        TrackingMgt.FindRecords;
-        DemandedByVisible := TrackingMgt.IsSearchUp;
-        SuppliedByVisible := not TrackingMgt.IsSearchUp;
+        OrderTrackingMgt.FindRecords();
+        DemandedByVisible := OrderTrackingMgt.IsSearchUp();
+        SuppliedByVisible := not OrderTrackingMgt.IsSearchUp();
 
-        CurrUntrackedQuantity := CurrQuantity - TrackingMgt.TrackedQuantity;
+        CurrUntrackedQuantity := CurrQuantity - OrderTrackingMgt.TrackedQuantity();
 
         UntrackedButtonEnable := IsPlanning;
     end;
 
     var
         Item: Record Item;
-        TrackingMgt: Codeunit OrderTrackingManagement;
-        Transparency: Codeunit "Planning Transparency";
+        OrderTrackingMgt: Codeunit OrderTrackingManagement;
+        PlanningTransparency: Codeunit "Planning Transparency";
         CurrItemNo: Code[20];
         CurrQuantity: Decimal;
         CurrUntrackedQuantity: Decimal;
@@ -249,7 +249,7 @@ page 99000822 "Order Tracking"
 
     procedure SetSalesLine(var CurrentSalesLine: Record "Sales Line")
     begin
-        TrackingMgt.SetSalesLine(CurrentSalesLine);
+        OrderTrackingMgt.SetSalesLine(CurrentSalesLine);
 
         CurrItemNo := CurrentSalesLine."No.";
         CurrQuantity := CurrentSalesLine."Outstanding Qty. (Base)";
@@ -259,7 +259,7 @@ page 99000822 "Order Tracking"
 
     procedure SetReqLine(var CurrentReqLine: Record "Requisition Line")
     begin
-        TrackingMgt.SetReqLine(CurrentReqLine);
+        OrderTrackingMgt.SetReqLine(CurrentReqLine);
 
         CurrItemNo := CurrentReqLine."No.";
         CurrQuantity := CurrentReqLine."Quantity (Base)";
@@ -268,23 +268,22 @@ page 99000822 "Order Tracking"
 
         IsPlanning := CurrentReqLine."Planning Line Origin" = CurrentReqLine."Planning Line Origin"::Planning;
         if IsPlanning then
-            Transparency.SetCurrReqLine(CurrentReqLine);
+            PlanningTransparency.SetCurrReqLine(CurrentReqLine);
     end;
 
     procedure SetPurchLine(var CurrentPurchLine: Record "Purchase Line")
     begin
-        TrackingMgt.SetPurchLine(CurrentPurchLine);
+        OrderTrackingMgt.SetPurchLine(CurrentPurchLine);
 
         CurrItemNo := CurrentPurchLine."No.";
         CurrQuantity := CurrentPurchLine."Outstanding Qty. (Base)";
-
         StartingDate := CurrentPurchLine."Expected Receipt Date";
         EndingDate := CurrentPurchLine."Expected Receipt Date";
     end;
 
     procedure SetProdOrderLine(var CurrentProdOrderLine: Record "Prod. Order Line")
     begin
-        TrackingMgt.SetProdOrderLine(CurrentProdOrderLine);
+        OrderTrackingMgt.SetProdOrderLine(CurrentProdOrderLine);
 
         CurrItemNo := CurrentProdOrderLine."Item No.";
         CurrQuantity := CurrentProdOrderLine."Remaining Qty. (Base)";
@@ -294,29 +293,27 @@ page 99000822 "Order Tracking"
 
     procedure SetProdOrderComponent(var CurrentProdOrderComp: Record "Prod. Order Component")
     begin
-        TrackingMgt.SetProdOrderComp(CurrentProdOrderComp);
+        OrderTrackingMgt.SetProdOrderComp(CurrentProdOrderComp);
 
         CurrItemNo := CurrentProdOrderComp."Item No.";
         CurrQuantity := CurrentProdOrderComp."Remaining Qty. (Base)";
-
         StartingDate := CurrentProdOrderComp."Due Date";
         EndingDate := CurrentProdOrderComp."Due Date";
     end;
 
     procedure SetAsmHeader(var CurrentAsmHeader: Record "Assembly Header")
     begin
-        TrackingMgt.SetAsmHeader(CurrentAsmHeader);
+        OrderTrackingMgt.SetAsmHeader(CurrentAsmHeader);
 
         CurrItemNo := CurrentAsmHeader."Item No.";
         CurrQuantity := CurrentAsmHeader."Remaining Quantity (Base)";
-
         StartingDate := CurrentAsmHeader."Due Date";
         EndingDate := CurrentAsmHeader."Due Date";
     end;
 
     procedure SetAsmLine(var CurrentAsmLine: Record "Assembly Line")
     begin
-        TrackingMgt.SetAsmLine(CurrentAsmLine);
+        OrderTrackingMgt.SetAsmLine(CurrentAsmLine);
 
         CurrItemNo := CurrentAsmLine."No.";
         CurrQuantity := CurrentAsmLine."Remaining Quantity (Base)";
@@ -326,7 +323,7 @@ page 99000822 "Order Tracking"
 
     procedure SetPlanningComponent(var CurrentPlanningComponent: Record "Planning Component")
     begin
-        TrackingMgt.SetPlanningComponent(CurrentPlanningComponent);
+        OrderTrackingMgt.SetPlanningComponent(CurrentPlanningComponent);
 
         CurrItemNo := CurrentPlanningComponent."Item No.";
         DerivedTrackingQty := CurrentPlanningComponent."Expected Quantity (Base)" - CurrentPlanningComponent."Net Quantity (Base)";
@@ -337,7 +334,7 @@ page 99000822 "Order Tracking"
 
     procedure SetItemLedgEntry(var CurrentItemLedgEntry: Record "Item Ledger Entry")
     begin
-        TrackingMgt.SetItemLedgEntry(CurrentItemLedgEntry);
+        OrderTrackingMgt.SetItemLedgEntry(CurrentItemLedgEntry);
 
         CurrItemNo := CurrentItemLedgEntry."Item No.";
         CurrQuantity := CurrentItemLedgEntry."Remaining Quantity";
@@ -349,7 +346,7 @@ page 99000822 "Order Tracking"
     begin
         // Used from posted shipment and receipt with item tracking.
 
-        TrackingMgt.SetMultipleItemLedgEntries(TempItemLedgEntry, SourceType, SourceSubtype, SourceID,
+        OrderTrackingMgt.SetMultipleItemLedgEntries(TempItemLedgEntry, SourceType, SourceSubtype, SourceID,
           SourceBatchName, SourceProdOrderLine, SourceRefNo);
 
         TempItemLedgEntry.CalcSums(TempItemLedgEntry."Remaining Quantity");
@@ -362,7 +359,7 @@ page 99000822 "Order Tracking"
 
     procedure SetServLine(var CurrentServLine: Record "Service Line")
     begin
-        TrackingMgt.SetServLine(CurrentServLine);
+        OrderTrackingMgt.SetServLine(CurrentServLine);
 
         CurrItemNo := CurrentServLine."No.";
         CurrQuantity := CurrentServLine."Outstanding Qty. (Base)";
@@ -372,7 +369,7 @@ page 99000822 "Order Tracking"
 
     procedure SetJobPlanningLine(var CurrentJobPlanningLine: Record "Job Planning Line")
     begin
-        TrackingMgt.SetJobPlanningLine(CurrentJobPlanningLine);
+        OrderTrackingMgt.SetJobPlanningLine(CurrentJobPlanningLine);
 
         CurrItemNo := CurrentJobPlanningLine."No.";
         CurrQuantity := CurrentJobPlanningLine."Remaining Qty. (Base)";
@@ -380,20 +377,28 @@ page 99000822 "Order Tracking"
         EndingDate := CurrentJobPlanningLine."Planning Date";
     end;
 
+    procedure SetVariantRec(SourceRecordVar: Variant; NewItemNo: Code[20]; NewQuantity: Decimal; NewStartingDate: Date; NewEndingDate: Date)
+    begin
+        OrderTrackingMgt.SetSourceRecord(SourceRecordVar);
+
+        CurrItemNo := NewItemNo;
+        CurrQuantity := NewQuantity;
+        StartingDate := NewStartingDate;
+        EndingDate := NewEndingDate;
+    end;
+
     local procedure LookupLine()
     var
         ReservationMgt: Codeunit "Reservation Management";
     begin
-        ReservationMgt.LookupLine("For Type", "For Subtype", "For ID", "For Batch Name",
-          "For Prod. Order Line", "For Ref. No.");
+        ReservationMgt.LookupLine("For Type", "For Subtype", "For ID", "For Batch Name", "For Prod. Order Line", "For Ref. No.");
     end;
 
     local procedure LookupName()
     var
         ReservationMgt: Codeunit "Reservation Management";
     begin
-        ReservationMgt.LookupDocument("From Type", "From Subtype", "From ID", "From Batch Name",
-          "From Prod. Order Line", "From Ref. No.");
+        ReservationMgt.LookupDocument("From Type", "From Subtype", "From ID", "From Batch Name", "From Prod. Order Line", "From Ref. No.");
     end;
 
     local procedure SuppliedbyOnFormat()

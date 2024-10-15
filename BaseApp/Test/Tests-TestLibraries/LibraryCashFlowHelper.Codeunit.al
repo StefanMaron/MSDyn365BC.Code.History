@@ -491,7 +491,7 @@ codeunit 131332 "Library - Cash Flow Helper"
             LibraryERM.CreateVATPostingSetupWithAccounts(
               VATPostingSetup, VATPostingSetup."VAT Calculation Type"::"Normal VAT", LibraryRandom.RandIntInRange(10, 25));
             VATPostingSetup."VAT Bus. Posting Group" := PurchaseHeader."VAT Bus. Posting Group";
-            VATPostingSetup.Insert;
+            VATPostingSetup.Insert();
             GLAccountNo := LibraryERM.CreateGLAccountWithVATPostingSetup(VATPostingSetup, GLAccount."Gen. Posting Type"::Purchase);
         end;
         LibraryPurchase.CreatePurchaseLine(
@@ -1022,7 +1022,7 @@ codeunit 131332 "Library - Cash Flow Helper"
     var
         FASetup: Record "FA Setup";
     begin
-        FASetup.Get;
+        FASetup.Get();
 
         FASetup.Validate("Default Depr. Book", DepreciationBookCode);
         FASetup.Modify(true);
@@ -1039,7 +1039,7 @@ codeunit 131332 "Library - Cash Flow Helper"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Payment Discount Grace Period", NewDscGracePeriodFormula);
         GeneralLedgerSetup.Modify(true);
     end;
@@ -1048,7 +1048,7 @@ codeunit 131332 "Library - Cash Flow Helper"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Payment Tolerance %", NewPmtTolPercentage);
         GeneralLedgerSetup.Modify(true);
     end;
@@ -1057,7 +1057,7 @@ codeunit 131332 "Library - Cash Flow Helper"
     var
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        GeneralLedgerSetup.Get;
+        GeneralLedgerSetup.Get();
         GeneralLedgerSetup.Validate("Max. Payment Tolerance Amount", NewPmtTolAmount);
         GeneralLedgerSetup.Modify(true);
     end;

@@ -1,4 +1,4 @@
-﻿page 610 "IC General Journal"
+page 610 "IC General Journal"
 {
     ApplicationArea = Intercompany;
     AutoSplitKey = true;

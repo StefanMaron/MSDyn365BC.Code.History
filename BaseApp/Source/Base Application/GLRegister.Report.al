@@ -162,14 +162,14 @@ report 3 "G/L Register"
                     CurrancyFactor: Decimal;
                 begin
                     if not GLAcc.Get("G/L Account No.") then
-                        GLAcc.Init;
+                        GLAcc.Init();
 
                     DetailedVATAmount := "VAT Amount";
 
                     if not ShowDetails then
                         exit;
 
-                    "Purch. Inv. Line".DeleteAll;
+                    "Purch. Inv. Line".DeleteAll();
 
                     PurchInvLine.SetRange("Document No.", "Document No.");
                     PurchInvLine.SetRange("No.", "G/L Account No.");
@@ -292,14 +292,14 @@ report 3 "G/L Register"
             PurchInvLine.Amount := Round(PurchInvLine."VAT Base Amount" / CurrancyFactor)
         else
             PurchInvLine.Amount := Round(PurchInvLine."Line Amount" / CurrancyFactor);
-        "Purch. Inv. Line".Init;
+        "Purch. Inv. Line".Init();
         "Purch. Inv. Line".TransferFields(PurchInvLine);
-        "Purch. Inv. Line".Insert;
+        "Purch. Inv. Line".Insert();
     end;
 
     local procedure PopulateRecFromPurchCrMemoLine(PurchCrMemoLine: Record "Purch. Cr. Memo Line"; CurrancyFactor: Decimal; PricesInclVAT: Boolean)
     begin
-        "Purch. Inv. Line".Init;
+        "Purch. Inv. Line".Init();
         if PricesInclVAT then
             PurchCrMemoLine.Amount := Round(PurchCrMemoLine."VAT Base Amount" / CurrancyFactor)
         else
@@ -311,12 +311,12 @@ report 3 "G/L Register"
         "Purch. Inv. Line"."No." := PurchCrMemoLine."No.";
         "Purch. Inv. Line"."Amount Including VAT" := -PurchCrMemoLine."Amount Including VAT";
         "Purch. Inv. Line"."VAT Base Amount" := -PurchCrMemoLine."VAT Base Amount";
-        "Purch. Inv. Line".Insert;
+        "Purch. Inv. Line".Insert();
     end;
 
     local procedure PopulateRecFromSalesInvoiceLine(SalesInvoiceLine: Record "Sales Invoice Line"; CurrancyFactor: Decimal; PricesInclVAT: Boolean)
     begin
-        "Purch. Inv. Line".Init;
+        "Purch. Inv. Line".Init();
         if PricesInclVAT then
             SalesInvoiceLine.Amount := Round(SalesInvoiceLine."VAT Base Amount" / CurrancyFactor)
         else
@@ -328,12 +328,12 @@ report 3 "G/L Register"
         "Purch. Inv. Line"."No." := SalesInvoiceLine."No.";
         "Purch. Inv. Line"."Amount Including VAT" := -SalesInvoiceLine."Amount Including VAT";
         "Purch. Inv. Line"."VAT Base Amount" := -SalesInvoiceLine."VAT Base Amount";
-        "Purch. Inv. Line".Insert;
+        "Purch. Inv. Line".Insert();
     end;
 
     local procedure PopulateRecFromSalesCrMemoLine(SalesCrMemoLine: Record "Sales Cr.Memo Line"; CurrancyFactor: Decimal; PricesInclVAT: Boolean)
     begin
-        "Purch. Inv. Line".Init;
+        "Purch. Inv. Line".Init();
         if PricesInclVAT then
             SalesCrMemoLine.Amount := Round(SalesCrMemoLine."VAT Base Amount" / CurrancyFactor)
         else
@@ -345,7 +345,7 @@ report 3 "G/L Register"
         "Purch. Inv. Line"."No." := SalesCrMemoLine."No.";
         "Purch. Inv. Line"."Amount Including VAT" := SalesCrMemoLine."Amount Including VAT";
         "Purch. Inv. Line"."VAT Base Amount" := SalesCrMemoLine."VAT Base Amount";
-        "Purch. Inv. Line".Insert;
+        "Purch. Inv. Line".Insert();
     end;
 
     local procedure SetCurrancyFactor(HeaderCurrancyFactor: Decimal): Decimal

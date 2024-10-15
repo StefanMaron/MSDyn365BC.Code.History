@@ -271,7 +271,6 @@ page 9192 "Company Creation Wizard"
     trigger OnInit()
     var
         EnvironmentInfo: Codeunit "Environment Information";
-        PermissionManager: Codeunit "Permission Manager";
         UserPermissions: Codeunit "User Permissions";
     begin
         if not UserPermissions.IsSuper(UserSecurityId) then
@@ -279,7 +278,7 @@ page 9192 "Company Creation Wizard"
 
         LoadTopBanners();
         IsSandbox := EnvironmentInfo.IsSandbox();
-        CanManageUser := PermissionManager.CanManageUsersOnTenant(UserSecurityId);
+        CanManageUser := UserPermissions.CanManageUsersOnTenant(UserSecurityId);
     end;
 
     trigger OnOpenPage()

@@ -17,7 +17,7 @@ page 9100 "Purchase Line FactBox"
 
                 trigger OnDrillDown()
                 begin
-                    ShowDetails;
+                    ShowDetails();
                 end;
             }
             field(Availability; PurchInfoPaneMgt.CalcAvailability(Rec))
@@ -31,7 +31,7 @@ page 9100 "Purchase Line FactBox"
 
                 trigger OnDrillDown()
                 begin
-                    ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByEvent);
+                    ItemAvailFormsMgt.ShowItemAvailFromPurchLine(Rec, ItemAvailFormsMgt.ByEvent());
                     CurrPage.Update(true);
                 end;
             }
@@ -45,7 +45,7 @@ page 9100 "Purchase Line FactBox"
 
                 trigger OnDrillDown()
                 begin
-                    ShowPrices;
+                    PickPrice();
                     CurrPage.Update;
                 end;
             }
@@ -59,7 +59,7 @@ page 9100 "Purchase Line FactBox"
 
                 trigger OnDrillDown()
                 begin
-                    ShowLineDisc;
+                    PickDiscount();
                     CurrPage.Update;
                 end;
             }
@@ -92,12 +92,10 @@ page 9100 "Purchase Line FactBox"
 
     trigger OnAfterGetCurrRecord()
     begin
-        ClearPurchaseHeader;
+        ClearPurchaseHeader();
     end;
 
     var
-        PurchHeader: Record "Purchase Header";
-        PurchPriceCalcMgt: Codeunit "Purch. Price Calc. Mgt.";
         PurchInfoPaneMgt: Codeunit "Purchases Info-Pane Management";
         ItemAvailFormsMgt: Codeunit "Item Availability Forms Mgt";
 
@@ -109,20 +107,6 @@ page 9100 "Purchase Line FactBox"
             Item.Get("No.");
             PAGE.Run(PAGE::"Item Card", Item);
         end;
-    end;
-
-    local procedure ShowPrices()
-    begin
-        PurchHeader.Get("Document Type", "Document No.");
-        Clear(PurchPriceCalcMgt);
-        PurchPriceCalcMgt.GetPurchLinePrice(PurchHeader, Rec);
-    end;
-
-    local procedure ShowLineDisc()
-    begin
-        PurchHeader.Get("Document Type", "Document No.");
-        Clear(PurchPriceCalcMgt);
-        PurchPriceCalcMgt.GetPurchLineLineDisc(PurchHeader, Rec);
     end;
 }
 

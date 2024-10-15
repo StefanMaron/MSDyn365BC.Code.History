@@ -47,11 +47,9 @@ table 1704 "Posted Deferral Header"
             AutoFormatType = 1;
             Caption = 'Amount to Defer (LCY)';
         }
-        field(10; "Calc. Method"; Option)
+        field(10; "Calc. Method"; Enum "Deferral Calculation Method")
         {
             Caption = 'Calc. Method';
-            OptionCaption = 'Straight-Line,Equal per Period,Days per Period,User-Defined';
-            OptionMembers = "Straight-Line","Equal per Period","Days per Period","User-Defined";
         }
         field(11; "Start Date"; Date)
         {
@@ -135,7 +133,7 @@ table 1704 "Posted Deferral Header"
         PostedDeferralLine.SetRange("Document Type", DocumentType);
         PostedDeferralLine.SetRange("Document No.", DocumentNo);
         PostedDeferralLine.SetRange("Line No.", LineNo);
-        PostedDeferralLine.DeleteAll;
+        PostedDeferralLine.DeleteAll();
     end;
 
     procedure DeleteForDoc(DeferralDocType: Integer; GenJnlDocNo: Code[20]; AccountNo: Code[20]; DocumentType: Integer; DocumentNo: Code[20])

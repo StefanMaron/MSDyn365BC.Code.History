@@ -31,12 +31,10 @@ table 741 "VAT Report Line"
             Caption = 'Document No.';
             Editable = false;
         }
-        field(6; "Document Type"; Option)
+        field(6; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
             Editable = false;
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(7; Type; Option)
         {
@@ -71,12 +69,10 @@ table 741 "VAT Report Line"
                 Amount := RoundBase(Amount);
             end;
         }
-        field(10; "VAT Calculation Type"; Option)
+        field(10; "VAT Calculation Type"; Enum "Tax Calculation Type")
         {
             Caption = 'VAT Calculation Type';
             Editable = false;
-            OptionCaption = 'Normal VAT,Reverse Charge VAT,Full VAT,Sales Tax';
-            OptionMembers = "Normal VAT","Reverse Charge VAT","Full VAT","Sales Tax";
         }
         field(12; "Bill-to/Pay-to No."; Code[20])
         {
@@ -284,10 +280,10 @@ table 741 "VAT Report Line"
     begin
         CheckEditingAllowed;
 
-        VATReportLineRelation.Reset;
+        VATReportLineRelation.Reset();
         VATReportLineRelation.SetRange("VAT Report No.", "VAT Report No.");
         VATReportLineRelation.SetRange("VAT Report Line No.", "Line No.");
-        VATReportLineRelation.DeleteAll;
+        VATReportLineRelation.DeleteAll();
     end;
 
     trigger OnInsert()
@@ -372,7 +368,7 @@ table 741 "VAT Report Line"
     var
         VATReportSetup: Record "VAT Report Setup";
     begin
-        VATReportSetup.Get;
+        VATReportSetup.Get();
         VATReportHeader.Get("VAT Report No.");
         VATReportHeader.CheckEditingAllowed;
     end;
@@ -427,9 +423,9 @@ table 741 "VAT Report Line"
                 repeat
                     VATReportLineRelation := TempVATReportLineRelation;
                     VATReportLineRelation."VAT Report Line No." := "Line No.";
-                    VATReportLineRelation.Insert;
+                    VATReportLineRelation.Insert();
                     VATReportLineRelation."VAT Report Line No." := CancellationLineNo;
-                    VATReportLineRelation.Insert;
+                    VATReportLineRelation.Insert();
                 until TempVATReportLineRelation.Next = 0;
         end;
     end;

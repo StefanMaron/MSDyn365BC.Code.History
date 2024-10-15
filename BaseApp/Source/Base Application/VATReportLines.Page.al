@@ -73,14 +73,14 @@ page 742 "VAT Report Lines"
         CurrPage.SetSelectionFilter(VATReportLine);
         if VATReportLine.FindSet then
             repeat
-                TempVATReportLineRelation.DeleteAll;
+                TempVATReportLineRelation.DeleteAll();
                 VATReportLineRelation.SetRange("VAT Report No.", VATReportLine."VAT Report No.");
                 VATReportLineRelation.SetRange("VAT Report Line No.", VATReportLine."Line No.");
                 if VATReportLineRelation.FindSet then
                     repeat
                         TempVATReportLineRelation := VATReportLineRelation;
                         TempVATReportLineRelation."VAT Report No." := VATReportHeader."No.";
-                        TempVATReportLineRelation.Insert;
+                        TempVATReportLineRelation.Insert();
                     until VATReportLineRelation.Next = 0;
                 VATReportLine.InsertCorrLine(VATReportHeader, VATReportLine, VATReportLine, TempVATReportLineRelation);
             until VATReportLine.Next = 0;

@@ -1058,6 +1058,24 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cost Accounting - Pages - NamedType WrongFlowFilterValueErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 2985997087 - NamedType 792970872" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[End-Total %1 does not belong to the corresponding Begin-Total.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cost Accounting - Pages II - NamedType IndentBeginEndError)]]></Cmt>
+    </Cmts>
+  </Item>
+  <Item ItemId=";Codeunit 2985997087 - NamedType 742930371" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[Indentation must be correct.]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Cost Accounting - Pages II - NamedType IndentationError)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1310831976 - NamedType 636392376" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[Amount.]]></Val>

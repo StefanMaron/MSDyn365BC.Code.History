@@ -1352,7 +1352,7 @@
     </Str>
     <Disp Icon="Str" Expand="true" />
     <Cmts>
-      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Fixed Assets Reports - III - NamedType FormatString)]]></Cmt>
+      <Cmt Name="Dev"><![CDATA[{Locked}]D;]A;(LookupHint=Codeunit ERM Fixed Assets Reports - III - NamedType FormatString)]]></Cmt>
     </Cmts>
   </Item>
   <Item ItemId=";Codeunit 3375241914 - NamedType 3385374423" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">

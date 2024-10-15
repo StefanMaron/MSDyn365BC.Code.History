@@ -185,7 +185,7 @@ report 11006 "Vendor Detailed Aging"
                     else
                         OK := CurrencyTotalBuffer.Next <> 0;
                     if not OK then
-                        CurrReport.Break;
+                        CurrReport.Break();
                     CurrencyTotalBuffer2.UpdateTotal(
                       CurrencyTotalBuffer."Currency Code",
                       CurrencyTotalBuffer."Total Amount",
@@ -194,7 +194,7 @@ report 11006 "Vendor Detailed Aging"
 
                 trigger OnPostDataItem()
                 begin
-                    CurrencyTotalBuffer.DeleteAll;
+                    CurrencyTotalBuffer.DeleteAll();
                 end;
             }
         }
@@ -224,12 +224,12 @@ report 11006 "Vendor Detailed Aging"
                 else
                     OK := CurrencyTotalBuffer2.Next <> 0;
                 if not OK then
-                    CurrReport.Break;
+                    CurrReport.Break();
             end;
 
             trigger OnPostDataItem()
             begin
-                CurrencyTotalBuffer2.DeleteAll;
+                CurrencyTotalBuffer2.DeleteAll();
             end;
         }
     }

@@ -29,16 +29,16 @@
         if ICPartner."Inbox Type" = ICPartner."Inbox Type"::"No IC Transfer" then
             exit(0);
 
-        GLSetup.LockTable;
+        GLSetup.LockTable();
         GetGLSetup;
         if GLSetup."Last IC Transaction No." < 0 then
             GLSetup."Last IC Transaction No." := 0;
         ICTransactionNo := GLSetup."Last IC Transaction No." + 1;
         GLSetup."Last IC Transaction No." := ICTransactionNo;
-        GLSetup.Modify;
+        GLSetup.Modify();
 
         with TempGenJnlLine do begin
-            OutboxJnlTransaction.Init;
+            OutboxJnlTransaction.Init();
             OutboxJnlTransaction."Transaction No." := ICTransactionNo;
             OutboxJnlTransaction."IC Partner Code" := "IC Partner Code";
             OutboxJnlTransaction."Source Type" := OutboxJnlTransaction."Source Type"::"Journal Line";
@@ -52,7 +52,7 @@
                 OutboxJnlTransaction."Transaction Source" := OutboxJnlTransaction."Transaction Source"::"Rejected by Current Company"
             else
                 OutboxJnlTransaction."Transaction Source" := OutboxJnlTransaction."Transaction Source"::"Created by Current Company";
-            OutboxJnlTransaction.Insert;
+            OutboxJnlTransaction.Insert();
         end;
         OnInsertICOutboxTransaction(OutboxJnlTransaction);
         exit(ICTransactionNo);
@@ -120,14 +120,14 @@
         if IsHandled then
             exit;
 
-        GLSetup.LockTable;
+        GLSetup.LockTable();
         GetGLSetup;
         TransactionNo := GLSetup."Last IC Transaction No." + 1;
         GLSetup."Last IC Transaction No." := TransactionNo;
-        GLSetup.Modify;
+        GLSetup.Modify();
         Customer.Get(SalesHeader."Sell-to Customer No.");
         with SalesHeader do begin
-            OutboxTransaction.Init;
+            OutboxTransaction.Init();
             OutboxTransaction."Transaction No." := TransactionNo;
             OutboxTransaction."IC Partner Code" := Customer."IC Partner Code";
             OutboxTransaction."Source Type" := OutboxTransaction."Source Type"::"Sales Document";
@@ -149,7 +149,7 @@
             else
                 OutboxTransaction."Transaction Source" := OutboxTransaction."Transaction Source"::"Created by Current Company";
             OnBeforeOutBoxTransactionInsert(OutboxTransaction, SalesHeader);
-            OutboxTransaction.Insert;
+            OutboxTransaction.Insert();
         end;
         ICOutBoxSalesHeader.TransferFields(SalesHeader);
         OnAfterICOutBoxSalesHeaderTransferFields(ICOutBoxSalesHeader, SalesHeader);
@@ -163,7 +163,7 @@
           ICOutBoxSalesHeader."IC Partner Code", ICOutBoxSalesHeader."Transaction Source", 0, SalesHeader."Dimension Set ID");
 
         with ICOutBoxSalesLine do begin
-            SalesLine.Reset;
+            SalesLine.Reset();
             SalesLine.SetRange("Document Type", SalesHeader."Document Type");
             SalesLine.SetRange("Document No.", SalesHeader."No.");
             if SalesLine.Find('-') then
@@ -198,10 +198,10 @@
         end;
 
         if LinesCreated then begin
-            ICOutBoxSalesHeader.Insert;
+            ICOutBoxSalesHeader.Insert();
             if not Post then begin
                 SalesHeader."IC Status" := SalesHeader."IC Status"::Pending;
-                SalesHeader.Modify;
+                SalesHeader.Modify();
             end;
         end;
         OnBeforeICOutboxTransactionCreatedSalesDocTrans(SalesHeader, SalesLine, ICOutBoxSalesHeader, OutboxTransaction, LinesCreated);
@@ -233,13 +233,13 @@
         if ICPartner."Inbox Type" = ICPartner."Inbox Type"::"No IC Transfer" then
             exit;
 
-        GLSetup.LockTable;
+        GLSetup.LockTable();
         GetGLSetup;
         TransactionNo := GLSetup."Last IC Transaction No." + 1;
         GLSetup."Last IC Transaction No." := TransactionNo;
-        GLSetup.Modify;
+        GLSetup.Modify();
         with SalesInvHdr do begin
-            OutboxTransaction.Init;
+            OutboxTransaction.Init();
             OutboxTransaction."Transaction No." := TransactionNo;
             OutboxTransaction."IC Partner Code" := Customer."IC Partner Code";
             OutboxTransaction."Source Type" := OutboxTransaction."Source Type"::"Sales Document";
@@ -248,7 +248,7 @@
             OutboxTransaction."Posting Date" := "Posting Date";
             OutboxTransaction."Document Date" := "Document Date";
             OutboxTransaction."Transaction Source" := OutboxTransaction."Transaction Source"::"Created by Current Company";
-            OutboxTransaction.Insert;
+            OutboxTransaction.Insert();
         end;
         ICOutBoxSalesHeader.TransferFields(SalesInvHdr);
         ICOutBoxSalesHeader."Document Type" := ICOutBoxSalesHeader."Document Type"::Invoice;
@@ -257,9 +257,9 @@
         ICOutBoxSalesHeader."Transaction Source" := OutboxTransaction."Transaction Source";
         AssignCurrencyCodeInOutBoxDoc(ICOutBoxSalesHeader."Currency Code", OutboxTransaction."IC Partner Code");
         OnCreateOutboxSalesInvTransOnAfterTransferFieldsFromSalesInvHeader(ICOutBoxSalesHeader, SalesInvHdr, OutboxTransaction);
-        ICOutBoxSalesHeader.Insert;
+        ICOutBoxSalesHeader.Insert();
 
-        ICDocDim.Init;
+        ICDocDim.Init();
         ICDocDim."Transaction No." := OutboxTransaction."Transaction No.";
         ICDocDim."IC Partner Code" := OutboxTransaction."IC Partner Code";
         ICDocDim."Transaction Source" := OutboxTransaction."Transaction Source";
@@ -268,7 +268,7 @@
 
         RoundingLineNo := FindRoundingSalesInvLine(SalesInvHdr."No.");
         with ICOutBoxSalesLine do begin
-            SalesInvLine.Reset;
+            SalesInvLine.Reset();
             SalesInvLine.SetRange("Document No.", SalesInvHdr."No.");
             if RoundingLineNo <> 0 then
                 SalesInvLine.SetRange("Line No.", 0, RoundingLineNo - 1);
@@ -346,13 +346,13 @@
         if ICPartner."Inbox Type" = ICPartner."Inbox Type"::"No IC Transfer" then
             exit;
 
-        GLSetup.LockTable;
+        GLSetup.LockTable();
         GetGLSetup;
         TransactionNo := GLSetup."Last IC Transaction No." + 1;
         GLSetup."Last IC Transaction No." := TransactionNo;
-        GLSetup.Modify;
+        GLSetup.Modify();
         with SalesCrMemoHdr do begin
-            OutboxTransaction.Init;
+            OutboxTransaction.Init();
             OutboxTransaction."Transaction No." := TransactionNo;
             OutboxTransaction."IC Partner Code" := Customer."IC Partner Code";
             OutboxTransaction."Source Type" := OutboxTransaction."Source Type"::"Sales Document";
@@ -361,7 +361,7 @@
             OutboxTransaction."Posting Date" := "Posting Date";
             OutboxTransaction."Document Date" := "Document Date";
             OutboxTransaction."Transaction Source" := OutboxTransaction."Transaction Source"::"Created by Current Company";
-            OutboxTransaction.Insert;
+            OutboxTransaction.Insert();
         end;
         ICOutBoxSalesHeader.TransferFields(SalesCrMemoHdr);
         ICOutBoxSalesHeader."Document Type" := ICOutBoxSalesHeader."Document Type"::"Credit Memo";
@@ -370,9 +370,9 @@
         ICOutBoxSalesHeader."Transaction Source" := OutboxTransaction."Transaction Source";
         AssignCurrencyCodeInOutBoxDoc(ICOutBoxSalesHeader."Currency Code", OutboxTransaction."IC Partner Code");
         OnCreateOutboxSalesCrMemoTransOnAfterTransferFieldsFromSalesCrMemoHeader(ICOutBoxSalesHeader, SalesCrMemoHdr, OutboxTransaction);
-        ICOutBoxSalesHeader.Insert;
+        ICOutBoxSalesHeader.Insert();
 
-        ICDocDim.Init;
+        ICDocDim.Init();
         ICDocDim."Transaction No." := OutboxTransaction."Transaction No.";
         ICDocDim."IC Partner Code" := OutboxTransaction."IC Partner Code";
         ICDocDim."Transaction Source" := OutboxTransaction."Transaction Source";
@@ -381,7 +381,7 @@
 
         RoundingLineNo := FindRoundingSalesCrMemoLine(SalesCrMemoHdr."No.");
         with ICOutBoxSalesLine do begin
-            SalesCrMemoLine.Reset;
+            SalesCrMemoLine.Reset();
             SalesCrMemoLine.SetRange("Document No.", SalesCrMemoHdr."No.");
             if RoundingLineNo <> 0 then
                 SalesCrMemoLine.SetRange("Line No.", 0, RoundingLineNo - 1);
@@ -422,15 +422,15 @@
     begin
         OnBeforeCreateOutboxPurchDocTrans(PurchHeader, Rejection, Post);
 
-        GLSetup.LockTable;
+        GLSetup.LockTable();
         GetGLSetup;
         TransactionNo := GLSetup."Last IC Transaction No." + 1;
         GLSetup."Last IC Transaction No." := TransactionNo;
-        GLSetup.Modify;
+        GLSetup.Modify();
         Vendor.Get(PurchHeader."Buy-from Vendor No.");
         Vendor.CheckBlockedVendOnDocs(Vendor, false);
         with PurchHeader do begin
-            OutboxTransaction.Init;
+            OutboxTransaction.Init();
             OutboxTransaction."Transaction No." := TransactionNo;
             OutboxTransaction."IC Partner Code" := Vendor."IC Partner Code";
             OutboxTransaction."Source Type" := OutboxTransaction."Source Type"::"Purchase Document";
@@ -452,7 +452,7 @@
             else
                 OutboxTransaction."Transaction Source" := OutboxTransaction."Transaction Source"::"Created by Current Company";
             OnCreateOutboxPurchDocTransOnBeforeOutboxTransactionInsert(OutboxTransaction, PurchHeader);
-            OutboxTransaction.Insert;
+            OutboxTransaction.Insert();
         end;
         ICOutBoxPurchHeader.TransferFields(PurchHeader);
         ICOutBoxPurchHeader."IC Transaction No." := OutboxTransaction."Transaction No.";
@@ -465,7 +465,7 @@
         DimMgt.CopyDocDimtoICDocDim(DATABASE::"IC Outbox Purchase Header", ICOutBoxPurchHeader."IC Transaction No.",
           ICOutBoxPurchHeader."IC Partner Code", ICOutBoxPurchHeader."Transaction Source", 0, PurchHeader."Dimension Set ID");
         with ICOutBoxPurchLine do begin
-            PurchLine.Reset;
+            PurchLine.Reset();
             PurchLine.SetRange("Document Type", PurchHeader."Document Type");
             PurchLine.SetRange("Document No.", PurchHeader."No.");
             if PurchLine.Find('-') then
@@ -499,10 +499,10 @@
         end;
 
         if LinesCreated then begin
-            ICOutBoxPurchHeader.Insert;
+            ICOutBoxPurchHeader.Insert();
             if not Post then begin
                 PurchHeader."IC Status" := PurchHeader."IC Status"::Pending;
-                PurchHeader.Modify;
+                PurchHeader.Modify();
             end;
         end;
         OnBeforeICOutboxTransactionCreatedPurchDocTrans(PurchHeader, PurchLine, ICOutBoxPurchHeader, OutboxTransaction, LinesCreated);
@@ -536,7 +536,7 @@
     begin
         GetGLSetup;
         with TempGenJnlLine do begin
-            ICOutboxJnlLine.Init;
+            ICOutboxJnlLine.Init();
             ICOutboxJnlLine."Transaction No." := TransactionNo;
             ICOutboxJnlLine."IC Partner Code" := "IC Partner Code";
             ICOutboxJnlLine."Transaction Source" := TransactionSource;
@@ -570,7 +570,7 @@
             DimMgt.CopyJnlLineDimToICJnlDim(
               DATABASE::"IC Outbox Jnl. Line", TransactionNo, "IC Partner Code",
               ICOutboxJnlLine."Transaction Source", ICOutboxJnlLine."Line No.", "Dimension Set ID");
-            ICOutboxJnlLine.Insert;
+            ICOutboxJnlLine.Insert();
             OnInsertICOutboxJnlLine(ICOutboxJnlLine);
         end;
     end;
@@ -666,14 +666,14 @@
                 InOutBoxJnlLineDim.SetRange("Transaction No.", InboxTransaction."Transaction No.");
                 InOutBoxJnlLineDim.SetRange("Line No.", InboxJnlLine."Line No.");
                 InOutBoxJnlLineDim.SetRange("IC Partner Code", InboxTransaction."IC Partner Code");
-                TempInOutBoxJnlLineDim.DeleteAll;
+                TempInOutBoxJnlLineDim.DeleteAll();
                 DimMgt.CopyICJnlDimToICJnlDim(InOutBoxJnlLineDim, TempInOutBoxJnlLineDim);
                 "Dimension Set ID" := DimMgt.CreateDimSetIDFromICJnlLineDim(TempInOutBoxJnlLineDim);
                 DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code",
                   "Shortcut Dimension 2 Code");
                 Modify;
                 HandledInboxJnlLine.TransferFields(InboxJnlLine);
-                HandledInboxJnlLine.Insert;
+                HandledInboxJnlLine.Insert();
                 TempGenJnlLine."Line No." := "Line No.";
             end;
     end;
@@ -695,7 +695,7 @@
             exit;
 
         with ICInboxSalesHeader do begin
-            SalesHeader.Init;
+            SalesHeader.Init();
             SalesHeader."No." := '';
             SalesHeader."Document Type" := "Document Type";
             OnCreateSalesDocumentOnBeforeSalesHeaderInsert(SalesHeader, ICInboxSalesHeader);
@@ -720,7 +720,7 @@
             SalesHeader.Validate("Currency Code", "Currency Code");
             SalesHeader.Validate("Document Date", "Document Date");
             SalesHeader.Validate("Prices Including VAT", "Prices Including VAT");
-            SalesHeader.Modify;
+            SalesHeader.Modify();
             SalesHeader.Validate("Due Date", "Due Date");
             SalesHeader.Validate("Payment Discount %", "Payment Discount %");
             SalesHeader.Validate("Pmt. Discount Date", "Pmt. Discount Date");
@@ -740,10 +740,10 @@
             DimMgt.UpdateGlobalDimFromDimSetID(
                 SalesHeader."Dimension Set ID", SalesHeader."Shortcut Dimension 1 Code", SalesHeader."Shortcut Dimension 2 Code");
             OnCreateSalesDocumentOnBeforeSalesHeaderModify(SalesHeader, ICInboxSalesHeader);
-            SalesHeader.Modify;
+            SalesHeader.Modify();
 
             HandledICInboxSalesHeader.TransferFields(ICInboxSalesHeader);
-            HandledICInboxSalesHeader.Insert;
+            HandledICInboxSalesHeader.Insert();
             if ICDocDim.Find('-') then
                 DimMgt.MoveICDocDimtoICDocDim(ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Sales Header", "Transaction Source");
         end;
@@ -757,7 +757,7 @@
                     CreateSalesLines(SalesHeader, ICInboxSalesLine);
                     HandledICInboxSalesLine.TransferFields(ICInboxSalesLine);
                     OnBeforeHandledICInboxSalesLineInsert(HandledICInboxSalesLine, ICInboxSalesLine);
-                    HandledICInboxSalesLine.Insert;
+                    HandledICInboxSalesLine.Insert();
                     DimMgt.SetICDocDimFilters(
                       ICDocDim, DATABASE::"IC Inbox Sales Line", "IC Transaction No.", "IC Partner Code", "Transaction Source", "Line No.");
                     if ICDocDim.Find('-') then
@@ -778,7 +778,7 @@
         DimensionSetIDArr: array[10] of Integer;
     begin
         with ICInboxSalesLine do begin
-            SalesLine.Init;
+            SalesLine.Init();
             SalesLine.TransferFields(ICInboxSalesLine);
             SalesLine."Document Type" := SalesHeader."Document Type";
             SalesLine."Document No." := SalesHeader."No.";
@@ -832,7 +832,7 @@
                 if Currency.Get(SalesHeader."Currency Code") then
                     Precision := Currency."Unit-Amount Rounding Precision"
                 else begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     if GLSetup."Unit-Amount Rounding Precision" <> 0 then
                         Precision := GLSetup."Unit-Amount Rounding Precision"
                     else
@@ -868,7 +868,7 @@
             DimMgt.UpdateGlobalDimFromDimSetID(
               SalesLine."Dimension Set ID", SalesLine."Shortcut Dimension 1 Code", SalesLine."Shortcut Dimension 2 Code");
             OnAfterCreateSalesLines(ICInboxSalesLine, SalesLine);
-            SalesLine.Modify;
+            SalesLine.Modify();
         end;
     end;
 
@@ -883,7 +883,7 @@
         DimensionSetIDArr: array[10] of Integer;
     begin
         with ICInboxPurchHeader do begin
-            PurchHeader.Init;
+            PurchHeader.Init();
             PurchHeader."No." := '';
             PurchHeader."Document Type" := "Document Type";
             OnCreatePurchDocumentOnBeforePurchHeaderInsert(PurchHeader, ICInboxPurchHeader);
@@ -936,10 +936,10 @@
             DimMgt.UpdateGlobalDimFromDimSetID(
               PurchHeader."Dimension Set ID", PurchHeader."Shortcut Dimension 1 Code", PurchHeader."Shortcut Dimension 2 Code");
             OnCreatePurchDocumentOnBeforePurchHeaderModify(PurchHeader, ICInboxPurchHeader);
-            PurchHeader.Modify;
+            PurchHeader.Modify();
 
             HandledICInboxPurchHeader.TransferFields(ICInboxPurchHeader);
-            HandledICInboxPurchHeader.Insert;
+            HandledICInboxPurchHeader.Insert();
             if ICDocDim.Find('-') then
                 DimMgt.MoveICDocDimtoICDocDim(ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Purch. Header", "Transaction Source");
         end;
@@ -953,7 +953,7 @@
                     CreatePurchLines(PurchHeader, ICInboxPurchLine);
                     HandledICInboxPurchLine.TransferFields(ICInboxPurchLine);
                     OnCreatePurchDocumentOnBeforeHandledICInboxPurchLineInsert(ICInboxPurchLine, HandledICInboxPurchLine);
-                    HandledICInboxPurchLine.Insert;
+                    HandledICInboxPurchLine.Insert();
 
                     DimMgt.SetICDocDimFilters(
                       ICDocDim, DATABASE::"IC Inbox Purchase Line", "IC Transaction No.", "IC Partner Code", "Transaction Source", "Line No.");
@@ -975,7 +975,7 @@
         DimensionSetIDArr: array[10] of Integer;
     begin
         with ICInboxPurchLine do begin
-            PurchLine.Init;
+            PurchLine.Init();
             PurchLine.TransferFields(ICInboxPurchLine);
             OnCreatePurchLinesOnAfterTransferFields(PurchLine, ICInboxPurchLine);
 
@@ -1034,7 +1034,7 @@
                     Precision := Currency."Unit-Amount Rounding Precision";
                     Precision2 := Currency."Amount Rounding Precision"
                 end else begin
-                    GLSetup.Get;
+                    GLSetup.Get();
                     if GLSetup."Unit-Amount Rounding Precision" <> 0 then
                         Precision := GLSetup."Unit-Amount Rounding Precision"
                     else
@@ -1094,7 +1094,7 @@
     var
         HandledInboxTransaction: Record "Handled IC Inbox Trans.";
     begin
-        HandledInboxTransaction.Init;
+        HandledInboxTransaction.Init();
         HandledInboxTransaction."Transaction No." := InboxTransaction."Transaction No.";
         HandledInboxTransaction."IC Partner Code" := InboxTransaction."IC Partner Code";
         HandledInboxTransaction."Source Type" := InboxTransaction."Source Type";
@@ -1114,7 +1114,7 @@
                     HandledInboxTransaction."Transaction Source" := HandledInboxTransaction."Transaction Source"::"Returned by Partner";
         end;
         OnBeforeHandledInboxTransactionInsert(HandledInboxTransaction, InboxTransaction);
-        HandledInboxTransaction.Insert;
+        HandledInboxTransaction.Insert();
     end;
 
     procedure RecreateInboxTransaction(var HandledInboxTransaction: Record "Handled IC Inbox Trans.")
@@ -1143,9 +1143,9 @@
 
         if ConfirmManagement.GetResponseOrDefault(Text000, true) then begin
             HandledInboxTransaction2 := HandledInboxTransaction;
-            HandledInboxTransaction2.LockTable;
-            InboxTransaction.LockTable;
-            InboxTransaction.Init;
+            HandledInboxTransaction2.LockTable();
+            InboxTransaction.LockTable();
+            InboxTransaction.Init();
             InboxTransaction."Transaction No." := HandledInboxTransaction2."Transaction No.";
             InboxTransaction."IC Partner Code" := HandledInboxTransaction2."IC Partner Code";
             InboxTransaction."Source Type" := HandledInboxTransaction2."Source Type";
@@ -1158,19 +1158,19 @@
             InboxTransaction."IC Partner G/L Acc. No." := HandledInboxTransaction2."IC Partner G/L Acc. No.";
             InboxTransaction."Source Line No." := HandledInboxTransaction2."Source Line No.";
             OnRecreateInboxTransactionOnBeforeInboxTransactionInsert(InboxTransaction, HandledInboxTransaction2);
-            InboxTransaction.Insert;
+            InboxTransaction.Insert();
             case InboxTransaction."Source Type" of
                 InboxTransaction."Source Type"::Journal:
                     begin
-                        HandledInboxJnlLine.LockTable;
-                        InboxJnlLine.LockTable;
+                        HandledInboxJnlLine.LockTable();
+                        InboxJnlLine.LockTable();
                         HandledInboxJnlLine.SetRange("Transaction No.", HandledInboxTransaction2."Transaction No.");
                         HandledInboxJnlLine.SetRange("IC Partner Code", HandledInboxTransaction2."IC Partner Code");
                         if HandledInboxJnlLine.Find('-') then
                             repeat
-                                InboxJnlLine.Init;
+                                InboxJnlLine.Init();
                                 InboxJnlLine.TransferFields(HandledInboxJnlLine);
-                                InboxJnlLine.Insert;
+                                InboxJnlLine.Insert();
                                 ICIOMgt.MoveICJnlDimToHandled(DATABASE::"Handled IC Inbox Jnl. Line", DATABASE::"IC Inbox Jnl. Line",
                                   HandledInboxTransaction."Transaction No.", HandledInboxTransaction."IC Partner Code",
                                   false, 0);
@@ -1179,7 +1179,7 @@
                           ICCommentLine."Table Name"::"IC Inbox Transaction", HandledInboxTransaction2."Transaction No.",
                           HandledInboxTransaction2."IC Partner Code", HandledInboxTransaction2."Transaction Source");
                         HandledInboxTransaction.Delete(true);
-                        Commit;
+                        Commit();
                     end;
                 InboxTransaction."Source Type"::"Sales Document":
                     begin
@@ -1188,9 +1188,9 @@
                         then begin
                             InboxSalesHdr.TransferFields(HandledInboxSalesHdr);
                             OnRecreateInboxTransactionOnBeforeInboxSalesHdrInsert(InboxSalesHdr, HandledInboxSalesHdr);
-                            InboxSalesHdr.Insert;
+                            InboxSalesHdr.Insert();
 
-                            ICDocDim.Reset;
+                            ICDocDim.Reset();
                             DimMgt.SetICDocDimFilters(
                               ICDocDim, DATABASE::"Handled IC Inbox Sales Header", HandledInboxTransaction2."Transaction No.",
                               HandledInboxTransaction2."IC Partner Code", HandledInboxTransaction2."Transaction Source", 0);
@@ -1204,9 +1204,9 @@
                                 repeat
                                     InboxSalesLine.TransferFields(HandledInboxSalesLine);
                                     OnBeforeInboxSalesLineInsert(InboxSalesLine, HandledInboxSalesLine);
-                                    InboxSalesLine.Insert;
+                                    InboxSalesLine.Insert();
 
-                                    ICDocDim.Reset;
+                                    ICDocDim.Reset();
                                     DimMgt.SetICDocDimFilters(
                                       ICDocDim, DATABASE::"Handled IC Inbox Sales Line", HandledInboxTransaction2."Transaction No.",
                                       HandledInboxTransaction2."IC Partner Code", HandledInboxTransaction2."Transaction Source",
@@ -1223,7 +1223,7 @@
                         OnRecreateInboxTransactionOnBeforeDeleteSalesHeader(HandledInboxSalesHdr, HandledInboxTransaction2);
                         HandledInboxSalesHdr.Delete(true);
                         HandledInboxTransaction.Delete(true);
-                        Commit;
+                        Commit();
                     end;
                 InboxTransaction."Source Type"::"Purchase Document":
                     begin
@@ -1232,9 +1232,9 @@
                         then begin
                             InboxPurchHdr.TransferFields(HandledInboxPurchHdr);
                             OnRecreateInboxTransactionOnBeforeInboxPurchHdrInsert(InboxPurchHdr, HandledInboxPurchHdr);
-                            InboxPurchHdr.Insert;
+                            InboxPurchHdr.Insert();
 
-                            ICDocDim.Reset;
+                            ICDocDim.Reset();
                             DimMgt.SetICDocDimFilters(
                               ICDocDim, DATABASE::"Handled IC Inbox Purch. Header", HandledInboxTransaction2."Transaction No.",
                               HandledInboxTransaction2."IC Partner Code", HandledInboxTransaction2."Transaction Source", 0);
@@ -1248,9 +1248,9 @@
                                 repeat
                                     InboxPurchLine.TransferFields(HandledInboxPurchLine);
                                     OnRecreateInboxTransactionOnBeforeInboxPurchLineInsert(InboxPurchLine, HandledInboxPurchLine);
-                                    InboxPurchLine.Insert;
+                                    InboxPurchLine.Insert();
 
-                                    ICDocDim.Reset;
+                                    ICDocDim.Reset();
                                     DimMgt.SetICDocDimFilters(
                                       ICDocDim, DATABASE::"Handled IC Inbox Purch. Line", HandledInboxTransaction2."Transaction No.",
                                       HandledInboxTransaction2."IC Partner Code", HandledInboxTransaction2."Transaction Source",
@@ -1298,9 +1298,9 @@
 
         if ConfirmManagement.GetResponseOrDefault(Text000, true) then begin
             HandledOutboxTransaction2 := HandledOutboxTransaction;
-            HandledOutboxTransaction2.LockTable;
-            OutboxTransaction.LockTable;
-            OutboxTransaction.Init;
+            HandledOutboxTransaction2.LockTable();
+            OutboxTransaction.LockTable();
+            OutboxTransaction.Init();
             OutboxTransaction."Transaction No." := HandledOutboxTransaction2."Transaction No.";
             OutboxTransaction."IC Partner Code" := HandledOutboxTransaction2."IC Partner Code";
             OutboxTransaction."Source Type" := HandledOutboxTransaction2."Source Type";
@@ -1313,19 +1313,19 @@
             OutboxTransaction."IC Partner G/L Acc. No." := HandledOutboxTransaction2."IC Partner G/L Acc. No.";
             OutboxTransaction."Source Line No." := HandledOutboxTransaction2."Source Line No.";
             OnRecreateOutboxTransactionOnBeforeOutboxTransactionInsert(OutboxTransaction, HandledOutboxTransaction2);
-            OutboxTransaction.Insert;
+            OutboxTransaction.Insert();
             case OutboxTransaction."Source Type" of
                 OutboxTransaction."Source Type"::"Journal Line":
                     begin
-                        HandledOutboxJnlLine.LockTable;
-                        OutboxJnlLine.LockTable;
+                        HandledOutboxJnlLine.LockTable();
+                        OutboxJnlLine.LockTable();
                         HandledOutboxJnlLine.SetRange("Transaction No.", HandledOutboxTransaction2."Transaction No.");
                         HandledOutboxJnlLine.SetRange("IC Partner Code", HandledOutboxTransaction2."IC Partner Code");
                         if HandledOutboxJnlLine.Find('-') then
                             repeat
-                                OutboxJnlLine.Init;
+                                OutboxJnlLine.Init();
                                 OutboxJnlLine.TransferFields(HandledOutboxJnlLine);
-                                OutboxJnlLine.Insert;
+                                OutboxJnlLine.Insert();
                                 ICIOMgt.MoveICJnlDimToHandled(DATABASE::"Handled IC Outbox Jnl. Line", DATABASE::"IC Outbox Jnl. Line",
                                   HandledOutboxTransaction."Transaction No.", HandledOutboxTransaction."IC Partner Code",
                                   false, 0);
@@ -1334,7 +1334,7 @@
                           ICCommentLine."Table Name"::"IC Outbox Transaction", HandledOutboxTransaction2."Transaction No.",
                           HandledOutboxTransaction2."IC Partner Code", HandledOutboxTransaction2."Transaction Source");
                         HandledOutboxTransaction.Delete(true);
-                        Commit;
+                        Commit();
                     end;
                 OutboxTransaction."Source Type"::"Sales Document":
                     begin
@@ -1342,8 +1342,8 @@
                              HandledOutboxTransaction2."IC Partner Code", HandledOutboxTransaction2."Transaction Source")
                         then begin
                             OutboxSalesHdr.TransferFields(HandledOutboxSalesHdr);
-                            OutboxSalesHdr.Insert;
-                            ICDocDim.Reset;
+                            OutboxSalesHdr.Insert();
+                            ICDocDim.Reset();
                             DimMgt.SetICDocDimFilters(
                               ICDocDim, DATABASE::"Handled IC Outbox Sales Header", HandledOutboxTransaction2."Transaction No.",
                               HandledOutboxTransaction2."IC Partner Code", HandledOutboxTransaction2."Transaction Source", 0);
@@ -1356,8 +1356,8 @@
                             if HandledOutboxSalesLine.Find('-') then
                                 repeat
                                     OutboxSalesLine.TransferFields(HandledOutboxSalesLine);
-                                    OutboxSalesLine.Insert;
-                                    ICDocDim.Reset;
+                                    OutboxSalesLine.Insert();
+                                    ICDocDim.Reset();
                                     DimMgt.SetICDocDimFilters(
                                       ICDocDim, DATABASE::"Handled IC Outbox Sales Line", HandledOutboxTransaction2."Transaction No.",
                                       HandledOutboxTransaction2."IC Partner Code", HandledOutboxTransaction2."Transaction Source",
@@ -1382,9 +1382,9 @@
                         then begin
                             OutboxPurchHdr.TransferFields(HandledOutboxPurchHdr);
                             OnRecreateOutboxTransactionOnBeforeOutboxPurchHdrInsert(OutboxPurchHdr, HandledOutboxPurchHdr);
-                            OutboxPurchHdr.Insert;
+                            OutboxPurchHdr.Insert();
 
-                            ICDocDim.Reset;
+                            ICDocDim.Reset();
                             DimMgt.SetICDocDimFilters(
                               ICDocDim, DATABASE::"Handled IC Outbox Purch. Hdr", HandledOutboxTransaction2."Transaction No.",
                               HandledOutboxTransaction2."IC Partner Code", HandledOutboxTransaction2."Transaction Source", 0);
@@ -1398,9 +1398,9 @@
                                 repeat
                                     OutboxPurchLine.TransferFields(HandledOutboxPurchLine);
                                     OnRecreateOutboxTransactionOnBeforeOutboxPurchLineInsert(OutboxPurchLine, HandledOutboxPurchLine);
-                                    OutboxPurchLine.Insert;
+                                    OutboxPurchLine.Insert();
 
-                                    ICDocDim.Reset;
+                                    ICDocDim.Reset();
                                     DimMgt.SetICDocDimFilters(
                                       ICDocDim, DATABASE::"Handled IC Outbox Purch. Line", HandledOutboxTransaction2."Transaction No.",
                                       HandledOutboxTransaction2."IC Partner Code", HandledOutboxTransaction2."Transaction Source",
@@ -1446,7 +1446,7 @@
         ICJnlLineDim2: Record "IC Inbox/Outbox Jnl. Line Dim.";
     begin
         with InboxTransaction do begin
-            OutboxTransaction.Init;
+            OutboxTransaction.Init();
             OutboxTransaction."Transaction No." := "Transaction No.";
             OutboxTransaction."IC Partner Code" := "IC Partner Code";
             OutboxTransaction."Source Type" := "Source Type";
@@ -1456,7 +1456,7 @@
             OutboxTransaction."Transaction Source" := OutboxTransaction."Transaction Source"::"Rejected by Current Company";
             OutboxTransaction."Document Date" := "Document Date";
             OnForwardToOutBoxOnBeforeOutboxTransactionInsert(OutboxTransaction, InboxTransaction);
-            OutboxTransaction.Insert;
+            OutboxTransaction.Insert();
             case "Source Type" of
                 "Source Type"::Journal:
                     begin
@@ -1467,9 +1467,9 @@
                             repeat
                                 OutboxJnlLine.TransferFields(InboxJnlLine);
                                 OutboxJnlLine."Transaction Source" := OutboxTransaction."Transaction Source";
-                                OutboxJnlLine.Insert;
+                                OutboxJnlLine.Insert();
                                 HndlInboxJnlLine.TransferFields(InboxJnlLine);
-                                HndlInboxJnlLine.Insert;
+                                HndlInboxJnlLine.Insert();
 
                                 ICJnlLineDim.SetRange("Table ID", DATABASE::"IC Inbox Jnl. Line");
                                 ICJnlLineDim.SetRange("Transaction No.", InboxJnlLine."Transaction No.");
@@ -1480,7 +1480,7 @@
                                         ICJnlLineDim2 := ICJnlLineDim;
                                         ICJnlLineDim2."Table ID" := DATABASE::"IC Outbox Jnl. Line";
                                         ICJnlLineDim2."Transaction Source" := OutboxJnlLine."Transaction Source";
-                                        ICJnlLineDim2.Insert;
+                                        ICJnlLineDim2.Insert();
                                     until ICJnlLineDim.Next = 0;
 
                             until InboxJnlLine.Next = 0;
@@ -1490,15 +1490,15 @@
                         if InboxSalesHdr.Get("Transaction No.", "IC Partner Code", "Transaction Source") then begin
                             OutboxSalesHdr.TransferFields(InboxSalesHdr);
                             OutboxSalesHdr."Transaction Source" := OutboxTransaction."Transaction Source";
-                            OutboxSalesHdr.Insert;
-                            ICDocDim.Reset;
+                            OutboxSalesHdr.Insert();
+                            ICDocDim.Reset();
                             DimMgt.SetICDocDimFilters(
                               ICDocDim, DATABASE::"IC Inbox Sales Header", "Transaction No.", "IC Partner Code", "Transaction Source", 0);
                             if ICDocDim.Find('-') then
                                 DimMgt.CopyICDocDimtoICDocDim(
                                   ICDocDim, ICDocDim2, DATABASE::"IC Outbox Sales Header", OutboxSalesHdr."Transaction Source");
                             HndlInboxSalesHdr.TransferFields(InboxSalesHdr);
-                            HndlInboxSalesHdr.Insert;
+                            HndlInboxSalesHdr.Insert();
                             if ICDocDim.Find('-') then
                                 DimMgt.MoveICDocDimtoICDocDim(
                                   ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Sales Header", InboxSalesHdr."Transaction Source");
@@ -1509,8 +1509,8 @@
                                 repeat
                                     OutboxSalesLine.TransferFields(InboxSalesLine);
                                     OutboxSalesLine."Transaction Source" := OutboxTransaction."Transaction Source";
-                                    OutboxSalesLine.Insert;
-                                    ICDocDim.Reset;
+                                    OutboxSalesLine.Insert();
+                                    ICDocDim.Reset();
                                     DimMgt.SetICDocDimFilters(
                                       ICDocDim, DATABASE::"IC Inbox Sales Line", "Transaction No.", "IC Partner Code", "Transaction Source",
                                       OutboxSalesLine."Line No.");
@@ -1519,7 +1519,7 @@
                                           ICDocDim, ICDocDim2, DATABASE::"IC Outbox Sales Line", OutboxSalesLine."Transaction Source");
                                     HndlInboxSalesLine.TransferFields(InboxSalesLine);
                                     OnForwardToOutBoxOnBeforeHndlInboxSalesLineInsert(HndlInboxSalesLine, InboxSalesLine);
-                                    HndlInboxSalesLine.Insert;
+                                    HndlInboxSalesLine.Insert();
 
                                     if ICDocDim.Find('-') then
                                         DimMgt.MoveICDocDimtoICDocDim(
@@ -1533,15 +1533,15 @@
                         if InboxPurchHdr.Get("Transaction No.", "IC Partner Code", "Transaction Source") then begin
                             OutboxPurchHdr.TransferFields(InboxPurchHdr);
                             OutboxPurchHdr."Transaction Source" := OutboxTransaction."Transaction Source";
-                            OutboxPurchHdr.Insert;
-                            ICDocDim.Reset;
+                            OutboxPurchHdr.Insert();
+                            ICDocDim.Reset();
                             DimMgt.SetICDocDimFilters(
                               ICDocDim, DATABASE::"IC Inbox Purchase Header", "Transaction No.", "IC Partner Code", "Transaction Source", 0);
                             if ICDocDim.Find('-') then
                                 DimMgt.CopyICDocDimtoICDocDim(
                                   ICDocDim, ICDocDim2, DATABASE::"IC Outbox Purchase Header", OutboxPurchHdr."Transaction Source");
                             HndlInboxPurchHdr.TransferFields(InboxPurchHdr);
-                            HndlInboxPurchHdr.Insert;
+                            HndlInboxPurchHdr.Insert();
                             if ICDocDim.Find('-') then
                                 DimMgt.MoveICDocDimtoICDocDim(
                                   ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Purch. Header", InboxPurchHdr."Transaction Source");
@@ -1552,8 +1552,8 @@
                                 repeat
                                     OutboxPurchLine.TransferFields(InboxPurchLine);
                                     OutboxPurchLine."Transaction Source" := OutboxTransaction."Transaction Source";
-                                    OutboxPurchLine.Insert;
-                                    ICDocDim.Reset;
+                                    OutboxPurchLine.Insert();
+                                    ICDocDim.Reset();
                                     DimMgt.SetICDocDimFilters(
                                       ICDocDim, DATABASE::"IC Inbox Purchase Line", "Transaction No.", "IC Partner Code", "Transaction Source",
                                       OutboxPurchLine."Line No.");
@@ -1561,7 +1561,7 @@
                                         DimMgt.CopyICDocDimtoICDocDim(
                                           ICDocDim, ICDocDim2, DATABASE::"IC Outbox Purchase Line", OutboxPurchLine."Transaction Source");
                                     HndlInboxPurchLine.TransferFields(InboxPurchLine);
-                                    HndlInboxPurchLine.Insert;
+                                    HndlInboxPurchLine.Insert();
                                     if ICDocDim.Find('-') then
                                         DimMgt.MoveICDocDimtoICDocDim(
                                           ICDocDim, ICDocDim2, DATABASE::"Handled IC Inbox Purch. Line", InboxPurchLine."Transaction Source");
@@ -1588,7 +1588,7 @@
                     ICCommentLine2 := ICCommentLine;
                     ICCommentLine2."Table Name" := ICCommentLine."Table Name"::"IC Outbox Transaction";
                     ICCommentLine2."Transaction Source" := ICCommentLine."Transaction Source"::Rejected;
-                    ICCommentLine2.Insert;
+                    ICCommentLine2.Insert();
                 until ICCommentLine.Next = 0;
         end;
     end;
@@ -1596,14 +1596,14 @@
     procedure GetCompanyInfo()
     begin
         if not CompanyInfoFound then
-            CompanyInfo.Get;
+            CompanyInfo.Get();
         CompanyInfoFound := true;
     end;
 
     procedure GetGLSetup()
     begin
         if not GLSetupFound then
-            GLSetup.Get;
+            GLSetup.Get();
         GLSetupFound := true;
     end;
 
@@ -1671,15 +1671,15 @@
         if ICCommentLine.Find('-') then begin
             repeat
                 TempICCommentLine := ICCommentLine;
-                ICCommentLine.Delete;
+                ICCommentLine.Delete();
                 TempICCommentLine."Table Name" := NewTableName;
                 TempICCommentLine."Transaction Source" := TransactionSource;
-                TempICCommentLine.Insert;
+                TempICCommentLine.Insert();
             until ICCommentLine.Next = 0;
             if TempICCommentLine.Find('-') then
                 repeat
                     ICCommentLine := TempICCommentLine;
-                    ICCommentLine.Insert;
+                    ICCommentLine.Insert();
                 until TempICCommentLine.Next = 0;
         end;
     end;
@@ -1737,7 +1737,7 @@
               ICInboxTrans."IC Partner Code", PartnerHandledICInboxTrans.TableCaption);
 
         OnBeforeICInboxTransInsert(ICInboxTrans, ICOutboxTrans);
-        ICInboxTrans.Insert;
+        ICInboxTrans.Insert();
         OnAfterICInboxTransInsert(ICInboxTrans, ICOutboxTrans);
     end;
 
@@ -1802,7 +1802,7 @@
         ICInboxJnlLine."Payment Discount Date" := ICOutboxJnlLine."Payment Discount Date";
         ICInboxJnlLine.Quantity := -ICOutboxJnlLine.Quantity;
         ICInboxJnlLine."Document No." := ICOutboxJnlLine."Document No.";
-        ICInboxJnlLine.Insert;
+        ICInboxJnlLine.Insert();
     end;
 
     procedure OutboxSalesHdrToInbox(var ICInboxTrans: Record "IC Inbox Transaction"; var ICOutboxSalesHeader: Record "IC Outbox Sales Header"; var ICInboxPurchHeader: Record "IC Inbox Purchase Header")
@@ -1985,7 +1985,7 @@
         ICInboxJnlLineDim."Table ID" := ICInboxTableID;
         ICInboxJnlLineDim."IC Partner Code" := ICInboxJnlLine."IC Partner Code";
         ICInboxJnlLineDim."Transaction Source" := ICInboxJnlLine."Transaction Source";
-        ICInboxJnlLineDim.Insert;
+        ICInboxJnlLineDim.Insert();
     end;
 
     procedure OutboxDocDimToInbox(var ICOutboxDocDim: Record "IC Document Dimension"; var ICInboxDocDim: Record "IC Document Dimension"; InboxTableID: Integer; InboxICPartnerCode: Code[20]; InboxTransSource: Integer)
@@ -1994,7 +1994,7 @@
         ICInboxDocDim."Table ID" := InboxTableID;
         ICInboxDocDim."IC Partner Code" := InboxICPartnerCode;
         ICInboxDocDim."Transaction Source" := InboxTransSource;
-        ICInboxDocDim.Insert;
+        ICInboxDocDim.Insert();
     end;
 
     procedure MoveICJnlDimToHandled(TableID: Integer; NewTableID: Integer; TransactionNo: Integer; ICPartner: Code[20]; LineNoFilter: Boolean; LineNo: Integer)
@@ -2010,14 +2010,14 @@
         if InOutboxJnlLineDim.Find('-') then begin
             repeat
                 TempInOutboxJnlLineDim := InOutboxJnlLineDim;
-                InOutboxJnlLineDim.Delete;
+                InOutboxJnlLineDim.Delete();
                 TempInOutboxJnlLineDim."Table ID" := NewTableID;
-                TempInOutboxJnlLineDim.Insert;
+                TempInOutboxJnlLineDim.Insert();
             until InOutboxJnlLineDim.Next = 0;
             if TempInOutboxJnlLineDim.Find('-') then
                 repeat
                     InOutboxJnlLineDim := TempInOutboxJnlLineDim;
-                    InOutboxJnlLineDim.Insert;
+                    InOutboxJnlLineDim.Insert();
                 until TempInOutboxJnlLineDim.Next = 0;
         end;
     end;
@@ -2036,8 +2036,8 @@
             repeat
                 HandledICDocDim.TransferFields(ICDocDim, true);
                 HandledICDocDim."Table ID" := ToTableID;
-                HandledICDocDim.Insert;
-                ICDocDim.Delete;
+                HandledICDocDim.Insert();
+                ICDocDim.Delete();
             until ICDocDim.Next = 0;
     end;
 
@@ -2063,7 +2063,7 @@
         if ICOutboxJnlLine.Find('-') then
             repeat
                 HandledICOutboxJnlLine.TransferFields(ICOutboxJnlLine, true);
-                HandledICOutboxJnlLine.Insert;
+                HandledICOutboxJnlLine.Insert();
                 ICInOutJnlLineDim.SetRange("Table ID", DATABASE::"IC Outbox Jnl. Line");
                 ICInOutJnlLineDim.SetRange("Transaction No.", ICOutboxJnlLine."Transaction No.");
                 ICInOutJnlLineDim.SetRange("IC Partner Code", ICOutboxJnlLine."IC Partner Code");
@@ -2073,18 +2073,18 @@
                     repeat
                         HandledICInOutJnlLineDim := ICInOutJnlLineDim;
                         HandledICInOutJnlLineDim."Table ID" := DATABASE::"Handled IC Outbox Jnl. Line";
-                        HandledICInOutJnlLineDim.Insert;
-                        ICInOutJnlLineDim.Delete;
+                        HandledICInOutJnlLineDim.Insert();
+                        ICInOutJnlLineDim.Delete();
                     until ICInOutJnlLineDim.Next = 0;
-                ICOutboxJnlLine.Delete;
+                ICOutboxJnlLine.Delete();
             until ICOutboxJnlLine.Next = 0;
 
         ICOutboxSalesHdr.SetRange("IC Transaction No.", ICOutboxTrans."Transaction No.");
         if ICOutboxSalesHdr.Find('-') then
             repeat
-                HandledICOutboxSalesHdr.Init;
+                HandledICOutboxSalesHdr.Init();
                 HandledICOutboxSalesHdr.TransferFields(ICOutboxSalesHdr, true);
-                HandledICOutboxSalesHdr.Insert;
+                HandledICOutboxSalesHdr.Insert();
                 OnAfterHandledICOutboxSalesHdrInsert(HandledICOutboxSalesHdr, ICOutboxSalesHdr);
                 MoveICDocDimToHandled(
                   DATABASE::"IC Outbox Sales Header", DATABASE::"Handled IC Outbox Sales Header", ICOutboxSalesHdr."IC Transaction No.",
@@ -2097,7 +2097,7 @@
                     repeat
                         HandledICOutboxSalesLine.TransferFields(ICOutboxSalesLine, true);
                         OnBeforeHandledICOutboxSalesLineInsert(HandledICOutboxSalesLine, ICOutboxSalesLine);
-                        HandledICOutboxSalesLine.Insert;
+                        HandledICOutboxSalesLine.Insert();
 
                         MoveICDocDimToHandled(
                             DATABASE::"IC Outbox Sales Line", DATABASE::"Handled IC Outbox Sales Line", ICOutboxSalesHdr."IC Transaction No.",
@@ -2105,15 +2105,15 @@
                         OnMoveOutboxTransToHandledOutboxOnBeforeICOutboxSalesLineDelete(ICOutboxSalesLine, HandledICOutboxSalesLine);
                         ICOutboxSalesLine.Delete();
                     until ICOutboxSalesLine.Next = 0;
-                ICOutboxSalesHdr.Delete;
+                ICOutboxSalesHdr.Delete();
             until ICOutboxSalesHdr.Next = 0;
 
         ICOutboxPurchHdr.SetRange("IC Transaction No.", ICOutboxTrans."Transaction No.");
         if ICOutboxPurchHdr.Find('-') then
             repeat
-                HandledICOutboxPurchHdr.Init;
+                HandledICOutboxPurchHdr.Init();
                 HandledICOutboxPurchHdr.TransferFields(ICOutboxPurchHdr, true);
-                HandledICOutboxPurchHdr.Insert;
+                HandledICOutboxPurchHdr.Insert();
                 OnAfterHandledICOutboxPurchHdrInsert(HandledICOutboxPurchHdr, ICOutboxPurchHdr);
 
                 MoveICDocDimToHandled(
@@ -2127,14 +2127,14 @@
                     repeat
                         HandledICOutboxPurchLine.TransferFields(ICOutboxPurchLine, true);
                         OnBeforeHandledICOutboxPurchLineInsert(HandledICOutboxPurchLine, ICOutboxPurchLine);
-                        HandledICOutboxPurchLine.Insert;
+                        HandledICOutboxPurchLine.Insert();
 
                         MoveICDocDimToHandled(
                           DATABASE::"IC Outbox Purchase Line", DATABASE::"Handled IC Outbox Purch. Line", ICOutboxPurchHdr."IC Transaction No.",
                           ICOutboxPurchHdr."IC Partner Code", ICOutboxPurchHdr."Transaction Source", ICOutboxPurchLine."Line No.");
-                        ICOutboxPurchLine.Delete;
+                        ICOutboxPurchLine.Delete();
                     until ICOutboxPurchLine.Next = 0;
-                ICOutboxPurchHdr.Delete;
+                ICOutboxPurchHdr.Delete();
             until ICOutboxPurchHdr.Next = 0;
 
         OnMoveOutboxTransToHandledOutboxOnBeforeHandledICOutboxTransTransferFields(HandledICOutboxTrans, ICOutboxTrans);
@@ -2150,8 +2150,8 @@
             ICOutboxTrans."Line Action"::Cancel:
                 HandledICOutboxTrans.Status := HandledICOutboxTrans.Status::Cancelled;
         end;
-        HandledICOutboxTrans.Insert;
-        ICOutboxTrans.Delete;
+        HandledICOutboxTrans.Insert();
+        ICOutboxTrans.Delete();
 
         ICCommentLine.SetRange("Table Name", ICCommentLine."Table Name"::"IC Outbox Transaction");
         ICCommentLine.SetRange("Transaction No.", ICOutboxTrans."Transaction No.");
@@ -2161,8 +2161,8 @@
             repeat
                 HandledICCommentLine := ICCommentLine;
                 HandledICCommentLine."Table Name" := HandledICCommentLine."Table Name"::"Handled IC Outbox Transaction";
-                HandledICCommentLine.Insert;
-                ICCommentLine.Delete;
+                HandledICCommentLine.Insert();
+                ICCommentLine.Delete();
             until ICCommentLine.Next = 0;
     end;
 
@@ -2170,7 +2170,7 @@
     var
         DimSetEntry: Record "Dimension Set Entry";
     begin
-        DimSetEntry.Reset;
+        DimSetEntry.Reset();
         DimSetEntry.SetRange("Dimension Set ID", DimSetID);
         if DimSetEntry.FindSet then
             repeat
@@ -2179,7 +2179,7 @@
                 ICDocDim."Dimension Value Code" :=
                   DimMgt.ConvertDimValuetoICDimVal(DimSetEntry."Dimension Code", DimSetEntry."Dimension Value Code");
                 if (ICDocDim."Dimension Code" <> '') and (ICDocDim."Dimension Value Code" <> '') then
-                    ICDocDim.Insert;
+                    ICDocDim.Insert();
             until DimSetEntry.Next = 0;
     end;
 
@@ -2432,7 +2432,7 @@
             if ICPartner."Inbox Type" = ICPartner."Inbox Type"::Database then begin
                 GetGLSetup;
                 AnotherCompGLSetup.ChangeCompany(ICPartner."Inbox Details");
-                AnotherCompGLSetup.Get;
+                AnotherCompGLSetup.Get();
                 if GLSetup."LCY Code" <> AnotherCompGLSetup."LCY Code" then
                     CurrencyCode := GLSetup."LCY Code";
             end;

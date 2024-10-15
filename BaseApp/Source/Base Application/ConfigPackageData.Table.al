@@ -20,12 +20,14 @@ table 8615 "Config. Package Data"
         field(3; "No."; Integer)
         {
             Caption = 'No.';
-            TableRelation = "Config. Package Record"."No." WHERE("Table ID" = FIELD("Table ID"));
+            TableRelation = "Config. Package Record"."No." WHERE("Package Code" = FIELD("Package Code"),
+                                                                 "Table ID" = FIELD("Table ID"));
         }
         field(4; "Field ID"; Integer)
         {
             Caption = 'Field ID';
-            TableRelation = "Config. Package Field"."Field ID" WHERE("Table ID" = FIELD("Table ID"));
+            TableRelation = "Config. Package Field"."Field ID" WHERE("Package Code" = FIELD("Package Code"),
+                                                                     "Table ID" = FIELD("Table ID"));
         }
         field(5; Value; Text[250])
         {

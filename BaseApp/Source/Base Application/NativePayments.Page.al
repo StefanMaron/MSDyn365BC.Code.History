@@ -67,7 +67,7 @@ page 2831 "Native - Payments"
                     var
                         SalesInvoiceHeader: Record "Sales Invoice Header";
                     begin
-                        SalesInvoiceHeader.Reset;
+                        SalesInvoiceHeader.Reset();
                         SalesInvoiceHeader.SetRange(Id, "Applies-to Invoice Id");
                         if not SalesInvoiceHeader.FindFirst then
                             Error(AppliesToInvoiceIdDoesNotMatchAPostedInvoiceErr);

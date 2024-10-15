@@ -284,8 +284,6 @@ report 11507 "Vendor Payments List"
                 }
                 column(TempVendorLedgerEntry__Document_Type__Control1150009; TempVendorLedgerEntry."Document Type")
                 {
-                    OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-                    OptionMembers = ,Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
                 }
                 column(Integer_Number; Number)
                 {
@@ -315,7 +313,7 @@ report 11507 "Vendor Payments List"
                     PrevAccNo := "Vendor No.";
                 end;
                 if not ("Document Type" in ["Document Type"::Payment]) then
-                    CurrReport.Skip;
+                    CurrReport.Skip();
 
                 CalcFields("Remaining Amt. (LCY)", "Amount (LCY)", "Original Amount", "Original Amt. (LCY)");
 
@@ -371,7 +369,7 @@ report 11507 "Vendor Payments List"
                 if Sorting = Sorting::Chronological then
                     "Vendor Ledger Entry".SetCurrentKey("Entry No.");
 
-                GlSetup.Get;
+                GlSetup.Get();
                 Clear(PmtDiscLCY);
                 Clear(PaymentLCY);
             end;
@@ -503,11 +501,11 @@ report 11507 "Vendor Payments List"
         VendorLedgerEntryNo: Integer;
         SumAmount: Decimal;
     begin
-        TempVendorLedgerEntry.DeleteAll;
-        TempVendorLedgerEntry.Init;
+        TempVendorLedgerEntry.DeleteAll();
+        TempVendorLedgerEntry.Init();
         Counter := 0;
 
-        DetailedVendorLedgerEntry.Reset;
+        DetailedVendorLedgerEntry.Reset();
         DetailedVendorLedgerEntry.SetCurrentKey("Applied Vend. Ledger Entry No.");
         DetailedVendorLedgerEntry.SetRange("Applied Vend. Ledger Entry No.", "Vendor Ledger Entry"."Entry No.");
         DetailedVendorLedgerEntry.SetFilter("Vendor Ledger Entry No.", '<>%1&<>%2', 0, "Vendor Ledger Entry"."Entry No.");
@@ -522,7 +520,7 @@ report 11507 "Vendor Payments List"
                         Counter := Counter + 1;
                         TempVendorLedgerEntry := VendorLedgerEntry;
                         TempVendorLedgerEntry."Entry No." := Counter;
-                        TempVendorLedgerEntry.Insert;
+                        TempVendorLedgerEntry.Insert();
                         SumAmount := 0;
                     end;
                 end;
@@ -534,11 +532,11 @@ report 11507 "Vendor Payments List"
                 Counter := Counter + 1;
                 TempVendorLedgerEntry := VendorLedgerEntry;
                 TempVendorLedgerEntry."Entry No." := Counter;
-                TempVendorLedgerEntry.Insert;
+                TempVendorLedgerEntry.Insert();
             end;
         end;
 
-        DetailedVendorLedgerEntry.Reset;
+        DetailedVendorLedgerEntry.Reset();
         DetailedVendorLedgerEntry.SetCurrentKey("Vendor Ledger Entry No.");
         DetailedVendorLedgerEntry.SetRange("Vendor Ledger Entry No.", "Vendor Ledger Entry"."Entry No.");
         DetailedVendorLedgerEntry.SetFilter("Applied Vend. Ledger Entry No.", '<>%1&<>%2', 0, "Vendor Ledger Entry"."Entry No.");
@@ -553,7 +551,7 @@ report 11507 "Vendor Payments List"
                         Counter := Counter + 1;
                         TempVendorLedgerEntry := VendorLedgerEntry;
                         TempVendorLedgerEntry."Entry No." := Counter;
-                        TempVendorLedgerEntry.Insert;
+                        TempVendorLedgerEntry.Insert();
                         SumAmount := 0;
                     end;
                 SumAmount := SumAmount - DetailedVendorLedgerEntry."Amount (LCY)";
@@ -564,7 +562,7 @@ report 11507 "Vendor Payments List"
                 Counter := Counter + 1;
                 TempVendorLedgerEntry := VendorLedgerEntry;
                 TempVendorLedgerEntry."Entry No." := Counter;
-                TempVendorLedgerEntry.Insert;
+                TempVendorLedgerEntry.Insert();
             end;
         end;
     end;

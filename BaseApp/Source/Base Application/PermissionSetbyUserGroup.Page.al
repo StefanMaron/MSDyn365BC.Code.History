@@ -1,4 +1,4 @@
-﻿page 9837 "Permission Set by User Group"
+page 9837 "Permission Set by User Group"
 {
     Caption = 'Permission Set by User Group';
     DeleteAllowed = false;
@@ -321,16 +321,16 @@
 
     trigger OnInit()
     var
-        PermissionManager: Codeunit "Permission Manager";
+        UserPermissions: Codeunit "User Permissions";
     begin
-        CanManageUsersOnTenant := PermissionManager.CanManageUsersOnTenant(UserSecurityId);
+        CanManageUsersOnTenant := UserPermissions.CanManageUsersOnTenant(UserSecurityId);
     end;
 
     trigger OnOpenPage()
     var
         UserGroup: Record "User Group";
     begin
-        NoOfRecords := UserGroup.Count;
+        NoOfRecords := UserGroup.Count();
         PermissionPagesMgt.Init(NoOfRecords, ArrayLen(UserGroupCodeArr));
     end;
 
@@ -399,7 +399,7 @@
         end;
         if not UserGroupHasPermission then
             exit;
-        UserGroupPermissionSet.Init;
+        UserGroupPermissionSet.Init();
         UserGroupPermissionSet."User Group Code" := UserGroupCode;
         UserGroupPermissionSet."Role ID" := "Role ID";
         UserGroupPermissionSet."App ID" := "App ID";

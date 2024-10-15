@@ -208,7 +208,7 @@ report 11111 "Crossborder Services"
 
             trigger OnPreDataItem()
             begin
-                GLSetup.Get;
+                GLSetup.Get();
                 if UseAmtsInAddCurr then
                     HeaderText := StrSubstNo(Text1160000, GLSetup."Additional Reporting Currency")
                 else

@@ -77,7 +77,7 @@ table 737 "VAT Return Period"
         if VATReportSetupGot then
             exit;
 
-        VATReportSetup.Get;
+        VATReportSetup.Get();
         VATReportSetupGot := true;
     end;
 

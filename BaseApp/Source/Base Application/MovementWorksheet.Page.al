@@ -427,7 +427,7 @@ page 7351 "Movement Worksheet"
                         else
                             Error(Text001);
 
-                        WhseWkshLine.Reset;
+                        WhseWkshLine.Reset();
                         CopyFilters(WhseWkshLine);
                         FilterGroup(2);
                         SetRange("Worksheet Template Name", "Worksheet Template Name");
@@ -448,7 +448,7 @@ page 7351 "Movement Worksheet"
     trigger OnAfterGetRecord()
     begin
         if not ItemUOM.Get("Item No.", "From Unit of Measure Code") then
-            ItemUOM.Init;
+            ItemUOM.Init();
     end;
 
     trigger OnDeleteRecord(): Boolean

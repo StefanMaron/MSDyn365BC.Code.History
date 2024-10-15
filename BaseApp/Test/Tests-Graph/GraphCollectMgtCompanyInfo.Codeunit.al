@@ -521,7 +521,7 @@ codeunit 134633 "Graph Collect Mgt CompanyInfo"
         LoadSocialNetworks(TempO365SocialNetwork);
         TempO365SocialNetwork.FindFirst;
         TempO365SocialNetwork.Validate(URL, LibraryUtility.GenerateGUID);
-        TempO365SocialNetwork.Modify;
+        TempO365SocialNetwork.Modify();
 
         TempO365SocialNetwork.FindSet;
         GraphMgtCompanyInfo.GetSocialNetworksJSON(TempO365SocialNetwork, SocialLinksJSON);
@@ -550,14 +550,14 @@ codeunit 134633 "Graph Collect Mgt CompanyInfo"
         TempO365SocialNetwork.SetFilter("Media Resources Ref", '<>%1', '');
         TempO365SocialNetwork.FindFirst;
         DeletedLinks[1] := TempO365SocialNetwork.Code;
-        TempO365SocialNetwork.Delete;
+        TempO365SocialNetwork.Delete();
 
         TempO365SocialNetwork.SetRange("Media Resources Ref", '');
         TempO365SocialNetwork.FindFirst;
         DeletedLinks[2] := TempO365SocialNetwork.Code;
-        TempO365SocialNetwork.Delete;
+        TempO365SocialNetwork.Delete();
 
-        TempO365SocialNetwork.Reset;
+        TempO365SocialNetwork.Reset();
         TempO365SocialNetwork.FindSet;
         GraphMgtCompanyInfo.GetSocialNetworksJSON(TempO365SocialNetwork, SocialLinksJSON);
         GraphMgtCompanyInfo.UpdateSocialNetworks(SocialLinksJSON);
@@ -650,9 +650,9 @@ codeunit 134633 "Graph Collect Mgt CompanyInfo"
         ExpectedCount: Integer;
     begin
         ExpectedO365SocialNetwork.SetFilter(URL, '<>%1', '');
-        ExpectedCount := ExpectedO365SocialNetwork.Count;
+        ExpectedCount := ExpectedO365SocialNetwork.Count();
         ActualO365SocialNetwork.SetFilter(URL, '<>%1', '');
-        ActualCount := ActualO365SocialNetwork.Count;
+        ActualCount := ActualO365SocialNetwork.Count();
         Assert.AreEqual(ExpectedCount, ActualCount, 'Wrong count of social networks');
         if ExpectedCount > 0 then
             repeat
@@ -677,7 +677,7 @@ codeunit 134633 "Graph Collect Mgt CompanyInfo"
     begin
         Count := LibraryRandom.RandIntInRange(3, 5);
         for i := 1 to Count do begin
-            O365SocialNetwork.Init;
+            O365SocialNetwork.Init();
             O365SocialNetwork.Name := LibraryUtility.GenerateGUID + LibraryUtility.GenerateGUID;
             O365SocialNetwork.Code := CopyStr(O365SocialNetwork.Name, 1, MaxStrLen(O365SocialNetwork.Code));
             O365SocialNetwork.Validate(URL, LibraryUtility.GenerateGUID);
@@ -692,10 +692,10 @@ codeunit 134633 "Graph Collect Mgt CompanyInfo"
     var
         O365SocialNetwork: Record "O365 Social Network";
     begin
-        TempO365SocialNetwork.DeleteAll;
+        TempO365SocialNetwork.DeleteAll();
         O365SocialNetwork.FindSet;
         repeat
-            TempO365SocialNetwork.Init;
+            TempO365SocialNetwork.Init();
             TempO365SocialNetwork.Code := O365SocialNetwork.Code;
             TempO365SocialNetwork.Name := O365SocialNetwork.Name;
             TempO365SocialNetwork.URL := O365SocialNetwork.URL;

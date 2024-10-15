@@ -20,7 +20,7 @@ codeunit 134057 "ERM VAT Report Line Relation"
         TempVATReportLineRelation: Record "VAT Report Line Relation" temporary;
         VATReportLine: Record "VAT Report Line";
     begin
-        TempVATReportLineRelation.Init;
+        TempVATReportLineRelation.Init();
         TempVATReportLineRelation."VAT Report No." := 'Test';
         TempVATReportLineRelation."VAT Report Line No." := 1;
         TempVATReportLineRelation."Table No." := DATABASE::"VAT Entry";
@@ -35,6 +35,32 @@ codeunit 134057 "ERM VAT Report Line Relation"
         Assert.ExpectedError(StrSubstNo(InsertError, VATReportLine.TableCaption));
 
         TearDown(TempVATReportLineRelation."VAT Report No.");
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure TestCreateFilterForAmountMapping()
+    var
+        VATReportLineRelation: Record "VAT Report Line Relation";
+        TableNo: Integer;
+    begin
+        VATReportLineRelation."VAT Report No." := 'Test';
+        VATReportLineRelation."VAT Report Line No." := 1;
+        VATReportLineRelation."Line No." := 1;
+        VATReportLineRelation."Table No." := DATABASE::"VAT Entry";
+        VATReportLineRelation."Entry No." := 1;
+        VATReportLineRelation.Insert(true);
+
+        VATReportLineRelation."VAT Report No." := 'Test';
+        VATReportLineRelation."VAT Report Line No." := 1;
+        VATReportLineRelation."Line No." := 2;
+        VATReportLineRelation."Table No." := DATABASE::"VAT Entry";
+        VATReportLineRelation."Entry No." := 2;
+
+        VATReportLineRelation.Insert(true);
+        Assert.AreEqual('1|2', VATReportLineRelation.CreateFilterForAmountMapping('Test', 1, TableNo), ErrorMessage);
+
+        TearDown('Test');
     end;
 
     [Test]
@@ -65,7 +91,7 @@ codeunit 134057 "ERM VAT Report Line Relation"
         VATReportLineRelation: Record "VAT Report Line Relation";
     begin
         VATReportLineRelation.SetRange("VAT Report No.", VATReportNo);
-        VATReportLineRelation.DeleteAll;
+        VATReportLineRelation.DeleteAll();
     end;
 }
 

@@ -165,7 +165,7 @@ codeunit 139048 "SMB Office Pages"
 
         CompanyContact.Get(ContactNo);
         CompanyContact.Validate(Name, CopyStr(CreateGuid, 2, 20));
-        CompanyContact.Modify;
+        CompanyContact.Modify();
         LibraryVariableStorage.Enqueue(CompanyContact."Company Name");
         LibraryVariableStorage.Enqueue(TestEmail);
         LibraryVariableStorage.Enqueue(CustomerNo);
@@ -204,7 +204,7 @@ codeunit 139048 "SMB Office Pages"
         // [GIVEN] New company is created with random email
         CreateContact(CompanyContact, CompanyContact.Type::Company);
         CompanyContact.Validate(Name, CopyStr(CreateGuid, 2, 20));
-        CompanyContact.Modify;
+        CompanyContact.Modify();
         LibraryVariableStorage.Enqueue(CompanyContact."Company Name");
 
         // [WHEN] Outlook Mail Engine shows new contact dialog page
@@ -269,7 +269,7 @@ codeunit 139048 "SMB Office Pages"
         CreateContact(Contact, Contact.Type::Person);
         Contact.Validate("E-Mail", TestEmail);
         Contact.Validate("Company No.", CompanyContact."No.");
-        Contact.Modify;
+        Contact.Modify();
 
         // [WHEN] Outlook add-in is opened for the contact email address
         OfficeAddinContext.SetRange(Email, TestEmail);
@@ -426,7 +426,7 @@ codeunit 139048 "SMB Office Pages"
         Clear(Contact);
         TestEmail := CreateContact(Contact, Contact.Type::Person);
         Contact.Validate("Company No.", ContactNo);
-        Contact.Modify;
+        Contact.Modify();
         LibraryVariableStorage.Enqueue(TestEmail);
 
         // [WHEN] Outlook Mail Engine finds email and contact it is assigned to
@@ -747,7 +747,7 @@ codeunit 139048 "SMB Office Pages"
         RecRef.GetTable(OfficeAddinContext);
         for i := 1 to RecRef.FieldCount do begin
             FieldRef := RecRef.FieldIndex(i);
-            if Format(FieldRef.Type) <> 'Option' then begin
+            if FieldRef.Type <> FieldType::Option then begin
                 FieldValue := CopyStr(CreateGuid, 1, FieldRef.Length);
                 LibraryVariableStorage.Enqueue(FieldValue);
             end else begin
@@ -1099,7 +1099,7 @@ codeunit 139048 "SMB Office Pages"
         CreateContact(Contact2, Contact2.Type::Person);
         Contact2."E-Mail" := TestEmail;
         Contact2."Company No." := ContactNo;
-        Contact2.Modify;
+        Contact2.Modify();
 
         // [WHEN] Outlook add-in is opened for the contact email address
         OfficeAddinContext.SetRange(Email, TestEmail);
@@ -1239,7 +1239,7 @@ codeunit 139048 "SMB Office Pages"
         CreateContact(Contact2, Contact2.Type::Person);
         Contact2."E-Mail" := TestEmail;
         Contact2."Company No." := ContactNo;
-        Contact2.Modify;
+        Contact2.Modify();
 
         // [WHEN] Outlook add-in is opened for the contact email address
         OfficeAddinContext.SetRange(Email, TestEmail);
@@ -1411,18 +1411,18 @@ codeunit 139048 "SMB Office Pages"
         // [GIVEN] Two contacts exist and are both linked to the customer
         Contact1."Company No." := CustomerContactNo;
         Contact2."Company No." := CustomerContactNo;
-        Contact1.Modify;
-        Contact2.Modify;
+        Contact1.Modify();
+        Contact2.Modify();
 
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         NoSeries.Get(SalesReceivablesSetup."Quote Nos.");
         NoSeries."Manual Nos." := false;
-        NoSeries.Modify;
+        NoSeries.Modify();
 
         // [WHEN] The primary contact for the customer is set to contact1
         Customer.Get(CustomerNo);
         Customer.Validate("Primary Contact No.", Contact1."No.");
-        Customer.Modify;
+        Customer.Modify();
 
         // [WHEN] Office add-in is ran with the email address of contact2
         OfficeAddinContext.SetRange(Email, Contact2Email);
@@ -1468,18 +1468,18 @@ codeunit 139048 "SMB Office Pages"
         // [GIVEN] Two contacts exist and are both linked to the vendor
         Contact1."Company No." := VendorContactNo;
         Contact2."Company No." := VendorContactNo;
-        Contact1.Modify;
-        Contact2.Modify;
+        Contact1.Modify();
+        Contact2.Modify();
 
-        PurchasesPayablesSetup.Get;
+        PurchasesPayablesSetup.Get();
         NoSeries.Get(PurchasesPayablesSetup."Invoice Nos.");
         NoSeries."Manual Nos." := false;
-        NoSeries.Modify;
+        NoSeries.Modify();
 
         // [WHEN] The primary contact for the vendor is set to contact1
         Vendor.Get(VendorNo);
         Vendor.Validate("Primary Contact No.", Contact1."No.");
-        Vendor.Modify;
+        Vendor.Modify();
 
         // [WHEN] Office add-in is ran with the email address of contact2
         OfficeAddinContext.SetRange(Email, Contact2Email);
@@ -1698,8 +1698,8 @@ codeunit 139048 "SMB Office Pages"
 
         // [GIVEN] Office invoice record exists for the appointment
         SalesInvoiceHeader.FindFirst;
-        OfficeInvoice.DeleteAll;
-        OfficeInvoice.Init;
+        OfficeInvoice.DeleteAll();
+        OfficeInvoice.Init();
         OfficeInvoice."Document No." := SalesInvoiceHeader."No.";
         OfficeInvoice.Posted := true;
         OfficeInvoice.Insert(true);
@@ -1728,8 +1728,8 @@ codeunit 139048 "SMB Office Pages"
         if ItemId = '' then
             ItemId := CreateGuid;
 
-        OfficeInvoice.DeleteAll;
-        OfficeInvoice.Init;
+        OfficeInvoice.DeleteAll();
+        OfficeInvoice.Init();
         OfficeInvoice."Item ID" := ItemId;
         OfficeInvoice."Document No." := SalesHeader."No.";
         OfficeInvoice.Insert(true);
@@ -1976,7 +1976,7 @@ codeunit 139048 "SMB Office Pages"
     var
         MarketingSetup: Record "Marketing Setup";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         OriginalBusRelCodeForCustomers := MarketingSetup."Bus. Rel. Code for Customers";
         MarketingSetup.Validate("Bus. Rel. Code for Customers", BusRelCodeForCustomers);
         MarketingSetup.Modify(true);
@@ -1986,7 +1986,7 @@ codeunit 139048 "SMB Office Pages"
     var
         MarketingSetup: Record "Marketing Setup";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         OriginalBusRelCodeForVendors := MarketingSetup."Bus. Rel. Code for Vendors";
         MarketingSetup.Validate("Bus. Rel. Code for Vendors", BusRelCodeForVendors);
         MarketingSetup.Modify(true);
@@ -2043,7 +2043,7 @@ codeunit 139048 "SMB Office Pages"
         OfficeManagement: Codeunit "Office Management";
         OfficeHost: DotNet OfficeHost;
     begin
-        OfficeAddinContext.DeleteAll;
+        OfficeAddinContext.DeleteAll();
         SetOfficeHostUnAvailable;
         SetOfficeHostProvider(CODEUNIT::"Library - Office Host Provider");
         OfficeManagement.InitializeHost(OfficeHost, HostType);
@@ -2055,8 +2055,8 @@ codeunit 139048 "SMB Office Pages"
     begin
         // Test Providers checks whether we have registered Host in NameValueBuffer or not
         if NameValueBuffer.Get(SessionId) then begin
-            NameValueBuffer.Delete;
-            Commit;
+            NameValueBuffer.Delete();
+            Commit();
         end;
     end;
 
@@ -2070,9 +2070,9 @@ codeunit 139048 "SMB Office Pages"
         MarketingSetup: Record "Marketing Setup";
         SalespersonPurchaser: Record "Salesperson/Purchaser";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         SalespersonPurchaser.FindFirst;
-        Contact.Init;
+        Contact.Init();
         Contact.Type := Type;
         Contact.Insert(true);
         Contact.Validate(Name, Contact."No.");  // Validating Name as No. because value is not important.
@@ -2088,7 +2088,7 @@ codeunit 139048 "SMB Office Pages"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
         LibraryUtility: Codeunit "Library - Utility";
     begin
-        SalesReceivablesSetup.Get;
+        SalesReceivablesSetup.Get();
         SalesReceivablesSetup."Stockout Warning" := false;
         if SalesReceivablesSetup."Blanket Order Nos." = '' then
             SalesReceivablesSetup.Validate("Blanket Order Nos.", LibraryUtility.GetGlobalNoSeriesCode);
@@ -2100,7 +2100,7 @@ codeunit 139048 "SMB Office Pages"
             SalesReceivablesSetup.Validate("Quote Nos.", LibraryUtility.GetGlobalNoSeriesCode);
         if SalesReceivablesSetup."Customer Nos." = '' then
             SalesReceivablesSetup.Validate("Customer Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        SalesReceivablesSetup.Modify;
+        SalesReceivablesSetup.Modify();
     end;
 
     [Scope('OnPrem')]
@@ -2109,19 +2109,19 @@ codeunit 139048 "SMB Office Pages"
         MarketingSetup: Record "Marketing Setup";
         LibraryUtility: Codeunit "Library - Utility";
     begin
-        MarketingSetup.Get;
+        MarketingSetup.Get();
         if MarketingSetup."Contact Nos." = '' then
             MarketingSetup.Validate("Contact Nos.", LibraryUtility.GetGlobalNoSeriesCode);
-        MarketingSetup.Modify;
+        MarketingSetup.Modify();
     end;
 
     local procedure SetOfficeHostProvider(ProviderId: Integer)
     var
         OfficeAddinSetup: Record "Office Add-in Setup";
     begin
-        OfficeAddinSetup.Get;
+        OfficeAddinSetup.Get();
         OfficeAddinSetup."Office Host Codeunit ID" := ProviderId;
-        OfficeAddinSetup.Modify;
+        OfficeAddinSetup.Modify();
     end;
 
     [Normal]

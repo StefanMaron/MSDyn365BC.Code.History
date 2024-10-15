@@ -40,7 +40,7 @@ table 5005277 "Delivery Reminder Level"
     begin
         DeliveryReminderText.SetRange("Reminder Terms Code", "Reminder Terms Code");
         DeliveryReminderText.SetRange("Reminder Level", "No.");
-        DeliveryReminderText.DeleteAll;
+        DeliveryReminderText.DeleteAll();
     end;
 
     var

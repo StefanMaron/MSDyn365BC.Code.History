@@ -70,7 +70,7 @@ codeunit 134218 "WFWH Entries Test"
         Assert.AreEqual(true, WorkflowWebhookEntries.Resubmit.Enabled, 'Resubmit button must be enabled.');
         MockOnPostNotificationRequest.SetReturnType('NoErrorReceived');
         WorkflowWebhookEntries.Resubmit.Invoke;
-        Commit;
+        Commit();
 
         // Verify
         Assert.AreEqual(false, WorkflowWebhookEntries.Resubmit.Enabled, 'Resubmit button must be disabled.');
@@ -91,24 +91,24 @@ codeunit 134218 "WFWH Entries Test"
         Guid1 := CreateGuid;
         Guid2 := CreateGuid;
 
-        WorkflowWebhookEntry.DeleteAll;
-        WorkflowWebhookEntry.Init;
+        WorkflowWebhookEntry.DeleteAll();
+        WorkflowWebhookEntry.Init();
         WorkflowWebhookEntry."Workflow Step Instance ID" := Guid1;
         WorkflowWebhookEntry.Response := WorkflowWebhookEntry.Response::Pending;
-        WorkflowWebhookEntry.Insert;
-        Commit;
+        WorkflowWebhookEntry.Insert();
+        Commit();
         Clear(WorkflowWebhookEntry);
-        WorkflowWebhookEntry.Init;
+        WorkflowWebhookEntry.Init();
         WorkflowWebhookEntry."Workflow Step Instance ID" := Guid2;
         WorkflowWebhookEntry.Response := WorkflowWebhookEntry.Response::Pending;
-        WorkflowWebhookEntry.Insert;
-        Commit;
-        WorkflowWebhookNotification.DeleteAll;
-        WorkflowWebhookNotification.Init;
+        WorkflowWebhookEntry.Insert();
+        Commit();
+        WorkflowWebhookNotification.DeleteAll();
+        WorkflowWebhookNotification.Init();
         WorkflowWebhookNotification."Workflow Step Instance ID" := Guid1;
         WorkflowWebhookNotification.Status := WorkflowWebhookNotification.Status::Sent;
-        WorkflowWebhookNotification.Insert;
-        Commit;
+        WorkflowWebhookNotification.Insert();
+        Commit();
         // Exercise
         WorkflowWebhookEntries.OpenView;
         WorkflowWebhookEntries.First;
@@ -129,7 +129,7 @@ codeunit 134218 "WFWH Entries Test"
         StreamOutObj: OutStream;
     begin
         // Create Subscription that will create workflow definition
-        WorkflowWebhookSubscription.Init;
+        WorkflowWebhookSubscription.Init();
         WorkflowWebhookSubscription."Client Type" := 'Flow';
         WorkflowWebhookSubscription."Client Id" := CreateGuid;
         WorkflowWebhookSubscription."Event Code" := WorkflowEventHandling.RunWorkflowOnSendSalesDocForApprovalCode;
@@ -153,7 +153,7 @@ codeunit 134218 "WFWH Entries Test"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.UpdateVATPostingSetup;
-        UserSetup.DeleteAll;
+        UserSetup.DeleteAll();
         LibraryWorkflow.DeleteAllExistingWorkflows;
         UnbindSubscription(LibraryJobQueue);
         BindSubscription(LibraryJobQueue);
@@ -164,9 +164,9 @@ codeunit 134218 "WFWH Entries Test"
         UnbindSubscription(MockOnFetchInitParams);
         BindSubscription(MockOnFetchInitParams);
         LibraryWorkflow.DeleteAllExistingWorkflows;
-        WorkflowWebhookEntry.DeleteAll;
-        WorkflowWebhookNotification.DeleteAll;
-        WorkflowWebhookSubscription.DeleteAll;
+        WorkflowWebhookEntry.DeleteAll();
+        WorkflowWebhookNotification.DeleteAll();
+        WorkflowWebhookSubscription.DeleteAll();
     end;
 
     local procedure CreateSalesOrder(var SalesHeader: Record "Sales Header"; Amount: Decimal)

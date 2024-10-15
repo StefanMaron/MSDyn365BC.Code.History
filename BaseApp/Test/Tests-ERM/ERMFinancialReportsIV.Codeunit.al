@@ -350,7 +350,7 @@ codeunit 134992 "ERM Financial Reports IV"
         CreatePurchaseOrder(PurchaseHeader, VATPostingSetup);
         DocumentNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, true, false);
         PurchRcptHeader.SetRange("No.", DocumentNo);
-        CompanyInformation.Get;
+        CompanyInformation.Get();
 
         // Exercise: Run Purchase - Receipt report.
         REPORT.Run(REPORT::"Purchase - Receipt", true, false, PurchRcptHeader);
@@ -472,7 +472,7 @@ codeunit 134992 "ERM Financial Reports IV"
         LibraryERMCountryData.CreateVATData;
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         IsInitialized := true;
-        Commit;
+        Commit();
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"ERM Financial Reports IV");
     end;
 
@@ -689,7 +689,7 @@ codeunit 134992 "ERM Financial Reports IV"
         VATPostingSetup.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         CalcAndPostVATSettlement.SetTableView(VATPostingSetup);
         CalcAndPostVATSettlement.InitializeRequest(WorkDate, WorkDate, WorkDate, DocumentNo, GLAccount."No.", false, Post);
-        Commit;
+        Commit();
         CalcAndPostVATSettlement.Run;
     end;
 
@@ -703,7 +703,7 @@ codeunit 134992 "ERM Financial Reports IV"
         VATStatementName.SetRange(Name, Name);
         VATStatement.SetTableView(VATStatementName);
         VATStatement.InitializeRequest(VATStatementName, VATStatementLine, Selection, PeriodSelection, false, false);
-        Commit;
+        Commit();
         VATStatement.Run;
     end;
 

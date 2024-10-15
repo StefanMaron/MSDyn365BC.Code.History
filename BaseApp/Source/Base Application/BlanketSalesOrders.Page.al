@@ -1,4 +1,4 @@
-﻿page 9303 "Blanket Sales Orders"
+page 9303 "Blanket Sales Orders"
 {
     ApplicationArea = Suite;
     Caption = 'Blanket Sales Orders';
@@ -162,6 +162,13 @@
         }
         area(factboxes)
         {
+            part("Attached Documents"; "Document Attachment Factbox")
+            {
+                ApplicationArea = All;
+                SubPageLink = "Table ID" = CONST(36),
+                              "No." = FIELD("No."),
+                              "Document Type" = FIELD("Document Type");
+            }
             part(Control1902018507; "Customer Statistics FactBox")
             {
                 ApplicationArea = Suite;
@@ -334,6 +341,27 @@
                 trigger OnAction()
                 begin
                     DocPrint.PrintSalesHeader(Rec);
+                end;
+            }
+            action(AttachAsPDF)
+            {
+                ApplicationArea = Basic, Suite;
+                Caption = 'Attach as PDF';
+                Image = PrintAttachment;
+                Promoted = true;
+                PromotedCategory = Category5;
+                PromotedIsBig = true;
+                PromotedOnly = true;
+                ToolTip = 'Create a PDF file and attach it to the document.';
+
+                trigger OnAction()
+                var
+                    SalesHeader: Record "Sales Header";
+                    DocPrint: Codeunit "Document-Print";
+                begin
+                    SalesHeader := Rec;
+                    CurrPage.SetSelectionFilter(SalesHeader);
+                    DocPrint.PrintSalesHeaderToDocumentAttachment(SalesHeader);
                 end;
             }
             group("Request Approval")

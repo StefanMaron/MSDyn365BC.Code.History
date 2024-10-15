@@ -354,7 +354,7 @@ page 9203 "Budget Matrix"
         if GLAccBudgetBuf.GetFilter("Global Dimension 2 Filter") <> '' then
             GlobalDim2Filter := GLAccBudgetBuf.GetFilter("Global Dimension 2 Filter");
 
-        GLSetup.Get;
+        GLSetup.Get();
     end;
 
     var
@@ -962,7 +962,7 @@ page 9203 "Budget Matrix"
             if GLAccCategoryFilter <> GLAccCategoryFilter::" " then
                 GLAcc.SetRange("Account Category", GLAccCategoryFilter);
             GLAcc.FindFirst;
-            GLAcc.Reset;
+            GLAcc.Reset();
         end;
         with GLAcc do begin
             SetRange("Budget Filter", GLBudgetName.Name);

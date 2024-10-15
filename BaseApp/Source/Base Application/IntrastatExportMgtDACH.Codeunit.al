@@ -33,7 +33,7 @@ codeunit 11002 "Intrastat - Export Mgt. DACH"
             TestField(City);
             TestField("Country/Region Code");
         end;
-        IntrastatSetup.Get;
+        IntrastatSetup.Get();
         IntrastatSetup.TestField("Intrastat Contact Type");
         CheckIntrastatContactMandatoryFields;
 

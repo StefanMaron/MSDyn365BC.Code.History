@@ -51,11 +51,9 @@ table 300 "Reminder/Fin. Charge Entry"
             Caption = 'Customer Entry No.';
             TableRelation = "Cust. Ledger Entry";
         }
-        field(10; "Document Type"; Option)
+        field(10; "Document Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Document Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(11; "Document No."; Code[20])
         {
@@ -117,10 +115,11 @@ table 300 "Reminder/Fin. Charge Entry"
 
     procedure Navigate()
     var
-        NavigateForm: Page Navigate;
+        NavigatePage: Page Navigate;
     begin
-        NavigateForm.SetDoc("Posting Date", "No.");
-        NavigateForm.Run;
+        NavigatePage.SetDoc("Posting Date", "No.");
+        NavigatePage.SetRec(Rec);
+        NavigatePage.Run;
     end;
 
     local procedure GetCurrencyCode(): Code[10]
@@ -140,6 +139,13 @@ table 300 "Reminder/Fin. Charge Entry"
             exit(CustLedgEntry."Currency Code");
 
         exit('');
+    end;
+
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
     end;
 
     [IntegrationEvent(false, false)]

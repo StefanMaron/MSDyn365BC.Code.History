@@ -178,7 +178,7 @@ codeunit 153 "User Permissions Impl."
             exit(true);
 
         AccessControl.SetRange("Role ID", SECURITYPermissionSetTxt);
-        AccessControl.SetFilter("Company Name", '%1|%2', '', CompanyName());
+        AccessControl.SetFilter("Company Name", '%1|%2', '', CompanyName);
         AccessControl.SetRange("User Security ID", UserSID);
         exit(not AccessControl.IsEmpty());
     end;

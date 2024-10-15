@@ -178,11 +178,11 @@ table 5005271 "Delivery Reminder Line"
 
     trigger OnDelete()
     begin
-        DeliveryReminderLine.Reset;
+        DeliveryReminderLine.Reset();
         DeliveryReminderLine.SetCurrentKey("Document No.", "Attached to Line No.");
         DeliveryReminderLine.SetRange("Document No.", "Document No.");
         DeliveryReminderLine.SetRange("Attached to Line No.", "Line No.");
-        DeliveryReminderLine.DeleteAll;
+        DeliveryReminderLine.DeleteAll();
     end;
 
     trigger OnInsert()

@@ -65,15 +65,15 @@ page 806 "Online Map Location"
             exit;
         end;
 
-        Geolocation.Init;
+        Geolocation.Init();
         Geolocation.ID := CreateGuid;
         Geolocation.Latitude := location.Coordinate.Latitude;
         Geolocation.Longitude := location.Coordinate.Longitude;
-        Geolocation.Insert;
+        Geolocation.Insert();
 
         if not OnlineMapSetup.Get then begin
             OnlineMapManagement.SetupDefault;
-            OnlineMapSetup.Get;
+            OnlineMapSetup.Get();
         end;
 
         OnlineMapManagement.ProcessDirections(
@@ -81,7 +81,7 @@ page 806 "Online Map Location"
           ToTableNo, ToRecordPosition,
           OnlineMapSetup."Distance In", OnlineMapSetup.Route);
 
-        Geolocation.Delete;
+        Geolocation.Delete();
         CurrPage.Close;
     end;
 }

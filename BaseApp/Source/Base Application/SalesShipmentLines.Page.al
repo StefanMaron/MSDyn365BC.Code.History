@@ -1,4 +1,4 @@
-﻿page 5824 "Sales Shipment Lines"
+page 5824 "Sales Shipment Lines"
 {
     Caption = 'Sales Shipment Lines';
     Editable = false;
@@ -222,7 +222,7 @@
     var
         SalesShptLine: Record "Sales Shipment Line";
     begin
-        TempSalesShptLine.Reset;
+        TempSalesShptLine.Reset();
         TempSalesShptLine.CopyFilters(Rec);
         TempSalesShptLine.SetRange("Document No.", DocNo);
         if not TempSalesShptLine.FindFirst then begin
@@ -230,7 +230,7 @@
             SalesShptLine.SetRange("Document No.", DocNo);
             if SalesShptLine.FindFirst then begin
                 TempSalesShptLine := SalesShptLine;
-                TempSalesShptLine.Insert;
+                TempSalesShptLine.Insert();
             end;
         end;
         if TempSalesShptLine."Line No." = LineNo then

@@ -303,7 +303,7 @@ report 11105 "Intrastat - Checklist AT"
                        ("Transaction Specification" = '') and
                        ("Total Weight" = 0)
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     OldTariffNo := "Tariff No.";
                     "Tariff No." := DelChr("Tariff No.");
@@ -365,10 +365,10 @@ report 11105 "Intrastat - Checklist AT"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         VATIDNo := CopyStr(DelChr(UpperCase(CompanyInfo."Registration No."), '=', Text000), 1, 11);
 
-        GLSetup.Get;
+        GLSetup.Get();
         if "Intrastat Jnl. Batch"."Amounts in Add. Currency" then begin
             GLSetup.TestField("Additional Reporting Currency");
             HeaderText := StrSubstNo(Text002, GLSetup."Additional Reporting Currency");
@@ -395,7 +395,7 @@ report 11105 "Intrastat - Checklist AT"
         OldJournalBatchName: Code[10];
         OldType: Integer;
         OldCountry_RegionCode: Code[10];
-        OldTariffNo: Code[10];
+        OldTariffNo: Code[20];
         OldTransactionType: Code[10];
         OldTransportMethod: Code[10];
         OldArea: Code[10];

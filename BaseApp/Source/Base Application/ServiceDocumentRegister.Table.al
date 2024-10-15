@@ -48,12 +48,12 @@ table 5936 "Service Document Register"
         ServDocReg: Record "Service Document Register";
     begin
         if not Get(ServDocType, ServDocNo, SalesDocType, SalesDocNo) then begin
-            ServDocReg.Init;
+            ServDocReg.Init();
             ServDocReg."Source Document Type" := ServDocType;
             ServDocReg."Source Document No." := ServDocNo;
             ServDocReg."Destination Document Type" := SalesDocType;
             ServDocReg."Destination Document No." := SalesDocNo;
-            if ServDocReg.Insert then;
+            if ServDocReg.Insert() then;
         end;
     end;
 
@@ -62,7 +62,7 @@ table 5936 "Service Document Register"
         ServDocReg: Record "Service Document Register";
         PostedServDocReg: Record "Service Document Register";
     begin
-        ServDocReg.Reset;
+        ServDocReg.Reset();
         ServDocReg.SetCurrentKey("Destination Document Type", "Destination Document No.");
         ServDocReg.SetRange("Destination Document Type", SalesDocType);
         ServDocReg.SetRange("Destination Document No.", SalesDocNo);
@@ -76,8 +76,8 @@ table 5936 "Service Document Register"
                         PostedServDocReg."Destination Document Type" := PostedServDocReg."Destination Document Type"::"Posted Credit Memo";
                 end;
                 PostedServDocReg."Destination Document No." := InvoiceNo;
-                PostedServDocReg.Insert;
-                ServDocReg.Delete;
+                PostedServDocReg.Insert();
+                ServDocReg.Delete();
             until ServDocReg.Next = 0;
     end;
 

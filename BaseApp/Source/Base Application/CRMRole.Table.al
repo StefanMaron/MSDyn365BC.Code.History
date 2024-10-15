@@ -158,6 +158,15 @@ table 5389 "CRM Role"
             ExternalName = 'roletemplateid';
             ExternalType = 'Lookup';
         }
+        field(17; BusinessUnitId; Guid)
+        {
+            Caption = 'Business Unit';
+            Description = 'Unique identifier of the business unit with which the role is associated.';
+            ExternalName = 'businessunitid';
+            ExternalType = 'Lookup';
+            TableRelation = "CRM Businessunit".BusinessUnitId;
+            DataClassification = OrganizationIdentifiableInformation;
+        }
     }
 
     keys

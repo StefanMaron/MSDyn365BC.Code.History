@@ -26,7 +26,7 @@ codeunit 1330 "Instruction Mgt."
     procedure ShowConfirm(ConfirmQst: Text; InstructionType: Code[50]): Boolean
     begin
         if GuiAllowed and IsEnabled(InstructionType) then begin
-            Commit;
+            Commit();
             exit(Confirm(ConfirmQst));
         end;
 

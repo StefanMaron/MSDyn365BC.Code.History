@@ -19,7 +19,7 @@ page 311 "Intrastat Journal"
                 ApplicationArea = BasicEU;
                 Caption = 'Batch Name';
                 Lookup = true;
-                ToolTip = 'Specifies the name of the journal batch.';
+                ToolTip = 'Specifies the name of the journal batch, a personalized journal layout, that the journal is based on.';
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
@@ -78,17 +78,17 @@ page 311 "Intrastat Journal"
                 field("Transaction Type"; "Transaction Type")
                 {
                     ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the transaction type for the item entry.';
+                    ToolTip = 'Specifies the type of transaction that the document represents, for the purpose of reporting to INTRASTAT.';
                 }
                 field("Transaction Specification"; "Transaction Specification")
                 {
                     ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the transaction specification code for the item transaction on this journal line.';
+                    ToolTip = 'Specifies a specification of the document''s transaction, for the purpose of reporting to INTRASTAT.';
                 }
                 field("Transport Method"; "Transport Method")
                 {
                     ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the transport method for the item entry.';
+                    ToolTip = 'Specifies the transport method, for the purpose of reporting to INTRASTAT.';
                 }
                 field("Entry/Exit Point"; "Entry/Exit Point")
                 {
@@ -99,7 +99,7 @@ page 311 "Intrastat Journal"
                 field("Area"; Area)
                 {
                     ApplicationArea = BasicEU;
-                    ToolTip = 'Specifies the code for the area of the customer or vendor with which you traded the items on this journal line.';
+                    ToolTip = 'Specifies the area of the customer or vendor, for the purpose of reporting to INTRASTAT.';
                     Visible = false;
                 }
                 field("Country/Region of Origin Code"; "Country/Region of Origin Code")
@@ -325,7 +325,8 @@ page 311 "Intrastat Journal"
                     PromotedIsBig = true;
                     PromotedOnly = true;
                     ToolTip = 'Send the data in the journal to an Excel file for analysis or editing.';
-                    Visible = IsSaasExcelAddinEnabled;
+                    Visible = IsSaaSExcelAddinEnabled;
+                    AccessByPermission = System "Allow Action Export To Excel" = X;
 
                     trigger OnAction()
                     var
@@ -354,7 +355,7 @@ page 311 "Intrastat Journal"
         ServerSetting: Codeunit "Server Setting";
         JnlSelected: Boolean;
     begin
-        IsSaasExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled;
+        IsSaaSExcelAddinEnabled := ServerSetting.GetIsSaasExcelAddinEnabled();
         if ClientTypeManagement.GetCurrentClientType = CLIENTTYPE::ODataV4 then
             exit;
 
@@ -382,7 +383,7 @@ page 311 "Intrastat Journal"
         ShowTotalStatisticalValue: Boolean;
         [InDataSet]
         StatisticalValueVisible: Boolean;
-        IsSaasExcelAddinEnabled: Boolean;
+        IsSaaSExcelAddinEnabled: Boolean;
 
     local procedure UpdateStatisticalValue()
     begin

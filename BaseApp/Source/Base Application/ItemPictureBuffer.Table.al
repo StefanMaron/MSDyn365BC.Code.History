@@ -102,7 +102,7 @@ table 31 "Item Picture Buffer"
         Window.Open('#1##############################');
 
         TotalCount := 0;
-        DeleteAll;
+        DeleteAll();
         foreach EntryListKey in EntryList do begin
             Init;
             "File Name" :=
@@ -158,7 +158,7 @@ table 31 "Item Picture Buffer"
                         if "Picture Already Exists" then
                             Clear(Item.Picture);
                         Item.Picture.Insert(ImageID);
-                        Item.Modify;
+                        Item.Modify();
                         "Import Status" := "Import Status"::Completed;
                         Modify;
                     end;

@@ -202,11 +202,9 @@ table 5990 "Service Shipment Header"
             Caption = 'No. Printed';
             Editable = false;
         }
-        field(52; "Applies-to Doc. Type"; Option)
+        field(52; "Applies-to Doc. Type"; Enum "Gen. Journal Document Type")
         {
             Caption = 'Applies-to Doc. Type';
-            OptionCaption = ' ,Payment,Invoice,Credit Memo,Finance Charge Memo,Reminder,Refund';
-            OptionMembers = " ",Payment,Invoice,"Credit Memo","Finance Charge Memo",Reminder,Refund;
         }
         field(53; "Applies-to Doc. No."; Code[20])
         {
@@ -342,11 +340,9 @@ table 5990 "Service Shipment Header"
             Caption = 'Ship-to Country/Region Code';
             TableRelation = "Country/Region";
         }
-        field(94; "Bal. Account Type"; Option)
+        field(94; "Bal. Account Type"; enum "Payment Balance Account Type")
         {
             Caption = 'Bal. Account Type';
-            OptionCaption = 'G/L Account,Bank Account';
-            OptionMembers = "G/L Account","Bank Account";
         }
         field(97; "Exit Point"; Code[10])
         {
@@ -743,20 +739,20 @@ table 5990 "Service Shipment Header"
         CertificateOfSupply: Record "Certificate of Supply";
     begin
         TestField("No. Printed");
-        LockTable;
+        LockTable();
 
-        ServShptItemLine.Reset;
+        ServShptItemLine.Reset();
         ServShptItemLine.SetRange("No.", "No.");
-        ServShptItemLine.DeleteAll;
+        ServShptItemLine.DeleteAll();
 
-        ServShptLine.Reset;
+        ServShptLine.Reset();
         ServShptLine.SetRange("Document No.", "No.");
-        ServShptLine.DeleteAll;
+        ServShptLine.DeleteAll();
 
-        ServCommentLine.Reset;
+        ServCommentLine.Reset();
         ServCommentLine.SetRange("Table Name", ServCommentLine."Table Name"::"Service Shipment Header");
         ServCommentLine.SetRange("No.", "No.");
-        ServCommentLine.DeleteAll;
+        ServCommentLine.DeleteAll();
 
         if CertificateOfSupply.Get(CertificateOfSupply."Document Type"::"Service Shipment", "No.") then
             CertificateOfSupply.Delete(true);
@@ -784,10 +780,11 @@ table 5990 "Service Shipment Header"
 
     procedure Navigate()
     var
-        NavigateForm: Page Navigate;
+        NavigatePage: Page Navigate;
     begin
-        NavigateForm.SetDoc("Posting Date", "No.");
-        NavigateForm.Run;
+        NavigatePage.SetDoc("Posting Date", "No.");
+        NavigatePage.SetRec(Rec);
+        NavigatePage.Run;
     end;
 
     procedure ShowDimensions()

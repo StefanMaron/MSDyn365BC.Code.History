@@ -28,10 +28,10 @@ codeunit 138050 "O365 Test Name Nearness"
         LibrarySales.CreateCustomer(Customer);
         CreateNames(CorrectName, WrongName);
         Customer.Name := CorrectName;
-        Customer.Modify;
+        Customer.Modify();
 
         // [WHEN] User enters a slightly wrongly typed name
-        SalesHeader.Init;
+        SalesHeader.Init();
         SalesHeader.Validate("Sell-to Customer Name", WrongName);
 
         // [THEN] The system returns the correct customer no.
@@ -58,15 +58,15 @@ codeunit 138050 "O365 Test Name Nearness"
         LibraryInventory.CreateItem(Item);
         CreateNames(CorrectName, WrongName);
         Item.Description := CorrectName;
-        Item.Modify;
+        Item.Modify();
 
         // [WHEN] User enters a slightly wrongly typed name
-        SalesLine.Init;
+        SalesLine.Init();
         SalesLine."Document Type" := SalesHeader."Document Type";
         SalesLine."Document No." := SalesHeader."No.";
         SalesLine."Line No." := 10000;
         SalesLine.Type := SalesLine.Type::Item;
-        SalesLine.Insert;
+        SalesLine.Insert();
         SalesLine.Validate(Description, WrongName);
 
         // [THEN] The system returns the correct item no.
@@ -92,7 +92,7 @@ codeunit 138050 "O365 Test Name Nearness"
         LibraryInventory.CreateItem(Item);
         CreateNames(CorrectName, WrongName);
         Item.Description := CorrectName;
-        Item.Modify;
+        Item.Modify();
 
         // [WHEN] User enters a slightly wrongly typed name
         BCO365SalesInvoice.OpenEdit;
@@ -124,7 +124,7 @@ codeunit 138050 "O365 Test Name Nearness"
         LibraryInventory.CreateItem(Item);
         CreateNames(CorrectName, WrongName);
         Item.Description := CorrectName;
-        Item.Modify;
+        Item.Modify();
 
         // [WHEN] User enters a slightly wrongly typed name
         BCO365SalesInvoice.OpenEdit;
@@ -152,10 +152,10 @@ codeunit 138050 "O365 Test Name Nearness"
         LibraryPurchase.CreateVendor(Vendor);
         CreateNames(CorrectName, WrongName);
         Vendor.Name := CorrectName;
-        Vendor.Modify;
+        Vendor.Modify();
 
         // [WHEN] User enters a slightly wrongly typed name
-        PurchaseHeader.Init;
+        PurchaseHeader.Init();
         PurchaseHeader.Validate("Buy-from Vendor Name", WrongName);
 
         // [THEN] The system returns the correct vendor no.
@@ -179,15 +179,15 @@ codeunit 138050 "O365 Test Name Nearness"
         LibraryInventory.CreateItem(Item);
         CreateNames(CorrectName, WrongName);
         Item.Description := CorrectName;
-        Item.Modify;
+        Item.Modify();
 
         // [WHEN] User enters a slightly wrongly typed name
-        PurchaseLine.Init;
+        PurchaseLine.Init();
         PurchaseLine."Document Type" := PurchaseHeader."Document Type";
         PurchaseLine."Document No." := PurchaseHeader."No.";
         PurchaseLine."Line No." := 10000;
         PurchaseLine.Type := PurchaseLine.Type::Item;
-        PurchaseLine.Insert;
+        PurchaseLine.Insert();
         PurchaseLine.Validate(Description, WrongName);
 
         // [THEN] The system returns the correct item no.
@@ -207,7 +207,7 @@ codeunit 138050 "O365 Test Name Nearness"
     var
         SalesLine: Record "Sales Line";
     begin
-        SalesLine.Init;
+        SalesLine.Init();
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.SetRange("Document No.", SalesHeader."No.");
         SalesLine.FindFirst;

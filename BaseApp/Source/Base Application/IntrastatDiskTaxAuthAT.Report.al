@@ -22,7 +22,7 @@ report 11106 "Intrastat - Disk Tax Auth AT"
                        ("Transport Method" = '') and
                        ("Total Weight" = 0)
                     then
-                        CurrReport.Skip;
+                        CurrReport.Skip();
 
                     IntrastatJnlLineBuf := "Intrastat Jnl. Line";
 
@@ -77,7 +77,7 @@ report 11106 "Intrastat - Disk Tax Auth AT"
                         end;
 
                     IntrastatJnlLineBuf."Internal Ref. No." := IntraRefNo;
-                    IntrastatJnlLineBuf.Insert;
+                    IntrastatJnlLineBuf.Insert();
                 end;
 
                 trigger OnPostDataItem()
@@ -91,7 +91,7 @@ report 11106 "Intrastat - Disk Tax Auth AT"
                             IntraJnlLineTest."Tariff No." := IntrastatJnlLineBuf."Tariff No.";
                             IntraJnlLineTest."Country/Region of Origin Code" := IntrastatJnlLineBuf."Country/Region of Origin Code";
                             IntraJnlLineTest."Internal Ref. No." := IntrastatJnlLineBuf."Internal Ref. No.";
-                            IntraJnlLineTest.Modify;
+                            IntraJnlLineTest.Modify();
                         until IntrastatJnlLineBuf.Next = 0;
                 end;
 
@@ -103,7 +103,7 @@ report 11106 "Intrastat - Disk Tax Auth AT"
                     DateOfToday := Format(Today, 6, Text000);
                     Today4 := Format(Today, 8, Text001);
                     TimeOfNow := Format(Time, 4, Text002);
-                    IntrastatJnlLineBuf.DeleteAll;
+                    IntrastatJnlLineBuf.DeleteAll();
 
                     // UID Check
                     CompanyInfo."VAT Registration No." := RemoveSpecChar(CompanyInfo."VAT Registration No.");
@@ -125,7 +125,7 @@ report 11106 "Intrastat - Disk Tax Auth AT"
                     // Increment Controlnumber
                     CompanyInfo.TestField("Control No.");
                     CompanyInfo."Control No." := IncStr(CompanyInfo."Control No.");
-                    CompanyInfo.Modify;
+                    CompanyInfo.Modify();
                     BKNR := CompanyInfo."Control No.";
                     TextZeroFormat(BKNR, 8);
 
@@ -146,7 +146,7 @@ report 11106 "Intrastat - Disk Tax Auth AT"
                 trigger OnAfterGetRecord()
                 begin
                     if not PrintReceipt then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if (IntrastatJnlLine."Internal Ref. No." <> '') and (IntrastatJnlLine."Internal Ref. No." <> "Internal Ref. No.") then begin
                         // only if Position is not empty
@@ -266,7 +266,7 @@ report 11106 "Intrastat - Disk Tax Auth AT"
                     Clear(IntrastatJnlLine);
 
                     if not PrintReceipt then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     Segments := Segments + 19;
 
@@ -302,7 +302,7 @@ report 11106 "Intrastat - Disk Tax Auth AT"
                 trigger OnPreDataItem()
                 begin
                     if not PrintReceipt then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     FilenameForReceipts := CopyStr(CompanyInfo."Purch. Authorized No.", 1, 4) +
                       "Intrastat Jnl. Batch"."Statistics Period" + '.edi';
@@ -368,7 +368,7 @@ report 11106 "Intrastat - Disk Tax Auth AT"
                 trigger OnAfterGetRecord()
                 begin
                     if not PrintShipment then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     if (IntrastatJnlLine."Internal Ref. No." <> '') and (IntrastatJnlLine."Internal Ref. No." <> "Internal Ref. No.") then begin
                         // only if position is not empty
@@ -475,11 +475,11 @@ report 11106 "Intrastat - Disk Tax Auth AT"
 
                     if PrintReceipt or PrintShipment then begin
                         "Intrastat Jnl. Batch".Reported := true;
-                        "Intrastat Jnl. Batch".Modify;
+                        "Intrastat Jnl. Batch".Modify();
                     end;
 
                     if not PrintShipment then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     Segments := Segments + 19;
 
@@ -515,7 +515,7 @@ report 11106 "Intrastat - Disk Tax Auth AT"
                 trigger OnPreDataItem()
                 begin
                     if not PrintShipment then
-                        CurrReport.Break;
+                        CurrReport.Break();
 
                     FilenameForShipments := CopyStr(CompanyInfo."Sales Authorized No.", 1, 4) +
                       "Intrastat Jnl. Batch"."Statistics Period" + '.edi';
@@ -696,19 +696,19 @@ report 11106 "Intrastat - Disk Tax Auth AT"
 
     trigger OnPreReport()
     begin
-        CompanyInfo.Get;
+        CompanyInfo.Get();
         CompanyInfo.TestField("VAT Registration No.");
         CompanyInfo.TestField("Sales Authorized No.");
         CompanyInfo.TestField("Purch. Authorized No.");
     end;
 
     var
-        Text000: Label '<Year,2><Month,2><Day,2>';
-        Text001: Label '<Year4,4><Month,2><Day,2>';
-        Text002: Label '<Hours24,2><Minutes,2>';
+        Text000: Label '<Year,2><Month,2><Day,2>', Locked = true;
+        Text001: Label '<Year4,4><Month,2><Day,2>', Locked = true;
+        Text002: Label '<Hours24,2><Minutes,2>', Locked = true;
         Text003: Label 'UID in Companyinfo must be 11 digits.';
         Text004: Label 'Statisticperiod %1 may only include digits.';
-        Text005: Label '<year,2><month,2>';
+        Text005: Label '<year,2><month,2>', Locked = true;
         InvalideDateErr: Label 'Date %1 of intrastat journal line %2 doesn''t fit with period %3 of Intrastat batch.', Comment = 'Parameter 1 - date, 2 - line number, 3 - date';
         Text008: Label 'Tariffno. in Line %1 must be 8 digits.';
         Text009: Label 'Transport Method must be one digit.';

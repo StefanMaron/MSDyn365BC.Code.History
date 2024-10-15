@@ -21,7 +21,7 @@ report 5854 "Roll Up Standard Cost"
 
             trigger OnPreDataItem()
             begin
-                StdCostWksh.LockTable;
+                StdCostWksh.LockTable();
                 Clear(CalcStdCost);
                 CalcStdCost.SetProperties(CalculationDate, true, false, false, ToStdCostWkshName, true);
                 CalcStdCost.CalcItems(Item, TempItem);

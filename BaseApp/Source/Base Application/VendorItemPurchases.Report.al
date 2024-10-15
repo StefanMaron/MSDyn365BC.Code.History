@@ -86,7 +86,7 @@ report 313 "Vendor/Item Purchases"
                 trigger OnAfterGetRecord()
                 begin
                     if not Item.Get("Item No.") then
-                        Item.Init;
+                        Item.Init();
 
                     if ResetItemTotal then begin
                         ResetItemTotal := false;
@@ -101,7 +101,7 @@ report 313 "Vendor/Item Purchases"
 
                     if not (ValueEntry.Next = 0) then begin
                         if ValueEntry."Item No." = "Item No." then
-                            CurrReport.Skip;
+                            CurrReport.Skip();
                         ResetItemTotal := true
                     end
                 end;

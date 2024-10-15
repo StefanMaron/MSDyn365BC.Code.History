@@ -112,5 +112,12 @@ table 5005274 "Delivery Reminder Ledger Entry"
     fieldgroups
     {
     }
+    
+    procedure GetLastEntryNo(): Integer;
+    var
+        FindRecordManagement: Codeunit "Find Record Management";
+    begin
+        exit(FindRecordManagement.GetLastEntryIntFieldValue(Rec, FieldNo("Entry No.")))
+    end;
 }
 

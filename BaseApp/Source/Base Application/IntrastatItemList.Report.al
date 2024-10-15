@@ -85,7 +85,7 @@ report 11001 "Intrastat - Item List"
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
             end;
         }
     }

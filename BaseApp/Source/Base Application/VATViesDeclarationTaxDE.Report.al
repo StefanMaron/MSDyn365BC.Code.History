@@ -35,17 +35,17 @@ report 11007 "VAT-Vies Declaration Tax - DE"
                 if TempVATEntry.Find('-') then begin
                     TempVATEntry.Base := TempVATEntry.Base + Base;
                     TempVATEntry."Additional-Currency Base" := TempVATEntry."Additional-Currency Base" + "Additional-Currency Base";
-                    TempVATEntry.Modify;
+                    TempVATEntry.Modify();
                 end else begin
                     TempVATEntry := "VAT Entry";
                     TempVATEntry."VAT Registration No." := VATRegNo;
-                    TempVATEntry.Insert;
+                    TempVATEntry.Insert();
                 end;
             end;
 
             trigger OnPreDataItem()
             begin
-                CompanyInfo.Get;
+                CompanyInfo.Get();
                 FormatAddr.Company(CompanyAddr, CompanyInfo);
                 CompanyInfo.TestField("VAT Registration No.");
 
@@ -234,10 +234,10 @@ report 11007 "VAT-Vies Declaration Tax - DE"
 
             trigger OnPreDataItem()
             begin
-                TempVATEntry.Reset;
+                TempVATEntry.Reset();
                 TempVATEntry.SetCurrentKey(Type, "Country/Region Code", "VAT Registration No.");
                 if not TempVATEntry.Find('-') then
-                    CurrReport.Break;
+                    CurrReport.Break();
                 SetRange(Number, 1, TempVATEntry.Count);
             end;
         }

@@ -361,7 +361,7 @@ page 8632 "Config. Worksheet"
                                 AllObj.SetRange("Object Type", AllObj."Object Type"::Table);
                                 AllObj.SetRange("Object ID", ConfigLine."Table ID");
                                 ConfigMgt.GetConfigTables(AllObj, false, true, false, false, false);
-                                Commit;
+                                Commit();
                             until ConfigLine.Next = 0;
                     end;
                 }
@@ -593,7 +593,7 @@ page 8632 "Config. Worksheet"
         ConfigLine: Record "Config. Line";
     begin
         NextLineNo := 10000;
-        ConfigLine.Reset;
+        ConfigLine.Reset();
         if ConfigLine.FindLast then
             NextLineNo := ConfigLine."Line No." + 10000;
 
@@ -609,7 +609,7 @@ page 8632 "Config. Worksheet"
             if ConfigLine.Find('+') then
                 repeat
                     ConfigLine."Vertical Sorting" := ConfigLine."Vertical Sorting" + 1;
-                    ConfigLine.Modify;
+                    ConfigLine.Modify();
                 until ConfigLine.Next(-1) = 0;
 
             "Line No." := NextLineNo;
@@ -655,8 +655,8 @@ page 8632 "Config. Worksheet"
         VertSort := ConfigLine1."Vertical Sorting";
         ConfigLine1."Vertical Sorting" := ConfigLine2."Vertical Sorting";
         ConfigLine2."Vertical Sorting" := VertSort;
-        ConfigLine1.Modify;
-        ConfigLine2.Modify;
+        ConfigLine1.Modify();
+        ConfigLine2.Modify();
     end;
 
     local procedure AssignPackagePrompt(var ConfigLine: Record "Config. Line")
@@ -667,7 +667,7 @@ page 8632 "Config. Worksheet"
     begin
         ConfigPackageMgt.CheckConfigLinesToAssign(ConfigLine);
         Clear(ConfigPackages);
-        ConfigPackage.Init;
+        ConfigPackage.Init();
         ConfigPackages.LookupMode(true);
         if ConfigPackages.RunModal = ACTION::LookupOK then begin
             ConfigPackages.GetRecord(ConfigPackage);

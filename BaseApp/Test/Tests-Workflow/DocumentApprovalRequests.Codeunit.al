@@ -159,7 +159,7 @@ codeunit 134204 "Document Approval - Requests"
             repeat
                 ApprovalEntry."Approver ID" := MockUserSetup1."User ID";
                 ApprovalEntry."Sender ID" := UserId;
-                ApprovalEntry.Modify;
+                ApprovalEntry.Modify();
             until ApprovalEntry.Next = 0;
 
         ApprovalsMgmt.DelegateApprovalRequests(ApprovalEntry);
@@ -209,7 +209,7 @@ codeunit 134204 "Document Approval - Requests"
         if ApprovalEntry.FindSet then
             repeat
                 ApprovalEntry."Approver ID" := MockUserSetup1."User ID";
-                ApprovalEntry.Modify;
+                ApprovalEntry.Modify();
             until ApprovalEntry.Next = 0;
 
         ApprovalsMgmt.DelegateApprovalRequests(ApprovalEntry);
@@ -256,7 +256,7 @@ codeunit 134204 "Document Approval - Requests"
         if ApprovalEntry.FindSet then
             repeat
                 ApprovalEntry."Approver ID" := MockUserSetup1."User ID";
-                ApprovalEntry.Modify;
+                ApprovalEntry.Modify();
             until ApprovalEntry.Next = 0;
 
         asserterror ApprovalsMgmt.DelegateApprovalRequests(ApprovalEntry);
@@ -294,7 +294,7 @@ codeunit 134204 "Document Approval - Requests"
         if ApprovalEntry.FindSet then
             repeat
                 ApprovalEntry."Approver ID" := MockUserSetup1."User ID";
-                ApprovalEntry.Modify;
+                ApprovalEntry.Modify();
             until ApprovalEntry.Next = 0;
 
         // Verify
@@ -331,13 +331,13 @@ codeunit 134204 "Document Approval - Requests"
         // Setup
         LibraryPurchase.CreateVendor(Vendor);
         Vendor.Name := 'Name of Vendor';
-        Vendor.Modify;
+        Vendor.Modify();
 
         LibraryPurchase.CreatePurchHeaderWithDocNo(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.", 'INVOICENO');
         LibraryPurchase.CreatePurchaseLine(PurchaseLine, PurchaseHeader, PurchaseLine.Type::Item, LibraryInventory.CreateItemNo,
           LibraryRandom.RandDec(100, 2));
         PurchaseLine.Amount := LibraryRandom.RandDec(1000, 2);
-        PurchaseLine.Modify;
+        PurchaseLine.Modify();
 
         CreateApprovalEntryPurchaseInvoice(ApprovalEntry, PurchaseHeader."No.");
 
@@ -379,14 +379,14 @@ codeunit 134204 "Document Approval - Requests"
         UserSetup: Record "User Setup";
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
     begin
-        ApprovalEntry.DeleteAll;
-        UserSetup.DeleteAll;
+        ApprovalEntry.DeleteAll();
+        UserSetup.DeleteAll();
         if IsInitialized then
             exit;
 
         LibraryERMCountryData.UpdateGeneralPostingSetup;
         LibraryERMCountryData.CreateVATData;
-        Commit;
+        Commit();
         IsInitialized := true;
     end;
 
@@ -408,13 +408,14 @@ codeunit 134204 "Document Approval - Requests"
     local procedure CreateApprovalEntryPurchaseInvoice(var ApprovalEntry: Record "Approval Entry"; No: Code[20])
     var
         PurchaseHeader: Record "Purchase Header";
+        EnumAssignmentMgt: Codeunit "Enum Assignment Management";
     begin
         PurchaseHeader.Get(PurchaseHeader."Document Type"::Invoice, No);
         Clear(ApprovalEntry);
         with ApprovalEntry do begin
             Init;
             Validate("Table ID", DATABASE::"Purchase Header");
-            Validate("Document Type", PurchaseHeader."Document Type");
+            Validate("Document Type", EnumAssignmentMgt.GetPurchApprovalDocumentType(PurchaseHeader."Document Type"));
             Validate("Document No.", PurchaseHeader."No.");
             Validate("Sequence No.", LibraryRandom.RandInt(100));
             Validate(Status, Status::Open);
@@ -426,10 +427,10 @@ codeunit 134204 "Document Approval - Requests"
 
     local procedure CreateUserSetup(var UserSetup: Record "User Setup"; UserID: Code[50]; SubstituteUserID: Code[50])
     begin
-        UserSetup.Init;
+        UserSetup.Init();
         UserSetup."User ID" := UserID;
         UserSetup.Substitute := SubstituteUserID;
-        UserSetup.Insert;
+        UserSetup.Insert();
     end;
 
     local procedure CreateMultipleApprovalEntries(var DocNo: array[4] of Code[20])
@@ -458,7 +459,7 @@ codeunit 134204 "Document Approval - Requests"
         LocalApprovalEntry.Get(ApprovalEntry."Entry No.");
         LocalApprovalEntry.Validate(Amount, LibraryRandom.RandIntInRange(10, 100));
         LocalApprovalEntry.Modify(true);
-        Commit;
+        Commit();
     end;
 }
 
