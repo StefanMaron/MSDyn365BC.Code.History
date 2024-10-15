@@ -519,6 +519,24 @@ codeunit 7314 "Warehouse Availability Mgt."
                 WhseEntry.FindLast();
                 WhseEntry.SetRange("Bin Code");
             until WhseEntry.Next() = 0;
+
+        if Location."Shipment Bin Code" <> '' then begin
+            TempBinContentBuffer.SetRange("Bin Code", Location."Shipment Bin Code");
+            if TempBinContentBuffer.IsEmpty() then begin
+                QtyInBin := CalcQtyOnBin(LocationCode, Location."Shipment Bin Code", ItemNo, VariantCode, WhseItemTrackingSetup);
+                if QtyInBin > 0 then begin
+                    TempBinContentBuffer.Init();
+                    TempBinContentBuffer."Location Code" := LocationCode;
+                    TempBinContentBuffer."Bin Code" := Location."Shipment Bin Code";
+                    TempBinContentBuffer."Item No." := ItemNo;
+                    TempBinContentBuffer."Variant Code" := VariantCode;
+                    TempBinContentBuffer."Qty. Outstanding (Base)" := QtyInBin;
+                    TempBinContentBuffer.Insert();
+                end;
+            end;
+        end;
+
+        TempBinContentBuffer.Reset();
     end;
 
     procedure CalcQtyOnSpecialBinsOnLocation(LocationCode: Code[10]; ItemNo: Code[20]; VariantCode: Code[10]; WhseItemTrackingSetup: Record "Item Tracking Setup"; var TempBinContentBufferExcluded: Record "Bin Content Buffer" temporary) QtyOnSpecialBins: Decimal
