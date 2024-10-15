@@ -2,18 +2,18 @@
     "id":  "85125fdc-eb14-4f16-8c5d-6e4589aceb1d",
     "name":  "Tests-Data Exchange",
     "publisher":  "Microsoft",
-    "version":  "16.16.29464.0",
+    "version":  "16.17.30467.0",
     "platform":  "16.0.0.0",
     "dependencies":  [
                          {
                              "id":  "5d86850b-0d76-4eca-bd7b-951ad998e997",
                              "name":  "Tests-TestLibraries",
                              "publisher":  "Microsoft",
-                             "version":  "16.16.0.0"
+                             "version":  "16.17.0.0"
                          }
                      ],
     "target":  "OnPrem",
     "showMyCode":  true,
-    "application":  "16.16.0.0",
+    "application":  "16.17.0.0",
     "brief":  "Tests-Data Exchange (NL)"
 }

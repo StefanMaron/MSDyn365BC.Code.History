@@ -677,6 +677,9 @@ codeunit 8611 "Config. Package Management"
             // "Document No." conditional relation
             DATABASE::"Sales Line", DATABASE::"Purchase Line":
                 exit(FieldID = 3);
+            // "Code"/"City" fields of Post Code record
+            Database::"Post Code":
+                exit(FieldID in [1, 2]);
         end;
         exit(false);
     end;
