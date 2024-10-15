@@ -239,6 +239,12 @@ table 18479 "Sub Order Component List"
             Caption = 'Identification Mark';
             DataClassification = EndUserIdentifiableInformation;
         }
+        field(61; "Bin Code"; Code[20])
+        {
+            Caption = 'Bin Code';
+            TableRelation = if ("Quantity To Send" = filter(> 0)) "Bin Content"."Bin Code" where("Location Code" = field("Company Location"), "Item No." = field("Item No."), "Variant Code" = field("Variant Code"));
+            DataClassification = EndUserIdentifiableInformation;
+        }
         field(480; "Dimension Set ID"; Integer)
         {
             Caption = 'Dimension Set ID';

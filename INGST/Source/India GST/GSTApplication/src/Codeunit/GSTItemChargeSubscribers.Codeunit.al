@@ -77,6 +77,20 @@ codeunit 18438 "GST Item Charge Subscribers"
         GSTApplicationSessionMgt.SetGSTAmountLoaded(GSTAmountLoaded * TempItemChargeAssgntPurch."Qty. to Assign");
     end;
 
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnPostItemChargePerTransferOnBeforePostItemJnlLine', '', false, false)]
+    local procedure PurchPostOnPostItemChargePerTransferOnBeforePostItemJnlLine(
+        var PurchLine: Record "Purchase Line";
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)")
+    var
+        GSTAmountLoaded: Decimal;
+    begin
+        GSTAmountLoaded := GetItemChargeGSTAmount(PurchLine);
+        if ItemChargeAssignmentPurch."Document Type" in [ItemChargeAssignmentPurch."Document Type"::"Credit Memo", ItemChargeAssignmentPurch."Document Type"::"Return Order"] then
+            GSTAmountLoaded := -1 * GSTAmountLoaded;
+
+        GSTApplicationSessionMgt.SetGSTAmountLoaded(GSTAmountLoaded * ItemChargeAssignmentPurch."Qty. to Assign");
+    end;
+
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Purch.-Post", 'OnPostItemJnlLineOnAfterPrepareItemJnlLine', '', false, false)]
     local procedure PurchPostOnPostItemJnlLineOnAfterPrepareItemJnlLine(
         var ItemJournalLine: Record "Item Journal Line";

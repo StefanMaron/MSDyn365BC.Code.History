@@ -1,4 +1,4 @@
-codeunit 18466 "Subcontracting Post"
+﻿codeunit 18466 "Subcontracting Post"
 {
     TableNo = "Purchase Line";
 
@@ -87,7 +87,6 @@ codeunit 18466 "Subcontracting Post"
         Item: Record Item;
         ItemTrackingCode: Record "Item Tracking Code";
         ItemTrackingSetup: Record "Item Tracking Setup";
-        ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
         ItemTrackingManagement: Codeunit "Item Tracking Management";
         Inbound: Boolean;
         SNRequired: Boolean;
@@ -115,10 +114,12 @@ codeunit 18466 "Subcontracting Post"
         ItemJnlLine."Order No." := SubOrderCompList."Production Order No.";
         ItemJnlLine."Order Line No." := SubOrderCompList."Production Order Line No.";
         ItemJnlLine."Prod. Order Comp. Line No." := SubOrderCompList."Line No.";
-        ItemJnlLine."New Location Code" := SubOrderCompList."Vendor Location";
         ItemJnlLine."Entry Type" := ItemJnlLine."Entry Type"::Transfer;
         ItemJnlLine."Item No." := SubOrderCompList."Item No.";
         ItemJnlLine.Validate("Location Code", SubOrderCompList."Company Location");
+        ItemJnlLine.Validate("New Location Code", SubOrderCompList."Vendor Location");
+        if SubOrderCompList."Bin Code" <> '' then
+            ItemJnlLine.Validate("Bin Code", SubOrderCompList."Bin Code");
         ItemJnlLine.Description := SubOrderCompList.Description;
         ItemJnlLine."Gen. Prod. Posting Group" := SubOrderCompList."Gen. Prod. Posting Group";
         ItemJnlLine.Quantity := SubOrderCompList."Quantity To Send";
@@ -179,9 +180,25 @@ codeunit 18466 "Subcontracting Post"
         if IsHandled then
             exit;
 
-        ItemJnlPostLine.Run(ItemJnlLine);
+        PostItemJnlLine(ItemJnlLine);
 
         OnAfterSubcontractComponentSendPost(ItemJnlLine, DeliveryChallanHeader, SubOrderCompList);
+    end;
+
+    local procedure PostItemJnlLine(ItemJnlLine: Record "Item Journal Line")
+    var
+        TempTrackingSpecification: Record "Tracking Specification" temporary;
+        ItemJnlPostLine: Codeunit "Item Jnl.-Post Line";
+        ItemJnlPostBatch: Codeunit "Item Jnl.-Post Batch";
+    begin
+        if ItemJnlLine."Value Entry Type" <> ItemJnlLine."Value Entry Type"::Revaluation then begin
+            if not ItemJnlPostLine.RunWithCheck(ItemJnlLine) then
+                ItemJnlPostLine.CheckItemTracking();
+            ItemJnlPostLine.CollectTrackingSpecification(TempTrackingSpecification);
+            ItemJnlPostBatch.PostWhseJnlLine(ItemJnlLine, ItemJnlLine.Quantity, ItemJnlLine."Quantity (Base)", TempTrackingSpecification);
+            Clear(ItemJnlPostLine);
+            Clear(ItemJnlPostBatch);
+        end;
     end;
 
     local procedure PostSubcontractingComponentLines(
@@ -590,7 +607,7 @@ codeunit 18466 "Subcontracting Post"
         if AppliedDeliveryChallan.FindSet() then
             repeat
                 Completed := false;
-                TotalQtyToPost := Round(AppliedDeliveryChallan."Qty. to Consume" * SubOrderCompVend."Qty. per Unit of Measure", 0.00001);
+                TotalQtyToPost := Round(AppliedDeliveryChallan."Qty. to Consume", 0.00001);
                 TotalQtyToPost := Round(TotalQtyToPost, CompItem."Rounding Precision", '>');
                 RemQtytoPost := TotalQtyToPost;
                 CheckItemTracking(AppliedDeliveryChallan, TypeQty::Consume);
@@ -2516,6 +2533,15 @@ codeunit 18466 "Subcontracting Post"
 
         if (PurchLine."Prod. Order No." <> '') and (PurchLine."Subcon. Receiving") then
             ItemJnlLine."Posting Date" := PurchLine."Posting Date";
+    end;
+
+    [EventSubscriber(ObjectType::Table, Database::"Purchase Line", 'OnBeforeValidateQtyToInvoice', '', false, false)]
+    local procedure OnBeforeValidateQtyToInvoice(var PurchaseLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+        if not PurchaseLine.Subcontracting then
+            exit;
+
+        IsHandled := true;
     end;
 
     [IntegrationEvent(false, false)]

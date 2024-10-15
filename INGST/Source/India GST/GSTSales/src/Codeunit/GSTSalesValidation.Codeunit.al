@@ -2036,6 +2036,18 @@
         SalesHeader.Validate("Location Code", JobPlanningLine."Location Code");
     end;
 
+    [EventSubscriber(ObjectType::Table, Database::"Sales Invoice Header", 'OnPostedSalesInvoiceFullyOpen', '', false, false)]
+    local procedure OnPostedSalesInvoiceFullyOpen(var SalesInvoiceHeader: Record "Sales Invoice Header"; var FullyOpen: Boolean; var IsHandled: Boolean)
+    var
+        GSTStatistics: Codeunit "GST Statistics";
+        GSTAmount: Decimal;
+    begin
+        IsHandled := true;
+        GSTStatistics.GetStatisticsPostedSalesInvAmount(SalesInvoiceHeader, GSTAmount);
+        SalesInvoiceHeader.CalcFields("Amount Including VAT", "Remaining Amount");
+        FullyOpen := (SalesInvoiceHeader."Amount Including VAT" + GSTAmount) = SalesInvoiceHeader."Remaining Amount";
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSalesLineHSNSACEditable(SalesLine: Record "Sales Line"; var IsEditable: Boolean; var IsHandled: Boolean)
     begin

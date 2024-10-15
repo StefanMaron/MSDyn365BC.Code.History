@@ -90,7 +90,7 @@ codeunit 18390 "GST Transfer Order Receipt"
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"TransferOrder-Post Receipt", 'OnAfterInsertTransRcptLine', '', false, false)]
-    local procedure CeateGSTLedgerEntry(TransLine: Record "Transfer Line")
+    local procedure CeateGSTLedgerEntry(TransLine: Record "Transfer Line"; var TransRcptLine: Record "Transfer Receipt Line")
     var
         TransferHeader: Record "Transfer Header";
         DocTransferType: Enum "Doc Transfer Type";
@@ -100,7 +100,7 @@ codeunit 18390 "GST Transfer Order Receipt"
         TransferHeader.Get(TransLine."Document No.");
         GSTTransferOrderShipment.InsertDetailedGSTLedgEntryTransfer(TransLine,
             TransferHeader,
-            TransReceiptHeaderNo,
+            TransRcptLine."Document No.",
             GenJnlPostLine.GetNextTransactionNo(),
             DocTransferType::"Transfer Receipt");
     end;
@@ -111,15 +111,16 @@ codeunit 18390 "GST Transfer Order Receipt"
         FillTransferBuffer(TransLine3);
     end;
 
-    [EventSubscriber(ObjectType::Codeunit, Codeunit::"TransferOrder-Post Receipt", 'OnBeforeInsertTransRcptLine', '', false, false)]
-    local procedure FillReceiptLine(var TransRcptLine: Record "Transfer Receipt Line"; TransLine: Record "Transfer Line")
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"TransferOrder-Post Receipt", 'OnAfterTransRcptLineModify', '', false, false)]
+    local procedure FillReceiptLine(var TransferReceiptLine: Record "Transfer Receipt Line"; TransferLine: Record "Transfer Line")
     begin
-        TransRcptLine."GST Group Code" := TransLine."GST Group Code";
-        TransRcptLine."GST Credit" := TransLine."GST Credit";
-        TransRcptLine."HSN/SAC Code" := TransLine."HSN/SAC Code";
-        TransRcptLine.Exempted := TransLine.Exempted;
-        TransRcptLine."Custom Duty Amount" := TransLine."Custom Duty Amount";
-        TransRcptLine."GST Assessable Value" := TransLine."GST Assessable Value";
+        TransferReceiptLine."GST Group Code" := TransferLine."GST Group Code";
+        TransferReceiptLine."GST Credit" := TransferLine."GST Credit";
+        TransferReceiptLine."HSN/SAC Code" := TransferLine."HSN/SAC Code";
+        TransferReceiptLine.Exempted := TransferLine.Exempted;
+        TransferReceiptLine."Custom Duty Amount" := TransferLine."Custom Duty Amount";
+        TransferReceiptLine."GST Assessable Value" := TransferLine."GST Assessable Value";
+        TransferReceiptLine.Modify();
     end;
 
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"TransferOrder-Post Receipt", 'OnCheckTransLine', '', false, false)]

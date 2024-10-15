@@ -46,18 +46,18 @@ codeunit 134777 "Test Item Journal Post Preview"
         Commit();
 
         // [WHEN] Preview is invoked
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror ItemJnlPost.Preview(ItemJournalLine);
         Assert.AreEqual('', GetLastErrorText, WrongPostPreviewErr + GetLastErrorText);
 
         // [THEN] Preview creates the entries that will be created when the journal is posted
-        GLPostingPreview.First;
+        GLPostingPreview.First();
         VerifyGLPostingPreviewLine(GLPostingPreview, ItemLedgerEntry.TableCaption(), 1);
 
         GLPostingPreview.Next();
         VerifyGLPostingPreviewLine(GLPostingPreview, ValueEntry.TableCaption(), 1);
         Assert.IsFalse(GLPostingPreview.Next(), 'No more entries should exist.');
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK.Invoke();
     end;
 
     [Test]
@@ -82,18 +82,18 @@ codeunit 134777 "Test Item Journal Post Preview"
         Commit();
 
         // [WHEN] Preview is invoked
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror ItemJnlPost.Preview(ItemJournalLine);
         Assert.AreEqual('', GetLastErrorText, WrongPostPreviewErr + GetLastErrorText);
 
         // [THEN] Preview creates the entries that will be created when the journal is posted
-        GLPostingPreview.First;
+        GLPostingPreview.First();
         VerifyGLPostingPreviewLine(GLPostingPreview, ItemLedgerEntry.TableCaption(), 2);
 
         GLPostingPreview.Next();
         VerifyGLPostingPreviewLine(GLPostingPreview, ValueEntry.TableCaption(), 2);
         Assert.IsFalse(GLPostingPreview.Next(), 'No more entries should exist.');
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK.Invoke();
     end;
 
     [Test]
@@ -104,7 +104,6 @@ codeunit 134777 "Test Item Journal Post Preview"
         ItemLedgerEntry: Record "Item Ledger Entry";
         ValueEntry: Record "Value Entry";
         GLEntry: Record "G/L Entry";
-        Item: Record Item;
         ItemJnlPost: Codeunit "Item Jnl.-Post";
         GLPostingPreview: TestPage "G/L Posting Preview";
     begin
@@ -120,12 +119,12 @@ codeunit 134777 "Test Item Journal Post Preview"
         Commit();
 
         // [WHEN] Preview is invoked
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror ItemJnlPost.Preview(ItemJournalLine);
         Assert.AreEqual('', GetLastErrorText, WrongPostPreviewErr + GetLastErrorText);
 
         // [THEN] Preview creates the entries that will be created when the journal is posted
-        GLPostingPreview.First;
+        GLPostingPreview.First();
         VerifyGLPostingPreviewLine(GLPostingPreview, GLEntry.TableCaption(), 2);
 
         GLPostingPreview.Next();
@@ -134,21 +133,18 @@ codeunit 134777 "Test Item Journal Post Preview"
         GLPostingPreview.Next();
         VerifyGLPostingPreviewLine(GLPostingPreview, ValueEntry.TableCaption(), 1);
         Assert.IsFalse(GLPostingPreview.Next(), 'No more entries should exist.');
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK.Invoke();
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure TestItemJournalPreviewWithBin()
     var
-        ItemJournalTemplate: Record "Item Journal Template";
-        ItemJournalBatch: Record "Item Journal Batch";
         ItemJournalLine: Record "Item Journal Line";
         ItemLedgerEntry: Record "Item Ledger Entry";
         ValueEntry: Record "Value Entry";
         GLEntry: Record "G/L Entry";
-        WarehouesEntry: Record "Warehouse Entry";
-        Item: Record Item;
+        WarehouseEntry: Record "Warehouse Entry";
         Location: Record Location;
         Bin: Record Bin;
         ItemJnlPost: Codeunit "Item Jnl.-Post";
@@ -179,12 +175,12 @@ codeunit 134777 "Test Item Journal Post Preview"
         Commit();
 
         // [WHEN] Preview is invoked
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror ItemJnlPost.Preview(ItemJournalLine);
         Assert.AreEqual('', GetLastErrorText, WrongPostPreviewErr + GetLastErrorText);
 
         // [THEN] Preview creates the entries that will be created when the journal is posted
-        GLPostingPreview.First;
+        GLPostingPreview.First();
         VerifyGLPostingPreviewLine(GLPostingPreview, GLEntry.TableCaption(), 2);
 
         GLPostingPreview.Next();
@@ -194,9 +190,9 @@ codeunit 134777 "Test Item Journal Post Preview"
         VerifyGLPostingPreviewLine(GLPostingPreview, ValueEntry.TableCaption(), 1);
 
         GLPostingPreview.Next();
-        VerifyGLPostingPreviewLine(GLPostingPreview, WarehouesEntry.TableCaption(), 1);
+        VerifyGLPostingPreviewLine(GLPostingPreview, WarehouseEntry.TableCaption(), 1);
         Assert.IsFalse(GLPostingPreview.Next(), 'No more entries should exist.');
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK.Invoke();
     end;
 
     [Test]
@@ -211,7 +207,7 @@ codeunit 134777 "Test Item Journal Post Preview"
         ItemJournalBatch: Record "Item Journal Batch";
         ItemLedgerEntry: Record "Item Ledger Entry";
         ValueEntry: Record "Value Entry";
-        PhysInventoryLegderEntry: Record "Phys. Inventory Ledger Entry";
+        PhysInventoryLedgerEntry: Record "Phys. Inventory Ledger Entry";
         ItemJnlPost: Codeunit "Item Jnl.-Post";
         GLPostingPreview: TestPage "G/L Posting Preview";
         Quantity: Decimal;
@@ -241,21 +237,21 @@ codeunit 134777 "Test Item Journal Post Preview"
         Commit();
 
         // [WHEN] Preview is invoked
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror ItemJnlPost.Preview(ItemJournalLine);
         Assert.AreEqual('', GetLastErrorText, WrongPostPreviewErr + GetLastErrorText);
 
         // [THEN] Preview creates the entries that will be created when the journal is posted
-        GLPostingPreview.First;
+        GLPostingPreview.First();
         VerifyGLPostingPreviewLine(GLPostingPreview, ItemLedgerEntry.TableCaption(), 1);
 
         GLPostingPreview.Next();
-        VerifyGLPostingPreviewLine(GLPostingPreview, PhysInventoryLegderEntry.TableCaption(), 1);
+        VerifyGLPostingPreviewLine(GLPostingPreview, PhysInventoryLedgerEntry.TableCaption(), 1);
 
         GLPostingPreview.Next();
         VerifyGLPostingPreviewLine(GLPostingPreview, ValueEntry.TableCaption(), 1);
         Assert.IsFalse(GLPostingPreview.Next(), 'No more entries should exist.');
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK.Invoke();
     end;
 
     [Test]
@@ -286,19 +282,45 @@ codeunit 134777 "Test Item Journal Post Preview"
         Commit();
 
         // [WHEN] Preview is invoked
-        GLPostingPreview.Trap;
+        GLPostingPreview.Trap();
         asserterror ItemJnlPost.Preview(ItemJournalLine);
         Assert.AreEqual('', GetLastErrorText, WrongPostPreviewErr + GetLastErrorText);
 
         // [THEN] Preview creates the entries that will be created when the journal is posted
-        GLPostingPreview.First;
+        GLPostingPreview.First();
         VerifyGLPostingPreviewLine(GLPostingPreview, ItemLedgerEntry.TableCaption(), 1);
 
         GLPostingPreview.Next();
         VerifyGLPostingPreviewLine(GLPostingPreview, ValueEntry.TableCaption(), 1);
 
         Assert.IsFalse(GLPostingPreview.Next(), 'No more entries should exist.');
-        GLPostingPreview.OK.Invoke;
+        GLPostingPreview.OK.Invoke();
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('ProductionJournalWithPrewviewHandler')]
+    procedure TestPreviewOnProductionJournalDoesNotThrowException()
+    var
+        ProductionOrder: Record "Production Order";
+        ProdOrderComponent: Record "Prod. Order Component";
+        ReleasedProductionOrder: TestPage "Released Production Order";
+    begin
+        // [SCENARIO] Posting preview of Production Journal does not throw any exceptions and works as expected(Bug https://dynamicssmb2.visualstudio.com/Dynamics%20SMB/_workitems/edit/476412).
+        Initialize();
+
+        // [GIVEN] Create and Release Production Order.
+        CreateInitialSetupForReleasedProductionOrder(ProductionOrder, ProdOrderComponent);
+
+        // [GIVEN] Open Release Production Order page.
+        ReleasedProductionOrder.OpenEdit();
+        ReleasedProductionOrder.GoToRecord(ProductionOrder);
+
+        // [WHEN] Open Production Journal page for the selected line and preview is called.
+        ReleasedProductionOrder.ProdOrderLines.First();
+        ReleasedProductionOrder.ProdOrderLines.ProductionJournal.Invoke();
+
+        // [THEN] Preview does not throw any exceptions.
     end;
 
     local procedure Initialize()
@@ -318,7 +340,7 @@ codeunit 134777 "Test Item Journal Post Preview"
         LibraryERMCountryData.UpdatePrepaymentAccounts();
         LibraryERMCountryData.UpdateGeneralPostingSetup();
         LibraryERMCountryData.UpdateGeneralLedgerSetup();
-        LibraryERMCountryData.UpdateVATPostingSetup;
+        LibraryERMCountryData.UpdateVATPostingSetup();
         LibraryERMCountryData.CreateVATData();
         LibraryERMCountryData.UpdateJournalTemplMandatory(false);
         LibraryPurchase.SetOrderNoSeriesInSetup();
@@ -343,11 +365,9 @@ codeunit 134777 "Test Item Journal Post Preview"
         CalculateInventory: Report "Calculate Inventory";
     begin
         CreateItemJournalBatch(ItemJournalBatch);
-        with ItemJournalLine do begin
-            Init();
-            Validate("Journal Template Name", ItemJournalBatch."Journal Template Name");
-            Validate("Journal Batch Name", ItemJournalBatch.Name);
-        end;
+        ItemJournalLine.Init();
+        ItemJournalLine.Validate(ItemJournalLine."Journal Template Name", ItemJournalBatch."Journal Template Name");
+        ItemJournalLine.Validate(ItemJournalLine."Journal Batch Name", ItemJournalBatch.Name);
         CalculateInventory.SetItemJnlLine(ItemJournalLine);
         Commit();
         CalculateInventory.RunModal();
@@ -359,7 +379,7 @@ codeunit 134777 "Test Item Journal Post Preview"
     begin
         LibraryInventory.SelectItemJournalTemplateName(ItemJournalTemplate, ItemJournalTemplate.Type::"Phys. Inventory");
         LibraryInventory.CreateItemJournalBatch(ItemJournalBatch, ItemJournalTemplate.Name);
-        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode);
+        ItemJournalBatch.Validate("No. Series", LibraryUtility.GetGlobalNoSeriesCode());
         ItemJournalBatch.Modify(true);
     end;
 
@@ -406,7 +426,7 @@ codeunit 134777 "Test Item Journal Post Preview"
     local procedure CreateAndRefreshProductionOrder(var ProductionOrder: Record "Production Order"; Status: Enum "Production Order Status"): Code[20]
     begin
         CreateAndRefreshProductionOrderWithItem(
-          ProductionOrder, Status, CreateItemWithRoutingAndProductionBOM, LibraryRandom.RandDec(10, 2));
+          ProductionOrder, Status, CreateItemWithRoutingAndProductionBOM(), LibraryRandom.RandDec(10, 2));
         exit(ProductionOrder."No.");
     end;
 
@@ -528,11 +548,22 @@ codeunit 134777 "Test Item Journal Post Preview"
     [Scope('OnPrem')]
     procedure CalculateInventoryPageHandler(var CalculateInventory: TestRequestPage "Calculate Inventory")
     var
-        DequeueVariable: Variant;
+        DequeueVariant: Variant;
     begin
-        LibraryVariableStorage.Dequeue(DequeueVariable);
-        CalculateInventory.Item.SetFilter("No.", DequeueVariable);
-        CalculateInventory.OK.Invoke;
+        LibraryVariableStorage.Dequeue(DequeueVariant);
+        CalculateInventory.Item.SetFilter("No.", DequeueVariant);
+        CalculateInventory.OK.Invoke();
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure ProductionJournalWithPrewviewHandler(var ProductionJournal: TestPage "Production Journal")
+    var
+        GLPostingPreview: TestPage "G/L Posting Preview";
+    begin
+        GLPostingPreview.Trap();
+        ProductionJournal.PreviewPosting.Invoke();
+        GLPostingPreview.OK.Invoke();
     end;
 }
 
