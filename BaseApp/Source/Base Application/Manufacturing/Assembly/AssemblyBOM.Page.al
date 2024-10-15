@@ -344,6 +344,11 @@ page 36 "Assembly BOM"
         IsEmptyOrItem := Type in [Type::" ", Type::Item];
     end;
 
+    trigger OnModifyRecord(): Boolean
+    begin
+        CheckMandatoryRecFields();
+    end;
+
     var
         [InDataSet]
         IsEmptyOrItem: Boolean;
@@ -358,6 +363,11 @@ page 36 "Assembly BOM"
         if IsHandled then
             exit;
 
+        CheckMandatoryRecFields();
+    end;
+
+    local procedure CheckMandatoryRecFields()
+    begin
         Rec.TestField("Parent Item No.");
         case Rec.Type of
             Rec.Type::" ":
