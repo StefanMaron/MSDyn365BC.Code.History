@@ -512,10 +512,11 @@ codeunit 10672 "SAF-T Mapping Helper"
     var
         SAFTSourceCode: Record "SAF-T Source Code";
     begin
-        SAFTSourceCode.Init();
         SAFTSourceCode.Validate(Code, Code);
+        if SAFTSourceCode.Find() then
+            exit;
         SAFTSourceCode.Validate(Description, Description);
-        if SAFTSourceCode.Insert(true) then;
+        SAFTSourceCode.Insert(true);
     end;
 
     [EventSubscriber(ObjectType::Table, 348, 'OnBeforeInsertEvent', '', false, false)]

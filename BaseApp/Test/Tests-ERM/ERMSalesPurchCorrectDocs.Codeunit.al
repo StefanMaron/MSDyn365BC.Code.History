@@ -376,6 +376,8 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(
             SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(10, 20));
+        SalesLine.Modify(true);
         CleanSalesAccountOnGenPostingSetup(SalesLine, GeneralPostingSetup);
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
@@ -401,6 +403,8 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(
             SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(10, 20));
+        SalesLine.Modify(true);
         CleanSalesCreditMemoAccountOnGenPostingSetup(SalesLine, GeneralPostingSetup);
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
@@ -484,6 +488,8 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(
             SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(10, 20));
+        SalesLine.Modify(true);
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
         CreateInventoryPeriod(WorkDate + 1, true);
@@ -512,6 +518,8 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(
             SalesLine, SalesHeader, SalesLine.Type::"G/L Account", LibraryERM.CreateGLAccountWithSalesSetup(), 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(10, 20));
+        SalesLine.Modify(true);
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
         CreateInventoryPeriod(WorkDate + 1, false);
@@ -540,6 +548,8 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(
             SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(10, 20));
+        SalesLine.Modify(true);
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
         CreateInventoryPeriod(WorkDate + 1, true);
@@ -570,6 +580,8 @@ codeunit 134398 "ERM Sales/Purch. Correct. Docs"
         LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::Invoice, LibrarySales.CreateCustomerNo());
         LibrarySales.CreateSalesLine(
             SalesLine, SalesHeader, SalesLine.Type::Item, LibraryInventory.CreateItemNo, 1);
+        SalesLine.Validate("Unit Price", LibraryRandom.RandIntInRange(10, 20));
+        SalesLine.Modify(true);
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
 
         CreateInventoryPeriod(WorkDate + 1, false);
