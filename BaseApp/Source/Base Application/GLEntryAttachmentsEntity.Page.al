@@ -1,3 +1,4 @@
+#if not CLEAN18
 page 5512 "G/L Entry Attachments Entity"
 {
     Caption = 'generalLedgerEntryAttachments', Locked = true;
@@ -165,4 +166,4 @@ page 5512 "G/L Entry Attachments Entity"
         "Byte Size" := GraphMgtAttachmentBuffer.GetContentLength(TempBlob);
     end;
 }
-
+#endif

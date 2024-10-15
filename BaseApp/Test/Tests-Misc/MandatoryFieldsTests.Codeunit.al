@@ -26,7 +26,7 @@ codeunit 134590 "Mandatory Fields Tests"
             exit;
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Mandatory Fields Tests");
 
-        LibraryTemplates.DisableTemplatesFeature();
+        LibraryTemplates.EnableTemplatesFeature();
         IsInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Mandatory Fields Tests");
     end;
@@ -322,7 +322,6 @@ codeunit 134590 "Mandatory Fields Tests"
         Assert.AreEqual(SalesReturnOrder."Your Reference".ShowMandatory, EInvoiceCustomer, UnexpectedShowMandatoryValueTxt);
         Assert.AreEqual(SalesReturnOrder."Shipment Date".ShowMandatory, EInvoiceCustomer, UnexpectedShowMandatoryValueTxt);
         SalesReturnOrder.SalesLines.New;
-        Assert.IsFalse(SalesReturnOrder.SalesLines."No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsFalse(SalesReturnOrder.SalesLines.Quantity.ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsFalse(SalesReturnOrder.SalesLines."Unit Price".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         SalesReturnOrder.SalesLines.Type.SetValue(SalesLine.Type::Item);
@@ -507,9 +506,13 @@ codeunit 134590 "Mandatory Fields Tests"
 
     local procedure DeleteAllTemplates()
     var
-        ConfigTemplateHeader: Record "Config. Template Header";
+        CustomerTempl: Record "Customer Templ.";
+        VendorTempl: Record "Vendor Templ.";
+        ItemTempl: Record "Item Templ.";
     begin
-        ConfigTemplateHeader.DeleteAll(true);
+        CustomerTempl.DeleteAll(true);
+        VendorTempl.DeleteAll(true);
+        ItemTempl.DeleteAll(true);
     end;
 
     local procedure SetEInvoiceFlag(var Customer: Record Customer; EInvoiceCustomer: Boolean)

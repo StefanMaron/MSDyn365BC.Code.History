@@ -63,7 +63,9 @@ codeunit 144133 "Remittance - Import Bank"
           BatchName, GenJournalLine."Journal Template Name", ExtDocumentNo, WorkDate, NoSeriesLine, Vendor."No.",
           RemittanceAccount."Account No.", Amount);
         VerifyWaitingJournalStatusIsSent;
+#if not CLEAN17
         FileMgt.DeleteClientFile(FilePath);
+#endif
         UpdateWorkdate(OldDate);
     end;
 
@@ -117,7 +119,9 @@ codeunit 144133 "Remittance - Import Bank"
           RemittanceAccount, Amount, Commission, Rounding);
 
         VerifyWaitingJournalStatusIsSent;
+#if not CLEAN17
         FileMgt.DeleteClientFile(FilePath);
+#endif
         UpdateWorkdate(OldDate);
     end;
 
@@ -168,7 +172,9 @@ codeunit 144133 "Remittance - Import Bank"
           ImportGenJournalBatch.Name, GenJournalLine."Journal Template Name", ExtDocumentNo, WorkDate, NoSeriesLine, Vendor."No.",
           RemittanceAccount."Account No.", Amount);
         VerifyWaitingJournalStatusIsSent;
+#if not CLEAN17
         FileMgt.DeleteClientFile(FilePath);
+#endif
         UpdateWorkdate(OldDate);
     end;
 
@@ -208,7 +214,9 @@ codeunit 144133 "Remittance - Import Bank"
 
         VerifyNoLinesAreImported(BatchName, GenJournalLine."Journal Template Name");
 
+#if not CLEAN17
         FileMgt.DeleteClientFile(FilePath);
+#endif
         UpdateWorkdate(OldDate);
     end;
 
@@ -248,7 +256,9 @@ codeunit 144133 "Remittance - Import Bank"
 
         VerifyNoLinesAreImported(BatchName, GenJournalLine."Journal Template Name");
 
+#if not CLEAN17
         FileMgt.DeleteClientFile(FilePath);
+#endif
         UpdateWorkdate(OldDate);
     end;
 
@@ -288,7 +298,9 @@ codeunit 144133 "Remittance - Import Bank"
 
         VerifyNoLinesAreImported(BatchName, GenJournalLine."Journal Template Name");
 
+#if not CLEAN17
         FileMgt.DeleteClientFile(FilePath);
+#endif
         UpdateWorkdate(OldDate);
     end;
 
@@ -387,7 +399,9 @@ codeunit 144133 "Remittance - Import Bank"
         BankPaymentFile: File;
         BankPaymentOutputStream: OutStream;
         ServerFileName: Text;
+#if not CLEAN17
         ClientFileName: Text;
+#endif
     begin
         GetWaitingJournal(WaitingJournal);
 
@@ -403,10 +417,12 @@ codeunit 144133 "Remittance - Import Bank"
             WriteBankRecord(GenerateBankRemittanceBatchEndRecord, BankPaymentOutputStream);
 
         BankPaymentFile.Close;
+#if not CLEAN17
         ClientFileName := FileMgt.ClientTempFileName('txt');
         FileMgt.DownloadToFile(ServerFileName, ClientFileName);
         FileMgt.DeleteServerFile(ServerFileName);
         exit(ClientFileName);
+#endif
     end;
 
     [Normal]
@@ -416,7 +432,9 @@ codeunit 144133 "Remittance - Import Bank"
         BankPaymentFile: File;
         BankPaymentOutputStream: OutStream;
         ServeFileName: Text;
+#if not CLEAN17
         ClientFileName: Text;
+#endif
     begin
         GetWaitingJournal(WaitingJournal);
 
@@ -445,10 +463,12 @@ codeunit 144133 "Remittance - Import Bank"
             WriteBankRecord(GenerateBankRemittanceBatchEndRecord, BankPaymentOutputStream);
 
         BankPaymentFile.Close;
+#if not CLEAN17
         ClientFileName := FileMgt.ClientTempFileName('txt');
         FileMgt.DownloadToFile(ServeFileName, ClientFileName);
         FileMgt.DeleteServerFile(ServeFileName);
         exit(ClientFileName);
+#endif
     end;
 
     [Normal]
@@ -620,7 +640,9 @@ codeunit 144133 "Remittance - Import Bank"
             GenJournalLine,
             BatchName);
 
+#if not CLEAN17
         FileMgt.DeleteClientFile(FilePath); // Not needed
+#endif
 
         // Generate the Bank Payment file
         // Suprisingly report is ignoring amount from the file

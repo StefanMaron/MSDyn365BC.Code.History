@@ -47,6 +47,13 @@ page 5973 "Posted Serv. Cr. Memo Subform"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the name of an item, resource, cost, general ledger account, or some descriptive text on the service credit memo line.';
                 }
+                field("Description 2"; "Description 2")
+                {
+                    ApplicationArea = Service;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field("Return Reason Code"; "Return Reason Code")
                 {
                     ApplicationArea = Service;

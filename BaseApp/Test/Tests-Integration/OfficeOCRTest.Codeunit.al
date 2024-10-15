@@ -221,7 +221,7 @@ codeunit 139058 "Office OCR Test"
 
         // [THEN] SendToIncomingDocuments action in the addin is enabled.
         // [WHEN] SendToIncomingDocuments action is invoked.
-        IncomingDocument.FindFirst;
+        IncomingDocument.SetFilter("Vendor No.", VendorNo);
         InitialIncomingDocCount := IncomingDocument.Count();
         OfficeOCRIncomingDocuments.Trap;
         VendorCard.SendToIncomingDocuments.Invoke;

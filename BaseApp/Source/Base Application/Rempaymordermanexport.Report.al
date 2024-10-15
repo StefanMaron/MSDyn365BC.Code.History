@@ -81,7 +81,9 @@ report 15000000 "Rem. paym. order - man. export"
         CurrentFilename: Text[250];
         EmptyFileNameErr: Label 'You must enter a file name.';
         Text15000000: Label 'Export Remittance File.';
+#if not CLEAN17
         Text15000001: Label 'Text Files (*.txt)|*.txt|All Files (*.*)|*.*';
+#endif
         Filename: Text;
 
     [Scope('OnPrem')]

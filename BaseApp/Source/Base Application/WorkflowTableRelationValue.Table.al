@@ -49,7 +49,7 @@ table 1506 "Workflow Table Relation Value"
         field(9; "Record ID"; RecordID)
         {
             Caption = 'Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
     }
 

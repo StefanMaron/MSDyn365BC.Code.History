@@ -404,8 +404,10 @@ report 15000050 "Remittance - export (Bank)"
         Text012: Label 'Recipient address, city, and post code should be filled in. Do you want to continue?';
         Text013: Label 'Export is cancelled.';
         Text014: Label 'Line %1 is not 80 chars long.\%2';
+#if not CLEAN17
         Text015: Label 'Remittance - export (bank)';
         Text016: Label 'Text Files (*.txt)|*.txt|All Files (*.*)|*.*';
+#endif
         SkipSpecification: Boolean;
         SkipPaymentTypeCodeAbroad: Boolean;
 

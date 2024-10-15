@@ -928,7 +928,6 @@
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure GetTaxCategories(SalesLine: Record "Sales Line"; var VATProductPostingGroupCategory: Record "VAT Product Posting Group")
     var
         VATPostingSetup: Record "VAT Posting Setup";
@@ -945,7 +944,6 @@
         if VATProductPostingGroupCategory.Insert() then;
     end;
 
-    [Scope('OnPrem')]
     procedure GetTaxExemptionReason(var VATProductPostingGroupCategory: Record "VAT Product Posting Group"; var TaxExemptionReasonTxt: Text; TaxCategoryID: Text)
     begin
         if not (TaxCategoryID in [GetTaxCategoryE(), GetTaxCategoryG(), GetTaxCategoryK(), GetTaxCategoryO(), GetTaxCategoryAE()]) then
@@ -1176,7 +1174,6 @@
         ToFieldRef.Value := FromFieldRef.Value;
     end;
 
-    [Scope('OnPrem')]
     procedure FindNextInvoiceRec(var SalesInvoiceHeader: Record "Sales Invoice Header"; var ServiceInvoiceHeader: Record "Service Invoice Header"; var SalesHeader: Record "Sales Header"; ProcessedDocType: Option Sale,Service; Position: Integer): Boolean
     var
         Found: Boolean;
@@ -1206,7 +1203,6 @@
         exit(Found);
     end;
 
-    [Scope('OnPrem')]
     procedure FindNextInvoiceLineRec(var SalesInvoiceLine: Record "Sales Invoice Line"; var ServiceInvoiceLine: Record "Service Invoice Line"; var SalesLine: Record "Sales Line"; ProcessedDocType: Option Sale,Service; Position: Integer): Boolean
     var
         Found: Boolean;
@@ -1238,7 +1234,6 @@
         exit(Found);
     end;
 
-    [Scope('OnPrem')]
     procedure FindNextCreditMemoRec(var SalesCrMemoHeader: Record "Sales Cr.Memo Header"; var ServiceCrMemoHeader: Record "Service Cr.Memo Header"; var SalesHeader: Record "Sales Header"; ProcessedDocType: Option Sale,Service; Position: Integer): Boolean
     var
         Found: Boolean;
@@ -1269,7 +1264,6 @@
         exit(Found);
     end;
 
-    [Scope('OnPrem')]
     procedure FindNextCreditMemoLineRec(var SalesCrMemoLine: Record "Sales Cr.Memo Line"; var ServiceCrMemoLine: Record "Service Cr.Memo Line"; var SalesLine: Record "Sales Line"; ProcessedDocType: Option Sale,Service; Position: Integer): Boolean
     var
         Found: Boolean;

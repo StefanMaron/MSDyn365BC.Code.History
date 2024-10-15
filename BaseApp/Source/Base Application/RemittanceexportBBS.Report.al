@@ -300,7 +300,9 @@ report 15000060 "Remittance - export (BBS)"
         Vendor: Record Vendor;
         GenLedgSetup: Record "General Ledger Setup";
         RemTools: Codeunit "Remittance Tools";
+#if not CLEAN17
         FileMgt: Codeunit "File Management";
+#endif
         BBSOwnRefNo: Integer;
         SpecificationCounter: Integer;
         SpecificationLineNo: Integer;
@@ -322,8 +324,10 @@ report 15000060 "Remittance - export (BBS)"
         CurrentRemark: Text[50];
         CurrentFilename: Text[250];
         RemAgreementCode: Code[10];
+#if not CLEAN17
         Text014: Label 'Remittance - export (BBS)';
         Text015: Label 'Text Files (*.txt)|*.txt|All Files (*.*)|*.*';
+#endif
 
     [Scope('OnPrem')]
     procedure CreatePaymOrderHead()

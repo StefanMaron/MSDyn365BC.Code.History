@@ -1,4 +1,4 @@
-﻿codeunit 1318 "Trial Balance Mgt."
+codeunit 1318 "Trial Balance Mgt."
 {
 
     trigger OnRun()
@@ -11,7 +11,7 @@
         AccScheduleLine: Record "Acc. Schedule Line";
         TempColumnLayout: Record "Column Layout" temporary;
         AccSchedManagement: Codeunit AccSchedManagement;
-        PeriodType: Option Day,Week,Month,Quarter,Year,"Accounting Period";
+        PeriodType: Enum "Analysis Period Type";
         CurrentColumnLayoutName: Code[10];
         CurrentAccScheduleName: Code[10];
         LessRowsThanExpectedErr: Label 'The Trial Balance chart is not set up correctly. There are fewer rows in the account schedules than expected.';
@@ -113,7 +113,7 @@
     begin
         TempColumnLayout := ColumnLayoutArr[RowNo, ColumnNo];
         AccScheduleLine := AccScheduleLineArr[RowNo];
-        AccSchedManagement.DrillDown(TempColumnLayout, AccScheduleLine, PeriodType::Month);
+        AccSchedManagement.DrillDown(TempColumnLayout, AccScheduleLine, "Analysis Period Type"::Month.AsInteger());
     end;
 
     procedure NextPeriod(var DescriptionsArr: array[9] of Text[100]; var ValuesArr: array[9, 2] of Decimal; var PeriodCaptionTxt: array[2] of Text; NoOfColumns: Integer)

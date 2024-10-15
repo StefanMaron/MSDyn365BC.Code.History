@@ -72,6 +72,8 @@ report 1498 "Date Compress Bank Acc. Ledger"
             begin
                 if DateComprReg."No. Records Deleted" > NoOfDeleted then
                     InsertRegisters(GLReg, DateComprReg);
+                if UseDataArchive then
+                    DataArchive.Save();
             end;
 
             trigger OnPreDataItem()
@@ -108,6 +110,9 @@ report 1498 "Date Compress Bank Acc. Ledger"
                 SetRange("Posting Date", EntrdDateComprReg."Starting Date", EntrdDateComprReg."Ending Date");
 
                 InitRegisters;
+
+                if UseDataArchive then
+                    DataArchive.Create(DateComprMgt.GetReportName(Report::"Date Compress Bank Acc. Ledger"));
             end;
         }
     }
@@ -171,19 +176,27 @@ report 1498 "Date Compress Bank Acc. Ledger"
                             ToolTip = 'Specifies the employee who is responsible for this bank account.';
                         }
                     }
-                    field(RetainDimText; RetainDimText)
-                    {
-                        ApplicationArea = Dimensions;
-                        Caption = 'Retain Dimensions';
-                        Editable = false;
-                        ToolTip = 'Specifies which dimension information you want to retain when the entries are compressed. The more dimension information that you choose to retain, the more detailed the compressed entries are.';
-
-                        trigger OnAssistEdit()
-                        begin
-                            DimSelectionBuf.SetDimSelectionMultiple(3, REPORT::"Date Compress Bank Acc. Ledger", RetainDimText);
-                        end;
-                    }
                 }
+                field(RetainDimText; RetainDimText)
+                {
+                    ApplicationArea = Dimensions;
+                    Caption = 'Retain Dimensions';
+                    Editable = false;
+                    ToolTip = 'Specifies which dimension information you want to retain when the entries are compressed. The more dimension information that you choose to retain, the more detailed the compressed entries are.';
+
+                    trigger OnAssistEdit()
+                    begin
+                        DimSelectionBuf.SetDimSelectionMultiple(3, REPORT::"Date Compress Bank Acc. Ledger", RetainDimText);
+                    end;
+                }
+                field(UseDataArchiveCtrl; UseDataArchive)
+                {
+                    ApplicationArea = Suite;
+                    Caption = 'Archive Deleted Entries';
+                    ToolTip = 'Specifies whether the deleted (compressed) entries will be stored in the data archive for later inspection or export.';
+                    Visible = DataArchiveProviderExists;
+                }
+
             }
         }
 
@@ -204,6 +217,11 @@ report 1498 "Date Compress Bank Acc. Ledger"
         trigger OnOpenPage()
         begin
             InitializeParameter;
+        end;
+
+        trigger OnInit()
+        begin
+            DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
         end;
     }
 
@@ -248,6 +266,7 @@ report 1498 "Date Compress Bank Acc. Ledger"
         DateComprMgt: Codeunit DateComprMgt;
         DimBufMgt: Codeunit "Dimension Buffer Management";
         DimMgt: Codeunit DimensionManagement;
+        DataArchive: Codeunit "Data Archive";
         Window: Dialog;
         BankAccLedgEntryFilter: Text[250];
         NoOfFields: Integer;
@@ -262,6 +281,9 @@ report 1498 "Date Compress Bank Acc. Ledger"
         ComprDimEntryNo: Integer;
         DimEntryNo: Integer;
         RetainDimText: Text[250];
+        UseDataArchive: Boolean;
+        [InDataSet]
+        DataArchiveProviderExists: Boolean;
         StartDateCompressionTelemetryMsg: Label 'Running date compression report %1 %2.', Locked = true;
         EndDateCompressionTelemetryMsg: Label 'Completed date compression report %1 %2.', Locked = true;
 
@@ -376,6 +398,8 @@ report 1498 "Date Compress Bank Acc. Ledger"
             DateComprReg."No. Records Deleted" := DateComprReg."No. Records Deleted" + 1;
             Window.Update(4, DateComprReg."No. Records Deleted");
         end;
+        if UseDataArchive then
+            DataArchive.SaveRecord(BankAccLedgEntry);
     end;
 
     local procedure ComprCollectedEntries()
@@ -465,9 +489,16 @@ report 1498 "Date Compress Bank Acc. Ledger"
             InsertField(FieldNo("Global Dimension 1 Code"), FieldCaption("Global Dimension 1 Code"));
             InsertField(FieldNo("Global Dimension 2 Code"), FieldCaption("Global Dimension 2 Code"));
         end;
+        DataArchiveProviderExists := DataArchive.DataArchiveProviderExists();
+        UseDataArchive := DataArchiveProviderExists;
     end;
 
     procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; Description: Text[100]; RetainDocumentNo: Boolean; RetainOurContactCode: Boolean; RetainDimensionText: Text[250])
+    begin
+        InitializeRequest(StartingDate, EndingDate, PeriodLength, Description, RetainDocumentNo, RetainOurContactCode, RetainDimensionText, true);
+    end;
+
+    procedure InitializeRequest(StartingDate: Date; EndingDate: Date; PeriodLength: Option; Description: Text[100]; RetainDocumentNo: Boolean; RetainOurContactCode: Boolean; RetainDimensionText: Text[250]; DoUseDataArchive: Boolean)
     begin
         InitializeParameter;
         EntrdDateComprReg."Starting Date" := StartingDate;
@@ -477,24 +508,23 @@ report 1498 "Date Compress Bank Acc. Ledger"
         Retain[1] := RetainDocumentNo;
         Retain[2] := RetainOurContactCode;
         RetainDimText := RetainDimensionText;
+        UseDataArchive := DoUseDataArchive and DataArchiveProviderExists;
     end;
 
     local procedure LogStartTelemetryMessage()
     var
         TelemetryDimensions: Dictionary of [Text, Text];
     begin
-        // TelemetryDimensions.Add('CompanyName', CompanyName());
         TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
         TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
         TelemetryDimensions.Add('UseRequestPage', Format(CurrReport.UseRequestPage()));
         TelemetryDimensions.Add('StartDate', Format(EntrdDateComprReg."Starting Date", 0, 9));
         TelemetryDimensions.Add('EndDate', Format(EntrdDateComprReg."Ending Date", 0, 9));
         TelemetryDimensions.Add('PeriodLength', Format(EntrdDateComprReg."Period Length", 0, 9));
-        // TelemetryDimensions.Add('Description', EntrdBankAccLedgEntry.Description);
         TelemetryDimensions.Add('RetainDocumentNo', Format(Retain[1], 0, 9));
         TelemetryDimensions.Add('RetainOurContactCode', Format(Retain[2], 0, 9));
         TelemetryDimensions.Add('RetainDimensions', RetainDimText);
-        // TelemetryDimensions.Add('Filters', "Bank Account Ledger Entry".GetFilters());
+        TelemetryDimensions.Add('UseDataArchive', Format(UseDataArchive));
 
         Session.LogMessage('0000F4I', StrSubstNo(StartDateCompressionTelemetryMsg, CurrReport.ObjectId(false), CurrReport.ObjectId(true)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::All, TelemetryDimensions);
     end;
@@ -503,7 +533,6 @@ report 1498 "Date Compress Bank Acc. Ledger"
     var
         TelemetryDimensions: Dictionary of [Text, Text];
     begin
-        // TelemetryDimensions.Add('CompanyName', CompanyName());
         TelemetryDimensions.Add('ReportId', Format(CurrReport.ObjectId(false), 0, 9));
         TelemetryDimensions.Add('ReportName', CurrReport.ObjectId(true));
         TelemetryDimensions.Add('RegisterNo', Format(DateComprReg."Register No.", 0, 9));

@@ -45,7 +45,7 @@ table 2160 "Calendar Event"
         field(6; "Record ID to Process"; RecordID)
         {
             Caption = 'Record ID to Process';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
 
             trigger OnValidate()
             begin

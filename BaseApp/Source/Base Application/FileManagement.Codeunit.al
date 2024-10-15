@@ -7,8 +7,10 @@ codeunit 419 "File Management"
 
     var
         Text001: Label 'Default';
+#if not CLEAN17
         Text002: Label 'You must enter a file path.';
         Text003: Label 'You must enter a file name.';
+#endif
         FileDoesNotExistErr: Label 'The file %1 does not exist.', Comment = '%1 File Path';
         Text006: Label 'Export';
         Text007: Label 'Import';
@@ -16,15 +18,21 @@ codeunit 419 "File Management"
         [RunOnClient]
         DirectoryHelper: DotNet Directory;
         [RunOnClient]
+#if not CLEAN17
         ClientFileHelper: DotNet File;
+#endif
         ServerFileHelper: DotNet File;
         ServerDirectoryHelper: DotNet Directory;
+#if not CLEAN17
         Text010: Label 'The file %1 has not been uploaded.';
         Text011: Label 'You must specify a source file name.';
         Text012: Label 'You must specify a target file name.';
+#endif
         Text013: Label 'The file name %1 already exists.';
+#if not CLEAN17
         DirectoryDoesNotExistErr: Label 'Directory %1 does not exist.', Comment = '%1=Directory user is trying to upload does not exist';
         CreatePathQst: Label 'The path %1 does not exist. Do you want to add it now?';
+#endif
         AllFilesFilterTxt: Label '*.*', Locked = true;
         AllFilesDescriptionTxt: Label 'All Files (*.*)|*.*', Comment = '{Split=r''\|''}{Locked=s''1''}';
         XMLFileType: Label 'XML Files (*.xml)|*.xml', Comment = '{Split=r''\|''}{Locked=s''1''}';
@@ -41,8 +49,10 @@ codeunit 419 "File Management"
         SingleFilterErr: Label 'Specify a file filter and an extension filter when using this function.';
         InvalidWindowsChrStringTxt: Label '"#%&*:<>?\/{|}~', Locked = true;
         DownloadImageTxt: Label 'Download image';
+#if not CLEAN17
         LocalFileSystemNotAccessibleErr: Label 'Sorry, this action is not available for the online version of the app.';
         ChooseFileTitleMsg: Label 'Choose the file to upload.';
+#endif
         NotAllowedPathErr: Label 'Files outside of the current user''s folder cannot be accessed. Access is denied to file %1.', Comment = '%1=the full path to a file. ex: C:\Windows\TextFile.txt ';
         AppendFileNameWithIndexTxt: Label '%1 (%2)', Locked = true, Comment = '%1 - original file name, %2 - append index';
         AppendFileNameWithExtWithIndexTxt: Label '%1 (%2).%3', Locked = true, Comment = '%1 - original file name, %2 - append index, %3 - extension';
@@ -970,6 +980,7 @@ codeunit 419 "File Management"
         exit(true);
     end;
 
+#if not CLEAN17
     local procedure ValidateFileNames(ServerFileName: Text; ClientFileName: Text)
     begin
         if not IsValidFileName(ServerFileName) then
@@ -978,6 +989,7 @@ codeunit 419 "File Management"
         if not IsValidFileName(ClientFileName) then
             Error(Text012);
     end;
+#endif
 
     procedure ValidateFileExtension(FilePath: Text; ValidExtensions: Text)
     var
@@ -994,6 +1006,7 @@ codeunit 419 "File Management"
             Error(UnsupportedFileExtErr, FileExt, LowerValidExts);
     end;
 
+#if not CLEAN17
     local procedure ValidateClientPath(FilePath: Text)
     var
         ConfirmManagement: Codeunit "Confirm Management";
@@ -1008,6 +1021,7 @@ codeunit 419 "File Management"
         else
             Error('');
     end;
+#endif
 
     procedure CreateFileNameWithExtension(FileNameWithoutExtension: Text; Extension: Text) FileName: Text
     begin

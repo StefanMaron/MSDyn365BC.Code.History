@@ -6,7 +6,7 @@ page 7200 "CDS Connection Setup"
     DeleteAllowed = false;
     InsertAllowed = false;
     LinksAllowed = false;
-    PromotedActionCategories = 'New,Connection,Integration,Encryption,Advanced,Synchronization,Cloud Migration';
+    PromotedActionCategories = 'New,Connection,Integration,Encryption,Advanced,Synchronization,Upgrade,Cloud Migration';
     ShowFilter = false;
     SourceTable = "CDS Connection Setup";
     UsageCategory = Administration;
@@ -476,6 +476,54 @@ page 7200 "CDS Connection Setup"
                     Message(SyncNowScheduledMsg, IntegrationSynchJobList.Caption());
                 end;
             }
+            action(SetCoupledFlags)
+            {
+                ApplicationArea = Suite;
+                Caption = 'Mark Coupled Records';
+                Enabled = SetCoupledFlagsActionEnabled;
+                Image = CoupledItem;
+                Promoted = true;
+                PromotedCategory = Category7;
+                PromotedIsBig = true;
+                ToolTip = 'Set field ''Coupled to Dataverse'' to true for all records that are coupled to an entity in Dataverse.';
+
+                trigger OnAction()
+                var
+                    JobQueueEntry: Record "Job Queue Entry";
+                    UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+                    UpgradeTag: Codeunit "Upgrade Tag";
+                    StartTime: DateTime;
+                begin
+                    if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSetCoupledFlagsUpgradeTag()) then
+                        exit;
+
+                    StartTime := CurrentDateTime() + 1000;
+                    JobQueueEntry.SetRange("Object Type to Run", JobQueueEntry."Object Type to Run"::Codeunit);
+                    JobQueueEntry.SetRange("Object ID to Run", Codeunit::"CDS Set Coupled Flags");
+                    JobQueueEntry.SetRange("Job Queue Category Code", JobQueueCategoryLbl);
+                    JobQueueEntry.SetRange(Status, JobQueueEntry.Status::Ready);
+                    JobQueueEntry.SetFilter("Earliest Start Date/Time", '<=%1', StartTime);
+                    if not JobQueueEntry.IsEmpty() then begin
+                        JobQueueEntry.DeleteTasks();
+                        Commit();
+                    end;
+
+                    JobQueueEntry.Init();
+                    Clear(JobQueueEntry.ID); // "Job Queue - Enqueue" is to define new ID
+                    JobQueueEntry."Earliest Start Date/Time" := StartTime;
+                    JobQueueEntry."Object Type to Run" := JobQueueEntry."Object Type to Run"::Codeunit;
+                    JobQueueEntry."Object ID to Run" := Codeunit::"CDS Set Coupled Flags";
+                    JobQueueEntry."Run in User Session" := false;
+                    JobQueueEntry."Notify On Success" := false;
+                    JobQueueEntry."Maximum No. of Attempts to Run" := 2;
+                    JobQueueEntry."Job Queue Category Code" := JobQueueCategoryLbl;
+                    JobQueueEntry.Status := JobQueueEntry.Status::Ready;
+                    JobQueueEntry."Rerun Delay (sec.)" := 30;
+                    JobQueueEntry.Description := CopyStr(SetCoupledFlagsJobDescriptionTxt, 1, MaxStrLen(JobQueueEntry.Description));
+                    Codeunit.Run(Codeunit::"Job Queue - Enqueue", JobQueueEntry);
+                    Message(MarkingRecordsScheduledMsg);
+                end;
+            }
             action(RebuildCouplingTable)
             {
                 ApplicationArea = Suite;
@@ -483,7 +531,7 @@ page 7200 "CDS Connection Setup"
                 Enabled = true;
                 Image = Restore;
                 Promoted = true;
-                PromotedCategory = Category7;
+                PromotedCategory = Category8;
                 PromotedIsBig = false;
                 ToolTip = 'Rebuilds the coupling table after Cloud Migration from Business Central 2019 Wave 1 (Business Central 14).';
 
@@ -675,6 +723,8 @@ page 7200 "CDS Connection Setup"
     var
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         EnvironmentInfo: Codeunit "Environment Information";
+        UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
+        UpgradeTag: Codeunit "Upgrade Tag";
     begin
         ApplicationAreaMgmtFacade.CheckAppAreaOnlyBasic();
         SoftwareAsAService := EnvironmentInfo.IsSaaSInfrastructure();
@@ -683,6 +733,7 @@ page 7200 "CDS Connection Setup"
         SolutionKey := CDSIntegrationImpl.GetBaseSolutionUniqueName();
         SolutionName := CDSIntegrationImpl.GetBaseSolutionDisplayName();
         DefaultBusinessUnitName := CDSIntegrationImpl.GetDefaultBusinessUnitName();
+        SetCoupledFlagsActionEnabled := not UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetSetCoupledFlagsUpgradeTag());
         RefreshStatuses := true;
         SetVisibilityFlags();
     end;
@@ -742,6 +793,8 @@ page 7200 "CDS Connection Setup"
         UserPassword: Text;
         [NonDebuggable]
         ClientSecret: Text;
+        SetCoupledFlagsActionEnabled: Boolean;
+        JobQueueCategoryLbl: Label 'BCI INTEG', Locked = true;
         ResetIntegrationTableMappingConfirmQst: Label 'This will restore the default integration table mappings and synchronization jobs for Dataverse. All customizations to mappings and jobs will be deleted. The default mappings and jobs will be used the next time data is synchronized. Do you want to continue?';
         EncryptionIsNotActivatedQst: Label 'Data encryption is currently not enabled. We recommend that you encrypt data. \Do you want to open the Data Encryption Management window?';
         EnableServiceQst: Label 'The %1 is not enabled. Are you sure you want to exit?', Comment = '%1 = This Page Caption (Dataverse Connection Setup)';
@@ -762,6 +815,7 @@ page 7200 "CDS Connection Setup"
         SynchronizeModifiedQst: Label 'This will synchronize all modified records in all integration table mappings.\The synchronization will run in the background so you can continue with other tasks.\\Do you want to continue?';
         SyncNowScheduledMsg: Label 'Synchronization of modified records is scheduled.\You can view details on the %1 page.', Comment = '%1 = The localized caption of page Integration Synch. Job List';
         SetupSuccessfulMsg: Label 'The default setup for Dataverse synchronization has completed successfully.';
+        MarkingRecordsScheduledMsg: Label 'The marking of the records that are coupled to an entity in Dataverse has been scheduled.';
         DoYouWantToMakeSalesPeopleMappingQst: Label 'Do you want to map salespeople to users in Dataverse?';
         UsersAddedToTeamMsg: Label 'Count of users added to the default owning team: %1.', Comment = '%1 - count of users.';
         Office365AuthTxt: Label 'AuthType=Office365', Locked = true;
@@ -771,6 +825,7 @@ page 7200 "CDS Connection Setup"
         CDSConnDisabledOnPageTxt: Label 'The connection to Dataverse has been disabled from the Dataverse Connection Setup page', Locked = true;
         SuccessfullyRedeployedSolutionTxt: Label 'The Dataverse solution has been successfully redeployed', Locked = true;
         UnsuccessfullyRedeployedSolutionTxt: Label 'The Dataverse solution has failed to be redeployed', Locked = true;
+        SetCoupledFlagsJobDescriptionTxt: Label 'Sets field ''Coupled to Dataverse'' to true for all records that are coupled to an entity in Dataverse.';
         CertificateConnectionSetupTelemetryMsg: Label 'User has successfully set up the certificate connection to Dataverse.', Locked = true;
         CertificateConnectionSetupMsg: Label 'You have successfully upgraded the connection to Dataverse to use certificate-based OAuth2 service-to-service authentication. Business Central has auto-generated a new integration user with user name %1 in your Dataverse environment. This user does not require a license.', Comment = '%1 - user name';
         IsEditable: Boolean;
@@ -920,6 +975,6 @@ page 7200 "CDS Connection Setup"
     local procedure GetJobQueueEntriesObjectIDToRunFilter(): Text
     begin
         exit(
-          StrSubstNo('%1|%2', Codeunit::"Integration Synch. Job Runner", Codeunit::"Int. Uncouple Job Runner"));
+          StrSubstNo('%1|%2|%3', Codeunit::"Integration Synch. Job Runner", Codeunit::"Int. Uncouple Job Runner", Codeunit::"Int. Coupling Job Runner"));
     end;
 }

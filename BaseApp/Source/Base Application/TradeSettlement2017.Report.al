@@ -726,7 +726,9 @@ report 10618 "Trade Settlement 2017"
         [InDataSet]
         ExportXML: Boolean;
         ClientFileName: Text;
+#if not CLEAN17
         XMLOpenFileDialogCaptionLbl: Label 'Trade Settlement 2017 XML File Name';
+#endif
         HighLbl: Label ' High';
         MediumLbl: Label ' Medium';
         LowLbl: Label ' Low';

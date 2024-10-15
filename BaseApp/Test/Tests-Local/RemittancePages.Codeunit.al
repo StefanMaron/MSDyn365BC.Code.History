@@ -17,7 +17,7 @@ codeunit 144134 "Remittance - Pages"
         LibraryRandom: Codeunit "Library - Random";
         LibraryJournals: Codeunit "Library - Journals";
         LibraryVariableStorage: Codeunit "Library - Variable Storage";
-		    LibraryTemplates: Codeunit "Library - Templates";
+        LibraryTemplates: Codeunit "Library - Templates";
 
     [Test]
     [Scope('OnPrem')]
@@ -254,15 +254,15 @@ codeunit 144134 "Remittance - Pages"
         RemittanceAccount: Record "Remittance Account";
         GeneralPostingSetup: Record "General Posting Setup";
         VATPostingSetup: Record "VAT Posting Setup";
-        ConfigTemplateHeader: Record "Config. Template Header";
+        VendorTempl: Record "Vendor Templ.";
         VendorCard: TestPage "Vendor Card";
         RemittanceInfo: TestPage "Remittance Info";
     begin
-      	LibraryTemplates.DisableTemplatesFeature();
+        LibraryTemplates.EnableTemplatesFeature();
         // This test case is used to check if a new (Domestic) Vendor can be created and set up to use Remittance.
         LibraryRemittance.CreateRemittanceAgreement(RemittanceAgreement, RemittanceAgreement."Payment System"::"DnB Telebank");
         LibraryRemittance.CreateDomesticRemittanceAccount(RemittanceAgreement.Code, RemittanceAccount);
-        ConfigTemplateHeader.DeleteAll(true);
+        VendorTempl.DeleteAll(true);
 
         // Execute
         VendorCard.OpenNew;
@@ -314,18 +314,18 @@ codeunit 144134 "Remittance - Pages"
         RemittanceAccount: Record "Remittance Account";
         GeneralPostingSetup: Record "General Posting Setup";
         VATPostingSetup: Record "VAT Posting Setup";
-        ConfigTemplateHeader: Record "Config. Template Header";
+        VendorTempl: Record "Vendor Templ.";
         VendorCard: TestPage "Vendor Card";
         RemittanceInfo: TestPage "Remittance Info";
         CurrencyCode: Code[10];
     begin
-      	LibraryTemplates.DisableTemplatesFeature();
+        LibraryTemplates.EnableTemplatesFeature();
         // This test case is used to check if a new (Foreign) Vendor can be created and set up to use Remittance.
         // Values are from the manuel testcases.
         CurrencyCode := LibraryRemittance.FindForeignCurrencyCode;
         LibraryRemittance.CreateRemittanceAgreement(RemittanceAgreement, RemittanceAgreement."Payment System"::"DnB Telebank");
         LibraryRemittance.CreateForeignRemittanceAccount(RemittanceAgreement.Code, RemittanceAccount, CurrencyCode, false);
-        ConfigTemplateHeader.DeleteAll(true);
+        VendorTempl.DeleteAll(true);
 
         // Execute
         VendorCard.OpenNew;

@@ -1,6 +1,6 @@
 page 9019 "CEO and President Role Center"
 {
-    Caption = 'President', Comment = '{Dependency=Match,"ProfileDescription_PRESIDENT"}';
+    Caption = 'President';
     PageType = RoleCenter;
 
     layout

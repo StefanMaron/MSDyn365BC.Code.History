@@ -170,8 +170,10 @@ report 15000065 "OCR Payment - Data Dialog"
         RecordType: Text[2];
         KID: Text[25];
         ServerTempFile: Text[1024];
+#if not CLEAN17
         file1: Text[250];
         file2: Text[250];
+#endif
         MessageText: Text[250];
         OCRPaymentFileName: Text;
         OCRAmount: Decimal;
@@ -200,7 +202,9 @@ report 15000065 "OCR Payment - Data Dialog"
         text160819: Label 'Document no. "%1" does not exist.\KID="%2".';
         text160820: Label 'Reminder no. "%1" does not exist.\KID="%2".';
         Text10623: Label 'Import from OCR Payment File.';
+#if not CLEAN17
         Text10624: Label 'Text Files (*.txt)|*.txt|All Files (*.*)|*.*';
+#endif
         NewDocumentNo: Boolean;
 
     local procedure CreatePayment()

@@ -91,6 +91,13 @@ codeunit 9179 "Application Area Mgmt. Facade"
         exit(ApplicationAreaMgmt.IsItemChargesEnabled());
     end;
 
+    procedure IsItemReferencesEnabled(): Boolean
+    var
+        ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";
+    begin
+        exit(ApplicationAreaMgmt.IsItemReferencesEnabled());
+    end;
+
     procedure IsItemTrackingEnabled(): Boolean
     var
         ApplicationAreaMgmt: Codeunit "Application Area Mgmt.";

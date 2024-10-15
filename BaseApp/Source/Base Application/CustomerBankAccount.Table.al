@@ -90,10 +90,20 @@ table 287 "Customer Bank Account"
         field(13; "Bank Branch No."; Text[20])
         {
             Caption = 'Bank Branch No.';
+
+            trigger OnValidate()
+            begin
+                OnValidateBankAccount(Rec, 'Bank Branch No.');
+            end;
         }
         field(14; "Bank Account No."; Text[30])
         {
             Caption = 'Bank Account No.';
+
+            trigger OnValidate()
+            begin
+                OnValidateBankAccount(Rec, 'Bank Account No.');
+            end;
         }
         field(15; "Transit No."; Text[20])
         {
@@ -187,6 +197,9 @@ table 287 "Customer Bank Account"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "Code", Name)
+        {
+        }
         fieldgroup(Brick; "Code", Name, "Phone No.", Contact)
         {
         }
@@ -221,12 +234,29 @@ table 287 "Customer Bank Account"
     end;
 
     procedure GetBankAccountNo(): Text
+    var
+        Handled: Boolean;
+        ResultBankAccountNo: Text;
     begin
+        OnGetBankAccount(Handled, Rec, ResultBankAccountNo);
+
+        if Handled then exit(ResultBankAccountNo);
+
         if IBAN <> '' then
             exit(DelChr(IBAN, '=<>'));
 
         if "Bank Account No." <> '' then
             exit("Bank Account No.");
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnValidateBankAccount(var CustomerBankAccount: Record "Customer Bank Account"; FieldToValidate: Text)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnGetBankAccount(var Handled: Boolean; CustomerBankAccount: Record "Customer Bank Account"; var ResultBankAccountNo: Text)
+    begin
     end;
 }
 

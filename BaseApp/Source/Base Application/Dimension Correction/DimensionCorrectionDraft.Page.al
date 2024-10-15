@@ -30,7 +30,8 @@ page 2591 "Dimension Correction Draft"
 
                     trigger OnValidate()
                     begin
-                        CurrPage.Update(true);
+                        if Rec.Description <> '' then
+                            CurrPage.Update(true);
                     end;
                 }
 

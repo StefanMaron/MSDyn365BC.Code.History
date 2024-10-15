@@ -177,7 +177,7 @@ codeunit 137158 "SCM Orders V"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         DequeueVariable: Variant;
-        LotNo: Code[20];
+        LotNo: Code[50];
         Quantity: Decimal;
     begin
         // [FEATURE] [Undo Purchase Receipt] [Item Tracking]
@@ -873,7 +873,7 @@ codeunit 137158 "SCM Orders V"
         Vendor: Record Vendor;
         VendorPostingGroup: Record "Vendor Posting Group";
         OldExactCostReversingMandatory: Boolean;
-        LotNo: Code[20];
+        LotNo: Code[50];
         DocumentNo: Code[20];
         DocumentNo2: Code[20];
     begin
@@ -1285,7 +1285,7 @@ codeunit 137158 "SCM Orders V"
         PurchaseHeader: Record "Purchase Header";
         PurchaseLine: Record "Purchase Line";
         SalesHeader: Record "Sales Header";
-        LotNo: Code[20];
+        LotNo: Code[50];
         Qty: Integer;
     begin
         // [FEATURE] [Get Posted Document Lines to Reverse] [Item Tracking]
@@ -1680,6 +1680,7 @@ codeunit 137158 "SCM Orders V"
         Location: Record Location;
         SalesHeaderOrder: Record "Sales Header";
         SalesHeaderInvoice: Record "Sales Header";
+        ItemUnitOfMeasure: Record "Item Unit of Measure";
         ItemNo: Code[20];
     begin
         // [FEATURE] [Sales Invoice] [Get Shipment Line] [Item Unit of Measure]
@@ -1689,6 +1690,10 @@ codeunit 137158 "SCM Orders V"
         // [GIVEN] Item "I" with alternate sales unit of measure "BOX". Qty. in base UOM for "BOX" = 6.
         // [GIVEN] Item "I" is in stock in Location set up for required shipment.
         ItemNo := CreateItemWithSalesUOM(6);
+        ItemUnitOfMeasure.SetRange("Item No.", ItemNo);
+        ItemUnitOfMeasure.FindFirst();
+        ItemUnitOfMeasure.Validate("Qty. Rounding Precision", 1);
+        ItemUnitOfMeasure.Modify(true);
         LibrarySales.CreateCustomer(Customer);
         LibraryWarehouse.CreateLocationWMS(Location, false, false, false, false, true);
         CreateAndPostItemJournalLine(ItemNo, LibraryRandom.RandIntInRange(10, 20), Location.Code, '');
@@ -4131,7 +4136,7 @@ codeunit 137158 "SCM Orders V"
         LibraryPurchase.GetSpecialOrder(PurchaseHeader);
     end;
 
-    local procedure CreatePurchaseOrderWithStandardCostItemUsingLot(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var Vendor: Record Vendor) LotNo: Code[20]
+    local procedure CreatePurchaseOrderWithStandardCostItemUsingLot(var PurchaseHeader: Record "Purchase Header"; var PurchaseLine: Record "Purchase Line"; var Vendor: Record Vendor) LotNo: Code[50]
     var
         Item: Record Item;
     begin
@@ -4389,7 +4394,7 @@ codeunit 137158 "SCM Orders V"
         end;
     end;
 
-    local procedure EnqueueLotUpdate(LotNo: Code[20]; QtyToHandle: Decimal; QtyToInvoice: Decimal)
+    local procedure EnqueueLotUpdate(LotNo: Code[50]; QtyToHandle: Decimal; QtyToInvoice: Decimal)
     begin
         LibraryVariableStorage.Enqueue(ItemTrackingMode::UpdateLotQty);
         LibraryVariableStorage.Enqueue(LotNo);
@@ -4397,7 +4402,7 @@ codeunit 137158 "SCM Orders V"
         LibraryVariableStorage.Enqueue(QtyToInvoice);
     end;
 
-    local procedure FillTempItemTrackingBuf(var TempTrackingSpec: Record "Tracking Specification" temporary; LotNo: Code[20]; QtyToShipValues: Text; QtytoInvoiceValues: Text)
+    local procedure FillTempItemTrackingBuf(var TempTrackingSpec: Record "Tracking Specification" temporary; LotNo: Code[50]; QtyToShipValues: Text; QtytoInvoiceValues: Text)
     var
         LastEntryNo: Integer;
         i: Integer;
@@ -4487,7 +4492,7 @@ codeunit 137158 "SCM Orders V"
         WarehouseShipmentLine.FindFirst;
     end;
 
-    local procedure GetLotNoFromItemTrackingPageHandler(var LotNo: Code[20])
+    local procedure GetLotNoFromItemTrackingPageHandler(var LotNo: Code[50])
     var
         DequeueVariable: Variant;
     begin
@@ -5021,7 +5026,7 @@ codeunit 137158 "SCM Orders V"
         ItemLedgerEntry.TestField("Job Task No.", JobTaskNo);
     end;
 
-    local procedure VerifyItemLedgerEntryForLot(EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; LotNo: Code[20]; Quantity: Decimal; MoveNext: Boolean)
+    local procedure VerifyItemLedgerEntryForLot(EntryType: Enum "Item Ledger Document Type"; ItemNo: Code[20]; LotNo: Code[50]; Quantity: Decimal; MoveNext: Boolean)
     var
         ItemLedgerEntry: Record "Item Ledger Entry";
     begin
@@ -5283,7 +5288,7 @@ codeunit 137158 "SCM Orders V"
         Assert.RecordIsEmpty(PurchaseHeader);
     end;
 
-    local procedure VerifyTrackingSpecification(SourceType: Integer; SourceSubtype: Option; SourceID: Code[20]; SourceRefNo: Integer; LotNo: Code[20]; HandledQty: Decimal; InvoicedQty: Decimal)
+    local procedure VerifyTrackingSpecification(SourceType: Integer; SourceSubtype: Option; SourceID: Code[20]; SourceRefNo: Integer; LotNo: Code[50]; HandledQty: Decimal; InvoicedQty: Decimal)
     var
         TrackingSpecification: Record "Tracking Specification";
     begin
@@ -5404,7 +5409,7 @@ codeunit 137158 "SCM Orders V"
     procedure ItemTrackingPageHandler(var ItemTrackingLines: TestPage "Item Tracking Lines")
     var
         DequeueVariable: Variant;
-        LotNo: Code[20];
+        LotNo: Code[50];
         NoOfLots: Integer;
         i: Integer;
     begin

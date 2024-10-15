@@ -10,12 +10,11 @@ codeunit 409 "Dimension Value-Indent"
                Text000 +
                Text001 +
                Text002 +
-               Text003, "Dimension Code"), true)
+               Text003, Rec."Dimension Code"), true)
         then
             exit;
 
-        DimVal.SetRange("Dimension Code", "Dimension Code");
-        Indent;
+        RunIndent(Rec."Dimension Code");
     end;
 
     var
@@ -30,6 +29,12 @@ codeunit 409 "Dimension Value-Indent"
         Window: Dialog;
         DimValCode: array[10] of Code[20];
         i: Integer;
+
+    procedure RunIndent(DimensionCode: Code[20])
+    begin
+        DimVal.SetRange("Dimension Code", DimensionCode);
+        Indent();
+    end;
 
     procedure Indent()
     var

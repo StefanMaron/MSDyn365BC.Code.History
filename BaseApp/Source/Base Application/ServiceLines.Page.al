@@ -990,6 +990,7 @@ page 5905 "Service Lines"
                         end;
                     end;
                 }
+#if not CLEAN19
                 action("Get Li&ne Discount")
                 {
                     AccessByPermission = TableData "Sales Line Discount" = R;
@@ -1008,6 +1009,7 @@ page 5905 "Service Lines"
                         CurrPage.Update();
                     end;
                 }
+#endif
                 action(GetLineDiscount)
                 {
                     AccessByPermission = TableData "Sales Discount Access" = R;
@@ -1055,7 +1057,6 @@ page 5905 "Service Lines"
                     var
                         ServLine: Record "Service Line";
                         TempServLine: Record "Service Line" temporary;
-                        ServPostYesNo: Codeunit "Service-Post (Yes/No)";
                     begin
                         Clear(ServLine);
                         Modify(true);
@@ -1072,8 +1073,7 @@ page 5905 "Service Lines"
                             exit;
 
                         ServHeader.Get("Document Type", "Document No.");
-                        Clear(ServPostYesNo);
-                        ServPostYesNo.PostDocumentWithLines(ServHeader, TempServLine);
+                        ServHeader.SendToPostWithLines(Codeunit::"Service-Post (Yes/No)", TempServLine);
 
                         ServLine.SetRange("Document Type", ServHeader."Document Type");
                         ServLine.SetRange("Document No.", ServHeader."No.");
@@ -1089,6 +1089,7 @@ page 5905 "Service Lines"
                     ApplicationArea = Service;
                     Caption = 'Preview Posting';
                     Image = ViewPostedOrder;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()

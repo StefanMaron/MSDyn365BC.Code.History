@@ -66,6 +66,11 @@ page 489 "Column Layout"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of entries that will be included in the amounts in the account schedule column.';
                 }
+                field("Budget Name"; "Budget Name")
+                {
+                    ApplicationArea = Basic, Suite;
+                    ToolTip = 'Specifies which budget amounts will be totaled in this column.';
+                }
                 field(Formula; Formula)
                 {
                     ApplicationArea = Basic, Suite;

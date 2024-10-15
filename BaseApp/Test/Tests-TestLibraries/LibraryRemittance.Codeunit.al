@@ -288,7 +288,7 @@ codeunit 143009 "Library - Remittance"
     var
         FileMgt: Codeunit "File Management";
     begin
-        exit(FileMgt.ClientTempFileName('txt'));
+        exit(FileMgt.ServerTempFileName('txt'));
     end;
 
     [Scope('OnPrem')]

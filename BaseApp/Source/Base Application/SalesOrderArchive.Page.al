@@ -637,8 +637,8 @@ page 5159 "Sales Order Archive"
 
     trigger OnAfterGetRecord()
     begin
-        if SellToContact.Get("Sell-to Contact No.") then;
-        if BillToContact.Get("Bill-to Contact No.") then;
+        SellToContact.GetOrClear("Sell-to Contact No.");
+        BillToContact.GetOrClear("Bill-to Contact No.");
     end;
 
     var

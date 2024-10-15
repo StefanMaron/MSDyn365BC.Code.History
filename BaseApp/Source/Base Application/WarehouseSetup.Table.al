@@ -92,6 +92,9 @@ table 5769 "Warehouse Setup"
         {
             Caption = 'Last Whse. Posting Ref. No.';
             Editable = false;
+            ObsoleteReason = 'Replaced by Last Whse. Posting Ref. Seq. field.';
+            ObsoleteState = Pending;
+            ObsoleteTag = '19.0';
         }
         field(18; "Receipt Posting Policy"; Option)
         {
@@ -104,6 +107,11 @@ table 5769 "Warehouse Setup"
             Caption = 'Shipment Posting Policy';
             OptionCaption = 'Posting errors are not processed,Stop and show the first posting error';
             OptionMembers = "Posting errors are not processed","Stop and show the first posting error";
+        }
+        field(20; "Last Whse. Posting Ref. Seq."; Code[40])
+        {
+            Caption = 'Last Whse. Posting Ref. Seq.';
+            Editable = false;
         }
         field(7301; "Posted Whse. Receipt Nos."; Code[20])
         {
@@ -155,13 +163,45 @@ table 5769 "Warehouse Setup"
     {
     }
 
+    procedure GetCurrentReference(): Integer
+    begin
+        Rec.Get();
+        if Rec."Last Whse. Posting Ref. Seq." = '' then
+            exit(Rec."Last Whse. Posting Ref. No.");
+        EnsureSequenceExists();
+        exit(NumberSequence.Current(Rec."Last Whse. Posting Ref. Seq.") mod MaxInt());
+    end;
+
     procedure GetNextReference(): Integer
     begin
-        LockTable();
-        Get;
-        "Last Whse. Posting Ref. No." := "Last Whse. Posting Ref. No." + 1;
-        Modify;
-        exit("Last Whse. Posting Ref. No.");
+        EnsureSequenceExists();
+        exit(NumberSequence.Next(Rec."Last Whse. Posting Ref. Seq.") mod MaxInt());
+    end;
+
+    local procedure EnsureSequenceExists()
+    var
+        DummySeq: BigInteger;
+    begin
+        Rec.Get();
+        if Rec."Last Whse. Posting Ref. Seq." = '' then begin
+            LockTable();
+            Get();
+            if Rec."Last Whse. Posting Ref. Seq." = '' then begin
+                Rec."Last Whse. Posting Ref. Seq." := CopyStr(Format(CreateGuid()), 1, MaxStrLen(Rec."Last Whse. Posting Ref. Seq."));
+                Rec."Last Whse. Posting Ref. Seq." := DelChr(Rec."Last Whse. Posting Ref. Seq.", '=', '{}');
+                Modify();
+            end;
+        end;
+        if NumberSequence.Exists("Last Whse. Posting Ref. Seq.") then
+            exit;
+        NumberSequence.Insert(Rec."Last Whse. Posting Ref. Seq.", Rec."Last Whse. Posting Ref. No.", 1);
+        // Simulate that a number was used - init issue with number sequences.
+        DummySeq := NumberSequence.next(Rec."Last Whse. Posting Ref. Seq.");
+    end;
+
+    local procedure MaxInt(): Integer
+    begin
+        exit(2147483647);
     end;
 }
 

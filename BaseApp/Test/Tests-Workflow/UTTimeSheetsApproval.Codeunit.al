@@ -13,6 +13,7 @@ codeunit 136501 "UT Time Sheets Approval"
         TimeSheetApprovalMgt: Codeunit "Time Sheet Approval Management";
         LibraryHumanResource: Codeunit "Library - Human Resource";
         LibraryTimeSheet: Codeunit "Library - Time Sheet";
+        UTTimeSheetsApproval: Codeunit "UT Time Sheets Approval";
         Text001: Label 'Rolling back changes...';
         LibraryRandom: Codeunit "Library - Random";
         Assert: Codeunit Assert;
@@ -114,11 +115,14 @@ codeunit 136501 "UT Time Sheets Approval"
     begin
         // rejected line cannot be reopen
         Initialize;
+        BindSubscription(UTTimeSheetsApproval);
 
         DoSubmitReject(TimeSheetLine);
 
         // try to reopen
         asserterror TimeSheetApprovalMgt.ReopenSubmitted(TimeSheetLine);
+
+        UnbindSubscription(UTTimeSheetsApproval);
     end;
 
     [Test]
@@ -176,12 +180,14 @@ codeunit 136501 "UT Time Sheets Approval"
     begin
         // approved line cannot be reopened
         Initialize;
+        BindSubscription(UTTimeSheetsApproval);
 
         DoSubmitApprove(TimeSheetLine);
 
         // try to reopen
         asserterror TimeSheetApprovalMgt.ReopenSubmitted(TimeSheetLine);
 
+        UnbindSubscription(UTTimeSheetsApproval);
         TearDown;
     end;
 
@@ -526,6 +532,12 @@ codeunit 136501 "UT Time Sheets Approval"
             TimeSheetLineBuffer.TestField(Description, TimeSheetLine.Description);
             TimeSheetLineBuffer.Next;
         until TimeSheetLine.Next = 0;
+    end;
+
+    [EventSubscriber(ObjectType::Codeunit, Codeunit::"Time Sheet Management", 'OnAfterTimeSheetV2Enabled', '', false, false)]
+    local procedure OnAfterTimeSheetV2Enabled(var Result: Boolean)
+    begin
+        Result := false;
     end;
 
     [StrMenuHandler]

@@ -34,7 +34,9 @@ permissionset 3723 "Recievables - Admin"
                   tabledata "Return Reason" = RIMD,
                   tabledata "Sales & Receivables Setup" = RIMD,
                   tabledata "Sales Discount Access" = RIMD,
+#if not CLEAN19
                   tabledata "Sales Line Discount" = RIMD,
+#endif
                   tabledata "Salesperson/Purchaser" = RIMD,
                   tabledata "Shipment Method" = RIMD,
                   tabledata "Shipping Agent" = RIMD,

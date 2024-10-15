@@ -22,7 +22,7 @@ table 1798 "Data Migration Parameters"
         field(4; "Staging Table RecId To Process"; RecordID)
         {
             Caption = 'Staging Table RecId To Process';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
     }
 

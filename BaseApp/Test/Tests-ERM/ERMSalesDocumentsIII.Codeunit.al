@@ -541,6 +541,7 @@ codeunit 134387 "ERM Sales Documents III"
         UpdateGeneralLedgerVATSetup(VATRoundingType);
     end;
 
+#if not CLEAN19
     [Test]
     [Scope('OnPrem')]
     procedure StartingDateAsWorkDateOnSalesPrice()
@@ -575,7 +576,7 @@ codeunit 134387 "ERM Sales Documents III"
         // Verify: Verify that correct date comes in "Starting Date Filter".
         SalesPrices.StartingDateFilter.AssertEquals(StartingDate);
     end;
-
+#endif
     [Test]
     [Scope('OnPrem')]
     procedure ErrorOnDeletePostedSalesRetOrder()
@@ -1859,6 +1860,7 @@ codeunit 134387 "ERM Sales Documents III"
         VATPostingSetup.Delete(true);
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('GetSalesPricePageHandler')]
     [Scope('OnPrem')]
@@ -2026,7 +2028,7 @@ codeunit 134387 "ERM Sales Documents III"
         // [THEN] Update fails with an error: "Status must be equal to Open in Sales Header"
         Assert.ExpectedError(StrSubstNo(SalesHeaderStatusErr, SalesHeader."Document Type", SalesHeader."No."));
     end;
-
+#endif
     [Test]
     [Scope('OnPrem')]
     procedure ShippingTimeIsPopulatedOnValidatingSellToCustomerName()
@@ -2959,6 +2961,7 @@ codeunit 134387 "ERM Sales Documents III"
         VerifyTransactionTypeWhenInsertSalesDocument(SalesHeader."Document Type"::Order);
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('PostedSalesDocumentLinesHandler')]
     [Scope('OnPrem')]
@@ -3043,7 +3046,7 @@ codeunit 134387 "ERM Sales Documents III"
         // [THEN] "Line Discount %" is 10
         SalesLine.TestField("Line Discount %", SalesLineDiscount."Line Discount %");
     end;
-
+#endif
     [Test]
     [Scope('OnPrem')]
     procedure InvoiceQuoteNoIsNotVisibleWhenBlank()
@@ -3158,12 +3161,18 @@ codeunit 134387 "ERM Sales Documents III"
     [Scope('OnPrem')]
     procedure PrintSalesQuoteCardWithBlankQuantityIsFoundationFALSE()
     var
+        CompanyInformation: Record "Company Information";
         SalesHeader: Record "Sales Header";
         SalesQuote: TestPage "Sales Quote";
     begin
         // [FEATURE] [Quote] [UI]
         // [SCENARIO 266493] Stan can print sales quote having line with zero quantity from card page when foundation setup is disabled
         Initialize;
+
+        // [GIVEN] Company Information with "Allow Blank Payment Info."
+        CompanyInformation.Get();
+        CompanyInformation.Validate("Allow Blank Payment Info.", true);
+        CompanyInformation.Modify();
 
         CreateSalesDocumentWithTwoLinesSecondLineQuantityZero(SalesHeader, SalesHeader."Document Type"::Quote);
         Commit();
@@ -3174,7 +3183,7 @@ codeunit 134387 "ERM Sales Documents III"
 
         SalesHeader.Find;
 
-        Assert.AreEqual(REPORT::"Sales - Quote", LibraryVariableStorage.DequeueInteger, WrongReportInvokedErr);
+        Assert.AreEqual(REPORT::"Standard Sales - Quote", LibraryVariableStorage.DequeueInteger, WrongReportInvokedErr);
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -3183,12 +3192,18 @@ codeunit 134387 "ERM Sales Documents III"
     [Scope('OnPrem')]
     procedure PrintSalesQuoteListWithBlankQuantityIsFoundationFALSE()
     var
+        CompanyInformation: Record "Company Information";
         SalesHeader: Record "Sales Header";
         SalesQuotes: TestPage "Sales Quotes";
     begin
         // [FEATURE] [Quote] [UI]
         // [SCENARIO 266493] Stan can print sales quote having line with zero quantity from list page when foundation setup is disabled
         Initialize;
+
+        // [GIVEN] Company Information with "Allow Blank Payment Info."
+        CompanyInformation.Get();
+        CompanyInformation.Validate("Allow Blank Payment Info.", true);
+        CompanyInformation.Modify();
 
         CreateSalesDocumentWithTwoLinesSecondLineQuantityZero(SalesHeader, SalesHeader."Document Type"::Quote);
         Commit();
@@ -3199,7 +3214,7 @@ codeunit 134387 "ERM Sales Documents III"
 
         SalesHeader.Find;
 
-        Assert.AreEqual(REPORT::"Sales - Quote", LibraryVariableStorage.DequeueInteger, WrongReportInvokedErr);
+        Assert.AreEqual(REPORT::"Standard Sales - Quote", LibraryVariableStorage.DequeueInteger, WrongReportInvokedErr);
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -3484,6 +3499,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibraryApplicationArea.DisableApplicationAreaSetup;
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('ConfirmHandlerTrue')]
     [Scope('OnPrem')]
@@ -3568,7 +3584,7 @@ codeunit 134387 "ERM Sales Documents III"
         // [THEN] Unit price in the sales line is zero - same as in existing sales price
         SalesLine.TestField("Unit Price", 0);
     end;
-
+#endif
     [Test]
     [Scope('OnPrem')]
     procedure UnitPriceFromItemCardMustBeRespectedWhenCreatingSalesOrderIfSalesPriceNOTExist()
@@ -4332,6 +4348,7 @@ codeunit 134387 "ERM Sales Documents III"
         Customer.TestField("Tax Area Code", '');
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('PostedSalesDocumentLinesHandler')]
     [Scope('OnPrem')]
@@ -4426,7 +4443,7 @@ codeunit 134387 "ERM Sales Documents III"
 
         // [THEN] No message appears
     end;
-
+#endif
     [Test]
     [HandlerFunctions('ItemSubstitutionEntriesHandler')]
     [Scope('OnPrem')]
@@ -5421,6 +5438,7 @@ codeunit 134387 "ERM Sales Documents III"
         VerifyQtyToAssignInDocumentLineForChargeItem(SalesHeaderInvoice, SalesLineChargeItem."No.", QtyToAssign);
     end;
 
+#if not CLEAN19
     [Test]
     [HandlerFunctions('PostedSalesDocumentLinesHandler')]
     [Scope('OnPrem')]
@@ -5458,51 +5476,7 @@ codeunit 134387 "ERM Sales Documents III"
         // [THEN] Sales Line suggested has "Unit Price" = 10 for Item "I1"
         Assert.AreEqual(InitialUnitPrice, SalesLine."Unit Price", SalesLine.FieldCaption("Unit Price"));
     end;
-
-    [Test]
-    procedure SalesCreditMemoPopulateShipmentMethodCodeFromCust()
-    var
-        Customer: Record Customer;
-        SalesHeader: Record "Sales Header";
-    begin
-        // [FEATURE] [Credit Memo] [Shipment Method]
-        // [SCENARIO 394955] Shipment Method Code from customer in sales credit memo.
-        Initialize();
-
-        LibrarySales.CreateCustomer(Customer);
-        Customer.Validate("Shipment Method Code", CreateShipmentMethodCode());
-        Customer.Modify(true);
-
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
-
-        SalesHeader.TestField("Shipment Method Code", Customer."Shipment Method Code");
-    end;
-
-    [Test]
-    procedure SalesCreditMemoPopulateShipmentMethodCodeFromShipToAddress()
-    var
-        Customer: Record Customer;
-        ShipToAddress: Record "Ship-to Address";
-        SalesHeader: Record "Sales Header";
-    begin
-        // [FEATURE] [Credit Memo] [Shipment Method] [Ship-to Address]
-        // [SCENARIO 394955] Shipment Method Code from ship-to address in sales credit memo.
-        Initialize();
-
-        LibrarySales.CreateCustomer(Customer);
-
-        LibrarySales.CreateShipToAddress(ShipToAddress, Customer."No.");
-        ShipToAddress.Validate("Shipment Method Code", CreateShipmentMethodCode());
-        ShipToAddress.Modify(true);
-
-        Customer.Validate("Ship-to Code", ShipToAddress.Code);
-        Customer.Modify(true);
-
-        LibrarySales.CreateSalesHeader(SalesHeader, SalesHeader."Document Type"::"Credit Memo", Customer."No.");
-
-        SalesHeader.TestField("Shipment Method Code", ShipToAddress."Shipment Method Code");
-    end;
-
+#endif
     local procedure Initialize()
     var
         ReportSelections: Record "Report Selections";
@@ -5532,7 +5506,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
         ReportSelections.SetRange(Usage, LibraryERMCountryData.GetReportSelectionsUsageSalesQuote);
-        ReportSelections.ModifyAll("Report ID", REPORT::"Sales - Quote");
+        ReportSelections.ModifyAll("Report ID", REPORT::"Standard Sales - Quote");
 
         isInitialized := true;
         Commit();
@@ -5710,6 +5684,7 @@ codeunit 134387 "ERM Sales Documents III"
         SalesLine.Modify(true);
     end;
 
+#if not CLEAN19
     local procedure CreateSalesLineDiscount(var SalesLineDiscount: Record "Sales Line Discount"; ItemNo: Code[20]; CustomerNo: Code[20]; MinQty: Decimal; DiscountPct: Decimal)
     begin
         LibraryERM.CreateLineDiscForCustomer(
@@ -5718,7 +5693,7 @@ codeunit 134387 "ERM Sales Documents III"
         SalesLineDiscount.Validate("Line Discount %", DiscountPct);
         SalesLineDiscount.Modify(true);
     end;
-
+#endif
     local procedure CreateSalesLineWithItem(var Item: Record Item; SalesHeader: Record "Sales Header"; QtyToShip: Decimal; VATProdPostingGroup: Code[20])
     var
         SalesLine: Record "Sales Line";
@@ -5769,16 +5744,6 @@ codeunit 134387 "ERM Sales Documents III"
         SalesHeader.CalcInvDiscForHeader;
     end;
 
-    local procedure CreateShipmentMethodCode(): Code[10]
-    var
-        ShipmentMethod: Record "Shipment Method";
-    begin
-        ShipmentMethod.Init();
-        ShipmentMethod.Code := LibraryUtility.GenerateGUID();
-        ShipmentMethod.Insert(true);
-        exit(ShipmentMethod.Code);
-    end;
-
     local procedure CreatePostSalesDocWithGL(var SalesHeader: Record "Sales Header"; DocumentType: Enum "Sales Document Type"; Invoice: Boolean): Code[20]
     begin
         CreateSalesDocumentGL(SalesHeader, DocumentType, LibraryERM.CreateGLAccountWithSalesSetup);
@@ -5802,6 +5767,7 @@ codeunit 134387 "ERM Sales Documents III"
         LibrarySales.PostSalesDocument(SalesHeader, true, PostInvoice);
     end;
 
+#if not CLEAN19
     local procedure CreateSalesPriceForItemAndAllCustomers(var SalesPrice: Record "Sales Price")
     var
         Item: Record Item;
@@ -5812,7 +5778,7 @@ codeunit 134387 "ERM Sales Documents III"
           SalesPrice, Item."No.", "Sales Price Type"::"All Customers", '', WorkDate, '', '', '', 0, LibraryRandom.RandDec(100, 2));
         CopyFromToPriceListLine.CopyFrom(SalesPrice, PriceListLine);
     end;
-
+#endif
     local procedure CreateShippingAgent(var ShippingAgent: Record "Shipping Agent"; ShippingInternetAddress: Text[250]; var PackageTrackingNo: Text[30])
     begin
         LibraryInventory.CreateShippingAgent(ShippingAgent);
@@ -6321,6 +6287,7 @@ codeunit 134387 "ERM Sales Documents III"
         exit(CustomerNo);
     end;
 
+#if not CLEAN19
     local procedure OpenSalesPricesPage(SalesPrices: TestPage "Sales Prices"; CustomerNo: Code[20]; StartingDateFilter: Text[30])
     var
         CustomerList: TestPage "Customer List";
@@ -6331,7 +6298,7 @@ codeunit 134387 "ERM Sales Documents III"
         CustomerList.Sales_Prices.Invoke;
         SalesPrices.StartingDateFilter.SetValue(StartingDateFilter);
     end;
-
+#endif
     local procedure RunCertificateOfSupplyReport(CustomerNo: Code[20])
     var
         CertificateOfSupply: Record "Certificate of Supply";
@@ -6894,6 +6861,7 @@ codeunit 134387 "ERM Sales Documents III"
     begin
     end;
 
+#if not CLEAN19
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetSalesPricePageHandler(var GetSalesPrice: TestPage "Get Sales Price") // V15
@@ -6901,7 +6869,7 @@ codeunit 134387 "ERM Sales Documents III"
         GetSalesPrice.First;
         GetSalesPrice.OK.Invoke;
     end;
-
+#endif
     [ModalPageHandler]
     [Scope('OnPrem')]
     procedure GetPriceLinePageHandler(var GetPriceLine: TestPage "Get Price Line") // V16
@@ -6926,10 +6894,10 @@ codeunit 134387 "ERM Sales Documents III"
 
     [RequestPageHandler]
     [Scope('OnPrem')]
-    procedure SalesQuoteRequestPageHandler(var SalesQuote: TestRequestPage "Sales - Quote")
+    procedure SalesQuoteRequestPageHandler(var SalesQuote: TestRequestPage "Standard Sales - Quote")
     begin
         SalesQuote.Cancel.Invoke;
-        LibraryVariableStorage.Enqueue(REPORT::"Sales - Quote");
+        LibraryVariableStorage.Enqueue(REPORT::"Standard Sales - Quote");
     end;
 
     [ModalPageHandler]

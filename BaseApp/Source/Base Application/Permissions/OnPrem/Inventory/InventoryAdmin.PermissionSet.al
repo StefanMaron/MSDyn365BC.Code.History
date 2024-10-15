@@ -34,14 +34,18 @@ permissionset 2928 "Inventory - Admin"
                   tabledata "Price Source" = RIMD,
                   tabledata "Price Worksheet Line" = RIMD,
                   tabledata "Purchase Discount Access" = RIMD,
+#if not CLEAN19
                   tabledata "Purchase Line Discount" = RIMD,
                   tabledata "Purchase Price" = RIMD,
+#endif
                   tabledata "Purchase Price Access" = RIMD,
                   tabledata Purchasing = RIMD,
                   tabledata "Reason Code" = R,
                   tabledata "Rounding Method" = RIMD,
                   tabledata "Sales Discount Access" = RIMD,
+#if not CLEAN19
                   tabledata "Sales Line Discount" = RIMD,
+#endif
                   tabledata "Shipping Agent" = RIMD,
                   tabledata "Shipping Agent Services" = RIMD,
                   tabledata "Social Listening Setup" = RIMD,

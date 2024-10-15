@@ -418,16 +418,12 @@ page 6000 "Dispatch Board"
 
     trigger OnOpenPage()
     begin
-        if UserMgt.GetServiceFilter <> '' then begin
-            FilterGroup(2);
-            SetRange("Responsibility Center", UserMgt.GetServiceFilter);
-            FilterGroup(0);
-        end;
-        SetAllFilters;
+        Rec.SetSecurityFilterOnRespCenter();
+        SetAllFilters();
 
         if IsEmpty() then begin
             ServOrderFilter := '';
-            SetServOrderFilter;
+            SetServOrderFilter();
         end;
     end;
 
@@ -438,7 +434,6 @@ page 6000 "Dispatch Board"
         ResourceGroup: Record "Resource Group";
         ServHeader: Record "Service Header";
         ServiceContract: Record "Service Contract Header";
-        UserMgt: Codeunit "User Setup Management";
         DocFilter: Option "Order",Quote,All;
         StatusFilter: Option " ",Pending,"In Process",Finished,"On Hold";
         RespDateFilter: Text;

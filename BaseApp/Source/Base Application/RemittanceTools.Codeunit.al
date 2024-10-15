@@ -575,7 +575,9 @@ codeunit 15000002 "Remittance Tools"
         FileMgt: Codeunit "File Management";
 #endif
         File1: Text[250];
+#if not CLEAN17
         File2: Text[250];
+#endif
     begin
         // rename the file in a following way: Exmpl of a fileName=Text002:
         // 1. Evt. file 'c:\payment.d~~' is deleted.

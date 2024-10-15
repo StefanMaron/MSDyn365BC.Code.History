@@ -143,6 +143,9 @@ page 9807 "User Card"
 
                         trigger OnAssistEdit()
                         begin
+                            if not AllowCreateWebServiceAccessKey then
+                                Error(CannotCreateWebServiceAccessKeyErr);
+
                             EditWebServiceID;
                         end;
                     }
@@ -307,24 +310,6 @@ page 9807 "User Card"
                         EditNavPassword;
                     end;
                 }
-                action(UpdateUserFromAzureGraph)
-                {
-                    ApplicationArea = Basic, Suite;
-                    Caption = 'Update user from Office 365';
-                    ToolTip = 'Update user''s name, authentication email address, and contact email address from Office 365';
-                    ObsoleteState = Pending;
-                    ObsoleteReason = 'Use the ''Update users from Microsoft 365'' action on the ''Users'' page instead.';
-                    Visible = IsSaaS;
-                    ObsoleteTag = '16.0';
-
-                    trigger OnAction()
-                    var
-                        AzureADUserManagement: Codeunit "Azure AD User Management";
-                    begin
-                        AzureADUserManagement.UpdateUserFromGraph(Rec);
-                        Message(InfoUpToDateMsg);
-                    end;
-                }
                 action(ChangeWebServiceAccessKey)
                 {
                     ApplicationArea = Basic, Suite;
@@ -379,12 +364,55 @@ page 9807 "User Card"
                     end;
                 }
             }
+            action(Email)
+            {
+                ApplicationArea = All;
+                Caption = 'Send Email';
+                Image = Email;
+                ToolTip = 'Send an email to this user.';
+                Promoted = true;
+                PromotedCategory = Process;
+
+                trigger OnAction()
+                var
+                    TempEmailItem: Record "Email Item" temporary;
+                    EmailScenario: Enum "Email Scenario";
+                begin
+                    TempEmailItem.AddSourceDocument(Database::User, Rec.SystemId);
+                    TempEmailitem."Send to" := Rec."Contact Email";
+                    TempEmailItem.Send(false, EmailScenario::Default);
+                end;
+            }
+        }
+        area(navigation)
+        {
+            group(History)
+            {
+                Caption = 'History';
+                Image = History;
+                action("Sent Emails")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Sent Emails';
+                    Image = ShowList;
+                    ToolTip = 'View a list of emails that you have sent to this user.';
+                    Visible = EmailImprovementFeatureEnabled;
+
+                    trigger OnAction()
+                    var
+                        Email: Codeunit Email;
+                    begin
+                        Email.OpenSentEmails(Database::User, Rec.SystemId);
+                    end;
+                }
+            }
         }
     }
 
     trigger OnAfterGetRecord()
     var
         UserPermissions: Codeunit "User Permissions";
+        EnvironmentInformation: Codeunit "Environment Information";
     begin
         WindowsUserName := IdentityManagement.UserName("Windows Security ID");
 
@@ -409,6 +437,7 @@ page 9807 "User Card"
         end;
 
         AllowChangeWebServiceAccessKey := (UserSecurityId() = Rec."User Security ID") or UserPermissions.CanManageUsersOnTenant(UserSecurityId());
+        AllowCreateWebServiceAccessKey := (not EnvironmentInformation.IsSaaS()) or (not IsUserDelegated(Rec."User Security ID"));
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -446,9 +475,10 @@ page 9807 "User Card"
         MyNotification: Record "My Notifications";
         EnvironmentInfo: Codeunit "Environment Information";
         UserManagement: Codeunit "User Management";
+        EmailFeature: Codeunit "Email Feature";
     begin
         IsSaaS := EnvironmentInfo.IsSaaS;
-
+        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
         HideExternalUsers;
 
         OnPremAskFirstUserToCreateSuper;
@@ -491,14 +521,16 @@ page 9807 "User Card"
         CannotManageUsersQst: Label 'You cannot add or delete users on this page. Administrators can manage users in the Microsoft 365 admin center.\\Do you want to go there now?';
         [InDataSet]
         AllowChangeWebServiceAccessKey: Boolean;
+        AllowCreateWebServiceAccessKey: Boolean;
         InitialState: Option;
         CreateFirstUserQst: Label 'You will be locked out after creating first user. Would you first like to create a SUPER user for %1?', Comment = 'USERID';
-        InfoUpToDateMsg: Label 'The information about this user is up to date.';
         CannotEditForOtherUsersErr: Label 'You can only change your own web service access keys.';
+        CannotCreateWebServiceAccessKeyErr: Label 'You cannot create a web service access key for this user because they have delegated administration privileges.';
         ReadWebServiceKeyTxt: Label 'Read web service key', Locked = true;
         ReadWebServiceKeyForUserTxt: Label 'Read web service key for user %1', Locked = true;
         NewWebSeriveKeyTxt: label 'New web service key', Locked = true;
         NewWebSeriveKeyForUserTxt: Label 'New web service key was created for user %1', Locked = true;
+        EmailImprovementFeatureEnabled: Boolean;
 
     local procedure ValidateSid()
     var
@@ -687,6 +719,16 @@ page 9807 "User Card"
 
         if Confirm(CreateFirstUserQst, true, UserId) then
             Codeunit.Run(Codeunit::"Users - Create Super User");
+    end;
+
+    [NonDebuggable]
+    local procedure IsUserDelegated(UserSecID: Guid): Boolean
+    var
+        PlanIds: Codeunit "Plan Ids";
+        AzureADPlan: Codeunit "Azure AD Plan";
+    begin
+        exit(AzureADPlan.IsPlanAssignedToUser(PlanIds.GetDelegatedAdminPlanId(), UserSecID) or
+                    AzureADPlan.IsPlanAssignedToUser(PlanIds.GetHelpDeskPlanId(), UserSecID));
     end;
 }
 

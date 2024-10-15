@@ -1,4 +1,5 @@
-﻿codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
+#if not CLEAN19
+codeunit 7003 "Price Calculation - V15" implements "Price Calculation"
 {
     ObsoleteState = Pending;
     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
@@ -529,3 +530,4 @@
     begin
     end;
 }
+#endif

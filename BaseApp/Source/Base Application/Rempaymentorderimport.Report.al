@@ -181,7 +181,9 @@ report 15000003 "Rem. payment order - Import"
         Text000: Label ' %1 journal should be empty before import.';
         Text001: Label 'This was a check.\Import of return data is cancelled.';
         Text002: Label 'There are no return files to import.';
+#if not CLEAN17
         Text003: Label 'Return file setup is not specified in %1.';
+#endif
         Text004: Label 'Note:\With Control, return files are read in advance to check if the import can be made.\Return data is not imported to %1.', Comment = '%1 - product name';
         Text007: Label 'Return file format "%1" is unknown.\Import is aborted.';
         Text009: Label '*.tmp|*~';
@@ -212,11 +214,15 @@ report 15000003 "Rem. payment order - Import"
 
     local procedure FindFiles(ReturnFileSetup: Record "Return File Setup")
     var
+#if not CLEAN17
         TempNameValueBuffer: Record "Name/Value Buffer" temporary;
+#endif
         FileCopy: Record File temporary;
         FileMgt: Codeunit "File Management";
         FilePath: Text[150];
+#if not CLEAN17
         FileSize: BigInteger;
+#endif
         IsHandled: Boolean;
     begin
         // Two options:

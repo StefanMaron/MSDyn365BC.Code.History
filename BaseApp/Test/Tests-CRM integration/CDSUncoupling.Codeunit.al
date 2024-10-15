@@ -231,6 +231,8 @@ codeunit 139198 "CDS Uncoupling"
 
         // [THEN] Couplings are removed for the selected mappings
         Assert.IsFalse(CRMIntegrationRecord.FindByRecordID(Customer.RecordId()), 'The Customer should be uncoupled.');
+        Customer.Find();
+        Assert.IsFalse(Customer."Coupled to CRM", 'The Customer should be marked as uncoupled.');
         Assert.IsFalse(CRMIntegrationRecord.FindByRecordID(SalespersonPurchaser.RecordId()), 'The Salesperson should be uncoupled.');
         for I := 1 to 3 do
             Assert.IsFalse(CRMIntegrationRecord.FindByRecordID(Item[I].RecordId()), 'The Item should be uncoupled.');

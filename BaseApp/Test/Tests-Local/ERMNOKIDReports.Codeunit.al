@@ -24,33 +24,6 @@ codeunit 144181 "ERM NO KID Reports"
         KundeIDTxt: Label 'KID', Comment = 'Kundenummer';
 
     [Test]
-    [HandlerFunctions('SalesInvoiceReqPageHandler')]
-    [Scope('OnPrem')]
-    procedure SalesInvoiceReportNoKID()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-    begin
-        // [FEATURE] [Invoice]
-        // [SCENARIO 332472] Sales Invoice report printing without Kunde ID
-        Initialize;
-        ResetSalesSetupKID;
-
-        // [GIVEN] Posted Sales Invoice
-        LibrarySales.CreateSalesInvoice(SalesHeader);
-        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
-        SalesInvoiceHeader.SetRecFilter;
-
-        // [WHEN] Run Standard Sales Invoice report for the invoice
-        REPORT.Run(REPORT::"Sales - Invoice", true, false, SalesInvoiceHeader);
-
-        // [THEN] KundeID and KundeIDCaption printed with blank values
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists('KundeIDCaption', '');
-        LibraryReportDataset.AssertElementWithValueExists('KundeID', '');
-    end;
-
-    [Test]
     [HandlerFunctions('StandardSalesInvoiceReqPageHandler')]
     [Scope('OnPrem')]
     procedure StandardSalesInvoiceNoKID()
@@ -193,34 +166,6 @@ codeunit 144181 "ERM NO KID Reports"
         // [THEN] All amount printed in the report
         // [THEN] KundeID and KundeIDCaption are printed in the report
         VerifyReminderReport(IssuedReminderNo, KundeIDTxt, GetKundeID(3, IssuedReminderNo, ''));
-    end;
-
-    [Test]
-    [HandlerFunctions('SalesInvoiceReqPageHandler')]
-    [Scope('OnPrem')]
-    procedure SalesInvoiceReportKID()
-    var
-        SalesHeader: Record "Sales Header";
-        SalesInvoiceHeader: Record "Sales Invoice Header";
-    begin
-        // [FEATURE] [Invoice]
-        // [SCENARIO 332472] Sales Invoice report printing with Kunde ID
-        Initialize;
-        UpdateSalesSetupKID;
-
-        // [GIVEN] Posted Sales Invoice
-        LibrarySales.CreateSalesInvoice(SalesHeader);
-        SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
-        SalesInvoiceHeader.SetRecFilter;
-
-        // [WHEN] Run Standard Sales Invoice report for the invoice
-        REPORT.Run(REPORT::"Sales - Invoice", true, false, SalesInvoiceHeader);
-
-        // [THEN] KundeID and KundeIDCaption printed with blank values
-        LibraryReportDataset.LoadDataSetFile;
-        LibraryReportDataset.AssertElementWithValueExists('KundeIDCaption', KundeIDTxt);
-        LibraryReportDataset.AssertElementWithValueExists(
-          'KundeID', GetKundeID(1, SalesInvoiceHeader."No.", SalesInvoiceHeader."Bill-to Customer No."));
     end;
 
     [Test]
@@ -544,13 +489,6 @@ codeunit 144181 "ERM NO KID Reports"
     procedure StandardSalesInvoiceReqPageHandler(var StandardSalesInvoice: TestRequestPage "Standard Sales - Invoice")
     begin
         StandardSalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
-    end;
-
-    [RequestPageHandler]
-    [Scope('OnPrem')]
-    procedure SalesInvoiceReqPageHandler(var SalesInvoice: TestRequestPage "Sales - Invoice")
-    begin
-        SalesInvoice.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }
 

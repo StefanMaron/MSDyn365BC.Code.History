@@ -1,3 +1,4 @@
+#if not CLEAN18
 codeunit 135530 "Sales Quote E2E Test"
 {
     Subtype = Test;
@@ -589,4 +590,4 @@ codeunit 135530 "Sales Quote E2E Test"
         exit(SalesHeader.FindFirst);
     end;
 }
-
+#endif

@@ -171,8 +171,10 @@ report 15000064 "OCR Payment - BBS"
         KID: Text[30];
         TransTypeText: Text[30];
         ServerTempFile: Text[1024];
+#if not CLEAN17
         file1: Text[250];
         file2: Text[250];
+#endif
         OCRPaymentFileName: Text;
         OCRAmount: Decimal;
         BalEntrySum: Decimal;
@@ -198,7 +200,9 @@ report 15000064 "OCR Payment - BBS"
         Text10611: Label 'Divergence, OCR-Payment (%1 %2)', Comment = 'Parameter 1 - document type, 2 - document number.';
         Text10612: Label 'OCR-Payment. Paymentref. %1';
         Text10613: Label 'Import from OCR Payment File.';
+#if not CLEAN17
         Text10614: Label 'Text Files (*.txt)|*.txt|All Files (*.*)|*.*';
+#endif
         Text10616: Label 'OCR payments can only be imported into journal Journal Template Name %1, Journal Name %2.';
         Text10617: Label 'Journal already contains lines.\Import?';
         Text10618: Label '%1 payments are imported.';

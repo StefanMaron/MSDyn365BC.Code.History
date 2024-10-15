@@ -26,7 +26,6 @@ report 10601 "Trial Balance/Previous Period"
                 }
                 column(AccType_GLAcc; "G/L Account"."Account Type")
                 {
-                    OptionMembers = "<Posting",Heading,Total,"Begin-Total","End-Total>";
                 }
                 column(NewPage_GLAcc; "G/L Account"."New Page")
                 {

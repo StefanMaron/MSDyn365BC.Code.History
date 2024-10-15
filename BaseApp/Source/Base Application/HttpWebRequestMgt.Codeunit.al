@@ -1,10 +1,5 @@
 codeunit 1297 "Http Web Request Mgt."
 {
-
-    trigger OnRun()
-    begin
-    end;
-
     var
         HttpWebRequest: DotNet HttpWebRequest;
         TraceLogEnabled: Boolean;
@@ -15,20 +10,6 @@ codeunit 1297 "Http Web Request Mgt."
         InternalErr: Label 'The remote service has returned the following error message:\\';
         NoCookieForYouErr: Label 'The web request has no cookies.';
         TimeoutErr: Label 'The server timed out waiting for the request.';
-
-    [Obsolete('Security refactoring. Moved into COD 1140 as a local function based on a native HttpClient. Use OAuth20Setup.InvokeRequest().', '16.0')]
-    [Scope('OnPrem')]
-    procedure InvokeJSONRequest(RequestJson: Text; var ResponseJson: Text; var HttpError: Text): Boolean
-    begin
-        ResponseJson := '';
-        HttpError := '';
-
-        if ProcessJsonRequestResponse(RequestJson, ResponseJson) then
-            exit(true);
-
-        HttpError := ParseFaultJsonResponse(ResponseJson);
-        exit(false);
-    end;
 
     [Scope('OnPrem')]
     procedure GetResponse(var ResponseInStream: InStream; var HttpStatusCode: DotNet HttpStatusCode; var ResponseHeaders: DotNet NameValueCollection): Boolean
@@ -52,26 +33,6 @@ codeunit 1297 "Http Web Request Mgt."
             ResponseHeaders, GlobalProgressDialogEnabled));
     end;
 
-    local procedure GetResponseJson(var ResponseJson: Text): Boolean
-    var
-        WebRequestHelper: Codeunit "Web Request Helper";
-        HttpWebResponse: DotNet HttpWebResponse;
-        HttpStatusCode: DotNet HttpStatusCode;
-        ResponseHeaders: DotNet NameValueCollection;
-        ResponseInStream: InStream;
-    begin
-        ResponseJson := '';
-        CreateInstream(ResponseInStream);
-
-        if not WebRequestHelper.GetWebResponse(
-             HttpWebRequest, HttpWebResponse, ResponseInStream, HttpStatusCode, ResponseHeaders, GlobalProgressDialogEnabled)
-        then
-            exit(false);
-
-        SetJSONHeaders(ResponseJson, ResponseHeaders);
-        exit(SetJSONContent(ResponseJson, ResponseInStream));
-    end;
-
     [TryFunction]
     [Scope('OnPrem')]
     procedure ProcessFaultResponse(SupportInfo: Text)
@@ -83,10 +44,21 @@ codeunit 1297 "Http Web Request Mgt."
     [Scope('OnPrem')]
     procedure ProcessFaultXMLResponse(SupportInfo: Text; NodePath: Text; Prefix: Text; NameSpace: Text)
     var
+        HttpStatusCode: DotNet HttpStatusCode;
+        ResponseHeaders: DotNet NameValueCollection;
+    begin
+        ProcessFaultXMLResponse(SupportInfo, NodePath, Prefix, NameSpace, HttpStatusCode, ResponseHeaders);
+    end;
+
+    [TryFunction]
+    [Scope('OnPrem')]
+    procedure ProcessFaultXMLResponse(SupportInfo: Text; NodePath: Text; Prefix: Text; NameSpace: Text; var HttpStatusCode: DotNet HttpStatusCode; var ResponseHeaders: DotNet NameValueCollection)
+    var
         TempBlobReturn: Codeunit "Temp Blob";
         WebRequestHelper: Codeunit "Web Request Helper";
         XMLDOMMgt: Codeunit "XML DOM Management";
         WebException: DotNet WebException;
+        WebExceptionResponse: DotNet HttpWebResponse;
         XmlDoc: DotNet XmlDocument;
         ResponseInputStream: InStream;
         ErrorText: Text;
@@ -94,8 +66,11 @@ codeunit 1297 "Http Web Request Mgt."
     begin
         ErrorText := WebRequestHelper.GetWebResponseError(WebException, ServiceURL);
 
-        if not IsNull(WebException.Response) then begin
-            ResponseInputStream := WebException.Response.GetResponseStream;
+        WebExceptionResponse := WebException.Response();
+        if not IsNull(WebExceptionResponse) then begin
+            HttpStatusCode := WebExceptionResponse.StatusCode();
+            ResponseHeaders := WebExceptionResponse.Headers();
+            ResponseInputStream := WebExceptionResponse.GetResponseStream();
 
             TraceLogStreamToTempFile(ResponseInputStream, 'WebExceptionResponse', TempBlobReturn);
 
@@ -116,27 +91,6 @@ codeunit 1297 "Http Web Request Mgt."
             ErrorText += '\\' + SupportInfo;
 
         Error(ErrorText);
-    end;
-
-    local procedure ProcessJsonRequestResponse(RequestJson: Text; var ResponseJson: Text): Boolean
-    var
-        JSONMgt: Codeunit "JSON Management";
-        Content: Text;
-    begin
-        JSONMgt.InitializeObject(RequestJson);
-        Initialize(JSONMgt.GetValue('ServiceURL') + JSONMgt.GetValue('URLRequestPath'));
-        SetMethod(JSONMgt.GetValue('Method'));
-        GetJSONHeaders(RequestJson);
-
-        Content := JSONMgt.GetValue('Content');
-        if Content <> '' then
-            AddBodyAsText(Content);
-
-        if GetResponseJson(ResponseJson) then
-            exit(true);
-
-        ProcessFaultJsonResponse(ResponseJson);
-        exit(false);
     end;
 
     [TryFunction]
@@ -272,7 +226,7 @@ codeunit 1297 "Http Web Request Mgt."
         AddBodyAsTextWithEncoding(BodyText, Encoding.ASCII);
     end;
 
-    local procedure AddBodyAsTextWithEncoding(BodyText: Text; Encoding: DotNet Encoding)
+    internal procedure AddBodyAsTextWithEncoding(BodyText: Text; Encoding: DotNet Encoding)
     var
         RequestStr: DotNet Stream;
         StreamWriter: DotNet StreamWriter;
@@ -512,35 +466,6 @@ codeunit 1297 "Http Web Request Mgt."
         ErrorDetails := WebExceptionResponseText;
 
         exit(false);
-    end;
-
-    local procedure GetJSONHeaders(RequestJson: Text)
-    var
-        JSONMgt: Codeunit "JSON Management";
-        Name: Text;
-        Value: Text;
-    begin
-        JSONMgt.InitializeObject(RequestJson);
-        if JSONMgt.SelectTokenFromRoot('Header') then
-            if JSONMgt.ReadProperties then
-                while JSONMgt.GetNextProperty(Name, Value) do
-                    AddHeader(Name, Value);
-    end;
-
-    local procedure SetJSONHeaders(var ResponseJson: Text; ResponseHeaders: DotNet NameValueCollection)
-    var
-        JSONMgt: Codeunit "JSON Management";
-        HeaderJson: Text;
-        i: Integer;
-    begin
-        if ResponseHeaders.Count > 0 then begin
-            for i := 0 to ResponseHeaders.Count - 1 do
-                JSONMgt.SetValue(ResponseHeaders.GetKey(i), ResponseHeaders.Item(i));
-            HeaderJson := JSONMgt.WriteObjectToString;
-            JSONMgt.InitializeObject(ResponseJson);
-            JSONMgt.AddJson('Header', HeaderJson);
-            ResponseJson := JSONMgt.WriteObjectToString;
-        end;
     end;
 
     local procedure SetJSONContent(var ResponseJson: Text; ResponseInStream: InStream): Boolean

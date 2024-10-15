@@ -1,4 +1,4 @@
-report 1306 "Standard Sales - Invoice"
+﻿report 1306 "Standard Sales - Invoice"
 {
     RDLCLayout = './StandardSalesInvoice.rdlc';
     WordLayout = './StandardSalesInvoice.docx';
@@ -509,7 +509,7 @@ report 1306 "Standard Sales - Invoice"
                 column(ItemNo_Line_Lbl; FieldCaption("No."))
                 {
                 }
-#if not CLEAN16
+#if not CLEAN17
                 column(CrossReferenceNo_Line; "Cross-Reference No.")
                 {
                     ObsoleteState = Pending;
@@ -1103,18 +1103,12 @@ report 1306 "Standard Sales - Invoice"
             var
                 CurrencyExchangeRate: Record "Currency Exchange Rate";
                 PaymentServiceSetup: Record "Payment Service Setup";
-                EnvInfoProxy: Codeunit "Env. Info Proxy";
+#if not CLEAN19
                 O365SalesInvoiceMgmt: Codeunit "O365 Sales Invoice Mgmt";
+#endif                
                 DocumentTools: Codeunit DocumentTools;
-
             begin
-                if EnvInfoProxy.IsInvoicing then begin
-                    "Language Code" := Language.GetUserLanguageCode;
-                    CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
-                end;
-
-                if not EnvInfoProxy.IsInvoicing then
-                    CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
+                CurrReport.Language := Language.GetLanguageIdOrDefault("Language Code");
 
                 if not IsReportInPreviewMode then
                     CODEUNIT.Run(CODEUNIT::"Sales Inv.-Printed", Header);
@@ -1122,9 +1116,10 @@ report 1306 "Standard Sales - Invoice"
                 CalcFields("Work Description");
                 ShowWorkDescription := "Work Description".HasValue;
 
+#if not CLEAN19
                 Clear(PaymentInstructionsTxt);
                 PaymentInstructionsTxt := O365SalesInvoiceMgmt.GetPaymentInstructionsFromPostedInvoice(Header);
-
+#endif
                 ChecksPayableText := StrSubstNo(ChecksPayableLbl, CompanyInfo.Name);
 
                 FormatAddressFields(Header);
@@ -1638,18 +1633,9 @@ report 1306 "Standard Sales - Invoice"
     end;
 
     local procedure ShowVATClause(VATClauseCode: Code[20]): Boolean
-    var
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
     begin
         if VATClauseCode = '' then
             exit(false);
-
-        if EnvInfoProxy.IsInvoicing then begin
-            if not VATClause.Get(VATClauseCode) then
-                exit(false);
-            if VATClause.Description = '' then
-                exit(false);
-        end;
 
         exit(true);
     end;

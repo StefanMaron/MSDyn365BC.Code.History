@@ -1,3 +1,4 @@
+#if not CLEAN19
 page 9896 "SmartList Import Results"
 {
     Caption = 'SmartList Import Results';
@@ -7,6 +8,9 @@ page 9896 "SmartList Import Results"
     SourceTable = "SmartList Import Results";
     SourceTableView = sorting(Success, Name) order(ascending);
     UsageCategory = None;
+    ObsoleteState = Pending;
+    ObsoleteReason = 'The SmartList Designer is not supported in Business Central.';
+    ObsoleteTag = '19.0';
 
     layout
     {
@@ -52,3 +56,4 @@ page 9896 "SmartList Import Results"
         ResultStyle: Text;
         ResultTxt: Text;
 }
+#endif

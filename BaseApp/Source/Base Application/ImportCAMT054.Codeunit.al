@@ -32,9 +32,9 @@ codeunit 10637 "Import CAMT054"
         AccountCurrency: Code[3];
         LatestCurrencyCode: Code[3];
         CustomExchRateIsConfirmed: Boolean;
-        #if CLEAN17
+#if CLEAN17
         ChooseFileTitleMsg: Label 'Choose the file to upload.';
-        #endif
+#endif
 
     [Scope('OnPrem')]
     procedure ImportAndHandleCAMT054File(GenJournalLine: Record "Gen. Journal Line"; FileName: Text[250]; Note: Text[50])
@@ -58,7 +58,11 @@ codeunit 10637 "Import CAMT054"
         LatestDate := 20030201D; // dummy init for precal
         LatestVend := '';
 
+#if not CLEAN17
         OpenCAMT054Document(FileName);
+#else
+        OpenCAMT054Document();
+#endif
 
         // used as a reference in waiting journals
         ImportSEPACommon.CreatePaymOrder(Note, RemittancePaymentOrder);
@@ -122,18 +126,22 @@ codeunit 10637 "Import CAMT054"
           CreateNewDocumentNo, false, BalanceEntryAmount);
     end;
 
+#if not CLEAN17
     local procedure OpenCAMT054Document(FilePath: Text)
+#else
+    local procedure OpenCAMT054Document()
+#endif
     var
         XMLDOMManagement: Codeunit "XML DOM Management";
         FileManagement: Codeunit "File Management";
         ServerFile: Text;
     begin
-        #if not CLEAN17
+#if not CLEAN17
         ServerFile := FilePath;
         ServerFile := FileManagement.UploadFileToServer(FilePath);
-        #else 
+#else
         ServerFile := FileManagement.UploadFile(ChooseFileTitleMsg, '');
-        #endif
+#endif
 
         XMLDOMManagement.LoadXMLDocumentFromFile(ServerFile, XmlDocumentCAMT054);
         XMLDOMManagement.AddNamespaces(XmlNamespaceManagerCAMT054, XmlDocumentCAMT054);

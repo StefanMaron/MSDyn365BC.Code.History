@@ -31,6 +31,13 @@ page 76 "Resource Card"
                     ApplicationArea = Jobs;
                     ToolTip = 'Specifies a description of the resource.';
                 }
+                field("Name 2"; "Name 2")
+                {
+                    ApplicationArea = Jobs;
+                    Importance = Additional;
+                    ToolTip = 'Specifies information in addition to the description.';
+                    Visible = false;
+                }
                 field(Type; Type)
                 {
                     ApplicationArea = Jobs;
@@ -323,6 +330,15 @@ page 76 "Resource Card"
                     RunPageLink = "Resource No." = FIELD("No.");
                     ToolTip = 'View or edit the units of measure that are set up for the resource.';
                 }
+                action("Unit Group")
+                {
+                    ApplicationArea = Basic, Suite;
+                    Caption = 'Unit Group';
+                    Image = UnitOfMeasure;
+                    RunObject = Page "Resource Unit Group List";
+                    RunPageLink = "Source No." = field("No."), "Source Type" = const(Resource);
+                    ToolTip = 'View unit group associated with the resource.';
+                }
                 action("S&kills")
                 {
                     ApplicationArea = Basic, Suite;
@@ -488,6 +504,7 @@ page 76 "Resource Card"
             {
                 Caption = '&Prices';
                 Image = Price;
+#if not CLEAN19
                 action(Costs)
                 {
                     ApplicationArea = Jobs;
@@ -520,6 +537,7 @@ page 76 "Resource Card"
                     ObsoleteReason = 'Replaced by the new implementation (V16) of price calculation.';
                     ObsoleteTag = '17.0';
                 }
+#endif
                 action(PurchPriceLists)
                 {
                     ApplicationArea = Jobs;
@@ -583,7 +601,7 @@ page 76 "Resource Card"
                 }
                 action("Resource Allocated per Service &Order")
                 {
-                    ApplicationArea = Basic, Suite;
+                    ApplicationArea = Service;
                     Caption = 'Resource Allocated per Service &Order';
                     Image = ViewServiceOrder;
                     RunObject = Page "Res. Alloc. per Service Order";

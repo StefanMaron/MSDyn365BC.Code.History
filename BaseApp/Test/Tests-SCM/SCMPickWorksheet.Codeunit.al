@@ -1262,7 +1262,7 @@ codeunit 137015 "SCM Pick Worksheet"
         WhseWorksheetLine.FindFirst;
     end;
 
-    local procedure ValidatePick(LineType: Option Take,Place; ShipmentNo: Code[20]; ExpectedQty: Decimal)
+    local procedure ValidatePick(LineType: Enum "Warehouse Action Type"; ShipmentNo: Code[20]; ExpectedQty: Decimal)
     var
         WhseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -1318,7 +1318,7 @@ codeunit 137015 "SCM Pick Worksheet"
         Bin.Insert(true);
     end;
 
-    local procedure RegisterWhseActivity(ActivityType: Option ,"Put-away",Pick,Movement,"Invt. Put-away","Invt. Pick"; SourceType: Integer; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; QtyToHandle: Decimal; TakeBinCode: Code[10]; PlaceBinCode: Code[10])
+    local procedure RegisterWhseActivity(ActivityType: Enum "Warehouse Activity Type"; SourceType: Integer; SourceDocument: Enum "Warehouse Activity Source Document"; SourceNo: Code[20]; QtyToHandle: Decimal; TakeBinCode: Code[10]; PlaceBinCode: Code[10])
     var
         WhseActivityLine: Record "Warehouse Activity Line";
         WhseActivityHeader: Record "Warehouse Activity Header";

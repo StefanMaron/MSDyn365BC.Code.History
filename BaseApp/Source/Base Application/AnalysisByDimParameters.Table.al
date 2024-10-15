@@ -83,11 +83,9 @@ table 361 "Analysis by Dim. Parameters"
             OptionMembers = Include,Exclude;
             DataClassification = SystemMetadata;
         }
-        field(23; "Rounding Factor"; Option)
+        field(23; "Rounding Factor"; Enum "Analysis Rounding Factor")
         {
             Caption = 'Rounding Factor';
-            OptionCaption = 'None,1,1000,1000000';
-            OptionMembers = None,"1","1000","1000000";
             DataClassification = SystemMetadata;
         }
         field(24; "Show In Add. Currency"; Boolean)
@@ -105,11 +103,9 @@ table 361 "Analysis by Dim. Parameters"
             Caption = 'Show Opposite Sign';
             DataClassification = SystemMetadata;
         }
-        field(30; "Period Type"; Option)
+        field(30; "Period Type"; Enum "Analysis Period Type")
         {
             Caption = 'View by';
-            OptionCaption = 'Day,Week,Month,Quarter,Year,Accounting Period';
-            OptionMembers = Day,Week,Month,Quarter,Year,"Accounting Period";
             DataClassification = SystemMetadata;
         }
         field(31; "Column Set"; Text[250])
@@ -117,11 +113,9 @@ table 361 "Analysis by Dim. Parameters"
             Caption = 'Column Set';
             DataClassification = SystemMetadata;
         }
-        field(33; "Amount Type"; Option)
+        field(33; "Amount Type"; Enum "Analysis Amount Type")
         {
             Caption = 'View as';
-            OptionCaption = 'Net Change,Balance at Date';
-            OptionMembers = "Net Change","Balance at Date";
             DataClassification = SystemMetadata;
         }
     }

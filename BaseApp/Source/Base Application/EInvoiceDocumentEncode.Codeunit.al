@@ -12,7 +12,6 @@ codeunit 10610 "E-Invoice Document Encode"
         CompanyInfoRead: Boolean;
         GLSetupRead: Boolean;
 
-    [Scope('OnPrem')]
     procedure DateToText(VarDate: Date): Text[20]
     begin
         if VarDate = 0D then
@@ -20,7 +19,6 @@ codeunit 10610 "E-Invoice Document Encode"
         exit(Format(VarDate, 0, '<Year4>-<Month,2>-<Day,2>'));
     end;
 
-    [Scope('OnPrem')]
     procedure BooleanToText(VarBoolean: Boolean): Text[5]
     begin
         case VarBoolean of
@@ -31,25 +29,21 @@ codeunit 10610 "E-Invoice Document Encode"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure DecimalToText(VarDecimal: Decimal): Text[30]
     begin
         exit(Format(VarDecimal, 0, '<Precision,2:2><Sign><Integer><Decimals><Comma,.>'));
     end;
 
-    [Scope('OnPrem')]
     procedure DecimalExtToText(VarDecimal: Decimal): Text[30]
     begin
         exit(Format(VarDecimal, 0, '<Precision,2:5><Sign><Integer><Decimals><Comma,.>'));
     end;
 
-    [Scope('OnPrem')]
     procedure IntegerToText(VarInteger: Integer): Text[250]
     begin
         exit(Format(VarInteger, 0, '<Sign><Integer,2><Filler Character,0>'));
     end;
 
-    [Scope('OnPrem')]
     procedure IsValidEANNo(EAN: Code[13]; AllowEmpty: Boolean): Boolean
     begin
         case true of
@@ -64,19 +58,16 @@ codeunit 10610 "E-Invoice Document Encode"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure CheckCurrencyCode(CurrencyCode: Code[10]): Boolean
     begin
         exit(StrLen(CurrencyCode) = 3);
     end;
 
-    [Scope('OnPrem')]
     procedure DecimalToPromille(Decimal: Decimal): Text[4]
     begin
         exit(Format(Abs(Decimal * 10), 0, '<Integer,4><Filler Character,0>'));
     end;
 
-    [Scope('OnPrem')]
     procedure GetEInvoiceCountryRegionCode(CountryRegionCode: Code[10]): Code[10]
     var
         CountryRegion: Record "Country/Region";
@@ -93,7 +84,6 @@ codeunit 10610 "E-Invoice Document Encode"
         exit(CountryRegion.Code);
     end;
 
-    [Scope('OnPrem')]
     procedure GetEInvoiceCurrencyCode(CurrencyCode: Code[10]): Code[10]
     var
         Currency: Record Currency;
@@ -115,7 +105,6 @@ codeunit 10610 "E-Invoice Document Encode"
         exit(Currency.Code);
     end;
 
-    [Scope('OnPrem')]
     procedure ReadCompanyInfo()
     begin
         if not CompanyInfoRead then begin
@@ -124,7 +113,6 @@ codeunit 10610 "E-Invoice Document Encode"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure ReadGLSetup()
     begin
         if not GLSetupRead then begin
@@ -133,7 +121,6 @@ codeunit 10610 "E-Invoice Document Encode"
         end;
     end;
 
-    [Scope('OnPrem')]
     procedure GetBBANNo(BBANNo: Text[50]): Text[50]
     begin
         if BBANNo = '' then
@@ -144,7 +131,6 @@ codeunit 10610 "E-Invoice Document Encode"
         exit(BBANNo);
     end;
 
-    [Scope('OnPrem')]
     procedure GetVATRegNo(VATRegNo: Text[20]; PartyTaxScheme: Boolean): Text[30]
     begin
         if VATRegNo = '' then

@@ -345,7 +345,6 @@ report 1102 "Resource Journal - Test"
         Text006: Label 'The lines are not listed according to Posting Date because they were not entered in that order.';
         Text008: Label 'There is a gap in the number series.';
         Text009: Label '%1 cannot be specified.';
-        Text010: Label '<Month Text>', Locked = true;
         AccountingPeriod: Record "Accounting Period";
         Res: Record Resource;
         ResJnlTemplate: Record "Res. Journal Template";
@@ -354,10 +353,6 @@ report 1102 "Resource Journal - Test"
         DimSetEntry: Record "Dimension Set Entry";
         DimMgt: Codeunit DimensionManagement;
         ResJnlLineFilter: Text;
-        Day: Integer;
-        Week: Integer;
-        Month: Integer;
-        MonthText: Text[30];
         ErrorCounter: Integer;
         ErrorText: array[30] of Text[250];
         LastPostingDate: Date;
@@ -399,27 +394,8 @@ report 1102 "Resource Journal - Test"
     local procedure MakeRecurringTexts(var ResJnlLine2: Record "Res. Journal Line")
     begin
         with ResJnlLine2 do
-            if ("Posting Date" <> 0D) and ("Resource No." <> '') and ("Recurring Method" <> 0) then begin
-                Day := Date2DMY("Posting Date", 1);
-                Week := Date2DWY("Posting Date", 2);
-                Month := Date2DMY("Posting Date", 2);
-                MonthText := Format("Posting Date", 0, Text010);
-                AccountingPeriod.SetRange("Starting Date", 0D, "Posting Date");
-                if not AccountingPeriod.FindLast then
-                    AccountingPeriod.Name := '';
-                "Document No." :=
-                  DelChr(
-                    PadStr(
-                      StrSubstNo("Document No.", Day, Week, Month, MonthText, AccountingPeriod.Name),
-                      MaxStrLen("Document No.")),
-                    '>');
-                Description :=
-                  DelChr(
-                    PadStr(
-                      StrSubstNo(Description, Day, Week, Month, MonthText, AccountingPeriod.Name),
-                      MaxStrLen(Description)),
-                    '>');
-            end;
+            if ("Posting Date" <> 0D) and ("Resource No." <> '') and ("Recurring Method" <> 0) then
+                AccountingPeriod.MakeRecurringTexts("Posting Date", "Document No.", Description);
     end;
 
     local procedure AddError(Text: Text[250])

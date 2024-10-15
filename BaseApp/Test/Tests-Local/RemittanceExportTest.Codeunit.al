@@ -68,8 +68,9 @@ codeunit 144129 "Remittance - Export Test"
 
         VerifyBBSExportFileWithSinglePayment(FileName, RemittanceAgreement, RemittanceAccount, LibraryRemittance.GetLastPaymentOrderID);
 
+#if not CLEAN17
         FileMgt.DeleteClientFile(FileName);
-
+#endif
         LibraryVariableStorage.AssertEmpty;
         UpdateWorkdate(OldDate);
     end;
@@ -107,7 +108,9 @@ codeunit 144129 "Remittance - Export Test"
 
         VerifyBBSExportFileWithSinglePayment(FileName, RemittanceAgreement, RemittanceAccount, LibraryRemittance.GetLastPaymentOrderID);
 
+#if not CLEAN17
         FileMgt.DeleteClientFile(FileName);
+#endif
 
         LibraryVariableStorage.AssertEmpty;
         UpdateWorkdate(OldDate);
@@ -150,7 +153,9 @@ codeunit 144129 "Remittance - Export Test"
 
         VerifyBBSExportFileWithSinglePayment(FileName, RemittanceAgreement, RemittanceAccount, LibraryRemittance.GetLastPaymentOrderID);
 
+#if not CLEAN17
         FileMgt.DeleteClientFile(FileName);
+#endif
 
         LibraryVariableStorage.AssertEmpty;
         UpdateWorkdate(OldDate);
@@ -186,7 +191,9 @@ codeunit 144129 "Remittance - Export Test"
 
         VerifyBankExportFileWithSinglePayment(FileName, RemittanceAgreement, RemittanceAccount);
 
+#if not CLEAN17
         FileMgt.DeleteClientFile(FileName);
+#endif
 
         LibraryVariableStorage.AssertEmpty;
         UpdateWorkdate(OldDate);
@@ -225,7 +232,9 @@ codeunit 144129 "Remittance - Export Test"
 
         VerifyBankExportFileWithSinglePayment(FileName, RemittanceAgreement, RemittanceAccount);
 
+#if not CLEAN17
         FileMgt.DeleteClientFile(FileName);
+#endif
 
         LibraryVariableStorage.AssertEmpty;
         UpdateWorkdate(OldDate);
@@ -263,7 +272,9 @@ codeunit 144129 "Remittance - Export Test"
 
         VerifyBankExportFileWithSinglePayment(FileName, RemittanceAgreement, RemittanceAccount);
 
+#if not CLEAN17
         FileMgt.DeleteClientFile(FileName);
+#endif
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -304,8 +315,10 @@ codeunit 144129 "Remittance - Export Test"
         RemittancePaymentOrder.ExportPaymentFile.Invoke; // Manual Export.
 
         CompareFiles(FileName, FileName2);
+#if not CLEAN17
         FileMgt.DeleteClientFile(FileName);
         FileMgt.DeleteClientFile(FileName2);
+#endif
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -338,7 +351,9 @@ codeunit 144129 "Remittance - Export Test"
 
         VerifyBankExportFileWithSinglePayment(FileName, RemittanceAgreement, RemittanceAccount);
 
+#if not CLEAN17
         FileMgt.DeleteClientFile(FileName);
+#endif
 
         LibraryVariableStorage.AssertEmpty;
     end;
@@ -510,7 +525,9 @@ codeunit 144129 "Remittance - Export Test"
         Evaluate(dt, v, 9);
         Assert.AreEqual(RemittancePaymentOrder.Date, DT2Date(dt), 'PaymentOrderDate');
 
+#if not CLEAN17
         FileMgt.DeleteClientFile(FileName);
+#endif
         LibraryVariableStorage.AssertEmpty;
     end;
 
@@ -1231,7 +1248,9 @@ codeunit 144129 "Remittance - Export Test"
         CountTrans: Integer;
         ServerFileName: Text;
     begin
+#if not CLEAN17
         Assert.IsTrue(FileMgt.ClientFileExists(FileName), 'Export file not found.');
+#endif
 
         LibraryRemittance.GetGenJournalLinesFromWaitingJournal(LibraryRemittance.GetLastPaymentOrderID, TempGenJournalLine);
 
@@ -1614,7 +1633,9 @@ codeunit 144129 "Remittance - Export Test"
         ServerFileName: Text;
     begin
         // This method only verifies a BBS file with a single payment.
+#if not CLEAN17
         Assert.IsTrue(FileMgt.ClientFileExists(FileName), 'Export file not found.');
+#endif
         PaymentOrderNoOfTrans := 0;
         PaymentOrderNoOfRec := 0;
         TransNo := 1;
@@ -1841,7 +1862,9 @@ codeunit 144129 "Remittance - Export Test"
         ServerFileName: Text;
     begin
         // Verify that each file line separated by carriage return and new line symbols
+#if not CLEAN17
         ServerFileName := FileMgt.UploadFileSilent(FileName);
+#endif
         TempFile.Open(ServerFileName);
 
         PaymentOrderData.SetRange("Payment Order No.", RemittancePaymentOrderID);
@@ -2011,10 +2034,12 @@ codeunit 144129 "Remittance - Export Test"
         ExpectedText: Text[80];
         ActualText: Text[80];
     begin
+#if not CLEAN17
         ExpectedFile.Open(FileMgt.UploadFileSilent(Expected));
         ExpectedFile.CreateInStream(ExpectedIns);
         ActualFile.Open(FileMgt.UploadFileSilent(Actual));
         ActualFile.CreateInStream(ActualIns);
+#endif
         repeat
             ExpectedRead := ExpectedIns.Read(ExpectedText, MaxStrLen(ExpectedText));
             ActualRead := ActualIns.Read(ActualText, MaxStrLen(ActualText));
@@ -2109,7 +2134,9 @@ codeunit 144129 "Remittance - Export Test"
         i: Integer;
         Char: Char;
     begin
+#if not CLEAN17
         ServerFileName := FileMgt.UploadFileSilent(FileName);
+#endif
         TempFile.Open(ServerFileName);
         for i := 1 to TempFile.Len do begin
             TempFile.Read(Char);

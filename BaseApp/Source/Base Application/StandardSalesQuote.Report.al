@@ -1,4 +1,4 @@
-report 1304 "Standard Sales - Quote"
+﻿report 1304 "Standard Sales - Quote"
 {
     RDLCLayout = './StandardSalesQuote.rdlc';
     WordLayout = './StandardSalesQuote.docx';
@@ -1139,13 +1139,8 @@ report 1304 "Standard Sales - Quote"
             ReportTotalsLine.Add(VATAmountLine.VATAmountText, TotalAmountVAT, false, true, false, Header."Currency Code");
     end;
 
-    local procedure SetLanguage(var LanguageCode: Code[10])
-    var
-        EnvInfoProxy: Codeunit "Env. Info Proxy";
+    local procedure SetLanguage(LanguageCode: Code[10])
     begin
-        if EnvInfoProxy.IsInvoicing then
-            LanguageCode := Language.GetUserLanguageCode;
-
         CurrReport.Language := Language.GetLanguageIdOrDefault(LanguageCode);
     end;
 }

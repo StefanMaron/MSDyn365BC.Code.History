@@ -583,6 +583,46 @@ codeunit 137407 "SCM Warehouse IV"
     end;
 
     [Test]
+    [HandlerFunctions('ConfirmHandlerTrue,MessageHandler')]
+    [Scope('OnPrem')]
+    procedure WarehouseItemJournalBatchWithoutIncrement()
+    var
+        Bin: Record Bin;
+        Item: Record Item;
+        Location: Record Location;
+        WarehouseJournalBatch: Record "Warehouse Journal Batch";
+        WarehouseJournalLine: Record "Warehouse Journal Line";
+        TemplateName: Code[10];
+        BatchName: Code[10];
+    begin
+        // Create and Post Warehouse Item Journal Line and Verify Warehouse Entries.
+
+        // [GIVEN] Create Full Warehouse Setup.
+        Initialize;
+        CreateFullWarehouseSetup(Location);
+        CreateWarehouseJournalBatch(WarehouseJournalBatch, Location.Code);
+        SetIncrementBatchName(WarehouseJournalBatch, false);
+        TemplateName := WarehouseJournalBatch."Journal Template Name";
+        BatchName := WarehouseJournalBatch.Name;
+
+        // Create Warehouse Item Journal.
+        FindBin(Bin, Location.Code);
+        LibraryWarehouse.CreateWhseJournalLine(
+          WarehouseJournalLine, WarehouseJournalBatch."Journal Template Name",
+          WarehouseJournalBatch.Name, Location.Code, Bin."Zone Code", Bin.Code, WarehouseJournalLine."Entry Type"::"Positive Adjmt.",
+          LibraryInventory.CreateItem(Item), LibraryRandom.RandInt(5));
+
+        // [WHEN] Post Warehouse Journal Line.
+        CODEUNIT.Run(CODEUNIT::"Whse. Jnl.-Register", WarehouseJournalLine);
+
+        // [THEN] Check Warehouse Journal Batch still exists
+        Assert.IsTrue(
+          WarehouseJournalBatch.Get(TemplateName, BatchName, Location.Code), StrSubstNo('%1 should exists.', BatchName));
+        Assert.IsFalse(
+          WarehouseJournalBatch.Get(TemplateName, IncStr(BatchName), Location.Code), StrSubstNo('%1 should not exists.', IncStr(BatchName)));
+    end;
+
+    [Test]
     [HandlerFunctions('ItemTrackingLinesHandler,EnterQuantityToCreateHandler')]
     [Scope('OnPrem')]
     procedure MultiplePurchaseOrders()
@@ -2452,8 +2492,7 @@ codeunit 137407 "SCM Warehouse IV"
     var
         WarehouseJournalTemplate: Record "Warehouse Journal Template";
     begin
-        LibraryWarehouse.SelectWhseJournalTemplateName(WarehouseJournalTemplate, WarehouseJournalTemplate.Type::Item);
-        LibraryWarehouse.CreateWhseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Name, LocationCode);
+        LibraryWarehouse.CreateWarehouseJournalBatch(WarehouseJournalBatch, WarehouseJournalTemplate.Type::Item, LocationCode);
     end;
 
     local procedure CreateWarehouseReceiptFromPurchaseOrder(var PurchaseLine: Record "Purchase Line")
@@ -2538,7 +2577,7 @@ codeunit 137407 "SCM Warehouse IV"
         WarehouseActivityHeader.FindFirst;
     end;
 
-    local procedure FindWarehouseActivityNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Option)
+    local procedure FindWarehouseActivityNo(var WarehouseActivityLine: Record "Warehouse Activity Line"; SourceNo: Code[20]; ActivityType: Enum "Warehouse Activity Type")
     begin
         WarehouseActivityLine.SetRange("Source No.", SourceNo);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
@@ -2553,7 +2592,7 @@ codeunit 137407 "SCM Warehouse IV"
         exit(WarehouseRegister.FindFirst);
     end;
 
-    local procedure FindWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Option; LocationCode: Code[10]; SourceNo: Code[20]; ActionType: Option)
+    local procedure FindWhseActivityLine(var WarehouseActivityLine: Record "Warehouse Activity Line"; ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; SourceNo: Code[20]; ActionType: Enum "Warehouse Action Type")
     begin
         FindWarehouseActivityNo(WarehouseActivityLine, SourceNo, ActivityType);
         WarehouseActivityLine.SetRange("Activity Type", ActivityType);
@@ -2615,7 +2654,7 @@ codeunit 137407 "SCM Warehouse IV"
             end;
     end;
 
-    local procedure InsertThreeRegisteredWhseActivities(ActivityType: Option; LocationCode: Code[10]; var DocumentNo: array[3] of Code[20])
+    local procedure InsertThreeRegisteredWhseActivities(ActivityType: Enum "Warehouse Activity Type"; LocationCode: Code[10]; var DocumentNo: array[3] of Code[20])
     var
         RegisteredWhseActivityHdr: Record "Registered Whse. Activity Hdr.";
         i: Integer;
@@ -2758,7 +2797,18 @@ codeunit 137407 "SCM Warehouse IV"
         LibraryWarehouse.WhseGetBinContentFromItemJournalLine(BinContent, ItemJournalLine);
     end;
 
-    local procedure ShowRegisteredActivityDoc(ActivityType: Option; DocumentNo: Code[20])
+    local procedure SetIncrementBatchName(WarehouseJournalBatch: Record "Warehouse Journal Batch"; Increment: Boolean)
+    var
+        WarehouseJournalTemplate: Record "Warehouse Journal Template";
+    begin
+        WarehouseJournalTemplate.Get(WarehouseJournalBatch."Journal Template Name");
+        if WarehouseJournalTemplate."Increment Batch Name" <> Increment then begin
+            WarehouseJournalTemplate."Increment Batch Name" := Increment;
+            WarehouseJournalTemplate.Modify();
+        end;
+    end;
+
+    local procedure ShowRegisteredActivityDoc(ActivityType: Enum "Warehouse Activity Type"; DocumentNo: Code[20])
     var
         RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
     begin
@@ -2768,7 +2818,7 @@ codeunit 137407 "SCM Warehouse IV"
         RegisteredWhseActivityLine.ShowRegisteredActivityDoc;
     end;
 
-    local procedure ShowWhseDocFromActivityLine(WhseDocumentType: Option; WhseDocumentNo: Code[20])
+    local procedure ShowWhseDocFromActivityLine(WhseDocumentType: Enum "Warehouse Activity Document Type"; WhseDocumentNo: Code[20])
     var
         WhseActivityLine: Record "Warehouse Activity Line";
     begin
@@ -2778,7 +2828,7 @@ codeunit 137407 "SCM Warehouse IV"
         WhseActivityLine.ShowWhseDoc;
     end;
 
-    local procedure ShowWhseDocFromRegisteredActivityLine(WhseDocumentType: Option; WhseDocumentNo: Code[20])
+    local procedure ShowWhseDocFromRegisteredActivityLine(WhseDocumentType: Enum "Warehouse Activity Document Type"; WhseDocumentNo: Code[20])
     var
         RegisteredWhseActivityLine: Record "Registered Whse. Activity Line";
     begin

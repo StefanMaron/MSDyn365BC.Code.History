@@ -164,7 +164,9 @@ codeunit 144136 "Remittance - Import SEPA"
           'Reference to payment order Approved is incorrect in waiting journal.');
 
         // [WHEN] Import the file from the bank (settlement of the payment)
+#if not CLEAN17
         FileMgt.DeleteClientFile(FilePath);
+#endif
         FilePath := GeneratePain002File('ACSC');
         LibraryRemittance.CreateReturnFileSetupEntry(RemittanceAgreement.Code, FilePath);
         NbRemittancePaymentOrders := RemittancePaymentOrderSent.Count();
@@ -332,7 +334,9 @@ codeunit 144136 "Remittance - Import SEPA"
         FilePath := GeneratePain002File('ACCP');
         LibraryRemittance.CreateReturnFileSetupEntry(RemittanceAgreement.Code, FilePath);
         ImportRemittancePaymentOrderFile(BatchName, ConfirmToImportTheLines, FilePath, 1, 0, 0);
+#if not CLEAN17
         FileMgt.DeleteClientFile(FilePath);
+#endif
 
         FilePath := GeneratePain002File('ACSC');
         LibraryRemittance.CreateReturnFileSetupEntry(RemittanceAgreement.Code, FilePath);
@@ -383,7 +387,9 @@ codeunit 144136 "Remittance - Import SEPA"
         FilePath := GeneratePain002File('ACCP');
         LibraryRemittance.CreateReturnFileSetupEntry(RemittanceAgreement.Code, FilePath);
         ImportRemittancePaymentOrderFile(BatchName, ConfirmToImportTheLines, FilePath, 1, 0, 0);
+#if not CLEAN17
         FileMgt.DeleteClientFile(FilePath);
+#endif
 
         FilePath := GeneratePain002File('ACSC');
         LibraryRemittance.CreateReturnFileSetupEntry(RemittanceAgreement.Code, FilePath);
@@ -1402,7 +1408,9 @@ codeunit 144136 "Remittance - Import SEPA"
         WaitingJournal: Record "Waiting Journal";
         XMLBuffer: Record "XML Buffer";
         ServerFileName: Text;
+#if not CLEAN17
         ClientFileName: Text;
+#endif
     begin
         GetWaitingJournal(WaitingJournal);
         XMLBuffer.Reset();
@@ -1421,10 +1429,12 @@ codeunit 144136 "Remittance - Import SEPA"
         ServerFileName := FileMgt.ServerTempFileName('xml');
         XMLBuffer.Save(ServerFileName);
 
+#if not CLEAN17
         ClientFileName := FileMgt.ClientTempFileName('xml');
         FileMgt.DownloadToFile(ServerFileName, ClientFileName);
         FileMgt.DeleteServerFile(ServerFileName);
         exit(ClientFileName);
+#endif
     end;
 
     local procedure GenerateCAMT054File(): Text
@@ -1437,10 +1447,12 @@ codeunit 144136 "Remittance - Import SEPA"
 
     local procedure GetClientFileFromServerFile(ServerFileName: Text) ClientFileName: Text
     begin
+#if not CLEAN17
         ClientFileName := FileMgt.ClientTempFileName('xml');
         FileMgt.DownloadToFile(ServerFileName, ClientFileName);
         FileMgt.DeleteServerFile(ServerFileName);
         exit(ClientFileName);
+#endif
     end;
 
     local procedure UpdateXmlFileBasedOnNames(var XMLBuffer: Record "XML Buffer"; NameToSearch: Text[250]; ValueToUse: Text[250])
@@ -2226,7 +2238,9 @@ codeunit 144136 "Remittance - Import SEPA"
 
     local procedure Cleanup(FilePath: Text; OldDate: Date)
     begin
+#if not CLEAN17
         FileMgt.DeleteClientFile(FilePath);
+#endif
         UpdateWorkdate(OldDate);
     end;
 }

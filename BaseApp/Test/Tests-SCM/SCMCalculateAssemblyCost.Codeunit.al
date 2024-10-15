@@ -111,7 +111,7 @@ codeunit 137911 "SCM Calculate Assembly Cost"
         ValidateUnitCost(ItemA."No.", 20);
 
         AsmHeader.Get(AsmHeader."Document Type"::Order, LibraryKitting.CreateOrder(WorkDate2, ItemA."No.", 1));
-        LibraryKitting.AddLine(AsmHeader, 1, ItemA."No.", ItemA."Base Unit of Measure", 1, 1, '');
+        LibraryKitting.AddLine(AsmHeader, "BOM Component Type"::Item, ItemA."No.", ItemA."Base Unit of Measure", 1, 1, '');
         calcAndValidate(AsmHeader, 40, 0, 0, 0);
         asserterror Error('') // cleanup
     end;

@@ -13,6 +13,9 @@ page 9305 "Sales Order List"
     SourceTableView = WHERE("Document Type" = CONST(Order));
     UsageCategory = Lists;
 
+    AboutTitle = 'About sales orders';
+    AboutText = 'Use a sales order when you partially ship or invoice an order, and when you use drop shipments or prepayments. For sales that are fully shipped and invoiced in one go, sales invoices are typically used instead.';
+
     layout
     {
         area(content)
@@ -244,6 +247,9 @@ page 9305 "Sales Order List"
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies whether all the items on the order have been shipped or, in the case of inbound items, completely received.';
+
+                    AboutTitle = 'Is the order completely shipped?';
+                    AboutText = 'Sales orders stay in this list until their order quantities are fully shipped and invoiced. After that you can find them in the Posted Sales Invoice and Posted Sales Shipment lists.';
                 }
                 field("Job Queue Status"; "Job Queue Status")
                 {
@@ -388,9 +394,9 @@ page 9305 "Sales Order List"
 
                     trigger OnAction()
                     var
-                        WorkflowsEntriesBuffer: Record "Workflows Entries Buffer";
+                        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
                     begin
-                        WorkflowsEntriesBuffer.RunWorkflowEntriesPage(RecordId, DATABASE::"Sales Header", "Document Type".AsInteger(), "No.");
+                        ApprovalsMgmt.OpenApprovalsSales(Rec);
                     end;
                 }
                 action("Co&mments")
@@ -434,6 +440,9 @@ page 9305 "Sales Order List"
                     RunPageLink = "Order No." = FIELD("No.");
                     RunPageView = SORTING("Order No.");
                     ToolTip = 'View a list of ongoing sales invoices for the order.';
+
+                    AboutTitle = 'What has been invoiced?';
+                    AboutText = 'Here you can look up what has already been invoiced on an order.';
                 }
                 action(PostedSalesPrepmtInvoices)
                 {
@@ -790,6 +799,7 @@ page 9305 "Sales Order List"
                     Image = ViewPostedOrder;
                     Promoted = true;
                     PromotedCategory = Category7;
+                    ShortCutKey = 'Ctrl+Alt+F9';
                     ToolTip = 'Review the different types of entries that will be created when you post the document or journal.';
 
                     trigger OnAction()
@@ -982,11 +992,7 @@ page 9305 "Sales Order List"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         OfficeMgt: Codeunit "Office Management";
     begin
-        if UserMgt.GetSalesFilter <> '' then begin
-            FilterGroup(2);
-            SetRange("Responsibility Center", UserMgt.GetSalesFilter);
-            FilterGroup(0);
-        end;
+        Rec.SetSecurityFilterOnRespCenter();
 
         SetRange("Date Filter", 0D, WorkDate());
 
@@ -1001,7 +1007,6 @@ page 9305 "Sales Order List"
         ApplicationAreaMgmtFacade: Codeunit "Application Area Mgmt. Facade";
         DocPrint: Codeunit "Document-Print";
         ReportPrint: Codeunit "Test Report-Print";
-        UserMgt: Codeunit "User Setup Management";
         Usage: Option "Order Confirmation","Work Order","Pick Instruction","Sales Order Picking List";
         [InDataSet]
         JobQueueActive: Boolean;

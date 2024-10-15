@@ -12,7 +12,9 @@ permissionset 9346 "Inventory - View"
                   tabledata "Extended Text Line" = R,
                   tabledata Item = R,
                   tabledata "Item Application Entry" = R,
+#if not CLEAN19
                   tabledata "Item Cross Reference" = R,
+#endif
                   tabledata "Item Ledger Entry" = R,
                   tabledata "Item Reference" = R,
                   tabledata "Item Substitution" = R,

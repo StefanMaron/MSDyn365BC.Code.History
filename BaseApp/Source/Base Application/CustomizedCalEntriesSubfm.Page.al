@@ -108,7 +108,7 @@ page 7605 "Customized Cal. Entries Subfm"
         FoundDate: Boolean;
         FoundLine: Boolean;
     begin
-        FoundDate := PeriodFormMgt.FindDate(Which, DateRec, 0);
+        FoundDate := PeriodPageMgt.FindDate(Which, DateRec, "Analysis Period Type"::Day);
         if not FoundDate then
             exit(false);
 
@@ -122,7 +122,7 @@ page 7605 "Customized Cal. Entries Subfm"
         FoundLine: Boolean;
         ResultSteps: Integer;
     begin
-        ResultSteps := PeriodFormMgt.NextDate(Steps, DateRec, 0);
+        ResultSteps := PeriodPageMgt.NextDate(Steps, DateRec, "Analysis Period Type"::Day);
         if ResultSteps = 0 then
             exit(0);
 
@@ -141,7 +141,7 @@ page 7605 "Customized Cal. Entries Subfm"
     var
         CurrCalendarChange: Record "Customized Calendar Change";
         CalendarMgmt: Codeunit "Calendar Management";
-        PeriodFormMgt: Codeunit PeriodFormManagement;
+        PeriodPageMgt: Codeunit PeriodPageManagement;
         DateRec: Record Date;
 
     local procedure FindLine(TargetDate: Date) FoundLine: Boolean;

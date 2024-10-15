@@ -137,7 +137,8 @@ page 5796 "Registered Put-away Subform"
 
                     trigger OnAction()
                     begin
-                        ShowWhseLine;
+                        WMSMgt.ShowWhseActivityDocLine(
+                            Rec."Whse. Document Type", Rec."Whse. Document No.", Rec."Whse. Document Line No.");
                     end;
                 }
                 action("Bin Contents List")
@@ -190,12 +191,6 @@ page 5796 "Registered Put-away Subform"
         BinContent: Record "Bin Content";
     begin
         BinContent.ShowBinContents("Location Code", "Item No.", "Variant Code", "Bin Code");
-    end;
-
-    local procedure ShowWhseLine()
-    begin
-        WMSMgt.ShowWhseDocLine(
-          "Whse. Document Type", "Whse. Document No.", "Whse. Document Line No.");
     end;
 }
 

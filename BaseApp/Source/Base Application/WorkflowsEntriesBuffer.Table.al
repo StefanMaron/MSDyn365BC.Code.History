@@ -25,7 +25,7 @@ table 832 "Workflows Entries Buffer"
         field(4; "Record ID"; RecordID)
         {
             Caption = 'Record ID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
         field(5; "Initiated By User ID"; Code[50])
         {
@@ -139,43 +139,15 @@ table 832 "Workflows Entries Buffer"
         end;
     end;
 
+#if not CLEAN19
+    [Obsolete('Moved to codeunit Approvals Mgmt', '19.0')]
     procedure RunWorkflowEntriesPage(RecordIDInput: RecordID; TableId: Integer; DocumentType: Option Quote,"Order",Invoice,"Credit Memo","Blanket Order","Return Order"; DocumentNo: Code[20])
     var
-        ApprovalEntry: Record "Approval Entry";
-        WorkflowWebhookEntry: Record "Workflow Webhook Entry";
-        Approvals: Page Approvals;
-        WorkflowWebhookEntries: Page "Workflow Webhook Entries";
-        ApprovalEntries: Page "Approval Entries";
+        ApprovalsMgmt: Codeunit "Approvals Mgmt.";
     begin
-        // if we are looking at a particular record, we want to see only record related workflow entries
-        if DocumentNo <> '' then begin
-            ApprovalEntry.SetRange("Record ID to Approve", RecordIDInput);
-            WorkflowWebhookEntry.SetRange("Record ID", RecordIDInput);
-            // if we have flows created by multiple applications, start generic page filtered for this RecordID
-            if ApprovalEntry.FindFirst and WorkflowWebhookEntry.FindFirst then begin
-                Approvals.Setfilters(RecordIDInput);
-                Approvals.Run;
-            end else begin
-                // otherwise, open the page filtered for this record that corresponds to the type of the flow
-                if WorkflowWebhookEntry.FindFirst then begin
-                    WorkflowWebhookEntries.Setfilters(RecordIDInput);
-                    WorkflowWebhookEntries.Run;
-                    exit;
-                end;
-
-                if ApprovalEntry.FindFirst then begin
-                    ApprovalEntries.Setfilters(TableId, DocumentType, DocumentNo);
-                    ApprovalEntries.Run;
-                    exit;
-                end;
-
-                // if no workflow exist, show (empty) joint workflows page
-                Approvals.Setfilters(RecordIDInput);
-                Approvals.Run;
-            end
-        end else
-            // otherwise, open the page with all workflow entries
-            Approvals.Run;
+        ApprovalsMgmt.RunWorkflowEntriesPage(
+            RecordIDInput, TableId, "Approval Document Type".FromInteger(DocumentType), DocumentNo);
     end;
+#endif
 }
 

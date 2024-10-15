@@ -14,7 +14,7 @@ table 8402 "Record Set Buffer"
         field(2; "Value RecordID"; RecordID)
         {
             Caption = 'Value RecordID';
-            DataClassification = SystemMetadata;
+            DataClassification = CustomerContent;
         }
     }
 

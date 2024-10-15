@@ -80,6 +80,12 @@ page 99000852 "Planning Worksheet"
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
                 }
+                field("Bin Code"; "Bin Code")
+                {
+                    ApplicationArea = Planning;
+                    ToolTip = 'Specifies the bin of the item on the line.';
+                    Visible = false;
+                }
                 field("Action Message"; "Action Message")
                 {
                     ApplicationArea = Planning;
@@ -332,6 +338,12 @@ page 99000852 "Planning Worksheet"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies which kind of order to use to create replenishment orders and order proposals.';
                     Visible = false;
+                }
+                field("Supply From"; "Supply From")
+                {
+                    ApplicationArea = Planning;
+                    Visible = false;
+                    ToolTip = 'Specifies a value, according to the selected replenishment system, before a supply order can be created for the line.';
                 }
                 field("Ref. Order Type"; "Ref. Order Type")
                 {

@@ -58,7 +58,11 @@ codeunit 10636 "Import Pain002"
         LatestDate := 20030201D; // dummy init for precal
         LatestVend := '';
 
+#if not CLEAN17
         OpenPain002Document(FileName);
+#else
+        OpenPain002Document();
+#endif
 
         // used as a reference in waiting journals
         ImportSEPACommon.CreatePaymOrder(Note, RemittancePaymentOrder);
@@ -178,7 +182,12 @@ codeunit 10636 "Import Pain002"
           CreateNewDocumentNo, true, BalanceEntryAmount);
     end;
 
+
+#if not CLEAN17
     local procedure OpenPain002Document(FilePath: Text)
+#else
+    local procedure OpenPain002Document()
+#endif
     var
         XMLDOMManagement: Codeunit "XML DOM Management";
         FileManagement: Codeunit "File Management";

@@ -369,7 +369,6 @@ page 2113 "O365 Posted Sales Invoice"
         NoOfAttachmentsValueTxt: Text;
         CustomerEmail: Text;
         FullAddress: Text;
-        InvoiceCancelled: Boolean;
         IsFullyPaid: Boolean;
         IsUsingVAT: Boolean;
         CurrencyFormat: Text;
@@ -379,6 +378,9 @@ page 2113 "O365 Posted Sales Invoice"
         DiscountVisible: Boolean;
         TaxAreaDescription: Text[50];
         CouponCodes: Text;
+
+    protected var
+        InvoiceCancelled: Boolean;
 
     local procedure CalcInvoiceDiscount()
     var

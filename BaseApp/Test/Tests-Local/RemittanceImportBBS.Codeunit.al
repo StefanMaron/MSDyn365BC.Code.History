@@ -68,7 +68,9 @@ codeunit 144131 "Remittance - Import BBS"
           RemittanceAccount."Account No.", Amount,
           GenJournalLine."Document Type"::Payment, GenJournalLine."Document Type"::Payment);
         VerifyWaitingJournalStatusIsSent;
+#if not CLEAN17
         FileMgt.DeleteClientFile(FilePath);
+#endif
         UpdateWorkdate(OldDate);
     end;
 
@@ -124,7 +126,9 @@ codeunit 144131 "Remittance - Import BBS"
           RemittanceAccount."Account No.", Amount,
           GenJournalLine."Document Type"::"Credit Memo", GenJournalLine."Document Type"::" ");
         VerifyWaitingJournalStatusIsSent;
+#if not CLEAN17
         FileMgt.DeleteClientFile(FilePath);
+#endif
         UpdateWorkdate(OldDate);
     end;
 
@@ -163,7 +167,9 @@ codeunit 144131 "Remittance - Import BBS"
 
         VerifyNoLinesAreImported(BatchName, GenJournalLine."Journal Template Name");
 
+#if not CLEAN17
         FileMgt.DeleteClientFile(FilePath);
+#endif
         UpdateWorkdate(OldDate);
     end;
 
@@ -202,7 +208,9 @@ codeunit 144131 "Remittance - Import BBS"
 
         VerifyNoLinesAreImported(BatchName, GenJournalLine."Journal Template Name");
 
+#if not CLEAN17
         FileMgt.DeleteClientFile(FilePath);
+#endif
         UpdateWorkdate(OldDate);
     end;
 
@@ -241,7 +249,9 @@ codeunit 144131 "Remittance - Import BBS"
 
         VerifyNoLinesAreImported(BatchName, GenJournalLine."Journal Template Name");
 
+#if not CLEAN17
         FileMgt.DeleteClientFile(FilePath);
+#endif
         UpdateWorkdate(OldDate);
     end;
 
@@ -351,7 +361,9 @@ codeunit 144131 "Remittance - Import BBS"
         BBSPaymentFile: File;
         BBSPaymentOutputStream: OutStream;
         ServerFileName: Text;
+#if not CLEAN17
         ClientFileName: Text;
+#endif
     begin
         GetWaitingJournal(WaitingJournal);
 
@@ -381,10 +393,12 @@ codeunit 144131 "Remittance - Import BBS"
         end;
 
         BBSPaymentFile.Close;
+#if not CLEAN17
         ClientFileName := FileMgt.ClientTempFileName('txt');
         FileMgt.DownloadToFile(ServerFileName, ClientFileName);
         FileMgt.DeleteServerFile(ServerFileName);
         exit(ClientFileName);
+#endif
     end;
 
     local procedure GenerateBBSRemittanceStartRecordShipmentLine(ShipmentNo: Text[7]; DataRecipient: Text[8]): Text
@@ -556,7 +570,9 @@ codeunit 144131 "Remittance - Import BBS"
         FilePath :=
           LibraryRemittance.ExecuteRemittanceExportPaymentFile(
             LibraryVariableStorage, RemittanceAgreement, RemittanceAccount, Vendor, GenJournalLine, BatchName);
+#if not CLEAN17
         FileMgt.DeleteClientFile(FilePath); // We do not need the exported file, used only to create a setup in the product
+#endif
 
         // Generate the BBS Payment file
         // Suprisingly report is ignoring amount from the file

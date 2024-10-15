@@ -1,35 +1,32 @@
+#if not CLEAN19
 codeunit 104041 "Upgrade User Callouts"
 {
-    // This codeunit runs upgrade from 17.x to 18.0 to populate the new table User Callouts
-
     Subtype = Upgrade;
-
-    // Upgrade triggers
 
     trigger OnUpgradePerDatabase()
     begin
-        PopulateUserCallouts();
+        UpgradeUserSettings();
     end;
 
-    local procedure PopulateUserCallouts()
+    local procedure UpgradeUserSettings()
     var
-        User: Record User;
         UserCallouts: Record "User Callouts";
+        UserSettings: Codeunit "User Settings";
         UpgradeTag: Codeunit "Upgrade Tag";
         UpgradeTagDefinitions: Codeunit "Upgrade Tag Definitions";
     begin
-        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetUserCalloutsUpgradeTag()) then
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefinitions.GetUserSettingsUpgradeTag()) then
             exit;
 
-        if User.FindSet() then
+        if UserCallouts.FindSet() then
             repeat
-                if not UserCallouts.get(User."User Security ID") then begin
-                    UserCallouts."User Security ID" := User."User Security ID";
-                    UserCallouts.Enabled := false;
-                    UserCallouts.Insert();
-                end;
-            until (User.Next() = 0);
-
-        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetUserCalloutsUpgradeTag());
+                if UserCallouts.Enabled then
+                    UserSettings.EnableTeachingTips(UserCallouts."User Security ID")
+                else
+                    UserSettings.DisableTeachingTips(UserCallouts."User Security ID");
+            until UserCallouts.Next() = 0;
+        
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetUserSettingsUpgradeTag());
     end;
 }
+#endif
