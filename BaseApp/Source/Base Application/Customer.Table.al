@@ -2269,7 +2269,7 @@
 
         CustLedgEntryRemainAmtQuery.SetRange(Customer_No, "No.");
         CustLedgEntryRemainAmtQuery.SetFilter(Due_Date, '<%1', Today);
-        CustLedgEntryRemainAmtQuery.SetFilter(Date_Filter, '<%1', Today);
+        CustLedgEntryRemainAmtQuery.SetFilter(Date_Filter, '..%1', Today);
         CustLedgEntryRemainAmtQuery.Open;
 
         if CustLedgEntryRemainAmtQuery.Read then

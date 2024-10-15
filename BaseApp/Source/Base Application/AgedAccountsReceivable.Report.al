@@ -495,6 +495,7 @@ report 120 "Aged Accounts Receivable"
                             TotalCustLedgEntry[1].Amount += CustLedgEntryEndingDate."Remaining Amount";
                             TotalCustLedgEntry[1]."Amount (LCY)" += CustLedgEntryEndingDate."Remaining Amt. (LCY)";
                             GrandTotalCustLedgEntry[1]."Amount (LCY)" += CustLedgEntryEndingDate."Remaining Amt. (LCY)";
+                            NumberOfLines += 1;
                         end;
 
                         trigger OnPostDataItem()
@@ -523,11 +524,15 @@ report 120 "Aged Accounts Receivable"
                         Clear(TotalCustLedgEntry);
 
                         if Number = 1 then begin
-                            if not TempCurrency.FindSet(false, false) then
+                            if not TempCurrency.FindSet(false, false) then begin
                                 CurrReport.Break();
+                                NumberOfLines -= 1;
+                            end;
                         end else
-                            if TempCurrency.Next() = 0 then
+                            if TempCurrency.Next() = 0 then begin
                                 CurrReport.Break();
+                                NumberOfLines -= 1;
+                            end;
 
                         if TempCurrency.Code <> '' then
                             CurrencyCode := TempCurrency.Code
@@ -551,6 +556,7 @@ report 120 "Aged Accounts Receivable"
                     TempCurrency.DeleteAll();
                     TempCustLedgEntry.Reset();
                     TempCustLedgEntry.DeleteAll();
+                    NumberOfLines += 1;
                 end;
             }
             dataitem(CurrencyTotals; "Integer")
@@ -703,6 +709,7 @@ report 120 "Aged Accounts Receivable"
     var
         FormatDocument: Codeunit "Format Document";
     begin
+        StartDateTime := CurrentDateTime();
         CustFilter := FormatDocument.GetRecordFiltersWithCaptions(Customer);
 
         GLSetup.Get();
@@ -715,6 +722,12 @@ report 120 "Aged Accounts Receivable"
         CustFilterCheck := (CustFilter <> 'No.');
 
         CompanyDisplayName := COMPANYPROPERTY.DisplayName;
+    end;
+
+    trigger OnPostReport()
+    begin
+        FinishDateTime := CurrentDateTime();
+        LogReportTelemetry(StartDateTime, FinishDateTime, NumberOfLines);
     end;
 
     var
@@ -768,6 +781,13 @@ report 120 "Aged Accounts Receivable"
         CurrSpecificationCptnLbl: Label 'Currency Specification';
         EnterDateFormulaErr: Label 'Enter a date formula in the Period Length field.';
         CompanyDisplayName: Text;
+        TelemetryCategoryTxt: Label 'Report', Locked = true;
+        AgedARReportGeneratedTxt: Label 'Aged AR Report generated.', Locked = true;
+
+    protected var
+        NumberOfLines: Integer;
+        StartDateTime: DateTime;
+        FinishDateTime: DateTime;
 
     local procedure CalcDates()
     var
@@ -915,6 +935,20 @@ report 120 "Aged Accounts Receivable"
             CustLedgerEntry.SetFilter("Global Dimension 1 Code", Customer.GetFilter("Global Dimension 1 Filter"));
         if Customer.GetFilter("Global Dimension 2 Filter") <> '' then
             CustLedgerEntry.SetFilter("Global Dimension 2 Code", Customer.GetFilter("Global Dimension 2 Filter"));
+    end;
+
+    local procedure LogReportTelemetry(StartDateTime: DateTime; FinishDateTime: DateTime; NumberOfLines: Integer)
+    var
+        Dimensions: Dictionary of [Text, Text];
+        ReportDuration: BigInteger;
+    begin
+        ReportDuration := FinishDateTime - StartDateTime;
+        Dimensions.Add('Category', TelemetryCategoryTxt);
+        Dimensions.Add('ReportStartTime', Format(StartDateTime, 0, 9));
+        Dimensions.Add('ReportFinishTime', Format(FinishDateTime, 0, 9));
+        Dimensions.Add('ReportDuration', Format(ReportDuration));
+        Dimensions.Add('NumberOfLines', Format(NumberOfLines));
+        Session.LogMessage('0000FJM', AgedARReportGeneratedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, Dimensions);
     end;
 }
 

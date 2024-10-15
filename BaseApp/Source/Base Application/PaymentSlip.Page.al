@@ -276,6 +276,8 @@ page 10868 "Payment Slip"
                     ToolTip = 'Archive the payment slip to separate it from active entries.';
 
                     trigger OnAction()
+                    var
+                        PaymentMgt: Codeunit "Payment Management";
                     begin
                         if "No." = '' then
                             exit;
@@ -297,6 +299,8 @@ page 10868 "Payment Slip"
                     ToolTip = 'Generate an XML or an XMLport file that you can send to your bank. This requires that File is chosen in the Action Type field for the payment slip setup. ';
 
                     trigger OnAction()
+                    var
+                        PaymentMgt: Codeunit "Payment Management";
                     begin
                         PaymentStep.SetRange("Action Type", PaymentStep."Action Type"::File);
                         PaymentMgt.ProcessPaymentSteps(Rec, PaymentStep);
@@ -313,6 +317,8 @@ page 10868 "Payment Slip"
                     ToolTip = 'Post the payment.';
 
                     trigger OnAction()
+                    var
+                        PaymentMgt: Codeunit "Payment Management";
                     begin
                         PaymentStep.SetFilter(
                           "Action Type",
@@ -329,6 +335,8 @@ page 10868 "Payment Slip"
                     ToolTip = 'Print the payment slip.';
 
                     trigger OnAction()
+                    var
+                        PaymentMgt: Codeunit "Payment Management";
                     begin
                         CurrPage.Lines.PAGE.MarkLines(true);
                         PaymentStep.SetRange("Action Type", PaymentStep."Action Type"::Report);
@@ -347,7 +355,6 @@ page 10868 "Payment Slip"
 
     var
         PaymentStep: Record "Payment Step";
-        PaymentMgt: Codeunit "Payment Management";
         ChangeExchangeRate: Page "Change Exchange Rate";
         Navigate: Page Navigate;
         Text001: Label 'This payment class does not authorize vendor suggestions.';

@@ -208,6 +208,8 @@
         Reset();
         SetRange(Usage, ReportUsage);
         SetRange("Use for Email Body", true);
+
+        OnAfterSetEmailBodyUsageFilters(Rec, ReportUsage);
     end;
 
 #if not CLEAN17
@@ -1847,6 +1849,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetEmailBodyUsageFilters(var ReportSelections: Record "Report Selections"; ReportUsage: Enum "Report Selection Usage")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterSaveReportAsPDF(ReportID: Integer; RecordVariant: Variant; LayoutCode: Code[20]; FilePath: Text[250]; SaveToBlob: Boolean; var TempBlob: Codeunit "Temp Blob")
     begin
     end;
@@ -1927,12 +1934,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSendEmailToCust(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ShowDialog: Boolean; CustNo: Code[20]; var Handled: Boolean)
+    local procedure OnBeforeSendEmailToCust(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; var ShowDialog: Boolean; CustNo: Code[20]; var Handled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeSendEmailToVendor(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; ShowDialog: Boolean; VendorNo: Code[20]; var Handled: Boolean)
+    local procedure OnBeforeSendEmailToVendor(ReportUsage: Integer; RecordVariant: Variant; DocNo: Code[20]; DocName: Text[150]; var ShowDialog: Boolean; VendorNo: Code[20]; var Handled: Boolean)
     begin
     end;
 

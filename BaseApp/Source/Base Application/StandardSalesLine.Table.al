@@ -1,4 +1,4 @@
-table 171 "Standard Sales Line"
+﻿table 171 "Standard Sales Line"
 {
     Caption = 'Standard Sales Line';
 
@@ -268,6 +268,8 @@ table 171 "Standard Sales Line"
         "Dimension Set ID" :=
           DimMgt.EditDimensionSet("Dimension Set ID", StrSubstNo('%1 %2', "Standard Sales Code", "Line No."));
         DimMgt.UpdateGlobalDimFromDimSetID("Dimension Set ID", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code");
+
+        OnAfterShowDimensions(Rec, DimMgt);
     end;
 
     procedure ValidateShortcutDimCode(FieldNumber: Integer; var ShortcutDimCode: Code[20])
@@ -312,6 +314,11 @@ table 171 "Standard Sales Line"
 
     [IntegrationEvent(false, false)]
     local procedure OnAfterValidateShortcutDimCode(StandardSalesLine: Record "Standard Sales Line"; xStandardSalesLine: Record "Standard Sales Line"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterShowDimensions(var StandardSalesLine: Record "Standard Sales Line"; var DimMgt: Codeunit DimensionManagement)
     begin
     end;
 

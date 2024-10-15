@@ -49,6 +49,7 @@ codeunit 5335 "Integration Table Synch."
         JobID := InitIntegrationSynchJob(JobType);
         if not IsNullGuid(JobID) then begin
             JobState := JobState::Created;
+            OnAfterInitSynchJob(IntegrationTableConnectionType, IntegrationTableMapping."Integration Table ID");
             if not DirectionIsDefined then
                 FinishIntegrationSynchJob(ErrorMessage);
         end;
@@ -68,8 +69,10 @@ codeunit 5335 "Integration Table Synch."
         CurrentIntegrationTableMapping.Direction := CurrentIntegrationTableMapping.Direction::ToIntegrationTable;
 
         JobID := InitIntegrationSynchJob(SynchJobType::Synchronization);
-        if not IsNullGuid(JobID) then
+        if not IsNullGuid(JobID) then begin
             JobState := JobState::Created;
+            OnAfterInitSynchJob(IntegrationTableConnectionType, CurrentIntegrationTableMapping."Integration Table ID");
+        end;
     end;
 
     [Scope('OnPrem')]
@@ -486,6 +489,12 @@ codeunit 5335 "Integration Table Synch."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUncouple(var LocalRecordRef: RecordRef; var IntegrationRecordRef: RecordRef; var IsHandled: Boolean)
+    begin
+    end;
+
+    [Scope('OnPrem')]
+    [IntegrationEvent(false, false)]
+    procedure OnAfterInitSynchJob(ConnectionType: TableConnectionType; IntegrationTableID: Integer)
     begin
     end;
 }

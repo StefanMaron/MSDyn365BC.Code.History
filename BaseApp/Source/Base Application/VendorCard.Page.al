@@ -728,6 +728,7 @@ page 26 "Vendor Card"
                     Promoted = true;
                     PromotedCategory = Category7;
                     ToolTip = 'View a list of emails that you have sent to this vendor.';
+                    Visible = EmailImprovementFeatureEnabled;
 
                     trigger OnAction()
                     var
@@ -1575,12 +1576,10 @@ page 26 "Vendor Card"
 
                 trigger OnAction()
                 var
-                    Email: Codeunit Email;
-                    EmailMessage: Codeunit "Email Message";
+                    EmailMgt: Codeunit "Mail Management";
                 begin
-                    EmailMessage.Create(Rec."E-Mail", '', '', true);
-                    Email.AddRelation(EmailMessage, Database::Vendor, Rec.SystemId, Enum::"Email Relation Type"::"Primary Source");
-                    Email.OpenInEditorModally(EmailMessage);
+                    EmailMgt.AddSource(Database::Vendor, Rec.SystemId);
+                    EmailMgt.Run();
                 end;
             }
             group("Incoming Documents")
@@ -1735,6 +1734,7 @@ page 26 "Vendor Card"
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
         ItemReferenceMgt: Codeunit "Item Reference Management";
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
+        EmailFeature: Codeunit "Email Feature";
     begin
         ActivateFields();
         IsOfficeAddin := OfficeMgt.IsAvailable();
@@ -1742,6 +1742,7 @@ page 26 "Vendor Card"
         IsSaaS := EnvironmentInfo.IsSaaS();
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
         CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
+        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
         if CRMIntegrationEnabled or CDSIntegrationEnabled then
             if IntegrationTableMapping.Get('VENDOR') then
                 BlockedFilterApplied := IntegrationTableMapping.GetTableFilter().Contains('Field39=1(0)');
@@ -1785,6 +1786,7 @@ page 26 "Vendor Card"
         BlockedFilterApplied: Boolean;
         ExtendedPriceEnabled: Boolean;
         OverReceiptAllowed: Boolean;
+        EmailImprovementFeatureEnabled: Boolean;
         [InDataSet]
         ItemReferenceVisible: Boolean;
 

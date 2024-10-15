@@ -558,7 +558,7 @@ codeunit 5702 "Dist. Integration"
         OnBeforeSalesLineModify(SalesLine, PurchLine);
         SalesLine.Modify();
         OnAfterSalesLineModify(SalesLine, PurchLine);
-        if TransferExtendedText.PurchCheckIfAnyExtText(PurchLine, true) then begin
+        if TransferExtendedText.PurchCheckIfAnyExtText(PurchLine, false) then begin
             TransferExtendedText.InsertPurchExtText(PurchLine);
             PurchLine2.SetRange("Document Type", PurchHeader."Document Type");
             PurchLine2.SetRange("Document No.", PurchHeader."No.");
@@ -583,6 +583,9 @@ codeunit 5702 "Dist. Integration"
     [EventSubscriber(ObjectType::Table, Database::Customer, 'OnAfterDeleteEvent', '', false, false)]
     local procedure CustomerOnAfterDelete(var Rec: Record Customer)
     begin
+        if Rec.IsTemporary() then
+            exit;
+
 #if not CLEAN16
         ItemCrossReference.SetCurrentKey("Cross-Reference Type", "Cross-Reference Type No.");
         ItemCrossReference.SetRange("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::Customer);
@@ -598,6 +601,9 @@ codeunit 5702 "Dist. Integration"
     [EventSubscriber(ObjectType::Table, Database::Vendor, 'OnAfterDeleteEvent', '', false, false)]
     local procedure VendorOnAfterDelete(var Rec: Record Vendor)
     begin
+        if Rec.IsTemporary() then
+            exit;
+
 #if not CLEAN16
         ItemCrossReference.SetCurrentKey("Cross-Reference Type", "Cross-Reference Type No.");
         ItemCrossReference.SetRange("Cross-Reference Type", ItemCrossReference."Cross-Reference Type"::Vendor);

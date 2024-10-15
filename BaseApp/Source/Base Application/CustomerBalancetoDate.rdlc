@@ -801,7 +801,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!OriginalAmt.Value</Value>
+                                  <Value>=Iif(UCase(Globals!RenderFormat.Name) = "EXCELOPENXML", CDec(Fields!OriginalAmt.Value), Fields!OriginalAmt.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -1046,7 +1046,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!OriginalAmt.Value</Value>
+                                  <Value>=Iif(UCase(Globals!RenderFormat.Name) = "EXCELOPENXML", CDec(Fields!OriginalAmt.Value), Fields!OriginalAmt.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -1293,7 +1293,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!Amt.Value</Value>
+                                  <Value>=Iif(UCase(Globals!RenderFormat.Name) = "EXCELOPENXML", CDec(Fields!Amt.Value), Fields!Amt.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -1869,7 +1869,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!RemainingAmt.Value</Value>
+                                  <Value>=Iif(UCase(Globals!RenderFormat.Name) = "EXCELOPENXML", CDec(Fields!RemainingAmt.Value), Fields!RemainingAmt.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -3366,7 +3366,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!OriginalAmt.Value</Value>
+                                  <Value>=Iif(UCase(Globals!RenderFormat.Name) = "EXCELOPENXML", CDec(Fields!OriginalAmt.Value), Fields!OriginalAmt.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -3613,7 +3613,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!OriginalAmt.Value</Value>
+                                  <Value>=Iif(UCase(Globals!RenderFormat.Name) = "EXCELOPENXML", CDec(Fields!OriginalAmt.Value), Fields!OriginalAmt.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -3860,7 +3860,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!Amt.Value</Value>
+                                  <Value>=Iif(UCase(Globals!RenderFormat.Name) = "EXCELOPENXML", CDec(Fields!Amt.Value), Fields!Amt.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>
@@ -4438,7 +4438,7 @@
                             <Paragraph>
                               <TextRuns>
                                 <TextRun>
-                                  <Value>=Fields!RemainingAmt.Value</Value>
+                                  <Value>=Iif(UCase(Globals!RenderFormat.Name) = "EXCELOPENXML", CDec(Fields!RemainingAmt.Value), Fields!RemainingAmt.Value)</Value>
                                   <Style>
                                     <FontFamily>Segoe UI</FontFamily>
                                     <FontSize>8pt</FontSize>

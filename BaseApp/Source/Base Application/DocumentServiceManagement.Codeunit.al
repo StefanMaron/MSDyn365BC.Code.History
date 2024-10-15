@@ -474,6 +474,9 @@ codeunit 9510 "Document Service Management"
     var
         DocumentServiceCache: Record "Document Service Cache";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if DocumentServiceCache.Get(Rec.SystemId) then begin
             if DocumentServiceCache."Use Cached Token" then begin
                 DocumentServiceCache."Use Cached Token" := false;
@@ -488,6 +491,9 @@ codeunit 9510 "Document Service Management"
     var
         DocumentServiceCache: Record "Document Service Cache";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         CreateDocumentServiceCache(DocumentServiceCache, Rec, false);
     end;
 
@@ -496,6 +502,9 @@ codeunit 9510 "Document Service Management"
     var
         DocumentServiceCache: Record "Document Service Cache";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if DocumentServiceCache.Get(Rec.SystemId) then
             DocumentServiceCache.Delete();
     end;

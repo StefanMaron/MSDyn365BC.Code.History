@@ -809,6 +809,11 @@ page 54 "Purchase Order Subform"
                     Visible = OverReceiptAllowed;
                     ToolTip = 'Specifies over-receipt code.';
                 }
+                field("FA Posting Date"; Rec."FA Posting Date")
+                {
+                    ApplicationArea = FixedAssets;
+                    ToolTip = 'Specifies the FA posting date if you have selected Fixed Asset in the Type field for this line.';
+                }
             }
             group(Control43)
             {
@@ -1515,6 +1520,11 @@ page 54 "Purchase Order Subform"
         DocumentTotals.GetTotalPurchaseHeaderAndCurrency(Rec, TotalPurchaseHeader, Currency);
     end;
 
+    procedure ClearTotalPurchaseHeader();
+    begin
+        Clear(TotalPurchaseHeader);
+    end;
+
     procedure CalculateTotals()
     begin
         if SuppressTotals then
@@ -1559,7 +1569,9 @@ page 54 "Purchase Order Subform"
         IsBlankNumber := IsCommentLine;
 
         CurrPageIsEditable := CurrPage.Editable;
-        InvDiscAmountEditable := CurrPageIsEditable and not PurchasesPayablesSetup."Calc. Inv. Discount";
+        InvDiscAmountEditable := 
+            CurrPageIsEditable and not PurchasesPayablesSetup."Calc. Inv. Discount" and
+            (TotalPurchaseHeader.Status = TotalPurchaseHeader.Status::Open);
 
         OnAfterUpdateEditableOnRow(Rec, IsCommentLine, IsBlankNumber);
     end;

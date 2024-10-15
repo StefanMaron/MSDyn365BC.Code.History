@@ -1117,6 +1117,7 @@
                     Promoted = true;
                     PromotedCategory = Category8;
                     ToolTip = 'View a list of emails that you have sent to this customer.';
+                    Visible = EmailImprovementFeatureEnabled;
 
                     trigger OnAction()
                     var
@@ -2222,12 +2223,10 @@
 
                 trigger OnAction()
                 var
-                    Email: Codeunit Email;
-                    EmailMessage: Codeunit "Email Message";
+                    EmailMgt: Codeunit "Mail Management";
                 begin
-                    EmailMessage.Create(Rec."E-Mail", '', '', true);
-                    Email.AddRelation(EmailMessage, Database::Customer, Rec.SystemId, Enum::"Email Relation Type"::"Primary Source");
-                    Email.OpenInEditorModally(EmailMessage);
+                    EmailMgt.AddSource(Database::Customer, Rec.SystemId);
+                    EmailMgt.Run();
                 end;
             }
         }
@@ -2333,8 +2332,7 @@
         if NewMode then
             CreateCustomerFromTemplate
         else
-            if FoundationOnly then
-                StartBackgroundCalculations();
+            StartBackgroundCalculations();
         ActivateFields;
         SetCreditLimitStyle();
 
@@ -2394,7 +2392,9 @@
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
         WorkflowEventHandling: Codeunit "Workflow Event Handling";
         OfficeManagement: Codeunit "Office Management";
+        EmailFeature: Codeunit "Email Feature";
     begin
+        EmailImprovementFeatureEnabled := EmailFeature.IsEnabled();
         CRMIntegrationEnabled := CRMIntegrationManagement.IsCRMIntegrationEnabled();
         CDSIntegrationEnabled := CRMIntegrationManagement.IsCDSIntegrationEnabled();
         if CRMIntegrationEnabled or CDSIntegrationEnabled then
@@ -2542,6 +2542,7 @@
         StyleTxt: Text;
         [InDataSet]
         ContactEditable: Boolean;
+        EmailImprovementFeatureEnabled: Boolean;
         CRMIntegrationEnabled: Boolean;
         CDSIntegrationEnabled: Boolean;
         BlockedFilterApplied: Boolean;

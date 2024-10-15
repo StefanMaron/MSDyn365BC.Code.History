@@ -2359,6 +2359,82 @@ codeunit 137400 "SCM Inventory - Orders"
         ItemChargeAssignmentSales.TestField("Amount to Assign", SalesLine[3].Amount);
     end;
 
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure ResetItemChargeAssignmentOnChangeVendor()
+    var
+        ItemCharge: Record "Item Charge";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLineItem: Record "Purchase Line";
+        PurchaseLineCharge: Record "Purchase Line";
+        ItemChargeAssignmentPurch: Record "Item Charge Assignment (Purch)";
+    begin
+        // [FEATURE] [Item Charge] [Purchase] [Order]
+        // [SCENARIO 405932] "Qty. to Assign" and "Amount to Assign" are reset to zero when you change vendor no. in purchase order.
+        Initialize(false);
+
+        // [GIVEN] Item charge.
+        LibraryInventory.CreateItemCharge(ItemCharge);
+
+        // [GIVEN] Purchase order with an item line and an item charge line.
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLineItem, PurchaseHeader."Document Type"::Order, '',
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10), '', WorkDate);
+        CreatePurchaseLine(
+          PurchaseHeader, PurchaseLineCharge, PurchaseLineCharge.Type::"Charge (Item)", ItemCharge."No.", LibraryRandom.RandInt(10));
+
+        // [GIVEN] Assign item charge to the item line.
+        LibraryInventory.CreateItemChargeAssignPurchase(
+          ItemChargeAssignmentPurch, PurchaseLineCharge, PurchaseLineItem."Document Type", PurchaseLineItem."Document No.",
+          PurchaseLineItem."Line No.", PurchaseLineItem."No.");
+
+        // [WHEN] Change vendor no. in the purchase order.
+        PurchaseHeader.Validate("Buy-from Vendor No.", LibraryPurchase.CreateVendorNo());
+
+        // [THEN] Quantity and amount to assign are reset to 0.
+        ItemChargeAssignmentPurch.Find();
+        ItemChargeAssignmentPurch.TestField("Qty. to Assign", 0);
+        ItemChargeAssignmentPurch.TestField("Amount to Assign", 0);
+    end;
+
+    [Test]
+    [HandlerFunctions('ConfirmHandler')]
+    procedure ResetItemChargeAssignmentOnChangeCustomer()
+    var
+        ItemCharge: Record "Item Charge";
+        SalesHeader: Record "Sales Header";
+        SalesLineItem: Record "Sales Line";
+        SalesLineCharge: Record "Sales Line";
+        ItemChargeAssignmentSales: Record "Item Charge Assignment (Sales)";
+    begin
+        // [FEATURE] [Item Charge] [Sales] [Order]
+        // [SCENARIO 405932] "Qty. to Assign" and "Amount to Assign" are reset to zero when you change customer no. in sales order.
+        Initialize(false);
+
+        // [GIVEN] Item charge.
+        LibraryInventory.CreateItemCharge(ItemCharge);
+
+        // [GIVEN] Sales order with an item line and an item charge line.
+        LibrarySales.CreateSalesDocumentWithItem(
+          SalesHeader, SalesLineItem, SalesHeader."Document Type"::Order, '',
+          LibraryInventory.CreateItemNo(), LibraryRandom.RandInt(10), '', WorkDate);
+        CreateSalesLine(
+          SalesLineCharge, SalesHeader, SalesLineCharge.Type::"Charge (Item)", ItemCharge."No.", LibraryRandom.RandInt(10));
+
+        // [GIVEN] Assign item charge to the item line.
+        LibraryInventory.CreateItemChargeAssignment(
+          ItemChargeAssignmentSales, SalesLineCharge, SalesLineItem."Document Type", SalesLineItem."Document No.",
+          SalesLineItem."Line No.", SalesLineItem."No.");
+
+        // [WHEN] Change customer no. in the sales order.
+        SalesHeader.Validate("Sell-to Customer No.", LibrarySales.CreateCustomerNo());
+
+        // [THEN] Quantity and amount to assign are reset to 0.
+        ItemChargeAssignmentSales.Find();
+        ItemChargeAssignmentSales.TestField("Qty. to Assign", 0);
+        ItemChargeAssignmentSales.TestField("Amount to Assign", 0);
+    end;
+
     local procedure Initialize(Enable: Boolean)
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

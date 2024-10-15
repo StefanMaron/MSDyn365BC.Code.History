@@ -732,6 +732,30 @@ codeunit 144002 "ERM Fixed Assets - Local"
         VerifyFAProjectionTaxBookInTheMidOfPeriod;
     end;
 
+    [Test]
+    procedure FAPostingDateOnPurchaseOrderLinesUI()
+    var
+        PurchaseOrderSubform: TestPage "Purchase Order Subform";
+    begin
+        // [FEATURE] [Fixed Asset] [UI]
+        // [SCENARIO 404315] FA Posting Date field is visible on purchase order lines
+        PurchaseOrderSubform.OpenEdit();
+        Assert.IsTrue(PurchaseOrderSubform."FA Posting Date".Visible(), '');
+        PurchaseOrderSubform.Close();
+    end;
+
+    [Test]
+    procedure FAPostingDateOnPurchaseInvoiceLinesUI()
+    var
+        PurchInvoiceSubform: TestPage "Purch. Invoice Subform";
+    begin
+        // [FEATURE] [Fixed Asset] [UI]
+        // [SCENARIO 404315] FA Posting Date field is visible on purchase invoice lines
+        PurchInvoiceSubform.OpenEdit();
+        Assert.IsTrue(PurchInvoiceSubform."FA Posting Date".Visible(), '');
+        PurchInvoiceSubform.Close();
+    end;
+
     local procedure PrepareBothFABooksWithCustomPeriodAndAcqCostAmount(var NormalDeprBookCode: Code[10]; var TaxDeprBookCode: Code[10]; NoOfYearsNormal: Decimal; NoOfYearsTax: Decimal; AcqCostAmount: Decimal)
     var
         FAJournalLine: Record "FA Journal Line";

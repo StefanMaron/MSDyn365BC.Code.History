@@ -151,6 +151,8 @@ report 4 "Detail Trial Balance"
                             ClosingEntry := true
                         else
                             ClosingEntry := false;
+
+                        NumberOfGLEntryLines += 1;
                     end;
 
                     trigger OnPreDataItem()
@@ -262,10 +264,17 @@ report 4 "Detail Trial Balance"
 
     trigger OnPreReport()
     begin
+        StartDateTime := CurrentDateTime();
         GLFilter := "G/L Account".GetFilters;
         GLDateFilter := "G/L Account".GetFilter("Date Filter");
 
         OnAfterOnPreReport("G/L Account");
+    end;
+
+    trigger OnPostReport()
+    begin
+        FinishDateTime := CurrentDateTime();
+        LogReportTelemetry(StartDateTime, FinishDateTime, NumberOfGLEntryLines);
     end;
 
     var
@@ -290,6 +299,13 @@ report 4 "Detail Trial Balance"
         GLEntryDebitAmtCaptionLbl: Label 'Debit';
         GLEntryCreditAmtCaptionLbl: Label 'Credit';
         GLBalCaptionLbl: Label 'Balance';
+        TelemetryCategoryTxt: Label 'Report', Locked = true;
+        DetailedTrialBalanceReportGeneratedTxt: Label 'Detail Trial Balance report generated.', Locked = true;
+
+    protected var
+        NumberOfGLEntryLines: Integer;
+        StartDateTime: DateTime;
+        FinishDateTime: DateTime;
 
     procedure InitializeRequest(NewPrintOnlyOnePerPage: Boolean; NewExcludeBalanceOnly: Boolean; NewPrintClosingEntries: Boolean; NewPrintReversedEntries: Boolean; NewPrintOnlyCorrections: Boolean)
     begin
@@ -298,6 +314,20 @@ report 4 "Detail Trial Balance"
         PrintClosingEntries := NewPrintClosingEntries;
         PrintReversedEntries := NewPrintReversedEntries;
         PrintOnlyCorrections := NewPrintOnlyCorrections;
+    end;
+
+    local procedure LogReportTelemetry(StartDateTime: DateTime; FinishDateTime: DateTime; NumberOfLines: Integer)
+    var
+        Dimensions: Dictionary of [Text, Text];
+        ReportDuration: BigInteger;
+    begin
+        ReportDuration := FinishDateTime - StartDateTime;
+        Dimensions.Add('Category', TelemetryCategoryTxt);
+        Dimensions.Add('ReportStartTime', Format(StartDateTime, 0, 9));
+        Dimensions.Add('ReportFinishTime', Format(FinishDateTime, 0, 9));
+        Dimensions.Add('ReportDuration', Format(ReportDuration));
+        Dimensions.Add('NumberOfLines', Format(NumberOfLines));
+        Session.LogMessage('0000FJL', DetailedTrialBalanceReportGeneratedTxt, Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, Dimensions);
     end;
 
     [IntegrationEvent(false, false)]
