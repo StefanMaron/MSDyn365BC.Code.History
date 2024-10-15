@@ -79,13 +79,13 @@
         SchemaLocation1xsdTxt: Label '%1  %2', Comment = '%1 - namespase; %2 - xsd location.';
         SchemaLocation2xsdTxt: Label '%1  %2  %3  %4', Comment = '%1 - namespase1; %2 - xsd location1; %3 - namespase2; %4 - xsd location2.';
         SchemaLocation3xsdTxt: Label '%1  %2  %3  %4 %5 %6', Comment = '%1 - namespase1; %2 - xsd location1; %3 - namespase2; %4 - xsd location2; %5 - namespase3; %6 - xsd location3.';
-        XSINamespaceTxt: Label 'http://www.w3.org/2001/XMLSchema-instance', Comment = 'Locked';
-        CFDINamespaceTxt: Label 'http://www.sat.gob.mx/cfd/4', Comment = 'Locked';
-        CartaPorteNamespaceTxt: Label 'http://www.sat.gob.mx/CartaPorte30', Locked = true;
-        CFDIXSDLocationTxt: Label 'http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd', Comment = 'Locked';
-        CFDIComercioExteriorNamespaceTxt: Label 'http://www.sat.gob.mx/ComercioExterior20', Comment = 'Locked';
-        CFDIComercioExteriorSchemaLocationTxt: Label 'http://www.sat.gob.mx/sitio_internet/cfd/ComercioExterior20/ComercioExterior20.xsd', Comment = 'Locked';
-        CartaPorteSchemaLocationTxt: Label 'http://www.sat.gob.mx/sitio_internet/cfd/CartaPorte/CartaPorte30.xsd', Locked = true;
+        XSINamespaceTxt: Label 'http://www.w3.org/2001/XMLSchema-instance', Locked = true;
+        CFDINamespaceTxt: Label 'http://www.sat.gob.mx/cfd/4', Locked = true;
+        CartaPorteNamespaceTxt: Label 'http://www.sat.gob.mx/CartaPorte31', Locked = true;
+        CFDIXSDLocationTxt: Label 'http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd', Locked = true;
+        CFDIComercioExteriorNamespaceTxt: Label 'http://www.sat.gob.mx/ComercioExterior20', Locked = true;
+        CFDIComercioExteriorSchemaLocationTxt: Label 'http://www.sat.gob.mx/sitio_internet/cfd/ComercioExterior20/ComercioExterior20.xsd', Locked = true;
+        CartaPorteSchemaLocationTxt: Label 'http://www.sat.gob.mx/sitio_internet/cfd/CartaPorte/CartaPorte31.xsd', Locked = true;
         CancelSelectionMenuQst: Label 'Cancel Request,Get Response,Mark as Canceled';
 
     procedure RequestStampDocument(var RecRef: RecordRef; Prepayment: Boolean)
@@ -2758,7 +2758,7 @@
         AddNodeCompanyInfo(XMLDoc, XMLCurrNode);
 
         // Receptor
-        AddElementCFDI(XMLCurrNode, 'Receptor', '', DocNameSpace, XMLNewChild);
+        AddElementCFDI(XMLCurrNode, 'Receptor', '', CFDINamespaceTxt, XMLNewChild);
         XMLCurrNode := XMLNewChild;
         AddAttribute(XMLDoc, XMLCurrNode, 'Rfc', CompanyInfo."RFC Number");
         AddAttribute(XMLDoc, XMLCurrNode, 'Nombre', RemoveInvalidChars(CompanyInfo.Name));
@@ -2768,14 +2768,14 @@
 
         // Conceptos
         XMLCurrNode := XMLCurrNode.ParentNode;
-        AddElementCFDI(XMLCurrNode, 'Conceptos', '', DocNameSpace, XMLNewChild);
+        AddElementCFDI(XMLCurrNode, 'Conceptos', '', CFDINamespaceTxt, XMLNewChild);
         XMLCurrNode := XMLNewChild;
 
         // Conceptos->Concepto
         FilterDocumentLines(TempDocumentLine, TempDocumentHeader."No.");
         if TempDocumentLine.FindSet() then
             repeat
-                AddElementCFDI(XMLCurrNode, 'Concepto', '', DocNameSpace, XMLNewChild);
+                AddElementCFDI(XMLCurrNode, 'Concepto', '', CFDINamespaceTxt, XMLNewChild);
                 XMLCurrNode := XMLNewChild;
                 AddAttribute(
                   XMLDoc, XMLCurrNode, 'ClaveProdServ', SATUtilities.GetSATItemClassification(TempDocumentLine.Type, TempDocumentLine."No."));
@@ -2791,7 +2791,7 @@
                 if not TempDocumentHeader."Foreign Trade" then begin
                     NumeroPedimento := FormatNumeroPedimento(TempDocumentLine);
                     if NumeroPedimento <> '' then begin
-                        AddElementCFDI(XMLCurrNode, 'InformacionAduanera', '', DocNameSpace, XMLNewChild);
+                        AddElementCFDI(XMLCurrNode, 'InformacionAduanera', '', CFDINamespaceTxt, XMLNewChild);
                         XMLCurrNode := XMLNewChild;
                         AddAttributeSimple(XMLDoc, XMLCurrNode, 'NumeroPedimento', NumeroPedimento);
                         XMLCurrNode := XMLCurrNode.ParentNode;
@@ -2803,21 +2803,19 @@
         XMLCurrNode := XMLCurrNode.ParentNode;
 
         // Complemento
-        AddElementCFDI(XMLCurrNode, 'Complemento', '', DocNameSpace, XMLNewChild);
+        AddElementCFDI(XMLCurrNode, 'Complemento', '', CFDINamespaceTxt, XMLNewChild);
         XMLCurrNode := XMLNewChild;
 
         // ComercioExterior
         AddNodeComercioExterior(TempDocumentLineCCE, TempDocumentHeader, XMLDoc, XMLCurrNode, XMLNewChild);
 
         // CartaPorte
-        DocNameSpace := 'http://www.sat.gob.mx/CartaPorte30';
-        AddElementCartaPorte(XMLCurrNode, 'CartaPorte', '', DocNameSpace, XMLNewChild);
+        AddElementCartaPorte(XMLCurrNode, 'CartaPorte', '', CartaPorteNamespaceTxt, XMLNewChild);
         XMLCurrNode := XMLNewChild;
-        AddAttribute(XMLDoc, XMLCurrNode, 'Version', '3.0');
+        AddAttribute(XMLDoc, XMLCurrNode, 'Version', '3.1');
         AddAttribute(XMLDoc, XMLCurrNode, 'IdCCP', TempDocumentHeader."Identifier IdCCP");
         if TempDocumentHeader."Foreign Trade" then begin
             AddAttribute(XMLDoc, XMLCurrNode, 'TranspInternac', 'Sí');
-            AddAttribute(XMLDoc, XMLCurrNode, 'RegimenAduanero', TempDocumentHeader."SAT Customs Regime");
             AddAttribute(XMLDoc, XMLCurrNode, 'EntradaSalidaMerc', 'Salida');
             AddAttribute(XMLDoc, XMLCurrNode, 'PaisOrigenDestino', SATUtilities.GetSATCountryCode(TempDocumentHeader."Ship-to/Buy-from Country Code"));
             AddAttribute(XMLDoc, XMLCurrNode, 'ViaEntradaSalida', '01');
@@ -2825,9 +2823,21 @@
             AddAttribute(XMLDoc, XMLCurrNode, 'TranspInternac', 'No');
         AddAttribute(XMLDoc, XMLCurrNode, 'TotalDistRec', FormatDecimal(TempDocumentHeader."Transit Distance", 6));
 
+        if TempDocumentHeader."Foreign Trade" then begin
+            // CartaPorte/RegimenesAduaneros
+            // CartaPorte/RegimenesAduaneros/RegimenAduanero
+            AddElementCartaPorte(XMLCurrNode, 'RegimenesAduaneros', '', CartaPorteNamespaceTxt, XMLNewChild);
+            XMLCurrNode := XMLNewChild;
+            AddElementCartaPorte(XMLCurrNode, 'RegimenAduaneroCCP', '', CartaPorteNamespaceTxt, XMLNewChild);
+            XMLCurrNode := XMLNewChild;
+            AddAttribute(XMLDoc, XMLCurrNode, 'RegimenAduanero', TempDocumentHeader."SAT Customs Regime");
+            XMLCurrNode := XMLCurrNode.ParentNode; // RegimenAduaneroCCP
+            XMLCurrNode := XMLCurrNode.ParentNode; // RegimenesAduaneros
+        end;
+
         // CartaPorte/Ubicaciones
         // CartaPorte/Ubicaciones/Origen
-        AddElementCartaPorte(XMLCurrNode, 'Ubicaciones', '', DocNameSpace, XMLNewChild);
+        AddElementCartaPorte(XMLCurrNode, 'Ubicaciones', '', CartaPorteNamespaceTxt, XMLNewChild);
         XMLCurrNode := XMLNewChild;
         Location.Get(TempDocumentHeader."Transit-from Location");
         AddNodeCartaPorteUbicacion(
@@ -2844,7 +2854,7 @@
         XMLCurrNode := XMLCurrNode.ParentNode; // Ubicaciones
 
         // CartaPorte/Mercancias
-        AddElementCartaPorte(XMLCurrNode, 'Mercancias', '', DocNameSpace, XMLNewChild);
+        AddElementCartaPorte(XMLCurrNode, 'Mercancias', '', CartaPorteNamespaceTxt, XMLNewChild);
         XMLCurrNode := XMLNewChild;
         TempDocumentLine.SetRange("Document No.", TempDocumentHeader."No.");
         TempDocumentLine.CalcSums("Gross Weight");
@@ -2858,7 +2868,7 @@
                 else
                     Item.Init();
                 SATClassificationCode := SATUtilities.GetSATItemClassification(TempDocumentLine.Type, TempDocumentLine."No.");
-                AddElementCartaPorte(XMLCurrNode, 'Mercancia', '', DocNameSpace, XMLNewChild);
+                AddElementCartaPorte(XMLCurrNode, 'Mercancia', '', CartaPorteNamespaceTxt, XMLNewChild);
                 XMLCurrNode := XMLNewChild;
                 AddAttribute(XMLDoc, XMLCurrNode, 'BienesTransp', SATClassificationCode);
                 AddAttribute(XMLDoc, XMLCurrNode, 'Descripcion', EncodeString(TempDocumentLine.Description));
@@ -2882,7 +2892,7 @@
                 end;
 
                 if TempDocumentHeader."Foreign Trade" and (TempDocumentLine."SAT Customs Document Type" <> '') then begin
-                    AddElementCartaPorte(XMLCurrNode, 'DocumentacionAduanera', '', DocNameSpace, XMLNewChild);
+                    AddElementCartaPorte(XMLCurrNode, 'DocumentacionAduanera', '', CartaPorteNamespaceTxt, XMLNewChild);
                     XMLCurrNode := XMLNewChild;
                     AddAttributeSimple(XMLDoc, XMLCurrNode, 'TipoDocumento', TempDocumentLine."SAT Customs Document Type");
                     AddAttributeSimple(XMLDoc, XMLCurrNode, 'IdentDocAduanero', 'identifier');
@@ -2894,11 +2904,11 @@
 
         // CartaPorte/Mercancias/Autotransporte 
         FixedAsset.Get(TempDocumentHeader."Vehicle Code");
-        AddElementCartaPorte(XMLCurrNode, 'Autotransporte', '', DocNameSpace, XMLNewChild);
+        AddElementCartaPorte(XMLCurrNode, 'Autotransporte', '', CartaPorteNamespaceTxt, XMLNewChild);
         XMLCurrNode := XMLNewChild;
         AddAttribute(XMLDoc, XMLCurrNode, 'PermSCT', FixedAsset."SCT Permission Type");
         AddAttribute(XMLDoc, XMLCurrNode, 'NumPermisoSCT', FixedAsset."SCT Permission No.");
-        AddElementCartaPorte(XMLCurrNode, 'IdentificacionVehicular', '', DocNameSpace, XMLNewChild);
+        AddElementCartaPorte(XMLCurrNode, 'IdentificacionVehicular', '', CartaPorteNamespaceTxt, XMLNewChild);
         XMLCurrNode := XMLNewChild;
         AddAttribute(XMLDoc, XMLCurrNode, 'ConfigVehicular', FixedAsset."SAT Federal Autotransport");
         AddAttribute(XMLDoc, XMLCurrNode, 'PesoBrutoVehicular', FormatDecimal(FixedAsset."Vehicle Gross Weight", 2));
@@ -2907,7 +2917,7 @@
         XMLCurrNode := XMLCurrNode.ParentNode; // IdentificacionVehicular
 
         // Seguros
-        AddElementCartaPorte(XMLCurrNode, 'Seguros', '', DocNameSpace, XMLNewChild);
+        AddElementCartaPorte(XMLCurrNode, 'Seguros', '', CartaPorteNamespaceTxt, XMLNewChild);
         XMLCurrNode := XMLNewChild;
         AddAttribute(XMLDoc, XMLCurrNode, 'AseguraRespCivil', TempDocumentHeader."Insurer Name");
         AddAttribute(XMLDoc, XMLCurrNode, 'PolizaRespCivil', TempDocumentHeader."Insurer Policy Number");
@@ -2918,17 +2928,17 @@
         XMLCurrNode := XMLCurrNode.ParentNode; // Seguros
 
         if (TempDocumentHeader."Trailer 1" <> '') or (TempDocumentHeader."Trailer 2" <> '') then begin
-            AddElementCartaPorte(XMLCurrNode, 'Remolques', '', DocNameSpace, XMLNewChild);
+            AddElementCartaPorte(XMLCurrNode, 'Remolques', '', CartaPorteNamespaceTxt, XMLNewChild);
             XMLCurrNode := XMLNewChild;
             if FixedAsset.Get(TempDocumentHeader."Trailer 1") then begin
-                AddElementCartaPorte(XMLCurrNode, 'Remolque', '', DocNameSpace, XMLNewChild);
+                AddElementCartaPorte(XMLCurrNode, 'Remolque', '', CartaPorteNamespaceTxt, XMLNewChild);
                 XMLCurrNode := XMLNewChild;
                 AddAttribute(XMLDoc, XMLCurrNode, 'SubTipoRem', FixedAsset."SAT Trailer Type");
                 AddAttribute(XMLDoc, XMLCurrNode, 'Placa', FixedAsset."Vehicle Licence Plate");
                 XMLCurrNode := XMLCurrNode.ParentNode; // Remolque
             end;
             if FixedAsset.Get(TempDocumentHeader."Trailer 2") then begin
-                AddElementCartaPorte(XMLCurrNode, 'Remolque', '', DocNameSpace, XMLNewChild);
+                AddElementCartaPorte(XMLCurrNode, 'Remolque', '', CartaPorteNamespaceTxt, XMLNewChild);
                 XMLCurrNode := XMLNewChild;
                 AddAttribute(XMLDoc, XMLCurrNode, 'SubTipoRem', FixedAsset."SAT Trailer Type");
                 AddAttribute(XMLDoc, XMLCurrNode, 'Placa', FixedAsset."Vehicle Licence Plate");
@@ -2940,13 +2950,13 @@
         XMLCurrNode := XMLCurrNode.ParentNode; // Mercancias
 
         // CartaPorte/FiguraTransporte
-        AddElementCartaPorte(XMLCurrNode, 'FiguraTransporte', '', DocNameSpace, XMLNewChild);
+        AddElementCartaPorte(XMLCurrNode, 'FiguraTransporte', '', CartaPorteNamespaceTxt, XMLNewChild);
         XMLCurrNode := XMLNewChild;
         CFDITransportOperator.SetRange("Document Table ID", TempDocumentHeader."Document Table ID");
         CFDITransportOperator.SetRange("Document No.", TempDocumentHeader."No.");
         if CFDITransportOperator.FindSet() then
             repeat
-                AddElementCartaPorte(XMLCurrNode, 'TiposFigura', '', DocNameSpace, XMLNewChild);
+                AddElementCartaPorte(XMLCurrNode, 'TiposFigura', '', CartaPorteNamespaceTxt, XMLNewChild);
                 XMLCurrNode := XMLNewChild;
                 Employee.Get(CFDITransportOperator."Operator Code");
                 AddAttribute(XMLDoc, XMLCurrNode, 'TipoFigura', '01'); // 01 - Autotransporte Federal
@@ -3409,11 +3419,10 @@
         AddStrComercioExterior(TempDocumentLineCCE, TempDocumentHeader, OutStream);
 
         // CartaPorte/Ubicaciones
-        WriteOutStr(OutStream, '3.0|'); // Version
+        WriteOutStr(OutStream, '3.1|'); // Version
         WriteOutStr(OutStream, TempDocumentHeader."Identifier IdCCP" + '|'); // IdCartaPorte
         if TempDocumentHeader."Foreign Trade" then begin
             WriteOutStr(OutStream, 'Sí' + '|'); // TranspInternac 
-            WriteOutStr(OutStream, TempDocumentHeader."SAT Customs Regime" + '|'); // RegimenAduanero
             WriteOutStr(OutStream, 'Salida|'); // EntradaSalidaMerc
             WriteOutStr(OutStream, SATUtilities.GetSATCountryCode(TempDocumentHeader."Ship-to/Buy-from Country Code") + '|'); // PaisOrigenDestino
             WriteOutStr(OutStream, '01|'); // ViaEntradaSalida
@@ -3421,6 +3430,10 @@
             WriteOutStr(OutStream, 'No|'); // TranspInternac
 
         WriteOutStr(OutStream, FormatDecimal(TempDocumentHeader."Transit Distance", 6) + '|'); // TotalDistRec
+
+        // CartaPorte/RegimenesAduaneros
+        if TempDocumentHeader."Foreign Trade" then
+            WriteOutStr(OutStream, TempDocumentHeader."SAT Customs Regime" + '|'); // RegimenAduanero
 
         // CartaPorte/Ubicaciones
         // CartaPorte/Ubicacion/Origen
@@ -3782,7 +3795,7 @@
         XMLDOMManagement.AddRootElementWithPrefix(XMLDoc, 'Comprobante', 'cfdi', CFDINamespaceTxt, RootXMLNode);
         XMLDOMManagement.AddDeclaration(XMLDoc, '1.0', 'UTF-8', '');
         XMLDOMManagement.AddAttribute(RootXMLNode, 'xmlns:cfdi', CFDINamespaceTxt);
-        XMLDOMManagement.AddAttribute(RootXMLNode, 'xmlns:cartaporte30', CartaPorteNamespaceTxt);
+        XMLDOMManagement.AddAttribute(RootXMLNode, 'xmlns:cartaporte31', CartaPorteNamespaceTxt);
         XMLDOMManagement.AddAttribute(RootXMLNode, 'xmlns:xsi', XSINamespaceTxt);
         if IsForeignTrade then
             XMLDOMManagement.AddAttribute(RootXMLNode, 'xmlns:cce20', CFDIComercioExteriorNamespaceTxt);
@@ -3799,7 +3812,6 @@
               RootXMLNode, 'schemaLocation', 'xsi', XSINamespaceTxt,
               StrSubstNo(SchemaLocation2xsdTxt, CFDINamespaceTxt, CFDIXSDLocationTxt, CartaPorteNamespaceTxt, CartaPorteSchemaLocationTxt));
 
-        DocNameSpace := 'http://www.sat.gob.mx/cfd/4';
         XMLCurrNode := XMLDoc.DocumentElement;
     end;
 
@@ -5811,7 +5823,7 @@
     var
         NewChildNode: DotNet XmlNode;
     begin
-        NodeName := 'cartaporte30:' + NodeName;
+        NodeName := 'cartaporte31:' + NodeName;
         NewChildNode := XMLNode.OwnerDocument.CreateNode('element', NodeName, NameSpace);
         if IsNull(NewChildNode) then
             exit(false);
@@ -5845,7 +5857,7 @@
     begin
         with CompanyInfo do begin
             // Emisor
-            AddElementCFDI(XMLCurrNode, 'Emisor', '', DocNameSpace, XMLNewChild);
+            AddElementCFDI(XMLCurrNode, 'Emisor', '', CFDINamespaceTxt, XMLNewChild);
             XMLCurrNode := XMLNewChild;
             AddAttribute(XMLDoc, XMLCurrNode, 'Rfc', "RFC Number");
             AddAttribute(XMLDoc, XMLCurrNode, 'Nombre', RemoveInvalidChars(Name));
@@ -6054,8 +6066,7 @@ IsVATExemptLine(TempDocumentLine));
         GetCustomer(Customer, DocumentHeader."Bill-to/Pay-To No.", false);
 
         // ComercioExterior
-        DocNameSpace := CFDIComercioExteriorNamespaceTxt;
-        AddElementCCE(XMLCurrNode, 'ComercioExterior', '', DocNameSpace, XMLNewChild);
+        AddElementCCE(XMLCurrNode, 'ComercioExterior', '', CFDIComercioExteriorNamespaceTxt, XMLNewChild);
         XMLCurrNode := XMLNewChild;
         AddAttribute(XMLDoc, XMLCurrNode, 'Version', '2.0');
         if IsTransferDocument(DocumentHeader."Document Table ID") then
@@ -6069,33 +6080,33 @@ IsVATExemptLine(TempDocumentLine));
         AddAttribute(XMLDoc, XMLCurrNode, 'TipoCambioUSD', FormatDecimal(DocumentHeader."Exchange Rate USD", 6));
         AddAttribute(XMLDoc, XMLCurrNode, 'TotalUSD', FormatDecimal(DocumentHeader.Amount * CurrencyFactor, 2));
 
-        AddElementCCE(XMLCurrNode, 'Emisor', '', DocNameSpace, XMLNewChild);
+        AddElementCCE(XMLCurrNode, 'Emisor', '', CFDIComercioExteriorNamespaceTxt, XMLNewChild);
         XMLCurrNode := XMLNewChild;
-        AddElementCCE(XMLCurrNode, 'Domicilio', '', DocNameSpace, XMLNewChild);
+        AddElementCCE(XMLCurrNode, 'Domicilio', '', CFDIComercioExteriorNamespaceTxt, XMLNewChild);
         XMLCurrNode := XMLNewChild;
         Location.Get(DocumentHeader."Location Code");
         AddNodeDomicilio(Location."SAT Address ID", Location.Address, XMLDoc, XMLCurrNode);
         XMLCurrNode := XMLCurrNode.ParentNode; // Domicilio
         XMLCurrNode := XMLCurrNode.ParentNode; // Emisor
 
-        AddElementCCE(XMLCurrNode, 'Receptor', '', DocNameSpace, XMLNewChild);
+        AddElementCCE(XMLCurrNode, 'Receptor', '', CFDIComercioExteriorNamespaceTxt, XMLNewChild);
         XMLCurrNode := XMLNewChild;
         if (SATUtilities.GetSATCountryCode(Customer."Country/Region Code") <> 'MEX') and (Customer."RFC No." = GetForeignRFCNo()) then
             AddAttribute(XMLDoc, XMLCurrNode, 'NumRegIdTrib', Customer."VAT Registration No.");
-        AddElementCCE(XMLCurrNode, 'Domicilio', '', DocNameSpace, XMLNewChild);
+        AddElementCCE(XMLCurrNode, 'Domicilio', '', CFDIComercioExteriorNamespaceTxt, XMLNewChild);
         XMLCurrNode := XMLNewChild;
         AddNodeDomicilio(DocumentHeader."SAT Address ID", DocumentHeader."Bill-to/Pay-To Address", XMLDoc, XMLCurrNode);
         XMLCurrNode := XMLCurrNode.ParentNode; // Domicilio
         XMLCurrNode := XMLCurrNode.ParentNode; // Receptor
 
         // Mercancias
-        AddElementCCE(XMLCurrNode, 'Mercancias', '', DocNameSpace, XMLNewChild);
+        AddElementCCE(XMLCurrNode, 'Mercancias', '', CFDIComercioExteriorNamespaceTxt, XMLNewChild);
         XMLCurrNode := XMLNewChild;
         LineCount := TempDocumentLineCCE.Count();
         TempDocumentLineCCE.FindSet();
         repeat
             LineNo += 1;
-            AddElementCCE(XMLCurrNode, 'Mercancia', '', DocNameSpace, XMLNewChild);
+            AddElementCCE(XMLCurrNode, 'Mercancia', '', CFDIComercioExteriorNamespaceTxt, XMLNewChild);
             XMLCurrNode := XMLNewChild;
             AddAttribute(XMLDoc, XMLCurrNode, 'NoIdentificacion', TempDocumentLineCCE."No.");
             if not IsTransferDocument(DocumentHeader."Document Table ID") then
@@ -6190,7 +6201,7 @@ IsVATExemptLine(TempDocumentLine));
 
     local procedure AddNodeCartaPorteUbicacion(TipoUbicacion: Text; Location: Record Location; LocationPrefix: Text[2]; RFCNo: Text; ForeignRegId: Text; ResidenciaFiscal: Text; FechaHoraSalidaLlegada: Text; DistanciaRecorrida: Text; var XMLDoc: DotNet XmlDocument; XMLCurrNode: DotNet XmlNode; XMLNewChild: DotNet XmlNode)
     begin
-        AddElementCartaPorte(XMLCurrNode, 'Ubicacion', '', DocNameSpace, XMLNewChild);
+        AddElementCartaPorte(XMLCurrNode, 'Ubicacion', '', CartaPorteNamespaceTxt, XMLNewChild);
         XMLCurrNode := XMLNewChild;
         AddAttribute(XMLDoc, XMLCurrNode, 'TipoUbicacion', TipoUbicacion);
         if Location."ID Ubicacion" <> 0 then
@@ -6204,7 +6215,7 @@ IsVATExemptLine(TempDocumentLine));
         if DistanciaRecorrida <> '' then
             AddAttribute(XMLDoc, XMLCurrNode, 'DistanciaRecorrida', DistanciaRecorrida);
 
-        AddElementCartaPorte(XMLCurrNode, 'Domicilio', '', DocNameSpace, XMLNewChild);
+        AddElementCartaPorte(XMLCurrNode, 'Domicilio', '', CartaPorteNamespaceTxt, XMLNewChild);
         XMLCurrNode := XMLNewChild;
         AddNodeDomicilio(Location."SAT Address ID", Location.Address, XMLDoc, XMLCurrNode);
         XMLCurrNode := XMLCurrNode.ParentNode; // Domicilio

@@ -7,19 +7,19 @@ codeunit 1629 "Office Attachment Manager"
     end;
 
     var
-        UrlOrContentString: Text;
+        ContentString: Text;
         NameString: Text;
         Body: Text;
         "Count": Integer;
 
-    procedure Add(FileUrlOrContent: Text; FileName: Text; BodyText: Text)
+    procedure Add(FileContent: Text; FileName: Text; BodyText: Text)
     begin
-        if UrlOrContentString <> '' then begin
-            UrlOrContentString += '|';
+        if ContentString <> '' then begin
+            ContentString += '|';
             NameString += '|';
         end;
 
-        UrlOrContentString += FileUrlOrContent;
+        ContentString += FileContent;
         NameString += FileName;
         if Body = '' then
             Body := BodyText;
@@ -34,14 +34,14 @@ codeunit 1629 "Office Attachment Manager"
     procedure Done()
     begin
         Count := 0;
-        UrlOrContentString := '';
+        ContentString := '';
         NameString := '';
         Body := '';
     end;
 
     procedure GetFiles(): Text
     begin
-        exit(UrlOrContentString);
+        exit(ContentString);
     end;
 
     procedure GetNames(): Text
@@ -51,10 +51,8 @@ codeunit 1629 "Office Attachment Manager"
 
     [Scope('OnPrem')]
     procedure GetBody(): Text
-    var
-        MailMgt: Codeunit "Mail Management";
     begin
-        exit(MailMgt.ImageBase64ToUrl(Body));
+        exit(Body);
     end;
 
     procedure IncrementCount(NewCount: Integer)
