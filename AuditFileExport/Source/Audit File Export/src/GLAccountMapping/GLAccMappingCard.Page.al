@@ -1,14 +1,10 @@
-#if not CLEAN24
-page 5261 "G/L Account Mapping Card"
+page 5272 "G/L Acc. Mapping Card"
 {
-    PageType = Document;
+    PageType = ListPlus;
     SourceTable = "G/L Account Mapping Header";
     Caption = 'G/L Account Mapping';
     PromotedActionCategories = 'New, Process';
     DataCaptionExpression = '';
-    ObsoleteState = Pending;
-    ObsoleteReason = 'This page was replaced by the G/L Acc. Mapping Card page';
-    ObsoleteTag = '24.0';
 
     layout
     {
@@ -123,4 +119,3 @@ page 5261 "G/L Account Mapping Card"
         }
     }
 }
-#endif

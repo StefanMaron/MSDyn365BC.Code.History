@@ -599,7 +599,8 @@ codeunit 5511 "Graph Mgt - Purch. Cr. Memo"
         if CheckUpdatesDisabled(PurchCrMemoEntityBuffer.SystemId) then
             exit;
 
-        PurchCrMemoHdr.Get(PurchCrMemoEntityBuffer."No.");
+        if not PurchCrMemoHdr.Get(PurchCrMemoEntityBuffer."No.") then
+            exit;
         CurrentStatus := PurchCrMemoEntityBuffer.Status;
 
         SetStatusOptionFromPurchaseCreditMemoHeader(PurchCrMemoHdr, PurchCrMemoEntityBuffer);
