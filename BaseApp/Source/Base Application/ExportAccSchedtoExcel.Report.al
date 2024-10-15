@@ -271,7 +271,7 @@ report 29 "Export Acc. Sched. to Excel"
     local procedure UploadClientFile(var ClientFileName: Text; var ServerFileName: Text): Boolean
     begin
         ServerFileName := FileMgt.UploadFile(Text002, ExcelFileExtensionTok);
-        ClientFileName := ServerFileName;
+        ClientFileName := FileMgt.GetFileName(ServerFileName);
         if ServerFileName = '' then
             exit(false);
 

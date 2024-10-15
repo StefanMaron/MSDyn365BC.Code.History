@@ -342,7 +342,7 @@ table 273 "Bank Acc. Reconciliation"
         NoBankAccWithFileFormatMsg: Label 'No bank account exists that is ready for import of bank statement files.\Fill the Bank Statement Import Format field on the card of the bank account that you want to use.';
         PostHighConfidentLinesQst: Label 'All imported bank statement lines were applied with high confidence level.\Do you want to post the payment applications?';
         MustHaveValueQst: Label 'The bank account must have a value in %1. Do you want to open the bank account card?';
-        NoTransactionsImportedMsg: Label 'No bank transactions were imported.';
+        NoTransactionsImportedMsg: Label 'No bank transactions were imported. For example, because the transactions were imported in other bank account reconciliations, or because they are already applied to bank account ledger entries. You can view the applied transactions on the Bank Account Statement List page and on the Posted Payment Reconciliations page.';
 
     procedure CreateDim(Type1: Integer; No1: Code[20])
     var
@@ -509,7 +509,7 @@ table 273 "Bank Acc. Reconciliation"
             exit;
         end;
 
-        if not DummyBankAccReconciliationLine.LinesExist(BankAccReconciliation) then begin
+        if DummyBankAccReconciliationLine.BankStatementLinesListIsEmpty(BankAccReconciliation."Statement No.", BankAccReconciliation."Statement Type", BankAccReconciliation."Bank Account No.") then begin
             DeleteBankAccReconciliation(BankAccReconciliation, BankAccount, LastStatementNo);
             Message(NoTransactionsImportedMsg);
             exit;

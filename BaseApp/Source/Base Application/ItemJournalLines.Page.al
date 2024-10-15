@@ -57,8 +57,7 @@ page 519 "Item Journal Lines"
                 }
                 field("Price Calculation Method"; "Price Calculation Method")
                 {
-                    // Visibility should be turned on by an extension for Price Calculation
-                    Visible = false;
+                    Visible = ExtendedPriceEnabled;
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the method that will be used for price calculation in the item journal line.';
                 }
@@ -273,7 +272,10 @@ page 519 "Item Journal Lines"
     end;
 
     trigger OnOpenPage()
+    var
+        PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
+        ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
         SetDimensionsVisibility;
     end;
 
@@ -289,6 +291,7 @@ page 519 "Item Journal Lines"
         DimVisible6: Boolean;
         DimVisible7: Boolean;
         DimVisible8: Boolean;
+        ExtendedPriceEnabled: Boolean;
 
     local procedure SetDimensionsVisibility()
     var

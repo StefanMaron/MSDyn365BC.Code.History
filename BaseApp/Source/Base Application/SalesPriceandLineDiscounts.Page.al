@@ -176,7 +176,6 @@ page 1345 "Sales Price and Line Discounts"
             {
                 ApplicationArea = Basic, Suite;
                 Caption = 'Set Special Prices';
-                Enabled = SalesPriceIsEnabled;
                 Image = Price;
                 Promoted = true;
                 PromotedCategory = Process;
@@ -234,11 +233,6 @@ page 1345 "Sales Price and Line Discounts"
         "Loaded Disc. Group" := GetLoadedDiscGroup;
     end;
 
-    trigger OnAfterGetCurrRecord()
-    begin
-        SalesPriceIsEnabled := ("Line Type" = "Line Type"::"Sales Price");
-    end;
-
     var
         loadedItemNo: Code[20];
         loadedCustNo: Code[20];
@@ -246,7 +240,6 @@ page 1345 "Sales Price and Line Discounts"
         loadedDiscGroup: Code[20];
         CodeIsVisible: Boolean;
         SalesCodeIsVisible: Boolean;
-        SalesPriceIsEnabled: Boolean;
 
     procedure InitPage(ForItem: Boolean)
     begin

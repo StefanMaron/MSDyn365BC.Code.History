@@ -455,6 +455,42 @@ codeunit 139165 "Integration Table Synch. Test"
         AutoResolveDeletedRecordRestoreRecords(false, TempIntegrationTableMapping.Direction::FromIntegrationTable);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure AutoResolveDeletedRecordNoStrategyBidirectionalOnlyCoupled()
+    var
+        TempIntegrationTableMapping: Record "Integration Table Mapping" temporary;
+    begin
+        AutoResolveDeletedRecordNoStrategy(true, TempIntegrationTableMapping.Direction::Bidirectional);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AutoResolveDeletedRecordNoStrategyBidirectionalAll()
+    var
+        TempIntegrationTableMapping: Record "Integration Table Mapping" temporary;
+    begin
+        AutoResolveDeletedRecordNoStrategy(false, TempIntegrationTableMapping.Direction::Bidirectional);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AutoResolveDeletedRecordNoStrategyUnidirectionalOnlyCoupled()
+    var
+        TempIntegrationTableMapping: Record "Integration Table Mapping" temporary;
+    begin
+        AutoResolveDeletedRecordNoStrategy(true, TempIntegrationTableMapping.Direction::FromIntegrationTable);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    procedure AutoResolveDeletedRecordNoStrategyUnidirectionalAll()
+    var
+        TempIntegrationTableMapping: Record "Integration Table Mapping" temporary;
+    begin
+        AutoResolveDeletedRecordNoStrategy(false, TempIntegrationTableMapping.Direction::FromIntegrationTable);
+    end;
+
     local procedure AutoResolveDeletedRecordRemoveCoupling(OnlyCoupled: Boolean; Direction: Option)
     var
         CRMAccount: Record "CRM Account";
@@ -560,6 +596,68 @@ codeunit 139165 "Integration Table Synch. Test"
         Assert.IsTrue(CRMIntegrationRecord.FindByCRMID(CRMAccount.AccountId), 'The coupling should be restored by the deletion-conflict resolution strategy.');
         Customer.SetRange(Name, CopyStr(CRMAccount.Name, 1, MaxStrLen(Customer.Name)));
         Assert.IsTrue(Customer.FindFirst(), 'The deleted record should be recreated by the deletion-conflict resolution strategy.');
+    end;
+
+    local procedure AutoResolveDeletedRecordNoStrategy(OnlyCoupled: Boolean; Direction: Option)
+    var
+        CRMAccount: Record "CRM Account";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        Customer: Record Customer;
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        IntegrationSynchJob: Record "Integration Synch. Job";
+        IntegrationTableSynch: Codeunit "Integration Table Synch.";
+        I: Integer;
+    begin
+        // [FEATURE] [Integration Synch. Job]
+        // [SCENARIO] Synchronize() should create a failed sync job if the source record is deleted
+        Initialize();
+        IntegrationSynchJob.DeleteAll();
+
+        SourceRecordRef.Open(DATABASE::"CRM Account");
+        SourceRecordRef.DeleteAll();
+        // [GIVEN] A Customer is coupled with a CRM Account
+        LibraryCRMIntegration.CreateCoupledCustomerAndAccount(Customer, CRMAccount);
+
+        // [GIVEN] A Customer is deleted, coupling is corrupted
+        CRMIntegrationRecord.FindByCRMID(CRMAccount.AccountId);
+        CRMIntegrationRecord.Delete();
+        Customer.Delete(true);
+        CRMIntegrationRecord.Insert();
+
+        SourceRecordRef.GetTable(CRMAccount);
+
+        ResetDefaultCRMSetupConfiguration();
+        IntegrationTableMapping.SetRange("Table ID", DATABASE::Customer);
+        IntegrationTableMapping.FindFirst();
+
+        // [WHEN] Remove Coupling startegy is set for deleted coupled records
+        IntegrationTableMapping."Deletion-Conflict Resolution" := IntegrationTableMapping."Deletion-Conflict Resolution"::None;
+        IntegrationTableMapping."Synch. Only Coupled Records" := OnlyCoupled;
+        IntegrationTableMapping.Direction := Direction;
+        IntegrationTableMapping.Modify();
+
+        for I := 1 to 2 do begin
+            // [WHEN] Running the Table Sync
+            SourceRecordRef.GetBySystemId(SourceRecordRef.Field(SourceRecordRef.SystemIdNo()).Value());
+            DestinationRecordRef.Open(DATABASE::Customer);
+            IntegrationTableSynch.BeginIntegrationSynchJob(
+              TABLECONNECTIONTYPE::CRM, IntegrationTableMapping, SourceRecordRef.Number);
+            IntegrationTableSynch.Synchronize(SourceRecordRef, DestinationRecordRef, false, false);
+            IntegrationTableSynch.EndIntegrationSynchJob();
+
+            if I = 1 then
+                // [THEN] 1 record is failed after the first sync
+                VerifyLastIntegrationSynchJob(IntegrationTableMapping.Name, IntegrationTableMapping.Direction::FromIntegrationTable, 0, 0, 0, 0, 0, 1, '#' + Format(I))
+            else
+                // [THEN] 1 record is skipped after the second sync
+                VerifyLastIntegrationSynchJob(IntegrationTableMapping.Name, IntegrationTableMapping.Direction::FromIntegrationTable, 0, 0, 0, 0, 1, 0, '#' + Format(I));
+
+            // [THEN] The coupling is not deleted
+            Assert.IsTrue(CRMIntegrationRecord.FindByCRMID(CRMAccount.AccountId), 'The coupling should not be deleted if deletion-conflict resolution strategy is none.');
+
+            if I = 1 then
+                Sleep(20);
+        end;
     end;
 
     [Test]
@@ -2500,6 +2598,22 @@ codeunit 139165 "Integration Table Synch. Test"
         Assert.AreEqual(ExpectedModified, TotalModified, 'Unexpected modified row');
         Assert.AreEqual(ExpectedFailed, TotalFailed, 'Unexpected failed rows.\' + ConstructAllFailuresMessage);
         Assert.AreEqual(ExpectedUnchanged, TotalUnchanged, 'Unexpected unchanged row.');
+    end;
+
+    local procedure VerifyLastIntegrationSynchJob(IntegrationTableMappingName: Code[20]; Direction: Option; Inserted: Integer; Modified: Integer; Deleted: Integer; Unchanged: Integer; Skipped: Integer; Failed: Integer; Context: Text)
+    var
+        IntegrationSynchJob: Record "Integration Synch. Job";
+    begin
+        IntegrationSynchJob.SetRange("Integration Table Mapping Name", IntegrationTableMappingName);
+        IntegrationSynchJob.SetRange("Synch. Direction", Direction);
+        IntegrationSynchJob.SetCurrentKey(SystemModifiedAt);
+        IntegrationSynchJob.FindLast();
+        Assert.AreEqual(Inserted, IntegrationSynchJob.Inserted, StrSubstNo('%1. Inserted', Context));
+        Assert.AreEqual(Modified, IntegrationSynchJob.Modified, StrSubstNo('%1. Modified', Context));
+        Assert.AreEqual(Deleted, IntegrationSynchJob.Deleted, StrSubstNo('%1. Deleted', Context));
+        Assert.AreEqual(Unchanged, IntegrationSynchJob.Unchanged, StrSubstNo('%1. Unchanged', Context));
+        Assert.AreEqual(Skipped, IntegrationSynchJob.Skipped, StrSubstNo('%1. Skipped', Context));
+        Assert.AreEqual(Failed, IntegrationSynchJob.Failed, StrSubstNo('%1. Failed', Context));
     end;
 
     [SendNotificationHandler]
