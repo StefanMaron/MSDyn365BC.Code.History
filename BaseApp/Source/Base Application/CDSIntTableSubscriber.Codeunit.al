@@ -338,6 +338,12 @@ codeunit 7205 "CDS Int. Table. Subscriber"
     [EventSubscriber(ObjectType::Codeunit, Codeunit::"Integration Rec. Synch. Invoke", 'OnBeforeInsertRecord', '', false, false)]
     local procedure HandleOnBeforeInsertRecord(SourceRecordRef: RecordRef; DestinationRecordRef: RecordRef)
     var
+        ConfigTemplateHeader: Record "Config. Template Header";
+        IntegrationTableMapping: Record "Integration Table Mapping";
+        CustomerTemplMgt: Codeunit "Customer Templ. Mgt.";
+        VendorTemplMgt: Codeunit "Vendor Templ. Mgt.";
+        ItemTemplMgt: Codeunit "Item Templ. Mgt.";
+        ConfigTemplateCode: Code[10];
         SourceDestCode: Text;
     begin
         if not CDSIntegrationImpl.IsIntegrationEnabled() then
@@ -347,6 +353,13 @@ codeunit 7205 "CDS Int. Table. Subscriber"
 
         if SourceDestCode = 'Contact-CRM Contact' then
             UpdateCRMContactParentCustomerId(SourceRecordRef, DestinationRecordRef);
+
+        if SourceRecordRef.Number in [Database::"CRM Account", Database::"CRM Product"] then begin
+            IntegrationTableMapping.SetRange("Table ID", DestinationRecordRef.Number);
+            IntegrationTableMapping.SetRange("Integration Table ID", SourceRecordRef.Number);
+            if IntegrationTableMapping.FindFirst() then
+                ConfigTemplateCode := IntegrationTableMapping."Table Config Template Code";
+        end;
 
         case SourceDestCode of
             'Customer-CRM Account',
@@ -358,6 +371,18 @@ codeunit 7205 "CDS Int. Table. Subscriber"
                 end;
             'Currency-CRM Transactioncurrency':
                 SetDefaultSymbolOnCRMTransactioncurrencyIfEmpty(DestinationRecordRef);
+            'CRM Account-Customer':
+                if ConfigTemplateCode <> '' then
+                    if ConfigTemplateHeader.Get(ConfigTemplateCode) then
+                        CustomerTemplMgt.FillCustomerKeyFromInitSeries(DestinationRecordRef, ConfigTemplateHeader);
+            'CRM Account-Vendor':
+                if ConfigTemplateCode <> '' then
+                    if ConfigTemplateHeader.Get(ConfigTemplateCode) then
+                        VendorTemplMgt.FillVendorKeyFromInitSeries(DestinationRecordRef, ConfigTemplateHeader);
+            'CRM Product-Item':
+                if ConfigTemplateCode <> '' then
+                    if ConfigTemplateHeader.Get(ConfigTemplateCode) then
+                        ItemTemplMgt.FillItemKeyFromInitSeries(DestinationRecordRef, ConfigTemplateHeader);
         end;
 
         if DestinationRecordRef.Number() = DATABASE::"Salesperson/Purchaser" then
