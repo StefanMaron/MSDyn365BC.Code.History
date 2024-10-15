@@ -732,7 +732,7 @@
                 TempDimSetEntry."Dimension Code" := TempDimBuf."Dimension Code";
                 TempDimSetEntry."Dimension Value Code" := TempDimBuf."Dimension Value Code";
                 TempDimSetEntry."Dimension Value ID" := DimVal."Dimension Value ID";
-                OnGetDefaultDimIDOnBeforeTempDimSetEntryInsert(TempDimSetEntry, TempDimBuf);
+                OnGetDefaultDimIDOnBeforeTempDimSetEntryInsert(TempDimSetEntry, TempDimBuf, SourceCode);
                 TempDimSetEntry.Insert();
             until TempDimBuf.Next = 0;
             NewDimSetID := GetDimensionSetID(TempDimSetEntry);
@@ -2145,7 +2145,13 @@
         JobTaskDimension: Record "Job Task Dimension";
         DimValue: Record "Dimension Value";
         TempDimSetEntry: Record "Dimension Set Entry" temporary;
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCreateDimSetFromJobTaskDim(JobNo, JobTaskNo, GlobalDimVal1, GlobalDimVal2, NewDimSetID, IsHandled);
+        if IsHandled then
+            exit(NewDimSetID);
+
         with JobTaskDimension do begin
             SetRange("Job No.", JobNo);
             SetRange("Job Task No.", JobTaskNo);
@@ -2214,7 +2220,7 @@
         TableMetadata: Record "Table Metadata";
     begin
         if TableMetadata.Get(TableID) then
-            exit(TableMetadata.ObsoleteState <> TableMetadata.ObsoleteState::No);
+            exit(TableMetadata.ObsoleteState = TableMetadata.ObsoleteState::Removed);
     end;
 
     procedure GetConsolidatedDimFilterByDimFilter(var Dimension: Record Dimension; DimFilter: Text) ConsolidatedDimFilter: Text
@@ -2525,7 +2531,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnGetDefaultDimIDOnBeforeTempDimSetEntryInsert(var DimensionSetEntry: Record "Dimension Set Entry"; var DimensionBuffer: Record "Dimension Buffer");
+    local procedure OnGetDefaultDimIDOnBeforeTempDimSetEntryInsert(var DimensionSetEntry: Record "Dimension Set Entry"; var DimensionBuffer: Record "Dimension Buffer"; SourceCode: Code[20]);
     begin
     end;
 
@@ -2566,6 +2572,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnCheckDimValuePostingOnBeforeLogErrors(TempDefaultDim: Record "Default Dimension" temporary; DimSetEntry: Record "Dimension Set Entry"; var LastErrorMessage: Record "Error Message"; var ErrorMessageMgt: Codeunit "Error Message Management"; var isHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateDimSetFromJobTaskDim(JobNo: Code[20]; JobTaskNo: Code[20]; var GlobalDimVal1: Code[20]; var GlobalDimVal2: Code[20]; var NewDimSetID: Integer; var IsHandled: Boolean)
     begin
     end;
 }

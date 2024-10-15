@@ -1438,29 +1438,25 @@ codeunit 139183 "CRM Integration Mapping"
     var
         IntegrationTableMapping: Record "Integration Table Mapping";
         Contact: Record Contact;
-        CRMAccount: Record "CRM Account";
         CRMContact: Record "CRM Contact";
-        CRMIntegrationRecord: Record "CRM Integration Record";
         CRMIntegrationTableSynch: Codeunit "CRM Integration Table Synch.";
     begin
         // [FEATURE] [Contact] [County]
         // [SCENARIO] Synchronizing a CRM Contact, where "Address1_StateOrProvince" is modified.
-        Initialize;
-        ResetCRMConfiguration;
+        Initialize();
+        ResetCRMConfiguration();
 
         // [GIVEN] Coupled Contact and CRM Contact, where "Address1_StateOrProvince" set to 'Texas'
-        LibraryMarketing.CreatePersonContact(Contact);
-        LibraryCRMIntegration.CreateCRMAccountWithCoupledOwner(CRMAccount);
-        LibraryCRMIntegration.CreateCRMContactWithParentAccount(CRMContact, CRMAccount);
+        CreateCoupledContactsWithParents(Contact, CRMContact);
         CRMContact.Address1_StateOrProvince := 'Texas';
         CRMContact.Modify();
-        CRMIntegrationRecord.CoupleRecordIdToCRMID(Contact.RecordId, CRMContact.ContactId);
+
         // [WHEN] Synchronize CRM Contact to Contact
         IntegrationTableMapping.Get('CONTACT');
         CRMIntegrationTableSynch.SynchRecord(IntegrationTableMapping, CRMContact.ContactId, true, false);
 
         // [THEN] Contact, where "County" = 'Texas'
-        Contact.Find;
+        Contact.Find();
         Contact.TestField(County, CRMContact.Address1_StateOrProvince);
     end;
 
@@ -1468,6 +1464,7 @@ codeunit 139183 "CRM Integration Mapping"
     [Scope('OnPrem')]
     procedure SyncContactCountyFromNAV()
     var
+
         IntegrationTableMapping: Record "Integration Table Mapping";
         Contact: Record Contact;
         CRMContact: Record "CRM Contact";
@@ -1475,11 +1472,11 @@ codeunit 139183 "CRM Integration Mapping"
     begin
         // [FEATURE] [Contact] [County] [Not Null]
         // [SCENARIO] Synchronizing a contact, where County is modified in NAV
-        Initialize;
-        ResetCRMConfiguration;
+        Initialize();
+        ResetCRMConfiguration();
 
         // [GIVEN] Coupled CRM Contact and Contact, where "County" set to 'Texas'
-        LibraryCRMIntegration.CreateCoupledContactAndContact(Contact, CRMContact);
+        CreateCoupledContactsWithParents(Contact, CRMContact);
         Contact."Salesperson Code" := '';
         Contact.County := 'Texas';
         Contact.Modify(true);
@@ -2128,6 +2125,34 @@ codeunit 139183 "CRM Integration Mapping"
         IntegrationTableMapping.Name := LibraryUtility.GenerateGUID;
         IntegrationTableMapping."Delete After Synchronization" := true;
         IntegrationTableMapping.Insert();
+    end;
+
+    local procedure CreateCoupledContactsWithParents(var Contact: Record Contact; var CRMContact: Record "CRM Contact")
+    var
+        SalespersonPurchaser: Record "Salesperson/Purchaser";
+        CompanyContact: Record Contact;
+        Customer: Record Customer;
+        CRMAccount: Record "CRM Account";
+        CRMIntegrationRecord: Record "CRM Integration Record";
+        CustomerNo: Code[20];
+    begin
+        LibraryMarketing.CreatePersonContactWithCompanyNo(Contact);
+        CompanyContact.Get(Contact."Company No.");
+        CompanyContact.SetHideValidationDialog(true);
+        CustomerNo := CompanyContact.CreateCustomer('');
+        Customer.Get(CustomerNo);
+        LibraryCRMIntegration.CreateCRMAccountWithCoupledOwner(CRMAccount);
+        CRMIntegrationRecord.CoupleRecordIdToCRMID(Customer.RecordId(), CRMAccount.AccountId);
+        LibraryCRMIntegration.CreateCRMContactWithParentAccount(CRMContact, CRMAccount);
+        CRMIntegrationRecord.CoupleRecordIdToCRMID(Contact.RecordId(), CRMContact.ContactId);
+        CRMContact.OwnerId := CRMAccount.OwnerId;
+        CRMContact.OwnerIdType := CRMAccount.OwnerIdType;
+        CRMContact.Modify();
+        CRMIntegrationRecord.SetRange("CRM ID", CRMContact.OwnerId);
+        CRMIntegrationRecord.FindFirst();
+        SalespersonPurchaser.GetBySystemId(CRMIntegrationRecord."Integration ID");
+        Contact."Salesperson Code" := SalespersonPurchaser.Code;
+        Contact.Modify();
     end;
 
     local procedure CreateCRMSalesorder(var CRMSalesorder: Record "CRM Salesorder")

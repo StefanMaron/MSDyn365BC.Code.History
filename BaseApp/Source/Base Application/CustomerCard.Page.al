@@ -730,7 +730,7 @@ page 21 "Customer Card"
                     field("Balance Due"; OverdueBalance)
                     {
                         ApplicationArea = Basic, Suite;
-                        CaptionClass = Format(StrSubstNo(OverduePaymentsMsg, Format(WorkDate)));
+                        CaptionClass = OverduePaymentsMsg;
                         ToolTip = 'Specifies the sum of outstanding payments from the customer.';
 
                         trigger OnDrillDown()
@@ -2572,7 +2572,7 @@ page 21 "Customer Card"
         CustPaymentsLCY: Decimal;
         CustSalesLCY: Decimal;
         OverdueBalance: Decimal;
-        OverduePaymentsMsg: Label 'Overdue Payments as of %1', Comment = 'Overdue Payments as of 27-02-2012';
+        OverduePaymentsMsg: Label 'Overdue Payments';
         DaysPastDueDate: Decimal;
         PostedInvoicesMsg: Label 'Posted Invoices (%1)', Comment = 'Invoices (5)';
         CreditMemosMsg: Label 'Posted Credit Memos (%1)', Comment = 'Credit Memos (3)';

@@ -109,7 +109,7 @@
                 if not SkipBuyFromContact then
                     UpdateBuyFromCont("Buy-from Vendor No.");
 
-                OnValidateBuyFromVendorNoOnAfterUpdateBuyFromCont(Rec);
+                OnValidateBuyFromVendorNoOnAfterUpdateBuyFromCont(Rec, xRec);
 
                 if (xRec."Buy-from Vendor No." <> '') and (xRec."Buy-from Vendor No." <> "Buy-from Vendor No.") then
                     RecallModifyAddressNotification(GetModifyVendorAddressNotificationId);
@@ -138,7 +138,14 @@
             TableRelation = Vendor;
 
             trigger OnValidate()
+            var
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidatePayToVendorNo(Rec, xRec, Confirmed, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestStatusOpen();
                 if (xRec."Pay-to Vendor No." <> "Pay-to Vendor No.") and
                    (xRec."Pay-to Vendor No." <> '')
@@ -659,7 +666,13 @@
                 VatFactor: Decimal;
                 LineInvDiscAmt: Decimal;
                 InvDiscRounding: Decimal;
+                IsHandled: Boolean;
             begin
+                IsHandled := false;
+                OnBeforeValidatePricesIncludingVAT(Rec, PurchLine, IsHandled);
+                if IsHandled then
+                    exit;
+
                 TestStatusOpen();
 
                 if "Prices Including VAT" <> xRec."Prices Including VAT" then begin
@@ -3209,6 +3222,11 @@
             exit;
 
         IsHandled := false;
+        OnBeforeRecreatePurchLinesHandler(Rec, xRec, ChangedFieldName, IsHandled);
+        if IsHandled then
+            exit;
+
+        IsHandled := false;
         OnRecreatePurchLinesOnBeforeConfirm(Rec, xRec, ChangedFieldName, HideValidationDialog, Confirmed, IsHandled);
         if not IsHandled then
             if GetHideValidationDialog() then
@@ -4493,7 +4511,13 @@
         ErrorContextElement: Codeunit "Error Context Element";
         ErrorMessageMgt: Codeunit "Error Message Management";
         ErrorMessageHandler: Codeunit "Error Message Handler";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeSendToPosting(Rec, IsSuccess, IsHandled);
+        if IsHandled then
+            exit(IsSuccess);
+
         if not IsApprovedForPosting() then
             exit;
 
@@ -5070,6 +5094,19 @@
         exit((xRec."Pay-to Vendor No." <> '') and (xRec."Pay-to Vendor No." <> "Pay-to Vendor No."));
     end;
 
+    procedure CopyBuyFromAddressToPayToAddress()
+    begin
+        if "Pay-to Vendor No." = "Buy-from Vendor No." then begin
+            "Pay-to Address" := "Buy-from Address";
+            "Pay-to Address 2" := "Buy-from Address 2";
+            "Pay-to Post Code" := "Buy-from Post Code";
+            "Pay-to Country/Region Code" := "Buy-from Country/Region Code";
+            "Pay-to City" := "Buy-from City";
+            "Pay-to County" := "Buy-from County";
+            OnAfterCopyBuyFromAddressToPayToAddress(Rec);
+        end;
+    end;
+
     local procedure UpdatePayToAddressFromBuyFromAddress(FieldNumber: Integer)
     begin
         if ("Order Address Code" = '') and PayToAddressEqualsOldBuyFromAddress then
@@ -5192,6 +5229,7 @@
         DocTxt: Text[150];
     begin
         CheckMixedDropShipment;
+        OnSendRecordsOnAfterCheckMixedDropShipment(Rec);
 
         GetReportSelectionsUsageFromDocumentType(ReportSelections.Usage, DocTxt);
 
@@ -5208,6 +5246,7 @@
         DocumentPrint: Codeunit "Document-Print";
     begin
         CheckMixedDropShipment;
+        OnPrintRecordsOnAfterCheckMixedDropShipment(Rec);
         DocumentPrintBuffer.DeleteAll();
         DocumentPrint.InsertDocPrintBuffer(DocumentPrintBuffer, DATABASE::"Purchase Header", "Document Type".AsInteger(), "No.");
         Commit();
@@ -6283,12 +6322,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeRecreatePurchLinesHandler(var PurchHeader: Record "Purchase Header"; xPurchHeader: Record "Purchase Header"; ChangedFieldName: Text[100]; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeSetSecurityFilterOnRespCenter(var PurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeShowDocDim(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSendToPosting(var PurchaseHeader: Record "Purchase Header"; var IsSuccess: Boolean; var IsHandled: Boolean)
     begin
     end;
 
@@ -6348,6 +6397,16 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePayToVendorNo(var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header"; var Confirmed: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeValidatePricesIncludingVAT(var PurchaseHeader: Record "Purchase Header"; var PurchLine: Record "Purchase Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateShortcutDimCode(var PurchaseHeader: Record "Purchase Header"; var xPurchaseHeader: Record "Purchase Header"; FieldNumber: Integer; var ShortcutDimCode: Code[20])
     begin
     end;
@@ -6387,6 +6446,15 @@
     begin
     end;
 
+    [IntegrationEvent(false, false)]
+    local procedure OnPrintRecordsOnAfterCheckMixedDropShipment(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnSendRecordsOnAfterCheckMixedDropShipment(var PurchaseHeader: Record "Purchase Header")
+    begin
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnValidateBuyFromVendorNoOnAfterRecreateLines(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header"; CallingFieldNo: Integer)
@@ -6399,7 +6467,7 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateBuyFromVendorNoOnAfterUpdateBuyFromCont(var PurchaseHeader: Record "Purchase Header")
+    local procedure OnValidateBuyFromVendorNoOnAfterUpdateBuyFromCont(var PurchaseHeader: Record "Purchase Header"; xPurchaseHeader: Record "Purchase Header")
     begin
     end;
 
@@ -6620,6 +6688,11 @@
 
     [IntegrationEvent(false, false)]
     local procedure OnRecreatePurchLinesOnBeforeTransferSavedFields(var Rec: Record "Purchase Header"; var TempPurchLine: Record "Purchase Line" temporary; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterCopyBuyFromAddressToPayToAddress(var Rec: Record "Purchase Header")
     begin
     end;
 }

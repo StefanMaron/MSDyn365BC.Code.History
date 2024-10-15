@@ -227,6 +227,7 @@ page 7316 "Warehouse Movement Subform"
         WhseActivLine: Record "Warehouse Activity Line";
     begin
         WhseActivLine.Copy(Rec);
+        OnAutofillQtyToHandleOnBeforeRecAutofillQtyToHandle(WhseActivLine);
         AutofillQtyToHandle(WhseActivLine);
     end;
 
@@ -327,6 +328,11 @@ page 7316 "Warehouse Movement Subform"
     protected procedure QtytoHandleOnAfterValidate()
     begin
         CurrPage.SaveRecord;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAutofillQtyToHandleOnBeforeRecAutofillQtyToHandle(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
     end;
 }
 

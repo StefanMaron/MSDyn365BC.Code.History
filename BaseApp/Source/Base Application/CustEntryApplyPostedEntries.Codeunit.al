@@ -107,7 +107,7 @@
         HideProgressWindow: Boolean;
         SuppressCommit: Boolean;
     begin
-        OnBeforeCustPostApplyCustLedgEntry(HideProgressWindow);
+        OnBeforeCustPostApplyCustLedgEntry(HideProgressWindow, CustLedgEntry);
         with CustLedgEntry do begin
             if not HideProgressWindow then
                 Window.Open(PostingApplicationMsg);
@@ -380,7 +380,6 @@
     procedure ApplyCustEntryFormEntry(var ApplyingCustLedgEntry: Record "Cust. Ledger Entry")
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
-        ApplyCustEntries: Page "Apply Customer Entries";
         CustEntryApplID: Code[50];
     begin
         if not ApplyingCustLedgEntry.Open then
@@ -401,7 +400,19 @@
         CustLedgEntry.SetCurrentKey("Customer No.", Open, Positive);
         CustLedgEntry.SetRange("Customer No.", ApplyingCustLedgEntry."Customer No.");
         CustLedgEntry.SetRange(Open, true);
-        OnApplyApplyCustEntryFormEntryOnAfterCustLedgEntrySetFilters(CustLedgEntry, ApplyingCustLedgEntry);
+        RunApplyCustEntries(CustLedgEntry, ApplyingCustLedgEntry);
+    end;
+
+    local procedure RunApplyCustEntries(var CustLedgEntry: Record "Cust. Ledger Entry"; var ApplyingCustLedgEntry: Record "Cust. Ledger Entry")
+    var
+        ApplyCustEntries: Page "Apply Customer Entries";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnApplyApplyCustEntryFormEntryOnAfterCustLedgEntrySetFilters(CustLedgEntry, ApplyingCustLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if CustLedgEntry.FindFirst then begin
             ApplyCustEntries.SetCustLedgEntry(ApplyingCustLedgEntry);
             ApplyCustEntries.SetRecord(CustLedgEntry);
@@ -600,12 +611,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeCustPostApplyCustLedgEntry(var HideProgressWindow: Boolean);
+    local procedure OnBeforeCustPostApplyCustLedgEntry(var HideProgressWindow: Boolean; CustLedgEntry: Record "Cust. Ledger Entry");
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnApplyApplyCustEntryFormEntryOnAfterCustLedgEntrySetFilters(var CustLedgerEntry: Record "Cust. Ledger Entry"; var ApplyingCustLedgerEntry: Record "Cust. Ledger Entry" temporary);
+    local procedure OnApplyApplyCustEntryFormEntryOnAfterCustLedgEntrySetFilters(var CustLedgerEntry: Record "Cust. Ledger Entry"; var ApplyingCustLedgerEntry: Record "Cust. Ledger Entry" temporary; var IsHandled: Boolean);
     begin
     end;
 

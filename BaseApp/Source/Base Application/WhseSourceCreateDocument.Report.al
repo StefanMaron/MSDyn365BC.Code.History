@@ -494,7 +494,7 @@ report 7305 "Whse.-Source - Create Document"
             if Location."Use ADCS" then
                 DoNotFillQtytoHandle := true;
 
-            OnAfterOpenPage(Location);
+            OnAfterOpenPage(Location, DoNotFillQtytoHandle);
         end;
     }
 
@@ -1142,7 +1142,7 @@ report 7305 "Whse.-Source - Create Document"
     end;
 
     [IntegrationEvent(TRUE, false)]
-    local procedure OnAfterOpenPage(var Location: Record Location)
+    local procedure OnAfterOpenPage(var Location: Record Location; var DoNotFillQtytoHandle: Boolean)
     begin
     end;
 

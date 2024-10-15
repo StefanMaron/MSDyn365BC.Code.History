@@ -243,7 +243,7 @@ codeunit 99000832 "Sales Line-Reserve"
         IsHandled: Boolean;
     begin
         IsHandled := false;
-        OnBeforeTransferSalesLineToItemJnlLine(SalesLine, IsHandled);
+        OnBeforeTransferSalesLineToItemJnlLine(SalesLine, IsHandled, ItemJnlLine);
         if IsHandled then
             exit;
 
@@ -265,7 +265,7 @@ codeunit 99000832 "Sales Line-Reserve"
 
 
         IsHandled := false;
-        OnTransferSalesLineToItemJnlLineOnBeforeItemJournalLineTest(SalesLine, IsHandled);
+        OnTransferSalesLineToItemJnlLineOnBeforeItemJournalLineTest(SalesLine, IsHandled, ItemJnlLine);
         if not IsHandled then
             ItemJnlLine.TestItemFields(SalesLine."No.", SalesLine."Variant Code", SalesLine."Location Code");
 
@@ -278,7 +278,7 @@ codeunit 99000832 "Sales Line-Reserve"
         if ReservEngineMgt.InitRecordSet(OldReservEntry) then begin
             repeat
                 IsHandled := false;
-                OnTransferSalesLineToItemJnlLineOnBeforeOldReservEntryTest(SalesLine, IsHandled);
+                OnTransferSalesLineToItemJnlLineOnBeforeOldReservEntryTest(SalesLine, IsHandled, ItemJnlLine);
                 if not IsHandled then
                     OldReservEntry.TestItemFields(SalesLine."No.", SalesLine."Variant Code", SalesLine."Location Code");
 
@@ -302,7 +302,7 @@ codeunit 99000832 "Sales Line-Reserve"
 
                     if OldReservEntry."Item Tracking" <> OldReservEntry."Item Tracking"::None then begin
                         IsHandled := false;
-                        OnTransferSalesLineToItemJnlLineOnBeforeApplFromItemEntryTestField(SalesLine, OldReservEntry, IsHandled);
+                        OnTransferSalesLineToItemJnlLineOnBeforeApplFromItemEntryTestField(SalesLine, OldReservEntry, IsHandled, ItemJnlLine);
                         if not IsHandled then
                             OldReservEntry.TestField("Appl.-from Item Entry");
                         CreateReservEntry.SetApplyFromEntryNo(OldReservEntry."Appl.-from Item Entry");
@@ -1068,12 +1068,12 @@ codeunit 99000832 "Sales Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTransferSalesLineToItemJnlLineOnBeforeItemJournalLineTest(SalesLine: Record "Sales Line"; var IsHandled: Boolean);
+    local procedure OnTransferSalesLineToItemJnlLineOnBeforeItemJournalLineTest(SalesLine: Record "Sales Line"; var IsHandled: Boolean; var ItemJnlLine: Record "Item Journal Line");
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTransferSalesLineToItemJnlLineOnBeforeOldReservEntryTest(SalesLine: Record "Sales Line"; var IsHandled: Boolean);
+    local procedure OnTransferSalesLineToItemJnlLineOnBeforeOldReservEntryTest(SalesLine: Record "Sales Line"; var IsHandled: Boolean; var ItemJnlLine: Record "Item Journal Line");
     begin
     end;
 
@@ -1083,7 +1083,7 @@ codeunit 99000832 "Sales Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnTransferSalesLineToItemJnlLineOnBeforeApplFromItemEntryTestField(SalesLine: Record "Sales Line"; OldReservEntry: Record "Reservation Entry"; var IsHandled: Boolean)
+    local procedure OnTransferSalesLineToItemJnlLineOnBeforeApplFromItemEntryTestField(SalesLine: Record "Sales Line"; OldReservEntry: Record "Reservation Entry"; var IsHandled: Boolean; var ItemJnlLine: Record "Item Journal Line")
     begin
     end;
 
@@ -1098,7 +1098,7 @@ codeunit 99000832 "Sales Line-Reserve"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTransferSalesLineToItemJnlLine(var SalesLine: Record "Sales Line"; var IsHandled: Boolean)
+    local procedure OnBeforeTransferSalesLineToItemJnlLine(var SalesLine: Record "Sales Line"; var IsHandled: Boolean; var ItemJnlLine: Record "Item Journal Line")
     begin
     end;
 

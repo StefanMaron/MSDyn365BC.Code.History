@@ -91,7 +91,8 @@ codeunit 134487 "Default Dimension"
             if FindSet then
                 repeat
                     TableMetadata.Get("Object ID");
-                    TableMetadata.TestField(ObsoleteState, TableMetadata.ObsoleteState::No);
+                    if TableMetadata.ObsoleteState = TableMetadata.ObsoleteState::Removed then
+                        TableMetadata.FieldError(ObsoleteState);
                     TestField("Object Caption");
                     Assert.IsTrue(PKContainsOneField("Object ID"), 'PK contains not one field:' + Format("Object ID"));
                 until Next = 0;
@@ -102,6 +103,7 @@ codeunit 134487 "Default Dimension"
     procedure T010_DefaultDimForAllAllowedTables()
     var
         TempAllObjWithCaption: Record AllObjWithCaption temporary;
+        TableMetadata: Record "Table Metadata";
         DimensionManagement: Codeunit DimensionManagement;
     begin
         // [FEATURE] [UT]
@@ -111,7 +113,9 @@ codeunit 134487 "Default Dimension"
         TempAllObjWithCaption.SetFilter("Object ID", '<>%1&<>%2', DATABASE::"Vendor Agreement", DATABASE::"Customer Agreement");
         if TempAllObjWithCaption.FindSet then
             repeat
-                ValidateNotExistingNo(TempAllObjWithCaption."Object ID", RenameMasterRecord(TempAllObjWithCaption."Object ID"));
+                TableMetadata.Get(TempAllObjWithCaption."Object ID");
+                if TableMetadata.ObsoleteState = TableMetadata.ObsoleteState::No then
+                    ValidateNotExistingNo(TempAllObjWithCaption."Object ID", RenameMasterRecord(TempAllObjWithCaption."Object ID"));
             until TempAllObjWithCaption.Next = 0;
     end;
 

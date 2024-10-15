@@ -1,4 +1,4 @@
-codeunit 5703 "Catalog Item Management"
+﻿codeunit 5703 "Catalog Item Management"
 {
 
     trigger OnRun()
@@ -40,9 +40,7 @@ codeunit 5703 "Catalog Item Management"
         OnNonstockAutoItemOnBeforeInsertItemUnitOfMeasure(NonStock2);
         InsertItemUnitOfMeasure(NonStock2."Unit of Measure", NonStock2."Item No.");
 
-        NonStock2.TestField("Vendor No.");
-        NonStock2.TestField("Vendor Item No.");
-        NonStock2.TestField("Item Template Code");
+        CheckNonStockItem(NonStock2);
 
         if NewItem.Get(NonStock2."Item No.") then
             Error(Text000, NonStock2."Item No.");
@@ -57,6 +55,22 @@ codeunit 5703 "Catalog Item Management"
             NonstockItemReference(NonStock2);
         if CheckLicensePermission(DATABASE::"Item Cross Reference") and not ItemReferenceMgt.IsEnabled() then
             NonstockItemCrossRef(NonStock2);
+
+        OnAfterNonstockAutoItem(NonStock2, NewItem);
+    end;
+
+    local procedure CheckNonStockItem(NonStock2: Record "Nonstock Item")
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckNonStockItem(NonStock2, IsHandled);
+        if IsHandled then
+            exit;
+
+        NonStock2.TestField("Vendor No.");
+        NonStock2.TestField("Vendor Item No.");
+        NonStock2.TestField("Item Template Code");
     end;
 
     procedure NonstockItemVend(NonStock2: Record "Nonstock Item")
@@ -125,7 +139,10 @@ codeunit 5703 "Catalog Item Management"
         ItemReference: Record "Item Reference";
         IsHandled: Boolean;
     begin
+        IsHandled := false;
         OnBeforeNonstockItemCrossRef(NonStock2, IsHandled);
+        if IsHandled then
+            exit;
 
         ItemReference.SetRange("Item No.", NonStock2."Item No.");
         ItemReference.SetRange("Unit of Measure", NonStock2."Unit of Measure");
@@ -240,6 +257,7 @@ codeunit 5703 "Catalog Item Management"
         if CheckLicensePermission(DATABASE::"Item Cross Reference") and not ItemReferenceMgt.IsEnabled() then
             NonstockItemCrossRef(NonStock);
 
+        OnNonStockSalesOnBeforeProgWindowClose(NonStock, NewItem);
         ProgWindow.Close();
     end;
 
@@ -345,9 +363,7 @@ codeunit 5703 "Catalog Item Management"
         OnCreateItemFromNonstockOnBeforeInsertItemUnitOfMeasure(NonStock2);
         InsertItemUnitOfMeasure(Nonstock2."Unit of Measure", Nonstock2."Item No.");
 
-        Nonstock2.TestField("Vendor No.");
-        Nonstock2.TestField("Vendor Item No.");
-        Nonstock2.TestField("Item Template Code");
+        CheckNonStockItem(NonStock2);
 
         if NewItem.Get(Nonstock2."Item No.") then
             Error(Text000, Nonstock2."Item No.");
@@ -376,6 +392,8 @@ codeunit 5703 "Catalog Item Management"
     var
         SalesLineArch: Record "Sales Line Archive";
     begin
+        OnBeforeDelNonStockItem(Item);
+
         ItemLedgEntry.SetCurrentKey("Item No.");
         ItemLedgEntry.SetRange("Item No.", Item."No.");
         if ItemLedgEntry.FindFirst() then
@@ -424,14 +442,29 @@ codeunit 5703 "Catalog Item Management"
             until ProdBOMLine.Next = 0;
 
         NewItem.Get(Item."No.");
-        if NewItem.Delete(true) then begin
-            NonStock.SetRange("Item No.", Item."No.");
-            if NonStock.Find('-') then
-                repeat
-                    NonStock."Item No." := '';
-                    NonStock.Modify();
-                until NonStock.Next = 0;
-        end;
+        DeleteCreatedFromNonstockItem();
+    end;
+
+    local procedure DeleteCreatedFromNonstockItem()
+    var
+        ItemNo: Code[20];
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeDeleteCreatedFromNonstockItem(NewItem, NonStock, IsHandled);
+        if IsHandled then
+            exit;
+
+        ItemNo := NewItem."No.";
+        if NewItem."Created From Nonstock Item" then
+            if NewItem.Delete(true) then begin
+                NonStock.SetRange("Item No.", ItemNo);
+                if NonStock.Find('-') then
+                    repeat
+                        NonStock."Item No." := '';
+                        NonStock.Modify();
+                    until NonStock.Next() = 0;
+            end;
     end;
 
     local procedure InsertItemUnitOfMeasure(UnitOfMeasureCode: Code[10]; ItemNo: Code[20])
@@ -579,12 +612,32 @@ codeunit 5703 "Catalog Item Management"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterNonstockAutoItem(var NonStock: Record "Nonstock Item"; var NewItem: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     procedure OnBeforeCreateItemFromNonstock(var NonstockItem: Record "Nonstock Item")
     begin
     end;
 
     [IntegrationEvent(false, false)]
+    procedure OnBeforeCheckNonStockItem(var NonstockItem: Record "Nonstock Item"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCreateNewItem(var Item: Record Item; ItemTemplate: Record "Item Template"; NonstockItem: Record "Nonstock Item")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDelNonStockItem(var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeDeleteCreatedFromNonstockItem(var NewItem: Record Item; var NonStock: Record "Nonstock Item"; var IsHandled: Boolean)
     begin
     end;
 
@@ -635,6 +688,11 @@ codeunit 5703 "Catalog Item Management"
 
     [IntegrationEvent(false, false)]
     local procedure OnNonStockSalesOnBeforeInsertItemUnitOfMeasure(var NonStockItem: Record "Nonstock Item")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnNonStockSalesOnBeforeProgWindowClose(var NonStockItem: Record "Nonstock Item"; var NewItem: Record Item)
     begin
     end;
 

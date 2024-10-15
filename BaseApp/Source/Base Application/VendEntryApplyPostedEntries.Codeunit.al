@@ -95,7 +95,6 @@ codeunit 227 "VendEntry-Apply Posted Entries"
     var
         SourceCodeSetup: Record "Source Code Setup";
         GenJnlLine: Record "Gen. Journal Line";
-        UpdateAnalysisView: Codeunit "Update Analysis View";
         GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line";
         GenJnlPostPreview: Codeunit "Gen. Jnl.-Post Preview";
         Window: Dialog;
@@ -145,8 +144,21 @@ codeunit 227 "VendEntry-Apply Posted Entries"
 
             Commit();
             Window.Close;
-            UpdateAnalysisView.UpdateAll(0, true);
+            RunUpdateAnalysisView();
         end;
+    end;
+
+    local procedure RunUpdateAnalysisView()
+    var
+        UpdateAnalysisView: Codeunit "Update Analysis View";
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunUpdateAnalysisView(IsHandled);
+        if IsHandled then
+            exit;
+
+        UpdateAnalysisView.UpdateAll(0, true);
     end;
 
     local procedure FindLastApplDtldVendLedgEntry(): Integer
@@ -376,7 +388,13 @@ codeunit 227 "VendEntry-Apply Posted Entries"
         VendLedgEntry: Record "Vendor Ledger Entry";
         ApplyVendEntries: Page "Apply Vendor Entries";
         VendEntryApplID: Code[50];
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeApplyVendEntryFormEntry(ApplyingVendLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if not ApplyingVendLedgEntry.Open then
             Error(CannotApplyClosedEntriesErr);
 
@@ -564,6 +582,11 @@ codeunit 227 "VendEntry-Apply Posted Entries"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeApplyVendEntryFormEntry(var ApplyingVendLedgEntry: Record "Vendor Ledger Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeGetApplicationDate(VendorLedgEntry: Record "Vendor Ledger Entry"; var ApplicationDate: Date; var IsHandled: Boolean)
     begin
     end;
@@ -575,6 +598,11 @@ codeunit 227 "VendEntry-Apply Posted Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostUnapplyVendLedgEntry(var GenJournalLine: Record "Gen. Journal Line"; VendorLedgerEntry: Record "Vendor Ledger Entry"; DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry"; var GenJnlPostLine: Codeunit "Gen. Jnl.-Post Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunUpdateAnalysisView(var IsHandled: Boolean)
     begin
     end;
 

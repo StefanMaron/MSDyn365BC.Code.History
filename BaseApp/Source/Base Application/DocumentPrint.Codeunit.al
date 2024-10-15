@@ -365,7 +365,7 @@
 
         ReportUsage := GetSalesOrderUsage(Usage);
 
-        SalesHeader.SetRange("No.", SalesHeader."No.");
+        SalesHeader.SetRecFilter();
         CalcSalesDisc(SalesHeader);
         OnBeforePrintSalesOrder(SalesHeader, ReportUsage.AsInteger(), IsPrinted);
         if IsPrinted then

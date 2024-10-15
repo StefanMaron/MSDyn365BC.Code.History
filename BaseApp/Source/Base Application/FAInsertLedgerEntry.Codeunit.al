@@ -1,4 +1,4 @@
-codeunit 5600 "FA Insert Ledger Entry"
+﻿codeunit 5600 "FA Insert Ledger Entry"
 {
     Permissions = TableData "FA Ledger Entry" = rim,
                   TableData "FA Depreciation Book" = rim,
@@ -330,6 +330,8 @@ codeunit 5600 "FA Insert Ledger Entry"
                     "Part of Book Value" := FAPostingTypeSetup."Part of Book Value";
             end;
         end;
+
+        OnAfterSetFAPostingType(FALedgEntry, FAPostingTypeSetup);
     end;
 
     local procedure GetExchangeRate(ExchangeRate: Decimal): Decimal
@@ -1120,6 +1122,11 @@ codeunit 5600 "FA Insert Ledger Entry"
                 "Debit Amount" := 0;
                 "Credit Amount" := -Amount;
             end;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterSetFAPostingType(var FALedgEntry: Record "FA Ledger Entry"; FAPostingTypeSetup: Record "FA Posting Type Setup")
+    begin
     end;
 
     [IntegrationEvent(false, false)]

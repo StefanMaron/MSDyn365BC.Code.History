@@ -456,6 +456,7 @@ page 5771 "Whse. Put-away Subform"
         WhseActivLine.Copy(Rec);
         WhseActivLine.SetRange("Activity Type", "Activity Type");
         WhseActivLine.SetRange("No.", "No.");
+        OnAutofillQtyToHandleOnBeforeRecAutofillQtyToHandle(WhseActivLine);
         AutofillQtyToHandle(WhseActivLine);
     end;
 
@@ -531,6 +532,11 @@ page 5771 "Whse. Put-away Subform"
     protected procedure QtytoHandleOnAfterValidate()
     begin
         CurrPage.Update(true);
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAutofillQtyToHandleOnBeforeRecAutofillQtyToHandle(var WarehouseActivityLine: Record "Warehouse Activity Line")
+    begin
     end;
 }
 

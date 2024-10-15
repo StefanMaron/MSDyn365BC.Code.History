@@ -728,6 +728,7 @@
                         GenJnlLine2."Shortcut Dimension 2 Code" := GenJnlAlloc."Shortcut Dimension 2 Code";
                         GenJnlLine2."Dimension Set ID" := GenJnlAlloc."Dimension Set ID";
                         GenJnlLine2."Allow Zero-Amount Posting" := true;
+                        UpdateDimBalBatchName(GenJnlLine2);
                         GenJnlLine2.Correction := Correction;
                         OnPostAllocationsOnBeforePrepareGenJnlLineAddCurr(GenJnlLine2, AllocateGenJnlLine);
                         PrepareGenJnlLineAddCurr(GenJnlLine2);
@@ -1545,6 +1546,7 @@
                     CheckDocumentNo(GenJournalLine1);
                     GenJournalLine2.Copy(GenJournalLine1);
                     PrepareGenJnlLineAddCurr(GenJournalLine2);
+                    UpdateDimBalBatchName(GenJournalLine2);
                     OnPostReversingLinesOnBeforeGenJnlPostLine(GenJournalLine2, GenJnlPostLine);
                     GenJnlPostLine.SetPreviewMode(PreviewMode);
                     GenJnlPostLine.RunWithCheck(GenJournalLine2);
@@ -1683,6 +1685,7 @@
             GenJnlLine5.Copy(GenJournalLine);
             PrepareGenJnlLineAddCurr(GenJnlLine5);
             UpdateIncomingDocument(GenJnlLine5);
+            UpdateDimBalBatchName(GenJnlLine5);
             OnBeforePostGenJnlLine(GenJnlLine5, SuppressCommit, IsPosted, GenJnlPostLine);
             if not IsPosted then begin
                 GenJnlPostLine.SetPreviewMode(PreviewMode);
@@ -1928,6 +1931,12 @@
             GenJournalBatch.Delete(true);
             SrcGenJournalLine := SavedGenJournalLine;
         end;
+    end;
+
+    local procedure UpdateDimBalBatchName(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+        if GenJournalLine."Recurring Method" in [GenJournalLine."Recurring Method"::"BD Balance by Dimension", GenJournalLine."Recurring Method"::"RBD Reversing Balance by Dimension"] then
+            GenJournalLine."Journal Batch Name" := SavedGenJournalLine."Journal Batch Name";
     end;
 
     [IntegrationEvent(false, false)]

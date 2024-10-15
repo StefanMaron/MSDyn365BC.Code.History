@@ -1,4 +1,4 @@
-codeunit 99000854 "Inventory Profile Offsetting"
+﻿codeunit 99000854 "Inventory Profile Offsetting"
 {
     Permissions = TableData "Reservation Entry" = id,
                   TableData "Prod. Order Capacity Need" = rmd;
@@ -439,17 +439,27 @@ codeunit 99000854 "Inventory Profile Offsetting"
         OnBeforeTransPurchLineToProfile(InventoryProfile, Item, ToDate);
         if PurchLine.FindLinesWithItemToPlan(Item, PurchLine."Document Type"::Order) then
             repeat
-                if PurchLine."Expected Receipt Date" <> 0D then
-                    if PurchLine."Prod. Order No." = '' then
-                        InsertPurchLineToProfile(InventoryProfile, PurchLine, ToDate);
+                CheckInsertPurchLineToProfile(InventoryProfile, PurchLine, ToDate);
             until PurchLine.Next = 0;
 
         if PurchLine.FindLinesWithItemToPlan(Item, PurchLine."Document Type"::"Return Order") then
             repeat
-                if PurchLine."Expected Receipt Date" <> 0D then
-                    if PurchLine."Prod. Order No." = '' then
-                        InsertPurchLineToProfile(InventoryProfile, PurchLine, ToDate);
+                CheckInsertPurchLineToProfile(InventoryProfile, PurchLine, ToDate);
             until PurchLine.Next = 0;
+    end;
+
+    local procedure CheckInsertPurchLineToProfile(var InventoryProfile: Record "Inventory Profile"; var PurchLine: Record "Purchase Line"; ToDate: Date)
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeCheckInsertPurchLineToProfile(InventoryProfile, PurchLine, ToDate, IsHandled);
+        if IsHandled then
+            exit;
+
+        if PurchLine."Expected Receipt Date" <> 0D then
+            if PurchLine."Prod. Order No." = '' then
+                InsertPurchLineToProfile(InventoryProfile, PurchLine, ToDate);
     end;
 
     local procedure TransProdOrderToProfile(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item; ToDate: Date)
@@ -2046,6 +2056,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
     var
         ReorderQty: Decimal;
     begin
+        OnBeforeCreateSupply(SupplyInvtProfile, DemandInvtProfile);
+
         InitSupply(SupplyInvtProfile, 0, DemandInvtProfile."Due Date", DemandInvtProfile."Due Time");
         ReorderQty := DemandInvtProfile."Untracked Quantity";
         if (not IsExceptionOrder) or RespectPlanningParm then begin
@@ -2520,6 +2532,7 @@ codeunit 99000854 "Inventory Profile Offsetting"
                 if NewPhase = NewPhase::"Routing Created" then
                     SupplyInvtProfile."Planning Line Phase" := SupplyInvtProfile."Planning Line Phase"::"Routing Created";
             end;
+            OnMaintainPlanningLineOnBeforeReqLineModify(ReqLine, SupplyInvtProfile);
             ReqLine.Modify();
         end;
 
@@ -3970,14 +3983,12 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     local procedure ScheduleAllOutChangesSequence(var SupplyInvtProfile: Record "Inventory Profile"; NewDate: Date): Boolean
     var
-        xSupplyInvtProfile: Record "Inventory Profile";
         TempRescheduledSupplyInvtProfile: Record "Inventory Profile" temporary;
-        TryRescheduleSupply: Boolean;
-        HasLooped: Boolean;
-        Continue: Boolean;
         NumberofSupplies: Integer;
+        NextRecExists: Integer;
+        SavedPosition: Integer;
     begin
-        xSupplyInvtProfile.Copy(SupplyInvtProfile);
+        SavedPosition := SupplyInvtProfile."Line No.";
         if (SupplyInvtProfile."Due Date" = 0D) or
            (SupplyInvtProfile."Planning Flexibility" <> SupplyInvtProfile."Planning Flexibility"::Unlimited)
         then
@@ -3986,31 +3997,27 @@ codeunit 99000854 "Inventory Profile Offsetting"
         if not AllowScheduleOut(SupplyInvtProfile, NewDate) then
             exit(false);
 
-        Continue := true;
-        TryRescheduleSupply := true;
+        NextRecExists := 1;
 
-        while Continue do begin
+        // check if reschedule is needed
+        while (SupplyInvtProfile."Due Date" < NewDate) and
+              (SupplyInvtProfile."Action Message" <> SupplyInvtProfile."Action Message"::New) and
+              (SupplyInvtProfile."Planning Flexibility" = SupplyInvtProfile."Planning Flexibility"::Unlimited) and
+              (SupplyInvtProfile."Fixed Date" = 0D) and
+              (NextRecExists <> 0)
+        do begin
             NumberofSupplies += 1;
             TempRescheduledSupplyInvtProfile := SupplyInvtProfile;
-            TempRescheduledSupplyInvtProfile."Line No." := -TempRescheduledSupplyInvtProfile."Line No."; // Use negative Line No. to shift sequence
+            TempRescheduledSupplyInvtProfile."Line No." := -TempRescheduledSupplyInvtProfile."Line No.";
             TempRescheduledSupplyInvtProfile.Insert();
-            if TryRescheduleSupply then begin
-                Reschedule(TempRescheduledSupplyInvtProfile, NewDate, 0T);
-                Continue := TempRescheduledSupplyInvtProfile."Due Date" <> SupplyInvtProfile."Due Date";
-            end;
-            if Continue then
-                if SupplyInvtProfile.Next <> 0 then begin
-                    Continue := SupplyInvtProfile."Due Date" <= NewDate;
-                    TryRescheduleSupply :=
-                      (SupplyInvtProfile."Planning Flexibility" = SupplyInvtProfile."Planning Flexibility"::Unlimited) and
-                      (SupplyInvtProfile."Fixed Date" = 0D);
-                end else
-                    Continue := false;
+            Reschedule(TempRescheduledSupplyInvtProfile, NewDate, 0T);
+
+            NextRecExists := SupplyInvtProfile.Next();
         end;
 
-        // If there is only one supply before the demand we roll back
-        if NumberofSupplies = 1 then begin
-            SupplyInvtProfile.Copy(xSupplyInvtProfile);
+        // if there is only one supply before the demand we roll back
+        if NumberofSupplies <= 1 then begin
+            SupplyInvtProfile.Get(SavedPosition);
             exit(false);
         end;
 
@@ -4020,18 +4027,22 @@ codeunit 99000854 "Inventory Profile Offsetting"
         // If we have resheduled we replace the original supply records with the resceduled ones,
         // we re-write the primary key to make sure that the supplies are handled in the right order.
         if TempRescheduledSupplyInvtProfile.FindSet then begin
+            if NextRecExists <> 0 then
+                SavedPosition := SupplyInvtProfile."Line No."
+            else
+                SavedPosition := 0;
+
             repeat
                 SupplyInvtProfile."Line No." := -TempRescheduledSupplyInvtProfile."Line No.";
                 SupplyInvtProfile.Delete();
                 SupplyInvtProfile := TempRescheduledSupplyInvtProfile;
                 SupplyInvtProfile."Line No." := NextLineNo;
                 SupplyInvtProfile.Insert();
-                if not HasLooped then begin
-                    xSupplyInvtProfile := SupplyInvtProfile; // The first supply is bookmarked
-                    HasLooped := true;
-                end;
-            until TempRescheduledSupplyInvtProfile.Next = 0;
-            SupplyInvtProfile := xSupplyInvtProfile;
+                if SavedPosition = 0 then
+                    SavedPosition := SupplyInvtProfile."Line No.";
+            until TempRescheduledSupplyInvtProfile.Next() = 0;
+
+            SupplyInvtProfile.Get(SavedPosition);
         end;
 
         exit(true);
@@ -4656,6 +4667,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
             ProdOrderLine.Get("Ref. Order Status", "Ref. Order No.", "Ref. Line No.");
             TransferFromProdOrderLine(ProdOrderLine);
         end;
+
+        OnAfterSetProdOrder(ReqLine, ProdOrderLine, InventoryProfile);
     end;
 
     local procedure SetAssembly(var AsmHeader: Record "Assembly Header"; var InventoryProfile: Record "Inventory Profile")
@@ -4795,6 +4808,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterSetProdOrder(var ReqLine: Record "Requisition Line"; var ProdOrderLine: Record "Prod. Order Line"; var InventoryProfile: Record "Inventory Profile")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterShouldDeleteReservEntry(ReservationEntry: Record "Reservation Entry"; ToDate: Date; var DeleteCondition: Boolean)
     begin
     end;
@@ -4820,12 +4838,22 @@ codeunit 99000854 "Inventory Profile Offsetting"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckInsertPurchLineToProfile(var InventoryProfile: Record "Inventory Profile"; var PurchLine: Record "Purchase Line"; ToDate: Date; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeCheckScheduleOut(var InventoryProfile: Record "Inventory Profile"; var TempStockkeepingUnit: Record "Stockkeeping Unit" temporary; BucketSize: DateFormula)
     begin
     end;
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCommonBalancing(var TempSKU: Record "Stockkeeping Unit" temporary; var DemandInvtProfile: Record "Inventory Profile"; var SupplyInvtProfile: Record "Inventory Profile"; PlanningStartDate: Date; ToDate: Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCreateSupply(var SupplyInvtProfile: Record "Inventory Profile"; var DemandInvtProfile: Record "Inventory Profile")
     begin
     end;
 
@@ -5181,6 +5209,11 @@ codeunit 99000854 "Inventory Profile Offsetting"
 
     [IntegrationEvent(false, false)]
     local procedure OnMaintainPlanningLineOnAfterPopulateReqLineFields(var ReqLine: Record "Requisition Line"; var SupplyInvtProfile: Record "Inventory Profile"; DemandInvtProfile: Record "Inventory Profile"; NewPhase: Option " ","Line Created","Routing Created",Exploded,Obsolete; Direction: Option Forward,Backward; var TempSKU: Record "Stockkeeping Unit")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMaintainPlanningLineOnBeforeReqLineModify(var ReqLine: Record "Requisition Line"; var SupplyInvtProfile: Record "Inventory Profile")
     begin
     end;
 }
