@@ -22,6 +22,8 @@ permissionset 1001 "LOCAL"
                   tabledata "Return File Setup" = RIMD,
                   tabledata "Settled VAT Period" = RIMD,
                   tabledata "VAT Code" = RIMD,
+                  tabledata "VAT Specification" = RIMD,
+                  tabledata "VAT Note" = RIMD,
                   tabledata "VAT Period" = RIMD,
                   tabledata "Waiting Journal" = RIMD;
 }

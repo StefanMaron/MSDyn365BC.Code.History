@@ -465,13 +465,6 @@ table 25 "Vendor Ledger Entry"
         field(170; "Creditor No."; Code[20])
         {
             Caption = 'Creditor No.';
-
-            trigger OnValidate()
-            begin
-                if ("Creditor No." <> '') and ("Recipient Bank Account" <> '') then
-                    FieldError("Recipient Bank Account",
-                      StrSubstNo(FieldIsNotEmptyErr, FieldCaption("Creditor No."), FieldCaption("Recipient Bank Account")));
-            end;
         }
         field(171; "Payment Reference"; Code[50])
         {
@@ -496,13 +489,6 @@ table 25 "Vendor Ledger Entry"
         {
             Caption = 'Recipient Bank Account';
             TableRelation = "Vendor Bank Account".Code WHERE("Vendor No." = FIELD("Vendor No."));
-
-            trigger OnValidate()
-            begin
-                if ("Recipient Bank Account" <> '') and ("Creditor No." <> '') then
-                    FieldError("Creditor No.",
-                      StrSubstNo(FieldIsNotEmptyErr, FieldCaption("Recipient Bank Account"), FieldCaption("Creditor No.")));
-            end;
         }
         field(289; "Message to Recipient"; Text[140])
         {
@@ -697,7 +683,6 @@ table 25 "Vendor Ledger Entry"
     }
 
     var
-        FieldIsNotEmptyErr: Label '%1 cannot be used while %2 has a value.', Comment = '%1=Field;%2=Field';
         MustHaveSameSignErr: Label 'must have the same sign as %1';
         MustNotBeLargerErr: Label 'must not be larger than %1';
 

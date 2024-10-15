@@ -1101,6 +1101,7 @@
                             exit;
 
                         OpenSalesOrderStatistics();
+                        CurrPage.SalesLines.Page.ForceTotalsCalculation();
                     end;
                 }
                 action(Customer)

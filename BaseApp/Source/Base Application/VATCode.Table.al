@@ -63,6 +63,21 @@ table 10602 "VAT Code"
             ObsoleteReason = 'Moved to extension';
 #endif
         }
+        field(9; "VAT Specification Code"; Code[50])
+        {
+            Caption = 'VAT Specification Code';
+            TableRelation = "VAT Specification";
+        }
+        field(10; "SAF-T VAT Code"; Code[10])
+        {
+            Caption = 'SAF-T Code';
+            TableRelation = "VAT Code";
+        }
+        field(11; "VAT Note Code"; Code[50])
+        {
+            Caption = 'VAT Note Code';
+            TableRelation = "VAT Note";
+        }
         field(10620; "SAFT Compensation"; Boolean)
         {
             Caption = 'Compensation';
