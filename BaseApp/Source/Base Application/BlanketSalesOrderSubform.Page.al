@@ -54,6 +54,7 @@ page 508 "Blanket Sales Order Subform"
                     begin
                         Rec.CrossReferenceNoLookUp();
                         InsertExtendedText(false);
+                        DeltaUpdateTotals();
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
 
@@ -76,6 +77,7 @@ page 508 "Blanket Sales Order Subform"
                     begin
                         ItemReferenceMgt.SalesReferenceNoLookup(Rec);
                         InsertExtendedText(false);
+                        DeltaUpdateTotals();
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
 
@@ -817,6 +819,7 @@ page 508 "Blanket Sales Order Subform"
                         trigger OnAction()
                         begin
                             Rec.RollupAsmPrice();
+                            CalculateTotals();
                         end;
                     }
                     action("Roll Up &Cost")
@@ -830,6 +833,7 @@ page 508 "Blanket Sales Order Subform"
                         trigger OnAction()
                         begin
                             Rec.RollUpAsmCost();
+                            CalculateTotals();
                         end;
                     }
                 }

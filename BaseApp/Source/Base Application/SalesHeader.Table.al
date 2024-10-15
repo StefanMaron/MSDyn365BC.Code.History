@@ -104,7 +104,8 @@
 
 #if not CLEAN18
                 // NAVCZ
-                "Transaction Type" := Cust."Transaction Type";
+                if Cust."Transaction Type" <> '' then
+                    "Transaction Type" := Cust."Transaction Type";
                 "Transaction Specification" := Cust."Transaction Specification";
                 "Transport Method" := Cust."Transport Method";
                 ValidateShipmentMethodCode(Cust."Shipment Method Code");
@@ -2411,9 +2412,10 @@
                         if ("Salesperson Code" = '') and (Cont."Salesperson Code" <> '') then
                             Validate("Salesperson Code", Cont."Salesperson Code");
 
-                UpdateSellToCust("Sell-to Contact No.");
-                UpdateSellToCustTemplateCode;
-                UpdateShipToContact;
+                if ("Sell-to Contact No." <> xRec."Sell-to Contact No.") then
+                    UpdateSellToCust("Sell-to Contact No.");
+                UpdateSellToCustTemplateCode();
+                UpdateShipToContact();
             end;
         }
         field(5053; "Bill-to Contact No."; Code[20])

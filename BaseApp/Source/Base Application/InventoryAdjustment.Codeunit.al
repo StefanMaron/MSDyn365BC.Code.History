@@ -1301,12 +1301,6 @@ codeunit 5895 "Inventory Adjustment" implements "Inventory Adjustment"
 
                 RoundingError := 0;
                 RoundingErrorACY := 0;
-                if CostElementBuf."Remaining Quantity" = 0 then begin
-                    if CostElementBuf."Actual Cost" = -GLSetup."Amount Rounding Precision" then
-                        RoundingError := -CostElementBuf."Actual Cost";
-                    if CostElementBuf."Actual Cost (ACY)" = -Currency."Amount Rounding Precision" then
-                        RoundingErrorACY := -CostElementBuf."Actual Cost (ACY)";
-                end;
 
                 ExcludeAvgCostOnValuationDate(CostElementBuf, OutbndValueEntry, ExcludedValueEntry);
                 AvgCostBuf.UpdateAvgCostBuffer(

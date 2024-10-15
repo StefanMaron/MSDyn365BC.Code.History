@@ -41,8 +41,8 @@ codeunit 134198 "Price Worksheet Line UT"
         SourceTypeMustBeErr: Label 'Assign-to Type must be equal to ''%1''', Comment = '%1 - source type value';
         ParentSourceNoMustBeFilledErr: Label 'Assign-to Parent No. must have a value';
         ParentSourceNoMustBeBlankErr: Label 'Assign-to Parent No. must be equal to ''''';
-        SourceNoMustBeFilledErr: Label 'Assign-to must have a value';
-        SourceNoMustBeBlankErr: Label 'Assign-to must be equal to ''''';
+        SourceNoMustBeFilledErr: Label 'Assign-to No. must have a value';
+        SourceNoMustBeBlankErr: Label 'Assign-to No. must be equal to ''''';
         SourceGroupJobErr: Label 'Source Group must be equal to ''Job''';
         IsInitialized: Boolean;
 
@@ -1087,7 +1087,7 @@ codeunit 134198 "Price Worksheet Line UT"
         PriceWorksheetLine: Record "Price Worksheet Line";
     begin
         // [FEATURE] [Purchase] [Item Discount Group]
-        // [SCENARIO] Product Type 'Item Discounnt Group' is nnot allowed for 'Purchase'
+        // [SCENARIO] Product Type 'Item Discount Group' is not allowed for 'Purchase'
         Initialize();
 
         PriceWorksheetLine."Price Type" := "Price Type"::Purchase;
@@ -1355,7 +1355,7 @@ codeunit 134198 "Price Worksheet Line UT"
         // [WHEN] Verify source
         asserterror PriceWorksheetLine.Verify();
 
-        // [THEN] Error: "Assign-to must be equal to ''''"
+        // [THEN] Error: "Assign-to No. must be equal to ''''"
         Assert.ExpectedError(SourceNoMustBeBlankErr);
     end;
 
@@ -1375,7 +1375,7 @@ codeunit 134198 "Price Worksheet Line UT"
         // [WHEN] Verify source
         asserterror PriceWorksheetLine.Verify();
 
-        // [THEN] Error: "Assign-to must have a value"
+        // [THEN] Error: "Assign-to No. must have a value"
         Assert.ExpectedError(SourceNoMustBeFilledErr);
     end;
 

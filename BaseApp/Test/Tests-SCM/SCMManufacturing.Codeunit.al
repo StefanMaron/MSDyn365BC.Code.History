@@ -32,6 +32,7 @@ codeunit 137404 "SCM Manufacturing"
         WithNo: Code[20];
         WorkCenterNo2: Code[20];
         CreateNewVersion: Boolean;
+        DeleteExchangedComponent: Boolean;
         isInitialized: Boolean;
         ShowError: Boolean;
         BlankDeleteBeforeDateError: Label 'You must enter the date to delete before.';
@@ -864,6 +865,7 @@ codeunit 137404 "SCM Manufacturing"
         ExchangeNo := FindProductionBOMComponent(Item."Production BOM No.");  // Use ExchangeNo as global for handler.
         WithNo := FindProductionBOMComponent(Item2."Production BOM No.");  // Use WithNo as global for handler.
         CreateNewVersion := true;  // Use CreateNewVersion as global for handler.
+        DeleteExchangedComponent := false;
 
         // [WHEN] Run Exchange Production BOM Item report with Create New Version as true and Delete Exchanged Component as false.
         RunExchangeProductionBOMItemReport;
@@ -895,6 +897,7 @@ codeunit 137404 "SCM Manufacturing"
 
         // [WHEN] Run Exchange Production BOM Item report with Create New Version as false and Delete Exchanged Component as true.
         CreateNewVersion := false;  // Use CreateNewVersion as global for handler.
+        DeleteExchangedComponent := true;
         RunExchangeProductionBOMItemReport;
 
         // [THEN] Exchanged Item has been removed from the BOM.
@@ -962,6 +965,7 @@ codeunit 137404 "SCM Manufacturing"
         ExchangeNo := ComponentItem[2]."No.";
         WithNo := ExchangeItem."No.";
         CreateNewVersion := false;
+        DeleteExchangedComponent := true;
 
         // [WHEN] Run Exchange Production BOM Item report
         asserterror RunExchangeProductionBOMItemReport;
@@ -2359,7 +2363,7 @@ codeunit 137404 "SCM Manufacturing"
 
         // [GIVEN] Item "I2"
         // [WHEN] Run "Exchange Production BOM Item" to replace item "I1" with "I2" and "Create New Version" option
-        RunExchangeProdBOMItemReportWithParameters(ChildItemNo, LibraryInventory.CreateItemNo, true);
+        RunExchangeProdBOMItemReportWithParameters(ChildItemNo, LibraryInventory.CreateItemNo, true, false);
 
         // [THEN] Version for parent BOM has not been created
         ParentProdBOMVersion.SetRange("Production BOM No.", ParentBOMNo);
@@ -2398,7 +2402,7 @@ codeunit 137404 "SCM Manufacturing"
         Components[3] := LibraryInventory.CreateItemNo;
 
         // [WHEN] Run "Exchange Production BOM Item" to replace item "I1" with "I3" and "Create New Version" option
-        RunExchangeProdBOMItemReportWithParameters(Components[1], Components[3], true);
+        RunExchangeProdBOMItemReportWithParameters(Components[1], Components[3], true, false);
 
         // [THEN] New version created containing two items: "I2" and "I3"
         VerifyProductionBOMLineExists(
@@ -2434,7 +2438,7 @@ codeunit 137404 "SCM Manufacturing"
         Components[3] := LibraryInventory.CreateItemNo;
 
         // [WHEN] Run "Exchange Production BOM Item" to replace item "I1" with "I3" and "Create New Version" option
-        RunExchangeProdBOMItemReportWithParameters(Components[1], Components[3], true);
+        RunExchangeProdBOMItemReportWithParameters(Components[1], Components[3], true, false);
 
         // [THEN] New version created contains item "I3", but does no have "I2"
         VerifyProductionBOMLineNotExists(
@@ -2939,8 +2943,8 @@ codeunit 137404 "SCM Manufacturing"
           WorkDate, ProductionBOMLine.Type::Item, Components[1], 1, '9');
 
         // [WHEN] Run "Exchange Production BOM Item" twice with "Create New Version" option to replace item "I1" with "I2" first time and to replace item "I2" with "I3" second time
-        RunExchangeProdBOMItemReportWithParameters(Components[1], Components[2], true);
-        RunExchangeProdBOMItemReportWithParameters(Components[2], Components[3], true);
+        RunExchangeProdBOMItemReportWithParameters(Components[1], Components[2], true, false);
+        RunExchangeProdBOMItemReportWithParameters(Components[2], Components[3], true, false);
 
         // [THEN] New version with "Version Code" = '11' created containing item "I3"
         ProductionBOMLine.SetRange("Production BOM No.", ProdBOMHeader."No.");
@@ -3300,7 +3304,7 @@ codeunit 137404 "SCM Manufacturing"
 
         // [WHEN] Run "Exchange Production BOM Item" to replace item "I1" with "I3" and "Create New Version" option
         Components[3] := LibraryInventory.CreateItemNo;
-        RunExchangeProdBOMItemReportWithParameters(Components[1], Components[3], true);
+        RunExchangeProdBOMItemReportWithParameters(Components[1], Components[3], true, false);
 
         // [THEN] Position fields are transferred to the new Producion BOM Line
         VerifyProducionBOMLinePositionFields(
@@ -3332,6 +3336,7 @@ codeunit 137404 "SCM Manufacturing"
 
         // [WHEN] Run "Exchange Production BOM Item" with Delete Exchanged Component option
         CreateNewVersion := false;  // Use CreateNewVersion as global for handler.
+        DeleteExchangedComponent := true;
         RunExchangeProductionBOMItemReport;
 
         // [THEN] Position fields are transferred to the new Producion BOM Line
@@ -3756,6 +3761,74 @@ codeunit 137404 "SCM Manufacturing"
         ProductionBOMHeader[3].TestField(Status, ProductionBOMHeader[3].Status::Certified);
     end;
 
+    [Test]
+    [HandlerFunctions('ExchangeProductionBOMItemHandler')]
+    procedure PositionCopiedFromDeletedLineWhenExchangeBOMWithDeletion()
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        NewProductionBOMLine: Record "Production BOM Line";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Production BOM] [Exchange Production BOM Item]
+        // [SCENARIO 430176] When Exchange Production BOM Item replaces a component with another one, the Position fields are copied from the deleted BOM line.
+        Initialize();
+
+        ExchangeNo := LibraryInventory.CreateItemNo();
+        ItemNo := LibraryInventory.CreateItemNo();
+        WithNo := LibraryInventory.CreateItemNo();
+
+        LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, ExchangeNo, ItemNo, 1);
+        FindProductionBOMLineByNo(ProductionBOMLine, ProductionBOMHeader."No.", '', ItemNo);
+        SetProducionBOMLinePositionFields(ProductionBOMLine);
+        FindProductionBOMLineByNo(ProductionBOMLine, ProductionBOMHeader."No.", '', ExchangeNo);
+        SetProducionBOMLinePositionFields(ProductionBOMLine);
+
+        CreateNewVersion := false;
+        DeleteExchangedComponent := true;
+        RunExchangeProductionBOMItemReport();
+
+        FindProductionBOMLineByNo(NewProductionBOMLine, ProductionBOMHeader."No.", '', WithNo);
+        NewProductionBOMLine.TestField("Line No.", ProductionBOMLine."Line No.");
+        NewProductionBOMLine.TestField(Position, ProductionBOMLine.Position);
+        NewProductionBOMLine.TestField("Position 2", ProductionBOMLine."Position 2");
+        NewProductionBOMLine.TestField("Position 3", ProductionBOMLine."Position 3");
+    end;
+
+    [Test]
+    [HandlerFunctions('ExchangeProductionBOMItemHandler')]
+    procedure PositionCopiedFromLastLineWhenExchangeBOMWithoutDeletion()
+    var
+        ProductionBOMHeader: Record "Production BOM Header";
+        ProductionBOMLine: Record "Production BOM Line";
+        NewProductionBOMLine: Record "Production BOM Line";
+        ItemNo: Code[20];
+    begin
+        // [FEATURE] [Production BOM] [Exchange Production BOM Item]
+        // [SCENARIO 430176] When Exchange Production BOM Item adds a component, the Position fields are copied from the last BOM line.
+        Initialize();
+
+        ExchangeNo := LibraryInventory.CreateItemNo();
+        ItemNo := LibraryInventory.CreateItemNo();
+        WithNo := LibraryInventory.CreateItemNo();
+
+        LibraryManufacturing.CreateCertifProdBOMWithTwoComp(ProductionBOMHeader, ExchangeNo, ItemNo, 1);
+        FindProductionBOMLineByNo(ProductionBOMLine, ProductionBOMHeader."No.", '', ExchangeNo);
+        SetProducionBOMLinePositionFields(ProductionBOMLine);
+        FindProductionBOMLineByNo(ProductionBOMLine, ProductionBOMHeader."No.", '', ItemNo);
+        SetProducionBOMLinePositionFields(ProductionBOMLine);
+
+        CreateNewVersion := false;
+        DeleteExchangedComponent := false;
+        RunExchangeProductionBOMItemReport();
+
+        FindProductionBOMLineByNo(NewProductionBOMLine, ProductionBOMHeader."No.", '', WithNo);
+        NewProductionBOMLine.TestField("Line No.", ProductionBOMLine."Line No." + 10000);
+        NewProductionBOMLine.TestField(Position, ProductionBOMLine.Position);
+        NewProductionBOMLine.TestField("Position 2", ProductionBOMLine."Position 2");
+        NewProductionBOMLine.TestField("Position 3", ProductionBOMLine."Position 3");
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -3777,6 +3850,7 @@ codeunit 137404 "SCM Manufacturing"
         Clear(ExchangeNo);
         Clear(WithNo);
         Clear(CreateNewVersion);
+        Clear(DeleteExchangedComponent);
         Clear(GLB_ItemTrackingQty);
         Clear(GLB_SerialNo);
         LibraryVariableStorage.Clear;
@@ -5364,11 +5438,12 @@ codeunit 137404 "SCM Manufacturing"
         ExchangeProductionBOMItem.Run;
     end;
 
-    local procedure RunExchangeProdBOMItemReportWithParameters(ItemToExchangeNo: Code[20]; NewItemNo: Code[20]; CreateVersion: Boolean)
+    local procedure RunExchangeProdBOMItemReportWithParameters(ItemToExchangeNo: Code[20]; NewItemNo: Code[20]; CreateVersion: Boolean; DeleteExchangedComp: Boolean)
     begin
         ExchangeNo := ItemToExchangeNo;
         WithNo := NewItemNo;
         CreateNewVersion := CreateVersion;
+        DeleteExchangedComponent := DeleteExchangedComp;
         RunExchangeProductionBOMItemReport;
     end;
 
@@ -6148,7 +6223,7 @@ codeunit 137404 "SCM Manufacturing"
             ExchangeProductionBOMItem.StartingDate.SetValue(Format(WorkDate));
             ExchangeProductionBOMItem.Recertify.SetValue(true);
             ExchangeProductionBOMItem.CopyRoutingLink.SetValue(true);
-            ExchangeProductionBOMItem."Delete Exchanged Component".SetValue(not CreateNewVersion);
+            ExchangeProductionBOMItem."Delete Exchanged Component".SetValue(DeleteExchangedComponent);
         end;
         ExchangeProductionBOMItem.OK.Invoke;
     end;

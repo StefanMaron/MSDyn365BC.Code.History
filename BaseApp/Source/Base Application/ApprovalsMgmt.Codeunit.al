@@ -1142,7 +1142,7 @@ codeunit 1535 "Approvals Mgmt."
         PurchaseHeader: Record "Purchase Header";
         SalesHeader: Record "Sales Header";
         IncomingDocument: Record "Incoming Document";
-#if not CLEAN19
+        #if not CLEAN19
         PaymentOrderHeader: Record "Payment Order Header";
 #if not CLEAN17
         CashDocHeader: Record "Cash Document Header";
@@ -1153,6 +1153,7 @@ codeunit 1535 "Approvals Mgmt."
         SalesAdvanceLetterHeader: Record "Sales Advance Letter Header";
         PurchAdvanceLetterHeader: Record "Purch. Advance Letter Header";
 #endif
+        Vendor: Record Vendor;
         EnumAssignmentMgt: Codeunit "Enum Assignment Management";
         ApprovalAmount: Decimal;
         ApprovalAmountLCY: Decimal;
@@ -1221,6 +1222,11 @@ codeunit 1535 "Approvals Mgmt."
                 begin
                     RecRef.SetTable(IncomingDocument);
                     ApprovalEntryArgument."Document No." := Format(IncomingDocument."Entry No.");
+                end;
+            DATABASE::Vendor:
+                begin
+                    RecRef.SetTable(Vendor);
+                    ApprovalEntryArgument."Salespers./Purch. Code" := Vendor."Purchaser Code";
                 end;
 #if not CLEAN19
             // NAVCZ
@@ -1310,11 +1316,11 @@ codeunit 1535 "Approvals Mgmt."
         if IsNotificationRequiredForCurrentUser and (ApprovalEntry.Status <> ApprovalEntry.Status::Rejected) then
             NotificationEntry.CreateNotificationEntry(
                 NotificationEntry.Type::Approval, ApprovalEntry."Approver ID",
-                ApprovalEntry, WorkflowStepArgument."Link Target Page", WorkflowStepArgument."Custom Link", UserId);
+                ApprovalEntry, WorkflowStepArgument."Link Target Page", WorkflowStepArgument."Custom Link", CopyStr(UserId(), 1, 50));
         if WorkflowStepArgument."Notify Sender" and IsNotifySenderRequired then
             NotificationEntry.CreateNotificationEntry(
                 NotificationEntry.Type::Approval, ApprovalEntry."Sender ID",
-                ApprovalEntry, WorkflowStepArgument."Link Target Page", WorkflowStepArgument."Custom Link", '');
+                ApprovalEntry, WorkflowStepArgument."Link Target Page", WorkflowStepArgument."Custom Link", CopyStr(UserId(), 1, 50));
     end;
 
     local procedure SetApproverType(WorkflowStepArgument: Record "Workflow Step Argument"; var ApprovalEntry: Record "Approval Entry")

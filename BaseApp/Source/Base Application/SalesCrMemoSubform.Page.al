@@ -82,6 +82,7 @@ page 96 "Sales Cr. Memo Subform"
                         InsertExtendedText(false);
                         NoOnAfterValidate();
                         UpdateEditableOnRow();
+                        DeltaUpdateTotals();
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
 
@@ -108,6 +109,7 @@ page 96 "Sales Cr. Memo Subform"
                         InsertExtendedText(false);
                         NoOnAfterValidate();
                         UpdateEditableOnRow();
+                        DeltaUpdateTotals();
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
 

@@ -84,6 +84,7 @@ page 6641 "Purchase Return Order Subform"
                         CrossReferenceNoLookUp;
                         InsertExtendedText(false);
                         NoOnAfterValidate();
+                        DeltaUpdateTotals();
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
 
@@ -108,6 +109,7 @@ page 6641 "Purchase Return Order Subform"
                         ItemReferenceMgt.PurchaseReferenceNoLookup(Rec);
                         InsertExtendedText(false);
                         NoOnAfterValidate();
+                        DeltaUpdateTotals();
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
 

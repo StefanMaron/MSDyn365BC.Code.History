@@ -2577,6 +2577,61 @@ codeunit 134984 "ERM Sales Report III"
         Assert.IsTrue(LibraryVariableStorage.DequeueBoolean(), 'Log Interaction control is not visible');
     end;
 
+    [Test]
+    [HandlerFunctions('RHCustomerBalanceToDateEnableShowEntriesWithZeroBalance')]
+    [Scope('OnPrem')]
+    procedure CustomerBalanceToDateDoesNotShowExtraEntriesWithZeroBalance()
+    var
+        GenJournalLine: Record "Gen. Journal Line";
+        Customer: Record Customer;
+        InvoiceAmount: array[2] of Decimal;
+        InvoiceNo: Code[20];
+    begin
+        // [FEATURE] [Customer - Balance to Date]
+        // [SCENARIO 431846] Report "Customer - Balance to Date" does not print extra lines for applied entries
+        Initialize();
+
+        // [GIVEN] Customer C
+        LibrarySales.CreateCustomer(Customer);
+
+        // [GIVEN] Posted invoice 1 with Customer C and Amount = 1000
+        InvoiceAmount[1] := LibraryRandom.RandDecInRange(100, 200, 2);
+        CreateGenJnlLineWithBalAccount(
+            GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer,
+            Customer."No.", GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
+            InvoiceAmount[1]);
+        InvoiceNo := GenJournalLine."Document No.";
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Posted invoice 1 with Customer C and Amount = 2000
+        InvoiceAmount[2] := LibraryRandom.RandDecInRange(100, 200, 2);
+        CreateGenJnlLineWithBalAccount(
+            GenJournalLine, GenJournalLine."Document Type"::Invoice, GenJournalLine."Account Type"::Customer,
+            Customer."No.", GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
+            InvoiceAmount[2]);
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Posted payment with Customer C and Amount = -1000 applied to invoice 1
+        CreateGenJnlLineWithBalAccount(
+            GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Customer,
+            Customer."No.", GenJournalLine."Bal. Account Type"::"G/L Account", LibraryERM.CreateGLAccountNo,
+            -InvoiceAmount[1]);
+        GenJournalLine.Validate("Applies-to Doc. Type", "Gen. Journal Document Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", InvoiceNo);
+        GenJournalLine.Modify();
+        LibraryERM.PostGeneralJnlLine(GenJournalLine);
+
+        // [GIVEN] Stan ran report "Customer - Balance to Date" and enabled "Show Entries with Zero Balance" on request page
+        RunCustomerBalanceToDateWithLimitTotal(GenJournalLine."Account No.", '', '', '');
+
+        // [WHEN] Stan pushes OK on request page
+        // Done in RHVendorBalanceToDateEnableShowEntriesWithZeroBalance
+
+        // [THEN] Dataset does not contain record related to original payment (only as applied entry) 
+        LibraryReportDataset.LoadDataSetFile();
+        LibraryReportDataset.AssertElementWithValueNotExist('DocType_CustLedgEntry', Format(GenJournalLine."Document Type"::Payment));
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

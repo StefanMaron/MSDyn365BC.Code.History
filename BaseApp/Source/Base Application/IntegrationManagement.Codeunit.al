@@ -666,6 +666,7 @@ codeunit 5150 "Integration Management"
         DataUpgradeMgt: Codeunit "Data Upgrade Mgt.";
         JobQueueDispatcher: Codeunit "Job Queue Dispatcher";
         MomentForJobToBeReady: DateTime;
+        EarliestStartDateTime: DateTime;
     begin
         if DataUpgradeMgt.IsUpgradeInProgress then
             exit;
@@ -679,14 +680,17 @@ codeunit 5150 "Integration Management"
             repeat
                 // Restart only those jobs whose time to re-execute has nearly arrived.
                 // This postpones locking of the Job Queue Entries when restarting.
-                // The job will restart with half a second delay
+                // The rescheduled task might start while the current transaction is not committed yet.
+                // Therefore the task will restart with a delay to lower a risk of use of "old" data.
                 MomentForJobToBeReady := JobQueueDispatcher.CalcNextReadyStateMoment(JobQueueEntry);
-                if CurrentDateTime > MomentForJobToBeReady then
+                EarliestStartDateTime := CurrentDateTime() + 5000; // five seconds delay
+                if EarliestStartDateTime > MomentForJobToBeReady then
                     if DoesJobActOnTable(JobQueueEntry, TableNo) then begin
+                        JobQueueEntry.RefreshLocked();
                         JobQueueEntry.Status := JobQueueEntry.Status::Ready;
-                        JobQueueEntry."Earliest Start Date/Time" := MomentForJobToBeReady;
+                        JobQueueEntry."Earliest Start Date/Time" := EarliestStartDateTime;
                         JobQueueEntry.Modify();
-                        if TaskScheduler.SetTaskReady(JobQueueEntry."System Task ID", MomentForJobToBeReady) then;
+                        if TaskScheduler.SetTaskReady(JobQueueEntry."System Task ID", EarliestStartDateTime) then;
                     end;
             until JobQueueEntry.Next() = 0;
     end;

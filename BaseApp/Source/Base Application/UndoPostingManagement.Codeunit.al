@@ -1035,17 +1035,22 @@
         ReservEntry: Record "Reservation Entry";
         TempReservEntry: Record "Reservation Entry" temporary;
         ReservEngineMgt: Codeunit "Reservation Engine Mgt.";
+        QtyToRevert: Decimal;
     begin
         with TempItemLedgEntry do
             if Find('-') then begin
                 repeat
                     TrackingSpecification.Get("Entry No.");
+                    QtyToRevert := TrackingSpecification."Quantity Invoiced (Base)";
+
                     if not TrackingIsATO(TrackingSpecification) then begin
                         ReservEntry.Init();
                         ReservEntry.TransferFields(TrackingSpecification);
+                        if RevertInvoiced then begin
+                            ReservEntry."Quantity (Base)" := QtyToRevert;
+                            ReservEntry."Quantity Invoiced (Base)" -= QtyToRevert;
+                        end;
                         ReservEntry.Validate("Quantity (Base)");
-                        if RevertInvoiced then
-                            ReservEntry."Quantity Invoiced (Base)" -= TrackingSpecification."Quantity Invoiced (Base)";
                         ReservEntry."Reservation Status" := ReservEntry."Reservation Status"::Surplus;
                         if ReservEntry.Positive then
                             ReservEntry."Expected Receipt Date" := AvailabilityDate
@@ -1059,7 +1064,15 @@
                         TempReservEntry := ReservEntry;
                         TempReservEntry.Insert();
                     end;
-                    TrackingSpecification.Delete();
+
+                    if RevertInvoiced and (TrackingSpecification."Quantity (Base)" <> QtyToRevert) then begin
+                        TrackingSpecification."Quantity (Base)" -= QtyToRevert;
+                        TrackingSpecification."Quantity Handled (Base)" -= QtyToRevert;
+                        TrackingSpecification."Quantity Invoiced (Base)" := 0;
+                        TrackingSpecification."Buffer Value1" -= QtyToRevert;
+                        TrackingSpecification.Modify();
+                    end else
+                        TrackingSpecification.Delete();
                 until Next() = 0;
                 ReservEngineMgt.UpdateOrderTracking(TempReservEntry);
             end;

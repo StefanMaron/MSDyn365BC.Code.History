@@ -54,6 +54,7 @@ page 510 "Blanket Purchase Order Subform"
                     begin
                         Rec.CrossReferenceNoLookUp();
                         InsertExtendedText(false);
+                        DeltaUpdateTotals();
                         OnCrossReferenceNoOnLookup(Rec);
                     end;
 
@@ -76,6 +77,7 @@ page 510 "Blanket Purchase Order Subform"
                     begin
                         ItemReferenceMgt.PurchaseReferenceNoLookup(Rec);
                         InsertExtendedText(false);
+                        DeltaUpdateTotals();
                         OnItemReferenceNoOnLookup(Rec);
                     end;
 

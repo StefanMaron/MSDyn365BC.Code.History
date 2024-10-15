@@ -1060,6 +1060,7 @@ codeunit 134022 "ERM Payment Tolerance"
         GenJournalLine: Record "Gen. Journal Line";
         PaymentTerms: Record "Payment Terms";
         CustomerNo: Code[20];
+        InvoiceNo: Code[20];
         Amount: Decimal;
     begin
         // [FEATURE] [Sales]
@@ -1068,15 +1069,17 @@ codeunit 134022 "ERM Payment Tolerance"
         // Setup: Create and post an invoice of General Journal.
         Amount := CreateAndPostInvoiceOfGenJournalLineForCustomer(GenJournalLine, PaymentTerms);
         CustomerNo := GenJournalLine."Account No.";
+        InvoiceNo := GenJournalLine."Document No.";
 
         // Create Payment and Apply to the Invoice.
         CreatePaymentOfGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Customer, CreateCustomerWithPmtTerms(PaymentTerms.Code),
           GenJournalLine."Bal. Account Type"::"G/L Account", GenJournalLine."Bal. Account No.", -Amount,
-          CalcDate(PaymentTerms."Discount Date Calculation", WorkDate), GenJournalLine."Document No.");
+          CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()), InvoiceNo);
 
         // Update Customer No. Post the payment.
         GenJournalLine.Validate("Account No.", CustomerNo);
+        GenJournalLine.Validate("Applies-to Doc. No.", InvoiceNo);
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -1124,6 +1127,7 @@ codeunit 134022 "ERM Payment Tolerance"
         GenJournalLine: Record "Gen. Journal Line";
         PaymentTerms: Record "Payment Terms";
         CustomerNo: Code[20];
+        InvoiceNo: Code[20];
         Amount: Decimal;
     begin
         // [FEATURE] [Sales]
@@ -1132,15 +1136,17 @@ codeunit 134022 "ERM Payment Tolerance"
         // Setup: Create and post an invoice of General Journal.
         Amount := CreateAndPostInvoiceOfGenJournalLineForCustomer(GenJournalLine, PaymentTerms);
         CustomerNo := GenJournalLine."Account No.";
+        InvoiceNo := GenJournalLine."Document No.";
 
         // Create Payment and Apply to the Invoice.
         CreatePaymentOfGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::"G/L Account", GenJournalLine."Bal. Account No.",
           GenJournalLine."Bal. Account Type"::Customer, CreateCustomerWithPmtTerms(PaymentTerms.Code),
-          Amount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate), GenJournalLine."Document No.");
+          Amount, CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()), InvoiceNo);
 
         // Update Bal. Account No. Post the payment.
         GenJournalLine.Validate("Bal. Account No.", CustomerNo);
+        GenJournalLine.Validate("Applies-to Doc. No.", InvoiceNo);
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -1325,6 +1331,7 @@ codeunit 134022 "ERM Payment Tolerance"
         GenJournalLine: Record "Gen. Journal Line";
         PaymentTerms: Record "Payment Terms";
         Vendor: Record Vendor;
+        InvoiceNo: Code[20];
         Amount: Decimal;
     begin
         // [FEATURE] [Purchase]
@@ -1333,16 +1340,18 @@ codeunit 134022 "ERM Payment Tolerance"
         // Setup: Create and post an invoice of General Journal.
         Amount := CreateAndPostInvoiceOfGenJournalLineForVendor(GenJournalLine, PaymentTerms);
         Vendor.Get(GenJournalLine."Account No.");
+        InvoiceNo := GenJournalLine."Document No.";
 
         // Create Payment and Apply to the Invoice.
         CreatePaymentOfGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::Vendor,
           CreateVendorWithPmtTerms(PaymentTerms.Code),
           GenJournalLine."Bal. Account Type"::"G/L Account", GenJournalLine."Bal. Account No.", Amount,
-          CalcDate(PaymentTerms."Discount Date Calculation", WorkDate), GenJournalLine."Document No.");
+          CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()), InvoiceNo);
 
         // Update Vendor No. Post the payment.
         GenJournalLine.Validate("Account No.", Vendor."No.");
+        GenJournalLine.Validate("Applies-to Doc. No.", InvoiceNo);
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 
@@ -1390,6 +1399,7 @@ codeunit 134022 "ERM Payment Tolerance"
         GenJournalLine: Record "Gen. Journal Line";
         PaymentTerms: Record "Payment Terms";
         Vendor: Record Vendor;
+        InvoiceNo: Code[20];
         Amount: Decimal;
     begin
         // [FEATURE] [Purchase]
@@ -1398,15 +1408,17 @@ codeunit 134022 "ERM Payment Tolerance"
         // Setup: Create and post an invoice of General Journal.
         Amount := CreateAndPostInvoiceOfGenJournalLineForVendor(GenJournalLine, PaymentTerms);
         Vendor.Get(GenJournalLine."Account No.");
+        InvoiceNo := GenJournalLine."Document No.";
 
         // Create Payment and Apply to the Invoice.
         CreatePaymentOfGenJournalLine(
           GenJournalLine, GenJournalLine."Account Type"::"G/L Account", GenJournalLine."Bal. Account No.",
           GenJournalLine."Bal. Account Type"::Vendor, CreateVendorWithPmtTerms(PaymentTerms.Code), -Amount,
-          CalcDate(PaymentTerms."Discount Date Calculation", WorkDate), GenJournalLine."Document No.");
+          CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()), InvoiceNo);
 
         // Update Bal. Account No. Post the payment.
         GenJournalLine.Validate("Bal. Account No.", Vendor."No.");
+        GenJournalLine.Validate("Applies-to Doc. No.", InvoiceNo);
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
 

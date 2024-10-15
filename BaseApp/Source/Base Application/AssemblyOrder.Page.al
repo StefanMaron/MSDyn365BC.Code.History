@@ -232,6 +232,12 @@ page 900 "Assembly Order"
                     ObsoleteTag = '18.0';
                     Visible = false;
                 }
+                field("Planning Flexibility"; Rec."Planning Flexibility")
+                {
+                    ApplicationArea = Planning;
+                    ToolTip = 'Specifies whether the supply represented by the assembly order is considered by the planning system when calculating action messages.';
+                    Visible = false;
+                }
                 field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Assembly;

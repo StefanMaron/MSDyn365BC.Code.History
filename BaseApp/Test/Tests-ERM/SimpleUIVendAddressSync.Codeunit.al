@@ -238,10 +238,7 @@ codeunit 138045 "Simple UI: Vend. Address Sync"
           PurchaseHeader."Document Type"::Invoice, OriginalVendor."No.", '', LibraryRandom.RandInt(10), '', 0D);
 
         // Exercise
-        LibraryVariableStorage.Enqueue(true); // Buy-from Vendor No. - OnValidate
-        LibraryVariableStorage.Enqueue(true); // Transaction Type - OnValidate
-        LibraryVariableStorage.Enqueue(true); // Transaction Specification - OnValidate
-        LibraryVariableStorage.Enqueue(true); // Transport Method - OnValidate
+        LibraryVariableStorage.Enqueue(true); // Replace Buy-from Vendor
         LibraryVariableStorage.Enqueue(true); // Replace Pay-to Vendor
         LibraryVariableStorage.Enqueue(true); // Recreate Purchase Lines
 

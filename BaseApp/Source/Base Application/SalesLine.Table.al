@@ -3565,6 +3565,9 @@
         key(Key19; SystemModifiedAt)
         {
         }
+        key(Key20; "Completely Shipped")
+        {
+        }
     }
 
     fieldgroups
@@ -4753,7 +4756,7 @@
             end else
                 // NAVCZ
 #endif
-                if "Prepmt. Line Amount" < "Prepmt. Amt. Inv." then begin
+                if ("Prepmt. Line Amount" < "Prepmt. Amt. Inv.") and (SalesHeader.Status <> SalesHeader.Status::Released) then begin
                     if IsServiceChargeLine() then
                         Error(CannotChangePrepaidServiceChargeErr);
                     if "Inv. Discount Amount" <> 0 then

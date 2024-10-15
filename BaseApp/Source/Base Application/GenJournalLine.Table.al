@@ -100,7 +100,8 @@
                 IsHandled: Boolean;
             begin
                 if "Account No." <> xRec."Account No." then begin
-                    ClearAppliedAutomatically;
+                    ClearAppliedAutomatically();
+                    ClearApplication("Account Type");
                     BlankJobNo(FieldNo("Account No."));
 #if not CLEAN19
                     TestField("Advance Letter Link Code", ''); // NAVCZ
@@ -356,7 +357,10 @@
 
             trigger OnValidate()
             begin
+                if "Bal. Account No." <> xRec."Bal. Account No." then begin
+                    ClearApplication("Bal. Account Type");
                 BlankJobNo(FieldNo("Bal. Account No."));
+                end;
 
                 if xRec."Bal. Account Type" in ["Bal. Account Type"::Customer, "Bal. Account Type"::Vendor,
                                                 "Bal. Account Type"::"IC Partner"]
@@ -4390,8 +4394,11 @@
         AccNo: Code[20];
     begin
         OnBeforeClearCustVendApplnEntry(Rec, xRec, AccType, AccNo);
-        GetAccTypeAndNo(Rec, AccType, AccNo);
-
+        if (xRec."Account No." <> "Account No.") or (xRec."Bal. Account No." <> "Bal. Account No.") then
+            GetAccTypeAndNo(xRec, AccType, AccNo)
+        else
+            GetAccTypeAndNo(Rec, AccType, AccNo);
+            
         // NAVCZ
         if (AccType <> "Account Type"::Customer) and (AccType <> "Account Type"::Vendor) then
             if ("Account Type" = "Account Type"::"G/L Account") and ("Account No." <> '') then begin
@@ -6234,6 +6241,17 @@
     begin
         if CurrFieldNo <> 0 then
             "Applied Automatically" := false;
+    end;
+
+    local procedure ClearApplication(AccountType: Enum "Gen. Journal Account Type")
+    begin
+        if not (AccountType in [AccountType::Customer, AccountType::Vendor, AccountType::Employee]) then
+            exit;
+
+        if "Applies-to ID" <> '' then
+            Validate("Applies-to ID", '');
+        if "Applies-to Doc. No." <> '' then
+            Validate("Applies-to Doc. No.", '');
     end;
 
     procedure SetPostingDateAsDueDate(DueDate: Date; DateOffset: DateFormula): Boolean
