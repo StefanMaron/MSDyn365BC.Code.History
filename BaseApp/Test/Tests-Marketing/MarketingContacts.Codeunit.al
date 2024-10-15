@@ -724,7 +724,7 @@ codeunit 136201 "Marketing Contacts"
         Customer[1].Name := LibraryUtility.GenerateGUID();
         Customer[1].Address := LibraryUtility.GenerateGUID();
         Customer[1]."Address 2" := LibraryUtility.GenerateGUID();
-        Customer[1]."Phone No." := LibraryUtility.GenerateGUID();
+        Customer[1]."Phone No." := LibraryUtility.GenerateRandomPhoneNo();
         Customer[1].Modify();
         LibrarySales.CreateCustomer(Customer[2]);
         Customer[2].TransferFields(Customer[1], false);
@@ -804,7 +804,7 @@ codeunit 136201 "Marketing Contacts"
         Vendor[1].Name := LibraryUtility.GenerateGUID();
         Vendor[1].Address := LibraryUtility.GenerateGUID();
         Vendor[1]."Address 2" := LibraryUtility.GenerateGUID();
-        Vendor[1]."Phone No." := LibraryUtility.GenerateGUID();
+        Vendor[1]."Phone No." := LibraryUtility.GenerateRandomPhoneNo();
         Vendor[1].Modify();
         LibraryPurchase.CreateVendor(Vendor[2]);
         Vendor[2].TransferFields(Vendor[1], false);
@@ -889,7 +889,7 @@ codeunit 136201 "Marketing Contacts"
         BankAccount[1].Name := LibraryUtility.GenerateGUID();
         BankAccount[1].Address := LibraryUtility.GenerateGUID();
         BankAccount[1]."Address 2" := LibraryUtility.GenerateGUID();
-        BankAccount[1]."Phone No." := LibraryUtility.GenerateGUID();
+        BankAccount[1]."Phone No." := LibraryUtility.GenerateRandomPhoneNo();
         BankAccount[1].Modify();
         LibraryERM.CreateBankAccount(BankAccount[2]);
         BankAccount[2].TransferFields(BankAccount[1], false);
@@ -2863,7 +2863,7 @@ codeunit 136201 "Marketing Contacts"
         LibraryMarketing.CreatePersonContact(PersonContact);
         PersonContact.Validate("Company No.", CompanyContact."Company No.");
         PersonContact.Validate("E-Mail", LibraryUtility.GenerateRandomEmail);
-        PersonContact.Validate("Phone No.", CopyStr(LibraryUtility.GenerateRandomText(20), 1, MaxStrLen(PersonContact."Phone No.")));
+        PersonContact.Validate("Phone No.", LibraryUtility.GenerateRandomPhoneNo());
         PersonContact.Modify(true);
 
         // [GIVEN] Customer created from "CC" Company Contact
@@ -2899,7 +2899,7 @@ codeunit 136201 "Marketing Contacts"
         LibraryMarketing.CreatePersonContact(PersonContact);
         PersonContact.Validate("Company No.", CompanyContact."Company No.");
         PersonContact.Validate("E-Mail", LibraryUtility.GenerateRandomEmail);
-        PersonContact.Validate("Phone No.", CopyStr(LibraryUtility.GenerateRandomText(20), 1, MaxStrLen(PersonContact."Phone No.")));
+        PersonContact.Validate("Phone No.", LibraryUtility.GenerateRandomPhoneNo());
         PersonContact.Modify(true);
 
         // [GIVEN] Vendor created from "CC" Company Contact
@@ -3193,7 +3193,7 @@ codeunit 136201 "Marketing Contacts"
         // [GIVEN] Customer "CUST" with no Contacts created using Data Migration, Contact = "C", PhoneNo = "PN"
         Customer.SetInsertFromContact(true);  // avoid creation on Contact in OnInsert trigger
         Customer.Contact := CopyStr(LibraryUtility.GenerateRandomText(10), 1, MaxStrLen(Customer.Contact));
-        Customer."Phone No." := CopyStr(LibraryUtility.GenerateRandomText(10), 1, MaxStrLen(Customer."Phone No."));
+        Customer."Phone No." := LibraryUtility.GenerateRandomPhoneNo();
         Customer.Insert(true);
 
         // [WHEN] Run report Create Contact for Customers for Customer "CUST"
@@ -3220,7 +3220,7 @@ codeunit 136201 "Marketing Contacts"
         // [GIVEN] Vendor "VEND" with no Contacts created using Data Migration, Contact = "C", PhoneNo = "PN"
         Vendor.SetInsertFromContact(true); // avoid creation on Contact in OnInsert trigger
         Vendor.Contact := CopyStr(LibraryUtility.GenerateRandomText(10), 1, MaxStrLen(Vendor.Contact));
-        Vendor."Phone No." := CopyStr(LibraryUtility.GenerateRandomText(10), 1, MaxStrLen(Vendor."Phone No."));
+        Vendor."Phone No." := LibraryUtility.GenerateRandomPhoneNo();
         Vendor.Insert(true);
 
         // [WHEN] Run report Create Contact for Vendors for Vendor "VEND"

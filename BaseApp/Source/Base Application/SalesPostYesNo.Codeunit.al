@@ -176,7 +176,7 @@ codeunit 81 "Sales-Post (Yes/No)"
         with SalesHeader do begin
             Copy(RecVar);
             Receive := "Document Type" = "Document Type"::"Return Order";
-            Ship := "Document Type" = "Document Type"::Order;
+            Ship := "Document Type" in ["Document Type"::Order, "Document Type"::Invoice, "Document Type"::"Credit Memo"];
             Invoice := true;
         end;
 

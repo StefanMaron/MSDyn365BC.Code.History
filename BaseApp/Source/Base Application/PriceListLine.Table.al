@@ -122,7 +122,6 @@
         {
             Caption = 'Product No.';
             DataClassification = CustomerContent;
-            NotBlank = true;
 
             trigger OnValidate()
             begin
