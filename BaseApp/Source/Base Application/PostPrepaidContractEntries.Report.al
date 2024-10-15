@@ -1,4 +1,4 @@
-report 6032 "Post Prepaid Contract Entries"
+﻿report 6032 "Post Prepaid Contract Entries"
 {
     ApplicationArea = Service;
     Caption = 'Post Prepaid Service Contract Entries';
@@ -237,7 +237,7 @@ report 6032 "Post Prepaid Contract Entries"
                 GenJnlLine."Gen. Prod. Posting Group" := '';
                 GenJnlLine."VAT Bus. Posting Group" := '';
                 GenJnlLine."VAT Prod. Posting Group" := '';
-                GenJnlPostLine.Run(GenJnlLine);
+                RunGenJnlPostLine();
             end;
 
             IsPrepaidAccountPostingHandled := false;
@@ -255,12 +255,24 @@ report 6032 "Post Prepaid Contract Entries"
                 GenJnlLine."Gen. Prod. Posting Group" := '';
                 GenJnlLine."VAT Bus. Posting Group" := '';
                 GenJnlLine."VAT Prod. Posting Group" := '';
-                GenJnlPostLine.Run(GenJnlLine);
+                RunGenJnlPostLine();
             end;
         until TempServLedgEntry.Next() = 0;
 
         TempServLedgEntry.Reset();
         TempServLedgEntry.DeleteAll();
+    end;
+
+    local procedure RunGenJnlPostLine()
+    var
+        IsHandled: Boolean;
+    begin
+        IsHandled := false;
+        OnBeforeRunGenJnlPostLine(GenJnlLine, TempServLedgEntry, IsHandled);
+        if IsHandled then
+            exit;
+
+        GenJnlPostLine.Run(GenJnlLine);
     end;
 
     procedure InitializeRequest(UntilDateFrom: Date; PostingDateFrom: Date; PostPrepaidContractsFrom: Option "Post Prepaid Transactions","Print Only")
@@ -277,6 +289,11 @@ report 6032 "Post Prepaid Contract Entries"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforePostPrepaidAccount(var GenJnlLine: Record "Gen. Journal Line"; var TempServLedgEntry: Record "Service Ledger Entry"; var IsPrepaidAccountPostingHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeRunGenJnlPostLine(var GenJnlLine: Record "Gen. Journal Line"; var TempServLedgEntry: Record "Service Ledger Entry" temporary; var IsHandled: Boolean)
     begin
     end;
 }

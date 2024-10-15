@@ -239,6 +239,9 @@ codeunit 7006 "Price Helper - V16"
     var
         SourceType: Enum "Price Source Type";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             DeletePrices(SourceType::Campaign, Rec."No.", '');
     end;
@@ -248,6 +251,9 @@ codeunit 7006 "Price Helper - V16"
     var
         SourceType: Enum "Price Source Type";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             DeletePrices(SourceType::Contact, Rec."No.", '');
     end;
@@ -257,6 +263,9 @@ codeunit 7006 "Price Helper - V16"
     var
         SourceType: Enum "Price Source Type";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             DeletePrices(SourceType::Customer, Rec."No.", '');
     end;
@@ -266,6 +275,9 @@ codeunit 7006 "Price Helper - V16"
     var
         SourceType: Enum "Price Source Type";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             DeletePrices(SourceType::"Customer Price Group", Rec.Code, '');
     end;
@@ -275,6 +287,9 @@ codeunit 7006 "Price Helper - V16"
     var
         SourceType: Enum "Price Source Type";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             DeletePrices(SourceType::"Customer Disc. Group", Rec.Code, '');
     end;
@@ -284,6 +299,9 @@ codeunit 7006 "Price Helper - V16"
     var
         SourceType: Enum "Price Source Type";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             DeletePrices(SourceType::Vendor, Rec."No.", '');
     end;
@@ -293,6 +311,9 @@ codeunit 7006 "Price Helper - V16"
     var
         AssetType: Enum "Price Asset Type";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             DeletePriceLines(AssetType::"G/L Account", Rec."No.", '');
     end;
@@ -302,6 +323,9 @@ codeunit 7006 "Price Helper - V16"
     var
         SourceType: Enum "Price Source Type";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             DeletePrices(SourceType::Job, Rec."No.", '');
     end;
@@ -311,6 +335,9 @@ codeunit 7006 "Price Helper - V16"
     var
         SourceType: Enum "Price Source Type";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             DeletePrices(SourceType::"Job Task", Rec."Job Task No.", Rec."Job No.");
     end;
@@ -320,6 +347,9 @@ codeunit 7006 "Price Helper - V16"
     var
         AssetType: Enum "Price Asset Type";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             DeletePriceLines(AssetType::Item, Rec."No.", '');
     end;
@@ -329,6 +359,9 @@ codeunit 7006 "Price Helper - V16"
     var
         AssetType: Enum "Price Asset Type";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             DeletePriceLines(AssetType::"Item Discount Group", Rec.Code, '');
     end;
@@ -338,6 +371,9 @@ codeunit 7006 "Price Helper - V16"
     var
         AssetType: Enum "Price Asset Type";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             DeletePriceLines(AssetType::Item, Rec."Item No.", Rec.Code);
     end;
@@ -347,6 +383,9 @@ codeunit 7006 "Price Helper - V16"
     var
         AssetType: Enum "Price Asset Type";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             DeletePriceLines(AssetType::Resource, Rec."No.", '');
     end;
@@ -356,6 +395,9 @@ codeunit 7006 "Price Helper - V16"
     var
         AssetType: Enum "Price Asset Type";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             DeletePriceLines(AssetType::"Resource Group", Rec."No.", '');
     end;
@@ -365,6 +407,9 @@ codeunit 7006 "Price Helper - V16"
     var
         AssetType: Enum "Price Asset Type";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             DeletePriceLines(AssetType::"Service Cost", Rec.Code, '');
     end;
@@ -372,6 +417,9 @@ codeunit 7006 "Price Helper - V16"
     [EventSubscriber(ObjectType::Table, Database::Campaign, 'OnAfterModifyEvent', '', false, false)]
     local procedure AfterModifyCampaign(var Rec: Record Campaign; var xRec: Record Campaign; RunTrigger: Boolean);
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             if (Rec."Starting Date" <> xRec."Starting Date") or (Rec."Ending Date" <> xRec."Ending Date") then
                 UpdateDates(Rec);
@@ -382,6 +430,9 @@ codeunit 7006 "Price Helper - V16"
     var
         SourceType: Enum "Price Source Type";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             RenameSourceInPrices(SourceType::Campaign, xRec."No.", Rec."No.");
     end;
@@ -391,6 +442,9 @@ codeunit 7006 "Price Helper - V16"
     var
         SourceType: Enum "Price Source Type";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             RenameSourceInPrices(SourceType::Contact, xRec."No.", Rec."No.");
     end;
@@ -400,6 +454,9 @@ codeunit 7006 "Price Helper - V16"
     var
         SourceType: Enum "Price Source Type";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             RenameSourceInPrices(SourceType::Customer, xRec."No.", Rec."No.");
     end;
@@ -409,6 +466,9 @@ codeunit 7006 "Price Helper - V16"
     var
         SourceType: Enum "Price Source Type";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             RenameSourceInPrices(SourceType::"Customer Disc. Group", xRec.Code, Rec.Code);
     end;
@@ -418,6 +478,9 @@ codeunit 7006 "Price Helper - V16"
     var
         SourceType: Enum "Price Source Type";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             RenameSourceInPrices(SourceType::"Customer Price Group", xRec.Code, Rec.Code);
     end;
@@ -427,6 +490,9 @@ codeunit 7006 "Price Helper - V16"
     var
         AssetType: Enum "Price Asset Type";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             RenameAssetInPrices(AssetType::"G/L Account", xRec."No.", Rec."No.");
     end;
@@ -436,6 +502,9 @@ codeunit 7006 "Price Helper - V16"
     var
         AssetType: Enum "Price Asset Type";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             RenameAssetInPrices(AssetType::Item, xRec."No.", Rec."No.");
     end;
@@ -445,6 +514,9 @@ codeunit 7006 "Price Helper - V16"
     var
         AssetType: Enum "Price Asset Type";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             RenameAssetInPrices(AssetType::"Item Discount Group", xRec.Code, Rec.Code);
     end;
@@ -452,6 +524,9 @@ codeunit 7006 "Price Helper - V16"
     [EventSubscriber(ObjectType::Table, Database::"Item Variant", 'OnAfterRenameEvent', '', false, false)]
     local procedure AfterRenameItemVariant(var Rec: Record "Item Variant"; var xRec: Record "Item Variant"; RunTrigger: Boolean);
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             RenameAssetInPrices(Rec."Item No.", xRec.Code, Rec.Code);
     end;
@@ -461,6 +536,9 @@ codeunit 7006 "Price Helper - V16"
     var
         AssetType: Enum "Price Asset Type";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             RenameAssetInPrices(AssetType::Resource, xRec."No.", Rec."No.");
     end;
@@ -470,6 +548,9 @@ codeunit 7006 "Price Helper - V16"
     var
         AssetType: Enum "Price Asset Type";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             RenameAssetInPrices(AssetType::"Resource Group", xRec."No.", Rec."No.");
     end;
@@ -479,6 +560,9 @@ codeunit 7006 "Price Helper - V16"
     var
         AssetType: Enum "Price Asset Type";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             RenameAssetInPrices(AssetType::"Service Cost", xRec.Code, Rec.Code);
     end;
@@ -488,6 +572,9 @@ codeunit 7006 "Price Helper - V16"
     var
         SourceType: Enum "Price Source Type";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             RenameSourceInPrices(SourceType::Vendor, xRec."No.", Rec."No.");
     end;
@@ -497,6 +584,9 @@ codeunit 7006 "Price Helper - V16"
     var
         SourceType: Enum "Price Source Type";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then begin
             RenameSourceInPrices(SourceType::Job, xRec."No.", Rec."No.");
             RenameParentSourceInPrices(SourceType::"Job Task", xRec."No.", Rec."No.");
@@ -508,6 +598,9 @@ codeunit 7006 "Price Helper - V16"
     var
         SourceType: Enum "Price Source Type";
     begin
+        if Rec.IsTemporary() then
+            exit;
+
         if RunTrigger then
             RenameSourceInPrices(SourceType::"Job Task", xRec."Job Task No.", Rec."Job Task No.");
     end;

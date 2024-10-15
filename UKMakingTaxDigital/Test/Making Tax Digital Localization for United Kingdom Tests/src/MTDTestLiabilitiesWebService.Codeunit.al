@@ -345,6 +345,7 @@ codeunit 148083 "MTDTestLiabilitiesWebService"
 
         LibraryMakingTaxDigital.SetOAuthSetupSandbox(true);
         LibraryMakingTaxDigital.SetupDefaultFPHeaders();
+        LibraryMakingTaxDigital.EnableFeatureConsent(true);
     end;
 
     local procedure ClearRecords()

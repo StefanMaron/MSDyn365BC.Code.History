@@ -23,6 +23,7 @@ codeunit 148084 "MTDTestPeriodsWebService"
         RetrievePeriodsUpToDateMsg: Label 'Retrieve VAT return periods are up to date.';
         RetrievePeriodsErr: Label 'Not possible to retrieve VAT return periods.';
         RetrieveVATReturnPeriodsTxt: Label 'Retrieve VAT Return Periods.', Locked = true;
+        FeatureConsentErr: Label 'The Making Tax Digital feature is not enabled. To enable it, on the VAT Report Setup page, on the Making Tax Digital FastTab, turn on the Enabled toggle.';
 
     [Test]
     [Scope('OnPrem')]
@@ -414,6 +415,24 @@ codeunit 148084 "MTDTestPeriodsWebService"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure FeatureConsentErrorTryingToGetPeriods()
+    var
+        VATReturnPeriod: Record "VAT Return Period";
+    begin
+        // [FEATURE] [Customer Consent]
+        // [SCENARIO 407087] An error occurs trying to get VAT Return Periods with disabled feature consent checkbox on VAT Report Setup
+        InitGetOnePeriodScenario(VATReturnPeriod, 'MockServicePacket341', false);
+        LibraryMakingTaxDigital.EnableFeatureConsent(false);
+
+        asserterror GetVATReturnPeriods(VATReturnPeriod, false, true, 1, 0, 1);
+
+        Assert.ExpectedErrorCode('Dialog');
+        Assert.ExpectedError(FeatureConsentErr);
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear();
@@ -425,6 +444,7 @@ codeunit 148084 "MTDTestPeriodsWebService"
 
         LibraryMakingTaxDigital.SetOAuthSetupSandbox(true);
         LibraryMakingTaxDigital.SetupDefaultFPHeaders();
+        LibraryMakingTaxDigital.EnableFeatureConsent(true);
     end;
 
     local procedure ClearRecords()

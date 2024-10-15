@@ -291,7 +291,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,PmtTolWarningModalPageHandler,ConfirmHandler')]
+    [HandlerFunctions('MessageHandler,PmtTolWarningModalPageHandler,ConfirmHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure SalesPmtToleranceWhenConfirmPmtDiscTolWarningOnAutomaticApplication()
     var
@@ -329,7 +329,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,PmtTolWarningModalPageHandler,ConfirmHandler')]
+    [HandlerFunctions('MessageHandler,PmtTolWarningModalPageHandler,ConfirmHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure NoSalesPmtToleranceWhenDoNotConfirmPmtDiscTolWarningOnAutomaticApplication()
     var
@@ -365,7 +365,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     end;
 
     [Test]
-    [HandlerFunctions('PaymentApplicationModalPageHandler,PmtTolWarningModalPageHandler,ConfirmHandler')]
+    [HandlerFunctions('PaymentApplicationModalPageHandler,PmtTolWarningModalPageHandler,ConfirmHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure SalesPmtToleranceWhenConfirmPmtDiscTolWarningOnManualApplication()
     var
@@ -403,7 +403,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     end;
 
     [Test]
-    [HandlerFunctions('PaymentApplicationModalPageHandler,PmtTolWarningModalPageHandler,ConfirmHandler')]
+    [HandlerFunctions('PaymentApplicationModalPageHandler,PmtTolWarningModalPageHandler,ConfirmHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure NoSalesPmtToleranceWhenDoNotConfirmPmtDiscTolWarningOnManualApplication()
     var
@@ -439,7 +439,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,PmtDiscTolWarningModalPageHandler,ConfirmHandler')]
+    [HandlerFunctions('MessageHandler,PmtDiscTolWarningModalPageHandler,ConfirmHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure SalesPmtDiscToleranceWhenConfirmPmtDiscTolWarningOnAutomaticApplication()
     var
@@ -475,7 +475,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,PmtDiscTolWarningModalPageHandler,ConfirmHandler')]
+    [HandlerFunctions('MessageHandler,PmtDiscTolWarningModalPageHandler,ConfirmHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure NoSalesPmtDiscToleranceWhenDoNotConfirmPmtDiscTolWarningOnAutomaticApplication()
     var
@@ -510,7 +510,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     end;
 
     [Test]
-    [HandlerFunctions('PaymentApplicationModalPageHandler,PmtDiscTolWarningModalPageHandler,ConfirmHandler')]
+    [HandlerFunctions('PaymentApplicationModalPageHandler,PmtDiscTolWarningModalPageHandler,ConfirmHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure SalesPmtDiscToleranceWhenConfirmPmtDiscTolWarningOnManualApplication()
     var
@@ -546,7 +546,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     end;
 
     [Test]
-    [HandlerFunctions('PaymentApplicationModalPageHandler,PmtDiscTolWarningModalPageHandler,ConfirmHandler')]
+    [HandlerFunctions('PaymentApplicationModalPageHandler,PmtDiscTolWarningModalPageHandler,ConfirmHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure NoSalesPmtDiscToleranceWhenDoNotConfirmPmtDiscTolWarningOnManualApplication()
     var
@@ -914,7 +914,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,PmtTolWarningModalPageHandler,ConfirmHandler')]
+    [HandlerFunctions('MessageHandler,PmtTolWarningModalPageHandler,ConfirmHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure PurchPmtToleranceWhenConfirmPmtDiscTolWarningOnAutomaticApplication()
     var
@@ -952,7 +952,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,PmtTolWarningModalPageHandler,ConfirmHandler')]
+    [HandlerFunctions('MessageHandler,PmtTolWarningModalPageHandler,ConfirmHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure NoPurchPmtToleranceWhenDoNotConfirmPmtDiscTolWarningOnAutomaticApplication()
     var
@@ -988,7 +988,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     end;
 
     [Test]
-    [HandlerFunctions('PaymentApplicationModalPageHandler,PmtTolWarningModalPageHandler,ConfirmHandler')]
+    [HandlerFunctions('PaymentApplicationModalPageHandler,PmtTolWarningModalPageHandler,ConfirmHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure PurchPmtToleranceWhenConfirmPmtDiscTolWarningOnManualApplication()
     var
@@ -1026,7 +1026,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     end;
 
     [Test]
-    [HandlerFunctions('PaymentApplicationModalPageHandler,PmtTolWarningModalPageHandler,ConfirmHandler')]
+    [HandlerFunctions('PaymentApplicationModalPageHandler,PmtTolWarningModalPageHandler,ConfirmHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure NoPurchPmtToleranceWhenDoNotConfirmPmtDiscTolWarningOnManualApplication()
     var
@@ -1062,7 +1062,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,PmtDiscTolWarningModalPageHandler,ConfirmHandler')]
+    [HandlerFunctions('MessageHandler,PmtDiscTolWarningModalPageHandler,ConfirmHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure PurchPmtDiscToleranceWhenConfirmPmtDiscTolWarningOnAutomaticApplication()
     var
@@ -1098,7 +1098,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     end;
 
     [Test]
-    [HandlerFunctions('MessageHandler,PmtDiscTolWarningModalPageHandler,ConfirmHandler')]
+    [HandlerFunctions('MessageHandler,PmtDiscTolWarningModalPageHandler,ConfirmHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure NoPurchPmtDiscToleranceWhenDoNotConfirmPmtDiscTolWarningOnAutomaticApplication()
     var
@@ -1133,7 +1133,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     end;
 
     [Test]
-    [HandlerFunctions('PaymentApplicationModalPageHandler,PmtDiscTolWarningModalPageHandler,ConfirmHandler')]
+    [HandlerFunctions('PaymentApplicationModalPageHandler,PmtDiscTolWarningModalPageHandler,ConfirmHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure PurchPmtDiscToleranceWhenConfirmPmtDiscTolWarningOnManualApplication()
     var
@@ -1169,7 +1169,7 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     end;
 
     [Test]
-    [HandlerFunctions('PaymentApplicationModalPageHandler,PmtDiscTolWarningModalPageHandler,ConfirmHandler')]
+    [HandlerFunctions('PaymentApplicationModalPageHandler,PmtDiscTolWarningModalPageHandler,ConfirmHandler,PostAndReconcilePageHandler')]
     [Scope('OnPrem')]
     procedure NoPurchPmtDiscToleranceWhenDoNotConfirmPmtDiscTolWarningOnManualApplication()
     var
@@ -1769,7 +1769,16 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
         BankAccReconciliation.Get(
           BankAccReconciliationLine."Statement Type", BankAccReconciliationLine."Bank Account No.",
           BankAccReconciliationLine."Statement No.");
+        if (not BankAccReconciliation."Post Payments Only") then
+            UpdateBankAccRecStmEndingBalance(BankAccReconciliation,
+                                              BankAccReconciliation."Balance Last Statement" + BankAccReconciliationLine."Statement Amount");
         LibraryERM.PostBankAccReconciliation(BankAccReconciliation);
+    end;
+
+    local procedure UpdateBankAccRecStmEndingBalance(var BankAccRecon: Record "Bank Acc. Reconciliation"; NewStmEndingBalance: Decimal)
+    begin
+        BankAccRecon.Validate("Statement Ending Balance", NewStmEndingBalance);
+        BankAccRecon.Modify();
     end;
 
     local procedure FilterPmtDiscToleranceDtldCustLedgEntry(var DetailedCustLedgEntry: Record "Detailed Cust. Ledg. Entry"; EntryType: Option; DocNo: Code[20]; CustomerNo: Code[20])
@@ -1903,6 +1912,13 @@ codeunit 134262 "Bank Pmt. Appl. Tolerance"
     procedure ConfirmHandler(Question: Text; var Reply: Boolean)
     begin
         Reply := true;
+    end;
+
+    [ModalPageHandler]
+    [Scope('OnPrem')]
+    procedure PostAndReconcilePageHandler(var PostPmtsAndRecBankAcc: TestPage "Post Pmts and Rec. Bank Acc.")
+    begin
+        PostPmtsAndRecBankAcc.OK.Invoke();
     end;
 }
 

@@ -321,6 +321,7 @@ codeunit 148081 "MTDTestOAuthWebService"
 
         LibraryMakingTaxDigital.SetOAuthSetupSandbox(true);
         LibraryMakingTaxDigital.SetupDefaultFPHeaders();
+        LibraryMakingTaxDigital.EnableFeatureConsent(true);
         LibrarySetupStorage.Save(Database::"VAT Report Setup");
     end;
 

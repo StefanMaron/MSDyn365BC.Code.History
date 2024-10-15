@@ -620,6 +620,42 @@ codeunit 134020 "ERM Accounts"
         GLAccountCard.Name.AssertEquals(AccName);
     end;
 
+    [Test]
+    procedure GLBalanceByDimWrongDateFilterUI()
+    var
+        GLBalancebyDimension: TestPage "G/L Balance by Dimension";
+    begin
+        // [FEATURE] [UI] [G/L Balance] [Date Filter]
+        // [SCENARIO 404617] An error trying validate a wrong Date Filter on the G/L Balance By Dimension page 
+        GLBalancebyDimension.OpenEdit();
+        asserterror GLBalancebyDimension.DateFilter.SetValue('qwerty');
+        Assert.ExpectedErrorCode('TestValidation');
+        Assert.ExpectedError('Date Filter');
+    end;
+
+    [Test]
+    procedure GLBalanceByDimDateFilterChangesColumnSetValue()
+    var
+        AnalysisByDimParameters: Record "Analysis by Dim. Parameters";
+        GLBalancebyDimension: TestPage "G/L Balance by Dimension";
+        DateFilter: Text;
+    begin
+        // [FEATURE] [UI] [G/L Balance] [Date Filter]
+        // [SCENARIO 404617] Validating of Date Filter on the G/L Balance By Dimension page changes the Column Set value
+        GLBalancebyDimension.OpenEdit();
+        GLBalancebyDimension.PeriodType.SetValue(AnalysisByDimParameters."Period Type"::Month);
+
+        DateFilter := StrSubstNo('%1..%2', 20210101D, 20210201D);
+        GLBalancebyDimension.DateFilter.SetValue(DateFilter);
+        GLBalancebyDimension.MATRIX_ColumnSet.AssertEquals(DateFilter);
+
+        DateFilter := StrSubstNo('%1..%2', 20210101D, 20210301D);
+        GLBalancebyDimension.DateFilter.SetValue(DateFilter);
+        GLBalancebyDimension.MATRIX_ColumnSet.AssertEquals(DateFilter);
+
+        GLBalancebyDimension.Close();
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

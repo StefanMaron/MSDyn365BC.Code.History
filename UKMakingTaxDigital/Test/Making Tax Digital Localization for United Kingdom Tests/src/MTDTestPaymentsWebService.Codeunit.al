@@ -397,6 +397,7 @@ codeunit 148082 "MTDTestPaymentsWebService"
 
         LibraryMakingTaxDigital.SetOAuthSetupSandbox(true);
         LibraryMakingTaxDigital.SetupDefaultFPHeaders();
+        LibraryMakingTaxDigital.EnableFeatureConsent(true);
     end;
 
     local procedure ClearRecords()
