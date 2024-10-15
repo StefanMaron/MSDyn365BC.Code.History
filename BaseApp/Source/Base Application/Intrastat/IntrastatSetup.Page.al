@@ -70,10 +70,6 @@ page 328 "Intrastat Setup"
                 ApplicationArea = BasicEU;
                 Caption = 'Intrastat Checklist Setup';
                 Image = Column;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 RunObject = Page "Intrastat Checklist Setup";
                 ToolTip = 'View and edit fields to be verified by the Intrastat journal check.';
                 ObsoleteState = Pending;
