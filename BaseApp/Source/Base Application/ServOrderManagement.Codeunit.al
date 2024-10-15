@@ -599,7 +599,13 @@ codeunit 5900 ServOrderManagement
     procedure CalcServItemDates(var ServHeader: Record "Service Header"; ServItemNo: Code[20])
     var
         ServItem: Record "Service Item";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCalcServItemDates(ServHeader, ServItemNo, IsHandled);
+        if IsHandled then
+            exit;
+
         if ServItem.Get(ServItemNo) then begin
             if ServHeader."Finishing Date" <> 0D then
                 ServItem."Last Service Date" := ServHeader."Finishing Date"
@@ -693,6 +699,11 @@ codeunit 5900 ServOrderManagement
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalcContractDates(var ServiceHeader: Record "Service Header"; var ServiceItemLine: Record "Service Item Line"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCalcServItemDates(var ServiceHeader: Record "Service Header"; ServItemNo: Code[20]; var IsHandled: Boolean)
     begin
     end;
 

@@ -1150,7 +1150,13 @@ table 5330 "CRM Connection Setup"
         CRMOrganization: Record "CRM Organization";
         CRMTransactioncurrency: Record "CRM Transactioncurrency";
         GLSetup: Record "General Ledger Setup";
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeVerifyBaseCurrencyMatchesLCY(IsHandled);
+        if IsHandled then
+            exit;
+
         CRMOrganization.FindFirst();
         CRMTransactioncurrency.Get(CRMOrganization.BaseCurrencyId);
         GLSetup.Get();
@@ -1497,6 +1503,11 @@ table 5330 "CRM Connection Setup"
         "Newest UI AppModuleId" := NewestUIAppModuleId;
         if "Newest UI AppModuleId" <> '' then
             "Use Newest UI" := true;
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeVerifyBaseCurrencyMatchesLCY(var IsHandled: Boolean)
+    begin
     end;
 }
 

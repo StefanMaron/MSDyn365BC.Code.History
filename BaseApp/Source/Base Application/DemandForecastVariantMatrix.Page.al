@@ -812,6 +812,7 @@ page 2900 "Demand Forecast Variant Matrix"
 
         SetVisible();
         LoadData(ItemFilter, LocationFilter, IncludeLoc, IncludeVar, VariantFilter);
+        OnAfterLoad(Rec, ProductionForecastName, ForecastType);
     end;
 
     local procedure IncrementEntryNo(var EntryNo: Integer): Boolean
@@ -989,6 +990,7 @@ page 2900 "Demand Forecast Variant Matrix"
             ProductionForecastEntry.SetRange("Variant Code");
 
         ProductionForecastEntry.SetFilter("Component Forecast", GetFilter("Component Forecast"));
+        OnMatrixOnDrillDownOnBeforePageRun(Rec, ProductionForecastEntry);
         PAGE.Run(0, ProductionForecastEntry);
     end;
 
@@ -1019,6 +1021,8 @@ page 2900 "Demand Forecast Variant Matrix"
 
         Rec.CalcFields("Prod. Forecast Quantity (Base)");
         MATRIX_CellData[ColumnOrdinal] := Rec."Prod. Forecast Quantity (Base)";
+
+        OnAfterMATRIX_OnAfterGetRecord(Rec, MATRIX_CellData[ColumnOrdinal]);
     end;
 
     local procedure SetVisible()
@@ -1070,48 +1074,50 @@ page 2900 "Demand Forecast Variant Matrix"
     begin
         IsHandled := false;
         OnBeforeEnterBaseQty(Rec, ColumnID, IsHandled);
-        if IsHandled then
-            exit;
+        if not IsHandled then begin
+            Item.SetRange("No.", Rec."No.");
+            Item.FindFirst();
+            SetDateFilter(ColumnID);
+            if QtyType = QtyType::"Net Change" then
+                Item.SetRange("Date Filter", MatrixRecords[ColumnID]."Period Start", MatrixRecords[ColumnID]."Period End")
+            else
+                Item.SetRange("Date Filter", 0D, MatrixRecords[ColumnID]."Period End");
 
-        Item.SetRange("No.", Rec."No.");
-        Item.FindFirst();
-        SetDateFilter(ColumnID);
-        if QtyType = QtyType::"Net Change" then
-            Item.SetRange("Date Filter", MatrixRecords[ColumnID]."Period Start", MatrixRecords[ColumnID]."Period End")
-        else
-            Item.SetRange("Date Filter", 0D, MatrixRecords[ColumnID]."Period End");
+            if ProductionForecastName <> '' then
+                Item.SetRange("Production Forecast Name", ProductionForecastName)
+            else
+                Item.SetRange("Production Forecast Name");
 
-        if ProductionForecastName <> '' then
-            Item.SetRange("Production Forecast Name", ProductionForecastName)
-        else
-            Item.SetRange("Production Forecast Name");
+            if Rec."Location Code" <> '' then
+                Item.SetFilter("Location Filter", Rec."Location Code")
+            else
+                Item.SetRange("Location Filter");
 
-        if Rec."Location Code" <> '' then
-            Item.SetFilter("Location Filter", Rec."Location Code")
-        else
-            Item.SetRange("Location Filter");
+            if Rec."Variant Code" <> '' then
+                Item.SetFilter("Variant Filter", Rec."Variant Code")
+            else
+                Item.SetRange("Variant Filter");
 
-        if Rec."Variant Code" <> '' then
-            Item.SetFilter("Variant Filter", Rec."Variant Code")
-        else
-            Item.SetRange("Variant Filter");
+            if ForecastType = ForecastType::Component then
+                Item.SetRange("Component Forecast", true);
 
-        if ForecastType = ForecastType::Component then
-            Item.SetRange("Component Forecast", true);
+            if ForecastType = ForecastType::"Sales Item" then
+                Item.SetRange("Component Forecast", false);
 
-        if ForecastType = ForecastType::"Sales Item" then
-            Item.SetRange("Component Forecast", false);
+            if ForecastType = ForecastType::Both then
+                Item.SetRange("Component Forecast");
 
-        if ForecastType = ForecastType::Both then
-            Item.SetRange("Component Forecast");
-
-        Item.Validate("Prod. Forecast Quantity (Base)", MATRIX_CellData[ColumnID]);
+            OnEnterBaseQtyOnBeforeValidateProdForecastQty(Item, Rec, ColumnID, MatrixRecords);
+            Item.Validate("Prod. Forecast Quantity (Base)", MATRIX_CellData[ColumnID]);
+        end;
+        OnAfterEnterBaseQty(MATRIX_CellData, ColumnID, QtyType, ProductionForecastName, ForecastType, Item);
     end;
 
     local procedure ProdForecastQtyBase_OnValidate(ColumnID: Integer)
     var
         ProdForecastEntry: Record "Production Forecast Entry";
         IsHandled: Boolean;
+        ShouldConfirmMovingForecasts: Boolean;
     begin
         IsHandled := false;
         OnBeforeProdForecastQtyBase_OnValidate(Rec, ColumnID, IsHandled);
@@ -1130,8 +1136,10 @@ page 2900 "Demand Forecast Variant Matrix"
           MatrixRecords[ColumnID]."Period Start",
           MatrixRecords[ColumnID]."Period End");
         ProdForecastEntry.SetFilter("Component Forecast", GetFilter("Component Forecast"));
-        if ProdForecastEntry.FindLast() then
-            if ProdForecastEntry."Forecast Date" > MatrixRecords[ColumnID]."Period Start" then
+        if ProdForecastEntry.FindLast() then begin
+            ShouldConfirmMovingForecasts := ProdForecastEntry."Forecast Date" > MatrixRecords[ColumnID]."Period Start";
+            OnProdForecastQtyBase_OnValidateOnAfterCalcShouldConfirmMovingForecasts(ProdForecastEntry, ColumnID, MatrixRecords, ShouldConfirmMovingForecasts);
+            if ShouldConfirmMovingForecasts then
                 if Confirm(
                      Text001Tok,
                      false,
@@ -1142,6 +1150,8 @@ page 2900 "Demand Forecast Variant Matrix"
                     ProdForecastEntry.ModifyAll("Forecast Date", MatrixRecords[ColumnID]."Period Start")
                 else
                     Error(Text004Err);
+        end;
+
     end;
 
     local procedure MaxRowsToLoad() ReturnValue: Integer
@@ -1149,6 +1159,21 @@ page 2900 "Demand Forecast Variant Matrix"
         ReturnValue := 10000;
         OnGetMaxRowsToLoad(ReturnValue);
         exit(ReturnValue);
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterMATRIX_OnAfterGetRecord(var ForecastItemVariantLoc: Record "Forecast Item Variant Loc"; var MATRIXCellDataColumnOrdinal: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterEnterBaseQty(var MATRIX_CellData: array[32] of Decimal; ColumnID: Integer; QtyType: Enum "Analysis Amount Type"; ProductionForecastName: Code[10]; ForecastType: Enum "Demand Forecast Type"; var Item: Record Item)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterLoad(var ForecastItemVariantLoc: Record "Forecast Item Variant Loc"; ProductionForecastName: Code[10]; ForecastType: Enum "Demand Forecast Type")
+    begin
     end;
 
     [IntegrationEvent(true, false)]
@@ -1167,8 +1192,24 @@ page 2900 "Demand Forecast Variant Matrix"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnEnterBaseQtyOnBeforeValidateProdForecastQty(var Item: Record Item; var ForecastItemVariantLoc: Record "Forecast Item Variant Loc"; ColumnID: Integer; MatrixRecords: array[32] of Record Date)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnLoadDataOnBeforeRecFindFirst(var ForecastItemVariantLoc: Record "Forecast Item Variant Loc"; ItemFilter: Text; LocationFilter: Text; UseLocation: Boolean; UseVariant: Boolean; VariantFilter: Text)
     begin
     end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnMatrixOnDrillDownOnBeforePageRun(var ForecastItemVariantLoc: Record "Forecast Item Variant Loc"; var ProductionForecastEntry: Record "Production Forecast Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnProdForecastQtyBase_OnValidateOnAfterCalcShouldConfirmMovingForecasts(var ProdForecastEntry: Record "Production Forecast Entry"; ColumnID: Integer; MatrixRecords: array[32] of Record Date; var ShouldConfirmMovingForecasts: Boolean)
+    begin
+    end;
+
 }
 

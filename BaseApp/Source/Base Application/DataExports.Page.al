@@ -50,5 +50,13 @@ page 11002 "Data Exports"
             }
         }
     }
+
+    trigger OnOpenPage()
+    var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        DataTok: Label 'DACH Data Export', Locked = true;
+    begin
+        FeatureTelemetry.LogUptake('0001Q0M', DataTok, Enum::"Feature Uptake Status"::Discovered);
+    end;
 }
 

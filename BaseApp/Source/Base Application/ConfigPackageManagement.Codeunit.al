@@ -349,6 +349,7 @@
         ConfigQuestionnaireMgt: Codeunit "Questionnaire Management";
         IsHandled: Boolean;
     begin
+        OnBeforeModifyRecordDataFields(RecRef, ConfigPackageRecord, DoModify);
         ConfigPackageField.Reset();
         ConfigPackageField.SetCurrentKey("Package Code", "Table ID", "Processing Order");
         ConfigPackageField.SetRange("Package Code", ConfigPackageRecord."Package Code");
@@ -422,6 +423,7 @@
         IsTemplate := IsTemplateField(ConfigPackageTable."Data Template", ConfigPackageField."Field ID");
         if not IsTemplate or (IsTemplate and (ConfigPackageData.Value <> '')) then begin
             FieldRef := RecRef.Field(ConfigPackageField."Field ID");
+            OnModifyRecordDataFieldOnBeforeUpdateValueUsingMapping(ConfigPackageData, ConfigPackageField);
             UpdateValueUsingMapping(ConfigPackageData, ConfigPackageField, ConfigPackageRecord."Package Code");
 
             GetCachedConfigPackageField(ConfigPackageData);
@@ -1219,54 +1221,54 @@
     begin
         IsHandled := false;
         OnBeforeApplyPackageRecords(ConfigPackageRecord, PackageCode, TableNo, ApplyMode, ConfigPackageMgt, TempAppliedConfigPackageRecord, ProcessingRuleIsSet, TempConfigRecordForProcessing, ConfigTableProcessingRule, RecordsInsertedCount, RecordsModifiedCount, HideDialog, IsHandled);
-        if IsHandled then
-            exit;
+        if not IsHandled then begin
+            ConfigPackageTable.Get(PackageCode, TableNo);
+            ProcessingRuleIsSet := ConfigTableProcessingRule.FindTableRules(ConfigPackageTable);
 
-        ConfigPackageTable.Get(PackageCode, TableNo);
-        ProcessingRuleIsSet := ConfigTableProcessingRule.FindTableRules(ConfigPackageTable);
-
-        ConfigPackageMgt.SetApplyMode(ApplyMode);
-        RecordCount := ConfigPackageRecord.Count();
-        if not HideDialog and (RecordCount > 1000) then begin
-            StepCount := Round(RecordCount / 100, 1);
-            ConfigPackageTable.CalcFields("Table Name");
-            ConfigProgressBarRecord.Init(
-              RecordCount, StepCount, StrSubstNo(ApplyingTableMsg, ConfigPackageTable."Table Name"));
-        end;
-
-        Counter := 0;
-        if ConfigPackageRecord.FindSet() then begin
-            RecRef.Open(ConfigPackageRecord."Table ID");
-            if ConfigPackageTable."Delete Recs Before Processing" then begin
-                RecRef.DeleteAll();
-                Commit();
+            ConfigPackageMgt.SetApplyMode(ApplyMode);
+            RecordCount := ConfigPackageRecord.Count();
+            if not HideDialog and (RecordCount > 1000) then begin
+                StepCount := Round(RecordCount / 100, 1);
+                ConfigPackageTable.CalcFields("Table Name");
+                ConfigProgressBarRecord.Init(
+                  RecordCount, StepCount, StrSubstNo(ApplyingTableMsg, ConfigPackageTable."Table Name"));
             end;
-            repeat
-                Counter := Counter + 1;
-                if (ApplyMode = ApplyMode::PrimaryKey) or not IsRecordErrorsExistsInPrimaryKeyFields(ConfigPackageRecord) then begin
-                    if ConfigPackageMgt.Run(ConfigPackageRecord) then begin
-                        if not ((ApplyMode = ApplyMode::PrimaryKey) or IsRecordErrorsExists(ConfigPackageRecord)) then begin
-                            CollectAppliedPackageRecord(ConfigPackageRecord, TempAppliedConfigPackageRecord);
-                            if ProcessingRuleIsSet then
-                                CollectRecordForProcessingAction(ConfigPackageRecord, ConfigTableProcessingRule);
-                        end
-                    end else
-                        if GetLastErrorText <> '' then begin
-                            ConfigPackageMgt.RecordError(
-                              ConfigPackageRecord, ConfigPackageMgt.GetValidationFieldID, CopyStr(GetLastErrorText, 1, 250));
-                            ClearLastError;
-                            Commit();
-                        end;
-                    RecordsInsertedCount += ConfigPackageMgt.GetNumberOfRecordsInserted;
-                    RecordsModifiedCount += ConfigPackageMgt.GetNumberOfRecordsModified;
-                end;
-                if not HideDialog and (RecordCount > 1000) then
-                    ConfigProgressBarRecord.Update(StrSubstNo(RecordsXofYMsg, Counter, RecordCount));
-            until ConfigPackageRecord.Next() = 0;
-        end;
 
-        if not HideDialog and (RecordCount > 1000) then
-            ConfigProgressBarRecord.Close;
+            Counter := 0;
+            if ConfigPackageRecord.FindSet() then begin
+                RecRef.Open(ConfigPackageRecord."Table ID");
+                if ConfigPackageTable."Delete Recs Before Processing" then begin
+                    RecRef.DeleteAll();
+                    Commit();
+                end;
+                repeat
+                    Counter := Counter + 1;
+                    if (ApplyMode = ApplyMode::PrimaryKey) or not IsRecordErrorsExistsInPrimaryKeyFields(ConfigPackageRecord) then begin
+                        if ConfigPackageMgt.Run(ConfigPackageRecord) then begin
+                            if not ((ApplyMode = ApplyMode::PrimaryKey) or IsRecordErrorsExists(ConfigPackageRecord)) then begin
+                                CollectAppliedPackageRecord(ConfigPackageRecord, TempAppliedConfigPackageRecord);
+                                if ProcessingRuleIsSet then
+                                    CollectRecordForProcessingAction(ConfigPackageRecord, ConfigTableProcessingRule);
+                            end
+                        end else
+                            if GetLastErrorText <> '' then begin
+                                ConfigPackageMgt.RecordError(
+                                  ConfigPackageRecord, ConfigPackageMgt.GetValidationFieldID, CopyStr(GetLastErrorText, 1, 250));
+                                ClearLastError;
+                                Commit();
+                            end;
+                        RecordsInsertedCount += ConfigPackageMgt.GetNumberOfRecordsInserted;
+                        RecordsModifiedCount += ConfigPackageMgt.GetNumberOfRecordsModified;
+                    end;
+                    if not HideDialog and (RecordCount > 1000) then
+                        ConfigProgressBarRecord.Update(StrSubstNo(RecordsXofYMsg, Counter, RecordCount));
+                until ConfigPackageRecord.Next() = 0;
+            end;
+
+            if not HideDialog and (RecordCount > 1000) then
+                ConfigProgressBarRecord.Close;
+        end;
+        OnAfterApplyPackageRecords(ConfigPackageRecord, PackageCode, TableNo);
     end;
 
     local procedure CollectRecordForProcessingAction(ConfigPackageRecord: Record "Config. Package Record"; var ConfigTableProcessingRule: Record "Config. Table Processing Rule")
@@ -1390,7 +1392,12 @@
         ConfigPackageTableLoop: Record "Config. Package Table";
         TempConfigPackageTable: Record "Config. Package Table" temporary;
         Flag: Integer;
+        IsHandled: Boolean;
     begin
+        OnBeforeSetupProcessingOrder(ConfigPackageTable, IsHandled);
+        If IsHandled then
+            exit;
+
         ConfigPackageTableLoop.CopyFilters(ConfigPackageTable);
         if not ConfigPackageTableLoop.FindSet(true) then
             exit;
@@ -2502,6 +2509,11 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterApplyPackageRecords(var ConfigPackageRecord: Record "Config. Package Record"; PackageCode: Code[20]; TableNo: Integer)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterValidatePackageDataRelation(ConfigPackageData: Record "Config. Package Data"; ConfigPackageField: Record "Config. Package Field"; var ConfigPackageTable: Record "Config. Package Table"; var RelationTableNo: Integer; var RelationFieldNo: Integer; var DataInPackageData: Boolean)
     begin
     end;
@@ -2522,7 +2534,22 @@
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnBeforeModifyRecordDataFields(var RecRef: RecordRef; ConfigPackageRecord: Record "Config. Package Record"; DoModify: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeSetupProcessingOrder(var ConfigPackageTable: Record "Config. Package Table"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnBeforeValidateException(TableID: Integer; FieldID: Integer; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnModifyRecordDataFieldOnBeforeUpdateValueUsingMapping(var ConfigPackageData: Record "Config. Package Data"; var ConfigPackageField: Record "Config. Package Field")
     begin
     end;
 

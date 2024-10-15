@@ -118,6 +118,14 @@
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date field of the purchase order line corresponding to the creation of delivery reminders.';
+
+                    trigger OnValidate()
+                    var
+                        FeatureTelemetry: Codeunit "Feature Telemetry";
+                        DeliverTok: Label 'DACH Delivery Reminder', Locked = true;
+                    begin
+                        FeatureTelemetry.LogUptake('0001Q0Q', DeliverTok, Enum::"Feature Uptake Status"::Discovered);
+                    end;
                 }
                 field("Prepmt. Auto Update Frequency"; "Prepmt. Auto Update Frequency")
                 {

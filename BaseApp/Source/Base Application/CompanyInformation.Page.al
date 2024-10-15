@@ -104,6 +104,14 @@ Page 1 "Company Information"
                     begin
                         VATRegistrationLogMgt.AssistEditCompanyInfoVATReg();
                     end;
+
+                    trigger OnValidate()
+                    var
+                        FeatureTelemetry: Codeunit "Feature Telemetry";
+                        RegTok: Label 'DACH Include Company Reg. Number On Reports', Locked = true;
+                    begin
+                        FeatureTelemetry.LogUptake('0001Q0U', RegTok, Enum::"Feature Uptake Status"::Discovered);
+                    end;
                 }
                 field("VAT Representative"; "VAT Representative")
                 {

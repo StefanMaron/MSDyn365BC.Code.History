@@ -159,26 +159,8 @@ page 35516 "Cash Receipt Journal FactBox"
             GenJnlManagement.GetAccounts(Rec, AccName, BalAccName);
             UpdateBalance;
             UpdateInfoBox;
-        end else begin
-            PaymentAmt := 0;
-            AccName := '';
-            BalAccName := '';
-            AgeDays := 0;
-            PaymDiscDays := 0;
-            DueDays := 0;
-            OeRemainAmountFC := 0;
-            PaymDiscDeductAmount := 0;
-            RemainAfterPayment := 0;
-            PMTDiscount := 0;
-            AcceptedPaymentTol := 0;
-            PostingDate := 0D;
-            DueDate := 0D;
-            PmtDiscDate := 0D;
-            CustPaymtTerm := '';
-            Balance := 0;
-            TotalBalance := 0;
-            TotalPayAmount := 0;
-        end;
+        end else
+            ClearGlobalsWhenNotFound(Which);
         exit(Find(Which));
     end;
 
@@ -244,6 +226,30 @@ page 35516 "Cash Receipt Journal FactBox"
         TotalPayAmount += GenJnlLine."Amount (LCY)";
     end;
 
+    local procedure ClearGlobalsWhenNotFound(Which: Text)
+    begin
+        PaymentAmt := 0;
+        AccName := '';
+        BalAccName := '';
+        AgeDays := 0;
+        PaymDiscDays := 0;
+        DueDays := 0;
+        OeRemainAmountFC := 0;
+        PaymDiscDeductAmount := 0;
+        RemainAfterPayment := 0;
+        PMTDiscount := 0;
+        AcceptedPaymentTol := 0;
+        PostingDate := 0D;
+        DueDate := 0D;
+        PmtDiscDate := 0D;
+        CustPaymtTerm := '';
+        Balance := 0;
+        TotalBalance := 0;
+        TotalPayAmount := 0;
+
+        OnAfterClearGlobalsWhenNotFound(Rec, Which);
+    end;
+
     [Scope('OnPrem')]
     procedure UpdateInfoBox()
     var
@@ -257,6 +263,8 @@ page 35516 "Cash Receipt Journal FactBox"
         CurrAcceptedPaymentTol: Decimal;
         CurrRemainAfterPayment: Decimal;
     begin
+        OnBeforeUpdateInfoBox(Rec);
+
         AgeDays := 0;
         PaymDiscDays := 0;
         DueDays := 0;
@@ -316,6 +324,8 @@ page 35516 "Cash Receipt Journal FactBox"
                 if CustLedgEntry."Due Date" > 0D then
                     DueDays := CustLedgEntry."Due Date" - "Posting Date";
             end;
+
+            OnUpdateInfoBoxOnAFterCalculateDays(CustLedgEntry);
 
             CustLedgEntry.CalcFields("Remaining Amount", "Remaining Amt. (LCY)");
             CurrOeRemainAmountFC := CustLedgEntry."Remaining Amount";
@@ -377,13 +387,28 @@ page 35516 "Cash Receipt Journal FactBox"
         until CustLedgEntry.Next() = 0;
     end;
 
+    [IntegrationEvent(true, false)]
+    local procedure OnAfterClearGlobalsWhenNotFound(var GenJournalLine: Record "Gen. Journal Line"; Which: Text)
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnBeforeUpdateInfoBox(var GenJournalLine: Record "Gen. Journal Line")
+    begin
+    end;
+
+    [IntegrationEvent(true, false)]
+    local procedure OnUpdateInfoBoxOnAfterCalculateDays(var CustLedgerEntry: Record "Cust. Ledger Entry")
+    begin
+    end;
+
     [IntegrationEvent(false, false)]
     local procedure OnUpdateInfoBoxOnAfterCalcCurrPMTDiscount(PostingDateField: Date; PostingDate: Date; CustLedgEntry: Record "Cust. Ledger Entry"; PmtDiscDate: Date; DueDate: Date; AgeDays: Integer; PaymDiscDays: Integer; DueDays: Integer)
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnUpdateInfoBoxOnAfterSetCustLedgEntryFilters(var GenJournalLine : Record "Gen. Journal Line"; var CustLedgerEntry : Record "Cust. Ledger Entry"; var IsHandled : Boolean)
+    local procedure OnUpdateInfoBoxOnAfterSetCustLedgEntryFilters(var GenJournalLine: Record "Gen. Journal Line"; var CustLedgerEntry: Record "Cust. Ledger Entry"; var IsHandled: Boolean)
     begin
     end;
 }

@@ -218,10 +218,15 @@ page 5005270 "Delivery Reminder"
                     ToolTip = 'Post the specified reminder entries according to your specifications in the Delivery Reminder Terms window.';
 
                     trigger OnAction()
+                    var
+                        FeatureTelemetry: Codeunit "Feature Telemetry";
+                        DeliverTok: Label 'DACH Delivery Reminder', Locked = true;
                     begin
+                        FeatureTelemetry.LogUptake('0001Q0S', DeliverTok, Enum::"Feature Uptake Status"::"Used");
                         DeliveryReminderHeader := Rec;
                         DeliveryReminderHeader.SetRecFilter;
                         REPORT.RunModal(REPORT::"Issue Delivery Reminder", true, true, DeliveryReminderHeader);
+                        FeatureTelemetry.LogUsage('0001Q0T', DeliverTok, 'DACH delivery reminder set up');
                     end;
                 }
             }
