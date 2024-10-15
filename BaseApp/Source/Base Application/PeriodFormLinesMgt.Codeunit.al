@@ -38,6 +38,9 @@ codeunit 920 "Period Form Lines Mgt."
     begin
         RecRef.GetTable(BufferRecord);
         CopyPeriodStartFilter(RecRef, DateRec);
+        if not CompareRecRefWithDate(RecRef, DateRec) then
+            if not FindDateRec(DateRec, RecRef, "Analysis Period Type".FromInteger(PeriodType)) then
+                exit(0);
         ResultSteps := PeriodPageMgt.NextDate(Steps, DateRec, "Analysis Period Type".FromInteger(PeriodType));
         if ResultSteps = 0 then
             exit(0);
@@ -53,7 +56,7 @@ codeunit 920 "Period Form Lines Mgt."
         exit(ResultSteps);
     end;
 
-    local procedure FindLine(var RecRef: RecordRef; TargetDate: Record Date) FoundLine: Boolean
+    local procedure FindLine(var RecRef: RecordRef; var TargetDate: Record Date) FoundLine: Boolean
     begin
         RecRef.Reset();
         SetFieldFilter(RecRef, DummyBuffer.FieldNo("Period Type"), TargetDate."Period Type");
@@ -62,7 +65,7 @@ codeunit 920 "Period Form Lines Mgt."
         RecRef.Reset();
     end;
 
-    local procedure InsertLine(var RecRef: RecordRef; TargetDate: Record Date): Boolean
+    local procedure InsertLine(var RecRef: RecordRef; var TargetDate: Record Date): Boolean
     begin
         SetFieldValue(RecRef, DummyBuffer.FieldNo("Period Type"), TargetDate."Period Type");
         SetFieldValue(RecRef, DummyBuffer.FieldNo("Period Start"), TargetDate."Period Start");
@@ -71,12 +74,42 @@ codeunit 920 "Period Form Lines Mgt."
         exit(RecRef.Insert());
     end;
 
+    local procedure FindDateRec(var TargetDate: Record Date; var RecRef: RecordRef; PeriodType: Enum "Analysis Period Type") FoundLine: Boolean
+    begin
+        TargetDate."Period Start" := GetFieldDate(RecRef, DummyBuffer.FieldNo("Period Start"));
+        FoundLine := PeriodPageMgt.FindDate('=<>', TargetDate, PeriodType);
+    end;
+
+    local procedure CompareRecRefWithDate(var RecRef: RecordRef; var TargetDate: Record Date): Boolean
+    begin
+        if GetFieldInteger(RecRef, DummyBuffer.FieldNo("Period Type")) <> TargetDate."Period Type" then
+            exit(false);
+
+        exit(GetFieldDate(RecRef, DummyBuffer.FieldNo("Period Start")) = TargetDate."Period Start");
+    end;
+
     local procedure SetFieldValue(var RecRef: RecordRef; FieldNo: Integer; FieldValue: Variant)
     var
         BufferField: FieldRef;
     begin
         BufferField := RecRef.Field(FieldNo);
         BufferField.Value := FieldValue;
+    end;
+
+    local procedure GetFieldDate(var RecRef: RecordRef; FieldNo: Integer) Result: Date
+    var
+        BufferField: FieldRef;
+    begin
+        BufferField := RecRef.Field(FieldNo);
+        Result := BufferField.Value;
+    end;
+
+    local procedure GetFieldInteger(var RecRef: RecordRef; FieldNo: Integer) Result: Integer
+    var
+        BufferField: FieldRef;
+    begin
+        BufferField := RecRef.Field(FieldNo);
+        Result := BufferField.Value;
     end;
 
     local procedure SetFieldFilter(var RecRef: RecordRef; FieldNo: Integer; FieldFilter: Variant)

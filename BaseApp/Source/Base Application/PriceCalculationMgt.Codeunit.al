@@ -6,6 +6,11 @@ codeunit 7001 "Price Calculation Mgt."
     end;
 
     var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        ManualLbl: Label 'Manual', Locked = true;
+        TwoPlacesTxt: Label '%1-%2;', Locked = true;
+        UseCustomizedLookupTxt: Label 'Use Customized Lookup', Locked = true;
+        SubscriptionsTxt: Label 'Subscriptions', Locked = true;
         ExtendedPriceFeatureIdTok: Label 'SalesPrices', Locked = true;
         NotImplementedMethodErr: Label 'Method %1 does not have active implementations for %2 price type.', Comment = '%1 - method name, %2 - price type name';
 #if not CLEAN19
@@ -55,6 +60,33 @@ codeunit 7001 "Price Calculation Mgt."
         PriceCalculationSetup.SetRange(Enabled, true);
         if PriceCalculationSetup.IsEmpty() then
             Error(NotImplementedMethodErr, Method, PriceType);
+    end;
+
+    procedure FindActiveSubscriptions() Found: Text
+    var
+        EventSubscription: Record "Event Subscription";
+    begin
+        EventSubscription.SetFilter(
+            "Publisher Object ID", '%1..%2|%3..%4',
+            Codeunit::"Sales Line - Price", Codeunit::"Price List Line - Price",
+            Codeunit::"Price Asset - Item", Codeunit::"Price Asset - G/L Account");
+        EventSubscription.SetRange(Active, true);
+        if EventSubscription.IsEmpty() then
+            exit('');
+        if EventSubscription.FindSet() then
+            repeat
+                Found +=
+                    StrSubstNo(
+                        TwoPlacesTxt,
+                        EventSubscription."Publisher Object ID",
+                        EventSubscription."Subscriber Function");
+                if EventSubscription."Subscriber Instance" = ManualLbl then
+                    Found +=
+                        StrSubstNo(
+                            TwoPlacesTxt,
+                            EventSubscription."Subscriber Instance",
+                            EventSubscription."Active Manual Instances");
+            until EventSubscription.Next() = 0;
     end;
 
     procedure FindSetup(LineWithPrice: Interface "Line With Price"; var PriceCalculationSetup: Record "Price Calculation Setup"): Boolean;
@@ -119,6 +151,18 @@ codeunit 7001 "Price Calculation Mgt."
             Error(FeatureIsOffErr);
     end;
 #endif
+
+    [EventSubscriber(ObjectType::Table, Database::"Sales & Receivables Setup", 'OnAfterValidateEvent', 'Use Customized Lookup', false, false)]
+    local procedure AfterValidateUseCustomizedLookup(var Rec: Record "Sales & Receivables Setup"; var xRec: Record "Sales & Receivables Setup"; CurrFieldNo: Integer)
+    var
+        CustomDimensions: Dictionary of [Text, Text];
+    begin
+        if Rec."Use Customized Lookup" then begin
+            CustomDimensions.Add(SubscriptionsTxt, FindActiveSubscriptions());
+            FeatureTelemetry.LogUptake('0000HBY', UseCustomizedLookupTxt, "Feature Uptake Status"::Discovered, false, CustomDimensions)
+        end else
+            FeatureTelemetry.LogUptake('0000HBZ', UseCustomizedLookupTxt, "Feature Uptake Status"::Undiscovered)
+    end;
 
     [IntegrationEvent(false, false)]
     local procedure OnIsExtendedPriceCalculationEnabled(var Result: Boolean)

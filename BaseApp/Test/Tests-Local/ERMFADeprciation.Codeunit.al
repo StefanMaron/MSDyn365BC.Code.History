@@ -889,6 +889,68 @@ codeunit 144143 "ERM FA Deprciation"
         LibraryVariableStorage.AssertEmpty();
     end;
 
+    [Test]
+    [HandlerFunctions('CalculateDepreciationRequestPageHandler,DepreciationCalcConfirmHandler,MessageHandler,DepreciationBookRequestPageHandler')]
+    [Scope('OnPrem')]
+    procedure DeprBookReportForReclassifiedAndDisposedFA()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        FADepreciationBook: array[2] of Record "FA Depreciation Book";
+        GenJournalLine: Record "Gen. Journal Line";
+        DepreciationTableCode: Code[10];
+        DepreciationBookCode: Code[10];
+        FAPostingGroupCode: Code[20];
+        FAStartingDate: Date;
+        DisposalDate: Date;
+        AcquireAmount: Decimal;
+    begin
+        // [SCENARIO 426020] "Depreciation Book" report shows "Book Value" <> 0 for fully disposed reclassified Fixed Asset
+        Initialize();
+        DepreciationBookCode := CreateDepreciationBookAndFAJournalSetup();
+        DepreciationTableCode := CreateDepreciationTableWithMultipleLines();
+        CreateFAPostingGroup(FAPostingGroupCode);
+
+        FAStartingDate := CalcDate('<-CY>', WorkDate());
+        DisposalDate := CalcDate('<CY>', WorkDate());
+        AcquireAmount := LibraryRandom.RandDecInRange(500, 600, 2);
+
+        // [GIVEN] Fixed Asset "FA1"
+        CreateFAWithDepreciationBookSetup(FADepreciationBook[1], FAPostingGroupCode, DepreciationBookCode, DepreciationTableCode);
+        CreateAndPostGenJournalLine(
+          FADepreciationBook[1], GenJournalLine."FA Posting Type"::"Acquisition Cost", Round(AcquireAmount / 2), FAStartingDate);
+        Commit();
+        EnqueueValuesInRequestPageHandler(
+          FADepreciationBook[1]."Depreciation Book Code", FADepreciationBook[1]."FA No.", DisposalDate, '');
+        // [GIVEN] Depreciation calculated and posted for "FA1"
+        PostGenJournalLineAfterCalculateDepreciation(false);
+
+        // [GIVEN] "FA1" partially reclassified to "FA2"
+        CreateFAWithDepreciationBookSetup(FADepreciationBook[2], FAPostingGroupCode, DepreciationBookCode, DepreciationTableCode);
+        ReclassifyAndPostFAReclassJournal(
+          CreateFAReclassJournalLine(FADepreciationBook, LibraryRandom.RandDecInRange(100, 200, 2), DisposalDate),
+          DepreciationBookCode);
+
+        // [GIVEN] Sales invoice posted for "FA1"
+        CreateSalesHeader(SalesHeader);
+        SalesHeader.Validate("Posting Date", DisposalDate);
+        SalesHeader.Validate("Document Date", DisposalDate);
+        SalesHeader.Validate("Operation Occurred Date", DisposalDate);
+        SalesHeader.Modify(true);
+        CreateSalesLine(SalesHeader, SalesLine, FADepreciationBook[1]."FA No.", DepreciationBookCode, Round(AcquireAmount / 2));
+        LibrarySales.PostSalesDocument(SalesHeader, false, true);
+
+        // [WHEN] Run report "Depreciation Book" for "FA1" at with ending date Dec 31st / 2023
+        Commit();
+        RunDepreciationBookReport(DepreciationBookCode, FADepreciationBook[1]."FA No.", '', true, FAStartingDate);
+
+        // [THEN] - Class and SubClass 'Book Value' show 0
+        LibraryReportDataset.LoadDataSetFile();
+        VerifyValuesOnDepreciationBookReport(false, 'TotalSubclass_14_', 'TotalClass_14_', 'TotalInventoryYear_14_', 'BookValueAtEndingDate', 0, 0, 0, 0);
+
+        LibraryVariableStorage.AssertEmpty();
+    end;
+
     local procedure Initialize()
     begin
         LibraryVariableStorage.Clear;

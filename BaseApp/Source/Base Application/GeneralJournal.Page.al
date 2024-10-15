@@ -1087,10 +1087,11 @@ page 39 "General Journal"
                     begin
                         SendToPosting(Codeunit::"Gen. Jnl.-Post+Print");
                         CurrentJnlBatchName := GetRangeMax("Journal Batch Name");
-                        if GeneralLedgerSetup."Post & Print with Job Queue" then
-                            NewDocumentNo()
-                        else
-                            SetDataForSimpleModeOnPost;
+                        if IsSimplePage then
+                            if GeneralLedgerSetup."Post & Print with Job Queue" then
+                                NewDocumentNo()
+                            else
+                                SetDataForSimpleModeOnPost;
                         SetJobQueueVisibility();
                         CurrPage.Update(false);
                     end;

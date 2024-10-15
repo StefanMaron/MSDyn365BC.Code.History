@@ -1082,7 +1082,7 @@ codeunit 12184 "Fattura Doc. Helper"
         TempFatturaLine.SetRange("Line Type", TempFatturaLine."Line Type"::"Extended Text");
         if TempFatturaLine.FindLast then
             TempFatturaLine."Line No." := TempFatturaLine."Line No.";
-        TempFatturaLine."Related Line No." := TempFatturaLine."Line No.";
+        TempFatturaLine."Related Line No." := OriginalFatturaLine."Line No.";
         TempFatturaLine."Line Type" := TempFatturaLine."Line Type"::"Extended Text";
 
         LineRecRef := CurrRecRef.Duplicate;

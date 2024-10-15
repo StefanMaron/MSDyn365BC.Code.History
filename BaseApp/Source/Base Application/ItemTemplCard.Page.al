@@ -371,6 +371,11 @@ page 1384 "Item Templ. Card"
                     ApplicationArea = Planning;
                     Importance = Promoted;
                     ToolTip = 'Specifies the reordering policy.';
+
+                    trigger OnValidate()
+                    begin
+                        EnablePlanningControls();
+                    end;
                 }
                 field(Reserve; Reserve)
                 {
@@ -392,6 +397,7 @@ page 1384 "Item Templ. Card"
                     Importance = Additional;
                     ToolTip = 'Specifies a period of time during which you do not want the planning system to propose to reschedule existing supply orders forward. The dampener period limits the number of insignificant rescheduling of existing supply to a later date if that new date is within the dampener period. The dampener period function is only initiated if the supply can be rescheduled to a later date and not if the supply can be rescheduled to an earlier date. Accordingly, if the suggested new supply date is after the dampener period, then the rescheduling suggestion is not blocked. If the lot accumulation period is less than the dampener period, then the dampener period is dynamically set to equal the lot accumulation period. This is not shown in the value that you enter in the Dampener Period field. The last demand in the lot accumulation period is used to determine whether a potential supply date is in the dampener period. If this field is empty, then the value in the Default Dampener Period field in the Manufacturing Setup window applies. The value that you enter in the Dampener Period field must be a date formula, and one day (1D) is the shortest allowed period.';
                     Visible = false;
+                    Enabled = DampenerPeriodEnable;
                 }
                 field("Dampener Quantity"; "Dampener Quantity")
                 {
@@ -399,6 +405,7 @@ page 1384 "Item Templ. Card"
                     Importance = Additional;
                     ToolTip = 'Specifies a dampener quantity to block insignificant change suggestions for an existing supply, if the change quantity is lower than the dampener quantity.';
                     Visible = false;
+                    Enabled = DampenerQtyEnable;
                 }
                 field(Critical; Critical)
                 {
@@ -411,12 +418,14 @@ page 1384 "Item Templ. Card"
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies a date formula to indicate a safety lead time that can be used as a buffer period for production and other delays.';
                     Visible = false;
+                    Enabled = SafetyLeadTimeEnable;
                 }
                 field("Safety Stock Quantity"; "Safety Stock Quantity")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies a quantity of stock to have in inventory to protect against supply-and-demand fluctuations during replenishment lead time.';
                     Visible = false;
+                    Enabled = SafetyStockQtyEnable;
                 }
                 group(LotForLotParameters)
                 {
@@ -427,18 +436,26 @@ page 1384 "Item Templ. Card"
                         ApplicationArea = Planning;
                         ToolTip = 'Specifies that the inventory quantity is included in the projected available balance when replenishment orders are calculated.';
                         Visible = false;
+                        Enabled = IncludeInventoryEnable;
+
+                        trigger OnValidate()
+                        begin
+                            EnablePlanningControls()
+                        end;
                     }
                     field("Lot Accumulation Period"; "Lot Accumulation Period")
                     {
                         ApplicationArea = Planning;
                         ToolTip = 'Specifies a period in which multiple demands are accumulated into one supply order when you use the Lot-for-Lot reordering policy.';
                         Visible = false;
+                        Enabled = LotAccumulationPeriodEnable;
                     }
                     field("Rescheduling Period"; "Rescheduling Period")
                     {
                         ApplicationArea = Planning;
                         ToolTip = 'Specifies a period within which any suggestion to change a supply date always consists of a Reschedule action and never a Cancel + New action.';
                         Visible = false;
+                        Enabled = ReschedulingPeriodEnable;
                     }
                 }
                 group(ReorderPointParameters)
@@ -451,18 +468,21 @@ page 1384 "Item Templ. Card"
                         {
                             ApplicationArea = Planning;
                             ToolTip = 'Specifies a stock quantity that sets the inventory below the level that you must replenish the item.';
+                            Enabled = ReorderPointEnable;
                         }
                         field("Reorder Quantity"; "Reorder Quantity")
                         {
                             ApplicationArea = Planning;
                             ToolTip = 'Specifies a standard lot size quantity to be used for all order proposals.';
                             Visible = false;
+                            Enabled = ReorderQtyEnable;
                         }
                         field("Maximum Inventory"; "Maximum Inventory")
                         {
                             ApplicationArea = Planning;
                             ToolTip = 'Specifies a quantity that you want to use as a maximum inventory level.';
                             Visible = false;
+                            Enabled = MaximumInventoryEnable;
                         }
                     }
                     field("Overflow Level"; "Overflow Level")
@@ -471,6 +491,7 @@ page 1384 "Item Templ. Card"
                         Importance = Additional;
                         ToolTip = 'Specifies a quantity you allow projected inventory to exceed the reorder point, before the system suggests to decrease supply orders.';
                         Visible = false;
+                        Enabled = OverflowLevelEnable;
                     }
                     field("Time Bucket"; "Time Bucket")
                     {
@@ -478,6 +499,7 @@ page 1384 "Item Templ. Card"
                         Importance = Additional;
                         ToolTip = 'Specifies a time period that defines the recurring planning horizon used with Fixed Reorder Qty. or Maximum Qty. reordering policies.';
                         Visible = false;
+                        Enabled = TimeBucketEnable;
                     }
                 }
                 group(OrderModifiers)
@@ -490,18 +512,21 @@ page 1384 "Item Templ. Card"
                         {
                             ApplicationArea = Planning;
                             ToolTip = 'Specifies a minimum allowable quantity for an item order proposal.';
+                            Enabled = MinimumOrderQtyEnable;
                         }
                         field("Maximum Order Quantity"; "Maximum Order Quantity")
                         {
                             ApplicationArea = Planning;
                             ToolTip = 'Specifies a maximum allowable quantity for an item order proposal.';
                             Visible = false;
+                            Enabled = MaximumOrderQtyEnable;
                         }
                         field("Order Multiple"; "Order Multiple")
                         {
                             ApplicationArea = Planning;
                             ToolTip = 'Specifies a parameter used by the planning system to modify the quantity of planned supply orders.';
                             Visible = false;
+                            Enabled = OrderMultipleEnable;
                         }
                     }
                 }
@@ -623,5 +648,77 @@ page 1384 "Item Templ. Card"
             exit;
 
         "Costing Method" := InventorySetup."Default Costing Method";
+    end;
+
+    trigger OnInit()
+    begin
+        InitControls();
+    end;
+
+    trigger OnOpenPage()
+    begin
+        EnablePlanningControls();
+    end;
+
+    protected var
+        TimeBucketEnable: Boolean;
+        SafetyLeadTimeEnable: Boolean;
+        SafetyStockQtyEnable: Boolean;
+        ReorderPointEnable: Boolean;
+        ReorderQtyEnable: Boolean;
+        MaximumInventoryEnable: Boolean;
+        MinimumOrderQtyEnable: Boolean;
+        MaximumOrderQtyEnable: Boolean;
+        OrderMultipleEnable: Boolean;
+        IncludeInventoryEnable: Boolean;
+        ReschedulingPeriodEnable: Boolean;
+        LotAccumulationPeriodEnable: Boolean;
+        DampenerPeriodEnable: Boolean;
+        DampenerQtyEnable: Boolean;
+        OverflowLevelEnable: Boolean;
+
+    local procedure InitControls()
+    begin
+        OverflowLevelEnable := true;
+        DampenerQtyEnable := true;
+        DampenerPeriodEnable := true;
+        LotAccumulationPeriodEnable := true;
+        ReschedulingPeriodEnable := true;
+        IncludeInventoryEnable := true;
+        OrderMultipleEnable := true;
+        MaximumOrderQtyEnable := true;
+        MinimumOrderQtyEnable := true;
+        MaximumInventoryEnable := true;
+        ReorderQtyEnable := true;
+        ReorderPointEnable := true;
+        SafetyStockQtyEnable := true;
+        SafetyLeadTimeEnable := true;
+        TimeBucketEnable := true;
+    end;
+
+    local procedure EnablePlanningControls()
+    var
+        PlanningParameters: Record "Planning Parameters";
+        PlanningGetParameters: Codeunit "Planning-Get Parameters";
+    begin
+        PlanningParameters."Reordering Policy" := Rec."Reordering Policy";
+        PlanningParameters."Include Inventory" := Rec."Include Inventory";
+        PlanningGetParameters.SetPlanningParameters(PlanningParameters);
+
+        TimeBucketEnable := PlanningParameters."Time Bucket Enabled";
+        SafetyLeadTimeEnable := PlanningParameters."Safety Lead Time Enabled";
+        SafetyStockQtyEnable := PlanningParameters."Safety Stock Qty Enabled";
+        ReorderPointEnable := PlanningParameters."Reorder Point Enabled";
+        ReorderQtyEnable := PlanningParameters."Reorder Quantity Enabled";
+        MaximumInventoryEnable := PlanningParameters."Maximum Inventory Enabled";
+        MinimumOrderQtyEnable := PlanningParameters."Minimum Order Qty Enabled";
+        MaximumOrderQtyEnable := PlanningParameters."Maximum Order Qty Enabled";
+        OrderMultipleEnable := PlanningParameters."Order Multiple Enabled";
+        IncludeInventoryEnable := PlanningParameters."Include Inventory Enabled";
+        ReschedulingPeriodEnable := PlanningParameters."Rescheduling Period Enabled";
+        LotAccumulationPeriodEnable := PlanningParameters."Lot Accum. Period Enabled";
+        DampenerPeriodEnable := PlanningParameters."Dampener Period Enabled";
+        DampenerQtyEnable := PlanningParameters."Dampener Quantity Enabled";
+        OverflowLevelEnable := PlanningParameters."Overflow Level Enabled";
     end;
 }
