@@ -208,6 +208,7 @@ table 413 "IC Partner"
     trigger OnRename()
     begin
         DimMgt.RenameDefaultDim(DATABASE::"IC Partner", xRec.Code, Code);
+        CommentLine.RenameCommentLine(CommentLine."Table Name"::"IC Partner", xRec.Code, Code);
     end;
 
     var
