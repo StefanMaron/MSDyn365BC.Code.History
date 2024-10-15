@@ -12,7 +12,7 @@ report 5702 "Inventory - Inbound Transfer"
         {
             DataItemTableView = SORTING("Transfer-to Code", Status, "Derived From Line No.", "Item No.", "Variant Code", "Shortcut Dimension 1 Code", "Shortcut Dimension 2 Code", "Receipt Date", "In-Transit Code") WHERE(Status = CONST(Released), "Derived From Line No." = CONST(0));
             RequestFilterFields = "Transfer-to Code", "Item No.", "Receipt Date";
-            column(CompanyName; COMPANYPROPERTY.DisplayName)
+            column(CompanyName; COMPANYPROPERTY.DisplayName())
             {
             }
             column(TodayFormatted; Format(Today, 0, 4))

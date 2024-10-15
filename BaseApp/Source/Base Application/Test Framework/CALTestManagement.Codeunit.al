@@ -76,7 +76,7 @@ codeunit 130401 "CAL Test Management"
             1:
                 begin
                     CALTestGetCodeunits.LookupMode := true;
-                    if CALTestGetCodeunits.RunModal = ACTION::LookupOK then begin
+                    if CALTestGetCodeunits.RunModal() = ACTION::LookupOK then begin
                         CALTestGetCodeunits.SetSelectionFilter(AllObjWithCaption);
                         AddTestCodeunits(CALTestSuite, AllObjWithCaption);
                     end;
@@ -103,7 +103,7 @@ codeunit 130401 "CAL Test Management"
             if FromAllObjWithCaption.Find('-') then
                 repeat
                     ToAllObjWithCaption := FromAllObjWithCaption;
-                    Insert;
+                    Insert();
                 until FromAllObjWithCaption.Next() = 0;
         end;
 
@@ -129,14 +129,14 @@ codeunit 130401 "CAL Test Management"
                         if not TestLineExists(CALTestSuiteName, TempTestCodeunitID.Number) then begin
                             TestLineNo := TestLineNo + 10000;
                             AddTestLine(CALTestSuiteName, TempTestCodeunitID.Number, TestLineNo);
-                            UpdateWindow;
+                            UpdateWindow();
                         end
                     end else begin
                         TempMissingCUId.Number := TempTestCodeunitID.Number;
                         TempMissingCUId.Insert();
                     end;
                 until TempTestCodeunitID.Next() = 0;
-            Window.Close;
+            Window.Close();
         end else
             Message(NoModifiedObjectsFoundMsg);
 
@@ -154,7 +154,7 @@ codeunit 130401 "CAL Test Management"
     begin
         ALTestObjectsToSelect.LookupMode := true;
         ALTestObjectsToSelect.SetTableView(AllObj);
-        if ALTestObjectsToSelect.RunModal = ACTION::LookupOK then begin
+        if ALTestObjectsToSelect.RunModal() = ACTION::LookupOK then begin
             ALTestObjectsToSelect.SetSelectionFilter(AllObj);
             GetTestCodeunitsForObjects(AllObj, CALTestSuiteName);
         end;
@@ -195,7 +195,7 @@ codeunit 130401 "CAL Test Management"
     begin
         with CALTestSuite do begin
             NewSuiteName := DefaultTxt;
-            Init;
+            Init();
             Validate(Name, NewSuiteName);
             Validate(Description, DefaultSuiteTxt);
             Validate(Export, false);
@@ -211,7 +211,7 @@ codeunit 130401 "CAL Test Management"
         with CALTestLine do begin
             LineNo := LineNo + 10000;
 
-            Init;
+            Init();
             Validate("Test Suite", CALTestSuite.Name);
             Validate("Line No.", LineNo);
             Validate("Line Type", "Line Type"::Group);
@@ -233,9 +233,9 @@ codeunit 130401 "CAL Test Management"
             repeat
                 TestLineNo := TestLineNo + 10000;
                 AddTestLine(CALTestSuite.Name, AllObjWithCaption."Object ID", TestLineNo);
-                UpdateWindow;
+                UpdateWindow();
             until AllObjWithCaption.Next() = 0;
-            Window.Close;
+            Window.Close();
         end;
     end;
 
@@ -254,12 +254,12 @@ codeunit 130401 "CAL Test Management"
             if AllObj.FindFirst() then begin
                 TestLineNo := TestLineNo + 10000;
                 AddTestLine(TestSuiteName, AllObj."Object ID", TestLineNo);
-                UpdateWindow;
+                UpdateWindow();
                 TestCodeunitIds.Delete();
             end;
         until TestCodeunitIds.Next() = 0;
 
-        Window.Close;
+        Window.Close();
     end;
 
     local procedure AddTestLine(TestSuiteName: Code[10]; TestCodeunitId: Integer; LineNo: Integer)
@@ -272,7 +272,7 @@ codeunit 130401 "CAL Test Management"
             if TestLineExists(TestSuiteName, TestCodeunitId) then
                 exit;
 
-            Init;
+            Init();
             Validate("Test Suite", TestSuiteName);
             Validate("Line No.", LineNo);
             Validate("Line Type", "Line Type"::Codeunit);
@@ -290,8 +290,8 @@ codeunit 130401 "CAL Test Management"
                 CodeunitIsValid := AllObj.FindFirst();
 
             if CodeunitIsValid then begin
-                SETPUBLISHMODE;
-                SetRecFilter;
+                SETPUBLISHMODE();
+                SetRecFilter();
                 CODEUNIT.Run(CODEUNIT::"CAL Test Runner", CALTestLine);
             end else begin
                 Validate(Result, Result::Failure);
@@ -349,7 +349,7 @@ codeunit 130401 "CAL Test Management"
                 end;
             Selection::Codeunit:
                 LineNoFilter :=
-                  StrSubstNo('%1..%2', CALTestLine.GetMinCodeunitLineNo, CALTestLine.GetMaxCodeunitLineNo(NoOfFunctions));
+                  StrSubstNo('%1..%2', CALTestLine.GetMinCodeunitLineNo(), CALTestLine.GetMaxCodeunitLineNo(NoOfFunctions));
         end;
     end;
 
@@ -373,15 +373,14 @@ codeunit 130401 "CAL Test Management"
                 LineNoFilter := LineNoFilter + Separator + GetLineNoFilter(CALTestLine, Selection::Codeunit);
                 LastCodeunitID := CALTestLine."Test Codeunit";
                 CodeunitIsMarked := true;
-            end else begin
+            end else
                 if LastCodeunitID <> CALTestLine."Test Codeunit" then begin
                     LastCodeunitID := CALTestLine."Test Codeunit";
                     LineNoFilter := LineNoFilter + Separator + GetLineNoFilter(CALTestLine, Selection::"Function");
                     CodeunitIsMarked := false;
                 end else
                     if not CodeunitIsMarked then
-                        LineNoFilter := LineNoFilter + Separator + Format(CALTestLine."Line No.")
-            end;
+                        LineNoFilter := LineNoFilter + Separator + Format(CALTestLine."Line No.");
             Separator := '|';
         until CALTestLine.Next() = 0;
 
@@ -419,18 +418,18 @@ codeunit 130401 "CAL Test Management"
         CALTestLine2: Record "CAL Test Line";
         CALTestRunner: Codeunit "CAL Test Runner";
     begin
-        if IsTestMode then begin
-            SETTESTMODE;
+        if IsTestMode() then begin
+            SETTESTMODE();
             CALTestRunner.Run(CALTestLine);
         end else begin
-            SETPUBLISHMODE;
+            SETPUBLISHMODE();
             CALTestLine2.Copy(CALTestLine);
             CALTestLine2.SetRange("Line No.", CALTestLine."Line No.");
             CALTestLine2.TestField("Test Codeunit");
             CALTestLine2.TestField("Function", '');
 
-            CALTestLine.DeleteChildren;
-            CALTestLine2.DeleteChildren;
+            CALTestLine.DeleteChildren();
+            CALTestLine2.DeleteChildren();
 
             CALTestRunner.Run(CALTestLine2);
         end;
@@ -487,8 +486,8 @@ codeunit 130401 "CAL Test Management"
             File.CreateOutStream(OutStream);
             CALTestCoverageMap.SetDestination(OutStream);
             CALTestCoverageMap.ImportFile(false);
-            CALTestCoverageMap.Export;
-            File.Close;
+            CALTestCoverageMap.Export();
+            File.Close();
         end;
     end;
 
@@ -510,8 +509,8 @@ codeunit 130401 "CAL Test Management"
             CALExportTestResult.SetParam(SkipPassed, LastTestRun);
             CALExportTestResult.SetDestination(OutStream);
             CALExportTestResult.ImportFile(false);
-            CALExportTestResult.Export;
-            File.Close;
+            CALExportTestResult.Export();
+            File.Close();
         end;
     end;
 
@@ -537,8 +536,8 @@ codeunit 130401 "CAL Test Management"
         File.CreateInStream(InStream);
         CALImportEnabledCodeunit.SetSource(InStream);
         CALImportEnabledCodeunit.ImportFile(true);
-        CALImportEnabledCodeunit.Import;
-        File.Close;
+        CALImportEnabledCodeunit.Import();
+        File.Close();
     end;
 }
 

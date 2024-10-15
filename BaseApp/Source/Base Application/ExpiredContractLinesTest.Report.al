@@ -13,7 +13,7 @@ report 5987 "Expired Contract Lines - Test"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(DelToDate; Format(DelToDate))
@@ -154,25 +154,26 @@ report 5987 "Expired Contract Lines - Test"
     trigger OnInitReport()
     begin
         if DelToDate = 0D then
-            DelToDate := WorkDate;
+            DelToDate := WorkDate();
         ServMgtSetup.Get();
     end;
 
     trigger OnPreReport()
     begin
-        ServItemFilters := "Service Contract Line".GetFilters;
+        ServItemFilters := "Service Contract Line".GetFilters();
     end;
 
     var
-        Text000: Label 'You must fill in the Remove to field.';
-        Text001: Label 'You must fill in the Reason Code field.';
-        Text002: Label 'Would be removed';
         ServMgtSetup: Record "Service Mgt. Setup";
         ReasonCode2: Record "Reason Code";
         DescriptionLine: Text[60];
         DelToDate: Date;
         ReasonCode: Code[10];
         ServItemFilters: Text;
+
+        Text000: Label 'You must fill in the Remove to field.';
+        Text001: Label 'You must fill in the Reason Code field.';
+        Text002: Label 'Would be removed';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Expired_Contract_Lines___TestCaptionLbl: Label 'Expired Contract Lines - Test';
         Delete_Contract_Lines_toCaptionLbl: Label 'Delete Contract Lines to';

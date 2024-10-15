@@ -13,7 +13,7 @@ report 328 "Vendor Document Nos."
         {
             DataItemTableView = SORTING("Document No.");
             RequestFilterFields = "Document Type", "Document No.";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(STRSUBSTNO_Text004_VendLedgerEntryFilter_; StrSubstNo(Text004, VendLedgerEntryFilter))
@@ -180,15 +180,10 @@ report 328 "Vendor Document Nos."
 
     trigger OnPreReport()
     begin
-        VendLedgerEntryFilter := "Vendor Ledger Entry".GetFilters;
+        VendLedgerEntryFilter := "Vendor Ledger Entry".GetFilters();
     end;
 
     var
-        Text000: Label 'No number series has been used for the following entries:';
-        Text001: Label 'The number series %1 %2 has been used for the following entries:';
-        Text002: Label 'There is a gap in the number series.';
-        Text003: Label 'The documents are not listed according to Posting Date because they were not entered in that order.';
-        Text004: Label 'Vendor Entry: %1';
         Vend: Record Vendor;
         NoSeries: Record "No. Series";
         SourceCode: Record "Source Code";
@@ -202,6 +197,12 @@ report 328 "Vendor Document Nos."
         ErrorText: array[10] of Text[250];
         ErrorCounter: Integer;
         PageGroupNo: Integer;
+
+        Text000: Label 'No number series has been used for the following entries:';
+        Text001: Label 'The number series %1 %2 has been used for the following entries:';
+        Text002: Label 'There is a gap in the number series.';
+        Text003: Label 'The documents are not listed according to Posting Date because they were not entered in that order.';
+        Text004: Label 'Vendor Entry: %1';
         Vendor_Document_Nos_CaptionLbl: Label 'Vendor Document Nos.';
         CurrReport_PAGENOCaptionLbl: Label 'Page';
         Vend_NameCaptionLbl: Label 'Vendor Name';

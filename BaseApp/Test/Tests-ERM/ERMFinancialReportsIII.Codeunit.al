@@ -122,19 +122,19 @@ codeunit 134987 "ERM Financial Reports III"
     begin
         // Setup.
         PostGenLinesCustomPostingDate(GenJournalLine);
-        FindGLAccount(GLAccount, GenJournalLine."Account No.", WorkDate, WorkDate);
+        FindGLAccount(GLAccount, GenJournalLine."Account No.", WorkDate(), WorkDate());
         Indent := GetIndentValue(GLAccount.Indentation);  // Get Indentation Value According to Report's Indent Option.
 
         // Exercise.
         Clear(BalanceCompPrevYear);
         GLAccount.SetRange("No.", GenJournalLine."Account No.");
         BalanceCompPrevYear.SetTableView(GLAccount);
-        BalanceCompPrevYear.InitializeRequest(WorkDate, 0D, 0D, 0D, RoundingFactor2, Indent); // Take OD for all fields as workdate will flow.
+        BalanceCompPrevYear.InitializeRequest(WorkDate(), 0D, 0D, 0D, RoundingFactor2, Indent); // Take OD for all fields as workdate will flow.
         Commit();
         BalanceCompPrevYear.Run();
 
         // Verify: Verify Saved Report with Different Fields value.
-        FindGLAccount(GLAccount, GenJournalLine."Account No.", WorkDate, WorkDate);
+        FindGLAccount(GLAccount, GenJournalLine."Account No.", WorkDate(), WorkDate());
         GLAccount.CalcFields("Debit Amount", "Credit Amount");
         LibraryReportDataset.LoadDataSetFile;
         LibraryReportDataset.SetRange('G_L_Account___No__', GenJournalLine."Account No.");
@@ -143,7 +143,7 @@ codeunit 134987 "ERM Financial Reports III"
         VerifyTextAmountInXMLFile(
           'ColumnValuesAsText_1_', FormatAmount(Round(GLAccount."Debit Amount" / RoundingFactorAmount, 0.1), Decimals));
 
-        PeriodEndingDate := CalcDate('<-1D>', CalcDate('<+1M>', DMY2Date(1, Date2DMY(WorkDate, 2), Date2DMY(WorkDate, 3))));
+        PeriodEndingDate := CalcDate('<-1D>', CalcDate('<+1M>', DMY2Date(1, Date2DMY(WorkDate(), 2), Date2DMY(WorkDate(), 3))));
 
         FindGLAccount(GLAccount, GenJournalLine."Account No.", 0D, PeriodEndingDate);
         GLAccount.CalcFields("Balance at Date");
@@ -152,10 +152,10 @@ codeunit 134987 "ERM Financial Reports III"
         LibraryReportDataset.AssertElementWithValueExists('PreviousEndingDate', Format(CalcDate('<-1Y>', PeriodEndingDate)));
         LibraryReportDataset.AssertElementWithValueExists(
           'STRSUBSTNO___1___2__PreviousStartingDate_PreviousEndingDate_',
-          StrSubstNo('%1..%2', Format(CalcDate('<-1Y>', WorkDate)), Format(CalcDate('<-1Y>', PeriodEndingDate))));
+          StrSubstNo('%1..%2', Format(CalcDate('<-1Y>', WorkDate())), Format(CalcDate('<-1Y>', PeriodEndingDate))));
         LibraryReportDataset.AssertElementWithValueExists(
           'STRSUBSTNO___1___2__PeriodStartingDate_PeriodEndingDate_',
-          StrSubstNo('%1..%2', Format(WorkDate), Format(PeriodEndingDate)));
+          StrSubstNo('%1..%2', Format(WorkDate()), Format(PeriodEndingDate)));
 
         LibraryReportDataset.SetRange('G_L_Account___No__', GenJournalLine."Account No.");
         if not LibraryReportDataset.GetNextRow then
@@ -163,7 +163,7 @@ codeunit 134987 "ERM Financial Reports III"
         VerifyTextAmountInXMLFile(
           'ColumnValuesAsText_3_', FormatAmount(Round(GLAccount."Balance at Date" / RoundingFactorAmount, 0.1), Decimals));
 
-        FindGLAccount(GLAccount, GenJournalLine."Account No.", CalcDate('<-1Y>', WorkDate), CalcDate('<-1Y>', PeriodEndingDate));
+        FindGLAccount(GLAccount, GenJournalLine."Account No.", CalcDate('<-1Y>', WorkDate()), CalcDate('<-1Y>', PeriodEndingDate));
         GLAccount.CalcFields("Debit Amount", "Credit Amount");
         VerifyTextAmountInXMLFile(
           'ColumnValuesAsText_7_', FormatAmount(Round(GLAccount."Debit Amount" / RoundingFactorAmount, 0.1), Decimals));
@@ -455,16 +455,16 @@ codeunit 134987 "ERM Financial Reports III"
         BankAccountLedgerEntries.FILTER.SetFilter("Bal. Account No.", VendorNo);
 
         // Exercise.
-        BankAccountLedgerEntries."&Navigate".Invoke;  // Navigate;
+        BankAccountLedgerEntries."&Navigate".Invoke;  // Navigate();
 
         // Verify:
         BankAccountLedgerEntry.SetRange("Bal. Account No.", VendorNo);
         LibraryReportDataset.LoadDataSetFile;
-        VerifyDocumentEntries(BankAccountLedgerEntry.TableCaption, BankAccountLedgerEntry.Count);
+        VerifyDocumentEntries(BankAccountLedgerEntry.TableCaption(), BankAccountLedgerEntry.Count);
         CheckLedgerEntry.SetRange("Bal. Account No.", VendorNo);
-        VerifyDocumentEntries(CheckLedgerEntry.TableCaption, CheckLedgerEntry.Count);
+        VerifyDocumentEntries(CheckLedgerEntry.TableCaption(), CheckLedgerEntry.Count);
         VendorLedgerEntry.SetRange("Vendor No.", VendorNo);
-        VerifyDocumentEntries(VendorLedgerEntry.TableCaption, VendorLedgerEntry.Count);
+        VerifyDocumentEntries(VendorLedgerEntry.TableCaption(), VendorLedgerEntry.Count);
         VendorLedgerEntry.FindFirst();
         VendorLedgerEntry.CalcFields("Amount (LCY)", Amount);
         LibraryReportDataset.SetRange(PostingDateLbl, Format(VendorLedgerEntry."Posting Date"));
@@ -1109,7 +1109,7 @@ codeunit 134987 "ERM Financial Reports III"
         PaymentDate :=
           CalcDate(
             StrSubstNo('<%1>', LibraryPmtDiscSetup.GetPmtDiscGracePeriod),
-            CalcDate(PaymentTerms."Discount Date Calculation", WorkDate));
+            CalcDate(PaymentTerms."Discount Date Calculation", WorkDate()));
     end;
 
     local procedure BankAccountSum(BankAccReconciliation: Record "Bank Acc. Reconciliation") "Sum": Decimal
@@ -1122,7 +1122,7 @@ codeunit 134987 "ERM Financial Reports III"
         BankAccReconciliationLine.FindSet();
         repeat
             Sum += BankAccReconciliationLine."Statement Amount";
-        until BankAccReconciliationLine.Next = 0;
+        until BankAccReconciliationLine.Next() = 0;
     end;
 
     local procedure CreateBankAccount(): Code[20]
@@ -1196,7 +1196,7 @@ codeunit 134987 "ERM Financial Reports III"
     begin
         LibraryERM.CreateBankAccReconciliation(BankAccReconciliation, BankAccountNo,
           BankAccReconciliation."Statement Type"::"Bank Reconciliation");
-        BankAccReconciliation.Validate("Statement Date", WorkDate);
+        BankAccReconciliation.Validate("Statement Date", WorkDate());
         BankAccReconciliation.Modify(true);
     end;
 
@@ -1294,7 +1294,7 @@ codeunit 134987 "ERM Financial Reports III"
             "Document Type" := DocType;
             "Document No." := LibraryUTUtility.GetNewCode;
             "Customer No." := CustNo;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1305,7 +1305,7 @@ codeunit 134987 "ERM Financial Reports III"
             "Document Type" := DocType;
             "Document No." := LibraryUTUtility.GetNewCode;
             "Vendor No." := VendNo;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -1313,9 +1313,9 @@ codeunit 134987 "ERM Financial Reports III"
     begin
         VendorLedgerEntry."Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, VendorLedgerEntry.FieldNo("Entry No."));
         VendorLedgerEntry."Vendor No." := VendorNo;
-        VendorLedgerEntry."Posting Date" := WorkDate;
-        VendorLedgerEntry."Due Date" := WorkDate;
-        VendorLedgerEntry."Pmt. Discount Date" := WorkDate;
+        VendorLedgerEntry."Posting Date" := WorkDate();
+        VendorLedgerEntry."Due Date" := WorkDate();
+        VendorLedgerEntry."Pmt. Discount Date" := WorkDate();
         VendorLedgerEntry."Purchase (LCY)" := LibraryRandom.RandDec(10, 2);
         VendorLedgerEntry."Accepted Payment Tolerance" := LibraryRandom.RandDec(10, 2);
         VendorLedgerEntry."Original Pmt. Disc. Possible" := -LibraryRandom.RandDec(10, 2);
@@ -1353,7 +1353,7 @@ codeunit 134987 "ERM Financial Reports III"
     local procedure CreateCustLedgerEntryWithSpecificAmountAndAppliesToID(var CustLedgerEntry: Record "Cust. Ledger Entry"; DocType: Enum "Gen. Journal Account Type"; CustNo: Code[20]; EntryAmount: Decimal; AppliesToID: Code[20])
     begin
         with CustLedgerEntry do begin
-            Init;
+            Init();
             CreateCustLedgerEntry(CustLedgerEntry, DocType, CustNo);
             Validate("Amount (LCY)", EntryAmount);
             Validate("Remaining Amount", EntryAmount);
@@ -1361,14 +1361,14 @@ codeunit 134987 "ERM Financial Reports III"
             "Applies-to ID" := AppliesToID;
             "Amount to Apply" := "Remaining Amount";
             "Accepted Pmt. Disc. Tolerance" := true;
-            Modify;
+            Modify();
         end;
     end;
 
     local procedure CreateVendLedgerEntryWithSpecificAmountAndAppliesToID(var VendLedgerEntry: Record "Vendor Ledger Entry"; DocType: Enum "Gen. Journal Document Type"; VendNo: Code[20]; EntryAmount: Decimal; AppliesToID: Code[20])
     begin
         with VendLedgerEntry do begin
-            Init;
+            Init();
             CreateVendLedgerEntry(VendLedgerEntry, DocType, VendNo);
             Validate("Amount (LCY)", EntryAmount);
             Validate("Remaining Amount", EntryAmount);
@@ -1376,7 +1376,7 @@ codeunit 134987 "ERM Financial Reports III"
             "Applies-to ID" := AppliesToID;
             "Amount to Apply" := "Remaining Amount";
             "Accepted Pmt. Disc. Tolerance" := true;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -1474,7 +1474,7 @@ codeunit 134987 "ERM Financial Reports III"
         LibraryERM.CreateGeneralJnlLine(
           GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name, GenJournalLine."Document Type"::" ",
           GenJournalLine."Account Type"::"G/L Account", GLAccount."No.", LibraryRandom.RandDec(1000, 2) * 1000);
-        GenJournalLine.Validate("Posting Date", CalcDate('<-1Y>', WorkDate));  // Take Previous Year Date.
+        GenJournalLine.Validate("Posting Date", CalcDate('<-1Y>', WorkDate()));  // Take Previous Year Date.
         GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
@@ -1587,7 +1587,7 @@ codeunit 134987 "ERM Financial Reports III"
         Clear(SuggestBankAccReconLines);
         SuggestBankAccReconLines.SetStmt(BankAccReconciliation);
         SuggestBankAccReconLines.SetTableView(BankAccount);
-        SuggestBankAccReconLines.InitializeRequest(WorkDate, WorkDate, false);
+        SuggestBankAccReconLines.InitializeRequest(WorkDate(), WorkDate(), false);
         SuggestBankAccReconLines.UseRequestPage(false);
         SuggestBankAccReconLines.Run();
     end;
@@ -1639,7 +1639,7 @@ codeunit 134987 "ERM Financial Reports III"
         Evaluate(PmtDiscGracePeriod, '<' + Format(LibraryRandom.RandIntInRange(10, 20)) + 'D>');
         LibraryPmtDiscSetup.SetPmtDiscGracePeriod(PmtDiscGracePeriod);
         with GLSetup do begin
-            Get;
+            Get();
             Validate("Pmt. Disc. Tolerance Posting", "Pmt. Disc. Tolerance Posting"::"Payment Discount Accounts");
             Validate("Payment Tolerance Posting", "Payment Tolerance Posting"::"Payment Tolerance Accounts");
             Validate("Payment Tolerance %", LibraryRandom.RandIntInRange(10, 20));
@@ -1907,7 +1907,7 @@ codeunit 134987 "ERM Financial Reports III"
         SuggestVendorPayments.BalAccountType.SetValue(BalAccountType::"Bank Account");
         SuggestVendorPayments.BalAccountNo.SetValue(BankAccountNo);
         SuggestVendorPayments.BankPaymentType.SetValue(BankPmtType::"Computer Check");
-        SuggestVendorPayments.LastPaymentDate.SetValue(WorkDate);
+        SuggestVendorPayments.LastPaymentDate.SetValue(WorkDate());
         SuggestVendorPayments.StartingDocumentNo.SetValue(LibraryRandom.RandInt(10));
         SuggestVendorPayments.OK.Invoke;
         Sleep(200);

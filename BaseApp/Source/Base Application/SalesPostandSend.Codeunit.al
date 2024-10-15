@@ -4,18 +4,18 @@ codeunit 79 "Sales-Post and Send"
 
     trigger OnRun()
     begin
-        if not Find then
-            Error(NothingToPostErr);
+        if not Find() then
+            Error(DocumentErrorsMgt.GetNothingToPostErrorMsg());
 
         SalesHeader.Copy(Rec);
-        Code;
+        Code();
         Rec := SalesHeader;
     end;
 
     var
         SalesHeader: Record "Sales Header";
+        DocumentErrorsMgt: Codeunit "Document Errors Mgt.";
         NotSupportedDocumentTypeErr: Label 'Document type %1 is not supported.', Comment = '%1=Document Type';
-        NothingToPostErr: Label 'There is nothing to post.';
 
     local procedure "Code"()
     var
@@ -41,7 +41,7 @@ codeunit 79 "Sales-Post and Send"
                 end;
         OnCodeOnAfterConfirmPostAndSend(SalesHeader);
 
-        TempDocumentSendingProfile.CheckElectronicSendingEnabled;
+        TempDocumentSendingProfile.CheckElectronicSendingEnabled();
         ValidateElectronicFormats(TempDocumentSendingProfile);
 
         IsHandled := false;
@@ -76,8 +76,8 @@ codeunit 79 "Sales-Post and Send"
             exit(Result);
 
         Customer.Get(SalesHeader."Bill-to Customer No.");
-        if OfficeMgt.IsAvailable then
-            DocumentSendingProfile.GetOfficeAddinDefault(TempDocumentSendingProfile, OfficeMgt.AttachAvailable)
+        if OfficeMgt.IsAvailable() then
+            DocumentSendingProfile.GetOfficeAddinDefault(TempDocumentSendingProfile, OfficeMgt.AttachAvailable())
         else begin
             if not DocumentSendingProfile.Get(Customer."Document Sending Profile") then
                 DocumentSendingProfile.GetDefault(DocumentSendingProfile);

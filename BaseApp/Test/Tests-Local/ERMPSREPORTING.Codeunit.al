@@ -233,13 +233,13 @@ codeunit 144061 "ERM PSREPORTING"
 
     local procedure UpdateSalesHeaderPostingDate(var SalesHeader: Record "Sales Header")
     begin
-        SalesHeader.Validate("Posting Date", CalcDate('<' + Format(LibraryRandom.RandInt(3)) + 'M>', WorkDate));  // Posting Date should lies in between Analysis Column Comparison Date Formula.
+        SalesHeader.Validate("Posting Date", CalcDate('<' + Format(LibraryRandom.RandInt(3)) + 'M>', WorkDate()));  // Posting Date should lies in between Analysis Column Comparison Date Formula.
         SalesHeader.Modify(true);
     end;
 
     local procedure UpdatePurchaseHeaderPostingDate(var PurchaseHeader: Record "Purchase Header")
     begin
-        PurchaseHeader.Validate("Posting Date", CalcDate('<' + Format(LibraryRandom.RandInt(3)) + 'M>', WorkDate));  // Posting Date should lies in between Analysis Column Comparison Date Formula.
+        PurchaseHeader.Validate("Posting Date", CalcDate('<' + Format(LibraryRandom.RandInt(3)) + 'M>', WorkDate()));  // Posting Date should lies in between Analysis Column Comparison Date Formula.
         PurchaseHeader.Modify(true);
     end;
 

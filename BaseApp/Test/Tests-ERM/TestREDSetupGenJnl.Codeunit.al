@@ -6,8 +6,6 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     trigger OnRun()
     begin
         // [FEATURE] [Revenue Expense Deferral] [Deferral]
-        isInitialized := false;
-        Initialize();
     end;
 
     var
@@ -36,7 +34,6 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         WrongAllowDeferralPostingDatesErr: Label 'The date in the Allow Deferral Posting From field must not be after the date in the Allow Deferral Posting To field.';
 
     [Test]
-    [TransactionModel(TransactionModel::AutoRollback)]
     [Scope('OnPrem')]
     procedure TestCreationOfDeferralCode()
     var
@@ -46,6 +43,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     begin
         // [SCENARIO 127727] Phyllis can setup a Deferral template in the system
         Initialize();
+        
         // Setup
         DeferralCode := LibraryUtility.GenerateRandomCode(DeferralTemplate.FieldNo("Deferral Code"), DATABASE::"Deferral Template");
         GoodAccountNumber := LibraryERM.CreateGLAccountNo();
@@ -55,7 +53,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         DeferralTemplate."Deferral Code" := DeferralCode;
 
         // Test for error message when trying to use an invalid account
-        asserterror DeferralTemplate.Validate("Deferral Account", CopyStr(Format(CreateGuid), 1, 20));
+        asserterror DeferralTemplate.Validate("Deferral Account", CopyStr(Format(CreateGuid()), 1, 20));
 
         DeferralTemplate."Deferral Account" := GoodAccountNumber;
         DeferralTemplate."Calc. Method" := CalcMethod::"Straight-Line";
@@ -74,6 +72,9 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         DeferralTemplate."Deferral %" := 100.0;
         DeferralTemplate."Period Description" := '%1 Deferral %5';
         DeferralTemplate.Insert();
+
+        DeferralTemplate.Get(DeferralCode);
+        DeferralTemplate.Delete();
     end;
 
     [Test]
@@ -85,6 +86,8 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         DeferralCode: Code[10];
         ItemNumber: Code[20];
     begin
+        Initialize();
+
         // [SCENARIO 127729] Apply Default template to Item Card
         DeferralCode := CreateDeferralCode;
 
@@ -92,7 +95,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         Item.Init();
         Item."No." := ItemNumber;
         // Try to insert with an invalid deferral code
-        asserterror Item.Validate("Default Deferral Template Code", CopyStr(Format(CreateGuid), 1, 10));
+        asserterror Item.Validate("Default Deferral Template Code", CopyStr(Format(CreateGuid()), 1, 10));
         Item."Default Deferral Template Code" := DeferralCode;
         Item.Insert();
 
@@ -114,6 +117,8 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         DeferralCode: Code[10];
         AccountNumber: Code[20];
     begin
+        Initialize();
+
         // [SCENARIO 127731] Apply default template to G/L Account card
         DeferralCode := CreateDeferralCode;
 
@@ -121,7 +126,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         GLAccount.Init();
         GLAccount."No." := AccountNumber;
         // Try to insert with an invalid deferral code
-        asserterror GLAccount.Validate("Default Deferral Template Code", CopyStr(Format(CreateGuid), 1, 10));
+        asserterror GLAccount.Validate("Default Deferral Template Code", CopyStr(Format(CreateGuid()), 1, 10));
         GLAccount."Default Deferral Template Code" := DeferralCode;
         GLAccount.Insert();
 
@@ -144,6 +149,8 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         DeferralCode: Code[10];
         ResourceNumber: Code[20];
     begin
+        Initialize();
+
         // [SCENARIO 127730] Apply default template to Resource Card
         DeferralCode := CreateDeferralCode;
 
@@ -151,7 +158,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         Resource.Init();
         Resource."No." := ResourceNumber;
         // Try to insert with an invalid deferral code
-        asserterror Resource.Validate("Default Deferral Template Code", CopyStr(Format(CreateGuid), 1, 10));
+        asserterror Resource.Validate("Default Deferral Template Code", CopyStr(Format(CreateGuid()), 1, 10));
         Resource."Default Deferral Template Code" := DeferralCode;
         Resource.Insert();
 
@@ -176,6 +183,8 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         DeferralCode99: Code[10];
         DeferralCodeDays: Code[10];
     begin
+        Initialize();
+
         // [SCENARIO 127776] Too many deferrals periods give warning about accounting periods
         // Setup - create deferral codes
         DeferralCode := CreateStraightLine6Periods;
@@ -242,6 +251,8 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         DeferralHeader: Record "Deferral Header";
         DeferralCode: Code[10];
     begin
+        Initialize();
+
         // [SCENARIO 127776] Enter an amount for the deferral schedule larger than\less than
         // Setup - create deferral code
         DeferralCode := CreateStraightLine6Periods;
@@ -292,6 +303,8 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         GeneralJournal: TestPage "General Journal";
         DeferralCode: Code[10];
     begin
+        Initialize();
+
         // [FEATURE] [UI]
         // [SCENARIO 127776] Deferral schedule from general journal
         // [GIVEN] Created deferral code 'X', where "Start Date" is 'Posting Date'
@@ -329,6 +342,8 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         GeneralJournal: TestPage "General Journal";
         DeferralCode: Code[10];
     begin
+        Initialize();
+
         // [FEATURE] [UI]
         // [SCENARIO 127776] Create deferral schedule based on transaction and template
         // [GIVEN] Created deferral code 'X', where "Start Date" is 'Beginning of Period'
@@ -382,6 +397,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         DeferralTemplate: Record "Deferral Template";
         DeferralCode: Code[10];
     begin
+        Initialize();
         // [SCENARIO 127776] Post general journal line with deferral
 
         // [GIVEN] General Journal Line with Deferral
@@ -411,6 +427,8 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         DeferralCode: Code[10];
         DeferralAmount: Decimal;
     begin
+        Initialize();
+
         // [SCENARIO 127776] Post general journal after manually typed deferral line
         // Setup - create deferral code
         DeferralCode := CreateEqual5Periods80Percent;
@@ -466,6 +484,8 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         DeferralLine: Record "Deferral Line";
         RunningDeferralTotal: Decimal;
     begin
+        Initialize();
+
         // [SCENARIO TFSID 157047] Incorrect deferral amounts for "Days per Period" in GB Localization
         // Test is valid for all countries.
 
@@ -508,7 +528,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         if DeferralLine.FindSet() then
             repeat
                 RunningDeferralTotal := RunningDeferralTotal + DeferralLine.Amount;
-            until (DeferralLine.Next = 0) or (DeferralLine.Amount = 0.0);
+            until (DeferralLine.Next() = 0) or (DeferralLine.Amount = 0.0);
 
         if RunningDeferralTotal > DeferralHeader."Amount to Defer" then
             asserterror;
@@ -530,12 +550,12 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         // [SCENARIO TFSID 158489] Incorrect Start Date in Deferral Schedule in GB Localization
 
         // Need to set the WORKDATE to be something other than the first of the month for this test to be valid
-        if Date2DMY(WorkDate, 1) = 1 then
-            WorkDate := CalcDate('<5D>', WorkDate);
+        if Date2DMY(WorkDate(), 1) = 1 then
+            WorkDate := CalcDate('<5D>', WorkDate());
 
         // Also need to be a month other than January
-        if Date2DMY(WorkDate, 2) = 1 then
-            WorkDate := CalcDate('<3M>', WorkDate);
+        if Date2DMY(WorkDate(), 2) = 1 then
+            WorkDate := CalcDate('<3M>', WorkDate());
 
         // Create new GL Account
         LibraryERM.CreateGLAccount(GLAccount);
@@ -565,7 +585,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
 
         // Calculate the Deferral Schedule's Start Date
         AccountingPeriodGB.SetRange("Period Type", AccountingPeriodGB."Period Type"::Month);
-        AccountingPeriodGB.SetRange("Period Start", 0D, WorkDate);
+        AccountingPeriodGB.SetRange("Period Start", 0D, WorkDate());
         if AccountingPeriodGB.FindLast() then begin
             DeferralStartDate := AccountingPeriodGB."Period Start";
 
@@ -586,8 +606,10 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         DeferralCode: Code[10];
         OutOfBoundsDate: Date;
     begin
+        Initialize();
+
         // Set a date that is outside of set up accounting periods...20 years should do...
-        OutOfBoundsDate := CalcDate('<20Y>', WorkDate);
+        OutOfBoundsDate := CalcDate('<20Y>', WorkDate());
         // Setup - create deferral code
         DeferralCode := CreateStraightLine6Periods;
 
@@ -633,6 +655,8 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         DeferralSummaryGL: Report "Deferral Summary - G/L";
         DeferralCode: Code[10];
     begin
+        Initialize();
+
         // [SCENARIO 127756] Phyllis can view a deferral report
         // Test and verify Deferral Summary - G/L Report.
 
@@ -695,6 +719,8 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         ItemList: TestPage "Item List";
         DeferralCode: Code[10];
     begin
+        Initialize();
+
         // [SCENARIO 143447] Item List should have Default Deferral Template field displayed.
         DeferralCode := CreateDeferralCode;
 
@@ -715,6 +741,8 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         ItemCard: TestPage "Item Card";
         DeferralCode: Code[10];
     begin
+        Initialize();
+
         // [SCENARIO 143447] Item Card should have Default Deferral Template field displayed.
         DeferralCode := CreateDeferralCode;
 
@@ -733,6 +761,8 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     var
         DummyDeferralTemplate: Record "Deferral Template";
     begin
+        Initialize();
+
         // [FEATURE] [Deferral] [UT]
         // [SCENARIO] "Deferral %" field of Deferral Template must not show empty decimals
         DummyDeferralTemplate.Validate("Deferral %", 10);
@@ -746,6 +776,8 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         DeferralTemplate: Record "Deferral Template";
         DeferralTemplateList: TestPage "Deferral Template List";
     begin
+        Initialize();
+
         // [FEATURE] [Deferral] [UT]
         // [SCENARIO] "Deferral %" field of Deferral Template (1700) must not show empty decimals in Deferral Templates page (1701)
         DeferralTemplate.Init();
@@ -953,6 +985,8 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         GenJournalLine: Record "Gen. Journal Line";
         TransactionNo: Integer;
     begin
+        Initialize();
+
         // [FEATURE] [General Journal] [Reverse]
         // [SCENARIO 232837] Posted Deferral Entries are deleted on reversal of posted G/L entries.
 
@@ -1686,6 +1720,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
 
         if isInitialized then
             exit;
+            
         LibraryTestInitialize.OnBeforeTestSuiteInitialize(CODEUNIT::"Test RED Setup Gen. Jnl.");
         GenJnlManagement.SetJournalSimplePageModePreference(true, Page::"General Journal");
 
@@ -1700,7 +1735,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
 
         // Create the next 5 periods if not exist
         for Index := 1 to 5 do begin
-            CurrentPeriod := CalcDate(StrSubstNo('<+%1M>', Index), WorkDate);
+            CurrentPeriod := CalcDate(StrSubstNo('<+%1M>', Index), WorkDate());
             AccountingPeriod.SetRange("Starting Date", CurrentPeriod);
             if not AccountingPeriod.FindFirst() then begin
                 AccountingPeriod."Starting Date" := CurrentPeriod;
@@ -2045,13 +2080,13 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
         RecRef.GetTable(GenJournalLine);
         GenJournalLine.Validate("Line No.", LibraryUtility.GetNewLineNo(RecRef, GenJournalLine.FieldNo("Line No.")));
         GenJournalLine.Insert(true);
-        GenJournalLine.Validate("Posting Date", WorkDate);  // Defaults to work date.
+        GenJournalLine.Validate("Posting Date", WorkDate());  // Defaults to work date.
         GenJournalLine.Validate("Document Type", DocumentType);
         GenJournalLine.Validate("Account Type", AccountType);
         GenJournalLine.Validate("Account No.", AccountNo);
         GenJournalLine.Validate(Amount, Amount);
         if NoSeries.Get(GenJournalBatch."No. Series") then
-            GenJournalLine.Validate("Document No.", NoSeriesMgt.GetNextNo(GenJournalBatch."No. Series", WorkDate, false)) // Unused but required field for posting.
+            GenJournalLine.Validate("Document No.", NoSeriesMgt.GetNextNo(GenJournalBatch."No. Series", WorkDate(), false)) // Unused but required field for posting.
         else
             GenJournalLine.Validate(
               "Document No.", LibraryUtility.GenerateRandomCode(GenJournalLine.FieldNo("Document No."), DATABASE::"Gen. Journal Line"));
@@ -2243,7 +2278,7 @@ codeunit 134803 "Test RED Setup Gen. Jnl."
     [Scope('OnPrem')]
     procedure DeferralScheduleHandlerSimple(var DeferralSchedule: TestPage "Deferral Schedule")
     begin
-        DeferralSchedule."Start Date".SetValue(WorkDate);
+        DeferralSchedule."Start Date".SetValue(WorkDate());
         DeferralSchedule.OK.Invoke;
     end;
 

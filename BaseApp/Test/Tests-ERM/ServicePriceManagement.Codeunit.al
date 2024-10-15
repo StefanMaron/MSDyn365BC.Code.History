@@ -649,7 +649,7 @@ codeunit 136105 "Service - Price Management"
         repeat
             TempServiceLine := ServiceLine;
             TempServiceLine.Insert();
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -745,8 +745,8 @@ codeunit 136105 "Service - Price Management"
               CalculateAdjustedAmount(
                 ServiceItemLine2, TempServiceLine.Amount, TotalAmount, GeneralLedgerSetup."Inv. Rounding Precision (LCY)");
             VerifyAdjustAmountWithOutVAT(TempServiceLine, ServiceLine, GeneralLedgerSetup, NewAmount);
-            TempServiceLine.Next;
-        until ServiceLine.Next = 0;
+            TempServiceLine.Next();
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -763,8 +763,8 @@ codeunit 136105 "Service - Price Management"
             ServiceLine.TestField("No.", TempServiceLine."No.");
             ServiceLine.TestField("Unit Price", TempServiceLine."Unit Price");
             ServiceLine.TestField(Amount, TempServiceLine.Amount);
-            TempServiceLine.Next;
-        until ServiceLine.Next = 0;
+            TempServiceLine.Next();
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -789,8 +789,8 @@ codeunit 136105 "Service - Price Management"
                         GeneralLedgerSetup."Inv. Rounding Precision (LCY)") * 100) / (100 - TempServiceLine."Line Discount %")) /
                 TempServiceLine.Quantity, GeneralLedgerSetup."Unit-Amount Rounding Precision");
             VerifyAdjustedAmount(TempServiceLine, ServiceLine, NewAmount, UnitPrice, GeneralLedgerSetup."Inv. Rounding Precision (LCY)");
-            TempServiceLine.Next;
-        until ServiceLine.Next = 0;
+            TempServiceLine.Next();
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -813,8 +813,8 @@ codeunit 136105 "Service - Price Management"
                 VerifyAdjustAmountWithOutVAT(TempServiceLine, ServiceLine, GeneralLedgerSetup, NewAmount)
             else
                 VerifyWithOldServiceLine(TempServiceLine, ServiceLine);
-            TempServiceLine.Next;
-        until ServiceLine.Next = 0;
+            TempServiceLine.Next();
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -837,8 +837,8 @@ codeunit 136105 "Service - Price Management"
                 VerifyAdjustAmountWithOutVAT(TempServiceLine, ServiceLine, GeneralLedgerSetup, NewAmount)
             else
                 VerifyWithOldServiceLine(TempServiceLine, ServiceLine);
-            TempServiceLine.Next;
-        until ServiceLine.Next = 0;
+            TempServiceLine.Next();
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -866,8 +866,8 @@ codeunit 136105 "Service - Price Management"
                 VerifyAdjustedAmount(TempServiceLine, ServiceLine, NewAmount, UnitPrice, GeneralLedgerSetup."Inv. Rounding Precision (LCY)")
             else
                 VerifyWithOldServiceLine(TempServiceLine, ServiceLine);
-            TempServiceLine.Next;
-        until ServiceLine.Next = 0;
+            TempServiceLine.Next();
+        until ServiceLine.Next() = 0;
     end;
 
     [Normal]
@@ -940,8 +940,8 @@ codeunit 136105 "Service - Price Management"
                 VerifyAdjustedAmount(TempServiceLine, ServiceLine, NewAmount, UnitPrice, GeneralLedgerSetup."Inv. Rounding Precision (LCY)")
             else
                 VerifyWithOldServiceLine(TempServiceLine, TempServiceLine);
-            TempServiceLine.Next;
-        until ServiceLine.Next = 0;
+            TempServiceLine.Next();
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure AdjustVATRate(VATProdPostingGroup: Code[20]; NewRate: Decimal) OldRate: Decimal;
@@ -973,7 +973,7 @@ codeunit 136105 "Service - Price Management"
         ServicePriceManagement.GetServPriceGrSetup(ServPriceGroupSetup, ServiceHeader, ServiceItemLine);
         ServicePriceManagement.AdjustLines(ServiceLinePriceAdjmt, ServPriceGroupSetup);
         Commit();
-        ServiceLinePriceAdjmtForm.UpdateAmounts;
+        ServiceLinePriceAdjmtForm.UpdateAmounts();
         Response := ACTION::OK;
     end;
 

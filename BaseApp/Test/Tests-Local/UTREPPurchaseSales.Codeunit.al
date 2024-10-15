@@ -586,8 +586,8 @@ codeunit 144052 "UT REP Purchase & Sales"
         CustLedgerEntry."Customer No." := CreateCustomer;
         CustLedgerEntry.Open := true;
         CustLedgerEntry.Positive := true;
-        CustLedgerEntry."Due Date" := WorkDate;
-        CustLedgerEntry."Posting Date" := WorkDate;
+        CustLedgerEntry."Due Date" := WorkDate();
+        CustLedgerEntry."Posting Date" := WorkDate();
         CustLedgerEntry."Transaction No." := GLEntry."Transaction No.";
         CustLedgerEntry."Closed by Entry No." := CustLedgerEntry."Entry No.";
         CustLedgerEntry."Pmt. Disc. Given (LCY)" := LibraryRandom.RandDec(10, 2);
@@ -825,7 +825,7 @@ codeunit 144052 "UT REP Purchase & Sales"
     begin
         Customer.SetRange("No.", CustomerNo);
         CreateReminders.SetTableView(Customer);
-        CreateReminders.InitializeRequest(CalcDate('<CY>', WorkDate), WorkDate, true, UseHeaderLevel, false);  // Calculation done for Document Date, TRUE for OverDueEntries, FALSE for Include Entries On Hold.
+        CreateReminders.InitializeRequest(CalcDate('<CY>', WorkDate()), WorkDate(), true, UseHeaderLevel, false);  // Calculation done for Document Date, TRUE for OverDueEntries, FALSE for Include Entries On Hold.
         CreateReminders.UseRequestPage(false);
         CreateReminders.Run();
     end;

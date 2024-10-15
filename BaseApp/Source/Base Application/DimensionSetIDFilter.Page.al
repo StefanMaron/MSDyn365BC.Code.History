@@ -35,7 +35,7 @@ page 481 "Dimension Set ID Filter"
                         end;
                         if Get(Code) then
                             Error(RecordAlreadyExistsErr);
-                        Insert;
+                        Insert();
                         TempDimensionSetIDFilterLine.Code := '';
                         TempDimensionSetIDFilterLine."Dimension Code" := Code;
                         TempDimensionSetIDFilterLine.SetDimensionValueFilter('');
@@ -75,10 +75,6 @@ page 481 "Dimension Set ID Filter"
                 ApplicationArea = Dimensions;
                 Caption = 'Clear Filter';
                 Image = ClearFilter;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ToolTip = 'Remove the filter for all dimensions.';
 
                 trigger OnAction()
@@ -87,6 +83,17 @@ page 481 "Dimension Set ID Filter"
                     TempDimensionSetIDFilterLine.DeleteAll();
                     DeleteAll();
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Clear Filter_Promoted"; "Clear Filter")
+                {
+                }
             }
         }
     }
@@ -102,7 +109,7 @@ page 481 "Dimension Set ID Filter"
         TempDimensionSetIDFilterLine.SetRange(Code, '');
         TempDimensionSetIDFilterLine.SetRange("Dimension Code", Code);
         TempDimensionSetIDFilterLine.DeleteAll();
-        Delete;
+        Delete();
         CurrPage.Update(false);
         exit(false);
     end;
@@ -124,7 +131,7 @@ page 481 "Dimension Set ID Filter"
         if TempDimensionSetIDFilterLine.FindSet() then
             repeat
                 Code := TempDimensionSetIDFilterLine."Dimension Code";
-                Insert;
+                Insert();
             until TempDimensionSetIDFilterLine.Next() = 0;
     end;
 
@@ -148,12 +155,12 @@ page 481 "Dimension Set ID Filter"
         TempDimensionSetIDFilterLine.Reset();
         if not TempDimensionSetIDFilterLine.IsEmpty() then begin
             GetDimSetIDsForFilter(DimensionMgt);
-            DimFilter := DimensionMgt.GetDimSetFilter;
+            DimFilter := DimensionMgt.GetDimSetFilter();
             if DimFilter = '' then
                 DimFilter := '0&<>0';
-            SendNotification;
+            SendNotification();
         end else
-            RecallNotification
+            RecallNotification();
     end;
 
     local procedure GetDimSetIDsForFilter(var DimensionMgt: Codeunit DimensionManagement)
@@ -187,7 +194,7 @@ page 481 "Dimension Set ID Filter"
         if TempDimensionSetIDFilterLine.FindSet() then begin
             MessageTxt := StrSubstNo('%1 %2: %3', NotificationMsg, TempDimensionSetIDFilterLine."Dimension Code",
                 TempDimensionSetIDFilterLine.GetDimensionValueFilter('', TempDimensionSetIDFilterLine."Dimension Code"));
-            if TempDimensionSetIDFilterLine.Next <> 0 then
+            if TempDimensionSetIDFilterLine.Next() <> 0 then
                 repeat
                     MessageTxt += StrSubstNo(', %1: %2', TempDimensionSetIDFilterLine."Dimension Code",
                         TempDimensionSetIDFilterLine.GetDimensionValueFilter('', TempDimensionSetIDFilterLine."Dimension Code"));
@@ -198,17 +205,17 @@ page 481 "Dimension Set ID Filter"
     local procedure SendNotification()
     begin
         if IsNullGuid(NotificationGUID) then
-            NotificationGUID := CreateGuid;
+            NotificationGUID := CreateGuid();
         FilterNotification.Id := NotificationGUID;
-        FilterNotification.Message(GetNotificationMessage);
-        FilterNotification.Send;
+        FilterNotification.Message(GetNotificationMessage());
+        FilterNotification.Send();
     end;
 
     local procedure RecallNotification()
     begin
         if not IsNullGuid(NotificationGUID) then begin
             FilterNotification.Id := NotificationGUID;
-            FilterNotification.Recall;
+            FilterNotification.Recall();
         end;
     end;
 }

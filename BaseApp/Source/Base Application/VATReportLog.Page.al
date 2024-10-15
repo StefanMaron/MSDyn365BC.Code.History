@@ -15,23 +15,23 @@ page 739 "VAT Report Log"
         {
             repeater(Group)
             {
-                field("VAT Report Type"; "VAT Report Type")
+                field("VAT Report Type"; Rec."VAT Report Type")
                 {
                     ApplicationArea = Basic, Suite;
                 }
-                field("VAT Report No."; "VAT Report No.")
+                field("VAT Report No."; Rec."VAT Report No.")
                 {
                     ApplicationArea = Basic, Suite;
                 }
-                field("Submitted By"; "Submitted By")
+                field("Submitted By"; Rec."Submitted By")
                 {
                     ApplicationArea = Basic, Suite;
                 }
-                field("Submittion Date"; "Submittion Date")
+                field("Submittion Date"; Rec."Submittion Date")
                 {
                     ApplicationArea = Basic, Suite;
                 }
-                field("Response Received Date"; "Response Received Date")
+                field("Response Received Date"; Rec."Response Received Date")
                 {
                     ApplicationArea = Basic, Suite;
                 }
@@ -49,8 +49,6 @@ page 739 "VAT Report Log"
                 Caption = 'Download Submission Message';
                 Enabled = DownloadSubmissionControllerStatus;
                 Image = XMLFile;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Open the report again to make changes.';
 
                 trigger OnAction()
@@ -69,8 +67,6 @@ page 739 "VAT Report Log"
                 Caption = 'Download Response Message';
                 Enabled = DownloadResponseControllerStatus;
                 Image = XMLFile;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Open the report again to make changes.';
 
                 trigger OnAction()
@@ -82,6 +78,20 @@ page 739 "VAT Report Log"
                         VATReportArchive.DownloadResponseMessage(
                           VATReportArchive."VAT Report Type".AsInteger(), VATReportArchive."VAT Report No.", VATReportArchive."Xml Part ID");
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref("Download Submission Message_Promoted"; "Download Submission Message")
+                {
+                }
+                actionref("Download Response Message_Promoted"; "Download Response Message")
+                {
+                }
             }
         }
     }

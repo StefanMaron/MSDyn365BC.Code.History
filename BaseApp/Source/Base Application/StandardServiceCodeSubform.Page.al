@@ -22,19 +22,36 @@ page 5956 "Standard Service Code Subform"
 
                     trigger OnValidate()
                     begin
-                        TypeOnAfterValidate;
+                        TypeOnAfterValidate();
                     end;
                 }
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of the involved entry or record, according to the specified number series.';
+
+                    trigger OnValidate()
+                    var
+                        Item: Record "Item";
+                    begin
+                        if "Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
+                    end;
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
                     Visible = false;
+                    ShowMandatory = VariantCodeMandatory;
+
+                    trigger OnValidate()
+                    var
+                        Item: Record "Item";
+                    begin
+                        if "Variant Code" = '' then
+                            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
+                    end;
                 }
                 field(Description; Description)
                 {
@@ -46,25 +63,25 @@ page 5956 "Standard Service Code Subform"
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the number of item units, resource hours, or costs on the line.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                     Visible = false;
                 }
-                field("Amount Excl. VAT"; "Amount Excl. VAT")
+                field("Amount Excl. VAT"; Rec."Amount Excl. VAT")
                 {
                     ApplicationArea = Service;
                     ToolTip = 'Specifies the net amount for this standard service line.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = DimVisible1;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -185,8 +202,12 @@ page 5956 "Standard Service Code Subform"
     }
 
     trigger OnAfterGetRecord()
+    var
+        Item: Record Item;
     begin
         ShowShortcutDimCode(ShortcutDimCode);
+        if "Variant Code" = '' then
+            VariantCodeMandatory := Item.IsVariantMandatory(Type = Type::Item, "No.");
     end;
 
     trigger OnNewRecord(BelowxRec: Boolean)
@@ -197,8 +218,11 @@ page 5956 "Standard Service Code Subform"
 
     trigger OnOpenPage()
     begin
-        SetDimensionsVisibility;
+        SetDimensionsVisibility();
     end;
+
+    var
+        VariantCodeMandatory: Boolean;
 
     protected var
         ShortcutDimCode: array[8] of Code[20];

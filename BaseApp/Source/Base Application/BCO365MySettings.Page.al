@@ -1,7 +1,11 @@
+#if not CLEAN21
 page 2399 "BC O365 My Settings"
 {
     Caption = 'Settings';
     RefreshOnActivate = true;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -16,7 +20,7 @@ page 2399 "BC O365 My Settings"
                     ShowCaption = false;
                     part(Control20; "O365 Business Info Settings")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                     }
                 }
             }
@@ -30,7 +34,7 @@ page 2399 "BC O365 My Settings"
                     ShowCaption = false;
                     part(Control30; "BC O365 Language Settings")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                     }
                 }
             }
@@ -39,14 +43,14 @@ page 2399 "BC O365 My Settings"
                 Caption = 'Email account';
                 part(GraphMailPage; "BC O365 Graph Mail Settings")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     UpdatePropagation = Both;
                     Visible = GraphMailVisible;
                 }
 #if not CLEAN20
                 part(SmtpMailPage; "Email Scenarios FactBox") // Original part has been removed, Email Scenarios Factbox as dummy and part is not visible
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     UpdatePropagation = Both;
                     Visible = false;
                     ObsoleteReason = 'Part has been removed.';
@@ -64,7 +68,7 @@ page 2399 "BC O365 My Settings"
                     ShowCaption = false;
                     part(Control50; "BC O365 Email Settings Part")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                     }
                 }
             }
@@ -77,7 +81,7 @@ page 2399 "BC O365 My Settings"
                     ShowCaption = false;
                     part(Control61; "BC O365 No. Series Settings")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                     }
                 }
             }
@@ -92,7 +96,7 @@ page 2399 "BC O365 My Settings"
                         ShowCaption = false;
                         part(Control70; "BC O365 Payments Settings")
                         {
-                            ApplicationArea = Basic, Suite, Invoicing;
+                            ApplicationArea = Invoicing, Basic, Suite;
                         }
                     }
                     group("Online payments")
@@ -101,7 +105,7 @@ page 2399 "BC O365 My Settings"
                         Visible = PaymentServicesVisible AND NOT IsDevice;
                         part(PaymentServicesSubpage; "BC O365 Payment Services")
                         {
-                            ApplicationArea = Basic, Suite, Invoicing;
+                            ApplicationArea = Invoicing, Basic, Suite;
                             UpdatePropagation = Both;
                         }
                     }
@@ -112,7 +116,7 @@ page 2399 "BC O365 My Settings"
                 Caption = 'VAT rates';
                 part(Control57; "BC O365 VAT Posting Setup List")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                 }
             }
             group(Services)
@@ -124,7 +128,7 @@ page 2399 "BC O365 My Settings"
                     ShowCaption = false;
                     part(Control110; "BC O365 Service Settings")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                     }
                 }
             }
@@ -143,7 +147,7 @@ page 2399 "BC O365 My Settings"
                     ShowCaption = false;
                     part(Control12; "BC O365 Quickbooks Settings")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                     }
                 }
             }
@@ -156,7 +160,7 @@ page 2399 "BC O365 My Settings"
                     InstructionalText = 'Share an overview of sent invoices in an email.';
                     field(ExportInvoices; ExportInvoicesLbl)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Editable = false;
                         ShowCaption = false;
 
@@ -173,7 +177,7 @@ page 2399 "BC O365 My Settings"
                 Visible = NOT IsDevice;
                 part(Control8; "BC O365 Mobile App")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                 }
             }
         }
@@ -185,7 +189,7 @@ page 2399 "BC O365 My Settings"
 
     trigger OnAfterGetCurrRecord()
     begin
-        SetMailProviderVisibility;
+        SetMailProviderVisibility();
     end;
 
     trigger OnOpenPage()
@@ -193,13 +197,13 @@ page 2399 "BC O365 My Settings"
         TempPaymentServiceSetup: Record "Payment Service Setup" temporary;
     begin
         TempPaymentServiceSetup.OnRegisterPaymentServiceProviders(TempPaymentServiceSetup);
-        PaymentServicesVisible := not TempPaymentServiceSetup.IsEmpty;
-        IsDevice := ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Tablet, CLIENTTYPE::Phone];
+        PaymentServicesVisible := not TempPaymentServiceSetup.IsEmpty();
+        IsDevice := ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Tablet, CLIENTTYPE::Phone];
 
-        QuickBooksVisible := O365SalesManagement.GetQuickBooksVisible;
+        QuickBooksVisible := O365SalesManagement.GetQuickBooksVisible();
 
-        SetMailProviderVisibility;
-        SetLanguageVisibility;
+        SetMailProviderVisibility();
+        SetLanguageVisibility();
     end;
 
     var
@@ -217,8 +221,8 @@ page 2399 "BC O365 My Settings"
         GraphMail: Codeunit "Graph Mail";
     begin
         GraphMailVisible := false;
-        if GraphMail.HasConfiguration then
-            if GraphMail.IsEnabled or GraphMail.UserHasLicense() then
+        if GraphMail.HasConfiguration() then
+            if GraphMail.IsEnabled() or GraphMail.UserHasLicense() then
                 GraphMailVisible := true;
     end;
 
@@ -231,4 +235,4 @@ page 2399 "BC O365 My Settings"
         LanguageVisible := TempLanguage.Count > 1;
     end;
 }
-
+#endif

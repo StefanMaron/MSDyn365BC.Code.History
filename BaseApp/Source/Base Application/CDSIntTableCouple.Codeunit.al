@@ -168,9 +168,9 @@ codeunit 5360 "CDS Int. Table Couple"
                                                     MatchingFieldCount += 1;
                                                 end;
                                             else begin
-                                                    MatchingIntegrationRecordFieldRef.SetRange(MatchingLocalFieldRef.Value());
-                                                    MatchingFieldCount += 1;
-                                                end;
+                                                MatchingIntegrationRecordFieldRef.SetRange(MatchingLocalFieldRef.Value());
+                                                MatchingFieldCount += 1;
+                                            end;
                                         end;
                                 until TempMatchingIntegrationFieldMapping.Next() = 0;
 
@@ -202,10 +202,10 @@ codeunit 5360 "CDS Int. Table Couple"
                                                 end;
                                         end;
                                     else begin
-                                            Session.LogMessage('0000EZI', GetMultipleMatchesFoundTelemetryErrorMessage(LocalRecordRef, TempMatchingIntegrationFieldMapping), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-                                            if not UnmatchedSystemIds.Contains(LocalRecordSystemId) then
-                                                UnmatchedSystemIds.Add(LocalRecordSystemId);
-                                        end;
+                                        Session.LogMessage('0000EZI', GetMultipleMatchesFoundTelemetryErrorMessage(LocalRecordRef, TempMatchingIntegrationFieldMapping), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                                        if not UnmatchedSystemIds.Contains(LocalRecordSystemId) then
+                                            UnmatchedSystemIds.Add(LocalRecordSystemId);
+                                    end;
                                 end;
                             end;
                     end;
@@ -219,7 +219,7 @@ codeunit 5360 "CDS Int. Table Couple"
 
         // if the user chose so, create new entities in Dataverse for records that couldn't be matched
         if UnmatchedSystemIds.Count() > 0 then
-            if IntegrationTableMapping."Create New in Case of No Match" then begin
+            if ShouldCreateNewRecordsInCaseOfNoMatch(IntegrationTableMapping) then begin
                 UnmatchedSystemIdsDictionary.Add(IntegrationTableMapping.Name, UnmatchedSystemIds);
                 CRMIntegrationManagement.CreateNewRecordsInCRM(UnmatchedSystemIdsDictionary);
             end else begin
@@ -234,9 +234,30 @@ codeunit 5360 "CDS Int. Table Couple"
             Session.LogMessage('0000EZJ', StrSubstNo(SkippingPostCouplingSynchTelemetryUserChoiceMsg, GetMappingNameWithParent(IntegrationTableMapping)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
     end;
 
+    local procedure ShouldCreateNewRecordsInCaseOfNoMatch(var IntegrationTableMapping: Record "Integration Table Mapping"): Boolean
+    var
+        CRMConnectionSetup: Record "CRM Connection Setup";
+        Handled: Boolean;
+        ShouldCreateNewRecord: Boolean;
+    begin
+        OnShouldCreateNewRecordInCaseOfNoMatch(IntegrationTableMapping, ShouldCreateNewRecord, Handled);
+        if Handled then
+            exit(ShouldCreateNewRecord);
+
+        case IntegrationTableMapping.Name of
+            'SALESPEOPLE':
+                exit(false);
+            'SALESORDER-ORDER':
+                exit(CRMConnectionSetup.IsBidirectionalSalesOrderIntEnabled() and IntegrationTableMapping."Create New in Case of No Match");
+            else
+                exit(IntegrationTableMapping."Create New in Case of No Match")
+        end;
+    end;
+
     local procedure SynchronizeCoupledRecords(var IntegrationTableMapping: Record "Integration Table Mapping"; var CoupledSystemIds: List of [Guid]; var CoupledCRMIds: List of [Guid])
     var
         CRMIntegrationManagement: Codeunit "CRM Integration Management";
+        Direction: Integer;
     begin
         if CoupledSystemIds.Count() = 0 then begin
             Session.LogMessage('0000EZK', StrSubstNo(SkippingPostCouplingSynchTelemetryNoneCoupledMsg, GetMappingNameWithParent(IntegrationTableMapping)), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
@@ -245,12 +266,19 @@ codeunit 5360 "CDS Int. Table Couple"
 
         Session.LogMessage('0000EZL', StrSubstNo(StartingPostCouplingSynchTelemetryMsg, GetMappingNameWithParent(IntegrationTableMapping), CoupledSystemIds.Count()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
 
+        Direction := IntegrationTableMapping.Direction;
         if IntegrationTableMapping.Direction = IntegrationTableMapping.Direction::Bidirectional then
-            if IntegrationTableMapping."Update-Conflict Resolution" = IntegrationTableMapping."Update-Conflict Resolution"::"None" then
-                Session.LogMessage('0000EZM', StrSubstNo(NoConflictResolutionStrategyDefinedTelemetryErr, GetMappingNameWithParent(IntegrationTableMapping)), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+            case IntegrationTableMapping."Update-Conflict Resolution" of
+                IntegrationTableMapping."Update-Conflict Resolution"::"None":
+                    Session.LogMessage('0000EZM', StrSubstNo(NoConflictResolutionStrategyDefinedTelemetryErr, GetMappingNameWithParent(IntegrationTableMapping)), Verbosity::Warning, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
+                IntegrationTableMapping."Update-Conflict Resolution"::"Get Update from Integration":
+                    Direction := IntegrationTableMapping.Direction::FromIntegrationTable;
+                IntegrationTableMapping."Update-Conflict Resolution"::"Send Update to Integration":
+                    Direction := IntegrationTableMapping.Direction::ToIntegrationTable;
+            end;
 
         Session.LogMessage('0000EZN', StrSubstNo(SchedulingPostCouplingSynchForBatchTelemetryMsg, GetMappingNameWithParent(IntegrationTableMapping), CoupledSystemIds.Count()), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', CategoryTok);
-        CRMIntegrationManagement.EnqueueSyncJob(IntegrationTableMapping, CoupledSystemIds, CoupledCRMIds, IntegrationTableMapping.Direction, true);
+        CRMIntegrationManagement.EnqueueSyncJob(IntegrationTableMapping, CoupledSystemIds, CoupledCRMIds, Direction, true);
     end;
 
     local procedure GetNoMatchFoundErrorMessage(ErrorCount: Integer): Text
@@ -325,6 +353,11 @@ codeunit 5360 "CDS Int. Table Couple"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeSetMatchingFilter(var IntegrationRecordRef: RecordRef; var MatchingIntegrationRecordFieldRef: FieldRef; var LocalRecordRef: RecordRef; var MatchingLocalFieldRef: FieldRef; var SetMatchingFilterHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnShouldCreateNewRecordInCaseOfNoMatch(var IntegrationTableMapping: Record "Integration Table Mapping"; var ShouldCreateNewRecord: Boolean; var Handled: Boolean)
     begin
     end;
 }

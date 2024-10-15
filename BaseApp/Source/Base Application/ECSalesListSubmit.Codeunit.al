@@ -68,7 +68,7 @@ codeunit 142 "EC Sales List Submit"
 
     local procedure GetGovTalkMessagePart(var GovTalkMessageParts: Record "GovTalk Message Parts")
     begin
-        GovTalkMessageParts."Part Id" := CreateGuid;
+        GovTalkMessageParts."Part Id" := CreateGuid();
         GovTalkMessageParts.Insert();
     end;
 

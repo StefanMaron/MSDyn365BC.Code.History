@@ -14,12 +14,12 @@ page 832 Approvals
         {
             repeater(Group)
             {
-                field("Created by Application"; "Created by Application")
+                field("Created by Application"; Rec."Created by Application")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the integrated app or product that the approval request comes from. ';
                 }
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies when the approval is due.';
@@ -44,17 +44,17 @@ page 832 Approvals
                         end;
                     end;
                 }
-                field("Initiated By User ID"; "Initiated By User ID")
+                field("Initiated By User ID"; Rec."Initiated By User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the User ID which has initiated the approval.';
                 }
-                field("To Be Approved By User ID"; "To Be Approved By User ID")
+                field("To Be Approved By User ID"; Rec."To Be Approved By User ID")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the user ID that needs to approve the action.';
                 }
-                field("Date-Time Initiated"; "Date-Time Initiated")
+                field("Date-Time Initiated"; Rec."Date-Time Initiated")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date and time that the approvals were initiated.';
@@ -91,18 +91,16 @@ page 832 Approvals
         WorkflowsCounter := 0;
 
         // get all records from Workflow Webhook Entry table
-        if WorkflowWebhookEntry.Find('-') then begin
+        if WorkflowWebhookEntry.Find('-') then
             repeat
                 AddWorkflowWebhookEntry(WorkflowWebhookEntry, WorkflowsCounter);
             until WorkflowWebhookEntry.Next() = 0;
-        end;
 
         // add all records from Approval Entry table
-        if ApprovalEntry.Find('-') then begin
+        if ApprovalEntry.Find('-') then
             repeat
                 AddApprovalEntry(ApprovalEntry, WorkflowsCounter);
             until ApprovalEntry.Next() = 0;
-        end;
     end;
 
     var

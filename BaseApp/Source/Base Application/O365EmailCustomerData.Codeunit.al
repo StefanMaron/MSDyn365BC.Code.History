@@ -1,5 +1,9 @@
+#if not CLEAN21
 codeunit 2380 "O365 Email Customer Data"
 {
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     trigger OnRun()
     begin
@@ -49,7 +53,7 @@ codeunit 2380 "O365 Email Customer Data"
         TempEmailItem.AddAttachment(InStream, StrSubstNo('%1.xlsx', GetDocumentName(Customer)));
         File.Close();
         EmailSuccess := TempEmailItem.Send(true);
-        Window.Close;
+        Window.Close();
         if EmailSuccess then
             Message(ExportedMsg);
     end;
@@ -80,7 +84,7 @@ codeunit 2380 "O365 Email Customer Data"
         InsertEstimates(Customer);
         InsertEstimateLines(Customer);
 
-        TempExcelBuffer.CloseBook;
+        TempExcelBuffer.CloseBook();
         exit(ServerFileName);
     end;
 
@@ -161,7 +165,7 @@ codeunit 2380 "O365 Email Customer Data"
         Found: Boolean;
     begin
         TempLineNumberBuffer.SetRange("New Line Number", FieldNo);
-        Found := not TempLineNumberBuffer.IsEmpty;
+        Found := not TempLineNumberBuffer.IsEmpty();
         TempLineNumberBuffer.SetRange("New Line Number");
         exit(Found);
     end;
@@ -226,7 +230,7 @@ codeunit 2380 "O365 Email Customer Data"
                 if TempLineNumberBuffer."New Line Number" > 0 then begin
                     FieldRef := RecRef.Field(TempLineNumberBuffer."New Line Number");
                     if (FieldRef.Class = FieldClass::FlowField) or (FieldRef.Type = FieldType::BLOB) then
-                        FieldRef.CalcField;
+                        FieldRef.CalcField();
                     EnterCell(RowNo, TempLineNumberBuffer."Old Line Number", FieldRef.Value, false);
                 end else
                     EnterCell(
@@ -244,7 +248,7 @@ codeunit 2380 "O365 Email Customer Data"
                 if TempLineNumberBuffer."New Line Number" > 0 then begin
                     FieldRef := RecRef.Field(TempLineNumberBuffer."New Line Number");
                     if (FieldRef.Class = FieldClass::FlowField) or (FieldRef.Type = FieldType::BLOB) then
-                        FieldRef.CalcField;
+                        FieldRef.CalcField();
                     EnterCell(TempLineNumberBuffer."Old Line Number", ColNo, FieldRef.Value, false);
                 end else
                     EnterCell(
@@ -313,7 +317,7 @@ codeunit 2380 "O365 Email Customer Data"
                     exit(Format(SalesInvoiceHeader."Amount Including VAT" - SalesInvoiceHeader.Amount));
                 end;
             -2: // WorkDescription
-                exit(SalesInvoiceHeader.GetWorkDescription);
+                exit(SalesInvoiceHeader.GetWorkDescription());
         end;
     end;
 
@@ -340,7 +344,7 @@ codeunit 2380 "O365 Email Customer Data"
                     exit(Format(SalesHeader."Amount Including VAT" - SalesHeader.Amount));
                 end;
             -2: // WorkDescription
-                exit(SalesHeader.GetWorkDescription);
+                exit(SalesHeader.GetWorkDescription());
         end;
     end;
 
@@ -360,7 +364,7 @@ codeunit 2380 "O365 Email Customer Data"
         RecRef: RecordRef;
         RowNo: Integer;
     begin
-        ClearBuffers;
+        ClearBuffers();
 
         with Customer do begin
             // Header
@@ -409,7 +413,7 @@ codeunit 2380 "O365 Email Customer Data"
         RecRef: RecordRef;
         RowNo: Integer;
     begin
-        ClearBuffers;
+        ClearBuffers();
 
         ContactBusinessRelation.SetRange("Link to Table", ContactBusinessRelation."Link to Table"::Customer);
         ContactBusinessRelation.SetRange("No.", Customer."No.");
@@ -463,7 +467,7 @@ codeunit 2380 "O365 Email Customer Data"
         RecRef: RecordRef;
         ColNo: Integer;
     begin
-        ClearBuffers;
+        ClearBuffers();
 
         with SalesInvoiceHeader do begin
             SetRange("Sell-to Customer No.", Customer."No.");
@@ -508,7 +512,7 @@ codeunit 2380 "O365 Email Customer Data"
         RecRef: RecordRef;
         ColNo: Integer;
     begin
-        ClearBuffers;
+        ClearBuffers();
 
         with SalesInvoiceLine do begin
             SetRange("Sell-to Customer No.", Customer."No.");
@@ -551,7 +555,7 @@ codeunit 2380 "O365 Email Customer Data"
         RecRef: RecordRef;
         ColNo: Integer;
     begin
-        ClearBuffers;
+        ClearBuffers();
 
         with CustLedgerEntry do begin
             SetRange("Customer No.", Customer."No.");
@@ -607,7 +611,7 @@ codeunit 2380 "O365 Email Customer Data"
         RecRef: RecordRef;
         ColNo: Integer;
     begin
-        ClearBuffers;
+        ClearBuffers();
 
         with SalesHeader do begin
             SetRange("Document Type", DocumentType);
@@ -655,7 +659,7 @@ codeunit 2380 "O365 Email Customer Data"
         RecRef: RecordRef;
         Colno: Integer;
     begin
-        ClearBuffers;
+        ClearBuffers();
 
         with SalesLine do begin
             SetRange("Sell-to Customer No.", Customer."No.");
@@ -742,4 +746,5 @@ codeunit 2380 "O365 Email Customer Data"
     begin
     end;
 }
+#endif
 

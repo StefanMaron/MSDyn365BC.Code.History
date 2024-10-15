@@ -324,7 +324,7 @@ codeunit 144024 "UT REP VATREP"
         PurchaseHeader."Pay-to Vendor No." := PurchaseHeader."Buy-from Vendor No.";
         PurchaseHeader."VAT Registration No." := PurchaseHeader."Buy-from Vendor No.";
         PurchaseHeader."VAT Bus. Posting Group" := VATPostingSetup."VAT Bus. Posting Group";
-        PurchaseHeader."Posting Date" := WorkDate;
+        PurchaseHeader."Posting Date" := WorkDate();
         PurchaseHeader.Insert();
 
         PurchaseLine."Document Type" := PurchaseHeader."Document Type";
@@ -418,7 +418,7 @@ codeunit 144024 "UT REP VATREP"
         VATEntry."VAT Base Discount %" := LibraryRandom.RandDec(10, 2);
         VATEntry."VAT Difference" := LibraryRandom.RandDec(10, 2);
         VATEntry.Amount := LibraryRandom.RandDec(10, 2);
-        VATEntry."Posting Date" := WorkDate;
+        VATEntry."Posting Date" := WorkDate();
         VATEntry.Insert();
     end;
 

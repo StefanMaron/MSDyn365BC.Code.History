@@ -71,7 +71,7 @@ table 262 "Intrastat Jnl. Batch"
 
             trigger OnValidate()
             begin
-                UpdateReported;
+                UpdateReported();
             end;
         }
         field(10501; "Dispatches Reported"; Boolean)
@@ -80,7 +80,7 @@ table 262 "Intrastat Jnl. Batch"
 
             trigger OnValidate()
             begin
-                UpdateReported;
+                UpdateReported();
             end;
         }
     }
@@ -114,16 +114,17 @@ table 262 "Intrastat Jnl. Batch"
     begin
         IntrastatJnlLine.SetRange("Journal Template Name", xRec."Journal Template Name");
         IntrastatJnlLine.SetRange("Journal Batch Name", xRec.Name);
-        while IntrastatJnlLine.FindFirst do
+        while IntrastatJnlLine.FindFirst() do
             IntrastatJnlLine.Rename("Journal Template Name", Name, IntrastatJnlLine."Line No.");
     end;
 
     var
-        StatPeriodFormatErr: Label 'You must specify the statistics period in the format MMYY, such as 0122 for January, 2022.';
-        Text001: Label 'Please check the month number.';
         IntraJnlTemplate: Record "Intrastat Jnl. Template";
         IntrastatJnlLine: Record "Intrastat Jnl. Line";
         Month: Integer;
+
+        StatPeriodFormatErr: Label 'You must specify the statistics period in the format MMYY, such as 0122 for January, 2022.';
+        Text001: Label 'Please check the month number.';
 
     procedure GetStatisticsStartDate(): Date
     var
@@ -132,7 +133,7 @@ table 262 "Intrastat Jnl. Batch"
         Month: Integer;
     begin
         TestField("Statistics Period");
-        Century := Date2DMY(WorkDate, 3) div 100;
+        Century := Date2DMY(WorkDate(), 3) div 100;
         Evaluate(Year, CopyStr("Statistics Period", 3, 2));
         Year := Year + Century * 100;
         Evaluate(Month, CopyStr("Statistics Period", 1, 2));

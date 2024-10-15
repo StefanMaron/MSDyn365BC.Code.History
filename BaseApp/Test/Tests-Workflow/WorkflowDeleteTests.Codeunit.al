@@ -155,7 +155,7 @@ codeunit 134305 "Workflow Delete Tests"
 
         // Validate
         Assert.IsFalse(WorkflowPage.WorkflowStepInstances.Enabled, 'The action should be disabled.');
-        WorkflowPage.Close;
+        WorkflowPage.Close();
 
         LibraryIncomingDocuments.InitIncomingDocuments;
         LibraryIncomingDocuments.CreateNewIncomingDocument(IncomingDocument);
@@ -293,7 +293,7 @@ codeunit 134305 "Workflow Delete Tests"
         WorkflowPage.OpenView();
         WorkflowPage.GotoRecord(Workflow);
         Assert.IsFalse(WorkflowPage.ArchivedWorkflowStepInstances.Enabled, 'The action should be disabled.');
-        WorkflowPage.Close;
+        WorkflowPage.Close();
 
         EntryPointEventStep :=
           LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnAfterInsertIncomingDocumentCode);
@@ -310,7 +310,7 @@ codeunit 134305 "Workflow Delete Tests"
         WorkflowPage.OpenView;
         WorkflowPage.GotoRecord(Workflow);
         Assert.IsTrue(WorkflowPage.ArchivedWorkflowStepInstances.Enabled, 'The action should be enabled.');
-        WorkflowPage.Close;
+        WorkflowPage.Close();
 
         DisableWorkflow(Workflow);
 
@@ -358,7 +358,7 @@ codeunit 134305 "Workflow Delete Tests"
         LibraryWorkflow.CreateWorkflow(Workflow);
 
         EntryPointEventStep :=
-          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnCustomerChangedCode);
+          LibraryWorkflow.InsertEntryPointEventStep(Workflow, WorkflowEventHandling.RunWorkflowOnCustomerChangedCode());
         LibraryWorkflow.InsertEventRule(EntryPointEventStep, 20, WorkflowRule.Operator::Changed);
         ResponseStep := LibraryWorkflow.InsertResponseStep(Workflow, WorkflowResponseHandling.RevertValueForFieldCode,
             EntryPointEventStep);

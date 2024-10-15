@@ -21,7 +21,7 @@ page 5114 "Contact Profile Answers"
 
                 trigger OnLookup(var Text: Text): Boolean
                 begin
-                    CurrPage.SaveRecord;
+                    CurrPage.SaveRecord();
                     ProfileManagement.LookupName(CurrentQuestionsChecklistCode, Rec, Cont);
                     CurrPage.Update(false);
                 end;
@@ -29,7 +29,7 @@ page 5114 "Contact Profile Answers"
                 trigger OnValidate()
                 begin
                     ProfileManagement.CheckName(CurrentQuestionsChecklistCode, Cont);
-                    CurrentQuestionsChecklistCodeO;
+                    CurrentQuestionsChecklistCodeO();
                 end;
             }
             repeater(Control1)
@@ -53,7 +53,7 @@ page 5114 "Contact Profile Answers"
                     StyleExpr = StyleIsStrong;
                     ToolTip = 'Specifies the profile question or answer.';
                 }
-                field("No. of Contacts"; "No. of Contacts")
+                field("No. of Contacts"; Rec."No. of Contacts")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of contacts that have given this answer.';
@@ -67,7 +67,7 @@ page 5114 "Contact Profile Answers"
 
                     trigger OnValidate()
                     begin
-                        UpdateProfileAnswer;
+                        UpdateProfileAnswer();
                     end;
                 }
             }
@@ -111,7 +111,7 @@ page 5114 "Contact Profile Answers"
 
         ProfileQuestLineQuestion := ProfileQuestionnaireLine2;
         if ProfileQuestionnaireLine2.Type = Type::Answer then
-            ProfileQuestLineQuestion.Get(ProfileQuestionnaireLine2."Profile Questionnaire Code", ProfileQuestLineQuestion.FindQuestionLine);
+            ProfileQuestLineQuestion.Get(ProfileQuestionnaireLine2."Profile Questionnaire Code", ProfileQuestLineQuestion.FindQuestionLine());
 
         OK := true;
         if ProfileQuestLineQuestion."Auto Contact Classification" then begin
@@ -125,7 +125,7 @@ page 5114 "Contact Profile Answers"
                     ProfileQuestLineQuestion := ProfileQuestionnaireLine2;
                     if ProfileQuestionnaireLine2.Type = Type::Answer then
                         ProfileQuestLineQuestion.Get(
-                          ProfileQuestionnaireLine2."Profile Questionnaire Code", ProfileQuestLineQuestion.FindQuestionLine);
+                          ProfileQuestionnaireLine2."Profile Questionnaire Code", ProfileQuestLineQuestion.FindQuestionLine());
                     OK := not ProfileQuestLineQuestion."Auto Contact Classification";
                 end;
             until (not GoNext) or OK;
@@ -155,7 +155,7 @@ page 5114 "Contact Profile Answers"
             if ProfileQuestionnaireLine2.Next(Step) <> 0 then begin
                 if ProfileQuestionnaireLine2.Type = Type::Answer then
                     ProfileQuestLineQuestion.Get(
-                      ProfileQuestionnaireLine2."Profile Questionnaire Code", ProfileQuestionnaireLine2.FindQuestionLine);
+                      ProfileQuestionnaireLine2."Profile Questionnaire Code", ProfileQuestionnaireLine2.FindQuestionLine());
                 if ((not ProfileQuestLineQuestion."Auto Contact Classification") and
                     (ProfileQuestionnaireLine2.Type = Type::Answer)) or
                    ((ProfileQuestionnaireLine2.Type = Type::Question) and (not ProfileQuestionnaireLine2."Auto Contact Classification"))
@@ -192,9 +192,6 @@ page 5114 "Contact Profile Answers"
         ProfileQuestionnaireLine2: Record "Profile Questionnaire Line";
         ProfileQuestLineQuestion: Record "Profile Questionnaire Line";
         ProfileManagement: Codeunit ProfileManagement;
-        CurrentQuestionsChecklistCode: Code[20];
-        ContactProfileAnswerCode: Code[20];
-        ContactProfileAnswerLine: Integer;
         GoNext: Boolean;
         OK: Boolean;
         CaptionStr: Text;
@@ -207,6 +204,9 @@ page 5114 "Contact Profile Answers"
     protected var
         Cont: Record Contact;
         ContProfileAnswer: Record "Contact Profile Answer";
+        CurrentQuestionsChecklistCode: Code[20];
+        ContactProfileAnswerCode: Code[20];
+        ContactProfileAnswerLine: Integer;
         Set: Boolean;
 
     procedure SetParameters(var SetCont: Record Contact; SetProfileQuestionnaireCode: Code[20]; SetContProfileAnswerCode: Code[20]; SetContProfileAnswerLine: Integer)
@@ -248,7 +248,7 @@ page 5114 "Contact Profile Answers"
 
     local procedure CurrentQuestionsChecklistCodeO()
     begin
-        CurrPage.SaveRecord;
+        CurrPage.SaveRecord();
         ProfileManagement.SetName(CurrentQuestionsChecklistCode, Rec, 0);
         CurrPage.Update(false);
     end;

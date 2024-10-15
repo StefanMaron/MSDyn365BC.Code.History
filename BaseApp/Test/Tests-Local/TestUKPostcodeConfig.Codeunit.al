@@ -96,7 +96,7 @@ codeunit 144501 "Test UK Postcode Config"
 
         // [THEN] he should get an error
         Assert.ExpectedError(
-            StrSubstno('You do not have the following permissions on TableData %1: Insert',PostcodeServiceConfig.TableCaption));
+            StrSubstno('Sorry, the current permissions prevented the action. (TableData %1 Insert:',PostcodeServiceConfig.TableCaption()));
     end;
 
     [Test]

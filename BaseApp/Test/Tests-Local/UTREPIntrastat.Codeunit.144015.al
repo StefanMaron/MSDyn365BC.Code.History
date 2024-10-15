@@ -174,7 +174,7 @@ codeunit 144015 "UT REP Intrastat"
         File.CreateInStream(InStream);
         InStream.ReadText(LineText);
         InStream.ReadText(LineText);
-        File.Close;
+        File.Close();
 
         Assert.AreEqual(ExpectedTotalWeight, GetExportedTotalWeight(LineText), 'Invalid Total Weigth value');
     end;

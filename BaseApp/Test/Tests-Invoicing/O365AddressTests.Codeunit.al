@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138948 "O365 Address Tests"
 {
     Subtype = Test;
@@ -24,7 +25,7 @@ codeunit 138948 "O365 Address Tests"
         LibraryAzureKVMockMgmt: Codeunit "Library - Azure KV Mock Mgmt.";
     begin
         LibraryVariableStorage.AssertEmpty;
-        EventSubscriberInvoicingApp.Clear;
+        EventSubscriberInvoicingApp.Clear();
         ApplicationArea('#Invoicing');
 
         if IsInitialized then
@@ -78,7 +79,7 @@ codeunit 138948 "O365 Address Tests"
         // [THEN] The address page is opened with the right data
         // [WHEN] The user edits the country in the address page and types the country CODE
         // Both done in the handler
-        BCO365MySettings.Close;
+        BCO365MySettings.Close();
 
         // [THEN] The changes are reflected in company information
         CompanyInformation.Get();
@@ -95,7 +96,7 @@ codeunit 138948 "O365 Address Tests"
         // Logic in handler
 
         // [THEN] The changes are reflected in company information
-        BCO365MySettings.Close;
+        BCO365MySettings.Close();
         CompanyInformation.Get();
         Assert.AreEqual(CompanyInformation."Country/Region Code", CountryRegion2.Code,
           'Country/region not correctly updated in company information by name');
@@ -113,7 +114,8 @@ codeunit 138948 "O365 Address Tests"
         // [WHEN] The user opens a collapsed address
         // [THEN] The page does not allow create mode
         asserterror O365Address.OpenNew();
-        Assert.ExpectedError('You do not have the following permissions on Page 2148: Insert');
+        Assert.ExpectedError('Sorry, the current permissions prevented the action. (Page');
+        Assert.ExpectedError('Insert');
     end;
 
     [Test]
@@ -430,13 +432,13 @@ codeunit 138948 "O365 Address Tests"
         end;
         PreviousPostCode := TempStandardAddress."Post Code";
         BCO365MySettings.Control20.FullAddress.AssistEdit;
-        BCO365MySettings.Close;
+        BCO365MySettings.Close();
 
         // [WHEN] The user edits the city
         BCO365MySettings.OpenEdit;
         TempStandardAddress.City := CopyStr(LibraryUtility.GenerateRandomText(50), 1, MaxStrLen(TempStandardAddress.City));
         BCO365MySettings.Control20.FullAddress.AssistEdit;
-        BCO365MySettings.Close;
+        BCO365MySettings.Close();
 
         // [THEN] The post code is not affected
         CompanyInformation.Get();
@@ -448,7 +450,7 @@ codeunit 138948 "O365 Address Tests"
         PreviousCity := TempStandardAddress.City;
         TempStandardAddress."Post Code" := CopyStr(LibraryUtility.GenerateRandomText(50), 1, MaxStrLen(TempStandardAddress."Post Code"));
         BCO365MySettings.Control20.FullAddress.AssistEdit;
-        BCO365MySettings.Close;
+        BCO365MySettings.Close();
 
         // [THEN] The city is not affected
         CompanyInformation.Get();
@@ -493,7 +495,7 @@ codeunit 138948 "O365 Address Tests"
         BCO365SalesInvoice."Sell-to Customer Name".Value := CustomerName;
         BCO365SalesInvoice.ViewContactCard.DrillDown;
         // Handler executes and edits field
-        BCO365SalesInvoice.Close;
+        BCO365SalesInvoice.Close();
     end;
 
     local procedure EditAddressCustomerCardFromEstimate(CustomerFieldNo: Integer; CustomerName: Text[50])
@@ -506,7 +508,7 @@ codeunit 138948 "O365 Address Tests"
         BCO365SalesQuote."Sell-to Customer Name".Value := CustomerName;
         BCO365SalesQuote.ViewContactCard.DrillDown;
         // Handler executes and edits field
-        BCO365SalesQuote.Close;
+        BCO365SalesQuote.Close();
     end;
 
     local procedure EditAddressInvoiceCard(CustomerFieldNo: Integer; CustomerName: Text[50])
@@ -539,7 +541,7 @@ codeunit 138948 "O365 Address Tests"
                 Error(UnrecognizedFieldErr);
         end;
 
-        BCO365SalesInvoice.Close;
+        BCO365SalesInvoice.Close();
     end;
 
     local procedure EditAddressEstimateCard(CustomerFieldNo: Integer; CustomerName: Text[50])
@@ -572,7 +574,7 @@ codeunit 138948 "O365 Address Tests"
                 Error(UnrecognizedFieldErr);
         end;
 
-        BCO365SalesQuote.Close;
+        BCO365SalesQuote.Close();
     end;
 
     local procedure FindCustomerAndSalesHeaderFromName(Name: Text; var Customer: Record Customer; var SalesHeader: Record "Sales Header")
@@ -695,4 +697,4 @@ codeunit 138948 "O365 Address Tests"
         O365Address.OK.Invoke;
     end;
 }
-
+#endif

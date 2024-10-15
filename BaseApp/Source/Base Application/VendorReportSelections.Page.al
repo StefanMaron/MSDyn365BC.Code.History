@@ -47,7 +47,7 @@ page 9658 "Vendor Report Selections"
                     Caption = 'Report Caption';
                     ToolTip = 'Specifies the name of the report.';
                 }
-                field("Custom Report Description"; "Custom Report Description")
+                field("Custom Report Description"; Rec."Custom Report Description")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Custom Layout Description';
@@ -57,13 +57,13 @@ page 9658 "Vendor Report Selections"
 
                     trigger OnDrillDown()
                     begin
-                        LookupCustomReportDescription;
+                        LookupCustomReportDescription();
                         CurrPage.Update(true);
                     end;
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookupCustomReportDescription;
+                        LookupCustomReportDescription();
                         CurrPage.Update(true);
                     end;
 
@@ -96,18 +96,18 @@ page 9658 "Vendor Report Selections"
                         ShowSelectedContacts();
                     end;
                 }
-                field("Use for Email Body"; "Use for Email Body")
+                field("Use for Email Body"; Rec."Use for Email Body")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies that summarized information, such as invoice number, due date, and payment service link, will be inserted in the body of the email that you send.';
                 }
-                field("Email Body Layout Code"; "Email Body Layout Code")
+                field("Email Body Layout Code"; Rec."Email Body Layout Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the ID of the email body layout that is used.';
                     Visible = false;
                 }
-                field("Email Body Layout Description"; "Email Body Layout Description")
+                field("Email Body Layout Description"; Rec."Email Body Layout Description")
                 {
                     ApplicationArea = Basic, Suite;
                     DrillDown = true;
@@ -116,13 +116,13 @@ page 9658 "Vendor Report Selections"
 
                     trigger OnDrillDown()
                     begin
-                        LookupEmailBodyDescription;
+                        LookupEmailBodyDescription();
                         CurrPage.Update(true);
                     end;
 
                     trigger OnLookup(var Text: Text): Boolean
                     begin
-                        LookupEmailBodyDescription;
+                        LookupEmailBodyDescription();
                         CurrPage.Update(true);
                     end;
                 }
@@ -139,9 +139,6 @@ page 9658 "Vendor Report Selections"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Copy from Report Selection';
                 Image = Copy;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
                 ToolTip = 'Copy reports that are set up on the Report Selection page.';
 
                 trigger OnAction()
@@ -163,9 +160,6 @@ page 9658 "Vendor Report Selections"
                 ApplicationArea = Basic, Suite;
                 Caption = 'Select Email from Contacts';
                 Image = ContactFilter;
-                Promoted = true;
-                PromotedOnly = true;
-                PromotedCategory = Process;
                 ToolTip = 'Select an email address from the list of contacts.';
 
                 trigger OnAction()
@@ -176,11 +170,25 @@ page 9658 "Vendor Report Selections"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(CopyFromReportSelectionsAction_Promoted; CopyFromReportSelectionsAction)
+                {
+                }
+                actionref(SelectFromContactsAction_Promoted; SelectFromContactsAction)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetRecord()
     begin
-        MapTableUsageValueToPageValue;
+        MapTableUsageValueToPageValue();
         GetSendToEmail(false);
     end;
 
@@ -190,7 +198,7 @@ page 9658 "Vendor Report Selections"
         if Usage = Usage::"S.Quote" then
             Usage := Usage::"P.Order";
 
-        MapTableUsageValueToPageValue;
+        MapTableUsageValueToPageValue();
     end;
 
     var

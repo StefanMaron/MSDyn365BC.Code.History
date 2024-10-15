@@ -99,20 +99,20 @@ table 5103 "Interaction Tmpl. Language"
         end;
 
         if "Custom Layout Code" = '' then begin
-            if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop] then
+            if ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop] then
                 if Attachment.ImportAttachmentFromClientFile('', false, false) then
                     NewAttachNo := Attachment."No.";
         end else
-            NewAttachNo := CreateHTMLCustomLayoutAttachment;
+            NewAttachNo := CreateHTMLCustomLayoutAttachment();
 
         if NewAttachNo <> 0 then begin
             if "Attachment No." <> 0 then
                 RemoveAttachment(false);
             "Attachment No." := NewAttachNo;
             if InteractTmplLanguage.Get("Interaction Template Code", "Language Code") then
-                Modify
+                Modify()
             else
-                Insert;
+                Insert();
         end else
             Error(Text000);
     end;
@@ -154,7 +154,7 @@ table 5103 "Interaction Tmpl. Language"
                 exit;
             RemoveAttachment(false);
             "Attachment No." := 0;
-            Modify;
+            Modify();
             Commit();
         end;
 
@@ -163,7 +163,7 @@ table 5103 "Interaction Tmpl. Language"
             NewAttachNo := AttachmentManagement.InsertAttachment(InteractTmplLanguage."Attachment No.");
             if NewAttachNo <> 0 then begin
                 "Attachment No." := NewAttachNo;
-                Modify;
+                Modify();
             end;
         end;
     end;
@@ -181,7 +181,7 @@ table 5103 "Interaction Tmpl. Language"
 
         if Attachment.ImportAttachmentFromClientFile('', false, false) then begin
             "Attachment No." := Attachment."No.";
-            Modify;
+            Modify();
         end else
             Error(Text002);
     end;
@@ -204,7 +204,7 @@ table 5103 "Interaction Tmpl. Language"
             AttachmentRecord."Storage Type"::Embedded:
                 begin
                     AttachmentRecord.CalcFields("Attachment File");
-                    if AttachmentRecord."Attachment File".HasValue then begin
+                    if AttachmentRecord."Attachment File".HasValue() then begin
                         FileName := "Interaction Template Code" + '.' + AttachmentRecord."File Extension";
                         TempBlob.FromRecord(AttachmentRecord, AttachmentRecord.FieldNo("Attachment File"));
                         FileMgt.BLOBExport(TempBlob, FileName, true);
@@ -232,7 +232,7 @@ table 5103 "Interaction Tmpl. Language"
         if Attachment.Get("Attachment No.") then
             if Attachment.RemoveAttachment(Prompt) then begin
                 "Attachment No." := 0;
-                Modify;
+                Modify();
             end;
     end;
 }

@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138904 "O365 Sales Totals Tests"
 {
     Subtype = Test;
@@ -28,7 +29,7 @@ codeunit 138904 "O365 Sales Totals Tests"
         AccountingPeriod.SetRange("New Fiscal Year", true);
         if not AccountingPeriod.FindLast() then begin
             AccountingPeriod.Init();
-            AccountingPeriod."Starting Date" := CalcDate('<CY+1D>', WorkDate);
+            AccountingPeriod."Starting Date" := CalcDate('<CY+1D>', WorkDate());
             AccountingPeriod."New Fiscal Year" := true;
             AccountingPeriod.Insert();
         end;
@@ -86,7 +87,7 @@ codeunit 138904 "O365 Sales Totals Tests"
         GLSetup.Get();
 
         // Exercise
-        Symbol := GLSetup.GetCurrencySymbol;
+        Symbol := GLSetup.GetCurrencySymbol();
 
         // Verify
         Assert.AreEqual(GLSetup."LCY Code", Symbol, '');
@@ -106,7 +107,7 @@ codeunit 138904 "O365 Sales Totals Tests"
         GLSetup.Get();
 
         // Exercise
-        Symbol := GLSetup.GetCurrencySymbol;
+        Symbol := GLSetup.GetCurrencySymbol();
 
         // Verify
         Assert.AreEqual(GLSetup."Local Currency Symbol", Symbol, '');
@@ -128,7 +129,7 @@ codeunit 138904 "O365 Sales Totals Tests"
         Currency.Modify();
 
         // Exercise
-        Symbol := Currency.GetCurrencySymbol;
+        Symbol := Currency.GetCurrencySymbol();
 
         // Verify
         Assert.AreEqual(Currency.Code, Symbol, '');
@@ -150,7 +151,7 @@ codeunit 138904 "O365 Sales Totals Tests"
         Currency.Modify();
 
         // Exercise
-        Symbol := Currency.GetCurrencySymbol;
+        Symbol := Currency.GetCurrencySymbol();
 
         // Verify
         Assert.AreEqual(Currency.Symbol, Symbol, '');
@@ -238,7 +239,7 @@ codeunit 138904 "O365 Sales Totals Tests"
         O365SalesStatistics.GetCurrentAccountingPeriod(AccountingPeriod);
 
         // Verify the correct accounting period was selected
-        Assert.AreEqual(WorkDate, AccountingPeriod."Starting Date", 'The incorrect starting period was chosen.');
+        Assert.AreEqual(WorkDate(), AccountingPeriod."Starting Date", 'The incorrect starting period was chosen.');
 
         for Month := 1 to 12 do begin
             // Setup
@@ -265,7 +266,7 @@ codeunit 138904 "O365 Sales Totals Tests"
         // Setup
         LibraryLowerPermissions.SetInvoiceApp;
         Initialize();
-        WorkDate(CalcDate('<1Y>', WorkDate)); // 1 year later
+        WorkDate(CalcDate('<1Y>', WorkDate())); // 1 year later
 
         // Exercise
         asserterror O365SalesStatistics.GenerateMonthlyOverview(TempNameValueBuffer);
@@ -317,15 +318,15 @@ codeunit 138904 "O365 Sales Totals Tests"
         CreateDemoCustLedgerEntries('');
         TotalThisMonth := CreatePostedSalesInvoices('');
         CreateDraftSalesInvoice('');
-        GraphMgtGeneralTools.ApiSetup;
+        GraphMgtGeneralTools.ApiSetup();
 
         // Exercise
         LibraryLowerPermissions.SetInvoiceApp;
         O365SalesStatistics.GenerateMonthlyOverview(TempNameValueBuffer);
-        TempNameValueBuffer.Get(Date2DMY(WorkDate, 2));
+        TempNameValueBuffer.Get(Date2DMY(WorkDate(), 2));
 
         // Verify
-        Assert.AreEqual(StrSubstNo('%1 %2', GLSetup.GetCurrencySymbol, TotalThisMonth), TempNameValueBuffer.Value, '');
+        Assert.AreEqual(StrSubstNo('%1 %2', GLSetup.GetCurrencySymbol(), TotalThisMonth), TempNameValueBuffer.Value, '');
     end;
 
     [Test]
@@ -345,15 +346,15 @@ codeunit 138904 "O365 Sales Totals Tests"
         O365SalesStatistics.GetCurrentAccountingPeriod(AccountingPeriod);
 
         // Verify the correct accounting period was selected
-        Assert.AreEqual(WorkDate, AccountingPeriod."Starting Date", 'The incorrect starting period was chosen.');
+        Assert.AreEqual(WorkDate(), AccountingPeriod."Starting Date", 'The incorrect starting period was chosen.');
 
         for Month := 1 to 12 do begin
             // Exercise
             O365SalesStatistics.GenerateWeeklyOverview(TempNameValueBuffer, Month);
 
             // Verify
-            Weeks := Date2DMY(CalcDate(StrSubstNo('<%1M-1D>', Month), WorkDate), 1) div 7;
-            if Date2DMY(CalcDate(StrSubstNo('<%1M-1D>', Month), WorkDate), 1) mod 7 <> 0 then
+            Weeks := Date2DMY(CalcDate(StrSubstNo('<%1M-1D>', Month), WorkDate()), 1) div 7;
+            if Date2DMY(CalcDate(StrSubstNo('<%1M-1D>', Month), WorkDate()), 1) mod 7 <> 0 then
                 Weeks += 1;
 
             Assert.AreEqual(
@@ -382,22 +383,22 @@ codeunit 138904 "O365 Sales Totals Tests"
         CreateDemoCustLedgerEntries('');
         TotalThisWeek := CreatePostedSalesInvoices('');
         CreateDraftSalesInvoice('');
-        GraphMgtGeneralTools.ApiSetup;
+        GraphMgtGeneralTools.ApiSetup();
 
         // Exercise
         LibraryLowerPermissions.SetInvoiceApp;
-        O365SalesStatistics.GenerateWeeklyOverview(TempNameValueBuffer, Date2DMY(WorkDate, 2));
+        O365SalesStatistics.GenerateWeeklyOverview(TempNameValueBuffer, Date2DMY(WorkDate(), 2));
 
         // Verify
         TempNameValueBuffer.FindSet();
 
         // The first week should have data, the remaining should be empty
-        Assert.AreNotEqual(StrSubstNo('%1 %2', GLSetup.GetCurrencySymbol, TotalThisWeek), TempNameValueBuffer.Value, '');
-        TempNameValueBuffer.Next;
+        Assert.AreNotEqual(StrSubstNo('%1 %2', GLSetup.GetCurrencySymbol(), TotalThisWeek), TempNameValueBuffer.Value, '');
+        TempNameValueBuffer.Next();
 
         repeat
-            Assert.AreEqual(StrSubstNo('%1 %2', GLSetup.GetCurrencySymbol, 0), TempNameValueBuffer.Value, '');
-        until TempNameValueBuffer.Next = 0;
+            Assert.AreEqual(StrSubstNo('%1 %2', GLSetup.GetCurrencySymbol(), 0), TempNameValueBuffer.Value, '');
+        until TempNameValueBuffer.Next() = 0;
     end;
 
     [Test]
@@ -418,11 +419,11 @@ codeunit 138904 "O365 Sales Totals Tests"
         LibraryLowerPermissions.SetOutsideO365Scope();
         CreatePostedSalesInvoices(Customer."No.");
         CreateDraftSalesInvoice(Customer."No.");
-        GraphMgtGeneralTools.ApiSetup;
+        GraphMgtGeneralTools.ApiSetup();
 
         // Exercise
         LibraryLowerPermissions.SetInvoiceApp;
-        Assert.IsTrue(O365SalesStatistics.GenerateMonthlyCustomers(Date2DMY(WorkDate, 2), ResultCustomer), 'did not mark any customers');
+        Assert.IsTrue(O365SalesStatistics.GenerateMonthlyCustomers(Date2DMY(WorkDate(), 2), ResultCustomer), 'did not mark any customers');
 
         // Verify
         ResultCustomer.FindFirst();
@@ -451,7 +452,7 @@ codeunit 138904 "O365 Sales Totals Tests"
         LibrarySales.CreateCustomer(OtherCustomer);
 
         // WORKDATE determines posting date
-        OriginalWorkDate := WorkDate;
+        OriginalWorkDate := WorkDate();
         Amount += CreatePostedSalesInvoice(CustomerCode); // "today"
 
         WorkDate(CalcDate('<CM-1M+1D>', OriginalWorkDate)); // this month
@@ -485,7 +486,7 @@ codeunit 138904 "O365 Sales Totals Tests"
     begin
         LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item, LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2));
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice,
-          CustomerCode, Item."No.", LibraryRandom.RandInt(10), '', WorkDate);
+          CustomerCode, Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
 
         SalesInvoiceHeader.SetAutoCalcFields("Amount Including VAT");
         SalesInvoiceHeader.Get(LibrarySales.PostSalesDocument(SalesHeader, true, true));
@@ -505,7 +506,7 @@ codeunit 138904 "O365 Sales Totals Tests"
     begin
         LibraryInventory.CreateItemWithUnitPriceAndUnitCost(Item, LibraryRandom.RandDec(100, 2), LibraryRandom.RandDec(100, 2));
         LibrarySales.CreateSalesDocumentWithItem(SalesHeader, SalesLine, SalesHeader."Document Type"::Invoice,
-          CustomerCode, Item."No.", LibraryRandom.RandInt(10), '', WorkDate);
+          CustomerCode, Item."No.", LibraryRandom.RandInt(10), '', WorkDate());
 
         exit(SalesHeader."Amount Including VAT");
     end;
@@ -522,7 +523,7 @@ codeunit 138904 "O365 Sales Totals Tests"
         LibrarySales.CreateCustomer(OtherCustomer);
 
         // WORKDATE determines posting date
-        OriginalWorkDate := WorkDate;
+        OriginalWorkDate := WorkDate();
 
         LibrarySales.MockCustLedgerEntryWithAmount(CustLedgerEntry, CustomerCode); // "today"
 
@@ -558,4 +559,4 @@ codeunit 138904 "O365 Sales Totals Tests"
             StrSubstNo('Unexpected notification: %1', TheNotification.Message));
     end;
 }
-
+#endif

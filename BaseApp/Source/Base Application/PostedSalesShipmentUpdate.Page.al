@@ -16,26 +16,26 @@ page 1350 "Posted Sales Shipment - Update"
         {
             group(General)
             {
-                field("No."; "No.")
+                field("No."; Rec."No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the number of the record.';
                 }
-                field("Sell-to Customer Name"; "Sell-to Customer Name")
+                field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
                 {
                     ApplicationArea = Basic, Suite;
                     Caption = 'Customer';
                     Editable = false;
                     ToolTip = 'Specifies the name of customer at the sell-to address.';
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = false;
                     ToolTip = 'Specifies the posting date for the entry.';
                 }
-                field("Promised Delivery Date"; "Promised Delivery Date")
+                field("Promised Delivery Date"; Rec."Promised Delivery Date")
                 {
                     ApplicationArea = OrderPromising;
                     Editable = true;
@@ -45,33 +45,33 @@ page 1350 "Posted Sales Shipment - Update"
             group(Shipping)
             {
                 Caption = 'Shipping';
-                field("Shipping Agent Code"; "Shipping Agent Code")
+                field("Shipping Agent Code"; Rec."Shipping Agent Code")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Agent';
                     Editable = true;
                     ToolTip = 'Specifies which shipping agent is used to transport the items on the sales document to the customer.';
                 }
-                field("Shipping Agent Service Code"; "Shipping Agent Service Code")
+                field("Shipping Agent Service Code"; Rec."Shipping Agent Service Code")
                 {
                     ApplicationArea = Suite;
                     Caption = 'Agent Service';
                     Editable = true;
                     ToolTip = 'Specifies which shipping agent service is used to transport the items on the sales document to the customer.';
                 }
-                field("Package Tracking No."; "Package Tracking No.")
+                field("Package Tracking No."; Rec."Package Tracking No.")
                 {
                     ApplicationArea = Suite;
                     Editable = true;
                     ToolTip = 'Specifies the shipping agent''s package number.';
                 }
-                field("Outbound Whse. Handling Time"; "Outbound Whse. Handling Time")
+                field("Outbound Whse. Handling Time"; Rec."Outbound Whse. Handling Time")
                 {
                     ApplicationArea = Warehouse;
                     Editable = true;
                     ToolTip = 'Specifies a date formula for the time it takes to get items ready to ship from this location. The time element is used in the calculation of the delivery date as follows: Shipment Date + Outbound Warehouse Handling Time = Planned Shipment Date + Shipping Time = Planned Delivery Date.';
                 }
-                field("Shipping Time"; "Shipping Time")
+                field("Shipping Time"; Rec."Shipping Time")
                 {
                     ApplicationArea = Basic, Suite;
                     Editable = true;
@@ -93,7 +93,7 @@ page 1350 "Posted Sales Shipment - Update"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CloseAction = ACTION::LookupOK then
-            if RecordChanged then
+            if RecordChanged() then
                 CODEUNIT.Run(CODEUNIT::"Shipment Header - Edit", Rec);
     end;
 

@@ -8,11 +8,6 @@ codeunit 5612 "Calculate Custom 1 Depr."
     end;
 
     var
-        Text000: Label 'A depreciation entry must be posted on %2 = %3 for %1.';
-        Text001: Label '%2 is positive on %3 = %4 for %1.';
-        Text002: Label '%2 must not be 100 for %1.';
-        Text003: Label '%2 is later than %3 for %1.';
-        Text004: Label 'You must not specify %2 together with %3 = %4 for %1.';
         FA: Record "Fixed Asset";
         FALedgEntry: Record "FA Ledger Entry";
         DeprBook: Record "Depreciation Book";
@@ -54,6 +49,12 @@ codeunit 5612 "Calculate Custom 1 Depr."
         Custom1Depr: Decimal;
         ExtraDays: Integer;
 
+        Text000: Label 'A depreciation entry must be posted on %2 = %3 for %1.';
+        Text001: Label '%2 is positive on %3 = %4 for %1.';
+        Text002: Label '%2 must not be 100 for %1.';
+        Text003: Label '%2 is later than %3 for %1.';
+        Text004: Label 'You must not specify %2 together with %3 = %4 for %1.';
+
     procedure Calculate(var DeprAmount: Decimal; var Custom1DeprAmount: Decimal; var NumberOfDays3: Integer; var Custom1NumberOfDays3: Integer; FANo: Code[20]; DeprBookCode2: Code[10]; UntilDate2: Date; EntryAmounts2: array[4] of Decimal; DateFromProjection2: Date; DaysInPeriod2: Integer)
     var
         i: Integer;
@@ -64,7 +65,7 @@ codeunit 5612 "Calculate Custom 1 Depr."
         if IsHandled then
             exit;
 
-        ClearAll;
+        ClearAll();
         DeprAmount := 0;
         Custom1DeprAmount := 0;
         NumberOfDays3 := 0;
@@ -75,6 +76,8 @@ codeunit 5612 "Calculate Custom 1 Depr."
         DeprBook.Get(DeprBookCode);
         if not FADeprBook.Get(FANo, DeprBookCode) then
             exit;
+        OnAfterGetDeprBooks(DeprBook, FADeprBook);
+
         DeprBook.TestField("Fiscal Year 365 Days", false);
         for i := 1 to 4 do
             EntryAmounts[i] := EntryAmounts2[i];
@@ -96,8 +99,8 @@ codeunit 5612 "Calculate Custom 1 Depr."
         FAPostingTypeSetup.TestField("Include in Depr. Calculation", true);
         FAPostingTypeSetup.TestField(Sign, FAPostingTypeSetup.Sign::Credit);
 
-        TransferValues;
-        if not SkipRecord then begin
+        TransferValues();
+        if not SkipRecord() then begin
             Sign := 1;
             if not FADeprBook."Use FA Ledger Check" then begin
                 if DeprBook."Use FA Ledger Check" then
@@ -139,7 +142,7 @@ codeunit 5612 "Calculate Custom 1 Depr."
             then
                 Error(
                   Text000,
-                  FAName, FADeprBook.FieldCaption("Depr. Ending Date (Custom 1)"), Custom1DeprUntil);
+                  FAName(), FADeprBook.FieldCaption("Depr. Ending Date (Custom 1)"), Custom1DeprUntil);
             NumberOfDays := DepreciationCalc.DeprDays(FirstDeprDate, UntilDate, false, DeprBook."Use Accounting Period");
 
             if NumberOfDays <= 0 then
@@ -151,7 +154,7 @@ codeunit 5612 "Calculate Custom 1 Depr."
                 ExtraDays := 0;
             end;
 
-            CalcDeprBasis;
+            CalcDeprBasis();
 
             case DeprMethod of
                 DeprMethod::"Straight-Line":
@@ -171,7 +174,7 @@ codeunit 5612 "Calculate Custom 1 Depr."
 
             OnCalculateOnBeforeCalcCustom1DeprAmount(DeprMethod, DeprAmount);
 
-            Custom1DeprAmount := CalcCustom1DeprAmount;
+            Custom1DeprAmount := CalcCustom1DeprAmount();
             DepreciationCalc.AdjustCustom1(
               DeprBookCode, DeprAmount, Custom1DeprAmount, BookValue, SalvageValue,
               EndingBookValue, FinalRoundingAmount);
@@ -198,7 +201,7 @@ codeunit 5612 "Calculate Custom 1 Depr."
         RemainingLife: Decimal;
     begin
         if SLPercent > 0 then
-            exit(-CalcDeprBasis * CalcSLPercent / 100);
+            exit(-CalcDeprBasis() * CalcSLPercent() / 100);
 
         if FixedAmount > 0 then
             exit(-FixedAmount * NumberOfDays / DaysInFiscalYear);
@@ -315,7 +318,7 @@ codeunit 5612 "Calculate Custom 1 Depr."
 
     local procedure CalcCustom1DeprAmount(): Decimal
     begin
-        exit(-AcquisitionCost * CalcCustom1DeprPercent / 100);
+        exit(-AcquisitionCost * CalcCustom1DeprPercent() / 100);
     end;
 
     local procedure CalcDeprBasis(): Decimal
@@ -334,7 +337,7 @@ codeunit 5612 "Calculate Custom 1 Depr."
             if (Sign = -1) and (Amount > 0) then
                 Error(
                   Text001,
-                  FAName, FADeprBook.FieldCaption("Book Value"),
+                  FAName(), FADeprBook.FieldCaption("Book Value"),
                   FADeprBook.FieldCaption("Depr. Ending Date (Custom 1)"), Custom1DeprUntil);
             if DateFromProjection = 0D then
                 exit(Abs(Amount));
@@ -355,7 +358,7 @@ codeunit 5612 "Calculate Custom 1 Depr."
                 "Depreciation Method"::"Declining-Balance 1",
               "Depreciation Method"::"Declining-Balance 2":
                     if "Declining-Balance %" >= 100 then
-                        Error(Text002, FAName, FieldCaption("Declining-Balance %"));
+                        Error(Text002, FAName(), FieldCaption("Declining-Balance %"));
             end;
             if DateFromProjection = 0D then begin
                 CalcFields("Book Value", "Acquisition Cost", "Custom 1", "Salvage Value");
@@ -378,7 +381,7 @@ codeunit 5612 "Calculate Custom 1 Depr."
             then
                 Error(
                   Text003,
-                  FAName, FieldCaption("First User-Defined Depr. Date"), FieldCaption("Depreciation Starting Date"));
+                  FAName(), FieldCaption("First User-Defined Depr. Date"), FieldCaption("Depreciation Starting Date"));
             SLPercent := "Straight-Line %";
             DeprYears := "No. of Depreciation Years";
             DBPercent := "Declining-Balance %";
@@ -386,7 +389,7 @@ codeunit 5612 "Calculate Custom 1 Depr."
                 if "Depreciation Starting Date" > "Depreciation Ending Date" then
                     Error(
                       Text003,
-                      FAName, FieldCaption("Depreciation Starting Date"), FieldCaption("Depreciation Ending Date"));
+                      FAName(), FieldCaption("Depreciation Starting Date"), FieldCaption("Depreciation Ending Date"));
                 DeprYears :=
                   DepreciationCalc.DeprDays(
                     "Depreciation Starting Date", "Depreciation Ending Date", false,
@@ -414,15 +417,15 @@ codeunit 5612 "Calculate Custom 1 Depr."
             if Custom1DeprStartingDate > DeprStartingDate then
                 Error(
                   Text003,
-                  FAName, FieldCaption("Depr. Starting Date (Custom 1)"), FieldCaption("Depreciation Starting Date"));
+                  FAName(), FieldCaption("Depr. Starting Date (Custom 1)"), FieldCaption("Depreciation Starting Date"));
             if (Custom1DeprUntil > 0D) and (Custom1DeprUntil < DeprStartingDate) then
                 Error(
                   Text003,
-                  FAName, FieldCaption("Depreciation Starting Date"), FieldCaption("Depr. Ending Date (Custom 1)"));
+                  FAName(), FieldCaption("Depreciation Starting Date"), FieldCaption("Depr. Ending Date (Custom 1)"));
             if (DeprMethod = DeprMethod::"DB2/SL") and (Custom1DeprUntil > 0D) then
                 Error(
                   Text004,
-                  FAName, FieldCaption("Depr. Ending Date (Custom 1)"),
+                  FAName(), FieldCaption("Depr. Ending Date (Custom 1)"),
                   FieldCaption("Depreciation Method"), "Depreciation Method");
         end;
         OnAfterTransferValues(FA, DeprBook, FADeprBook, DeprMethod, UntilDate, SalvageValue, AcquisitionCost);
@@ -442,6 +445,11 @@ codeunit 5612 "Calculate Custom 1 Depr."
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeCalculate(var DeprAmount: Decimal; var Custom1DeprAmount: Decimal; var NumberOfDays3: Integer; var Custom1NumberOfDays3: Integer; FANo: Code[20]; DeprBookCode2: Code[10]; UntilDate2: Date; EntryAmounts2: array[4] of Decimal; DateFromProjection2: Date; DaysInPeriod2: Integer; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetDeprBooks(var DepreciationBook: Record "Depreciation Book"; var FADepreciationBook: Record "FA Depreciation Book")
     begin
     end;
 

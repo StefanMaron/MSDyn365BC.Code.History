@@ -14,10 +14,10 @@ report 512 "IC Transactions"
             column(USERID; UserId)
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
-            column(STRSUBSTNO___1___2__ICPartner1_TABLECAPTION_ICPartnerFilter_; StrSubstNo('%1: %2', ICPartner1.TableCaption, ICPartnerFilter))
+            column(STRSUBSTNO___1___2__ICPartner1_TABLECAPTION_ICPartnerFilter_; StrSubstNo('%1: %2', ICPartner1.TableCaption(), ICPartnerFilter))
             {
             }
             column(ICPartnerFilter; ICPartnerFilter)
@@ -36,7 +36,7 @@ report 512 "IC Transactions"
             {
                 PrintOnlyIfDetail = true;
                 RequestFilterFields = "Code";
-                column(STRSUBSTNO___1__2__3__TABLECAPTION_Code_Name_; StrSubstNo('%1 %2 %3', TableCaption, Code, Name))
+                column(STRSUBSTNO___1__2__3__TABLECAPTION_Code_Name_; StrSubstNo('%1 %2 %3', TableCaption(), Code, Name))
                 {
                 }
                 column(ICPartner1_Code; Code)
@@ -75,7 +75,7 @@ report 512 "IC Transactions"
                 dataitem("Integer"; "Integer")
                 {
                     DataItemTableView = SORTING(Number);
-                    column(STRSUBSTNO___1__2__3__GLAcc_TABLECAPTION_GLAcc__No___GLAcc_Name_; StrSubstNo('%1 %2 %3', GLAcc.TableCaption, GLAcc."No.", GLAcc.Name))
+                    column(STRSUBSTNO___1__2__3__GLAcc_TABLECAPTION_GLAcc__No___GLAcc_Name_; StrSubstNo('%1 %2 %3', GLAcc.TableCaption(), GLAcc."No.", GLAcc.Name))
                     {
                     }
                     dataitem(Integer2; "Integer")
@@ -179,7 +179,7 @@ report 512 "IC Transactions"
                             TempTotGLEntry."Debit Amount" := TempTotGLEntry."Debit Amount" + GLEntry."Debit Amount";
                             TempTotGLEntry."Credit Amount" := TempTotGLEntry."Credit Amount" + GLEntry."Credit Amount";
                             if (TempTotGLEntry.Amount = 0) and (GLEntry."Posting Date" < StartingDate) then
-                                TempTotGLEntry.Delete
+                                TempTotGLEntry.Delete()
                             else
                                 TempTotGLEntry.Modify();
 
@@ -197,7 +197,7 @@ report 512 "IC Transactions"
                                 TempGLEntry."Debit Amount" := TempGLEntry."Debit Amount" + GLEntry."Debit Amount";
                                 TempGLEntry."Credit Amount" := TempGLEntry."Credit Amount" + GLEntry."Credit Amount";
                                 if (TempGLEntry."Debit Amount" = 0) and (TempGLEntry."Credit Amount" = 0) then
-                                    TempGLEntry.Delete
+                                    TempGLEntry.Delete()
                                 else
                                     TempGLEntry.Modify();
                                 TempGLEntry.SetRange("G/L Account No.");
@@ -252,7 +252,7 @@ report 512 "IC Transactions"
                     DataItemLink = "No." = FIELD("Customer No.");
                     DataItemTableView = SORTING("No.") ORDER(Ascending);
                     PrintOnlyIfDetail = true;
-                    column(STRSUBSTNO___1__2__3___4__5___TABLECAPTION__No___Name_ICPartner2_TABLECAPTION_ICPartner2_Code_; StrSubstNo('%1 %2 %3 (%4 %5)', TableCaption, "No.", Name, ICPartner2.TableCaption, ICPartner2.Code))
+                    column(STRSUBSTNO___1__2__3___4__5___TABLECAPTION__No___Name_ICPartner2_TABLECAPTION_ICPartner2_Code_; StrSubstNo('%1 %2 %3 (%4 %5)', TableCaption(), "No.", Name, ICPartner2.TableCaption(), ICPartner2.Code))
                     {
                     }
                     dataitem(CustInt; "Integer")
@@ -309,7 +309,7 @@ report 512 "IC Transactions"
                         column(BalanceAmount_Control62; BalanceAmount)
                         {
                         }
-                        column(STRSUBSTNO___1__2__3___4__Customer_TABLECAPTION_Customer__No___Customer_Name_Text001_; StrSubstNo('%1 %2 %3, %4', Customer.TableCaption, Customer."No.", Customer.Name, Text001))
+                        column(STRSUBSTNO___1__2__3___4__Customer_TABLECAPTION_Customer__No___Customer_Name_Text001_; StrSubstNo('%1 %2 %3, %4', Customer.TableCaption(), Customer."No.", Customer.Name, Text001))
                         {
                         }
 
@@ -369,7 +369,7 @@ report 512 "IC Transactions"
                     DataItemLink = "No." = FIELD("Vendor No.");
                     DataItemTableView = SORTING("No.") ORDER(Ascending);
                     PrintOnlyIfDetail = true;
-                    column(STRSUBSTNO___1__2__3___4__5___TABLECAPTION__No___Name_ICPartner3_TABLECAPTION_ICPartner3_Code_; StrSubstNo('%1 %2 %3 (%4 %5)', TableCaption, "No.", Name, ICPartner3.TableCaption, ICPartner3.Code))
+                    column(STRSUBSTNO___1__2__3___4__5___TABLECAPTION__No___Name_ICPartner3_TABLECAPTION_ICPartner3_Code_; StrSubstNo('%1 %2 %3 (%4 %5)', TableCaption(), "No.", Name, ICPartner3.TableCaption(), ICPartner3.Code))
                     {
                     }
                     column(Vendor_No_; "No.")
@@ -429,7 +429,7 @@ report 512 "IC Transactions"
                         column(BalanceAmount_Control97; BalanceAmount)
                         {
                         }
-                        column(STRSUBSTNO___1__2__3___4__Vendor_TABLECAPTION_Vendor__No___Vendor_Name_Text001_; StrSubstNo('%1 %2 %3, %4', Vendor.TableCaption, Vendor."No.", Vendor.Name, Text001))
+                        column(STRSUBSTNO___1__2__3___4__Vendor_TABLECAPTION_Vendor__No___Vendor_Name_Text001_; StrSubstNo('%1 %2 %3, %4', Vendor.TableCaption(), Vendor."No.", Vendor.Name, Text001))
                         {
                         }
 
@@ -503,7 +503,7 @@ report 512 "IC Transactions"
 
     trigger OnPreReport()
     begin
-        ICPartnerFilter := ICPartner1.GetFilters;
+        ICPartnerFilter := ICPartner1.GetFilters();
         if EndingDate = 0D then
             EndingDate := DMY2Date(31, 12, 9999);
     end;

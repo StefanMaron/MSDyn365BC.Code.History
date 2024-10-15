@@ -58,7 +58,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         repeat
             WhseWorksheetLine.Validate("Qty. to Handle", WhseWorksheetLine.Quantity);
             WhseWorksheetLine.Modify(true);
-        until WhseWorksheetLine.Next <= 0;
+        until WhseWorksheetLine.Next() <= 0;
         Commit();
         // execute
         GetLatestWhseWorksheetLines(WarehouseShipmentHeader, WhseWorksheetLine);
@@ -172,8 +172,8 @@ codeunit 136148 "Service Order Warehouse Orange"
         repeat
             Assert.AreEqual(WhseWorksheetLine."Source Line No.", WarehouseShipmentLine."Source Line No.",
               ERR_SourceLineNoMismatchedInShipmentLineAndWorksheetLine + ' ' + WarehouseShipmentHeader."No.");
-            WarehouseShipmentLine.Next;
-        until WhseWorksheetLine.Next = 0;
+            WarehouseShipmentLine.Next();
+        until WhseWorksheetLine.Next() = 0;
     end;
 
     [Test]
@@ -261,7 +261,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         ServiceOrderTestPage.GotoRecord(ServHeader);
         // validate
         ServiceOrderTestPage.ServItemLines."Service Lines".Invoke;
-        ServiceOrderTestPage.Close;
+        ServiceOrderTestPage.Close();
     end;
 
     [Test]
@@ -318,7 +318,7 @@ codeunit 136148 "Service Order Warehouse Orange"
             asserterror
               ServiceLine.Validate("Needed by Date", CalcDate('<+6M>', NeedDate))
         else
-            asserterror ServiceLine.Validate("Needed by Date", WorkDate);
+            asserterror ServiceLine.Validate("Needed by Date", WorkDate());
     end;
 
     [Test]
@@ -356,7 +356,7 @@ codeunit 136148 "Service Order Warehouse Orange"
             asserterror
               ServiceLine.Validate("Planned Delivery Date", CalcDate('<+6M>', PlanDate))
         else
-            asserterror ServiceLine.Validate("Planned Delivery Date", WorkDate);
+            asserterror ServiceLine.Validate("Planned Delivery Date", WorkDate());
     end;
 
     [Test]
@@ -424,7 +424,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         ServiceOrderTestPage.GotoRecord(ServHeader);
         // validate
         ServiceOrderTestPage.ServItemLines."Service Lines".Invoke;
-        ServiceOrderTestPage.Close;
+        ServiceOrderTestPage.Close();
     end;
 
     [Test]
@@ -920,7 +920,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         repeat
             TempServiceLine := ServiceLine;
             TempServiceLine.Insert();
-        until ServiceLine.Next = 0;
+        until ServiceLine.Next() = 0;
     end;
 
     local procedure UpdateServiceLine(var ServiceLine: Record "Service Line"; ServiceItemLineNo: Integer; ItemQuantity: Integer)
@@ -1101,7 +1101,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         OrangeLocation := CreateOrangeLocation;
         WarehouseEmployee.SetRange("User ID", UserId);
         WarehouseEmployee.SetRange(Default, true);
-        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, OrangeLocation, (not WarehouseEmployee.FindFirst));
+        LibraryWarehouse.CreateWarehouseEmployee(WarehouseEmployee, OrangeLocation, (not WarehouseEmployee.FindFirst()));
         Commit();
         isInitialized := true;
         LibraryTestInitialize.OnAfterTestSuiteInitialize(CODEUNIT::"Service Order Warehouse Orange");
@@ -1116,7 +1116,7 @@ codeunit 136148 "Service Order Warehouse Orange"
         PickWorksheetTestPage.OpenEdit;
         PickWorksheetTestPage.CurrentWkshName.Lookup;
         PickWorksheetTestPage."Get Warehouse Documents".Invoke;
-        PickWorksheetTestPage.Close;
+        PickWorksheetTestPage.Close();
     end;
 
     [Normal]
@@ -1179,7 +1179,7 @@ codeunit 136148 "Service Order Warehouse Orange"
             ItemLedgerEntry.SetRange("Document Line No.", TempServiceLineBeforePosting."Line No.");
             ItemLedgerEntry.FindLast();  // Find the Item Ledger Entry for the second action.
             ItemLedgerEntry.TestField(Quantity, -QuantityShipped);
-        until TempServiceLineBeforePosting.Next = 0;
+        until TempServiceLineBeforePosting.Next() = 0;
     end;
 
     local procedure GetAndVerifyWarehouseEntry(var ServiceLine: Record "Service Line"; var WarehouseEntry: Record "Warehouse Entry"; EntryType: Option; QuantityPosted: Decimal)

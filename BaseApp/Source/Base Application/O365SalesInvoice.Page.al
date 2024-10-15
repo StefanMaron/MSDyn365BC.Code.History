@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2110 "O365 Sales Invoice"
 {
     Caption = 'Draft Invoice';
@@ -6,6 +7,9 @@ page 2110 "O365 Sales Invoice"
     RefreshOnActivate = true;
     SourceTable = "Sales Header";
     SourceTableView = WHERE("Document Type" = CONST(Invoice));
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -17,9 +21,9 @@ page 2110 "O365 Sales Invoice"
                 group("Sell to")
                 {
                     Caption = 'Sell to';
-                    field("Sell-to Customer Name"; "Sell-to Customer Name")
+                    field("Sell-to Customer Name"; Rec."Sell-to Customer Name")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Customer Name';
                         Editable = CurrPageEditable;
                         Importance = Promoted;
@@ -46,7 +50,7 @@ page 2110 "O365 Sales Invoice"
                     }
                     field(CustomerEmail; CustomerEmail)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Email Address';
                         Editable = CurrPageEditable AND (CustomerName <> '');
                         ExtendedDatatype = EMail;
@@ -63,9 +67,9 @@ page 2110 "O365 Sales Invoice"
             group(Invoice)
             {
                 Caption = 'Invoice Details';
-                field("Due Date"; "Due Date")
+                field("Due Date"; Rec."Due Date")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Editable = CustomerName <> '';
                     Importance = Additional;
                     ToolTip = 'Specifies when the sales invoice must be paid.';
@@ -76,9 +80,9 @@ page 2110 "O365 Sales Invoice"
                             Validate("Due Date", "Document Date");
                     end;
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Invoice Date';
                     Editable = CustomerName <> '';
                     Importance = Additional;
@@ -91,17 +95,17 @@ page 2110 "O365 Sales Invoice"
                     begin
                         Validate("Posting Date", "Document Date");
 
-                        if "Document Date" < WorkDate then begin
-                            PastNotification.Id := CreateGuid;
+                        if "Document Date" < WorkDate() then begin
+                            PastNotification.Id := CreateGuid();
                             PastNotification.Message(DocumentDatePastMsg);
                             PastNotification.Scope(NOTIFICATIONSCOPE::LocalScope);
                             NotificationLifecycleMgt.SendNotification(PastNotification, RecordId);
                         end;
                     end;
                 }
-                field("Tax Liable"; "Tax Liable")
+                field("Tax Liable"; Rec."Tax Liable")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Customer is tax liable';
                     Editable = CustomerName <> '';
                     Importance = Additional;
@@ -115,7 +119,7 @@ page 2110 "O365 Sales Invoice"
                 }
                 field(TaxAreaDescription; TaxAreaDescription)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Customer tax rate';
                     Editable = CustomerName <> '';
                     Importance = Additional;
@@ -139,16 +143,16 @@ page 2110 "O365 Sales Invoice"
                         CurrPage.Update();
                     end;
                 }
-                field("VAT Registration No."; "VAT Registration No.")
+                field("VAT Registration No."; Rec."VAT Registration No.")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Editable = (IsUsingVAT AND IsCompanyContact);
                     Importance = Additional;
                     Visible = IsUsingVAT;
                 }
                 field(FullAddress; FullAddress)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Address';
                     Editable = CurrPageEditable AND (CustomerName <> '');
                     Importance = Additional;
@@ -159,11 +163,11 @@ page 2110 "O365 Sales Invoice"
                         TempStandardAddress: Record "Standard Address" temporary;
                         DummyCountryCode: Code[10];
                     begin
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         Commit();
                         TempStandardAddress.CopyFromSalesHeaderSellTo(Rec);
                         if PAGE.RunModal(PAGE::"O365 Address", TempStandardAddress) = ACTION::LookupOK then begin
-                            Find;
+                            Find();
                             O365SalesInvoiceMgmt.UpdateAddress(Rec, FullAddress, DummyCountryCode);
                             CurrPage.Update(true);
                         end;
@@ -172,7 +176,7 @@ page 2110 "O365 Sales Invoice"
             }
             part(DummyLines; "O365 Sales Invoice Line Dummy")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Line Items';
                 Editable = CustomerName <> '';
                 SubPageLink = "Document Type" = FIELD("Document Type"),
@@ -182,7 +186,7 @@ page 2110 "O365 Sales Invoice"
             }
             part(Lines; "O365 Sales Invoice Line Subp.")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Line Items';
                 Editable = false;
                 SubPageLink = "Document Type" = FIELD("Document Type"),
@@ -196,15 +200,15 @@ page 2110 "O365 Sales Invoice"
                 Visible = InvDiscAmountVisible;
                 field(SubTotalAmount; SubTotalAmount)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = CurrencyFormat;
                     AutoFormatType = 11;
                     Caption = 'Subtotal';
                     Editable = false;
                 }
-                field("Invoice Discount Percent"; "Invoice Discount Value")
+                field("Invoice Discount Percent"; Rec."Invoice Discount Value")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Discount %';
                     Editable = false;
                     Importance = Promoted;
@@ -212,7 +216,7 @@ page 2110 "O365 Sales Invoice"
                 }
                 field(Amount; Amount)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = CurrencyFormat;
                     AutoFormatType = 11;
                     Caption = 'Net Total';
@@ -220,9 +224,9 @@ page 2110 "O365 Sales Invoice"
                     Lookup = false;
                     ToolTip = 'Specifies the sum of amounts on all the lines in the document. This will include invoice discounts.';
                 }
-                field("Amount Including VAT"; "Amount Including VAT")
+                field("Amount Including VAT"; Rec."Amount Including VAT")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = CurrencyFormat;
                     AutoFormatType = 11;
                     Caption = 'Total Including VAT';
@@ -240,7 +244,7 @@ page 2110 "O365 Sales Invoice"
                 Visible = NOT InvDiscAmountVisible;
                 field(Amount2; Amount)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = CurrencyFormat;
                     AutoFormatType = 11;
                     Caption = 'Net Total';
@@ -250,7 +254,7 @@ page 2110 "O365 Sales Invoice"
                 }
                 field(AmountIncludingVAT2; "Amount Including VAT")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = CurrencyFormat;
                     AutoFormatType = 11;
                     Caption = 'Total Including VAT';
@@ -268,7 +272,7 @@ page 2110 "O365 Sales Invoice"
                 Visible = CustomerName <> '';
                 field(DiscountLink; DiscountTxt)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     DrillDown = true;
                     Editable = false;
                     Enabled = CustomerName <> '';
@@ -282,7 +286,7 @@ page 2110 "O365 Sales Invoice"
                 }
                 field(NoOfAttachments; NoOfAttachmentsValueTxt)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     DrillDown = true;
                     Editable = false;
                     Enabled = CustomerName <> '';
@@ -296,7 +300,7 @@ page 2110 "O365 Sales Invoice"
                 }
                 field(WorkDescription; WorkDescription)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Note for customer';
                     Editable = CurrPageEditable AND (CustomerName <> '');
                     MultiLine = true;
@@ -317,14 +321,10 @@ page 2110 "O365 Sales Invoice"
         {
             action(Post)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Send invoice';
                 Enabled = CustomerName <> '';
                 Image = "Invoicing-Send";
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
-                PromotedOnly = true;
                 ShortCutKey = 'Ctrl+Right';
                 ToolTip = 'Finalize and send the invoice.';
 
@@ -338,12 +338,10 @@ page 2110 "O365 Sales Invoice"
             }
             action(ViewPdf)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Preview invoice';
                 Enabled = CustomerName <> '';
                 Image = "Invoicing-View";
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'View the preview of the invoice before sending.';
 
                 trigger OnAction()
@@ -351,38 +349,34 @@ page 2110 "O365 Sales Invoice"
                     ReportSelections: Record "Report Selections";
                     DocumentPath: Text[250];
                 begin
-                    SetRecFilter;
+                    SetRecFilter();
                     LockTable();
-                    Find;
+                    Find();
                     ReportSelections.GetPdfReportForCust(DocumentPath, ReportSelections.Usage::"S.Invoice Draft", Rec, "Sell-to Customer No.");
                     Download(DocumentPath, '', '', '', DocumentPath);
-                    Find;
+                    Find();
                 end;
             }
             action(SaveForLater)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Save for later';
                 Enabled = CustomerName <> '';
                 Image = "Invoicing-Save";
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Close the invoice and save it for later.';
 
                 trigger OnAction()
                 begin
                     ForceExit := true;
-                    CurrPage.Close;
+                    CurrPage.Close();
                 end;
             }
             action(DeleteAction)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Discard draft';
                 Enabled = CustomerName <> '';
                 Image = "Invoicing-Delete";
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Discards the draft invoice';
 
                 trigger OnAction()
@@ -400,6 +394,26 @@ page 2110 "O365 Sales Invoice"
                 end;
             }
         }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process';
+
+                actionref(Post_Promoted; Post)
+                {
+                }
+                actionref(ViewPdf_Promoted; ViewPdf)
+                {
+                }
+                actionref(SaveForLater_Promoted; SaveForLater)
+                {
+                }
+                actionref(DeleteAction_Promoted; DeleteAction)
+                {
+                }
+            }
+        }
     }
 
     trigger OnAfterGetCurrRecord()
@@ -407,7 +421,7 @@ page 2110 "O365 Sales Invoice"
         O365SalesInvoiceMgmt.UpdateCustomerFields(Rec, CustomerName, CustomerEmail, IsCompanyContact);
         CurrPageEditable := CurrPage.Editable;
         O365SalesInvoiceMgmt.OnAfterGetSalesHeaderRecordFullLengthTaxAreaDesc(Rec, CurrencyFormat, TaxAreaDescription, NoOfAttachmentsValueTxt, WorkDescription);
-        UpdateFieldsOnAfterGetCurrRec;
+        UpdateFieldsOnAfterGetCurrRec();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -430,7 +444,7 @@ page 2110 "O365 Sales Invoice"
         CustomerName := '';
         CustomerEmail := '';
         WorkDescription := '';
-        SetDefaultPaymentServices;
+        SetDefaultPaymentServices();
     end;
 
     trigger OnOpenPage()
@@ -441,7 +455,7 @@ page 2110 "O365 Sales Invoice"
         BlankRecordId: RecordID;
         IdFilter: Text;
     begin
-        IsUsingVAT := O365SalesInitialSetup.IsUsingVAT;
+        IsUsingVAT := O365SalesInitialSetup.IsUsingVAT();
 
         IdFilter := GetFilter(Rec.SystemId);
 
@@ -484,7 +498,6 @@ page 2110 "O365 Sales Invoice"
         IsUsingVAT: Boolean;
         ForceExit: Boolean;
         NoOfAttachmentsValueTxt: Text;
-        CurrencyFormat: Text;
         IsCompanyContact: Boolean;
         InvDiscAmountVisible: Boolean;
         InvoiceDiscountAmount: Decimal;
@@ -495,6 +508,9 @@ page 2110 "O365 Sales Invoice"
         CannotFindRecordErr: Label 'Cannot find that invoice.';
         InvoiceWasDeletedErr: Label 'The invoice was deleted.';
         DocumentDatePastMsg: Label 'Invoice date is in the past.';
+
+    protected var
+        CurrencyFormat: Text;
 
     procedure SuppressExitPrompt()
     begin
@@ -509,3 +525,4 @@ page 2110 "O365 Sales Invoice"
         O365SalesInvoiceMgmt.CalcInvoiceDiscountAmount(Rec, SubTotalAmount, DiscountTxt, InvoiceDiscountAmount, InvDiscAmountVisible);
     end;
 }
+#endif

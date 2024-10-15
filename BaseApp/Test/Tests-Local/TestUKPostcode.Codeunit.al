@@ -131,7 +131,7 @@ codeunit 144500 "Test UK Postcode"
         PostcodeSearch.SetValues('POSTCODE', 'DELIVERYPOINT');
 
         // [WHEN]
-        Assert.IsTrue(PostcodeSearch.RunModal = ACTION::Cancel, 'Because of precal');
+        Assert.IsTrue(PostcodeSearch.RunModal() = ACTION::Cancel, 'Because of precal');
 
         // [THEN] assertion is done in the handler
         DeleteConfiguration;

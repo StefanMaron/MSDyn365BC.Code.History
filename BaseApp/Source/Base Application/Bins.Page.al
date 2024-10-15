@@ -1,7 +1,7 @@
 page 7302 Bins
 {
     Caption = 'Bins';
-    DataCaptionExpression = GetCaption;
+    DataCaptionExpression = GetCaption();
     DelayedInsert = true;
     PageType = List;
     SourceTable = Bin;
@@ -13,7 +13,7 @@ page 7302 Bins
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the location from which you opened the Bins window.';
@@ -24,7 +24,7 @@ page 7302 Bins
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies a code that uniquely describes the bin.';
                 }
-                field("Zone Code"; "Zone Code")
+                field("Zone Code"; Rec."Zone Code")
                 {
                     ApplicationArea = Warehouse;
                     Editable = true;
@@ -36,19 +36,19 @@ page 7302 Bins
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies a description of the bin.';
                 }
-                field("Bin Type Code"; "Bin Type Code")
+                field("Bin Type Code"; Rec."Bin Type Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the bin type that applies to the bin.';
                     Visible = false;
                 }
-                field("Warehouse Class Code"; "Warehouse Class Code")
+                field("Warehouse Class Code"; Rec."Warehouse Class Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the warehouse class that applies to the bin.';
                     Visible = false;
                 }
-                field("Block Movement"; "Block Movement")
+                field("Block Movement"; Rec."Block Movement")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies how the movement of an item, or bin content, into or out of this bin, is blocked.';
@@ -61,25 +61,25 @@ page 7302 Bins
                                 Error('');
                     end;
                 }
-                field("Special Equipment Code"; "Special Equipment Code")
+                field("Special Equipment Code"; Rec."Special Equipment Code")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the code of the equipment needed when working in the bin.';
                     Visible = false;
                 }
-                field("Bin Ranking"; "Bin Ranking")
+                field("Bin Ranking"; Rec."Bin Ranking")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the ranking of the bin. Items in the highest-ranking bins (with the highest number in the field) will be picked first.';
                     Visible = false;
                 }
-                field("Maximum Cubage"; "Maximum Cubage")
+                field("Maximum Cubage"; Rec."Maximum Cubage")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the maximum cubage (volume) that the bin can hold.';
                     Visible = false;
                 }
-                field("Maximum Weight"; "Maximum Weight")
+                field("Maximum Weight"; Rec."Maximum Weight")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies the maximum weight that this bin can hold.';
@@ -90,7 +90,7 @@ page 7302 Bins
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies that the bin Specifies no items.';
                 }
-                field("Cross-Dock Bin"; "Cross-Dock Bin")
+                field("Cross-Dock Bin"; Rec."Cross-Dock Bin")
                 {
                     ApplicationArea = Warehouse;
                     ToolTip = 'Specifies if the bin is considered a cross-dock bin.';
@@ -145,7 +145,7 @@ page 7302 Bins
     begin
         if GetFilter("Zone Code") <> '' then
             "Zone Code" := GetFilter("Zone Code");
-        SetUpNewLine;
+        SetUpNewLine();
     end;
 
     var

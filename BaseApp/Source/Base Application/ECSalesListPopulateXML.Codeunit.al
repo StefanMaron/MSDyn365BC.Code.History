@@ -27,7 +27,7 @@ codeunit 141 "EC Sales List Populate XML"
         ECSLDeclarationHeaderXMLNode: DotNet XmlNode;
         DummyXMLNode: DotNet XmlNode;
     begin
-        if not (CompanyInformation.Get and GeneralLedgerSetup.Get) then
+        if not (CompanyInformation.Get() and GeneralLedgerSetup.Get()) then
             exit;
 
         if GeneralLedgerSetup."LCY Code" = '' then

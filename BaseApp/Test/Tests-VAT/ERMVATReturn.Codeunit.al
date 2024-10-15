@@ -55,7 +55,7 @@ codeunit 134096 "ERM VAT Return"
         VATStatementReportLine.FindSet();
         Assert.RecordCount(VATStatementReportLine, 9);
         Assert.AreNotEqual(0, VATStatementReportLine.Amount, 'Should have a value from the VAT Entries');
-        VATStatementReportLine.Next;
+        VATStatementReportLine.Next();
         Assert.AreNotEqual(0, VATStatementReportLine.Amount, 'Should have a value from the VAT Entries');
     end;
 

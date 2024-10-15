@@ -30,7 +30,7 @@ report 153 "Customer Statement"
     var
         CustomerLayoutStatement: Codeunit "Customer Layout - Statement";
     begin
-        CustomerLayoutStatement.RunReport;
+        CustomerLayoutStatement.RunReport();
     end;
 }
 

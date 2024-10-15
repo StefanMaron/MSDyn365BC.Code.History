@@ -67,28 +67,28 @@ codeunit 137209 "SCM Get Item Entries"
     [Scope('OnPrem')]
     procedure SaleInsideInterval()
     begin
-        ItemEntries(LineType::Shipment, CalcDate('<-1D>', WorkDate));
+        ItemEntries(LineType::Shipment, CalcDate('<-1D>', WorkDate()));
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure SaleOutsideInterval()
     begin
-        ItemEntries(LineType::Shipment, CalcDate('<+1D>', WorkDate));
+        ItemEntries(LineType::Shipment, CalcDate('<+1D>', WorkDate()));
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure PurchInsideInterval()
     begin
-        ItemEntries(LineType::Receipt, CalcDate('<-1D>', WorkDate));
+        ItemEntries(LineType::Receipt, CalcDate('<-1D>', WorkDate()));
     end;
 
     [Test]
     [Scope('OnPrem')]
     procedure PurchOutsideInterval()
     begin
-        ItemEntries(LineType::Receipt, CalcDate('<+1D>', WorkDate));
+        ItemEntries(LineType::Receipt, CalcDate('<+1D>', WorkDate()));
     end;
 
     [Test]
@@ -123,7 +123,7 @@ codeunit 137209 "SCM Get Item Entries"
 
         // [WHEN] Getting Intrastat Lines
         CreateIntrastatJnlLineWithTemplateAndBatch(IntrastatJnlLine);
-        RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate + 1);
+        RunGetItemEntries(IntrastatJnlLine, WorkDate(), WorkDate + 1);
 
         // [THEN] "Statistical Value" of Intrastat Line for Purchase Document is 200 (includes Item Charge)
         VerifyStatisticalValueInIntrastatLine(PostedPurchDocNo, 200);
@@ -164,7 +164,7 @@ codeunit 137209 "SCM Get Item Entries"
 
         // [WHEN] Getting Intrastat Lines
         CreateIntrastatJnlLineWithTemplateAndBatch(IntrastatJnlLine);
-        RunGetItemEntries(IntrastatJnlLine, WorkDate, WorkDate + 1);
+        RunGetItemEntries(IntrastatJnlLine, WorkDate(), WorkDate + 1);
 
         // [THEN] "Statistical Value" of Intrastat Line for Purchase Document is 100 (not includes Item Charge)
         VerifyStatisticalValueInIntrastatLine(PostedPurchDocNo, 100);
@@ -208,7 +208,7 @@ codeunit 137209 "SCM Get Item Entries"
         Currency.Modify(true);
 
         // Create Currency Exchange Rate.
-        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate);
+        LibraryERM.CreateExchRate(CurrencyExchangeRate, Currency.Code, WorkDate());
 
         // Using RANDOM Exchange Rate Amount and Adjustment Exchange Rate, between 100 and 400 (Standard Value).
         CurrencyExchangeRate.Validate("Exchange Rate Amount", 100 * LibraryRandom.RandInt(4));
@@ -236,7 +236,7 @@ codeunit 137209 "SCM Get Item Entries"
             repeat
                 Item.Validate("Tariff No.", TariffNumber."No.");
                 Item.Modify(true);
-            until Item.Next = 0;
+            until Item.Next() = 0;
     end;
 
     [Scope('OnPrem')]
@@ -538,7 +538,7 @@ codeunit 137209 "SCM Get Item Entries"
                         end;
                 end;
             end;
-        until ItemLedgerEntry.Next = 0;
+        until ItemLedgerEntry.Next() = 0;
     end;
 
     [Scope('OnPrem')]

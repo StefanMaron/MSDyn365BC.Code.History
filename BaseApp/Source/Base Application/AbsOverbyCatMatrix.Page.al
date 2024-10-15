@@ -14,13 +14,13 @@ page 9273 "Abs. Over. by Cat. Matrix"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Period Start"; "Period Start")
+                field("Period Start"; Rec."Period Start")
                 {
                     ApplicationArea = BasicHR;
                     Caption = 'Period Start';
                     ToolTip = 'Specifies the starting date of the period that you want to view.';
                 }
-                field("Period Name"; "Period Name")
+                field("Period Name"; Rec."Period Name")
                 {
                     ApplicationArea = BasicHR;
                     Caption = 'Period Name';
@@ -596,7 +596,7 @@ page 9273 "Abs. Over. by Cat. Matrix"
         CauseOfAbsence.SetFilter("Employee No. Filter", EmployeeNoFilter);
         CauseOfAbsence.CalcFields("Total Absence (Base)");
         MATRIX_CellData[ColumnID] := CauseOfAbsence."Total Absence (Base)";
-        SetVisible;
+        SetVisible();
     end;
 
     procedure SetVisible()

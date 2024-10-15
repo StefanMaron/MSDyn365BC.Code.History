@@ -3,7 +3,6 @@ page 1295 "Posted Payment Reconciliation"
     Caption = 'Posted Payment Reconciliation';
     Editable = false;
     PageType = Document;
-    PromotedActionCategories = 'New,Process,Report,Bank,Matching';
     SaveValues = false;
     SourceTable = "Posted Payment Recon. Hdr";
 
@@ -14,12 +13,12 @@ page 1295 "Posted Payment Reconciliation"
             group(General)
             {
                 Caption = 'General';
-                field("Bank Account No."; "Bank Account No.")
+                field("Bank Account No."; Rec."Bank Account No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the bank account that the posted payment was processed for.';
                 }
-                field("Statement No."; "Statement No.")
+                field("Statement No."; Rec."Statement No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the bank statement that contained the line that represented the posted payment.';
@@ -58,9 +57,6 @@ page 1295 "Posted Payment Reconciliation"
                 Caption = '&Print';
                 Ellipsis = true;
                 Image = Print;
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 Scope = Repeater;
                 ToolTip = 'Prepare to print the document. A report request window for the document opens where you can specify what to include on the print-out.';
 
@@ -70,6 +66,29 @@ page 1295 "Posted Payment Reconciliation"
                 begin
                     DocPrint.PrintPostedPaymentReconciliation(Rec);
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(Print_Promoted; Print)
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Bank', Comment = 'Generated from the PromotedActionCategories property index 3.';
+            }
+            group(Category_Category5)
+            {
+                Caption = 'Matching', Comment = 'Generated from the PromotedActionCategories property index 4.';
             }
         }
     }

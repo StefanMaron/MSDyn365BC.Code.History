@@ -1,4 +1,4 @@
-report 130 "EC Sales List"
+﻿report 130 "EC Sales List"
 {
     DefaultLayout = RDLC;
     RDLCLayout = './ECSalesList.rdlc';
@@ -113,8 +113,8 @@ report 130 "EC Sales List"
             dataitem("VAT Entry"; "VAT Entry")
             {
                 DataItemLink = "Country/Region Code" = FIELD(Code);
-                DataItemTableView = SORTING(Type, "Country/Region Code", "VAT Registration No.", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date") WHERE(Type = CONST(Sale), "Country/Region Code" = FILTER(<> ''));
-                RequestFilterFields = "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date", "EU Service";
+                DataItemTableView = SORTING(Type, "Country/Region Code", "VAT Registration No.", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Reporting Date") WHERE(Type = CONST(Sale), "Country/Region Code" = FILTER(<> ''));
+                RequestFilterFields = "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Reporting Date", "EU Service";
                 column(VATRegNo_VATEntry; "VAT Registration No.")
                 {
                 }
@@ -192,13 +192,13 @@ report 130 "EC Sales List"
                         if VATEntry."VAT Registration No." = "VAT Registration No." then
                             if ReportLayout = ReportLayout::"Separate &Lines" then begin
                                 if (VATEntry."EU Service" = "EU Service") and (VATEntry."EU 3-Party Trade" = "EU 3-Party Trade") then
-                                    CurrReport.Skip
+                                    CurrReport.Skip()
                             end else
                                 CurrReport.Skip();
                         ResetVATEntry := true;
                         NewGroupStarted := true;
                         PrevVATRegNo := "VAT Registration No.";
-                        UpdateXMLFileRTC
+                        UpdateXMLFileRTC();
                     end;
 
                     TotalEUTrdPartyAmtService += Round(EUTrdPartyAmtService, 1);
@@ -213,14 +213,14 @@ report 130 "EC Sales List"
 
                 trigger OnPostDataItem()
                 begin
-                    UpdateXMLFileRTC;
+                    UpdateXMLFileRTC();
                 end;
 
                 trigger OnPreDataItem()
                 begin
                     ResetVATEntry := true;
                     VATEntry.SetCurrentKey(
-                      Type, "Country/Region Code", "VAT Registration No.", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "Posting Date");
+                      Type, "Country/Region Code", "VAT Registration No.", "VAT Bus. Posting Group", "VAT Prod. Posting Group", "VAT Reporting Date");
                     VATEntry.CopyFilters("VAT Entry");
                     if not VATEntry.FindSet() then;
 
@@ -266,7 +266,7 @@ report 130 "EC Sales List"
 
                         trigger OnValidate()
                         begin
-                            CreateXMLFileOnAfterValidate;
+                            CreateXMLFileOnAfterValidate();
                         end;
                     }
                 }
@@ -295,7 +295,7 @@ report 130 "EC Sales List"
     trigger OnPostReport()
     begin
         if "Create XML File" then
-            SaveXMLFile;
+            SaveXMLFile();
     end;
 
     trigger OnPreReport()
@@ -305,7 +305,7 @@ report 130 "EC Sales List"
         CompanyInfo.Get();
         FormatAddr.Company(CompanyAddr, CompanyInfo);
 
-        VATEntryFilter := "VAT Entry".GetFilters;
+        VATEntryFilter := "VAT Entry".GetFilters();
         PeriodStart := "VAT Entry".GetRangeMin("Posting Date");
         PeriodEnd := "VAT Entry".GetRangeMax("Posting Date");
 
@@ -319,7 +319,7 @@ report 130 "EC Sales List"
         GLSetup.Get();
 
         if "Create XML File" then
-            CreateXMLDocument;
+            CreateXMLDocument();
     end;
 
     var
@@ -404,7 +404,7 @@ report 130 "EC Sales List"
         RBMgt: Codeunit "File Management";
     begin
         "XML File" := RBMgt.ServerTempFileName('xml');
-        XMLOut := XMLOut.XmlDocument;
+        XMLOut := XMLOut.XmlDocument();
 
 
         XMLCurrNode := XMLOut.CreateElement('Submission');
@@ -428,7 +428,7 @@ report 130 "EC Sales List"
         XMLCurrNode.AppendChild(NewChildNode);
 
         NewChildNode := XMLOut.CreateElement('Period');
-        NewChildNode.InnerText(FormatPeriod(Calendar."Period No." * CalcPeriodValue));
+        NewChildNode.InnerText(FormatPeriod(Calendar."Period No." * CalcPeriodValue()));
         XMLCurrNode.AppendChild(NewChildNode);
 
         NewChildNode := XMLOut.CreateElement('CurrencyA3');

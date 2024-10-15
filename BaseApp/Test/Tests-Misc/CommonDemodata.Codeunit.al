@@ -97,7 +97,7 @@ codeunit 138500 "Common Demodata"
             repeat
                 InventoryPostingSetup.SetRange("Location Code", Location.Code);
                 Assert.RecordIsNotEmpty(InventoryPostingSetup);
-            until Location.Next = 0;
+            until Location.Next() = 0;
     end;
 
     [Test]

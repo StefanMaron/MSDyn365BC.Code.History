@@ -545,13 +545,13 @@ report 317 "Vendor Pre-Payment Journal"
                         AccName := '';
                         BalAccName := '';
 
-                        if not EmptyLine then begin
+                        if not EmptyLine() then begin
                             MakeRecurringTexts("Gen. Journal Line");
                             AmountError := false;
                             CheckGenJnlLineErrors("Gen. Journal Line");
                         end;
 
-                        CheckBalance;
+                        CheckBalance();
 
                         AmountDiscounted := 0;
                         AmountPmtTolerance := 0;
@@ -566,14 +566,14 @@ report 317 "Vendor Pre-Payment Journal"
                             ShowApplyToOutput := true;
                             case "Account Type" of
                                 "Account Type"::Customer:
-                                    CheckOldCustomer;
+                                    CheckOldCustomer();
                                 "Account Type"::Vendor:
-                                    CheckOldVendor;
+                                    CheckOldVendor();
                                 else
                                     ShowApplyToOutput := false;
                             end;
                         end else
-                            CalcAppliesToIDTotals;
+                            CalcAppliesToIDTotals();
                         if "Document No." <> LastDocumentNo then begin
                             LastDocumentNo := "Document No.";
                             case "Account Type" of
@@ -605,13 +605,13 @@ report 317 "Vendor Pre-Payment Journal"
                                   StrSubstNo(
                                     E000Err,
                                     FieldCaption("Posting Date")));
-                            SetRange("Posting Date", 0D, WorkDate);
+                            SetRange("Posting Date", 0D, WorkDate());
                             if GetFilter("Expiration Date") <> '' then
                                 AddError(
                                   StrSubstNo(
                                     E000Err,
                                     FieldCaption("Expiration Date")));
-                            SetFilter("Expiration Date", '%1 | %2..', 0D, WorkDate);
+                            SetFilter("Expiration Date", '%1 | %2..', 0D, WorkDate());
                         end;
 
                         if "Gen. Journal Batch"."No. Series" <> '' then begin
@@ -672,7 +672,7 @@ report 317 "Vendor Pre-Payment Journal"
                         if Number = 1 then
                             TempGLAccNetChange.Find('-')
                         else
-                            TempGLAccNetChange.Next;
+                            TempGLAccNetChange.Next();
                     end;
 
                     trigger OnPostDataItem()
@@ -725,11 +725,87 @@ report 317 "Vendor Pre-Payment Journal"
 
     trigger OnPreReport()
     begin
-        GenJnlLineFilter := "Gen. Journal Line".GetFilters;
+        GenJnlLineFilter := "Gen. Journal Line".GetFilters();
         CompanyInformation.Get();
     end;
 
     var
+        GLSetup: Record "General Ledger Setup";
+        SalesSetup: Record "Sales & Receivables Setup";
+        PurchSetup: Record "Purchases & Payables Setup";
+        UserSetup: Record "User Setup";
+        AccountingPeriod: Record "Accounting Period";
+        GLAcc: Record "G/L Account";
+        Currency: Record Currency;
+        Cust: Record Customer;
+        Vend: Record Vendor;
+        BankAccPostingGr: Record "Bank Account Posting Group";
+        BankAcc: Record "Bank Account";
+        GenJnlTemplate: Record "Gen. Journal Template";
+        GenJnlLine2: Record "Gen. Journal Line";
+        TempGenJnlLine: Record "Gen. Journal Line" temporary;
+        GenJnlAlloc: Record "Gen. Jnl. Allocation";
+        OldCustLedgEntry: Record "Cust. Ledger Entry";
+        OldVendLedgEntry: Record "Vendor Ledger Entry";
+        VATPostingSetup: Record "VAT Posting Setup";
+        NoSeries: Record "No. Series";
+        FA: Record "Fixed Asset";
+        ICPartner: Record "IC Partner";
+        DeprBook: Record "Depreciation Book";
+        FADeprBook: Record "FA Depreciation Book";
+        FASetup: Record "FA Setup";
+        TempGLAccNetChange: Record "G/L Account Net Change" temporary;
+        CompanyInformation: Record "Company Information";
+        CurrExchRate: Record "Currency Exchange Rate";
+        GenJnlLineFilter: Text;
+        AllowFAPostingFrom: Date;
+        AllowFAPostingTo: Date;
+        LastDate: Date;
+        LastDocType: Enum "Gen. Journal Document Type";
+        LastDocNo: Code[20];
+        LastEntrdDocNo: Code[20];
+        LastEntrdDate: Date;
+        DocBalance: Decimal;
+        DocBalanceReverse: Decimal;
+        DateBalance: Decimal;
+        DateBalanceReverse: Decimal;
+        TotalBalance: Decimal;
+        TotalBalanceReverse: Decimal;
+        AccName: Text[100];
+        LastLineNo: Integer;
+        AmountError: Boolean;
+        ErrorCounter: Integer;
+        ErrorText: array[50] of Text[250];
+        TempErrorText: Text[250];
+        BalAccName: Text[100];
+        CustVendName: Text[100];
+        CurrentCustomerVendors: Integer;
+        VATEntryCreated: Boolean;
+        CustPosting: Boolean;
+        VendPosting: Boolean;
+        SalesPostingType: Boolean;
+        PurchPostingType: Boolean;
+        CurrentICPartner: Code[20];
+        AmountDiscounted: Decimal;
+        AmountPmtTolerance: Decimal;
+        AmountPmtDiscTolerance: Decimal;
+        AmountDue: Decimal;
+        AmountPaid: Decimal;
+        TotalAmountDiscounted: Decimal;
+        TotalAmountPmtTolerance: Decimal;
+        TotalAmountPmtDiscTolerance: Decimal;
+        AmountApplied: Decimal;
+        TotalAmount: Decimal;
+        ShowApplyToOutput: Boolean;
+        AmountLcy: Decimal;
+        LastDocumentNo: Code[20];
+        AmountBalLcy: Decimal;
+        TotalCustAmount: array[2] of Decimal;
+        TotalVendAmount: array[2] of Decimal;
+        Sign: Option " ",Negative,Positive;
+        LastAccountNo: Code[20];
+        LastAccountType: Enum "Gen. Journal Account Type";
+
         E000Err: Label '%1 cannot be filtered when you post recurring journals.', Comment = '%1=Posting date field caption';
         E001Err: Label '%1 or %2 must be specified.', Comment = '%1=Account No. field caption; %2=Bal. Account No. field caption';
         E002Err: Label '%1 must be specified.', Comment = '%1=Gen. Posting Type field caption';
@@ -820,81 +896,6 @@ report 317 "Vendor Pre-Payment Journal"
         GLAccNetChange_NameCaptionLbl: Label 'Name';
         GLAccNetChange__Net_Change_in_Jnl__CaptionLbl: Label 'Net Change in Jnl.';
         GLAccNetChange__Balance_after_Posting_CaptionLbl: Label 'Balance after Posting';
-        GLSetup: Record "General Ledger Setup";
-        SalesSetup: Record "Sales & Receivables Setup";
-        PurchSetup: Record "Purchases & Payables Setup";
-        UserSetup: Record "User Setup";
-        AccountingPeriod: Record "Accounting Period";
-        GLAcc: Record "G/L Account";
-        Currency: Record Currency;
-        Cust: Record Customer;
-        Vend: Record Vendor;
-        BankAccPostingGr: Record "Bank Account Posting Group";
-        BankAcc: Record "Bank Account";
-        GenJnlTemplate: Record "Gen. Journal Template";
-        GenJnlLine2: Record "Gen. Journal Line";
-        TempGenJnlLine: Record "Gen. Journal Line" temporary;
-        GenJnlAlloc: Record "Gen. Jnl. Allocation";
-        OldCustLedgEntry: Record "Cust. Ledger Entry";
-        OldVendLedgEntry: Record "Vendor Ledger Entry";
-        VATPostingSetup: Record "VAT Posting Setup";
-        NoSeries: Record "No. Series";
-        FA: Record "Fixed Asset";
-        ICPartner: Record "IC Partner";
-        DeprBook: Record "Depreciation Book";
-        FADeprBook: Record "FA Depreciation Book";
-        FASetup: Record "FA Setup";
-        TempGLAccNetChange: Record "G/L Account Net Change" temporary;
-        CompanyInformation: Record "Company Information";
-        CurrExchRate: Record "Currency Exchange Rate";
-        GenJnlLineFilter: Text;
-        AllowFAPostingFrom: Date;
-        AllowFAPostingTo: Date;
-        LastDate: Date;
-        LastDocType: Enum "Gen. Journal Document Type";
-        LastDocNo: Code[20];
-        LastEntrdDocNo: Code[20];
-        LastEntrdDate: Date;
-        DocBalance: Decimal;
-        DocBalanceReverse: Decimal;
-        DateBalance: Decimal;
-        DateBalanceReverse: Decimal;
-        TotalBalance: Decimal;
-        TotalBalanceReverse: Decimal;
-        AccName: Text[100];
-        LastLineNo: Integer;
-        AmountError: Boolean;
-        ErrorCounter: Integer;
-        ErrorText: array[50] of Text[250];
-        TempErrorText: Text[250];
-        BalAccName: Text[100];
-        CustVendName: Text[100];
-        CurrentCustomerVendors: Integer;
-        VATEntryCreated: Boolean;
-        CustPosting: Boolean;
-        VendPosting: Boolean;
-        SalesPostingType: Boolean;
-        PurchPostingType: Boolean;
-        CurrentICPartner: Code[20];
-        AmountDiscounted: Decimal;
-        AmountPmtTolerance: Decimal;
-        AmountPmtDiscTolerance: Decimal;
-        AmountDue: Decimal;
-        AmountPaid: Decimal;
-        TotalAmountDiscounted: Decimal;
-        TotalAmountPmtTolerance: Decimal;
-        TotalAmountPmtDiscTolerance: Decimal;
-        AmountApplied: Decimal;
-        TotalAmount: Decimal;
-        ShowApplyToOutput: Boolean;
-        AmountLcy: Decimal;
-        LastDocumentNo: Code[20];
-        AmountBalLcy: Decimal;
-        TotalCustAmount: array[2] of Decimal;
-        TotalVendAmount: array[2] of Decimal;
-        Sign: Option " ",Negative,Positive;
-        LastAccountNo: Code[20];
-        LastAccountType: Enum "Gen. Journal Account Type";
 
     local procedure CheckRecurringLine(GenJnlLine2: Record "Gen. Journal Line")
     begin
@@ -991,7 +992,7 @@ report 317 "Vendor Pre-Payment Journal"
         MakeRecurringTexts(NextGenJnlLine);
         "Gen. Journal Line" := GenJnlLine;
         with GenJnlLine do
-            if not EmptyLine then begin
+            if not EmptyLine() then begin
                 DocBalance := DocBalance + "Balance (LCY)";
                 DateBalance := DateBalance + "Balance (LCY)";
                 TotalBalance := TotalBalance + "Balance (LCY)";
@@ -1137,7 +1138,7 @@ report 317 "Vendor Pre-Payment Journal"
                 AddError(
                   StrSubstNo(
                     E031Err,
-                    GLAcc.TableCaption, "Account No."))
+                    GLAcc.TableCaption(), "Account No."))
             else begin
                 AccName := GLAcc.Name;
 
@@ -1145,13 +1146,13 @@ report 317 "Vendor Pre-Payment Journal"
                     AddError(
                       StrSubstNo(
                         E032Err,
-                        GLAcc.FieldCaption(Blocked), false, GLAcc.TableCaption, "Account No."));
+                        GLAcc.FieldCaption(Blocked), false, GLAcc.TableCaption(), "Account No."));
                 if GLAcc."Account Type" <> GLAcc."Account Type"::Posting then begin
                     GLAcc."Account Type" := GLAcc."Account Type"::Posting;
                     AddError(
                       StrSubstNo(
                         E032Err,
-                        GLAcc.FieldCaption("Account Type"), GLAcc."Account Type", GLAcc.TableCaption, "Account No."));
+                        GLAcc.FieldCaption("Account Type"), GLAcc."Account Type", GLAcc.TableCaption(), "Account No."));
                 end;
                 if not "System-Created Entry" then
                     if "Posting Date" = NormalDate("Posting Date") then
@@ -1159,7 +1160,7 @@ report 317 "Vendor Pre-Payment Journal"
                             AddError(
                               StrSubstNo(
                                 E032Err,
-                                GLAcc.FieldCaption("Direct Posting"), true, GLAcc.TableCaption, "Account No."));
+                                GLAcc.FieldCaption("Direct Posting"), true, GLAcc.TableCaption(), "Account No."));
 
                 if "Gen. Posting Type" <> "Gen. Posting Type"::" " then begin
                     case "Gen. Posting Type" of
@@ -1168,13 +1169,13 @@ report 317 "Vendor Pre-Payment Journal"
                         "Gen. Posting Type"::Purchase:
                             PurchPostingType := true;
                     end;
-                    TestPostingType;
+                    TestPostingType();
 
                     if not VATPostingSetup.Get("VAT Bus. Posting Group", "VAT Prod. Posting Group") then
                         AddError(
                           StrSubstNo(
                             E036Err,
-                            VATPostingSetup.TableCaption, "VAT Bus. Posting Group", "VAT Prod. Posting Group"))
+                            VATPostingSetup.TableCaption(), "VAT Bus. Posting Group", "VAT Prod. Posting Group"))
                     else
                         if "VAT Calculation Type" <> VATPostingSetup."VAT Calculation Type" then
                             AddError(
@@ -1195,7 +1196,7 @@ report 317 "Vendor Pre-Payment Journal"
                 AddError(
                   StrSubstNo(
                     E031Err,
-                    Cust.TableCaption, "Account No."))
+                    Cust.TableCaption(), "Account No."))
             else begin
                 AccName := Cust.Name;
                 if Cust."Privacy Blocked" then
@@ -1223,22 +1224,22 @@ report 317 "Vendor Pre-Payment Journal"
                                 '%1 %2',
                                 StrSubstNo(
                                   E067Err,
-                                  Cust.TableCaption, "Account No.", ICPartner.TableCaption, "IC Partner Code"),
+                                  Cust.TableCaption(), "Account No.", ICPartner.TableCaption(), "IC Partner Code"),
                                 StrSubstNo(
                                   E032Err,
-                                  ICPartner.FieldCaption(Blocked), false, ICPartner.TableCaption, Cust."IC Partner Code")));
+                                  ICPartner.FieldCaption(Blocked), false, ICPartner.TableCaption(), Cust."IC Partner Code")));
                     end else
                         AddError(
                           StrSubstNo(
                             '%1 %2',
                             StrSubstNo(
                               E067Err,
-                              Cust.TableCaption, "Account No.", ICPartner.TableCaption, Cust."IC Partner Code"),
+                              Cust.TableCaption(), "Account No.", ICPartner.TableCaption(), Cust."IC Partner Code"),
                             StrSubstNo(
                               E031Err,
-                              ICPartner.TableCaption, Cust."IC Partner Code")));
+                              ICPartner.TableCaption(), Cust."IC Partner Code")));
                 CustPosting := true;
-                TestPostingType;
+                TestPostingType();
 
                 if "Recurring Method" = "Gen. Journal Recurring Method"::" " then
                     if "Document Type" in
@@ -1287,7 +1288,7 @@ report 317 "Vendor Pre-Payment Journal"
                 AddError(
                   StrSubstNo(
                     E031Err,
-                    Vend.TableCaption, "Account No."))
+                    Vend.TableCaption(), "Account No."))
             else begin
                 AccName := Vend.Name;
 
@@ -1318,22 +1319,22 @@ report 317 "Vendor Pre-Payment Journal"
                                 '%1 %2',
                                 StrSubstNo(
                                   E067Err,
-                                  Vend.TableCaption, "Account No.", ICPartner.TableCaption, Vend."IC Partner Code"),
+                                  Vend.TableCaption(), "Account No.", ICPartner.TableCaption(), Vend."IC Partner Code"),
                                 StrSubstNo(
                                   E032Err,
-                                  ICPartner.FieldCaption(Blocked), false, ICPartner.TableCaption, Vend."IC Partner Code")));
+                                  ICPartner.FieldCaption(Blocked), false, ICPartner.TableCaption(), Vend."IC Partner Code")));
                     end else
                         AddError(
                           StrSubstNo(
                             '%1 %2',
                             StrSubstNo(
                               E067Err,
-                              Vend.TableCaption, "Account No.", ICPartner.TableCaption, "IC Partner Code"),
+                              Vend.TableCaption(), "Account No.", ICPartner.TableCaption(), "IC Partner Code"),
                             StrSubstNo(
                               E031Err,
-                              ICPartner.TableCaption, Vend."IC Partner Code")));
+                              ICPartner.TableCaption(), Vend."IC Partner Code")));
                 VendPosting := true;
-                TestPostingType;
+                TestPostingType();
 
                 if "Recurring Method" = "Gen. Journal Recurring Method"::" " then
                     if "Document Type" in
@@ -1380,7 +1381,7 @@ report 317 "Vendor Pre-Payment Journal"
                 AddError(
                   StrSubstNo(
                     E031Err,
-                    BankAcc.TableCaption, "Account No."))
+                    BankAcc.TableCaption(), "Account No."))
             else begin
                 AccName := BankAcc.Name;
 
@@ -1388,7 +1389,7 @@ report 317 "Vendor Pre-Payment Journal"
                     AddError(
                       StrSubstNo(
                         E032Err,
-                        BankAcc.FieldCaption(Blocked), false, BankAcc.TableCaption, "Account No."));
+                        BankAcc.FieldCaption(Blocked), false, BankAcc.TableCaption(), "Account No."));
                 if ("Currency Code" <> BankAcc."Currency Code") and (BankAcc."Currency Code" <> '') then
                     AddError(
                       StrSubstNo(
@@ -1409,7 +1410,7 @@ report 317 "Vendor Pre-Payment Journal"
                               StrSubstNo(
                                 E042Err,
                                 FieldCaption("Bank Payment Type"), FieldCaption("Currency Code"),
-                                TableCaption, BankAcc.TableCaption));
+                                TableCaption, BankAcc.TableCaption()));
 
                 if BankAccPostingGr.Get(BankAcc."Bank Acc. Posting Group") then
                     if BankAccPostingGr."G/L Account No." <> '' then
@@ -1426,36 +1427,36 @@ report 317 "Vendor Pre-Payment Journal"
                 AddError(
                   StrSubstNo(
                     E031Err,
-                    FA.TableCaption, "Account No."))
+                    FA.TableCaption(), "Account No."))
             else begin
                 AccName := FA.Description;
                 if FA.Blocked then
                     AddError(
                       StrSubstNo(
                         E032Err,
-                        FA.FieldCaption(Blocked), false, FA.TableCaption, "Account No."));
+                        FA.FieldCaption(Blocked), false, FA.TableCaption(), "Account No."));
                 if FA.Inactive then
                     AddError(
                       StrSubstNo(
                         E032Err,
-                        FA.FieldCaption(Inactive), false, FA.TableCaption, "Account No."));
+                        FA.FieldCaption(Inactive), false, FA.TableCaption(), "Account No."));
                 if FA."Budgeted Asset" then
                     AddError(
                       StrSubstNo(
                         E043Err,
-                        FA.TableCaption, "Account No.", FA.FieldCaption("Budgeted Asset"), true));
+                        FA.TableCaption(), "Account No.", FA.FieldCaption("Budgeted Asset"), true));
                 if DeprBook.Get("Depreciation Book Code") then
                     CheckFAIntegration(GenJnlLine)
                 else
                     AddError(
                       StrSubstNo(
                         E031Err,
-                        DeprBook.TableCaption, "Depreciation Book Code"));
+                        DeprBook.TableCaption(), "Depreciation Book Code"));
                 if not FADeprBook.Get(FA."No.", "Depreciation Book Code") then
                     AddError(
                       StrSubstNo(
                         E036Err,
-                        FADeprBook.TableCaption, FA."No.", "Depreciation Book Code"));
+                        FADeprBook.TableCaption(), FA."No.", "Depreciation Book Code"));
             end;
     end;
 
@@ -1466,14 +1467,14 @@ report 317 "Vendor Pre-Payment Journal"
                 AddError(
                   StrSubstNo(
                     E031Err,
-                    ICPartner.TableCaption, "Account No."))
+                    ICPartner.TableCaption(), "Account No."))
             else begin
                 AccName := ICPartner.Name;
                 if ICPartner.Blocked then
                     AddError(
                       StrSubstNo(
                         E032Err,
-                        ICPartner.FieldCaption(Blocked), false, ICPartner.TableCaption, "Account No."));
+                        ICPartner.FieldCaption(Blocked), false, ICPartner.TableCaption(), "Account No."));
             end;
     end;
 
@@ -1746,6 +1747,7 @@ report 317 "Vendor Pre-Payment Journal"
         TempGenJnlLine.Reset();
         TempGenJnlLine.SetRange("External Document No.", GenJnlLine."External Document No.");
 
+        i := 0;
         while (i < 2) and not ErrorFound do begin
             i := i + 1;
             if i = 1 then begin
@@ -1801,7 +1803,7 @@ report 317 "Vendor Pre-Payment Journal"
                         AddError(
                           StrSubstNo(
                             E066Err, FieldCaption("Account No."), FieldCaption("Bal. Account No.")))
-                    else begin
+                    else
                         if (("Account Type" in ["Account Type"::"G/L Account", "Account Type"::"Bank Account"]) and ("Account No." <> '')) xor
                            (("Bal. Account Type" in ["Bal. Account Type"::"G/L Account", "Account Type"::"Bank Account"]) and
                             ("Bal. Account No." <> ''))
@@ -1810,7 +1812,7 @@ report 317 "Vendor Pre-Payment Journal"
                                 AddError(
                                   StrSubstNo(
                                     E002Err, FieldCaption("IC Partner G/L Acc. No.")))
-                            else begin
+                            else
                                 if ICGLAccount.Get("IC Partner G/L Acc. No.") then
                                     if ICGLAccount.Blocked then
                                         AddError(
@@ -1818,25 +1820,23 @@ report 317 "Vendor Pre-Payment Journal"
                                             E032Err,
                                             ICGLAccount.FieldCaption(Blocked), false, FieldCaption("IC Partner G/L Acc. No."),
                                             "IC Partner G/L Acc. No."
-                                            ));
-                            end
-                        else
-                            if "IC Partner G/L Acc. No." <> '' then
-                                AddError(
-                                  StrSubstNo(
-                                    E009Err, FieldCaption("IC Partner G/L Acc. No.")));
-                    end
-                else
-                    if "IC Partner G/L Acc. No." <> '' then begin
-                        if "IC Direction" = "IC Direction"::Incoming then
-                            AddError(
-                              StrSubstNo(
-                                E069Err, FieldCaption("IC Partner G/L Acc. No."), FieldCaption("IC Direction"), Format("IC Direction")));
-                        if CurrentICPartner = '' then
-                            AddError(
-                              StrSubstNo(
-                                E070Err, FieldCaption("IC Partner G/L Acc. No.")));
-                    end;
+                                            ))
+                                    else
+                                        if "IC Partner G/L Acc. No." <> '' then
+                                            AddError(
+                                              StrSubstNo(
+                                                E009Err, FieldCaption("IC Partner G/L Acc. No.")))
+                                        else
+                                            if "IC Partner G/L Acc. No." <> '' then begin
+                                                if "IC Direction" = "IC Direction"::Incoming then
+                                                    AddError(
+                                                      StrSubstNo(
+                                                        E069Err, FieldCaption("IC Partner G/L Acc. No."), FieldCaption("IC Direction"), Format("IC Direction")));
+                                                if CurrentICPartner = '' then
+                                                    AddError(
+                                                      StrSubstNo(
+                                                        E070Err, FieldCaption("IC Partner G/L Acc. No.")));
+                                            end;
             end;
     end;
 
@@ -1908,12 +1908,11 @@ report 317 "Vendor Pre-Payment Journal"
             OppositeSignAmount := TotalAmount[Sign::Positive];
         if (IsPostingDateBeforePmtDate or AcceptedPmtTolerance) and
            (Abs(AmountPaid + AmountPmtTolerance - RemPmtDiscPossible) >= Abs(AmountDue - OppositeSignAmount))
-        then begin
+        then
             if IsPostingDateBeforePmtDate then
                 AmountDiscounted := -RemPmtDiscPossible
             else
                 AmountPmtDiscTolerance := -RemPmtDiscPossible;
-        end;
     end;
 
     local procedure CheckAccountType(var GenJournalLine: Record "Gen. Journal Line"; AccName1: Text[100]; AccName2: Text[100])
@@ -1938,7 +1937,7 @@ report 317 "Vendor Pre-Payment Journal"
     local procedure CheckOldCustomer()
     begin
         with OldCustLedgEntry do begin
-            Reset;
+            Reset();
             SetCurrentKey("Document No.", "Document Type");
             SetRange("Document Type", "Gen. Journal Line"."Applies-to Doc. Type");
             SetRange("Document No.", "Gen. Journal Line"."Applies-to Doc. No.");
@@ -1952,12 +1951,11 @@ report 317 "Vendor Pre-Payment Journal"
                 if ("Remaining Pmt. Disc. Possible" <> 0) and
                    (("Pmt. Discount Date" >= "Gen. Journal Line"."Posting Date") or "Accepted Pmt. Disc. Tolerance") and
                    (AmountPaid - AmountPmtTolerance - "Remaining Pmt. Disc. Possible" >= AmountDue)
-                then begin
+                then
                     if "Pmt. Discount Date" >= "Gen. Journal Line"."Posting Date" then
                         AmountDiscounted := -"Remaining Pmt. Disc. Possible"
                     else
                         AmountPmtDiscTolerance := -"Remaining Pmt. Disc. Possible";
-                end;
                 AmountPaid := AmountPaid + AmountPmtTolerance + AmountDiscounted + AmountPmtDiscTolerance;
                 TotalAmountDiscounted := TotalAmountDiscounted + AmountDiscounted;
                 TotalAmountPmtTolerance := TotalAmountPmtTolerance + AmountPmtTolerance;
@@ -1971,7 +1969,7 @@ report 317 "Vendor Pre-Payment Journal"
     local procedure CheckOldVendor()
     begin
         with OldVendLedgEntry do begin
-            Reset;
+            Reset();
             SetCurrentKey("Document No.", "Document Type");
             SetRange("Document Type", "Gen. Journal Line"."Applies-to Doc. Type");
             SetRange("Document No.", "Gen. Journal Line"."Applies-to Doc. No.");
@@ -1986,12 +1984,11 @@ report 317 "Vendor Pre-Payment Journal"
                 if ("Remaining Pmt. Disc. Possible" <> 0) and
                    (("Pmt. Discount Date" >= "Gen. Journal Line"."Posting Date") or "Accepted Pmt. Disc. Tolerance") and
                    (AmountPaid - AmountPmtTolerance - "Remaining Pmt. Disc. Possible" >= AmountDue)
-                then begin
+                then
                     if "Pmt. Discount Date" >= "Gen. Journal Line"."Posting Date" then
                         AmountDiscounted := -"Remaining Pmt. Disc. Possible"
                     else
                         AmountPmtDiscTolerance := -"Remaining Pmt. Disc. Possible";
-                end;
                 AmountPaid := AmountPaid + AmountPmtTolerance + AmountDiscounted + AmountPmtDiscTolerance;
                 TotalAmountDiscounted := TotalAmountDiscounted + AmountDiscounted;
                 TotalAmountPmtTolerance := TotalAmountPmtTolerance + AmountPmtTolerance;
@@ -2017,7 +2014,7 @@ report 317 "Vendor Pre-Payment Journal"
                    ("Bal. Account Type" <> "Bal. Account Type"::"Fixed Asset")
                 then
                     TestFixedAssetFields("Gen. Journal Line");
-            CheckICDocument;
+            CheckICDocument();
             if "Account No." <> '' then
                 CheckAccount(GenJournalLine);
 
@@ -2122,7 +2119,7 @@ report 317 "Vendor Pre-Payment Journal"
                 CODEUNIT.Run(CODEUNIT::"Exchange Acc. G/L Journal Line", "Gen. Journal Line");
             end;
 
-            AddConditionalError(not DimMgt.CheckDimIDComb("Dimension Set ID"), DimMgt.GetDimCombErr);
+            AddConditionalError(not DimMgt.CheckDimIDComb("Dimension Set ID"), DimMgt.GetDimCombErr());
 
             TableID[1] := DimMgt.TypeToTableID1("Account Type".AsInteger());
             No[1] := "Account No.";
@@ -2134,7 +2131,7 @@ report 317 "Vendor Pre-Payment Journal"
             No[4] := "Salespers./Purch. Code";
             TableID[5] := DATABASE::Campaign;
             No[5] := "Campaign No.";
-            AddConditionalError(not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID"), DimMgt.GetDimValuePostingErr);
+            AddConditionalError(not DimMgt.CheckDimValuePosting(TableID, No, "Dimension Set ID"), DimMgt.GetDimValuePostingErr());
         end;
     end;
 
@@ -2146,10 +2143,9 @@ report 317 "Vendor Pre-Payment Journal"
                     begin
                         if ("Bal. Gen. Bus. Posting Group" <> '') or ("Bal. Gen. Prod. Posting Group" <> '') or
                            ("Bal. VAT Bus. Posting Group" <> '') or ("Bal. VAT Prod. Posting Group" <> '')
-                        then begin
+                        then
                             if "Bal. Gen. Posting Type" = "Bal. Gen. Posting Type"::" " then
                                 AddError(StrSubstNo(E002Err, FieldCaption("Bal. Gen. Posting Type")));
-                        end;
                         if ("Bal. Gen. Posting Type" <> "Bal. Gen. Posting Type"::" ") and
                            ("VAT Posting" = "VAT Posting"::"Automatic VAT Entry")
                         then begin
@@ -2184,14 +2180,13 @@ report 317 "Vendor Pre-Payment Journal"
                                 FieldCaption("Bal. VAT Bus. Posting Group"), FieldCaption("Bal. VAT Prod. Posting Group"),
                                 FieldCaption("Bal. Account Type"), "Bal. Account Type"));
 
-                        if "Document Type" <> "Document Type"::" " then begin
+                        if "Document Type" <> "Document Type"::" " then
                             if ("Bal. Account Type" = "Bal. Account Type"::Customer) =
                                ("Document Type" in ["Document Type"::Payment, "Document Type"::"Credit Memo"])
                             then
                                 WarningIfNegativeAmt("Gen. Journal Line")
                             else
-                                WarningIfPositiveAmt("Gen. Journal Line")
-                        end;
+                                WarningIfPositiveAmt("Gen. Journal Line");
                         if Amount * "Sales/Purch. (LCY)" > 0 then
                             AddError(
                               StrSubstNo(
@@ -2269,7 +2264,7 @@ report 317 "Vendor Pre-Payment Journal"
                                 FieldCaption("VAT Bus. Posting Group"), FieldCaption("VAT Prod. Posting Group"),
                                 FieldCaption("Account Type"), "Account Type"));
 
-                        if "Document Type" <> "Document Type"::" " then begin
+                        if "Document Type" <> "Document Type"::" " then
                             if "Account Type" = "Account Type"::Customer then
                                 case "Document Type" of
                                     "Document Type"::"Credit Memo":
@@ -2301,8 +2296,7 @@ report 317 "Vendor Pre-Payment Journal"
                                         WarningIfPositiveAmt("Gen. Journal Line");
                                     else
                                         WarningIfPositiveAmt("Gen. Journal Line");
-                                end
-                        end;
+                                end;
 
                         if Amount * "Sales/Purch. (LCY)" < 0 then
                             AddError(

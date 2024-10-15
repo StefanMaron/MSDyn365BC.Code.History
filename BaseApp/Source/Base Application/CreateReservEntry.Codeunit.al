@@ -7,19 +7,21 @@ codeunit 99000830 "Create Reserv. Entry"
     end;
 
     var
-        Text000: Label 'You cannot reserve this entry because it is not a true demand or supply.';
         InsertReservEntry: Record "Reservation Entry";
         InsertReservEntry2: Record "Reservation Entry";
         LastReservEntry: Record "Reservation Entry";
         TempTrkgSpec1: Record "Tracking Specification" temporary;
         TempTrkgSpec2: Record "Tracking Specification" temporary;
-        Text001: Label 'Cannot match item tracking.';
         UOMMgt: Codeunit "Unit of Measure Management";
         OverruleItemTracking: Boolean;
         Inbound: Boolean;
         UseQtyToInvoice: Boolean;
         QtyToHandleAndInvoiceIsSet: Boolean;
         LastProcessedSourceID: Text;
+        CalledFromInvtPutawayPick: Boolean;
+
+        Text000: Label 'You cannot reserve this entry because it is not a true demand or supply.';
+        Text001: Label 'Cannot match item tracking.';
 
     procedure CreateEntry(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10]; Description: Text[100]; ExpectedReceiptDate: Date; ShipmentDate: Date; TransferredFromEntryNo: Integer; Status: Enum "Reservation Status")
     var
@@ -49,7 +51,7 @@ codeunit 99000830 "Create Reserv. Entry"
         ReservEntry."Variant Code" := VariantCode;
         ReservEntry."Location Code" := LocationCode;
         ReservEntry.Description := Description;
-        ReservEntry."Creation Date" := WorkDate;
+        ReservEntry."Creation Date" := WorkDate();
         ReservEntry."Created By" := UserId;
         ReservEntry."Expected Receipt Date" := ExpectedReceiptDate;
         ReservEntry."Shipment Date" := ShipmentDate;
@@ -58,7 +60,7 @@ codeunit 99000830 "Create Reserv. Entry"
         if (ReservEntry."Quantity (Base)" <> 0) and
            ((ReservEntry.Quantity = 0) or (ReservEntry."Qty. per Unit of Measure" <> InsertReservEntry2."Qty. per Unit of Measure"))
         then
-            ReservEntry.Quantity := Round(ReservEntry."Quantity (Base)" / ReservEntry."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+            ReservEntry.Quantity := Round(ReservEntry."Quantity (Base)" / ReservEntry."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
         if not QtyToHandleAndInvoiceIsSet then begin
             ReservEntry."Qty. to Handle (Base)" := ReservEntry."Quantity (Base)";
             ReservEntry."Qty. to Invoice (Base)" := ReservEntry."Quantity (Base)";
@@ -73,7 +75,7 @@ codeunit 99000830 "Create Reserv. Entry"
             ReservEntry2 := ReservEntry;
             ReservEntry2."Quantity (Base)" := -ReservEntry."Quantity (Base)";
             ReservEntry2.Quantity :=
-              Round(ReservEntry2."Quantity (Base)" / InsertReservEntry2."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision);
+              Round(ReservEntry2."Quantity (Base)" / InsertReservEntry2."Qty. per Unit of Measure", UOMMgt.QtyRndPrecision());
             ReservEntry2."Qty. to Handle (Base)" := -ReservEntry."Qty. to Handle (Base)";
             ReservEntry2."Qty. to Invoice (Base)" := -ReservEntry."Qty. to Invoice (Base)";
             ReservEntry2.Positive := (ReservEntry2."Quantity (Base)" > 0);
@@ -94,7 +96,7 @@ codeunit 99000830 "Create Reserv. Entry"
                 ReservEntry2."Qty. to Invoice (Base)" := ReservEntry2."Quantity (Base)";
             end;
 
-            ReservEntry2.ClearApplFromToItemEntry;
+            ReservEntry2.ClearApplFromToItemEntry();
 
             if Status = Status::Reservation then
                 if TransferredFromEntryNo = 0 then begin
@@ -107,7 +109,7 @@ codeunit 99000830 "Create Reserv. Entry"
             AdjustDateIfItemLedgerEntry(ReservEntry2);
         end;
 
-        ReservEntry.ClearApplFromToItemEntry;
+        ReservEntry.ClearApplFromToItemEntry();
 
         CheckValidity(ReservEntry);
         AdjustDateIfItemLedgerEntry(ReservEntry);
@@ -129,7 +131,7 @@ codeunit 99000830 "Create Reserv. Entry"
         if not IsHandled then
             while SplitReservEntry(ReservEntry, ReservEntry2, TrackingSpecificationExists, FirstSplit) do begin
                 ReservEntry."Entry No." := 0;
-                ReservEntry.UpdateItemTracking;
+                ReservEntry.UpdateItemTracking();
                 OnBeforeReservEntryInsert(ReservEntry);
                 ReservEntry.Insert();
                 OnAfterReservEntryInsert(ReservEntry);
@@ -273,6 +275,8 @@ codeunit 99000830 "Create Reserv. Entry"
         OldReservEntry2: Record "Reservation Entry";
         FromTracingSpecification: Record "Tracking Specification";
     begin
+        if CalledFromInvtPutawayPick then
+            exit;
         OnBeforeCreateRemainingReservEntryProcedure(OldReservEntry);
         CreateReservEntryFor(
           OldReservEntry."Source Type", OldReservEntry."Source Subtype",
@@ -307,6 +311,11 @@ codeunit 99000830 "Create Reserv. Entry"
         OnAfterCreateRemainingReservEntry(OldReservEntry, LastReservEntry);
     end;
 
+    internal procedure SetCalledFromInvtPutawayPick(CalledFromInvtPutawayPickVal: Boolean)
+    begin
+        CalledFromInvtPutawayPick := CalledFromInvtPutawayPickVal;
+    end;
+
     procedure TransferReservEntry(NewType: Option; NewSubtype: Integer; NewID: Code[20]; NewBatchName: Code[10]; NewProdOrderLine: Integer; NewRefNo: Integer; QtyPerUOM: Decimal; OldReservEntry: Record "Reservation Entry"; TransferQty: Decimal): Decimal
     var
         NewReservEntry: Record "Reservation Entry";
@@ -339,10 +348,9 @@ codeunit 99000830 "Create Reserv. Entry"
             QtyToInvoiceThisLine := OldReservEntry."Qty. to Invoice (Base)";
             if Abs(TransferQty) > Abs(QtyToHandleThisLine) then
                 TransferQty := QtyToHandleThisLine;
-            if UseQtyToInvoice then begin // Used when posting sales and purchase
+            if UseQtyToInvoice then // Used when posting sales and purchase
                 if Abs(TransferQty) > Abs(QtyToInvoiceThisLine) then
                     TransferQty := QtyToInvoiceThisLine;
-            end;
         end else
             QtyToHandleThisLine := OldReservEntry."Quantity (Base)";
 
@@ -360,7 +368,7 @@ codeunit 99000830 "Create Reserv. Entry"
 
         // Item Tracking on consumption, output and drop shipment:
         if (NewType = DATABASE::"Item Journal Line") and (NewSubtype in [3, 5, 6]) or OverruleItemTracking then
-            if InsertReservEntry.NewTrackingExists then begin
+            if InsertReservEntry.NewTrackingExists() then begin
                 NewReservEntry.CopyTrackingFromReservEntryNewTracking(InsertReservEntry);
                 if NewReservEntry."Qty. to Handle (Base)" = 0 then
                     NewReservEntry."Qty. to Handle (Base)" := NewReservEntry."Quantity (Base)";
@@ -482,8 +490,8 @@ codeunit 99000830 "Create Reserv. Entry"
                 NewReservEntry.Validate("Quantity (Base)");
             NewReservEntry.CopyTrackingFromItemTrackingSetup(CarriedItemTrackingSetup);
             OnTransferReservEntryOnBeforeUpdateItemTracking(NewReservEntry, CarriedReservationEntry);
-            NewReservEntry.UpdateItemTracking;
-            if NewReservEntry.Modify then;
+            NewReservEntry.UpdateItemTracking();
+            if NewReservEntry.Modify() then;
         end;
 
         SynchronizeTransferOutboundToInboundItemTracking(NewReservEntry."Entry No.");
@@ -550,12 +558,10 @@ codeunit 99000830 "Create Reserv. Entry"
             DATABASE::Job:
                 Sign := -1;
             DATABASE::"Phys. Invt. Order Line":
-                begin
-                    if ReservEntry.Positive then
-                        Sign := 1
-                    else
-                        Sign := -1;
-                end;
+                if ReservEntry.Positive then
+                    Sign := 1
+                else
+                    Sign := -1;
             DATABASE::"Invt. Document Line":
                 if ReservEntry."Source Subtype" = 0 then // Receipt
                     Sign := 1
@@ -686,6 +692,7 @@ codeunit 99000830 "Create Reserv. Entry"
         NextState: Option SetFilter1,SetFilter2,LoosenFilter1,LoosenFilter2,Split,Error,Finish;
         IsHandled: Boolean;
     begin
+        LastEntryNo := 0;
         TempTrkgSpec1.Reset();
         TempTrkgSpec2.Reset();
         TempTrkgSpec1.SetTrackingKey();
@@ -707,7 +714,7 @@ codeunit 99000830 "Create Reserv. Entry"
                 NextState::LoosenFilter1:
                     begin
                         if TempTrkgSpec2."Quantity (Base)" > 0 then
-                            TempTrkgSpec1.SetTrackingFilterBlank
+                            TempTrkgSpec1.SetTrackingFilterBlank()
                         else begin
                             if TempTrkgSpec2."Serial No." = '' then
                                 TempTrkgSpec1.SetRange("Serial No.");
@@ -731,7 +738,7 @@ codeunit 99000830 "Create Reserv. Entry"
                 NextState::LoosenFilter2:
                     begin
                         if TempTrkgSpec1."Quantity (Base)" > 0 then
-                            TempTrkgSpec2.SetTrackingFilterBlank
+                            TempTrkgSpec2.SetTrackingFilterBlank()
                         else begin
                             if TempTrkgSpec1."Serial No." = '' then
                                 TempTrkgSpec2.SetRange("Serial No.");
@@ -751,7 +758,7 @@ codeunit 99000830 "Create Reserv. Entry"
                         if Abs(TempTrkgSpec1."Quantity (Base)") = Abs(TempTrkgSpec2."Quantity (Base)") then begin
                             TempTrkgSpec1.Delete();
                             TempTrkgSpec2.Delete();
-                            TempTrkgSpec1.ClearTrackingFilter;
+                            TempTrkgSpec1.ClearTrackingFilter();
                             if TempTrkgSpec1.FindLast() then
                                 NextState := NextState::SetFilter2
                             else begin
@@ -832,7 +839,7 @@ codeunit 99000830 "Create Reserv. Entry"
         ReservEntry.CopyTrackingFromSpec(TempTrkgSpec1);
         OldReservEntryQty := ReservEntry.Quantity;
         ReservEntry.Validate("Quantity (Base)", TempTrkgSpec1."Quantity (Base)");
-        if Abs(ReservEntry.Quantity - OldReservEntryQty) <= UOMMgt.QtyRndPrecision then
+        if Abs(ReservEntry.Quantity - OldReservEntryQty) <= UOMMgt.QtyRndPrecision() then
             ReservEntry.Quantity := OldReservEntryQty;
         TempTrkgSpec1.Delete();
 
@@ -845,7 +852,7 @@ codeunit 99000830 "Create Reserv. Entry"
             ReservEntry2.CopyTrackingFromSpec(TempTrkgSpec2);
             OldReservEntryQty := ReservEntry2.Quantity;
             ReservEntry2.Validate("Quantity (Base)", TempTrkgSpec2."Quantity (Base)");
-            if Abs(ReservEntry2.Quantity - OldReservEntryQty) <= UOMMgt.QtyRndPrecision then
+            if Abs(ReservEntry2.Quantity - OldReservEntryQty) <= UOMMgt.QtyRndPrecision() then
                 ReservEntry2.Quantity := OldReservEntryQty;
             if ReservEntry2.Positive then
                 ReservEntry2."Appl.-from Item Entry" := TempTrkgSpec2."Appl.-from Item Entry";
@@ -970,7 +977,7 @@ codeunit 99000830 "Create Reserv. Entry"
         if FromReservationEntry.Get(ReservationEntryNo, false) then
             if (FromReservationEntry."Source Type" = DATABASE::"Transfer Line") and
                (FromReservationEntry."Source Subtype" = 0) and
-               FromReservationEntry.TrackingExists and
+               FromReservationEntry.TrackingExists() and
                NeedSynchronizeItemTrackingToOutboundTransfer(FromReservationEntry)
             then begin
                 ToReservationEntry := FromReservationEntry;

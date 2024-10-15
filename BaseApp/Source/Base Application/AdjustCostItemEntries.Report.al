@@ -141,16 +141,17 @@ report 795 "Adjust Cost - Item Entries"
     end;
 
     var
-        ResynchronizeInfoMsg: Label 'Your general and item ledgers will no longer be synchronized after running the cost adjustment. You must run the %1 report to synchronize them again.';
         InvtSetup: Record "Inventory Setup";
         InvtAdjmtHandler: Codeunit "Inventory Adjustment Handler";
-        Text005: Label 'You must not use Item No. Filter and Item Category Filter at the same time.';
         [InDataSet]
         PostEnable: Boolean;
         [InDataSet]
         FilterItemNoEditable: Boolean;
         [InDataSet]
         FilterItemCategoryEditable: Boolean;
+
+        Text005: Label 'You must not use Item No. Filter and Item Category Filter at the same time.';
+        ResynchronizeInfoMsg: Label 'Your general and item ledgers will no longer be synchronized after running the cost adjustment. You must run the %1 report to synchronize them again.';
 
     protected var
         ItemNoFilter: Text[250];

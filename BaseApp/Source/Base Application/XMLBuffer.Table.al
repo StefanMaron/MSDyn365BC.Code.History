@@ -144,9 +144,9 @@ table 1235 "XML Buffer"
         TempBlob: Codeunit "Temp Blob";
         InStream: InStream;
     begin
-        TempBlob.FromRecordRef(BlobFieldRef.Record, BlobFieldRef.Number);
+        TempBlob.FromRecordRef(BlobFieldRef.Record(), BlobFieldRef.Number);
         TempBlob.CreateInStream(InStream, TEXTENCODING::UTF8);
-        LoadFromText(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.CRLFSeparator));
+        LoadFromText(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.CRLFSeparator()));
     end;
 
     procedure LoadFromText(XmlText: Text)
@@ -216,8 +216,8 @@ table 1235 "XML Buffer"
     var
         XMLBufferWriter: Codeunit "XML Buffer Writer";
     begin
-        XMLBufferWriter.InsertProcessingInstruction(Rec, Rec, CountProcessingInstructions + 1, Depth + 1, InstructionName, InstructionValue);
-        GetParent;
+        XMLBufferWriter.InsertProcessingInstruction(Rec, Rec, CountProcessingInstructions() + 1, Depth + 1, InstructionName, InstructionValue);
+        GetParent();
     end;
 
     procedure AddAttribute(AttributeName: Text[250]; AttributeValue: Text[250])
@@ -225,7 +225,7 @@ table 1235 "XML Buffer"
         XMLBufferWriter: Codeunit "XML Buffer Writer";
     begin
         XMLBufferWriter.InsertAttribute(Rec, Rec, CountAttributes() + 1, Depth + 1, AttributeName, AttributeValue);
-        GetParent;
+        GetParent();
     end;
 
     procedure AddAttributeWithNamespace(AttributeNameWithNamespace: Text[250]; AttributeValue: Text[250])
@@ -240,7 +240,7 @@ table 1235 "XML Buffer"
     var
         XMLBufferWriter: Codeunit "XML Buffer Writer";
     begin
-        XMLBufferWriter.InsertElement(Rec, Rec, CountChildElements + 1, Depth + 1, ElementNameWithNamespace, '');
+        XMLBufferWriter.InsertElement(Rec, Rec, CountChildElements() + 1, Depth + 1, ElementNameWithNamespace, '');
         exit("Entry No.");
     end;
 
@@ -250,16 +250,16 @@ table 1235 "XML Buffer"
         CurrentView: Text;
         ElementNo: Integer;
     begin
-        CurrentView := GetView;
+        CurrentView := GetView();
         Get(EntryNo);
         ElementNo := "Node Number";
-        Reset;
+        Reset();
         SetRange("Parent Entry No.", "Parent Entry No.");
         SetFilter("Node Number", '>=%1', ElementNo);
         if FindSet(true) then
             repeat
                 "Node Number" += 1;
-                Modify;
+                Modify();
             until Next() = 0;
         Get("Parent Entry No.");
         XMLBufferWriter.InsertElement(Rec, Rec, ElementNo, Depth + 1, ElementNameWithNamespace, '');
@@ -272,13 +272,13 @@ table 1235 "XML Buffer"
         ElementEntryNo := AddGroupElement(ElementNameWithNamespace);
         SetValueWithoutModifying(ElementValue);
         Modify(true);
-        GetParent;
+        GetParent();
     end;
 
     procedure AddLastElement(ElementNameWithNamespace: Text[250]; ElementValue: Text) ElementEntryNo: Integer
     begin
         ElementEntryNo := AddElement(ElementNameWithNamespace, ElementValue);
-        GetParent;
+        GetParent();
     end;
 
     procedure AddNonEmptyElement(ElementNameWithNamespace: Text[250]; ElementValue: Text) ElementEntryNo: Integer
@@ -291,7 +291,7 @@ table 1235 "XML Buffer"
     procedure AddNonEmptyLastElement(ElementNameWithNamespace: Text[250]; ElementValue: Text) ElementEntryNo: Integer
     begin
         ElementEntryNo := AddNonEmptyElement(ElementNameWithNamespace, ElementValue);
-        GetParent;
+        GetParent();
     end;
 
     procedure CopyImportFrom(var TempXMLBuffer: Record "XML Buffer" temporary)
@@ -305,9 +305,9 @@ table 1235 "XML Buffer"
             if XMLBuffer.FindSet() then
                 repeat
                     Rec := XMLBuffer;
-                    Insert;
+                    Insert();
                 until XMLBuffer.Next() = 0;
-            SetView(TempXMLBuffer.GetView);
+            SetView(TempXMLBuffer.GetView());
         end;
     end;
 
@@ -315,8 +315,8 @@ table 1235 "XML Buffer"
     var
         CurrentView: Text;
     begin
-        CurrentView := GetView;
-        Reset;
+        CurrentView := GetView();
+        Reset();
         SetRange("Parent Entry No.", "Entry No.");
         SetRange(Type, Type::Element);
         NumElements := Count;
@@ -327,8 +327,8 @@ table 1235 "XML Buffer"
     var
         CurrentView: Text;
     begin
-        CurrentView := GetView;
-        Reset;
+        CurrentView := GetView();
+        Reset();
         SetRange("Parent Entry No.", "Entry No.");
         SetRange(Type, Type::Attribute);
         NumAttributes := Count;
@@ -339,8 +339,8 @@ table 1235 "XML Buffer"
     var
         CurrentView: Text;
     begin
-        CurrentView := GetView;
-        Reset;
+        CurrentView := GetView();
+        Reset();
         SetRange("Parent Entry No.", "Entry No.");
         SetRange(Type, Type::"Processing Instruction");
         NumElements := Count;
@@ -369,7 +369,7 @@ table 1235 "XML Buffer"
         TempResultElementXMLBuffer.SetRange("Import ID", "Import ID");
         TempResultElementXMLBuffer.SetRange("Parent Entry No.");
         TempResultElementXMLBuffer.SetFilter(Path, '*' + XPath);
-        exit(TempResultElementXMLBuffer.FindSet);
+        exit(TempResultElementXMLBuffer.FindSet());
     end;
 
     procedure GetAttributeValue(AttributeName: Text): Text[250]
@@ -409,10 +409,10 @@ table 1235 "XML Buffer"
     var
         CurrentView: Text;
     begin
-        CurrentView := GetView;
-        Reset;
+        CurrentView := GetView();
+        Reset();
         SetRange("Parent Entry No.", "Entry No.");
-        ChildNodesExists := not IsEmpty;
+        ChildNodesExists := not IsEmpty();
         SetView(CurrentView);
     end;
 
@@ -425,7 +425,7 @@ table 1235 "XML Buffer"
         TempResultXMLBuffer.SetRange(Type, NodeType);
         if NodeName <> '' then
             TempResultXMLBuffer.SetRange(Name, NodeName);
-        exit(TempResultXMLBuffer.FindSet);
+        exit(TempResultXMLBuffer.FindSet());
     end;
 
     procedure GetValue(): Text
@@ -434,11 +434,11 @@ table 1235 "XML Buffer"
         InStream: InStream;
     begin
         CalcFields("Value BLOB");
-        if not "Value BLOB".HasValue then
+        if not "Value BLOB".HasValue() then
             exit(Value);
 
         "Value BLOB".CreateInStream(InStream, TEXTENCODING::Windows);
-        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator));
+        exit(TypeHelper.ReadAsTextWithSeparator(InStream, TypeHelper.LFSeparator()));
     end;
 
     local procedure NormalizeElementValue(var ElementValue: Text)
@@ -449,7 +449,7 @@ table 1235 "XML Buffer"
     procedure SetValue(NewValue: Text)
     begin
         SetValueWithoutModifying(NewValue);
-        Modify;
+        Modify();
     end;
 
     procedure SetValueWithoutModifying(NewValue: Text)

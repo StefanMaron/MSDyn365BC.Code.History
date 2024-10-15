@@ -9,6 +9,7 @@ table 408 "XBRL Line Constant"
     ObsoleteState = Removed;
     ObsoleteTag = '23.0';
 #endif
+    ReplicateData = false;
 
     fields
     {

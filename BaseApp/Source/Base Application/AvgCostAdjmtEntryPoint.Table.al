@@ -46,17 +46,17 @@ table 5804 "Avg. Cost Adjmt. Entry Point"
 
     trigger OnDelete()
     begin
-        UpdateItem;
+        UpdateItem();
     end;
 
     trigger OnInsert()
     begin
-        UpdateItem;
+        UpdateItem();
     end;
 
     trigger OnModify()
     begin
-        UpdateItem;
+        UpdateItem();
     end;
 
     var
@@ -77,7 +77,7 @@ table 5804 "Avg. Cost Adjmt. Entry Point"
     var
         CalendarPeriod: Record Date;
     begin
-        Reset;
+        Reset();
         "Item No." := ValueEntry."Item No.";
         "Valuation Date" := ValueEntry."Valuation Date";
         GetItem(ValueEntry."Item No.");
@@ -97,7 +97,7 @@ table 5804 "Avg. Cost Adjmt. Entry Point"
             "Location Code" := ValueEntry."Location Code";
         end;
 
-        exit(Find);
+        exit(Find());
     end;
 
     procedure PrevValuationAdjusted(ValueEntry: Record "Value Entry") ValuationAdjusted: Boolean
@@ -109,7 +109,7 @@ table 5804 "Avg. Cost Adjmt. Entry Point"
             exit(ValuationAdjusted);
 
         CopyOfAvgCostAdjmtPoint.Copy(Rec);
-        Reset;
+        Reset();
         SetCurrentKey("Item No.", "Cost Is Adjusted");
         SetRange("Item No.", ValueEntry."Item No.");
         SetRange("Cost Is Adjusted", false);
@@ -125,13 +125,13 @@ table 5804 "Avg. Cost Adjmt. Entry Point"
             if not "Cost Is Adjusted" then
                 exit;
             "Cost Is Adjusted" := false;
-            Modify;
+            Modify();
         end else begin
-            Init;
-            Insert;
+            Init();
+            Insert();
         end;
 
-        UpdateNextValuations;
+        UpdateNextValuations();
     end;
 
     local procedure UpdateNextValuations()

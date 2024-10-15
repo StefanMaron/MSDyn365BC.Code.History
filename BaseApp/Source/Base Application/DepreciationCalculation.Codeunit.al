@@ -1,4 +1,4 @@
-codeunit 5616 "Depreciation Calculation"
+﻿codeunit 5616 "Depreciation Calculation"
 {
     Permissions = TableData "FA Ledger Entry" = r,
                   TableData "FA Posting Type Setup" = r,
@@ -84,7 +84,7 @@ codeunit 5616 "Depreciation Calculation"
     procedure SetFAFilter(var FALedgEntry: Record "FA Ledger Entry"; FANo: Code[20]; DeprBookCode: Code[10]; FAPostingTypeOrder: Boolean)
     begin
         with FALedgEntry do begin
-            Reset;
+            Reset();
             if FAPostingTypeOrder then begin
                 SetCurrentKey(
                   "FA No.", "Depreciation Book Code",
@@ -145,14 +145,13 @@ codeunit 5616 "Depreciation Calculation"
                     4:
                         SetRange("FA Posting Type", "FA Posting Type"::"Custom 2");
                 end;
-                if GetPartOfCalculation(0, i - 1, DeprBookCode) then begin
+                if GetPartOfCalculation(0, i - 1, DeprBookCode) then
                     if Find('-') then
                         repeat
                             if "Part of Book Value" or "Part of Depreciable Basis" then
                                 if "FA Posting Date" > EntryDates[i] then
                                     EntryDates[i] := CheckEntryDate(FALedgEntry, "FA Ledger Entry FA Posting Type".FromInteger(i - 1));
                         until Next() = 0;
-                end;
             end;
         end;
     end;
@@ -506,6 +505,7 @@ codeunit 5616 "Depreciation Calculation"
                 PostingType::"Custom 2":
                     Get(DeprBookCode, "FA Posting Type"::"Custom 2");
             end;
+            OnAfterGetFAPostingTypeSetup(FAPostingTypeSetup, Type);
 
             if Type = Type::IncludeInDeprCalc then
                 exit("Include in Depr. Calculation");
@@ -545,13 +545,13 @@ codeunit 5616 "Depreciation Calculation"
         DeprBook: Record "Depreciation Book";
     begin
         if DeprBookCode = '' then
-            exit(StrSubstNo('%1 %2 = %3', FA.TableCaption, FA.FieldCaption("No."), FA."No."));
+            exit(StrSubstNo('%1 %2 = %3', FA.TableCaption(), FA.FieldCaption("No."), FA."No."));
 
         exit(
           StrSubstNo(
             Text000,
-            FA.TableCaption, FA.FieldCaption("No."), FA."No.",
-            DeprBook.TableCaption, DeprBook.FieldCaption(Code), DeprBookCode));
+            FA.TableCaption(), FA.FieldCaption("No."), FA."No.",
+            DeprBook.TableCaption(), DeprBook.FieldCaption(Code), DeprBookCode));
     end;
 
     procedure FADeprBookName(DeprBookCode: Code[10]): Text[200]
@@ -581,10 +581,9 @@ codeunit 5616 "Depreciation Calculation"
         ActualYear := StartingYear;
         while ActualYear <= EndingYear do begin
             LeapDate := (DMY2Date(28, 2, ActualYear) + 1);
-            if Date2DMY(LeapDate, 1) = 29 then begin
+            if Date2DMY(LeapDate, 1) = 29 then
                 if (LeapDate >= StartingDate) and (LeapDate <= EndingDate) then
                     LeapDays := LeapDays + 1;
-            end;
             ActualYear := ActualYear + 1;
         end;
         exit((EndingDate - StartingDate) + 1 - LeapDays);
@@ -662,6 +661,11 @@ codeunit 5616 "Depreciation Calculation"
 
     [IntegrationEvent(false, false)]
     local procedure OnBeforeUseDeprStartingDate(FANo: Code[20]; DeprBookCode: Code[10]; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterGetFAPostingTypeSetup(var FAPostingTypeSetup: Record "FA Posting Type Setup"; Type: Option IncludeInDeprCalc,IncludeInGainLoss,DepreciationType,ReverseType)
     begin
     end;
 }

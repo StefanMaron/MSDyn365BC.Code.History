@@ -335,7 +335,7 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
         CreateGenJournalBatchAndTemplate(GenJournalBatch);
         GenJournalLine."Journal Template Name" := GenJournalBatch."Journal Template Name";
         GenJournalLine."Journal Batch Name" := GenJournalBatch.Name;
-        GenJournalLine."Posting Date" := WorkDate;
+        GenJournalLine."Posting Date" := WorkDate();
         GenJournalLine."Document No." := LibraryUTUtility.GetNewCode;
         GenJournalLine."Account Type" := GenJournalLine."Account Type"::"Fixed Asset";
         GenJournalLine."Account No." := FixedAssetNo;
@@ -375,9 +375,9 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
         FADepreciationBook."Depreciation Book Code" := CreateDepreciationBook;
         FADepreciationBook."FA Posting Group" := FixedAsset."FA Posting Group";
         FADepreciationBook."Acquisition Cost" := LibraryRandom.RandDec(10, 2);
-        FADepreciationBook."Depreciation Starting Date" := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate);
-        FADepreciationBook."Depreciation Ending Date" := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate);
-        FADepreciationBook."Projected Disposal Date" := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate);
+        FADepreciationBook."Depreciation Starting Date" := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate());
+        FADepreciationBook."Depreciation Ending Date" := CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate());
+        FADepreciationBook."Projected Disposal Date" := CalcDate('<-' + Format(LibraryRandom.RandInt(5)) + 'M>', WorkDate());
         FADepreciationBook.Insert();
         exit(FADepreciationBook."Depreciation Book Code");
     end;
@@ -515,8 +515,8 @@ codeunit 144027 "UT REP ACCPER - Fixed Asset"
         LibraryVariableStorage.Dequeue(GroupTotals);
         FAProjectedValue."Fixed Asset".SetFilter("No.", No);
         FAProjectedValue.DepreciationBook.SetValue(DepreciationBook);
-        FAProjectedValue.FirstDepreciationDate.SetValue(WorkDate);
-        FAProjectedValue.LastDepreciationDate.SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate));
+        FAProjectedValue.FirstDepreciationDate.SetValue(WorkDate());
+        FAProjectedValue.LastDepreciationDate.SetValue(CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'Y>', WorkDate()));
         FAProjectedValue.GroupTotals.SetValue(GroupTotals);
     end;
 

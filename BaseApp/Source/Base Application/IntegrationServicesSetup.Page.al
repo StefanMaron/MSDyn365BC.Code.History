@@ -13,7 +13,7 @@ page 1876 "Integration Services Setup"
         {
             group("Customer Payments Service")
             {
-                field("Customer Payments Batch Name"; "Customer Payments Batch Name")
+                field("Customer Payments Batch Name"; Rec."Customer Payments Batch Name")
                 {
                     ApplicationArea = All;
                     Caption = 'Default Customer Payments Batch Name';
@@ -27,7 +27,7 @@ page 1876 "Integration Services Setup"
                     begin
                         GraphMgtCustomerPaymentsLines.SetCustomerPaymentsFilters(GenJournalLine);
 
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                         GenJnlManagement.LookupName("Customer Payments Batch Name", GenJournalLine);
                         CurrPage.Update(true);
                     end;
@@ -42,7 +42,7 @@ page 1876 "Integration Services Setup"
 
     trigger OnOpenPage()
     begin
-        SafeGet;
+        SafeGet();
     end;
 
     var

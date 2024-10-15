@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2146 "O365 VAT Posting Setup List"
 {
     Caption = 'VAT Rates';
@@ -9,6 +10,9 @@ page 2146 "O365 VAT Posting Setup List"
     RefreshOnActivate = true;
     ShowFilter = false;
     SourceTable = "VAT Product Posting Group";
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -19,7 +23,7 @@ page 2146 "O365 VAT Posting Setup List"
                 ShowCaption = false;
                 field(Description; Description)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Editable = false;
                     StyleExpr = StyleExpr;
                     ToolTip = 'Specifies the VAT rate used to calculate VAT on what you buy or sell.';
@@ -34,7 +38,7 @@ page 2146 "O365 VAT Posting Setup List"
         {
             action(Open)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Open';
                 Image = DocumentEdit;
                 Scope = Repeater;
@@ -45,7 +49,7 @@ page 2146 "O365 VAT Posting Setup List"
                 trigger OnAction()
                 begin
                     PAGE.RunModal(PAGE::"O365 VAT Posting Setup Card", Rec);
-                    DefaultVATProductPostingGroupCode := O365TemplateManagement.GetDefaultVATProdPostingGroup;
+                    DefaultVATProductPostingGroupCode := O365TemplateManagement.GetDefaultVATProdPostingGroup();
                     CurrPage.Update();
                 end;
             }
@@ -62,7 +66,7 @@ page 2146 "O365 VAT Posting Setup List"
 
     trigger OnOpenPage()
     begin
-        DefaultVATProductPostingGroupCode := O365TemplateManagement.GetDefaultVATProdPostingGroup;
+        DefaultVATProductPostingGroupCode := O365TemplateManagement.GetDefaultVATProdPostingGroup();
     end;
 
     var
@@ -70,4 +74,4 @@ page 2146 "O365 VAT Posting Setup List"
         StyleExpr: Text;
         DefaultVATProductPostingGroupCode: Code[20];
 }
-
+#endif

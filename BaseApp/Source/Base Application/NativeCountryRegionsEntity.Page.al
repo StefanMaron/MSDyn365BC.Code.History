@@ -62,7 +62,7 @@ page 2863 "Native Country/Regions Entity"
     begin
         CountryRegion.SetRange(Code, Code);
         if not CountryRegion.IsEmpty() then
-            Insert;
+            Insert();
 
         Insert(true);
 

@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138918 "O365 VAT Rates"
 {
     Subtype = Test;
@@ -87,7 +88,7 @@ codeunit 138918 "O365 VAT Rates"
         O365VATPostingSetupCard.GotoRecord(VATProductPostingGroup);
         O365VATPostingSetupCard."VAT Percentage".SetValue(VatPerc);
         O365VATPostingSetupCard."VAT Regulation Reference".SetValue(VATRegReference);
-        O365VATPostingSetupCard.Close;
+        O365VATPostingSetupCard.Close();
 
         // [THEN] The VAT Posting Setup and linked VAT CLause are updated
         VATPostingSetup.Get('DOMESTIC', VATProductPostingGroup.Code);
@@ -132,7 +133,7 @@ codeunit 138918 "O365 VAT Rates"
         O365VATPostingSetupCard.DefaultVATGroupTxt.AssertEquals(Format(SetDefaultVATRateTxt));
         O365VATPostingSetupCard.GotoRecord(VATProductPostingGroup);
         O365VATPostingSetupCard.DefaultVATGroupTxt.DrillDown;
-        O365VATPostingSetupCard.Close;
+        O365VATPostingSetupCard.Close();
 
         // [THEN] the page shows that the VAT Rate is default
         O365VATPostingSetupCard.OpenEdit;
@@ -189,7 +190,7 @@ codeunit 138918 "O365 VAT Rates"
     var
         DefaultVATProductPostingGroupCode: Code[20];
     begin
-        DefaultVATProductPostingGroupCode := O365TemplateManagement.GetDefaultVATProdPostingGroup;
+        DefaultVATProductPostingGroupCode := O365TemplateManagement.GetDefaultVATProdPostingGroup();
         VATProductPostingGroup.SetFilter(Code, '<>%1', DefaultVATProductPostingGroupCode);
         VATProductPostingGroup.FindFirst();
     end;
@@ -238,4 +239,4 @@ codeunit 138918 "O365 VAT Rates"
         Assert.Fail('No notification should be thrown.');
     end;
 }
-
+#endif

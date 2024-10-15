@@ -1,4 +1,4 @@
-﻿table 210 "Job Journal Line"
+table 210 "Job Journal Line"
 {
     Caption = 'Job Journal Line';
 
@@ -30,8 +30,8 @@
                     exit;
                 end;
 
-                GetJob;
-                Job.TestBlocked;
+                GetJob();
+                Job.TestBlocked();
                 IsHandled := false;
                 OnValidateJobNoOnBeforeCheckJob(Rec, xRec, Cust, IsHandled);
                 if not IsHandled then begin
@@ -107,7 +107,7 @@
                     "Qty. per Unit of Measure" := 1;
                     "Variant Code" := '';
                     "Work Type Code" := '';
-                    DeleteAmounts;
+                    DeleteAmounts();
                     "Cost Factor" := 0;
                     "Applies-to Entry" := 0;
                     "Applies-from Entry" := 0;
@@ -123,25 +123,25 @@
                         end;
                     end;
                     if "No." = '' then begin
-                        UpdateDimensions;
+                        UpdateDimensions();
                         exit;
                     end;
                 end;
 
                 case Type of
                     Type::Resource:
-                        CopyFromResource;
+                        CopyFromResource();
                     Type::Item:
-                        CopyFromItem;
+                        CopyFromItem();
                     Type::"G/L Account":
-                        CopyFromGLAccount;
+                        CopyFromGLAccount();
                 end;
 
                 IsHandled := false;
                 OnValidateNoOnBeforeValidateQuantity(Rec, IsHandled);
                 if not IsHandled then
                     Validate(Quantity);
-                UpdateDimensions;
+                UpdateDimensions();
             end;
         }
         field(9; Description; Text[100])
@@ -166,14 +166,14 @@
                 Quantity := UOMMgt.RoundAndValidateQty(Quantity, "Qty. Rounding Precision", FieldCaption(Quantity));
 
                 "Quantity (Base)" := CalcBaseQty(Quantity, FieldCaption(Quantity), FieldCaption("Quantity (Base)"));
-                UpdateAllAmounts;
+                UpdateAllAmounts();
 
                 WhseValidateSourceLine.JobJnlLineVerifyChangeForWhsePick(Rec, xRec);
 
                 if "Job Planning Line No." <> 0 then
                     Validate("Job Planning Line No.");
 
-                CheckItemAvailable;
+                CheckItemAvailable();
                 if Type = Type::Item then
                     if Item."Item Tracking Code" <> '' then
                         ReserveJobJnlLine.VerifyQuantity(Rec, xRec);
@@ -198,12 +198,12 @@
                    Item.Get("No.") and
                    (Item."Costing Method" = Item."Costing Method"::Standard)
                 then
-                    UpdateAllAmounts
+                    UpdateAllAmounts()
                 else begin
-                    InitRoundingPrecisions;
+                    InitRoundingPrecisions();
                     "Unit Cost" := ConvertAmountToFCY("Unit Cost (LCY)", UnitAmountRoundingPrecisionFCY);
                     OnValidateUnitCostLCYOnAfterConvertAmountToFCY(Rec);
-                    UpdateAllAmounts;
+                    UpdateAllAmounts();
                 end;
             end;
         }
@@ -221,9 +221,9 @@
 
             trigger OnValidate()
             begin
-                InitRoundingPrecisions;
+                InitRoundingPrecisions();
                 "Unit Price" := ConvertAmountToFCY("Unit Price (LCY)", UnitAmountRoundingPrecisionFCY);
-                UpdateAllAmounts;
+                UpdateAllAmounts();
             end;
         }
         field(16; "Total Price (LCY)"; Decimal)
@@ -425,7 +425,7 @@
             trigger OnValidate()
             begin
                 if (Type = Type::Item) and ("No." <> '') then
-                    UpdateAllAmounts;
+                    UpdateAllAmounts();
             end;
         }
         field(37; "Applies-to Entry"; Integer)
@@ -442,7 +442,7 @@
             var
                 ItemLedgEntry: Record "Item Ledger Entry";
             begin
-                InitRoundingPrecisions;
+                InitRoundingPrecisions();
                 TestField(Type, Type::Item);
                 if "Applies-to Entry" <> 0 then begin
                     ItemLedgEntry.Get("Applies-to Entry");
@@ -453,10 +453,10 @@
                     ItemLedgEntry.TestField(Positive, true);
                     "Location Code" := ItemLedgEntry."Location Code";
                     "Variant Code" := ItemLedgEntry."Variant Code";
-                    GetItem;
+                    GetItem();
                     if Item."Costing Method" <> Item."Costing Method"::Standard then begin
                         "Unit Cost" := ConvertAmountToFCY(CalcUnitCost(ItemLedgEntry), UnitAmountRoundingPrecisionFCY);
-                        UpdateAllAmounts;
+                        UpdateAllAmounts();
                     end;
                 end;
             end;
@@ -644,7 +644,7 @@
                 TestField("Job No.");
                 JobTask.Get("Job No.", "Job Task No.");
                 JobTask.TestField("Job Task Type", JobTask."Job Task Type"::Posting);
-                UpdateDimensions;
+                UpdateDimensions();
             end;
         }
         field(1001; "Total Cost"; Decimal)
@@ -663,7 +663,7 @@
 
             trigger OnValidate()
             begin
-                UpdateAllAmounts;
+                UpdateAllAmounts();
             end;
         }
         field(1003; "Line Type"; Enum "Job Line Type")
@@ -690,7 +690,7 @@
             var
                 ItemLedgEntry: Record "Item Ledger Entry";
             begin
-                InitRoundingPrecisions;
+                InitRoundingPrecisions();
                 TestField(Type, Type::Item);
                 if "Applies-from Entry" <> 0 then begin
                     TestField(Quantity);
@@ -700,7 +700,7 @@
                     ItemLedgEntry.TestField(Positive, false);
                     if Item."Costing Method" <> Item."Costing Method"::Standard then begin
                         "Unit Cost" := ConvertAmountToFCY(CalcUnitCostFrom(ItemLedgEntry), UnitAmountRoundingPrecisionFCY);
-                        UpdateAllAmounts;
+                        UpdateAllAmounts();
                     end;
                 end;
             end;
@@ -718,7 +718,7 @@
 
             trigger OnValidate()
             begin
-                UpdateAllAmounts;
+                UpdateAllAmounts();
             end;
         }
         field(1007; "Line Discount Amount"; Decimal)
@@ -729,7 +729,7 @@
 
             trigger OnValidate()
             begin
-                UpdateAllAmounts;
+                UpdateAllAmounts();
             end;
         }
         field(1008; "Currency Code"; Code[10])
@@ -740,7 +740,7 @@
 
             trigger OnValidate()
             begin
-                UpdateCurrencyFactor;
+                UpdateCurrencyFactor();
             end;
         }
         field(1009; "Line Amount"; Decimal)
@@ -751,7 +751,7 @@
 
             trigger OnValidate()
             begin
-                UpdateAllAmounts;
+                UpdateAllAmounts();
             end;
         }
         field(1010; "Currency Factor"; Decimal)
@@ -765,7 +765,7 @@
             begin
                 if ("Currency Code" = '') and ("Currency Factor" <> 0) then
                     FieldError("Currency Factor", StrSubstNo(Text001, FieldCaption("Currency Code")));
-                UpdateAllAmounts;
+                UpdateAllAmounts();
             end;
         }
         field(1011; "Unit Cost"; Decimal)
@@ -776,7 +776,7 @@
 
             trigger OnValidate()
             begin
-                UpdateAllAmounts;
+                UpdateAllAmounts();
             end;
         }
         field(1012; "Line Amount (LCY)"; Decimal)
@@ -787,9 +787,9 @@
 
             trigger OnValidate()
             begin
-                InitRoundingPrecisions;
+                InitRoundingPrecisions();
                 "Line Amount" := ConvertAmountToFCY("Line Amount (LCY)", AmountRoundingPrecisionFCY);
-                UpdateAllAmounts;
+                UpdateAllAmounts();
             end;
         }
         field(1013; "Line Discount Amount (LCY)"; Decimal)
@@ -800,9 +800,9 @@
 
             trigger OnValidate()
             begin
-                InitRoundingPrecisions;
+                InitRoundingPrecisions();
                 "Line Discount Amount" := ConvertAmountToFCY("Line Discount Amount (LCY)", AmountRoundingPrecisionFCY);
-                UpdateAllAmounts;
+                UpdateAllAmounts();
             end;
         }
         field(1014; "Total Price"; Decimal)
@@ -867,7 +867,7 @@
                 WhseValidateSourceLine: Codeunit "Whse. Validate Source Line";
             begin
                 if "Job Planning Line No." <> 0 then begin
-                    ValidateJobPlanningLineLink;
+                    ValidateJobPlanningLineLink();
                     JobPlanningLine.Get("Job No.", "Job Task No.", "Job Planning Line No.");
 
                     JobPlanningLine.TestField("Job No.", "Job No.");
@@ -903,16 +903,15 @@
                     if JobPlanningLine.Quantity >= 0 then begin
                         if "Remaining Qty." < 0 then
                             "Remaining Qty." := 0;
-                    end else begin
+                    end else
                         if "Remaining Qty." > 0 then
                             "Remaining Qty." := 0;
-                    end;
 
                     "Remaining Qty. (Base)" := CalcBaseQtyForJobPlanningLine("Remaining Qty.", FieldCaption("Remaining Qty."), FieldCaption("Remaining Qty. (Base)"), JobPlanningLine);
                 end else
                     "Remaining Qty. (Base)" := CalcBaseQty("Remaining Qty.", FieldCaption("Remaining Qty."), FieldCaption("Remaining Qty. (Base)"));
 
-                 CheckItemAvailable;
+                CheckItemAvailable();
             end;
         }
         field(1031; "Remaining Qty. (Base)"; Decimal)
@@ -943,7 +942,7 @@
                         Item.Get("No.");
                         Description := Item.Description;
                         "Description 2" := Item."Description 2";
-                        GetItemTranslation;
+                        GetItemTranslation();
                     end;
                     exit;
                 end;
@@ -982,7 +981,7 @@
                 TestField(Type, Type::Item);
                 GetItem();
                 Item.TestField(Type, Item.Type::Inventory);
-                CheckItemAvailable;
+                CheckItemAvailable();
                 FindBinContent();
             end;
         }
@@ -1109,7 +1108,6 @@
     end;
 
     var
-        Text000: Label 'You cannot change %1 when %2 is %3.';
         Location: Record Location;
         Item: Record Item;
         Res: Record Resource;
@@ -1132,9 +1130,6 @@
         ReserveJobJnlLine: Codeunit "Job Jnl. Line-Reserve";
         WMSManagement: Codeunit "WMS Management";
         DontCheckStandardCost: Boolean;
-        Text001: Label 'cannot be specified without %1';
-        Text002: Label 'must be positive';
-        Text003: Label 'must be negative';
         HasGotGLSetup: Boolean;
         CurrencyDate: Date;
         UnitAmountRoundingPrecision: Decimal;
@@ -1142,6 +1137,11 @@
         UnitAmountRoundingPrecisionFCY: Decimal;
         AmountRoundingPrecisionFCY: Decimal;
         CheckedAvailability: Boolean;
+
+        Text000: Label 'You cannot change %1 when %2 is %3.';
+        Text001: Label 'cannot be specified without %1';
+        Text002: Label 'must be positive';
+        Text003: Label 'must be negative';
         Text004: Label '%1 is only editable when a %2 is defined.';
         Text006: Label '%1 cannot be changed when %2 is set.';
         Text007: Label '%1 %2 is already linked to %3 %4. Hence %5 cannot be calculated correctly. Posting the line may update the linked %3 unexpectedly. Do you want to continue?', Comment = 'Job Journal Line job DEFAULT 30000 is already linked to Job Planning Line  DEERFIELD, 8 WP 1120 10000. Hence Remaining Qty. cannot be calculated correctly. Posting the line may update the linked %3 unexpectedly. Do you want to continue?';
@@ -1153,7 +1153,7 @@
     local procedure CalcQtyFromBaseQty(BaseQty: Decimal): Decimal
     begin
         TestField("Qty. per Unit of Measure");
-        exit(Round(BaseQty / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision));
+        exit(Round(BaseQty / "Qty. per Unit of Measure", UOMMgt.QtyRndPrecision()));
     end;
 
     local procedure CopyFromResource()
@@ -1213,14 +1213,14 @@
         IsHandled := false;
         OnBeforeCopyFromItem(Rec, Item, IsHandled);
         if not IsHandled then begin
-            GetItem;
+            GetItem();
             Item.TestField(Blocked, false);
             OnCopyFromItemOnAfterCheckItem(Rec, Item);
             Description := Item.Description;
             "Description 2" := Item."Description 2";
-            GetJob;
+            GetJob();
             if Job."Language Code" <> '' then
-                GetItemTranslation;
+                GetItemTranslation();
             "Posting Group" := Item."Inventory Posting Group";
             "Gen. Prod. Posting Group" := Item."Gen. Prod. Posting Group";
             Validate("Unit of Measure Code", Item."Base Unit of Measure");
@@ -1237,7 +1237,7 @@
         OnBeforeCopyFromGLAccount(Rec, GLAcc, CurrFieldNo, IsHandled);
         if not IsHandled then begin
             GLAcc.Get("No.");
-            GLAcc.CheckGLAcc;
+            GLAcc.CheckGLAcc();
             GLAcc.TestField("Direct Posting", true);
             Description := GLAcc.Name;
             "Gen. Bus. Posting Group" := GLAcc."Gen. Bus. Posting Group";
@@ -1280,7 +1280,7 @@
                         exit;
                 end;
             if ItemCheckAvail.ItemJnlCheckLine(ItemJnlLine) then
-                ItemCheckAvail.RaiseUpdateInterruptedError;
+                ItemCheckAvail.RaiseUpdateInterruptedError();
             CheckedAvailability := true;
         end;
     end;
@@ -1319,8 +1319,8 @@
             Type := LastJobJnlLine.Type;
             Validate("Line Type", LastJobJnlLine."Line Type");
         end else begin
-            "Posting Date" := WorkDate;
-            "Document Date" := WorkDate;
+            "Posting Date" := WorkDate();
+            "Document Date" := WorkDate();
             if JobSetup."Document No. Is Job No." then begin
                 if "Document No." = '' then
                     "Document No." := Rec."Job No.";
@@ -1440,7 +1440,7 @@
     begin
         if "Currency Code" <> '' then begin
             if "Posting Date" = 0D then
-                CurrencyDate := WorkDate
+                CurrencyDate := WorkDate()
             else
                 CurrencyDate := "Posting Date";
             OnUpdateCurrencyFactorOnBeforeGetExchangeRate(Rec, CurrExchRate);
@@ -1496,7 +1496,7 @@
            (UnitAmountRoundingPrecisionFCY = 0)
         then begin
             Clear(Currency);
-            Currency.InitRoundingPrecision;
+            Currency.InitRoundingPrecision();
             AmountRoundingPrecision := Currency."Amount Rounding Precision";
             UnitAmountRoundingPrecision := Currency."Unit-Amount Rounding Precision";
 
@@ -1603,7 +1603,7 @@
 
     procedure GetItemTranslation()
     begin
-        GetJob;
+        GetJob();
         if ItemTranslation.Get("No.", "Variant Code", Job."Language Code") then begin
             Description := ItemTranslation.Description;
             "Description 2" := ItemTranslation."Description 2";
@@ -1640,7 +1640,7 @@
     begin
         ReservEntry.InitSortingAndFilters(false);
         SetReservationFilters(ReservEntry);
-        ReservEntry.ClearTrackingFilter;
+        ReservEntry.ClearTrackingFilter();
         exit(not ReservEntry.IsEmpty);
     end;
 
@@ -1652,15 +1652,15 @@
         OnBeforeUpdateAllAmounts(Rec, xRec, CurrFieldNo, IsHandled);
         if IsHandled then
             exit;
-        InitRoundingPrecisions;
+        InitRoundingPrecisions();
 
-        UpdateUnitCost;
+        UpdateUnitCost();
         FindPriceAndDiscount(CurrFieldNo);
-        UpdateTotalCost;
-        HandleCostFactor;
-        UpdateUnitPrice;
-        UpdateTotalPrice;
-        UpdateAmountsAndDiscounts;
+        UpdateTotalCost();
+        HandleCostFactor();
+        UpdateUnitPrice();
+        UpdateTotalPrice();
+        UpdateAmountsAndDiscounts();
 
         OnAfterUpdateAllAmounts(Rec, xRec);
     end;
@@ -1677,7 +1677,7 @@
 
         if (Type = Type::Item) and Item.Get("No.") then begin
             if Item."Costing Method" = Item."Costing Method"::Standard then begin
-                if not DontCheckStandardCost then begin
+                if not DontCheckStandardCost then
                     // Prevent manual change of unit cost on items with standard cost
                     if (("Unit Cost" <> xRec."Unit Cost") or ("Unit Cost (LCY)" <> xRec."Unit Cost (LCY)")) and
                        (("No." = xRec."No.") and ("Location Code" = xRec."Location Code") and
@@ -1686,22 +1686,20 @@
                         Error(
                           Text000,
                           FieldCaption("Unit Cost"), Item.FieldCaption("Costing Method"), Item."Costing Method");
-                end;
                 if RetrieveCostPrice(CurrFieldNo) then begin
-                    if GetSKU then
+                    if GetSKU() then
                         "Unit Cost (LCY)" := Round(SKU."Unit Cost" * "Qty. per Unit of Measure", UnitAmountRoundingPrecision)
                     else
                         "Unit Cost (LCY)" := Round(Item."Unit Cost" * "Qty. per Unit of Measure", UnitAmountRoundingPrecision);
                     "Unit Cost" := ConvertAmountToFCY("Unit Cost (LCY)", UnitAmountRoundingPrecisionFCY);
-                end else begin
+                end else
                     if "Unit Cost" <> xRec."Unit Cost" then
                         "Unit Cost (LCY)" := ConvertAmountToLCY("Unit Cost", UnitAmountRoundingPrecision)
                     else
                         "Unit Cost" := ConvertAmountToFCY("Unit Cost (LCY)", UnitAmountRoundingPrecisionFCY);
-                end;
-            end else begin
+            end else
                 if RetrieveCostPrice(CurrFieldNo) then begin
-                    if GetSKU then
+                    if GetSKU() then
                         RetrievedCost := SKU."Unit Cost" * "Qty. per Unit of Measure"
                     else
                         RetrievedCost := Item."Unit Cost" * "Qty. per Unit of Measure";
@@ -1709,7 +1707,6 @@
                     "Unit Cost (LCY)" := Round(RetrievedCost, UnitAmountRoundingPrecision);
                 end else
                     "Unit Cost (LCY)" := ConvertAmountToLCY("Unit Cost", UnitAmountRoundingPrecision);
-            end;
         end else
             "Unit Cost (LCY)" := ConvertAmountToLCY("Unit Cost", UnitAmountRoundingPrecision);
 
@@ -1861,13 +1858,14 @@
         end;
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     procedure AfterResourceFindCost(var ResourceCost: Record "Resource Cost")
     begin
         OnAfterResourceFindCost(Rec, ResourceCost);
     end;
 #endif
+
     procedure ApplyPrice(PriceType: enum "Price Type"; CalledByFieldNo: Integer)
     var
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
@@ -2008,7 +2006,7 @@
                 if not Confirm(Text007, false,
                      TableCaption,
                      StrSubstNo('%1, %2, %3', "Journal Template Name", "Journal Batch Name", "Line No."),
-                     JobPlanningLine.TableCaption,
+                     JobPlanningLine.TableCaption(),
                      StrSubstNo('%1, %2, %3', JobPlanningLine."Job No.", JobPlanningLine."Job Task No.", JobPlanningLine."Line No."),
                      FieldCaption("Remaining Qty."))
                 then
@@ -2074,8 +2072,8 @@
             exit(false);
         if "No." = '' then
             exit(false);
-        GetItem;
-        exit(Item.IsNonInventoriableType);
+        GetItem();
+        exit(Item.IsNonInventoriableType());
     end;
 
     procedure IsInventoriableItem(): Boolean
@@ -2084,8 +2082,8 @@
             exit(false);
         if "No." = '' then
             exit(false);
-        GetItem;
-        exit(Item.IsInventoriableType);
+        GetItem();
+        exit(Item.IsInventoriableType());
     end;
 
     procedure RowID1(): Text[250]
@@ -2237,13 +2235,14 @@
     begin
     end;
 
-#if not CLEAN19
+#if not CLEAN21
     [Obsolete('Replaced by the new implementation (V16) of price calculation.', '17.0')]
     [IntegrationEvent(false, false)]
     local procedure OnAfterResourceFindCost(var JobJournalLine: Record "Job Journal Line"; var ResourceCost: Record "Resource Cost")
     begin
     end;
 #endif
+
     [IntegrationEvent(false, false)]
     local procedure OnAfterSetUpNewLine(var JobJournalLine: Record "Job Journal Line"; LastJobJournalLine: Record "Job Journal Line"; JobJournalTemplate: Record "Job Journal Template"; JobJournalBatch: Record "Job Journal Batch")
     begin
@@ -2497,12 +2496,12 @@
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeUpdateDimensions(var JobJournalLine: Record "Job Journal Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
+    local procedure OnValidateUnitCostLCYOnAfterConvertAmountToFCY(var JobJournalLine: Record "Job Journal Line")
     begin
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnValidateUnitCostLCYOnAfterConvertAmountToFCY(var JobJournalLine: Record "Job Journal Line")
+    local procedure OnBeforeUpdateDimensions(var JobJournalLine: Record "Job Journal Line"; CurrentFieldNo: Integer; var IsHandled: Boolean)
     begin
     end;
 }

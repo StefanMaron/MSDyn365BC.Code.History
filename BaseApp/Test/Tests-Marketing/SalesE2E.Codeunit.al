@@ -264,8 +264,8 @@ codeunit 134640 "Sales E2E"
     [Scope('OnPrem')]
     procedure StandardStatementSetRequestOptions(var StandardStatement: TestRequestPage "Standard Statement")
     begin
-        StandardStatement."Start Date".SetValue(CalcDate('<-CY>', WorkDate));
-        StandardStatement."End Date".SetValue(CalcDate('<CY>', WorkDate));
+        StandardStatement."Start Date".SetValue(CalcDate('<-CY>', WorkDate()));
+        StandardStatement."End Date".SetValue(CalcDate('<CY>', WorkDate()));
         StandardStatement.IncludeAllCustomerswithLE.SetValue(true);
         StandardStatement.Customer.SetFilter("No.", LibraryVariableStorage.DequeueText);
         StandardStatement.ReportOutput.SetValue('Preview');

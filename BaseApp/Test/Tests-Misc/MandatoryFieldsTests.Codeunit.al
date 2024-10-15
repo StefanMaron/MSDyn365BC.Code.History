@@ -47,7 +47,7 @@ codeunit 134590 "Mandatory Fields Tests"
         Assert.IsTrue(ItemCard."Gen. Prod. Posting Group".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(ItemCard."VAT Prod. Posting Group".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(ItemCard."Inventory Posting Group".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        ItemCard.Close;
+        ItemCard.Close();
     end;
 
     [Test]
@@ -67,7 +67,7 @@ codeunit 134590 "Mandatory Fields Tests"
         Assert.IsTrue(CustomerCard."Customer Posting Group".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(CustomerCard."Payment Terms Code".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsFalse(CustomerCard."Tax Area Code".ShowMandatory(), UnexpectedShowMandatoryValueTxt);
-        CustomerCard.Close;
+        CustomerCard.Close();
     end;
 
     [Test]
@@ -86,7 +86,7 @@ codeunit 134590 "Mandatory Fields Tests"
         Assert.IsFalse(VendorCard."VAT Bus. Posting Group".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsTrue(VendorCard."Vendor Posting Group".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsFalse(VendorCard."Tax Area Code".ShowMandatory(), UnexpectedShowMandatoryValueTxt);
-        VendorCard.Close;
+        VendorCard.Close();
     end;
 
     [Test]
@@ -160,7 +160,7 @@ codeunit 134590 "Mandatory Fields Tests"
         Assert.IsTrue(Reminder.ReminderLines."No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsFalse(Reminder.ReminderLines."Document Type".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsFalse(Reminder.ReminderLines."Document No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        Reminder.Close;
+        Reminder.Close();
     end;
 
     [Test]
@@ -194,7 +194,7 @@ codeunit 134590 "Mandatory Fields Tests"
         Assert.IsTrue(FinanceChargeMemo.FinChrgMemoLines."No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsFalse(FinanceChargeMemo.FinChrgMemoLines."Document Type".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsFalse(FinanceChargeMemo.FinChrgMemoLines."Document No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        FinanceChargeMemo.Close;
+        FinanceChargeMemo.Close();
     end;
 
     [Test]
@@ -228,7 +228,7 @@ codeunit 134590 "Mandatory Fields Tests"
         CompanyInformation.IBAN.SetValue('DK44 0123 3176 0000 00');
         Assert.IsFalse(CompanyInformation."Bank Branch No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.IsFalse(CompanyInformation."Bank Account No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        CompanyInformation.Close;
+        CompanyInformation.Close();
     end;
 
     local procedure VerifyMandatoryFieldsOnSalesInvoice(Customer: Record Customer)
@@ -253,15 +253,15 @@ codeunit 134590 "Mandatory Fields Tests"
             UnexpectedShowMandatoryValueTxt);
         SalesInvoice.SalesLines.FilteredTypeField.SetValue(SalesLine.Type::Item);
         Assert.IsTrue(SalesInvoice.SalesLines."No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        SalesInvoice.SalesLines.FilteredTypeField.SetValue(SalesLine.FormatType);
+        SalesInvoice.SalesLines.FilteredTypeField.SetValue(SalesLine.FormatType());
         Assert.IsFalse(SalesInvoice.SalesLines."No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        SalesInvoice.Close;
+        SalesInvoice.Close();
 
         // verify that external document number is not mandatory if you specify so in the setup
         SetExternalDocNoMandatory(false);
         SalesInvoice.OpenNew();
         Assert.IsFalse(SalesInvoice."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        SalesInvoice.Close;
+        SalesInvoice.Close();
     end;
 
     local procedure VerifyMandatoryFieldsOnSalesOrder(Customer: Record Customer)
@@ -286,15 +286,15 @@ codeunit 134590 "Mandatory Fields Tests"
             UnexpectedShowMandatoryValueTxt);
         SalesOrder.SalesLines.FilteredTypeField.SetValue(SalesLine.Type::Item);
         Assert.IsTrue(SalesOrder.SalesLines."No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        SalesOrder.SalesLines.FilteredTypeField.SetValue(SalesLine.FormatType);
+        SalesOrder.SalesLines.FilteredTypeField.SetValue(SalesLine.FormatType());
         Assert.IsFalse(SalesOrder.SalesLines."No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        SalesOrder.Close;
+        SalesOrder.Close();
 
         // verify that external document number is not mandatory if you specify so in the setup
         SetExternalDocNoMandatory(false);
         SalesOrder.OpenNew();
         Assert.IsFalse(SalesOrder."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        SalesOrder.Close;
+        SalesOrder.Close();
     end;
 
     local procedure VerifyMandatoryFieldsOnSalesReturnOrder(Customer: Record Customer)
@@ -315,7 +315,7 @@ codeunit 134590 "Mandatory Fields Tests"
         Assert.IsTrue(SalesReturnOrder.SalesLines."Unit Price".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         Assert.AreEqual(Customer."Tax Area Code" <> '', SalesReturnOrder.SalesLines."Tax Group Code".ShowMandatory(),
             UnexpectedShowMandatoryValueTxt);
-        SalesReturnOrder.Close;
+        SalesReturnOrder.Close();
     end;
 
     local procedure VerifyMandatoryFieldsOnSalesQuote(Customer: Record Customer)
@@ -338,9 +338,9 @@ codeunit 134590 "Mandatory Fields Tests"
             UnexpectedShowMandatoryValueTxt);
         SalesQuote.SalesLines.FilteredTypeField.SetValue(SalesLine.Type::Item);
         Assert.IsTrue(SalesQuote.SalesLines."No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        SalesQuote.SalesLines.FilteredTypeField.SetValue(SalesLine.FormatType);
+        SalesQuote.SalesLines.FilteredTypeField.SetValue(SalesLine.FormatType());
         Assert.IsFalse(SalesQuote.SalesLines."No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        SalesQuote.Close;
+        SalesQuote.Close();
     end;
 
     local procedure VerifyMandatoryFieldsOnSalesCreditMemo(Customer: Record Customer)
@@ -364,15 +364,15 @@ codeunit 134590 "Mandatory Fields Tests"
             UnexpectedShowMandatoryValueTxt);
         SalesCreditMemo.SalesLines.FilteredTypeField.SetValue(SalesLine.Type::Item);
         Assert.IsTrue(SalesCreditMemo.SalesLines."No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        SalesCreditMemo.SalesLines.FilteredTypeField.SetValue(SalesLine.FormatType);
+        SalesCreditMemo.SalesLines.FilteredTypeField.SetValue(SalesLine.FormatType());
         Assert.IsFalse(SalesCreditMemo.SalesLines."No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
 
         // verify that external document number is not mandatory if you specify so in the setup
         SetExternalDocNoMandatory(false);
         SalesCreditMemo.OpenNew();
         Assert.IsFalse(SalesCreditMemo."External Document No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        SalesCreditMemo.Close;
+        SalesCreditMemo.Close();
     end;
 
     local procedure VerifyMandatoryFieldsOnPurchaseInvoice(Vendor: Record Vendor)
@@ -397,15 +397,15 @@ codeunit 134590 "Mandatory Fields Tests"
             UnexpectedShowMandatoryValueTxt);
         PurchaseInvoice.PurchLines.FilteredTypeField.SetValue(PurchaseLine.Type::Item);
         Assert.IsTrue(PurchaseInvoice.PurchLines."No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        PurchaseInvoice.PurchLines.FilteredTypeField.SetValue(PurchaseLine.FormatType);
+        PurchaseInvoice.PurchLines.FilteredTypeField.SetValue(PurchaseLine.FormatType());
         Assert.IsFalse(PurchaseInvoice.PurchLines."No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
 
         // verify that external document number is not mandatory if you specify so in the setup
         SetVendorInvoiceNoMandatory(false);
         PurchaseInvoice.OpenNew();
         Assert.IsFalse(PurchaseInvoice."Vendor Invoice No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
     end;
 
     local procedure VerifyMandatoryFieldsOnPurchaseOrder(Vendor: Record Vendor)
@@ -428,15 +428,15 @@ codeunit 134590 "Mandatory Fields Tests"
         Assert.IsTrue(PurchaseOrder.PurchLines."Direct Unit Cost".ShowMandatory, UnexpectedShowMandatoryValueTxt);
         PurchaseOrder.PurchLines.FilteredTypeField.SetValue(PurchaseLine.Type::Item);
         Assert.IsTrue(PurchaseOrder.PurchLines."No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        PurchaseOrder.PurchLines.FilteredTypeField.SetValue(PurchaseLine.FormatType);
+        PurchaseOrder.PurchLines.FilteredTypeField.SetValue(PurchaseLine.FormatType());
         Assert.IsFalse(PurchaseOrder.PurchLines."No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
 
         // verify that external document number is not mandatory if you specify so in the setup
         SetVendorInvoiceNoMandatory(false);
         PurchaseOrder.OpenNew();
         Assert.IsFalse(PurchaseOrder."Vendor Invoice No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
     end;
 
     local procedure VerifyMandatoryFieldsOnPurchaseCreditMemo(Vendor: Record Vendor)
@@ -462,9 +462,9 @@ codeunit 134590 "Mandatory Fields Tests"
             UnexpectedShowMandatoryValueTxt);
         PurchaseCreditMemo.PurchLines.FilteredTypeField.SetValue(PurchaseLine.Type::Item);
         Assert.IsTrue(PurchaseCreditMemo.PurchLines."No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        PurchaseCreditMemo.PurchLines.FilteredTypeField.SetValue(PurchaseLine.FormatType);
+        PurchaseCreditMemo.PurchLines.FilteredTypeField.SetValue(PurchaseLine.FormatType());
         Assert.IsFalse(PurchaseCreditMemo.PurchLines."No.".ShowMandatory, UnexpectedShowMandatoryValueTxt);
-        PurchaseCreditMemo.Close;
+        PurchaseCreditMemo.Close();
     end;
 
     local procedure SetVendorInvoiceNoMandatory(VendorInvoiceNoMandatory: Boolean)

@@ -60,7 +60,7 @@ page 6032 "Service Shipment Statistics"
     var
         IsHandled: Boolean;
     begin
-        ClearAll;
+        ClearAll();
 
         IsHandled := false;
         OnAfterGetRecordOnAfterClearAll(Rec, LineQty, TotalNetWeight, TotalGrossWeight, TotalVolume, TotalParcels, IsHandled);

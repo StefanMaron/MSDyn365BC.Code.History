@@ -27,12 +27,12 @@ page 1600 "Outlook Mail Engine"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the display name of the Outlook contact.';
                 }
-                field("Document Type"; "Document Type")
+                field("Document Type"; Rec."Document Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type that the involved document belongs to.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the involved document.';
@@ -41,7 +41,7 @@ page 1600 "Outlook Mail Engine"
                 {
                     ApplicationArea = Basic, Suite;
                 }
-                field("Contact No."; "Contact No.")
+                field("Contact No."; Rec."Contact No.")
                 {
                     ApplicationArea = Basic, Suite;
                 }
@@ -61,12 +61,12 @@ page 1600 "Outlook Mail Engine"
         [RunOnClient]
         OfficeHost: DotNet OfficeHost;
     begin
-        if OfficeHost.IsAvailable then begin
-            OfficeHost := OfficeHost.Create;
+        if OfficeHost.IsAvailable() then begin
+            OfficeHost := OfficeHost.Create();
             OfficeMgt.InitializeHost(OfficeHost, OfficeHost.HostType);
         end;
 
-        GetDetailsFromFilters;
+        GetDetailsFromFilters();
         SendTelemetryOnAddinStarted();
 
         if Email = 'donotreply@contoso.com' then
@@ -74,8 +74,8 @@ page 1600 "Outlook Mail Engine"
         else
             OfficeMgt.InitializeContext(Rec);
 
-        CurrPage.Close;
-        OfficeMgt.CloseEnginePage;
+        CurrPage.Close();
+        OfficeMgt.CloseEnginePage();
     end;
 
     var
@@ -106,7 +106,7 @@ page 1600 "Outlook Mail Engine"
         Filter := FieldRef.GetFilter;
         Filter := FilterPrefixRegEx.Replace(Filter, '$1');
         Filter := SingleQuoteRegEx.Replace(Filter, '$1');
-        if Filter <> '' then begin
+        if Filter <> '' then
             if FieldRef.Type = FieldType::Option then
                 while true do begin
                     OptionValue += 1;
@@ -117,7 +117,6 @@ page 1600 "Outlook Mail Engine"
                 end
             else
                 FieldRef.Value(Filter);
-        end;
     end;
 
     local procedure SendTelemetryOnAddinStarted()

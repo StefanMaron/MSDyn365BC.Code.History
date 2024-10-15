@@ -30,13 +30,13 @@ page 369 "Order Address List"
                     ToolTip = 'Specifies the order address.';
                     Visible = false;
                 }
-                field("Address 2"; "Address 2")
+                field("Address 2"; Rec."Address 2")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies additional address information.';
                     Visible = false;
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postal code.';
@@ -52,19 +52,19 @@ page 369 "Order Address List"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the county of the order address.';
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the country/region of the address.';
                     Visible = false;
                 }
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the telephone number that is associated with the order address.';
                     Visible = false;
                 }
-                field("Fax No."; "Fax No.")
+                field("Fax No."; Rec."Fax No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the fax number associated with the address.';
@@ -113,7 +113,7 @@ page 369 "Order Address List"
 
                     trigger OnAction()
                     begin
-                        DisplayMap;
+                        DisplayMap();
                     end;
                 }
             }

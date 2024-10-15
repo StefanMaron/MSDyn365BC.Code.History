@@ -932,7 +932,7 @@ codeunit 134380 "ERM Dimension"
             DimensionValueList.FILTER.SetFilter("Global Dimension No.", Format(I));
             Assert.ExpectedMessage(GetShortcutDimCode(I), DimensionValueList.Caption);
         end;
-        DimensionValueList.Close;
+        DimensionValueList.Close();
     end;
 
     [Test]
@@ -1087,7 +1087,7 @@ codeunit 134380 "ERM Dimension"
         LibraryPurchase.CreateVendor(Vendor);
         GeneralJournal."Account No.".SetValue(Vendor."No.");
         DocumentNo := GeneralJournal."Document No.".Value;
-        GeneralJournal.Close;
+        GeneralJournal.Close();
 
         GenJournalLine.SetRange("Journal Template Name", GenJournalBatch."Journal Template Name");
         GenJournalLine.SetRange("Journal Batch Name", GenJournalBatch.Name);
@@ -1123,11 +1123,11 @@ codeunit 134380 "ERM Dimension"
     begin
         with TempDimSetEntry do begin
             ;
-            Init;
+            Init();
             "Dimension Code" := DimensionValue."Dimension Code";
             "Dimension Value Code" := DimensionValue.Code;
             "Dimension Value ID" := DimensionValue."Dimension Value ID";
-            Insert;
+            Insert();
         end;
 
         exit(DimMgt.GetDimensionSetID(TempDimSetEntry));
@@ -1205,7 +1205,7 @@ codeunit 134380 "ERM Dimension"
         repeat
             TempAllObj."Object ID" := Field.TableNo;
             if TempAllObj.Insert() then;
-        until Field.Next = 0;
+        until Field.Next() = 0;
         exit(TempAllObj.Count);
     end;
 

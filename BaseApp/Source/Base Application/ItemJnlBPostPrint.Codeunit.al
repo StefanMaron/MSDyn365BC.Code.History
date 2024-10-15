@@ -5,15 +5,11 @@ codeunit 244 "Item Jnl.-B.Post+Print"
     trigger OnRun()
     begin
         ItemJnlBatch.Copy(Rec);
-        Code;
+        Code();
         Rec := ItemJnlBatch;
     end;
 
     var
-        Text000: Label 'Do you want to post the journals and print the posting report?';
-        Text001: Label 'The journals were successfully posted.';
-        Text002: Label 'It was not possible to post all of the journals. ';
-        Text003: Label 'The journals that were not successfully posted are now marked.';
         ItemJnlTemplate: Record "Item Journal Template";
         ItemJnlBatch: Record "Item Journal Batch";
         ItemJnlLine: Record "Item Journal Line";
@@ -21,6 +17,11 @@ codeunit 244 "Item Jnl.-B.Post+Print"
         WhseReg: Record "Warehouse Register";
         ItemJnlPostBatch: Codeunit "Item Jnl.-Post Batch";
         JnlWithErrors: Boolean;
+
+        Text000: Label 'Do you want to post the journals and print the posting report?';
+        Text001: Label 'The journals were successfully posted.';
+        Text002: Label 'It was not possible to post all of the journals. ';
+        Text003: Label 'The journals that were not successfully posted are now marked.';
 
     local procedure "Code"()
     var
@@ -64,7 +65,7 @@ codeunit 244 "Item Jnl.-B.Post+Print"
                   Text003);
 
             if not Find('=><') then begin
-                Reset;
+                Reset();
                 Name := '';
             end;
         end;

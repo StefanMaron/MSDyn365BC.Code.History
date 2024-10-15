@@ -47,7 +47,7 @@ table 5104 "Segment Interaction Language"
                     if SegHeader."Subject (Default)" = xRec.Subject then begin
                         SegHeader."Subject (Default)" := Subject;
                         SegHeader.Modify();
-                        Modify;
+                        Modify();
                     end;
 
                 if not UpdateLines then
@@ -188,7 +188,7 @@ table 5104 "Segment Interaction Language"
             if SegLine.Find('-') then
                 repeat
                     if FirstSegIntLanguage then begin
-                        if SegLine.AttachmentInherited or
+                        if SegLine.AttachmentInherited() or
                            (SegLine."Attachment No." = 0)
                         then begin
                             SegLine."Language Code" := Rec."Language Code";
@@ -198,7 +198,7 @@ table 5104 "Segment Interaction Language"
                             SegLine.Modify();
                         end
                     end else
-                        if SegLine.AttachmentInherited or (SegLine."Attachment No." = 0) then
+                        if SegLine.AttachmentInherited() or (SegLine."Attachment No." = 0) then
                             if Cont.Get(SegLine."Contact No.") then
                                 if Cont."Language Code" = "Language Code" then begin
                                     SegLine."Language Code" := Rec."Language Code";
@@ -249,7 +249,7 @@ table 5104 "Segment Interaction Language"
             SegLine.SetRange("Interaction Template Code", SegHeader."Interaction Template Code");
             if SegLine.Find('-') then
                 repeat
-                    if SegLine.AttachmentInherited or (SegLine."Attachment No." = 0) then
+                    if SegLine.AttachmentInherited() or (SegLine."Attachment No." = 0) then
                         if Cont.Get(SegLine."Contact No.") then
                             if Cont."Language Code" = Rec."Language Code" then begin
                                 SegLine."Language Code" := Rec."Language Code";
@@ -292,14 +292,14 @@ table 5104 "Segment Interaction Language"
             RemoveAttachment(false);
         end;
 
-        if ClientTypeManagement.GetCurrentClientType in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop] then
+        if ClientTypeManagement.GetCurrentClientType() in [CLIENTTYPE::Web, CLIENTTYPE::Tablet, CLIENTTYPE::Phone, CLIENTTYPE::Desktop] then
             if Attachment.ImportAttachmentFromClientFile('', false, true) then
                 NewAttachmentNo := Attachment."No.";
 
         if NewAttachmentNo <> 0 then begin
             "Attachment No." := NewAttachmentNo;
             if SegInteractLanguage.Get("Segment No.", "Segment Line No.", "Language Code") then
-                Modify
+                Modify()
             else
                 Insert(true);
             UpdateSegLineAttachment(0);
@@ -338,7 +338,7 @@ table 5104 "Segment Interaction Language"
             NewAttachNo := AttachmentManagement.InsertAttachment(SegInteractLanguage."Attachment No.");
             if NewAttachNo <> 0 then begin
                 "Attachment No." := NewAttachNo;
-                Modify;
+                Modify();
                 UpdateSegLineAttachment(0);
             end;
         end;
@@ -357,7 +357,7 @@ table 5104 "Segment Interaction Language"
 
         if Attachment.ImportAttachmentFromClientFile('', false, false) then begin
             "Attachment No." := Attachment."No.";
-            Modify;
+            Modify();
             UpdateSegLineAttachment(0);
         end else
             Error(Text002);
@@ -386,7 +386,7 @@ table 5104 "Segment Interaction Language"
         if Attachment.Get("Attachment No.") and (not Attachment."Read Only") then
             if Attachment.RemoveAttachment(Prompt) then begin
                 "Attachment No." := 0;
-                Modify;
+                Modify();
             end;
         UpdateSegLineAttachment(OldAttachmentNo);
     end;

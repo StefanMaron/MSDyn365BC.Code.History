@@ -504,7 +504,7 @@ codeunit 144028 "UT REP UKGEN"
             "Document No." := DocumentNo;
             Type := Type::Item;
             "No." := LibraryUTUtility.GetNewCode;
-            Insert;
+            Insert();
         end;
     end;
 
@@ -513,10 +513,10 @@ codeunit 144028 "UT REP UKGEN"
         CountryRegion: Record "Country/Region";
     begin
         with CountryRegion do begin
-            Init;
+            Init();
             Code := LibraryUTUtility.GetNewCode10;
             "Address Format" := "Address Format"::"Post Code+City";
-            Insert;
+            Insert();
             exit(Code);
         end;
     end;
@@ -570,9 +570,9 @@ codeunit 144028 "UT REP UKGEN"
         PurchasesPayablesSetup: Record "Purchases & Payables Setup";
     begin
         with PurchasesPayablesSetup do begin
-            Get;
+            Get();
             "Archive Orders" := ArchiveOrders;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -581,9 +581,9 @@ codeunit 144028 "UT REP UKGEN"
         SalesReceivablesSetup: Record "Sales & Receivables Setup";
     begin
         with SalesReceivablesSetup do begin
-            Get;
+            Get();
             "Archive Orders" := ArchiveOrders;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -592,9 +592,9 @@ codeunit 144028 "UT REP UKGEN"
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
         with GeneralLedgerSetup do begin
-            Get;
+            Get();
             "Local Address Format" := AddressFormat;
-            Modify;
+            Modify();
         end;
     end;
 
@@ -603,9 +603,9 @@ codeunit 144028 "UT REP UKGEN"
         CompanyInformation: Record "Company Information";
     begin
         with CompanyInformation do begin
-            Get;
+            Get();
             "Post Code" := PostCode;
-            Modify;
+            Modify();
         end;
     end;
 

@@ -73,7 +73,7 @@ codeunit 134037 "ERM Date Compression GL Budget"
         if GLBudgetEntry.FindSet() then
             repeat
                 GLBudgetEntry.Date := DMY2Date(Date2DMY(GLBudgetEntry.Date, 1), Date2DMY(GLBudgetEntry.Date, 2), Year);
-                GLBudgetEntry.Modify;
+                GLBudgetEntry.Modify();
             until GLBudgetEntry.Next() = 0;
     end;
 
@@ -124,7 +124,7 @@ codeunit 134037 "ERM Date Compression GL Budget"
                     DimensionSelectionBuffer.Validate(Selected, true);
                     DimensionSelectionBuffer.Insert();
                 end;
-            until DimensionTranslation.Next = 0;
+            until DimensionTranslation.Next() = 0;
         DimensionSelectionBuffer.SetDimSelection(3, REPORT::"Date Compr. G/L Budget Entries", '', RetainDimText, DimensionSelectionBuffer);
     end;
 
@@ -194,7 +194,7 @@ codeunit 134037 "ERM Date Compression GL Budget"
 
         // [GIVEN] G/L Budget with 5 entries of 1000
         LibraryERM.CreateGLBudgetName(GLBudgetName);
-        BudgetDate := WorkDate;
+        BudgetDate := WorkDate();
         GLAccountNo := LibraryERM.CreateGLAccountNo();
         NumOfPeriods := LibraryRandom.RandIntInRange(3, 10);
         BudgetAmount := LibraryRandom.RandDecInRange(100, 1000, 1);

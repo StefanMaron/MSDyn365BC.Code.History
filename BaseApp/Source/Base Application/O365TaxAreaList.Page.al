@@ -1,3 +1,4 @@
+#if not CLEAN21
 page 2151 "O365 Tax Area List"
 {
     Caption = 'Tax Rates';
@@ -9,6 +10,9 @@ page 2151 "O365 Tax Area List"
     PageType = List;
     RefreshOnActivate = true;
     SourceTable = "Tax Area";
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -18,7 +22,7 @@ page 2151 "O365 Tax Area List"
             {
                 field(Name; GetDescriptionInCurrentLanguageFullLength())
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Name';
                 }
             }
@@ -29,3 +33,4 @@ page 2151 "O365 Tax Area List"
     {
     }
 }
+#endif

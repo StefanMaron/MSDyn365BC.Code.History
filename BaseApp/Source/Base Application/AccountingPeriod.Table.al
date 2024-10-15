@@ -27,7 +27,7 @@ table 50 "Accounting Period"
             begin
                 TestField("Date Locked", false);
                 if "New Fiscal Year" then begin
-                    if not InvtSetup.Get then
+                    if not InvtSetup.Get() then
                         exit;
                     "Average Cost Calc. Type" := InvtSetup."Average Cost Calc. Type";
                     "Average Cost Period" := InvtSetup."Average Cost Period";
@@ -105,10 +105,11 @@ table 50 "Accounting Period"
     end;
 
     var
-        Text000: Label '<Month Text,10>', Locked = true;
-        MonthTxt: Label '<Month Text>', Locked = true;
         AccountingPeriod2: Record "Accounting Period";
         InvtSetup: Record "Inventory Setup";
+
+        Text000: Label '<Month Text,10>', Locked = true;
+        MonthTxt: Label '<Month Text>', Locked = true;
 
     procedure UpdateAvgItems()
     var

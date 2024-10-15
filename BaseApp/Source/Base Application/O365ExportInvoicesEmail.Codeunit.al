@@ -1,5 +1,9 @@
+#if not CLEAN21
 codeunit 2129 "O365 Export Invoices + Email"
 {
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     trigger OnRun()
     begin
@@ -96,7 +100,7 @@ codeunit 2129 "O365 Export Invoices + Email"
         EnterCell(RowNo, 7, SalesInvoiceHeader."VAT Registration No.");
         EnterCell(RowNo, 8, SalesInvoiceHeader."Document Date");
         EnterCell(RowNo, 9, SalesInvoiceHeader."Due Date");
-        EnterCell(RowNo, 10, SalesInvoiceHeader.GetWorkDescription);
+        EnterCell(RowNo, 10, SalesInvoiceHeader.GetWorkDescription());
         EnterCell(RowNo, 11, SalesInvoiceHeader.Amount);
         EnterCell(RowNo, 12, SalesInvoiceHeader."Amount Including VAT" - SalesInvoiceHeader.Amount);
         EnterCell(RowNo, 13, SalesInvoiceHeader."Amount Including VAT");
@@ -112,6 +116,7 @@ codeunit 2129 "O365 Export Invoices + Email"
         EnterCell(LineRowNo, 4, SalesInvoiceLine.Quantity);
         EnterCell(LineRowNo, 5, SalesInvoiceLine."Unit of Measure");
         EnterCell(LineRowNo, 6, SalesInvoiceLine."Unit Price");
+
         EnterCell(LineRowNo, 7, SalesInvoiceLine."VAT %");
         EnterCell(LineRowNo, 8, SalesInvoiceLine.Amount);
         EnterCell(LineRowNo, 9, SalesInvoiceLine."Amount Including VAT" - SalesInvoiceLine.Amount);
@@ -171,20 +176,18 @@ codeunit 2129 "O365 Export Invoices + Email"
 
     local procedure InsertSalesInvoices()
     begin
-        if SalesInvoiceHeader.FindSet() then begin
+        if SalesInvoiceHeader.FindSet() then
             repeat
                 RowNo := RowNo + 1;
                 SalesInvoiceHeader.CalcFields(Amount, "Amount Including VAT", "Work Description", "Invoice Discount Amount");
-                InsertSalesInvoiceSummary;
+                InsertSalesInvoiceSummary();
                 SalesInvoiceLine.SetRange("Document No.", SalesInvoiceHeader."No.");
-                if SalesInvoiceLine.FindSet() then begin
+                if SalesInvoiceLine.FindSet() then
                     repeat
                         LineRowNo := LineRowNo + 1;
-                        InsertSalesLineItem;
+                        InsertSalesLineItem();
                     until SalesInvoiceLine.Next() = 0;
-                end;
             until SalesInvoiceHeader.Next() = 0;
-        end;
     end;
 
     local procedure GetDocumentStatus(SalesInvoiceHeader: Record "Sales Invoice Header") Status: Text
@@ -197,4 +200,5 @@ codeunit 2129 "O365 Export Invoices + Email"
             Status := O365SalesDocument."Outstanding Status";
     end;
 }
+#endif
 

@@ -59,9 +59,6 @@ page 1528 "Workflow Status FactBox"
         WorkflowStepInstance: Record "Workflow Step Instance";
         InstanceID: Guid;
     begin
-        if not IsVisible then
-            exit;
-
         DeleteAll();
         WorkflowStepInstance.SetRange("Record ID", WorkflowStepRecID);
         if not WorkflowStepInstance.FindSet() then
@@ -70,7 +67,7 @@ page 1528 "Workflow Status FactBox"
         repeat
             if WorkflowStepInstance.ID <> InstanceID then begin
                 Rec := WorkflowStepInstance;
-                Insert;
+                Insert();
             end;
             InstanceID := WorkflowStepInstance.ID;
         until WorkflowStepInstance.Next() = 0;

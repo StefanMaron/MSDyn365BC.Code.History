@@ -18,7 +18,7 @@ page 5054 "Company Details"
                     ApplicationArea = All;
                     ToolTip = 'Specifies the name of the contact. If the contact is a person, you can click the field to see the Name Details window.';
                 }
-                field("Name 2"; "Name 2")
+                field("Name 2"; Rec."Name 2")
                 {
                     ApplicationArea = All;
                     Importance = Additional;
@@ -30,7 +30,7 @@ page 5054 "Company Details"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the contact''s address.';
                 }
-                field("Address 2"; "Address 2")
+                field("Address 2"; Rec."Address 2")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies additional address information.';
@@ -45,22 +45,22 @@ page 5054 "Company Details"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the county of the company''s address.';
                 }
-                field("Post Code"; "Post Code")
+                field("Post Code"; Rec."Post Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the postal code.';
                 }
-                field("Country/Region Code"; "Country/Region Code")
+                field("Country/Region Code"; Rec."Country/Region Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the customer''s country/region code. To see the country/region codes in the Country/Region table, click the field.';
                 }
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the contact''s phone number.';
                 }
-                field("Fax No."; "Fax No.")
+                field("Fax No."; Rec."Fax No.")
                 {
                     ApplicationArea = Basic, Suite;
                     Importance = Additional;

@@ -11,11 +11,11 @@ codeunit 1799 "Import Config. Package File"
         // give time to update AssistedCompanySetupStatus with "Session ID" and "Task ID"
         Sleep(500);
 
-        SetRecFilter;
+        SetRecFilter();
         if not CODEUNIT.Run(CODEUNIT::"Import Config. Package Files", Rec) then begin
             AssistedCompanySetupStatus.Get(CompanyName);
             with JobQueueEntry do begin
-                Init;
+                Init();
                 ID := AssistedCompanySetupStatus."Task ID";
                 "User ID" := UserId;
                 "Object Type to Run" := "Object Type to Run"::Codeunit;

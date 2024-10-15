@@ -361,10 +361,10 @@ codeunit 144038 "ERM Sales Purch Documents"
         BusinessUnit: Record "Business Unit";
     begin
         with BusinessUnit do begin
-            Init;
+            Init();
             Validate(Code, LibraryUtility.GenerateRandomCode(FieldNo(Code), DATABASE::"Business Unit"));
             Validate(Name, LibraryUtility.GenerateRandomCode(FieldNo(Name), DATABASE::"Business Unit"));
-            Insert;
+            Insert();
         end;
     end;
 
@@ -560,7 +560,7 @@ codeunit 144038 "ERM Sales Purch Documents"
         PurchInvLine.TestField("Reverse Charge Item", PurchaseLine."Reverse Charge Item");
         Assert.AreNearlyEqual(
           ReverseCharge, PurchInvLine."Reverse Charge", LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(ReverseChargeErr, PurchInvLine.FieldCaption("Reverse Charge"), ReverseCharge, PurchInvLine.TableCaption));
+          StrSubstNo(ReverseChargeErr, PurchInvLine.FieldCaption("Reverse Charge"), ReverseCharge, PurchInvLine.TableCaption()));
     end;
 
     local procedure VerifyReverseChargeOnPostedSalesInvoice(SalesLine: Record "Sales Line"; ReverseChargeItem: Boolean)
@@ -574,7 +574,7 @@ codeunit 144038 "ERM Sales Purch Documents"
         SalesInvoiceLine.TestField("Reverse Charge Item", ReverseChargeItem);
         Assert.AreNearlyEqual(
           ReverseCharge, SalesInvoiceLine."Reverse Charge", LibraryERM.GetAmountRoundingPrecision,
-          StrSubstNo(ReverseChargeErr, SalesInvoiceLine.FieldCaption("Reverse Charge"), ReverseCharge, SalesInvoiceLine.TableCaption));
+          StrSubstNo(ReverseChargeErr, SalesInvoiceLine.FieldCaption("Reverse Charge"), ReverseCharge, SalesInvoiceLine.TableCaption()));
     end;
 
     local procedure VerifyVATEntry(DocumentNo: Code[20]; CountryRegionCode: Code[10]; VATRegistrationNo: Code[20]; BillToPayToNo: Code[20])
@@ -607,7 +607,7 @@ codeunit 144038 "ERM Sales Purch Documents"
     var
         GLAccount: Record "G/L Account";
     begin
-        Budget.ColumnDimCode.SetValue(GLAccount.TableCaption);
+        Budget.ColumnDimCode.SetValue(GLAccount.TableCaption());
         Budget.ShowColumnName.SetValue(false);
         GLAccount.Get(Budget.MatrixForm.Field1.Caption);
         Budget.ShowColumnName.SetValue(true);
@@ -620,7 +620,7 @@ codeunit 144038 "ERM Sales Purch Documents"
     var
         BusinessUnit: Record "Business Unit";
     begin
-        Budget.ColumnDimCode.SetValue(BusinessUnit.TableCaption);
+        Budget.ColumnDimCode.SetValue(BusinessUnit.TableCaption());
         Budget.ShowColumnName.SetValue(false);
         BusinessUnit.Get(Budget.MatrixForm.Field1.Caption);
         Budget.ShowColumnName.SetValue(true);

@@ -543,11 +543,9 @@ table 5107 "Sales Header Archive"
             Editable = false;
             TableRelation = "IC Partner";
         }
-        field(129; "IC Direction"; Option)
+        field(129; "IC Direction"; Enum "IC Direction Type")
         {
             Caption = 'IC Direction';
-            OptionCaption = 'Outgoing,Incoming';
-            OptionMembers = Outgoing,Incoming;
         }
         field(130; "Prepayment %"; Decimal)
         {
@@ -648,6 +646,10 @@ table 5107 "Sales Header Archive"
             DataClassification = CustomerContent;
             ExtendedDatatype = EMail;
         }
+        field(179; "VAT Reporting Date"; Date)
+        {
+            Caption = 'VAT Date';
+        }
         field(200; "Work Description"; BLOB)
         {
             Caption = 'Work Description';
@@ -724,17 +726,9 @@ table 5107 "Sales Header Archive"
         field(5051; "Sell-to Customer Template Code"; Code[10])
         {
             Caption = 'Sell-to Customer Template Code';
-#if not CLEAN18
-            TableRelation = "Customer Template";
-#endif
             ObsoleteReason = 'Will be removed with other functionality related to "old" templates. Replaced by "Sell-to Customer Templ. Code".';
-#if not CLEAN18
-            ObsoleteState = Pending;
-            ObsoleteTag = '18.0';
-#else
             ObsoleteState = Removed;
             ObsoleteTag = '21.0';
-#endif
         }
         field(5052; "Sell-to Contact No."; Code[20])
         {
@@ -893,6 +887,9 @@ table 5107 "Sales Header Archive"
 
     fieldgroups
     {
+        fieldgroup(DropDown; "No.", "Version No.", "Sell-to Customer Name")
+        {
+        }
     }
 
     trigger OnDelete()
@@ -946,9 +943,9 @@ table 5107 "Sales Header Archive"
         if IsHandled then
             exit;
 
-        if UserSetupMgt.GetSalesFilter <> '' then begin
+        if UserSetupMgt.GetSalesFilter() <> '' then begin
             FilterGroup(2);
-            SetRange("Responsibility Center", UserSetupMgt.GetSalesFilter);
+            SetRange("Responsibility Center", UserSetupMgt.GetSalesFilter());
             FilterGroup(0);
         end;
     end;

@@ -142,6 +142,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
         ExportFormat: Enum "Intrastat Export Format";
         SpecifiedExportFormat: Enum "Intrastat Export Format";
         ExportFormatIsSpecified: Boolean;
+
         Text1040013: Label 'must be either Receipt or Shipment';
         Text1040015: Label 'Checking lines        #2######################\';
         Text1040016: Label 'Writing lines to file #3###### @4@@@@@@@@@@@@@';
@@ -248,7 +249,7 @@ report 593 "Intrastat - Make Disk Tax Auth"
             CopyStr(CompanyInfo.Name, 1, 30) + ',' +
             NilReturnCode + ',' +
             JournalType + ',' +
-            Format(WorkDate, 0, Text1040021) + ',' +
+            Format(WorkDate(), 0, Text1040021) + ',' +
             IntrastatJnlBatch."Statistics Period" + ',' +
             'CSV02');
     end;

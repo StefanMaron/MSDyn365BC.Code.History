@@ -13,7 +13,7 @@ report 5623 "Insurance Register"
             DataItemTableView = SORTING("No.");
             PrintOnlyIfDetail = true;
             RequestFilterFields = "No.";
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
@@ -153,7 +153,7 @@ report 5623 "Insurance Register"
 
     trigger OnPreReport()
     begin
-        InsuranceRegFilter := "Insurance Register".GetFilters;
+        InsuranceRegFilter := "Insurance Register".GetFilters();
     end;
 
     var

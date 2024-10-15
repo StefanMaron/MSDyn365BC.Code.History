@@ -3,7 +3,7 @@ codeunit 5353 "CRM Enable Posts"
 
     trigger OnRun()
     begin
-        if EnableActivityFeedsOnCRMOrders then;
+        if EnableActivityFeedsOnCRMOrders() then;
     end;
 
     var
@@ -22,7 +22,7 @@ codeunit 5353 "CRM Enable Posts"
                 statecode := statecode::Active;
                 statuscode := statuscode::Active;
                 msdyn_ConfigureWall := true;
-                if Modify then;
+                if Modify() then;
             end
         end;
     end;

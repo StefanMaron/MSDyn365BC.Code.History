@@ -1,10 +1,13 @@
+#if not CLEAN21
 page 2107 "O365 Sales Customer Card"
 {
     Caption = 'Customer';
     DataCaptionExpression = Name;
     PageType = Card;
-    PromotedActionCategories = 'New,Process,Report,Details';
     SourceTable = Customer;
+    ObsoleteReason = 'Microsoft Invoicing has been discontinued.';
+    ObsoleteState = Pending;
+    ObsoleteTag = '21.0';
 
     layout
     {
@@ -15,13 +18,13 @@ page 2107 "O365 Sales Customer Card"
                 Caption = 'General';
                 field(Name; Name)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ShowCaption = false;
                     ToolTip = 'Specifies the customer''s name.';
                 }
-                field("Contact Type"; "Contact Type")
+                field("Contact Type"; Rec."Contact Type")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ShowCaption = false;
                     ToolTip = 'Specifies if the contact is a company or a person.';
 
@@ -30,9 +33,9 @@ page 2107 "O365 Sales Customer Card"
                         Validate("Prices Including VAT", "Contact Type" = "Contact Type"::Person);
                     end;
                 }
-                field("E-Mail"; "E-Mail")
+                field("E-Mail"; Rec."E-Mail")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Email Address';
                     ExtendedDatatype = EMail;
                     Importance = Promoted;
@@ -46,9 +49,9 @@ page 2107 "O365 Sales Customer Card"
                         MailManagement.ValidateEmailAddressField("E-Mail");
                     end;
                 }
-                field("Phone No."; "Phone No.")
+                field("Phone No."; Rec."Phone No.")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Phone Number';
                     ShowCaption = false;
                     ToolTip = 'Specifies the customer''s telephone number.';
@@ -57,9 +60,9 @@ page 2107 "O365 Sales Customer Card"
                 {
                     ShowCaption = false;
                     Visible = "Balance (LCY)" <> 0;
-                    field("Balance (LCY)"; "Balance (LCY)")
+                    field("Balance (LCY)"; Rec."Balance (LCY)")
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         AutoFormatExpression = '1';
                         AutoFormatType = 10;
                         Caption = 'Outstanding';
@@ -75,7 +78,7 @@ page 2107 "O365 Sales Customer Card"
                     Visible = OverdueAmount <> 0;
                     field(OverdueAmount; OverdueAmount)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         AutoFormatExpression = '1';
                         AutoFormatType = 10;
                         Caption = 'Overdue';
@@ -88,9 +91,9 @@ page 2107 "O365 Sales Customer Card"
                         ToolTip = 'Specifies payments from the customer that are overdue per today''s date.';
                     }
                 }
-                field("Sales (LCY)"; "Sales (LCY)")
+                field("Sales (LCY)"; Rec."Sales (LCY)")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     AutoFormatExpression = '1';
                     AutoFormatType = 10;
                     Caption = 'Total Sales (Excl. VAT)';
@@ -110,9 +113,9 @@ page 2107 "O365 Sales Customer Card"
                     {
                         ShowCaption = false;
                         Visible = ("Contact Type" = "Contact Type"::Company) AND IsUsingVAT;
-                        field("VAT Registration No."; "VAT Registration No.")
+                        field("VAT Registration No."; Rec."VAT Registration No.")
                         {
-                            ApplicationArea = Basic, Suite, Invoicing;
+                            ApplicationArea = Invoicing, Basic, Suite;
                         }
                     }
                     group(Control23)
@@ -121,7 +124,7 @@ page 2107 "O365 Sales Customer Card"
                         Visible = ("Contact Type" = "Contact Type"::Person) AND IsAddressLookupAvailable AND CurrPageEditable;
                         field(AddressLookup; AddressLookupLbl)
                         {
-                            ApplicationArea = Basic, Suite, Invoicing;
+                            ApplicationArea = Invoicing, Basic, Suite;
                             Editable = false;
                             ShowCaption = false;
 
@@ -133,7 +136,7 @@ page 2107 "O365 Sales Customer Card"
                     }
                     field(FullAddress; FullAddress)
                     {
-                        ApplicationArea = Basic, Suite, Invoicing;
+                        ApplicationArea = Invoicing, Basic, Suite;
                         Caption = 'Address';
                         Editable = CurrPageEditable;
                         QuickEntry = false;
@@ -142,12 +145,12 @@ page 2107 "O365 Sales Customer Card"
                         var
                             TempStandardAddress: Record "Standard Address" temporary;
                         begin
-                            CurrPage.SaveRecord;
+                            CurrPage.SaveRecord();
                             Commit();
                             TempStandardAddress.CopyFromCustomer(Rec);
                             if PAGE.RunModal(PAGE::"O365 Address", TempStandardAddress) = ACTION::LookupOK then begin
                                 Get("No.");
-                                FullAddress := TempStandardAddress.ToString;
+                                FullAddress := TempStandardAddress.ToString();
                             end;
                         end;
                     }
@@ -157,14 +160,14 @@ page 2107 "O365 Sales Customer Card"
             {
                 Caption = 'Tax';
                 Visible = NOT IsUsingVAT;
-                field("Tax Liable"; "Tax Liable")
+                field("Tax Liable"; Rec."Tax Liable")
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     ToolTip = 'Specifies if the sales invoice contains sales tax.';
                 }
                 field(TaxAreaDescription; TaxAreaDescription)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     Caption = 'Tax Rate';
                     Editable = CurrPageEditable;
                     NotBlank = true;
@@ -187,7 +190,7 @@ page 2107 "O365 Sales Customer Card"
                 Visible = NOT CurrPageEditable;
                 field(InvoicesForCustomer; InvoicesLabelText)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     DrillDown = true;
                     Editable = false;
                     ShowCaption = false;
@@ -203,7 +206,7 @@ page 2107 "O365 Sales Customer Card"
                 }
                 field(EstimatesForCustomer; EstimatesLabelText)
                 {
-                    ApplicationArea = Basic, Suite, Invoicing;
+                    ApplicationArea = Invoicing, Basic, Suite;
                     DrillDown = true;
                     Editable = false;
                     ShowCaption = false;
@@ -228,11 +231,9 @@ page 2107 "O365 Sales Customer Card"
         {
             action("Invoice Discounts")
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Invoice Discounts';
                 Image = Discount;
-                Promoted = true;
-                PromotedCategory = Process;
                 ToolTip = 'Set up different discounts that are applied to invoices for the customer. An invoice discount is automatically granted to the customer when the total on a sales invoice exceeds a certain amount.';
                 Visible = false;
 
@@ -246,11 +247,8 @@ page 2107 "O365 Sales Customer Card"
             }
             action(ImportDeviceContact)
             {
-                ApplicationArea = Basic, Suite, Invoicing;
+                ApplicationArea = Invoicing, Basic, Suite;
                 Caption = 'Import Contact';
-                Promoted = true;
-                PromotedCategory = Process;
-                PromotedIsBig = true;
                 Scope = Repeater;
                 ToolTip = 'Import a contact directly from your iOS or Android device and have the new customer fields automatically populated. ';
                 Visible = CurrPageEditable AND DeviceContactProviderIsAvailable;
@@ -259,10 +257,32 @@ page 2107 "O365 Sales Customer Card"
                 begin
                     if DeviceContactProviderIsAvailable then begin
                         if IsNull(DeviceContactProvider) then
-                            DeviceContactProvider := DeviceContactProvider.Create;
-                        DeviceContactProvider.RequestDeviceContactAsync;
+                            DeviceContactProvider := DeviceContactProvider.Create();
+                        DeviceContactProvider.RequestDeviceContactAsync();
                     end
                 end;
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref(ImportDeviceContact_Promoted; ImportDeviceContact)
+                {
+                }
+                actionref("Invoice Discounts_Promoted"; "Invoice Discounts")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Details', Comment = 'Generated from the PromotedActionCategories property index 3.';
             }
         }
     }
@@ -272,19 +292,19 @@ page 2107 "O365 Sales Customer Card"
         TempStandardAddress: Record "Standard Address" temporary;
         TaxArea: Record "Tax Area";
     begin
-        CreateCustomerFromTemplate;
+        CreateCustomerFromTemplate();
         CurrPageEditable := CurrPage.Editable;
 
-        OverdueAmount := CalcOverdueBalance;
+        OverdueAmount := CalcOverdueBalance();
 
         TempStandardAddress.CopyFromCustomer(Rec);
-        FullAddress := TempStandardAddress.ToString;
+        FullAddress := TempStandardAddress.ToString();
 
         if TaxArea.Get("Tax Area Code") then
             TaxAreaDescription := TaxArea.GetDescriptionInCurrentLanguageFullLength();
 
-        UpdateInvoicesLbl;
-        UpdateEstimatesLbl;
+        UpdateInvoicesLbl();
+        UpdateEstimatesLbl();
     end;
 
     trigger OnDeleteRecord(): Boolean
@@ -297,9 +317,9 @@ page 2107 "O365 Sales Customer Card"
         O365SalesInitialSetup: Record "O365 Sales Initial Setup";
         PostcodeServiceManager: Codeunit "Postcode Service Manager";
     begin
-        if O365SalesInitialSetup.Get then
-            IsUsingVAT := O365SalesInitialSetup.IsUsingVAT;
-        IsAddressLookupAvailable := PostcodeServiceManager.IsConfigured;
+        if O365SalesInitialSetup.Get() then
+            IsUsingVAT := O365SalesInitialSetup.IsUsingVAT();
+        IsAddressLookupAvailable := PostcodeServiceManager.IsConfigured();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -324,19 +344,19 @@ page 2107 "O365 Sales Customer Card"
 
     trigger OnNewRecord(BelowxRec: Boolean)
     begin
-        OnNewRec;
+        OnNewRec();
     end;
 
     trigger OnOpenPage()
     begin
         CurrPage.Editable := Blocked = Blocked::" ";
-        SetRange("Date Filter", 0D, WorkDate);
-        DeviceContactProviderIsAvailable := DeviceContactProvider.IsAvailable;
+        SetRange("Date Filter", 0D, WorkDate());
+        DeviceContactProviderIsAvailable := DeviceContactProvider.IsAvailable();
     end;
 
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
-        exit(CanExitAfterProcessingCustomer);
+        exit(CanExitAfterProcessingCustomer());
     end;
 
     var
@@ -370,12 +390,12 @@ page 2107 "O365 Sales Customer Card"
             exit(true);
 
         if CustomerCardState = CustomerCardState::Delete then
-            exit(DeleteCustomerRelatedData);
+            exit(DeleteCustomerRelatedData());
 
         if GuiAllowed and (CustomerCardState = CustomerCardState::Prompt) and (Blocked = Blocked::" ") then
             case StrMenu(ProcessNewCustomerOptionQst, Response::KeepEditing, ProcessNewCustomerInstructionTxt) of
                 Response::Discard:
-                    exit(DeleteCustomerRelatedData);
+                    exit(DeleteCustomerRelatedData());
                 else
                     exit(false);
             end;
@@ -396,7 +416,7 @@ page 2107 "O365 Sales Customer Card"
     var
         DocumentNoVisibility: Codeunit DocumentNoVisibility;
     begin
-        if GuiAllowed and DocumentNoVisibility.CustomerNoSeriesIsDefault then
+        if GuiAllowed and DocumentNoVisibility.CustomerNoSeriesIsDefault() then
             NewMode := true;
     end;
 
@@ -473,7 +493,7 @@ page 2107 "O365 Sales Customer Card"
         if deviceContact.Status <> 0 then
             exit;
 
-        CreateCustomerFromTemplate;
+        CreateCustomerFromTemplate();
 
         Name := CopyStr(deviceContact.PreferredName, 1, MaxStrLen(Name));
         "E-Mail" := CopyStr(deviceContact.PreferredEmail, 1, MaxStrLen("E-Mail"));
@@ -485,3 +505,4 @@ page 2107 "O365 Sales Customer Card"
         CurrPage.Update();
     end;
 }
+#endif

@@ -15,12 +15,12 @@ page 5149 "Profile Questn. Line List"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Line No."; "Line No.")
+                field("Line No."; Rec."Line No.")
                 {
                     ApplicationArea = All;
                     ToolTip = 'Specifies the number of the profile questionnaire line. This field is used internally by the program.';
                 }
-                field(Question; Question)
+                field(Question; Question())
                 {
                     ApplicationArea = RelationshipMgmt;
                     Caption = 'Question';
@@ -32,19 +32,19 @@ page 5149 "Profile Questn. Line List"
                     Caption = 'Answer';
                     ToolTip = 'Specifies the profile question or answer.';
                 }
-                field("From Value"; "From Value")
+                field("From Value"; Rec."From Value")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value from which the automatic classification of your contacts starts.';
                     Visible = false;
                 }
-                field("To Value"; "To Value")
+                field("To Value"; Rec."To Value")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the value that the automatic classification of your contacts stops at.';
                     Visible = false;
                 }
-                field("No. of Contacts"; "No. of Contacts")
+                field("No. of Contacts"; Rec."No. of Contacts")
                 {
                     ApplicationArea = RelationshipMgmt;
                     ToolTip = 'Specifies the number of contacts that have given this answer.';

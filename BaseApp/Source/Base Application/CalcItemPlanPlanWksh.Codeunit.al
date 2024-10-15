@@ -5,7 +5,7 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
     trigger OnRun()
     begin
         Item.Copy(Rec);
-        Code;
+        Code();
         Rec := Item;
     end;
 
@@ -40,7 +40,7 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
         IsHandled: Boolean;
     begin
         with Item do begin
-            if not PlanThisItem then
+            if not PlanThisItem() then
                 exit;
 
             ReqLineExtern.SetCurrentKey(Type, "No.", "Variant Code", "Location Code");
@@ -128,7 +128,7 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
         RespectPlanningParm := NewRespectPlanningParm;
 
         MfgSetup.Get();
-        CheckPreconditions;
+        CheckPreconditions();
     end;
 
     procedure Finalize()
@@ -149,7 +149,7 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
                     RequisitionLine.SetRange("No.", TempPlanningCompList."Item No.");
                     if RequisitionLine.IsEmpty() then begin
                         PlanningComponent := TempPlanningCompList;
-                        PlanningComponent.Find;
+                        PlanningComponent.Find();
                         PlanningComponent.Validate("Planning Level Code", 0);
                         PlanningComponent.Modify(true);
                     end;
@@ -216,7 +216,7 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
         Item.CopyFilter("Variant Filter", SKU."Variant Code");
         Item.CopyFilter("Location Filter", SKU."Location Code");
         SKU.SetRange("Item No.", Item."No.");
-        if SKU.IsEmpty and (Item."Reordering Policy" = Item."Reordering Policy"::" ") then
+        if SKU.IsEmpty() and (Item."Reordering Policy" = Item."Reordering Policy"::" ") then
             exit(false);
 
         Item.CopyFilter("Variant Filter", PlanningAssignment."Variant Code");
@@ -285,7 +285,7 @@ codeunit 5431 "Calc. Item Plan - Plan Wksh."
 
     procedure SetResiliencyOn()
     begin
-        InvtProfileOffsetting.SetResiliencyOn;
+        InvtProfileOffsetting.SetResiliencyOn();
     end;
 
     procedure GetResiliencyError(var PlanningErrorLogEntry: Record "Planning Error Log"): Boolean

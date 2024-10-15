@@ -9,13 +9,13 @@ codeunit 1752 "Data Class. Eval. Data Country"
     var
         DataClassificationEvalData: Codeunit "Data Classification Eval. Data";
     begin
-        ClassifyEmployee;
-        ClassifyPayableEmployeeLedgerEntry;
-        ClassifyDetailedEmployeeLedgerEntry;
-        ClassifyEmployeeLedgerEntry;
-        ClassifyEmployeeRelative;
-        ClassifyEmployeeQualification;
-        ClassifyVATReportHeader;
+        ClassifyEmployee();
+        ClassifyPayableEmployeeLedgerEntry();
+        ClassifyDetailedEmployeeLedgerEntry();
+        ClassifyEmployeeLedgerEntry();
+        ClassifyEmployeeRelative();
+        ClassifyEmployeeQualification();
+        ClassifyVATReportHeader();
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::GovTalkMessage);
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"GovTalk Setup");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"GovTalk Message Parts");
@@ -28,7 +28,7 @@ codeunit 1752 "Data Class. Eval. Data Country"
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Employee Posting Group");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Cause of Absence");
         DataClassificationEvalData.SetTableFieldsToNormal(DATABASE::"Sales Header Archive");
-        ClassifyMakingTaxDigital;
+        ClassifyMakingTaxDigital();
         OnAfterClassifyCountrySpecificTables();
     end;
 

@@ -59,7 +59,7 @@ page 562 "Dimension Selection-Multiple"
             if Dim.Get(NewCode) then
                 NewDescription := Dim.GetMLName(GlobalLanguage);
 
-        Init;
+        Init();
         Selected := NewSelected;
         Code := NewCode;
         Description := NewDescription;
@@ -69,7 +69,7 @@ page 562 "Dimension Selection-Multiple"
             BusinessUnit.TableCaption:
                 "Filter Lookup Table No." := DATABASE::"Business Unit";
         end;
-        Insert;
+        Insert();
     end;
 }
 

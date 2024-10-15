@@ -16,7 +16,7 @@ report 5624 "Insurance - Coverage Details"
             column(FORMAT_TODAY_0_4_; Format(Today, 0, 4))
             {
             }
-            column(COMPANYNAME; COMPANYPROPERTY.DisplayName)
+            column(COMPANYNAME; COMPANYPROPERTY.DisplayName())
             {
             }
             column(Insurance_TABLECAPTION__________InsuranceFilter; TableCaption + ': ' + InsuranceFilter)
@@ -148,7 +148,7 @@ report 5624 "Insurance - Coverage Details"
 
     trigger OnPreReport()
     begin
-        InsuranceFilter := Insurance.GetFilters;
+        InsuranceFilter := Insurance.GetFilters();
     end;
 
     var

@@ -31,7 +31,7 @@ report 5854 "Roll Up Standard Cost"
                   TempItem."Replenishment System"::Assembly);
                 if TempItem.Find('-') then
                     repeat
-                        UpdateStdCostWksh;
+                        UpdateStdCostWksh();
                         RolledUp := true;
                     until TempItem.Next() = 0;
             end;
@@ -72,7 +72,7 @@ report 5854 "Roll Up Standard Cost"
         trigger OnOpenPage()
         begin
             if CalculationDate = 0D then
-                CalculationDate := WorkDate;
+                CalculationDate := WorkDate();
         end;
     }
 

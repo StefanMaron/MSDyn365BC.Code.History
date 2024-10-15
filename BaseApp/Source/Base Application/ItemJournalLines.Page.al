@@ -13,55 +13,55 @@ page 519 "Item Journal Lines"
             repeater(Control1)
             {
                 ShowCaption = false;
-                field("Journal Template Name"; "Journal Template Name")
+                field("Journal Template Name"; Rec."Journal Template Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the journal template, the basis of the journal batch, that the entries were posted from.';
                 }
-                field("Journal Batch Name"; "Journal Batch Name")
+                field("Journal Batch Name"; Rec."Journal Batch Name")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the name of the journal batch, a personalized journal layout, that the entries were posted from.';
                 }
-                field("Line No."; "Line No.")
+                field("Line No."; Rec."Line No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the journal line.';
                     Visible = false;
                 }
-                field("Posting Date"; "Posting Date")
+                field("Posting Date"; Rec."Posting Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the posting date for the entry.';
                 }
-                field("Document Date"; "Document Date")
+                field("Document Date"; Rec."Document Date")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the date when the related document was created.';
                     Visible = false;
                 }
-                field("Entry Type"; "Entry Type")
+                field("Entry Type"; Rec."Entry Type")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the type of transaction that will be posted from the item journal line.';
                 }
-                field("Document No."; "Document No.")
+                field("Document No."; Rec."Document No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a document number for the journal line.';
                 }
-                field("Item No."; "Item No.")
+                field("Item No."; Rec."Item No.")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of the item on the journal line.';
                 }
-                field("Price Calculation Method"; "Price Calculation Method")
+                field("Price Calculation Method"; Rec."Price Calculation Method")
                 {
                     Visible = ExtendedPriceEnabled;
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the method that will be used for price calculation in the item journal line.';
                 }
-                field("Variant Code"; "Variant Code")
+                field("Variant Code"; Rec."Variant Code")
                 {
                     ApplicationArea = Planning;
                     ToolTip = 'Specifies the variant of the item on the line.';
@@ -72,25 +72,25 @@ page 519 "Item Journal Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies a description of the item on the journal line.';
                 }
-                field("Location Code"; "Location Code")
+                field("Location Code"; Rec."Location Code")
                 {
                     ApplicationArea = Location;
                     ToolTip = 'Specifies the code for the inventory location where the item on the journal line will be registered.';
                     Visible = true;
                 }
-                field("Salespers./Purch. Code"; "Salespers./Purch. Code")
+                field("Salespers./Purch. Code"; Rec."Salespers./Purch. Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the code for the salesperson or purchaser who is linked to the sale or purchase on the journal line.';
                     Visible = false;
                 }
-                field("Gen. Bus. Posting Group"; "Gen. Bus. Posting Group")
+                field("Gen. Bus. Posting Group"; Rec."Gen. Bus. Posting Group")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the vendor''s or customer''s trade type to link transactions made for this business partner with the appropriate general ledger account according to the general posting setup.';
                     Visible = false;
                 }
-                field("Gen. Prod. Posting Group"; "Gen. Prod. Posting Group")
+                field("Gen. Prod. Posting Group"; Rec."Gen. Prod. Posting Group")
                 {
                     ApplicationArea = Suite;
                     ToolTip = 'Specifies the item''s product type to link transactions made for this item with the appropriate general ledger account according to the general posting setup.';
@@ -101,17 +101,17 @@ page 519 "Item Journal Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the number of units of the item to be included on the journal line.';
                 }
-                field("Reserved Qty. (Base)"; "Reserved Qty. (Base)")
+                field("Reserved Qty. (Base)"; Rec."Reserved Qty. (Base)")
                 {
                     ApplicationArea = Reservation;
                     ToolTip = 'Specifies the quantity of the item reserved for the line.';
                 }
-                field("Unit of Measure Code"; "Unit of Measure Code")
+                field("Unit of Measure Code"; Rec."Unit of Measure Code")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies how each unit of the item or resource is measured, such as in pieces or hours. By default, the value in the Base Unit of Measure field on the item or resource card is inserted.';
                 }
-                field("Unit Amount"; "Unit Amount")
+                field("Unit Amount"; Rec."Unit Amount")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the price of one unit of the item on the journal line.';
@@ -121,25 +121,25 @@ page 519 "Item Journal Lines"
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the line''s net amount.';
                 }
-                field("Indirect Cost %"; "Indirect Cost %")
+                field("Indirect Cost %"; Rec."Indirect Cost %")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the percentage of the item''s last purchase cost that includes indirect costs, such as freight that is associated with the purchase of the item.';
                     Visible = false;
                 }
-                field("Unit Cost"; "Unit Cost")
+                field("Unit Cost"; Rec."Unit Cost")
                 {
                     ApplicationArea = Basic, Suite;
                     ToolTip = 'Specifies the cost of one unit of the item or resource on the line.';
                     Visible = false;
                 }
-                field("Shortcut Dimension 1 Code"; "Shortcut Dimension 1 Code")
+                field("Shortcut Dimension 1 Code"; Rec."Shortcut Dimension 1 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 1, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
                     Visible = DimVisible1;
                 }
-                field("Shortcut Dimension 2 Code"; "Shortcut Dimension 2 Code")
+                field("Shortcut Dimension 2 Code"; Rec."Shortcut Dimension 2 Code")
                 {
                     ApplicationArea = Dimensions;
                     ToolTip = 'Specifies the code for Shortcut Dimension 2, which is one of two global dimension codes that you set up in the General Ledger Setup window.';
@@ -241,7 +241,7 @@ page 519 "Item Journal Lines"
                     trigger OnAction()
                     begin
                         ShowDimensions();
-                        CurrPage.SaveRecord;
+                        CurrPage.SaveRecord();
                     end;
                 }
                 action("Item &Tracking Lines")
@@ -276,7 +276,7 @@ page 519 "Item Journal Lines"
         PriceCalculationMgt: Codeunit "Price Calculation Mgt.";
     begin
         ExtendedPriceEnabled := PriceCalculationMgt.IsExtendedPriceCalculationEnabled();
-        SetDimensionsVisibility;
+        SetDimensionsVisibility();
     end;
 
     var

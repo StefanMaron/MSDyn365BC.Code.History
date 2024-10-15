@@ -47,7 +47,7 @@ codeunit 144039 "ERM Sales Report GB"
         Initialize();
         CustomerNo := CreateCustomer;
         CreateAndPostSalesDocumentWithDueDate(
-          SalesLine, CustomerNo, SalesLine."Document Type"::Order, '', true, CalcDate('<+1M>', WorkDate));
+          SalesLine, CustomerNo, SalesLine."Document Type"::Order, '', true, CalcDate('<+1M>', WorkDate()));
 
         FileName := LibraryReportDataset.GetFileName;
         LibraryVariableStorage.Enqueue(FileName); // for Statement handler
@@ -59,7 +59,7 @@ codeunit 144039 "ERM Sales Report GB"
         Statement.SetTableView(Customer);
         Statement.InitializeRequest(
           true, false, true, false, false, false, '<' + Format(LibraryRandom.RandInt(5)) + 'M>',
-          DateChoice::"Due Date", true, WorkDate, CalcDate('<+3M>', WorkDate));
+          DateChoice::"Due Date", true, WorkDate(), CalcDate('<+3M>', WorkDate()));
         Commit();
         Statement.Run();
 

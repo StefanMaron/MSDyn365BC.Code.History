@@ -11,9 +11,9 @@ codeunit 9025 "Small Business Report Catalog"
     procedure RunAgedAccountsReceivableReport(UseRequestPage: Boolean)
     var
         AgedAccountsReceivable: Report "Aged Accounts Receivable";
+        PeriodLength: DateFormula;
         AgingBy: Option "Due Date","Posting Date","Document Date";
         HeadingType: Option "Date Interval","Number of Days";
-        PeriodLength: DateFormula;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -23,7 +23,7 @@ codeunit 9025 "Small Business Report Catalog"
 
         Evaluate(PeriodLength, '<30D>');
         AgedAccountsReceivable.InitializeRequest(
-          WorkDate, AgingBy::"Posting Date", PeriodLength, false, false, HeadingType::"Date Interval", false);
+          WorkDate(), AgingBy::"Posting Date", PeriodLength, false, false, HeadingType::"Date Interval", false);
         AgedAccountsReceivable.UseRequestPage(UseRequestPage);
 
         AgedAccountsReceivable.Run();
@@ -32,9 +32,9 @@ codeunit 9025 "Small Business Report Catalog"
     procedure RunAgedAccountsPayableReport(UseRequestPage: Boolean)
     var
         AgedAccountsPayable: Report "Aged Accounts Payable";
+        PeriodLength: DateFormula;
         AgingBy: Option "Due Date","Posting Date","Document Date";
         HeadingType: Option "Date Interval","Number of Days";
-        PeriodLength: DateFormula;
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -44,7 +44,7 @@ codeunit 9025 "Small Business Report Catalog"
 
         Evaluate(PeriodLength, '<30D>');
         AgedAccountsPayable.InitializeRequest(
-          WorkDate, AgingBy::"Posting Date", PeriodLength, false, false, HeadingType::"Date Interval", false);
+          WorkDate(), AgingBy::"Posting Date", PeriodLength, false, false, HeadingType::"Date Interval", false);
         AgedAccountsPayable.UseRequestPage(UseRequestPage);
 
         AgedAccountsPayable.Run();
@@ -117,8 +117,8 @@ codeunit 9025 "Small Business Report Catalog"
         NewDateChoice := DateChoice::"Due Date";
         NewLogInteraction := true;
 
-        NewStartDate := AccountingPeriodMgt.FindFiscalYear(WorkDate);
-        NewEndDate := WorkDate;
+        NewStartDate := AccountingPeriodMgt.FindFiscalYear(WorkDate());
+        NewEndDate := WorkDate();
 
         CustomerStatementReport.InitializeRequest(
           NewPrintEntriesDue, NewPrintAllHavingEntry, NewPrintAllHavingBal, NewPrintReversedEntries,
@@ -163,7 +163,7 @@ codeunit 9025 "Small Business Report Catalog"
         DetailTrialBalance.SaveAsExcel(FileName);
 
         ToFile := ToFileNameTxt;
-        Download(FileName, '', FileMgt.Magicpath, '', ToFile);
+        Download(FileName, '', FileMgt.Magicpath(), '', ToFile);
         Erase(FileName);
     end;
 

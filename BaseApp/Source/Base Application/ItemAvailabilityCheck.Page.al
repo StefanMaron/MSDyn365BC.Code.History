@@ -10,7 +10,6 @@ page 1872 "Item Availability Check"
     ModifyAllowed = false;
     MultipleNewLines = false;
     PopulateAllFields = false;
-    PromotedActionCategories = 'New,Process,Report,Manage';
     SaveValues = false;
     ShowFilter = true;
     SourceTable = Item;
@@ -79,10 +78,6 @@ page 1872 "Item Availability Check"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Item';
                     Image = Item;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = false;
-                    PromotedOnly = true;
                     RunObject = Page "Item Card";
                     RunPageLink = "No." = FIELD("No."),
                                   "Date Filter" = FIELD("Date Filter"),
@@ -100,10 +95,6 @@ page 1872 "Item Availability Check"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Create Purchase Invoice';
                     Image = NewPurchaseInvoice;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = false;
-                    PromotedOnly = true;
                     ToolTip = 'Create a new purchase invoice.';
 
                     trigger OnAction()
@@ -116,10 +107,6 @@ page 1872 "Item Availability Check"
                     ApplicationArea = Basic, Suite;
                     Caption = 'Create Purchase Order';
                     Image = NewOrder;
-                    Promoted = true;
-                    PromotedCategory = Process;
-                    PromotedIsBig = false;
-                    PromotedOnly = true;
                     ToolTip = 'Create a new purchase order.';
 
                     trigger OnAction()
@@ -127,6 +114,31 @@ page 1872 "Item Availability Check"
                         ShowNewPurchaseDocument(DummyPurchaseHeader."Document Type"::Order);
                     end;
                 }
+            }
+        }
+        area(Promoted)
+        {
+            group(Category_Process)
+            {
+                Caption = 'Process', Comment = 'Generated from the PromotedActionCategories property index 1.';
+
+                actionref("Page Item Card_Promoted"; "Page Item Card")
+                {
+                }
+                actionref("Purchase Invoice_Promoted"; "Purchase Invoice")
+                {
+                }
+                actionref("Purchase Order_Promoted"; "Purchase Order")
+                {
+                }
+            }
+            group(Category_Report)
+            {
+                Caption = 'Report', Comment = 'Generated from the PromotedActionCategories property index 2.';
+            }
+            group(Category_Category4)
+            {
+                Caption = 'Manage', Comment = 'Generated from the PromotedActionCategories property index 3.';
             }
         }
     }
@@ -260,7 +272,7 @@ page 1872 "Item Availability Check"
     begin
         VendorList.LookupMode(true);
         VendorList.Caption(SelectVentorTxt);
-        if VendorList.RunModal = ACTION::LookupOK then begin
+        if VendorList.RunModal() = ACTION::LookupOK then begin
             VendorList.GetRecord(Vendor);
             exit(true);
         end;

@@ -7,7 +7,7 @@ codeunit 391 "Shipment Header - Edit"
     begin
         SalesShptHeader := Rec;
         SalesShptHeader.LockTable();
-        SalesShptHeader.Find;
+        SalesShptHeader.Find();
         SalesShptHeader."Shipping Agent Code" := "Shipping Agent Code";
         SalesShptHeader."Shipping Agent Service Code" := "Shipping Agent Service Code";
         SalesShptHeader."Package Tracking No." := "Package Tracking No.";

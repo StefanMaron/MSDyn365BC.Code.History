@@ -1,3 +1,4 @@
+#if not CLEAN21
 codeunit 138920 "O365 Sales Discounts"
 {
     EventSubscriberInstance = Manual;
@@ -384,7 +385,7 @@ codeunit 138920 "O365 Sales Discounts"
         // [GIVEN] Set Line Discount Amount = ZZZ
         LineDiscountAmount := LibraryRandom.RandDecInRange(10, 20, 2);
         O365SalesInvoiceLineCard."Line Discount Amount".SetValue(LineDiscountAmount);
-        O365SalesInvoiceLineCard.Close;
+        O365SalesInvoiceLineCard.Close();
         // [WHEN] Invoice is being sent
         PostedInvoiceNo := SendInvoice(GetLastInvoiceNo);
 
@@ -549,7 +550,7 @@ codeunit 138920 "O365 Sales Discounts"
         IsInitialized := true;
         LibrarySetupStorage.Save(DATABASE::"Sales & Receivables Setup");
 
-        if not O365C2GraphEventSettings.Get then
+        if not O365C2GraphEventSettings.Get() then
             O365C2GraphEventSettings.Insert(true);
 
         O365C2GraphEventSettings.SetEventsEnabled(false);
@@ -578,7 +579,7 @@ codeunit 138920 "O365 Sales Discounts"
         FindInvoiceFirstSalesLine(InvoiceNo, SalesLine);
         SalesHeader.Get(SalesLine."Document Type", SalesLine."Document No.");
         SalesLine.CalcSums("Line Amount");
-        Currency.InitRoundingPrecision;
+        Currency.InitRoundingPrecision();
         InvoiceDiscountAmount := Round(SalesLine."Line Amount" * InvoiceDiscountPct / 100, Currency."Amount Rounding Precision");
 
         CalcTotalAmounts(SalesHeader, SalesLine, TotalAmount, TotalAmountIncludingVAT, InvoiceDiscountAmount);
@@ -682,15 +683,15 @@ codeunit 138920 "O365 Sales Discounts"
         O365SalesInvoiceLineCard.Description.Value(Description);
         O365SalesInvoiceLineCard.LineQuantity.SetValue(LibraryRandom.RandIntInRange(1, 10));
         O365SalesInvoiceLineCard."Unit Price".SetValue(LibraryRandom.RandDecInRange(1, 99999, 2));
-        O365SalesInvoiceLineCard.Close;
+        O365SalesInvoiceLineCard.Close();
     end;
 
     local procedure DisableStockoutWarning()
     begin
         with SalesSetup do begin
-            Get;
+            Get();
             Validate("Stockout Warning", false);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -702,9 +703,9 @@ codeunit 138920 "O365 Sales Discounts"
     local procedure EnableCalcInvDiscount()
     begin
         with SalesSetup do begin
-            Get;
+            Get();
             Validate("Calc. Inv. Discount", true);
-            Modify;
+            Modify();
         end;
     end;
 
@@ -870,4 +871,4 @@ codeunit 138920 "O365 Sales Discounts"
         Assert.Fail('No notification should be thrown.');
     end;
 }
-
+#endif

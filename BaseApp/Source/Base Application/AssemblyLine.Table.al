@@ -498,7 +498,7 @@ table 901 "Assembly Line"
                 Validate(Quantity, CalcQuantity("Quantity per", AssemblyHeader.Quantity));
                 Validate(
                   "Quantity to Consume",
-                  MinValue(MaxQtyToConsume, CalcQuantity("Quantity per", AssemblyHeader."Quantity to Assemble")));
+                  MinValue(MaxQtyToConsume(), CalcQuantity("Quantity per", AssemblyHeader."Quantity to Assemble")));
             end;
         }
         field(61; "Qty. per Unit of Measure"; Decimal)
@@ -710,7 +710,6 @@ table 901 "Assembly Line"
     trigger OnDelete()
     var
         WhseAssemblyRelease: Codeunit "Whse.-Assembly Release";
-        AssemblyLineReserve: Codeunit "Assembly Line-Reserve";
         ItemTrackingMgt: Codeunit "Item Tracking Management";
     begin
         TestStatusOpen();
@@ -744,13 +743,6 @@ table 901 "Assembly Line"
     var
         Item: Record Item;
         Resource: Record Resource;
-        Text001: Label 'Automatic reservation is not possible.\Do you want to reserve items manually?';
-        Text002: Label 'You cannot rename an %1.';
-        Text003: Label '%1 cannot be higher than the %2, which is %3.';
-        Text029: Label 'must be positive', Comment = 'starts with "Quantity"';
-        Text042: Label 'When posting the Applied to Ledger Entry, %1 will be opened first.';
-        Text99000002: Label 'You cannot change %1 when %2 is ''%3''.';
-        AvailabilityPageTitleLbl: Label 'The available inventory for item %1 is lower than the entered quantity at this location.', Comment = '%1=Item No.';
         AssemblyHeader: Record "Assembly Header";
         StockkeepingUnit: Record "Stockkeeping Unit";
         GLSetup: Record "General Ledger Setup";
@@ -761,8 +753,16 @@ table 901 "Assembly Line"
         StatusCheckSuspended: Boolean;
         TestReservationDateConflict: Boolean;
         SkipVerificationsThatChangeDatabase: Boolean;
+
+        Text001: Label 'Automatic reservation is not possible.\Do you want to reserve items manually?';
+        Text002: Label 'You cannot rename an %1.';
+        Text003: Label '%1 cannot be higher than the %2, which is %3.';
+        Text029: Label 'must be positive', Comment = 'starts with "Quantity"';
+        Text042: Label 'When posting the Applied to Ledger Entry, %1 will be opened first.';
         Text049: Label '%1 cannot be later than %2 because the %3 is set to %4.';
         Text050: Label 'Due Date %1 is before work date %2.';
+        Text99000002: Label 'You cannot change %1 when %2 is ''%3''.';
+        AvailabilityPageTitleLbl: Label 'The available inventory for item %1 is lower than the entered quantity at this location.', Comment = '%1=Item No.';
 
     procedure InitRemainingQty()
     begin
@@ -778,9 +778,9 @@ table 901 "Assembly Line"
 
         GetHeader();
         "Quantity to Consume" :=
-          MinValue(MaxQtyToConsume, CalcQuantity("Quantity per", AssemblyHeader."Quantity to Assemble"));
+          MinValue(MaxQtyToConsume(), CalcQuantity("Quantity per", AssemblyHeader."Quantity to Assemble"));
         RoundQty("Quantity to Consume");
-        "Quantity to Consume (Base)" := MinValue(MaxQtyToConsumeBase, CalcBaseQty("Quantity to Consume", FieldCaption("Quantity to Consume"), FieldCaption("Quantity to Consume (Base)")));
+        "Quantity to Consume (Base)" := MinValue(MaxQtyToConsumeBase(), CalcBaseQty("Quantity to Consume", FieldCaption("Quantity to Consume"), FieldCaption("Quantity to Consume (Base)")));
 
         OnAfterInitQtyToConsume(Rec, xRec, CurrFieldNo);
     end;
@@ -1011,7 +1011,6 @@ table 901 "Assembly Line"
 
     procedure OpenItemTrackingLines()
     var
-        AssemblyLineReserve: Codeunit "Assembly Line-Reserve";
         IsHandled: Boolean;
     begin
         IsHandled := false;
@@ -1332,7 +1331,7 @@ table 901 "Assembly Line"
         GetHeader();
         AssemblyHeader.TestField(Quantity);
 
-        if FixedUsage then
+        if FixedUsage() then
             exit(Qty);
 
         exit(Qty / AssemblyHeader.Quantity);
@@ -1443,7 +1442,7 @@ table 901 "Assembly Line"
         if Type = Type::Item then begin
             Item.Get("No.");
             if "Due Date" = 0D then
-                "Due Date" := WorkDate;
+                "Due Date" := WorkDate();
             Item.SetRange("Date Filter", 0D, "Due Date");
             Item.SetRange("Location Filter", "Location Code");
             Item.SetRange("Variant Filter", "Variant Code");
@@ -1455,12 +1454,12 @@ table 901 "Assembly Line"
         OldAssemblyLine: Record "Assembly Line";
         CompanyInfo: Record "Company Information";
         AvailableToPromise: Codeunit "Available to Promise";
+        LookaheadDateFormula: DateFormula;
         AvailabilityDate: Date;
         ReservedReceipt: Decimal;
         ReservedRequirement: Decimal;
         QtyAvailable: Decimal;
         PeriodType: Enum "Analysis Period Type";
-        LookaheadDateFormula: DateFormula;
     begin
         OnBeforeCalcAvailQuantities(Rec);
         SetItemFilter(Item);
@@ -1544,7 +1543,7 @@ table 901 "Assembly Line"
             if ExpectedInventory < 0 then
                 AbleToAssemble := 0
             else
-                AbleToAssemble := Round(ExpectedInventory / "Quantity per", UOMMgt.QtyRndPrecision, '<')
+                AbleToAssemble := Round(ExpectedInventory / "Quantity per", UOMMgt.QtyRndPrecision(), '<')
         end else begin
             AbleToAssemble := AssemblyHeader."Remaining Quantity";
             EarliestDate := 0D;
@@ -1649,7 +1648,7 @@ table 901 "Assembly Line"
         if Item."No." <> "No." then
             Item.Get("No.");
         if Item.IsInventoriableType() then
-            Validate("Bin Code", FindBin);
+            Validate("Bin Code", FindBin());
     end;
 
     procedure FindBin() NewBinCode: Code[20]
@@ -1711,7 +1710,7 @@ table 901 "Assembly Line"
             exit(QtyToPick);
 
         CalcFields("Pick Qty.");
-        exit("Remaining Quantity" - (CalcQtyPickedNotConsumed + "Pick Qty."));
+        exit("Remaining Quantity" - (CalcQtyPickedNotConsumed() + "Pick Qty."));
     end;
 
     procedure CalcQtyToPickBase(): Decimal
@@ -1725,7 +1724,7 @@ table 901 "Assembly Line"
             exit(QtyToPickBase);
 
         CalcFields("Pick Qty. (Base)");
-        exit("Remaining Quantity (Base)" - (CalcQtyPickedNotConsumedBase + "Pick Qty. (Base)"));
+        exit("Remaining Quantity (Base)" - (CalcQtyPickedNotConsumedBase() + "Pick Qty. (Base)"));
     end;
 
     procedure CalcQtyPickedNotConsumed(): Decimal
@@ -1822,8 +1821,8 @@ table 901 "Assembly Line"
         CheckItemAvailable(FieldNo("Due Date"));
         WhseValidateSourceLine.AssemblyLineVerifyChange(Rec, xRec);
 
-        if ("Due Date" < WorkDate) and ShowDueDateBeforeWorkDateMsg then
-            Message(Text050, "Due Date", WorkDate);
+        if ("Due Date" < WorkDate()) and ShowDueDateBeforeWorkDateMsg then
+            Message(Text050, "Due Date", WorkDate());
     end;
 
     procedure ValidateLeadTimeOffset(AsmHeader: Record "Assembly Header"; NewLeadTimeOffset: DateFormula; ShowDueDateBeforeWorkDateMsg: Boolean)
@@ -1840,7 +1839,7 @@ table 901 "Assembly Line"
 
     local procedure LatestPossibleDueDate(HeaderStartingDate: Date): Date
     begin
-        exit(HeaderStartingDate - (CalcDate("Lead-Time Offset", WorkDate) - WorkDate));
+        exit(HeaderStartingDate - (CalcDate("Lead-Time Offset", WorkDate()) - WorkDate()));
     end;
 
     procedure TestItemFields(ItemNo: Code[20]; VariantCode: Code[10]; LocationCode: Code[10])
@@ -1856,7 +1855,7 @@ table 901 "Assembly Line"
         OnBeforeCopyFromItem(Rec);
 
         GetItemResource();
-        if IsInventoriableItem then begin
+        if IsInventoriableItem() then begin
             "Location Code" := AssemblyHeader."Location Code";
             Item.TestField("Inventory Posting Group");
         end;
@@ -1872,7 +1871,7 @@ table 901 "Assembly Line"
         Reserve := Item.Reserve;
         Validate(Quantity);
         Validate("Quantity to Consume",
-          MinValue(MaxQtyToConsume, CalcQuantity("Quantity per", AssemblyHeader."Quantity to Assemble")));
+          MinValue(MaxQtyToConsume(), CalcQuantity("Quantity per", AssemblyHeader."Quantity to Assemble")));
 
         OnAfterCopyFromItem(Rec, Item, AssemblyHeader);
     end;
@@ -1892,7 +1891,7 @@ table 901 "Assembly Line"
         CreateDimFromDefaultDim(AssemblyHeader."Dimension Set ID");
         Validate(Quantity);
         Validate("Quantity to Consume",
-          MinValue(MaxQtyToConsume, CalcQuantity("Quantity per", AssemblyHeader."Quantity to Assemble")));
+          MinValue(MaxQtyToConsume(), CalcQuantity("Quantity per", AssemblyHeader."Quantity to Assemble")));
 
         OnAfterCopyFromResource(Rec, Resource, AssemblyHeader);
     end;
@@ -1904,7 +1903,7 @@ table 901 "Assembly Line"
         if "No." = '' then
             exit(false);
         GetItemResource();
-        exit(Item.IsInventoriableType);
+        exit(Item.IsInventoriableType());
     end;
 
     procedure CreateDimFromDefaultDim(HeaderDimensionSetID: Integer)

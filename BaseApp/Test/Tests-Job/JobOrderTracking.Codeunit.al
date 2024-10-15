@@ -302,7 +302,7 @@ codeunit 136308 "Job Order Tracking"
         Initialize();
         CreateJobPlanningLine(JobPlanningLine);
         ModifyJobPlanningLine(
-          JobPlanningLine, CreateItemWithVendorNo, LibraryRandom.RandInt(10), WorkDate,
+          JobPlanningLine, CreateItemWithVendorNo, LibraryRandom.RandInt(10), WorkDate(),
           LibraryJob.FindLocation(Location));  // Taking random value for Quantity.
 
         // Exercise: Run Calculate Plan from Order Planning Worksheet.
@@ -328,7 +328,7 @@ codeunit 136308 "Job Order Tracking"
         Initialize();
         CreateJobPlanningLine(JobPlanningLine);
         ModifyJobPlanningLine(
-          JobPlanningLine, CreateItemWithVendorNo, LibraryRandom.RandInt(10), WorkDate, LibraryJob.FindLocation(Location));
+          JobPlanningLine, CreateItemWithVendorNo, LibraryRandom.RandInt(10), WorkDate(), LibraryJob.FindLocation(Location));
         LibraryPlanning.CalculateOrderPlanJob(RequisitionLine);
 
         // Exercise: Make Order from Order Planning Worksheet.
@@ -380,7 +380,7 @@ codeunit 136308 "Job Order Tracking"
     begin
         LibraryPurchase.CreatePurchaseDocumentWithItem(
           PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', ItemNo, LibraryRandom.RandInt(100) + 100, LocationCode,
-          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate));  // Used Random to calculate the Expected Receipt Date.
+          CalcDate('<' + Format(LibraryRandom.RandInt(5)) + 'D>', WorkDate()));  // Used Random to calculate the Expected Receipt Date.
     end;
 
     local procedure CreatePlanningLineWithPurchaseOrder(var JobPlanningLine: Record "Job Planning Line"; LocationCode: Code[10]; Quantity: Integer)
@@ -394,7 +394,7 @@ codeunit 136308 "Job Order Tracking"
         JobPlanningLine.Validate(Type, JobPlanningLine.Type::Item);
         JobPlanningLine.Validate("No.", PurchaseLine."No.");
         JobPlanningLine.Validate("Usage Link", true);
-        JobPlanningLine.Validate("Planning Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));  // Used Random to calculate the Planning Date.
+        JobPlanningLine.Validate("Planning Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));  // Used Random to calculate the Planning Date.
         JobPlanningLine.Validate(Quantity, Quantity);
         JobPlanningLine.Modify(true);
     end;
@@ -476,7 +476,7 @@ codeunit 136308 "Job Order Tracking"
     begin
         CreateJobPlanningLine(JobPlanningLine);
         JobPlanningLine.Validate("Usage Link", true);
-        JobPlanningLine.Validate("Planning Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate));  // Used Random to calculate the Planning Date.
+        JobPlanningLine.Validate("Planning Date", CalcDate('<' + Format(LibraryRandom.RandInt(10)) + 'D>', WorkDate()));  // Used Random to calculate the Planning Date.
         JobPlanningLine.Validate(Quantity, LibraryRandom.RandDec(10, 2));  // Used Random value for Quantity.
         JobPlanningLine.Modify(true);
         ExpectedDate := JobPlanningLine."Planning Date";  // Assign in global variable

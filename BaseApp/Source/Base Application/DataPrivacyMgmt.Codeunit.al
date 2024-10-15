@@ -16,12 +16,13 @@ codeunit 1180 "Data Privacy Mgmt"
 
     var
         ConfigProgressBar: Codeunit "Config. Progress Bar";
+        TypeHelper: Codeunit "Type Helper";
+        ProgressBarText: Text;
+
         ActivityContextTxt: Label 'Privacy Activity';
         CreatingFieldDataTxt: Label 'Creating field data...';
         RemovingConfigPackageTxt: Label 'Removing config package...';
         ConfigDeleteStatusTxt: Label 'records.';
-        TypeHelper: Codeunit "Type Helper";
-        ProgressBarText: Text;
 
     procedure CreateData(EntityTypeTableNo: Integer; EntityNo: Code[50]; var PackageCode: Code[20]; ActionType: Option "Export a data subject's data","Create a data privacy configuration package"; DataSensitivityOption: Option Sensitive,Personal,"Company Confidential",Normal,Unclassified)
     var
@@ -89,12 +90,11 @@ codeunit 1180 "Data Privacy Mgmt"
               Format(RecRef.Caption, 10), DelChr(Format(EntityNo, 20), '<', ' ')), 1, 50);
 
         if ConfigPackage.Get(PackageCode) then begin
-            if ActionType = ActionType::"Export a data subject's data" then begin
+            if ActionType = ActionType::"Export a data subject's data" then
                 // Recreate the package if they chose the option to create the config package or are using the "temp" config package,
                 // otherwise use the one already created
                 if StrPos(PackageCode, '*') = 0 then
                     exit;
-            end;
 
             DeletePackage(PackageCode);
         end;
@@ -160,12 +160,12 @@ codeunit 1180 "Data Privacy Mgmt"
     begin
         ConfigProgressBar.Init(4, 1, RemovingConfigPackageTxt);
 
-        ProgressBarText := Format(ConfigPackage.TableCaption) + ' ' + ConfigDeleteStatusTxt;
+        ProgressBarText := Format(ConfigPackage.TableCaption()) + ' ' + ConfigDeleteStatusTxt;
         ConfigProgressBar.Update(ProgressBarText);
         ConfigPackage.SetRange(Code, PackageCode);
         ConfigPackage.DeleteAll(true);
 
-        ConfigProgressBar.Close;
+        ConfigProgressBar.Close();
     end;
 
     [Scope('OnPrem')]
@@ -225,7 +225,7 @@ codeunit 1180 "Data Privacy Mgmt"
                 CreatePackageFilter(PackageCode, EntityTypeTableNo, EntityKeyField, Format(EntityNo));
 
                 if AreAllIndicesFound then begin
-                    RecRef.Close;
+                    RecRef.Close();
                     exit;
                 end;
             end;
@@ -252,7 +252,7 @@ codeunit 1180 "Data Privacy Mgmt"
                 CreatePackageField(PackageCode, EntityTypeTableNo, FieldRef.Number, ProcessingOrder);
 
                 if AreAllIndicesFound then begin
-                    RecRef.Close;
+                    RecRef.Close();
                     exit;
                 end;
             end;
@@ -285,7 +285,7 @@ codeunit 1180 "Data Privacy Mgmt"
         if TableRelationsMetadata.FindSet() then
             CreateRelatedDataFields(TableRelationsMetadata, ConfigPackage, EntityNo, DataSensitivityOption, ProcessingOrder);
 
-        ConfigProgressBar.Close;
+        ConfigProgressBar.Close();
     end;
 
     local procedure CreateRelatedDataFields(var TableRelationsMetadata: Record "Table Relations Metadata"; var ConfigPackage: Record "Config. Package"; EntityNo: Code[50]; DataSensitivityOption: Option Sensitive,Personal,"Company Confidential",Normal,Unclassified; var ProcessingOrder: Integer)
@@ -294,6 +294,7 @@ codeunit 1180 "Data Privacy Mgmt"
         FilterCreated: Boolean;
         CurrentTableID: Integer;
     begin
+        CurrentTableID := 0;
         repeat
             if TableMetadata.Get(TableRelationsMetadata."Table ID") and (TableMetadata.ObsoleteState <> TableMetadata.ObsoleteState::Removed) then begin
                 ConfigProgressBar.Update(TableRelationsMetadata.TableName);
@@ -327,9 +328,9 @@ codeunit 1180 "Data Privacy Mgmt"
         ConfigPackage.Init();
         ConfigPackage.Code := PackageCode;
         ConfigPackage."Package Name" := PackageName;
-        ConfigPackage."Language ID" := Language.GetDefaultApplicationLanguageId;
+        ConfigPackage."Language ID" := Language.GetDefaultApplicationLanguageId();
         ConfigPackage."Product Version" :=
-          CopyStr(ApplicationSystemConstants.ApplicationVersion, 1, StrLen(ConfigPackage."Product Version"));
+          CopyStr(ApplicationSystemConstants.ApplicationVersion(), 1, StrLen(ConfigPackage."Product Version"));
         if not ConfigPackage.Insert() then;
     end;
 
@@ -442,7 +443,7 @@ codeunit 1180 "Data Privacy Mgmt"
         ConfigPackageFilter."Table ID" := TableId;
         ConfigPackageFilter.Validate("Field ID", FieldId);
         ConfigPackageFilter.Validate("Field Filter", FieldFilter);
-        exit(ConfigPackageFilter.Insert);
+        exit(ConfigPackageFilter.Insert());
     end;
 
     [Scope('OnPrem')]
@@ -514,7 +515,7 @@ codeunit 1180 "Data Privacy Mgmt"
         FieldIndex: Integer;
         NumberOfKeys: Integer;
     begin
-        RecRef := FieldRef.Record;
+        RecRef := FieldRef.Record();
 
         KeyRef := RecRef.KeyIndex(1);
         NumberOfKeys := KeyRef.FieldCount;

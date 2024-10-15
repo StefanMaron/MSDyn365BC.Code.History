@@ -140,7 +140,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
           StrSubstNo(
             FieldMustHaveAValueErr,
             SalesReceivablesSetup.FieldCaption("Freight G/L Acc. No."),
-            SalesReceivablesSetup.TableCaption));
+            SalesReceivablesSetup.TableCaption()));
     end;
 
     [Test] //this
@@ -623,6 +623,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         CRMConnectionSetup.Get();
         CRMConnectionSetup."Is S.Order Integration Enabled" := true;
         CRMConnectionSetup."Is Enabled" := true;
+        CRMConnectionSetup."Unit Group Mapping Enabled" := false;
         CRMConnectionSetup.Modify();
         isInitialized := true;
         MyNotifications.InsertDefault(UpdateCurrencyExchangeRates.GetMissingExchangeRatesNotificationID, '', '', false);
@@ -707,7 +708,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
     var
         OutStream: OutStream;
     begin
-        CRMAnnotation.AnnotationId := CreateGuid;
+        CRMAnnotation.AnnotationId := CreateGuid();
         CRMAnnotation.IsDocument := false;
         CRMAnnotation.ObjectId := CRMQuote.QuoteId;
         CRMAnnotation.NoteText.CreateOutStream(OutStream, TEXTENCODING::UTF16);
@@ -742,7 +743,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         Currency: Record Currency;
         "Code": Code[10];
     begin
-        Currency.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate, LibraryRandom.RandIntInRange(10, 20), 1));
+        Currency.Get(LibraryERM.CreateCurrencyWithExchangeRate(WorkDate(), LibraryRandom.RandIntInRange(10, 20), 1));
         Code := LibraryUtility.GenerateGUID();
         Currency.Rename('.' + CopyStr(Code, StrLen(Code) - 3));
         exit(Currency.Code);
@@ -750,7 +751,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
 
     local procedure VerifyCRMQuoteStateAndStatus(var CRMQuote: Record "CRM Quote"; ExpectedState: Integer; ExpectedStatus: Integer)
     begin
-        CRMQuote.Find;
+        CRMQuote.Find();
         CRMQuote.TestField(StateCode, ExpectedState);
         CRMQuote.TestField(StatusCode, ExpectedStatus);
     end;
@@ -763,7 +764,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         SalesLine.SetRange("Document Type", SalesHeader."Document Type");
         SalesLine.FindSet();
         repeat
-            SalesLine.Next;
+            SalesLine.Next();
             VerifySalesLineDescriptionAndTrancateProdDescription(SalesLine, ProductDescription);
         until StrLen(ProductDescription) = 0;
     end;
@@ -777,7 +778,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
         SalesLine.FindSet();
         VerifySalesLineDescriptionAndTrancateProdDescription(SalesLine, ProductDescription);
         repeat
-            SalesLine.Next;
+            SalesLine.Next();
             VerifySalesLineDescriptionAndTrancateProdDescription(SalesLine, ProductDescription);
         until StrLen(ProductDescription) = 0;
     end;
@@ -804,7 +805,7 @@ codeunit 139172 "CRM Quotes Integr.Test"
             ActualText := RecordLinkManagement.ReadNote(RecordLink);
             if ActualText = AnnotationText then
                 exit;
-        until RecordLink.Next = 0;
+        until RecordLink.Next() = 0;
         Error(StrSubstNo(SalesQuotenoteNotFoundErr, SalesHeader."No.", AnnotationText));
     end;
 

@@ -62,11 +62,12 @@ report 99001041 "Delete Expired Components"
     end;
 
     var
-        Text000: Label 'You must enter the date to delete before.';
-        Text001: Label 'Deleting...\';
-        Text002: Label 'Production BOM No. #1##########';
         ProdBOMLine: Record "Production BOM Line";
         Window: Dialog;
         StartingDate: Date;
+
+        Text000: Label 'You must enter the date to delete before.';
+        Text001: Label 'Deleting...\';
+        Text002: Label 'Production BOM No. #1##########';
 }
 

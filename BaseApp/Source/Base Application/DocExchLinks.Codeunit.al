@@ -8,8 +8,9 @@ codeunit 1411 "Doc. Exch. Links"
     end;
 
     var
-        UnSupportedTableTypeErr: Label 'The %1 table is not supported.', Comment = '%1 is the table.';
         DocExchServiceMgt: Codeunit "Doc. Exch. Service Mgt.";
+
+        UnSupportedTableTypeErr: Label 'The %1 table is not supported.', Comment = '%1 is the table.';
 
     procedure UpdateDocumentRecord(DocRecRef: RecordRef; DocIdentifier: Text; DocOrigIdentifier: Text)
     var
@@ -20,7 +21,7 @@ codeunit 1411 "Doc. Exch. Links"
         if IsHandled then
             exit;
 
-        DocRecRef.Find;
+        DocRecRef.Find();
         case DocRecRef.Number of
             DATABASE::"Sales Invoice Header":
                 SetInvoiceDocSent(DocRecRef, DocIdentifier, DocOrigIdentifier);

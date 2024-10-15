@@ -38,7 +38,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
         LibraryLowerPermissions.SetPurchDocsCreate;
         PurchaseOrder.OpenNew();
         Assert.IsTrue(PurchaseOrder."Invoice Receipt Date".Visible, 'Field Invoice Receipt Date is not visible');
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
     end;
 
     [Test]
@@ -54,7 +54,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
         LibraryLowerPermissions.SetPurchDocsCreate;
         PurchaseInvoice.OpenNew();
         Assert.IsTrue(PurchaseInvoice."Invoice Receipt Date".Visible, 'Field Invoice Receipt Date is not visible');
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
     end;
 
     [Test]
@@ -72,7 +72,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         PurchaseOrder.OpenNew();
         Assert.IsTrue(PurchaseOrder."Invoice Receipt Date".Visible, 'Field Invoice Receipt Date is not visible');
-        PurchaseOrder.Close;
+        PurchaseOrder.Close();
     end;
 
     [Test]
@@ -90,7 +90,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
         EnvironmentInfoTestLibrary.SetTestabilitySoftwareAsAService(true);
         PurchaseInvoice.OpenNew();
         Assert.IsTrue(PurchaseInvoice."Invoice Receipt Date".Visible, 'Field Invoice Receipt Date is not visible');
-        PurchaseInvoice.Close;
+        PurchaseInvoice.Close();
     end;
 
     [Test]
@@ -210,7 +210,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
         LibraryLowerPermissions.SetO365Setup();
         LibraryJournals.CreateGenJournalLineWithBatch(
           GenJournalLine, GenJournalLine."Document Type"::Payment, GenJournalLine."Account Type"::Vendor, '', 0);
-        asserterror GenJournalLine.Validate("Invoice Receipt Date", WorkDate);
+        asserterror GenJournalLine.Validate("Invoice Receipt Date", WorkDate());
         Assert.ExpectedErrorCode('TestField');
         Assert.ExpectedError(DocumentTypeMustBeInvErr);
     end;
@@ -338,7 +338,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
         VendEntryEdit.Run(VendorLedgerEntry);
 
         // [THEN] Vendor Ledger Entry has "Invoice Receipt Date" = 02.01.2017
-        VendorLedgerEntry.Find;
+        VendorLedgerEntry.Find();
         VendorLedgerEntry.TestField("Invoice Receipt Date", ExpectedDate);
     end;
 
@@ -478,7 +478,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
 
         // [GIVEN] Work Date is January 5
         // [GIVEN] Invoice with "Due Date"  = January 4
-        MockVendLedEntryNo(false, VendorLedgerEntry."Document Type"::Invoice, StartingDate, 0D, 0D, WorkDate - 1, true);
+        MockVendLedEntryNo(false, VendorLedgerEntry."Document Type"::Invoice, StartingDate, 0D, 0D, WorkDate() - 1, true);
         PaymentPracticesMgt.BuildPmtApplicationBuffer(TempPaymentApplicationBuffer, StartingDate, EndingDate);
 
         // [WHEN] Invoke function GetPctOfPmtsNotPaid
@@ -509,7 +509,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
 
         // [GIVEN] Work Date is January 4
         // [GIVEN] Invoice with "Due Date"  = January 5
-        DueDate := LibraryRandom.RandDateFrom(WorkDate, LibraryRandom.RandIntInRange(3, 5));
+        DueDate := LibraryRandom.RandDateFrom(WorkDate(), LibraryRandom.RandIntInRange(3, 5));
         InvLedgEntryNo := MockVendLedEntryNo(false, VendorLedgerEntry."Document Type"::Invoice, StartingDate, 0D, 0D, DueDate, true);
 
         // [GIVEN] Partial Payment with "Posting Date" = January 3
@@ -545,7 +545,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
 
         // [GIVEN] Work Date is January 5
         // [GIVEN] Invoice with "Due Date"  = January 4
-        DueDate := LibraryRandom.RandDateFrom(WorkDate, -LibraryRandom.RandIntInRange(3, 5));
+        DueDate := LibraryRandom.RandDateFrom(WorkDate(), -LibraryRandom.RandIntInRange(3, 5));
         InvLedgEntryNo := MockVendLedEntryNo(false, VendorLedgerEntry."Document Type"::Invoice, StartingDate, 0D, 0D, DueDate, true);
 
         // [GIVEN] Partial Payment with "Posting Date" = January 3
@@ -581,7 +581,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
 
         // [GIVEN] Work Date is January 3
         // [GIVEN] Invoice with "Due Date"  = January 4
-        DueDate := LibraryRandom.RandDateFrom(WorkDate, LibraryRandom.RandIntInRange(3, 5));
+        DueDate := LibraryRandom.RandDateFrom(WorkDate(), LibraryRandom.RandIntInRange(3, 5));
         InvLedgEntryNo := MockVendLedEntryNo(false, VendorLedgerEntry."Document Type"::Invoice, StartingDate, 0D, 0D, DueDate, true);
 
         // [GIVEN] Partial Payment with "Posting Date" = January 5
@@ -616,7 +616,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
 
         // [GIVEN] Work Date is January 3
         // [GIVEN] Invoice with "Due Date"  = January 4
-        DueDate := LibraryRandom.RandDateFrom(WorkDate, LibraryRandom.RandIntInRange(3, 5));
+        DueDate := LibraryRandom.RandDateFrom(WorkDate(), LibraryRandom.RandIntInRange(3, 5));
         InvLedgEntryNo := MockVendLedEntryNo(false, VendorLedgerEntry."Document Type"::Invoice, StartingDate, 0D, 0D, DueDate, false);
 
         // [GIVEN] Full Payment with "Posting Date" = January 5
@@ -924,7 +924,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
 
         // [GIVEN] Work Date is January 3
         // [GIVEN] Invoice with "Due Date"  = January 3
-        InvLedgEntryNo := MockVendLedEntryNo(false, VendorLedgerEntry."Document Type"::Invoice, StartingDate, 0D, 0D, WorkDate, true);
+        InvLedgEntryNo := MockVendLedEntryNo(false, VendorLedgerEntry."Document Type"::Invoice, StartingDate, 0D, 0D, WorkDate(), true);
 
         // [GIVEN] Partial Payment with "Posting Date" = January 4
         MockPmtWithApplication(InvLedgEntryNo, WorkDate + 1);
@@ -1066,7 +1066,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
 
         // [GIVEN] Work Date is January 4
         // [GIVEN] Invoice with "Due Date"  = January 5
-        DueDate := LibraryRandom.RandDateFrom(WorkDate, LibraryRandom.RandIntInRange(3, 5));
+        DueDate := LibraryRandom.RandDateFrom(WorkDate(), LibraryRandom.RandIntInRange(3, 5));
         InvLedgEntryNo := MockVendLedEntryNo(false, VendorLedgerEntry."Document Type"::Invoice, StartingDate, 0D, 0D, DueDate, false);
 
         // [GIVEN] Full Payment with "Posting Date" = January 5
@@ -1101,7 +1101,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
 
         // [GIVEN] Work Date is January 4
         // [GIVEN] Invoice "A" with "Due Date"  = January 3
-        DueDate := LibraryRandom.RandDateFrom(WorkDate, -LibraryRandom.RandIntInRange(3, 5));
+        DueDate := LibraryRandom.RandDateFrom(WorkDate(), -LibraryRandom.RandIntInRange(3, 5));
         InvLedgEntryNo := MockVendLedEntryNo(false, VendorLedgerEntry."Document Type"::Invoice, StartingDate, 0D, 0D, DueDate, true);
 
         // [GIVEN] Full Payment for the invoice "A" with "Posting Date" = January 3
@@ -1146,7 +1146,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
         DueDate: Date;
     begin
         SetStartingEndingDates(StartingDate, EndingDate);
-        DueDate := LibraryRandom.RandDateFrom(WorkDate, LibraryRandom.RandIntInRange(3, 5));
+        DueDate := LibraryRandom.RandDateFrom(WorkDate(), LibraryRandom.RandIntInRange(3, 5));
         MockVendLedEntry(
           VendorLedgerEntry, false, VendorLedgerEntry."Document Type"::Invoice, StartingDate, 0D, StartingDate, DueDate, false);
 
@@ -1169,7 +1169,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
     local procedure MockVendLedEntry(var VendorLedgerEntry: Record "Vendor Ledger Entry"; ExcludeFromPmtPracticesReport: Boolean; DocType: Enum "Gen. Journal Document Type"; PostingDate: Date; DocumentDate: Date; InvoiceReceiptDate: Date; DueDate: Date; IsOpen: Boolean): Integer
     begin
         with VendorLedgerEntry do begin
-            Init;
+            Init();
             "Entry No." := LibraryUtility.GetNewRecNo(VendorLedgerEntry, FieldNo("Entry No."));
             "Document Type" := DocType;
             "Posting Date" := PostingDate;
@@ -1178,7 +1178,7 @@ codeunit 144062 "ERM Payment Terms Reporting"
             "Invoice Receipt Date" := InvoiceReceiptDate;
             "Due Date" := DueDate;
             Open := IsOpen;
-            Insert;
+            Insert();
             exit("Entry No.");
         end;
     end;
@@ -1197,13 +1197,13 @@ codeunit 144062 "ERM Payment Terms Reporting"
         DetailedVendorLedgEntry: Record "Detailed Vendor Ledg. Entry";
     begin
         with DetailedVendorLedgEntry do begin
-            Init;
+            Init();
             "Entry Type" := "Entry Type"::Application;
             "Entry No." := LibraryUtility.GetNewRecNo(DetailedVendorLedgEntry, FieldNo("Entry No."));
             "Document Type" := DocType;
             "Vendor Ledger Entry No." := VendLedgEntryNo;
             "Applied Vend. Ledger Entry No." := AppliedVendLedgEntryNo;
-            Insert;
+            Insert();
             exit("Entry No.");
         end;
     end;
@@ -1225,8 +1225,8 @@ codeunit 144062 "ERM Payment Terms Reporting"
 
     local procedure SetStartingEndingDates(var StartingDate: Date; var EndingDate: Date)
     begin
-        StartingDate := CalcDate('<-CM>', WorkDate);
-        EndingDate := CalcDate('<CM>', WorkDate);
+        StartingDate := CalcDate('<-CM>', WorkDate());
+        EndingDate := CalcDate('<CM>', WorkDate());
     end;
 
     local procedure RunPaymentPracticesReport(StartingDate: Date; EndingDate: Date; ShowInvoices: Boolean)

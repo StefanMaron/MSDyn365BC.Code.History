@@ -4,7 +4,7 @@ table 5377 "Ext Txt ID Integration Record"
     ObsoleteState = Pending;
     ObsoleteReason = 'This functionality will be replaced by the systemID field';
     ObsoleteTag = '15.0';
-    
+
     fields
     {
         field(1; "External ID"; Text[250])
@@ -26,7 +26,7 @@ table 5377 "Ext Txt ID Integration Record"
         }
         field(6; "Table ID"; Integer)
         {
-            CalcFormula = Lookup ("Integration Record"."Table ID" WHERE("Integration ID" = FIELD("Integration ID")));
+            CalcFormula = Lookup("Integration Record"."Table ID" WHERE("Integration ID" = FIELD("Integration ID")));
             Caption = 'Table ID';
             FieldClass = FlowField;
         }
@@ -76,7 +76,7 @@ table 5377 "Ext Txt ID Integration Record"
     begin
         ExtTxtIDIntegrationRecord.SetRange("External ID", ExternalID);
         ExtTxtIDIntegrationRecord.SetFilter("Table ID", Format(DestinationTableID));
-        exit(ExtTxtIDIntegrationRecord.FindFirst);
+        exit(ExtTxtIDIntegrationRecord.FindFirst());
     end;
 
     procedure CoupleExternalIDToRecordID(ExternalID: Text[250]; RecordID: RecordID)
@@ -98,8 +98,8 @@ table 5377 "Ext Txt ID Integration Record"
                     Error(RecordIdAlreadyMappedErr, Format(RecordID, 0, 1), ExternalID);
 
                 with ExtTxtIDIntegrationRecord do begin
-                    Reset;
-                    Init;
+                    Reset();
+                    Init();
                     "External ID" := ExternalID;
                     "Integration ID" := IntegrationRecord."Integration ID";
                     Insert(true);
@@ -180,7 +180,7 @@ table 5377 "Ext Txt ID Integration Record"
     begin
         ExtTxtIDIntegrationRecord.SetCurrentKey("Integration ID");
         ExtTxtIDIntegrationRecord.SetFilter("Integration ID", IntegrationID);
-        exit(ExtTxtIDIntegrationRecord.FindFirst);
+        exit(ExtTxtIDIntegrationRecord.FindFirst());
     end;
 
     procedure IsModifiedAfterLastSynchonizedExternalRecord(ExternalID: Text[250]; DestinationTableID: Integer; CurrentModifiedOn: DateTime): Boolean

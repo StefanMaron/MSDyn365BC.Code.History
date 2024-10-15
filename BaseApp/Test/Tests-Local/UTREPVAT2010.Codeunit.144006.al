@@ -116,7 +116,7 @@ codeunit 144006 "UT REP VAT 2010"
         VATEntry.Type := VATEntry.Type::Sale;
         VATEntry.Amount := LibraryRandom.RandDec(100, 2);
         VATEntry."EU 3-Party Trade" := EU3PartyTrade;
-        VATEntry."Posting Date" := WorkDate;
+        VATEntry."Posting Date" := WorkDate();
         VATEntry.Insert();
         LibraryVariableStorage.Enqueue(CountryRegion.Code);
         CalculateDate;
@@ -128,7 +128,7 @@ codeunit 144006 "UT REP VAT 2010"
         StartDate: Date;
     begin
         // Calculate Start Date and End Date.
-        StartDate := DMY2Date(1, 12, Date2DMY(WorkDate, 3) - 1);
+        StartDate := DMY2Date(1, 12, Date2DMY(WorkDate(), 3) - 1);
         Calender.SetRange("Period Type", Calender."Period Type"::Month);
         Calender.SetRange("Period Start", StartDate);
         if Calender.FindFirst() then;
@@ -163,7 +163,7 @@ codeunit 144006 "UT REP VAT 2010"
     begin
         LibraryVariableStorage.Dequeue(Code);
         ECSalesList."VAT Entry".SetFilter("Country/Region Code", Code);
-        ECSalesList."VAT Entry".SetFilter("Posting Date", Format(WorkDate));
+        ECSalesList."VAT Entry".SetFilter("Posting Date", Format(WorkDate()));
         ECSalesList.SaveAsXml(LibraryReportDataset.GetParametersFileName, LibraryReportDataset.GetFileName);
     end;
 }

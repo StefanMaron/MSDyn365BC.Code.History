@@ -65,7 +65,7 @@ codeunit 138200 "Normal DemoData"
         // [SCENARIO] There are 0 Sales Invoices
         with SalesHeader do begin
             // [WHEN] Post all Invoices
-            Reset;
+            Reset();
             SetRange("Document Type", "Document Type"::Invoice);
             asserterror FindFirst();
             // [THEN] An error: 'There is no Sales Header within the filter.'
@@ -317,7 +317,7 @@ codeunit 138200 "Normal DemoData"
         // [FEATURE] [VAT Return Period]
         // [SCENARIO 258181] TAB 743 "VAT Report Setup" default setup
         with VATReportSetup do begin
-            Get;
+            Get();
             TestField("VAT Return Period No. Series");
             TestField("Report Version", '');
             TestField("Period Reminder Calculation", DummyDateFormula);

@@ -74,10 +74,10 @@ page 1818 "Cash Flow Forecast Wizard"
                                 GLAccount.SetRange("Account Category", GLAccount."Account Category"::" ", GLAccount."Account Category"::Assets);
                                 GLAccountList.SetTableView(GLAccount);
                                 GLAccountList.LookupMode(true);
-                                if not (GLAccountList.RunModal = ACTION::LookupOK) then
+                                if not (GLAccountList.RunModal() = ACTION::LookupOK) then
                                     exit(false);
 
-                                Text := OldText + GLAccountList.GetSelectionFilter;
+                                Text := OldText + GLAccountList.GetSelectionFilter();
                                 exit(true);
                             end;
                         }
@@ -174,7 +174,7 @@ page 1818 "Cash Flow Forecast Wizard"
                             begin
                                 DummyCashFlowSetup.EmptyTaxBalAccountIfTypeChanged(CurrentTaxBalAccountType);
                                 CurrentTaxBalAccountType := DummyCashFlowSetup."Tax Bal. Account Type";
-                                TaxAccountValidType := DummyCashFlowSetup.HasValidTaxAccountInfo;
+                                TaxAccountValidType := DummyCashFlowSetup.HasValidTaxAccountInfo();
                                 CurrPage.Update();
                             end;
                         }
@@ -273,7 +273,7 @@ page 1818 "Cash Flow Forecast Wizard"
 
                 trigger OnAction()
                 begin
-                    FinishAction;
+                    FinishAction();
                 end;
             }
         }
@@ -281,7 +281,7 @@ page 1818 "Cash Flow Forecast Wizard"
 
     trigger OnInit()
     begin
-        LoadTopBanners;
+        LoadTopBanners();
     end;
 
     trigger OnOpenPage()
@@ -291,7 +291,7 @@ page 1818 "Cash Flow Forecast Wizard"
         UpdateFrequency := UpdateFrequency::Daily;
         TaxablePeriod := TaxablePeriod::Quarterly;
         Evaluate(TaxPaymentWindow, '<CM + 1M + 7D>');
-        LiquidFundsGLAccountFilter := GetLiquidFundsGLAccountFilter;
+        LiquidFundsGLAccountFilter := GetLiquidFundsGLAccountFilter();
         AzureAIEnabled := true;
     end;
 
@@ -312,6 +312,7 @@ page 1818 "Cash Flow Forecast Wizard"
         MediaResourcesDone: Record "Media Resources";
         DummyCashFlowSetup: Record "Cash Flow Setup";
         ClientTypeManagement: Codeunit "Client Type Management";
+        TaxPaymentWindow: DateFormula;
         Step: Option Start,Creation,AzureAI,Tax,Finish;
         TopBannerVisible: Boolean;
         FirstStepVisible: Boolean;
@@ -322,10 +323,7 @@ page 1818 "Cash Flow Forecast Wizard"
         BackActionEnabled: Boolean;
         NextActionEnabled: Boolean;
         UpdateFrequency: Option Never,Daily,Weekly;
-        ExistingSetupWillBeDeletedQst: Label 'The existing cash flow forecast setup will be deleted. Are you sure you want to continue?';
         LiquidFundsGLAccountFilter: Code[250];
-        SetupNotCompletedQst: Label 'Setup of cash flow forecast has not been completed.\\Are you sure that you want to exit?';
-        TaxPaymentWindow: DateFormula;
         TaxablePeriod: Option Monthly,Quarterly,"Accounting Period",Yearly;
         TaxAccountValidType: Boolean;
         CurrentTaxBalAccountType: Option;
@@ -335,6 +333,9 @@ page 1818 "Cash Flow Forecast Wizard"
         APIKEY: Text[250];
         AzureAIStepVisible: Boolean;
 
+        ExistingSetupWillBeDeletedQst: Label 'The existing cash flow forecast setup will be deleted. Are you sure you want to continue?';
+        SetupNotCompletedQst: Label 'Setup of cash flow forecast has not been completed.\\Are you sure that you want to exit?';
+
     local procedure EnableControls(Backwards: Boolean)
     var
         CashFlowForecast: Record "Cash Flow Forecast";
@@ -342,21 +343,21 @@ page 1818 "Cash Flow Forecast Wizard"
         if (Step = Step::Creation) and not Backwards then
             if not CashFlowForecast.IsEmpty() then
                 if not Confirm(ExistingSetupWillBeDeletedQst) then
-                    CurrPage.Close;
+                    CurrPage.Close();
 
-        ResetControls;
+        ResetControls();
 
         case Step of
             Step::Start:
-                ShowStartStep;
+                ShowStartStep();
             Step::Creation:
-                ShowCreationStep;
+                ShowCreationStep();
             Step::AzureAI:
-                ShowAzureAIStep;
+                ShowAzureAIStep();
             Step::Tax:
-                ShowTaxStep;
+                ShowTaxStep();
             Step::Finish:
-                ShowFinalStep;
+                ShowFinalStep();
         end;
     end;
 
@@ -380,20 +381,20 @@ page 1818 "Cash Flow Forecast Wizard"
 
         CashFlowManagement.UpdateCashFlowForecast(AzureAIEnabled);
         GuidedExperience.CompleteAssistedSetup(ObjectType::Page, PAGE::"Cash Flow Forecast Wizard");
-        CurrPage.Close;
+        CurrPage.Close();
     end;
 
     local procedure NextStep(Backwards: Boolean)
     begin
         if Backwards then
             // Skip AzureAI setup page if it is SaaS or AzureAI is disabled
-            if (Step = Step::Tax) and (not AzureAIEnabled or OnSaaS) then
+            if (Step = Step::Tax) and (not AzureAIEnabled or OnSaaS()) then
                 Step := Step - 2
             else
                 Step := Step - 1
         else
             // Skip AzureAI setup page if it is SaaS or AzureAI is disabled
-            if (Step = Step::Creation) and (not AzureAIEnabled or OnSaaS) then
+            if (Step = Step::Creation) and (not AzureAIEnabled or OnSaaS()) then
                 Step := Step + 2
             else
                 Step := Step + 1;
@@ -451,8 +452,8 @@ page 1818 "Cash Flow Forecast Wizard"
 
     local procedure LoadTopBanners()
     begin
-        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType)) and
-           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType))
+        if MediaRepositoryStandard.Get('AssistedSetup-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType())) and
+           MediaRepositoryDone.Get('AssistedSetupDone-NoText-400px.png', Format(ClientTypeManagement.GetCurrentClientType()))
         then
             if MediaResourcesStandard.Get(MediaRepositoryStandard."Media Resources Ref") and
                MediaResourcesDone.Get(MediaRepositoryDone."Media Resources Ref")
@@ -469,14 +470,14 @@ page 1818 "Cash Flow Forecast Wizard"
             if CashFlowAccount."G/L Account Filter" <> '' then
                 exit(CashFlowAccount."G/L Account Filter");
 
-        exit(CopyStr(CashFlowManagement.GetCashAccountFilter, 1, 250));
+        exit(CopyStr(CashFlowManagement.GetCashAccountFilter(), 1, 250));
     end;
 
     local procedure OnSaaS(): Boolean
     var
         EnvironmentInfo: Codeunit "Environment Information";
     begin
-        exit(EnvironmentInfo.IsSaaS)
+        exit(EnvironmentInfo.IsSaaS())
     end;
 }
 

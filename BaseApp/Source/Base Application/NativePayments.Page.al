@@ -77,12 +77,11 @@ page 2831 "Native - Payments"
 
                         "Applies-to Invoice No." := SalesInvoiceHeader."No.";
 
-                        if "Customer No." = '' then begin
+                        if "Customer No." = '' then
                             if SalesInvoiceHeader."Bill-to Customer No." <> '' then
                                 "Customer No." := SalesInvoiceHeader."Bill-to Customer No."
                             else
                                 "Customer No." := SalesInvoiceHeader."Sell-to Customer No.";
-                        end;
                     end;
                 }
                 field(paymentMethodId; "Payment Method Id")
@@ -125,7 +124,7 @@ page 2831 "Native - Payments"
         FilterView: Text;
     begin
         if not PaymentsLoaded then begin
-            FilterView := GetView;
+            FilterView := GetView();
             AppliesToInvoiceIdFilter := GetFilter("Applies-to Invoice Id");
             if AppliesToInvoiceIdFilter <> '' then
                 NativePayments.LoadPayments(TempNativePayment, AppliesToInvoiceIdFilter)
@@ -146,7 +145,7 @@ page 2831 "Native - Payments"
     var
         GenJournalLine: Record "Gen. Journal Line";
     begin
-        CheckNecessaryFields;
+        CheckNecessaryFields();
 
         // It does not get validated automatically
         Validate("Applies-to Invoice Id", "Applies-to Invoice Id");

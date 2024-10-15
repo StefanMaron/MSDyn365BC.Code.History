@@ -214,7 +214,7 @@ page 729 "Copy Item"
     trigger OnQueryClosePage(CloseAction: Action): Boolean
     begin
         if CloseAction in [Action::OK, Action::LookupOK] then
-            ValidateUserInput;
+            ValidateUserInput();
     end;
 
     var
@@ -252,7 +252,7 @@ page 729 "Copy Item"
     var
         CurrUserId: Code[50];
     begin
-        CheckTargetItemNo;
+        CheckTargetItemNo();
 
         if ("Target Item No." = '') and ("Target No. Series" = '') then
             Error(SpecifyTargetItemNoErr);

@@ -208,31 +208,31 @@ table 5896 "Inventory Adjmt. Entry (Order)"
           (("Single-Lvl Material Cost (ACY)" + "Single-Lvl Capacity Cost (ACY)" +
             "Single-Lvl Subcontrd Cost(ACY)" + "Single-Lvl Cap. Ovhd Cost(ACY)") *
            "Indirect Cost %" / 100) +
-          ("Overhead Rate" * OutputQty * CalcCurrencyFactor);
+          ("Overhead Rate" * OutputQty * CalcCurrencyFactor());
         "Single-Lvl Mfg. Ovhd Cost(ACY)" := Round("Single-Lvl Mfg. Ovhd Cost(ACY)", AmtRndgPrecACY);
 
-        OnAfterCalcOvhdCost(xRec, Rec, GLSetup, OutputQty, AmtRndgPrec, AmtRndgPrecACY, CalcCurrencyFactor);
+        OnAfterCalcOvhdCost(xRec, Rec, GLSetup, OutputQty, AmtRndgPrec, AmtRndgPrecACY, CalcCurrencyFactor());
     end;
 
     procedure GetCostsFromItem(OutputQty: Decimal)
     begin
-        GetUnroundedCostsFromItem;
+        GetUnroundedCostsFromItem();
         RoundCosts(OutputQty);
-        CalcCostFromCostShares;
+        CalcCostFromCostShares();
     end;
 
     procedure GetUnitCostsFromItem()
     begin
-        GetUnroundedCostsFromItem;
-        RoundUnitCosts;
-        CalcCostFromCostShares;
+        GetUnroundedCostsFromItem();
+        RoundUnitCosts();
+        CalcCostFromCostShares();
     end;
 
     procedure GetUnitCostsFromProdOrderLine()
     begin
-        GetSingleLevelCosts;
-        RoundUnitCosts;
-        CalcCostFromCostShares;
+        GetSingleLevelCosts();
+        RoundUnitCosts();
+        CalcCostFromCostShares();
     end;
 
     local procedure GetUnroundedCostsFromItem()
@@ -245,7 +245,7 @@ table 5896 "Inventory Adjmt. Entry (Order)"
         "Indirect Cost %" := Item."Indirect Cost %";
         "Overhead Rate" := Item."Overhead Rate";
 
-        GetSingleLevelCosts;
+        GetSingleLevelCosts();
     end;
 
     local procedure GetSingleLevelCosts()
@@ -261,7 +261,7 @@ table 5896 "Inventory Adjmt. Entry (Order)"
         "Single-Level Cap. Ovhd Cost" := Item."Single-Level Cap. Ovhd Cost";
         "Single-Level Mfg. Ovhd Cost" := Item."Single-Level Mfg. Ovhd Cost";
 
-        CurrExchRate := CalcCurrencyFactor;
+        CurrExchRate := CalcCurrencyFactor();
         "Direct Cost (ACY)" := "Direct Cost" * CurrExchRate;
         "Indirect Cost (ACY)" := "Indirect Cost" * CurrExchRate;
         "Single-Lvl Material Cost (ACY)" := "Single-Level Material Cost" * CurrExchRate;
@@ -275,9 +275,9 @@ table 5896 "Inventory Adjmt. Entry (Order)"
 
     local procedure CalcCostFromCostShares()
     begin
-        CalcDirectCostFromCostShares;
-        CalcIndirectCostFromCostShares;
-        CalcUnitCost;
+        CalcDirectCostFromCostShares();
+        CalcIndirectCostFromCostShares();
+        CalcUnitCost();
     end;
 
     local procedure CalcCurrencyFactor(): Decimal
@@ -304,7 +304,7 @@ table 5896 "Inventory Adjmt. Entry (Order)"
 
     procedure SetProdOrderLine(ProdOrderLine: Record "Prod. Order Line")
     begin
-        Init;
+        Init();
         "Order Type" := "Order Type"::Production;
         "Order No." := ProdOrderLine."Prod. Order No.";
         "Order Line No." := ProdOrderLine."Line No.";
@@ -317,7 +317,7 @@ table 5896 "Inventory Adjmt. Entry (Order)"
         "Overhead Rate" := ProdOrderLine."Overhead Rate";
         OnAfterSetProdOrderLineTransferFields(Rec, ProdOrderLine);
 
-        GetUnitCostsFromProdOrderLine;
+        GetUnitCostsFromProdOrderLine();
         if not Insert() then;
     end;
 
@@ -333,7 +333,7 @@ table 5896 "Inventory Adjmt. Entry (Order)"
 
     local procedure SetAssemblyDoc(OrderNo: Code[20]; ItemNo: Code[20])
     begin
-        Init;
+        Init();
         "Order Type" := "Order Type"::Assembly;
         "Order No." := OrderNo;
         "Item No." := ItemNo;
@@ -467,7 +467,7 @@ table 5896 "Inventory Adjmt. Entry (Order)"
         AmtRndingPrecACY := Currency."Amount Rounding Precision";
         if GLSetup."Additional Reporting Currency" <> '' then begin
             Currency.Get(GLSetup."Additional Reporting Currency");
-            Currency.CheckAmountRoundingPrecision;
+            Currency.CheckAmountRoundingPrecision();
             AmtRndingPrecACY := Currency."Amount Rounding Precision"
         end;
         GLSetupRead := true;
@@ -483,7 +483,7 @@ table 5896 "Inventory Adjmt. Entry (Order)"
         UnitAmtRndingPrecACY := Currency."Unit-Amount Rounding Precision";
         if GLSetup."Additional Reporting Currency" <> '' then begin
             Currency.Get(GLSetup."Additional Reporting Currency");
-            Currency.CheckAmountRoundingPrecision;
+            Currency.CheckAmountRoundingPrecision();
             UnitAmtRndingPrecACY := Currency."Unit-Amount Rounding Precision"
         end;
         GLSetupRead := true;

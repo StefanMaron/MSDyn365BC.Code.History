@@ -44,7 +44,7 @@ page 2862 "Native - Payment Methods"
 
                     trigger OnValidate()
                     begin
-                        if DescriptionInCurrentLanguage <> GetDescriptionInCurrentLanguage then begin
+                        if DescriptionInCurrentLanguage <> GetDescriptionInCurrentLanguage() then begin
                             if StrLen(DescriptionInCurrentLanguage) > MaxStrLen(Description) then
                                 Error(StrSubstNo(DisplayNameTooLongErr, MaxStrLen(Description)));
                             Validate(Description, CopyStr(DescriptionInCurrentLanguage, 1, MaxStrLen(Description)));
@@ -86,7 +86,7 @@ page 2862 "Native - Payment Methods"
         O365SalesInitialSetup: Record "O365 Sales Initial Setup";
     begin
         Default := O365SalesInitialSetup.IsDefaultPaymentMethod(Rec);
-        DescriptionInCurrentLanguage := GetDescriptionInCurrentLanguage;
+        DescriptionInCurrentLanguage := GetDescriptionInCurrentLanguage();
     end;
 
     trigger OnInsertRecord(BelowxRec: Boolean): Boolean
@@ -97,7 +97,7 @@ page 2862 "Native - Payment Methods"
     begin
         PaymentMethod.SetRange(Code, Code);
         if not PaymentMethod.IsEmpty() then
-            Insert;
+            Insert();
 
         Insert(true);
 
@@ -116,7 +116,7 @@ page 2862 "Native - Payment Methods"
     begin
         BindSubscription(NativeAPILanguageHandler);
 
-        if EnvInfoProxy.IsInvoicing then
+        if EnvInfoProxy.IsInvoicing() then
             SetRange("Use for Invoicing", true);
     end;
 

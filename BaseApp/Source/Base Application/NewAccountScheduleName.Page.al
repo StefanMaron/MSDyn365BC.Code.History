@@ -1,6 +1,6 @@
 page 105 "New Account Schedule Name"
 {
-    Caption = 'New Account Schedule Name';
+    Caption = 'New Row Definition';
     PageType = StandardDialog;
 
     layout
@@ -9,21 +9,21 @@ page 105 "New Account Schedule Name"
         {
             group(AccountSheduleGroup)
             {
-                Caption = 'Account Schedule';
-                field(SourceAccountScheduleName; OldName[1])
+                Caption = 'Row definition';
+                field(SourceAccountScheduleName; OldName)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'Source Account Schedule Name';
+                    Caption = 'Source Row Definition';
                     Enabled = false;
                     NotBlank = true;
-                    ToolTip = 'Specifies the name of the existing account schedule in the package.';
+                    ToolTip = 'Specifies the name of the existing row definition in the package.';
                 }
-                field(NewAccountScheduleName; NewName[1])
+                field(NewAccountScheduleName; NewName)
                 {
                     ApplicationArea = Basic, Suite;
-                    Caption = 'New Account Schedule Name';
+                    Caption = 'New Row Definition';
                     NotBlank = true;
-                    ToolTip = 'Specifies the name of the new account schedule after importing.';
+                    ToolTip = 'Specifies the name of the new row definition after importing.';
                     trigger OnValidate()
                     begin
                         CheckAccScheduleAlreadyExists();
@@ -37,74 +37,86 @@ page 105 "New Account Schedule Name"
                     Style = Unfavorable;
                 }
             }
+#if not CLEAN21
             group(ColumnLayoutGroup)
             {
                 Caption = 'Default Column Layout';
-                Visible = ShowColumnLayout;
-                field(SourceColumnLayoutName; OldName[2])
+                Visible = false;
+                ObsoleteReason = 'Columns have been moved to FinancialReports page, extend NewFinancialReport.Page.al instead';
+                ObsoleteTag = '21.0';
+                ObsoleteState = Pending;
+                field(SourceColumnLayoutName; '')
                 {
+                    ObsoleteReason = 'Columns have been moved to FinancialReports page, extend NewFinancialReport.Page.al instead';
+                    ObsoleteTag = '21.0';
+                    ObsoleteState = Pending;
                     ApplicationArea = Basic, Suite;
                     Caption = 'Source Column Layout Name';
                     Enabled = false;
                     NotBlank = true;
                     ToolTip = 'Specifies the name of the existing column layout in the package.';
                 }
-                field(NewColumnLayoutName; NewName[2])
+                field(NewColumnLayoutName; '')
                 {
+                    ObsoleteReason = 'Columns have been moved to FinancialReports page, extend NewFinancialReport.Page.al instead';
+                    ObsoleteTag = '21.0';
+                    ObsoleteState = Pending;
                     ApplicationArea = Basic, Suite;
                     Caption = 'New Column Layout Name';
                     NotBlank = true;
                     ToolTip = 'Specifies the name of the new column layout after importing.';
-                    trigger OnValidate()
-                    begin
-                        CheckColumnLayoutAlreadyExists();
-                        CurrPage.Update();
-                    end;
                 }
-                field(AlreadyExistsColumnLayoutText; AlreadyExistsColumnLayoutTxt)
+                field(AlreadyExistsColumnLayoutText; '')
                 {
+                    ObsoleteReason = 'Columns have been moved to FinancialReports page, extend NewFinancialReport.Page.al instead';
+                    ObsoleteTag = '21.0';
+                    ObsoleteState = Pending;
                     ShowCaption = false;
                     Editable = false;
                     Style = Unfavorable;
                 }
             }
+#endif
         }
     }
 
     var
-        OldName: array[2] of Code[10];
-        NewName: array[2] of Code[10];
-        ShowColumnLayout: Boolean;
+        OldName: Code[10];
+        NewName: Code[10];
         AlreadyExistsTxt: Text;
-        AlreadyExistsColumnLayoutTxt: Text;
-        AlreadyExistsErr: Label 'Account schedule %1 will be overwritten.', Comment = '%1 - name of the account schedule.';
-        AlreadyExistsColumnLayoutErr: Label 'Column layout %1 will be overwritten.', Comment = '%1 - name of the column layout.';
+        AlreadyExistsErr: Label 'Row definition %1 will be overwritten.', Comment = '%1 - name of the row definition.';
 
-    procedure Set(Name: Code[10]; ColumnLayout: Code[10])
+    procedure Set(Name: Code[10])
     begin
-        OldName[1] := Name;
-        NewName[1] := Name;
-        OldName[2] := ColumnLayout;
-        NewName[2] := ColumnLayout;
-        ShowColumnLayout := ColumnLayout <> '';
+        OldName := Name;
+        NewName := Name;
         CheckAlreadyExists();
     end;
 
+#if not CLEAN21
+    [Obsolete('Use Set only with the Name parameter now. Column definition is now stored in Financial Report.', '21.0')]
+    procedure Set(Name: Code[10]; ColumnLayout: Code[10])
+    begin
+        Set(Name);
+        CheckAlreadyExists();
+    end;
+#endif
+
     procedure GetName(): Code[10]
     begin
-        exit(NewName[1]);
+        exit(NewName);
     end;
 
+#if not CLEAN21
+    [Obsolete('Column definition is now stored in Financial Report.', '21.0')]
     procedure GetColumnLayoutName(): Code[10]
     begin
-        if ShowColumnLayout then
-            exit(NewName[2]);
     end;
+#endif
 
     local procedure CheckAlreadyExists()
     begin
         CheckAccScheduleAlreadyExists();
-        CheckColumnLayoutAlreadyExists();
     end;
 
     local procedure CheckAccScheduleAlreadyExists()
@@ -112,17 +124,8 @@ page 105 "New Account Schedule Name"
         AccScheduleName: Record "Acc. Schedule Name";
     begin
         AlreadyExistsTxt := '';
-        if AccScheduleName.Get(NewName[1]) then
-            AlreadyExistsTxt := StrSubstNo(AlreadyExistsErr, NewName[1]);
+        if AccScheduleName.Get(NewName) then
+            AlreadyExistsTxt := StrSubstNo(AlreadyExistsErr, NewName);
     end;
 
-    local procedure CheckColumnLayoutAlreadyExists()
-    var
-        ColumnLayoutName: Record "Column Layout Name";
-    begin
-        AlreadyExistsColumnLayoutTxt := '';
-        if ShowColumnLayout then
-            if ColumnLayoutName.Get(NewName[2]) then
-                AlreadyExistsColumnLayoutTxt := StrSubstNo(AlreadyExistsColumnLayoutErr, NewName[2]);
-    end;
 }

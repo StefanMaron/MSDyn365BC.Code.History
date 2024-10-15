@@ -655,7 +655,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         VATAmount := CreateSingleLineSalesDoc(SalesHeader, SalesLine, Currency, UnitPrice, DocumentType);
         SalesLine.CalcVATAmountLines(QtyType::Invoicing, SalesHeader, SalesLine, VATAmountLine);
         ExpectedAmountInclVAT :=
-          Round(SalesLine.Quantity * UnitPrice, Currency."Invoice Rounding Precision", Currency.InvoiceRoundingDirection);
+          Round(SalesLine.Quantity * UnitPrice, Currency."Invoice Rounding Precision", Currency.InvoiceRoundingDirection());
 
         // Exercise: Release Sales Document.
         LibrarySales.ReleaseSalesDocument(SalesHeader);
@@ -665,7 +665,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         // Verify: Verify Amount Including VAT on Released Sales Header and VAT Amount Line.
         Assert.AreEqual(
           ExpectedAmountInclVAT, ActualAmountInclVAT, StrSubstNo(AmountError, SalesHeader.FieldCaption("Amount Including VAT"),
-            ExpectedAmountInclVAT, SalesHeader.TableCaption));
+            ExpectedAmountInclVAT, SalesHeader.TableCaption()));
         VerifyVATAmountLine(VATAmountLine, VATPostingSetup."VAT %", SalesLine."Line Amount" - VATAmount, VATAmount);
 
         // Tear Down: Delete Sales Header.
@@ -724,7 +724,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         // Verify: Verify Amount Including VAT on Released Sales Header and VAT Amount Line.
         Assert.AreEqual(
           AmountIncludingVAT, SalesHeader."Amount Including VAT", StrSubstNo(AmountError, SalesHeader.FieldCaption("Amount Including VAT"),
-            AmountIncludingVAT, SalesHeader.TableCaption));
+            AmountIncludingVAT, SalesHeader.TableCaption()));
         VerifyVATAmountLine(VATAmountLine, VATPostingSetup."VAT %", Round(AmountIncludingVAT - VATAmount), VATAmount);
 
         // Tear Down: Delete Sales Header.
@@ -771,7 +771,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         VATAmount := CreateSingleLinePurchaseDoc(PurchaseHeader, PurchaseLine, Currency, DirectUnitCost, DocumentType);
         PurchaseLine.CalcVATAmountLines(QtyType::Invoicing, PurchaseHeader, PurchaseLine, VATAmountLine);
         ExpectedAmtInclVAT :=
-          Round(PurchaseLine.Quantity * DirectUnitCost, Currency."Invoice Rounding Precision", Currency.InvoiceRoundingDirection);
+          Round(PurchaseLine.Quantity * DirectUnitCost, Currency."Invoice Rounding Precision", Currency.InvoiceRoundingDirection());
 
         // Exercise: Release Purchase Document.
         LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
@@ -781,7 +781,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         // Verify: Verify Amount Including VAT on Released Purchase Header and VAT Amount Line.
         Assert.AreEqual(
           ExpectedAmtInclVAT, ActualAmtInclVAT, StrSubstNo(AmountError, PurchaseHeader.FieldCaption("Amount Including VAT"),
-            ExpectedAmtInclVAT, PurchaseHeader.TableCaption));
+            ExpectedAmtInclVAT, PurchaseHeader.TableCaption()));
         VerifyVATAmountLine(VATAmountLine, PurchaseLine."VAT %", PurchaseLine."Line Amount" - VATAmount, VATAmount);
 
         // Tear Down: Delete Purchase Header.
@@ -838,7 +838,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         // Verify: Verify Amount Including VAT on Released Purchase Header and VAT Amount Line.
         Assert.AreEqual(
           AmountIncludingVAT, PurchaseHeader."Amount Including VAT", StrSubstNo(AmountError,
-            PurchaseHeader.FieldCaption("Amount Including VAT"), AmountIncludingVAT, PurchaseHeader.TableCaption));
+            PurchaseHeader.FieldCaption("Amount Including VAT"), AmountIncludingVAT, PurchaseHeader.TableCaption()));
         VerifyVATAmountLine(VATAmountLine, PurchaseLine."VAT %", Round(AmountIncludingVAT - VATAmount), VATAmount);
 
         // Tear Down: Delete Purchase Header.
@@ -1062,7 +1062,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         SalesLine.FindSet();
         repeat
             VATAmount += SalesLine."Line Amount" * VATFactor;
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure CalculateSalesVATBaseAmount(var LineAmount: Decimal; DocumentNo: Code[20]; DocumentType: Enum "Sales Document Type"; VATFactor: Decimal): Decimal
@@ -1076,7 +1076,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         repeat
             LineAmount += SalesLine."Line Amount";
             VATAmount += SalesLine."Line Amount" * VATFactor;
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
         exit(LineAmount - VATAmount);
     end;
 
@@ -1091,7 +1091,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         repeat
             Amount += PurchaseLine."Line Amount";
             VATAmount += PurchaseLine."Line Amount" * VATFactor;
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
         exit(Amount - VATAmount);
     end;
 
@@ -1403,7 +1403,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         PurchaseLine.FindSet();
         repeat
             VATAmount += (PurchaseLine."Line Amount" - PurchaseLine."Inv. Discount Amount") * VATPercent;
-        until PurchaseLine.Next = 0;
+        until PurchaseLine.Next() = 0;
     end;
 
     local procedure SalesDocumentPricesExclVAT(var SalesHeader: Record "Sales Header"; var VATPostingSetup: Record "VAT Posting Setup"; var VATAmount: Decimal; var Amount: Decimal; DocumentType: Enum "Sales Document Type")
@@ -1424,7 +1424,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         SalesLine.FindSet();
         repeat
             VATAmount += (SalesLine."Line Amount" - SalesLine."Inv. Discount Amount") * VATPercent;
-        until SalesLine.Next = 0;
+        until SalesLine.Next() = 0;
     end;
 
     local procedure UpdatePartialQtyRcveAndInvoice(var PurchaseLine: Record "Purchase Line")
@@ -1457,7 +1457,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(
           Amount, VATAmountLineDiscount, GeneralLedgerSetup."Inv. Rounding Precision (LCY)",
-          StrSubstNo(AmtErrorMessage, VATAmountLine.FieldCaption("Invoice Discount Amount"), Amount, VATAmountLine.TableCaption));
+          StrSubstNo(AmtErrorMessage, VATAmountLine.FieldCaption("Invoice Discount Amount"), Amount, VATAmountLine.TableCaption()));
     end;
 
     local procedure VerifyPurchCMAmountInclVAT(DocumentNo: Code[20]; AmountIncludingVAT: Decimal)
@@ -1471,10 +1471,10 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         PurchCrMemoLine.FindSet();
         repeat
             Amount += PurchCrMemoLine."Amount Including VAT";
-        until PurchCrMemoLine.Next = 0;
+        until PurchCrMemoLine.Next() = 0;
         Assert.AreNearlyEqual(
           AmountIncludingVAT, Amount, GeneralLedgerSetup."Inv. Rounding Precision (LCY)", StrSubstNo(
-            AmtErrorMessage, PurchCrMemoLine.FieldCaption("Amount Including VAT"), AmountIncludingVAT, PurchCrMemoLine.TableCaption));
+            AmtErrorMessage, PurchCrMemoLine.FieldCaption("Amount Including VAT"), AmountIncludingVAT, PurchCrMemoLine.TableCaption()));
     end;
 
     local procedure VerifyPurchOrderAmountInclVAT(DocumentNo: Code[20]; AmountIncludingVAT: Decimal)
@@ -1488,10 +1488,10 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         PurchInvLine.FindSet();
         repeat
             Amount += PurchInvLine."Amount Including VAT";
-        until PurchInvLine.Next = 0;
+        until PurchInvLine.Next() = 0;
         Assert.AreNearlyEqual(
           AmountIncludingVAT, Amount, GeneralLedgerSetup."Inv. Rounding Precision (LCY)",
-          StrSubstNo(AmtErrorMessage, PurchInvLine.FieldCaption("Amount Including VAT"), AmountIncludingVAT, PurchInvLine.TableCaption));
+          StrSubstNo(AmtErrorMessage, PurchInvLine.FieldCaption("Amount Including VAT"), AmountIncludingVAT, PurchInvLine.TableCaption()));
     end;
 
     local procedure VerifySalesOrderAmountInclVAT(DocumentNo: Code[20]; AmountIncludingVAT: Decimal)
@@ -1505,10 +1505,10 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         SalesInvoiceLine.FindSet();
         repeat
             Amount += SalesInvoiceLine."Amount Including VAT";
-        until SalesInvoiceLine.Next = 0;
+        until SalesInvoiceLine.Next() = 0;
         Assert.AreNearlyEqual(
           AmountIncludingVAT, Amount, GeneralLedgerSetup."Inv. Rounding Precision (LCY)", StrSubstNo(AmtErrorMessage,
-            SalesInvoiceLine.FieldCaption("Amount Including VAT"), AmountIncludingVAT, SalesInvoiceLine.TableCaption));
+            SalesInvoiceLine.FieldCaption("Amount Including VAT"), AmountIncludingVAT, SalesInvoiceLine.TableCaption()));
     end;
 
     local procedure VerifySalesCMAmountInclVAT(DocumentNo: Code[20]; AmountIncludingVAT: Decimal)
@@ -1522,10 +1522,10 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         SalesCrMemoLine.FindSet();
         repeat
             Amount += SalesCrMemoLine."Amount Including VAT";
-        until SalesCrMemoLine.Next = 0;
+        until SalesCrMemoLine.Next() = 0;
         Assert.AreNearlyEqual(
           AmountIncludingVAT, Amount, GeneralLedgerSetup."Inv. Rounding Precision (LCY)", StrSubstNo(
-            AmtErrorMessage, SalesCrMemoLine.FieldCaption("Amount Including VAT"), AmountIncludingVAT, SalesCrMemoLine.TableCaption));
+            AmtErrorMessage, SalesCrMemoLine.FieldCaption("Amount Including VAT"), AmountIncludingVAT, SalesCrMemoLine.TableCaption()));
     end;
 
     local procedure VerifyGLAndVATEntry(PostedDocumentNo: Code[20]; GLAccountNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; VATAmount: Decimal)
@@ -1547,10 +1547,10 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         GLEntry.FindSet();
         repeat
             Amount += GLEntry.Amount;
-        until GLEntry.Next = 0;
+        until GLEntry.Next() = 0;
         Assert.AreNearlyEqual(
           GLEntryAmount, Amount, GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), GLEntryAmount, GLEntry.TableCaption));
+          StrSubstNo(AmountError, GLEntry.FieldCaption(Amount), GLEntryAmount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyVATAmount(Amount: Decimal; VATAmountLineDiscount: Decimal)
@@ -1561,7 +1561,7 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         GeneralLedgerSetup.Get();
         Assert.AreNearlyEqual(
           Amount, VATAmountLineDiscount, GeneralLedgerSetup."Inv. Rounding Precision (LCY)",
-          StrSubstNo(AmtErrorMessage, VATAmountLine.FieldCaption("VAT Amount"), Amount, VATAmountLine.TableCaption));
+          StrSubstNo(AmtErrorMessage, VATAmountLine.FieldCaption("VAT Amount"), Amount, VATAmountLine.TableCaption()));
     end;
 
     local procedure VerifyVATEntry(DocumentNo: Code[20]; DocumentType: Enum "Gen. Journal Document Type"; VATEntryAmount: Decimal)
@@ -1576,10 +1576,10 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         VATEntry.FindSet();
         repeat
             Amount += VATEntry.Amount;
-        until VATEntry.Next = 0;
+        until VATEntry.Next() = 0;
         Assert.AreNearlyEqual(
           VATEntryAmount, Amount, GeneralLedgerSetup."Amount Rounding Precision",
-          StrSubstNo(AmountError, VATEntry.FieldCaption(Amount), VATEntryAmount, VATEntry.TableCaption));
+          StrSubstNo(AmountError, VATEntry.FieldCaption(Amount), VATEntryAmount, VATEntry.TableCaption()));
     end;
 
     local procedure VerifyVATAmountLine(VATAmountLine: Record "VAT Amount Line"; VATPct: Decimal; VATBase: Decimal; VATAmount: Decimal)
@@ -1588,10 +1588,10 @@ codeunit 134046 "ERM Prices Incl VAT Doc"
         VATAmountLine.FindFirst();
         Assert.AreEqual(
           VATBase, VATAmountLine."VAT Base", StrSubstNo(AmountError, VATAmountLine.FieldCaption("VAT Base"), VATBase,
-            VATAmountLine.TableCaption));
+            VATAmountLine.TableCaption()));
         Assert.AreEqual(
           VATAmount, VATAmountLine."VAT Amount", StrSubstNo(AmountError, VATAmountLine.FieldCaption("VAT Amount"),
-            VATAmount, VATAmountLine.TableCaption));
+            VATAmount, VATAmountLine.TableCaption()));
     end;
 
     [ModalPageHandler]

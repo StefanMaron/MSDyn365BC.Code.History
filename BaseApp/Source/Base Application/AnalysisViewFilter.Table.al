@@ -47,19 +47,19 @@ table 364 "Analysis View Filter"
         AnalysisView.TestField(Blocked, false);
         with AnalysisView do begin
             ValidateDelete(AnalysisViewFilter.FieldCaption("Dimension Code"));
-            AnalysisViewReset;
-            Modify;
+            AnalysisViewReset();
+            Modify();
         end;
     end;
 
     trigger OnInsert()
     begin
-        ValidateModifyFilter;
+        ValidateModifyFilter();
     end;
 
     trigger OnModify()
     begin
-        ValidateModifyFilter;
+        ValidateModifyFilter();
     end;
 
     trigger OnRename()
@@ -81,16 +81,16 @@ table 364 "Analysis View Filter"
         then
             with AnalysisView do begin
                 ValidateDelete(AnalysisViewFilter.FieldCaption("Dimension Code"));
-                AnalysisViewReset;
+                AnalysisViewReset();
                 "Dimension Value Filter" := '';
-                Modify;
+                Modify();
             end;
         if (AnalysisView."Last Entry No." <> 0) and (xRec."Dimension Value Filter" <> "Dimension Value Filter")
         then
             with AnalysisView do begin
                 ValidateDelete(AnalysisViewFilter.FieldCaption("Dimension Value Filter"));
-                AnalysisViewReset;
-                Modify;
+                AnalysisViewReset();
+                Modify();
             end;
     end;
 }

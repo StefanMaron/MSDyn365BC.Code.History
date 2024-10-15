@@ -209,7 +209,7 @@ codeunit 144010 "UT PAG APACS"
         PaymentJournal.OpenEdit;
         PaymentJournal.FILTER.SetFilter("Document No.", DocumentNo);
         PaymentJournal.PreviewCheck.Invoke;
-        PaymentJournal.Close;
+        PaymentJournal.Close();
     end;
 
     local procedure OpenPageCheckPreviewGB(DocumentNo: Code[20])
@@ -218,7 +218,7 @@ codeunit 144010 "UT PAG APACS"
     begin
         CheckPreviewGB.OpenEdit;
         CheckPreviewGB.FILTER.SetFilter("Document No.", DocumentNo);
-        CheckPreviewGB.Close;
+        CheckPreviewGB.Close();
     end;
 }
 
