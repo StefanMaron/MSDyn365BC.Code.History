@@ -128,7 +128,8 @@ codeunit 99000854 "Inventory Profile Offsetting"
         TempSKU."Item No." := ItemNo;
         TransferPlanningParameters(TempSKU);
         TempSKU."Location Code" := LocationCode;
-        TempSKU.Insert();
+        if TempSKU."Reordering Policy" <> TempSKU."Reordering Policy"::" " then
+          TempSKU.Insert();
     end;
 
     local procedure DemandToInvtProfile(var InventoryProfile: Record "Inventory Profile"; var Item: Record Item; ToDate: Date)

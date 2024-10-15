@@ -737,6 +737,9 @@ report 1303 "Standard Sales - Draft Invoice"
                 column(Description_VATClauseLine; VATClauseText)
                 {
                 }
+                column(Description2_VATClauseLine; VATClause."Description 2")
+                {
+                }
                 column(VATAmount_VATClauseLine; "VAT Amount")
                 {
                     AutoFormatExpression = Header."Currency Code";
