@@ -5,6 +5,7 @@
 namespace Microsoft.Sales.Document;
 
 using Microsoft.Finance.Currency;
+using Microsoft.Finance.GeneralLedger.Setup;
 #if not CLEAN22
 using Microsoft.Finance.VAT.Calculation;
 #endif
@@ -90,6 +91,22 @@ pageextension 11727 "Sales Order CZL" extends "Sales Order"
         }
         addafter("Currency Code")
         {
+            field(AdditionalCurrencyCodeCZL; GeneralLedgerSetup.GetAdditionalCurrencyCode())
+            {
+                ApplicationArea = Suite;
+                Caption = 'Additional Currency Code';
+                ToolTip = 'Specifies the exchange rate to be used if you post in an additional currency.';
+                Visible = AddCurrencyVisible;
+
+                trigger OnAssistEdit()
+                begin
+                    ChangeExchangeRate.SetParameter(GeneralLedgerSetup.GetAdditionalCurrencyCode(), Rec."Additional Currency Factor CZL", Rec."Posting Date");
+                    if ChangeExchangeRate.RunModal() = Action::OK then
+                        Rec."Additional Currency Factor CZL" := ChangeExchangeRate.GetParameter();
+
+                    Clear(ChangeExchangeRate);
+                end;
+            }
             field("VAT Currency Code CZL"; Rec."VAT Currency Code CZL")
             {
                 ApplicationArea = Suite;
@@ -97,8 +114,6 @@ pageextension 11727 "Sales Order CZL" extends "Sales Order"
                 ToolTip = 'Specifies the currency of VAT on the sales document.';
 
                 trigger OnAssistEdit()
-                var
-                    ChangeExchangeRate: Page "Change Exchange Rate";
                 begin
 #if not CLEAN22
 #pragma warning disable AL0432
@@ -227,20 +242,28 @@ pageextension 11727 "Sales Order CZL" extends "Sales Order"
             Visible = false;
         }
     }
-#if not CLEAN22
 
     trigger OnOpenPage()
     begin
+#if not CLEAN22
         VATDateEnabled := VATReportingDateMgt.IsVATDateEnabled();
         ReplaceVATDateEnabled := ReplaceVATDateMgtCZL.IsEnabled();
+#endif
+        AddCurrencyVisible := GeneralLedgerSetup.IsAdditionalCurrencyEnabled();
     end;
 
     var
+        GeneralLedgerSetup: Record "General Ledger Setup";
+#if not CLEAN22
         VATReportingDateMgt: Codeunit "VAT Reporting Date Mgt";
 #pragma warning disable AL0432
         ReplaceVATDateMgtCZL: Codeunit "Replace VAT Date Mgt. CZL";
 #pragma warning restore AL0432
+#endif
+        ChangeExchangeRate: Page "Change Exchange Rate";
+#if not CLEAN22
         ReplaceVATDateEnabled: Boolean;
         VATDateEnabled: Boolean;
 #endif
+        AddCurrencyVisible: Boolean;
 }

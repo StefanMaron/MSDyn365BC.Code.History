@@ -12371,6 +12371,15 @@
       <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit SCM Production Orders - NamedType CaptionErr)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 1635960933 - NamedType 1570625924" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[The current format of date filter %1 is not valid. Do you want to remove it?]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[%1 = Date Filter]D;]A;(LookupHint=Codeunit SCM Production Orders - NamedType DateFilterErrMsg)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 1635960933 - NamedType 2964215133" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[The value must not be editable.]]></Val>

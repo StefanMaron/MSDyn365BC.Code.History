@@ -46,7 +46,7 @@ table 5404 "Item Unit of Measure"
 
             trigger OnValidate()
             var
-                BaseItemUoM: Record "Item Unit of Measure";
+                BaseItemUnitOfMeasure: Record "Item Unit of Measure";
             begin
                 if "Qty. per Unit of Measure" <= 0 then
                     FieldError("Qty. per Unit of Measure", Text000);
@@ -55,9 +55,11 @@ table 5404 "Item Unit of Measure"
                 Item.Get("Item No.");
                 if Item."Base Unit of Measure" = Code then
                     TestField("Qty. per Unit of Measure", 1)
-                else
-                    if BaseItemUoM.Get(Rec."Item No.", Item."Base Unit of Measure") then
-                        CheckQtyPerUoMPrecision(Rec, BaseItemUoM."Qty. Rounding Precision");
+                else begin
+                    BaseItemUnitOfMeasure.SetLoadFields("Qty. Rounding Precision");
+                    if BaseItemUnitOfMeasure.Get(Rec."Item No.", Item."Base Unit of Measure") then
+                        CheckQtyPerUoMPrecision(Rec, BaseItemUnitOfMeasure."Qty. Rounding Precision");
+                end;
                 CalcWeight();
             end;
         }
@@ -71,17 +73,17 @@ table 5404 "Item Unit of Measure"
 
             trigger OnValidate()
             var
-                ItemUoM: Record "Item Unit of Measure";
+                ItemUnitOfMeasure: Record "Item Unit of Measure";
             begin
                 if xRec."Qty. Rounding Precision" <> "Qty. Rounding Precision" then begin
                     CheckNoEntriesWithUoM();
                     Item.Get(Rec."Item No.");
-                    ItemUoM.SetFilter("Item No.", Rec."Item No.");
-                    ItemUoM.SetFilter(Code, '<>%1', Item."Base Unit of Measure");
-                    if (ItemUoM.FindSet()) then
+                    ItemUnitOfMeasure.SetRange("Item No.", Rec."Item No.");
+                    ItemUnitOfMeasure.SetFilter(Code, '<>%1', Item."Base Unit of Measure");
+                    if ItemUnitOfMeasure.FindSet() then
                         repeat
-                            CheckQtyPerUoMPrecision(ItemUoM, Rec."Qty. Rounding Precision");
-                        until (ItemUoM.Next() = 0);
+                            CheckQtyPerUoMPrecision(ItemUnitOfMeasure, Rec."Qty. Rounding Precision");
+                        until ItemUnitOfMeasure.Next() = 0;
                     Session.LogMessage('0000FAR', StrSubstNo(UoMQtyRoundingPrecisionChangedTxt, xRec."Qty. Rounding Precision", "Qty. Rounding Precision", Item.SystemId), Verbosity::Normal, DataClassification::SystemMetadata, TelemetryScope::ExtensionPublisher, 'Category', UoMLoggingTelemetryCategoryTxt);
                 end;
             end;
@@ -233,22 +235,25 @@ table 5404 "Item Unit of Measure"
 
     local procedure TestNoOpenEntriesExist()
     var
-        Item: Record Item;
-        ItemLedgEntry: Record "Item Ledger Entry";
+        ItemToCheck: Record Item;
+        ItemLedgerEntry: Record "Item Ledger Entry";
     begin
-        if Item.Get("Item No.") then
-            if Item."Base Unit of Measure" = xRec.Code then begin
-                ItemLedgEntry.SetCurrentKey("Item No.", Open);
-                ItemLedgEntry.SetRange("Item No.", "Item No.");
-                ItemLedgEntry.SetRange(Open, true);
-                if not ItemLedgEntry.IsEmpty() then
-                    Error(Text001, TableCaption(), xRec.Code, "Item No.", Item.FieldCaption("Base Unit of Measure"));
-            end;
+        ItemToCheck.SetLoadFields("Base Unit of Measure");
+        if not ItemToCheck.Get("Item No.") then
+            exit;
+
+        if ItemToCheck."Base Unit of Measure" = xRec.Code then begin
+            ItemLedgerEntry.SetCurrentKey("Item No.", Open);
+            ItemLedgerEntry.SetRange("Item No.", "Item No.");
+            ItemLedgerEntry.SetRange(Open, true);
+            if not ItemLedgerEntry.IsEmpty() then
+                Error(Text001, TableCaption(), xRec.Code, "Item No.", ItemToCheck.FieldCaption("Base Unit of Measure"));
+        end;
     end;
 
     local procedure TestNoWhseAdjmtEntriesExist()
     var
-        WhseEntry: Record "Warehouse Entry";
+        WarehouseEntry: Record "Warehouse Entry";
         Location: Record Location;
         Bin: Record Bin;
         IsHandled: Boolean;
@@ -258,13 +263,16 @@ table 5404 "Item Unit of Measure"
         if IsHandled then
             exit;
 
-        WhseEntry.SetRange("Item No.", "Item No.");
-        WhseEntry.SetRange("Unit of Measure Code", xRec.Code);
+        WarehouseEntry.SetRange("Item No.", "Item No.");
+        WarehouseEntry.SetRange("Unit of Measure Code", xRec.Code);
+        Location.SetFilter("Adjustment Bin Code", '<>%1', '');
+        Location.SetLoadFields("Adjustment Bin Code");
         if Location.FindSet() then
             repeat
+                Bin.SetLoadFields("Zone Code");
                 if Bin.Get(Location.Code, Location."Adjustment Bin Code") then begin
-                    WhseEntry.SetRange("Zone Code", Bin."Zone Code");
-                    if not WhseEntry.IsEmpty() then
+                    WarehouseEntry.SetRange("Zone Code", Bin."Zone Code");
+                    if not WarehouseEntry.IsEmpty() then
                         Error(CannotModifyUOMWithWhseEntriesErr, TableCaption(), xRec.Code, "Item No.");
                 end;
             until Location.Next() = 0;

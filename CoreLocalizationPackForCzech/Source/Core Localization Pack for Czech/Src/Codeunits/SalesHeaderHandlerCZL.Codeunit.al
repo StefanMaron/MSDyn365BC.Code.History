@@ -37,6 +37,7 @@ codeunit 11743 "Sales Header Handler CZL"
         if SalesHeader.IsCreditDocType() then
             SalesHeader."Credit Memo Type CZL" := SalesHeader."Credit Memo Type CZL"::"Corrective Tax Document";
         SalesHeader.Validate("Credit Memo Type CZL");
+        SalesHeader.UpdateAddCurrencyFactorCZL();
     end;
 #if not CLEAN22
 #pragma warning disable AL0432

@@ -293,7 +293,14 @@ table 1294 "Applied Payment Entry"
     end;
 
     local procedure CheckCurrentMatchesExistingAppln(ExistingAppliedPmtEntry: Record "Applied Payment Entry")
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCheckCurrentMatchesExistingAppln(ExistingAppliedPmtEntry, IsHandled);
+        if IsHandled then
+            exit;
+
         if ("Account Type" = ExistingAppliedPmtEntry."Account Type") and
            ("Account No." = ExistingAppliedPmtEntry."Account No.")
         then
@@ -847,6 +854,7 @@ table 1294 "Applied Payment Entry"
         SetRange("Account Type", "Account Type");
         SetRange("Account No.", "Account No.");
         SetRange("Applies-to Entry No.", "Applies-to Entry No.");
+        OnAfterFilterEntryAppliedToOtherStmtLines(Rec);
     end;
 
     procedure FilterAppliedPmtEntry(BankAccReconLine: Record "Bank Acc. Reconciliation Line")
@@ -935,6 +943,7 @@ table 1294 "Applied Payment Entry"
         AppliedPaymentEntry.SetRange("Account Type", "Account Type");
         AppliedPaymentEntry.SetRange("Account No.", "Account No.");
         AppliedPaymentEntry.SetFilter("Applies-to Entry No.", '<>%1', "Applies-to Entry No.");
+        OnAfterAppliedPaymentEntryFilterOnGetTotalAppliedAmountInclPmtDisc(AppliedPaymentEntry, Rec);
 
         if IsDelete then
             TotalAmountIncludingPmtDisc := 0
@@ -961,6 +970,7 @@ table 1294 "Applied Payment Entry"
         AppliedPaymentEntry.SetRange("Account Type", "Account Type");
         AppliedPaymentEntry.SetRange("Account No.", "Account No.");
         AppliedPaymentEntry.SetFilter("Applies-to Entry No.", '<>%1', "Applies-to Entry No.");
+        OnAfterAppliedPaymentEntryFiltersGetNoOfAppliedEntries(AppliedPaymentEntry, Rec);
 
         if IsDelete then
             exit(AppliedPaymentEntry.Count);
@@ -1115,7 +1125,27 @@ table 1294 "Applied Payment Entry"
     end;
 
     [IntegrationEvent(false, false)]
+    local procedure OnAfterAppliedPaymentEntryFilterOnGetTotalAppliedAmountInclPmtDisc(var AppliedPaymentEntry: Record "Applied Payment Entry"; AppliedPaymentEntryRec: Record "Applied Payment Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterFilterEntryAppliedToOtherStmtLines(var AppliedPaymentEntry: Record "Applied Payment Entry")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
     local procedure OnAfterGetDiscInfo(var AppliedPaymentEntry: Record "Applied Payment Entry"; var PmtDiscDueDate: Date; var PmtDiscToleranceDate: Date; var RemPmtDiscPossible: Decimal)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCheckCurrentMatchesExistingAppln(ExistingAppliedPmtEntry: Record "Applied Payment Entry"; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnAfterAppliedPaymentEntryFiltersGetNoOfAppliedEntries(var AppliedPaymentEntry: Record "Applied Payment Entry"; AppliedPaymentEntryRec: Record "Applied Payment Entry")
     begin
     end;
 

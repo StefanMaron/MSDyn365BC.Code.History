@@ -63,7 +63,7 @@ codeunit 5057 "VendCont-Update"
             NoSeries := Cont."No. Series";
             SalespersonCode := Cont."Salesperson Code";
 
-            OnBeforeTransferFieldsFromVendToCont(Cont, Vend);
+            OnBeforeTransferFieldsFromVendToCont(Cont, Vend, SalespersonCode);
             Cont.Validate("E-Mail", Vend."E-Mail");
 
             Cont.TransferFields(Vend);
@@ -219,7 +219,7 @@ codeunit 5057 "VendCont-Update"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnBeforeTransferFieldsFromVendToCont(var Contact: Record Contact; Vendor: Record Vendor)
+    local procedure OnBeforeTransferFieldsFromVendToCont(var Contact: Record Contact; Vendor: Record Vendor; var SalespersonCode: Code[20])
     begin
     end;
 

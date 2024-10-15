@@ -3960,6 +3960,69 @@ codeunit 137408 "SCM Warehouse VI"
         UnbindSubscription(SCMWarehouseVI);
     end;
 
+    [Test]
+    procedure WhsePickWithItemTrackingForNegativePurchOrderLine()
+    var
+        Location: Record Location;
+        PickBin, ShipmentBin : Record Bin;
+        Item: Record Item;
+        ItemJournalLine: Record "Item Journal Line";
+        ReservationEntry: Record "Reservation Entry";
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseLine: Record "Purchase Line";
+        WarehouseShipmentHeader: Record "Warehouse Shipment Header";
+        WarehouseShipmentLine: Record "Warehouse Shipment Line";
+        WarehouseActivityLine: Record "Warehouse Activity Line";
+        SerialNo: Code[50];
+    begin
+        // [SCENARIO 545340] User can register warehouse pick with item tracking for negative purchase order line.
+        Initialize();
+        SerialNo := LibraryUtility.GenerateGUID();
+
+        // [GIVEN] Location with mandatory bin, shipment, and pick.
+        LibraryWarehouse.CreateLocationWMS(Location, true, false, true, false, true);
+        CreateWarehouseEmployee(Location.Code);
+        LibraryWarehouse.CreateNumberOfBins(Location.Code, '', '', 2, false);
+        LibraryWarehouse.FindBin(PickBin, Location.Code, '', 1);
+        LibraryWarehouse.FindBin(ShipmentBin, Location.Code, '', 2);
+        Location.Validate("Shipment Bin Code", ShipmentBin.Code);
+        Location.Modify(true);
+
+        // [GIVEN] Item with serial no. tracking.
+        // [GIVEN] Post item journal line with serial no. to the location.
+        CreateItemWithItemTrackingCodeForSerialNo(Item);
+        LibraryInventory.CreateItemJournalLineInItemTemplate(ItemJournalLine, Item."No.", Location.Code, PickBin.Code, 1);
+        LibraryItemTracking.CreateItemJournalLineItemTracking(ReservationEntry, ItemJournalLine, SerialNo, '', ItemJournalLine.Quantity);
+        LibraryInventory.PostItemJournalLine(ItemJournalLine."Journal Template Name", ItemJournalLine."Journal Batch Name");
+
+        // [GIVEN] Negative purchase order line for -1 pc.
+        LibraryPurchase.CreatePurchaseDocumentWithItem(
+          PurchaseHeader, PurchaseLine, PurchaseHeader."Document Type"::Order, '', Item."No.", -1, Location.Code, WorkDate());
+        LibraryPurchase.ReleasePurchaseDocument(PurchaseHeader);
+
+        // [GIVEN] Create warehouse shipment from purchase order.
+        LibraryWarehouse.CreateWhseShipmentFromPurchaseReturnOrder(PurchaseHeader);
+        FindWarehouseShipmentHeader(WarehouseShipmentHeader, PurchaseHeader."No.", WarehouseShipmentLine."Source Document"::"Purchase Order");
+
+        // [GIVEN] Create warehouse pick.
+        LibraryWarehouse.CreateWhsePick(WarehouseShipmentHeader);
+
+        // [GIVEN] Assign serial no. to the pick lines.
+        FindWarehouseActivityLine(WarehouseActivityLine, PurchaseHeader."No.", WarehouseActivityLine."Activity Type"::Pick);
+        WarehouseActivityLine.ModifyAll("Serial No.", SerialNo, true);
+
+        // [WHEN] Register warehouse pick.
+        RegisterWarehouseActivityHeader(Location.Code, WarehouseActivityLine."Activity Type"::Pick);
+
+        // [THEN] The warehouse pick is registered.
+        // [THEN] The warehouse shipment can be posted.
+        LibraryWarehouse.PostWhseShipment(WarehouseShipmentHeader, false);
+
+        // [THEN] The purchase order line is received, quantity received = -1.
+        PurchaseLine.Find();
+        PurchaseLine.TestField("Quantity Received", -1);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";

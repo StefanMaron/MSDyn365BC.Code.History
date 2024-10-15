@@ -549,12 +549,10 @@
 
     local procedure CreatePaymentMethodWithBalAccount(var PaymentMethod: Record "Payment Method")
     begin
-        with PaymentMethod do begin
-            LibraryERM.CreatePaymentMethod(PaymentMethod);
-            Validate("Bal. Account Type", "Bal. Account Type"::"G/L Account");
-            Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
-            Modify(true);
-        end;
+        LibraryERM.CreatePaymentMethod(PaymentMethod);
+        PaymentMethod.Validate("Bal. Account Type", PaymentMethod."Bal. Account Type"::"G/L Account");
+        PaymentMethod.Validate("Bal. Account No.", LibraryERM.CreateGLAccountNo());
+        PaymentMethod.Modify(true);
     end;
 
     local procedure CreateInitDataTFS351444(var CurrencyCode: Code[10]; var Dates: array[2] of Date; var Amounts: array[3] of Decimal; IsCust: Boolean)
@@ -592,16 +590,14 @@
         GenJnlLine: Record "Gen. Journal Line";
         BalAccountType: Enum "Gen. Journal Account Type";
     begin
-        with GenJnlLine do begin
-            if IsVend then
-                BalAccountType := "Bal. Account Type"::Vendor
-            else
-                BalAccountType := "Bal. Account Type"::Customer;
-            exit(
-              CreatePostGenJnlLineWithBalanceAcc(
-                PostingDate, DocType, "Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting(),
-                BalAccountType, CVNo, CurrencyCode, PayAmount));
-        end;
+        if IsVend then
+            BalAccountType := GenJnlLine."Bal. Account Type"::Vendor
+        else
+            BalAccountType := GenJnlLine."Bal. Account Type"::Customer;
+        exit(
+          CreatePostGenJnlLineWithBalanceAcc(
+            PostingDate, DocType, GenJnlLine."Account Type"::"G/L Account", LibraryERM.CreateGLAccountNoWithDirectPosting(),
+            BalAccountType, CVNo, CurrencyCode, PayAmount));
     end;
 
     local procedure CreatePostGenJnlLineWithBalanceAcc(PostingDate: Date; DocType: Enum "Gen. Journal Document Type"; AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; BalAccountType: Enum "Gen. Journal Account Type"; BalAccountNo: Code[20]; CurrencyCode: Code[10]; LineAmount: Decimal): Code[20]
@@ -610,20 +606,18 @@
         GenJnlBatch: Record "Gen. Journal Batch";
     begin
         SelectClearGenJournalBatch(GenJnlBatch);
-        with GenJnlLine do begin
-            LibraryERM.CreateGeneralJnlLine(
-              GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name,
-              DocType, AccountType, AccountNo, LineAmount);
-            Validate("External Document No.", "Document No.");
-            Validate("Posting Date", PostingDate);
-            Validate("Bal. Account Type", BalAccountType);
-            Validate("Bal. Account No.", BalAccountNo);
-            Validate("Currency Code", CurrencyCode);
-            Validate(Amount, LineAmount);
-            Modify(true);
-            LibraryERM.PostGeneralJnlLine(GenJnlLine);
-            exit("Document No.");
-        end;
+        LibraryERM.CreateGeneralJnlLine(
+            GenJnlLine, GenJnlBatch."Journal Template Name", GenJnlBatch.Name,
+            DocType, AccountType, AccountNo, LineAmount);
+        GenJnlLine.Validate("External Document No.", GenJnlLine."Document No.");
+        GenJnlLine.Validate("Posting Date", PostingDate);
+        GenJnlLine.Validate("Bal. Account Type", BalAccountType);
+        GenJnlLine.Validate("Bal. Account No.", BalAccountNo);
+        GenJnlLine.Validate("Currency Code", CurrencyCode);
+        GenJnlLine.Validate(Amount, LineAmount);
+        GenJnlLine.Modify(true);
+        LibraryERM.PostGeneralJnlLine(GenJnlLine);
+        exit(GenJnlLine."Document No.");
     end;
 
     local procedure CreatePostGenJnlLineAndApplyToDoc(AccountType: Enum "Gen. Journal Account Type"; AccountNo: Code[20]; PayAmount: Decimal; AppliesToDocNo: Code[20])
@@ -632,14 +626,12 @@
         GenJournalBatch: Record "Gen. Journal Batch";
     begin
         SelectClearGenJournalBatch(GenJournalBatch);
-        with GenJournalLine do begin
-            LibraryERM.CreateGeneralJnlLine(
-              GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
-              "Document Type"::Payment, AccountType, AccountNo, -PayAmount);
-            Validate("Applies-to Doc. Type", "Applies-to Doc. Type"::Invoice);
-            Validate("Applies-to Doc. No.", AppliesToDocNo);
-            Modify(true);
-        end;
+        LibraryERM.CreateGeneralJnlLine(
+            GenJournalLine, GenJournalBatch."Journal Template Name", GenJournalBatch.Name,
+            GenJournalLine."Document Type"::Payment, AccountType, AccountNo, -PayAmount);
+        GenJournalLine.Validate("Applies-to Doc. Type", GenJournalLine."Applies-to Doc. Type"::Invoice);
+        GenJournalLine.Validate("Applies-to Doc. No.", AppliesToDocNo);
+        GenJournalLine.Modify(true);
         LibraryERM.PostGeneralJnlLine(GenJournalLine);
     end;
 
@@ -711,13 +703,11 @@
         LibraryService.CreateServiceLine(ServiceLine, ServiceHeader, ServiceLine.Type::Item, '');
         LibraryService.CreateServiceItem(ServiceItem, ServiceHeader."Customer No.");
         LibraryService.CreateServiceItemLine(ServiceItemLine, ServiceHeader, ServiceItem."No.");
-        with ServiceLine do begin
-            Validate("Service Item Line No.", ServiceItemLine."Line No.");
-            Validate(Quantity, LibraryRandom.RandInt(100));
-            Validate("Unit Price", LibraryRandom.RandDec(100, 2));
-            Modify(true);
-            exit("Amount Including VAT");
-        end;
+        ServiceLine.Validate("Service Item Line No.", ServiceItemLine."Line No.");
+        ServiceLine.Validate(Quantity, LibraryRandom.RandInt(100));
+        ServiceLine.Validate("Unit Price", LibraryRandom.RandDec(100, 2));
+        ServiceLine.Modify(true);
+        exit(ServiceLine."Amount Including VAT");
     end;
 
     [Test]
@@ -793,49 +783,43 @@
         Currency: Record Currency;
         GeneralLedgerSetup: Record "General Ledger Setup";
     begin
-        with Currency do begin
-            GeneralLedgerSetup.Get();
-            LibraryERM.CreateCurrency(Currency);
-            Validate("Invoice Rounding Precision", GeneralLedgerSetup."Inv. Rounding Precision (LCY)");
-            Validate("Residual Gains Account", LibraryERM.CreateGLAccountNo());
-            Validate("Residual Losses Account", LibraryERM.CreateGLAccountNo());
-            Validate("Realized G/L Gains Account", LibraryERM.CreateGLAccountNo());
-            Validate("Realized G/L Losses Account", LibraryERM.CreateGLAccountNo());
-            Validate("Realized Gains Acc.", LibraryERM.CreateGLAccountNo());
-            Validate("Realized Losses Acc.", LibraryERM.CreateGLAccountNo());
-            Validate("Unrealized Gains Acc.", LibraryERM.CreateGLAccountNo());
-            Validate("Unrealized Losses Acc.", LibraryERM.CreateGLAccountNo());
-            Modify(true);
-            exit(Code);
-        end;
+        GeneralLedgerSetup.Get();
+        LibraryERM.CreateCurrency(Currency);
+        Currency.Validate("Invoice Rounding Precision", GeneralLedgerSetup."Inv. Rounding Precision (LCY)");
+        Currency.Validate("Residual Gains Account", LibraryERM.CreateGLAccountNo());
+        Currency.Validate("Residual Losses Account", LibraryERM.CreateGLAccountNo());
+        Currency.Validate("Realized G/L Gains Account", LibraryERM.CreateGLAccountNo());
+        Currency.Validate("Realized G/L Losses Account", LibraryERM.CreateGLAccountNo());
+        Currency.Validate("Realized Gains Acc.", LibraryERM.CreateGLAccountNo());
+        Currency.Validate("Realized Losses Acc.", LibraryERM.CreateGLAccountNo());
+        Currency.Validate("Unrealized Gains Acc.", LibraryERM.CreateGLAccountNo());
+        Currency.Validate("Unrealized Losses Acc.", LibraryERM.CreateGLAccountNo());
+        Currency.Modify(true);
+        exit(Currency.Code);
     end;
 
     local procedure CreateAddExchRate(CurrencyCode: Code[10]; StartingDate: Date; ExhRateAmt: Decimal)
     var
         CurrExchRate: Record "Currency Exchange Rate";
     begin
-        with CurrExchRate do begin
-            Init();
-            "Starting Date" := StartingDate;
-            "Currency Code" := CurrencyCode;
-            "Exchange Rate Amount" := ExhRateAmt;
-            "Adjustment Exch. Rate Amount" := 1;
-            "Relational Exch. Rate Amount" := 1;
-            "Relational Adjmt Exch Rate Amt" := 1;
-            Insert();
-        end;
+        CurrExchRate.Init();
+        CurrExchRate."Starting Date" := StartingDate;
+        CurrExchRate."Currency Code" := CurrencyCode;
+        CurrExchRate."Exchange Rate Amount" := ExhRateAmt;
+        CurrExchRate."Adjustment Exch. Rate Amount" := 1;
+        CurrExchRate."Relational Exch. Rate Amount" := 1;
+        CurrExchRate."Relational Adjmt Exch Rate Amt" := 1;
+        CurrExchRate.Insert();
     end;
 
     local procedure CreateCustomer(CurrencyCode: Code[10]): Code[20]
     var
         Customer: Record Customer;
     begin
-        with Customer do begin
-            Get(CreateSimpleCustomer(CurrencyCode));
-            Validate("Application Method", "Application Method"::"Apply to Oldest");
-            Modify(true);
-            exit("No.");
-        end;
+        Customer.Get(CreateSimpleCustomer(CurrencyCode));
+        Customer.Validate("Application Method", Customer."Application Method"::"Apply to Oldest");
+        Customer.Modify(true);
+        exit(Customer."No.");
     end;
 
     local procedure CreateSimpleCustomer(CurrencyCode: Code[10]): Code[20]
@@ -852,12 +836,10 @@
     var
         Vendor: Record Vendor;
     begin
-        with Vendor do begin
-            Get(CreateSimpleVendor(CurrencyCode));
-            Validate("Application Method", "Application Method"::"Apply to Oldest");
-            Modify(true);
-            exit("No.");
-        end;
+        Vendor.Get(CreateSimpleVendor(CurrencyCode));
+        Vendor.Validate("Application Method", Vendor."Application Method"::"Apply to Oldest");
+        Vendor.Modify(true);
+        exit(Vendor."No.");
     end;
 
     local procedure CreateSimpleVendor(CurrencyCode: Code[10]): Code[20]
@@ -873,13 +855,23 @@
     local procedure CreateBankAccount(CurrencyCode: Code[10]): Code[20]
     var
         BankAccount: Record "Bank Account";
+        BankAccountPostingGroup: Record "Bank Account Posting Group";
+        GLAccount: Record "G/L Account";
+        GLAccountSourceCurrency: Record "G/L Account Source Currency";
     begin
         LibraryERM.CreateBankAccount(BankAccount);
-        with BankAccount do begin
-            Validate("Currency Code", CurrencyCode);
-            Modify(true);
-            exit("No.");
-        end;
+        BankAccount.Validate("Currency Code", CurrencyCode);
+        BankAccount.Modify(true);
+        BankAccountPostingGroup.Get(BankAccount."Bank Acc. Posting Group");
+        GLAccount.Get(BankAccountPostingGroup."G/L Account No.");
+        if GLAccount."Source Currency Posting" = GLAccount."Source Currency Posting"::"Multiple Currencies" then
+            if not GLAccountSourceCurrency.Get(GLAccount."No.", CurrencyCode) then begin
+                GLAccountSourceCurrency.Init();
+                GLAccountSourceCurrency."G/L Account No." := GLAccount."No.";
+                GLAccountSourceCurrency."Currency Code" := CurrencyCode;
+                GLAccountSourceCurrency.Insert();
+            end;
+        exit(BankAccount."No.");
     end;
 
     local procedure FindSalesInvoiceHeader(SelltoCustomerNo: Code[20]): Code[20]
@@ -895,33 +887,27 @@
     var
         CustLedgEntry: Record "Cust. Ledger Entry";
     begin
-        with CustLedgEntry do begin
-            SetRange("Sell-to Customer No.", CustNo);
-            SetRange("Document Type", "Document Type"::Payment);
-            FindFirst();
-            exit("Document No.");
-        end;
+        CustLedgEntry.SetRange("Sell-to Customer No.", CustNo);
+        CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Payment);
+        CustLedgEntry.FindFirst();
+        exit(CustLedgEntry."Document No.");
     end;
 
     local procedure FindVendPaymentDocNo(VendNo: Code[20]): Code[20]
     var
         VendLedgEntry: Record "Vendor Ledger Entry";
     begin
-        with VendLedgEntry do begin
-            SetRange("Buy-from Vendor No.", VendNo);
-            SetRange("Document Type", "Document Type"::Payment);
-            FindFirst();
-            exit("Document No.");
-        end;
+        VendLedgEntry.SetRange("Buy-from Vendor No.", VendNo);
+        VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Payment);
+        VendLedgEntry.FindFirst();
+        exit(VendLedgEntry."Document No.");
     end;
 
     local procedure FindGLEntry(var GLEntry: Record "G/L Entry"; DocNo: Code[20]; GLAccNo: Code[20])
     begin
-        with GLEntry do begin
-            SetRange("Document No.", DocNo);
-            SetRange("G/L Account No.", GLAccNo);
-            FindFirst();
-        end;
+        GLEntry.SetRange("Document No.", DocNo);
+        GLEntry.SetRange("G/L Account No.", GLAccNo);
+        GLEntry.FindFirst();
     end;
 
     local procedure ModifyExchangeRateAmount(CurrencyCode: Code[10]; IsRaise: Boolean)
@@ -933,13 +919,11 @@
             RaiseValue := 1 / 3
         else
             RaiseValue := 3;
-        with CurrencyExchangeRate do begin
-            SetRange("Currency Code", CurrencyCode);
-            FindFirst();
-            Validate("Relational Exch. Rate Amount", "Relational Exch. Rate Amount" * RaiseValue);
-            Validate("Relational Adjmt Exch Rate Amt", "Relational Exch. Rate Amount" * RaiseValue);
-            Modify(true);
-        end;
+        CurrencyExchangeRate.SetRange("Currency Code", CurrencyCode);
+        CurrencyExchangeRate.FindFirst();
+        CurrencyExchangeRate.Validate("Relational Exch. Rate Amount", CurrencyExchangeRate."Relational Exch. Rate Amount" * RaiseValue);
+        CurrencyExchangeRate.Validate("Relational Adjmt Exch Rate Amt", CurrencyExchangeRate."Relational Exch. Rate Amount" * RaiseValue);
+        CurrencyExchangeRate.Modify(true);
     end;
 
     local procedure ModifyGLAccount(GLAccountNo: Code[20]): Code[20]
@@ -1081,17 +1065,15 @@
     var
         BankAccountLedgerEntry: Record "Bank Account Ledger Entry";
     begin
-        with BankAccountLedgerEntry do begin
-            SetRange("Bank Account No.", BankAccountNo);
-            SetRange("Document No.", DocumentNo);
-            FindFirst();
-            Assert.AreEqual(ExpectedAmount, Amount,
-              StrSubstNo(WrongBankAccLedgEntryAmtErr, FieldCaption(Amount)));
-            Assert.AreEqual(ExpectedAmount, "Remaining Amount",
-              StrSubstNo(WrongBankAccLedgEntryAmtErr, FieldCaption(Amount)));
-            Assert.AreEqual(ExpectedAmount, "Amount (LCY)",
-              StrSubstNo(WrongBankAccLedgEntryAmtErr, FieldCaption("Amount (LCY)")));
-        end;
+        BankAccountLedgerEntry.SetRange("Bank Account No.", BankAccountNo);
+        BankAccountLedgerEntry.SetRange("Document No.", DocumentNo);
+        BankAccountLedgerEntry.FindFirst();
+        Assert.AreEqual(ExpectedAmount, BankAccountLedgerEntry.Amount,
+          StrSubstNo(WrongBankAccLedgEntryAmtErr, BankAccountLedgerEntry.FieldCaption(Amount)));
+        Assert.AreEqual(ExpectedAmount, BankAccountLedgerEntry."Remaining Amount",
+          StrSubstNo(WrongBankAccLedgEntryAmtErr, BankAccountLedgerEntry.FieldCaption(Amount)));
+        Assert.AreEqual(ExpectedAmount, BankAccountLedgerEntry."Amount (LCY)",
+          StrSubstNo(WrongBankAccLedgEntryAmtErr, BankAccountLedgerEntry.FieldCaption("Amount (LCY)")));
     end;
 
     local procedure VerifyZeroCustRemainingAmountLCY(DocumentType: Enum "Gen. Journal Document Type"; DocumentNo: Code[20])
@@ -1165,6 +1147,9 @@
         Assert.AreEqual(
           Amount, GLEntry."Additional-Currency Amount",
           StrSubstNo(WrongAmountErr, GLEntry.FieldCaption("Additional-Currency Amount"), Amount, GLEntry.TableCaption()));
+        Assert.AreEqual(
+          Amount, GLEntry."Source Currency Amount",
+          StrSubstNo(WrongAmountErr, GLEntry.FieldCaption("Source Currency Amount"), Amount, GLEntry.TableCaption()));
     end;
 
     local procedure VerifyZeroAddCurrAmountInGLEntry(DocumentNo: Code[20]; GLAccountNo: Code[20])
