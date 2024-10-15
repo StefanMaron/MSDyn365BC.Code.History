@@ -358,7 +358,8 @@ Page 1 "Company Information"
                 field("Registration No."; "Registration No.")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the company''s VAT registration number.';
+                    Importance = Additional;
+                    ToolTip = 'Specifies the company''s registration number. You can enter a maximum of 20 characters, both numbers and letters.';
                 }
                 field(Control1120004; "Trade Register")
                 {

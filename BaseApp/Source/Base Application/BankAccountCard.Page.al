@@ -357,7 +357,7 @@ page 370 "Bank Account Card"
                 field("RIB Key"; "RIB Key")
                 {
                     ApplicationArea = Basic, Suite;
-                    ToolTip = 'Specifies the two-digit RIB key associated with the Bank Account No.';
+                    ToolTip = 'Specifies the two-digit RIB key associated with the Bank Account No. RIB key value in range from 01 to 09 is represented in the single-digit form, without leading zero digit.';
                 }
                 field("RIB Checked"; "RIB Checked")
                 {

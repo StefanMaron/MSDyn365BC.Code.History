@@ -49,7 +49,7 @@ codeunit 137079 "SCM Production Order III"
         PutawayActivitiesCreatedMsg: Label 'Number of Invt. Put-away activities created';
         InboundWhseRequestCreatedMsg: Label 'Inbound Whse. Requests are created.';
         UnadjustedValueEntriesNotCoveredMsg: Label 'Some unadjusted value entries will not be covered with the new setting. You must run the Adjust Cost - Item Entries batch job once to adjust these.';
-        ChangeExpectedCostPostingToGLMsg: Label 'If you change the Expected Cost Posting to G/L, the program must update table Post Value Entry to G/L.';
+        ChangeExpectedCostPostingToGLMsg: Label 'If you enable the Expected Cost Posting to G/L, the program must update table Post Value Entry to G/L.';
         ExpectedCostPostingChangedMsg: Label 'Expected Cost Posting to G/L has been changed to Yes. You should now run Post Inventory Cost to G/L.';
         PostJournalLinesConfirmationMsg: Label 'Do you want to post the journal lines';
         JournalLinesPostedMsg: Label 'The journal lines were successfully posted.';
@@ -1359,9 +1359,6 @@ codeunit 137079 "SCM Production Order III"
           ProductionOrder.Quantity * ItemUnitOfMeasure."Qty. per Unit of Measure", 0, 0, 0, 0);
         VerifyValueEntryForEntryType(
           ValueEntry."Entry Type"::"Indirect Cost", ProductionOrder."No.", 0, CostAmount, 0, ProdOrderLine."Overhead Rate", CostAmount);
-
-        // Tear Down.
-        ResetInventorySetup(InventorySetup);
     end;
 
     [Test]
@@ -6880,15 +6877,6 @@ codeunit 137079 "SCM Production Order III"
     begin
         WorkCenter.Validate("Flushing Method", FlushingMethod);
         WorkCenter.Modify(true);
-    end;
-
-    local procedure ResetInventorySetup(var InventorySetup: Record "Inventory Setup")
-    begin
-        LibraryVariableStorage.Enqueue(ChangeExpectedCostPostingToGLMsg);
-        LibraryVariableStorage.Enqueue(UnadjustedValueEntriesNotCoveredMsg);
-        LibraryInventory.UpdateInventorySetup(
-          InventorySetup, InventorySetup."Automatic Cost Posting", InventorySetup."Expected Cost Posting to G/L",
-          InventorySetup."Automatic Cost Adjustment", InventorySetup."Average Cost Calc. Type", InventorySetup."Average Cost Period");
     end;
 
     local procedure UpdateProdOrderLineUnitOfMeasureCode(var ProdOrderLine: Record "Prod. Order Line"; ItemNo: Code[20]; UnitOfMeasureCode: Code[10])
