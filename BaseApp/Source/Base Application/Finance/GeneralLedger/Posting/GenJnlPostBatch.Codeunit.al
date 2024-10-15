@@ -1632,14 +1632,14 @@ codeunit 13 "Gen. Jnl.-Post Batch"
                     CustLedgEntry.SetRange("Customer No.", "Account No.");
                     CustLedgEntry.SetRange("Applies-to ID", CurrGenJnlLine."Applies-to ID");
                     CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Bill);
-                    if CustLedgEntry.FindFirst() then
+                    if not CustLedgEntry.IsEmpty() then
                         GenJnlPostLine.SetIDBillSettlement(true);
                     CustLedgEntry.Reset();
                     CustLedgEntry.SetRange("Applies-to ID", CurrGenJnlLine."Applies-to ID");
                     CustLedgEntry.SetRange("Document Type", CustLedgEntry."Document Type"::Invoice);
                     CustLedgEntry.SetRange("Document Situation", CustLedgEntry."Document Situation"::"Closed BG/PO");
                     CustLedgEntry.SetRange("Document Status", CustLedgEntry."Document Status"::Rejected);
-                    if CustLedgEntry.FindFirst() then
+                    if not CustLedgEntry.IsEmpty() then
                         GenJnlPostLine.SetIDBillSettlement(true);
                 end;
 
@@ -1648,7 +1648,7 @@ codeunit 13 "Gen. Jnl.-Post Batch"
                 VendLedgEntry.SetRange("Vendor No.", "Account No.");
                 VendLedgEntry.SetRange("Applies-to ID", CurrGenJnlLine."Applies-to ID");
                 VendLedgEntry.SetRange("Document Type", VendLedgEntry."Document Type"::Bill);
-                if VendLedgEntry.FindFirst() then
+                if not VendLedgEntry.IsEmpty() then
                     GenJnlPostLine.SetIDBillSettlement(true);
             end;
             if (CurrGenJnlLine."Applies-to Doc. Type" = CurrGenJnlLine."Applies-to Doc. Type"::Bill) and

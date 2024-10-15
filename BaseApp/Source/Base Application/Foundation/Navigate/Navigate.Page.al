@@ -970,6 +970,7 @@ page 344 Navigate
             NoTaxableEntry.Reset();
             NoTaxableEntry.SetCurrentKey("Document No.", "Posting Date");
             NoTaxableEntry.SetFilter("Document No.", DocNoFilter);
+            NoTaxableEntry.SetFilter("External Document No.", ExtDocNo);
             NoTaxableEntry.SetFilter("Posting Date", PostingDateFilter);
             InsertIntoDocEntry(Rec, DATABASE::"No Taxable Entry", NoTaxableEntry.TableCaption(), NoTaxableEntry.Count);
         end;
@@ -1287,33 +1288,35 @@ page 344 Navigate
         FindPostedInvtReceipt();
         FindPostedInvtShipment();
 
-        if PostedBillGr.ReadPermission() and (CarteraDocNoFilter = '') then begin
-            PostedBillGr.Reset();
-            PostedBillGr.SetCurrentKey("No.");
-            PostedBillGr.SetFilter("No.", DocNoFilter);
-            PostedBillGr.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Posted Bill Group", PostedBillGr.TableCaption(), PostedBillGr.Count);
-        end;
-        if ClosedBillGr.ReadPermission() and (CarteraDocNoFilter = '') then begin
-            ClosedBillGr.Reset();
-            ClosedBillGr.SetCurrentKey("No.");
-            ClosedBillGr.SetFilter("No.", DocNoFilter);
-            ClosedBillGr.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Closed Bill Group", ClosedBillGr.TableCaption(), ClosedBillGr.Count);
-        end;
-        if PostedPmtOrd.ReadPermission() and (CarteraDocNoFilter = '') then begin
-            PostedPmtOrd.Reset();
-            PostedPmtOrd.SetCurrentKey("No.");
-            PostedPmtOrd.SetFilter("No.", DocNoFilter);
-            PostedPmtOrd.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Posted Payment Order", PostedPmtOrd.TableCaption(), PostedPmtOrd.Count);
-        end;
-        if ClosedPmtOrd.ReadPermission() and (CarteraDocNoFilter = '') then begin
-            ClosedPmtOrd.Reset();
-            ClosedPmtOrd.SetCurrentKey("No.");
-            ClosedPmtOrd.SetFilter("No.", DocNoFilter);
-            ClosedPmtOrd.SetFilter("Posting Date", PostingDateFilter);
-            InsertIntoDocEntry(Rec, DATABASE::"Closed Payment Order", ClosedPmtOrd.TableCaption(), ClosedPmtOrd.Count);
+        if (DocNoFilter <> '') or (PostingDateFilter <> '') then begin
+            if PostedBillGr.ReadPermission() and (CarteraDocNoFilter = '') then begin
+                PostedBillGr.Reset();
+                PostedBillGr.SetCurrentKey("No.");
+                PostedBillGr.SetFilter("No.", DocNoFilter);
+                PostedBillGr.SetFilter("Posting Date", PostingDateFilter);
+                InsertIntoDocEntry(Rec, DATABASE::"Posted Bill Group", PostedBillGr.TableCaption(), PostedBillGr.Count);
+            end;
+            if ClosedBillGr.ReadPermission() and (CarteraDocNoFilter = '') then begin
+                ClosedBillGr.Reset();
+                ClosedBillGr.SetCurrentKey("No.");
+                ClosedBillGr.SetFilter("No.", DocNoFilter);
+                ClosedBillGr.SetFilter("Posting Date", PostingDateFilter);
+                InsertIntoDocEntry(Rec, DATABASE::"Closed Bill Group", ClosedBillGr.TableCaption(), ClosedBillGr.Count);
+            end;
+            if PostedPmtOrd.ReadPermission() and (CarteraDocNoFilter = '') then begin
+                PostedPmtOrd.Reset();
+                PostedPmtOrd.SetCurrentKey("No.");
+                PostedPmtOrd.SetFilter("No.", DocNoFilter);
+                PostedPmtOrd.SetFilter("Posting Date", PostingDateFilter);
+                InsertIntoDocEntry(Rec, DATABASE::"Posted Payment Order", PostedPmtOrd.TableCaption(), PostedPmtOrd.Count);
+            end;
+            if ClosedPmtOrd.ReadPermission() and (CarteraDocNoFilter = '') then begin
+                ClosedPmtOrd.Reset();
+                ClosedPmtOrd.SetCurrentKey("No.");
+                ClosedPmtOrd.SetFilter("No.", DocNoFilter);
+                ClosedPmtOrd.SetFilter("Posting Date", PostingDateFilter);
+                InsertIntoDocEntry(Rec, DATABASE::"Closed Payment Order", ClosedPmtOrd.TableCaption(), ClosedPmtOrd.Count);
+            end;
         end;
 
         OnAfterFindPostedDocuments(DocNoFilter, PostingDateFilter, Rec);
@@ -2414,6 +2417,9 @@ page 344 Navigate
     [Scope('OnPrem')]
     procedure FindCarteraDocs(AccountType: Option Receivable,Payable)
     begin
+        if (DocNoFilter = '') and (PostingDateFilter = '') and (CarteraDocNoFilter = '') then
+            exit;
+
         if CarteraDoc.ReadPermission() then begin
             CarteraDoc.Reset();
             CarteraDoc.SetCurrentKey(Type, "Original Document No.");

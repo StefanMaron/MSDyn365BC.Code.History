@@ -73,6 +73,7 @@ permissionset 1001 "LOCAL"
                   tabledata "SII Missing Entries State" = RIMD,
                   tabledata "SII Session" = RIMD,
                   tabledata "SII Setup" = RIMD,
+                  tabledata "SII Sending State" = RIMD,
                   tabledata "Statistical Code" = RIMD,
 #if not CLEAN22
                   tabledata Suffix = RIMD,

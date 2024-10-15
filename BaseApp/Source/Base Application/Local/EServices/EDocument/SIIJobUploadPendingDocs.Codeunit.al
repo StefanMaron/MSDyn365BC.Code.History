@@ -11,7 +11,6 @@ using Microsoft.Purchases.Payables;
 using Microsoft.Purchases.Posting;
 using Microsoft.Sales.Document;
 using Microsoft.Sales.Posting;
-using System.Telemetry;
 using Microsoft.Sales.Receivables;
 using Microsoft.Service.Document;
 using System.Reflection;
@@ -19,16 +18,12 @@ using System.Reflection;
 codeunit 10753 "SII Job Upload Pending Docs."
 {
     // Uploads invoices 1 min after their creation, using event subscribers on Sales Invoices and Purchase invoices
-    var
-        SIIFeatureNameTok: Label 'SII', Locked = true;
+
 
     trigger OnRun()
-    var
-        FeatureTelemetry: Codeunit "Feature Telemetry";
     begin
-        FeatureTelemetry.LogUsage('0000LN5', SIIFeatureNameTok, 'UploadPendingDocuments started');
         UploadPendingDocuments();
-        FeatureTelemetry.LogUsage('0000LN6', SIIFeatureNameTok, 'UploadPendingDocuments finished');
+        SIIJobManagement.TriggerNextHandlePendingJobQueueEntry();
     end;
 
     var

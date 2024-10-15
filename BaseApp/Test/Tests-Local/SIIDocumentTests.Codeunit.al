@@ -34,6 +34,12 @@ codeunit 147520 SIIDocumentTests
         XPathPurchCrMemoRemovalIDFacturaTok: Label '//soapenv:Body/siiLR:BajaLRFacturasRecibidas/siiLR:RegistroLRBajaRecibidas/siiLR:IDFactura';
         ConfirmChangeQst: Label 'Do you want to change %1?', Comment = '%1 = a Field Caption like Currency Code';
         UploadType: Option Regular,Intracommunity,RetryAccepted;
+        ESLbl: Label 'ES';
+        XILbl: Label 'XI';
+        VatRegistrationNoLbl: Label 'B80833593';
+        SIICodigoPaisLbl: Label 'sii:CodigoPais';
+        DotNetVariableNotInstantiatedErr: Label 'A DotNet variable has not been instantiated. Attempting to call System.Xml.XmlNode.InnerText in CodeUnit Library - SII: ValidateElementByNameAt';
+        ErrorTextMustMatchErr: label 'Error text must match.';
 
     [Test]
     [Scope('OnPrem')]
@@ -3122,6 +3128,107 @@ codeunit 147520 SIIDocumentTests
         LibrarySII.ValidateElementByNameAt(XMLDoc, 'sii:Periodo', Format(VendorLedgerEntry."VAT Reporting Date", 0, '<Month,2>'), 0);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('HandleConfirmYes')]
+    procedure PostedPurchaseInvoiceExportsXMLWithoutCodigoPaisElementForXICountryRegion()
+    var
+        Vendor: Record Vendor;
+        Vendor2: Record Vendor;
+        PurchInvHeader: Record "Purch. Inv. Header";
+        VendorLedgerEntry: Record "Vendor Ledger Entry";
+        CountryRegion: Record "Country/Region";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [SCENARIO 494864] Posted Purchase Invoice XML file is exported without CodigoPais element for XI Country Region Vendor having blank ISO Code. 
+        Initialize();
+
+        // [GIVEN] Create Vendor with ES Country Region and Vat Registration No.
+        LibrarySII.CreateVendWithCountryAndVATReg(Vendor, ESLbl, VatRegistrationNoLbl);
+
+        // [GIVEN] Create Vendor 2 with XI Country Region.
+        CreateVendorWithXICountryRegion(Vendor2, CountryRegion);
+
+        // [GIVEN] Create and post Purchase Invoice and find Purchase Invoice Header.
+        PurchInvHeader.Get(
+            LibrarySII.CreatePurchDocumentWithDiffPayToVendor(
+                true,
+                Vendor2."No.",
+                Vendor."No.",
+                GlobalCreditMemoType::" ",
+                true));
+
+        // [GIVEN] Find Vendor Ledger Entry.
+        VendorLedgerEntry.SetRange("Document No.", PurchInvHeader."No.");
+        VendorLedgerEntry.FindFirst();
+
+        // [GIVEN] Create XML file for Posted Purchase Invoice.
+        Assert.IsTrue(
+            SIIXMLCreator.GenerateXml(
+                VendorLedgerEntry,
+                XMLDoc,
+                UploadType::Regular,
+                false),
+            IncorrectXMLDocErr);
+
+        // [WHEN] Validate CodigoPais element for XI Country Region Code.
+        asserterror LibrarySII.ValidateElementByNameAt(XMLDoc, SIICodigoPaisLbl, XILbl, 0);
+
+        // [VERIFY] Verify XML file is without CodigoPais element.
+        Assert.AreEqual(DotNetVariableNotInstantiatedErr, GetLastErrorText(), ErrorTextMustMatchErr);
+    end;
+
+    [Test]
+    [Scope('OnPrem')]
+    [HandlerFunctions('HandleConfirmYes')]
+    procedure PostedSalesInvoiceExportsXMLWithoutCodigoPaisElementForXICountryRegion()
+    var
+        Customer: Record Customer;
+        Customer2: Record Customer;
+        SalesInvHeader: Record "Sales Invoice Header";
+        CustomerLedgerEntry: Record "Cust. Ledger Entry";
+        CountryRegion: Record "Country/Region";
+        XMLDoc: DotNet XmlDocument;
+    begin
+        // [SCENARIO 494864] Posted Sales Invoice XML file is exported without CodigoPais element for XI Country Region Vendor having blank ISO Code.
+        Initialize();
+
+        // [GIVEN] Create Customer with ES Country Region and Vat Registration No.
+        LibrarySII.CreateCustWithCountryAndVATReg(Customer, ESLbl, VatRegistrationNoLbl);
+
+        // [GIVEN] Create Customer 2 with XI Country Region.
+        CreateCustomerWithXICountryRegion(Customer2, CountryRegion);
+
+        // [GIVEN] Create and post Sales Invoice and find Sales Invoice Header.
+        SalesInvHeader.Get(
+            CreateSalesDocumentWithDiffBillToCust(
+                true,
+                false,
+                GlobalCreditMemoType::" ",
+                Customer."No.",
+                Customer2."No.",
+                true));
+
+        // [GIVEN] Find Customer Ledger Entry.
+        CustomerLedgerEntry.SetRange("Document No.", SalesInvHeader."No.");
+        CustomerLedgerEntry.FindFirst();
+
+        // [GIVEN] Create XML file for Posted Sales Invoice.
+        Assert.IsTrue(
+            SIIXMLCreator.GenerateXml(
+                CustomerLedgerEntry,
+                XMLDoc,
+                UploadType::Regular,
+                false),
+            IncorrectXMLDocErr);
+
+        // [WHEN] Validate CodigoPais element for XI Country Region Code.
+        asserterror LibrarySII.ValidateElementByNameAt(XMLDoc, SIICodigoPaisLbl, XILbl, 0);
+
+        // [VERIFY] Verify XML file is without CodigoPais element.
+        Assert.AreEqual(DotNetVariableNotInstantiatedErr, GetLastErrorText(), ErrorTextMustMatchErr);
+    end;
+
     local procedure Initialize()
     begin
         LibrarySetupStorage.Restore();
@@ -3661,6 +3768,32 @@ codeunit 147520 SIIDocumentTests
         Customer."Country/Region Code" := Country;
         Customer."VAT Registration No." := VATRegNo;
         Assert.AreEqual(ExpectedResult, SIIMgt.IsDomesticCustomer(Customer), 'SIIMgt.IsDomesticCustomer()');
+    end;
+
+    local procedure CreateVendorWithXICountryRegion(var Vendor: Record Vendor; var CountryRegion: Record "Country/Region")
+    begin
+        if not CountryRegion.Get(XILbl) then begin
+            CountryRegion.Init();
+            CountryRegion.Validate(Code, XILbl);
+            CountryRegion.Insert(true);
+        end;
+
+        LibraryPurchase.CreateVendor(Vendor);
+        Vendor.Validate("Country/Region Code", CountryRegion.Code);
+        Vendor.Modify(true);
+    end;
+
+    local procedure CreateCustomerWithXICountryRegion(var Customer: Record Customer; var CountryRegion: Record "Country/Region")
+    begin
+        if not CountryRegion.Get(XILbl) then begin
+            CountryRegion.Init();
+            CountryRegion.Validate(Code, XILbl);
+            CountryRegion.Insert(true);
+        end;
+
+        LibrarySales.CreateCustomer(Customer);
+        Customer.Validate("Country/Region Code", CountryRegion.Code);
+        Customer.Modify(true);
     end;
 
     [MessageHandler]

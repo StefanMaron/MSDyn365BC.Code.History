@@ -24,6 +24,9 @@ codeunit 147515 "No Taxable Documents"
         LibrarySII: Codeunit "Library - SII";
         LibraryLowerPermissions: Codeunit "Library - Lower Permissions";
         VATCalcTypeMustBeErr: Label 'VAT Calculation Type must be equal to ''No Taxable VAT''  in VAT Posting Setup';
+        NoTaxableEntryIsNotFoundErr: Label 'No Taxable is not found.';
+        NoTaxableEntryShouldNotBeCreatedErr: Label 'No Taxable Entry should not be created.';
+        CarteraDocShouldNotBeCreatedErr: Label ' Cartera Doc should not be created.';
 
     [Test]
     [Scope('OnPrem')]
@@ -940,6 +943,114 @@ codeunit 147515 "No Taxable Documents"
         Assert.ExpectedError('You cannot change the VAT posting setup');
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure FindEntriesWithExtDocNoShouldFindOnlyRelatedNoTaxableAndCarteraDocEntries()
+    var
+        PurchaseHeader: Record "Purchase Header";
+        PurchaseHeader2: Record "Purchase Header";
+        PurchaseHeader3: Record "Purchase Header";
+        CarteraDoc: Record "Cartera Doc.";
+        NoTaxableEntry: Record "No Taxable Entry";
+        Navigate: TestPage Navigate;
+        InvoiceNo: Code[20];
+        InvoiceNo2: Code[20];
+        InvoiceNo3: Code[20];
+        ExternalDocumentNo: Code[35];
+        ExternalDocumentNo2: Code[35];
+    begin
+        // [SCENARIO 496156] Find Entries when filtered by External Doc. No. will only show related Cartera Documents, No Taxable Entries and other related entries.
+
+        // [GIVEN] Generate and save External Document No. in a Variable.
+        ExternalDocumentNo := Format(LibraryRandom.RandText(5));
+
+        // [GIVEN] Create Purchase Invoice with No Taxable VAT and Validate Vendor Invoice No.
+        CreatePurchaseDocumentWithNoTaxableVAT(PurchaseHeader, PurchaseHeader."Document Type"::Invoice);
+        PurchaseHeader.Validate("Vendor Invoice No.", ExternalDocumentNo);
+        PurchaseHeader.Modify(true);
+
+        // [GIVEN] Post Purchase Invoice.
+        InvoiceNo := LibraryPurchase.PostPurchaseDocument(PurchaseHeader, false, true);
+
+        // [GIVEN] Find No Taxable Entry is created.
+        NoTaxableEntry.SetRange("Document No.", InvoiceNo);
+        Assert.IsTrue(NoTaxableEntry.FindFirst(), NoTaxableEntryIsNotFoundErr);
+
+        // [GIVEN] Find there is no Cartera Doc created.
+        CarteraDoc.SetRange("Document No.", InvoiceNo);
+        Assert.IsTrue(CarteraDoc.IsEmpty(), CarteraDocShouldNotBeCreatedErr);
+
+        // [GIVEN] Create Purchase Invoice 2 with No Taxable VAT and Validate Vendor Invoice No.
+        CreatePurchaseDocumentWithNoTaxableVAT(PurchaseHeader2, PurchaseHeader2."Document Type"::Invoice);
+        PurchaseHeader2.Validate("Vendor Invoice No.", ExternalDocumentNo);
+        PurchaseHeader2.Modify(true);
+
+        // [GIVEN] Post Purchase Invoice 2.
+        InvoiceNo2 := LibraryPurchase.PostPurchaseDocument(PurchaseHeader2, false, true);
+
+        // [GIVEN] Find No Taxable Entry is created.
+        NoTaxableEntry.SetRange("Document No.", InvoiceNo2);
+        Assert.IsTrue(NoTaxableEntry.FindFirst(), NoTaxableEntryIsNotFoundErr);
+
+        // [GIVEN] Find there is no Cartera Doc created.
+        CarteraDoc.SetRange("Document No.", InvoiceNo2);
+        Assert.IsTrue(CarteraDoc.IsEmpty(), CarteraDocShouldNotBeCreatedErr);
+
+        // [GIVEN] Open Navigate page, Enter External Document No. and run Find action.
+        Navigate.OpenEdit();
+        Navigate.ExtDocNo.SetValue(ExternalDocumentNo);
+        Navigate.Find.Invoke();
+
+        // [WHEN] Find No Taxable Entry.
+        Navigate.Filter.SetFilter("Table Id", Format(Database::"No Taxable Entry"));
+
+        // [VERIFY] Verify two No Taxable Entries are found.
+        Navigate."No. of Records".AssertEquals(LibraryRandom.RandIntInRange(2, 2));
+
+        // [WHEN] Find Cartera Doc.
+        Navigate.Filter.SetFilter("Table Id", Format(Database::"Cartera Doc."));
+
+        // [VERIFY] Verify there is no Cartera Doc found.
+        asserterror Navigate."No. of Records".AssertEquals(LibraryRandom.RandInt(0));
+        Navigate.Close();
+
+        // [GIVEN] Generate and save External Document No. 2 in a Variable.
+        ExternalDocumentNo2 := Format(LibraryRandom.RandText(5));
+
+        // [GIVEN] Create Purchase Invoice 3 without No Taxable VAT and Validate Vendor Invoice No.  
+        CreatePurchaseDocumentWithoutNoTaxableVAT(PurchaseHeader3, PurchaseHeader3."Document Type"::Invoice);
+        PurchaseHeader3.Validate("Vendor Invoice No.", ExternalDocumentNo2);
+        PurchaseHeader3.Modify(true);
+
+        // [GIVEN] Post Purchase Invoice 3.
+        InvoiceNo3 := LibraryPurchase.PostPurchaseDocument(PurchaseHeader3, false, true);
+
+        // [GIVEN] Find there is no No Taxable Entry is created.
+        NoTaxableEntry.SetRange("Document No.", InvoiceNo3);
+        Assert.IsTrue(NoTaxableEntry.IsEmpty(), NoTaxableEntryShouldNotBeCreatedErr);
+
+        // [GIVEN] Find there is no Cartera Doc created.
+        CarteraDoc.SetRange("Document No.", InvoiceNo3);
+        Assert.IsTrue(CarteraDoc.IsEmpty(), CarteraDocShouldNotBeCreatedErr);
+
+        // [GIVEN] Open Navigate page, Enter External Document No. 2 and run Find action.
+        Navigate.OpenEdit();
+        Navigate.ExtDocNo.SetValue(ExternalDocumentNo2);
+        Navigate.Find.Invoke();
+
+        // [WHEN] Find No Taxable Entry.
+        Navigate.Filter.SetFilter("Table Id", Format(Database::"No Taxable Entry"));
+
+        // [VERIFY] Verify there is no No Taxable Entry found.
+        asserterror Navigate."No. of Records".AssertEquals(LibraryRandom.RandIntInRange(2, 2));
+
+        // [WHEN] Find Cartera Doc.
+        Navigate.Filter.SetFilter("Table Id", Format(Database::"Cartera Doc."));
+
+        // [VERIFY] Verify there is no Cartera Doc found.
+        asserterror Navigate."No. of Records".AssertEquals(LibraryRandom.RandInt(0));
+    end;
+
     local procedure CreateGLAccountNoTaxableSale(): Code[20]
     var
         GLAccount: Record "G/L Account";
@@ -1110,6 +1221,22 @@ codeunit 147515 "No Taxable Documents"
         NoTaxableEntry.SetRange("VAT Bus. Posting Group", VATPostingSetup."VAT Bus. Posting Group");
         NoTaxableEntry.SetRange("VAT Prod. Posting Group", VATPostingSetup."VAT Prod. Posting Group");
         Assert.RecordIsEmpty(NoTaxableEntry);
+    end;
+
+    local procedure CreatePurchaseDocumentWithoutNoTaxableVAT(var PurchaseHeader: Record "Purchase Header"; DocumentType: Enum "Purchase Document Type")
+    var
+        PurchaseLine: Record "Purchase Line";
+    begin
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, DocumentType, LibraryPurchase.CreateVendorNo());
+        LibraryPurchase.CreatePurchaseLine(
+            PurchaseLine,
+            PurchaseHeader,
+            PurchaseLine.Type::"G/L Account",
+            LibraryERM.CreateGLAccountWithPurchSetup(),
+            LibraryRandom.RandInt(0));
+
+        PurchaseLine.Validate("Direct Unit Cost", LibraryRandom.RandDecInRange(100, 200, 2));
+        PurchaseLine.Modify(true);
     end;
 
     [ConfirmHandler]

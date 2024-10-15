@@ -35,6 +35,7 @@
         CannotChangePrepmtAmtDiffVAtPctErr: Label 'You cannot change the prepayment amount because the prepayment invoice has been posted with a different VAT percentage. Please check the settings on the prepayment G/L account.';
         GenProdPostingGroupErr: Label '%1 is not set for the %2 G/L account with no. %3.', Comment = '%1 - caption Gen. Prod. Posting Group; %2 - G/L Account Description; %3 - G/L Account No.';
         PrepaymentInvoicesNotPaidErr: Label 'You cannot get lines until you have posted all related prepayment invoices to mark the prepayment as paid.';
+        LineAmountMustMatchErr: Label 'Line Amount must match.';
 
     [Test]
     [HandlerFunctions('PurchaseOrderStatisticsPageHandler')]
@@ -4354,6 +4355,117 @@
         Assert.RecordCount(SalesInvoiceHeader, 5);
     end;
 
+    [Test]
+    [Scope('OnPrem')]
+    procedure SalesOrderWithPrepmt100PctShouldPostPartialShipmentInvWithCorrectLineAmounts()
+    var
+        SalesHeader: Record "Sales Header";
+        SalesLine: Record "Sales Line";
+        SalesHeader2: Record "Sales Header";
+        Item: Record Item;
+        SalesReceivablesSetup: Record "Sales & Receivables Setup";
+        VATPostingSetup: Record "VAT Posting Setup";
+        GeneralPostingSetup: Record "General Posting Setup";
+        SalesInvoiceLine: Record "Sales Invoice Line";
+        SalesInvoiceLine2: Record "Sales Invoice Line";
+        DocumentNo: Code[20];
+        Quantity: Integer;
+        UnitPrice: Decimal;
+        InvDiscountAmount: Decimal;
+        QtyToShip: Decimal;
+        LineAmount: Decimal;
+        LineAmount2: Decimal;
+    begin
+        // [SCENARIO 495275] Line Amount is not correct in Sales Line with Prepayment Invoice
+        Initialize();
+
+        // [GIVEN] Set Check Prepmt. when Posting as false in Sales & Receivables Setup.
+        SalesReceivablesSetup.Get();
+        SalesReceivablesSetup."Check Prepmt. when Posting" := false;
+        SalesReceivablesSetup.Modify(true);
+
+        // [GIVEN] Generate and save Quantity, Unit Price and Invoice Discount Amount in a Variable.
+        Quantity := LibraryRandom.RandIntInRange(20, 20);
+        UnitPrice := LibraryRandom.RandIntInRange(10, 10);
+        InvDiscountAmount := LibraryRandom.RandIntInRange(10, 10);
+
+        // [GIVEN] Create VAT Posting Setup.
+        CreateVATPostingSetup(VATPostingSetup, LibraryRandom.RandIntInRange(10, 20));
+
+        // [GIVEN] Create General Posting Setup.
+        CreateGeneralPostingSetup(GeneralPostingSetup);
+
+        // [GIVEN] Create Sales Header.
+        LibrarySales.CreateSalesHeader(
+            SalesHeader,
+            SalesHeader."Document Type"::Order,
+            LibrarySales.CreateCustomerWithBusPostingGroups(
+                GeneralPostingSetup."Gen. Bus. Posting Group",
+                VATPostingSetup."VAT Bus. Posting Group"));
+
+        // [GIVEN] Validate Prepayment % in Sales Header.
+        SalesHeader.Validate("Prepayment %", LibraryRandom.RandIntInRange(100, 100));
+        SalesHeader.Modify(true);
+
+        // [GIVEN] Find Item.
+        Item.Get(
+            LibraryInventory.CreateItemNoWithPostingSetup(
+                GeneralPostingSetup."Gen. Prod. Posting Group",
+                VATPostingSetup."VAT Prod. Posting Group"));
+
+        // [GIVEN] Create Custom Item Sales Line.
+        CreateCustomItemSalesLine(SalesLine, SalesHeader, Item."No.", Quantity, UnitPrice);
+
+        // [GIVEN] Validate Inv, Discount Amount in Sales Line.
+        SalesLine.Validate("Inv. Discount Amount", InvDiscountAmount);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Update Sales Prepmt Account.
+        UpdateSalesPrepmtAccount(
+            CreateGLAccountWithGivenSetup(VATPostingSetup, GeneralPostingSetup),
+            SalesLine."Gen. Bus. Posting Group",
+            SalesLine."Gen. Prod. Posting Group");
+
+        // [GIVEN] Post Prepayment Invoice.
+        LibrarySales.PostSalesPrepaymentInvoice(SalesHeader);
+
+        // [GIVEN] Generate and save Qty. to Ship and Line Amount in a Variable.
+        QtyToShip := LibraryRandom.RandIntInRange(10, 10);
+        LineAmount := QtyToShip * UnitPrice;
+        LineAmount2 := (Quantity * UnitPrice - InvDiscountAmount) * QtyToShip / Quantity;
+
+        // [GIVEN] Find and Validate Qty. to Ship in Sales Line.
+        SalesLine.Get(SalesLine."Document Type", SalesLine."Document No.", SalesLine."Line No.");
+        SalesLine.Validate("Qty. to Ship", QtyToShip);
+        SalesLine.Modify(true);
+
+        // [GIVEN] Post Sales Shipment.
+        LibrarySales.PostSalesDocument(SalesHeader, true, false);
+
+        // [GIVEN] Create Sales Invoice and Get Shipment Lines.
+        LibrarySales.CreateSalesHeader(SalesHeader2, SalesHeader2."Document Type"::Invoice, SalesHeader."Sell-to Customer No.");
+        GetShipmentLines(SalesHeader, SalesHeader2);
+
+        // [GIVEN] Post Sales Invoice.
+        DocumentNo := LibrarySales.PostSalesDocument(SalesHeader2, false, true);
+
+        // [WHEN] Find Sales Invoice Line of Custom Item.
+        SalesInvoiceLine.SetRange("Document No.", DocumentNo);
+        SalesInvoiceLine.SetRange("No.", Item."No.");
+        SalesInvoiceLine.FindFirst();
+
+        // [VERIFY] Verify Line Amount of Sales Invoice Line is equal to LineAmount.
+        Assert.AreEqual(LineAmount, SalesInvoiceLine."Line Amount", LineAmountMustMatchErr);
+
+        // [WHEN] Find Sales Invoice Line of GL Account.
+        SalesInvoiceLine2.SetRange("Document No.", DocumentNo);
+        SalesInvoiceLine2.SetRange(Type, SalesInvoiceLine2.Type::"G/L Account");
+        SalesInvoiceLine2.FindFirst();
+
+        // [VERIFY] Verify Line Amount of Sales Invoice Line is equal to LineAmount2.
+        Assert.AreEqual(-LineAmount2, SalesInvoiceLine2."Line Amount", LineAmountMustMatchErr);
+    end;
+
     local procedure Initialize()
     var
         LibraryERMCountryData: Codeunit "Library - ERM Country Data";
@@ -5786,6 +5898,19 @@
         GLEntry.SetRange("Document Type", GLEntry."Document Type"::Invoice);
         GLEntry.SetRange("Document No.", PostedDocumentNo);
         Assert.RecordCount(GLEntry, 5);
+    end;
+
+    local procedure GetShipmentLines(SalesHeader: Record "Sales Header"; var SalesHeader2: Record "Sales Header")
+    var
+        SalesShipmentHeader: Record "Sales Shipment Header";
+        SalesShipmentLine: Record "Sales Shipment Line";
+        SalesGetShpt: Codeunit "Sales-Get Shipment";
+    begin
+        SalesShipmentHeader.SetRange("Order No.", SalesHeader."No.");
+        SalesShipmentHeader.FindFirst();
+        SalesShipmentLine.SetRange("Document No.", SalesShipmentHeader."No.");
+        SalesGetShpt.SetSalesHeader(SalesHeader2);
+        SalesGetShpt.CreateInvLines(SalesShipmentLine);
     end;
 
     [PageHandler]

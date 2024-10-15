@@ -41,6 +41,15 @@
       <Cmt Name="Dev"><![CDATA[%1=Field Caption;%2=Field Caption;%3=Field Value;]D;]A;(LookupHint=Codeunit ERM Change VAT On VAT Amt Line - NamedType ErrorWithoutCurrency)]]></Cmt>
     </Cmts>
   </Item>
+  <Item ItemId=";Codeunit 3396861613 - NamedType 466846557" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
+    <Str Cat="Text" CP="DOS">
+      <Val><![CDATA[VAT Difference doesn't match]]></Val>
+    </Str>
+    <Disp Icon="Str" Expand="true" />
+    <Cmts>
+      <Cmt Name="Dev"><![CDATA[(LookupHint=Codeunit ERM Change VAT On VAT Amt Line - NamedType VATDiffErr)]]></Cmt>
+    </Cmts>
+  </Item>
   <Item ItemId=";Codeunit 3396861613 - NamedType 3078437939" ItemType=";Codeunit - GlobalVariable" PsrId="63" InstFlg="true" Leaf="true">
     <Str Cat="Text" CP="DOS">
       <Val><![CDATA[VAT+EC Amount]]></Val>

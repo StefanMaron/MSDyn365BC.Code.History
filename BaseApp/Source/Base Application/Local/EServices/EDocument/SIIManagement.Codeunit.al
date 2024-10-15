@@ -354,6 +354,10 @@ codeunit 10756 "SII Management"
     begin
         if CountryIsLocal(CountryRegionCode) then
             exit(false);
+
+        if CountryIsNorthernIreland(CountryRegionCode) then
+            exit(true);
+
         // If EU Country/Region is not blank it means that the country IS in EU and it is NOT Spain (that means, Intracommunity).
         exit(DummyCountryRegion.EUCountryFound(CountryRegionCode));
     end;
@@ -742,7 +746,13 @@ codeunit 10756 "SII Management"
     end;
 
     procedure CountryIsLocal(CountryCode: Code[20]): Boolean
+    var
+        CountryRegion: Record "Country/Region";
     begin
+        if CountryRegion.Get(CountryCode) then
+            if (CountryRegion."ISO Code" = 'ES') then
+                exit(true);
+
         exit((CountryCode = 'ES') or (CountryCode = ''));
     end;
 
@@ -932,6 +942,15 @@ codeunit 10756 "SII Management"
             SIIHistory."Error Message" := StrSubstNo(MarkAsNotAcceptedErr, UserId, CurrentDateTime);
             SIIHistory.Modify();
         until SIIHistory.Next() = 0;
+    end;
+
+    procedure CountryIsNorthernIreland(CountryCode: Code[20]): Boolean
+    var
+        CountryRegion: Record "Country/Region";
+    begin
+        if CountryCode = 'XI' then
+            if CountryRegion.Get(CountryCode) then
+                exit(CountryRegion."ISO Code" = '');
     end;
 
     [IntegrationEvent(false, false)]

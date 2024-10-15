@@ -813,7 +813,7 @@ table 21 "Cust. Ledger Entry"
         key(Key11; "Transaction No.")
         {
         }
-        key(Key17; "Customer No.", "Applies-to ID", Open, Positive, "Due Date")
+        key(Key17; "Customer No.", "Applies-to ID", Open, Positive, "Due Date", "Document Type")
         {
         }
         key(Key18; "Customer No.", Open, Positive, "Applies-to ID", "Due Date")

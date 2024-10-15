@@ -83,6 +83,11 @@ page 10751 "SII Setup"
                     ApplicationArea = All;
                     ToolTip = 'Specifies whether you want to use the posting date of the shipment or the document date of the entry for the FechaOperacion XML node.';
                 }
+                field("New Automatic Sending Exp."; Rec."New Automatic Sending Exp.")
+                {
+                    ApplicationArea = All;
+                    ToolTip = 'Specifies whether the new automatic sending experience is enabled. The new sending experience allows you to track sending status for job queue entries.';
+                }
             }
             group(Certificate)
             {

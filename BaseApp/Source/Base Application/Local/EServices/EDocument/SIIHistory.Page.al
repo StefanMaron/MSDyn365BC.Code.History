@@ -27,6 +27,48 @@ page 10752 "SII History"
     {
         area(content)
         {
+            group(SendingInformation)
+            {
+                Caption = 'Sending Information';
+                Visible = NewSendingExperienceAvailable;
+                field(RefreshSendingStateControl; RefreshSendingStateTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Refresh Sending State';
+                    Editable = false;
+                    ShowCaption = false;
+
+                    trigger OnDrillDown()
+                    begin
+                        SIISendingState.Refresh();
+                    end;
+                }
+                field(SendingStatus; SIISendingState.Status)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Sending Status';
+                    Editable = false;
+                    ToolTip = 'Specifies the sending status. Drill down to see the associated job queue entry.';
+
+                    trigger OnDrillDown()
+                    begin
+                        SIISendingState.LookupJobQueueEntry();
+                    end;
+                }
+                field(ResetSendingStatus; ResetSendingStateTxt)
+                {
+                    ApplicationArea = All;
+                    Caption = 'Reset Sending Status';
+                    Editable = false;
+                    ShowCaption = false;
+                    Importance = Additional;
+
+                    trigger OnDrillDown()
+                    begin
+                        SIISendingState.ResetSending();
+                    end;
+                }
+            }
             repeater(Group)
             {
                 field("State ID"; Rec."Document State Id")
@@ -528,16 +570,19 @@ page 10752 "SII History"
             EnabledBatchSubmission := false;
             ShowAdvancedActions := false;
         end;
+        NewSendingExperienceAvailable := SIISetup."New Automatic Sending Exp.";
         SIIJobManagement.CreateAndStartJobQueueEntryForMissingEntryDetection(SIISetup."Auto Missing Entries Check");
     end;
 
     trigger OnOpenPage()
     begin
         if Rec.FindFirst() then;
+        SIISendingState.Refresh();
     end;
 
     var
         SIIDocUploadState: Record "SII Doc. Upload State";
+        SIISendingState: Record "SII Sending State";
         RecordsFound: Boolean;
         HasRequestXML: Boolean;
         HasResponseXML: Boolean;
@@ -546,6 +591,9 @@ page 10752 "SII History"
         EnabledBatchSubmission: Boolean;
         RetryAcceptedQst: Label 'Accepted entries have been selected. Do you want to resend them?';
         ShowAdvancedActions: Boolean;
+        NewSendingExperienceAvailable: Boolean;
+        RefreshSendingStateTxt: Label 'Refresh sending state';
+        ResetSendingStateTxt: Label 'Reset sending state';
 
     local procedure IssueManualRequest(RetryAccepted: Boolean)
     var

@@ -6,6 +6,7 @@ namespace Microsoft.EServices.EDocument;
 
 using System.Privacy;
 using System.Security.Encryption;
+using System.Telemetry;
 
 table 10751 "SII Setup"
 {
@@ -161,6 +162,16 @@ table 10751 "SII Setup"
         {
             Caption = 'Operation Date';
         }
+        field(44; "New Automatic Sending Exp."; Boolean)
+        {
+            Caption = 'New Automatic Sending Experience';
+            DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                FeatureTelemetry.LogUsage('0000M84', SIIFeatureNameTok, StrSubstNo(NewAutomaticSendingExperienceEnabledTxt, Rec."New Automatic Sending Exp."));
+            end;
+        }
     }
 
     keys
@@ -181,9 +192,12 @@ table 10751 "SII Setup"
     end;
 
     var
+        FeatureTelemetry: Codeunit "Feature Telemetry";
         CannotEnableWithoutCertificateErr: Label 'The setup cannot be enabled without a valid certificate.';
         SiiTxt: Label 'https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroInformacion.xsd', Locked = true;
         SiiLRTxt: Label 'https://www2.agenciatributaria.gob.es/static_files/common/internet/dep/aplicaciones/es/aeat/ssii/fact/ws/SuministroLR.xsd', Locked = true;
+        SIIFeatureNameTok: Label 'SII', Locked = true;
+        NewAutomaticSendingExperienceEnabledTxt: Label 'New Automatic Sending Experience: %1', Locked = true, Comment = '%1 = either true or false';
 
     procedure IsEnabled(): Boolean
     begin

@@ -191,7 +191,8 @@ codeunit 816 "Purch. Post Invoice" implements "Invoice Posting"
             PurchPostInvoiceEvents.RunOnPrepareLineOnBeforeCalcLineDiscountPosting(
                TempInvoicePostingBuffer, InvoicePostingBuffer, PurchHeader, PurchLine, TotalVAT, TotalVATACY, TotalAmount, TotalAmountACY, IsHandled);
             if not IsHandled then begin
-                CalcLineDiscountPosting(PurchHeader, PurchLine, PurchLineACY, InvoicePostingBuffer);
+                if PurchLine."Allocation Account No." = '' then
+                    CalcLineDiscountPosting(PurchHeader, PurchLine, PurchLineACY, InvoicePostingBuffer);
                 if PurchLine."VAT Calculation Type" = PurchLine."VAT Calculation Type"::"Sales Tax" then
                     InvoicePostingBuffer.SetSalesTaxForPurchLine(PurchLine);
                 if (InvoicePostingBuffer.Amount <> 0) or (InvoicePostingBuffer."Amount (ACY)" <> 0) then begin

@@ -800,7 +800,7 @@ table 25 "Vendor Ledger Entry"
             MaintainSIFTIndex = false;
             MaintainSQLIndex = false;
         }
-        key(Key15; "Vendor No.", "Applies-to ID", Open, Positive, "Due Date")
+        key(Key15; "Vendor No.", "Applies-to ID", Open, Positive, "Due Date", "Document Type")
         {
         }
         key(Key16; "Vendor No.", "Document Type", "Document Situation", "Document Status")

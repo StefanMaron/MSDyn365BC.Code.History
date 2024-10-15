@@ -17,22 +17,40 @@ codeunit 10751 "SII Job Management"
     var
         JobQueueManagement: Codeunit "Job Queue Management";
         JobQueueEntryStartedTxt: Label 'The job queue entry for detection of missing SII entries has started.';
+        HandlePendingEntriesJobQueueEntryScheduledTxt: Label 'Job queue entry of type HandlePendingEntries has been scheduled.', Locked = true;
         SIIFeatureNameTok: Label 'SII', Locked = true;
-        JobQueueEntryCreatedTxt: Label 'Job queue entry of type %1 has been created.', Locked = true, Comment = '%1 = job type';
 
     procedure RenewJobQueueEntry(JobType: Option HandlePending,HandleCommError,InitialUpload)
     var
         TempJobQueueEntry: Record "Job Queue Entry" temporary;
-        FeatureTelemetry: Codeunit "Feature Telemetry";
+        SIISetup: Record "SII Setup";
     begin
+        SIISetup.Get();
+        if SIISetup."New Automatic Sending Exp." and (JobType = JobType::HandlePending) then begin
+            SchedulePendingEntriesHandling();
+            exit;
+        end;
         if JobQueueEntryExists(JobType, TempJobQueueEntry) then begin
-            TempJobQueueEntry.CalcFields(Scheduled);
             if TempJobQueueEntry.Scheduled then
                 exit;
             JobQueueManagement.DeleteJobQueueEntries(TempJobQueueEntry."Object Type to Run", TempJobQueueEntry."Object ID to Run");
         end;
         CreateJobQueueEntry(JobType);
-        FeatureTelemetry.LogUsage('0000LN4', SIIFeatureNameTok, StrSubstNo(JobQueueEntryCreatedTxt, Format(JobType)));
+    end;
+
+    procedure TriggerNextHandlePendingJobQueueEntry()
+    var
+        SIISetup: Record "SII Setup";
+        SIISendingState: Record "SII Sending State";
+    begin
+        SIISetup.Get();
+        if not SIISetup."New Automatic Sending Exp." then
+            exit;
+        SIISendingState.InitRecord();
+        if not SIISendingState."Schedule One More When Finish" then
+            exit;
+        SIISendingState.ResetSending();
+        SchedulePendingEntriesHandling();
     end;
 
     local procedure JobQueueEntryExists(JobType: Option HandlePending,HandleCommError,InitialUpload; var TempJobQueueEntryFound: Record "Job Queue Entry" temporary): Boolean
@@ -59,7 +77,7 @@ codeunit 10751 "SII Job Management"
         exit(false);
     end;
 
-    local procedure CreateJobQueueEntry(JobType: Option HandlePending,HandleCommError,InitialUpload)
+    local procedure CreateJobQueueEntry(JobType: Option HandlePending,HandleCommError,InitialUpload): Guid
     var
         JobQueueEntry: Record "Job Queue Entry";
     begin
@@ -83,6 +101,7 @@ codeunit 10751 "SII Job Management"
 
         JobQueueManagement.StartInactiveJobQueueEntries(
           JobQueueEntry."Object Type to Run", JobQueueEntry."Object ID to Run");
+        exit(JobQueueEntry.ID);
     end;
 
     local procedure PeriodInSeconds(JobType: Option HandlePending,HandleCommError,InitialUpload): Integer
@@ -151,6 +170,35 @@ codeunit 10751 "SII Job Management"
             UpdateFrequency::Weekly:
                 exit(60 * 24 * 7);
         end;
+    end;
+
+    local procedure SchedulePendingEntriesHandling()
+    var
+        SIISendingState: Record "SII Sending State";
+        JobQueueEntry: Record "Job Queue Entry";
+        FeatureTelemetry: Codeunit "Feature Telemetry";
+        Schedule: Boolean;
+        JobType: Option HandlePending,HandleCommError,InitialUpload;
+    begin
+        SIISendingState.InitRecord();
+        if IsNullGuid(SIISendingState."Job Queue Entry ID") then
+            Schedule := true
+        else
+            if not JobQueueEntry.Get(SIISendingState."Job Queue Entry ID") then
+                Schedule := true
+            else begin
+                Schedule := JobQueueEntry.Status in [JobQueueEntry.Status::Error, JobQueueEntry.Status::Finished];
+                if not Schedule then begin
+                    SIISendingState.Validate("Schedule One More When Finish", true);
+                    SIISendingState.Modify(true);
+                end;
+            end;
+        if not Schedule then
+            exit;
+        SIISendingState.Validate("Job Queue Entry ID", CreateJobQueueEntry(JobType::HandlePending));
+        SIISendingState.Validate("Schedule One More When Finish", false);
+        SIISendingState.Modify(true);
+        FeatureTelemetry.LogUsage('0000M83', SIIFeatureNameTok, HandlePendingEntriesJobQueueEntryScheduledTxt);
     end;
 }
 

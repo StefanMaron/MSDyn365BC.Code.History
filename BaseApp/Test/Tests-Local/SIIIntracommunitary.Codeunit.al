@@ -24,6 +24,10 @@ codeunit 147527 "SII Intracommunitary"
         XPathPurchIdOtroTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasRecibidas/siiRL:RegistroLRFacturasRecibidas/siiRL:FacturaRecibida/sii:Contraparte/sii:IDOtro/';
         XPathSalesIdOtroTok: Label '//soapenv:Body/siiRL:SuministroLRFacturasEmitidas/siiRL:RegistroLRFacturasEmitidas/siiRL:FacturaExpedida/sii:Contraparte/sii:IDOtro/';
         UploadType: Option Regular,Intracommunity,RetryAccepted;
+        ESLbl: Label 'ES';
+        XILbl: Label 'XI';
+        SpecialSchemeCodeMustMatchErr: Label 'Special Scheme Code must match.';
+        SpecialSchemeCodeMustNotMatchErr: Label 'Special Scheme Code must not match.';
 
     [Test]
     [HandlerFunctions('HandleConfirmYes,HandleRecallNotification')]
@@ -286,6 +290,86 @@ codeunit 147527 "SII Intracommunitary"
         LibrarySII.VerifyOneNodeWithValueByXPath(XMLDoc, XPathSalesIdOtroTok, 'sii:IDType', '02');
     end;
 
+    [Test]
+    [HandlerFunctions('HandleConfirmYes')]
+    [Scope('OnPrem')]
+    procedure SpecialSchemeCodeChangedWhenVendorIsEUAndPayToVendorIsOfESISOCodeOnPurchInv()
+    var
+        Vendor: Record Vendor;
+        Vendor2: Record Vendor;
+        CountryRegion: Record "Country/Region";
+        PurchaseHeader: Record "Purchase Header";
+        SpecialSchemeCode: Enum "SII Purch. Special Scheme Code";
+    begin
+        // [SCENARIO 494864] Special Scheme Code gets changed in Purchase Invoice when stan changes Pay to Vendor from EU Vendor to Vendor of Country Region having ES ISO Code.
+        Initialize();
+
+        // [GIVEN] Create EU Vendor.
+        Vendor.Get(LibrarySII.CreateVendor(CreateCountryRegionEU()));
+
+        // [GIVEN] Create Country Region and Validate ISO Code as ES.
+        LibraryERM.CreateCountryRegion(CountryRegion);
+        CountryRegion.Validate("ISO Code", ESLbl);
+        CountryRegion.Modify(true);
+
+        // [GIVEN] Create Vendor 2 and Validate Country Region Code.
+        LibraryPurchase.CreateVendor(Vendor2);
+        Vendor2.Validate("Country/Region Code", CountryRegion.Code);
+        Vendor2.Modify(true);
+
+        // [GIVEN] Create Purchase Header.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+
+        // [GIVEN] Save Special Scheme Code in a Variable.
+        SpecialSchemeCode := PurchaseHeader."Special Scheme Code";
+
+        // [WHEN] Validate Pay-to Vendor No. in Purchase Header.
+        PurchaseHeader.Validate("Pay-to Vendor No.", Vendor2."No.");
+        PurchaseHeader.Modify(true);
+
+        // [VERIFY] Verify Special Scheme Code in Purchase Header is changed.
+        Assert.AreNotEqual(SpecialSchemeCode, PurchaseHeader."Special Scheme Code", SpecialSchemeCodeMustNotMatchErr);
+    end;
+
+    [Test]
+    [HandlerFunctions('HandleConfirmYes')]
+    [Scope('OnPrem')]
+    procedure SpecialSchemeCodeIsNotChangeWhenVendorisEUAndPayToVendorIsOfXICountryCodeOnPurchInv()
+    var
+        Vendor: Record Vendor;
+        Vendor2: Record Vendor;
+        CountryRegion: Record "Country/Region";
+        PurchaseHeader: Record "Purchase Header";
+        SpecialSchemeCode: Enum "SII Purch. Special Scheme Code";
+    begin
+        // [SCENARIO 494864] Special Scheme Code does not change in Purchase Invoice when stan changes Pay to Vendor from EU Vendor to Vendor of XI Country Region having blank ISO Code.
+        Initialize();
+
+        // [GIVEN] Create EU Vendor.
+        Vendor.Get(LibrarySII.CreateVendor(CreateCountryRegionEU()));
+
+        // [GIVEN] Create Country Region XI with blank ISO Code.
+        CreateCountryRegionXI(CountryRegion);
+
+        // [GIVEN] Create Vendor 2 and Validate Country Region Code.
+        LibraryPurchase.CreateVendor(Vendor2);
+        Vendor2.Validate("Country/Region Code", CountryRegion.Code);
+        Vendor2.Modify(true);
+
+        // [GIVEN] Create Purchase Header.
+        LibraryPurchase.CreatePurchHeader(PurchaseHeader, PurchaseHeader."Document Type"::Invoice, Vendor."No.");
+
+        // [GIVEN] Save Special Scheme Code in a Variable.
+        SpecialSchemeCode := PurchaseHeader."Special Scheme Code";
+
+        // [WHEN] Validate Pay-to Vendor No. in Purchase Header.
+        PurchaseHeader.Validate("Pay-to Vendor No.", Vendor2."No.");
+        PurchaseHeader.Modify(true);
+
+        // [VERIFY] Verify Special Scheme Code in Purchase Header is not changed.
+        Assert.AreEqual(SpecialSchemeCode, PurchaseHeader."Special Scheme Code", SpecialSchemeCodeMustMatchErr);
+    end;
+
     local procedure Initialize()
     begin
         Clear(SIIXMLCreator);
@@ -355,6 +439,13 @@ codeunit 147527 "SII Intracommunitary"
         ServiceLine.Modify(true);
         LibraryService.PostServiceOrder(ServiceHeader, true, false, true);
         exit(ServiceHeader."No.");
+    end;
+
+    local procedure CreateCountryRegionXI(var CountryRegion: Record "Country/Region")
+    begin
+        CountryRegion.Init();
+        CountryRegion.Validate(Code, XILbl);
+        CountryRegion.Insert(true);
     end;
 
     [ConfirmHandler]

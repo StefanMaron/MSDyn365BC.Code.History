@@ -427,6 +427,7 @@ codeunit 1255 "Match Bank Payments"
                                                    BankAccReconciliationLine."Match Confidence"::Accepted,
                                                    BankAccReconciliationLine."Match Confidence"::Manual);
         UpdatePaymentMatchDetails(BankAccReconciliationLine);
+        OnApplyLedgerEntriesToStatementLinesOnAfterUpdatePaymentMatchDetails(BankAccReconciliation, BankAccReconciliationLine, Overwrite);
         Window.Close();
 
         ShowMatchSummary(BankAccReconciliation);
@@ -901,7 +902,7 @@ codeunit 1255 "Match Bank Payments"
             TotalTimeAmountMatching, RemainingAmount, RelatedPartyMatchedInfoText,
             LogInfoText, TotalTimeStringNearness, UsePaymentDiscounts, TempOneToManyTempBankStatementMatchingBuffer,
             TempCustomerLedgerEntryMatchingBuffer, TempVendorLedgerEntryMatchingBuffer,
-            TempEmployeeLedgerEntryMatchingBuffer, TempBankAccLedgerEntryMatchingBuffer, IsHandled);
+            TempEmployeeLedgerEntryMatchingBuffer, TempBankAccLedgerEntryMatchingBuffer, IsHandled, DocumentMatchedInfoText);
         if not IsHandled then begin
             StartTime := CurrentDateTime();
             RemainingAmount := CalcRemainingAmount(TempLedgerEntryMatchingBuffer, BankAccReconciliationLine);
@@ -1232,6 +1233,7 @@ codeunit 1255 "Match Bank Payments"
 
         TempBankStmtMultipleMatchLine.SetCurrentKey("Due Date");
 
+        OnCreateAppliedEntriesOnBeforeTempBankStatementMatchingBufferFindset(BankAccReconciliation, TempBankStatementMatchingBuffer, TempBankStmtMultipleMatchLine);
         if TempBankStatementMatchingBuffer.FindSet() then
             repeat
                 BankAccReconciliationLine.Get(
@@ -1295,8 +1297,15 @@ codeunit 1255 "Match Bank Payments"
         until TempBankStmtMultipleMatchLine.Next() = 0;
     end;
 
-    local procedure CanEntriesMatch(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; Amount: Decimal; EntryPostingDate: Date): Boolean
+    local procedure CanEntriesMatch(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; Amount: Decimal; EntryPostingDate: Date) Result: Boolean
+    var
+        IsHandled: Boolean;
     begin
+        IsHandled := false;
+        OnBeforeCanEntriesMatch(BankAccReconciliationLine, Amount, EntryPostingDate, ApplyEntries, Result, IsHandled);
+        if IsHandled then
+            exit(Result);
+
         if not ApplyEntries then
             exit(true);
 
@@ -2552,7 +2561,7 @@ codeunit 1255 "Match Bank Payments"
     end;
 
     [IntegrationEvent(false, false)]
-    local procedure OnMatchEntriesOnAfterCalcTotalTimeDocumentNoMatching(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; AccountType: Enum "Gen. Journal Account Type"; TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; var TotalTimeRelatedPartyMatching: Duration; var TotalTimeAmountMatching: Duration; var RemainingAmount: Decimal; var RelatedPartyMatchedInfoText: Text; LogInfoText: Boolean; var TotalTimeStringNearness: Duration; UsePaymentDiscounts: Boolean; OneToManyTempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; var TempCustomerLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var TempVendorLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var TempEmployeeLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var TempBankAccLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var IsHandled: Boolean)
+    local procedure OnMatchEntriesOnAfterCalcTotalTimeDocumentNoMatching(var BankPmtApplRule: Record "Bank Pmt. Appl. Rule"; BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; TempLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; AccountType: Enum "Gen. Journal Account Type"; TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; var TotalTimeRelatedPartyMatching: Duration; var TotalTimeAmountMatching: Duration; var RemainingAmount: Decimal; var RelatedPartyMatchedInfoText: Text; LogInfoText: Boolean; var TotalTimeStringNearness: Duration; UsePaymentDiscounts: Boolean; OneToManyTempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; var TempCustomerLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var TempVendorLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var TempEmployeeLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var TempBankAccLedgerEntryMatchingBuffer: Record "Ledger Entry Matching Buffer" temporary; var IsHandled: Boolean; var DocumentMatchedInfoText: Text)
     begin
     end;
 
@@ -2568,6 +2577,21 @@ codeunit 1255 "Match Bank Payments"
 
     [IntegrationEvent(false, false)]
     local procedure OnUpdatePaymentMatchDetailsOnAfterBankAccReconciliationLine2SetFilters(var BankAccReconciliationLine2: Record "Bank Acc. Reconciliation Line"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line")
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnCreateAppliedEntriesOnBeforeTempBankStatementMatchingBufferFindset(BankAccReconciliation: Record "Bank Acc. Reconciliation"; var TempBankStatementMatchingBuffer: Record "Bank Statement Matching Buffer" temporary; var TempBankStmtMultipleMatchLine: Record "Bank Stmt Multiple Match Line" temporary)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnBeforeCanEntriesMatch(BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; Amount: Decimal; EntryPostingDate: Date; ApplyEntries: Boolean; var Result: Boolean; var IsHandled: Boolean)
+    begin
+    end;
+
+    [IntegrationEvent(false, false)]
+    local procedure OnApplyLedgerEntriesToStatementLinesOnAfterUpdatePaymentMatchDetails(BankAccReconciliation: Record "Bank Acc. Reconciliation"; var BankAccReconciliationLine: Record "Bank Acc. Reconciliation Line"; Overwrite: Boolean)
     begin
     end;
 }
