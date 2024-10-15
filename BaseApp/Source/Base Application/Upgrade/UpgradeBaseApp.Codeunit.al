@@ -40,6 +40,7 @@ codeunit 104000 "Upgrade - BaseApp"
 
         UpgradeAPIs();
         UpgradeIntrastatJnlLine();
+        UpgradeCustomerVATLiable();
     end;
 
     local procedure UpdateDefaultDimensionsReferencedIds()
@@ -926,6 +927,20 @@ codeunit 104000 "Upgrade - BaseApp"
         until IntrastatJnlLine.Next() = 0;
 
       UpgradeTag.SetUpgradeTag(UpgradeTagDefinitions.GetIntrastatJnlLinePartnerIDUpgradeTag());
+    end;
+
+    local procedure UpgradeCustomerVATLiable()
+    var
+        Customer: Record Customer;
+        UpgradeTagDefCountry: Codeunit "Upgrade Tag Def - Country";
+        UpgradeTag: Codeunit "Upgrade Tag";
+    begin
+        if UpgradeTag.HasUpgradeTag(UpgradeTagDefCountry.GetCustomerVATLiableTag()) THEN
+            exit;
+
+        Customer.ModifyAll("VAT Liable", true, false);
+
+        UpgradeTag.SetUpgradeTag(UpgradeTagDefCountry.GetCustomerVATLiableTag());
     end;
 }
 

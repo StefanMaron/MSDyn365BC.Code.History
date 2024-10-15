@@ -1591,6 +1591,11 @@ table 18 Customer
                 end;
             end;
         }
+        field(11311; "VAT Liable"; Boolean)
+        {
+            Caption = 'VAT Liable';
+            InitValue = true;
+        }
         field(2000020; "Domiciliation No."; Text[12])
         {
             Caption = 'Domiciliation No.';
@@ -2209,8 +2214,8 @@ table 18 Customer
             exit(OverDueBalance);
 
         CustLedgEntryRemainAmtQuery.SetRange(Customer_No, "No.");
-        CustLedgEntryRemainAmtQuery.SetRange(IsOpen, true);
-        CustLedgEntryRemainAmtQuery.SetFilter(Due_Date, '<%1', WorkDate);
+        CustLedgEntryRemainAmtQuery.SetFilter(Due_Date, '<%1', Today);
+        CustLedgEntryRemainAmtQuery.SetFilter(Date_Filter, '<%1', Today);
         CustLedgEntryRemainAmtQuery.Open;
 
         if CustLedgEntryRemainAmtQuery.Read then
